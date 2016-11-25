@@ -1,9 +1,9 @@
 {
-  "name": "bookkeeper-server",
+  "name": "bookkeeper",
   "version": "0.0.1",
-  "description": "",
   "main": "bookkeeper-server.js",
   "scripts": {
+    "start": "node src/server/bookkeeper-server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -12,5 +12,10 @@
   },
   "author": "",
   "license": "ISC",
-  "homepage": "https://bitbucket.org/haapasalot/bookkeeper#readme"
+  "homepage": "https://bitbucket.org/haapasalot/bookkeeper#readme",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0"
+  },
+  "description": ""
 }
