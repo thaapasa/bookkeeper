@@ -2,9 +2,9 @@ var express = require('express');
 var app = express();
 
 
-//var bodyParser = require('body-parser');
-//app.use(bodyParser.json());
-//app.use(bodyParser.urlencoded({ extended: false }));
+var bodyParser = require('body-parser');
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 
 //var router = express.Router();
 
@@ -34,11 +34,15 @@ app.get('/api/expense/list', function (req, res) {
     res.json(expenses);
 });
 
+/**
+ * Store new expense paid by user
+ * @param {string} user
+ * @param {number} amount
+ */
 app.put('/api/expense', function (req, res) {
-    //req.query.amount
-    console.log("PUT expense")
-    //console.log("amount: " + amount);
-    res.end('post OK')
+    console.log("PUT expense");
+    console.log(req.body);
+    res.end('OK')
 });
 
 
