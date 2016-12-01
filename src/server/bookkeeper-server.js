@@ -26,6 +26,28 @@ app.get('/api/isalive', function (req, res) {
 
 app.get('/api/users', function (req, res) {
     console.log("GET users");
+
+    try {
+        var mysql = require('mysql');
+        var connection = mysql.createConnection({
+            host: 'localhost',
+            user: 'bookkeeper',
+            password: 'kakkuloskakahvit',
+            database: 'bookkeeper'
+        });
+
+        connection.connect();
+
+        connection.query('SELECT email from users;', function (err, rows, fields) {
+            if (err) console.log(err);
+            else rows.forEach(r => console.log('User: ', r.email));
+        });
+
+        connection.end();
+    } catch (er) {
+        console.log(er);
+    }
+
     res.json(users );
 });
 
@@ -46,6 +68,10 @@ app.put('/api/expense', function (req, res) {
 });
 
 
-app.listen(3000, function () {
-    console.log('Tilinpito app listening on port 3000!')
-});
+try {
+    app.listen(3000, function () {
+        console.log('Tilinpito app listening on port 3000!')
+    });
+} catch (er) {
+    console.log(er);
+}
