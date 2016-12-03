@@ -1,3 +1,5 @@
+import BookkeeperDB from "./db-access";
+
 var express = require('express');
 var app = express();
 
@@ -27,26 +29,6 @@ app.get('/api/isalive', function (req, res) {
 app.get('/api/users', function (req, res) {
     console.log("GET users");
 
-    try {
-        var mysql = require('mysql');
-        var connection = mysql.createConnection({
-            host: 'localhost',
-            user: 'bookkeeper',
-            password: 'kakkuloskakahvit',
-            database: 'bookkeeper'
-        });
-
-        connection.connect();
-
-        connection.query('SELECT email from users;', function (err, rows, fields) {
-            if (err) console.log(err);
-            else rows.forEach(r => console.log('User: ', r.email));
-        });
-
-        connection.end();
-    } catch (er) {
-        console.log(er);
-    }
 
     res.json(users );
 });
