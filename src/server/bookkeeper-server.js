@@ -1,8 +1,7 @@
-import BookkeeperDB from "./db-access";
+const db = require("./db-access");
 
 var express = require('express');
 var app = express();
-
 
 var bodyParser = require('body-parser');
 app.use(bodyParser.json());
@@ -29,8 +28,10 @@ app.get('/api/isalive', function (req, res) {
 app.get('/api/users', function (req, res) {
     console.log("GET users");
 
-
-    res.json(users );
+    db.queryObject("select * from users where email=$1", ["sauli@fi.fi"]).then(o => {
+        console.log("Vastaus", o)
+        res.json(o);
+    });
 });
 
 app.get('/api/expense/list', function (req, res) {
