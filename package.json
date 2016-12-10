@@ -17,6 +17,7 @@
   "license": "ISC",
   "homepage": "https://bitbucket.org/haapasalot/bookkeeper#readme",
   "dependencies": {
+    "bluebird": "^3.4.6",
     "body-parser": "^1.15.2",
     "express": "^4.14.0",
     "material-ui": "^0.16.4",
