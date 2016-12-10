@@ -1,42 +1,54 @@
+"use strict";
+
 const db = require("./db-access");
+const log = require("./util/log");
+const moment = require("moment");
+const express = require("express");
+const app = express();
+const bodyParser = require("body-parser");
 
-var express = require('express');
-var app = express();
+const config = {
+    showErrorCause: false
+};
 
-var bodyParser = require('body-parser');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 //var router = express.Router();
 
 //app.use(router);
-app.use(express.static('public'));
+app.use(express.static("public"));
 
-app.all('/', function (req, res, next) {
-    console.log('Someone made a request!');
-    next();
+//app.all('/', function (req, res, next) {
+//    log.info("Someone made a request!");
+//    next();
+//});
+
+app.get("/api/isalive", function (req, res) {
+    log.info("/isalive");
+    res.json({ status: "OK", timestamp: moment().format() });
 });
 
-const users = ["Anu", "Tuukka"];
-const expenses = [{id:1, user: "Anu", amount: 100}, {id: 2, user: "Tuukka", amount: 50}, {id: 3, user: "Anu", amount: 1000 }];
+app.get("/api/user/list", function (req, res) {
+    log.info("GET users");
 
-app.get('/api/isalive', function (req, res) {
-    console.log("isalive");
-    res.send('OK')
+    db.queryList("select id, email, firstname, lastname from users")
+        .then(r => res.json(r))
+        .catch(handleError(res));
 });
 
-app.get('/api/users', function (req, res) {
-    console.log("GET users");
-
-    db.queryObject("select * from users where email=$1", ["sauli@fi.fi"]).then(o => {
-        console.log("Vastaus", o)
-        res.json(o);
-    });
+const userPath = /\/api\/user\/([0-9]+)/;
+app.get(userPath, function (req, res) {
+    const userId = parseInt(userPath.exec(req.url)[1], 10);
+    log.info(`GET user ${userId}`);
+    db.queryObject("select * from users where id=$1", [userId])
+        .then(r => res.json(r))
+        .catch(handleError(res));
 });
 
-app.get('/api/expense/list', function (req, res) {
-    console.log("GET expense/list");
-    res.json(expenses);
+app.get("/api/expense/list", function (req, res) {
+    log.info("GET expense/list");
+    res.json({  });
 });
 
 /**
@@ -44,17 +56,27 @@ app.get('/api/expense/list', function (req, res) {
  * @param {string} user
  * @param {number} amount
  */
-app.put('/api/expense', function (req, res) {
-    console.log("PUT expense");
-    console.log(req.body);
+app.put("/api/expense", function (req, res) {
+    log.info("PUT expense");
+    log.debug(req.body);
     res.end('OK')
 });
 
-
 try {
-    app.listen(3000, function () {
-        console.log('Tilinpito app listening on port 3000!')
+    app.listen(3000, () => {
+        log.info("Kukkaro server listening on port 3000!");
     });
 } catch (er) {
-    console.log(er);
+    log.error(er);
+}
+
+function handleError(res) {
+    return e => {
+        const data = { type: "error", code: e.code || "INTERNAL_ERROR" };
+        const status = typeof(res.status) == "number" ? res.status : 500;
+        if (config.showErrorCause) {
+            data.cause = e.cause || e;
+        }
+        res.status(status).json(data);
+    }
 }

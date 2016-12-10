@@ -21,9 +21,8 @@ export default class BookkeeperPage extends React.Component {
         //this.refs.lastValue.setValue(value)
     }
 
-
     getUsers(callback) {
-        var url = 'http://localhost:3000/api/users';
+        const url = 'http://localhost:3000/api/users';
         request.get(url, function(err, res) {
             //console.log('Response ok:', response.ok);
             if (!err) {

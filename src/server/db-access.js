@@ -16,14 +16,23 @@ class BookkeeperDB {
     }
 
     queryObject(query, params) {
+        return this.query(query, params, r => (r.rows && r.rows.length > 0) ? r.rows[0]: undefined);
+    }
+
+    queryList(query, params) {
+        return this.query(query, params, r => r.rows);
+    }
+
+    query(query, params, mapper) {
         return this.pool.connect().then(client => {
             return client.query(query, params).then(res => {
-                const obj = (res.rows && res.rows.length > 0) ? res.rows[0] : undefined;
+                const obj = mapper(res);
                 client.release();
                 return obj;
             }).catch(e => {
                 client.release();
                 console.error("Query error", e.message, e.stack);
+                throw { code: "DB_ERROR", cause: e };
             });
         });
     }
