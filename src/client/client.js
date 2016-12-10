@@ -23,5 +23,4 @@ function renderBookkeeper() {
     </MuiThemeProvider>, document.getElementById("root"))
 }
 
-
-document.addEventListener("DOMContentLoaded", init)
+document.addEventListener("DOMContentLoaded", init);

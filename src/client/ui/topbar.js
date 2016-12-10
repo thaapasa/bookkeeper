@@ -13,7 +13,7 @@ export default class ToolbarExamplesSimple extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            value: 3,
+            value: 3
         };
     }
 
