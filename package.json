@@ -6,8 +6,10 @@
     "start": "node src/server/bookkeeper-server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:client": "NODE_ENV=development node_modules/browserify/bin/cmd.js src/client/client.js -t [ envify --NODE_ENV development ] -t [ babelify --presets [ es2015 react ] ] -o public/js/bookkeeper.js",
+    "build:prod": "NODE_ENV=production node_modules/browserify/bin/cmd.js src/client/client.js -t [ envify --NODE_ENV production ] -t [ babelify --presets [ es2015 react ] ] -o public/js/bookkeeper.js",
     "watch": "node_modules/watchify/bin/cmd.js src/client/client.js -v -t [ babelify --presets [ es2015 react ] ] -o public/js/bookkeeper.js",
-    "build": "npm run build:client"
+    "build": "npm run build:client",
+    "prod": "npm run build:prod && script/create-dist.sh"
   },
   "repository": {
     "type": "git",

@@ -16,7 +16,7 @@ class BookkeeperDB {
     }
 
     queryObject(query, params) {
-        return this.query(query, params, r => (r.rows && r.rows.length > 0) ? r.rows[0]: undefined);
+        return this.query(query, params, r => (r.rows && r.rows.length > 0) ? r.rows[0] : undefined);
     }
 
     queryList(query, params) {

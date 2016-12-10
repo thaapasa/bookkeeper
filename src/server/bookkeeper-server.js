@@ -8,7 +8,7 @@ const app = express();
 const bodyParser = require("body-parser");
 
 const config = {
-    showErrorCause: false
+    showErrorCause: true
 };
 
 app.use(bodyParser.json());
@@ -30,7 +30,7 @@ app.get("/api/isalive", function (req, res) {
 });
 
 app.get("/api/user/list", function (req, res) {
-    log.info("GET users");
+    log.info("GET user list");
 
     db.queryList("select id, email, firstname, lastname from users")
         .then(r => res.json(r))
@@ -41,7 +41,7 @@ const userPath = /\/api\/user\/([0-9]+)/;
 app.get(userPath, function (req, res) {
     const userId = parseInt(userPath.exec(req.url)[1], 10);
     log.info(`GET user ${userId}`);
-    db.queryObject("select * from users where id=$1", [userId])
+    db.queryObject("select id, email, firstname, lastname from users where id=$1", [userId])
         .then(r => res.json(r))
         .catch(handleError(res));
 });
@@ -72,10 +72,10 @@ try {
 
 function handleError(res) {
     return e => {
-        const data = { type: "error", code: e.code || "INTERNAL_ERROR" };
-        const status = typeof(res.status) == "number" ? res.status : 500;
+        const data = { type: "error", code: e.code ? e.code : "INTERNAL_ERROR" };
+        const status = typeof(e.status) == "number" ? e.status : 500;
         if (config.showErrorCause) {
-            data.cause = e.cause || e;
+            data.cause = e.cause ? e.cause : e;
         }
         res.status(status).json(data);
     }
