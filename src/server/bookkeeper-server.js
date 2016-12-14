@@ -6,6 +6,7 @@ const moment = require("moment");
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
+const sessionHandler = require("./session-handler");
 
 const config = {
     showErrorCause: true
@@ -49,6 +50,17 @@ app.get(userPath, function (req, res) {
 app.get("/api/expense/list", function (req, res) {
     log.info("GET expense/list");
     res.json({  });
+});
+
+app.put("/api/session", function (req, res) {
+    log.info("PUT session");
+    const token = sessionHandler.createSession(req.body.username, req.body.password);
+    res.json({ token : token });
+});
+
+app.delete("/api/session", function(req, res) {
+    log.info("DELETE session");
+
 });
 
 /**

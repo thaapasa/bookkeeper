@@ -3,6 +3,8 @@ import Paper from 'material-ui/Paper';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 
+const apiConnect = require("../api-connect")
+
 const paperStyle = {
     margin: "20px",
     padding: "30px",
@@ -32,6 +34,7 @@ export default class ToolbarExamplesSimple extends React.Component {
 
     handleClick() {
         console.log("Button clicked: ", this.state.username, this.state.password);
+        apiConnect.login(this.state.username, this.state.password);
     }
 
     render() {
