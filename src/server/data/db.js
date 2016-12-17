@@ -37,7 +37,12 @@ class BookkeeperDB {
         });
     }
 
+    insert(query, params) {
+        return this.query(query, params, r => r && r.rowCount ? r.rowCount : r);
+    }
 }
+
+
 
 const db = new BookkeeperDB();
 
