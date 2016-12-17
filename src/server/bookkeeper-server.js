@@ -1,12 +1,12 @@
 "use strict";
 
-const db = require("./db-access");
+const users = require("./data/users");
 const log = require("./util/log");
 const moment = require("moment");
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
-const sessionHandler = require("./session-handler");
+const sessionHandler = require("./data/sessions");
 
 const config = {
     showErrorCause: true
@@ -14,16 +14,8 @@ const config = {
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-
-//var router = express.Router();
-
-//app.use(router);
 app.use(express.static("public"));
 
-//app.all('/', function (req, res, next) {
-//    log.info("Someone made a request!");
-//    next();
-//});
 
 app.get("/api/isalive", function (req, res) {
     log.info("/isalive");
@@ -32,17 +24,16 @@ app.get("/api/isalive", function (req, res) {
 
 app.get("/api/user/list", function (req, res) {
     log.info("GET user list");
-
-    db.queryList("select id, email, firstname, lastname from users")
+    users.getAll()
         .then(r => res.json(r))
         .catch(handleError(res));
 });
 
 const userPath = /\/api\/user\/([0-9]+)/;
-app.get(userPath, function (req, res) {
+app.get(userPath, (req, res) => {
     const userId = parseInt(userPath.exec(req.url)[1], 10);
     log.info(`GET user ${userId}`);
-    db.queryObject("select id, email, firstname, lastname from users where id=$1", [userId])
+    users.getById(userId)
         .then(r => res.json(r))
         .catch(handleError(res));
 });
@@ -54,8 +45,9 @@ app.get("/api/expense/list", function (req, res) {
 
 app.put("/api/session", function (req, res) {
     log.info("PUT session");
-    const token = sessionHandler.createSession(req.body.username, req.body.password);
-    res.json({ token : token });
+    sessionHandler.login(req.body.username, req.body.password)
+        .then(d => res.json(d))
+        .catch(handleError(res));
 });
 
 app.delete("/api/session", function(req, res) {
