@@ -3,7 +3,7 @@ import Paper from 'material-ui/Paper';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 
-const apiConnect = require("../api-connect")
+const apiConnect = require("../api-connect");
 
 const paperStyle = {
     margin: "20px",

@@ -12,12 +12,12 @@ function debug() {
 }
 
 function info() {
-    const args = [timestamp(), "[INFO]"].concat(Array.prototype.slice.call(arguments));
+    const args = [timestamp(), "[INFO ]"].concat(Array.prototype.slice.call(arguments));
     console.log.apply(console, args);
 }
 
 function warn() {
-    const args = [timestamp(), "[WARN]"].concat(Array.prototype.slice.call(arguments));
+    const args = [timestamp(), "[WARN ]"].concat(Array.prototype.slice.call(arguments));
     console.log.apply(console, args);
 }
 

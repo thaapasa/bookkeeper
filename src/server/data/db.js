@@ -1,6 +1,7 @@
 "use strict";
 
 const Pool = require("pg-pool");
+const log = require("../util/log");
 
 class BookkeeperDB {
 
@@ -24,6 +25,7 @@ class BookkeeperDB {
     }
 
     query(query, params, mapper) {
+        log.debug("SQL query", query);
         return this.pool.connect().then(client => {
             return client.query(query, params).then(res => {
                 const obj = mapper(res);
@@ -38,11 +40,18 @@ class BookkeeperDB {
     }
 
     insert(query, params) {
-        return this.query(query, params, r => r && r.rowCount ? r.rowCount : r);
+        return this.query(query, params, toRowCount);
+    }
+
+    update(query, params) {
+        return this.query(query, params, toRowCount);
     }
 }
 
 
+function toRowCount(r) {
+    return r && r.rowCount !== undefined ? r.rowCount : r;
+}
 
 const db = new BookkeeperDB();
 

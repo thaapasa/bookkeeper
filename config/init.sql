@@ -21,3 +21,4 @@ CREATE TABLE IF NOT EXISTS sessions (
   loginTime TIMESTAMP WITH TIME ZONE,
   expiryTime TIMESTAMP WITH TIME ZONE
 );
+CREATE INDEX "sessions_expiry" ON sessions (expiryTime);
