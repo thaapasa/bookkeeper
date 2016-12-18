@@ -2,6 +2,7 @@
 
 const log = require("./log");
 const config = require("../config");
+const sessions = require("../data/sessions");
 
 function handleError(res) {
     return e => {
@@ -18,13 +19,41 @@ function handleError(res) {
 function processJson(handler) {
     return (req, res) => {
         log.debug(req.method, req.url);
-        handler(req, res)
+        return handler(req, res)
             .then(r => res.json(r))
             .catch(handleError(res));
     };
 }
 
+const tokenNotPresent = {
+    code: "TOKEN_MISSING",
+    status: 403
+};
+function processAuthJson(handler) {
+    return (req, res) => {
+        log.debug(req.method, req.url);
+        try {
+            const token = getToken(req);
+            sessions.getSession(token)
+                .then(u => handler(u, req, res))
+                .then(r => res.json(r))
+                .catch(handleError(res));
+        } catch (e) {
+            handleError(res)(e);
+        }
+    };
+}
+
+const bearerMatch = /Bearer ([0-9a-zA-Z]*)/;
+function getToken(req) {
+    const tmatch = bearerMatch.exec(req.header("Authorization"));
+    const token = tmatch && tmatch.length > 0 ? tmatch[1] : undefined;
+    if (!token) throw tokenNotPresent;
+    return token;
+}
+
 module.exports = {
     processJson: processJson,
+    processAuthJson: processAuthJson,
     handleError: handleError
 };

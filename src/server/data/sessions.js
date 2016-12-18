@@ -30,10 +30,10 @@ function purgeExpiredSessions() {
 const invalidCredentials = { code: "INVALID_TOKEN", status: 401, cause: "Invalid access token" };
 function getSession(token) {
     return purgeExpiredSessions()
-        .then(p => db.queryObject("SELECT * FROM sessions WHERE token=$1 AND expiryTime > NOW()", [token]))
+        .then(p => db.queryObject("SELECT token, userId, loginTime FROM sessions WHERE token=$1 AND expiryTime > NOW()", [token]))
         .then(o => {
             if (o === undefined) throw invalidCredentials;
-            else db.update("UPDATE sessions SET expiryTime=NOW() + $2::INTERVAL WHERE token=$1", [token, config.sessionTimeout])
+            else return db.update("UPDATE sessions SET expiryTime=NOW() + $2::INTERVAL WHERE token=$1", [token, config.sessionTimeout])
                 .then(u => o);
         })
 }
