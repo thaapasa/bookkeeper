@@ -7,10 +7,7 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const sessionHandler = require("./data/sessions");
-
-const config = {
-    showErrorCause: true
-};
+const config = require("./config");
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -67,8 +64,8 @@ app.put("/api/expense", function (req, res) {
 });
 
 try {
-    app.listen(3000, () => {
-        log.info("Kukkaro server listening on port 3000!");
+    app.listen(config.port, () => {
+        log.info("Kukkaro server started with configuration", config);
     });
 } catch (er) {
     log.error(er);
