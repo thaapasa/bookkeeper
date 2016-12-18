@@ -16,7 +16,7 @@ function handleError(res) {
     }
 }
 
-function processJson(handler) {
+function processUnauthorizedRequest(handler) {
     return (req, res) => {
         log.debug(req.method, req.url);
         return handler(req, res)
@@ -27,9 +27,10 @@ function processJson(handler) {
 
 const tokenNotPresent = {
     code: "TOKEN_MISSING",
-    status: 403
+    status: 403,
+    cause: "Authorization token missing"
 };
-function processAuthJson(handler) {
+function processRequest(handler) {
     return (req, res) => {
         log.debug(req.method, req.url);
         try {
@@ -53,7 +54,7 @@ function getToken(req) {
 }
 
 module.exports = {
-    processJson: processJson,
-    processAuthJson: processAuthJson,
+    processRequest: processRequest,
+    processUnauthorizedRequest: processUnauthorizedRequest,
     handleError: handleError
 };

@@ -10,32 +10,36 @@ const Promise = require("bluebird");
 
 function registerAPI(app) {
 
-
-    app.get("/api/isalive", server.processJson(req =>
+    // GET /api/isalive
+    app.get("/api/isalive", server.processUnauthorizedRequest(req =>
         Promise.resolve({status: "OK", timestamp: moment().format()})));
 
-    app.get("/api/user/list", server.processJson(req =>
-        users.getAll()));
 
-    const userPath = /\/api\/user\/([0-9]+)/;
-    app.get(userPath, server.processJson(req =>
-        users.getById(parseInt(userPath.exec(req.url)[1], 10))));
-
-    app.get("/api/expense/list", server.processAuthJson(user =>
-        Promise.resolve(user)));
-
-    app.put("/api/session", server.processJson(req =>
+    // PUT /api/session
+    app.put("/api/session", server.processUnauthorizedRequest(req =>
         sessions.login(req.body.username, req.body.password)));
 
-    app.delete("/api/session", server.processJson(req =>
+    // DELETE /api/session
+    app.delete("/api/session", server.processRequest((user, req) =>
         Promise.resolve({})));
 
-    /**
-     * Store new expense paid by user
-     * @param {string} user
-     * @param {number} amount
-     */
-    app.put("/api/expense", server.processJson(req =>
+
+    // GET /api/user/list
+    app.get("/api/user/list", server.processRequest((user, req) =>
+        users.getAll()));
+
+    // GET /api/user/[userid]
+    const userPath = /\/api\/user\/([0-9]+)/;
+    app.get(userPath, server.processRequest((user, req) =>
+        users.getById(parseInt(userPath.exec(req.url)[1], 10))));
+
+
+    // GET /api/expense/list
+    app.get("/api/expense/list", server.processRequest(user =>
+        Promise.resolve(user)));
+
+    // PUT /api/expense
+    app.put("/api/expense", server.processRequest((user, req) =>
         Promise.resolve("OK")));
 
 }
