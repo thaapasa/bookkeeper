@@ -5,6 +5,7 @@ const db = require("./db");
 const users = require("./users");
 const Promise = require("bluebird");
 const randomBytes = Promise.promisify(require("crypto").randomBytes);
+const config = require("../config");
 
 function login(username, password) {
     log.info("Login for", username);
@@ -16,8 +17,9 @@ function createSession(user) {
     return createToken()
         .then(token => {
             log.info("User", user.email, "logged in with token", token);
-            return db.insert("INSERT INTO sessions (token, userId, loginTime, expiryTime) VALUES ($1, $2, NOW(), NOW())",
-                [ token, user.id ]).then(r => token)
+            return db.insert(
+                "INSERT INTO sessions (token, userId, loginTime, expiryTime) VALUES ($1, $2, NOW(), NOW() + $3::INTERVAL)",
+                [ token, user.id, config.sessionTimeout ]).then(r => token)
         });
 }
 
