@@ -2,6 +2,7 @@ import React from 'react';
 import Paper from 'material-ui/Paper';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
+import * as state from "../state";
 
 const apiConnect = require("../api-connect");
 
@@ -21,7 +22,7 @@ const loginButtonStyle = {
     margin: "30px"
 };
 
-export default class ToolbarExamplesSimple extends React.Component {
+export default class LoginView extends React.Component {
 
     constructor(props) {
         super(props);
@@ -34,7 +35,12 @@ export default class ToolbarExamplesSimple extends React.Component {
 
     handleClick() {
         console.log("Button clicked: ", this.state.username, this.state.password);
-        apiConnect.login(this.state.username, this.state.password);
+        apiConnect.login(this.state.username, this.state.password)
+            .then(u => {
+                console.log("logged in", u);
+                state.set("currentUser", u);
+                this.props.onLogin(u);
+            });
     }
 
     render() {
