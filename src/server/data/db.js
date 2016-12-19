@@ -16,18 +16,18 @@ class BookkeeperDB {
         });
     }
 
-    queryObject(query, params) {
-        return this.query(query, params, r => (r.rows && r.rows.length > 0) ? r.rows[0] : undefined);
+    queryObject(name, query, params) {
+        return this.query(name, query, params, r => (r.rows && r.rows.length > 0) ? r.rows[0] : undefined);
     }
 
-    queryList(query, params) {
-        return this.query(query, params, r => r.rows);
+    queryList(name, query, params) {
+        return this.query(name, query, params, r => r.rows);
     }
 
-    query(query, params, mapper) {
+    query(name, query, params, mapper) {
         log.debug("SQL query", query);
         return this.pool.connect().then(client => {
-            return client.query(query, params).then(res => {
+            return client.query({ text: query, name: name, values: params }).then(res => {
                 const obj = mapper(res);
                 client.release();
                 return obj;
@@ -39,12 +39,12 @@ class BookkeeperDB {
         });
     }
 
-    insert(query, params) {
-        return this.query(query, params, toRowCount);
+    insert(name, query, params) {
+        return this.query(name, query, params, toRowCount);
     }
 
-    update(query, params) {
-        return this.query(query, params, toRowCount);
+    update(name, query, params) {
+        return this.query(name, query, params, toRowCount);
     }
 }
 

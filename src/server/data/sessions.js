@@ -15,7 +15,7 @@ function login(username, password) {
 
 function logout(user) {
     log.info("Logout for", user.token);
-    return db.update("DELETE FROM sessions WHERE token=$1", [user.token])
+    return db.update("sessions.delete", "DELETE FROM sessions WHERE token=$1", [user.token])
         .then(r => ({ status: "OK", message: "User has logged out" } ));
 }
 
@@ -23,23 +23,26 @@ function createSession(user) {
     return createToken()
         .then(token => {
             log.info("User", user.email, "logged in with token", token);
-            return db.insert(
+            return db.insert("sessions.create",
                 "INSERT INTO sessions (token, userId, loginTime, expiryTime) VALUES ($1, $2, NOW(), NOW() + $3::INTERVAL)",
                 [ token, user.id, config.sessionTimeout ]).then(r => token)
         });
 }
 
 function purgeExpiredSessions() {
-    return db.update("DELETE FROM sessions WHERE expiryTime <= NOW()");
+    return db.update("sessions.purge", "DELETE FROM sessions WHERE expiryTime <= NOW()");
 }
 
 const invalidCredentials = { code: "INVALID_TOKEN", status: 401, cause: "Invalid access token" };
 function getSession(token) {
     return purgeExpiredSessions()
-        .then(p => db.queryObject("SELECT token, userId, loginTime FROM sessions WHERE token=$1 AND expiryTime > NOW()", [token]))
+        .then(p => db.queryObject("sessions.getByToken",
+            "SELECT s.token, s.userId, s.loginTime, u.* FROM sessions s "+
+            "INNER JOIN users u ON (s.userId = u.id) WHERE s.token=$1 AND s.expiryTime > NOW()", [token]))
         .then(o => {
             if (o === undefined) throw invalidCredentials;
-            else return db.update("UPDATE sessions SET expiryTime=NOW() + $2::INTERVAL WHERE token=$1", [token, config.sessionTimeout])
+            else return db.update("sessions.updateExpiry",
+                "UPDATE sessions SET expiryTime=NOW() + $2::INTERVAL WHERE token=$1", [token, config.sessionTimeout])
                 .then(u => o);
         })
 }
