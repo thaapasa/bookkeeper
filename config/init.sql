@@ -22,3 +22,16 @@ CREATE TABLE IF NOT EXISTS sessions (
   expiryTime TIMESTAMP WITH TIME ZONE
 );
 CREATE INDEX "sessions_expiry" ON sessions (expiryTime);
+
+
+CREATE TABLE IF NOT EXISTS expenses (
+  id SERIAL PRIMARY KEY,
+  userId INTEGER REFERENCES users (id),
+  date DATE,
+  created TIMESTAMP WITH TIME ZONE,
+  receiver VARCHAR(50),
+  sum MONEY,
+  description VARCHAR(255),
+  source VARCHAR(50),
+  category VARCHAR(50)
+);
