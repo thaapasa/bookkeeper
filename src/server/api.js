@@ -36,7 +36,7 @@ function registerAPI(app) {
     // GET /api/user/[userid]
     const userPath = /\/api\/user\/([0-9]+)/;
     app.get(userPath, server.processRequest((session, req) =>
-        users.getById(parseInt(userPath.exec(req.url)[1], 10))));
+        users.getById(server.getId(userPath, req))));
 
 
     // GET /api/expense/list
@@ -46,6 +46,12 @@ function registerAPI(app) {
     // PUT /api/expense
     app.put("/api/expense", server.processRequest((session, req) =>
         expenses.create(session.user.id, req.body)));
+
+    // GET /api/expense/[expenseId]
+    const expensePath = /\/api\/expense\/([0-9]+)/;
+    app.get(expensePath, server.processRequest((session, req) =>
+        expenses.getById(session.user.id, server.getId(expensePath, req))));
+
 
 }
 

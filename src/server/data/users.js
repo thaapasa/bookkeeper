@@ -7,7 +7,7 @@ function getAll() {
 }
 
 function getById(userId) {
-    return db.queryObject("users.getById", "SELECT id, email, firstname, lastname FROM users WHERE id=$1", [userId])
+    return db.queryObject("users.getById", "SELECT id, email, firstname, lastname FROM users WHERE id=$1", [userId]);
 }
 
 const invalidCredentials = { code: "INVALID_CREDENTIALS", status: 401, cause: "Invalid username or password" };

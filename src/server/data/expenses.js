@@ -21,7 +21,16 @@ function getBetween(userId, startDate, endDate) {
     return db.queryList("expenses.getBetween",
         "SELECT id, date, receiver, sum, description, source, category, created FROM expenses "+
             "WHERE userId=$1 AND date >= $2 AND date <= $3",
-        [userId, startDate, endDate]);
+        [userId, startDate, endDate])
+        .then(o => o.map(mapExpense));
+}
+
+function getById(userId, expenseId) {
+    return db.queryObject("expenses.getById",
+        "SELECT id, date, receiver, sum, description, source, category, created FROM expenses "+
+        "WHERE id=$1 AND userId=$2",
+        [expenseId, userId])
+        .then(mapExpense);
 }
 
 function createExpense(userId, expense) {
@@ -37,5 +46,6 @@ function createExpense(userId, expense) {
 module.exports = {
     getAll: getAll,
     getBetween: getBetween,
+    getById: getById,
     create: createExpense
 };

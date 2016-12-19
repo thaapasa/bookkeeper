@@ -49,8 +49,14 @@ function getToken(req) {
     return token;
 }
 
+function getId(pathRE, req, position) {
+    if (position === undefined) position = 1;
+    return parseInt(pathRE.exec(req.url)[position], 10);
+}
+
 module.exports = {
     processRequest: processRequest,
     processUnauthorizedRequest: processUnauthorizedRequest,
-    handleError: handleError
+    handleError: handleError,
+    getId: getId
 };
