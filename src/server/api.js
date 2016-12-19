@@ -4,6 +4,7 @@ const users = require("./data/users");
 const moment = require("moment");
 const express = require("express");
 const sessions = require("./data/sessions");
+const expenses = require("./data/expenses");
 const config = require("./config");
 const server = require("./util/server-util");
 const Promise = require("bluebird");
@@ -40,11 +41,11 @@ function registerAPI(app) {
 
     // GET /api/expense/list
     app.get("/api/expense/list", server.processRequest(session =>
-        Promise.resolve(session)));
+        expenses.getAll(session.user.id)));
 
     // PUT /api/expense
-    app.put("/api/expense", server.processRequest((user, req) =>
-        Promise.resolve("OK")));
+    app.put("/api/expense", server.processRequest((session, req) =>
+        expenses.create(session.user.id, req.body)));
 
 }
 

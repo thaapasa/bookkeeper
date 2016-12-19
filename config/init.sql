@@ -35,3 +35,4 @@ CREATE TABLE IF NOT EXISTS expenses (
   source VARCHAR(50),
   category VARCHAR(50)
 );
+CREATE INDEX "expenses_user_date" ON expenses (userId, date);
