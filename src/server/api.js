@@ -20,8 +20,8 @@ function registerAPI(app) {
         sessions.login(req.body.username, req.body.password)));
 
     // DELETE /api/session
-    app.delete("/api/session", server.processRequest((user, req) =>
-        Promise.resolve({})));
+    app.delete("/api/session", server.processRequest(user =>
+        sessions.logout(user)));
 
 
     // GET /api/user/list

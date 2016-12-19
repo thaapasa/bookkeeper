@@ -10,7 +10,13 @@ const config = require("../config");
 function login(username, password) {
     log.info("Login for", username);
     return users.getByCredentials(username, password)
-        .then(user => createSession(user).then(token => { return { user: user, token: token }; }));
+        .then(user => createSession(user).then(token => ({ user: user, token: token })));
+}
+
+function logout(user) {
+    log.info("Logout for", user.token);
+    return db.update("DELETE FROM sessions WHERE token=$1", [user.token])
+        .then(r => ({ status: "OK", message: "User has logged out" } ));
 }
 
 function createSession(user) {
@@ -44,5 +50,6 @@ function createToken() {
 
 module.exports = {
     login: login,
+    logout: logout,
     getSession: getSession
 };
