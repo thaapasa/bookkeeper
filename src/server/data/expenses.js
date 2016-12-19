@@ -12,6 +12,7 @@ function getAll(userId) {
 }
 
 function mapExpense(e) {
+    if (e === undefined) throw { status: 404, cause: "Expense not found", code: "EXPENSE_NOT_FOUND" };
     e.date = moment(e.date).format("YYYY-MM-DD");
     e.sum = e.sum.substring(1);
     return e;
@@ -33,6 +34,12 @@ function getById(userId, expenseId) {
         .then(mapExpense);
 }
 
+function deleteById(userId, expenseId) {
+    return db.update("expenses.deleteById", "DELETE FROM expenses WHERE id=$1 AND userId=$2",
+        [expenseId, userId])
+        .then(i => ({ status: "OK", message: "Expense deleted" }));
+}
+
 function createExpense(userId, expense) {
     log.info("Creating expense", expense);
     return db.insert("expenses.create",
@@ -47,5 +54,6 @@ module.exports = {
     getAll: getAll,
     getBetween: getBetween,
     getById: getById,
+    deleteById: deleteById,
     create: createExpense
 };

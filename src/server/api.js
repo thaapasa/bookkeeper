@@ -52,6 +52,9 @@ function registerAPI(app) {
     app.get(expensePath, server.processRequest((session, req) =>
         expenses.getById(session.user.id, server.getId(expensePath, req))));
 
+    // DELETE /api/expense/[expenseId]
+    app.delete(expensePath, server.processRequest((session, req) =>
+        expenses.deleteById(session.user.id, server.getId(expensePath, req))));
 
 }
 
