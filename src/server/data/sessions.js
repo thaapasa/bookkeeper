@@ -7,15 +7,18 @@ const Promise = require("bluebird");
 const randomBytes = Promise.promisify(require("crypto").randomBytes);
 const config = require("../config");
 
+const invalidToken = { code: "INVALID_TOKEN", status: 401, cause: "Invalid access token" };
+
 function login(username, password) {
     log.info("Login for", username);
     return users.getByCredentials(username, password)
         .then(user => createSession(user).then(token => ({ user: user, token: token })));
 }
 
-function logout(user) {
-    log.info("Logout for", user.token);
-    return db.update("sessions.delete", "DELETE FROM sessions WHERE token=$1", [user.token])
+function logout(session) {
+    log.info("Logout for", session.token);
+    if (!session.token) throw invalidToken;
+    return db.update("sessions.delete", "DELETE FROM sessions WHERE token=$1", [session.token])
         .then(r => ({ status: "OK", message: "User has logged out" } ));
 }
 
@@ -33,18 +36,21 @@ function purgeExpiredSessions() {
     return db.update("sessions.purge", "DELETE FROM sessions WHERE expiryTime <= NOW()");
 }
 
-const invalidCredentials = { code: "INVALID_TOKEN", status: 401, cause: "Invalid access token" };
 function getSession(token) {
     return purgeExpiredSessions()
         .then(p => db.queryObject("sessions.getByToken",
-            "SELECT s.token, s.userId, s.loginTime, u.* FROM sessions s "+
-            "INNER JOIN users u ON (s.userId = u.id) WHERE s.token=$1 AND s.expiryTime > NOW()", [token]))
+            "SELECT s.token, s.userid, s.logintime, u.email, u.firstname, u.lastname FROM sessions s "+
+            "INNER JOIN users u ON (s.userid = u.id) WHERE s.token=$1 AND s.expirytime > NOW()", [token]))
         .then(o => {
-            if (o === undefined) throw invalidCredentials;
+            if (o === undefined) throw invalidToken;
             else return db.update("sessions.updateExpiry",
                 "UPDATE sessions SET expiryTime=NOW() + $2::INTERVAL WHERE token=$1", [token, config.sessionTimeout])
                 .then(u => o);
         })
+        .then(o => ({
+            token: o.token,
+            logintime: o.logintime,
+            user: { id: o.userid, email: o.email, firstname: o.firstname, lastname: o.lastname } }))
 }
 
 function createToken() {

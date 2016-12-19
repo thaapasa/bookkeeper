@@ -19,24 +19,28 @@ function registerAPI(app) {
     app.put("/api/session", server.processUnauthorizedRequest(req =>
         sessions.login(req.body.username, req.body.password)));
 
+    // GET /api/session
+    app.get("/api/session", server.processRequest(session =>
+        Promise.resolve(session)));
+
     // DELETE /api/session
-    app.delete("/api/session", server.processRequest(user =>
-        sessions.logout(user)));
+    app.delete("/api/session", server.processRequest(session =>
+        sessions.logout(session)));
 
 
     // GET /api/user/list
-    app.get("/api/user/list", server.processRequest((user, req) =>
+    app.get("/api/user/list", server.processRequest((session, req) =>
         users.getAll()));
 
     // GET /api/user/[userid]
     const userPath = /\/api\/user\/([0-9]+)/;
-    app.get(userPath, server.processRequest((user, req) =>
+    app.get(userPath, server.processRequest((session, req) =>
         users.getById(parseInt(userPath.exec(req.url)[1], 10))));
 
 
     // GET /api/expense/list
-    app.get("/api/expense/list", server.processRequest(user =>
-        Promise.resolve(user)));
+    app.get("/api/expense/list", server.processRequest(session =>
+        Promise.resolve(session)));
 
     // PUT /api/expense
     app.put("/api/expense", server.processRequest((user, req) =>

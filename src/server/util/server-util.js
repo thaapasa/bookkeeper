@@ -31,7 +31,7 @@ function processRequest(handler) {
         try {
             const token = getToken(req);
             sessions.getSession(token)
-                .then(u => handler(u, req, res))
+                .then(session => handler(session, req, res))
                 .then(r => res.json(r))
                 .catch(handleError(res));
         } catch (e) {
