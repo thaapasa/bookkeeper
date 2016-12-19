@@ -25,11 +25,6 @@ function processUnauthorizedRequest(handler) {
     };
 }
 
-const tokenNotPresent = {
-    code: "TOKEN_MISSING",
-    status: 403,
-    cause: "Authorization token missing"
-};
 function processRequest(handler) {
     return (req, res) => {
         log.debug(req.method, req.url);
@@ -45,6 +40,7 @@ function processRequest(handler) {
     };
 }
 
+const tokenNotPresent = { code: "TOKEN_MISSING", status: 401, cause: "Authorization token missing" };
 const bearerMatch = /Bearer ([0-9a-zA-Z]*)/;
 function getToken(req) {
     const tmatch = bearerMatch.exec(req.header("Authorization"));
