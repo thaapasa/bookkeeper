@@ -5,3 +5,4 @@ node_modules
 *.log.*
 log
 dist
+/src/server/config-production.js

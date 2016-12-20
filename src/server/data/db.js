@@ -2,18 +2,13 @@
 
 const Pool = require("pg-pool");
 const log = require("../util/log");
+const merge = require("merge");
+const config = require("../config");
 
 class BookkeeperDB {
 
     constructor() {
-        this.pool = new Pool({
-            database: "bookkeeper",
-            user: "bookkeeper",
-            password: "kakkuloskakahvit",
-            port: 5432,
-            ssl: false,
-            Promise: require("bluebird")
-        });
+        this.pool = new Pool(merge({ Promise: require("bluebird") }, config.db));
     }
 
     queryObject(name, query, params) {
