@@ -12,8 +12,13 @@ const Promise = require("bluebird");
 function registerAPI(app) {
 
     // GET /api/status
-    app.get("/api/status", server.processUnauthorizedRequest(req =>
-        Promise.resolve({status: "OK", timestamp: moment().format(), version: config.version, revision: config.revision })));
+    app.get("/api/status", server.processUnauthorizedRequest(req => Promise.resolve({
+        status: "OK",
+        timestamp: moment().format(),
+        version: config.version,
+        revision: config.revision,
+        environment: config.environment
+    })));
 
 
     // PUT /api/session
