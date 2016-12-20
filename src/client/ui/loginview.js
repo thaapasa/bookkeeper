@@ -40,6 +40,7 @@ export default class LoginView extends React.Component {
                 console.log("logged in", u);
                 state.set("currentUser", u);
                 this.props.onLogin(u);
+                sessionStorage.setItem('token', u.token);ß
             });
     }
 

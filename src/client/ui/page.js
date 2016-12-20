@@ -3,6 +3,7 @@ import TopBar from "./topbar"
 import LoginView from "./loginview"
 import request from "superagent"
 import * as state from  "../state";
+import * as apiConnect from "../api-connect";
 
 export default class BookkeeperPage extends React.Component {
 
@@ -14,8 +15,23 @@ export default class BookkeeperPage extends React.Component {
     }
 
     componentDidMount() {
-        this.getUsers(u => this.setState({ users: u }));
-        this.getExpenses(e => this.setState({ expenses: e }));
+        if (this.state.loggedin === false && sessionStorage.getItem("token")) {
+            console.log("not logged in but session token exists in sessionStorage", sessionStorage.getItem("token"));
+            apiConnect.getSession(sessionStorage.getItem("token"))
+                .then(u => {
+                    console.log("got session", u);
+                    state.set("currentUser", u);
+                    this.setState({ currentUser: u, loggedin: true});
+                    sessionStorage.setItem('token', u.token);
+                });
+        }
+        apiConnect.getExpenses(sessionStorage.getItem("token"))
+            .then(e => {
+                console.log("Got expenses", e);
+                this.setState({ expenses: e })
+            });
+        //this.getUsers(u => this.setState({ users: u }));
+        //this.getExpenses(e => this.setState({ expenses: e }));
     }
 
     showValue(value) {
@@ -56,9 +72,8 @@ export default class BookkeeperPage extends React.Component {
             return <div className="everything">
                 <TopBar/>
                 <div className="main-content">
-                    <div><div>Hei! {state.get("currentUser").firstname}</div>
-                        {this.state.users.map(u => <div key={u}>{u}</div>)}
-                        {this.state.expenses.map(e => <div key={e.id}>{e.user} {e.amount}</div>)}</div>
+                    <div><div>Hei {state.get("currentUser").user.firstname}!</div>
+                        {console.log("Rendering expenses", this.state.expenses)}{this.state.expenses.map(e => <div key={e.id}>{e.description} {e.sum}</div>)}</div>
                 </div>
             </div>
         }
