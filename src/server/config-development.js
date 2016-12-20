@@ -7,5 +7,6 @@ module.exports = {
         password: "kakkuloskakahvit",
         port: 5432,
         ssl: false
-    }
+    },
+    showErrorCause: true
 };
