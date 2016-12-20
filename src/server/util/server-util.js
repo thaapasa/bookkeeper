@@ -12,6 +12,9 @@ function handleError(res) {
         if (config.showErrorCause) {
             data.cause = e.cause ? e.cause : e;
         }
+        if (e.info) {
+            data.info = e.info;
+        }
         res.status(status).json(data);
     }
 }

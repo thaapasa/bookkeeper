@@ -8,6 +8,7 @@ const expenses = require("./data/expenses");
 const config = require("./config");
 const server = require("./util/server-util");
 const Promise = require("bluebird");
+const validator = require("./util/validator");
 
 function registerAPI(app) {
 
@@ -49,8 +50,11 @@ function registerAPI(app) {
         expenses.getAll(session.user.id)));
 
     // PUT /api/expense
+    const expenseSchema = {
+        receiver: validator.stringWithLength(1, 50)
+    };
     app.put("/api/expense", server.processRequest((session, req) =>
-        expenses.create(session.user.id, req.body)));
+        expenses.create(session.user.id, validator.validate(expenseSchema, req.body))));
 
     // GET /api/expense/[expenseId]
     const expensePath = /\/api\/expense\/([0-9]+)/;
