@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "main": "bookkeeper-server.js",
   "scripts": {
-    "start": "NODE_ENV=development node src/server/bookkeeper-server.js",
+    "start": "NODE_ENV=development script/update-revision.sh && node src/server/bookkeeper-server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:client": "NODE_ENV=development node_modules/browserify/bin/cmd.js src/client/client.js -t [ envify --NODE_ENV development ] -t [ babelify --presets [ es2015 react ] ] -o public/js/bookkeeper.js",
     "build:prod": "NODE_ENV=production node_modules/browserify/bin/cmd.js src/client/client.js -t [ envify --NODE_ENV production ] -t [ babelify --presets [ es2015 react ] ] -o public/js/bookkeeper.js",

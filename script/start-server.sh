@@ -5,6 +5,8 @@ cd `dirname $0`/..
 
 mkdir -p log
 
+script/update-revision.sh
+
 echo "Starting server"
 NODE_ENV=production nohup node src/server/bookkeeper-server.js >log/server.log 2>&1 &
 

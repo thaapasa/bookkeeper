@@ -6,3 +6,4 @@ node_modules
 log
 dist
 /src/server/config-production.js
+/src/server/revision.js

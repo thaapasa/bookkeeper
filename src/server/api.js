@@ -11,9 +11,9 @@ const Promise = require("bluebird");
 
 function registerAPI(app) {
 
-    // GET /api/isalive
-    app.get("/api/isalive", server.processUnauthorizedRequest(req =>
-        Promise.resolve({status: "OK", timestamp: moment().format()})));
+    // GET /api/status
+    app.get("/api/status", server.processUnauthorizedRequest(req =>
+        Promise.resolve({status: "OK", timestamp: moment().format(), version: config.version, revision: config.revision })));
 
 
     // PUT /api/session
