@@ -7,7 +7,15 @@ const Promise = require("bluebird");
 const randomBytes = Promise.promisify(require("crypto").randomBytes);
 const config = require("../config");
 
-const invalidToken = { code: "INVALID_TOKEN", status: 401, cause: "Invalid access token" };
+function InvalidTokenError() {
+    this.status = 401;
+    this.cause = "Invalid access token";
+    this.code = "INVALID_TOKEN";
+    return this;
+}
+InvalidTokenError.prototype = new Error();
+
+// const invalidToken = new Error({ code: "INVALID_TOKEN", status: 401, cause: "Invalid access token" });
 
 function login(username, password) {
     log.info("Login for", username);
@@ -17,7 +25,7 @@ function login(username, password) {
 
 function logout(session) {
     log.info("Logout for", session.token);
-    if (!session.token) throw invalidToken;
+    if (!session.token) throw new InvalidTokenError();
     return db.update("sessions.delete", "DELETE FROM sessions WHERE token=$1", [session.token])
         .then(r => ({ status: "OK", message: "User has logged out" } ));
 }
@@ -42,7 +50,7 @@ function getSession(token) {
             "SELECT s.token, s.userid, s.logintime, u.email, u.firstname, u.lastname FROM sessions s "+
             "INNER JOIN users u ON (s.userid = u.id) WHERE s.token=$1 AND s.expirytime > NOW()", [token]))
         .then(o => {
-            if (o === undefined) throw invalidToken;
+            if (o === undefined) throw new InvalidTokenError();
             else return db.update("sessions.updateExpiry",
                 "UPDATE sessions SET expiryTime=NOW() + $2::INTERVAL WHERE token=$1", [token, config.sessionTimeout])
                 .then(u => o);

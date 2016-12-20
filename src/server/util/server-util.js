@@ -40,12 +40,18 @@ function processRequest(handler) {
     };
 }
 
-const tokenNotPresent = { code: "TOKEN_MISSING", status: 401, cause: "Authorization token missing" };
+function TokenNotPresentError() {
+    this.code = "TOKEN_MISSING";
+    this.status = 401;
+    this.cause = "Authorization token missing";
+}
+TokenNotPresentError.prototype = new Error();
+
 const bearerMatch = /Bearer ([0-9a-zA-Z]*)/;
 function getToken(req) {
     const tmatch = bearerMatch.exec(req.header("Authorization"));
     const token = tmatch && tmatch.length > 0 ? tmatch[1] : undefined;
-    if (!token) throw tokenNotPresent;
+    if (!token) throw new TokenNotPresentError();
     return token;
 }
 
