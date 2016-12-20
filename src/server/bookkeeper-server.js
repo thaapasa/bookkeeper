@@ -7,6 +7,8 @@ const bodyParser = require("body-parser");
 const config = require("./config");
 const api = require("./api");
 
+log.setLevel(config.logLevel);
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static("public"));

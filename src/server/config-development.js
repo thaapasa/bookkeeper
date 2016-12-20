@@ -8,5 +8,6 @@ module.exports = {
         port: 5432,
         ssl: false
     },
+    logLevel: "debug",
     showErrorCause: true
 };
