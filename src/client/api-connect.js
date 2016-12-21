@@ -40,6 +40,7 @@ function getExpenses(token) {
 
 function defaultErrorHandler(er) {
     console.log("Error in api-connect:", er);
+    throw er;
 }
 
 

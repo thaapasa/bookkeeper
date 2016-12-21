@@ -9,27 +9,20 @@ export default class BookkeeperPage extends React.Component {
 
     constructor(props) {
         super(props);
-        console.log("Initializing calculators");
+        console.log("Initializing bookkeeper");
         this.state = { loggedin : false, currentUser: undefined, users : [], expenses : [] };
         this.showValue = this.showValue.bind(this);
     }
 
     componentDidMount() {
-        if (this.state.loggedin === false && sessionStorage.getItem("token")) {
-            console.log("not logged in but session token exists in sessionStorage", sessionStorage.getItem("token"));
-            apiConnect.getSession(sessionStorage.getItem("token"))
-                .then(u => {
-                    console.log("got session", u);
-                    state.set("currentUser", u);
-                    this.setState({ currentUser: u, loggedin: true});
-                    sessionStorage.setItem('token', u.token);
+
+        if (this.state.loggedin === true && typeof this.state.currentUser !== "undefined") {
+            apiConnect.getExpenses(sessionStorage.getItem("token"))
+                .then(e => {
+                    console.log("Got expenses", e);
+                    this.setState({ expenses: e })
                 });
         }
-        apiConnect.getExpenses(sessionStorage.getItem("token"))
-            .then(e => {
-                console.log("Got expenses", e);
-                this.setState({ expenses: e })
-            });
         //this.getUsers(u => this.setState({ users: u }));
         //this.getExpenses(e => this.setState({ expenses: e }));
     }

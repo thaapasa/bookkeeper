@@ -38,9 +38,9 @@ export default class LoginView extends React.Component {
         apiConnect.login(this.state.username, this.state.password)
             .then(u => {
                 console.log("logged in", u);
+                sessionStorage.setItem('token', u.token);
                 state.set("currentUser", u);
                 this.props.onLogin(u);
-                sessionStorage.setItem('token', u.token);ß
             });
     }
 
