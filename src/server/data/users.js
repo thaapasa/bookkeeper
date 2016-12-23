@@ -3,11 +3,13 @@
 const db = require("./db");
 
 function getAll() {
-    return db.queryList("users.getAll", "SELECT id, email, firstname, lastname FROM users");
+    return db.queryList("users.getAll", "SELECT id, email, firstname, lastname FROM users")
+        .then(undefinedToError(UserNotFoundError));
 }
 
 function getById(userId) {
-    return db.queryObject("users.getById", "SELECT id, email, firstname, lastname FROM users WHERE id=$1", [userId]);
+    return db.queryObject("users.getById", "SELECT id, email, firstname, lastname FROM users WHERE id=$1", [userId])
+        .then(undefinedToError(UserNotFoundError));
 }
 
 function InvalidCredentialsError() {
@@ -17,11 +19,25 @@ function InvalidCredentialsError() {
 }
 InvalidCredentialsError.prototype = new Error();
 
+function UserNotFoundError() {
+    this.code = "USER_NOT_FOUND";
+    this.status = 404;
+    this.cause = "User not found";
+}
+UserNotFoundError.prototype = new Error();
+
 function getByCredentials(username, password) {
     return db.queryObject("users.getByCredentials",
         "SELECT id, email, firstname, lastname FROM users WHERE email=$1 AND password=ENCODE(DIGEST($2, 'sha1'), 'hex')",
         [ username, password ]
-    ).then(o => { if (o === undefined) throw new InvalidCredentialsError(); else return o; });
+    ).then(undefinedToError(InvalidCredentialsError));
+}
+
+function undefinedToError(errorType) {
+    return value => {
+        if (value === undefined) throw new errorType();
+        else return value;
+    }
 }
 
 module.exports = {
