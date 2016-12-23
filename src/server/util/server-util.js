@@ -3,6 +3,7 @@
 const log = require("./log");
 const config = require("../config");
 const sessions = require("../data/sessions");
+const moment = require("moment");
 
 function handleError(res) {
     return e => {
@@ -23,7 +24,7 @@ function processUnauthorizedRequest(handler) {
     return (req, res) => {
         log.debug(req.method, req.url);
         return handler(req, res)
-            .then(r => res.json(r))
+            .then(r => setNoCacheHeaders(res).json(r))
             .catch(handleError(res));
     };
 }
@@ -35,12 +36,22 @@ function processRequest(handler) {
             const token = getToken(req);
             sessions.getSession(token)
                 .then(session => handler(session, req, res))
-                .then(r => res.json(r))
+                .then(r => setNoCacheHeaders(res).json(r))
                 .catch(handleError(res));
         } catch (e) {
             handleError(res)(e);
         }
     };
+}
+
+const httpDateHeaderPattern = "ddd, DD MMM YYYY HH:mm:ss";
+function setNoCacheHeaders(res) {
+    res.set("Cache-Control", "private, no-cache, no-store, must-revalidate, max-age=0");
+    res.set("Pragma", "no-cache");
+    const time = moment().utc().format(httpDateHeaderPattern) + " GMT";
+    res.set("Date", time);
+    res.set("Expires", time);
+    return res;
 }
 
 function TokenNotPresentError() {
