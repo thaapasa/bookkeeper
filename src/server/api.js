@@ -49,6 +49,16 @@ function registerAPI(app) {
     app.get("/api/expense/list", server.processRequest(session =>
         expenses.getAll(session.user.id)));
 
+    // GET /api/expense/month
+    const monthSchema = {
+        year: validator.intBetween(1500, 3000),
+        month: validator.intBetween(1, 12)
+    };
+    app.get("/api/expense/month", server.processRequest((session, req) => {
+        const params = validator.validate(monthSchema, { year: req.query.year, month: req.query.month });
+        return expenses.getByMonth(session.user.id, params.year, params.month);
+    }));
+
     // PUT /api/expense
     const expenseSchema = {
         date: validator.matchPattern(/[0-9]{4}-[0-9]{2}-[0-9]{2}/),
