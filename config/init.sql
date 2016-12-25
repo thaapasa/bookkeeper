@@ -10,23 +10,38 @@ CREATE TABLE IF NOT EXISTS users (
   lastname VARCHAR(128)
 );
 
-INSERT INTO users (email, password, firstname, lastname) VALUES ('jenni@fi.fi',
-                                                                 encode(digest('salasana', 'sha1'), 'hex'), 'Jenni', 'Haukio');
-INSERT INTO users (email, password, firstname, lastname) VALUES ('sauli@fi.fi',
-                                                                 encode(digest('salasana', 'sha1'), 'hex'), 'Sauli', 'Niinistö');
+INSERT INTO users (email, password, firstname, lastname)
+       VALUES ('jenni@fi.fi', encode(digest('salasana', 'sha1'), 'hex'), 'Jenni', 'Haukio');
+INSERT INTO users (email, password, firstname, lastname)
+       VALUES ('sauli@fi.fi', encode(digest('salasana', 'sha1'), 'hex'), 'Sauli', 'Niinistö');
 
 CREATE TABLE IF NOT EXISTS sessions (
   token VARCHAR(40) PRIMARY KEY,
-  userId INTEGER REFERENCES users (id),
-  loginTime TIMESTAMP WITH TIME ZONE,
-  expiryTime TIMESTAMP WITH TIME ZONE
+  userid INTEGER REFERENCES users (id),
+  logintime TIMESTAMP WITH TIME ZONE,
+  expirytime TIMESTAMP WITH TIME ZONE
 );
-CREATE INDEX "sessions_expiry" ON sessions (expiryTime);
+CREATE INDEX "sessions_expiry" ON sessions (expirytime);
+
+CREATE TABLE IF NOT EXISTS groups (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(128)
+);
+INSERT INTO groups (name) VALUES ('Mäntyniemi');
+
+CREATE TABLE IF NOT EXISTS group_users (
+  userid INTEGER REFERENCES users (id),
+  groupid INTEGER REFERENCES groups (id)
+);
+CREATE INDEX "group_users_userid" ON group_users(userid);
+
+INSERT INTO group_users (userid, groupid) VALUES (1, 1);
+INSERT INTO group_users (userid, groupid) VALUES (2, 1);
 
 
 CREATE TABLE IF NOT EXISTS expenses (
   id SERIAL PRIMARY KEY,
-  userId INTEGER REFERENCES users (id),
+  userid INTEGER REFERENCES users (id),
   date DATE,
   created TIMESTAMP WITH TIME ZONE,
   receiver VARCHAR(50),
@@ -35,4 +50,4 @@ CREATE TABLE IF NOT EXISTS expenses (
   source VARCHAR(50),
   category VARCHAR(50)
 );
-CREATE INDEX "expenses_user_date" ON expenses (userId, date);
+CREATE INDEX "expenses_user_date" ON expenses (userid, date);
