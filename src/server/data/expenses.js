@@ -48,12 +48,12 @@ function deleteById(userId, expenseId) {
         .then(i => ({ status: "OK", message: "Expense deleted" }));
 }
 
-function createExpense(userId, expense) {
+function createExpense(userId, groupId, expense) {
     log.info("Creating expense", expense);
     return db.insert("expenses.create",
-        "INSERT INTO expenses (userId, date, created, receiver, sum, description, source, category) " +
-            "VALUES ($1, $2::DATE, NOW(), $3, $4::MONEY, $5, $6, $7)",
-        [userId, expense.date, expense.receiver, expense.sum, expense.description,
+        "INSERT INTO expenses (userId, groupId, date, created, receiver, sum, description, source, category) " +
+            "VALUES ($1, $2, $3::DATE, NOW(), $4, $5::MONEY, $6, $7, $8)",
+        [userId, groupId, expense.date, expense.receiver, expense.sum, expense.description,
             expense.source, expense.category ])
         .then(i => ({ status: "OK", message: "Expense created" }));
 }

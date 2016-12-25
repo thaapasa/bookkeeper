@@ -73,7 +73,7 @@ function registerAPI(app) {
         category: validator.stringWithLength(1, 50)
     };
     app.put("/api/expense", server.processRequest((session, req) =>
-        expenses.create(session.user.id, validator.validate(expenseSchema, req.body))));
+        expenses.create(session.user.id, session.group.id, validator.validate(expenseSchema, req.body)), true));
 
     // GET /api/expense/[expenseId]
     const expensePath = /\/api\/expense\/([0-9]+)/;

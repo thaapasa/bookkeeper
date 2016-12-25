@@ -29,12 +29,13 @@ function processUnauthorizedRequest(handler) {
     };
 }
 
-function processRequest(handler) {
+function processRequest(handler, groupRequired) {
     return (req, res) => {
         log.debug(req.method, req.url);
         try {
             const token = getToken(req);
             sessions.getSession(token, req.query.groupId)
+                .then(checkGroup(groupRequired))
                 .then(session => handler(session, req, res))
                 .then(r => setNoCacheHeaders(res).json(r))
                 .catch(handleError(res));
@@ -43,6 +44,22 @@ function processRequest(handler) {
         }
     };
 }
+
+
+function InvalidGroupError() {
+    this.code = "INVALID_GROUP";
+    this.status = 400;
+    this.cause = "Group not selected or invalid group";
+}
+InvalidGroupError.prototype = new Error();
+
+function checkGroup(required) {
+    return s => {
+        if (required && !s.group.id) throw new InvalidGroupError();
+        else return s;
+    };
+}
+
 
 const httpDateHeaderPattern = "ddd, DD MMM YYYY HH:mm:ss";
 function setNoCacheHeaders(res) {
