@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS users (
   firstname VARCHAR(128),
   lastname VARCHAR(128)
 );
+CREATE INDEX "users_email" ON users (email);
 
 INSERT INTO users (email, password, firstname, lastname)
        VALUES ('jenni@fi.fi', encode(digest('salasana', 'sha1'), 'hex'), 'Jenni', 'Haukio');
@@ -21,6 +22,7 @@ CREATE TABLE IF NOT EXISTS sessions (
   logintime TIMESTAMP WITH TIME ZONE,
   expirytime TIMESTAMP WITH TIME ZONE
 );
+CREATE INDEX "sessions_token" ON sessions (token);
 CREATE INDEX "sessions_expiry" ON sessions (expirytime);
 
 CREATE TABLE IF NOT EXISTS groups (
