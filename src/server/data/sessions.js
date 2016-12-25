@@ -44,11 +44,14 @@ function purgeExpiredSessions() {
     return db.update("sessions.purge", "DELETE FROM sessions WHERE expiryTime <= NOW()");
 }
 
-function getSession(token) {
+function getSession(token, groupId) {
     return purgeExpiredSessions()
         .then(p => db.queryObject("sessions.getByToken",
-            "SELECT s.token, s.userid, s.logintime, u.email, u.firstname, u.lastname FROM sessions s "+
-            "INNER JOIN users u ON (s.userid = u.id) WHERE s.token=$1 AND s.expirytime > NOW()", [token]))
+            "SELECT s.token, s.userid, s.logintime, u.email, u.firstname, u.lastname, g.id AS groupid, g.name as groupname FROM sessions s "+
+            "INNER JOIN users u ON (s.userid = u.id) " +
+            "LEFT JOIN group_users go ON (go.userid = u.id AND go.groupid = $2) " +
+            "LEFT JOIN groups g ON (g.id = go.groupid) " +
+            "WHERE s.token=$1 AND s.expirytime > NOW()", [token, groupId]))
         .then(o => {
             if (o === undefined) throw new InvalidTokenError();
             else return db.update("sessions.updateExpiry",
@@ -58,7 +61,9 @@ function getSession(token) {
         .then(o => ({
             token: o.token,
             logintime: o.logintime,
-            user: { id: o.userid, email: o.email, firstname: o.firstname, lastname: o.lastname } }))
+            user: { id: o.userid, email: o.email, firstname: o.firstname, lastname: o.lastname },
+            group: { id: o.groupid, name: o.groupname }
+        }))
 }
 
 function createToken() {

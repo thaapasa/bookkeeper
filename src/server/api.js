@@ -34,6 +34,10 @@ function registerAPI(app) {
     app.delete("/api/session", server.processRequest(session =>
         sessions.logout(session)));
 
+    // GET /api/session/groups
+    app.get("/api/session/groups", server.processRequest(session =>
+        users.getGroups(session.user.id)));
+
 
     // GET /api/user/list
     app.get("/api/user/list", server.processRequest((session, req) =>

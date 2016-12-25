@@ -34,7 +34,7 @@ function processRequest(handler) {
         log.debug(req.method, req.url);
         try {
             const token = getToken(req);
-            sessions.getSession(token)
+            sessions.getSession(token, req.query.groupId)
                 .then(session => handler(session, req, res))
                 .then(r => setNoCacheHeaders(res).json(r))
                 .catch(handleError(res));

@@ -12,6 +12,11 @@ function getById(userId) {
         .then(undefinedToError(UserNotFoundError));
 }
 
+function getGroups(userId) {
+    return db.queryList("users.getGroups",
+        "SELECT id, name FROM groups WHERE id IN (SELECT groupid FROM group_users WHERE userid=$1)", [userId], i => i);
+}
+
 function InvalidCredentialsError() {
     this.code = "INVALID_CREDENTIALS";
     this.status = 401;
@@ -43,5 +48,6 @@ function undefinedToError(errorType) {
 module.exports = {
     getAll: getAll,
     getById: getById,
+    getGroups: getGroups,
     getByCredentials: getByCredentials
 };

@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS groups (
   name VARCHAR(128)
 );
 INSERT INTO groups (name) VALUES ('Mäntyniemi');
+INSERT INTO groups (name) VALUES ('Herrakerho');
 
 CREATE TABLE IF NOT EXISTS group_users (
   userid INTEGER REFERENCES users (id),
@@ -37,6 +38,7 @@ CREATE INDEX "group_users_userid" ON group_users(userid);
 
 INSERT INTO group_users (userid, groupid) VALUES (1, 1);
 INSERT INTO group_users (userid, groupid) VALUES (2, 1);
+INSERT INTO group_users (userid, groupid) VALUES (2, 2);
 
 
 CREATE TABLE IF NOT EXISTS expenses (
