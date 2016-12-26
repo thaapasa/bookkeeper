@@ -20,7 +20,7 @@ class BookkeeperDB {
     }
 
     query(name, query, params, mapper) {
-        log.debug("SQL query", query);
+        log.debug("SQL query", query, "with params", params);
         return this.pool.connect().then(client => {
             return client.query({ text: query, name: name, values: params }).then(res => {
                 const obj = mapper(res);
