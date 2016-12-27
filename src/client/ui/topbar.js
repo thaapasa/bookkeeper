@@ -1,12 +1,12 @@
 import React from 'react';
-import IconMenu from 'material-ui/IconMenu';
-import IconButton from 'material-ui/IconButton';
 import FontIcon from 'material-ui/FontIcon';
-import NavigationExpandMoreIcon from 'material-ui/svg-icons/navigation/expand-more';
-import MenuItem from 'material-ui/MenuItem';
-import DropDownMenu from 'material-ui/DropDownMenu';
+import Avatar from 'material-ui/Avatar';
 import RaisedButton from 'material-ui/RaisedButton';
 import {Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle} from 'material-ui/Toolbar';
+
+
+const groupStyle = { width: "100%" };
+const buttonStyle = { float : "right"};
 
 export default class ToolbarExamplesSimple extends React.Component {
 
@@ -20,23 +20,14 @@ export default class ToolbarExamplesSimple extends React.Component {
     render() {
         return (
             <Toolbar>
-                <ToolbarGroup>
+                <ToolbarGroup style={ groupStyle }>
                     <ToolbarTitle text="Bookkeeper" />
                     <FontIcon className="muidocs-icon-custom-sort" />
-                    <ToolbarSeparator />
-                    <RaisedButton label="Kirjaa kulu" primary={true} />
-                    <IconMenu
-                        iconButtonElement={
-                            <IconButton touch={true}>
-                                <NavigationExpandMoreIcon />
-                            </IconButton>
-                        }
-                    >
-                        <MenuItem primaryText="Download" />
-                        <MenuItem primaryText="More Info" />
-                    </IconMenu>
+                    <RaisedButton label="Kirjaa" primary={true} style={ buttonStyle }/>
+                    <Avatar style="float: right">J</Avatar>
                 </ToolbarGroup>
             </Toolbar>
         );
     }
+
 }

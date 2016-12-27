@@ -18,6 +18,7 @@ export default class ExpenseRow extends React.Component {
             <span>{this.state.expense.date}</span>
             <span>{this.state.expense.description}</span>
             <span>{this.state.expense.category}</span>
+            <span>{this.state.expense.sum}</span>
         </div>;
     }
 }
