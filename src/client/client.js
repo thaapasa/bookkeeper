@@ -3,6 +3,7 @@
 import React from "react"
 import ReactDOM from "react-dom"
 import BookkeeperPage from "./ui/page"
+import LoginPage from "./ui/loginpage"
 import injectTapEventPlugin from "react-tap-event-plugin"
 import MuiThemeProvider from "material-ui/styles/MuiThemeProvider"
 import * as apiConnect from "./api-connect"
@@ -24,6 +25,11 @@ function checkLoginState() {
     else return Promise.resolve(undefined);
 }
 
+function setLoginState(u) {
+    state.set("currentUser", u);
+    renderBookkeeper(u);
+}
+
 function init() {
     console.log("init");
 
@@ -38,9 +44,17 @@ function init() {
 
 function renderBookkeeper(u) {
     console.log("renderBookkeeper", u);
-    ReactDOM.render(<MuiThemeProvider>
-        <BookkeeperPage user={u}/>
-    </MuiThemeProvider>, document.getElementById("root"))
+    if (u == undefined) {
+        console.log("Didn't find current user, rendering loginPage");
+        ReactDOM.render(<MuiThemeProvider>
+            <LoginPage onLogin={u => setLoginState(u)}/>
+        </MuiThemeProvider>, document.getElementById("root"))
+    } else {
+        console.log("Found currentuser", u.firstname);
+        ReactDOM.render(<MuiThemeProvider>
+            <BookkeeperPage user={u}/>
+            </MuiThemeProvider>, document.getElementById("root"))
+    }
 }
 
 document.addEventListener("DOMContentLoaded", init);

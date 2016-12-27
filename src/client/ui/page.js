@@ -1,6 +1,6 @@
 import React from "react"
 import TopBar from "./topbar"
-import LoginView from "./loginview"
+import MonthView from "./monthview"
 import request from "superagent"
 import * as state from  "../state";
 import * as apiConnect from "../api-connect";
@@ -57,18 +57,12 @@ export default class BookkeeperPage extends React.Component {
 
     render() {
         console.log("render");
-        if (!this.state.loggedin) {
-            return <div className="everything">
-                <LoginView onLogin={u => this.setState({ currentUser: u, loggedin: true })}/>
+        return <div className="everything">
+            <TopBar/>
+            <div className="main-content">
+                <div>Hei {state.get("currentUser").user.firstname}!</div>
+                <div><MonthView/></div>
             </div>
-        } else {
-            return <div className="everything">
-                <TopBar/>
-                <div className="main-content">
-                    <div><div>Hei {state.get("currentUser").user.firstname}!</div>
-                        {console.log("Rendering expenses", this.state.expenses)}{this.state.expenses.map(e => <div key={e.id}>{e.description} {e.sum}</div>)}</div>
-                </div>
-            </div>
-        }
+        </div>;
     }
 }

@@ -25,12 +25,15 @@ function getSession(token) {
         .catch(defaultErrorHandler);
 }
 
-function getExpenses(token) {
-    const url = 'http://localhost:3000/api/expense/list';
+function getExpenses(token, group, year, month) {
+    const url = 'http://localhost:3000/api/expense/month';
 
     return request.get(url)
-        .set('Authorization', 'Bearer ' + token)
         .set('Content-Type', 'application/json')
+        .set('Authorization', 'Bearer ' + token)
+        .query({year : "2016"})
+        .query({month : "12"})
+        .query({groupId : "1"})
         .endAsync()
         .then(req => req.body)
         .catch(defaultErrorHandler);
