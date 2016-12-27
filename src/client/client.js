@@ -6,48 +6,44 @@ import BookkeeperPage from "./ui/page"
 import LoginPage from "./ui/login-page"
 import injectTapEventPlugin from "react-tap-event-plugin"
 import MuiThemeProvider from "material-ui/styles/MuiThemeProvider"
-import * as apiConnect from "./api-connect"
-import * as state from  "./state";
+import * as login from "./data/login"
 
-
-function checkLoginState() {
-    if (sessionStorage.getItem("token")) {
-        console.log("not logged in but session token exists in sessionStorage", sessionStorage.getItem("token"));
-        return apiConnect.getSession(sessionStorage.getItem("token"))
-            .then(u => {
-                console.log("got session", u);
-                state.set("currentUser", u);
-                sessionStorage.setItem('token', u.token);
-                return u;
-            })
-            .catch(e => undefined);
-    }
-    else return Promise.resolve(undefined);
-}
-
-function setLoginState(u) {
-    state.set("currentUser", u);
-    renderBookkeeper(u);
-}
 
 function init() {
     console.log("init");
 
     injectTapEventPlugin();
-
-    checkLoginState().then(u => {
-        renderBookkeeper(u);
-    });
+    renderBookkeeper();
 
     console.log("done");
 }
 
-function renderBookkeeper(u) {
-    console.log("renderBookkeeper", u);
+function renderBookkeeper() {
     ReactDOM.render(
         <MuiThemeProvider>
-            { (u == undefined) ? <LoginPage onLogin={u => setLoginState(u)}/> : <BookkeeperPage user={u}/> }
+            <Bookkeeper />
         </MuiThemeProvider>, document.getElementById("root"))
 }
+
+class Bookkeeper extends React.Component {
+
+    constructor(props) {
+        super(props);
+        console.log("Initializing bookkeeper");
+        this.state = { session: undefined, initialized: false };
+    }
+
+    componentDidMount() {
+        login.currentSession.onValue(u => this.setState({ session: u }));
+        login.checkLoginState().then(() => this.setState({ initialized: true }));
+    }
+
+    render() {
+        return (this.state.initialized) ?
+            ((this.state.session === undefined) ? <LoginPage /> : <BookkeeperPage session={ this.state.session } />) :
+            <div />;
+    }
+}
+
 
 document.addEventListener("DOMContentLoaded", init);

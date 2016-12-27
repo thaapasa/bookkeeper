@@ -5,9 +5,9 @@
   "scripts": {
     "start": "NODE_ENV=development script/update-revision.sh && node src/server/bookkeeper-server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build:client": "NODE_ENV=development node_modules/browserify/bin/cmd.js src/client/client.js -t [ envify --NODE_ENV development ] -t [ babelify --presets [ es2015 react ] ] -o public/js/bookkeeper.js",
+    "build:client": "NODE_ENV=development node_modules/browserify/bin/cmd.js --debug src/client/client.js -t [ envify --NODE_ENV development ] -t [ babelify --presets [ es2015 react ] ] -o public/js/bookkeeper.js",
     "build:prod": "NODE_ENV=production node_modules/browserify/bin/cmd.js src/client/client.js -t [ envify --NODE_ENV production ] -t [ babelify --presets [ es2015 react ] ] -o public/js/bookkeeper.js",
-    "watch": "node_modules/watchify/bin/cmd.js src/client/client.js -v -t [ babelify --presets [ es2015 react ] ] -o public/js/bookkeeper.js",
+    "watch": "NODE_ENV=development node_modules/watchify/bin/cmd.js --debug src/client/client.js -v -t [ envify --NODE_ENV development ] -t [ babelify --presets [ es2015 react ] ] -o public/js/bookkeeper.js",
     "build": "npm run build:client",
     "prod": "npm run build:prod && script/create-dist.sh"
   },
@@ -19,6 +19,7 @@
   "license": "ISC",
   "homepage": "https://bitbucket.org/haapasalot/bookkeeper#readme",
   "dependencies": {
+    "baconjs": "^0.7.89",
     "bluebird": "^3.4.6",
     "body-parser": "^1.15.2",
     "crypto": "0.0.3",

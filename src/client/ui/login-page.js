@@ -2,9 +2,9 @@ import React from 'react';
 import Paper from 'material-ui/Paper';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
-import * as state from "../state";
+import * as login from "../data/login"
 
-const apiConnect = require("../api-connect");
+const apiConnect = require("../data/api-connect");
 
 const paperStyle = {
     margin: "20px",
@@ -39,9 +39,7 @@ export default class LoginPage extends React.Component {
         apiConnect.login(this.state.username, this.state.password)
             .then(u => {
                 console.log("logged in", u);
-                sessionStorage.setItem('token', u.token);
-                state.set("currentUser", u);
-                this.props.onLogin(u);
+                login.loginStream.push(u);
             });
     }
 

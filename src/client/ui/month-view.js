@@ -1,6 +1,6 @@
 import React from "react"
-import * as state from  "../state";
-import * as apiConnect from "../api-connect";
+import * as state from  "../data/state";
+import * as apiConnect from "../data/api-connect";
 import ExpenseRow from "./expense-row"
 
 export default class MonthView extends React.Component {

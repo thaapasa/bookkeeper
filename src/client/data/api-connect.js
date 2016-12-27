@@ -1,6 +1,6 @@
 "use strict";
 
-import BookkeeperPage from "./ui/page";
+import BookkeeperPage from "../ui/page";
 import Promise from "bluebird";
 const request = Promise.promisifyAll(require("superagent"));
 
