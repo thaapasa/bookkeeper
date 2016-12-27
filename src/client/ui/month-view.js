@@ -1,7 +1,7 @@
 import React from "react"
 import * as state from  "../state";
 import * as apiConnect from "../api-connect";
-import ExpenseRow from "./expenseRow"
+import ExpenseRow from "./expense-row"
 
 export default class MonthView extends React.Component {
 
@@ -27,8 +27,11 @@ export default class MonthView extends React.Component {
 
     render() {
         console.log("render monthView");
+        console.log("Rendering expenses", this.state.expenses);
         return <div className="content">
-            {console.log("Rendering expenses", this.state.expenses)}{this.state.expenses.map(e => <ExpenseRow expense={e}/>)}
+            {
+                this.state.expenses.map(e => <ExpenseRow expense={e} key={e.id}/>)
+            }
             </div>;
     }
 }
