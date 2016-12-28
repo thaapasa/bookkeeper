@@ -1,6 +1,4 @@
 import React from "react"
-//import * as state from  "../data/state";
-//import ExpenseRow from "./expense-row"
 import ExpenseTable from "./expense-table"
 
 export default class MonthView extends React.Component {
@@ -9,7 +7,6 @@ export default class MonthView extends React.Component {
         super(props);
         console.log("Initializing bookkeeper");
         this.state = { year : 2016, month : 12};
-        //this.showValue = this.showValue.bind(this);
     }
 
 

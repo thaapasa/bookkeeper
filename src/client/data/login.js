@@ -22,6 +22,7 @@ export const loginStream = new Bacon.Bus();
 const currentSessionStream = new Bacon.Bus();
 loginStream.onValue(s => {
     console.log("Current session", s);
+    state.init();
     state.set("currentUser", s);
     sessionStorage.setItem("token", (s && s.token) ? s.token : undefined);
     currentSessionStream.push(s);
