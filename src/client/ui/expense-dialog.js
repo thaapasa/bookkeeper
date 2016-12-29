@@ -18,6 +18,7 @@ export default class ExpenseDialog extends React.Component {
             expense: undefined
         };
         this.handleClose = this.handleClose.bind(this);
+        this.handleSave = this.handleSave.bind(this);
     }
 
     handleOpen(expense) {
@@ -30,6 +31,11 @@ export default class ExpenseDialog extends React.Component {
         this.setState({open: false, expense : undefined});
     };
 
+    handleSave() {
+        console.log("Saving expense");
+        this.setState({open: false, expense : undefined});
+        //TODO: Save new expense
+    };
     componentDidMount() {
         state.get("expenseDialogStream").onValue(e => {console.log("dialog onValue"); this.handleOpen(e)});
     }
@@ -37,11 +43,17 @@ export default class ExpenseDialog extends React.Component {
     render() {
         const actions = [
             <FlatButton
-                label="Ok"
+                label="Peruuta"
                 primary={true}
                 keyboardFocused={true}
                 onTouchTap={this.handleClose}
-            />
+            />,
+            <FlatButton
+            label="Tallenna"
+            primary={true}
+            keyboardFocused={true}
+            onTouchTap={this.handleSave}
+    />
         ];
 
         return (
