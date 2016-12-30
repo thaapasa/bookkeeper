@@ -63,7 +63,11 @@ export default class LoginPage extends React.Component {
                         value={this.state.password}
                         onChange={e => this.setState({ password: e.target.value })}
                     /><br />
-                    <RaisedButton label="Kirjaudu" primary={true} style={loginButtonStyle} onClick={this.handleClick}/>
+                    <RaisedButton
+                        label="Kirjaudu"
+                        primary={true}
+                        style={loginButtonStyle}
+                        onClick={this.handleClick}/>
                 </Paper>
             </div>
         </div>;

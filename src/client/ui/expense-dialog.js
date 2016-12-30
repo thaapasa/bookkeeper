@@ -9,7 +9,24 @@ import TextField from 'material-ui/TextField';
 
 import * as state from "../data/state"
 
-const fields = ["description", "date", "account", "category", "target", "sum"];
+const fields = ["description", "date", "source", "category", "subcategory", "receiver", "sum"];
+
+const categories = {
+    "Ruoka": ["Työpaikkalounas", "Ravintola"],
+    "Viihde": ["Lehtitilaukset", "Elokuvat ja sarjat", "Kirjat" ],
+    "Asuminen" : [ "Lainanhoito", "Pakolliset", "Sisustus", "Rakentaminen", "Piha" ],
+    "Auto" : [ "Polttoaine", "Huollot", "Vakuutukset", "Tarvikkeet" ],
+    "Liikkuminen" : [ "Matkakortin lataus", "Polkupyöräily", "Taksi" ],
+    "Lomat" : [ "Majoitus", "Matkaliput", "Autonvuokra", "Ruoka", "Nähtävyydet", "Ostokset" ],
+    "Muuta" : [ "Lahjat", "Hyväntekeväisyys" ]
+};
+const categoryList = Object.keys(categories);
+
+const labelStyle = { width : "30px"}
+
+const formFieldStyle = { paddingLeft : "10px" }
+
+const datePickerStyle = { paddingLeft : "10px" }
 
 export default class ExpenseDialog extends React.Component {
 
@@ -17,7 +34,7 @@ export default class ExpenseDialog extends React.Component {
         super(props)
         this.state = {
             open: false,
-            createNew: true,
+            createNew: true
         };
         fields.forEach(f => this.state[f] = "");
         this.handleClose = this.handleClose.bind(this);
@@ -50,7 +67,6 @@ export default class ExpenseDialog extends React.Component {
             <FlatButton
                 label="Peruuta"
                 primary={true}
-                keyboardFocused={true}
                 onTouchTap={this.handleClose}
             />,
             <FlatButton
@@ -69,45 +85,68 @@ export default class ExpenseDialog extends React.Component {
                     open={this.state.open}
                     onRequestClose={this.handleClose}
                 >
-                    <TextField
-                        hintText="Kuvaus"
-                        floatingLabelText="Kuvaus"
-                        value={this.state.description}
-                        onChange={i => this.setState({description: i.target.value})}
-                    /><br />
-                    <DatePicker hintText="Päivämäärä" /><br/>
-                    <DropDownMenu
-                        value={this.state.category}
-                        onChange={(i, j, v) => this.setState({ category: v })}
-                        /*
-                         onChange={i => this.setState({category: i})}
-                        style={styles.customWidth}
-                        autoWidth={false}*/
+                    <label style={labelStyle}>Kuvaus:
+                        <TextField
+                            hintText="Kuvaus"
+                            value={this.state.description}
+                            style={ formFieldStyle }
+                            onChange={i => this.setState({description: i.target.value})}
+                    />
+                    </label><br />
+                    <label style={labelStyle}>Päivämäärä:
+                        <DatePicker
+                            hintText="Päivämäärä"
+                            style={datePickerStyle}/></label><br/>
+                    <label style={labelStyle}>Kategoria:
+                        <DropDownMenu
+                            value={this.state.category}
+                            style={ formFieldStyle }
+                            onChange={(i, j, v) => this.setState({ category: v })}
                     >
-                        <MenuItem value={"FOOD"} primaryText="Ruoka" />
-                        <MenuItem value={"ENTERTAINMENT"} primaryText="Viihde" />
-                    </DropDownMenu><br/>
-                    <DropDownMenu
-                        value={1}
-                        /*onChange={this.handleChange}
-                         style={styles.customWidth}
-                         autoWidth={false}*/
-                    >
-                        <MenuItem value={1} primaryText="Custom width" />
-                        <MenuItem value={2} primaryText="Every Night" />
-                        <MenuItem value={3} primaryText="Weeknights" />
-                        <MenuItem value={4} primaryText="Weekends" />
-                        <MenuItem value={5} primaryText="Weekly" />
-                    </DropDownMenu><br/>
-                    <TextField
-                        hintText="Saaja"
-                        floatingLabelText="Saaja"
-                    /><br />
+                        { categoryList.map((row, index) => (
+                            <MenuItem key={index} value={row} primaryText={row} />
+                        ))}
+                    </DropDownMenu>
+                    </label>
+                    <label style={labelStyle}>Alikategoria:
+                        <DropDownMenu
+                            value={this.state.subcategory}
+                            style={ formFieldStyle }
+                            onChange={(i, j, v) => this.setState({ subcategory: v })}
+                        >
+                            { this.state.category && categories[this.state.category].map((row, index) => (
+                                <MenuItem key={index} value={row} primaryText={row} />
+                            ))}
+                        </DropDownMenu>
+                    </label><br/>
+                    <label style={labelStyle}>Tili:
+                        <DropDownMenu
+                            value={this.state.source}
+                            style={ formFieldStyle }
+                            onChange={(i, j, v) => this.setState({ source: v })}
+                        >
+                            <MenuItem value={"SHARED"} primaryText="Yhteinen tili" />
+                            <MenuItem value={"ANU"} primaryText="Anun tili" />
+                            <MenuItem value={"TUUKKA"} primaryText="Tuukan tili" />
+                        </DropDownMenu>
+                    </label><br/>
+                    <label style={labelStyle}>Saaja:
+                        <TextField
+                            hintText="Saaja"
+                            style={ formFieldStyle }
+                            value={this.state.receiver}
+                            onChange={i => this.setState({receiver: i.target.value})}
+                        />
+                    </label><br />
+                    <label style={labelStyle}>Summa:
+                        <TextField
+                            hintText="Summa"
+                            style={ formFieldStyle }
+                            value={this.state.sum}
+                            onChange={i => this.setState({sum: i.target.value})}
 
-                    <TextField
-                        hintText="Summa"
-                        floatingLabelText="Summa"
-                    /><br />
+                        />
+                    </label><br />
                 </Dialog>
         );
     }
