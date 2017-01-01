@@ -5,7 +5,7 @@ const log = require("../util/log");
 const moment = require("moment");
 const time = require("../../shared/util/time");
 
-const expenseSelect = "SELECT id, date::DATE, receiver, sum, description, source, userid, groupid, category, created FROM expenses";
+const expenseSelect = "SELECT id, date::DATE, receiver, sum::MONEY::NUMERIC, description, source, userid, groupid, category, created FROM expenses";
 const order = "ORDER BY date ASC";
 
 function getAll(groupId) {
@@ -24,7 +24,6 @@ function getByMonth(groupId, year, month) {
 function mapExpense(e) {
     if (e === undefined) throw { status: 404, cause: "Expense not found", code: "EXPENSE_NOT_FOUND" };
     e.date = moment(e.date).format("YYYY-MM-DD");
-    e.sum = e.sum.substring(1);
     return e;
 }
 
