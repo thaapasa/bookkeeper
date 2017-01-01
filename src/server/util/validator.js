@@ -2,7 +2,6 @@
 
 const log = require("./log");
 
-
 function InvalidInputError(field, input, requirement) {
     this.code = "INVALID_INPUT";
     this.status = 400;
@@ -15,33 +14,41 @@ function InvalidInputError(field, input, requirement) {
 }
 InvalidInputError.prototype = new Error();
 
-function toInt(field, i) {
+function toInt(i, field) {
     if (typeof i === "number") {
         if (Math.floor(i) !== i) throw new InvalidInputError(field, i, "Input must be an integer");
+        return i;
     }
     if (typeof i === "string") {
         const n = parseInt(i, 10);
         if (i !== n.toString()) throw new InvalidInputError(field, i, "Input must be an integer");
         return n;
     }
-    throw new InvalidInputError(field, i, "Input must be an integer");
+    throw new InvalidInputError(field, i, `Input must be an integer, is of type ${typeof i}`);
+}
+
+function fieldPath(prefix, field) {
+    return prefix ? `${prefix}.${field}` : field;
 }
 
 const validator = {
 
-    validate: function(schema, object) {
+    validate: function(schema, object, prefix) {
         const result = {};
         Object.keys(schema).forEach(field => {
             const validator = schema[field];
-            log.debug("Validating", field, "in", object);
-            result[field] = validator(object[field], field);
+            const fieldName = fieldPath(prefix, field);
+            log.debug("Validating", fieldName, "in", object);
+            result[field] = validator(object[field], fieldName);
         });
         log.debug("Validated input to", result);
         return result;
     },
 
-    number: function(i) {
-        return i !== undefined && i !== null && (typeof i === "number") && !isNaN(i);
+    number: (i, field) => {
+        if (i === undefined || i === null || (typeof i !== "number") || isNaN(i))
+            throw new InvalidInputError(field, i, `Input must be a number`);
+        return i;
     },
 
     stringWithLength(min, max) {
@@ -54,11 +61,28 @@ const validator = {
 
     intBetween(min, max) {
         return (i, field) => {
-            const n = toInt(field, i);
+            const n = toInt(i, field);
             if (n < min || n > max)
                 throw new InvalidInputError(field, i, `Input must be an integer in the range [${min}, ${max}]`);
             return n;
         };
+    },
+
+    positiveInt: (i, field) => {
+        const n = toInt(i, field);
+        if (n < 1)
+            throw new InvalidInputError(field, i, "Input must be a positive integer");
+        return n;
+    },
+
+    listOfObjects(schema) {
+        return (i, field) => {
+            if (!i || !i.map) throw new InvalidInputError(field, i, "Input must be a list of objects");
+            return i.map(item => {
+                log.debug("Validating sub-object", item, "of", field, "with schema", schema);
+                return validator.validate(schema, item, field)
+            });
+        }
     },
 
     matchPattern(re) {
@@ -70,5 +94,8 @@ const validator = {
     }
 
 };
+
+validator.money = validator.matchPattern(/[0-9]+([.][0-9]+)?/);
+
 
 module.exports = validator;

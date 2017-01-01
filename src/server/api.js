@@ -67,10 +67,11 @@ function registerAPI(app) {
     const expenseSchema = {
         date: validator.matchPattern(/[0-9]{4}-[0-9]{2}-[0-9]{2}/),
         receiver: validator.stringWithLength(1, 50),
-        sum: validator.matchPattern(/[0-9]+([.][0-9]+)?/),
+        sum: validator.money,
         description: validator.stringWithLength(1, 255),
         source: validator.stringWithLength(1, 50),
-        category: validator.stringWithLength(1, 50)
+        category: validator.stringWithLength(1, 50),
+        division: validator.listOfObjects({ userId: validator.positiveInt, sum: validator.money })
     };
     app.put("/api/expense", server.processRequest((session, req) =>
         expenses.create(session.user.id, session.group.id, validator.validate(expenseSchema, req.body)), true));
