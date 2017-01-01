@@ -39,6 +39,18 @@ function getExpenses(token, group, year, month) {
         .catch(defaultErrorHandler);
 }
 
+function storeExpense(token, group, expense) {
+    const url = 'http://localhost:3000/api/expense';
+
+    return request.put(url)
+        .set('Content-Type', 'application/json')
+        .set('Authorization', 'Bearer ' + token)
+        .query({groupId : group})
+        .send(expense)
+        .endAsync()
+        .then(req => req.body)
+        .catch(defaultErrorHandler);
+}
 
 
 function defaultErrorHandler(er) {
@@ -47,4 +59,4 @@ function defaultErrorHandler(er) {
 }
 
 
-module.exports = {login : login, getSession : getSession, getExpenses : getExpenses };
+module.exports = {login : login, getSession : getSession, getExpenses : getExpenses, storeExpense : storeExpense };

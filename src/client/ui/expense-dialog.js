@@ -7,9 +7,11 @@ import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
 import TextField from 'material-ui/TextField';
 
+import * as apiConnect from "../data/api-connect";
 import * as state from "../data/state"
+import * as time from "../../shared/util/time"
 
-const fields = ["description", "date", "source", "category", "subcategory", "receiver", "sum"];
+const fields = ["description", "source", "category", "subcategory", "receiver", "sum"];
 
 const categories = {
     "Ruoka": ["Työpaikkalounas", "Ravintola"],
@@ -34,7 +36,8 @@ export default class ExpenseDialog extends React.Component {
         super(props)
         this.state = {
             open: false,
-            createNew: true
+            createNew: true,
+            date: undefined
         };
         fields.forEach(f => this.state[f] = "");
         this.handleClose = this.handleClose.bind(this);
@@ -44,7 +47,9 @@ export default class ExpenseDialog extends React.Component {
     handleOpen(expense) {
         console.log("handleOpen")
         const newState = { open: true, createNew: expense === undefined };
-        fields.forEach(f => this.state[f] = expense ? expense[f] : "");
+        fields.forEach(f => newState[f] = expense ? expense[f] : "");
+        newState.date = expense ? time.fromDate(expense.date).toDate() : undefined;
+        console.log(newState);
         this.setState(newState);
     };
 
@@ -56,7 +61,19 @@ export default class ExpenseDialog extends React.Component {
     handleSave() {
         console.log("Saving expense");
         this.setState({open: false});
-        //TODO: Save new expense
+        // TODO: fix group
+        apiConnect.storeExpense(sessionStorage.getItem("token"), 1, {
+            date: time.date(this.state.date),
+            sum: this.state.sum,
+            description : this.state.description,
+            source: this.state.source,
+            category: this.state.category + ":" + this.state.subcategory,
+            receiver: this.state.receiver})
+            .then(e => {
+                console.log("Stored expense", e);
+            });
+
+
     };
     componentDidMount() {
         state.get("expenseDialogStream").onValue(e => {console.log("dialog onValue"); this.handleOpen(e)});
@@ -95,8 +112,10 @@ export default class ExpenseDialog extends React.Component {
                     </label><br />
                     <label style={labelStyle}>Päivämäärä:
                         <DatePicker
+                            value={this.state.date}
                             hintText="Päivämäärä"
-                            style={datePickerStyle}/></label><br/>
+                            style={datePickerStyle}
+                            onChange={(event, date) => this.setState({ date: date })}/></label><br/>
                     <label style={labelStyle}>Kategoria:
                         <DropDownMenu
                             value={this.state.category}

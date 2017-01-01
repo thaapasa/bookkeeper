@@ -3,7 +3,7 @@
 const db = require("./db");
 const log = require("../util/log");
 const moment = require("moment");
-const time = require("../util/time");
+const time = require("../../shared/util/time");
 
 const expenseSelect = "SELECT id, date::DATE, receiver, sum, description, source, userid, groupid, category, created FROM expenses";
 const order = "ORDER BY date ASC";
