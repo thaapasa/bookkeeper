@@ -50,9 +50,17 @@ CREATE TABLE IF NOT EXISTS expenses (
   date DATE NOT NULL,
   created TIMESTAMP WITH TIME ZONE NOT NULL,
   receiver VARCHAR(50),
-  sum MONEY,
+  sum MONEY NOT NULL,
   description VARCHAR(255),
   source VARCHAR(50),
   category VARCHAR(50)
 );
 CREATE INDEX "expenses_user_date" ON expenses (userid, date);
+
+CREATE TYPE expense_type AS ENUM ('cost', 'benefit');
+CREATE TABLE IF NOT EXISTS expense_division (
+  expenseid INTEGER REFERENCES expenses (id) NOT NULL,
+  userid INTEGER REFERENCES users (id) NOT NULL,
+  type expense_type NOT NULL,
+  sum MONEY NOT NULL
+);
