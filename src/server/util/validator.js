@@ -1,6 +1,7 @@
 "use strict";
 
 const log = require("./log");
+const Money = require("../../shared/util/money");
 
 function InvalidInputError(field, input, requirement) {
     this.code = "INVALID_INPUT";
@@ -48,7 +49,7 @@ const validator = {
     number: (i, field) => {
         if (i === undefined || i === null || (typeof i !== "number") || isNaN(i))
             throw new InvalidInputError(field, i, `Input must be a number`);
-        return i;
+        return new Money(i);
     },
 
     stringWithLength(min, max) {
@@ -95,7 +96,11 @@ const validator = {
 
 };
 
-validator.money = validator.matchPattern(/[0-9]+([.][0-9]+)?/);
-
+const moneyPattern = validator.matchPattern(/[0-9]+([.][0-9]+)?/);
+validator.money = (i, field) => {
+    const money = moneyPattern(i, field);
+    return new Money(money);
+};
+validator.InvalidInputError = InvalidInputError;
 
 module.exports = validator;

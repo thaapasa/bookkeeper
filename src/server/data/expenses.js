@@ -4,6 +4,8 @@ const db = require("./db");
 const log = require("../util/log");
 const moment = require("moment");
 const time = require("../../shared/util/time");
+const validator = require("../util/validator");
+const Money = require("../../shared/util/money");
 
 const expenseSelect = "SELECT id, date::DATE, receiver, sum::MONEY::NUMERIC, description, source, userid, groupid, category, created FROM expenses";
 const order = "ORDER BY date ASC";
@@ -48,12 +50,19 @@ function deleteById(groupId, expenseId) {
         .then(i => ({ status: "OK", message: "Expense deleted" }));
 }
 
+function validateDivision(sum, items, field) {
+    const calculated = items.map(i => i.sum).reduce((a, b) => a.plus(b), Money.zero);
+    if (!sum.equals(calculated)) throw new validator.InvalidInputError(field, calculated,
+        `Division sum must match expense sum ${sum.toString()}, is ${calculated.toString()}`);
+}
+
 function createExpense(userId, groupId, expense) {
     log.info("Creating expense", expense);
+    validateDivision(expense.sum, expense.division, "division");
     return db.insert("expenses.create",
         "INSERT INTO expenses (userId, groupId, date, created, receiver, sum, description, source, category) " +
             "VALUES ($1, $2, $3::DATE, NOW(), $4, $5::MONEY, $6, $7, $8)",
-        [userId, groupId, expense.date, expense.receiver, expense.sum, expense.description,
+        [userId, groupId, expense.date, expense.receiver, expense.sum.toString(), expense.description,
             expense.source, expense.category ])
         .then(i => ({ status: "OK", message: "Expense created" }));
 }
