@@ -61,10 +61,13 @@ function createExpense(userId, groupId, expense) {
     validateDivision(expense.sum, expense.division, "division");
     return db.insert("expenses.create",
         "INSERT INTO expenses (userId, groupId, date, created, receiver, sum, description, source, category) " +
-            "VALUES ($1, $2, $3::DATE, NOW(), $4, $5::MONEY, $6, $7, $8)",
+        "VALUES ($1, $2, $3::DATE, NOW(), $4, $5::MONEY, $6, $7, $8) RETURNING id",
         [userId, groupId, expense.date, expense.receiver, expense.sum.toString(), expense.description,
             expense.source, expense.category ])
-        .then(i => ({ status: "OK", message: "Expense created" }));
+        .then(id => Promise.all(expense.division.map(d => db.insert("expense.create.division",
+            "INSERT INTO expense_division (expenseid, userid, type, sum) VALUES ($1, $2, 'benefit', $3::MONEY)",
+            [id, d.userId, d.sum.toString()]))).then(u => id))
+        .then(id => ({ status: "OK", message: "Expense created", expenseId: id }));
 }
 
 module.exports = {

@@ -35,7 +35,7 @@ class BookkeeperDB {
     }
 
     insert(name, query, params) {
-        return this.query(name, query, params, toRowCount);
+        return this.query(name, query, params, toId);
     }
 
     update(name, query, params) {
@@ -46,6 +46,10 @@ class BookkeeperDB {
 
 function toRowCount(r) {
     return r && r.rowCount !== undefined ? r.rowCount : r;
+}
+
+function toId(r) {
+    return r && r.rows && r.rows.length > 0 ? r.rows[0].id : undefined;
 }
 
 const db = new BookkeeperDB();
