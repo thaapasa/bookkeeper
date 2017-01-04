@@ -50,23 +50,31 @@ function deleteById(groupId, expenseId) {
         .then(i => ({ status: "OK", message: "Expense deleted" }));
 }
 
-function validateDivision(sum, items, field) {
+function validateDivision(items, sum, field) {
     const calculated = items.map(i => i.sum).reduce((a, b) => a.plus(b), Money.zero);
     if (!sum.equals(calculated)) throw new validator.InvalidInputError(field, calculated,
         `Division sum must match expense sum ${sum.toString()}, is ${calculated.toString()}`);
+    return items;
+}
+
+function storeDivision(expenseId, userId, type, sum) {
+    return db.insert("expense.create.division",
+        "INSERT INTO expense_division (expenseid, userid, type, sum) VALUES ($1, $2, $3, $4::MONEY)",
+        [expenseId, userId, type, sum.toString()])
 }
 
 function createExpense(userId, groupId, expense) {
     log.info("Creating expense", expense);
-    validateDivision(expense.sum, expense.division, "division");
+    const benefit = validateDivision(expense.benefit, expense.sum, "benefit");
+    const cost = validateDivision(expense.cost, expense.sum.negate(), "cost");
     return db.insert("expenses.create",
         "INSERT INTO expenses (userId, groupId, date, created, receiver, sum, description, source, category) " +
         "VALUES ($1, $2, $3::DATE, NOW(), $4, $5::MONEY, $6, $7, $8) RETURNING id",
         [userId, groupId, expense.date, expense.receiver, expense.sum.toString(), expense.description,
             expense.source, expense.category ])
-        .then(id => Promise.all(expense.division.map(d => db.insert("expense.create.division",
-            "INSERT INTO expense_division (expenseid, userid, type, sum) VALUES ($1, $2, 'benefit', $3::MONEY)",
-            [id, d.userId, d.sum.toString()]))).then(u => id))
+        .then(id => Promise.all(
+            benefit.map(d => storeDivision(id, userId, "benefit", d.sum)).concat(
+                cost.map(d => storeDivision(id, userId, "cost", d.sum)))).then(u => id))
         .then(id => ({ status: "OK", message: "Expense created", expenseId: id }));
 }
 

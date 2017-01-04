@@ -22,6 +22,10 @@ class Money {
         return new Money(this.value.plus(o.value));
     }
 
+    negate() {
+        return new Money(this.value.times(-1));
+    }
+
     equals(o) {
         return this.value.eq(o.value);
     }
