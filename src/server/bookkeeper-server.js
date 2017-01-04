@@ -6,7 +6,6 @@ const app = express();
 const bodyParser = require("body-parser");
 const config = require("./config");
 const api = require("./api");
-const Money = require("../shared/util/money");
 
 log.setLevel(config.logLevel);
 
