@@ -43,29 +43,6 @@ INSERT INTO group_users (userid, groupid) VALUES (2, 1);
 INSERT INTO group_users (userid, groupid) VALUES (2, 2);
 
 
-CREATE TABLE IF NOT EXISTS expenses (
-  id SERIAL PRIMARY KEY,
-  groupid INTEGER REFERENCES groups (id) NOT NULL,
-  userid INTEGER REFERENCES users (id) NOT NULL,
-  date DATE NOT NULL,
-  created TIMESTAMP WITH TIME ZONE NOT NULL,
-  receiver VARCHAR(50),
-  sum MONEY NOT NULL,
-  description VARCHAR(255),
-  source VARCHAR(50),
-  category VARCHAR(50)
-);
-CREATE INDEX "expenses_user_date" ON expenses (userid, date);
-
-CREATE TYPE expense_type AS ENUM ('cost', 'benefit');
-CREATE TABLE IF NOT EXISTS expense_division (
-  expenseid INTEGER REFERENCES expenses (id) NOT NULL,
-  userid INTEGER REFERENCES users (id) NOT NULL,
-  type expense_type NOT NULL,
-  sum MONEY NOT NULL
-);
-
-
 CREATE TABLE IF NOT EXISTS categories (
   id SERIAL PRIMARY KEY,
   parentid INTEGER REFERENCES categories(id) DEFAULT NULL,
@@ -80,4 +57,28 @@ INSERT INTO CATEGORIES (parentid, groupid, name) VALUES
   (3, 1, 'Lainanhoito'), (3, 1, 'Pakolliset'), (3, 1, 'Sisustus'), (3, 1, 'Rakentaminen'), (3, 1, 'Piha');
 
 SELECT id, parentid, name FROM categories WHERE groupid=1
-  ORDER BY (CASE WHEN parentid IS NULL THEN 1 ELSE 0 END) DESC, parentid ASC, name;
+ORDER BY (CASE WHEN parentid IS NULL THEN 1 ELSE 0 END) DESC, parentid ASC, name;
+
+
+CREATE TABLE IF NOT EXISTS expenses (
+  id SERIAL PRIMARY KEY,
+  groupid INTEGER REFERENCES groups (id) NOT NULL,
+  userid INTEGER REFERENCES users (id) NOT NULL,
+  date DATE NOT NULL,
+  created TIMESTAMP WITH TIME ZONE NOT NULL,
+  receiver VARCHAR(50),
+  sum MONEY NOT NULL,
+  description VARCHAR(255),
+  source VARCHAR(50),
+  category INTEGER REFERENCES categories (id)
+);
+CREATE INDEX "expenses_user_date" ON expenses (userid, date);
+
+CREATE TYPE expense_type AS ENUM ('cost', 'benefit');
+CREATE TABLE IF NOT EXISTS expense_division (
+  expenseid INTEGER REFERENCES expenses (id) NOT NULL,
+  userid INTEGER REFERENCES users (id) NOT NULL,
+  type expense_type NOT NULL,
+  sum MONEY NOT NULL
+);
+

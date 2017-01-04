@@ -6,6 +6,8 @@ const moment = require("moment");
 const time = require("../../shared/util/time");
 const validator = require("../util/validator");
 const Money = require("../../shared/util/money");
+const categories = require("./categories");
+const errors = require("../util/errors");
 
 const expenseSelect = "SELECT id, date::DATE, receiver, sum::MONEY::NUMERIC, description, source, userid, groupid, category, created FROM expenses";
 const order = "ORDER BY date ASC";
@@ -24,7 +26,7 @@ function getByMonth(groupId, year, month) {
 }
 
 function mapExpense(e) {
-    if (e === undefined) throw { status: 404, cause: "Expense not found", code: "EXPENSE_NOT_FOUND" };
+    if (e === undefined) throw new errors.NotFoundError("EXPENSE_NOT_FOUND", "expense");
     e.date = moment(e.date).format("YYYY-MM-DD");
     return e;
 }
@@ -59,19 +61,21 @@ function validateDivision(items, sum, field) {
 
 function storeDivision(expenseId, userId, type, sum) {
     return db.insert("expense.create.division",
-        "INSERT INTO expense_division (expenseid, userid, type, sum) VALUES ($1, $2, $3, $4::MONEY)",
+        "INSERT INTO expense_division (expenseid, userid, type, sum) " +
+        "VALUES ($1::INTEGER, $2::INTEGER, $3::expense_type, $4::MONEY)",
         [expenseId, userId, type, sum.toString()])
 }
 
-function createExpense(userId, groupId, expense) {
+function createExpense(userId, groupid, expense) {
     log.info("Creating expense", expense);
     const benefit = validateDivision(expense.benefit, expense.sum, "benefit");
     const cost = validateDivision(expense.cost, expense.sum.negate(), "cost");
-    return db.insert("expenses.create",
+    return categories.getById(groupid, expense.category)
+        .then(cat => db.insert("expenses.create",
         "INSERT INTO expenses (userId, groupId, date, created, receiver, sum, description, source, category) " +
-        "VALUES ($1, $2, $3::DATE, NOW(), $4, $5::MONEY, $6, $7, $8) RETURNING id",
-        [userId, groupId, expense.date, expense.receiver, expense.sum.toString(), expense.description,
-            expense.source, expense.category ])
+        "VALUES ($1::INTEGER, $2::INTEGER, $3::DATE, NOW(), $4, $5::MONEY, $6, $7, $8::INTEGER) RETURNING id",
+        [userId, groupid, expense.date, expense.receiver, expense.sum.toString(), expense.description,
+            expense.source, cat.id ]))
         .then(id => Promise.all(
             benefit.map(d => storeDivision(id, userId, "benefit", d.sum)).concat(
                 cost.map(d => storeDivision(id, userId, "cost", d.sum)))).then(u => id))

@@ -1,6 +1,7 @@
 "use strict";
 
 const db = require("./db");
+const errors = require("../util/errors");
 
 function createCategoryObject(categories) {
     const res = [];
@@ -23,6 +24,14 @@ function getAll(groupid) {
         .then(createCategoryObject);
 }
 
+function getById(groupid, id) {
+    return db.queryObject("categories.getById",
+        "SELECT id, parentid, name FROM categories WHERE id=$1::INTEGER AND groupid=$2::INTEGER ",
+        [ id, groupid ])
+        .then(errors.undefinedToError(errors.NotFoundError, "CATEGORY_NOT_FOUND", "category"));
+}
+
 module.exports = {
-    getAll: getAll
+    getAll: getAll,
+    getById: getById
 };

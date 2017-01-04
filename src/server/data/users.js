@@ -1,15 +1,16 @@
 "use strict";
 
 const db = require("./db");
+const errors = require("../util/errors");
 
 function getAll() {
     return db.queryList("users.getAll", "SELECT id, email, firstname, lastname FROM users")
-        .then(undefinedToError(UserNotFoundError));
+        .then(errors.undefinedToError(errors.NotFoundError, "USER_NOT_FOUND", "user"));
 }
 
 function getById(userId) {
     return db.queryObject("users.getById", "SELECT id, email, firstname, lastname FROM users WHERE id=$1", [userId])
-        .then(undefinedToError(UserNotFoundError));
+        .then(errors.undefinedToError(errors.NotFoundError, "USER_NOT_FOUND", "user"));
 }
 
 function getGroups(userId) {
@@ -24,12 +25,6 @@ function InvalidCredentialsError() {
 }
 InvalidCredentialsError.prototype = new Error();
 
-function UserNotFoundError() {
-    this.code = "USER_NOT_FOUND";
-    this.status = 404;
-    this.cause = "User not found";
-}
-UserNotFoundError.prototype = new Error();
 
 function getByCredentials(username, password, groupid) {
     return db.queryObject("users.getByCredentials",
@@ -41,9 +36,9 @@ function getByCredentials(username, password, groupid) {
     ).then(undefinedToError(InvalidCredentialsError));
 }
 
-function undefinedToError(errorType) {
+function undefinedToError(errorType, params) {
     return value => {
-        if (value === undefined) throw new errorType();
+        if (value === undefined) throw new errorType(params);
         else return value;
     }
 }

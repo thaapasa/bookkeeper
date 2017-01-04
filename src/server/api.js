@@ -56,6 +56,12 @@ function registerAPI(app) {
     app.get("/api/category/list", server.processRequest(session =>
         categories.getAll(session.group.id), true));
 
+    // GET /api/category/categoryId
+    const categoryPath = /\/api\/category\/([0-9]+)/;
+    app.get(categoryPath, server.processRequest((session, req) =>
+        categories.getById(session.group.id, server.getId(categoryPath, req)), true));
+
+
 
     // GET /api/expense/list
     app.get("/api/expense/list", server.processRequest(session =>
@@ -78,7 +84,7 @@ function registerAPI(app) {
         sum: validator.money,
         description: validator.stringWithLength(1, 255),
         source: validator.stringWithLength(1, 50),
-        category: validator.stringWithLength(1, 50),
+        category: validator.positiveInt,
         benefit: validator.listOfObjects({ userId: validator.positiveInt, sum: validator.money }),
         cost: validator.listOfObjects({ userId: validator.positiveInt, sum: validator.money })
     };
