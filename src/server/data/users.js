@@ -31,10 +31,13 @@ function UserNotFoundError() {
 }
 UserNotFoundError.prototype = new Error();
 
-function getByCredentials(username, password) {
+function getByCredentials(username, password, groupid) {
     return db.queryObject("users.getByCredentials",
-        "SELECT id, email, firstname, lastname FROM users WHERE email=$1 AND password=ENCODE(DIGEST($2, 'sha1'), 'hex')",
-        [ username, password ]
+        "SELECT u.id, email, firstname, lastname, g.id as groupid, g.name as groupname FROM users u " +
+        "LEFT JOIN group_users go ON (go.userid = u.id AND go.groupid = $3) " +
+        "LEFT JOIN groups g ON (g.id = go.groupid) " +
+        "WHERE email=$1 AND password=ENCODE(DIGEST($2, 'sha1'), 'hex')",
+        [ username, password, groupid ]
     ).then(undefinedToError(InvalidCredentialsError));
 }
 

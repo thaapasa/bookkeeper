@@ -24,11 +24,12 @@ function registerAPI(app) {
 
     // PUT /api/session
     app.put("/api/session", server.processUnauthorizedRequest(req =>
-        sessions.login(req.body.username, req.body.password)));
+        sessions.login(req.body.username, req.body.password, req.query.groupId)
+            .then(sessions.appendGroups)));
 
     // GET /api/session
     app.get("/api/session", server.processRequest(session =>
-        Promise.resolve(session)));
+        sessions.appendGroups(session)));
 
     // DELETE /api/session
     app.delete("/api/session", server.processRequest(session =>
