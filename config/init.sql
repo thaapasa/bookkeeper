@@ -60,6 +60,28 @@ SELECT id, parentid, name FROM categories WHERE groupid=1
 ORDER BY (CASE WHEN parentid IS NULL THEN 1 ELSE 0 END) DESC, parentid ASC, name;
 
 
+CREATE TABLE IF NOT EXISTS sources (
+  id SERIAL PRIMARY KEY,
+  groupid INTEGER REFERENCES users (id) NOT NULL,
+  name VARCHAR(100) NOT NULL
+);
+CREATE INDEX "sources_groupid" ON sources (groupid);
+
+CREATE TABLE IF NOT EXISTS source_users (
+  sourceid INTEGER REFERENCES sources (id) NOT NULL,
+  userid INTEGER REFERENCES users (id) NOT NULL,
+  share INTEGER
+);
+CREATE INDEX "source_users_sourceid_userid" ON source_users (sourceid, userid);
+
+INSERT INTO sources (groupid, name) VALUES (1, 'Yhteinen tili') RETURNING id;
+INSERT INTO source_users (sourceid, userid, share) VALUES (1, 1, 1), (1, 2, 1);
+INSERT INTO sources (groupid, name) VALUES (1, 'Jennin tili') RETURNING id;
+INSERT INTO source_users (sourceid, userid, share) VALUES (2, 1, 1);
+INSERT INTO sources (groupid, name) VALUES (1, 'Salen tili') RETURNING id;
+INSERT INTO source_users (sourceid, userid, share) VALUES (3, 2, 1);
+
+
 CREATE TABLE IF NOT EXISTS expenses (
   id SERIAL PRIMARY KEY,
   groupid INTEGER REFERENCES groups (id) NOT NULL,
