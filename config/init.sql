@@ -64,3 +64,20 @@ CREATE TABLE IF NOT EXISTS expense_division (
   type expense_type NOT NULL,
   sum MONEY NOT NULL
 );
+
+
+CREATE TABLE IF NOT EXISTS categories (
+  id SERIAL PRIMARY KEY,
+  parentid INTEGER REFERENCES categories(id) DEFAULT NULL,
+  groupid INTEGER REFERENCES groups (id) NOT NULL,
+  name VARCHAR(50) NOT NULL
+);
+CREATE INDEX "categories_groupid" ON categories (groupid);
+INSERT INTO CATEGORIES (groupid, name) VALUES (1, 'Ruoka'), (1, 'Viihde'), (1, 'Asuminen') RETURNING id;
+INSERT INTO CATEGORIES (parentid, groupid, name) VALUES
+  (1, 1, 'Työpaikkalounas'), (1, 1, 'Ravintola'), (1, 1, 'Ruokakauppa'),
+  (2, 1, 'Lehtitilaukset'), (2, 1, 'Elokuvat ja sarjat'), (2, 1, 'Kirjat'),
+  (3, 1, 'Lainanhoito'), (3, 1, 'Pakolliset'), (3, 1, 'Sisustus'), (3, 1, 'Rakentaminen'), (3, 1, 'Piha');
+
+SELECT id, parentid, name FROM categories WHERE groupid=1
+  ORDER BY (CASE WHEN parentid IS NULL THEN 1 ELSE 0 END) DESC, parentid ASC, name;

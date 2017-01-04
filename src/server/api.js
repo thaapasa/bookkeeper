@@ -5,6 +5,7 @@ const moment = require("moment");
 const express = require("express");
 const sessions = require("./data/sessions");
 const expenses = require("./data/expenses");
+const categories = require("./data/categories");
 const config = require("./config");
 const server = require("./util/server-util");
 const Promise = require("bluebird");
@@ -48,6 +49,12 @@ function registerAPI(app) {
     const userPath = /\/api\/user\/([0-9]+)/;
     app.get(userPath, server.processRequest((session, req) =>
         users.getById(server.getId(userPath, req))));
+
+
+
+    // GET /api/category/list
+    app.get("/api/category/list", server.processRequest(session =>
+        categories.getAll(session.group.id), true));
 
 
     // GET /api/expense/list
