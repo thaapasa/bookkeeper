@@ -9,7 +9,10 @@ const Money = require("../../shared/util/money");
 const categories = require("./categories");
 const errors = require("../util/errors");
 
-const expenseSelect = "SELECT id, date::DATE, receiver, sum::MONEY::NUMERIC, description, source, userid, groupid, category, created FROM expenses";
+const expenseSelect = "SELECT id, date::DATE, receiver, e.sum::MONEY::NUMERIC, description, source, e.userid, " +
+    "groupid, category, created, d1.sum::MONEY::NUMERIC AS benefit, d2.sum::MONEY::NUMERIC AS cost FROM expenses e " +
+    "LEFT JOIN expense_division d1 ON (d1.expenseid = e.id AND d1.userid = e.userid AND d1.type='benefit') " +
+    "LEFT JOIN expense_division d2 ON (d2.expenseid = e.id AND d2.userid = e.userid AND d2.type='cost')";
 const order = "ORDER BY date ASC";
 
 function getAll(groupId) {
