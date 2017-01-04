@@ -11,5 +11,6 @@ module.exports = {
         ssl: false
     },
     logLevel: "info",
+    sessionTimeout: "20 minutes",
     showErrorCause: false
 };

@@ -8,8 +8,7 @@ const config = merge({
     port: 3000,
     environment: env,
     version: require("../../package.json").version,
-    revision: require("./revision"),
-    sessionTimeout: "20 minutes"
+    revision: require("./revision")
 }, require(`./config-${env}.js`));
 
 module.exports = config;

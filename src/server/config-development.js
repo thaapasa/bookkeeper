@@ -9,5 +9,6 @@ module.exports = {
         ssl: false
     },
     logLevel: "debug",
+    sessionTimeout: "50 hours",
     showErrorCause: true
 };
