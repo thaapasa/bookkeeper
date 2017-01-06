@@ -83,6 +83,7 @@ function registerAPI(app) {
 
     // PUT /api/expense
     const expenseSchema = {
+        userId: validator.positiveInt,
         date: validator.matchPattern(/[0-9]{4}-[0-9]{2}-[0-9]{2}/),
         receiver: validator.stringWithLength(1, 50),
         sum: validator.money,

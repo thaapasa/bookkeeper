@@ -42,6 +42,8 @@ INSERT INTO group_users (user_id, group_id) VALUES (1, 1);
 INSERT INTO group_users (user_id, group_id) VALUES (2, 1);
 INSERT INTO group_users (user_id, group_id) VALUES (2, 2);
 
+SELECT id, email, first_name, last_name FROM users WHERE id=1 AND (SELECT COUNT(*) FROM group_users WHERE user_id=1 AND group_id=1) > 0;
+
 
 CREATE TABLE IF NOT EXISTS categories (
   id SERIAL PRIMARY KEY,
@@ -82,12 +84,13 @@ CREATE TABLE IF NOT EXISTS expenses (
   group_id INTEGER REFERENCES groups (id) NOT NULL,
   user_id INTEGER REFERENCES users (id) NOT NULL,
   date DATE NOT NULL,
+  created_by_id INTEGER REFERENCES users (id) NOT NULL,
   created TIMESTAMP WITH TIME ZONE NOT NULL,
   receiver VARCHAR(50),
   sum MONEY NOT NULL,
   description VARCHAR(255),
-  source_id INTEGER REFERENCES sources (id),
-  category_id INTEGER REFERENCES categories (id)
+  source_id INTEGER REFERENCES sources (id) NOT NULL,
+  category_id INTEGER REFERENCES categories (id) NOT NULL
 );
 CREATE INDEX "expenses_user_date" ON expenses (user_id, date);
 

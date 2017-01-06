@@ -3,13 +3,17 @@
 const db = require("./db");
 const errors = require("../util/errors");
 
-function getAll() {
-    return db.queryList("users.get_all", "SELECT id, email, first_name, last_name FROM users")
+function getAll(groupId) {
+    return db.queryList("users.get_all",
+        "SELECT id, email, first_name, last_name FROM users WHERE " +
+        "(SELECT COUNT(*) FROM group_users WHERE user_id=users.id AND group_id=$1::INTEGER) > 0", [groupId])
         .then(errors.undefinedToError(errors.NotFoundError, "USER_NOT_FOUND", "user"));
 }
 
-function getById(userId) {
-    return db.queryObject("users.get_by_id", "SELECT id, email, first_name, last_name FROM users WHERE id=$1", [userId])
+function getById(groupId, userId) {
+    return db.queryObject("users.get_by_id",
+        "SELECT id, email, first_name, last_name FROM users WHERE id=$1::INTEGER AND "+
+        "(SELECT COUNT(*) FROM group_users WHERE user_id=users.id AND group_id=$2::INTEGER) > 0", [userId, groupId])
         .then(errors.undefinedToError(errors.NotFoundError, "USER_NOT_FOUND", "user"));
 }
 

@@ -7,6 +7,8 @@ const time = require("../../shared/util/time");
 const validator = require("../util/validator");
 const Money = require("../../shared/util/money");
 const categories = require("./categories");
+const users = require("./users");
+const sources = require("./sources");
 const errors = require("../util/errors");
 
 const expenseSelect = "SELECT id, date::DATE, receiver, e.sum::MONEY::NUMERIC, description, source_id, e.user_id, " +
@@ -19,7 +21,7 @@ function getAll(groupId) {
     return db.queryList("expenses.get_all",
         `${expenseSelect} WHERE group_id=$1 ${order}`,
         [groupId])
-        .then(o => o.map(mapExpense));
+        .then(mapExpense);
 }
 
 function getByMonth(groupId, year, month) {
@@ -39,7 +41,7 @@ function getBetween(groupId, startDate, endDate) {
     return db.queryList("expenses.get_between",
         `${expenseSelect} WHERE group_id=$1 AND date >= $2::DATE AND date < $3::DATE ${order}`,
         [groupId, time.date(startDate), time.date(endDate)])
-        .then(o => o.map(mapExpense));
+        .then(mapExpense);
 }
 
 function getById(groupId, expenseId) {
@@ -73,12 +75,19 @@ function createExpense(userId, groupId, expense) {
     log.info("Creating expense", expense);
     const benefit = validateDivision(expense.benefit, expense.sum, "benefit");
     const cost = validateDivision(expense.cost, expense.sum.negate(), "cost");
-    return categories.getById(groupId, expense.categoryId)
-        .then(cat => db.insert("expenses.create",
-        "INSERT INTO expenses (user_id, group_id, date, created, receiver, sum, description, source_id, category_id) " +
-        "VALUES ($1::INTEGER, $2::INTEGER, $3::DATE, NOW(), $4, $5::MONEY, $6, $7, $8::INTEGER) RETURNING id",
-        [userId, groupId, expense.date, expense.receiver, expense.sum.toString(), expense.description,
-            expense.sourceId, cat.id ]))
+    return Promise.all([
+        categories.getById(groupId, expense.categoryId),
+        users.getById(groupId, expense.userId),
+        sources.getById(groupId, expense.sourceId)
+    ]).then(a => {
+        const cat = a[0];
+        const user = a[1];
+        const source = a[2];
+        return db.insert("expenses.create",
+        "INSERT INTO expenses (created_by_id, user_id, group_id, date, created, receiver, sum, description, source_id, category_id) " +
+        "VALUES ($1::INTEGER, $2::INTEGER, $3::INTEGER, $4::DATE, NOW(), $5, $6::MONEY, $7, $8, $9::INTEGER) RETURNING id",
+        [userId, user.id, groupId, expense.date, expense.receiver, expense.sum.toString(), expense.description,
+            source.id, cat.id ])})
         .then(id => Promise.all(
             benefit.map(d => storeDivision(id, userId, "benefit", d.sum)).concat(
                 cost.map(d => storeDivision(id, userId, "cost", d.sum)))).then(u => id))
