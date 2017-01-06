@@ -29,25 +29,46 @@ export default class LoginPage extends React.Component {
         super(props);
         this.state = {
             username: "",
-            password: ""
+            password: "",
+            showStatusMessage: false,
+            statusMessage: "plaa"
         };
-        this.handleClick = this.handleClick.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleLoginError = this.handleLoginError.bind(this);
     }
 
-    handleClick() {
-        console.log("Button clicked: ", this.state.username, this.state.password);
+    handleLoginError(er) {
+        if (er && er.status === 401) {
+            this.setState({
+                statusMessage: "Kirjautuminen epäonnistui. Ole hyvä ja tarkista käyttäjätunnuksesi ja salasanasi.",
+                showStatusMessage : true
+            })
+        } else {
+            this.setState({
+                statusMessage: "Kirjautumisessa tapahtui virhe.",
+                showStatusMessage : true
+            })
+        }
+    }
+
+    handleSubmit(event) {
+        event.preventDefault();
+        this.setState({
+            statusMessage: "",
+            showStatusMessage : false
+        })
         apiConnect.login(this.state.username, this.state.password)
             .then(u => {
                 console.log("logged in", u);
                 login.loginStream.push(u);
-            });
+            })
+            .catch(this.handleLoginError);
     }
 
     render() {
-        console.log("render loginPage");
         return <div className="everything">
-            <div>
-                <Paper style={paperStyle} zDepth={1}>
+            <Paper style={paperStyle} zDepth={1}>
+                <form onSubmit={this.handleSubmit}>
                     <title style={titleStyle} >Kirjaudu sisään</title>
                     <br/>
                     <TextField
@@ -64,12 +85,15 @@ export default class LoginPage extends React.Component {
                         onChange={e => this.setState({ password: e.target.value })}
                     /><br />
                     <RaisedButton
+                        type="submit"
+                        value="Submit"
                         label="Kirjaudu"
                         primary={true}
                         style={loginButtonStyle}
-                        onClick={this.handleClick}/>
-                </Paper>
-            </div>
+                        />
+                    {this.state.showStatusMessage ? <title style={titleStyle}>{this.state.statusMessage}</title> : ""}
+                </form>
+            </Paper>
         </div>;
     }
 
