@@ -1,6 +1,6 @@
 "use strict";
 
-const strings = require("./strings");
+const strings = require("./../../shared/util/strings");
 
 module.exports = {};
 
