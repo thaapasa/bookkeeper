@@ -1,6 +1,6 @@
 "use strict";
 
-const strings = require("./../../shared/util/strings");
+const util = require("./../../shared/util/util");
 
 module.exports = {};
 
@@ -21,7 +21,7 @@ module.exports.emptyToError = function(errorType, p1, p2, p3) {
 function NotFoundError(code, name) {
     this.code = code;
     this.status = 404;
-    this.cause = `${strings.ucFirst(name)} not found`;
+    this.cause = `${util.ucFirst(name)} not found`;
 }
 NotFoundError.prototype = new Error();
 module.exports.NotFoundError = NotFoundError;

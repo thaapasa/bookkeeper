@@ -1,6 +1,6 @@
 "use strict";
 
-const log = require("./log");
+const log = require("./../../shared/util/log");
 const config = require("../config");
 const sessions = require("../data/sessions");
 const moment = require("moment");

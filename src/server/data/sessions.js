@@ -1,6 +1,6 @@
 "use strict";
 
-const log = require("../util/log");
+const log = require("../../shared/util/log");
 const db = require("./db");
 const users = require("./users");
 const sources = require("./sources");

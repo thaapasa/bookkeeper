@@ -1,6 +1,6 @@
 "use strict";
 
-const log = require("./util/log");
+const log = require("./../shared/util/log");
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");

@@ -1,6 +1,6 @@
 "use strict";
 
-const log = require("./log");
+const log = require("./../../shared/util/log");
 const Money = require("../../shared/util/money");
 
 function InvalidInputError(field, input, requirement) {

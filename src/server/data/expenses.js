@@ -1,7 +1,7 @@
 "use strict";
 
 const db = require("./db");
-const log = require("../util/log");
+const log = require("../../shared/util/log");
 const moment = require("moment");
 const time = require("../../shared/util/time");
 const validator = require("../util/validator");
