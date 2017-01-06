@@ -15,7 +15,8 @@ const paperStyle = {
 
 const titleStyle = {
     height: "30px",
-    display: "inline-block"
+    display: "inline-block",
+    maxWidth: "250px"
 };
 
 const loginButtonStyle = {
@@ -90,7 +91,7 @@ export default class LoginPage extends React.Component {
                         label="Kirjaudu"
                         primary={true}
                         style={loginButtonStyle}
-                        />
+                        /><br />
                     {this.state.showStatusMessage ? <title style={titleStyle}>{this.state.statusMessage}</title> : ""}
                 </form>
             </Paper>
