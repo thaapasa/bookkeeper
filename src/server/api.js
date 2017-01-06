@@ -10,7 +10,7 @@ const sources = require("./data/sources");
 const config = require("./config");
 const server = require("./util/server-util");
 const Promise = require("bluebird");
-const validator = require("./util/validator");
+const V = require("./util/validator");
 
 function registerAPI(app) {
 
@@ -73,28 +73,28 @@ function registerAPI(app) {
 
     // GET /api/expense/month
     const monthSchema = {
-        year: validator.intBetween(1500, 3000),
-        month: validator.intBetween(1, 12)
+        year: V.intBetween(1500, 3000),
+        month: V.intBetween(1, 12)
     };
     app.get("/api/expense/month", server.processRequest((session, req) => {
-        const params = validator.validate(monthSchema, { year: req.query.year, month: req.query.month });
+        const params = V.validate(monthSchema, { year: req.query.year, month: req.query.month });
         return expenses.getByMonth(session.group.id, params.year, params.month);
     }, true));
 
     // PUT /api/expense
     const expenseSchema = {
-        userId: validator.positiveInt,
-        date: validator.matchPattern(/[0-9]{4}-[0-9]{2}-[0-9]{2}/),
-        receiver: validator.stringWithLength(1, 50),
-        sum: validator.money,
-        description: validator.stringWithLength(1, 255),
-        sourceId: validator.positiveInt,
-        categoryId: validator.positiveInt,
-        benefit: validator.listOfObjects({ userId: validator.positiveInt, sum: validator.money }),
-        cost: validator.listOfObjects({ userId: validator.positiveInt, sum: validator.money })
+        userId: V.positiveInt,
+        date: V.matchPattern(/[0-9]{4}-[0-9]{2}-[0-9]{2}/),
+        receiver: V.stringWithLength(1, 50),
+        sum: V.money,
+        description: V.stringWithLength(1, 255),
+        sourceId: V.positiveInt,
+        categoryId: V.positiveInt,
+        benefit: V.listOfObjects({ userId: V.positiveInt, sum: V.money }),
+        cost: V.optional(V.listOfObjects({ userId: V.positiveInt, sum: V.money }))
     };
     app.put("/api/expense", server.processRequest((session, req) =>
-        expenses.create(session.user.id, session.group.id, validator.validate(expenseSchema, req.body)), true));
+        expenses.create(session.user.id, session.group.id, V.validate(expenseSchema, req.body)), true));
 
     // GET /api/expense/[expenseId]
     const expensePath = /\/api\/expense\/([0-9]+)/;

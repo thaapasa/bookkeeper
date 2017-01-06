@@ -92,6 +92,13 @@ const validator = {
                 throw new InvalidInputError(field, i, `Input must match pattern ${re}`);
             return i;
         };
+    },
+
+    optional(req) {
+        return (i, field) => {
+            if (typeof i === "undefined") return i;
+            return req(i, field);
+        }
     }
 
 };
