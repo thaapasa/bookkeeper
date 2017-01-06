@@ -11,7 +11,7 @@ const users = require("./users");
 const sources = require("./sources");
 const errors = require("../util/errors");
 
-const expenseSelect = "SELECT id, date::DATE, receiver, e.sum::MONEY::NUMERIC, description, source_id, e.user_id, " +
+const expenseSelect = "SELECT id, date::DATE, receiver, e.sum::MONEY::NUMERIC, description, source_id, e.user_id, created_by_id, " +
     "group_id, category_id, created, d1.sum::MONEY::NUMERIC AS benefit, d2.sum::MONEY::NUMERIC AS cost FROM expenses e " +
     "LEFT JOIN expense_division d1 ON (d1.expense_id = e.id AND d1.user_id = e.user_id AND d1.type='benefit') " +
     "LEFT JOIN expense_division d2 ON (d2.expense_id = e.id AND d2.user_id = e.user_id AND d2.type='cost')";

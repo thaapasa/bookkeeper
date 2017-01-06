@@ -43,12 +43,12 @@ function registerAPI(app) {
 
     // GET /api/user/list
     app.get("/api/user/list", server.processRequest((session, req) =>
-        users.getAll()));
+        users.getAll(session.group.id), true));
 
     // GET /api/user/[userid]
     const userPath = /\/api\/user\/([0-9]+)/;
     app.get(userPath, server.processRequest((session, req) =>
-        users.getById(server.getId(userPath, req))));
+        users.getById(session.group.id, server.getId(userPath, req)), true));
 
 
 

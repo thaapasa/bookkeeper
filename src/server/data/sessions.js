@@ -76,8 +76,9 @@ function appendInfo(session) {
     return Promise.all([
         users.getGroups(session.user.id),
         sources.getAll(session.group.id),
-        categories.getAll(session.group.id)
-    ]).then(a => merge({ groups: a[0], sources: a[1], categories: a[2] }, session));
+        categories.getAll(session.group.id),
+        users.getAll(session.group.id)
+    ]).then(a => merge({ groups: a[0], sources: a[1], categories: a[2], users: a[3] }, session));
 }
 
 function createToken() {
