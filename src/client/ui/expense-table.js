@@ -30,7 +30,8 @@ export default class ExpenseTable extends React.Component {
                 .then(e => {
                     console.log("MonthView: Got expenses", e);
                     this.setState({ expenses: e })
-                });
+                })
+                .catch(err => { console.log("Caught error when getting expenses", err) });
         }
     }
 

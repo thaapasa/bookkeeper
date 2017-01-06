@@ -1,12 +1,14 @@
 import React from "react"
 import ExpenseTable from "./expense-table"
+const moment = require("moment")
 
 export default class MonthView extends React.Component {
 
     constructor(props) {
         super(props);
         console.log("Initializing bookkeeper");
-        this.state = { year : 2016, month : 12};
+        const currentDate = moment();
+        this.state = { year : currentDate.year(), month : currentDate.month() + 1};
     }
 
 

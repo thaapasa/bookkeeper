@@ -31,9 +31,7 @@ function getExpenses(token, group, year, month) {
     return request.get(url)
         .set('Content-Type', 'application/json')
         .set('Authorization', 'Bearer ' + token)
-        .query({year : "2016"})
-        .query({month : "12"})
-        .query({groupId : "1"})
+        .query({year : year, month : month, groupId : group})
         .endAsync()
         .then(req => req.body)
         .catch(defaultErrorHandler);
