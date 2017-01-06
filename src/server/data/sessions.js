@@ -3,6 +3,8 @@
 const log = require("../util/log");
 const db = require("./db");
 const users = require("./users");
+const sources = require("./sources");
+const categories = require("./categories");
 const Promise = require("bluebird");
 const randomBytes = Promise.promisify(require("crypto").randomBytes);
 const config = require("../config");
@@ -69,9 +71,13 @@ function getSession(token, groupId) {
         .then(o => createSessionInfo(o.token, o, o.logintime));
 }
 
-function appendGroups(session) {
-    return users.getGroups(session.user.id)
-        .then(g => merge({ groups: g }, session));
+function appendInfo(session) {
+    log.info(session);
+    return Promise.all([
+        users.getGroups(session.user.id),
+        sources.getAll(session.group.id),
+        categories.getAll(session.group.id)
+    ]).then(a => merge({ groups: a[0], sources: a[1], categories: a[2] }, session));
 }
 
 function createToken() {
@@ -82,5 +88,5 @@ module.exports = {
     login: login,
     logout: logout,
     getSession: getSession,
-    appendGroups: appendGroups
+    appendInfo: appendInfo
 };

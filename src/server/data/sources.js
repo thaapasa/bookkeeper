@@ -13,12 +13,12 @@ function createGroupObject(rows) {
     }, []);
 }
 
-function getAll(groupid, userid) {
+function getAll(groupId) {
     return db.queryList("sources.get_all",
         "SELECT s.id, s.group_id, name, (SELECT SUM(share) FROM source_users WHERE source_id = s.id)::INTEGER AS shares, so.user_id, so.share " +
         "FROM sources s " +
         "LEFT JOIN source_users so ON (so.source_id = s.id) " +
-        "WHERE group_id = $1::INTEGER", [ groupid ])
+        "WHERE group_id = $1::INTEGER", [ groupId ])
         .then(createGroupObject);
 }
 
