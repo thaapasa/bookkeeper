@@ -7,27 +7,27 @@ function createCategoryObject(categories) {
     const res = [];
     const subs = {};
     categories.forEach(c => {
-        if (c.parentid === null) {
+        if (c.parentId === null) {
             c.children = [];
             subs[c.id] = c;
             res.push(c);
         } else {
-            subs[c.parentid].children.push(c);
+            subs[c.parentId].children.push(c);
         }
     });
     return res;
 }
 
-function getAll(groupid) {
-    return db.queryList("categories.getAll", "SELECT id, parentid, name FROM categories WHERE groupid=$1::INTEGER " +
-        "ORDER BY (CASE WHEN parentid IS NULL THEN 1 ELSE 0 END) DESC, parentid ASC, name", [ groupid ])
+function getAll(groupId) {
+    return db.queryList("categories.get_all", "SELECT id, parent_id, name FROM categories WHERE group_id=$1::INTEGER " +
+        "ORDER BY (CASE WHEN parent_id IS NULL THEN 1 ELSE 0 END) DESC, parent_id ASC, name", [ groupId ])
         .then(createCategoryObject);
 }
 
-function getById(groupid, id) {
-    return db.queryObject("categories.getById",
-        "SELECT id, parentid, name FROM categories WHERE id=$1::INTEGER AND groupid=$2::INTEGER ",
-        [ id, groupid ])
+function getById(groupId, id) {
+    return db.queryObject("categories.get_by_id",
+        "SELECT id, parent_id, name FROM categories WHERE id=$1::INTEGER AND group_id=$2::INTEGER ",
+        [ id, groupId ])
         .then(errors.undefinedToError(errors.NotFoundError, "CATEGORY_NOT_FOUND", "category"));
 }
 

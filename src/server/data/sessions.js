@@ -16,14 +16,12 @@ function InvalidTokenError() {
 }
 InvalidTokenError.prototype = new Error();
 
-// const invalidToken = new Error({ code: "INVALID_TOKEN", status: 401, cause: "Invalid access token" });
-
-function createSessionInfo(token, userdata, logintime) {
+function createSessionInfo(token, userData, loginTime) {
     return {
         token: token,
-        user: { id: userdata.id, email: userdata.email, firstname: userdata.firstname, lastname: userdata.lastname },
-        group: { id: userdata.groupid, name: userdata.groupname },
-        logintime: logintime
+        user: { id: userData.id, email: userData.email, firstName: userData.firstName, lastName: userData.lastName },
+        group: { id: userData.groupId, name: userData.groupName },
+        loginTime: loginTime
     };
 }
 
@@ -45,27 +43,27 @@ function createSession(user) {
         .then(token => {
             log.info("User", user.email, "logged in with token", token);
             return db.insert("sessions.create",
-                "INSERT INTO sessions (token, userid, logintime, expirytime) VALUES ($1, $2, NOW(), NOW() + $3::INTERVAL)",
+                "INSERT INTO sessions (token, user_id, login_time, expiry_time) VALUES ($1, $2, NOW(), NOW() + $3::INTERVAL)",
                 [ token, user.id, config.sessionTimeout ]).then(r => token)
         });
 }
 
 function purgeExpiredSessions() {
-    return db.update("sessions.purge", "DELETE FROM sessions WHERE expiryTime <= NOW()");
+    return db.update("sessions.purge", "DELETE FROM sessions WHERE expiry_time <= NOW()");
 }
 
 function getSession(token, groupId) {
     return purgeExpiredSessions()
-        .then(p => db.queryObject("sessions.getByToken",
-            "SELECT s.token, s.userid as id, s.logintime, u.email, u.firstname, u.lastname, g.id AS groupid, g.name as groupname FROM sessions s "+
-            "INNER JOIN users u ON (s.userid = u.id) " +
-            "LEFT JOIN group_users go ON (go.userid = u.id AND go.groupid = $2) " +
-            "LEFT JOIN groups g ON (g.id = go.groupid) " +
-            "WHERE s.token=$1 AND s.expirytime > NOW()", [token, groupId]))
+        .then(p => db.queryObject("sessions.get_by_token",
+            "SELECT s.token, s.user_id as id, s.login_time, u.email, u.first_name, u.last_name, g.id AS group_id, g.name as group_name FROM sessions s "+
+            "INNER JOIN users u ON (s.user_id = u.id) " +
+            "LEFT JOIN group_users go ON (go.user_id = u.id AND go.group_id = $2) " +
+            "LEFT JOIN groups g ON (g.id = go.group_id) " +
+            "WHERE s.token=$1 AND s.expiry_time > NOW()", [token, groupId]))
         .then(o => {
             if (o === undefined) throw new InvalidTokenError();
-            else return db.update("sessions.updateExpiry",
-                "UPDATE sessions SET expirytime=NOW() + $2::INTERVAL WHERE token=$1", [token, config.sessionTimeout])
+            else return db.update("sessions.update_expiry",
+                "UPDATE sessions SET expiry_time=NOW() + $2::INTERVAL WHERE token=$1", [token, config.sessionTimeout])
                 .then(u => o);
         })
         .then(o => createSessionInfo(o.token, o, o.logintime));

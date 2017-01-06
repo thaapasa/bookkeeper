@@ -88,8 +88,8 @@ function registerAPI(app) {
         receiver: validator.stringWithLength(1, 50),
         sum: validator.money,
         description: validator.stringWithLength(1, 255),
-        source: validator.stringWithLength(1, 50),
-        category: validator.positiveInt,
+        sourceId: validator.positiveInt,
+        categoryId: validator.positiveInt,
         benefit: validator.listOfObjects({ userId: validator.positiveInt, sum: validator.money }),
         cost: validator.listOfObjects({ userId: validator.positiveInt, sum: validator.money })
     };

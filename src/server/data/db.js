@@ -4,6 +4,14 @@ const Pool = require("pg-pool");
 const log = require("../util/log");
 const merge = require("merge");
 const config = require("../config");
+const strings = require("../../shared/util/strings");
+
+function camelCaseObject(o) {
+    if (typeof o !== "object") return o;
+    const r = {};
+    Object.keys(o).forEach(k => r[strings.underscoreToCamelCase(k)] = o[k]);
+    return r;
+}
 
 class BookkeeperDB {
 
@@ -12,11 +20,13 @@ class BookkeeperDB {
     }
 
     queryObject(name, query, params) {
-        return this.query(name, query, params, r => (r.rows && r.rows.length > 0) ? r.rows[0] : undefined);
+        return this.query(name, query, params, r => (r.rows && r.rows.length > 0) ? r.rows[0] : undefined)
+            .then(camelCaseObject);
     }
 
     queryList(name, query, params) {
-        return this.query(name, query, params, r => r.rows);
+        return this.query(name, query, params, r => r.rows)
+            .then(l => l.map(r => camelCaseObject(r)));
     }
 
     query(name, query, params, mapper) {

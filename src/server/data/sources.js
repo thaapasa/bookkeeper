@@ -8,17 +8,17 @@ function createGroupObject(rows) {
         if ((list[list.length - 1] ? list[list.length - 1].id : undefined) !== v.id) {
             list.push({ id: v.id, name: v.name, shares: v.shares, users: [] });
         }
-        list[list.length - 1].users.push({ userid: v.userid, share: v.share });
+        list[list.length - 1].users.push({ id: v.userId, share: v.share });
         return list;
     }, []);
 }
 
 function getAll(groupid, userid) {
-    return db.queryList("sources.getAll",
-        "SELECT s.id, s.groupid, name, (SELECT SUM(share) FROM source_users WHERE sourceid = s.id)::INTEGER AS shares, so.userid, so.share " +
+    return db.queryList("sources.get_all",
+        "SELECT s.id, s.group_id, name, (SELECT SUM(share) FROM source_users WHERE source_id = s.id)::INTEGER AS shares, so.user_id, so.share " +
         "FROM sources s " +
-        "LEFT JOIN source_users so ON (so.sourceid = s.id) " +
-        "WHERE groupid = $1::INTEGER", [ groupid ])
+        "LEFT JOIN source_users so ON (so.source_id = s.id) " +
+        "WHERE group_id = $1::INTEGER", [ groupid ])
         .then(createGroupObject);
 }
 
