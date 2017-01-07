@@ -29,12 +29,12 @@ ORDER BY (CASE WHEN parent_id IS NULL THEN 1 ELSE 0 END) DESC, parent_id ASC, na
 
 
 EXPLAIN ANALYZE
-SELECT s.id, s.groupid, name, (SELECT SUM(share) FROM source_users WHERE sourceid = s.id) AS shares, so.userid, so.share
+SELECT s.id, s.group_id, name, (SELECT SUM(share) FROM source_users WHERE source_id = s.id) AS shares, so.user_id, so.share
   FROM sources s
-  LEFT JOIN source_users so ON (so.sourceid = s.id)
-    WHERE groupid = 1;
+  LEFT JOIN source_users so ON (so.source_id = s.id)
+    WHERE group_id = 1;
 
 EXPLAIN ANALYZE
-SELECT org.*, so.userid, so.share
-  FROM (SELECT s.id, s.groupid, name, (SELECT SUM(share) FROM source_users WHERE sourceid = s.id) AS shares FROM sources s WHERE groupid = 1) org
-  LEFT JOIN source_users so ON (so.sourceid = org.id);
+SELECT org.*, so.user_id, so.share
+  FROM (SELECT s.id, s.group_id, name, (SELECT SUM(share) FROM source_users WHERE source_id = s.id) AS shares FROM sources s WHERE group_id = 1) org
+  LEFT JOIN source_users so ON (so.source_id = org.id);
