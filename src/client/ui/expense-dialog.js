@@ -11,18 +11,7 @@ import * as apiConnect from "../data/api-connect";
 import * as state from "../data/state"
 import * as time from "../../shared/util/time"
 
-const fields = ["description", "source", "category", "subcategory", "receiver", "sum"];
-
-const categories = {
-    "Ruoka": ["Työpaikkalounas", "Ravintola"],
-    "Viihde": ["Lehtitilaukset", "Elokuvat ja sarjat", "Kirjat" ],
-    "Asuminen" : [ "Lainanhoito", "Pakolliset", "Sisustus", "Rakentaminen", "Piha" ],
-    "Auto" : [ "Polttoaine", "Huollot", "Vakuutukset", "Tarvikkeet" ],
-    "Liikkuminen" : [ "Matkakortin lataus", "Polkupyöräily", "Taksi" ],
-    "Lomat" : [ "Majoitus", "Matkaliput", "Autonvuokra", "Ruoka", "Nähtävyydet", "Ostokset" ],
-    "Muuta" : [ "Lahjat", "Hyväntekeväisyys" ]
-};
-const categoryList = Object.keys(categories);
+const fields = ["description", "source", "categoryId", "subcategoryId", "receiver", "sum"];
 
 const labelStyle = { width : "30px"}
 
@@ -37,11 +26,15 @@ export default class ExpenseDialog extends React.Component {
         this.state = {
             open: false,
             createNew: true,
-            date: undefined
+            date: undefined,
+            subcategories: []
         };
+        this.categories = state.get("categories");
+        this.sources = state.get("sources");
         fields.forEach(f => this.state[f] = "");
         this.handleClose = this.handleClose.bind(this);
         this.handleSave = this.handleSave.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
     }
 
     handleOpen(expense) {
@@ -58,11 +51,16 @@ export default class ExpenseDialog extends React.Component {
         this.setState({open: false});
     };
 
+    handleSubmit(event) {
+        event.preventDefault();
+        this.handleSave();
+    }
+
     handleSave() {
         console.log("Saving expense");
         this.setState({open: false});
         // TODO: fix group
-        apiConnect.storeExpense(sessionStorage.getItem("token"), 1, {
+        /*apiConnect.storeExpense(sessionStorage.getItem("token"), 1, {
             date: time.date(this.state.date),
             sum: this.state.sum,
             description : this.state.description,
@@ -72,7 +70,7 @@ export default class ExpenseDialog extends React.Component {
             .then(e => {
                 console.log("Stored expense", e);
             });
-
+         */
 
     };
     componentDidMount() {
@@ -102,6 +100,28 @@ export default class ExpenseDialog extends React.Component {
                     open={this.state.open}
                     onRequestClose={this.handleClose}
                 >
+                <form onSubmit={this.handleSubmit}>
+                    <label style={labelStyle}>Summa:
+                        <TextField
+                            hintText="Summa"
+                            style={ formFieldStyle }
+                            value={this.state.sum}
+                            onChange={i => this.setState({sum: i.target.value})}
+
+                        />
+                    </label><br />
+                    <label style={labelStyle}>Tili:
+                        <DropDownMenu
+                            value={this.state.source}
+                            style={ formFieldStyle }
+                            onChange={(i, j, v) => this.setState({ source: v })}
+                        >
+                            <MenuItem value={"SHARED"} primaryText="Yhteinen tili" />
+                            <MenuItem value={"ANU"} primaryText="Anun tili" />
+                            <MenuItem value={"TUUKKA"} primaryText="Tuukan tili" />
+                        </DropDownMenu>
+                    </label><br/>
+
                     <label style={labelStyle}>Kuvaus:
                         <TextField
                             hintText="Kuvaus"
@@ -118,12 +138,12 @@ export default class ExpenseDialog extends React.Component {
                             onChange={(event, date) => this.setState({ date: date })}/></label><br/>
                     <label style={labelStyle}>Kategoria:
                         <DropDownMenu
-                            value={this.state.category}
+                            value={this.state.categoryId}
                             style={ formFieldStyle }
-                            onChange={(i, j, v) => this.setState({ category: v })}
+                            onChange={(i, j, v) => this.setState({ categoryId: v, subcategories: this.categories.find(c => c.id == v).children })}
                     >
-                        { categoryList.map((row, index) => (
-                            <MenuItem key={index} value={row} primaryText={row} />
+                        { this.categories.map((row, index) => (
+                            <MenuItem key={index} value={row.id} primaryText={row.name} />
                         ))}
                     </DropDownMenu>
                     </label>
@@ -133,20 +153,9 @@ export default class ExpenseDialog extends React.Component {
                             style={ formFieldStyle }
                             onChange={(i, j, v) => this.setState({ subcategory: v })}
                         >
-                            { this.state.category && categories[this.state.category].map((row, index) => (
-                                <MenuItem key={index} value={row} primaryText={row} />
+                            { this.state.subcategories.map((row, index) => (
+                                <MenuItem key={index} value={row.id} primaryText={row.name} />
                             ))}
-                        </DropDownMenu>
-                    </label><br/>
-                    <label style={labelStyle}>Tili:
-                        <DropDownMenu
-                            value={this.state.source}
-                            style={ formFieldStyle }
-                            onChange={(i, j, v) => this.setState({ source: v })}
-                        >
-                            <MenuItem value={"SHARED"} primaryText="Yhteinen tili" />
-                            <MenuItem value={"ANU"} primaryText="Anun tili" />
-                            <MenuItem value={"TUUKKA"} primaryText="Tuukan tili" />
                         </DropDownMenu>
                     </label><br/>
                     <label style={labelStyle}>Saaja:
@@ -157,15 +166,7 @@ export default class ExpenseDialog extends React.Component {
                             onChange={i => this.setState({receiver: i.target.value})}
                         />
                     </label><br />
-                    <label style={labelStyle}>Summa:
-                        <TextField
-                            hintText="Summa"
-                            style={ formFieldStyle }
-                            value={this.state.sum}
-                            onChange={i => this.setState({sum: i.target.value})}
-
-                        />
-                    </label><br />
+                    </form>
                 </Dialog>
         );
     }
