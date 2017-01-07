@@ -3,6 +3,8 @@ import {Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow,
     from 'material-ui/Table';
 import * as apiConnect from "../data/api-connect";
 import * as state from  "../data/state";
+const moment = require("moment");
+const Money = require("../../shared/util/money");
 
 const styles = {
     propContainer: {
@@ -65,10 +67,10 @@ export default class ExpenseTable extends React.Component {
                         { this.state.expenses && this.state.expenses.map( (row, index) => (
                             <TableRow key={index} selected={row.selected}>
 
-                                <TableRowColumn>{row.date}</TableRowColumn>
+                                <TableRowColumn>{moment(row.date).format("D.M.")}</TableRowColumn>
                                 <TableRowColumn>{row.description}</TableRowColumn>
                                 <TableRowColumn>{row.category}</TableRowColumn>
-                                <TableRowColumn>{row.sum}</TableRowColumn>
+                                <TableRowColumn>{new Money(row.sum).format()}</TableRowColumn>
                             </TableRow>
                         ))}
                     </TableBody>
