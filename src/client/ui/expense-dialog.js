@@ -6,18 +6,33 @@ import DatePicker from 'material-ui/DatePicker';
 import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
 import TextField from 'material-ui/TextField';
+const moment = require("moment");
 
 import * as apiConnect from "../data/api-connect";
 import * as state from "../data/state"
 import * as time from "../../shared/util/time"
 
-const fields = ["description", "source", "categoryId", "subcategoryId", "receiver", "sum"];
+const fields = {
+    "description": { default: "" },
+    "source": { default: "" },
+    "categoryId": { default: 0 },
+    "subcategoryId": { default: 0 },
+    "receiver": { default: "" },
+    "sum": { default: "" },
+    "date": { default: () => moment().toDate() }
+};
 
-const labelStyle = { width : "30px"}
+const styles = {
+    category: { width: "50%" },
+    source: { width: "100%" }
+};
 
-const formFieldStyle = { paddingLeft : "10px" }
+const defaultCategory = [ { id: 0, name: "Kategoria" }];
+const defaultSubcategory = [ { id: 0, name: "Alikategoria" }];
 
-const datePickerStyle = { paddingLeft : "10px" }
+function getDefault(v) {
+    return typeof v === "function" ? v() : v;
+}
 
 export default class ExpenseDialog extends React.Component {
 
@@ -26,22 +41,23 @@ export default class ExpenseDialog extends React.Component {
         this.state = {
             open: false,
             createNew: true,
-            date: undefined,
-            subcategories: []
+            subcategories: defaultSubcategory
         };
-        this.categories = state.get("categories");
+        this.categories = defaultCategory.concat(state.get("categories"));
         this.sources = state.get("sources");
-        fields.forEach(f => this.state[f] = "");
+        Object.keys(fields).forEach(k => this.state[k] = getDefault(fields[k].default));
         this.handleClose = this.handleClose.bind(this);
         this.handleSave = this.handleSave.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
     handleOpen(expense) {
-        console.log("handleOpen")
+        console.log("handleOpen");
         const newState = { open: true, createNew: expense === undefined };
-        fields.forEach(f => newState[f] = expense ? expense[f] : "");
-        newState.date = expense ? time.fromDate(expense.date).toDate() : undefined;
+        Object.keys(fields).forEach(k => newState[k] = expense ? expense[k] : getDefault(fields[k].default));
+        if (expense) {
+            newState.date = time.fromDate(expense.date).toDate();
+        }
         console.log(newState);
         this.setState(newState);
     };
@@ -101,71 +117,78 @@ export default class ExpenseDialog extends React.Component {
                     onRequestClose={this.handleClose}
                 >
                 <form onSubmit={this.handleSubmit}>
-                    <label style={labelStyle}>Summa:
-                        <TextField
-                            hintText="Summa"
-                            style={ formFieldStyle }
-                            value={this.state.sum}
-                            onChange={i => this.setState({sum: i.target.value})}
-
-                        />
-                    </label><br />
-                    <label style={labelStyle}>Tili:
-                        <DropDownMenu
-                            value={this.state.source}
-                            style={ formFieldStyle }
-                            onChange={(i, j, v) => this.setState({ source: v })}
-                        >
-                            <MenuItem value={"SHARED"} primaryText="Yhteinen tili" />
-                            <MenuItem value={"ANU"} primaryText="Anun tili" />
-                            <MenuItem value={"TUUKKA"} primaryText="Tuukan tili" />
-                        </DropDownMenu>
-                    </label><br/>
-
-                    <label style={labelStyle}>Kuvaus:
-                        <TextField
-                            hintText="Kuvaus"
-                            value={this.state.description}
-                            style={ formFieldStyle }
-                            onChange={i => this.setState({description: i.target.value})}
+                    <TextField
+                        hintText="0.00"
+                        floatingLabelText="Summa"
+                        floatingLabelFixed={true}
+                        fullWidth={true}
+                        value={this.state.sum}
+                        onChange={i => this.setState({sum: i.target.value})}
                     />
-                    </label><br />
-                    <label style={labelStyle}>Päivämäärä:
-                        <DatePicker
-                            value={this.state.date}
-                            hintText="Päivämäärä"
-                            style={datePickerStyle}
-                            onChange={(event, date) => this.setState({ date: date })}/></label><br/>
-                    <label style={labelStyle}>Kategoria:
-                        <DropDownMenu
-                            value={this.state.categoryId}
-                            style={ formFieldStyle }
-                            onChange={(i, j, v) => this.setState({ categoryId: v, subcategories: this.categories.find(c => c.id == v).children })}
+                    <TextField
+                        hintText="Makkaroita"
+                        floatingLabelFixed={true}
+                        floatingLabelText="Kuvaus"
+                        value={this.state.description}
+                        fullWidth={true}
+                        onChange={i => this.setState({description: i.target.value})}
+                    />
+                    <DropDownMenu
+                        value={this.state.categoryId}
+                        id="category"
+                        style={ styles.category }
+                        autoWidth={false}
+                        onChange={(i, j, v) => this.setState({
+                            categoryId: v,
+                            subcategoryId: 0,
+                            subcategories: defaultSubcategory.concat(this.categories.find(c => c.id == v).children)
+                        })}
                     >
                         { this.categories.map((row, index) => (
                             <MenuItem key={index} value={row.id} primaryText={row.name} />
                         ))}
                     </DropDownMenu>
-                    </label>
-                    <label style={labelStyle}>Alikategoria:
-                        <DropDownMenu
-                            value={this.state.subcategory}
-                            style={ formFieldStyle }
-                            onChange={(i, j, v) => this.setState({ subcategory: v })}
-                        >
-                            { this.state.subcategories.map((row, index) => (
-                                <MenuItem key={index} value={row.id} primaryText={row.name} />
-                            ))}
-                        </DropDownMenu>
-                    </label><br/>
-                    <label style={labelStyle}>Saaja:
-                        <TextField
-                            hintText="Saaja"
-                            style={ formFieldStyle }
-                            value={this.state.receiver}
-                            onChange={i => this.setState({receiver: i.target.value})}
-                        />
-                    </label><br />
+                    <DropDownMenu
+                        value={this.state.subcategoryId}
+                        style={ styles.category }
+                        autoWidth={false}
+                        onChange={(i, j, v) => this.setState({ subcategoryId: v })}
+                    >
+                        { this.state.subcategories.map((row, index) => (
+                            <MenuItem key={index} value={row.id} primaryText={row.name} />
+                        ))}
+                    </DropDownMenu>
+                    <br />
+
+                    <DropDownMenu
+                        value={this.state.source}
+                        style={ styles.source }
+                        autoWidth={false}
+                        onChange={(i, j, v) => this.setState({ source: v })}
+                    >
+                        <MenuItem value={"SHARED"} primaryText="Yhteinen tili" />
+                        <MenuItem value={"ANU"} primaryText="Anun tili" />
+                        <MenuItem value={"TUUKKA"} primaryText="Tuukan tili" />
+                    </DropDownMenu>
+                    <br />
+
+                    <DatePicker
+                        value={this.state.date}
+                        formatDate={d => moment(d).format("D.M.YYYY")}
+                        floatingLabelText="Päivämäärä"
+                        floatingLabelFixed={true}
+                        fullWidth={true}
+                        autoOk={true}
+                        onChange={(event, date) => this.setState({ date: date })}/>
+
+                    <TextField
+                        hintText="Kauppa"
+                        floatingLabelText="Saaja"
+                        floatingLabelFixed={true}
+                        fullWidth={true}
+                        value={this.state.receiver}
+                        onChange={i => this.setState({receiver: i.target.value})}
+                    />
                     </form>
                 </Dialog>
         );
