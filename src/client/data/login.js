@@ -5,9 +5,11 @@ import * as apiConnect from "./api-connect"
 import * as state from "./state"
 
 function getLoginFromSession() {
-    if (sessionStorage.getItem("token")) {
-        console.log("not logged in but session token exists in sessionStorage", sessionStorage.getItem("token"));
-        return apiConnect.getSession(sessionStorage.getItem("token"))
+    const token = sessionStorage.getItem("token");
+    if (token) {
+        const groupId = parseInt(sessionStorage.getItem("groupId"), 10);
+        console.log("not logged in but session token exists in sessionStorage", token, "group id", groupId);
+        return apiConnect.getSession(token, groupId)
             .catch(e => undefined);
     }
     else return Promise.resolve(undefined);
@@ -23,7 +25,7 @@ const currentSessionStream = new Bacon.Bus();
 loginStream.onValue(s => {
     console.log("Current session", s);
     state.init();
-    state.set("currentUser", s);
+    state.setDataFromSession(s);
     sessionStorage.setItem("token", (s && s.token) ? s.token : undefined);
     currentSessionStream.push(s);
 });

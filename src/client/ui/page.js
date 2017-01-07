@@ -8,15 +8,24 @@ export default class BookkeeperPage extends React.Component {
     constructor(props) {
         super(props);
         console.log("Initializing bookkeeper");
+        const session = this.props.session;
+        this.state = {
+            session: session,
+            user: session.user,
+            categories: session.categories,
+            groups: session.groups,
+            users: session.users,
+            sources: session.sources
+        };
     }
 
     render() {
-        console.log("render", this.props);
+        console.log("render", this.state);
         return <div className="everything">
             <ExpenseDialog />
-            <TopBar/>
+            <TopBar user={this.state.user} />
             <div className="main-content">
-                <div>Hei { this.props.session.user.firstname }!</div>
+                <div>Hei { this.state.user.firstName }!</div>
                 <div><MonthView/></div>
             </div>
         </div>;

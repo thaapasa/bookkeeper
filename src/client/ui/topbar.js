@@ -13,13 +13,9 @@ export default class ToolbarExamplesSimple extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {
-            value: 3
-        };
     }
 
     handleClick() {
-        console.log("Click!");
         state.get("expenseDialogStream").push(undefined);
     }
 
@@ -30,7 +26,7 @@ export default class ToolbarExamplesSimple extends React.Component {
                     <ToolbarTitle text="Bookkeeper" />
                     <FontIcon className="muidocs-icon-custom-sort" />
                     <RaisedButton label="Kirjaa" primary={true} style={buttonStyle} onTouchTap={this.handleClick} />
-                    <Avatar style={avatarStyle}>J</Avatar>
+                    <Avatar style={avatarStyle}>{this.props.user.firstName.charAt(0)}</Avatar>
                 </ToolbarGroup>
             </Toolbar>
         );
