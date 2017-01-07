@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY,
+  username VARCHAR(32) UNIQUE NOT NULL,
   email VARCHAR(128) UNIQUE NOT NULL,
   password VARCHAR(40) NOT NULL,
   first_name VARCHAR(128),
@@ -52,8 +53,6 @@ CREATE TABLE IF NOT EXISTS source_users (
 );
 CREATE INDEX "source_users_source_id_user_id" ON source_users (source_id, user_id);
 
-INSERT INTO sources (group_id, name) VALUES (1, 'Yhteinen tili'), (1, 'Jennin tili'), (1, 'Salen tili') RETURNING id;
-INSERT INTO source_users (source_id, user_id, share) VALUES (1, 1, 1), (1, 2, 1), (2, 1, 1), (3, 2, 1);
 
 
 CREATE TYPE expense_type AS ENUM ('cost', 'benefit');
@@ -79,4 +78,3 @@ CREATE TABLE IF NOT EXISTS expense_division (
   type expense_type NOT NULL,
   sum MONEY NOT NULL
 );
-

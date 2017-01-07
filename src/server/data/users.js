@@ -35,7 +35,7 @@ function getByCredentials(username, password, groupid) {
         "SELECT u.id, email, first_name, last_name, g.id as group_id, g.name as group_name FROM users u " +
         "LEFT JOIN group_users go ON (go.user_id = u.id AND go.group_id = $3) " +
         "LEFT JOIN groups g ON (g.id = go.group_id) " +
-        "WHERE email=$1 AND password=ENCODE(DIGEST($2, 'sha1'), 'hex')",
+        "WHERE username=$1 AND password=ENCODE(DIGEST($2, 'sha1'), 'hex')",
         [ username, password, groupid ]
     ).then(undefinedToError(InvalidCredentialsError));
 }
