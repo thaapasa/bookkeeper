@@ -1,11 +1,21 @@
 "use strict";
 
-const Big = require('big.js')
+const Big = require('big.js');
+// Two decimal places
+Big.DP = 2;
+// Round down (truncate)
+Big.RM = 0;
+
+function toBig(m) {
+    if (typeof (m.div) === "function") return m;
+    if (typeof (m.divide) === "function" && typeof(m.value) === "object") return m.value;
+    return Big(m);
+}
 
 class Money {
 
     constructor(value) {
-        this.value = value.c ? value : new Big(value);
+        this.value = toBig(value);
     }
 
     toString(scale) {
@@ -15,11 +25,36 @@ class Money {
 
     format(scale) {
         if (scale === undefined) scale = 2;
-        return `this.value.toFixed(scale) €`;
+        return `${this.value.toFixed(scale)} €`;
+    }
+
+    inspect() {
+        return this.format();
     }
 
     plus(o) {
-        return new Money(this.value.plus(o.value));
+        return new Money(this.value.plus(toBig(o)));
+    }
+
+    minus(o) {
+        return new Money(this.value.minus(toBig(o)));
+    }
+
+    toCents() {
+        return parseInt(this.value.times(100).toFixed(0));
+    }
+
+    gte(o) { return this.value.gte(toBig(o)); }
+    gt(o) { return this.value.gt(toBig(o)); }
+    lte(o) { return this.value.lte(toBig(o)); }
+    lt(o) { return this.value.lt(toBig(o)); }
+
+    divide(o) {
+        return new Money(this.value.div(toBig(o)));
+    }
+
+    multiply(o) {
+        return new Money(this.value.times(toBig(o)));
     }
 
     negate() {
@@ -27,11 +62,13 @@ class Money {
     }
 
     equals(o) {
-        return this.value.eq(o.value);
+        return this.value.eq(toBig(o));
     }
 
 };
 
 Money.zero = new Money("0");
+Money.euro = new Money("1");
+Money.cent = new Money("0.01");
 
 module.exports = Money;

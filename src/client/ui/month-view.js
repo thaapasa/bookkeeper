@@ -6,8 +6,8 @@ export default class MonthView extends React.Component {
 
     constructor(props) {
         super(props);
-        console.log("Initializing bookkeeper");
         const currentDate = moment();
+        console.log("Initializing monthView to", currentDate);
         this.state = { year : currentDate.year(), month : currentDate.month() + 1};
     }
 

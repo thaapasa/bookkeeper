@@ -32,4 +32,9 @@ describe("Money", function() {
         expect(new Money("10").plus(new Money(12.50)).toString()).to.equal("22.50");
         expect(new Money("10").plus(new Money(12.50)).equals(new Money(22.50))).to.equal(true);
     });
+
+    it("should divide rounding down", () => {
+        expect(new Money("2").divide(3).toString()).to.equal("0.66");
+        expect(new Money("2").divide(3).toString(3)).to.equal("0.660");
+    });
 });

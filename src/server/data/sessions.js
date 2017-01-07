@@ -1,6 +1,6 @@
 "use strict";
 
-const log = require("../util/log");
+const log = require("../../shared/util/log");
 const db = require("./db");
 const users = require("./users");
 const sources = require("./sources");
@@ -57,7 +57,7 @@ function purgeExpiredSessions() {
 function getSession(token, groupId) {
     return purgeExpiredSessions()
         .then(p => db.queryObject("sessions.get_by_token",
-            "SELECT s.token, s.user_id as id, s.login_time, u.email, u.first_name, u.last_name, g.id AS group_id, g.name as group_name FROM sessions s "+
+            "SELECT s.token, s.user_id as id, s.login_time, u.username, u.email, u.first_name, u.last_name, g.id AS group_id, g.name as group_name FROM sessions s "+
             "INNER JOIN users u ON (s.user_id = u.id) " +
             "LEFT JOIN group_users go ON (go.user_id = u.id AND go.group_id = $2) " +
             "LEFT JOIN groups g ON (g.id = go.group_id) " +

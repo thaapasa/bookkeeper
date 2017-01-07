@@ -1,6 +1,6 @@
 "use strict";
 
-const log = require("./log");
+const log = require("./../../shared/util/log");
 const Money = require("../../shared/util/money");
 
 function InvalidInputError(field, input, requirement) {
@@ -92,6 +92,13 @@ const validator = {
                 throw new InvalidInputError(field, i, `Input must match pattern ${re}`);
             return i;
         };
+    },
+
+    optional(req) {
+        return (i, field) => {
+            if (typeof i === "undefined") return i;
+            return req(i, field);
+        }
     }
 
 };

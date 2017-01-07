@@ -1,15 +1,15 @@
 "use strict";
 
 const Pool = require("pg-pool");
-const log = require("../util/log");
+const log = require("../../shared/util/log");
 const merge = require("merge");
 const config = require("../config");
-const strings = require("../../shared/util/strings");
+const util = require("../../shared/util/util");
 
 function camelCaseObject(o) {
     if (typeof o !== "object") return o;
     const r = {};
-    Object.keys(o).forEach(k => r[strings.underscoreToCamelCase(k)] = o[k]);
+    Object.keys(o).forEach(k => r[util.underscoreToCamelCase(k)] = o[k]);
     return r;
 }
 
