@@ -90,7 +90,7 @@ function registerAPI(app) {
         description: V.stringWithLength(1, 255),
         sourceId: V.positiveInt,
         categoryId: V.positiveInt,
-        benefit: V.listOfObjects({ userId: V.positiveInt, sum: V.money }),
+        benefit: V.optional(V.listOfObjects({ userId: V.positiveInt, sum: V.money })),
         cost: V.optional(V.listOfObjects({ userId: V.positiveInt, sum: V.money }))
     };
     app.put("/api/expense", server.processRequest((session, req) =>
