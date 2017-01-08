@@ -22,9 +22,10 @@ export function init() {
 export function setDataFromSession(session) {
     init();
     state.session = session;
-    state.user = session.user;
-    state.categories = session.categories;
-    state.sources = session.sources;
-    state.groups = session.groups;
-    state.users = session.users;
+    state.token = session ? session.token : undefined;
+    state.user = session ? session.user : undefined;
+    state.categories = session ? session.categories : [];
+    state.sources = session ? session.sources : [];
+    state.groups = session ? session.groups : [];
+    state.users = session ? session.users : [];
 }

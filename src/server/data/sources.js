@@ -25,7 +25,7 @@ function getAll(groupId) {
 }
 
 function getById(groupId, id) {
-    return db.queryList("sources.get_all",
+    return db.queryList("sources.get_by_id",
         `${select} WHERE id=$1::INTEGER AND group_id=$2::INTEGER`, [ id, groupId ])
         .then(errors.emptyToError(errors.NotFoundError, "SOURCE_NOT_FOUND", "source"))
         .then(createGroupObject)

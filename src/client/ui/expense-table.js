@@ -26,15 +26,13 @@ export default class ExpenseTable extends React.Component {
     }
 
     componentDidMount() {
-        if (typeof state.get("currentUser")  !== "undefined") {
-            //TODO: Fix group!!
-            apiConnect.getExpenses(sessionStorage.getItem("token"), 1, this.state.year, this.state.month)
-                .then(e => {
-                    console.log("MonthView: Got expenses", e);
-                    this.setState({ expenses: e })
-                })
-                .catch(err => { console.log("Caught error when getting expenses", err) });
-        }
+        //TODO: Fix group!!
+        apiConnect.getExpenses(state.get("token"), 1, this.state.year, this.state.month)
+            .then(e => {
+                console.log("MonthView: Got expenses", e);
+                this.setState({ expenses: e })
+            })
+            .catch(err => { console.log("Caught error when getting expenses", err) });
     }
 
     render() {
