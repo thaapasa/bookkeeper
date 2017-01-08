@@ -55,7 +55,6 @@ export default class ExpenseTable extends React.Component {
 
     render() {
         return <div> <Table
-                    height="300px"
                     fixedHeader={true}
                     fixedFooter={true}
                     selectable={false}
