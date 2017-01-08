@@ -1,12 +1,25 @@
+CREATE TABLE IF NOT EXISTS groups (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(128)
+);
+
 CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY,
   username VARCHAR(32) UNIQUE NOT NULL,
   email VARCHAR(128) UNIQUE NOT NULL,
   password VARCHAR(40) NOT NULL,
   first_name VARCHAR(128),
-  last_name VARCHAR(128)
+  last_name VARCHAR(128),
+  default_group_id INTEGER REFERENCES groups (id) DEFAULT NULL
 );
 CREATE INDEX "users_email" ON users (email);
+
+CREATE TABLE IF NOT EXISTS group_users (
+  user_id INTEGER REFERENCES users (id) NOT NULL,
+  group_id INTEGER REFERENCES groups (id) NOT NULL
+);
+CREATE INDEX "group_users_user_id" ON group_users(user_id);
+
 
 
 CREATE TABLE IF NOT EXISTS sessions (
@@ -17,17 +30,6 @@ CREATE TABLE IF NOT EXISTS sessions (
 );
 CREATE INDEX "sessions_token" ON sessions (token);
 CREATE INDEX "sessions_expiry" ON sessions (expiry_time);
-
-
-CREATE TABLE IF NOT EXISTS groups (
-  id SERIAL PRIMARY KEY,
-  name VARCHAR(128)
-);
-CREATE TABLE IF NOT EXISTS group_users (
-  user_id INTEGER REFERENCES users (id) NOT NULL,
-  group_id INTEGER REFERENCES groups (id) NOT NULL
-);
-CREATE INDEX "group_users_user_id" ON group_users(user_id);
 
 
 CREATE TABLE IF NOT EXISTS categories (
