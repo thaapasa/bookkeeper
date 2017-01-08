@@ -16,6 +16,7 @@ export function init() {
     state = {};
     // Export state for debugging
     window.state = state;
+    state.expenseDialogStream && state.expenseDialogStream.end();
     state.expenseDialogStream = new Bacon.Bus();
 }
 
