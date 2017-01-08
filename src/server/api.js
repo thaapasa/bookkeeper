@@ -69,7 +69,7 @@ function registerAPI(app) {
 
     // GET /api/expense/list
     app.get("/api/expense/list", server.processRequest(session =>
-        expenses.getAll(session.group.id), true));
+        expenses.getAll(session.group.id, session.user.id), true));
 
     // GET /api/expense/month
     const monthSchema = {
@@ -78,7 +78,7 @@ function registerAPI(app) {
     };
     app.get("/api/expense/month", server.processRequest((session, req) => {
         const params = V.validate(monthSchema, { year: req.query.year, month: req.query.month });
-        return expenses.getByMonth(session.group.id, params.year, params.month);
+        return expenses.getByMonth(session.group.id, session.user.id, params.year, params.month);
     }, true));
 
     // PUT /api/expense
@@ -99,7 +99,7 @@ function registerAPI(app) {
     // GET /api/expense/[expenseId]
     const expensePath = /\/api\/expense\/([0-9]+)/;
     app.get(expensePath, server.processRequest((session, req) =>
-        expenses.getById(session.group.id, server.getId(expensePath, req)), true));
+        expenses.getById(session.group.id, session.user.id, server.getId(expensePath, req)), true));
 
     // DELETE /api/expense/[expenseId]
     app.delete(expensePath, server.processRequest((session, req) =>

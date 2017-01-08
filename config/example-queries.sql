@@ -22,3 +22,9 @@ SELECT org.*, so.user_id, so.share
 FROM (SELECT s.id, s.group_id, name, (SELECT SUM(share) FROM source_users WHERE source_id = s.id) AS shares FROM sources s WHERE group_id = 1) org
   LEFT JOIN source_users so ON (so.source_id = org.id);
 
+
+SELECT id, date::DATE, receiver, e.sum::MONEY::NUMERIC, description, source_id, e.user_id, created_by_id,
+  group_id, category_id, created, d1.sum::NUMERIC AS benefit, d2.sum::NUMERIC AS cost FROM expenses e
+  LEFT JOIN expense_division d1 ON (d1.expense_id = e.id AND d1.user_id = 4 AND d1.type='benefit')
+  LEFT JOIN expense_division d2 ON (d2.expense_id = e.id AND d2.user_id = 4 AND d2.type='cost')
+  WHERE group_id=3 AND date >= '2017-01-01'::DATE AND date < '2017-02-01'::DATE ORDER BY DATE ASC;

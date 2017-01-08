@@ -14,21 +14,21 @@ const splitter = require("../../shared/util/splitter");
 
 const expenseSelect = "SELECT id, date::DATE, receiver, e.sum::MONEY::NUMERIC, description, source_id, e.user_id, created_by_id, " +
     "group_id, category_id, created, d1.sum::NUMERIC AS benefit, d2.sum::NUMERIC AS cost FROM expenses e " +
-    "LEFT JOIN expense_division d1 ON (d1.expense_id = e.id AND d1.user_id = e.user_id AND d1.type='benefit') " +
-    "LEFT JOIN expense_division d2 ON (d2.expense_id = e.id AND d2.user_id = e.user_id AND d2.type='cost')";
+    "LEFT JOIN expense_division d1 ON (d1.expense_id = e.id AND d1.user_id = $1 AND d1.type='benefit') " +
+    "LEFT JOIN expense_division d2 ON (d2.expense_id = e.id AND d2.user_id = $1 AND d2.type='cost')";
 const order = "ORDER BY date ASC";
 
-function getAll(groupId) {
+function getAll(groupId, userId) {
     return db.queryList("expenses.get_all",
-        `${expenseSelect} WHERE group_id=$1 ${order}`,
-        [groupId])
+        `${expenseSelect} WHERE group_id=$2 ${order}`,
+        [userId, groupId])
         .then(mapExpense);
 }
 
-function getByMonth(groupId, year, month) {
+function getByMonth(groupId, userId, year, month) {
     const startDate = time.month(year, month);
     const endDate = startDate.clone().add(1, "months");
-    return getBetween(groupId, startDate, endDate);
+    return getBetween(groupId, userId, startDate, endDate);
 }
 
 function mapExpense(e) {
@@ -37,24 +37,24 @@ function mapExpense(e) {
     return e;
 }
 
-function getBetween(groupId, startDate, endDate) {
+function getBetween(groupId, userId, startDate, endDate) {
     log.debug("Querying for expenses between", time.iso(startDate), "and", time.iso(endDate), "for group", groupId);
     return db.queryList("expenses.get_between",
-        `${expenseSelect} WHERE group_id=$1 AND date >= $2::DATE AND date < $3::DATE ${order}`,
-        [groupId, time.date(startDate), time.date(endDate)])
+        `${expenseSelect} WHERE group_id=$2 AND date >= $3::DATE AND date < $4::DATE ${order}`,
+        [userId, groupId, time.date(startDate), time.date(endDate)])
         .then(mapExpense);
 }
 
-function getById(groupId, expenseId) {
+function getById(groupId, userId, expenseId) {
     return db.queryObject("expenses.get_by_id",
-        `${expenseSelect} WHERE id=$1 AND group_id=$2`,
-        [expenseId, groupId])
+        `${expenseSelect} WHERE id=$2 AND group_id=$3`,
+        [userId, expenseId, groupId])
         .then(mapExpense);
 }
 
-function deleteById(groupId, expenseId) {
-    return db.update("expenses.delete_by_id", "DELETE FROM expenses WHERE id=$1 AND group_id=$2",
-        [expenseId, groupId])
+function deleteById(groupId, userId, expenseId) {
+    return db.update("expenses.delete_by_id", "DELETE FROM expenses WHERE id=$2 AND group_id=$3",
+        [userId, expenseId, groupId])
         .then(i => ({ status: "OK", message: "Expense deleted", expenseId: expenseId }));
 }
 
