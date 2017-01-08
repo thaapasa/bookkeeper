@@ -84,12 +84,13 @@ function getBenefitFromCost(cost) {
     return cost.map(negateSum);
 }
 
-function createExpense(userId, groupId, expense) {
+function createExpense(userId, groupId, expense, defaultSourceId) {
     log.info("Creating expense", expense);
+    const sourceId = expense.sourceId || defaultSourceId;
     return Promise.all([
         categories.getById(groupId, expense.categoryId),
         users.getById(groupId, expense.userId),
-        sources.getById(groupId, expense.sourceId)
+        sources.getById(groupId, sourceId)
     ]).then(a => {
         const cat = a[0];
         const user = a[1];

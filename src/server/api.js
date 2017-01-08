@@ -88,13 +88,13 @@ function registerAPI(app) {
         receiver: V.stringWithLength(1, 50),
         sum: V.money,
         description: V.stringWithLength(1, 255),
-        sourceId: V.positiveInt,
+        sourceId: V.optional(V.positiveInt),
         categoryId: V.positiveInt,
         benefit: V.optional(V.listOfObjects({ userId: V.positiveInt, sum: V.money })),
         cost: V.optional(V.listOfObjects({ userId: V.positiveInt, sum: V.money }))
     };
     app.put("/api/expense", server.processRequest((session, req) =>
-        expenses.create(session.user.id, session.group.id, V.validate(expenseSchema, req.body)), true));
+        expenses.create(session.user.id, session.group.id, V.validate(expenseSchema, req.body), session.group.defaultSourceId), true));
 
     // GET /api/expense/[expenseId]
     const expensePath = /\/api\/expense\/([0-9]+)/;
