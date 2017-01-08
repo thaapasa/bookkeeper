@@ -90,8 +90,8 @@ export default class ExpenseTable extends React.Component {
                                 <TableRowColumn>{this.getCategoryString(row.categoryId)}</TableRowColumn>
                                 <TableRowColumn>{new Money(row.sum).format()}</TableRowColumn>
                                 <TableRowColumn>{state.get("sources").find(s => s.id == row.sourceId).name}</TableRowColumn>
-                                <TableRowColumn style={styles.benefit}>{new Money(row.benefit).format()}</TableRowColumn>
-                                <TableRowColumn style={styles.cost}>{new Money(row.cost).format()}</TableRowColumn>
+                                <TableRowColumn style={styles.benefit}>{new Money(row.benefit ? row.benefit : "0.00").format()}</TableRowColumn>
+                                <TableRowColumn style={styles.cost}>{new Money(row.cost ? row.cost : "0.00").format()}</TableRowColumn>
                             </TableRow>
                         ))}
                     </TableBody>
