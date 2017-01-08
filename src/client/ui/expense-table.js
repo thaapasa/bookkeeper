@@ -24,6 +24,15 @@ const styles = {
     },
     dateColumn: {
         width: "30px"
+    },
+    descriptionColumn: {
+        width: "150px"
+    },
+    categoryColumn: {
+        width: "150px"
+    },
+    header: {
+        color: "lightgrey"
     }
 };
 
@@ -67,34 +76,25 @@ export default class ExpenseTable extends React.Component {
                     selectable={false}
                     multiSelectable={false}
                 >
-                    <TableHeader
-                        displaySelectAll={false}
-                        adjustForCheckbox={false}
-                        enableSelectAll={false}
-                    >
-                        <TableRow>
-                            <TableHeaderColumn colSpan="6" style={{textAlign: 'center'}}>
-                                { this.getYearMonthString() }
-                            </TableHeaderColumn>
-                        </TableRow>
-                        <TableRow>
-                            <TableHeaderColumn style={styles.dateColumn} tooltip="Pvm">Pvm</TableHeaderColumn>
-                            <TableHeaderColumn tooltip="Kuvaus">Kuvaus</TableHeaderColumn>
-                            <TableHeaderColumn tooltip="Kategoria">Kategoria</TableHeaderColumn>
-                            <TableHeaderColumn tooltip="Summa">Summa</TableHeaderColumn>
-                            <TableHeaderColumn tooltip="Tili">Tili</TableHeaderColumn>
-                            <TableHeaderColumn tooltip="Hyöty">Hyöty</TableHeaderColumn>
-                            <TableHeaderColumn tooltip="Hinta">Hinta</TableHeaderColumn>
-                        </TableRow>
-                    </TableHeader>
+
                     <TableBody
                         displayRowCheckbox={false}
                     >
+                            <TableRow selected={false}>
+                                <TableRowColumn style={styles.dateColumn, styles.header} >Pvm</TableRowColumn>
+                                <TableRowColumn style={styles.descriptionColumn, styles.header}>Kuvaus</TableRowColumn>
+                                <TableRowColumn style={styles.categoryColumn, styles.header}>Kategoria</TableRowColumn>
+                                <TableRowColumn style={styles.sumColumn, styles.header}>Summa</TableRowColumn>
+                                <TableRowColumn style={styles.sourceColumn, styles.header}>Tili</TableRowColumn>
+                                <TableRowColumn style={styles.benefit, styles.header}>Hyöty</TableRowColumn>
+                                <TableRowColumn style={styles.cost, styles.header}>Hinta</TableRowColumn>
+                            </TableRow>
+
                         { this.state.expenses && this.state.expenses.map( (row, index) => (
                             <TableRow key={index} selected={row.selected}>
                                 <TableRowColumn style={styles.dateColumn} >{moment(row.date).format("D.M.")}</TableRowColumn>
-                                <TableRowColumn>{row.description}</TableRowColumn>
-                                <TableRowColumn>{this.getCategoryString(row.categoryId)}</TableRowColumn>
+                                <TableRowColumn style={styles.descriptionColumn}>{row.description}</TableRowColumn>
+                                <TableRowColumn style={styles.categoryColumn}>{this.getCategoryString(row.categoryId)}</TableRowColumn>
                                 <TableRowColumn>{new Money(row.sum).format()}</TableRowColumn>
                                 <TableRowColumn>{state.get("sources").find(s => s.id == row.sourceId).name}</TableRowColumn>
                                 <TableRowColumn style={styles.benefit}>{new Money(row.benefit ? row.benefit : "0.00").format()}</TableRowColumn>
