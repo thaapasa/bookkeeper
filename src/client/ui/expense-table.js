@@ -20,6 +20,9 @@ const styles = {
     },
     cost: {
         color: "red"
+    },
+    dateColumn: {
+        width: "30px"
     }
 };
 
@@ -69,7 +72,7 @@ export default class ExpenseTable extends React.Component {
                             </TableHeaderColumn>
                         </TableRow>
                         <TableRow>
-                            <TableHeaderColumn tooltip="Pvm">Pvm</TableHeaderColumn>
+                            <TableHeaderColumn style={styles.dateColumn} tooltip="Pvm">Pvm</TableHeaderColumn>
                             <TableHeaderColumn tooltip="Kuvaus">Kuvaus</TableHeaderColumn>
                             <TableHeaderColumn tooltip="Kategoria">Kategoria</TableHeaderColumn>
                             <TableHeaderColumn tooltip="Summa">Summa</TableHeaderColumn>
@@ -83,7 +86,7 @@ export default class ExpenseTable extends React.Component {
                     >
                         { this.state.expenses && this.state.expenses.map( (row, index) => (
                             <TableRow key={index} selected={row.selected}>
-                                <TableRowColumn>{moment(row.date).format("D.M.")}</TableRowColumn>
+                                <TableRowColumn style={styles.dateColumn} >{moment(row.date).format("D.M.")}</TableRowColumn>
                                 <TableRowColumn>{row.description}</TableRowColumn>
                                 <TableRowColumn>{this.getCategoryString(row.categoryId)}</TableRowColumn>
                                 <TableRowColumn>{new Money(row.sum).format()}</TableRowColumn>
