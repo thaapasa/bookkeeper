@@ -31,6 +31,16 @@ export default class ExpenseTable extends React.Component {
         this.state = { year : this.props.year, month : this.props.month, expenses : undefined };
     }
 
+    getCategoryString(categoryId) {
+        console.log("getCategoryString", categoryId);
+        let categoryString = "";
+        const category = state.get("categoryMap").get(categoryId);
+        if (category.parentId)
+            categoryString +=  this.getCategoryString(category.parentId) + " - " ;
+        categoryString += category.name;
+        return categoryString;
+    }
+
     componentDidMount() {
         //TODO: Fix group!!
         apiConnect.getExpenses(state.get("token"), 1, this.state.year, this.state.month)
@@ -75,7 +85,7 @@ export default class ExpenseTable extends React.Component {
                             <TableRow key={index} selected={row.selected}>
                                 <TableRowColumn>{moment(row.date).format("D.M.")}</TableRowColumn>
                                 <TableRowColumn>{row.description}</TableRowColumn>
-                                <TableRowColumn>{row.category}</TableRowColumn>
+                                <TableRowColumn>{this.getCategoryString(row.categoryId)}</TableRowColumn>
                                 <TableRowColumn>{new Money(row.sum).format()}</TableRowColumn>
                                 <TableRowColumn style={styles.benefit}>{new Money(row.benefit).format()}</TableRowColumn>
                                 <TableRowColumn style={styles.cost}>{new Money(row.cost).format()}</TableRowColumn>
