@@ -34,6 +34,7 @@ export function setDataFromSession(session) {
     state.session = session;
     state.token = session ? session.token : undefined;
     state.user = session ? session.user : undefined;
+    state.group = session ? session.group : undefined;
     session && setCategories(session.categories);
     state.sources = session ? session.sources : [];
     state.groups = session ? session.groups : [];

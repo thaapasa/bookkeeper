@@ -14,7 +14,7 @@ import * as time from "../../shared/util/time"
 
 const fields = {
     "description": { default: "" },
-    "source": { default: "" },
+    "sourceId": { default: () => state.get("group").defaultSourceId },
     "categoryId": { default: 0 },
     "subcategoryId": { default: 0 },
     "receiver": { default: "" },
