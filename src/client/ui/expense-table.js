@@ -15,6 +15,12 @@ const styles = {
     propToggleHeader: {
         margin: '20px auto 10px',
     },
+    benefit: {
+        color: "green"
+    },
+    cost: {
+        color: "red"
+    }
 };
 
 export default class ExpenseTable extends React.Component {
@@ -49,7 +55,7 @@ export default class ExpenseTable extends React.Component {
                         enableSelectAll={false}
                     >
                         <TableRow>
-                            <TableHeaderColumn colSpan="4" tooltip="Kulut" style={{textAlign: 'left'}}>
+                            <TableHeaderColumn colSpan="6" tooltip="Kulut" style={{textAlign: 'left'}}>
                                 Kulut
                             </TableHeaderColumn>
                         </TableRow>
@@ -58,6 +64,8 @@ export default class ExpenseTable extends React.Component {
                             <TableHeaderColumn tooltip="Kuvaus">Kuvaus</TableHeaderColumn>
                             <TableHeaderColumn tooltip="Kategoria">Kategoria</TableHeaderColumn>
                             <TableHeaderColumn tooltip="Summa">Summa</TableHeaderColumn>
+                            <TableHeaderColumn tooltip="Hyöty">Hyöty</TableHeaderColumn>
+                            <TableHeaderColumn tooltip="Hinta">Hinta</TableHeaderColumn>
                         </TableRow>
                     </TableHeader>
                     <TableBody
@@ -65,11 +73,12 @@ export default class ExpenseTable extends React.Component {
                     >
                         { this.state.expenses && this.state.expenses.map( (row, index) => (
                             <TableRow key={index} selected={row.selected}>
-
                                 <TableRowColumn>{moment(row.date).format("D.M.")}</TableRowColumn>
                                 <TableRowColumn>{row.description}</TableRowColumn>
                                 <TableRowColumn>{row.category}</TableRowColumn>
                                 <TableRowColumn>{new Money(row.sum).format()}</TableRowColumn>
+                                <TableRowColumn style={styles.benefit}>{new Money(row.benefit).format()}</TableRowColumn>
+                                <TableRowColumn style={styles.cost}>{new Money(row.cost).format()}</TableRowColumn>
                             </TableRow>
                         ))}
                     </TableBody>
