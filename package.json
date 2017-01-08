@@ -1,6 +1,6 @@
 {
   "name": "bookkeeper",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "main": "bookkeeper-server.js",
   "scripts": {
     "start": "NODE_ENV=development script/update-revision.sh && node src/server/bookkeeper-server.js",

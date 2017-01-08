@@ -99,7 +99,7 @@ function createExpense(userId, groupId, expense, defaultSourceId) {
         const benefit = expense.benefit ? validateDivision(expense.benefit, expense.sum, "benefit") : getBenefitFromCost(cost);
         return db.insert("expenses.create",
             "INSERT INTO expenses (created_by_id, user_id, group_id, date, created, receiver, sum, description, source_id, category_id) " +
-            "VALUES ($1::INTEGER, $2::INTEGER, $3::INTEGER, $4::DATE, NOW(), $5, $6::MONEY, $7, $8, $9::INTEGER) RETURNING id",
+            "VALUES ($1::INTEGER, $2::INTEGER, $3::INTEGER, $4::DATE, NOW(), $5, $6::NUMERIC::MONEY, $7, $8, $9::INTEGER) RETURNING id",
             [userId, user.id, groupId, expense.date, expense.receiver, expense.sum.toString(), expense.description,
                 source.id, cat.id ])
             .then(expenseId => Promise.all(
