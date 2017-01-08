@@ -7,9 +7,9 @@ import * as state from "./state"
 function getLoginFromSession() {
     const token = sessionStorage.getItem("token");
     if (token) {
-        const groupId = parseInt(sessionStorage.getItem("groupId"), 10);
-        console.log("not logged in but session token exists in sessionStorage", token, "group id", groupId);
-        return apiConnect.getSession(token, groupId)
+        console.log("not logged in but session token exists in sessionStorage", token);
+        state.set("token", token);
+        return apiConnect.getSession()
             .catch(e => undefined);
     }
     else return Promise.resolve(undefined);

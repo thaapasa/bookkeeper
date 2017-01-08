@@ -86,7 +86,7 @@ export default class ExpenseDialog extends React.Component {
         console.log("Saving expense", expense);
         this.setState({open: false});
         // TODO: fix group
-        apiConnect.storeExpense(sessionStorage.getItem("token"), 1, expense)
+        apiConnect.storeExpense(expense)
             .then(e => { console.log("Stored expense", e); });
     };
     componentDidMount() {

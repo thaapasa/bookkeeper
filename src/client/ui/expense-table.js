@@ -42,8 +42,7 @@ export default class ExpenseTable extends React.Component {
     }
 
     componentDidMount() {
-        //TODO: Fix group!!
-        apiConnect.getExpenses(state.get("token"), 1, this.state.year, this.state.month)
+        apiConnect.getExpenses(this.state.year, this.state.month)
             .then(e => {
                 console.log("MonthView: Got expenses", e);
                 this.setState({ expenses: e })
