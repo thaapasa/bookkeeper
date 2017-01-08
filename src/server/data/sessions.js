@@ -21,8 +21,8 @@ InvalidTokenError.prototype = new Error();
 function createSessionInfo(token, userData, loginTime) {
     return {
         token: token,
-        user: { id: userData.id, email: userData.email, firstName: userData.firstName, lastName: userData.lastName },
-        group: { id: userData.groupId, name: userData.groupName },
+        user: { id: userData.id, email: userData.email, firstName: userData.firstName, lastName: userData.lastName, defaultGroupId: userData.defaultGroupId },
+        group: { id: userData.groupId, name: userData.groupName, defaultSourceId: userData.defaultSourceId },
         loginTime: loginTime
     };
 }
@@ -57,7 +57,8 @@ function purgeExpiredSessions() {
 function getSession(token, groupId) {
     return purgeExpiredSessions()
         .then(p => db.queryObject("sessions.get_by_token",
-            "SELECT s.token, s.user_id as id, s.login_time, u.username, u.email, u.first_name, u.last_name, g.id AS group_id, g.name as group_name FROM sessions s "+
+            "SELECT s.token, s.user_id as id, s.login_time, u.username, u.email, u.first_name, u.last_name, u.default_group_id," +
+            "g.id AS group_id, g.name as group_name, go.default_source_id FROM sessions s "+
             "INNER JOIN users u ON (s.user_id = u.id) " +
             "LEFT JOIN group_users go ON (go.user_id = u.id AND go.group_id = COALESCE($2, u.default_group_id)) " +
             "LEFT JOIN groups g ON (g.id = go.group_id) " +

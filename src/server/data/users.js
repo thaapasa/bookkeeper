@@ -32,7 +32,7 @@ InvalidCredentialsError.prototype = new Error();
 
 function getByCredentials(username, password, groupid) {
     return db.queryObject("users.get_by_credentials",
-        "SELECT u.id, username, email, first_name, last_name, g.id as group_id, g.name as group_name FROM users u " +
+        "SELECT u.id, username, email, first_name, last_name, default_group_id, g.id as group_id, g.name as group_name, go.default_source_id FROM users u " +
         "LEFT JOIN group_users go ON (go.user_id = u.id AND go.group_id = COALESCE($3, u.default_group_id)) " +
         "LEFT JOIN groups g ON (g.id = go.group_id) " +
         "WHERE username=$1 AND password=ENCODE(DIGEST($2, 'sha1'), 'hex')",
