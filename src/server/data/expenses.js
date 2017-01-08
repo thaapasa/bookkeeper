@@ -72,12 +72,16 @@ function storeDivision(expenseId, userId, type, sum) {
         [expenseId, userId, type, sum.toString()])
 }
 
+function negateSum(s) {
+    return Object.assign({}, s, { sum: s.sum.negate() });
+}
+
 function getCostFromSource(sum, source) {
-    return splitter.splitByShares(sum, source.users.map(u => ({ userId: u.id, share: u.share })));
+    return splitter.splitByShares(sum, source.users.map(u => ({ userId: u.id, share: u.share }))).map(negateSum);
 }
 
 function getBenefitFromCost(cost) {
-    return cost.map(a => Object.assign({}, a, { sum: a.sum.negate() }));
+    return cost.map(negateSum);
 }
 
 function createExpense(userId, groupId, expense) {
