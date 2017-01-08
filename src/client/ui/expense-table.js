@@ -3,6 +3,7 @@ import {Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow,
     from 'material-ui/Table';
 import * as apiConnect from "../data/api-connect";
 import * as state from  "../data/state";
+import * as time from "../../shared/util/time"
 const moment = require("moment");
 const Money = require("../../shared/util/money");
 
@@ -55,6 +56,10 @@ export default class ExpenseTable extends React.Component {
         this.getExpensesForView();
     }
 
+    getYearMonthString() {
+        return time.getFinnishMonthName(this.state.month) + " " + this.state.year;
+    }
+
     render() {
         return <div> <Table
                     fixedHeader={true}
@@ -68,8 +73,8 @@ export default class ExpenseTable extends React.Component {
                         enableSelectAll={false}
                     >
                         <TableRow>
-                            <TableHeaderColumn colSpan="6" tooltip="Kulut" style={{textAlign: 'left'}}>
-                                Kulut
+                            <TableHeaderColumn colSpan="6" style={{textAlign: 'center'}}>
+                                { this.getYearMonthString() }
                             </TableHeaderColumn>
                         </TableRow>
                         <TableRow>

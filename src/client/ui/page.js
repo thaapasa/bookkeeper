@@ -20,12 +20,10 @@ export default class BookkeeperPage extends React.Component {
     }
 
     render() {
-        console.log("render", this.state);
         return <div className="everything">
             <ExpenseDialog />
             <TopBar user={this.state.user} />
             <div className="main-content">
-                <div>Hei { this.state.user.firstName }!</div>
                 <div><MonthView/></div>
             </div>
         </div>;

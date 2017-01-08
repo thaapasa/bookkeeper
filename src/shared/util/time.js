@@ -18,9 +18,17 @@ function iso(m) {
     return moment(m).format("YYYY-MM-DDTHH:mm:ssZ");
 }
 
+const months = ["Tammikuu", "Helmikuu", "Maaliskuu", "Huhtikuu", "Toukokuu", "Kesäkuu", "Heinäkuu", "Elokuu",
+    "Syyskuu", "Lokakuu", "Marraskuu", "Joulukuu"];
+
+function getFinnishMonthName(monthNumber) {
+    return months[monthNumber];
+}
+
 module.exports = {
     month: month,
     iso: iso,
     date: date,
-    fromDate: fromDate
+    fromDate: fromDate,
+    getFinnishMonthName : getFinnishMonthName
 };
