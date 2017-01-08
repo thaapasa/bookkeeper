@@ -3,6 +3,13 @@ CREATE TABLE IF NOT EXISTS groups (
   name VARCHAR(128)
 );
 
+CREATE TABLE IF NOT EXISTS sources (
+  id SERIAL PRIMARY KEY,
+  group_id INTEGER REFERENCES users (id) NOT NULL,
+  name VARCHAR(100) NOT NULL
+);
+CREATE INDEX "sources_group_id" ON sources (group_id);
+
 CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY,
   username VARCHAR(32) UNIQUE NOT NULL,
@@ -16,9 +23,18 @@ CREATE INDEX "users_email" ON users (email);
 
 CREATE TABLE IF NOT EXISTS group_users (
   user_id INTEGER REFERENCES users (id) NOT NULL,
-  group_id INTEGER REFERENCES groups (id) NOT NULL
+  group_id INTEGER REFERENCES groups (id) NOT NULL,
+  default_source_id INTEGER REFERENCES sources (id) DEFAULT NULL
 );
 CREATE INDEX "group_users_user_id" ON group_users(user_id);
+
+CREATE TABLE IF NOT EXISTS source_users (
+  source_id INTEGER REFERENCES sources (id) NOT NULL,
+  user_id INTEGER REFERENCES users (id) NOT NULL,
+  share INTEGER
+);
+CREATE INDEX "source_users_source_id_user_id" ON source_users (source_id, user_id);
+
 
 
 
@@ -40,20 +56,6 @@ CREATE TABLE IF NOT EXISTS categories (
 );
 CREATE INDEX "categories_group_id" ON categories (group_id);
 
-
-CREATE TABLE IF NOT EXISTS sources (
-  id SERIAL PRIMARY KEY,
-  group_id INTEGER REFERENCES users (id) NOT NULL,
-  name VARCHAR(100) NOT NULL
-);
-CREATE INDEX "sources_group_id" ON sources (group_id);
-
-CREATE TABLE IF NOT EXISTS source_users (
-  source_id INTEGER REFERENCES sources (id) NOT NULL,
-  user_id INTEGER REFERENCES users (id) NOT NULL,
-  share INTEGER
-);
-CREATE INDEX "source_users_source_id_user_id" ON source_users (source_id, user_id);
 
 
 

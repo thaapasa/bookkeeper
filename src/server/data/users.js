@@ -12,8 +12,8 @@ function getAll(groupId) {
 
 function getById(groupId, userId) {
     return db.queryObject("users.get_by_id",
-        "SELECT id, username, email, first_name, last_name FROM users WHERE id=$1::INTEGER AND "+
-        "(SELECT COUNT(*) FROM group_users WHERE user_id=users.id AND group_id=$2::INTEGER) > 0", [userId, groupId])
+        "SELECT id, username, email, first_name, last_name FROM users u WHERE id=$1::INTEGER AND "+
+        "(SELECT COUNT(*) FROM group_users WHERE user_id=u.id AND group_id=COALESCE($2, u.default_group_id)) > 0", [userId, groupId])
         .then(errors.undefinedToError(errors.NotFoundError, "USER_NOT_FOUND", "user"));
 }
 
@@ -32,8 +32,8 @@ InvalidCredentialsError.prototype = new Error();
 
 function getByCredentials(username, password, groupid) {
     return db.queryObject("users.get_by_credentials",
-        "SELECT u.id, username, email, first_name, last_name, g.id as group_id, g.name as group_name FROM users u " +
-        "LEFT JOIN group_users go ON (go.user_id = u.id AND go.group_id = $3) " +
+        "SELECT u.id, username, email, first_name, last_name, default_group_id, g.id as group_id, g.name as group_name, go.default_source_id FROM users u " +
+        "LEFT JOIN group_users go ON (go.user_id = u.id AND go.group_id = COALESCE($3, u.default_group_id)) " +
         "LEFT JOIN groups g ON (g.id = go.group_id) " +
         "WHERE username=$1 AND password=ENCODE(DIGEST($2, 'sha1'), 'hex')",
         [ username, password, groupid ]
