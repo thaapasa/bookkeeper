@@ -30,12 +30,10 @@ export default class ExpenseTable extends React.Component {
 
     constructor(props) {
         super(props);
-        console.log("expenseTable constructor", this.props.year, this.props.month);
         this.state = { year : this.props.year, month : this.props.month, expenses : undefined };
     }
 
     getCategoryString(categoryId) {
-        console.log("getCategoryString", categoryId);
         let categoryString = "";
         const category = state.get("categoryMap").get(categoryId);
         if (category.parentId)
@@ -44,13 +42,17 @@ export default class ExpenseTable extends React.Component {
         return categoryString;
     }
 
-    componentDidMount() {
+    getExpensesForView() {
         apiConnect.getExpenses(this.state.year, this.state.month)
             .then(e => {
-                console.log("MonthView: Got expenses", e);
                 this.setState({ expenses: e })
             })
             .catch(err => { console.log("Caught error when getting expenses", err) });
+    }
+
+    componentDidMount() {
+        state.get("expensesUpdatedStream").onValue(e => { this.getExpensesForView() });
+        this.getExpensesForView();
     }
 
     render() {

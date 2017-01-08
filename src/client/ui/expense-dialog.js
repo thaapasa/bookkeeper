@@ -87,7 +87,10 @@ export default class ExpenseDialog extends React.Component {
         this.setState({open: false});
         // TODO: fix group
         apiConnect.storeExpense(expense)
-            .then(e => { console.log("Stored expense", e); });
+            .then(e => {
+                console.log("Stored expense", e);
+                state.get("expensesUpdatedStream").push(expense);
+            });
     };
     componentDidMount() {
         state.get("expenseDialogStream").onValue(e => {console.log("dialog onValue"); this.handleOpen(e)});
