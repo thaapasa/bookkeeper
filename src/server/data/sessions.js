@@ -59,7 +59,7 @@ function getSession(token, groupId) {
         .then(p => db.queryObject("sessions.get_by_token",
             "SELECT s.token, s.user_id as id, s.login_time, u.username, u.email, u.first_name, u.last_name, g.id AS group_id, g.name as group_name FROM sessions s "+
             "INNER JOIN users u ON (s.user_id = u.id) " +
-            "LEFT JOIN group_users go ON (go.user_id = u.id AND go.group_id = $2) " +
+            "LEFT JOIN group_users go ON (go.user_id = u.id AND go.group_id = COALESCE($2, u.default_group_id)) " +
             "LEFT JOIN groups g ON (g.id = go.group_id) " +
             "WHERE s.token=$1 AND s.expiry_time > NOW()", [token, groupId]))
         .then(o => {
@@ -68,7 +68,7 @@ function getSession(token, groupId) {
                 "UPDATE sessions SET expiry_time=NOW() + $2::INTERVAL WHERE token=$1", [token, config.sessionTimeout])
                 .then(u => o);
         })
-        .then(o => createSessionInfo(o.token, o, o.logintime));
+        .then(o => createSessionInfo(o.token, o, o.loginTime));
 }
 
 function appendInfo(session) {
