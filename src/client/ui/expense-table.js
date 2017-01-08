@@ -73,6 +73,7 @@ export default class ExpenseTable extends React.Component {
                             <TableHeaderColumn tooltip="Kuvaus">Kuvaus</TableHeaderColumn>
                             <TableHeaderColumn tooltip="Kategoria">Kategoria</TableHeaderColumn>
                             <TableHeaderColumn tooltip="Summa">Summa</TableHeaderColumn>
+                            <TableHeaderColumn tooltip="Tili">Tili</TableHeaderColumn>
                             <TableHeaderColumn tooltip="Hyöty">Hyöty</TableHeaderColumn>
                             <TableHeaderColumn tooltip="Hinta">Hinta</TableHeaderColumn>
                         </TableRow>
@@ -86,6 +87,7 @@ export default class ExpenseTable extends React.Component {
                                 <TableRowColumn>{row.description}</TableRowColumn>
                                 <TableRowColumn>{this.getCategoryString(row.categoryId)}</TableRowColumn>
                                 <TableRowColumn>{new Money(row.sum).format()}</TableRowColumn>
+                                <TableRowColumn>{state.get("sources").find(s => s.id == row.sourceId).name}</TableRowColumn>
                                 <TableRowColumn style={styles.benefit}>{new Money(row.benefit).format()}</TableRowColumn>
                                 <TableRowColumn style={styles.cost}>{new Money(row.cost).format()}</TableRowColumn>
                             </TableRow>
