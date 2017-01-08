@@ -6,7 +6,10 @@ import DatePicker from 'material-ui/DatePicker';
 import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
 import TextField from 'material-ui/TextField';
+import UserSelector from "./user-selector";
 const moment = require("moment");
+import * as splitter from "../../shared/util/splitter";
+import Money from "../../shared/util/money";
 
 import * as apiConnect from "../data/api-connect";
 import * as state from "../data/state"
@@ -19,7 +22,8 @@ const fields = {
     "subcategoryId": { default: 0 },
     "receiver": { default: "" },
     "sum": { default: "" },
-    "date": { default: () => moment().toDate() }
+    "date": { default: () => moment().toDate() },
+    "benefit": { default: () => [state.get("user").id] }
 };
 
 const styles = {
@@ -74,6 +78,7 @@ export default class ExpenseDialog extends React.Component {
     }
 
     handleSave() {
+        const benefit = splitter.splitByShares(new Money(this.state.sum), this.state.benefit.map(id => ({ userId: id, share: 1 })));
         const expense = {
             date: time.date(this.state.date),
             sum: this.state.sum,
@@ -81,15 +86,15 @@ export default class ExpenseDialog extends React.Component {
             sourceId: this.state.sourceId,
             categoryId: this.state.subcategoryId ? this.state.subcategoryId : this.state.categoryId,
             receiver: this.state.receiver,
+            benefit: benefit.map(b => ({ userId: b.userId, sum: b.sum.toString() })),
             userId: state.get("user").id
         };
         console.log("Saving expense", expense);
-        this.setState({open: false});
-        // TODO: fix group
         apiConnect.storeExpense(expense)
             .then(e => {
                 console.log("Stored expense", e);
                 state.get("expensesUpdatedStream").push(expense);
+                this.setState({open: false});
             });
     };
     componentDidMount() {
@@ -163,14 +168,17 @@ export default class ExpenseDialog extends React.Component {
                 </DropDownMenu>
                 <br />
 
-                <DropDownMenu
-                    value={this.state.sourceId}
-                    style={ styles.source }
-                    autoWidth={false}
-                    onChange={(i, j, v) => this.setState({ sourceId: v })}
-                >
-                    { this.sources.map((row, index) => <MenuItem key={row.id} value={row.id} primaryText={row.name}/>) }
-                </DropDownMenu>
+                <div style={{ display: "flex", flexWrap: "nowrap" }}>
+                    <DropDownMenu
+                        value={this.state.sourceId}
+                        style={{ flexGrow: "1" }}
+                        autoWidth={false}
+                        onChange={(i, j, v) => this.setState({ sourceId: v })}
+                    >
+                        { this.sources.map((row, index) => <MenuItem key={row.id} value={row.id} primaryText={row.name}/>) }
+                    </DropDownMenu>
+                    <UserSelector style={{ paddingTop: "0.5em" }} selected={this.state.benefit} onChange={x => this.setState({ benefit: x })} />
+                </div>
                 <br />
 
                 <DatePicker
