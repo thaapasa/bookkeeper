@@ -96,10 +96,19 @@ function registerAPI(app) {
     app.put("/api/expense", server.processRequest((session, req) =>
         expenses.create(session.user.id, session.group.id, V.validate(expenseSchema, req.body), session.group.defaultSourceId), true));
 
-    // GET /api/expense/[expenseId]
     const expensePath = /\/api\/expense\/([0-9]+)/;
-    app.get(expensePath, server.processRequest((session, req) =>
-        expenses.getById(session.group.id, session.user.id, server.getId(expensePath, req)), true));
+    function getExpenseById(session, req) {
+        return expenses.getById(session.group.id, session.user.id, server.getId(expensePath, req));
+    }
+
+    // POST /api/expense/[expenseId]
+    app.post(expensePath, server.processRequest((session, req) =>
+        getExpenseById(session, req)
+            .then(e => expenses.update(e, V.validate(expenseSchema, req.body),
+                session.group.defaultSourceId)), true));
+
+    // GET /api/expense/[expenseId]
+    app.get(expensePath, server.processRequest(getExpenseById, true));
 
     // DELETE /api/expense/[expenseId]
     app.delete(expensePath, server.processRequest((session, req) =>

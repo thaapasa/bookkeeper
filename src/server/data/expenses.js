@@ -72,6 +72,10 @@ function storeDivision(expenseId, userId, type, sum) {
         [expenseId, userId, type, sum.toString()])
 }
 
+function deleteDivision(expenseId) {
+    return db.insert("expense.delete.division", "DELETE FROM expense_division WHERE expense_id=$1::INTEGER", [expenseId])
+}
+
 function negateSum(s) {
     return Object.assign({}, s, { sum: s.sum.negate() });
 }
@@ -82,6 +86,12 @@ function getCostFromSource(sum, source) {
 
 function getBenefitFromCost(cost) {
     return cost.map(negateSum);
+}
+
+function createDivision(expenseId, benefit, cost) {
+    return Promise.all(
+        benefit.map(d => storeDivision(expenseId, d.userId, "benefit", d.sum)).concat(
+            cost.map(d => storeDivision(expenseId, d.userId, "cost", d.sum)))).then(u => expenseId)
 }
 
 function createExpense(userId, groupId, expense, defaultSourceId) {
@@ -102,11 +112,29 @@ function createExpense(userId, groupId, expense, defaultSourceId) {
             "VALUES ($1::INTEGER, $2::INTEGER, $3::INTEGER, $4::DATE, NOW(), $5, $6::NUMERIC::MONEY, $7, $8, $9::INTEGER) RETURNING id",
             [userId, user.id, groupId, expense.date, expense.receiver, expense.sum.toString(), expense.description,
                 source.id, cat.id ])
-            .then(expenseId => Promise.all(
-                benefit.map(d => storeDivision(expenseId, d.userId, "benefit", d.sum)).concat(
-                    cost.map(d => storeDivision(expenseId, d.userId, "cost", d.sum)))).then(u => expenseId))
+            .then(expenseId => createDivision(expenseId, benefit, cost))
     })
     .then(id => ({ status: "OK", message: "Expense created", expenseId: id }));
+}
+
+function updateExpense(original, expense, defaultSourceId) {
+    log.info("Updating expense", original, "to", expense);
+    const sourceId = expense.sourceId || defaultSourceId;
+    return Promise.all([
+        categories.getById(original.groupId, expense.categoryId),
+        sources.getById(original.groupId, sourceId)
+    ]).then(a => {
+        const cat = a[0];
+        const source = a[1];
+        const cost = expense.cost ? validateDivision(expense.cost, expense.sum.negate(), "cost") : getCostFromSource(expense.sum, source);
+        const benefit = expense.benefit ? validateDivision(expense.benefit, expense.sum, "benefit") : getBenefitFromCost(cost);
+        return deleteDivision(original.id)
+            .then(() => db.insert("expenses.update",
+            "UPDATE expenses SET date=$2::DATE, receiver=$3, sum=$4, description=$5, source_id=$6::INTEGER, category_id=$7::INTEGER " +
+            "WHERE id=$1",
+            [original.id, expense.date, expense.receiver, expense.sum.toString(), expense.description, source.id, cat.id ]))
+            .then(expenseId => createDivision(original.id, benefit, cost))
+    }).then(id => ({ status: "OK", message: "Expense updated", expenseId: id }));
 }
 
 module.exports = {
@@ -115,5 +143,6 @@ module.exports = {
     getByMonth: getByMonth,
     getById: getById,
     deleteById: deleteById,
-    create: createExpense
+    create: createExpense,
+    update: updateExpense
 };
