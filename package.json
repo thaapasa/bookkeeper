@@ -3,7 +3,9 @@
   "version": "0.0.10",
   "main": "bookkeeper-server.js",
   "scripts": {
-    "start": "NODE_ENV=development script/update-revision.sh && node src/server/bookkeeper-server.js",
+    "start": "npm run update:revision && npm run start:server",
+    "start:server": "NODE_ENV=development node src/server/bookkeeper-server.js",
+    "update:revision": "script/update-revision.sh",
     "test": "npm run build:test && npm run run:test",
     "run:test": "node_modules/mocha/bin/mocha",
     "build:client": "NODE_ENV=development node_modules/browserify/bin/cmd.js --debug src/client/client.js -t [ envify --NODE_ENV development ] -t [ babelify --presets [ es2015 react ] ] -o public/js/bookkeeper.js",
