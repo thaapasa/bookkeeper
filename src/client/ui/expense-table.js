@@ -22,6 +22,9 @@ const styles = {
     cost: {
         color: "red"
     },
+    balance: {
+        color: "blue"
+    },
     dateColumn: {
         width: "30px"
     },
@@ -89,19 +92,26 @@ export default class ExpenseTable extends React.Component {
                                 <TableRowColumn style={styles.header}>Tili</TableRowColumn>
                                 <TableRowColumn style={Object.assign({}, styles.benefit, styles.header)}>Hyöty</TableRowColumn>
                                 <TableRowColumn style={Object.assign({}, styles.cost, styles.header)}>Hinta</TableRowColumn>
+                                <TableRowColumn style={Object.assign({}, styles.cost, styles.header)}>Balanssi</TableRowColumn>
                             </TableRow>
 
-                        { this.state.expenses && this.state.expenses.map( (row, index) => (
-                            <TableRow key={index} selected={row.selected}>
-                                <TableRowColumn style={styles.dateColumn} >{moment(row.date).format("D.M.")}</TableRowColumn>
+                        { this.state.expenses && this.state.expenses.map( (row, index) => {
+                            const benefit = new Money(row.benefit ? row.benefit : "0.00");
+                            const cost = new Money(row.cost ? row.cost : "0.00");
+                            const balance = cost.plus(benefit);
+                            return <TableRow key={index} selected={row.selected}>
+                                <TableRowColumn
+                                    style={styles.dateColumn}>{moment(row.date).format("D.M.")}</TableRowColumn>
                                 <TableRowColumn style={styles.descriptionColumn}>{row.description}</TableRowColumn>
-                                <TableRowColumn style={styles.categoryColumn}>{this.getCategoryString(row.categoryId)}</TableRowColumn>
+                                <TableRowColumn
+                                    style={styles.categoryColumn}>{this.getCategoryString(row.categoryId)}</TableRowColumn>
                                 <TableRowColumn>{new Money(row.sum).format()}</TableRowColumn>
                                 <TableRowColumn>{state.get("sources").find(s => s.id == row.sourceId).name}</TableRowColumn>
-                                <TableRowColumn style={styles.benefit}>{new Money(row.benefit ? row.benefit : "0.00").format()}</TableRowColumn>
-                                <TableRowColumn style={styles.cost}>{new Money(row.cost ? row.cost : "0.00").format()}</TableRowColumn>
+                                <TableRowColumn style={styles.benefit}>{ benefit.format() }</TableRowColumn>
+                                <TableRowColumn style={styles.cost}>{ cost.format() }</TableRowColumn>
+                                <TableRowColumn style={styles.balance}>{ balance.format() }</TableRowColumn>
                             </TableRow>
-                        ))}
+                        })}
                     </TableBody>
                 </Table>
             </div>;
