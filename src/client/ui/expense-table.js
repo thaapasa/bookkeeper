@@ -56,6 +56,7 @@ export default class ExpenseTable extends React.Component {
         apiConnect.getExpenses(this.state.year, this.state.month)
             .then(e => {
                 this.setState({ expenses: e })
+                return null;
             })
             .catch(err => { console.log("Caught error when getting expenses", err) });
     }
