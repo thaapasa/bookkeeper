@@ -55,7 +55,7 @@ export default class ExpenseTable extends React.Component {
     getExpensesForView() {
         apiConnect.getExpenses(this.state.year, this.state.month)
             .then(e => {
-                this.setState({ expenses: e })
+                this.setState({ expenses: e });
                 return null;
             })
             .catch(err => { console.log("Caught error when getting expenses", err) });
@@ -82,13 +82,13 @@ export default class ExpenseTable extends React.Component {
                         displayRowCheckbox={false}
                     >
                             <TableRow selected={false}>
-                                <TableRowColumn style={styles.dateColumn, styles.header} >Pvm</TableRowColumn>
-                                <TableRowColumn style={styles.descriptionColumn, styles.header}>Kuvaus</TableRowColumn>
-                                <TableRowColumn style={styles.categoryColumn, styles.header}>Kategoria</TableRowColumn>
-                                <TableRowColumn style={styles.sumColumn, styles.header}>Summa</TableRowColumn>
-                                <TableRowColumn style={styles.sourceColumn, styles.header}>Tili</TableRowColumn>
-                                <TableRowColumn style={styles.benefit, styles.header}>Hyöty</TableRowColumn>
-                                <TableRowColumn style={styles.cost, styles.header}>Hinta</TableRowColumn>
+                                <TableRowColumn style={Object.assign({}, styles.dateColumn, styles.header)} >Pvm</TableRowColumn>
+                                <TableRowColumn style={Object.assign({}, styles.descriptionColumn, styles.header)}>Kuvaus</TableRowColumn>
+                                <TableRowColumn style={Object.assign({}, styles.categoryColumn, styles.header)}>Kategoria</TableRowColumn>
+                                <TableRowColumn style={styles.header}>Summa</TableRowColumn>
+                                <TableRowColumn style={styles.header}>Tili</TableRowColumn>
+                                <TableRowColumn style={Object.assign({}, styles.benefit, styles.header)}>Hyöty</TableRowColumn>
+                                <TableRowColumn style={Object.assign({}, styles.cost, styles.header)}>Hinta</TableRowColumn>
                             </TableRow>
 
                         { this.state.expenses && this.state.expenses.map( (row, index) => (
