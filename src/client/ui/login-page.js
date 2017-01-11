@@ -62,6 +62,7 @@ export default class LoginPage extends React.Component {
             .then(u => {
                 console.log("logged in", u);
                 login.loginStream.push(u);
+                return null;
             })
             .catch(this.handleLoginError);
     }
