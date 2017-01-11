@@ -26,6 +26,18 @@ function put(path, data, query) {
         .catch(defaultErrorHandler);
 }
 
+function post(path, data, query) {
+    const token = state.get("token");
+    return request.post(path)
+        .query(query ? query : {})
+        .set("Content-Type", "application/json")
+        .set("Authorization", `Bearer ${token}`)
+        .send(data)
+        .endAsync()
+        .then(req => req.body)
+        .catch(defaultErrorHandler);
+}
+
 function del(path, data, query) {
     const token = state.get("token");
     return request.delete(path)
@@ -61,6 +73,10 @@ function storeExpense(expense) {
     return put("/api/expense", expense);
 }
 
+function updateExpense(id, expense) {
+    return post(`/api/expense/${parseInt(id, 10)}`, expense);
+}
+
 function deleteExpense(id) {
     return del(`/api/expense/${parseInt(id, 10)}`);
 }
@@ -72,5 +88,5 @@ function defaultErrorHandler(er) {
 
 module.exports = {
     login : login, getSession : getSession,
-    getExpenses : getExpenses, storeExpense : storeExpense, deleteExpense: deleteExpense
+    getExpenses : getExpenses, storeExpense : storeExpense, deleteExpense: deleteExpense, updateExpense: updateExpense
 };

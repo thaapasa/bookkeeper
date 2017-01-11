@@ -57,6 +57,7 @@ export default class ExpenseDialog extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
+            id: null,
             open: false,
             createNew: true,
             subcategories: defaultSubcategory
@@ -78,6 +79,7 @@ export default class ExpenseDialog extends React.Component {
         if (expense) {
             newState.date = time.fromDate(expense.date).toDate();
         }
+        newState.id = expense ? expense.id : null;
         console.log(expense, newState);
         this.setState(newState);
         this.setCategory(newState.categoryId, newState.subcategoryId);
@@ -107,7 +109,7 @@ export default class ExpenseDialog extends React.Component {
         };
 
         console.log("Saving expense", expense);
-        apiConnect.storeExpense(expense)
+        (this.state.createNew ? apiConnect.storeExpense(expense) : apiConnect.updateExpense(this.state.id, expense))
             .then(e => {
                 console.log("Stored expense", e);
                 state.get("expensesUpdatedStream").push(expense);
