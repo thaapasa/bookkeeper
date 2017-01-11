@@ -80,6 +80,11 @@ export default class ExpenseTable extends React.Component {
                     selectable={false}
                     multiSelectable={false}
                 >
+                    <TableRow>
+                        <TableHeaderColumn colSpan="9" style={{textAlign: 'center', fontSize: "14pt" }}>
+                            { this.getYearMonthString() }
+                        </TableHeaderColumn>
+                    </TableRow>
 
                     <TableBody
                         displayRowCheckbox={false}
