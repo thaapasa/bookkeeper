@@ -1,6 +1,9 @@
 import React from 'react';
 import {Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn}
     from 'material-ui/Table';
+import FontIcon from 'material-ui/FontIcon';
+import IconButton from 'material-ui/IconButton';
+
 import * as apiConnect from "../data/api-connect";
 import * as state from  "../data/state";
 import * as time from "../../shared/util/time"
@@ -74,11 +77,15 @@ export default class ExpenseTable extends React.Component {
     }
 
     render() {
-        return <div> <Table
-                    fixedHeader={true}
-                    fixedFooter={true}
-                    selectable={false}
-                    multiSelectable={false}
+        return <div>
+            <Table
+                fixedHeader={true}
+                fixedFooter={true}
+                selectable={false}
+                multiSelectable={false}>
+
+                <TableBody
+                    displayRowCheckbox={false}
                 >
                     <TableRow>
                         <TableHeaderColumn colSpan="9" style={{textAlign: 'center', fontSize: "14pt" }}>
@@ -86,39 +93,41 @@ export default class ExpenseTable extends React.Component {
                         </TableHeaderColumn>
                     </TableRow>
 
-                    <TableBody
-                        displayRowCheckbox={false}
-                    >
-                            <TableRow selected={false}>
-                                <TableRowColumn style={Object.assign({}, styles.dateColumn, styles.header)} >Pvm</TableRowColumn>
-                                <TableRowColumn style={Object.assign({}, styles.descriptionColumn, styles.header)}>Kuvaus</TableRowColumn>
-                                <TableRowColumn style={Object.assign({}, styles.categoryColumn, styles.header)}>Kategoria</TableRowColumn>
-                                <TableRowColumn style={styles.header}>Summa</TableRowColumn>
-                                <TableRowColumn style={styles.header}>Tili</TableRowColumn>
-                                <TableRowColumn style={Object.assign({}, styles.benefit, styles.header)}>Hyöty</TableRowColumn>
-                                <TableRowColumn style={Object.assign({}, styles.cost, styles.header)}>Hinta</TableRowColumn>
-                                <TableRowColumn style={Object.assign({}, styles.cost, styles.header)}>Balanssi</TableRowColumn>
-                            </TableRow>
+                    <TableRow selected={false}>
+                        <TableRowColumn style={Object.assign({}, styles.dateColumn, styles.header)} >Pvm</TableRowColumn>
+                        <TableRowColumn style={Object.assign({}, styles.descriptionColumn, styles.header)}>Kuvaus</TableRowColumn>
+                        <TableRowColumn style={Object.assign({}, styles.categoryColumn, styles.header)}>Kategoria</TableRowColumn>
+                        <TableRowColumn style={styles.header}>Summa</TableRowColumn>
+                        <TableRowColumn style={styles.header}>Tili</TableRowColumn>
+                        <TableRowColumn style={Object.assign({}, styles.benefit, styles.header)}>Hyöty</TableRowColumn>
+                        <TableRowColumn style={Object.assign({}, styles.cost, styles.header)}>Hinta</TableRowColumn>
+                        <TableRowColumn style={Object.assign({}, styles.cost, styles.header)}>Balanssi</TableRowColumn>
+                        <TableRowColumn/>
+                    </TableRow>
 
-                        { this.state.expenses && this.state.expenses.map( (row, index) => {
-                            const benefit = new Money(row.benefit ? row.benefit : "0.00");
-                            const cost = new Money(row.cost ? row.cost : "0.00");
-                            const balance = cost.plus(benefit);
-                            return <TableRow key={index} selected={row.selected}>
-                                <TableRowColumn
-                                    style={styles.dateColumn}>{moment(row.date).format("D.M.")}</TableRowColumn>
-                                <TableRowColumn style={styles.descriptionColumn}>{row.description}</TableRowColumn>
-                                <TableRowColumn
-                                    style={styles.categoryColumn}>{this.getCategoryString(row.categoryId)}</TableRowColumn>
-                                <TableRowColumn>{new Money(row.sum).format()}</TableRowColumn>
-                                <TableRowColumn>{state.get("sources").find(s => s.id == row.sourceId).name}</TableRowColumn>
-                                <TableRowColumn style={styles.benefit}>{ benefit.format() }</TableRowColumn>
-                                <TableRowColumn style={styles.cost}>{ cost.format() }</TableRowColumn>
-                                <TableRowColumn style={styles.balance}>{ balance.format() }</TableRowColumn>
-                            </TableRow>
-                        })}
-                    </TableBody>
-                </Table>
-            </div>;
+                    { this.state.expenses && this.state.expenses.map( (row, index) => {
+                        const benefit = new Money(row.benefit ? row.benefit : "0.00");
+                        const cost = new Money(row.cost ? row.cost : "0.00");
+                        const balance = cost.plus(benefit);
+                        return <TableRow key={index} selected={row.selected}>
+                            <TableRowColumn
+                                style={styles.dateColumn}>{moment(row.date).format("D.M.")}</TableRowColumn>
+                            <TableRowColumn style={styles.descriptionColumn}>{row.description}</TableRowColumn>
+                            <TableRowColumn
+                                style={styles.categoryColumn}>{this.getCategoryString(row.categoryId)}</TableRowColumn>
+                            <TableRowColumn>{new Money(row.sum).format()}</TableRowColumn>
+                            <TableRowColumn>{state.get("sources").find(s => s.id == row.sourceId).name}</TableRowColumn>
+                            <TableRowColumn style={styles.benefit}>{ benefit.format() }</TableRowColumn>
+                            <TableRowColumn style={styles.cost}>{ cost.format() }</TableRowColumn>
+                            <TableRowColumn style={styles.balance}>{ balance.format() }</TableRowColumn>
+                            <TableRowColumn>
+                                <IconButton iconClassName="material-icons" tooltip="Muokkaa"
+                                            onClick={()=>state.get("expenseDialogStream").push(row)}>edit</IconButton>
+                            </TableRowColumn>
+                        </TableRow>
+                    })}
+                </TableBody>
+            </Table>
+        </div>
     }
 }
