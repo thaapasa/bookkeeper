@@ -24,10 +24,10 @@ export function init() {
 
 export function setCategories(categories) {
     state.categories = categories ? categories : undefined;
-    state.categoryMap = new Map();
+    state.categoryMap = {};
     categories.forEach(c => {
-        state.categoryMap.set(c.id, c);
-        c.children && c.children.forEach(ch => {state.categoryMap.set(ch.id, ch);});
+        state.categoryMap[c.id] = c;
+        c.children && c.children.forEach(ch => state.categoryMap[ch.id] = ch);
     });
 }
 
@@ -42,3 +42,4 @@ export function setDataFromSession(session) {
     state.groups = session ? session.groups : [];
     state.users = session ? session.users : [];
 }
+

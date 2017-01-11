@@ -51,7 +51,7 @@ export default class ExpenseTable extends React.Component {
 
     getCategoryString(categoryId) {
         let categoryString = "";
-        const category = state.get("categoryMap").get(categoryId);
+        const category = state.get("categoryMap")[categoryId];
         if (category.parentId)
             categoryString +=  this.getCategoryString(category.parentId) + " - " ;
         categoryString += category.name;
