@@ -47,6 +47,8 @@ export default class ExpenseTable extends React.Component {
     constructor(props) {
         super(props);
         this.state = { year : this.props.year, month : this.props.month, expenses : undefined };
+        this.deleteExpense = this.deleteExpense.bind(this);
+        this.getExpensesForView = this.getExpensesForView.bind(this);
     }
 
     getCategoryString(categoryId) {
@@ -59,7 +61,7 @@ export default class ExpenseTable extends React.Component {
     }
 
     getExpensesForView() {
-        apiConnect.getExpenses(this.state.year, this.state.month)
+        return apiConnect.getExpenses(this.state.year, this.state.month)
             .then(e => {
                 this.setState({ expenses: e });
                 return null;
@@ -74,6 +76,12 @@ export default class ExpenseTable extends React.Component {
 
     getYearMonthString() {
         return time.getFinnishMonthName(this.state.month) + " " + this.state.year;
+    }
+
+    deleteExpense(e) {
+        apiConnect.deleteExpense(e.id)
+            .then(this.getExpensesForView)
+            .catch(e => console.log("Could not delete:", e));
     }
 
     render() {
@@ -121,8 +129,10 @@ export default class ExpenseTable extends React.Component {
                             <TableRowColumn style={styles.cost}>{ cost.format() }</TableRowColumn>
                             <TableRowColumn style={styles.balance}>{ balance.format() }</TableRowColumn>
                             <TableRowColumn>
-                                <IconButton iconClassName="material-icons" tooltip="Muokkaa"
+                                <IconButton iconClassName="material-icons" title="Muokkaa"
                                             onClick={()=>state.get("expenseDialogStream").push(row)}>edit</IconButton>
+                                <IconButton iconClassName="material-icons" title="Poista"
+                                            onClick={()=>this.deleteExpense(row)} iconStyle={{ color: "red"}}>delete</IconButton>
                             </TableRowColumn>
                         </TableRow>
                     })}
