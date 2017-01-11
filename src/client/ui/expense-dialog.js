@@ -31,7 +31,7 @@ const fields = {
     "subcategoryId": { default: 0, read: (e) => e.categoryId },
     "receiver": { default: "" },
     "sum": { default: "" },
-    "date": { default: () => moment().toDate() },
+    "date": { default: () => moment().toDate(), read: (e) => time.fromDate(e.date).toDate() },
     "benefit": { default: () => [state.get("user").id], read: (e) => [e.userId] }
 };
 
@@ -78,7 +78,7 @@ export default class ExpenseDialog extends React.Component {
         if (expense) {
             newState.date = time.fromDate(expense.date).toDate();
         }
-        console.log(newState);
+        console.log(expense, newState);
         this.setState(newState);
         this.setCategory(newState.categoryId, newState.subcategoryId);
     };

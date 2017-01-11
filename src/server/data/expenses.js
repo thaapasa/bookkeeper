@@ -42,7 +42,7 @@ function getBetween(groupId, userId, startDate, endDate) {
     return db.queryList("expenses.get_between",
         `${expenseSelect} WHERE group_id=$2 AND date >= $3::DATE AND date < $4::DATE ${order}`,
         [userId, groupId, time.date(startDate), time.date(endDate)])
-        .then(mapExpense);
+        .then(l => l.map(mapExpense));
 }
 
 function getById(groupId, userId, expenseId) {
