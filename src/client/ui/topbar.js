@@ -5,7 +5,6 @@ import RaisedButton from 'material-ui/RaisedButton';
 import {Toolbar, ToolbarGroup, ToolbarTitle} from 'material-ui/Toolbar';
 import * as state from "../data/state";
 
-const groupStyle = { width: "100%" };
 const buttonStyle = { float : "right"};
 const avatarStyle = { float : "right"};
 
@@ -22,9 +21,10 @@ export default class ToolbarExamplesSimple extends React.Component {
     render() {
         return (
             <Toolbar>
-                <ToolbarGroup style={ groupStyle }>
+                <ToolbarGroup>
                     <ToolbarTitle text="Bookkeeper" />
-                    <FontIcon className="muidocs-icon-custom-sort" />
+                </ToolbarGroup>
+                <ToolbarGroup style={{ align: "right" }}>
                     <RaisedButton label="Kirjaa" primary={true} style={buttonStyle} onTouchTap={this.handleClick} />
                     <Avatar style={avatarStyle}>{this.props.user.firstName.charAt(0)}</Avatar>
                 </ToolbarGroup>
