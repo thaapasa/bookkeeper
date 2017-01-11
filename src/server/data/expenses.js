@@ -16,7 +16,7 @@ const expenseSelect = "SELECT id, date::DATE, receiver, e.sum::MONEY::NUMERIC, d
     "group_id, category_id, created, d1.sum::NUMERIC AS benefit, d2.sum::NUMERIC AS cost FROM expenses e " +
     "LEFT JOIN expense_division d1 ON (d1.expense_id = e.id AND d1.user_id = $1 AND d1.type='benefit') " +
     "LEFT JOIN expense_division d2 ON (d2.expense_id = e.id AND d2.user_id = $1 AND d2.type='cost')";
-const order = "ORDER BY date ASC";
+const order = "ORDER BY date ASC, description ASC, id";
 
 function getAll(groupId, userId) {
     return db.queryList("expenses.get_all",
