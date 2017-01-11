@@ -15,15 +15,24 @@ import * as apiConnect from "../data/api-connect";
 import * as state from "../data/state"
 import * as time from "../../shared/util/time"
 
+function findParentCategory(categoryId) {
+    const map = state.get("categoryMap");
+    let current = map[categoryId];
+    while (current && current.parentId > 0) {
+        current = map[current.parentId];
+    }
+    return current ? current.id : undefined;
+}
+
 const fields = {
     "description": { default: "" },
     "sourceId": { default: () => state.get("group").defaultSourceId },
-    "categoryId": { default: 0 },
-    "subcategoryId": { default: 0 },
+    "categoryId": { default: 0, read: (e) => findParentCategory(e.categoryId) },
+    "subcategoryId": { default: 0, read: (e) => e.categoryId },
     "receiver": { default: "" },
     "sum": { default: "" },
     "date": { default: () => moment().toDate() },
-    "benefit": { default: () => [state.get("user").id] }
+    "benefit": { default: () => [state.get("user").id], read: (e) => [e.userId] }
 };
 
 const styles = {
@@ -34,8 +43,13 @@ const styles = {
 const defaultCategory = [ { id: 0, name: "Kategoria" }];
 const defaultSubcategory = [ { id: 0, name: "Alikategoria" }];
 
-function getDefault(v) {
-    return typeof v === "function" ? v() : v;
+function initValue(name, expense) {
+    if (expense === undefined) {
+        const def = fields[name].default;
+        return typeof def === "function" ? def() : def;
+    }
+    const convert = fields[name].read;
+    return typeof convert === "function" ? convert(expense) : expense[name];
 }
 
 export default class ExpenseDialog extends React.Component {
@@ -49,7 +63,7 @@ export default class ExpenseDialog extends React.Component {
         };
         this.categories = defaultCategory.concat(state.get("categories"));
         this.sources = state.get("sources");
-        Object.keys(fields).forEach(k => this.state[k] = getDefault(fields[k].default));
+        Object.keys(fields).forEach(k => this.state[k] = initValue(k));
         this.handleClose = this.handleClose.bind(this);
         this.handleSave = this.handleSave.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -58,13 +72,15 @@ export default class ExpenseDialog extends React.Component {
 
     handleOpen(expense) {
         console.log("handleOpen");
+        this.categories = defaultCategory.concat(state.get("categories"));
         const newState = { open: true, createNew: expense === undefined };
-        Object.keys(fields).forEach(k => newState[k] = expense ? expense[k] : getDefault(fields[k].default));
+        Object.keys(fields).forEach(k => newState[k] = initValue(k, expense));
         if (expense) {
             newState.date = time.fromDate(expense.date).toDate();
         }
         console.log(newState);
         this.setState(newState);
+        this.setCategory(newState.categoryId, newState.subcategoryId);
     };
 
     handleClose() {
@@ -89,6 +105,7 @@ export default class ExpenseDialog extends React.Component {
             benefit: benefit.map(b => ({ userId: b.userId, sum: b.sum.toString() })),
             userId: state.get("user").id
         };
+
         console.log("Saving expense", expense);
         apiConnect.storeExpense(expense)
             .then(e => {
