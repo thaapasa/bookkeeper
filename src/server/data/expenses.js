@@ -52,9 +52,9 @@ function getById(groupId, userId, expenseId) {
         .then(mapExpense);
 }
 
-function deleteById(groupId, userId, expenseId) {
-    return db.update("expenses.delete_by_id", "DELETE FROM expenses WHERE id=$2 AND group_id=$3",
-        [userId, expenseId, groupId])
+function deleteById(groupId, expenseId) {
+    return db.update("expenses.delete_by_id", "DELETE FROM expenses WHERE id=$1 AND group_id=$2",
+        [expenseId, groupId])
         .then(i => ({ status: "OK", message: "Expense deleted", expenseId: expenseId }));
 }
 
