@@ -71,7 +71,7 @@ export default class ExpenseTable extends React.Component {
     }
 
     componentDidMount() {
-        state.get("expensesUpdatedStream").onValue(e => { this.getExpensesForView(e.date) });
+        state.get("expensesUpdatedStream").onValue(e => { this.getExpensesForView(moment(e.date)) });
         this.getExpensesForView(moment());
     }
 
