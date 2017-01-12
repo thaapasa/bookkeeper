@@ -46,7 +46,7 @@ export default class ExpenseTable extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { year : this.props.year, month : this.props.month, expenses : undefined };
+        this.state = { date : moment(), expenses : [] };
         this.deleteExpense = this.deleteExpense.bind(this);
         this.getExpensesForView = this.getExpensesForView.bind(this);
     }
@@ -60,8 +60,9 @@ export default class ExpenseTable extends React.Component {
         return categoryString;
     }
 
-    getExpensesForView() {
-        return apiConnect.getExpenses(this.state.year, this.state.month)
+    getExpensesForView(next) {
+        this.setState(s => ({ date: next }));
+        return apiConnect.getExpenses(next.year(), next.month() + 1)
             .then(e => {
                 this.setState({ expenses: e });
                 return null;
@@ -70,12 +71,12 @@ export default class ExpenseTable extends React.Component {
     }
 
     componentDidMount() {
-        state.get("expensesUpdatedStream").onValue(e => { this.getExpensesForView() });
-        this.getExpensesForView();
+        state.get("expensesUpdatedStream").onValue(e => { this.getExpensesForView(e.date) });
+        this.getExpensesForView(moment());
     }
 
-    getYearMonthString() {
-        return time.getFinnishMonthName(this.state.month) + " " + this.state.year;
+    getYearMonthString(date) {
+        return time.getFinnishMonthName(date.month() + 1) + " " + date.year();
     }
 
     deleteExpense(e) {
@@ -94,8 +95,20 @@ export default class ExpenseTable extends React.Component {
 
                 <TableBody displayRowCheckbox={false}>
                     <TableRow>
-                        <TableHeaderColumn colSpan="10" style={{textAlign: 'center', fontSize: "14pt" }}>
-                            { this.getYearMonthString() }
+                        <TableHeaderColumn>
+                            <IconButton
+                                onClick={() => this.getExpensesForView(this.state.date.clone().add(-1, "month"))}
+                                iconClassName="material-icons" title="Edellinen"
+                                iconStyle={{color: "blue"}}>chevron_left</IconButton>
+                        </TableHeaderColumn>
+                        <TableHeaderColumn colSpan="8" style={{textAlign: 'center', fontSize: "14pt" }}>
+                            { this.getYearMonthString(this.state.date) }
+                        </TableHeaderColumn>
+                        <TableHeaderColumn style={{ textAlign: "right" }}>
+                            <IconButton
+                                onClick={() => this.getExpensesForView(this.state.date.clone().add(1, "month"))}
+                                iconClassName="material-icons" title="Seuraava"
+                                iconStyle={{color: "blue"}}>chevron_right</IconButton>
                         </TableHeaderColumn>
                     </TableRow>
 

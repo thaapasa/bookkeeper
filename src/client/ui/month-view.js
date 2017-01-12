@@ -8,14 +8,14 @@ export default class MonthView extends React.Component {
         super(props);
         const currentDate = moment();
         console.log("Initializing monthView to", currentDate);
-        this.state = { year : currentDate.year(), month : currentDate.month() + 1};
+        this.state = { date : currentDate };
     }
 
 
     render() {
         console.log("render monthView");
         return <div className="content">
-                <ExpenseTable year={this.state.year} month={this.state.month}/>
+                <ExpenseTable date={this.state.date} />
             </div>;
     }
 }
