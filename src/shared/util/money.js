@@ -18,6 +18,12 @@ class Money {
         this.value = toBig(value);
     }
 
+    static from(value, defaultValue) {
+        if (value === null || value === undefined) return (defaultValue !== undefined) ? Money.from(defaultValue) : undefined;
+        if (typeof (value.div) === "function") return value;
+        return new Money(value);
+    }
+
     toString(scale) {
         if (scale === undefined) scale = 2;
         return this.value.toFixed(scale);

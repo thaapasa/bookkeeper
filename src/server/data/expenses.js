@@ -13,7 +13,8 @@ const errors = require("../util/errors");
 const splitter = require("../../shared/util/splitter");
 
 const expenseSelect = "SELECT id, date::DATE, receiver, e.sum::MONEY::NUMERIC, description, source_id, e.user_id, created_by_id, " +
-    "group_id, category_id, created, d1.sum::NUMERIC AS benefit, d2.sum::NUMERIC AS cost FROM expenses e " +
+    "group_id, category_id, created, d1.sum::NUMERIC AS user_benefit, d2.sum::NUMERIC AS user_cost, " +
+    "(d1.sum + d2.sum)::NUMERIC AS user_balance FROM expenses e " +
     "LEFT JOIN expense_division d1 ON (d1.expense_id = e.id AND d1.user_id = $1 AND d1.type='benefit') " +
     "LEFT JOIN expense_division d2 ON (d2.expense_id = e.id AND d2.user_id = $1 AND d2.type='cost')";
 const order = "ORDER BY date ASC, description ASC, id";

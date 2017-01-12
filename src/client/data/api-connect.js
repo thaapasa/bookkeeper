@@ -3,6 +3,14 @@
 import Promise from "bluebird";
 const request = Promise.promisifyAll(require("superagent"));
 import * as state from "./state";
+const Money = require("../../shared/util/money");
+
+function mapExpense(e) {
+    e.userBenefit = Money.from(e.userBenefit, 0);
+    e.userCost = Money.from(e.userCost, 0);
+    e.userBalance = Money.from(e.userBalance, 0);
+    return e;
+}
 
 function get(path, query) {
     const token = state.get("token");
@@ -66,7 +74,7 @@ function getSession() {
 }
 
 function getExpenses(year, month) {
-    return get("/api/expense/month", { year: year, month: month });
+    return get("/api/expense/month", { year: year, month: month }).then(l => l.map(mapExpense));
 }
 
 function storeExpense(expense) {
