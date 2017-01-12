@@ -124,7 +124,7 @@ export default class ExpenseDialog extends React.Component {
         this.setState({
             categoryId: id,
             subcategoryId: subcategoryId ? subcategoryId : 0,
-            subcategories: defaultSubcategory.concat(this.categories.find(c => c.id == id).children)
+            subcategories: defaultSubcategory.concat(this.categories.find(c => c.id == id).children || [])
         });
     }
 
@@ -171,8 +171,8 @@ export default class ExpenseDialog extends React.Component {
                     autoWidth={false}
                     onChange={(i, j, v) => this.setCategory(v)}
                 >
-                    { this.categories.map((row, index) => (
-                        <MenuItem key={index} value={row.id} primaryText={row.name} />
+                    { this.categories.map((row) => (
+                        <MenuItem key={row.id} value={row.id} primaryText={row.name} />
                     ))}
                 </DropDownMenu>
                 <DropDownMenu
@@ -181,7 +181,7 @@ export default class ExpenseDialog extends React.Component {
                     autoWidth={false}
                     onChange={(i, j, v) => this.setState({ subcategoryId: v })}
                 >
-                    { this.state.subcategories.map((row, index) => (
+                    { this.state.subcategories.map((row) => (
                         <MenuItem key={row.id} value={row.id} primaryText={row.name} />
                     ))}
                 </DropDownMenu>
