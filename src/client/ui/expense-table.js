@@ -92,11 +92,9 @@ export default class ExpenseTable extends React.Component {
                 selectable={false}
                 multiSelectable={false}>
 
-                <TableBody
-                    displayRowCheckbox={false}
-                >
+                <TableBody displayRowCheckbox={false}>
                     <TableRow>
-                        <TableHeaderColumn colSpan="9" style={{textAlign: 'center', fontSize: "14pt" }}>
+                        <TableHeaderColumn colSpan="10" style={{textAlign: 'center', fontSize: "14pt" }}>
                             { this.getYearMonthString() }
                         </TableHeaderColumn>
                     </TableRow>
@@ -104,6 +102,7 @@ export default class ExpenseTable extends React.Component {
                     <TableRow selected={false}>
                         <TableRowColumn style={Object.assign({}, styles.dateColumn, styles.header)} >Pvm</TableRowColumn>
                         <TableRowColumn style={Object.assign({}, styles.descriptionColumn, styles.header)}>Kuvaus</TableRowColumn>
+                        <TableRowColumn style={Object.assign({}, styles.descriptionColumn, styles.header)}>Kohde</TableRowColumn>
                         <TableRowColumn style={Object.assign({}, styles.categoryColumn, styles.header)}>Kategoria</TableRowColumn>
                         <TableRowColumn style={styles.header}>Summa</TableRowColumn>
                         <TableRowColumn style={styles.header}>Tili</TableRowColumn>
@@ -118,10 +117,11 @@ export default class ExpenseTable extends React.Component {
                             <TableRowColumn
                                 style={styles.dateColumn}>{moment(row.date).format("D.M.")}</TableRowColumn>
                             <TableRowColumn style={styles.descriptionColumn}>{row.description}</TableRowColumn>
+                            <TableRowColumn style={styles.descriptionColumn}>{row.receiver}</TableRowColumn>
                             <TableRowColumn
                                 style={styles.categoryColumn}>{this.getCategoryString(row.categoryId)}</TableRowColumn>
                             <TableRowColumn>{new Money(row.sum).format()}</TableRowColumn>
-                            <TableRowColumn>{state.get("sources").find(s => s.id == row.sourceId).name}</TableRowColumn>
+                            <TableRowColumn>{state.get("sourceMap")[row.sourceId].name}</TableRowColumn>
                             <TableRowColumn style={styles.benefit}>{ row.userBenefit.format() }</TableRowColumn>
                             <TableRowColumn style={styles.cost}>{ row.userCost.format() }</TableRowColumn>
                             <TableRowColumn style={styles.balance}>{ row.userBalance.format() }</TableRowColumn>

@@ -25,9 +25,17 @@ export function init() {
 export function setCategories(categories) {
     state.categories = categories ? categories : undefined;
     state.categoryMap = {};
-    categories.forEach(c => {
+    categories && categories.forEach(c => {
         state.categoryMap[c.id] = c;
         c.children && c.children.forEach(ch => state.categoryMap[ch.id] = ch);
+    });
+}
+
+export function setSources(sources) {
+    state.sources = sources ? sources : undefined;
+    state.sourceMap = {};
+    sources && sources.forEach(c => {
+        state.sourceMap[c.id] = c;
     });
 }
 
@@ -37,8 +45,8 @@ export function setDataFromSession(session) {
     state.token = session ? session.token : undefined;
     state.user = session ? session.user : undefined;
     state.group = session ? session.group : undefined;
-    session && setCategories(session.categories);
-    state.sources = session ? session.sources : [];
+    setCategories(session.categories);
+    setSources(session.sources);
     state.groups = session ? session.groups : [];
     state.users = session ? session.users : [];
 }
