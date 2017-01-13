@@ -108,7 +108,9 @@ function registerAPI(app) {
                 session.group.defaultSourceId)), true));
 
     // GET /api/expense/[expenseId]
-    app.get(expensePath, server.processRequest(getExpenseById, true));
+    app.get(expensePath, server.processRequest((session, req) =>
+        getExpenseById(session, req)
+            .then(e => expenses.getDivision(e.id).then(division => Object.assign(e, { division: division }))), true));
 
     // DELETE /api/expense/[expenseId]
     app.delete(expensePath, server.processRequest((session, req) =>

@@ -74,7 +74,13 @@ function storeDivision(expenseId, userId, type, sum) {
 }
 
 function deleteDivision(expenseId) {
-    return db.insert("expense.delete.division", "DELETE FROM expense_division WHERE expense_id=$1::INTEGER", [expenseId])
+    return db.insert("expense.delete.division", "DELETE FROM expense_division WHERE expense_id=$1::INTEGER", [expenseId]);
+}
+
+function getDivision(expenseId) {
+    return db.queryList("expense.get.division",
+        "SELECT user_id, type, sum FROM expense_division WHERE expense_id=$1::INTEGER ORDER BY type, user_id",
+        [expenseId]);
 }
 
 function negateSum(s) {
@@ -143,6 +149,7 @@ module.exports = {
     getBetween: getBetween,
     getByMonth: getByMonth,
     getById: getById,
+    getDivision: getDivision,
     deleteById: deleteById,
     create: createExpense,
     update: updateExpense
