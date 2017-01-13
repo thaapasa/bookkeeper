@@ -46,7 +46,8 @@ export default class ExpenseTable extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { date : moment(), expenses : [] };
+        this.state = { date : moment(), expenses : [], details: {} };
+        this.toggleDetails = this.toggleDetails.bind(this);
         this.deleteExpense = this.deleteExpense.bind(this);
         this.getExpensesForView = this.getExpensesForView.bind(this);
     }
@@ -61,13 +62,27 @@ export default class ExpenseTable extends React.Component {
     }
 
     getExpensesForView(next) {
-        this.setState(s => ({ date: next }));
-        return apiConnect.getExpenses(next.year(), next.month() + 1)
+        this.setState(s => ({ date: next, details: {} }));
+        return apiConnect.getExpensesForMonth(next.year(), next.month() + 1)
             .then(e => {
                 this.setState({ expenses: e });
                 return null;
             })
             .catch(err => { console.log("Caught error when getting expenses", err) });
+    }
+
+    toggleDetails(expense, details) {
+        if (details) {
+            this.setState(s => {
+                const det = s.details;
+                delete det[expense.id];
+                return { details: det };
+            });
+        } else {
+            this.setState(s => ({ details: Object.assign(s.details, { [expense.id] : {} })}));
+            apiConnect.getExpense(expense.id)
+                .then(e => console.log("Got expense", e));
+        }
     }
 
     componentDidMount() {
@@ -126,6 +141,7 @@ export default class ExpenseTable extends React.Component {
                     </TableRow>
 
                     { this.state.expenses && this.state.expenses.map( (row, index) => {
+                        const details = this.state.details[row.id];
                         return <TableRow key={index} selected={row.selected}>
                             <TableRowColumn
                                 style={styles.dateColumn}>{moment(row.date).format("D.M.")}</TableRowColumn>
@@ -139,11 +155,14 @@ export default class ExpenseTable extends React.Component {
                             <TableRowColumn style={styles.cost}>{ row.userCost.format() }</TableRowColumn>
                             <TableRowColumn style={styles.balance}>{ row.userBalance.format() }</TableRowColumn>
                             <TableRowColumn>
+                                <IconButton iconClassName="material-icons" title="Tiedot"
+                                            onClick={()=>this.toggleDetails(row, details)}>{ details ? "expand_less" : "expand_more" }</IconButton>
                                 <IconButton iconClassName="material-icons" title="Muokkaa"
                                             onClick={()=>state.get("expenseDialogStream").push(row)}>edit</IconButton>
                                 <IconButton iconClassName="material-icons" title="Poista"
                                             onClick={()=>this.deleteExpense(row)} iconStyle={{ color: "red"}}>delete</IconButton>
                             </TableRowColumn>
+
                         </TableRow>
                     })}
                 </TableBody>

@@ -73,8 +73,12 @@ function getSession() {
     return get("/api/session");
 }
 
-function getExpenses(year, month) {
+function getExpensesForMonth(year, month) {
     return get("/api/expense/month", { year: year, month: month }).then(l => l.map(mapExpense));
+}
+
+function getExpense(id) {
+    return get(`/api/expense/${parseInt(id, 10)}`).then(mapExpense);
 }
 
 function storeExpense(expense) {
@@ -96,5 +100,5 @@ function defaultErrorHandler(er) {
 
 module.exports = {
     login : login, getSession : getSession,
-    getExpenses : getExpenses, storeExpense : storeExpense, deleteExpense: deleteExpense, updateExpense: updateExpense
+    getExpensesForMonth : getExpensesForMonth, getExpense: getExpense, storeExpense : storeExpense, deleteExpense: deleteExpense, updateExpense: updateExpense
 };
