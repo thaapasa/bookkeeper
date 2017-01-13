@@ -26,9 +26,7 @@ const styles = {
     cost: {
         color: "red"
     },
-    balance: {
-        color: "blue"
-    },
+    balance: (b) => b.gt(0) ? { color: "blue" } : ( b.lt(0) ? { color: "red" } : { color: "gray" }),
     dateColumn: {
         width: "30px"
     },
@@ -156,7 +154,7 @@ export default class ExpenseTable extends React.Component {
                                 style={styles.categoryColumn}>{this.getCategoryString(row.categoryId)}</TableRowColumn>
                             <TableRowColumn>{new Money(row.sum).format()}</TableRowColumn>
                             <TableRowColumn>{state.get("sourceMap")[row.sourceId].name}</TableRowColumn>
-                            <TableRowColumn style={styles.balance}>{ row.userBalance.format() }</TableRowColumn>
+                            <TableRowColumn style={styles.balance(row.userBalance)}>{ row.userBalance.format() }</TableRowColumn>
                             <TableRowColumn>
                                 <IconButton iconClassName="material-icons" title="Tiedot"
                                             onClick={()=>this.toggleDetails(row, details)}>{ details ? "expand_less" : "expand_more" }</IconButton>
