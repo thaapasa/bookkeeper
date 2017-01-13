@@ -39,6 +39,14 @@ export function setSources(sources) {
     });
 }
 
+export function setUsers(users) {
+    state.users = users ? users : undefined;
+    state.userMap = {};
+    users && users.forEach(c => {
+        state.userMap[c.id] = c;
+    });
+}
+
 export function setDataFromSession(session) {
     init();
     state.session = session;
@@ -47,7 +55,7 @@ export function setDataFromSession(session) {
     state.group = session ? session.group : undefined;
     setCategories(session ? session.categories : undefined);
     setSources(session ? session.sources : undefined);
+    setUsers(session ? session.users : undefined);
     state.groups = session ? session.groups : [];
-    state.users = session ? session.users : [];
 }
 

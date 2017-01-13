@@ -1,6 +1,7 @@
 import React from 'react';
 import {Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn}
     from 'material-ui/Table';
+import ExpenseDetails from "./expense-details"
 import FontIcon from 'material-ui/FontIcon';
 import IconButton from 'material-ui/IconButton';
 
@@ -71,6 +72,11 @@ export default class ExpenseTable extends React.Component {
             .catch(err => { console.log("Caught error when getting expenses", err) });
     }
 
+    showExpenseDetails(id, details) {
+        this.setState(s => ({ details: Object.assign(s.details, { [id] : details })}));
+        return null;
+    }
+
     toggleDetails(expense, details) {
         if (details) {
             this.setState(s => {
@@ -79,9 +85,10 @@ export default class ExpenseTable extends React.Component {
                 return { details: det };
             });
         } else {
-            this.setState(s => ({ details: Object.assign(s.details, { [expense.id] : {} })}));
+            this.showExpenseDetails(expense.id, {});
             apiConnect.getExpense(expense.id)
-                .then(e => console.log("Got expense", e));
+                .then(e => this.showExpenseDetails(expense.id, e))
+                .catch(e => console.log("Error", e));
         }
     }
 
@@ -90,7 +97,7 @@ export default class ExpenseTable extends React.Component {
         this.getExpensesForView(moment());
     }
 
-    getYearMonthString(date) {
+    static getYearMonthString(date) {
         return time.getFinnishMonthName(date.month() + 1) + " " + date.year();
     }
 
@@ -117,7 +124,7 @@ export default class ExpenseTable extends React.Component {
                                 iconStyle={{color: "blue"}}>chevron_left</IconButton>
                         </TableHeaderColumn>
                         <TableHeaderColumn colSpan="8" style={{textAlign: 'center', fontSize: "14pt" }}>
-                            { this.getYearMonthString(this.state.date) }
+                            { ExpenseTable.getYearMonthString(this.state.date) }
                         </TableHeaderColumn>
                         <TableHeaderColumn style={{ textAlign: "right" }}>
                             <IconButton
@@ -142,7 +149,7 @@ export default class ExpenseTable extends React.Component {
 
                     { this.state.expenses && this.state.expenses.map( (row, index) => {
                         const details = this.state.details[row.id];
-                        return <TableRow key={index} selected={row.selected}>
+                        return [<TableRow key={index} selected={row.selected}>
                             <TableRowColumn
                                 style={styles.dateColumn}>{moment(row.date).format("D.M.")}</TableRowColumn>
                             <TableRowColumn style={styles.descriptionColumn}>{row.description}</TableRowColumn>
@@ -162,8 +169,8 @@ export default class ExpenseTable extends React.Component {
                                 <IconButton iconClassName="material-icons" title="Poista"
                                             onClick={()=>this.deleteExpense(row)} iconStyle={{ color: "red"}}>delete</IconButton>
                             </TableRowColumn>
-
-                        </TableRow>
+                        </TableRow>].concat(details && details.division ?
+                            [<TableRow><TableRowColumn colSpan="9"><ExpenseDetails division={details.division}/></TableRowColumn></TableRow>] : [])
                     })}
                 </TableBody>
             </Table>
