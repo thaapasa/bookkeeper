@@ -13,10 +13,26 @@ function camelCaseObject(o) {
     return r;
 }
 
+const pool = new Pool(merge({ Promise: require("bluebird") }, config.db));
+
+function queryFor(client) {
+    return (name, query, params, mapper) =>
+        client.query({ text: query, name: name, values: params })
+            .then(res => {
+                const obj = mapper(res);
+                client.release();
+                return obj;
+            }).catch(e => {
+                client.release();
+                console.error("Query error", e.message, e.stack);
+                throw {code: "DB_ERROR", cause: e};
+            });
+}
+
 class BookkeeperDB {
 
-    constructor() {
-        this.pool = new Pool(merge({ Promise: require("bluebird") }, config.db));
+    constructor(query) {
+        this.query = query;
     }
 
     queryObject(name, query, params) {
@@ -29,18 +45,13 @@ class BookkeeperDB {
             .then(l => l.map(r => camelCaseObject(r)));
     }
 
-    query(name, query, params, mapper) {
-        log.debug("SQL query", query, "with params", params);
-        return this.pool.connect().then(client => {
-            return client.query({ text: query, name: name, values: params }).then(res => {
-                const obj = mapper(res);
-                client.release();
-                return obj;
-            }).catch(e => {
-                client.release();
-                console.error("Query error", e.message, e.stack);
-                throw { code: "DB_ERROR", cause: e };
-            });
+    transaction(f) {
+        log.debug("Starting transaction");
+        pool.connect().then(client => {
+            client.query("BEGIN")
+                .then(f(new BookkeeperDB(queryFor(client))))
+                .then(() => client.query("COMMIT"))
+                .catch(() => client.query("ROLLBACK"))
         });
     }
 
@@ -62,6 +73,9 @@ function toId(r) {
     return r && r.rows && r.rows.length > 0 ? r.rows[0].id : undefined;
 }
 
-const db = new BookkeeperDB();
+const db = new BookkeeperDB((name, query, params, mapper) => {
+    log.debug("SQL query", query, "with params", params);
+    return pool.connect().then(client => queryFor(client)(name, query, params, mapper));
+});
 
 module.exports = db;
