@@ -123,7 +123,7 @@ export default class ExpenseTable extends React.Component {
                                 iconClassName="material-icons" title="Edellinen"
                                 iconStyle={{color: "blue"}}>chevron_left</IconButton>
                         </TableHeaderColumn>
-                        <TableHeaderColumn colSpan="8" style={{textAlign: 'center', fontSize: "14pt" }}>
+                        <TableHeaderColumn colSpan="6" style={{textAlign: 'center', fontSize: "14pt" }}>
                             { ExpenseTable.getYearMonthString(this.state.date) }
                         </TableHeaderColumn>
                         <TableHeaderColumn style={{ textAlign: "right" }}>
@@ -141,8 +141,6 @@ export default class ExpenseTable extends React.Component {
                         <TableRowColumn style={Object.assign({}, styles.categoryColumn, styles.header)}>Kategoria</TableRowColumn>
                         <TableRowColumn style={styles.header}>Summa</TableRowColumn>
                         <TableRowColumn style={styles.header}>Tili</TableRowColumn>
-                        <TableRowColumn style={Object.assign({}, styles.benefit, styles.header)}>Hyöty</TableRowColumn>
-                        <TableRowColumn style={Object.assign({}, styles.cost, styles.header)}>Hinta</TableRowColumn>
                         <TableRowColumn style={Object.assign({}, styles.cost, styles.header)}>Balanssi</TableRowColumn>
                         <TableRowColumn/>
                     </TableRow>
@@ -158,8 +156,6 @@ export default class ExpenseTable extends React.Component {
                                 style={styles.categoryColumn}>{this.getCategoryString(row.categoryId)}</TableRowColumn>
                             <TableRowColumn>{new Money(row.sum).format()}</TableRowColumn>
                             <TableRowColumn>{state.get("sourceMap")[row.sourceId].name}</TableRowColumn>
-                            <TableRowColumn style={styles.benefit}>{ row.userBenefit.format() }</TableRowColumn>
-                            <TableRowColumn style={styles.cost}>{ row.userCost.format() }</TableRowColumn>
                             <TableRowColumn style={styles.balance}>{ row.userBalance.format() }</TableRowColumn>
                             <TableRowColumn>
                                 <IconButton iconClassName="material-icons" title="Tiedot"
@@ -170,7 +166,7 @@ export default class ExpenseTable extends React.Component {
                                             onClick={()=>this.deleteExpense(row)} iconStyle={{ color: "red"}}>delete</IconButton>
                             </TableRowColumn>
                         </TableRow>].concat(details && details.division ?
-                            [<TableRow><TableRowColumn colSpan="9"><ExpenseDetails division={details.division}/></TableRowColumn></TableRow>] : [])
+                            [<TableRow><TableRowColumn colSpan="8"><ExpenseDetails division={details.division}/></TableRowColumn></TableRow>] : [])
                     })}
                 </TableBody>
             </Table>
