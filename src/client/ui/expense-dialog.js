@@ -130,7 +130,7 @@ export default class ExpenseDialog extends React.Component {
         (this.state.createNew ? apiConnect.storeExpense(expense) : apiConnect.updateExpense(this.state.id, expense))
             .then(e => {
                 console.log("Stored expense", e);
-                state.get("expensesUpdatedStream").push(expense);
+                state.get("expensesUpdatedStream").push(expense.date);
                 this.setState({open: false});
             });
     };

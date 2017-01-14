@@ -61,9 +61,11 @@ export default class ExpenseTable extends React.Component {
     }
 
     getExpensesForView(next) {
+        console.log("getExpensesForView", next);
         this.setState(s => ({ date: next, details: {} }));
         return apiConnect.getExpensesForMonth(next.year(), next.month() + 1)
             .then(e => {
+                console.log("got expenses");
                 this.setState({ expenses: e });
                 return null;
             })
@@ -91,7 +93,7 @@ export default class ExpenseTable extends React.Component {
     }
 
     componentDidMount() {
-        state.get("expensesUpdatedStream").onValue(e => { this.getExpensesForView(moment(e.date)) });
+        state.get("expensesUpdatedStream").onValue(d => { this.getExpensesForView(d) });
         this.getExpensesForView(moment());
     }
 
@@ -106,32 +108,11 @@ export default class ExpenseTable extends React.Component {
     }
 
     render() {
-        return <div>
-            <Table
-                fixedHeader={true}
-                fixedFooter={true}
-                selectable={false}
-                multiSelectable={false}>
-
-                <TableBody displayRowCheckbox={false}>
-                    <TableRow>
-                        <TableHeaderColumn>
-                            <IconButton
-                                onClick={() => this.getExpensesForView(this.state.date.clone().add(-1, "month"))}
-                                iconClassName="material-icons" title="Edellinen"
-                                iconStyle={{color: "blue"}}>chevron_left</IconButton>
-                        </TableHeaderColumn>
-                        <TableHeaderColumn colSpan="6" style={{textAlign: 'center', fontSize: "14pt" }}>
-                            { ExpenseTable.getYearMonthString(this.state.date) }
-                        </TableHeaderColumn>
-                        <TableHeaderColumn style={{ textAlign: "right" }}>
-                            <IconButton
-                                onClick={() => this.getExpensesForView(this.state.date.clone().add(1, "month"))}
-                                iconClassName="material-icons" title="Seuraava"
-                                iconStyle={{color: "blue"}}>chevron_right</IconButton>
-                        </TableHeaderColumn>
-                    </TableRow>
-
+        return  <Table
+                   fixedHeader={true}
+                   fixedFooter={true}
+                   selectable={false}
+                   multiSelectable={false}><TableBody displayRowCheckbox={false}>
                     <TableRow selected={false}>
                         <TableRowColumn style={Object.assign({}, styles.dateColumn, styles.header)} >Pvm</TableRowColumn>
                         <TableRowColumn style={Object.assign({}, styles.descriptionColumn, styles.header)}>Kuvaus</TableRowColumn>
@@ -166,8 +147,7 @@ export default class ExpenseTable extends React.Component {
                         </TableRow>].concat(details && details.division ?
                             [<TableRow><TableRowColumn colSpan="8"><ExpenseDetails division={details.division}/></TableRowColumn></TableRow>] : [])
                     })}
-                </TableBody>
-            </Table>
-        </div>
+            </TableBody>
+        </Table>
     }
 }
