@@ -52,11 +52,13 @@ class BookkeeperDB {
             .then(res => {
                 log.debug("Committing transaction, result was", res);
                 client.query("COMMIT");
+                client.release();
                 return res;
             })
             .catch(e => {
                 log.debug("Rolling back transaction because of error", e);
                 client.query("ROLLBACK");
+                client.release();
                 throw {code: "DB_ERROR", cause: e};
             }));
     }
