@@ -36,10 +36,11 @@ const validator = {
 
     validate: function(schema, object, prefix) {
         const result = {};
+        log.debug("Validating", object);
         Object.keys(schema).forEach(field => {
             const validator = schema[field];
             const fieldName = fieldPath(prefix, field);
-            log.debug("Validating", fieldName, "in", object);
+            log.debug("Validating", fieldName);
             result[field] = validator(object[field], fieldName);
         });
         log.debug("Validated input to", result);
