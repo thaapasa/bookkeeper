@@ -132,7 +132,7 @@ function updateExpense(tx) {
             const benefit = expense.benefit ? validateDivision(expense.benefit, expense.sum, "benefit") : splitter.negateDivision(cost);
             return deleteDivision(tx)(original.id)
                 .then(() => tx.insert("expenses.update",
-                    "UPDATE expenses SET date=$2::DATE, receiver=$3, sum=$4, description=$5, source_id=$6::INTEGER, category_id=$7::INTEGER " +
+                    "UPDATE expenses SET date=$2::DATE, receiver=$3, sum=$4::NUMERIC::MONEY, description=$5, source_id=$6::INTEGER, category_id=$7::INTEGER " +
                     "WHERE id=$1",
                     [original.id, expense.date, expense.receiver, expense.sum.toString(), expense.description, source.id, cat.id]))
                 .then(expenseId => createDivision(tx)(original.id, benefit, cost))
