@@ -60,7 +60,8 @@ export default class ExpenseTable extends React.Component {
         return categoryString;
     }
 
-    getExpensesForView(next) {
+    getExpensesForView(date) {
+        const next = moment(date);
         console.log("getExpensesForView", next);
         this.setState(s => ({ date: next, details: {} }));
         return apiConnect.getExpensesForMonth(next.year(), next.month() + 1)
