@@ -15,15 +15,15 @@ function camelCaseObject(o) {
 
 const pool = new Pool(merge({ Promise: require("bluebird") }, config.db));
 
-function queryFor(client) {
+function queryFor(client, doRelease) {
     return (name, query, params, mapper) =>
         client.query({ text: query, name: name, values: params })
             .then(res => {
                 const obj = mapper(res);
-                client.release();
+                if (doRelease) client.release();
                 return obj;
             }).catch(e => {
-                client.release();
+                if (doRelease) client.release();
                 console.error("Query error", e.message, e.stack);
                 throw {code: "DB_ERROR", cause: e};
             });
@@ -47,12 +47,18 @@ class BookkeeperDB {
 
     transaction(f) {
         log.debug("Starting transaction");
-        pool.connect().then(client => {
-            client.query("BEGIN")
-                .then(f(new BookkeeperDB(queryFor(client))))
-                .then(() => client.query("COMMIT"))
-                .catch(() => client.query("ROLLBACK"))
-        });
+        return pool.connect().then(client => client.query("BEGIN")
+            .then(() => f(new BookkeeperDB(queryFor(client, false))))
+            .then(res => {
+                log.debug("Committing transaction, result was", res);
+                client.query("COMMIT");
+                return res;
+            })
+            .catch(e => {
+                log.debug("Rolling back transaction because of error", e);
+                client.query("ROLLBACK");
+                throw {code: "DB_ERROR", cause: e};
+            }));
     }
 
     insert(name, query, params) {
@@ -75,7 +81,7 @@ function toId(r) {
 
 const db = new BookkeeperDB((name, query, params, mapper) => {
     log.debug("SQL query", query, "with params", params);
-    return pool.connect().then(client => queryFor(client)(name, query, params, mapper));
+    return pool.connect().then(client => queryFor(client, true)(name, query, params, mapper));
 });
 
 module.exports = db;
