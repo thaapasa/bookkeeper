@@ -33,7 +33,7 @@ const fields = {
     "receiver": { default: "" },
     "sum": { default: "" },
     "date": { default: () => moment().toDate(), read: (e) => time.fromDate(e.date).toDate() },
-    "benefit": { default: () => [state.get("user").id], read: (e) => [e.userId] }
+    "benefit": { default: () => [state.get("user").id], read: (e) => e.division.filter(d => d.type === "benefit").map(d => d.userId) }
 };
 
 const styles = {

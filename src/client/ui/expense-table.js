@@ -140,7 +140,7 @@ export default class ExpenseTable extends React.Component {
                                 <IconButton iconClassName="material-icons" title="Tiedot"
                                             onClick={()=>this.toggleDetails(row, details)}>{ details ? "expand_less" : "expand_more" }</IconButton>
                                 <IconButton iconClassName="material-icons" title="Muokkaa"
-                                            onClick={()=>state.get("expenseDialogStream").push(row)}>edit</IconButton>
+                                            onClick={()=>apiConnect.getExpense(row.id).then(e => state.get("expenseDialogStream").push(e))}>edit</IconButton>
                                 <IconButton iconClassName="material-icons" title="Poista"
                                             onClick={()=>this.deleteExpense(row)} iconStyle={{ color: "red"}}>delete</IconButton>
                             </TableRowColumn>
