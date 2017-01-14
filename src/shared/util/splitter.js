@@ -16,9 +16,11 @@ function splitByShares(sum, division) {
     assert(remainder.gte(Money.zero));
     if (remainder.gt(Money.zero)) {
         const shares = remainder.toCents();
-        const ids = arrays.shuffle(Array.apply(null, {length: numShares}).map(Number.call, Number));
+        const ids = [];
+        res.forEach(((d, i) => arrays.indices(d.share).forEach(a => ids.push(i))));
+        log.debug("Extra share receivers:", ids);
         for (let i = 0; i < shares; i++) {
-            log.debug("Adding 1 cent to share", ids[i]);
+            log.debug("Adding 1 cent to share #", i, ":", ids[i]);
             res[ids[i]].sum = res[ids[i]].sum.plus(Money.cent);
         }
     }
