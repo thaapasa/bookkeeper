@@ -31,6 +31,11 @@ function splitByShares(sum, division) {
     return res;
 }
 
+function negateDivision(d) {
+    return d.map(b => Object.assign({}, b, { sum: b.sum.negate() }));
+}
+
 module.exports = {
-    splitByShares: splitByShares
+    splitByShares: splitByShares,
+    negateDivision: negateDivision
 };

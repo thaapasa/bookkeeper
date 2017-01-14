@@ -83,16 +83,8 @@ function getDivision(expenseId) {
         [expenseId]);
 }
 
-function negateSum(s) {
-    return Object.assign({}, s, { sum: s.sum.negate() });
-}
-
 function getCostFromSource(sum, source) {
     return splitter.splitByShares(sum, source.users.map(u => ({ userId: u.id, share: u.share }))).map(negateSum);
-}
-
-function getBenefitFromCost(cost) {
-    return cost.map(negateSum);
 }
 
 function createDivision(tx) {
@@ -135,7 +127,7 @@ function updateExpense(tx) {
             const cat = a[0];
             const source = a[1];
             const cost = expense.cost ? validateDivision(expense.cost, expense.sum.negate(), "cost") : getCostFromSource(expense.sum, source);
-            const benefit = expense.benefit ? validateDivision(expense.benefit, expense.sum, "benefit") : getBenefitFromCost(cost);
+            const benefit = expense.benefit ? validateDivision(expense.benefit, expense.sum, "benefit") : splitter.negateDivision(cost);
             return deleteDivision(tx)(original.id)
                 .then(() => tx.insert("expenses.update",
                     "UPDATE expenses SET date=$2::DATE, receiver=$3, sum=$4, description=$5, source_id=$6::INTEGER, category_id=$7::INTEGER " +

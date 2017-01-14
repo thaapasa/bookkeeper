@@ -9,7 +9,7 @@ function createGroupObject(rows) {
         if ((list[list.length - 1] ? list[list.length - 1].id : undefined) !== v.id) {
             list.push({ id: v.id, name: v.name, shares: v.shares, users: [] });
         }
-        list[list.length - 1].users.push({ id: v.userId, share: v.share });
+        list[list.length - 1].users.push({ userId: v.userId, share: v.share });
         return list;
     }, []);
 }

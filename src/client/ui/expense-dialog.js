@@ -8,6 +8,7 @@ import MenuItem from 'material-ui/MenuItem';
 import TextField from 'material-ui/TextField';
 import UserSelector from "./user-selector";
 const moment = require("moment");
+import * as arrays from "../../shared/util/arrays";
 import * as splitter from "../../shared/util/splitter";
 import Money from "../../shared/util/money";
 
@@ -52,10 +53,24 @@ function initValue(name, expense) {
     return typeof convert === "function" ? convert(expense) : expense[name];
 }
 
+function calculateCost(sum, sourceId, benefit) {
+    const sourceUsers = state.get("sourceMap")[sourceId].users;
+    const sourceUserIds = sourceUsers.map(s => s.userId);
+    const benefitUserIds = benefit.map(b => b.userId);
+    if (arrays.sortAndCompareElements(sourceUserIds, benefitUserIds)) {
+        // Create cost based on benefit calculation
+        console.log("Source has same users than who benefit; creating benefit based on cost");
+        return splitter.negateDivision(benefit);
+    }
+    // Calculate cost manually
+    console.log("Calculating cost by source users");
+    return splitter.negateDivision(splitter.splitByShares(sum, sourceUsers));
+}
+
 export default class ExpenseDialog extends React.Component {
 
     constructor(props) {
-        super(props)
+        super(props);
         this.state = {
             id: null,
             open: false,
@@ -96,7 +111,9 @@ export default class ExpenseDialog extends React.Component {
     }
 
     handleSave() {
-        const benefit = splitter.splitByShares(new Money(this.state.sum), this.state.benefit.map(id => ({ userId: id, share: 1 })));
+        const sum = Money.from(this.state.sum);
+        const benefit = splitter.splitByShares(sum, this.state.benefit.map(id => ({ userId: id, share: 1 })));
+        const cost = calculateCost(sum, this.state.sourceId, benefit);
         const expense = {
             date: time.date(this.state.date),
             sum: this.state.sum,
@@ -105,6 +122,7 @@ export default class ExpenseDialog extends React.Component {
             categoryId: this.state.subcategoryId ? this.state.subcategoryId : this.state.categoryId,
             receiver: this.state.receiver,
             benefit: benefit.map(b => ({ userId: b.userId, sum: b.sum.toString() })),
+            cost: cost.map(b => ({ userId: b.userId, sum: b.sum.toString() })),
             userId: state.get("user").id
         };
 
