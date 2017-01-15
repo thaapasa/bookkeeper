@@ -160,7 +160,7 @@ export default class ExpenseDialog extends React.Component {
         ];
 
         return <Dialog
-                    title={ typeof this.state.createNew ? "Uusi kirjaus" : "Muokkaa kirjausta"}
+                    title={ typeof this.state.createNew ? "Uusi kirjaus" : "Muokkaa kirjausta" }
                     actions={actions}
                     modal={false}
                     open={this.state.open}

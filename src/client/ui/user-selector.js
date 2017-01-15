@@ -35,28 +35,26 @@ export default class UserSelector extends React.Component {
     constructor(props) {
         super(props);
         this.style = Object.assign({}, styles.container, props.style);
-        this.state = {
-            users: state.get("users"),
-            selected: {}
-        };
-        props.selected && props.selected.forEach(p => this.state.selected[p] = true);
         this.switchSelection = this.switchSelection.bind(this);
     }
 
     switchSelection(id) {
-        const s = this.state.selected;
-        s[id] = !s[id];
-        this.setState({ selected: s });
-        this.props.onChange && this.props.onChange(Object.keys(s).filter(id => s[id]).map(i => parseInt(i, 10)));
+        const oldS = this.props.selected;
+        const foundAt = oldS.indexOf(id);
+        const newS = foundAt >= 0 ? oldS.slice().filter(i => i != id) : oldS.slice();
+        if (foundAt < 0) newS.push(id);
+        newS.sort();
+        this.props.onChange && this.props.onChange(newS);
     }
 
     render() {
+        const users = state.get("users");
         return <div style={this.style}>
-            { this.state.users.map(u =>
+            { users.map(u =>
                 <Avatar key={u.id}
                         style={styles.avatar}
-                        color={this.state.selected[u.id] ? colors.avatar.fg.selected : colors.avatar.fg.notSelected}
-                        backgroundColor={this.state.selected[u.id] ? colors.avatar.bg.selected : colors.avatar.bg.notSelected}
+                        color={this.props.selected.includes(u.id) ? colors.avatar.fg.selected : colors.avatar.fg.notSelected}
+                        backgroundColor={this.props.selected.includes(u.id) ? colors.avatar.bg.selected : colors.avatar.bg.notSelected}
                         onClick={x => this.switchSelection(u.id)}>{u.firstName.charAt(0)}</Avatar>) }
         </div>
     }
