@@ -1,32 +1,16 @@
 "use strict";
 
 import React from 'react';
-import Avatar from 'material-ui/Avatar';
+import UserAvatar from './user-avatar';
 import * as state from "../data/state";
-import {
-    blueGrey200, blueGrey900,
-    cyan500, cyan900
-} from 'material-ui/styles/colors';
 
 const styles = {
     container: {
         display: "inline-block"
     },
     avatar: {
-        margin: "0 0.2em"
-    }
-};
-
-const colors = {
-    avatar: {
-        bg: {
-            selected: cyan500,
-            notSelected: blueGrey200
-        },
-        fg: {
-            selected: cyan900,
-            notSelected: blueGrey900
-        }
+        margin: "0 0.2em",
+        verticalAlign: "top"
     }
 };
 
@@ -51,11 +35,12 @@ export default class UserSelector extends React.Component {
         const users = state.get("users");
         return <div style={this.style}>
             { users.map(u =>
-                <Avatar key={u.id}
-                        style={styles.avatar}
-                        color={this.props.selected.includes(u.id) ? colors.avatar.fg.selected : colors.avatar.fg.notSelected}
-                        backgroundColor={this.props.selected.includes(u.id) ? colors.avatar.bg.selected : colors.avatar.bg.notSelected}
-                        onClick={x => this.switchSelection(u.id)}>{u.firstName.charAt(0)}</Avatar>) }
+                <UserAvatar
+                    key={u.id}
+                    userId={u.id}
+                    style={styles.avatar}
+                    className={this.props.selected.includes(u.id) ? "selected" : "unselected" }
+                    onClick={x => this.switchSelection(u.id)}>{u.firstName.charAt(0)}</UserAvatar>) }
         </div>
     }
 }
