@@ -1,10 +1,10 @@
 INSERT INTO groups (name) VALUES ('Mäntyniemi');
 INSERT INTO groups (name) VALUES ('Herrakerho');
 
-INSERT INTO users (username, email, password, first_name, last_name, default_group_id)
-VALUES ('jenni', 'jenni@fi.fi', encode(digest('salasana', 'sha1'), 'hex'), 'Jenni', 'Haukio', 1);
-INSERT INTO users (username, email, password, first_name, last_name, default_group_id)
-VALUES ('sale', 'sauli@fi.fi', encode(digest('salasana', 'sha1'), 'hex'), 'Sauli', 'Niinistö', 1);
+INSERT INTO users (username, email, password, first_name, last_name, default_group_id, image)
+VALUES ('jenni', 'jenni@fi.fi', encode(digest('salasana', 'sha1'), 'hex'), 'Jenni', 'Haukio', 1, '1.png');
+INSERT INTO users (username, email, password, first_name, last_name, default_group_id, image)
+VALUES ('sale', 'sauli@fi.fi', encode(digest('salasana', 'sha1'), 'hex'), 'Sauli', 'Niinistö', 1, '2.jpg');
 
 INSERT INTO group_users (user_id, group_id) VALUES (1, 1);
 INSERT INTO group_users (user_id, group_id) VALUES (2, 1);

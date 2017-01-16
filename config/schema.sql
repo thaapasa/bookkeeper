@@ -17,7 +17,8 @@ CREATE TABLE IF NOT EXISTS users (
   password VARCHAR(40) NOT NULL,
   first_name VARCHAR(128),
   last_name VARCHAR(128),
-  default_group_id INTEGER REFERENCES groups (id) DEFAULT NULL
+  default_group_id INTEGER REFERENCES groups (id) DEFAULT NULL,
+  image VARCHAR(32) DEFAULT NULL
 );
 CREATE INDEX "users_email" ON users (email);
 
