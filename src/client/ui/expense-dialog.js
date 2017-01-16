@@ -210,7 +210,7 @@ export default class ExpenseDialog extends React.Component {
                         value={this.state.sourceId}
                         style={{ flexGrow: "1" }}
                         autoWidth={false}
-                        onChange={(i, j, v) => this.setState({ sourceId: v })}
+                        onChange={(i, j, v) => this.setState({ sourceId: v, benefit: state.get("sourceMap")[v].users.map(u => u.userId) })}
                     >
                         { this.sources.map((row, index) => <MenuItem key={row.id} value={row.id} primaryText={row.name}/>) }
                     </DropDownMenu>
