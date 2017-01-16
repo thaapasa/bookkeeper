@@ -27,6 +27,7 @@ loginStream.onValue(s => {
     state.init();
     state.setDataFromSession(s);
     sessionStorage.setItem("token", (s && s.token) ? s.token : undefined);
+    document.title = state.getTitle();
     currentSessionStream.push(s);
 });
 

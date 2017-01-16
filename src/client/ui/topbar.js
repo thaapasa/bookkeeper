@@ -19,13 +19,10 @@ export default class ToolbarExamplesSimple extends React.Component {
     }
 
     render() {
-        const group = state.get("group");
-        const groupName = group && group.name;
-        const title = groupName ? `Kukkaro - ${groupName}` : "Kukkaro"
         return (
             <Toolbar>
                 <ToolbarGroup>
-                    <ToolbarTitle text={ title } />
+                    <ToolbarTitle text={ state.getTitle() } />
                 </ToolbarGroup>
                 <ToolbarGroup style={{ align: "right" }}>
                     <RaisedButton label="Kirjaa" primary={true} style={buttonStyle} onTouchTap={this.handleClick} />
