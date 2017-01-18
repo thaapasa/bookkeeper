@@ -3,6 +3,10 @@
 const chai = require("chai");
 const expect = chai.expect;
 const client = require("../support/test-client");
+const describe = require("mocha").describe;
+const it = require("mocha").it;
+const before = require("mocha").before;
+const after = require("mocha").after;
 
 describe("session", function() {
 

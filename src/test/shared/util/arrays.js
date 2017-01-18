@@ -3,6 +3,8 @@
 const arrays = require("../../../shared/util/arrays");
 const chai = require("chai");
 const expect = chai.expect;
+const describe = require("mocha").describe;
+const it = require("mocha").it;
 
 describe("arrays", function() {
     it("should create indices", () => {

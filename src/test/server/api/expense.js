@@ -3,12 +3,16 @@
 const chai = require("chai");
 const expect = chai.expect;
 const client = require("../support/test-client");
+const describe = require("mocha").describe;
+const it = require("mocha").it;
+const before = require("mocha").before;
+const after = require("mocha").after;
 
-describe("session", function() {
+describe("expense", function() {
 
     let session = null;
 
-    before(() => client.getSession("sale", "salasana") .then(s => { session = s; return null; }));
+    before(() => client.getSession("sale", "salasana").then(s => { session = s; return null; }));
 
     after(() => session && session.logout());
 

@@ -4,6 +4,8 @@ const Money = require("../../../shared/util/money");
 const chai = require("chai");
 const expect = chai.expect;
 const Big = require("big.js");
+const describe = require("mocha").describe;
+const it = require("mocha").it;
 
 describe("Money", function() {
     it("should be created from valid strings", () => {

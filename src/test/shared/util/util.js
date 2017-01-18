@@ -3,6 +3,8 @@
 const util = require("../../../shared/util/util");
 const chai = require("chai");
 const expect = chai.expect;
+const describe = require("mocha").describe;
+const it = require("mocha").it;
 
 describe("strings", () => {
 
