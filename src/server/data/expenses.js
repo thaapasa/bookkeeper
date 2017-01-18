@@ -16,7 +16,7 @@ const expenseSelect = "SELECT id, date::DATE, receiver, e.sum::MONEY::NUMERIC, d
     "group_id, category_id, created, " +
     "COALESCE(d1.sum, '0.00'::NUMERIC::MONEY)::MONEY::NUMERIC AS user_benefit, " +
     "COALESCE(d2.sum, '0.00'::NUMERIC::MONEY)::MONEY::NUMERIC AS user_cost, " +
-    "(COALESCE(d1.sum, '0.00'::NUMERIC::MONEY) + COALESCE(d2.sum, '0.00'::NUMERIC::MONEY))::MONEY::NUMERIC AS user_balance FROM expenses e " +
+    "(COALESCE(d1.sum, '0.00'::NUMERIC::MONEY) + COALESCE(d2.sum, '0.00'::NUMERIC::MONEY))::MONEY::NUMERIC AS user_value FROM expenses e " +
     "LEFT JOIN expense_division d1 ON (d1.expense_id = e.id AND d1.user_id = $1 AND d1.type='benefit') " +
     "LEFT JOIN expense_division d2 ON (d2.expense_id = e.id AND d2.user_id = $1 AND d2.type='cost')";
 const order = "ORDER BY date ASC, description ASC, id";
@@ -25,7 +25,7 @@ function getAll(groupId, userId) {
     return db.queryList("expenses.get_all",
         `${expenseSelect} WHERE group_id=$2 ${order}`,
         [userId, groupId])
-        .then(mapExpense);
+        .then(l => l.map(mapExpense));
 }
 
 function getByMonth(groupId, userId, year, month) {
@@ -37,6 +37,7 @@ function getByMonth(groupId, userId, year, month) {
 function mapExpense(e) {
     if (e === undefined) throw new errors.NotFoundError("EXPENSE_NOT_FOUND", "expense");
     e.date = moment(e.date).format("YYYY-MM-DD");
+    e.userBalance = Money.from(e.userValue).negate().toString();
     return e;
 }
 
