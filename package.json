@@ -8,6 +8,7 @@
     "update:revision": "script/update-revision.sh",
     "test": "npm run build:test && npm run run:test",
     "run:test": "node_modules/mocha/bin/mocha",
+    "test:api": "node_modules/mocha/bin/mocha src/test/server/api/*.js",
     "build:client": "NODE_ENV=development node_modules/browserify/bin/cmd.js --debug src/client/client.js -t [ envify --NODE_ENV development ] -t [ babelify --presets [ es2015 react ] ] -o public/js/bookkeeper.js",
     "build:prod": "NODE_ENV=production node_modules/browserify/bin/cmd.js src/client/client.js -t [ envify --NODE_ENV production ] -t [ babelify --presets [ es2015 react ] ] -o public/js/bookkeeper.js",
     "build:test": "NODE_ENV=development node_modules/browserify/bin/cmd.js --debug src/test/**/**/*.js -t [ envify --NODE_ENV development ] -t [ babelify --presets [ es2015 react ] ] > test/test.js",
