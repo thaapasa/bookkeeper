@@ -7,8 +7,8 @@ Big.DP = 2;
 Big.RM = 0;
 
 function toBig(m) {
-    if (typeof (m.div) === "function") return m;
-    if (typeof (m.divide) === "function" && typeof(m.value) === "object") return m.value;
+    if (m instanceof Big) return m;
+    if (m instanceof Money) return m.value;
     return Big(m);
 }
 
@@ -19,8 +19,9 @@ class Money {
     }
 
     static from(value, defaultValue) {
-        if (value === null || value === undefined) return (defaultValue !== undefined) ? Money.from(defaultValue) : undefined;
-        if (typeof (value.div) === "function") return value;
+        if (value === null || value === undefined)
+            return (defaultValue !== undefined) ? Money.from(defaultValue) : undefined;
+        if (value instanceof Money) return value;
         return new Money(value);
     }
 
