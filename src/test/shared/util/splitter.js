@@ -4,12 +4,15 @@ const Money = require("../../../shared/util/money");
 const splitter = require("../../../shared/util/splitter");
 const chai = require("chai");
 const expect = chai.expect;
+const log = require("../../../shared/util/log");
+
 
 function calculateSum(d) {
     return d.map(d => d.sum).reduce((a, b) => a.plus(b), Money.zero);
 }
 
 describe("splitter", () => {
+    before(() => log.setLevel("warn", false));
     it("should split 7.01 to 2 parts", () => {
         const split = splitter.splitByShares(new Money("7.01"), [{id: 1, share: 1}, {id: 2, share: 1}]);
         expect(calculateSum(split).toString()).to.equal("7.01");

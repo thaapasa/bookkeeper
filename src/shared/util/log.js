@@ -43,8 +43,9 @@ function error() {
     }
 }
 
-function setLevel(level) {
-    info("Setting logging level to", level);
+function setLevel(level, reportChange) {
+    if (reportChange !== false)
+        info("Setting logging level to", level);
     currentLevel = levels[level];
 }
 

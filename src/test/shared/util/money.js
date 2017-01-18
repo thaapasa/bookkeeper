@@ -32,6 +32,11 @@ describe("Money", function() {
         expect(new Money("10").plus(new Money(12.50)).toString()).to.equal("22.50");
         expect(new Money("10").plus(new Money(12.50)).equals(new Money(22.50))).to.equal(true);
     });
+    it("should equal when created from money", () => {
+        const m = new Money(100);
+        expect(Money.from(m)).to.equal(m);
+        expect(Money.from(m) === m).to.equal(true);
+    });
 
     it("should divide rounding down", () => {
         expect(new Money("2").divide(3).toString()).to.equal("0.66");
