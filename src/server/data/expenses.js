@@ -97,26 +97,27 @@ function createDivision(tx) {
 }
 
 function createExpense(userId, groupId, expense, defaultSourceId) {
-    log.info("Creating expense", expense);
-    const sourceId = expense.sourceId || defaultSourceId;
-    return Promise.all([
-        categories.getById(groupId, expense.categoryId),
-        users.getById(groupId, expense.userId),
-        sources.getById(groupId, sourceId)
-    ]).then(a => {
-        const cat = a[0];
-        const user = a[1];
-        const source = a[2];
-        const cost = expense.cost ? validateDivision(expense.cost, expense.sum.negate(), "cost") : getCostFromSource(expense.sum, source);
-        const benefit = expense.benefit ? validateDivision(expense.benefit, expense.sum, "benefit") : splitter.negateDivision(cost);
-        return db.insert("expenses.create",
-            "INSERT INTO expenses (created_by_id, user_id, group_id, date, created, receiver, sum, description, source_id, category_id) " +
-            "VALUES ($1::INTEGER, $2::INTEGER, $3::INTEGER, $4::DATE, NOW(), $5, $6::NUMERIC::MONEY, $7, $8, $9::INTEGER) RETURNING id",
-            [userId, user.id, groupId, expense.date, expense.receiver, expense.sum.toString(), expense.description,
-                source.id, cat.id ])
-            .then(expenseId => createDivision(expenseId, benefit, cost))
-    })
-    .then(id => ({ status: "OK", message: "Expense created", expenseId: id }));
+    return db.transaction(tx => {
+        log.info("Creating expense", expense);
+        const sourceId = expense.sourceId || defaultSourceId;
+        return Promise.all([
+            categories.getById(groupId, expense.categoryId),
+            users.getById(groupId, expense.userId),
+            sources.getById(groupId, sourceId)
+        ]).then(a => {
+            const cat = a[0];
+            const user = a[1];
+            const source = a[2];
+            const cost = expense.cost ? validateDivision(expense.cost, expense.sum.negate(), "cost") : getCostFromSource(expense.sum, source);
+            const benefit = expense.benefit ? validateDivision(expense.benefit, expense.sum, "benefit") : splitter.negateDivision(cost);
+            return db.insert("expenses.create",
+                "INSERT INTO expenses (created_by_id, user_id, group_id, date, created, receiver, sum, description, source_id, category_id) " +
+                "VALUES ($1::INTEGER, $2::INTEGER, $3::INTEGER, $4::DATE, NOW(), $5, $6::NUMERIC::MONEY, $7, $8, $9::INTEGER) RETURNING id",
+                [userId, user.id, groupId, expense.date, expense.receiver, expense.sum.toString(), expense.description,
+                    source.id, cat.id])
+                .then(expenseId => createDivision(tx)(expenseId, benefit, cost))
+        }).then(id => ({status: "OK", message: "Expense created", expenseId: id}));
+    });
 }
 
 function updateExpense(tx) {
