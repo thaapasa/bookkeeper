@@ -177,7 +177,11 @@ export default class ExpenseTable extends React.Component {
                                 }>{categories.getFullName(row.categoryId)}</a></TableRowColumn>
                             <TableRowColumn>{new Money(row.sum).format()}</TableRowColumn>
                             <TableRowColumn>{state.get("sourceMap")[row.sourceId].name}</TableRowColumn>
-                            <TableRowColumn style={styles.balance(row.userBalance)}>{ row.userBalance.format() }</TableRowColumn>
+                            <TableRowColumn style={styles.balance(row.userBalance)} ><div onClick={
+                                () => Money.zero.equals(row.userBalance) ?
+                                    this.addFilter(e => Money.zero.equals(e.userBalance), "Balanssi == 0") :
+                                    this.addFilter(e => !Money.zero.equals(e.userBalance), "Balanssi != 0")
+                            }>{ row.userBalance.format() }</div></TableRowColumn>
                             <TableRowColumn>
                                 <IconButton iconClassName="material-icons" title="Tiedot"
                                             onClick={()=>this.toggleDetails(row, details)}>{ details ? "expand_less" : "expand_more" }</IconButton>
