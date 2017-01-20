@@ -7,6 +7,7 @@ import UserAvatar from "./user-avatar";
 
 import * as apiConnect from "../data/api-connect";
 import * as state from  "../data/state";
+import * as categories from  "../data/categories";
 import * as time from "../../shared/util/time"
 const moment = require("moment");
 const Money = require("../../shared/util/money");
@@ -49,15 +50,6 @@ export default class ExpenseTable extends React.Component {
         this.toggleDetails = this.toggleDetails.bind(this);
         this.deleteExpense = this.deleteExpense.bind(this);
         this.getExpensesForView = this.getExpensesForView.bind(this);
-    }
-
-    getCategoryString(categoryId) {
-        let categoryString = "";
-        const category = state.get("categoryMap")[categoryId];
-        if (category.parentId)
-            categoryString +=  this.getCategoryString(category.parentId) + " - " ;
-        categoryString += category.name;
-        return categoryString;
     }
 
     getExpensesForView(date) {
@@ -135,7 +127,7 @@ export default class ExpenseTable extends React.Component {
                             <TableRowColumn style={styles.descriptionColumn}>{row.description}</TableRowColumn>
                             <TableRowColumn style={styles.descriptionColumn}>{row.receiver}</TableRowColumn>
                             <TableRowColumn
-                                style={styles.categoryColumn}>{this.getCategoryString(row.categoryId)}</TableRowColumn>
+                                style={styles.categoryColumn}>{categories.getFullName(row.categoryId)}</TableRowColumn>
                             <TableRowColumn>{new Money(row.sum).format()}</TableRowColumn>
                             <TableRowColumn>{state.get("sourceMap")[row.sourceId].name}</TableRowColumn>
                             <TableRowColumn style={styles.balance(row.userBalance)}>{ row.userBalance.format() }</TableRowColumn>

@@ -6,13 +6,14 @@ import DatePicker from 'material-ui/DatePicker';
 import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
 import TextField from 'material-ui/TextField';
+import AutoComplete from 'material-ui/AutoComplete';
 import UserSelector from "./user-selector";
 import UserAvatar from "./user-avatar";
 const moment = require("moment");
 import * as arrays from "../../shared/util/arrays";
 import * as splitter from "../../shared/util/splitter";
 import Money from "../../shared/util/money";
-
+import * as categories from  "../data/categories";
 import * as apiConnect from "../data/api-connect";
 import * as state from "../data/state"
 import * as time from "../../shared/util/time"
@@ -79,18 +80,25 @@ export default class ExpenseDialog extends React.Component {
             createNew: true,
             subcategories: defaultSubcategory
         };
-        this.categories = defaultCategory.concat(state.get("categories"));
-        this.sources = state.get("sources");
+        this.updateCategoriesAndSources();
         Object.keys(fields).forEach(k => this.state[k] = initValue(k));
         this.handleClose = this.handleClose.bind(this);
         this.handleSave = this.handleSave.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.setCategory = this.setCategory.bind(this);
+        this.selectCategory = this.selectCategory.bind(this);
+    }
+
+    updateCategoriesAndSources() {
+        const cats = state.get("categories");
+        this.categories = defaultCategory.concat(cats);
+        this.sources = state.get("sources");
+        this.categorySource = categories.getDataSource();
     }
 
     handleOpen(expense) {
         console.log("handleOpen");
-        this.categories = defaultCategory.concat(state.get("categories"));
+        this.updateCategoriesAndSources();
         const newState = { open: true, createNew: expense === undefined };
         Object.keys(fields).forEach(k => newState[k] = initValue(k, expense));
         if (expense) {
@@ -140,6 +148,17 @@ export default class ExpenseDialog extends React.Component {
         state.get("expenseDialogStream").onValue(e => {console.log("dialog onValue"); this.handleOpen(e)});
     }
 
+    selectCategory(id) {
+        const m = state.get("categoryMap");
+        const name = m[id].name;
+        if (m[id].parentId) {
+            this.setCategory(m[id].parentId, id);
+        } else {
+            this.setCategory(id, 0);
+        }
+        this.setState({ description: name });
+    }
+
     setCategory(id, subcategoryId) {
         this.setState({
             categoryId: id,
@@ -177,13 +196,16 @@ export default class ExpenseDialog extends React.Component {
                     value={this.state.sum}
                     onChange={i => this.setState({sum: i.target.value})}
                 />
-                <TextField
-                    hintText="Makkaroita"
+                <AutoComplete
+                    hintText="Ruokaostokset"
                     floatingLabelFixed={true}
                     floatingLabelText="Kuvaus"
-                    value={this.state.description}
+                    searchText={this.state.description}
+                    filter={AutoComplete.caseInsensitiveFilter}
+                    onNewRequest={(v) => this.selectCategory(v.value)}
                     fullWidth={true}
-                    onChange={i => this.setState({description: i.target.value})}
+                    dataSource={this.categorySource}
+                    onUpdateInput={(v) => this.setState({description: v})}
                 />
                 <DropDownMenu
                     value={this.state.categoryId}

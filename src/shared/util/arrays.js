@@ -25,8 +25,11 @@ function indices(num) {
     return Array.apply(null, {length: num}).map(Number.call, Number);
 }
 
+const flatten = arr => arr.reduce((a, b) => a.concat(Array.isArray(b) ? flatten(b) : b), []);
+
 module.exports = {
     shuffle: shuffle,
+    flatten: flatten,
     sortAndCompareElements: sortAndCompareElements,
     indices: indices
 };
