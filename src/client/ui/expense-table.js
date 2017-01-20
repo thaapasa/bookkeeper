@@ -52,7 +52,7 @@ export default class ExpenseTable extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { date : moment(), expenses : [], details: {}, filterName: undefined, filters: [] };
+        this.state = { date : moment(), expenses : [], details: {}, filters: [] };
         this.toggleDetails = this.toggleDetails.bind(this);
         this.deleteExpense = this.deleteExpense.bind(this);
         this.addFilter = this.addFilter.bind(this);
@@ -177,7 +177,7 @@ export default class ExpenseTable extends React.Component {
                                 }>{categories.getFullName(row.categoryId)}</a></TableRowColumn>
                             <TableRowColumn>{new Money(row.sum).format()}</TableRowColumn>
                             <TableRowColumn>{state.get("sourceMap")[row.sourceId].name}</TableRowColumn>
-                            <TableRowColumn style={styles.balance(row.userBalance)} ><div onClick={
+                            <TableRowColumn style={styles.balance(row.userBalance)}><div onClick={
                                 () => Money.zero.equals(row.userBalance) ?
                                     this.addFilter(e => Money.zero.equals(e.userBalance), "Balanssi == 0") :
                                     this.addFilter(e => !Money.zero.equals(e.userBalance), "Balanssi != 0")
