@@ -16,6 +16,7 @@ export default class UserAvatar extends React.Component {
         return user && user.id ?
             <Avatar style={this.props.style}
                     color={cyan900}
+                    size={this.props.size}
                     backgroundColor={cyan500}
                     className={ "user-avatar" + (this.props.className ? " " + this.props.className : "") }
                     src={ user.image || undefined }

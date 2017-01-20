@@ -7,6 +7,7 @@ import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
 import TextField from 'material-ui/TextField';
 import UserSelector from "./user-selector";
+import UserAvatar from "./user-avatar";
 const moment = require("moment");
 import * as arrays from "../../shared/util/arrays";
 import * as splitter from "../../shared/util/splitter";
@@ -32,6 +33,7 @@ const fields = {
     "subcategoryId": { default: 0, read: (e) => e.categoryId },
     "receiver": { default: "" },
     "sum": { default: "" },
+    "userId": { default: () => state.get("user").id, read: (e) => e.userId },
     "date": { default: () => moment().toDate(), read: (e) => time.fromDate(e.date).toDate() },
     "benefit": { default: () => [state.get("user").id], read: (e) => e.division.filter(d => d.type === "benefit").map(d => d.userId) }
 };
@@ -160,17 +162,18 @@ export default class ExpenseDialog extends React.Component {
         ];
 
         return <Dialog
-                    title={ typeof this.state.createNew ? "Uusi kirjaus" : "Muokkaa kirjausta" }
+                    title={ this.state.createNew ? "Uusi kirjaus" : "Muokkaa kirjausta" }
                     actions={actions}
                     modal={false}
                     open={this.state.open}
                     onRequestClose={this.handleClose}>
             <form onSubmit={this.handleSubmit}>
+                <UserAvatar userId={this.state.userId} />
                 <TextField
+                    style={{ marginLeft: "2em" }}
                     hintText="0.00"
                     floatingLabelText="Summa"
                     floatingLabelFixed={true}
-                    fullWidth={true}
                     value={this.state.sum}
                     onChange={i => this.setState({sum: i.target.value})}
                 />

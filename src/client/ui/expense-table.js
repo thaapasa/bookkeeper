@@ -2,8 +2,8 @@ import React from 'react';
 import {Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn}
     from 'material-ui/Table';
 import ExpenseDetails from "./expense-details"
-import FontIcon from 'material-ui/FontIcon';
 import IconButton from 'material-ui/IconButton';
+import UserAvatar from "./user-avatar";
 
 import * as apiConnect from "../data/api-connect";
 import * as state from  "../data/state";
@@ -116,6 +116,7 @@ export default class ExpenseTable extends React.Component {
                    multiSelectable={false}><TableBody displayRowCheckbox={false}>
                     <TableRow selected={false}>
                         <TableRowColumn style={Object.assign({}, styles.dateColumn, styles.header)} >Pvm</TableRowColumn>
+                        <TableRowColumn/>
                         <TableRowColumn style={Object.assign({}, styles.descriptionColumn, styles.header)}>Kuvaus</TableRowColumn>
                         <TableRowColumn style={Object.assign({}, styles.descriptionColumn, styles.header)}>Kohde</TableRowColumn>
                         <TableRowColumn style={Object.assign({}, styles.categoryColumn, styles.header)}>Kategoria</TableRowColumn>
@@ -130,6 +131,7 @@ export default class ExpenseTable extends React.Component {
                         return [<TableRow key={index} selected={row.selected}>
                             <TableRowColumn
                                 style={styles.dateColumn}>{moment(row.date).format("D.M.")}</TableRowColumn>
+                            <TableRowColumn><UserAvatar userId={row.userId} size={25} /></TableRowColumn>
                             <TableRowColumn style={styles.descriptionColumn}>{row.description}</TableRowColumn>
                             <TableRowColumn style={styles.descriptionColumn}>{row.receiver}</TableRowColumn>
                             <TableRowColumn
