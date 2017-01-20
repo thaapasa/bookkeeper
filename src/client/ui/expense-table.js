@@ -3,7 +3,9 @@ import {Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow,
     from 'material-ui/Table';
 import ExpenseDetails from "./expense-details"
 import IconButton from 'material-ui/IconButton';
+import Avatar from 'material-ui/Avatar';
 import UserAvatar from "./user-avatar";
+import Chip from "material-ui/Chip"
 
 import * as apiConnect from "../data/api-connect";
 import * as state from  "../data/state";
@@ -42,13 +44,19 @@ const styles = {
     }
 };
 
+function acceptAll() {
+    return true;
+}
+
 export default class ExpenseTable extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { date : moment(), expenses : [], details: {} };
+        this.state = { date : moment(), expenses : [], details: {}, filterName: undefined, filters: [] };
         this.toggleDetails = this.toggleDetails.bind(this);
         this.deleteExpense = this.deleteExpense.bind(this);
+        this.addFilter = this.addFilter.bind(this);
+        this.removeFilter = this.removeFilter.bind(this);
         this.getExpensesForView = this.getExpensesForView.bind(this);
     }
 
@@ -100,8 +108,25 @@ export default class ExpenseTable extends React.Component {
             .catch(e => console.log("Could not delete:", e));
     }
 
+    addFilter(fun, name, avatar) {
+        this.setState(s => ({
+            filters: s.filters.concat({ filter: fun, name: name, avatar: avatar })
+        }));
+    }
+
+    removeFilter(index) {
+        this.setState(s => {
+            s.filters.splice(index, 1);
+            return s;
+        });
+    }
+
+    getFilteredExpenses() {
+        return this.state.expenses ? this.state.filters.reduce((a, b) => a.filter(b.filter), this.state.expenses) : [];
+    }
+
     render() {
-        return  <Table
+        return <Table
                    fixedHeader={true}
                    fixedFooter={true}
                    selectable={false}
@@ -117,17 +142,39 @@ export default class ExpenseTable extends React.Component {
                         <TableRowColumn style={Object.assign({}, styles.cost, styles.header)}>Balanssi</TableRowColumn>
                         <TableRowColumn/>
                     </TableRow>
-
-                    { this.state.expenses && this.state.expenses.map( (row, index) => {
+                    { this.state.filters.length > 0 ?
+                        <TableRow>
+                            <TableRowColumn colSpan="9">
+                                <div style={{ display: "flex" }}>{
+                                    this.state.filters.map((f, index) => <Chip
+                                        key={index}
+                                        style={{ margin: "0.3em", padding: 0 }}
+                                        onRequestDelete={() => this.removeFilter(index)}>
+                                        { f.avatar ? <Avatar src={f.avatar} /> : null }
+                                        { f.name }
+                                    </Chip>)
+                                }</div>
+                            </TableRowColumn>
+                        </TableRow> :
+                        undefined
+                    }
+                    { this.getFilteredExpenses().map( (row, index) => {
                         const details = this.state.details[row.id];
                         return [<TableRow key={index} selected={row.selected}>
                             <TableRowColumn
                                 style={styles.dateColumn}>{moment(row.date).format("D.M.")}</TableRowColumn>
-                            <TableRowColumn><UserAvatar userId={row.userId} size={25} /></TableRowColumn>
+                            <TableRowColumn><UserAvatar userId={row.userId} size={25} onClick={
+                                () => this.addFilter(
+                                    e => e.userId == row.userId,
+                                    state.get("userMap")[row.userId].firstName,
+                                    state.get("userMap")[row.userId].image)
+                            }/></TableRowColumn>
                             <TableRowColumn style={styles.descriptionColumn}>{row.description}</TableRowColumn>
                             <TableRowColumn style={styles.descriptionColumn}>{row.receiver}</TableRowColumn>
                             <TableRowColumn
-                                style={styles.categoryColumn}>{categories.getFullName(row.categoryId)}</TableRowColumn>
+                                style={styles.categoryColumn}><a href="#" onClick={
+                                    () => this.addFilter(e => e.categoryId == row.categoryId, categories.getFullName(row.categoryId))
+                                }>{categories.getFullName(row.categoryId)}</a></TableRowColumn>
                             <TableRowColumn>{new Money(row.sum).format()}</TableRowColumn>
                             <TableRowColumn>{state.get("sourceMap")[row.sourceId].name}</TableRowColumn>
                             <TableRowColumn style={styles.balance(row.userBalance)}>{ row.userBalance.format() }</TableRowColumn>
