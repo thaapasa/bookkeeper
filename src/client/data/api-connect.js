@@ -69,6 +69,10 @@ function login(username, password) {
         .catch(defaultErrorHandler);
 }
 
+function logout() {
+    return del("/api/session");
+}
+
 function getSession() {
     return get("/api/session");
 }
@@ -99,6 +103,6 @@ function defaultErrorHandler(er) {
 }
 
 module.exports = {
-    login : login, getSession : getSession,
+    login : login, logout : logout, getSession : getSession,
     getExpensesForMonth : getExpensesForMonth, getExpense: getExpense, storeExpense : storeExpense, deleteExpense: deleteExpense, updateExpense: updateExpense
 };
