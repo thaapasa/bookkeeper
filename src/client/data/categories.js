@@ -12,6 +12,10 @@ export function getFullName(categoryId) {
     return categoryString;
 }
 
+export function get(categoryId) {
+    return state.get("categoryMap")[categoryId];
+}
+
 const catToDataSource = (arr) => arr ?
     flatten(arr.map(c => ([{ value: c.id, text: getFullName(c.id) }].concat(catToDataSource(c.children))))) :
     [];
