@@ -2,7 +2,7 @@ import React from "react"
 import * as state from  "../data/state";
 import * as colors from "./colors";
 import UserAvatar from "./user-avatar";
-const Money = require("../../shared/util/Money");
+const Money = require("../../shared/util/money");
 
 function divisionItem(label, sum) {
     const s = Money.orZero(sum);
