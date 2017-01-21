@@ -6,6 +6,7 @@ import IconButton from 'material-ui/IconButton';
 import Avatar from 'material-ui/Avatar';
 import UserAvatar from "./user-avatar";
 import Chip from "material-ui/Chip"
+import ExpenseRow from "./expense-row";
 
 import * as apiConnect from "../data/api-connect";
 import * as state from  "../data/state";
@@ -160,37 +161,14 @@ export default class ExpenseTable extends React.Component {
             }
             { this.getFilteredExpenses().map(expense => {
                 const details = this.state.details[expense.id];
-                return [<div key={expense.id} className="expense-row">
-                    <div className="expense-detail date">{ moment(expense.date).format("D.M.") }</div>
-                    <div className="expense-detail user">
-                        <UserAvatar userId={expense.userId} size={25} onClick={
-                            () => this.addFilter(
-                                e => e.userId == expense.userId,
-                                state.get("userMap")[expense.userId].firstName,
-                                state.get("userMap")[expense.userId].image)
-                        }/>
-                    </div>
-                    <div className="expense-detail description">{ expense.description }</div>
-                    <div className="expense-detail receiver">{ expense.receiver }</div>
-                    <div className="expense-detail category"><a href="#" onClick={
-                        () => this.addFilter(e => e.categoryId == expense.categoryId, categories.getFullName(expense.categoryId))
-                    }>{categories.getFullName(expense.categoryId)}</a></div>
-                    <div className="expense-detail source">{ state.get("sourceMap")[expense.sourceId].name }</div>
-                    <div className="expense-detail sum">{ Money.from(expense.sum).format() }</div>
-                    <div className={ `expense-detail balance ${styles.balance(expense.userBalance)}` } onClick={
-                        () => Money.zero.equals(expense.userBalance) ?
-                            this.addFilter(e => Money.zero.equals(e.userBalance), "Balanssi == 0") :
-                            this.addFilter(e => !Money.zero.equals(e.userBalance), "Balanssi != 0")
-                    }>{ Money.from(expense.userBalance).format() }</div>
-                    <div className="expense-detail tools">
-                        <IconButton iconClassName="material-icons" title="Tiedot" style={styles.smallIcon}
-                                    onClick={()=>this.toggleDetails(expense, details)}>{ details ? "expand_less" : "expand_more" }</IconButton>
-                        <IconButton iconClassName="material-icons" title="Muokkaa" style={styles.smallIcon}
-                                    onClick={()=>apiConnect.getExpense(expense.id).then(e => state.get("expenseDialogStream").push(e))}>edit</IconButton>
-                        <IconButton iconClassName="material-icons" title="Poista" style={styles.smallIcon}
-                                    onClick={()=>this.deleteExpense(expense)} iconStyle={{ color: "red"}}>delete</IconButton>
-                    </div>
-                </div>].concat(details && details.division ?
+                return [
+                    <ExpenseRow expense={ expense }
+                                details={ details }
+                                addFilter={ this.addFilter }
+                                onToggleDetails={ this.toggleDetails }
+                                onModify={ () => apiConnect.getExpense(expense.id).then(e => state.get("expenseDialogStream").push(e)) }
+                                onDelete={ this.deleteExpense } />
+                ].concat(details && details.division ?
             [<ExpenseDetails division={details.division}/>] : [])
             })}
         </div>
