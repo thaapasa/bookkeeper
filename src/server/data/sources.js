@@ -3,20 +3,25 @@
 const db = require("./db");
 const errors = require("../util/errors");
 
+function getImage(img) {
+    return img ? `img/sources/${img}` : undefined;
+}
+
 function createGroupObject(rows) {
     if (!rows || rows.size < 1) return undefined;
     return rows.reduce((list, v) => {
         if ((list[list.length - 1] ? list[list.length - 1].id : undefined) !== v.id) {
-            list.push({ id: v.id, name: v.name, abbreviation: v.abbreviation, shares: v.shares, users: [] });
+            list.push({ id: v.id, name: v.name, abbreviation: v.abbreviation, shares: v.shares, users: [], image: getImage(v.image) });
         }
         list[list.length - 1].users.push({ userId: v.userId, share: v.share });
         return list;
     }, []);
 }
 
-const select = "SELECT s.id, s.group_id, name, abbreviation, (SELECT SUM(share) FROM source_users WHERE source_id = s.id)::INTEGER AS shares, so.user_id, so.share " +
+const select = "SELECT s.id, s.group_id, name, abbreviation, image, " +
+    "  (SELECT SUM(share) FROM source_users WHERE source_id = s.id)::INTEGER AS shares, so.user_id, so.share " +
     "FROM sources s " +
-    "LEFT JOIN source_users so ON (so.source_id = s.id) ";
+    "LEFT JOIN source_users so ON (so.source_id = s.id)";
 
 function getAll(groupId) {
     return db.queryList("sources.get_all",

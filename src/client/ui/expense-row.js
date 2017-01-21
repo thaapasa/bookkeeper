@@ -1,11 +1,12 @@
 import React from "react"
-const moment = require("moment");
-const Money = require("../../shared/util/money");
 import * as categories from  "../data/categories";
 import * as state from  "../data/state";
 import UserAvatar from "./user-avatar";
+import Avatar from "material-ui/Avatar";
 import IconButton from 'material-ui/IconButton';
 import * as colors from "./colors";
+const moment = require("moment");
+const Money = require("../../shared/util/money");
 
 const styles = {
     tool: {
@@ -20,14 +21,14 @@ const styles = {
     }
 };
 
-export function ExpenseHeader(props) {
+export function ExpenseHeader() {
     return <div className="expense-row header" style={{ color: colors.header }}>
         <div className="expense-detail date">Pvm.</div>
         <div className="expense-detail user"></div>
         <div className="expense-detail description">Selite</div>
         <div className="expense-detail receiver">Kohde</div>
         <div className="expense-detail category">Kategoria</div>
-        <div className="expense-detail source">Lähde</div>
+        <div className="expense-detail source"></div>
         <div className="expense-detail sum">Summa</div>
         <div className="expense-detail balance">Balanssi</div>
         <div className="expense-detail tools"></div>
@@ -55,7 +56,11 @@ export default class ExpenseRow extends React.Component {
 
     getSource(sourceId) {
         const source = state.get("sourceMap")[sourceId];
-        return source.abbreviation ? source.abbreviation : source.name;
+        if (source.image) {
+            return <img src={source.image} title={source.name} style={{ maxWidth: "48px", maxHeight: "24px" }} />
+        } else {
+            return source.abbreviation ? source.abbreviation : source.name;
+        }
     }
 
     render() {
