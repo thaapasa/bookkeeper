@@ -6,7 +6,8 @@ CREATE TABLE IF NOT EXISTS groups (
 CREATE TABLE IF NOT EXISTS sources (
   id SERIAL PRIMARY KEY,
   group_id INTEGER REFERENCES users (id) NOT NULL,
-  name VARCHAR(100) NOT NULL
+  name VARCHAR(100) NOT NULL,
+  abbreviation VARCHAR(32)
 );
 CREATE INDEX "sources_group_id" ON sources (group_id);
 

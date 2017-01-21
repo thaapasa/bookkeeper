@@ -56,7 +56,7 @@ html, body {
 .expense-detail.description { flex-grow: 1; min-width: 7em; }
 .expense-detail.category    { width: 12em; }
 .expense-detail.receiver    { width: 10em; }
-.expense-detail.source      { width:  7em; }
+.expense-detail.source      { width:  5em; }
 .expense-detail.sum,
 .expense-detail.balance     { width:  5em; text-align: right; }
 .expense-detail.user {

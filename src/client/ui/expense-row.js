@@ -34,7 +34,6 @@ export function ExpenseHeader(props) {
     </div>
 }
 
-
 export default class ExpenseRow extends React.Component {
     constructor(props) {
         super(props);
@@ -54,6 +53,11 @@ export default class ExpenseRow extends React.Component {
             this.categoryLink(id);
     }
 
+    getSource(sourceId) {
+        const source = state.get("sourceMap")[sourceId];
+        return source.abbreviation ? source.abbreviation : source.name;
+    }
+
     render() {
         const expense = this.props.expense;
         return <div key={expense.id} className="expense-row">
@@ -69,7 +73,7 @@ export default class ExpenseRow extends React.Component {
             <div className="expense-detail description">{ expense.description }</div>
             <div className="expense-detail receiver">{ expense.receiver }</div>
             <div className="expense-detail category">{ this.fullCategoryLink(expense.categoryId) }</div>
-            <div className="expense-detail source">{ state.get("sourceMap")[expense.sourceId].name }</div>
+            <div className="expense-detail source">{ this.getSource(expense.sourceId) }</div>
             <div className="expense-detail sum">{ Money.from(expense.sum).format() }</div>
             <div className="expense-detail balance" style={{ color: colors.forMoney(expense.userBalance) }} onClick={
                 () => Money.zero.equals(expense.userBalance) ?
