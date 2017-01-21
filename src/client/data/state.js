@@ -18,6 +18,8 @@ export function init() {
     window.state = state;
     state.expenseDialogStream && state.expenseDialogStream.end();
     state.expenseDialogStream = new Bacon.Bus();
+    state.confirmationDialogStream && state.confirmationDialogStream.end();
+    state.confirmationDialogStream = new Bacon.Bus();
     state.expensesUpdatedStream && state.expensesUpdatedStream.end();
     state.expensesUpdatedStream = new Bacon.Bus();
 }

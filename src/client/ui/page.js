@@ -2,6 +2,7 @@ import React from "react"
 import TopBar from "./topbar"
 import MonthView from "./month-view"
 import ExpenseDialog from "./expense-dialog"
+import ConfirmationDialog from "./confirmation-dialog"
 
 export default class BookkeeperPage extends React.Component {
 
@@ -22,6 +23,7 @@ export default class BookkeeperPage extends React.Component {
     render() {
         return <div className="everything">
             <ExpenseDialog />
+            <ConfirmationDialog />
             <TopBar user={this.state.user} />
             <div className="main-content">
                 <div><MonthView/></div>

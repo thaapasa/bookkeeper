@@ -27,7 +27,6 @@ export default class ExpenseTable extends React.Component {
         this.setState(s => ({ date: next, details: {} }));
         return apiConnect.getExpensesForMonth(next.year(), next.month() + 1)
             .then(e => {
-                console.log("got expenses");
                 this.setState({ expenses: e });
                 return null;
             })
@@ -64,9 +63,16 @@ export default class ExpenseTable extends React.Component {
     }
 
     deleteExpense(e) {
-        apiConnect.deleteExpense(e.id)
-            .then(this.getExpensesForView)
-            .catch(e => console.log("Could not delete:", e));
+        console.log("deleteExpense");
+        state.get("confirmationDialogStream").push({
+            title: "Poista kirjaus",
+            content: "Haluatko varmasti poistaa kirjauksen?",
+            okText: "Poista",
+            cancelText: "Peruuta",
+            okAction: () => { apiConnect.deleteExpense(e.id)
+                                    .then(this.getExpensesForView)
+                                    .catch(e => console.log("Could not delete:", e)) }
+            })
     }
 
     addFilter(fun, name, avatar) {
