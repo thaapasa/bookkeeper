@@ -1,60 +1,13 @@
 import React from 'react';
-import {Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn}
-    from 'material-ui/Table';
 import ExpenseDetails from "./expense-details"
-import IconButton from 'material-ui/IconButton';
 import Avatar from 'material-ui/Avatar';
-import UserAvatar from "./user-avatar";
 import Chip from "material-ui/Chip"
 import ExpenseRow from "./expense-row";
 import {ExpenseHeader} from "./expense-row";
-
 import * as apiConnect from "../data/api-connect";
 import * as state from  "../data/state";
-import * as categories from  "../data/categories";
 import * as time from "../../shared/util/time"
 const moment = require("moment");
-const Money = require("../../shared/util/money");
-
-const styles = {
-    smallIcon: {
-        margin: "0",
-        padding: "0",
-        width: 36,
-        height: 36
-    },
-    propContainer: {
-        width: 200,
-        overflow: 'hidden',
-        margin: '20px auto 0',
-    },
-    propToggleHeader: {
-        margin: '20px auto 10px',
-    },
-    benefit: {
-        color: "green"
-    },
-    cost: {
-        color: "red"
-    },
-    balance: (b) => b.gt(0) ? "positive" : ( b.lt(0) ? "negative" : "zero"),
-    dateColumn: {
-        width: "30px"
-    },
-    descriptionColumn: {
-        width: "150px"
-    },
-    categoryColumn: {
-        width: "150px"
-    },
-    header: {
-        color: "lightgrey"
-    }
-};
-
-function acceptAll() {
-    return true;
-}
 
 export default class ExpenseTable extends React.Component {
 

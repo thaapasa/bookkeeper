@@ -13,33 +13,7 @@ const styles = {
         width: 36,
         height: 36
     },
-    propContainer: {
-        width: 200,
-        overflow: 'hidden',
-        margin: '20px auto 0',
-    },
-    propToggleHeader: {
-        margin: '20px auto 10px',
-    },
-    benefit: {
-        color: "green"
-    },
-    cost: {
-        color: "red"
-    },
-    balance: (b) => b.gt(0) ? "positive" : ( b.lt(0) ? "negative" : "zero"),
-    dateColumn: {
-        width: "30px"
-    },
-    descriptionColumn: {
-        width: "150px"
-    },
-    categoryColumn: {
-        width: "150px"
-    },
-    header: {
-        color: "lightgrey"
-    }
+    balance: (b) => b.gt(0) ? "positive" : ( b.lt(0) ? "negative" : "zero")
 };
 
 export function ExpenseHeader(props) {
