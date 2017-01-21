@@ -1,6 +1,7 @@
 import React from "react"
 import ExpenseTable from "./expense-table"
 import ExpenseNavigation from "./expense-navigation"
+import MonthViewTotal from "./month-view-total"
 import {Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn}
     from 'material-ui/Table';
 //const moment = require("moment")
@@ -20,6 +21,7 @@ export default class MonthView extends React.Component {
         return <div className="content">
                 <ExpenseNavigation/>
                 <ExpenseTable/>
+                <MonthViewTotal/>
             </div>;
     }
 }
