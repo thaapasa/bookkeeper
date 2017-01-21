@@ -10,3 +10,56 @@ html, body {
     -webkit-box-shadow: 0 0 4px 2px #748dac;
     box-shadow:         0 0 4px 2px #748dac;
 }
+
+.tight {
+    padding: 0;
+    margin: 0;
+}
+
+.expense-table {
+    font-size: 13px;
+}
+
+.expense-row {
+    display: flex;
+    border-bottom: 1px solid rgb(224, 224, 224);
+    white-space: nowrap;
+}
+.expense-row:last-of-type {
+    border-bottom: none;
+}
+.expense-row.header {
+    font-weight: 600;
+}
+.expense-detail {
+    margin: 1em 0.4em;
+    padding: 0;
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+}
+.expense-detail.date {
+    width: 3.2em;
+    text-align: right;
+}
+.expense-detail.description { flex-grow: 1; min-width: 7em; }
+.expense-detail.category    { width: 12em; }
+.expense-detail.receiver    { width: 10em; }
+.expense-detail.source      { width:  7em; }
+.expense-detail.sum,
+.expense-detail.balance     { width:  5em; text-align: right; }
+.expense-detail.balance.positive { color: blue; }
+.expense-detail.balance.negative { color: red; }
+.expense-detail.balance.zero { color: gray; }
+.expense-detail.user {
+    margin-top: 0.6em;
+    margin-bottom: 0.4em;
+    width: 28px;
+}
+.expense-detail.tools {
+    margin-top: 0;
+    margin-bottom: 0;
+    text-align: right;
+    width: 84pt;
+}

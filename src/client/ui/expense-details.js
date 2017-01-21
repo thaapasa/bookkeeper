@@ -9,7 +9,7 @@ export default class ExpenseDetails extends React.Component {
     }
 
     render() {
-        return <div className="expense">
+        return <div className="expense-division">
             { this.props.division.map(d => <div key={ `${d.type}-${d.userId}` }>
                 { this.userMap[d.userId].firstName }:  { d.type } { d.sum }
             </div>)}

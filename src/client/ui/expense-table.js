@@ -15,6 +15,12 @@ const moment = require("moment");
 const Money = require("../../shared/util/money");
 
 const styles = {
+    smallIcon: {
+        margin: "0",
+        padding: "0",
+        width: 36,
+        height: 36
+    },
     propContainer: {
         width: 200,
         overflow: 'hidden',
@@ -29,7 +35,7 @@ const styles = {
     cost: {
         color: "red"
     },
-    balance: (b) => b.gt(0) ? { color: "blue" } : ( b.lt(0) ? { color: "red" } : { color: "gray" }),
+    balance: (b) => b.gt(0) ? "positive" : ( b.lt(0) ? "negative" : "zero"),
     dateColumn: {
         width: "30px"
     },
@@ -126,74 +132,53 @@ export default class ExpenseTable extends React.Component {
     }
 
     render() {
-        return <Table
-                   fixedHeader={true}
-                   fixedFooter={true}
-                   selectable={false}
-                   multiSelectable={false}><TableBody displayRowCheckbox={false}>
-                    <TableRow selected={false}>
-                        <TableRowColumn style={Object.assign({}, styles.dateColumn, styles.header)} >Pvm</TableRowColumn>
-                        <TableRowColumn/>
-                        <TableRowColumn style={Object.assign({}, styles.descriptionColumn, styles.header)}>Kuvaus</TableRowColumn>
-                        <TableRowColumn style={Object.assign({}, styles.descriptionColumn, styles.header)}>Kohde</TableRowColumn>
-                        <TableRowColumn style={Object.assign({}, styles.categoryColumn, styles.header)}>Kategoria</TableRowColumn>
-                        <TableRowColumn style={styles.header}>Summa</TableRowColumn>
-                        <TableRowColumn style={styles.header}>Tili</TableRowColumn>
-                        <TableRowColumn style={Object.assign({}, styles.cost, styles.header)}>Balanssi</TableRowColumn>
-                        <TableRowColumn/>
-                    </TableRow>
-                    { this.state.filters.length > 0 ?
-                        <TableRow>
-                            <TableRowColumn colSpan="9">
-                                <div style={{ display: "flex" }}>{
-                                    this.state.filters.map((f, index) => <Chip
-                                        key={index}
-                                        style={{ margin: "0.3em", padding: 0 }}
-                                        onRequestDelete={() => this.removeFilter(index)}>
-                                        { f.avatar ? <Avatar src={f.avatar} /> : null }
-                                        { f.name }
-                                    </Chip>)
-                                }</div>
-                            </TableRowColumn>
-                        </TableRow> :
-                        undefined
-                    }
-                    { this.getFilteredExpenses().map( (row, index) => {
-                        const details = this.state.details[row.id];
-                        return [<TableRow key={index} selected={row.selected}>
-                            <TableRowColumn
-                                style={styles.dateColumn}>{moment(row.date).format("D.M.")}</TableRowColumn>
-                            <TableRowColumn><UserAvatar userId={row.userId} size={25} onClick={
-                                () => this.addFilter(
-                                    e => e.userId == row.userId,
-                                    state.get("userMap")[row.userId].firstName,
-                                    state.get("userMap")[row.userId].image)
-                            }/></TableRowColumn>
-                            <TableRowColumn style={styles.descriptionColumn}>{row.description}</TableRowColumn>
-                            <TableRowColumn style={styles.descriptionColumn}>{row.receiver}</TableRowColumn>
-                            <TableRowColumn
-                                style={styles.categoryColumn}><a href="#" onClick={
-                                    () => this.addFilter(e => e.categoryId == row.categoryId, categories.getFullName(row.categoryId))
-                                }>{categories.getFullName(row.categoryId)}</a></TableRowColumn>
-                            <TableRowColumn>{new Money(row.sum).format()}</TableRowColumn>
-                            <TableRowColumn>{state.get("sourceMap")[row.sourceId].name}</TableRowColumn>
-                            <TableRowColumn style={styles.balance(row.userBalance)}><div onClick={
-                                () => Money.zero.equals(row.userBalance) ?
-                                    this.addFilter(e => Money.zero.equals(e.userBalance), "Balanssi == 0") :
-                                    this.addFilter(e => !Money.zero.equals(e.userBalance), "Balanssi != 0")
-                            }>{ row.userBalance.format() }</div></TableRowColumn>
-                            <TableRowColumn>
-                                <IconButton iconClassName="material-icons" title="Tiedot"
-                                            onClick={()=>this.toggleDetails(row, details)}>{ details ? "expand_less" : "expand_more" }</IconButton>
-                                <IconButton iconClassName="material-icons" title="Muokkaa"
-                                            onClick={()=>apiConnect.getExpense(row.id).then(e => state.get("expenseDialogStream").push(e))}>edit</IconButton>
-                                <IconButton iconClassName="material-icons" title="Poista"
-                                            onClick={()=>this.deleteExpense(row)} iconStyle={{ color: "red"}}>delete</IconButton>
-                            </TableRowColumn>
-                        </TableRow>].concat(details && details.division ?
-                            [<TableRow><TableRowColumn colSpan="8"><ExpenseDetails division={details.division}/></TableRowColumn></TableRow>] : [])
-                    })}
-            </TableBody>
-        </Table>
+        return <div className="expense-table">
+            <div className="expense-row header">
+                <div className="expense-detail date">Pvm.</div>
+                <div className="expense-detail user"></div>
+                <div className="expense-detail description">Selite</div>
+                <div className="expense-detail receiver">Kohde</div>
+                <div className="expense-detail category">Kategoria</div>
+                <div className="expense-detail source">Lähde</div>
+                <div className="expense-detail sum">Summa</div>
+                <div className="expense-detail balance">Balanssi</div>
+                <div className="expense-detail tools"></div>
+            </div>
+            { this.getFilteredExpenses().map(expense => {
+                const details = this.state.details[expense.id];
+                return [<div key={expense.id} className="expense-row">
+                    <div className="expense-detail date">{ moment(expense.date).format("D.M.") }</div>
+                    <div className="expense-detail user">
+                        <UserAvatar userId={expense.userId} size={25} onClick={
+                            () => this.addFilter(
+                                e => e.userId == expense.userId,
+                                state.get("userMap")[expense.userId].firstName,
+                                state.get("userMap")[expense.userId].image)
+                        }/>
+                    </div>
+                    <div className="expense-detail description">{ expense.description }</div>
+                    <div className="expense-detail receiver">{ expense.receiver }</div>
+                    <div className="expense-detail category"><a href="#" onClick={
+                        () => this.addFilter(e => e.categoryId == expense.categoryId, categories.getFullName(expense.categoryId))
+                    }>{categories.getFullName(expense.categoryId)}</a></div>
+                    <div className="expense-detail source">{ state.get("sourceMap")[expense.sourceId].name }</div>
+                    <div className="expense-detail sum">{ Money.from(expense.sum).format() }</div>
+                    <div className={ `expense-detail balance ${styles.balance(expense.userBalance)}` } onClick={
+                        () => Money.zero.equals(expense.userBalance) ?
+                            this.addFilter(e => Money.zero.equals(e.userBalance), "Balanssi == 0") :
+                            this.addFilter(e => !Money.zero.equals(e.userBalance), "Balanssi != 0")
+                    }>{ Money.from(expense.userBalance).format() }</div>
+                    <div className="expense-detail tools">
+                        <IconButton iconClassName="material-icons" title="Tiedot" style={styles.smallIcon}
+                                    onClick={()=>this.toggleDetails(expense, details)}>{ details ? "expand_less" : "expand_more" }</IconButton>
+                        <IconButton iconClassName="material-icons" title="Muokkaa" style={styles.smallIcon}
+                                    onClick={()=>apiConnect.getExpense(expense.id).then(e => state.get("expenseDialogStream").push(e))}>edit</IconButton>
+                        <IconButton iconClassName="material-icons" title="Poista" style={styles.smallIcon}
+                                    onClick={()=>this.deleteExpense(expense)} iconStyle={{ color: "red"}}>delete</IconButton>
+                    </div>
+                </div>].concat(details && details.division ?
+            [<ExpenseDetails division={details.division}/>] : [])
+            })}
+        </div>
     }
 }
