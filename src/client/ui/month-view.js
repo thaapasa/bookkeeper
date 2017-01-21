@@ -13,7 +13,6 @@ export default class MonthView extends React.Component {
         return <div className="content">
             <ExpenseNavigation/>
             <ExpenseTable/>
-            <MonthViewTotal/>
         </div>
     }
 }
