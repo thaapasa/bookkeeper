@@ -144,6 +144,20 @@ export default class ExpenseTable extends React.Component {
                 <div className="expense-detail balance">Balanssi</div>
                 <div className="expense-detail tools"></div>
             </div>
+            { this.state.filters.length > 0 ?
+                <div className="expense-row">
+                    <div className="expense-filters">{
+                        this.state.filters.map((f, index) => <Chip
+                            key={index}
+                            style={{ margin: "0.3em", padding: 0 }}
+                            onRequestDelete={() => this.removeFilter(index)}>
+                            { f.avatar ? <Avatar src={f.avatar} /> : null }
+                            { f.name }
+                        </Chip>)
+                    }</div>
+                </div>
+                : undefined
+            }
             { this.getFilteredExpenses().map(expense => {
                 const details = this.state.details[expense.id];
                 return [<div key={expense.id} className="expense-row">

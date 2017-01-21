@@ -31,6 +31,15 @@ html, body {
 .expense-row.header {
     font-weight: 600;
 }
+.expense-filters {
+    text-align: center;
+    flex-grow: 1;
+    align-items: center;
+}
+.expense-filters > div {
+    display: inline-flex !important;
+    vertical-align: middle;
+}
 .expense-detail {
     margin: 1em 0.4em;
     padding: 0;
