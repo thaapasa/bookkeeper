@@ -53,12 +53,13 @@ html, body {
     width: 3.2em;
     text-align: right;
 }
-.expense-detail.description { flex-grow: 1; min-width: 7em; }
-.expense-detail.category    { width: 12em; }
-.expense-detail.receiver    { width: 10em; }
+.expense-detail.description { flex-grow: 1; width: 10em; min-width: 5em; }
+.expense-detail.receiver    { flex-grow: 1; width: 10em; min-width: 5em; }
+.expense-detail.category    { flex-grow: 1; width: 15em; min-width: 2em; }
 .expense-detail.source      { width:  3.1em; margin-top: 0.7em; margin-bottom: 0.2em; }
 .expense-detail.sum,
 .expense-detail.balance     { width:  5em; text-align: right; }
+.expense-detail.sum         { width: 6em; min-width: 5em; }
 .expense-detail.user {
     margin-top: 0.6em;
     margin-bottom: 0.4em;
@@ -68,7 +69,8 @@ html, body {
     margin-top: 0;
     margin-bottom: 0;
     text-align: right;
-    width: 84pt;
+    width: 81pt;
+    min-width: 81pt;
 }
 
 /** Expense division */
