@@ -7,6 +7,7 @@ import Avatar from 'material-ui/Avatar';
 import UserAvatar from "./user-avatar";
 import Chip from "material-ui/Chip"
 import ExpenseRow from "./expense-row";
+import {ExpenseHeader} from "./expense-row";
 
 import * as apiConnect from "../data/api-connect";
 import * as state from  "../data/state";
@@ -134,17 +135,7 @@ export default class ExpenseTable extends React.Component {
 
     render() {
         return <div className="expense-table">
-            <div className="expense-row header">
-                <div className="expense-detail date">Pvm.</div>
-                <div className="expense-detail user"></div>
-                <div className="expense-detail description">Selite</div>
-                <div className="expense-detail receiver">Kohde</div>
-                <div className="expense-detail category">Kategoria</div>
-                <div className="expense-detail source">Lähde</div>
-                <div className="expense-detail sum">Summa</div>
-                <div className="expense-detail balance">Balanssi</div>
-                <div className="expense-detail tools"></div>
-            </div>
+            <ExpenseHeader />
             { this.state.filters.length > 0 ?
                 <div className="expense-row">
                     <div className="expense-filters">{

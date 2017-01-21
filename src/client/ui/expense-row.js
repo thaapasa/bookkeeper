@@ -42,6 +42,20 @@ const styles = {
     }
 };
 
+export function ExpenseHeader(props) {
+    return <div className="expense-row header">
+        <div className="expense-detail date">Pvm.</div>
+        <div className="expense-detail user"></div>
+        <div className="expense-detail description">Selite</div>
+        <div className="expense-detail receiver">Kohde</div>
+        <div className="expense-detail category">Kategoria</div>
+        <div className="expense-detail source">Lähde</div>
+        <div className="expense-detail sum">Summa</div>
+        <div className="expense-detail balance">Balanssi</div>
+        <div className="expense-detail tools"></div>
+    </div>
+}
+
 export default function ExpenseRow(props) {
     const expense = props.expense;
     return <div key={expense.id} className="expense-row">
