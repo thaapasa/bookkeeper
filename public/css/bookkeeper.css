@@ -58,9 +58,6 @@ html, body {
 .expense-detail.source      { width:  7em; }
 .expense-detail.sum,
 .expense-detail.balance     { width:  5em; text-align: right; }
-.expense-detail.balance.positive { color: blue; }
-.expense-detail.balance.negative { color: red; }
-.expense-detail.balance.zero { color: gray; }
 .expense-detail.user {
     margin-top: 0.6em;
     margin-bottom: 0.4em;

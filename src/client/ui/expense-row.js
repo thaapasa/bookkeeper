@@ -5,19 +5,24 @@ import * as categories from  "../data/categories";
 import * as state from  "../data/state";
 import UserAvatar from "./user-avatar";
 import IconButton from 'material-ui/IconButton';
+import * as colors from "./colors";
 
 const styles = {
-    smallIcon: {
+    tool: {
         margin: "0",
         padding: "0",
         width: 36,
         height: 36
     },
-    balance: (b) => b.gt(0) ? "positive" : ( b.lt(0) ? "negative" : "zero")
+    toolIcon: {
+        color: colors.tool,
+        fontSize: "15pt"
+    },
+    balanceColor: (b) => b.gt(0) ? colors.positive : ( b.lt(0) ? colors.negative : colors.unimportant)
 };
 
 export function ExpenseHeader(props) {
-    return <div className="expense-row header">
+    return <div className="expense-row header" style={{ color: colors.header }}>
         <div className="expense-detail date">Pvm.</div>
         <div className="expense-detail user"></div>
         <div className="expense-detail description">Selite</div>
@@ -46,21 +51,21 @@ export default function ExpenseRow(props) {
         <div className="expense-detail receiver">{ expense.receiver }</div>
         <div className="expense-detail category"><a href="#" onClick={
             () => props.addFilter(e => e.categoryId == expense.categoryId, categories.getFullName(expense.categoryId))
-        }>{categories.getFullName(expense.categoryId)}</a></div>
+        } style={{ color: colors.action }}>{categories.getFullName(expense.categoryId)}</a></div>
         <div className="expense-detail source">{ state.get("sourceMap")[expense.sourceId].name }</div>
         <div className="expense-detail sum">{ Money.from(expense.sum).format() }</div>
-        <div className={ `expense-detail balance ${styles.balance(expense.userBalance)}` } onClick={
+        <div className="expense-detail balance" style={{ color: styles.balanceColor(expense.userBalance) }} onClick={
             () => Money.zero.equals(expense.userBalance) ?
                 props.addFilter(e => Money.zero.equals(e.userBalance), "Balanssi == 0") :
                 props.addFilter(e => !Money.zero.equals(e.userBalance), "Balanssi != 0")
         }>{ Money.from(expense.userBalance).format() }</div>
         <div className="expense-detail tools">
-            <IconButton iconClassName="material-icons" title="Tiedot" style={styles.smallIcon}
+            <IconButton iconClassName="material-icons" title="Tiedot" style={styles.tool} iconStyle={styles.toolIcon}
                         onClick={()=>props.onToggleDetails(expense, props.details)}>{ props.details ? "expand_less" : "expand_more" }</IconButton>
-            <IconButton iconClassName="material-icons" title="Muokkaa" style={styles.smallIcon}
+            <IconButton iconClassName="material-icons" title="Muokkaa" style={styles.tool} iconStyle={styles.toolIcon}
                         onClick={()=>props.onModify(expense.id)}>edit</IconButton>
-            <IconButton iconClassName="material-icons" title="Poista" style={styles.smallIcon}
-                        onClick={()=>props.onDelete(expense)} iconStyle={{ color: "red"}}>delete</IconButton>
+            <IconButton iconClassName="material-icons" title="Poista" style={styles.tool} iconStyle={styles.toolIcon}
+                        onClick={()=>props.onDelete(expense)}>delete</IconButton>
         </div>
     </div>
 }

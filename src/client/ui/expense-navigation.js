@@ -1,12 +1,8 @@
 import React from 'react';
-import {Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow}
-    from 'material-ui/Table';
-import FontIcon from 'material-ui/FontIcon';
 import IconButton from 'material-ui/IconButton';
-
-import * as apiConnect from "../data/api-connect";
 import * as state from  "../data/state";
 import * as time from "../../shared/util/time"
+import * as colors from "./colors";
 const moment = require("moment");
 
 export default class ExpenseNavigation extends React.Component {
@@ -27,14 +23,12 @@ export default class ExpenseNavigation extends React.Component {
                     onClick={() => {
                         this.setState(this.state.date.subtract(1, 'months'));
                         state.get("expensesUpdatedStream").push(this.state.date.clone());
-
                      }}
                     iconClassName="material-icons" title="Edellinen"
                     style={{ padding: "0px" }}
-                    iconStyle={{color: "rgb(0, 188, 212)"}}>chevron_left
-                </IconButton>
+                    iconStyle={{color: colors.navigation}}>chevron_left</IconButton>
             </div>
-            <div style={{ textAlign: "center", flexGrow: "1", fontSize: "12pt", color: "grey" }}>
+            <div style={{ textAlign: "center", flexGrow: "1", fontSize: "12pt", color: colors.header }}>
                 { ExpenseNavigation.getYearMonthString(this.state.date) }
             </div>
             <div>
@@ -44,8 +38,7 @@ export default class ExpenseNavigation extends React.Component {
                         state.get("expensesUpdatedStream").push(this.state.date.clone());
                     }}
                     iconClassName="material-icons" title="Seuraava"
-                    iconStyle={{color: "rgb(0, 188, 212)"}}>chevron_right
-                </IconButton>
+                    iconStyle={{color: colors.navigation}}>chevron_right</IconButton>
             </div>
         </div>
     }
