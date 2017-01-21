@@ -184,6 +184,8 @@ export default class ExpenseDialog extends React.Component {
                     title={ this.state.createNew ? "Uusi kirjaus" : "Muokkaa kirjausta" }
                     actions={actions}
                     modal={false}
+                    autoDetectWindowHeight={true}
+                    autoScrollBodyContent={true}
                     open={this.state.open}
                     onRequestClose={this.handleClose}>
             <form onSubmit={this.handleSubmit}>
@@ -218,6 +220,7 @@ export default class ExpenseDialog extends React.Component {
                         <MenuItem key={row.id} value={row.id} primaryText={row.name} />
                     ))}
                 </DropDownMenu>
+                <br />
                 <DropDownMenu
                     value={this.state.subcategoryId}
                     style={ styles.category }
