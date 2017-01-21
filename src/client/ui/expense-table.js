@@ -1,5 +1,5 @@
 import React from 'react';
-import ExpenseDetails from "./expense-details"
+import ExpenseDivision from "./expense-division"
 import Avatar from 'material-ui/Avatar';
 import Chip from "material-ui/Chip"
 import ExpenseRow from "./expense-row";
@@ -119,7 +119,7 @@ export default class ExpenseTable extends React.Component {
                                 onModify={ () => apiConnect.getExpense(expense.id).then(e => state.get("expenseDialogStream").push(e)) }
                                 onDelete={ this.deleteExpense } />
                 ].concat(details && details.division ?
-            [<ExpenseDetails division={details.division}/>] : [])
+            [<ExpenseDivision division={details.division}/>] : [])
             })}
         </div>
     }

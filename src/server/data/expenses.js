@@ -82,7 +82,7 @@ function deleteDivision(tx) {
 
 function getDivision(expenseId) {
     return db.queryList("expense.get.division",
-        "SELECT user_id, type, sum FROM expense_division WHERE expense_id=$1::INTEGER ORDER BY type, user_id",
+        "SELECT user_id, type, sum::MONEY::NUMERIC FROM expense_division WHERE expense_id=$1::INTEGER ORDER BY type, user_id",
         [expenseId]);
 }
 

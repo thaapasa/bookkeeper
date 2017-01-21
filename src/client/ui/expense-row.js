@@ -17,8 +17,7 @@ const styles = {
     toolIcon: {
         color: colors.tool,
         fontSize: "15pt"
-    },
-    balanceColor: (b) => b.gt(0) ? colors.positive : ( b.lt(0) ? colors.negative : colors.unimportant)
+    }
 };
 
 export function ExpenseHeader(props) {
@@ -72,7 +71,7 @@ export default class ExpenseRow extends React.Component {
             <div className="expense-detail category">{ this.fullCategoryLink(expense.categoryId) }</div>
             <div className="expense-detail source">{ state.get("sourceMap")[expense.sourceId].name }</div>
             <div className="expense-detail sum">{ Money.from(expense.sum).format() }</div>
-            <div className="expense-detail balance" style={{ color: styles.balanceColor(expense.userBalance) }} onClick={
+            <div className="expense-detail balance" style={{ color: colors.forMoney(expense.userBalance) }} onClick={
                 () => Money.zero.equals(expense.userBalance) ?
                     this.props.addFilter(e => Money.zero.equals(e.userBalance), "Balanssi == 0") :
                     this.props.addFilter(e => !Money.zero.equals(e.userBalance), "Balanssi != 0")

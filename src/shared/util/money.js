@@ -25,6 +25,10 @@ class Money {
         return new Money(value);
     }
 
+    static orZero(value) {
+        return value ? Money.from(value) : Money.zero;
+    }
+
     toString(scale) {
         if (scale === undefined) scale = 2;
         return this.value.toFixed(scale);
@@ -72,7 +76,7 @@ class Money {
         return this.value.eq(toBig(o));
     }
 
-};
+}
 
 Money.zero = new Money("0");
 Money.euro = new Money("1");
