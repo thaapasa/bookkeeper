@@ -2,21 +2,17 @@
 import React from 'react';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
-import DatePicker from 'material-ui/DatePicker';
-import DropDownMenu from 'material-ui/DropDownMenu';
-import MenuItem from 'material-ui/MenuItem';
-import TextField from 'material-ui/TextField';
-import AutoComplete from 'material-ui/AutoComplete';
 import UserSelector from "./user-selector";
 import UserAvatar from "./user-avatar";
-const moment = require("moment");
 import * as arrays from "../../shared/util/arrays";
 import * as splitter from "../../shared/util/splitter";
 import Money from "../../shared/util/money";
 import * as categories from  "../data/categories";
 import * as apiConnect from "../data/api-connect";
-import * as state from "../data/state"
-import * as time from "../../shared/util/time"
+import * as state from "../data/state";
+import * as time from "../../shared/util/time";
+import {SumField, DescriptionField, CategorySelector, SourceSelector, DateField, ReceiverField} from "./expense-dialog-components";
+const moment = require("moment");
 
 function findParentCategory(categoryId) {
     const map = state.get("categoryMap");
@@ -190,79 +186,29 @@ export default class ExpenseDialog extends React.Component {
                     onRequestClose={this.handleClose}>
             <form onSubmit={this.handleSubmit}>
                 <UserAvatar userId={this.state.userId} />
-                <TextField
-                    style={{ marginLeft: "2em" }}
-                    hintText="0.00"
-                    floatingLabelText="Summa"
-                    floatingLabelFixed={true}
-                    value={this.state.sum}
-                    onChange={i => this.setState({sum: i.target.value})}
-                />
-                <AutoComplete
-                    hintText="Ruokaostokset"
-                    floatingLabelFixed={true}
-                    floatingLabelText="Kuvaus"
-                    searchText={this.state.description}
-                    filter={AutoComplete.caseInsensitiveFilter}
-                    onNewRequest={(v) => this.selectCategory(v.value)}
-                    fullWidth={true}
+                <SumField value={this.state.sum} style={{ marginLeft: "2em" }} onChange={s => this.setState({sum: s})} />
+                <DescriptionField
+                    value={this.state.description}
+                    onSelect={this.selectCategory}
                     dataSource={this.categorySource}
-                    onUpdateInput={(v) => this.setState({description: v})}
+                    onChange={(v) => this.setState({description: v})}
                 />
-                <DropDownMenu
-                    value={this.state.categoryId}
-                    id="category"
-                    style={ styles.category }
-                    autoWidth={false}
-                    onChange={(i, j, v) => this.setCategory(v)}
-                >
-                    { this.categories.map((row) => (
-                        <MenuItem key={row.id} value={row.id} primaryText={row.name} />
-                    ))}
-                </DropDownMenu>
-                <br />
-                <DropDownMenu
-                    value={this.state.subcategoryId}
-                    style={ styles.category }
-                    autoWidth={false}
-                    onChange={(i, j, v) => this.setState({ subcategoryId: v })}
-                >
-                    { this.state.subcategories.map((row) => (
-                        <MenuItem key={row.id} value={row.id} primaryText={row.name} />
-                    ))}
-                </DropDownMenu>
+                <CategorySelector
+                    category={this.state.categoryId} categories={this.categories} onChangeCategory={this.setCategory}
+                    subcategory={this.state.subcategoryId} subcategories={this.state.subcategories}
+                    onChangeSubcategory={i => this.setState({ subcategoryId: i })} />
                 <br />
 
                 <div style={{ display: "flex", flexWrap: "nowrap" }}>
-                    <DropDownMenu
-                        value={this.state.sourceId}
-                        style={{ flexGrow: "1" }}
-                        autoWidth={false}
-                        onChange={(i, j, v) => this.setState({ sourceId: v, benefit: state.get("sourceMap")[v].users.map(u => u.userId) })}
-                    >
-                        { this.sources.map((row, index) => <MenuItem key={row.id} value={row.id} primaryText={row.name}/>) }
-                    </DropDownMenu>
+                    <SourceSelector
+                        value={this.state.sourceId} sources={this.sources} style={{ flexGrow: "1" }}
+                        onChange={v => this.setState({ sourceId: v, benefit: state.get("sourceMap")[v].users.map(u => u.userId) })} />
                     <UserSelector style={{ paddingTop: "0.5em" }} selected={this.state.benefit} onChange={x => this.setState({ benefit: x })} />
                 </div>
                 <br />
 
-                <DatePicker
-                    value={this.state.date}
-                    formatDate={d => moment(d).format("D.M.YYYY")}
-                    floatingLabelText="Päivämäärä"
-                    floatingLabelFixed={true}
-                    fullWidth={true}
-                    autoOk={true}
-                    onChange={(event, date) => this.setState({ date: date })} />
-
-                <TextField
-                    hintText="Kauppa"
-                    floatingLabelText="Saaja"
-                    floatingLabelFixed={true}
-                    fullWidth={true}
-                    value={this.state.receiver}
-                    onChange={i => this.setState({receiver: i.target.value})}
-                />
+                <DateField value={this.state.date} onChange={date => this.setState({ date: date })} />
+                <ReceiverField value={this.state.receiver} onChange={v => this.setState({receiver: v})} />
             </form>
         </Dialog>
     }
