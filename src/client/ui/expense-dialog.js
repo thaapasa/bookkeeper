@@ -1,5 +1,6 @@
 "use strict";
 import React from 'react';
+import * as Bacon from "baconjs";
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import UserSelector from "./user-selector";
@@ -23,21 +24,27 @@ function findParentCategory(categoryId) {
     return current ? current.id : undefined;
 }
 
+function errorIf(condition, error) {
+    return condition ? error : undefined;
+}
+
+/*
+ * default: default value
+ * read: (expense item) => value; read value from existing expense item
+ * parse: (input) => value; convert user-entered input into value
+ * validate: (value) => error or undefined; check if parsed value is valid or not
+ */
 const fields = {
-    "description": { default: "" },
-    "sourceId": { default: () => state.get("group").defaultSourceId },
-    "categoryId": { default: 0, read: (e) => findParentCategory(e.categoryId) },
+    "description": { default: "", validate: v => errorIf(v.length < 1, "Selite puuttuu") },
+    "sourceId": { default: () => state.get("group").defaultSourceId, validate: v => errorIf(!v, "Lähde puuttuu") },
+    "categoryId": { default: 0, read: (e) => findParentCategory(e.categoryId), validate: v => errorIf(!v, "Kategoria puuttuu") },
     "subcategoryId": { default: 0, read: (e) => e.categoryId },
-    "receiver": { default: "" },
-    "sum": { default: "" },
+    "receiver": { default: "", validate: v => errorIf(v.length < 1, "Kohde puuttuu") },
+    "sum": { default: "", parse: v => v.replace(/,/, "."), validate: v => errorIf(v.match(/^[0-9]+([.][0-9]{1,2})?$/) == null, "Summa on virheellinen") },
     "userId": { default: () => state.get("user").id, read: (e) => e.userId },
     "date": { default: () => moment().toDate(), read: (e) => time.fromDate(e.date).toDate() },
-    "benefit": { default: () => [state.get("user").id], read: (e) => e.division.filter(d => d.type === "benefit").map(d => d.userId) }
-};
-
-const styles = {
-    category: { width: "50%" },
-    source: { width: "100%" }
+    "benefit": { default: () => [state.get("user").id], read: (e) => e.division.filter(d => d.type === "benefit").map(d => d.userId),
+        validate: (v) => errorIf(v.length < 1, "Jonkun pitää hyötyä") }
 };
 
 const defaultCategory = [ { id: 0, name: "Kategoria" }];
@@ -66,6 +73,10 @@ function calculateCost(sum, sourceId, benefit) {
     return splitter.negateDivision(splitter.splitByShares(sum, sourceUsers));
 }
 
+function allTrue() {
+    return Array.prototype.slice.call(arguments).reduce((a, b) => a && b, true);
+}
+
 export default class ExpenseDialog extends React.Component {
 
     constructor(props) {
@@ -74,15 +85,42 @@ export default class ExpenseDialog extends React.Component {
             id: null,
             open: false,
             createNew: true,
-            subcategories: defaultSubcategory
+            subcategories: defaultSubcategory,
+            valid: false
         };
         this.updateCategoriesAndSources();
-        Object.keys(fields).forEach(k => this.state[k] = initValue(k));
+        this.inputStreams = {};
+        Object.keys(fields).forEach(k => {
+            this.state[k] = initValue(k);
+            this.inputStreams[k] = new Bacon.Bus();
+        });
         this.handleClose = this.handleClose.bind(this);
         this.handleSave = this.handleSave.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.setCategory = this.setCategory.bind(this);
         this.selectCategory = this.selectCategory.bind(this);
+    }
+
+    componentDidMount() {
+        state.get("expenseDialogStream").onValue(e => this.handleOpen(e));
+
+        const validity = {};
+        const values = {};
+        Object.keys(fields).forEach(k => {
+            const info = fields[k];
+            this.inputStreams[k].onValue(v => this.setState({ [k]: v }));
+            this.inputStreams[k].log("input " + k);
+            const parsed = info.parse ? this.inputStreams[k].map(info.parse) : this.inputStreams[k];
+            values[k] = parsed;
+            const error = info.validate ? parsed.map(info.validate) : Bacon.constant(undefined);
+            const isValid = error.map(v => v === undefined);
+            validity[k] = isValid;
+        });
+        values.sourceId.onValue(v => this.setState({ benefit: state.get("sourceMap")[v].users.map(u => u.userId) }));
+        const allValid = Bacon.combineWith(allTrue, Object.keys(fields).map(k => validity[k]));
+        allValid.onValue(v => this.setState({ valid: v }));
+        const expense = Bacon.combineTemplate(values);
+        expense.log("expense");
     }
 
     updateCategoriesAndSources() {
@@ -96,20 +134,20 @@ export default class ExpenseDialog extends React.Component {
         console.log("handleOpen");
         this.updateCategoriesAndSources();
         const newState = { open: true, createNew: expense === undefined };
-        Object.keys(fields).forEach(k => newState[k] = initValue(k, expense));
+        Object.keys(fields).forEach(k => this.inputStreams[k].push(initValue(k, expense)));
         if (expense) {
             newState.date = time.fromDate(expense.date).toDate();
         }
         newState.id = expense ? expense.id : null;
-        console.log(expense, newState);
+        //console.log(expense, newState);
         this.setState(newState);
-        this.setCategory(newState.categoryId, newState.subcategoryId);
-    };
+        //this.setCategory(newState.categoryId, newState.subcategoryId);
+    }
 
     handleClose() {
         console.log("closing dialog");
         this.setState({open: false});
-    };
+    }
 
     handleSubmit(event) {
         event.preventDefault();
@@ -139,9 +177,6 @@ export default class ExpenseDialog extends React.Component {
                 state.get("expensesUpdatedStream").push(expense.date);
                 this.setState({open: false});
             });
-    };
-    componentDidMount() {
-        state.get("expenseDialogStream").onValue(e => {console.log("dialog onValue"); this.handleOpen(e)});
     }
 
     selectCategory(id) {
@@ -172,6 +207,7 @@ export default class ExpenseDialog extends React.Component {
             <FlatButton
                 label="Tallenna"
                 primary={true}
+                disabled={!this.state.valid}
                 keyboardFocused={true}
                 onTouchTap={this.handleSave} />
         ];
@@ -187,28 +223,30 @@ export default class ExpenseDialog extends React.Component {
                     onRequestClose={this.handleClose}>
             <form onSubmit={this.handleSubmit}>
                 <UserAvatar userId={this.state.userId} />
-                <SumField value={this.state.sum} style={{ marginLeft: "2em" }} onChange={s => this.setState({sum: s})} />
+                <SumField value={this.state.sum} style={{ marginLeft: "2em" }} onChange={v => this.inputStreams.sum.push(v)} />
                 <DescriptionField
                     value={this.state.description}
                     onSelect={this.selectCategory}
                     dataSource={this.categorySource}
-                    onChange={(v) => this.setState({description: v})}
+                    onChange={v => this.inputStreams.description.push(v)}
                 />
                 <CategorySelector
-                    category={this.state.categoryId} categories={this.categories} onChangeCategory={this.setCategory}
+                    category={this.state.categoryId} categories={this.categories}
+                    onChangeCategory={v => this.inputStreams.categoryId.push(v)}
                     subcategory={this.state.subcategoryId} subcategories={this.state.subcategories}
-                    onChangeSubcategory={i => this.setState({ subcategoryId: i })} />
+                    onChangeSubcategory={v => this.inputStreams.subcategoryId.push(v)} />
                 <br />
                 <div style={{ display: "flex", flexWrap: "nowrap" }}>
                     <SourceSelector
                         value={this.state.sourceId} sources={this.sources} style={{ flexGrow: "1" }}
-                        onChange={v => this.setState({ sourceId: v, benefit: state.get("sourceMap")[v].users.map(u => u.userId) })} />
-                    <UserSelector style={{ paddingTop: "0.5em" }} selected={this.state.benefit} onChange={x => this.setState({ benefit: x })} />
+                        onChange={v => this.inputStreams.sourceId.push(v)} />
+                    <UserSelector style={{ paddingTop: "0.5em" }} selected={this.state.benefit}
+                                  onChange={v => this.inputStreams.benefit.push(v)} />
                 </div>
                 <br />
 
-                <DateField value={this.state.date} onChange={date => this.setState({ date: date })} />
-                <ReceiverField value={this.state.receiver} onChange={v => this.setState({receiver: v})} />
+                <DateField value={this.state.date} onChange={v => this.inputStreams.date.push(v)} />
+                <ReceiverField value={this.state.receiver} onChange={v => this.inputStreams.receiver.push(v)} />
             </form>
         </Dialog>
     }
