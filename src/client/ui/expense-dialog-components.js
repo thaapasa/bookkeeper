@@ -31,7 +31,7 @@ export function DescriptionField(props) {
         onNewRequest={(v) => props.onSelect(v.value)}
         fullWidth={true}
         dataSource={props.dataSource}
-        onUpdateInput={(v) => props.onChange(v.value)} />
+        onUpdateInput={(v) => props.onChange(v)} />
 }
 
 export function CategorySelector(props) {
