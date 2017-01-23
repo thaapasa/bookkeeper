@@ -40,7 +40,7 @@ const fields = {
     "categoryId": { default: 0, read: (e) => findParentCategory(e.categoryId), validate: v => errorIf(!v, "Kategoria puuttuu") },
     "subcategoryId": { default: 0, read: (e) => e.categoryId },
     "receiver": { default: "", validate: v => errorIf(v.length < 1, "Kohde puuttuu") },
-    "sum": { default: "", parse: v => v.replace(/,/, "."), validate: v => errorIf(v.match(/^[0-9]+([.][0-9]{1,2})?$/) == null, "Summa on virheellinen") },
+    "sum": { default: "", parse: v => v.replace(/,/, "."), validate: v => errorIf(v.length == 0, "Summa puuttuu") || errorIf(v.match(/^[0-9]+([.][0-9]{1,2})?$/) == null, "Summa on virheellinen") },
     "userId": { default: () => state.get("user").id, read: (e) => e.userId },
     "date": { default: () => moment().toDate(), read: (e) => time.fromDate(e.date).toDate() },
     "benefit": { default: () => [state.get("user").id], read: (e) => e.division.filter(d => d.type === "benefit").map(d => d.userId),
@@ -86,7 +86,8 @@ export default class ExpenseDialog extends React.Component {
             open: false,
             createNew: true,
             subcategories: defaultSubcategory,
-            valid: false
+            valid: false,
+            errors: {}
         };
         this.updateCategoriesAndSources();
         this.inputStreams = {};
@@ -113,6 +114,7 @@ export default class ExpenseDialog extends React.Component {
             const parsed = info.parse ? this.inputStreams[k].map(info.parse) : this.inputStreams[k];
             values[k] = parsed;
             const error = info.validate ? parsed.map(info.validate) : Bacon.constant(undefined);
+            error.onValue(e => this.setState(s => ({ errors: Object.assign({}, s.errors, { [k]: e }) })));
             const isValid = error.map(v => v === undefined);
             validity[k] = isValid;
         });
@@ -222,17 +224,23 @@ export default class ExpenseDialog extends React.Component {
                     open={this.state.open}
                     onRequestClose={this.handleClose}>
             <form onSubmit={this.handleSubmit}>
-                <UserAvatar userId={this.state.userId} />
-                <SumField value={this.state.sum} style={{ marginLeft: "2em" }} onChange={v => this.inputStreams.sum.push(v)} />
+                <div>
+                    <UserAvatar userId={this.state.userId} style={{ verticalAlign: "middle" }} />
+                    <div style={{ height: "72px", marginLeft: "2em", display: "inline-block", verticalAlign: "middle" }}>
+                        <SumField value={this.state.sum} errorText={this.state.errors.sum} onChange={v => this.inputStreams.sum.push(v)} />
+                    </div>
+                </div>
                 <DescriptionField
                     value={this.state.description}
                     onSelect={this.selectCategory}
                     dataSource={this.categorySource}
+                    errorText={this.state.errors.description}
                     onChange={v => this.inputStreams.description.push(v)}
                 />
                 <CategorySelector
                     category={this.state.categoryId} categories={this.categories}
                     onChangeCategory={v => this.inputStreams.categoryId.push(v)}
+                    errorText={this.state.errors.categoryId}
                     subcategory={this.state.subcategoryId} subcategories={this.state.subcategories}
                     onChangeSubcategory={v => this.inputStreams.subcategoryId.push(v)} />
                 <br />
@@ -246,7 +254,8 @@ export default class ExpenseDialog extends React.Component {
                 <br />
 
                 <DateField value={this.state.date} onChange={v => this.inputStreams.date.push(v)} />
-                <ReceiverField value={this.state.receiver} onChange={v => this.inputStreams.receiver.push(v)} />
+                <ReceiverField value={this.state.receiver} onChange={v => this.inputStreams.receiver.push(v)}
+                               errorText={this.state.errors.receiver} />
             </form>
         </Dialog>
     }
