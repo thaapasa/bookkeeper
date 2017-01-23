@@ -27,7 +27,6 @@ export function DescriptionField(props) {
         floatingLabelFixed={true}
         floatingLabelText="Kuvaus"
         searchText={props.value}
-        style={{ height: "100px" }}
         filter={AutoComplete.caseInsensitiveFilter}
         onNewRequest={(v) => props.onSelect(v.value)}
         errorText={props.errorText}
@@ -58,7 +57,7 @@ export function CategorySelector(props) {
                 <MenuItem key={row.id} value={row.id} primaryText={row.name} />
             )}
         </DropDownMenu>
-        { props.errorText ? [<br />, <div className="error-text">{ props.errorText }</div> ] : null }
+        { props.errorText ? [<br key="br"/>, <div className="error-text" key="error">{ props.errorText }</div> ] : null }
     </div>
 }
 

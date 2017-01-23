@@ -118,6 +118,13 @@ export default class ExpenseDialog extends React.Component {
             const isValid = error.map(v => v === undefined);
             validity[k] = isValid;
         });
+        values.categoryId.onValue(id => {
+            const map = state.get("categoryMap");
+            this.setState(s => ({
+                subcategories: defaultSubcategory.concat(id ? map[id].children || [] : []),
+                subcategoryId: map[s.subcategoryId] && map[s.subcategoryId].parentId == id ? s.subcategoryId : 0
+            }));
+        });
         values.sourceId.onValue(v => this.setState({ benefit: state.get("sourceMap")[v].users.map(u => u.userId) }));
         const allValid = Bacon.combineWith(allTrue, Object.keys(fields).map(k => validity[k]));
         allValid.onValue(v => this.setState({ valid: v }));
@@ -189,15 +196,12 @@ export default class ExpenseDialog extends React.Component {
         } else {
             this.setCategory(id, 0);
         }
-        this.setState({ description: name });
+        this.inputStreams.description.push(name);
     }
 
     setCategory(id, subcategoryId) {
-        this.setState({
-            categoryId: id,
-            subcategoryId: subcategoryId ? subcategoryId : 0,
-            subcategories: defaultSubcategory.concat(this.categories.find(c => c.id == id).children || [])
-        });
+        this.inputStreams.categoryId.push(id);
+        this.inputStreams.subcategoryId.push(subcategoryId);
     }
 
     render() {
