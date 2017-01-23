@@ -4,10 +4,9 @@ import * as colors from "./colors";
 import UserAvatar from "./user-avatar";
 const Money = require("../../shared/util/money");
 
-function divisionItem(label, sum) {
+function divisionItem(sum) {
     const s = Money.orZero(sum);
     return <div className="expense-division-item">
-        <div className="label">{ label }</div>
         <div className="sum" style={{ color: colors.forMoney(s) }}>{ s.format() }</div>
     </div>
 }
@@ -31,12 +30,18 @@ export default class ExpenseDivision extends React.Component {
         division.forEach(d => { users[d.userId] = Object.assign({}, users[d.userId], { [d.type]: d.sum }) });
         console.log(users);
         return <div className="expense-division">
+            <div key="header" className="expense-user">
+                <div className="avatar-placeholder"></div>
+                <div className="expense-division-item"><div className="label">Kulut</div></div>
+                <div className="expense-division-item"><div className="label">Hyöty</div></div>
+                <div className="expense-division-item"><div className="label">Balanssi</div></div>
+            </div>
             { Object.keys(users).map(userId =>
                 <div key={userId} className="expense-user">
                     <UserAvatar userId={userId} size={25} style={{ verticalAlign: "middle" }} />
-                    { divisionItem("Kulut", users[userId].cost) }
-                    { divisionItem("Hyöty", users[userId].benefit) }
-                    { divisionItem("Balanssi", getBalance(users[userId])) }
+                    { divisionItem(users[userId].cost) }
+                    { divisionItem(users[userId].benefit) }
+                    { divisionItem(getBalance(users[userId])) }
                 </div>
             )}
         </div>

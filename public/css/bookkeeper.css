@@ -89,13 +89,20 @@ html, body {
 }
 .expense-division-item > .label {
     display: inline-block;
-    width: 4.5em;
+    text-align: right;
+    width: 6em;
 }
 .expense-division-item > .sum {
     display: inline-block;
     text-align: right;
     width: 6em;
 }
+.avatar-placeholder {
+    display: inline-block;
+    width: 25px;
+    height: 25px;
+}
+
 
 @media (max-width: 600px) {
   .optional {
@@ -116,5 +123,8 @@ html, body {
   .expense-dialog {
     width: 90% !important;
     height: 90% !important;
+  }
+  .expense-user {
+    padding-left: 1em;
   }
 }
