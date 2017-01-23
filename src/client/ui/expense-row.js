@@ -23,14 +23,14 @@ const styles = {
 
 export function ExpenseHeader() {
     return <div className="expense-row header" style={{ color: colors.header }}>
-        <div className="expense-detail date">Pvm.</div>
-        <div className="expense-detail user"></div>
+        <div className="expense-detail date">Pvm</div>
+        <div className="expense-detail user optional"></div>
         <div className="expense-detail description">Selite</div>
-        <div className="expense-detail receiver">Kohde</div>
-        <div className="expense-detail category">Kategoria</div>
-        <div className="expense-detail source"></div>
+        <div className="expense-detail receiver optional">Kohde</div>
+        <div className="expense-detail category optional">Kategoria</div>
+        <div className="expense-detail source optional">Lähde</div>
         <div className="expense-detail sum">Summa</div>
-        <div className="expense-detail balance">Balanssi</div>
+        <div className="expense-detail balance optional">Balanssi</div>
         <div className="expense-detail tools"></div>
     </div>
 }
@@ -67,7 +67,7 @@ export default class ExpenseRow extends React.Component {
         const expense = this.props.expense;
         return <div key={expense.id} className="expense-row">
             <div className="expense-detail date">{ moment(expense.date).format("D.M.") }</div>
-            <div className="expense-detail user">
+            <div className="expense-detail user optional">
                 <UserAvatar userId={expense.userId} size={25} onClick={
                     () => this.props.addFilter(
                         e => e.userId == expense.userId,
@@ -76,11 +76,11 @@ export default class ExpenseRow extends React.Component {
                 }/>
             </div>
             <div className="expense-detail description">{ expense.description }</div>
-            <div className="expense-detail receiver">{ expense.receiver }</div>
-            <div className="expense-detail category">{ this.fullCategoryLink(expense.categoryId) }</div>
-            <div className="expense-detail source">{ this.getSource(expense.sourceId) }</div>
+            <div className="expense-detail receiver optional">{ expense.receiver }</div>
+            <div className="expense-detail category optional">{ this.fullCategoryLink(expense.categoryId) }</div>
+            <div className="expense-detail source optional">{ this.getSource(expense.sourceId) }</div>
             <div className="expense-detail sum">{ Money.from(expense.sum).format() }</div>
-            <div className="expense-detail balance" style={{ color: colors.forMoney(expense.userBalance) }} onClick={
+            <div className="expense-detail balance optional" style={{ color: colors.forMoney(expense.userBalance) }} onClick={
                 () => Money.zero.equals(expense.userBalance) ?
                     this.props.addFilter(e => Money.zero.equals(e.userBalance), "Balanssi == 0") :
                     this.props.addFilter(e => !Money.zero.equals(e.userBalance), "Balanssi != 0")
@@ -90,7 +90,7 @@ export default class ExpenseRow extends React.Component {
                             onClick={()=>this.props.onToggleDetails(expense, this.props.details)}>{ this.props.details ? "expand_less" : "expand_more" }</IconButton>
                 <IconButton iconClassName="material-icons" title="Muokkaa" style={styles.tool} iconStyle={styles.toolIcon}
                             onClick={()=>this.props.onModify(expense.id)}>edit</IconButton>
-                <IconButton iconClassName="material-icons" title="Poista" style={styles.tool} iconStyle={styles.toolIcon}
+                <IconButton className="optional" iconClassName="material-icons" title="Poista" style={styles.tool} iconStyle={styles.toolIcon}
                             onClick={()=>this.props.onDelete(expense)}>delete</IconButton>
             </div>
         </div>

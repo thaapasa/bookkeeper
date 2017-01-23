@@ -78,7 +78,8 @@ html, body {
 }
 
 .expense-user {
-    text-align: center;
+    padding-left: 4.5em;
+    text-align: left;
     margin-top: 0.7em;
     margin-bottom: 0.7em;
 }
@@ -94,4 +95,26 @@ html, body {
     display: inline-block;
     text-align: right;
     width: 6em;
+}
+
+@media (max-width: 600px) {
+  .optional {
+    display: none !important;
+  }
+  .expense-detail {
+    margin: 0.5em 0.4em;
+  }
+  .expense-detail.date {
+    width: 2.8em;
+  }
+  .expense-detail.tools {
+      width: 36px;
+  }
+  .expense-detail.description {
+    min-width: 5em;
+  }
+  .expense-dialog {
+    width: 90% !important;
+    height: 90% !important;
+  }
 }

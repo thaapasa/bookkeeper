@@ -177,6 +177,7 @@ export default class ExpenseDialog extends React.Component {
         ];
 
         return <Dialog
+                    contentClassName="expense-dialog"
                     title={ this.state.createNew ? "Uusi kirjaus" : "Muokkaa kirjausta" }
                     actions={actions}
                     modal={false}
@@ -198,7 +199,6 @@ export default class ExpenseDialog extends React.Component {
                     subcategory={this.state.subcategoryId} subcategories={this.state.subcategories}
                     onChangeSubcategory={i => this.setState({ subcategoryId: i })} />
                 <br />
-
                 <div style={{ display: "flex", flexWrap: "nowrap" }}>
                     <SourceSelector
                         value={this.state.sourceId} sources={this.sources} style={{ flexGrow: "1" }}

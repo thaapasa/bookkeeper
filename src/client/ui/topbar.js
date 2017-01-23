@@ -22,7 +22,7 @@ export default class ToolbarExamplesSimple extends React.Component {
     render() {
         return (
             <Toolbar>
-                <ToolbarGroup>
+                <ToolbarGroup className="optional">
                     <ToolbarTitle text={ state.getTitle() } />
                 </ToolbarGroup>
                 <ToolbarGroup style={{ align: "right" }}>
