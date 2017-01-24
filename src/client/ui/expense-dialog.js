@@ -239,6 +239,8 @@ export default class ExpenseDialog extends React.Component {
                     errorText={this.state.errors.description}
                     onChange={v => this.inputStreams.description.push(v)}
                 />
+                <ReceiverField value={this.state.receiver} onChange={v => this.inputStreams.receiver.push(v)}
+                               errorText={this.state.errors.receiver} />
                 <CategorySelector
                     category={this.state.categoryId} categories={this.categories}
                     onChangeCategory={v => this.inputStreams.categoryId.push(v)}
@@ -256,8 +258,6 @@ export default class ExpenseDialog extends React.Component {
                 <br />
 
                 <DateField value={this.state.date} onChange={v => this.inputStreams.date.push(v)} />
-                <ReceiverField value={this.state.receiver} onChange={v => this.inputStreams.receiver.push(v)}
-                               errorText={this.state.errors.receiver} />
             </form>
         </Dialog>
     }
