@@ -44,7 +44,8 @@ const fields = {
     "userId": { default: () => state.get("user").id, read: (e) => e.userId },
     "date": { default: () => moment().toDate(), read: (e) => time.fromDate(e.date).toDate() },
     "benefit": { default: () => [state.get("user").id], read: (e) => e.division.filter(d => d.type === "benefit").map(d => d.userId),
-        validate: (v) => errorIf(v.length < 1, "Jonkun pitää hyötyä") }
+        validate: (v) => errorIf(v.length < 1, "Jonkun pitää hyötyä") },
+    "id": { default: undefined, read: e => e ? e.id : undefined }
 };
 
 const defaultCategory = [ { id: 0, name: "Kategoria" }];
@@ -82,22 +83,21 @@ export default class ExpenseDialog extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            id: null,
             open: false,
             createNew: true,
             subcategories: defaultSubcategory,
             valid: false,
             errors: {}
         };
-        this.updateCategoriesAndSources();
         this.inputStreams = {};
+        this.submitStream = new Bacon.Bus();
         Object.keys(fields).forEach(k => {
             this.state[k] = initValue(k);
             this.inputStreams[k] = new Bacon.Bus();
         });
-        this.handleClose = this.handleClose.bind(this);
-        this.handleSave = this.handleSave.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
+        this.updateCategoriesAndSources();
+        this.closeDialog = this.closeDialog.bind(this);
+        this.requestSave = this.requestSave.bind(this);
         this.setCategory = this.setCategory.bind(this);
         this.selectCategory = this.selectCategory.bind(this);
     }
@@ -110,7 +110,6 @@ export default class ExpenseDialog extends React.Component {
         Object.keys(fields).forEach(k => {
             const info = fields[k];
             this.inputStreams[k].onValue(v => this.setState({ [k]: v }));
-            this.inputStreams[k].log("input " + k);
             const parsed = info.parse ? this.inputStreams[k].map(info.parse) : this.inputStreams[k];
             values[k] = parsed;
             const error = info.validate ? parsed.map(info.validate) : Bacon.constant(undefined);
@@ -120,16 +119,22 @@ export default class ExpenseDialog extends React.Component {
         });
         values.categoryId.onValue(id => {
             const map = state.get("categoryMap");
-            this.setState(s => ({
-                subcategories: defaultSubcategory.concat(id ? map[id].children || [] : []),
-                subcategoryId: map[s.subcategoryId] && map[s.subcategoryId].parentId == id ? s.subcategoryId : 0
-            }));
+            this.setState({ subcategories: defaultSubcategory.concat(id ? map[id].children || [] : []) });
         });
-        values.sourceId.onValue(v => this.setState({ benefit: state.get("sourceMap")[v].users.map(u => u.userId) }));
+        Bacon.combineAsArray(values.categoryId, values.subcategoryId).onValue(a => {
+            if (a[1] > 0 && !categories.isSubcategoryOf(a[1], a[0])) this.inputStreams.subcategoryId.push(0);
+        });
+        values.id.onValue(v => this.setState({ createNew: v === undefined }));
+        values.sourceId.onValue(v => this.inputStreams.benefit.push(state.get("sourceMap")[v].users.map(u => u.userId)));
+
         const allValid = Bacon.combineWith(allTrue, Object.keys(fields).map(k => validity[k]));
         allValid.onValue(v => this.setState({ valid: v }));
         const expense = Bacon.combineTemplate(values);
-        expense.log("expense");
+
+        Bacon.combineWith((e, v) => Object.assign(e, { allValid: v }), expense, allValid)
+            .sampledBy(this.submitStream)
+            .filter(e => e.allValid)
+            .onValue(e => this.saveExpense(e));
     }
 
     updateCategoriesAndSources() {
@@ -140,51 +145,44 @@ export default class ExpenseDialog extends React.Component {
     }
 
     handleOpen(expense) {
-        console.log("handleOpen");
+        console.log("Open expense", expense);
         this.updateCategoriesAndSources();
-        const newState = { open: true, createNew: expense === undefined };
         Object.keys(fields).forEach(k => this.inputStreams[k].push(initValue(k, expense)));
-        if (expense) {
-            newState.date = time.fromDate(expense.date).toDate();
-        }
-        newState.id = expense ? expense.id : null;
-        //console.log(expense, newState);
-        this.setState(newState);
-        //this.setCategory(newState.categoryId, newState.subcategoryId);
+        this.setState({ open: true });
     }
 
-    handleClose() {
-        console.log("closing dialog");
-        this.setState({open: false});
+    closeDialog() {
+        console.log("Closing dialog");
+        this.setState({ open: false });
     }
 
-    handleSubmit(event) {
+    requestSave(event) {
+        this.submitStream.push(true);
         event.preventDefault();
-        this.handleSave();
+        event.stopPropagation();
     }
 
-    handleSave() {
-        const sum = Money.from(this.state.sum);
-        const benefit = splitter.splitByShares(sum, this.state.benefit.map(id => ({ userId: id, share: 1 })));
-        const cost = calculateCost(sum, this.state.sourceId, benefit);
-        const expense = {
-            date: time.date(this.state.date),
-            sum: this.state.sum,
-            description: this.state.description,
-            sourceId: this.state.sourceId,
-            categoryId: this.state.subcategoryId ? this.state.subcategoryId : this.state.categoryId,
-            receiver: this.state.receiver,
+    saveExpense(expense) {
+        const createNew = !expense.id;
+        const sum = Money.from(expense.sum);
+        const benefit = splitter.splitByShares(sum, expense.benefit.map(id => ({ userId: id, share: 1 })));
+        const cost = calculateCost(sum, expense.sourceId, benefit);
+        const data = Object.assign({}, expense, {
+            date: time.date(expense.date),
+            categoryId: expense.subcategoryId ? expense.subcategoryId : expense.categoryId,
             benefit: benefit.map(b => ({ userId: b.userId, sum: b.sum.toString() })),
-            cost: cost.map(b => ({ userId: b.userId, sum: b.sum.toString() })),
-            userId: state.get("user").id
-        };
+            cost: cost.map(b => ({ userId: b.userId, sum: b.sum.toString() }))
+        });
 
-        console.log("Saving expense", expense);
-        (this.state.createNew ? apiConnect.storeExpense(expense) : apiConnect.updateExpense(this.state.id, expense))
+        delete data.id;
+        delete data.subcategoryId;
+        delete data.allValid;
+        console.log("Saving expense", data);
+        (createNew ? apiConnect.storeExpense(data) : apiConnect.updateExpense(expense.id, data))
             .then(e => {
                 console.log("Stored expense", e);
                 state.get("expensesUpdatedStream").push(expense.date);
-                this.setState({open: false});
+                this.closeDialog();
             });
     }
 
@@ -209,13 +207,13 @@ export default class ExpenseDialog extends React.Component {
             <FlatButton
                 label="Peruuta"
                 primary={true}
-                onTouchTap={this.handleClose} />,
+                onTouchTap={this.closeDialog} />,
             <FlatButton
                 label="Tallenna"
                 primary={true}
                 disabled={!this.state.valid}
                 keyboardFocused={true}
-                onTouchTap={this.handleSave} />
+                onTouchTap={this.requestSave} />
         ];
 
         return <Dialog
@@ -226,8 +224,8 @@ export default class ExpenseDialog extends React.Component {
                     autoDetectWindowHeight={true}
                     autoScrollBodyContent={true}
                     open={this.state.open}
-                    onRequestClose={this.handleClose}>
-            <form onSubmit={this.handleSubmit}>
+                    onRequestClose={this.closeDialog}>
+            <form onSubmit={this.requestSave}>
                 <div>
                     <UserAvatar userId={this.state.userId} style={{ verticalAlign: "middle" }} />
                     <div style={{ height: "72px", marginLeft: "2em", display: "inline-block", verticalAlign: "middle" }}>
