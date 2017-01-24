@@ -97,6 +97,17 @@ html, body {
     text-align: right;
     width: 6em;
 }
+
+.error-text {
+    position: relative;
+    top: 5px;
+    padding-left: 24px;
+    font-size: 12px;
+    line-height: 12px;
+    color: rgb(244, 67, 54);
+    transition: all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+}
+
 .avatar-placeholder {
     display: inline-block;
     width: 25px;
@@ -105,26 +116,32 @@ html, body {
 
 
 @media (max-width: 600px) {
-  .optional {
-    display: none !important;
-  }
-  .expense-detail {
-    margin: 0.5em 0.4em;
-  }
-  .expense-detail.date {
-    width: 2.8em;
-  }
-  .expense-detail.tools {
-      width: 36px;
-  }
-  .expense-detail.description {
-    min-width: 5em;
-  }
-  .expense-dialog {
-    width: 90% !important;
-    height: 90% !important;
-  }
-  .expense-user {
-    padding-left: 1em;
-  }
+    .optional {
+        display: none !important;
+    }
+
+    .expense-detail {
+        margin: 0.5em 0.4em;
+    }
+
+    .expense-detail.date {
+        width: 2.8em;
+    }
+
+    .expense-detail.tools {
+        width: 36px;
+    }
+
+    .expense-detail.description {
+        min-width: 5em;
+    }
+
+    .expense-dialog {
+        width: 90% !important;
+        height: 90% !important;
+    }
+
+    .expense-user {
+        padding-left: 1em;
+    }
 }

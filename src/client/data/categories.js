@@ -23,3 +23,9 @@ const catToDataSource = (arr) => arr ?
 export function getDataSource() {
     return catToDataSource(state.get("categories"));
 }
+
+export function isSubcategoryOf(subId, parentId) {
+    const map = state.get("categoryMap");
+    const sub = map[subId];
+    return sub && sub.parentId === parentId;
+}

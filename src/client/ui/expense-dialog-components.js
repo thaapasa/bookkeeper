@@ -13,11 +13,11 @@ const styles = {
 
 export function SumField(props) {
     return <TextField
-        style={props.style}
         hintText="0.00"
         floatingLabelText="Summa"
         floatingLabelFixed={true}
         value={props.value}
+        errorText={props.errorText}
         onChange={i => props.onChange(i.target.value)} />
 }
 
@@ -29,6 +29,7 @@ export function DescriptionField(props) {
         searchText={props.value}
         filter={AutoComplete.caseInsensitiveFilter}
         onNewRequest={(v) => props.onSelect(v.value)}
+        errorText={props.errorText}
         fullWidth={true}
         dataSource={props.dataSource}
         onUpdateInput={(v) => props.onChange(v)} />
@@ -56,6 +57,7 @@ export function CategorySelector(props) {
                 <MenuItem key={row.id} value={row.id} primaryText={row.name} />
             )}
         </DropDownMenu>
+        { props.errorText ? [<br key="br"/>, <div className="error-text" key="error">{ props.errorText }</div> ] : null }
     </div>
 }
 
@@ -88,6 +90,7 @@ export function ReceiverField(props) {
         floatingLabelText="Saaja"
         floatingLabelFixed={true}
         fullWidth={true}
+        errorText={props.errorText}
         value={props.value}
         onChange={i => props.onChange(i.target.value)}
     />
