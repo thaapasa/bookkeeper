@@ -12,6 +12,24 @@ function mapExpense(e) {
     return e;
 }
 
+function mapStatus(s) {
+    return {
+        cost: Money.from(s.cost),
+        benefit: Money.from(s.benefit),
+        value: Money.from(s.value),
+        balance: Money.from(s.balance)
+    }
+}
+
+function mapExpenseObject(e) {
+    e.expenses = e.expenses.map(mapExpense);
+    e.startStatus = mapStatus(e.startStatus);
+    e.endStatus = mapStatus(e.endStatus);
+    e.monthStatus = mapStatus(e.monthStatus);
+    return e;
+}
+
+
 function get(path, query) {
     const token = state.get("token");
     return request.get(path)
@@ -78,7 +96,8 @@ function getSession() {
 }
 
 function getExpensesForMonth(year, month) {
-    return get("/api/expense/month", { year: year, month: month }).then(l => l.map(mapExpense));
+    return get("/api/expense/month", { year: year, month: month })
+        .then(l => mapExpenseObject(l));
 }
 
 function getExpense(id) {

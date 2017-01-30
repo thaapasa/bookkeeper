@@ -22,7 +22,7 @@ SELECT org.*, so.user_id, so.share
 FROM (SELECT s.id, s.group_id, name, (SELECT SUM(share) FROM source_users WHERE source_id = s.id) AS shares FROM sources s WHERE group_id = 1) org
   LEFT JOIN source_users so ON (so.source_id = org.id);
 
-
+-- Expenses between two dates
 SELECT id, date::DATE, receiver, e.sum::MONEY::NUMERIC, description, source_id, e.user_id, created_by_id,
   group_id, category_id, created,
   COALESCE(d1.sum, '0.00'::NUMERIC::MONEY)::MONEY::NUMERIC AS user_benefit,
@@ -31,3 +31,24 @@ SELECT id, date::DATE, receiver, e.sum::MONEY::NUMERIC, description, source_id, 
   LEFT JOIN expense_division d1 ON (d1.expense_id = e.id AND d1.user_id = 1 AND d1.type='benefit')
   LEFT JOIN expense_division d2 ON (d2.expense_id = e.id AND d2.user_id = 1 AND d2.type='cost')
   WHERE group_id=1 AND date >= '2017-01-01'::DATE AND date < '2017-02-01'::DATE ORDER BY DATE ASC;
+
+-- Totals as two subqueries
+EXPLAIN ANALYSE
+SELECT
+  (SELECT COALESCE(SUM(sum), '0.00'::NUMERIC::MONEY)::MONEY::NUMERIC FROM expense_division
+  WHERE expense_id IN (SELECT id FROM expenses WHERE group_id=1 AND date >= '2017-01-01'::DATE AND date < '2017-02-01'::DATE)
+  AND type='benefit' AND user_id = 1) AS benefit,
+  (SELECT COALESCE(SUM(sum), '0.00'::NUMERIC::MONEY)::MONEY::NUMERIC FROM expense_division
+  WHERE expense_id IN (SELECT id FROM expenses WHERE group_id=1 AND date >= '2017-01-01'::DATE AND date < '2017-02-01'::DATE)
+        AND type='cost' AND user_id = 1) AS cost;
+
+-- Totals as joins and subqueries
+EXPLAIN ANALYSE
+SELECT
+  COALESCE(SUM(benefit), '0.00'::NUMERIC::MONEY)::MONEY::NUMERIC as benefit,
+  COALESCE(SUM(cost), '0.00'::NUMERIC::MONEY)::MONEY::NUMERIC AS cost FROM
+  (SELECT e.sum, d1.sum AS benefit, d2.sum AS cost FROM expenses e
+    LEFT JOIN expense_division d1 ON (d1.expense_id = e.id AND d1.user_id = 1 AND d1.type='benefit')
+    LEFT JOIN expense_division d2 ON (d2.expense_id = e.id AND d2.user_id = 1 AND d2.type='cost')
+    WHERE group_id=1 AND date >= '2017-01-01'::DATE AND date < '2017-02-01'::DATE) breakdown;
+

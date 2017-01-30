@@ -3,7 +3,7 @@ import ExpenseDivision from "./expense-division"
 import Avatar from 'material-ui/Avatar';
 import Chip from "material-ui/Chip"
 import ExpenseRow from "./expense-row";
-import {ExpenseHeader} from "./expense-row";
+import {ExpenseHeader,ExpenseStatus} from "./expense-row";
 import * as apiConnect from "../data/api-connect";
 import * as state from  "../data/state";
 import * as time from "../../shared/util/time"
@@ -14,7 +14,7 @@ export default class ExpenseTable extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { date : moment(), expenses : [], details: {}, filters: [] };
+        this.state = { date : moment(), expenses : [], details: {}, filters: [], startStatus: {}, endStatus: {}, monthStatus: {} };
         this.toggleDetails = this.toggleDetails.bind(this);
         this.deleteExpense = this.deleteExpense.bind(this);
         this.addFilter = this.addFilter.bind(this);
@@ -28,7 +28,7 @@ export default class ExpenseTable extends React.Component {
         this.setState(s => ({ date: next, details: {} }));
         return apiConnect.getExpensesForMonth(next.year(), next.month() + 1)
             .then(e => {
-                this.setState({ expenses: e });
+                this.setState(e);
                 return null;
             })
             .catch(err => { console.log("Caught error when getting expenses", err) });
@@ -95,7 +95,8 @@ export default class ExpenseTable extends React.Component {
 
     render() {
         return <div className="expense-table">
-            <ExpenseHeader />
+            <ExpenseHeader startStatus={this.state.startStatus} />
+            <ExpenseStatus name="Tilanne ennen" status={this.state.startStatus} />
             { this.state.filters.length > 0 ?
                 <div className="expense-row">
                     <div className="expense-filters">{
@@ -122,6 +123,8 @@ export default class ExpenseTable extends React.Component {
                 ].concat(details && details.division ?
             [<ExpenseDivision division={details.division}/>] : [])
             })}
+            <ExpenseStatus name="Tämä kuukausi" status={this.state.monthStatus} />
+            <ExpenseStatus name="Lopputilanne" status={this.state.endStatus} />
         </div>
     }
 }

@@ -21,6 +21,10 @@ const styles = {
     }
 };
 
+function money(v) {
+    return v ? Money.from(v).format() : "-";
+}
+
 export function ExpenseHeader() {
     return <div className="expense-row header" style={{ color: colors.header }}>
         <div className="expense-detail date">Pvm</div>
@@ -32,6 +36,24 @@ export function ExpenseHeader() {
         <div className="expense-detail sum">Summa</div>
         <div className="expense-detail balance optional">Balanssi</div>
         <div className="expense-detail tools"></div>
+    </div>
+}
+
+export function ExpenseStatus(props) {
+    return <div className="expense-row status">
+        <div className="expense-detail status-description">{props.name}</div>
+        { props.status.cost ? [
+            <div className="expense-detail status-label optional" key="label">Hinta:</div>,
+                <div className="expense-detail status-sum optional" key="sum" style={{ color: colors.forMoney(props.status.cost) }}>{ money(props.status.cost) }</div>
+            ] : [] }
+        { props.status.benefit ? [
+            <div className="expense-detail status-label optional" key="label">Hyöty:</div>,
+                <div className="expense-detail status-sum optional" key="sum" style={{ color: colors.forMoney(props.status.benefit) }}>{ money(props.status.benefit) }</div>
+            ] : [] }
+        { props.status.balance ? [
+            <div className="expense-detail status-label optional" key="label">Balanssi:</div>,
+                <div className="expense-detail status-sum" key="sum" style={{ color: colors.forMoney(props.status.balance) }}>{ money(props.status.balance) }</div>
+            ] : [] }
     </div>
 }
 

@@ -53,6 +53,9 @@ html, body {
     width: 3.2em;
     text-align: right;
 }
+.expense-detail.status-description { flex-grow: 1; width: 10em; min-width: 5em; margin-left: 1em; }
+.expense-detail.status-label       { width: 6em; min-width: 3em; }
+.expense-detail.status-sum         { width: 6em; min-width: 3em; text-align: right; }
 .expense-detail.description { flex-grow: 1; width: 10em; min-width: 5em; }
 .expense-detail.receiver    { flex-grow: 1; width: 10em; min-width: 5em; }
 .expense-detail.category    { flex-grow: 1; width: 15em; min-width: 2em; }

@@ -4,6 +4,7 @@ const db = require("./db");
 const log = require("../../shared/util/log");
 const moment = require("moment");
 const time = require("../../shared/util/time");
+const arrays = require("../../shared/util/arrays");
 const validator = require("../util/validator");
 const Money = require("../../shared/util/money");
 const categories = require("./categories");
@@ -21,6 +22,14 @@ const expenseSelect = "SELECT id, date::DATE, receiver, e.sum::MONEY::NUMERIC, d
     "LEFT JOIN expense_division d2 ON (d2.expense_id = e.id AND d2.user_id = $1 AND d2.type='cost')";
 const order = "ORDER BY date ASC, description ASC, id";
 
+const countTotalSelect = "SELECT " +
+    "COALESCE(SUM(benefit), '0.00'::NUMERIC::MONEY)::MONEY::NUMERIC as benefit, " +
+    "COALESCE(SUM(cost), '0.00'::NUMERIC::MONEY)::MONEY::NUMERIC AS cost FROM " +
+    "(SELECT e.sum, d1.sum AS benefit, d2.sum AS cost FROM expenses e " +
+    "LEFT JOIN expense_division d1 ON (d1.expense_id = e.id AND d1.user_id = $1::INTEGER AND d1.type='benefit') " +
+    "LEFT JOIN expense_division d2 ON (d2.expense_id = e.id AND d2.user_id = $1::INTEGER AND d2.type='cost') " +
+    "WHERE group_id=$2::INTEGER AND date >= $3::DATE AND date < $4::DATE) breakdown";
+
 function getAll(groupId, userId) {
     return db.queryList("expenses.get_all",
         `${expenseSelect} WHERE group_id=$2 ${order}`,
@@ -28,10 +37,24 @@ function getAll(groupId, userId) {
         .then(l => l.map(mapExpense));
 }
 
+function calculateBalance(o) {
+    const value = Money.from(o.cost).plus(o.benefit);
+    return Object.assign(o, {
+        value: value.toString(),
+        balance: value.negate().toString()
+    })
+}
+
 function getByMonth(groupId, userId, year, month) {
     const startDate = time.month(year, month);
     const endDate = startDate.clone().add(1, "months");
-    return getBetween(groupId, userId, startDate, endDate);
+    return db.transaction(tx => Promise.all([
+        getBetween(tx)(groupId, userId, startDate, endDate),
+        countTotalBetween(tx)(groupId, userId, "2000-01", startDate),
+        countTotalBetween(tx)(groupId, userId, startDate, endDate)
+    ])).then(a => ({ expenses: a[0], startStatus: calculateBalance(a[1]), monthStatus: calculateBalance(a[2]) }))
+        .then(a => { a.endStatus = arrays.toObject(["benefit", "cost", "value", "balance"].map(key =>
+            [key, Money.from(a.startStatus[key]).plus(a.monthStatus[key]).toString()])); return a; });
 }
 
 function mapExpense(e) {
@@ -41,12 +64,20 @@ function mapExpense(e) {
     return e;
 }
 
-function getBetween(groupId, userId, startDate, endDate) {
-    log.debug("Querying for expenses between", time.iso(startDate), "and", time.iso(endDate), "for group", groupId);
-    return db.queryList("expenses.get_between",
-        `${expenseSelect} WHERE group_id=$2 AND date >= $3::DATE AND date < $4::DATE ${order}`,
-        [userId, groupId, time.date(startDate), time.date(endDate)])
-        .then(l => l.map(mapExpense));
+function getBetween(tx) {
+    return (groupId, userId, startDate, endDate) => {
+        log.debug("Querying for expenses between", time.iso(startDate), "and", time.iso(endDate), "for group", groupId);
+        return tx.queryList("expenses.get_between",
+            `${expenseSelect} WHERE group_id=$2 AND date >= $3::DATE AND date < $4::DATE ${order}`,
+            [userId, groupId, time.date(startDate), time.date(endDate)])
+            .then(l => l.map(mapExpense));
+    }
+}
+
+function countTotalBetween(tx) {
+    return (groupId, userId, startDate, endDate) => tx.queryObject("expenses.count_total_between",
+        countTotalSelect,
+        [userId, groupId, time.date(startDate), time.date(endDate)]);
 }
 
 function getById(tx) {
@@ -150,7 +181,7 @@ function updateExpenseById(groupId, userId, expenseId, expense, defaultSourceId)
 
 module.exports = {
     getAll: getAll,
-    getBetween: getBetween,
+    getBetween: getBetween(db),
     getByMonth: getByMonth,
     getById: getById(db),
     getDivision: getDivision(db),

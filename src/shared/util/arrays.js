@@ -27,9 +27,17 @@ function indices(num) {
 
 const flatten = arr => arr.reduce((a, b) => a.concat(Array.isArray(b) ? flatten(b) : b), []);
 
+/** Assume input: Array of [name, value] fields */
+function toObject(ar) {
+    const res = {};
+    ar.forEach(a => res[a[0]] = a[1]);
+    return res;
+}
+
 module.exports = {
     shuffle: shuffle,
     flatten: flatten,
     sortAndCompareElements: sortAndCompareElements,
-    indices: indices
+    indices: indices,
+    toObject: toObject
 };
