@@ -56,8 +56,8 @@ function getById(tx) {
         .then(mapExpense);
 }
 
-function deleteById(groupId, expenseId) {
-    return db.update("expenses.delete_by_id", "DELETE FROM expenses WHERE id=$1 AND group_id=$2",
+function deleteById(tx) {
+    return (groupId, expenseId) => tx.update("expenses.delete_by_id", "DELETE FROM expenses WHERE id=$1 AND group_id=$2",
         [expenseId, groupId])
         .then(i => ({ status: "OK", message: "Expense deleted", expenseId: expenseId }));
 }
@@ -80,8 +80,8 @@ function deleteDivision(tx) {
     return (expenseId) => tx.insert("expense.delete.division", "DELETE FROM expense_division WHERE expense_id=$1::INTEGER", [expenseId]);
 }
 
-function getDivision(expenseId) {
-    return db.queryList("expense.get.division",
+function getDivision(tx) {
+    return (expenseId) => tx.queryList("expense.get.division",
         "SELECT user_id, type, sum::MONEY::NUMERIC FROM expense_division WHERE expense_id=$1::INTEGER ORDER BY type, user_id",
         [expenseId]);
 }
@@ -153,8 +153,8 @@ module.exports = {
     getBetween: getBetween,
     getByMonth: getByMonth,
     getById: getById(db),
-    getDivision: getDivision,
-    deleteById: deleteById,
+    getDivision: getDivision(db),
+    deleteById: deleteById(db),
     create: createExpense,
     update: updateExpenseById
 };
