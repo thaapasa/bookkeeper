@@ -7,6 +7,7 @@ import {ExpenseHeader} from "./expense-row";
 import * as apiConnect from "../data/api-connect";
 import * as state from  "../data/state";
 import * as time from "../../shared/util/time"
+const Money = require("../../shared/util/money")
 const moment = require("moment");
 
 export default class ExpenseTable extends React.Component {
@@ -66,7 +67,7 @@ export default class ExpenseTable extends React.Component {
         console.log("deleteExpense");
         state.get("confirmationDialogStream").push({
             title: "Poista kirjaus",
-            content: "Haluatko varmasti poistaa kirjauksen?",
+            content: `Haluatko varmasti poistaa kirjauksen ${e.description} ${Money.from(e.sum).toString()}?`,
             okText: "Poista",
             cancelText: "Peruuta",
             okAction: () => { apiConnect.deleteExpense(e.id)
