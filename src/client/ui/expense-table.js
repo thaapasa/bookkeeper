@@ -17,6 +17,7 @@ export default class ExpenseTable extends React.Component {
         this.state = { date : moment(), expenses : [], details: {}, filters: [], startStatus: {}, endStatus: {}, monthStatus: {} };
         this.toggleDetails = this.toggleDetails.bind(this);
         this.deleteExpense = this.deleteExpense.bind(this);
+        this.modifyExpense = this.modifyExpense.bind(this);
         this.addFilter = this.addFilter.bind(this);
         this.removeFilter = this.removeFilter.bind(this);
         this.getExpensesForView = this.getExpensesForView.bind(this);
@@ -76,6 +77,10 @@ export default class ExpenseTable extends React.Component {
             })
     }
 
+    modifyExpense(expense) {
+        apiConnect.getExpense(expense.id).then(e => state.get("expenseDialogStream").push(e))
+    }
+
     addFilter(fun, name, avatar) {
         this.setState(s => ({
             filters: s.filters.concat({ filter: fun, name: name, avatar: avatar })
@@ -118,10 +123,14 @@ export default class ExpenseTable extends React.Component {
                                 details={ details }
                                 addFilter={ this.addFilter }
                                 onToggleDetails={ this.toggleDetails }
-                                onModify={ () => apiConnect.getExpense(expense.id).then(e => state.get("expenseDialogStream").push(e)) }
+                                onModify={ this.modifyExpense }
                                 onDelete={ this.deleteExpense } />
                 ].concat(details && details.division ?
-            [<ExpenseDivision division={details.division}/>] : [])
+            [<ExpenseDivision
+                expense={ expense }
+                onDelete={this.deleteExpense}
+                onModify={this.modifyExpense}
+                division={details.division}/>] : [])
             })}
             <ExpenseStatus name="Tämä kuukausi" status={this.state.monthStatus} />
             <ExpenseStatus name="Lopputilanne" status={this.state.endStatus} />

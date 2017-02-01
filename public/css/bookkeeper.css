@@ -23,11 +23,11 @@ html, body {
 
 .expense-row {
     display: flex;
-    border-bottom: 1px solid rgb(224, 224, 224);
+    border-top: 1px solid rgb(224, 224, 224);
     white-space: nowrap;
 }
-.expense-row:last-of-type {
-    border-bottom: none;
+.expense-row:first-of-type {
+    border-top: none;
 }
 .expense-row.header {
     font-weight: 600;
@@ -117,34 +117,71 @@ html, body {
     height: 25px;
 }
 
+.mobile {
+    display: none;
+}
 
 @media (max-width: 600px) {
-    .optional {
-        display: none !important;
-    }
-
-    .expense-detail {
-        margin: 0.5em 0.4em;
-    }
-
-    .expense-detail.date {
-        width: 2.8em;
-    }
-
-    .expense-detail.tools {
-        width: 36px;
-    }
-
-    .expense-detail.description {
-        min-width: 5em;
-    }
-
-    .expense-dialog {
-        width: 90% !important;
-        height: 90% !important;
-    }
-
-    .expense-user {
-        padding-left: 1em;
-    }
+  .expense-division .mobile{
+    display: block;
+  }
+  .optional {
+    display: none !important;
+  }
+  .expense-detail {
+    margin: 0.5em 0.4em;
+  }
+  .expense-detail.date {
+    width: 3.3em;
+  }
+  .expense-detail.tools {
+      width: 36px;
+      min-width: 36px;
+  }
+  .expense-detail.description {
+    min-width: 5em;
+  }
+  .expense-division .expense-details {
+    display: inline-block;
+    max-width: 35em;
+    min-width: 20em;
+    height: auto;
+  }
+  .expense-division .tools-mobile {
+    display: inline-block;
+    width: auto;
+    vertical-align: top;
+  }
+  .expense-detail-mobile {
+    display: block;
+    padding-left: 1em;
+    margin-top: 0.3em;
+    margin-bottom: 0.3em;
+  }
+  .expense-detail-mobile .detail-label {
+    display: inline-block;
+    width: 5.5em;
+  }
+  .expense-detail-mobile.receiver {
+    width: auto;
+  }
+  .expense-detail-mobile.category {
+    width: auto;
+  }
+  .expense-detail-mobile.source {
+    width: auto;
+  }
+  .expense-dialog {
+    width: 90% !important;
+    height: 90% !important;
+  }
+  .expense-user {
+    padding-left: 1em;
+    margin-top: 0.3em;
+    margin-bottom: 0.3em;
+  }
+  .expense-division-item {
+      margin: 0.1em 0.3em;
+      display: inline-block;
+  }
 }
