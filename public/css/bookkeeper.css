@@ -162,15 +162,6 @@ html, body {
     display: inline-block;
     width: 5.5em;
   }
-  .expense-detail-mobile.receiver {
-    width: auto;
-  }
-  .expense-detail-mobile.category {
-    width: auto;
-  }
-  .expense-detail-mobile.source {
-    width: auto;
-  }
   .expense-dialog {
     width: 90% !important;
     height: 90% !important;

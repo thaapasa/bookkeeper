@@ -32,6 +32,14 @@ function getBalance(data) {
     return cost.plus(benefit).negate();
 }
 
+
+function DetailRow(props) {
+    return <div className="expense-detail-mobile">
+        <span className="detail-label">{props.name + ":"}</span>
+        { props.value }
+    </div>
+}
+
 export default class ExpenseDivision extends React.Component {
 
     constructor(props) {
@@ -49,16 +57,10 @@ export default class ExpenseDivision extends React.Component {
         return <div className="expense-division">
             <div className="mobile">
                 <div className="expense-details">
-                    <div className="expense-detail-mobile user">
-                        <span className="detail-label">Kirjaaja:</span> { user && user.firstName } </div>
-                    <div className="expense-detail-mobile receiver">
-                        <span className="detail-label">Kohde:</span> { expense.receiver }</div>
-                    <div className="expense-detail-mobile category">
-                        <span className="detail-label">Kategoria:</span> { categories.getFullName(expense.categoryId) }</div>
-                    <div className="expense-detail-mobile source">
-                        <span className="detail-label">Lähde:</span> {
-                        state.get("sourceMap")[expense.sourceId].name
-                     }</div>
+                    <DetailRow name="Kirjaaja" value={ user && user.firstName }/>
+                    <DetailRow name="Kohde" value={ expense && expense.receiver }/>
+                    <DetailRow name="Kategoria" value={ categories.getFullName(expense.categoryId) }/>
+                    <DetailRow name="Lähde" value={ state.get("sourceMap")[expense.sourceId].name }/>
                  </div>
                  <div className="tools-mobile">
                     <IconButton iconClassName="material-icons" title="Muokkaa" style={styles.tool} iconStyle={styles.toolIcon}
