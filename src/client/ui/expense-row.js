@@ -2,8 +2,8 @@ import React from "react"
 import * as categories from  "../data/categories";
 import * as state from  "../data/state";
 import UserAvatar from "./user-avatar";
-import Avatar from "material-ui/Avatar";
 import IconButton from 'material-ui/IconButton';
+import ActivatableTextField from "./activatable-text-field";
 import * as colors from "./colors";
 const moment = require("moment");
 const Money = require("../../shared/util/money");
@@ -97,7 +97,10 @@ export default class ExpenseRow extends React.Component {
                         state.get("userMap")[expense.userId].image)
                 }/>
             </div>
-            <div className="expense-detail description">{ expense.description }</div>
+            <div className="expense-detail description"><ActivatableTextField name="description"
+                value={ expense.description }
+                onChange={v => console.log("Update description to", v)}
+            /></div>
             <div className="expense-detail receiver optional">{ expense.receiver }</div>
             <div className="expense-detail category optional">{ this.fullCategoryLink(expense.categoryId) }</div>
             <div className="expense-detail source optional">{ this.getSource(expense.sourceId) }</div>
