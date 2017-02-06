@@ -1,6 +1,7 @@
 import React from "react"
 import * as categories from  "../data/categories";
 import * as state from  "../data/state";
+import * as apiConnect from "../data/api-connect";
 import UserAvatar from "./user-avatar";
 import IconButton from 'material-ui/IconButton';
 import ActivatableTextField from "./activatable-text-field";
@@ -60,6 +61,7 @@ export function ExpenseStatus(props) {
 export default class ExpenseRow extends React.Component {
     constructor(props) {
         super(props);
+        this.updateExpense = this.updateExpense.bind(this);
     }
 
     categoryLink(id) {
@@ -85,6 +87,15 @@ export default class ExpenseRow extends React.Component {
         }
     }
 
+    updateExpense(data) {
+        apiConnect.getExpense(this.props.expense.id)
+            .then(exp => {
+                const newData = Object.assign(exp, data);
+                apiConnect.updateExpense(this.props.expense.id, newData)
+                    .then(s => this.props.onUpdated(newData))
+            });
+    }
+
     render() {
         const expense = this.props.expense;
         return <div key={expense.id} className="expense-row">
@@ -97,11 +108,14 @@ export default class ExpenseRow extends React.Component {
                         state.get("userMap")[expense.userId].image)
                 }/>
             </div>
-            <div className="expense-detail description"><ActivatableTextField name="description"
-                value={ expense.description }
-                onChange={v => console.log("Update description to", v)}
+            <div className="expense-detail description"><ActivatableTextField
+                name="description" value={ expense.description }
+                onChange={v => this.updateExpense({ description: v })}
             /></div>
-            <div className="expense-detail receiver optional">{ expense.receiver }</div>
+            <div className="expense-detail receiver optional"><ActivatableTextField
+                name="receiver" value={ expense.receiver }
+                onChange={v => this.updateExpense({ receiver: v })}
+            /></div>
             <div className="expense-detail category optional">{ this.fullCategoryLink(expense.categoryId) }</div>
             <div className="expense-detail source optional">{ this.getSource(expense.sourceId) }</div>
             <div className="expense-detail sum">{ Money.from(expense.sum).format() }</div>

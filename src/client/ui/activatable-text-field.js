@@ -62,7 +62,7 @@ export default class ActivatableTextField extends React.Component {
                 ref={r => this.editorRef = r}
             /> :
             <div
-                onClick={i => this.setState({ edit: true })}
+                onClick={i => this.setState({ edit: true, value: this.props.value })}
                 ref={i => this.editorRef = undefined}
             >{ this.props.value }</div>
     }
