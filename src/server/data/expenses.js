@@ -139,8 +139,10 @@ function createExpense(userId, groupId, expense, defaultSourceId) {
             const cat = a[0];
             const user = a[1];
             const source = a[2];
-            const cost = expense.cost ? validateDivision(expense.cost, expense.sum.negate(), "cost") : getCostFromSource(expense.sum, source);
-            const benefit = expense.benefit ? validateDivision(expense.benefit, expense.sum, "benefit") : splitter.negateDivision(cost);
+            const givenCost = expense.division ? expense.division.filter(d => d.type === "cost") : [];
+            const givenBenefit = expense.division ? expense.division.filter(d => d.type === "benefit") : [];
+            const cost = givenCost.length > 0 ? validateDivision(givenCost, expense.sum.negate(), "cost") : getCostFromSource(expense.sum, source);
+            const benefit = givenBenefit.length > 0 ? validateDivision(givenBenefit, expense.sum, "benefit") : splitter.negateDivision(cost);
             return tx.insert("expenses.create",
                 "INSERT INTO expenses (created_by_id, user_id, group_id, date, created, receiver, sum, description, source_id, category_id) " +
                 "VALUES ($1::INTEGER, $2::INTEGER, $3::INTEGER, $4::DATE, NOW(), $5, $6::NUMERIC::MONEY, $7, $8, $9::INTEGER) RETURNING id",
@@ -161,8 +163,10 @@ function updateExpense(tx) {
         ]).then(a => {
             const cat = a[0];
             const source = a[1];
-            const cost = expense.cost ? validateDivision(expense.cost, expense.sum.negate(), "cost") : getCostFromSource(expense.sum, source);
-            const benefit = expense.benefit ? validateDivision(expense.benefit, expense.sum, "benefit") : splitter.negateDivision(cost);
+            const givenCost = expense.division ? expense.division.filter(d => d.type === "cost") : [];
+            const givenBenefit = expense.division ? expense.division.filter(d => d.type === "benefit") : [];
+            const cost = givenCost.length > 0 ? validateDivision(givenCost, expense.sum.negate(), "cost") : getCostFromSource(expense.sum, source);
+            const benefit = givenBenefit.length > 0 ? validateDivision(givenBenefit, expense.sum, "benefit") : splitter.negateDivision(cost);
             return deleteDivision(tx)(original.id)
                 .then(() => tx.insert("expenses.update",
                     "UPDATE expenses SET date=$2::DATE, receiver=$3, sum=$4::NUMERIC::MONEY, description=$5, source_id=$6::INTEGER, category_id=$7::INTEGER " +

@@ -114,7 +114,7 @@ export default class ExpenseRow extends React.Component {
                 <IconButton iconClassName="material-icons" title="Tiedot" style={styles.tool} iconStyle={styles.toolIcon}
                             onClick={()=>this.props.onToggleDetails(expense, this.props.details)}>{ this.props.details ? "expand_less" : "expand_more" }</IconButton>
                 <IconButton iconClassName="material-icons" title="Muokkaa" style={styles.tool} iconStyle={styles.toolIcon}
-                            onClick={()=>this.props.onModify(expense.id)}>edit</IconButton>
+                            onClick={()=>this.props.onModify(expense)}>edit</IconButton>
                 <IconButton className="optional" iconClassName="material-icons" title="Poista" style={styles.tool} iconStyle={styles.toolIcon}
                             onClick={()=>this.props.onDelete(expense)}>delete</IconButton>
             </div>
