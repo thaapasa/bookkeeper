@@ -44,9 +44,18 @@ function error() {
 }
 
 function setLevel(level, reportChange) {
+    const oldLevel = currentLevel;
     if (reportChange !== false)
         info("Setting logging level to", level);
     currentLevel = levels[level];
+    return oldLevel;
+}
+
+function suppressFor(fun) {
+    const level = setLevel("error", false);
+    return Promise.resolve(fun())
+        .then(x => { setLevel(level); return x; })
+        .catch(e => { setLevel(level); throw e; })
 }
 
 const log = {
@@ -54,7 +63,8 @@ const log = {
     info: info,
     warn: warn,
     error: error,
-    setLevel: setLevel
+    setLevel: setLevel,
+    suppressFor: suppressFor
 };
 
 module.exports = log;

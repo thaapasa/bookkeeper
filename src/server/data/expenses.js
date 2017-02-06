@@ -118,7 +118,7 @@ function getDivision(tx) {
 }
 
 function getCostFromSource(sum, source) {
-    return splitter.negateDivision(splitter.splitByShares(sum, source.users.map(u => ({ userId: u.id, share: u.share }))));
+    return splitter.negateDivision(splitter.splitByShares(sum, source.users.map(u => ({ userId: u.userId, share: u.share }))));
 }
 
 function createDivision(tx) {
@@ -141,7 +141,7 @@ function createExpense(userId, groupId, expense, defaultSourceId) {
             const source = a[2];
             const cost = expense.cost ? validateDivision(expense.cost, expense.sum.negate(), "cost") : getCostFromSource(expense.sum, source);
             const benefit = expense.benefit ? validateDivision(expense.benefit, expense.sum, "benefit") : splitter.negateDivision(cost);
-            return db.insert("expenses.create",
+            return tx.insert("expenses.create",
                 "INSERT INTO expenses (created_by_id, user_id, group_id, date, created, receiver, sum, description, source_id, category_id) " +
                 "VALUES ($1::INTEGER, $2::INTEGER, $3::INTEGER, $4::DATE, NOW(), $5, $6::NUMERIC::MONEY, $7, $8, $9::INTEGER) RETURNING id",
                 [userId, user.id, groupId, expense.date, expense.receiver, expense.sum.toString(), expense.description,

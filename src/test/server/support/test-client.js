@@ -2,6 +2,7 @@
 
 const Promise = require("bluebird");
 const request = Promise.promisifyAll(require("superagent"));
+const log = require("../../../shared/util/log");
 
 const baseUrl = "http://localhost:3000";
 
@@ -11,7 +12,7 @@ function doRequest(creator, token, query) {
         .set("Authorization", `Bearer ${token}`)
         .endAsync()
         .then(req => req.body)
-        .catch(e => { console.warn(e.response.error); throw e; })
+        .catch(e => { log.warn(e.response.error); throw e; })
 }
 
 function get(token, path, query) {
@@ -31,7 +32,7 @@ function login(username, password) {
 
     return request.put(url)
         .set('Content-Type', 'application/json')
-        .send({username: username, password: password})
+        .send({ username: username, password: password })
         .endAsync()
         .then(req => req.body);
 }

@@ -25,7 +25,7 @@ function queryFor(client, doRelease) {
             }).catch(e => {
                 if (doRelease) client.release();
                 log.error("Query error", e.message, e.stack);
-                throw {code: "DB_ERROR", cause: e};
+                throw e;
             });
 }
 
@@ -60,7 +60,7 @@ class BookkeeperDB {
                 client.query("ROLLBACK");
                 client.release();
                 log.error("Query error", e.message, e.stack);
-                throw {code: "DB_ERROR", cause: e};
+                throw e;
             }));
     }
 
