@@ -90,8 +90,7 @@ function registerAPI(app) {
         description: V.stringWithLength(1, 255),
         sourceId: V.optional(V.positiveInt),
         categoryId: V.positiveInt,
-        benefit: V.optional(V.listOfObjects({ userId: V.positiveInt, sum: V.money })),
-        cost: V.optional(V.listOfObjects({ userId: V.positiveInt, sum: V.money }))
+        division: V.optional(V.listOfObjects({ userId: V.positiveInt, sum: V.money, type: V.stringWithLength(1, 10) }))
     };
     app.put("/api/expense", server.processRequest((session, req) =>
         expenses.create(session.user.id, session.group.id, V.validate(expenseSchema, req.body), session.group.defaultSourceId), true));

@@ -1,13 +1,13 @@
-import React from 'react';
+import React from "react";
 import ExpenseDivision from "./expense-division"
-import Avatar from 'material-ui/Avatar';
+import Avatar from "material-ui/Avatar";
 import Chip from "material-ui/Chip"
 import ExpenseRow from "./expense-row";
 import {ExpenseHeader,ExpenseStatus} from "./expense-row";
 import * as apiConnect from "../data/api-connect";
 import * as state from  "../data/state";
-import * as time from "../../shared/util/time"
-const Money = require("../../shared/util/money")
+import * as time from "../../shared/util/time";
+const Money = require("../../shared/util/money");
 const moment = require("moment");
 
 export default class ExpenseTable extends React.Component {
@@ -21,6 +21,7 @@ export default class ExpenseTable extends React.Component {
         this.addFilter = this.addFilter.bind(this);
         this.removeFilter = this.removeFilter.bind(this);
         this.getExpensesForView = this.getExpensesForView.bind(this);
+        this.updateExpenseWith = this.updateExpenseWith.bind(this);
     }
 
     getExpensesForView(date) {
@@ -38,6 +39,11 @@ export default class ExpenseTable extends React.Component {
     showExpenseDetails(id, details) {
         this.setState(s => ({ details: Object.assign(s.details, { [id] : details })}));
         return null;
+    }
+
+    updateExpenseWith(id, data) {
+        console.log("Expense", id, "updated to", data);
+        this.setState(s => ({ expenses: s.expenses.map(e => e.id === id ? data : e) }));
     }
 
     toggleDetails(expense, details) {
@@ -122,6 +128,7 @@ export default class ExpenseTable extends React.Component {
                     <ExpenseRow expense={ expense }
                                 details={ details }
                                 addFilter={ this.addFilter }
+                                onUpdated={ e => this.updateExpenseWith(expense.id, e) }
                                 onToggleDetails={ this.toggleDetails }
                                 onModify={ this.modifyExpense }
                                 onDelete={ this.deleteExpense } />

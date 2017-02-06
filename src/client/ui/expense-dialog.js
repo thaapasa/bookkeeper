@@ -167,11 +167,13 @@ export default class ExpenseDialog extends React.Component {
         const sum = Money.from(expense.sum);
         const benefit = splitter.splitByShares(sum, expense.benefit.map(id => ({ userId: id, share: 1 })));
         const cost = calculateCost(sum, expense.sourceId, benefit);
+        const division = [];
+        benefit.forEach(b => division.push({ userId: b.userId, sum: b.sum.toString(), type: "benefit" }));
+        cost.forEach(b => division.push({ userId: b.userId, sum: b.sum.toString(), type: "cost" }));
         const data = Object.assign({}, expense, {
+            division: division,
             date: time.date(expense.date),
             categoryId: expense.subcategoryId ? expense.subcategoryId : expense.categoryId,
-            benefit: benefit.map(b => ({ userId: b.userId, sum: b.sum.toString() })),
-            cost: cost.map(b => ({ userId: b.userId, sum: b.sum.toString() }))
         });
 
         delete data.id;

@@ -1,9 +1,10 @@
 import React from "react"
 import * as categories from  "../data/categories";
 import * as state from  "../data/state";
+import * as apiConnect from "../data/api-connect";
 import UserAvatar from "./user-avatar";
-import Avatar from "material-ui/Avatar";
 import IconButton from 'material-ui/IconButton';
+import ActivatableTextField from "./activatable-text-field";
 import * as colors from "./colors";
 const moment = require("moment");
 const Money = require("../../shared/util/money");
@@ -60,6 +61,7 @@ export function ExpenseStatus(props) {
 export default class ExpenseRow extends React.Component {
     constructor(props) {
         super(props);
+        this.updateExpense = this.updateExpense.bind(this);
     }
 
     categoryLink(id) {
@@ -85,6 +87,15 @@ export default class ExpenseRow extends React.Component {
         }
     }
 
+    updateExpense(data) {
+        apiConnect.getExpense(this.props.expense.id)
+            .then(exp => {
+                const newData = Object.assign(exp, data);
+                apiConnect.updateExpense(this.props.expense.id, newData)
+                    .then(s => this.props.onUpdated(newData))
+            });
+    }
+
     render() {
         const expense = this.props.expense;
         return <div key={expense.id} className="expense-row">
@@ -97,8 +108,14 @@ export default class ExpenseRow extends React.Component {
                         state.get("userMap")[expense.userId].image)
                 }/>
             </div>
-            <div className="expense-detail description">{ expense.description }</div>
-            <div className="expense-detail receiver optional">{ expense.receiver }</div>
+            <div className="expense-detail description"><ActivatableTextField
+                name="description" value={ expense.description }
+                onChange={v => this.updateExpense({ description: v })}
+            /></div>
+            <div className="expense-detail receiver optional"><ActivatableTextField
+                name="receiver" value={ expense.receiver }
+                onChange={v => this.updateExpense({ receiver: v })}
+            /></div>
             <div className="expense-detail category optional">{ this.fullCategoryLink(expense.categoryId) }</div>
             <div className="expense-detail source optional">{ this.getSource(expense.sourceId) }</div>
             <div className="expense-detail sum">{ Money.from(expense.sum).format() }</div>
@@ -111,7 +128,7 @@ export default class ExpenseRow extends React.Component {
                 <IconButton iconClassName="material-icons" title="Tiedot" style={styles.tool} iconStyle={styles.toolIcon}
                             onClick={()=>this.props.onToggleDetails(expense, this.props.details)}>{ this.props.details ? "expand_less" : "expand_more" }</IconButton>
                 <IconButton iconClassName="material-icons" title="Muokkaa" style={styles.tool} iconStyle={styles.toolIcon}
-                            onClick={()=>this.props.onModify(expense.id)}>edit</IconButton>
+                            onClick={()=>this.props.onModify(expense)}>edit</IconButton>
                 <IconButton className="optional" iconClassName="material-icons" title="Poista" style={styles.tool} iconStyle={styles.toolIcon}
                             onClick={()=>this.props.onDelete(expense)}>delete</IconButton>
             </div>

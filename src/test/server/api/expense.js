@@ -48,7 +48,7 @@ describe("expense", function() {
         ));
 
     it("should create benefit based on given cost", () => newExpense(session,
-        { sum: "8.46", cost: [ { userId: 1, sum: "-5.00" }, { userId: 2, sum: "-3.46" } ] })
+        { sum: "8.46", division: [ { type: "cost", userId: 1, sum: "-5.00" }, { type: "cost", userId: 2, sum: "-3.46" } ] })
         .then(s => session.get(`/api/expense/${s.expenseId}`))
         .then(e => expect(e).to.have.property("division")
                 .that.is.an("array")
@@ -59,8 +59,17 @@ describe("expense", function() {
                 .that.contains({userId: 2, type: "benefit", sum: "3.46"})
         ));
 
+
+    it("should allow POST with GET data", () => newExpense(session,
+        { sum: "8.46", division: [ { type: "cost", userId: 1, sum: "-5.00" }, { type: "cost", userId: 2, sum: "-3.46" } ] })
+        .then(s => session.get(`/api/expense/${s.expenseId}`))
+        .then(org => session.post(`/api/expense/${org.id}`, org)
+            .then(s => expect(s.status).to.equal("OK") && expect(s.expenseId).to.equal(org.id))
+            .then(s => session.get(`/api/expense/${org.id}`))
+            .then(e => expect(e).to.deep.equal(org))));
+
     it("should not allow negated cost", () => log.suppressFor(() => newExpense(session,
-        { description: "Invalid cost", sum: "8.46", cost: [ { userId: 1, sum: "5.00" }, { userId: 2, sum: "3.46" } ] })
+        { description: "Invalid cost", sum: "8.46", division: [ { type: "cost", userId: 1, sum: "5.00" }, { type: "cost", userId: 2, sum: "3.46" } ] })
         .then(s => expect.fail("newExpense should throw error"))
         .catch(e => expect(e.status).to.equal(400))
     ));

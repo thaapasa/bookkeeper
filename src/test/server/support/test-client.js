@@ -23,6 +23,10 @@ function put(token, path, data) {
     return doRequest(() => request.put(`${baseUrl}${path}`).send(data).set("Content-Type", "application/json"), token)
 }
 
+function post(token, path, data) {
+    return doRequest(() => request.post(`${baseUrl}${path}`).send(data).set("Content-Type", "application/json"), token)
+}
+
 function del(token, path, query) {
     return doRequest(() => request.delete(`${baseUrl}${path}`), token, query);
 }
@@ -45,7 +49,8 @@ function getSession(username, password) {
             session: s.session,
             get: (path, query) => get(s.token, path, query),
             logout: () => del(s.token, "/api/session"),
-            put: (path, data) => put(s.token, path, data)
+            put: (path, data) => put(s.token, path, data),
+            post: (path, data) => post(s.token, path, data)
         }))
 }
 
@@ -53,6 +58,7 @@ module.exports = {
     get: get,
     del: del,
     put: put,
+    post: post,
     login: login,
     getSession: getSession
 };
