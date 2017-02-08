@@ -50,7 +50,8 @@ function getSession(username, password) {
             get: (path, query) => get(s.token, path, query),
             logout: () => del(s.token, "/api/session"),
             put: (path, data) => put(s.token, path, data),
-            post: (path, data) => post(s.token, path, data)
+            post: (path, data) => post(s.token, path, data),
+            del: (path, query) => del(s.token, path, query)
         }))
 }
 
