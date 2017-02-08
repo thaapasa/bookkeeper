@@ -70,3 +70,5 @@ export default class ConfirmationDialog extends React.Component {
         </Dialog>
   }
 }
+
+ConfirmationDialog.propTypes = {};

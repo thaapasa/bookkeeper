@@ -14,6 +14,7 @@ import * as state from "../data/state";
 import * as time from "../../shared/util/time";
 import {SumField, TitleField, CategorySelector, SourceSelector, DateField, ReceiverField, DescriptionField} from "./expense-dialog-components";
 const moment = require("moment");
+import {expenseName} from "./expense-helper";
 
 function findParentCategory(categoryId) {
     const map = state.get("categoryMap");
@@ -180,15 +181,16 @@ export default class ExpenseDialog extends React.Component {
         delete data.id;
         delete data.subcategoryId;
         delete data.allValid;
+        const name = expenseName(data);
         (createNew ? apiConnect.storeExpense(data) : apiConnect.updateExpense(expense.id, data))
             .then(e => {
                 state.get("expensesUpdatedStream").push(expense.date);
                 this.closeDialog();
-                state.notify(`${createNew ? "Luotu" : "Tallennettu"} ${expense.title}: ${expense.sum} €`);
+                state.notify(`${createNew ? "Tallennettu" : "Päivitetty"} ${name}`);
                 return null;
             })
             .catch(e => {
-                state.notifyError(`Virhe ${createNew ? "luotaessa" : "tallennettaessa"} kirjausta ${expense.title}: ${expense.sum} €`, e);
+                state.notifyError(`Virhe ${createNew ? "tallennettaessa" : "päivitettäessä"} kirjausta ${name}`, e);
                 return null;
             });
     }

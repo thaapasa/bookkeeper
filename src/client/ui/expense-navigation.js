@@ -5,6 +5,7 @@ import * as colors from "./colors";
 import ChevronLeft from "material-ui/svg-icons/navigation/chevron-left"
 import ChevronRight from "material-ui/svg-icons/navigation/chevron-right"
 import * as state from "../data/state"
+const Moment = require("moment")
 
 export default class ExpenseNavigation extends React.Component {
 
@@ -35,3 +36,7 @@ export default class ExpenseNavigation extends React.Component {
         </div>
     }
 }
+
+ExpenseNavigation.propTypes = {
+    date: React.PropTypes.instanceOf(Moment).isRequired
+};

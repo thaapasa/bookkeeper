@@ -67,3 +67,11 @@ export default class ActivatableTextField extends React.Component {
             >{ this.props.value }</div>
     }
 }
+
+ActivatableTextField.propTypes = {
+    value: React.PropTypes.string.isRequired,
+    id: React.PropTypes.number,
+    hintText: React.PropTypes.string,
+    onChange: React.PropTypes.func.isRequired,
+    onCancel: React.PropTypes.func
+};

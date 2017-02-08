@@ -7,11 +7,7 @@ import {ExpenseHeader,ExpenseStatus} from "./expense-row";
 import * as apiConnect from "../data/api-connect";
 import * as state from  "../data/state";
 import CircularProgress from 'material-ui/CircularProgress';
-const Money = require("../../shared/util/money");
-
-function expenseName(e) {
-    return `${e.title} (${e.receiver}): ${Money.from(e.sum).format()}`;
-}
+import {expenseName} from "./expense-helper";
 
 export default class ExpenseTable extends React.Component {
 

@@ -5,6 +5,7 @@ import * as categories from  "../data/categories";
 import UserAvatar from "./user-avatar";
 import IconButton from 'material-ui/IconButton';
 const Money = require("../../shared/util/money");
+import {ExpensePropType} from "./expense-helper";
 
 const styles = {
     tool: {
@@ -87,3 +88,8 @@ export default class ExpenseDivision extends React.Component {
         </div>
     }
 }
+
+ExpenseDivision.propTypes = {
+    division: React.PropTypes.array.isRequired,
+    expense: React.PropTypes.shape(ExpensePropType)
+};

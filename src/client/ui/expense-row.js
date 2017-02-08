@@ -10,6 +10,7 @@ import ExpandMore from "material-ui/svg-icons/navigation/expand-more"
 import Delete from "material-ui/svg-icons/action/delete"
 import Edit from "material-ui/svg-icons/image/edit"
 import * as colors from "./colors";
+import {ExpensePropType} from "./expense-helper";
 const moment = require("moment");
 const Money = require("../../shared/util/money");
 
@@ -68,6 +69,12 @@ export function ExpenseStatus(props) {
             ] : [] }
     </div>
 }
+ExpenseStatus.propTypes = {
+    name: React.PropTypes.string.isRequired,
+    cost: React.PropTypes.string,
+    benefit: React.PropTypes.string,
+    balance: React.PropTypes.string
+};
 
 export default class ExpenseRow extends React.Component {
     constructor(props) {
@@ -144,3 +151,11 @@ export default class ExpenseRow extends React.Component {
     }
 }
 
+ExpenseRow.propTypes = {
+    details: React.PropTypes.shape({ division: React.PropTypes.array }),
+    expense: React.PropTypes.shape(ExpensePropType).isRequired,
+    onUpdated: React.PropTypes.func.isRequired,
+    onToggleDetails: React.PropTypes.func.isRequired,
+    onModify: React.PropTypes.func.isRequired,
+    onDelete: React.PropTypes.func.isRequired
+};
