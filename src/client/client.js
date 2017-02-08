@@ -8,14 +8,9 @@ import injectTapEventPlugin from "react-tap-event-plugin"
 import MuiThemeProvider from "material-ui/styles/MuiThemeProvider"
 import * as login from "./data/login"
 
-
 function init() {
-    console.log("init");
-
     injectTapEventPlugin();
     renderBookkeeper();
-
-    console.log("done");
 }
 
 function renderBookkeeper() {
