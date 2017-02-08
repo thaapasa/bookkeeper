@@ -14,3 +14,5 @@ ALTER TABLE sources ADD COLUMN image VARCHAR(32) DEFAULT NULL;
 -- On 8.2.2017
 DROP INDEX "expenses_user_date" CASCADE;
 CREATE INDEX "expenses_group_date" ON expenses (group_id, date);
+ALTER TABLE expenses RENAME COLUMN description TO title;
+ALTER TABLE expenses ADD COLUMN description TEXT DEFAULT NULL;

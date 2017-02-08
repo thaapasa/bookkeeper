@@ -56,7 +56,7 @@ html, body {
 .expense-detail.status-description { flex-grow: 1; width: 10em; min-width: 5em; margin-left: 1em; }
 .expense-detail.status-label       { width: 6em; min-width: 3em; }
 .expense-detail.status-sum         { width: 6em; min-width: 3em; text-align: right; }
-.expense-detail.description { flex-grow: 1; width: 10em; min-width: 5em; }
+.expense-detail.title       { flex-grow: 1; width: 10em; min-width: 5em; }
 .expense-detail.receiver    { flex-grow: 1; width: 10em; min-width: 5em; }
 .expense-detail.category    { flex-grow: 1; width: 15em; min-width: 2em; }
 .expense-detail.source      { width:  3.1em; margin-top: 0.7em; margin-bottom: 0.2em; }
@@ -74,6 +74,10 @@ html, body {
     text-align: right;
     width: 81pt;
     min-width: 81pt;
+}
+.expense-description {
+    padding: 0 2em;
+    white-space: pre-wrap;
 }
 
 /** Expense division */

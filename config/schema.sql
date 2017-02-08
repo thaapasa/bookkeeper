@@ -73,7 +73,8 @@ CREATE TABLE IF NOT EXISTS expenses (
   created TIMESTAMP WITH TIME ZONE NOT NULL,
   receiver VARCHAR(50),
   sum MONEY NOT NULL,
-  description VARCHAR(255),
+  title VARCHAR(255),
+  description TEXT DEFAULT NULL,
   source_id INTEGER REFERENCES sources (id) NOT NULL,
   category_id INTEGER REFERENCES categories (id) NOT NULL
 );

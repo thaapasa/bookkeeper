@@ -12,7 +12,7 @@ import * as categories from  "../data/categories";
 import * as apiConnect from "../data/api-connect";
 import * as state from "../data/state";
 import * as time from "../../shared/util/time";
-import {SumField, DescriptionField, CategorySelector, SourceSelector, DateField, ReceiverField} from "./expense-dialog-components";
+import {SumField, TitleField, CategorySelector, SourceSelector, DateField, ReceiverField, DescriptionField} from "./expense-dialog-components";
 const moment = require("moment");
 
 function findParentCategory(categoryId) {
@@ -35,7 +35,7 @@ function errorIf(condition, error) {
  * validate: (value) => error or undefined; check if parsed value is valid or not
  */
 const fields = {
-    "description": { default: "", validate: v => errorIf(v.length < 1, "Selite puuttuu") },
+    "title": { default: "", validate: v => errorIf(v.length < 1, "Nimi puuttuu") },
     "sourceId": { default: () => state.get("group").defaultSourceId, validate: v => errorIf(!v, "Lähde puuttuu") },
     "categoryId": { default: 0, read: (e) => findParentCategory(e.categoryId), validate: v => errorIf(!v, "Kategoria puuttuu") },
     "subcategoryId": { default: 0, read: (e) => e.categoryId },
@@ -45,6 +45,7 @@ const fields = {
     "date": { default: () => moment().toDate(), read: (e) => time.fromDate(e.date).toDate() },
     "benefit": { default: () => [state.get("user").id], read: (e) => e.division.filter(d => d.type === "benefit").map(d => d.userId),
         validate: (v) => errorIf(v.length < 1, "Jonkun pitää hyötyä") },
+    "description": { default: "", read: (e) => e.description || "" },
     "id": { default: undefined, read: e => e ? e.id : undefined }
 };
 
@@ -183,11 +184,11 @@ export default class ExpenseDialog extends React.Component {
             .then(e => {
                 state.get("expensesUpdatedStream").push(expense.date);
                 this.closeDialog();
-                state.notify(`${createNew ? "Luotu" : "Tallennettu"} ${expense.description}: ${expense.sum} €`);
+                state.notify(`${createNew ? "Luotu" : "Tallennettu"} ${expense.title}: ${expense.sum} €`);
                 return null;
             })
             .catch(e => {
-                state.notifyError(`Virhe ${createNew ? "luotaessa" : "tallennettaessa"} kirjausta ${expense.description}: ${expense.sum} €`, e);
+                state.notifyError(`Virhe ${createNew ? "luotaessa" : "tallennettaessa"} kirjausta ${expense.title}: ${expense.sum} €`, e);
                 return null;
             });
     }
@@ -200,7 +201,7 @@ export default class ExpenseDialog extends React.Component {
         } else {
             this.setCategory(id, 0);
         }
-        this.inputStreams.description.push(name);
+        this.inputStreams.title.push(name);
     }
 
     setCategory(id, subcategoryId) {
@@ -238,12 +239,12 @@ export default class ExpenseDialog extends React.Component {
                         <SumField value={this.state.sum} errorText={this.state.errors.sum} onChange={v => this.inputStreams.sum.push(v)} />
                     </div>
                 </div>
-                <DescriptionField
-                    value={this.state.description}
+                <TitleField
+                    value={this.state.title}
                     onSelect={this.selectCategory}
                     dataSource={this.categorySource}
-                    errorText={this.state.errors.description}
-                    onChange={v => this.inputStreams.description.push(v)}
+                    errorText={this.state.errors.title}
+                    onChange={v => this.inputStreams.title.push(v)}
                 />
                 <ReceiverField value={this.state.receiver} onChange={v => this.inputStreams.receiver.push(v)}
                                errorText={this.state.errors.receiver} />
@@ -264,6 +265,8 @@ export default class ExpenseDialog extends React.Component {
                 <br />
 
                 <DateField value={this.state.date} onChange={v => this.inputStreams.date.push(v)} />
+                <DescriptionField value={this.state.description} onChange={v => this.inputStreams.description.push(v)}
+                                  errorText={this.state.errors.description}  />
             </form>
         </Dialog>
     }

@@ -13,14 +13,14 @@ const sources = require("./sources");
 const errors = require("../util/errors");
 const splitter = require("../../shared/util/splitter");
 
-const expenseSelect = "SELECT id, date::DATE, receiver, e.sum::MONEY::NUMERIC, description, source_id, e.user_id, created_by_id, " +
+const expenseSelect = "SELECT id, date::DATE, receiver, e.sum::MONEY::NUMERIC, title, description, source_id, e.user_id, created_by_id, " +
     "group_id, category_id, created, " +
     "COALESCE(d1.sum, '0.00'::NUMERIC::MONEY)::MONEY::NUMERIC AS user_benefit, " +
     "COALESCE(d2.sum, '0.00'::NUMERIC::MONEY)::MONEY::NUMERIC AS user_cost, " +
     "(COALESCE(d1.sum, '0.00'::NUMERIC::MONEY) + COALESCE(d2.sum, '0.00'::NUMERIC::MONEY))::MONEY::NUMERIC AS user_value FROM expenses e " +
     "LEFT JOIN expense_division d1 ON (d1.expense_id = e.id AND d1.user_id = $1 AND d1.type='benefit') " +
     "LEFT JOIN expense_division d2 ON (d2.expense_id = e.id AND d2.user_id = $1 AND d2.type='cost')";
-const order = "ORDER BY date ASC, description ASC, id";
+const order = "ORDER BY date ASC, title ASC, id";
 
 const countTotalSelect = "SELECT " +
     "COALESCE(SUM(benefit), '0.00'::NUMERIC::MONEY)::MONEY::NUMERIC as benefit, " +
@@ -129,6 +129,7 @@ function createDivision(tx) {
 
 function createExpense(userId, groupId, expense, defaultSourceId) {
     return db.transaction(tx => {
+        expense.description = expense.description ? expense.description : null;
         log.info("Creating expense", expense);
         const sourceId = expense.sourceId || defaultSourceId;
         return Promise.all([
@@ -144,9 +145,9 @@ function createExpense(userId, groupId, expense, defaultSourceId) {
             const cost = givenCost.length > 0 ? validateDivision(givenCost, expense.sum.negate(), "cost") : getCostFromSource(expense.sum, source);
             const benefit = givenBenefit.length > 0 ? validateDivision(givenBenefit, expense.sum, "benefit") : splitter.negateDivision(cost);
             return tx.insert("expenses.create",
-                "INSERT INTO expenses (created_by_id, user_id, group_id, date, created, receiver, sum, description, source_id, category_id) " +
-                "VALUES ($1::INTEGER, $2::INTEGER, $3::INTEGER, $4::DATE, NOW(), $5, $6::NUMERIC::MONEY, $7, $8, $9::INTEGER) RETURNING id",
-                [userId, user.id, groupId, expense.date, expense.receiver, expense.sum.toString(), expense.description,
+                "INSERT INTO expenses (created_by_id, user_id, group_id, date, created, receiver, sum, title, description, source_id, category_id) " +
+                "VALUES ($1::INTEGER, $2::INTEGER, $3::INTEGER, $4::DATE, NOW(), $5, $6::NUMERIC::MONEY, $7, $8, $9::INTEGER, $10::INTEGER) RETURNING id",
+                [userId, user.id, groupId, expense.date, expense.receiver, expense.sum.toString(), expense.title, expense.description,
                     source.id, cat.id])
                 .then(expenseId => createDivision(tx)(expenseId, benefit, cost))
         }).then(id => ({status: "OK", message: "Expense created", expenseId: id}));
@@ -155,6 +156,7 @@ function createExpense(userId, groupId, expense, defaultSourceId) {
 
 function updateExpense(tx) {
     return (original, expense, defaultSourceId) => {
+        expense.description = expense.description ? expense.description : null;
         log.info("Updating expense", original, "to", expense);
         const sourceId = expense.sourceId || defaultSourceId;
         return Promise.all([
@@ -169,9 +171,9 @@ function updateExpense(tx) {
             const benefit = givenBenefit.length > 0 ? validateDivision(givenBenefit, expense.sum, "benefit") : splitter.negateDivision(cost);
             return deleteDivision(tx)(original.id)
                 .then(() => tx.insert("expenses.update",
-                    "UPDATE expenses SET date=$2::DATE, receiver=$3, sum=$4::NUMERIC::MONEY, description=$5, source_id=$6::INTEGER, category_id=$7::INTEGER " +
+                    "UPDATE expenses SET date=$2::DATE, receiver=$3, sum=$4::NUMERIC::MONEY, title=$5, description=$6, source_id=$7::INTEGER, category_id=$8::INTEGER " +
                     "WHERE id=$1",
-                    [original.id, expense.date, expense.receiver, expense.sum.toString(), expense.description, source.id, cat.id]))
+                    [original.id, expense.date, expense.receiver, expense.sum.toString(), expense.title, expense.description, source.id, cat.id]))
                 .then(expenseId => createDivision(tx)(original.id, benefit, cost))
         }).then(id => ({status: "OK", message: "Expense updated", expenseId: id}));
     }

@@ -21,7 +21,7 @@ export function SumField(props) {
         onChange={i => props.onChange(i.target.value)} />
 }
 
-export function DescriptionField(props) {
+export function TitleField(props) {
     return <AutoComplete
         hintText="Ruokaostokset"
         floatingLabelFixed={true}
@@ -88,6 +88,19 @@ export function ReceiverField(props) {
     return <TextField
         hintText="Kauppa"
         floatingLabelText="Saaja"
+        floatingLabelFixed={true}
+        fullWidth={true}
+        errorText={props.errorText}
+        value={props.value}
+        onChange={i => props.onChange(i.target.value)}
+    />
+}
+
+export function DescriptionField(props) {
+    return <TextField
+        multiLine={true}
+        hintText="Tarkempi selite"
+        floatingLabelText="Selite"
         floatingLabelFixed={true}
         fullWidth={true}
         errorText={props.errorText}

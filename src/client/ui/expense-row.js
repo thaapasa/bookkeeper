@@ -41,7 +41,7 @@ export function ExpenseHeader() {
     return <div className="expense-row header" style={{ color: colors.header }}>
         <div className="expense-detail date">Pvm</div>
         <div className="expense-detail user optional"></div>
-        <div className="expense-detail description">Selite</div>
+        <div className="expense-detail title">Nimi</div>
         <div className="expense-detail receiver optional">Kohde</div>
         <div className="expense-detail category optional">Kategoria</div>
         <div className="expense-detail source optional">Lähde</div>
@@ -119,9 +119,9 @@ export default class ExpenseRow extends React.Component {
                         state.get("userMap")[expense.userId].image)
                 }/>
             </div>
-            <div className="expense-detail description"><ActivatableTextField
-                name="description" value={ expense.description }
-                onChange={v => this.updateExpense({ description: v })}
+            <div className="expense-detail title"><ActivatableTextField
+                name="title" value={ expense.title }
+                onChange={v => this.updateExpense({ title: v })}
             /></div>
             <div className="expense-detail receiver optional"><ActivatableTextField
                 name="receiver" value={ expense.receiver }

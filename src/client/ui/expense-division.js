@@ -69,6 +69,7 @@ export default class ExpenseDivision extends React.Component {
                                 onClick={()=>this.props.onDelete(expense)}>delete</IconButton>
                  </div>
             </div>
+            { this.props.expense.description ? <div className="expense-description">{ this.props.expense.description }</div> : [] }
             <div key="header" className="expense-user">
                 <div className="avatar-placeholder">Jako:</div>
                 <div className="expense-division-item"><div className="label">Kulut</div></div>

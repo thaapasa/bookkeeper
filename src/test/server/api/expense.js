@@ -38,13 +38,17 @@ describe("expense", function() {
     after(() => session && Promise.all(createdIds.map(id => session.del(`/api/expense/${id}`))).then(session.logout));
 
     it("should insert new expense", () => newExpense(session)
-        .then(s => expect(s.status).to.equal("OK") && expect(s.expenseId).to.be.above(0)));
+        .then(s => expect(s.status).to.equal("OK") &&
+            expect(s.expenseId).to.be.above(0)));
 
-    it("should create division based on sourceId", () => newExpense(session,
-        { description: "Crowbars", sum: "8.46" })
+    it("should create division based on sourceId and have description", () => newExpense(session,
+        { title: "Crowbars", sum: "8.46", description: "On hyvä olla tarkka" })
         .then(s => session.get(`/api/expense/${s.expenseId}`))
         .then(e =>
-            expect(e).to.contain.all.keys({ description: "Crowbars", date: "2017-01-22", sum: "10.51" }) &&
+            expect(e).to.have.property("title").that.equals("Crowbars") &&
+            expect(e).to.have.property("date").that.equals("2017-01-22") &&
+            expect(e).to.have.property("sum").that.equals("8.46") &&
+            expect(e).to.have.property("description").that.equals("On hyvä olla tarkka") &&
             expect(e).to.have.property("division")
                 .that.is.an("array")
                 .that.has.length(4)
@@ -76,7 +80,7 @@ describe("expense", function() {
             .then(e => expect(e).to.deep.equal(org))));
 
     it("should not allow negated cost", () => log.suppressFor(() => newExpense(session,
-        { description: "Invalid cost", sum: "8.46", division: [ { type: "cost", userId: 1, sum: "5.00" }, { type: "cost", userId: 2, sum: "3.46" } ] })
+        { title: "Invalid cost", sum: "8.46", division: [ { type: "cost", userId: 1, sum: "5.00" }, { type: "cost", userId: 2, sum: "3.46" } ] })
         .then(s => expect.fail("newExpense should throw error"))
         .catch(e => expect(e.status).to.equal(400))
     ));

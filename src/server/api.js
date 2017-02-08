@@ -87,7 +87,8 @@ function registerAPI(app) {
         date: V.matchPattern(/[0-9]{4}-[0-9]{2}-[0-9]{2}/),
         receiver: V.stringWithLength(1, 50),
         sum: V.money,
-        description: V.stringWithLength(1, 255),
+        title: V.stringWithLength(1, 255),
+        description: V.optional(V.or(V.string, V.null)),
         sourceId: V.optional(V.positiveInt),
         categoryId: V.positiveInt,
         division: V.optional(V.listOfObjects({ userId: V.positiveInt, sum: V.money, type: V.stringWithLength(1, 10) }))

@@ -50,7 +50,19 @@ const validator = {
     number: (i, field) => {
         if (i === undefined || i === null || (typeof i !== "number") || isNaN(i))
             throw new InvalidInputError(field, i, `Input must be a number`);
-        return new Money(i);
+        return i;
+    },
+
+    string: (i, field) => {
+        if (i === undefined || i === null || (typeof i !== "string"))
+            throw new InvalidInputError(field, i, `Input must be a string`);
+        return i;
+    },
+
+    null: (i, field) => {
+        if (i !== null)
+            throw new InvalidInputError(field, i, "Input must be null");
+        return i;
     },
 
     stringWithLength(min, max) {
@@ -100,8 +112,22 @@ const validator = {
             if (typeof i === "undefined") return i;
             return req(i, field);
         }
-    }
+    },
 
+    or() {
+        return (i, field) => {
+            const res = Array.prototype.slice.apply(arguments).reduce((val, cur) => {
+                if (val[0]) return val;
+                try {
+                    return [true, cur(i, field), val[2]];
+                } catch (e) {
+                    return [false, undefined, val[2].concat(e)];
+                }
+            }, [false, undefined, []]);
+            if (res[0]) return res[1];
+            else throw new InvalidInputError(field, i, `Input did not match any matcher: ${res[2].map(e => e.info && e.info.requirement ? e.info.requirement : e)}`);
+        }
+    }
 };
 
 const moneyPattern = validator.matchPattern(/[0-9]+([.][0-9]+)?/);

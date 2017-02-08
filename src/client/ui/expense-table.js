@@ -11,7 +11,7 @@ const Money = require("../../shared/util/money");
 const moment = require("moment");
 
 function expenseName(e) {
-    return `${e.description} (${e.receiver}): ${Money.from(e.sum).format()}`;
+    return `${e.title} (${e.receiver}): ${Money.from(e.sum).format()}`;
 }
 
 export default class ExpenseTable extends React.Component {
@@ -32,7 +32,7 @@ export default class ExpenseTable extends React.Component {
     getExpensesForView(date) {
         const next = moment(date);
         console.log("getExpensesForView", next);
-        this.setState(s => ({ date: next, details: {} }));
+        this.setState({ date: next, details: {} });
         return apiConnect.getExpensesForMonth(next.year(), next.month() + 1)
             .then(e => {
                 this.setState(e);
