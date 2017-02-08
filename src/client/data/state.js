@@ -75,3 +75,22 @@ export function notify(msg) {
 export function notifyError(msg, cause) {
     state.notificationStream.push(msg + ": " + cause);
 }
+
+export function editExpense(e) {
+    state.expenseDialogStream.push(e);
+}
+
+/* Returns a promise that will be resolved to either true of false depending on user input */
+export function confirm(title, content, okText = "OK", cancelText = "Peruuta") {
+    let resolve = null, reject = null;
+    const p = new Promise((res, rej) => { resolve = res; reject = rej; });
+    state.confirmationDialogStream.push({
+        title: title,
+        content: content,
+        okText: okText,
+        cancelText: cancelText,
+        resolve: resolve,
+        reject: reject
+    });
+    return p;
+}

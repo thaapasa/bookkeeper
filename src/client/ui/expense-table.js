@@ -10,6 +10,10 @@ import * as time from "../../shared/util/time";
 const Money = require("../../shared/util/money");
 const moment = require("moment");
 
+function expenseName(e) {
+    return `${e.description} (${e.receiver}): ${Money.from(e.sum).format()}`;
+}
+
 export default class ExpenseTable extends React.Component {
 
     constructor(props) {
@@ -72,19 +76,19 @@ export default class ExpenseTable extends React.Component {
 
     deleteExpense(e) {
         console.log("deleteExpense");
-        state.get("confirmationDialogStream").push({
-            title: "Poista kirjaus",
-            content: `Haluatko varmasti poistaa kirjauksen ${e.description} ${Money.from(e.sum).toString()}?`,
-            okText: "Poista",
-            cancelText: "Peruuta",
-            okAction: () => { apiConnect.deleteExpense(e.id)
-                                    .then(this.getExpensesForView)
-                                    .catch(e => console.log("Could not delete:", e)) }
-            })
+        const name = expenseName(e);
+        state.confirm("Poista kirjaus",
+            `Haluatko varmasti poistaa kirjauksen ${name}?`,
+            "Poista")
+            .then(b => b ? apiConnect.deleteExpense(e.id)
+                    .then(x => state.notify(`Poistettu kirjaus ${name}`))
+                    .then(x => this.getExpensesForView(e.date))
+                : false)
+            .catch(e => state.notifyError(`Virhe poistettaessa kirjausta ${name}`, e));
     }
 
     modifyExpense(expense) {
-        apiConnect.getExpense(expense.id).then(e => state.get("expenseDialogStream").push(e))
+        apiConnect.getExpense(expense.id).then(e => state.editExpense(e))
     }
 
     addFilter(fun, name, avatar) {

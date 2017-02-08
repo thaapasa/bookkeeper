@@ -16,7 +16,7 @@ export default class ToolbarExamplesSimple extends React.Component {
     }
 
     handleClick() {
-        state.get("expenseDialogStream").push(undefined);
+        state.editExpense(undefined);
     }
 
     render() {

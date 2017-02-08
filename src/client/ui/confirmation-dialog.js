@@ -10,6 +10,7 @@ const fields = {
     "content": { default: "Content" },
     "okText": { default: "Ok" },
     "cancelText": { default: "Cancel" },
+    "resolve": { default: () => {} },
     "okAction": { default: undefined },
     "cancelAction": { default: undefined }
 };
@@ -40,8 +41,8 @@ export default class ConfirmationDialog extends React.Component {
       state.get("confirmationDialogStream").onValue(d => { this.handleOpen(d)});
   }
 
-  doActionAndClose(action) {
-    Promise.resolve(action && action())
+  resolveWith(value) {
+    Promise.resolve(this.state.resolve(value))
         .then(this.handleClose)
   }
 
@@ -50,12 +51,12 @@ export default class ConfirmationDialog extends React.Component {
       <FlatButton
         label = { this.state.cancelText }
         primary = { true }
-        onTouchTap = { () => this.doActionAndClose(this.state.cancelAction) }
+        onTouchTap = { () => this.resolveWith(false) }
       />,
       <FlatButton
         label = { this.state.okText }
         primary = { true }
-        onTouchTap = { () => this.doActionAndClose(this.state.okAction) }
+        onTouchTap = { () => this.resolveWith(true) }
       />,
     ];
 
