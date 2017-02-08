@@ -45,10 +45,7 @@ describe("expense", function() {
         { title: "Crowbars", sum: "8.46", description: "On hyvä olla tarkka" })
         .then(s => session.get(`/api/expense/${s.expenseId}`))
         .then(e =>
-            expect(e).to.have.property("title").that.equals("Crowbars") &&
-            expect(e).to.have.property("date").that.equals("2017-01-22") &&
-            expect(e).to.have.property("sum").that.equals("8.46") &&
-            expect(e).to.have.property("description").that.equals("On hyvä olla tarkka") &&
+            expect(e).to.contain({ title: "Crowbars", date: "2017-01-22", sum: "8.46", description: "On hyvä olla tarkka" }) &&
             expect(e).to.have.property("division")
                 .that.is.an("array")
                 .that.has.length(4)
@@ -91,6 +88,15 @@ describe("expense", function() {
         .then(s => s.expenses.forEach(e =>
             expect(moment(e.date).isBefore(monthEnd)).to.be.true &&
             expect(moment(e.date).isSameOrAfter(monthStart)).to.be.true
+        )));
+
+    it("should have new expense in month view", () => Promise.all([
+        newExpense(session, {date: "2017-01-22", title:"Osuu"}),
+        newExpense(session, {date: "2017-02-01", title:"Ei osu"}) ])
+        .then(c => session.get("/api/expense/month", { year: 2017, month: 1 })
+            .then(s =>
+                expect(s.expenses.find(e => e.id === c[0].expenseId)).to.be.an("object").that.contains({ title: "Osuu" }) &&
+                expect(s.expenses.find(e => e.id === c[1].expenseId)).to.be.undefined
         )));
 
 });
