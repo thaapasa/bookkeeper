@@ -8,6 +8,7 @@ const it = require("mocha").it;
 const before = require("mocha").before;
 const after = require("mocha").after;
 const log = require("../../../shared/util/log");
+const moment = require("moment");
 
 function newExpense(session, expense) {
     const data = Object.assign({
@@ -73,5 +74,13 @@ describe("expense", function() {
         .then(s => expect.fail("newExpense should throw error"))
         .catch(e => expect(e.status).to.equal(400))
     ));
+
+    const monthStart = moment({ year: 2017, month: 0, day: 1 });
+    const monthEnd = moment({ year: 2017, month: 1, day: 1 });
+    it("should return expenses for correct month", () => session.get("/api/expense/month", { year: 2017, month: 1 })
+        .then(s => s.expenses.forEach(e =>
+            expect(moment(e.date).isBefore(monthEnd)).to.be.true &&
+            expect(moment(e.date).isSameOrAfter(monthStart)).to.be.true
+        )));
 
 });
