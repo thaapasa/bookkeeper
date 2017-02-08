@@ -3,6 +3,7 @@ import TopBar from "./topbar"
 import MonthView from "./month-view"
 import ExpenseDialog from "./expense-dialog"
 import ConfirmationDialog from "./confirmation-dialog"
+import NotificationBar from "./notification-bar"
 
 export default class BookkeeperPage extends React.Component {
 
@@ -28,6 +29,7 @@ export default class BookkeeperPage extends React.Component {
             <div className="main-content">
                 <div><MonthView/></div>
             </div>
-        </div>;
+            <NotificationBar />
+        </div>
     }
 }

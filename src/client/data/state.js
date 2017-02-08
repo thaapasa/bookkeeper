@@ -22,6 +22,8 @@ export function init() {
     state.confirmationDialogStream = new Bacon.Bus();
     state.expensesUpdatedStream && state.expensesUpdatedStream.end();
     state.expensesUpdatedStream = new Bacon.Bus();
+    state.notificationStream && state.notificationStream.end();
+    state.notificationStream = new Bacon.Bus();
 }
 
 export function setCategories(categories) {
@@ -64,4 +66,12 @@ export function setDataFromSession(session) {
 export function getTitle() {
     const groupName = state.group && state.group.name;
     return groupName ? `Kukkaro - ${groupName}` : "Kukkaro";
+}
+
+export function notify(msg) {
+    state.notificationStream.push(msg);
+}
+
+export function notifyError(msg, cause) {
+    state.notificationStream.push(msg + ": " + cause);
 }

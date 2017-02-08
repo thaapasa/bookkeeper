@@ -179,12 +179,16 @@ export default class ExpenseDialog extends React.Component {
         delete data.id;
         delete data.subcategoryId;
         delete data.allValid;
-        console.log("Saving expense", data);
         (createNew ? apiConnect.storeExpense(data) : apiConnect.updateExpense(expense.id, data))
             .then(e => {
-                console.log("Stored expense", e);
                 state.get("expensesUpdatedStream").push(expense.date);
                 this.closeDialog();
+                state.notify(`${createNew ? "Luotu" : "Tallennettu"} ${expense.description}: ${expense.sum} €`);
+                return null;
+            })
+            .catch(e => {
+                state.notifyError(`Virhe ${createNew ? "luotaessa" : "tallennettaessa"} kirjausta ${expense.description}: ${expense.sum} €`, e);
+                return null;
             });
     }
 
