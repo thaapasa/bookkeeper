@@ -1,15 +1,15 @@
 import React from 'react';
 import IconButton from 'material-ui/IconButton';
-import * as state from  "../data/state";
 import * as time from "../../shared/util/time"
 import * as colors from "./colors";
-const moment = require("moment");
+import ChevronLeft from "material-ui/svg-icons/navigation/chevron-left"
+import ChevronRight from "material-ui/svg-icons/navigation/chevron-right"
+import * as state from "../data/state"
 
 export default class ExpenseNavigation extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { date : moment() };
     }
 
     static getYearMonthString(date) {
@@ -20,25 +20,17 @@ export default class ExpenseNavigation extends React.Component {
         return <div style={{ display: "flex", alignItems: "center" }}>
             <div>
                 <IconButton
-                    onClick={() => {
-                        this.setState(this.state.date.subtract(1, 'months'));
-                        state.get("expensesUpdatedStream").push(this.state.date.clone());
-                     }}
-                    iconClassName="material-icons" title="Edellinen"
-                    style={{ padding: "0px" }}
-                    iconStyle={{color: colors.navigation}}>chevron_left</IconButton>
+                    onClick={() => state.updateExpenses(this.props.date.clone().subtract(1, 'months')) }
+                    title="Edellinen"
+                    style={{ padding: "0px" }}><ChevronLeft color={colors.navigation} /></IconButton>
             </div>
             <div style={{ textAlign: "center", flexGrow: "1", fontSize: "12pt", color: colors.header }}>
-                { ExpenseNavigation.getYearMonthString(this.state.date) }
+                { ExpenseNavigation.getYearMonthString(this.props.date) }
             </div>
             <div>
                 <IconButton
-                    onClick={() => {
-                        this.setState(this.state.date.add(1, 'months'));
-                        state.get("expensesUpdatedStream").push(this.state.date.clone());
-                    }}
-                    iconClassName="material-icons" title="Seuraava"
-                    iconStyle={{color: colors.navigation}}>chevron_right</IconButton>
+                    onClick={() => state.updateExpenses(this.props.date.clone().add(1, 'months')) }
+                    title="Seuraava"><ChevronRight color={colors.navigation} /></IconButton>
             </div>
         </div>
     }
