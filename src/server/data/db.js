@@ -16,8 +16,9 @@ function camelCaseObject(o) {
 const pool = new Pool(merge({ Promise: require("bluebird") }, config.db));
 
 function queryFor(client, doRelease) {
-    return (name, query, params, mapper) =>
-        client.query({ text: query, name: name, values: params })
+    return (name, query, params, mapper) => {
+        log.debug("SQL query", query, "with params", params);
+        return client.query({text: query, name: name, values: params})
             .then(res => {
                 const obj = mapper(res);
                 if (doRelease) client.release();
@@ -27,6 +28,7 @@ function queryFor(client, doRelease) {
                 log.error("Query error", e.message, e.stack);
                 throw e;
             });
+    }
 }
 
 class BookkeeperDB {
@@ -50,7 +52,7 @@ class BookkeeperDB {
         return pool.connect().then(client => client.query("BEGIN")
             .then(() => f(new BookkeeperDB(queryFor(client, false))))
             .then(res => {
-                log.debug("Committing transaction, result was", res);
+                log.debug("Committing transaction");
                 client.query("COMMIT");
                 client.release();
                 return res;

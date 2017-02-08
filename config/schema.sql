@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS expenses (
   source_id INTEGER REFERENCES sources (id) NOT NULL,
   category_id INTEGER REFERENCES categories (id) NOT NULL
 );
-CREATE INDEX "expenses_user_date" ON expenses (user_id, date);
+CREATE INDEX "expenses_group_date" ON expenses (group_id, date);
 
 CREATE TABLE IF NOT EXISTS expense_division (
   expense_id INTEGER REFERENCES expenses (id) ON DELETE CASCADE NOT NULL,

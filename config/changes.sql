@@ -10,3 +10,7 @@ UPDATE USERS SET image='2.jpg' WHERE id=2;
 -- On 21.1.2017
 ALTER TABLE sources ADD COLUMN abbreviation VARCHAR(32) DEFAULT NULL;
 ALTER TABLE sources ADD COLUMN image VARCHAR(32) DEFAULT NULL;
+
+-- On 8.2.2017
+DROP INDEX "expenses_user_date" CASCADE;
+CREATE INDEX "expenses_group_date" ON expenses (group_id, date);
