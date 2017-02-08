@@ -73,7 +73,6 @@ export default class ExpenseRow extends React.Component {
     constructor(props) {
         super(props);
         this.updateExpense = this.updateExpense.bind(this);
-        this.simple = false;
     }
 
     categoryLink(id) {
@@ -110,12 +109,7 @@ export default class ExpenseRow extends React.Component {
 
     render() {
         const expense = this.props.expense;
-        return this.simple ?
-            <div key={expense.id} className="expense-row">
-                <div className="expense-detail date">{ moment(expense.date).format("D.M.") }</div>
-                <div className="expense-detail description">{ expense.description }</div>
-            </div>:
-            <div key={expense.id} className="expense-row">
+        return <div key={expense.id} className="expense-row">
             <div className="expense-detail date">{ moment(expense.date).format("D.M.") }</div>
             <div className="expense-detail user optional">
                 <UserAvatar userId={expense.userId} size={25} onClick={
