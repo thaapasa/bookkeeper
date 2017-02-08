@@ -5,22 +5,33 @@ import * as apiConnect from "../data/api-connect";
 import UserAvatar from "./user-avatar";
 import IconButton from 'material-ui/IconButton';
 import ActivatableTextField from "./activatable-text-field";
+import ExpandLess from "material-ui/svg-icons/navigation/expand-less"
+import ExpandMore from "material-ui/svg-icons/navigation/expand-more"
+import Delete from "material-ui/svg-icons/action/delete"
+import Edit from "material-ui/svg-icons/image/edit"
 import * as colors from "./colors";
 const moment = require("moment");
 const Money = require("../../shared/util/money");
 
 const styles = {
     tool: {
-        margin: "0",
-        padding: "0",
-        width: 36,
-        height: 36
-    },
-    toolIcon: {
-        color: colors.tool,
-        fontSize: "15pt"
+        margin: "3pt",
+        padding: "4pt 1pt",
+        width: "16pt",
+        height: "16pt"
     }
 };
+
+function ToolButton(props) {
+    return <IconButton
+        title={props.title}
+        style={styles.tool}
+        onClick={props.onClick}>{ React.createElement(props.icon, {color: colors.tool}, null) }</IconButton>
+}
+
+function ToolIcon(props) {
+    return React.createElement(props.icon, Object.assign({}, props, { color: colors.tool, style: styles.tool, icon: undefined }));
+}
 
 function money(v) {
     return v ? Money.from(v).format() : "-";
@@ -62,6 +73,7 @@ export default class ExpenseRow extends React.Component {
     constructor(props) {
         super(props);
         this.updateExpense = this.updateExpense.bind(this);
+        this.simple = false;
     }
 
     categoryLink(id) {
@@ -98,7 +110,12 @@ export default class ExpenseRow extends React.Component {
 
     render() {
         const expense = this.props.expense;
-        return <div key={expense.id} className="expense-row">
+        return this.simple ?
+            <div key={expense.id} className="expense-row">
+                <div className="expense-detail date">{ moment(expense.date).format("D.M.") }</div>
+                <div className="expense-detail description">{ expense.description }</div>
+            </div>:
+            <div key={expense.id} className="expense-row">
             <div className="expense-detail date">{ moment(expense.date).format("D.M.") }</div>
             <div className="expense-detail user optional">
                 <UserAvatar userId={expense.userId} size={25} onClick={
@@ -125,12 +142,9 @@ export default class ExpenseRow extends React.Component {
                     this.props.addFilter(e => !Money.zero.equals(e.userBalance), "Balanssi != 0")
             }>{ Money.from(expense.userBalance).format() }</div>
             <div className="expense-detail tools">
-                <IconButton iconClassName="material-icons" title="Tiedot" style={styles.tool} iconStyle={styles.toolIcon}
-                            onClick={()=>this.props.onToggleDetails(expense, this.props.details)}>{ this.props.details ? "expand_less" : "expand_more" }</IconButton>
-                <IconButton iconClassName="material-icons" title="Muokkaa" style={styles.tool} iconStyle={styles.toolIcon}
-                            onClick={()=>this.props.onModify(expense)}>edit</IconButton>
-                <IconButton className="optional" iconClassName="material-icons" title="Poista" style={styles.tool} iconStyle={styles.toolIcon}
-                            onClick={()=>this.props.onDelete(expense)}>delete</IconButton>
+                <ToolIcon title="Tiedot" onClick={()=>this.props.onToggleDetails(expense, this.props.details)} icon={this.props.details ? ExpandLess : ExpandMore} />
+                <ToolIcon title="Muokkaa" onClick={()=>this.props.onModify(expense)} icon={Edit} />
+                <ToolIcon className="optional" title="Poista" onClick={()=>this.props.onDelete(expense)} icon={Delete} />
             </div>
         </div>
     }

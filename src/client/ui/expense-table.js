@@ -26,6 +26,7 @@ export default class ExpenseTable extends React.Component {
         this.removeFilter = this.removeFilter.bind(this);
         this.getExpensesForView = this.getExpensesForView.bind(this);
         this.updateExpenseWith = this.updateExpenseWith.bind(this);
+        this.renderExpense = this.renderExpense.bind(this);
     }
 
     getExpensesForView(date) {
@@ -108,8 +109,26 @@ export default class ExpenseTable extends React.Component {
         return this.state.expenses ? this.state.filters.reduce((a, b) => a.filter(b.filter), this.state.expenses) : [];
     }
 
+    renderExpense(expense) {
+        const details = this.state.details[expense.id];
+        return [
+            <ExpenseRow expense={ expense }
+                        details={ details }
+                        addFilter={ this.addFilter }
+                        onUpdated={ e => this.updateExpenseWith(expense.id, e) }
+                        onToggleDetails={ this.toggleDetails }
+                        onModify={ this.modifyExpense }
+                        onDelete={ this.deleteExpense } />
+        ].concat(details && details.division ?
+            [<ExpenseDivision
+                expense={ expense }
+                onDelete={this.deleteExpense}
+                onModify={this.modifyExpense}
+                division={details.division}/>] : [])
+    }
+
     render() {
-        return <div className="expense-table">
+        const res = <div className="expense-table">
             <ExpenseHeader startStatus={this.state.startStatus} />
             <ExpenseStatus name="Tilanne ennen" status={this.state.startStatus} />
             { this.state.filters.length > 0 ?
@@ -126,25 +145,10 @@ export default class ExpenseTable extends React.Component {
                 </div>
                 : undefined
             }
-            { this.getFilteredExpenses().map(expense => {
-                const details = this.state.details[expense.id];
-                return [
-                    <ExpenseRow expense={ expense }
-                                details={ details }
-                                addFilter={ this.addFilter }
-                                onUpdated={ e => this.updateExpenseWith(expense.id, e) }
-                                onToggleDetails={ this.toggleDetails }
-                                onModify={ this.modifyExpense }
-                                onDelete={ this.deleteExpense } />
-                ].concat(details && details.division ?
-            [<ExpenseDivision
-                expense={ expense }
-                onDelete={this.deleteExpense}
-                onModify={this.modifyExpense}
-                division={details.division}/>] : [])
-            })}
+            { this.getFilteredExpenses().map(this.renderExpense) }
             <ExpenseStatus name="Tämä kuukausi" status={this.state.monthStatus} />
             <ExpenseStatus name="Lopputilanne" status={this.state.endStatus} />
-        </div>
+        </div>;
+        return res;
     }
 }
