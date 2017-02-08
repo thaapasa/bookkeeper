@@ -45,10 +45,14 @@ function error() {
 
 function setLevel(level, reportChange) {
     const oldLevel = currentLevel;
+    const oldLevelName = Object.keys(levels).find(k => levels[k] === oldLevel);
+
+    const levelNum = levels[level];
     if (reportChange !== false)
-        info("Setting logging level to", level);
-    currentLevel = levels[level];
-    return oldLevel;
+        info("Setting logging level to", level, "=", levelNum, "; was", oldLevelName);
+
+    currentLevel = levelNum;
+    return oldLevelName;
 }
 
 function suppressFor(fun) {
