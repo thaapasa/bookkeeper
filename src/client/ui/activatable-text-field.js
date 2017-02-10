@@ -2,11 +2,7 @@
 
 import React from 'react';
 import TextField from 'material-ui/TextField';
-
-const keyCodes = {
-    enter: 13,
-    escape: 27
-};
+import {KeyCodes} from "../util/io";
 
 export default class ActivatableTextField extends React.Component {
 
@@ -36,10 +32,10 @@ export default class ActivatableTextField extends React.Component {
 
     handleKeyPress(event, value) {
         const code = event.keyCode;
-        if (code === keyCodes.enter) {
+        if (code === KeyCodes.enter) {
             this.commit(value);
             return false;
-        } else if (code === keyCodes.escape) {
+        } else if (code === KeyCodes.escape) {
             this.cancel();
             return false;
         }

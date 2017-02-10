@@ -97,4 +97,5 @@ export function confirm(title, content, okText = "OK", cancelText = "Peruuta") {
 
 export function updateExpenses(date) {
     state.expensesUpdatedStream.push(date);
+    return true;
 }
