@@ -3,7 +3,7 @@
 pushd . >/dev/null
 cd `dirname $0`/..
 
-REV=`git rev-parse HEAD | cut -c 1-8`
+REV=`git rev-parse HEAD`
 FILE=src/server/revision.js
 
 echo "Updating server revision to $REV to $FILE"

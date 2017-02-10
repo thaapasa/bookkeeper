@@ -8,7 +8,10 @@ const config = merge({
     port: 3000,
     environment: env,
     version: require("../../package.json").version,
-    revision: require("./revision")
+    revision: "",
+    commitId: require("./revision")
 }, require(`./config-${env}.js`));
+
+config.revision = config.commitId.substr(0, 8);
 
 module.exports = config;
