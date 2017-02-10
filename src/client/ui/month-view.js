@@ -11,25 +11,27 @@ export default class MonthView extends React.Component {
     constructor(props) {
         super(props);
         this.state = { date: moment(), loading: false, expenses: [], startStatus: {}, endStatus: {}, monthStatus: {} };
-        this.loadExpenses = new Bacon.Bus();
         this.onUpdateExpense = this.onUpdateExpense.bind(this);
     }
 
     componentDidMount() {
+        this.loadExpenses = new Bacon.Bus();
         const expensesFromServer = this.loadExpenses.flatMapLatest(date => Bacon.fromPromise(apiConnect.getExpensesForMonth(date.year(), date.month() + 1)));
-        state.get("expensesUpdatedStream").onValue(date => {
+        this.unsubscribeExpensesUpdatedStream = state.get("expensesUpdatedStream").onValue(date => {
             const d = moment(date);
             this.setState({ date: d, loading: true, expenses: [], startStatus: {}, endStatus: {}, monthStatus: {} });
             this.loadExpenses.push(d);
         });
-        this.unsubscribeStream = expensesFromServer.onValue(e => {
-            this.setState(Object.assign({ loading: false }, e))
+        this.unsubscribeExpensesFromServer = expensesFromServer.onValue(e => {
+            this.setState(Object.assign({ loading: false }, e));
         });
         state.updateExpenses(moment());
     }
 
     componentWillUnmount() {
-        this.unsubscribeStream();
+        this.loadExpenses.end();
+        this.unsubscribeExpensesFromServer();
+        this.unsubscribeExpensesUpdatedStream();
     }
 
     onUpdateExpense(id, data) {
