@@ -1,9 +1,8 @@
 import React from 'react';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
-import RaisedButton from 'material-ui/RaisedButton';
-
 import * as state from  "../data/state";
+import {KeyCodes} from "../util/io"
 
 const fields = {
     "title": { default: "Title" },
@@ -17,58 +16,78 @@ const fields = {
 
 export default class ConfirmationDialog extends React.Component {
 
-  constructor(props) {
-      super(props);
-      this.state = {
-          open: false
-      };
-      Object.keys(fields).forEach(k => this.state[k] = fields[k].default);
-      this.handleOpen = this.handleOpen.bind(this);
-      this.handleClose = this.handleClose.bind(this);
-  }
+    constructor(props) {
+        super(props);
+        this.state = { open: false };
+        Object.keys(fields).forEach(k => this.state[k] = fields[k].default);
+        this.handleOpen = this.handleOpen.bind(this);
+        this.handleClose = this.handleClose.bind(this);
+        this.handleKeyPress = this.handleKeyPress.bind(this);
+    }
 
-  handleOpen(dialogData) {
-    this.setState({open: true});
-    if (dialogData)
-        Object.keys(fields).forEach(k => this.state[k] = dialogData[k] ? dialogData[k] : fields[k].default);
-  };
+    handleOpen(dialogData) {
+        this.setState({ open: true });
+        if (dialogData)
+            Object.keys(fields).forEach(k => this.state[k] = dialogData[k] ? dialogData[k] : fields[k].default);
+    }
 
-  handleClose () {
-    this.setState({open: false});
-  };
+    handleClose () {
+        this.setState({ open: false });
+        return true;
+    }
 
-  componentDidMount() {
-      state.get("confirmationDialogStream").onValue(d => { this.handleOpen(d)});
-  }
+    handleKeyPress(event) {
+        const code = event.keyCode;
+        if (code === KeyCodes.enter) {
+            this.resolveWith(true);
+            return false;
+        } else if (code === KeyCodes.escape) {
+            this.resolveWith(false);
+            return false;
+        }
+    }
 
-  resolveWith(value) {
-    Promise.resolve(this.state.resolve(value))
-        .then(this.handleClose)
-  }
+    componentDidMount() {
+        this.unsubState = state.get("confirmationDialogStream").onValue(d => this.handleOpen(d));
+    }
 
-  render() {
-    const actions = [
-      <FlatButton
-        label = { this.state.cancelText }
-        primary = { true }
-        onTouchTap = { () => this.resolveWith(false) }
-      />,
-      <FlatButton
-        label = { this.state.okText }
-        primary = { true }
-        onTouchTap = { () => this.resolveWith(true) }
-      />,
-    ];
+    componentWillUnmount() {
+        this.unsubState();
+    }
 
-    return <Dialog
-          title={this.state.title}
-          actions={actions}
-          modal={true}
-          open={this.state.open}
-        >
-          {this.state.content}
+    resolveWith(value) {
+        Promise.resolve(this.state.resolve(value))
+            .then(this.handleClose)
+    }
+
+    render() {
+        const actions = [
+            <FlatButton
+                label={this.state.cancelText}
+                primary={true }
+                onKeyUp={this.handleKeyPress}
+                onTouchTap={() => this.resolveWith(false)}
+            />,
+            <FlatButton
+                label={this.state.okText}
+                primary={true}
+                autoFocus={true}
+                onKeyUp={this.handleKeyPress}
+                onTouchTap={() => this.resolveWith(true)}
+            />
+        ];
+
+        return <Dialog
+            title={this.state.title}
+            actions={actions}
+            modal={false}
+            open={this.state.open}
+            onRequestClose={() => this.resolveWith(false)}>
+            <div onKeyUp={this.handleKeyPress}>
+                { this.state.content }
+            </div>
         </Dialog>
-  }
+    }
 }
 
 ConfirmationDialog.propTypes = {};
