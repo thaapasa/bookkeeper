@@ -95,6 +95,10 @@ function getSession() {
     return get("/api/session");
 }
 
+function refreshSession() {
+    return put("/api/session/refresh");
+}
+
 function getExpensesForMonth(year, month) {
     return get("/api/expense/month", { year: year, month: month })
         .then(l => mapExpenseObject(l));
@@ -122,6 +126,14 @@ function defaultErrorHandler(er) {
 }
 
 module.exports = {
-    login : login, logout : logout, getSession : getSession,
-    getExpensesForMonth : getExpensesForMonth, getExpense: getExpense, storeExpense : storeExpense, deleteExpense: deleteExpense, updateExpense: updateExpense
+    login: login,
+    logout: logout,
+    getSession: getSession,
+    refreshSession: refreshSession,
+    getExpensesForMonth:
+    getExpensesForMonth,
+    getExpense: getExpense,
+    storeExpense: storeExpense,
+    deleteExpense: deleteExpense,
+    updateExpense: updateExpense
 };

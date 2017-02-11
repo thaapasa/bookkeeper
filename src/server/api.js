@@ -28,9 +28,13 @@ function registerAPI(app) {
     app.put("/api/session", server.processUnauthorizedRequest(req =>
         sessions.login(req.body.username, req.body.password, req.query.groupId)
             .then(sessions.appendInfo)));
+    app.put("/api/session/refresh", server.processUnauthorizedRequest(req =>
+        sessions.refresh(server.getToken(req), req.query.groupId)
+            .then(sessions.appendInfo)));
 
     // GET /api/session
     app.get("/api/session", server.processRequest(sessions.appendInfo));
+    app.get("/api/session/bare", server.processRequest(x => x));
 
     // DELETE /api/session
     app.delete("/api/session", server.processRequest(session =>

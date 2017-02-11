@@ -95,5 +95,6 @@ module.exports = {
     processRequest: processRequest,
     processUnauthorizedRequest: processUnauthorizedRequest,
     handleError: handleError,
-    getId: getId
+    getId: getId,
+    getToken: getToken
 };

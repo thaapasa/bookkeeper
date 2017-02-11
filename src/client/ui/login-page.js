@@ -26,7 +26,6 @@ const loginButtonStyle = {
 export default class LoginPage extends React.Component {
 
     constructor(props) {
-        console.log("loginpage constructor");
         super(props);
         this.state = {
             username: "",

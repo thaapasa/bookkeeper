@@ -5,11 +5,11 @@ import * as apiConnect from "./api-connect"
 import * as state from "./state"
 
 function getLoginFromSession() {
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("refreshToken");
     if (token) {
-        console.log("not logged in but session token exists in sessionStorage", token);
+        console.log("Not logged in but refresh token exists in localStorage", token);
         state.set("token", token);
-        return apiConnect.getSession()
+        return apiConnect.refreshSession()
             .catch(e => undefined);
     }
     else return Promise.resolve(undefined);
@@ -34,7 +34,7 @@ loginStream.onValue(s => {
     console.log("Current session", s);
     state.init();
     state.setDataFromSession(s);
-    s && s.token ? sessionStorage.setItem("token", s.token) : sessionStorage.removeItem("token");
+    s && s.refreshToken ? localStorage.setItem("refreshToken", s.refreshToken) : localStorage.removeItem("refreshToken");
     document.title = state.getTitle();
     currentSessionStream.push(s);
 });

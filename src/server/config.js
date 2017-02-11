@@ -7,6 +7,7 @@ const config = Object.assign({
     environment: env,
     version: require("../../package.json").version,
     revision: "",
+    refreshTokenTimeout: "2 weeks",
     commitId: require("./revision")
 }, require(`./config-${env}.js`));
 

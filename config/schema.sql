@@ -53,14 +53,17 @@ CREATE INDEX "source_users_source_id_user_id" ON source_users (source_id, user_i
 
 CREATE TABLE IF NOT EXISTS sessions (
   token VARCHAR(40) PRIMARY KEY,
+  refresh_token VARCHAR(40),
   user_id INTEGER REFERENCES users (id) NOT NULL,
   login_time TIMESTAMP WITH TIME ZONE NOT NULL,
   expiry_time TIMESTAMP WITH TIME ZONE NOT NULL
 );
 CREATE INDEX "sessions_token" ON sessions (token);
+CREATE INDEX "sessions_refresh_token" ON sessions (refresh_token);
 CREATE INDEX "sessions_expiry" ON sessions (expiry_time);
 COMMENT ON TABLE sessions IS 'Active sessions and expiry tokens.';
 COMMENT ON COLUMN sessions.token IS 'Access token, used to authorize operations, if refresh_token is also specified. If refresh_token field is NULL, then this is the refresh token and may only be used to authorize session refresh.';
+COMMENT ON COLUMN sessions.refresh_token IS 'Refresh token linked to this session. There should also be a row b with b.refresh_token=this.token and b.refresh_token=NULL.';
 
 
 CREATE TABLE IF NOT EXISTS categories (
