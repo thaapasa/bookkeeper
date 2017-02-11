@@ -1,7 +1,6 @@
 "use strict";
 
 const log = require("./log");
-const merge = require("merge");
 const Money = require("./money");
 const assert = require("assert");
 const arrays = require("./arrays");
@@ -10,7 +9,7 @@ function splitByShares(sum, division) {
     const numShares = division.map(d => d.share).reduce((a, b) => a + b, 0);
     log.debug("Splitting", sum.format(), "to", numShares, "parts by", division);
     const part = sum.divide(numShares);
-    const res = division.map(d => merge({ sum: part.multiply(d.share) }, d));
+    const res = division.map(d => Object.assign({ sum: part.multiply(d.share) }, d));
     const total = res.map(d => d.sum).reduce((a, b) => a.plus(b), Money.zero);
     const remainder = sum.minus(total);
     assert(remainder.gte(Money.zero));

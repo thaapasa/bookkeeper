@@ -2,7 +2,6 @@
 
 const Pool = require("pg-pool");
 const log = require("../../shared/util/log");
-const merge = require("merge");
 const config = require("../config");
 const util = require("../../shared/util/util");
 
@@ -13,11 +12,11 @@ function camelCaseObject(o) {
     return r;
 }
 
-const pool = new Pool(merge({ Promise: require("bluebird") }, config.db));
+const pool = new Pool(Object.assign({ Promise: require("bluebird") }, config.db));
 
 function queryFor(client, doRelease) {
     return (name, query, params, mapper) => {
-        log.debug("SQL query", query, "with params", params);
+        log.debug("SQL query", name, query, "with params", params);
         return client.query({text: query, name: name, values: params})
             .then(res => {
                 const obj = mapper(res);
@@ -85,7 +84,6 @@ function toId(r) {
 }
 
 const db = new BookkeeperDB((name, query, params, mapper) => {
-    log.debug("SQL query", query, "with params", params);
     return pool.connect().then(client => queryFor(client, true)(name, query, params, mapper));
 });
 

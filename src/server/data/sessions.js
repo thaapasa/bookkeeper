@@ -8,7 +8,6 @@ const categories = require("./categories");
 const Promise = require("bluebird");
 const randomBytes = Promise.promisify(require("crypto").randomBytes);
 const config = require("../config");
-const merge = require("merge");
 
 function InvalidTokenError() {
     this.status = 401;
@@ -73,13 +72,12 @@ function getSession(token, groupId) {
 }
 
 function appendInfo(session) {
-    log.info(session);
     return Promise.all([
         users.getGroups(session.user.id),
         sources.getAll(session.group.id),
         categories.getAll(session.group.id),
         users.getAll(session.group.id)
-    ]).then(a => merge({ groups: a[0], sources: a[1], categories: a[2], users: a[3] }, session));
+    ]).then(a => Object.assign({ groups: a[0], sources: a[1], categories: a[2], users: a[3] }, session));
 }
 
 function createToken() {
