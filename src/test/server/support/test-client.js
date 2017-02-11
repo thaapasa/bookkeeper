@@ -12,7 +12,7 @@ function doRequest(creator, token, query) {
         .set("Authorization", `Bearer ${token}`)
         .endAsync()
         .then(req => req.body)
-        .catch(e => { log.warn(e.response.error); throw e; })
+        .catch(e => { log.warn(e.response && e.response.error ? e.response.error : e.response); throw e; })
 }
 
 function get(token, path, query) {
@@ -33,7 +33,6 @@ function del(token, path, query) {
 
 function login(username, password) {
     const url = `${baseUrl}/api/session`;
-
     return request.put(url)
         .set('Content-Type', 'application/json')
         .send({ username: username, password: password })
@@ -41,18 +40,26 @@ function login(username, password) {
         .then(req => req.body);
 }
 
+function refresh(refreshToken) {
+    return put(refreshToken, "/api/session/refresh", {});
+}
+
 function getSession(username, password) {
-    return login(username, password)
-        .then(s => ({
-            token: s.token,
-            user: s.user,
-            session: s.session,
-            get: (path, query) => get(s.token, path, query),
-            logout: () => del(s.token, "/api/session"),
-            put: (path, data) => put(s.token, path, data),
-            post: (path, data) => post(s.token, path, data),
-            del: (path, query) => del(s.token, path, query)
-        }))
+    return login(username, password).then(decorateSession)
+}
+
+function refreshSession(refreshToken) {
+    return refresh(refreshToken).then(decorateSession)
+}
+
+function decorateSession(s) {
+    return Object.assign({
+        get: (path, query) => get(s.token, path, query),
+        logout: () => del(s.token, "/api/session"),
+        put: (path, data) => put(s.token, path, data),
+        post: (path, data) => post(s.token, path, data),
+        del: (path, query) => del(s.token, path, query)
+    }, s);
 }
 
 module.exports = {
@@ -61,5 +68,6 @@ module.exports = {
     put: put,
     post: post,
     login: login,
-    getSession: getSession
+    getSession: getSession,
+    refreshSession: refreshSession
 };

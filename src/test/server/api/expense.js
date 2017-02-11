@@ -9,6 +9,7 @@ const before = require("mocha").before;
 const after = require("mocha").after;
 const log = require("../../../shared/util/log");
 const moment = require("moment");
+const testUtil = require("../support/test-util");
 
 describe("expense", function() {
 
@@ -76,11 +77,9 @@ describe("expense", function() {
             .then(s => session.get(`/api/expense/${org.id}`))
             .then(e => expect(e).to.deep.equal(org))));
 
-    it("should not allow negated cost", () => log.suppressFor(() => newExpense(session,
-        { title: "Invalid cost", sum: "8.46", division: [ { type: "cost", userId: 1, sum: "5.00" }, { type: "cost", userId: 2, sum: "3.46" } ] })
-        .then(s => expect.fail("newExpense should throw error"))
-        .catch(e => expect(e.status).to.equal(400))
-    ));
+    it("should not allow negated cost", () => testUtil.expectThrow(newExpense(session,
+        { title: "Invalid cost", sum: "8.46", division: [ { type: "cost", userId: 1, sum: "5.00" },
+            { type: "cost", userId: 2, sum: "3.46" } ] })));
 
     const monthStart = moment({ year: 2017, month: 0, day: 1 });
     const monthEnd = moment({ year: 2017, month: 1, day: 1 });

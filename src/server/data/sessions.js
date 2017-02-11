@@ -10,10 +10,11 @@ const randomBytes = Promise.promisify(require("crypto").randomBytes);
 const config = require("../config");
 const errors = require("../util/errors");
 
-function InvalidTokenError() {
+function InvalidTokenError(token) {
     this.status = 401;
     this.cause = "Invalid access token";
     this.code = "INVALID_TOKEN";
+    this.token = token;
     return this;
 }
 InvalidTokenError.prototype = new Error();
@@ -87,7 +88,7 @@ function getUserInfoByRefreshToken(token, groupId) {
     return purgeExpiredSessions()
         .then(p => db.queryObject("sessions.get_by_refresh_token",
             tokenSelect + "WHERE s.token=$1 AND s.refresh_token IS NULL AND s.expiry_time > NOW()", [token, groupId]))
-        .then(errors.undefinedToError(InvalidTokenError))
+        .then(errors.undefinedToError(InvalidTokenError, token))
         .then(o => db.update("sessions.purge_old_with_refresh", "DELETE FROM sessions WHERE refresh_token=$1 OR token=$1", [token])
             .then(x => o));
 }
