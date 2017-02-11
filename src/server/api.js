@@ -116,6 +116,11 @@ function registerAPI(app) {
     app.delete(expensePath, server.processRequest((session, req) =>
         expenses.deleteById(session.group.id, server.getId(expensePath, req)), true));
 
+    // GET /api/expense/receivers?receiver=[query]
+    app.get("/api/expense/receivers", server.processRequest((session, req) =>
+        expenses.queryReceivers(session.group.id, V.validate({ receiver: V.stringWithLength(3, 50) }, req.query).receiver)
+            .then(l => l.map(r => r.receiver)), true));
+
 }
 
 module.exports = {

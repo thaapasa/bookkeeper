@@ -52,3 +52,6 @@ SELECT
     LEFT JOIN expense_division d2 ON (d2.expense_id = e.id AND d2.user_id = 1 AND d2.type='cost')
     WHERE group_id=1 AND date >= '2017-01-01'::DATE AND date < '2017-02-01'::DATE) breakdown;
 
+
+-- Search receivers
+SELECT receiver, COUNT(*) AS AMOUNT FROM expenses WHERE group_id=1 AND receiver ILIKE '%ke%' GROUP BY receiver ORDER BY amount DESC;

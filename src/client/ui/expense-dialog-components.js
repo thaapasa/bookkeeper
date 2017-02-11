@@ -1,10 +1,12 @@
 "use strict";
 import React from 'react';
+import * as Bacon from "baconjs";
 import DatePicker from 'material-ui/DatePicker';
 import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
 import TextField from 'material-ui/TextField';
 import AutoComplete from 'material-ui/AutoComplete';
+import * as apiConnect from "../data/api-connect";
 const moment = require("moment");
 
 const styles = {
@@ -111,16 +113,48 @@ DateField.propTypes = {
     onChange: React.PropTypes.func.isRequired
 };
 
-export function ReceiverField(props) {
-    return <TextField
-        hintText="Kauppa"
-        floatingLabelText="Saaja"
-        floatingLabelFixed={true}
-        fullWidth={true}
-        errorText={props.errorText}
-        value={props.value}
-        onChange={i => props.onChange(i.target.value)}
-    />
+export class ReceiverField extends React.Component {
+    constructor (props) {
+        super(props);
+        this.state = { receivers: [] };
+    }
+
+    componentDidMount() {
+        this.inputStream = new Bacon.Bus();
+        this.valueStream = new Bacon.Bus();
+        this.unsub = [];
+        this.unsub.push(this.inputStream.onValue(this.props.onChange));
+        this.inputStream
+            .filter(v => v && v.length > 2 && v.length < 10)
+            .debounceImmediate(500)
+            .flatMapLatest(v => Bacon.fromPromise(apiConnect.queryReceivers(v)))
+            .onValue(v => this.setState({ receivers: v }));
+        this.inputStream
+            .filter(v => !v || v.length < 3)
+            .onValue(() => this.setState({ receivers: [] }));
+    }
+
+    componentWillUnmount() {
+        this.inputStream.end();
+        this.valueStream.end();
+        this.unsub.forEach(s => s());
+    }
+
+    render() {
+        return <AutoComplete
+            filter={AutoComplete.noFilter}
+            onNewRequest={r => this.valueStream.push(r)}
+            dataSource={this.state.receivers}
+            onUpdateInput={r => this.inputStream.push(r)}
+            hintText="Kauppa"
+            floatingLabelText="Saaja"
+            floatingLabelFixed={true}
+            fullWidth={true}
+            errorText={this.props.errorText}
+            value={this.props.value}
+            onChange={i => this.props.onChange(i.target.value)}
+        />
+    }
 }
 ReceiverField.propTypes = {
     value: React.PropTypes.string.isRequired,

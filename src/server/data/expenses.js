@@ -185,6 +185,12 @@ function updateExpenseById(groupId, userId, expenseId, expense, defaultSourceId)
     )
 }
 
+function queryReceivers(groupId, receiver) {
+    return db.queryList("expenses.receiver_search",
+        "SELECT receiver, COUNT(*) AS AMOUNT FROM expenses WHERE group_id=$1 AND receiver ILIKE $2 GROUP BY receiver ORDER BY amount DESC",
+        [ groupId, `%${receiver}%` ]);
+}
+
 module.exports = {
     getAll: getAll,
     getBetween: getBetween(db),
@@ -193,5 +199,6 @@ module.exports = {
     getDivision: getDivision(db),
     deleteById: deleteById(db),
     create: createExpense,
-    update: updateExpenseById
+    update: updateExpenseById,
+    queryReceivers: queryReceivers
 };

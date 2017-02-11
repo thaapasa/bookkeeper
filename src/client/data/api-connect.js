@@ -120,6 +120,10 @@ function deleteExpense(id) {
     return del(`/api/expense/${parseInt(id, 10)}`);
 }
 
+function queryReceivers(receiver) {
+    return get("/api/expense/receivers", { receiver: receiver });
+}
+
 function defaultErrorHandler(er) {
     console.log("Error in api-connect:", er);
     throw er;
@@ -135,5 +139,6 @@ module.exports = {
     getExpense: getExpense,
     storeExpense: storeExpense,
     deleteExpense: deleteExpense,
-    updateExpense: updateExpense
+    updateExpense: updateExpense,
+    queryReceivers: queryReceivers
 };
