@@ -117,49 +117,61 @@ export class ReceiverField extends React.Component {
     constructor (props) {
         super(props);
         this.state = { receivers: [] };
+        this.focus = this.focus.bind(this);
     }
 
     componentDidMount() {
         this.inputStream = new Bacon.Bus();
-        this.valueStream = new Bacon.Bus();
         this.unsub = [];
         this.unsub.push(this.inputStream.onValue(this.props.onChange));
-        this.inputStream
+        this.unsub.push(this.inputStream
             .filter(v => v && v.length > 2 && v.length < 10)
             .debounceImmediate(500)
             .flatMapLatest(v => Bacon.fromPromise(apiConnect.queryReceivers(v)))
-            .onValue(v => this.setState({ receivers: v }));
-        this.inputStream
+            .onValue(v => this.setState({ receivers: v })));
+        this.unsub.push(this.inputStream
             .filter(v => !v || v.length < 3)
-            .onValue(() => this.setState({ receivers: [] }));
+            .onValue(() => this.setState({ receivers: [] })));
     }
 
     componentWillUnmount() {
         this.inputStream.end();
-        this.valueStream.end();
         this.unsub.forEach(s => s());
+    }
+
+    focus() {
+        this.ref && this.ref.focus();
     }
 
     render() {
         return <AutoComplete
+            name={this.props.name}
+            id={this.props.id}
             filter={AutoComplete.noFilter}
-            onNewRequest={r => this.valueStream.push(r)}
+            onNewRequest={this.focus}
             dataSource={this.state.receivers}
             onUpdateInput={r => this.inputStream.push(r)}
-            hintText="Kauppa"
+            hintText={this.props.hintText || "Kauppa"}
             floatingLabelText="Saaja"
             floatingLabelFixed={true}
             fullWidth={true}
             errorText={this.props.errorText}
-            value={this.props.value}
-            onChange={i => this.props.onChange(i.target.value)}
+            searchText={this.props.value}
+            onBlur={this.props.onBlur}
+            onKeyUp={this.props.onKeyUp}
+            ref={i => this.ref = i}
         />
     }
 }
 ReceiverField.propTypes = {
+    name: React.PropTypes.string,
+    id: React.PropTypes.string,
+    hintText: React.PropTypes.string,
     value: React.PropTypes.string.isRequired,
     errorText: React.PropTypes.string,
-    onChange: React.PropTypes.func.isRequired
+    onChange: React.PropTypes.func.isRequired,
+    onBlur: React.PropTypes.func,
+    onKeyUp: React.PropTypes.func
 };
 
 export function DescriptionField(props) {

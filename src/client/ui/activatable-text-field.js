@@ -45,18 +45,22 @@ export default class ActivatableTextField extends React.Component {
         if (this.editorRef) this.editorRef.focus();
     }
 
+    createEditor() {
+        const type = this.props.editorType ? this.props.editorType : TextField;
+        return React.createElement(type, {
+            name: this.props.name,
+            id: this.props.id,
+            hintText: this.props.hintText,
+            value: this.state.value,
+            onChange: i => this.setState({ value: i.target ? i.target.value : i }),
+            // onBlur: i => this.commit(this.state.value),
+            onKeyUp: event => this.handleKeyPress(event, this.state.value),
+            ref: r => this.editorRef = r
+        });
+    }
+
     render() {
-        return this.state.edit ?
-            <TextField
-                name={this.props.name}
-                id={this.props.id}
-                hintText={this.props.hintText}
-                value={this.state.value}
-                onChange={i => this.setState({ value: i.target.value })}
-                onBlur={i => this.commit(this.state.value)}
-                onKeyUp={event => this.handleKeyPress(event, this.state.value)}
-                ref={r => this.editorRef = r}
-            /> :
+        return this.state.edit ? this.createEditor() :
             <div
                 onClick={i => this.setState({ edit: true, value: this.props.value })}
                 ref={i => this.editorRef = undefined}
@@ -65,6 +69,7 @@ export default class ActivatableTextField extends React.Component {
 }
 
 ActivatableTextField.propTypes = {
+    editorType: React.PropTypes.func,
     value: React.PropTypes.string.isRequired,
     id: React.PropTypes.number,
     hintText: React.PropTypes.string,

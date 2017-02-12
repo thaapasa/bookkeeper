@@ -11,6 +11,7 @@ import Delete from "material-ui/svg-icons/action/delete"
 import Edit from "material-ui/svg-icons/image/edit"
 import * as colors from "./colors";
 import {ExpensePropType} from "./expense-helper";
+import {ReceiverField} from "./expense-dialog-components";
 const moment = require("moment");
 const Money = require("../../shared/util/money");
 
@@ -132,6 +133,7 @@ export default class ExpenseRow extends React.Component {
             /></div>
             <div className="expense-detail receiver optional"><ActivatableTextField
                 name="receiver" value={ expense.receiver }
+                editorType={ReceiverField}
                 onChange={v => this.updateExpense({ receiver: v })}
             /></div>
             <div className="expense-detail category optional">{ this.fullCategoryLink(expense.categoryId) }</div>
