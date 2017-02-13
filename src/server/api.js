@@ -93,6 +93,7 @@ function registerAPI(app) {
         sum: V.money,
         title: V.stringWithLength(1, 255),
         description: V.optional(V.or(V.string, V.null)),
+        confirmed: V.optional(V.boolean),
         sourceId: V.optional(V.positiveInt),
         categoryId: V.positiveInt,
         division: V.optional(V.listOfObjects({ userId: V.positiveInt, sum: V.money, type: V.stringWithLength(1, 10) }))
