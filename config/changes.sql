@@ -20,3 +20,6 @@ ALTER TABLE expenses ADD COLUMN description TEXT DEFAULT NULL;
 -- On 11.2.2017
 ALTER TABLE sessions ADD COLUMN refresh_token VARCHAR(40);
 CREATE INDEX "sessions_refresh_token" ON sessions (refresh_token);
+
+-- On 13.2.2017
+ALTER TABLE expenses ADD COLUMN confirmed BOOLEAN NOT NULL DEFAULT TRUE;
