@@ -54,7 +54,11 @@ export function ExpenseHeader() {
 }
 
 export function ExpenseStatus(props) {
-    return <div className="expense-row status">
+    const style = {};
+    if (props.unconfirmedBefore) {
+        style.background = colors.unconfirmedStripes;
+    }
+    return <div className="expense-row status" style={style}>
         <div className="expense-detail status-description">{props.name}</div>
         { props.status.cost ? [
             <div className="expense-detail status-label optional" key="label">Hinta:</div>,
@@ -117,7 +121,12 @@ export default class ExpenseRow extends React.Component {
 
     render() {
         const expense = this.props.expense;
-        return <div key={expense.id} className="expense-row">
+        const className = "expense-row" + (expense.confirmed ? "" : " unconfirmed");
+        const style = {};
+        if (!expense.confirmed) {
+            style.background = colors.unconfirmedStripes;
+        }
+        return <div key={expense.id} className={className} style={style}>
             <div className="expense-detail date">{ moment(expense.date).format("D.M.") }</div>
             <div className="expense-detail user optional">
                 <UserAvatar userId={expense.userId} size={25} onClick={

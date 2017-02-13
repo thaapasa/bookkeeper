@@ -26,6 +26,8 @@ html, body {
     border-top: 1px solid rgb(224, 224, 224);
     white-space: nowrap;
 }
+.expense-row.unconfirmed {
+}
 .expense-row:first-of-type {
     border-top: none;
 }

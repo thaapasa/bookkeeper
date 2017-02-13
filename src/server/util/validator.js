@@ -53,6 +53,12 @@ const validator = {
         return i;
     },
 
+    boolean: (i, field) => {
+        if (i === undefined || i === null || (typeof i !== "boolean"))
+            throw new InvalidInputError(field, i, `Input must be a boolean`);
+        return i;
+    },
+
     string: (i, field) => {
         if (i === undefined || i === null || (typeof i !== "string"))
             throw new InvalidInputError(field, i, `Input must be a string`);

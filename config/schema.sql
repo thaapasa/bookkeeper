@@ -88,6 +88,7 @@ CREATE TABLE IF NOT EXISTS expenses (
   created_by_id INTEGER REFERENCES users (id) NOT NULL,
   created TIMESTAMP WITH TIME ZONE NOT NULL,
   receiver VARCHAR(50),
+  confirmed BOOLEAN NOT NULL DEFAULT TRUE,
   sum MONEY NOT NULL,
   title VARCHAR(255),
   description TEXT DEFAULT NULL,
@@ -96,6 +97,7 @@ CREATE TABLE IF NOT EXISTS expenses (
 );
 CREATE INDEX "expenses_group_date" ON expenses (group_id, date);
 COMMENT ON TABLE expenses IS 'Expenses';
+COMMENT ON COLUMN expenses.confirmed IS 'Unconfirmed expenses may trigger a warning in the UI';
 
 CREATE TABLE IF NOT EXISTS expense_division (
   expense_id INTEGER REFERENCES expenses (id) ON DELETE CASCADE NOT NULL,

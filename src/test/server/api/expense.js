@@ -39,14 +39,27 @@ describe("expense", function() {
     after(() => session && Promise.all(createdIds.map(id => session.del(`/api/expense/${id}`))).then(session.logout));
 
     it("should insert new expense", () => newExpense(session)
-        .then(s => expect(s.status).to.equal("OK") &&
-            expect(s.expenseId).to.be.above(0)));
-
-    it("should create division based on sourceId and have description", () => newExpense(session,
-        { title: "Crowbars", sum: "8.46", description: "On hyvä olla tarkka" })
+        .then(s => {
+            expect(s.status).to.equal("OK");
+            expect(s.expenseId).to.be.above(0);
+            return s; })
         .then(s => session.get(`/api/expense/${s.expenseId}`))
         .then(e =>
-            expect(e).to.contain({ title: "Crowbars", date: "2017-01-22", sum: "8.46", description: "On hyvä olla tarkka" }) &&
+            expect(e).to.contain({ title: "Karkkia ja porkkanaa", date: "2017-01-22", sum: "10.51",
+                description: null, confirmed: true })
+        ));
+
+    it("should have custom values", () => newExpense(session,
+        { title: "Crowbars", sum: "8.46", description: "On hyvä olla tarkka", confirmed: false })
+        .then(s => session.get(`/api/expense/${s.expenseId}`))
+        .then(e => expect(e).to.contain({ title: "Crowbars", date: "2017-01-22", sum: "8.46",
+            description: "On hyvä olla tarkka", confirmed: false }))
+    );
+
+    it("should create division based on sourceId", () => newExpense(session, { sum: "8.46" })
+        .then(s => session.get(`/api/expense/${s.expenseId}`))
+        .then(e =>
+            expect(e).to.contain({ sum: "8.46" }) &&
             expect(e).to.have.property("division")
                 .that.is.an("array")
                 .that.has.length(4)

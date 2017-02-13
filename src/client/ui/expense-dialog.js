@@ -4,6 +4,7 @@ import * as Bacon from "baconjs";
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import UserSelector from "./user-selector";
+import Checkbox from "material-ui/Checkbox";
 import UserAvatar from "./user-avatar";
 import * as arrays from "../../shared/util/arrays";
 import * as splitter from "../../shared/util/splitter";
@@ -47,7 +48,8 @@ const fields = {
     "benefit": { default: () => [state.get("user").id], read: (e) => e.division.filter(d => d.type === "benefit").map(d => d.userId),
         validate: (v) => errorIf(v.length < 1, "Jonkun pitää hyötyä") },
     "description": { default: "", read: (e) => e.description || "" },
-    "id": { default: undefined, read: e => e ? e.id : undefined }
+    "id": { default: undefined, read: e => e ? e.id : undefined },
+    "confirmed": { default: true }
 };
 
 const defaultCategory = [ { id: 0, name: "Kategoria" }];
@@ -95,7 +97,6 @@ export default class ExpenseDialog extends React.Component {
         this.submitStream = new Bacon.Bus();
         Object.keys(fields).forEach(k => {
             this.state[k] = initValue(k);
-            this.inputStreams[k] = new Bacon.Bus();
         });
         this.updateCategoriesAndSources();
         this.closeDialog = this.closeDialog.bind(this);
@@ -106,6 +107,12 @@ export default class ExpenseDialog extends React.Component {
 
     componentDidMount() {
         state.get("expenseDialogStream").onValue(e => this.handleOpen(e));
+
+        this.inputStreams = {};
+        this.submitStream = new Bacon.Bus();
+        Object.keys(fields).forEach(k => {
+            this.inputStreams[k] = new Bacon.Bus();
+        });
 
         const validity = {};
         const values = {};
@@ -137,6 +144,11 @@ export default class ExpenseDialog extends React.Component {
             .sampledBy(this.submitStream)
             .filter(e => e.allValid)
             .onValue(e => this.saveExpense(e));
+    }
+
+    componentWillUnmount() {
+        Object.keys(this.inputStreams).forEach(s => this.inputStreams[s].end());
+        this.submitStream.end();
     }
 
     updateCategoriesAndSources() {
@@ -239,6 +251,9 @@ export default class ExpenseDialog extends React.Component {
                     <UserAvatar userId={this.state.userId} style={{ verticalAlign: "middle" }} />
                     <div style={{ height: "72px", marginLeft: "2em", display: "inline-block", verticalAlign: "middle" }}>
                         <SumField value={this.state.sum} errorText={this.state.errors.sum} onChange={v => this.inputStreams.sum.push(v)} />
+                    </div>
+                    <div style={{ marginLeft: "2em", display: "inline-block", verticalAlign: "middle" }}>
+                        <Checkbox label="Alustava" checked={!this.state.confirmed} onCheck={(e,v) => this.inputStreams.confirmed.push(!v)}/>
                     </div>
                 </div>
                 <TitleField
