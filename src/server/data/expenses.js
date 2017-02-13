@@ -51,10 +51,14 @@ function getByMonth(groupId, userId, year, month) {
     return db.transaction(tx => Promise.all([
         getBetween(tx)(groupId, userId, startDate, endDate),
         countTotalBetween(tx)(groupId, userId, "2000-01", startDate),
-        countTotalBetween(tx)(groupId, userId, startDate, endDate)
-    ])).then(a => ({ expenses: a[0], startStatus: calculateBalance(a[1]), monthStatus: calculateBalance(a[2]) }))
-        .then(a => { a.endStatus = arrays.toObject(["benefit", "cost", "value", "balance"].map(key =>
-            [key, Money.from(a.startStatus[key]).plus(a.monthStatus[key]).toString()])); return a; });
+        countTotalBetween(tx)(groupId, userId, startDate, endDate),
+        hasUnconfirmedBefore(tx)(groupId, startDate)
+    ])).then(a => ({ expenses: a[0], startStatus: calculateBalance(a[1]), monthStatus: calculateBalance(a[2]), unconfirmedBefore: a[3] }))
+        .then(a => {
+            a.endStatus = arrays.toObject(["benefit", "cost", "value", "balance"].map(key =>
+                [key, Money.from(a.startStatus[key]).plus(a.monthStatus[key]).toString()]));
+            return a;
+        });
 }
 
 function mapExpense(e) {
@@ -78,6 +82,13 @@ function countTotalBetween(tx) {
     return (groupId, userId, startDate, endDate) => tx.queryObject("expenses.count_total_between",
         countTotalSelect,
         [userId, groupId, time.date(startDate), time.date(endDate)]);
+}
+
+function hasUnconfirmedBefore(tx) {
+    return (groupId, startDate) => tx.queryObject("expenses.count_unconfirmed_before",
+        "SELECT COUNT(*) AS amount FROM expenses WHERE group_id=$1 AND date < $2::DATE AND confirmed=false",
+        [groupId, startDate])
+        .then(s => s.amount > 0);
 }
 
 function getById(tx) {

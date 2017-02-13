@@ -48,6 +48,7 @@ export default class MonthView extends React.Component {
                 startStatus={this.state.startStatus}
                 endStatus={this.state.endStatus}
                 monthStatus={this.state.monthStatus}
+                unconfirmedBefore={this.state.unconfirmedBefore}
                 onUpdateExpense={this.onUpdateExpense} />
         </div>
     }
