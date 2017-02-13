@@ -117,7 +117,12 @@ export default class ExpenseRow extends React.Component {
 
     render() {
         const expense = this.props.expense;
-        return <div key={expense.id} className="expense-row">
+        const className = "expense-row" + (expense.confirmed ? "" : " unconfirmed");
+        const style = {};
+        if (!expense.confirmed) {
+            style.background = colors.diagonalStripes(colors.unconfirmed, colors.white, "0.5em", "1em");
+        }
+        return <div key={expense.id} className={className} style={style}>
             <div className="expense-detail date">{ moment(expense.date).format("D.M.") }</div>
             <div className="expense-detail user optional">
                 <UserAvatar userId={expense.userId} size={25} onClick={
