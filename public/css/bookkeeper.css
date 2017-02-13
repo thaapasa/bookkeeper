@@ -61,7 +61,8 @@ html, body {
 .expense-detail.title       { flex-grow: 1; width: 10em; min-width: 5em; }
 .expense-detail.receiver    { flex-grow: 1; width: 10em; min-width: 5em; }
 .expense-detail.category    { flex-grow: 1; width: 15em; min-width: 2em; }
-.expense-detail.source      { width:  3.1em; margin-top: 0.7em; margin-bottom: 0.2em; }
+.expense-detail.source      { width:  3.1em;  }
+.expense-item > .expense-detail.source { margin-top: 0.7em; margin-bottom: 0.2em; }
 .expense-detail.sum,
 .expense-detail.balance     { width:  5em; text-align: right; }
 .expense-detail.sum         { width: 6em; min-width: 5em; }

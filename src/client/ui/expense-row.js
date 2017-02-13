@@ -121,7 +121,7 @@ export default class ExpenseRow extends React.Component {
 
     render() {
         const expense = this.props.expense;
-        const className = "expense-row" + (expense.confirmed ? "" : " unconfirmed");
+        const className = "expense-row expense-item" + (expense.confirmed ? "" : " unconfirmed");
         const style = {};
         if (!expense.confirmed) {
             style.background = colors.unconfirmedStripes;
