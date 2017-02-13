@@ -25,3 +25,13 @@ function NotFoundError(code, name) {
 }
 NotFoundError.prototype = new Error();
 module.exports.NotFoundError = NotFoundError;
+
+function AuthenticationError(code, cause, data) {
+    this.status = 401;
+    this.code = code;
+    this.cause = cause;
+    this.data = data;
+    return this;
+}
+AuthenticationError.prototype = new Error();
+module.exports.AuthenticationError = AuthenticationError;

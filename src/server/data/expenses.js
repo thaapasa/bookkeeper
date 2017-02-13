@@ -30,8 +30,8 @@ const countTotalSelect = "SELECT " +
     "LEFT JOIN expense_division d2 ON (d2.expense_id = e.id AND d2.user_id = $1::INTEGER AND d2.type='cost') " +
     "WHERE group_id=$2::INTEGER AND date >= $3::DATE AND date < $4::DATE) breakdown";
 
-function getAll(groupId, userId) {
-    return db.queryList("expenses.get_all",
+function getAll(tx) {
+    return (groupId, userId) => tx.queryList("expenses.get_all",
         `${expenseSelect} WHERE group_id=$2 ${order}`,
         [userId, groupId])
         .then(l => l.map(mapExpense));
@@ -133,9 +133,9 @@ function createExpense(userId, groupId, expense, defaultSourceId) {
         log.info("Creating expense", expense);
         const sourceId = expense.sourceId || defaultSourceId;
         return Promise.all([
-            categories.getById(groupId, expense.categoryId),
-            users.getById(groupId, expense.userId),
-            sources.getById(groupId, sourceId)
+            categories.tx.getById(tx)(groupId, expense.categoryId),
+            users.tx.getById(tx)(groupId, expense.userId),
+            sources.tx.getById(tx)(groupId, sourceId)
         ]).then(a => {
             const cat = a[0];
             const user = a[1];
@@ -160,8 +160,8 @@ function updateExpense(tx) {
         log.info("Updating expense", original, "to", expense);
         const sourceId = expense.sourceId || defaultSourceId;
         return Promise.all([
-            categories.getById(original.groupId, expense.categoryId),
-            sources.getById(original.groupId, sourceId)
+            categories.tx.getById(tx)(original.groupId, expense.categoryId),
+            sources.tx.getById(tx)(original.groupId, sourceId)
         ]).then(a => {
             const cat = a[0];
             const source = a[1];
@@ -185,14 +185,14 @@ function updateExpenseById(groupId, userId, expenseId, expense, defaultSourceId)
     )
 }
 
-function queryReceivers(groupId, receiver) {
-    return db.queryList("expenses.receiver_search",
+function queryReceivers(tx) {
+    return (groupId, receiver) => tx.queryList("expenses.receiver_search",
         "SELECT receiver, COUNT(*) AS AMOUNT FROM expenses WHERE group_id=$1 AND receiver ILIKE $2 GROUP BY receiver ORDER BY amount DESC",
         [ groupId, `%${receiver}%` ]);
 }
 
 module.exports = {
-    getAll: getAll,
+    getAll: getAll(db),
     getBetween: getBetween(db),
     getByMonth: getByMonth,
     getById: getById(db),
@@ -200,5 +200,8 @@ module.exports = {
     deleteById: deleteById(db),
     create: createExpense,
     update: updateExpenseById,
-    queryReceivers: queryReceivers
+    queryReceivers: queryReceivers(db),
+    tx: {
+        getById: getById
+    }
 };

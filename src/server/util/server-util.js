@@ -4,6 +4,7 @@ const log = require("./../../shared/util/log");
 const config = require("../config");
 const sessions = require("../data/sessions");
 const moment = require("moment");
+const db = require("../data/db");
 
 function handleError(res) {
     return e => {
@@ -34,7 +35,7 @@ function processRequest(handler, groupRequired) {
         log.debug(req.method, req.url);
         try {
             const token = getToken(req);
-            sessions.getSession(token, req.query.groupId)
+            sessions.tx.getSession(db)(token, req.query.groupId)
                 .then(checkGroup(groupRequired))
                 .then(session => handler(session, req, res))
                 .then(r => setNoCacheHeaders(res).json(r))

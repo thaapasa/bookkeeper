@@ -14,9 +14,9 @@ function camelCaseObject(o) {
 
 const pool = new Pool(Object.assign({ Promise: require("bluebird") }, config.db));
 
-function queryFor(client, doRelease) {
+function queryFor(client, doRelease, id) {
     return (name, query, params, mapper) => {
-        log.debug("SQL query", name, query, "with params", params);
+        log.debug((id ? `[${id}] SQL query` : "[db] SQL query"), name, query, "with params", params);
         return client.query({text: query, name: name, values: params})
             .then(res => {
                 const obj = mapper(res);
@@ -34,6 +34,7 @@ class BookkeeperDB {
 
     constructor(query) {
         this.query = query;
+        this.counter = 0;
     }
 
     queryObject(name, query, params) {
@@ -46,18 +47,21 @@ class BookkeeperDB {
             .then(l => l.map(r => camelCaseObject(r)));
     }
 
-    transaction(f) {
-        log.debug("Starting transaction");
-        return pool.connect().then(client => client.query("BEGIN")
-            .then(() => f(new BookkeeperDB(queryFor(client, false))))
+    transaction(f, readOnly) {
+        const mode = readOnly ? "READ ONLY" : "READ WRITE";
+        this.counter += 1;
+        const txId = this.counter;
+        log.debug(`Starting ${mode} transaction ${txId}`);
+        return pool.connect().then(client => client.query(`BEGIN ${mode}`)
+            .then(() => f(new BookkeeperDB(queryFor(client, false, txId))))
             .then(res => {
-                log.debug("Committing transaction");
+                log.debug(`Committing transaction ${txId}`);
                 client.query("COMMIT");
                 client.release();
                 return res;
             })
             .catch(e => {
-                log.debug("Rolling back transaction because of error", e);
+                log.debug(`Rolling back transaction ${txId} because of error`, e);
                 client.query("ROLLBACK");
                 client.release();
                 log.error("Query error", e.message, e.stack);

@@ -19,18 +19,18 @@ function createGroupObject(rows) {
 }
 
 const select = "SELECT s.id, s.group_id, name, abbreviation, image, " +
-    "  (SELECT SUM(share) FROM source_users WHERE source_id = s.id)::INTEGER AS shares, so.user_id, so.share " +
+    "(SELECT SUM(share) FROM source_users WHERE source_id = s.id)::INTEGER AS shares, so.user_id, so.share " +
     "FROM sources s " +
     "LEFT JOIN source_users so ON (so.source_id = s.id)";
 
-function getAll(groupId) {
-    return db.queryList("sources.get_all",
+function getAll(tx) {
+    return (groupId) => tx.queryList("sources.get_all",
         `${select} WHERE group_id = $1::INTEGER`, [ groupId ])
         .then(createGroupObject);
 }
 
-function getById(groupId, id) {
-    return db.queryList("sources.get_by_id",
+function getById(tx) {
+    return (groupId, id) => tx.queryList("sources.get_by_id",
         `${select} WHERE id=$1::INTEGER AND group_id=$2::INTEGER`, [ id, groupId ])
         .then(errors.emptyToError(errors.NotFoundError, "SOURCE_NOT_FOUND", "source"))
         .then(createGroupObject)
@@ -39,6 +39,10 @@ function getById(groupId, id) {
 
 
 module.exports = {
-    getAll: getAll,
-    getById: getById
+    getAll: getAll(db),
+    getById: getById(db),
+    tx: {
+        getById: getById,
+        getAll: getAll
+    }
 };
