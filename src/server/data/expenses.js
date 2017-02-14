@@ -23,11 +23,17 @@ const expenseSelect = "SELECT id, date::DATE, receiver, e.sum::MONEY::NUMERIC, t
 const order = "ORDER BY date ASC, title ASC, id";
 
 const countTotalSelect = "SELECT " +
-    "COALESCE(SUM(benefit), '0.00'::NUMERIC::MONEY)::MONEY::NUMERIC as benefit, " +
-    "COALESCE(SUM(cost), '0.00'::NUMERIC::MONEY)::MONEY::NUMERIC AS cost FROM " +
-    "(SELECT e.sum, d1.sum AS benefit, d2.sum AS cost FROM expenses e " +
-    "LEFT JOIN expense_division d1 ON (d1.expense_id = e.id AND d1.user_id = $1::INTEGER AND d1.type='benefit') " +
-    "LEFT JOIN expense_division d2 ON (d2.expense_id = e.id AND d2.user_id = $1::INTEGER AND d2.type='cost') " +
+    "COALESCE(SUM(benefit), '0.00'::NUMERIC) as benefit, " +
+    "COALESCE(SUM(cost), '0.00'::NUMERIC) AS cost, " +
+    "COALESCE(SUM(income), '0.00'::NUMERIC) AS income, " +
+    "COALESCE(SUM(split), '0.00'::NUMERIC) AS split " +
+    "FROM (SELECT " +
+    "(CASE WHEN d.type = 'cost' THEN d.sum::NUMERIC ELSE 0::NUMERIC END) AS cost, " +
+    "(CASE WHEN d.type = 'benefit' THEN d.sum::NUMERIC ELSE 0::NUMERIC END) AS benefit, " +
+    "(CASE WHEN d.type = 'income' THEN d.sum::NUMERIC ELSE 0::NUMERIC END) AS income, " +
+    "(CASE WHEN d.type = 'split' THEN d.sum::NUMERIC ELSE 0::NUMERIC END) AS split " +
+    "FROM expenses e " +
+    "LEFT JOIN expense_division d ON (d.expense_id = e.id AND d.user_id = $1::INTEGER) " +
     "WHERE group_id=$2::INTEGER AND date >= $3::DATE AND date < $4::DATE) breakdown";
 
 function getAll(tx) {

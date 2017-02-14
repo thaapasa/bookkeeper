@@ -52,6 +52,23 @@ SELECT
     LEFT JOIN expense_division d2 ON (d2.expense_id = e.id AND d2.user_id = 1 AND d2.type='cost')
     WHERE group_id=1 AND date >= '2017-01-01'::DATE AND date < '2017-02-01'::DATE) breakdown;
 
+-- Totals as sum select from fully expanded table with different types as different columns
+EXPLAIN ANALYSE
+SELECT
+  COALESCE(SUM(benefit), '0.00'::NUMERIC) as benefit,
+  COALESCE(SUM(cost), '0.00'::NUMERIC) AS cost,
+  COALESCE(SUM(income), '0.00'::NUMERIC) AS income,
+  COALESCE(SUM(split), '0.00'::NUMERIC) AS split
+FROM (SELECT
+     (CASE WHEN d.type = 'cost' THEN d.sum::NUMERIC ELSE 0::NUMERIC END) AS cost,
+     (CASE WHEN d.type = 'benefit' THEN d.sum::NUMERIC ELSE 0::NUMERIC END) AS benefit,
+     (CASE WHEN d.type = 'income' THEN d.sum::NUMERIC ELSE 0::NUMERIC END) AS income,
+     (CASE WHEN d.type = 'split' THEN d.sum::NUMERIC ELSE 0::NUMERIC END) AS split
+   FROM expenses e
+    LEFT JOIN expense_division d ON (d.expense_id = e.id AND d.user_id = 1)
+  WHERE group_id=1 AND date >= '2017-01-01'::DATE AND date < '2017-02-01'::DATE) breakdown;
+
+
 -- Find out if there are unconfirmed expenses
 SELECT COUNT(*) FROM expenses WHERE group_id=1 AND date < '2017-03-01'::DATE AND confirmed=false;
 
