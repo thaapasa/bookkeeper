@@ -107,7 +107,7 @@ export default class ExpenseTable extends React.Component {
             { this.props.loading ?
                 <div className="expense-row loading-indicator-big"><CircularProgress size={80} thickness={5}/></div> :
                 (this.state.filters.length > 0 ?
-                    [ <div className="expense-row">
+                    [ <div className="expense-row" key="filters">
                         <div className="expense-filters">{
                             this.state.filters.map((f, index) => <Chip
                                 key={index}

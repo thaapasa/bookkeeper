@@ -100,11 +100,12 @@ export default class ExpenseRow extends React.Component {
 
     getSource(sourceId) {
         const source = state.get("sourceMap")[sourceId];
-        if (source.image) {
-            return <img src={source.image} title={source.name} style={{ maxWidth: "48px", maxHeight: "24px" }} />
-        } else {
-            return source.abbreviation ? source.abbreviation : source.name;
-        }
+        const content = source.image ?
+            <img src={source.image} title={source.name} style={{ maxWidth: "48px", maxHeight: "24px" }} /> :
+            (source.abbreviation ? source.abbreviation : source.name);
+        const avatar = source.image ? source.image : undefined;
+        return <a href="#" key={source.id} onClick={
+            () => this.props.addFilter(e => e.sourceId == sourceId, source.name, avatar)}>{ content }</a>
     }
 
     updateExpense(data) {
