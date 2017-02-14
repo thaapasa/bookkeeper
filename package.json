@@ -1,6 +1,6 @@
 {
   "name": "bookkeeper",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "main": "bookkeeper-server.js",
   "scripts": {
     "start": "npm run update:revision && npm run start:server",
