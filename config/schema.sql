@@ -78,7 +78,7 @@ COMMENT ON TABLE categories IS 'Expense categories';
 
 
 CREATE TYPE expense_type AS ENUM ('expense', 'income');
-COMMENT ON TYPE expense_division_type IS 'Expense is split to cost and benefit, income is split to income and split';
+COMMENT ON TYPE expense_type IS 'Expense is split to cost and benefit, income is split to income and split';
 
 CREATE TYPE expense_division_type AS ENUM ('cost', 'benefit', 'income', 'split');
 COMMENT ON TYPE expense_division_type IS 'Expenses are divided into items of this type. Cost (negative) and benefit (positive) must sum to zero; similarly income (positive) and split (negative)';
