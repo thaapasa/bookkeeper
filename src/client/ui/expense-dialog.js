@@ -13,9 +13,9 @@ import * as categories from  "../data/categories";
 import * as apiConnect from "../data/api-connect";
 import * as state from "../data/state";
 import * as time from "../../shared/util/time";
-import {SumField, TitleField, CategorySelector, SourceSelector, DateField, ReceiverField, DescriptionField} from "./expense-dialog-components";
-const moment = require("moment");
+import {SumField, TypeSelector, TitleField, CategorySelector, SourceSelector, DateField, ReceiverField, DescriptionField} from "./expense-dialog-components";
 import {expenseName} from "./expense-helper";
+const moment = require("moment");
 
 function findParentCategory(categoryId) {
     const map = state.get("categoryMap");
@@ -45,7 +45,8 @@ const fields = {
     "sum": { default: "", parse: v => v.replace(/,/, "."), validate: v => errorIf(v.length == 0, "Summa puuttuu") || errorIf(v.match(/^[0-9]+([.][0-9]{1,2})?$/) == null, "Summa on virheellinen") },
     "userId": { default: () => state.get("user").id, read: (e) => e.userId },
     "date": { default: () => moment().toDate(), read: (e) => time.fromDate(e.date).toDate() },
-    "benefit": { default: () => [state.get("user").id], read: (e) => e.division.filter(d => d.type === "benefit").map(d => d.userId),
+    "benefit": { default: () => [state.get("user").id],
+        read: (e) => e.division.filter(d => d.type === (e.type === "expense" ? "benefit" : "split")).map(d => d.userId),
         validate: (v) => errorIf(v.length < 1, "Jonkun pitää hyötyä") },
     "description": { default: "", read: (e) => e.description || "" },
     "id": { default: undefined, read: e => e ? e.id : undefined },
@@ -81,6 +82,26 @@ function calculateCost(sum, sourceId, benefit) {
 
 function allTrue() {
     return Array.prototype.slice.call(arguments).reduce((a, b) => a && b, true);
+}
+
+function fixItem(type) {
+    return (item) => {
+        item.sum = item.sum.toString();
+        item.type = type;
+        return item;
+    }
+}
+
+function calculateDivision(expense, sum) {
+    if (expense.type === "expense") {
+        const benefit = splitter.splitByShares(sum, expense.benefit.map(id => ({ userId: id, share: 1 })));
+        const cost = calculateCost(sum, expense.sourceId, benefit);
+        return benefit.map(fixItem("benefit")).concat(cost.map(fixItem("cost")));
+    } else {
+        const income = [{ userId: expense.userId, sum: sum }];
+        const split = splitter.negateDivision(splitter.splitByShares(sum, expense.benefit.map(id => ({ userId: id, share: 1 }))));
+        return income.map(fixItem("income")).concat(split.map(fixItem("split")));
+    }
 }
 
 export default class ExpenseDialog extends React.Component {
@@ -180,11 +201,7 @@ export default class ExpenseDialog extends React.Component {
     saveExpense(expense) {
         const createNew = !expense.id;
         const sum = Money.from(expense.sum);
-        const benefit = splitter.splitByShares(sum, expense.benefit.map(id => ({ userId: id, share: 1 })));
-        const cost = calculateCost(sum, expense.sourceId, benefit);
-        const division = [];
-        benefit.forEach(b => division.push({ userId: b.userId, sum: b.sum.toString(), type: "benefit" }));
-        cost.forEach(b => division.push({ userId: b.userId, sum: b.sum.toString(), type: "cost" }));
+        const division = calculateDivision(expense, sum);
         const data = Object.assign({}, expense, {
             division: division,
             date: time.date(expense.date),
@@ -255,6 +272,9 @@ export default class ExpenseDialog extends React.Component {
                     </div>
                     <div style={{ marginLeft: "2em", display: "inline-block", verticalAlign: "middle" }}>
                         <Checkbox label="Alustava" checked={!this.state.confirmed} onCheck={(e,v) => this.inputStreams.confirmed.push(!v)}/>
+                    </div>
+                    <div style={{ marginLeft: "2em", display: "inline-block", verticalAlign: "middle" }}>
+                        <TypeSelector value={this.state.type} onChange={v => this.inputStreams.type.push(v)} />
                     </div>
                 </div>
                 <TitleField

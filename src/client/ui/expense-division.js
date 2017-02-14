@@ -27,10 +27,9 @@ function divisionItem(sum) {
     </div>
 }
 
+const divisionTypes = ["cost", "benefit", "income", "split"];
 function getBalance(data) {
-    const cost = Money.orZero(data.cost);
-    const benefit = Money.orZero(data.benefit);
-    return cost.plus(benefit).negate();
+    return divisionTypes.map(t => Money.orZero(data[t])).reduce((a, b) => a.plus(b), Money.zero);
 }
 
 
