@@ -23,14 +23,39 @@ FROM (SELECT s.id, s.group_id, name, (SELECT SUM(share) FROM source_users WHERE 
   LEFT JOIN source_users so ON (so.source_id = org.id);
 
 -- Expenses between two dates
-SELECT id, date::DATE, receiver, e.sum::MONEY::NUMERIC, description, source_id, e.user_id, created_by_id,
-  group_id, category_id, created,
+EXPLAIN ANALYSE
+SELECT id, date::DATE, receiver, e.type, e.sum::MONEY::NUMERIC, title, description, confirmed,
+    source_id, e.user_id, created_by_id, group_id, category_id, created,
   COALESCE(d1.sum, '0.00'::NUMERIC::MONEY)::MONEY::NUMERIC AS user_benefit,
   COALESCE(d2.sum, '0.00'::NUMERIC::MONEY)::MONEY::NUMERIC AS user_cost,
+  COALESCE(d3.sum, '0.00'::NUMERIC::MONEY)::MONEY::NUMERIC AS user_income,
+  COALESCE(d4.sum, '0.00'::NUMERIC::MONEY)::MONEY::NUMERIC AS user_split,
   (COALESCE(d1.sum, '0.00'::NUMERIC::MONEY) + COALESCE(d2.sum, '0.00'::NUMERIC::MONEY))::MONEY::NUMERIC AS user_value FROM expenses e
   LEFT JOIN expense_division d1 ON (d1.expense_id = e.id AND d1.user_id = 1 AND d1.type='benefit')
   LEFT JOIN expense_division d2 ON (d2.expense_id = e.id AND d2.user_id = 1 AND d2.type='cost')
-  WHERE group_id=1 AND date >= '2017-01-01'::DATE AND date < '2017-02-01'::DATE ORDER BY DATE ASC;
+  LEFT JOIN expense_division d3 ON (d3.expense_id = e.id AND d3.user_id = 1 AND d3.type='income')
+  LEFT JOIN expense_division d4 ON (d4.expense_id = e.id AND d4.user_id = 1 AND d4.type='split')
+  WHERE group_id=1 AND date >= '2017-01-01'::DATE AND date < '2017-03-01'::DATE ORDER BY DATE ASC;
+
+EXPLAIN ANALYSE
+SELECT MIN(id) AS id, MIN(date) AS date, MIN(receiver) AS receiver, MIN(type) AS type, MIN(sum) AS sum,
+  MIN(title) AS title, MIN(description) AS description, BOOL_AND(confirmed) AS confirmed, MIN(source_id) AS source_id,
+  MIN(user_id) AS user_id, MIN(created_by_id) AS created_by_id, MIN(group_id) AS group_id, MIN(category_id) AS category_id,
+  MIN(created) AS created,
+  SUM(cost) AS user_cost, SUM(benefit) AS user_benefit, SUM(income) AS user_income, SUM(split) AS user_split,
+  SUM(cost + benefit + income + split) AS user_value
+FROM
+  (SELECT id, date::DATE, receiver, e.type, e.sum::MONEY::NUMERIC, title, description, confirmed,
+  source_id, e.user_id, created_by_id, group_id, category_id, created,
+  (CASE WHEN d.type = 'cost' THEN d.sum::NUMERIC ELSE 0::NUMERIC END) AS cost,
+  (CASE WHEN d.type = 'benefit' THEN d.sum::NUMERIC ELSE 0::NUMERIC END) AS benefit,
+  (CASE WHEN d.type = 'income' THEN d.sum::NUMERIC ELSE 0::NUMERIC END) AS income,
+  (CASE WHEN d.type = 'split' THEN d.sum::NUMERIC ELSE 0::NUMERIC END) AS split
+  FROM expenses e
+  LEFT JOIN expense_division d ON (d.expense_id = e.id AND d.user_id = 1)
+WHERE group_id=1 AND date >= '2017-01-01'::DATE AND date < '2017-03-01'::DATE ORDER BY DATE ASC) breakdown
+GROUP BY id;
+
 
 -- Totals as two subqueries
 EXPLAIN ANALYSE
@@ -66,7 +91,7 @@ FROM (SELECT
      (CASE WHEN d.type = 'split' THEN d.sum::NUMERIC ELSE 0::NUMERIC END) AS split
    FROM expenses e
     LEFT JOIN expense_division d ON (d.expense_id = e.id AND d.user_id = 1)
-  WHERE group_id=1 AND date >= '2017-01-01'::DATE AND date < '2017-02-01'::DATE) breakdown;
+  WHERE group_id=1 AND date >= '2017-01-01'::DATE AND date < '2017-03-01'::DATE) breakdown;
 
 
 -- Find out if there are unconfirmed expenses

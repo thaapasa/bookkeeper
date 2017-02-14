@@ -14,14 +14,26 @@ const errors = require("../util/errors");
 const splitter = require("../../shared/util/splitter");
 const expenseDivision = require("./expense-division");
 
-const expenseSelect = "SELECT id, date::DATE, receiver, e.type, e.sum::MONEY::NUMERIC, title, description, confirmed, " +
-    "source_id, e.user_id, created_by_id, group_id, category_id, created, " +
-    "COALESCE(d1.sum, '0.00'::NUMERIC::MONEY)::MONEY::NUMERIC AS user_benefit, " +
-    "COALESCE(d2.sum, '0.00'::NUMERIC::MONEY)::MONEY::NUMERIC AS user_cost, " +
-    "(COALESCE(d1.sum, '0.00'::NUMERIC::MONEY) + COALESCE(d2.sum, '0.00'::NUMERIC::MONEY))::MONEY::NUMERIC AS user_value FROM expenses e " +
-    "LEFT JOIN expense_division d1 ON (d1.expense_id = e.id AND d1.user_id = $1 AND d1.type='benefit') " +
-    "LEFT JOIN expense_division d2 ON (d2.expense_id = e.id AND d2.user_id = $1 AND d2.type='cost')";
-const order = "ORDER BY date ASC, title ASC, id";
+function expenseSelect(where) {
+    return "SELECT MIN(id) AS id, MIN(date) AS date, MIN(receiver) AS receiver, MIN(type) AS type, MIN(sum) AS sum, " +
+        "MIN(title) AS title, MIN(description) AS description, BOOL_AND(confirmed) AS confirmed, MIN(source_id) AS source_id, " +
+        "MIN(user_id) AS user_id, MIN(created_by_id) AS created_by_id, MIN(group_id) AS group_id, MIN(category_id) AS category_id, " +
+        "MIN(created) AS created, " +
+        "SUM(cost) AS user_cost, SUM(benefit) AS user_benefit, SUM(income) AS user_income, SUM(split) AS user_split, " +
+        "SUM(cost + benefit + income + split) AS user_value " +
+        "FROM " +
+        "(SELECT id, date::DATE, receiver, e.type, e.sum::MONEY::NUMERIC, title, description, confirmed, " +
+        "source_id, e.user_id, created_by_id, group_id, category_id, created, " +
+        "(CASE WHEN d.type = 'cost' THEN d.sum::NUMERIC ELSE 0::NUMERIC END) AS cost, " +
+        "(CASE WHEN d.type = 'benefit' THEN d.sum::NUMERIC ELSE 0::NUMERIC END) AS benefit, " +
+        "(CASE WHEN d.type = 'income' THEN d.sum::NUMERIC ELSE 0::NUMERIC END) AS income, " +
+        "(CASE WHEN d.type = 'split' THEN d.sum::NUMERIC ELSE 0::NUMERIC END) AS split " +
+        "FROM expenses e " +
+        "LEFT JOIN expense_division d ON (d.expense_id = e.id AND d.user_id = $1) " +
+        where +
+        ") breakdown " +
+        "GROUP BY id ORDER BY date ASC, title ASC, id";
+}
 
 const countTotalSelect = "SELECT " +
     "COALESCE(SUM(benefit), '0.00'::NUMERIC) as benefit, " +
@@ -39,7 +51,7 @@ const countTotalSelect = "SELECT " +
 
 function getAll(tx) {
     return (groupId, userId) => tx.queryList("expenses.get_all",
-        `${expenseSelect} WHERE group_id=$2 ${order}`,
+        expenseSelect(`WHERE group_id=$2`),
         [userId, groupId])
         .then(l => l.map(mapExpense));
 }
@@ -79,7 +91,7 @@ function getBetween(tx) {
     return (groupId, userId, startDate, endDate) => {
         log.debug("Querying for expenses between", time.iso(startDate), "and", time.iso(endDate), "for group", groupId);
         return tx.queryList("expenses.get_between",
-            `${expenseSelect} WHERE group_id=$2 AND date >= $3::DATE AND date < $4::DATE ${order}`,
+            expenseSelect(`WHERE group_id=$2 AND date >= $3::DATE AND date < $4::DATE`),
             [userId, groupId, time.date(startDate), time.date(endDate)])
             .then(l => l.map(mapExpense));
     }
@@ -100,7 +112,7 @@ function hasUnconfirmedBefore(tx) {
 
 function getById(tx) {
     return (groupId, userId, expenseId) => tx.queryObject("expenses.get_by_id",
-        `${expenseSelect} WHERE id=$2 AND group_id=$3`,
+        expenseSelect(`WHERE id=$2 AND group_id=$3`),
         [userId, expenseId, groupId])
         .then(mapExpense);
 }
