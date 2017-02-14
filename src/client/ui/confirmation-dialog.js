@@ -3,6 +3,7 @@ import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import * as state from  "../data/state";
 import {KeyCodes} from "../util/io"
+import {unsubscribeAll} from "../util/client-util";
 
 const fields = {
     "title": { default: "Title" },
@@ -48,11 +49,12 @@ export default class ConfirmationDialog extends React.Component {
     }
 
     componentDidMount() {
-        this.unsubState = state.get("confirmationDialogStream").onValue(d => this.handleOpen(d));
+        this.unsub = [];
+        this.unsub.push(state.get("confirmationDialogStream").onValue(d => this.handleOpen(d)));
     }
 
     componentWillUnmount() {
-        this.unsubState();
+        unsubscribeAll(this.unsub);
     }
 
     resolveWith(value) {

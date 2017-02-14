@@ -15,6 +15,7 @@ import * as state from "../data/state";
 import * as time from "../../shared/util/time";
 import {SumField, TypeSelector, TitleField, CategorySelector, SourceSelector, DateField, ReceiverField, DescriptionField} from "./expense-dialog-components";
 import {expenseName} from "./expense-helper";
+import {unsubscribeAll} from "../util/client-util";
 const moment = require("moment");
 
 function findParentCategory(categoryId) {
@@ -128,12 +129,15 @@ export default class ExpenseDialog extends React.Component {
     }
 
     componentDidMount() {
-        state.get("expenseDialogStream").onValue(e => this.handleOpen(e));
+        this.unsub = [];
+        this.unsub.push(state.get("expenseDialogStream").onValue(e => this.handleOpen(e)));
 
         this.inputStreams = {};
         this.submitStream = new Bacon.Bus();
+        this.unsub.push(this.submitStream);
         Object.keys(fields).forEach(k => {
             this.inputStreams[k] = new Bacon.Bus();
+            this.unsub.push(this.inputStreams[k]);
         });
 
         const validity = {};
@@ -169,8 +173,7 @@ export default class ExpenseDialog extends React.Component {
     }
 
     componentWillUnmount() {
-        Object.keys(this.inputStreams).forEach(s => this.inputStreams[s].end());
-        this.submitStream.end();
+        unsubscribeAll(this.unsub);
     }
 
     updateCategoriesAndSources() {

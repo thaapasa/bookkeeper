@@ -2,9 +2,10 @@ import React from "react"
 import ExpenseTable from "./expense-table"
 import * as Bacon from "baconjs"
 import ExpenseNavigation from "./expense-navigation"
-const moment = require("moment");
 import * as state from "../data/state";
 import * as apiConnect from "../data/api-connect";
+import {unsubscribeAll} from "../util/client-util";
+const moment = require("moment");
 
 export default class MonthView extends React.Component {
 
@@ -15,23 +16,23 @@ export default class MonthView extends React.Component {
     }
 
     componentDidMount() {
+        this.unsub = [];
         this.loadExpenses = new Bacon.Bus();
+        this.unsub.push(this.loadExpenses);
         const expensesFromServer = this.loadExpenses.flatMapLatest(date => Bacon.fromPromise(apiConnect.getExpensesForMonth(date.year(), date.month() + 1)));
-        this.unsubscribeExpensesUpdatedStream = state.get("expensesUpdatedStream").onValue(date => {
+        this.unsub.push(state.get("expensesUpdatedStream").onValue(date => {
             const d = moment(date);
             this.setState({ date: d, loading: true, expenses: [], startStatus: {}, endStatus: {}, monthStatus: {} });
             this.loadExpenses.push(d);
-        });
-        this.unsubscribeExpensesFromServer = expensesFromServer.onValue(e => {
+        }));
+        this.unsub.push(expensesFromServer.onValue(e => {
             this.setState(Object.assign({ loading: false }, e));
-        });
+        }));
         state.updateExpenses(moment());
     }
 
     componentWillUnmount() {
-        this.loadExpenses.end();
-        this.unsubscribeExpensesFromServer();
-        this.unsubscribeExpensesUpdatedStream();
+        unsubscribeAll(this.unsub);
     }
 
     onUpdateExpense(id, data) {
