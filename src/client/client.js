@@ -7,6 +7,9 @@ import LoginPage from "./ui/login-page"
 import injectTapEventPlugin from "react-tap-event-plugin"
 import MuiThemeProvider from "material-ui/styles/MuiThemeProvider"
 import * as login from "./data/login"
+import * as log from "../shared/util/log"
+
+window.log = log;
 
 function init() {
     injectTapEventPlugin();
@@ -24,7 +27,7 @@ class Bookkeeper extends React.Component {
 
     constructor(props) {
         super(props);
-        console.log("Initializing bookkeeper");
+        log.info("Initializing bookkeeper client");
         this.state = { session: undefined, initialized: false };
     }
 

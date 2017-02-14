@@ -4,12 +4,13 @@ import MonthView from "./month-view"
 import ExpenseDialog from "./expense-dialog"
 import ConfirmationDialog from "./confirmation-dialog"
 import NotificationBar from "./notification-bar"
+import * as log from "../../shared/util/log"
 
 export default class BookkeeperPage extends React.Component {
 
     constructor(props) {
         super(props);
-        console.log("Initializing bookkeeper");
+        log.info("Initializing bookkeeper page");
         const session = this.props.session;
         this.state = {
             session: session,
