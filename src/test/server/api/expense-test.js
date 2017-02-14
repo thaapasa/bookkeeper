@@ -114,8 +114,8 @@ describe("expense", function() {
         )));
 
     it("should have new expense in month view", () => Promise.all([
-        newExpense(session, {date: "2017-01-22", title:"Osuu"}),
-        newExpense(session, {date: "2017-02-01", title:"Ei osu"}) ])
+        newExpense(session, { date: "2017-01-22", title: "Osuu" }),
+        newExpense(session, { date: "2017-02-01", title: "Ei osu" }) ])
         .then(c => session.get("/api/expense/month", { year: 2017, month: 1 })
             .then(s =>
                 expect(s.expenses.find(e => e.id === c[0].expenseId)).to.be.an("object").that.contains({ title: "Osuu" }) &&
