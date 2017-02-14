@@ -2,6 +2,10 @@ html, body {
     font-family: Roboto, sans-serif;
 }
 
+[tabindex] {
+    outline: none !important;
+}
+
 .user-avatar.unselected {
     filter: grayscale(100%) opacity(40%);
 }
