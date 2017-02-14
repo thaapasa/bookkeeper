@@ -12,8 +12,9 @@ const users = require("./users");
 const sources = require("./sources");
 const errors = require("../util/errors");
 const splitter = require("../../shared/util/splitter");
+const expenseDivision = require("./expense-division");
 
-const expenseSelect = "SELECT id, date::DATE, receiver, e.sum::MONEY::NUMERIC, title, description, confirmed, " +
+const expenseSelect = "SELECT id, date::DATE, receiver, e.type, e.sum::MONEY::NUMERIC, title, description, confirmed, " +
     "source_id, e.user_id, created_by_id, group_id, category_id, created, " +
     "COALESCE(d1.sum, '0.00'::NUMERIC::MONEY)::MONEY::NUMERIC AS user_benefit, " +
     "COALESCE(d2.sum, '0.00'::NUMERIC::MONEY)::MONEY::NUMERIC AS user_cost, " +
@@ -44,7 +45,7 @@ function getAll(tx) {
 }
 
 function calculateBalance(o) {
-    const value = Money.from(o.cost).plus(o.benefit);
+    const value = Money.from(o.cost).plus(o.benefit).plus(o.income).plus(o.split);
     return Object.assign(o, {
         value: value.toString(),
         balance: value.negate().toString()
@@ -61,7 +62,7 @@ function getByMonth(groupId, userId, year, month) {
         hasUnconfirmedBefore(tx)(groupId, startDate)
     ])).then(a => ({ expenses: a[0], startStatus: calculateBalance(a[1]), monthStatus: calculateBalance(a[2]), unconfirmedBefore: a[3] }))
         .then(a => {
-            a.endStatus = arrays.toObject(["benefit", "cost", "value", "balance"].map(key =>
+            a.endStatus = arrays.toObject(["benefit", "cost", "income", "split", "value", "balance"].map(key =>
                 [key, Money.from(a.startStatus[key]).plus(a.monthStatus[key]).toString()]));
             return a;
         });
@@ -110,13 +111,6 @@ function deleteById(tx) {
         .then(i => ({ status: "OK", message: "Expense deleted", expenseId: expenseId }));
 }
 
-function validateDivision(items, sum, field) {
-    const calculated = items.map(i => i.sum).reduce((a, b) => a.plus(b), Money.zero);
-    if (!sum.equals(calculated)) throw new validator.InvalidInputError(field, calculated,
-        `Division sum must match expense sum ${sum.toString()}, is ${calculated.toString()}`);
-    return items;
-}
-
 function storeDivision(tx) {
     return (expenseId, userId, type, sum) => tx.insert("expense.create.division",
         "INSERT INTO expense_division (expense_id, user_id, type, sum) " +
@@ -134,14 +128,9 @@ function getDivision(tx) {
         [expenseId]);
 }
 
-function getCostFromSource(sum, source) {
-    return splitter.negateDivision(splitter.splitByShares(sum, source.users.map(u => ({ userId: u.userId, share: u.share }))));
-}
-
 function createDivision(tx) {
-    return (expenseId, benefit, cost) => Promise.all(
-        benefit.map(d => storeDivision(tx)(expenseId, d.userId, "benefit", d.sum)).concat(
-            cost.map(d => storeDivision(tx)(expenseId, d.userId, "cost", d.sum)))).then(u => expenseId)
+    return (expenseId, division) => Promise.all(
+        division.map(d => storeDivision(tx)(expenseId, d.userId, d.type, d.sum))).then(u => expenseId)
 }
 
 function setDefaults(expense) {
@@ -163,16 +152,15 @@ function createExpense(userId, groupId, expense, defaultSourceId) {
             const cat = a[0];
             const user = a[1];
             const source = a[2];
-            const givenCost = expense.division ? expense.division.filter(d => d.type === "cost") : [];
-            const givenBenefit = expense.division ? expense.division.filter(d => d.type === "benefit") : [];
-            const cost = givenCost.length > 0 ? validateDivision(givenCost, expense.sum.negate(), "cost") : getCostFromSource(expense.sum, source);
-            const benefit = givenBenefit.length > 0 ? validateDivision(givenBenefit, expense.sum, "benefit") : splitter.negateDivision(cost);
+            const division = expenseDivision.determineDivision(expense, source);
             return tx.insert("expenses.create",
-                "INSERT INTO expenses (created_by_id, user_id, group_id, date, created, receiver, sum, title, description, confirmed, source_id, category_id) " +
-                "VALUES ($1::INTEGER, $2::INTEGER, $3::INTEGER, $4::DATE, NOW(), $5, $6::NUMERIC::MONEY, $7, $8, $9::BOOLEAN, $10::INTEGER, $11::INTEGER) RETURNING id",
-                [userId, user.id, groupId, expense.date, expense.receiver, expense.sum.toString(), expense.title, expense.description, expense.confirmed,
-                    source.id, cat.id])
-                .then(expenseId => createDivision(tx)(expenseId, benefit, cost))
+                "INSERT INTO expenses (created_by_id, user_id, group_id, date, created, type, receiver, sum, title, " +
+                "description, confirmed, source_id, category_id) " +
+                "VALUES ($1::INTEGER, $2::INTEGER, $3::INTEGER, $4::DATE, NOW(), $5::expense_type, $6, " +
+                "$7::NUMERIC::MONEY, $8, $9, $10::BOOLEAN, $11::INTEGER, $12::INTEGER) RETURNING id",
+                [userId, user.id, groupId, expense.date, expense.type, expense.receiver, expense.sum.toString(),
+                    expense.title, expense.description, expense.confirmed, source.id, cat.id])
+                .then(expenseId => createDivision(tx)(expenseId, division))
         }).then(id => ({status: "OK", message: "Expense created", expenseId: id}));
     });
 }
@@ -188,18 +176,15 @@ function updateExpense(tx) {
         ]).then(a => {
             const cat = a[0];
             const source = a[1];
-            const givenCost = expense.division ? expense.division.filter(d => d.type === "cost") : [];
-            const givenBenefit = expense.division ? expense.division.filter(d => d.type === "benefit") : [];
-            const cost = givenCost.length > 0 ? validateDivision(givenCost, expense.sum.negate(), "cost") : getCostFromSource(expense.sum, source);
-            const benefit = givenBenefit.length > 0 ? validateDivision(givenBenefit, expense.sum, "benefit") : splitter.negateDivision(cost);
+            const division = expenseDivision.determineDivision(expense, source);
             return deleteDivision(tx)(original.id)
                 .then(() => tx.insert("expenses.update",
                     "UPDATE expenses SET date=$2::DATE, receiver=$3, sum=$4::NUMERIC::MONEY, title=$5, description=$6, " +
-                    "confirmed=$7::BOOLEAN, source_id=$8::INTEGER, category_id=$9::INTEGER " +
+                    "type=$7::expense_type, confirmed=$8::BOOLEAN, source_id=$9::INTEGER, category_id=$10::INTEGER " +
                     "WHERE id=$1",
                     [original.id, expense.date, expense.receiver, expense.sum.toString(), expense.title,
-                        expense.description, expense.confirmed, source.id, cat.id]))
-                .then(expenseId => createDivision(tx)(original.id, benefit, cost))
+                        expense.description, expense.type, expense.confirmed, source.id, cat.id]))
+                .then(expenseId => createDivision(tx)(original.id, division))
         }).then(id => ({status: "OK", message: "Expense updated", expenseId: id}));
     }
 }
