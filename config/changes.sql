@@ -25,5 +25,8 @@ CREATE INDEX "sessions_refresh_token" ON sessions (refresh_token);
 ALTER TABLE expenses ADD COLUMN confirmed BOOLEAN NOT NULL DEFAULT TRUE;
 
 -- On 14.2.2017
-ALTER TYPE expense_type ADD VALUE 'income';
-ALTER TYPE expense_type ADD VALUE 'split';
+CREATE TYPE expense_division_type AS ENUM ('cost', 'benefit', 'income', 'split');
+ALTER TABLE expense_division ALTER COLUMN type TYPE expense_division_type USING (type::TEXT::expense_division_type);
+DROP TYPE expense_type;
+CREATE TYPE expense_type AS ENUM ('expense', 'income');
+ALTER TABLE expenses ADD COLUMN type expense_type NOT NULL DEFAULT 'expense';

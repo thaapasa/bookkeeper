@@ -120,7 +120,7 @@ function validateDivision(items, sum, field) {
 function storeDivision(tx) {
     return (expenseId, userId, type, sum) => tx.insert("expense.create.division",
         "INSERT INTO expense_division (expense_id, user_id, type, sum) " +
-        "VALUES ($1::INTEGER, $2::INTEGER, $3::expense_type, $4::NUMERIC::MONEY)",
+        "VALUES ($1::INTEGER, $2::INTEGER, $3::expense_division_type, $4::NUMERIC::MONEY)",
         [expenseId, userId, type, sum.toString()])
 }
 
