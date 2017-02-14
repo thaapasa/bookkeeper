@@ -23,3 +23,7 @@ CREATE INDEX "sessions_refresh_token" ON sessions (refresh_token);
 
 -- On 13.2.2017
 ALTER TABLE expenses ADD COLUMN confirmed BOOLEAN NOT NULL DEFAULT TRUE;
+
+-- On 14.2.2017
+ALTER TYPE expense_type ADD VALUE 'income';
+ALTER TYPE expense_type ADD VALUE 'split';

@@ -78,7 +78,8 @@ COMMENT ON TABLE categories IS 'Expense categories';
 
 
 
-CREATE TYPE expense_type AS ENUM ('cost', 'benefit');
+CREATE TYPE expense_type AS ENUM ('cost', 'benefit', 'income', 'split');
+COMMENT ON TYPE expense_type IS 'Expenses are divided into items of this type. Cost (negative) and benefit (positive) must sum to zero; similarly income (positive) and split (negative)';
 
 CREATE TABLE IF NOT EXISTS expenses (
   id SERIAL PRIMARY KEY,
