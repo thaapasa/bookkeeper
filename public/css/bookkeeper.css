@@ -28,6 +28,8 @@ html, body {
 }
 .expense-row.unconfirmed {
 }
+.expense-row.income {
+}
 .expense-row:first-of-type {
     border-top: none;
 }

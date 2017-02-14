@@ -121,10 +121,12 @@ export default class ExpenseRow extends React.Component {
 
     render() {
         const expense = this.props.expense;
-        const className = "expense-row expense-item" + (expense.confirmed ? "" : " unconfirmed");
+        const className = "expense-row expense-item " + expense.type + (expense.confirmed ? "" : " unconfirmed");
         const style = {};
         if (!expense.confirmed) {
             style.background = colors.unconfirmedStripes;
+        } else if (expense.type === "income") {
+            style.background = colors.income;
         }
         return <div key={expense.id} className={className} style={style}>
             <div className="expense-detail date">{ moment(expense.date).format("D.M.") }</div>

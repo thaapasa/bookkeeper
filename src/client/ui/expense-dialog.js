@@ -49,7 +49,8 @@ const fields = {
         validate: (v) => errorIf(v.length < 1, "Jonkun pitää hyötyä") },
     "description": { default: "", read: (e) => e.description || "" },
     "id": { default: undefined, read: e => e ? e.id : undefined },
-    "confirmed": { default: true }
+    "confirmed": { default: true },
+    "type": { default: "expense" }
 };
 
 const defaultCategory = [ { id: 0, name: "Kategoria" }];
