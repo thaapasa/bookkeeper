@@ -90,6 +90,7 @@ function registerAPI(app) {
         userId: V.positiveInt,
         date: V.matchPattern(/[0-9]{4}-[0-9]{2}-[0-9]{2}/),
         receiver: V.stringWithLength(1, 50),
+        type: V.either('expense', 'income'),
         sum: V.money,
         title: V.stringWithLength(1, 255),
         description: V.optional(V.or(V.string, V.null)),

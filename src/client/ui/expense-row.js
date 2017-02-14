@@ -5,10 +5,7 @@ import * as apiConnect from "../data/api-connect";
 import UserAvatar from "./user-avatar";
 import IconButton from 'material-ui/IconButton';
 import ActivatableTextField from "./activatable-text-field";
-import ExpandLess from "material-ui/svg-icons/navigation/expand-less"
-import ExpandMore from "material-ui/svg-icons/navigation/expand-more"
-import Delete from "material-ui/svg-icons/action/delete"
-import Edit from "material-ui/svg-icons/image/edit"
+import {ExpandLess,ExpandMore,Delete,Edit} from "./icons"
 import * as colors from "./colors";
 import {ExpensePropType} from "./expense-helper";
 import {ReceiverField} from "./expense-dialog-components";
@@ -121,10 +118,12 @@ export default class ExpenseRow extends React.Component {
 
     render() {
         const expense = this.props.expense;
-        const className = "expense-row expense-item" + (expense.confirmed ? "" : " unconfirmed");
+        const className = "expense-row expense-item " + expense.type + (expense.confirmed ? "" : " unconfirmed");
         const style = {};
         if (!expense.confirmed) {
             style.background = colors.unconfirmedStripes;
+        } else if (expense.type === "income") {
+            style.background = colors.income;
         }
         return <div key={expense.id} className={className} style={style}>
             <div className="expense-detail date">{ moment(expense.date).format("D.M.") }</div>

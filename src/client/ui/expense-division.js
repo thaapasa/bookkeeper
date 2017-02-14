@@ -27,10 +27,9 @@ function divisionItem(sum) {
     </div>
 }
 
+const divisionTypes = ["cost", "benefit", "income", "split"];
 function getBalance(data) {
-    const cost = Money.orZero(data.cost);
-    const benefit = Money.orZero(data.benefit);
-    return cost.plus(benefit).negate();
+    return divisionTypes.map(t => Money.orZero(data[t])).reduce((a, b) => a.plus(b), Money.zero);
 }
 
 
@@ -51,6 +50,7 @@ export default class ExpenseDivision extends React.Component {
     render() {
         const division = this.props.division;
         const expense = this.props.expense;
+        const income = expense.type === "income";
         const user = state.get("userMap")[expense.userId];
         const users = {};
         division.forEach(d => { users[d.userId] = Object.assign({}, users[d.userId], { [d.type]: d.sum }) });
@@ -73,15 +73,15 @@ export default class ExpenseDivision extends React.Component {
             { this.props.expense.description ? <div className="expense-description">{ this.props.expense.description }</div> : [] }
             <div key="header" className="expense-user">
                 <div className="avatar-placeholder">Jako:</div>
-                <div className="expense-division-item"><div className="label">Kulut</div></div>
-                <div className="expense-division-item"><div className="label">Hyöty</div></div>
+                <div className="expense-division-item"><div className="label">{ income ? "Tulo" : "Kulu" }</div></div>
+                <div className="expense-division-item"><div className="label">{ income ? "Jako" : "Hyöty" }</div></div>
                 <div className="expense-division-item"><div className="label">Balanssi</div></div>
             </div>
             { Object.keys(users).map(userId =>
                 <div key={userId} className="expense-user">
                     <UserAvatar userId={userId} size={25} style={{ verticalAlign: "middle" }} />
-                    { divisionItem(users[userId].cost) }
-                    { divisionItem(users[userId].benefit) }
+                    { divisionItem(income ? users[userId].income : users[userId].cost) }
+                    { divisionItem(income ? users[userId].split : users[userId].benefit) }
                     { divisionItem(getBalance(users[userId])) }
                 </div>
             )}

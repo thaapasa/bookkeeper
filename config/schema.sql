@@ -77,13 +77,17 @@ COMMENT ON TABLE categories IS 'Expense categories';
 
 
 
+CREATE TYPE expense_type AS ENUM ('expense', 'income');
+COMMENT ON TYPE expense_division_type IS 'Expense is split to cost and benefit, income is split to income and split';
 
-CREATE TYPE expense_type AS ENUM ('cost', 'benefit');
+CREATE TYPE expense_division_type AS ENUM ('cost', 'benefit', 'income', 'split');
+COMMENT ON TYPE expense_division_type IS 'Expenses are divided into items of this type. Cost (negative) and benefit (positive) must sum to zero; similarly income (positive) and split (negative)';
 
 CREATE TABLE IF NOT EXISTS expenses (
   id SERIAL PRIMARY KEY,
   group_id INTEGER REFERENCES groups (id) NOT NULL,
   user_id INTEGER REFERENCES users (id) NOT NULL,
+  type expense_type NOT NULL DEFAULT 'expense',
   date DATE NOT NULL,
   created_by_id INTEGER REFERENCES users (id) NOT NULL,
   created TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -102,7 +106,7 @@ COMMENT ON COLUMN expenses.confirmed IS 'Unconfirmed expenses may trigger a warn
 CREATE TABLE IF NOT EXISTS expense_division (
   expense_id INTEGER REFERENCES expenses (id) ON DELETE CASCADE NOT NULL,
   user_id INTEGER REFERENCES users (id) NOT NULL,
-  type expense_type NOT NULL,
+  type expense_division_type NOT NULL,
   sum MONEY NOT NULL
 );
 COMMENT ON TABLE expense_division IS 'Describes how each expense item is divided between group users';

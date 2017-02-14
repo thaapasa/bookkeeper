@@ -26,6 +26,7 @@ describe("expense", function() {
             userId: session.user.id,
             date: "2017-01-22",
             receiver: "S-market",
+            type: "expense",
             sum: "10.51",
             title: "Karkkia ja porkkanaa",
             sourceId: 1,
@@ -81,6 +82,16 @@ describe("expense", function() {
                 .that.contains({userId: 2, type: "benefit", sum: "3.46"})
         ));
 
+    it("should create income split", () => newExpense(session, { type: "income", sum: "200.00" })
+        .then(s => session.get(`/api/expense/${s.expenseId}`))
+        .then(e =>
+            expect(e).to.contain({ sum: "200.00" }) &&
+            expect(e).to.have.property("division")
+                .that.is.an("array")
+                .that.has.length(2)
+                .that.contains({userId: 2, type: "income", sum: "200.00"})
+                .that.contains({userId: 2, type: "split", sum: "-200.00"})
+        ));
 
     it("should allow POST with GET data", () => newExpense(session,
         { sum: "8.46", division: [ { type: "cost", userId: 1, sum: "-5.00" }, { type: "cost", userId: 2, sum: "-3.46" } ] })

@@ -95,6 +95,16 @@ const validator = {
         return n;
     },
 
+    either() {
+        const acceptedValues = Array.prototype.slice.call(arguments);
+        return (i, field) => {
+            const found = acceptedValues.reduce((found, cur) => found || cur === i, false);
+            if (!found)
+                throw new InvalidInputError(field, i, "Input must be one of " + acceptedValues);
+            return i;
+        };
+    },
+
     listOfObjects(schema) {
         return (i, field) => {
             if (!i || !i.map) throw new InvalidInputError(field, i, "Input must be a list of objects");

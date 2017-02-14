@@ -3,9 +3,11 @@ import React from 'react';
 import * as Bacon from "baconjs";
 import DatePicker from 'material-ui/DatePicker';
 import DropDownMenu from 'material-ui/DropDownMenu';
+import Checkbox from "material-ui/Checkbox";
 import MenuItem from 'material-ui/MenuItem';
 import TextField from 'material-ui/TextField';
 import AutoComplete from 'material-ui/AutoComplete';
+import {Expense,Income} from "./icons";
 import * as apiConnect from "../data/api-connect";
 const moment = require("moment");
 
@@ -91,6 +93,20 @@ export function SourceSelector(props) {
             <MenuItem key={row.id} value={row.id} primaryText={row.name}/>
         )}
     </DropDownMenu>
+}
+SourceSelector.propTypes = {
+    value: React.PropTypes.number.isRequired,
+    onChange: React.PropTypes.func.isRequired,
+    sources: React.PropTypes.array.isRequired
+};
+
+export function TypeSelector(props) {
+    return <Checkbox
+        label={props.value === "income" ? "Tulo" : "Kulu"}
+        checkedIcon={<Income />}
+        uncheckedIcon={<Expense />}
+        checked={props.value === "income"}
+        onCheck={(e, v) => props.onChange(v ? "income" : "expense")} />
 }
 SourceSelector.propTypes = {
     value: React.PropTypes.number.isRequired,
