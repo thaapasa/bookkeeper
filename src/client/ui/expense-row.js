@@ -5,12 +5,12 @@ import * as apiConnect from "../data/api-connect";
 import UserAvatar from "./user-avatar";
 import IconButton from 'material-ui/IconButton';
 import ActivatableTextField from "./activatable-text-field";
-import {ExpandLess,ExpandMore,Delete,Edit} from "./icons"
+import {ExpandLess,ExpandMore,Delete,Edit,Repeat} from "./icons"
 import * as colors from "./colors";
 import {ExpensePropType} from "./expense-helper";
 import {ReceiverField} from "./expense-dialog-components";
-const moment = require("moment");
 const Money = require("../../shared/util/money");
+const moment = require("moment");
 
 const styles = {
     tool: {
@@ -136,10 +136,15 @@ export default class ExpenseRow extends React.Component {
                         state.get("userMap")[expense.userId].image)
                 }/>
             </div>
-            <div className="expense-detail title"><ActivatableTextField
-                name="title" value={ expense.title }
-                onChange={v => this.updateExpense({ title: v })}
-            /></div>
+            <div className="expense-detail title" style={{ whiteSpace: "nowrap" }}>
+                { expense.recurringExpenseId ?
+                    <div style={{ display: "inline-block", verticalAlign: "middle", paddingRight: "0.7em" }}><Repeat /></div> : "" }
+                <ActivatableTextField
+                    name="title" value={ expense.title }
+                    style={{ display: "inline-block", verticalAlign: "middle" }}
+                    onChange={v => this.updateExpense({ title: v })}
+                />
+            </div>
             <div className="expense-detail receiver optional"><ActivatableTextField
                 name="receiver" value={ expense.receiver }
                 editorType={ReceiverField}
