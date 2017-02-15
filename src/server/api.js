@@ -5,7 +5,6 @@ const moment = require("moment");
 const express = require("express");
 const sessions = require("./data/sessions");
 const expenses = require("./data/expenses");
-const recurringExpenses = require("./data/recurring-expenses");
 const categories = require("./data/categories");
 const sources = require("./data/sources");
 const config = require("./config");
@@ -133,7 +132,7 @@ function registerAPI(app) {
 
     // PUT /api/expense/recurring/[expenseId]
     app.put(recurringExpensePath, server.processRequest((session, req) =>
-        recurringExpenses.createRecurring(session.group.id, session.user.id, server.getId(recurringExpensePath, req),
+        expenses.createRecurring(session.group.id, session.user.id, server.getId(recurringExpensePath, req),
             V.validate(recurringExpenseSchema, req.body)), true));
 
 }
