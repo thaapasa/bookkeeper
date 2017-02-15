@@ -32,9 +32,9 @@ function fieldPath(prefix, field) {
     return prefix ? `${prefix}.${field}` : field;
 }
 
-const validator = {
+class Validator {
 
-    validate: function(schema, object, prefix) {
+    static validate(schema, object, prefix) {
         const result = {};
         log.debug("Validating", object);
         Object.keys(schema).forEach(field => {
@@ -45,57 +45,57 @@ const validator = {
         });
         log.debug("Validated input to", result);
         return result;
-    },
+    }
 
-    number: (i, field) => {
+    static number(i, field) {
         if (i === undefined || i === null || (typeof i !== "number") || isNaN(i))
             throw new InvalidInputError(field, i, `Input must be a number`);
         return i;
-    },
+    }
 
-    boolean: (i, field) => {
+    static boolean(i, field) {
         if (i === undefined || i === null || (typeof i !== "boolean"))
             throw new InvalidInputError(field, i, `Input must be a boolean`);
         return i;
-    },
+    }
 
-    string: (i, field) => {
+    static string(i, field) {
         if (i === undefined || i === null || (typeof i !== "string"))
             throw new InvalidInputError(field, i, `Input must be a string`);
         return i;
-    },
+    }
 
-    null: (i, field) => {
+    static null(i, field) {
         if (i !== null)
             throw new InvalidInputError(field, i, "Input must be null");
         return i;
-    },
+    }
 
-    stringWithLength(min, max) {
+    static stringWithLength(min, max) {
         return (i, field) => {
             if ((typeof i !== "string") || i.length < min || i.length > max)
                 throw new InvalidInputError(field, i, `Input must be a string with ${min}-${max} characters`);
             return i;
         };
-    },
+    }
 
-    intBetween(min, max) {
+    static intBetween(min, max) {
         return (i, field) => {
             const n = toInt(i, field);
             if (n < min || n > max)
                 throw new InvalidInputError(field, i, `Input must be an integer in the range [${min}, ${max}]`);
             return n;
         };
-    },
+    }
 
-    positiveInt: (i, field) => {
+    static positiveInt(i, field) {
         const n = toInt(i, field);
         if (n < 1)
             throw new InvalidInputError(field, i, "Input must be a positive integer");
         return n;
-    },
+    }
 
-    either() {
+    static either() {
         const acceptedValues = Array.prototype.slice.call(arguments);
         return (i, field) => {
             const found = acceptedValues.reduce((found, cur) => found || cur === i, false);
@@ -103,34 +103,34 @@ const validator = {
                 throw new InvalidInputError(field, i, "Input must be one of " + acceptedValues);
             return i;
         };
-    },
+    }
 
-    listOfObjects(schema) {
+    static listOfObjects(schema) {
         return (i, field) => {
             if (!i || !i.map) throw new InvalidInputError(field, i, "Input must be a list of objects");
             return i.map(item => {
                 log.debug("Validating sub-object", item, "of", field, "with schema", schema);
-                return validator.validate(schema, item, field)
+                return Validator.validate(schema, item, field)
             });
         }
-    },
+    }
 
-    matchPattern(re) {
+    static matchPattern(re) {
         return (i, field) => {
             if ((typeof i !== "string") || !re.test(i))
                 throw new InvalidInputError(field, i, `Input must match pattern ${re}`);
             return i;
         };
-    },
+    }
 
-    optional(req) {
+    static optional(req) {
         return (i, field) => {
             if (typeof i === "undefined") return i;
             return req(i, field);
         }
-    },
+    }
 
-    or() {
+    static or() {
         return (i, field) => {
             const res = Array.prototype.slice.apply(arguments).reduce((val, cur) => {
                 if (val[0]) return val;
@@ -144,13 +144,21 @@ const validator = {
             else throw new InvalidInputError(field, i, `Input did not match any matcher: ${res[2].map(e => e.info && e.info.requirement ? e.info.requirement : e)}`);
         }
     }
-};
 
-const moneyPattern = validator.matchPattern(/[0-9]+([.][0-9]+)?/);
-validator.money = (i, field) => {
-    const money = moneyPattern(i, field);
-    return new Money(money);
-};
-validator.InvalidInputError = InvalidInputError;
+    static moneyPattern(i, field) {
+        return Validator.matchPattern(/[0-9]+([.][0-9]+)?/)(i, field);
+    }
 
-module.exports = validator;
+    static money(i, field) {
+        const money = Validator.moneyPattern(i, field);
+        return new Money(money);
+    }
+
+    static date(i, field) {
+        return Validator.matchPattern(/[0-9]{4}-[0-9]{2}-[0-9]{2}/)(i, field);
+    }
+
+}
+Validator.InvalidInputError = InvalidInputError;
+
+module.exports = Validator;

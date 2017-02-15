@@ -5,6 +5,7 @@ const moment = require("moment");
 const express = require("express");
 const sessions = require("./data/sessions");
 const expenses = require("./data/expenses");
+const recurringExpenses = require("./data/recurring-expenses");
 const categories = require("./data/categories");
 const sources = require("./data/sources");
 const config = require("./config");
@@ -88,7 +89,7 @@ function registerAPI(app) {
     // PUT /api/expense
     const expenseSchema = {
         userId: V.positiveInt,
-        date: V.matchPattern(/[0-9]{4}-[0-9]{2}-[0-9]{2}/),
+        date: V.date,
         receiver: V.stringWithLength(1, 50),
         type: V.either('expense', 'income'),
         sum: V.money,
@@ -122,6 +123,18 @@ function registerAPI(app) {
     app.get("/api/expense/receivers", server.processRequest((session, req) =>
         expenses.queryReceivers(session.group.id, V.validate({ receiver: V.stringWithLength(3, 50) }, req.query).receiver)
             .then(l => l.map(r => r.receiver)), true));
+
+
+    const recurringExpensePath = /\/api\/expense\/recurring\/([0-9]+)/;
+    const recurringExpenseSchema = {
+        period: V.either("monthly", "yearly"),
+        occursUntil: V.optional(V.date)
+    };
+
+    // PUT /api/expense/recurring/[expenseId]
+    app.put(recurringExpensePath, server.processRequest((session, req) =>
+        recurringExpenses.createRecurring(session.group.id, session.user.id, server.getId(recurringExpensePath, req),
+            V.validate(recurringExpenseSchema, req.body)), true));
 
 }
 

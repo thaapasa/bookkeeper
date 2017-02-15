@@ -18,12 +18,12 @@ function expenseSelect(where) {
     return "SELECT MIN(id) AS id, MIN(date) AS date, MIN(receiver) AS receiver, MIN(type) AS type, MIN(sum) AS sum, " +
         "MIN(title) AS title, MIN(description) AS description, BOOL_AND(confirmed) AS confirmed, MIN(source_id) AS source_id, " +
         "MIN(user_id) AS user_id, MIN(created_by_id) AS created_by_id, MIN(group_id) AS group_id, MIN(category_id) AS category_id, " +
-        "MIN(created) AS created, " +
+        "MIN(created) AS created, MIN(recurring_expense_id) AS recurring_expense_id, " +
         "SUM(cost) AS user_cost, SUM(benefit) AS user_benefit, SUM(income) AS user_income, SUM(split) AS user_split, " +
         "SUM(cost + benefit + income + split) AS user_value " +
         "FROM " +
         "(SELECT id, date::DATE, receiver, e.type, e.sum::MONEY::NUMERIC, title, description, confirmed, " +
-        "source_id, e.user_id, created_by_id, group_id, category_id, created, " +
+        "source_id, e.user_id, created_by_id, group_id, category_id, created, recurring_expense_id, " +
         "(CASE WHEN d.type = 'cost' THEN d.sum::NUMERIC ELSE 0::NUMERIC END) AS cost, " +
         "(CASE WHEN d.type = 'benefit' THEN d.sum::NUMERIC ELSE 0::NUMERIC END) AS benefit, " +
         "(CASE WHEN d.type = 'income' THEN d.sum::NUMERIC ELSE 0::NUMERIC END) AS income, " +
@@ -47,7 +47,7 @@ const countTotalSelect = "SELECT " +
     "(CASE WHEN d.type = 'split' THEN d.sum::NUMERIC ELSE 0::NUMERIC END) AS split " +
     "FROM expenses e " +
     "LEFT JOIN expense_division d ON (d.expense_id = e.id AND d.user_id = $1::INTEGER) " +
-    "WHERE group_id=$2::INTEGER AND date >= $3::DATE AND date < $4::DATE) breakdown";
+    "WHERE group_id=$2::INTEGER AND template=false AND date >= $3::DATE AND date < $4::DATE) breakdown";
 
 function getAll(tx) {
     return (groupId, userId) => tx.queryList("expenses.get_all",
@@ -91,7 +91,7 @@ function getBetween(tx) {
     return (groupId, userId, startDate, endDate) => {
         log.debug("Querying for expenses between", time.iso(startDate), "and", time.iso(endDate), "for group", groupId);
         return tx.queryList("expenses.get_between",
-            expenseSelect(`WHERE group_id=$2 AND date >= $3::DATE AND date < $4::DATE`),
+            expenseSelect(`WHERE group_id=$2 AND template=false AND date >= $3::DATE AND date < $4::DATE`),
             [userId, groupId, time.date(startDate), time.date(endDate)])
             .then(l => l.map(mapExpense));
     }
@@ -105,7 +105,7 @@ function countTotalBetween(tx) {
 
 function hasUnconfirmedBefore(tx) {
     return (groupId, startDate) => tx.queryObject("expenses.count_unconfirmed_before",
-        "SELECT COUNT(*) AS amount FROM expenses WHERE group_id=$1 AND date < $2::DATE AND confirmed=false",
+        "SELECT COUNT(*) AS amount FROM expenses WHERE group_id=$1 AND template=false AND date < $2::DATE AND confirmed=false",
         [groupId, startDate])
         .then(s => s.amount > 0);
 }
@@ -165,16 +165,22 @@ function createExpense(userId, groupId, expense, defaultSourceId) {
             const user = a[1];
             const source = a[2];
             const division = expenseDivision.determineDivision(expense, source);
-            return tx.insert("expenses.create",
-                "INSERT INTO expenses (created_by_id, user_id, group_id, date, created, type, receiver, sum, title, " +
-                "description, confirmed, source_id, category_id) " +
-                "VALUES ($1::INTEGER, $2::INTEGER, $3::INTEGER, $4::DATE, NOW(), $5::expense_type, $6, " +
-                "$7::NUMERIC::MONEY, $8, $9, $10::BOOLEAN, $11::INTEGER, $12::INTEGER) RETURNING id",
-                [userId, user.id, groupId, expense.date, expense.type, expense.receiver, expense.sum.toString(),
-                    expense.title, expense.description, expense.confirmed, source.id, cat.id])
-                .then(expenseId => createDivision(tx)(expenseId, division))
+            return insert(tx)(userId, Object.assign({}, expense,
+                { userId: user.id, groupId: groupId, sourceId: source.id, categoryId: cat.id, sum: expense.sum.toString() }),
+                division);
         }).then(id => ({status: "OK", message: "Expense created", expenseId: id}));
     });
+}
+
+function insert(tx) {
+    return (userId, expense, division) => tx.insert("expenses.create",
+        "INSERT INTO expenses (created_by_id, user_id, group_id, date, created, type, receiver, sum, title, " +
+        "description, confirmed, source_id, category_id, template) " +
+        "VALUES ($1::INTEGER, $2::INTEGER, $3::INTEGER, $4::DATE, NOW(), $5::expense_type, $6, " +
+        "$7::NUMERIC::MONEY, $8, $9, $10::BOOLEAN, $11::INTEGER, $12::INTEGER, $13::BOOLEAN) RETURNING id",
+        [userId, expense.userId, expense.groupId, expense.date, expense.type, expense.receiver, expense.sum,
+            expense.title, expense.description, expense.confirmed, expense.sourceId, expense.categoryId, expense.template || false])
+        .then(expenseId => createDivision(tx)(expenseId, division).then(x => expenseId));
 }
 
 function updateExpense(tx) {
@@ -209,7 +215,8 @@ function updateExpenseById(groupId, userId, expenseId, expense, defaultSourceId)
 
 function queryReceivers(tx) {
     return (groupId, receiver) => tx.queryList("expenses.receiver_search",
-        "SELECT receiver, COUNT(*) AS AMOUNT FROM expenses WHERE group_id=$1 AND receiver ILIKE $2 GROUP BY receiver ORDER BY amount DESC",
+        "SELECT receiver, COUNT(*) AS AMOUNT FROM expenses WHERE group_id=$1 AND receiver ILIKE $2 " +
+        "GROUP BY receiver ORDER BY amount DESC",
         [ groupId, `%${receiver}%` ]);
 }
 
@@ -224,6 +231,8 @@ module.exports = {
     update: updateExpenseById,
     queryReceivers: queryReceivers(db),
     tx: {
-        getById: getById
+        getById: getById,
+        insert: insert,
+        getDivision: getDivision
     }
 };

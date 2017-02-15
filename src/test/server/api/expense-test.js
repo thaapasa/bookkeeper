@@ -10,45 +10,24 @@ const after = require("mocha").after;
 const log = require("../../../shared/util/log");
 const moment = require("moment");
 const testUtil = require("../support/test-util");
+const help = require("./expense-help");
 
 describe("expense", function() {
 
     let session = null;
-    const createdIds = [];
 
-    function captureId(e) {
-        createdIds.push(e.expenseId || e.id);
-        return e;
-    }
-
-    function newExpense(session, expense) {
-        const data = Object.assign({
-            userId: session.user.id,
-            date: "2017-01-22",
-            receiver: "S-market",
-            type: "expense",
-            sum: "10.51",
-            title: "Karkkia ja porkkanaa",
-            sourceId: 1,
-            categoryId: 2
-        }, expense);
-        return session.put("/api/expense", data).then(captureId);
-    }
+    const newExpense = help.newExpense;
 
     before(() => client.getSession("sale", "salasana").then(s => { session = s; return null; }));
 
-    after(() => session && Promise.all(createdIds.map(id => session.del(`/api/expense/${id}`))).then(session.logout));
+    after(() => help.deleteCreated(session).then(session.logout));
 
     it("should insert new expense", () => newExpense(session)
-        .then(s => {
-            expect(s.status).to.equal("OK");
-            expect(s.expenseId).to.be.above(0);
-            return s; })
-        .then(s => session.get(`/api/expense/${s.expenseId}`))
-        .then(e =>
-            expect(e).to.contain({ title: "Karkkia ja porkkanaa", date: "2017-01-22", sum: "10.51",
-                description: null, confirmed: true })
-        ));
+        .then(help.checkCreateStatus)
+        .then(id => session.get(`/api/expense/${id}`))
+        .then(e => expect(e).to.contain({ title: "Karkkia ja porkkanaa", date: "2017-01-22", sum: "10.51",
+                description: null, confirmed: true }))
+    );
 
     it("should have custom values", () => newExpense(session,
         { title: "Crowbars", sum: "8.46", description: "On hyvä olla tarkka", confirmed: false })
