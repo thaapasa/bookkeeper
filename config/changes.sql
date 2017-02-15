@@ -30,3 +30,18 @@ ALTER TABLE expense_division ALTER COLUMN type TYPE expense_division_type USING 
 DROP TYPE expense_type;
 CREATE TYPE expense_type AS ENUM ('expense', 'income');
 ALTER TABLE expenses ADD COLUMN type expense_type NOT NULL DEFAULT 'expense';
+
+-- On 15.2.2017
+CREATE TYPE recurring_period AS ENUM ('monthly', 'yearly');
+CREATE TABLE IF NOT EXISTS recurring_expenses (
+  id SERIAL PRIMARY KEY,
+  template_expense_id INTEGER REFERENCES expenses(id) ON DELETE CASCADE NOT NULL,
+  group_id INTEGER REFERENCES groups(id) NOT NULL,
+  period recurring_period NOT NULL,
+  occurs_until DATE DEFAULT NULL,
+  next_missing DATE DEFAULT NULL
+);
+ALTER TABLE expenses ADD COLUMN recurring_expense_id INTEGER REFERENCES recurring_expenses(id) DEFAULT NULL;
+ALTER TABLE expenses ADD COLUMN template BOOLEAN NOT NULL DEFAULT FALSE;
+DROP INDEX "expenses_group_date";
+CREATE INDEX "expenses_group_date" ON expenses (group_id, template, date);
