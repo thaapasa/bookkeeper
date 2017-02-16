@@ -81,14 +81,18 @@ export function editExpense(e) {
 }
 
 /* Returns a promise that will be resolved to either true of false depending on user input */
-export function confirm(title, content, okText = "OK", cancelText = "Peruuta") {
+export function confirm(title, content, options) {
+    options = options ? options : {};
+    const actions = options.actions ? options.actions : [
+        [options.okText ? options.okText : "OK", true],
+            [options.cancelText ? options.cancelText : "Peruuta", false] ];
+
     let resolve = null, reject = null;
     const p = new Promise((res, rej) => { resolve = res; reject = rej; });
     state.confirmationDialogStream.push({
         title: title,
         content: content,
-        okText: okText,
-        cancelText: cancelText,
+        actions: actions,
         resolve: resolve,
         reject: reject
     });
