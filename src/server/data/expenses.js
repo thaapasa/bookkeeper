@@ -58,6 +58,7 @@ module.exports = {
     getById: basic.getById,
     getDivision: basic.getDivision,
     deleteById: basic.deleteById,
+    queryReceivers: basic.queryReceivers,
     create: basic.create,
     update: basic.update,
     createRecurring: recurring.createRecurring
