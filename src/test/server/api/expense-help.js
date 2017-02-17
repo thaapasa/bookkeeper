@@ -2,6 +2,7 @@
 
 const chai = require("chai");
 const expect = chai.expect;
+const Money = require("../../../shared/util/money");
 
 module.exports = {};
 
@@ -12,6 +13,25 @@ function captureId(e) {
     return e;
 };
 module.exports.captureId = captureId;
+
+module.exports.division = {
+    iPayShared: function (session, sum) {
+        sum = Money.from(sum);
+        return [
+            { type: "cost", userId: session.user.id, sum: sum.negate().toString() },
+            { type: "benefit", userId: 1, sum: sum.divide(2).toString() },
+            { type: "benefit", userId: 2, sum: sum.divide(2).toString() }
+        ];
+    },
+    iPayMyOwn: function (session, sum) {
+        sum = Money.from(sum);
+        return [
+            { type: "cost", userId: session.user.id, sum: sum.negate().toString() },
+            { type: "benefit", userId: session.user.id, sum: sum.toString() }
+        ];
+    }
+
+};
 
 module.exports.newExpense = function newExpense(session, expense) {
     const data = Object.assign({
