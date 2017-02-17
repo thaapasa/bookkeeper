@@ -205,7 +205,7 @@ module.exports = {
     getAll: getAll(db),
     getById: getById(db),
     getDivision: getDivision(db),
-    deleteById: deleteById(db),
+    deleteById: (groupId, expenseId) => db.transaction(tx => deleteById(tx)(groupId, expenseId)),
     create: createExpense,
     update: updateExpenseById,
     queryReceivers: queryReceivers(db),
