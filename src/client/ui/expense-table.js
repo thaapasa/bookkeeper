@@ -105,7 +105,7 @@ export default class ExpenseTable extends React.Component {
         if (expenses.length < 1) return [];
         const income = expenses.filter(e => e.type === "income").reduce((s, c) => s.plus(c.sum), Money.zero);
         const expense = expenses.filter(e => e.type === "expense").reduce((s, c) => s.plus(c.sum), Money.zero);
-        return [<ExpenseTotal key="filtered-total" gincome={income} expense={expense} />];
+        return [<ExpenseTotal key="filtered-total" income={income} expense={expense} />];
     }
 
     render() {
