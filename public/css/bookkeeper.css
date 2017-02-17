@@ -160,8 +160,9 @@ html, body {
 }
 
 .loading-indicator-big {
-    text-align: center;
-    margin: 2em auto;
+    position: absolute;
+    left: 50%;
+    top: 50%;
 }
 
 .avatar-placeholder {

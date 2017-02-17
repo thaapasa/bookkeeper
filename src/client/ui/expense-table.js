@@ -6,7 +6,7 @@ import ExpenseRow from "./expense-row";
 import {ExpenseHeader,ExpenseStatus} from "./expense-row";
 import * as apiConnect from "../data/api-connect";
 import * as state from  "../data/state";
-import CircularProgress from 'material-ui/CircularProgress';
+import RefreshIndicator from 'material-ui/RefreshIndicator';
 import {expenseName} from "./expense-helper";
 
 export default class ExpenseTable extends React.Component {
@@ -106,7 +106,7 @@ export default class ExpenseTable extends React.Component {
             <ExpenseStatus className="expense-table-start-status" name="Tilanne ennen" status={this.props.startStatus} unconfirmedBefore={this.props.unconfirmedBefore} />
             <div className="expense-data-area">
                 { this.props.loading ?
-                    <div className="expense-row loading-indicator-big"><CircularProgress size={80} thickness={5}/></div> :
+                    <div className="loading-indicator-big"><RefreshIndicator left={-30} top={-30} status="loading" size={60} /></div> :
                     (this.state.filters.length > 0 ?
                         [ <div className="expense-row" key="filters">
                             <div className="expense-filters">{
