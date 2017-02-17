@@ -9,6 +9,8 @@ function mapExpense(e) {
     e.userBenefit = Money.from(e.userBenefit, 0);
     e.userCost = Money.from(e.userCost, 0);
     e.userBalance = Money.from(e.userBalance, 0);
+    e.userIncome = Money.from(e.userIncome, 0);
+    e.userSplit = Money.from(e.userSplit, 0);
     return e;
 }
 
@@ -16,6 +18,8 @@ function mapStatus(s) {
     return {
         cost: Money.from(s.cost),
         benefit: Money.from(s.benefit),
+        income: Money.from(s.income),
+        split: Money.from(s.split),
         value: Money.from(s.value),
         balance: Money.from(s.balance)
     }

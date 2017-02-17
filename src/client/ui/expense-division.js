@@ -68,7 +68,6 @@ export default class ExpenseDivision extends React.Component {
         const user = state.get("userMap")[expense.userId];
         const users = {};
         division.forEach(d => { users[d.userId] = Object.assign({}, users[d.userId], { [d.type]: d.sum }) });
-        console.log(users);
         return <div className="expense-division">
             <div className="mobile">
                 <div className="expense-details">

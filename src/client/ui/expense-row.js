@@ -10,6 +10,7 @@ import * as colors from "./colors";
 import {ExpensePropType} from "./expense-helper";
 import {ReceiverField} from "./expense-dialog-components";
 import {combineClassNames} from "../util/client-util";
+import * as arrays from "../../shared/util/arrays";
 const Money = require("../../shared/util/money");
 const moment = require("moment");
 
@@ -51,6 +52,15 @@ export function ExpenseHeader(props) {
     </div>
 }
 
+const statusTypeNames = {
+    income: "Tulot",
+    split: "Tulojako",
+    cost: "Menot",
+    benefit: "Hyöty",
+    balance: "Balanssi"
+};
+const statusTypeKeys = Object.keys(statusTypeNames);
+
 export function ExpenseStatus(props) {
     const style = {};
     if (props.unconfirmedBefore) {
@@ -58,18 +68,17 @@ export function ExpenseStatus(props) {
     }
     return <div className={combineClassNames("expense-row status", props.className)} style={style}>
         <div className="expense-detail status-description">{props.name}</div>
-        { props.status.cost ? [
-            <div className="expense-detail status-label optional" key="label">Hinta:</div>,
-                <div className="expense-detail status-sum optional" key="sum" style={{ color: colors.forMoney(props.status.cost) }}>{ money(props.status.cost) }</div>
-            ] : [] }
-        { props.status.benefit ? [
-            <div className="expense-detail status-label optional" key="label">Hyöty:</div>,
-                <div className="expense-detail status-sum optional" key="sum" style={{ color: colors.forMoney(props.status.benefit) }}>{ money(props.status.benefit) }</div>
-            ] : [] }
-        { props.status.balance ? [
-            <div className="expense-detail status-label optional" key="label">Balanssi:</div>,
-                <div className="expense-detail status-sum" key="sum" style={{ color: colors.forMoney(props.status.balance) }}>{ money(props.status.balance) }</div>
-            ] : [] }
+        {
+            arrays.flatten(statusTypeKeys.map(type =>
+                props.status[type] ? [
+                    <div className={ combineClassNames("expense-detail status-label", type !== "balance" ? "optional" : "")}
+                         key={`label-${type}`}>{ statusTypeNames[type] }:</div>,
+                    <div className={ combineClassNames("expense-detail status-sum", type !== "balance" ? "optional" : "")}
+                         key={`sum-${type}`}
+                         style={{ color: colors.forMoney(props.status[type]) }}>{ money(props.status[type]) }</div>
+                ] : []
+            ))
+        }
     </div>
 }
 ExpenseStatus.propTypes = {
