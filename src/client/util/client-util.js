@@ -6,3 +6,7 @@ export function unsubscribeAll(arr) {
         else if (typeof i.end === "function") i.end();
     })
 }
+
+export function combineClassNames() {
+    return Array.prototype.slice.call(arguments).reduce((res, cur) => cur ? (res ? res + " " + cur : cur) : res, "");
+}

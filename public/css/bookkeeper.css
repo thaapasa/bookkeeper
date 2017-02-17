@@ -1,5 +1,7 @@
 html, body {
     font-family: Roboto, sans-serif;
+    margin: 0;
+    padding: 0;
 }
 
 [tabindex] {
@@ -20,23 +22,52 @@ html, body {
     margin: 0;
 }
 
+.top-bar { height: 56px !important; }
+.expense-navigation { height: 48px !important; }
+
 /** Expense table */
 .expense-table {
     font-size: 13px;
+    position: fixed;
+    top: 104px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    overflow: hidden;
 }
 
 .expense-row {
+    height: 41px !important;
     display: flex;
     border-top: 1px solid rgb(224, 224, 224);
     white-space: nowrap;
 }
-.expense-row.unconfirmed {
+
+.expense-table-header,
+.expense-table-start-status,
+.expense-table-end-status,
+.expense-table-month-status {
+    position: absolute;
+    left: 0;
+    right: 0;
 }
-.expense-row.income {
+
+.expense-table-header { top: 0; border-top: none; }
+.expense-table-start-status { top: 41px; border-bottom: 1px solid rgb(224, 224, 224); }
+.expense-table-month-status { bottom: 41px; }
+.expense-table-end-status { bottom: 0; }
+
+.expense-data-area {
+    overflow: scroll;
+    position: absolute;
+    top: 82px;
+    bottom: 82px;
+    left: 0;
+    right: 0;
 }
-.expense-row:first-of-type {
-    border-top: none;
-}
+.expense-row.unconfirmed {}
+.expense-row.income {}
+
 .expense-row.header {
     font-weight: 600;
 }
@@ -144,57 +175,68 @@ html, body {
 }
 
 @media (max-width: 600px) {
-  .expense-division .mobile{
-    display: block;
-  }
-  .optional {
-    display: none !important;
-  }
-  .expense-detail {
-    margin: 0.5em 0.4em;
-  }
-  .expense-detail.date {
-    width: 3.3em;
-  }
-  .expense-detail.tools {
-      width: 36px;
-      min-width: 36px;
-  }
-  .expense-detail.description {
-    min-width: 5em;
-  }
-  .expense-division .expense-details {
-    display: inline-block;
-    max-width: 35em;
-    min-width: 20em;
-    height: auto;
-  }
-  .expense-division .tools-mobile {
-    display: inline-block;
-    width: auto;
-    vertical-align: top;
-  }
-  .expense-detail-mobile {
-    display: block;
-    padding-left: 1em;
-    margin-top: 0.3em;
-    margin-bottom: 0.3em;
-  }
-  .expense-detail-mobile .detail-label {
-    display: inline-block;
-    width: 5.5em;
-  }
-  .expense-dialog {
-    width: 90% !important;
-    height: 90% !important;
-  }
-  .expense-user {
-    padding-left: 1em;
-    margin-top: 0.3em;
-    margin-bottom: 0.3em;
-  }
-  .expense-division-item {
-      margin: 0.1em 0.3em;
-      display: inline-block;
-  }
+    .expense-division .mobile {
+        display: block;
+    }
+
+    .optional {
+        display: none !important;
+    }
+
+    .expense-row {
+        height: 32px !important;
+    }
+
+    .expense-table-start-status { top: 32px; }
+    .expense-table-month-status { bottom: 32px; }
+    .expense-data-area {
+        top: 64px;
+        bottom: 64px;
+    }
+
+    .expense-detail {
+        margin: 0.5em 0.4em;
+    }
+    .expense-detail.date { width: 3.3em; }
+    .expense-detail.tools { width: 36px; min-width: 36px; }
+    .expense-detail.description { min-width: 5em; }
+
+    .expense-division .expense-details {
+        display: inline-block;
+        max-width: 35em;
+        min-width: 20em;
+        height: auto;
+    }
+    .expense-division .tools-mobile {
+        display: inline-block;
+        width: auto;
+        vertical-align: top;
+    }
+
+    .expense-detail-mobile {
+        display: block;
+        padding-left: 1em;
+        margin-top: 0.3em;
+        margin-bottom: 0.3em;
+    }
+    .expense-detail-mobile .detail-label {
+        display: inline-block;
+        width: 5.5em;
+    }
+
+    .expense-dialog {
+        width: 90% !important;
+        height: 90% !important;
+    }
+
+    .expense-user {
+        padding-left: 1em;
+        margin-top: 0.3em;
+        margin-bottom: 0.3em;
+    }
+
+    .expense-division-item {
+        margin: 0.1em 0.3em;
+        display: inline-block;
+    }
 }

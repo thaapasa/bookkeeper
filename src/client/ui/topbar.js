@@ -21,7 +21,7 @@ export default class ToolbarExamplesSimple extends React.Component {
 
     render() {
         return (
-            <Toolbar>
+            <Toolbar className="top-bar">
                 <ToolbarGroup className="optional">
                     <ToolbarTitle text={ state.getTitle() } />
                 </ToolbarGroup>

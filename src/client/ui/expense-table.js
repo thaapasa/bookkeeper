@@ -102,26 +102,28 @@ export default class ExpenseTable extends React.Component {
 
     render() {
         return <div className="expense-table">
-            <ExpenseHeader />
-            <ExpenseStatus name="Tilanne ennen" status={this.props.startStatus} unconfirmedBefore={this.props.unconfirmedBefore} />
-            { this.props.loading ?
-                <div className="expense-row loading-indicator-big"><CircularProgress size={80} thickness={5}/></div> :
-                (this.state.filters.length > 0 ?
-                    [ <div className="expense-row" key="filters">
-                        <div className="expense-filters">{
-                            this.state.filters.map((f, index) => <Chip
-                                key={index}
-                                style={{margin: "0.3em", padding: 0}}
-                                onRequestDelete={() => this.removeFilter(index)}>
-                                { f.avatar ? <Avatar src={f.avatar}/> : null }
-                                { f.name }
-                            </Chip>)
-                        }</div>
-                    </div> ]
-                    : []).concat(this.getFilteredExpenses().map(this.renderExpense))
-            }
-            <ExpenseStatus name="Tämä kuukausi" status={this.props.monthStatus} />
-            <ExpenseStatus name="Lopputilanne" status={this.props.endStatus} />
+            <ExpenseHeader className="expense-table-header"/>
+            <ExpenseStatus className="expense-table-start-status" name="Tilanne ennen" status={this.props.startStatus} unconfirmedBefore={this.props.unconfirmedBefore} />
+            <div className="expense-data-area">
+                { this.props.loading ?
+                    <div className="expense-row loading-indicator-big"><CircularProgress size={80} thickness={5}/></div> :
+                    (this.state.filters.length > 0 ?
+                        [ <div className="expense-row" key="filters">
+                            <div className="expense-filters">{
+                                this.state.filters.map((f, index) => <Chip
+                                    key={index}
+                                    style={{margin: "0.3em", padding: 0}}
+                                    onRequestDelete={() => this.removeFilter(index)}>
+                                    { f.avatar ? <Avatar src={f.avatar}/> : null }
+                                    { f.name }
+                                </Chip>)
+                            }</div>
+                        </div> ]
+                        : []).concat(this.getFilteredExpenses().map(this.renderExpense))
+                }
+            </div>
+            <ExpenseStatus className="expense-table-month-status" name="Tämä kuukausi" status={this.props.monthStatus} />
+            <ExpenseStatus className="expense-table-end-status" name="Lopputilanne" status={this.props.endStatus} />
         </div>
     }
 }

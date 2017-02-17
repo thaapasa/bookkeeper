@@ -9,6 +9,7 @@ import {ExpandLess,ExpandMore,Delete,Edit,Repeat} from "./icons"
 import * as colors from "./colors";
 import {ExpensePropType} from "./expense-helper";
 import {ReceiverField} from "./expense-dialog-components";
+import {combineClassNames} from "../util/client-util";
 const Money = require("../../shared/util/money");
 const moment = require("moment");
 
@@ -36,8 +37,8 @@ function money(v) {
     return v ? Money.from(v).format() : "-";
 }
 
-export function ExpenseHeader() {
-    return <div className="expense-row header" style={{ color: colors.header }}>
+export function ExpenseHeader(props) {
+    return <div className={combineClassNames("expense-row header", props.className)} style={{ color: colors.header }}>
         <div className="expense-detail date">Pvm</div>
         <div className="expense-detail user optional"></div>
         <div className="expense-detail title">Nimi</div>
@@ -55,7 +56,7 @@ export function ExpenseStatus(props) {
     if (props.unconfirmedBefore) {
         style.background = colors.unconfirmedStripes;
     }
-    return <div className="expense-row status" style={style}>
+    return <div className={combineClassNames("expense-row status", props.className)} style={style}>
         <div className="expense-detail status-description">{props.name}</div>
         { props.status.cost ? [
             <div className="expense-detail status-label optional" key="label">Hinta:</div>,
