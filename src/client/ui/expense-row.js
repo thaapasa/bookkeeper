@@ -138,7 +138,7 @@ export default class ExpenseRow extends React.Component {
             </div>
             <div className="expense-detail title" style={{ whiteSpace: "nowrap" }}>
                 { expense.recurringExpenseId ?
-                    <div style={{ display: "inline-block", verticalAlign: "middle", paddingRight: "0.7em" }}><Repeat /></div> : "" }
+                    <div style={{ display: "inline-block", width: "14pt", verticalAlign: "top" }}><Repeat style={{ width: "12pt", height: "12pt", position: "absolute" }} /></div> : "" }
                 <ActivatableTextField
                     name="title" value={ expense.title }
                     style={{ display: "inline-block", verticalAlign: "middle" }}
