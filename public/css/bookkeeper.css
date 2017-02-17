@@ -115,6 +115,9 @@ html, body {
     width: 81pt;
     min-width: 81pt;
 }
+.expense-detail.total-label { flex-grow: 1; text-align: right; }
+.expense-detail.total-sum   { width: 6em; }
+
 .expense-description {
     padding: 0 2em;
     white-space: pre-wrap;

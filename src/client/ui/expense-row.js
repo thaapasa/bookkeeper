@@ -88,6 +88,19 @@ ExpenseStatus.propTypes = {
     balance: React.PropTypes.string
 };
 
+export function ExpenseTotal(props) {
+    return <div className="expense-row">
+        <div className="expense-detail total-label">Menot yhteensä</div>
+        <div className="expense-detail total-sum">{ money(props.expense) }</div>
+        <div className="expense-detail total-label">Tulot yhteensä</div>
+        <div className="expense-detail total-sum">{ money(props.income) }</div>
+    </div>;
+}
+ExpenseTotal.propTypes = {
+    expense: React.PropTypes.object.isRequired,
+    income: React.PropTypes.object.isRequired
+};
+
 export default class ExpenseRow extends React.Component {
     constructor(props) {
         super(props);

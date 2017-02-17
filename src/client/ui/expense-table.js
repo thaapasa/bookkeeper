@@ -3,11 +3,12 @@ import ExpenseDivision from "./expense-division"
 import Avatar from "material-ui/Avatar";
 import Chip from "material-ui/Chip"
 import ExpenseRow from "./expense-row";
-import {ExpenseHeader,ExpenseStatus} from "./expense-row";
+import {ExpenseHeader,ExpenseStatus,ExpenseTotal} from "./expense-row";
 import * as apiConnect from "../data/api-connect";
 import * as state from  "../data/state";
 import RefreshIndicator from 'material-ui/RefreshIndicator';
 import {expenseName} from "./expense-helper";
+const Money = require("../../shared/util/money");
 
 export default class ExpenseTable extends React.Component {
 
@@ -100,7 +101,15 @@ export default class ExpenseTable extends React.Component {
                 division={details.division}/>] : [])
     }
 
+    getTotalRow(expenses) {
+        if (expenses.length < 1) return [];
+        const income = expenses.filter(e => e.type === "income").reduce((s, c) => s.plus(c.sum), Money.zero);
+        const expense = expenses.filter(e => e.type === "expense").reduce((s, c) => s.plus(c.sum), Money.zero);
+        return [<ExpenseTotal key="filtered-total" gincome={income} expense={expense} />];
+    }
+
     render() {
+        const filtered = this.getFilteredExpenses();
         return <div className="expense-table">
             <ExpenseHeader className="expense-table-header"/>
             <ExpenseStatus className="expense-table-start-status" name="Tilanne ennen" status={this.props.startStatus} unconfirmedBefore={this.props.unconfirmedBefore} />
@@ -119,7 +128,7 @@ export default class ExpenseTable extends React.Component {
                                 </Chip>)
                             }</div>
                         </div> ]
-                        : []).concat(this.getFilteredExpenses().map(this.renderExpense))
+                        : []).concat(filtered.map(this.renderExpense)).concat(this.getTotalRow(filtered))
                 }
             </div>
             <ExpenseStatus className="expense-table-month-status" name="Tämä kuukausi" status={this.props.monthStatus} />
