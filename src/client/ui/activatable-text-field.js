@@ -50,6 +50,7 @@ export default class ActivatableTextField extends React.Component {
         return React.createElement(type, {
             name: this.props.name,
             id: this.props.id,
+            style: this.props.style,
             hintText: this.props.hintText,
             value: this.state.value,
             onChange: i => this.setState({ value: i.target ? i.target.value : i }),
@@ -62,6 +63,7 @@ export default class ActivatableTextField extends React.Component {
     render() {
         return this.state.edit ? this.createEditor() :
             <div
+                style={this.props.style}
                 onClick={i => this.setState({ edit: true, value: this.props.value })}
                 ref={i => this.editorRef = undefined}
             >{ this.props.value }</div>

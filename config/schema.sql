@@ -76,6 +76,8 @@ CREATE INDEX "categories_group_id" ON categories (group_id);
 COMMENT ON TABLE categories IS 'Expense categories';
 
 
+CREATE TYPE recurring_period AS ENUM ('monthly', 'yearly');
+COMMENT ON TYPE recurring_period IS 'How often a recurring expense occurs';
 
 CREATE TYPE expense_type AS ENUM ('expense', 'income');
 COMMENT ON TYPE expense_type IS 'Expense is split to cost and benefit, income is split to income and split';
@@ -93,15 +95,17 @@ CREATE TABLE IF NOT EXISTS expenses (
   created TIMESTAMP WITH TIME ZONE NOT NULL,
   receiver VARCHAR(50),
   confirmed BOOLEAN NOT NULL DEFAULT TRUE,
+  template BOOLEAN NOT NULL DEFAULT FALSE,
   sum MONEY NOT NULL,
   title VARCHAR(255),
   description TEXT DEFAULT NULL,
   source_id INTEGER REFERENCES sources (id) NOT NULL,
   category_id INTEGER REFERENCES categories (id) NOT NULL
 );
-CREATE INDEX "expenses_group_date" ON expenses (group_id, date);
+CREATE INDEX "expenses_group_date" ON expenses (group_id, template, date);
 COMMENT ON TABLE expenses IS 'Expenses';
 COMMENT ON COLUMN expenses.confirmed IS 'Unconfirmed expenses may trigger a warning in the UI';
+COMMENT ON COLUMN expenses.template IS 'Templates are not included in calculations';
 
 CREATE TABLE IF NOT EXISTS expense_division (
   expense_id INTEGER REFERENCES expenses (id) ON DELETE CASCADE NOT NULL,
@@ -110,3 +114,18 @@ CREATE TABLE IF NOT EXISTS expense_division (
   sum MONEY NOT NULL
 );
 COMMENT ON TABLE expense_division IS 'Describes how each expense item is divided between group users';
+
+CREATE TABLE IF NOT EXISTS recurring_expenses (
+  id SERIAL PRIMARY KEY,
+  template_expense_id INTEGER REFERENCES expenses(id) ON DELETE CASCADE NOT NULL,
+  group_id INTEGER REFERENCES groups(id) NOT NULL,
+  period recurring_period NOT NULL,
+  occurs_until DATE DEFAULT NULL,
+  next_missing DATE DEFAULT NULL
+);
+ALTER TABLE expenses ADD COLUMN recurring_expense_id INTEGER REFERENCES recurring_expenses(id) DEFAULT NULL;
+COMMENT ON TABLE recurring_expenses IS 'Defines which expenses are recurring and how often they occur';
+COMMENT ON COLUMN recurring_expenses.template_expense_id IS 'Expense data is copied from this expense when creating a new copy of the expense';
+COMMENT ON COLUMN recurring_expenses.period IS 'How often the expense recurs';
+COMMENT ON COLUMN recurring_expenses.occurs_until IS 'Expenses will be generated up to this point (not past this date)';
+COMMENT ON COLUMN recurring_expenses.next_missing IS 'Tells the next data for which an expense is yet to be generated';

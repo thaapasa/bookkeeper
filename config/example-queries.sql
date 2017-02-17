@@ -10,6 +10,9 @@ WHERE id=1 AND (SELECT COUNT(*) FROM group_users WHERE user_id=1 AND group_id=1)
 SELECT id, parent_id, name FROM categories WHERE group_id=1
 ORDER BY (CASE WHEN parent_id IS NULL THEN 1 ELSE 0 END) DESC, parent_id ASC, name;
 
+-- Show all values in an enum type
+SELECT enum_range(NULL::expense_type);
+
 
 EXPLAIN ANALYZE
 SELECT s.id, s.group_id, name, (SELECT SUM(share) FROM source_users WHERE source_id = s.id) AS shares, so.user_id, so.share

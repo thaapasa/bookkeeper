@@ -88,6 +88,10 @@ html, body {
     padding: 0 2em;
     white-space: pre-wrap;
 }
+.expense-recurrence {
+    display: inline-block;
+    float: right;
+}
 
 /** Expense division */
 .expense-division {

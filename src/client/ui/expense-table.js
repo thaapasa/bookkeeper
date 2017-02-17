@@ -53,7 +53,7 @@ export default class ExpenseTable extends React.Component {
         const name = expenseName(e);
         state.confirm("Poista kirjaus",
             `Haluatko varmasti poistaa kirjauksen ${name}?`,
-            "Poista")
+            { okText : "Poista" })
             .then(b => b ? apiConnect.deleteExpense(e.id)
                     .then(x => state.notify(`Poistettu kirjaus ${name}`))
                     .then(x => state.updateExpenses(e.date))

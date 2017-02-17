@@ -8,6 +8,7 @@ import ExpandLessSVG from "material-ui/svg-icons/navigation/expand-less"
 import ExpandMoreSVG from "material-ui/svg-icons/navigation/expand-more"
 import DeleteSVG from "material-ui/svg-icons/action/delete"
 import EditSVG from "material-ui/svg-icons/image/edit"
+import RepeatSVG from "material-ui/svg-icons/av/repeat"
 
 export const Income = AttachMoney;
 export const Expense = Payment;
@@ -17,3 +18,4 @@ export const Edit = EditSVG;
 export const Delete = DeleteSVG;
 export const ExpandLess = ExpandLessSVG;
 export const ExpandMore = ExpandMoreSVG;
+export const Repeat = RepeatSVG;

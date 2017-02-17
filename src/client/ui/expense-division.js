@@ -4,6 +4,9 @@ import * as colors from "./colors";
 import * as categories from  "../data/categories";
 import UserAvatar from "./user-avatar";
 import IconButton from 'material-ui/IconButton';
+import {expenseName} from "./expense-helper";
+import {Repeat} from "./icons";
+import * as apiConnect from "../data/api-connect";
 const Money = require("../../shared/util/money");
 import {ExpensePropType} from "./expense-helper";
 
@@ -45,6 +48,17 @@ export default class ExpenseDivision extends React.Component {
     constructor(props) {
         super(props);
         this.userMap = state.get("userMap");
+        this.createRecurring = this.createRecurring.bind(this);
+    }
+
+    createRecurring() {
+        state.confirm("Muuta toistuvaksi", `Kuinka usein kirjaus ${expenseName(this.props.expense)} toistuu?`, {
+            actions: [ ["Kuukausittain", "monthly"], ["Vuosittain", "yearly"], ["Peruuta", false] ]
+        })
+            .then(a => a ? apiConnect.createRecurring(this.props.expense.id, a)
+                    .then(() => state.updateExpenses(this.props.expense.date))
+                    .then(() => state.notify("Kirjaus muutettu toistuvaksi")) : false)
+            .catch(e => state.notifyError("Virhe muutettaessa kirjausta toistuvaksi", e));
     }
 
     render() {
@@ -71,6 +85,9 @@ export default class ExpenseDivision extends React.Component {
                  </div>
             </div>
             { this.props.expense.description ? <div className="expense-description">{ this.props.expense.description }</div> : [] }
+            <div className="expense-recurrence">
+                { this.props.expense.recurringExpenseId ? "Tämä on toistuva tapahtuma" : <IconButton onClick={this.createRecurring}><Repeat /></IconButton> }
+            </div>
             <div key="header" className="expense-user">
                 <div className="avatar-placeholder">Jako:</div>
                 <div className="expense-division-item"><div className="label">{ income ? "Tulo" : "Kulu" }</div></div>

@@ -76,7 +76,7 @@ function del(path, data, query) {
         .catch(defaultErrorHandler);
 }
 
-function login(username, password) {
+export function login(username, password) {
     const url = '/api/session';
 
     return request.put(url)
@@ -87,40 +87,44 @@ function login(username, password) {
         .catch(defaultErrorHandler);
 }
 
-function logout() {
+export function logout() {
     return del("/api/session");
 }
 
-function getSession() {
+export function getSession() {
     return get("/api/session");
 }
 
-function refreshSession() {
+export function refreshSession() {
     return put("/api/session/refresh");
 }
 
-function getExpensesForMonth(year, month) {
+export function getExpensesForMonth(year, month) {
     return get("/api/expense/month", { year: year, month: month })
         .then(l => mapExpenseObject(l));
 }
 
-function getExpense(id) {
+export function getExpense(id) {
     return get(`/api/expense/${parseInt(id, 10)}`).then(mapExpense);
 }
 
-function storeExpense(expense) {
+export function storeExpense(expense) {
     return put("/api/expense", expense);
 }
 
-function updateExpense(id, expense) {
+export function updateExpense(id, expense) {
     return post(`/api/expense/${parseInt(id, 10)}`, expense);
 }
 
-function deleteExpense(id) {
+export function deleteExpense(id) {
     return del(`/api/expense/${parseInt(id, 10)}`);
 }
 
-function queryReceivers(receiver) {
+export function createRecurring(id, period) {
+    return put(`/api/expense/recurring/${parseInt(id, 10)}`, { period: period });
+}
+
+export function queryReceivers(receiver) {
     return get("/api/expense/receivers", { receiver: receiver });
 }
 
@@ -128,17 +132,3 @@ function defaultErrorHandler(er) {
     console.log("Error in api-connect:", er);
     throw er;
 }
-
-module.exports = {
-    login: login,
-    logout: logout,
-    getSession: getSession,
-    refreshSession: refreshSession,
-    getExpensesForMonth:
-    getExpensesForMonth,
-    getExpense: getExpense,
-    storeExpense: storeExpense,
-    deleteExpense: deleteExpense,
-    updateExpense: updateExpense,
-    queryReceivers: queryReceivers
-};
