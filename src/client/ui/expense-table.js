@@ -10,6 +10,9 @@ import RefreshIndicator from 'material-ui/RefreshIndicator';
 import {expenseName} from "./expense-helper";
 const Money = require("../../shared/util/money");
 
+// Just a special reference for determining if details are loading
+const LoadingDetails = {};
+
 export default class ExpenseTable extends React.Component {
 
     constructor(props) {
@@ -40,7 +43,7 @@ export default class ExpenseTable extends React.Component {
         if (details) {
             this.hideExpenseDetails(expense.id);
         } else {
-            this.showExpenseDetails(expense.id, {});
+            this.showExpenseDetails(expense.id, LoadingDetails);
             apiConnect.getExpense(expense.id)
                 .then(e => this.showExpenseDetails(expense.id, e))
                 .catch(e => {
@@ -83,22 +86,30 @@ export default class ExpenseTable extends React.Component {
         return this.props.expenses ? this.state.filters.reduce((a, b) => a.filter(b.filter), this.props.expenses) : [];
     }
 
+    renderDetails(expense, details) {
+        return (details === LoadingDetails) || details ? [
+            <ExpenseDivision
+                loading={details === LoadingDetails}
+                key={ "expense-division-" + expense.id }
+                expense={ expense }
+                onDelete={this.deleteExpense}
+                onModify={this.modifyExpense}
+                division={details.division} />
+        ] : [];
+    }
+
     renderExpense(expense) {
         const details = this.state.details[expense.id];
         return [
             <ExpenseRow expense={ expense }
                         details={ details }
+                        key={ "expense-row-" + expense.id }
                         addFilter={ this.addFilter }
                         onUpdated={ e => this.props.onUpdateExpense(expense.id, e) }
                         onToggleDetails={ this.toggleDetails }
                         onModify={ this.modifyExpense }
                         onDelete={ this.deleteExpense } />
-        ].concat(details && details.division ?
-            [<ExpenseDivision
-                expense={ expense }
-                onDelete={this.deleteExpense}
-                onModify={this.modifyExpense}
-                division={details.division}/>] : [])
+        ].concat(this.renderDetails(expense, details));
     }
 
     getTotalRow(expenses) {

@@ -130,6 +130,12 @@ html, body {
 
 /** Expense division */
 .expense-division {
+    min-height: 60pt;
+}
+.details-loading-indicator {
+    position: relative;
+    height: 60pt;
+    left: 50%;
 }
 
 .expense-user {

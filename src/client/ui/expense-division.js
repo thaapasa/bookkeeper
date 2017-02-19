@@ -7,8 +7,9 @@ import IconButton from 'material-ui/IconButton';
 import {expenseName} from "./expense-helper";
 import {Repeat} from "./icons";
 import * as apiConnect from "../data/api-connect";
-const Money = require("../../shared/util/money");
+import RefreshIndicator from 'material-ui/RefreshIndicator';
 import {ExpensePropType} from "./expense-helper";
+const Money = require("../../shared/util/money");
 
 const styles = {
     tool: {
@@ -62,6 +63,11 @@ export default class ExpenseDivision extends React.Component {
     }
 
     render() {
+        if (this.props.loading) {
+            return <div className="expense-division">
+                <div className="details-loading-indicator"><RefreshIndicator left={-20} top={20} status="loading" size={40} /></div>
+            </div>
+        }
         const division = this.props.division;
         const expense = this.props.expense;
         const income = expense.type === "income";
@@ -106,6 +112,7 @@ export default class ExpenseDivision extends React.Component {
 }
 
 ExpenseDivision.propTypes = {
-    division: React.PropTypes.array.isRequired,
+    division: React.PropTypes.array,
+    loading: React.PropTypes.bool,
     expense: React.PropTypes.shape(ExpensePropType)
 };
