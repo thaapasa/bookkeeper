@@ -9,6 +9,7 @@ import TextField from 'material-ui/TextField';
 import AutoComplete from 'material-ui/AutoComplete';
 import {Expense,Income} from "./icons";
 import * as apiConnect from "../data/api-connect";
+import {PlainAutoComplete} from "./plain-text-field";
 const moment = require("moment");
 
 const styles = {
@@ -160,23 +161,24 @@ export class ReceiverField extends React.Component {
     }
 
     render() {
-        return <AutoComplete
-            name={this.props.name}
-            id={this.props.id}
-            filter={AutoComplete.noFilter}
-            onNewRequest={this.focus}
-            dataSource={this.state.receivers}
-            onUpdateInput={r => this.inputStream.push(r)}
-            hintText={this.props.hintText || "Kauppa"}
-            floatingLabelText="Saaja"
-            floatingLabelFixed={true}
-            fullWidth={true}
-            errorText={this.props.errorText}
-            searchText={this.props.value}
-            onBlur={this.props.onBlur}
-            onKeyUp={this.props.onKeyUp}
-            ref={i => this.ref = i}
-        />
+        const type = this.props.editorType ? this.props.editorType : AutoComplete;
+        return React.createElement(type, {
+            name: this.props.name,
+            id: this.props.id,
+            filter: AutoComplete.noFilter,
+            onNewRequest: this.focus,
+            dataSource: this.state.receivers,
+            onUpdateInput: r => this.inputStream.push(r),
+            hintText: this.props.hintText || "Kauppa",
+            floatingLabelText: "Saaja",
+            floatingLabelFixed: true,
+            fullWidth: true,
+            errorText: this.props.errorText,
+            searchText: this.props.value,
+            onBlur: this.props.onBlur,
+            onKeyUp: this.props.onKeyUp,
+            ref: i => this.ref = i
+        });
     }
 }
 ReceiverField.propTypes = {
@@ -189,6 +191,10 @@ ReceiverField.propTypes = {
     onBlur: React.PropTypes.func,
     onKeyUp: React.PropTypes.func
 };
+
+export function PlainReceiverField(props) {
+    return React.createElement(ReceiverField, Object.assign({}, props, { editorType: PlainAutoComplete }));
+}
 
 export function DescriptionField(props) {
     return <TextField

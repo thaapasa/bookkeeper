@@ -5,10 +5,11 @@ import * as apiConnect from "../data/api-connect";
 import UserAvatar from "./user-avatar";
 import IconButton from 'material-ui/IconButton';
 import ActivatableTextField from "./activatable-text-field";
+import {PlainTextField} from "./plain-text-field";
 import {ExpandLess,ExpandMore,Delete,Edit,Repeat} from "./icons"
 import * as colors from "./colors";
 import {ExpensePropType} from "./expense-helper";
-import {ReceiverField} from "./expense-dialog-components";
+import {PlainReceiverField} from "./expense-dialog-components";
 import {combineClassNames} from "../util/client-util";
 import * as arrays from "../../shared/util/arrays";
 const Money = require("../../shared/util/money");
@@ -163,6 +164,7 @@ export default class ExpenseRow extends React.Component {
                 { expense.recurringExpenseId ?
                     <div style={{ display: "inline-block", width: "14pt", verticalAlign: "top" }}><Repeat style={{ width: "12pt", height: "12pt", position: "absolute" }} /></div> : "" }
                 <ActivatableTextField
+                    editorType={PlainTextField}
                     name="title" value={ expense.title }
                     style={{ display: "inline-block", verticalAlign: "middle" }}
                     onChange={v => this.updateExpense({ title: v })}
@@ -170,7 +172,7 @@ export default class ExpenseRow extends React.Component {
             </div>
             <div className="expense-detail receiver optional"><ActivatableTextField
                 name="receiver" value={ expense.receiver }
-                editorType={ReceiverField}
+                editorType={PlainReceiverField}
                 onChange={v => this.updateExpense({ receiver: v })}
             /></div>
             <div className="expense-detail category optional">{ this.fullCategoryLink(expense.categoryId) }</div>

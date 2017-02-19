@@ -41,6 +41,7 @@ html, body {
     display: flex;
     border-top: 1px solid rgb(224, 224, 224);
     white-space: nowrap;
+    align-items: center;
 }
 
 .expense-table-header,
@@ -81,12 +82,12 @@ html, body {
     vertical-align: middle;
 }
 .expense-detail {
-    margin: 1em 0.4em;
+    margin: 0em 0.4em;
     padding: 0;
     display: inline-block;
     overflow: hidden;
     text-overflow: ellipsis;
-    vertical-align: middle;
+    vertical-align: baseline;
 }
 .expense-detail.date {
     width: 3.2em;
