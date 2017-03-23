@@ -12,6 +12,7 @@ import {ExpensePropType} from "./expense-helper";
 import {PlainReceiverField} from "./expense-dialog-components";
 import {combineClassNames} from "../util/client-util";
 import * as arrays from "../../shared/util/arrays";
+import * as time from "../../shared/util/time";
 const Money = require("../../shared/util/money");
 const moment = require("moment");
 
@@ -106,6 +107,7 @@ export default class ExpenseRow extends React.Component {
     constructor(props) {
         super(props);
         this.updateExpense = this.updateExpense.bind(this);
+        this.editDate = this.editDate.bind(this);
     }
 
     categoryLink(id) {
@@ -141,6 +143,12 @@ export default class ExpenseRow extends React.Component {
             });
     }
 
+    editDate(expense) {
+        state.pickDate(moment(expense.date).toDate())
+            .then(d => { if (d) this.updateExpense({ date: time.date(d) }); return true })
+            .catch(e => state.notifyError("Virhe muutettaessa päivämäärää", e))
+    }
+
     render() {
         const expense = this.props.expense;
         const className = "expense-row expense-item " + expense.type + (expense.confirmed ? "" : " unconfirmed");
@@ -151,7 +159,7 @@ export default class ExpenseRow extends React.Component {
             style.background = colors.income;
         }
         return <div key={expense.id} className={className} style={style}>
-            <div className="expense-detail date">{ moment(expense.date).format("D.M.") }</div>
+            <div className="expense-detail date" onClick={() => this.editDate(expense)}>{ moment(expense.date).format("D.M.") }</div>
             <div className="expense-detail user optional">
                 <UserAvatar userId={expense.userId} size={25} onClick={
                     () => this.props.addFilter(

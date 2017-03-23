@@ -24,6 +24,8 @@ export function init() {
     state.expensesUpdatedStream = new Bacon.Bus();
     state.notificationStream && state.notificationStream.end();
     state.notificationStream = new Bacon.Bus();
+    state.pickDateStream && state.pickDateStream.end();
+    state.pickDateStream = new Bacon.Bus();
 }
 
 export function setCategories(categories) {
@@ -70,10 +72,12 @@ export function getTitle() {
 
 export function notify(msg) {
     state.notificationStream.push(msg);
+    return true;
 }
 
 export function notifyError(msg, cause) {
     state.notificationStream.push(msg + ": " + cause);
+    return false;
 }
 
 export function editExpense(e) {
@@ -102,4 +106,16 @@ export function confirm(title, content, options) {
 export function updateExpenses(date) {
     state.expensesUpdatedStream.push(date);
     return true;
+}
+
+/* Returns a promise that will be resolved to the selected date  */
+export function pickDate(currentValue) {
+    let resolve = null, reject = null;
+    const p = new Promise((res, rej) => { resolve = res; reject = rej; });
+    state.pickDateStream.push({
+        date: currentValue,
+        resolve: resolve,
+        reject: reject
+    });
+    return p;
 }

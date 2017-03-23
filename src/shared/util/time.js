@@ -30,5 +30,5 @@ module.exports = {
     iso: iso,
     date: date,
     fromDate: fromDate,
-    getFinnishMonthName : getFinnishMonthName
+    getFinnishMonthName: getFinnishMonthName
 };

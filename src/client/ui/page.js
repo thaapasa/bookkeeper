@@ -4,6 +4,7 @@ import MonthView from "./month-view"
 import ExpenseDialog from "./expense-dialog"
 import ConfirmationDialog from "./confirmation-dialog"
 import NotificationBar from "./notification-bar"
+import DatePickerComponent from "./date-picker-component"
 import * as log from "../../shared/util/log"
 
 export default class BookkeeperPage extends React.Component {
@@ -30,6 +31,7 @@ export default class BookkeeperPage extends React.Component {
             <div className="main-content">
                 <div><MonthView/></div>
             </div>
+            <DatePickerComponent />
             <NotificationBar />
         </div>
     }
