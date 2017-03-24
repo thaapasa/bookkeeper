@@ -118,6 +118,7 @@ export default class ExpenseDialog extends React.Component {
             valid: false,
             errors: {}
         };
+        this.saveLock = new Bacon.Bus();
         this.inputStreams = {};
         this.submitStream = new Bacon.Bus();
         Object.keys(fields).forEach(k => {
@@ -170,7 +171,7 @@ export default class ExpenseDialog extends React.Component {
         allValid.onValue(v => this.setState({ valid: v }));
         const expense = Bacon.combineTemplate(values);
 
-        Bacon.combineWith((e, v) => Object.assign(e, { allValid: v }), expense, allValid)
+        Bacon.combineWith((e, v, h) => Object.assign(e, { allValid: v && !h }), expense, allValid, this.saveLock.toProperty(false))
             .sampledBy(this.submitStream)
             .filter(e => e.allValid)
             .onValue(e => this.saveExpense(e));
@@ -207,6 +208,7 @@ export default class ExpenseDialog extends React.Component {
     }
 
     saveExpense(expense) {
+        console.log("Save", expense);
         const createNew = !expense.id;
         const sum = Money.from(expense.sum);
         const division = calculateDivision(expense, sum);
@@ -220,14 +222,17 @@ export default class ExpenseDialog extends React.Component {
         delete data.subcategoryId;
         delete data.allValid;
         const name = expenseName(data);
+        this.saveLock.push(true);
         (createNew ? apiConnect.storeExpense(data) : apiConnect.updateExpense(expense.id, data))
             .then(e => {
+                this.saveLock.push(false);
                 state.get("expensesUpdatedStream").push(expense.date);
                 this.closeDialog();
                 state.notify(`${createNew ? "Tallennettu" : "Päivitetty"} ${name}`);
                 return null;
             })
             .catch(e => {
+                this.saveLock.push(false);
                 state.notifyError(`Virhe ${createNew ? "tallennettaessa" : "päivitettäessä"} kirjausta ${name}`, e);
                 return null;
             });
