@@ -36,6 +36,7 @@
     "pg-pool": "^1.6.0",
     "react": "^15.4.1",
     "react-dom": "^15.4.1",
+    "react-router-dom": "^4.0.0",
     "react-tap-event-plugin": "^2.0.1",
     "superagent": "^3.0.0"
   },
