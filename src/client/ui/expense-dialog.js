@@ -13,9 +13,11 @@ import * as categories from  "../data/categories";
 import * as apiConnect from "../data/api-connect";
 import * as state from "../data/state";
 import * as time from "../../shared/util/time";
+import {KeyCodes} from "../util/io"
 import {SumField, TypeSelector, TitleField, CategorySelector, SourceSelector, DateField, ReceiverField, DescriptionField} from "./expense-dialog-components";
 import {expenseName} from "./expense-helper";
 import {unsubscribeAll} from "../util/client-util";
+import {stopEventPropagation} from "../util/client-util";
 const moment = require("moment");
 
 function findParentCategory(categoryId) {
@@ -126,6 +128,8 @@ export default class ExpenseDialog extends React.Component {
         this.requestSave = this.requestSave.bind(this);
         this.setCategory = this.setCategory.bind(this);
         this.selectCategory = this.selectCategory.bind(this);
+        this.handleKeyPress = this.handleKeyPress.bind(this);
+        this.handleOpen = this.handleOpen.bind(this);
     }
 
     componentDidMount() {
@@ -187,12 +191,13 @@ export default class ExpenseDialog extends React.Component {
         console.log("Open expense", expense);
         this.updateCategoriesAndSources();
         Object.keys(fields).forEach(k => this.inputStreams[k].push(initValue(k, expense)));
-        this.setState({ open: true });
+        this.setState({ open: true }, () => this.moneyInput.focus());
     }
 
     closeDialog() {
         console.log("Closing dialog");
         this.setState({ open: false });
+        return false;
     }
 
     requestSave(event) {
@@ -244,6 +249,13 @@ export default class ExpenseDialog extends React.Component {
         this.inputStreams.subcategoryId.push(subcategoryId);
     }
 
+    handleKeyPress(event) {
+        const code = event.keyCode;
+        if (code === KeyCodes.escape) {
+            return this.closeDialog();
+        }
+    }
+
     render() {
         const actions = [
             <FlatButton
@@ -262,16 +274,18 @@ export default class ExpenseDialog extends React.Component {
                     contentClassName="expense-dialog"
                     title={ this.state.createNew ? "Uusi kirjaus" : "Muokkaa kirjausta" }
                     actions={actions}
-                    modal={false}
+                    modal={true}
                     autoDetectWindowHeight={true}
                     autoScrollBodyContent={true}
                     open={this.state.open}
                     onRequestClose={this.closeDialog}>
-            <form onSubmit={this.requestSave}>
+            <form onSubmit={this.requestSave} onKeyUp={this.handleKeyPress}>
                 <div>
                     <UserAvatar userId={this.state.userId} style={{ verticalAlign: "middle" }} />
                     <div style={{ height: "72px", marginLeft: "2em", display: "inline-block", verticalAlign: "middle" }}>
-                        <SumField value={this.state.sum} errorText={this.state.errors.sum} onChange={v => this.inputStreams.sum.push(v)} />
+                        <SumField value={this.state.sum} errorText={this.state.errors.sum}
+                                  theRef={r => this.moneyInput = r}
+                                  onChange={v => this.inputStreams.sum.push(v)} />
                     </div>
                     <div style={{ marginLeft: "2em", display: "inline-block", verticalAlign: "middle" }}>
                         <Checkbox label="Alustava" checked={!this.state.confirmed} onCheck={(e,v) => this.inputStreams.confirmed.push(!v)}/>
@@ -288,7 +302,7 @@ export default class ExpenseDialog extends React.Component {
                     onChange={v => this.inputStreams.title.push(v)}
                 />
                 <ReceiverField value={this.state.receiver} onChange={v => this.inputStreams.receiver.push(v)}
-                               errorText={this.state.errors.receiver} />
+                               errorText={this.state.errors.receiver} onKeyUp={stopEventPropagation}/>
                 <CategorySelector
                     category={this.state.categoryId} categories={this.categories}
                     onChangeCategory={v => this.inputStreams.categoryId.push(v)}
@@ -307,7 +321,7 @@ export default class ExpenseDialog extends React.Component {
 
                 <DateField value={this.state.date} onChange={v => this.inputStreams.date.push(v)} />
                 <DescriptionField value={this.state.description} onChange={v => this.inputStreams.description.push(v)}
-                                  errorText={this.state.errors.description}  />
+                                  errorText={this.state.errors.description} />
             </form>
         </Dialog>
     }

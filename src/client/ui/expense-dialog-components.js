@@ -10,6 +10,7 @@ import AutoComplete from 'material-ui/AutoComplete';
 import {Expense,Income} from "./icons";
 import * as apiConnect from "../data/api-connect";
 import {PlainAutoComplete} from "./plain-text-field";
+import {stopEventPropagation} from "../util/client-util";
 const moment = require("moment");
 
 const styles = {
@@ -18,6 +19,7 @@ const styles = {
 
 export function SumField(props) {
     return <TextField
+        ref={props.theRef}
         hintText="0.00"
         floatingLabelText="Summa"
         floatingLabelFixed={true}
@@ -41,6 +43,7 @@ export function TitleField(props) {
         onNewRequest={(v) => props.onSelect(v.value)}
         errorText={props.errorText}
         fullWidth={true}
+        onKeyUp={stopEventPropagation}
         dataSource={props.dataSource}
         onUpdateInput={(v) => props.onChange(v)} />
 }
@@ -53,12 +56,13 @@ TitleField.propTypes = {
 };
 
 export function CategorySelector(props) {
-    return <div>
+    return <div onKeyUp={stopEventPropagation}>
         <DropDownMenu
             key="category"
             value={ props.category }
             style={ styles.category }
             autoWidth={false}
+            onKeyUp={stopEventPropagation}
             onChange={(i, j, v) => props.onChangeCategory(v)}>
             { props.categories.map((row) => (
                 <MenuItem key={row.id} value={row.id} primaryText={row.name} />
@@ -69,6 +73,7 @@ export function CategorySelector(props) {
             value={ props.subcategory }
             style={ styles.category }
             autoWidth={false}
+            onKeyUp={stopEventPropagation}
             onChange={(i, j, v) => props.onChangeSubcategory(v)}>
             { props.subcategories.map(row =>
                 <MenuItem key={row.id} value={row.id} primaryText={row.name} />
@@ -109,10 +114,9 @@ export function TypeSelector(props) {
         checked={props.value === "income"}
         onCheck={(e, v) => props.onChange(v ? "income" : "expense")} />
 }
-SourceSelector.propTypes = {
-    value: React.PropTypes.number.isRequired,
-    onChange: React.PropTypes.func.isRequired,
-    sources: React.PropTypes.array.isRequired
+TypeSelector.propTypes = {
+    value: React.PropTypes.string.isRequired,
+    onChange: React.PropTypes.func.isRequired
 };
 
 export function DateField(props) {

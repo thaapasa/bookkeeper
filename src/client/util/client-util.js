@@ -10,3 +10,7 @@ export function unsubscribeAll(arr) {
 export function combineClassNames() {
     return Array.prototype.slice.call(arguments).reduce((res, cur) => cur ? (res ? res + " " + cur : cur) : res, "");
 }
+
+export function stopEventPropagation(event) {
+    event && event.stopPropagation();
+}
