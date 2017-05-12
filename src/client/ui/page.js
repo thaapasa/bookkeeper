@@ -10,6 +10,10 @@ import FlatButton from "material-ui/FlatButton";
 import {BrowserRouter as Router, Route, Link} from "react-router-dom";
 import * as log from "../../shared/util/log"
 
+const LinkButton = ({ label, to }) => (
+    <Route path={to} exact={true} children={ ({ match }) => <Link to={to}><FlatButton primary={!!match}>{label}</FlatButton></Link> }/>
+)
+
 export default class BookkeeperPage extends React.Component {
 
     constructor(props) {
@@ -33,13 +37,13 @@ export default class BookkeeperPage extends React.Component {
             <Router>
                 <div>
                     <TopBar user={this.state.user}>
-                        <Link to="/kulut"><FlatButton primary={true}>Kulut</FlatButton></Link>
-                        <Link to="/kategoriat"><FlatButton>Kategoriat</FlatButton></Link>
+                        <LinkButton label="Kulut" to="/" />
+                        <LinkButton label="Kategoriat" to="/p/kategoriat" />
                     </TopBar>
                     <div className="main-content">
                         <Route exact path="/" component={MonthView} />
-                        <Route path="/kulut" component={MonthView} />
-                        <Route path="/kategoriat" component={CategoryView} />
+                        <Route path="/p/kulut" component={MonthView} />
+                        <Route path="/p/kategoriat" component={CategoryView} />
                     </div>
                 </div>
             </Router>
