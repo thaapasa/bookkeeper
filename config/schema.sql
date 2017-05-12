@@ -4,6 +4,17 @@ CREATE TABLE IF NOT EXISTS groups (
 );
 COMMENT ON TABLE groups IS 'All expenses belong to a single group. Users can be part of many groups.';
 
+CREATE TABLE IF NOT EXISTS users (
+  id SERIAL PRIMARY KEY,
+  username VARCHAR(32) UNIQUE NOT NULL,
+  email VARCHAR(128) UNIQUE NOT NULL,
+  password VARCHAR(40) NOT NULL,
+  first_name VARCHAR(128),
+  last_name VARCHAR(128),
+  default_group_id INTEGER REFERENCES groups (id) DEFAULT NULL,
+  image VARCHAR(32) DEFAULT NULL
+);
+
 CREATE TABLE IF NOT EXISTS sources (
   id SERIAL PRIMARY KEY,
   group_id INTEGER REFERENCES users (id) NOT NULL,
@@ -17,16 +28,6 @@ COMMENT ON COLUMN sources.abbreviation IS 'Abbreviation is shown in lists if ima
 COMMENT ON COLUMN sources.image IS 'Relative path to an image depicting the source';
 
 
-CREATE TABLE IF NOT EXISTS users (
-  id SERIAL PRIMARY KEY,
-  username VARCHAR(32) UNIQUE NOT NULL,
-  email VARCHAR(128) UNIQUE NOT NULL,
-  password VARCHAR(40) NOT NULL,
-  first_name VARCHAR(128),
-  last_name VARCHAR(128),
-  default_group_id INTEGER REFERENCES groups (id) DEFAULT NULL,
-  image VARCHAR(32) DEFAULT NULL
-);
 CREATE INDEX "users_email" ON users (email);
 COMMENT ON TABLE users IS 'Registered users';
 COMMENT ON COLUMN users.username IS 'Username is used for logging in. Uniquely identifies the user.';
