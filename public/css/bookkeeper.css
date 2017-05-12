@@ -26,7 +26,7 @@ html, body {
 .expense-navigation { height: 48px !important; }
 
 /** Expense table */
-.expense-table {
+.bk-table {
     font-size: 13px;
     position: fixed;
     top: 104px;
@@ -36,7 +36,7 @@ html, body {
     overflow: hidden;
 }
 
-.expense-row {
+.bk-table-row {
     height: 41px !important;
     display: flex;
     border-top: 1px solid rgb(224, 224, 224);
@@ -44,7 +44,7 @@ html, body {
     align-items: center;
 }
 
-.expense-table-header,
+.bk-table-header,
 .expense-table-start-status,
 .expense-table-end-status,
 .expense-table-month-status {
@@ -53,23 +53,29 @@ html, body {
     right: 0;
 }
 
-.expense-table-header { top: 0; border-top: none; }
+.bk-table-header { top: 0; border-top: none; }
 .expense-table-start-status { top: 41px; border-bottom: 1px solid rgb(224, 224, 224); }
 .expense-table-month-status { bottom: 41px; }
 .expense-table-end-status { bottom: 0; }
 
-.expense-data-area {
+.bk-table-data-area {
     overflow: scroll;
     position: absolute;
-    top: 82px;
-    bottom: 82px;
     left: 0;
     right: 0;
+}
+.expense-data-area {
+    top: 82px;
+    bottom: 82px;
+}
+.category-data-area {
+    top: 41px;
+    bottom: 0px;
 }
 .expense-row.unconfirmed {}
 .expense-row.income {}
 
-.expense-row.header {
+.bk-table-row.header {
     font-weight: 600;
 }
 .expense-filters {
@@ -194,7 +200,7 @@ html, body {
         display: none !important;
     }
 
-    .expense-row {
+    .bk-table-row {
         height: 32px !important;
     }
 

@@ -121,14 +121,14 @@ export default class ExpenseTable extends React.Component {
 
     render() {
         const filtered = this.getFilteredExpenses();
-        return <div className="expense-table">
-            <ExpenseHeader className="expense-table-header"/>
+        return <div className="expense-table bk-table">
+            <ExpenseHeader className="expense-table-header bk-table-header"/>
             <ExpenseStatus className="expense-table-start-status" name="Tilanne ennen" status={this.props.startStatus} unconfirmedBefore={this.props.unconfirmedBefore} />
-            <div className="expense-data-area">
+            <div className="expense-data-area bk-table-data-area">
                 { this.props.loading ?
                     <div className="loading-indicator-big"><RefreshIndicator left={-30} top={-30} status="loading" size={60} /></div> :
                     (this.state.filters.length > 0 ?
-                        [ <div className="expense-row" key="filters">
+                        [ <div className="expense-row bk-table-row" key="filters">
                             <div className="expense-filters">{
                                 this.state.filters.map((f, index) => <Chip
                                     key={index}

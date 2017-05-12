@@ -41,7 +41,7 @@ function money(v) {
 }
 
 export function ExpenseHeader(props) {
-    return <div className={combineClassNames("expense-row header", props.className)} style={{ color: colors.header }}>
+    return <div className={combineClassNames("expense-row bk-table-row header", props.className)} style={{ color: colors.header }}>
         <div className="expense-detail date">Pvm</div>
         <div className="expense-detail user optional"></div>
         <div className="expense-detail title">Nimi</div>
@@ -68,7 +68,7 @@ export function ExpenseStatus(props) {
     if (props.unconfirmedBefore) {
         style.background = colors.unconfirmedStripes;
     }
-    return <div className={combineClassNames("expense-row status", props.className)} style={style}>
+    return <div className={combineClassNames("expense-row bk-table-row status", props.className)} style={style}>
         <div className="expense-detail status-description">{props.name}</div>
         {
             arrays.flatten(statusTypeKeys.map(type =>
@@ -91,7 +91,7 @@ ExpenseStatus.propTypes = {
 };
 
 export function ExpenseTotal(props) {
-    return <div className="expense-row">
+    return <div className="expense-row bk-table-row">
         <div className="expense-detail total-label">Menot yhteensä</div>
         <div className="expense-detail total-sum">{ money(props.expense) }</div>
         <div className="expense-detail total-label">Tulot yhteensä</div>
@@ -151,7 +151,7 @@ export default class ExpenseRow extends React.Component {
 
     render() {
         const expense = this.props.expense;
-        const className = "expense-row expense-item " + expense.type + (expense.confirmed ? "" : " unconfirmed");
+        const className = "bk-table-row expense-row expense-item " + expense.type + (expense.confirmed ? "" : " unconfirmed");
         const style = {};
         if (!expense.confirmed) {
             style.background = colors.unconfirmedStripes;
