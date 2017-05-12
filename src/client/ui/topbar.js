@@ -25,6 +25,9 @@ export default class ToolbarExamplesSimple extends React.Component {
                 <ToolbarGroup className="optional">
                     <ToolbarTitle text={ state.getTitle() } />
                 </ToolbarGroup>
+                <ToolbarGroup>
+                    { this.props.children }
+                </ToolbarGroup>
                 <ToolbarGroup style={{ align: "right" }}>
                     <RaisedButton label="Kirjaa" primary={true} style={buttonStyle} onTouchTap={this.handleClick} />
                     <UserAvatar userId={this.props.user.id} />
