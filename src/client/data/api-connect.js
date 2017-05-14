@@ -132,6 +132,14 @@ export function queryReceivers(receiver) {
     return get("/api/expense/receivers", { receiver: receiver });
 }
 
+export function storeCategory(expense) {
+    return put("/api/category", expense);
+}
+
+export function updateCategory(id, expense) {
+    return post(`/api/category/${parseInt(id, 10)}`, expense);
+}
+
 function defaultErrorHandler(er) {
     console.log("Error in api-connect:", er);
     throw er;

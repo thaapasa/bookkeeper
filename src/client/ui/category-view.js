@@ -1,4 +1,8 @@
+"use strict";
+
 import React from "react"
+import {Add,Edit,ToolIcon} from "./icons"
+import CategoryDialog from "./category-dialog"
 import * as state from "../data/state"
 import * as colors from "../ui/colors"
 
@@ -13,21 +17,30 @@ const styles = {
     }
 };
 
-const CategoryTable = ({ categories }) => <div className="bk-table category-table">
-    <CategoryHeader />
+const AddCategoryButton = ({ onAdd, parent = null, color = null }) => <ToolIcon title="Lisää" onClick={()=> onAdd(parent)} icon={Add} color={color} />;
+const EditCategoryButton = ({ onEdit, category = null, color = null }) => <ToolIcon title="Muokkaa" onClick={()=> onEdit(category)} icon={Edit} color={color} />;
+
+const CategoryTable = ({ categories, onAdd, onEdit }) => <div className="bk-table category-table">
+    <CategoryHeader onAdd={onAdd}/>
     <div className="category-data-area bk-table-data-area">
-        { categories.map(c => [<CategoryRow key={c.id} category={c} header={true} />].concat(c.children.map(ch => <CategoryRow key={ch.id} category={ch} /> ))) }
+        { categories.map(c => [<CategoryRow key={c.id} category={c} header={true} onAdd={onAdd} onEdit={onEdit} />]
+            .concat(c.children.map(ch => <CategoryRow key={ch.id} category={ch} onAdd={onAdd} onEdit={onEdit} /> ))) }
     </div>
 </div>;
 
-const CategoryHeader = () => <div className="bk-table-header bk-table-row category-table-row header">
+const CategoryHeader = ({onAdd }) => <div className="bk-table-header bk-table-row category-table-row header">
     <div className="category-name">Nimi</div>
-    <div className="category-tools">Toiminnot</div>
+    <div className="category-tools">
+        <AddCategoryButton onAdd={onAdd} />
+    </div>
 </div>;
 
-const CategoryRow = ({ category, header = false }) => <div className="bk-table-row category-table-row" style={ styles[header ? "mainCategory" : "category"]}>
+const CategoryRow = ({ category, onAdd, onEdit, header = false }) => <div className="bk-table-row category-table-row" style={ styles[header ? "mainCategory" : "category"]}>
     <div className="category-name">{category.name}</div>
-    <div className="category-tools">O</div>
+    <div className="category-tools">
+        { header ? <AddCategoryButton parent={category} color={colors.white} onAdd={onAdd} /> : null }
+        <EditCategoryButton category={category} color={header ? colors.white : null} onEdit={onEdit} />
+    </div>
 </div>;
 
 export default class CategoryView extends React.Component {
@@ -41,7 +54,12 @@ export default class CategoryView extends React.Component {
 
     render() {
         return <div className="content">
-            <CategoryTable categories={this.state.categories} />
+            <CategoryTable
+                categories={this.state.categories}
+                onAdd={(parent) => this.categoryDialog.createCategory(parent)}
+                onEdit={(category) => this.categoryDialog.editCategory(category)} />
+            <CategoryDialog ref={r => this.categoryDialog = r}/>
         </div>
     }
+
 }
