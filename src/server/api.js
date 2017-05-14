@@ -60,6 +60,15 @@ function registerAPI(app) {
     app.get("/api/category/list", server.processRequest(session =>
         categories.getAll(session.group.id), true));
 
+    // PUT /api/category
+    const categorySchema = {
+        name: V.stringWithLength(1, 255),
+        parentId: V.nonNegativeInt
+    };
+    app.put("/api/category", server.processRequest((session, req) =>
+        categories.create(session.group.id, V.validate(categorySchema, req.body))
+            .then(id => ({ status: "OK", message: "Category created", categoryId: id }), true)));
+
     // GET /api/category/categoryId
     const categoryPath = /\/api\/category\/([0-9]+)/;
     app.get(categoryPath, server.processRequest((session, req) =>

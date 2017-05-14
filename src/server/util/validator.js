@@ -95,6 +95,13 @@ class Validator {
         return n;
     }
 
+    static nonNegativeInt(i, field) {
+        const n = toInt(i, field);
+        if (n < 0)
+            throw new InvalidInputError(field, i, "Input must be a positive integer");
+        return n;
+    }
+
     static either() {
         const acceptedValues = Array.prototype.slice.call(arguments);
         return (i, field) => {

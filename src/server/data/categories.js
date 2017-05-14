@@ -24,6 +24,11 @@ function getAll(tx) {
         .then(createCategoryObject);
 }
 
+function create(tx) {
+    return (groupId, data) => tx.insert("categories.create", "INSERT INTO categories (group_id, parent_id, name) "+
+        "VALUES ($1::INTEGER, $2::INTEGER, $3) RETURNING id", [ groupId, data.parentId, data.name ]);
+}
+
 function getById(tx) {
     return (groupId, id) => tx.queryObject("categories.get_by_id",
         "SELECT id, parent_id, name FROM categories WHERE id=$1::INTEGER AND group_id=$2::INTEGER ",
@@ -34,6 +39,7 @@ function getById(tx) {
 module.exports = {
     getAll: getAll(db),
     getById: getById(db),
+    create: create(db),
     tx: {
         getAll: getAll,
         getById: getById
