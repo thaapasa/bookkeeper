@@ -73,6 +73,14 @@ html, body {
     top: 41px;
     bottom: 0;
 }
+
+.category-table-row > div {
+    padding: 0 1em;
+}
+.category-table-row > .category-name { flex-grow: 1; }
+.category-table-row > .category-tools { width: 5em; text-align: right; }
+
+
 .expense-row.unconfirmed {}
 .expense-row.income {}
 
