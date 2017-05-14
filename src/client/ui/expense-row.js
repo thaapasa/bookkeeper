@@ -3,10 +3,9 @@ import * as categories from  "../data/categories";
 import * as state from  "../data/state";
 import * as apiConnect from "../data/api-connect";
 import UserAvatar from "./user-avatar";
-import IconButton from 'material-ui/IconButton';
 import ActivatableTextField from "./activatable-text-field";
 import {PlainTextField} from "./plain-text-field";
-import {ExpandLess,ExpandMore,Delete,Edit,Repeat} from "./icons"
+import {ExpandLess,ExpandMore,Delete,Edit,Repeat,ToolIcon} from "./icons"
 import * as colors from "./colors";
 import {ExpensePropType} from "./expense-helper";
 import {PlainReceiverField} from "./expense-dialog-components";
@@ -16,26 +15,6 @@ import * as time from "../../shared/util/time";
 import PropTypes from "prop-types";
 const Money = require("../../shared/util/money");
 const moment = require("moment");
-
-const styles = {
-    tool: {
-        margin: "3pt",
-        padding: "4pt 1pt",
-        width: "16pt",
-        height: "16pt"
-    }
-};
-
-function ToolButton(props) {
-    return <IconButton
-        title={props.title}
-        style={styles.tool}
-        onClick={props.onClick}>{ React.createElement(props.icon, {color: colors.tool}, null) }</IconButton>
-}
-
-function ToolIcon(props) {
-    return React.createElement(props.icon, Object.assign({}, props, { color: colors.tool, style: styles.tool, icon: undefined }));
-}
 
 function money(v) {
     return v ? Money.from(v).format() : "-";
