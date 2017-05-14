@@ -59,7 +59,8 @@ html, body {
 .expense-table-end-status { bottom: 0; }
 
 .bk-table-data-area {
-    overflow: scroll;
+    overflow-y: auto;
+    overflow-x: hidden;
     position: absolute;
     left: 0;
     right: 0;
@@ -70,7 +71,7 @@ html, body {
 }
 .category-data-area {
     top: 41px;
-    bottom: 0px;
+    bottom: 0;
 }
 .expense-row.unconfirmed {}
 .expense-row.income {}
