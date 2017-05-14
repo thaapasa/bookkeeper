@@ -13,6 +13,7 @@ import {PlainReceiverField} from "./expense-dialog-components";
 import {combineClassNames} from "../util/client-util";
 import * as arrays from "../../shared/util/arrays";
 import * as time from "../../shared/util/time";
+import PropTypes from "prop-types";
 const Money = require("../../shared/util/money");
 const moment = require("moment");
 
@@ -84,10 +85,10 @@ export function ExpenseStatus(props) {
     </div>
 }
 ExpenseStatus.propTypes = {
-    name: React.PropTypes.string.isRequired,
-    cost: React.PropTypes.string,
-    benefit: React.PropTypes.string,
-    balance: React.PropTypes.string
+    name: PropTypes.string.isRequired,
+    cost: PropTypes.string,
+    benefit: PropTypes.string,
+    balance: PropTypes.string
 };
 
 export function ExpenseTotal(props) {
@@ -99,8 +100,8 @@ export function ExpenseTotal(props) {
     </div>;
 }
 ExpenseTotal.propTypes = {
-    expense: React.PropTypes.object.isRequired,
-    income: React.PropTypes.object.isRequired
+    expense: PropTypes.object.isRequired,
+    income: PropTypes.object.isRequired
 };
 
 export default class ExpenseRow extends React.Component {
@@ -201,10 +202,10 @@ export default class ExpenseRow extends React.Component {
 }
 
 ExpenseRow.propTypes = {
-    details: React.PropTypes.shape({ division: React.PropTypes.array }),
-    expense: React.PropTypes.shape(ExpensePropType).isRequired,
-    onUpdated: React.PropTypes.func.isRequired,
-    onToggleDetails: React.PropTypes.func.isRequired,
-    onModify: React.PropTypes.func.isRequired,
-    onDelete: React.PropTypes.func.isRequired
+    details: PropTypes.shape({ division: PropTypes.array }),
+    expense: PropTypes.shape(ExpensePropType).isRequired,
+    onUpdated: PropTypes.func.isRequired,
+    onToggleDetails: PropTypes.func.isRequired,
+    onModify: PropTypes.func.isRequired,
+    onDelete: PropTypes.func.isRequired
 };

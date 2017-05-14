@@ -3,6 +3,7 @@
 import React from 'react';
 import TextField from 'material-ui/TextField';
 import {KeyCodes} from "../util/io";
+import PropTypes from "prop-types";
 
 export default class ActivatableTextField extends React.Component {
 
@@ -71,10 +72,10 @@ export default class ActivatableTextField extends React.Component {
 }
 
 ActivatableTextField.propTypes = {
-    editorType: React.PropTypes.func,
-    value: React.PropTypes.string.isRequired,
-    id: React.PropTypes.number,
-    hintText: React.PropTypes.string,
-    onChange: React.PropTypes.func.isRequired,
-    onCancel: React.PropTypes.func
+    editorType: PropTypes.func,
+    value: PropTypes.string.isRequired,
+    id: PropTypes.number,
+    hintText: PropTypes.string,
+    onChange: PropTypes.func.isRequired,
+    onCancel: PropTypes.func
 };

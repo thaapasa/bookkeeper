@@ -2,15 +2,16 @@
 
 import React from "react"
 import Money from "../../shared/util/money"
+import PropTypes from "prop-types"
 
 export const ExpensePropType = {
-    id: React.PropTypes.number.isRequired,
-    userId: React.PropTypes.number.isRequired,
-    title: React.PropTypes.string.isRequired,
-    sum: React.PropTypes.string.isRequired,
-    sourceId: React.PropTypes.number.isRequired,
-    categoryId: React.PropTypes.number.isRequired,
-    description: React.PropTypes.string
+    id: PropTypes.number.isRequired,
+    userId: PropTypes.number.isRequired,
+    title: PropTypes.string.isRequired,
+    sum: PropTypes.string.isRequired,
+    sourceId: PropTypes.number.isRequired,
+    categoryId: PropTypes.number.isRequired,
+    description: PropTypes.string
 };
 
 export function expenseName(e) {

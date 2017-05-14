@@ -1,16 +1,17 @@
 "use strict";
-import React from 'react';
+import React from "react";
 import * as Bacon from "baconjs";
-import DatePicker from 'material-ui/DatePicker';
-import DropDownMenu from 'material-ui/DropDownMenu';
+import DatePicker from "material-ui/DatePicker";
+import DropDownMenu from "material-ui/DropDownMenu";
 import Checkbox from "material-ui/Checkbox";
-import MenuItem from 'material-ui/MenuItem';
-import TextField from 'material-ui/TextField';
-import AutoComplete from 'material-ui/AutoComplete';
+import MenuItem from "material-ui/MenuItem";
+import TextField from "material-ui/TextField";
+import AutoComplete from "material-ui/AutoComplete";
 import {Expense,Income} from "./icons";
 import * as apiConnect from "../data/api-connect";
 import {PlainAutoComplete} from "./plain-text-field";
 import {stopEventPropagation} from "../util/client-util";
+import PropTypes from "prop-types";
 const moment = require("moment");
 
 const styles = {
@@ -28,9 +29,9 @@ export function SumField(props) {
         onChange={i => props.onChange(i.target.value)} />
 }
 SumField.propTypes = {
-    value: React.PropTypes.string.isRequired,
-    errorText: React.PropTypes.string,
-    onChange: React.PropTypes.func.isRequired
+    value: PropTypes.string.isRequired,
+    errorText: PropTypes.string,
+    onChange: PropTypes.func.isRequired
 };
 
 export function TitleField(props) {
@@ -48,11 +49,11 @@ export function TitleField(props) {
         onUpdateInput={(v) => props.onChange(v)} />
 }
 TitleField.propTypes = {
-    value: React.PropTypes.string.isRequired,
-    errorText: React.PropTypes.string,
-    dataSource: React.PropTypes.array.isRequired,
-    onChange: React.PropTypes.func.isRequired,
-    onSelect: React.PropTypes.func.isRequired
+    value: PropTypes.string.isRequired,
+    errorText: PropTypes.string,
+    dataSource: PropTypes.array.isRequired,
+    onChange: PropTypes.func.isRequired,
+    onSelect: PropTypes.func.isRequired
 };
 
 export function CategorySelector(props) {
@@ -83,10 +84,10 @@ export function CategorySelector(props) {
     </div>
 }
 CategorySelector.propTypes = {
-    category: React.PropTypes.number.isRequired,
-    subcategory: React.PropTypes.number.isRequired,
-    subcategories: React.PropTypes.array.isRequired,
-    errorText: React.PropTypes.string
+    category: PropTypes.number.isRequired,
+    subcategory: PropTypes.number.isRequired,
+    subcategories: PropTypes.array.isRequired,
+    errorText: PropTypes.string
 };
 
 export function SourceSelector(props) {
@@ -101,9 +102,9 @@ export function SourceSelector(props) {
     </DropDownMenu>
 }
 SourceSelector.propTypes = {
-    value: React.PropTypes.number.isRequired,
-    onChange: React.PropTypes.func.isRequired,
-    sources: React.PropTypes.array.isRequired
+    value: PropTypes.number.isRequired,
+    onChange: PropTypes.func.isRequired,
+    sources: PropTypes.array.isRequired
 };
 
 export function TypeSelector(props) {
@@ -115,8 +116,8 @@ export function TypeSelector(props) {
         onCheck={(e, v) => props.onChange(v ? "income" : "expense")} />
 }
 TypeSelector.propTypes = {
-    value: React.PropTypes.string.isRequired,
-    onChange: React.PropTypes.func.isRequired
+    value: PropTypes.string.isRequired,
+    onChange: PropTypes.func.isRequired
 };
 
 export function DateField(props) {
@@ -130,8 +131,8 @@ export function DateField(props) {
         onChange={(event, date) => props.onChange(date)} />
 }
 DateField.propTypes = {
-    value: React.PropTypes.instanceOf(Date),
-    onChange: React.PropTypes.func.isRequired
+    value: PropTypes.instanceOf(Date),
+    onChange: PropTypes.func.isRequired
 };
 
 export class ReceiverField extends React.Component {
@@ -186,14 +187,14 @@ export class ReceiverField extends React.Component {
     }
 }
 ReceiverField.propTypes = {
-    name: React.PropTypes.string,
-    id: React.PropTypes.string,
-    hintText: React.PropTypes.string,
-    value: React.PropTypes.string.isRequired,
-    errorText: React.PropTypes.string,
-    onChange: React.PropTypes.func.isRequired,
-    onBlur: React.PropTypes.func,
-    onKeyUp: React.PropTypes.func
+    name: PropTypes.string,
+    id: PropTypes.string,
+    hintText: PropTypes.string,
+    value: PropTypes.string.isRequired,
+    errorText: PropTypes.string,
+    onChange: PropTypes.func.isRequired,
+    onBlur: PropTypes.func,
+    onKeyUp: PropTypes.func
 };
 
 export function PlainReceiverField(props) {
@@ -213,7 +214,7 @@ export function DescriptionField(props) {
     />
 }
 DescriptionField.propTypes = {
-    value: React.PropTypes.string.isRequired,
-    errorText: React.PropTypes.string,
-    onChange: React.PropTypes.func.isRequired
+    value: PropTypes.string.isRequired,
+    errorText: PropTypes.string,
+    onChange: PropTypes.func.isRequired
 };

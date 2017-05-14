@@ -9,6 +9,7 @@ import {Repeat} from "./icons";
 import * as apiConnect from "../data/api-connect";
 import RefreshIndicator from 'material-ui/RefreshIndicator';
 import {ExpensePropType} from "./expense-helper";
+import PropTypes from "prop-types";
 const Money = require("../../shared/util/money");
 
 const styles = {
@@ -112,7 +113,7 @@ export default class ExpenseDivision extends React.Component {
 }
 
 ExpenseDivision.propTypes = {
-    division: React.PropTypes.array,
-    loading: React.PropTypes.bool,
-    expense: React.PropTypes.shape(ExpensePropType)
+    division: PropTypes.array,
+    loading: PropTypes.bool,
+    expense: PropTypes.shape(ExpensePropType)
 };
