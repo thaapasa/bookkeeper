@@ -1,10 +1,10 @@
-import React from 'react';
-import IconButton from 'material-ui/IconButton';
+import React from "react"
+import IconButton from 'material-ui/IconButton'
 import * as time from "../../shared/util/time"
-import * as colors from "./colors";
-import {NavigateLeft,NavigateRight} from "./icons";
-import * as state from "../data/state";
-import {KeyCodes} from "../util/io";
+import * as colors from "./colors"
+import {NavigateLeft,NavigateRight} from "./icons"
+import * as state from "../data/state"
+import {KeyCodes} from "../util/io"
 import PropTypes from "prop-types"
 const Moment = require("moment");
 

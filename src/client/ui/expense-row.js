@@ -44,14 +44,14 @@ function money(v) {
 export function ExpenseHeader(props) {
     return <div className={combineClassNames("expense-row bk-table-row header", props.className)} style={{ color: colors.header }}>
         <div className="expense-detail date">Pvm</div>
-        <div className="expense-detail user optional"></div>
+        <div className="expense-detail user optional"/>
         <div className="expense-detail title">Nimi</div>
         <div className="expense-detail receiver optional">Kohde</div>
         <div className="expense-detail category optional">Kategoria</div>
         <div className="expense-detail source optional">Lähde</div>
         <div className="expense-detail sum">Summa</div>
         <div className="expense-detail balance optional">Balanssi</div>
-        <div className="expense-detail tools"></div>
+        <div className="expense-detail tools"/>
     </div>
 }
 
@@ -114,7 +114,7 @@ export default class ExpenseRow extends React.Component {
     categoryLink(id) {
         const cat = categories.get(id);
         return <a href="#" key={cat.id} onClick={
-            () => this.props.addFilter(e => e.categoryId == cat.id || categories.get(e.categoryId).parentId == cat.id, categories.getFullName(cat.id))
+            () => this.props.addFilter(e => e.categoryId === cat.id || categories.get(e.categoryId).parentId === cat.id, categories.getFullName(cat.id))
         } style={{ color: colors.action }}>{ cat.name }</a>
     }
 
@@ -132,7 +132,7 @@ export default class ExpenseRow extends React.Component {
             (source.abbreviation ? source.abbreviation : source.name);
         const avatar = source.image ? source.image : undefined;
         return <a href="#" key={source.id} onClick={
-            () => this.props.addFilter(e => e.sourceId == sourceId, source.name, avatar)}>{ content }</a>
+            () => this.props.addFilter(e => e.sourceId === sourceId, source.name, avatar)}>{ content }</a>
     }
 
     updateExpense(data) {
@@ -164,7 +164,7 @@ export default class ExpenseRow extends React.Component {
             <div className="expense-detail user optional">
                 <UserAvatar userId={expense.userId} size={25} onClick={
                     () => this.props.addFilter(
-                        e => e.userId == expense.userId,
+                        e => e.userId === expense.userId,
                         state.get("userMap")[expense.userId].firstName,
                         state.get("userMap")[expense.userId].image)
                 }/>
