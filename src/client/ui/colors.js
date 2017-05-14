@@ -1,4 +1,4 @@
-import {cyan500, cyan800, purple800, pink800, grey500, grey600, amber100, lime100} from "material-ui/styles/colors";
+import {cyan500, cyan800, purple800, pink800, grey200, grey500, grey600, amber100, lime100, teal500} from "material-ui/styles/colors";
 
 export const white = "#FFFFFF";
 export const highlight = cyan500;
@@ -7,6 +7,8 @@ export const positive = purple800;
 export const negative = pink800;
 export const unimportant = grey500;
 export const header = grey600;
+export const topItem = teal500;
+export const subItem = grey200;
 
 export const navigation = highlight;
 export const tool = header;

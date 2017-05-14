@@ -1,14 +1,15 @@
 import React from "react"
 import * as state from "../data/state"
+import * as colors from "../ui/colors"
 
 const styles = {
     mainCategory: {
-        background: "rgb(75,154,173)",
+        background: colors.topItem,
         color: "white",
         fontWeight: "bold"
     },
     category: {
-        background: "#eeeeee"
+        background: colors.subItem
     }
 };
 
