@@ -36,10 +36,20 @@ function getById(tx) {
         .then(errors.undefinedToError(errors.NotFoundError, "CATEGORY_NOT_FOUND", "category"));
 }
 
+function update(groupId, categoryId, data) {
+    return db.transaction(tx => getById(tx)(groupId, categoryId)
+            .then(errors.undefinedToError(errors.NotFoundError, "CATEGORY_NOT_FOUND", "category"))
+            .then(x => tx.update("categories.update",
+                "UPDATE categories SET parent_id=$1::INTEGER, name=$2 WHERE id=$3::INTEGER AND group_id=$4::INTEGER",
+                [data.parentId || null, data.name, categoryId, groupId]))
+            .then(x => ({ id: categoryId, parentId: data.parentId || null, name: data.name })), false);
+}
+
 module.exports = {
     getAll: getAll(db),
     getById: getById(db),
     create: create(db),
+    update: update,
     tx: {
         getAll: getAll,
         getById: getById

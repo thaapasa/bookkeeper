@@ -9,6 +9,7 @@ import MenuItem from "material-ui/MenuItem"
 import * as apiConnect from "../data/api-connect"
 import * as state from "../data/state"
 import * as categories from  "../data/categories"
+const Promise = require("bluebird");
 
 const defaultCategory = [ { id: 0, name: "[Ei yläkategoriaa]" }];
 
@@ -20,11 +21,14 @@ export default class CategoryDialog extends React.Component {
         this.state = {
             open: false,
             name: "",
-            parent: 0,
+            parentId: 0,
+            id: 0,
             createNew: false,
             valid: false
         };
         this.categories = [];
+        this.resolve = null;
+        this.reject = null;
 
         this.requestSave = this.requestSave.bind(this);
         this.closeDialog = this.closeDialog.bind(this);
@@ -42,14 +46,20 @@ export default class CategoryDialog extends React.Component {
 
     createCategory(parent) {
         console.log("Create category under", parent);
-        this.updateCategories();
-        this.setState({ open: true, name: "", parent: parent && parent.id || 0, createNew: true });
+        return this.startEditing({ open: true, name: "", parentId: parent && parent.id || 0, createNew: true, id: 0, valid: true });
     }
 
     editCategory(category) {
         console.log("Edit category", category);
+        return this.startEditing({ open: true, name: category.name, parentId: category.parentId || 0, createNew: false, id: category.id, valid: true });
+    }
+
+    startEditing(s) {
         this.updateCategories();
-        this.setState({ open: true, name: category.name, parent: category.parentId || 0, createNew: false });
+        const resolvers = {};
+        const promise = new Promise((res, rej) => { this.resolve = res; this.reject = rej; });
+        this.setState(Object.assign(s, resolvers));
+        return promise;
     }
 
     update(name) {
@@ -59,30 +69,34 @@ export default class CategoryDialog extends React.Component {
         });
     }
 
-    closeDialog() {
+    closeDialog(data) {
         console.log("Closing dialog");
         this.setState({ open: false });
+        this.resolve && this.resolve(data);
         return false;
     }
 
     requestSave(event) {
         event.preventDefault();
         event.stopPropagation();
-        this.saveExpense({ name: "Miimaa" });
+        this.setState(s => {
+            this.saveCategory(s);
+            return s;
+        });
     }
 
-    saveExpense(category) {
-        console.log("Save", category);
-        const createNew = !category.id;
-        const name = category.name;
+    saveCategory(s) {
+        const createNew = !s.id;
+        const name = s.name;
 
         const data = {
-            name: category.name,
-            parent: category.parent
+            name: s.name,
+            parentId: s.parentId
         };
-        (createNew ? apiConnect.storeCategory(data) : apiConnect.updateCategory(category.id, data))
+        console.log("Save", data);
+        (createNew ? apiConnect.storeCategory(data) : apiConnect.updateCategory(s.id, data))
             .then(e => {
-                this.closeDialog();
+                this.closeDialog(e);
                 state.notify(`${createNew ? "Tallennettu" : "Päivitetty"} ${name}`);
                 return null;
             })
@@ -97,7 +111,7 @@ export default class CategoryDialog extends React.Component {
             <FlatButton
                 label="Peruuta"
                 primary={true}
-                onTouchTap={this.closeDialog} />,
+                onTouchTap={() => this.closeDialog(null)} />,
             <FlatButton
                 label="Tallenna"
                 primary={true}
@@ -114,7 +128,7 @@ export default class CategoryDialog extends React.Component {
                     autoDetectWindowHeight={true}
                     autoScrollBodyContent={true}
                     open={this.state.open}
-                    onRequestClose={this.closeDialog}>
+                    onRequestClose={() => this.closeDialog(null)}>
             <form onSubmit={this.requestSave} onKeyUp={this.handleKeyPress}>
                 <TextField
                     key="name"
@@ -127,11 +141,11 @@ export default class CategoryDialog extends React.Component {
                 />
                 <SelectField
                     key="category"
-                    value={ this.state.parent }
+                    value={ this.state.parentId }
                     floatingLabelText="Yläkategoria"
                     floatingLabelFixed={true}
                     style={{ width: "100%" }}
-                    onChange={(i, j, v) => this.setState({ parent: v}) }>
+                    onChange={(i, j, v) => this.setState({ parentId: v}) }>
                     { this.categories.map((row) => (
                         <MenuItem key={row.id} value={row.id} primaryText={row.name} />
                     ))}

@@ -69,8 +69,12 @@ function registerAPI(app) {
         categories.create(session.group.id, V.validate(categorySchema, req.body))
             .then(id => ({ status: "OK", message: "Category created", categoryId: id }), true)));
 
-    // GET /api/category/categoryId
     const categoryPath = /\/api\/category\/([0-9]+)/;
+    // POST /api/category/categoryId
+    app.post(categoryPath, server.processRequest((session, req) =>
+        categories.update(session.group.id, server.getId(categoryPath, req), V.validate(categorySchema, req.body)), true));
+
+    // GET /api/category/categoryId
     app.get(categoryPath, server.processRequest((session, req) =>
         categories.getById(session.group.id, server.getId(categoryPath, req)), true));
 

@@ -132,6 +132,10 @@ export function queryReceivers(receiver) {
     return get("/api/expense/receivers", { receiver: receiver });
 }
 
+export function getCategoryList() {
+    return get("/api/category/list");
+}
+
 export function storeCategory(expense) {
     return put("/api/category", expense);
 }

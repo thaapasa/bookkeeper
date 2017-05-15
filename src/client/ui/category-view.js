@@ -5,6 +5,7 @@ import {Add,Edit,ToolIcon} from "./icons"
 import CategoryDialog from "./category-dialog"
 import * as state from "../data/state"
 import * as colors from "../ui/colors"
+import * as apiConnect from "../data/api-connect"
 
 const styles = {
     mainCategory: {
@@ -50,14 +51,33 @@ export default class CategoryView extends React.Component {
         this.state = {
             categories: state.get("categories")
         };
+        this.createCategory = this.createCategory.bind(this);
+        this.editCategory = this.editCategory.bind(this);
+    }
+
+    reloadCategories() {
+        apiConnect.getCategoryList().then(l => this.setState({ categories: l }));
+    }
+
+    createCategory(parent) {
+        this.categoryDialog.createCategory(parent)
+            .then(c => console.log("Created new category", c))
+            .then(c => this.reloadCategories());
+    }
+
+    editCategory(category) {
+        console.log("Editing!");
+        this.categoryDialog.editCategory(category)
+            .then(c => console.log("Modified category", c))
+            .then(c => this.reloadCategories());
     }
 
     render() {
         return <div className="content">
             <CategoryTable
                 categories={this.state.categories}
-                onAdd={(parent) => this.categoryDialog.createCategory(parent)}
-                onEdit={(category) => this.categoryDialog.editCategory(category)} />
+                onAdd={this.createCategory}
+                onEdit={this.editCategory} />
             <CategoryDialog ref={r => this.categoryDialog = r}/>
         </div>
     }
