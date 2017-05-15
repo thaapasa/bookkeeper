@@ -78,6 +78,11 @@ function registerAPI(app) {
     app.get(categoryPath, server.processRequest((session, req) =>
         categories.getById(session.group.id, server.getId(categoryPath, req)), true));
 
+    // GET /api/category/totals
+    app.get("/api/category/totals", server.processRequest(session =>
+        categories.getTotals(session.group.id), true));
+
+
 
     // GET /api/source/list
     app.get("/api/source/list", server.processRequest(session =>

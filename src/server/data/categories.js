@@ -4,6 +4,7 @@ const db = require("./db");
 const errors = require("../util/errors");
 
 function createCategoryObject(categories) {
+    console.dir(categories);
     const res = [];
     const subs = {};
     categories.forEach(c => {
@@ -20,6 +21,15 @@ function createCategoryObject(categories) {
 
 function getAll(tx) {
     return (groupId) => tx.queryList("categories.get_all", "SELECT id, parent_id, name FROM categories WHERE group_id=$1::INTEGER " +
+        "ORDER BY (CASE WHEN parent_id IS NULL THEN 1 ELSE 0 END) DESC, parent_id ASC, name", [ groupId ])
+        .then(createCategoryObject);
+}
+
+function getTotals(tx) {
+    /*select categories.id, sum(sum) as all, sum(case when type='expense' then sum else '0' end) as expenses, sum(case when type='income' then sum else '0' end) as income from categories left join expenses on categories.id=category_id where categories.id is not null and expenses.group_id=1 group by categories.id;*/
+    return (groupId) => tx.queryList("categories.get_totals", "select categories.id, categories.parent_id, sum(case when type='expense' then sum else '0' end) as expenses, " +
+        "sum(case when type='income' then sum else '0' end) as income from categories left join expenses on categories.id=category_id " +
+        "where categories.id is not null and expenses.group_id=$1::INTEGER group by categories.id " +
         "ORDER BY (CASE WHEN parent_id IS NULL THEN 1 ELSE 0 END) DESC, parent_id ASC, name", [ groupId ])
         .then(createCategoryObject);
 }
@@ -47,6 +57,7 @@ function update(groupId, categoryId, data) {
 
 module.exports = {
     getAll: getAll(db),
+    getTotals: getTotals(db),
     getById: getById(db),
     create: create(db),
     update: update,
