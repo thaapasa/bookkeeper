@@ -103,6 +103,16 @@ function registerAPI(app) {
         return expenses.getByMonth(session.group.id, session.user.id, params.year, params.month);
     }, true));
 
+    const searchSchema = {
+        startDate: V.date,
+        endDate: V.date,
+        categoryId: V.optional(V.positiveInt)
+    };
+    app.get("/api/expense/search", server.processRequest((session, req) => {
+        const params = V.validate(searchSchema, req.query);
+        return expenses.search(session.group.id, session.user.id, params);
+    }, true));
+
     // PUT /api/expense
     const expenseSchema = {
         userId: V.positiveInt,

@@ -12,7 +12,6 @@ const users = require("./users");
 const sources = require("./sources");
 const errors = require("../util/errors");
 const splitter = require("../../shared/util/splitter");
-const expenseDivision = require("./expense-division");
 const recurring = require("./recurring-expenses");
 const basic = require("./basic-expenses");
 
@@ -52,6 +51,16 @@ function getByMonth(groupId, userId, year, month) {
         });
 }
 
+function search(tx) {
+    return (groupId, userId, params) => {
+        log.debug(`Searching for ${JSON.stringify(params)}`);
+        return tx.queryList("expenses.search",
+            basic.expenseSelect("WHERE group_id=$2 AND template=false AND date >= $3::DATE AND date < $4::DATE " +
+                "AND ($5::INTEGER IS NULL OR category_id=$5::INTEGER)"),
+            [userId, groupId, params.startDate, params.endDate, params.categoryId || null])
+    }
+}
+
 module.exports = {
     getAll: basic.getAll,
     getByMonth: getByMonth,
@@ -61,5 +70,6 @@ module.exports = {
     queryReceivers: basic.queryReceivers,
     create: basic.create,
     update: basic.update,
+    search: search(db),
     createRecurring: recurring.createRecurring
 };
