@@ -8,7 +8,8 @@ function month(year, month) {
 
 const datePattern = "YYYY-MM-DD";
 function date(m) {
-    return moment(m).format(datePattern);
+    const mom = (m instanceof moment) ? m : moment(m);
+    return mom.format(datePattern);
 }
 function fromDate(str) {
     return moment(str, datePattern);

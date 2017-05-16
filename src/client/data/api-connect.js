@@ -1,8 +1,9 @@
 "use strict";
 
 import Promise from "bluebird";
-const request = Promise.promisifyAll(require("superagent"));
 import * as state from "./state";
+import * as time from "../../shared/util/time";
+const request = Promise.promisifyAll(require("superagent"));
 const Money = require("../../shared/util/money");
 
 function mapExpense(e) {
@@ -106,6 +107,13 @@ export function refreshSession() {
 export function getExpensesForMonth(year, month) {
     return get("/api/expense/month", { year: year, month: month })
         .then(l => mapExpenseObject(l));
+}
+
+export function searchExpenses(startDate, endDate, query) {
+    const q = query || {};
+    q.startDate = time.date(startDate);
+    q.endDate = time.date(endDate);
+    return get("/api/expense/search", q).then(l => l.map(mapExpense));
 }
 
 export function getExpense(id) {
