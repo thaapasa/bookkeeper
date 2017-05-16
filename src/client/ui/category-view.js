@@ -66,7 +66,7 @@ export default class CategoryView extends React.Component {
                 delete s.categoryExpenses[category.id];
             } else {
                 // Open category expenses
-                apiConnect.searchExpenses(now.clone().subtract(1, 'months'), now, { categoryId: category.id })
+                apiConnect.searchExpenses(now.clone().subtract(1, 'year'), now, { categoryId: category.id })
                     .then(l => this.setState(s2 => {
                         s2.categoryExpenses[category.id] = l;
                         return s2;
