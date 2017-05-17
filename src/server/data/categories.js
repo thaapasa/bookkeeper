@@ -2,9 +2,9 @@
 
 const db = require("./db");
 const errors = require("../util/errors");
+const Money = require("../../shared/util/money");
 
 function createCategoryObject(categories) {
-    console.dir(categories);
     const res = [];
     const subs = {};
     categories.forEach(c => {
@@ -19,6 +19,22 @@ function createCategoryObject(categories) {
     return res;
 }
 
+function sumChildTotalsToParent(categoryTable) {
+    categoryTable.forEach(c => {
+        if (c.parentId === null) {
+            var expenseSum = Money.from(c.expenses);
+            var incomeSum = Money.from(c.income);
+            c.children.forEach(ch => {
+                expenseSum = expenseSum.plus(ch.expenses);
+                incomeSum = incomeSum.plus(ch.income);
+            });
+            c.totalExpenses = expenseSum.toString();
+            c.totalIncome = incomeSum.toString();
+        }
+    });
+    return categoryTable;
+}
+
 function getAll(tx) {
     return (groupId) => tx.queryList("categories.get_all", "SELECT id, parent_id, name FROM categories WHERE group_id=$1::INTEGER " +
         "ORDER BY (CASE WHEN parent_id IS NULL THEN 1 ELSE 0 END) DESC, parent_id ASC, name", [ groupId ])
@@ -26,12 +42,12 @@ function getAll(tx) {
 }
 
 function getTotals(tx) {
-    /*select categories.id, sum(sum) as all, sum(case when type='expense' then sum else '0' end) as expenses, sum(case when type='income' then sum else '0' end) as income from categories left join expenses on categories.id=category_id where categories.id is not null and expenses.group_id=1 group by categories.id;*/
-    return (groupId) => tx.queryList("categories.get_totals", "select categories.id, categories.parent_id, sum(case when type='expense' then sum else '0' end) as expenses, " +
-        "sum(case when type='income' then sum else '0' end) as income from categories left join expenses on categories.id=category_id " +
+    return (groupId) => tx.queryList("categories.get_totals", "select categories.id, categories.parent_id, sum(case when type='expense' then sum::NUMERIC else 0::NUMERIC end) as expenses, " +
+        "sum(case when type='income' then sum::NUMERIC else 0::NUMERIC end) as income from categories left join expenses on categories.id=category_id " +
         "where categories.id is not null and expenses.group_id=$1::INTEGER group by categories.id " +
         "ORDER BY (CASE WHEN parent_id IS NULL THEN 1 ELSE 0 END) DESC, parent_id ASC, name", [ groupId ])
-        .then(createCategoryObject);
+        .then(createCategoryObject)
+        .then(sumChildTotalsToParent);
 }
 
 function create(tx) {
