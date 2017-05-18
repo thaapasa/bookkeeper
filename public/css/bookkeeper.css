@@ -21,6 +21,13 @@ html, body {
     padding: 0;
     margin: 0;
 }
+.no-border {
+    border: none !important;
+}
+.horizontal-padding { padding: 0 1em; }
+.vertical-padding { padding: 1em 0; }
+.top-margin { margin-top: 1em; }
+.bottom-margin { margin-bottom: 1em; }
 
 .top-bar { height: 56px !important; }
 .expense-navigation { height: 48px !important; }
@@ -47,17 +54,21 @@ html, body {
 .bk-table-header,
 .expense-table-start-status,
 .expense-table-end-status,
-.expense-table-month-status {
+.expense-table-month-status,
+.category-table-time-select {
     position: absolute;
     left: 0;
     right: 0;
 }
 
+.bk-item-half { flex-grow: 1; }
+
 .bk-table-header { top: 0; border-top: none; }
 .expense-table-start-status { top: 41px; border-bottom: 1px solid rgb(224, 224, 224); }
 .expense-table-month-status { bottom: 41px; }
 .expense-table-end-status { bottom: 0; }
-
+.category-table-time-select { height: 61px !important; }
+.category-table-header { top: 61px; }
 .bk-table-data-area {
     overflow-y: auto;
     overflow-x: hidden;
@@ -70,7 +81,7 @@ html, body {
     bottom: 82px;
 }
 .category-data-area {
-    top: 41px;
+    top: 102px;
     bottom: 0;
 }
 

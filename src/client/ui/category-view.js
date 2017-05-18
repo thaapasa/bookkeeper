@@ -3,6 +3,7 @@
 import React from "react"
 import {Add,Edit,ExpandLess,ExpandMore,ToolIcon} from "./icons"
 import CategoryDialog from "./category-dialog"
+import DatePicker from "material-ui/DatePicker";
 import * as state from "../data/state"
 import * as colors from "../ui/colors"
 import * as apiConnect from "../data/api-connect"
@@ -28,8 +29,12 @@ export default class CategoryView extends React.Component {
 
     constructor(props) {
         super(props);
+        const end = moment().endOf("month");
+        const start = end.clone().startOf("year");
         this.state = {
             categories: state.get("categories"),
+            startDate: start.toDate(),
+            endDate: end.toDate(),
             categoryExpenses: {}
         };
         this.createCategory = this.createCategory.bind(this);
@@ -38,6 +43,7 @@ export default class CategoryView extends React.Component {
         this.CategoryTable = this.CategoryTable.bind(this);
         this.CategoryHeader = this.CategoryHeader.bind(this);
         this.CategoryRow = this.CategoryRow.bind(this);
+        this.TimeSelector = this.TimeSelector.bind(this);
     }
 
     reloadCategories() {
@@ -59,14 +65,13 @@ export default class CategoryView extends React.Component {
 
     toggleCategoryExpenses(category) {
         console.log("Toggling", category);
-        const now = moment();
         this.setState(s => {
             if (this.isOpen(s.categoryExpenses, category)) {
                 // Close category expenses
                 delete s.categoryExpenses[category.id];
             } else {
                 // Open category expenses
-                apiConnect.searchExpenses(now.clone().subtract(1, 'year'), now, { categoryId: category.id })
+                apiConnect.searchExpenses(s.startDate, s.endDate, { categoryId: category.id })
                     .then(l => this.setState(s2 => {
                         s2.categoryExpenses[category.id] = l;
                         return s2;
@@ -76,8 +81,55 @@ export default class CategoryView extends React.Component {
         });
     }
 
+    loadData(startDate, endDate) {
+        console.log(`Loading data for ${startDate} - ${endDate}`);
+    }
+
+    componentDidMount() {
+        this.setState(s => {
+            this.loadData(s.startDate, s.endDate);
+            return s;
+        });
+    }
+
+    TimeSelector() {
+        return <div className="bk-table-row category-table-time-select no-border">
+            <div className="bk-item-half horizontal-padding"><DatePicker
+                key="start-date"
+                value={this.state.startDate}
+                formatDate={d => moment(d).format("D.M.YYYY")}
+                display="inline"
+                floatingLabelText="Alku"
+                floatingLabelFixed={true}
+                fullWidth={true}
+                autoOk={true}
+                onChange={(event, date) => this.setState(s => {
+                    s.startDate = date;
+                    this.loadData(s.startDate, s.endDate);
+                    return s;
+                })} />
+            </div>
+            <div className="bk-item-half horizontal-padding"><DatePicker
+                key="end-date"
+                value={this.state.endDate}
+                floatingLabelText="Loppu"
+                floatingLabelFixed={true}
+                display="inline"
+                formatDate={d => moment(d).format("D.M.YYYY")}
+                fullWidth={true}
+                autoOk={true}
+                onChange={(event, date) => this.setState(s => {
+                    s.endDate = date;
+                    this.loadData(s.startDate, s.endDate);
+                    return s;
+                })} />
+            </div>
+        </div>
+    }
+
     CategoryTable({ categories, categoryExpenses }) {
         return <div className="bk-table category-table">
+                <this.TimeSelector />
                 <this.CategoryHeader />
                 <div className="category-data-area bk-table-data-area">
                     { categories.map(c => [<this.CategoryRow key={c.id} category={c} header={true} categoryExpenses={categoryExpenses} />]
@@ -87,7 +139,7 @@ export default class CategoryView extends React.Component {
     }
 
     CategoryHeader() {
-        return <div className="bk-table-header bk-table-row category-table-row header">
+        return <div className="bk-table-header bk-table-row category-table-row category-table-header header no-border">
             <div className="category-name">Nimi</div>
             <div className="category-tools">
                 <AddCategoryButton onAdd={this.createCategory}/>
