@@ -144,12 +144,12 @@ export function getCategoryList() {
     return get("/api/category/list");
 }
 
-export function storeCategory(expense) {
-    return put("/api/category", expense);
+export function storeCategory(category) {
+    return put("/api/category", category);
 }
 
-export function updateCategory(id, expense) {
-    return post(`/api/category/${parseInt(id, 10)}`, expense);
+export function updateCategory(id, category) {
+    return post(`/api/category/${parseInt(id, 10)}`, category);
 }
 
 function defaultErrorHandler(er) {
