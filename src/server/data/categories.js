@@ -56,7 +56,7 @@ function getTotals(tx) {
 
 function create(tx) {
     return (groupId, data) => tx.insert("categories.create", "INSERT INTO categories (group_id, parent_id, name) "+
-        "VALUES ($1::INTEGER, $2::INTEGER, $3) RETURNING id", [ groupId, data.parentId, data.name ]);
+        "VALUES ($1::INTEGER, $2::INTEGER, $3) RETURNING id", [ groupId, data.parentId || null, data.name ]);
 }
 
 function getById(tx) {
