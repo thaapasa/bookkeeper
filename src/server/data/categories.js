@@ -42,12 +42,16 @@ function getAll(tx) {
 }
 
 function getTotals(tx) {
-    return (groupId) => tx.queryList("categories.get_totals", "select categories.id, categories.parent_id, sum(case when type='expense' then sum::NUMERIC else 0::NUMERIC end) as expenses, " +
-        "sum(case when type='income' then sum::NUMERIC else 0::NUMERIC end) as income from categories left join expenses on categories.id=category_id " +
-        "where categories.id is not null and expenses.group_id=$1::INTEGER group by categories.id " +
-        "ORDER BY (CASE WHEN parent_id IS NULL THEN 1 ELSE 0 END) DESC, parent_id ASC, name", [ groupId ])
+    return (groupId, params) => {
+        return tx.queryList("categories.get_totals", "select categories.id, categories.parent_id, sum(case when type='expense' then sum::NUMERIC else 0::NUMERIC end) as expenses, " +
+            "sum(case when type='income' then sum::NUMERIC else 0::NUMERIC end) as income from categories left join expenses on categories.id=category_id " +
+            "where categories.id is not null and expenses.group_id=$1::INTEGER " +
+            "and expenses.date >= $2::DATE and expenses.date < $3::DATE " +
+            "group by categories.id ORDER BY (CASE WHEN parent_id IS NULL THEN 1 ELSE 0 END) DESC, parent_id ASC, name",
+            [ groupId, params.startDate, params.endDate ])
         .then(createCategoryObject)
         .then(sumChildTotalsToParent);
+     }
 }
 
 function create(tx) {

@@ -78,11 +78,15 @@ function registerAPI(app) {
     app.get(categoryPath, server.processRequest((session, req) =>
         categories.getById(session.group.id, server.getId(categoryPath, req)), true));
 
+    const dateSchema = {
+        startDate: V.date,
+        endDate: V.date
+    };
     // GET /api/category/totals
-    app.get("/api/category/totals", server.processRequest(session =>
-        categories.getTotals(session.group.id), true));
-
-
+    app.get("/api/category/totals", server.processRequest((session, req) => {
+        const params = V.validate(dateSchema, req.query);
+        return categories.getTotals(session.group.id, params);
+    }, true));
 
     // GET /api/source/list
     app.get("/api/source/list", server.processRequest(session =>
