@@ -55,7 +55,7 @@ function search(tx) {
     return (groupId, userId, params) => {
         log.debug(`Searching for ${JSON.stringify(params)}`);
         return tx.queryList("expenses.search",
-            basic.expenseSelect("WHERE group_id=$2 AND template=false AND date >= $3::DATE AND date < $4::DATE " +
+            basic.expenseSelect("WHERE group_id=$2 AND template=false AND date::DATE >= $3::DATE AND date::DATE <= $4::DATE " +
                 "AND ($5::INTEGER IS NULL OR category_id=$5::INTEGER)"),
             [userId, groupId, params.startDate, params.endDate, params.categoryId || null])
     }
