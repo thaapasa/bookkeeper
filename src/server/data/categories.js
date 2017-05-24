@@ -22,8 +22,8 @@ function createCategoryObject(categories) {
 function sumChildTotalsToParent(categoryTable) {
     categoryTable.forEach(c => {
         if (c.parentId === null) {
-            var expenseSum = Money.from(c.expenses);
-            var incomeSum = Money.from(c.income);
+            let expenseSum = Money.from(c.expenses);
+            let incomeSum = Money.from(c.income);
             c.children.forEach(ch => {
                 expenseSum = expenseSum.plus(ch.expenses);
                 incomeSum = incomeSum.plus(ch.income);
