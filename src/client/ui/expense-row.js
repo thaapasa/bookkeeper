@@ -13,8 +13,12 @@ import {combineClassNames} from "../util/client-util";
 import * as arrays from "../../shared/util/arrays";
 import * as time from "../../shared/util/time";
 import PropTypes from "prop-types";
+import ExpenseDivision from "./expense-division"
 const Money = require("../../shared/util/money");
 const moment = require("moment");
+
+// Just a special reference for determining if details are loading
+const LoadingDetails = {};
 
 function money(v) {
     return v ? Money.from(v).format() : "-";
@@ -86,7 +90,11 @@ ExpenseTotal.propTypes = {
 export default class ExpenseRow extends React.Component {
     constructor(props) {
         super(props);
+        this.state = {
+            details: null
+        };
         this.updateExpense = this.updateExpense.bind(this);
+        this.toggleDetails = this.toggleDetails.bind(this);
         this.editDate = this.editDate.bind(this);
     }
 
@@ -129,6 +137,32 @@ export default class ExpenseRow extends React.Component {
             .catch(e => state.notifyError("Virhe muutettaessa päivämäärää", e))
     }
 
+    toggleDetails(expense, details) {
+        if (details) {
+            this.setState({ details: null });
+        } else {
+            this.setState({ details: LoadingDetails });
+            apiConnect.getExpense(expense.id)
+                .then(e => this.setState({ details: e }))
+                .catch(e => {
+                    state.notifyError("Ei voitu ladata tietoja kirjaukselle", e);
+                    this.setState({ details: null });
+                });
+        }
+    }
+
+    renderDetails(expense, details) {
+        return (details === LoadingDetails) || details ? [
+            <ExpenseDivision
+                loading={details === LoadingDetails}
+                key={ "expense-division-" + expense.id }
+                expense={ expense }
+                onDelete={this.deleteExpense}
+                onModify={this.modifyExpense}
+                division={details.division} />
+        ] : [];
+    }
+
     render() {
         const expense = this.props.expense;
         const className = "bk-table-row expense-row expense-item " + expense.type + (expense.confirmed ? "" : " unconfirmed");
@@ -138,53 +172,54 @@ export default class ExpenseRow extends React.Component {
         } else if (expense.type === "income") {
             style.background = colors.income;
         }
-        return <div key={expense.id} className={className} style={style}>
-            <div className="expense-detail date" onClick={() => this.editDate(expense)}>{ moment(expense.date).format("D.M.") }</div>
-            <div className="expense-detail user optional">
-                <UserAvatar userId={expense.userId} size={25} onClick={
-                    () => this.props.addFilter(
-                        e => e.userId === expense.userId,
-                        state.get("userMap")[expense.userId].firstName,
-                        state.get("userMap")[expense.userId].image)
-                }/>
+        return <div>
+            <div key={expense.id} className={className} style={style}>
+                <div className="expense-detail date" onClick={() => this.editDate(expense)}>{ moment(expense.date).format("D.M.") }</div>
+                <div className="expense-detail user optional">
+                    <UserAvatar userId={expense.userId} size={25} onClick={
+                        () => this.props.addFilter(
+                            e => e.userId === expense.userId,
+                            state.get("userMap")[expense.userId].firstName,
+                            state.get("userMap")[expense.userId].image)
+                    }/>
+                </div>
+                <div className="expense-detail title" style={{ whiteSpace: "nowrap" }}>
+                    { expense.recurringExpenseId ?
+                        <div style={{ display: "inline-block", width: "14pt", verticalAlign: "top" }}><Repeat style={{ width: "12pt", height: "12pt", position: "absolute" }} /></div> : "" }
+                    <ActivatableTextField
+                        editorType={PlainTextField}
+                        name="title" value={ expense.title }
+                        style={{ display: "inline-block", verticalAlign: "middle" }}
+                        onChange={v => this.updateExpense({ title: v })}
+                    />
+                </div>
+                <div className="expense-detail receiver optional"><ActivatableTextField
+                    name="receiver" value={ expense.receiver }
+                    editorType={PlainReceiverField}
+                    onChange={v => this.updateExpense({ receiver: v })}
+                /></div>
+                <div className="expense-detail category optional">{ this.fullCategoryLink(expense.categoryId) }</div>
+                <div className="expense-detail source optional">{ this.getSource(expense.sourceId) }</div>
+                <div className="expense-detail sum">{ Money.from(expense.sum).format() }</div>
+                <div className="expense-detail balance optional" style={{ color: colors.forMoney(expense.userBalance) }} onClick={
+                    () => Money.zero.equals(expense.userBalance) ?
+                        this.props.addFilter(e => Money.zero.equals(e.userBalance), "Balanssi == 0") :
+                        this.props.addFilter(e => !Money.zero.equals(e.userBalance), "Balanssi != 0")
+                }>{ Money.from(expense.userBalance).format() }</div>
+                <div className="expense-detail tools">
+                    <ToolIcon title="Tiedot" onClick={()=>this.toggleDetails(expense, this.state.details)} icon={this.state.details ? ExpandLess : ExpandMore} />
+                    <ToolIcon title="Muokkaa" onClick={()=>this.props.onModify(expense)} icon={Edit} />
+                    <ToolIcon className="optional" title="Poista" onClick={()=>this.props.onDelete(expense)} icon={Delete} />
+                </div>
             </div>
-            <div className="expense-detail title" style={{ whiteSpace: "nowrap" }}>
-                { expense.recurringExpenseId ?
-                    <div style={{ display: "inline-block", width: "14pt", verticalAlign: "top" }}><Repeat style={{ width: "12pt", height: "12pt", position: "absolute" }} /></div> : "" }
-                <ActivatableTextField
-                    editorType={PlainTextField}
-                    name="title" value={ expense.title }
-                    style={{ display: "inline-block", verticalAlign: "middle" }}
-                    onChange={v => this.updateExpense({ title: v })}
-                />
-            </div>
-            <div className="expense-detail receiver optional"><ActivatableTextField
-                name="receiver" value={ expense.receiver }
-                editorType={PlainReceiverField}
-                onChange={v => this.updateExpense({ receiver: v })}
-            /></div>
-            <div className="expense-detail category optional">{ this.fullCategoryLink(expense.categoryId) }</div>
-            <div className="expense-detail source optional">{ this.getSource(expense.sourceId) }</div>
-            <div className="expense-detail sum">{ Money.from(expense.sum).format() }</div>
-            <div className="expense-detail balance optional" style={{ color: colors.forMoney(expense.userBalance) }} onClick={
-                () => Money.zero.equals(expense.userBalance) ?
-                    this.props.addFilter(e => Money.zero.equals(e.userBalance), "Balanssi == 0") :
-                    this.props.addFilter(e => !Money.zero.equals(e.userBalance), "Balanssi != 0")
-            }>{ Money.from(expense.userBalance).format() }</div>
-            <div className="expense-detail tools">
-                <ToolIcon title="Tiedot" onClick={()=>this.props.onToggleDetails(expense, this.props.details)} icon={this.props.details ? ExpandLess : ExpandMore} />
-                <ToolIcon title="Muokkaa" onClick={()=>this.props.onModify(expense)} icon={Edit} />
-                <ToolIcon className="optional" title="Poista" onClick={()=>this.props.onDelete(expense)} icon={Delete} />
-            </div>
+            { this.renderDetails(expense, this.state.details) }
         </div>
     }
 }
 
 ExpenseRow.propTypes = {
-    details: PropTypes.shape({ division: PropTypes.array }),
     expense: PropTypes.shape(ExpensePropType).isRequired,
     onUpdated: PropTypes.func.isRequired,
-    onToggleDetails: PropTypes.func.isRequired,
     onModify: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired
 };

@@ -1,5 +1,4 @@
 import React from "react";
-import ExpenseDivision from "./expense-division"
 import Avatar from "material-ui/Avatar";
 import Chip from "material-ui/Chip"
 import ExpenseRow from "./expense-row";
@@ -10,47 +9,16 @@ import RefreshIndicator from 'material-ui/RefreshIndicator';
 import {expenseName} from "./expense-helper";
 const Money = require("../../shared/util/money");
 
-// Just a special reference for determining if details are loading
-const LoadingDetails = {};
-
 export default class ExpenseTable extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = { details: {}, filters: [] };
-        this.toggleDetails = this.toggleDetails.bind(this);
         this.deleteExpense = this.deleteExpense.bind(this);
         this.modifyExpense = this.modifyExpense.bind(this);
         this.addFilter = this.addFilter.bind(this);
         this.removeFilter = this.removeFilter.bind(this);
         this.renderExpense = this.renderExpense.bind(this);
-    }
-
-    showExpenseDetails(id, details) {
-        this.setState(s => ({ details: Object.assign(s.details, { [id] : details })}));
-        return null;
-    }
-
-    hideExpenseDetails(id) {
-        this.setState(s => {
-            const det = s.details;
-            delete det[id];
-            return { details: det };
-        });
-    }
-
-    toggleDetails(expense, details) {
-        if (details) {
-            this.hideExpenseDetails(expense.id);
-        } else {
-            this.showExpenseDetails(expense.id, LoadingDetails);
-            apiConnect.getExpense(expense.id)
-                .then(e => this.showExpenseDetails(expense.id, e))
-                .catch(e => {
-                    state.notifyError("Ei voitu ladata tietoja kirjaukselle", e);
-                    this.hideExpenseDetails(expense.id);
-                });
-        }
     }
 
     deleteExpense(e) {
@@ -86,30 +54,13 @@ export default class ExpenseTable extends React.Component {
         return this.props.expenses ? this.state.filters.reduce((a, b) => a.filter(b.filter), this.props.expenses) : [];
     }
 
-    renderDetails(expense, details) {
-        return (details === LoadingDetails) || details ? [
-            <ExpenseDivision
-                loading={details === LoadingDetails}
-                key={ "expense-division-" + expense.id }
-                expense={ expense }
-                onDelete={this.deleteExpense}
-                onModify={this.modifyExpense}
-                division={details.division} />
-        ] : [];
-    }
-
     renderExpense(expense) {
-        const details = this.state.details[expense.id];
-        return [
-            <ExpenseRow expense={ expense }
-                        details={ details }
-                        key={ "expense-row-" + expense.id }
-                        addFilter={ this.addFilter }
-                        onUpdated={ e => this.props.onUpdateExpense(expense.id, e) }
-                        onToggleDetails={ this.toggleDetails }
-                        onModify={ this.modifyExpense }
-                        onDelete={ this.deleteExpense } />
-        ].concat(this.renderDetails(expense, details));
+        return <ExpenseRow expense={ expense }
+                    key={ "expense-row-" + expense.id }
+                    addFilter={ this.addFilter }
+                    onUpdated={ e => this.props.onUpdateExpense(expense.id, e) }
+                    onModify={ this.modifyExpense }
+                    onDelete={ this.deleteExpense } />
     }
 
     getTotalRow(expenses) {
