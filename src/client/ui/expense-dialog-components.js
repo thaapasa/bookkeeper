@@ -41,7 +41,7 @@ export function TitleField(props) {
         floatingLabelText="Kuvaus"
         searchText={props.value}
         filter={AutoComplete.caseInsensitiveFilter}
-        onNewRequest={(v) => props.onSelect(v.value)}
+        onNewRequest={(v) => (typeof v === "object") ? props.onSelect(v.value) : ""}
         errorText={props.errorText}
         fullWidth={true}
         onKeyUp={stopEventPropagation}
