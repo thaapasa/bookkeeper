@@ -28,6 +28,7 @@ const styles = {
 const AddCategoryButton = ({ onAdd, parent = null, color = null }) => <ToolIcon title="Lisää" onClick={()=> onAdd(parent)} icon={Add} color={color} />;
 const EditCategoryButton = ({ onEdit, category = null, color = null }) => <ToolIcon title="Muokkaa" onClick={()=> onEdit(category)} icon={Edit} color={color} />;
 const ToggleButton = ({ state, onToggle, category = null, color = null }) => <ToolIcon title={state ? "Sulje" : "Avaa"} onClick={()=> onToggle(category)} icon={state ? ExpandLess : ExpandMore} color={color} />;
+const reloadStream = new Bacon.Bus();
 
 class CategoryRow extends React.Component {
     constructor(props) {
@@ -41,28 +42,24 @@ class CategoryRow extends React.Component {
         this.renderCategoryExpenses = this.renderCategoryExpenses.bind(this);
     }
     componentDidMount() {
-        this.expenseStream = Bacon.combineTemplate({ startDate: this.props.startDateStr, endDate: this.props.endDateStr, category: this.props.category, open: this.openStr });
+        this.expenseStream = Bacon.combineTemplate({ dates: this.props.datesStr, open: this.openStr });
         this.openStr.onValue(o => this.setState({ open: o }));
         this.unsub = [this.expenseStream, this.openStr];
         this.expenseStream
-            .flatMap(d => d.open ? Bacon.fromPromise(apiConnect.searchExpenses(d.startDate, d.endDate, { categoryId: d.category.id })) : Bacon.constant([]))
+            .flatMap(d => d.open ? Bacon.fromPromise(apiConnect.searchExpenses(d.dates.start, d.dates.end, { categoryId: this.props.category.id })) : Bacon.constant([]))
             .flatMapLatest(f => f)
             .onValue(o => this.setState({ expenses: o }));
+        this.unsub.push(state.get("expensesUpdatedStream").onValue(date => reloadStream.push(true)));
     }
     componentWillUnmount() {
         unsubscribeAll(this.unsub);
     }
-    noop() {}
     renderCategoryExpenses(expenses) {
         return expenses && expenses.length > 0 ? expenses.map(expense => <ExpenseRow
                 expense={ expense }
-                details={ null }
                 key={ "expense-row-" + expense.id }
-                addFilter={ this.noop }
-                onUpdated={ this.noop }
-                onToggleDetails={ this.noop }
-                onModify={ this.noop }
-                onDelete={ this.noop } />) :
+                addFilter={() => {}}
+                onUpdated={e => reloadStream.push(true)} />) :
             <div className="bk-table-row category-table-row"><div className="category-name">Ei kirjauksia</div></div>;
     }
     render() {
@@ -90,8 +87,7 @@ CategoryRow.propTypes = {
     header: PropTypes.bool.isRequired,
     createCategory: PropTypes.func.isRequired,
     editCategory: PropTypes.func.isRequired,
-    startDateStr: PropTypes.object.isRequired,
-    endDateStr: PropTypes.object.isRequired
+    datesStr: PropTypes.object.isRequired
 };
 
 function MyDatePicker({ value, onChange, label }) {
@@ -120,6 +116,11 @@ export default class CategoryView extends React.Component {
         };
         this.startDateStr = new Bacon.Bus();
         this.endDateStr = new Bacon.Bus();
+        this.datesStr = Bacon.combineTemplate({
+            start: this.startDateStr.toProperty(start.toDate()),
+            end: this.endDateStr.toProperty(end.toDate()),
+            reload: reloadStream.toProperty(true)
+        });
 
         this.createCategory = this.createCategory.bind(this);
         this.editCategory = this.editCategory.bind(this);
@@ -139,7 +140,7 @@ export default class CategoryView extends React.Component {
     }
 
     editCategory(category) {
-        console.log("Editing!");
+        console.log("Editing category", category);
         this.categoryDialog.editCategory(category)
             .then(c => console.log("Modified category", c))
             .then(c => this.reloadCategories());
@@ -149,11 +150,11 @@ export default class CategoryView extends React.Component {
         this.unsub = [];
         this.startDateStr.onValue(d => this.setState({ startDate: d }));
         this.endDateStr.onValue(d => this.setState({ endDate: d }));
-        this.unsub.push(this.startDateStr, this.endDateStr);
+        this.unsub.push(this.startDateStr, this.endDateStr, this.datesStr);
         this.setState(s => {
             this.startDateStr.push(s.startDate);
             this.endDateStr.push(s.endDate);
-            return s;
+            return {};
         });
     }
 
@@ -185,9 +186,9 @@ export default class CategoryView extends React.Component {
                 <this.CategoryHeader />
                 <div className="category-data-area bk-table-data-area">
                     { categories.map(c => [<CategoryRow key={c.id} category={c} header={true} categoryExpenses={categoryExpenses}
-                                                        createCategory={this.createCategory} editCategory={this.editCategory} startDateStr={this.startDateStr} endDateStr={this.endDateStr} />]
+                                                        createCategory={this.createCategory} editCategory={this.editCategory} datesStr={this.datesStr} />]
                         .concat(c.children.map(ch => <CategoryRow key={ch.id} header={false} category={ch} categoryExpenses={categoryExpenses}
-                                                                  createCategory={this.createCategory} editCategory={this.editCategory} startDateStr={this.startDateStr} endDateStr={this.endDateStr}/> ))) }
+                                                                  createCategory={this.createCategory} editCategory={this.editCategory} datesStr={this.datesStr} /> ))) }
                 </div>
             </div>
     }
