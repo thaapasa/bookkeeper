@@ -58,6 +58,7 @@ function search(tx) {
             basic.expenseSelect("WHERE group_id=$2 AND template=false AND date::DATE >= $3::DATE AND date::DATE <= $4::DATE " +
                 "AND ($5::INTEGER IS NULL OR category_id=$5::INTEGER)"),
             [userId, groupId, params.startDate, params.endDate, params.categoryId || null])
+            .then(l => l.map(basic.mapExpense));
     }
 }
 
