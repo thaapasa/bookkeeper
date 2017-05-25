@@ -92,7 +92,7 @@ export default class ExpenseRow extends React.Component {
 
     categoryLink(id) {
         const cat = categories.get(id);
-        return <a href="#" key={cat.id} onClick={
+        return <a key={cat.id} onClick={
             () => this.props.addFilter(e => e.categoryId === cat.id || categories.get(e.categoryId).parentId === cat.id, categories.getFullName(cat.id))
         } style={{ color: colors.action }}>{ cat.name }</a>
     }
@@ -110,7 +110,7 @@ export default class ExpenseRow extends React.Component {
             <img src={source.image} title={source.name} style={{ maxWidth: "48px", maxHeight: "24px" }} /> :
             (source.abbreviation ? source.abbreviation : source.name);
         const avatar = source.image ? source.image : undefined;
-        return <a href="#" key={source.id} onClick={
+        return <a key={source.id} onClick={
             () => this.props.addFilter(e => e.sourceId === sourceId, source.name, avatar)}>{ content }</a>
     }
 
