@@ -14,6 +14,7 @@ import * as arrays from "../../shared/util/arrays";
 import * as time from "../../shared/util/time";
 import PropTypes from "prop-types";
 import ExpenseDivision from "./expense-division"
+import {expenseName} from "./expense-helper";
 const Money = require("../../shared/util/money");
 const moment = require("moment");
 
@@ -96,6 +97,8 @@ export default class ExpenseRow extends React.Component {
         this.updateExpense = this.updateExpense.bind(this);
         this.toggleDetails = this.toggleDetails.bind(this);
         this.editDate = this.editDate.bind(this);
+        this.deleteExpense = this.deleteExpense.bind(this);
+        this.modifyExpense = this.modifyExpense.bind(this);
     }
 
     categoryLink(id) {
@@ -149,6 +152,22 @@ export default class ExpenseRow extends React.Component {
                     this.setState({ details: null });
                 });
         }
+    }
+
+    deleteExpense(e) {
+        const name = expenseName(e);
+        state.confirm("Poista kirjaus",
+            `Haluatko varmasti poistaa kirjauksen ${name}?`,
+            { okText : "Poista" })
+            .then(b => b ? apiConnect.deleteExpense(e.id)
+                .then(x => state.notify(`Poistettu kirjaus ${name}`))
+                .then(x => state.updateExpenses(e.date))
+                : false)
+            .catch(e => state.notifyError(`Virhe poistettaessa kirjausta ${name}`, e));
+    }
+
+    modifyExpense(expense) {
+        apiConnect.getExpense(expense.id).then(e => state.editExpense(e))
     }
 
     renderDetails(expense, details) {
@@ -208,8 +227,8 @@ export default class ExpenseRow extends React.Component {
                 }>{ Money.from(expense.userBalance).format() }</div>
                 <div className="expense-detail tools">
                     <ToolIcon title="Tiedot" onClick={()=>this.toggleDetails(expense, this.state.details)} icon={this.state.details ? ExpandLess : ExpandMore} />
-                    <ToolIcon title="Muokkaa" onClick={()=>this.props.onModify(expense)} icon={Edit} />
-                    <ToolIcon className="optional" title="Poista" onClick={()=>this.props.onDelete(expense)} icon={Delete} />
+                    <ToolIcon title="Muokkaa" onClick={()=>this.modifyExpense(expense)} icon={Edit} />
+                    <ToolIcon className="optional" title="Poista" onClick={()=>this.deleteExpense(expense)} icon={Delete} />
                 </div>
             </div>
             { this.renderDetails(expense, this.state.details) }
@@ -219,7 +238,5 @@ export default class ExpenseRow extends React.Component {
 
 ExpenseRow.propTypes = {
     expense: PropTypes.shape(ExpensePropType).isRequired,
-    onUpdated: PropTypes.func.isRequired,
-    onModify: PropTypes.func.isRequired,
-    onDelete: PropTypes.func.isRequired
+    onUpdated: PropTypes.func.isRequired
 };

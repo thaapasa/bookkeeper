@@ -3,10 +3,7 @@ import Avatar from "material-ui/Avatar";
 import Chip from "material-ui/Chip"
 import ExpenseRow from "./expense-row";
 import {ExpenseHeader,ExpenseStatus,ExpenseTotal} from "./expense-row";
-import * as apiConnect from "../data/api-connect";
-import * as state from  "../data/state";
 import RefreshIndicator from 'material-ui/RefreshIndicator';
-import {expenseName} from "./expense-helper";
 const Money = require("../../shared/util/money");
 
 export default class ExpenseTable extends React.Component {
@@ -14,28 +11,11 @@ export default class ExpenseTable extends React.Component {
     constructor(props) {
         super(props);
         this.state = { details: {}, filters: [] };
-        this.deleteExpense = this.deleteExpense.bind(this);
-        this.modifyExpense = this.modifyExpense.bind(this);
         this.addFilter = this.addFilter.bind(this);
         this.removeFilter = this.removeFilter.bind(this);
         this.renderExpense = this.renderExpense.bind(this);
     }
 
-    deleteExpense(e) {
-        const name = expenseName(e);
-        state.confirm("Poista kirjaus",
-            `Haluatko varmasti poistaa kirjauksen ${name}?`,
-            { okText : "Poista" })
-            .then(b => b ? apiConnect.deleteExpense(e.id)
-                    .then(x => state.notify(`Poistettu kirjaus ${name}`))
-                    .then(x => state.updateExpenses(e.date))
-                : false)
-            .catch(e => state.notifyError(`Virhe poistettaessa kirjausta ${name}`, e));
-    }
-
-    modifyExpense(expense) {
-        apiConnect.getExpense(expense.id).then(e => state.editExpense(e))
-    }
 
     addFilter(fun, name, avatar) {
         this.setState(s => ({
@@ -58,9 +38,7 @@ export default class ExpenseTable extends React.Component {
         return <ExpenseRow expense={ expense }
                     key={ "expense-row-" + expense.id }
                     addFilter={ this.addFilter }
-                    onUpdated={ e => this.props.onUpdateExpense(expense.id, e) }
-                    onModify={ this.modifyExpense }
-                    onDelete={ this.deleteExpense } />
+                    onUpdated={ e => this.props.onUpdateExpense(expense.id, e) } />
     }
 
     getTotalRow(expenses) {
