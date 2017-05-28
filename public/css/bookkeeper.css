@@ -195,6 +195,11 @@ html, body {
     transition: all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
 }
 
+.expense-dialog .expense-confirmed,
+.expense-dialog .expense-type {
+    margin-top: 1em;
+}
+
 .loading-indicator-big {
     position: absolute;
     left: 50%;
@@ -211,7 +216,9 @@ html, body {
     display: none;
 }
 
+
 @media (max-width: 600px) {
+
     .expense-division .mobile {
         display: block;
     }
@@ -262,8 +269,12 @@ html, body {
     }
 
     .expense-dialog {
-        width: 90% !important;
-        height: 90% !important;
+        width: 100% !important;
+        transform: none !important;
+    }
+
+    .expense-dialog-body {
+        max-height: calc(100vh - 10em) !important;
     }
 
     .expense-user {

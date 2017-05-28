@@ -277,6 +277,7 @@ export default class ExpenseDialog extends React.Component {
 
         return <Dialog
                     contentClassName="expense-dialog"
+                    bodyClassName="expense-dialog-body"
                     title={ this.state.createNew ? "Uusi kirjaus" : "Muokkaa kirjausta" }
                     actions={actions}
                     modal={true}
@@ -287,15 +288,15 @@ export default class ExpenseDialog extends React.Component {
             <form onSubmit={this.requestSave} onKeyUp={this.handleKeyPress}>
                 <div>
                     <UserAvatar userId={this.state.userId} style={{ verticalAlign: "middle" }} />
-                    <div style={{ height: "72px", marginLeft: "2em", display: "inline-block", verticalAlign: "middle" }}>
+                    <div className="expense-sum" style={{ height: "72px", marginLeft: "2em", display: "inline-block", verticalAlign: "middle" }}>
                         <SumField value={this.state.sum} errorText={this.state.errors.sum}
                                   theRef={r => this.moneyInput = r}
                                   onChange={v => this.inputStreams.sum.push(v)} />
                     </div>
-                    <div style={{ marginLeft: "2em", display: "inline-block", verticalAlign: "middle" }}>
+                    <div className="expense-confirmed" style={{ marginLeft: "2em", display: "inline-block", verticalAlign: "middle" }}>
                         <Checkbox label="Alustava" checked={!this.state.confirmed} onCheck={(e,v) => this.inputStreams.confirmed.push(!v)}/>
                     </div>
-                    <div style={{ marginLeft: "2em", display: "inline-block", verticalAlign: "middle" }}>
+                    <div className="expense-type" style={{ marginLeft: "2em", display: "inline-block", verticalAlign: "middle" }}>
                         <TypeSelector value={this.state.type} onChange={v => this.inputStreams.type.push(v)} />
                     </div>
                 </div>
