@@ -33,6 +33,16 @@ function errorIf(condition, error) {
     return condition ? error : undefined;
 }
 
+function getDefaultSourceId() {
+    return state.get("group").defaultSourceId;
+}
+
+function getDefaultSourceUsers() {
+    const sId = getDefaultSourceId();
+    const source = state.get("sourceMap")[sId];
+    return source && source.users.map(u => u.userId) || [state.get("user").id];
+}
+
 /*
  * default: default value
  * read: (expense item) => value; read value from existing expense item
@@ -41,14 +51,14 @@ function errorIf(condition, error) {
  */
 const fields = {
     "title": { default: "", validate: v => errorIf(v.length < 1, "Nimi puuttuu") },
-    "sourceId": { default: () => state.get("group").defaultSourceId, validate: v => errorIf(!v, "Lähde puuttuu") },
+    "sourceId": { default: getDefaultSourceId, validate: v => errorIf(!v, "Lähde puuttuu") },
     "categoryId": { default: 0, read: (e) => findParentCategory(e.categoryId), validate: v => errorIf(!v, "Kategoria puuttuu") },
     "subcategoryId": { default: 0, read: (e) => e.categoryId },
     "receiver": { default: "", validate: v => errorIf(v.length < 1, "Kohde puuttuu") },
     "sum": { default: "", parse: v => v.replace(/,/, "."), validate: v => errorIf(v.length == 0, "Summa puuttuu") || errorIf(v.match(/^[0-9]+([.][0-9]{1,2})?$/) == null, "Summa on virheellinen") },
     "userId": { default: () => state.get("user").id, read: (e) => e.userId },
     "date": { default: () => moment().toDate(), read: (e) => time.fromDate(e.date).toDate() },
-    "benefit": { default: () => [state.get("user").id],
+    "benefit": { default: getDefaultSourceUsers,
         read: (e) => e.division.filter(d => d.type === (e.type === "expense" ? "benefit" : "split")).map(d => d.userId),
         validate: (v) => errorIf(v.length < 1, "Jonkun pitää hyötyä") },
     "description": { default: "", read: (e) => e.description || "" },
