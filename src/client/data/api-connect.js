@@ -148,6 +148,13 @@ export function storeCategory(category) {
     return put("/api/category", category);
 }
 
+export function getCategoryTotals(startDate, endDate) {
+    const q = {};
+    q.startDate = time.date(startDate);
+    q.endDate = time.date(endDate);
+    return get("/api/category/totals", q);
+}
+
 export function updateCategory(id, category) {
     return post(`/api/category/${parseInt(id, 10)}`, category);
 }

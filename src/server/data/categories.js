@@ -7,6 +7,7 @@ const Money = require("../../shared/util/money");
 function createCategoryObject(categories) {
     const res = [];
     const subs = {};
+    console.log(categories);
     categories.forEach(c => {
         if (c.parentId === null) {
             c.children = [];

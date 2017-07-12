@@ -7,6 +7,7 @@ import DatePicker from "material-ui/DatePicker"
 import * as state from "../data/state"
 import * as colors from "../ui/colors"
 import * as apiConnect from "../data/api-connect"
+import * as categories from "../data/categories"
 import * as Bacon from "baconjs"
 import ExpenseRow from "./expense-row"
 import {unsubscribeAll} from "../util/client-util";
@@ -62,12 +63,14 @@ class CategoryRow extends React.Component {
                 onUpdated={e => reloadStream.push(true)} />) :
             <div className="bk-table-row category-table-row"><div className="category-name">Ei kirjauksia</div></div>;
     }
+    /*{this.props.categoryTotals[category.id].expenses} / {this.props.categoryTotals[category.id].income}*/
     render() {
         const category = this.props.category;
         const header = this.props.header;
         return <div className="category-container">
             <div className="bk-table-row category-table-row" style={ styles[header ? "mainCategory" : "category"]}>
                 <div className="category-name">{category.name}</div>
+                <div className="category-totals">{(this.props.categoryTotals['' + category.id]) ? this.props.categoryTotals['' + category.id].expenses + " / " + this.props.categoryTotals['' + category.id].income : "0 / 0"}</div>
                 <div className="category-tools">
                     { header ?
                         <AddCategoryButton parent={category} color={colors.white} onAdd={this.props.createCategory}/> : null }
@@ -110,9 +113,11 @@ export default class CategoryView extends React.Component {
         const start = end.clone().startOf("year");
         this.state = {
             categories: state.get("categories"),
+            categoryTotals: {},
             startDate: start.toDate(),
             endDate: end.toDate(),
-            categoryExpenses: {}
+            categoryExpenses: {},
+            categoryTotals: {}
         };
         this.startDateStr = new Bacon.Bus();
         this.endDateStr = new Bacon.Bus();
@@ -123,34 +128,72 @@ export default class CategoryView extends React.Component {
         });
 
         this.createCategory = this.createCategory.bind(this);
+        this.reloadCategories = this.reloadCategories.bind(this);
         this.editCategory = this.editCategory.bind(this);
         this.CategoryTable = this.CategoryTable.bind(this);
         this.CategoryHeader = this.CategoryHeader.bind(this);
         this.TimeSelector = this.TimeSelector.bind(this);
+
+
     }
 
-    reloadCategories() {
-        apiConnect.getCategoryList().then(l => this.setState({ categories: l }));
+    /*setTotalsToCategory(category, ) {
+
+    }*/
+
+
+    getCategoryTotals(dates) {
+        console.log("getCategoryTotals");
+        if (!dates) {
+            return;
+        }
+        return apiConnect.getCategoryTotals(dates.start, dates.end).then(t => {
+            console.log("got", t);
+            var totalsMap = {};
+            t && t.forEach(t => {
+                totalsMap['' + t.id] = t;
+                if (t.children && t.children.length > 0) {
+                    t.children.forEach(ch => totalsMap['' + ch.id] = ch);
+                }
+            });
+            this.setState({ categoryTotals : totalsMap });
+        })
+    }
+
+    reloadCategories(dates) {
+        console.log("reloadCategories PSFOSISO");
+        Promise.all([
+            this.getCategoryTotals(dates),
+            apiConnect.getCategoryList()
+        ]).then(a => this.setState({ categories: a[1] }));
+        //this.getCategoryTotals().then(() => apiConnect.getCategoryList()).then(l => {
+        //    this.setState({ categories: l })
+        console.log("loaded categories");
+        console.dir(this.state.categoryTotals);
+        //});
     }
 
     createCategory(parent) {
         this.categoryDialog.createCategory(parent)
             .then(c => console.log("Created new category", c))
-            .then(c => this.reloadCategories());
+            .then(c => this.reloadCategories(null));
     }
 
     editCategory(category) {
         console.log("Editing category", category);
         this.categoryDialog.editCategory(category)
             .then(c => console.log("Modified category", c))
-            .then(c => this.reloadCategories());
+            .then(c => this.reloadCategories(null));
     }
 
     componentDidMount() {
+        console.log("componentDidMount");
         this.unsub = [];
         this.startDateStr.onValue(d => this.setState({ startDate: d }));
         this.endDateStr.onValue(d => this.setState({ endDate: d }));
         this.unsub.push(this.startDateStr, this.endDateStr, this.datesStr);
+        this.datesStr.onValue(this.reloadCategories);
+        this.reloadCategories(this.datesStr);
         this.setState(s => {
             this.startDateStr.push(s.startDate);
             this.endDateStr.push(s.endDate);
@@ -180,14 +223,14 @@ export default class CategoryView extends React.Component {
         </div>
     }
 
-    CategoryTable({ categories, categoryExpenses }) {
+    CategoryTable({ categories, categoryTotals, categoryExpenses }) {
         return <div className="bk-table category-table">
                 <this.TimeSelector />
                 <this.CategoryHeader />
                 <div className="category-data-area bk-table-data-area">
-                    { categories.map(c => [<CategoryRow key={c.id} category={c} header={true} categoryExpenses={categoryExpenses}
+                    { categories.map(c => [<CategoryRow key={c.id} category={c} header={true} categoryExpenses={categoryExpenses} categoryTotals={categoryTotals}
                                                         createCategory={this.createCategory} editCategory={this.editCategory} datesStr={this.datesStr} />]
-                        .concat(c.children.map(ch => <CategoryRow key={ch.id} header={false} category={ch} categoryExpenses={categoryExpenses}
+                        .concat(c.children.map(ch => <CategoryRow key={ch.id} header={false} category={ch} categoryExpenses={categoryExpenses} categoryTotals={categoryTotals}
                                                                   createCategory={this.createCategory} editCategory={this.editCategory} datesStr={this.datesStr} /> ))) }
                 </div>
             </div>
@@ -196,6 +239,7 @@ export default class CategoryView extends React.Component {
     CategoryHeader() {
         return <div className="bk-table-header bk-table-row category-table-row category-table-header header no-border">
             <div className="category-name">Nimi</div>
+            <div className="category-totals">Kulut / Tulot</div>
             <div className="category-tools">
                 <AddCategoryButton onAdd={this.createCategory}/>
             </div>
@@ -206,6 +250,7 @@ export default class CategoryView extends React.Component {
         return <div className="content">
             <this.CategoryTable
                 categories={this.state.categories}
+                categoryTotals={this.state.categoryTotals}
                 categoryExpenses={this.state.categoryExpenses} />
             <CategoryDialog ref={r => this.categoryDialog = r}/>
         </div>
