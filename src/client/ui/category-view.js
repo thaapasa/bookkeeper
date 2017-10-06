@@ -70,6 +70,7 @@ class CategoryRow extends React.Component {
         return <div className="category-container">
             <div className="bk-table-row category-table-row" style={ styles[header ? "mainCategory" : "category"]}>
                 <div className="category-name">{category.name}</div>
+                <div className="category-sum">{ header && (this.props.categoryTotals['' + category.id]) ? this.props.categoryTotals['' + category.id].totalExpenses + " / " + this.props.categoryTotals['' + category.id].totalIncome : ""}</div>
                 <div className="category-totals">{(this.props.categoryTotals['' + category.id]) ? this.props.categoryTotals['' + category.id].expenses + " / " + this.props.categoryTotals['' + category.id].income : "0 / 0"}</div>
                 <div className="category-tools">
                     { header ?
@@ -113,7 +114,6 @@ export default class CategoryView extends React.Component {
         const start = end.clone().startOf("year");
         this.state = {
             categories: state.get("categories"),
-            categoryTotals: {},
             startDate: start.toDate(),
             endDate: end.toDate(),
             categoryExpenses: {},
@@ -149,7 +149,7 @@ export default class CategoryView extends React.Component {
         }
         return apiConnect.getCategoryTotals(dates.start, dates.end).then(t => {
             console.log("got", t);
-            var totalsMap = {};
+            let totalsMap = {};
             t && t.forEach(t => {
                 totalsMap['' + t.id] = t;
                 if (t.children && t.children.length > 0) {
