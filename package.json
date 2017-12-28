@@ -2,25 +2,27 @@
   "name": "bookkeeper",
   "version": "0.1.1",
   "main": "bookkeeper-server.js",
+  "private": true,
   "scripts": {
     "start": "npm run update:revision && npm run start:server",
-    "start:server": "NODE_ENV=development node src/server/bookkeeper-server.js",
     "update:revision": "script/update-revision.sh",
+    "start:client": "react-scripts-ts start",
+    "build:client": "react-scripts-ts build",
+    "test:client": "react-scripts-ts test --env=jsdom",
+    "eject:client": "react-scripts-ts eject",
+    "start:server": "NODE_ENV=development node src/server/bookkeeper-server.js",
     "test": "npm run build:test && npm run run:test",
-    "run:test": "node_modules/mocha/bin/mocha",
-    "test:api": "node_modules/mocha/bin/mocha src/test/server/api/*.js",
-    "build:client": "NODE_ENV=development node_modules/browserify/bin/cmd.js --debug src/client/client.js -t [ envify --NODE_ENV development ] -t [ babelify --presets [ es2015 react ] ] -o public/js/bookkeeper.js",
+    "test:server": "node_modules/mocha/bin/mocha src/test/server/api/*.js",
     "build:prod": "NODE_ENV=production node_modules/browserify/bin/cmd.js src/client/client.js -t [ envify --NODE_ENV production ] -t [ babelify --presets [ es2015 react ] ] -o public/js/bookkeeper.js",
     "build:test": "NODE_ENV=development node_modules/browserify/bin/cmd.js --debug src/test/shared/**/*.js -t [ envify --NODE_ENV development ] -t [ babelify --presets [ es2015 react ] ] > test/test.js",
-    "watch": "NODE_ENV=development node_modules/watchify/bin/cmd.js --debug src/client/client.js -v -t [ envify --NODE_ENV development ] -t [ babelify --presets [ es2015 react ] ] -o public/js/bookkeeper.js",
     "build": "npm run build:client",
     "prod": "npm run build:prod && script/create-dist.sh"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://bitbucket.org/haapasalot/bookkeeper.git"
+    "url": "git@bitbucket.org:haapasalot/bookkeeper.git"
   },
-  "author": "",
+  "author": "Anu & Tuukka Haapasalo",
   "license": "ISC",
   "homepage": "https://bitbucket.org/haapasalot/bookkeeper#readme",
   "dependencies": {
@@ -49,6 +51,7 @@
     "chai": "^3.5.0",
     "envify": "^3.4.1",
     "mocha": "^3.2.0",
+    "react-scripts-ts": "2.8.0",
     "watchify": "^3.7.0"
   },
   "directories": {
