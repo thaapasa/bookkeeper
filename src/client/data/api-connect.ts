@@ -35,7 +35,7 @@ function mapExpenseObject(e) {
 }
 
 
-function get(path, query) {
+function get(path, query?: any) {
     const token = state.get("token");
     return request.get(path)
         .query(query ? query : {})
@@ -45,7 +45,7 @@ function get(path, query) {
         .catch(defaultErrorHandler);
 }
 
-function put(path, data, query) {
+function put(path, data?: any, query?: any) {
     const token = state.get("token");
     return request.put(path)
         .query(query ? query : {})
@@ -57,7 +57,7 @@ function put(path, data, query) {
         .catch(defaultErrorHandler);
 }
 
-function post(path, data, query) {
+function post(path, data?: any, query?: any) {
     const token = state.get("token");
     return request.post(path)
         .query(query ? query : {})
@@ -69,7 +69,7 @@ function post(path, data, query) {
         .catch(defaultErrorHandler);
 }
 
-function del(path, data, query) {
+function del(path, data?: any, query?: any) {
     const token = state.get("token");
     return request.delete(path)
         .query(query ? query : {})
@@ -149,9 +149,10 @@ export function storeCategory(category) {
 }
 
 export function getCategoryTotals(startDate, endDate) {
-    const q = {};
-    q.startDate = time.date(startDate);
-    q.endDate = time.date(endDate);
+    const q = { 
+        startDate: time.date(startDate),
+        endDate: time.date(endDate),
+    };
     return get("/api/category/totals", q);
 }
 

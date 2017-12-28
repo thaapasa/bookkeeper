@@ -1,8 +1,27 @@
-import * as Bacon from "baconjs"
+import * as Bacon from 'baconjs';
 
-let state = {};
+interface State {
+    expenseDialogStream?: Bacon.Bus<any, any>;
+    confirmationDialogStream?: Bacon.Bus<any, any>;
+    expensesUpdatedStream?: Bacon.Bus<any, any>;
+    notificationStream?: Bacon.Bus<any, any>;
+    pickDateStream?: Bacon.Bus<any, any>;
+    categories?: any;
+    categoryMap?: any;
+    sources?: any;
+    sourceMap?: any;
+    users?: any;
+    userMap?: any;
+    session?: any;
+    token?: any;
+    user?: any;
+    group?: any;
+    groups?: any;
+};
+
+let state: State = {};
 // Export state for debugging
-window.state = state;
+(window as any).state = state;
 
 export function set(name, value) {
     state[name] = value;
@@ -10,12 +29,12 @@ export function set(name, value) {
 
 export function get(name) {
     return state[name];
-}
+    }
 
 export function init() {
     state = {};
     // Export state for debugging
-    window.state = state;
+    (window as any).state = state;
     state.expenseDialogStream && state.expenseDialogStream.end();
     state.expenseDialogStream = new Bacon.Bus();
     state.confirmationDialogStream && state.confirmationDialogStream.end();
@@ -91,7 +110,7 @@ export function confirm(title, content, options) {
         [options.okText ? options.okText : "OK", true],
             [options.cancelText ? options.cancelText : "Peruuta", false] ];
 
-    let resolve = null, reject = null;
+    let resolve: (() => void) | null = null, reject: (() => void) | null = null;
     const p = new Promise((res, rej) => { resolve = res; reject = rej; });
     state.confirmationDialogStream.push({
         title: title,
@@ -110,7 +129,7 @@ export function updateExpenses(date) {
 
 /* Returns a promise that will be resolved to the selected date  */
 export function pickDate(currentValue) {
-    let resolve = null, reject = null;
+    let resolve: (() => void) | null = null, reject: (() => void) | null = null;
     const p = new Promise((res, rej) => { resolve = res; reject = rej; });
     state.pickDateStream.push({
         date: currentValue,

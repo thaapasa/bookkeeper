@@ -10,13 +10,29 @@ import FlatButton from "material-ui/FlatButton";
 import {BrowserRouter as Router, Route, Link} from "react-router-dom";
 import * as log from "../../shared/util/log"
 
+const TopBarJs: any = TopBar;
+
 const LinkButton = ({ label, to }) => (
     <Route path={to} exact={true} children={ ({ match }) => <Link to={to}><FlatButton primary={!!match}>{label}</FlatButton></Link> }/>
 )
 
-export default class BookkeeperPage extends React.Component {
+interface PageProps {
+    session: any;
+}
+interface PageState {
+    session: string;
+    user: any;
+    categories: any;
+    groups: any;
+    users: any;
+    sources: any;
+}
 
-    constructor(props) {
+export default class BookkeeperPage extends React.Component<PageProps, PageState> {
+
+    public state: PageState;
+
+    constructor(props: PageProps) {
         super(props);
         log.info("Initializing bookkeeper page");
         const session = this.props.session;
@@ -36,10 +52,10 @@ export default class BookkeeperPage extends React.Component {
             <ConfirmationDialog />
             <Router>
                 <div>
-                    <TopBar user={this.state.user}>
+                    <TopBarJs user={this.state.user}>
                         <LinkButton label="Kulut" to="/" />
                         <LinkButton label="Kategoriat" to="/p/kategoriat" />
-                    </TopBar>
+                    </TopBarJs>
                     <div className="main-content">
                         <Route exact path="/" component={MonthView} />
                         <Route path="/p/kulut" component={MonthView} />
