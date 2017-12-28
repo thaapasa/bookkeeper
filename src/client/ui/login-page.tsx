@@ -23,7 +23,7 @@ const loginButtonStyle = {
     margin: "30px"
 };
 
-export default class LoginPage extends React.Component {
+export default class LoginPage extends React.Component<any, any> {
 
     constructor(props) {
         super(props);
@@ -76,18 +76,17 @@ export default class LoginPage extends React.Component {
                         hintText="Käyttäjätunnus"
                         floatingLabelText="Käyttäjätunnus"
                         value={this.state.username}
-                        onChange={e => this.setState({ username: e.target.value })}
+                        onChange={(e, v) => this.setState({ username: v })}
                     /><br />
                     <TextField
                         hintText="Salasana"
                         floatingLabelText="Salasana"
                         type="password"
                         value={this.state.password}
-                        onChange={e => this.setState({ password: e.target.value })}
+                        onChange={(e, v) => this.setState({ password: v })}
                     /><br />
                     <RaisedButton
                         type="submit"
-                        value="Submit"
                         label="Kirjaudu"
                         primary={true}
                         style={loginButtonStyle}
