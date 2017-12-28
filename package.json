@@ -21,7 +21,7 @@
   },
   "author": "Anu & Tuukka Haapasalo",
   "license": "ISC",
-  "homepage": "https://bitbucket.org/haapasalot/bookkeeper#readme",
+  "homepage": "https://kukkaro.pomeranssi.fi",
   "dependencies": {
     "baconjs": "1.0.1",
     "big.js": "5.0.3",
