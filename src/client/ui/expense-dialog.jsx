@@ -1,5 +1,5 @@
 "use strict";
-import React from 'react';
+import * as React from 'react';
 import * as Bacon from "baconjs";
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';

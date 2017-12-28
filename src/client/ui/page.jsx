@@ -1,4 +1,4 @@
-import React from "react"
+import * as React from 'react';
 import TopBar from "./topbar"
 import MonthView from "./month-view"
 import CategoryView from "./category-view"

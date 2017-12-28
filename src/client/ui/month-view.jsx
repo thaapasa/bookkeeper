@@ -1,4 +1,4 @@
-import React from "react"
+import * as React from 'react';
 import ExpenseTable from "./expense-table"
 import * as Bacon from "baconjs"
 import ExpenseNavigation from "./expense-navigation"

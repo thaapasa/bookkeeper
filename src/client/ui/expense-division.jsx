@@ -1,4 +1,4 @@
-import React from "react"
+import * as React from 'react';
 import * as state from  "../data/state";
 import * as colors from "./colors";
 import * as categories from  "../data/categories";

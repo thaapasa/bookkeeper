@@ -1,6 +1,6 @@
 "use strict";
 
-import React from 'react';
+import * as React from 'react';
 import UserAvatar from './user-avatar';
 import * as state from "../data/state";
 

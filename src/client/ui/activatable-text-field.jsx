@@ -1,6 +1,6 @@
 "use strict";
 
-import React from 'react';
+import * as React from 'react';
 import TextField from 'material-ui/TextField';
 import {KeyCodes} from "../util/io";
 import PropTypes from "prop-types";

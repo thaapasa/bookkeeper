@@ -1,6 +1,6 @@
 "use strict";
 
-import React from "react"
+import * as React from 'react';
 import {Add,Edit,ExpandLess,ExpandMore,ToolIcon} from "./icons"
 import CategoryDialog from "./category-dialog"
 import DatePicker from "material-ui/DatePicker"

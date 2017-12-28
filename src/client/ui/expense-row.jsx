@@ -1,4 +1,4 @@
-import React from "react"
+import * as React from 'react';
 import * as categories from  "../data/categories";
 import * as state from  "../data/state";
 import * as apiConnect from "../data/api-connect";

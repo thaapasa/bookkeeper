@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import Divider from 'material-ui/Divider';
 
 import * as apiConnect from "../data/api-connect";

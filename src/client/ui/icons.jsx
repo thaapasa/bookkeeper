@@ -1,6 +1,6 @@
 "use strict";
 
-import React from "react"
+import * as React from 'react';
 import PaymentSVG from "material-ui/svg-icons/action/payment"
 import AttachMoneySVG from "material-ui/svg-icons/editor/attach-money"
 import ChevronLeftSVG from "material-ui/svg-icons/navigation/chevron-left"

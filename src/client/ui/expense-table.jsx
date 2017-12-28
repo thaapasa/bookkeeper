@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from 'react';
 import Avatar from "material-ui/Avatar";
 import Chip from "material-ui/Chip"
 import ExpenseRow from "./expense-row";

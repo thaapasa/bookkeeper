@@ -1,6 +1,6 @@
 "use strict";
 
-import React from 'react'
+import * as React from 'react';
 import * as state from "../data/state"
 import DatePicker from "material-ui/DatePicker"
 const moment = require("moment")

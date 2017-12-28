@@ -1,5 +1,5 @@
 "use strict";
-import React from "react";
+import * as React from 'react';
 import * as Bacon from "baconjs";
 import DatePicker from "material-ui/DatePicker";
 import DropDownMenu from "material-ui/DropDownMenu";

@@ -1,6 +1,6 @@
 "use strict";
 
-import React from "react"
+import * as React from 'react';
 import Money from "../../shared/util/money"
 import PropTypes from "prop-types"
 

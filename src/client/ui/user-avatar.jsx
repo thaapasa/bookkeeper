@@ -1,6 +1,6 @@
 "use strict";
 
-import React from 'react';
+import * as React from 'react';
 import Avatar from 'material-ui/Avatar';
 import * as state from "../data/state";
 import {cyan500, cyan900} from 'material-ui/styles/colors';

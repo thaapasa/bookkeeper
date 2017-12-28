@@ -1,6 +1,6 @@
 "use strict";
 
-import React from "react";
+import * as React from 'react';
 import TextField from "material-ui/TextField";
 import AutoComplete from"material-ui/AutoComplete";
 

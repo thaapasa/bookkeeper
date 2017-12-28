@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import UserAvatar from "./user-avatar";
 import RaisedButton from 'material-ui/RaisedButton';
 import IconButton from "material-ui/IconButton";

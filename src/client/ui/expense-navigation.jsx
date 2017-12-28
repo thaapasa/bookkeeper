@@ -1,4 +1,4 @@
-import React from "react"
+import * as React from 'react';
 import IconButton from 'material-ui/IconButton'
 import * as time from "../../shared/util/time"
 import * as colors from "./colors"
