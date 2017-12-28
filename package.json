@@ -12,9 +12,6 @@
     "eject:client": "react-scripts-ts eject",
     "start:server": "NODE_ENV=development node src/server/bookkeeper-server.js",
     "test": "npm run build:test && npm run run:test",
-    "test:server": "node_modules/mocha/bin/mocha src/test/server/api/*.js",
-    "build:prod": "NODE_ENV=production node_modules/browserify/bin/cmd.js src/client/client.js -t [ envify --NODE_ENV production ] -t [ babelify --presets [ es2015 react ] ] -o public/js/bookkeeper.js",
-    "build:test": "NODE_ENV=development node_modules/browserify/bin/cmd.js --debug src/test/shared/**/*.js -t [ envify --NODE_ENV development ] -t [ babelify --presets [ es2015 react ] ] > test/test.js",
     "build": "npm run build:client",
     "prod": "npm run build:prod && script/create-dist.sh"
   },
@@ -44,15 +41,7 @@
     "superagent": "^3.0.0"
   },
   "devDependencies": {
-    "babel-preset-es2015": "^6.18.0",
-    "babel-preset-react": "^6.16.0",
-    "babelify": "^7.3.0",
-    "browserify": "^13.1.1",
-    "chai": "^3.5.0",
-    "envify": "^3.4.1",
-    "mocha": "^3.2.0",
-    "react-scripts-ts": "2.8.0",
-    "watchify": "^3.7.0"
+    "react-scripts-ts": "2.8.0"
   },
   "directories": {
     "test": "test"
