@@ -51,6 +51,10 @@ html, body {
     align-items: center;
 }
 
+.category-table {
+    top: 514px;
+}
+
 .bk-table-header,
 .expense-table-start-status,
 .expense-table-end-status,
@@ -91,6 +95,20 @@ html, body {
 .category-table-row > .category-name { flex-grow: 1; }
 .category-table-row > .category-tools { width: 8em; text-align: right; }
 
+.category-chart-container {
+    height: 600px;
+    width: 800px;
+}
+
+.Axis .domain {
+    display: none;
+}
+.Axis  line {
+    stroke: #E0E0E0;
+}
+.Axis-Bottom .tick line {
+    display: none;
+}
 
 .expense-row.unconfirmed {}
 .expense-row.income {}
