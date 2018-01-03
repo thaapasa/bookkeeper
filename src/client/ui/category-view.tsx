@@ -1,7 +1,5 @@
-"use strict";
-
 import * as React from 'react';
-import {Add,Edit,ExpandLess,ExpandMore,ToolIcon} from "./icons"
+import { Add, Edit, ExpandLess, ExpandMore, ToolIcon } from "./icons"
 import CategoryDialog from "./category-dialog"
 import DatePicker from "material-ui/DatePicker"
 import * as state from "../data/state"
@@ -10,12 +8,13 @@ import * as apiConnect from "../data/api-connect"
 import * as categories from "../data/categories"
 import * as Bacon from "baconjs"
 import ExpenseRow from "./expense-row"
-import {unsubscribeAll} from "../util/client-util";
+import { unsubscribeAll } from "../util/client-util";
 import PropTypes from "prop-types";
+import { CSSProperties } from 'react';
 
 const moment = require("moment");
 
-const styles = {
+const styles: { [key:string]: CSSProperties } = {
     mainCategory: {
         background: colors.topItem,
         color: "white",
@@ -26,23 +25,66 @@ const styles = {
     }
 };
 
-const AddCategoryButton = ({ onAdd, parent = null, color = null }) => <ToolIcon title="Lisää" onClick={()=> onAdd(parent)} icon={Add} color={color} />;
-const EditCategoryButton = ({ onEdit, category = null, color = null }) => <ToolIcon title="Muokkaa" onClick={()=> onEdit(category)} icon={Edit} color={color} />;
-const ToggleButton = ({ state, onToggle, category = null, color = null }) => <ToolIcon title={state ? "Sulje" : "Avaa"} onClick={()=> onToggle(category)} icon={state ? ExpandLess : ExpandMore} color={color} />;
+function AddCategoryButton({ onAdd, parent, color }: {
+    onAdd: (p: any) => void,
+    parent?: any,
+    color?: any,
+}) {
+    return <ToolIcon title="Lisää" onClick={()=> onAdd(parent)} icon={Add} color={color} />;
+}
+
+function EditCategoryButton({ onEdit, category, color }: {
+    onEdit: (p: any) => void,
+    category?: any,
+    color?: any,
+}) {
+    return <ToolIcon title="Muokkaa" onClick={()=> onEdit(category)} icon={Edit} color={color} />;
+}
+
+function ToggleButton({ state, onToggle, category, color }: {
+    state: any,
+    onToggle: (c: any) => void,
+    category?: any,
+    color?: any,
+}) {
+    return <ToolIcon title={state ? "Sulje" : "Avaa"} onClick={()=> onToggle(category)} icon={state ? ExpandLess : ExpandMore} color={color} />;
+}
+
 const reloadStream = new Bacon.Bus();
 
-class CategoryRow extends React.Component {
-    constructor(props) {
+interface CategoryRowProps {
+    category: any;
+    header: boolean;
+    createCategory: (p: any) => void;
+    editCategory: (p: any) => void;
+    datesStr: any;
+    categoryTotals: any;
+    categoryExpenses?: any[];
+}
+
+interface CategoryRowState {
+    expenses: any[];
+    open: boolean;
+}
+
+
+class CategoryRow extends React.Component<CategoryRowProps, CategoryRowState> {
+
+    private openStr: any = new Bacon.Bus();
+    private unsub: any[];
+    private expenseStream: any;
+    
+    public state: CategoryRowState = {
+        expenses: [],
+        open: false
+    };
+
+    constructor(props: CategoryRowProps) {
         super(props);
-        this.state = {
-            expenses: [],
-            open: false
-        };
-        this.openStr = new Bacon.Bus();
         this.openStr.push(false);
-        this.renderCategoryExpenses = this.renderCategoryExpenses.bind(this);
     }
-    componentDidMount() {
+
+    public componentDidMount() {
         this.expenseStream = Bacon.combineTemplate({ dates: this.props.datesStr, open: this.openStr });
         this.openStr.onValue(o => this.setState({ open: o }));
         this.unsub = [this.expenseStream, this.openStr];
@@ -52,10 +94,11 @@ class CategoryRow extends React.Component {
             .onValue(o => this.setState({ expenses: o }));
         this.unsub.push(state.get("expensesUpdatedStream").onValue(date => reloadStream.push(true)));
     }
-    componentWillUnmount() {
+    public componentWillUnmount() {
         unsubscribeAll(this.unsub);
     }
-    renderCategoryExpenses(expenses) {
+
+    private renderCategoryExpenses = (expenses) => {
         return expenses && expenses.length > 0 ? expenses.map(expense => <ExpenseRow
                 expense={ expense }
                 key={ "expense-row-" + expense.id }
@@ -64,7 +107,7 @@ class CategoryRow extends React.Component {
             <div className="bk-table-row category-table-row"><div className="category-name">Ei kirjauksia</div></div>;
     }
     /*{this.props.categoryTotals[category.id].expenses} / {this.props.categoryTotals[category.id].income}*/
-    render() {
+    public render() {
         const category = this.props.category;
         const header = this.props.header;
         return <div className="category-container">
@@ -86,27 +129,26 @@ class CategoryRow extends React.Component {
         </div>
     }
 }
-CategoryRow.propTypes = {
-    category: PropTypes.object.isRequired,
-    header: PropTypes.bool.isRequired,
-    createCategory: PropTypes.func.isRequired,
-    editCategory: PropTypes.func.isRequired,
-    datesStr: PropTypes.object.isRequired
-};
 
 function MyDatePicker({ value, onChange, label }) {
     return <DatePicker
         value={value}
         formatDate={d => moment(d).format("D.M.YYYY")}
-        display="inline"
+        //display="inline"
         floatingLabelText={label}
-        floatingLabelFixed={true}
+        //floatingLabelFixed={true}
         fullWidth={true}
         autoOk={true}
         onChange={(event, date) => onChange(date)} />;
 }
 
-export default class CategoryView extends React.Component {
+export default class CategoryView extends React.Component<any, any> {
+
+    private startDateStr: any;
+    private endDateStr: any;
+    private datesStr: any;
+    private categoryDialog: any;
+    private unsub: any[];
 
     constructor(props) {
         super(props);

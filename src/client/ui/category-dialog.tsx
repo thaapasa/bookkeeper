@@ -13,7 +13,11 @@ const Promise = require("bluebird");
 
 const defaultCategory = [ { id: 0, name: "[Ei yläkategoriaa]" }];
 
-export default class CategoryDialog extends React.Component {
+export default class CategoryDialog extends React.Component<any, any> {
+
+    private categories: any[];
+    private resolve: any;
+    private reject: any;
 
     constructor(props) {
         super(props);
@@ -129,7 +133,7 @@ export default class CategoryDialog extends React.Component {
                     autoScrollBodyContent={true}
                     open={this.state.open}
                     onRequestClose={() => this.closeDialog(null)}>
-            <form onSubmit={this.requestSave} onKeyUp={this.handleKeyPress}>
+            <form onSubmit={this.requestSave} /*onKeyUp={this.handleKeyPress}*/>
                 <TextField
                     key="name"
                     hintText="Nimi"

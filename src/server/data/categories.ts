@@ -2,10 +2,10 @@
 
 const db = require("./db");
 const errors = require("../util/errors");
-const Money = require("../../shared/util/money");
+import Money from "../../shared/util/money";
 
 function createCategoryObject(categories) {
-    const res = [];
+    const res: any[] = [];
     const subs = {};
     console.log(categories);
     categories.forEach(c => {

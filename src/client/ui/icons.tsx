@@ -11,6 +11,7 @@ import RepeatSVG from 'material-ui/svg-icons/av/repeat'
 import LibraryAdd from 'material-ui/svg-icons/av/library-add'
 import IconButton from 'material-ui/IconButton'
 import * as colors from './colors'
+import { CSSProperties } from 'react';
 
 const styles = {
     tool: {
@@ -32,7 +33,14 @@ export const ExpandMore = ExpandMoreSVG;
 export const Repeat = RepeatSVG;
 export const Add = LibraryAdd;
 
-export function ToolIcon(props) {
+export function ToolIcon(props: {
+    icon: any,
+    color?: string,
+    title: string,
+    style?: CSSProperties,
+    className?: string,
+    onClick: () => void,
+}) {
     return React.createElement(props.icon, Object.assign({}, props, {
         color: props.color || colors.tool,
         style: Object.assign({}, styles.tool, props.style || {}),
@@ -40,7 +48,11 @@ export function ToolIcon(props) {
     }));
 }
 
-function ToolButton(props) {
+function ToolButton(props: {
+    title: string,
+    onClick?: () => void,
+    icon: any,
+}) {
     return <IconButton
         title={props.title}
         style={styles.tool}
