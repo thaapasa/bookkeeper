@@ -39,7 +39,6 @@ function get(path, query?: any) {
     return request.get(path)
         .query(query ? query : {})
         .set("Authorization", `Bearer ${token}`)
-        .end()
         .then(req => req.body)
         .catch(defaultErrorHandler);
 }
@@ -51,7 +50,6 @@ function put(path, data?: any, query?: any) {
         .set("Content-Type", "application/json")
         .set("Authorization", `Bearer ${token}`)
         .send(data)
-        .end()
         .then(req => req.body)
         .catch(defaultErrorHandler);
 }
@@ -63,7 +61,6 @@ function post(path, data?: any, query?: any) {
         .set("Content-Type", "application/json")
         .set("Authorization", `Bearer ${token}`)
         .send(data)
-        .end()
         .then(req => req.body)
         .catch(defaultErrorHandler);
 }
@@ -75,7 +72,6 @@ function del(path, data?: any, query?: any) {
         .set("Content-Type", "application/json")
         .set("Authorization", `Bearer ${token}`)
         .send(data)
-        .end()
         .then(req => req.body)
         .catch(defaultErrorHandler);
 }
@@ -86,7 +82,6 @@ export function login(username, password) {
     return request.put(url)
         .set('Content-Type', 'application/json')
         .send({username: username, password: password})
-        .end()
         .then(req => req.body)
         .catch(defaultErrorHandler);
 }
