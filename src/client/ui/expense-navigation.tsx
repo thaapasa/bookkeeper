@@ -1,34 +1,34 @@
 import * as React from 'react';
 import IconButton from 'material-ui/IconButton'
-import * as time from "../../shared/util/time"
-import * as colors from "./colors"
-import {NavigateLeft,NavigateRight} from "./icons"
-import * as state from "../data/state"
-import {KeyCodes} from "../util/io"
-import PropTypes from "prop-types"
-const Moment = require("moment");
+import * as time from '../../shared/util/time'
+import * as colors from './colors'
+import { NavigateLeft, NavigateRight } from './icons'
+import * as state from '../data/state'
+import { KeyCodes } from '../util/io'
+import PropTypes from 'prop-types'
+import { Moment } from 'moment';
 
-export default class ExpenseNavigation extends React.Component {
+interface ExpenseNavigationProps {
+    readonly date: Moment;    
+}
 
-    constructor(props) {
-        super(props);
-        this.navigateMonths = this.navigateMonths.bind(this);
-        this.handleKeyPress = this.handleKeyPress.bind(this);
+export default class ExpenseNavigation extends React.Component<ExpenseNavigationProps, any> {
+
+    private container: any;
+
+    public static getYearMonthString(date) {
+        return time.getFinnishMonthName(date.month() + 1) + ' ' + date.year();
     }
 
-    static getYearMonthString(date) {
-        return time.getFinnishMonthName(date.month() + 1) + " " + date.year();
-    }
-
-    navigateMonths(offset) {
+    private navigateMonths = (offset) => {
         state.updateExpenses(this.props.date.clone().add(offset, 'months'));
     }
 
-    componentDidMount() {
+    public componentDidMount() {
         this.container.focus();
     }
 
-    handleKeyPress(event) {
+    private handleKeyPress = (event) => {
         switch (event.keyCode) {
             case KeyCodes.right:
                 this.navigateMonths(1);
@@ -39,7 +39,7 @@ export default class ExpenseNavigation extends React.Component {
         }
     }
 
-    render() {
+    public render() {
         return <div style={{ display: "flex", alignItems: "center" }}
                     className="expense-navigation"
                     onKeyUp={this.handleKeyPress}
@@ -51,7 +51,7 @@ export default class ExpenseNavigation extends React.Component {
                     title="Edellinen"
                     style={{ padding: "0px" }}><NavigateLeft color={colors.navigation} /></IconButton>
             </div>
-            <div style={{ textAlign: "center", flexGrow: "1", fontSize: "12pt", color: colors.header }}>
+            <div style={{ textAlign: "center", flexGrow: 1, fontSize: "12pt", color: colors.header }}>
                 { ExpenseNavigation.getYearMonthString(this.props.date) }
             </div>
             <div>
@@ -62,7 +62,3 @@ export default class ExpenseNavigation extends React.Component {
         </div>
     }
 }
-
-ExpenseNavigation.propTypes = {
-    date: PropTypes.instanceOf(Moment).isRequired
-};

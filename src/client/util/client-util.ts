@@ -7,8 +7,9 @@ export function unsubscribeAll(arr: any[]): void {
     })
 }
 
-export function combineClassNames(): string {
-    return Array.prototype.slice.call(arguments).reduce((res, cur) => cur ? (res ? res + " " + cur : cur) : res, "");
+export function combineClassNames(...classNames: (string | undefined)[]): string {
+    const names: string[] = classNames.filter(i => i !== undefined) as string[];
+    return names.reduce((res, cur) => cur ? (res ? res + " " + cur : cur) : res, "");
 }
 
 export function stopEventPropagation(event: any): void {

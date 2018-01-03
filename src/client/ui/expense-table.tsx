@@ -6,7 +6,7 @@ import {ExpenseHeader,ExpenseStatus,ExpenseTotal} from "./expense-row";
 import RefreshIndicator from 'material-ui/RefreshIndicator';
 const Money = require("../../shared/util/money");
 
-export default class ExpenseTable extends React.Component {
+export default class ExpenseTable extends React.Component<any, any> {
 
     constructor(props) {
         super(props);

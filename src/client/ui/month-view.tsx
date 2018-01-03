@@ -5,17 +5,34 @@ import ExpenseNavigation from "./expense-navigation"
 import * as state from "../data/state";
 import * as apiConnect from "../data/api-connect";
 import {unsubscribeAll} from "../util/client-util";
-const moment = require("moment");
+import * as moment from 'moment';
 
-export default class MonthView extends React.Component {
+interface MonthViewState {
+    date: moment.Moment;
+    loading: boolean;
+    expenses: any[];
+    startStatus: any;
+    endStatus: any;
+    monthStatus: any;
+    unconfirmedBefore: boolean;
+}
 
-    constructor(props) {
-        super(props);
-        this.state = { date: moment(), loading: false, expenses: [], startStatus: {}, endStatus: {}, monthStatus: {} };
-        this.onUpdateExpense = this.onUpdateExpense.bind(this);
-    }
+export default class MonthView extends React.Component<any, MonthViewState> {
 
-    componentDidMount() {
+    private unsub: any[];
+    private loadExpenses: any;
+
+    public state: MonthViewState = {
+        date: moment(),
+        loading: false,
+        expenses: [],
+        startStatus: {},
+        endStatus: {},
+        monthStatus: {},
+        unconfirmedBefore: false,
+    };
+
+    public componentDidMount() {
         this.unsub = [];
         this.loadExpenses = new Bacon.Bus();
         this.unsub.push(this.loadExpenses);
@@ -31,15 +48,15 @@ export default class MonthView extends React.Component {
         state.updateExpenses(moment());
     }
 
-    componentWillUnmount() {
+    public componentWillUnmount() {
         unsubscribeAll(this.unsub);
     }
 
-    onUpdateExpense(id, data) {
+    private onUpdateExpense = (id, data) => {
         this.setState(s => ({ expenses: s.expenses.map(e => e.id === id ? data : e) }));
     }
 
-    render() {
+    public render() {
         return <div className="content">
             <ExpenseNavigation date={this.state.date} />
             <ExpenseTable

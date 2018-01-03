@@ -48,11 +48,18 @@ const statusTypeNames = {
 };
 const statusTypeKeys = Object.keys(statusTypeNames);
 
-export function ExpenseStatus(props) {
-    const style = {};
-    if (props.unconfirmedBefore) {
-        style.background = colors.unconfirmedStripes;
-    }
+export function ExpenseStatus(props: {
+    name: string,
+    cost?: string,
+    benefit?: string,
+    balance?: string,
+    unconfirmedBefore?: boolean,
+    className?: string,
+    status?: any,
+}) {
+    const style = {
+        background: props.unconfirmedBefore ? colors.unconfirmedStripes : undefined,
+    };
     return <div className={combineClassNames("expense-row bk-table-row status", props.className)} style={style}>
         <div className="expense-detail status-description">{props.name}</div>
         {
@@ -68,14 +75,11 @@ export function ExpenseStatus(props) {
         }
     </div>
 }
-ExpenseStatus.propTypes = {
-    name: PropTypes.string.isRequired,
-    cost: PropTypes.string,
-    benefit: PropTypes.string,
-    balance: PropTypes.string
-};
 
-export function ExpenseTotal(props) {
+export function ExpenseTotal(props: {
+    expense: object,
+    income: object,
+}) {
     return <div className="expense-row bk-table-row">
         <div className="expense-detail total-label">Menot yhteensä</div>
         <div className="expense-detail total-sum">{ money(props.expense) }</div>
@@ -83,39 +87,37 @@ export function ExpenseTotal(props) {
         <div className="expense-detail total-sum">{ money(props.income) }</div>
     </div>;
 }
-ExpenseTotal.propTypes = {
-    expense: PropTypes.object.isRequired,
-    income: PropTypes.object.isRequired
+
+interface ExpenseRowProps {
+    expense: any,
+    onUpdated: (e: any) => void,
+    addFilter: (a: any, b: any, c?: any) => void,
+}
+
+interface ExpenseRowState {
+    details: any,
 };
 
-export default class ExpenseRow extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            details: null
-        };
-        this.updateExpense = this.updateExpense.bind(this);
-        this.toggleDetails = this.toggleDetails.bind(this);
-        this.editDate = this.editDate.bind(this);
-        this.deleteExpense = this.deleteExpense.bind(this);
-        this.modifyExpense = this.modifyExpense.bind(this);
-    }
+export default class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState> {
+    public state: ExpenseRowState = {
+        details: null,
+    };
 
-    categoryLink(id) {
+    private categoryLink(id) {
         const cat = categories.get(id);
         return <a key={cat.id} onClick={
             () => this.props.addFilter(e => e.categoryId === cat.id || categories.get(e.categoryId).parentId === cat.id, categories.getFullName(cat.id))
         } style={{ color: colors.action }}>{ cat.name }</a>
     }
 
-    fullCategoryLink(id) {
+    private fullCategoryLink(id) {
         const cat = categories.get(id);
         return cat.parentId ?
             [this.categoryLink(cat.parentId), " - ", this.categoryLink(id)] :
             this.categoryLink(id);
     }
 
-    getSource(sourceId) {
+    private getSource(sourceId) {
         const source = state.get("sourceMap")[sourceId];
         const content = source.image ?
             <img src={source.image} title={source.name} style={{ maxWidth: "48px", maxHeight: "24px" }} /> :
@@ -125,7 +127,7 @@ export default class ExpenseRow extends React.Component {
             () => this.props.addFilter(e => e.sourceId === sourceId, source.name, avatar)}>{ content }</a>
     }
 
-    updateExpense(data) {
+    private updateExpense = (data) => {
         apiConnect.getExpense(this.props.expense.id)
             .then(exp => {
                 const newData = Object.assign(exp, data);
@@ -134,13 +136,13 @@ export default class ExpenseRow extends React.Component {
             });
     }
 
-    editDate(expense) {
+    private editDate = (expense) => {
         state.pickDate(moment(expense.date).toDate())
             .then(d => { if (d) this.updateExpense({ date: time.date(d) }); return true })
             .catch(e => state.notifyError("Virhe muutettaessa päivämäärää", e))
     }
 
-    toggleDetails(expense, details) {
+    private toggleDetails = (expense, details) => {
         if (details) {
             this.setState({ details: null });
         } else {
@@ -154,7 +156,7 @@ export default class ExpenseRow extends React.Component {
         }
     }
 
-    deleteExpense(e) {
+    private deleteExpense = (e) => {
         const name = expenseName(e);
         state.confirm("Poista kirjaus",
             `Haluatko varmasti poistaa kirjauksen ${name}?`,
@@ -166,11 +168,11 @@ export default class ExpenseRow extends React.Component {
             .catch(e => state.notifyError(`Virhe poistettaessa kirjausta ${name}`, e));
     }
 
-    modifyExpense(expense) {
+    private modifyExpense = (expense) => {
         apiConnect.getExpense(expense.id).then(e => state.editExpense(e))
     }
 
-    renderDetails(expense, details) {
+    private renderDetails(expense, details) {
         return (details === LoadingDetails) || details ? [
             <ExpenseDivision
                 loading={details === LoadingDetails}
@@ -182,10 +184,13 @@ export default class ExpenseRow extends React.Component {
         ] : [];
     }
 
-    render() {
+    public render() {
         const expense = this.props.expense;
         const className = "bk-table-row expense-row expense-item " + expense.type + (expense.confirmed ? "" : " unconfirmed");
-        const style = {};
+        const style = {
+            background: !expense.confirmed ? colors.unconfirmedStripes : 
+                (expense.type === "income" ? colors.income : undefined),
+        };
         if (!expense.confirmed) {
             style.background = colors.unconfirmedStripes;
         } else if (expense.type === "income") {
@@ -235,8 +240,3 @@ export default class ExpenseRow extends React.Component {
         </div>
     }
 }
-
-ExpenseRow.propTypes = {
-    expense: PropTypes.shape(ExpensePropType).isRequired,
-    onUpdated: PropTypes.func.isRequired
-};

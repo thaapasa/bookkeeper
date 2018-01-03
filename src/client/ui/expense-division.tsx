@@ -45,7 +45,18 @@ function DetailRow(props) {
     </div>
 }
 
-export default class ExpenseDivision extends React.Component {
+
+interface ExpenseDivisionProps {
+    division: any[];
+    loading: boolean;
+    expense: any;
+    onModify: (e: any) => void;
+    onDelete: (e: any) => void;
+};
+
+export default class ExpenseDivision extends React.Component<ExpenseDivisionProps, any> {
+
+    private userMap: any;
 
     constructor(props) {
         super(props);
@@ -111,9 +122,3 @@ export default class ExpenseDivision extends React.Component {
         </div>
     }
 }
-
-ExpenseDivision.propTypes = {
-    division: PropTypes.array,
-    loading: PropTypes.bool,
-    expense: PropTypes.shape(ExpensePropType)
-};

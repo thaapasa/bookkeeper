@@ -1,37 +1,53 @@
-"use strict";
-
 import * as React from 'react';
 import TextField from 'material-ui/TextField';
-import {KeyCodes} from "../util/io";
-import PropTypes from "prop-types";
+import {KeyCodes} from '../util/io';
+import PropTypes from 'prop-types';
+import { CSSProperties } from 'react';
 
-export default class ActivatableTextField extends React.Component {
+interface ActivatableTextFieldProps {
+    editorType?: any
+    name?: string;
+    style?: CSSProperties;
+    value: string;
+    id?: number;
+    hintText?: string;
+    onChange: (e: any) => void;
+    onCancel?: () => void;
+}
 
-    constructor(props) {
+interface ActivatableTextFieldState {
+    edit: boolean;
+    value: string;
+}
+
+export default class ActivatableTextField extends React.Component<ActivatableTextFieldProps, ActivatableTextFieldState> {
+
+    private editorRef: any;
+
+    public state: ActivatableTextFieldState;
+
+    constructor(props: ActivatableTextFieldProps) {
         super(props);
         this.state = { edit: false, value: props.value };
-        this.commit = this.commit.bind(this);
-        this.cancel = this.cancel.bind(this);
-        this.handleKeyPress = this.handleKeyPress.bind(this);
     }
 
-    commit(value) {
+    private commit = (value) => {
         // console.log("Committing", value);
         this.props.onChange && this.props.onChange(value);
         this.close();
     }
 
-    cancel() {
+    private cancel = () => {
         // console.log("Cancelling");
-        this.props.onCancel && this.props.onCancel();
+        if (this.props.onCancel) { this.props.onCancel(); }
         this.close();
     }
 
-    close() {
+    private close = () => {
         this.setState({ value: this.props.value, edit: false });
     }
 
-    handleKeyPress(event, value) {
+    private handleKeyPress = (event, value) => {
         const code = event.keyCode;
         if (code === KeyCodes.enter) {
             this.commit(value);
@@ -42,11 +58,11 @@ export default class ActivatableTextField extends React.Component {
         }
     }
 
-    componentDidUpdate() {
+    public componentDidUpdate() {
         if (this.editorRef) this.editorRef.focus();
     }
 
-    createEditor() {
+    private createEditor() {
         const type = this.props.editorType ? this.props.editorType : TextField;
         return React.createElement(type, {
             name: this.props.name,
@@ -61,21 +77,15 @@ export default class ActivatableTextField extends React.Component {
         });
     }
 
-    render() {
+    private onClick = i => this.setState({ edit: true, value: this.props.value });
+    private setRef = i => this.editorRef = undefined;
+
+    public render() {
         return this.state.edit ? this.createEditor() :
             <div
                 style={this.props.style}
-                onClick={i => this.setState({ edit: true, value: this.props.value })}
-                ref={i => this.editorRef = undefined}
+                onClick={this.onClick}
+                ref={this.setRef}
             >{ this.props.value }</div>
     }
 }
-
-ActivatableTextField.propTypes = {
-    editorType: PropTypes.func,
-    value: PropTypes.string.isRequired,
-    id: PropTypes.number,
-    hintText: PropTypes.string,
-    onChange: PropTypes.func.isRequired,
-    onCancel: PropTypes.func
-};
