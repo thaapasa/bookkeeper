@@ -15,8 +15,8 @@ import * as time from "../../shared/util/time";
 import PropTypes from "prop-types";
 import ExpenseDivision from "./expense-division"
 import {expenseName} from "./expense-helper";
-const Money = require("../../shared/util/money");
-const moment = require("moment");
+import Money from "../../shared/util/money";
+import * as moment from 'moment';
 
 // Just a special reference for determining if details are loading
 const LoadingDetails = {};

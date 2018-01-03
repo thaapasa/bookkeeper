@@ -1,9 +1,7 @@
-"use strict";
-
 import * as state from "./state";
 import * as time from "../../shared/util/time";
 import * as request from 'superagent';
-const Money = require("../../shared/util/money");
+import Money from "../../shared/util/money";
 
 function mapExpense(e) {
     e.userBenefit = Money.from(e.userBenefit, 0);
@@ -34,7 +32,7 @@ function mapExpenseObject(e) {
 }
 
 
-function get(path, query?: any) {
+function get(path, query?: any): Promise<any>  {
     const token = state.get("token");
     return request.get(path)
         .query(query ? query : {})
@@ -43,7 +41,7 @@ function get(path, query?: any) {
         .catch(defaultErrorHandler);
 }
 
-function put(path, data?: any, query?: any) {
+function put(path, data?: any, query?: any): Promise<any>  {
     const token = state.get("token");
     return request.put(path)
         .query(query ? query : {})
@@ -54,7 +52,7 @@ function put(path, data?: any, query?: any) {
         .catch(defaultErrorHandler);
 }
 
-function post(path, data?: any, query?: any) {
+function post(path, data?: any, query?: any): Promise<any>  {
     const token = state.get("token");
     return request.post(path)
         .query(query ? query : {})
@@ -65,7 +63,7 @@ function post(path, data?: any, query?: any) {
         .catch(defaultErrorHandler);
 }
 
-function del(path, data?: any, query?: any) {
+function del(path, data?: any, query?: any): Promise<any>  {
     const token = state.get("token");
     return request.delete(path)
         .query(query ? query : {})
@@ -76,7 +74,7 @@ function del(path, data?: any, query?: any) {
         .catch(defaultErrorHandler);
 }
 
-export function login(username, password) {
+export function login(username, password): Promise<any> {
     const url = '/api/session';
 
     return request.put(url)

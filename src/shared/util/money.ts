@@ -18,10 +18,12 @@ export default class Money {
         this.value = Money.toBig(value);
     }
 
-    static from(value: any, defaultValue?: any): Money | undefined {
-        if (value === null || value === undefined)
-            return (defaultValue !== undefined) ? Money.from(defaultValue) : undefined;
-        if (value instanceof Money) return value;
+    static from(value: any, defaultValue?: any): Money {
+        if (value === null || value === undefined) {
+            if (defaultValue === undefined) { throw new Error('Money.from(undefined)'); }
+            return Money.from(defaultValue);
+        }
+        if (value instanceof Money) { return value; }
         return new Money(value);
     }
 

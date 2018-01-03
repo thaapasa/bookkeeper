@@ -1,12 +1,10 @@
-"use strict";
-
 const db = require("./db");
 const log = require("../../shared/util/log");
 const moment = require("moment");
 const time = require("../../shared/util/time");
 const arrays = require("../../shared/util/arrays");
 const validator = require("../util/validator");
-const Money = require("../../shared/util/money");
+import Money from '../../shared/util/money';
 const categories = require("./categories");
 const users = require("./users");
 const sources = require("./sources");
