@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
     "outDir": "build/dist",
-    "module": "esnext",
+    "module": "commonjs",
     "target": "es5",
-    "lib": ["es6", "dom"],
+    "lib": ["dom", "es2015", "es2016"],
     "sourceMap": true,
     "alwaysStrict": true,
+    "allowSyntheticDefaultImports": true,
     "allowJs": true,
     "checkJs": false,
     "jsx": "react",

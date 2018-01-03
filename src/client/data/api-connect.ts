@@ -1,9 +1,8 @@
 "use strict";
 
-import Promise from "bluebird";
 import * as state from "./state";
 import * as time from "../../shared/util/time";
-const request = Promise.promisifyAll(require("superagent"));
+import * as request from 'superagent';
 const Money = require("../../shared/util/money");
 
 function mapExpense(e) {
@@ -40,7 +39,7 @@ function get(path, query?: any) {
     return request.get(path)
         .query(query ? query : {})
         .set("Authorization", `Bearer ${token}`)
-        .endAsync()
+        .end()
         .then(req => req.body)
         .catch(defaultErrorHandler);
 }
@@ -52,7 +51,7 @@ function put(path, data?: any, query?: any) {
         .set("Content-Type", "application/json")
         .set("Authorization", `Bearer ${token}`)
         .send(data)
-        .endAsync()
+        .end()
         .then(req => req.body)
         .catch(defaultErrorHandler);
 }
@@ -64,7 +63,7 @@ function post(path, data?: any, query?: any) {
         .set("Content-Type", "application/json")
         .set("Authorization", `Bearer ${token}`)
         .send(data)
-        .endAsync()
+        .end()
         .then(req => req.body)
         .catch(defaultErrorHandler);
 }
@@ -76,7 +75,7 @@ function del(path, data?: any, query?: any) {
         .set("Content-Type", "application/json")
         .set("Authorization", `Bearer ${token}`)
         .send(data)
-        .endAsync()
+        .end()
         .then(req => req.body)
         .catch(defaultErrorHandler);
 }
@@ -87,7 +86,7 @@ export function login(username, password) {
     return request.put(url)
         .set('Content-Type', 'application/json')
         .send({username: username, password: password})
-        .endAsync()
+        .end()
         .then(req => req.body)
         .catch(defaultErrorHandler);
 }

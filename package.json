@@ -10,7 +10,10 @@
     "build:client": "react-scripts-ts build",
     "test:client": "react-scripts-ts test --env=jsdom",
     "eject:client": "react-scripts-ts eject",
-    "start:server": "NODE_ENV=development node src/server/bookkeeper-server.js",
+    "start:server": "node build/server/bookkeeper-server.js",
+    "watch:server": "nodemon",
+    "build:server": "tsc",
+    "postinstall": "npm run build:server",
     "test": "npm run build:test && npm run run:test",
     "build": "npm run build:client",
     "prod": "npm run build:prod && script/create-dist.sh"
@@ -41,14 +44,17 @@
   },
   "devDependencies": {
     "@types/big.js": "4.0.1",
+    "@types/bluebird": "^3.5.19",
     "@types/material-ui": "0.20.0",
     "@types/react": "16.0.31",
     "@types/react-dom": "16.0.3",
     "@types/react-tap-event-plugin": "0.0.30",
+    "@types/superagent": "^3.5.6",
     "react-scripts-ts": "2.8.0"
   },
   "directories": {
     "test": "test"
   },
+  "proxy": "http://localhost:3100",
   "description": "Kukkaro - a web tool for tracking your income and expenses."
 }

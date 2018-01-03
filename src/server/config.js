@@ -3,7 +3,7 @@
 const env = process.env.NODE_ENV ? process.env.NODE_ENV : "development";
 
 const config = Object.assign({
-    port: 3000,
+    port: 3100,
     environment: env,
     version: require("../../package.json").version,
     revision: "",
