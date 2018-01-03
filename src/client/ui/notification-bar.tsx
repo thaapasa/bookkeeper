@@ -1,39 +1,40 @@
-"use strict";
-
 import * as React from 'react';
-import Snackbar from "material-ui/Snackbar";
-import * as state from "../data/state"
+import Snackbar from 'material-ui/Snackbar';
+import * as state from '../data/state'
 
 const msgInterval = 5000;
 
-export default class NotificationBar extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {open: false, message: ""};
-        this.timer = undefined;
-        this.queue = [];
-        this.scheduleNext = this.scheduleNext.bind(this);
-        this.dismissCurrent = this.dismissCurrent.bind(this);
-        this.showMessage = this.showMessage.bind(this);
+interface NotificationBarState {
+    open: boolean;
+    message: string;
+}
+
+export default class NotificationBar extends React.Component<{}, NotificationBarState> {
+
+    private timer: any;
+    private queue: any[] = [];
+    public state: NotificationBarState = {
+        open: false,
+        message: '',
+    };
+
+    public componentDidMount() {
+        state.get('notificationStream').onValue(msg => this.showMessage(msg));
     }
 
-    componentDidMount() {
-        state.get("notificationStream").onValue(msg => this.showMessage(msg));
-    }
-
-    componentWillUnmount() {
+    public componentWillUnmount() {
         clearTimeout(this.timer);
         this.timer = undefined;
     }
 
-    showMessage(msg) {
+    private showMessage = (msg) => {
         this.queue.push({ text: msg });
         if (this.timer === undefined) {
             this.scheduleNext();
         }
     }
 
-    scheduleNext() {
+    private scheduleNext = () => {
         this.timer = undefined;
         if (this.queue.length > 0) {
             const next = this.queue.shift();
@@ -44,12 +45,12 @@ export default class NotificationBar extends React.Component {
         }
     }
 
-    dismissCurrent() {
+    private dismissCurrent = () => {
         clearTimeout(this.timer);
         this.scheduleNext();
     }
 
-    render() {
+    public render() {
         return <Snackbar
             open={this.state.open}
             message={this.state.message}
