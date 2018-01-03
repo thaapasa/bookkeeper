@@ -17,10 +17,10 @@ const LinkButton = ({ label, to }) => (
 )
 
 interface PageProps {
-    session: any;
+    session: { [key: string]: any };
 }
 interface PageState {
-    session: string;
+    session: any;
     user: any;
     categories: any;
     groups: any;
@@ -46,7 +46,7 @@ export default class BookkeeperPage extends React.Component<PageProps, PageState
         };
     }
 
-    render() {
+    public render() {
         return <div className="everything">
             <ExpenseDialog />
             <ConfirmationDialog />

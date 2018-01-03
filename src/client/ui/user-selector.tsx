@@ -1,5 +1,3 @@
-"use strict";
-
 import * as React from 'react';
 import UserAvatar from './user-avatar';
 import * as state from "../data/state";
@@ -14,15 +12,9 @@ const styles = {
     }
 };
 
-export default class UserSelector extends React.Component {
-
-    constructor(props) {
-        super(props);
-        this.style = Object.assign({}, styles.container, props.style);
-        this.switchSelection = this.switchSelection.bind(this);
-    }
-
-    switchSelection(id) {
+export default class UserSelector extends React.Component<any, any> {
+    
+    private switchSelection = (id) => {
         const oldS = this.props.selected;
         const foundAt = oldS.indexOf(id);
         const newS = foundAt >= 0 ? oldS.slice().filter(i => i != id) : oldS.slice();
@@ -32,8 +24,9 @@ export default class UserSelector extends React.Component {
     }
 
     render() {
+        const style = Object.assign({}, styles.container, this.props.style);
         const users = state.get("users");
-        return <div style={this.style}>
+        return <div style={style}>
             { users.map(u =>
                 <UserAvatar
                     key={u.id}

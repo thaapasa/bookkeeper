@@ -1,4 +1,3 @@
-"use strict";
 import * as React from 'react';
 import * as Bacon from "baconjs";
 import Dialog from 'material-ui/Dialog';
@@ -70,7 +69,7 @@ const fields = {
 const defaultCategory = [ { id: 0, name: "Kategoria" }];
 const defaultSubcategory = [ { id: 0, name: "Alikategoria" }];
 
-function initValue(name, expense) {
+function initValue(name, expense?: any) {
     if (expense === undefined) {
         const def = fields[name].default;
         return typeof def === "function" ? def() : def;
@@ -117,7 +116,17 @@ function calculateDivision(expense, sum) {
     }
 }
 
-export default class ExpenseDialog extends React.Component {
+export default class ExpenseDialog extends React.Component<any, any> {
+
+    private saveLock: Bacon.Bus<any, any>;
+    private inputStreams: any;
+    private submitStream: any;
+    private unsub: any;
+    private categories: any;
+    private sources: any;
+    private categorySource: any;
+    private moneyInput: any;
+    public state: any;
 
     constructor(props) {
         super(props);
@@ -156,7 +165,7 @@ export default class ExpenseDialog extends React.Component {
         });
 
         const validity = {};
-        const values = {};
+        const values: any = {};
         Object.keys(fields).forEach(k => {
             const info = fields[k];
             this.inputStreams[k].onValue(v => this.setState({ [k]: v }));

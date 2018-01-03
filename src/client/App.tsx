@@ -5,7 +5,7 @@ import BookkeeperPage from './ui/page';
 import LoginPage from './ui/login-page';
 
 interface AppState {
-    session: any | undefined;
+    session: { [key: string]: any } | undefined;
     initialized: boolean;
 }
 
@@ -18,7 +18,7 @@ export default class App extends React.Component<{}, AppState> {
 
     public async componentDidMount() {
         log.info("Initializing bookkeeper client");
-        login.currentSession.onValue((u: string) => this.setState({ session: u }));
+        login.currentSession.onValue((u: object) => this.setState({ session: u }));
         
         await login.checkLoginState();
         this.setState({ initialized: true });

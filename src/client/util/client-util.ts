@@ -1,16 +1,18 @@
 "use strict";
 
-export function unsubscribeAll(arr) {
+export function unsubscribeAll(arr: any[]): void {
     arr.forEach(i => {
         if (typeof i === "function") i();
         else if (typeof i.end === "function") i.end();
     })
 }
 
-export function combineClassNames() {
+export function combineClassNames(): string {
     return Array.prototype.slice.call(arguments).reduce((res, cur) => cur ? (res ? res + " " + cur : cur) : res, "");
 }
 
-export function stopEventPropagation(event) {
-    event && event.stopPropagation();
+export function stopEventPropagation(event: any): void {
+    if (event && event.stopPropagation) {
+        event.stopPropagation();
+    }
 }

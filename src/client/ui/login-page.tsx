@@ -66,7 +66,7 @@ export default class LoginPage extends React.Component<any, any> {
             .catch(this.handleLoginError);
     }
 
-    render() {
+    public render() {
         return <div className="everything">
             <Paper style={paperStyle} zDepth={1}>
                 <form onSubmit={this.handleSubmit}>

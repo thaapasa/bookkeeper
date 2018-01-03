@@ -1,4 +1,3 @@
-"use strict";
 import * as React from 'react';
 import * as Bacon from "baconjs";
 import DatePicker from "material-ui/DatePicker";
@@ -18,7 +17,12 @@ const styles = {
     category: { width: "50%" }
 };
 
-export function SumField(props) {
+export function SumField(props: {
+    value: string,
+    errorText?: string,
+    onChange: (string) => void,
+    theRef?: any
+}) {
     return <TextField
         ref={props.theRef}
         hintText="0.00"
@@ -26,15 +30,16 @@ export function SumField(props) {
         floatingLabelFixed={true}
         value={props.value}
         errorText={props.errorText}
-        onChange={i => props.onChange(i.target.value)} />
+        onChange={(i, e) => props.onChange(e)} />
 }
-SumField.propTypes = {
-    value: PropTypes.string.isRequired,
-    errorText: PropTypes.string,
-    onChange: PropTypes.func.isRequired
-};
 
-export function TitleField(props) {
+export function TitleField(props: {
+    value: string,
+    errorText?: string,
+    dataSource: any[],
+    onChange: (s: string) => void,
+    onSelect: (s: string) => void,
+}) {
     return <AutoComplete
         hintText="Ruokaostokset"
         floatingLabelFixed={true}
@@ -48,22 +53,23 @@ export function TitleField(props) {
         dataSource={props.dataSource}
         onUpdateInput={(v) => props.onChange(v)} />
 }
-TitleField.propTypes = {
-    value: PropTypes.string.isRequired,
-    errorText: PropTypes.string,
-    dataSource: PropTypes.array.isRequired,
-    onChange: PropTypes.func.isRequired,
-    onSelect: PropTypes.func.isRequired
-};
 
-export function CategorySelector(props) {
+export function CategorySelector(props: {
+    category: number,
+    subcategory: number,
+    categories: any[],
+    subcategories: any[],
+    onChangeCategory: (id: number) => void,
+    onChangeSubcategory: (id: number) => void,
+    errorText?: string,
+}) {
     return <div onKeyUp={stopEventPropagation}>
         <DropDownMenu
             key="category"
             value={ props.category }
             style={ styles.category }
             autoWidth={false}
-            onKeyUp={stopEventPropagation}
+            // onKeyUp={stopEventPropagation}
             onChange={(i, j, v) => props.onChangeCategory(v)}>
             { props.categories.map((row) => (
                 <MenuItem key={row.id} value={row.id} primaryText={row.name} />
@@ -74,7 +80,7 @@ export function CategorySelector(props) {
             value={ props.subcategory }
             style={ styles.category }
             autoWidth={false}
-            onKeyUp={stopEventPropagation}
+            // onKeyUp={stopEventPropagation}
             onChange={(i, j, v) => props.onChangeSubcategory(v)}>
             { props.subcategories.map(row =>
                 <MenuItem key={row.id} value={row.id} primaryText={row.name} />
@@ -83,14 +89,13 @@ export function CategorySelector(props) {
         { props.errorText ? [<br key="br"/>, <div className="error-text" key="error">{ props.errorText }</div> ] : null }
     </div>
 }
-CategorySelector.propTypes = {
-    category: PropTypes.number.isRequired,
-    subcategory: PropTypes.number.isRequired,
-    subcategories: PropTypes.array.isRequired,
-    errorText: PropTypes.string
-};
 
-export function SourceSelector(props) {
+export function SourceSelector(props: {
+    value: number,
+    onChange: (id: number) => void,
+    sources: any[],
+    style?: any,
+}) {
     return <DropDownMenu
         value={props.value}
         style={props.style}
@@ -101,13 +106,11 @@ export function SourceSelector(props) {
         )}
     </DropDownMenu>
 }
-SourceSelector.propTypes = {
-    value: PropTypes.number.isRequired,
-    onChange: PropTypes.func.isRequired,
-    sources: PropTypes.array.isRequired
-};
 
-export function TypeSelector(props) {
+export function TypeSelector(props: {
+    value: string,
+    onChange: (string) => void,
+}) {
     return <Checkbox
         label={props.value === "income" ? "Tulo" : "Kulu"}
         checkedIcon={<Income />}
@@ -115,27 +118,37 @@ export function TypeSelector(props) {
         checked={props.value === "income"}
         onCheck={(e, v) => props.onChange(v ? "income" : "expense")} />
 }
-TypeSelector.propTypes = {
-    value: PropTypes.string.isRequired,
-    onChange: PropTypes.func.isRequired
-};
 
-export function DateField(props) {
+export function DateField(props: {
+    value: Date,
+    onChange: (date: Date) => void,
+}) {
     return <DatePicker
         value={props.value}
         formatDate={d => moment(d).format("D.M.YYYY")}
         floatingLabelText="Päivämäärä"
-        floatingLabelFixed={true}
+        //floatingLabelFixed={true}
         fullWidth={true}
         autoOk={true}
         onChange={(event, date) => props.onChange(date)} />
 }
-DateField.propTypes = {
-    value: PropTypes.instanceOf(Date),
-    onChange: PropTypes.func.isRequired
-};
 
-export class ReceiverField extends React.Component {
+export class ReceiverField extends React.Component<{
+    name?: string,
+    id?: string,
+    hintText?: string,
+    value: string,
+    errorText?: string,
+    onChange: (r: string) => void,
+    onBlur?: () => void,
+    onKeyUp?: (event: any) => void,
+    editorType?: any,
+}, any> {
+
+    private inputStream: any;
+    private unsub: any[];
+    private ref: any;
+
     constructor (props) {
         super(props);
         this.state = { receivers: [] };
@@ -186,22 +199,16 @@ export class ReceiverField extends React.Component {
         });
     }
 }
-ReceiverField.propTypes = {
-    name: PropTypes.string,
-    id: PropTypes.string,
-    hintText: PropTypes.string,
-    value: PropTypes.string.isRequired,
-    errorText: PropTypes.string,
-    onChange: PropTypes.func.isRequired,
-    onBlur: PropTypes.func,
-    onKeyUp: PropTypes.func
-};
 
 export function PlainReceiverField(props) {
     return React.createElement(ReceiverField, Object.assign({}, props, { editorType: PlainAutoComplete }));
 }
 
-export function DescriptionField(props) {
+export function DescriptionField(props: {
+    value: string,
+    errorText?: string,
+    onChange: (s: string) => void,
+}) {
     return <TextField
         multiLine={true}
         hintText="Tarkempi selite"
@@ -210,11 +217,6 @@ export function DescriptionField(props) {
         fullWidth={true}
         errorText={props.errorText}
         value={props.value}
-        onChange={i => props.onChange(i.target.value)}
+        onChange={(i, e) => props.onChange(e)}
     />
 }
-DescriptionField.propTypes = {
-    value: PropTypes.string.isRequired,
-    errorText: PropTypes.string,
-    onChange: PropTypes.func.isRequired
-};
