@@ -32,7 +32,7 @@
     "express": "4.16.2",
     "material-ui": "0.20.0",
     "moment": "2.20.1",
-    "pg": "7.4.0",
+    "pg": "7.4.1",
     "pg-pool": "2.0.3",
     "prop-types": "15.6.0",
     "react": "16.2.0",
@@ -42,11 +42,11 @@
     "superagent": "3.8.2"
   },
   "devDependencies": {
-    "@types/big.js": "4.0.1",
+    "@types/big.js": "4.0.2",
     "@types/bluebird": "^3.5.19",
-    "@types/material-ui": "0.20.0",
+    "@types/material-ui": "0.20.2",
     "@types/pg-pool": "0.0.3",
-    "@types/react": "16.0.31",
+    "@types/react": "16.0.34",
     "@types/react-dom": "16.0.3",
     "@types/react-tap-event-plugin": "0.0.30",
     "@types/superagent": "^3.5.6",
