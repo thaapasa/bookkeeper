@@ -1,7 +1,7 @@
 import * as log from '../../shared/util/log';
 import { config } from '../config';
 import sessions from '../data/sessions';
-import moment from 'moment';
+import * as moment from 'moment';
 import { db } from '../data/db';
 
 interface ErrorInfo {

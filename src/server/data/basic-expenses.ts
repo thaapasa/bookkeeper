@@ -1,15 +1,15 @@
 import { db } from './db';
 import * as log from '../../shared/util/log';
-import moment from 'moment';
+import * as moment from 'moment';
 import * as time from '../../shared/util/time';
 import * as arrays from '../../shared/util/arrays';
 import Money from '../../shared/util/money';
-import * as categories from './categories';
-import * as users from './users';
-import * as sources from './sources';
+import categories from './categories';
+import users from './users';
+import sources from './sources';
 import * as errors from '../util/errors';
 import * as splitter from '../../shared/util/splitter';
-import * as expenseDivision from './expense-division';
+import expenseDivision from './expense-division';
 
 function expenseSelect(where) {
     return "SELECT MIN(id) AS id, MIN(date) AS date, MIN(receiver) AS receiver, MIN(type) AS type, MIN(sum) AS sum, " +
@@ -128,7 +128,7 @@ function createExpense(userId, groupId, expense, defaultSourceId) {
             const cat = a[0];
             const user = a[1];
             const source = a[2];
-            const division = expenseDivision.determineDivision(expense, source);
+            const division = expenseDivision(expense, source);
             return insert(tx)(userId, Object.assign({}, expense,
                 { userId: user.id, groupId: groupId, sourceId: source.id, categoryId: cat.id, sum: expense.sum.toString() }),
                 division);
@@ -159,7 +159,7 @@ function updateExpense(tx) {
         ]).then(a => {
             const cat = a[0];
             const source = a[1];
-            const division = expenseDivision.determineDivision(expense, source);
+            const division = expenseDivision(expense, source);
             return deleteDivision(tx)(original.id)
                 .then(() => tx.insert("expenses.update",
                     "UPDATE expenses SET date=$2::DATE, receiver=$3, sum=$4::NUMERIC::MONEY, title=$5, description=$6, " +

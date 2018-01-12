@@ -7,7 +7,6 @@ import ActivatableTextField from "./activatable-text-field";
 import {PlainTextField} from "./plain-text-field";
 import {ExpandLess,ExpandMore,Delete,Edit,Repeat,ToolIcon} from "./icons"
 import * as colors from "./colors";
-import {ExpensePropType} from "./expense-helper";
 import {PlainReceiverField} from "./expense-dialog-components";
 import {combineClassNames} from "../util/client-util";
 import * as arrays from "../../shared/util/arrays";

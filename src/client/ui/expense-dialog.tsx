@@ -1,23 +1,23 @@
 import * as React from 'react';
-import * as Bacon from "baconjs";
+import * as Bacon from 'baconjs';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
-import UserSelector from "./user-selector";
-import Checkbox from "material-ui/Checkbox";
-import UserAvatar from "./user-avatar";
-import * as arrays from "../../shared/util/arrays";
-import * as splitter from "../../shared/util/splitter";
-import Money from "../../shared/util/money";
-import * as categories from  "../data/categories";
-import * as apiConnect from "../data/api-connect";
-import * as state from "../data/state";
-import * as time from "../../shared/util/time";
-import {KeyCodes} from "../util/io"
-import {SumField, TypeSelector, TitleField, CategorySelector, SourceSelector, DateField, ReceiverField, DescriptionField} from "./expense-dialog-components";
-import {expenseName} from "./expense-helper";
-import {unsubscribeAll} from "../util/client-util";
-import {stopEventPropagation} from "../util/client-util";
-const moment = require("moment");
+import UserSelector from './user-selector';
+import Checkbox from 'material-ui/Checkbox';
+import UserAvatar from './user-avatar';
+import * as arrays from '../../shared/util/arrays';
+import * as splitter from '../../shared/util/splitter';
+import Money from '../../shared/util/money';
+import * as categories from  '../data/categories';
+import * as apiConnect from '../data/api-connect';
+import * as state from '../data/state';
+import * as time from '../../shared/util/time';
+import {KeyCodes} from '../util/io'
+import {SumField, TypeSelector, TitleField, CategorySelector, SourceSelector, DateField, ReceiverField, DescriptionField} from './expense-dialog-components';
+import {expenseName} from './expense-helper';
+import {unsubscribeAll} from '../util/client-util';
+import {stopEventPropagation} from '../util/client-util';
+import * as moment from 'moment';
 
 function findParentCategory(categoryId) {
     const map = state.get("categoryMap");
@@ -211,7 +211,7 @@ export default class ExpenseDialog extends React.Component<any, any> {
         console.log("Open expense", expense);
         this.updateCategoriesAndSources();
         Object.keys(fields).forEach(k => this.inputStreams[k].push(initValue(k, expense)));
-        this.setState({ open: true }, () => this.moneyInput.focus());
+        this.setState({ open: true }, () => this.moneyInput && this.moneyInput.focus());
     }
 
     closeDialog() {

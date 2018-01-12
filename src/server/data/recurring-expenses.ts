@@ -48,9 +48,9 @@ function createRecurring(groupId, userId, expenseId, recurrence) {
                             templateExpenseId: templateId, recurringExpenseId: recurrenceId })));
 }
 
-function getDatesUpTo(recurrence, date) {
+function getDatesUpTo(recurrence, date): string[] {
     let generating = moment(recurrence.nextMissing);
-    const dates: Moment[] = [];
+    const dates: string[] = [];
     while (generating.isBefore(date)) {
         dates.push(time.date(generating));
         generating = nextRecurrence(generating, recurrence.period);

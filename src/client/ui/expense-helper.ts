@@ -1,15 +1,13 @@
-import * as React from 'react';
-import Money from "../../shared/util/money"
-import PropTypes from "prop-types"
+import Money from '../../shared/util/money'
 
-export const ExpensePropType = {
-    id: PropTypes.number.isRequired,
-    userId: PropTypes.number.isRequired,
-    title: PropTypes.string.isRequired,
-    sum: PropTypes.string.isRequired,
-    sourceId: PropTypes.number.isRequired,
-    categoryId: PropTypes.number.isRequired,
-    description: PropTypes.string
+export interface Expense {
+    id: number;
+    userId: number;
+    title: string;
+    sum: string;
+    sourceId: number;
+    categoryId: number;
+    description?: string;
 };
 
 export function expenseName(e: any): string {

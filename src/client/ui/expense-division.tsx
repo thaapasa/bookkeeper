@@ -8,7 +8,6 @@ import {expenseName} from "./expense-helper";
 import {Repeat} from "./icons";
 import * as apiConnect from "../data/api-connect";
 import RefreshIndicator from 'material-ui/RefreshIndicator';
-import {ExpensePropType} from "./expense-helper";
 import PropTypes from "prop-types";
 const Money = require("../../shared/util/money");
 

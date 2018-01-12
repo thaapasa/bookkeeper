@@ -9,7 +9,7 @@ class Config {
     public port = 3100;
     public environment = env;
     public version: string = require('../../package.json').version;
-    public refreshTokenTimeout: '2 weeks';
+    public refreshTokenTimeout = '2 weeks';
     public commitId = commitId;
     public logLevel = 'info';
     public revision = commitId.substr(0, 8);
@@ -17,8 +17,8 @@ class Config {
     public sessionTimeout = '20 minutes';
     public db = {
         database: 'bookkeeper',
-        user: 'bookkeeper',
-        password: 'password',
+        user: 'thaapasa',
+        password: 'kakkuloskakahvit',
         port: 5432,
         ssl: false
     };

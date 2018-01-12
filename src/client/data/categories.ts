@@ -1,7 +1,5 @@
-"use strict";
-
-import * as state from "./state";
-import {flatten} from "../../shared/util/arrays"
+import * as state from './state';
+import { flatten } from '../../shared/util/arrays';
 
 export function getFullName(categoryId) {
     let categoryString = "";
@@ -16,9 +14,10 @@ export function get(categoryId) {
     return state.get("categoryMap")[categoryId];
 }
 
-const catToDataSource = (arr) => arr ?
-    flatten(arr.map(c => ([{ value: c.id, text: getFullName(c.id) }].concat(catToDataSource(c.children))))) :
+function catToDataSource(arr: any[]): any[] {
+    return arr ? flatten(arr.map(c => ([{ value: c.id, text: getFullName(c.id) }].concat(catToDataSource(c.children))))) :
     [];
+}
 
 export function getDataSource() {
     return catToDataSource(state.get("categories"));

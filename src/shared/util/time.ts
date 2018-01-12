@@ -1,4 +1,6 @@
-import moment, { Moment } from 'moment';
+import * as moment from 'moment';
+
+type Moment = moment.Moment;
 
 export function month(year: number, month: number): Moment {
     return moment({ year: year, month: month - 1, day: 1});
