@@ -107,19 +107,6 @@ function MyDatePicker({ value, onChange, label }) {
         onChange={(event, date) => onChange(date)} />;
 }
 
-const testData = [
-    { "categoryName": "Auto", "categoryTotal": 1234 },
-    { "categoryName": "Asuminen", "categoryTotal": 4000 },
-    { "categoryName": "Vaatteet", "categoryTotal": 2300 },
-    { "categoryName": "Laina", "categoryTotal": 4000 },
-    { "categoryName": "Koti", "categoryTotal": 34 },
-    { "categoryName": "Lapset", "categoryTotal": 4443 },
-    { "categoryName": "Lahjat", "categoryTotal": 1234 },
-    { "categoryName": "Muut", "categoryTotal": 0 },
-    { "categoryName": "Vakuutukset", "categoryTotal": 12 },
-    { "categoryName": "Lomat", "categoryTotal": 900 }
-]
-
 export default class CategoryView extends React.Component {
 
     constructor(props) {
@@ -155,23 +142,18 @@ export default class CategoryView extends React.Component {
 
     }*/
     formCategoryChartData() {
-        //console.log("formCategoryChartData");
         let chartData = [];
-        //console.log("this.state.categoryTotals", this.state.categoryTotals);
         this.state.categories && this.state.categories.forEach(c => {
             chartData.push({ categoryId: c.id, categoryName: c.name, categoryTotal: this.state.categoryTotals[c.id].totalExpenses})
         })
-        //console.log("created categoryChartData", chartData);
         this.setState({ categoryChartData: chartData });
     }
 
     getCategoryTotals(dates) {
-        //console.log("getCategoryTotals");
         if (!dates) {
             return;
         }
         return apiConnect.getCategoryTotals(dates.start, dates.end).then(t => {
-            //console.log("got", t);
             let totalsMap = {};
             t && t.forEach(t => {
                 totalsMap['' + t.id] = t;
@@ -184,14 +166,11 @@ export default class CategoryView extends React.Component {
     }
 
     reloadCategories(dates) {
-        console.log("reloadCategories");
         Promise.all([
             this.getCategoryTotals(dates),
             apiConnect.getCategoryList()
         ]).then(a => {
             this.setState({ categories: a[1] });
-            //console.log("loaded categories");
-            //console.dir(this.state.categoryTotals);
             this.formCategoryChartData();
         });
      }
@@ -203,14 +182,12 @@ export default class CategoryView extends React.Component {
     }
 
     editCategory(category) {
-        console.log("Editing category", category);
         this.categoryDialog.editCategory(category)
             .then(c => console.log("Modified category", c))
             .then(c => this.reloadCategories(null));
     }
 
     componentDidMount() {
-        console.log("componentDidMount");
         this.unsub = [];
         this.startDateStr.onValue(d => this.setState({ startDate: d }));
         this.endDateStr.onValue(d => this.setState({ endDate: d }));
@@ -246,11 +223,13 @@ export default class CategoryView extends React.Component {
         </div>
     }
 
-    CategoryTable({ categories, categoryTotals, categoryExpenses }) {
-        return <div className="bk-table category-table">
+    CategoryTable({ categories, categoryTotals, categoryExpenses, categoryChartData }) {
+        return <div className="category-table">
                 <this.TimeSelector />
+                <CategoryChart
+                    chartData={categoryChartData}/>
                 <this.CategoryHeader />
-                <div className="category-data-area bk-table-data-area">
+                <div className="category-data-area">
                     { categories.map(c => [<CategoryRow key={c.id} category={c} header={true} categoryExpenses={categoryExpenses} categoryTotals={categoryTotals}
                                                         createCategory={this.createCategory} editCategory={this.editCategory} datesStr={this.datesStr} />]
                         .concat(c.children.map(ch => <CategoryRow key={ch.id} header={false} category={ch} categoryExpenses={categoryExpenses} categoryTotals={categoryTotals}
@@ -260,7 +239,7 @@ export default class CategoryView extends React.Component {
     }
 
     CategoryHeader() {
-        return <div className="bk-table-header bk-table-row category-table-row category-table-header header no-border">
+        return <div className="category-table-row category-table-header header no-border">
             <div className="category-name">Nimi</div>
             <div className="category-totals">Kulut / Tulot</div>
             <div className="category-tools">
@@ -271,13 +250,11 @@ export default class CategoryView extends React.Component {
 
     render() {
         return <div className="content">
-            <CategoryChart
-             data={testData}
-             chartData={this.state.categoryChartData}/>
             <this.CategoryTable
                 categories={this.state.categories}
                 categoryTotals={this.state.categoryTotals}
-                categoryExpenses={this.state.categoryExpenses} />
+                categoryExpenses={this.state.categoryExpenses}
+                categoryChartData={this.state.categoryChartData}/>
             <CategoryDialog ref={r => this.categoryDialog = r}/>
         </div>
     }

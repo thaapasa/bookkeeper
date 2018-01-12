@@ -51,8 +51,8 @@ export default class ExpenseTable extends React.Component {
     render() {
         const filtered = this.getFilteredExpenses();
         return <div className="expense-table bk-table">
-            <ExpenseHeader className="expense-table-header bk-table-header"/>
-            <ExpenseStatus className="expense-table-start-status" name="Tilanne ennen" status={this.props.startStatus} unconfirmedBefore={this.props.unconfirmedBefore} />
+            <ExpenseHeader className="expense-table-header bk-table-header fixed-horizontal"/>
+            <ExpenseStatus className="expense-table-start-status fixed-horizontal" name="Tilanne ennen" status={this.props.startStatus} unconfirmedBefore={this.props.unconfirmedBefore} />
             <div className="expense-data-area bk-table-data-area">
                 { this.props.loading ?
                     <div className="loading-indicator-big"><RefreshIndicator left={-30} top={-30} status="loading" size={60} /></div> :
@@ -71,8 +71,8 @@ export default class ExpenseTable extends React.Component {
                         : []).concat(filtered.map(this.renderExpense)).concat(this.getTotalRow(filtered))
                 }
             </div>
-            <ExpenseStatus className="expense-table-month-status" name="Tämä kuukausi" status={this.props.monthStatus} />
-            <ExpenseStatus className="expense-table-end-status" name="Lopputilanne" status={this.props.endStatus} />
+            <ExpenseStatus className="expense-table-month-status fixed-horizontal" name="Tämä kuukausi" status={this.props.monthStatus} />
+            <ExpenseStatus className="expense-table-end-status fixed-horizontal" name="Lopputilanne" status={this.props.endStatus} />
         </div>
     }
 }

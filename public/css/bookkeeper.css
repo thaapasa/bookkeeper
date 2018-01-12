@@ -29,18 +29,35 @@ html, body {
 .top-margin { margin-top: 1em; }
 .bottom-margin { margin-bottom: 1em; }
 
-.top-bar { height: 56px !important; }
-.expense-navigation { height: 48px !important; }
+.fixed-horizontal {
+    position: fixed;
+    width: 100%;
+    background-color: white;
+    z-index: 10;
+}
+
+.top-bar {
+    height: 56px !important;
+    top: 0;
+}
+
+.main-content {
+    margin-top: 56px;
+}
+
+.expense-navigation {
+    height: 48px !important;
+    top: 56px;
+}
 
 /** Expense table */
 .bk-table {
     font-size: 13px;
-    position: fixed;
+    margin-top: 104px;
+}
+
+.bk-table-header {
     top: 104px;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    overflow: hidden;
 }
 
 .bk-table-row {
@@ -51,42 +68,39 @@ html, body {
     align-items: center;
 }
 
-.category-table {
-    top: 514px;
+.expense-table-start-status {
+    top: 145px;
 }
 
-.bk-table-header,
-.expense-table-start-status,
-.expense-table-end-status,
-.expense-table-month-status,
-.category-table-time-select {
-    position: absolute;
-    left: 0;
-    right: 0;
-}
 
 .bk-item-half { flex-grow: 1; }
 
-.bk-table-header { top: 0; border-top: none; }
-.expense-table-start-status { top: 41px; border-bottom: 1px solid rgb(224, 224, 224); }
+/*.bk-table-header { top: 0; border-top: none; }*/
+.expense-table-start-status { /*top: 41px; */border-bottom: 1px solid rgb(224, 224, 224); }
 .expense-table-month-status { bottom: 41px; }
 .expense-table-end-status { bottom: 0; }
+
+/* Categories */
+
+.category-table {
+    font-size: 13px;
+}
+
+.category-table-row {
+    height: 41px !important;
+    display: flex;
+    border-top: 1px solid rgb(224, 224, 224);
+    white-space: nowrap;
+    align-items: center;
+}
 .category-table-time-select { height: 61px !important; }
 .category-table-header { top: 61px; }
 .bk-table-data-area {
     overflow-y: auto;
     overflow-x: hidden;
-    position: absolute;
-    left: 0;
-    right: 0;
 }
 .expense-data-area {
-    top: 82px;
-    bottom: 82px;
-}
-.category-data-area {
-    top: 102px;
-    bottom: 0;
+    padding-top: 82px;
 }
 
 .category-table-row > div {
@@ -96,8 +110,8 @@ html, body {
 .category-table-row > .category-tools { width: 8em; text-align: right; }
 
 .category-chart-container {
-    height: 600px;
-    width: 800px;
+    height: 450px;
+    /*width: 800px;*/
 }
 
 .Axis .domain {
@@ -113,7 +127,8 @@ html, body {
 .expense-row.unconfirmed {}
 .expense-row.income {}
 
-.bk-table-row.header {
+.bk-table-row.header,
+.category-table-header {
     font-weight: 600;
 }
 .expense-filters {
@@ -249,12 +264,15 @@ html, body {
         height: 32px !important;
     }
 
-    .expense-table-start-status { top: 32px; }
+    /*.expense-table-start-status { top: 32px; }*/
     .expense-table-month-status { bottom: 32px; }
     .expense-data-area {
+        padding-top: 66px;
         top: 64px;
         bottom: 64px;
     }
+
+    .expense-table-start-status { top: 137px;}
 
     .expense-detail {
         margin: 0.5em 0.4em;
@@ -304,5 +322,18 @@ html, body {
     .expense-division-item {
         margin: 0.1em 0.3em;
         display: inline-block;
+    }
+
+    .category-chart-container {
+        height: 480px;
+    }
+
+    .Axis-Bottom text {
+        transform: rotate(-45deg);
+        text-anchor: end;
+    }
+
+    .category-table-time-select {
+        height: 61px !important;
     }
 }

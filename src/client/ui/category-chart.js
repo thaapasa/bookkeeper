@@ -7,11 +7,6 @@ import * as d3Axis from 'd3-axis'
 import { select as d3Select } from 'd3-selection'
 import { interpolateLab } from 'd3-interpolate'
 
-//import * as state from "../data/state";
-
-//const data = [100, 1000, 2593, 39929, 55, 9834, 13, 45000, 7777, 243];
-
-
 class Bars extends React.Component {
     constructor(props) {
         super(props)
@@ -52,7 +47,6 @@ class Axis extends React.Component {
 
     renderAxis() {
         const axisType = `axis${this.props.orient}`
-        console.log("axistype", axisType);
         const axis = d3Axis[axisType]()
             .scale(this.props.scale)
             .tickSize(-this.props.tickSize)
@@ -103,22 +97,45 @@ export default class CategoryChart extends React.Component {
 
 
     constructor(props) {
-        super(props)
-        this.xScale = scaleBand()
-        this.yScale = scaleLinear()
+        super(props);
+        this.xScale = scaleBand();
+        this.yScale = scaleLinear();
+        this.state = { containerWidth: null };
+
+        this.adjustChartWidth = this.adjustChartWidth.bind(this);
     }
 
+    componentDidMount() {
+        this.adjustChartWidth();
+        window.addEventListener('resize', this.adjustChartWidth);
+    }
 
-    render() {
+    componentWillUnmount() {
+        window.removeEventListener('resize', this.adjustChartWidth);
+    }
+
+    adjustChartWidth() {
+        const containerWidth = this.state.containerWidth;
+        const currentContainerWidth = this.chartContainer.getBoundingClientRect().width;
+        const shouldResize = containerWidth !== currentContainerWidth;
+
+        if (shouldResize) {
+            this.setState({ containerWidth: currentContainerWidth });
+        }
+    }
+
+    renderChart() {
+        const parentWidth = this.state.containerWidth;
+
         let data = this.props.data;
         let chartData = this.props.chartData;
-        console.log("chartData", this.props.chartData);
-        //console.log("data", data);
         const margins = { top: 50, right: 20, bottom: 100, left: 60 }
-        const svgDimensions = { width: 800, height: 500 }
+        const svgDimensions = { 
+            width: Math.max(parentWidth, 300), 
+            height: 500 
+        }
 
         const maxValue = chartData ? Math.max(...chartData.map(d => d.categoryTotal)) * 1.1 : 0;
-        console.log("maxValue", maxValue);
         // scaleBand type
         const xScale = chartData ? this.xScale
             .padding(0.5)
@@ -152,7 +169,19 @@ export default class CategoryChart extends React.Component {
         )
     }
 
+    render() {
+        const containerWidth = this.state.containerWidth;
+        const shouldRenderChart = containerWidth !== null;
 
+        return (       
+            <div
+                ref={(el) => { this.chartContainer = el }}
+                className="Responsive-wrapper"
+            >
+            {shouldRenderChart && this.renderChart()}
+          </div>
+        );
+    }
 
 
 }
