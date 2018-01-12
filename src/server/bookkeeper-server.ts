@@ -23,5 +23,5 @@ try {
         debug('Kukkaro server started with configuration', config);
     });
 } catch (er) {
-    debug.error(er);
+    debug('Error in server:', er);
 }
