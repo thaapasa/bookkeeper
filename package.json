@@ -46,6 +46,7 @@
     "@types/big.js": "4.0.1",
     "@types/bluebird": "^3.5.19",
     "@types/material-ui": "0.20.0",
+    "@types/pg-pool": "0.0.3",
     "@types/react": "16.0.31",
     "@types/react-dom": "16.0.3",
     "@types/react-tap-event-plugin": "0.0.30",
