@@ -11,7 +11,10 @@ function camelCaseObject(o: Map<string>): Map<string> {
     return r;
 }
 
-const pool = new Pool(config.db);
+const pool = new Pool({
+    connectionString: config.dbUrl,
+    ssl: config.dbSSL,
+});
 
 function queryFor(client, doRelease, id?) {
     return (name, query, params, mapper) => {
