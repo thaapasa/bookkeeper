@@ -1,16 +1,21 @@
-"use strict";
+import * as log from '../../shared/util/log';
+import config from '../config';
+const sessions = require('../data/sessions');
+const moment = require('moment');
+const db = require('../data/db');
 
-const log = require("./../../shared/util/log");
-const config = require("../config");
-const sessions = require("../data/sessions");
-const moment = require("moment");
-const db = require("../data/db");
+interface ErrorInfo {
+    type: 'error';
+    code: string;
+    cause?: any;
+    info?: any;
+};
 
-function handleError(res) {
+export function handleError(res) {
     return e => {
-        log.warn("Error", e);
-        const data = { type: "error", code: e.code ? e.code : "INTERNAL_ERROR" };
-        const status = typeof(e.status) == "number" ? e.status : 500;
+        log.warn('Error', e);
+        const data: ErrorInfo = { type: 'error', code: e.code ? e.code : 'INTERNAL_ERROR' };
+        const status = typeof(e.status) == 'number' ? e.status : 500;
         if (config.showErrorCause) {
             data.cause = e.cause ? e.cause : e;
         }
@@ -21,7 +26,7 @@ function handleError(res) {
     }
 }
 
-function processUnauthorizedRequest(handler) {
+export function processUnauthorizedRequest(handler) {
     return (req, res) => {
         log.debug(req.method, req.url);
         return handler(req, res)
@@ -30,7 +35,7 @@ function processUnauthorizedRequest(handler) {
     };
 }
 
-function processRequest(handler, groupRequired) {
+export function processRequest(handler, groupRequired) {
     return (req, res) => {
         log.debug(req.method, req.url);
         try {
@@ -80,22 +85,14 @@ function TokenNotPresentError() {
 TokenNotPresentError.prototype = new Error();
 
 const bearerMatch = /Bearer ([0-9a-zA-Z]*)/;
-function getToken(req) {
+export function getToken(req) {
     const tmatch = bearerMatch.exec(req.header("Authorization"));
     const token = tmatch && tmatch.length > 0 ? tmatch[1] : undefined;
     if (!token) throw new TokenNotPresentError();
     return token;
 }
 
-function getId(pathRE, req, position) {
+export function getId(pathRE, req, position) {
     if (position === undefined) position = 1;
     return parseInt(pathRE.exec(req.url)[position], 10);
 }
-
-module.exports = {
-    processRequest: processRequest,
-    processUnauthorizedRequest: processUnauthorizedRequest,
-    handleError: handleError,
-    getId: getId,
-    getToken: getToken
-};

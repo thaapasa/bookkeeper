@@ -1,5 +1,3 @@
-"use strict";
-
 const users = require("./data/users");
 const moment = require("moment");
 const express = require("express");
@@ -9,10 +7,9 @@ const categories = require("./data/categories");
 const sources = require("./data/sources");
 const config = require("./config");
 const server = require("./util/server-util");
-const Promise = require("bluebird");
 const V = require("./util/validator");
 
-function registerAPI(app) {
+export function registerAPI(app) {
 
     // GET /api/status
     app.get("/api/status", server.processUnauthorizedRequest(req => Promise.resolve({
@@ -168,7 +165,3 @@ function registerAPI(app) {
             V.validate(recurringExpenseSchema, req.body)), true));
 
 }
-
-module.exports = {
-    registerAPI: registerAPI
-};

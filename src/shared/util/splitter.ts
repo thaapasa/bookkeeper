@@ -1,13 +1,11 @@
-"use strict";
+import * as log from './log';
+import Money from './money';
+import * as arrays from './arrays';
+const assert = require('assert');
 
-const log = require("./log");
-const Money = require("./money");
-const assert = require("assert");
-const arrays = require("./arrays");
-
-function splitByShares(sum, division) {
+export function splitByShares(sum, division) {
     const numShares = division.map(d => d.share).reduce((a, b) => a + b, 0);
-    log.debug("Splitting", sum.format(), "to", numShares, "parts by", division);
+    log.debug('Splitting', sum.format(), 'to', numShares, 'parts by', division);
     const part = sum.divide(numShares);
     const res = division.map(d => Object.assign({ sum: part.multiply(d.share) }, d));
     const total = res.map(d => d.sum).reduce((a, b) => a.plus(b), Money.zero);
@@ -15,26 +13,21 @@ function splitByShares(sum, division) {
     assert(remainder.gte(Money.zero));
     if (remainder.gt(Money.zero)) {
         const shares = remainder.toCents();
-        const ids = [];
+        const ids: number[] = [];
         res.forEach(((d, i) => arrays.indices(d.share).forEach(a => ids.push(i))));
-        log.debug("Extra share receivers:", ids);
+        log.debug('Extra share receivers:', ids);
         for (let i = 0; i < shares; i++) {
-            log.debug("Adding 1 cent to share #", i, ":", ids[i]);
+            log.debug('Adding 1 cent to share #', i, ':', ids[i]);
             res[ids[i]].sum = res[ids[i]].sum.plus(Money.cent);
         }
     }
 
     const newTotal = res.map(d => d.sum).reduce((a, b) => a.plus(b), Money.zero);
     assert(newTotal.equals(sum));
-    log.debug("Divided to", res);
+    log.debug('Divided to', res);
     return res;
 }
 
-function negateDivision(d) {
+export function negateDivision(d) {
     return d.map(b => Object.assign({}, b, { sum: b.sum.negate() }));
 }
-
-module.exports = {
-    splitByShares: splitByShares,
-    negateDivision: negateDivision
-};

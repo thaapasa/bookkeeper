@@ -1,32 +1,27 @@
-"use strict";
+import * as util from '../../shared/util/util';
 
-const util = require("./../../shared/util/util");
-
-module.exports = {};
-
-module.exports.undefinedToError = function(errorType, p1, p2, p3) {
+export function undefinedToError(errorType, p1, p2, p3) {
     return value => {
         if (value === undefined) throw new errorType(p1, p2, p3);
         else return value;
     }
 };
 
-module.exports.emptyToError = function(errorType, p1, p2, p3) {
+export function emptyToError(errorType, p1, p2, p3) {
     return value => {
         if (value === undefined || value === null || (Array.isArray(value) && value.length === 0)) throw new errorType(p1, p2, p3);
         else return value;
     }
 };
 
-function NotFoundError(code, name) {
+export function NotFoundError(code, name) {
     this.code = code;
     this.status = 404;
     this.cause = `${util.ucFirst(name)} not found`;
 }
 NotFoundError.prototype = new Error();
-module.exports.NotFoundError = NotFoundError;
 
-function AuthenticationError(code, cause, data) {
+export function AuthenticationError(code, cause, data) {
     this.status = 401;
     this.code = code;
     this.cause = cause;
@@ -34,4 +29,3 @@ function AuthenticationError(code, cause, data) {
     return this;
 }
 AuthenticationError.prototype = new Error();
-module.exports.AuthenticationError = AuthenticationError;

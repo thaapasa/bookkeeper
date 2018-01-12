@@ -1,10 +1,8 @@
-"use strict";
-
-const log = require("./../../shared/util/log");
-const Money = require("../../shared/util/money");
+import * as log from './../../shared/util/log';
+import Money from '../../shared/util/money';
 
 function InvalidInputError(field, input, requirement) {
-    this.code = "INVALID_INPUT";
+    this.code = 'INVALID_INPUT';
     this.status = 400;
     this.cause = `Invalid input in ${field}`;
     this.info = {
@@ -16,13 +14,13 @@ function InvalidInputError(field, input, requirement) {
 InvalidInputError.prototype = new Error();
 
 function toInt(i, field) {
-    if (typeof i === "number") {
-        if (Math.floor(i) !== i) throw new InvalidInputError(field, i, "Input must be an integer");
+    if (typeof i === 'number') {
+        if (Math.floor(i) !== i) throw new InvalidInputError(field, i, 'Input must be an integer');
         return i;
     }
-    if (typeof i === "string") {
+    if (typeof i === 'string') {
         const n = parseInt(i, 10);
-        if (i !== n.toString()) throw new InvalidInputError(field, i, "Input must be an integer");
+        if (i !== n.toString()) throw new InvalidInputError(field, i, 'Input must be an integer');
         return n;
     }
     throw new InvalidInputError(field, i, `Input must be an integer, is of type ${typeof i}`);
@@ -32,48 +30,48 @@ function fieldPath(prefix, field) {
     return prefix ? `${prefix}.${field}` : field;
 }
 
-class Validator {
+export class Validator {
 
     static validate(schema, object, prefix) {
         const result = {};
-        log.debug("Validating", object);
+        log.debug('Validating', object);
         Object.keys(schema).forEach(field => {
             const validator = schema[field];
             const fieldName = fieldPath(prefix, field);
-            log.debug("Validating", fieldName);
+            log.debug('Validating', fieldName);
             result[field] = validator(object[field], fieldName);
         });
-        log.debug("Validated input to", result);
+        log.debug('Validated input to', result);
         return result;
     }
 
     static number(i, field) {
-        if (i === undefined || i === null || (typeof i !== "number") || isNaN(i))
+        if (i === undefined || i === null || (typeof i !== 'number') || isNaN(i))
             throw new InvalidInputError(field, i, `Input must be a number`);
         return i;
     }
 
     static boolean(i, field) {
-        if (i === undefined || i === null || (typeof i !== "boolean"))
+        if (i === undefined || i === null || (typeof i !== 'boolean'))
             throw new InvalidInputError(field, i, `Input must be a boolean`);
         return i;
     }
 
     static string(i, field) {
-        if (i === undefined || i === null || (typeof i !== "string"))
+        if (i === undefined || i === null || (typeof i !== 'string'))
             throw new InvalidInputError(field, i, `Input must be a string`);
         return i;
     }
 
     static null(i, field) {
         if (i !== null)
-            throw new InvalidInputError(field, i, "Input must be null");
+            throw new InvalidInputError(field, i, 'Input must be null');
         return i;
     }
 
     static stringWithLength(min, max) {
         return (i, field) => {
-            if ((typeof i !== "string") || i.length < min || i.length > max)
+            if ((typeof i !== 'string') || i.length < min || i.length > max)
                 throw new InvalidInputError(field, i, `Input must be a string with ${min}-${max} characters`);
             return i;
         };
@@ -91,14 +89,14 @@ class Validator {
     static positiveInt(i, field) {
         const n = toInt(i, field);
         if (n < 1)
-            throw new InvalidInputError(field, i, "Input must be a positive integer");
+            throw new InvalidInputError(field, i, 'Input must be a positive integer');
         return n;
     }
 
     static nonNegativeInt(i, field) {
         const n = toInt(i, field);
         if (n < 0)
-            throw new InvalidInputError(field, i, "Input must be a positive integer");
+            throw new InvalidInputError(field, i, 'Input must be a positive integer');
         return n;
     }
 
@@ -107,16 +105,16 @@ class Validator {
         return (i, field) => {
             const found = acceptedValues.reduce((found, cur) => found || cur === i, false);
             if (!found)
-                throw new InvalidInputError(field, i, "Input must be one of " + acceptedValues);
+                throw new InvalidInputError(field, i, 'Input must be one of ' + acceptedValues);
             return i;
         };
     }
 
     static listOfObjects(schema) {
         return (i, field) => {
-            if (!i || !i.map) throw new InvalidInputError(field, i, "Input must be a list of objects");
+            if (!i || !i.map) throw new InvalidInputError(field, i, 'Input must be a list of objects');
             return i.map(item => {
-                log.debug("Validating sub-object", item, "of", field, "with schema", schema);
+                log.debug('Validating sub-object', item, 'of', field, 'with schema', schema);
                 return Validator.validate(schema, item, field)
             });
         }
@@ -124,7 +122,7 @@ class Validator {
 
     static matchPattern(re) {
         return (i, field) => {
-            if ((typeof i !== "string") || !re.test(i))
+            if ((typeof i !== 'string') || !re.test(i))
                 throw new InvalidInputError(field, i, `Input must match pattern ${re}`);
             return i;
         };
@@ -137,9 +135,9 @@ class Validator {
         }
     }
 
-    static or() {
+    static or(...args: any[]) {
         return (i, field) => {
-            const res = Array.prototype.slice.apply(arguments).reduce((val, cur) => {
+            const res = Array.prototype.slice.apply(args).reduce((val, cur) => {
                 if (val[0]) return val;
                 try {
                     return [true, cur(i, field), val[2]];
@@ -165,7 +163,5 @@ class Validator {
         return Validator.matchPattern(/[0-9]{4}-[0-9]{2}-[0-9]{2}/)(i, field);
     }
 
+    static InvalidInputError = InvalidInputError;
 }
-Validator.InvalidInputError = InvalidInputError;
-
-module.exports = Validator;
