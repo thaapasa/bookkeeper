@@ -1,4 +1,4 @@
-import Pool from 'pg-pool';
+const Pool = require('pg-pool');
 import * as log from '../../shared/util/log';
 import { config } from '../config';
 import * as util from '../../shared/util/util';
@@ -11,7 +11,7 @@ function camelCaseObject(o: Map<string>): Map<string> {
     return r;
 }
 
-const pool = new Pool(Object.assign({ Promise: require('bluebird') }, config.db));
+const pool = new Pool(config.db);
 
 function queryFor(client, doRelease, id?) {
     return (name, query, params, mapper) => {

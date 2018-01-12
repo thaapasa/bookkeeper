@@ -32,7 +32,7 @@ function fieldPath(prefix, field) {
 
 export class Validator {
 
-    static validate(schema, object, prefix) {
+    public static validate(schema, object, prefix?): any {
         const result = {};
         log.debug('Validating', object);
         Object.keys(schema).forEach(field => {
@@ -100,8 +100,7 @@ export class Validator {
         return n;
     }
 
-    static either() {
-        const acceptedValues = Array.prototype.slice.call(arguments);
+    static either(...acceptedValues: any[]) {
         return (i, field) => {
             const found = acceptedValues.reduce((found, cur) => found || cur === i, false);
             if (!found)
@@ -137,7 +136,7 @@ export class Validator {
 
     static or(...args: any[]) {
         return (i, field) => {
-            const res = Array.prototype.slice.apply(args).reduce((val, cur) => {
+            const res = args.reduce((val, cur) => {
                 if (val[0]) return val;
                 try {
                     return [true, cur(i, field), val[2]];

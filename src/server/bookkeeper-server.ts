@@ -1,5 +1,5 @@
 import * as log from '../shared/util/log';
-import express from 'express';
+import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import { config } from './config';
 import * as api from './api';

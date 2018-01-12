@@ -1,6 +1,6 @@
 import * as log from '../../shared/util/log';
 import { config } from '../config';
-import * as sessions from '../data/sessions';
+import sessions from '../data/sessions';
 import moment from 'moment';
 import { db } from '../data/db';
 
@@ -35,7 +35,7 @@ export function processUnauthorizedRequest(handler) {
     };
 }
 
-export function processRequest(handler, groupRequired) {
+export function processRequest(handler, groupRequired?) {
     return (req, res) => {
         log.debug(req.method, req.url);
         try {
@@ -92,7 +92,7 @@ export function getToken(req) {
     return token;
 }
 
-export function getId(pathRE, req, position) {
+export function getId(pathRE, req, position?) {
     if (position === undefined) position = 1;
     return parseInt(pathRE.exec(req.url)[position], 10);
 }

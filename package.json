@@ -1,7 +1,7 @@
 {
   "name": "bookkeeper",
   "version": "0.1.1",
-  "main": "bookkeeper-server.js",
+  "main": "bookkeeper-server.ts",
   "private": true,
   "scripts": {
     "start": "npm run update:revision && npm run start:server",
@@ -10,7 +10,7 @@
     "build:client": "react-scripts-ts build",
     "test:client": "react-scripts-ts test --env=jsdom",
     "eject:client": "react-scripts-ts eject",
-    "start:server": "node build/server/bookkeeper-server.js",
+    "start:server": "node build/server/bookkeeper-server.ts",
     "watch:server": "nodemon",
     "build:server": "tsc",
     "postinstall": "npm run build:server",

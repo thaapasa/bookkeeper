@@ -1,13 +1,12 @@
-const users = require("./data/users");
-const moment = require("moment");
-const express = require("express");
-const sessions = require("./data/sessions");
-const expenses = require("./data/expenses");
-const categories = require("./data/categories");
-const sources = require("./data/sources");
-const config = require("./config");
-const server = require("./util/server-util");
-const V = require("./util/validator");
+import users from './data/users';
+import moment from 'moment';
+import sessions from './data/sessions';
+import expenses from './data/expenses';
+import categories from './data/categories';
+import sources from './data/sources';
+import { config } from './config';
+import * as server from './util/server-util';
+import { Validator as V } from './util/validator';
 
 export function registerAPI(app) {
 
