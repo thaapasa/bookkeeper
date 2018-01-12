@@ -1,20 +1,20 @@
-import {cyan500, cyan800, purple800, pink800, grey200, grey500, grey600, amber100, lime100, teal500} from "material-ui/styles/colors";
+import * as colors from "material-ui/styles/colors";
 
 export const white = "#FFFFFF";
-export const highlight = cyan500;
-export const action = cyan800;
-export const positive = purple800;
-export const negative = pink800;
-export const unimportant = grey500;
-export const header = grey600;
-export const topItem = teal500;
-export const subItem = grey200;
+export const highlight = colors.cyan500;
+export const action = colors.cyan800;
+export const positive = colors.purple800;
+export const negative = colors.pink800;
+export const unimportant = colors.grey500;
+export const header = colors.grey600;
+export const topItem = colors.teal500;
+export const subItem = colors.grey200;
 
 export const navigation = highlight;
 export const tool = header;
-export const unconfirmed = amber100;
+export const unconfirmed = colors.amber100;
 export const unconfirmedStripes = diagonalStripes(unconfirmed, white, "0.5em", "1em");
-export const income = lime100;
+export const income = colors.lime100;
 
 export function forMoney(b) {
     return b ? (b.gt(0) ? positive : ( b.lt(0) ? negative : unimportant)) : unimportant;

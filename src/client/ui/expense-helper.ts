@@ -1,5 +1,3 @@
-"use strict";
-
 import * as React from 'react';
 import Money from "../../shared/util/money"
 import PropTypes from "prop-types"
@@ -14,6 +12,6 @@ export const ExpensePropType = {
     description: PropTypes.string
 };
 
-export function expenseName(e) {
+export function expenseName(e: any): string {
     return `${e.title} (${e.receiver}): ${Money.from(e.sum).format()}`;
 }

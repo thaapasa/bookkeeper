@@ -6,17 +6,13 @@ import * as state from  "../data/state";
 import * as time from "../../shared/util/time"
 const moment = require("moment");
 
-export default class MonthViewTotal extends React.Component {
+export default class MonthViewTotal extends React.Component<{}, {}> {
 
-    constructor(props) {
-        super(props);
-    }
-
-    static getYearMonthString(date) {
+    public static getYearMonthString(date) {
         return time.getFinnishMonthName(date.month() + 1) + " " + date.year();
     }
 
-    render() {
+    public render() {
         return <div>
                     Yhteensä:<br/>
                     Tulot: "100.00 €"<br/>
