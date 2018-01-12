@@ -1,8 +1,8 @@
 import * as log from '../../shared/util/log';
-import config from '../config';
-const sessions = require('../data/sessions');
-const moment = require('moment');
-const db = require('../data/db');
+import { config } from '../config';
+import * as sessions from '../data/sessions';
+import moment from 'moment';
+import { db } from '../data/db';
 
 interface ErrorInfo {
     type: 'error';

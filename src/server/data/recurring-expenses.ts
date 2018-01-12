@@ -1,42 +1,38 @@
-"use strict";
+import { db } from './db';
+import * as log from '../../shared/util/log';
+import moment, { Moment } from 'moment';
+import * as time from '../../shared/util/time';
+import * as arrays from '../../shared/util/arrays';
+import { Validator } from '../util/validator';
+import Money from '../../shared/util/money';
+import categories from './categories';
+import users from './users';
+import sources from './sources';
+import * as errors from '../util/errors';
+import * as splitter from '../../shared/util/splitter';
+import expenseDivision from './expense-division';
+import expenses from './basic-expenses';
 
-const db = require("./db");
-const log = require("../../shared/util/log");
-const moment = require("moment");
-const time = require("../../shared/util/time");
-const arrays = require("../../shared/util/arrays");
-const validator = require("../util/validator");
-const Money = require("../../shared/util/money");
-const categories = require("./categories");
-const users = require("./users");
-const sources = require("./sources");
-const errors = require("../util/errors");
-const splitter = require("../../shared/util/splitter");
-const expenseDivision = require("./expense-division");
-const expenses = require("./basic-expenses");
-
-function nextRecurrence(fromDate, period) {
+function nextRecurrence(fromDate, period): Moment {
     const date = time.fromDate(fromDate);
-    if (period === "monthly") {
-        return date.add(1, "month");
+    if (period === 'monthly') {
+        return date.add(1, 'month');
     }
-    else if (period === "yearly") {
-        return date.add(1, "year");
+    else if (period === 'yearly') {
+        return date.add(1, 'year');
     }
-    else throw new validator.InvalidInputError("period", period, "Unrecognized period type, expected monthly or yearly");
+    else throw new Validator.InvalidInputError("period", period, "Unrecognized period type, expected monthly or yearly");
 }
 
 function createRecurring(groupId, userId, expenseId, recurrence) {
-    let expense = null;
-    let division = null;
-    let nextMissing = null;
+    let nextMissing: Moment | null = null;
     let templateId = null;
     let recurrenceId = null;
     return db.transaction(tx => expenses.tx.copyExpense(tx)(groupId, userId, expenseId, e => {
         if (e[0].recurringExpenseId > 0)
-            throw new validator.InvalidInputError("recurringExpenseId", e.recurringExpenseId, "Expense is already a recurring expense");
-        expense = e[0];
-        division = e[1];
+            throw new Validator.InvalidInputError("recurringExpenseId", e.recurringExpenseId, "Expense is already a recurring expense");
+        const expense = e[0];
+        const division = e[1];
         nextMissing = nextRecurrence(expense.date, recurrence.period);
         return [Object.assign({}, e[0], { template: true }), e[1]];
     })
@@ -54,7 +50,7 @@ function createRecurring(groupId, userId, expenseId, recurrence) {
 
 function getDatesUpTo(recurrence, date) {
     let generating = moment(recurrence.nextMissing);
-    const dates = [];
+    const dates: Moment[] = [];
     while (generating.isBefore(date)) {
         dates.push(time.date(generating));
         generating = nextRecurrence(generating, recurrence.period);
@@ -93,7 +89,7 @@ function createMissing(tx) {
         .then(list => Promise.all(list.map(createMissingRecurrences(tx, groupId, userId, date))));
 }
 
-module.exports = {
+export default {
     createRecurring: createRecurring,
     tx: {
         createMissing: createMissing

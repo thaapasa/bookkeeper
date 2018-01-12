@@ -1,7 +1,5 @@
-"use strict";
-
-const db = require("./db");
-const errors = require("../util/errors");
+import { db } from './db';
+import * as errors from '../util/errors';
 
 function getImage(img) {
     return img ? `img/sources/${img}` : undefined;
@@ -38,7 +36,7 @@ function getById(tx) {
 }
 
 
-module.exports = {
+export default {
     getAll: getAll(db),
     getById: getById(db),
     tx: {

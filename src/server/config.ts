@@ -1,4 +1,4 @@
-import { Map } from "../shared/util/util";
+import { Map } from '../shared/util/util';
 
 const env = process.env.NODE_ENV ? process.env.NODE_ENV : 'development';
 
@@ -14,10 +14,11 @@ class Config {
     public logLevel = 'info';
     public revision = commitId.substr(0, 8);
     public showErrorCause = true;
+    public sessionTimeout = '20 minutes';
     public db = {
-        database: "bookkeeper",
-        user: "bookkeeper",
-        password: "password",
+        database: 'bookkeeper',
+        user: 'bookkeeper',
+        password: 'password',
         port: 5432,
         ssl: false
     };

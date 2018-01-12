@@ -1,8 +1,6 @@
-"use strict";
-
-const db = require("./db");
-const errors = require("../util/errors");
-const config = require("../config");
+import { db } from './db';
+import * as errors from '../util/errors';
+import { config } from '../config';
 
 function mapUser(user) {
     user.image = user.image ? `img/users/${user.image}` : undefined;
@@ -41,7 +39,7 @@ function getByCredentials(tx) {
         .then(mapUser);
 }
 
-module.exports = {
+export default {
     getAll: getAll(db),
     getById: getById(db),
     getGroups: getGroups(db),

@@ -1,16 +1,15 @@
-"use strict";
+import * as log from '../../shared/util/log';
+import { db } from './db';
+import users from './users';
+import sources from './sources';
+import categories from './categories';
+import { promisify } from 'util';
+import { config } from '../config';
+import * as errors from '../util/errors';
 
-const log = require("../../shared/util/log");
-const db = require("./db");
-const users = require("./users");
-const sources = require("./sources");
-const categories = require("./categories");
-const Promise = require("bluebird");
-const randomBytes = Promise.promisify(require("crypto").randomBytes);
-const config = require("../config");
-const errors = require("../util/errors");
+const randomBytes = promisify(require('crypto').randomBytes);
 
-function createSessionInfo(tokens, userData, loginTime) {
+function createSessionInfo(tokens, userData, loginTime?) {
     return {
         token: tokens[0],
         refreshToken: tokens[1],
@@ -100,7 +99,7 @@ function createToken() {
     return randomBytes(20).then(buf => buf.toString("hex"));
 }
 
-module.exports = {
+export default {
     login: login,
     refresh: refresh,
     logout: logout(db),

@@ -1,10 +1,6 @@
-"use strict";
-
-const validator = require("../util/validator");
-const Money = require("../../shared/util/money");
-const splitter = require("../../shared/util/splitter");
-
-module.exports = {};
+import { Validator } from '../util/validator';
+import Money from '../../shared/util/money';
+import * as splitter from '../../shared/util/splitter';
 
 function divisionOfType(division, type) {
     return division ? division.filter(d => d.type === type) : [];
@@ -12,7 +8,7 @@ function divisionOfType(division, type) {
 
 function validateDivision(items, sum, field) {
     const calculated = items.map(i => i.sum).reduce((a, b) => a.plus(b), Money.zero);
-    if (!sum.equals(calculated)) throw new validator.InvalidInputError(field, calculated,
+    if (!sum.equals(calculated)) throw new Validator.InvalidInputError(field, calculated,
         `Division sum must match expense sum ${sum.toString()}, is ${calculated.toString()}`);
     return items;
 }
@@ -32,7 +28,7 @@ function addType(type) {
     };
 }
 
-module.exports.determineDivision = function determineDivision(expense, source) {
+export default function determineDivision(expense, source) {
     if (expense.type == "income") {
         const givenIncome = divisionOfType(expense.division, "income");
         const givenSplit = divisionOfType(expense.division, "split");
@@ -53,7 +49,5 @@ module.exports.determineDivision = function determineDivision(expense, source) {
             validateDivision(givenBenefit, expense.sum, "benefit") :
             splitter.negateDivision(cost);
         return cost.map(addType("cost")).concat(benefit.map(addType("benefit")));
-    } else throw new validator.InvalidInputError("type", expense.type, "Unrecognized expense type; expected expense or income");
+    } else throw new Validator.InvalidInputError("type", expense.type, "Unrecognized expense type; expected expense or income");
 }
-
-

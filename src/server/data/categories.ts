@@ -76,7 +76,7 @@ function update(groupId, categoryId, data) {
             .then(x => ({ id: categoryId, parentId: data.parentId || null, name: data.name })), false);
 }
 
-module.exports = {
+export default {
     getAll: getAll(db),
     getTotals: getTotals(db),
     getById: getById(db),

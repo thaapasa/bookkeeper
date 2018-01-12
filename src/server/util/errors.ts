@@ -14,18 +14,27 @@ export function emptyToError(errorType, p1?, p2?, p3?) {
     }
 };
 
-export function NotFoundError(code, name) {
-    this.code = code;
-    this.status = 404;
-    this.cause = `${util.ucFirst(name)} not found`;
+class Error {
+    public code: string;
+    public cause: any;
+    public status: number;
+    public data: any;
+    constructor(code: string, cause: any, status: number, data?: any) {
+        this.code = code;
+        this.cause = cause;
+        this.status = status;
+        this.data = data;
+    }
 }
-NotFoundError.prototype = new Error();
 
-export function AuthenticationError(code, cause, data) {
-    this.status = 401;
-    this.code = code;
-    this.cause = cause;
-    this.data = data;
-    return this;
+export class NotFoundError extends Error {
+    constructor(code, name) {
+        super(code, `${util.ucFirst(name)} not found`, 404);
+    }
 }
-AuthenticationError.prototype = new Error();
+
+export class AuthenticationError extends Error {
+    constructor(code, cause, data?) {
+        super(code, cause, 401, data);
+    }
+}
