@@ -6,7 +6,7 @@ node_modules
 log
 dist
 /src/server/config-production.js
-/src/server/revision.js
+/src/server/revision.[jt]s
 content
 /build
 .env

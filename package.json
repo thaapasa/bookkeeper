@@ -11,8 +11,9 @@
     "test:client": "react-scripts-ts test --env=jsdom",
     "eject:client": "react-scripts-ts eject",
     "start:server": "node build/server/bookkeeper-server.ts",
-    "watch:server": "nodemon",
+    "watch:server": "npm run update:revision && nodemon",
     "build:server": "tsc",
+    "postinstall": "npm run update:revision",
     "test": "npm run build:test && npm run run:test",
     "build": "npm run build:client",
     "prod": "npm run build:prod && script/create-dist.sh"

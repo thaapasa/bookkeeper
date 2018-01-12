@@ -1,5 +1,5 @@
 const env = process.env.NODE_ENV ? process.env.NODE_ENV : 'development';
-const commitId = require('./revision');
+import commitId from './revision';
 const port = process.env.PORT;
 
 class Config {
