@@ -1,14 +1,12 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-import * as log from '../shared/util/log';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import { config } from './config';
 import * as api from './api';
 import * as path from 'path';
-
-log.setLevel(config.logLevel);
+const debug = require('debug')('bookkeeper:server');
 
 const curDir = process.cwd();
 const app = express();
@@ -22,8 +20,8 @@ app.get(/\/p\/.*/, (s, r) => r.sendFile(path.join(curDir + '/public/index.html')
 
 try {
     app.listen(config.port, () => {
-        log.info('Kukkaro server started with configuration', config);
+        debug('Kukkaro server started with configuration', config);
     });
 } catch (er) {
-    log.error(er);
+    debug.error(er);
 }

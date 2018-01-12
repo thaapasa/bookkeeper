@@ -1,5 +1,4 @@
 import { db } from './db';
-import * as log from '../../shared/util/log';
 import * as moment from 'moment';
 import * as time from '../../shared/util/time';
 import * as arrays from '../../shared/util/arrays';
@@ -10,6 +9,7 @@ import sources from './sources';
 import * as errors from '../util/errors';
 import * as splitter from '../../shared/util/splitter';
 import expenseDivision from './expense-division';
+const debug = require('debug')('bookkeeper:api:expenses');
 
 function expenseSelect(where) {
     return "SELECT MIN(id) AS id, MIN(date) AS date, MIN(receiver) AS receiver, MIN(type) AS type, MIN(sum) AS sum, " +
@@ -118,7 +118,7 @@ function setDefaults(expense) {
 function createExpense(userId, groupId, expense, defaultSourceId) {
     return db.transaction(tx => {
         expense = setDefaults(expense);
-        log.info("Creating expense", expense);
+        debug("Creating expense", expense);
         const sourceId = expense.sourceId || defaultSourceId;
         return Promise.all([
             categories.tx.getById(tx)(groupId, expense.categoryId),
@@ -151,7 +151,7 @@ function insert(tx) {
 function updateExpense(tx) {
     return (original, expense, defaultSourceId) => {
         expense = setDefaults(expense);
-        log.info("Updating expense", original, "to", expense);
+        debug("Updating expense", original, "to", expense);
         const sourceId = expense.sourceId || defaultSourceId;
         return Promise.all([
             categories.tx.getById(tx)(original.groupId, expense.categoryId),

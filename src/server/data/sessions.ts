@@ -1,4 +1,3 @@
-import * as log from '../../shared/util/log';
 import { db } from './db';
 import users from './users';
 import sources from './sources';
@@ -6,6 +5,7 @@ import categories from './categories';
 import { promisify } from 'util';
 import { config } from '../config';
 import * as errors from '../util/errors';
+const debug = require('debug')('bookkeeper:api:sessions');
 
 const randomBytes = promisify(require('crypto').randomBytes);
 
@@ -20,13 +20,13 @@ function createSessionInfo(tokens, userData, loginTime?) {
 }
 
 function login(username, password, groupId) {
-    log.info("Login for", username);
+    debug("Login for", username);
     return db.transaction(tx => users.tx.getByCredentials(tx)(username, password, groupId)
         .then(user => createSession(tx)(user).then(tokens => createSessionInfo(tokens, user))));
 }
 
 function refresh(refreshToken, groupId) {
-    log.info("Refreshing session with", refreshToken);
+    debug("Refreshing session with", refreshToken);
     return db.transaction(tx =>
         getUserInfoByRefreshToken(tx)(refreshToken, groupId)
             .then(user => createSession(tx)(user).then(tokens => createSessionInfo(tokens, user))));
@@ -34,7 +34,7 @@ function refresh(refreshToken, groupId) {
 
 function logout(tx) {
     return (session) => {
-        log.info("Logout for", session.token);
+        debug("Logout for", session.token);
         if (!session.token) throw new errors.AuthenticationError("INVALID_TOKEN", "Session token is missing");
         return tx.update("sessions.delete", "DELETE FROM sessions WHERE (token=$1 AND refresh_token IS NOT NULL) " +
             "OR (token=$2 AND refresh_token IS NULL)", [session.token, session.refreshToken])
@@ -45,7 +45,7 @@ function logout(tx) {
 function createSession(tx) {
     return (user) => Promise.all([ createToken(), createToken() ])
         .then(tokens => {
-            log.info("User", user.email, "logged in with token", tokens[0]);
+            debug("User", user.email, "logged in with token", tokens[0]);
             return tx.insert("sessions.create",
                     "INSERT INTO sessions (token, refresh_token, user_id, login_time, expiry_time) VALUES "+
                     "($1, $2, $3, NOW(), NOW() + $4::INTERVAL), "+
