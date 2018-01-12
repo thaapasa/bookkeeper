@@ -13,7 +13,6 @@
     "start:server": "node build/server/bookkeeper-server.ts",
     "watch:server": "nodemon",
     "build:server": "tsc",
-    "postinstall": "npm run build:server",
     "test": "npm run build:test && npm run run:test",
     "build": "npm run build:client",
     "prod": "npm run build:prod && script/create-dist.sh"
