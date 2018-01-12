@@ -1,18 +1,15 @@
-"use strict";
-
-const db = require("./db");
-const log = require("../../shared/util/log");
-const moment = require("moment");
-const time = require("../../shared/util/time");
-const arrays = require("../../shared/util/arrays");
-const validator = require("../util/validator");
-const Money = require("../../shared/util/money");
-const categories = require("./categories");
-const users = require("./users");
-const sources = require("./sources");
-const errors = require("../util/errors");
-const splitter = require("../../shared/util/splitter");
-const expenseDivision = require("./expense-division");
+import { db } from './db';
+import * as log from '../../shared/util/log';
+import moment from 'moment';
+import * as time from '../../shared/util/time';
+import * as arrays from '../../shared/util/arrays';
+import Money from '../../shared/util/money';
+import * as categories from './categories';
+import * as users from './users';
+import * as sources from './sources';
+import * as errors from '../util/errors';
+import * as splitter from '../../shared/util/splitter';
+import * as expenseDivision from './expense-division';
 
 function expenseSelect(where) {
     return "SELECT MIN(id) AS id, MIN(date) AS date, MIN(receiver) AS receiver, MIN(type) AS type, MIN(sum) AS sum, " +
@@ -50,59 +47,59 @@ const countTotalSelect = "SELECT " +
     "WHERE group_id=$2::INTEGER AND template=false AND date >= $3::DATE AND date < $4::DATE) breakdown";
 
 function getAll(tx) {
-    return (groupId, userId) => tx.queryList("expenses.get_all",
+    return (groupId, userId) => tx.queryList('expenses.get_all',
         expenseSelect(`WHERE group_id=$2`),
         [userId, groupId])
         .then(l => l.map(mapExpense));
 }
 
 function mapExpense(e) {
-    if (e === undefined) throw new errors.NotFoundError("EXPENSE_NOT_FOUND", "expense");
-    e.date = moment(e.date).format("YYYY-MM-DD");
+    if (e === undefined) throw new errors.NotFoundError('EXPENSE_NOT_FOUND', 'expense');
+    e.date = moment(e.date).format('YYYY-MM-DD');
     e.userBalance = Money.from(e.userValue).negate().toString();
     return e;
 }
 
 function countTotalBetween(tx) {
-    return (groupId, userId, startDate, endDate) => tx.queryObject("expenses.count_total_between",
+    return (groupId, userId, startDate, endDate) => tx.queryObject('expenses.count_total_between',
         countTotalSelect,
         [userId, groupId, time.date(startDate), time.date(endDate)]);
 }
 
 function hasUnconfirmedBefore(tx) {
-    return (groupId, startDate) => tx.queryObject("expenses.count_unconfirmed_before",
-        "SELECT COUNT(*) AS amount FROM expenses WHERE group_id=$1 AND template=false AND date < $2::DATE AND confirmed=false",
+    return (groupId, startDate) => tx.queryObject('expenses.count_unconfirmed_before',
+        'SELECT COUNT(*) AS amount FROM expenses WHERE group_id=$1 AND template=false AND date < $2::DATE AND confirmed=false',
         [groupId, startDate])
         .then(s => s.amount > 0);
 }
 
 function getById(tx) {
-    return (groupId, userId, expenseId) => tx.queryObject("expenses.get_by_id",
+    return (groupId, userId, expenseId) => tx.queryObject('expenses.get_by_id',
         expenseSelect(`WHERE id=$2 AND group_id=$3`),
         [userId, expenseId, groupId])
         .then(mapExpense);
 }
 
 function deleteById(tx) {
-    return (groupId, expenseId) => tx.update("expenses.delete_by_id", "DELETE FROM expenses WHERE id=$1 AND group_id=$2",
+    return (groupId, expenseId) => tx.update('expenses.delete_by_id', 'DELETE FROM expenses WHERE id=$1 AND group_id=$2',
         [expenseId, groupId])
-        .then(i => ({ status: "OK", message: "Expense deleted", expenseId: expenseId }));
+        .then(i => ({ status: 'OK', message: 'Expense deleted', expenseId: expenseId }));
 }
 
 function storeDivision(tx) {
-    return (expenseId, userId, type, sum) => tx.insert("expense.create.division",
-        "INSERT INTO expense_division (expense_id, user_id, type, sum) " +
-        "VALUES ($1::INTEGER, $2::INTEGER, $3::expense_division_type, $4::NUMERIC::MONEY)",
+    return (expenseId, userId, type, sum) => tx.insert('expense.create.division',
+        'INSERT INTO expense_division (expense_id, user_id, type, sum) ' +
+        'VALUES ($1::INTEGER, $2::INTEGER, $3::expense_division_type, $4::NUMERIC::MONEY)',
         [expenseId, userId, type, sum.toString()])
 }
 
 function deleteDivision(tx) {
-    return (expenseId) => tx.insert("expense.delete.division", "DELETE FROM expense_division WHERE expense_id=$1::INTEGER", [expenseId]);
+    return (expenseId) => tx.insert('expense.delete.division', 'DELETE FROM expense_division WHERE expense_id=$1::INTEGER', [expenseId]);
 }
 
 function getDivision(tx) {
-    return (expenseId) => tx.queryList("expense.get.division",
-        "SELECT user_id, type, sum::MONEY::NUMERIC FROM expense_division WHERE expense_id=$1::INTEGER ORDER BY type, user_id",
+    return (expenseId) => tx.queryList('expense.get.division',
+        'SELECT user_id, type, sum::MONEY::NUMERIC FROM expense_division WHERE expense_id=$1::INTEGER ORDER BY type, user_id',
         [expenseId]);
 }
 
@@ -201,7 +198,7 @@ function getExpenseAndDivision(tx) {
     ]);
 }
 
-module.exports = {
+export default {
     getAll: getAll(db),
     getById: getById(db),
     getDivision: getDivision(db),

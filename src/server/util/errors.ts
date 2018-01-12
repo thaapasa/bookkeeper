@@ -1,13 +1,13 @@
 import * as util from '../../shared/util/util';
 
-export function undefinedToError(errorType, p1, p2, p3) {
+export function undefinedToError(errorType, p1?, p2?, p3?) {
     return value => {
         if (value === undefined) throw new errorType(p1, p2, p3);
         else return value;
     }
 };
 
-export function emptyToError(errorType, p1, p2, p3) {
+export function emptyToError(errorType, p1?, p2?, p3?) {
     return value => {
         if (value === undefined || value === null || (Array.isArray(value) && value.length === 0)) throw new errorType(p1, p2, p3);
         else return value;

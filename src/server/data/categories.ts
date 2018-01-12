@@ -1,8 +1,6 @@
-"use strict";
-
-const db = require("./db");
-const errors = require("../util/errors");
-import Money from "../../shared/util/money";
+import { db } from './db';
+import * as errors from '../util/errors';
+import Money from '../../shared/util/money';
 
 function createCategoryObject(categories) {
     const res: any[] = [];
