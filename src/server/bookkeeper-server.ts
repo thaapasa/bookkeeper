@@ -1,3 +1,6 @@
+import * as dotenv from 'dotenv';
+dotenv.config();
+
 import * as log from '../shared/util/log';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';

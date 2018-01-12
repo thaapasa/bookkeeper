@@ -1,28 +1,21 @@
-import { Map } from '../shared/util/util';
-
 const env = process.env.NODE_ENV ? process.env.NODE_ENV : 'development';
-
-const envConf = require(`./config-${env}.js`) as Map<string>;
 const commitId = require('./revision');
+const port = process.env.PORT;
 
 class Config {
-    public port = 3100;
     public environment = env;
+
     public version: string = require('../../package.json').version;
-    public refreshTokenTimeout = '2 weeks';
     public commitId = commitId;
-    public logLevel = 'info';
     public revision = commitId.substr(0, 8);
-    public showErrorCause = true;
-    public sessionTimeout = '20 minutes';
-    public db = {
-        database: 'bookkeeper',
-        user: 'thaapasa',
-        password: 'kakkuloskakahvit',
-        port: 5432,
-        ssl: false
-    };
-    // ...envConf,
+
+    public port = port ? parseInt(port, 10) : 3100;
+    public refreshTokenTimeout = process.env.REFRESH_TOKEN_TIMEOUT || '2 weeks';
+    public logLevel = process.env.LOG_LEVEL || 'info';
+    public showErrorCause: boolean = process.env.SHOW_ERROR_CAUSE === 'true';
+    public sessionTimeout = process.env.SESSION_TIMEOUT || '20 minutes';
+    public dbUrl = process.env.DB_URL || 'postgresql://localhost/bookkeeper?user=bookkeeper&password=kakkuloskakahvit&ssl=false';
+    public dbSSL: boolean = process.env.DB_SSL === 'true';
 };
 
 export const config = new Config();
