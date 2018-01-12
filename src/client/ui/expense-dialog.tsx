@@ -285,13 +285,13 @@ export default class ExpenseDialog extends React.Component<any, any> {
             <FlatButton
                 label="Peruuta"
                 primary={true}
-                onTouchTap={this.closeDialog} />,
+                onClick={this.closeDialog} />,
             <FlatButton
                 label="Tallenna"
                 primary={true}
                 disabled={!this.state.valid}
                 keyboardFocused={true}
-                onTouchTap={this.requestSave} />
+                onClick={this.requestSave} />
         ];
 
         return <Dialog

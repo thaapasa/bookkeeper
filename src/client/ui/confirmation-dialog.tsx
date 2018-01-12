@@ -97,7 +97,7 @@ export default class ConfirmationDialog extends React.Component<{}, DialogState>
             primary={i === 0}
             tabIndex={i + 2}
             onKeyUp={this.handleKeyPress}
-            onTouchTap={() => this.resolveWith(a[1])}
+            onClick={() => this.resolveWith(a[1])}
         />);
 
         return <Dialog

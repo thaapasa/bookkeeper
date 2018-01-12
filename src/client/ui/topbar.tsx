@@ -29,7 +29,7 @@ export default class TopBar extends React.Component<TopBarProps, {}> {
                     { this.props.children }
                 </ToolbarGroup>
                 <ToolbarGroup style={{ align: 'right' }}>
-                    <RaisedButton label="Kirjaa" primary={true} style={buttonStyle} onTouchTap={this.handleClick} />
+                    <RaisedButton label="Kirjaa" primary={true} style={buttonStyle} onClick={this.handleClick} />
                     <UserAvatar userId={this.props.user.id} />
                     <IconButton iconClassName="material-icons" iconStyle={{ color: colors.tool }} onClick={logout}>exit_to_app</IconButton>
                 </ToolbarGroup>

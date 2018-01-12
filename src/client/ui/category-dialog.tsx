@@ -115,13 +115,13 @@ export default class CategoryDialog extends React.Component<any, any> {
             <FlatButton
                 label="Peruuta"
                 primary={true}
-                onTouchTap={() => this.closeDialog(null)} />,
+                onClick={() => this.closeDialog(null)} />,
             <FlatButton
                 label="Tallenna"
                 primary={true}
                 disabled={!this.state.valid}
                 keyboardFocused={true}
-                onTouchTap={this.requestSave} />
+                onClick={this.requestSave} />
         ];
 
         return <Dialog
