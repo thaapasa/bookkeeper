@@ -1,0 +1,68 @@
+import { db } from './db';
+import * as log from '../../shared/util/log';
+import * as moment from 'moment';
+import * as time from '../../shared/util/time';
+import * as arrays from '../../shared/util/arrays';
+import Money from '../../shared/util/money';
+import recurring from './recurring-expenses';
+import basic from './basic-expenses';
+
+function calculateBalance(o) {
+    const value = Money.from(o.cost).plus(o.benefit).plus(o.income).plus(o.split);
+    return Object.assign(o, {
+        value: value.toString(),
+        balance: value.negate().toString()
+    })
+}
+
+function getBetween(tx) {
+    return (groupId, userId, startDate, endDate) => {
+        log.debug("Querying for expenses between", time.iso(startDate), "and", time.iso(endDate), "for group", groupId);
+        return tx.queryList("expenses.get_between",
+            basic.expenseSelect(`WHERE group_id=$2 AND template=false AND date >= $3::DATE AND date < $4::DATE`),
+            [userId, groupId, time.date(startDate), time.date(endDate)])
+            .then(l => l.map(basic.mapExpense));
+    }
+}
+
+function getByMonth(groupId, userId, year, month) {
+    const startDate = time.month(year, month);
+    const endDate = startDate.clone().add(1, "months");
+    return db.transaction(tx => recurring.tx.createMissing(tx)(groupId, userId, endDate)
+        .then(x => Promise.all([
+            getBetween(tx)(groupId, userId, startDate, endDate),
+            basic.tx.countTotalBetween(tx)(groupId, userId, "2000-01", startDate),
+            basic.tx.countTotalBetween(tx)(groupId, userId, startDate, endDate),
+            basic.tx.hasUnconfirmedBefore(tx)(groupId, startDate)
+        ])))
+        .then(a => ({ expenses: a[0], startStatus: calculateBalance(a[1]), monthStatus: calculateBalance(a[2]), unconfirmedBefore: a[3] }))
+        .then(a => {
+            a.endStatus = arrays.toObject(["benefit", "cost", "income", "split", "value", "balance"].map(key =>
+                [key, Money.from(a.startStatus[key]).plus(a.monthStatus[key]).toString()]));
+            return a;
+        });
+}
+
+function search(tx) {
+    return (groupId, userId, params) => {
+        log.debug(`Searching for ${JSON.stringify(params)}`);
+        return tx.queryList("expenses.search",
+            basic.expenseSelect("WHERE group_id=$2 AND template=false AND date::DATE >= $3::DATE AND date::DATE <= $4::DATE " +
+                "AND ($5::INTEGER IS NULL OR category_id=$5::INTEGER)"),
+            [userId, groupId, params.startDate, params.endDate, params.categoryId || null])
+            .then(l => l.map(basic.mapExpense));
+    }
+}
+
+export default {
+    getAll: basic.getAll,
+    getByMonth: getByMonth,
+    getById: basic.getById,
+    getDivision: basic.getDivision,
+    deleteById: basic.deleteById,
+    queryReceivers: basic.queryReceivers,
+    create: basic.create,
+    update: basic.update,
+    search: search(db),
+    createRecurring: recurring.createRecurring
+};

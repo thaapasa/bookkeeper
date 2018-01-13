@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    "outDir": "build/dist",
+    "module": "commonjs",
+    "target": "es5",
+    "lib": ["dom", "es2015", "es2016"],
+    "sourceMap": true,
+    "alwaysStrict": true,
+    "allowSyntheticDefaultImports": true,
+    "allowJs": true,
+    "checkJs": false,
+    "jsx": "react",
+    "moduleResolution": "node",
+    "rootDir": "src",
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitReturns": false,
+    "noImplicitThis": false,
+    "noImplicitAny": false,
+    "strictNullChecks": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "noUnusedLocals": false
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.js",
+    "**/*.jsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "build",
+    "scripts",
+    "acceptance-tests",
+    "webpack",
+    "jest",
+    "src/setupTests.ts"
+  ]
+}

@@ -4,12 +4,9 @@ pushd . >/dev/null
 cd `dirname $0`/..
 
 REV=`git rev-parse HEAD`
-FILE=src/server/revision.js
+FILE=src/server/revision.ts
 
 echo "Updating server revision to $REV to $FILE"
-echo
-echo "\"use strict\";" >$FILE
-echo "" >>$FILE
-echo "module.exports = \"$REV\";" >>$FILE
+echo "export default \"$REV\";" >$FILE
 
 popd >/dev/null
