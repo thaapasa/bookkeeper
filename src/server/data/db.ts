@@ -1,97 +1,98 @@
 const Pool = require('pg-pool');
 import { config } from '../config';
 import * as util from '../../shared/util/util';
-import { Map } from '../../shared/util/util';
+import { Map, camelCaseObject } from '../../shared/util/util';
 const debug = require('debug')('db');
 const error = require('debug')('db:error');
-
-function camelCaseObject(o: Map<string>): Map<string> {
-    if (typeof o !== 'object') { return o; }
-    const r: Map<string> = {};
-    Object.keys(o).forEach(k => r[util.underscoreToCamelCase(k)] = o[k]);
-    return r;
-}
 
 const pool = new Pool({
     connectionString: config.dbUrl,
     ssl: config.dbSSL,
 });
 
-function queryFor(client, doRelease, id?) {
-    return (name, query, params, mapper) => {
-        debug((id ? `[${id}] SQL query` : '[db] SQL query'), name, query, 'with params', params);
-        return client.query({text: query, name: name, values: params})
-            .then(res => {
-                const obj = mapper(res);
-                if (doRelease) client.release();
-                return obj;
-            }).catch(e => {
-                if (doRelease) client.release();
-                error("Query error", e.message, e.stack);
-                throw e;
-            });
-    }
+type Queryer = <T>(name: string, query: string, params: any[], mapper: (res: any) => T) => Promise<T>;
+
+function queryFor<T>(client: any, doRelease: boolean, id?: number): Queryer {
+    return async(name, query, params, mapper) => {
+        try {
+            debug((id ? `[${id}] SQL query` : '[db] SQL query'), name, query, 'with params', params);
+            const res = await client.query({ text: query, name: name, values: params });
+            return mapper(res);
+        } catch(e) {
+            error('Query error', e.message, e.stack);
+            throw e;
+        } finally {
+            if (doRelease) { client.release(); }
+        }
+    };
 }
 
-class BookkeeperDB {
+export interface DbAccess {
+    queryObject(name: string, query: string, params?: any[]): Promise<Map<any>>;
+    queryList(name: string, query: string, params?: any[]): Promise<Map<any>[]>;
+    insert(name: string, query: string, params?: any[]): Promise<number>;
+    update(name: string, query: string, params?: any[]): Promise<number>;
+}
 
-    private query;
+class BookkeeperDB implements DbAccess {
+
+    private queryer: Queryer;
     private counter = 0;
 
-    constructor(query) {
-        this.query = query;
+    constructor(queryer: Queryer) {
+        this.queryer = queryer;
     }
 
-    public queryObject(name, query, params) {
-        return this.query(name, query, params, r => (r.rows && r.rows.length > 0) ? r.rows[0] : undefined)
-            .then(camelCaseObject);
+    public async queryObject(name: string, query: string, params?: any[]): Promise<Map<any>> {
+        const o = await this.queryer(name, query, params || [], r => (r.rows && r.rows.length > 0) ? r.rows[0] : undefined);
+        return camelCaseObject(o);
     }
 
-    public queryList(name, query, params) {
-        return this.query(name, query, params, r => r.rows)
-            .then(l => l.map(r => camelCaseObject(r)));
+    public async queryList(name: string, query: string, params?: any[]): Promise<Map<any>[]> {
+        const o = await this.queryer(name, query, params || [], r => r.rows);
+        return o.map(camelCaseObject);
     }
 
-    public transaction<T>(f: (db: any) => Promise<T>, readOnly?: boolean): Promise<T> {
-        const mode = readOnly ? "READ ONLY" : "READ WRITE";
+    public async transaction<T>(f: (db: DbAccess) => Promise<T>, readOnly?: boolean): Promise<T> {
+        const mode = readOnly ? 'READ ONLY' : 'READ WRITE';
         this.counter += 1;
         const txId = this.counter;
         debug(`Starting ${mode} transaction ${txId}`);
-        return pool.connect().then(client => client.query(`BEGIN ${mode}`)
-            .then(() => f(new BookkeeperDB(queryFor(client, false, txId))))
-            .then(res => {
-                debug(`Committing transaction ${txId}`);
-                client.query("COMMIT");
-                client.release();
-                return res;
-            })
-            .catch(e => {
-                debug(`Rolling back transaction ${txId} because of error`, e);
-                client.query("ROLLBACK");
-                client.release();
-                error("Query error", e.message, e.stack);
-                throw e;
-            }));
+        const client = await pool.connect();
+        try {
+            await client.query(`BEGIN ${mode}`);
+            const res = await f(new BookkeeperDB(queryFor(client, false, txId)));
+            await client.query('COMMIT');
+            await client.release();
+            return res;
+        } catch (e) {
+            debug(`Rolling back transaction ${txId} because of error`, e);
+            await client.query('ROLLBACK');
+            await client.release();
+            error('Query error', e.message, e.stack);
+            throw e;
+        }
     }
 
-    public insert(name, query, params) {
-        return this.query(name, query, params, toId);
+    public insert(name: string, query: string, params?: any[]): Promise<number> {
+        return this.queryer(name, query, params || [], toId);
     }
 
-    public update(name, query, params) {
-        return this.query(name, query, params, toRowCount);
+    public update(name: string, query: string, params?: any[]): Promise<number> {
+        return this.queryer(name, query, params || [], toRowCount);
     }
 }
 
 
-function toRowCount(r) {
+function toRowCount(r: any): number {
     return r && r.rowCount !== undefined ? r.rowCount : r;
 }
 
-function toId(r) {
-    return r && r.rows && r.rows.length > 0 ? r.rows[0].id : undefined;
+function toId(r: any): number {
+    return r && r.rows && r.rows.length > 0 ? r.rows[0].id : 0;
 }
 
-export const db = new BookkeeperDB((name, query, params, mapper) => {
-    return pool.connect().then(client => queryFor(client, true)(name, query, params, mapper));
+export const db = new BookkeeperDB(async function<T>(name: string, query: string, params: any[], mapper: (res: any) => T): Promise<T> {
+    const client = await pool.connect();
+    return queryFor(client, true)(name, query, params, mapper);
 });

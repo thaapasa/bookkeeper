@@ -1,4 +1,4 @@
-import { db } from './db';
+import { db, DbAccess } from './db';
 import users from './users';
 import sources from './sources';
 import categories from './categories';
@@ -6,11 +6,12 @@ import { promisify } from 'util';
 import { config } from '../config';
 import { Session, SessionBasicInfo, User } from '../../shared/types/session';
 import { AuthenticationError } from '../util/errors';
+import { Map } from '../../shared/util/util';
 const debug = require('debug')('bookkeeper:api:sessions');
 
 const randomBytes = promisify(require('crypto').randomBytes);
 
-type RawUserData = any;
+type RawUserData = Map<any>;
 
 function createSessionInfo([ token, refreshToken ]: string[], userData: RawUserData, loginTime?: Date): SessionBasicInfo {
     return {
@@ -63,8 +64,8 @@ function logout(tx) {
     };
 }
 
-function createSession(tx) {
-    return async (user: User): Promise<string[]> => {
+function createSession(tx: DbAccess) {
+    return async (user: RawUserData): Promise<string[]> => {
         const tokens = await Promise.all([ createToken(), createToken() ]);
         debug('User', user.email, 'logged in with token', tokens[0]);
         await tx.insert('sessions.create',
@@ -76,8 +77,8 @@ function createSession(tx) {
     };
 }
 
-function purgeExpiredSessions(tx) {
-    return (): Promise<void> => tx.update('sessions.purge', 'DELETE FROM sessions WHERE expiry_time <= NOW()');
+function purgeExpiredSessions(tx: DbAccess) {
+    return (): Promise<number> => tx.update('sessions.purge', 'DELETE FROM sessions WHERE expiry_time <= NOW()');
 }
 
 const tokenSelect = 'SELECT s.token, s.refresh_token, s.user_id as id, s.login_time, u.username, u.email, u.first_name, u.last_name, u.default_group_id,' +
@@ -86,7 +87,7 @@ const tokenSelect = 'SELECT s.token, s.refresh_token, s.user_id as id, s.login_t
     'LEFT JOIN group_users go ON (go.user_id = u.id AND go.group_id = COALESCE($2, u.default_group_id)) ' +
     'LEFT JOIN groups g ON (g.id = go.group_id) ';
 
-function getSession(tx) {
+function getSession(tx: DbAccess) {
     return async (token: string, groupId: number): Promise<SessionBasicInfo> => {
         await purgeExpiredSessions(tx)();
         const userData = await tx.queryObject('sessions.get_by_access_token',
@@ -100,7 +101,7 @@ function getSession(tx) {
     };
 }
 
-function getUserInfoByRefreshToken(tx) {
+function getUserInfoByRefreshToken(tx: DbAccess) {
     return async (token: string, groupId: number): Promise<RawUserData> => {
         await purgeExpiredSessions(tx)();
         const userData: RawUserData = await tx.queryObject('sessions.get_by_refresh_token',
@@ -113,7 +114,7 @@ function getUserInfoByRefreshToken(tx) {
     };
 }
 
-function appendInfo(tx: any) {
+function appendInfo(tx: DbAccess) {
     return (session: SessionBasicInfo): Promise<Session> => Promise.all([
         users.tx.getGroups(tx)(session.user.id),
         sources.tx.getAll(tx)(session.group.id),
