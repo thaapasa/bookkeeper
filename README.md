@@ -39,3 +39,14 @@ Käynnistä ajamalla `npm run start:client`.
 
 Lokituksen saa näkyviin kun asettaa `localStorage`en konsolissa `debug`-muuttujaan
 jonkun arvon, esim. `localStorage.debug = 'bookkeeper*'`.
+
+### Skriptit
+
+`npm run <target>`:
+- `watch-server`: Käynnistää palvelimen kehitystä varten (ajaa `nodemon`in avulla `ts-node`a)
+- `watch-client`: Käynnistää appiksen kehitystä varten
+- `build-server`: Kääntää palvelimesta prod-buildin hakemistoon `build-server/`
+- `build-client`: Kääntää appiksesta prod-buildin hakemistoon `build/`
+- `start-server-prod`: Käynnistää prod-buildatun palvelimen (vaatii että `build-server` on ajettu)
+- `ps-server`: Listaa ajossa olevan kehityspalvelimen prosessinumeron
+- `kill-server`: Tappaa ajossa olevan kehityspalvelimen (aja jos palvelimen portti ei ole vapautunut)

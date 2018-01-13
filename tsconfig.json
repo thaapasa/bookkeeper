@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "build/dist",
+    "outDir": "build-server",
     "module": "commonjs",
     "target": "es5",
     "lib": ["dom", "es2015", "es2016"],
@@ -29,10 +29,13 @@
   "exclude": [
     "node_modules",
     "build",
+    "build-server",
     "scripts",
     "acceptance-tests",
     "webpack",
     "jest",
-    "src/setupTests.ts"
+    "src/setupTests.ts",
+    "dist",
+    "public"
   ]
 }

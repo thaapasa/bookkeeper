@@ -9,4 +9,5 @@ dist
 /src/server/revision.[jt]s
 content
 /build
+/build-server
 .env
