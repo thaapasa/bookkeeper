@@ -16,7 +16,9 @@
     "postinstall": "npm run update:revision",
     "test": "npm run build:test && npm run run:test",
     "build": "npm run build:client",
-    "prod": "npm run build:prod && script/create-dist.sh"
+    "prod": "npm run build:prod && script/create-dist.sh",
+    "ps:server": "ps -ef | grep ./src/server/bookkeeper-server.ts | grep -v grep | awk '{ print $2; }'",
+    "kill:server": "ps -ef | grep ./src/server/bookkeeper-server.ts | grep -v grep | awk '{ print $2; }' | xargs kill"
   },
   "repository": {
     "type": "git",
