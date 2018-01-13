@@ -1,6 +1,6 @@
 import { db } from './db';
 import * as log from '../../shared/util/log';
-import moment, { Moment } from 'moment';
+import * as moment from 'moment';
 import * as time from '../../shared/util/time';
 import * as arrays from '../../shared/util/arrays';
 import { Validator } from '../util/validator';
@@ -13,7 +13,7 @@ import * as splitter from '../../shared/util/splitter';
 import expenseDivision from './expense-division';
 import expenses from './basic-expenses';
 
-function nextRecurrence(fromDate, period): Moment {
+function nextRecurrence(fromDate, period): moment.Moment {
     const date = time.fromDate(fromDate);
     if (period === 'monthly') {
         return date.add(1, 'month');
@@ -25,7 +25,7 @@ function nextRecurrence(fromDate, period): Moment {
 }
 
 function createRecurring(groupId, userId, expenseId, recurrence) {
-    let nextMissing: Moment | null = null;
+    let nextMissing: moment.Moment | null = null;
     let templateId = null;
     let recurrenceId = null;
     return db.transaction(tx => expenses.tx.copyExpense(tx)(groupId, userId, expenseId, e => {

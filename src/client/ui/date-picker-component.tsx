@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as state from '../data/state'
 import DatePicker from 'material-ui/DatePicker'
-const moment = require('moment')
+import * as moment from 'moment';
 
 interface DatePickerState {
     open: boolean;

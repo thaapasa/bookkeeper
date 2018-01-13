@@ -1,5 +1,5 @@
 import users from './data/users';
-import moment from 'moment';
+import * as moment from 'moment';
 import sessions from './data/sessions';
 import expenses from './data/expenses';
 import categories from './data/categories';

@@ -1,6 +1,6 @@
 import { db } from './db';
 import * as log from '../../shared/util/log';
-import moment from 'moment';
+import * as moment from 'moment';
 import * as time from '../../shared/util/time';
 import * as arrays from '../../shared/util/arrays';
 import Money from '../../shared/util/money';

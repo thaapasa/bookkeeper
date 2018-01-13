@@ -1,17 +1,15 @@
 import * as moment from 'moment';
 
-type Moment = moment.Moment;
-
-export function month(year: number, month: number): Moment {
+export function month(year: number, month: number): moment.Moment {
     return moment({ year: year, month: month - 1, day: 1});
 }
 
 const datePattern = 'YYYY-MM-DD';
 export function date(m: any): string {
-    const mom = (m instanceof moment) ? m : moment(m);
+    const mom = moment.isMoment(m) ? m : moment(m);
     return mom.format(datePattern);
 }
-export function fromDate(str: any): Moment {
+export function fromDate(str: any): moment.Moment {
     return moment(str, datePattern);
 }
 

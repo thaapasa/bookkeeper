@@ -1,6 +1,6 @@
 const env = process.env.NODE_ENV ? process.env.NODE_ENV : 'development';
 import commitId from './revision';
-const port = process.env.PORT;
+const port = process.env.SERVER_PORT;
 
 class Config {
     public environment = env;
