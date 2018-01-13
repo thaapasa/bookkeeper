@@ -1,5 +1,5 @@
 import { db, DbAccess } from './db';
-import users from './users';
+import users, { RawUserData } from './users';
 import sources from './sources';
 import categories from './categories';
 import { promisify } from 'util';
@@ -10,8 +10,6 @@ import { Map } from '../../shared/util/util';
 const debug = require('debug')('bookkeeper:api:sessions');
 
 const randomBytes = promisify(require('crypto').randomBytes);
-
-type RawUserData = Map<any>;
 
 function createSessionInfo([ token, refreshToken ]: string[], userData: RawUserData, loginTime?: Date): SessionBasicInfo {
     return {
