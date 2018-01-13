@@ -1,8 +1,9 @@
 import * as React from 'react';
-import * as log from "../shared/util/log"
-import * as login from "./data/login"
+import * as log from '../shared/util/log';
+import * as login from './data/login';
 import BookkeeperPage from './ui/page';
 import LoginPage from './ui/login-page';
+const debug = require('debug')('bookkeeper:app');
 
 interface AppState {
     session: { [key: string]: any } | undefined;
@@ -17,7 +18,7 @@ export default class App extends React.Component<{}, AppState> {
     };
 
     public async componentDidMount() {
-        log.info("Initializing bookkeeper client");
+        debug('Initializing bookkeeper client');
         login.currentSession.onValue((u: object) => this.setState({ session: u }));
         
         await login.checkLoginState();
