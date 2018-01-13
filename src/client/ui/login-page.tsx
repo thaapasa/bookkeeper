@@ -67,8 +67,8 @@ export default class LoginPage extends React.Component<{}, LoginPageState> {
             showStatusMessage: false,
         });
         try {
-            const user = await apiConnect.login(this.state.username, this.state.password);
-            login.loginStream.push(user);
+            const session = await apiConnect.login(this.state.username, this.state.password);
+            login.loginStream.push(session);
             return null;
         } catch (e) {
             this.handleLoginError(e);

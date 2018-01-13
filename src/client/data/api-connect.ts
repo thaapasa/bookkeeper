@@ -2,6 +2,7 @@ import * as state from "./state";
 import * as time from "../../shared/util/time";
 import * as request from 'superagent';
 import Money from "../../shared/util/money";
+import { Session } from "../../shared/types/session";
 const debug = require('debug')('bookkeeper:api-connect');
 
 function mapExpense(e) {
@@ -75,12 +76,12 @@ function del(path, data?: any, query?: any): Promise<any>  {
         .catch(defaultErrorHandler);
 }
 
-export function login(username, password): Promise<any> {
+export function login(username, password): Promise<Session> {
     const url = '/api/session';
 
     return request.put(url)
         .set('Content-Type', 'application/json')
-        .send({username: username, password: password})
+        .send({ username: username, password: password })
         .then(req => req.body)
         .catch(defaultErrorHandler);
 }

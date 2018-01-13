@@ -1,41 +1,48 @@
 import * as Bacon from 'baconjs';
 import * as apiConnect from './api-connect';
 import * as state from './state';
+import { Session } from '../../shared/types/session';
 const debug = require('debug')('bookkeeper:login');
 
-function getLoginFromSession() {
+export const loginStream = new Bacon.Bus<any, Session | null>();
+const currentSessionStream = new Bacon.Bus<any, Session | null>();
+export const currentSession = currentSessionStream.toProperty(null);
+
+function getLoginFromSession(): Promise<Session | null> {
     const token = localStorage.getItem("refreshToken");
     if (token) {
         debug('Not logged in but refresh token exists in localStorage', token);
         state.set('token', token);
         return apiConnect.refreshSession()
-            .catch(e => undefined);
+            .catch(e => null);
     }
-    else return Promise.resolve(undefined);
+    else return Promise.resolve(null);
 }
 
-export function checkLoginState() {
-    return getLoginFromSession()
-        .then(u => { loginStream.push(u); return u; })
+export async function checkLoginState(): Promise<Session | null> {
+    const u = await getLoginFromSession();
+    loginStream.push(u);
+    return u;
 }
 
-export function logout() {
+export async function logout(): Promise<boolean> {
     const session = state.get('session');
-    return (session && session.token ?
-        apiConnect.logout()
-            .then(s => loginStream.push(undefined)) :
-        Promise.resolve(true));
+    if (session && session.token) {
+        await apiConnect.logout();
+        loginStream.push(null);
+    }
+    return true;
 }
 
-export const loginStream = new Bacon.Bus();
-const currentSessionStream = new Bacon.Bus();
-loginStream.onValue(s => {
-    debug('Current session', s);
+loginStream.onValue(session => {
+    debug('Current session', session);
     state.init();
-    state.setDataFromSession(s);
-    s && s.refreshToken ? localStorage.setItem('refreshToken', s.refreshToken) : localStorage.removeItem('refreshToken');
+    state.setDataFromSession(session);
+    if (session && session.refreshToken) { 
+        localStorage.setItem('refreshToken', session.refreshToken); 
+    } else {
+        localStorage.removeItem('refreshToken'); 
+    }
     document.title = state.getTitle();
-    currentSessionStream.push(s);
+    currentSessionStream.push(session);
 });
-
-export const currentSession = currentSessionStream.toProperty();

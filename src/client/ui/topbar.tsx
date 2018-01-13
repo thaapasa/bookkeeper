@@ -6,11 +6,12 @@ import { Toolbar, ToolbarGroup, ToolbarTitle } from 'material-ui/Toolbar';
 import * as state from '../data/state';
 import * as colors from './colors';
 import { logout } from '../data/login'
+import { User } from '../../shared/types/session';
 
 const buttonStyle = { float : 'right' };
 
 interface TopBarProps {
-    user: { id: any };
+    user: User;
 }
 
 export default class TopBar extends React.Component<TopBarProps, {}> {

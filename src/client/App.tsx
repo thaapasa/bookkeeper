@@ -2,23 +2,24 @@ import * as React from 'react';
 import * as login from './data/login';
 import BookkeeperPage from './ui/page';
 import LoginPage from './ui/login-page';
+import { Session } from '../shared/types/session';
 const debug = require('debug')('bookkeeper:app');
 
 interface AppState {
-    session: { [key: string]: any } | undefined;
+    session: Session | null;
     initialized: boolean;
 }
 
 export default class App extends React.Component<{}, AppState> {
 
     public state: AppState = {
-        session: undefined,
+        session: null,
         initialized: false,
     };
 
     public async componentDidMount() {
         debug('Initializing bookkeeper client');
-        login.currentSession.onValue((u: object) => this.setState({ session: u }));
+        login.currentSession.onValue(session => this.setState({ session }));
         
         await login.checkLoginState();
         this.setState({ initialized: true });
@@ -26,7 +27,7 @@ export default class App extends React.Component<{}, AppState> {
   
     public render() {
         return (this.state.initialized) ?
-            ((this.state.session === undefined) ? <LoginPage /> : <BookkeeperPage session={ this.state.session } />) :
+            (this.state.session ? <BookkeeperPage session={this.state.session} /> : <LoginPage />) :
             <div />;
     }
 }
