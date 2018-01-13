@@ -88,7 +88,7 @@ export function registerAPI(app) {
         sources.getAll(session.group.id), true));
     // GET /api/source/:id
     app.get('/api/source/:id', server.processRequest((session, req) =>
-        sources.getById(session.group.id, req.params.id), true));
+        sources.getById(session.group.id, parseInt(req.params.id, 10)), true));
 
 
     // GET /api/expense/list
