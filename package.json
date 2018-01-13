@@ -51,6 +51,7 @@
     "superagent": "3.8.2"
   },
   "devDependencies": {
+    "@types/baconjs": "0.7.33",
     "@types/big.js": "4.0.2",
     "@types/body-parser": "1.16.8",
     "@types/d3": "4.12.0",
