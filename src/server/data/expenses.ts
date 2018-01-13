@@ -1,11 +1,11 @@
 import { db } from './db';
-import * as log from '../../shared/util/log';
 import * as moment from 'moment';
 import * as time from '../../shared/util/time';
 import * as arrays from '../../shared/util/arrays';
 import Money from '../../shared/util/money';
 import recurring from './recurring-expenses';
 import basic from './basic-expenses';
+const debug = require('debug')('bookkeeper:api:expenses');
 
 function calculateBalance(o) {
     const value = Money.from(o.cost).plus(o.benefit).plus(o.income).plus(o.split);
@@ -17,7 +17,7 @@ function calculateBalance(o) {
 
 function getBetween(tx) {
     return (groupId, userId, startDate, endDate) => {
-        log.debug("Querying for expenses between", time.iso(startDate), "and", time.iso(endDate), "for group", groupId);
+        debug("Querying for expenses between", time.iso(startDate), "and", time.iso(endDate), "for group", groupId);
         return tx.queryList("expenses.get_between",
             basic.expenseSelect(`WHERE group_id=$2 AND template=false AND date >= $3::DATE AND date < $4::DATE`),
             [userId, groupId, time.date(startDate), time.date(endDate)])
@@ -45,7 +45,7 @@ function getByMonth(groupId, userId, year, month) {
 
 function search(tx) {
     return (groupId, userId, params) => {
-        log.debug(`Searching for ${JSON.stringify(params)}`);
+        debug(`Searching for ${JSON.stringify(params)}`);
         return tx.queryList("expenses.search",
             basic.expenseSelect("WHERE group_id=$2 AND template=false AND date::DATE >= $3::DATE AND date::DATE <= $4::DATE " +
                 "AND ($5::INTEGER IS NULL OR category_id=$5::INTEGER)"),

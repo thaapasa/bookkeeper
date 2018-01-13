@@ -18,6 +18,7 @@ import {expenseName} from './expense-helper';
 import {unsubscribeAll} from '../util/client-util';
 import {stopEventPropagation} from '../util/client-util';
 import * as moment from 'moment';
+const debug = require('debug')('bookkeeper:expense-dialog');
 
 function findParentCategory(categoryId) {
     const map = state.get("categoryMap");
@@ -84,11 +85,11 @@ function calculateCost(sum, sourceId, benefit) {
     const benefitUserIds = benefit.map(b => b.userId);
     if (arrays.sortAndCompareElements(sourceUserIds, benefitUserIds)) {
         // Create cost based on benefit calculation
-        console.log("Source has same users than who benefit; creating benefit based on cost");
+        debug("Source has same users than who benefit; creating benefit based on cost");
         return splitter.negateDivision(benefit);
     }
     // Calculate cost manually
-    console.log("Calculating cost by source users");
+    debug("Calculating cost by source users");
     return splitter.negateDivision(splitter.splitByShares(sum, sourceUsers));
 }
 
@@ -208,14 +209,14 @@ export default class ExpenseDialog extends React.Component<any, any> {
     }
 
     handleOpen(expense) {
-        console.log("Open expense", expense);
+        debug("Open expense", expense);
         this.updateCategoriesAndSources();
         Object.keys(fields).forEach(k => this.inputStreams[k].push(initValue(k, expense)));
         this.setState({ open: true }, () => this.moneyInput && this.moneyInput.focus());
     }
 
     closeDialog() {
-        console.log("Closing dialog");
+        debug("Closing dialog");
         this.setState({ open: false });
         return false;
     }
@@ -227,7 +228,7 @@ export default class ExpenseDialog extends React.Component<any, any> {
     }
 
     saveExpense(expense) {
-        console.log("Save", expense);
+        debug("Save", expense);
         const createNew = !expense.id;
         const sum = Money.from(expense.sum);
         const division = calculateDivision(expense, sum);

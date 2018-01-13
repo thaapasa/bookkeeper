@@ -1,5 +1,5 @@
-import * as log from './../../shared/util/log';
 import Money from '../../shared/util/money';
+const debug = require('debug')('bookkeeper:validator');
 
 function InvalidInputError(field, input, requirement) {
     this.code = 'INVALID_INPUT';
@@ -34,14 +34,14 @@ export class Validator {
 
     public static validate(schema, object, prefix?): any {
         const result = {};
-        log.debug('Validating', object);
+        debug('Validating', object);
         Object.keys(schema).forEach(field => {
             const validator = schema[field];
             const fieldName = fieldPath(prefix, field);
-            log.debug('Validating', fieldName);
+            debug('Validating', fieldName);
             result[field] = validator(object[field], fieldName);
         });
-        log.debug('Validated input to', result);
+        debug('Validated input to', result);
         return result;
     }
 
@@ -113,7 +113,7 @@ export class Validator {
         return (i, field) => {
             if (!i || !i.map) throw new InvalidInputError(field, i, 'Input must be a list of objects');
             return i.map(item => {
-                log.debug('Validating sub-object', item, 'of', field, 'with schema', schema);
+                debug('Validating sub-object', item, 'of', field, 'with schema', schema);
                 return Validator.validate(schema, item, field)
             });
         }

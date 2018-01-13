@@ -12,6 +12,7 @@ import CategoryChart from "./category-chart"
 import { unsubscribeAll } from "../util/client-util";
 import PropTypes from "prop-types";
 import { CSSProperties } from 'react';
+const debug = require('debug')('bookkeeper:category-view');
 
 const moment = require("moment");
 
@@ -219,13 +220,13 @@ export default class CategoryView extends React.Component<any, any> {
 
     createCategory(parent) {
         this.categoryDialog.createCategory(parent)
-            .then(c => console.log("Created new category", c))
+            .then(c => debug("Created new category", c))
             .then(c => this.reloadCategories(null));
     }
 
     editCategory(category) {
         this.categoryDialog.editCategory(category)
-            .then(c => console.log("Modified category", c))
+            .then(c => debug("Modified category", c))
             .then(c => this.reloadCategories(null));
     }
 

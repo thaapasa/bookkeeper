@@ -1,11 +1,12 @@
 import { db } from './db';
 import * as errors from '../util/errors';
 import Money from '../../shared/util/money';
+const debug = require('debug')('bookkeeper:categories');
 
 function createCategoryObject(categories) {
     const res: any[] = [];
     const subs = {};
-    console.log(categories);
+    debug(categories);
     categories.forEach(c => {
         if (c.parentId === null) {
             c.children = [];
@@ -20,7 +21,7 @@ function createCategoryObject(categories) {
 
 function sumChildTotalsToParent(categoryTable) {
     categoryTable.forEach(c => {
-        console.log("summing childs of ", c.id);
+        debug("summing childs of ", c.id);
         if (c.parentId === null) {
             let expenseSum = Money.from(c.expenses);
             let incomeSum = Money.from(c.income);

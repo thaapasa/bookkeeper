@@ -8,7 +8,7 @@ import NotificationBar from "./notification-bar"
 import DatePickerComponent from "./date-picker-component"
 import FlatButton from "material-ui/FlatButton";
 import {BrowserRouter as Router, Route, Link} from "react-router-dom";
-import * as log from "../../shared/util/log"
+const debug = require('debug')('bookkeeper:page');
 
 const TopBarJs: any = TopBar;
 
@@ -34,7 +34,7 @@ export default class BookkeeperPage extends React.Component<PageProps, PageState
 
     constructor(props: PageProps) {
         super(props);
-        log.info("Initializing bookkeeper page");
+        debug("Initializing bookkeeper page");
         const session = this.props.session;
         this.state = {
             session: session,

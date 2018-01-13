@@ -1,8 +1,8 @@
-import * as log from '../../shared/util/log';
 import { config } from '../config';
 import sessions from '../data/sessions';
 import * as moment from 'moment';
 import { db } from '../data/db';
+const debug = require('debug')('bookkeeper:server');
 
 interface ErrorInfo {
     type: 'error';
@@ -13,7 +13,7 @@ interface ErrorInfo {
 
 export function handleError(res) {
     return e => {
-        log.warn('Error', e);
+        debug('Error', e);
         const data: ErrorInfo = { type: 'error', code: e.code ? e.code : 'INTERNAL_ERROR' };
         const status = typeof(e.status) == 'number' ? e.status : 500;
         if (config.showErrorCause) {
@@ -28,7 +28,7 @@ export function handleError(res) {
 
 export function processUnauthorizedRequest(handler) {
     return (req, res) => {
-        log.debug(req.method, req.url);
+        debug(req.method, req.url);
         return handler(req, res)
             .then(r => setNoCacheHeaders(res).json(r))
             .catch(handleError(res));
@@ -37,7 +37,7 @@ export function processUnauthorizedRequest(handler) {
 
 export function processRequest(handler, groupRequired?) {
     return (req, res) => {
-        log.debug(req.method, req.url);
+        debug(req.method, req.url);
         try {
             const token = getToken(req);
             sessions.tx.getSession(db)(token, req.query.groupId)

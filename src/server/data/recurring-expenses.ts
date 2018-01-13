@@ -1,5 +1,4 @@
 import { db } from './db';
-import * as log from '../../shared/util/log';
 import * as moment from 'moment';
 import * as time from '../../shared/util/time';
 import * as arrays from '../../shared/util/arrays';
@@ -12,6 +11,7 @@ import * as errors from '../util/errors';
 import * as splitter from '../../shared/util/splitter';
 import expenseDivision from './expense-division';
 import expenses from './basic-expenses';
+const debug = require('debug')('bookkeeper:api:recurring-expenses');
 
 function nextRecurrence(fromDate, period): moment.Moment {
     const date = time.fromDate(fromDate);
@@ -63,7 +63,7 @@ function createMissingRecurrences(tx, groupId, userId, date) {
         const dates = getDatesUpTo(recurrence, date);
         const lastDate = dates[dates.length - 1];
         const nextMissing = nextRecurrence(lastDate, recurrence.period);
-        log.debug("Creating missing expenses for", recurrence, dates);
+        debug("Creating missing expenses for", recurrence, dates);
         return expenses.tx.getExpenseAndDivision(tx)(groupId, userId, recurrence.templateExpenseId)
             .then(expense => Promise.resolve(dates.map(createMissingRecurrenceForDate(tx, expense))))
             .then(x => tx.update("expenses.update_recurring_missing_date",
@@ -76,13 +76,13 @@ function createMissingRecurrenceForDate(tx, e) {
     return (date) => {
         const expense = Object.assign({}, e[0], { template: false, date: date });
         const division = e[1];
-        console.log("Creating missing expense", expense, "with division", division);
+        debug("Creating missing expense", expense, "with division", division);
         return expenses.tx.insert(tx)(expense.userId, expense, division);
     }
 }
 
 function createMissing(tx) {
-    log.debug("Checking for missing expenses");
+    debug("Checking for missing expenses");
     return (groupId, userId, date) => tx.queryList("expenses.find_missing_recurring",
         "SELECT * FROM recurring_expenses WHERE group_id = $1 AND next_missing < $2::DATE",
         [ groupId, date ])

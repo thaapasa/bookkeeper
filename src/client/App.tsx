@@ -1,5 +1,4 @@
 import * as React from 'react';
-import * as log from '../shared/util/log';
 import * as login from './data/login';
 import BookkeeperPage from './ui/page';
 import LoginPage from './ui/login-page';

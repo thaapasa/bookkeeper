@@ -2,6 +2,7 @@ import * as state from "./state";
 import * as time from "../../shared/util/time";
 import * as request from 'superagent';
 import Money from "../../shared/util/money";
+const debug = require('debug')('bookkeeper:api-connect');
 
 function mapExpense(e) {
     e.userBenefit = Money.from(e.userBenefit, 0);
@@ -153,6 +154,6 @@ export function updateCategory(id, category) {
 }
 
 function defaultErrorHandler(er) {
-    console.log("Error in api-connect:", er);
+    debug("Error in api-connect:", er);
     throw er;
 }

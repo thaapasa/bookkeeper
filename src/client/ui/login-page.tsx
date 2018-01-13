@@ -3,6 +3,7 @@ import Paper from 'material-ui/Paper';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 import * as login from "../data/login"
+const debug = require('debug')('bookkeeper:login-page');
 
 const apiConnect = require("../data/api-connect");
 
@@ -59,7 +60,7 @@ export default class LoginPage extends React.Component<any, any> {
         })
         apiConnect.login(this.state.username, this.state.password)
             .then(u => {
-                console.log("logged in", u);
+                debug("logged in", u);
                 login.loginStream.push(u);
                 return null;
             })

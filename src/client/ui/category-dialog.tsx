@@ -7,6 +7,7 @@ import MenuItem from 'material-ui/MenuItem';
 import * as apiConnect from '../data/api-connect';
 import * as state from '../data/state';
 import * as categories from  '../data/categories';
+const debug = require('debug')('bookkeeper:category-dialog');
 
 const defaultCategory = [ { id: 0, name: "[Ei yläkategoriaa]" }];
 
@@ -46,12 +47,12 @@ export default class CategoryDialog extends React.Component<any, any> {
     }
 
     createCategory(parent) {
-        console.log("Create category under", parent);
+        debug("Create category under", parent);
         return this.startEditing({ open: true, name: "", parentId: parent && parent.id || 0, createNew: true, id: 0, valid: true });
     }
 
     editCategory(category) {
-        console.log("Edit category", category);
+        debug("Edit category", category);
         return this.startEditing({ open: true, name: category.name, parentId: category.parentId || 0, createNew: false, id: category.id, valid: true });
     }
 
@@ -71,7 +72,7 @@ export default class CategoryDialog extends React.Component<any, any> {
     }
 
     closeDialog(data) {
-        console.log("Closing dialog");
+        debug("Closing dialog");
         this.setState({ open: false });
         this.resolve && this.resolve(data);
         return false;
@@ -94,7 +95,7 @@ export default class CategoryDialog extends React.Component<any, any> {
             name: s.name,
             parentId: s.parentId
         };
-        console.log("Save", data);
+        debug("Save", data);
         (createNew ? apiConnect.storeCategory(data) : apiConnect.updateCategory(s.id, data))
             .then(e => {
                 this.closeDialog(e);
