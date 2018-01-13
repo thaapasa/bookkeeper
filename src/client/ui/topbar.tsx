@@ -21,7 +21,7 @@ export default class TopBar extends React.Component<TopBarProps, {}> {
 
     public render() {
         return (
-            <Toolbar className="top-bar">
+            <Toolbar className="top-bar fixed-horizontal">
                 <ToolbarGroup className="optional">
                     <ToolbarTitle text={state.getTitle()} />
                 </ToolbarGroup>

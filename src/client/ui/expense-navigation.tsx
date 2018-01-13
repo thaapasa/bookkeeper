@@ -41,7 +41,7 @@ export default class ExpenseNavigation extends React.Component<ExpenseNavigation
 
     public render() {
         return <div style={{ display: "flex", alignItems: "center" }}
-                    className="expense-navigation"
+                    className="expense-navigation fixed-horizontal"
                     onKeyUp={this.handleKeyPress}
                     tabIndex={1}
                     ref={r => this.container = r}>

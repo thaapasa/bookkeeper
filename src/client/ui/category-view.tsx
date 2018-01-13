@@ -8,6 +8,7 @@ import * as apiConnect from "../data/api-connect"
 import * as categories from "../data/categories"
 import * as Bacon from "baconjs"
 import ExpenseRow from "./expense-row"
+import CategoryChart from "./category-chart"
 import { unsubscribeAll } from "../util/client-util";
 import PropTypes from "prop-types";
 import { CSSProperties } from 'react';
@@ -182,15 +183,19 @@ export default class CategoryView extends React.Component<any, any> {
     /*setTotalsToCategory(category, ) {
 
     }*/
-
+    formCategoryChartData() {
+        let chartData: any[] = [];
+        this.state.categories && this.state.categories.forEach(c => {
+            chartData.push({ categoryId: c.id, categoryName: c.name, categoryTotal: this.state.categoryTotals[c.id].totalExpenses})
+        })
+        this.setState({ categoryChartData: chartData });
+    }
 
     getCategoryTotals(dates) {
-        console.log("getCategoryTotals");
         if (!dates) {
             return;
         }
         return apiConnect.getCategoryTotals(dates.start, dates.end).then(t => {
-            console.log("got", t);
             let totalsMap = {};
             t && t.forEach(t => {
                 totalsMap['' + t.id] = t;
@@ -203,17 +208,14 @@ export default class CategoryView extends React.Component<any, any> {
     }
 
     reloadCategories(dates) {
-        console.log("reloadCategories PSFOSISO");
         Promise.all([
             this.getCategoryTotals(dates),
             apiConnect.getCategoryList()
-        ]).then(a => this.setState({ categories: a[1] }));
-        //this.getCategoryTotals().then(() => apiConnect.getCategoryList()).then(l => {
-        //    this.setState({ categories: l })
-        console.log("loaded categories");
-        console.dir(this.state.categoryTotals);
-        //});
-    }
+        ]).then(a => {
+            this.setState({ categories: a[1] });
+            this.formCategoryChartData();
+        });
+     }
 
     createCategory(parent) {
         this.categoryDialog.createCategory(parent)
@@ -222,14 +224,12 @@ export default class CategoryView extends React.Component<any, any> {
     }
 
     editCategory(category) {
-        console.log("Editing category", category);
         this.categoryDialog.editCategory(category)
             .then(c => console.log("Modified category", c))
             .then(c => this.reloadCategories(null));
     }
 
     componentDidMount() {
-        console.log("componentDidMount");
         this.unsub = [];
         this.startDateStr.onValue(d => this.setState({ startDate: d }));
         this.endDateStr.onValue(d => this.setState({ endDate: d }));
@@ -265,11 +265,13 @@ export default class CategoryView extends React.Component<any, any> {
         </div>
     }
 
-    CategoryTable({ categories, categoryTotals, categoryExpenses }) {
-        return <div className="bk-table category-table">
+    CategoryTable({ categories, categoryTotals, categoryExpenses, categoryChartData }) {
+        return <div className="category-table">
                 <this.TimeSelector />
+                <CategoryChart
+                    chartData={categoryChartData}/>
                 <this.CategoryHeader />
-                <div className="category-data-area bk-table-data-area">
+                <div className="category-data-area">
                     { categories.map(c => [<CategoryRow key={c.id} category={c} header={true} categoryExpenses={categoryExpenses} categoryTotals={categoryTotals}
                                                         createCategory={this.createCategory} editCategory={this.editCategory} datesStr={this.datesStr} />]
                         .concat(c.children.map(ch => <CategoryRow key={ch.id} header={false} category={ch} categoryExpenses={categoryExpenses} categoryTotals={categoryTotals}
@@ -279,7 +281,7 @@ export default class CategoryView extends React.Component<any, any> {
     }
 
     CategoryHeader() {
-        return <div className="bk-table-header bk-table-row category-table-row category-table-header header no-border">
+        return <div className="category-table-row category-table-header header no-border">
             <div className="category-name">Nimi</div>
             <div className="category-totals">Kulut / Tulot</div>
             <div className="category-tools">
@@ -293,7 +295,8 @@ export default class CategoryView extends React.Component<any, any> {
             <this.CategoryTable
                 categories={this.state.categories}
                 categoryTotals={this.state.categoryTotals}
-                categoryExpenses={this.state.categoryExpenses} />
+                categoryExpenses={this.state.categoryExpenses}
+                categoryChartData={this.state.categoryChartData}/>
             <CategoryDialog ref={r => this.categoryDialog = r}/>
         </div>
     }
