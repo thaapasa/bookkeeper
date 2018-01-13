@@ -62,10 +62,10 @@ function create(tx) {
 }
 
 function getById(tx) {
-    return (groupId, id) => tx.queryObject("categories.get_by_id",
-        "SELECT id, parent_id, name FROM categories WHERE id=$1::INTEGER AND group_id=$2::INTEGER ",
+    return (groupId, id) => tx.queryObject('categories.get_by_id',
+        'SELECT id, parent_id, name FROM categories WHERE id=$1::INTEGER AND group_id=$2::INTEGER ',
         [ id, groupId ])
-        .then(errors.undefinedToError(errors.NotFoundError, "CATEGORY_NOT_FOUND", "category"));
+        .then(errors.undefinedToError(errors.NotFoundError, 'CATEGORY_NOT_FOUND', 'category'));
 }
 
 function update(groupId, categoryId, data) {
