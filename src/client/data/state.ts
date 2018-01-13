@@ -128,9 +128,9 @@ export function updateExpenses(date) {
 }
 
 /* Returns a promise that will be resolved to the selected date  */
-export function pickDate(currentValue) {
-    let resolve: (() => void) | null = null, reject: (() => void) | null = null;
-    const p = new Promise((res, rej) => { resolve = res; reject = rej; });
+export function pickDate(currentValue): Promise<Date> {
+    let resolve: ((Date) => void) | null = null, reject: (() => void) | null = null;
+    const p = new Promise((res: (Date) => void, rej) => { resolve = res; reject = rej; });
     state.pickDateStream.push({
         date: currentValue,
         resolve: resolve,

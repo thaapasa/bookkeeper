@@ -135,10 +135,14 @@ export default class ExpenseRow extends React.Component<ExpenseRowProps, Expense
             });
     }
 
-    private editDate = (expense) => {
-        state.pickDate(moment(expense.date).toDate())
-            .then(d => { if (d) this.updateExpense({ date: time.date(d) }); return true })
-            .catch(e => state.notifyError('Virhe muutettaessa päivämäärää', e))
+    private editDate = async (expense) => {
+        try {
+            const date = await state.pickDate(moment(expense.date).toDate());
+            this.updateExpense({ date: time.date(date) });
+            return true;
+        } catch (e) {
+            state.notifyError('Virhe muutettaessa päivämäärää', e);
+        }
     }
 
     private toggleDetails = (expense, details) => {
