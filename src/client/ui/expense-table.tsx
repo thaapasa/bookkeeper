@@ -2,7 +2,7 @@ import * as React from 'react';
 import Avatar from 'material-ui/Avatar';
 import Chip from 'material-ui/Chip'
 import ExpenseRow from './expense-row';
-import {ExpenseHeader,ExpenseStatus,ExpenseTotal} from './expense-row';
+import { ExpenseHeader, ExpenseStatus, ExpenseTotal } from './expense-row';
 import RefreshIndicator from 'material-ui/RefreshIndicator';
 import Money from '../../shared/util/money';
 
@@ -15,7 +15,6 @@ export default class ExpenseTable extends React.Component<any, any> {
         this.removeFilter = this.removeFilter.bind(this);
         this.renderExpense = this.renderExpense.bind(this);
     }
-
 
     addFilter(fun, name, avatar) {
         this.setState(s => ({

@@ -1,20 +1,20 @@
 import * as React from 'react';
-import * as categories from  "../data/categories";
-import * as state from  "../data/state";
-import * as apiConnect from "../data/api-connect";
-import UserAvatar from "./user-avatar";
-import ActivatableTextField from "./activatable-text-field";
-import {PlainTextField} from "./plain-text-field";
-import {ExpandLess,ExpandMore,Delete,Edit,Repeat,ToolIcon} from "./icons"
-import * as colors from "./colors";
-import {PlainReceiverField} from "./expense-dialog-components";
-import {combineClassNames} from "../util/client-util";
-import * as arrays from "../../shared/util/arrays";
-import * as time from "../../shared/util/time";
-import PropTypes from "prop-types";
-import ExpenseDivision from "./expense-division"
-import {expenseName} from "./expense-helper";
-import Money from "../../shared/util/money";
+import * as categories from  '../data/categories';
+import * as state from  '../data/state';
+import * as apiConnect from '../data/api-connect';
+import UserAvatar from './user-avatar';
+import ActivatableTextField from './activatable-text-field';
+import { PlainTextField } from './plain-text-field';
+import { ExpandLess, ExpandMore, Delete, Edit, Repeat, ToolIcon } from './icons'
+import * as colors from './colors';
+import { PlainReceiverField } from './expense-dialog-components';
+import { combineClassNames } from '../util/client-util';
+import * as arrays from '../../shared/util/arrays';
+import * as time from '../../shared/util/time';
+import PropTypes from 'prop-types';
+import ExpenseDivision from './expense-division'
+import { expenseName } from './expense-helper';
+import Money from '../../shared/util/money';
 import * as moment from 'moment';
 
 // Just a special reference for determining if details are loading
@@ -39,11 +39,11 @@ export function ExpenseHeader(props) {
 }
 
 const statusTypeNames = {
-    income: "Tulot",
-    split: "Tulojako",
-    cost: "Menot",
-    benefit: "Hyöty",
-    balance: "Balanssi"
+    income: 'Tulot',
+    split: 'Tulojako',
+    cost: 'Menot',
+    benefit: 'Hyöty',
+    balance: 'Balanssi',
 };
 const statusTypeKeys = Object.keys(statusTypeNames);
 
@@ -112,14 +112,14 @@ export default class ExpenseRow extends React.Component<ExpenseRowProps, Expense
     private fullCategoryLink(id) {
         const cat = categories.get(id);
         return cat.parentId ?
-            [this.categoryLink(cat.parentId), " - ", this.categoryLink(id)] :
+            [this.categoryLink(cat.parentId), ' - ', this.categoryLink(id)] :
             this.categoryLink(id);
     }
 
     private getSource(sourceId) {
-        const source = state.get("sourceMap")[sourceId];
+        const source = state.get('sourceMap')[sourceId];
         const content = source.image ?
-            <img src={source.image} title={source.name} style={{ maxWidth: "48px", maxHeight: "24px" }} /> :
+            <img src={source.image} title={source.name} style={{ maxWidth: '48px', maxHeight: '24px' }} /> :
             (source.abbreviation ? source.abbreviation : source.name);
         const avatar = source.image ? source.image : undefined;
         return <a key={source.id} onClick={
@@ -138,7 +138,7 @@ export default class ExpenseRow extends React.Component<ExpenseRowProps, Expense
     private editDate = (expense) => {
         state.pickDate(moment(expense.date).toDate())
             .then(d => { if (d) this.updateExpense({ date: time.date(d) }); return true })
-            .catch(e => state.notifyError("Virhe muutettaessa päivämäärää", e))
+            .catch(e => state.notifyError('Virhe muutettaessa päivämäärää', e))
     }
 
     private toggleDetails = (expense, details) => {
@@ -149,7 +149,7 @@ export default class ExpenseRow extends React.Component<ExpenseRowProps, Expense
             apiConnect.getExpense(expense.id)
                 .then(e => this.setState({ details: e }))
                 .catch(e => {
-                    state.notifyError("Ei voitu ladata tietoja kirjaukselle", e);
+                    state.notifyError('Ei voitu ladata tietoja kirjaukselle', e);
                     this.setState({ details: null });
                 });
         }
@@ -157,9 +157,9 @@ export default class ExpenseRow extends React.Component<ExpenseRowProps, Expense
 
     private deleteExpense = (e) => {
         const name = expenseName(e);
-        state.confirm("Poista kirjaus",
+        state.confirm('Poista kirjaus',
             `Haluatko varmasti poistaa kirjauksen ${name}?`,
-            { okText : "Poista" })
+            { okText : 'Poista' })
             .then(b => b ? apiConnect.deleteExpense(e.id)
                 .then(x => state.notify(`Poistettu kirjaus ${name}`))
                 .then(x => state.updateExpenses(e.date))

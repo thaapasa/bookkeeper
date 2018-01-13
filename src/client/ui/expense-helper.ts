@@ -1,4 +1,4 @@
-import Money from '../../shared/util/money'
+import Money from '../../shared/util/money';
 
 export interface Expense {
     id: number;
