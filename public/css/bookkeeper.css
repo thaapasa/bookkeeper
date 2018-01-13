@@ -56,8 +56,11 @@ html, body {
     margin-top: 104px;
 }
 
-.bk-table-header {
+.bk-table-header.header {
+    height: 32px !important;
     top: 104px;
+    border-top: none;
+    border-bottom: 1px solid rgb(224, 224, 224);
 }
 
 .bk-table-row {
@@ -68,17 +71,58 @@ html, body {
     align-items: center;
 }
 
-.expense-table-start-status {
-    top: 145px;
-}
-
-
 .bk-item-half { flex-grow: 1; }
 
 /*.bk-table-header { top: 0; border-top: none; }*/
-.expense-table-start-status { /*top: 41px; */border-bottom: 1px solid rgb(224, 224, 224); }
+/*.expense-table-start-status { bottom: 82px; border-bottom: 1px solid rgb(224, 224, 224); }
 .expense-table-month-status { bottom: 41px; }
-.expense-table-end-status { bottom: 0; }
+.expense-table-end-status { bottom: 0; }*/
+
+.expense-table-monthly-status {
+    height: 110px !important;
+    /*background-color: lightgreen;*/
+    bottom: 0;
+    display: flex;
+    justify-content: flex-end;
+    font-size: 13px;
+}
+.expense-table-monthly-status .monthly-income-statement {
+    /*height: 100px;*/
+    width: 200px;
+    padding: 10px;
+    /*display: inline-block;*/
+    /*background-color: lightcoral;*/
+}
+.expense-table-monthly-status .monthly-balance {
+    /*height: 100px;*/
+    width: 200px;
+    padding: 10px;
+    /*display: inline-block;*/
+    /*background-color: lightskyblue;*/
+}
+.expense-table-monthly-status .header {
+    color: rgb(117, 117, 117);
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.calculation-row {
+    display: flex;
+    flex-direction: row;
+    height: 23px;
+    padding-top: 3px;
+
+}
+.calculation-row .calculation-title {
+    display: inline-block;
+    width: 100px;
+}
+.calculation-row .calculation-sum {
+    display: inline-block;
+    flex-grow: 1;
+    text-align: right;
+}
+
 
 /* Categories */
 
@@ -100,7 +144,8 @@ html, body {
     overflow-x: hidden;
 }
 .expense-data-area {
-    padding-top: 82px;
+    padding-top: 32px;
+    padding-bottom: 100px;
 }
 
 .category-table-row > div {
@@ -264,15 +309,14 @@ html, body {
         height: 32px !important;
     }
 
-    /*.expense-table-start-status { top: 32px; }*/
+    .expense-table-start-status { bottom: 64px; }
     .expense-table-month-status { bottom: 32px; }
     .expense-data-area {
-        padding-top: 66px;
+        padding-top: 33px;
+        padding-bottom: 100px;
         top: 64px;
         bottom: 64px;
     }
-
-    .expense-table-start-status { top: 137px;}
 
     .expense-detail {
         margin: 0.5em 0.4em;

@@ -5,16 +5,97 @@ import ExpenseRow from './expense-row';
 import { ExpenseHeader, ExpenseStatus, ExpenseTotal } from './expense-row';
 import RefreshIndicator from 'material-ui/RefreshIndicator';
 import Money from '../../shared/util/money';
+import * as moment from 'moment';
 
-export default class ExpenseTable extends React.Component<any, any> {
+function money(v) {
+    return v ? Money.from(v).format() : "-";
+}
+
+interface StatusProps {
+    unconfirmedBefore: boolean;
+    startStatus: { balance: number };
+    monthStatus: { balance: number };
+    endStatus: { balance: number };
+    totals: {totalExpense: any, totalIncome: any} | null;
+}
+
+class MonthlyStatus extends React.Component<StatusProps, {}> {
+
+    private getCalculationRow(title: string, sum: number, drawTopBorder: boolean) {
+        const rowStyle = { borderTop: (drawTopBorder ? '1px solid' : 'none') }
+
+        return <div className="calculation-row" style={rowStyle}>
+                <div className="calculation-title">{title}</div>
+                <div className="calculation-sum">{money(sum)}</div>
+            </div>
+    }
+
+    public componentDidMount() {
+        console.log(this.props);
+        console.log(this.props.startStatus, this.props.monthStatus, this.props.endStatus);
+    }
+
+    public componentDidUpdate() {
+        console.log(this.props.startStatus, this.props.monthStatus, this.props.endStatus);
+    }
+
+    public render() {
+        const income = this.props.totals ? this.props.totals.totalIncome : 0;
+        const expense = this.props.totals ? this.props.totals.totalExpense : 0;
+
+        return <div className="expense-table-monthly-status fixed-horizontal">
+                <div className="monthly-income-statement">
+                    <div className="header">Tuloslaskelma</div>
+                    {this.getCalculationRow('Tulot', income, false)}
+                    {this.getCalculationRow('Menot', expense, false)}
+                    {this.getCalculationRow('', income - expense, true)}
+                </div>
+                <div className="monthly-balance">
+                    <div className="header">Saatavat/velat</div>
+                    {this.getCalculationRow('Ennen', this.props.startStatus.balance, false)}
+                    {this.getCalculationRow('Muutos', this.props.monthStatus.balance, false)}
+                    {this.getCalculationRow('', this.props.endStatus.balance, true)}
+
+                </div>
+            </div>
+    }
+}
+
+/**
+ *             <ExpenseStatus className="expense-table-start-status fixed-horizontal" name="Tilanne ennen" status={this.props.startStatus} unconfirmedBefore={this.props.unconfirmedBefore} />
+            <ExpenseStatus className="expense-table-month-status fixed-horizontal" name="Tämä kuukausi" status={this.props.monthStatus} />
+            <ExpenseStatus className="expense-table-end-status fixed-horizontal" name="Lopputilanne" status={this.props.endStatus} />
+ */
+interface ExpenseTableProps {
+    date: moment.Moment;
+    expenses: any[];
+    loading: boolean;
+    startStatus: any;
+    endStatus: any;
+    monthStatus: any;
+    unconfirmedBefore: boolean;
+    onUpdateExpense: any;
+}
+
+interface ExpenseTableState {
+    details: any;
+    filters: any[];
+}
+
+//TODO: tänne myös expensejen ja incomen total laskettuna!
+export default class ExpenseTable extends React.Component<ExpenseTableProps, ExpenseTableState> {
 
     constructor(props) {
         super(props);
-        this.state = { details: {}, filters: [] };
+        //this.state = { details: {}, filters: [] };
         this.addFilter = this.addFilter.bind(this);
         this.removeFilter = this.removeFilter.bind(this);
         this.renderExpense = this.renderExpense.bind(this);
     }
+    public state: ExpenseTableState = {
+        details: {},
+        filters: [],
+    };
 
     addFilter(fun, name, avatar) {
         this.setState(s => ({
@@ -40,18 +121,27 @@ export default class ExpenseTable extends React.Component<any, any> {
                     onUpdated={ e => this.props.onUpdateExpense(expense.id, e) } />
     }
 
-    getTotalRow(expenses) {
-        if (expenses.length < 1) return [];
+    private calculateTotals(expenses: any[]) {
+        if (expenses.length < 1) return null;
         const income = expenses.filter(e => e.type === "income").reduce((s, c) => s.plus(c.sum), Money.zero);
         const expense = expenses.filter(e => e.type === "expense").reduce((s, c) => s.plus(c.sum), Money.zero);
-        return [<ExpenseTotal key="filtered-total" income={income} expense={expense} />];
+        return {totalIncome: income, totalExpense: expense}
+    }
+
+    //TODO: tee erillinen funktio jossa lasketaan expensejen total income+expense
+    getTotalRow(expenses) {
+        if (expenses.length < 1) return [];
+        /*const income = expenses.filter(e => e.type === "income").reduce((s, c) => s.plus(c.sum), Money.zero);
+        const expense = expenses.filter(e => e.type === "expense").reduce((s, c) => s.plus(c.sum), Money.zero);*/
+        const totals = this.calculateTotals(expenses)
+        if (!totals) return [];
+        return [<ExpenseTotal key="filtered-total" income={totals.totalIncome} expense={totals.totalExpense} />];
     }
 
     render() {
         const filtered = this.getFilteredExpenses();
         return <div className="expense-table bk-table">
             <ExpenseHeader className="expense-table-header bk-table-header fixed-horizontal"/>
-            <ExpenseStatus className="expense-table-start-status fixed-horizontal" name="Tilanne ennen" status={this.props.startStatus} unconfirmedBefore={this.props.unconfirmedBefore} />
             <div className="expense-data-area bk-table-data-area">
                 { this.props.loading ?
                     <div className="loading-indicator-big"><RefreshIndicator left={-30} top={-30} status="loading" size={60} /></div> :
@@ -70,8 +160,13 @@ export default class ExpenseTable extends React.Component<any, any> {
                         : []).concat(filtered.map(this.renderExpense)).concat(this.getTotalRow(filtered))
                 }
             </div>
-            <ExpenseStatus className="expense-table-month-status fixed-horizontal" name="Tämä kuukausi" status={this.props.monthStatus} />
-            <ExpenseStatus className="expense-table-end-status fixed-horizontal" name="Lopputilanne" status={this.props.endStatus} />
+                <MonthlyStatus 
+                    unconfirmedBefore={this.props.unconfirmedBefore} 
+                    startStatus={this.props.startStatus} 
+                    monthStatus={this.props.monthStatus}
+                    endStatus={this.props.endStatus}
+                    totals={this.calculateTotals(this.props.expenses)}    
+                />
         </div>
     }
 }
