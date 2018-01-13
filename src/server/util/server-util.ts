@@ -2,6 +2,8 @@ import { config } from '../config';
 import sessions from '../data/sessions';
 import * as moment from 'moment';
 import { db } from '../data/db';
+import { Session, SessionBasicInfo } from '../../shared/types/session';
+import { Request, Response } from 'express';
 const debug = require('debug')('bookkeeper:server');
 
 interface ErrorInfo {
@@ -35,8 +37,8 @@ export function processUnauthorizedRequest(handler) {
     };
 }
 
-export function processRequest(handler, groupRequired?) {
-    return (req, res) => {
+export function processRequest(handler: (session: SessionBasicInfo, req?: Request, res?: Response) => any, groupRequired?) {
+    return (req: Request, res: Response) => {
         debug(req.method, req.url);
         try {
             const token = getToken(req);
@@ -85,10 +87,10 @@ function TokenNotPresentError() {
 TokenNotPresentError.prototype = new Error();
 
 const bearerMatch = /Bearer ([0-9a-zA-Z]*)/;
-export function getToken(req) {
-    const tmatch = bearerMatch.exec(req.header("Authorization"));
+export function getToken(req: Request): string {
+    const tmatch = bearerMatch.exec(req.header('Authorization') || '');
     const token = tmatch && tmatch.length > 0 ? tmatch[1] : undefined;
-    if (!token) throw new TokenNotPresentError();
+    if (!token) { throw new TokenNotPresentError(); }
     return token;
 }
 

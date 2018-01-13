@@ -28,13 +28,13 @@ class Error {
 }
 
 export class NotFoundError extends Error {
-    constructor(code, name) {
+    constructor(code: string, name: string) {
         super(code, `${util.ucFirst(name)} not found`, 404);
     }
 }
 
 export class AuthenticationError extends Error {
-    constructor(code, cause, data?) {
+    constructor(code: string, cause: any, data?: any) {
         super(code, cause, 401, data);
     }
 }

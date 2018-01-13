@@ -52,7 +52,7 @@ class BookkeeperDB {
             .then(l => l.map(r => camelCaseObject(r)));
     }
 
-    public transaction<T>(f: (db: any) => Promise<T>, readOnly?: boolean) {
+    public transaction<T>(f: (db: any) => Promise<T>, readOnly?: boolean): Promise<T> {
         const mode = readOnly ? "READ ONLY" : "READ WRITE";
         this.counter += 1;
         const txId = this.counter;

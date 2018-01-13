@@ -34,17 +34,21 @@ export interface User extends DbObject {
     email: string;
     firstName: string;
     lastName: string;
-    image: string;
+    image?: string;
     defaultGroupId?: number | null;
 }
 
-export interface Session {
+export interface SessionBasicInfo {
+    token: string;
+    user: User;
+    group: Group;
+    refreshToken: string;
+    loginTime?: Date;
+}
+
+export interface Session extends SessionBasicInfo {
     groups: Group[];
     sources: Source[];
     categories: MainCategory[];
     users: User[];
-    token: string;
-    refreshToken: string;
-    user: User;
-    group: Group;
 }
