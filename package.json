@@ -6,7 +6,7 @@
   "scripts": {
     "postinstall": "npm run update-revision",
     "watch-client": "react-scripts-ts start",
-    "watch-server": "DEBUG=bookkeeper* npm run update-revision && nodemon",
+    "watch-server": "npm run update-revision && nodemon",
     "test-client": "react-scripts-ts test --env=jsdom",
     "test": "npm run test-client",
     "build-client": "react-scripts-ts build",
@@ -29,7 +29,6 @@
   "dependencies": {
     "baconjs": "1.0.1",
     "big.js": "5.0.3",
-    "bluebird": "3.5.1",
     "body-parser": "1.18.2",
     "d3": "4.12.2",
     "d3-axis": "1.0.8",
@@ -52,7 +51,6 @@
   },
   "devDependencies": {
     "@types/big.js": "4.0.2",
-    "@types/bluebird": "3.5.19",
     "@types/body-parser": "1.16.8",
     "@types/d3": "4.12.0",
     "@types/d3-axis": "1.0.9",

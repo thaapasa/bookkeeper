@@ -4,7 +4,6 @@ import FlatButton from 'material-ui/FlatButton';
 import * as state from  '../data/state';
 import { KeyCodes } from '../util/io'
 import { unsubscribeAll } from '../util/client-util';
-import { noConflict } from 'bluebird';
 import { KeyboardEvent } from 'react';
 
 const fields = {

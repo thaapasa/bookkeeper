@@ -3,7 +3,6 @@
 const chai = require("chai");
 const expect = chai.expect;
 const errors = require("../../../server/util/errors");
-const Promise = require("bluebird");
 const log = require("../../../shared/util/log");
 
 module.exports = {};

@@ -1,15 +1,12 @@
-"use strict";
-
 import * as React from 'react';
-import Dialog from "material-ui/Dialog"
-import FlatButton from "material-ui/FlatButton"
-import TextField from "material-ui/TextField"
-import SelectField from "material-ui/SelectField"
-import MenuItem from "material-ui/MenuItem"
-import * as apiConnect from "../data/api-connect"
-import * as state from "../data/state"
-import * as categories from  "../data/categories"
-const Promise = require("bluebird");
+import Dialog from 'material-ui/Dialog';
+import FlatButton from 'material-ui/FlatButton';
+import TextField from 'material-ui/TextField';
+import SelectField from 'material-ui/SelectField';
+import MenuItem from 'material-ui/MenuItem';
+import * as apiConnect from '../data/api-connect';
+import * as state from '../data/state';
+import * as categories from  '../data/categories';
 
 const defaultCategory = [ { id: 0, name: "[Ei yläkategoriaa]" }];
 
@@ -110,7 +107,7 @@ export default class CategoryDialog extends React.Component<any, any> {
             });
     }
 
-    render() {
+    public render() {
         const actions = [
             <FlatButton
                 label="Peruuta"

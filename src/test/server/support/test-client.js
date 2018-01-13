@@ -1,6 +1,5 @@
 "use strict";
 
-const Promise = require("bluebird");
 const request = Promise.promisifyAll(require("superagent"));
 const log = require("../../../shared/util/log");
 
