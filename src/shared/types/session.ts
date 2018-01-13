@@ -17,6 +17,7 @@ export interface Source extends DbObject {
     abbreviation: string | null;
     shares: number;
     users: UserShare[];
+    image?: string;
 }
 
 export interface Category extends DbObject {

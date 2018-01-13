@@ -37,7 +37,7 @@ export function processUnauthorizedRequest(handler) {
     };
 }
 
-export function processRequest(handler: (session: SessionBasicInfo, req?: Request, res?: Response) => any, groupRequired?) {
+export function processRequest(handler: (session: SessionBasicInfo, req: Request, res: Response) => any, groupRequired?) {
     return (req: Request, res: Response) => {
         debug(req.method, req.url);
         try {
