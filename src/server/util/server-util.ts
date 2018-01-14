@@ -14,7 +14,7 @@ interface ErrorInfo {
     info?: any;
 };
 
-export function handleError(res: Response) {
+function handleError(res: Response) {
     return (e: any) => {
         debug('Error', e);
         const data: ErrorInfo = { type: 'error', code: e.code ? e.code : 'INTERNAL_ERROR' };

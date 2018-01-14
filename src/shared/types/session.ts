@@ -23,10 +23,6 @@ export interface Source extends DbObject {
 export interface Category extends DbObject {
     parentId: number | null;
     name: string;
-}
-
-export interface MainCategory extends Category {
-    parentId: null;
     children: Category[];
 }
 
@@ -50,6 +46,6 @@ export interface SessionBasicInfo {
 export interface Session extends SessionBasicInfo {
     groups: Group[];
     sources: Source[];
-    categories: MainCategory[];
+    categories: Category[];
     users: User[];
 }

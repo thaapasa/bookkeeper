@@ -32,3 +32,7 @@ export async function asyncIdentity<T>(x: T): Promise<T> {
 export interface Map<T> {
     [key: string]: T;
 }
+
+export interface NumberMap<T> {
+    [key: number]: T;
+}

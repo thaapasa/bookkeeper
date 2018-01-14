@@ -54,7 +54,7 @@ class BookkeeperDB implements DbAccess {
         return o.map(camelCaseObject);
     }
 
-    public async transaction<T>(f: (db: DbAccess) => Promise<T>, readOnly?: boolean): Promise<T> {
+    public async transaction<T>(f: (db: DbAccess) => Promise<T>, readOnly: boolean = false): Promise<T> {
         const mode = readOnly ? 'READ ONLY' : 'READ WRITE';
         this.counter += 1;
         const txId = this.counter;

@@ -1,11 +1,14 @@
-import { db } from './db';
+import { db, DbAccess } from './db';
 import Money from '../../shared/util/money';
-import { undefinedToError, NotFoundError } from '../../shared/types/errors';
+import { NotFoundError } from '../../shared/types/errors';
+import { Category } from '../../shared/types/session';
+import { NumberMap } from '../../shared/util/util';
+import { isArray } from 'util';
 const debug = require('debug')('bookkeeper:categories');
 
-function createCategoryObject(categories) {
-    const res: any[] = [];
-    const subs = {};
+function createCategoryObject(categories: Category[]): Category[] {
+    const res: Category[] = [];
+    const subs: NumberMap<Category> = {};
     debug(categories);
     categories.forEach(c => {
         if (c.parentId === null) {
@@ -21,7 +24,7 @@ function createCategoryObject(categories) {
 
 function sumChildTotalsToParent(categoryTable) {
     categoryTable.forEach(c => {
-        debug("summing childs of ", c.id);
+        debug('Summing childs of', c.id);
         if (c.parentId === null) {
             let expenseSum = Money.from(c.expenses);
             let incomeSum = Money.from(c.income);
@@ -36,45 +39,53 @@ function sumChildTotalsToParent(categoryTable) {
     return categoryTable;
 }
 
-function getAll(tx) {
-    return (groupId) => tx.queryList("categories.get_all", "SELECT id, parent_id, name FROM categories WHERE group_id=$1::INTEGER " +
-        "ORDER BY (CASE WHEN parent_id IS NULL THEN 1 ELSE 0 END) DESC, parent_id ASC, name", [ groupId ])
-        .then(createCategoryObject);
+function getAll(tx: DbAccess) {
+    return async (groupId: number): Promise<Category[]> => {
+        const cats = await tx.queryList('categories.get_all', 'SELECT id, parent_id, name FROM categories WHERE group_id=$1::INTEGER ' +
+            'ORDER BY (CASE WHEN parent_id IS NULL THEN 1 ELSE 0 END) DESC, parent_id ASC, name', [ groupId ]);
+        return createCategoryObject(cats as Category[]);
+    }
 }
 
-function getTotals(tx) {
-    return (groupId, params) => {
-        return tx.queryList("categories.get_totals", "SELECT categories.id, categories.parent_id, " +
-                "SUM(CASE WHEN type='expense' AND template=false AND date >= $2::DATE AND date < $3::DATE THEN sum::NUMERIC ELSE 0::NUMERIC END) AS expenses, " +
-                "SUM(CASE WHEN type='income' AND template=false AND date >= $2::DATE AND date < $3::DATE THEN sum::NUMERIC ELSE 0::NUMERIC END) AS income FROM categories " +
-            "LEFT JOIN expenses ON categories.id=category_id WHERE expenses.id IS NULL OR expenses.group_id=$1::INTEGER " +
-            "GROUP BY categories.id, categories.parent_id " +
-            "ORDER BY (CASE WHEN parent_id IS NULL THEN 1 ELSE 0 END) DESC, parent_id ASC, name",
-            [ groupId, params.startDate, params.endDate ])
-        .then(createCategoryObject)
-        .then(sumChildTotalsToParent);
+function getTotals(tx: DbAccess) {
+    return async (groupId: number, params: { startDate: Date, endDate: Date }) => {
+        const cats = await tx.queryList('categories.get_totals', 'SELECT categories.id, categories.parent_id, ' +
+            "SUM(CASE WHEN type='expense' AND template=false AND date >= $2::DATE AND date < $3::DATE THEN sum::NUMERIC ELSE 0::NUMERIC END) AS expenses, " +
+            "SUM(CASE WHEN type='income' AND template=false AND date >= $2::DATE AND date < $3::DATE THEN sum::NUMERIC ELSE 0::NUMERIC END) AS income FROM categories " +
+            'LEFT JOIN expenses ON categories.id=category_id WHERE expenses.id IS NULL OR expenses.group_id=$1::INTEGER ' +
+            'GROUP BY categories.id, categories.parent_id ' +
+            'ORDER BY (CASE WHEN parent_id IS NULL THEN 1 ELSE 0 END) DESC, parent_id ASC, name',
+            [ groupId, params.startDate, params.endDate ]);
+        const categories = createCategoryObject(cats as Category[]);
+        return sumChildTotalsToParent(categories);
      }
 }
 
-function create(tx) {
-    return (groupId, data) => tx.insert("categories.create", "INSERT INTO categories (group_id, parent_id, name) "+
+function create(tx: DbAccess) {
+    return (groupId: number, data: { parentId?: number, name: string }) => 
+        tx.insert("categories.create", "INSERT INTO categories (group_id, parent_id, name) "+
         "VALUES ($1::INTEGER, $2::INTEGER, $3) RETURNING id", [ groupId, data.parentId || null, data.name ]);
 }
 
-function getById(tx) {
-    return (groupId, id) => tx.queryObject('categories.get_by_id',
-        'SELECT id, parent_id, name FROM categories WHERE id=$1::INTEGER AND group_id=$2::INTEGER ',
-        [ id, groupId ])
-        .then(undefinedToError(NotFoundError, 'CATEGORY_NOT_FOUND', 'category'));
+function getById(tx: DbAccess) {
+    return async (groupId: number, id: number) => {
+        const cat = await tx.queryObject('categories.get_by_id',
+            'SELECT id, parent_id, name FROM categories WHERE id=$1::INTEGER AND group_id=$2::INTEGER ',
+            [ id, groupId ]);
+        if (!cat) { throw new NotFoundError('CATEGORY_NOT_FOUND', 'category'); }
+        return cat;
+    }
 }
 
-function update(groupId, categoryId, data) {
-    return db.transaction(tx => getById(tx)(groupId, categoryId)
-            .then(undefinedToError(NotFoundError, "CATEGORY_NOT_FOUND", "category"))
-            .then(x => tx.update("categories.update",
-                "UPDATE categories SET parent_id=$1::INTEGER, name=$2 WHERE id=$3::INTEGER AND group_id=$4::INTEGER",
-                [data.parentId || null, data.name, categoryId, groupId]))
-            .then(x => ({ id: categoryId, parentId: data.parentId || null, name: data.name })), false);
+function update(groupId: number, categoryId: number, data: Category) {
+    return db.transaction(async (tx): Promise<Category> => {
+        const original = await getById(tx)(groupId, categoryId);
+        if (!original) { throw new NotFoundError('CATEGORY_NOT_FOUND', 'category'); }
+        await tx.update('categories.update',
+            'UPDATE categories SET parent_id=$1::INTEGER, name=$2 WHERE id=$3::INTEGER AND group_id=$4::INTEGER',
+            [data.parentId || null, data.name, categoryId, groupId]);
+        return { id: categoryId, parentId: data.parentId || null, name: data.name, children: [] };
+    }, false);
 }
 
 export default {
