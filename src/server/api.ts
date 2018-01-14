@@ -2,14 +2,17 @@ import users from './data/users';
 import * as moment from 'moment';
 import sessions from './data/sessions';
 import expenses from './data/expenses';
-import categories from './data/categories';
+import categories, { CategoryInput, CategoryQueryInput } from './data/categories';
 import sources from './data/sources';
 import { config } from './config';
 import * as server from './util/server-util';
-import { Validator as V } from './util/validator';
+import { Validator as V, Schema } from './util/validator';
 import { asyncIdentity } from '../shared/util/util';
+const debug = require('debug')('bookkeeper:api');
 
 export function registerAPI(app) {
+
+    debug('Registering API');
 
     // GET /api/status
     app.get('/api/status', server.processUnauthorizedRequest(req => Promise.resolve({
@@ -58,13 +61,20 @@ export function registerAPI(app) {
         categories.getAll(session.group.id), true));
 
     // PUT /api/category
-    const categorySchema = {
+    const categorySchema: Schema = {
         name: V.stringWithLength(1, 255),
         parentId: V.nonNegativeInt
     };
-    app.put("/api/category", server.processRequest((session, req) =>
-        categories.create(session.group.id, V.validate(categorySchema, req.body))
-            .then(id => ({ status: "OK", message: "Category created", categoryId: id }), true)));
+    app.put("/api/category", server.processRequest(async (session, req) => {
+        const id = await categories.create(session.group.id, V.validate<CategoryInput>(categorySchema, req.body));
+        return { status: "OK", message: "Category created", categoryId: id }
+    }, true));
+
+    // GET /api/category/totals
+    app.get('/api/category/totals', server.processRequest((session, req) => {
+        const params = V.validate<CategoryQueryInput>(dateSchema, req.query);
+        return categories.getTotals(session.group.id, params);
+    }, true));
 
     // POST /api/category/categoryId
     app.post('/api/category/:id', server.processRequest((session, req) =>
@@ -78,11 +88,6 @@ export function registerAPI(app) {
         startDate: V.date,
         endDate: V.date
     };
-    // GET /api/category/totals
-    app.get('/api/category/totals', server.processRequest((session, req) => {
-        const params = V.validate(dateSchema, req.query);
-        return categories.getTotals(session.group.id, params);
-    }, true));
 
     // GET /api/source/list
     app.get('/api/source/list', server.processRequest(session =>
@@ -102,7 +107,7 @@ export function registerAPI(app) {
         month: V.intBetween(1, 12)
     };
     app.get('/api/expense/month', server.processRequest((session, req) => {
-        const params = V.validate(monthSchema, { year: req.query.year, month: req.query.month });
+        const params = V.validate<{ year: number, month: number }>(monthSchema, { year: req.query.year, month: req.query.month });
         return expenses.getByMonth(session.group.id, session.user.id, params.year, params.month);
     }, true));
 
@@ -149,7 +154,7 @@ export function registerAPI(app) {
 
     // GET /api/expense/receivers?receiver=[query]
     app.get('/api/expense/receivers', server.processRequest((session, req) =>
-        expenses.queryReceivers(session.group.id, V.validate({ receiver: V.stringWithLength(3, 50) }, req.query).receiver)
+        expenses.queryReceivers(session.group.id, V.validate<{ receiver: string }>({ receiver: V.stringWithLength(3, 50) }, req.query).receiver)
             .then(l => l.map(r => r.receiver)), true));
 
 

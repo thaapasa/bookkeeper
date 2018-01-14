@@ -14,7 +14,7 @@ export function emptyToError(errorType, p1?, p2?, p3?) {
     }
 };
 
-class Error {
+export class Error {
     public code: string;
     public cause: any;
     public status: number;

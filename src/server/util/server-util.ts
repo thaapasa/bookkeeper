@@ -41,7 +41,7 @@ export function processUnauthorizedRequest(handler: (req: Request, res: Response
     };
 }
 
-export function processRequest(handler: (session: SessionBasicInfo, req: Request, res: Response) => Promise<any>, groupRequired?: boolean) {
+export function processRequest<T>(handler: (session: SessionBasicInfo, req: Request, res: Response) => Promise<T>, groupRequired?: boolean) {
     return async (req: Request, res: Response) => {
         debug(req.method, req.url);
         try {

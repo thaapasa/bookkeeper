@@ -47,8 +47,13 @@ function getAll(tx: DbAccess) {
     }
 }
 
+export interface CategoryQueryInput {
+    readonly startDate: string;
+    readonly endDate: string;
+};
+
 function getTotals(tx: DbAccess) {
-    return async (groupId: number, params: { startDate: Date, endDate: Date }) => {
+    return async (groupId: number, params: CategoryQueryInput) => {
         const cats = await tx.queryList('categories.get_totals', 'SELECT categories.id, categories.parent_id, ' +
             "SUM(CASE WHEN type='expense' AND template=false AND date >= $2::DATE AND date < $3::DATE THEN sum::NUMERIC ELSE 0::NUMERIC END) AS expenses, " +
             "SUM(CASE WHEN type='income' AND template=false AND date >= $2::DATE AND date < $3::DATE THEN sum::NUMERIC ELSE 0::NUMERIC END) AS income FROM categories " +
@@ -61,8 +66,13 @@ function getTotals(tx: DbAccess) {
      }
 }
 
+export interface CategoryInput {
+    readonly parentId?: number;
+    readonly name: string;
+}
+
 function create(tx: DbAccess) {
-    return (groupId: number, data: { parentId?: number, name: string }) => 
+    return (groupId: number, data: CategoryInput): Promise<number> => 
         tx.insert("categories.create", "INSERT INTO categories (group_id, parent_id, name) "+
         "VALUES ($1::INTEGER, $2::INTEGER, $3) RETURNING id", [ groupId, data.parentId || null, data.name ]);
 }
