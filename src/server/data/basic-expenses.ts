@@ -6,9 +6,9 @@ import Money from '../../shared/util/money';
 import categories from './categories';
 import users from './users';
 import sources from './sources';
-import * as errors from '../util/errors';
 import * as splitter from '../../shared/util/splitter';
 import expenseDivision from './expense-division';
+import { NotFoundError } from '../../shared/types/errors';
 const debug = require('debug')('bookkeeper:api:expenses');
 
 function expenseSelect(where) {
@@ -54,7 +54,7 @@ function getAll(tx) {
 }
 
 function mapExpense(e) {
-    if (e === undefined) throw new errors.NotFoundError('EXPENSE_NOT_FOUND', 'expense');
+    if (e === undefined) throw new NotFoundError('EXPENSE_NOT_FOUND', 'expense');
     e.date = moment(e.date).format('YYYY-MM-DD');
     e.userBalance = Money.from(e.userValue).negate().toString();
     return e;

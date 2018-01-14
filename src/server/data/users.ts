@@ -1,7 +1,7 @@
 import { db, DbAccess } from './db';
 import { User, Group } from '../../shared/types/session';
-import { NotFoundError, AuthenticationError } from '../util/errors';
 import { Map } from '../../shared/util/util';
+import { NotFoundError, AuthenticationError } from '../../shared/types/errors';
 
 export type RawUserData = Map<any>;
 
@@ -39,14 +39,14 @@ function getGroups(tx: DbAccess) {
 
 function getByCredentials(tx: DbAccess) {
     return async (username: string, password: string, groupId: number): Promise<User> => {
-        const users = await tx.queryObject('users.get_by_credentials',
+        const user = await tx.queryObject('users.get_by_credentials',
             'SELECT u.id, username, email, first_name, last_name, default_group_id, image, g.id as group_id, g.name as group_name, go.default_source_id FROM users u ' +
             'LEFT JOIN group_users go ON (go.user_id = u.id AND go.group_id = COALESCE($3, u.default_group_id)) ' +
             'LEFT JOIN groups g ON (g.id = go.group_id) ' +
             "WHERE username=$1 AND password=ENCODE(DIGEST($2, 'sha1'), 'hex')",
             [ username, password, groupId ]);
-        if (users === undefined) { throw new AuthenticationError('INVALID_CREDENTIALS', 'Invalid username or password'); }
-        return users.map(mapUser);
+        if (user === undefined) { throw new AuthenticationError('INVALID_CREDENTIALS', 'Invalid username or password'); }
+        return mapUser(user);
     };
 }
 

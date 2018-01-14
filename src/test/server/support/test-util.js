@@ -2,7 +2,7 @@
 
 const chai = require("chai");
 const expect = chai.expect;
-const errors = require("../../../server/util/errors");
+const errors = require("../../../shared/types/errors");
 const log = require("../../../shared/util/log");
 
 module.exports = {};

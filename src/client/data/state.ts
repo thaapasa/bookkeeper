@@ -90,17 +90,17 @@ export function getTitle() {
 }
 
 export function notify(msg) {
-    state.notificationStream.push(msg);
+    if (state.notificationStream) state.notificationStream.push(msg);
     return true;
 }
 
 export function notifyError(msg, cause) {
-    state.notificationStream.push(msg + ": " + cause);
+    if (state.notificationStream) state.notificationStream.push(msg + ": " + cause);
     return false;
 }
 
 export function editExpense(e) {
-    state.expenseDialogStream.push(e);
+    if (state.expenseDialogStream) state.expenseDialogStream.push(e);
 }
 
 /* Returns a promise that will be resolved to either true of false depending on user input */
@@ -112,7 +112,7 @@ export function confirm(title, content, options) {
 
     let resolve: (() => void) | null = null, reject: (() => void) | null = null;
     const p = new Promise((res, rej) => { resolve = res; reject = rej; });
-    state.confirmationDialogStream.push({
+    if (state.confirmationDialogStream) state.confirmationDialogStream.push({
         title: title,
         content: content,
         actions: actions,
@@ -123,7 +123,7 @@ export function confirm(title, content, options) {
 }
 
 export function updateExpenses(date) {
-    state.expensesUpdatedStream.push(date);
+    if (state.expensesUpdatedStream) state.expensesUpdatedStream.push(date);
     return true;
 }
 
@@ -131,7 +131,7 @@ export function updateExpenses(date) {
 export function pickDate(currentValue): Promise<Date> {
     let resolve: ((Date) => void) | null = null, reject: (() => void) | null = null;
     const p = new Promise((res: (Date) => void, rej) => { resolve = res; reject = rej; });
-    state.pickDateStream.push({
+    if (state.pickDateStream) state.pickDateStream.push({
         date: currentValue,
         resolve: resolve,
         reject: reject

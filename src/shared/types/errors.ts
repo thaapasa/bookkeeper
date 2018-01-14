@@ -1,4 +1,4 @@
-import * as util from '../../shared/util/util';
+import { ucFirst } from "../util/util";
 
 export function undefinedToError(errorType, p1?, p2?, p3?) {
     return value => {
@@ -29,12 +29,24 @@ class Error {
 
 export class NotFoundError extends Error {
     constructor(code: string, name: string) {
-        super(code, `${util.ucFirst(name)} not found`, 404);
+        super(code, `${ucFirst(name)} not found`, 404);
     }
 }
 
 export class AuthenticationError extends Error {
     constructor(code: string, cause: any, data?: any) {
         super(code, cause, 401, data);
+    }
+}
+
+export class TokenNotPresentError extends Error {
+    constructor() {
+        super('TOKEN_MISSING', 'Authorization token missing', 401);
+    }
+}
+
+export class InvalidGroupError extends Error {
+    constructor() {
+        super('INVALID_GROUP', 'Group not selected or invalid group', 400);
     }
 }

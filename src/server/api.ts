@@ -7,6 +7,7 @@ import sources from './data/sources';
 import { config } from './config';
 import * as server from './util/server-util';
 import { Validator as V } from './util/validator';
+import { asyncIdentity } from '../shared/util/util';
 
 export function registerAPI(app) {
 
@@ -30,7 +31,7 @@ export function registerAPI(app) {
 
     // GET /api/session
     app.get('/api/session', server.processRequest(sessions.appendInfo));
-    app.get('/api/session/bare', server.processRequest(x => x));
+    app.get('/api/session/bare', server.processRequest(asyncIdentity));
 
     // DELETE /api/session
     app.delete('/api/session', server.processRequest(session =>

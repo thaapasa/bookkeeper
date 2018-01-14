@@ -1,8 +1,7 @@
 import { db, DbAccess } from './db';
-import * as errors from '../util/errors';
 import { Source } from '../../shared/types/session';
 import { Map } from '../../shared/util/util';
-import { NotFoundError } from '../util/errors';
+import { NotFoundError } from '../../shared/types/errors';
 
 function getImage(img: string | undefined): string | undefined {
     return img ? `img/sources/${img}` : undefined;

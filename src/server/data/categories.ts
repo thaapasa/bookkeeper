@@ -1,6 +1,6 @@
 import { db } from './db';
-import * as errors from '../util/errors';
 import Money from '../../shared/util/money';
+import { undefinedToError, NotFoundError } from '../../shared/types/errors';
 const debug = require('debug')('bookkeeper:categories');
 
 function createCategoryObject(categories) {
@@ -65,12 +65,12 @@ function getById(tx) {
     return (groupId, id) => tx.queryObject('categories.get_by_id',
         'SELECT id, parent_id, name FROM categories WHERE id=$1::INTEGER AND group_id=$2::INTEGER ',
         [ id, groupId ])
-        .then(errors.undefinedToError(errors.NotFoundError, 'CATEGORY_NOT_FOUND', 'category'));
+        .then(undefinedToError(NotFoundError, 'CATEGORY_NOT_FOUND', 'category'));
 }
 
 function update(groupId, categoryId, data) {
     return db.transaction(tx => getById(tx)(groupId, categoryId)
-            .then(errors.undefinedToError(errors.NotFoundError, "CATEGORY_NOT_FOUND", "category"))
+            .then(undefinedToError(NotFoundError, "CATEGORY_NOT_FOUND", "category"))
             .then(x => tx.update("categories.update",
                 "UPDATE categories SET parent_id=$1::INTEGER, name=$2 WHERE id=$3::INTEGER AND group_id=$4::INTEGER",
                 [data.parentId || null, data.name, categoryId, groupId]))

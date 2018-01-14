@@ -21,6 +21,14 @@ export function getRandomInt(min: number, max: number): number {
     return Math.floor(Math.random() * (max - min)) + min;
 }
 
+export function identity<T>(x: T): T {
+    return x;
+}
+
+export async function asyncIdentity<T>(x: T): Promise<T> {
+    return x;
+}
+
 export interface Map<T> {
     [key: string]: T;
 }

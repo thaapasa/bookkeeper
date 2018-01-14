@@ -35,7 +35,7 @@ function getByMonth(groupId, userId, year, month) {
             basic.tx.countTotalBetween(tx)(groupId, userId, startDate, endDate),
             basic.tx.hasUnconfirmedBefore(tx)(groupId, startDate)
         ])))
-        .then(a => ({ expenses: a[0], startStatus: calculateBalance(a[1]), monthStatus: calculateBalance(a[2]), unconfirmedBefore: a[3] }))
+        .then(a => ({ expenses: a[0], startStatus: calculateBalance(a[1]), monthStatus: calculateBalance(a[2]), unconfirmedBefore: a[3], endStatus: {} }))
         .then(a => {
             a.endStatus = arrays.toObject(["benefit", "cost", "income", "split", "value", "balance"].map(key =>
                 [key, Money.from(a.startStatus[key]).plus(a.monthStatus[key]).toString()]));
