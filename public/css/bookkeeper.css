@@ -80,30 +80,21 @@ html, body {
 
 .expense-table-monthly-status {
     height: 110px !important;
-    /*background-color: lightgreen;*/
     bottom: 0;
     display: flex;
     justify-content: flex-end;
-    font-size: 13px;
+    font-size: 14px;
+    border-top: 1px solid rgb(224, 224, 224);
 }
-.expense-table-monthly-status .monthly-income-statement {
-    /*height: 100px;*/
+.expense-table-monthly-status .monthly-calculation {
     width: 200px;
     padding: 10px;
-    /*display: inline-block;*/
-    /*background-color: lightcoral;*/
-}
-.expense-table-monthly-status .monthly-balance {
-    /*height: 100px;*/
-    width: 200px;
-    padding: 10px;
-    /*display: inline-block;*/
-    /*background-color: lightskyblue;*/
 }
 .expense-table-monthly-status .header {
     color: rgb(117, 117, 117);
     font-weight: 600;
     margin-bottom: 5px;
+    font-size: 14px;
 }
 
 .calculation-row {

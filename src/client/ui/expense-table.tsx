@@ -17,12 +17,14 @@ interface StatusProps {
     monthStatus: { balance: number };
     endStatus: { balance: number };
     totals: {totalExpense: any, totalIncome: any} | null;
+    showFiltered: boolean;
+    filteredTotals: {totalExpense: any, totalIncome: any} | null;
 }
 
 class MonthlyStatus extends React.Component<StatusProps, {}> {
 
     private getCalculationRow(title: string, sum: number, drawTopBorder: boolean) {
-        const rowStyle = { borderTop: (drawTopBorder ? '1px solid' : 'none') }
+        const rowStyle = { borderTop: (drawTopBorder ? '1px solid rgb(224, 224, 224)' : 'none') }
 
         return <div className="calculation-row" style={rowStyle}>
                 <div className="calculation-title">{title}</div>
@@ -42,15 +44,23 @@ class MonthlyStatus extends React.Component<StatusProps, {}> {
     public render() {
         const income = this.props.totals ? this.props.totals.totalIncome : 0;
         const expense = this.props.totals ? this.props.totals.totalExpense : 0;
-
+        const filteredIncome = this.props.filteredTotals ? this.props.filteredTotals.totalIncome : 0;
+        const filteredExpense = this.props.filteredTotals ? this.props.filteredTotals.totalExpense : 0;
+        const filteredStyle = { display: (!this.props.showFiltered ? 'none' : '')}
         return <div className="expense-table-monthly-status fixed-horizontal">
-                <div className="monthly-income-statement">
+                <div className="monthly-calculation filtered" style={filteredStyle}>
+                    <div className="header">Suodatetut</div>
+                    {this.getCalculationRow('Tulot', filteredIncome, false)}
+                    {this.getCalculationRow('Menot', filteredExpense, false)}
+                    {this.getCalculationRow('', filteredIncome - filteredExpense, true)}
+                </div>
+                <div className="monthly-calculation">
                     <div className="header">Tuloslaskelma</div>
                     {this.getCalculationRow('Tulot', income, false)}
                     {this.getCalculationRow('Menot', expense, false)}
                     {this.getCalculationRow('', income - expense, true)}
                 </div>
-                <div className="monthly-balance">
+                <div className="monthly-calculation">
                     <div className="header">Saatavat/velat</div>
                     {this.getCalculationRow('Ennen', this.props.startStatus.balance, false)}
                     {this.getCalculationRow('Muutos', this.props.monthStatus.balance, false)}
@@ -165,7 +175,9 @@ export default class ExpenseTable extends React.Component<ExpenseTableProps, Exp
                     startStatus={this.props.startStatus} 
                     monthStatus={this.props.monthStatus}
                     endStatus={this.props.endStatus}
-                    totals={this.calculateTotals(this.props.expenses)}    
+                    totals={this.calculateTotals(this.props.expenses)}
+                    showFiltered={(this.state.filters.length > 0)}
+                    filteredTotals={this.calculateTotals(this.getFilteredExpenses())}    
                 />
         </div>
     }
