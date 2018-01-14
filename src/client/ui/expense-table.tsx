@@ -46,18 +46,18 @@ class MonthlyStatus extends React.Component<StatusProps, {}> {
         const expense = this.props.totals ? this.props.totals.totalExpense : 0;
         const filteredIncome = this.props.filteredTotals ? this.props.filteredTotals.totalIncome : 0;
         const filteredExpense = this.props.filteredTotals ? this.props.filteredTotals.totalExpense : 0;
-        const filteredStyle = { display: (!this.props.showFiltered ? 'none' : '')}
+        const filteredStyle = { display: (!this.props.showFiltered ? 'none' : ''), backgroundColor: 'rgb(224, 224, 224)'}
         return <div className="expense-table-monthly-status fixed-horizontal">
                 <div className="monthly-calculation filtered" style={filteredStyle}>
                     <div className="header">Suodatetut</div>
                     {this.getCalculationRow('Tulot', filteredIncome, false)}
-                    {this.getCalculationRow('Menot', filteredExpense, false)}
+                    {this.getCalculationRow('Menot', -Math.abs(filteredExpense), false)}
                     {this.getCalculationRow('', filteredIncome - filteredExpense, true)}
                 </div>
                 <div className="monthly-calculation">
                     <div className="header">Tuloslaskelma</div>
                     {this.getCalculationRow('Tulot', income, false)}
-                    {this.getCalculationRow('Menot', expense, false)}
+                    {this.getCalculationRow('Menot', -Math.abs(expense), false)}
                     {this.getCalculationRow('', income - expense, true)}
                 </div>
                 <div className="monthly-calculation">
@@ -167,7 +167,7 @@ export default class ExpenseTable extends React.Component<ExpenseTableProps, Exp
                                 </Chip>)
                             }</div>
                         </div> ]
-                        : []).concat(filtered.map(this.renderExpense)).concat(this.getTotalRow(filtered))
+                        : []).concat(filtered.map(this.renderExpense))/*.concat(this.getTotalRow(filtered))*/
                 }
             </div>
                 <MonthlyStatus 
