@@ -14,7 +14,7 @@
     "build-all": "npm run update-revision && npm run build-server && npm run build-client",
     "start-server-prod": "DEBUG=bookkeeper* NODE_ENV=production node build-server/server/bookkeeper-server.js",
     "eject-client": "react-scripts-ts eject",
-    "update-revision": "script/update-revision.sh",
+    "update-revision": "sh script/update-revision.sh",
     "clean": "rm -rf build/ dist/",
     "ps-server": "ps -ef | grep ./src/server/bookkeeper-server.ts | grep -v grep | awk '{ print $2; }'",
     "kill-server": "ps -ef | grep ./src/server/bookkeeper-server.ts | grep -v grep | awk '{ print $2; }' | xargs kill"
