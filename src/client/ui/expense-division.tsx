@@ -9,7 +9,7 @@ import {Repeat} from "./icons";
 import * as apiConnect from "../data/api-connect";
 import RefreshIndicator from 'material-ui/RefreshIndicator';
 import PropTypes from "prop-types";
-const Money = require("../../shared/util/money");
+import Money from '../../shared/util/money';
 
 const styles = {
     tool: {

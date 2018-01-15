@@ -73,7 +73,7 @@ export default class ActivatableTextField extends React.Component<ActivatableTex
             onChange: i => this.setState({ value: i.target ? i.target.value : i }),
             // onBlur: i => this.commit(this.state.value),
             onKeyUp: event => this.handleKeyPress(event, this.state.value),
-            ref: r => this.editorRef = r
+            ref: r => this.editorRef = r,
         });
     }
 

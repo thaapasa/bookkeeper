@@ -3,10 +3,20 @@ import TextField from 'material-ui/TextField';
 import AutoComplete from 'material-ui/AutoComplete';
 import { AutoCompleteProps, TextFieldProps } from 'material-ui';
 
-export function PlainTextField(props: TextFieldProps) {
-    return <TextField {...props}
-        style={{ ...props.style, margin: 0, padding: 0 }}
-        inputStyle={{ ...props.inputStyle, margin: 0, padding: 0, fontSize: '11pt' }} />;
+export class PlainTextField extends React.Component<TextFieldProps, {}> {
+    private ref;
+    private setRef = (r) => this.ref = r;
+    public focus() {
+        if (this.ref) { this.ref.focus(); }
+    }
+    public render() {
+        return (
+            <TextField {...this.props}
+                ref={this.setRef}
+                style={{ ...this.props.style, margin: 0, padding: 0 }}
+                inputStyle={{ ...this.props.inputStyle, margin: 0, padding: 0, fontSize: '11pt' }} />
+        );
+    }
 }
 
 export function PlainAutoComplete<T>(props: AutoCompleteProps<T>) {
