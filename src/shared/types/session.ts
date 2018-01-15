@@ -1,6 +1,4 @@
-export interface DbObject {
-    id: number;
-};
+import { DbObject } from "./common";
 
 export interface Group extends DbObject {
     name: string;
