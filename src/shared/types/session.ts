@@ -26,6 +26,14 @@ export interface Category extends DbObject {
     children: Category[];
 }
 
+export interface CategoryAndTotals extends Category {
+    expenses: any;
+    income: any;
+    totalExpenses: any;
+    totalIncome: any;
+    children: CategoryAndTotals[];
+}
+
 export interface User extends DbObject {
     username: string;
     email: string;

@@ -32,7 +32,7 @@ function createSessionInfo([ token, refreshToken ]: string[], userData: RawUserD
     };
 }
 
-function login(username, password, groupId): Promise<SessionBasicInfo> {
+function login(username: string, password: string, groupId: number): Promise<SessionBasicInfo> {
     debug('Login for', username);
     return db.transaction(async tx => {
         const user = await users.tx.getByCredentials(tx)(username, password, groupId);
@@ -41,7 +41,7 @@ function login(username, password, groupId): Promise<SessionBasicInfo> {
     });
 }
 
-function refresh(refreshToken, groupId): Promise<SessionBasicInfo> {
+function refresh(refreshToken: string, groupId: number): Promise<SessionBasicInfo> {
     debug('Refreshing session with', refreshToken);
     return db.transaction(async tx => {
         const sessionInfo = await getUserInfoByRefreshToken(tx)(refreshToken, groupId);
@@ -50,7 +50,7 @@ function refresh(refreshToken, groupId): Promise<SessionBasicInfo> {
     });
 }
 
-function logout(tx) {
+function logout(tx: DbAccess) {
     return async (session): Promise<ApiMessage> => {
         debug('Logout for', session.token);
         if (!session.token) {

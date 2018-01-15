@@ -1,13 +1,13 @@
 import { db, DbAccess } from './db';
 import Money from '../../shared/util/money';
 import { NotFoundError } from '../../shared/types/errors';
-import { Category } from '../../shared/types/session';
+import { Category, CategoryAndTotals } from '../../shared/types/session';
 import { NumberMap } from '../../shared/util/util';
 import { isArray } from 'util';
 const debug = require('debug')('bookkeeper:categories');
 
-function createCategoryObject(categories: Category[]): Category[] {
-    const res: Category[] = [];
+function createCategoryObject<T extends Category>(categories: T[]): T[] {
+    const res: T[] = [];
     const subs: NumberMap<Category> = {};
     debug(categories);
     categories.forEach(c => {
@@ -22,7 +22,7 @@ function createCategoryObject(categories: Category[]): Category[] {
     return res;
 }
 
-function sumChildTotalsToParent(categoryTable) {
+function sumChildTotalsToParent(categoryTable: CategoryAndTotals[]) {
     categoryTable.forEach(c => {
         debug('Summing childs of', c.id);
         if (c.parentId === null) {
@@ -61,7 +61,7 @@ function getTotals(tx: DbAccess) {
             'GROUP BY categories.id, categories.parent_id ' +
             'ORDER BY (CASE WHEN parent_id IS NULL THEN 1 ELSE 0 END) DESC, parent_id ASC, name',
             [ groupId, params.startDate, params.endDate ]);
-        const categories = createCategoryObject(cats as Category[]);
+        const categories = createCategoryObject(cats as CategoryAndTotals[]);
         return sumChildTotalsToParent(categories);
      }
 }

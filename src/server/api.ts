@@ -8,9 +8,10 @@ import { config } from './config';
 import * as server from './util/server-util';
 import { Validator as V, Schema } from './util/validator';
 import { asyncIdentity } from '../shared/util/util';
+import { Express } from 'express';
 const debug = require('debug')('bookkeeper:api');
 
-export function registerAPI(app) {
+export function registerAPI(app: Express) {
 
     debug('Registering API');
 
@@ -84,7 +85,7 @@ export function registerAPI(app) {
     app.get('/api/category/:id', server.processRequest((session, req) =>
         categories.getById(session.group.id, parseInt(req.params.id, 10)), true));
 
-    const dateSchema = {
+    const dateSchema: Schema = {
         startDate: V.date,
         endDate: V.date
     };
@@ -111,7 +112,7 @@ export function registerAPI(app) {
         return expenses.getByMonth(session.group.id, session.user.id, params.year, params.month);
     }, true));
 
-    const searchSchema = {
+    const searchSchema: Schema = {
         startDate: V.date,
         endDate: V.date,
         categoryId: V.optional(V.positiveInt)
@@ -122,7 +123,7 @@ export function registerAPI(app) {
     }, true));
 
     // PUT /api/expense
-    const expenseSchema = {
+    const expenseSchema: Schema = {
         userId: V.positiveInt,
         date: V.date,
         receiver: V.stringWithLength(1, 50),
@@ -158,7 +159,7 @@ export function registerAPI(app) {
             .then(l => l.map(r => r.receiver)), true));
 
 
-    const recurringExpenseSchema = {
+    const recurringExpenseSchema: Schema = {
         period: V.either('monthly', 'yearly'),
         occursUntil: V.optional(V.date)
     };
