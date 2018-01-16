@@ -7,8 +7,6 @@ import Money from '../../shared/util/money';
 import categories from './categories';
 import users from './users';
 import sources from './sources';
-import * as splitter from '../../shared/util/splitter';
-import expenseDivision from './expense-division';
 import expenses from './basic-expenses';
 const debug = require('debug')('bookkeeper:api:recurring-expenses');
 
@@ -25,7 +23,7 @@ function nextRecurrence(fromDate, period): moment.Moment {
 
 function createRecurring(groupId, userId, expenseId, recurrence) {
     let nextMissing: moment.Moment | null = null;
-    let templateId = null;
+    let templateId: number | null = null;
     let recurrenceId: number | null = null;
     return db.transaction(tx => expenses.tx.copyExpense(tx)(groupId, userId, expenseId, e => {
         if (e[0].recurringExpenseId > 0)

@@ -7,9 +7,10 @@ import categories from './categories';
 import users from './users';
 import sources from './sources';
 import * as splitter from '../../shared/util/splitter';
-import expenseDivision from './expense-division';
+import { determineDivision } from './expense-division';
 import { NotFoundError } from '../../shared/types/errors';
 import { Expense, UserExpense, ExpenseDivisionType, ExpenseDivisionItem } from '../../shared/types/expense';
+import { Moment } from 'moment';
 const debug = require('debug')('bookkeeper:api:expenses');
 
 function expenseSelect(where: string): string {
@@ -62,7 +63,7 @@ function mapExpense(e: UserExpense): UserExpense {
 }
 
 function countTotalBetween(tx: DbAccess) {
-    return (groupId: number, userId: number, startDate: Date, endDate: Date) => tx.queryObject('expenses.count_total_between',
+    return (groupId: number, userId: number, startDate: string | Moment, endDate: string | Moment) => tx.queryObject('expenses.count_total_between',
         countTotalSelect,
         [userId, groupId, time.date(startDate), time.date(endDate)]);
 }
@@ -138,14 +139,14 @@ function createExpense(userId: number, groupId: number, expense: Expense, defaul
             sources.tx.getById(tx)(groupId, sourceId)
         ]);
 
-        const division = expenseDivision(expense, source);
+        const division = determineDivision(expense, source);
         const id = await insert(tx)(userId, {
             ...expense,
             userId: user.id,
             groupId,
             sourceId: source.id,
             categoryId: cat.id,
-            sum: expense.sum.toString(),
+            sum: expense.sum,
         }, division);
         return { status: 'OK', message: 'Expense created', expenseId: id };
     });
@@ -158,7 +159,7 @@ function insert(tx: DbAccess) {
             'description, confirmed, source_id, category_id, template, recurring_expense_id) ' +
             'VALUES ($1::INTEGER, $2::INTEGER, $3::INTEGER, $4::DATE, NOW(), $5::expense_type, $6, ' +
             '$7::NUMERIC::MONEY, $8, $9, $10::BOOLEAN, $11::INTEGER, $12::INTEGER, $13::BOOLEAN, $14) RETURNING id',
-            [ userId, expense.userId, expense.groupId, expense.date, expense.type, expense.receiver, expense.sum,
+            [ userId, expense.userId, expense.groupId, expense.date, expense.type, expense.receiver, expense.sum.toString(),
                 expense.title, expense.description, expense.confirmed, expense.sourceId, expense.categoryId,
                 expense.template || false, expense.recurringExpenseId || null ]);
         await createDivision(tx)(expenseId, division);
@@ -175,7 +176,7 @@ function updateExpense(tx: DbAccess) {
             categories.tx.getById(tx)(original.groupId, expense.categoryId),
             sources.tx.getById(tx)(original.groupId, sourceId)
         ]);
-        const division = expenseDivision(expense, source);
+        const division = determineDivision(expense, source);
         await deleteDivision(tx)(original.id);
         await tx.insert('expenses.update',
                 'UPDATE expenses SET date=$2::DATE, receiver=$3, sum=$4::NUMERIC::MONEY, title=$5, description=$6, ' +
@@ -209,9 +210,9 @@ function copyExpense(tx: DbAccess) {
 }
 
 function getExpenseAndDivision(tx: DbAccess) {
-    return (groupId: number, userId: number, expenseId: number) => Promise.all([
+    return (groupId: number, userId: number, expenseId: number): Promise<[Expense, ExpenseDivisionItem[]]> => Promise.all([
         getById(tx)(groupId, userId, expenseId),
-        getDivision(tx)(expenseId)
+        getDivision(tx)(expenseId),
     ]);
 }
 

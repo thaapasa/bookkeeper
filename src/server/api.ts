@@ -137,12 +137,12 @@ export function registerAPI(app: Express) {
         division: V.optional(V.listOfObjects({ userId: V.positiveInt, sum: V.money, type: V.stringWithLength(1, 10) }))
     };
     app.put('/api/expense', server.processRequest((session, req) =>
-        expenses.create(session.user.id, session.group.id, V.validate(expenseSchema, req.body), session.group.defaultSourceId), true));
+        expenses.create(session.user.id, session.group.id, V.validate(expenseSchema, req.body), session.group.defaultSourceId || 0), true));
 
     // POST /api/expense/[expenseId]
     app.post('/api/expense/:id', server.processRequest((session, req) =>
         expenses.update(session.group.id, session.user.id, parseInt(req.params.id, 10), V.validate(expenseSchema, req.body),
-            session.group.defaultSourceId), true));
+            session.group.defaultSourceId || 0), true));
 
     // GET /api/expense/[expenseId]
     app.get('/api/expense/:id', server.processRequest((session, req) =>

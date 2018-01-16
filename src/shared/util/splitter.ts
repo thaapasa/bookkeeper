@@ -1,21 +1,24 @@
 import Money from './money';
 import { indices } from './arrays';
+import { ExpenseDivisionItem, ExpenseDivision } from '../types/expense';
 const debug = require('debug')('bookkeeper:splitter');
 const assert = require('assert');
 
-export interface ShareDivision {
+export interface HasShares {
+    userId: number;
     share: number;
 }
 
-export interface ShareSum extends ShareDivision {
+export interface HasSum {
     sum: Money;
 }
 
-export function splitByShares(sum: Money, division: ShareDivision[]): ShareSum[] {
+export function splitByShares<T extends HasShares>(sum: Money, division: T[]): Array<T & HasSum> {
     const numShares = division.map(d => d.share).reduce((a, b) => a + b, 0);
     debug('Splitting', sum.format(), 'to', numShares, 'parts by', division);
     const part = sum.divide(numShares);
-    const res: ShareSum[] = division.map(d => Object.assign({ sum: part.multiply(d.share) }, d));
+    const res: Array<T & HasSum> = 
+        division.map(d => ({ sum: part.multiply(d.share), ...d as any }));
     const total = res.map(d => d.sum).reduce((a, b) => a.plus(b), Money.zero);
     const remainder = sum.minus(total);
     assert(remainder.gte(Money.zero));
@@ -36,6 +39,6 @@ export function splitByShares(sum: Money, division: ShareDivision[]): ShareSum[]
     return res;
 }
 
-export function negateDivision(d: ShareSum[]): ShareSum[] {
+export function negateDivision<T extends { sum: Money }>(d: T[]): T[] {
     return d.map(b => Object.assign({}, b, { sum: b.sum.negate() }));
 }

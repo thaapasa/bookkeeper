@@ -6,7 +6,6 @@ import UserSelector from './user-selector';
 import Checkbox from 'material-ui/Checkbox';
 import UserAvatar from './user-avatar';
 import * as arrays from '../../shared/util/arrays';
-import * as splitter from '../../shared/util/splitter';
 import Money from '../../shared/util/money';
 import * as categories from  '../data/categories';
 import * as apiConnect from '../data/api-connect';
@@ -18,6 +17,7 @@ import {expenseName} from './expense-helper';
 import {unsubscribeAll} from '../util/client-util';
 import {stopEventPropagation} from '../util/client-util';
 import * as moment from 'moment';
+import { splitByShares, negateDivision } from '../../shared/util/splitter';
 const debug = require('debug')('bookkeeper:expense-dialog');
 
 function findParentCategory(categoryId) {
@@ -86,11 +86,11 @@ function calculateCost(sum, sourceId, benefit) {
     if (arrays.sortAndCompareElements(sourceUserIds, benefitUserIds)) {
         // Create cost based on benefit calculation
         debug("Source has same users than who benefit; creating benefit based on cost");
-        return splitter.negateDivision(benefit);
+        return negateDivision(benefit);
     }
     // Calculate cost manually
     debug("Calculating cost by source users");
-    return splitter.negateDivision(splitter.splitByShares(sum, sourceUsers));
+    return negateDivision(splitByShares(sum, sourceUsers));
 }
 
 function allTrue() {
@@ -107,12 +107,12 @@ function fixItem(type) {
 
 function calculateDivision(expense, sum) {
     if (expense.type === "expense") {
-        const benefit = splitter.splitByShares(sum, expense.benefit.map(id => ({ userId: id, share: 1 })));
+        const benefit = splitByShares(sum, expense.benefit.map(id => ({ userId: id, share: 1 })));
         const cost = calculateCost(sum, expense.sourceId, benefit);
         return benefit.map(fixItem("benefit")).concat(cost.map(fixItem("cost")));
     } else {
         const income = [{ userId: expense.userId, sum: sum }];
-        const split = splitter.negateDivision(splitter.splitByShares(sum, expense.benefit.map(id => ({ userId: id, share: 1 }))));
+        const split = negateDivision(splitByShares(sum, expense.benefit.map(id => ({ userId: id, share: 1 }))));
         return income.map(fixItem("income")).concat(split.map(fixItem("split")));
     }
 }
