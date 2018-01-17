@@ -20,7 +20,7 @@ type Action = () => void;
 interface Content<T> {
     title: string;
     content: string;
-    actions: Action[];
+    actions?: Action[];
     resolve: (result: T) => void;
     okAction?: Action;
     cancelAction?: Action;
@@ -47,11 +47,11 @@ export default class ConfirmationDialog extends React.Component<{}, DialogState>
     };
 
     private handleOpen = (dialogData: Content<any>) => {
-        const newState = { open: true };
+        const content: Content<any> = noContent;
         if (dialogData) {
-            Object.keys(fields).forEach(k => newState[k] = dialogData[k] ? dialogData[k] : fields[k].default);
+            Object.keys(fields).forEach(k => content[k] = dialogData[k] || fields[k].default);
         }
-        this.setState(newState);
+        this.setState({ open: true, content });
         return true;
     }
 
@@ -79,7 +79,7 @@ export default class ConfirmationDialog extends React.Component<{}, DialogState>
     }
 
     private resolveWithIfDefined = (value) => {
-        if (this.state.content.actions.find(a => a[1] === value) !== undefined) {
+        if ((this.state.content && this.state.content.actions || []).find(a => a[1] === value) !== undefined) {
             this.resolveWith(value);
             return false;
         }
@@ -91,7 +91,7 @@ export default class ConfirmationDialog extends React.Component<{}, DialogState>
     }
 
     public render() {
-        const actions = this.state.content.actions.map((a, i) => <FlatButton
+        const actions = (this.state.content && this.state.content.actions || []).map((a, i) => <FlatButton
             label={a[0]}
             primary={i === 0}
             tabIndex={i + 2}
@@ -106,7 +106,7 @@ export default class ConfirmationDialog extends React.Component<{}, DialogState>
             open={this.state.open}
             onRequestClose={() => this.resolveWithIfDefined(false)}>
             <div onKeyUp={this.handleKeyPress}>
-                { this.state.content }
+                {this.state.content.content}
             </div>
         </Dialog>
     }

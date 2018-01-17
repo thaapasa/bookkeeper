@@ -104,9 +104,9 @@ export function editExpense(e) {
 }
 
 /* Returns a promise that will be resolved to either true of false depending on user input */
-export function confirm(title, content, options) {
+export function confirm(title: string, content: string, options: any) {
     options = options ? options : {};
-    const actions = options.actions ? options.actions : [
+    const actions = options.actions || [
         [options.okText ? options.okText : "OK", true],
             [options.cancelText ? options.cancelText : "Peruuta", false] ];
 
