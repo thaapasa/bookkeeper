@@ -1,5 +1,6 @@
 import * as util from './util';
 import { Map } from './util';
+import tab from 'material-ui/svg-icons/action/tab';
 
 // https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
 export function shuffle<T>(a: T[]): T[] {
@@ -33,4 +34,10 @@ export function toObject(ar: string[][]): Map<string> {
     const res: Map<string> = {};
     ar.forEach(a => res[a[0]] = a[1]);
     return res;
+}
+
+export function mapObject<T extends object>(a: T, f: (v: any, k: string) => any): T {
+    const b: any = {};
+    Object.keys(a).map(k => b[k] = f(a[k], k));
+    return b as T;
 }

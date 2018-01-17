@@ -1,13 +1,16 @@
-import { db } from './db';
+import { db, DbAccess } from './db';
 import * as moment from 'moment';
 import * as time from '../../shared/util/time';
 import * as arrays from '../../shared/util/arrays';
 import Money from '../../shared/util/money';
 import recurring from './recurring-expenses';
 import basic from './basic-expenses';
+import { ExpenseCollection, ExpenseStatus, Expense, UserExpense } from '../../shared/types/expense';
+import { mapObject } from '../../shared/util/arrays';
+import { Moment } from 'moment';
 const debug = require('debug')('bookkeeper:api:expenses');
 
-function calculateBalance(o) {
+function calculateBalance(o: ExpenseStatus): ExpenseStatus {
     const value = Money.from(o.cost).plus(o.benefit).plus(o.income).plus(o.split);
     return Object.assign(o, {
         value: value.toString(),
@@ -15,42 +18,60 @@ function calculateBalance(o) {
     })
 }
 
-function getBetween(tx) {
-    return (groupId, userId, startDate, endDate) => {
-        debug("Querying for expenses between", time.iso(startDate), "and", time.iso(endDate), "for group", groupId);
-        return tx.queryList("expenses.get_between",
-            basic.expenseSelect(`WHERE group_id=$2 AND template=false AND date >= $3::DATE AND date < $4::DATE`),
+function getBetween(tx: DbAccess) {
+    return (groupId: number, userId: number, startDate: Moment | string, endDate: Moment | string) => {
+        debug('Querying for expenses between', time.iso(startDate), 'and', time.iso(endDate), 'for group', groupId);
+        return tx.queryList('expenses.get_between',
+            basic.expenseSelect('WHERE group_id=$2 AND template=false AND date >= $3::DATE AND date < $4::DATE'),
             [userId, groupId, time.date(startDate), time.date(endDate)])
             .then(l => l.map(basic.mapExpense));
     }
 }
 
-function getByMonth(groupId, userId, year, month) {
+const zeroStatus: ExpenseStatus = {
+    balance: '0',
+    benefit: '0',
+    cost: '0',
+    income: '0',
+    split: '0',
+    value: '0',
+};
+
+function getByMonth(groupId: number, userId: number, year: number, month: number): Promise<ExpenseCollection> {
     const startDate = time.month(year, month);
-    const endDate = startDate.clone().add(1, "months");
-    return db.transaction(tx => recurring.tx.createMissing(tx)(groupId, userId, endDate)
-        .then(x => Promise.all([
+    const endDate = startDate.clone().add(1, 'months');
+    return db.transaction(async (tx: DbAccess): Promise<ExpenseCollection> => {
+        await recurring.tx.createMissing(tx)(groupId, userId, endDate);
+        const [expenses, startStatus, monthStatus, unconfirmedBefore] = await Promise.all([
             getBetween(tx)(groupId, userId, startDate, endDate),
-            basic.tx.countTotalBetween(tx)(groupId, userId, "2000-01", startDate),
-            basic.tx.countTotalBetween(tx)(groupId, userId, startDate, endDate),
-            basic.tx.hasUnconfirmedBefore(tx)(groupId, startDate)
-        ])))
-        .then(a => ({ expenses: a[0], startStatus: calculateBalance(a[1]), monthStatus: calculateBalance(a[2]), unconfirmedBefore: a[3], endStatus: {} }))
-        .then(a => {
-            a.endStatus = arrays.toObject(["benefit", "cost", "income", "split", "value", "balance"].map(key =>
-                [key, Money.from(a.startStatus[key]).plus(a.monthStatus[key]).toString()]));
-            return a;
-        });
+            basic.tx.countTotalBetween(tx)(groupId, userId, '2000-01', startDate).then(calculateBalance),
+            basic.tx.countTotalBetween(tx)(groupId, userId, startDate, endDate).then(calculateBalance),
+            basic.tx.hasUnconfirmedBefore(tx)(groupId, startDate),
+        ]);
+        return {
+            expenses,
+            startStatus,
+            monthStatus,
+            endStatus: mapObject(zeroStatus, (v, k) => Money.from(startStatus[k]).plus(monthStatus[k]).toString()),
+            unconfirmedBefore,
+        };
+    });
 }
 
-function search(tx) {
-    return (groupId, userId, params) => {
+export interface ExpenseSearchParams {
+    startDate: string;
+    endDate: string;
+    categoryId?: number;
+}
+
+function search(tx: DbAccess) {
+    return async (groupId: number, userId: number, params: ExpenseSearchParams): Promise<UserExpense[]> => {
         debug(`Searching for ${JSON.stringify(params)}`);
-        return tx.queryList("expenses.search",
-            basic.expenseSelect("WHERE group_id=$2 AND template=false AND date::DATE >= $3::DATE AND date::DATE <= $4::DATE " +
-                "AND ($5::INTEGER IS NULL OR category_id=$5::INTEGER)"),
-            [userId, groupId, params.startDate, params.endDate, params.categoryId || null])
-            .then(l => l.map(basic.mapExpense));
+        const expenses = await tx.queryList('expenses.search',
+            basic.expenseSelect('WHERE group_id=$2 AND template=false AND date::DATE >= $3::DATE AND date::DATE <= $4::DATE ' +
+                'AND ($5::INTEGER IS NULL OR category_id=$5::INTEGER)'),
+            [userId, groupId, params.startDate, params.endDate, params.categoryId || null]);
+        return expenses.map(basic.mapExpense);
     }
 }
 

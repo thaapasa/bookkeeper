@@ -40,4 +40,27 @@ export interface Expense extends DbObject {
     division?: ExpenseDivision;
 }
 
+export interface ExpenseStatus {
+    balance: string;
+    benefit: string;
+    cost: string;
+    income: string;
+    split: string;
+    value: string;
+}
+
+export interface ExpenseCollection {
+    expenses: UserExpense[];
+    monthStatus: ExpenseStatus;
+    startStatus: ExpenseStatus;
+    endStatus: ExpenseStatus;
+    unconfirmedBefore: boolean;
+}
+
 export type RecurringExpensePeriod = 'monthly' | 'yearly';
+
+export interface Recurrence extends DbObject {
+    period: RecurringExpensePeriod;
+    nextMissing: string;
+    templateExpenseId: number;
+}

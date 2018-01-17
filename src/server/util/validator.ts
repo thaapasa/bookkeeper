@@ -30,12 +30,12 @@ function fieldPath(prefix: string | undefined, field: string): string {
     return prefix ? `${prefix}.${field}` : field;
 }
 
-export type Schema = Map<any>;
+export interface Schema<T> {}
 type ValidationFunction<T> = (i: any, field: string) => T;
 
 export class Validator {
 
-    public static validate<T>(schema: Schema, object: any, prefix?: string): T {
+    public static validate<T>(schema: Schema<T>, object: any, prefix?: string): T {
         const result = {};
         debug('Validating', object);
         Object.keys(schema).forEach(field => {
@@ -121,7 +121,7 @@ export class Validator {
         };
     }
 
-    static listOfObjects(schema: Schema): ValidationFunction<any[]> {
+    static listOfObjects<T>(schema: Schema<T>): ValidationFunction<any[]> {
         return (i, field) => {
             if (!i || !i.map) {
                 throw new InvalidInputError(field, i, 'Input must be a list of objects');

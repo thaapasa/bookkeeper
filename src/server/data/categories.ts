@@ -22,7 +22,7 @@ function createCategoryObject<T extends Category>(categories: T[]): T[] {
     return res;
 }
 
-function sumChildTotalsToParent(categoryTable: CategoryAndTotals[]) {
+function sumChildTotalsToParent(categoryTable: CategoryAndTotals[]): CategoryAndTotals[] {
     categoryTable.forEach(c => {
         debug('Summing childs of', c.id);
         if (c.parentId === null) {
@@ -53,7 +53,7 @@ export interface CategoryQueryInput {
 };
 
 function getTotals(tx: DbAccess) {
-    return async (groupId: number, params: CategoryQueryInput) => {
+    return async (groupId: number, params: CategoryQueryInput): Promise<CategoryAndTotals[]> => {
         const cats = await tx.queryList('categories.get_totals', 'SELECT categories.id, categories.parent_id, ' +
             "SUM(CASE WHEN type='expense' AND template=false AND date >= $2::DATE AND date < $3::DATE THEN sum::NUMERIC ELSE 0::NUMERIC END) AS expenses, " +
             "SUM(CASE WHEN type='income' AND template=false AND date >= $2::DATE AND date < $3::DATE THEN sum::NUMERIC ELSE 0::NUMERIC END) AS income FROM categories " +
@@ -78,16 +78,16 @@ function create(tx: DbAccess) {
 }
 
 function getById(tx: DbAccess) {
-    return async (groupId: number, id: number) => {
+    return async (groupId: number, id: number): Promise<Category> => {
         const cat = await tx.queryObject('categories.get_by_id',
             'SELECT id, parent_id, name FROM categories WHERE id=$1::INTEGER AND group_id=$2::INTEGER ',
             [ id, groupId ]);
         if (!cat) { throw new NotFoundError('CATEGORY_NOT_FOUND', 'category'); }
-        return cat;
+        return cat as Category;
     }
 }
 
-function update(groupId: number, categoryId: number, data: Category) {
+function update(groupId: number, categoryId: number, data: CategoryInput) {
     return db.transaction(async (tx): Promise<Category> => {
         const original = await getById(tx)(groupId, categoryId);
         if (!original) { throw new NotFoundError('CATEGORY_NOT_FOUND', 'category'); }

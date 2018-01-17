@@ -9,7 +9,7 @@ import sources from './sources';
 import * as splitter from '../../shared/util/splitter';
 import { determineDivision } from './expense-division';
 import { NotFoundError } from '../../shared/types/errors';
-import { Expense, UserExpense, ExpenseDivisionType, ExpenseDivisionItem } from '../../shared/types/expense';
+import { Expense, UserExpense, ExpenseDivisionType, ExpenseDivisionItem, ExpenseStatus } from '../../shared/types/expense';
 import { Moment } from 'moment';
 const debug = require('debug')('bookkeeper:api:expenses');
 
@@ -63,9 +63,10 @@ function mapExpense(e: UserExpense): UserExpense {
 }
 
 function countTotalBetween(tx: DbAccess) {
-    return (groupId: number, userId: number, startDate: string | Moment, endDate: string | Moment) => tx.queryObject('expenses.count_total_between',
-        countTotalSelect,
-        [userId, groupId, time.date(startDate), time.date(endDate)]);
+    return async (groupId: number, userId: number, startDate: string | Moment, endDate: string | Moment): Promise<ExpenseStatus> => {
+        return await tx.queryObject('expenses.count_total_between',
+            countTotalSelect, [userId, groupId, time.date(startDate), time.date(endDate)]) as ExpenseStatus;
+    };
 }
 
 function hasUnconfirmedBefore(tx: DbAccess) {
@@ -153,7 +154,7 @@ function createExpense(userId: number, groupId: number, expense: Expense, defaul
 }
 
 function insert(tx: DbAccess) {
-    return async (userId: number, expense: Expense, division: ExpenseDivisionItem[]) => {
+    return async (userId: number, expense: Expense, division: ExpenseDivisionItem[]): Promise<number> => {
         const expenseId = await tx.insert('expenses.create',
             'INSERT INTO expenses (created_by_id, user_id, group_id, date, created, type, receiver, sum, title, ' +
             'description, confirmed, source_id, category_id, template, recurring_expense_id) ' +
@@ -196,17 +197,28 @@ function updateExpenseById(groupId: number, userId: number, expenseId: number, e
     });
 }
 
+interface ReceiverInfo {
+    receiver: string;
+    amount: number;
+}
+
 function queryReceivers(tx: DbAccess) {
-    return (groupId: number, receiver: string) => tx.queryList('expenses.receiver_search',
-        'SELECT receiver, COUNT(*) AS AMOUNT FROM expenses WHERE group_id=$1 AND receiver ILIKE $2 ' +
-        'GROUP BY receiver ORDER BY amount DESC',
-        [ groupId, `%${receiver}%` ]);
+    return async (groupId: number, receiver: string): Promise<ReceiverInfo[]> => {
+        debug('Receivers', groupId, receiver);
+        return await tx.queryList('expenses.receiver_search',
+            'SELECT receiver, COUNT(*) AS AMOUNT FROM expenses WHERE group_id=$1 AND receiver ILIKE $2 ' +
+            'GROUP BY receiver ORDER BY amount DESC',
+            [ groupId, `%${receiver}%` ]) as ReceiverInfo[];
+    };
 }
 
 function copyExpense(tx: DbAccess) {
-    return (groupId: number, userId: number, expenseId: number, mapper: any) => getExpenseAndDivision(tx)(groupId, userId, expenseId)
-        .then(e => mapper ? mapper(e) : e)
-        .then(e => insert(tx)(userId, e[0], e[1]));
+    return async (groupId: number, userId: number, expenseId: number, 
+        mapper: (e: [Expense, ExpenseDivisionItem[]]) => [Expense, ExpenseDivisionItem[]]): Promise<number> => {
+        const e = await getExpenseAndDivision(tx)(groupId, userId, expenseId);
+        const [expense, division] = mapper ? mapper(e) : e;
+        return await insert(tx)(userId, expense, division);
+    };
 }
 
 function getExpenseAndDivision(tx: DbAccess) {
