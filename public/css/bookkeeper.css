@@ -79,7 +79,7 @@ html, body {
 .expense-table-end-status { bottom: 0; }*/
 
 .expense-table-monthly-status {
-    height: 110px !important;
+    height: 130px !important;
     bottom: 0;
     display: flex;
     justify-content: flex-end;
@@ -88,7 +88,7 @@ html, body {
 }
 .expense-table-monthly-status .monthly-calculation {
     width: 200px;
-    padding: 10px;
+    padding: 20px;
 }
 .expense-table-monthly-status .header {
     color: rgb(117, 117, 117);
@@ -100,8 +100,7 @@ html, body {
 .calculation-row {
     display: flex;
     flex-direction: row;
-    height: 23px;
-    padding-top: 3px;
+    padding: 3px 0px;
 
 }
 .calculation-row .calculation-title {
@@ -136,7 +135,7 @@ html, body {
 }
 .expense-data-area {
     padding-top: 32px;
-    padding-bottom: 110px;
+    padding-bottom: 130px;
 }
 
 .expense-data-area > div:last-of-type .bk-table-row {
@@ -307,7 +306,7 @@ html, body {
     .expense-table-month-status { bottom: 32px; }
     .expense-data-area {
         padding-top: 33px;
-        padding-bottom: 110px;
+        padding-bottom: 130px;
         top: 64px;
         bottom: 64px;
     }

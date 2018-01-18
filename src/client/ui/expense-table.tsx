@@ -49,13 +49,13 @@ class MonthlyStatus extends React.Component<StatusProps, {}> {
         const filteredStyle = { display: (!this.props.showFiltered ? 'none' : ''), backgroundColor: 'rgb(224, 224, 224)'}
         return <div className="expense-table-monthly-status fixed-horizontal">
                 <div className="monthly-calculation filtered" style={filteredStyle}>
-                    <div className="header">Suodatetut</div>
+                    <div className="header">Suodatetut tulot ja menot</div>
                     {this.getCalculationRow('Tulot', filteredIncome, false)}
                     {this.getCalculationRow('Menot', -Math.abs(filteredExpense), false)}
                     {this.getCalculationRow('', filteredIncome - filteredExpense, true)}
                 </div>
                 <div className="monthly-calculation">
-                    <div className="header">Tuloslaskelma</div>
+                    <div className="header">Tulot ja menot</div>
                     {this.getCalculationRow('Tulot', income, false)}
                     {this.getCalculationRow('Menot', -Math.abs(expense), false)}
                     {this.getCalculationRow('', income - expense, true)}
