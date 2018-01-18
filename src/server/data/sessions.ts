@@ -88,7 +88,7 @@ const tokenSelect = 'SELECT s.token, s.refresh_token, s.user_id as id, s.login_t
 function getSession(tx: DbAccess) {
     return async (token: string, groupId: number): Promise<SessionBasicInfo> => {
         await purgeExpiredSessions(tx)();
-        const userData = await tx.queryObject('sessions.get_by_access_token',
+        const userData = await tx.queryObject<RawUserData>('sessions.get_by_access_token',
             tokenSelect + 'WHERE s.token=$1 AND s.refresh_token IS NOT NULL AND s.expiry_time > NOW()', [token, groupId]);
         if (userData === undefined) {
             throw new AuthenticationError('INVALID_TOKEN', 'Access token is invalid', token);
@@ -102,7 +102,7 @@ function getSession(tx: DbAccess) {
 function getUserInfoByRefreshToken(tx: DbAccess) {
     return async (token: string, groupId: number): Promise<RawUserData> => {
         await purgeExpiredSessions(tx)();
-        const userData: RawUserData = await tx.queryObject('sessions.get_by_refresh_token',
+        const userData = await tx.queryObject<RawUserData>('sessions.get_by_refresh_token',
             tokenSelect + 'WHERE s.token=$1 AND s.refresh_token IS NULL AND s.expiry_time > NOW()', [token, groupId]);
         if (userData === undefined) {
             throw new AuthenticationError('INVALID_TOKEN', 'Refresh token is invalid', token);

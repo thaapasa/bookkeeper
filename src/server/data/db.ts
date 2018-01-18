@@ -29,8 +29,8 @@ function queryFor<T>(client: Client, doRelease: boolean, id?: number): Queryer {
 }
 
 export interface DbAccess {
-    queryObject(name: string, query: string, params?: any[]): Promise<Map<any>>;
-    queryList(name: string, query: string, params?: any[]): Promise<Map<any>[]>;
+    queryObject<T extends object>(name: string, query: string, params?: any[]): Promise<T>;
+    queryList<T extends object>(name: string, query: string, params?: any[]): Promise<T[]>;
     insert(name: string, query: string, params?: any[]): Promise<number>;
     update(name: string, query: string, params?: any[]): Promise<number>;
 }
@@ -44,12 +44,12 @@ class BookkeeperDB implements DbAccess {
         this.queryer = queryer;
     }
 
-    public async queryObject(name: string, query: string, params?: any[]): Promise<Map<any>> {
+    public async queryObject<T extends object>(name: string, query: string, params?: any[]): Promise<T> {
         const o = await this.queryer(name, query, params || [], r => (r.rows && r.rows.length > 0) ? r.rows[0] : undefined);
         return camelCaseObject(o);
     }
 
-    public async queryList(name: string, query: string, params?: any[]): Promise<Map<any>[]> {
+    public async queryList<T extends object>(name: string, query: string, params?: any[]): Promise<T[]> {
         const o = await this.queryer(name, query, params || [], r => r.rows);
         return o.map(camelCaseObject);
     }

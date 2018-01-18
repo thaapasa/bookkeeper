@@ -71,7 +71,7 @@ function countTotalBetween(tx: DbAccess) {
 
 function hasUnconfirmedBefore(tx: DbAccess) {
     return async (groupId, startDate) => {
-        const s = await tx.queryObject('expenses.count_unconfirmed_before',
+        const s = await tx.queryObject<{ amount: number }>('expenses.count_unconfirmed_before',
             'SELECT COUNT(*) AS amount FROM expenses WHERE group_id=$1 AND template=false AND date < $2::DATE AND confirmed=false',
             [groupId, startDate]);
         return s.amount > 0;

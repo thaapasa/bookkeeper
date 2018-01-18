@@ -8,9 +8,9 @@ export function underscoreToCamelCase(str: any): string {
     return str.split('_').map((v, i) => (i === 0) ? v : ucFirst(v)).join('');
 }
 
-export function camelCaseObject(o: Map<string>): Map<string> {
+export function camelCaseObject<T extends object>(o: T): T {
     if (typeof o !== 'object') { return o; }
-    const r: Map<string> = {};
+    const r = {} as T;
     Object.keys(o).forEach(k => r[underscoreToCamelCase(k)] = o[k]);
     return r;
 }
