@@ -2,7 +2,7 @@ import { db, DbAccess } from './db';
 import * as moment from 'moment';
 import * as time from '../../shared/util/time';
 import * as arrays from '../../shared/util/arrays';
-import Money from '../../shared/util/money';
+import Money, { MoneyLike } from '../../shared/util/money';
 import categories from './categories';
 import users from './users';
 import sources from './sources';
@@ -95,10 +95,10 @@ function deleteById(tx: DbAccess) {
 }
 
 function storeDivision(tx: DbAccess) {
-    return (expenseId: number, userId: number, type: ExpenseDivisionType, sum: string | Money) => tx.insert('expense.create.division',
+    return (expenseId: number, userId: number, type: ExpenseDivisionType, sum: MoneyLike) => tx.insert('expense.create.division',
         'INSERT INTO expense_division (expense_id, user_id, type, sum) ' +
         'VALUES ($1::INTEGER, $2::INTEGER, $3::expense_division_type, $4::NUMERIC::MONEY)',
-        [expenseId, userId, type, sum.toString()])
+        [expenseId, userId, type, Money.toString(sum)])
 }
 
 function deleteDivision(tx: DbAccess) {

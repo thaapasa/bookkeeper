@@ -1,4 +1,4 @@
-import Money from './money';
+import Money, { MoneyLike } from './money';
 import { indices } from './arrays';
 import { ExpenseDivisionItem, ExpenseDivision } from '../types/expense';
 const debug = require('debug')('bookkeeper:splitter');
@@ -13,14 +13,15 @@ export interface HasSum {
     sum: Money;
 }
 
-export function splitByShares<T extends HasShares>(sum: Money, division: T[]): Array<T & HasSum> {
+export function splitByShares<T extends HasShares>(sum: MoneyLike, division: T[]): Array<T & HasSum> {
     const numShares = division.map(d => d.share).reduce((a, b) => a + b, 0);
-    debug('Splitting', sum.format(), 'to', numShares, 'parts by', division);
-    const part = sum.divide(numShares);
+    const moneySum = Money.from(sum);
+    debug('Splitting', moneySum.format(), 'to', numShares, 'parts by', division);
+    const part = moneySum.divide(numShares);
     const res: Array<T & HasSum> = 
         division.map(d => ({ sum: part.multiply(d.share), ...d as any }));
     const total = res.map(d => d.sum).reduce((a, b) => a.plus(b), Money.zero);
-    const remainder = sum.minus(total);
+    const remainder = moneySum.minus(total);
     assert(remainder.gte(Money.zero));
     if (remainder.gt(Money.zero)) {
         const shares = remainder.toCents();
@@ -34,11 +35,11 @@ export function splitByShares<T extends HasShares>(sum: Money, division: T[]): A
     }
 
     const newTotal = res.map(d => d.sum).reduce((a, b) => a.plus(b), Money.zero);
-    assert(newTotal.equals(sum));
+    assert(newTotal.equals(moneySum));
     debug('Divided to', res);
     return res;
 }
 
-export function negateDivision<T extends { sum: Money }>(d: T[]): T[] {
-    return d.map(b => Object.assign({}, b, { sum: b.sum.negate() }));
+export function negateDivision<T extends { sum: MoneyLike }>(d: T[]): T[] {
+    return d.map(b => ({ ...b as any, sum: Money.from(b.sum).negate() }));;
 }
