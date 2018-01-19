@@ -1,30 +1,22 @@
-"use strict";
-
-const Money = require("../../../shared/util/money");
-const splitter = require("../../../shared/util/splitter");
-const chai = require("chai");
-const expect = chai.expect;
-const log = require("../../../shared/util/log");
-const describe = require("mocha").describe;
-const it = require("mocha").it;
-const before = require("mocha").before;
+import Money from './money';
+import { splitByShares } from './splitter';
+import 'jest';
 
 function calculateSum(d) {
     return d.map(d => d.sum).reduce((a, b) => a.plus(b), Money.zero);
 }
 
-describe("splitter", () => {
-    before(() => log.setLevel("warn", false));
-    it("should split 7.01 to 2 parts", () => {
-        const split = splitter.splitByShares(new Money("7.01"), [{id: 1, share: 1}, {id: 2, share: 1}]);
-        expect(calculateSum(split).toString()).to.equal("7.01");
-        expect(split[0].sum.toCents()).to.be.within(350, 351);
-        expect(split[1].sum.toCents()).to.be.within(350, 351);
+describe('splitter', () => {
+    it('should split 7.01 to 2 parts', () => {
+        const split = splitByShares(new Money('7.01'), [{ share: 1, userId: 1 }, { id: 2, share: 1, userId: 2 }]);
+        expect(calculateSum(split).toString()).toEqual('7.01');
+        expect(split[0].sum.toCents()).toBeGreaterThanOrEqual(350);
+        expect(split[1].sum.toCents()).toBeCloseTo(350);
     });
-    it("should split 10.00 to 3 parts", () => {
-        const split = splitter.splitByShares(new Money("10.00"), [{id: 1, share: 1}, {id: 2, share: 2}]);
-        expect(calculateSum(split).toString()).to.equal("10.00");
-        expect(split[0].sum.toCents()).to.be.within(333, 334);
-        expect(split[1].sum.toCents()).to.be.within(666, 667);
+    it('should split 10.00 to 3 parts', () => {
+        const split = splitByShares(new Money('10.00'), [{ share: 1, userId: 1 }, { id: 2, share: 2, userId: 2 }]);
+        expect(calculateSum(split).toString()).toEqual('10.00');
+        expect(split[0].sum.toCents()).toBeGreaterThanOrEqual(333);
+        expect(split[1].sum.toCents()).toBeGreaterThanOrEqual(666);
     });
 });

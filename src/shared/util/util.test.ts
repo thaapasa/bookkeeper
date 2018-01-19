@@ -1,26 +1,21 @@
-"use strict";
+import { underscoreToCamelCase } from "./util";
+import 'jest';
 
-const util = require("../../../shared/util/util");
-const chai = require("chai");
-const expect = chai.expect;
-const describe = require("mocha").describe;
-const it = require("mocha").it;
+describe('strings', () => {
 
-describe("strings", () => {
+    describe('underscoreToCamelCase', () => {
 
-    describe("underscoreToCamelCase", () => {
-
-        it("should convert case correctly", () => {
-            expect(util.underscoreToCamelCase("simple")).to.equal("simple");
-            expect(util.underscoreToCamelCase("my_variable")).to.equal("myVariable");
-            expect(util.underscoreToCamelCase("very_long_name")).to.equal("veryLongName");
-            expect(util.underscoreToCamelCase("")).to.equal("");
+        it('should convert case correctly', () => {
+            expect(underscoreToCamelCase('simple')).toEqual('simple');
+            expect(underscoreToCamelCase('my_variable')).toEqual('myVariable');
+            expect(underscoreToCamelCase('very_long_name')).toEqual('veryLongName');
+            expect(underscoreToCamelCase('')).toEqual('');
         });
 
-        it("should pass-through non-strings", () => {
-            expect(util.underscoreToCamelCase(null)).to.be.a('null');
-            expect(util.underscoreToCamelCase(undefined)).to.be.an('undefined');
-            expect(util.underscoreToCamelCase(5)).to.equal(5);
+        it('should give empty string for non-strings', () => {
+            expect(underscoreToCamelCase(null)).toEqual('');
+            expect(underscoreToCamelCase(undefined)).toEqual('');
+            expect(underscoreToCamelCase(5)).toEqual('5');
         });
     });
 

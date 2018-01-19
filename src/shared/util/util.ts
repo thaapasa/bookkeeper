@@ -3,6 +3,7 @@ export function ucFirst(str: any): string {
 }
 
 export function underscoreToCamelCase(str: any): string {
+    if (typeof str === 'number') { return str.toString(); }
     if (typeof str !== 'string') { return ''; }
     if (str.length < 2) { return str; }
     return str.split('_').map((v, i) => (i === 0) ? v : ucFirst(v)).join('');
