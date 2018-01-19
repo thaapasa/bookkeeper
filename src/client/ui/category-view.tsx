@@ -191,14 +191,13 @@ export default class CategoryView extends React.Component<any, CategoryViewState
         })
     }
 
-    private reloadCategories = (dates) => {
-        Promise.all([
+    private reloadCategories = async (dates) => {
+        const [totals, categories] = await Promise.all([
             this.getCategoryTotals(dates),
             apiConnect.getCategoryList()
-        ]).then(a => {
-            this.setState({ categories: a[1] });
-            this.formCategoryChartData();
-        });
+        ]);
+        this.setState({ categories });
+        this.formCategoryChartData();
      }
 
     private createCategory = (parent) => {

@@ -41,8 +41,8 @@ function toQuery(path: string, query?: Map<string>): string {
         : path;
 }
 
-async function req(path, { method, query, body, headers }: 
-    { method: string, query?: Map<string>, body?: any, headers?: Map<string> }): Promise<any> {
+async function req<T>(path, { method, query, body, headers }: 
+    { method: string, query?: Map<string>, body?: any, headers?: Map<string> }): Promise<T> {
     try {
         const token = state.get('token');
         const queryPath = toQuery(path, query);
@@ -53,54 +53,54 @@ async function req(path, { method, query, body, headers }:
             headers: { ...headers, 'Authorization': `Bearer ${token}` }
         });
         switch (res.status) {
-            case 200: return res.json();
+            case 200: return await res.json() as T;
             case 401: 
             case 403: throw new AuthenticationError('Unauthorized: ' + res.status, await res.json());
             default: throw new Error('Error in api-connec', await res.json(), res.status);
         }
     } catch (e) {
-        debug("Error in api-connect:", e);
+        debug('Error in api-connect:', e);
         throw e;
     }
 }
 
 const contentTypeJson = { 'Content-Type': 'application/json' };
 
-function get(path, query?: Map<string>) {
+function get<T>(path, query?: Map<string>): Promise<T> {
     return req(path, { method: 'GET', query });
 }
 
-function put(path: string, body?: any, query?: Map<string>): Promise<any>  {
+function put<T>(path: string, body?: any, query?: Map<string>): Promise<T>  {
     return req(path, { method: 'PUT', body, query, headers: contentTypeJson });
 }
 
-function post(path, body?: any, query?: Map<string>): Promise<any>  {
+function post<T>(path, body?: any, query?: Map<string>): Promise<T>  {
     return req(path, { method: 'POST', body, query, headers: contentTypeJson });
 }
 
-function del(path, data?: any, query?: Map<string>): Promise<any>  {
+function del<T>(path, data?: any, query?: Map<string>): Promise<T>  {
     return req(path, { method: 'DELETE', query });
 }
 
 export function login(username: string, password: string): Promise<Session> {
     const url = '/api/session';
-    return req(url, { method: 'PUT', body: { username, password }, headers: contentTypeJson });
+    return req<Session>(url, { method: 'PUT', body: { username, password }, headers: contentTypeJson });
 }
 
-export function logout() {
-    return del("/api/session");
+export function logout(): Promise<void> {
+    return del('/api/session');
 }
 
-export function getSession() {
-    return get("/api/session");
+export function getSession(): Promise<Session> {
+    return get<Session>('/api/session');
 }
 
-export function refreshSession() {
-    return put("/api/session/refresh");
+export function refreshSession(): Promise<Session> {
+    return put('/api/session/refresh');
 }
 
 export function getExpensesForMonth(year, month) {
-    return get("/api/expense/month", { year: year, month: month })
+    return get('/api/expense/month', { year: year, month: month })
         .then(l => mapExpenseObject(l));
 }
 
@@ -108,7 +108,7 @@ export function searchExpenses(startDate, endDate, query) {
     const q = query || {};
     q.startDate = time.date(startDate);
     q.endDate = time.date(endDate);
-    return get("/api/expense/search", q).then(l => l.map(mapExpense));
+    return get<any[]>('/api/expense/search', q).then(l => l.map(mapExpense));
 }
 
 export function getExpense(id) {
@@ -132,23 +132,23 @@ export function createRecurring(id, period) {
 }
 
 export function queryReceivers(receiver) {
-    return get("/api/expense/receivers", { receiver: receiver });
+    return get('/api/expense/receivers', { receiver: receiver });
 }
 
-export function getCategoryList() {
-    return get("/api/category/list");
+export function getCategoryList(): Promise<any[]> {
+    return get('/api/category/list');
 }
 
 export function storeCategory(category) {
-    return put("/api/category", category);
+    return put('/api/category', category);
 }
 
-export function getCategoryTotals(startDate, endDate) {
+export function getCategoryTotals(startDate, endDate): Promise<any[]> {
     const q = { 
         startDate: time.date(startDate),
         endDate: time.date(endDate),
     };
-    return get("/api/category/totals", q);
+    return get('/api/category/totals', q);
 }
 
 export function updateCategory(id, category) {
