@@ -6,21 +6,22 @@
 
 Aseta gitin autorebase käyttöön:
 
-```
+```sh
 git config branch.autosetuprebase always
 git config branch.master.rebase true
 ```
 
 Asenna kehitystyökalut:
 
-```
+```sh
 npm install -g ts-node typescript nodemon tslint
 ```
 
 ### Palvelin
 
 Luo tiedosto `.env` ja laita sinne sisällöksi (korjaa konffit vastaamaan omaa ympäristöä):
-```
+
+```sh
 SERVER_PORT=3100
 LOG_LEVEL=info
 SHOW_ERROR_CAUSE=true
@@ -43,6 +44,7 @@ jonkun arvon, esim. `localStorage.debug = 'bookkeeper*'`.
 ### Skriptit
 
 `npm run <target>`:
+
 - `watch-server`: Käynnistää palvelimen kehitystä varten (ajaa `nodemon`in avulla `ts-node`a)
 - `watch-client`: Käynnistää appiksen kehitystä varten
 - `build-server`: Kääntää palvelimesta prod-buildin hakemistoon `build-server/`
@@ -50,3 +52,8 @@ jonkun arvon, esim. `localStorage.debug = 'bookkeeper*'`.
 - `start-server-prod`: Käynnistää prod-buildatun palvelimen (vaatii että `build-server` on ajettu)
 - `ps-server`: Listaa ajossa olevan kehityspalvelimen prosessinumeron
 - `kill-server`: Tappaa ajossa olevan kehityspalvelimen (aja jos palvelimen portti ei ole vapautunut)
+
+### Testaus
+
+- Yksikkötestit: Aja `npm test`
+- Palvelimen testit: TODO
