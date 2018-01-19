@@ -1,8 +1,9 @@
-import * as state from "./state";
-import * as time from "../../shared/util/time";
-import * as request from 'superagent';
-import Money from "../../shared/util/money";
-import { Session } from "../../shared/types/session";
+import * as state from './state';
+import * as time from '../../shared/util/time';
+import Money from '../../shared/util/money';
+import { Session } from '../../shared/types/session';
+import { Map } from '../../shared/util/util';
+import { AuthenticationError, Error } from '../../shared/types/errors';
 const debug = require('debug')('bookkeeper:api-connect');
 
 function mapExpense(e) {
@@ -33,57 +34,57 @@ function mapExpenseObject(e) {
     return e;
 }
 
-
-function get(path, query?: any): Promise<any>  {
-    const token = state.get("token");
-    return request.get(path)
-        .query(query ? query : {})
-        .set("Authorization", `Bearer ${token}`)
-        .then(req => req.body)
-        .catch(defaultErrorHandler);
+function toQuery(path: string, query?: Map<string>): string {
+    return query ? path + '?' +
+        Object.keys(query)
+            .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(query[k])).join('&')
+        : path;
 }
 
-function put(path, data?: any, query?: any): Promise<any>  {
-    const token = state.get("token");
-    return request.put(path)
-        .query(query ? query : {})
-        .set("Content-Type", "application/json")
-        .set("Authorization", `Bearer ${token}`)
-        .send(data)
-        .then(req => req.body)
-        .catch(defaultErrorHandler);
+async function req(path, { method, query, body, headers }: 
+    { method: string, query?: Map<string>, body?: any, headers?: Map<string> }): Promise<any> {
+    try {
+        const token = state.get('token');
+        const queryPath = toQuery(path, query);
+        debug(`${method} ${queryPath} with body`, body);
+        const res = await fetch(queryPath, {
+            method: method,
+            body: body ? JSON.stringify(body) : undefined,
+            headers: { ...headers, 'Authorization': `Bearer ${token}` }
+        });
+        switch (res.status) {
+            case 200: return res.json();
+            case 401: 
+            case 403: throw new AuthenticationError('Unauthorized: ' + res.status, await res.json());
+            default: throw new Error('Error in api-connec', await res.json(), res.status);
+        }
+    } catch (e) {
+        debug("Error in api-connect:", e);
+        throw e;
+    }
 }
 
-function post(path, data?: any, query?: any): Promise<any>  {
-    const token = state.get("token");
-    return request.post(path)
-        .query(query ? query : {})
-        .set("Content-Type", "application/json")
-        .set("Authorization", `Bearer ${token}`)
-        .send(data)
-        .then(req => req.body)
-        .catch(defaultErrorHandler);
+const contentTypeJson = { 'Content-Type': 'application/json' };
+
+function get(path, query?: Map<string>) {
+    return req(path, { method: 'GET', query });
 }
 
-function del(path, data?: any, query?: any): Promise<any>  {
-    const token = state.get("token");
-    return request.delete(path)
-        .query(query ? query : {})
-        .set("Content-Type", "application/json")
-        .set("Authorization", `Bearer ${token}`)
-        .send(data)
-        .then(req => req.body)
-        .catch(defaultErrorHandler);
+function put(path: string, body?: any, query?: Map<string>): Promise<any>  {
+    return req(path, { method: 'PUT', body, query, headers: contentTypeJson });
 }
 
-export function login(username, password): Promise<Session> {
+function post(path, body?: any, query?: Map<string>): Promise<any>  {
+    return req(path, { method: 'POST', body, query, headers: contentTypeJson });
+}
+
+function del(path, data?: any, query?: Map<string>): Promise<any>  {
+    return req(path, { method: 'DELETE', query });
+}
+
+export function login(username: string, password: string): Promise<Session> {
     const url = '/api/session';
-
-    return request.put(url)
-        .set('Content-Type', 'application/json')
-        .send({ username: username, password: password })
-        .then(req => req.body)
-        .catch(defaultErrorHandler);
+    return req(url, { method: 'PUT', body: { username, password }, headers: contentTypeJson });
 }
 
 export function logout() {
@@ -152,9 +153,4 @@ export function getCategoryTotals(startDate, endDate) {
 
 export function updateCategory(id, category) {
     return post(`/api/category/${parseInt(id, 10)}`, category);
-}
-
-function defaultErrorHandler(er) {
-    debug("Error in api-connect:", er);
-    throw er;
 }
