@@ -129,7 +129,7 @@ function setDefaults(expense: Expense): Expense {
     return expense;
 }
 
-function createExpense(userId: number, groupId: number, expense: Expense, defaultSourceId: number) {
+function createExpense(userId: number, groupId: number, expense: Expense, defaultSourceId: number): Promise<ApiMessage> {
     return db.transaction(async tx => {
         expense = setDefaults(expense);
         debug('Creating expense', expense);

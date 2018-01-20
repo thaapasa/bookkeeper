@@ -32,7 +32,7 @@ export const division = {
     }
 };
 
-export async function newExpense(session: SessionWithControl, expense: Expense): Promise<Expense> {
+export async function newExpense(session: SessionWithControl, expense?: Partial<Expense>): Promise<ApiMessage> {
     const data = {
         userId: session.user.id,
         date: '2017-01-22',
@@ -44,7 +44,7 @@ export async function newExpense(session: SessionWithControl, expense: Expense):
         categoryId: 2,
         ...expense
     };
-    return captureId(await session.put<Expense>('/api/expense', data));
+    return captureId(await session.put<ApiMessage>('/api/expense', data));
 };
 
 export async function deleteCreated(session: SessionWithControl): Promise<boolean> {

@@ -6,7 +6,7 @@ import { Session } from '../../types/session';
 const debug = require('debug')('bookkeeper:test-client');
 const baseUrl = 'http://localhost:3000';
 
-const client = new FetchClient(() => fetch as any);
+const client = new FetchClient(() => fetch as any, baseUrl);
 
 function authHeader(token: string) {
     return { 'Authorization': `Bearer ${token}` };
