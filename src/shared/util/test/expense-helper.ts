@@ -1,64 +1,62 @@
-"use strict";
+import Money, { MoneyLike } from '../money';
+import { Session } from '../../types/session';
+import { ExpenseDivisionItem, Expense } from '../../types/expense';
+import { SessionWithControl } from './test-client';
+import { isDbObject } from '../../types/common';
+import 'jest';
 
-const chai = require("chai");
-const expect = chai.expect;
-const Money = require("../../../shared/util/money");
+const createdIds: number[] = [];
 
-module.exports = {};
-
-const createdIds = [];
-
-function captureId(e) {
-    createdIds.push(e.expenseId || e.id || e);
+export function captureId<T>(e: T): T {
+    if (isDbObject(e) || typeof e === 'number') {
+        createdIds.push(isDbObject(e) ? e.id : e);
+    }
     return e;
 };
-module.exports.captureId = captureId;
 
-module.exports.division = {
-    iPayShared: function (session, sum) {
-        sum = Money.from(sum);
+export const division = {
+    iPayShared: function (session: Session, sum: MoneyLike): ExpenseDivisionItem[] {
+        const msum = Money.from(sum);
         return [
-            { type: "cost", userId: session.user.id, sum: sum.negate().toString() },
-            { type: "benefit", userId: 1, sum: sum.divide(2).toString() },
-            { type: "benefit", userId: 2, sum: sum.divide(2).toString() }
+            { type: 'cost', userId: session.user.id, sum: msum.negate().toString() },
+            { type: 'benefit', userId: 1, sum: msum.divide(2).toString() },
+            { type: 'benefit', userId: 2, sum: msum.divide(2).toString() }
         ];
     },
-    iPayMyOwn: function (session, sum) {
-        sum = Money.from(sum);
+    iPayMyOwn: function (session: Session, sum: MoneyLike): ExpenseDivisionItem[] {
+        const msum = Money.from(sum);
         return [
-            { type: "cost", userId: session.user.id, sum: sum.negate().toString() },
-            { type: "benefit", userId: session.user.id, sum: sum.toString() }
+            { type: 'cost', userId: session.user.id, sum: msum.negate().toString() },
+            { type: 'benefit', userId: session.user.id, sum: msum.toString() }
         ];
     }
-
 };
 
-module.exports.newExpense = function newExpense(session, expense) {
-    const data = Object.assign({
+export async function newExpense(session: SessionWithControl, expense: Expense): Promise<Expense> {
+    const data = {
         userId: session.user.id,
-        date: "2017-01-22",
-        receiver: "S-market",
-        type: "expense",
-        sum: "10.51",
-        title: "Karkkia ja porkkanaa",
+        date: '2017-01-22',
+        receiver: 'S-market',
+        type: 'expense',
+        sum: '10.51',
+        title: 'Karkkia ja porkkanaa',
         sourceId: 1,
-        categoryId: 2
-    }, expense);
-    return session.put("/api/expense", data).then(captureId);
+        categoryId: 2,
+        ...expense
+    };
+    return captureId(await session.put<Expense>('/api/expense', data));
 };
 
-module.exports.deleteCreated = function deleteCreated(session) {
-    return session ?
-        Promise.all(createdIds.map(id => session.del(`/api/expense/${id}`))).then(() => {
-            // Clear createdIds array
-            createdIds.splice(0, createdIds.length);
-            return true;
-        }) :
-        Promise.resolve(false);
+export async function deleteCreated(session: SessionWithControl): Promise<boolean> {
+    if (!session) { return false; }
+    await Promise.all(createdIds.map(id => session.del(`/api/expense/${id}`)));
+    // Clear createdIds array
+    createdIds.splice(0, createdIds.length);
+    return true;
 };
 
-module.exports.checkCreateStatus = function(s) {
-    expect(s.status).to.equal("OK");
-    expect(s.expenseId).to.be.above(0);
+export function checkCreateStatus(s: ApiMessage) {
+    expect(s.status).toEqual('OK');
+    expect(s.expenseId).toBeGreaterThan(0);
     return s.expenseId;
 };

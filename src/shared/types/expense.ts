@@ -40,6 +40,10 @@ export interface Expense extends DbObject {
     division?: ExpenseDivision;
 }
 
+function isExpense(e: any): e is Expense {
+    return typeof e === 'object' && typeof e.id === 'number' && typeof e.categoryId === 'number' && typeof e.title === 'string' && typeof e.template === 'boolean';
+}
+
 export interface ExpenseStatus {
     balance: MoneyLike;
     benefit: MoneyLike;
