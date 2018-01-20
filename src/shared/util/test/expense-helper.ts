@@ -4,12 +4,15 @@ import { ExpenseDivisionItem, Expense } from '../../types/expense';
 import { SessionWithControl } from './test-client';
 import { isDbObject } from '../../types/common';
 import 'jest';
+import { isApiMessageWithExpenseId, ApiMessage } from '../../types/api';
 
-const createdIds: number[] = [];
+let createdIds: number[] = [];
 
 export function captureId<T>(e: T): T {
-    if (isDbObject(e) || typeof e === 'number') {
-        createdIds.push(isDbObject(e) ? e.id : e);
+    console.log('capture', e);
+    if (isDbObject(e) || isApiMessageWithExpenseId(e) || typeof e === 'number') {
+        createdIds.push(isDbObject(e) ? e.id : (isApiMessageWithExpenseId(e) ? e.expenseId : e));
+        console.log(e);
     }
     return e;
 };
@@ -35,7 +38,7 @@ export const division = {
 export async function newExpense(session: SessionWithControl, expense?: Partial<Expense>): Promise<ApiMessage> {
     const data = {
         userId: session.user.id,
-        date: '2017-01-22',
+        date: '2018-01-22',
         receiver: 'S-market',
         type: 'expense',
         sum: '10.51',
@@ -51,7 +54,7 @@ export async function deleteCreated(session: SessionWithControl): Promise<boolea
     if (!session) { return false; }
     await Promise.all(createdIds.map(id => session.del(`/api/expense/${id}`)));
     // Clear createdIds array
-    createdIds.splice(0, createdIds.length);
+    createdIds = [];
     return true;
 };
 

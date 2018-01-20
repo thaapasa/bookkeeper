@@ -15,11 +15,14 @@ describe('expense', function() {
     let session: SessionWithControl;
     const newExpense = help.newExpense;
 
-    beforeEach(() => client.getSession('sale', 'salasana').then(s => { session = s; return null; }));
+    beforeEach(async () => {
+        session = await client.getSession('sale', 'salasana');
+    });
 
-    afterEach(() => {
+    afterEach(async () => {
         if (session) {
-            help.deleteCreated(session).then(session.logout);
+            await help.deleteCreated(session);
+            await session.logout();
         }
     });
 
@@ -27,14 +30,14 @@ describe('expense', function() {
         const res = await newExpense(session);
         const id = help.checkCreateStatus(res);
         const exp = await session.get(`/api/expense/${id}`);
-        expect(exp).toMatchObject({ title: 'Karkkia ja porkkanaa', date: '2017-01-22', sum: '10.51',
+        expect(exp).toMatchObject({ title: 'Karkkia ja porkkanaa', date: '2018-01-22', sum: '10.51',
             description: null, confirmed: true });
     });
 
     it('should have custom values', async () => {
         const res = await newExpense(session, { title: 'Crowbars', sum: '8.46', description: 'On hyvä olla tarkka', confirmed: false });
         const exp = await session.get(`/api/expense/${res.expenseId}`);
-        expect(exp).toMatchObject({ title: 'Crowbars', date: '2017-01-22', sum: '8.46',
+        expect(exp).toMatchObject({ title: 'Crowbars', date: '2018-01-22', sum: '8.46',
             description: 'On hyvä olla tarkka', confirmed: false });
     });
 /*
