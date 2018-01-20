@@ -1,17 +1,20 @@
-"use strict";
+import { Error } from '../../types/errors';
+import { fail } from 'assert';
+import 'jest';
 
-const chai = require("chai");
-const expect = chai.expect;
-const errors = require("../../../shared/types/errors");
-const log = require("../../../shared/util/log");
-
-module.exports = {};
-
-function NoErrorThrownError() {
-    this.type = "NoErrorThrownError";
+// TODO: See if this is neede
+export class NoErrorThrownError extends Error {
+    constructor() {
+        super('NoErrorThrownError', 'Expected an error, but no error was thrown', 500);
+    }
 }
-NoErrorThrownError.prototype = new Error();
 
-module.exports.expectThrow = (p) => log.suppressFor(() => Promise.resolve(p)
-    .then(x => { throw new NoErrorThrownError() })
-    .catch(e => expect(e.type).to.not.equal("NoErrorThrownError", "No error was thrown")));
+export async function expectThrow<T>(p: () => Promise<T>) {
+    try {
+        await p();
+    } catch (e) {
+        // OK, an error was thrown
+        return;
+    }
+    fail('No error was thrown');
+}

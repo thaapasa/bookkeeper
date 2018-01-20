@@ -1,72 +1,64 @@
-"use strict";
+import { FetchClient, FetchType } from '../fetch-client';
+import fetch from 'node-fetch';
+import { Map } from '../util';
+import { Session } from '../../types/session';
 
-const request = Promise.promisifyAll(require("superagent"));
-const log = require("../../../shared/util/log");
+const debug = require('debug')('bookkeeper:test-client');
+const baseUrl = 'http://localhost:3000';
 
-const baseUrl = "http://localhost:3000";
+const client = new FetchClient(() => fetch as any);
 
-function doRequest(creator, token, query) {
-    return creator()
-        .query(query ? query : {})
-        .set("Authorization", `Bearer ${token}`)
-        .endAsync()
-        .then(req => req.body)
-        .catch(e => { log.warn(e.response && e.response.error ? e.response.error : e.response); throw e; })
+function authHeader(token: string) {
+    return { 'Authorization': `Bearer ${token}` };
 }
 
-function get(token, path, query) {
-    return doRequest(() => request.get(`${baseUrl}${path}`), token, query);
+export function get<T>(token: string, path: string, query?: Map<any>): Promise<T> {
+    return client.get<T>(path, query, authHeader(token));
 }
 
-function put(token, path, data) {
-    return doRequest(() => request.put(`${baseUrl}${path}`).send(data).set("Content-Type", "application/json"), token)
+export function put<T>(token: string, path: string, data: any): Promise<T> {
+    return client.put<T>(path, data, undefined, authHeader(token));
 }
 
-function post(token, path, data) {
-    return doRequest(() => request.post(`${baseUrl}${path}`).send(data).set("Content-Type", "application/json"), token)
+export function post<T>(token: string, path: string, data: any): Promise<T> {
+    return client.post<T>(path, data, undefined, authHeader(token));
 }
 
-function del(token, path, query) {
-    return doRequest(() => request.delete(`${baseUrl}${path}`), token, query);
+export function del<T>(token: string, path: string, query?: Map<any>): Promise<T> {
+    return client.del<T>(path, undefined, query, authHeader(token));
 }
 
-function login(username, password) {
-    const url = `${baseUrl}/api/session`;
-    return request.put(url)
-        .set('Content-Type', 'application/json')
-        .send({ username: username, password: password })
-        .endAsync()
-        .then(req => req.body);
+export function login(username: string, password: string): Promise<Session> {
+    return client.put<Session>('/api/session', { username, password });
 }
 
-function refresh(refreshToken) {
-    return put(refreshToken, "/api/session/refresh", {});
+function refresh(refreshToken: string): Promise<Session> {
+    return put<Session>(refreshToken, '/api/session/refresh', {});
 }
 
-function getSession(username, password) {
-    return login(username, password).then(decorateSession)
+export function getSession(username: string, password: string): Promise<SessionWithControl> {
+    return login(username, password).then(decorateSession);
 }
 
-function refreshSession(refreshToken) {
-    return refresh(refreshToken).then(decorateSession)
+export async function refreshSession(refreshToken: string) {
+    return decorateSession(await refresh(refreshToken));
 }
 
-function decorateSession(s) {
-    return Object.assign({
+export interface SessionWithControl extends Session {
+    get: <T>(path: string, query?: Map<any>) => Promise<T>;
+    logout: () => Promise<void>;
+    put: <T>(path: string, data: any) => Promise<T>;
+    post: <T>(path: string, data: any) => Promise<T>;
+    del: (path: string, query?: Map<any>) => Promise<void>;
+}
+
+function decorateSession(s: Session): SessionWithControl {
+    return {
+        ...s,
         get: (path, query) => get(s.token, path, query),
-        logout: () => del(s.token, "/api/session"),
+        logout: () => del(s.token, '/api/session'),
         put: (path, data) => put(s.token, path, data),
         post: (path, data) => post(s.token, path, data),
         del: (path, query) => del(s.token, path, query)
-    }, s);
+    };
 }
-
-module.exports = {
-    get: get,
-    del: del,
-    put: put,
-    post: post,
-    login: login,
-    getSession: getSession,
-    refreshSession: refreshSession
-};
