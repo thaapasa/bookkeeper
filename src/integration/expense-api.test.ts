@@ -5,7 +5,7 @@ import fetch from 'node-fetch';
 import * as client from '../shared/util/test/test-client';
 import { SessionWithControl } from '../shared/util/test/test-client';
 import { Expense } from '../shared/types/expense';
-import { findCategoryId, findSourceId } from '../shared/util/test/expense-helper';
+import { findCategoryId, findSourceId, findUserId } from '../shared/util/test/expense-helper';
 import search from 'material-ui/svg-icons/action/search';
 
 function checkValueAndBalance(status, i, name) {
@@ -16,10 +16,14 @@ function checkValueAndBalance(status, i, name) {
 describe('expense', function() {
 
     let session: SessionWithControl;
+    let u1id: number;
+    let u2id: number;
     const newExpense = help.newExpense;
 
     beforeEach(async () => {
         session = await client.getSession('sale', 'salasana');
+        u1id = findUserId('jenni', session);
+        u2id = findUserId('sale', session);
     });
 
     afterEach(async () => {
@@ -50,37 +54,41 @@ describe('expense', function() {
         expect(e).toMatchObject({ sum: '8.46' });
         expect(e).toHaveProperty('division');
         expect(e.division).toEqual(expect.arrayContaining([
-            { userId: 1, type: 'cost', sum: '-4.23' },
-            { userId: 2, type: 'cost', sum: '-4.23' },
-            { userId: 1, type: 'benefit', sum: '4.23' },
-            { userId: 2, type: 'benefit', sum: '4.23' },
+            { userId: u1id, type: 'cost', sum: '-4.23' },
+            { userId: u2id, type: 'cost', sum: '-4.23' },
+            { userId: u1id, type: 'benefit', sum: '4.23' },
+            { userId: u2id, type: 'benefit', sum: '4.23' },
         ]));
         expect(e.division!.length).toEqual(4);
     });
+
+    it('should create benefit based on given cost', async () => {
+        const res = await newExpense(session,
+            { sum: '8.46', division: [ { type: 'cost', userId: u1id, sum: '-5.00' }, { type: 'cost', userId: u2id, sum: '-3.46' } ] });
+        const e = await session.get<Expense>(`/api/expense/${res.expenseId}`);
+        expect(e).toHaveProperty('division');
+        expect(e.division).toEqual(expect.arrayContaining([
+            { userId: u1id, type: 'cost', sum: '-5.00' },
+            { userId: u2id, type: 'cost', sum: '-3.46' },
+            { userId: u1id, type: 'benefit', sum: '5.00' },
+            { userId: u2id, type: 'benefit', sum: '3.46' },
+        ]));
+        expect(e.division!.length).toEqual(4);
+    });
+
+    it('should create income split', async () => { 
+        const res = await newExpense(session, { type: 'income', sum: '200.00' });
+        const e = await session.get<Expense>(`/api/expense/${res.expenseId}`);
+        expect(e).toMatchObject({ sum: '200.00' });
+        expect(e).toHaveProperty('division');
+        expect(e.division).toEqual(expect.arrayContaining([
+            { userId: u2id, type: 'income', sum: '200.00' },
+            { userId: u2id, type: 'split', sum: '-200.00' },
+        ]));
+        expect(e.division!.length).toEqual(2);
+    });
+
 /*
-    it("should create benefit based on given cost", () => newExpense(session,
-        { sum: "8.46", division: [ { type: "cost", userId: 1, sum: "-5.00" }, { type: "cost", userId: 2, sum: "-3.46" } ] })
-        .then(s => session.get(`/api/expense/${s.expenseId}`))
-        .then(e => expect(e).to.have.property("division")
-                .that.is.an("array")
-                .that.has.length(4)
-                .that.contains({userId: 1, type: "cost", sum: "-5.00"})
-                .that.contains({userId: 2, type: "cost", sum: "-3.46"})
-                .that.contains({userId: 1, type: "benefit", sum: "5.00"})
-                .that.contains({userId: 2, type: "benefit", sum: "3.46"})
-        ));
-
-    it("should create income split", () => newExpense(session, { type: "income", sum: "200.00" })
-        .then(s => session.get(`/api/expense/${s.expenseId}`))
-        .then(e =>
-            expect(e).to.contain({ sum: "200.00" }) &&
-            expect(e).to.have.property("division")
-                .that.is.an("array")
-                .that.has.length(2)
-                .that.contains({userId: 2, type: "income", sum: "200.00"})
-                .that.contains({userId: 2, type: "split", sum: "-200.00"})
-        ));
-
     it("should allow POST with GET data", () => newExpense(session,
         { sum: "8.46", division: [ { type: "cost", userId: 1, sum: "-5.00" }, { type: "cost", userId: 2, sum: "-3.46" } ] })
         .then(s => session.get(`/api/expense/${s.expenseId}`))

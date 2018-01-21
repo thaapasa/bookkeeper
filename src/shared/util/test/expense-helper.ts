@@ -73,3 +73,9 @@ export function findCategoryId(name: string, session: Session): number {
     if (!c) { throw new Error('Category not found'); }
     return c.id;
 }
+
+export function findUserId(name: string, session: Session): number {
+    const s = session.users.find(s => s.username === name);
+    if (!s) { throw new Error('User not found'); }
+    return s.id;
+}
