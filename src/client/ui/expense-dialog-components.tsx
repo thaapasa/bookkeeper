@@ -68,7 +68,7 @@ export function CategorySelector(props: {
             key="category"
             value={ props.category }
             style={ styles.category }
-            autoWidth={false}
+            // autoWidth={false}
             // onKeyUp={stopEventPropagation}
             onChange={(i, j, v) => props.onChangeCategory(v)}>
             { props.categories.map((row) => (
@@ -79,7 +79,7 @@ export function CategorySelector(props: {
             key="subcategory"
             value={ props.subcategory }
             style={ styles.category }
-            autoWidth={false}
+            // autoWidth={false}
             // onKeyUp={stopEventPropagation}
             onChange={(i, j, v) => props.onChangeSubcategory(v)}>
             { props.subcategories.map(row =>
@@ -99,7 +99,7 @@ export function SourceSelector(props: {
     return <DropDownMenu
         value={props.value}
         style={props.style}
-        autoWidth={false}
+        // autoWidth={false}
         onChange={(i, j, v) => props.onChange(v)}>
         { props.sources.map((row) =>
             <MenuItem key={row.id} value={row.id} primaryText={row.name}/>
