@@ -4,7 +4,7 @@ import { Map } from '../util';
 import { Session } from '../../types/session';
 
 const debug = require('debug')('bookkeeper:test-client');
-const baseUrl = 'http://localhost:3000';
+const baseUrl = 'http://localhost:3100';
 
 const client = new FetchClient(() => fetch as any, baseUrl);
 

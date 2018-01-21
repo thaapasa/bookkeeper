@@ -4,6 +4,9 @@ import * as help from '../shared/util/test/expense-helper';
 import fetch from 'node-fetch';
 import * as client from '../shared/util/test/test-client';
 import { SessionWithControl } from '../shared/util/test/test-client';
+import { Expense } from '../shared/types/expense';
+import { findCategoryId, findSourceId } from '../shared/util/test/expense-helper';
+import search from 'material-ui/svg-icons/action/search';
 
 function checkValueAndBalance(status, i, name) {
     expect(status.value).toEqual(Money.from(status.cost).plus(status.benefit).plus(status.income).plus(status.split).toString());
@@ -29,31 +32,32 @@ describe('expense', function() {
     it('should insert new expense', async () => {
         const res = await newExpense(session);
         const id = help.checkCreateStatus(res);
-        const exp = await session.get(`/api/expense/${id}`);
-        expect(exp).toMatchObject({ title: 'Karkkia ja porkkanaa', date: '2018-01-22', sum: '10.51',
+        const e = await session.get(`/api/expense/${id}`);
+        expect(e).toMatchObject({ title: 'Karkkia ja porkkanaa', date: '2018-01-22', sum: '10.51',
             description: null, confirmed: true });
     });
 
     it('should have custom values', async () => {
         const res = await newExpense(session, { title: 'Crowbars', sum: '8.46', description: 'On hyvä olla tarkka', confirmed: false });
-        const exp = await session.get(`/api/expense/${res.expenseId}`);
-        expect(exp).toMatchObject({ title: 'Crowbars', date: '2018-01-22', sum: '8.46',
+        const e = await session.get(`/api/expense/${res.expenseId}`);
+        expect(e).toMatchObject({ title: 'Crowbars', date: '2018-01-22', sum: '8.46',
             description: 'On hyvä olla tarkka', confirmed: false });
     });
-/*
-    it("should create division based on sourceId", () => newExpense(session, { sum: "8.46" })
-        .then(s => session.get(`/api/expense/${s.expenseId}`))
-        .then(e =>
-            expect(e).toContain({ sum: "8.46" }) &&
-            expect(e).toHaveProperty("division")
-                .thatIs('array')
-                .that.has.length(4)
-                .that.contains({userId: 1, type: "cost", sum: "-4.23"})
-                .that.contains({userId: 2, type: "cost", sum: "-4.23"})
-                .that.contains({userId: 1, type: "benefit", sum: "4.23"})
-                .that.contains({userId: 2, type: "benefit", sum: "4.23"})
-        ));
 
+    it('should create division based on sourceId', async () => {
+        const res = await newExpense(session, { sum: '8.46' })
+        const e = await session.get<Expense>(`/api/expense/${res.expenseId}`);
+        expect(e).toMatchObject({ sum: '8.46' });
+        expect(e).toHaveProperty('division');
+        expect(e.division).toEqual(expect.arrayContaining([
+            { userId: 1, type: 'cost', sum: '-4.23' },
+            { userId: 2, type: 'cost', sum: '-4.23' },
+            { userId: 1, type: 'benefit', sum: '4.23' },
+            { userId: 2, type: 'benefit', sum: '4.23' },
+        ]));
+        expect(e.division!.length).toEqual(4);
+    });
+/*
     it("should create benefit based on given cost", () => newExpense(session,
         { sum: "8.46", division: [ { type: "cost", userId: 1, sum: "-5.00" }, { type: "cost", userId: 2, sum: "-3.46" } ] })
         .then(s => session.get(`/api/expense/${s.expenseId}`))
@@ -149,5 +153,4 @@ describe('expense', function() {
             });
     });
 */
-
 });

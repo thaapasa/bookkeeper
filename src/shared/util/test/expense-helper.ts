@@ -1,5 +1,5 @@
 import Money, { MoneyLike } from '../money';
-import { Session } from '../../types/session';
+import { Session, Category, Source } from '../../types/session';
 import { ExpenseDivisionItem, Expense } from '../../types/expense';
 import { SessionWithControl } from './test-client';
 import { isDbObject } from '../../types/common';
@@ -9,10 +9,8 @@ import { isApiMessageWithExpenseId, ApiMessage } from '../../types/api';
 let createdIds: number[] = [];
 
 export function captureId<T>(e: T): T {
-    console.log('capture', e);
     if (isDbObject(e) || isApiMessageWithExpenseId(e) || typeof e === 'number') {
         createdIds.push(isDbObject(e) ? e.id : (isApiMessageWithExpenseId(e) ? e.expenseId : e));
-        console.log(e);
     }
     return e;
 };
@@ -43,8 +41,8 @@ export async function newExpense(session: SessionWithControl, expense?: Partial<
         type: 'expense',
         sum: '10.51',
         title: 'Karkkia ja porkkanaa',
-        sourceId: 1,
-        categoryId: 2,
+        sourceId: findSourceId('Yhteinen tili', session),
+        categoryId: findCategoryId('Ruoka', session),
         ...expense
     };
     return captureId(await session.put<ApiMessage>('/api/expense', data));
@@ -63,3 +61,15 @@ export function checkCreateStatus(s: ApiMessage) {
     expect(s.expenseId).toBeGreaterThan(0);
     return s.expenseId;
 };
+
+export function findSourceId(name: string, session: Session): number {
+    const s = session.sources.find(s => s.name === name);
+    if (!s) { throw new Error('Source not found'); }
+    return s.id;
+}
+
+export function findCategoryId(name: string, session: Session): number {
+    const c = session.categories.find(s => s.name === name);
+    if (!c) { throw new Error('Category not found'); }
+    return c.id;
+}

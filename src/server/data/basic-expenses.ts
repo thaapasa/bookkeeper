@@ -11,6 +11,7 @@ import { determineDivision } from './expense-division';
 import { NotFoundError } from '../../shared/types/errors';
 import { Expense, UserExpense, ExpenseDivisionType, ExpenseDivisionItem, ExpenseStatus } from '../../shared/types/expense';
 import { Moment } from 'moment';
+import { ApiMessage } from '../../shared/types/api';
 const debug = require('debug')('bookkeeper:api:expenses');
 
 function expenseSelect(where: string): string {

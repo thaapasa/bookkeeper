@@ -7,6 +7,7 @@ import { config } from '../config';
 import { Session, SessionBasicInfo, User } from '../../shared/types/session';
 import { Map } from '../../shared/util/util';
 import { AuthenticationError } from '../../shared/types/errors';
+import { ApiMessage } from '../../shared/types/api';
 const debug = require('debug')('bookkeeper:api:sessions');
 
 const randomBytes = promisify(require('crypto').randomBytes);

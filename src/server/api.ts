@@ -10,6 +10,7 @@ import { Validator as V, Schema } from './util/validator';
 import { asyncIdentity } from '../shared/util/util';
 import { Express } from 'express';
 import { Expense, Recurrence, UserExpense } from '../shared/types/expense';
+import { ApiMessage } from '../shared/types/api';
 const debug = require('debug')('bookkeeper:api');
 
 export function registerAPI(app: Express) {
