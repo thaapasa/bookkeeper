@@ -9,7 +9,7 @@ import * as server from './util/server-util';
 import { Validator as V, Schema } from './util/validator';
 import { asyncIdentity } from '../shared/util/util';
 import { Express } from 'express';
-import { Expense, Recurrence, UserExpense } from '../shared/types/expense';
+import { Expense, Recurrence, UserExpense, ExpenseCollection } from '../shared/types/expense';
 import { ApiMessage } from '../shared/types/api';
 const debug = require('debug')('bookkeeper:api');
 
@@ -109,7 +109,7 @@ export function registerAPI(app: Express) {
         year: V.intBetween(1500, 3000),
         month: V.intBetween(1, 12)
     };
-    app.get('/api/expense/month', server.processRequest((session, req) => {
+    app.get('/api/expense/month', server.processRequest((session, req): Promise<ExpenseCollection> => {
         const params = V.validate<{ year: number, month: number }>(monthSchema, { year: req.query.year, month: req.query.month });
         return expenses.getByMonth(session.group.id, session.user.id, params.year, params.month);
     }, true));
