@@ -9,7 +9,8 @@ import * as server from './util/server-util';
 import { Validator as V, Schema } from './util/validator';
 import { asyncIdentity } from '../shared/util/util';
 import { Express } from 'express';
-import { Expense, Recurrence } from '../shared/types/expense';
+import { Expense, Recurrence, UserExpense, ExpenseCollection } from '../shared/types/expense';
+import { ApiMessage } from '../shared/types/api';
 const debug = require('debug')('bookkeeper:api');
 
 export function registerAPI(app: Express) {
@@ -108,7 +109,7 @@ export function registerAPI(app: Express) {
         year: V.intBetween(1500, 3000),
         month: V.intBetween(1, 12)
     };
-    app.get('/api/expense/month', server.processRequest((session, req) => {
+    app.get('/api/expense/month', server.processRequest((session, req): Promise<ExpenseCollection> => {
         const params = V.validate<{ year: number, month: number }>(monthSchema, { year: req.query.year, month: req.query.month });
         return expenses.getByMonth(session.group.id, session.user.id, params.year, params.month);
     }, true));
@@ -118,7 +119,7 @@ export function registerAPI(app: Express) {
         endDate: V.date,
         categoryId: V.optional(V.positiveInt)
     };
-    app.get('/api/expense/search', server.processRequest((session, req) => {
+    app.get('/api/expense/search', server.processRequest((session, req): Promise<UserExpense[]> => {
         const params = V.validate(searchSchema, req.query);
         return expenses.search(session.group.id, session.user.id, params);
     }, true));
@@ -137,7 +138,7 @@ export function registerAPI(app: Express) {
         categoryId: V.positiveInt,
         division: V.optional(V.listOfObjects({ userId: V.positiveInt, sum: V.money, type: V.stringWithLength(1, 10) }))
     };
-    app.put('/api/expense', server.processRequest((session, req) =>
+    app.put('/api/expense', server.processRequest((session, req): Promise<ApiMessage> =>
         expenses.create(session.user.id, session.group.id, V.validate(expenseSchema, req.body), session.group.defaultSourceId || 0), true));
 
     interface ReceiverSchema {

@@ -4,7 +4,8 @@ import Money from '../../shared/util/money';
 import { Session } from '../../shared/types/session';
 import { Map } from '../../shared/util/util';
 import { AuthenticationError, Error } from '../../shared/types/errors';
-const debug = require('debug')('bookkeeper:api-connect');
+import { FetchClient } from '../../shared/util/fetch-client';
+const client = new FetchClient(() => fetch);
 
 function mapExpense(e) {
     e.userBenefit = Money.from(e.userBenefit, 0);
@@ -34,57 +35,29 @@ function mapExpenseObject(e) {
     return e;
 }
 
-function toQuery(path: string, query?: Map<string>): string {
-    return query ? path + '?' +
-        Object.keys(query)
-            .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(query[k])).join('&')
-        : path;
+function authHeader(): Map<string> {
+    const token = state.get('token');
+    return { 'Authorization': `Bearer ${token}` };
 }
-
-async function req<T>(path, { method, query, body, headers }: 
-    { method: string, query?: Map<string>, body?: any, headers?: Map<string> }): Promise<T> {
-    try {
-        const token = state.get('token');
-        const queryPath = toQuery(path, query);
-        debug(`${method} ${queryPath} with body`, body);
-        const res = await fetch(queryPath, {
-            method: method,
-            body: body ? JSON.stringify(body) : undefined,
-            headers: { ...headers, 'Authorization': `Bearer ${token}` }
-        });
-        switch (res.status) {
-            case 200: return await res.json() as T;
-            case 401: 
-            case 403: throw new AuthenticationError('Unauthorized: ' + res.status, await res.json());
-            default: throw new Error('Error in api-connec', await res.json(), res.status);
-        }
-    } catch (e) {
-        debug('Error in api-connect:', e);
-        throw e;
-    }
-}
-
-const contentTypeJson = { 'Content-Type': 'application/json' };
 
 function get<T>(path, query?: Map<string>): Promise<T> {
-    return req(path, { method: 'GET', query });
+    return client.get<T>(path, query, authHeader());
 }
 
-function put<T>(path: string, body?: any, query?: Map<string>): Promise<T>  {
-    return req(path, { method: 'PUT', body, query, headers: contentTypeJson });
+function put<T>(path: string, body?: any, query?: Map<string>): Promise<T> {
+    return client.put<T>(path, body, query, authHeader());
 }
 
 function post<T>(path, body?: any, query?: Map<string>): Promise<T>  {
-    return req(path, { method: 'POST', body, query, headers: contentTypeJson });
+    return client.post<T>(path, body, query, authHeader());
 }
 
 function del<T>(path, data?: any, query?: Map<string>): Promise<T>  {
-    return req(path, { method: 'DELETE', query });
+    return client.del<T>(path, data, query, authHeader());
 }
 
 export function login(username: string, password: string): Promise<Session> {
-    const url = '/api/session';
-    return req<Session>(url, { method: 'PUT', body: { username, password }, headers: contentTypeJson });
+    return client.put<Session>('/api/session', { username, password });
 }
 
 export function logout(): Promise<void> {
@@ -96,7 +69,7 @@ export function getSession(): Promise<Session> {
 }
 
 export function refreshSession(): Promise<Session> {
-    return put('/api/session/refresh');
+    return put<Session>('/api/session/refresh');
 }
 
 export function getExpensesForMonth(year, month) {

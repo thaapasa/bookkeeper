@@ -96,6 +96,10 @@ export default class Money {
         return this.value.eq(Money.toBig(o));
     }
 
+    public static equals(o1: MoneyLike, o2: MoneyLike): boolean {
+        return Money.from(o1).equals(o2);
+    }
+
     public static zero = new Money('0');
     public static euro = new Money('1');
     public static cent = new Money('0.01');

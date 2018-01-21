@@ -29,12 +29,12 @@ function getBetween(tx: DbAccess) {
 }
 
 const zeroStatus: ExpenseStatus = {
-    balance: '0',
-    benefit: '0',
-    cost: '0',
-    income: '0',
-    split: '0',
-    value: '0',
+    balance: '0.00',
+    benefit: '0.00',
+    cost: '0.00',
+    income: '0.00',
+    split: '0.00',
+    value: '0.00',
 };
 
 function getByMonth(groupId: number, userId: number, year: number, month: number): Promise<ExpenseCollection> {

@@ -11,6 +11,7 @@ import { determineDivision } from './expense-division';
 import { NotFoundError } from '../../shared/types/errors';
 import { Expense, UserExpense, ExpenseDivisionType, ExpenseDivisionItem, ExpenseStatus } from '../../shared/types/expense';
 import { Moment } from 'moment';
+import { ApiMessage } from '../../shared/types/api';
 const debug = require('debug')('bookkeeper:api:expenses');
 
 function expenseSelect(where: string): string {
@@ -23,10 +24,10 @@ function expenseSelect(where: string): string {
         'FROM ' +
         '(SELECT id, date::DATE, receiver, e.type, e.sum::MONEY::NUMERIC, title, description, confirmed, ' +
         'source_id, e.user_id, created_by_id, group_id, category_id, created, recurring_expense_id, ' +
-        "(CASE WHEN d.type = 'cost' THEN d.sum::NUMERIC ELSE 0::NUMERIC END) AS cost, " +
-        "(CASE WHEN d.type = 'benefit' THEN d.sum::NUMERIC ELSE 0::NUMERIC END) AS benefit, " +
-        "(CASE WHEN d.type = 'income' THEN d.sum::NUMERIC ELSE 0::NUMERIC END) AS income, " +
-        "(CASE WHEN d.type = 'split' THEN d.sum::NUMERIC ELSE 0::NUMERIC END) AS split " +
+        "(CASE WHEN d.type = 'cost' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS cost, " +
+        "(CASE WHEN d.type = 'benefit' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS benefit, " +
+        "(CASE WHEN d.type = 'income' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS income, " +
+        "(CASE WHEN d.type = 'split' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS split " +
         'FROM expenses e ' +
         'LEFT JOIN expense_division d ON (d.expense_id = e.id AND d.user_id = $1) ' +
         where +
@@ -40,10 +41,10 @@ const countTotalSelect = 'SELECT ' +
     "COALESCE(SUM(income), '0.00'::NUMERIC) AS income, " +
     "COALESCE(SUM(split), '0.00'::NUMERIC) AS split " +
     'FROM (SELECT ' +
-    "(CASE WHEN d.type = 'cost' THEN d.sum::NUMERIC ELSE 0::NUMERIC END) AS cost, " +
-    "(CASE WHEN d.type = 'benefit' THEN d.sum::NUMERIC ELSE 0::NUMERIC END) AS benefit, " +
-    "(CASE WHEN d.type = 'income' THEN d.sum::NUMERIC ELSE 0::NUMERIC END) AS income, " +
-    "(CASE WHEN d.type = 'split' THEN d.sum::NUMERIC ELSE 0::NUMERIC END) AS split " +
+    "(CASE WHEN d.type = 'cost' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS cost, " +
+    "(CASE WHEN d.type = 'benefit' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS benefit, " +
+    "(CASE WHEN d.type = 'income' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS income, " +
+    "(CASE WHEN d.type = 'split' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS split " +
     'FROM expenses e ' +
     'LEFT JOIN expense_division d ON (d.expense_id = e.id AND d.user_id = $1::INTEGER) ' +
     'WHERE group_id=$2::INTEGER AND template=false AND date >= $3::DATE AND date < $4::DATE) breakdown';
@@ -129,7 +130,7 @@ function setDefaults(expense: Expense): Expense {
     return expense;
 }
 
-function createExpense(userId: number, groupId: number, expense: Expense, defaultSourceId: number) {
+function createExpense(userId: number, groupId: number, expense: Expense, defaultSourceId: number): Promise<ApiMessage> {
     return db.transaction(async tx => {
         expense = setDefaults(expense);
         debug('Creating expense', expense);
