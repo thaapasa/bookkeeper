@@ -1,65 +1,57 @@
-"use strict";
+import 'jest';
+import * as help from '../shared/util/test/expense-helper';
+import * as client from '../shared/util/test/test-client';
+import { SessionWithControl } from '../shared/util/test/test-client';
+import { ExpenseCollection, ExpenseStatus, Expense, UserExpense } from '../shared/types/expense';
+import Money, { MoneyLike } from '../shared/util/money';
+import { checkCreateStatus } from '../shared/util/test/expense-helper';
+import { ApiMessage } from '../shared/types/api';
 
-const chai = require("chai");
-const expect = chai.expect;
-const client = require("../support/test-client");
-const describe = require("mocha").describe;
-const it = require("mocha").it;
-const before = require("mocha").before;
-const after = require("mocha").after;
-const log = require("../../../shared/util/log");
-const moment = require("moment");
-const Money = require("../../../shared/util/money");
-const help = require("./expense-help");
+describe('recurringExpense', () => {
 
-describe("recurringExpense", function() {
-
-    let session = null;
+    let session: SessionWithControl;
 
     const newExpense = help.newExpense;
 
-    before(() => client.getSession("sale", "salasana").then(s => { session = s; return null; }));
+    beforeEach(async () => { session = await client.getSession('sale', 'salasana'); });
+    afterEach(async () => { await help.cleanup(session); });
 
-    after(() => help.deleteCreated(session).then(session.logout));
-
-    function checkMonthStatus(expectedBenefit, expectItems) {
-        return session.get(`/api/expense/month`, { year: 2017, month: 1 })
-            .then(m => {
-                const e = expect(m).to.have.property("monthStatus").that.has.property("benefit");
-                if (expectedBenefit) e.that.equals(expectedBenefit);
-                expect(m).to.have.property("expenses").that.is.an("array");
-                if (expectItems) expectItems(m.expenses);
-                return Money.from(m.monthStatus.benefit);
-            })
+    async function checkMonthStatus(expectedBenefit?: MoneyLike, expectItems?: (items: UserExpense[]) => any): Promise<Money> {
+        const m = await session.get<ExpenseCollection>(`/api/expense/month`, { year: 2017, month: 1 });
+        expect(m).toHaveProperty('monthStatus');
+        expect(m.monthStatus).toHaveProperty('benefit');
+        if (expectedBenefit) {
+            expect(m.monthStatus.benefit).toEqual(expectedBenefit);
+        }
+        expect(m).toHaveProperty('expenses');
+        expect(m.expenses).toBeInstanceOf(Array);
+        if (expectItems) {
+            expectItems(m.expenses);
+        }
+        return Money.from(m.monthStatus.benefit);
     }
 
-    it("recurring expense template should not show up on expense queries", () => {
-        let monthBenefit1 = null;
-        let monthBenefit2 = null;
-        let recurrenceId = null;
-        let expenseId = null;
-        return checkMonthStatus(false)
-            .then(b => monthBenefit1 = b)
-            .then(x => newExpense(session, { sum: "150.00", confirmed: false, date: "2017-01-15" }))
-            .then(help.checkCreateStatus)
-            .then(i => expenseId = i)
-            .then(x => session.get(`/api/expense/${expenseId}`))
-            .then(e => expect(e).to.have.property("division").that.contains({ userId: 2, type: "benefit", sum: "75.00" }) &&
-                expect(e).to.have.property("recurringExpenseId").that.is.null)
-            .then(x => checkMonthStatus(monthBenefit1.plus("75").toString(),
-                e => expect(e.find(i => i.id === expenseId)).to.be.ok))
-            .then(b => monthBenefit2 = b)
-            .then(m => session.put(`/api/expense/recurring/${expenseId}`, { period: "monthly" }))
-            .then(s => {
-                expect(s).to.have.property("recurringExpenseId").that.is.above(0);
-                expect(s).to.have.property("templateExpenseId").that.is.above(0);
-                help.captureId(s.templateExpenseId);
-                recurrenceId = s.recurringExpenseId;
-            })
-            .then(x => checkMonthStatus(monthBenefit2.toString()))
-            .then(x => session.get(`/api/expense/${expenseId}`))
-            .then(e => expect(e).to.have.property("recurringExpenseId").that.equals(recurrenceId))
-    });
+    it('recurring expense template should not show up on expense queries', async () => {
+        const monthBenefit1 = await checkMonthStatus();
+        const expenseId = checkCreateStatus(await newExpense(session, {
+            sum: '150.00', confirmed: false, date: '2017-01-15', title: 'Tonnikalaa' }));
 
+        const e = await session.get<Expense>(`/api/expense/${expenseId}`);
+        expect(e).toHaveProperty('division');
+        expect(e.division).toContainEqual({ userId: 2, type: 'benefit', sum: '75.00' });
+        expect(e).toHaveProperty('recurringExpenseId');
+        expect(e.recurringExpenseId).toBeNull;
+
+        const monthBenefit2 = await checkMonthStatus(monthBenefit1.plus('75').toString(),
+                e => expect(e.find(i => i.id === expenseId)).toBeTruthy);
+        const s = await session.put<ApiMessage>(`/api/expense/recurring/${expenseId}`, { period: 'monthly' });
+        expect(s.recurringExpenseId).toBeGreaterThan(0);
+        expect(s.templateExpenseId).toBeGreaterThan(0);
+        help.captureId(s.templateExpenseId);
+        checkMonthStatus(monthBenefit2.toString());
+
+        const e2 = await session.get<Expense>(`/api/expense/${expenseId}`);
+        expect(e2.recurringExpenseId).toEqual(s.recurringExpenseId);
+    });
 
 });

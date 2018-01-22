@@ -50,15 +50,19 @@ export async function newExpense(session: SessionWithControl, expense?: Partial<
 
 export async function deleteCreated(session: SessionWithControl): Promise<boolean> {
     if (!session) { return false; }
-    await Promise.all(createdIds.map(id => session.del(`/api/expense/${id}`)));
-    // Clear createdIds array
-    createdIds = [];
-    return true;
+    try {
+        await Promise.all(createdIds.map(id => session.del(`/api/expense/${id}`)));
+        return true;
+    } finally {
+        // Clear createdIds array
+        createdIds = [];
+    }
 };
 
-export function checkCreateStatus(s: ApiMessage) {
+export function checkCreateStatus(s: ApiMessage): number {
     expect(s.status).toEqual('OK');
     expect(s.expenseId).toBeGreaterThan(0);
+    if (!s.expenseId) { throw 'not-reached'; }
     return s.expenseId;
 };
 
@@ -78,4 +82,13 @@ export function findUserId(name: string, session: Session): number {
     const s = session.users.find(s => s.username === name);
     if (!s) { throw new Error('User not found'); }
     return s.id;
+}
+
+export async function cleanup(session: SessionWithControl) {
+    try {
+        await deleteCreated(session);
+        await session.logout();
+    } catch (e) {
+        // Ignore
+    }
 }

@@ -10,6 +10,7 @@ import sources from './sources';
 import expenses from './basic-expenses';
 import { RecurringExpensePeriod, Recurrence, ExpenseDivisionItem, Expense } from '../../shared/types/expense';
 import { Moment } from 'moment';
+import { ApiMessage } from '../../shared/types/api';
 const debug = require('debug')('bookkeeper:api:recurring-expenses');
 
 function nextRecurrence(fromDate: string | Moment, period: RecurringExpensePeriod): moment.Moment {
@@ -22,7 +23,7 @@ function nextRecurrence(fromDate: string | Moment, period: RecurringExpensePerio
 }
 
 function createRecurring(groupId: number, userId: number, expenseId: number, recurrence: Recurrence) {
-    return db.transaction(async (tx: DbAccess) => {
+    return db.transaction(async (tx: DbAccess): Promise<ApiMessage> => {
         let nextMissing: moment.Moment | null = null;
         const templateId = await expenses.tx.copyExpense(tx)(groupId, userId, expenseId, e => {
             const [expense, division] = e;

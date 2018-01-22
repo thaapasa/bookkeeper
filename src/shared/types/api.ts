@@ -3,6 +3,8 @@ export interface ApiMessage {
     message: string;
     userId?: number;
     expenseId?: number;
+    templateExpenseId?: number;
+    recurringExpenseId?: number;
 }
 
 export function isApiMessage(e: any): e is ApiMessage {
