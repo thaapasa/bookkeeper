@@ -34,12 +34,7 @@ describe('expense', function() {
         u2id = findUserId('sale', session);
     });
 
-    afterEach(async () => {
-        if (session) {
-            await help.deleteCreated(session);
-            await session.logout();
-        }
-    });
+    afterEach(async () => { await help.cleanup(session); });
 
     it('should insert new expense', async () => {
         const res = await newExpense(session);
