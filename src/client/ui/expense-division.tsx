@@ -10,6 +10,7 @@ import * as apiConnect from "../data/api-connect";
 import RefreshIndicator from 'material-ui/RefreshIndicator';
 import PropTypes from "prop-types";
 import Money from '../../shared/util/money';
+import { RecurringExpensePeriod } from '../../shared/types/expense';
 
 const styles = {
     tool: {
@@ -67,7 +68,7 @@ export default class ExpenseDivision extends React.Component<ExpenseDivisionProp
         state.confirm("Muuta toistuvaksi", `Kuinka usein kirjaus ${expenseName(this.props.expense)} toistuu?`, {
             actions: [ ["Kuukausittain", "monthly"], ["Vuosittain", "yearly"], ["Peruuta", false] ]
         })
-            .then(a => a ? apiConnect.createRecurring(this.props.expense.id, a)
+            .then((a: RecurringExpensePeriod) => a ? apiConnect.createRecurring(this.props.expense.id, a)
                     .then(() => state.updateExpenses(this.props.expense.date))
                     .then(() => state.notify("Kirjaus muutettu toistuvaksi")) : false)
             .catch(e => state.notifyError("Virhe muutettaessa kirjausta toistuvaksi", e));

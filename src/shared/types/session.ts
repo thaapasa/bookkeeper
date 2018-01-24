@@ -18,9 +18,12 @@ export interface Source extends DbObject {
     image?: string;
 }
 
-export interface Category extends DbObject {
+export interface CategoryData {
     parentId: number | null;
     name: string;
+}
+
+export interface Category extends DbObject, CategoryData {
     children: Category[];
 }
 

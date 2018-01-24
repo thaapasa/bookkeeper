@@ -87,25 +87,29 @@ export default class CategoryDialog extends React.Component<any, any> {
         });
     }
 
-    saveCategory(s) {
+    async saveCategory(s) {
         const createNew = !s.id;
         const name = s.name;
 
         const data = {
             name: s.name,
-            parentId: s.parentId
+            parentId: s.parentId,
+            children: [],
         };
         debug("Save", data);
-        (createNew ? apiConnect.storeCategory(data) : apiConnect.updateCategory(s.id, data))
-            .then(e => {
-                this.closeDialog(e);
-                state.notify(`${createNew ? "Tallennettu" : "Päivitetty"} ${name}`);
-                return null;
-            })
-            .catch(e => {
-                state.notifyError(`Virhe ${createNew ? "tallennettaessa" : "päivitettäessä"} kirjausta ${name}`, e);
-                return null;
-            });
+        let id = 0;
+        try {
+            if (createNew) {
+                id = (await apiConnect.storeCategory(data)).categoryId || 0;
+            } else {
+                id = (await apiConnect.updateCategory(s.id, data)).id;
+            }
+            this.closeDialog(id);
+            state.notify(`${createNew ? 'Tallennettu' : 'Päivitetty'} ${name}`);
+        } catch (e) {
+            state.notifyError(`Virhe ${createNew ? 'tallennettaessa' : 'päivitettäessä'} kirjausta ${name}`, e);
+            return null;
+        }
     }
 
     public render() {

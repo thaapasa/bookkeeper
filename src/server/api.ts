@@ -10,7 +10,8 @@ import { Validator as V, Schema } from './util/validator';
 import { asyncIdentity } from '../shared/util/util';
 import { Express } from 'express';
 import { Expense, Recurrence, UserExpense, ExpenseCollection } from '../shared/types/expense';
-import { ApiMessage } from '../shared/types/api';
+import { ApiMessage, ApiStatus } from '../shared/types/api';
+import { Session, SessionBasicInfo, Group, User, Category, CategoryAndTotals, Source } from '../shared/types/session';
 const debug = require('debug')('bookkeeper:api');
 
 export function registerAPI(app: Express) {
@@ -18,7 +19,7 @@ export function registerAPI(app: Express) {
     debug('Registering API');
 
     // GET /api/status
-    app.get('/api/status', server.processUnauthorizedRequest(req => Promise.resolve({
+    app.get('/api/status', server.processUnauthorizedRequest((req): Promise<ApiStatus> => Promise.resolve({
         status: 'OK',
         timestamp: moment().format(),
         version: config.version,
@@ -28,39 +29,39 @@ export function registerAPI(app: Express) {
 
 
     // PUT /api/session
-    app.put('/api/session', server.processUnauthorizedRequest(req =>
+    app.put('/api/session', server.processUnauthorizedRequest((req): Promise<Session> =>
         sessions.login(req.body.username, req.body.password, req.query.groupId)
             .then(sessions.appendInfo)));
-    app.put('/api/session/refresh', server.processUnauthorizedRequest(req =>
+    app.put('/api/session/refresh', server.processUnauthorizedRequest((req): Promise<Session> =>
         sessions.refresh(server.getToken(req), req.query.groupId)
             .then(sessions.appendInfo)));
 
     // GET /api/session
-    app.get('/api/session', server.processRequest(sessions.appendInfo));
-    app.get('/api/session/bare', server.processRequest(asyncIdentity));
+    app.get('/api/session', server.processRequest((session): Promise<Session> => sessions.appendInfo(session)));
+    app.get('/api/session/bare', server.processRequest(async (session): Promise<SessionBasicInfo> => session));
 
     // DELETE /api/session
-    app.delete('/api/session', server.processRequest(session =>
+    app.delete('/api/session', server.processRequest((session): Promise<ApiMessage> =>
         sessions.logout(session)));
 
     // GET /api/session/groups
-    app.get('/api/session/groups', server.processRequest(session =>
+    app.get('/api/session/groups', server.processRequest((session): Promise<Group[]> =>
         users.getGroups(session.user.id)));
 
 
     // GET /api/user/list
-    app.get('/api/user/list', server.processRequest((session, req) =>
+    app.get('/api/user/list', server.processRequest((session, req): Promise<User[]> =>
         users.getAll(session.group.id), true));
 
     // GET /api/user/[userid]
     const userPath = /\/api\/user\/([0-9]+)/;
-    app.get('/api/user/:id', server.processRequest((session, req) =>
+    app.get('/api/user/:id', server.processRequest((session, req): Promise<User> =>
         users.getById(session.group.id, parseInt(req.params.id, 10)), true));
 
 
 
     // GET /api/category/list
-    app.get("/api/category/list", server.processRequest(session =>
+    app.get('/api/category/list', server.processRequest((session): Promise<Category[]> =>
         categories.getAll(session.group.id), true));
 
     // PUT /api/category
@@ -68,9 +69,9 @@ export function registerAPI(app: Express) {
         name: V.stringWithLength(1, 255),
         parentId: V.nonNegativeInt
     };
-    app.put("/api/category", server.processRequest(async (session, req) => {
+    app.put('/api/category', server.processRequest(async (session, req): Promise<ApiMessage> => {
         const id = await categories.create(session.group.id, V.validate(categorySchema, req.body));
-        return { status: "OK", message: "Category created", categoryId: id }
+        return { status: 'OK', message: 'Category created', categoryId: id };
     }, true));
 
     const dateSchema: Schema<CategoryQueryInput> = {
@@ -79,29 +80,29 @@ export function registerAPI(app: Express) {
     };
 
     // GET /api/category/totals
-    app.get('/api/category/totals', server.processRequest((session, req) => {
+    app.get('/api/category/totals', server.processRequest((session, req): Promise<CategoryAndTotals[]> => {
         const params = V.validate(dateSchema, req.query);
         return categories.getTotals(session.group.id, params);
     }, true));
 
     // POST /api/category/categoryId
-    app.post('/api/category/:id', server.processRequest((session, req) =>
+    app.post('/api/category/:id', server.processRequest((session, req): Promise<Category> =>
         categories.update(session.group.id, parseInt(req.params.id, 10), V.validate(categorySchema, req.body)), true));
 
     // GET /api/category/categoryId
-    app.get('/api/category/:id', server.processRequest((session, req) =>
+    app.get('/api/category/:id', server.processRequest((session, req): Promise<Category> =>
         categories.getById(session.group.id, parseInt(req.params.id, 10)), true));
 
     // GET /api/source/list
-    app.get('/api/source/list', server.processRequest(session =>
+    app.get('/api/source/list', server.processRequest((session): Promise<Source[]> =>
         sources.getAll(session.group.id), true));
     // GET /api/source/:id
-    app.get('/api/source/:id', server.processRequest((session, req) =>
+    app.get('/api/source/:id', server.processRequest((session, req): Promise<Source> =>
         sources.getById(session.group.id, parseInt(req.params.id, 10)), true));
 
 
     // GET /api/expense/list
-    app.get('/api/expense/list', server.processRequest(session =>
+    app.get('/api/expense/list', server.processRequest((session): Promise<Expense[]> =>
         expenses.getAll(session.group.id, session.user.id), true));
 
     // GET /api/expense/month
@@ -148,22 +149,22 @@ export function registerAPI(app: Express) {
         receiver: V.stringWithLength(3, 50),
     };
     // GET /api/expense/receivers?receiver=[query]
-    app.get('/api/expense/receivers', server.processRequest(async (session, req) =>
+    app.get('/api/expense/receivers', server.processRequest(async (session, req): Promise<string[]> =>
         (await expenses.queryReceivers(session.group.id, V.validate(receiverSchema, req.query).receiver))
             .map(r => r.receiver), true));
     
     // POST /api/expense/[expenseId]
-    app.post('/api/expense/:id', server.processRequest((session, req) =>
+    app.post('/api/expense/:id', server.processRequest((session, req): Promise<ApiMessage> =>
         expenses.update(session.group.id, session.user.id, parseInt(req.params.id, 10), V.validate(expenseSchema, req.body),
             session.group.defaultSourceId || 0), true));
 
     // GET /api/expense/[expenseId]
-    app.get('/api/expense/:id', server.processRequest((session, req) =>
+    app.get('/api/expense/:id', server.processRequest((session, req): Promise<Expense> =>
         expenses.getById(session.group.id, session.user.id, parseInt(req.params.id, 10))
             .then(e => expenses.getDivision(e.id).then(division => Object.assign(e, { division: division }))), true));
 
     // DELETE /api/expense/[expenseId]
-    app.delete('/api/expense/:id', server.processRequest((session, req) =>
+    app.delete('/api/expense/:id', server.processRequest((session, req): Promise<ApiMessage> =>
         expenses.deleteById(session.group.id, parseInt(req.params.id, 10)), true));
 
 
@@ -174,7 +175,7 @@ export function registerAPI(app: Express) {
     };
 
     // PUT /api/expense/recurring/[expenseId]
-    app.put('/api/expense/recurring/:id', server.processRequest((session, req) =>
+    app.put('/api/expense/recurring/:id', server.processRequest((session, req): Promise<ApiMessage> =>
         expenses.createRecurring(session.group.id, session.user.id, parseInt(req.params.id, 10),
             V.validate(recurringExpenseSchema, req.body)), true));
 

@@ -71,7 +71,7 @@ function countTotalBetween(tx: DbAccess) {
 }
 
 function hasUnconfirmedBefore(tx: DbAccess) {
-    return async (groupId, startDate) => {
+    return async (groupId, startDate): Promise<boolean> => {
         const s = await tx.queryObject<{ amount: number }>('expenses.count_unconfirmed_before',
             'SELECT COUNT(*) AS amount FROM expenses WHERE group_id=$1 AND template=false AND date < $2::DATE AND confirmed=false',
             [groupId, startDate]);
@@ -80,7 +80,7 @@ function hasUnconfirmedBefore(tx: DbAccess) {
 }
 
 function getById(tx: DbAccess) {
-    return async (groupId: number, userId: number, expenseId: number) => {
+    return async (groupId: number, userId: number, expenseId: number): Promise<Expense> => {
         const expense = await tx.queryObject('expenses.get_by_id', expenseSelect(`WHERE id=$2 AND group_id=$3`), 
             [userId, expenseId, groupId]);
         return mapExpense(expense as UserExpense);
@@ -88,7 +88,7 @@ function getById(tx: DbAccess) {
 }
 
 function deleteById(tx: DbAccess) {
-    return async (groupId: number, expenseId: number) => {
+    return async (groupId: number, expenseId: number): Promise<ApiMessage> => {
         await tx.update('expenses.delete_by_id', 'DELETE FROM expenses WHERE id=$1 AND group_id=$2',
             [expenseId, groupId]);
         return { status: 'OK', message: 'Expense deleted', expenseId: expenseId };

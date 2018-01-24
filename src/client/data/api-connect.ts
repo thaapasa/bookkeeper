@@ -1,13 +1,15 @@
 import * as state from './state';
 import * as time from '../../shared/util/time';
 import Money from '../../shared/util/money';
-import { Session } from '../../shared/types/session';
+import { Session, Category, CategoryAndTotals, CategoryData } from '../../shared/types/session';
 import { Map } from '../../shared/util/util';
 import { AuthenticationError, Error } from '../../shared/types/errors';
 import { FetchClient } from '../../shared/util/fetch-client';
+import { ApiMessage, isApiMessage } from '../../shared/types/api';
+import { ExpenseCollection, ExpenseStatus, Expense, UserExpense, RecurringExpensePeriod } from '../../shared/types/expense';
 const client = new FetchClient(() => fetch);
 
-function mapExpense(e) {
+function mapExpense(e: UserExpense): UserExpense {
     e.userBenefit = Money.from(e.userBenefit, 0);
     e.userCost = Money.from(e.userCost, 0);
     e.userBalance = Money.from(e.userBalance, 0);
@@ -16,7 +18,7 @@ function mapExpense(e) {
     return e;
 }
 
-function mapStatus(s) {
+function mapStatus(s: ExpenseStatus): ExpenseStatus {
     return {
         cost: Money.from(s.cost),
         benefit: Money.from(s.benefit),
@@ -27,7 +29,7 @@ function mapStatus(s) {
     }
 }
 
-function mapExpenseObject(e) {
+function mapExpenseObject(e: ExpenseCollection): ExpenseCollection {
     e.expenses = e.expenses.map(mapExpense);
     e.startStatus = mapStatus(e.startStatus);
     e.endStatus = mapStatus(e.endStatus);
@@ -60,8 +62,8 @@ export function login(username: string, password: string): Promise<Session> {
     return client.put<Session>('/api/session', { username, password });
 }
 
-export function logout(): Promise<void> {
-    return del('/api/session');
+export function logout(): Promise<ApiMessage> {
+    return del<ApiMessage>('/api/session');
 }
 
 export function getSession(): Promise<Session> {
@@ -72,58 +74,62 @@ export function refreshSession(): Promise<Session> {
     return put<Session>('/api/session/refresh');
 }
 
-export function getExpensesForMonth(year, month) {
-    return get('/api/expense/month', { year: year, month: month })
-        .then(l => mapExpenseObject(l));
+export async function getExpensesForMonth(year, month): Promise<ExpenseCollection> {
+    const collection = await get<ExpenseCollection>('/api/expense/month', { year: year, month: month })
+    return mapExpenseObject(collection);
 }
 
-export function searchExpenses(startDate, endDate, query) {
+export function searchExpenses(startDate, endDate, query): Promise<UserExpense[]> {
     const q = query || {};
     q.startDate = time.date(startDate);
     q.endDate = time.date(endDate);
-    return get<any[]>('/api/expense/search', q).then(l => l.map(mapExpense));
+    return get<UserExpense[]>('/api/expense/search', q).then(l => l.map(mapExpense));
 }
 
-export function getExpense(id) {
-    return get(`/api/expense/${parseInt(id, 10)}`).then(mapExpense);
+function toInt(n: number | string) {
+    return typeof n === 'number' ? n : parseInt(n, 10); 
 }
 
-export function storeExpense(expense) {
-    return put("/api/expense", expense);
+export function getExpense(id: number | string): Promise<Expense> {
+    return get<Expense>(`/api/expense/${toInt(id)}`).then(mapExpense);
 }
 
-export function updateExpense(id, expense) {
-    return post(`/api/expense/${parseInt(id, 10)}`, expense);
+export function storeExpense(expense: Expense): Promise<ApiMessage> {
+    return put<ApiMessage>('/api/expense', expense);
 }
 
-export function deleteExpense(id) {
-    return del(`/api/expense/${parseInt(id, 10)}`);
+export function updateExpense(id: number | string, expense): Promise<ApiMessage> {
+    return post<ApiMessage>(`/api/expense/${toInt(id)}`, expense);
 }
 
-export function createRecurring(id, period) {
-    return put(`/api/expense/recurring/${parseInt(id, 10)}`, { period: period });
+export function deleteExpense(id: number | string): Promise<ApiMessage> {
+    return del<ApiMessage>(`/api/expense/${toInt(id)}`);
 }
 
-export function queryReceivers(receiver) {
-    return get('/api/expense/receivers', { receiver: receiver });
+export function createRecurring(id: number | string, period: RecurringExpensePeriod): Promise<ApiMessage> {
+    return put<ApiMessage>(`/api/expense/recurring/${toInt(id)}`, { period });
 }
 
-export function getCategoryList(): Promise<any[]> {
-    return get('/api/category/list');
+export function queryReceivers(receiver: string): Promise<string[]> {
+    return get<string[]>('/api/expense/receivers', { receiver: receiver });
 }
 
-export function storeCategory(category) {
-    return put('/api/category', category);
+export function getCategoryList(): Promise<Category[]> {
+    return get<Category[]>('/api/category/list');
 }
 
-export function getCategoryTotals(startDate, endDate): Promise<any[]> {
+export function storeCategory(category: CategoryData): Promise<ApiMessage> {
+    return put<ApiMessage>('/api/category', category);
+}
+
+export function getCategoryTotals(startDate: Date, endDate: Date): Promise<CategoryAndTotals[]> {
     const q = { 
         startDate: time.date(startDate),
         endDate: time.date(endDate),
     };
-    return get('/api/category/totals', q);
+    return get<CategoryAndTotals[]>('/api/category/totals', q);
 }
 
-export function updateCategory(id, category) {
-    return post(`/api/category/${parseInt(id, 10)}`, category);
+export function updateCategory(id: number | string, category: CategoryData): Promise<Category> {
+    return post(`/api/category/${toInt(id)}`, category);
 }
