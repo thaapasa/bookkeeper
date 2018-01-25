@@ -6,14 +6,14 @@ import * as moment from 'moment';
 interface DatePickerState {
     open: boolean;
     date?: Date;
-    resolve?: any;
+    resolve?: (value: Date | undefined) => void;
     reject?: any;
 };
 
 export default class DatePickerComponent extends React.Component<{}, DatePickerState> {
 
     private unsub?: () => any;
-    private datePicker?: any;
+    private datePicker: DatePicker | null = null;
 
     public state: DatePickerState = {
         open: false,
@@ -21,7 +21,7 @@ export default class DatePickerComponent extends React.Component<{}, DatePickerS
 
     public componentDidMount() {
         this.unsub = state.get('pickDateStream').onValue(v => {
-            this.setState(v, () => this.datePicker.openDialog());
+            this.setState(v, () => this.datePicker && this.datePicker.openDialog());
         });
     }
 
@@ -30,9 +30,11 @@ export default class DatePickerComponent extends React.Component<{}, DatePickerS
         this.unsub = undefined;
     }
 
-    private onChange = (n, d: Date) => this.state.resolve && this.state.resolve(d);
-    private onDismiss = () => this.state.resolve && this.state.resolve();
+    private onChange = (_: any, d: Date) => this.state.resolve && this.state.resolve(d);
+    private onDismiss = () => this.state.resolve && this.state.resolve(undefined);
     private formatDate = (d: Date) => moment(d).format('D.M.YYYY');
+
+    private setRef = (ref: DatePicker | null) => { this.datePicker = ref; }
 
     public render() {
         return <DatePicker
@@ -42,7 +44,7 @@ export default class DatePickerComponent extends React.Component<{}, DatePickerS
             defaultDate={this.state.date}
             value={this.state.date}
             container="dialog"
-            ref={r => this.datePicker = r}
+            ref={this.setRef}
             autoOk={true}
             onChange={this.onChange}
             onDismiss={this.onDismiss}

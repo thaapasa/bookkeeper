@@ -1,6 +1,6 @@
-import * as colors from "material-ui/styles/colors";
+import * as colors from 'material-ui/styles/colors';
 
-export const white = "#FFFFFF";
+export const white = '#FFFFFF';
 export const highlight = colors.cyan500;
 export const action = colors.cyan800;
 export const positive = colors.purple800;
@@ -13,7 +13,7 @@ export const subItem = colors.grey200;
 export const navigation = highlight;
 export const tool = header;
 export const unconfirmed = colors.amber100;
-export const unconfirmedStripes = diagonalStripes(unconfirmed, white, "0.5em", "1em");
+export const unconfirmedStripes = diagonalStripes(unconfirmed, white, '0.5em', '1em');
 export const income = colors.lime100;
 
 export function forMoney(b) {
