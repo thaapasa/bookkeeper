@@ -161,7 +161,7 @@ export default class ExpenseTable extends React.Component<ExpenseTableProps, Exp
                                 </Chip>)
                             }</div>
                         </div> ]
-                        : []).concat(filtered.map(this.renderExpense));
+                        : []).concat(filtered.map(this.renderExpense))
                 }
             </div>
                 <MonthlyStatus 
