@@ -6,6 +6,7 @@ import { ExpenseHeader, ExpenseStatus, ExpenseTotal } from './expense-row';
 import RefreshIndicator from 'material-ui/RefreshIndicator';
 import Money from '../../shared/util/money';
 import * as moment from 'moment';
+import * as colors from './colors';
 
 function money(v) {
     return v ? Money.from(v).format() : "-";
@@ -47,6 +48,7 @@ class MonthlyStatus extends React.Component<StatusProps, {}> {
         const filteredIncome = this.props.filteredTotals ? this.props.filteredTotals.totalIncome : 0;
         const filteredExpense = this.props.filteredTotals ? this.props.filteredTotals.totalExpense : 0;
         const filteredStyle = { display: (!this.props.showFiltered ? 'none' : ''), backgroundColor: 'rgb(224, 224, 224)'}
+        const uncofirmedStyle = { background: this.props.unconfirmedBefore ? colors.unconfirmedStripes : undefined, };
         return <div className="expense-table-monthly-status fixed-horizontal">
                 <div className="monthly-calculation filtered" style={filteredStyle}>
                     <div className="header">Suodatetut tulot ja menot</div>
@@ -60,7 +62,7 @@ class MonthlyStatus extends React.Component<StatusProps, {}> {
                     {this.getCalculationRow('Menot', -Math.abs(expense), false)}
                     {this.getCalculationRow('', income - expense, true)}
                 </div>
-                <div className="monthly-calculation">
+                <div className="monthly-calculation" style={uncofirmedStyle}>
                     <div className="header">Saatavat/velat</div>
                     {this.getCalculationRow('Ennen', this.props.startStatus.balance, false)}
                     {this.getCalculationRow('Muutos', this.props.monthStatus.balance, false)}
@@ -71,11 +73,6 @@ class MonthlyStatus extends React.Component<StatusProps, {}> {
     }
 }
 
-/**
- *             <ExpenseStatus className="expense-table-start-status fixed-horizontal" name="Tilanne ennen" status={this.props.startStatus} unconfirmedBefore={this.props.unconfirmedBefore} />
-            <ExpenseStatus className="expense-table-month-status fixed-horizontal" name="Tämä kuukausi" status={this.props.monthStatus} />
-            <ExpenseStatus className="expense-table-end-status fixed-horizontal" name="Lopputilanne" status={this.props.endStatus} />
- */
 interface ExpenseTableProps {
     date: moment.Moment;
     expenses: any[];
@@ -138,11 +135,8 @@ export default class ExpenseTable extends React.Component<ExpenseTableProps, Exp
         return {totalIncome: income, totalExpense: expense}
     }
 
-    //TODO: tee erillinen funktio jossa lasketaan expensejen total income+expense
     getTotalRow(expenses) {
         if (expenses.length < 1) return [];
-        /*const income = expenses.filter(e => e.type === "income").reduce((s, c) => s.plus(c.sum), Money.zero);
-        const expense = expenses.filter(e => e.type === "expense").reduce((s, c) => s.plus(c.sum), Money.zero);*/
         const totals = this.calculateTotals(expenses)
         if (!totals) return [];
         return [<ExpenseTotal key="filtered-total" income={totals.totalIncome} expense={totals.totalExpense} />];
@@ -167,7 +161,7 @@ export default class ExpenseTable extends React.Component<ExpenseTableProps, Exp
                                 </Chip>)
                             }</div>
                         </div> ]
-                        : []).concat(filtered.map(this.renderExpense))/*.concat(this.getTotalRow(filtered))*/
+                        : []).concat(filtered.map(this.renderExpense));
                 }
             </div>
                 <MonthlyStatus 
