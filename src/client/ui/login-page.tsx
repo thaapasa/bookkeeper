@@ -5,25 +5,25 @@ import RaisedButton from 'material-ui/RaisedButton';
 import * as login from '../data/login';
 import * as apiConnect from '../data/api-connect';
 import styled from 'styled-components';
-import { CSSProperties } from 'react';
+import { CSSProperties, FormEvent } from 'react';
 const debug = require('debug')('bookkeeper:login-page');
 
-const paperStyle: CSSProperties = {
-    margin: '20px',
-    padding: '30px',
-    textAlign: 'center',
-    display: 'inline-block',
-};
+const LoginPaper = styled(Paper)`
+    margin: 20px;
+    padding: 30px;
+    text-align: center;
+    display: inline-block;
+`;
 
-const titleStyle: CSSProperties = {
-    height: '30px',
-    display: 'inline-block',
-    maxWidth: '250px',
-};
+const Title = styled.title`
+    height: 30px;
+    display: inline-block;
+    max-width: 250px;
+`;
 
-const loginButtonStyle: CSSProperties = {
-    margin: '30px',
-};
+const LoginButton = styled(RaisedButton)`
+    margin: 30px;
+`;
 
 const Page = styled.div`
     margin: auto;
@@ -46,7 +46,7 @@ export default class LoginPage extends React.Component<{}, LoginPageState> {
         statusMessage: '',
     };
 
-    private handleLoginError = (er) => {
+    private handleLoginError = (er: any) => {
         if (er && er.status === 401) {
             this.setState({
                 statusMessage: 'Kirjautuminen epäonnistui. Ole hyvä ja tarkista käyttäjätunnuksesi ja salasanasi.',
@@ -60,7 +60,7 @@ export default class LoginPage extends React.Component<{}, LoginPageState> {
         }
     }
 
-    private handleSubmit = async (event) => {
+    private handleSubmit = async (event: FormEvent<any>) => {
         event.preventDefault();
         this.setState({
             statusMessage: '',
@@ -69,7 +69,6 @@ export default class LoginPage extends React.Component<{}, LoginPageState> {
         try {
             const session = await apiConnect.login(this.state.username, this.state.password);
             login.loginStream.push(session);
-            return null;
         } catch (e) {
             this.handleLoginError(e);
         }
@@ -78,32 +77,31 @@ export default class LoginPage extends React.Component<{}, LoginPageState> {
     public render() {
         return (
             <Page>
-                <Paper style={paperStyle} zDepth={1}>
+                <LoginPaper zDepth={1}>
                     <form onSubmit={this.handleSubmit}>
-                        <title style={titleStyle}>Kirjaudu sisään</title>
+                        <Title>Kirjaudu sisään</Title>
                         <br/>
                         <TextField
                             hintText="Käyttäjätunnus"
                             floatingLabelText="Käyttäjätunnus"
                             value={this.state.username}
-                            onChange={(e, v) => this.setState({ username: v })}
+                            onChange={(_, v) => this.setState({ username: v })}
                         /><br />
                         <TextField
                             hintText="Salasana"
                             floatingLabelText="Salasana"
                             type="password"
                             value={this.state.password}
-                            onChange={(e, v) => this.setState({ password: v })}
+                            onChange={(_, v) => this.setState({ password: v })}
                         /><br />
-                        <RaisedButton
+                        <LoginButton
                             type="submit"
                             label="Kirjaudu"
                             primary={true}
-                            style={loginButtonStyle}
-                            /><br />
-                        {this.state.showStatusMessage ? <title style={titleStyle}>{this.state.statusMessage}</title> : ""}
+                        /><br />
+                        {this.state.showStatusMessage ? <Title>{this.state.statusMessage}</Title> : ""}
                     </form>
-                </Paper>
+                </LoginPaper>
             </Page>
         );
     }
