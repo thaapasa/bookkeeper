@@ -6,10 +6,10 @@ import Checkbox from "material-ui/Checkbox";
 import MenuItem from "material-ui/MenuItem";
 import TextField from "material-ui/TextField";
 import AutoComplete from "material-ui/AutoComplete";
-import {Expense,Income} from "./icons";
-import * as apiConnect from "../data/api-connect";
-import {PlainAutoComplete} from "./plain-text-field";
-import {stopEventPropagation} from "../util/client-util";
+import {Expense,Income} from "../icons";
+import * as apiConnect from "../../data/api-connect";
+import {PlainAutoComplete} from "../component/plain-text-field";
+import {stopEventPropagation} from "../../util/client-util";
 import PropTypes from "prop-types";
 const moment = require("moment");
 

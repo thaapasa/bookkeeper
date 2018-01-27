@@ -4,9 +4,9 @@ import Chip from 'material-ui/Chip'
 import ExpenseRow from './expense-row';
 import { ExpenseHeader, ExpenseStatus, ExpenseTotal } from './expense-row';
 import RefreshIndicator from 'material-ui/RefreshIndicator';
-import Money, { MoneyLike } from '../../shared/util/money';
+import Money, { MoneyLike } from '../../../shared/util/money';
 import * as moment from 'moment';
-import * as colors from './colors';
+import * as colors from '../colors';
 import styled from 'styled-components';
 const debug = require('debug')('bookkeeper:expense-table');
 

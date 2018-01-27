@@ -1,19 +1,19 @@
 import * as React from 'react';
-import { Add, Edit, ExpandLess, ExpandMore, ToolIcon } from './icons';
+import * as Bacon from 'baconjs';
+import { Add, Edit, ExpandLess, ExpandMore, ToolIcon } from '../icons';
 import CategoryDialog from './category-dialog';
 import DatePicker from 'material-ui/DatePicker';
-import * as state from '../data/state';
-import * as colors from '../ui/colors';
-import * as apiConnect from '../data/api-connect';
-import * as categories from '../data/categories';
-import * as Bacon from 'baconjs';
-import ExpenseRow from './expense-row';
+import * as state from '../../data/state';
+import * as colors from '../colors';
+import * as apiConnect from '../../data/api-connect';
+import * as categories from '../../data/categories';
+import ExpenseRow from '../expense/expense-row';
 import CategoryChart from './category-chart';
-import { unsubscribeAll } from '../util/client-util';
+import { unsubscribeAll } from '../../util/client-util';
 import PropTypes from 'prop-types';
 import { CSSProperties } from 'react';
 import * as moment from 'moment';
-import { Map } from '../../shared/util/util';
+import { Map } from '../../../shared/util/util';
 const debug = require('debug')('bookkeeper:category-view');
 
 const styles: Map<CSSProperties> = {

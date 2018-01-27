@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as login from './data/login';
-import BookkeeperPage from './ui/page';
-import LoginPage from './ui/login-page';
+import BookkeeperPage from './ui/general/page';
+import LoginPage from './ui/general/login-page';
 import { Session } from '../shared/types/session';
 const debug = require('debug')('bookkeeper:app');
 

@@ -1,22 +1,21 @@
 import * as React from 'react';
-import * as categories from  '../data/categories';
-import * as state from  '../data/state';
-import * as apiConnect from '../data/api-connect';
-import UserAvatar from './user-avatar';
-import ActivatableTextField from './activatable-text-field';
-import { PlainTextField } from './plain-text-field';
-import { ExpandLess, ExpandMore, Delete, Edit, Repeat, ToolIcon } from './icons'
-import * as colors from './colors';
+import * as categories from  '../../data/categories';
+import * as state from  '../../data/state';
+import * as apiConnect from '../../data/api-connect';
+import UserAvatar from '../component/user-avatar';
+import ActivatableTextField from '../component/activatable-text-field';
+import { PlainTextField } from '../component/plain-text-field';
+import { ExpandLess, ExpandMore, Delete, Edit, Repeat, ToolIcon } from '../icons'
+import * as colors from '../colors';
 import { PlainReceiverField } from './expense-dialog-components';
-import { combineClassNames } from '../util/client-util';
-import * as arrays from '../../shared/util/arrays';
-import * as time from '../../shared/util/time';
-import PropTypes from 'prop-types';
+import { combineClassNames } from '../../util/client-util';
+import * as arrays from '../../../shared/util/arrays';
+import * as time from '../../../shared/util/time';
 import ExpenseDivision from './expense-division'
 import { expenseName } from './expense-helper';
-import Money from '../../shared/util/money';
+import Money from '../../../shared/util/money';
 import * as moment from 'moment';
-import { Expense } from '../../shared/types/expense';
+import { Expense } from '../../../shared/types/expense';
 
 // Just a special reference for determining if details are loading
 const LoadingDetails = {};

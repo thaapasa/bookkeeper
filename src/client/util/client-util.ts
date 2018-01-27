@@ -1,5 +1,3 @@
-"use strict";
-
 export function unsubscribeAll(arr: any[]): void {
     arr.forEach(i => {
         if (typeof i === "function") i();

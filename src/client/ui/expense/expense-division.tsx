@@ -1,28 +1,28 @@
 import * as React from 'react';
-import * as state from  "../data/state";
-import * as colors from "./colors";
-import * as categories from  "../data/categories";
-import UserAvatar from "./user-avatar";
+import * as state from  '../../data/state';
+import * as colors from '../colors';
+import * as categories from  '../../data/categories';
+import UserAvatar from '../component/user-avatar';
 import IconButton from 'material-ui/IconButton';
-import {expenseName} from "./expense-helper";
-import {Repeat} from "./icons";
-import * as apiConnect from "../data/api-connect";
+import {expenseName} from './expense-helper';
+import {Repeat} from '../icons';
+import * as apiConnect from '../../data/api-connect';
 import RefreshIndicator from 'material-ui/RefreshIndicator';
-import PropTypes from "prop-types";
-import Money from '../../shared/util/money';
-import { RecurringExpensePeriod } from '../../shared/types/expense';
-import { ConfirmationAction } from '../data/state-types';
+import PropTypes from 'prop-types';
+import Money from '../../../shared/util/money';
+import { RecurringExpensePeriod } from '../../../shared/types/expense';
+import { ConfirmationAction } from '../../data/state-types';
 
 const styles = {
     tool: {
-        margin: "0",
-        padding: "0",
+        margin: '0',
+        padding: '0',
         width: 36,
         height: 36
     },
     toolIcon: {
         color: colors.tool,
-        fontSize: "15pt"
+        fontSize: '15pt'
     }
 };
 

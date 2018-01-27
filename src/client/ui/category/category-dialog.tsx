@@ -4,9 +4,9 @@ import FlatButton from 'material-ui/FlatButton';
 import TextField from 'material-ui/TextField';
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
-import * as apiConnect from '../data/api-connect';
-import * as state from '../data/state';
-import * as categories from  '../data/categories';
+import * as apiConnect from '../../data/api-connect';
+import * as state from '../../data/state';
+import * as categories from  '../../data/categories';
 const debug = require('debug')('bookkeeper:category-dialog');
 
 const defaultCategory = [ { id: 0, name: "[Ei yläkategoriaa]" }];

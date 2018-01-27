@@ -3,7 +3,6 @@ import Money, { MoneyLike } from '../../shared/util/money';
 import * as splitter from '../../shared/util/splitter';
 import { Expense, ExpenseDivisionItem, ExpenseDivisionType } from '../../shared/types/expense';
 import { Source } from '../../shared/types/session';
-import ExpenseDivision from '../../client/ui/expense-division';
 import { Map } from '../../shared/util/util';
 import { negateDivision } from '../../shared/util/splitter';
 

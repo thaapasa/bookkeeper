@@ -1,14 +1,14 @@
 import * as React from 'react';
-import TopBar from './topbar';
-import MonthView from './month-view';
-import CategoryView from './category-view';
-import ExpenseDialog from './expense-dialog';
+import TopBar from '../component/topbar';
+import MonthView from '../expense/month-view';
+import CategoryView from '../category/category-view';
+import ExpenseDialog from '../expense/expense-dialog';
 import ConfirmationDialog from './confirmation-dialog';
-import NotificationBar from './notification-bar';
-import DatePickerComponent from './date-picker-component';
+import NotificationBar from '../component/notification-bar';
+import DatePickerComponent from '../component/date-picker-component';
 import FlatButton from 'material-ui/FlatButton';
 import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
-import { Session } from '../../shared/types/session';
+import { Session } from '../../../shared/types/session';
 const debug = require('debug')('bookkeeper:page');
 
 function LinkButton({ label, to }: { label: string, to: string }) {
