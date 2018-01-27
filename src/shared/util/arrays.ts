@@ -1,6 +1,5 @@
 import * as util from './util';
 import { Map } from './util';
-import tab from 'material-ui/svg-icons/action/tab';
 
 // https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
 export function shuffle<T>(a: T[]): T[] {

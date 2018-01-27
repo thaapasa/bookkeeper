@@ -7,7 +7,7 @@
     "sourceMap": true,
     "alwaysStrict": true,
     "allowSyntheticDefaultImports": true,
-    "allowJs": true,
+    "allowJs": false,
     "checkJs": false,
     "jsx": "react",
     "moduleResolution": "node",

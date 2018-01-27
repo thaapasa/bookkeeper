@@ -5,8 +5,7 @@ import RaisedButton from 'material-ui/RaisedButton';
 import * as login from '../../data/login';
 import * as apiConnect from '../../data/api-connect';
 import styled from 'styled-components';
-import { CSSProperties, FormEvent } from 'react';
-const debug = require('debug')('bookkeeper:login-page');
+import { FormEvent } from 'react';
 
 const LoginPaper = styled(Paper)`
     margin: 20px;

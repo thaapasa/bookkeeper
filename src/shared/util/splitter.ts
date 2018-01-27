@@ -1,6 +1,5 @@
 import Money, { MoneyLike } from './money';
 import { indices } from './arrays';
-import { ExpenseDivisionItem, ExpenseDivision } from '../types/expense';
 const debug = require('debug')('bookkeeper:splitter');
 const assert = require('assert');
 

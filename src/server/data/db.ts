@@ -1,7 +1,6 @@
 const Pool = require('pg-pool');
 import { config } from '../config';
-//import * as util from '../../shared/util/util';
-import { Map, camelCaseObject } from '../../shared/util/util';
+import { camelCaseObject } from '../../shared/util/util';
 import { QueryResult, Client } from 'pg';
 const debug = require('debug')('db');
 const error = require('debug')('db:error');
@@ -13,7 +12,7 @@ const pool = new Pool({
 
 type Queryer = <T>(name: string, query: string, params: any[], mapper: (res: QueryResult) => T) => Promise<T>;
 
-function queryFor<T>(client: Client, doRelease: boolean, id?: number): Queryer {
+function queryFor(client: Client, doRelease: boolean, id?: number): Queryer {
     return async(name, query, params, mapper) => {
         try {
             debug((id ? `[${id}] SQL query` : '[db] SQL query'), name, query, 'with params', params);

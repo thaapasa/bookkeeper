@@ -4,7 +4,7 @@ import * as Bacon from 'baconjs'
 import ExpenseNavigation from './expense-navigation'
 import * as state from '../../data/state';
 import * as apiConnect from '../../data/api-connect';
-import {unsubscribeAll} from '../../util/client-util';
+import { unsubscribeAll } from '../../util/client-util';
 import * as moment from 'moment';
 
 interface MonthViewState {

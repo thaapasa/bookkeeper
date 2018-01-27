@@ -6,15 +6,12 @@ import 'jest';
 import moment from 'moment';
 import Money from '../shared/util/money';
 import * as help from '../shared/util/test/expense-helper';
-import fetch from 'node-fetch';
 import * as client from '../shared/util/test/test-client';
 import { SessionWithControl } from '../shared/util/test/test-client';
-import { Expense, UserExpense, ExpenseCollection } from '../shared/types/expense';
-import { findCategoryId, findSourceId, findUserId } from '../shared/util/test/expense-helper';
-import search from 'material-ui/svg-icons/action/search';
+import { Expense, ExpenseCollection } from '../shared/types/expense';
+import { findUserId } from '../shared/util/test/expense-helper';
 import { ApiMessage } from '../shared/types/api';
 import { expectThrow } from '../shared/util/test/test-util';
-import { month } from '../shared/util/time';
 
 function checkValueAndBalance(status, i, name) {
     expect(status.value).toEqual(Money.from(status.cost).plus(status.benefit).plus(status.income).plus(status.split).toString());

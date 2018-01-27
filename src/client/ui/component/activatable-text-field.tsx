@@ -1,7 +1,6 @@
 import * as React from 'react';
 import TextField from 'material-ui/TextField';
-import {KeyCodes} from '../../util/io';
-import PropTypes from 'prop-types';
+import { KeyCodes } from '../../util/io';
 import { CSSProperties } from 'react';
 
 interface ActivatableTextFieldProps {

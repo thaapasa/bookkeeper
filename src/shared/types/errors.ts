@@ -1,4 +1,4 @@
-import { ucFirst } from "../util/util";
+import { ucFirst } from '../util/util';
 
 export function undefinedToError(errorType, p1?, p2?, p3?) {
     return value => {

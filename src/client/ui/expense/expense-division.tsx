@@ -4,14 +4,12 @@ import * as colors from '../colors';
 import * as categories from  '../../data/categories';
 import UserAvatar from '../component/user-avatar';
 import IconButton from 'material-ui/IconButton';
-import {expenseName} from './expense-helper';
-import {Repeat} from '../icons';
+import { expenseName } from './expense-helper';
+import { Repeat } from '../icons';
 import * as apiConnect from '../../data/api-connect';
 import RefreshIndicator from 'material-ui/RefreshIndicator';
-import PropTypes from 'prop-types';
 import Money from '../../../shared/util/money';
 import { RecurringExpensePeriod } from '../../../shared/types/expense';
-import { ConfirmationAction } from '../../data/state-types';
 
 const styles = {
     tool: {
@@ -57,11 +55,8 @@ interface ExpenseDivisionProps {
 
 export default class ExpenseDivision extends React.Component<ExpenseDivisionProps, any> {
 
-    private userMap: any;
-
     constructor(props) {
         super(props);
-        this.userMap = state.get("userMap");
         this.createRecurring = this.createRecurring.bind(this);
     }
 

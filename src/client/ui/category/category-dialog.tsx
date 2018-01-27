@@ -6,16 +6,14 @@ import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
 import * as apiConnect from '../../data/api-connect';
 import * as state from '../../data/state';
-import * as categories from  '../../data/categories';
 const debug = require('debug')('bookkeeper:category-dialog');
 
-const defaultCategory = [ { id: 0, name: "[Ei yläkategoriaa]" }];
+const defaultCategory = [ { id: 0, name: '[Ei yläkategoriaa]' }];
 
 export default class CategoryDialog extends React.Component<any, any> {
 
     private categories: any[];
     private resolve: any;
-    private reject: any;
 
     constructor(props) {
         super(props);
@@ -30,7 +28,6 @@ export default class CategoryDialog extends React.Component<any, any> {
         };
         this.categories = [];
         this.resolve = null;
-        this.reject = null;
 
         this.requestSave = this.requestSave.bind(this);
         this.closeDialog = this.closeDialog.bind(this);
@@ -59,7 +56,7 @@ export default class CategoryDialog extends React.Component<any, any> {
     startEditing(s) {
         this.updateCategories();
         const resolvers = {};
-        const promise = new Promise((res, rej) => { this.resolve = res; this.reject = rej; });
+        const promise = new Promise((res) => { this.resolve = res; });
         this.setState(Object.assign(s, resolvers));
         return promise;
     }

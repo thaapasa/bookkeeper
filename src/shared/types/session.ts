@@ -1,4 +1,4 @@
-import { DbObject } from "./common";
+import { DbObject } from './common';
 
 export interface Group extends DbObject {
     name: string;

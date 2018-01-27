@@ -7,7 +7,6 @@ import sources from './data/sources';
 import { config } from './config';
 import * as server from './util/server-util';
 import { Validator as V, Schema } from './util/validator';
-import { asyncIdentity } from '../shared/util/util';
 import { Express } from 'express';
 import { Expense, Recurrence, UserExpense, ExpenseCollection } from '../shared/types/expense';
 import { ApiMessage, ApiStatus } from '../shared/types/api';
@@ -48,13 +47,12 @@ export function registerAPI(app: Express) {
     app.get('/api/session/groups', server.processRequest((session): Promise<Group[]> =>
         users.getGroups(session.user.id)));
 
-
+    
     // GET /api/user/list
     app.get('/api/user/list', server.processRequest((session, req): Promise<User[]> =>
         users.getAll(session.group.id), true));
 
     // GET /api/user/[userid]
-    const userPath = /\/api\/user\/([0-9]+)/;
     app.get('/api/user/:id', server.processRequest((session, req): Promise<User> =>
         users.getById(session.group.id, parseInt(req.params.id, 10)), true));
 

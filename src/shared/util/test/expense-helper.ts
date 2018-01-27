@@ -1,5 +1,5 @@
 import Money, { MoneyLike } from '../money';
-import { Session, Category, Source } from '../../types/session';
+import { Session } from '../../types/session';
 import { ExpenseDivisionItem, Expense } from '../../types/expense';
 import { SessionWithControl } from './test-client';
 import { isDbObject } from '../../types/common';

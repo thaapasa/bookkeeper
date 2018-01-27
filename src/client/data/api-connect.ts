@@ -3,9 +3,8 @@ import * as time from '../../shared/util/time';
 import Money from '../../shared/util/money';
 import { Session, Category, CategoryAndTotals, CategoryData } from '../../shared/types/session';
 import { Map } from '../../shared/util/util';
-import { AuthenticationError, Error } from '../../shared/types/errors';
 import { FetchClient } from '../../shared/util/fetch-client';
-import { ApiMessage, isApiMessage } from '../../shared/types/api';
+import { ApiMessage } from '../../shared/types/api';
 import { ExpenseCollection, ExpenseStatus, Expense, UserExpense, RecurringExpensePeriod } from '../../shared/types/expense';
 const client = new FetchClient(() => fetch);
 

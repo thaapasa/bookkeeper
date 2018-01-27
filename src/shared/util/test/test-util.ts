@@ -1,6 +1,6 @@
+import 'jest';
 import { Error } from '../../types/errors';
 import { fail } from 'assert';
-import 'jest';
 
 // TODO: See if this is neede
 export class NoErrorThrownError extends Error {

@@ -1,5 +1,5 @@
-import { DbObject } from "./common";
-import Money, { MoneyLike } from "../util/money";
+import { DbObject } from './common';
+import { MoneyLike } from '../util/money';
 
 export type ExpenseType = 'expense' | 'income';
 export type ExpenseDivisionType = 'cost' | 'benefit' | 'income' | 'split';
@@ -40,7 +40,7 @@ export interface Expense extends DbObject {
     division?: ExpenseDivision;
 }
 
-function isExpense(e: any): e is Expense {
+export function isExpense(e: any): e is Expense {
     return typeof e === 'object' && typeof e.id === 'number' && typeof e.categoryId === 'number' && typeof e.title === 'string' && typeof e.template === 'boolean';
 }
 

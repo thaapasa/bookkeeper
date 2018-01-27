@@ -1,5 +1,5 @@
-import { indices, sortAndCompareElements } from './arrays';
 import 'jest';
+import { indices, sortAndCompareElements } from './arrays';
 
 describe("arrays", function() {
     it("should create indices", () => {

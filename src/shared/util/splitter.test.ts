@@ -1,6 +1,6 @@
+import 'jest';
 import Money from './money';
 import { splitByShares } from './splitter';
-import 'jest';
 
 function calculateSum(d) {
     return d.map(d => d.sum).reduce((a, b) => a.plus(b), Money.zero);

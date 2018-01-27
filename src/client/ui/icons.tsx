@@ -48,7 +48,7 @@ export function ToolIcon(props: {
     }));
 }
 
-function ToolButton(props: {
+export function ToolButton(props: {
     title: string,
     onClick?: () => void,
     icon: any,

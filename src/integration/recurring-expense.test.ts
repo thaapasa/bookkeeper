@@ -2,7 +2,7 @@ import 'jest';
 import * as help from '../shared/util/test/expense-helper';
 import * as client from '../shared/util/test/test-client';
 import { SessionWithControl } from '../shared/util/test/test-client';
-import { ExpenseCollection, ExpenseStatus, Expense, UserExpense } from '../shared/types/expense';
+import { ExpenseCollection, Expense, UserExpense } from '../shared/types/expense';
 import Money, { MoneyLike } from '../shared/util/money';
 import { checkCreateStatus } from '../shared/util/test/expense-helper';
 import { ApiMessage } from '../shared/types/api';

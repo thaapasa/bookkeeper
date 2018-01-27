@@ -1,9 +1,7 @@
 import * as React from 'react';
-import d3 from 'd3';
 import { scaleBand, scaleLinear } from 'd3-scale';
 import * as d3Axis from 'd3-axis';
 import { select as d3Select } from 'd3-selection';
-import { interpolateLab } from 'd3-interpolate';
 
 interface Scales {
     xScale: any;
@@ -151,7 +149,6 @@ export default class CategoryChart extends React.Component<any, CategoryChartSta
 
     private renderChart(parentWidth: number) {
 
-        let data = this.props.data;
         let chartData = this.props.chartData;
         const margins = { top: 50, right: 20, bottom: 100, left: 60 }
         const svgDimensions = { 

@@ -1,6 +1,5 @@
 import Money from '../../shared/util/money';
 import { Error } from '../../shared/types/errors';
-import { Map } from '../../shared/util/util';
 const debug = require('debug')('bookkeeper:validator');
 
 class InvalidInputError<T> extends Error {
@@ -121,7 +120,7 @@ export class Validator {
         };
     }
 
-    static listOfObjects<T>(schema: Schema<T>): ValidationFunction<any[]> {
+    static listOfObjects(schema: Schema<any>): ValidationFunction<any[]> {
         return (i, field) => {
             if (!i || !i.map) {
                 throw new InvalidInputError(field, i, 'Input must be a list of objects');

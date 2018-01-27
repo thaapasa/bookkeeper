@@ -2,7 +2,7 @@ import { config } from '../config';
 import sessions from '../data/sessions';
 import * as moment from 'moment';
 import { db } from '../data/db';
-import { Session, SessionBasicInfo } from '../../shared/types/session';
+import { SessionBasicInfo } from '../../shared/types/session';
 import { Request, Response } from 'express';
 import { TokenNotPresentError, InvalidGroupError } from '../../shared/types/errors';
 const debug = require('debug')('bookkeeper:server');

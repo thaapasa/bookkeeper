@@ -1,12 +1,7 @@
 import { db, DbAccess } from './db';
 import * as moment from 'moment';
 import * as time from '../../shared/util/time';
-import * as arrays from '../../shared/util/arrays';
 import { Validator } from '../util/validator';
-import Money from '../../shared/util/money';
-import categories from './categories';
-import users from './users';
-import sources from './sources';
 import expenses from './basic-expenses';
 import { RecurringExpensePeriod, Recurrence, ExpenseDivisionItem, Expense } from '../../shared/types/expense';
 import { Moment } from 'moment';

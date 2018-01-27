@@ -1,6 +1,5 @@
 import { db, DbAccess } from './db';
 import { Source } from '../../shared/types/session';
-import { Map } from '../../shared/util/util';
 import { NotFoundError } from '../../shared/types/errors';
 
 function getImage(img: string | undefined): string | undefined {

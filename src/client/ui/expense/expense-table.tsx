@@ -2,98 +2,11 @@ import * as React from 'react';
 import Avatar from 'material-ui/Avatar';
 import Chip from 'material-ui/Chip'
 import ExpenseRow from './expense-row';
-import { ExpenseHeader, ExpenseStatus, ExpenseTotal } from './expense-row';
+import { ExpenseHeader } from './expense-row';
 import RefreshIndicator from 'material-ui/RefreshIndicator';
-import Money, { MoneyLike } from '../../../shared/util/money';
+import Money from '../../../shared/util/money';
 import * as moment from 'moment';
-import * as colors from '../colors';
-import styled from 'styled-components';
-const debug = require('debug')('bookkeeper:expense-table');
-
-function money(v?: MoneyLike): string {
-    return v ? Money.from(v).format() : '-';
-}
-
-interface StatusProps {
-    unconfirmedBefore: boolean;
-    startStatus: { balance: number };
-    monthStatus: { balance: number };
-    endStatus: { balance: number };
-    totals: {totalExpense: any, totalIncome: any} | null;
-    showFiltered: boolean;
-    filteredTotals: {totalExpense: any, totalIncome: any} | null;
-}
-
-const CalculationRow = styled.div`
-    display: flex;
-    flex-direction: row;
-    padding: 3px 0px;
-`;
-
-const CalculationTitle = styled.div`
-    display: inline-block;
-    width: 100px;
-`;
-
-const CalculationSum = styled.div`
-    display: inline-block;
-    flex-grow: 1;
-    text-align: right;
-`;
-
-
-class MonthlyStatus extends React.Component<StatusProps, {}> {
-
-    private getCalculationRow(title: string, sum: number, drawTopBorder: boolean) {
-        const rowStyle = { borderTop: (drawTopBorder ? '1px solid rgb(224, 224, 224)' : 'none') }
-        return (
-            <CalculationRow style={rowStyle}>
-                <CalculationTitle>{title}</CalculationTitle>
-                <CalculationSum>{money(sum)}</CalculationSum>
-            </CalculationRow>
-        );
-    }
-
-    public componentDidMount() {
-        debug(this.props);
-        debug(this.props.startStatus, this.props.monthStatus, this.props.endStatus);
-    }
-
-    public componentDidUpdate() {
-        debug(this.props.startStatus, this.props.monthStatus, this.props.endStatus);
-    }
-
-    public render() {
-        const income = this.props.totals ? this.props.totals.totalIncome : 0;
-        const expense = this.props.totals ? this.props.totals.totalExpense : 0;
-        const filteredIncome = this.props.filteredTotals ? this.props.filteredTotals.totalIncome : 0;
-        const filteredExpense = this.props.filteredTotals ? this.props.filteredTotals.totalExpense : 0;
-        const filteredStyle = { display: (!this.props.showFiltered ? 'none' : ''), backgroundColor: 'rgb(224, 224, 224)'}
-        const uncofirmedStyle = { background: this.props.unconfirmedBefore ? colors.unconfirmedStripes : undefined, };
-        return (
-            <div className="expense-table-monthly-status fixed-horizontal">
-                <div className="monthly-calculation filtered" style={filteredStyle}>
-                    <div className="header">Suodatetut tulot ja menot</div>
-                    {this.getCalculationRow('Tulot', filteredIncome, false)}
-                    {this.getCalculationRow('Menot', -Math.abs(filteredExpense), false)}
-                    {this.getCalculationRow('', filteredIncome - filteredExpense, true)}
-                </div>
-                <div className="monthly-calculation">
-                    <div className="header">Tulot ja menot</div>
-                    {this.getCalculationRow('Tulot', income, false)}
-                    {this.getCalculationRow('Menot', -Math.abs(expense), false)}
-                    {this.getCalculationRow('', income - expense, true)}
-                </div>
-                <div className="monthly-calculation" style={uncofirmedStyle}>
-                    <div className="header">Saatavat/velat</div>
-                    {this.getCalculationRow('Ennen', this.props.startStatus.balance, false)}
-                    {this.getCalculationRow('Muutos', this.props.monthStatus.balance, false)}
-                    {this.getCalculationRow('', this.props.endStatus.balance, true)}
-                </div>
-            </div>
-        );
-    }
-}
+import { MonthlyStatus } from './monthly-status';
 
 interface ExpenseTableProps {
     date: moment.Moment;
@@ -137,10 +50,12 @@ export default class ExpenseTable extends React.Component<ExpenseTableProps, Exp
     }
 
     private renderExpense = (expense) => {
-        return <ExpenseRow expense={ expense }
-                    key={ "expense-row-" + expense.id }
-                    addFilter={ this.addFilter }
-                    onUpdated={ e => this.props.onUpdateExpense(expense.id, e) } />
+        return (
+            <ExpenseRow expense={ expense }
+                key={ "expense-row-" + expense.id }
+                addFilter={ this.addFilter }
+                onUpdated={ e => this.props.onUpdateExpense(expense.id, e) } />
+        );
     }
 
     private calculateTotals(expenses: any[]) {
@@ -148,13 +63,6 @@ export default class ExpenseTable extends React.Component<ExpenseTableProps, Exp
         const income = expenses.filter(e => e.type === "income").reduce((s, c) => s.plus(c.sum), Money.zero);
         const expense = expenses.filter(e => e.type === "expense").reduce((s, c) => s.plus(c.sum), Money.zero);
         return {totalIncome: income, totalExpense: expense}
-    }
-
-    private getTotalRow(expenses) {
-        if (expenses.length < 1) return [];
-        const totals = this.calculateTotals(expenses)
-        if (!totals) return [];
-        return [<ExpenseTotal key="filtered-total" income={totals.totalIncome} expense={totals.totalExpense} />];
     }
 
     public render() {

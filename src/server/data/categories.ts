@@ -3,7 +3,6 @@ import Money from '../../shared/util/money';
 import { NotFoundError } from '../../shared/types/errors';
 import { Category, CategoryAndTotals } from '../../shared/types/session';
 import { NumberMap } from '../../shared/util/util';
-import { isArray } from 'util';
 const debug = require('debug')('bookkeeper:categories');
 
 function createCategoryObject<T extends Category>(categories: T[]): T[] {
