@@ -1,5 +1,29 @@
 import * as Bacon from 'baconjs';
+import { ConfirmationObject, ConfirmationAction } from './state-types';
 
+const confirmationBus = new Bacon.Bus<any, ConfirmationObject<any>>();
+
+interface ConfirmationSettings<T> {
+    okText?: string;
+    cancelText?: string;
+    actions?: ConfirmationAction<T>[];
+}
+
+export const confirmationE = confirmationBus;
+
+/* Returns a promise that will be resolved to either true of false depending on user input */
+export function confirm<T>(title: string, content: string, options?: ConfirmationSettings<T>): Promise<T> {
+    return new Promise<T>((resolve) => {
+        const op = options || {};
+        const actions: ConfirmationAction<T>[] = op.actions || [
+            { label: op.okText ? op.okText : 'OK', value: true as any },
+            { label: op.cancelText ? op.cancelText : 'Peruuta', value: false as any },
+        ];
+        confirmationBus.push({ title, content, actions, resolve });
+    });
+}
+
+/** Old state */
 interface State {
     expenseDialogStream?: Bacon.Bus<any, any>;
     confirmationDialogStream?: Bacon.Bus<any, any>;
@@ -103,24 +127,6 @@ export function editExpense(e) {
     if (state.expenseDialogStream) state.expenseDialogStream.push(e);
 }
 
-/* Returns a promise that will be resolved to either true of false depending on user input */
-export function confirm(title: string, content: string, options: any) {
-    options = options ? options : {};
-    const actions = options.actions || [
-        [options.okText ? options.okText : "OK", true],
-            [options.cancelText ? options.cancelText : "Peruuta", false] ];
-
-    let resolve: (() => void) | null = null, reject: (() => void) | null = null;
-    const p = new Promise((res, rej) => { resolve = res; reject = rej; });
-    if (state.confirmationDialogStream) state.confirmationDialogStream.push({
-        title: title,
-        content: content,
-        actions: actions,
-        resolve: resolve,
-        reject: reject
-    });
-    return p;
-}
 
 export function updateExpenses(date) {
     if (state.expensesUpdatedStream) state.expensesUpdatedStream.push(date);

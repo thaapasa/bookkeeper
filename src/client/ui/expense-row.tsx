@@ -16,6 +16,7 @@ import ExpenseDivision from './expense-division'
 import { expenseName } from './expense-helper';
 import Money from '../../shared/util/money';
 import * as moment from 'moment';
+import { Expense } from '../../shared/types/expense';
 
 // Just a special reference for determining if details are loading
 const LoadingDetails = {};
@@ -159,16 +160,17 @@ export default class ExpenseRow extends React.Component<ExpenseRowProps, Expense
         }
     }
 
-    private deleteExpense = (e) => {
-        const name = expenseName(e);
-        state.confirm('Poista kirjaus',
-            `Haluatko varmasti poistaa kirjauksen ${name}?`,
-            { okText : 'Poista' })
-            .then(b => b ? apiConnect.deleteExpense(e.id)
-                .then(x => state.notify(`Poistettu kirjaus ${name}`))
-                .then(x => state.updateExpenses(e.date))
-                : false)
-            .catch(e => state.notifyError(`Virhe poistettaessa kirjausta ${name}`, e));
+    private deleteExpense = async (e: Expense) => {
+        try {
+            const name = expenseName(e);
+            const b = await state.confirm('Poista kirjaus', `Haluatko varmasti poistaa kirjauksen ${name}?`, { okText: 'Poista' });
+            if (!b) { return; }
+            await apiConnect.deleteExpense(e.id);
+            state.notify(`Poistettu kirjaus ${name}`);
+            await state.updateExpenses(e.date);
+        } catch (e) {
+            state.notifyError(`Virhe poistettaessa kirjausta ${name}`, e);
+        }
     }
 
     private modifyExpense = (expense) => {

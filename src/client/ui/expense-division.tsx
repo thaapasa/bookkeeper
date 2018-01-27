@@ -11,6 +11,7 @@ import RefreshIndicator from 'material-ui/RefreshIndicator';
 import PropTypes from "prop-types";
 import Money from '../../shared/util/money';
 import { RecurringExpensePeriod } from '../../shared/types/expense';
+import { ConfirmationAction } from '../data/state-types';
 
 const styles = {
     tool: {
@@ -64,14 +65,23 @@ export default class ExpenseDivision extends React.Component<ExpenseDivisionProp
         this.createRecurring = this.createRecurring.bind(this);
     }
 
-    createRecurring() {
-        state.confirm("Muuta toistuvaksi", `Kuinka usein kirjaus ${expenseName(this.props.expense)} toistuu?`, {
-            actions: [ ["Kuukausittain", "monthly"], ["Vuosittain", "yearly"], ["Peruuta", false] ]
-        })
-            .then((a: RecurringExpensePeriod) => a ? apiConnect.createRecurring(this.props.expense.id, a)
-                    .then(() => state.updateExpenses(this.props.expense.date))
-                    .then(() => state.notify("Kirjaus muutettu toistuvaksi")) : false)
-            .catch(e => state.notifyError("Virhe muutettaessa kirjausta toistuvaksi", e));
+    private async createRecurring() {
+        try {
+            const period = await state.confirm<RecurringExpensePeriod | undefined>('Muuta toistuvaksi', 
+                `Kuinka usein kirjaus ${expenseName(this.props.expense)} toistuu?`, {
+                actions: [
+                    { label: 'Kuukausittain', value: 'monthly' },
+                    { label: 'Vuosittain', value: 'yearly' },
+                    { label: 'Peruuta', value: undefined },
+                ]});
+            if (period) {
+                await apiConnect.createRecurring(this.props.expense.id, period);
+                await state.updateExpenses(this.props.expense.date);
+                state.notify('Kirjaus muutettu toistuvaksi');
+            }
+        } catch(e) {
+            state.notifyError('Virhe muutettaessa kirjausta toistuvaksi', e);
+        } 
     }
 
     render() {

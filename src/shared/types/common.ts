@@ -5,3 +5,5 @@ export interface DbObject {
 export function isDbObject(e: any): e is DbObject {
     return typeof e === 'object' && typeof e.id === 'number';
 }
+
+export type Action = () => void;
