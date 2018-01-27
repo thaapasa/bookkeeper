@@ -30,7 +30,9 @@ export default class ActivatableTextField extends React.Component<ActivatableTex
         super(props);
         this.state = { edit: false, value: props.value };
     }
-
+    public focus() {
+        if (this.editorRef) { this.editorRef.focus(); }
+    }
     private commit = (value) => {
         // console.log("Committing", value);
         this.props.onChange && this.props.onChange(value);
@@ -59,7 +61,7 @@ export default class ActivatableTextField extends React.Component<ActivatableTex
     }
 
     public componentDidUpdate() {
-        if (this.editorRef) this.editorRef.focus();
+        if (this.editorRef) { this.editorRef.focus(); }
     }
 
     private createEditor() {

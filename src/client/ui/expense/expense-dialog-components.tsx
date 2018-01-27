@@ -1,20 +1,20 @@
 import * as React from 'react';
-import * as Bacon from "baconjs";
-import DatePicker from "material-ui/DatePicker";
-import DropDownMenu from "material-ui/DropDownMenu";
-import Checkbox from "material-ui/Checkbox";
-import MenuItem from "material-ui/MenuItem";
-import TextField from "material-ui/TextField";
-import AutoComplete from "material-ui/AutoComplete";
-import {Expense,Income} from "../icons";
-import * as apiConnect from "../../data/api-connect";
-import {PlainAutoComplete} from "../component/plain-text-field";
-import {stopEventPropagation} from "../../util/client-util";
-import PropTypes from "prop-types";
-const moment = require("moment");
+import * as Bacon from 'baconjs';
+import DatePicker from 'material-ui/DatePicker';
+import DropDownMenu from 'material-ui/DropDownMenu';
+import Checkbox from 'material-ui/Checkbox';
+import MenuItem from 'material-ui/MenuItem';
+import TextField from 'material-ui/TextField';
+import AutoComplete from 'material-ui/AutoComplete';
+import {Expense,Income} from '../icons';
+import * as apiConnect from '../../data/api-connect';
+import {PlainAutoComplete} from '../component/plain-text-field';
+import {stopEventPropagation} from '../../util/client-util';
+import PropTypes from 'prop-types';
+const moment = require('moment');
 
 const styles = {
-    category: { width: "50%" }
+    category: { width: '50%' }
 };
 
 export function SumField(props: {
@@ -112,11 +112,11 @@ export function TypeSelector(props: {
     onChange: (string) => void,
 }) {
     return <Checkbox
-        label={props.value === "income" ? "Tulo" : "Kulu"}
+        label={props.value === 'income' ? 'Tulo' : 'Kulu'}
         checkedIcon={<Income />}
         uncheckedIcon={<Expense />}
-        checked={props.value === "income"}
-        onCheck={(e, v) => props.onChange(v ? "income" : "expense")} />
+        checked={props.value === 'income'}
+        onCheck={(e, v) => props.onChange(v ? 'income' : 'expense')} />
 }
 
 export function DateField(props: {
@@ -125,7 +125,7 @@ export function DateField(props: {
 }) {
     return <DatePicker
         value={props.value}
-        formatDate={d => moment(d).format("D.M.YYYY")}
+        formatDate={d => moment(d).format('D.M.YYYY')}
         floatingLabelText="Päivämäärä"
         //floatingLabelFixed={true}
         fullWidth={true}
@@ -133,7 +133,7 @@ export function DateField(props: {
         onChange={(event, date) => props.onChange(date)} />
 }
 
-export class ReceiverField extends React.Component<{
+interface ReceiverFieldProps {
     name?: string,
     id?: string,
     hintText?: string,
@@ -143,7 +143,9 @@ export class ReceiverField extends React.Component<{
     onBlur?: () => void,
     onKeyUp?: (event: any) => void,
     editorType?: any,
-}, any> {
+}
+
+export class ReceiverField extends React.Component<ReceiverFieldProps, any> {
 
     private inputStream: any;
     private unsub: any[];
@@ -155,7 +157,7 @@ export class ReceiverField extends React.Component<{
         this.focus = this.focus.bind(this);
     }
 
-    componentDidMount() {
+    public componentDidMount() {
         this.inputStream = new Bacon.Bus();
         this.unsub = [];
         this.unsub.push(this.inputStream.onValue(this.props.onChange));
@@ -169,16 +171,16 @@ export class ReceiverField extends React.Component<{
             .onValue(() => this.setState({ receivers: [] })));
     }
 
-    componentWillUnmount() {
+    public componentWillUnmount() {
         this.inputStream.end();
         this.unsub.forEach(s => s());
     }
 
-    focus() {
+    public focus() {
         this.ref && this.ref.focus();
     }
 
-    render() {
+    public render() {
         const type = this.props.editorType ? this.props.editorType : AutoComplete;
         return React.createElement(type, {
             name: this.props.name,
@@ -187,8 +189,8 @@ export class ReceiverField extends React.Component<{
             onNewRequest: this.focus,
             dataSource: this.state.receivers,
             onUpdateInput: r => this.inputStream.push(r),
-            hintText: this.props.hintText || "Kauppa",
-            floatingLabelText: "Saaja",
+            hintText: this.props.hintText || 'Kauppa',
+            floatingLabelText: 'Saaja',
             floatingLabelFixed: true,
             fullWidth: true,
             errorText: this.props.errorText,
@@ -200,9 +202,17 @@ export class ReceiverField extends React.Component<{
     }
 }
 
-export function PlainReceiverField(props) {
-    return React.createElement(ReceiverField, Object.assign({}, props, { editorType: PlainAutoComplete }));
+export class PlainReceiverField extends React.Component<ReceiverFieldProps, {}> {
+    private ref;
+    private setRef = (r) => this.ref = r;
+    public focus() {
+        if (this.ref) { this.ref.focus(); }
+    }
+    public render() {
+        return React.createElement(ReceiverField, { ...this.props, editorType: PlainAutoComplete, ref: this.setRef });
+    }
 }
+
 
 export function DescriptionField(props: {
     value: string,

@@ -222,7 +222,7 @@ export default class ExpenseRow extends React.Component<ExpenseRowProps, Expense
                     />
                 </div>
                 <div className="expense-detail receiver optional"><ActivatableTextField
-                    name="receiver" value={ expense.receiver }
+                    name="receiver" value={expense.receiver}
                     editorType={PlainReceiverField}
                     onChange={v => this.updateExpense({ receiver: v })}
                 /></div>
