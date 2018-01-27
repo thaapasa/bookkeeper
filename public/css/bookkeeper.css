@@ -97,22 +97,6 @@ html, body {
     font-size: 14px;
 }
 
-.calculation-row {
-    display: flex;
-    flex-direction: row;
-    padding: 3px 0px;
-
-}
-.calculation-row .calculation-title {
-    display: inline-block;
-    width: 100px;
-}
-.calculation-row .calculation-sum {
-    display: inline-block;
-    flex-grow: 1;
-    text-align: right;
-}
-
 
 /* Categories */
 
