@@ -15,7 +15,7 @@ import ExpenseDivision from './expense-division'
 import { expenseName } from './expense-helper';
 import Money from '../../../shared/util/money';
 import * as moment from 'moment';
-import { Expense } from '../../../shared/types/expense';
+import { Expense, UserExpense } from '../../../shared/types/expense';
 
 // Just a special reference for determining if details are loading
 const LoadingDetails = {};
@@ -88,8 +88,8 @@ export function ExpenseTotal(props: {
 }
 
 interface ExpenseRowProps {
-    expense: any,
-    onUpdated: (e: any) => void,
+    expense: UserExpense,
+    onUpdated: (e: Expense) => void,
     addFilter: (a: any, b: any, c?: any) => void,
 }
 
@@ -126,10 +126,10 @@ export default class ExpenseRow extends React.Component<ExpenseRowProps, Expense
             () => this.props.addFilter(e => e.sourceId === sourceId, source.name, avatar)}>{ content }</a>
     }
 
-    private updateExpense = (data) => {
+    private updateExpense = (data: Partial<Expense>) => {
         apiConnect.getExpense(this.props.expense.id)
             .then(exp => {
-                const newData = Object.assign(exp, data);
+                const newData = { ...exp, ...data };
                 apiConnect.updateExpense(this.props.expense.id, newData)
                     .then(s => this.props.onUpdated(newData))
             });

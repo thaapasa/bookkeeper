@@ -2,6 +2,8 @@ import * as React from 'react';
 import Money, { MoneyLike } from '../../../shared/util/money';
 import * as colors from '../colors';
 import styled from 'styled-components';
+import { ExpenseTotals } from './expense-helper';
+import { ExpenseStatus } from '../../../shared/types/expense';
 const debug = require('debug')('bookkeeper:expense-table');
 
 function money(v?: MoneyLike): string {
@@ -10,12 +12,12 @@ function money(v?: MoneyLike): string {
 
 interface StatusProps {
     unconfirmedBefore: boolean;
-    startStatus: { balance: number };
-    monthStatus: { balance: number };
-    endStatus: { balance: number };
-    totals: {totalExpense: any, totalIncome: any} | null;
+    startStatus: ExpenseStatus;
+    monthStatus: ExpenseStatus;
+    endStatus: ExpenseStatus;
+    totals: ExpenseTotals | null;
     showFiltered: boolean;
-    filteredTotals: {totalExpense: any, totalIncome: any} | null;
+    filteredTotals: ExpenseTotals | null;
 }
 
 const CalculationRow = styled.div`
@@ -38,7 +40,7 @@ const CalculationSum = styled.div`
 
 export class MonthlyStatus extends React.Component<StatusProps, {}> {
 
-    private getCalculationRow(title: string, sum: number, drawTopBorder: boolean) {
+    private getCalculationRow(title: string, sum: MoneyLike, drawTopBorder: boolean) {
         const rowStyle = { borderTop: (drawTopBorder ? '1px solid rgb(224, 224, 224)' : 'none') }
         return (
             <CalculationRow style={rowStyle}>
@@ -69,14 +71,14 @@ export class MonthlyStatus extends React.Component<StatusProps, {}> {
                 <div className="monthly-calculation filtered" style={filteredStyle}>
                     <div className="header">Suodatetut tulot ja menot</div>
                     {this.getCalculationRow('Tulot', filteredIncome, false)}
-                    {this.getCalculationRow('Menot', -Math.abs(filteredExpense), false)}
-                    {this.getCalculationRow('', filteredIncome - filteredExpense, true)}
+                    {this.getCalculationRow('Menot', Money.from(filteredExpense).abs().negate(), false)}
+                    {this.getCalculationRow('', Money.from(filteredIncome).minus(filteredExpense), true)}
                 </div>
                 <div className="monthly-calculation">
                     <div className="header">Tulot ja menot</div>
                     {this.getCalculationRow('Tulot', income, false)}
-                    {this.getCalculationRow('Menot', -Math.abs(expense), false)}
-                    {this.getCalculationRow('', income - expense, true)}
+                    {this.getCalculationRow('Menot', Money.from(expense).abs().negate(), false)}
+                    {this.getCalculationRow('', Money.from(income).minus(expense), true)}
                 </div>
                 <div className="monthly-calculation" style={uncofirmedStyle}>
                     <div className="header">Saatavat/velat</div>

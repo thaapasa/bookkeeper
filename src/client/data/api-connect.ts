@@ -97,7 +97,7 @@ export function storeExpense(expense: Expense): Promise<ApiMessage> {
     return put<ApiMessage>('/api/expense', expense);
 }
 
-export function updateExpense(id: number | string, expense): Promise<ApiMessage> {
+export function updateExpense(id: number | string, expense: Expense): Promise<ApiMessage> {
     return post<ApiMessage>(`/api/expense/${toInt(id)}`, expense);
 }
 

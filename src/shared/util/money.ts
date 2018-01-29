@@ -49,6 +49,10 @@ export default class Money {
         return Money.from(value).negate();
     }
 
+    public abs(): Money {
+        return Money.from(this.value.abs());
+    }
+
     public toString(scale?: number): string {
         if (scale === undefined) scale = 2;
         return this.value.toFixed(scale);

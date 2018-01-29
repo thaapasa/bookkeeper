@@ -7,21 +7,23 @@ import RefreshIndicator from 'material-ui/RefreshIndicator';
 import Money from '../../../shared/util/money';
 import * as moment from 'moment';
 import { MonthlyStatus } from './monthly-status';
+import { UserExpense, ExpenseStatus, Expense } from '../../../shared/types/expense';
+import { ExpenseTotals, ExpenseFilter } from './expense-helper';
 
 interface ExpenseTableProps {
     date: moment.Moment;
-    expenses: any[];
+    expenses: UserExpense[];
     loading: boolean;
-    startStatus: any;
-    endStatus: any;
-    monthStatus: any;
+    startStatus: ExpenseStatus;
+    endStatus: ExpenseStatus;
+    monthStatus: ExpenseStatus;
     unconfirmedBefore: boolean;
-    onUpdateExpense: any;
+    onUpdateExpense: (expenseId: number, expense: Expense) => void;
 }
 
 interface ExpenseTableState {
     details: any;
-    filters: any[];
+    filters: ExpenseFilter[];
 }
 
 // TODO: tänne myös expensejen ja incomen total laskettuna!
@@ -32,37 +34,37 @@ export default class ExpenseTable extends React.Component<ExpenseTableProps, Exp
         filters: [],
     };
 
-    private addFilter = (fun, name, avatar) => {
+    private addFilter = (filter: (expense: Expense) => boolean, name: string, avatar) => {
         this.setState(s => ({
-            filters: s.filters.concat({ filter: fun, name: name, avatar: avatar })
+            filters: s.filters.concat({ filter, name, avatar }),
         }));
     }
 
-    private removeFilter = (index) => {
+    private removeFilter = (index: number) => {
         this.setState(s => {
             s.filters.splice(index, 1);
             return s;
         });
     }
 
-    private getFilteredExpenses = () => {
+    private getFilteredExpenses = (): UserExpense[] => {
         return this.props.expenses ? this.state.filters.reduce((a, b) => a.filter(b.filter), this.props.expenses) : [];
     }
 
-    private renderExpense = (expense) => {
+    private renderExpense = (expense: UserExpense) => {
         return (
-            <ExpenseRow expense={ expense }
-                key={ "expense-row-" + expense.id }
-                addFilter={ this.addFilter }
-                onUpdated={ e => this.props.onUpdateExpense(expense.id, e) } />
+            <ExpenseRow expense={expense}
+                key={'expense-row-' + expense.id}
+                addFilter={this.addFilter}
+                onUpdated={e => this.props.onUpdateExpense(expense.id, e)} />
         );
     }
 
-    private calculateTotals(expenses: any[]) {
-        if (expenses.length < 1) return null;
+    private calculateTotals(expenses: Expense[]): ExpenseTotals | null {
+        if (expenses.length < 1) { return null; }
         const income = expenses.filter(e => e.type === "income").reduce((s, c) => s.plus(c.sum), Money.zero);
         const expense = expenses.filter(e => e.type === "expense").reduce((s, c) => s.plus(c.sum), Money.zero);
-        return {totalIncome: income, totalExpense: expense}
+        return { totalIncome: income, totalExpense: expense };
     }
 
     public render() {
