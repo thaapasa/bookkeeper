@@ -73,8 +73,8 @@ export function refreshSession(): Promise<Session> {
     return put<Session>('/api/session/refresh');
 }
 
-export async function getExpensesForMonth(year, month): Promise<ExpenseCollection> {
-    const collection = await get<ExpenseCollection>('/api/expense/month', { year: year, month: month })
+export async function getExpensesForMonth(year: number, month: number): Promise<ExpenseCollection> {
+    const collection = await get<ExpenseCollection>('/api/expense/month', { year: year.toString(), month: month.toString() })
     return mapExpenseObject(collection);
 }
 
@@ -89,8 +89,8 @@ function toInt(n: number | string) {
     return typeof n === 'number' ? n : parseInt(n, 10); 
 }
 
-export function getExpense(id: number | string): Promise<Expense> {
-    return get<Expense>(`/api/expense/${toInt(id)}`).then(mapExpense);
+export function getExpense(id: number | string): Promise<UserExpense> {
+    return get<UserExpense>(`/api/expense/${toInt(id)}`).then(mapExpense);
 }
 
 export function storeExpense(expense: Expense): Promise<ApiMessage> {

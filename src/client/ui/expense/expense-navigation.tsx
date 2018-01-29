@@ -6,25 +6,29 @@ import { NavigateLeft, NavigateRight } from '../icons';
 import * as state from '../../data/state';
 import { KeyCodes } from '../../util/io';
 import { Moment } from 'moment';
+import { expensesForMonthPath } from '../../util/links';
+import { History } from 'history';
 
 interface ExpenseNavigationProps {
-    readonly date: Moment;    
+    readonly date: Moment;
+    readonly history: History;
 }
 
 export default class ExpenseNavigation extends React.Component<ExpenseNavigationProps, any> {
 
-    private container: any;
+    private container: HTMLDivElement | null = null;
 
     public static getYearMonthString(date) {
         return time.getFinnishMonthName(date.month() + 1) + ' ' + date.year();
     }
 
-    private navigateMonths = (offset) => {
-        state.updateExpenses(this.props.date.clone().add(offset, 'months'));
+    private navigateMonths = (offset: number) => {
+        const toDate = this.props.date.clone().add(offset, 'months');
+        this.props.history.push(expensesForMonthPath(toDate.toDate()));
     }
 
     public componentDidMount() {
-        this.container.focus();
+        if (this.container) { this.container.focus(); }
     }
 
     private handleKeyPress = (event) => {
@@ -39,7 +43,7 @@ export default class ExpenseNavigation extends React.Component<ExpenseNavigation
     }
 
     public render() {
-        return <div style={{ display: "flex", alignItems: "center" }}
+        return <div style={{ display: 'flex', alignItems: 'center' }}
                     className="expense-navigation fixed-horizontal"
                     onKeyUp={this.handleKeyPress}
                     tabIndex={1}
@@ -48,9 +52,9 @@ export default class ExpenseNavigation extends React.Component<ExpenseNavigation
                 <IconButton
                     onClick={() => this.navigateMonths(-1)}
                     title="Edellinen"
-                    style={{ padding: "0px" }}><NavigateLeft color={colors.navigation} /></IconButton>
+                    style={{ padding: '0px' }}><NavigateLeft color={colors.navigation} /></IconButton>
             </div>
-            <div style={{ textAlign: "center", flexGrow: 1, fontSize: "12pt", color: colors.header }}>
+            <div style={{ textAlign: 'center', flexGrow: 1, fontSize: '12pt', color: colors.header }}>
                 { ExpenseNavigation.getYearMonthString(this.props.date) }
             </div>
             <div>

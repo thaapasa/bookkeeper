@@ -78,7 +78,7 @@ function hasUnconfirmedBefore(tx: DbAccess) {
 }
 
 function getById(tx: DbAccess) {
-    return async (groupId: number, userId: number, expenseId: number): Promise<Expense> => {
+    return async (groupId: number, userId: number, expenseId: number): Promise<UserExpense> => {
         const expense = await tx.queryObject('expenses.get_by_id', expenseSelect(`WHERE id=$2 AND group_id=$3`), 
             [userId, expenseId, groupId]);
         return mapExpense(expense as UserExpense);

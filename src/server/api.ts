@@ -157,9 +157,9 @@ export function registerAPI(app: Express) {
             session.group.defaultSourceId || 0), true));
 
     // GET /api/expense/[expenseId]
-    app.get('/api/expense/:id', server.processRequest((session, req): Promise<Expense> =>
+    app.get('/api/expense/:id', server.processRequest((session, req): Promise<UserExpense> =>
         expenses.getById(session.group.id, session.user.id, parseInt(req.params.id, 10))
-            .then(e => expenses.getDivision(e.id).then(division => Object.assign(e, { division: division }))), true));
+            .then(e => expenses.getDivision(e.id).then(division => ({ ...e, division }))), true));
 
     // DELETE /api/expense/[expenseId]
     app.delete('/api/expense/:id', server.processRequest((session, req): Promise<ApiMessage> =>

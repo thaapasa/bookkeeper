@@ -18,7 +18,7 @@ interface ExpenseTableProps {
     endStatus: ExpenseStatus;
     monthStatus: ExpenseStatus;
     unconfirmedBefore: boolean;
-    onUpdateExpense: (expenseId: number, expense: Expense) => void;
+    onUpdateExpense: (expenseId: number, expense: UserExpense) => void;
 }
 
 interface ExpenseTableState {

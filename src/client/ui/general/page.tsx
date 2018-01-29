@@ -7,8 +7,9 @@ import ConfirmationDialog from './confirmation-dialog';
 import NotificationBar from '../component/notification-bar';
 import DatePickerComponent from '../component/date-picker-component';
 import FlatButton from 'material-ui/FlatButton';
-import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Link, Switch } from 'react-router-dom';
 import { Session } from '../../../shared/types/session';
+import { categoryPagePath, expensePagePath } from '../../util/links';
 
 function LinkButton({ label, to }: { label: string, to: string }) {
     return (
@@ -33,13 +34,15 @@ export default class BookkeeperPage extends React.Component<PageProps, {}> {
                 <Router>
                     <div>
                         <TopBar user={this.props.session.user}>
-                            <LinkButton label="Kulut" to="/" />
-                            <LinkButton label="Kategoriat" to="/p/kategoriat" />
+                            <LinkButton label="Kulut" to={expensePagePath} />
+                            <LinkButton label="Kategoriat" to={categoryPagePath} />
                         </TopBar>
                         <div className="main-content">
-                            <Route exact path="/" component={MonthView} />
-                            <Route path="/p/kulut" component={MonthView} />
-                            <Route path="/p/kategoriat" component={CategoryView} />
+                            <Switch>
+                                <Route exact path="/" component={MonthView} />
+                                <Route path={expensePagePath} component={MonthView} />
+                                <Route path={categoryPagePath} component={CategoryView} />
+                            </Switch>
                         </div>
                     </div>
                 </Router>

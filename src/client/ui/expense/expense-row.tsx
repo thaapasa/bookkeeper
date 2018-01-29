@@ -89,7 +89,7 @@ export function ExpenseTotal(props: {
 
 interface ExpenseRowProps {
     expense: UserExpense,
-    onUpdated: (e: Expense) => void,
+    onUpdated: (e: UserExpense) => void,
     addFilter: (a: any, b: any, c?: any) => void,
 }
 
@@ -126,10 +126,10 @@ export default class ExpenseRow extends React.Component<ExpenseRowProps, Expense
             () => this.props.addFilter(e => e.sourceId === sourceId, source.name, avatar)}>{ content }</a>
     }
 
-    private updateExpense = (data: Partial<Expense>) => {
+    private updateExpense = (data: Partial<UserExpense>) => {
         apiConnect.getExpense(this.props.expense.id)
             .then(exp => {
-                const newData = { ...exp, ...data };
+                const newData: UserExpense = { ...exp, ...data };
                 apiConnect.updateExpense(this.props.expense.id, newData)
                     .then(s => this.props.onUpdated(newData))
             });
