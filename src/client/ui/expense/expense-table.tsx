@@ -8,7 +8,7 @@ import Money from '../../../shared/util/money';
 import * as moment from 'moment';
 import { MonthlyStatus } from './monthly-status';
 import { UserExpense, ExpenseStatus, Expense } from '../../../shared/types/expense';
-import { ExpenseTotals, ExpenseFilter } from './expense-helper';
+import { ExpenseTotals, ExpenseFilter, ExpenseFilterFunction } from './expense-helper';
 
 interface ExpenseTableProps {
     date: moment.Moment;
@@ -22,7 +22,6 @@ interface ExpenseTableProps {
 }
 
 interface ExpenseTableState {
-    details: any;
     filters: ExpenseFilter[];
 }
 
@@ -30,11 +29,10 @@ interface ExpenseTableState {
 export default class ExpenseTable extends React.Component<ExpenseTableProps, ExpenseTableState> {
 
     public state: ExpenseTableState = {
-        details: {},
         filters: [],
     };
 
-    private addFilter = (filter: (expense: Expense) => boolean, name: string, avatar) => {
+    private addFilter = (filter: ExpenseFilterFunction, name: string, avatar: string) => {
         this.setState(s => ({
             filters: s.filters.concat({ filter, name, avatar }),
         }));
@@ -62,8 +60,8 @@ export default class ExpenseTable extends React.Component<ExpenseTableProps, Exp
 
     private calculateTotals(expenses: Expense[]): ExpenseTotals | null {
         if (expenses.length < 1) { return null; }
-        const income = expenses.filter(e => e.type === "income").reduce((s, c) => s.plus(c.sum), Money.zero);
-        const expense = expenses.filter(e => e.type === "expense").reduce((s, c) => s.plus(c.sum), Money.zero);
+        const income = expenses.filter(e => e.type === 'income').reduce((s, c) => s.plus(c.sum), Money.zero);
+        const expense = expenses.filter(e => e.type === 'expense').reduce((s, c) => s.plus(c.sum), Money.zero);
         return { totalIncome: income, totalExpense: expense };
     }
 
@@ -79,10 +77,10 @@ export default class ExpenseTable extends React.Component<ExpenseTableProps, Exp
                             <div className="expense-filters">{
                                 this.state.filters.map((f, index) => <Chip
                                     key={index}
-                                    style={{margin: "0.3em", padding: 0}}
+                                    style={{margin: '0.3em', padding: 0}}
                                     onRequestDelete={() => this.removeFilter(index)}>
-                                    { f.avatar ? <Avatar src={f.avatar}/> : null }
-                                    { f.name }
+                                    {f.avatar ? <Avatar src={f.avatar}/> : null}
+                                    {f.name}
                                 </Chip>)
                             }</div>
                         </div> ]

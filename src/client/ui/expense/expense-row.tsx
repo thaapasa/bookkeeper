@@ -12,20 +12,16 @@ import { combineClassNames } from '../../util/client-util';
 import * as arrays from '../../../shared/util/arrays';
 import * as time from '../../../shared/util/time';
 import ExpenseDivision from './expense-division'
-import { expenseName } from './expense-helper';
-import Money from '../../../shared/util/money';
+import { expenseName, money, ExpenseFilterFunction } from './expense-helper';
+import Money, { MoneyLike } from '../../../shared/util/money';
 import * as moment from 'moment';
 import { Expense, UserExpense } from '../../../shared/types/expense';
 
 // Just a special reference for determining if details are loading
 const LoadingDetails = {};
 
-function money(v) {
-    return v ? Money.from(v).format() : "-";
-}
-
 export function ExpenseHeader(props) {
-    return <div className={combineClassNames("expense-row bk-table-row header", props.className)} style={{ color: colors.header }}>
+    return <div className={combineClassNames('expense-row bk-table-row header', props.className)} style={{ color: colors.header }}>
         <div className="expense-detail date">Pvm</div>
         <div className="expense-detail user optional"/>
         <div className="expense-detail title">Nimi</div>
@@ -59,16 +55,16 @@ export function ExpenseStatus(props: {
     const style = {
         background: props.unconfirmedBefore ? colors.unconfirmedStripes : undefined,
     };
-    return <div className={combineClassNames("expense-row bk-table-row status", props.className)} style={style}>
+    return <div className={combineClassNames('expense-row bk-table-row status', props.className)} style={style}>
         <div className="expense-detail status-description">{props.name}</div>
         {
             arrays.flatten(statusTypeKeys.map(type =>
                 props.status[type] ? [
-                    <div className={ combineClassNames("expense-detail status-label", type !== "balance" ? "optional" : "")}
+                    <div className={combineClassNames('expense-detail status-label', type !== 'balance' ? 'optional' : '')}
                          key={`label-${type}`}>{ statusTypeNames[type] }:</div>,
-                    <div className={ combineClassNames("expense-detail status-sum", type !== "balance" ? "optional" : "")}
+                    <div className={combineClassNames('expense-detail status-sum', type !== 'balance' ? 'optional' : '')}
                          key={`sum-${type}`}
-                         style={{ color: colors.forMoney(props.status[type]) }}>{ money(props.status[type]) }</div>
+                         style={{ color: colors.forMoney(props.status[type]) }}>{money(props.status[type])}</div>
                 ] : []
             ))
         }
@@ -76,21 +72,21 @@ export function ExpenseStatus(props: {
 }
 
 export function ExpenseTotal(props: {
-    expense: object,
-    income: object,
+    expense: MoneyLike,
+    income: MoneyLike,
 }) {
     return <div className="expense-row bk-table-row">
         <div className="expense-detail total-label">Menot yhteensä</div>
-        <div className="expense-detail total-sum">{ money(props.expense) }</div>
+        <div className="expense-detail total-sum">{money(props.expense)}</div>
         <div className="expense-detail total-label">Tulot yhteensä</div>
-        <div className="expense-detail total-sum">{ money(props.income) }</div>
+        <div className="expense-detail total-sum">{money(props.income)}</div>
     </div>;
 }
 
 interface ExpenseRowProps {
     expense: UserExpense,
-    onUpdated: (e: UserExpense) => void,
-    addFilter: (a: any, b: any, c?: any) => void,
+    onUpdated: (expense: UserExpense) => void,
+    addFilter: (filter: ExpenseFilterFunction, name: string, avater?: string) => void,
 }
 
 interface ExpenseRowState {
@@ -180,7 +176,7 @@ export default class ExpenseRow extends React.Component<ExpenseRowProps, Expense
         return (details === LoadingDetails) || details ? [
             <ExpenseDivision
                 loading={details === LoadingDetails}
-                key={ "expense-division-" + expense.id }
+                key={'expense-division-' + expense.id}
                 expense={ expense }
                 onDelete={this.deleteExpense}
                 onModify={this.modifyExpense}
@@ -190,14 +186,14 @@ export default class ExpenseRow extends React.Component<ExpenseRowProps, Expense
 
     public render() {
         const expense = this.props.expense;
-        const className = "bk-table-row expense-row expense-item " + expense.type + (expense.confirmed ? "" : " unconfirmed");
+        const className = 'bk-table-row expense-row expense-item ' + expense.type + (expense.confirmed ? '' : ' unconfirmed');
         const style = {
             background: !expense.confirmed ? colors.unconfirmedStripes : 
-                (expense.type === "income" ? colors.income : undefined),
+                (expense.type === 'income' ? colors.income : undefined),
         };
         if (!expense.confirmed) {
             style.background = colors.unconfirmedStripes;
-        } else if (expense.type === "income") {
+        } else if (expense.type === 'income') {
             style.background = colors.income;
         }
         return <div>
@@ -213,7 +209,7 @@ export default class ExpenseRow extends React.Component<ExpenseRowProps, Expense
                 </div>
                 <div className="expense-detail title" style={{ whiteSpace: "nowrap" }}>
                     { expense.recurringExpenseId ?
-                        <div style={{ display: "inline-block", width: "14pt", verticalAlign: "top" }}><Repeat style={{ width: "12pt", height: "12pt", position: "absolute" }} /></div> : "" }
+                        <div style={{ display: "inline-block", width: "14pt", verticalAlign: "top" }}><Repeat style={{ width: "12pt", height: "12pt", position: "absolute" }} /></div> : '' }
                     <ActivatableTextField
                         editorType={PlainTextField}
                         name="title" value={ expense.title }

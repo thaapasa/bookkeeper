@@ -1,5 +1,5 @@
 import Money, { MoneyLike } from '../../../shared/util/money';
-import { Expense, ExpenseStatus } from '../../../shared/types/expense';
+import { Expense, ExpenseStatus, UserExpense } from '../../../shared/types/expense';
 
 export function expenseName(e: Expense): string {
     return `${e.title} (${e.receiver}): ${Money.from(e.sum).format()}`;
@@ -14,8 +14,10 @@ export interface ExpenseTotals {
     totalIncome: MoneyLike;
 }
 
+export type ExpenseFilterFunction = (expense: UserExpense) => boolean;
+
 export interface ExpenseFilter {
-    filter: (expense: Expense) => boolean;
+    filter: ExpenseFilterFunction;
     name: string;
     avatar: any;
 }
