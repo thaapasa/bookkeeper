@@ -1,5 +1,5 @@
 import * as colors from 'material-ui/styles/colors';
-import Money from '../../shared/util/money';
+import Money, { MoneyLike } from '../../shared/util/money';
 
 export const white = '#FFFFFF';
 export const highlight = colors.cyan500;
@@ -17,7 +17,9 @@ export const unconfirmed = colors.amber50;
 export const unconfirmedStripes = diagonalStripes(unconfirmed, white, '0.5em', '1em');
 export const income = colors.lime100;
 
-export function forMoney(b: Money | undefined): string {
+export function forMoney(m?: MoneyLike): string {
+    if (!m) { return unimportant; }
+    const b = Money.from(m);
     return b ? (b.gt(0) ? positive : ( b.lt(0) ? negative : unimportant)) : unimportant;
 }
 
