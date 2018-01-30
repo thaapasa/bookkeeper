@@ -1,5 +1,5 @@
 const Pool = require('pg-pool');
-import { config } from '../config';
+import { config } from '../Config';
 import { camelCaseObject } from '../../shared/util/util';
 import { QueryResult, Client } from 'pg';
 const debug = require('debug')('db');
@@ -13,12 +13,12 @@ const pool = new Pool({
 type Queryer = <T>(name: string, query: string, params: any[], mapper: (res: QueryResult) => T) => Promise<T>;
 
 function queryFor(client: Client, doRelease: boolean, id?: number): Queryer {
-    return async(name, query, params, mapper) => {
+    return async (name, query, params, mapper) => {
         try {
             debug((id ? `[${id}] SQL query` : '[db] SQL query'), name, query, 'with params', params);
             const res = await client.query({ text: query, name: name, values: params });
             return mapper(res);
-        } catch(e) {
+        } catch (e) {
             error('Query error', e.message, e.stack);
             throw e;
         } finally {
@@ -44,12 +44,12 @@ class BookkeeperDB implements DbAccess {
     }
 
     public async queryObject<T extends object>(name: string, query: string, params?: any[]): Promise<T> {
-        const o = await this.queryer(name, query, params || [], r => (r.rows && r.rows.length > 0) ? r.rows[0] : undefined);
+        const o = await this.queryer(name, query, params || [], r => (r.rows && r.rows.length > 0) ? r.rows[0] : undefined);
         return camelCaseObject(o);
     }
 
     public async queryList<T extends object>(name: string, query: string, params?: any[]): Promise<T[]> {
-        const o = await this.queryer(name, query, params || [], r => r.rows);
+        const o = await this.queryer(name, query, params || [], r => r.rows);
         return o.map(camelCaseObject);
     }
 
@@ -75,11 +75,11 @@ class BookkeeperDB implements DbAccess {
     }
 
     public insert(name: string, query: string, params?: any[]): Promise<number> {
-        return this.queryer(name, query, params || [], toId);
+        return this.queryer(name, query, params || [], toId);
     }
 
     public update(name: string, query: string, params?: any[]): Promise<number> {
-        return this.queryer(name, query, params || [], toRowCount);
+        return this.queryer(name, query, params || [], toRowCount);
     }
 }
 
@@ -92,7 +92,7 @@ function toId(r: any): number {
     return r && r.rows && r.rows.length > 0 ? r.rows[0].id : 0;
 }
 
-export const db = new BookkeeperDB(async function<T>(name: string, query: string, params: any[], mapper: (res: QueryResult) => T): Promise<T> {
+export const db = new BookkeeperDB(async function <T>(name: string, query: string, params: any[], mapper: (res: QueryResult) => T): Promise<T> {
     const client = await pool.connect() as Client;
     return queryFor(client, true)(name, query, params, mapper);
 });

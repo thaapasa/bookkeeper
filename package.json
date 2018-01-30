@@ -1,7 +1,7 @@
 {
   "name": "bookkeeper",
   "version": "0.1.1",
-  "main": "src/server/bookkeeper-server.ts",
+  "main": "src/server/BookkeeperServer.ts",
   "private": true,
   "scripts": {
     "postinstall": "npm run update-revision",
@@ -12,12 +12,12 @@
     "build-client": "react-scripts-ts build",
     "build-server": "tsc",
     "build-all": "npm run update-revision && npm run build-server && npm run build-client",
-    "start-server-prod": "DEBUG=bookkeeper* NODE_ENV=production node build-server/server/bookkeeper-server.js",
+    "start-server-prod": "DEBUG=bookkeeper* NODE_ENV=production node build-server/server/BookkeeperServer.js",
     "eject-client": "react-scripts-ts eject",
     "update-revision": "sh script/update-revision.sh",
-    "clean": "rm -rf build/ dist/",
-    "ps-server": "ps -ef | grep ./src/server/bookkeeper-server.ts | grep -v grep | awk '{ print $2; }'",
-    "kill-server": "ps -ef | grep ./src/server/bookkeeper-server.ts | grep -v grep | awk '{ print $2; }' | xargs kill"
+    "clean": "rm -rf build/ dist/ build-server/",
+    "ps-server": "ps -ef | grep ./src/server/BokkeeperServer.ts | grep -v grep | awk '{ print $2; }'",
+    "kill-server": "ps -ef | grep ./src/server/BookkeeperServer.ts | grep -v grep | awk '{ print $2; }' | xargs kill"
   },
   "repository": {
     "type": "git",

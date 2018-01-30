@@ -1,9 +1,9 @@
-import { db, DbAccess } from './db';
-import users, { RawUserData } from './users';
-import sources from './sources';
-import categories from './categories';
+import { db, DbAccess } from './Db';
+import users, { RawUserData } from './Users';
+import sources from './Sources';
+import categories from './Categories';
 import { promisify } from 'util';
-import { config } from '../config';
+import { config } from '../Config';
 import { Session, SessionBasicInfo } from '../../shared/types/session';
 import { AuthenticationError } from '../../shared/types/errors';
 import { ApiMessage } from '../../shared/types/api';
@@ -11,7 +11,7 @@ const debug = require('debug')('bookkeeper:api:sessions');
 
 const randomBytes = promisify(require('crypto').randomBytes);
 
-function createSessionInfo([ token, refreshToken ]: string[], userData: RawUserData, loginTime?: Date): SessionBasicInfo {
+function createSessionInfo([token, refreshToken]: string[], userData: RawUserData, loginTime?: Date): SessionBasicInfo {
     return {
         token,
         refreshToken,
@@ -58,19 +58,19 @@ function logout(tx: DbAccess) {
         }
         await tx.update('sessions.delete', 'DELETE FROM sessions WHERE (token=$1 AND refresh_token IS NOT NULL) ' +
             'OR (token=$2 AND refresh_token IS NULL)', [session.token, session.refreshToken]);
-        return ({status: 'OK', message: 'User has logged out', userId: session.userId });
+        return ({ status: 'OK', message: 'User has logged out', userId: session.userId });
     };
 }
 
 function createSession(tx: DbAccess) {
     return async (user: RawUserData): Promise<string[]> => {
-        const tokens = await Promise.all([ createToken(), createToken() ]);
+        const tokens = await Promise.all([createToken(), createToken()]);
         debug('User', user.email, 'logged in with token', tokens[0]);
         await tx.insert('sessions.create',
-            'INSERT INTO sessions (token, refresh_token, user_id, login_time, expiry_time) VALUES '+
-            '($1, $2, $3, NOW(), NOW() + $4::INTERVAL), '+
+            'INSERT INTO sessions (token, refresh_token, user_id, login_time, expiry_time) VALUES ' +
+            '($1, $2, $3, NOW(), NOW() + $4::INTERVAL), ' +
             '($2, NULL, $3, NOW(), NOW() + $5::INTERVAL)',
-            [ tokens[0], tokens[1], user.id, config.sessionTimeout, config.refreshTokenTimeout]);
+            [tokens[0], tokens[1], user.id, config.sessionTimeout, config.refreshTokenTimeout]);
         return tokens;
     };
 }
@@ -80,7 +80,7 @@ function purgeExpiredSessions(tx: DbAccess) {
 }
 
 const tokenSelect = 'SELECT s.token, s.refresh_token, s.user_id as id, s.login_time, u.username, u.email, u.first_name, u.last_name, u.default_group_id,' +
-    'g.id AS group_id, g.name as group_name, go.default_source_id FROM sessions s '+
+    'g.id AS group_id, g.name as group_name, go.default_source_id FROM sessions s ' +
     'INNER JOIN users u ON (s.user_id = u.id) ' +
     'LEFT JOIN group_users go ON (go.user_id = u.id AND go.group_id = COALESCE($2, u.default_group_id)) ' +
     'LEFT JOIN groups g ON (g.id = go.group_id) ';
@@ -94,7 +94,7 @@ function getSession(tx: DbAccess) {
             throw new AuthenticationError('INVALID_TOKEN', 'Access token is invalid', token);
         }
         await tx.update('sessions.update_expiry',
-                'UPDATE sessions SET expiry_time=NOW() + $2::INTERVAL WHERE token=$1', [token, config.sessionTimeout]);
+            'UPDATE sessions SET expiry_time=NOW() + $2::INTERVAL WHERE token=$1', [token, config.sessionTimeout]);
         return createSessionInfo([userData.token, userData.refreshToken], userData, userData.loginTime);
     };
 }

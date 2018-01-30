@@ -1,4 +1,4 @@
-import { Validator } from '../util/validator';
+import { Validator } from '../util/Validator';
 import Money, { MoneyLike } from '../../shared/util/money';
 import * as splitter from '../../shared/util/splitter';
 import { Expense, ExpenseDivisionItem, ExpenseDivisionType } from '../../shared/types/expense';

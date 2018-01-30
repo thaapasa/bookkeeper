@@ -1,12 +1,12 @@
-import users from './data/users';
+import users from './data/Users';
 import * as moment from 'moment';
-import sessions from './data/sessions';
-import expenses, { ExpenseSearchParams } from './data/expenses';
-import categories, { CategoryInput, CategoryQueryInput } from './data/categories';
-import sources from './data/sources';
-import { config } from './config';
-import * as server from './util/server-util';
-import { Validator as V, Schema } from './util/validator';
+import sessions from './data/Sessions';
+import expenses, { ExpenseSearchParams } from './data/Expenses';
+import categories, { CategoryInput, CategoryQueryInput } from './data/Categories';
+import sources from './data/Sources';
+import { config } from './Config';
+import * as server from './util/ServerUtil';
+import { Validator as V, Schema } from './util/Validator';
 import { Express } from 'express';
 import { Expense, Recurrence, UserExpense, ExpenseCollection } from '../shared/types/expense';
 import { ApiMessage, ApiStatus } from '../shared/types/api';
@@ -47,7 +47,7 @@ export function registerAPI(app: Express) {
     app.get('/api/session/groups', server.processRequest((session): Promise<Group[]> =>
         users.getGroups(session.user.id)));
 
-    
+
     // GET /api/user/list
     app.get('/api/user/list', server.processRequest((session, req): Promise<User[]> =>
         users.getAll(session.group.id), true));
@@ -150,7 +150,7 @@ export function registerAPI(app: Express) {
     app.get('/api/expense/receivers', server.processRequest(async (session, req): Promise<string[]> =>
         (await expenses.queryReceivers(session.group.id, V.validate(receiverSchema, req.query).receiver))
             .map(r => r.receiver), true));
-    
+
     // POST /api/expense/[expenseId]
     app.post('/api/expense/:id', server.processRequest((session, req): Promise<ApiMessage> =>
         expenses.update(session.group.id, session.user.id, parseInt(req.params.id, 10), V.validate(expenseSchema, req.body),

@@ -3,8 +3,8 @@ dotenv.config();
 
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
-import { config } from './config';
-import * as api from './api';
+import { config } from './Config';
+import * as api from './Api';
 import * as path from 'path';
 const debug = require('debug')('bookkeeper:server');
 

@@ -29,7 +29,7 @@ function fieldPath(prefix: string | undefined, field: string): string {
     return prefix ? `${prefix}.${field}` : field;
 }
 
-export interface Schema<T> {}
+export interface Schema<T> { }
 type ValidationFunction<T> = (i: any, field: string) => T;
 
 export class Validator {
@@ -158,10 +158,10 @@ export class Validator {
                     return [false, undefined, val[2].concat(e)];
                 }
             }, [false, undefined, []] as [boolean, any, any[]]);
-            if (res[0]) { 
-                return res[1]; 
-            } else { 
-                throw new InvalidInputError(field, i, `Input did not match any matcher: ${res[2].map(e => e.info && e.info.requirement ? e.info.requirement : e)}`); 
+            if (res[0]) {
+                return res[1];
+            } else {
+                throw new InvalidInputError(field, i, `Input did not match any matcher: ${res[2].map(e => e.info && e.info.requirement ? e.info.requirement : e)}`);
             }
         }
     }

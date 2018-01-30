@@ -1,7 +1,7 @@
-import { config } from '../config';
-import sessions from '../data/sessions';
+import { config } from '../Config';
+import sessions from '../data/Sessions';
 import * as moment from 'moment';
-import { db } from '../data/db';
+import { db } from '../data/Db';
 import { SessionBasicInfo } from '../../shared/types/session';
 import { Request, Response } from 'express';
 import { TokenNotPresentError, InvalidGroupError } from '../../shared/types/errors';
@@ -68,7 +68,7 @@ function setNoCacheHeaders(res: Response): Response {
 
 const bearerMatch = /Bearer ([0-9a-zA-Z]*)/;
 export function getToken(req: Request): string {
-    const tmatch = bearerMatch.exec(req.header('Authorization') || '');
+    const tmatch = bearerMatch.exec(req.header('Authorization') || '');
     const token = tmatch && tmatch.length > 0 ? tmatch[1] : undefined;
     if (!token) { throw new TokenNotPresentError(); }
     return token;

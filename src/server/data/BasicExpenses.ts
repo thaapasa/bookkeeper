@@ -1,15 +1,16 @@
-import { db, DbAccess } from './db';
+import { db, DbAccess } from './Db';
 import * as moment from 'moment';
 import * as time from '../../shared/util/time';
 import Money, { MoneyLike } from '../../shared/util/money';
-import categories from './categories';
-import users from './users';
-import sources from './sources';
-import { determineDivision } from './expense-division';
+import categories from './Categories';
+import users from './Users';
+import sources from './Sources';
+import { determineDivision } from './ExpenseDivision';
 import { NotFoundError } from '../../shared/types/errors';
 import { Expense, UserExpense, ExpenseDivisionType, ExpenseDivisionItem, ExpenseStatus } from '../../shared/types/expense';
 import { Moment } from 'moment';
 import { ApiMessage } from '../../shared/types/api';
+import addAlarm from 'material-ui/svg-icons/device/add-alarm';
 const debug = require('debug')('bookkeeper:api:expenses');
 
 function expenseSelect(where: string): string {
@@ -79,7 +80,7 @@ function hasUnconfirmedBefore(tx: DbAccess) {
 
 function getById(tx: DbAccess) {
     return async (groupId: number, userId: number, expenseId: number): Promise<UserExpense> => {
-        const expense = await tx.queryObject('expenses.get_by_id', expenseSelect(`WHERE id=$2 AND group_id=$3`), 
+        const expense = await tx.queryObject('expenses.get_by_id', expenseSelect(`WHERE id=$2 AND group_id=$3`),
             [userId, expenseId, groupId]);
         return mapExpense(expense as UserExpense);
     };
@@ -101,7 +102,7 @@ function storeDivision(tx: DbAccess) {
 }
 
 function deleteDivision(tx: DbAccess) {
-    return (expenseId: number): Promise<number> => tx.insert('expense.delete.division', 
+    return (expenseId: number): Promise<number> => tx.insert('expense.delete.division',
         'DELETE FROM expense_division WHERE expense_id=$1::INTEGER', [expenseId]);
 }
 
@@ -159,9 +160,9 @@ function insert(tx: DbAccess) {
             'description, confirmed, source_id, category_id, template, recurring_expense_id) ' +
             'VALUES ($1::INTEGER, $2::INTEGER, $3::INTEGER, $4::DATE, NOW(), $5::expense_type, $6, ' +
             '$7::NUMERIC::MONEY, $8, $9, $10::BOOLEAN, $11::INTEGER, $12::INTEGER, $13::BOOLEAN, $14) RETURNING id',
-            [ userId, expense.userId, expense.groupId, expense.date, expense.type, expense.receiver, expense.sum.toString(),
+            [userId, expense.userId, expense.groupId, expense.date, expense.type, expense.receiver, expense.sum.toString(),
                 expense.title, expense.description, expense.confirmed, expense.sourceId, expense.categoryId,
-                expense.template || false, expense.recurringExpenseId || null ]);
+                expense.template || false, expense.recurringExpenseId || null]);
         await createDivision(tx)(expenseId, division);
         return expenseId;
     }
@@ -179,11 +180,11 @@ function updateExpense(tx: DbAccess) {
         const division = determineDivision(expense, source);
         await deleteDivision(tx)(original.id);
         await tx.insert('expenses.update',
-                'UPDATE expenses SET date=$2::DATE, receiver=$3, sum=$4::NUMERIC::MONEY, title=$5, description=$6, ' +
-                'type=$7::expense_type, confirmed=$8::BOOLEAN, source_id=$9::INTEGER, category_id=$10::INTEGER ' +
-                'WHERE id=$1',
-                [original.id, expense.date, expense.receiver, expense.sum.toString(), expense.title,
-                    expense.description, expense.type, expense.confirmed, source.id, cat.id]);
+            'UPDATE expenses SET date=$2::DATE, receiver=$3, sum=$4::NUMERIC::MONEY, title=$5, description=$6, ' +
+            'type=$7::expense_type, confirmed=$8::BOOLEAN, source_id=$9::INTEGER, category_id=$10::INTEGER ' +
+            'WHERE id=$1',
+            [original.id, expense.date, expense.receiver, expense.sum.toString(), expense.title,
+            expense.description, expense.type, expense.confirmed, source.id, cat.id]);
         await createDivision(tx)(original.id, division);
         return { status: 'OK', message: 'Expense updated', expenseId: original.id };
     }
@@ -207,12 +208,12 @@ function queryReceivers(tx: DbAccess) {
         return await tx.queryList('expenses.receiver_search',
             'SELECT receiver, COUNT(*) AS AMOUNT FROM expenses WHERE group_id=$1 AND receiver ILIKE $2 ' +
             'GROUP BY receiver ORDER BY amount DESC',
-            [ groupId, `%${receiver}%` ]) as ReceiverInfo[];
+            [groupId, `%${receiver}%`]) as ReceiverInfo[];
     };
 }
 
 function copyExpense(tx: DbAccess) {
-    return async (groupId: number, userId: number, expenseId: number, 
+    return async (groupId: number, userId: number, expenseId: number,
         mapper: (e: [Expense, ExpenseDivisionItem[]]) => [Expense, ExpenseDivisionItem[]]): Promise<number> => {
         const e = await getExpenseAndDivision(tx)(groupId, userId, expenseId);
         const [expense, division] = mapper ? mapper(e) : e;

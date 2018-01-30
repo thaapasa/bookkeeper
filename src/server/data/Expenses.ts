@@ -1,8 +1,8 @@
-import { db, DbAccess } from './db';
+import { db, DbAccess } from './Db';
 import * as time from '../../shared/util/time';
 import Money from '../../shared/util/money';
-import recurring from './recurring-expenses';
-import basic from './basic-expenses';
+import recurring from './RecurringExpenses';
+import basic from './BasicExpenses';
 import { ExpenseCollection, ExpenseStatus, UserExpense } from '../../shared/types/expense';
 import { mapObject } from '../../shared/util/arrays';
 import { Moment } from 'moment';

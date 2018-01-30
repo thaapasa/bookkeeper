@@ -1,4 +1,4 @@
-import { db, DbAccess } from './db';
+import { db, DbAccess } from './Db';
 import Money from '../../shared/util/money';
 import { NotFoundError } from '../../shared/types/errors';
 import { Category, CategoryAndTotals } from '../../shared/types/session';
@@ -41,7 +41,7 @@ function sumChildTotalsToParent(categoryTable: CategoryAndTotals[]): CategoryAnd
 function getAll(tx: DbAccess) {
     return async (groupId: number): Promise<Category[]> => {
         const cats = await tx.queryList('categories.get_all', 'SELECT id, parent_id, name FROM categories WHERE group_id=$1::INTEGER ' +
-            'ORDER BY (CASE WHEN parent_id IS NULL THEN 1 ELSE 0 END) DESC, parent_id ASC, name', [ groupId ]);
+            'ORDER BY (CASE WHEN parent_id IS NULL THEN 1 ELSE 0 END) DESC, parent_id ASC, name', [groupId]);
         return createCategoryObject(cats as Category[]);
     }
 }
@@ -59,10 +59,10 @@ function getTotals(tx: DbAccess) {
             'LEFT JOIN expenses ON categories.id=category_id WHERE expenses.id IS NULL OR expenses.group_id=$1::INTEGER ' +
             'GROUP BY categories.id, categories.parent_id ' +
             'ORDER BY (CASE WHEN parent_id IS NULL THEN 1 ELSE 0 END) DESC, parent_id ASC, name',
-            [ groupId, params.startDate, params.endDate ]);
+            [groupId, params.startDate, params.endDate]);
         const categories = createCategoryObject(cats as CategoryAndTotals[]);
         return sumChildTotalsToParent(categories);
-     }
+    }
 }
 
 export interface CategoryInput {
@@ -71,16 +71,16 @@ export interface CategoryInput {
 }
 
 function create(tx: DbAccess) {
-    return (groupId: number, data: CategoryInput): Promise<number> => 
-        tx.insert("categories.create", "INSERT INTO categories (group_id, parent_id, name) "+
-        "VALUES ($1::INTEGER, $2::INTEGER, $3) RETURNING id", [ groupId, data.parentId || null, data.name ]);
+    return (groupId: number, data: CategoryInput): Promise<number> =>
+        tx.insert("categories.create", "INSERT INTO categories (group_id, parent_id, name) " +
+            "VALUES ($1::INTEGER, $2::INTEGER, $3) RETURNING id", [groupId, data.parentId || null, data.name]);
 }
 
 function getById(tx: DbAccess) {
     return async (groupId: number, id: number): Promise<Category> => {
         const cat = await tx.queryObject('categories.get_by_id',
             'SELECT id, parent_id, name FROM categories WHERE id=$1::INTEGER AND group_id=$2::INTEGER ',
-            [ id, groupId ]);
+            [id, groupId]);
         if (!cat) { throw new NotFoundError('CATEGORY_NOT_FOUND', 'category'); }
         return cat as Category;
     }

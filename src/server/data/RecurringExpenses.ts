@@ -1,8 +1,8 @@
-import { db, DbAccess } from './db';
+import { db, DbAccess } from './Db';
 import * as moment from 'moment';
 import * as time from '../../shared/util/time';
-import { Validator } from '../util/validator';
-import expenses from './basic-expenses';
+import { Validator } from '../util/Validator';
+import expenses from './BasicExpenses';
 import { RecurringExpensePeriod, Recurrence, ExpenseDivisionItem, Expense } from '../../shared/types/expense';
 import { Moment } from 'moment';
 import { ApiMessage } from '../../shared/types/api';
@@ -31,12 +31,14 @@ function createRecurring(groupId: number, userId: number, expenseId: number, rec
         const recurrenceId = await tx.insert('expenses.create_recurring_expense',
             'INSERT INTO recurring_expenses (template_expense_id, period, next_missing, group_id) ' +
             'VALUES ($1::INTEGER, $2, $3::DATE, $4) RETURNING id',
-            [ templateId, recurrence.period, nextMissing, groupId ]);
-        
+            [templateId, recurrence.period, nextMissing, groupId]);
+
         await tx.update('expenses.set_recurrence_id',
-            'UPDATE expenses SET recurring_expense_id=$1 WHERE id IN ($2, $3)', [ recurrenceId, expenseId, templateId ]);
-        return { status: 'OK', message: 'Recurrence created', expenseId: expenseId,
-            templateExpenseId: templateId, recurringExpenseId: recurrenceId }
+            'UPDATE expenses SET recurring_expense_id=$1 WHERE id IN ($2, $3)', [recurrenceId, expenseId, templateId]);
+        return {
+            status: 'OK', message: 'Recurrence created', expenseId: expenseId,
+            templateExpenseId: templateId, recurringExpenseId: recurrenceId
+        }
     });
 }
 
@@ -60,7 +62,7 @@ function createMissingRecurrences(tx: DbAccess, groupId: number, userId: number,
         await Promise.all(dates.map(createMissingRecurrenceForDate(tx, expense)));
         await tx.update('expenses.update_recurring_missing_date',
             'UPDATE recurring_expenses SET next_missing=$1::DATE WHERE id=$2',
-            [ time.date(nextMissing), recurrence.id ]);
+            [time.date(nextMissing), recurrence.id]);
     }
 }
 
@@ -77,8 +79,8 @@ function createMissing(tx: DbAccess) {
     debug('Checking for missing expenses');
     return async (groupId: number, userId: number, date: string | Moment) => {
         const list = await tx.queryList('expenses.find_missing_recurring',
-           'SELECT * FROM recurring_expenses WHERE group_id = $1 AND next_missing < $2::DATE',
-            [ groupId, date ]);
+            'SELECT * FROM recurring_expenses WHERE group_id = $1 AND next_missing < $2::DATE',
+            [groupId, date]);
         return Promise.all(list.map(createMissingRecurrences(tx, groupId, userId, date)));
     };
 }

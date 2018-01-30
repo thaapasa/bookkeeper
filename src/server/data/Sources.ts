@@ -1,8 +1,8 @@
-import { db, DbAccess } from './db';
+import { db, DbAccess } from './Db';
 import { Source } from '../../shared/types/session';
 import { NotFoundError } from '../../shared/types/errors';
 
-function getImage(img: string | undefined): string | undefined {
+function getImage(img: string | undefined): string | undefined {
     return img ? `img/sources/${img}` : undefined;
 }
 
@@ -29,7 +29,7 @@ const select = 'SELECT s.id, s.group_id, name, abbreviation, image, ' +
 
 function getAll(tx: DbAccess) {
     return async (groupId: number): Promise<Source[]> => {
-        const s = await tx.queryList('sources.get_all', `${select} WHERE group_id = $1::INTEGER`, [ groupId ]);
+        const s = await tx.queryList('sources.get_all', `${select} WHERE group_id = $1::INTEGER`, [groupId]);
         return createGroupObject(s as SourceData[]);
     }
 }
@@ -37,7 +37,7 @@ function getAll(tx: DbAccess) {
 function getById(tx: DbAccess) {
     return async (groupId: number, id: number): Promise<Source> => {
         const s = await tx.queryList('sources.get_by_id',
-            `${select} WHERE id=$1::INTEGER AND group_id=$2::INTEGER`, [ id, groupId ]);
+            `${select} WHERE id=$1::INTEGER AND group_id=$2::INTEGER`, [id, groupId]);
         if (!s) { throw new NotFoundError('SOURCE_NOT_FOUND', 'source'); }
         return createGroupObject(s as SourceData[])[0];
     }
