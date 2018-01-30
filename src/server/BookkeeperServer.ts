@@ -19,9 +19,9 @@ api.registerAPI(app);
 app.get(/\/p\/.*/, (s, r) => r.sendFile(path.join(curDir + '/public/index.html')));
 
 try {
-    app.listen(config.port, () => {
-        debug('Kukkaro server started with configuration', config);
-    });
+  app.listen(config.port, () => {
+    debug('Kukkaro server started with configuration', config);
+  });
 } catch (er) {
-    debug('Error in server:', er);
+  debug('Error in server:', er);
 }
