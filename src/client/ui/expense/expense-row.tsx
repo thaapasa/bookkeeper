@@ -34,55 +34,6 @@ export function ExpenseHeader(props) {
     </div>
 }
 
-const statusTypeNames = {
-    income: 'Tulot',
-    split: 'Tulojako',
-    cost: 'Menot',
-    benefit: 'Hyöty',
-    balance: 'Balanssi',
-};
-const statusTypeKeys = Object.keys(statusTypeNames);
-
-export function ExpenseStatus(props: {
-    name: string,
-    cost?: string,
-    benefit?: string,
-    balance?: string,
-    unconfirmedBefore?: boolean,
-    className?: string,
-    status?: any,
-}) {
-    const style = {
-        background: props.unconfirmedBefore ? colors.unconfirmedStripes : undefined,
-    };
-    return <div className={combineClassNames('expense-row bk-table-row status', props.className)} style={style}>
-        <div className="expense-detail status-description">{props.name}</div>
-        {
-            arrays.flatten(statusTypeKeys.map(type =>
-                props.status[type] ? [
-                    <div className={combineClassNames('expense-detail status-label', type !== 'balance' ? 'optional' : '')}
-                         key={`label-${type}`}>{ statusTypeNames[type] }:</div>,
-                    <div className={combineClassNames('expense-detail status-sum', type !== 'balance' ? 'optional' : '')}
-                         key={`sum-${type}`}
-                         style={{ color: colors.forMoney(props.status[type]) }}>{money(props.status[type])}</div>
-                ] : []
-            ))
-        }
-    </div>
-}
-
-export function ExpenseTotal(props: {
-    expense: MoneyLike,
-    income: MoneyLike,
-}) {
-    return <div className="expense-row bk-table-row">
-        <div className="expense-detail total-label">Menot yhteensä</div>
-        <div className="expense-detail total-sum">{money(props.expense)}</div>
-        <div className="expense-detail total-label">Tulot yhteensä</div>
-        <div className="expense-detail total-sum">{money(props.income)}</div>
-    </div>;
-}
-
 interface ExpenseRowProps {
     expense: UserExpense,
     onUpdated: (expense: UserExpense) => void,
