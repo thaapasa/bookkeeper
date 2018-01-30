@@ -41,11 +41,12 @@ export function ToolIcon(props: {
     className?: string,
     onClick: () => void,
 }) {
-    return React.createElement(props.icon, Object.assign({}, props, {
+    return React.createElement(props.icon, {
+        ...props,
         color: props.color || colors.tool,
-        style: Object.assign({}, styles.tool, props.style || {}),
-        icon: undefined
-    }));
+        style: { ...styles.tool, ...props.style },
+        icon: undefined,
+    });
 }
 
 export function ToolButton(props: {
