@@ -2,13 +2,10 @@ import * as React from 'react';
 import Money, { MoneyLike } from '../../../shared/util/money';
 import * as colors from '../colors';
 import styled from 'styled-components';
-import { ExpenseTotals } from './expense-helper';
+import { ExpenseTotals, money } from './expense-helper';
 import { ExpenseStatus } from '../../../shared/types/expense';
+import { fixedHorizontal } from '../styles';
 const debug = require('debug')('bookkeeper:expense-table');
-
-function money(v?: MoneyLike): string {
-    return v ? Money.from(v).format() : '-';
-}
 
 interface StatusProps {
     unconfirmedBefore: boolean;
@@ -20,7 +17,7 @@ interface StatusProps {
     filteredTotals: ExpenseTotals | null;
 }
 
-const CalculationRow = styled.div`
+const CalculationRowContainer = styled.div`
     display: flex;
     flex-direction: row;
     padding: 3px 0px;
@@ -37,18 +34,38 @@ const CalculationSum = styled.div`
     text-align: right;
 `;
 
+const StatusContainer = fixedHorizontal.extend`
+    height: 130px;
+    bottom: 0;
+    display: flex;
+    justify-content: flex-end;
+    font-size: 14px;
+    border-top: 1px solid rgb(224, 224, 224);
+`;
+
+const MonthlyCalculation = styled.div`
+    width: 200px;
+    padding: 20px;
+`;
+
+const CalculationHeader = styled.div`
+    color: rgb(117, 117, 117);
+    font-weight: 600;
+    margin-bottom: 5px;
+    font-size: 14px;
+`;
+
+function CalculationRow({ title, sum, drawTopBorder }: { title: string, sum: MoneyLike, drawTopBorder?: boolean }) {
+    const rowStyle = { borderTop: (drawTopBorder ? '1px solid rgb(224, 224, 224)' : 'none') }
+    return (
+        <CalculationRowContainer style={rowStyle}>
+            <CalculationTitle>{title}</CalculationTitle>
+            <CalculationSum>{money(sum)}</CalculationSum>
+        </CalculationRowContainer>
+    );
+}
 
 export class MonthlyStatus extends React.Component<StatusProps, {}> {
-
-    private getCalculationRow(title: string, sum: MoneyLike, drawTopBorder: boolean) {
-        const rowStyle = { borderTop: (drawTopBorder ? '1px solid rgb(224, 224, 224)' : 'none') }
-        return (
-            <CalculationRow style={rowStyle}>
-                <CalculationTitle>{title}</CalculationTitle>
-                <CalculationSum>{money(sum)}</CalculationSum>
-            </CalculationRow>
-        );
-    }
 
     public componentDidMount() {
         debug(this.props);
@@ -67,26 +84,26 @@ export class MonthlyStatus extends React.Component<StatusProps, {}> {
         const filteredStyle = { display: (!this.props.showFiltered ? 'none' : ''), backgroundColor: 'rgb(224, 224, 224)'}
         const uncofirmedStyle = { background: this.props.unconfirmedBefore ? colors.unconfirmedStripes : undefined, };
         return (
-            <div className="expense-table-monthly-status fixed-horizontal">
-                <div className="monthly-calculation filtered" style={filteredStyle}>
-                    <div className="header">Suodatetut tulot ja menot</div>
-                    {this.getCalculationRow('Tulot', filteredIncome, false)}
-                    {this.getCalculationRow('Menot', Money.from(filteredExpense).abs().negate(), false)}
-                    {this.getCalculationRow('', Money.from(filteredIncome).minus(filteredExpense), true)}
-                </div>
-                <div className="monthly-calculation">
-                    <div className="header">Tulot ja menot</div>
-                    {this.getCalculationRow('Tulot', income, false)}
-                    {this.getCalculationRow('Menot', Money.from(expense).abs().negate(), false)}
-                    {this.getCalculationRow('', Money.from(income).minus(expense), true)}
-                </div>
-                <div className="monthly-calculation" style={uncofirmedStyle}>
-                    <div className="header">Saatavat/velat</div>
-                    {this.getCalculationRow('Ennen', this.props.startStatus.balance, false)}
-                    {this.getCalculationRow('Muutos', this.props.monthStatus.balance, false)}
-                    {this.getCalculationRow('', this.props.endStatus.balance, true)}
-                </div>
-            </div>
+            <StatusContainer>
+                <MonthlyCalculation style={filteredStyle}>
+                    <CalculationHeader>Suodatetut tulot ja menot</CalculationHeader>
+                    <CalculationRow title="Tulot" sum={filteredIncome} />
+                    <CalculationRow title="Menot" sum={Money.from(filteredExpense).abs().negate()} />
+                    <CalculationRow title="" sum={Money.from(filteredIncome).minus(filteredExpense)} drawTopBorder={true} />
+                </MonthlyCalculation>
+                <MonthlyCalculation>
+                    <CalculationHeader>Tulot ja menot</CalculationHeader>
+                    <CalculationRow title="Tulot" sum={income} />
+                    <CalculationRow title="Menot" sum={Money.from(expense).abs().negate()} />
+                    <CalculationRow title="" sum={Money.from(income).minus(expense)} drawTopBorder={true} />
+                </MonthlyCalculation>
+                <MonthlyCalculation style={uncofirmedStyle}>
+                    <CalculationHeader>Saatavat/velat</CalculationHeader>
+                    <CalculationRow title="Ennen" sum={this.props.startStatus.balance} />
+                    <CalculationRow title="Muutos" sum={this.props.monthStatus.balance} />
+                    <CalculationRow title="" sum={this.props.endStatus.balance} drawTopBorder={true} />
+                </MonthlyCalculation>
+            </StatusContainer>
         );
     }
 }

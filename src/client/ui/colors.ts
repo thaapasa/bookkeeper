@@ -12,7 +12,7 @@ export const subItem = colors.grey200;
 
 export const navigation = highlight;
 export const tool = header;
-export const unconfirmed = colors.amber100;
+export const unconfirmed = colors.amber50;
 export const unconfirmedStripes = diagonalStripes(unconfirmed, white, '0.5em', '1em');
 export const income = colors.lime100;
 

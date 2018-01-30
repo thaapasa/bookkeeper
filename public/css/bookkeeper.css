@@ -78,25 +78,6 @@ html, body {
 .expense-table-month-status { bottom: 41px; }
 .expense-table-end-status { bottom: 0; }*/
 
-.expense-table-monthly-status {
-    height: 130px !important;
-    bottom: 0;
-    display: flex;
-    justify-content: flex-end;
-    font-size: 14px;
-    border-top: 1px solid rgb(224, 224, 224);
-}
-.expense-table-monthly-status .monthly-calculation {
-    width: 200px;
-    padding: 20px;
-}
-.expense-table-monthly-status .header {
-    color: rgb(117, 117, 117);
-    font-weight: 600;
-    margin-bottom: 5px;
-    font-size: 14px;
-}
-
 
 /* Categories */
 
