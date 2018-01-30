@@ -49,14 +49,14 @@ export default class ExpenseRow extends React.Component<ExpenseRowProps, Expense
         details: null,
     };
 
-    private categoryLink(id) {
+    private categoryLink(id: number) {
         const cat = categories.get(id);
         return <a key={cat.id} onClick={
             () => this.props.addFilter(e => e.categoryId === cat.id || categories.get(e.categoryId).parentId === cat.id, categories.getFullName(cat.id))
         } style={{ color: colors.action }}>{ cat.name }</a>
     }
 
-    private fullCategoryLink(id) {
+    private fullCategoryLink(id: number) {
         const cat = categories.get(id);
         return cat.parentId ?
             [this.categoryLink(cat.parentId), ' - ', this.categoryLink(id)] :
@@ -82,7 +82,7 @@ export default class ExpenseRow extends React.Component<ExpenseRowProps, Expense
             });
     }
 
-    private editDate = async (expense) => {
+    private editDate = async (expense: UserExpense) => {
         try {
             const date = await state.pickDate(moment(expense.date).toDate());
             this.updateExpense({ date: time.date(date) });
@@ -123,7 +123,7 @@ export default class ExpenseRow extends React.Component<ExpenseRowProps, Expense
         apiConnect.getExpense(expense.id).then(e => state.editExpense(e))
     }
 
-    private renderDetails(expense, details) {
+    private renderDetails(expense: UserExpense, details) {
         return (details === LoadingDetails) || details ? [
             <ExpenseDivision
                 loading={details === LoadingDetails}

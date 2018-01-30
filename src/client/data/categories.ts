@@ -1,17 +1,18 @@
 import * as state from './state';
 import { flatten } from '../../shared/util/arrays';
+import { Category } from '../../shared/types/session';
 
-export function getFullName(categoryId) {
-    let categoryString = "";
-    const category = state.get("categoryMap")[categoryId];
+export function getFullName(categoryId: number): string {
+    let categoryString = '';
+    const category = state.get('categoryMap')[categoryId];
     if (category.parentId)
-        categoryString += getFullName(category.parentId) + " - " ;
+        categoryString += getFullName(category.parentId) + ' - ' ;
     categoryString += category.name;
     return categoryString;
 }
 
-export function get(categoryId) {
-    return state.get("categoryMap")[categoryId];
+export function get(categoryId): Category {
+    return state.get('categoryMap')[categoryId];
 }
 
 function catToDataSource(arr: any[]): any[] {
@@ -20,11 +21,11 @@ function catToDataSource(arr: any[]): any[] {
 }
 
 export function getDataSource() {
-    return catToDataSource(state.get("categories"));
+    return catToDataSource(state.get('categories'));
 }
 
-export function isSubcategoryOf(subId, parentId) {
-    const map = state.get("categoryMap");
+export function isSubcategoryOf(subId: number, parentId: number): boolean {
+    const map = state.get('categoryMap');
     const sub = map[subId];
     return sub && sub.parentId === parentId;
 }

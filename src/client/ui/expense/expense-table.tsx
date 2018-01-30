@@ -32,7 +32,7 @@ export default class ExpenseTable extends React.Component<ExpenseTableProps, Exp
         filters: [],
     };
 
-    private addFilter = (filter: ExpenseFilterFunction, name: string, avatar: string) => {
+    private addFilter = (filter: ExpenseFilterFunction, name: string, avatar?: string) => {
         this.setState(s => ({
             filters: s.filters.concat({ filter, name, avatar }),
         }));
@@ -65,37 +65,54 @@ export default class ExpenseTable extends React.Component<ExpenseTableProps, Exp
         return { totalIncome: income, totalExpense: expense };
     }
 
+    private renderFilterRow() {
+        if (this.state.filters.length === 0) { return null; }
+        return (
+            <div className="expense-row bk-table-row" key="filters">
+                <div className="expense-filters">{
+                    this.state.filters.map((f, index) => <Chip
+                        key={index}
+                        style={{margin: '0.3em', padding: 0}}
+                        onRequestDelete={() => this.removeFilter(index)}>
+                        {f.avatar ? <Avatar src={f.avatar}/> : null}
+                        {f.name}
+                    </Chip>)
+                }</div>
+            </div>
+        );
+    }
+
+    private renderLoadingIndicator() {
+        return (
+            <div className="loading-indicator-big">
+                <RefreshIndicator left={-30} top={-30} status="loading" size={60} />
+            </div>
+        );
+    }
+
+    private renderContents() {
+        if (this.props.loading) { return this.renderLoadingIndicator(); }
+        const filtered = this.getFilteredExpenses();
+        return filtered.map(this.renderExpense);
+    }
+
     public render() {
         const filtered = this.getFilteredExpenses();
         return <div className="expense-table bk-table">
             <ExpenseHeader className="expense-table-header bk-table-header fixed-horizontal"/>
             <div className="expense-data-area bk-table-data-area">
-                { this.props.loading ?
-                    <div className="loading-indicator-big"><RefreshIndicator left={-30} top={-30} status="loading" size={60} /></div> :
-                    (this.state.filters.length > 0 ?
-                        [ <div className="expense-row bk-table-row" key="filters">
-                            <div className="expense-filters">{
-                                this.state.filters.map((f, index) => <Chip
-                                    key={index}
-                                    style={{margin: '0.3em', padding: 0}}
-                                    onRequestDelete={() => this.removeFilter(index)}>
-                                    {f.avatar ? <Avatar src={f.avatar}/> : null}
-                                    {f.name}
-                                </Chip>)
-                            }</div>
-                        </div> ]
-                        : []).concat(filtered.map(this.renderExpense))
-                }
+                {this.renderFilterRow()}
+                {this.renderContents()}
             </div>
-                <MonthlyStatus 
-                    unconfirmedBefore={this.props.unconfirmedBefore} 
-                    startStatus={this.props.startStatus} 
-                    monthStatus={this.props.monthStatus}
-                    endStatus={this.props.endStatus}
-                    totals={this.calculateTotals(this.props.expenses)}
-                    showFiltered={(this.state.filters.length > 0)}
-                    filteredTotals={this.calculateTotals(this.getFilteredExpenses())}    
-                />
+            <MonthlyStatus 
+                unconfirmedBefore={this.props.unconfirmedBefore} 
+                startStatus={this.props.startStatus} 
+                monthStatus={this.props.monthStatus}
+                endStatus={this.props.endStatus}
+                totals={this.calculateTotals(this.props.expenses)}
+                showFiltered={(this.state.filters.length > 0)}
+                filteredTotals={this.calculateTotals(this.getFilteredExpenses())}    
+            />
         </div>
     }
 }

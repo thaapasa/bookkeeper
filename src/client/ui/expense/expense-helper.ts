@@ -19,7 +19,7 @@ export type ExpenseFilterFunction = (expense: UserExpense) => boolean;
 export interface ExpenseFilter {
     filter: ExpenseFilterFunction;
     name: string;
-    avatar: any;
+    avatar?: string;
 }
 
 export const zeroStatus: ExpenseStatus = {
