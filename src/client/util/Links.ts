@@ -5,8 +5,8 @@ export const categoryPagePath = '/p/kategoriat';
 
 export const expenseMonthPattern = 'YYYY-MM';
 export function expenseMonthPathPattern(variable: string) {
-    return expensePagePath + '/:' + variable;
+  return expensePagePath + '/:' + variable;
 }
 export function expensesForMonthPath(date: Date) {
-    return expensePagePath + '/' + moment(date).format(expenseMonthPattern);
+  return expensePagePath + '/' + moment(date).format(expenseMonthPattern);
 }
