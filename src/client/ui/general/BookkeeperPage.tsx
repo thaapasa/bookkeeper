@@ -12,43 +12,43 @@ import { Session } from '../../../shared/types/Session';
 import { categoryPagePath, expensePagePath } from '../../util/links';
 
 function LinkButton({ label, to }: { label: string, to: string }) {
-    return (
-        <Route path={to} exact={true} children={({ match }) => 
-            <Link to={to}>
-                <FlatButton primary={!!match}>{label}</FlatButton>
-            </Link>} />
-    );
+  return (
+    <Route path={to} exact={true} children={({ match }) =>
+      <Link to={to}>
+        <FlatButton primary={!!match}>{label}</FlatButton>
+      </Link>} />
+  );
 }
 
 interface PageProps {
-    session: Session;
+  session: Session;
 }
 
 export default class BookkeeperPage extends React.Component<PageProps, {}> {
 
-    public render() {
-        return (
-            <div>
-                <ExpenseDialog />
-                <ConfirmationDialog />
-                <Router>
-                    <div>
-                        <TopBar user={this.props.session.user}>
-                            <LinkButton label="Kulut" to={expensePagePath} />
-                            <LinkButton label="Kategoriat" to={categoryPagePath} />
-                        </TopBar>
-                        <div className="main-content">
-                            <Switch>
-                                <Route exact path="/" component={MonthView} />
-                                <Route path={expensePagePath} component={MonthView} />
-                                <Route path={categoryPagePath} component={CategoryView} />
-                            </Switch>
-                        </div>
-                    </div>
-                </Router>
-                <DatePickerComponent />
-                <NotificationBar />
+  public render() {
+    return (
+      <div>
+        <ExpenseDialog />
+        <ConfirmationDialog />
+        <Router>
+          <div>
+            <TopBar user={this.props.session.user}>
+              <LinkButton label="Kulut" to={expensePagePath} />
+              <LinkButton label="Kategoriat" to={categoryPagePath} />
+            </TopBar>
+            <div className="main-content">
+              <Switch>
+                <Route exact path="/" component={MonthView} />
+                <Route path={expensePagePath} component={MonthView} />
+                <Route path={categoryPagePath} component={CategoryView} />
+              </Switch>
             </div>
-        );
-    }
+          </div>
+        </Router>
+        <DatePickerComponent />
+        <NotificationBar />
+      </div>
+    );
+  }
 }
