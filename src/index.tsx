@@ -12,9 +12,9 @@ import './index.css';
 injectTapEventPlugin();
 
 ReactDOM.render(
-    <MuiThemeProvider>
-        <App />
-    </MuiThemeProvider>, 
-    document.getElementById('root') as HTMLElement
+  <MuiThemeProvider>
+    <App />
+  </MuiThemeProvider>,
+  document.getElementById('root') as HTMLElement
 );
 registerServiceWorker();
