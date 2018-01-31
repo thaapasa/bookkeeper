@@ -1,5 +1,5 @@
 import 'jest';
-import Money from './money';
+import Money from './Money';
 import { Big } from 'big.js';
 
 describe('Money', function() {

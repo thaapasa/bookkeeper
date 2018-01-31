@@ -1,6 +1,6 @@
 import * as state from './state';
-import { flatten } from '../../shared/util/arrays';
-import { Category } from '../../shared/types/session';
+import { flatten } from '../../shared/util/Arrays';
+import { Category } from '../../shared/types/Session';
 
 export function getFullName(categoryId: number): string {
     let categoryString = '';

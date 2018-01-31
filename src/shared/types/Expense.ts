@@ -1,5 +1,5 @@
-import { DbObject } from './common';
-import { MoneyLike } from '../util/money';
+import { DbObject } from './Common';
+import { MoneyLike } from '../util/Money';
 
 export type ExpenseType = 'expense' | 'income';
 export type ExpenseDivisionType = 'cost' | 'benefit' | 'income' | 'split';

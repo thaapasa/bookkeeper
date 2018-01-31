@@ -1,10 +1,10 @@
-import Money, { MoneyLike } from '../money';
-import { Session } from '../../types/session';
-import { ExpenseDivisionItem, Expense } from '../../types/expense';
-import { SessionWithControl } from './test-client';
-import { isDbObject } from '../../types/common';
+import Money, { MoneyLike } from '../Money';
+import { Session } from '../../types/Session';
+import { ExpenseDivisionItem, Expense } from '../../types/Expense';
+import { SessionWithControl } from './TestClient';
+import { isDbObject } from '../../types/Common';
 import 'jest';
-import { isApiMessageWithExpenseId, ApiMessage } from '../../types/api';
+import { isApiMessageWithExpenseId, ApiMessage } from '../../types/Api';
 
 let createdIds: number[] = [];
 

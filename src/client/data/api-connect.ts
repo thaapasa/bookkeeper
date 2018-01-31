@@ -1,11 +1,11 @@
 import * as state from './state';
-import * as time from '../../shared/util/time';
-import Money from '../../shared/util/money';
-import { Session, Category, CategoryAndTotals, CategoryData } from '../../shared/types/session';
-import { Map } from '../../shared/util/util';
-import { FetchClient } from '../../shared/util/fetch-client';
-import { ApiMessage } from '../../shared/types/api';
-import { ExpenseCollection, ExpenseStatus, Expense, UserExpense, RecurringExpensePeriod } from '../../shared/types/expense';
+import * as time from '../../shared/util/Time';
+import Money from '../../shared/util/Money';
+import { Session, Category, CategoryAndTotals, CategoryData } from '../../shared/types/Session';
+import { Map } from '../../shared/util/Util';
+import { FetchClient } from '../../shared/util/FetchClient';
+import { ApiMessage } from '../../shared/types/Api';
+import { ExpenseCollection, ExpenseStatus, Expense, UserExpense, RecurringExpensePeriod } from '../../shared/types/Expense';
 const client = new FetchClient(() => fetch);
 
 function mapExpense(e: UserExpense): UserExpense {

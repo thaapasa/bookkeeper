@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as login from './data/login';
 import BookkeeperPage from './ui/general/page';
 import LoginPage from './ui/general/login-page';
-import { Session } from '../shared/types/session';
+import { Session } from '../shared/types/Session';
 const debug = require('debug')('bookkeeper:app');
 
 interface AppState {

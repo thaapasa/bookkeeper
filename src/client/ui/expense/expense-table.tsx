@@ -4,10 +4,10 @@ import Chip from 'material-ui/Chip'
 import ExpenseRow from './expense-row';
 import { ExpenseHeader } from './expense-row';
 import RefreshIndicator from 'material-ui/RefreshIndicator';
-import Money from '../../../shared/util/money';
+import Money from '../../../shared/util/Money';
 import * as moment from 'moment';
 import { MonthlyStatus } from './monthly-status';
-import { UserExpense, ExpenseStatus, Expense } from '../../../shared/types/expense';
+import { UserExpense, ExpenseStatus, Expense } from '../../../shared/types/Expense';
 import { ExpenseTotals, ExpenseFilter, ExpenseFilterFunction } from './expense-helper';
 
 interface ExpenseTableProps {

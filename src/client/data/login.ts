@@ -1,7 +1,7 @@
 import * as Bacon from 'baconjs';
 import * as apiConnect from './api-connect';
 import * as state from './state';
-import { Session } from '../../shared/types/session';
+import { Session } from '../../shared/types/Session';
 const debug = require('debug')('bookkeeper:login');
 
 export const loginStream = new Bacon.Bus<any, Session | null>();

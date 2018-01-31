@@ -1,8 +1,8 @@
 import 'jest';
-import { SessionWithControl } from '../shared/util/test/test-client';
-import { Session } from '../shared/types/session';
-import * as client from '../shared/util/test/test-client';
-import { expectThrow } from '../shared/util/test/test-util';
+import { SessionWithControl } from '../shared/util/test/TestClient';
+import { Session } from '../shared/types/Session';
+import * as client from '../shared/util/test/TestClient';
+import { expectThrow } from '../shared/util/test/TestUtil';
 
 function checkSession(s: Session) {
     expect(s.users).toBeInstanceOf(Array);

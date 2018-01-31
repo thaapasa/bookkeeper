@@ -11,7 +11,7 @@ import CategoryChart from './category-chart';
 import { unsubscribeAll } from '../../util/client-util';
 import { CSSProperties } from 'react';
 import * as moment from 'moment';
-import { Map } from '../../../shared/util/util';
+import { Map } from '../../../shared/util/Util';
 const debug = require('debug')('bookkeeper:category-view');
 
 const styles: Map<CSSProperties> = {

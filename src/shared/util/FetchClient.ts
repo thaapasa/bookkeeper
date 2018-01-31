@@ -1,5 +1,5 @@
-import { Map } from './util';
-import { AuthenticationError, Error } from '../types/errors';
+import { Map } from './Util';
+import { AuthenticationError, Error } from '../types/Errors';
 const debug = require('debug')('net:fetch-client');
 
 export type FetchType = () => (input: RequestInfo, init?: FixedRequestInit) => Promise<Response>;

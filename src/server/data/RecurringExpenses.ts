@@ -1,11 +1,11 @@
 import { db, DbAccess } from './Db';
 import * as moment from 'moment';
-import * as time from '../../shared/util/time';
+import * as time from '../../shared/util/Time';
 import { Validator } from '../util/Validator';
 import expenses from './BasicExpenses';
-import { RecurringExpensePeriod, Recurrence, ExpenseDivisionItem, Expense } from '../../shared/types/expense';
+import { RecurringExpensePeriod, Recurrence, ExpenseDivisionItem, Expense } from '../../shared/types/Expense';
 import { Moment } from 'moment';
-import { ApiMessage } from '../../shared/types/api';
+import { ApiMessage } from '../../shared/types/Api';
 const debug = require('debug')('bookkeeper:api:recurring-expenses');
 
 function nextRecurrence(fromDate: string | Moment, period: RecurringExpensePeriod): moment.Moment {

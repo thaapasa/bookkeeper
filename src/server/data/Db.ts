@@ -1,6 +1,6 @@
 const Pool = require('pg-pool');
 import { config } from '../Config';
-import { camelCaseObject } from '../../shared/util/util';
+import { camelCaseObject } from '../../shared/util/Util';
 import { QueryResult, Client } from 'pg';
 const debug = require('debug')('db');
 const error = require('debug')('db:error');

@@ -1,5 +1,5 @@
 import * as colors from 'material-ui/styles/colors';
-import Money, { MoneyLike } from '../../shared/util/money';
+import Money, { MoneyLike } from '../../shared/util/Money';
 
 export const white = '#FFFFFF';
 export const highlight = colors.cyan500;

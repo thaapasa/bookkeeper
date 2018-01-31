@@ -5,7 +5,7 @@ import { ConfirmationObject } from '../../data/state-types';
 import { KeyCodes } from '../../util/io'
 import { KeyboardEvent } from 'react';
 import { confirmationE } from '../../data/state';
-import { Action } from '../../../shared/types/common';
+import { Action } from '../../../shared/types/Common';
 
 interface ConfirmationDialogProps<T> {
     confirmation: ConfirmationObject<T>;

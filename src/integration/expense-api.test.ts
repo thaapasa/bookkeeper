@@ -4,14 +4,14 @@ import 'jest';
 // See https://github.com/aurelia/skeleton-navigation/issues/606
 // For now, use this syntax in unit tests to make things work
 import moment from 'moment';
-import Money from '../shared/util/money';
-import * as help from '../shared/util/test/expense-helper';
-import * as client from '../shared/util/test/test-client';
-import { SessionWithControl } from '../shared/util/test/test-client';
-import { Expense, ExpenseCollection } from '../shared/types/expense';
-import { findUserId } from '../shared/util/test/expense-helper';
-import { ApiMessage } from '../shared/types/api';
-import { expectThrow } from '../shared/util/test/test-util';
+import Money from '../shared/util/Money';
+import * as help from '../shared/util/test/ExpenseHelper';
+import * as client from '../shared/util/test/TestClient';
+import { SessionWithControl } from '../shared/util/test/TestClient';
+import { Expense, ExpenseCollection } from '../shared/types/Expense';
+import { findUserId } from '../shared/util/test/ExpenseHelper';
+import { ApiMessage } from '../shared/types/Api';
+import { expectThrow } from '../shared/util/test/TestUtil';
 
 function checkValueAndBalance(status, i, name) {
     expect(status.value).toEqual(Money.from(status.cost).plus(status.benefit).plus(status.income).plus(status.split).toString());

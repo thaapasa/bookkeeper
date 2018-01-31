@@ -1,5 +1,5 @@
 import 'jest';
-import { Error } from '../../types/errors';
+import { Error } from '../../types/Errors';
 import { fail } from 'assert';
 
 // TODO: See if this is neede

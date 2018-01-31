@@ -9,13 +9,13 @@ import { ExpandLess, ExpandMore, Delete, Edit, Repeat, ToolIcon } from '../icons
 import * as colors from '../colors';
 import { PlainReceiverField } from './expense-dialog-components';
 import { combineClassNames } from '../../util/client-util';
-import * as arrays from '../../../shared/util/arrays';
-import * as time from '../../../shared/util/time';
+import * as arrays from '../../../shared/util/Arrays';
+import * as time from '../../../shared/util/Time';
 import ExpenseDivision from './expense-division'
 import { expenseName, money, ExpenseFilterFunction } from './expense-helper';
-import Money, { MoneyLike } from '../../../shared/util/money';
+import Money, { MoneyLike } from '../../../shared/util/Money';
 import * as moment from 'moment';
-import { Expense, UserExpense } from '../../../shared/types/expense';
+import { Expense, UserExpense } from '../../../shared/types/Expense';
 
 // Just a special reference for determining if details are loading
 const LoadingDetails = {};

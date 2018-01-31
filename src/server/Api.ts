@@ -8,9 +8,9 @@ import { config } from './Config';
 import * as server from './util/ServerUtil';
 import { Validator as V, Schema } from './util/Validator';
 import { Express } from 'express';
-import { Expense, Recurrence, UserExpense, ExpenseCollection } from '../shared/types/expense';
-import { ApiMessage, ApiStatus } from '../shared/types/api';
-import { Session, SessionBasicInfo, Group, User, Category, CategoryAndTotals, Source } from '../shared/types/session';
+import { Expense, Recurrence, UserExpense, ExpenseCollection } from '../shared/types/Expense';
+import { ApiMessage, ApiStatus } from '../shared/types/Api';
+import { Session, SessionBasicInfo, Group, User, Category, CategoryAndTotals, Source } from '../shared/types/Session';
 const debug = require('debug')('bookkeeper:api');
 
 export function registerAPI(app: Express) {

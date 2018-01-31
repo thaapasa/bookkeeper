@@ -1,11 +1,11 @@
 import 'jest';
-import * as help from '../shared/util/test/expense-helper';
-import * as client from '../shared/util/test/test-client';
-import { SessionWithControl } from '../shared/util/test/test-client';
-import { ExpenseCollection, Expense, UserExpense } from '../shared/types/expense';
-import Money, { MoneyLike } from '../shared/util/money';
-import { checkCreateStatus } from '../shared/util/test/expense-helper';
-import { ApiMessage } from '../shared/types/api';
+import * as help from '../shared/util/test/ExpenseHelper';
+import * as client from '../shared/util/test/TestClient';
+import { SessionWithControl } from '../shared/util/test/TestClient';
+import { ExpenseCollection, Expense, UserExpense } from '../shared/types/Expense';
+import Money, { MoneyLike } from '../shared/util/Money';
+import { checkCreateStatus } from '../shared/util/test/ExpenseHelper';
+import { ApiMessage } from '../shared/types/Api';
 
 describe('recurringExpense', () => {
 

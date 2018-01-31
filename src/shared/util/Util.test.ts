@@ -1,5 +1,5 @@
 import 'jest';
-import { underscoreToCamelCase } from "./util";
+import { underscoreToCamelCase } from './Util';
 
 describe('strings', () => {
 

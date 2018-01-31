@@ -1,9 +1,9 @@
 import { Validator } from '../util/Validator';
-import Money, { MoneyLike } from '../../shared/util/money';
-import * as splitter from '../../shared/util/splitter';
-import { Expense, ExpenseDivisionItem, ExpenseDivisionType } from '../../shared/types/expense';
-import { Source } from '../../shared/types/session';
-import { negateDivision } from '../../shared/util/splitter';
+import Money, { MoneyLike } from '../../shared/util/Money';
+import * as splitter from '../../shared/util/Splitter';
+import { Expense, ExpenseDivisionItem, ExpenseDivisionType } from '../../shared/types/Expense';
+import { Source } from '../../shared/types/Session';
+import { negateDivision } from '../../shared/util/Splitter';
 
 interface ExpenseDivisionItemNoType {
   userId: number;

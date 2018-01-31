@@ -1,5 +1,5 @@
-import Money from '../../shared/util/money';
-import { Error } from '../../shared/types/errors';
+import Money from '../../shared/util/Money';
+import { Error } from '../../shared/types/Errors';
 const debug = require('debug')('bookkeeper:validator');
 
 class InvalidInputError<T> extends Error {

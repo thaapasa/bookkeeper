@@ -1,5 +1,5 @@
-import Money, { MoneyLike } from './money';
-import { indices } from './arrays';
+import Money, { MoneyLike } from './Money';
+import { indices } from './Arrays';
 const debug = require('debug')('bookkeeper:splitter');
 const assert = require('assert');
 

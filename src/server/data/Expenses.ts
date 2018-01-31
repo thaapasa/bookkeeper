@@ -1,10 +1,10 @@
 import { db, DbAccess } from './Db';
-import * as time from '../../shared/util/time';
-import Money from '../../shared/util/money';
+import * as time from '../../shared/util/Time';
+import Money from '../../shared/util/Money';
 import recurring from './RecurringExpenses';
 import basic from './BasicExpenses';
-import { ExpenseCollection, ExpenseStatus, UserExpense } from '../../shared/types/expense';
-import { mapObject } from '../../shared/util/arrays';
+import { ExpenseCollection, ExpenseStatus, UserExpense } from '../../shared/types/Expense';
+import { mapObject } from '../../shared/util/Arrays';
 import { Moment } from 'moment';
 const debug = require('debug')('bookkeeper:api:expenses');
 

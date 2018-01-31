@@ -1,6 +1,6 @@
 import * as React from 'react';
 import IconButton from 'material-ui/IconButton';
-import * as time from '../../../shared/util/time';
+import * as time from '../../../shared/util/Time';
 import * as colors from '../colors';
 import { NavigateLeft, NavigateRight } from '../icons';
 import * as state from '../../data/state';

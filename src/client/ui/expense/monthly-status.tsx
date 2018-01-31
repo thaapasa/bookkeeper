@@ -1,9 +1,9 @@
 import * as React from 'react';
-import Money, { MoneyLike } from '../../../shared/util/money';
+import Money, { MoneyLike } from '../../../shared/util/Money';
 import * as colors from '../colors';
 import styled from 'styled-components';
 import { ExpenseTotals, money } from './expense-helper';
-import { ExpenseStatus } from '../../../shared/types/expense';
+import { ExpenseStatus } from '../../../shared/types/Expense';
 import { fixedHorizontal } from '../styles';
 const debug = require('debug')('bookkeeper:expense-table');
 

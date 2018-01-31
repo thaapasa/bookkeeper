@@ -8,8 +8,8 @@ import { expenseName } from './expense-helper';
 import { Repeat } from '../icons';
 import * as apiConnect from '../../data/api-connect';
 import RefreshIndicator from 'material-ui/RefreshIndicator';
-import Money from '../../../shared/util/money';
-import { RecurringExpensePeriod } from '../../../shared/types/expense';
+import Money from '../../../shared/util/Money';
+import { RecurringExpensePeriod } from '../../../shared/types/Expense';
 
 const styles = {
     tool: {

@@ -6,7 +6,7 @@ import * as state from '../../data/state';
 import * as apiConnect from '../../data/api-connect';
 import { unsubscribeAll } from '../../util/client-util';
 import * as moment from 'moment';
-import { UserExpense, ExpenseStatus, Expense } from '../../../shared/types/expense';
+import { UserExpense, ExpenseStatus, Expense } from '../../../shared/types/Expense';
 import { zeroStatus } from './expense-helper';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { expenseMonthPattern, expenseMonthPathPattern } from '../../util/links';

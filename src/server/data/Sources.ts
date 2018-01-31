@@ -1,6 +1,6 @@
 import { db, DbAccess } from './Db';
-import { Source } from '../../shared/types/session';
-import { NotFoundError } from '../../shared/types/errors';
+import { Source } from '../../shared/types/Session';
+import { NotFoundError } from '../../shared/types/Errors';
 
 function getImage(img: string | undefined): string | undefined {
   return img ? `img/sources/${img}` : undefined;

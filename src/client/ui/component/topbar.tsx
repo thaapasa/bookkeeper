@@ -6,7 +6,7 @@ import { Toolbar, ToolbarGroup, ToolbarTitle } from 'material-ui/Toolbar';
 import * as state from '../../data/state';
 import * as colors from '../colors';
 import { logout } from '../../data/login'
-import { User } from '../../../shared/types/session';
+import { User } from '../../../shared/types/Session';
 
 const buttonStyle = { float : 'right' };
 

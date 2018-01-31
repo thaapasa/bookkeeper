@@ -1,11 +1,10 @@
-import * as util from './util';
-import { Map } from './util';
+import { Map, getRandomInt } from './Util';
 
 // https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
 export function shuffle<T>(a: T[]): T[] {
     const n = a.length;
     for (let i = 0; i < n - 1; i++) {
-        const j = util.getRandomInt(0, n - i);
+        const j = getRandomInt(0, n - i);
         // Swap a[i] and a[i + j]
         const s = a[i];
         a[i] = a[i + j];

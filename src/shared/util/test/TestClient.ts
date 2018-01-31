@@ -1,7 +1,7 @@
-import { FetchClient } from '../fetch-client';
+import { FetchClient } from '../FetchClient';
 import fetch from 'node-fetch';
-import { Map } from '../util';
-import { Session } from '../../types/session';
+import { Map } from '../Util';
+import { Session } from '../../types/Session';
 
 const baseUrl = 'http://localhost:3100';
 

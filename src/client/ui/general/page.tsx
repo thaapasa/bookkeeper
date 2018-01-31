@@ -8,7 +8,7 @@ import NotificationBar from '../component/notification-bar';
 import DatePickerComponent from '../component/date-picker-component';
 import FlatButton from 'material-ui/FlatButton';
 import { BrowserRouter as Router, Route, Link, Switch } from 'react-router-dom';
-import { Session } from '../../../shared/types/session';
+import { Session } from '../../../shared/types/Session';
 import { categoryPagePath, expensePagePath } from '../../util/links';
 
 function LinkButton({ label, to }: { label: string, to: string }) {
