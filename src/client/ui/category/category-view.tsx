@@ -8,7 +8,7 @@ import * as colors from '../colors';
 import * as apiConnect from '../../data/api-connect';
 import ExpenseRow from '../expense/expense-row';
 import CategoryChart from './category-chart';
-import { unsubscribeAll } from '../../util/client-util';
+import { unsubscribeAll } from '../../util/ClientUtil';
 import { CSSProperties } from 'react';
 import * as moment from 'moment';
 import { Map } from '../../../shared/util/Util';

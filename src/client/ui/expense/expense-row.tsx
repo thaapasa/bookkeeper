@@ -8,7 +8,7 @@ import { PlainTextField } from '../component/plain-text-field';
 import { ExpandLess, ExpandMore, Delete, Edit, Repeat, ToolIcon } from '../icons'
 import * as colors from '../colors';
 import { PlainReceiverField } from './expense-dialog-components';
-import { combineClassNames } from '../../util/client-util';
+import { combineClassNames } from '../../util/ClientUtil';
 import * as arrays from '../../../shared/util/Arrays';
 import * as time from '../../../shared/util/Time';
 import ExpenseDivision from './expense-division'

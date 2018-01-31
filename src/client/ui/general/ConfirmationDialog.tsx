@@ -2,7 +2,7 @@ import * as React from 'react';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import { ConfirmationObject } from '../../data/state-types';
-import { KeyCodes } from '../../util/io'
+import { KeyCodes } from '../../util/Io'
 import { KeyboardEvent } from 'react';
 import { confirmationE } from '../../data/state';
 import { Action } from '../../../shared/types/Common';

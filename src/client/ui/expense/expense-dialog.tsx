@@ -11,11 +11,11 @@ import * as categories from  '../../data/categories';
 import * as apiConnect from '../../data/api-connect';
 import * as state from '../../data/state';
 import * as time from '../../../shared/util/Time';
-import { KeyCodes } from '../../util/io'
+import { KeyCodes } from '../../util/Io'
 import { SumField, TypeSelector, TitleField, CategorySelector, SourceSelector, DateField, ReceiverField, DescriptionField } from './expense-dialog-components';
 import { expenseName } from './expense-helper';
-import { unsubscribeAll } from '../../util/client-util';
-import { stopEventPropagation } from '../../util/client-util';
+import { unsubscribeAll } from '../../util/ClientUtil';
+import { stopEventPropagation } from '../../util/ClientUtil';
 import * as moment from 'moment';
 import { splitByShares, negateDivision } from '../../../shared/util/Splitter';
 const debug = require('debug')('bookkeeper:expense-dialog');

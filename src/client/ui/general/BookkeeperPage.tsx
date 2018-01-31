@@ -9,7 +9,12 @@ import DatePickerComponent from '../component/date-picker-component';
 import FlatButton from 'material-ui/FlatButton';
 import { BrowserRouter as Router, Route, Link, Switch } from 'react-router-dom';
 import { Session } from '../../../shared/types/Session';
-import { categoryPagePath, expensePagePath } from '../../util/links';
+import { categoryPagePath, expensePagePath } from '../../util/Links';
+import styled from 'styled-components';
+
+const MainContent = styled.div`
+  margin-top: 56px;
+`;
 
 function LinkButton({ label, to }: { label: string, to: string }) {
   return (
@@ -37,13 +42,13 @@ export default class BookkeeperPage extends React.Component<PageProps, {}> {
               <LinkButton label="Kulut" to={expensePagePath} />
               <LinkButton label="Kategoriat" to={categoryPagePath} />
             </TopBar>
-            <div className="main-content">
+            <MainContent>
               <Switch>
                 <Route exact path="/" component={MonthView} />
                 <Route path={expensePagePath} component={MonthView} />
                 <Route path={categoryPagePath} component={CategoryView} />
               </Switch>
-            </div>
+            </MainContent>
           </div>
         </Router>
         <DatePickerComponent />

@@ -9,7 +9,7 @@ import AutoComplete from 'material-ui/AutoComplete';
 import { Expense, Income } from '../icons';
 import * as apiConnect from '../../data/api-connect';
 import { PlainAutoComplete } from '../component/plain-text-field';
-import { stopEventPropagation } from '../../util/client-util';
+import { stopEventPropagation } from '../../util/ClientUtil';
 const moment = require('moment');
 
 const styles = {

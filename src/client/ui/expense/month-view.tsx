@@ -4,12 +4,12 @@ import * as Bacon from 'baconjs'
 import ExpenseNavigation from './expense-navigation'
 import * as state from '../../data/state';
 import * as apiConnect from '../../data/api-connect';
-import { unsubscribeAll } from '../../util/client-util';
+import { unsubscribeAll } from '../../util/ClientUtil';
 import * as moment from 'moment';
 import { UserExpense, ExpenseStatus, Expense } from '../../../shared/types/Expense';
 import { zeroStatus } from './expense-helper';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import { expenseMonthPattern, expenseMonthPathPattern } from '../../util/links';
+import { expenseMonthPattern, expenseMonthPathPattern } from '../../util/Links';
 import { RouteComponentProps } from 'react-router';
 import { History } from 'history';
 const debug = require('debug')('bookkeeper:month-view');

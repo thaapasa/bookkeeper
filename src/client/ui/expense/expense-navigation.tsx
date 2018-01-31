@@ -4,9 +4,9 @@ import * as time from '../../../shared/util/Time';
 import * as colors from '../colors';
 import { NavigateLeft, NavigateRight } from '../icons';
 import * as state from '../../data/state';
-import { KeyCodes } from '../../util/io';
+import { KeyCodes } from '../../util/Io';
 import { Moment } from 'moment';
-import { expensesForMonthPath } from '../../util/links';
+import { expensesForMonthPath } from '../../util/Links';
 import { History } from 'history';
 
 interface ExpenseNavigationProps {

@@ -41,10 +41,6 @@ html, body {
     top: 0;
 }
 
-.main-content {
-    margin-top: 56px;
-}
-
 .expense-navigation {
     height: 48px !important;
     top: 56px;
