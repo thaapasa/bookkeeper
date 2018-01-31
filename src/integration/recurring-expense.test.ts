@@ -1,7 +1,6 @@
 import 'jest';
 import * as help from '../shared/util/test/ExpenseHelper';
-import * as client from '../shared/util/test/TestClient';
-import { SessionWithControl } from '../shared/util/test/TestClient';
+import { SessionWithControl, getSession } from '../shared/util/test/TestClient';
 import { ExpenseCollection, Expense, UserExpense } from '../shared/types/Expense';
 import Money, { MoneyLike } from '../shared/util/Money';
 import { checkCreateStatus } from '../shared/util/test/ExpenseHelper';
@@ -13,7 +12,7 @@ describe('recurringExpense', () => {
 
     const newExpense = help.newExpense;
 
-    beforeEach(async () => { session = await client.getSession('sale', 'salasana'); });
+    beforeEach(async () => { session = await getSession('sale', 'salasana'); });
     afterEach(async () => { await help.cleanup(session); });
 
     async function checkMonthStatus(expectedBenefit?: MoneyLike, expectItems?: (items: UserExpense[]) => any): Promise<Money> {

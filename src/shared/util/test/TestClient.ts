@@ -7,7 +7,7 @@ const baseUrl = 'http://localhost:3100';
 
 const client = new FetchClient(() => fetch as any, baseUrl);
 
-function authHeader(token: string) {
+function authHeader(token: string): Map<string> {
   return { 'Authorization': `Bearer ${token}` };
 }
 

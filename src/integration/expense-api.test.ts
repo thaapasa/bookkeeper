@@ -6,8 +6,7 @@ import 'jest';
 import moment from 'moment';
 import Money from '../shared/util/Money';
 import * as help from '../shared/util/test/ExpenseHelper';
-import * as client from '../shared/util/test/TestClient';
-import { SessionWithControl } from '../shared/util/test/TestClient';
+import { SessionWithControl, getSession } from '../shared/util/test/TestClient';
 import { Expense, ExpenseCollection } from '../shared/types/Expense';
 import { findUserId } from '../shared/util/test/ExpenseHelper';
 import { ApiMessage } from '../shared/types/Api';
@@ -26,7 +25,7 @@ describe('expense', function() {
     const newExpense = help.newExpense;
 
     beforeEach(async () => {
-        session = await client.getSession('sale', 'salasana');
+        session = await getSession('sale', 'salasana');
         u1id = findUserId('jenni', session);
         u2id = findUserId('sale', session);
     });
