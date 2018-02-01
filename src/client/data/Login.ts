@@ -1,5 +1,5 @@
 import * as B from 'baconjs';
-import * as state from './state';
+import * as state from './State';
 import { Session } from '../../shared/types/Session';
 const debug = require('debug')('bookkeeper:login');
 
@@ -15,7 +15,7 @@ const sessionBus = new B.Bus<any, Session | null>();
 export const tokenP = tokenBus.toProperty(null);
 export const sessionP = sessionBus.toProperty(null);
 
-import * as apiConnect from './api-connect';
+import * as apiConnect from './ApiConnect';
 
 const refreshTokenKey = 'refreshToken';
 

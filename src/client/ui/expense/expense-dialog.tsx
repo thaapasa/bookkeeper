@@ -7,9 +7,9 @@ import Checkbox from 'material-ui/Checkbox';
 import UserAvatar from '../component/user-avatar';
 import * as arrays from '../../../shared/util/Arrays';
 import Money from '../../../shared/util/Money';
-import * as categories from  '../../data/categories';
-import * as apiConnect from '../../data/api-connect';
-import * as state from '../../data/state';
+import * as categories from  '../../data/Categories';
+import * as apiConnect from '../../data/ApiConnect';
+import * as state from '../../data/State';
 import * as time from '../../../shared/util/Time';
 import { KeyCodes } from '../../util/Io'
 import { SumField, TypeSelector, TitleField, CategorySelector, SourceSelector, DateField, ReceiverField, DescriptionField } from './expense-dialog-components';

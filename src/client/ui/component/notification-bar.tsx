@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Snackbar from 'material-ui/Snackbar';
-import * as state from '../../data/state'
+import * as state from '../../data/State'
 
 const msgInterval = 5000;
 

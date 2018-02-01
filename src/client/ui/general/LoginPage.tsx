@@ -2,10 +2,9 @@ import * as React from 'react';
 import Paper from 'material-ui/Paper';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
-import * as apiConnect from '../../data/api-connect';
+import * as apiConnect from '../../data/ApiConnect';
 import styled from 'styled-components';
-import { FormEvent } from 'react';
-import { login } from '../../data/login';
+import { login } from '../../data/Login';
 
 const LoginPaper = styled(Paper) `
   margin: 20px;
@@ -59,7 +58,7 @@ export default class LoginPage extends React.Component<{}, LoginPageState> {
     }
   }
 
-  private handleSubmit = async (event: FormEvent<any>) => {
+  private handleSubmit = async (event: React.FormEvent<any>) => {
     event.preventDefault();
     this.setState({
       statusMessage: '',

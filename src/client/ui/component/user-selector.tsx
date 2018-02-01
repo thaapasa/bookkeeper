@@ -1,6 +1,6 @@
 import * as React from 'react';
 import UserAvatar from './user-avatar';
-import * as state from '../../data/state';
+import * as state from '../../data/State';
 
 const styles = {
     container: {

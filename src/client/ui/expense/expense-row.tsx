@@ -1,7 +1,7 @@
 import * as React from 'react';
-import * as categories from  '../../data/categories';
-import * as state from  '../../data/state';
-import * as apiConnect from '../../data/api-connect';
+import * as categories from  '../../data/Categories';
+import * as state from  '../../data/State';
+import * as apiConnect from '../../data/ApiConnect';
 import UserAvatar from '../component/user-avatar';
 import ActivatableTextField from '../component/activatable-text-field';
 import { PlainTextField } from '../component/plain-text-field';

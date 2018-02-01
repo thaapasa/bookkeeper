@@ -1,10 +1,10 @@
 import * as React from 'react';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
-import { ConfirmationObject } from '../../data/state-types';
+import { ConfirmationObject } from '../../data/StateTypes';
 import { KeyCodes } from '../../util/Io'
 import { KeyboardEvent } from 'react';
-import { confirmationE } from '../../data/state';
+import { confirmationE } from '../../data/State';
 import { Action } from '../../../shared/types/Common';
 
 interface ConfirmationDialogProps<T> {

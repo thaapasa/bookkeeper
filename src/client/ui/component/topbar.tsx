@@ -3,9 +3,9 @@ import UserAvatar from './user-avatar';
 import RaisedButton from 'material-ui/RaisedButton';
 import IconButton from 'material-ui/IconButton';
 import { Toolbar, ToolbarGroup, ToolbarTitle } from 'material-ui/Toolbar';
-import * as state from '../../data/state';
+import * as state from '../../data/State';
 import * as colors from '../Colors';
-import { logout } from '../../data/login';
+import { logout } from '../../data/Login';
 import { User } from '../../../shared/types/Session';
 
 const buttonStyle = { float : 'right' };

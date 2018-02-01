@@ -5,7 +5,7 @@ import { Map } from '../../shared/util/Util';
 import { FetchClient } from '../../shared/util/FetchClient';
 import { ApiMessage } from '../../shared/types/Api';
 import { ExpenseCollection, ExpenseStatus, Expense, UserExpense, RecurringExpensePeriod } from '../../shared/types/Expense';
-import { tokenP } from './login';
+import { tokenP } from './Login';
 const debug = require('debug')('bookkeeper:api-connect');
 const client = new FetchClient(() => fetch);
 

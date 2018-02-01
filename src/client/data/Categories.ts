@@ -1,4 +1,4 @@
-import * as state from './state';
+import * as state from './State';
 import { flatten } from '../../shared/util/Arrays';
 import { Category } from '../../shared/types/Session';
 

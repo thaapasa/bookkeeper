@@ -2,8 +2,8 @@ import * as React from 'react';
 import ExpenseTable from './expense-table'
 import * as Bacon from 'baconjs'
 import ExpenseNavigation from './expense-navigation'
-import * as state from '../../data/state';
-import * as apiConnect from '../../data/api-connect';
+import * as state from '../../data/State';
+import * as apiConnect from '../../data/ApiConnect';
 import { unsubscribeAll } from '../../util/ClientUtil';
 import * as moment from 'moment';
 import { UserExpense, ExpenseStatus, Expense } from '../../../shared/types/Expense';

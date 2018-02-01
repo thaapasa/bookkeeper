@@ -1,5 +1,5 @@
 import * as Bacon from 'baconjs';
-import { ConfirmationObject, ConfirmationAction } from './state-types';
+import { ConfirmationObject, ConfirmationAction } from './StateTypes';
 
 /* Push event to confirmationBus to show a confirmation dialog */
 const confirmationBus = new Bacon.Bus<any, ConfirmationObject<any>>();
