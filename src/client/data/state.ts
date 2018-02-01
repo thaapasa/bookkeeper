@@ -1,6 +1,7 @@
 import * as Bacon from 'baconjs';
 import { ConfirmationObject, ConfirmationAction } from './state-types';
 
+/* Push event to confirmationBus to show a confirmation dialog */
 const confirmationBus = new Bacon.Bus<any, ConfirmationObject<any>>();
 
 interface ConfirmationSettings<T> {
@@ -10,6 +11,7 @@ interface ConfirmationSettings<T> {
 }
 
 export const confirmationE = confirmationBus;
+
 
 /* Returns a promise that will be resolved to either true of false depending on user input */
 export function confirm<T>(title: string, content: string, options?: ConfirmationSettings<T>): Promise<T> {
@@ -37,7 +39,6 @@ interface State {
     users?: any;
     userMap?: any;
     session?: any;
-    token?: any;
     user?: any;
     group?: any;
     groups?: any;
@@ -99,7 +100,6 @@ export function setUsers(users) {
 export function setDataFromSession(session) {
     init();
     state.session = session;
-    state.token = session ? session.token : undefined;
     state.user = session ? session.user : undefined;
     state.group = session ? session.group : undefined;
     setCategories(session ? session.categories : undefined);

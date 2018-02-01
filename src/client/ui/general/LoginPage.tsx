@@ -2,10 +2,10 @@ import * as React from 'react';
 import Paper from 'material-ui/Paper';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
-import * as login from '../../data/login';
 import * as apiConnect from '../../data/api-connect';
 import styled from 'styled-components';
 import { FormEvent } from 'react';
+import { login } from '../../data/login';
 
 const LoginPaper = styled(Paper) `
   margin: 20px;
@@ -66,8 +66,7 @@ export default class LoginPage extends React.Component<{}, LoginPageState> {
       showStatusMessage: false,
     });
     try {
-      const session = await apiConnect.login(this.state.username, this.state.password);
-      login.loginStream.push(session);
+      await login(this.state.username, this.state.password);
     } catch (e) {
       this.handleLoginError(e);
     }

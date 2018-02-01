@@ -1,4 +1,3 @@
-import * as state from './state';
 import * as time from '../../shared/util/Time';
 import Money from '../../shared/util/Money';
 import { Session, Category, CategoryAndTotals, CategoryData } from '../../shared/types/Session';
@@ -6,7 +5,16 @@ import { Map } from '../../shared/util/Util';
 import { FetchClient } from '../../shared/util/FetchClient';
 import { ApiMessage } from '../../shared/types/Api';
 import { ExpenseCollection, ExpenseStatus, Expense, UserExpense, RecurringExpensePeriod } from '../../shared/types/Expense';
+import { tokenP } from './login';
+const debug = require('debug')('bookkeeper:api-connect');
 const client = new FetchClient(() => fetch);
+
+let currentToken: string | null = null;
+debug('tokenP', tokenP);
+tokenP.onValue(t => {
+    debug('ApiConnect working with token', t);
+    currentToken = t;
+});
 
 function mapExpense(e: UserExpense): UserExpense {
     e.userBenefit = Money.from(e.userBenefit, 0);
@@ -37,8 +45,7 @@ function mapExpenseObject(e: ExpenseCollection): ExpenseCollection {
 }
 
 function authHeader(): Map<string> {
-    const token = state.get('token');
-    return { 'Authorization': `Bearer ${token}` };
+    return { 'Authorization': `Bearer ${currentToken || ''}` };
 }
 
 function get<T>(path, query?: Map<string>): Promise<T> {

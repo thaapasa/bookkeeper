@@ -1,8 +1,9 @@
 import * as React from 'react';
-import * as login from './data/login';
 import BookkeeperPage from './ui/general/BookkeeperPage';
 import LoginPage from './ui/general/LoginPage';
 import { Session } from '../shared/types/Session';
+import { sessionP, checkLoginState } from './data/login';
+import { Action } from '../shared/types/Common';
 const debug = require('debug')('bookkeeper:app');
 
 interface AppState {
@@ -12,6 +13,8 @@ interface AppState {
 
 export default class App extends React.Component<{}, AppState> {
 
+  private unsubscribe: Action;
+
   public state: AppState = {
     session: null,
     initialized: false,
@@ -19,10 +22,14 @@ export default class App extends React.Component<{}, AppState> {
 
   public async componentDidMount() {
     debug('Initializing bookkeeper client');
-    login.currentSession.onValue(session => this.setState({ session }));
+    this.unsubscribe = sessionP.onValue(session => this.setState({ session }));
 
-    await login.checkLoginState();
+    await checkLoginState();
     this.setState({ initialized: true });
+  }
+
+  public componentWillUnmount() {
+    this.unsubscribe();
   }
 
   public render() {
