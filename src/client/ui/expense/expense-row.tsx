@@ -5,8 +5,8 @@ import * as apiConnect from '../../data/api-connect';
 import UserAvatar from '../component/user-avatar';
 import ActivatableTextField from '../component/activatable-text-field';
 import { PlainTextField } from '../component/plain-text-field';
-import { ExpandLess, ExpandMore, Delete, Edit, Repeat, ToolIcon } from '../icons'
-import * as colors from '../colors';
+import { ExpandLess, ExpandMore, Delete, Edit, Repeat, ToolIcon } from '../Icons'
+import * as colors from '../Colors';
 import { PlainReceiverField } from './expense-dialog-components';
 import { combineClassNames } from '../../util/ClientUtil';
 import * as arrays from '../../../shared/util/Arrays';

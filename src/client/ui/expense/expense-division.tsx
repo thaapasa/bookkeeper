@@ -1,11 +1,11 @@
 import * as React from 'react';
 import * as state from  '../../data/state';
-import * as colors from '../colors';
+import * as colors from '../Colors';
 import * as categories from  '../../data/categories';
 import UserAvatar from '../component/user-avatar';
 import IconButton from 'material-ui/IconButton';
 import { expenseName } from './expense-helper';
-import { Repeat } from '../icons';
+import { Repeat } from '../Icons';
 import * as apiConnect from '../../data/api-connect';
 import RefreshIndicator from 'material-ui/RefreshIndicator';
 import Money from '../../../shared/util/Money';

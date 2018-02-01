@@ -10,7 +10,7 @@ import EditSVG from 'material-ui/svg-icons/image/edit'
 import RepeatSVG from 'material-ui/svg-icons/av/repeat'
 import LibraryAdd from 'material-ui/svg-icons/av/library-add'
 import IconButton from 'material-ui/IconButton'
-import * as colors from './colors'
+import * as colors from './Colors'
 import { CSSProperties } from 'react';
 
 const styles = {
