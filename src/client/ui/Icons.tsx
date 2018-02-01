@@ -14,12 +14,12 @@ import * as colors from './Colors'
 import { CSSProperties } from 'react';
 
 const styles = {
-    tool: {
-        margin: '3pt',
-        padding: '4pt 1pt',
-        width: '16pt',
-        height: '16pt'
-    }
+  tool: {
+    margin: '3pt',
+    padding: '4pt 1pt',
+    width: '16pt',
+    height: '16pt'
+  }
 };
 
 export const Income = AttachMoneySVG;
@@ -34,28 +34,28 @@ export const Repeat = RepeatSVG;
 export const Add = LibraryAdd;
 
 export function ToolIcon(props: {
-    icon: any,
-    color?: string,
-    title: string,
-    style?: CSSProperties,
-    className?: string,
-    onClick: () => void,
+  icon: any,
+  color?: string,
+  title: string,
+  style?: CSSProperties,
+  className?: string,
+  onClick: () => void,
 }) {
-    return React.createElement(props.icon, {
-        ...props,
-        color: props.color || colors.tool,
-        style: { ...styles.tool, ...props.style },
-        icon: undefined,
-    });
+  return React.createElement(props.icon, {
+    ...props,
+    color: props.color || colors.tool,
+    style: { ...styles.tool, ...props.style },
+    icon: undefined,
+  });
 }
 
 export function ToolButton(props: {
-    title: string,
-    onClick?: () => void,
-    icon: any,
+  title: string,
+  onClick?: () => void,
+  icon: any,
 }) {
-    return <IconButton
-        title={props.title}
-        style={styles.tool}
-        onClick={props.onClick}>{ React.createElement(props.icon, {color: colors.tool}, null) }</IconButton>
+  return <IconButton
+    title={props.title}
+    style={styles.tool}
+    onClick={props.onClick}>{React.createElement(props.icon, { color: colors.tool }, null)}</IconButton>
 }
