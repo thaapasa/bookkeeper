@@ -8,7 +8,7 @@ import TextField from 'material-ui/TextField';
 import AutoComplete from 'material-ui/AutoComplete';
 import { Expense, Income } from '../Icons';
 import * as apiConnect from '../../data/ApiConnect';
-import { PlainAutoComplete } from '../component/plain-text-field';
+import { PlainAutoComplete } from '../component/PlainTextField';
 import { stopEventPropagation } from '../../util/ClientUtil';
 const moment = require('moment');
 

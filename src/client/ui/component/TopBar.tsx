@@ -1,5 +1,5 @@
 import * as React from 'react';
-import UserAvatar from './user-avatar';
+import UserAvatar from './UserAvatar';
 import RaisedButton from 'material-ui/RaisedButton';
 import IconButton from 'material-ui/IconButton';
 import { Toolbar, ToolbarGroup, ToolbarTitle } from 'material-ui/Toolbar';

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import UserAvatar from './user-avatar';
+import UserAvatar from './UserAvatar';
 import * as state from '../../data/State';
 
 const styles = {

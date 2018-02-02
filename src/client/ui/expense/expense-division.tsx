@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as state from  '../../data/State';
 import * as colors from '../Colors';
 import * as categories from  '../../data/Categories';
-import UserAvatar from '../component/user-avatar';
+import UserAvatar from '../component/UserAvatar';
 import IconButton from 'material-ui/IconButton';
 import { expenseName } from './expense-helper';
 import { Repeat } from '../Icons';

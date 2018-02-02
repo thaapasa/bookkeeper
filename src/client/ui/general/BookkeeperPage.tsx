@@ -1,11 +1,11 @@
 import * as React from 'react';
-import TopBar from '../component/topbar';
+import TopBar from '../component/TopBar';
 import MonthView from '../expense/month-view';
 import CategoryView from '../category/CategoryView';
 import ExpenseDialog from '../expense/expense-dialog';
 import ConfirmationDialog from './ConfirmationDialog';
 import NotificationBar from '../component/NotificationBar';
-import DatePickerComponent from '../component/date-picker-component';
+import DatePickerComponent from '../component/DatePickerComponent';
 import FlatButton from 'material-ui/FlatButton';
 import { BrowserRouter as Router, Route, Link, Switch } from 'react-router-dom';
 import { Session } from '../../../shared/types/Session';
