@@ -4,7 +4,7 @@ import MonthView from '../expense/month-view';
 import CategoryView from '../category/category-view';
 import ExpenseDialog from '../expense/expense-dialog';
 import ConfirmationDialog from './ConfirmationDialog';
-import NotificationBar from '../component/notification-bar';
+import NotificationBar from '../component/NotificationBar';
 import DatePickerComponent from '../component/date-picker-component';
 import FlatButton from 'material-ui/FlatButton';
 import { BrowserRouter as Router, Route, Link, Switch } from 'react-router-dom';
