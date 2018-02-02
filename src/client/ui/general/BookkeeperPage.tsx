@@ -1,8 +1,8 @@
 import * as React from 'react';
 import TopBar from '../component/TopBar';
-import MonthView from '../expense/month-view';
+import MonthView from '../expense/MonthView';
 import CategoryView from '../category/CategoryView';
-import ExpenseDialog from '../expense/expense-dialog';
+import ExpenseDialog from '../expense/ExpenseDialog';
 import ConfirmationDialog from './ConfirmationDialog';
 import NotificationBar from '../component/NotificationBar';
 import DatePickerComponent from '../component/DatePickerComponent';

@@ -6,7 +6,7 @@ import DatePicker from 'material-ui/DatePicker';
 import * as state from '../../data/State';
 import * as colors from '../Colors';
 import * as apiConnect from '../../data/ApiConnect';
-import ExpenseRow from '../expense/expense-row';
+import ExpenseRow from '../expense/ExpenseRow';
 import CategoryChart from './CategoryChart';
 import { unsubscribeAll } from '../../util/ClientUtil';
 import { CSSProperties } from 'react';

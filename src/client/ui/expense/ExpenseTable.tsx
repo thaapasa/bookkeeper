@@ -1,14 +1,14 @@
 import * as React from 'react';
 import Avatar from 'material-ui/Avatar';
 import Chip from 'material-ui/Chip'
-import ExpenseRow from './expense-row';
-import { ExpenseHeader } from './expense-row';
+import ExpenseRow from './ExpenseRow';
+import { ExpenseHeader } from './ExpenseRow';
 import RefreshIndicator from 'material-ui/RefreshIndicator';
 import Money from '../../../shared/util/Money';
 import * as moment from 'moment';
-import { MonthlyStatus } from './monthly-status';
+import { MonthlyStatus } from './MonthlyStatus';
 import { UserExpense, ExpenseStatus, Expense } from '../../../shared/types/Expense';
-import { ExpenseTotals, ExpenseFilter, ExpenseFilterFunction } from './expense-helper';
+import { ExpenseTotals, ExpenseFilter, ExpenseFilterFunction } from './ExpenseHelper';
 
 interface ExpenseTableProps {
     date: moment.Moment;

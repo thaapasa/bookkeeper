@@ -7,12 +7,12 @@ import ActivatableTextField from '../component/ActivatableTextField';
 import { PlainTextField } from '../component/PlainTextField';
 import { ExpandLess, ExpandMore, Delete, Edit, Repeat, ToolIcon } from '../Icons'
 import * as colors from '../Colors';
-import { PlainReceiverField } from './expense-dialog-components';
+import { PlainReceiverField } from './ExpenseDialogComponents';
 import { combineClassNames } from '../../util/ClientUtil';
 import * as arrays from '../../../shared/util/Arrays';
 import * as time from '../../../shared/util/Time';
-import ExpenseDivision from './expense-division'
-import { expenseName, money, ExpenseFilterFunction } from './expense-helper';
+import ExpenseDivision from './ExpenseDivision'
+import { expenseName, money, ExpenseFilterFunction } from './ExpenseHelper';
 import Money, { MoneyLike } from '../../../shared/util/Money';
 import * as moment from 'moment';
 import { Expense, UserExpense } from '../../../shared/types/Expense';

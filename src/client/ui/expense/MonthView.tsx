@@ -1,13 +1,13 @@
 import * as React from 'react';
-import ExpenseTable from './expense-table'
+import ExpenseTable from './ExpenseTable'
 import * as Bacon from 'baconjs'
-import ExpenseNavigation from './expense-navigation'
+import ExpenseNavigation from './ExpenseNavigation'
 import * as state from '../../data/State';
 import * as apiConnect from '../../data/ApiConnect';
 import { unsubscribeAll } from '../../util/ClientUtil';
 import * as moment from 'moment';
 import { UserExpense, ExpenseStatus, Expense } from '../../../shared/types/Expense';
-import { zeroStatus } from './expense-helper';
+import { zeroStatus } from './ExpenseHelper';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { expenseMonthPattern, expenseMonthPathPattern } from '../../util/Links';
 import { RouteComponentProps } from 'react-router';

@@ -4,7 +4,7 @@ import * as colors from '../Colors';
 import * as categories from  '../../data/Categories';
 import UserAvatar from '../component/UserAvatar';
 import IconButton from 'material-ui/IconButton';
-import { expenseName } from './expense-helper';
+import { expenseName } from './ExpenseHelper';
 import { Repeat } from '../Icons';
 import * as apiConnect from '../../data/ApiConnect';
 import RefreshIndicator from 'material-ui/RefreshIndicator';

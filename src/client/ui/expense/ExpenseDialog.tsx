@@ -12,8 +12,8 @@ import * as apiConnect from '../../data/ApiConnect';
 import * as state from '../../data/State';
 import * as time from '../../../shared/util/Time';
 import { KeyCodes } from '../../util/Io'
-import { SumField, TypeSelector, TitleField, CategorySelector, SourceSelector, DateField, ReceiverField, DescriptionField } from './expense-dialog-components';
-import { expenseName } from './expense-helper';
+import { SumField, TypeSelector, TitleField, CategorySelector, SourceSelector, DateField, ReceiverField, DescriptionField } from './ExpenseDialogComponents';
+import { expenseName } from './ExpenseHelper';
 import { unsubscribeAll } from '../../util/ClientUtil';
 import { stopEventPropagation } from '../../util/ClientUtil';
 import * as moment from 'moment';
