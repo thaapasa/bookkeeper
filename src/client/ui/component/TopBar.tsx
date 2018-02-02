@@ -8,34 +8,34 @@ import * as colors from '../Colors';
 import { logout } from '../../data/Login';
 import { User } from '../../../shared/types/Session';
 
-const buttonStyle = { float : 'right' };
+const buttonStyle = { float: 'right' };
 
 interface TopBarProps {
-    user: User;
+  user: User;
 }
 
 export default class TopBar extends React.Component<TopBarProps, {}> {
 
-    private handleClick = () => {
-        state.editExpense(undefined);
-    }
+  private handleClick = () => {
+    state.editExpense(undefined);
+  }
 
-    public render() {
-        return (
-            <Toolbar className="top-bar fixed-horizontal">
-                <ToolbarGroup className="optional">
-                    <ToolbarTitle text={state.getTitle()} />
-                </ToolbarGroup>
-                <ToolbarGroup>
-                    { this.props.children }
-                </ToolbarGroup>
-                <ToolbarGroup style={{ align: 'right' }}>
-                    <RaisedButton label="Kirjaa" primary={true} style={buttonStyle} onClick={this.handleClick} />
-                    <UserAvatar userId={this.props.user.id} />
-                    <IconButton iconClassName="material-icons" iconStyle={{ color: colors.tool }} onClick={logout}>exit_to_app</IconButton>
-                </ToolbarGroup>
-            </Toolbar>
-        );
-    }
+  public render() {
+    return (
+      <Toolbar className="top-bar fixed-horizontal">
+        <ToolbarGroup className="optional">
+          <ToolbarTitle text={state.getTitle()} />
+        </ToolbarGroup>
+        <ToolbarGroup>
+          {this.props.children}
+        </ToolbarGroup>
+        <ToolbarGroup style={{ align: 'right' }}>
+          <RaisedButton label="Kirjaa" primary={true} style={buttonStyle} onClick={this.handleClick} />
+          <UserAvatar userId={this.props.user.id} />
+          <IconButton iconClassName="material-icons" iconStyle={{ color: colors.tool }} onClick={logout}>exit_to_app</IconButton>
+        </ToolbarGroup>
+      </Toolbar>
+    );
+  }
 
 }
