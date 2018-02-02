@@ -5,57 +5,57 @@ import * as state from '../../data/State'
 const msgInterval = 5000;
 
 interface NotificationBarState {
-    open: boolean;
-    message: string;
+  open: boolean;
+  message: string;
 }
 
 export default class NotificationBar extends React.Component<{}, NotificationBarState> {
 
-    private timer: any;
-    private queue: any[] = [];
-    public state: NotificationBarState = {
-        open: false,
-        message: '',
-    };
+  private timer: any;
+  private queue: any[] = [];
+  public state: NotificationBarState = {
+    open: false,
+    message: '',
+  };
 
-    public componentDidMount() {
-        state.get('notificationStream').onValue(msg => this.showMessage(msg));
-    }
+  public componentDidMount() {
+    state.get('notificationStream').onValue(msg => this.showMessage(msg));
+  }
 
-    public componentWillUnmount() {
-        clearTimeout(this.timer);
-        this.timer = undefined;
-    }
+  public componentWillUnmount() {
+    clearTimeout(this.timer);
+    this.timer = undefined;
+  }
 
-    private showMessage = (msg) => {
-        this.queue.push({ text: msg });
-        if (this.timer === undefined) {
-            this.scheduleNext();
-        }
+  private showMessage = (msg) => {
+    this.queue.push({ text: msg });
+    if (this.timer === undefined) {
+      this.scheduleNext();
     }
+  }
 
-    private scheduleNext = () => {
-        this.timer = undefined;
-        if (this.queue.length > 0) {
-            const next = this.queue.shift();
-            this.setState({ open: true, message: next.text });
-            this.timer = setTimeout(this.scheduleNext, msgInterval);
-        } else {
-            this.setState({ open: false });
-        }
+  private scheduleNext = () => {
+    this.timer = undefined;
+    if (this.queue.length > 0) {
+      const next = this.queue.shift();
+      this.setState({ open: true, message: next.text });
+      this.timer = setTimeout(this.scheduleNext, msgInterval);
+    } else {
+      this.setState({ open: false });
     }
+  }
 
-    private dismissCurrent = () => {
-        clearTimeout(this.timer);
-        this.scheduleNext();
-    }
+  private dismissCurrent = () => {
+    clearTimeout(this.timer);
+    this.scheduleNext();
+  }
 
-    public render() {
-        return <Snackbar
-            open={this.state.open}
-            message={this.state.message}
-            onRequestClose={this.dismissCurrent}
-        />
-    }
+  public render() {
+    return <Snackbar
+      open={this.state.open}
+      message={this.state.message}
+      onRequestClose={this.dismissCurrent}
+    />
+  }
 }
 
