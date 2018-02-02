@@ -1,7 +1,7 @@
 import * as React from 'react';
 import TopBar from '../component/topbar';
 import MonthView from '../expense/month-view';
-import CategoryView from '../category/category-view';
+import CategoryView from '../category/CategoryView';
 import ExpenseDialog from '../expense/expense-dialog';
 import ConfirmationDialog from './ConfirmationDialog';
 import NotificationBar from '../component/NotificationBar';

@@ -1,13 +1,13 @@
 import * as React from 'react';
 import * as Bacon from 'baconjs';
 import { Add, Edit, ExpandLess, ExpandMore, ToolIcon } from '../Icons';
-import CategoryDialog from './category-dialog';
+import CategoryDialog from './CategoryDialog';
 import DatePicker from 'material-ui/DatePicker';
 import * as state from '../../data/State';
 import * as colors from '../Colors';
 import * as apiConnect from '../../data/ApiConnect';
 import ExpenseRow from '../expense/expense-row';
-import CategoryChart from './category-chart';
+import CategoryChart from './CategoryChart';
 import { unsubscribeAll } from '../../util/ClientUtil';
 import { CSSProperties } from 'react';
 import * as moment from 'moment';
