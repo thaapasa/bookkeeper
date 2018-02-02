@@ -41,11 +41,6 @@ html, body {
     top: 0;
 }
 
-.expense-navigation {
-    height: 48px !important;
-    top: 56px;
-}
-
 /** Expense table */
 .bk-table {
     font-size: 13px;
