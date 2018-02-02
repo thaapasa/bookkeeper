@@ -33,7 +33,7 @@ interface NotificationBarConnectorState {
 
 export default class NotificationBarConnector extends React.Component<{}, NotificationBarConnectorState> {
 
-  private timer: any;
+  private timer: NodeJS.Timer | undefined;
   private queue: Notification[] = [];
   private unsubscribe: Action;
   public state: NotificationBarConnectorState = {
@@ -45,14 +45,14 @@ export default class NotificationBarConnector extends React.Component<{}, Notifi
   }
 
   public componentWillUnmount() {
-    clearTimeout(this.timer);
+    if (this.timer) { clearTimeout(this.timer); }
     this.timer = undefined;
     this.unsubscribe();
   }
 
   private showMessage = (notification: Notification) => {
     this.queue.push(notification);
-    if (this.timer === undefined) {
+    if (!this.timer) {
       this.scheduleNext();
     }
   }
@@ -69,7 +69,7 @@ export default class NotificationBarConnector extends React.Component<{}, Notifi
   }
 
   private dismissCurrent = () => {
-    clearTimeout(this.timer);
+    if (this.timer) { clearTimeout(this.timer); }
     this.scheduleNext();
   }
 
