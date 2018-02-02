@@ -1,34 +1,57 @@
 import * as React from 'react';
 import Snackbar from 'material-ui/Snackbar';
 import * as state from '../../data/State'
+import { Notification } from '../../data/StateTypes';
+import { notificationE } from '../../data/State';
+import { Action } from '../../../shared/types/Common';
 
 const msgInterval = 5000;
 
-interface NotificationBarState {
-  open: boolean;
-  message: string;
+interface NotificationBarProps {
+  notification: Notification;
+  onClose: Action;
 }
 
-export default class NotificationBar extends React.Component<{}, NotificationBarState> {
+class NotificationBar extends React.Component<NotificationBarProps, {}> {
+  private getMessage() {
+    return this.props.notification.cause ?
+      this.props.notification.message + ', cause: ' + this.props.notification.message :
+      this.props.notification.message;
+  }
+  public render() {
+    return <Snackbar
+      open={true}
+      message={this.getMessage()}
+      onRequestClose={this.props.onClose}
+    />
+  }
+}
+
+interface NotificationBarConnectorState {
+  notification: Notification | null;
+}
+
+export default class NotificationBarConnector extends React.Component<{}, NotificationBarConnectorState> {
 
   private timer: any;
-  private queue: any[] = [];
-  public state: NotificationBarState = {
-    open: false,
-    message: '',
+  private queue: Notification[] = [];
+  private unsubscribe: Action;
+  public state: NotificationBarConnectorState = {
+    notification: null,
   };
 
   public componentDidMount() {
-    state.get('notificationStream').onValue(msg => this.showMessage(msg));
+    this.unsubscribe = notificationE.onValue(this.showMessage);
   }
 
   public componentWillUnmount() {
     clearTimeout(this.timer);
     this.timer = undefined;
+    this.unsubscribe();
   }
 
-  private showMessage = (msg) => {
-    this.queue.push({ text: msg });
+  private showMessage = (notification: Notification) => {
+    this.queue.push(notification);
     if (this.timer === undefined) {
       this.scheduleNext();
     }
@@ -38,10 +61,10 @@ export default class NotificationBar extends React.Component<{}, NotificationBar
     this.timer = undefined;
     if (this.queue.length > 0) {
       const next = this.queue.shift();
-      this.setState({ open: true, message: next.text });
+      this.setState({ notification: next || null });
       this.timer = setTimeout(this.scheduleNext, msgInterval);
     } else {
-      this.setState({ open: false });
+      this.setState({ notification: null });
     }
   }
 
@@ -51,11 +74,9 @@ export default class NotificationBar extends React.Component<{}, NotificationBar
   }
 
   public render() {
-    return <Snackbar
-      open={this.state.open}
-      message={this.state.message}
-      onRequestClose={this.dismissCurrent}
-    />
+    return this.state.notification ? 
+      <NotificationBar notification={this.state.notification} onClose={this.dismissCurrent} /> :
+      null;
   }
 }
 

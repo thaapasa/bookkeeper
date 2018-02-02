@@ -1,5 +1,5 @@
 import * as Bacon from 'baconjs';
-import { ConfirmationObject, ConfirmationAction } from './StateTypes';
+import { ConfirmationObject, ConfirmationAction, Notification } from './StateTypes';
 
 /* Push event to confirmationBus to show a confirmation dialog */
 const confirmationBus = new Bacon.Bus<any, ConfirmationObject<any>>();
@@ -11,7 +11,6 @@ interface ConfirmationSettings<T> {
 }
 
 export const confirmationE = confirmationBus;
-
 
 /* Returns a promise that will be resolved to either true of false depending on user input */
 export function confirm<T>(title: string, content: string, options?: ConfirmationSettings<T>): Promise<T> {
@@ -25,12 +24,31 @@ export function confirm<T>(title: string, content: string, options?: Confirmatio
   });
 }
 
+const notificationBus = new Bacon.Bus<any, Notification>();
+export const notificationE = notificationBus;
+
+export function notify(message: string): void {
+  notificationBus.push({ message });
+}
+
+export function notifyError(message: string, cause: any) {
+  notificationBus.push({ message, cause });
+}
+
+/* Export state to window globals for debugging */
+if (process.env.NODE_ENV === 'development') {
+  (window as any).state = {
+    confirmationBus,
+    confirmationE,
+    notificationBus,
+    notificationE,
+  };
+}
+
 /** Old state */
 interface State {
   expenseDialogStream?: Bacon.Bus<any, any>;
-  confirmationDialogStream?: Bacon.Bus<any, any>;
   expensesUpdatedStream?: Bacon.Bus<any, any>;
-  notificationStream?: Bacon.Bus<any, any>;
   pickDateStream?: Bacon.Bus<any, any>;
   categories?: any;
   categoryMap?: any;
@@ -45,8 +63,6 @@ interface State {
 };
 
 let state: State = {};
-// Export state for debugging
-(window as any).state = state;
 
 export function set(name, value) {
   state[name] = value;
@@ -58,16 +74,10 @@ export function get(name) {
 
 export function init() {
   state = {};
-  // Export state for debugging
-  (window as any).state = state;
   state.expenseDialogStream && state.expenseDialogStream.end();
   state.expenseDialogStream = new Bacon.Bus();
-  state.confirmationDialogStream && state.confirmationDialogStream.end();
-  state.confirmationDialogStream = new Bacon.Bus();
   state.expensesUpdatedStream && state.expensesUpdatedStream.end();
   state.expensesUpdatedStream = new Bacon.Bus();
-  state.notificationStream && state.notificationStream.end();
-  state.notificationStream = new Bacon.Bus();
   state.pickDateStream && state.pickDateStream.end();
   state.pickDateStream = new Bacon.Bus();
 }
@@ -111,16 +121,6 @@ export function setDataFromSession(session) {
 export function getTitle() {
   const groupName = state.group && state.group.name;
   return groupName ? `Kukkaro - ${groupName}` : "Kukkaro";
-}
-
-export function notify(msg) {
-  if (state.notificationStream) state.notificationStream.push(msg);
-  return true;
-}
-
-export function notifyError(msg, cause) {
-  if (state.notificationStream) state.notificationStream.push(msg + ": " + cause);
-  return false;
 }
 
 export function editExpense(e) {

@@ -9,3 +9,8 @@ export interface ConfirmationObject<T> {
   actions: ConfirmationAction<T>[];
   resolve: (value: T) => void;
 }
+
+export interface Notification {
+  message: string;
+  cause?: any;
+};
