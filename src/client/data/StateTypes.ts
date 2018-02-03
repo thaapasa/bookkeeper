@@ -14,3 +14,8 @@ export interface Notification {
   message: string;
   cause?: any;
 };
+
+export interface PickDateObject {
+  initialDate?: Date;
+  resolve: (value?: Date) => void;
+}

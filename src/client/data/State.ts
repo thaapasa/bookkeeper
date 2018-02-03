@@ -1,5 +1,5 @@
 import * as Bacon from 'baconjs';
-import { ConfirmationObject, ConfirmationAction, Notification } from './StateTypes';
+import { ConfirmationObject, ConfirmationAction, Notification, PickDateObject } from './StateTypes';
 
 /* Push event to confirmationBus to show a confirmation dialog */
 const confirmationBus = new Bacon.Bus<any, ConfirmationObject<any>>();
@@ -35,6 +35,15 @@ export function notifyError(message: string, cause: any) {
   notificationBus.push({ message, cause });
 }
 
+const pickDateBus = new Bacon.Bus<any, PickDateObject>();
+
+/* Returns a promise that will be resolved to the selected date  */
+export function pickDate(initialDate?: Date): Promise<Date> {
+  return new Promise((resolve) => pickDateBus.push({ resolve, initialDate }));
+}
+
+export const pickDateE = pickDateBus;
+
 /* Export state to window globals for debugging */
 if (process.env.NODE_ENV === 'development') {
   (window as any).state = {
@@ -49,7 +58,6 @@ if (process.env.NODE_ENV === 'development') {
 interface State {
   expenseDialogStream?: Bacon.Bus<any, any>;
   expensesUpdatedStream?: Bacon.Bus<any, any>;
-  pickDateStream?: Bacon.Bus<any, any>;
   categories?: any;
   categoryMap?: any;
   sources?: any;
@@ -78,8 +86,6 @@ export function init() {
   state.expenseDialogStream = new Bacon.Bus();
   state.expensesUpdatedStream && state.expensesUpdatedStream.end();
   state.expensesUpdatedStream = new Bacon.Bus();
-  state.pickDateStream && state.pickDateStream.end();
-  state.pickDateStream = new Bacon.Bus();
 }
 
 export function setCategories(categories) {
@@ -133,14 +139,3 @@ export function updateExpenses(date) {
   return true;
 }
 
-/* Returns a promise that will be resolved to the selected date  */
-export function pickDate(currentValue): Promise<Date> {
-  let resolve: ((Date) => void) | null = null, reject: (() => void) | null = null;
-  const p = new Promise((res: (Date) => void, rej) => { resolve = res; reject = rej; });
-  if (state.pickDateStream) state.pickDateStream.push({
-    date: currentValue,
-    resolve: resolve,
-    reject: reject
-  });
-  return p;
-}
