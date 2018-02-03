@@ -1,6 +1,6 @@
 import * as B from 'baconjs';
 import * as state from './State';
-import { Session } from '../../shared/types/Session';
+import { Session, Group } from '../../shared/types/Session';
 const debug = require('debug')('bookkeeper:login');
 
 interface LoginCredentials {
@@ -14,12 +14,20 @@ const sessionBus = new B.Bus<any, Session | null>();
 
 export const tokenP = tokenBus.toProperty(null);
 export const sessionP = sessionBus.toProperty(null);
+export const validSessionE: B.EventStream<any, Session> = sessionP.filter(s => s !== null) as any;
 
 import * as apiConnect from './ApiConnect';
 
 const refreshTokenKey = 'refreshToken';
 
+export function getTitle(group?: Group) {
+  const groupName = group ? group.name : undefined;
+  const title = groupName ? `Kukkaro - ${groupName}` : 'Kukkaro';
+  return title;
+}
+
 function clearLoginData() {
+  document.title = getTitle();
   sessionBus.push(null);
   tokenBus.push(null);
   localStorage.removeItem(refreshTokenKey);
@@ -56,7 +64,7 @@ loginBus.onValue(session => {
   } else {
     localStorage.removeItem(refreshTokenKey);
   }
-  document.title = state.getTitle();
+  document.title = getTitle(session.group);
   tokenBus.push(session.token);
   sessionBus.push(session);
 });

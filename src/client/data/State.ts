@@ -124,11 +124,6 @@ export function setDataFromSession(session) {
   state.groups = session ? session.groups : [];
 }
 
-export function getTitle() {
-  const groupName = state.group && state.group.name;
-  return groupName ? `Kukkaro - ${groupName}` : "Kukkaro";
-}
-
 export function editExpense(e) {
   if (state.expenseDialogStream) state.expenseDialogStream.push(e);
 }

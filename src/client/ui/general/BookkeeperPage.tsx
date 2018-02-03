@@ -38,7 +38,7 @@ export default class BookkeeperPage extends React.Component<PageProps, {}> {
         <ConfirmationDialog />
         <Router>
           <div>
-            <TopBar user={this.props.session.user}>
+            <TopBar>
               <LinkButton label="Kulut" to={expensePagePath} />
               <LinkButton label="Kategoriat" to={categoryPagePath} />
             </TopBar>

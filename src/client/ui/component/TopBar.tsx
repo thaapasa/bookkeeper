@@ -1,20 +1,23 @@
 import * as React from 'react';
+import * as B from 'baconjs';
 import UserAvatar from './UserAvatar';
 import RaisedButton from 'material-ui/RaisedButton';
 import IconButton from 'material-ui/IconButton';
 import { Toolbar, ToolbarGroup, ToolbarTitle } from 'material-ui/Toolbar';
 import * as state from '../../data/State';
 import * as colors from '../Colors';
-import { logout } from '../../data/Login';
-import { User } from '../../../shared/types/Session';
+import { logout, sessionP, getTitle, validSessionE } from '../../data/Login';
+import { User, Group } from '../../../shared/types/Session';
+import { connect } from './BaconConnect';
 
 const buttonStyle = { float: 'right' };
 
 interface TopBarProps {
   user: User;
+  group: Group;
 }
 
-export default class TopBar extends React.Component<TopBarProps, {}> {
+class TopBar extends React.Component<TopBarProps, {}> {
 
   private handleClick = () => {
     state.editExpense(undefined);
@@ -24,7 +27,7 @@ export default class TopBar extends React.Component<TopBarProps, {}> {
     return (
       <Toolbar className="top-bar fixed-horizontal">
         <ToolbarGroup className="optional">
-          <ToolbarTitle text={state.getTitle()} />
+          <ToolbarTitle text={getTitle(this.props.group)} />
         </ToolbarGroup>
         <ToolbarGroup>
           {this.props.children}
@@ -39,3 +42,5 @@ export default class TopBar extends React.Component<TopBarProps, {}> {
   }
 
 }
+
+export default connect(validSessionE.map(s => ({ user: s.user, group: s.group })))(TopBar);
