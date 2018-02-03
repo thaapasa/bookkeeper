@@ -1,5 +1,4 @@
 import * as React from 'react';
-import * as B from 'baconjs';
 import UserAvatar from './UserAvatar';
 import RaisedButton from 'material-ui/RaisedButton';
 import IconButton from 'material-ui/IconButton';
@@ -8,19 +7,12 @@ import * as state from '../../data/State';
 import * as colors from '../Colors';
 import { logout, sessionP } from '../../data/Login';
 import { User } from '../../../shared/types/Session';
-import { connect } from './BaconConnect';
 
 const buttonStyle = { float: 'right' };
 
 interface TopBarProps {
   user: User;
 }
-
-class ConnectTest extends React.Component<{ user: User | null, text: string }, {}> {
-  public render() { return <div>{this.props.user ? this.props.user.firstName : '-'}: {this.props.text}</div>; }
-}
-
-const Connected = connect(sessionP.map(s => ({ user: s ? s.user : null })))(ConnectTest);
 
 export default class TopBar extends React.Component<TopBarProps, {}> {
 
@@ -35,7 +27,6 @@ export default class TopBar extends React.Component<TopBarProps, {}> {
           <ToolbarTitle text={state.getTitle()} />
         </ToolbarGroup>
         <ToolbarGroup>
-          <Connected text="Hello" />
           {this.props.children}
         </ToolbarGroup>
         <ToolbarGroup style={{ align: 'right' }}>
