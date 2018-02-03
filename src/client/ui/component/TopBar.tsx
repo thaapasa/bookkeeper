@@ -16,11 +16,11 @@ interface TopBarProps {
   user: User;
 }
 
-class ConnectTest extends React.Component<{ data: User | null }, {}> {
-  public render() { return <div>{this.props.data ? this.props.data.firstName : '-'}</div>; }
+class ConnectTest extends React.Component<{ user: User | null, text: string }, {}> {
+  public render() { return <div>{this.props.user ? this.props.user.firstName : '-'}: {this.props.text}</div>; }
 }
 
-const Connected = connect(sessionP.map(s => s ? s.user : null))(ConnectTest);
+const Connected = connect(sessionP.map(s => ({ user: s ? s.user : null })))(ConnectTest);
 
 export default class TopBar extends React.Component<TopBarProps, {}> {
 
@@ -35,7 +35,7 @@ export default class TopBar extends React.Component<TopBarProps, {}> {
           <ToolbarTitle text={state.getTitle()} />
         </ToolbarGroup>
         <ToolbarGroup>
-          <Connected />
+          <Connected text="Hello" />
           {this.props.children}
         </ToolbarGroup>
         <ToolbarGroup style={{ align: 'right' }}>
