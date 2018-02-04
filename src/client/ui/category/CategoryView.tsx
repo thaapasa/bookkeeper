@@ -12,6 +12,9 @@ import { unsubscribeAll } from '../../util/ClientUtil';
 import { CSSProperties } from 'react';
 import * as moment from 'moment';
 import { Map } from '../../../shared/util/Util';
+import { Category } from '../../../shared/types/Session';
+import { connect } from '../component/BaconConnect';
+import { validSessionE } from '../../data/Login';
 const debug = require('debug')('bookkeeper:category-view');
 
 const styles: Map<CSSProperties> = {
@@ -142,6 +145,10 @@ function MyDatePicker({ value, onChange, label }) {
     onChange={(event, date) => onChange(date)} />;
 }
 
+interface CategoryViewProps {
+  categories: Category[];
+}
+
 interface CategoryViewState {
   categories: any[];
   startDate: Date;
@@ -151,7 +158,7 @@ interface CategoryViewState {
   categoryChartData?: any;
 }
 
-export default class CategoryView extends React.Component<any, CategoryViewState> {
+class CategoryView extends React.Component<CategoryViewProps, CategoryViewState> {
 
   private startDateStr: Bacon.Bus<any, Date>;
   private endDateStr: Bacon.Bus<any, Date>;
@@ -170,7 +177,7 @@ export default class CategoryView extends React.Component<any, CategoryViewState
   private formCategoryChartData() {
     let chartData: any[] = [];
     this.state.categories && this.state.categories.forEach(c => {
-      chartData.push({ categoryId: c.id, categoryName: c.name, categoryTotal: this.state.categoryTotals[c.id].totalExpenses })
+      chartData.push({ categoryId: c.id, categoryName: c.name, categoryTotal: this.state.categoryTotals[c.id] ? this.state.categoryTotals[c.id].totalExpenses: 0 })
     })
     this.setState({ categoryChartData: chartData });
   }
@@ -302,9 +309,11 @@ export default class CategoryView extends React.Component<any, CategoryViewState
           categoryTotals={this.state.categoryTotals}
           categoryExpenses={this.state.categoryExpenses}
           categoryChartData={this.state.categoryChartData} />
-        <CategoryDialog ref={r => this.categoryDialog = r} />
+        <CategoryDialog ref={r => this.categoryDialog = r} categories={this.props.categories} />
       </div>
     );
   }
 
 }
+
+export default connect(validSessionE.map(s => ({ categories: s.categories })))(CategoryView);

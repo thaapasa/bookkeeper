@@ -6,85 +6,78 @@ import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
 import * as apiConnect from '../../data/ApiConnect';
 import * as state from '../../data/State';
+import { Category } from '../../../shared/types/Session';
+import { SyntheticEvent } from 'react';
 const debug = require('debug')('bookkeeper:category-dialog');
 
-const defaultCategory = [{ id: 0, name: '[Ei yläkategoriaa]' }];
+const defaultCategory: Category[] = [{ id: 0, name: '[Ei yläkategoriaa]', children: [], parentId: null }];
 
-export default class CategoryDialog extends React.Component<any, any> {
+interface CategoryDialogProps {
+  categories: Category[];
+}
 
-  private categories: any[];
-  private resolve: any;
+type CategoryResolve = (c: number | null) => void;
 
-  constructor(props) {
-    super(props);
+interface CategoryDialogState {
+  open: boolean,
+  name: string,
+  parentId: number,
+  id: number,
+  createNew: boolean,
+  resolve: CategoryResolve | null,
+  valid: boolean,
+}
 
-    this.state = {
-      open: false,
-      name: "",
-      parentId: 0,
-      id: 0,
-      createNew: false,
-      valid: false
-    };
-    this.categories = [];
-    this.resolve = null;
+export default class CategoryDialog extends React.Component<CategoryDialogProps, any> {
 
-    this.requestSave = this.requestSave.bind(this);
-    this.closeDialog = this.closeDialog.bind(this);
-    this.createCategory = this.createCategory.bind(this);
-    this.editCategory = this.editCategory.bind(this);
-    this.update = this.update.bind(this);
+  public state: CategoryDialogState = {
+    open: false,
+    name: '',
+    parentId: 0,
+    id: 0,
+    createNew: false,
+    valid: false,
+    resolve: null,
+  };
 
-    this.updateCategories();
+  public createCategory = (parent?: Category): Promise<number | null> => {
+    debug('Create category under', parent);
+    return this.startEditing({ open: true, name: '', parentId: parent ? parent.id : 0, createNew: true, id: 0, valid: true });
   }
 
-  updateCategories() {
-    const cats = state.get("categories");
-    this.categories = defaultCategory.concat(cats);
-  }
-
-  createCategory(parent) {
-    debug("Create category under", parent);
-    return this.startEditing({ open: true, name: "", parentId: parent && parent.id || 0, createNew: true, id: 0, valid: true });
-  }
-
-  editCategory(category) {
-    debug("Edit category", category);
+  public editCategory = (category: Category): Promise<number | null> => {
+    debug('Edit category', category);
     return this.startEditing({ open: true, name: category.name, parentId: category.parentId || 0, createNew: false, id: category.id, valid: true });
   }
 
-  startEditing(s) {
-    this.updateCategories();
-    const resolvers = {};
-    const promise = new Promise((res) => { this.resolve = res; });
-    this.setState(Object.assign(s, resolvers));
-    return promise;
+  private getCategories(): Category[] {
+    return defaultCategory.concat(this.props.categories);
   }
 
-  update(name) {
-    this.setState({
-      name: name,
-      valid: name && name.length > 0
+  private startEditing(s: Partial<CategoryDialogState>): Promise<number | null> {
+    return new Promise<number | null>((resolve) => {
+      this.setState({ ...s, resolve });
     });
   }
 
-  closeDialog(data) {
-    debug("Closing dialog");
+  private updateName = (name: string) => {
+    this.setState({ name, valid: name && name.length > 0 });
+  }
+
+  private closeDialog = (id: number | null) => {
+    debug('Closing dialog, resolving to', id);
     this.setState({ open: false });
-    this.resolve && this.resolve(data);
+    if (this.state.resolve) { this.state.resolve(id); }
     return false;
   }
 
-  requestSave(event) {
+  private requestSave = (event: SyntheticEvent<any>) => {
     event.preventDefault();
     event.stopPropagation();
-    this.setState(s => {
-      this.saveCategory(s);
-      return s;
-    });
+    this.saveCategory(this.state);
   }
 
-  async saveCategory(s) {
+  private async saveCategory(s: CategoryDialogState) {
     const createNew = !s.id;
     const name = s.name;
 
@@ -93,14 +86,11 @@ export default class CategoryDialog extends React.Component<any, any> {
       parentId: s.parentId,
       children: [],
     };
-    debug("Save", data);
-    let id = 0;
+    debug('Save category data', data);
     try {
-      if (createNew) {
-        id = (await apiConnect.storeCategory(data)).categoryId || 0;
-      } else {
-        id = (await apiConnect.updateCategory(s.id, data)).id;
-      }
+      const id = createNew ?
+        (await apiConnect.storeCategory(data)).categoryId || 0 :
+        (await apiConnect.updateCategory(s.id, data)).id;
       this.closeDialog(id);
       state.notify(`${createNew ? 'Tallennettu' : 'Päivitetty'} ${name}`);
     } catch (e) {
@@ -125,14 +115,14 @@ export default class CategoryDialog extends React.Component<any, any> {
 
     return <Dialog
       contentClassName="category-dialog"
-      title={this.state.createNew ? "Uusi kategoria" : "Muokkaa kategoriaa"}
+      title={this.state.createNew ? 'Uusi kategoria' : 'Muokkaa kategoriaa'}
       actions={actions}
       modal={true}
       autoDetectWindowHeight={true}
       autoScrollBodyContent={true}
       open={this.state.open}
       onRequestClose={() => this.closeDialog(null)}>
-      <form onSubmit={this.requestSave} /*onKeyUp={this.handleKeyPress}*/>
+      <form onSubmit={this.requestSave}>
         <TextField
           key="name"
           hintText="Nimi"
@@ -140,17 +130,17 @@ export default class CategoryDialog extends React.Component<any, any> {
           floatingLabelFixed={true}
           fullWidth={true}
           value={this.state.name}
-          onChange={(e, n) => this.update(n)}
+          onChange={(e, n) => this.updateName(n)}
         />
         <SelectField
           key="category"
           value={this.state.parentId}
           floatingLabelText="Yläkategoria"
           floatingLabelFixed={true}
-          style={{ width: "100%" }}
+          style={{ width: '100%' }}
           onChange={(i, j, v) => this.setState({ parentId: v })}>
-          {this.categories.map((row) => (
-            <MenuItem key={row.id} value={row.id} primaryText={row.name} />
+          {this.getCategories().map((c) => (
+            <MenuItem key={c.id} value={c.id} primaryText={c.name} />
           ))}
         </SelectField>
       </form>
