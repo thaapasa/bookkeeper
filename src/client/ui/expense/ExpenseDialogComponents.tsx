@@ -19,11 +19,9 @@ const styles = {
 export function SumField(props: {
   value: string,
   errorText?: string,
-  onChange: (string) => void,
-  theRef?: any
+  onChange: (string) => void
 }) {
   return <TextField
-    ref={props.theRef}
     hintText="0.00"
     floatingLabelText="Summa"
     floatingLabelFixed={true}
@@ -133,33 +131,31 @@ export function DateField(props: {
 }
 
 interface ReceiverFieldProps {
-  name?: string,
-  id?: string,
-  hintText?: string,
-  value: string,
-  errorText?: string,
-  onChange: (r: string) => void,
-  onBlur?: () => void,
-  onKeyUp?: (event: any) => void,
-  editorType?: any,
+  name?: string;
+  id?: string;
+  hintText?: string;
+  value: string;
+  errorText?: string;
+  onChange: (event: any, r: string) => void;
+  onBlur?: () => void;
+  onKeyUp?: (event: any) => void;
+  editorType?: React.ComponentClass<any>;
 }
 
-export class ReceiverField extends React.Component<ReceiverFieldProps, any> {
+interface ReceiverFieldState {
+  receivers: any[];
+};
+
+export class ReceiverField extends React.Component<ReceiverFieldProps, ReceiverFieldState> {
 
   private inputStream: any;
   private unsub: any[];
-  private ref: any;
-
-  constructor(props) {
-    super(props);
-    this.state = { receivers: [] };
-    this.focus = this.focus.bind(this);
-  }
+  public state: ReceiverFieldState = { receivers: [] };
 
   public componentDidMount() {
-    this.inputStream = new Bacon.Bus();
+    this.inputStream = new Bacon.Bus<any, string>();
     this.unsub = [];
-    this.unsub.push(this.inputStream.onValue(this.props.onChange));
+    this.unsub.push(this.inputStream.onValue(v => this.props.onChange(null, v)));
     this.unsub.push(this.inputStream
       .filter(v => v && v.length > 2 && v.length < 10)
       .debounceImmediate(500)
@@ -175,17 +171,12 @@ export class ReceiverField extends React.Component<ReceiverFieldProps, any> {
     this.unsub.forEach(s => s());
   }
 
-  public focus() {
-    this.ref && this.ref.focus();
-  }
-
   public render() {
     const type = this.props.editorType ? this.props.editorType : AutoComplete;
     return React.createElement(type, {
       name: this.props.name,
       id: this.props.id,
       filter: AutoComplete.noFilter,
-      onNewRequest: this.focus,
       dataSource: this.state.receivers,
       onUpdateInput: r => this.inputStream.push(r),
       hintText: this.props.hintText || 'Kauppa',
@@ -196,19 +187,17 @@ export class ReceiverField extends React.Component<ReceiverFieldProps, any> {
       searchText: this.props.value,
       onBlur: this.props.onBlur,
       onKeyUp: this.props.onKeyUp,
-      ref: i => this.ref = i
     });
   }
 }
 
 export class PlainReceiverField extends React.Component<ReceiverFieldProps, {}> {
-  private ref;
-  private setRef = (r) => this.ref = r;
-  public focus() {
-    if (this.ref) { this.ref.focus(); }
-  }
   public render() {
-    return React.createElement(ReceiverField, { ...this.props, editorType: PlainAutoComplete, ref: this.setRef });
+    return (
+      <ReceiverField {...this.props} value={this.props.value || ''} editorType={PlainAutoComplete }>
+        {this.props.children}
+      </ReceiverField>
+    );
   }
 }
 

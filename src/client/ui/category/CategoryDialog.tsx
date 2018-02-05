@@ -5,9 +5,9 @@ import TextField from 'material-ui/TextField';
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
 import * as apiConnect from '../../data/ApiConnect';
-import * as state from '../../data/State';
 import { Category } from '../../../shared/types/Session';
 import { SyntheticEvent } from 'react';
+import { notify, notifyError } from '../../data/State';
 const debug = require('debug')('bookkeeper:category-dialog');
 
 const defaultCategory: Category[] = [{ id: 0, name: '[Ei yläkategoriaa]', children: [], parentId: null }];
@@ -88,9 +88,9 @@ export default class CategoryDialog extends React.Component<CategoryDialogProps,
         (await apiConnect.storeCategory(data)).categoryId || 0 :
         (await apiConnect.updateCategory(s.id, data)).id;
       this.closeDialog(id);
-      state.notify(`${createNew ? 'Tallennettu' : 'Päivitetty'} ${name}`);
+      notify(`${createNew ? 'Tallennettu' : 'Päivitetty'} ${name}`);
     } catch (e) {
-      state.notifyError(`Virhe ${createNew ? 'tallennettaessa' : 'päivitettäessä'} kirjausta ${name}`, e);
+      notifyError(`Virhe ${createNew ? 'tallennettaessa' : 'päivitettäessä'} kirjausta ${name}`, e);
       return null;
     }
   }

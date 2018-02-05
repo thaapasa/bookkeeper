@@ -128,7 +128,6 @@ export default class ExpenseDialog extends React.Component<any, any> {
   private categories: any;
   private sources: any;
   private categorySource: any;
-  private moneyInput: any;
   public state: any;
 
   constructor(props) {
@@ -214,7 +213,7 @@ export default class ExpenseDialog extends React.Component<any, any> {
     debug("Open expense", expense);
     this.updateCategoriesAndSources();
     Object.keys(fields).forEach(k => this.inputStreams[k].push(initValue(k, expense)));
-    this.setState({ open: true }, () => this.moneyInput && this.moneyInput.focus());
+    this.setState({ open: true });
   }
 
   closeDialog() {
@@ -312,7 +311,6 @@ export default class ExpenseDialog extends React.Component<any, any> {
           <UserAvatar userId={this.state.userId} style={{ verticalAlign: "middle" }} />
           <div className="expense-sum" style={{ height: "72px", marginLeft: "2em", display: "inline-block", verticalAlign: "middle" }}>
             <SumField value={this.state.sum} errorText={this.state.errors.sum}
-              theRef={r => this.moneyInput = r}
               onChange={v => this.inputStreams.sum.push(v)} />
           </div>
           <div className="expense-confirmed" style={{ marginLeft: "2em", display: "inline-block", verticalAlign: "middle" }}>
@@ -329,7 +327,7 @@ export default class ExpenseDialog extends React.Component<any, any> {
           errorText={this.state.errors.title}
           onChange={v => this.inputStreams.title.push(v)}
         />
-        <ReceiverField value={this.state.receiver} onChange={v => this.inputStreams.receiver.push(v)}
+        <ReceiverField value={this.state.receiver} onChange={(e, v) => this.inputStreams.receiver.push(v)}
           errorText={this.state.errors.receiver} onKeyUp={stopEventPropagation} />
         <CategorySelector
           category={this.state.categoryId} categories={this.categories}

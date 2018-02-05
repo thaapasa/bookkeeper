@@ -88,6 +88,23 @@ export async function login(username: string, password: string): Promise<void> {
   }
 }
 
+export async function updateSession(): Promise<boolean> {
+  try {
+    debug('Updating session data...');
+    const session = await apiConnect.getSession();
+    if (!session) {
+      debug('Session not valid anymore, not updating');
+      return false;
+    }
+    loginBus.push(session);
+    debug('Session data updated');
+    return true;
+  } catch (e) {
+    debug('Error in session update:', e);
+    return false;
+  }
+}
+
 export async function logout() {
   debug('Logging out');
   try {

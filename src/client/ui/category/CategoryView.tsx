@@ -2,8 +2,6 @@ import * as React from 'react';
 import * as Bacon from 'baconjs';
 import CategoryDialog from './CategoryDialog';
 import DatePicker from 'material-ui/DatePicker';
-import * as state from '../../data/State';
-import * as colors from '../Colors';
 import * as apiConnect from '../../data/ApiConnect';
 import ExpenseRow from '../expense/ExpenseRow';
 import CategoryChart from './CategoryChart';
@@ -11,8 +9,8 @@ import { unsubscribeAll } from '../../util/ClientUtil';
 import * as moment from 'moment';
 import { Category } from '../../../shared/types/Session';
 import { connect } from '../component/BaconConnect';
-import { validSessionE } from '../../data/Login';
-import { AddCategoryButton, EditCategoryButton, ToggleButton } from './CategoryTools';
+import { validSessionE, updateSession } from '../../data/Login';
+import { AddCategoryButton } from './CategoryTools';
 import { reloadStream, CategoryRow } from './CategoryRow';
 const debug = require('debug')('bookkeeper:category-view');
 
@@ -35,7 +33,6 @@ interface CategoryViewProps {
 }
 
 interface CategoryViewState {
-  categories: any[];
   startDate: Date;
   endDate: Date;
   categoryExpenses: any;
@@ -52,7 +49,6 @@ class CategoryView extends React.Component<CategoryViewProps, CategoryViewState>
   private unsub: any[];
 
   public state: CategoryViewState = {
-    categories: [],
     startDate: new Date(),
     endDate: new Date(),
     categoryExpenses: {},
@@ -61,7 +57,7 @@ class CategoryView extends React.Component<CategoryViewProps, CategoryViewState>
 
   private formCategoryChartData() {
     let chartData: any[] = [];
-    this.state.categories && this.state.categories.forEach(c => {
+    this.props.categories.forEach(c => {
       chartData.push({ categoryId: c.id, categoryName: c.name, categoryTotal: this.state.categoryTotals[c.id] ? this.state.categoryTotals[c.id].totalExpenses : 0 })
     })
     this.setState({ categoryChartData: chartData });
@@ -86,8 +82,8 @@ class CategoryView extends React.Component<CategoryViewProps, CategoryViewState>
       this.getCategoryTotals(dates),
       apiConnect.getCategoryList()
     ]);
-    this.setState({ categories });
     this.formCategoryChartData();
+    updateSession();
   }
 
   private createCategory = (parent: Category) => {
@@ -112,7 +108,6 @@ class CategoryView extends React.Component<CategoryViewProps, CategoryViewState>
     this.setState({
       startDate,
       endDate,
-      categories: state.get('categories'),
       categoryExpenses: {},
       categoryTotals: {},
     });
@@ -192,7 +187,7 @@ class CategoryView extends React.Component<CategoryViewProps, CategoryViewState>
     return (
       <div className="content">
         <this.CategoryTable
-          categories={this.state.categories}
+          categories={this.props.categories}
           categoryTotals={this.state.categoryTotals}
           categoryExpenses={this.state.categoryExpenses}
           categoryChartData={this.state.categoryChartData} />

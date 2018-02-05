@@ -1,16 +1,19 @@
 import * as React from 'react';
 import TextField from 'material-ui/TextField';
 import { KeyCodes } from '../../util/Io';
-import { CSSProperties } from 'react';
+import { CSSProperties, SyntheticEvent } from 'react';
+const debug = require('debug')('bookkeeper:activatable-text-field');
+
+type EditorType = React.ComponentClass<any>;
 
 interface ActivatableTextFieldProps {
-  editorType?: any
+  editorType?: EditorType;
   name?: string;
   style?: CSSProperties;
   value: string;
   id?: number;
   hintText?: string;
-  onChange: (e: any) => void;
+  onChange: (e: string) => void;
   onCancel?: () => void;
 }
 
@@ -21,7 +24,7 @@ interface ActivatableTextFieldState {
 
 export default class ActivatableTextField extends React.Component<ActivatableTextFieldProps, ActivatableTextFieldState> {
 
-  private editorRef: any;
+  private editorRef: EditorType | null = null;
 
   public state: ActivatableTextFieldState;
 
@@ -29,17 +32,14 @@ export default class ActivatableTextField extends React.Component<ActivatableTex
     super(props);
     this.state = { edit: false, value: props.value };
   }
-  public focus() {
-    if (this.editorRef) { this.editorRef.focus(); }
-  }
-  private commit = (value) => {
-    // console.log("Committing", value);
+  private commit = (value: string) => {
+    debug('Committing', value);
     this.props.onChange && this.props.onChange(value);
     this.close();
   }
 
   private cancel = () => {
-    // console.log("Cancelling");
+    debug('Cancelling');
     if (this.props.onCancel) { this.props.onCancel(); }
     this.close();
   }
@@ -48,10 +48,10 @@ export default class ActivatableTextField extends React.Component<ActivatableTex
     this.setState({ value: this.props.value, edit: false });
   }
 
-  private handleKeyPress = (event, value) => {
+  private handleKeyPress = (event: KeyboardEvent) => {
     const code = event.keyCode;
     if (code === KeyCodes.enter) {
-      this.commit(value);
+      this.commit(this.state.value);
       return false;
     } else if (code === KeyCodes.escape) {
       this.cancel();
@@ -59,9 +59,7 @@ export default class ActivatableTextField extends React.Component<ActivatableTex
     }
   }
 
-  public componentDidUpdate() {
-    if (this.editorRef) { this.editorRef.focus(); }
-  }
+  private updateValue = (i, value: string) => this.setState({ value })
 
   private createEditor() {
     const type = this.props.editorType ? this.props.editorType : TextField;
@@ -71,22 +69,28 @@ export default class ActivatableTextField extends React.Component<ActivatableTex
       style: this.props.style,
       hintText: this.props.hintText,
       value: this.state.value,
-      onChange: i => this.setState({ value: i.target ? i.target.value : i }),
+      onChange: this.updateValue,
       // onBlur: i => this.commit(this.state.value),
-      onKeyUp: event => this.handleKeyPress(event, this.state.value),
-      ref: r => this.editorRef = r,
+      onKeyUp: this.handleKeyPress,
+      ref: this.setRef,
     });
   }
 
-  private onClick = i => this.setState({ edit: true, value: this.props.value });
-  private setRef = i => this.editorRef = undefined;
+  private activate = (i: any) => {
+    debug('Activating editor', this.props.editorType, 'for', this.props.value);
+    this.setState({ edit: true, value: this.props.value });
+  }
+  private setRef = (i: EditorType | null) => this.editorRef = i;
+  private clearRef = (i: any) => this.editorRef = null;
 
   public render() {
-    return this.state.edit ? this.createEditor() :
+    if (this.state.edit) { return this.createEditor(); }
+    return (
       <div
         style={this.props.style}
-        onClick={this.onClick}
-        ref={this.setRef}
+        onClick={this.activate}
+        ref={this.clearRef}
       >{this.props.value}</div>
+    );
   }
 }
