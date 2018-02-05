@@ -35,7 +35,7 @@ export const Add = LibraryAdd;
 
 export function ToolIcon(props: {
   icon: any,
-  color?: string,
+  color?: string | null,
   title: string,
   style?: CSSProperties,
   className?: string,

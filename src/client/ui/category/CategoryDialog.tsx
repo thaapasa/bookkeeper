@@ -60,10 +60,6 @@ export default class CategoryDialog extends React.Component<CategoryDialogProps,
     });
   }
 
-  private updateName = (name: string) => {
-    this.setState({ name, valid: name && name.length > 0 });
-  }
-
   private closeDialog = (id: number | null) => {
     debug('Closing dialog, resolving to', id);
     this.setState({ open: false });
@@ -99,12 +95,24 @@ export default class CategoryDialog extends React.Component<CategoryDialogProps,
     }
   }
 
+  private cancel = () => {
+    this.closeDialog(null);
+  }
+
+  private updateName = (_: any, name: string) => {
+    this.setState({ name, valid: name && name.length > 0 });
+  }
+
+  private changeCategory = (i: any, j: any, v: number) => {
+    this.setState({ parentId: v });
+  }
+
   public render() {
     const actions = [
       <FlatButton
         label="Peruuta"
         primary={true}
-        onClick={() => this.closeDialog(null)} />,
+        onClick={this.cancel} />,
       <FlatButton
         label="Tallenna"
         primary={true}
@@ -121,7 +129,7 @@ export default class CategoryDialog extends React.Component<CategoryDialogProps,
       autoDetectWindowHeight={true}
       autoScrollBodyContent={true}
       open={this.state.open}
-      onRequestClose={() => this.closeDialog(null)}>
+      onRequestClose={this.cancel}>
       <form onSubmit={this.requestSave}>
         <TextField
           key="name"
@@ -130,7 +138,7 @@ export default class CategoryDialog extends React.Component<CategoryDialogProps,
           floatingLabelFixed={true}
           fullWidth={true}
           value={this.state.name}
-          onChange={(e, n) => this.updateName(n)}
+          onChange={this.updateName}
         />
         <SelectField
           key="category"
@@ -138,7 +146,7 @@ export default class CategoryDialog extends React.Component<CategoryDialogProps,
           floatingLabelText="Yläkategoria"
           floatingLabelFixed={true}
           style={{ width: '100%' }}
-          onChange={(i, j, v) => this.setState({ parentId: v })}>
+          onChange={this.changeCategory}>
           {this.getCategories().map((c) => (
             <MenuItem key={c.id} value={c.id} primaryText={c.name} />
           ))}
