@@ -10,6 +10,7 @@ import { Map } from '../../../shared/util/Util';
 import { Category } from '../../../shared/types/Session';
 import { AddCategoryButton, EditCategoryButton, ToggleButton } from './CategoryTools';
 import { UserExpense } from '../../../shared/types/Expense';
+import { DateRange } from '../../../shared/util/Time';
 const debug = require('debug')('bookkeeper:category-view');
 
 const styles: Map<CSSProperties> = {
@@ -30,9 +31,9 @@ interface CategoryRowProps {
   header: boolean;
   createCategory: (p: Category) => void;
   editCategory: (p: Category) => void;
-  datesStr: any;
   categoryTotals: any;
   categoryExpenses?: any[];
+  range: DateRange;
 }
 
 interface CategoryRowState {
@@ -57,11 +58,11 @@ export class CategoryRow extends React.Component<CategoryRowProps, CategoryRowSt
   }
 
   public componentDidMount() {
-    this.expenseStream = Bacon.combineTemplate({ dates: this.props.datesStr, open: this.openStr });
+    this.expenseStream = Bacon.combineTemplate({ open: this.openStr });
     this.openStr.onValue(open => this.setState({ open }));
     this.unsub = [this.expenseStream, this.openStr];
     this.expenseStream
-      .flatMap(d => d.open ? Bacon.fromPromise(apiConnect.searchExpenses(d.dates.start, d.dates.end, { categoryId: this.props.category.id })) : Bacon.constant([]))
+      .flatMap(d => d.open ? Bacon.fromPromise(apiConnect.searchExpenses(this.props.range.start, this.props.range.end, { categoryId: this.props.category.id })) : Bacon.constant([]))
       .flatMapLatest(f => f)
       .onValue(o => this.setState({ expenses: o }));
     this.unsub.push(state.get('expensesUpdatedStream').onValue(date => reloadStream.push(true)));

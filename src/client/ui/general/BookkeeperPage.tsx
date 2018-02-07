@@ -1,7 +1,7 @@
 import * as React from 'react';
 import TopBar from '../component/TopBar';
-import MonthView from '../expense/MonthView';
-import CategoryView from '../category/CategoryView';
+import RoutedMonthView from '../expense/RoutedMonthView';
+import RoutedCategoryView from '../category/RoutedCategoryView';
 import ExpenseDialog from '../expense/ExpenseDialog';
 import ConfirmationDialog from './ConfirmationDialog';
 import NotificationBar from '../component/NotificationBar';
@@ -44,9 +44,9 @@ export default class BookkeeperPage extends React.Component<PageProps, {}> {
             </TopBar>
             <MainContent>
               <Switch>
-                <Route exact path="/" component={MonthView} />
-                <Route path={expensePagePath} component={MonthView} />
-                <Route path={categoryPagePath} component={CategoryView} />
+                <Route exact path="/" component={RoutedMonthView} />
+                <Route path={expensePagePath} component={RoutedMonthView} />
+                <Route path={categoryPagePath} component={RoutedCategoryView} />
               </Switch>
             </MainContent>
           </div>

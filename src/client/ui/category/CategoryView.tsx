@@ -12,16 +12,20 @@ import { connect } from '../component/BaconConnect';
 import { validSessionE, updateSession } from '../../data/Login';
 import { AddCategoryButton, CategoryDatePicker } from './CategoryTools';
 import { reloadStream, CategoryRow } from './CategoryRow';
+import { History } from 'history';
+import { TypedDateRange, DateRange } from '../../../shared/util/Time';
+import { RangeSelector } from './RangeSelector';
+import { categoriesForYear, categoriesForMonth } from '../../util/Links';
 const debug = require('debug')('bookkeeper:category-view');
 
 
 interface CategoryViewProps {
   categories: Category[];
+  range: TypedDateRange;
+  history: History;
 }
 
 interface CategoryViewState {
-  startDate: Date;
-  endDate: Date;
   categoryExpenses: any;
   categoryTotals: any;
   categoryChartData?: any;
@@ -29,15 +33,9 @@ interface CategoryViewState {
 
 class CategoryView extends React.Component<CategoryViewProps, CategoryViewState> {
 
-  private startDateStr: Bacon.Bus<any, Date>;
-  private endDateStr: Bacon.Bus<any, Date>;
-  private datesStr: any;
   private categoryDialog: CategoryDialog | null = null;
-  private unsub: any[];
 
   public state: CategoryViewState = {
-    startDate: new Date(),
-    endDate: new Date(),
     categoryExpenses: {},
     categoryTotals: {},
   };
@@ -50,7 +48,7 @@ class CategoryView extends React.Component<CategoryViewProps, CategoryViewState>
     this.setState({ categoryChartData: chartData });
   }
 
-  private getCategoryTotals(dates) {
+  private getCategoryTotals(dates: DateRange | null) {
     if (!dates) { return; }
     return apiConnect.getCategoryTotals(dates.start, dates.end).then(t => {
       let totalsMap = {};
@@ -64,7 +62,7 @@ class CategoryView extends React.Component<CategoryViewProps, CategoryViewState>
     })
   }
 
-  private reloadCategories = async (dates) => {
+  private reloadCategories = async (dates: DateRange | null) => {
     const [totals, categories] = await Promise.all([
       this.getCategoryTotals(dates),
       apiConnect.getCategoryList()
@@ -87,72 +85,23 @@ class CategoryView extends React.Component<CategoryViewProps, CategoryViewState>
       .then(c => this.reloadCategories(null));
   }
 
-  public componentDidMount() {
-    const end = moment().endOf('month');
-    const endDate = end.toDate();
-    const startDate = end.clone().startOf('year').toDate();
-
-    this.setState({
-      startDate,
-      endDate,
-      categoryExpenses: {},
-      categoryTotals: {},
-    });
-    this.startDateStr = new Bacon.Bus();
-    this.endDateStr = new Bacon.Bus();
-    this.datesStr = Bacon.combineTemplate({
-      start: this.startDateStr.toProperty(startDate),
-      end: this.endDateStr.toProperty(endDate),
-      reload: reloadStream.toProperty(true)
-    });
-
-    this.unsub = [];
-    this.startDateStr.onValue(startDate => this.setState({ startDate }));
-    this.endDateStr.onValue(endDate => this.setState({ endDate }));
-    this.unsub.push(this.startDateStr, this.endDateStr, this.datesStr);
-    this.datesStr.onValue(this.reloadCategories);
-    this.reloadCategories(this.datesStr);
-
-    this.startDateStr.push(startDate);
-    this.endDateStr.push(endDate);
-  }
-
-  public componentWillUnmount() {
-    unsubscribeAll(this.unsub);
-    this.unsub = [];
-  }
-
-  private TimeSelector = () => {
-    return (
-      <div className="bk-table-row category-table-time-select no-border">
-        <div className="bk-item-half horizontal-padding"><CategoryDatePicker
-          key="start-date"
-          value={this.state.startDate}
-          label="Alku"
-          onChange={d => this.startDateStr.push(d)} />
-        </div>
-        <div className="bk-item-half horizontal-padding"><CategoryDatePicker
-          key="end-date"
-          value={this.state.endDate}
-          label="Loppu"
-          onChange={d => this.endDateStr.push(d)} />
-        </div>
-      </div>
-    );
+  private navigate = (d: Date) => {
+    const path = this.props.range.type === 'year' ? categoriesForYear(d) : categoriesForMonth(d);
+    this.props.history.push(path);
   }
 
   private CategoryTable = ({ categories, categoryTotals, categoryExpenses, categoryChartData }) => {
     return (
       <div className="category-table">
-        <this.TimeSelector />
+        <RangeSelector range={this.props.range} onNavigate={this.navigate}/>
         <CategoryChart
           chartData={categoryChartData} />
         <this.CategoryHeader />
         <div className="category-data-area">
           {categories.map(c => [<CategoryRow key={c.id} category={c} header={true} categoryExpenses={categoryExpenses} categoryTotals={categoryTotals}
-            createCategory={this.createCategory} editCategory={this.editCategory} datesStr={this.datesStr} />]
+            createCategory={this.createCategory} editCategory={this.editCategory} range={this.props.range} />]
             .concat(c.children.map(ch => <CategoryRow key={ch.id} header={false} category={ch} categoryExpenses={categoryExpenses} categoryTotals={categoryTotals}
-              createCategory={this.createCategory} editCategory={this.editCategory} datesStr={this.datesStr} />)))}
+              createCategory={this.createCategory} editCategory={this.editCategory} range={this.props.range} />)))}
         </div>
       </div>
     );
