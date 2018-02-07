@@ -10,23 +10,10 @@ import * as moment from 'moment';
 import { Category } from '../../../shared/types/Session';
 import { connect } from '../component/BaconConnect';
 import { validSessionE, updateSession } from '../../data/Login';
-import { AddCategoryButton } from './CategoryTools';
+import { AddCategoryButton, CategoryDatePicker } from './CategoryTools';
 import { reloadStream, CategoryRow } from './CategoryRow';
 const debug = require('debug')('bookkeeper:category-view');
 
-function MyDatePicker({ value, onChange, label }) {
-  return (
-    <DatePicker
-      value={value}
-      formatDate={d => moment(d).format("D.M.YYYY")}
-      //display="inline"
-      floatingLabelText={label}
-      //floatingLabelFixed={true}
-      fullWidth={true}
-      autoOk={true}
-      onChange={(event, date) => onChange(date)} />
-  );
-}
 
 interface CategoryViewProps {
   categories: Category[];
@@ -138,13 +125,13 @@ class CategoryView extends React.Component<CategoryViewProps, CategoryViewState>
   private TimeSelector = () => {
     return (
       <div className="bk-table-row category-table-time-select no-border">
-        <div className="bk-item-half horizontal-padding"><MyDatePicker
+        <div className="bk-item-half horizontal-padding"><CategoryDatePicker
           key="start-date"
           value={this.state.startDate}
           label="Alku"
           onChange={d => this.startDateStr.push(d)} />
         </div>
-        <div className="bk-item-half horizontal-padding"><MyDatePicker
+        <div className="bk-item-half horizontal-padding"><CategoryDatePicker
           key="end-date"
           value={this.state.endDate}
           label="Loppu"
