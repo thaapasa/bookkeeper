@@ -70,6 +70,7 @@
 *.tmpl text
 *.lst text
 *.prefs text
+.vscode/settings.json text eol=lf
 
 # Enforce specific EOL characters
 
