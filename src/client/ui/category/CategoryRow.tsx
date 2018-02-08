@@ -7,7 +7,7 @@ import ExpenseRow from '../expense/ExpenseRow';
 import { unsubscribeAll } from '../../util/ClientUtil';
 import { CSSProperties } from 'react';
 import { Map } from '../../../shared/util/Util';
-import { Category } from '../../../shared/types/Session';
+import { Category, CategoryAndTotals } from '../../../shared/types/Session';
 import { AddCategoryButton, EditCategoryButton, ToggleButton } from './CategoryTools';
 import { UserExpense } from '../../../shared/types/Expense';
 import { DateRange } from '../../../shared/util/Time';
@@ -31,13 +31,12 @@ interface CategoryRowProps {
   header: boolean;
   createCategory: (p: Category) => void;
   editCategory: (p: Category) => void;
-  categoryTotals: any;
-  categoryExpenses?: any[];
+  categoryTotals: Map<CategoryAndTotals>;
   range: DateRange;
 }
 
 interface CategoryRowState {
-  expenses: any[];
+  expenses: UserExpense[];
   open: boolean;
 }
 
@@ -80,16 +79,17 @@ export class CategoryRow extends React.Component<CategoryRowProps, CategoryRowSt
       onUpdated={e => reloadStream.push(true)} />) :
       <div className="bk-table-row category-table-row"><div className="category-name">Ei kirjauksia</div></div>;
   }
-  /*{this.props.categoryTotals[category.id].expenses} / {this.props.categoryTotals[category.id].income}*/
+
   public render() {
     const category = this.props.category;
     const header = this.props.header;
+    const totals = this.props.categoryTotals['' + category.id];
     return (
       <div className="category-container">
         <div className="bk-table-row category-table-row" style={header ? styles.mainCategory : styles.category}>
           <div className="category-name">{category.name}</div>
-          <div className="category-sum">{header && (this.props.categoryTotals['' + category.id]) ? this.props.categoryTotals['' + category.id].totalExpenses + " / " + this.props.categoryTotals['' + category.id].totalIncome : ""}</div>
-          <div className="category-totals">{(this.props.categoryTotals['' + category.id]) ? this.props.categoryTotals['' + category.id].expenses + " / " + this.props.categoryTotals['' + category.id].income : "0 / 0"}</div>
+          <div className="category-sum">{header && totals ? totals.totalExpenses + ' / ' + totals.totalIncome : ''}</div>
+          <div className="category-totals">{totals ? totals.expenses + ' / ' + totals.income : '0 / 0'}</div>
           <div className="category-tools">
             {header ?
               <AddCategoryButton parent={category} color={colors.white} onAdd={this.props.createCategory} /> : null}

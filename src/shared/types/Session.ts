@@ -1,4 +1,5 @@
 import { DbObject } from './Common';
+import { MoneyLike } from '../util/Money';
 
 export interface Group extends DbObject {
   name: string;
@@ -28,10 +29,10 @@ export interface Category extends DbObject, CategoryData {
 }
 
 export interface CategoryAndTotals extends Category {
-  expenses: any;
-  income: any;
-  totalExpenses: any;
-  totalIncome: any;
+  expenses: MoneyLike;
+  income: MoneyLike;
+  totalExpenses?: MoneyLike;
+  totalIncome?: MoneyLike;
   children: CategoryAndTotals[];
 }
 

@@ -7,17 +7,24 @@ import ExpenseRow from '../expense/ExpenseRow';
 import CategoryChart from './CategoryChart';
 import { unsubscribeAll } from '../../util/ClientUtil';
 import * as moment from 'moment';
-import { Category } from '../../../shared/types/Session';
+import { Category, CategoryAndTotals } from '../../../shared/types/Session';
 import { connect } from '../component/BaconConnect';
 import { validSessionE, updateSession } from '../../data/Login';
 import { AddCategoryButton, CategoryDatePicker } from './CategoryTools';
 import { reloadStream, CategoryRow } from './CategoryRow';
-import { History } from 'history';
+import { History, Action } from 'history';
 import { TypedDateRange, DateRange } from '../../../shared/util/Time';
 import { RangeSelector } from './RangeSelector';
 import { categoriesForYear, categoriesForMonth } from '../../util/Links';
+import { Map } from '../../../shared/util/Util';
+import { MoneyLike } from '../../../shared/util/Money';
 const debug = require('debug')('bookkeeper:category-view');
 
+interface CategoryChartData {
+  categoryId: number;
+  categoryName: string;
+  categoryTotal: MoneyLike;
+}
 
 interface CategoryViewProps {
   categories: Category[];
@@ -26,9 +33,20 @@ interface CategoryViewProps {
 }
 
 interface CategoryViewState {
-  categoryExpenses: any;
-  categoryTotals: any;
+  categoryTotals: Map<CategoryAndTotals>;
   categoryChartData?: any;
+}
+
+function CategoryHeader({ onAdd }: { onAdd: (p?: Category) => void }) {
+  return (
+    <div className="category-table-row category-table-header header no-border">
+      <div className="category-name">Nimi</div>
+      <div className="category-totals">Kulut / Tulot</div>
+      <div className="category-tools">
+        <AddCategoryButton onAdd={onAdd} />
+      </div>
+    </div>
+  );
 }
 
 class CategoryView extends React.Component<CategoryViewProps, CategoryViewState> {
@@ -36,21 +54,26 @@ class CategoryView extends React.Component<CategoryViewProps, CategoryViewState>
   private categoryDialog: CategoryDialog | null = null;
 
   public state: CategoryViewState = {
-    categoryExpenses: {},
     categoryTotals: {},
   };
 
+  public componentDidMount() {
+    this.reloadCategories(this.props.range);
+  }
+
   private formCategoryChartData() {
-    let chartData: any[] = [];
-    this.props.categories.forEach(c => {
-      chartData.push({ categoryId: c.id, categoryName: c.name, categoryTotal: this.state.categoryTotals[c.id] ? this.state.categoryTotals[c.id].totalExpenses : 0 })
-    })
-    this.setState({ categoryChartData: chartData });
+    const categoryChartData = this.props.categories.map(c => ({
+      categoryId: c.id,
+      categoryName: c.name,
+      categoryTotal: this.state.categoryTotals[c.id] ? this.state.categoryTotals[c.id].totalExpenses : 0,
+    }));
+    this.setState({ categoryChartData });
   }
 
   private getCategoryTotals(dates: DateRange | null) {
     if (!dates) { return; }
     return apiConnect.getCategoryTotals(dates.start, dates.end).then(t => {
+      debug('getCategoryTotals', t);
       let totalsMap = {};
       t && t.forEach(t => {
         totalsMap['' + t.id] = t;
@@ -90,30 +113,18 @@ class CategoryView extends React.Component<CategoryViewProps, CategoryViewState>
     this.props.history.push(path);
   }
 
-  private CategoryTable = ({ categories, categoryTotals, categoryExpenses, categoryChartData }) => {
+  private CategoryTable = ({ categories, categoryTotals, categoryChartData }) => {
     return (
       <div className="category-table">
         <RangeSelector range={this.props.range} onNavigate={this.navigate}/>
         <CategoryChart
           chartData={categoryChartData} />
-        <this.CategoryHeader />
+        <CategoryHeader onAdd={this.createCategory} />
         <div className="category-data-area">
-          {categories.map(c => [<CategoryRow key={c.id} category={c} header={true} categoryExpenses={categoryExpenses} categoryTotals={categoryTotals}
+          {categories.map(c => [<CategoryRow key={c.id} category={c} header={true} categoryTotals={categoryTotals}
             createCategory={this.createCategory} editCategory={this.editCategory} range={this.props.range} />]
-            .concat(c.children.map(ch => <CategoryRow key={ch.id} header={false} category={ch} categoryExpenses={categoryExpenses} categoryTotals={categoryTotals}
+            .concat(c.children.map(ch => <CategoryRow key={ch.id} header={false} category={ch} categoryTotals={categoryTotals}
               createCategory={this.createCategory} editCategory={this.editCategory} range={this.props.range} />)))}
-        </div>
-      </div>
-    );
-  }
-
-  private CategoryHeader = () => {
-    return (
-      <div className="category-table-row category-table-header header no-border">
-        <div className="category-name">Nimi</div>
-        <div className="category-totals">Kulut / Tulot</div>
-        <div className="category-tools">
-          <AddCategoryButton onAdd={this.createCategory} />
         </div>
       </div>
     );
@@ -125,7 +136,6 @@ class CategoryView extends React.Component<CategoryViewProps, CategoryViewState>
         <this.CategoryTable
           categories={this.props.categories}
           categoryTotals={this.state.categoryTotals}
-          categoryExpenses={this.state.categoryExpenses}
           categoryChartData={this.state.categoryChartData} />
         <CategoryDialog ref={r => this.categoryDialog = r} categories={this.props.categories} />
       </div>
