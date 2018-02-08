@@ -1,6 +1,4 @@
 import * as React from 'react';
-import * as Bacon from 'baconjs';
-import * as state from '../../data/State';
 import * as colors from '../Colors';
 import * as apiConnect from '../../data/ApiConnect';
 import ExpenseRow from '../expense/ExpenseRow';
@@ -11,6 +9,7 @@ import { Category, CategoryAndTotals } from '../../../shared/types/Session';
 import { AddCategoryButton, EditCategoryButton, ToggleButton } from './CategoryTools';
 import { UserExpense } from '../../../shared/types/Expense';
 import { DateRange } from '../../../shared/util/Time';
+import { Action } from '../../../shared/types/Common';
 const debug = require('debug')('bookkeeper:category-view');
 
 const styles: Map<CSSProperties> = {
@@ -24,8 +23,6 @@ const styles: Map<CSSProperties> = {
   }
 };
 
-export const reloadStream = new Bacon.Bus();
-
 interface CategoryRowProps {
   category: Category;
   header: boolean;
@@ -36,48 +33,45 @@ interface CategoryRowProps {
 }
 
 interface CategoryRowState {
-  expenses: UserExpense[];
   open: boolean;
+  isLoading: boolean;
+  expenses: UserExpense[];
 }
 
-export class CategoryRow extends React.Component<CategoryRowProps, CategoryRowState> {
-
-  private openStr = new Bacon.Bus<any, boolean>();
-  private unsub: any[];
-  private expenseStream: any;
+export default class CategoryRow extends React.Component<CategoryRowProps, CategoryRowState> {
 
   public state: CategoryRowState = {
     expenses: [],
-    open: false
+    isLoading: false,
+    open: false,
   };
 
-  constructor(props: CategoryRowProps) {
-    super(props);
-    this.openStr.push(false);
-  }
-
-  public componentDidMount() {
-    this.expenseStream = Bacon.combineTemplate({ open: this.openStr });
-    this.openStr.onValue(open => this.setState({ open }));
-    this.unsub = [this.expenseStream, this.openStr];
-    this.expenseStream
-      .flatMap(d => d.open ? Bacon.fromPromise(apiConnect.searchExpenses(this.props.range.start, this.props.range.end, { categoryId: this.props.category.id })) : Bacon.constant([]))
-      .flatMapLatest(f => f)
-      .onValue(o => this.setState({ expenses: o }));
-    this.unsub.push(state.get('expensesUpdatedStream').onValue(date => reloadStream.push(true)));
-  }
-
-  public componentWillUnmount() {
-    unsubscribeAll(this.unsub);
+  private reload = () => {
+    if (this.state.open) {
+      this.open();
+    }
   }
 
   private renderCategoryExpenses = (expenses: UserExpense[]) => {
+    if (this.state.isLoading) {
+      return <div className="bk-table-row category-table-row"><div className="category-name">Ladataan...</div></div>
+    }
     return expenses && expenses.length > 0 ? expenses.map(expense => <ExpenseRow
       expense={expense}
       key={"expense-row-" + expense.id}
       addFilter={() => { }}
-      onUpdated={e => reloadStream.push(true)} />) :
+      onUpdated={this.reload} />) :
       <div className="bk-table-row category-table-row"><div className="category-name">Ei kirjauksia</div></div>;
+  }
+
+  private open = async () => {
+    this.setState({ open: true, isLoading: true });
+    const expenses = await apiConnect.searchExpenses(this.props.range.start, this.props.range.end, { categoryId: this.props.category.id });
+    this.setState({ isLoading: false, expenses });
+  }
+
+  private close = () => {
+    this.setState({ open: false, expenses: [] });
   }
 
   public render() {
@@ -96,7 +90,7 @@ export class CategoryRow extends React.Component<CategoryRowProps, CategoryRowSt
             <EditCategoryButton category={category} color={header ? colors.white : null}
               onEdit={this.props.editCategory} />
             <ToggleButton category={category} color={header ? colors.white : null}
-              onToggle={() => this.openStr.push(!this.state.open)}
+              onToggle={this.state.open ? this.close : this.open}
               state={this.state.open} />
           </div>
         </div>

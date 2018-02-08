@@ -70,3 +70,23 @@ export function monthRange(date: DateLike): TypedDateRange {
   const end = m.endOf('month').toDate();
   return { start, end, type: 'month' };
 }
+
+export function compareDates(first: DateLike, second: DateLike): number {
+  if (!first) {
+    return !second ? 0 : -1;
+  }
+  if (!second) { return 1; }
+  const a = toDate(first).getTime();
+  const b = toDate(second).getTime();
+  if (a < b) { return -1; }
+  if (a > b) { return 1; }
+  return 0;
+}
+
+export function compareRanges(a: DateRange, b: DateRange) {
+  if (!a) { return !b ? 0 : -1; }
+  if (!b) { return 1; }
+  const c = compareDates(a.start, b.start);
+  if (c !== 0) { return c; }
+  return compareDates(a.end, b.end);
+}
