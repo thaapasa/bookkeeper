@@ -16,6 +16,14 @@ export function camelCaseObject<T extends object>(o: T): T {
   return r;
 }
 
+export function leftPad(s: string | number, length: number, padding: string = ' '): string {
+  let res = (s || '').toString();
+  while (res.length < length) {
+    res = padding + res;
+  }
+  return res;  
+}
+
 // Returns a random integer between min (included) and max (excluded)
 // Using Math.round() will give you a non-uniform distribution!
 export function getRandomInt(min: number, max: number): number {
