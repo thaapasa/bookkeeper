@@ -8,15 +8,6 @@ html, body {
     outline: none !important;
 }
 
-.user-avatar.unselected {
-    filter: grayscale(100%) opacity(40%);
-}
-.user-avatar.selected {
-    -moz-box-shadow:    0 0 4px 2px #748dac;
-    -webkit-box-shadow: 0 0 4px 2px #748dac;
-    box-shadow:         0 0 4px 2px #748dac;
-}
-
 .tight {
     padding: 0;
     margin: 0;

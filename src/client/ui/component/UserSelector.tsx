@@ -5,16 +5,16 @@ import { CSSProperties } from 'react';
 import { User } from '../../../shared/types/Session';
 import { connect } from './BaconConnect';
 import { validSessionE } from '../../data/Login';
+import styled from 'styled-components';
 
-const styles = {
-  container: {
-    display: 'inline-block',
-  },
-  avatar: {
-    margin: '0 0.2em',
-    verticalAlign: 'top',
-  }
-};
+const Container = styled.div`
+  display: inline-block;
+`;
+
+const StyledUserAvatar = styled(UserAvatar)`
+  margin: 0 0.2em;
+  vertical-align: top;
+`;
 
 interface UserSelectorProps {
   selected: number[];
@@ -35,17 +35,15 @@ export class UserSelector extends React.Component<UserSelectorProps, {}> {
   }
 
   public render() {
-    const style = { ...styles.container, ...this.props.style };
     const users = state.get('users');
-    return <div style={style}>
+    return <Container style={this.props.style}>
       {users.map(u =>
-        <UserAvatar
+        <StyledUserAvatar
           key={u.id}
           userId={u.id}
-          style={styles.avatar}
           className={this.props.selected.includes(u.id) ? 'selected' : 'unselected'}
-          onClick={x => this.switchSelection(u.id)}>{u.firstName.charAt(0)}</UserAvatar>)}
-    </div>
+          onClick={x => this.switchSelection(u.id)}>{u.firstName.charAt(0)}</StyledUserAvatar>)}
+    </Container>
   }
 }
 
