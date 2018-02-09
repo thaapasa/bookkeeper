@@ -26,6 +26,14 @@ const LoginButton = styled(RaisedButton) `
 const Page = styled.div`
   margin: auto;
   text-align: center;
+  background: url(${process.env.PUBLIC_URL || ''}/img/money-bg.jpg);
+  background-size: cover;
+  background-repeat: no-repeat;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 `;
 
 interface LoginPageState {
