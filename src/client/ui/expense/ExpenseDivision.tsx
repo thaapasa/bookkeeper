@@ -119,7 +119,7 @@ export default class ExpenseDivision extends React.Component<ExpenseDivisionProp
       </div>
       {Object.keys(users).map(userId =>
         <div key={userId} className="expense-user">
-          <UserAvatar userId={userId} size={25} style={{ verticalAlign: "middle" }} />
+          <UserAvatar userId={parseInt(userId, 10)} size={25} style={{ verticalAlign: "middle" }} />
           {divisionItem(income ? users[userId].income : users[userId].cost)}
           {divisionItem(income ? users[userId].split : users[userId].benefit)}
           {divisionItem(getBalance(users[userId]))}

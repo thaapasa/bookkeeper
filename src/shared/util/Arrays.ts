@@ -39,3 +39,11 @@ export function mapObject<T extends object>(a: T, f: (v: any, k: string) => any)
   Object.keys(a).map(k => b[k] = f(a[k], k));
   return b as T;
 }
+
+export function toMap<T, K extends keyof T>(arr: T[], keyProp: K): Map<T> {
+  const map: Map<T> = {};
+  for (const v of arr) {
+    map['' + v[keyProp]] = v;
+  }
+  return map;
+}
