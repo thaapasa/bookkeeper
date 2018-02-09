@@ -1,13 +1,14 @@
 {
-    "name": "Kukkaro",
+    "name": "",
+    "short_name": "",
     "icons": [
         {
-            "src": "/android-chrome-192x192.png?v=7knwlGjg3v",
+            "src": "/android-chrome-192x192.png?v=wAOR4r4Mvn",
             "sizes": "192x192",
             "type": "image/png"
         },
         {
-            "src": "/android-chrome-512x512.png?v=7knwlGjg3v",
+            "src": "/android-chrome-512x512.png?v=wAOR4r4Mvn",
             "sizes": "512x512",
             "type": "image/png"
         }
