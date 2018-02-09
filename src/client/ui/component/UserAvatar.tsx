@@ -1,6 +1,5 @@
 import * as React from 'react';
 import Avatar from 'material-ui/Avatar';
-import * as state from '../../data/State';
 import { cyan500, cyan900 } from 'material-ui/styles/colors';
 import { User } from '../../../shared/types/Session';
 import { CSSProperties } from 'react';

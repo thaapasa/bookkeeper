@@ -1,6 +1,5 @@
 import * as React from 'react';
 import UserAvatar from './UserAvatar';
-import * as state from '../../data/State';
 import { CSSProperties } from 'react';
 import { User } from '../../../shared/types/Session';
 import { connect } from './BaconConnect';
@@ -35,9 +34,8 @@ export class UserSelector extends React.Component<UserSelectorProps, {}> {
   }
 
   public render() {
-    const users = state.get('users');
     return <Container style={this.props.style}>
-      {users.map(u =>
+      {this.props.users.map(u =>
         <StyledUserAvatar
           key={u.id}
           userId={u.id}
