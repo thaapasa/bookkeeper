@@ -1,6 +1,10 @@
 import * as React from 'react';
 import UserAvatar from './UserAvatar';
 import * as state from '../../data/State';
+import { CSSProperties } from 'react';
+import { User } from '../../../shared/types/Session';
+import { connect } from './BaconConnect';
+import { validSessionE } from '../../data/Login';
 
 const styles = {
   container: {
@@ -12,9 +16,16 @@ const styles = {
   }
 };
 
-export default class UserSelector extends React.Component<any, any> {
+interface UserSelectorProps {
+  selected: number[];
+  onChange?: (x: number[]) => void;
+  style?: CSSProperties;
+  users: User[];
+}
 
-  private switchSelection = (id) => {
+export class UserSelector extends React.Component<UserSelectorProps, {}> {
+
+  private switchSelection = (id: number) => {
     const oldS = this.props.selected;
     const foundAt = oldS.indexOf(id);
     const newS = foundAt >= 0 ? oldS.slice().filter(i => i !== id) : oldS.slice();
@@ -37,3 +48,5 @@ export default class UserSelector extends React.Component<any, any> {
     </div>
   }
 }
+
+export default connect(validSessionE.map(s => ({ users: s.users })))(UserSelector);

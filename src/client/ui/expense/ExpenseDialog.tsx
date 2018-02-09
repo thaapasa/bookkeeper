@@ -299,7 +299,7 @@ export default class ExpenseDialog extends React.Component<any, any> {
     return <Dialog
       contentClassName="expense-dialog"
       bodyClassName="expense-dialog-body"
-      title={this.state.createNew ? "Uusi kirjaus" : "Muokkaa kirjausta"}
+      title={this.state.createNew ? 'Uusi kirjaus' : 'Muokkaa kirjausta'}
       actions={actions}
       modal={true}
       autoDetectWindowHeight={true}
@@ -308,15 +308,15 @@ export default class ExpenseDialog extends React.Component<any, any> {
       onRequestClose={this.closeDialog}>
       <form onSubmit={this.requestSave} onKeyUp={this.handleKeyPress}>
         <div>
-          <UserAvatar userId={this.state.userId} style={{ verticalAlign: "middle" }} />
-          <div className="expense-sum" style={{ height: "72px", marginLeft: "2em", display: "inline-block", verticalAlign: "middle" }}>
+          <UserAvatar userId={this.state.userId} style={{ verticalAlign: 'middle' }} />
+          <div className="expense-sum" style={{ height: '72px', marginLeft: '2em', display: 'inline-block', verticalAlign: 'middle' }}>
             <SumField value={this.state.sum} errorText={this.state.errors.sum}
               onChange={v => this.inputStreams.sum.push(v)} />
           </div>
-          <div className="expense-confirmed" style={{ marginLeft: "2em", display: "inline-block", verticalAlign: "middle" }}>
+          <div className="expense-confirmed" style={{ marginLeft: '2em', display: 'inline-block', verticalAlign: 'middle' }}>
             <Checkbox label="Alustava" checked={!this.state.confirmed} onCheck={(e, v) => this.inputStreams.confirmed.push(!v)} />
           </div>
-          <div className="expense-type" style={{ marginLeft: "2em", display: "inline-block", verticalAlign: "middle" }}>
+          <div className="expense-type" style={{ marginLeft: '2em', display: 'inline-block', verticalAlign: 'middle' }}>
             <TypeSelector value={this.state.type} onChange={v => this.inputStreams.type.push(v)} />
           </div>
         </div>
@@ -336,11 +336,11 @@ export default class ExpenseDialog extends React.Component<any, any> {
           subcategory={this.state.subcategoryId} subcategories={this.state.subcategories}
           onChangeSubcategory={v => this.inputStreams.subcategoryId.push(v)} />
         <br />
-        <div style={{ display: "flex", flexWrap: "nowrap" }}>
+        <div style={{ display: 'flex', flexWrap: 'nowrap' }}>
           <SourceSelector
-            value={this.state.sourceId} sources={this.sources} style={{ flexGrow: "1" }}
+            value={this.state.sourceId} sources={this.sources} style={{ flexGrow: '1' }}
             onChange={v => this.inputStreams.sourceId.push(v)} />
-          <UserSelector style={{ paddingTop: "0.5em" }} selected={this.state.benefit}
+          <UserSelector style={{ paddingTop: '0.5em' }} selected={this.state.benefit}
             onChange={v => this.inputStreams.benefit.push(v)} />
         </div>
         <br />
