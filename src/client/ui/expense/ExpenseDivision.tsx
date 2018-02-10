@@ -1,5 +1,4 @@
 import * as React from 'react';
-import * as B from 'baconjs';
 import * as colors from '../Colors';
 import * as categories from '../../data/Categories';
 import UserAvatar from '../component/UserAvatar';
@@ -12,8 +11,6 @@ import Money, { MoneyLike } from '../../../shared/util/Money';
 import { RecurringExpensePeriod, ExpenseDivisionItem, UserExpense } from '../../../shared/types/Expense';
 import { Map } from '../../../shared/util/Util';
 import { User, Source } from '../../../shared/types/Session';
-import { connect } from '../component/BaconConnect';
-import { sourceMapE, userMapE } from '../../data/Login';
 import { confirm, notify, notifyError, updateExpenses } from '../../data/State';
 
 const styles = {
@@ -54,20 +51,17 @@ function DetailRow(props: { name: string, value: string }) {
 }
 
 
-interface CommonExpenseDivisionProps {
+interface ExpenseDivisionProps {
   division: ExpenseDivisionItem[];
   loading: boolean;
   expense: UserExpense;
   onModify: (e: UserExpense) => void;
   onDelete: (e: UserExpense) => void;
-};
-
-interface ExpenseDivisionProps extends CommonExpenseDivisionProps {
   user: User;
   source: Source;
-}
+};
 
-class ExpenseDivision extends React.Component<ExpenseDivisionProps, {}> {
+export default class ExpenseDivision extends React.Component<ExpenseDivisionProps, {}> {
 
   public render() {
     if (this.props.loading) { return this.renderLoading(); }
@@ -160,21 +154,3 @@ class ExpenseDivision extends React.Component<ExpenseDivisionProps, {}> {
   }
 
 }
-
-interface BProps {
-  sourceMap: Map<Source>;
-  userMap: Map<User>;
-};
-
-class ExpenseDivisionMapper extends React.Component<CommonExpenseDivisionProps & BProps, {}> {
-  public render() {
-    return (
-      <ExpenseDivision {...this.props}
-        user={this.props.userMap[this.props.expense.userId]}
-        source={this.props.sourceMap[this.props.expense.sourceId]}
-      />
-    );
-  }
-}
-
-export default connect(B.combineTemplate({ sourceMap: sourceMapE, userMap: userMapE }) as B.Property<any, BProps>)(ExpenseDivisionMapper);

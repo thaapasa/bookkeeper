@@ -1,6 +1,6 @@
 import * as React from 'react';
+import * as B from 'baconjs';
 import * as categories from '../../data/Categories';
-import * as state from '../../data/State';
 import * as apiConnect from '../../data/ApiConnect';
 import UserAvatar from '../component/UserAvatar';
 import ActivatableTextField from '../component/ActivatableTextField';
@@ -16,13 +16,23 @@ import { expenseName, money, ExpenseFilterFunction } from './ExpenseHelper';
 import Money, { MoneyLike } from '../../../shared/util/Money';
 import * as moment from 'moment';
 import { Expense, UserExpense, UserExpenseWithDetails } from '../../../shared/types/Expense';
+import { User, Source } from '../../../shared/types/Session';
+import { Map } from 'd3';
+import { connect } from '../component/BaconConnect';
+import { userMapE, sourceMapE } from '../../data/Login';
+import { pickDate, notifyError, notify, confirm, updateExpenses, editExpense } from '../../data/State';
 
 const emptyDivision = [];
 
-interface ExpenseRowProps {
-  expense: UserExpense,
-  onUpdated: (expense: UserExpense) => void,
-  addFilter: (filter: ExpenseFilterFunction, name: string, avater?: string) => void,
+interface CommonExpenseRowProps {
+  expense: UserExpense;
+  onUpdated: (expense: UserExpense) => void;
+  addFilter: (filter: ExpenseFilterFunction, name: string, avater?: string) => void;
+}
+
+interface ExpenseRowProps extends CommonExpenseRowProps {
+  user: User;
+  source: Source;
 }
 
 interface ExpenseRowState {
@@ -30,7 +40,7 @@ interface ExpenseRowState {
   isLoading: boolean;
 };
 
-export default class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState> {
+export class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState> {
   public state: ExpenseRowState = {
     details: null,
     isLoading: false,
@@ -52,15 +62,15 @@ export default class ExpenseRow extends React.Component<ExpenseRowProps, Expense
       this.categoryLink(id);
   }
 
-  private getSource(sourceId) {
-    const source = state.get('sourceMap')[sourceId];
+  private getSource() {
+    const source = this.props.source;
     const content = source.image ?
       <img src={source.image} title={source.name} style={{ maxWidth: '48px', maxHeight: '24px' }} /> :
       (source.abbreviation ? source.abbreviation : source.name);
     const avatar = source.image ? source.image : undefined;
     return (
       <a key={source.id} onClick={
-        () => this.props.addFilter(e => e.sourceId === sourceId, source.name, avatar)}>{content}</a>
+        () => this.props.addFilter(e => e.sourceId === source.id, source.name, avatar)}>{content}</a>
     );
   }
 
@@ -73,11 +83,11 @@ export default class ExpenseRow extends React.Component<ExpenseRowProps, Expense
 
   private editDate = async (expense: UserExpense) => {
     try {
-      const date = await state.pickDate(moment(expense.date).toDate());
+      const date = await pickDate(moment(expense.date).toDate());
       this.updateExpense({ date: time.date(date) });
       return true;
     } catch (e) {
-      state.notifyError('Virhe muutettaessa päivämäärää', e);
+      notifyError('Virhe muutettaessa päivämäärää', e);
     }
   }
 
@@ -91,7 +101,7 @@ export default class ExpenseRow extends React.Component<ExpenseRowProps, Expense
         this.setState({ details, isLoading: false });
       }
       catch (error) {
-        state.notifyError('Ei voitu ladata tietoja kirjaukselle', error);
+        notifyError('Ei voitu ladata tietoja kirjaukselle', error);
         this.setState({ details: null, isLoading: false });
       };
     }
@@ -100,19 +110,19 @@ export default class ExpenseRow extends React.Component<ExpenseRowProps, Expense
   private deleteExpense = async (e: Expense) => {
     try {
       const name = expenseName(e);
-      const b = await state.confirm('Poista kirjaus', `Haluatko varmasti poistaa kirjauksen ${name}?`, { okText: 'Poista' });
+      const b = await confirm<boolean>('Poista kirjaus', `Haluatko varmasti poistaa kirjauksen ${name}?`, { okText: 'Poista' });
       if (!b) { return; }
       await apiConnect.deleteExpense(e.id);
-      state.notify(`Poistettu kirjaus ${name}`);
-      await state.updateExpenses(e.date);
+      notify(`Poistettu kirjaus ${name}`);
+      await updateExpenses(e.date);
     } catch (e) {
-      state.notifyError(`Virhe poistettaessa kirjausta ${name}`, e);
+      notifyError(`Virhe poistettaessa kirjausta ${name}`, e);
     }
   }
 
   private modifyExpense = async (expense: UserExpense) => {
     const e = await apiConnect.getExpense(expense.id);
-    state.editExpense(e);
+    editExpense(e);
   }
 
   public render() {
@@ -134,8 +144,8 @@ export default class ExpenseRow extends React.Component<ExpenseRowProps, Expense
           <UserAvatar userId={expense.userId} size={25} onClick={
             () => this.props.addFilter(
               e => e.userId === expense.userId,
-              state.get("userMap")[expense.userId].firstName,
-              state.get("userMap")[expense.userId].image)
+              this.props.user.firstName,
+              this.props.user.image)
           } />
         </div>
         <div className="expense-detail title" style={{ whiteSpace: "nowrap" }}>
@@ -154,7 +164,7 @@ export default class ExpenseRow extends React.Component<ExpenseRowProps, Expense
           onChange={v => this.updateExpense({ receiver: v })}
         /></div>
         <div className="expense-detail category optional">{this.fullCategoryLink(expense.categoryId)}</div>
-        <div className="expense-detail source optional">{this.getSource(expense.sourceId)}</div>
+        <div className="expense-detail source optional">{this.getSource()}</div>
         <div className="expense-detail sum">{Money.from(expense.sum).format()}</div>
         <div className="expense-detail balance optional" style={{ color: colors.forMoney(expense.userBalance) }} onClick={
           () => Money.zero.equals(expense.userBalance) ?
@@ -180,7 +190,27 @@ export default class ExpenseRow extends React.Component<ExpenseRowProps, Expense
         expense={this.props.expense}
         onDelete={this.deleteExpense}
         onModify={this.modifyExpense}
-        division={this.state.details ? this.state.details.division : emptyDivision} />
+        division={this.state.details ? this.state.details.division : emptyDivision}
+        user={this.props.user}
+        source={this.props.source} />
     );
   }
 }
+
+interface BProps {
+  sourceMap: Map<Source>;
+  userMap: Map<User>;
+};
+
+class ExpenseRowMapper extends React.Component<CommonExpenseRowProps & BProps, {}> {
+  public render() {
+    return (
+      <ExpenseRow {...this.props}
+        user={this.props.userMap[this.props.expense.userId]}
+        source={this.props.sourceMap[this.props.expense.sourceId]}
+      />
+    );
+  }
+}
+
+export default connect(B.combineTemplate({ userMap: userMapE, sourceMap: sourceMapE }) as B.Property<any, BProps>)(ExpenseRowMapper);
