@@ -15,12 +15,11 @@ import ExpenseDivision from './ExpenseDivision'
 import { expenseName, money, ExpenseFilterFunction } from './ExpenseHelper';
 import Money, { MoneyLike } from '../../../shared/util/Money';
 import * as moment from 'moment';
-import { Expense, UserExpense } from '../../../shared/types/Expense';
+import { Expense, UserExpense, UserExpenseWithDetails } from '../../../shared/types/Expense';
 
-// Just a special reference for determining if details are loading
-const LoadingDetails = {};
+const emptyDivision = [];
 
-export function ExpenseHeader(props) {
+export function ExpenseHeader(props: { className?: string }) {
   return (
     <div className={combineClassNames('expense-row bk-table-row header', props.className)} style={{ color: colors.header }}>
       <div className="expense-detail date">Pvm</div>
@@ -43,12 +42,14 @@ interface ExpenseRowProps {
 }
 
 interface ExpenseRowState {
-  details: any,
+  details: UserExpenseWithDetails | null;
+  isLoading: boolean;
 };
 
 export default class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState> {
   public state: ExpenseRowState = {
     details: null,
+    isLoading: false,
   };
 
   private categoryLink(id: number) {
@@ -96,17 +97,19 @@ export default class ExpenseRow extends React.Component<ExpenseRowProps, Expense
     }
   }
 
-  private toggleDetails = (expense, details) => {
-    if (details) {
-      this.setState({ details: null });
+  private toggleDetails = async (expense: UserExpense, currentDetails: UserExpenseWithDetails | null) => {
+    if (currentDetails) {
+      this.setState({ details: null, isLoading: false });
     } else {
-      this.setState({ details: LoadingDetails });
-      apiConnect.getExpense(expense.id)
-        .then(e => this.setState({ details: e }))
-        .catch(e => {
-          state.notifyError('Ei voitu ladata tietoja kirjaukselle', e);
-          this.setState({ details: null });
-        });
+      this.setState({ isLoading: true });
+      try {
+        const details = await apiConnect.getExpense(expense.id);
+        this.setState({ details, isLoading: false });
+      }
+      catch (error) {
+        state.notifyError('Ei voitu ladata tietoja kirjaukselle', error);
+        this.setState({ details: null, isLoading: false });
+      };
     }
   }
 
@@ -123,20 +126,9 @@ export default class ExpenseRow extends React.Component<ExpenseRowProps, Expense
     }
   }
 
-  private modifyExpense = (expense) => {
-    apiConnect.getExpense(expense.id).then(e => state.editExpense(e))
-  }
-
-  private renderDetails(expense: UserExpense, details) {
-    return (details === LoadingDetails) || details ? [
-      <ExpenseDivision
-        loading={details === LoadingDetails}
-        key={'expense-division-' + expense.id}
-        expense={expense}
-        onDelete={this.deleteExpense}
-        onModify={this.modifyExpense}
-        division={details.division} />
-    ] : [];
+  private modifyExpense = async (expense: UserExpense) => {
+    const e = await apiConnect.getExpense(expense.id);
+    state.editExpense(e);
   }
 
   public render() {
@@ -191,7 +183,20 @@ export default class ExpenseRow extends React.Component<ExpenseRowProps, Expense
           <ToolIcon className="optional" title="Poista" onClick={() => this.deleteExpense(expense)} icon={Delete} />
         </div>
       </div>
-      {this.renderDetails(expense, this.state.details)}
+      {this.renderDetails()}
     </div>
+  }
+  
+  private renderDetails() {
+    if (!this.state.isLoading && !this.state.details) { return null; }
+    return (
+      <ExpenseDivision
+        loading={this.state.isLoading}
+        key={'expense-division-' + this.props.expense.id}
+        expense={this.props.expense}
+        onDelete={this.deleteExpense}
+        onModify={this.modifyExpense}
+        division={this.state.details ? this.state.details.division : emptyDivision} />
+    );
   }
 }

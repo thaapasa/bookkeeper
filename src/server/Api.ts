@@ -8,7 +8,7 @@ import { config } from './Config';
 import * as server from './util/ServerUtil';
 import { Validator as V, Schema } from './util/Validator';
 import { Express } from 'express';
-import { Expense, Recurrence, UserExpense, ExpenseCollection } from '../shared/types/Expense';
+import { Expense, Recurrence, UserExpense, ExpenseCollection, UserExpenseWithDetails } from '../shared/types/Expense';
 import { ApiMessage, ApiStatus } from '../shared/types/Api';
 import { Session, SessionBasicInfo, Group, User, Category, CategoryAndTotals, Source } from '../shared/types/Session';
 const debug = require('debug')('bookkeeper:api');
@@ -157,7 +157,7 @@ export function registerAPI(app: Express) {
       session.group.defaultSourceId || 0), true));
 
   // GET /api/expense/[expenseId]
-  app.get('/api/expense/:id', server.processRequest((session, req): Promise<UserExpense> =>
+  app.get('/api/expense/:id', server.processRequest((session, req): Promise<UserExpenseWithDetails> =>
     expenses.getById(session.group.id, session.user.id, parseInt(req.params.id, 10))
       .then(e => expenses.getDivision(e.id).then(division => ({ ...e, division }))), true));
 

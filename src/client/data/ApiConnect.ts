@@ -4,7 +4,7 @@ import { Session, Category, CategoryAndTotals, CategoryData } from '../../shared
 import { Map } from '../../shared/util/Util';
 import { FetchClient } from '../../shared/util/FetchClient';
 import { ApiMessage } from '../../shared/types/Api';
-import { ExpenseCollection, ExpenseStatus, Expense, UserExpense, RecurringExpensePeriod } from '../../shared/types/Expense';
+import { ExpenseCollection, ExpenseStatus, Expense, UserExpense, RecurringExpensePeriod, UserExpenseWithDetails } from '../../shared/types/Expense';
 import { tokenP } from './Login';
 const debug = require('debug')('bookkeeper:api-connect');
 const client = new FetchClient(() => fetch);
@@ -16,7 +16,7 @@ tokenP.onValue(t => {
   currentToken = t;
 });
 
-function mapExpense(e: UserExpense): UserExpense {
+function mapExpense<T extends UserExpense | UserExpenseWithDetails>(e: T): T {
   e.userBenefit = Money.from(e.userBenefit, 0);
   e.userCost = Money.from(e.userCost, 0);
   e.userBalance = Money.from(e.userBalance, 0);
@@ -96,8 +96,8 @@ function toInt(n: number | string) {
   return typeof n === 'number' ? n : parseInt(n, 10);
 }
 
-export function getExpense(id: number | string): Promise<UserExpense> {
-  return get<UserExpense>(`/api/expense/${toInt(id)}`).then(mapExpense);
+export function getExpense(id: number | string): Promise<UserExpenseWithDetails> {
+  return get<UserExpenseWithDetails>(`/api/expense/${toInt(id)}`).then(mapExpense);
 }
 
 export function storeExpense(expense: Expense): Promise<ApiMessage> {

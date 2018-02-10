@@ -4,15 +4,6 @@ import { MoneyLike } from '../util/Money';
 export type ExpenseType = 'expense' | 'income';
 export type ExpenseDivisionType = 'cost' | 'benefit' | 'income' | 'split';
 
-export interface UserExpense extends Expense {
-  userBalance: MoneyLike;
-  userBenefit: MoneyLike;
-  userCost: MoneyLike;
-  userIncome: MoneyLike;
-  userSplit: MoneyLike;
-  userValue: MoneyLike;
-}
-
 export interface ExpenseDivisionItem {
   userId: number;
   type: ExpenseDivisionType;
@@ -38,6 +29,19 @@ export interface Expense extends DbObject {
   template: boolean;
   userId: number;
   division?: ExpenseDivision;
+}
+
+export interface UserExpense extends Expense {
+  userBalance: MoneyLike;
+  userBenefit: MoneyLike;
+  userCost: MoneyLike;
+  userIncome: MoneyLike;
+  userSplit: MoneyLike;
+  userValue: MoneyLike;
+}
+
+export interface UserExpenseWithDetails extends UserExpense {
+  division: ExpenseDivision;
 }
 
 export function isExpense(e: any): e is Expense {
