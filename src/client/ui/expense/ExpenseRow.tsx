@@ -19,22 +19,6 @@ import { Expense, UserExpense, UserExpenseWithDetails } from '../../../shared/ty
 
 const emptyDivision = [];
 
-export function ExpenseHeader(props: { className?: string }) {
-  return (
-    <div className={combineClassNames('expense-row bk-table-row header', props.className)} style={{ color: colors.header }}>
-      <div className="expense-detail date">Pvm</div>
-      <div className="expense-detail user optional" />
-      <div className="expense-detail title">Nimi</div>
-      <div className="expense-detail receiver optional">Kohde</div>
-      <div className="expense-detail category optional">Kategoria</div>
-      <div className="expense-detail source optional">Lähde</div>
-      <div className="expense-detail sum">Summa</div>
-      <div className="expense-detail balance optional">Balanssi</div>
-      <div className="expense-detail tools" />
-    </div>
-  );
-}
-
 interface ExpenseRowProps {
   expense: UserExpense,
   onUpdated: (expense: UserExpense) => void,
@@ -54,9 +38,11 @@ export default class ExpenseRow extends React.Component<ExpenseRowProps, Expense
 
   private categoryLink(id: number) {
     const cat = categories.get(id);
-    return <a key={cat.id} onClick={
-      () => this.props.addFilter(e => e.categoryId === cat.id || categories.get(e.categoryId).parentId === cat.id, categories.getFullName(cat.id))
-    } style={{ color: colors.action }}>{cat.name}</a>
+    return (
+      <a key={cat.id} onClick={
+        () => this.props.addFilter(e => e.categoryId === cat.id || categories.get(e.categoryId).parentId === cat.id, categories.getFullName(cat.id))
+      } style={{ color: colors.action }}>{cat.name}</a>
+    );
   }
 
   private fullCategoryLink(id: number) {
@@ -78,13 +64,11 @@ export default class ExpenseRow extends React.Component<ExpenseRowProps, Expense
     );
   }
 
-  private updateExpense = (data: Partial<UserExpense>) => {
-    apiConnect.getExpense(this.props.expense.id)
-      .then(exp => {
-        const newData: UserExpense = { ...exp, ...data };
-        apiConnect.updateExpense(this.props.expense.id, newData)
-          .then(s => this.props.onUpdated(newData))
-      });
+  private updateExpense = async (data: Partial<UserExpense>) => {
+    const exp = await apiConnect.getExpense(this.props.expense.id);
+    const newData: UserExpense = { ...exp, ...data };
+    await apiConnect.updateExpense(this.props.expense.id, newData);
+    this.props.onUpdated(newData);
   }
 
   private editDate = async (expense: UserExpense) => {
