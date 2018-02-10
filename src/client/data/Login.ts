@@ -1,6 +1,6 @@
 import * as B from 'baconjs';
 import * as state from './State';
-import { Session, Group, User } from '../../shared/types/Session';
+import { Session, Group, User, Source } from '../../shared/types/Session';
 const debug = require('debug')('bookkeeper:login');
 
 interface LoginCredentials {
@@ -16,6 +16,7 @@ export const tokenP = tokenBus.toProperty(null);
 export const sessionP = sessionBus.toProperty(null);
 export const validSessionE: B.EventStream<any, Session> = sessionP.filter(s => s !== null) as any;
 export const userMapE: B.EventStream<any, Map<User>> = validSessionE.map(s => toMap(s.users, 'id'));
+export const sourceMapE: B.EventStream<any, Map<Source>> = validSessionE.map(s => toMap(s.sources, 'id'));
 
 import * as apiConnect from './ApiConnect';
 import { Map } from '../../shared/util/Util';
