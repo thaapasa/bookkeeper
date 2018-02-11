@@ -18,8 +18,8 @@ import { unsubscribeAll } from '../../util/ClientUtil';
 import { stopEventPropagation } from '../../util/ClientUtil';
 import * as moment from 'moment';
 import { splitByShares, negateDivision } from '../../../shared/util/Splitter';
-import { Category, Source, CategoryData } from 'shared/types/Session';
-import { UserExpense, ExpenseType } from 'shared/types/Expense';
+import { Category, Source, CategoryData, Group, User } from 'shared/types/Session';
+import { UserExpense, ExpenseType, UserExpenseWithDetails } from 'shared/types/Expense';
 import { DateLike, toDate } from '../../../shared/util/Time';
 import { Map } from 'shared/util/Util';
 import { connect } from 'client/ui/component/BaconConnect';
@@ -29,27 +29,8 @@ const debug = require('debug')('bookkeeper:expense-dialog');
 
 type CategoryInfo = Pick<Category, 'name' | 'id'>;
 
-function findParentCategory(categoryId) {
-  const map = state.get("categoryMap");
-  let current = map[categoryId];
-  while (current && current.parentId > 0) {
-    current = map[current.parentId];
-  }
-  return current ? current.id : undefined;
-}
-
 function errorIf(condition, error) {
   return condition ? error : undefined;
-}
-
-function getDefaultSourceId() {
-  return state.get("group").defaultSourceId;
-}
-
-function getDefaultSourceUsers() {
-  const sId = getDefaultSourceId();
-  const source = state.get("sourceMap")[sId];
-  return source && source.users.map(u => u.userId) || [state.get("user").id];
 }
 
 /*
@@ -59,23 +40,19 @@ function getDefaultSourceUsers() {
  * validate: (value) => error or undefined; check if parsed value is valid or not
  */
 const fields = {
-  'title': { default: '', validate: v => errorIf(v.length < 1, 'Nimi puuttuu') },
-  'sourceId': { default: getDefaultSourceId, validate: v => errorIf(!v, 'Lähde puuttuu') },
-  'categoryId': { default: 0, read: (e) => findParentCategory(e.categoryId), validate: v => errorIf(!v, 'Kategoria puuttuu') },
-  'subcategoryId': { default: 0, read: (e) => e.categoryId },
-  'receiver': { default: '', validate: v => errorIf(v.length < 1, 'Kohde puuttuu') },
-  'sum': { default: '', parse: v => v.replace(/,/, '.'), validate: v => errorIf(v.length == 0, 'Summa puuttuu') || errorIf(v.match(/^[0-9]+([.][0-9]{1,2})?$/) == null, 'Summa on virheellinen') },
-  'userId': { default: () => state.get('user').id, read: (e) => e.userId },
-  'date': { default: () => moment().toDate(), read: (e) => time.fromDate(e.date).toDate() },
-  'benefit': {
-    default: getDefaultSourceUsers,
-    read: (e) => e.division.filter(d => d.type === (e.type === 'expense' ? 'benefit' : 'split')).map(d => d.userId),
-    validate: (v) => errorIf(v.length < 1, 'Jonkun pitää hyötyä')
-  },
-  'description': { default: '', read: (e) => e.description || '' },
-  'id': { default: undefined, read: e => e ? e.id : undefined },
-  'confirmed': { default: true },
-  'type': { default: 'expense' },
+  'title': { validate: v => errorIf(v.length < 1, 'Nimi puuttuu') },
+  'sourceId': { validate: v => errorIf(!v, 'Lähde puuttuu') },
+  'categoryId': { validate: v => errorIf(!v, 'Kategoria puuttuu') },
+  'subcategoryId': { },
+  'receiver': { validate: v => errorIf(v.length < 1, 'Kohde puuttuu') },
+  'sum': { parse: v => v.replace(/,/, '.'), validate: v => errorIf(v.length == 0, 'Summa puuttuu') || errorIf(v.match(/^[0-9]+([.][0-9]{1,2})?$/) == null, 'Summa on virheellinen') },
+  'userId': { },
+  'date': { },
+  'benefit': { validate: (v) => errorIf(v.length < 1, 'Jonkun pitää hyötyä') },
+  'description': { },
+  'id': { },
+  'confirmed': { },
+  'type': { },
 };
 
 const defaultCategory: CategoryInfo[] = [{ id: 0, name: 'Kategoria' }];
@@ -130,13 +107,15 @@ function calculateDivision(expense, sum) {
 
 interface ExpenseDialogProps {
   createNew: boolean;
-  original: UserExpense | null;
+  original: UserExpenseWithDetails | null;
   sources: Source[];
   categories: Category[];
   sourceMap: Map<Source>;
   categorySource: CategoryData[];
   categoryMap: Map<Category>;
   onClose: () => void;
+  group: Group;
+  user: User;
 }
 
 interface ExpenseDialogState {
@@ -157,33 +136,54 @@ interface ExpenseDialogState {
   valid: boolean;
 }
 
-function getDefaultState(): ExpenseDialogState {
-  return {
-    title: '',
-    sourceId: 0,
-    categoryId: 0,
-    subcategoryId: 0,
-    receiver: '',
-    sum: '',
-    userId: 0,
-    date: new Date(),
-    benefit: [],
-    description: '',
-    confirmed: true,
-    type: 'expense',
-    subcategories: [],
-    errors: {},
-    valid: false,
-  };
-}
-
 export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDialogState> {
 
   private saveLock: B.Bus<any, boolean>;
   private inputStreams: Map<B.Bus<any, any>> = {};
   private submitStream: B.Bus<any, true>;
   private unsub: any[] = [];
-  public state = getDefaultState();
+  public state = this.getDefaultState(null);
+
+  private getDefaultSourceId(): number | undefined {
+    return this.props.group.defaultSourceId!;
+  }
+
+  private getDefaultSourceUsers(): number[] {
+    const sId = this.getDefaultSourceId();
+    const source = sId && this.props.sourceMap[sId];
+    return source && source.users.map(u => u.userId) || [this.props.user.id];
+  }
+
+  private findParentCategory(categoryId: number): number | undefined {
+    const map = this.props.categoryMap;
+    let current = map[categoryId];
+    while (current && current.parentId && current.parentId > 0) {
+      current = map[current.parentId];
+    }
+    return current ? current.id : undefined;
+  }
+
+  private getDefaultState(original: UserExpenseWithDetails | null): ExpenseDialogState {
+    const e = original;
+    return {
+      title: e ? e.title : '',
+      sourceId: e ? e.sourceId : this.getDefaultSourceId() || 0,
+      categoryId: e && this.findParentCategory(e.categoryId) || 0,
+      subcategoryId: e ? e.categoryId : 0,
+      receiver: e ? e.receiver : '',
+      sum: e ? e.sum.toString() : '',
+      userId: e ? e.userId : this.props.user.id,
+      date: e ? toDate(e.date) : new Date(),
+      benefit: e ? e.division.filter(d => d.type === (e.type === 'expense' ? 'benefit' : 'split')).map(d => d.userId) : this.getDefaultSourceUsers(),
+      description: e && e.description || '',
+      confirmed: e ? e.confirmed : true,
+      type: e ? e.type : 'expense',
+      subcategories: [],
+      errors: {},
+      valid: false,
+    };
+  }
+
 
   public componentDidMount() {
     this.saveLock = new B.Bus<any, boolean>();
@@ -229,21 +229,8 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDi
     unsubscribeAll(this.unsub);
   }
 
-  public componentWillReceiveProps(nextProps) {
-    const o = nextProps.original;
-    this.setState(o ? {
-      title: o.title,
-      sourceId: o.sourceId,
-      categoryId: o.categoryId,
-      subcategoryId: o.categoryId,
-      receiver: o.receiver,
-      sum: o.sum.toString(),
-      userId: o.userId,
-      date: toDate(o.date),
-      description: o.description || '',
-      confirmed: o.confirmed,
-      type: o.type,
-    } : getDefaultState());
+  public componentWillReceiveProps(nextProps: ExpenseDialogProps) {
+    this.setState(this.getDefaultState(nextProps.original));
   }
 
   private requestSave = (event) => {
@@ -383,11 +370,15 @@ interface BProps {
   sourceMap: Map<Source>;
   categorySource: CategoryData[];
   categoryMap: Map<Category>;
+  group: Group;
+  user: User;
 }
 
 const ConnectedExpenseDialog = connect(B.combineTemplate({
   sources: validSessionE.map(s => s.sources),
   categories: validSessionE.map(s => s.categories),
+  user: validSessionE.map(s => s.user),
+  group: validSessionE.map(s => s.group),
   sourceMap: sourceMapE,
   categorySource: categoryDataSourceE,
   categoryMap: categoryMapE,
@@ -395,7 +386,7 @@ const ConnectedExpenseDialog = connect(B.combineTemplate({
 
 interface ExpenseDialogListenerState {
   open: boolean;
-  original: UserExpense | null;
+  original: UserExpenseWithDetails | null;
 }
 
 export default class ExpenseDialogListener extends React.Component<{}, ExpenseDialogListenerState> {
@@ -415,7 +406,7 @@ export default class ExpenseDialogListener extends React.Component<{}, ExpenseDi
     unsubscribeAll(this.unsub);
   }
 
-  private handleOpen = (original: UserExpense | null) => {
+  private handleOpen = (original: UserExpenseWithDetails | null) => {
     debug('Open expense', original);
     this.setState({ open: true, original });
   }
