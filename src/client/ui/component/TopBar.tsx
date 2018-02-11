@@ -1,14 +1,13 @@
 import * as React from 'react';
-import * as B from 'baconjs';
 import UserAvatar from './UserAvatar';
 import RaisedButton from 'material-ui/RaisedButton';
 import IconButton from 'material-ui/IconButton';
 import { Toolbar, ToolbarGroup, ToolbarTitle } from 'material-ui/Toolbar';
-import * as state from '../../data/State';
 import * as colors from '../Colors';
 import { logout, sessionP, getTitle, validSessionE } from '../../data/Login';
 import { User, Group } from '../../../shared/types/Session';
 import { connect } from './BaconConnect';
+import { createExpense } from '../../data/State';
 
 const buttonStyle = { float: 'right' };
 
@@ -18,10 +17,6 @@ interface TopBarProps {
 }
 
 class TopBar extends React.Component<TopBarProps, {}> {
-
-  private handleClick = () => {
-    state.editExpense(undefined);
-  }
 
   public render() {
     return (
@@ -33,7 +28,7 @@ class TopBar extends React.Component<TopBarProps, {}> {
           {this.props.children}
         </ToolbarGroup>
         <ToolbarGroup style={{ align: 'right' }}>
-          <RaisedButton label="Kirjaa" primary={true} style={buttonStyle} onClick={this.handleClick} />
+          <RaisedButton label="Kirjaa" primary={true} style={buttonStyle} onClick={createExpense} />
           <UserAvatar userId={this.props.user.id} />
           <IconButton iconClassName="material-icons" iconStyle={{ color: colors.tool }} onClick={logout}>exit_to_app</IconButton>
         </ToolbarGroup>

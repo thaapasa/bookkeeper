@@ -5,12 +5,8 @@ import FlatButton from 'material-ui/FlatButton';
 import UserSelector from '../component/UserSelector';
 import Checkbox from 'material-ui/Checkbox';
 import UserAvatar from '../component/UserAvatar';
-import * as arrays from '../../../shared/util/Arrays';
 import Money, { MoneyLike } from '../../../shared/util/Money';
-import * as categories from '../../data/Categories';
 import * as apiConnect from '../../data/ApiConnect';
-import * as state from '../../data/State';
-import * as time from '../../../shared/util/Time';
 import { KeyCodes } from '../../util/Io'
 import { SumField, TypeSelector, TitleField, CategorySelector, SourceSelector, DateField, ReceiverField, DescriptionField } from './ExpenseDialogComponents';
 import { expenseName } from './ExpenseHelper';
@@ -20,11 +16,14 @@ import * as moment from 'moment';
 import { splitByShares, negateDivision } from '../../../shared/util/Splitter';
 import { Category, Source, CategoryData, Group, User } from 'shared/types/Session';
 import { UserExpense, ExpenseType, UserExpenseWithDetails } from 'shared/types/Expense';
-import { DateLike, toDate } from '../../../shared/util/Time';
+import { DateLike, toDate, formatDate } from '../../../shared/util/Time';
 import { Map } from 'shared/util/Util';
 import { connect } from 'client/ui/component/BaconConnect';
 import { validSessionE, sourceMapE } from 'client/data/Login';
-import { categoryDataSourceE, categoryMapE } from '../../data/Categories';
+import { categoryDataSourceP, categoryMapE, isSubcategoryOf } from '../../data/Categories';
+import { Action } from 'shared/types/Common';
+import { notify, notifyError, expenseDialogE, updateExpenses } from '../../data/State';
+import { sortAndCompareElements } from 'shared/util/Arrays';
 const debug = require('debug')('bookkeeper:expense-dialog');
 
 type CategoryInfo = Pick<Category, 'name' | 'id'>;
@@ -67,20 +66,6 @@ function initValue(name, expense?: any) {
   return typeof convert === "function" ? convert(expense) : expense[name];
 }
 
-function calculateCost(sum, sourceId, benefit) {
-  const sourceUsers = state.get("sourceMap")[sourceId].users;
-  const sourceUserIds = sourceUsers.map(s => s.userId);
-  const benefitUserIds = benefit.map(b => b.userId);
-  if (arrays.sortAndCompareElements(sourceUserIds, benefitUserIds)) {
-    // Create cost based on benefit calculation
-    debug("Source has same users than who benefit; creating benefit based on cost");
-    return negateDivision(benefit);
-  }
-  // Calculate cost manually
-  debug("Calculating cost by source users");
-  return negateDivision(splitByShares(sum, sourceUsers));
-}
-
 function allTrue(...args: boolean[]): boolean {
   return args.reduce((a, b) => a && b, true);
 }
@@ -93,18 +78,6 @@ function fixItem(type) {
   }
 }
 
-function calculateDivision(expense, sum) {
-  if (expense.type === "expense") {
-    const benefit = splitByShares(sum, expense.benefit.map(id => ({ userId: id, share: 1 })));
-    const cost = calculateCost(sum, expense.sourceId, benefit);
-    return benefit.map(fixItem("benefit")).concat(cost.map(fixItem("cost")));
-  } else {
-    const income = [{ userId: expense.userId, sum: sum }];
-    const split = negateDivision(splitByShares(sum, expense.benefit.map(id => ({ userId: id, share: 1 }))));
-    return income.map(fixItem("income")).concat(split.map(fixItem("split")));
-  }
-}
-
 interface ExpenseDialogProps {
   createNew: boolean;
   original: UserExpenseWithDetails | null;
@@ -113,7 +86,8 @@ interface ExpenseDialogProps {
   sourceMap: Map<Source>;
   categorySource: CategoryData[];
   categoryMap: Map<Category>;
-  onClose: () => void;
+  onClose: Action;
+  onExpensesUpdated: (date: Date) => void;
   group: Group;
   user: User;
 }
@@ -184,6 +158,32 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDi
     };
   }
 
+  private calculateCost(sum, sourceId, benefit) {
+    const sourceUsers = this.props.sourceMap[sourceId].users;
+    const sourceUserIds = sourceUsers.map(s => s.userId);
+    const benefitUserIds = benefit.map(b => b.userId);
+    if (sortAndCompareElements(sourceUserIds, benefitUserIds)) {
+      // Create cost based on benefit calculation
+      debug('Source has same users than who benefit; creating benefit based on cost');
+      return negateDivision(benefit);
+    } else {
+      // Calculate cost manually
+      debug('Calculating cost by source users');
+      return negateDivision(splitByShares(sum, sourceUsers));
+    }
+  }
+
+  private calculateDivision(expense, sum) {
+    if (expense.type === 'expense') {
+      const benefit = splitByShares(sum, expense.benefit.map(id => ({ userId: id, share: 1 })));
+      const cost = this.calculateCost(sum, expense.sourceId, benefit);
+      return benefit.map(fixItem('benefit')).concat(cost.map(fixItem('cost')));
+    } else {
+      const income = [{ userId: expense.userId, sum: sum }];
+      const split = negateDivision(splitByShares(sum, expense.benefit.map(id => ({ userId: id, share: 1 }))));
+      return income.map(fixItem('income')).concat(split.map(fixItem('split')));
+    }
+  }
 
   public componentDidMount() {
     this.saveLock = new B.Bus<any, boolean>();
@@ -211,7 +211,7 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDi
       this.setState({ subcategories: defaultSubcategory.concat(id ? this.props.categoryMap[id].children || [] : []) });
     });
     B.combineAsArray(values.categoryId, values.subcategoryId).onValue(([id, subId]) => {
-      if (subId > 0 && !categories.isSubcategoryOf(subId, id)) { this.inputStreams.subcategoryId.push(0); }
+      if (subId > 0 && !isSubcategoryOf(subId, id, this.props.categoryMap)) { this.inputStreams.subcategoryId.push(0); }
     });
     values.sourceId.onValue(v => this.inputStreams.benefit.push(this.props.sourceMap[v].users.map(u => u.userId)));
 
@@ -239,14 +239,14 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDi
     event.stopPropagation();
   }
 
-  private saveExpense = (expense) => {
-    debug('Save', expense);
+  private saveExpense = async (expense) => {
     const createNew = !expense.id;
+    debug(createNew ? 'Create new expense' : 'save expense', expense);
     const sum = Money.from(expense.sum);
-    const division = calculateDivision(expense, sum);
+    const division = this.calculateDivision(expense, sum);
     const data = Object.assign({}, expense, {
       division: division,
-      date: time.date(expense.date),
+      date: formatDate(expense.date),
       categoryId: expense.subcategoryId ? expense.subcategoryId : expense.categoryId,
     });
 
@@ -255,19 +255,17 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDi
     delete data.allValid;
     const name = expenseName(data);
     this.saveLock.push(true);
-    (createNew ? apiConnect.storeExpense(data) : apiConnect.updateExpense(expense.id, data))
-      .then(e => {
-        this.saveLock.push(false);
-        state.get('expensesUpdatedStream').push(expense.date);
-        state.notify(`${createNew ? 'Tallennettu' : 'Päivitetty'} ${name}`);
-        this.props.onClose();
-        return null;
-      })
-      .catch(e => {
-        this.saveLock.push(false);
-        state.notifyError(`Virhe ${createNew ? 'tallennettaessa' : 'päivitettäessä'} kirjausta ${name}`, e);
-        return null;
-      });
+    try {
+      await createNew ? apiConnect.storeExpense(data) : apiConnect.updateExpense(expense.id, data);
+      this.props.onExpensesUpdated(expense.date);
+      notify(`${createNew ? 'Tallennettu' : 'Päivitetty'} ${name}`);
+      this.props.onClose();
+    } catch (error) {
+      notifyError(`Virhe ${createNew ? 'tallennettaessa' : 'päivitettäessä'} kirjausta ${name}`, error);
+    } finally {
+    }
+    this.saveLock.push(false);
+    return null;
   }
 
   private selectCategory = (id) => {
@@ -380,7 +378,7 @@ const ConnectedExpenseDialog = connect(B.combineTemplate({
   user: validSessionE.map(s => s.user),
   group: validSessionE.map(s => s.group),
   sourceMap: sourceMapE,
-  categorySource: categoryDataSourceE,
+  categorySource: categoryDataSourceP,
   categoryMap: categoryMapE,
 }) as B.Property<any, BProps>)(ExpenseDialog);
 
@@ -399,16 +397,28 @@ export default class ExpenseDialogListener extends React.Component<{}, ExpenseDi
   };
 
   public componentDidMount() {
-    this.unsub.push(state.get('expenseDialogStream').onValue(e => this.handleOpen(e)));
+    this.unsub.push(expenseDialogE.onValue(e => this.handleOpen(e)));
   }
 
   public componentWillUnmount() {
     unsubscribeAll(this.unsub);
+    this.unsub = [];
   }
 
-  private handleOpen = (original: UserExpenseWithDetails | null) => {
-    debug('Open expense', original);
-    this.setState({ open: true, original });
+  private onExpensesUpdated = (date: Date) => {
+    updateExpenses(date);
+  }
+
+  private handleOpen = async (expenseId: number | null) => {
+    if (expenseId) {
+      debug('Edit expense', expenseId);
+      this.setState({ open: false, original: null });
+      const original = await apiConnect.getExpense(expenseId);
+      this.setState({ open: true, original });
+    } else {
+      debug('Create new expense');
+      this.setState({ open: true, original: null });
+    }
   }
 
   private closeDialog = () => {
@@ -419,7 +429,7 @@ export default class ExpenseDialogListener extends React.Component<{}, ExpenseDi
 
   public render() {
     return this.state.open ?
-      <ConnectedExpenseDialog {...this.state} createNew={!this.state.original} onClose={this.closeDialog} /> :
+      <ConnectedExpenseDialog {...this.state} onExpensesUpdated={this.onExpensesUpdated} createNew={!this.state.original} onClose={this.closeDialog} /> :
       null;
   }
 }

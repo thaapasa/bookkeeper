@@ -62,8 +62,6 @@ loginBus.onValue(session => {
     clearLoginData();
     return;
   }
-  state.init();
-  state.setDataFromSession(session);
   if (session && session.refreshToken) {
     localStorage.setItem(refreshTokenKey, session.refreshToken);
   } else {

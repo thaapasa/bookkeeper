@@ -1,6 +1,5 @@
 import * as React from 'react';
 import * as B from 'baconjs';
-import * as categories from '../../data/Categories';
 import * as apiConnect from '../../data/ApiConnect';
 import UserAvatar from '../component/UserAvatar';
 import ActivatableTextField from '../component/ActivatableTextField';
@@ -10,17 +9,18 @@ import * as colors from '../Colors';
 import { PlainReceiverField } from './ExpenseDialogComponents';
 import { combineClassNames } from '../../util/ClientUtil';
 import * as arrays from '../../../shared/util/Arrays';
-import * as time from '../../../shared/util/Time';
 import ExpenseDivision from './ExpenseDivision'
 import { expenseName, money, ExpenseFilterFunction } from './ExpenseHelper';
 import Money, { MoneyLike } from '../../../shared/util/Money';
 import * as moment from 'moment';
 import { Expense, UserExpense, UserExpenseWithDetails } from '../../../shared/types/Expense';
-import { User, Source } from '../../../shared/types/Session';
-import { Map } from 'd3';
+import { User, Source, Category } from '../../../shared/types/Session';
 import { connect } from '../component/BaconConnect';
 import { userMapE, sourceMapE } from '../../data/Login';
 import { pickDate, notifyError, notify, confirm, updateExpenses, editExpense } from '../../data/State';
+import { categoryMapE, getFullCategoryName } from '../../data/Categories';
+import { Map } from 'shared/util/Util';
+import { toDate, formatDate } from 'shared/util/Time';
 
 const emptyDivision = [];
 
@@ -33,6 +33,8 @@ interface CommonExpenseRowProps {
 interface ExpenseRowProps extends CommonExpenseRowProps {
   user: User;
   source: Source;
+  fullCategoryName: string;
+  categoryMap: Map<Category>
 }
 
 interface ExpenseRowState {
@@ -47,16 +49,16 @@ export class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState
   };
 
   private categoryLink(id: number) {
-    const cat = categories.get(id);
+    const cat = this.props.categoryMap[id];
     return (
       <a key={cat.id} onClick={
-        () => this.props.addFilter(e => e.categoryId === cat.id || categories.get(e.categoryId).parentId === cat.id, categories.getFullName(cat.id))
+        () => this.props.addFilter(e => e.categoryId === cat.id || this.props.categoryMap[e.categoryId].parentId === cat.id, getFullCategoryName(cat.id, this.props.categoryMap))
       } style={{ color: colors.action }}>{cat.name}</a>
     );
   }
 
   private fullCategoryLink(id: number) {
-    const cat = categories.get(id);
+    const cat = this.props.categoryMap[id];
     return cat.parentId ?
       [this.categoryLink(cat.parentId), ' - ', this.categoryLink(id)] :
       this.categoryLink(id);
@@ -84,7 +86,7 @@ export class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState
   private editDate = async (expense: UserExpense) => {
     try {
       const date = await pickDate(moment(expense.date).toDate());
-      this.updateExpense({ date: time.date(date) });
+      this.updateExpense({ date: formatDate(date) });
       return true;
     } catch (e) {
       notifyError('Virhe muutettaessa päivämäärää', e);
@@ -114,7 +116,7 @@ export class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState
       if (!b) { return; }
       await apiConnect.deleteExpense(e.id);
       notify(`Poistettu kirjaus ${name}`);
-      await updateExpenses(e.date);
+      await updateExpenses(toDate(e.date));
     } catch (e) {
       notifyError(`Virhe poistettaessa kirjausta ${name}`, e);
     }
@@ -122,7 +124,7 @@ export class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState
 
   private modifyExpense = async (expense: UserExpense) => {
     const e = await apiConnect.getExpense(expense.id);
-    editExpense(e);
+    editExpense(e.id);
   }
 
   public render() {
@@ -192,7 +194,8 @@ export class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState
         onModify={this.modifyExpense}
         division={this.state.details ? this.state.details.division : emptyDivision}
         user={this.props.user}
-        source={this.props.source} />
+        source={this.props.source}
+        fullCategoryName={this.props.fullCategoryName} />
     );
   }
 }
@@ -200,6 +203,7 @@ export class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState
 interface BProps {
   sourceMap: Map<Source>;
   userMap: Map<User>;
+  categoryMap: Map<Category>;
 };
 
 class ExpenseRowMapper extends React.Component<CommonExpenseRowProps & BProps, {}> {
@@ -208,9 +212,10 @@ class ExpenseRowMapper extends React.Component<CommonExpenseRowProps & BProps, {
       <ExpenseRow {...this.props}
         user={this.props.userMap[this.props.expense.userId]}
         source={this.props.sourceMap[this.props.expense.sourceId]}
+        fullCategoryName={getFullCategoryName(this.props.expense.categoryId, this.props.categoryMap)}
       />
     );
   }
 }
 
-export default connect(B.combineTemplate({ userMap: userMapE, sourceMap: sourceMapE }) as B.Property<any, BProps>)(ExpenseRowMapper);
+export default connect(B.combineTemplate({ userMap: userMapE, sourceMap: sourceMapE, categoryMap: categoryMapE }) as B.Property<any, BProps>)(ExpenseRowMapper);

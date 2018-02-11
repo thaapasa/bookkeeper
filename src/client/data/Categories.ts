@@ -1,7 +1,6 @@
-import * as state from './State';
 import * as B from 'baconjs';
 import { flatten, toMap } from '../../shared/util/Arrays';
-import { Category } from '../../shared/types/Session';
+import { Category, Session } from '../../shared/types/Session';
 import { validSessionE } from 'client/data/Login';
 import { Map } from 'shared/util/Util';
 
@@ -10,34 +9,38 @@ export interface CategoryData {
   text: string;
 };
 
-export function getFullName(categoryId: number): string {
+export function getFullCategoryName(categoryId: number, categoryMap: Map<Category>): string {
   let categoryString = '';
-  const category = state.get('categoryMap')[categoryId];
+  const category = categoryMap[categoryId];
   if (category.parentId) {
-    categoryString += getFullName(category.parentId) + ' - ';
+    categoryString += getFullCategoryName(category.parentId, categoryMap) + ' - ';
   }
   categoryString += category.name;
   return categoryString;
 }
 
-export function get(categoryId): Category {
-  return state.get('categoryMap')[categoryId];
-}
-
-function catToDataSource(arr: any[]): any[] {
-  return arr ? flatten(arr.map(c => ([{ value: c.id, text: getFullName(c.id) }].concat(catToDataSource(c.children))))) :
+function catToDataSource(arr: Category[], categoryMap: Map<Category>): CategoryData[] {
+  return arr ? flatten(arr.map(c => ([{ value: c.id, text: getFullCategoryName(c.id, categoryMap) }].concat(catToDataSource(c.children, categoryMap))))) :
     [];
 }
 
-export const categoryDataSourceE: B.EventStream<any, CategoryData[]> = validSessionE.map(s => catToDataSource(s.categories));
-export const categoryMapE: B.EventStream<any, Map<Category>> = validSessionE.map(s => toMap(s.categories, 'id'));
-
-export function getDataSource() {
-  return catToDataSource(state.get('categories'));
+function addToMap(arr: Category[], map: Map<Category>) {
+  for (const c of arr) {
+    map[c.id] = c;
+    if (c.children) { addToMap(c.children, map); }
+  }
 }
 
-export function isSubcategoryOf(subId: number, parentId: number): boolean {
-  const map = state.get('categoryMap');
-  const sub = map[subId];
+function toCategoryMap(arr: Category[]): Map<Category> {
+  const map: Map<Category> = {};
+  addToMap(arr, map);
+  return map;
+}
+
+export const categoryMapE: B.EventStream<any, Map<Category>> = validSessionE.map(s => toCategoryMap(s.categories));
+export const categoryDataSourceP: B.Property<any, CategoryData[]> = B.combineWith((s: Session, map: Map<Category>) => catToDataSource(s.categories, map), validSessionE, categoryMapE);
+
+export function isSubcategoryOf(subId: number, parentId: number, categoryMap: Map<Category>): boolean {
+  const sub = categoryMap[subId];
   return sub && sub.parentId === parentId;
 }

@@ -19,7 +19,7 @@ export function toDate(d: DateLike): Date {
 }
 
 const datePattern = 'YYYY-MM-DD';
-export function date(m: any): string {
+export function formatDate(m: any): string {
   const mom = moment.isMoment(m) ? m : moment(m);
   return mom.format(datePattern);
 }

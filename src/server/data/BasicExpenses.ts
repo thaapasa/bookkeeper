@@ -65,7 +65,7 @@ function mapExpense(e: UserExpense): UserExpense {
 function countTotalBetween(tx: DbAccess) {
   return async (groupId: number, userId: number, startDate: string | Moment, endDate: string | Moment): Promise<ExpenseStatus> => {
     return await tx.queryObject('expenses.count_total_between',
-      countTotalSelect, [userId, groupId, time.date(startDate), time.date(endDate)]) as ExpenseStatus;
+      countTotalSelect, [userId, groupId, time.formatDate(startDate), time.formatDate(endDate)]) as ExpenseStatus;
   };
 }
 

@@ -1,15 +1,15 @@
 import { db, DbAccess } from './Db';
 import * as moment from 'moment';
-import * as time from '../../shared/util/Time';
 import { Validator } from '../util/Validator';
 import expenses from './BasicExpenses';
 import { RecurringExpensePeriod, Recurrence, ExpenseDivisionItem, Expense } from '../../shared/types/Expense';
 import { Moment } from 'moment';
 import { ApiMessage } from '../../shared/types/Api';
+import { formatDate, fromDate } from '../../shared/util/Time';
 const debug = require('debug')('bookkeeper:api:recurring-expenses');
 
-function nextRecurrence(fromDate: string | Moment, period: RecurringExpensePeriod): moment.Moment {
-  const date = time.fromDate(fromDate);
+function nextRecurrence(from: string | Moment, period: RecurringExpensePeriod): moment.Moment {
+  const date = fromDate(from);
   switch (period) {
     case 'monthly': return date.add(1, 'month');
     case 'yearly': return date.add(1, 'year');
@@ -46,7 +46,7 @@ function getDatesUpTo(recurrence: Recurrence, date: string | Moment): string[] {
   let generating = moment(recurrence.nextMissing);
   const dates: string[] = [];
   while (generating.isBefore(date)) {
-    dates.push(time.date(generating));
+    dates.push(formatDate(generating));
     generating = nextRecurrence(generating, recurrence.period);
   }
   return dates;
@@ -62,7 +62,7 @@ function createMissingRecurrences(tx: DbAccess, groupId: number, userId: number,
     await Promise.all(dates.map(createMissingRecurrenceForDate(tx, expense)));
     await tx.update('expenses.update_recurring_missing_date',
       'UPDATE recurring_expenses SET next_missing=$1::DATE WHERE id=$2',
-      [time.date(nextMissing), recurrence.id]);
+      [formatDate(nextMissing), recurrence.id]);
   }
 }
 

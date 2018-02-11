@@ -21,7 +21,7 @@ function getBetween(tx: DbAccess) {
     debug('Querying for expenses between', time.iso(startDate), 'and', time.iso(endDate), 'for group', groupId);
     return tx.queryList('expenses.get_between',
       basic.expenseSelect('WHERE group_id=$2 AND template=false AND date >= $3::DATE AND date < $4::DATE'),
-      [userId, groupId, time.date(startDate), time.date(endDate)])
+      [userId, groupId, time.formatDate(startDate), time.formatDate(endDate)])
       .then(l => l.map(basic.mapExpense));
   }
 }
