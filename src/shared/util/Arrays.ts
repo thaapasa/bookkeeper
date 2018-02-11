@@ -34,7 +34,7 @@ export function toObject(ar: string[][]): Map<string> {
   return res;
 }
 
-export function mapObject<T extends object>(a: T, f: (v: any, k: string) => any): T {
+export function mapValues<T extends object>(a: T, f: (v: any, k: string) => any): T {
   const b: any = {};
   Object.keys(a).map(k => b[k] = f(a[k], k));
   return b as T;
@@ -46,4 +46,10 @@ export function toMap<T, K extends keyof T>(arr: T[], keyProp: K): Map<T> {
     map['' + v[keyProp]] = v;
   }
   return map;
+}
+
+export function valuesToArray<T extends object>(a: T): (T[keyof T])[] {
+  const res: (T[keyof T])[] = [];
+  Object.keys(a).map(k => res.push(a[k]));
+  return res;
 }

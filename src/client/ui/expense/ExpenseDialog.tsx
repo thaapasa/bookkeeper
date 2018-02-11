@@ -15,62 +15,63 @@ import { stopEventPropagation } from '../../util/ClientUtil';
 import * as moment from 'moment';
 import { splitByShares, negateDivision } from '../../../shared/util/Splitter';
 import { Category, Source, CategoryData, Group, User } from 'shared/types/Session';
-import { UserExpense, ExpenseType, UserExpenseWithDetails } from 'shared/types/Expense';
+import { UserExpense, ExpenseType, UserExpenseWithDetails, ExpenseDivisionType } from 'shared/types/Expense';
 import { DateLike, toDate, formatDate } from '../../../shared/util/Time';
-import { Map } from 'shared/util/Util';
+import { Map, identity } from 'shared/util/Util';
 import { connect } from 'client/ui/component/BaconConnect';
 import { validSessionE, sourceMapE } from 'client/data/Login';
 import { categoryDataSourceP, categoryMapE, isSubcategoryOf } from '../../data/Categories';
 import { Action } from 'shared/types/Common';
 import { notify, notifyError, expenseDialogE, updateExpenses } from '../../data/State';
-import { sortAndCompareElements } from 'shared/util/Arrays';
+import { sortAndCompareElements, mapValues, valuesToArray } from 'shared/util/Arrays';
 const debug = require('debug')('bookkeeper:expense-dialog');
 
 type CategoryInfo = Pick<Category, 'name' | 'id'>;
 
-function errorIf(condition, error) {
+function errorIf(condition: boolean, error: string): string | undefined {
   return condition ? error : undefined;
 }
 
-/*
- * default: default value
- * read: (expense item) => value; read value from existing expense item
- * parse: (input) => value; convert user-entered input into value
- * validate: (value) => error or undefined; check if parsed value is valid or not
- */
-const fields = {
-  'title': { validate: v => errorIf(v.length < 1, 'Nimi puuttuu') },
-  'sourceId': { validate: v => errorIf(!v, 'Lähde puuttuu') },
-  'categoryId': { validate: v => errorIf(!v, 'Kategoria puuttuu') },
-  'subcategoryId': { },
-  'receiver': { validate: v => errorIf(v.length < 1, 'Kohde puuttuu') },
-  'sum': { parse: v => v.replace(/,/, '.'), validate: v => errorIf(v.length == 0, 'Summa puuttuu') || errorIf(v.match(/^[0-9]+([.][0-9]{1,2})?$/) == null, 'Summa on virheellinen') },
-  'userId': { },
-  'date': { },
-  'benefit': { validate: (v) => errorIf(v.length < 1, 'Jonkun pitää hyötyä') },
-  'description': { },
-  'id': { },
-  'confirmed': { },
-  'type': { },
+interface EditableTypes {
+  title: string;
+  sourceId: number;
+  categoryId: number;
+  subcategoryId: number;
+  receiver: string;
+  sum: string;
+  userId: number;
+  date: Date;
+  benefit: number[];
+  description: string;
+  confirmed: boolean;
+  type: ExpenseType;
+}
+
+const fields: ReadonlyArray<keyof EditableTypes> = ['title', 'sourceId', 'categoryId', 'subcategoryId', 
+  'receiver', 'sum', 'userId', 'date', 'benefit', 'description', 'confirmed', 'type'];
+
+const parsers = {
+  sum: v => v.replace(/,/, '.'),
+};
+
+const validators = {
+  title: v => errorIf(v.length < 1, 'Nimi puuttuu'),
+  sourceId: v => v => errorIf(!v, 'Lähde puuttuu'),
+  categoryId: v => errorIf(!v, 'Kategoria puuttuu'),
+  receiver: v => errorIf(v.length < 1, 'Kohde puuttuu'),
+  sum: v => errorIf(v.length == 0, 'Summa puuttuu') || errorIf(v.match(/^[0-9]+([.][0-9]{1,2})?$/) == null, 'Summa on virheellinen'),
+  benefit: v => errorIf(v.length < 1, 'Jonkun pitää hyötyä'),
 };
 
 const defaultCategory: CategoryInfo[] = [{ id: 0, name: 'Kategoria' }];
 const defaultSubcategory: CategoryInfo[] = [{ id: 0, name: 'Alikategoria' }];
 
-function initValue(name, expense?: any) {
-  if (expense === undefined) {
-    const def = fields[name].default;
-    return typeof def === "function" ? def() : def;
-  }
-  const convert = fields[name].read;
-  return typeof convert === "function" ? convert(expense) : expense[name];
-}
-
 function allTrue(...args: boolean[]): boolean {
+  debug('allTrue?', args);
   return args.reduce((a, b) => a && b, true);
 }
 
-function fixItem(type) {
+function fixItem(type: ExpenseDivisionType) {
   return (item) => {
     item.sum = item.sum.toString();
     item.type = type;
@@ -92,21 +93,9 @@ interface ExpenseDialogProps {
   user: User;
 }
 
-interface ExpenseDialogState {
-  title: string;
-  sourceId: number;
-  categoryId: number;
-  subcategoryId: number;
-  receiver: string;
-  sum: string;
-  userId: number;
-  date: Date;
-  benefit: number[];
-  description: string;
-  confirmed: boolean;
-  type: ExpenseType;
+interface ExpenseDialogState extends EditableTypes {
   subcategories: CategoryInfo[];
-  errors: Map<string>;
+  errors: Map<string | undefined>;
   valid: boolean;
 }
 
@@ -190,19 +179,19 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDi
     this.inputStreams = {};
     this.submitStream = new B.Bus<any, true>();
     this.unsub.push(this.submitStream);
-    Object.keys(fields).forEach(k => {
-      this.inputStreams[k] = new B.Bus();
+    fields.forEach(k => {
+      this.inputStreams[k] = new B.Bus<any, any>();
       this.unsub.push(this.inputStreams[k]);
     });
 
     const validity: Map<B.Property<any, boolean>> = {};
-    const values: any = {};
-    Object.keys(fields).forEach(k => {
-      const info = fields[k];
+    const values: Map<B.EventStream<any, any>> = {};
+    fields.forEach(k => {
+      debug('Creating stream for', k);
       this.inputStreams[k].onValue(v => this.setState({ [k]: v } as any));
-      const parsed = info.parse ? this.inputStreams[k].map(info.parse) : this.inputStreams[k];
+      const parsed = parsers[k] ? this.inputStreams[k].map(parsers[k]) : this.inputStreams[k];
       values[k] = parsed;
-      const error = info.validate ? parsed.toProperty().map(info.validate) : B.constant(undefined);
+      const error: B.Property<any, string | undefined> = validators[k] ? parsed.toProperty().map(validators[k]) : B.constant(undefined);
       error.onValue(e => this.setState(s => ({ errors: { ...s.errors, [k]: e }})));
       const isValid = error.map(v => v === undefined);
       validity[k] = isValid;
@@ -215,14 +204,19 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDi
     });
     values.sourceId.onValue(v => this.inputStreams.benefit.push(this.props.sourceMap[v].users.map(u => u.userId)));
 
-    const allValid = B.combineWith(allTrue, Object.keys(fields).map(k => validity[k]) as any);
-    allValid.onValue(valid => this.setState({ valid }));
+    const allValid = B.combineWith(allTrue, valuesToArray(validity) as any);
+    allValid.onValue(valid => {
+      debug('All valid', valid);
+      this.setState({ valid });
+    });
     const expense = B.combineTemplate(values);
 
     B.combineWith((e, v, h) => ({ ...e, allValid: v && !h }), expense, allValid, this.saveLock.toProperty(false))
       .sampledBy(this.submitStream)
       .filter(e => e.allValid)
       .onValue(e => this.saveExpense(e));
+
+    this.setState(this.getDefaultState(this.props.original));
   }
 
   public componentWillUnmount() {
@@ -230,6 +224,7 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDi
   }
 
   public componentWillReceiveProps(nextProps: ExpenseDialogProps) {
+    debug('Settings props for', nextProps.original);
     this.setState(this.getDefaultState(nextProps.original));
   }
 
@@ -262,7 +257,6 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDi
       this.props.onClose();
     } catch (error) {
       notifyError(`Virhe ${createNew ? 'tallennettaessa' : 'päivitettäessä'} kirjausta ${name}`, error);
-    } finally {
     }
     this.saveLock.push(false);
     return null;
