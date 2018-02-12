@@ -7,6 +7,8 @@ import { History } from 'history';
 import { TypedDateRange, compareRanges } from '../../../shared/util/Time';
 import { Map } from '../../../shared/util/Util';
 import { CategoryChartData, CategoryTable } from './CategoryTable';
+import { needUpdateE } from 'client/data/State';
+import { unsubscribeAll } from 'client/util/ClientUtil';
 const debug = require('debug')('bookkeeper:category-view');
 
 interface CategoryViewProps {
@@ -24,6 +26,8 @@ interface CategoryViewState {
 
 class CategoryView extends React.Component<CategoryViewProps, CategoryViewState> {
 
+  private unsub: any[] = [];
+
   public state: CategoryViewState = {
     categoryTotals: {},
     isLoading: true,
@@ -31,12 +35,17 @@ class CategoryView extends React.Component<CategoryViewProps, CategoryViewState>
 
   public componentDidMount() {
     this.loadCategories();
+    this.unsub.push(needUpdateE.onValue(this.loadCategories));
   }
 
   public componentDidUpdate(prevProps: CategoryViewProps) {
     if (compareRanges(this.props.range, prevProps.range) !== 0) {
       this.loadCategories();
     }
+  }
+
+  public componentWillUnmount() {
+    unsubscribeAll(this.unsub);
   }
 
   private formCategoryChartData(categoryTotals: Map<CategoryAndTotals>): CategoryChartData[] {
