@@ -1,4 +1,3 @@
-import * as time from '../../shared/util/Time';
 import Money from '../../shared/util/Money';
 import { Session, Category, CategoryAndTotals, CategoryData } from '../../shared/types/Session';
 import { Map } from '../../shared/util/Util';
@@ -6,6 +5,7 @@ import { FetchClient } from '../../shared/util/FetchClient';
 import { ApiMessage } from '../../shared/types/Api';
 import { ExpenseCollection, ExpenseStatus, Expense, UserExpense, RecurringExpensePeriod, UserExpenseWithDetails } from '../../shared/types/Expense';
 import { tokenP } from './Login';
+import { formatDate } from 'shared/util/Time';
 const debug = require('debug')('bookkeeper:api-connect');
 const client = new FetchClient(() => fetch);
 
@@ -87,8 +87,8 @@ export async function getExpensesForMonth(year: number, month: number): Promise<
 
 export function searchExpenses(startDate, endDate, query): Promise<UserExpense[]> {
   const q = query || {};
-  q.startDate = time.date(startDate);
-  q.endDate = time.date(endDate);
+  q.startDate = formatDate(startDate);
+  q.endDate = formatDate(endDate);
   return get<UserExpense[]>('/api/expense/search', q).then(l => l.map(mapExpense));
 }
 
@@ -130,8 +130,8 @@ export function storeCategory(category: CategoryData): Promise<ApiMessage> {
 
 export function getCategoryTotals(startDate: Date, endDate: Date): Promise<CategoryAndTotals[]> {
   const q = {
-    startDate: time.date(startDate),
-    endDate: time.date(endDate),
+    startDate: formatDate(startDate),
+    endDate: formatDate(endDate),
   };
   return get<CategoryAndTotals[]>('/api/category/totals', q);
 }

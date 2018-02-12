@@ -18,9 +18,10 @@ export const validSessionE: B.EventStream<any, Session> = sessionP.filter(s => s
 export const userMapE: B.EventStream<any, Map<User>> = validSessionE.map(s => toMap(s.users, 'id'));
 export const sourceMapE: B.EventStream<any, Map<Source>> = validSessionE.map(s => toMap(s.sources, 'id'));
 
+
 import * as apiConnect from './ApiConnect';
 import { Map } from '../../shared/util/Util';
-import { toMap } from '../../shared/util/Arrays';
+import { toMap, flatten } from '../../shared/util/Arrays';
 
 const refreshTokenKey = 'refreshToken';
 
@@ -61,8 +62,6 @@ loginBus.onValue(session => {
     clearLoginData();
     return;
   }
-  state.init();
-  state.setDataFromSession(session);
   if (session && session.refreshToken) {
     localStorage.setItem(refreshTokenKey, session.refreshToken);
   } else {

@@ -10,8 +10,9 @@ import RefreshIndicator from 'material-ui/RefreshIndicator';
 import Money, { MoneyLike } from '../../../shared/util/Money';
 import { RecurringExpensePeriod, ExpenseDivisionItem, UserExpense } from '../../../shared/types/Expense';
 import { Map } from '../../../shared/util/Util';
-import { User, Source } from '../../../shared/types/Session';
+import { User, Source, Category } from '../../../shared/types/Session';
 import { confirm, notify, notifyError, updateExpenses } from '../../data/State';
+import { toDate } from 'shared/util/Time';
 
 const styles = {
   tool: {
@@ -59,6 +60,7 @@ interface ExpenseDivisionProps {
   onDelete: (e: UserExpense) => void;
   user: User;
   source: Source;
+  fullCategoryName: string;
 };
 
 export default class ExpenseDivision extends React.Component<ExpenseDivisionProps, {}> {
@@ -98,7 +100,7 @@ export default class ExpenseDivision extends React.Component<ExpenseDivisionProp
         <div className="expense-details">
           <DetailRow name="Kirjaaja" value={user.firstName} />
           <DetailRow name="Kohde" value={expense.receiver} />
-          <DetailRow name="Kategoria" value={categories.getFullName(expense.categoryId)} />
+          <DetailRow name="Kategoria" value={this.props.fullCategoryName} />
           <DetailRow name="Lähde" value={this.props.source.name} />
         </div>
         <div className="tools-mobile">
@@ -145,7 +147,7 @@ export default class ExpenseDivision extends React.Component<ExpenseDivisionProp
         });
       if (period) {
         await apiConnect.createRecurring(this.props.expense.id, period);
-        await updateExpenses(this.props.expense.date);
+        await updateExpenses(toDate(this.props.expense.date));
         notify('Kirjaus muutettu toistuvaksi');
       }
     } catch (e) {

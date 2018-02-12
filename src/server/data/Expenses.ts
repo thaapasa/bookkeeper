@@ -4,7 +4,7 @@ import Money from '../../shared/util/Money';
 import recurring from './RecurringExpenses';
 import basic from './BasicExpenses';
 import { ExpenseCollection, ExpenseStatus, UserExpense } from '../../shared/types/Expense';
-import { mapObject } from '../../shared/util/Arrays';
+import { mapValues } from '../../shared/util/Arrays';
 import { Moment } from 'moment';
 const debug = require('debug')('bookkeeper:api:expenses');
 
@@ -21,7 +21,7 @@ function getBetween(tx: DbAccess) {
     debug('Querying for expenses between', time.iso(startDate), 'and', time.iso(endDate), 'for group', groupId);
     return tx.queryList('expenses.get_between',
       basic.expenseSelect('WHERE group_id=$2 AND template=false AND date >= $3::DATE AND date < $4::DATE'),
-      [userId, groupId, time.date(startDate), time.date(endDate)])
+      [userId, groupId, time.formatDate(startDate), time.formatDate(endDate)])
       .then(l => l.map(basic.mapExpense));
   }
 }
@@ -50,7 +50,7 @@ function getByMonth(groupId: number, userId: number, year: number, month: number
       expenses,
       startStatus,
       monthStatus,
-      endStatus: mapObject(zeroStatus, (v, k) => Money.from(startStatus[k]).plus(monthStatus[k]).toString()),
+      endStatus: mapValues(zeroStatus, (v, k) => Money.from(startStatus[k]).plus(monthStatus[k]).toString()),
       unconfirmedBefore,
     };
   });

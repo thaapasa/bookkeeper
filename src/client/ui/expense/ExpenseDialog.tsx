@@ -1,16 +1,12 @@
 import * as React from 'react';
-import * as Bacon from 'baconjs';
+import * as B from 'baconjs';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import UserSelector from '../component/UserSelector';
 import Checkbox from 'material-ui/Checkbox';
 import UserAvatar from '../component/UserAvatar';
-import * as arrays from '../../../shared/util/Arrays';
-import Money from '../../../shared/util/Money';
-import * as categories from '../../data/Categories';
+import Money, { MoneyLike } from '../../../shared/util/Money';
 import * as apiConnect from '../../data/ApiConnect';
-import * as state from '../../data/State';
-import * as time from '../../../shared/util/Time';
 import { KeyCodes } from '../../util/Io'
 import { SumField, TypeSelector, TitleField, CategorySelector, SourceSelector, DateField, ReceiverField, DescriptionField } from './ExpenseDialogComponents';
 import { expenseName } from './ExpenseHelper';
@@ -18,88 +14,63 @@ import { unsubscribeAll } from '../../util/ClientUtil';
 import { stopEventPropagation } from '../../util/ClientUtil';
 import * as moment from 'moment';
 import { splitByShares, negateDivision } from '../../../shared/util/Splitter';
+import { Category, Source, CategoryData, Group, User } from 'shared/types/Session';
+import { UserExpense, ExpenseType, UserExpenseWithDetails, ExpenseDivisionType } from 'shared/types/Expense';
+import { DateLike, toDate, formatDate } from '../../../shared/util/Time';
+import { Map, identity } from 'shared/util/Util';
+import { connect } from 'client/ui/component/BaconConnect';
+import { validSessionE, sourceMapE } from 'client/data/Login';
+import { categoryDataSourceP, categoryMapE, isSubcategoryOf } from '../../data/Categories';
+import { Action } from 'shared/types/Common';
+import { notify, notifyError, expenseDialogE, updateExpenses } from '../../data/State';
+import { sortAndCompareElements, mapValues, valuesToArray } from 'shared/util/Arrays';
 const debug = require('debug')('bookkeeper:expense-dialog');
 
-function findParentCategory(categoryId) {
-  const map = state.get("categoryMap");
-  let current = map[categoryId];
-  while (current && current.parentId > 0) {
-    current = map[current.parentId];
-  }
-  return current ? current.id : undefined;
-}
+type CategoryInfo = Pick<Category, 'name' | 'id'>;
 
-function errorIf(condition, error) {
+function errorIf(condition: boolean, error: string): string | undefined {
   return condition ? error : undefined;
 }
 
-function getDefaultSourceId() {
-  return state.get("group").defaultSourceId;
+interface EditableTypes {
+  title: string;
+  sourceId: number;
+  categoryId: number;
+  subcategoryId: number;
+  receiver: string;
+  sum: string;
+  userId: number;
+  date: Date;
+  benefit: number[];
+  description: string;
+  confirmed: boolean;
+  type: ExpenseType;
 }
 
-function getDefaultSourceUsers() {
-  const sId = getDefaultSourceId();
-  const source = state.get("sourceMap")[sId];
-  return source && source.users.map(u => u.userId) || [state.get("user").id];
-}
+const fields: ReadonlyArray<keyof EditableTypes> = ['title', 'sourceId', 'categoryId', 'subcategoryId', 
+  'receiver', 'sum', 'userId', 'date', 'benefit', 'description', 'confirmed', 'type'];
 
-/*
- * default: default value
- * read: (expense item) => value; read value from existing expense item
- * parse: (input) => value; convert user-entered input into value
- * validate: (value) => error or undefined; check if parsed value is valid or not
- */
-const fields = {
-  "title": { default: "", validate: v => errorIf(v.length < 1, "Nimi puuttuu") },
-  "sourceId": { default: getDefaultSourceId, validate: v => errorIf(!v, "Lähde puuttuu") },
-  "categoryId": { default: 0, read: (e) => findParentCategory(e.categoryId), validate: v => errorIf(!v, "Kategoria puuttuu") },
-  "subcategoryId": { default: 0, read: (e) => e.categoryId },
-  "receiver": { default: "", validate: v => errorIf(v.length < 1, "Kohde puuttuu") },
-  "sum": { default: "", parse: v => v.replace(/,/, "."), validate: v => errorIf(v.length == 0, "Summa puuttuu") || errorIf(v.match(/^[0-9]+([.][0-9]{1,2})?$/) == null, "Summa on virheellinen") },
-  "userId": { default: () => state.get("user").id, read: (e) => e.userId },
-  "date": { default: () => moment().toDate(), read: (e) => time.fromDate(e.date).toDate() },
-  "benefit": {
-    default: getDefaultSourceUsers,
-    read: (e) => e.division.filter(d => d.type === (e.type === "expense" ? "benefit" : "split")).map(d => d.userId),
-    validate: (v) => errorIf(v.length < 1, "Jonkun pitää hyötyä")
-  },
-  "description": { default: "", read: (e) => e.description || "" },
-  "id": { default: undefined, read: e => e ? e.id : undefined },
-  "confirmed": { default: true },
-  "type": { default: "expense" }
+const parsers = {
+  sum: v => v.replace(/,/, '.'),
 };
 
-const defaultCategory = [{ id: 0, name: "Kategoria" }];
-const defaultSubcategory = [{ id: 0, name: "Alikategoria" }];
+const validators = {
+  title: v => errorIf(v.length < 1, 'Nimi puuttuu'),
+  sourceId: v => errorIf(!v, 'Lähde puuttuu'),
+  categoryId: v => errorIf(!v, 'Kategoria puuttuu'),
+  receiver: v => errorIf(v.length < 1, 'Kohde puuttuu'),
+  sum: v => errorIf(v.length == 0, 'Summa puuttuu') || errorIf(v.match(/^[0-9]+([.][0-9]{1,2})?$/) == null, 'Summa on virheellinen'),
+  benefit: v => errorIf(v.length < 1, 'Jonkun pitää hyötyä'),
+};
 
-function initValue(name, expense?: any) {
-  if (expense === undefined) {
-    const def = fields[name].default;
-    return typeof def === "function" ? def() : def;
-  }
-  const convert = fields[name].read;
-  return typeof convert === "function" ? convert(expense) : expense[name];
+const defaultCategory: CategoryInfo[] = [{ id: 0, name: 'Kategoria' }];
+const defaultSubcategory: CategoryInfo[] = [{ id: 0, name: 'Alikategoria' }];
+
+function allTrue(...args: boolean[]): boolean {
+  return args.reduce((a, b) => a && b, true);
 }
 
-function calculateCost(sum, sourceId, benefit) {
-  const sourceUsers = state.get("sourceMap")[sourceId].users;
-  const sourceUserIds = sourceUsers.map(s => s.userId);
-  const benefitUserIds = benefit.map(b => b.userId);
-  if (arrays.sortAndCompareElements(sourceUserIds, benefitUserIds)) {
-    // Create cost based on benefit calculation
-    debug("Source has same users than who benefit; creating benefit based on cost");
-    return negateDivision(benefit);
-  }
-  // Calculate cost manually
-  debug("Calculating cost by source users");
-  return negateDivision(splitByShares(sum, sourceUsers));
-}
-
-function allTrue() {
-  return Array.prototype.slice.call(arguments).reduce((a, b) => a && b, true);
-}
-
-function fixItem(type) {
+function fixItem(type: ExpenseDivisionType) {
   return (item) => {
     item.sum = item.sum.toString();
     item.type = type;
@@ -107,135 +78,171 @@ function fixItem(type) {
   }
 }
 
-function calculateDivision(expense, sum) {
-  if (expense.type === "expense") {
-    const benefit = splitByShares(sum, expense.benefit.map(id => ({ userId: id, share: 1 })));
-    const cost = calculateCost(sum, expense.sourceId, benefit);
-    return benefit.map(fixItem("benefit")).concat(cost.map(fixItem("cost")));
-  } else {
-    const income = [{ userId: expense.userId, sum: sum }];
-    const split = negateDivision(splitByShares(sum, expense.benefit.map(id => ({ userId: id, share: 1 }))));
-    return income.map(fixItem("income")).concat(split.map(fixItem("split")));
-  }
+interface ExpenseDialogProps {
+  createNew: boolean;
+  original: UserExpenseWithDetails | null;
+  sources: Source[];
+  categories: Category[];
+  sourceMap: Map<Source>;
+  categorySource: CategoryData[];
+  categoryMap: Map<Category>;
+  onClose: Action;
+  onExpensesUpdated: (date: Date) => void;
+  group: Group;
+  user: User;
 }
 
-export default class ExpenseDialog extends React.Component<any, any> {
+interface ExpenseDialogState extends EditableTypes {
+  subcategories: CategoryInfo[];
+  errors: Map<string | undefined>;
+  valid: boolean;
+}
 
-  private saveLock: Bacon.Bus<any, any>;
-  private inputStreams: any;
-  private submitStream: any;
-  private unsub: any;
-  private categories: any;
-  private sources: any;
-  private categorySource: any;
-  public state: any;
+export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDialogState> {
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      open: false,
-      createNew: true,
-      subcategories: defaultSubcategory,
-      valid: false,
-      errors: {}
-    };
-    this.saveLock = new Bacon.Bus();
-    this.inputStreams = {};
-    this.submitStream = new Bacon.Bus();
-    Object.keys(fields).forEach(k => {
-      this.state[k] = initValue(k);
-    });
-    this.updateCategoriesAndSources();
-    this.closeDialog = this.closeDialog.bind(this);
-    this.requestSave = this.requestSave.bind(this);
-    this.setCategory = this.setCategory.bind(this);
-    this.selectCategory = this.selectCategory.bind(this);
-    this.handleKeyPress = this.handleKeyPress.bind(this);
-    this.handleOpen = this.handleOpen.bind(this);
+  private saveLock: B.Bus<any, boolean>;
+  private inputStreams: Map<B.Bus<any, any>> = {};
+  private submitStream: B.Bus<any, true>;
+  private unsub: any[] = [];
+  public state = this.getDefaultState(null);
+
+  private getDefaultSourceId(): number | undefined {
+    return this.props.group.defaultSourceId!;
   }
 
-  componentDidMount() {
-    this.unsub = [];
-    this.unsub.push(state.get("expenseDialogStream").onValue(e => this.handleOpen(e)));
+  private getDefaultSourceUsers(): number[] {
+    const sId = this.getDefaultSourceId();
+    const source = sId && this.props.sourceMap[sId];
+    return source && source.users.map(u => u.userId) || [this.props.user.id];
+  }
 
+  private findParentCategory(categoryId: number): number | undefined {
+    const map = this.props.categoryMap;
+    let current = map[categoryId];
+    while (current && current.parentId && current.parentId > 0) {
+      current = map[current.parentId];
+    }
+    return current ? current.id : undefined;
+  }
+
+  private getDefaultState(original: UserExpenseWithDetails | null): ExpenseDialogState {
+    const e = original;
+    return {
+      title: e ? e.title : '',
+      sourceId: e ? e.sourceId : this.getDefaultSourceId() || 0,
+      categoryId: e && this.findParentCategory(e.categoryId) || 0,
+      subcategoryId: e ? e.categoryId : 0,
+      receiver: e ? e.receiver : '',
+      sum: e ? e.sum.toString() : '',
+      userId: e ? e.userId : this.props.user.id,
+      date: e ? toDate(e.date) : new Date(),
+      benefit: e ? e.division.filter(d => d.type === (e.type === 'expense' ? 'benefit' : 'split')).map(d => d.userId) : this.getDefaultSourceUsers(),
+      description: e && e.description || '',
+      confirmed: e ? e.confirmed : true,
+      type: e ? e.type : 'expense',
+      subcategories: [],
+      errors: {},
+      valid: false,
+    };
+  }
+
+  private calculateCost(sum, sourceId, benefit) {
+    const sourceUsers = this.props.sourceMap[sourceId].users;
+    const sourceUserIds = sourceUsers.map(s => s.userId);
+    const benefitUserIds = benefit.map(b => b.userId);
+    if (sortAndCompareElements(sourceUserIds, benefitUserIds)) {
+      // Create cost based on benefit calculation
+      debug('Source has same users than who benefit; creating benefit based on cost');
+      return negateDivision(benefit);
+    } else {
+      // Calculate cost manually
+      debug('Calculating cost by source users');
+      return negateDivision(splitByShares(sum, sourceUsers));
+    }
+  }
+
+  private calculateDivision(expense, sum) {
+    if (expense.type === 'expense') {
+      const benefit = splitByShares(sum, expense.benefit.map(id => ({ userId: id, share: 1 })));
+      const cost = this.calculateCost(sum, expense.sourceId, benefit);
+      return benefit.map(fixItem('benefit')).concat(cost.map(fixItem('cost')));
+    } else {
+      const income = [{ userId: expense.userId, sum: sum }];
+      const split = negateDivision(splitByShares(sum, expense.benefit.map(id => ({ userId: id, share: 1 }))));
+      return income.map(fixItem('income')).concat(split.map(fixItem('split')));
+    }
+  }
+
+  public componentDidMount() {
+    this.saveLock = new B.Bus<any, boolean>();
     this.inputStreams = {};
-    this.submitStream = new Bacon.Bus();
+    this.submitStream = new B.Bus<any, true>();
     this.unsub.push(this.submitStream);
-    Object.keys(fields).forEach(k => {
-      this.inputStreams[k] = new Bacon.Bus();
+    fields.forEach(k => {
+      this.inputStreams[k] = new B.Bus<any, any>();
       this.unsub.push(this.inputStreams[k]);
     });
 
-    const validity = {};
-    const values: any = {};
-    Object.keys(fields).forEach(k => {
-      const info = fields[k];
-      this.inputStreams[k].onValue(v => this.setState({ [k]: v }));
-      const parsed = info.parse ? this.inputStreams[k].map(info.parse) : this.inputStreams[k];
+    const validity: Map<B.Property<any, boolean>> = {};
+    const values: Map<B.EventStream<any, any>> = {};
+    fields.forEach(k => {
+      this.inputStreams[k].onValue(v => this.setState({ [k]: v } as any));
+      const parsed = parsers[k] ? this.inputStreams[k].map(parsers[k]) : this.inputStreams[k];
       values[k] = parsed;
-      const error = info.validate ? parsed.map(info.validate) : Bacon.constant(undefined);
-      error.onValue(e => this.setState(s => ({ errors: Object.assign({}, s.errors, { [k]: e }) })));
+      const error: B.Property<any, string | undefined> = validators[k] ? parsed.toProperty().map(validators[k]) : B.constant(undefined);
+      error.onValue(e => this.setState(s => ({ errors: { ...s.errors, [k]: e }})));
       const isValid = error.map(v => v === undefined);
       validity[k] = isValid;
     });
     values.categoryId.onValue(id => {
-      const map = state.get("categoryMap");
-      this.setState({ subcategories: defaultSubcategory.concat(id ? map[id].children || [] : []) });
+      this.setState({ subcategories: defaultSubcategory.concat(id ? this.props.categoryMap[id].children || [] : []) });
     });
-    Bacon.combineAsArray(values.categoryId, values.subcategoryId).onValue(a => {
-      if (a[1] > 0 && !categories.isSubcategoryOf(a[1], a[0])) this.inputStreams.subcategoryId.push(0);
+    B.combineAsArray(values.categoryId, values.subcategoryId).onValue(([id, subId]) => {
+      if (subId > 0 && !isSubcategoryOf(subId, id, this.props.categoryMap)) { this.inputStreams.subcategoryId.push(0); }
     });
-    values.id.onValue(v => this.setState({ createNew: v === undefined }));
-    values.sourceId.onValue(v => this.inputStreams.benefit.push(state.get("sourceMap")[v].users.map(u => u.userId)));
+    values.sourceId.onValue(v => this.inputStreams.benefit.push(this.props.sourceMap[v].users.map(u => u.userId)));
 
-    const allValid = Bacon.combineWith(allTrue, Object.keys(fields).map(k => validity[k]));
-    allValid.onValue(v => this.setState({ valid: v }));
-    const expense = Bacon.combineTemplate(values);
+    const allValid = B.combineWith(allTrue, valuesToArray(validity) as any);
+    allValid.onValue(valid => this.setState({ valid }));
+    const expense = B.combineTemplate(values);
 
-    Bacon.combineWith((e, v, h) => Object.assign(e, { allValid: v && !h }), expense, allValid, this.saveLock.toProperty(false))
+    B.combineWith((e, v, h) => ({ ...e, allValid: v && !h }), expense, allValid, this.saveLock.toProperty(false))
       .sampledBy(this.submitStream)
       .filter(e => e.allValid)
       .onValue(e => this.saveExpense(e));
+
+    this.pushExpenseToInputStreams(this.props.original);
   }
 
-  componentWillUnmount() {
+  public componentWillUnmount() {
     unsubscribeAll(this.unsub);
   }
 
-  updateCategoriesAndSources() {
-    const cats = state.get("categories");
-    this.categories = defaultCategory.concat(cats);
-    this.sources = state.get("sources");
-    this.categorySource = categories.getDataSource();
+  private pushExpenseToInputStreams(expense: UserExpenseWithDetails | null) {
+    const newState = this.getDefaultState(expense);
+    debug('Start editing', newState);
+    fields.map(k => this.inputStreams[k].push(newState[k]));
   }
 
-  handleOpen(expense) {
-    debug("Open expense", expense);
-    this.updateCategoriesAndSources();
-    Object.keys(fields).forEach(k => this.inputStreams[k].push(initValue(k, expense)));
-    this.setState({ open: true });
+  public componentWillReceiveProps(nextProps: ExpenseDialogProps) {
+    debug('Settings props for', nextProps.original);
+    this.pushExpenseToInputStreams(nextProps.original);
   }
 
-  closeDialog() {
-    debug("Closing dialog");
-    this.setState({ open: false });
-    return false;
-  }
-
-  requestSave(event) {
+  private requestSave = (event) => {
     this.submitStream.push(true);
     event.preventDefault();
     event.stopPropagation();
   }
 
-  saveExpense(expense) {
-    debug("Save", expense);
+  private saveExpense = async (expense) => {
     const createNew = !expense.id;
+    debug(createNew ? 'Create new expense' : 'save expense', expense);
     const sum = Money.from(expense.sum);
-    const division = calculateDivision(expense, sum);
+    const division = this.calculateDivision(expense, sum);
     const data = Object.assign({}, expense, {
       division: division,
-      date: time.date(expense.date),
+      date: formatDate(expense.date),
       categoryId: expense.subcategoryId ? expense.subcategoryId : expense.categoryId,
     });
 
@@ -244,23 +251,20 @@ export default class ExpenseDialog extends React.Component<any, any> {
     delete data.allValid;
     const name = expenseName(data);
     this.saveLock.push(true);
-    (createNew ? apiConnect.storeExpense(data) : apiConnect.updateExpense(expense.id, data))
-      .then(e => {
-        this.saveLock.push(false);
-        state.get("expensesUpdatedStream").push(expense.date);
-        this.closeDialog();
-        state.notify(`${createNew ? "Tallennettu" : "Päivitetty"} ${name}`);
-        return null;
-      })
-      .catch(e => {
-        this.saveLock.push(false);
-        state.notifyError(`Virhe ${createNew ? "tallennettaessa" : "päivitettäessä"} kirjausta ${name}`, e);
-        return null;
-      });
+    try {
+      await createNew ? apiConnect.storeExpense(data) : apiConnect.updateExpense(expense.id, data);
+      this.props.onExpensesUpdated(expense.date);
+      notify(`${createNew ? 'Tallennettu' : 'Päivitetty'} ${name}`);
+      this.props.onClose();
+    } catch (error) {
+      notifyError(`Virhe ${createNew ? 'tallennettaessa' : 'päivitettäessä'} kirjausta ${name}`, error);
+    }
+    this.saveLock.push(false);
+    return null;
   }
 
-  selectCategory(id) {
-    const m = state.get("categoryMap");
+  private selectCategory = (id) => {
+    const m = this.props.categoryMap;
     const name = m[id].name;
     if (m[id].parentId) {
       this.setCategory(m[id].parentId, id);
@@ -270,24 +274,24 @@ export default class ExpenseDialog extends React.Component<any, any> {
     this.inputStreams.title.push(name);
   }
 
-  setCategory(id, subcategoryId) {
+  private setCategory = (id, subcategoryId) => {
     this.inputStreams.categoryId.push(id);
     this.inputStreams.subcategoryId.push(subcategoryId);
   }
 
-  handleKeyPress(event) {
+  private handleKeyPress = (event) => {
     const code = event.keyCode;
     if (code === KeyCodes.escape) {
-      return this.closeDialog();
+      return this.props.onClose();
     }
   }
 
-  render() {
+  public render() {
     const actions = [
       <FlatButton
         label="Peruuta"
         primary={true}
-        onClick={this.closeDialog} />,
+        onClick={this.props.onClose} />,
       <FlatButton
         label="Tallenna"
         primary={true}
@@ -299,13 +303,13 @@ export default class ExpenseDialog extends React.Component<any, any> {
     return <Dialog
       contentClassName="expense-dialog"
       bodyClassName="expense-dialog-body"
-      title={this.state.createNew ? 'Uusi kirjaus' : 'Muokkaa kirjausta'}
+      title={this.props.createNew ? 'Uusi kirjaus' : 'Muokkaa kirjausta'}
       actions={actions}
       modal={true}
       autoDetectWindowHeight={true}
       autoScrollBodyContent={true}
-      open={this.state.open}
-      onRequestClose={this.closeDialog}>
+      open={true}
+      onRequestClose={this.props.onClose}>
       <form onSubmit={this.requestSave} onKeyUp={this.handleKeyPress}>
         <div>
           <UserAvatar userId={this.state.userId} style={{ verticalAlign: 'middle' }} />
@@ -323,14 +327,14 @@ export default class ExpenseDialog extends React.Component<any, any> {
         <TitleField
           value={this.state.title}
           onSelect={this.selectCategory}
-          dataSource={this.categorySource}
+          dataSource={this.props.categorySource}
           errorText={this.state.errors.title}
           onChange={v => this.inputStreams.title.push(v)}
         />
         <ReceiverField value={this.state.receiver} onChange={(e, v) => this.inputStreams.receiver.push(v)}
           errorText={this.state.errors.receiver} onKeyUp={stopEventPropagation} />
         <CategorySelector
-          category={this.state.categoryId} categories={this.categories}
+          category={this.state.categoryId} categories={this.props.categories}
           onChangeCategory={v => this.inputStreams.categoryId.push(v)}
           errorText={this.state.errors.categoryId}
           subcategory={this.state.subcategoryId} subcategories={this.state.subcategories}
@@ -338,7 +342,7 @@ export default class ExpenseDialog extends React.Component<any, any> {
         <br />
         <div style={{ display: 'flex', flexWrap: 'nowrap' }}>
           <SourceSelector
-            value={this.state.sourceId} sources={this.sources} style={{ flexGrow: '1' }}
+            value={this.state.sourceId} sources={this.props.sources} style={{ flexGrow: 1 }}
             onChange={v => this.inputStreams.sourceId.push(v)} />
           <UserSelector style={{ paddingTop: '0.5em' }} selected={this.state.benefit}
             onChange={v => this.inputStreams.benefit.push(v)} />
@@ -350,5 +354,77 @@ export default class ExpenseDialog extends React.Component<any, any> {
           errorText={this.state.errors.description} />
       </form>
     </Dialog>
+  }
+}
+
+interface BProps {
+  sources: Source[];
+  categories: Category[];
+  sourceMap: Map<Source>;
+  categorySource: CategoryData[];
+  categoryMap: Map<Category>;
+  group: Group;
+  user: User;
+}
+
+const ConnectedExpenseDialog = connect(B.combineTemplate({
+  sources: validSessionE.map(s => s.sources),
+  categories: validSessionE.map(s => s.categories),
+  user: validSessionE.map(s => s.user),
+  group: validSessionE.map(s => s.group),
+  sourceMap: sourceMapE,
+  categorySource: categoryDataSourceP,
+  categoryMap: categoryMapE,
+}) as B.Property<any, BProps>)(ExpenseDialog);
+
+interface ExpenseDialogListenerState {
+  open: boolean;
+  original: UserExpenseWithDetails | null;
+}
+
+export default class ExpenseDialogListener extends React.Component<{}, ExpenseDialogListenerState> {
+
+  private unsub: any[] = [];
+
+  public state: ExpenseDialogListenerState = {
+    open: false,
+    original: null,
+  };
+
+  public componentDidMount() {
+    this.unsub.push(expenseDialogE.onValue(e => this.handleOpen(e)));
+  }
+
+  public componentWillUnmount() {
+    unsubscribeAll(this.unsub);
+    this.unsub = [];
+  }
+
+  private onExpensesUpdated = (date: Date) => {
+    updateExpenses(date);
+  }
+
+  private handleOpen = async (expenseId: number | null) => {
+    if (expenseId) {
+      debug('Edit expense', expenseId);
+      this.setState({ open: false, original: null });
+      const original = await apiConnect.getExpense(expenseId);
+      this.setState({ open: true, original });
+    } else {
+      debug('Create new expense');
+      this.setState({ open: true, original: null });
+    }
+  }
+
+  private closeDialog = () => {
+    debug('Closing dialog');
+    this.setState({ open: false, original: null });
+    return false;
+  }
+
+  public render() {
+    return this.state.open ?
+      <ConnectedExpenseDialog {...this.state} onExpensesUpdated={this.onExpensesUpdated} createNew={!this.state.original} onClose={this.closeDialog} /> :
+      null;
   }
 }
