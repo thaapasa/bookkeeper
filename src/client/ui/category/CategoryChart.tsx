@@ -2,6 +2,13 @@ import * as React from 'react';
 import { scaleBand, scaleLinear } from 'd3-scale';
 import * as d3Axis from 'd3-axis';
 import { select as d3Select } from 'd3-selection';
+import Money, { MoneyLike } from 'shared/util/Money';
+
+export interface CategoryChartData {
+  categoryId: number;
+  categoryName: string;
+  categoryTotal: MoneyLike;
+}
 
 interface Scales {
   xScale: any;
@@ -13,7 +20,7 @@ interface Margins { bottom: number, top: number, left: number, right: number }
 interface BarsProps {
   scales: Scales;
   margins: { bottom: number };
-  data?: Array<{ categoryName: string, categoryTotal: number }>;
+  data?: CategoryChartData[];
   svgDimensions: { height: number };
 }
 
@@ -118,11 +125,11 @@ interface CategoryChartState {
   containerWidth: number | null;
 };
 
-export default class CategoryChart extends React.Component<any, CategoryChartState> {
+export default class CategoryChart extends React.Component<{ chartData: CategoryChartData[] | undefined }, CategoryChartState> {
 
   private xScale = scaleBand();
   private yScale = scaleLinear();
-  private chartContainer;
+  private chartContainer: HTMLDivElement | null = null;
 
   public state: CategoryChartState = {
     containerWidth: null,
@@ -139,7 +146,7 @@ export default class CategoryChart extends React.Component<any, CategoryChartSta
 
   private adjustChartWidth = () => {
     const containerWidth = this.state.containerWidth;
-    const currentContainerWidth = this.chartContainer.getBoundingClientRect().width;
+    const currentContainerWidth = this.chartContainer && this.chartContainer.getBoundingClientRect().width;
     const shouldResize = containerWidth !== currentContainerWidth;
 
     if (shouldResize) {
@@ -156,7 +163,7 @@ export default class CategoryChart extends React.Component<any, CategoryChartSta
       height: 500
     }
 
-    const maxValue = chartData ? Math.max(...chartData.map(d => d.categoryTotal)) * 1.1 : 0;
+    const maxValue = chartData ? Math.max(...chartData.map(d => Money.toValue(d.categoryTotal))) * 1.1 : 0;
     // scaleBand type
     const xScale = chartData ? this.xScale
       .padding(0.5)

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import CategoryDialog from './CategoryDialog';
-import CategoryChart from './CategoryChart';
+import CategoryChart, { CategoryChartData } from './CategoryChart';
 import { Category, CategoryAndTotals } from '../../../shared/types/Session';
 import { AddCategoryButton } from './CategoryTools';
 import CategoryRow from './CategoryRow';
@@ -9,15 +9,8 @@ import { TypedDateRange } from '../../../shared/util/Time';
 import { RangeSelector } from './RangeSelector';
 import { categoriesForYear, categoriesForMonth } from '../../util/Links';
 import { Map } from '../../../shared/util/Util';
-import { MoneyLike } from '../../../shared/util/Money';
 import { Action } from '../../../shared/types/Common';
 const debug = require('debug')('bookkeeper:category-view');
-
-export interface CategoryChartData {
-  categoryId: number;
-  categoryName: string;
-  categoryTotal: MoneyLike;
-}
 
 interface CategoryViewProps {
   categories: Category[];

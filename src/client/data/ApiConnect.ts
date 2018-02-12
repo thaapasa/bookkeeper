@@ -5,7 +5,7 @@ import { FetchClient } from '../../shared/util/FetchClient';
 import { ApiMessage } from '../../shared/types/Api';
 import { ExpenseCollection, ExpenseStatus, Expense, UserExpense, RecurringExpensePeriod, UserExpenseWithDetails, ExpenseInEditor, ExpenseData } from '../../shared/types/Expense';
 import { tokenP } from './Login';
-import { formatDate } from 'shared/util/Time';
+import { formatDate, DateLike } from 'shared/util/Time';
 const debug = require('debug')('bookkeeper:api-connect');
 const client = new FetchClient(() => fetch);
 
@@ -48,7 +48,7 @@ function authHeader(): Map<string> {
   return { 'Authorization': `Bearer ${currentToken || ''}` };
 }
 
-function get<T>(path, query?: Map<string>): Promise<T> {
+function get<T>(path: string, query?: Map<string>): Promise<T> {
   return client.get<T>(path, query, authHeader());
 }
 
@@ -56,11 +56,11 @@ function put<T>(path: string, body?: any, query?: Map<string>): Promise<T> {
   return client.put<T>(path, body, query, authHeader());
 }
 
-function post<T>(path, body?: any, query?: Map<string>): Promise<T> {
+function post<T>(path: string, body?: any, query?: Map<string>): Promise<T> {
   return client.post<T>(path, body, query, authHeader());
 }
 
-function del<T>(path, data?: any, query?: Map<string>): Promise<T> {
+function del<T>(path: string, data?: any, query?: Map<string>): Promise<T> {
   return client.del<T>(path, data, query, authHeader());
 }
 
@@ -85,10 +85,8 @@ export async function getExpensesForMonth(year: number, month: number): Promise<
   return mapExpenseObject(collection);
 }
 
-export function searchExpenses(startDate, endDate, query): Promise<UserExpense[]> {
-  const q = query || {};
-  q.startDate = formatDate(startDate);
-  q.endDate = formatDate(endDate);
+export function searchExpenses(startDate: DateLike, endDate: DateLike, query: Map<string>): Promise<UserExpense[]> {
+  const q = { ...query, startDate: formatDate(startDate), endDate: formatDate(endDate) };
   return get<UserExpense[]>('/api/expense/search', q).then(l => l.map(mapExpense));
 }
 
