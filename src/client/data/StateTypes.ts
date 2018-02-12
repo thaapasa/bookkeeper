@@ -1,3 +1,5 @@
+import { ExpenseInEditor } from "shared/types/Expense";
+
 export type ConfirmationAction<T> = {
   label: string;
   value: T;
@@ -18,4 +20,9 @@ export interface Notification {
 export interface PickDateObject {
   initialDate?: Date;
   resolve: (value?: Date) => void;
+}
+
+export interface ExpenseDialogObject {
+  expenseId: number | null;
+  resolve: (e: ExpenseInEditor | null) => void;
 }

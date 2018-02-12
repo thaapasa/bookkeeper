@@ -4,8 +4,8 @@ import Money from '../../shared/util/Money';
 import recurring from './RecurringExpenses';
 import basic from './BasicExpenses';
 import { ExpenseCollection, ExpenseStatus, UserExpense } from '../../shared/types/Expense';
-import { mapValues } from '../../shared/util/Arrays';
 import { Moment } from 'moment';
+import { mapValues } from '../../shared/util/Objects';
 const debug = require('debug')('bookkeeper:api:expenses');
 
 function calculateBalance(o: ExpenseStatus): ExpenseStatus {
@@ -50,7 +50,7 @@ function getByMonth(groupId: number, userId: number, year: number, month: number
       expenses,
       startStatus,
       monthStatus,
-      endStatus: mapValues(zeroStatus, (v, k) => Money.from(startStatus[k]).plus(monthStatus[k]).toString()),
+      endStatus: mapValues((k, v) => Money.from(startStatus[k]).plus(monthStatus[k]).toString(), zeroStatus),
       unconfirmedBefore,
     };
   });

@@ -15,7 +15,7 @@ import { stopEventPropagation } from '../../util/ClientUtil';
 import * as moment from 'moment';
 import { splitByShares, negateDivision } from '../../../shared/util/Splitter';
 import { Category, Source, CategoryData, Group, User } from 'shared/types/Session';
-import { UserExpense, ExpenseType, UserExpenseWithDetails, ExpenseDivisionType } from 'shared/types/Expense';
+import { UserExpense, ExpenseType, UserExpenseWithDetails, ExpenseDivisionType, ExpenseInEditor, Expense, ExpenseData } from 'shared/types/Expense';
 import { DateLike, toDate, formatDate } from '../../../shared/util/Time';
 import { Map, identity } from 'shared/util/Util';
 import { connect } from 'client/ui/component/BaconConnect';
@@ -23,7 +23,9 @@ import { validSessionE, sourceMapE } from 'client/data/Login';
 import { categoryDataSourceP, categoryMapE, isSubcategoryOf } from '../../data/Categories';
 import { Action } from 'shared/types/Common';
 import { notify, notifyError, expenseDialogE, updateExpenses } from '../../data/State';
-import { sortAndCompareElements, mapValues, valuesToArray } from 'shared/util/Arrays';
+import { sortAndCompareElements, valuesToArray } from 'shared/util/Arrays';
+import { ExpenseDialogObject } from 'client/data/StateTypes';
+import { omit } from 'shared/util/Objects';
 const debug = require('debug')('bookkeeper:expense-dialog');
 
 type CategoryInfo = Pick<Category, 'name' | 'id'>;
@@ -32,22 +34,7 @@ function errorIf(condition: boolean, error: string): string | undefined {
   return condition ? error : undefined;
 }
 
-interface EditableTypes {
-  title: string;
-  sourceId: number;
-  categoryId: number;
-  subcategoryId: number;
-  receiver: string;
-  sum: string;
-  userId: number;
-  date: Date;
-  benefit: number[];
-  description: string;
-  confirmed: boolean;
-  type: ExpenseType;
-}
-
-const fields: ReadonlyArray<keyof EditableTypes> = ['title', 'sourceId', 'categoryId', 'subcategoryId', 
+const fields: ReadonlyArray<keyof ExpenseInEditor> = ['title', 'sourceId', 'categoryId', 'subcategoryId', 
   'receiver', 'sum', 'userId', 'date', 'benefit', 'description', 'confirmed', 'type'];
 
 const parsers = {
@@ -86,13 +73,13 @@ interface ExpenseDialogProps {
   sourceMap: Map<Source>;
   categorySource: CategoryData[];
   categoryMap: Map<Category>;
-  onClose: Action;
+  onClose: (e: ExpenseInEditor | null) => void;
   onExpensesUpdated: (date: Date) => void;
   group: Group;
   user: User;
 }
 
-interface ExpenseDialogState extends EditableTypes {
+interface ExpenseDialogState extends ExpenseInEditor {
   subcategories: CategoryInfo[];
   errors: Map<string | undefined>;
   valid: boolean;
@@ -235,27 +222,28 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDi
     event.stopPropagation();
   }
 
-  private saveExpense = async (expense) => {
-    const createNew = !expense.id;
+  private saveExpense = async (expense: ExpenseInEditor) => {
+    const createNew = !this.props.original;
     debug(createNew ? 'Create new expense' : 'save expense', expense);
     const sum = Money.from(expense.sum);
     const division = this.calculateDivision(expense, sum);
-    const data = Object.assign({}, expense, {
+    const data: ExpenseData = { ...omit(['subcategoryId', 'benefit'], expense), 
       division: division,
       date: formatDate(expense.date),
       categoryId: expense.subcategoryId ? expense.subcategoryId : expense.categoryId,
-    });
+    };
 
-    delete data.id;
-    delete data.subcategoryId;
-    delete data.allValid;
     const name = expenseName(data);
     this.saveLock.push(true);
     try {
-      await createNew ? apiConnect.storeExpense(data) : apiConnect.updateExpense(expense.id, data);
+      if (this.props.original) {
+        await apiConnect.updateExpense(this.props.original.id, data);
+      } else {
+        await apiConnect.storeExpense(data);
+      }
       this.props.onExpensesUpdated(expense.date);
       notify(`${createNew ? 'Tallennettu' : 'Päivitetty'} ${name}`);
-      this.props.onClose();
+      this.props.onClose(expense);
     } catch (error) {
       notifyError(`Virhe ${createNew ? 'tallennettaessa' : 'päivitettäessä'} kirjausta ${name}`, error);
     }
@@ -282,8 +270,12 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDi
   private handleKeyPress = (event) => {
     const code = event.keyCode;
     if (code === KeyCodes.escape) {
-      return this.props.onClose();
+      return this.dismiss();
     }
+  }
+
+  private dismiss = () => {
+    return this.props.onClose(null);
   }
 
   public render() {
@@ -291,7 +283,7 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDi
       <FlatButton
         label="Peruuta"
         primary={true}
-        onClick={this.props.onClose} />,
+        onClick={this.dismiss} />,
       <FlatButton
         label="Tallenna"
         primary={true}
@@ -309,7 +301,7 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDi
       autoDetectWindowHeight={true}
       autoScrollBodyContent={true}
       open={true}
-      onRequestClose={this.props.onClose}>
+      onRequestClose={this.dismiss}>
       <form onSubmit={this.requestSave} onKeyUp={this.handleKeyPress}>
         <div>
           <UserAvatar userId={this.state.userId} style={{ verticalAlign: 'middle' }} />
@@ -380,7 +372,10 @@ const ConnectedExpenseDialog = connect(B.combineTemplate({
 interface ExpenseDialogListenerState {
   open: boolean;
   original: UserExpenseWithDetails | null;
+  resolve: (e: ExpenseInEditor | null) => void,
 }
+
+function noopResolve(e: ExpenseInEditor | null) {}
 
 export default class ExpenseDialogListener extends React.Component<{}, ExpenseDialogListenerState> {
 
@@ -389,6 +384,7 @@ export default class ExpenseDialogListener extends React.Component<{}, ExpenseDi
   public state: ExpenseDialogListenerState = {
     open: false,
     original: null,
+    resolve: noopResolve,
   };
 
   public componentDidMount() {
@@ -404,20 +400,21 @@ export default class ExpenseDialogListener extends React.Component<{}, ExpenseDi
     updateExpenses(date);
   }
 
-  private handleOpen = async (expenseId: number | null) => {
-    if (expenseId) {
-      debug('Edit expense', expenseId);
+  private handleOpen = async (data: ExpenseDialogObject) => {
+    if (data.expenseId) {
+      debug('Edit expense', data.expenseId);
       this.setState({ open: false, original: null });
-      const original = await apiConnect.getExpense(expenseId);
-      this.setState({ open: true, original });
+      const original = await apiConnect.getExpense(data.expenseId);
+      this.setState({ open: true, original, resolve: data.resolve });
     } else {
       debug('Create new expense');
-      this.setState({ open: true, original: null });
+      this.setState({ open: true, original: null, resolve: data.resolve });
     }
   }
 
-  private closeDialog = () => {
+  private closeDialog = (e: ExpenseInEditor | null) => {
     debug('Closing dialog');
+    this.state.resolve(e);
     this.setState({ open: false, original: null });
     return false;
   }

@@ -1,5 +1,7 @@
 import * as B from 'baconjs';
-import { ConfirmationObject, ConfirmationAction, Notification, PickDateObject } from './StateTypes';
+import { ConfirmationObject, ConfirmationAction, Notification, PickDateObject, ExpenseDialogObject } from './StateTypes';
+import { DateLike, toDate } from 'shared/util/Time';
+import { UserExpenseWithDetails, ExpenseInEditor } from 'shared/types/Expense';
 
 /* Push event to confirmationBus to show a confirmation dialog */
 const confirmationBus = new B.Bus<any, ConfirmationObject<any>>();
@@ -44,22 +46,26 @@ export function pickDate(initialDate?: Date): Promise<Date> {
 
 export const pickDateE = pickDateBus;
 
-const expenseDialogBus = new B.Bus<any, number | null>();
+const expenseDialogBus = new B.Bus<any, ExpenseDialogObject>();
 
-export function editExpense(expenseId: number) {
-  expenseDialogBus.push(expenseId);
+export function editExpense(expenseId: number): Promise<ExpenseInEditor | null> {
+  return new Promise<ExpenseInEditor | null>(resolve => {
+    expenseDialogBus.push({ expenseId, resolve });
+  });
 }
 
-export function createExpense() {
-  expenseDialogBus.push(null);
+export function createExpense(): Promise<ExpenseInEditor | null> {
+  return new Promise<ExpenseInEditor | null>(resolve => {
+    expenseDialogBus.push({ expenseId: null, resolve });
+  });
 }
 
 export const expenseDialogE = expenseDialogBus;
 
 const needUpdateBus = new B.Bus<any, Date>();
 
-export function updateExpenses(date: Date) {
-  needUpdateBus.push(date);
+export function updateExpenses(date: DateLike) {
+  needUpdateBus.push(toDate(date));
   return true;
 }
 

@@ -3,7 +3,7 @@ import { Session, Category, CategoryAndTotals, CategoryData } from '../../shared
 import { Map } from '../../shared/util/Util';
 import { FetchClient } from '../../shared/util/FetchClient';
 import { ApiMessage } from '../../shared/types/Api';
-import { ExpenseCollection, ExpenseStatus, Expense, UserExpense, RecurringExpensePeriod, UserExpenseWithDetails } from '../../shared/types/Expense';
+import { ExpenseCollection, ExpenseStatus, Expense, UserExpense, RecurringExpensePeriod, UserExpenseWithDetails, ExpenseInEditor, ExpenseData } from '../../shared/types/Expense';
 import { tokenP } from './Login';
 import { formatDate } from 'shared/util/Time';
 const debug = require('debug')('bookkeeper:api-connect');
@@ -100,11 +100,11 @@ export function getExpense(id: number | string): Promise<UserExpenseWithDetails>
   return get<UserExpenseWithDetails>(`/api/expense/${toInt(id)}`).then(mapExpense);
 }
 
-export function storeExpense(expense: Expense): Promise<ApiMessage> {
+export function storeExpense(expense: ExpenseData): Promise<ApiMessage> {
   return put<ApiMessage>('/api/expense', expense);
 }
 
-export function updateExpense(id: number | string, expense: Expense): Promise<ApiMessage> {
+export function updateExpense(id: number | string, expense: ExpenseData): Promise<ApiMessage> {
   return post<ApiMessage>(`/api/expense/${toInt(id)}`, expense);
 }
 

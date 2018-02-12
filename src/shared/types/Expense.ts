@@ -12,23 +12,26 @@ export interface ExpenseDivisionItem {
 
 export type ExpenseDivision = ExpenseDivisionItem[];
 
-export interface Expense extends DbObject {
+export interface ExpenseData {
   categoryId: number;
   confirmed: boolean;
-  created: Date;
-  createdById: number;
-  date: string;
   description: string | null;
-  groupId: number;
+  date: string;
   receiver: string;
-  recurringExpenseId: number | null;
   sourceId: number;
   sum: MoneyLike;
   title: string;
   type: ExpenseType;
-  template: boolean;
   userId: number;
-  division?: ExpenseDivision;
+  division?: ExpenseDivision;  
+};
+
+export interface Expense extends DbObject, ExpenseData {
+  groupId: number;
+  created: Date;
+  createdById: number;
+  recurringExpenseId: number | null;
+  template: boolean;
 }
 
 export interface UserExpense extends Expense {
@@ -39,6 +42,22 @@ export interface UserExpense extends Expense {
   userSplit: MoneyLike;
   userValue: MoneyLike;
 }
+
+export interface ExpenseInEditor {
+  title: string;
+  sourceId: number;
+  categoryId: number;
+  subcategoryId: number;
+  receiver: string;
+  sum: string;
+  userId: number;
+  date: Date;
+  benefit: number[];
+  description: string;
+  confirmed: boolean;
+  type: ExpenseType;
+}
+
 
 export interface UserExpenseWithDetails extends UserExpense {
   division: ExpenseDivision;
