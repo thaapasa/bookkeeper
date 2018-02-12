@@ -10,6 +10,8 @@ import { Expense, Income } from '../Icons';
 import * as apiConnect from '../../data/ApiConnect';
 import { PlainAutoComplete } from '../component/PlainTextField';
 import { stopEventPropagation } from '../../util/ClientUtil';
+import { Source } from 'shared/types/Session';
+import { CSSProperties } from 'react';
 const moment = require('moment');
 
 const styles = {
@@ -90,17 +92,14 @@ export function CategorySelector(props: {
 export function SourceSelector(props: {
   value: number,
   onChange: (id: number) => void,
-  sources: any[],
-  style?: any,
+  sources: Source[],
+  style?: CSSProperties,
 }) {
   return <DropDownMenu
     value={props.value}
     style={props.style}
-    // autoWidth={false}
-    onChange={(i, j, v) => props.onChange(v)}>
-    {props.sources.map((row) =>
-      <MenuItem key={row.id} value={row.id} primaryText={row.name} />
-    )}
+    onChange={(event, index, sourceId) => props.onChange(sourceId)}>
+    {props.sources.map(s => <MenuItem key={s.id} value={s.id} primaryText={s.name} />)}
   </DropDownMenu>
 }
 

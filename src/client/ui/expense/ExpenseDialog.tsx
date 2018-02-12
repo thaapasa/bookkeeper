@@ -56,7 +56,7 @@ const parsers = {
 
 const validators = {
   title: v => errorIf(v.length < 1, 'Nimi puuttuu'),
-  sourceId: v => v => errorIf(!v, 'Lähde puuttuu'),
+  sourceId: v => errorIf(!v, 'Lähde puuttuu'),
   categoryId: v => errorIf(!v, 'Kategoria puuttuu'),
   receiver: v => errorIf(v.length < 1, 'Kohde puuttuu'),
   sum: v => errorIf(v.length == 0, 'Summa puuttuu') || errorIf(v.match(/^[0-9]+([.][0-9]{1,2})?$/) == null, 'Summa on virheellinen'),
@@ -67,7 +67,6 @@ const defaultCategory: CategoryInfo[] = [{ id: 0, name: 'Kategoria' }];
 const defaultSubcategory: CategoryInfo[] = [{ id: 0, name: 'Alikategoria' }];
 
 function allTrue(...args: boolean[]): boolean {
-  debug('allTrue?', args);
   return args.reduce((a, b) => a && b, true);
 }
 
@@ -187,7 +186,6 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDi
     const validity: Map<B.Property<any, boolean>> = {};
     const values: Map<B.EventStream<any, any>> = {};
     fields.forEach(k => {
-      debug('Creating stream for', k);
       this.inputStreams[k].onValue(v => this.setState({ [k]: v } as any));
       const parsed = parsers[k] ? this.inputStreams[k].map(parsers[k]) : this.inputStreams[k];
       values[k] = parsed;
@@ -205,10 +203,7 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDi
     values.sourceId.onValue(v => this.inputStreams.benefit.push(this.props.sourceMap[v].users.map(u => u.userId)));
 
     const allValid = B.combineWith(allTrue, valuesToArray(validity) as any);
-    allValid.onValue(valid => {
-      debug('All valid', valid);
-      this.setState({ valid });
-    });
+    allValid.onValue(valid => this.setState({ valid }));
     const expense = B.combineTemplate(values);
 
     B.combineWith((e, v, h) => ({ ...e, allValid: v && !h }), expense, allValid, this.saveLock.toProperty(false))
@@ -216,16 +211,22 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDi
       .filter(e => e.allValid)
       .onValue(e => this.saveExpense(e));
 
-    this.setState(this.getDefaultState(this.props.original));
+    this.pushExpenseToInputStreams(this.props.original);
   }
 
   public componentWillUnmount() {
     unsubscribeAll(this.unsub);
   }
 
+  private pushExpenseToInputStreams(expense: UserExpenseWithDetails | null) {
+    const newState = this.getDefaultState(expense);
+    debug('Start editing', newState);
+    fields.map(k => this.inputStreams[k].push(newState[k]));
+  }
+
   public componentWillReceiveProps(nextProps: ExpenseDialogProps) {
     debug('Settings props for', nextProps.original);
-    this.setState(this.getDefaultState(nextProps.original));
+    this.pushExpenseToInputStreams(nextProps.original);
   }
 
   private requestSave = (event) => {
@@ -341,7 +342,7 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDi
         <br />
         <div style={{ display: 'flex', flexWrap: 'nowrap' }}>
           <SourceSelector
-            value={this.state.sourceId} sources={this.props.sources} style={{ flexGrow: '1' }}
+            value={this.state.sourceId} sources={this.props.sources} style={{ flexGrow: 1 }}
             onChange={v => this.inputStreams.sourceId.push(v)} />
           <UserSelector style={{ paddingTop: '0.5em' }} selected={this.state.benefit}
             onChange={v => this.inputStreams.benefit.push(v)} />
