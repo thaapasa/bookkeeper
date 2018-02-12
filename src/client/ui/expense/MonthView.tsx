@@ -9,6 +9,9 @@ import * as moment from 'moment';
 import { UserExpense, ExpenseStatus, Expense } from '../../../shared/types/Expense';
 import { zeroStatus } from './ExpenseHelper';
 import { History } from 'history';
+import { needUpdateE } from '../../data/State';
+import { toMoment, isSameMonth } from 'shared/util/Time';
+import { expensesForMonthPath } from 'client/util/Links';
 const debug = require('debug')('bookkeeper:month-view');
 
 interface MonthViewProps {
@@ -27,6 +30,8 @@ interface MonthViewState {
 
 export default class MonthView extends React.Component<MonthViewProps, MonthViewState> {
 
+  private unsub: any[] = [];
+
   public state: MonthViewState = {
     loading: false,
     expenses: [],
@@ -38,6 +43,7 @@ export default class MonthView extends React.Component<MonthViewProps, MonthView
 
   public async componentDidMount() {
     this.loadExpenses(this.props.date);
+    this.unsub.push(needUpdateE.onValue(this.refreshExpensesFor));
   }
 
   public async componentWillUpdate(newProps: MonthViewProps) {
@@ -46,11 +52,28 @@ export default class MonthView extends React.Component<MonthViewProps, MonthView
     }
   }
 
+  public componentWillUnmount() {
+    unsubscribeAll(this.unsub);
+  }
+
   private async loadExpenses(date: moment.Moment) {
     this.setState({ loading: true, expenses: [], startStatus: zeroStatus, endStatus: zeroStatus, monthStatus: zeroStatus });
     const expenses = await apiConnect.getExpensesForMonth(date.get('year'), date.get('month') + 1);
     debug('Expenses for', date.toDate(), expenses);
     this.setState({ loading: false, ...expenses });
+  }
+
+  private refreshExpensesFor = (date: Date) => {
+    debug('Expenses updated, refreshing for date', date);
+    const m = toMoment(date);
+    if (isSameMonth(m, this.props.date)) {
+      debug('Reloading expenses for this month');
+      this.loadExpenses(m);
+    } else {
+      const path = expensesForMonthPath(date);
+      debug('Navigating to', path);
+      this.props.history.push(path);
+    }
   }
 
   private onUpdateExpense = (id: number, data: UserExpense) => {

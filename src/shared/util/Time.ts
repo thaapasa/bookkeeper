@@ -71,6 +71,13 @@ export function monthRange(date: DateLike): TypedDateRange {
   return { start, end, type: 'month' };
 }
 
+export function isSameMonth(a: DateLike, b: DateLike) {
+  const am = toMoment(a);
+  const bm = toMoment(b);
+  if (am.get('year') !== bm.get('year')) { return false; }
+  return am.get('month') === bm.get('month');
+}
+
 export function compareDates(first: DateLike, second: DateLike): number {
   if (!first) {
     return !second ? 0 : -1;

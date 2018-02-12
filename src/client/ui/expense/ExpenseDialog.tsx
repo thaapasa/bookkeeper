@@ -241,8 +241,8 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDi
       } else {
         await apiConnect.storeExpense(data);
       }
-      this.props.onExpensesUpdated(expense.date);
       notify(`${createNew ? 'Tallennettu' : 'Päivitetty'} ${name}`);
+      this.props.onExpensesUpdated(expense.date);
       this.props.onClose(expense);
     } catch (error) {
       notifyError(`Virhe ${createNew ? 'tallennettaessa' : 'päivitettäessä'} kirjausta ${name}`, error);
