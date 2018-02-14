@@ -1,4 +1,3 @@
-import * as moment from 'moment';
 import { DateLike, toMoment } from 'shared/util/Time';
 
 export const expensePagePath = '/p/kulut';

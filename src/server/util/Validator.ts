@@ -1,5 +1,6 @@
 import Money from '../../shared/util/Money';
 import { Error } from '../../shared/types/Errors';
+import { Map } from 'shared/util/Util';
 const debug = require('debug')('bookkeeper:validator');
 
 class InvalidInputError<T> extends Error {
@@ -29,8 +30,10 @@ function fieldPath(prefix: string | undefined, field: string): string {
   return prefix ? `${prefix}.${field}` : field;
 }
 
-export interface Schema<T> { }
+
 type ValidationFunction<T> = (i: any, field: string) => T;
+export interface Schema<T> extends Map<ValidationFunction<any | T>> {
+}
 
 export class Validator {
 
@@ -38,10 +41,10 @@ export class Validator {
     const result = {};
     debug('Validating', object);
     Object.keys(schema).forEach(field => {
-      const validator = schema[field];
+      const validator = (schema as any)[field];
       const fieldName = fieldPath(prefix, field);
       debug('Validating', fieldName);
-      result[field] = validator(object[field], fieldName);
+      (result as any)[field] = validator(object[field], fieldName);
     });
     debug('Validated input to', result);
     return result as T;
@@ -125,7 +128,7 @@ export class Validator {
       if (!i || !i.map) {
         throw new InvalidInputError(field, i, 'Input must be a list of objects');
       }
-      return i.map(item => {
+      return i.map((item: any) => {
         debug('Validating sub-object', item, 'of', field, 'with schema', schema);
         return Validator.validate(schema, item, field)
       });
@@ -161,7 +164,7 @@ export class Validator {
       if (res[0]) {
         return res[1];
       } else {
-        throw new InvalidInputError(field, i, `Input did not match any matcher: ${res[2].map(e => e.info && e.info.requirement ? e.info.requirement : e)}`);
+        throw new InvalidInputError(field, i, `Input did not match any matcher: ${res[2].map((e: any) => e.info && e.info.requirement ? e.info.requirement : e)}`);
       }
     }
   }

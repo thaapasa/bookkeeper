@@ -1,9 +1,7 @@
 import * as React from 'react';
-import * as moment from 'moment';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { categoryViewYearPattern, categoryViewMonthPattern } from '../../util/Links';
 import { RouteComponentProps } from 'react-router';
-import { History } from 'history';
 import CategoryView from './CategoryView';
 import { yearRange, monthRange, TypedDateRange } from '../../../shared/util/Time';
 

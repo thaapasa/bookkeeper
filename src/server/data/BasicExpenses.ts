@@ -10,7 +10,6 @@ import { NotFoundError } from '../../shared/types/Errors';
 import { Expense, UserExpense, ExpenseDivisionType, ExpenseDivisionItem, ExpenseStatus } from '../../shared/types/Expense';
 import { Moment } from 'moment';
 import { ApiMessage } from '../../shared/types/Api';
-import addAlarm from 'material-ui/svg-icons/device/add-alarm';
 const debug = require('debug')('bookkeeper:api:expenses');
 
 function expenseSelect(where: string): string {
@@ -70,7 +69,7 @@ function countTotalBetween(tx: DbAccess) {
 }
 
 function hasUnconfirmedBefore(tx: DbAccess) {
-  return async (groupId, startDate): Promise<boolean> => {
+  return async (groupId: number, startDate: time.DateLike): Promise<boolean> => {
     const s = await tx.queryObject<{ amount: number }>('expenses.count_unconfirmed_before',
       'SELECT COUNT(*) AS amount FROM expenses WHERE group_id=$1 AND template=false AND date < $2::DATE AND confirmed=false',
       [groupId, startDate]);
@@ -232,7 +231,7 @@ export default {
   getAll: getAll(db),
   getById: getById(db),
   getDivision: getDivision(db),
-  deleteById: (groupId, expenseId) => db.transaction(tx => deleteById(tx)(groupId, expenseId)),
+  deleteById: (groupId: number, expenseId: number) => db.transaction(tx => deleteById(tx)(groupId, expenseId)),
   create: createExpense,
   update: updateExpenseById,
   queryReceivers: queryReceivers(db),

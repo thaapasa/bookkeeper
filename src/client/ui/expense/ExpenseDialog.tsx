@@ -12,16 +12,14 @@ import { SumField, TypeSelector, TitleField, CategorySelector, SourceSelector, D
 import { expenseName } from './ExpenseHelper';
 import { unsubscribeAll } from '../../util/ClientUtil';
 import { stopEventPropagation } from '../../util/ClientUtil';
-import * as moment from 'moment';
-import { splitByShares, negateDivision } from '../../../shared/util/Splitter';
+import { splitByShares, negateDivision, HasShares, HasSum } from '../../../shared/util/Splitter';
 import { Category, Source, CategoryData, Group, User } from 'shared/types/Session';
-import { UserExpense, ExpenseType, UserExpenseWithDetails, ExpenseDivisionType, ExpenseInEditor, Expense, ExpenseData } from 'shared/types/Expense';
-import { DateLike, toDate, formatDate } from '../../../shared/util/Time';
-import { Map, identity } from 'shared/util/Util';
+import { UserExpenseWithDetails, ExpenseDivisionType, ExpenseInEditor, ExpenseData } from 'shared/types/Expense';
+import { toDate, formatDate } from '../../../shared/util/Time';
+import { Map } from 'shared/util/Util';
 import { connect } from 'client/ui/component/BaconConnect';
 import { validSessionE, sourceMapE } from 'client/data/Login';
 import { categoryDataSourceP, categoryMapE, isSubcategoryOf } from '../../data/Categories';
-import { Action } from 'shared/types/Common';
 import { notify, notifyError, expenseDialogE, updateExpenses } from '../../data/State';
 import { sortAndCompareElements, valuesToArray } from 'shared/util/Arrays';
 import { ExpenseDialogObject } from 'client/data/StateTypes';
@@ -37,11 +35,11 @@ function errorIf(condition: boolean, error: string): string | undefined {
 const fields: ReadonlyArray<keyof ExpenseInEditor> = ['title', 'sourceId', 'categoryId', 'subcategoryId', 
   'receiver', 'sum', 'userId', 'date', 'benefit', 'description', 'confirmed', 'type'];
 
-const parsers = {
+const parsers: Map<(v: string) => any> = {
   sum: v => v.replace(/,/, '.'),
 };
 
-const validators = {
+const validators: Map<(v: string) => any> = {
   title: v => errorIf(v.length < 1, 'Nimi puuttuu'),
   sourceId: v => errorIf(!v, 'Lähde puuttuu'),
   categoryId: v => errorIf(!v, 'Kategoria puuttuu'),
@@ -50,7 +48,7 @@ const validators = {
   benefit: v => errorIf(v.length < 1, 'Jonkun pitää hyötyä'),
 };
 
-const defaultCategory: CategoryInfo[] = [{ id: 0, name: 'Kategoria' }];
+// const defaultCategory: CategoryInfo[] = [{ id: 0, name: 'Kategoria' }];
 const defaultSubcategory: CategoryInfo[] = [{ id: 0, name: 'Alikategoria' }];
 
 function allTrue(...args: boolean[]): boolean {
@@ -58,7 +56,7 @@ function allTrue(...args: boolean[]): boolean {
 }
 
 function fixItem(type: ExpenseDivisionType) {
-  return (item) => {
+  return (item: any) => {
     item.sum = item.sum.toString();
     item.type = type;
     return item;
@@ -133,7 +131,7 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDi
     };
   }
 
-  private calculateCost(sum, sourceId, benefit) {
+  private calculateCost(sum: MoneyLike, sourceId: number, benefit: Array<HasShares & HasSum>) {
     const sourceUsers = this.props.sourceMap[sourceId].users;
     const sourceUserIds = sourceUsers.map(s => s.userId);
     const benefitUserIds = benefit.map(b => b.userId);
@@ -148,7 +146,7 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDi
     }
   }
 
-  private calculateDivision(expense, sum) {
+  private calculateDivision(expense: ExpenseInEditor, sum: MoneyLike) {
     if (expense.type === 'expense') {
       const benefit = splitByShares(sum, expense.benefit.map(id => ({ userId: id, share: 1 })));
       const cost = this.calculateCost(sum, expense.sourceId, benefit);
@@ -216,7 +214,7 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDi
     this.pushExpenseToInputStreams(nextProps.original);
   }
 
-  private requestSave = (event) => {
+  private requestSave = (event: React.SyntheticEvent<any>) => {
     this.submitStream.push(true);
     event.preventDefault();
     event.stopPropagation();
@@ -251,23 +249,23 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDi
     return null;
   }
 
-  private selectCategory = (id) => {
+  private selectCategory = (id: number) => {
     const m = this.props.categoryMap;
     const name = m[id].name;
     if (m[id].parentId) {
-      this.setCategory(m[id].parentId, id);
+      this.setCategory(m[id].parentId!, id);
     } else {
       this.setCategory(id, 0);
     }
     this.inputStreams.title.push(name);
   }
 
-  private setCategory = (id, subcategoryId) => {
+  private setCategory = (id: number, subcategoryId: number) => {
     this.inputStreams.categoryId.push(id);
     this.inputStreams.subcategoryId.push(subcategoryId);
   }
 
-  private handleKeyPress = (event) => {
+  private handleKeyPress = (event: React.KeyboardEvent<any>) => {
     const code = event.keyCode;
     if (code === KeyCodes.escape) {
       return this.dismiss();

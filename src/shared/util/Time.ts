@@ -55,6 +55,7 @@ function fromYearValue(y: DateLike): moment.Moment | undefined {
     const year = parseInt(y, 10);
     return moment(leftPad(year, 4, '0') + '-01-01');
   }
+  return;
 }
 
 export function yearRange(date: DateLike): TypedDateRange {

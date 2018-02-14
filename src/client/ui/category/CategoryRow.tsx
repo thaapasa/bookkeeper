@@ -2,15 +2,12 @@ import * as React from 'react';
 import * as colors from '../Colors';
 import * as apiConnect from '../../data/ApiConnect';
 import ExpenseRow from '../expense/ExpenseRow';
-import { unsubscribeAll } from '../../util/ClientUtil';
 import { CSSProperties } from 'react';
 import { Map } from '../../../shared/util/Util';
 import { Category, CategoryAndTotals } from '../../../shared/types/Session';
 import { AddCategoryButton, EditCategoryButton, ToggleButton } from './CategoryTools';
 import { UserExpense } from '../../../shared/types/Expense';
 import { DateRange } from '../../../shared/util/Time';
-import { Action } from '../../../shared/types/Common';
-const debug = require('debug')('bookkeeper:category-view');
 
 const styles: Map<CSSProperties> = {
   mainCategory: {

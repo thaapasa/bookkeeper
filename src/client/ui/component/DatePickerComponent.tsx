@@ -1,5 +1,4 @@
 import * as React from 'react';
-import * as state from '../../data/State'
 import DatePicker from 'material-ui/DatePicker'
 import * as moment from 'moment';
 import { PickDateObject } from '../../data/StateTypes';
@@ -13,8 +12,6 @@ interface DatePickerProps {
 
 class DatePickerComponent extends React.Component<DatePickerProps, {}> {
 
-  private datePicker: DatePicker | null = null;
-
   private onChange = (_: any, d: Date) => { 
     debug('Selecting date', d);
     this.props.pick.resolve(d);
@@ -26,7 +23,6 @@ class DatePickerComponent extends React.Component<DatePickerProps, {}> {
   private formatDate = (d: Date) => moment(d).format('D.M.YYYY');
 
   private setRef = (ref: DatePicker | null) => {
-    this.datePicker = ref;
     if (ref) {
       debug('Opening dialog');
       ref.openDialog();

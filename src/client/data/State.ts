@@ -1,7 +1,7 @@
 import * as B from 'baconjs';
 import { ConfirmationObject, ConfirmationAction, Notification, PickDateObject, ExpenseDialogObject } from './StateTypes';
-import { DateLike, toDate } from 'shared/util/Time';
-import { UserExpenseWithDetails, ExpenseInEditor } from 'shared/types/Expense';
+import { DateLike, toDate } from '../../shared/util/Time';
+import { ExpenseInEditor } from '../../shared/types/Expense';
 
 /* Push event to confirmationBus to show a confirmation dialog */
 const confirmationBus = new B.Bus<any, ConfirmationObject<any>>();

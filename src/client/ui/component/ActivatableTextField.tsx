@@ -1,7 +1,7 @@
 import * as React from 'react';
 import TextField from 'material-ui/TextField';
 import { KeyCodes } from '../../util/Io';
-import { CSSProperties, SyntheticEvent } from 'react';
+import { CSSProperties } from 'react';
 const debug = require('debug')('bookkeeper:activatable-text-field');
 
 type EditorType = React.ComponentClass<any>;
@@ -57,9 +57,10 @@ export default class ActivatableTextField extends React.Component<ActivatableTex
       this.cancel();
       return false;
     }
+    return;
   }
 
-  private updateValue = (i, value: string) => this.setState({ value })
+  private updateValue = (i: any, value: string) => this.setState({ value })
 
   private createEditor() {
     const type = this.props.editorType ? this.props.editorType : TextField;

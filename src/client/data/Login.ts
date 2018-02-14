@@ -1,12 +1,9 @@
 import * as B from 'baconjs';
-import * as state from './State';
 import { Session, Group, User, Source } from '../../shared/types/Session';
+import * as apiConnect from './ApiConnect';
+import { Map } from '../../shared/util/Util';
+import { toMap } from '../../shared/util/Arrays';
 const debug = require('debug')('bookkeeper:login');
-
-interface LoginCredentials {
-  username: string;
-  password: string;
-}
 
 const tokenBus = new B.Bus<any, string | null>();
 const loginBus = new B.Bus<any, Session | null>();
@@ -17,11 +14,6 @@ export const sessionP = sessionBus.toProperty(null);
 export const validSessionE: B.EventStream<any, Session> = sessionP.filter(s => s !== null) as any;
 export const userMapE: B.EventStream<any, Map<User>> = validSessionE.map(s => toMap(s.users, 'id'));
 export const sourceMapE: B.EventStream<any, Map<Source>> = validSessionE.map(s => toMap(s.sources, 'id'));
-
-
-import * as apiConnect from './ApiConnect';
-import { Map } from '../../shared/util/Util';
-import { toMap, flatten } from '../../shared/util/Arrays';
 
 const refreshTokenKey = 'refreshToken';
 

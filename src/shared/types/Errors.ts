@@ -1,14 +1,14 @@
 import { ucFirst } from '../util/Util';
 
-export function undefinedToError(errorType, p1?, p2?, p3?) {
-  return value => {
+export function undefinedToError(errorType: any, p1?: any, p2?: any, p3?: any) {
+  return (value: any) => {
     if (value === undefined) throw new errorType(p1, p2, p3);
     else return value;
   }
 };
 
-export function emptyToError(errorType, p1?, p2?, p3?) {
-  return value => {
+export function emptyToError(errorType: any, p1?: any, p2?: any, p3?: any) {
+  return (value: any) => {
     if (value === undefined || value === null || (Array.isArray(value) && value.length === 0)) throw new errorType(p1, p2, p3);
     else return value;
   }

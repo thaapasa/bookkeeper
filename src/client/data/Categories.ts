@@ -1,5 +1,5 @@
 import * as B from 'baconjs';
-import { flatten, toMap } from '../../shared/util/Arrays';
+import { flatten } from '../../shared/util/Arrays';
 import { Category, Session } from '../../shared/types/Session';
 import { validSessionE } from 'client/data/Login';
 import { Map } from 'shared/util/Util';

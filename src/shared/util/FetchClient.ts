@@ -48,7 +48,7 @@ export class FetchClient {
 
   public static contentTypeJson: Map<string> = { 'Content-Type': 'application/json' };
 
-  public get<T>(path, query?: Map<any>, headers?: Map<string>): Promise<T> {
+  public get<T>(path: string, query?: Map<any>, headers?: Map<string>): Promise<T> {
     return this.req(path, { method: 'GET', query, headers });
   }
 
@@ -57,11 +57,11 @@ export class FetchClient {
     return this.req(path, { method: 'PUT', body, query, headers: { ...FetchClient.contentTypeJson, ...headers } as Map<string> });
   }
 
-  public post<T>(path, body?: any, query?: Map<any>, headers?: Map<string>): Promise<T> {
+  public post<T>(path: string, body?: any, query?: Map<any>, headers?: Map<string>): Promise<T> {
     return this.req(path, { method: 'POST', body, query, headers: { ...FetchClient.contentTypeJson, ...headers } as Map<string> });
   }
 
-  public del<T>(path, data?: any, query?: Map<any>, headers?: Map<string>): Promise<T> {
+  public del<T>(path: string, data?: any, query?: Map<any>, headers?: Map<string>): Promise<T> {
     return this.req(path, { method: 'DELETE', query, headers });
   }
 

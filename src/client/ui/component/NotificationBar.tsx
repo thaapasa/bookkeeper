@@ -1,6 +1,5 @@
 import * as React from 'react';
 import Snackbar from 'material-ui/Snackbar';
-import * as state from '../../data/State'
 import { Notification } from '../../data/StateTypes';
 import { notificationE } from '../../data/State';
 import { Action } from '../../../shared/types/Common';

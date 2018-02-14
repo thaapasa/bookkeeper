@@ -16,6 +16,10 @@ export default class Money {
     else { return Big(m); }
   }
 
+  public static toValue(m: MoneyLike): number {
+    return parseInt(Money.from(m).value.times(100).round().toString()) / 100;
+  }
+
   public constructor(value: MoneyLike) {
     this.value = Money.toBig(value);
   }

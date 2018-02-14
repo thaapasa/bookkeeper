@@ -1,5 +1,5 @@
 import Money, { MoneyLike } from '../../../shared/util/Money';
-import { Expense, ExpenseStatus, UserExpense, ExpenseInEditor, ExpenseData } from '../../../shared/types/Expense';
+import { ExpenseStatus, UserExpense, ExpenseData } from '../../../shared/types/Expense';
 
 export function expenseName(e: ExpenseData): string {
   return `${e.title} (${e.receiver}): ${Money.from(e.sum).format()}`;
