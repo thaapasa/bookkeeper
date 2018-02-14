@@ -1,4 +1,4 @@
-import { ExpenseInEditor } from "shared/types/Expense";
+import { ExpenseInEditor } from '../../shared/types/Expense';
 
 export type ConfirmationAction<T> = {
   label: string;

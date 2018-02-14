@@ -48,7 +48,7 @@ const validators: Map<(v: string) => any> = {
   benefit: v => errorIf(v.length < 1, 'Jonkun pitää hyötyä'),
 };
 
-const defaultCategory: CategoryInfo[] = [{ id: 0, name: 'Kategoria' }];
+// const defaultCategory: CategoryInfo[] = [{ id: 0, name: 'Kategoria' }];
 const defaultSubcategory: CategoryInfo[] = [{ id: 0, name: 'Alikategoria' }];
 
 function allTrue(...args: boolean[]): boolean {

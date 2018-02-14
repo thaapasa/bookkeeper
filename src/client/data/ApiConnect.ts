@@ -3,7 +3,7 @@ import { Session, Category, CategoryAndTotals, CategoryData } from '../../shared
 import { Map } from '../../shared/util/Util';
 import { FetchClient } from '../../shared/util/FetchClient';
 import { ApiMessage } from '../../shared/types/Api';
-import { ExpenseCollection, ExpenseStatus, Expense, UserExpense, RecurringExpensePeriod, UserExpenseWithDetails, ExpenseInEditor, ExpenseData } from '../../shared/types/Expense';
+import { ExpenseCollection, ExpenseStatus, UserExpense, RecurringExpensePeriod, UserExpenseWithDetails, ExpenseData } from '../../shared/types/Expense';
 import { tokenP } from './Login';
 import { formatDate, DateLike } from 'shared/util/Time';
 const debug = require('debug')('bookkeeper:api-connect');

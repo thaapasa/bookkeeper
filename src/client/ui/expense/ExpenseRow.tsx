@@ -88,6 +88,7 @@ export class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState
       return true;
     } catch (e) {
       notifyError('Virhe muutettaessa päivämäärää', e);
+      return false;
     }
   }
 

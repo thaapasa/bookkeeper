@@ -1,5 +1,6 @@
 import Money from '../../shared/util/Money';
 import { Error } from '../../shared/types/Errors';
+import { Map } from 'shared/util/Util';
 const debug = require('debug')('bookkeeper:validator');
 
 class InvalidInputError<T> extends Error {
@@ -29,8 +30,10 @@ function fieldPath(prefix: string | undefined, field: string): string {
   return prefix ? `${prefix}.${field}` : field;
 }
 
-export interface Schema<T> { }
+
 type ValidationFunction<T> = (i: any, field: string) => T;
+export interface Schema<T> extends Map<ValidationFunction<any | T>> {
+}
 
 export class Validator {
 

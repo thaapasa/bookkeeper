@@ -12,7 +12,7 @@ export function underscoreToCamelCase(str: any): string {
 export function camelCaseObject<T extends object>(o: T): T {
   if (typeof o !== 'object') { return o;  }
   const r = {} as T;
-  Object.keys(o).forEach(k => r[underscoreToCamelCase(k)] = o[k]);
+  Object.keys(o).forEach(k => (r as any)[underscoreToCamelCase(k)] = (o as any)[k]);
   return r;
 }
 

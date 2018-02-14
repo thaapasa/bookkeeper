@@ -73,7 +73,7 @@ export default class CategoryDialog extends React.Component<CategoryDialogProps,
     this.saveCategory(this.state);
   }
 
-  private async saveCategory(s: CategoryDialogState) {
+  private async saveCategory(s: CategoryDialogState): Promise<number | null> {
     const createNew = !s.id;
     const name = s.name;
 
@@ -89,6 +89,7 @@ export default class CategoryDialog extends React.Component<CategoryDialogProps,
         (await apiConnect.updateCategory(s.id, data)).id;
       this.closeDialog(id);
       notify(`${createNew ? 'Tallennettu' : 'Päivitetty'} ${name}`);
+      return id;
     } catch (e) {
       notifyError(`Virhe ${createNew ? 'tallennettaessa' : 'päivitettäessä'} kirjausta ${name}`, e);
       return null;
