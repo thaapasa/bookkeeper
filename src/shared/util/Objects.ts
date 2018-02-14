@@ -13,7 +13,7 @@ export function omit<T, K extends keyof T>(names: ReadonlyArray<K>, obj: T): Omi
   const res: T & Omit<T, K> = {} as any;
   Object.keys(obj)
     .filter(n => !arrayContains(names, n))
-    .forEach(n => res[n] = obj[n]);
+    .forEach(n => (res as any)[n] = (obj as any)[n]);
   return res;
 }
 

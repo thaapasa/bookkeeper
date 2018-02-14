@@ -44,7 +44,7 @@ export default class ExpenseNavigation extends React.Component<ExpenseNavigation
     this.props.history.push(expensesForMonthPath(toDate.toDate()));
   }
 
-  private handleKeyPress = (event) => {
+  private handleKeyPress = (event: React.KeyboardEvent<any>) => {
     switch (event.keyCode) {
       case KeyCodes.right:
         this.navigateMonths(1);
@@ -53,6 +53,7 @@ export default class ExpenseNavigation extends React.Component<ExpenseNavigation
         this.navigateMonths(-1);
         return false;
     }
+    return;
   }
 
   public render() {

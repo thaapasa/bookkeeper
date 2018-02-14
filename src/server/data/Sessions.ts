@@ -51,14 +51,14 @@ function refresh(refreshToken: string, groupId: number): Promise<SessionBasicInf
 }
 
 function logout(tx: DbAccess) {
-  return async (session): Promise<ApiMessage> => {
+  return async (session: SessionBasicInfo): Promise<ApiMessage> => {
     debug('Logout for', session.token);
     if (!session.token) {
       throw new AuthenticationError('INVALID_TOKEN', 'Session token is missing');
     }
     await tx.update('sessions.delete', 'DELETE FROM sessions WHERE (token=$1 AND refresh_token IS NOT NULL) ' +
       'OR (token=$2 AND refresh_token IS NULL)', [session.token, session.refreshToken]);
-    return ({ status: 'OK', message: 'User has logged out', userId: session.userId });
+    return ({ status: 'OK', message: 'User has logged out', userId: session.user.id });
   };
 }
 

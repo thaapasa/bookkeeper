@@ -12,6 +12,7 @@ import { PlainAutoComplete } from '../component/PlainTextField';
 import { stopEventPropagation } from '../../util/ClientUtil';
 import { Source } from 'shared/types/Session';
 import { CSSProperties } from 'react';
+import { ExpenseType } from 'shared/types/Expense';
 const moment = require('moment');
 
 const styles = {
@@ -21,7 +22,7 @@ const styles = {
 export function SumField(props: {
   value: string,
   errorText?: string,
-  onChange: (string) => void
+  onChange: (s: string) => void
 }) {
   return <TextField
     hintText="0.00"
@@ -37,7 +38,7 @@ export function TitleField(props: {
   errorText?: string,
   dataSource: any[],
   onChange: (s: string) => void,
-  onSelect: (s: string) => void,
+  onSelect: (s: number) => void,
 }) {
   return <AutoComplete
     hintText="Ruokaostokset"
@@ -105,7 +106,7 @@ export function SourceSelector(props: {
 
 export function TypeSelector(props: {
   value: string,
-  onChange: (string) => void,
+  onChange: (s: ExpenseType) => void,
 }) {
   return <Checkbox
     label={props.value === 'income' ? 'Tulo' : 'Kulu'}
@@ -147,7 +148,7 @@ interface ReceiverFieldState {
 
 export class ReceiverField extends React.Component<ReceiverFieldProps, ReceiverFieldState> {
 
-  private inputStream: any;
+  private inputStream: Bacon.Bus<any, string>;
   private unsub: any[];
   public state: ReceiverFieldState = { receivers: [] };
 
@@ -156,7 +157,7 @@ export class ReceiverField extends React.Component<ReceiverFieldProps, ReceiverF
     this.unsub = [];
     this.unsub.push(this.inputStream.onValue(v => this.props.onChange(null, v)));
     this.unsub.push(this.inputStream
-      .filter(v => v && v.length > 2 && v.length < 10)
+      .filter(v => v && v.length > 2 && v.length < 10 || false)
       .debounceImmediate(500)
       .flatMapLatest(v => Bacon.fromPromise(apiConnect.queryReceivers(v)))
       .onValue(v => this.setState({ receivers: v })));
@@ -177,7 +178,7 @@ export class ReceiverField extends React.Component<ReceiverFieldProps, ReceiverF
       id: this.props.id,
       filter: AutoComplete.noFilter,
       dataSource: this.state.receivers,
-      onUpdateInput: r => this.inputStream.push(r),
+      onUpdateInput: (r: string) => this.inputStream.push(r),
       hintText: this.props.hintText || 'Kauppa',
       floatingLabelText: 'Saaja',
       floatingLabelFixed: true,
@@ -199,7 +200,6 @@ export class PlainReceiverField extends React.Component<ReceiverFieldProps, {}> 
     );
   }
 }
-
 
 export function DescriptionField(props: {
   value: string,

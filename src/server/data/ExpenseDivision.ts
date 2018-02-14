@@ -14,7 +14,7 @@ function divisionOfType(division: ExpenseDivisionItem[] | undefined, type: Expen
   return division ? division.filter(d => d.type === type) : [];
 }
 
-function validateDivision(items: ExpenseDivisionItem[], sum: MoneyLike, field) {
+function validateDivision(items: ExpenseDivisionItem[], sum: MoneyLike, field: string) {
   const calculated = items.map(i => Money.from(i.sum)).reduce((a, b) => a.plus(b), Money.zero);
   if (!Money.from(sum).equals(calculated)) throw new Validator.InvalidInputError(field, calculated,
     `Division sum must match expense sum ${sum.toString()}, is ${calculated.toString()}`);

@@ -7,12 +7,12 @@ import moment from 'moment';
 import Money from '../shared/util/Money';
 import * as help from '../shared/util/test/ExpenseHelper';
 import { SessionWithControl, getSession } from '../shared/util/test/TestClient';
-import { Expense, ExpenseCollection } from '../shared/types/Expense';
+import { Expense, ExpenseCollection, ExpenseStatus } from '../shared/types/Expense';
 import { findUserId } from '../shared/util/test/ExpenseHelper';
 import { ApiMessage } from '../shared/types/Api';
 import { expectThrow } from '../shared/util/test/TestUtil';
 
-function checkValueAndBalance(status, i, name) {
+function checkValueAndBalance(status: ExpenseStatus, i: any, name: string) {
   expect(status.value).toEqual(Money.from(status.cost).plus(status.benefit).plus(status.income).plus(status.split).toString());
   expect(status.balance).toEqual(Money.from(status.value).negate().toString());
 }
@@ -156,7 +156,7 @@ describe('expense', function () {
     expect(Money.equals(feb2.monthStatus.benefit, Money.from(feb1.monthStatus.benefit).plus('370'))).toBeTruthy;
 
     [jan1, jan2, feb1, feb2].forEach((o, i) => ['monthStatus', 'startStatus', 'endStatus']
-      .forEach(status => checkValueAndBalance(o[status], i, status)));
+      .forEach(status => checkValueAndBalance((o as any)[status], i, status)));
 
     expect(feb1.startStatus).toEqual(jan1.endStatus);
     expect(feb2.startStatus).toEqual(jan2.endStatus);

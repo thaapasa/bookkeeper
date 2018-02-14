@@ -69,7 +69,7 @@ class Axis extends React.Component<AxisProps, {}> {
 
   private renderAxis() {
     const axisType = `axis${this.props.orient}`
-    const axis = d3Axis[axisType]()
+    const axis = (d3Axis as any)[axisType]()
       .scale(this.props.scale)
       .tickSize(-this.props.tickSize)
       .tickPadding([12])

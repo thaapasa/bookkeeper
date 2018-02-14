@@ -7,13 +7,11 @@ import { PlainTextField } from '../component/PlainTextField';
 import { ExpandLess, ExpandMore, Delete, Edit, Repeat, ToolIcon } from '../Icons'
 import * as colors from '../Colors';
 import { PlainReceiverField } from './ExpenseDialogComponents';
-import { combineClassNames } from '../../util/ClientUtil';
-import * as arrays from '../../../shared/util/Arrays';
 import ExpenseDivision from './ExpenseDivision'
-import { expenseName, money, ExpenseFilterFunction } from './ExpenseHelper';
-import Money, { MoneyLike } from '../../../shared/util/Money';
+import { expenseName,  ExpenseFilterFunction } from './ExpenseHelper';
+import Money from '../../../shared/util/Money';
 import * as moment from 'moment';
-import { Expense, UserExpense, UserExpenseWithDetails } from '../../../shared/types/Expense';
+import { Expense, UserExpense, UserExpenseWithDetails, ExpenseDivisionItem } from '../../../shared/types/Expense';
 import { User, Source, Category } from '../../../shared/types/Session';
 import { connect } from '../component/BaconConnect';
 import { userMapE, sourceMapE } from '../../data/Login';
@@ -22,7 +20,7 @@ import { categoryMapE, getFullCategoryName } from '../../data/Categories';
 import { Map } from 'shared/util/Util';
 import { toDate, formatDate } from 'shared/util/Time';
 
-const emptyDivision = [];
+const emptyDivision: ExpenseDivisionItem[] = [];
 
 interface CommonExpenseRowProps {
   expense: UserExpense;

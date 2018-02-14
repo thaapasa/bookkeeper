@@ -21,6 +21,7 @@ class ConfirmationDialog<T> extends React.Component<ConfirmationDialogProps<T>, 
     } else if (code === KeyCodes.escape) {
       return this.resolveWithIfDefined(false);
     }
+    return;
   }
 
   private resolveWithIfDefined = (value: any) => {
@@ -28,6 +29,7 @@ class ConfirmationDialog<T> extends React.Component<ConfirmationDialogProps<T>, 
       this.resolveWith(value);
       return false;
     }
+    return;
   }
 
   private resolveWith = async (value: T) => {

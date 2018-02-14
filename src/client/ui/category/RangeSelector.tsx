@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { TypedDateRange, toMoment, getFinnishMonthName } from "../../../shared/util/Time";
-import { NavigateLeft, NavigateRight } from "../Icons";
+import { TypedDateRange, toMoment, getFinnishMonthName } from '../../../shared/util/Time';
+import { NavigateLeft, NavigateRight } from '../Icons';
 import styled from 'styled-components';
 
 const Container = styled.div`

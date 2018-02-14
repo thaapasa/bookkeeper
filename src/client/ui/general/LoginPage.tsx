@@ -2,7 +2,6 @@ import * as React from 'react';
 import Paper from 'material-ui/Paper';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
-import * as apiConnect from '../../data/ApiConnect';
 import styled from 'styled-components';
 import { login } from '../../data/Login';
 

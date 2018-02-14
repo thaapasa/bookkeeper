@@ -85,7 +85,7 @@ export async function getExpensesForMonth(year: number, month: number): Promise<
   return mapExpenseObject(collection);
 }
 
-export function searchExpenses(startDate: DateLike, endDate: DateLike, query: Map<string>): Promise<UserExpense[]> {
+export function searchExpenses(startDate: DateLike, endDate: DateLike, query: Map<string | number>): Promise<UserExpense[]> {
   const q = { ...query, startDate: formatDate(startDate), endDate: formatDate(endDate) };
   return get<UserExpense[]>('/api/expense/search', q).then(l => l.map(mapExpense));
 }

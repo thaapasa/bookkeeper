@@ -3,7 +3,6 @@ import * as moment from 'moment';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { expenseMonthPathPattern, monthPattern } from '../../util/Links';
 import { RouteComponentProps } from 'react-router';
-import { History } from 'history';
 import MonthView from './MonthView';
 
 interface MonthRouteParams {

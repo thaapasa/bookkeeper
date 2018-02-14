@@ -4,7 +4,7 @@ import RaisedButton from 'material-ui/RaisedButton';
 import IconButton from 'material-ui/IconButton';
 import { Toolbar, ToolbarGroup, ToolbarTitle } from 'material-ui/Toolbar';
 import * as colors from '../Colors';
-import { logout, sessionP, getTitle, validSessionE } from '../../data/Login';
+import { logout, getTitle, validSessionE } from '../../data/Login';
 import { User, Group } from '../../../shared/types/Session';
 import { connect } from './BaconConnect';
 import { createExpense } from '../../data/State';

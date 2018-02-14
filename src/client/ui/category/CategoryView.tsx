@@ -6,10 +6,10 @@ import { validSessionE, updateSession } from '../../data/Login';
 import { History } from 'history';
 import { TypedDateRange, compareRanges } from '../../../shared/util/Time';
 import { Map } from '../../../shared/util/Util';
-import { CategoryChartData, CategoryTable } from './CategoryTable';
+import { CategoryTable } from './CategoryTable';
 import { needUpdateE } from 'client/data/State';
 import { unsubscribeAll } from 'client/util/ClientUtil';
-const debug = require('debug')('bookkeeper:category-view');
+import { CategoryChartData } from './CategoryChart';
 
 interface CategoryViewProps {
   categories: Category[];

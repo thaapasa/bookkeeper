@@ -24,7 +24,7 @@ export function indices(num: number): number[] {
 }
 
 export function flatten<T>(arr: any): T[] {
-  return arr.reduce((a, b) => a.concat(Array.isArray(b) ? flatten(b) : b), []);
+  return arr.reduce((a: any, b: any) => a.concat(Array.isArray(b) ? flatten(b) : b), []);
 }
 
 /** Assume input: Array of [name, value] fields */
@@ -44,7 +44,7 @@ export function toMap<T, K extends keyof T>(arr: T[], keyProp: K): Map<T> {
 
 export function valuesToArray<T extends object>(a: T): (T[keyof T])[] {
   const res: (T[keyof T])[] = [];
-  Object.keys(a).map(k => res.push(a[k]));
+  Object.keys(a).map(k => res.push((a as any)[k]));
   return res;
 }
 
