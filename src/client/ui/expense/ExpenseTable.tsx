@@ -5,7 +5,7 @@ import ExpenseRow from './ExpenseRow';
 import ExpenseHeader from './ExpenseHeader';
 import RefreshIndicator from 'material-ui/RefreshIndicator';
 import Money from '../../../shared/util/Money';
-import * as moment from 'moment';
+import moment from 'moment';
 import { MonthlyStatus } from './MonthlyStatus';
 import { UserExpense, ExpenseStatus, Expense } from '../../../shared/types/Expense';
 import { ExpenseTotals, ExpenseFilter, ExpenseFilterFunction } from './ExpenseHelper';

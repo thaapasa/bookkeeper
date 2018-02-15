@@ -10,7 +10,7 @@ import { PlainReceiverField } from './ExpenseDialogComponents';
 import ExpenseDivision from './ExpenseDivision'
 import { expenseName,  ExpenseFilterFunction } from './ExpenseHelper';
 import Money from '../../../shared/util/Money';
-import * as moment from 'moment';
+import moment from 'moment';
 import { Expense, UserExpense, UserExpenseWithDetails, ExpenseDivisionItem } from '../../../shared/types/Expense';
 import { User, Source, Category } from '../../../shared/types/Session';
 import { connect } from '../component/BaconConnect';

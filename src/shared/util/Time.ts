@@ -1,5 +1,4 @@
-import * as moment from 'moment';
-import { isMoment } from 'moment';
+import moment, { isMoment } from 'moment';
 import { leftPad } from './Util';
 
 export type DateLike = Date | moment.Moment | string;

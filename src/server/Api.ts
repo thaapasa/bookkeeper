@@ -1,5 +1,5 @@
 import users from './data/Users';
-import * as moment from 'moment';
+import moment from 'moment';
 import sessions from './data/Sessions';
 import expenses, { ExpenseSearchParams } from './data/Expenses';
 import categories, { CategoryInput, CategoryQueryInput } from './data/Categories';

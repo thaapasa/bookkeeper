@@ -5,7 +5,7 @@ import { FetchClient } from '../../shared/util/FetchClient';
 import { ApiMessage } from '../../shared/types/Api';
 import { ExpenseCollection, ExpenseStatus, UserExpense, RecurringExpensePeriod, UserExpenseWithDetails, ExpenseData } from '../../shared/types/Expense';
 import { tokenP } from './Login';
-import { formatDate, DateLike } from 'shared/util/Time';
+import { formatDate, DateLike } from '../../shared/util/Time';
 const debug = require('debug')('bookkeeper:api-connect');
 const client = new FetchClient(() => fetch);
 
@@ -32,8 +32,8 @@ function mapStatus(s: ExpenseStatus): ExpenseStatus {
     income: Money.from(s.income),
     split: Money.from(s.split),
     value: Money.from(s.value),
-    balance: Money.from(s.balance)
-  }
+    balance: Money.from(s.balance),
+  };
 }
 
 function mapExpenseObject(e: ExpenseCollection): ExpenseCollection {
@@ -45,7 +45,7 @@ function mapExpenseObject(e: ExpenseCollection): ExpenseCollection {
 }
 
 function authHeader(): Map<string> {
-  return { 'Authorization': `Bearer ${currentToken || ''}` };
+  return { Authorization: `Bearer ${currentToken || ''}` };
 }
 
 function get<T>(path: string, query?: Map<string>): Promise<T> {
@@ -81,7 +81,7 @@ export function refreshSession(): Promise<Session> {
 }
 
 export async function getExpensesForMonth(year: number, month: number): Promise<ExpenseCollection> {
-  const collection = await get<ExpenseCollection>('/api/expense/month', { year: year.toString(), month: month.toString() })
+  const collection = await get<ExpenseCollection>('/api/expense/month', { year: year.toString(), month: month.toString() });
   return mapExpenseObject(collection);
 }
 
@@ -115,7 +115,7 @@ export function createRecurring(id: number | string, period: RecurringExpensePer
 }
 
 export function queryReceivers(receiver: string): Promise<string[]> {
-  return get<string[]>('/api/expense/receivers', { receiver: receiver });
+  return get<string[]>('/api/expense/receivers', { receiver });
 }
 
 export function getCategoryList(): Promise<Category[]> {

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { scaleBand, scaleLinear } from 'd3-scale';
 import * as d3Axis from 'd3-axis';
 import { select as d3Select } from 'd3-selection';
-import Money, { MoneyLike } from 'shared/util/Money';
+import Money, { MoneyLike } from '../../../shared/util/Money';
 
 export interface CategoryChartData {
   categoryId: number;
@@ -15,7 +15,12 @@ interface Scales {
   yScale: any;
 }
 
-interface Margins { bottom: number, top: number, left: number, right: number }
+interface Margins {
+  bottom: number;
+  top: number;
+  left: number;
+  right: number;
+}
 
 interface BarsProps {
   scales: Scales;
@@ -32,7 +37,7 @@ class Bars extends React.Component<BarsProps, {}> {
     const { height } = svgDimensions;
 
     const bars = (data ?
-      data.map(datum =>
+      data.map(datum => (
         <rect
           key={datum.categoryName}
           x={xScale(datum.categoryName)}
@@ -40,13 +45,11 @@ class Bars extends React.Component<BarsProps, {}> {
           height={height - margins.bottom - yScale(datum.categoryTotal)}
           width={xScale.bandwidth()}
           fill="#A252B6"
-        />,
-      ) : <rect />
+        />
+      )) : <rect />
     );
 
-    return (
-      <g>{bars}</g>
-    )
+    return <g>{bars}</g>;
   }
 }
 
@@ -68,7 +71,7 @@ class Axis extends React.Component<AxisProps, {}> {
   }
 
   private renderAxis() {
-    const axisType = `axis${this.props.orient}`
+    const axisType = `axis${this.props.orient}`;
     const axis = (d3Axis as any)[axisType]()
       .scale(this.props.scale)
       .tickSize(-this.props.tickSize)
@@ -118,12 +121,12 @@ function Axes({ scales, margins, svgDimensions }: AxesProps) {
       <Axis {...xProps} />
       <Axis {...yProps} />
     </g>
-  )
+  );
 }
 
 interface CategoryChartState {
   containerWidth: number | null;
-};
+}
 
 export default class CategoryChart extends React.Component<{ chartData: CategoryChartData[] | undefined }, CategoryChartState> {
 
@@ -156,12 +159,12 @@ export default class CategoryChart extends React.Component<{ chartData: Category
 
   private renderChart(parentWidth: number) {
 
-    let chartData = this.props.chartData;
-    const margins = { top: 50, right: 20, bottom: 100, left: 60 }
+    const chartData = this.props.chartData;
+    const margins = { top: 50, right: 20, bottom: 100, left: 60 };
     const svgDimensions = {
       width: Math.max(parentWidth, 300),
-      height: 500
-    }
+      height: 500,
+    };
 
     const maxValue = chartData ? Math.max(...chartData.map(d => Money.toValue(d.categoryTotal))) * 1.1 : 0;
     // scaleBand type
@@ -174,7 +177,7 @@ export default class CategoryChart extends React.Component<{ chartData: Category
     const yScale = this.yScale
       // scaleLinear domain required at least two values, min and max
       .domain([0, maxValue])
-      .range([svgDimensions.height - margins.bottom, margins.top])
+      .range([svgDimensions.height - margins.bottom, margins.top]);
 
     return (
       <div className="category-chart-container">
@@ -193,7 +196,7 @@ export default class CategoryChart extends React.Component<{ chartData: Category
           />
         </svg>
       </div>
-    )
+    );
   }
 
   public render() {
@@ -201,13 +204,12 @@ export default class CategoryChart extends React.Component<{ chartData: Category
 
     return (
       <div
-        ref={(el) => { this.chartContainer = el }}
+        ref={(el) => { this.chartContainer = el; }}
         className="Responsive-wrapper"
       >
         {containerWidth != null && this.renderChart(containerWidth)}
       </div>
     );
   }
-
 
 }

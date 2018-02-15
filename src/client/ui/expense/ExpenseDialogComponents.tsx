@@ -13,7 +13,7 @@ import { stopEventPropagation } from '../../util/ClientUtil';
 import { Source } from 'shared/types/Session';
 import { CSSProperties } from 'react';
 import { ExpenseType } from 'shared/types/Expense';
-const moment = require('moment');
+import moment from 'moment';
 
 const styles = {
   category: { width: '50%' }

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import DatePicker from 'material-ui/DatePicker'
-import * as moment from 'moment';
+import moment from 'moment';
 import { PickDateObject } from '../../data/StateTypes';
 import { Action } from '../../../shared/types/Common';
 import { pickDateE } from '../../data/State';

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as moment from 'moment';
+import moment from 'moment';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { expenseMonthPathPattern, monthPattern } from '../../util/Links';
 import { RouteComponentProps } from 'react-router';

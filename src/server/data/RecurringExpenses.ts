@@ -1,5 +1,5 @@
 import { db, DbAccess } from './Db';
-import * as moment from 'moment';
+import moment from 'moment';
 import { Validator } from '../util/Validator';
 import expenses from './BasicExpenses';
 import { RecurringExpensePeriod, Recurrence, ExpenseDivisionItem, Expense } from '../../shared/types/Expense';

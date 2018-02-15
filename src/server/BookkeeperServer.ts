@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-import * as express from 'express';
+import express from 'express';
 import * as bodyParser from 'body-parser';
 import { config } from './Config';
 import * as api from './Api';

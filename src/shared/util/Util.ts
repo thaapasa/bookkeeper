@@ -38,6 +38,8 @@ export async function asyncIdentity<T>(x: T): Promise<T> {
   return x;
 }
 
+export function noop() {}
+
 export interface Map<T> {
   [key: string]: T;
 }

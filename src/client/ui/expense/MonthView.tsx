@@ -3,7 +3,7 @@ import ExpenseTable from './ExpenseTable'
 import ExpenseNavigation from './ExpenseNavigation'
 import * as apiConnect from '../../data/ApiConnect';
 import { unsubscribeAll } from '../../util/ClientUtil';
-import * as moment from 'moment';
+import moment from 'moment';
 import { UserExpense, ExpenseStatus } from '../../../shared/types/Expense';
 import { zeroStatus } from './ExpenseHelper';
 import { History } from 'history';

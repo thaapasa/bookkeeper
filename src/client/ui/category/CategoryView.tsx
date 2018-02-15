@@ -1,14 +1,14 @@
 import * as React from 'react';
-import * as apiConnect from '../../data/ApiConnect';
-import { Category, CategoryAndTotals } from '../../../shared/types/Session';
-import { connect } from '../component/BaconConnect';
-import { validSessionE, updateSession } from '../../data/Login';
 import { History } from 'history';
-import { TypedDateRange, compareRanges } from '../../../shared/util/Time';
 import { Map } from '../../../shared/util/Util';
+import { Category, CategoryAndTotals } from '../../../shared/types/Session';
+import { TypedDateRange, compareRanges } from '../../../shared/util/Time';
+import { unsubscribeAll } from '../../util/ClientUtil';
+import * as apiConnect from '../../data/ApiConnect';
+import { validSessionE, updateSession } from '../../data/Login';
+import { needUpdateE } from '../../data/State';
+import { connect } from '../component/BaconConnect';
 import { CategoryTable } from './CategoryTable';
-import { needUpdateE } from 'client/data/State';
-import { unsubscribeAll } from 'client/util/ClientUtil';
 import { CategoryChartData } from './CategoryChart';
 
 interface CategoryViewProps {
@@ -22,7 +22,6 @@ interface CategoryViewState {
   categoryChartData?: CategoryChartData[];
   isLoading: boolean;
 }
-
 
 class CategoryView extends React.Component<CategoryViewProps, CategoryViewState> {
 
@@ -68,7 +67,7 @@ class CategoryView extends React.Component<CategoryViewProps, CategoryViewState>
     return totalsMap;
   }
 
-  private loadCategories = async() => {
+  private loadCategories = async () => {
     this.setState({ isLoading: true });
     const categoryTotals = await this.getCategoryTotals();
     const categoryChartData = this.formCategoryChartData(categoryTotals);

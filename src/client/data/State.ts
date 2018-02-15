@@ -9,7 +9,7 @@ const confirmationBus = new B.Bus<any, ConfirmationObject<any>>();
 interface ConfirmationSettings<T> {
   okText?: string;
   cancelText?: string;
-  actions?: ConfirmationAction<T>[];
+  actions?: Array<ConfirmationAction<T>>;
 }
 
 export const confirmationE = confirmationBus;
@@ -18,7 +18,7 @@ export const confirmationE = confirmationBus;
 export function confirm<T>(title: string, content: string, options?: ConfirmationSettings<T>): Promise<T> {
   return new Promise<T>((resolve) => {
     const op = options ||  {};
-    const actions: ConfirmationAction<T>[] = op.actions || [
+    const actions: Array<ConfirmationAction<T>> = op.actions || [
       { label: op.okText ? op.okText : 'OK', value: true as any },
       { label: op.cancelText ? op.cancelText : 'Peruuta', value: false as any },
     ];

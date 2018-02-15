@@ -2,14 +2,13 @@ import * as React from 'react';
 import * as colors from '../Colors';
 import * as apiConnect from '../../data/ApiConnect';
 import ExpenseRow from '../expense/ExpenseRow';
-import { CSSProperties } from 'react';
-import { Map } from '../../../shared/util/Util';
+import { Map, noop } from '../../../shared/util/Util';
 import { Category, CategoryAndTotals } from '../../../shared/types/Session';
 import { AddCategoryButton, EditCategoryButton, ToggleButton } from './CategoryTools';
 import { UserExpense } from '../../../shared/types/Expense';
 import { DateRange } from '../../../shared/util/Time';
 
-const styles: Map<CSSProperties> = {
+const styles: Map<React.CSSProperties> = {
   mainCategory: {
     background: colors.topItem,
     color: 'white',
@@ -17,7 +16,7 @@ const styles: Map<CSSProperties> = {
   },
   category: {
     background: colors.subItem,
-  }
+  },
 };
 
 interface CategoryRowProps {
@@ -51,14 +50,19 @@ export default class CategoryRow extends React.Component<CategoryRowProps, Categ
 
   private renderCategoryExpenses = (expenses: UserExpense[]) => {
     if (this.state.isLoading) {
-      return <div className="bk-table-row category-table-row"><div className="category-name">Ladataan...</div></div>
+      return <div className="bk-table-row category-table-row"><div className="category-name">Ladataan...</div></div>;
     }
-    return expenses && expenses.length > 0 ? expenses.map(expense => <ExpenseRow
-      expense={expense}
-      key={"expense-row-" + expense.id}
-      addFilter={() => { }}
-      onUpdated={this.reload} />) :
-      <div className="bk-table-row category-table-row"><div className="category-name">Ei kirjauksia</div></div>;
+    return expenses && expenses.length > 0 ? expenses.map(expense => (
+      <ExpenseRow
+        expense={expense}
+        key={'expense-row-' + expense.id}
+        addFilter={noop}
+        onUpdated={this.reload} />
+    )) : (
+      <div className="bk-table-row category-table-row">
+        <div className="category-name">Ei kirjauksia</div>
+      </div>
+    );
   }
 
   private open = async () => {

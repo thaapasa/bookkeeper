@@ -1,18 +1,20 @@
 import * as React from 'react';
+const moment = require('moment');
 import { ToolIcon, Edit, ExpandLess, ExpandMore, Add } from '../Icons';
 import { Category } from '../../../shared/types/Session';
 import DatePicker from 'material-ui/DatePicker';
-import * as moment from 'moment';
 
 export class AddCategoryButton extends React.PureComponent<{
   onAdd: (p?: Category) => void;
   parent?: Category;
   color?: string | null;
 }, {}> {
-  private add = () => { this.props.onAdd(this.props.parent); }
+  private add = () => {
+    this.props.onAdd(this.props.parent);
+  }
   public render() {
     return <ToolIcon title="Lisää" onClick={this.add} icon={Add} color={this.props.color} />;
-  };
+  }
 }
 
 export class EditCategoryButton extends React.PureComponent<{
@@ -20,10 +22,12 @@ export class EditCategoryButton extends React.PureComponent<{
   category?: Category;
   color?: string | null;
 }, {}> {
-  private edit = () => { this.props.onEdit(this.props.category); }
+  private edit = () => {
+    this.props.onEdit(this.props.category);
+  }
   public render() {
     return <ToolIcon title="Muokkaa" onClick={this.edit} icon={Edit} color={this.props.color} />;
-  };
+  }
 }
 
 export class ToggleButton extends React.PureComponent<{
@@ -32,7 +36,9 @@ export class ToggleButton extends React.PureComponent<{
   category?: Category,
   color?: string | null,
 }, {}> {
-  private toggle = () => { this.props.onToggle(this.props.category); }
+  private toggle = () => {
+    this.props.onToggle(this.props.category);
+  }
   public render() {
     return (
       <ToolIcon title={this.props.state ? 'Sulje' : 'Avaa'}
@@ -40,7 +46,7 @@ export class ToggleButton extends React.PureComponent<{
         icon={this.props.state ? ExpandLess : ExpandMore}
         color={this.props.color} />
     );
-  };
+  }
 }
 
 export class CategoryDatePicker extends React.PureComponent<{ value: Date, onChange: (d: Date) => void, label: string }, {}> {
@@ -51,9 +57,9 @@ export class CategoryDatePicker extends React.PureComponent<{ value: Date, onCha
       <DatePicker
         value={this.props.value}
         formatDate={this.formatDate}
-        //display="inline"
+        // display="inline"
         floatingLabelText={this.props.label}
-        //floatingLabelFixed={true}
+        // floatingLabelFixed={true}
         fullWidth={true}
         autoOk={true}
         onChange={this.onChange} />

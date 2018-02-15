@@ -22,7 +22,7 @@ function queryFor(client: Client, doRelease: boolean, id?: number): Queryer {
       error('Query error', e.message, e.stack);
       throw e;
     } finally {
-      if (doRelease) { client.release(); }
+      if (doRelease) { await client.end(); }
     }
   };
 }
@@ -63,12 +63,12 @@ class BookkeeperDB implements DbAccess {
       await client.query(`BEGIN ${mode}`);
       const res = await f(new BookkeeperDB(queryFor(client, false, txId)));
       await client.query('COMMIT');
-      await client.release();
+      await client.end();
       return res;
     } catch (e) {
       debug(`Rolling back transaction ${txId} because of error`, e);
       await client.query('ROLLBACK');
-      await client.release();
+      await client.end();
       error('Query error', e.message, e.stack);
       throw e;
     }

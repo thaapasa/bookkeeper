@@ -6,7 +6,6 @@ import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
 import * as apiConnect from '../../data/ApiConnect';
 import { Category } from '../../../shared/types/Session';
-import { SyntheticEvent } from 'react';
 import { notify, notifyError } from '../../data/State';
 const debug = require('debug')('bookkeeper:category-dialog');
 
@@ -19,13 +18,13 @@ interface CategoryDialogProps {
 type CategoryResolve = (c: number | null) => void;
 
 interface CategoryDialogState {
-  open: boolean,
-  name: string,
-  parentId: number,
-  id: number,
-  createNew: boolean,
-  resolve: CategoryResolve | null,
-  valid: boolean,
+  open: boolean;
+  name: string;
+  parentId: number;
+  id: number;
+  createNew: boolean;
+  resolve: CategoryResolve | null;
+  valid: boolean;
 }
 
 export default class CategoryDialog extends React.Component<CategoryDialogProps, any> {
@@ -67,7 +66,7 @@ export default class CategoryDialog extends React.Component<CategoryDialogProps,
     return false;
   }
 
-  private requestSave = (event: SyntheticEvent<any>) => {
+  private requestSave = (event: React.SyntheticEvent<any>) => {
     event.preventDefault();
     event.stopPropagation();
     this.saveCategory(this.state);
@@ -109,50 +108,55 @@ export default class CategoryDialog extends React.Component<CategoryDialogProps,
   }
 
   public render() {
-    const actions = [
+    const actions = [(
       <FlatButton
+        key="cancel"
         label="Peruuta"
         primary={true}
-        onClick={this.cancel} />,
+        onClick={this.cancel} />
+    ), (
       <FlatButton
+        key="save"
         label="Tallenna"
         primary={true}
         disabled={!this.state.valid}
         keyboardFocused={true}
         onClick={this.requestSave} />
-    ];
+    )];
 
-    return <Dialog
-      contentClassName="category-dialog"
-      title={this.state.createNew ? 'Uusi kategoria' : 'Muokkaa kategoriaa'}
-      actions={actions}
-      modal={true}
-      autoDetectWindowHeight={true}
-      autoScrollBodyContent={true}
-      open={this.state.open}
-      onRequestClose={this.cancel}>
-      <form onSubmit={this.requestSave}>
-        <TextField
-          key="name"
-          hintText="Nimi"
-          floatingLabelText="Nimi"
-          floatingLabelFixed={true}
-          fullWidth={true}
-          value={this.state.name}
-          onChange={this.updateName}
-        />
-        <SelectField
-          key="category"
-          value={this.state.parentId}
-          floatingLabelText="Yläkategoria"
-          floatingLabelFixed={true}
-          style={{ width: '100%' }}
-          onChange={this.changeCategory}>
-          {this.getCategories().map((c) => (
-            <MenuItem key={c.id} value={c.id} primaryText={c.name} />
-          ))}
-        </SelectField>
-      </form>
-    </Dialog>
+    return (
+      <Dialog
+        contentClassName="category-dialog"
+        title={this.state.createNew ? 'Uusi kategoria' : 'Muokkaa kategoriaa'}
+        actions={actions}
+        modal={true}
+        autoDetectWindowHeight={true}
+        autoScrollBodyContent={true}
+        open={this.state.open}
+        onRequestClose={this.cancel}>
+        <form onSubmit={this.requestSave}>
+          <TextField
+            key="name"
+            hintText="Nimi"
+            floatingLabelText="Nimi"
+            floatingLabelFixed={true}
+            fullWidth={true}
+            value={this.state.name}
+            onChange={this.updateName}
+          />
+          <SelectField
+            key="category"
+            value={this.state.parentId}
+            floatingLabelText="Yläkategoria"
+            floatingLabelFixed={true}
+            style={{ width: '100%' }}
+            onChange={this.changeCategory}>
+            {this.getCategories().map((c) => (
+              <MenuItem key={c.id} value={c.id} primaryText={c.name} />
+            ))}
+          </SelectField>
+        </form>
+      </Dialog>
+    );
   }
 }
