@@ -3,6 +3,7 @@ import Snackbar from 'material-ui/Snackbar';
 import { Notification } from '../../data/StateTypes';
 import { notificationE } from '../../data/State';
 import { Action } from '../../../shared/types/Common';
+import { unsubscribeAll } from '../../util/ClientUtil';
 
 const msgInterval = 5000;
 
@@ -35,19 +36,19 @@ export default class NotificationBarConnector extends React.Component<{}, Notifi
 
   private timer: NodeJS.Timer | undefined;
   private queue: Notification[] = [];
-  private unsubscribe: Action;
+  private unsub: Action[] = [];
   public state: NotificationBarConnectorState = {
     notification: null,
   };
 
   public componentDidMount() {
-    this.unsubscribe = notificationE.onValue(this.showMessage);
+    this.unsub.push(notificationE.onValue(this.showMessage));
   }
 
   public componentWillUnmount() {
     if (this.timer) { clearTimeout(this.timer); }
     this.timer = undefined;
-    this.unsubscribe();
+    unsubscribeAll(this.unsub);
   }
 
   private showMessage = (notification: Notification) => {

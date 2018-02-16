@@ -1,25 +1,21 @@
-{
-  
+{ 
   "compilerOptions": {
     "outDir": "build-server",
     "module": "commonjs",
     "target": "es5",
     "lib": ["dom", "es2015", "es2016"],
     "sourceMap": true,
-    "alwaysStrict": true,
-    "allowSyntheticDefaultImports": true,
-    "allowJs": true,
-    "checkJs": false,
+    "strict": true,
+    "esModuleInterop": true,
+    "allowJs": false,
     "jsx": "react",
     "moduleResolution": "node",
     "rootDir": "src",
     "forceConsistentCasingInFileNames": true,
-    "noImplicitReturns": false,
-    "noImplicitThis": false,
-    "noImplicitAny": false,
-    "strictNullChecks": true,
-    "suppressImplicitAnyIndexErrors": true,
-    "noUnusedLocals": false
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noImplicitAny": true,
+    "noUnusedLocals": true
   },
   "include": [
     "**/*.ts",

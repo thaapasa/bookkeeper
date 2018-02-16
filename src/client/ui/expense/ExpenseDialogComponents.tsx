@@ -7,9 +7,9 @@ import MenuItem from 'material-ui/MenuItem';
 import TextField from 'material-ui/TextField';
 import AutoComplete from 'material-ui/AutoComplete';
 import { Expense, Income } from '../Icons';
-import * as apiConnect from '../../data/ApiConnect';
+import apiConnect from '../../data/ApiConnect';
 import { PlainAutoComplete } from '../component/PlainTextField';
-import { stopEventPropagation } from '../../util/ClientUtil';
+import { stopEventPropagation, unsubscribeAll } from '../../util/ClientUtil';
 import { Source } from '../../../shared/types/Session';
 import { ExpenseType } from '../../../shared/types/Expense';
 import moment from 'moment';
@@ -160,13 +160,11 @@ interface ReceiverFieldState {
 
 export class ReceiverField extends React.Component<ReceiverFieldProps, ReceiverFieldState> {
 
-  private inputStream: Bacon.Bus<any, string>;
-  private unsub: any[];
+  private inputStream = new Bacon.Bus<any, string>();
+  private unsub: any[] = [];
   public state: ReceiverFieldState = { receivers: [] };
 
   public componentDidMount() {
-    this.inputStream = new Bacon.Bus<any, string>();
-    this.unsub = [];
     this.unsub.push(this.inputStream.onValue(v => this.props.onChange(null, v)));
     this.unsub.push(this.inputStream
       .filter(v => v && v.length > 2 && v.length < 10 || false)
@@ -180,7 +178,7 @@ export class ReceiverField extends React.Component<ReceiverFieldProps, ReceiverF
 
   public componentWillUnmount() {
     this.inputStream.end();
-    this.unsub.forEach(s => s());
+    unsubscribeAll(this.unsub);
   }
 
   public render() {

@@ -6,6 +6,7 @@ export function unsubscribeAll(arr: any[]): void {
       i.end();
     }
   });
+  arr.splice(0, arr.length);
 }
 
 export function combineClassNames(...classNames: Array<string | undefined>): string {

@@ -6,7 +6,7 @@ import UserSelector from '../component/UserSelector';
 import Checkbox from 'material-ui/Checkbox';
 import UserAvatar from '../component/UserAvatar';
 import Money, { MoneyLike } from '../../../shared/util/Money';
-import * as apiConnect from '../../data/ApiConnect';
+import apiConnect from '../../data/ApiConnect';
 import { KeyCodes } from '../../util/Io';
 import { SumField, TypeSelector, TitleField, CategorySelector, SourceSelector, DateField, ReceiverField, DescriptionField } from './ExpenseDialogComponents';
 import { expenseName } from './ExpenseHelper';
@@ -15,7 +15,7 @@ import { splitByShares, negateDivision, HasShares, HasSum } from '../../../share
 import { Category, Source, CategoryData, Group, User } from '../../../shared/types/Session';
 import { UserExpenseWithDetails, ExpenseDivisionType, ExpenseInEditor, ExpenseData } from '../../../shared/types/Expense';
 import { toDate, formatDate } from '../../../shared/util/Time';
-import { Map, noop } from '../../../shared/util/Util';
+import { Map, noop, identity } from '../../../shared/util/Util';
 import { connect } from '../component/BaconConnect';
 import { validSessionE, sourceMapE } from '../../data/Login';
 import { categoryDataSourceP, categoryMapE, isSubcategoryOf } from '../../data/Categories';
@@ -84,9 +84,9 @@ interface ExpenseDialogState extends ExpenseInEditor {
 
 export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDialogState> {
 
-  private saveLock: B.Bus<any, boolean>;
+  private readonly saveLock: B.Bus<any, boolean> = new B.Bus<any, boolean>();
   private inputStreams: Map<B.Bus<any, any>> = {};
-  private submitStream: B.Bus<any, true>;
+  private readonly submitStream: B.Bus<any, true> = new B.Bus<any, true>();
   private unsub: any[] = [];
   public state = this.getDefaultState(null);
 
@@ -158,9 +158,7 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDi
   }
 
   public componentDidMount() {
-    this.saveLock = new B.Bus<any, boolean>();
     this.inputStreams = {};
-    this.submitStream = new B.Bus<any, true>();
     this.unsub.push(this.submitStream);
     fields.forEach(k => {
       this.inputStreams[k] = new B.Bus<any, any>();
@@ -171,12 +169,17 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDi
     const values: Map<B.EventStream<any, any>> = {};
     fields.forEach(k => {
       this.inputStreams[k].onValue(v => this.setState({ [k]: v } as any));
-      const parsed = parsers[k] ? this.inputStreams[k].map(parsers[k]) : this.inputStreams[k];
+      const parsed = parsers[k] ? this.inputStreams[k].map(parsers[k]) : this.inputStreams[k].map(identity);
       values[k] = parsed;
-      const error: B.Property<any, string | undefined> = validators[k] ? parsed.toProperty().map(validators[k]) : B.constant(undefined);
-      error.onValue(e => this.setState(s => ({ errors: { ...s.errors, [k]: e }})));
-      const isValid = error.map(v => v === undefined);
-      validity[k] = isValid;
+      const validator = validators[k];
+      if (validator) {
+        const error = parsed.map(v => validator(v));
+        error.onValue(e => this.setState(s => ({ errors: { ...s.errors, [k]: e }})));
+        const isValid = error.map(v => v === undefined).toProperty();
+        validity[k] = isValid;
+      } else {
+        validity[k] = Bacon.constant(true);
+      }
     });
     values.categoryId.onValue(id => {
       this.setState({ subcategories: defaultSubcategory.concat(id ? this.props.categoryMap[id].children || [] : []) });

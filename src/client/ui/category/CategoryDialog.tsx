@@ -4,7 +4,7 @@ import FlatButton from 'material-ui/FlatButton';
 import TextField from 'material-ui/TextField';
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
-import * as apiConnect from '../../data/ApiConnect';
+import apiConnect from '../../data/ApiConnect';
 import { Category } from '../../../shared/types/Session';
 import { notify, notifyError } from '../../data/State';
 const debug = require('debug')('bookkeeper:category-dialog');

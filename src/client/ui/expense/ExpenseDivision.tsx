@@ -4,7 +4,7 @@ import UserAvatar from '../component/UserAvatar';
 import IconButton from 'material-ui/IconButton';
 import { expenseName } from './ExpenseHelper';
 import { Repeat } from '../Icons';
-import * as apiConnect from '../../data/ApiConnect';
+import apiConnect from '../../data/ApiConnect';
 import RefreshIndicator from 'material-ui/RefreshIndicator';
 import Money, { MoneyLike } from '../../../shared/util/Money';
 import { RecurringExpensePeriod, ExpenseDivisionItem, UserExpense } from '../../../shared/types/Expense';

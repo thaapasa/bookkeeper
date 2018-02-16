@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as colors from '../Colors';
-import * as apiConnect from '../../data/ApiConnect';
+import apiConnect from '../../data/ApiConnect';
 import ExpenseRow from '../expense/ExpenseRow';
 import { Map, noop } from '../../../shared/util/Util';
 import { Category, CategoryAndTotals } from '../../../shared/types/Session';
@@ -22,7 +22,7 @@ const styles: Map<React.CSSProperties> = {
 interface CategoryRowProps {
   category: Category;
   header: boolean;
-  createCategory: (p: Category) => void;
+  createCategory: (p?: Category) => void;
   editCategory: (p: Category) => void;
   categoryTotals: Map<CategoryAndTotals>;
   range: DateRange;

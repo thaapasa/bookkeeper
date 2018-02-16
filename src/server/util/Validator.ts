@@ -152,18 +152,18 @@ export class Validator {
 
   public static or<T>(...args: Array<ValidationFunction<T>>): ValidationFunction<T> {
     return (i, field) => {
-      const res = args.reduce((val, cur) => {
-        if (val[0]) { return val; }
+      const [pass, val, errors] = args.reduce<[boolean, any, any[]]>(([p, v, e], operand) => {
+        if (p) { return [p, v, e]; }
         try {
-          return [true, cur(i, field), val[2]];
-        } catch (e) {
-          return [false, undefined, val[2].concat(e)];
+          return [true, operand(i, field), e];
+        } catch (error) {
+          return [false, undefined, e.concat(error)];
         }
-      }, [false, undefined, []] as [boolean, any, any[]]);
-      if (res[0]) {
-        return res[1];
+      }, [false, undefined, []]);
+      if (pass) {
+        return val;
       } else {
-        throw new InvalidInputError(field, i, `Input did not match any matcher: ${res[2].map((e: any) => e.info && e.info.requirement ? e.info.requirement : e)}`);
+        throw new InvalidInputError(field, i, `Input did not match any matcher: ${errors.map((e: any) => e.info && e.info.requirement ? e.info.requirement : e)}`);
       }
     };
   }

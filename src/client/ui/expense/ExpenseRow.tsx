@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as B from 'baconjs';
-import * as apiConnect from '../../data/ApiConnect';
+import apiConnect from '../../data/ApiConnect';
 import UserAvatar from '../component/UserAvatar';
 import ActivatableTextField from '../component/ActivatableTextField';
 import { PlainTextField } from '../component/PlainTextField';

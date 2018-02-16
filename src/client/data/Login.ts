@@ -1,15 +1,13 @@
 import * as B from 'baconjs';
 import { Session, Group, User, Source } from '../../shared/types/Session';
-import * as apiConnect from './ApiConnect';
+import apiConnect from './ApiConnect';
 import { Map } from '../../shared/util/Util';
 import { toMap } from '../../shared/util/Arrays';
 const debug = require('debug')('bookkeeper:login');
 
-const tokenBus = new B.Bus<any, string | null>();
 const loginBus = new B.Bus<any, Session | null>();
 const sessionBus = new B.Bus<any, Session | null>();
 
-export const tokenP = tokenBus.toProperty(null);
 export const sessionP = sessionBus.toProperty(null);
 export const validSessionE: B.EventStream<any, Session> = sessionP.filter(s => s !== null) as any;
 export const userMapE: B.EventStream<any, Map<User>> = validSessionE.map(s => toMap(s.users, 'id'));
@@ -26,7 +24,7 @@ export function getTitle(group?: Group) {
 function clearLoginData() {
   document.title = getTitle();
   sessionBus.push(null);
-  tokenBus.push(null);
+  apiConnect.setToken(null);
   localStorage.removeItem(refreshTokenKey);
 }
 
@@ -34,16 +32,16 @@ async function getLoginFromLocalStorage(): Promise<Session | null> {
   const token = localStorage.getItem(refreshTokenKey);
   if (!token) {
     debug('No token present, not logged in');
-    tokenBus.push(null);
+    apiConnect.setToken(null);
     return null;
   }
   debug('Not logged in but refresh token exists in localStorage', token);
   try {
-    tokenBus.push(token);
+    apiConnect.setToken(token);
     return await apiConnect.refreshSession();
   } catch (e) {
     debug('Token refresh failed');
-    tokenBus.push(null);
+    apiConnect.setToken(null);
     return null;
   }
 }
@@ -60,7 +58,7 @@ loginBus.onValue(session => {
     localStorage.removeItem(refreshTokenKey);
   }
   document.title = getTitle(session.group);
-  tokenBus.push(session.token);
+  apiConnect.setToken(session.token);
   sessionBus.push(session);
 });
 

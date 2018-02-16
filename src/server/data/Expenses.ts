@@ -18,12 +18,12 @@ function calculateBalance(o: ExpenseStatus): ExpenseStatus {
 }
 
 function getBetween(tx: DbAccess) {
-  return (groupId: number, userId: number, startDate: Moment | string, endDate: Moment | string) => {
+  return async (groupId: number, userId: number, startDate: Moment | string, endDate: Moment | string) => {
     debug('Querying for expenses between', time.iso(startDate), 'and', time.iso(endDate), 'for group', groupId);
-    return tx.queryList('expenses.get_between',
+    const expenses = await tx.queryList<UserExpense>('expenses.get_between',
       basic.expenseSelect('WHERE group_id=$2 AND template=false AND date >= $3::DATE AND date < $4::DATE'),
-      [userId, groupId, time.formatDate(startDate), time.formatDate(endDate)])
-      .then(l => l.map(basic.mapExpense));
+      [userId, groupId, time.formatDate(startDate), time.formatDate(endDate)]);
+    return expenses.map(basic.mapExpense);
   };
 }
 
@@ -66,7 +66,7 @@ export interface ExpenseSearchParams {
 function search(tx: DbAccess) {
   return async (groupId: number, userId: number, params: ExpenseSearchParams): Promise<UserExpense[]> => {
     debug(`Searching for ${JSON.stringify(params)}`);
-    const expenses = await tx.queryList('expenses.search',
+    const expenses = await tx.queryList<UserExpense>('expenses.search',
       basic.expenseSelect('WHERE group_id=$2 AND template=false AND date::DATE >= $3::DATE AND date::DATE <= $4::DATE ' +
         'AND ($5::INTEGER IS NULL OR category_id=$5::INTEGER)'),
       [userId, groupId, params.startDate, params.endDate, params.categoryId || null]);

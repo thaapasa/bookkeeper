@@ -4,6 +4,7 @@ import LoginPage from './ui/general/LoginPage';
 import { Session } from '../shared/types/Session';
 import { sessionP, checkLoginState } from './data/Login';
 import { Action } from '../shared/types/Common';
+import { unsubscribeAll } from './util/ClientUtil';
 const debug = require('debug')('bookkeeper:app');
 
 interface AppState {
@@ -13,7 +14,7 @@ interface AppState {
 
 export default class App extends React.Component<{}, AppState> {
 
-  private unsubscribe: Action;
+  private unsub: Action[] = [];
 
   public state: AppState = {
     session: null,
@@ -22,14 +23,14 @@ export default class App extends React.Component<{}, AppState> {
 
   public async componentDidMount() {
     debug('Initializing bookkeeper client');
-    this.unsubscribe = sessionP.onValue(session => this.setState({ session }));
+    this.unsub.push(sessionP.onValue(session => this.setState({ session })));
 
     await checkLoginState();
     this.setState({ initialized: true });
   }
 
   public componentWillUnmount() {
-    this.unsubscribe();
+    unsubscribeAll(this.unsub);
   }
 
   public render() {

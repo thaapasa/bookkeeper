@@ -4,7 +4,7 @@ import { Map } from '../../../shared/util/Util';
 import { Category, CategoryAndTotals } from '../../../shared/types/Session';
 import { TypedDateRange, compareRanges } from '../../../shared/util/Time';
 import { unsubscribeAll } from '../../util/ClientUtil';
-import * as apiConnect from '../../data/ApiConnect';
+import apiConnect from '../../data/ApiConnect';
 import { validSessionE, updateSession } from '../../data/Login';
 import { needUpdateE } from '../../data/State';
 import { connect } from '../component/BaconConnect';

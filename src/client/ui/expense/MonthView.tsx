@@ -1,7 +1,7 @@
 import * as React from 'react';
 import ExpenseTable from './ExpenseTable';
 import ExpenseNavigation from './ExpenseNavigation';
-import * as apiConnect from '../../data/ApiConnect';
+import apiConnect from '../../data/ApiConnect';
 import { unsubscribeAll } from '../../util/ClientUtil';
 import moment from 'moment';
 import { UserExpense, ExpenseStatus } from '../../../shared/types/Expense';

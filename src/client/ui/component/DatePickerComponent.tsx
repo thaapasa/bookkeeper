@@ -4,6 +4,7 @@ import DatePicker from 'material-ui/DatePicker';
 import { PickDateObject } from '../../data/StateTypes';
 import { Action } from '../../../shared/types/Common';
 import { pickDateE } from '../../data/State';
+import { unsubscribeAll } from '../../util/ClientUtil';
 const debug = require('debug')('bookkeeper:date-picker');
 
 interface DatePickerProps {
@@ -53,14 +54,14 @@ interface DatePickerConnectorState {
 export default class DatePickerConnector extends React.Component<{}, DatePickerConnectorState> {
 
   public state: DatePickerConnectorState = { pick: null };
-  private unsubscribe: Action;
+  private unsub: Action[] = [];
 
   public componentDidMount() {
-    this.unsubscribe = pickDateE.onValue(pick => this.setState({ pick }));
+    this.unsub.push(pickDateE.onValue(pick => this.setState({ pick })));
   }
 
   public componentWillUnmount() {
-    this.unsubscribe();
+    unsubscribeAll(this.unsub);
   }
 
   public render() {

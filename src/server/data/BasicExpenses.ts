@@ -56,7 +56,7 @@ FROM (
 
 function getAll(tx: DbAccess) {
   return async (groupId: number, userId: number): Promise<Expense[]> => {
-    const expenses = await tx.queryList('expenses.get_all', expenseSelect(`WHERE group_id=$2`), [userId, groupId]);
+    const expenses = await tx.queryList<UserExpense>('expenses.get_all', expenseSelect(`WHERE group_id=$2`), [userId, groupId]);
     return expenses.map(mapExpense);
   };
 }

@@ -77,7 +77,7 @@ function createMissingRecurrenceForDate(tx: DbAccess, e: [Expense, ExpenseDivisi
 function createMissing(tx: DbAccess) {
   debug('Checking for missing expenses');
   return async (groupId: number, userId: number, date: string | Moment) => {
-    const list = await tx.queryList('expenses.find_missing_recurring',
+    const list = await tx.queryList<Recurrence>('expenses.find_missing_recurring',
       'SELECT * FROM recurring_expenses WHERE group_id = $1 AND next_missing < $2::DATE',
       [groupId, date]);
     return Promise.all(list.map(createMissingRecurrences(tx, groupId, userId, date)));

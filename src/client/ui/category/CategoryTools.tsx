@@ -1,8 +1,8 @@
 import * as React from 'react';
-const moment = require('moment');
-import { ToolIcon, Edit, ExpandLess, ExpandMore, Add } from '../Icons';
-import { Category } from '../../../shared/types/Session';
+import moment from 'moment';
 import DatePicker from 'material-ui/DatePicker';
+import { Category } from '../../../shared/types/Session';
+import { ToolIcon, Edit, ExpandLess, ExpandMore, Add } from '../Icons';
 
 export class AddCategoryButton extends React.PureComponent<{
   onAdd: (p?: Category) => void;
@@ -18,8 +18,8 @@ export class AddCategoryButton extends React.PureComponent<{
 }
 
 export class EditCategoryButton extends React.PureComponent<{
-  onEdit: (p?: Category) => void;
-  category?: Category;
+  onEdit: (p: Category) => void;
+  category: Category;
   color?: string | null;
 }, {}> {
   private edit = () => {

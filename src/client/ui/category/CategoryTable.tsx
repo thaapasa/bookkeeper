@@ -37,7 +37,7 @@ export class CategoryTable extends React.Component<CategoryViewProps, {}> {
 
   private categoryDialog: CategoryDialog | null = null;
 
-  private createCategory = async (parent: Category) => {
+  private createCategory = async (parent?: Category) => {
     if (!this.categoryDialog) { return; }
     const c = await this.categoryDialog.createCategory(parent);
     debug('Created new category', c);
