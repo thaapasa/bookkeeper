@@ -38,9 +38,9 @@ GROUP BY id ORDER BY date ASC, title ASC, id
 
 const countTotalSelect = `
 SELECT
-  COALESCE(SUM(benefit), '0.00'::NUMERIC) as benefit
-  COALESCE(SUM(cost), '0.00'::NUMERIC) AS cost
-  COALESCE(SUM(income), '0.00'::NUMERIC) AS income
+  COALESCE(SUM(benefit), '0.00'::NUMERIC) as benefit,
+  COALESCE(SUM(cost), '0.00'::NUMERIC) AS cost,
+  COALESCE(SUM(income), '0.00'::NUMERIC) AS income,
   COALESCE(SUM(split), '0.00'::NUMERIC) AS split
 FROM (
   SELECT

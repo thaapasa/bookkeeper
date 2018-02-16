@@ -54,8 +54,9 @@ export interface CategoryQueryInput {
 function getTotals(tx: DbAccess) {
   return async (groupId: number, params: CategoryQueryInput): Promise<CategoryAndTotals[]> => {
     const cats = await tx.queryList('categories.get_totals', `
-SELECT categories.id, categories.parent_id,
-  SUM(CASE WHEN type='expense' AND template=false AND date >= $2::DATE AND date < $3::DATE THEN sum::NUMERIC ELSE 0::NUMERIC END) AS expenses
+SELECT
+  categories.id, categories.parent_id,
+  SUM(CASE WHEN type='expense' AND template=false AND date >= $2::DATE AND date < $3::DATE THEN sum::NUMERIC ELSE 0::NUMERIC END) AS expenses,
   SUM(CASE WHEN type='income' AND template=false AND date >= $2::DATE AND date < $3::DATE THEN sum::NUMERIC ELSE 0::NUMERIC END) AS income
 FROM categories
 LEFT JOIN expenses ON categories.id=category_id WHERE expenses.id IS NULL OR expenses.group_id=$1::INTEGER
