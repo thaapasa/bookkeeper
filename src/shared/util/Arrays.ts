@@ -1,4 +1,5 @@
-import { Map, getRandomInt } from './Util';
+import { getRandomInt } from './Util';
+import { Map } from './Objects';
 
 // https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
 export function shuffle<T>(a: T[]): T[] {

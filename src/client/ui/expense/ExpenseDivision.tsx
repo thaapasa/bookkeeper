@@ -8,7 +8,7 @@ import apiConnect from '../../data/ApiConnect';
 import RefreshIndicator from 'material-ui/RefreshIndicator';
 import Money, { MoneyLike } from '../../../shared/util/Money';
 import { RecurringExpensePeriod, ExpenseDivisionItem, UserExpense } from '../../../shared/types/Expense';
-import { Map } from '../../../shared/util/Util';
+import { Map } from '../../../shared/util/Objects';
 import { User, Source } from '../../../shared/types/Session';
 import { confirm, notify, notifyError, updateExpenses } from '../../data/State';
 import { toDate } from '../../../shared/util/Time';

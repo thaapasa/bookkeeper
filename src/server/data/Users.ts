@@ -1,6 +1,6 @@
 import { db, DbAccess } from './Db';
 import { User, Group } from '../../shared/types/Session';
-import { Map } from '../../shared/util/Util';
+import { Map } from '../../shared/util/Objects';
 import { NotFoundError, AuthenticationError } from '../../shared/types/Errors';
 
 export type RawUserData = Map<any>;

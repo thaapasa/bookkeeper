@@ -8,7 +8,7 @@ import { History } from 'history';
 import { TypedDateRange } from '../../../shared/util/Time';
 import { RangeSelector } from './RangeSelector';
 import { categoriesForYear, categoriesForMonth } from '../../util/Links';
-import { Map } from '../../../shared/util/Util';
+import { Map } from '../../../shared/util/Objects';
 import { Action } from '../../../shared/types/Common';
 const debug = require('debug')('bookkeeper:category-view');
 

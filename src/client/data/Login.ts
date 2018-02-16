@@ -1,7 +1,7 @@
 import * as B from 'baconjs';
 import { Session, Group, User, Source } from '../../shared/types/Session';
 import apiConnect from './ApiConnect';
-import { Map } from '../../shared/util/Util';
+import { Map } from '../../shared/util/Objects';
 import { toMap } from '../../shared/util/Arrays';
 const debug = require('debug')('bookkeeper:login');
 

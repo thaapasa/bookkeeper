@@ -17,7 +17,7 @@ import { connect } from '../component/BaconConnect';
 import { userMapE, sourceMapE } from '../../data/Login';
 import { pickDate, notifyError, notify, confirm, updateExpenses, editExpense } from '../../data/State';
 import { categoryMapE, getFullCategoryName } from '../../data/Categories';
-import { Map } from '../../../shared/util/Util';
+import { Map } from '../../../shared/util/Objects';
 import { toDate, formatDate } from '../../../shared/util/Time';
 
 const emptyDivision: ExpenseDivisionItem[] = [];

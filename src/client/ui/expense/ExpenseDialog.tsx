@@ -15,14 +15,14 @@ import { splitByShares, negateDivision, HasShares, HasSum } from '../../../share
 import { Category, Source, CategoryData, Group, User } from '../../../shared/types/Session';
 import { UserExpenseWithDetails, ExpenseDivisionType, ExpenseInEditor, ExpenseData } from '../../../shared/types/Expense';
 import { toDate, formatDate } from '../../../shared/util/Time';
-import { Map, noop, identity } from '../../../shared/util/Util';
+import { noop, identity } from '../../../shared/util/Util';
 import { connect } from '../component/BaconConnect';
 import { validSessionE, sourceMapE } from '../../data/Login';
 import { categoryDataSourceP, categoryMapE, isSubcategoryOf } from '../../data/Categories';
 import { notify, notifyError, expenseDialogE, updateExpenses } from '../../data/State';
 import { sortAndCompareElements, valuesToArray } from '../../../shared/util/Arrays';
 import { ExpenseDialogObject } from '../../data/StateTypes';
-import { omit } from '../../../shared/util/Objects';
+import { omit, Map } from '../../../shared/util/Objects';
 const debug = require('debug')('bookkeeper:expense-dialog');
 
 type CategoryInfo = Pick<Category, 'name' | 'id'>;

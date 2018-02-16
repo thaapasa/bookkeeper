@@ -1,6 +1,6 @@
 import Money from '../../shared/util/Money';
 import { Error } from '../../shared/types/Errors';
-import { Map } from '../../shared/util/Util';
+import { Map } from '../../shared/util/Objects';
 const debug = require('debug')('bookkeeper:validator');
 
 class InvalidInputError<T> extends Error {

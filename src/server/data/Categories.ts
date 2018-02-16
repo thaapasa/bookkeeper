@@ -2,7 +2,7 @@ import { db, DbAccess } from './Db';
 import Money from '../../shared/util/Money';
 import { NotFoundError } from '../../shared/types/Errors';
 import { Category, CategoryAndTotals } from '../../shared/types/Session';
-import { NumberMap } from '../../shared/util/Util';
+import { NumberMap } from '../../shared/util/Objects';
 const debug = require('debug')('bookkeeper:categories');
 
 function createCategoryObject<T extends Category>(categories: T[]): T[] {

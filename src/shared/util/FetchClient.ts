@@ -1,4 +1,4 @@
-import { Map } from './Util';
+import { Map } from './Objects';
 import { AuthenticationError, Error } from '../types/Errors';
 const debug = require('debug')('net:fetch-client');
 

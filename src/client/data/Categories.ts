@@ -2,7 +2,7 @@ import * as B from 'baconjs';
 import { flatten } from '../../shared/util/Arrays';
 import { Category, Session } from '../../shared/types/Session';
 import { validSessionE } from '../../client/data/Login';
-import { Map } from '../../shared/util/Util';
+import { Map } from '../../shared/util/Objects';
 
 export interface CategoryData {
   value: number;

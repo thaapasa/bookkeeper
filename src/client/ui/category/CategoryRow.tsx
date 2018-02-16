@@ -2,11 +2,12 @@ import * as React from 'react';
 import * as colors from '../Colors';
 import apiConnect from '../../data/ApiConnect';
 import ExpenseRow from '../expense/ExpenseRow';
-import { Map, noop } from '../../../shared/util/Util';
+import { noop } from '../../../shared/util/Util';
 import { Category, CategoryAndTotals } from '../../../shared/types/Session';
 import { AddCategoryButton, EditCategoryButton, ToggleButton } from './CategoryTools';
 import { UserExpense } from '../../../shared/types/Expense';
 import { DateRange } from '../../../shared/util/Time';
+import { Map } from '../../../shared/util/Objects';
 
 const styles: Map<React.CSSProperties> = {
   mainCategory: {

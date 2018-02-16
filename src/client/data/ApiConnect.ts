@@ -1,6 +1,6 @@
 import Money from '../../shared/util/Money';
 import { Session, Category, CategoryAndTotals, CategoryData } from '../../shared/types/Session';
-import { Map } from '../../shared/util/Util';
+import { Map } from '../../shared/util/Objects';
 import { FetchClient } from '../../shared/util/FetchClient';
 import { ApiMessage } from '../../shared/types/Api';
 import { ExpenseCollection, ExpenseStatus, UserExpense, RecurringExpensePeriod, UserExpenseWithDetails, ExpenseData } from '../../shared/types/Expense';

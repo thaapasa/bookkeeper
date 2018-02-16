@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { History } from 'history';
-import { Map } from '../../../shared/util/Util';
+import { Map } from '../../../shared/util/Objects';
 import { Category, CategoryAndTotals } from '../../../shared/types/Session';
 import { TypedDateRange, compareRanges } from '../../../shared/util/Time';
 import { unsubscribeAll } from '../../util/ClientUtil';
