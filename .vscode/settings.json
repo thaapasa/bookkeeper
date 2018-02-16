@@ -10,5 +10,6 @@
         "build-server": true,
         ".idea": true,
         "*.iml": true
-    }
+    },
+    "typescript.tsdk": "node_modules\\typescript\\lib"
 }

@@ -5,10 +5,9 @@ import 'jest';
 // For now, use this syntax in unit tests to make things work
 import moment from 'moment';
 import Money from '../shared/util/Money';
-import * as help from '../shared/util/test/ExpenseHelper';
+import { findUserId, newExpense, cleanup, checkCreateStatus, division } from '../shared/util/test/ExpenseHelper';
 import { SessionWithControl, getSession } from '../shared/util/test/TestClient';
 import { Expense, ExpenseCollection, ExpenseStatus } from '../shared/types/Expense';
-import { findUserId } from '../shared/util/test/ExpenseHelper';
 import { ApiMessage } from '../shared/types/Api';
 import { expectThrow } from '../shared/util/test/TestUtil';
 
@@ -17,12 +16,11 @@ function checkValueAndBalance(status: ExpenseStatus, i: any, name: string) {
   expect(status.balance).toEqual(Money.from(status.value).negate().toString());
 }
 
-describe('expense', function () {
+describe('expense', () => {
 
   let session: SessionWithControl;
   let u1id: number;
   let u2id: number;
-  const newExpense = help.newExpense;
 
   beforeEach(async () => {
     session = await getSession('sale', 'salasana');
@@ -30,15 +28,15 @@ describe('expense', function () {
     u2id = findUserId('sale', session);
   });
 
-  afterEach(async () => { await help.cleanup(session); });
+  afterEach(async () => { await cleanup(session); });
 
   it('should insert new expense', async () => {
     const res = await newExpense(session);
-    const id = help.checkCreateStatus(res);
+    const id = checkCreateStatus(res);
     const e = await session.get(`/api/expense/${id}`);
     expect(e).toMatchObject({
       title: 'Karkkia ja porkkanaa', date: '2018-01-22', sum: '10.51',
-      description: null, confirmed: true
+      description: null, confirmed: true,
     });
   });
 
@@ -47,12 +45,12 @@ describe('expense', function () {
     const e = await session.get(`/api/expense/${res.expenseId}`);
     expect(e).toMatchObject({
       title: 'Crowbars', date: '2018-01-22', sum: '8.46',
-      description: 'On hyvä olla tarkka', confirmed: false
+      description: 'On hyvä olla tarkka', confirmed: false,
     });
   });
 
   it('should create division based on sourceId', async () => {
-    const res = await newExpense(session, { sum: '8.46' })
+    const res = await newExpense(session, { sum: '8.46' });
     const e = await session.get<Expense>(`/api/expense/${res.expenseId}`);
     expect(e).toMatchObject({ sum: '8.46' });
     expect(e).toHaveProperty('division');
@@ -108,7 +106,7 @@ describe('expense', function () {
         title: 'Invalid cost', sum: '8.46', division: [
           { type: 'cost', userId: 1, sum: '5.00' },
           { type: 'cost', userId: 2, sum: '3.46' },
-        ]
+        ],
       }));
   });
 
@@ -118,7 +116,7 @@ describe('expense', function () {
     const s = await session.get<ExpenseCollection>('/api/expense/month', { year: 2017, month: 1 });
     s.expenses.forEach(e =>
       expect(moment(e.date).isBefore(monthEnd)).toEqual(true) &&
-      expect(moment(e.date).isSameOrAfter(monthStart)).toEqual(true)
+      expect(moment(e.date).isSameOrAfter(monthStart)).toEqual(true),
     );
   });
 
@@ -135,25 +133,25 @@ describe('expense', function () {
   it('should calculate start/month/end balances correctly', async () => {
     const [jan1, feb1] = await Promise.all([
       session.get<ExpenseCollection>('/api/expense/month', { year: 2017, month: 1 }),
-      session.get<ExpenseCollection>('/api/expense/month', { year: 2017, month: 2 })
+      session.get<ExpenseCollection>('/api/expense/month', { year: 2017, month: 2 }),
     ]);
     expect(jan1).toHaveProperty('monthStatus');
     expect(jan1.monthStatus).toHaveProperty('cost');
 
     await Promise.all([
-      newExpense(session, { date: '2017-01-22', sum: '500', division: help.division.iPayShared(session, '500') }),
-      newExpense(session, { date: '2017-02-01', sum: '740', division: help.division.iPayShared(session, '740') }),
+      newExpense(session, { date: '2017-01-22', sum: '500', division: division.iPayShared(session, '500') }),
+      newExpense(session, { date: '2017-02-01', sum: '740', division: division.iPayShared(session, '740') }),
     ]);
 
     const [jan2, feb2] = await Promise.all([
       session.get<ExpenseCollection>('/api/expense/month', { year: 2017, month: 1 }),
-      session.get<ExpenseCollection>('/api/expense/month', { year: 2017, month: 2 })
+      session.get<ExpenseCollection>('/api/expense/month', { year: 2017, month: 2 }),
     ]);
 
-    expect(Money.equals(jan2.monthStatus.cost, Money.from(jan1.monthStatus.cost).plus('-500'))).toBeTruthy;
-    expect(Money.equals(feb2.monthStatus.cost, Money.from(feb1.monthStatus.cost).plus('-740'))).toBeTruthy;
-    expect(Money.equals(jan2.monthStatus.benefit, Money.from(jan1.monthStatus.benefit).plus('250'))).toBeTruthy;
-    expect(Money.equals(feb2.monthStatus.benefit, Money.from(feb1.monthStatus.benefit).plus('370'))).toBeTruthy;
+    expect(Money.equals(jan2.monthStatus.cost, Money.from(jan1.monthStatus.cost).plus('-500'))).toBeTruthy();
+    expect(Money.equals(feb2.monthStatus.cost, Money.from(feb1.monthStatus.cost).plus('-740'))).toBeTruthy();
+    expect(Money.equals(jan2.monthStatus.benefit, Money.from(jan1.monthStatus.benefit).plus('250'))).toBeTruthy();
+    expect(Money.equals(feb2.monthStatus.benefit, Money.from(feb1.monthStatus.benefit).plus('370'))).toBeTruthy();
 
     [jan1, jan2, feb1, feb2].forEach((o, i) => ['monthStatus', 'startStatus', 'endStatus']
       .forEach(status => checkValueAndBalance((o as any)[status], i, status)));
@@ -161,15 +159,15 @@ describe('expense', function () {
     expect(feb1.startStatus).toEqual(jan1.endStatus);
     expect(feb2.startStatus).toEqual(jan2.endStatus);
 
-    expect(Money.equals(jan2.endStatus.cost, Money.from(jan1.endStatus.cost).plus('-500'))).toBeTruthy;
-    expect(Money.equals(feb2.endStatus.cost, Money.from(feb1.endStatus.cost).plus('-500').plus('-740'))).toBeTruthy;
-    expect(Money.equals(jan2.endStatus.benefit, Money.from(jan1.endStatus.benefit).plus('250'))).toBeTruthy;
-    expect(Money.equals(feb2.endStatus.benefit, Money.from(feb1.endStatus.benefit).plus('370').plus('250'))).toBeTruthy;
+    expect(Money.equals(jan2.endStatus.cost, Money.from(jan1.endStatus.cost).plus('-500'))).toBeTruthy();
+    expect(Money.equals(feb2.endStatus.cost, Money.from(feb1.endStatus.cost).plus('-500').plus('-740'))).toBeTruthy();
+    expect(Money.equals(jan2.endStatus.benefit, Money.from(jan1.endStatus.benefit).plus('250'))).toBeTruthy();
+    expect(Money.equals(feb2.endStatus.benefit, Money.from(feb1.endStatus.benefit).plus('370').plus('250'))).toBeTruthy();
 
-    expect(Money.equals(jan2.endStatus.balance, Money.from(jan1.endStatus.balance).plus('250'))).toBeTruthy;
-    expect(Money.equals(feb2.endStatus.balance, Money.from(feb1.endStatus.balance).plus('250').plus('370'))).toBeTruthy;
-    expect(Money.equals(jan2.endStatus.value, Money.from(jan1.endStatus.value).plus('-250'))).toBeTruthy;
-    expect(Money.equals(feb2.endStatus.value, Money.from(feb1.endStatus.value).plus('-250').plus('-370'))).toBeTruthy;
+    expect(Money.equals(jan2.endStatus.balance, Money.from(jan1.endStatus.balance).plus('250'))).toBeTruthy();
+    expect(Money.equals(feb2.endStatus.balance, Money.from(feb1.endStatus.balance).plus('250').plus('370'))).toBeTruthy();
+    expect(Money.equals(jan2.endStatus.value, Money.from(jan1.endStatus.value).plus('-250'))).toBeTruthy();
+    expect(Money.equals(feb2.endStatus.value, Money.from(feb1.endStatus.value).plus('-250').plus('-370'))).toBeTruthy();
   });
 
 });

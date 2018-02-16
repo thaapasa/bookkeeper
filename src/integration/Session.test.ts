@@ -1,7 +1,6 @@
 import 'jest';
 import { Session } from '../shared/types/Session';
 import * as client from '../shared/util/test/TestClient';
-import { SessionWithControl } from '../shared/util/test/TestClient';
 import { expectThrow } from '../shared/util/test/TestUtil';
 
 function checkSession(s: Session) {
@@ -22,7 +21,7 @@ function checkSession(s: Session) {
 
 describe('session', () => {
 
-  function login(): Promise<SessionWithControl> {
+  function login(): Promise<client.SessionWithControl> {
     return client.getSession('sale', 'salasana');
   }
 
