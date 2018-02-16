@@ -178,7 +178,7 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDi
         const isValid = error.map(v => v === undefined).toProperty();
         validity[k] = isValid;
       } else {
-        validity[k] = Bacon.constant(true);
+        validity[k] = B.constant(true);
       }
     });
     values.categoryId.onValue(id => {

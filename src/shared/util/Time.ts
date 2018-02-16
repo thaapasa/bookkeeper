@@ -1,4 +1,4 @@
-import moment, { isMoment } from 'moment';
+import moment from 'moment';
 import { leftPad } from './Util';
 
 export type DateLike = Date | moment.Moment | string;
@@ -8,7 +8,7 @@ export function month(year: number, mon: number): moment.Moment {
 }
 
 export function toMoment(d: DateLike): moment.Moment {
-  if (isMoment(d)) { return d; }
+  if (moment.isMoment(d)) { return d; }
   return moment(d);
 }
 
