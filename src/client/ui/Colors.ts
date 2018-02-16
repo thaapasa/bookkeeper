@@ -26,3 +26,43 @@ export function forMoney(m?: MoneyLike): string {
 export function diagonalStripes(color1: string, color2: string, width1: string, width2: string): string {
   return `repeating-linear-gradient(45deg, ${color1}, ${color1} ${width1}, ${color2} ${width1}, ${color2} ${width2})`;
 }
+
+interface ColorDef {
+  standard: string;
+  light: string;
+  dark: string;
+  text: string;
+}
+
+interface ColorScheme {
+  primary: ColorDef;
+  secondary: ColorDef;
+  gray: ColorDef;
+}
+
+const gray: ColorDef = {
+  standard: '#e1e2e1',
+  light: '#f5f5f6',
+  dark: '#919192',
+  text: '#000000',
+};
+
+const lightBrown: ColorDef = {
+  standard: '#efebe9',
+  light: '#ffffff',
+  dark: '#bdb9b7',
+  text: '#000000',
+};
+
+const orangeRed: ColorDef = {
+  standard: '#ff8a65',
+  light: '#ffbb93',
+  dark: '#c75b39',
+  text: '#000000',
+};
+
+export const scheme: ColorScheme = {
+  primary: lightBrown,
+  secondary: orangeRed,
+  gray,
+};
