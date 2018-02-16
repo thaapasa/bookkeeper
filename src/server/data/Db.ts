@@ -1,7 +1,7 @@
 const Pool = require('pg-pool');
 import { config } from '../Config';
 import { camelCaseObject } from '../../shared/util/Util';
-import { QueryResult, Client } from 'pg';
+import { QueryResult, PoolClient } from 'pg';
 const debug = require('debug')('db');
 const error = require('debug')('db:error');
 
@@ -12,7 +12,7 @@ const pool = new Pool({
 
 type Queryer = <T>(name: string, query: string, params: any[], mapper: (res: QueryResult) => T) => Promise<T>;
 
-function queryFor(client: Client, doRelease: boolean, id?: number): Queryer {
+function queryFor(client: PoolClient, doRelease: boolean, id?: number): Queryer {
   return async (name, query, params, mapper) => {
     try {
       debug((id ? `[${id}] SQL query` : '[db] SQL query'), name, query, 'with params', params);
@@ -22,7 +22,7 @@ function queryFor(client: Client, doRelease: boolean, id?: number): Queryer {
       error('Query error', e.message, e.stack);
       throw e;
     } finally {
-      if (doRelease) { await client.end(); }
+      if (doRelease) { await client.release(); }
     }
   };
 }
@@ -58,17 +58,17 @@ class BookkeeperDB implements DbAccess {
     this.counter += 1;
     const txId = this.counter;
     debug(`Starting ${mode} transaction ${txId}`);
-    const client = await pool.connect() as Client;
+    const client = await pool.connect() as PoolClient;
     try {
       await client.query(`BEGIN ${mode}`);
       const res = await f(new BookkeeperDB(queryFor(client, false, txId)));
       await client.query('COMMIT');
-      await client.end();
+      await client.release();
       return res;
     } catch (e) {
       debug(`Rolling back transaction ${txId} because of error`, e);
       await client.query('ROLLBACK');
-      await client.end();
+      await client.release();
       error('Query error', e.message, e.stack);
       throw e;
     }
@@ -92,6 +92,6 @@ function toId(r: any): number {
 }
 
 export const db = new BookkeeperDB(async <T>(name: string, query: string, params: any[], mapper: (res: QueryResult) => T): Promise<T> => {
-  const client = await pool.connect() as Client;
+  const client = await pool.connect() as PoolClient;
   return queryFor(client, true)(name, query, params, mapper);
 });
