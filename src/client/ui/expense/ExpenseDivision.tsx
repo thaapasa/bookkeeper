@@ -11,19 +11,19 @@ import { RecurringExpensePeriod, ExpenseDivisionItem, UserExpense } from '../../
 import { Map } from '../../../shared/util/Util';
 import { User, Source } from '../../../shared/types/Session';
 import { confirm, notify, notifyError, updateExpenses } from '../../data/State';
-import { toDate } from 'shared/util/Time';
+import { toDate } from '../../../shared/util/Time';
 
 const styles = {
   tool: {
     margin: '0',
     padding: '0',
     width: 36,
-    height: 36
+    height: 36,
   },
   toolIcon: {
     color: colors.tool,
-    fontSize: '15pt'
-  }
+    fontSize: '15pt',
+  },
 };
 
 function divisionItem(sum: MoneyLike) {
@@ -40,16 +40,14 @@ function getBalance(data: Map<MoneyLike>) {
   return divisionTypes.map(t => Money.orZero(data[t])).reduce((a, b) => a.plus(b), Money.zero).negate();
 }
 
-
 function DetailRow(props: { name: string, value: string }) {
   return (
     <div className="expense-detail-mobile">
-      <span className="detail-label">{props.name + ":"}</span>
+      <span className="detail-label">{props.name + ':'}</span>
       {props.value}
     </div>
   );
 }
-
 
 interface ExpenseDivisionProps {
   division: ExpenseDivisionItem[];
@@ -60,7 +58,7 @@ interface ExpenseDivisionProps {
   user: User;
   source: Source;
   fullCategoryName: string;
-};
+}
 
 export default class ExpenseDivision extends React.Component<ExpenseDivisionProps, {}> {
 
@@ -71,7 +69,7 @@ export default class ExpenseDivision extends React.Component<ExpenseDivisionProp
     const isIncome = expense.type === 'income';
     const user = this.props.user;
     const users: Map<Map<MoneyLike>> = {};
-    division.forEach(d => { users[d.userId] = { ...users[d.userId], [d.type]: d.sum }});
+    division.forEach(d => { users[d.userId] = { ...users[d.userId], [d.type]: d.sum }; });
     return (
       <div className="expense-division">
         {this.renderDetails(user, expense)}
@@ -93,6 +91,7 @@ export default class ExpenseDivision extends React.Component<ExpenseDivisionProp
     );
   }
 
+  // tslint:disable jsx-no-lambda
   private renderDetails(user: User, expense: UserExpense) {
     return (
       <div className="mobile">
@@ -120,7 +119,7 @@ export default class ExpenseDivision extends React.Component<ExpenseDivisionProp
         <div className="expense-division-item"><div className="label">{isIncome ? 'Jako' : 'Hyöty'}</div></div>
         <div className="expense-division-item"><div className="label">Balanssi</div></div>
       </div>
-    ); 
+    );
   }
 
   private renderUser(userId: string, isIncome: boolean, users: Map<Map<MoneyLike>>) {
@@ -133,7 +132,7 @@ export default class ExpenseDivision extends React.Component<ExpenseDivisionProp
       </div>
     );
   }
-  
+
   private createRecurring = async () => {
     try {
       const period = await confirm<RecurringExpensePeriod | undefined>('Muuta toistuvaksi',
@@ -142,7 +141,7 @@ export default class ExpenseDivision extends React.Component<ExpenseDivisionProp
             { label: 'Kuukausittain', value: 'monthly'  },
             { label: 'Vuosittain', value: 'yearly' },
             { label: 'Peruuta', value: undefined },
-          ]
+          ],
         });
       if (period) {
         await apiConnect.createRecurring(this.props.expense.id, period);

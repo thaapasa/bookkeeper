@@ -1,6 +1,6 @@
 import * as React from 'react';
-import DatePicker from 'material-ui/DatePicker'
 import moment from 'moment';
+import DatePicker from 'material-ui/DatePicker';
 import { PickDateObject } from '../../data/StateTypes';
 import { Action } from '../../../shared/types/Common';
 import { pickDateE } from '../../data/State';
@@ -8,11 +8,11 @@ const debug = require('debug')('bookkeeper:date-picker');
 
 interface DatePickerProps {
   pick: PickDateObject;
-};
+}
 
 class DatePickerComponent extends React.Component<DatePickerProps, {}> {
 
-  private onChange = (_: any, d: Date) => { 
+  private onChange = (_: any, d: Date) => {
     debug('Selecting date', d);
     this.props.pick.resolve(d);
   }
@@ -48,7 +48,7 @@ class DatePickerComponent extends React.Component<DatePickerProps, {}> {
 
 interface DatePickerConnectorState {
   pick: PickDateObject | null;
-};
+}
 
 export default class DatePickerConnector extends React.Component<{}, DatePickerConnectorState> {
 

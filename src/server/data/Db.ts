@@ -16,7 +16,7 @@ function queryFor(client: Client, doRelease: boolean, id?: number): Queryer {
   return async (name, query, params, mapper) => {
     try {
       debug((id ? `[${id}] SQL query` : '[db] SQL query'), name, query, 'with params', params);
-      const res = await client.query({ text: query, name: name, values: params });
+      const res = await client.query({ text: query, name, values: params });
       return mapper(res);
     } catch (e) {
       error('Query error', e.message, e.stack);
@@ -83,7 +83,6 @@ class BookkeeperDB implements DbAccess {
   }
 }
 
-
 function toRowCount(r: any): number {
   return r && r.rowCount !== undefined ? r.rowCount : r;
 }
@@ -92,7 +91,7 @@ function toId(r: any): number {
   return r && r.rows && r.rows.length > 0 ? r.rows[0].id : 0;
 }
 
-export const db = new BookkeeperDB(async function <T>(name: string, query: string, params: any[], mapper: (res: QueryResult) => T): Promise<T> {
+export const db = new BookkeeperDB(async <T>(name: string, query: string, params: any[], mapper: (res: QueryResult) => T): Promise<T> => {
   const client = await pool.connect() as Client;
   return queryFor(client, true)(name, query, params, mapper);
 });

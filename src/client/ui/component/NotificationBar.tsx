@@ -18,11 +18,12 @@ class NotificationBar extends React.Component<NotificationBarProps, {}> {
       this.props.notification.message;
   }
   public render() {
-    return <Snackbar
-      open={true}
-      message={this.getMessage()}
-      onRequestClose={this.props.onClose}
-    />
+    return (
+      <Snackbar
+        open={true}
+        message={this.getMessage()}
+        onRequestClose={this.props.onClose} />
+    );
   }
 }
 
@@ -73,9 +74,8 @@ export default class NotificationBarConnector extends React.Component<{}, Notifi
   }
 
   public render() {
-    return this.state.notification ? 
+    return this.state.notification ?
       <NotificationBar notification={this.state.notification} onClose={this.dismissCurrent} /> :
       null;
   }
 }
-

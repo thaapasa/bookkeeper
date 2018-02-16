@@ -56,6 +56,7 @@ export default class ExpenseNavigation extends React.Component<ExpenseNavigation
     return;
   }
 
+  // tslint:disable jsx-no-lambda
   public render() {
     return (
       <NavigationContainer onKeyUp={this.handleKeyPress} tabIndex={1}>

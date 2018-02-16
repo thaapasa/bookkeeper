@@ -10,10 +10,11 @@ const debug = require('debug')('bookkeeper:api:expenses');
 
 function calculateBalance(o: ExpenseStatus): ExpenseStatus {
   const value = Money.from(o.cost).plus(o.benefit).plus(o.income).plus(o.split);
-  return Object.assign(o, {
+  return {
+    ...o,
     value: value.toString(),
-    balance: value.negate().toString()
-  })
+    balance: value.negate().toString(),
+  };
 }
 
 function getBetween(tx: DbAccess) {
@@ -23,7 +24,7 @@ function getBetween(tx: DbAccess) {
       basic.expenseSelect('WHERE group_id=$2 AND template=false AND date >= $3::DATE AND date < $4::DATE'),
       [userId, groupId, time.formatDate(startDate), time.formatDate(endDate)])
       .then(l => l.map(basic.mapExpense));
-  }
+  };
 }
 
 const zeroStatus: ExpenseStatus = {
@@ -70,12 +71,12 @@ function search(tx: DbAccess) {
         'AND ($5::INTEGER IS NULL OR category_id=$5::INTEGER)'),
       [userId, groupId, params.startDate, params.endDate, params.categoryId || null]);
     return expenses.map(basic.mapExpense);
-  }
+  };
 }
 
 export default {
   getAll: basic.getAll,
-  getByMonth: getByMonth,
+  getByMonth,
   getById: basic.getById,
   getDivision: basic.getDivision,
   deleteById: basic.deleteById,
@@ -83,5 +84,5 @@ export default {
   create: basic.create,
   update: basic.update,
   search: search(db),
-  createRecurring: recurring.createRecurring
+  createRecurring: recurring.createRecurring,
 };

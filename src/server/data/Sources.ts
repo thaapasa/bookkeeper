@@ -9,7 +9,7 @@ function getImage(img: string | undefined): string | undefined {
 interface SourceData extends Source {
   userId: number;
   share: number;
-};
+}
 
 function createGroupObject(rows: SourceData[]): Source[] {
   if (!rows || rows.length < 1) { return []; }
@@ -31,7 +31,7 @@ function getAll(tx: DbAccess) {
   return async (groupId: number): Promise<Source[]> => {
     const s = await tx.queryList('sources.get_all', `${select} WHERE group_id = $1::INTEGER`, [groupId]);
     return createGroupObject(s as SourceData[]);
-  }
+  };
 }
 
 function getById(tx: DbAccess) {
@@ -40,14 +40,14 @@ function getById(tx: DbAccess) {
       `${select} WHERE id=$1::INTEGER AND group_id=$2::INTEGER`, [id, groupId]);
     if (!s) { throw new NotFoundError('SOURCE_NOT_FOUND', 'source'); }
     return createGroupObject(s as SourceData[])[0];
-  }
+  };
 }
 
 export default {
   getAll: getAll(db),
   getById: getById(db),
   tx: {
-    getById: getById,
-    getAll: getAll
-  }
+    getById,
+    getAll,
+  },
 };

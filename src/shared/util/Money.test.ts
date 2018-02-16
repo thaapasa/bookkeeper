@@ -2,7 +2,7 @@ import 'jest';
 import Money from './Money';
 import { Big } from 'big.js';
 
-describe('Money', function () {
+describe('Money', () => {
   it('should be created from valid strings', () => {
     expect(new Money('100.57').toString()).toEqual('100.57');
     expect(new Money('100.5').toString()).toEqual('100.50');

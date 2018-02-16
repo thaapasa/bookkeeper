@@ -23,9 +23,8 @@ export function registerAPI(app: Express) {
     timestamp: moment().format(),
     version: config.version,
     revision: config.revision,
-    environment: config.environment
+    environment: config.environment,
   })));
-
 
   // PUT /api/session
   app.put('/api/session', server.processUnauthorizedRequest((req): Promise<Session> =>
@@ -47,7 +46,6 @@ export function registerAPI(app: Express) {
   app.get('/api/session/groups', server.processRequest((session): Promise<Group[]> =>
     users.getGroups(session.user.id)));
 
-
   // GET /api/user/list
   app.get('/api/user/list', server.processRequest((session, req): Promise<User[]> =>
     users.getAll(session.group.id), true));
@@ -56,8 +54,6 @@ export function registerAPI(app: Express) {
   app.get('/api/user/:id', server.processRequest((session, req): Promise<User> =>
     users.getById(session.group.id, parseInt(req.params.id, 10)), true));
 
-
-
   // GET /api/category/list
   app.get('/api/category/list', server.processRequest((session): Promise<Category[]> =>
     categories.getAll(session.group.id), true));
@@ -65,7 +61,7 @@ export function registerAPI(app: Express) {
   // PUT /api/category
   const categorySchema: Schema<CategoryInput> = {
     name: V.stringWithLength(1, 255),
-    parentId: V.nonNegativeInt
+    parentId: V.nonNegativeInt,
   };
   app.put('/api/category', server.processRequest(async (session, req): Promise<ApiMessage> => {
     const id = await categories.create(session.group.id, V.validate(categorySchema, req.body));
@@ -74,7 +70,7 @@ export function registerAPI(app: Express) {
 
   const dateSchema: Schema<CategoryQueryInput> = {
     startDate: V.date,
-    endDate: V.date
+    endDate: V.date,
   };
 
   // GET /api/category/totals
@@ -98,7 +94,6 @@ export function registerAPI(app: Express) {
   app.get('/api/source/:id', server.processRequest((session, req): Promise<Source> =>
     sources.getById(session.group.id, parseInt(req.params.id, 10)), true));
 
-
   // GET /api/expense/list
   app.get('/api/expense/list', server.processRequest((session): Promise<Expense[]> =>
     expenses.getAll(session.group.id, session.user.id), true));
@@ -106,7 +101,7 @@ export function registerAPI(app: Express) {
   // GET /api/expense/month
   const monthSchema = {
     year: V.intBetween(1500, 3000),
-    month: V.intBetween(1, 12)
+    month: V.intBetween(1, 12),
   };
   app.get('/api/expense/month', server.processRequest((session, req): Promise<ExpenseCollection> => {
     const params = V.validate<{ year: number, month: number }>(monthSchema, { year: req.query.year, month: req.query.month });
@@ -116,7 +111,7 @@ export function registerAPI(app: Express) {
   const searchSchema: Schema<ExpenseSearchParams> = {
     startDate: V.date,
     endDate: V.date,
-    categoryId: V.optional(V.positiveInt)
+    categoryId: V.optional(V.positiveInt),
   };
   app.get('/api/expense/search', server.processRequest((session, req): Promise<UserExpense[]> => {
     const params = V.validate(searchSchema, req.query);
@@ -135,7 +130,7 @@ export function registerAPI(app: Express) {
     confirmed: V.optional(V.boolean),
     sourceId: V.optional(V.positiveInt),
     categoryId: V.positiveInt,
-    division: V.optional(V.listOfObjects({ userId: V.positiveInt, sum: V.money, type: V.stringWithLength(1, 10) }))
+    division: V.optional(V.listOfObjects({ userId: V.positiveInt, sum: V.money, type: V.stringWithLength(1, 10) })),
   };
   app.put('/api/expense', server.processRequest((session, req): Promise<ApiMessage> =>
     expenses.create(session.user.id, session.group.id, V.validate(expenseSchema, req.body), session.group.defaultSourceId || 0), true));
@@ -165,11 +160,9 @@ export function registerAPI(app: Express) {
   app.delete('/api/expense/:id', server.processRequest((session, req): Promise<ApiMessage> =>
     expenses.deleteById(session.group.id, parseInt(req.params.id, 10)), true));
 
-
-
   const recurringExpenseSchema: Schema<Recurrence> = {
     period: V.either('monthly', 'yearly'),
-    occursUntil: V.optional(V.date)
+    occursUntil: V.optional(V.date),
   };
 
   // PUT /api/expense/recurring/[expenseId]

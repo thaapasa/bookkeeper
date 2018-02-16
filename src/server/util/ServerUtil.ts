@@ -12,7 +12,7 @@ interface ErrorInfo {
   code: string;
   cause?: any;
   info?: any;
-};
+}
 
 function handleError(res: Response) {
   return (e: any) => {
@@ -26,7 +26,7 @@ function handleError(res: Response) {
       data.info = e.info;
     }
     res.status(status).json(data);
-  }
+  };
 }
 
 export function processUnauthorizedRequest(handler: (req: Request, res: Response) => Promise<any>) {

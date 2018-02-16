@@ -10,27 +10,29 @@ import { Expense, Income } from '../Icons';
 import * as apiConnect from '../../data/ApiConnect';
 import { PlainAutoComplete } from '../component/PlainTextField';
 import { stopEventPropagation } from '../../util/ClientUtil';
-import { Source } from 'shared/types/Session';
-import { CSSProperties } from 'react';
-import { ExpenseType } from 'shared/types/Expense';
+import { Source } from '../../../shared/types/Session';
+import { ExpenseType } from '../../../shared/types/Expense';
 import moment from 'moment';
 
 const styles = {
-  category: { width: '50%' }
+  category: { width: '50%' },
 };
 
+// tslint:disable jsx-no-lambda
 export function SumField(props: {
   value: string,
   errorText?: string,
-  onChange: (s: string) => void
+  onChange: (s: string) => void,
 }) {
-  return <TextField
-    hintText="0.00"
-    floatingLabelText="Summa"
-    floatingLabelFixed={true}
-    value={props.value}
-    errorText={props.errorText}
-    onChange={(i, e) => props.onChange(e)} />
+  return (
+    <TextField
+      hintText="0.00"
+      floatingLabelText="Summa"
+      floatingLabelFixed={true}
+      value={props.value}
+      errorText={props.errorText}
+      onChange={(i, e) => props.onChange(e)} />
+  );
 }
 
 export function TitleField(props: {
@@ -40,18 +42,20 @@ export function TitleField(props: {
   onChange: (s: string) => void,
   onSelect: (s: number) => void,
 }) {
-  return <AutoComplete
-    hintText="Ruokaostokset"
-    floatingLabelFixed={true}
-    floatingLabelText="Kuvaus"
-    searchText={props.value}
-    filter={AutoComplete.caseInsensitiveFilter}
-    onNewRequest={(v) => (typeof v === "object") ? props.onSelect(v.value) : ""}
-    errorText={props.errorText}
-    fullWidth={true}
-    onKeyUp={stopEventPropagation}
-    dataSource={props.dataSource}
-    onUpdateInput={(v) => props.onChange(v)} />
+  return (
+    <AutoComplete
+      hintText="Ruokaostokset"
+      floatingLabelFixed={true}
+      floatingLabelText="Kuvaus"
+      searchText={props.value}
+      filter={AutoComplete.caseInsensitiveFilter}
+      onNewRequest={(v) => (typeof v === 'object') ? props.onSelect(v.value) : ''}
+      errorText={props.errorText}
+      fullWidth={true}
+      onKeyUp={stopEventPropagation}
+      dataSource={props.dataSource}
+      onUpdateInput={(v) => props.onChange(v)} />
+  );
 }
 
 export function CategorySelector(props: {
@@ -63,71 +67,79 @@ export function CategorySelector(props: {
   onChangeSubcategory: (id: number) => void,
   errorText?: string,
 }) {
-  return <div onKeyUp={stopEventPropagation}>
-    <DropDownMenu
-      key="category"
-      value={props.category}
-      style={styles.category}
-      // autoWidth={false}
-      // onKeyUp={stopEventPropagation}
-      onChange={(i, j, v) => props.onChangeCategory(v)}>
-      {props.categories.map((row) => (
-        <MenuItem key={row.id} value={row.id} primaryText={row.name} />
-      ))}
-    </DropDownMenu>
-    <DropDownMenu
-      key="subcategory"
-      value={props.subcategory}
-      style={styles.category}
-      // autoWidth={false}
-      // onKeyUp={stopEventPropagation}
-      onChange={(i, j, v) => props.onChangeSubcategory(v)}>
-      {props.subcategories.map(row =>
-        <MenuItem key={row.id} value={row.id} primaryText={row.name} />
-      )}
-    </DropDownMenu>
-    {props.errorText ? [<br key="br" />, <div className="error-text" key="error">{props.errorText}</div>] : null}
-  </div>
+  return (
+    <div onKeyUp={stopEventPropagation}>
+      <DropDownMenu
+        key="category"
+        value={props.category}
+        style={styles.category}
+        // autoWidth={false}
+        // onKeyUp={stopEventPropagation}
+        onChange={(i, j, v) => props.onChangeCategory(v)}>
+        {props.categories.map((row) => (
+          <MenuItem key={row.id} value={row.id} primaryText={row.name} />
+        ))}
+      </DropDownMenu>
+      <DropDownMenu
+        key="subcategory"
+        value={props.subcategory}
+        style={styles.category}
+        // autoWidth={false}
+        // onKeyUp={stopEventPropagation}
+        onChange={(i, j, v) => props.onChangeSubcategory(v)}>
+        {props.subcategories.map(row => (
+          <MenuItem key={row.id} value={row.id} primaryText={row.name} />
+        ))}
+      </DropDownMenu>
+      {props.errorText ? [<br key="br" />, <div className="error-text" key="error">{props.errorText}</div>] : null}
+    </div>
+  );
 }
 
 export function SourceSelector(props: {
   value: number,
   onChange: (id: number) => void,
   sources: Source[],
-  style?: CSSProperties,
+  style?: React.CSSProperties,
 }) {
-  return <DropDownMenu
-    value={props.value}
-    style={props.style}
-    onChange={(event, index, sourceId) => props.onChange(sourceId)}>
-    {props.sources.map(s => <MenuItem key={s.id} value={s.id} primaryText={s.name} />)}
-  </DropDownMenu>
+  return (
+    <DropDownMenu
+      value={props.value}
+      style={props.style}
+      onChange={(event, index, sourceId) => props.onChange(sourceId)}>
+      {props.sources.map(s => <MenuItem key={s.id} value={s.id} primaryText={s.name} />)}
+    </DropDownMenu>
+  );
 }
 
 export function TypeSelector(props: {
   value: string,
   onChange: (s: ExpenseType) => void,
 }) {
-  return <Checkbox
-    label={props.value === 'income' ? 'Tulo' : 'Kulu'}
-    checkedIcon={<Income />}
-    uncheckedIcon={<Expense />}
-    checked={props.value === 'income'}
-    onCheck={(e, v) => props.onChange(v ? 'income' : 'expense')} />
+  return (
+    <Checkbox
+      label={props.value === 'income' ? 'Tulo' : 'Kulu'}
+      checkedIcon={<Income />}
+      uncheckedIcon={<Expense />}
+      checked={props.value === 'income'}
+      onCheck={(e, v) => props.onChange(v ? 'income' : 'expense')} />
+  );
 }
 
 export function DateField(props: {
   value: Date,
   onChange: (date: Date) => void,
 }) {
-  return <DatePicker
-    value={props.value}
-    formatDate={d => moment(d).format('D.M.YYYY')}
-    floatingLabelText="Päivämäärä"
-    //floatingLabelFixed={true}
-    fullWidth={true}
-    autoOk={true}
-    onChange={(event, date) => props.onChange(date)} />
+  return (
+    <DatePicker
+      value={props.value}
+      formatDate={d => moment(d).format('D.M.YYYY')}
+      floatingLabelText="Päivämäärä"
+      // floatingLabelFixed={true}
+      fullWidth={true}
+      autoOk={true}
+      onChange={(event, date) => props.onChange(date)} />
+  );
 }
 
 interface ReceiverFieldProps {
@@ -144,7 +156,7 @@ interface ReceiverFieldProps {
 
 interface ReceiverFieldState {
   receivers: any[];
-};
+}
 
 export class ReceiverField extends React.Component<ReceiverFieldProps, ReceiverFieldState> {
 
@@ -194,7 +206,7 @@ export class ReceiverField extends React.Component<ReceiverFieldProps, ReceiverF
 export class PlainReceiverField extends React.Component<ReceiverFieldProps, {}> {
   public render() {
     return (
-      <ReceiverField {...this.props} value={this.props.value || ''} editorType={PlainAutoComplete }>
+      <ReceiverField {...this.props} value={this.props.value || ''} editorType={PlainAutoComplete}>
         {this.props.children}
       </ReceiverField>
     );
@@ -206,14 +218,16 @@ export function DescriptionField(props: {
   errorText?: string,
   onChange: (s: string) => void,
 }) {
-  return <TextField
-    multiLine={true}
-    hintText="Tarkempi selite"
-    floatingLabelText="Selite"
-    floatingLabelFixed={true}
-    fullWidth={true}
-    errorText={props.errorText}
-    value={props.value}
-    onChange={(i, e) => props.onChange(e)}
-  />
+  return (
+    <TextField
+      multiLine={true}
+      hintText="Tarkempi selite"
+      floatingLabelText="Selite"
+      floatingLabelFixed={true}
+      fullWidth={true}
+      errorText={props.errorText}
+      value={props.value}
+      onChange={(i, e) => props.onChange(e)}
+    />
+  );
 }

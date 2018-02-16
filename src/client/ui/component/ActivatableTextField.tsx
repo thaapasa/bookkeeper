@@ -1,7 +1,6 @@
 import * as React from 'react';
 import TextField from 'material-ui/TextField';
 import { KeyCodes } from '../../util/Io';
-import { CSSProperties } from 'react';
 const debug = require('debug')('bookkeeper:activatable-text-field');
 
 type EditorType = React.ComponentClass<any>;
@@ -9,7 +8,7 @@ type EditorType = React.ComponentClass<any>;
 interface ActivatableTextFieldProps {
   editorType?: EditorType;
   name?: string;
-  style?: CSSProperties;
+  style?: React.CSSProperties;
   value: string;
   id?: number;
   hintText?: string;
@@ -34,7 +33,7 @@ export default class ActivatableTextField extends React.Component<ActivatableTex
   }
   private commit = (value: string) => {
     debug('Committing', value);
-    this.props.onChange && this.props.onChange(value);
+    if (this.props.onChange) { this.props.onChange(value); }
     this.close();
   }
 
@@ -60,7 +59,7 @@ export default class ActivatableTextField extends React.Component<ActivatableTex
     return;
   }
 
-  private updateValue = (i: any, value: string) => this.setState({ value })
+  private updateValue = (i: any, value: string) => this.setState({ value });
 
   private createEditor() {
     const type = this.props.editorType ? this.props.editorType : TextField;

@@ -9,7 +9,7 @@ export interface Group extends DbObject {
 export interface UserShare {
   userId: number;
   share: number;
-};
+}
 
 export interface Source extends DbObject {
   name: string;

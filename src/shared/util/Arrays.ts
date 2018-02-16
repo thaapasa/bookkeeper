@@ -14,7 +14,7 @@ export function shuffle<T>(a: T[]): T[] {
 }
 
 export function sortAndCompareElements<T>(ar1: T[], ar2: T[]): boolean {
-  if (ar1.length != ar2.length) { return false; }
+  if (ar1.length !== ar2.length) { return false; }
   ar2.sort();
   return ar1.sort().map((a, i) => a === ar2[i]).find(i => i === false) === undefined;
 }
@@ -42,8 +42,8 @@ export function toMap<T, K extends keyof T>(arr: T[], keyProp: K): Map<T> {
   return map;
 }
 
-export function valuesToArray<T extends object>(a: T): (T[keyof T])[] {
-  const res: (T[keyof T])[] = [];
+export function valuesToArray<T extends object>(a: T): Array<T[keyof T]> {
+  const res: Array<T[keyof T]> = [];
   Object.keys(a).map(k => res.push((a as any)[k]));
   return res;
 }

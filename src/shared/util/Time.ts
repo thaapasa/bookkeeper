@@ -3,8 +3,8 @@ import { leftPad } from './Util';
 
 export type DateLike = Date | moment.Moment | string;
 
-export function month(year: number, month: number): moment.Moment {
-  return moment({ year: year, month: month - 1, day: 1 });
+export function month(year: number, mon: number): moment.Moment {
+  return moment({ year, month: mon - 1, day: 1 });
 }
 
 export function toMoment(d: DateLike): moment.Moment {

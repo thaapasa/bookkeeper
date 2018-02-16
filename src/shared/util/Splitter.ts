@@ -40,5 +40,5 @@ export function splitByShares<T extends HasShares>(sum: MoneyLike, division: T[]
 }
 
 export function negateDivision<T extends { sum: MoneyLike }>(d: T[]): T[] {
-  return d.map(b => ({ ...b as any, sum: Money.from(b.sum).negate() }));;
+  return d.map(b => ({ ...b as any, sum: Money.from(b.sum).negate() }));
 }

@@ -1,6 +1,5 @@
 import * as React from 'react';
 import UserAvatar from './UserAvatar';
-import { CSSProperties } from 'react';
 import { User } from '../../../shared/types/Session';
 import { connect } from './BaconConnect';
 import { validSessionE } from '../../data/Login';
@@ -18,7 +17,7 @@ const StyledUserAvatar = styled(UserAvatar)`
 interface UserSelectorProps {
   selected: number[];
   onChange?: (x: number[]) => void;
-  style?: CSSProperties;
+  style?: React.CSSProperties;
   users: User[];
 }
 
@@ -30,18 +29,21 @@ export class UserSelector extends React.Component<UserSelectorProps, {}> {
     const newS = foundAt >= 0 ? oldS.slice().filter(i => i !== id) : oldS.slice();
     if (foundAt < 0) { newS.push(id); }
     newS.sort();
-    this.props.onChange && this.props.onChange(newS);
+    if (this.props.onChange) { this.props.onChange(newS); }
   }
 
   public render() {
-    return <Container style={this.props.style}>
-      {this.props.users.map(u =>
-        <StyledUserAvatar
-          key={u.id}
-          userId={u.id}
-          className={this.props.selected.includes(u.id) ? 'selected' : 'unselected'}
-          onClick={x => this.switchSelection(u.id)}>{u.firstName.charAt(0)}</StyledUserAvatar>)}
-    </Container>
+    return (
+      <Container style={this.props.style}>
+        {this.props.users.map(u =>
+          <StyledUserAvatar
+            key={u.id}
+            userId={u.id}
+            className={this.props.selected.includes(u.id) ? 'selected' : 'unselected'}
+            // tslint:disable-next-line jsx-no-lambda
+            onClick={x => this.switchSelection(u.id)}>{u.firstName.charAt(0)}</StyledUserAvatar>)}
+      </Container>
+    );
   }
 }
 

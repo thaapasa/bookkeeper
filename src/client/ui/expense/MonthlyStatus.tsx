@@ -56,7 +56,7 @@ const CalculationHeader = styled.div`
 `;
 
 function CalculationRow({ title, sum, drawTopBorder }: { title: string, sum: MoneyLike, drawTopBorder?: boolean }) {
-  const rowStyle = { borderTop: (drawTopBorder ? '1px solid rgb(224, 224, 224)' : 'none') }
+  const rowStyle = { borderTop: (drawTopBorder ? '1px solid rgb(224, 224, 224)' : 'none') };
   return (
     <CalculationRowContainer style={rowStyle}>
       <CalculationTitle>{title}</CalculationTitle>
@@ -81,8 +81,8 @@ export class MonthlyStatus extends React.Component<StatusProps, {}> {
     const expense = this.props.totals ? this.props.totals.totalExpense : 0;
     const filteredIncome = this.props.filteredTotals ? this.props.filteredTotals.totalIncome : 0;
     const filteredExpense = this.props.filteredTotals ? this.props.filteredTotals.totalExpense : 0;
-    const filteredStyle = { display: (!this.props.showFiltered ? 'none' : ''), backgroundColor: 'rgb(224, 224, 224)' }
-    const uncofirmedStyle = { background: this.props.unconfirmedBefore ? colors.unconfirmedStripes : undefined, };
+    const filteredStyle = { display: (!this.props.showFiltered ? 'none' : ''), backgroundColor: 'rgb(224, 224, 224)' };
+    const uncofirmedStyle = { background: this.props.unconfirmedBefore ? colors.unconfirmedStripes : undefined };
     return (
       <StatusContainer>
         <MonthlyCalculation style={filteredStyle}>

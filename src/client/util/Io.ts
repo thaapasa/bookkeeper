@@ -8,5 +8,5 @@ export const KeyCodes = {
   shift: 16,
   alt: 18,
   ctr: 17,
-  backspace: 8
+  backspace: 8,
 };

@@ -11,13 +11,17 @@ export default class Money {
   public value: Big;
 
   public static toBig(m: MoneyLike): Big {
-    if (Money.isBig(m)) { return m; }
-    else if (Money.isMoney(m)) { return m.value; }
-    else { return Big(m); }
+    if (Money.isBig(m)) {
+      return m;
+    } else if (Money.isMoney(m)) {
+      return m.value;
+    } else {
+      return Big(m);
+    }
   }
 
   public static toValue(m: MoneyLike): number {
-    return parseInt(Money.from(m).value.times(100).round().toString()) / 100;
+    return parseInt(Money.from(m).value.times(100).round().toString(), 10) / 100;
   }
 
   public constructor(value: MoneyLike) {
@@ -58,12 +62,12 @@ export default class Money {
   }
 
   public toString(scale?: number): string {
-    if (scale === undefined) scale = 2;
+    if (scale === undefined) { scale = 2; }
     return this.value.toFixed(scale);
   }
 
   public format(scale?: number): string {
-    if (scale === undefined) scale = 2;
+    if (scale === undefined) { scale = 2; }
     return `${this.value.toFixed(scale)} €`;
   }
 
@@ -80,7 +84,7 @@ export default class Money {
   }
 
   public toCents(): number {
-    return parseInt(this.value.times(100).toFixed(0));
+    return parseInt(this.value.times(100).toFixed(0), 10);
   }
 
   public gte(o: MoneyLike): boolean { return this.value.gte(Money.toBig(o)); }

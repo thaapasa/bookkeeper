@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Avatar from 'material-ui/Avatar';
-import Chip from 'material-ui/Chip'
+import Chip from 'material-ui/Chip';
 import ExpenseRow from './ExpenseRow';
 import ExpenseHeader from './ExpenseHeader';
 import RefreshIndicator from 'material-ui/RefreshIndicator';
@@ -54,6 +54,7 @@ export default class ExpenseTable extends React.Component<ExpenseTableProps, Exp
       <ExpenseRow expense={expense}
         key={'expense-row-' + expense.id}
         addFilter={this.addFilter}
+        // tslint:disable-next-line jsx-no-lambda
         onUpdated={e => this.props.onUpdateExpense(expense.id, e)} />
     );
   }
@@ -73,6 +74,7 @@ export default class ExpenseTable extends React.Component<ExpenseTableProps, Exp
           this.state.filters.map((f, index) => <Chip
             key={index}
             style={{ margin: '0.3em', padding: 0 }}
+            // tslint:disable-next-line jsx-no-lambda
             onRequestDelete={() => this.removeFilter(index)}>
             {f.avatar ? <Avatar src={f.avatar} /> : null}
             {f.name}

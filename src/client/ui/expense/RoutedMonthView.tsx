@@ -7,7 +7,7 @@ import MonthView from './MonthView';
 
 interface MonthRouteParams {
   date?: string;
-};
+}
 
 class RoutedMonthView extends React.Component<RouteComponentProps<MonthRouteParams>, {}> {
   private getDate(): moment.Moment {
@@ -17,7 +17,6 @@ class RoutedMonthView extends React.Component<RouteComponentProps<MonthRoutePara
 
   public render() {
     const date = this.getDate();
-    this.props.history;
     return <MonthView date={date} history={this.props.history} />;
   }
 }

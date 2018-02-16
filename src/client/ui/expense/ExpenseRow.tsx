@@ -4,10 +4,10 @@ import * as apiConnect from '../../data/ApiConnect';
 import UserAvatar from '../component/UserAvatar';
 import ActivatableTextField from '../component/ActivatableTextField';
 import { PlainTextField } from '../component/PlainTextField';
-import { ExpandLess, ExpandMore, Delete, Edit, Repeat, ToolIcon } from '../Icons'
+import { ExpandLess, ExpandMore, Delete, Edit, Repeat, ToolIcon } from '../Icons';
 import * as colors from '../Colors';
 import { PlainReceiverField } from './ExpenseDialogComponents';
-import ExpenseDivision from './ExpenseDivision'
+import ExpenseDivision from './ExpenseDivision';
 import { expenseName,  ExpenseFilterFunction } from './ExpenseHelper';
 import Money from '../../../shared/util/Money';
 import moment from 'moment';
@@ -17,8 +17,8 @@ import { connect } from '../component/BaconConnect';
 import { userMapE, sourceMapE } from '../../data/Login';
 import { pickDate, notifyError, notify, confirm, updateExpenses, editExpense } from '../../data/State';
 import { categoryMapE, getFullCategoryName } from '../../data/Categories';
-import { Map } from 'shared/util/Util';
-import { toDate, formatDate } from 'shared/util/Time';
+import { Map } from '../../../shared/util/Util';
+import { toDate, formatDate } from '../../../shared/util/Time';
 
 const emptyDivision: ExpenseDivisionItem[] = [];
 
@@ -32,14 +32,15 @@ interface ExpenseRowProps extends CommonExpenseRowProps {
   user: User;
   source: Source;
   fullCategoryName: string;
-  categoryMap: Map<Category>
+  categoryMap: Map<Category>;
 }
 
 interface ExpenseRowState {
   details: UserExpenseWithDetails | null;
   isLoading: boolean;
-};
+}
 
+// tslint:disable jsx-no-lambda
 export class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState> {
   public state: ExpenseRowState = {
     details: null,
@@ -100,11 +101,10 @@ export class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState
       try {
         const details = await apiConnect.getExpense(expense.id);
         this.setState({ details, isLoading: false });
-      }
-      catch (error) {
+      } catch (error) {
         notifyError('Ei voitu ladata tietoja kirjaukselle', error);
         this.setState({ details: null, isLoading: false });
-      };
+      }
     }
   }
 
@@ -138,50 +138,52 @@ export class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState
     } else if (expense.type === 'income') {
       style.background = colors.income;
     }
-    return <div>
-      <div key={expense.id} className={className} style={style}>
-        <div className="expense-detail date" onClick={() => this.editDate(expense)}>{moment(expense.date).format("D.M.")}</div>
-        <div className="expense-detail user optional">
-          <UserAvatar userId={expense.userId} size={25} onClick={
-            () => this.props.addFilter(
-              e => e.userId === expense.userId,
-              this.props.user.firstName,
-              this.props.user.image)
-          } />
+    return (
+      <div>
+        <div key={expense.id} className={className} style={style}>
+          <div className="expense-detail date" onClick={() => this.editDate(expense)}>{moment(expense.date).format('D.M.')}</div>
+          <div className="expense-detail user optional">
+            <UserAvatar userId={expense.userId} size={25} onClick={
+              () => this.props.addFilter(
+                e => e.userId === expense.userId,
+                this.props.user.firstName,
+                this.props.user.image)
+            } />
+          </div>
+          <div className="expense-detail title" style={{ whiteSpace: 'nowrap' }}>
+            {expense.recurringExpenseId ?
+              <div style={{ display: 'inline-block', width: '14pt', verticalAlign: 'top' }}><Repeat style={{ width: '12pt', height: '12pt', position: 'absolute' }} /></div> : ''}
+            <ActivatableTextField
+              editorType={PlainTextField}
+              name="title" value={expense.title}
+              style={{ display: 'inline-block', verticalAlign: 'middle' }}
+              onChange={v => this.updateExpense({ title: v })}
+            />
+          </div>
+          <div className="expense-detail receiver optional"><ActivatableTextField
+            name="receiver" value={expense.receiver}
+            editorType={PlainReceiverField}
+            onChange={v => this.updateExpense({ receiver: v })}
+          /></div>
+          <div className="expense-detail category optional">{this.fullCategoryLink(expense.categoryId)}</div>
+          <div className="expense-detail source optional">{this.getSource()}</div>
+          <div className="expense-detail sum">{Money.from(expense.sum).format()}</div>
+          <div className="expense-detail balance optional" style={{ color: colors.forMoney(expense.userBalance) }} onClick={
+            () => Money.zero.equals(expense.userBalance) ?
+              this.props.addFilter(e => Money.zero.equals(e.userBalance), 'Balanssi == 0') :
+              this.props.addFilter(e => !Money.zero.equals(e.userBalance), 'Balanssi != 0')
+          }>{Money.from(expense.userBalance).format()}</div>
+          <div className="expense-detail tools">
+            <ToolIcon title="Tiedot" onClick={() => this.toggleDetails(expense, this.state.details)} icon={this.state.details ? ExpandLess : ExpandMore} />
+            <ToolIcon title="Muokkaa" onClick={() => this.modifyExpense(expense)} icon={Edit} />
+            <ToolIcon className="optional" title="Poista" onClick={() => this.deleteExpense(expense)} icon={Delete} />
+          </div>
         </div>
-        <div className="expense-detail title" style={{ whiteSpace: "nowrap" }}>
-          {expense.recurringExpenseId ?
-            <div style={{ display: "inline-block", width: "14pt", verticalAlign: "top" }}><Repeat style={{ width: "12pt", height: "12pt", position: "absolute" }} /></div> : ''}
-          <ActivatableTextField
-            editorType={PlainTextField}
-            name="title" value={expense.title}
-            style={{ display: "inline-block", verticalAlign: "middle" }}
-            onChange={v => this.updateExpense({ title: v })}
-          />
-        </div>
-        <div className="expense-detail receiver optional"><ActivatableTextField
-          name="receiver" value={expense.receiver}
-          editorType={PlainReceiverField}
-          onChange={v => this.updateExpense({ receiver: v })}
-        /></div>
-        <div className="expense-detail category optional">{this.fullCategoryLink(expense.categoryId)}</div>
-        <div className="expense-detail source optional">{this.getSource()}</div>
-        <div className="expense-detail sum">{Money.from(expense.sum).format()}</div>
-        <div className="expense-detail balance optional" style={{ color: colors.forMoney(expense.userBalance) }} onClick={
-          () => Money.zero.equals(expense.userBalance) ?
-            this.props.addFilter(e => Money.zero.equals(e.userBalance), "Balanssi == 0") :
-            this.props.addFilter(e => !Money.zero.equals(e.userBalance), "Balanssi != 0")
-        }>{Money.from(expense.userBalance).format()}</div>
-        <div className="expense-detail tools">
-          <ToolIcon title="Tiedot" onClick={() => this.toggleDetails(expense, this.state.details)} icon={this.state.details ? ExpandLess : ExpandMore} />
-          <ToolIcon title="Muokkaa" onClick={() => this.modifyExpense(expense)} icon={Edit} />
-          <ToolIcon className="optional" title="Poista" onClick={() => this.deleteExpense(expense)} icon={Delete} />
-        </div>
+        {this.renderDetails()}
       </div>
-      {this.renderDetails()}
-    </div>
+    );
   }
-  
+
   private renderDetails() {
     if (!this.state.isLoading && !this.state.details) { return null; }
     return (
@@ -203,7 +205,7 @@ interface BProps {
   sourceMap: Map<Source>;
   userMap: Map<User>;
   categoryMap: Map<Category>;
-};
+}
 
 class ExpenseRowMapper extends React.Component<CommonExpenseRowProps & BProps, {}> {
   public render() {

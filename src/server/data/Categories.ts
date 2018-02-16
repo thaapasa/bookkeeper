@@ -43,26 +43,28 @@ function getAll(tx: DbAccess) {
     const cats = await tx.queryList('categories.get_all', 'SELECT id, parent_id, name FROM categories WHERE group_id=$1::INTEGER ' +
       'ORDER BY (CASE WHEN parent_id IS NULL THEN 1 ELSE 0 END) DESC, parent_id ASC, name', [groupId]);
     return createCategoryObject(cats as Category[]);
-  }
+  };
 }
 
 export interface CategoryQueryInput {
   readonly startDate: string;
   readonly endDate: string;
-};
+}
 
 function getTotals(tx: DbAccess) {
   return async (groupId: number, params: CategoryQueryInput): Promise<CategoryAndTotals[]> => {
-    const cats = await tx.queryList('categories.get_totals', 'SELECT categories.id, categories.parent_id, ' +
-      "SUM(CASE WHEN type='expense' AND template=false AND date >= $2::DATE AND date < $3::DATE THEN sum::NUMERIC ELSE 0::NUMERIC END) AS expenses, " +
-      "SUM(CASE WHEN type='income' AND template=false AND date >= $2::DATE AND date < $3::DATE THEN sum::NUMERIC ELSE 0::NUMERIC END) AS income FROM categories " +
-      'LEFT JOIN expenses ON categories.id=category_id WHERE expenses.id IS NULL OR expenses.group_id=$1::INTEGER ' +
-      'GROUP BY categories.id, categories.parent_id ' +
-      'ORDER BY (CASE WHEN parent_id IS NULL THEN 1 ELSE 0 END) DESC, parent_id ASC, name',
+    const cats = await tx.queryList('categories.get_totals', `
+SELECT categories.id, categories.parent_id,
+  SUM(CASE WHEN type='expense' AND template=false AND date >= $2::DATE AND date < $3::DATE THEN sum::NUMERIC ELSE 0::NUMERIC END) AS expenses
+  SUM(CASE WHEN type='income' AND template=false AND date >= $2::DATE AND date < $3::DATE THEN sum::NUMERIC ELSE 0::NUMERIC END) AS income
+FROM categories
+LEFT JOIN expenses ON categories.id=category_id WHERE expenses.id IS NULL OR expenses.group_id=$1::INTEGER
+GROUP BY categories.id, categories.parent_id
+ORDER BY (CASE WHEN parent_id IS NULL THEN 1 ELSE 0 END) DESC, parent_id ASC, name`,
       [groupId, params.startDate, params.endDate]);
     const categories = createCategoryObject(cats as CategoryAndTotals[]);
     return sumChildTotalsToParent(categories);
-  }
+  };
 }
 
 export interface CategoryInput {
@@ -72,8 +74,8 @@ export interface CategoryInput {
 
 function create(tx: DbAccess) {
   return (groupId: number, data: CategoryInput): Promise<number> =>
-    tx.insert("categories.create", "INSERT INTO categories (group_id, parent_id, name) " +
-      "VALUES ($1::INTEGER, $2::INTEGER, $3) RETURNING id", [groupId, data.parentId || null, data.name]);
+    tx.insert('categories.create', 'INSERT INTO categories (group_id, parent_id, name) ' +
+      'VALUES ($1::INTEGER, $2::INTEGER, $3) RETURNING id', [groupId, data.parentId || null, data.name]);
 }
 
 function getById(tx: DbAccess) {
@@ -83,7 +85,7 @@ function getById(tx: DbAccess) {
       [id, groupId]);
     if (!cat) { throw new NotFoundError('CATEGORY_NOT_FOUND', 'category'); }
     return cat as Category;
-  }
+  };
 }
 
 function update(groupId: number, categoryId: number, data: CategoryInput) {
@@ -102,9 +104,9 @@ export default {
   getTotals: getTotals(db),
   getById: getById(db),
   create: create(db),
-  update: update,
+  update,
   tx: {
-    getAll: getAll,
-    getById: getById
-  }
+    getAll,
+    getById,
+  },
 };

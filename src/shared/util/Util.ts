@@ -21,7 +21,7 @@ export function leftPad(s: string | number, length: number, padding: string = ' 
   while (res.length < length) {
     res = padding + res;
   }
-  return res;  
+  return res;
 }
 
 // Returns a random integer between min (included) and max (excluded)
@@ -38,7 +38,7 @@ export async function asyncIdentity<T>(x: T): Promise<T> {
   return x;
 }
 
-export function noop() {}
+export function noop() { return; }
 
 export interface Map<T> {
   [key: string]: T;

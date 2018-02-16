@@ -13,24 +13,24 @@ export function captureId<T>(e: T): T {
     createdIds.push(isDbObject(e) ? e.id : (isApiMessageWithExpenseId(e) ? e.expenseId : e));
   }
   return e;
-};
+}
 
 export const division = {
-  iPayShared: function (session: Session, sum: MoneyLike): ExpenseDivisionItem[] {
+  iPayShared: (session: Session, sum: MoneyLike): ExpenseDivisionItem[] => {
     const msum = Money.from(sum);
     return [
       { type: 'cost', userId: session.user.id, sum: msum.negate().toString() },
       { type: 'benefit', userId: 1, sum: msum.divide(2).toString() },
-      { type: 'benefit', userId: 2, sum: msum.divide(2).toString() }
+      { type: 'benefit', userId: 2, sum: msum.divide(2).toString() },
     ];
   },
-  iPayMyOwn: function (session: Session, sum: MoneyLike): ExpenseDivisionItem[] {
+  iPayMyOwn: (session: Session, sum: MoneyLike): ExpenseDivisionItem[] => {
     const msum = Money.from(sum);
     return [
       { type: 'cost', userId: session.user.id, sum: msum.negate().toString() },
-      { type: 'benefit', userId: session.user.id, sum: msum.toString() }
+      { type: 'benefit', userId: session.user.id, sum: msum.toString() },
     ];
-  }
+  },
 };
 
 export async function newExpense(session: SessionWithControl, expense?: Partial<Expense>): Promise<ApiMessage> {
@@ -43,10 +43,10 @@ export async function newExpense(session: SessionWithControl, expense?: Partial<
     title: 'Karkkia ja porkkanaa',
     sourceId: findSourceId('Yhteinen tili', session),
     categoryId: findCategoryId('Ruoka', session),
-    ...expense
+    ...expense,
   };
   return captureId(await session.put<ApiMessage>('/api/expense', data));
-};
+}
 
 export async function deleteCreated(session: SessionWithControl): Promise<boolean> {
   if (!session) { return false; }
@@ -57,19 +57,19 @@ export async function deleteCreated(session: SessionWithControl): Promise<boolea
     // Clear createdIds array
     createdIds = [];
   }
-};
+}
 
 export function checkCreateStatus(s: ApiMessage): number {
   expect(s.status).toEqual('OK');
   expect(s.expenseId).toBeGreaterThan(0);
-  if (!s.expenseId) { throw 'not-reached'; }
+  if (!s.expenseId) { throw new Error('not-reached'); }
   return s.expenseId;
-};
+}
 
 export function findSourceId(name: string, session: Session): number {
-  const s = session.sources.find(s => s.name === name);
-  if (!s) { throw new Error('Source not found'); }
-  return s.id;
+  const user = session.sources.find(u => u.name === name);
+  if (!user) { throw new Error('Source not found'); }
+  return user.id;
 }
 
 export function findCategoryId(name: string, session: Session): number {
@@ -79,9 +79,9 @@ export function findCategoryId(name: string, session: Session): number {
 }
 
 export function findUserId(name: string, session: Session): number {
-  const s = session.users.find(s => s.username === name);
-  if (!s) { throw new Error('User not found'); }
-  return s.id;
+  const user = session.users.find(u => u.username === name);
+  if (!user) { throw new Error('User not found'); }
+  return user.id;
 }
 
 export async function cleanup(session: SessionWithControl) {

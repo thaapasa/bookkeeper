@@ -1,9 +1,8 @@
 import { db, DbAccess } from './Db';
-import moment from 'moment';
+import moment, { Moment } from 'moment';
 import { Validator } from '../util/Validator';
 import expenses from './BasicExpenses';
 import { RecurringExpensePeriod, Recurrence, ExpenseDivisionItem, Expense } from '../../shared/types/Expense';
-import { Moment } from 'moment';
 import { ApiMessage } from '../../shared/types/Api';
 import { formatDate, fromDate } from '../../shared/util/Time';
 const debug = require('debug')('bookkeeper:api:recurring-expenses');
@@ -36,9 +35,9 @@ function createRecurring(groupId: number, userId: number, expenseId: number, rec
     await tx.update('expenses.set_recurrence_id',
       'UPDATE expenses SET recurring_expense_id=$1 WHERE id IN ($2, $3)', [recurrenceId, expenseId, templateId]);
     return {
-      status: 'OK', message: 'Recurrence created', expenseId: expenseId,
-      templateExpenseId: templateId, recurringExpenseId: recurrenceId
-    }
+      status: 'OK', message: 'Recurrence created', expenseId,
+      templateExpenseId: templateId, recurringExpenseId: recurrenceId,
+    };
   });
 }
 
@@ -63,7 +62,7 @@ function createMissingRecurrences(tx: DbAccess, groupId: number, userId: number,
     await tx.update('expenses.update_recurring_missing_date',
       'UPDATE recurring_expenses SET next_missing=$1::DATE WHERE id=$2',
       [formatDate(nextMissing), recurrence.id]);
-  }
+  };
 }
 
 function createMissingRecurrenceForDate(tx: DbAccess, e: [Expense, ExpenseDivisionItem[]]) {
@@ -72,7 +71,7 @@ function createMissingRecurrenceForDate(tx: DbAccess, e: [Expense, ExpenseDivisi
     const expense = { ...exp, template: false, date };
     debug('Creating missing expense', expense, 'with division', division);
     return expenses.tx.insert(tx)(expense.userId, expense, division);
-  }
+  };
 }
 
 function createMissing(tx: DbAccess) {
@@ -86,8 +85,8 @@ function createMissing(tx: DbAccess) {
 }
 
 export default {
-  createRecurring: createRecurring,
+  createRecurring,
   tx: {
-    createMissing: createMissing
-  }
+    createMissing,
+  },
 };

@@ -8,7 +8,7 @@ import { yearRange, monthRange, TypedDateRange } from '../../../shared/util/Time
 interface CategoryRouteParams {
   year?: string;
   month?: string;
-};
+}
 
 class RoutedCategoryView extends React.Component<RouteComponentProps<CategoryRouteParams>, {}> {
   private getDates(): TypedDateRange {
@@ -23,7 +23,6 @@ class RoutedCategoryView extends React.Component<RouteComponentProps<CategoryRou
 
   public render() {
     const range = this.getDates();
-    this.props.history;
     return <CategoryView range={range} history={this.props.history} />;
   }
 }

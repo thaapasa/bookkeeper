@@ -1,7 +1,7 @@
 import 'jest';
 import { indices, sortAndCompareElements } from './Arrays';
 
-describe('arrays', function () {
+describe('arrays', () => {
   it('should create indices', () => {
     expect(indices(0)).toEqual([]);
     expect(indices(1)).toEqual([0]);

@@ -8,7 +8,7 @@ const baseUrl = 'http://localhost:3100';
 const client = new FetchClient(() => fetch as any, baseUrl);
 
 function authHeader(token: string): Map<string> {
-  return { 'Authorization': `Bearer ${token}` };
+  return { Authorization: `Bearer ${token}` };
 }
 
 export function get<T>(token: string, path: string, query?: Map<any>): Promise<T> {
@@ -58,6 +58,6 @@ function decorateSession(s: Session): SessionWithControl {
     logout: () => del(s.token, '/api/session'),
     put: (path, data) => put(s.token, path, data),
     post: (path, data) => post(s.token, path, data),
-    del: (path, query) => del(s.token, path, query)
+    del: (path, query) => del(s.token, path, query),
   };
 }

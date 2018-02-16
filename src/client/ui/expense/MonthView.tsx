@@ -1,6 +1,6 @@
 import * as React from 'react';
-import ExpenseTable from './ExpenseTable'
-import ExpenseNavigation from './ExpenseNavigation'
+import ExpenseTable from './ExpenseTable';
+import ExpenseNavigation from './ExpenseNavigation';
 import * as apiConnect from '../../data/ApiConnect';
 import { unsubscribeAll } from '../../util/ClientUtil';
 import moment from 'moment';
@@ -8,8 +8,8 @@ import { UserExpense, ExpenseStatus } from '../../../shared/types/Expense';
 import { zeroStatus } from './ExpenseHelper';
 import { History } from 'history';
 import { needUpdateE } from '../../data/State';
-import { toMoment, isSameMonth } from 'shared/util/Time';
-import { expensesForMonthPath } from 'client/util/Links';
+import { toMoment, isSameMonth } from '../../../shared/util/Time';
+import { expensesForMonthPath } from '../../util/Links';
 const debug = require('debug')('bookkeeper:month-view');
 
 interface MonthViewProps {
@@ -79,17 +79,19 @@ export default class MonthView extends React.Component<MonthViewProps, MonthView
   }
 
   public render() {
-    return <div className="content">
-      <ExpenseNavigation date={this.props.date} history={this.props.history} />
-      <ExpenseTable
-        date={this.props.date}
-        expenses={this.state.expenses}
-        loading={this.state.loading}
-        startStatus={this.state.startStatus}
-        endStatus={this.state.endStatus}
-        monthStatus={this.state.monthStatus}
-        unconfirmedBefore={this.state.unconfirmedBefore}
-        onUpdateExpense={this.onUpdateExpense} />
-    </div>
+    return (
+      <div className="content">
+        <ExpenseNavigation date={this.props.date} history={this.props.history} />
+        <ExpenseTable
+          date={this.props.date}
+          expenses={this.state.expenses}
+          loading={this.state.loading}
+          startStatus={this.state.startStatus}
+          endStatus={this.state.endStatus}
+          monthStatus={this.state.monthStatus}
+          unconfirmedBefore={this.state.unconfirmedBefore}
+          onUpdateExpense={this.onUpdateExpense} />
+      </div>
+    );
   }
 }

@@ -16,12 +16,14 @@ const MainContent = styled.div`
   margin-top: 56px;
 `;
 
+// tslint:disable jsx-no-lambda
 function LinkButton({ label, to }: { label: string, to: string }) {
   return (
-    <Route path={to} exact={true} children={({ match }) =>
-      <Link to={to}>
-        <FlatButton primary={!!match}>{label}</FlatButton>
-      </Link>} />
+    <Route path={to} exact={true} children={({ match }) => (
+        <Link to={to}>
+          <FlatButton primary={!!match}>{label}</FlatButton>
+        </Link>
+      )} />
   );
 }
 
@@ -44,7 +46,7 @@ export default class BookkeeperPage extends React.Component<PageProps, {}> {
             </TopBar>
             <MainContent>
               <Switch>
-                <Route exact path="/" component={RoutedMonthView} />
+                <Route exact={true} path="/" component={RoutedMonthView} />
                 <Route path={expensePagePath} component={RoutedMonthView} />
                 <Route path={categoryPagePath} component={RoutedCategoryView} />
               </Switch>

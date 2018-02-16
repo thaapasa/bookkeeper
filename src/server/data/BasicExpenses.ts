@@ -12,39 +12,47 @@ import { ApiMessage } from '../../shared/types/Api';
 const debug = require('debug')('bookkeeper:api:expenses');
 
 function expenseSelect(where: string): string {
-  return 'SELECT MIN(id) AS id, MIN(date) AS date, MIN(receiver) AS receiver, MIN(type) AS type, MIN(sum) AS sum, ' +
-    'MIN(title) AS title, MIN(description) AS description, BOOL_AND(confirmed) AS confirmed, MIN(source_id) AS source_id, ' +
-    'MIN(user_id) AS user_id, MIN(created_by_id) AS created_by_id, MIN(group_id) AS group_id, MIN(category_id) AS category_id, ' +
-    'MIN(created) AS created, MIN(recurring_expense_id) AS recurring_expense_id, ' +
-    'SUM(cost) AS user_cost, SUM(benefit) AS user_benefit, SUM(income) AS user_income, SUM(split) AS user_split, ' +
-    'SUM(cost + benefit + income + split) AS user_value ' +
-    'FROM ' +
-    '(SELECT id, date::DATE, receiver, e.type, e.sum::MONEY::NUMERIC, title, description, confirmed, ' +
-    'source_id, e.user_id, created_by_id, group_id, category_id, created, recurring_expense_id, ' +
-    "(CASE WHEN d.type = 'cost' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS cost, " +
-    "(CASE WHEN d.type = 'benefit' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS benefit, " +
-    "(CASE WHEN d.type = 'income' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS income, " +
-    "(CASE WHEN d.type = 'split' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS split " +
-    'FROM expenses e ' +
-    'LEFT JOIN expense_division d ON (d.expense_id = e.id AND d.user_id = $1) ' +
-    where +
-    ') breakdown ' +
-    'GROUP BY id ORDER BY date ASC, title ASC, id';
+  return `
+SELECT
+  MIN(id) AS id, MIN(date) AS date, MIN(receiver) AS receiver, MIN(type) AS type, MIN(sum) AS sum,
+  MIN(title) AS title, MIN(description) AS description, BOOL_AND(confirmed) AS confirmed, MIN(source_id) AS source_id,
+  MIN(user_id) AS user_id, MIN(created_by_id) AS created_by_id, MIN(group_id) AS group_id, MIN(category_id) AS category_id,
+  MIN(created) AS created, MIN(recurring_expense_id) AS recurring_expense_id,
+  SUM(cost) AS user_cost, SUM(benefit) AS user_benefit, SUM(income) AS user_income, SUM(split) AS user_split,
+  SUM(cost + benefit + income + split) AS user_value
+FROM (
+  SELECT
+    id, date::DATE, receiver, e.type, e.sum::MONEY::NUMERIC, title, description, confirmed,
+    source_id, e.user_id, created_by_id, group_id, category_id, created, recurring_expense_id,
+    (CASE WHEN d.type = 'cost' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS cost,
+    (CASE WHEN d.type = 'benefit' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS benefit,
+    (CASE WHEN d.type = 'income' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS income,
+    (CASE WHEN d.type = 'split' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS split
+  FROM expenses e
+  LEFT JOIN expense_division d ON (d.expense_id = e.id AND d.user_id = $1)
+  ${where}
+) breakdown
+GROUP BY id ORDER BY date ASC, title ASC, id
+`;
 }
 
-const countTotalSelect = 'SELECT ' +
-  "COALESCE(SUM(benefit), '0.00'::NUMERIC) as benefit, " +
-  "COALESCE(SUM(cost), '0.00'::NUMERIC) AS cost, " +
-  "COALESCE(SUM(income), '0.00'::NUMERIC) AS income, " +
-  "COALESCE(SUM(split), '0.00'::NUMERIC) AS split " +
-  'FROM (SELECT ' +
-  "(CASE WHEN d.type = 'cost' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS cost, " +
-  "(CASE WHEN d.type = 'benefit' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS benefit, " +
-  "(CASE WHEN d.type = 'income' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS income, " +
-  "(CASE WHEN d.type = 'split' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS split " +
-  'FROM expenses e ' +
-  'LEFT JOIN expense_division d ON (d.expense_id = e.id AND d.user_id = $1::INTEGER) ' +
-  'WHERE group_id=$2::INTEGER AND template=false AND date >= $3::DATE AND date < $4::DATE) breakdown';
+const countTotalSelect = `
+SELECT
+  COALESCE(SUM(benefit), '0.00'::NUMERIC) as benefit
+  COALESCE(SUM(cost), '0.00'::NUMERIC) AS cost
+  COALESCE(SUM(income), '0.00'::NUMERIC) AS income
+  COALESCE(SUM(split), '0.00'::NUMERIC) AS split
+FROM (
+  SELECT
+    (CASE WHEN d.type = 'cost' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS cost,
+    (CASE WHEN d.type = 'benefit' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS benefit,
+    (CASE WHEN d.type = 'income' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS income,
+    (CASE WHEN d.type = 'split' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS split
+  FROM expenses e
+  LEFT JOIN expense_division d ON (d.expense_id = e.id AND d.user_id = $1::INTEGER)
+  WHERE group_id=$2::INTEGER AND template=false AND date >= $3::DATE AND date < $4::DATE
+) breakdown
+`;
 
 function getAll(tx: DbAccess) {
   return async (groupId: number, userId: number): Promise<Expense[]> => {
@@ -88,7 +96,7 @@ function deleteById(tx: DbAccess) {
   return async (groupId: number, expenseId: number): Promise<ApiMessage> => {
     await tx.update('expenses.delete_by_id', 'DELETE FROM expenses WHERE id=$1 AND group_id=$2',
       [expenseId, groupId]);
-    return { status: 'OK', message: 'Expense deleted', expenseId: expenseId };
+    return { status: 'OK', message: 'Expense deleted', expenseId };
   };
 }
 
@@ -96,7 +104,7 @@ function storeDivision(tx: DbAccess) {
   return (expenseId: number, userId: number, type: ExpenseDivisionType, sum: MoneyLike) => tx.insert('expense.create.division',
     'INSERT INTO expense_division (expense_id, user_id, type, sum) ' +
     'VALUES ($1::INTEGER, $2::INTEGER, $3::expense_division_type, $4::NUMERIC::MONEY)',
-    [expenseId, userId, type, Money.toString(sum)])
+    [expenseId, userId, type, Money.toString(sum)]);
 }
 
 function deleteDivision(tx: DbAccess) {
@@ -110,7 +118,7 @@ function getDivision(tx: DbAccess) {
       'SELECT user_id, type, sum::MONEY::NUMERIC FROM expense_division WHERE expense_id=$1::INTEGER ORDER BY type, user_id',
       [expenseId]);
     return items as ExpenseDivisionItem[];
-  }
+  };
 }
 
 function createDivision(tx: DbAccess) {
@@ -135,7 +143,7 @@ function createExpense(userId: number, groupId: number, expense: Expense, defaul
     const [cat, user, source] = await Promise.all([
       categories.tx.getById(tx)(groupId, expense.categoryId),
       users.tx.getById(tx)(groupId, expense.userId),
-      sources.tx.getById(tx)(groupId, sourceId)
+      sources.tx.getById(tx)(groupId, sourceId),
     ]);
 
     const division = determineDivision(expense, source);
@@ -163,7 +171,7 @@ function insert(tx: DbAccess) {
         expense.template || false, expense.recurringExpenseId || null]);
     await createDivision(tx)(expenseId, division);
     return expenseId;
-  }
+  };
 }
 
 function updateExpense(tx: DbAccess) {
@@ -173,7 +181,7 @@ function updateExpense(tx: DbAccess) {
     const sourceId = expense.sourceId || defaultSourceId;
     const [cat, source] = await Promise.all([
       categories.tx.getById(tx)(original.groupId, expense.categoryId),
-      sources.tx.getById(tx)(original.groupId, sourceId)
+      sources.tx.getById(tx)(original.groupId, sourceId),
     ]);
     const division = determineDivision(expense, source);
     await deleteDivision(tx)(original.id);
@@ -185,7 +193,7 @@ function updateExpense(tx: DbAccess) {
       expense.description, expense.type, expense.confirmed, source.id, cat.id]);
     await createDivision(tx)(original.id, division);
     return { status: 'OK', message: 'Expense updated', expenseId: original.id };
-  }
+  };
 }
 
 function updateExpenseById(groupId: number, userId: number, expenseId: number, expense: Expense, defaultSourceId: number) {
@@ -211,11 +219,15 @@ function queryReceivers(tx: DbAccess) {
 }
 
 function copyExpense(tx: DbAccess) {
-  return async (groupId: number, userId: number, expenseId: number,
-    mapper: (e: [Expense, ExpenseDivisionItem[]]) => [Expense, ExpenseDivisionItem[]]): Promise<number> => {
+  return async (
+    groupId: number,
+    userId: number,
+    expenseId: number,
+    mapper: (e: [Expense, ExpenseDivisionItem[]],
+  ) => [Expense, ExpenseDivisionItem[]]): Promise<number> => {
     const e = await getExpenseAndDivision(tx)(groupId, userId, expenseId);
     const [expense, division] = mapper ? mapper(e) : e;
-    return await insert(tx)(userId, expense, division);
+    return insert(tx)(userId, expense, division);
   };
 }
 
@@ -235,14 +247,14 @@ export default {
   update: updateExpenseById,
   queryReceivers: queryReceivers(db),
   tx: {
-    getById: getById,
-    insert: insert,
-    getDivision: getDivision,
-    countTotalBetween: countTotalBetween,
-    hasUnconfirmedBefore: hasUnconfirmedBefore,
-    copyExpense: copyExpense,
-    getExpenseAndDivision: getExpenseAndDivision
+    getById,
+    insert,
+    getDivision,
+    countTotalBetween,
+    hasUnconfirmedBefore,
+    copyExpense,
+    getExpenseAndDivision,
   },
-  expenseSelect: expenseSelect,
-  mapExpense: mapExpense,
+  expenseSelect,
+  mapExpense,
 };

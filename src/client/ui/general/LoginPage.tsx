@@ -89,6 +89,7 @@ export default class LoginPage extends React.Component<{}, LoginPageState> {
               hintText="Käyttäjätunnus"
               floatingLabelText="Käyttäjätunnus"
               value={this.state.username}
+              // tslint:disable-next-line jsx-no-lambda
               onChange={(_, v) => this.setState({ username: v })}
             /><br />
             <TextField
@@ -96,6 +97,7 @@ export default class LoginPage extends React.Component<{}, LoginPageState> {
               floatingLabelText="Salasana"
               type="password"
               value={this.state.password}
+              // tslint:disable-next-line jsx-no-lambda
               onChange={(_, v) => this.setState({ password: v })}
             /><br />
             <LoginButton
@@ -103,7 +105,7 @@ export default class LoginPage extends React.Component<{}, LoginPageState> {
               label="Kirjaudu"
               primary={true}
             /><br />
-            {this.state.showStatusMessage ? <Title>{this.state.statusMessage}</Title> : ""}
+            {this.state.showStatusMessage ? <Title>{this.state.statusMessage}</Title> : ''}
           </form>
         </LoginPaper>
       </Page>

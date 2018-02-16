@@ -117,7 +117,7 @@ function appendInfo(tx: DbAccess) {
     users.tx.getGroups(tx)(session.user.id),
     sources.tx.getAll(tx)(session.group.id),
     categories.tx.getAll(tx)(session.group.id),
-    users.tx.getAll(tx)(session.group.id)
+    users.tx.getAll(tx)(session.group.id),
   ]).then(a => ({ groups: a[0], sources: a[1], categories: a[2], users: a[3], ...session }));
 }
 
@@ -127,12 +127,12 @@ async function createToken(): Promise<string> {
 }
 
 export default {
-  login: login,
-  refresh: refresh,
+  login,
+  refresh,
   logout: logout(db),
   appendInfo: (session: SessionBasicInfo): Promise<Session> => db.transaction(tx => appendInfo(tx)(session), true),
   tx: {
-    getSession: getSession,
-    appendInfo: appendInfo
-  }
+    getSession,
+    appendInfo,
+  },
 };

@@ -7,23 +7,22 @@ import Checkbox from 'material-ui/Checkbox';
 import UserAvatar from '../component/UserAvatar';
 import Money, { MoneyLike } from '../../../shared/util/Money';
 import * as apiConnect from '../../data/ApiConnect';
-import { KeyCodes } from '../../util/Io'
+import { KeyCodes } from '../../util/Io';
 import { SumField, TypeSelector, TitleField, CategorySelector, SourceSelector, DateField, ReceiverField, DescriptionField } from './ExpenseDialogComponents';
 import { expenseName } from './ExpenseHelper';
-import { unsubscribeAll } from '../../util/ClientUtil';
-import { stopEventPropagation } from '../../util/ClientUtil';
+import { unsubscribeAll, stopEventPropagation } from '../../util/ClientUtil';
 import { splitByShares, negateDivision, HasShares, HasSum } from '../../../shared/util/Splitter';
-import { Category, Source, CategoryData, Group, User } from 'shared/types/Session';
-import { UserExpenseWithDetails, ExpenseDivisionType, ExpenseInEditor, ExpenseData } from 'shared/types/Expense';
+import { Category, Source, CategoryData, Group, User } from '../../../shared/types/Session';
+import { UserExpenseWithDetails, ExpenseDivisionType, ExpenseInEditor, ExpenseData } from '../../../shared/types/Expense';
 import { toDate, formatDate } from '../../../shared/util/Time';
-import { Map } from 'shared/util/Util';
-import { connect } from 'client/ui/component/BaconConnect';
-import { validSessionE, sourceMapE } from 'client/data/Login';
+import { Map, noop } from '../../../shared/util/Util';
+import { connect } from '../component/BaconConnect';
+import { validSessionE, sourceMapE } from '../../data/Login';
 import { categoryDataSourceP, categoryMapE, isSubcategoryOf } from '../../data/Categories';
 import { notify, notifyError, expenseDialogE, updateExpenses } from '../../data/State';
-import { sortAndCompareElements, valuesToArray } from 'shared/util/Arrays';
-import { ExpenseDialogObject } from 'client/data/StateTypes';
-import { omit } from 'shared/util/Objects';
+import { sortAndCompareElements, valuesToArray } from '../../../shared/util/Arrays';
+import { ExpenseDialogObject } from '../../data/StateTypes';
+import { omit } from '../../../shared/util/Objects';
 const debug = require('debug')('bookkeeper:expense-dialog');
 
 type CategoryInfo = Pick<Category, 'name' | 'id'>;
@@ -32,7 +31,7 @@ function errorIf(condition: boolean, error: string): string | undefined {
   return condition ? error : undefined;
 }
 
-const fields: ReadonlyArray<keyof ExpenseInEditor> = ['title', 'sourceId', 'categoryId', 'subcategoryId', 
+const fields: ReadonlyArray<keyof ExpenseInEditor> = ['title', 'sourceId', 'categoryId', 'subcategoryId',
   'receiver', 'sum', 'userId', 'date', 'benefit', 'description', 'confirmed', 'type'];
 
 const parsers: Map<(v: string) => any> = {
@@ -44,7 +43,7 @@ const validators: Map<(v: string) => any> = {
   sourceId: v => errorIf(!v, 'Lähde puuttuu'),
   categoryId: v => errorIf(!v, 'Kategoria puuttuu'),
   receiver: v => errorIf(v.length < 1, 'Kohde puuttuu'),
-  sum: v => errorIf(v.length == 0, 'Summa puuttuu') || errorIf(v.match(/^[0-9]+([.][0-9]{1,2})?$/) == null, 'Summa on virheellinen'),
+  sum: v => errorIf(v.length === 0, 'Summa puuttuu') || errorIf(v.match(/^[0-9]+([.][0-9]{1,2})?$/) == null, 'Summa on virheellinen'),
   benefit: v => errorIf(v.length < 1, 'Jonkun pitää hyötyä'),
 };
 
@@ -60,7 +59,7 @@ function fixItem(type: ExpenseDivisionType) {
     item.sum = item.sum.toString();
     item.type = type;
     return item;
-  }
+  };
 }
 
 interface ExpenseDialogProps {
@@ -152,7 +151,7 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDi
       const cost = this.calculateCost(sum, expense.sourceId, benefit);
       return benefit.map(fixItem('benefit')).concat(cost.map(fixItem('cost')));
     } else {
-      const income = [{ userId: expense.userId, sum: sum }];
+      const income = [{ userId: expense.userId, sum }];
       const split = negateDivision(splitByShares(sum, expense.benefit.map(id => ({ userId: id, share: 1 }))));
       return income.map(fixItem('income')).concat(split.map(fixItem('split')));
     }
@@ -225,8 +224,9 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDi
     debug(createNew ? 'Create new expense' : 'save expense', expense);
     const sum = Money.from(expense.sum);
     const division = this.calculateDivision(expense, sum);
-    const data: ExpenseData = { ...omit(['subcategoryId', 'benefit'], expense), 
-      division: division,
+    const data: ExpenseData = {
+      ...omit(['subcategoryId', 'benefit'], expense),
+      division,
       date: formatDate(expense.date),
       categoryId: expense.subcategoryId ? expense.subcategoryId : expense.categoryId,
     };
@@ -276,74 +276,78 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDi
     return this.props.onClose(null);
   }
 
+  // tslint:disable jsx-no-lambda
   public render() {
-    const actions = [
+    const actions = [(
       <FlatButton
         label="Peruuta"
         primary={true}
-        onClick={this.dismiss} />,
+        onClick={this.dismiss} />
+    ), (
       <FlatButton
         label="Tallenna"
         primary={true}
         disabled={!this.state.valid}
         keyboardFocused={true}
         onClick={this.requestSave} />
-    ];
+    )];
 
-    return <Dialog
-      contentClassName="expense-dialog"
-      bodyClassName="expense-dialog-body"
-      title={this.props.createNew ? 'Uusi kirjaus' : 'Muokkaa kirjausta'}
-      actions={actions}
-      modal={true}
-      autoDetectWindowHeight={true}
-      autoScrollBodyContent={true}
-      open={true}
-      onRequestClose={this.dismiss}>
-      <form onSubmit={this.requestSave} onKeyUp={this.handleKeyPress}>
-        <div>
-          <UserAvatar userId={this.state.userId} style={{ verticalAlign: 'middle' }} />
-          <div className="expense-sum" style={{ height: '72px', marginLeft: '2em', display: 'inline-block', verticalAlign: 'middle' }}>
-            <SumField value={this.state.sum} errorText={this.state.errors.sum}
-              onChange={v => this.inputStreams.sum.push(v)} />
+    return (
+      <Dialog
+        contentClassName="expense-dialog"
+        bodyClassName="expense-dialog-body"
+        title={this.props.createNew ? 'Uusi kirjaus' : 'Muokkaa kirjausta'}
+        actions={actions}
+        modal={true}
+        autoDetectWindowHeight={true}
+        autoScrollBodyContent={true}
+        open={true}
+        onRequestClose={this.dismiss}>
+        <form onSubmit={this.requestSave} onKeyUp={this.handleKeyPress}>
+          <div>
+            <UserAvatar userId={this.state.userId} style={{ verticalAlign: 'middle' }} />
+            <div className="expense-sum" style={{ height: '72px', marginLeft: '2em', display: 'inline-block', verticalAlign: 'middle' }}>
+              <SumField value={this.state.sum} errorText={this.state.errors.sum}
+                onChange={v => this.inputStreams.sum.push(v)} />
+            </div>
+            <div className="expense-confirmed" style={{ marginLeft: '2em', display: 'inline-block', verticalAlign: 'middle' }}>
+              <Checkbox label="Alustava" checked={!this.state.confirmed} onCheck={(e, v) => this.inputStreams.confirmed.push(!v)} />
+            </div>
+            <div className="expense-type" style={{ marginLeft: '2em', display: 'inline-block', verticalAlign: 'middle' }}>
+              <TypeSelector value={this.state.type} onChange={v => this.inputStreams.type.push(v)} />
+            </div>
           </div>
-          <div className="expense-confirmed" style={{ marginLeft: '2em', display: 'inline-block', verticalAlign: 'middle' }}>
-            <Checkbox label="Alustava" checked={!this.state.confirmed} onCheck={(e, v) => this.inputStreams.confirmed.push(!v)} />
+          <TitleField
+            value={this.state.title}
+            onSelect={this.selectCategory}
+            dataSource={this.props.categorySource}
+            errorText={this.state.errors.title}
+            onChange={v => this.inputStreams.title.push(v)}
+          />
+          <ReceiverField value={this.state.receiver} onChange={(e, v) => this.inputStreams.receiver.push(v)}
+            errorText={this.state.errors.receiver} onKeyUp={stopEventPropagation} />
+          <CategorySelector
+            category={this.state.categoryId} categories={this.props.categories}
+            onChangeCategory={v => this.inputStreams.categoryId.push(v)}
+            errorText={this.state.errors.categoryId}
+            subcategory={this.state.subcategoryId} subcategories={this.state.subcategories}
+            onChangeSubcategory={v => this.inputStreams.subcategoryId.push(v)} />
+          <br />
+          <div style={{ display: 'flex', flexWrap: 'nowrap' }}>
+            <SourceSelector
+              value={this.state.sourceId} sources={this.props.sources} style={{ flexGrow: 1 }}
+              onChange={v => this.inputStreams.sourceId.push(v)} />
+            <UserSelector style={{ paddingTop: '0.5em' }} selected={this.state.benefit}
+              onChange={v => this.inputStreams.benefit.push(v)} />
           </div>
-          <div className="expense-type" style={{ marginLeft: '2em', display: 'inline-block', verticalAlign: 'middle' }}>
-            <TypeSelector value={this.state.type} onChange={v => this.inputStreams.type.push(v)} />
-          </div>
-        </div>
-        <TitleField
-          value={this.state.title}
-          onSelect={this.selectCategory}
-          dataSource={this.props.categorySource}
-          errorText={this.state.errors.title}
-          onChange={v => this.inputStreams.title.push(v)}
-        />
-        <ReceiverField value={this.state.receiver} onChange={(e, v) => this.inputStreams.receiver.push(v)}
-          errorText={this.state.errors.receiver} onKeyUp={stopEventPropagation} />
-        <CategorySelector
-          category={this.state.categoryId} categories={this.props.categories}
-          onChangeCategory={v => this.inputStreams.categoryId.push(v)}
-          errorText={this.state.errors.categoryId}
-          subcategory={this.state.subcategoryId} subcategories={this.state.subcategories}
-          onChangeSubcategory={v => this.inputStreams.subcategoryId.push(v)} />
-        <br />
-        <div style={{ display: 'flex', flexWrap: 'nowrap' }}>
-          <SourceSelector
-            value={this.state.sourceId} sources={this.props.sources} style={{ flexGrow: 1 }}
-            onChange={v => this.inputStreams.sourceId.push(v)} />
-          <UserSelector style={{ paddingTop: '0.5em' }} selected={this.state.benefit}
-            onChange={v => this.inputStreams.benefit.push(v)} />
-        </div>
-        <br />
+          <br />
 
-        <DateField value={this.state.date} onChange={v => this.inputStreams.date.push(v)} />
-        <DescriptionField value={this.state.description} onChange={v => this.inputStreams.description.push(v)}
-          errorText={this.state.errors.description} />
-      </form>
-    </Dialog>
+          <DateField value={this.state.date} onChange={v => this.inputStreams.date.push(v)} />
+          <DescriptionField value={this.state.description} onChange={v => this.inputStreams.description.push(v)}
+            errorText={this.state.errors.description} />
+        </form>
+      </Dialog>
+    );
   }
 }
 
@@ -370,10 +374,8 @@ const ConnectedExpenseDialog = connect(B.combineTemplate({
 interface ExpenseDialogListenerState {
   open: boolean;
   original: UserExpenseWithDetails | null;
-  resolve: (e: ExpenseInEditor | null) => void,
+  resolve: (e: ExpenseInEditor | null) => void;
 }
-
-function noopResolve(e: ExpenseInEditor | null) {}
 
 export default class ExpenseDialogListener extends React.Component<{}, ExpenseDialogListenerState> {
 
@@ -382,7 +384,7 @@ export default class ExpenseDialogListener extends React.Component<{}, ExpenseDi
   public state: ExpenseDialogListenerState = {
     open: false,
     original: null,
-    resolve: noopResolve,
+    resolve: noop,
   };
 
   public componentDidMount() {

@@ -6,11 +6,11 @@ export type FetchType = () => (input: RequestInfo, init?: FixedRequestInit) => P
 
 export class FetchClient {
 
-  private _fetch: FetchType;
+  private fetch: FetchType;
   private baseUrl: string;
 
   constructor(f: FetchType, base: string = '') {
-    this._fetch = f;
+    this.fetch = f;
     this.baseUrl = base;
   }
 
@@ -28,11 +28,11 @@ export class FetchClient {
       const queryPath = this.toQuery(path, query);
       debug(`${method} ${queryPath}`, 'with body', body);
       const options = {
-        method: method,
+        method,
         body: body ? JSON.stringify(body) : undefined,
         headers,
       };
-      const res = await this._fetch()(queryPath, options);
+      const res = await this.fetch()(queryPath, options);
       debug(`${method} ${queryPath}`, 'result', res.status);
       switch (res.status) {
         case 200: return await res.json() as T;
@@ -65,4 +65,4 @@ export class FetchClient {
     return this.req(path, { method: 'DELETE', query, headers });
   }
 
-};
+}

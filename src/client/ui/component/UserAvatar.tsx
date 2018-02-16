@@ -2,14 +2,13 @@ import * as React from 'react';
 import Avatar from 'material-ui/Avatar';
 import { cyan500, cyan900 } from 'material-ui/styles/colors';
 import { User } from '../../../shared/types/Session';
-import { CSSProperties } from 'react';
 import { Map } from '../../../shared/util/Util';
 import { connect } from './BaconConnect';
 import { userMapE } from '../../data/Login';
 import styled from 'styled-components';
 
 interface CommonAvatarProps {
-  style?: CSSProperties;
+  style?: React.CSSProperties;
   size?: number;
   className?: string;
   onClick?: (userId: number) => void;
@@ -39,6 +38,7 @@ export function UserAvatar(props: UserAvatarProps) {
       backgroundColor={cyan500}
       className={props.className}
       src={user.image || undefined}
+      // tslint:disable-next-line jsx-no-lambda
       onClick={x => props.onClick && props.onClick(user.id)}>{user.image ? undefined : user.firstName.charAt(0)}</StyledAvatar>
     ) : null;
 }

@@ -2,8 +2,7 @@ import * as React from 'react';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import { ConfirmationObject } from '../../data/StateTypes';
-import { KeyCodes } from '../../util/Io'
-import { KeyboardEvent } from 'react';
+import { KeyCodes } from '../../util/Io';
 import { confirmationE } from '../../data/State';
 import { Action } from '../../../shared/types/Common';
 
@@ -14,7 +13,7 @@ interface ConfirmationDialogProps<T> {
 
 class ConfirmationDialog<T> extends React.Component<ConfirmationDialogProps<T>, {}> {
 
-  private handleKeyPress = (event: KeyboardEvent<any>) => {
+  private handleKeyPress = (event: React.KeyboardEvent<any>) => {
     const code = event.keyCode;
     if (code === KeyCodes.enter) {
       return this.resolveWithIfDefined(true);
@@ -38,24 +37,30 @@ class ConfirmationDialog<T> extends React.Component<ConfirmationDialogProps<T>, 
   }
 
   public render() {
-    const actions = this.props.confirmation.actions.map((a, i) => <FlatButton
-      label={a.label}
-      primary={i === 0}
-      tabIndex={i + 2}
-      onKeyUp={this.handleKeyPress}
-      onClick={() => this.resolveWith(a.value)}
-    />);
+    const actions = this.props.confirmation.actions.map((a, i) => (
+      <FlatButton
+        label={a.label}
+        primary={i === 0}
+        tabIndex={i + 2}
+        onKeyUp={this.handleKeyPress}
+        // tslint:disable-next-line jsx-no-lambda
+        onClick={() => this.resolveWith(a.value)}
+      />
+    ));
 
-    return <Dialog
-      title={this.props.confirmation.title}
-      actions={actions}
-      modal={false}
-      open={true}
-      onRequestClose={() => this.resolveWithIfDefined(false)}>
-      <div onKeyUp={this.handleKeyPress}>
-        {this.props.confirmation.content}
-      </div>
-    </Dialog>
+    return (
+      <Dialog
+        title={this.props.confirmation.title}
+        actions={actions}
+        modal={false}
+        open={true}
+        // tslint:disable-next-line jsx-no-lambda
+        onRequestClose={() => this.resolveWithIfDefined(false)}>
+        <div onKeyUp={this.handleKeyPress}>
+          {this.props.confirmation.content}
+        </div>
+      </Dialog>
+    );
   }
 }
 
@@ -80,7 +85,9 @@ export default class ConfirmationConnectDialog extends React.Component<{}, Confi
     }
   }
 
-  private close = () => { this.setState({ confirmation: null }); }
+  private close = () => {
+    this.setState({ confirmation: null });
+  }
 
   public render() {
     return this.state.confirmation ?

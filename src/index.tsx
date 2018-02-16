@@ -1,5 +1,5 @@
 /*
- * This is Bookkeeper client (web app) index file 
+ * This is Bookkeeper client (web app) index file
  */
 import * as React from 'react';
 import ReactDOM from 'react-dom';
@@ -15,6 +15,6 @@ ReactDOM.render(
   <MuiThemeProvider>
     <App />
   </MuiThemeProvider>,
-  document.getElementById('root') as HTMLElement
+  document.getElementById('root') as HTMLElement,
 );
 registerServiceWorker();

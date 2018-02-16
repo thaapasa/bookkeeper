@@ -23,8 +23,8 @@ export interface ExpenseData {
   title: string;
   type: ExpenseType;
   userId: number;
-  division?: ExpenseDivision;  
-};
+  division?: ExpenseDivision;
+}
 
 export interface Expense extends DbObject, ExpenseData {
   groupId: number;
@@ -57,7 +57,6 @@ export interface ExpenseInEditor {
   confirmed: boolean;
   type: ExpenseType;
 }
-
 
 export interface UserExpenseWithDetails extends UserExpense {
   division: ExpenseDivision;
