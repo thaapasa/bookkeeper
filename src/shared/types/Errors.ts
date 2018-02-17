@@ -39,6 +39,12 @@ export class NotFoundError extends Error {
   }
 }
 
+export class InvalidExpense extends Error {
+  constructor(message: string) {
+    super('INVALID_EXPENSE', message, 400);
+  }
+}
+
 export class AuthenticationError extends Error {
   constructor(code: string, cause: any, data?: any) {
     super(code, cause, 401, data);

@@ -85,4 +85,5 @@ export default {
   update: basic.update,
   search: search(db),
   createRecurring: recurring.createRecurring,
+  deleteRecurringById: recurring.deleteRecurringById,
 };

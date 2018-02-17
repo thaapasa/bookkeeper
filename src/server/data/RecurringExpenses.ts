@@ -2,9 +2,10 @@ import { db, DbAccess } from './Db';
 import moment, { Moment } from 'moment';
 import { Validator } from '../util/Validator';
 import expenses from './BasicExpenses';
-import { RecurringExpensePeriod, Recurrence, ExpenseDivisionItem, Expense } from '../../shared/types/Expense';
+import { RecurringExpensePeriod, Recurrence, ExpenseDivisionItem, Expense, RecurringExpenseTarget } from '../../shared/types/Expense';
 import { ApiMessage } from '../../shared/types/Api';
 import { formatDate, fromDate } from '../../shared/util/Time';
+import { InvalidExpense } from '../../shared/types/Errors';
 const debug = require('debug')('bookkeeper:api:recurring-expenses');
 
 function nextRecurrence(from: string | Moment, period: RecurringExpensePeriod): moment.Moment {
@@ -84,8 +85,32 @@ function createMissing(tx: DbAccess) {
   };
 }
 
+async function deleteRecurrenceAndExpenses(tx: DbAccess, recurrenceId: number): Promise<ApiMessage> {
+  const [expenseCount] = await Promise.all([
+    tx.update('expenses.delete_recurrence_expenses',
+      'DELETE FROM expenses WHERE recurring_expense_id=$1', [recurrenceId]),
+    tx.update('expenses.delete_recurrence_master',
+      'DELETE FROM recurring_expenses WHERE id=$1', [recurrenceId]),
+  ]);
+  return { status: 'OK', message: `${expenseCount} expense(s) belonging to recurrence ${recurrenceId} have been deleted` };
+}
+
+async function deleteRecurringById(groupId: number, userId: number, expenseId: number, target: RecurringExpenseTarget): Promise<ApiMessage> {
+  return db.transaction(async (tx) => {
+    if (target === 'single') { return expenses.deleteById(groupId, expenseId); }
+    const exp = await expenses.tx.getById(tx)(groupId, userId, expenseId);
+    if (!exp.recurringExpenseId) { throw new InvalidExpense('Not a recurring expense'); }
+    switch (target) {
+      case 'all': return deleteRecurrenceAndExpenses(tx, exp.recurringExpenseId);
+      case 'after':
+    }
+    return { status: 'ERROR', message: 'Pliiplaa' };
+  });
+}
+
 export default {
   createRecurring,
+  deleteRecurringById,
   tx: {
     createMissing,
   },

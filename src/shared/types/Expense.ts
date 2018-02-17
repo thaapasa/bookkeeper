@@ -90,3 +90,5 @@ export interface Recurrence extends DbObject {
   nextMissing: string;
   templateExpenseId: number;
 }
+
+export type RecurringExpenseTarget = 'single' | 'all' | 'after';

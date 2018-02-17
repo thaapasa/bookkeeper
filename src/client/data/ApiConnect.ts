@@ -3,7 +3,7 @@ import { Session, Category, CategoryAndTotals, CategoryData } from '../../shared
 import { Map } from '../../shared/util/Objects';
 import { FetchClient } from '../../shared/util/FetchClient';
 import { ApiMessage } from '../../shared/types/Api';
-import { ExpenseCollection, ExpenseStatus, UserExpense, RecurringExpensePeriod, UserExpenseWithDetails, ExpenseData } from '../../shared/types/Expense';
+import { ExpenseCollection, ExpenseStatus, UserExpense, RecurringExpensePeriod, UserExpenseWithDetails, ExpenseData, RecurringExpenseTarget } from '../../shared/types/Expense';
 import { formatDate, DateLike } from '../../shared/util/Time';
 const client = new FetchClient(() => fetch);
 
@@ -111,6 +111,10 @@ export class ApiConnect {
 
   public createRecurring(id: number | string, period: RecurringExpensePeriod): Promise<ApiMessage> {
     return this.put<ApiMessage>(`/api/expense/recurring/${toInt(id)}`, { period });
+  }
+
+  public deleteRecurringById(id: number | string, target: RecurringExpenseTarget): Promise<ApiMessage> {
+    return this.del<ApiMessage>(`/api/expense/recurring/${toInt(id)}?target=${encodeURIComponent(target)}`);
   }
 
   public queryReceivers(receiver: string): Promise<string[]> {
