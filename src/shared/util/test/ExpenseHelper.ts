@@ -4,13 +4,24 @@ import { Session } from '../../types/Session';
 import { ExpenseDivisionItem, Expense } from '../../types/Expense';
 import { SessionWithControl } from './TestClient';
 import { isDbObject } from '../../types/Common';
-import { isApiMessageWithExpenseId, ApiMessage } from '../../types/Api';
+import { isApiMessageWithExpenseId, ApiMessage, isApiMessageWithRecurringExpenseId } from '../../types/Api';
 
 let createdIds: number[] = [];
+let createdRecurrences: number[] = [];
 
 export function captureId<T>(e: T): T {
-  if (isDbObject(e) || isApiMessageWithExpenseId(e) || typeof e === 'number') {
-    createdIds.push(isDbObject(e) ? e.id : (isApiMessageWithExpenseId(e) ? e.expenseId : e));
+  if (isDbObject(e)) {
+    if ((e as any).recurringExpenseId) {
+      createdRecurrences.push(e.id);
+    } else {
+      createdIds.push(e.id);
+    }
+  } else if (isApiMessageWithRecurringExpenseId(e)) {
+    createdRecurrences.push(e.expenseId);
+  } else if (isApiMessageWithExpenseId(e)) {
+    createdIds.push(e.expenseId);
+  } else if (typeof e === 'number') {
+    createdIds.push(e);
   }
   return e;
 }
@@ -51,11 +62,17 @@ export async function newExpense(session: SessionWithControl, expense?: Partial<
 export async function deleteCreated(session: SessionWithControl): Promise<boolean> {
   if (!session) { return false; }
   try {
-    await Promise.all(createdIds.map(id => session.del(`/api/expense/${id}`)));
+    for (const id of createdRecurrences) {
+      await session.del(`/api/expense/recurring/${id}?target=all`);
+    }
+    for (const id of createdIds) {
+      await session.del(`/api/expense/${id}`);
+    }
     return true;
   } finally {
-    // Clear createdIds array
+    // Clear captured ids array
     createdIds = [];
+    createdRecurrences = [];
   }
 }
 

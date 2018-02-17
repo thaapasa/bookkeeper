@@ -19,6 +19,7 @@ function nextRecurrence(from: string | Moment, period: RecurringExpensePeriod): 
 
 function createRecurring(groupId: number, userId: number, expenseId: number, recurrence: Recurrence) {
   return db.transaction(async (tx: DbAccess): Promise<ApiMessage> => {
+    debug('Create', recurrence.period, 'recurring expense from', expenseId);
     let nextMissing: moment.Moment | null = null;
     const templateId = await expenses.tx.copyExpense(tx)(groupId, userId, expenseId, e => {
       const [expense, division] = e;
@@ -70,7 +71,8 @@ function createMissingRecurrenceForDate(tx: DbAccess, e: [Expense, ExpenseDivisi
   return (date: string): Promise<number> => {
     const [exp, division] = e;
     const expense = { ...exp, template: false, date };
-    debug('Creating missing expense', expense, 'with division', division);
+    debug('Creating missing expense', expense.title, expense.date);
+    // debug('Creating missing expense', expense, 'with division', division);
     return expenses.tx.insert(tx)(expense.userId, expense, division);
   };
 }
@@ -97,6 +99,7 @@ async function deleteRecurrenceAndExpenses(tx: DbAccess, recurrenceId: number): 
 
 async function deleteRecurringById(groupId: number, userId: number, expenseId: number, target: RecurringExpenseTarget): Promise<ApiMessage> {
   return db.transaction(async (tx) => {
+    debug('Deleting recurring expense', expenseId, '- targeting', target);
     if (target === 'single') { return expenses.deleteById(groupId, expenseId); }
     const exp = await expenses.tx.getById(tx)(groupId, userId, expenseId);
     if (!exp.recurringExpenseId) { throw new InvalidExpense('Not a recurring expense'); }
