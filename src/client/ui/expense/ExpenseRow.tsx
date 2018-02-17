@@ -11,7 +11,7 @@ import ExpenseDivision from './ExpenseDivision';
 import { expenseName,  ExpenseFilterFunction } from './ExpenseHelper';
 import Money from '../../../shared/util/Money';
 import moment from 'moment';
-import { Expense, UserExpense, UserExpenseWithDetails, ExpenseDivisionItem } from '../../../shared/types/Expense';
+import { Expense, UserExpense, UserExpenseWithDetails, ExpenseDivisionItem, RecurringExpenseTarget } from '../../../shared/types/Expense';
 import { User, Source, Category } from '../../../shared/types/Session';
 import { connect } from '../component/BaconConnect';
 import { userMapE, sourceMapE } from '../../data/Login';
@@ -111,6 +111,7 @@ export class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState
   private deleteExpense = async (e: Expense) => {
     try {
       const name = expenseName(e);
+      if (e.recurringExpenseId) { return this.deleteRecurringExpense(e); }
       const b = await confirm<boolean>('Poista kirjaus', `Haluatko varmasti poistaa kirjauksen ${name}?`, { okText: 'Poista' });
       if (!b) { return; }
       await apiConnect.deleteExpense(e.id);
@@ -118,6 +119,25 @@ export class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState
       await updateExpenses(toDate(e.date));
     } catch (e) {
       notifyError(`Virhe poistettaessa kirjausta ${name}`, e);
+    }
+  }
+
+  private deleteRecurringExpense = async (e: Expense) => {
+    try {
+      const name = expenseName(e);
+      const b = await confirm<RecurringExpenseTarget | null>('Poista toistuva kirjaus',
+        `Haluatko varmasti poistaa kirjauksen ${name}?`, { actions: [
+          { label: 'Vain tämä', value: 'single' },
+          { label: 'Kaikki', value: 'all' },
+          { label: 'Tämän jälkeiset', value: 'after' },
+          { label: 'Peruuta', value: null },
+        ] });
+      if (!b) { return; }
+      await apiConnect.deleteRecurringById(e.id, b);
+      notify(`Poistettu kirjaus ${name}`);
+      await updateExpenses(toDate(e.date));
+    } catch (e) {
+      notifyError(`Virhe poistettaessa toistuvaa kirjausta ${name}`, e);
     }
   }
 

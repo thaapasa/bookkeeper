@@ -44,7 +44,7 @@ describe('recurringExpense', () => {
     const s = await session.put<ApiMessage>(`/api/expense/recurring/${expenseId}`, { period: 'monthly' });
     expect(s.recurringExpenseId).toBeGreaterThan(0);
     expect(s.templateExpenseId).toBeGreaterThan(0);
-    captureId(s.templateExpenseId);
+    captureId(s);
     checkMonthStatus(monthBenefit2.toString());
 
     const e2 = await session.get<Expense>(`/api/expense/${expenseId}`);

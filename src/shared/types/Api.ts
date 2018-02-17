@@ -23,3 +23,7 @@ export function isApiMessage(e: any): e is ApiMessage {
 export function isApiMessageWithExpenseId(e: any): e is ApiMessage & { expenseId: number } {
   return typeof e === 'object' && e.status && e.message && e.expenseId;
 }
+
+export function isApiMessageWithRecurringExpenseId(e: any): e is ApiMessage & { expenseId: number, recurringExpenseId: number } {
+  return typeof e === 'object' && e.status && e.message && e.recurringExpenseId && e.expenseId;
+}

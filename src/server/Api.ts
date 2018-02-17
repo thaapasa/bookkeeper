@@ -8,7 +8,7 @@ import { config } from './Config';
 import * as server from './util/ServerUtil';
 import { Validator as V, Schema } from './util/Validator';
 import { Express } from 'express';
-import { Expense, Recurrence, UserExpense, ExpenseCollection, UserExpenseWithDetails } from '../shared/types/Expense';
+import { Expense, Recurrence, UserExpense, ExpenseCollection, UserExpenseWithDetails, RecurringExpenseTarget } from '../shared/types/Expense';
 import { ApiMessage, ApiStatus } from '../shared/types/Api';
 import { Session, SessionBasicInfo, Group, User, Category, CategoryAndTotals, Source } from '../shared/types/Session';
 const debug = require('debug')('bookkeeper:api');
@@ -99,12 +99,12 @@ export function registerAPI(app: Express) {
     expenses.getAll(session.group.id, session.user.id), true));
 
   // GET /api/expense/month
-  const monthSchema = {
+  const monthSchema: Schema<{ year: number, month: number }> = {
     year: V.intBetween(1500, 3000),
     month: V.intBetween(1, 12),
   };
   app.get('/api/expense/month', server.processRequest((session, req): Promise<ExpenseCollection> => {
-    const params = V.validate<{ year: number, month: number }>(monthSchema, { year: req.query.year, month: req.query.month });
+    const params = V.validate(monthSchema, { year: req.query.year, month: req.query.month });
     return expenses.getByMonth(session.group.id, session.user.id, params.year, params.month);
   }, true));
 
@@ -165,9 +165,18 @@ export function registerAPI(app: Express) {
     occursUntil: V.optional(V.date),
   };
 
+  const recurringExpenseTargetSchema: Schema<{ target: RecurringExpenseTarget }> = {
+    target: V.either('all', 'single', 'after'),
+  };
+
   // PUT /api/expense/recurring/[expenseId]
   app.put('/api/expense/recurring/:id', server.processRequest((session, req): Promise<ApiMessage> =>
     expenses.createRecurring(session.group.id, session.user.id, parseInt(req.params.id, 10),
       V.validate(recurringExpenseSchema, req.body)), true));
+
+  // DELETE /api/expense/recurring/[expenseId]
+  app.delete('/api/expense/recurring/:id', server.processRequest((session, req): Promise<ApiMessage> =>
+    expenses.deleteRecurringById(session.group.id, session.user.id, parseInt(req.params.id, 10),
+      V.validate(recurringExpenseTargetSchema, req.query).target), true));
 
 }
