@@ -87,6 +87,7 @@ export type RecurringExpensePeriod = 'monthly' | 'yearly';
 
 export interface Recurrence extends DbObject {
   period: RecurringExpensePeriod;
+  occursUntil?: string;
   nextMissing: string;
   templateExpenseId: number;
 }

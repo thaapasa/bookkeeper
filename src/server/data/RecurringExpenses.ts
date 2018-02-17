@@ -4,7 +4,7 @@ import { Validator } from '../util/Validator';
 import expenses from './BasicExpenses';
 import { RecurringExpensePeriod, Recurrence, ExpenseDivisionItem, Expense, RecurringExpenseTarget } from '../../shared/types/Expense';
 import { ApiMessage } from '../../shared/types/Api';
-import { formatDate, fromDate } from '../../shared/util/Time';
+import { formatDate, fromDate, DateLike, toMoment } from '../../shared/util/Time';
 import { InvalidExpense } from '../../shared/types/Errors';
 const debug = require('debug')('bookkeeper:api:recurring-expenses');
 
@@ -43,7 +43,7 @@ function createRecurring(groupId: number, userId: number, expenseId: number, rec
   });
 }
 
-function getDatesUpTo(recurrence: Recurrence, date: string | Moment): string[] {
+function getDatesUpTo(recurrence: Recurrence, date: Moment): string[] {
   let generating = moment(recurrence.nextMissing);
   const dates: string[] = [];
   while (generating.isBefore(date)) {
@@ -53,12 +53,15 @@ function getDatesUpTo(recurrence: Recurrence, date: string | Moment): string[] {
   return dates;
 }
 
-function createMissingRecurrences(tx: DbAccess, groupId: number, userId: number, date: string | Moment) {
+function createMissingRecurrences(tx: DbAccess, groupId: number, userId: number, date: Moment) {
   return async (recurrence: Recurrence): Promise<void> => {
-    const dates = getDatesUpTo(recurrence, date);
+    const until = recurrence.occursUntil ? toMoment(recurrence.occursUntil) : null;
+    const maxDate = until && until.isBefore(date) ? until : toMoment(date);
+    const dates = getDatesUpTo(recurrence, maxDate);
+    if (dates.length < 1) { return; }
     const lastDate = dates[dates.length - 1];
     const nextMissing = nextRecurrence(lastDate, recurrence.period);
-    debug('Creating missing expenses for', recurrence, dates);
+    debug('Creating missing expenses for', recurrence, dates, 'next missing is', nextMissing);
     const expense = await expenses.tx.getExpenseAndDivision(tx)(groupId, userId, recurrence.templateExpenseId);
     await Promise.all(dates.map(createMissingRecurrenceForDate(tx, expense)));
     await tx.update('expenses.update_recurring_missing_date',
@@ -79,7 +82,7 @@ function createMissingRecurrenceForDate(tx: DbAccess, e: [Expense, ExpenseDivisi
 
 function createMissing(tx: DbAccess) {
   debug('Checking for missing expenses');
-  return async (groupId: number, userId: number, date: string | Moment) => {
+  return async (groupId: number, userId: number, date: Moment) => {
     const list = await tx.queryList<Recurrence>('expenses.find_missing_recurring',
       'SELECT * FROM recurring_expenses WHERE group_id = $1 AND next_missing < $2::DATE',
       [groupId, date]);
@@ -87,14 +90,24 @@ function createMissing(tx: DbAccess) {
   };
 }
 
-async function deleteRecurrenceAndExpenses(tx: DbAccess, recurrenceId: number): Promise<ApiMessage> {
+async function deleteRecurrenceAndExpenses(tx: DbAccess, recurringExpenseId: number): Promise<ApiMessage> {
   const [expenseCount] = await Promise.all([
     tx.update('expenses.delete_recurrence_expenses',
-      'DELETE FROM expenses WHERE recurring_expense_id=$1', [recurrenceId]),
+      'DELETE FROM expenses WHERE recurring_expense_id=$1', [recurringExpenseId]),
     tx.update('expenses.delete_recurrence_master',
-      'DELETE FROM recurring_expenses WHERE id=$1', [recurrenceId]),
+      'DELETE FROM recurring_expenses WHERE id=$1', [recurringExpenseId]),
   ]);
-  return { status: 'OK', message: `${expenseCount} expense(s) belonging to recurrence ${recurrenceId} have been deleted` };
+  return { status: 'OK', message: `All ${expenseCount} expense(s) belonging to recurrence ${recurringExpenseId} have been deleted` };
+}
+
+async function deleteRecurrenceAfter(tx: DbAccess, expenseId: number, afterDate: DateLike, recurringExpenseId: number): Promise<ApiMessage> {
+  const [expenseCount] = await Promise.all([
+    tx.update('expenses.delete_recurrence_expenses_after',
+      'DELETE FROM expenses WHERE recurring_expense_id=$1 AND (id=$2 OR date > $3::date)', [recurringExpenseId, expenseId, afterDate]),
+    tx.update('expenses.delete_recurrence_master',
+      'UPDATE recurring_expenses SET occurs_until=$2::date WHERE id=$1', [recurringExpenseId, afterDate]),
+  ]);
+  return { status: 'OK', message: `${expenseCount} expense(s) on or after ${afterDate} belonging to recurrence ${recurringExpenseId} have been deleted` };
 }
 
 async function deleteRecurringById(groupId: number, userId: number, expenseId: number, target: RecurringExpenseTarget): Promise<ApiMessage> {
@@ -105,9 +118,9 @@ async function deleteRecurringById(groupId: number, userId: number, expenseId: n
     if (!exp.recurringExpenseId) { throw new InvalidExpense('Not a recurring expense'); }
     switch (target) {
       case 'all': return deleteRecurrenceAndExpenses(tx, exp.recurringExpenseId);
-      case 'after':
+      case 'after': return deleteRecurrenceAfter(tx, expenseId, exp.date, exp.recurringExpenseId);
     }
-    return { status: 'ERROR', message: 'Pliiplaa' };
+    throw new InvalidExpense(`Invalid target ${target}`);
   });
 }
 

@@ -99,12 +99,12 @@ export function registerAPI(app: Express) {
     expenses.getAll(session.group.id, session.user.id), true));
 
   // GET /api/expense/month
-  const monthSchema = {
+  const monthSchema: Schema<{ year: number, month: number }> = {
     year: V.intBetween(1500, 3000),
     month: V.intBetween(1, 12),
   };
   app.get('/api/expense/month', server.processRequest((session, req): Promise<ExpenseCollection> => {
-    const params = V.validate<{ year: number, month: number }>(monthSchema, { year: req.query.year, month: req.query.month });
+    const params = V.validate(monthSchema, { year: req.query.year, month: req.query.month });
     return expenses.getByMonth(session.group.id, session.user.id, params.year, params.month);
   }, true));
 
