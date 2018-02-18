@@ -100,7 +100,7 @@ function deleteById(tx: DbAccess) {
   };
 }
 
-function storeDivision(tx: DbAccess) {
+export function storeDivision(tx: DbAccess) {
   return (expenseId: number, userId: number, type: ExpenseDivisionType, sum: MoneyLike) => tx.insert('expense.create.division',
     'INSERT INTO expense_division (expense_id, user_id, type, sum) ' +
     'VALUES ($1::INTEGER, $2::INTEGER, $3::expense_division_type, $4::NUMERIC::MONEY)',
@@ -128,7 +128,7 @@ function createDivision(tx: DbAccess) {
   };
 }
 
-function setDefaults(expense: Expense): Expense {
+export function setDefaults(expense: Expense): Expense {
   expense.description = expense.description ? expense.description : null;
   expense.confirmed = expense.confirmed === undefined ? true : expense.confirmed;
   delete expense.recurringExpenseId;
@@ -253,6 +253,7 @@ export default {
     countTotalBetween,
     hasUnconfirmedBefore,
     copyExpense,
+    updateExpense,
     getExpenseAndDivision,
   },
   expenseSelect,

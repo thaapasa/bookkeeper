@@ -86,4 +86,5 @@ export default {
   search: search(db),
   createRecurring: recurring.createRecurring,
   deleteRecurringById: recurring.deleteRecurringById,
+  updateRecurring: recurring.updateRecurring,
 };

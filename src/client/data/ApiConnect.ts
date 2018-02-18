@@ -113,6 +113,10 @@ export class ApiConnect {
     return this.put<ApiMessage>(`/api/expense/recurring/${toInt(id)}`, { period });
   }
 
+  public updateRecurringExpense(id: number | string, expense: ExpenseData, target: RecurringExpenseTarget): Promise<ApiMessage> {
+    return this.post<ApiMessage>(`/api/expense/recurring/${toInt(id)}?target=${encodeURIComponent(target)}`, expense);
+  }
+
   public deleteRecurringById(id: number | string, target: RecurringExpenseTarget): Promise<ApiMessage> {
     return this.del<ApiMessage>(`/api/expense/recurring/${toInt(id)}?target=${encodeURIComponent(target)}`);
   }

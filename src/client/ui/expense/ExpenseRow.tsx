@@ -125,15 +125,15 @@ export class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState
   private deleteRecurringExpense = async (e: Expense) => {
     try {
       const name = expenseName(e);
-      const b = await confirm<RecurringExpenseTarget | null>('Poista toistuva kirjaus',
+      const target = await confirm<RecurringExpenseTarget | null>('Poista toistuva kirjaus',
         `Haluatko varmasti poistaa kirjauksen ${name}?`, { actions: [
           { label: 'Vain tämä', value: 'single' },
           { label: 'Kaikki', value: 'all' },
-          { label: 'Tämän jälkeiset', value: 'after' },
+          { label: 'Tästä eteenpäin', value: 'after' },
           { label: 'Peruuta', value: null },
         ] });
-      if (!b) { return; }
-      await apiConnect.deleteRecurringById(e.id, b);
+      if (!target) { return; }
+      await apiConnect.deleteRecurringById(e.id, target);
       notify(`Poistettu kirjaus ${name}`);
       await updateExpenses(toDate(e.date));
     } catch (e) {

@@ -13,13 +13,13 @@ import { expenseName } from './ExpenseHelper';
 import { unsubscribeAll, stopEventPropagation } from '../../util/ClientUtil';
 import { splitByShares, negateDivision, HasShares, HasSum } from '../../../shared/util/Splitter';
 import { Category, Source, CategoryData, Group, User } from '../../../shared/types/Session';
-import { UserExpenseWithDetails, ExpenseDivisionType, ExpenseInEditor, ExpenseData } from '../../../shared/types/Expense';
+import { UserExpenseWithDetails, ExpenseDivisionType, ExpenseInEditor, ExpenseData, RecurringExpenseTarget } from '../../../shared/types/Expense';
 import { toDate, formatDate } from '../../../shared/util/Time';
 import { noop, identity } from '../../../shared/util/Util';
 import { connect } from '../component/BaconConnect';
 import { validSessionE, sourceMapE } from '../../data/Login';
 import { categoryDataSourceP, categoryMapE, isSubcategoryOf } from '../../data/Categories';
-import { notify, notifyError, expenseDialogE, updateExpenses } from '../../data/State';
+import { notify, notifyError, expenseDialogE, updateExpenses, confirm } from '../../data/State';
 import { sortAndCompareElements, valuesToArray } from '../../../shared/util/Arrays';
 import { ExpenseDialogObject } from '../../data/StateTypes';
 import { omit, Map } from '../../../shared/util/Objects';
@@ -238,7 +238,14 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDi
     this.saveLock.push(true);
     try {
       if (this.props.original) {
-        await apiConnect.updateExpense(this.props.original.id, data);
+        if (this.props.original.recurringExpenseId) {
+          if (!await this.saveRecurring(this.props.original.id, data)) {
+            // User canceled, break out
+            return;
+          }
+        } else {
+          await apiConnect.updateExpense(this.props.original.id, data);
+        }
       } else {
         await apiConnect.storeExpense(data);
       }
@@ -247,9 +254,23 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDi
       this.props.onClose(expense);
     } catch (error) {
       notifyError(`Virhe ${createNew ? 'tallennettaessa' : 'päivitettäessä'} kirjausta ${name}`, error);
+    } finally {
+      this.saveLock.push(false);
     }
-    this.saveLock.push(false);
     return null;
+  }
+
+  private saveRecurring = async (originalId: number, data: ExpenseData): Promise<boolean> => {
+    const target = await confirm<RecurringExpenseTarget | null>('Tallenna toistuva kirjaus',
+      'Mitä kirjauksia haluat muuttaa?', { actions: [
+        { label: 'Vain tämä', value: 'single' },
+        { label: 'Kaikki', value: 'all' },
+        { label: 'Tästä eteenpäin', value: 'after' },
+        { label: 'Peruuta', value: null },
+      ] });
+    if (!target) { return false; }
+    await apiConnect.updateRecurringExpense(originalId, data, target);
+    return true;
   }
 
   private selectCategory = (id: number) => {

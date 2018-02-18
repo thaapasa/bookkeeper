@@ -179,4 +179,11 @@ export function registerAPI(app: Express) {
     expenses.deleteRecurringById(session.group.id, session.user.id, parseInt(req.params.id, 10),
       V.validate(recurringExpenseTargetSchema, req.query).target), true));
 
+  // POST /api/expense/recurring/[expenseId]
+  app.post('/api/expense/recurring/:id', server.processRequest((session, req): Promise<ApiMessage> =>
+    expenses.updateRecurring(session.group.id, session.user.id, parseInt(req.params.id, 10),
+      V.validate(recurringExpenseTargetSchema, req.query).target,
+      V.validate(expenseSchema, req.body),
+      session.group.defaultSourceId || 0), true));
+
 }
