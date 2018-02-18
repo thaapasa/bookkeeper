@@ -1,5 +1,4 @@
 import users from './data/Users';
-import moment from 'moment';
 import sessions from './data/Sessions';
 import expenses, { ExpenseSearchParams } from './data/Expenses';
 import categories, { CategoryInput, CategoryQueryInput } from './data/Categories';
@@ -11,6 +10,7 @@ import { Express } from 'express';
 import { Expense, Recurrence, UserExpense, ExpenseCollection, UserExpenseWithDetails, RecurringExpenseTarget } from '../shared/types/Expense';
 import { ApiMessage, ApiStatus } from '../shared/types/Api';
 import { Session, SessionBasicInfo, Group, User, Category, CategoryAndTotals, Source } from '../shared/types/Session';
+import { toMoment } from '../shared/util/Time';
 const debug = require('debug')('bookkeeper:api');
 
 export function registerAPI(app: Express) {
@@ -20,7 +20,7 @@ export function registerAPI(app: Express) {
   // GET /api/status
   app.get('/api/status', server.processUnauthorizedRequest((req): Promise<ApiStatus> => Promise.resolve({
     status: 'OK',
-    timestamp: moment().format(),
+    timestamp: toMoment().format(),
     version: config.version,
     revision: config.revision,
     environment: config.environment,

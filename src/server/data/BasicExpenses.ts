@@ -1,5 +1,5 @@
 import { db, DbAccess } from './Db';
-import moment, { Moment } from 'moment';
+import { Moment } from 'moment';
 import * as time from '../../shared/util/Time';
 import Money, { MoneyLike } from '../../shared/util/Money';
 import categories from './Categories';
@@ -63,7 +63,7 @@ function getAll(tx: DbAccess) {
 
 function mapExpense(e: UserExpense): UserExpense {
   if (e === undefined) { throw new NotFoundError('EXPENSE_NOT_FOUND', 'expense'); }
-  e.date = moment(e.date).format('YYYY-MM-DD');
+  e.date = time.toMoment(e.date).format('YYYY-MM-DD');
   e.userBalance = Money.from(e.userValue).negate().toString();
   return e;
 }

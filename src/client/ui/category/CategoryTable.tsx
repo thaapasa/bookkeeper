@@ -6,10 +6,10 @@ import { AddCategoryButton } from './CategoryTools';
 import CategoryRow from './CategoryRow';
 import { History } from 'history';
 import { TypedDateRange } from '../../../shared/util/Time';
-import { RangeSelector } from './RangeSelector';
 import { categoriesForYear, categoriesForMonth } from '../../util/Links';
 import { Map } from '../../../shared/util/Objects';
 import { Action } from '../../../shared/types/Common';
+import { RangeSelector } from './RangeSelector';
 const debug = require('debug')('bookkeeper:category-view');
 
 interface CategoryViewProps {

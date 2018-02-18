@@ -3,17 +3,17 @@ import ExpenseTable from './ExpenseTable';
 import ExpenseNavigation from './ExpenseNavigation';
 import apiConnect from '../../data/ApiConnect';
 import { unsubscribeAll } from '../../util/ClientUtil';
-import moment from 'moment';
 import { UserExpense, ExpenseStatus } from '../../../shared/types/Expense';
 import { zeroStatus } from './ExpenseHelper';
 import { History } from 'history';
 import { needUpdateE } from '../../data/State';
 import { toMoment, isSameMonth } from '../../../shared/util/Time';
 import { expensesForMonthPath } from '../../util/Links';
+import { Moment } from 'moment';
 const debug = require('debug')('bookkeeper:month-view');
 
 interface MonthViewProps {
-  date: moment.Moment;
+  date: Moment;
   history: History;
 }
 
@@ -54,7 +54,7 @@ export default class MonthView extends React.Component<MonthViewProps, MonthView
     unsubscribeAll(this.unsub);
   }
 
-  private async loadExpenses(date: moment.Moment) {
+  private async loadExpenses(date: Moment) {
     this.setState({ loading: true, expenses: [], startStatus: zeroStatus, endStatus: zeroStatus, monthStatus: zeroStatus });
     const expenses = await apiConnect.getExpensesForMonth(date.get('year'), date.get('month') + 1);
     debug('Expenses for', date.toDate(), expenses);

@@ -10,7 +10,6 @@ import { PlainReceiverField } from './ExpenseDialogComponents';
 import ExpenseDivision from './ExpenseDivision';
 import { expenseName,  ExpenseFilterFunction } from './ExpenseHelper';
 import Money from '../../../shared/util/Money';
-import moment from 'moment';
 import { Expense, UserExpense, UserExpenseWithDetails, ExpenseDivisionItem, RecurringExpenseTarget } from '../../../shared/types/Expense';
 import { User, Source, Category } from '../../../shared/types/Session';
 import { connect } from '../component/BaconConnect';
@@ -18,7 +17,7 @@ import { userMapE, sourceMapE } from '../../data/Login';
 import { pickDate, notifyError, notify, confirm, updateExpenses, editExpense } from '../../data/State';
 import { categoryMapE, getFullCategoryName } from '../../data/Categories';
 import { Map } from '../../../shared/util/Objects';
-import { toDate, formatDate } from '../../../shared/util/Time';
+import { toDate, formatDate, toMoment } from '../../../shared/util/Time';
 
 const emptyDivision: ExpenseDivisionItem[] = [];
 
@@ -84,7 +83,7 @@ export class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState
 
   private editDate = async (expense: UserExpense) => {
     try {
-      const date = await pickDate(moment(expense.date).toDate());
+      const date = await pickDate(toMoment(expense.date).toDate());
       this.updateExpense({ date: formatDate(date) });
       return true;
     } catch (e) {
@@ -161,7 +160,7 @@ export class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState
     return (
       <div>
         <div key={expense.id} className={className} style={style}>
-          <div className="expense-detail date" onClick={() => this.editDate(expense)}>{moment(expense.date).format('D.M.')}</div>
+          <div className="expense-detail date" onClick={() => this.editDate(expense)}>{toMoment(expense.date).format('D.M.')}</div>
           <div className="expense-detail user optional">
             <UserAvatar userId={expense.userId} size={25} onClick={
               () => this.props.addFilter(

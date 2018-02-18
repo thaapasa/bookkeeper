@@ -1,5 +1,5 @@
 import { db, DbAccess } from './Db';
-import moment, { Moment } from 'moment';
+import { Moment } from 'moment';
 import { Validator } from '../util/Validator';
 import expenses, { setDefaults, storeDivision } from './BasicExpenses';
 import { RecurringExpensePeriod, Recurrence, ExpenseDivisionItem, Expense, RecurringExpenseTarget } from '../../shared/types/Expense';
@@ -12,7 +12,7 @@ import { determineDivision } from './ExpenseDivision';
 import { flatten } from '../../shared/util/Arrays';
 const debug = require('debug')('bookkeeper:api:recurring-expenses');
 
-function nextRecurrence(from: string | Moment, period: RecurringExpensePeriod): moment.Moment {
+function nextRecurrence(from: string | Moment, period: RecurringExpensePeriod): Moment {
   const date = fromDate(from);
   switch (period) {
     case 'monthly': return date.add(1, 'month');
@@ -24,7 +24,7 @@ function nextRecurrence(from: string | Moment, period: RecurringExpensePeriod): 
 function createRecurring(groupId: number, userId: number, expenseId: number, recurrence: Recurrence) {
   return db.transaction(async (tx: DbAccess): Promise<ApiMessage> => {
     debug('Create', recurrence.period, 'recurring expense from', expenseId);
-    let nextMissing: moment.Moment | null = null;
+    let nextMissing: Moment | null = null;
     const templateId = await expenses.tx.copyExpense(tx)(groupId, userId, expenseId, e => {
       const [expense, division] = e;
       if (expense.recurringExpenseId && expense.recurringExpenseId > 0) {
@@ -48,7 +48,7 @@ function createRecurring(groupId: number, userId: number, expenseId: number, rec
 }
 
 function getDatesUpTo(recurrence: Recurrence, date: Moment): string[] {
-  let generating = moment(recurrence.nextMissing);
+  let generating = toMoment(recurrence.nextMissing);
   const dates: string[] = [];
   while (generating.isBefore(date)) {
     dates.push(formatDate(generating));

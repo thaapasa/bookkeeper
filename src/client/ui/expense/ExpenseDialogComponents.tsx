@@ -12,7 +12,7 @@ import { PlainAutoComplete } from '../component/PlainTextField';
 import { stopEventPropagation, unsubscribeAll } from '../../util/ClientUtil';
 import { Source } from '../../../shared/types/Session';
 import { ExpenseType } from '../../../shared/types/Expense';
-import moment from 'moment';
+import { toMoment } from '../../../shared/util/Time';
 
 const styles = {
   category: { width: '50%' },
@@ -133,7 +133,7 @@ export function DateField(props: {
   return (
     <DatePicker
       value={props.value}
-      formatDate={d => moment(d).format('D.M.YYYY')}
+      formatDate={d => toMoment(d).format('D.M.YYYY')}
       floatingLabelText="Päivämäärä"
       // floatingLabelFixed={true}
       fullWidth={true}

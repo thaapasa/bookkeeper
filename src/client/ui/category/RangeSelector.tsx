@@ -1,17 +1,18 @@
 import * as React from 'react';
+import * as colors from '../Colors';
+import styled from 'styled-components';
 import { TypedDateRange, toMoment, getFinnishMonthName } from '../../../shared/util/Time';
 import { NavigateLeft, NavigateRight } from '../Icons';
-import styled from 'styled-components';
 
 const Container = styled.div`
   width: 100%;
   display: flex;
-  height: 40pt;
+  height: 40px;
   align-items: center;
 `;
 
 const Icon = styled.div`
-  padding: 10pt;
+  padding: 10px;
 `;
 
 const Label = styled.div`
@@ -30,9 +31,9 @@ export class YearSelector extends React.PureComponent<RangeProps, {}> {
   public render() {
     return (
       <Container>
-        <Icon><NavigateLeft onClick={this.left} /></Icon>
+        <Icon><NavigateLeft onClick={this.left} color={colors.navigation} /></Icon>
         <Label>Vuosi {toMoment(this.props.range.start).format('YYYY')}</Label>
-        <Icon><NavigateRight onClick={this.right} /></Icon>
+        <Icon><NavigateRight onClick={this.right} color={colors.navigation} /></Icon>
       </Container>
     );
   }
@@ -45,9 +46,9 @@ export class MonthSelector extends React.PureComponent<RangeProps, {}> {
     const s = toMoment(this.props.range.start);
     return (
       <Container>
-        <Icon><NavigateLeft onClick={this.left} /></Icon>
+        <Icon><NavigateLeft onClick={this.left} color={colors.navigation} /></Icon>
         <Label>{getFinnishMonthName(s)} {s.format('YYYY')}</Label>
-        <Icon><NavigateRight onClick={this.right}/></Icon>
+        <Icon><NavigateRight onClick={this.right} color={colors.navigation} /></Icon>
       </Container>
     );
   }

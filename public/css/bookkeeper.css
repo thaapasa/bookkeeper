@@ -27,11 +27,6 @@ html, body {
     z-index: 10;
 }
 
-.top-bar {
-    height: 56px !important;
-    top: 0;
-}
-
 /** Expense table */
 .bk-table {
     font-size: 13px;

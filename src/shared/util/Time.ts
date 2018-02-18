@@ -1,15 +1,16 @@
-import moment from 'moment';
 import { leftPad } from './Util';
+import { Moment, isMoment, MomentInput } from 'moment';
+const moment = require('moment');
 
-export type DateLike = Date | moment.Moment | string;
+export type DateLike = Date | Moment | string;
 
-export function month(year: number, mon: number): moment.Moment {
+export function month(year: number, mon: number): Moment {
   return moment({ year, month: mon - 1, day: 1 });
 }
 
-export function toMoment(d: DateLike): moment.Moment {
-  if (moment.isMoment(d)) { return d; }
-  return moment(d);
+export function toMoment(d?: MomentInput, pattern?: string): Moment {
+  if (isMoment(d)) { return d; }
+  return moment(d, pattern);
 }
 
 export function toDate(d: DateLike): Date {
@@ -22,7 +23,7 @@ export function formatDate(m: any): string {
   const mom = moment.isMoment(m) ? m : moment(m);
   return mom.format(datePattern);
 }
-export function fromDate(str: any): moment.Moment {
+export function fromDate(str: any): Moment {
   return moment(str, datePattern);
 }
 
@@ -49,7 +50,7 @@ export interface TypedDateRange extends DateRange {
 
 const yearRE = /[0-9]{4}/;
 
-function fromYearValue(y: DateLike): moment.Moment | undefined {
+function fromYearValue(y: DateLike): Moment | undefined {
   if (typeof y === 'number' || (typeof y === 'string' && yearRE.test(y))) {
     const year = parseInt(y, 10);
     return moment(leftPad(year, 4, '0') + '-01-01');

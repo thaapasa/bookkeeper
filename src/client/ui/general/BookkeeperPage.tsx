@@ -11,17 +11,25 @@ import { BrowserRouter as Router, Route, Link, Switch } from 'react-router-dom';
 import { Session } from '../../../shared/types/Session';
 import { categoryPagePath, expensePagePath } from '../../util/Links';
 import styled from 'styled-components';
+import { colorScheme } from '../Colors';
+import { darken } from 'material-ui/utils/colorManipulator';
 
 const MainContent = styled.div`
   margin-top: 56px;
 `;
+
+const link = {};
+const selectedLink = {
+  color: colorScheme.white,
+  backgroundColor: darken(colorScheme.secondary.standard, 0.2),
+};
 
 // tslint:disable jsx-no-lambda
 function LinkButton({ label, to }: { label: string, to: string }) {
   return (
     <Route path={to} exact={true} children={({ match }) => (
         <Link to={to}>
-          <FlatButton primary={!!match}>{label}</FlatButton>
+          <FlatButton style={match ? selectedLink : link}>{label}</FlatButton>
         </Link>
       )} />
   );

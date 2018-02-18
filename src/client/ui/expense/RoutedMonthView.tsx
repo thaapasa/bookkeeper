@@ -1,18 +1,19 @@
 import * as React from 'react';
-import moment from 'moment';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { expenseMonthPathPattern, monthPattern } from '../../util/Links';
 import { RouteComponentProps } from 'react-router';
 import MonthView from './MonthView';
+import { Moment } from 'moment';
+import { toMoment } from '../../../shared/util/Time';
 
 interface MonthRouteParams {
   date?: string;
 }
 
 class RoutedMonthView extends React.Component<RouteComponentProps<MonthRouteParams>, {}> {
-  private getDate(): moment.Moment {
-    if (!this.props.match.params.date) { return moment(); }
-    return moment(this.props.match.params.date, monthPattern);
+  private getDate(): Moment {
+    if (!this.props.match.params.date) { return toMoment(); }
+    return toMoment(this.props.match.params.date, monthPattern);
   }
 
   public render() {
