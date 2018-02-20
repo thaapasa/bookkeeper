@@ -161,8 +161,9 @@ export default class CategoryChart extends React.Component<{ chartData: Category
 
     const chartData = this.props.chartData;
     const margins = { top: 50, right: 20, bottom: 100, left: 60 };
+    const width = (chartData && parentWidth > chartData.length * 80) ? chartData.length * 80 : parentWidth;
     const svgDimensions = {
-      width: Math.max(parentWidth, 300),
+      width: Math.max(width, 300),
       height: 500,
     };
 
