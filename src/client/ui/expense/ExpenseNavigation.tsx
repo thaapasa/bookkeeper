@@ -7,7 +7,6 @@ import { Moment } from 'moment';
 import { expensesForMonthPath } from '../../util/Links';
 import { History } from 'history';
 import styled from 'styled-components';
-import { fixedHorizontal } from '../Styles';
 import { getFinnishMonthName } from '../../../shared/util/Time';
 
 interface ExpenseNavigationProps {
@@ -15,9 +14,8 @@ interface ExpenseNavigationProps {
   readonly history: History;
 }
 
-const NavigationContainer = fixedHorizontal.extend`
+const NavigationContainer = styled.div`
   height: 48px !important;
-  top: 56px;
   display: flex;
   align-items: center;
 `;

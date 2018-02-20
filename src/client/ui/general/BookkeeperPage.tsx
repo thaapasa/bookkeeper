@@ -1,5 +1,6 @@
 import * as React from 'react';
 import TopBar from '../component/TopBar';
+import NavigationBar from '../component/NavigationBar';
 import RoutedMonthView from '../expense/RoutedMonthView';
 import RoutedCategoryView from '../category/RoutedCategoryView';
 import ExpenseDialog from '../expense/ExpenseDialog';
@@ -14,8 +15,16 @@ import styled from 'styled-components';
 import { colorScheme } from '../Colors';
 import { darken } from 'material-ui/utils/colorManipulator';
 
+const Page = styled.div`
+  width: 100%;
+  height: 100%;
+  background-color: ${colorScheme.gray.light};
+`;
+
 const MainContent = styled.div`
-  margin-top: 56px;
+  margin: 32px;
+  margin-top: 40px;
+  background-color: ${colorScheme.primary.light};
 `;
 
 const link = {};
@@ -43,7 +52,7 @@ export default class BookkeeperPage extends React.Component<PageProps, {}> {
 
   public render() {
     return (
-      <div>
+      <Page>
         <ExpenseDialog />
         <ConfirmationDialog />
         <Router>
@@ -52,6 +61,7 @@ export default class BookkeeperPage extends React.Component<PageProps, {}> {
               <LinkButton label="Kulut" to={expensePagePath} />
               <LinkButton label="Kategoriat" to={categoryPagePath} />
             </TopBar>
+            <NavigationBar />
             <MainContent>
               <Switch>
                 <Route exact={true} path="/" component={RoutedMonthView} />
@@ -63,7 +73,7 @@ export default class BookkeeperPage extends React.Component<PageProps, {}> {
         </Router>
         <DatePickerComponent />
         <NotificationBar />
-      </div>
+      </Page>
     );
   }
 }

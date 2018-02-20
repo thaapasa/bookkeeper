@@ -101,7 +101,7 @@ export default class ExpenseTable extends React.Component<ExpenseTableProps, Exp
   public render() {
     return (
       <div className="expense-table bk-table">
-        <ExpenseHeader className="expense-table-header bk-table-header fixed-horizontal" />
+        <ExpenseHeader className="expense-table-header bk-table-header" />
         <div className="expense-data-area bk-table-data-area">
           {this.renderFilterRow()}
           {this.renderContents()}

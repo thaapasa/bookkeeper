@@ -20,13 +20,6 @@ html, body {
 .top-margin { margin-top: 1em; }
 .bottom-margin { margin-bottom: 1em; }
 
-.fixed-horizontal {
-    position: fixed;
-    width: 100%;
-    background-color: white;
-    z-index: 10;
-}
-
 /** Expense table */
 .bk-table {
     font-size: 13px;

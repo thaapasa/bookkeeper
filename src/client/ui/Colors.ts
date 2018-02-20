@@ -1,6 +1,7 @@
 import * as colors from 'material-ui/styles/colors';
 import Money, { MoneyLike } from '../../shared/util/Money';
 import styled from 'styled-components';
+import { getMuiTheme } from 'material-ui/styles';
 
 interface ColorDef {
   standard: string;
@@ -44,7 +45,7 @@ export const colorScheme: ColorScheme = {
   secondary: orangeRed,
   gray,
   text: '#000000',
-  white: '#ffffff',
+  white: '#k ',
 };
 
 export const navigation = colorScheme.secondary.standard;
@@ -75,6 +76,20 @@ export function forMoney(m?: MoneyLike): string {
 export function diagonalStripes(color1: string, color2: string, width1: string, width2: string): string {
   return `repeating-linear-gradient(45deg, ${color1}, ${color1} ${width1}, ${color2} ${width1}, ${color2} ${width2})`;
 }
+
+export const muiTheme = getMuiTheme({
+  palette: {
+    primary1Color: colorScheme.primary.dark,
+    accent1Color: colorScheme.secondary.dark,
+    accent2Color: colorScheme.primary.standard,
+    textColor: colorScheme.text,
+    secondaryTextColor: colorScheme.secondary.text,
+    alternateTextColor: colorScheme.primary.text,
+  },
+  appBar: {
+    height: 56,
+  },
+});
 
 // This is here only so that we use styled in this file. We must reference styled here or
 // else watch recompile fails with a warning "module not found" (looks like a bug)
