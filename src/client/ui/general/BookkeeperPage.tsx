@@ -25,6 +25,7 @@ const MainContent = styled.div`
   margin: 32px;
   margin-top: 40px;
   background-color: ${colorScheme.primary.light};
+  box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.5);
 `;
 
 const link = {};
