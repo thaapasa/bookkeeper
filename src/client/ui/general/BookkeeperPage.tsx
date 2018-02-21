@@ -13,7 +13,6 @@ import { Session } from '../../../shared/types/Session';
 import { categoryPagePath, expensePagePath } from '../../util/Links';
 import styled from 'styled-components';
 import { colorScheme } from '../Colors';
-import { darken } from 'material-ui/utils/colorManipulator';
 
 const Page = styled.div`
   width: 100%;
@@ -28,18 +27,24 @@ const MainContent = styled.div`
   box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.5);
 `;
 
-const link = {};
-const selectedLink = {
-  color: colorScheme.white,
-  backgroundColor: darken(colorScheme.secondary.standard, 0.2),
+const linkStyle: React.CSSProperties = {
+  marginLeft: '10px',
+  minWidth: '140px',
+  color: colorScheme.primary.dark,
+  textTransform: 'uppercase',
+};
+
+const selectedLinkStyle: React.CSSProperties = {
+  ...linkStyle,
+  color: colorScheme.secondary.standard,
 };
 
 // tslint:disable jsx-no-lambda
 function LinkButton({ label, to }: { label: string, to: string }) {
   return (
-    <Route path={to} exact={true} children={({ match }) => (
+    <Route path={to} children={({ match }) => (
         <Link to={to}>
-          <FlatButton style={match ? selectedLink : link}>{label}</FlatButton>
+          <FlatButton style={match ? selectedLinkStyle : linkStyle}>{label}</FlatButton>
         </Link>
       )} />
   );
@@ -58,11 +63,11 @@ export default class BookkeeperPage extends React.Component<PageProps, {}> {
         <ConfirmationDialog />
         <Router>
           <div>
-            <TopBar>
+            <TopBar />
+            <NavigationBar>
               <LinkButton label="Kulut" to={expensePagePath} />
               <LinkButton label="Kategoriat" to={categoryPagePath} />
-            </TopBar>
-            <NavigationBar />
+            </NavigationBar>
             <MainContent>
               <Switch>
                 <Route exact={true} path="/" component={RoutedMonthView} />

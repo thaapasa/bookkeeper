@@ -8,7 +8,7 @@ export default class NavigationBar extends React.Component<{}, {}> {
     return (
       <Toolbar>
         <ToolbarGroup>
-          KULUT
+          {this.props.children}
         </ToolbarGroup>
       </Toolbar>
     );

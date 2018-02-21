@@ -45,7 +45,7 @@ export const colorScheme: ColorScheme = {
   secondary: orangeRed,
   gray,
   text: '#000000',
-  white: '#k ',
+  white: '#ffffff',
 };
 
 export const navigation = colorScheme.secondary.standard;
