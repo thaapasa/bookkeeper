@@ -45,7 +45,7 @@ export default class MonthView extends React.Component<MonthViewProps, MonthView
   }
 
   public async componentWillUpdate(newProps: MonthViewProps) {
-    if (newProps.date !== this.props.date) {
+    if (!newProps.date.isSame(this.props.date)) {
       this.loadExpenses(newProps.date);
     }
   }
