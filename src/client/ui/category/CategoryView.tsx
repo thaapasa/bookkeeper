@@ -1,4 +1,5 @@
 import * as React from 'react';
+import * as B from 'baconjs';
 import { History } from 'history';
 import { Map } from '../../../shared/util/Objects';
 import { Category, CategoryAndTotals } from '../../../shared/types/Session';
@@ -10,11 +11,13 @@ import { needUpdateE } from '../../data/State';
 import { connect } from '../component/BaconConnect';
 import { CategoryTable } from './CategoryTable';
 import { CategoryChartData } from './CategoryChart';
+import { UserDataProps, userDataE } from '../../data/Categories';
 
 interface CategoryViewProps {
   categories: Category[];
   range: TypedDateRange;
   history: History;
+  userData: UserDataProps;
 }
 
 interface CategoryViewState {
@@ -84,6 +87,7 @@ class CategoryView extends React.Component<CategoryViewProps, CategoryViewState>
       <div className="content">
         <CategoryTable
           {...this.props}
+          userData={this.props.userData}
           onCategoriesChanged={this.refresh}
           categoryTotals={this.state.categoryTotals}
           categoryChartData={this.state.categoryChartData} />
@@ -93,4 +97,7 @@ class CategoryView extends React.Component<CategoryViewProps, CategoryViewState>
 
 }
 
-export default connect(validSessionE.map(s => ({ categories: s.categories })))(CategoryView);
+export default connect(B.combineTemplate<any, { categories: Category[], userData: UserDataProps }>({
+  categories: validSessionE.map(s => s.categories),
+  userData: userDataE,
+}))(CategoryView);

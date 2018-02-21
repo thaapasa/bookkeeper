@@ -1,4 +1,5 @@
 import * as React from 'react';
+import * as B from 'baconjs';
 import UserAvatar from './UserAvatar';
 import RaisedButton from 'material-ui/RaisedButton';
 import IconButton from 'material-ui/IconButton';
@@ -7,12 +8,14 @@ import * as colors from '../Colors';
 import { logout, validSessionE } from '../../data/Login';
 import { User, Group } from '../../../shared/types/Session';
 import { connect } from './BaconConnect';
-import { createExpense } from '../../data/State';
+import { createExpense, windowSizeP } from '../../data/State';
 import { AppBar } from 'material-ui';
+import { Size } from '../Types';
 
 interface TopBarProps {
   user: User;
   group: Group;
+  windowSize: Size;
 }
 
 class TopBar extends React.Component<TopBarProps, {}> {
@@ -34,4 +37,8 @@ class TopBar extends React.Component<TopBarProps, {}> {
 
 }
 
-export default connect(validSessionE.map(s => ({ user: s.user, group: s.group })))(TopBar);
+export default connect(B.combineTemplate<any, { user: User, group: Group, windowSize: Size }>({
+  user: validSessionE.map(s => s.user),
+  group: validSessionE.map(s => s.group),
+  windowSize: windowSizeP,
+}))(TopBar);

@@ -1,7 +1,7 @@
 import * as B from 'baconjs';
 import { flatten } from '../../shared/util/Arrays';
-import { Category, Session } from '../../shared/types/Session';
-import { validSessionE } from '../../client/data/Login';
+import { Category, Session, Source, User } from '../../shared/types/Session';
+import { validSessionE, userMapE, sourceMapE } from '../../client/data/Login';
 import { Map } from '../../shared/util/Objects';
 
 export interface CategoryData {
@@ -44,3 +44,15 @@ export function isSubcategoryOf(subId: number, parentId: number, categoryMap: Ma
   const sub = categoryMap[subId];
   return sub && sub.parentId === parentId;
 }
+
+export interface UserDataProps {
+  sourceMap: Map<Source>;
+  userMap: Map<User>;
+  categoryMap: Map<Category>;
+}
+
+export const userDataE = B.combineTemplate<any, UserDataProps>({
+  userMap: userMapE,
+  sourceMap: sourceMapE,
+  categoryMap: categoryMapE,
+});

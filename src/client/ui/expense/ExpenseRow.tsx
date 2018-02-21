@@ -1,7 +1,6 @@
 import * as React from 'react';
-import * as B from 'baconjs';
 import apiConnect from '../../data/ApiConnect';
-import UserAvatar from '../component/UserAvatar';
+import { UserAvatar } from '../component/UserAvatar';
 import ActivatableTextField from '../component/ActivatableTextField';
 import { PlainTextField } from '../component/PlainTextField';
 import { ExpandLess, ExpandMore, Delete, Edit, Repeat, ToolIcon } from '../Icons';
@@ -12,10 +11,8 @@ import { expenseName,  ExpenseFilterFunction } from './ExpenseHelper';
 import Money from '../../../shared/util/Money';
 import { Expense, UserExpense, UserExpenseWithDetails, ExpenseDivisionItem, RecurringExpenseTarget } from '../../../shared/types/Expense';
 import { User, Source, Category } from '../../../shared/types/Session';
-import { connect } from '../component/BaconConnect';
-import { userMapE, sourceMapE } from '../../data/Login';
 import { pickDate, notifyError, notify, confirm, updateExpenses, editExpense } from '../../data/State';
-import { categoryMapE, getFullCategoryName } from '../../data/Categories';
+import { getFullCategoryName, UserDataProps } from '../../data/Categories';
 import { Map } from '../../../shared/util/Objects';
 import { toDate, formatDate, toMoment } from '../../../shared/util/Time';
 
@@ -32,6 +29,7 @@ interface ExpenseRowProps extends CommonExpenseRowProps {
   source: Source;
   fullCategoryName: string;
   categoryMap: Map<Category>;
+  userMap: Map<User>;
 }
 
 interface ExpenseRowState {
@@ -162,7 +160,7 @@ export class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState
         <div key={expense.id} className={className} style={style}>
           <div className="expense-detail date" onClick={() => this.editDate(expense)}>{toMoment(expense.date).format('D.M.')}</div>
           <div className="expense-detail user optional">
-            <UserAvatar userId={expense.userId} size={25} onClick={
+            <UserAvatar user={this.props.userMap[expense.userId]} size={25} onClick={
               () => this.props.addFilter(
                 e => e.userId === expense.userId,
                 this.props.user.firstName,
@@ -220,22 +218,16 @@ export class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState
   }
 }
 
-interface BProps {
-  sourceMap: Map<Source>;
-  userMap: Map<User>;
-  categoryMap: Map<Category>;
-}
-
-class ExpenseRowMapper extends React.Component<CommonExpenseRowProps & BProps, {}> {
+export default class ExpenseRowMapper extends React.Component<CommonExpenseRowProps & { userData: UserDataProps }, {}> {
   public render() {
     return (
       <ExpenseRow {...this.props}
-        user={this.props.userMap[this.props.expense.userId]}
-        source={this.props.sourceMap[this.props.expense.sourceId]}
-        fullCategoryName={getFullCategoryName(this.props.expense.categoryId, this.props.categoryMap)}
+        categoryMap={this.props.userData.categoryMap}
+        userMap={this.props.userData.userMap}
+        user={this.props.userData.userMap[this.props.expense.userId]}
+        source={this.props.userData.sourceMap[this.props.expense.sourceId]}
+        fullCategoryName={getFullCategoryName(this.props.expense.categoryId, this.props.userData.categoryMap)}
       />
     );
   }
 }
-
-export default connect(B.combineTemplate({ userMap: userMapE, sourceMap: sourceMapE, categoryMap: categoryMapE }) as B.Property<any, BProps>)(ExpenseRowMapper);

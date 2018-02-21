@@ -9,6 +9,8 @@ import { MonthlyStatus } from './MonthlyStatus';
 import { UserExpense, ExpenseStatus, Expense } from '../../../shared/types/Expense';
 import { ExpenseTotals, ExpenseFilter, ExpenseFilterFunction } from './ExpenseHelper';
 import { Moment } from 'moment';
+import { connect } from '../component/BaconConnect';
+import { userDataE, UserDataProps } from '../../data/Categories';
 
 interface ExpenseTableProps {
   date: Moment;
@@ -19,6 +21,7 @@ interface ExpenseTableProps {
   monthStatus: ExpenseStatus;
   unconfirmedBefore: boolean;
   onUpdateExpense: (expenseId: number, expense: UserExpense) => void;
+  userData: UserDataProps;
 }
 
 interface ExpenseTableState {
@@ -26,7 +29,7 @@ interface ExpenseTableState {
 }
 
 // TODO: tänne myös expensejen ja incomen total laskettuna!
-export default class ExpenseTable extends React.Component<ExpenseTableProps, ExpenseTableState> {
+class ExpenseTable extends React.Component<ExpenseTableProps, ExpenseTableState> {
 
   public state: ExpenseTableState = {
     filters: [],
@@ -51,7 +54,9 @@ export default class ExpenseTable extends React.Component<ExpenseTableProps, Exp
 
   private renderExpense = (expense: UserExpense) => {
     return (
-      <ExpenseRow expense={expense}
+      <ExpenseRow
+        expense={expense}
+        userData={this.props.userData}
         key={'expense-row-' + expense.id}
         addFilter={this.addFilter}
         // tslint:disable-next-line jsx-no-lambda
@@ -119,3 +124,5 @@ export default class ExpenseTable extends React.Component<ExpenseTableProps, Exp
     );
   }
 }
+
+export default connect(userDataE.map(userData => ({ userData })))(ExpenseTable);

@@ -8,6 +8,7 @@ import { AddCategoryButton, EditCategoryButton, ToggleButton } from './CategoryT
 import { UserExpense } from '../../../shared/types/Expense';
 import { DateRange } from '../../../shared/util/Time';
 import { Map } from '../../../shared/util/Objects';
+import { UserDataProps } from '../../data/Categories';
 
 const styles: Map<React.CSSProperties> = {
   mainCategory: {
@@ -27,6 +28,7 @@ interface CategoryRowProps {
   editCategory: (p: Category) => void;
   categoryTotals: Map<CategoryAndTotals>;
   range: DateRange;
+  userData: UserDataProps;
 }
 
 interface CategoryRowState {
@@ -56,6 +58,7 @@ export default class CategoryRow extends React.Component<CategoryRowProps, Categ
     return expenses && expenses.length > 0 ? expenses.map(expense => (
       <ExpenseRow
         expense={expense}
+        userData={this.props.userData}
         key={'expense-row-' + expense.id}
         addFilter={noop}
         onUpdated={this.reload} />

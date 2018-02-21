@@ -2,6 +2,7 @@ import * as B from 'baconjs';
 import { ConfirmationObject, ConfirmationAction, Notification, PickDateObject, ExpenseDialogObject } from './StateTypes';
 import { DateLike, toDate } from '../../shared/util/Time';
 import { ExpenseInEditor } from '../../shared/types/Expense';
+import { Size } from '../ui/Types';
 
 /* Push event to confirmationBus to show a confirmation dialog */
 const confirmationBus = new B.Bus<any, ConfirmationObject<any>>();
@@ -71,6 +72,13 @@ export function updateExpenses(date: DateLike) {
 
 export const needUpdateE = needUpdateBus;
 
+export const windowSizeBus = new B.Bus<any, Size>();
+export const windowSizeP = windowSizeBus.toProperty();
+
+windowSizeP.onValue(s => {
+  // If windowSizeP is not "read" here, the first render of TopBar is missed. Don't know why.
+});
+
 /* Export state to window globals for debugging */
 if (process.env.NODE_ENV === 'development') {
   (window as any).state = {
@@ -84,5 +92,7 @@ if (process.env.NODE_ENV === 'development') {
     expenseDialogE,
     needUpdateBus,
     needUpdateE,
+    windowSizeBus,
+    windowSizeP,
   };
 }
