@@ -12,7 +12,13 @@ import { colorScheme } from '../Colors';
 import { NavigationConfig } from '../../data/StateTypes';
 import { AddExpenseIcon } from '../icons/AddExpenseIcon';
 
+export interface AppLink {
+  label: string;
+  path: string;
+}
+
 interface NavigationBarProps extends NavigationConfig, RouteComponentProps<{}> {
+  links?: AppLink[];
 }
 
 export class NavigationBar extends React.Component<NavigationBarProps, {}> {
@@ -20,9 +26,9 @@ export class NavigationBar extends React.Component<NavigationBarProps, {}> {
     return (
       <Toolbar style={styles.toolbar}>
         <ToolbarGroup style={styles.links}>
-          {this.props.children}
+          {this.props.links && this.props.links.map(l => <LinkButton key={l.label} label={l.label} to={l.path} />)}
         </ToolbarGroup>
-        <ToolbarGroup style={styles.navigator}>
+        <ToolbarGroup>
           <DateRangeNavigator {...this.props} />
         </ToolbarGroup>
         <ToolbarGroup style={styles.pad} />
@@ -60,7 +66,6 @@ const styles: Map<React.CSSProperties> = {
     justifyContent: 'flex-start',
     alignItems: 'center',
   },
-  navigator: {},
   pad: { flex: 1 },
 };
 

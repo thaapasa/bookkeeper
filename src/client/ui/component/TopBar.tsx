@@ -1,6 +1,5 @@
 import * as React from 'react';
 import * as B from 'baconjs';
-import { ToolbarGroup } from 'material-ui/Toolbar';
 import * as colors from '../Colors';
 import { validSessionE } from '../../data/Login';
 import { User, Group } from '../../../shared/types/Session';
@@ -10,11 +9,13 @@ import { AppBar } from 'material-ui';
 import { Size } from '../Types';
 import { Map } from '../../../shared/util/Objects';
 import MenuDrawer from './MenuDrawer';
+import { AppLink } from './NavigationBar';
 
 interface TopBarProps {
   user: User;
   group: Group;
   windowSize: Size;
+  links?: AppLink[];
 }
 
 interface TopBarState {
@@ -29,12 +30,8 @@ class TopBar extends React.Component<TopBarProps, TopBarState> {
   public render() {
     return (
       <React.Fragment>
-        <AppBar title={this.props.group.name} style={styles.topBar} onLeftIconButtonClick={this.toggleMenu}>
-          <ToolbarGroup>
-            {this.props.children}
-          </ToolbarGroup>
-        </AppBar>
-        <MenuDrawer open={this.state.menuOpen} onRequestChange={this.changeMenu} />
+        <AppBar title={this.props.group.name} style={styles.topBar} onLeftIconButtonClick={this.toggleMenu} />
+        <MenuDrawer open={this.state.menuOpen} onRequestChange={this.changeMenu} links={this.props.links} />
       </React.Fragment>
     );
   }

@@ -4,7 +4,7 @@ import sources from './Sources';
 import categories from './Categories';
 import { promisify } from 'util';
 import { config } from '../Config';
-import { Session, SessionBasicInfo, User } from '../../shared/types/Session';
+import { Session, SessionBasicInfo } from '../../shared/types/Session';
 import { AuthenticationError } from '../../shared/types/Errors';
 import { ApiMessage } from '../../shared/types/Api';
 const debug = require('debug')('bookkeeper:api:sessions');

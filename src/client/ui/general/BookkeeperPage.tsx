@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import TopBar from '../component/TopBar';
-import NavigationBar, { LinkButton } from '../component/NavigationBar';
+import NavigationBar, { AppLink } from '../component/NavigationBar';
 import RoutedMonthView from '../expense/RoutedMonthView';
 import RoutedCategoryView from '../category/RoutedCategoryView';
 import ExpenseDialog from '../expense/ExpenseDialog';
@@ -12,25 +12,31 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { Session } from '../../../shared/types/Session';
 import { categoryPagePath, expensePagePath, expenseMonthPathPattern, categoryViewMonthPattern, categoryViewYearPattern } from '../../util/Links';
 import { colorScheme } from '../Colors';
+import { Size } from '../Types';
+import { smallDeviceMaxWidth } from '../Styles';
 
 interface PageProps {
   session: Session;
+  windowSize: Size;
 }
+
+const appLinks: AppLink[] = [
+  { label: 'Kulut', path: expensePagePath },
+  { label: 'Kategoriat', path: categoryPagePath },
+];
 
 export default class BookkeeperPage extends React.Component<PageProps, {}> {
 
   public render() {
+    const smallDevice = this.props.windowSize.width < smallDeviceMaxWidth;
     return (
       <Page>
         <ExpenseDialog />
         <ConfirmationDialog />
         <Router>
           <div>
-            <TopBar />
-            <NavigationBar>
-              <LinkButton label="Kulut" to={expensePagePath} />
-              <LinkButton label="Kategoriat" to={categoryPagePath} />
-            </NavigationBar>
+            <TopBar links={smallDevice ? appLinks : undefined} />
+            <NavigationBar links={smallDevice ? undefined : appLinks} />
             <MainContent>
               <Switch>
                 <Route path={expenseMonthPathPattern('date')} component={RoutedMonthView} />

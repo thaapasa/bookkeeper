@@ -6,12 +6,14 @@ import { sessionP, checkLoginState } from './data/Login';
 import { Action } from '../shared/types/Common';
 import { unsubscribeAll } from './util/ClientUtil';
 import { windowSizeBus } from './data/State';
+import { Size } from './ui/Types';
 const debug = require('debug')('bookkeeper:app');
 
 interface AppState {
   session: Session | null;
   initialized: boolean;
   hasSize: boolean;
+  windowSize: Size;
 }
 
 export default class App extends React.Component<{}, AppState> {
@@ -22,6 +24,7 @@ export default class App extends React.Component<{}, AppState> {
     session: null,
     initialized: false,
     hasSize: false,
+    windowSize: { width: 0, height: 0 },
   };
 
   public async componentDidMount() {
@@ -42,12 +45,14 @@ export default class App extends React.Component<{}, AppState> {
   private updateWindowDimensions = () => {
     const size = { width: window.innerWidth, height: window.innerHeight };
     windowSizeBus.push(size);
-    this.setState({ hasSize: size.width > 0 && size.height > 0 });
+    this.setState({ hasSize: size.width > 0 && size.height > 0, windowSize: size });
   }
 
   public render() {
     return (this.state.initialized) ?
-      (this.state.session && this.state.hasSize ? <BookkeeperPage session={this.state.session} /> : <LoginPage />) :
+      (this.state.session && this.state.hasSize ?
+        <BookkeeperPage session={this.state.session} windowSize={this.state.windowSize} /> :
+        <LoginPage />) :
       null;
   }
 }

@@ -1,9 +1,3 @@
-import styled from 'styled-components';
+// See responsive UI specs at https://material.io/guidelines/layout/responsive-ui.html
 
-export const fixedHorizontal = styled.div`
-  position: fixed;
-  left: 0;
-  right: 0;
-  background-color: white;
-  z-index: 10;
-`;
+export const smallDeviceMaxWidth = 600;

@@ -5,36 +5,6 @@ import RaisedButton from 'material-ui/RaisedButton';
 import styled from 'styled-components';
 import { login } from '../../data/Login';
 
-const LoginPaper = styled(Paper) `
-  margin: 20px;
-  padding: 30px;
-  text-align: center;
-  display: inline-block;
-`;
-
-const Title = styled.title`
-  height: 30px;
-  display: inline-block;
-  max-width: 250px;
-`;
-
-const LoginButton = styled(RaisedButton) `
-  margin: 30px;
-`;
-
-const Page = styled.div`
-  margin: auto;
-  text-align: center;
-  background: url(${process.env.PUBLIC_URL || ''}/img/money-bg.jpg);
-  background-size: cover;
-  background-repeat: no-repeat;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-`;
-
 interface LoginPageState {
   username: string;
   password: string;
@@ -78,6 +48,9 @@ export default class LoginPage extends React.Component<{}, LoginPageState> {
     }
   }
 
+  private setUserName = (_: any, username: string) => this.setState({ username });
+  private setPassword = (_: any, password: string) => this.setState({ password });
+
   public render() {
     return (
       <Page>
@@ -89,16 +62,14 @@ export default class LoginPage extends React.Component<{}, LoginPageState> {
               hintText="Käyttäjätunnus"
               floatingLabelText="Käyttäjätunnus"
               value={this.state.username}
-              // tslint:disable-next-line jsx-no-lambda
-              onChange={(_, v) => this.setState({ username: v })}
+              onChange={this.setUserName}
             /><br />
             <TextField
               hintText="Salasana"
               floatingLabelText="Salasana"
               type="password"
               value={this.state.password}
-              // tslint:disable-next-line jsx-no-lambda
-              onChange={(_, v) => this.setState({ password: v })}
+              onChange={this.setPassword}
             /><br />
             <LoginButton
               type="submit"
@@ -111,5 +82,31 @@ export default class LoginPage extends React.Component<{}, LoginPageState> {
       </Page>
     );
   }
-
 }
+
+const LoginPaper = styled(Paper) `
+  margin: 36px;
+  padding: 36px;
+  text-align: center;
+  display: inline-block;
+`;
+
+const Title = styled.title`
+  height: 30px;
+  display: inline-block;
+  max-width: 250px;
+`;
+
+const LoginButton = styled(RaisedButton) `
+  margin: 30px;
+`;
+
+const Page = styled.div`
+  margin: auto;
+  text-align: center;
+  background: url(${process.env.PUBLIC_URL || ''}/img/money-bg.jpg);
+  background-size: cover;
+  background-repeat: no-repeat;
+  width: 100%;
+  height: 100%;
+`;

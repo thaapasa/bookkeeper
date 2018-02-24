@@ -1,6 +1,6 @@
+import styled from 'styled-components';
 import * as colors from 'material-ui/styles/colors';
 import Money, { MoneyLike } from '../../shared/util/Money';
-import styled from 'styled-components';
 import { getMuiTheme } from 'material-ui/styles';
 
 interface ColorDef {
