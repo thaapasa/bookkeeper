@@ -5,7 +5,7 @@ import { NotFoundError, AuthenticationError } from '../../shared/types/Errors';
 
 export type RawUserData = Map<any>;
 
-function mapUser(user: RawUserData): User {
+export function mapUser(user: RawUserData): User {
   return { ...user as User, image: user.image ? `img/users/${user.image}` : undefined };
 }
 
@@ -38,8 +38,8 @@ function getGroups(tx: DbAccess) {
 }
 
 function getByCredentials(tx: DbAccess) {
-  return async (username: string, password: string, groupId: number): Promise<User> => {
-    const user = await tx.queryObject('users.get_by_credentials', `
+  return async (username: string, password: string, groupId: number): Promise<RawUserData> => {
+    const user = await tx.queryObject<RawUserData>('users.get_by_credentials', `
 SELECT u.id, username, email, first_name, last_name, default_group_id, image, g.id as group_id, g.name as group_name, go.default_source_id
 FROM users u
 LEFT JOIN group_users go ON (go.user_id = u.id AND go.group_id = COALESCE($3, u.default_group_id))
@@ -48,7 +48,7 @@ WHERE username=$1 AND password=ENCODE(DIGEST($2, 'sha1'), 'hex')
 `,
       [username, password, groupId]);
     if (user === undefined) { throw new AuthenticationError('INVALID_CREDENTIALS', 'Invalid username or password'); }
-    return mapUser(user);
+    return user;
   };
 }
 

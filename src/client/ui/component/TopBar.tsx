@@ -1,16 +1,15 @@
 import * as React from 'react';
 import * as B from 'baconjs';
-import UserAvatar from './UserAvatar';
-import IconButton from 'material-ui/IconButton';
 import { ToolbarGroup } from 'material-ui/Toolbar';
 import * as colors from '../Colors';
-import { logout, validSessionE } from '../../data/Login';
+import { validSessionE } from '../../data/Login';
 import { User, Group } from '../../../shared/types/Session';
 import { connect } from './BaconConnect';
 import { windowSizeP } from '../../data/State';
 import { AppBar } from 'material-ui';
 import { Size } from '../Types';
 import { Map } from '../../../shared/util/Objects';
+import MenuDrawer from './MenuDrawer';
 
 interface TopBarProps {
   user: User;
@@ -18,19 +17,33 @@ interface TopBarProps {
   windowSize: Size;
 }
 
-class TopBar extends React.Component<TopBarProps, {}> {
+interface TopBarState {
+  menuOpen: boolean;
+}
+
+class TopBar extends React.Component<TopBarProps, TopBarState> {
+  public state: TopBarState = {
+    menuOpen: false,
+  };
+
   public render() {
     return (
-      <AppBar title={this.props.group.name} style={styles.topBar}>
-        <ToolbarGroup>
-          {this.props.children}
-        </ToolbarGroup>
-        <ToolbarGroup style={{ align: 'right' }}>
-          <UserAvatar userId={this.props.user.id} size={44} />
-          <IconButton iconClassName="material-icons" iconStyle={{ color: colors.tool }} onClick={logout}>exit_to_app</IconButton>
-        </ToolbarGroup>
-      </AppBar>
+      <React.Fragment>
+        <AppBar title={this.props.group.name} style={styles.topBar} onLeftIconButtonClick={this.toggleMenu}>
+          <ToolbarGroup>
+            {this.props.children}
+          </ToolbarGroup>
+        </AppBar>
+        <MenuDrawer open={this.state.menuOpen} onRequestChange={this.changeMenu} />
+      </React.Fragment>
     );
+  }
+
+  private toggleMenu = () => {
+    this.setState(s => ({ menuOpen: !s.menuOpen }));
+  }
+  private changeMenu = (menuOpen: boolean) => {
+    this.setState({ menuOpen });
   }
 }
 

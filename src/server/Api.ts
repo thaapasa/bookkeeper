@@ -28,11 +28,9 @@ export function registerAPI(app: Express) {
 
   // PUT /api/session
   app.put('/api/session', server.processUnauthorizedRequest((req): Promise<Session> =>
-    sessions.login(req.body.username, req.body.password, req.query.groupId)
-      .then(sessions.appendInfo)));
+    sessions.login(req.body.username, req.body.password, req.query.groupId)));
   app.put('/api/session/refresh', server.processUnauthorizedRequest((req): Promise<Session> =>
-    sessions.refresh(server.getToken(req), req.query.groupId)
-      .then(sessions.appendInfo)));
+    sessions.refresh(server.getToken(req), req.query.groupId)));
 
   // GET /api/session
   app.get('/api/session', server.processRequest((session): Promise<Session> => sessions.appendInfo(session)));

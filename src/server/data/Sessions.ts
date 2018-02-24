@@ -1,10 +1,10 @@
 import { db, DbAccess } from './Db';
-import users, { RawUserData } from './Users';
+import users, { RawUserData, mapUser } from './Users';
 import sources from './Sources';
 import categories from './Categories';
 import { promisify } from 'util';
 import { config } from '../Config';
-import { Session, SessionBasicInfo } from '../../shared/types/Session';
+import { Session, SessionBasicInfo, User } from '../../shared/types/Session';
 import { AuthenticationError } from '../../shared/types/Errors';
 import { ApiMessage } from '../../shared/types/Api';
 const debug = require('debug')('bookkeeper:api:sessions');
@@ -15,14 +15,15 @@ function createSessionInfo([token, refreshToken]: string[], userData: RawUserDat
   return {
     token,
     refreshToken,
-    user: {
+    user: mapUser({
       id: userData.id,
       username: userData.username,
       email: userData.email,
       firstName: userData.firstName,
       lastName: userData.lastName,
+      image: userData.image,
       defaultGroupId: userData.defaultGroupId,
-    },
+    }),
     group: {
       id: userData.groupId,
       name: userData.groupName,
@@ -32,21 +33,23 @@ function createSessionInfo([token, refreshToken]: string[], userData: RawUserDat
   };
 }
 
-function login(username: string, password: string, groupId: number): Promise<SessionBasicInfo> {
+function login(username: string, password: string, groupId: number): Promise<Session> {
   debug('Login for', username);
   return db.transaction(async tx => {
     const user = await users.tx.getByCredentials(tx)(username, password, groupId);
     const tokens = await createSession(tx)(user);
-    return createSessionInfo(tokens, user);
+    const sessionInfo = createSessionInfo(tokens, user);
+    return appendInfo(tx)(sessionInfo);
   });
 }
 
-function refresh(refreshToken: string, groupId: number): Promise<SessionBasicInfo> {
+function refresh(refreshToken: string, groupId: number): Promise<Session> {
   debug('Refreshing session with', refreshToken);
   return db.transaction(async tx => {
-    const sessionInfo = await getUserInfoByRefreshToken(tx)(refreshToken, groupId);
-    const tokens = await createSession(tx)(sessionInfo);
-    return createSessionInfo(tokens, sessionInfo);
+    const user = await getUserInfoByRefreshToken(tx)(refreshToken, groupId);
+    const tokens = await createSession(tx)(user);
+    const sessionInfo = createSessionInfo(tokens, user);
+    return appendInfo(tx)(sessionInfo);
   });
 }
 
@@ -79,7 +82,7 @@ function purgeExpiredSessions(tx: DbAccess) {
   return (): Promise<number> => tx.update('sessions.purge', 'DELETE FROM sessions WHERE expiry_time <= NOW()');
 }
 
-const tokenSelect = 'SELECT s.token, s.refresh_token, s.user_id as id, s.login_time, u.username, u.email, u.first_name, u.last_name, u.default_group_id,' +
+const tokenSelect = 'SELECT s.token, s.refresh_token, s.user_id as id, s.login_time, u.username, u.email, u.first_name, u.last_name, u.image, u.default_group_id,' +
   'g.id AS group_id, g.name as group_name, go.default_source_id FROM sessions s ' +
   'INNER JOIN users u ON (s.user_id = u.id) ' +
   'LEFT JOIN group_users go ON (go.user_id = u.id AND go.group_id = COALESCE($2, u.default_group_id)) ' +
