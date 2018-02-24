@@ -10,6 +10,7 @@ import EditSVG from 'material-ui/svg-icons/image/edit';
 import RepeatSVG from 'material-ui/svg-icons/av/repeat';
 import LibraryAdd from 'material-ui/svg-icons/av/library-add';
 import IconButton from 'material-ui/IconButton';
+import AddCircleSVG from 'material-ui/svg-icons/content/add-circle';
 import * as colors from './Colors';
 
 const styles = {
@@ -31,6 +32,7 @@ export const ExpandLess = ExpandLessSVG;
 export const ExpandMore = ExpandMoreSVG;
 export const Repeat = RepeatSVG;
 export const Add = LibraryAdd;
+export const PlusCircle = AddCircleSVG;
 
 export function ToolIcon(props: {
   icon: any,
