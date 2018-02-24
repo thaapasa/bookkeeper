@@ -1,6 +1,6 @@
 {
-    "name": "",
-    "short_name": "",
+    "name": "Kukkaro",
+    "short_name": "Kukkaro",
     "icons": [
         {
             "src": "/android-chrome-192x192.png?v=wAOR4r4Mvn",
@@ -13,6 +13,7 @@
             "type": "image/png"
         }
     ],
+    "start_url": "https://kukkaro.pomeranssi.fi",
     "theme_color": "#ffffff",
     "background_color": "#ffffff",
     "display": "standalone"
