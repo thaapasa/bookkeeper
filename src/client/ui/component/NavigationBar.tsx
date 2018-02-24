@@ -68,6 +68,7 @@ export function LinkButton({ label, to }: { label: string, to: string }) {
 const styles: Map<React.CSSProperties> = {
   toolbar: {
     position: 'relative',
+    width: '100%',
   },
   links: {
     flex: 1,

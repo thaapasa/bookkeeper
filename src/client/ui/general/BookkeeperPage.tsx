@@ -13,7 +13,7 @@ import { Session } from '../../../shared/types/Session';
 import { categoryPagePath, expensePagePath, expenseMonthPathPattern, categoryViewMonthPattern, categoryViewYearPattern } from '../../util/Links';
 import { colorScheme } from '../Colors';
 import { Size } from '../Types';
-import { smallDeviceMaxWidth } from '../Styles';
+import { isSmallDevice, getScreenSizeClassName, largeDeviceMinWidth } from '../Styles';
 
 interface PageProps {
   session: Session;
@@ -28,7 +28,8 @@ const appLinks: AppLink[] = [
 export default class BookkeeperPage extends React.Component<PageProps, {}> {
 
   public render() {
-    const smallDevice = this.props.windowSize.width < smallDeviceMaxWidth;
+    const smallDevice = isSmallDevice(this.props.windowSize);
+    const className = getScreenSizeClassName(this.props.windowSize);
     return (
       <Page>
         <ExpenseDialog />
@@ -37,7 +38,7 @@ export default class BookkeeperPage extends React.Component<PageProps, {}> {
           <div>
             <TopBar links={smallDevice ? appLinks : undefined} />
             <NavigationBar links={smallDevice ? undefined : appLinks} windowSize={this.props.windowSize} />
-            <MainContent className={smallDevice ? 'small' : ''}>
+            <MainContent className={className}>
               <Switch>
                 <Route path={expenseMonthPathPattern('date')} component={RoutedMonthView} />
                 <Route path={expensePagePath} component={RoutedMonthView} />
@@ -63,6 +64,7 @@ const Page = styled.div`
 `;
 
 const MainContent = styled.div`
+  flex: auto;
   margin: 32px;
   margin-top: 40px;
   background-color: ${colorScheme.primary.light};
@@ -71,5 +73,11 @@ const MainContent = styled.div`
   &.small {
     margin: 0;
     box-shadow: none;
+  }
+
+  &.large {
+    margin-left: auto;
+    margin-right: auto;
+    width: ${largeDeviceMinWidth - 64}px;
   }
 `;
