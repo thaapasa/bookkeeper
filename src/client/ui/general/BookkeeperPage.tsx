@@ -35,7 +35,7 @@ export default class BookkeeperPage extends React.Component<PageProps, {}> {
         <ExpenseDialog />
         <ConfirmationDialog />
         <Router>
-          <div>
+          <ContentContainer>
             <TopBar links={smallDevice ? appLinks : undefined} />
             <NavigationBar links={smallDevice ? undefined : appLinks} windowSize={this.props.windowSize} />
             <MainContent className={className}>
@@ -48,7 +48,7 @@ export default class BookkeeperPage extends React.Component<PageProps, {}> {
                 <Route exact={true} path="/" component={RoutedMonthView} />
               </Switch>
             </MainContent>
-          </div>
+          </ContentContainer>
         </Router>
         <DatePickerComponent />
         <NotificationBar />
@@ -63,12 +63,21 @@ const Page = styled.div`
   background-color: ${colorScheme.gray.light};
 `;
 
+const ContentContainer = styled.div`
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+`;
+
 const MainContent = styled.div`
-  flex: auto;
+  flex: 1;
   margin: 32px;
   margin-top: 40px;
   background-color: ${colorScheme.primary.light};
   box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.5);
+  overflow: hidden;
 
   &.small {
     margin: 0;

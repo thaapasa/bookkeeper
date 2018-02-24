@@ -1,4 +1,5 @@
 import * as React from 'react';
+import styled from 'styled-components';
 import apiConnect from '../../data/ApiConnect';
 import { UserAvatar } from '../component/UserAvatar';
 import ActivatableTextField from '../component/ActivatableTextField';
@@ -156,8 +157,8 @@ export class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState
       style.background = colors.income;
     }
     return (
-      <div>
-        <div key={expense.id} className={className} style={style}>
+      <React.Fragment>
+        <ExpenseRowContainer key={expense.id} className={className} style={style}>
           <div className="expense-detail date" onClick={() => this.editDate(expense)}>{toMoment(expense.date).format('D.M.')}</div>
           <div className="expense-detail user optional">
             <UserAvatar user={this.props.userMap[expense.userId]} size={25} onClick={
@@ -195,9 +196,9 @@ export class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState
             <ToolIcon title="Muokkaa" onClick={() => this.modifyExpense(expense)} icon={Edit} />
             <ToolIcon className="optional" title="Poista" onClick={() => this.deleteExpense(expense)} icon={Delete} />
           </div>
-        </div>
+        </ExpenseRowContainer>
         {this.renderDetails()}
-      </div>
+      </React.Fragment>
     );
   }
 
@@ -231,3 +232,13 @@ export default class ExpenseRowMapper extends React.Component<CommonExpenseRowPr
     );
   }
 }
+
+export const ExpenseRowContainer = styled.div`
+  position: relative;
+  height: 41px !important;
+  display: flex;
+  border-top: 1px solid ${colors.colorScheme.gray.standard};
+  background-color: ${colors.colorScheme.primary.light};
+  white-space: nowrap;
+  align-items: center;
+`;
