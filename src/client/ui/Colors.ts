@@ -79,7 +79,7 @@ export function diagonalStripes(color1: string, color2: string, width1: string, 
 
 export const muiTheme = getMuiTheme({
   palette: {
-    primary1Color: colorScheme.primary.dark,
+    primary1Color: colorScheme.secondary.standard,
     accent1Color: colorScheme.secondary.dark,
     accent2Color: colorScheme.primary.standard,
     textColor: colorScheme.text,

@@ -11,6 +11,7 @@ import { connect } from './BaconConnect';
 import { createExpense, windowSizeP } from '../../data/State';
 import { AppBar } from 'material-ui';
 import { Size } from '../Types';
+import { Map } from '../../../shared/util/Objects';
 
 interface TopBarProps {
   user: User;
@@ -22,7 +23,7 @@ class TopBar extends React.Component<TopBarProps, {}> {
 
   public render() {
     return (
-      <AppBar title={this.props.group.name}>
+      <AppBar title={this.props.group.name} style={styles.topBar}>
         <ToolbarGroup>
           {this.props.children}
         </ToolbarGroup>
@@ -42,3 +43,9 @@ export default connect(B.combineTemplate<any, { user: User, group: Group, window
   group: validSessionE.map(s => s.group),
   windowSize: windowSizeP,
 }))(TopBar);
+
+const styles: Map<React.CSSProperties> = {
+  topBar: {
+    backgroundColor: colors.colorScheme.primary.dark,
+  },
+};
