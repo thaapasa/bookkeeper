@@ -32,7 +32,6 @@ class MenuDrawerImpl extends React.Component<MenuDrawerProps, {}> {
     this.props.onRequestChange(false);
   }
   public render() {
-    console.log(this.props.user);
     return (
       <Drawer open={this.props.open} docked={false} onRequestChange={this.props.onRequestChange}>
         <UserInfo>
