@@ -1,4 +1,5 @@
 import * as React from 'react';
+import styled from 'styled-components';
 import Avatar from 'material-ui/Avatar';
 import Chip from 'material-ui/Chip';
 import ExpenseRow from './ExpenseRow';
@@ -10,6 +11,7 @@ import { UserExpense, ExpenseStatus, Expense } from '../../../shared/types/Expen
 import { ExpenseTotals, ExpenseFilter, ExpenseFilterFunction } from './ExpenseHelper';
 import { connect } from '../component/BaconConnect';
 import { userDataE, UserDataProps } from '../../data/Categories';
+import { colorScheme } from '../Colors';
 
 interface ExpenseTableProps {
   expenses: UserExpense[];
@@ -103,24 +105,37 @@ class ExpenseTable extends React.Component<ExpenseTableProps, ExpenseTableState>
 
   public render() {
     return (
-      <div className="expense-table bk-table">
-        <ExpenseHeader className="expense-table-header bk-table-header" />
-        <div className="expense-data-area bk-table-data-area">
+      <ExpenseTableContainer>
+        <ExpenseHeader />
+        <ExpenseDataArea>
           {this.renderFilterRow()}
           {this.renderContents()}
-        </div>
+        </ExpenseDataArea>
         <MonthlyStatus
-          unconfirmedBefore={this.props.unconfirmedBefore}
-          startStatus={this.props.startStatus}
-          monthStatus={this.props.monthStatus}
-          endStatus={this.props.endStatus}
+          {...this.props}
           totals={this.calculateTotals(this.props.expenses)}
           showFiltered={(this.state.filters.length > 0)}
           filteredTotals={this.calculateTotals(this.getFilteredExpenses())}
         />
-      </div>
+      </ExpenseTableContainer>
     );
   }
 }
 
 export default connect(userDataE.map(userData => ({ userData })))(ExpenseTable);
+
+const ExpenseTableContainer = styled.div`
+  font-size: 13px;
+  display: flex;
+  height: 100%;
+  width: 100%;
+  flex-direction: column;
+`;
+
+const ExpenseDataArea = styled.div`
+  flex: 1;
+  width: 100%;
+  background-color: ${colorScheme.gray.light};
+  overflow-y: auto;
+  overflow-x: hidden;
+`;

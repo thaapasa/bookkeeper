@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { combineClassNames } from '../../util/ClientUtil';
-import * as colors from '../Colors';
+import { ExpenseRowContainer } from './ExpenseRow';
+import { colorScheme } from '../Colors';
 
-export default function ExpenseHeader(props: { className?: string }) {
+export default function ExpenseHeader() {
   return (
-    <div className={combineClassNames('expense-row bk-table-row header', props.className)} style={{ color: colors.header }}>
+    <Header>
       <div className="expense-detail date">Pvm</div>
       <div className="expense-detail user optional" />
       <div className="expense-detail title">Nimi</div>
@@ -14,6 +14,12 @@ export default function ExpenseHeader(props: { className?: string }) {
       <div className="expense-detail sum">Summa</div>
       <div className="expense-detail balance optional">Balanssi</div>
       <div className="expense-detail tools" />
-    </div>
+    </Header>
   );
 }
+
+const Header = ExpenseRowContainer.extend`
+  border-top: none;
+  color: ${colorScheme.secondary.dark};
+  font-weight: bold;
+`;

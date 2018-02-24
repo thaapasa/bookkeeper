@@ -14,31 +14,7 @@ html, body, #root {
     border: none !important;
 }
 
-/** Expense table */
-.bk-table {
-    font-size: 13px;
-}
-
-.bk-table-header.header {
-    height: 32px !important;
-    border-top: none;
-    border-bottom: 1px solid rgb(224, 224, 224);
-}
-
-.bk-table-row {
-    height: 41px !important;
-    display: flex;
-    border-top: 1px solid rgb(224, 224, 224);
-    white-space: nowrap;
-    align-items: center;
-}
-
-
 /* Categories */
-
-.category-table {
-    font-size: 13px;
-}
 
 .category-table-row {
     height: 41px !important;
@@ -48,7 +24,6 @@ html, body, #root {
     align-items: center;
 }
 .category-table-time-select { height: 61px !important; }
-.category-table-header { top: 61px; }
 .bk-table-data-area {
     overflow-y: auto;
     overflow-x: hidden;

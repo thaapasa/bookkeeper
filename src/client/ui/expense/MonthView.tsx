@@ -79,16 +79,14 @@ export default class MonthView extends React.PureComponent<MonthViewProps, Month
 
   public render() {
     return (
-      <div className="content">
-        <ExpenseTable
-          expenses={this.state.expenses}
-          loading={this.state.loading}
-          startStatus={this.state.startStatus}
-          endStatus={this.state.endStatus}
-          monthStatus={this.state.monthStatus}
-          unconfirmedBefore={this.state.unconfirmedBefore}
-          onUpdateExpense={this.onUpdateExpense} />
-      </div>
+      <ExpenseTable
+        expenses={this.state.expenses}
+        loading={this.state.loading}
+        startStatus={this.state.startStatus}
+        endStatus={this.state.endStatus}
+        monthStatus={this.state.monthStatus}
+        unconfirmedBefore={this.state.unconfirmedBefore}
+        onUpdateExpense={this.onUpdateExpense} />
     );
   }
 }
