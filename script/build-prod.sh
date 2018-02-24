@@ -1,23 +1,40 @@
 #!/bin/sh
 
-
 pushd . >/dev/null
 cd `dirname $0`/..
 
+echo "Updating dependencies"
+npm i || exit -1
+
+mkdir -p deploy || exit -1
+sh script/update-revision.sh
+
 REV=`git rev-parse HEAD | cut -c 1-8`
-echo "Deploying bookkeeper to production, revision $REV..."
+echo "Building server, revision $REV..."
 
-npm install
+npm run clean || exit -1
+npm run build-server || exit -1
 
-script/stop-server.sh
+cd build-server
+tar czvf ../deploy/server-$REV.tar.gz . || exit -1
+cd ..
 
-~/bin/backup-bookkeeper.sh "before-update-$REV"
+echo "Server built"
 
-npm run prod && \
-    echo "Build successful!"
+echo "Building client, revision $REV"
 
-script/start-server.sh
+npm run clean || exit -1
+npm run build-client || exit -1
+
+cd build
+tar czvf ../deploy/client-$REV.tar.gz . || exit -1
+cd ..
+
+echo "Client built"
+
+echo "Copying files to production..."
+
+ssh deployer@pomeranssi.fi "mkdir -p bookkeeper/deploy" || exit -1
+scp deploy/client-$REV.tar.gz deploy/server-$REV.tar.gz deployer@pomeranssi.fi:~/bookkeeper/deploy || exit -1
 
 popd >/dev/null
-
-echo "Deployment done."
