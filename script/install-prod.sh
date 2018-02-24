@@ -23,13 +23,13 @@ echo "Extracting server..."
 
 mkdir -p build-server || exit -1
 cd build-server
-tar xzvf deploy/server-$REV.tar.gz || exit -1
+tar xzvf ../deploy/server-$REV.tar.gz || exit -1
 cd ..
 
 echo "Extracting client..."
 mkdir -p dist || exit -1
 cd dist
-tar xzvf deploy/client-$REV.tar.gz || exit -1
+tar xzvf ../deploy/client-$REV.tar.gz || exit -1
 cd ..
 
 echo "Starting server"
