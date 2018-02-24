@@ -36,8 +36,8 @@ export default class BookkeeperPage extends React.Component<PageProps, {}> {
         <Router>
           <div>
             <TopBar links={smallDevice ? appLinks : undefined} />
-            <NavigationBar links={smallDevice ? undefined : appLinks} />
-            <MainContent>
+            <NavigationBar links={smallDevice ? undefined : appLinks} windowSize={this.props.windowSize} />
+            <MainContent className={smallDevice ? 'small' : ''}>
               <Switch>
                 <Route path={expenseMonthPathPattern('date')} component={RoutedMonthView} />
                 <Route path={expensePagePath} component={RoutedMonthView} />
@@ -67,4 +67,9 @@ const MainContent = styled.div`
   margin-top: 40px;
   background-color: ${colorScheme.primary.light};
   box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.5);
+
+  &.small {
+    margin: 0;
+    box-shadow: none;
+  }
 `;

@@ -11,6 +11,8 @@ import DateRangeNavigator from './DateRangeNavigator';
 import { colorScheme } from '../Colors';
 import { NavigationConfig } from '../../data/StateTypes';
 import { AddExpenseIcon } from '../icons/AddExpenseIcon';
+import { Size } from '../Types';
+import { smallDeviceMaxWidth } from '../Styles';
 
 export interface AppLink {
   label: string;
@@ -19,10 +21,12 @@ export interface AppLink {
 
 interface NavigationBarProps extends NavigationConfig, RouteComponentProps<{}> {
   links?: AppLink[];
+  windowSize: Size;
 }
 
 export class NavigationBar extends React.Component<NavigationBarProps, {}> {
   public render() {
+    const smallDevice = this.props.windowSize.width < smallDeviceMaxWidth;
     return (
       <Toolbar style={styles.toolbar}>
         <ToolbarGroup style={styles.links}>
@@ -32,7 +36,7 @@ export class NavigationBar extends React.Component<NavigationBarProps, {}> {
           <DateRangeNavigator {...this.props} />
         </ToolbarGroup>
         <ToolbarGroup style={styles.pad} />
-        <StyledAddExpenseIcon />
+        <StyledAddExpenseIcon className={smallDevice ? 'small' : ''} />
       </Toolbar>
     );
   }
@@ -44,6 +48,10 @@ const StyledAddExpenseIcon = styled(AddExpenseIcon)`
   position: absolute;
   right: 27px;
   bottom: -21px;
+  &.small {
+    bottom: 6px;
+    right: 11px;
+  }
 `;
 
 export function LinkButton({ label, to }: { label: string, to: string }) {
