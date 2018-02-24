@@ -4,7 +4,6 @@ import * as colors from '../Colors';
 import styled from 'styled-components';
 import { ExpenseTotals, money } from './ExpenseHelper';
 import { ExpenseStatus } from '../../../shared/types/Expense';
-const debug = require('debug')('bookkeeper:expense-table');
 
 interface StatusProps {
   unconfirmedBefore: boolean;
@@ -14,6 +13,40 @@ interface StatusProps {
   totals: ExpenseTotals | null;
   showFiltered: boolean;
   filteredTotals: ExpenseTotals | null;
+}
+
+export class MonthlyStatus extends React.Component<StatusProps, {}> {
+
+  public render() {
+    const income = this.props.totals ? this.props.totals.totalIncome : 0;
+    const expense = this.props.totals ? this.props.totals.totalExpense : 0;
+    const filteredIncome = this.props.filteredTotals ? this.props.filteredTotals.totalIncome : 0;
+    const filteredExpense = this.props.filteredTotals ? this.props.filteredTotals.totalExpense : 0;
+    const filteredStyle = { display: (!this.props.showFiltered ? 'none' : ''), backgroundColor: 'rgb(224, 224, 224)' };
+    const uncofirmedStyle = { background: this.props.unconfirmedBefore ? colors.unconfirmedStripes : undefined };
+    return (
+      <StatusContainer>
+        <MonthlyCalculation style={filteredStyle}>
+          <CalculationHeader>Suodatetut tulot ja menot</CalculationHeader>
+          <CalculationRow title="Tulot" sum={filteredIncome} />
+          <CalculationRow title="Menot" sum={Money.from(filteredExpense).abs().negate()} />
+          <CalculationRow title="" sum={Money.from(filteredIncome).minus(filteredExpense)} drawTopBorder={true} />
+        </MonthlyCalculation>
+        <MonthlyCalculation>
+          <CalculationHeader>Tulot ja menot</CalculationHeader>
+          <CalculationRow title="Tulot" sum={income} />
+          <CalculationRow title="Menot" sum={Money.from(expense).abs().negate()} />
+          <CalculationRow title="" sum={Money.from(income).minus(expense)} drawTopBorder={true} />
+        </MonthlyCalculation>
+        <MonthlyCalculation style={uncofirmedStyle}>
+          <CalculationHeader>Saatavat/velat</CalculationHeader>
+          <CalculationRow title="Ennen" sum={this.props.startStatus.balance} />
+          <CalculationRow title="Muutos" sum={this.props.monthStatus.balance} />
+          <CalculationRow title="" sum={this.props.endStatus.balance} drawTopBorder={true} />
+        </MonthlyCalculation>
+      </StatusContainer>
+    );
+  }
 }
 
 const CalculationRowContainer = styled.div`
@@ -61,47 +94,4 @@ function CalculationRow({ title, sum, drawTopBorder }: { title: string, sum: Mon
       <CalculationSum>{money(sum)}</CalculationSum>
     </CalculationRowContainer>
   );
-}
-
-export class MonthlyStatus extends React.Component<StatusProps, {}> {
-
-  public componentDidMount() {
-    debug(this.props);
-    debug(this.props.startStatus, this.props.monthStatus, this.props.endStatus);
-  }
-
-  public componentDidUpdate() {
-    debug(this.props.startStatus, this.props.monthStatus, this.props.endStatus);
-  }
-
-  public render() {
-    const income = this.props.totals ? this.props.totals.totalIncome : 0;
-    const expense = this.props.totals ? this.props.totals.totalExpense : 0;
-    const filteredIncome = this.props.filteredTotals ? this.props.filteredTotals.totalIncome : 0;
-    const filteredExpense = this.props.filteredTotals ? this.props.filteredTotals.totalExpense : 0;
-    const filteredStyle = { display: (!this.props.showFiltered ? 'none' : ''), backgroundColor: 'rgb(224, 224, 224)' };
-    const uncofirmedStyle = { background: this.props.unconfirmedBefore ? colors.unconfirmedStripes : undefined };
-    return (
-      <StatusContainer>
-        <MonthlyCalculation style={filteredStyle}>
-          <CalculationHeader>Suodatetut tulot ja menot</CalculationHeader>
-          <CalculationRow title="Tulot" sum={filteredIncome} />
-          <CalculationRow title="Menot" sum={Money.from(filteredExpense).abs().negate()} />
-          <CalculationRow title="" sum={Money.from(filteredIncome).minus(filteredExpense)} drawTopBorder={true} />
-        </MonthlyCalculation>
-        <MonthlyCalculation>
-          <CalculationHeader>Tulot ja menot</CalculationHeader>
-          <CalculationRow title="Tulot" sum={income} />
-          <CalculationRow title="Menot" sum={Money.from(expense).abs().negate()} />
-          <CalculationRow title="" sum={Money.from(income).minus(expense)} drawTopBorder={true} />
-        </MonthlyCalculation>
-        <MonthlyCalculation style={uncofirmedStyle}>
-          <CalculationHeader>Saatavat/velat</CalculationHeader>
-          <CalculationRow title="Ennen" sum={this.props.startStatus.balance} />
-          <CalculationRow title="Muutos" sum={this.props.monthStatus.balance} />
-          <CalculationRow title="" sum={this.props.endStatus.balance} drawTopBorder={true} />
-        </MonthlyCalculation>
-      </StatusContainer>
-    );
-  }
 }
