@@ -2,7 +2,6 @@ import * as React from 'react';
 import { monthPattern } from '../../util/Links';
 import { RouteComponentProps } from 'react-router';
 import MonthView from './MonthView';
-import { Moment } from 'moment';
 import { toMoment } from '../../../shared/util/Time';
 
 interface MonthRouteParams {
@@ -10,9 +9,9 @@ interface MonthRouteParams {
 }
 
 export default class RoutedMonthView extends React.Component<RouteComponentProps<MonthRouteParams>, {}> {
-  private getDate(): Moment {
-    if (!this.props.match.params.date) { return toMoment(); }
-    return toMoment(this.props.match.params.date, monthPattern);
+  private getDate(): Date {
+    if (!this.props.match.params.date) { return new Date(); }
+    return toMoment(this.props.match.params.date, monthPattern).toDate();
   }
 
   public render() {

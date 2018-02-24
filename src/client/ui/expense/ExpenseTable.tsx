@@ -8,12 +8,10 @@ import Money from '../../../shared/util/Money';
 import { MonthlyStatus } from './MonthlyStatus';
 import { UserExpense, ExpenseStatus, Expense } from '../../../shared/types/Expense';
 import { ExpenseTotals, ExpenseFilter, ExpenseFilterFunction } from './ExpenseHelper';
-import { Moment } from 'moment';
 import { connect } from '../component/BaconConnect';
 import { userDataE, UserDataProps } from '../../data/Categories';
 
 interface ExpenseTableProps {
-  date: Moment;
   expenses: UserExpense[];
   loading: boolean;
   startStatus: ExpenseStatus;
