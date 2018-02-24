@@ -4,19 +4,15 @@ import CategoryChart, { CategoryChartData } from './CategoryChart';
 import { Category, CategoryAndTotals } from '../../../shared/types/Session';
 import { AddCategoryButton } from './CategoryTools';
 import CategoryRow from './CategoryRow';
-import { History } from 'history';
 import { TypedDateRange } from '../../../shared/util/Time';
-import { categoriesForYear, categoriesForMonth } from '../../util/Links';
 import { Map } from '../../../shared/util/Objects';
 import { Action } from '../../../shared/types/Common';
-import { RangeSelector } from './RangeSelector';
 import { UserDataProps } from '../../data/Categories';
 const debug = require('debug')('bookkeeper:category-view');
 
 interface CategoryViewProps {
   categories: Category[];
   range: TypedDateRange;
-  history: History;
   categoryTotals: Map<CategoryAndTotals>;
   categoryChartData?: CategoryChartData[];
   onCategoriesChanged: Action;
@@ -53,15 +49,9 @@ export class CategoryTable extends React.Component<CategoryViewProps, {}> {
     this.props.onCategoriesChanged();
   }
 
-  private navigate = (d: Date) => {
-    const path = this.props.range.type === 'year' ? categoriesForYear(d) : categoriesForMonth(d);
-    this.props.history.push(path);
-  }
-
   public render() {
     return (
       <div className="category-table">
-        <RangeSelector range={this.props.range} onNavigate={this.navigate} />
         <CategoryChart chartData={this.props.categoryChartData} />
         <CategoryHeader onAdd={this.createCategory} />
         <div className="category-data-area">

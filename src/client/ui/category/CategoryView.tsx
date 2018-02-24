@@ -7,11 +7,12 @@ import { TypedDateRange, compareRanges } from '../../../shared/util/Time';
 import { unsubscribeAll } from '../../util/ClientUtil';
 import apiConnect from '../../data/ApiConnect';
 import { validSessionE, updateSession } from '../../data/Login';
-import { needUpdateE } from '../../data/State';
+import { needUpdateE, navigationBus } from '../../data/State';
 import { connect } from '../component/BaconConnect';
 import { CategoryTable } from './CategoryTable';
 import { CategoryChartData } from './CategoryChart';
 import { UserDataProps, userDataE } from '../../data/Categories';
+import { categoryPagePath } from '../../util/Links';
 
 interface CategoryViewProps {
   categories: Category[];
@@ -35,9 +36,9 @@ class CategoryView extends React.Component<CategoryViewProps, CategoryViewState>
     isLoading: true,
   };
 
-  public componentDidMount() {
-    this.loadCategories();
+  public async componentDidMount() {
     this.unsub.push(needUpdateE.onValue(this.loadCategories));
+    await this.loadCategories();
   }
 
   public componentDidUpdate(prevProps: CategoryViewProps) {
@@ -58,7 +59,7 @@ class CategoryView extends React.Component<CategoryViewProps, CategoryViewState>
     }));
   }
 
-  private async getCategoryTotals(): Promise<Map<CategoryAndTotals>> {
+  private getCategoryTotals = async (): Promise<Map<CategoryAndTotals>> => {
     const totals = await apiConnect.getCategoryTotals(this.props.range.start, this.props.range.end);
     const totalsMap: Map<CategoryAndTotals> = {};
     totals.forEach(t => {
@@ -71,6 +72,7 @@ class CategoryView extends React.Component<CategoryViewProps, CategoryViewState>
   }
 
   private loadCategories = async () => {
+    navigationBus.push({ pathPrefix: categoryPagePath, dateRange: this.props.range });
     this.setState({ isLoading: true });
     const categoryTotals = await this.getCategoryTotals();
     const categoryChartData = this.formCategoryChartData(categoryTotals);

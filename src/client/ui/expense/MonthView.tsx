@@ -1,14 +1,13 @@
 import * as React from 'react';
 import ExpenseTable from './ExpenseTable';
-import ExpenseNavigation from './ExpenseNavigation';
 import apiConnect from '../../data/ApiConnect';
 import { unsubscribeAll } from '../../util/ClientUtil';
 import { UserExpense, ExpenseStatus } from '../../../shared/types/Expense';
 import { zeroStatus } from './ExpenseHelper';
 import { History } from 'history';
-import { needUpdateE } from '../../data/State';
-import { toMoment, isSameMonth } from '../../../shared/util/Time';
-import { expensesForMonthPath } from '../../util/Links';
+import { needUpdateE, navigationBus } from '../../data/State';
+import { toMoment, isSameMonth, monthRange } from '../../../shared/util/Time';
+import { expensesForMonthPath, expensePagePath } from '../../util/Links';
 import { Moment } from 'moment';
 const debug = require('debug')('bookkeeper:month-view');
 
@@ -55,6 +54,7 @@ export default class MonthView extends React.Component<MonthViewProps, MonthView
   }
 
   private async loadExpenses(date: Moment) {
+    navigationBus.push({ dateRange: monthRange(date), pathPrefix: expensePagePath });
     this.setState({ loading: true, expenses: [], startStatus: zeroStatus, endStatus: zeroStatus, monthStatus: zeroStatus });
     const expenses = await apiConnect.getExpensesForMonth(date.get('year'), date.get('month') + 1);
     debug('Expenses for', date.toDate(), expenses);
@@ -81,7 +81,6 @@ export default class MonthView extends React.Component<MonthViewProps, MonthView
   public render() {
     return (
       <div className="content">
-        <ExpenseNavigation date={this.props.date} history={this.props.history} />
         <ExpenseTable
           date={this.props.date}
           expenses={this.state.expenses}

@@ -34,8 +34,12 @@ export function iso(m: any): string {
 const months = ['', 'Tammikuu', 'Helmikuu', 'Maaliskuu', 'Huhtikuu', 'Toukokuu', 'Kesäkuu', 'Heinäkuu', 'Elokuu',
   'Syyskuu', 'Lokakuu', 'Marraskuu', 'Joulukuu'];
 
-export function getFinnishMonthName(monthNumber: number | DateLike): string {
-  const i = typeof monthNumber === 'number' ? monthNumber : toMoment(monthNumber).get('month') + 1;
+export function getFinnishMonthName(monthNumber: number | string | DateLike): string {
+  if (typeof monthNumber === 'number') { return months[monthNumber]; }
+  if (typeof monthNumber === 'string' && /^[0-9]*$/.exec(monthNumber)) {
+    return months[parseInt(monthNumber, 10)];
+  }
+  const i = toMoment(monthNumber).get('month') + 1;
   return months[i];
 }
 
@@ -46,6 +50,24 @@ export interface DateRange {
 
 export interface TypedDateRange extends DateRange {
   type: 'year' | 'month';
+}
+
+export function toMonthName(x: DateLike) {
+  const m = toMoment(x);
+  return getFinnishMonthName(m.get('month') + 1) + ' ' + m.get('year');
+}
+
+export function toYearName(x: DateLike) {
+  const m = toMoment(x);
+  return '' + m.get('year');
+}
+
+export function toDateRangeName(x: TypedDateRange) {
+  switch (x.type) {
+    case 'month': return toMonthName(x.start);
+    case 'year': return toYearName(x.start);
+    default: return '?';
+  }
 }
 
 const yearRE = /[0-9]{4}/;

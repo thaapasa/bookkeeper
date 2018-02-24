@@ -1,8 +1,9 @@
 import * as B from 'baconjs';
-import { ConfirmationObject, ConfirmationAction, Notification, PickDateObject, ExpenseDialogObject } from './StateTypes';
-import { DateLike, toDate } from '../../shared/util/Time';
+import { ConfirmationObject, ConfirmationAction, Notification, PickDateObject, ExpenseDialogObject, NavigationConfig } from './StateTypes';
+import { DateLike, toDate, monthRange } from '../../shared/util/Time';
 import { ExpenseInEditor } from '../../shared/types/Expense';
 import { Size } from '../ui/Types';
+import { expensePagePath } from '../util/Links';
 
 /* Push event to confirmationBus to show a confirmation dialog */
 const confirmationBus = new B.Bus<any, ConfirmationObject<any>>();
@@ -71,6 +72,9 @@ export function updateExpenses(date: DateLike) {
 }
 
 export const needUpdateE = needUpdateBus;
+
+export const navigationBus = new B.Bus<any, NavigationConfig>();
+export const navigationP = navigationBus.toProperty({ pathPrefix: expensePagePath, dateRange: monthRange(new Date()) });
 
 export const windowSizeBus = new B.Bus<any, Size>();
 export const windowSizeP = windowSizeBus.toProperty();

@@ -25,12 +25,10 @@ html, body, #root {
 /** Expense table */
 .bk-table {
     font-size: 13px;
-    margin-top: 104px;
 }
 
 .bk-table-header.header {
     height: 32px !important;
-    top: 104px;
     border-top: none;
     border-bottom: 1px solid rgb(224, 224, 224);
 }
