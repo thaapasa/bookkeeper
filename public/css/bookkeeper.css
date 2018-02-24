@@ -10,17 +10,9 @@ html, body, #root {
     outline: none !important;
 }
 
-.tight {
-    padding: 0;
-    margin: 0;
-}
 .no-border {
     border: none !important;
 }
-.horizontal-padding { padding: 0 1em; }
-.vertical-padding { padding: 1em 0; }
-.top-margin { margin-top: 1em; }
-.bottom-margin { margin-bottom: 1em; }
 
 /** Expense table */
 .bk-table {
@@ -40,13 +32,6 @@ html, body, #root {
     white-space: nowrap;
     align-items: center;
 }
-
-.bk-item-half { flex-grow: 1; }
-
-/*.bk-table-header { top: 0; border-top: none; }*/
-/*.expense-table-start-status { bottom: 82px; border-bottom: 1px solid rgb(224, 224, 224); }
-.expense-table-month-status { bottom: 41px; }
-.expense-table-end-status { bottom: 0; }*/
 
 
 /* Categories */
@@ -96,9 +81,6 @@ html, body, #root {
 .Axis-Bottom .tick line {
     display: none;
 }
-
-.expense-row.unconfirmed {}
-.expense-row.income {}
 
 .bk-table-row.header,
 .category-table-header {
