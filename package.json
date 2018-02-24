@@ -16,6 +16,7 @@
     "eject-client": "react-scripts-ts eject",
     "update-revision": "sh script/update-revision.sh",
     "lint": "tslint --project .",
+    "deploy": "sh script/deploy.sh",
     "clean": "rm -rf build/ dist/ build-server/",
     "ps-server": "ps -ef | grep ./src/server/BokkeeperServer.ts | grep -v grep | awk '{ print $2; }'",
     "kill-server": "ps -ef | grep ./src/server/BookkeeperServer.ts | grep -v grep | awk '{ print $2; }' | xargs kill"

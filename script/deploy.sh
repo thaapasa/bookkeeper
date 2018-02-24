@@ -13,6 +13,6 @@ scp deploy/client-$REV.tar.gz deploy/server-$REV.tar.gz deployer@pomeranssi.fi:~
 
 echo "Deploying on server..."
 
-ssh deployer@pomeranssi.fi "bash --login -c 'cd ~/bookkeeper && git pull && script/install-prod.sh'"
+ssh deployer@pomeranssi.fi "bash --login -c 'cd ~/bookkeeper && git pull && script/install-prod.sh $REV'"
 
 popd >/dev/null
