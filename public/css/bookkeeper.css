@@ -16,10 +16,6 @@ html, body, #root {
 
 /* Categories */
 
-.category-table {
-    font-size: 13px;
-}
-
 .category-table-row {
     height: 41px !important;
     display: flex;
@@ -28,7 +24,6 @@ html, body, #root {
     align-items: center;
 }
 .category-table-time-select { height: 61px !important; }
-.category-table-header { top: 61px; }
 .bk-table-data-area {
     overflow-y: auto;
     overflow-x: hidden;
