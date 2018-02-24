@@ -32,9 +32,4 @@ cd ..
 
 echo "Client built"
 
-echo "Copying files to production..."
-
-ssh deployer@pomeranssi.fi "mkdir -p bookkeeper/deploy" || exit -1
-scp deploy/client-$REV.tar.gz deploy/server-$REV.tar.gz deployer@pomeranssi.fi:~/bookkeeper/deploy || exit -1
-
 popd >/dev/null
