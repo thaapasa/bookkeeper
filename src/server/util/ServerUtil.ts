@@ -1,10 +1,10 @@
 import { config } from '../Config';
 import sessions from '../data/Sessions';
-import moment from 'moment';
 import { db } from '../data/Db';
 import { SessionBasicInfo } from '../../shared/types/Session';
 import { Request, Response } from 'express';
 import { TokenNotPresentError, InvalidGroupError } from '../../shared/types/Errors';
+import { toMoment } from '../../shared/util/Time';
 const debug = require('debug')('bookkeeper:server');
 
 interface ErrorInfo {
@@ -60,7 +60,7 @@ const httpDateHeaderPattern = 'ddd, DD MMM YYYY HH:mm:ss';
 function setNoCacheHeaders(res: Response): Response {
   res.set('Cache-Control', 'private, no-cache, no-store, must-revalidate, max-age=0');
   res.set('Pragma', 'no-cache');
-  const time = moment().utc().format(httpDateHeaderPattern) + ' GMT';
+  const time = toMoment().utc().format(httpDateHeaderPattern) + ' GMT';
   res.set('Date', time);
   res.set('Expires', time);
   return res;

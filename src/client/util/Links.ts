@@ -6,10 +6,10 @@ export const categoryPagePath = '/p/kategoriat';
 export const yearPattern = 'YYYY';
 export const monthPattern = 'YYYY-MM';
 export function expenseMonthPathPattern(variable: string) {
-  return expensePagePath + '/:' + variable;
+  return expensePagePath + '/m/:' + variable;
 }
 export function expensesForMonthPath(date: DateLike) {
-  return expensePagePath + '/' + toMoment(date).format(monthPattern);
+  return expensePagePath + '/m/' + toMoment(date).format(monthPattern);
 }
 
 export function categoryViewYearPattern(variable: string) {
@@ -24,4 +24,12 @@ export function categoryViewMonthPattern(variable: string) {
 }
 export function categoriesForMonth(date: DateLike) {
   return categoryPagePath + '/m/' + toMoment(date).format(monthPattern);
+}
+
+export function monthSuffix(date: DateLike) {
+  return '/m/' + toMoment(date).format(monthPattern);
+}
+
+export function yearSuffix(date: DateLike) {
+  return '/y/' + toMoment(date).format(yearPattern);
 }

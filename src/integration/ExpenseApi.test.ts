@@ -1,15 +1,12 @@
 import 'jest';
 
-// There is some kind of a bug in moment inclusion with regards to running in browser/node and when running tests
-// See https://github.com/aurelia/skeleton-navigation/issues/606
-// For now, use this syntax in unit tests to make things work
-import moment from 'moment';
 import Money from '../shared/util/Money';
 import { findUserId, newExpense, cleanup, checkCreateStatus, division } from '../shared/util/test/ExpenseHelper';
 import { SessionWithControl, getSession } from '../shared/util/test/TestClient';
 import { Expense, ExpenseCollection, ExpenseStatus } from '../shared/types/Expense';
 import { ApiMessage } from '../shared/types/Api';
 import { expectThrow } from '../shared/util/test/TestUtil';
+import { toMoment } from '../shared/util/Time';
 
 function checkValueAndBalance(status: ExpenseStatus, i: any, name: string) {
   expect(status.value).toEqual(Money.from(status.cost).plus(status.benefit).plus(status.income).plus(status.split).toString());
@@ -111,12 +108,12 @@ describe('expense', () => {
   });
 
   it('should return expenses for correct month', async () => {
-    const monthStart = moment({ year: 2017, month: 0, day: 1 });
-    const monthEnd = moment({ year: 2017, month: 1, day: 1 });
+    const monthStart = toMoment({ year: 2017, month: 0, day: 1 });
+    const monthEnd = toMoment({ year: 2017, month: 1, day: 1 });
     const s = await session.get<ExpenseCollection>('/api/expense/month', { year: 2017, month: 1 });
     s.expenses.forEach(e =>
-      expect(moment(e.date).isBefore(monthEnd)).toEqual(true) &&
-      expect(moment(e.date).isSameOrAfter(monthStart)).toEqual(true),
+      expect(toMoment(e.date).isBefore(monthEnd)).toEqual(true) &&
+      expect(toMoment(e.date).isSameOrAfter(monthStart)).toEqual(true),
     );
   });
 

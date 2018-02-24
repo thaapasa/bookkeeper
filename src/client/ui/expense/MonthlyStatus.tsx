@@ -4,7 +4,6 @@ import * as colors from '../Colors';
 import styled from 'styled-components';
 import { ExpenseTotals, money } from './ExpenseHelper';
 import { ExpenseStatus } from '../../../shared/types/Expense';
-import { fixedHorizontal } from '../Styles';
 const debug = require('debug')('bookkeeper:expense-table');
 
 interface StatusProps {
@@ -34,9 +33,8 @@ const CalculationSum = styled.div`
   text-align: right;
 `;
 
-const StatusContainer = fixedHorizontal.extend`
+const StatusContainer = styled.div`
   height: 130px;
-  bottom: 0;
   display: flex;
   justify-content: flex-end;
   font-size: 14px;

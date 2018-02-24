@@ -1,4 +1,5 @@
 import * as React from 'react';
+import * as B from 'baconjs';
 import { History } from 'history';
 import { Map } from '../../../shared/util/Objects';
 import { Category, CategoryAndTotals } from '../../../shared/types/Session';
@@ -6,15 +7,18 @@ import { TypedDateRange, compareRanges } from '../../../shared/util/Time';
 import { unsubscribeAll } from '../../util/ClientUtil';
 import apiConnect from '../../data/ApiConnect';
 import { validSessionE, updateSession } from '../../data/Login';
-import { needUpdateE } from '../../data/State';
+import { needUpdateE, navigationBus } from '../../data/State';
 import { connect } from '../component/BaconConnect';
 import { CategoryTable } from './CategoryTable';
 import { CategoryChartData } from './CategoryChart';
+import { UserDataProps, userDataE } from '../../data/Categories';
+import { categoryPagePath } from '../../util/Links';
 
 interface CategoryViewProps {
   categories: Category[];
   range: TypedDateRange;
   history: History;
+  userData: UserDataProps;
 }
 
 interface CategoryViewState {
@@ -32,9 +36,9 @@ class CategoryView extends React.Component<CategoryViewProps, CategoryViewState>
     isLoading: true,
   };
 
-  public componentDidMount() {
-    this.loadCategories();
+  public async componentDidMount() {
     this.unsub.push(needUpdateE.onValue(this.loadCategories));
+    await this.loadCategories();
   }
 
   public componentDidUpdate(prevProps: CategoryViewProps) {
@@ -55,7 +59,7 @@ class CategoryView extends React.Component<CategoryViewProps, CategoryViewState>
     }));
   }
 
-  private async getCategoryTotals(): Promise<Map<CategoryAndTotals>> {
+  private getCategoryTotals = async (): Promise<Map<CategoryAndTotals>> => {
     const totals = await apiConnect.getCategoryTotals(this.props.range.start, this.props.range.end);
     const totalsMap: Map<CategoryAndTotals> = {};
     totals.forEach(t => {
@@ -68,6 +72,7 @@ class CategoryView extends React.Component<CategoryViewProps, CategoryViewState>
   }
 
   private loadCategories = async () => {
+    navigationBus.push({ pathPrefix: categoryPagePath, dateRange: this.props.range });
     this.setState({ isLoading: true });
     const categoryTotals = await this.getCategoryTotals();
     const categoryChartData = this.formCategoryChartData(categoryTotals);
@@ -84,6 +89,7 @@ class CategoryView extends React.Component<CategoryViewProps, CategoryViewState>
       <div className="content">
         <CategoryTable
           {...this.props}
+          userData={this.props.userData}
           onCategoriesChanged={this.refresh}
           categoryTotals={this.state.categoryTotals}
           categoryChartData={this.state.categoryChartData} />
@@ -93,4 +99,7 @@ class CategoryView extends React.Component<CategoryViewProps, CategoryViewState>
 
 }
 
-export default connect(validSessionE.map(s => ({ categories: s.categories })))(CategoryView);
+export default connect(B.combineTemplate<any, { categories: Category[], userData: UserDataProps }>({
+  categories: validSessionE.map(s => s.categories),
+  userData: userDataE,
+}))(CategoryView);

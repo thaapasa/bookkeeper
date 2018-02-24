@@ -1,15 +1,16 @@
-import moment from 'moment';
 import { leftPad } from './Util';
+import { Moment, isMoment, MomentInput } from 'moment';
+const moment = require('moment');
 
-export type DateLike = Date | moment.Moment | string;
+export type DateLike = Date | Moment | string;
 
-export function month(year: number, mon: number): moment.Moment {
+export function month(year: number, mon: number): Moment {
   return moment({ year, month: mon - 1, day: 1 });
 }
 
-export function toMoment(d: DateLike): moment.Moment {
-  if (moment.isMoment(d)) { return d; }
-  return moment(d);
+export function toMoment(d?: MomentInput, pattern?: string): Moment {
+  if (isMoment(d)) { return d; }
+  return moment(d, pattern);
 }
 
 export function toDate(d: DateLike): Date {
@@ -22,7 +23,7 @@ export function formatDate(m: any): string {
   const mom = moment.isMoment(m) ? m : moment(m);
   return mom.format(datePattern);
 }
-export function fromDate(str: any): moment.Moment {
+export function fromDate(str: any): Moment {
   return moment(str, datePattern);
 }
 
@@ -33,8 +34,12 @@ export function iso(m: any): string {
 const months = ['', 'Tammikuu', 'Helmikuu', 'Maaliskuu', 'Huhtikuu', 'Toukokuu', 'Kesäkuu', 'Heinäkuu', 'Elokuu',
   'Syyskuu', 'Lokakuu', 'Marraskuu', 'Joulukuu'];
 
-export function getFinnishMonthName(monthNumber: number | DateLike): string {
-  const i = typeof monthNumber === 'number' ? monthNumber : toMoment(monthNumber).get('month') + 1;
+export function getFinnishMonthName(monthNumber: number | string | DateLike): string {
+  if (typeof monthNumber === 'number') { return months[monthNumber]; }
+  if (typeof monthNumber === 'string' && /^[0-9]*$/.exec(monthNumber)) {
+    return months[parseInt(monthNumber, 10)];
+  }
+  const i = toMoment(monthNumber).get('month') + 1;
   return months[i];
 }
 
@@ -47,9 +52,27 @@ export interface TypedDateRange extends DateRange {
   type: 'year' | 'month';
 }
 
+export function toMonthName(x: DateLike) {
+  const m = toMoment(x);
+  return getFinnishMonthName(m.get('month') + 1) + ' ' + m.get('year');
+}
+
+export function toYearName(x: DateLike) {
+  const m = toMoment(x);
+  return '' + m.get('year');
+}
+
+export function toDateRangeName(x: TypedDateRange) {
+  switch (x.type) {
+    case 'month': return toMonthName(x.start);
+    case 'year': return toYearName(x.start);
+    default: return '?';
+  }
+}
+
 const yearRE = /[0-9]{4}/;
 
-function fromYearValue(y: DateLike): moment.Moment | undefined {
+function fromYearValue(y: DateLike): Moment | undefined {
   if (typeof y === 'number' || (typeof y === 'string' && yearRE.test(y))) {
     const year = parseInt(y, 10);
     return moment(leftPad(year, 4, '0') + '-01-01');

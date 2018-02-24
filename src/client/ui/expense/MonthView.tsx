@@ -1,19 +1,17 @@
 import * as React from 'react';
 import ExpenseTable from './ExpenseTable';
-import ExpenseNavigation from './ExpenseNavigation';
 import apiConnect from '../../data/ApiConnect';
 import { unsubscribeAll } from '../../util/ClientUtil';
-import moment from 'moment';
 import { UserExpense, ExpenseStatus } from '../../../shared/types/Expense';
 import { zeroStatus } from './ExpenseHelper';
 import { History } from 'history';
-import { needUpdateE } from '../../data/State';
-import { toMoment, isSameMonth } from '../../../shared/util/Time';
-import { expensesForMonthPath } from '../../util/Links';
+import { needUpdateE, navigationBus } from '../../data/State';
+import { toMoment, isSameMonth, monthRange } from '../../../shared/util/Time';
+import { expensesForMonthPath, expensePagePath } from '../../util/Links';
 const debug = require('debug')('bookkeeper:month-view');
 
 interface MonthViewProps {
-  date: moment.Moment;
+  date: Date;
   history: History;
 }
 
@@ -26,7 +24,7 @@ interface MonthViewState {
   unconfirmedBefore: boolean;
 }
 
-export default class MonthView extends React.Component<MonthViewProps, MonthViewState> {
+export default class MonthView extends React.PureComponent<MonthViewProps, MonthViewState> {
 
   private unsub: any[] = [];
 
@@ -45,7 +43,7 @@ export default class MonthView extends React.Component<MonthViewProps, MonthView
   }
 
   public async componentWillUpdate(newProps: MonthViewProps) {
-    if (newProps.date !== this.props.date) {
+    if (!toMoment(newProps.date).isSame(this.props.date, 'month')) {
       this.loadExpenses(newProps.date);
     }
   }
@@ -54,19 +52,20 @@ export default class MonthView extends React.Component<MonthViewProps, MonthView
     unsubscribeAll(this.unsub);
   }
 
-  private async loadExpenses(date: moment.Moment) {
+  private async loadExpenses(date: Date) {
+    navigationBus.push({ dateRange: monthRange(date), pathPrefix: expensePagePath });
     this.setState({ loading: true, expenses: [], startStatus: zeroStatus, endStatus: zeroStatus, monthStatus: zeroStatus });
-    const expenses = await apiConnect.getExpensesForMonth(date.get('year'), date.get('month') + 1);
-    debug('Expenses for', date.toDate(), expenses);
+    const m = toMoment(date);
+    const expenses = await apiConnect.getExpensesForMonth(m.get('year'), m.get('month') + 1);
+    debug('Expenses for', date, expenses);
     this.setState({ loading: false, ...expenses });
   }
 
   private refreshExpensesFor = (date: Date) => {
     debug('Expenses updated, refreshing for date', date);
-    const m = toMoment(date);
-    if (isSameMonth(m, this.props.date)) {
+    if (isSameMonth(date, this.props.date)) {
       debug('Reloading expenses for this month');
-      this.loadExpenses(m);
+      this.loadExpenses(date);
     } else {
       const path = expensesForMonthPath(date);
       debug('Navigating to', path);
@@ -81,9 +80,7 @@ export default class MonthView extends React.Component<MonthViewProps, MonthView
   public render() {
     return (
       <div className="content">
-        <ExpenseNavigation date={this.props.date} history={this.props.history} />
         <ExpenseTable
-          date={this.props.date}
           expenses={this.state.expenses}
           loading={this.state.loading}
           startStatus={this.state.startStatus}

@@ -15,19 +15,31 @@ export function connect<
 >(source: B.Observable<any, TBaconProps>): InferableComponentEnhancerWithProps<TBaconProps, TNeedsProps> {
   return <P extends TBaconProps>(component: React.ComponentType<P>):
     React.ComponentClass<Omit<P, keyof TBaconProps> & TNeedsProps> => {
-    return class ConnectedComponent extends React.Component<Omit<P, keyof TBaconProps> & TNeedsProps, TBaconProps & { hasReceivedProps: boolean }> {
+    return class extends React.Component<Omit<P, keyof TBaconProps> & TNeedsProps, TBaconProps & { hasReceivedProps: boolean }> {
+
       public state: Readonly<TBaconProps & { hasReceivedProps: boolean }> = { hasReceivedProps: false } as any;
       private unsub: Action[] = [];
+      private mounted: boolean = false;
+
       public componentDidMount() {
-        this.unsub.push(source.onValue(data => this.setState({ ...(data as any), hasReceivedProps: true })));
+        this.mounted = true;
+        this.unsub.push(source.onValue(this.setData));
       }
+
       public componentWillUnmount() {
+        this.mounted = false;
         unsubscribeAll(this.unsub);
       }
+
+      private setData = (data: TBaconProps) => {
+        if (!this.mounted) { return; }
+        this.setState({ ...(data as any), hasReceivedProps: true });
+      }
+
       public render() {
         return this.state.hasReceivedProps ?
           React.createElement(component,
-            { ...(this.props as any), ...(this.state as any) } as any,
+            { ...(this.state as any), ...(this.props as any) } as any,
             this.props.children) :
           null;
       }

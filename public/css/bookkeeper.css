@@ -1,7 +1,9 @@
-html, body {
+html, body, #root {
     font-family: Roboto, sans-serif;
     margin: 0;
     padding: 0;
+    width: 100%;
+    height: 100%;
 }
 
 [tabindex] {
@@ -20,27 +22,13 @@ html, body {
 .top-margin { margin-top: 1em; }
 .bottom-margin { margin-bottom: 1em; }
 
-.fixed-horizontal {
-    position: fixed;
-    width: 100%;
-    background-color: white;
-    z-index: 10;
-}
-
-.top-bar {
-    height: 56px !important;
-    top: 0;
-}
-
 /** Expense table */
 .bk-table {
     font-size: 13px;
-    margin-top: 104px;
 }
 
 .bk-table-header.header {
     height: 32px !important;
-    top: 104px;
     border-top: none;
     border-bottom: 1px solid rgb(224, 224, 224);
 }

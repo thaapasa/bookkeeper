@@ -4,21 +4,19 @@ import CategoryChart, { CategoryChartData } from './CategoryChart';
 import { Category, CategoryAndTotals } from '../../../shared/types/Session';
 import { AddCategoryButton } from './CategoryTools';
 import CategoryRow from './CategoryRow';
-import { History } from 'history';
 import { TypedDateRange } from '../../../shared/util/Time';
-import { RangeSelector } from './RangeSelector';
-import { categoriesForYear, categoriesForMonth } from '../../util/Links';
 import { Map } from '../../../shared/util/Objects';
 import { Action } from '../../../shared/types/Common';
+import { UserDataProps } from '../../data/Categories';
 const debug = require('debug')('bookkeeper:category-view');
 
 interface CategoryViewProps {
   categories: Category[];
   range: TypedDateRange;
-  history: History;
   categoryTotals: Map<CategoryAndTotals>;
   categoryChartData?: CategoryChartData[];
   onCategoriesChanged: Action;
+  userData: UserDataProps;
 }
 
 function CategoryHeader({ onAdd }: { onAdd: (p?: Category) => void }) {
@@ -51,15 +49,9 @@ export class CategoryTable extends React.Component<CategoryViewProps, {}> {
     this.props.onCategoriesChanged();
   }
 
-  private navigate = (d: Date) => {
-    const path = this.props.range.type === 'year' ? categoriesForYear(d) : categoriesForMonth(d);
-    this.props.history.push(path);
-  }
-
   public render() {
     return (
       <div className="category-table">
-        <RangeSelector range={this.props.range} onNavigate={this.navigate} />
         <CategoryChart chartData={this.props.categoryChartData} />
         <CategoryHeader onAdd={this.createCategory} />
         <div className="category-data-area">
@@ -73,11 +65,11 @@ export class CategoryTable extends React.Component<CategoryViewProps, {}> {
   private renderSubCategory = (c: Category) => {
     return (
       <React.Fragment key={'subcategory-' + c.id}>
-        <CategoryRow category={c} header={true}
+        <CategoryRow category={c} header={true} userData={this.props.userData}
           categoryTotals={this.props.categoryTotals}
           createCategory={this.createCategory} editCategory={this.editCategory}
           range={this.props.range} />
-        {c.children.map(ch => <CategoryRow key={ch.id}
+        {c.children.map(ch => <CategoryRow key={ch.id} userData={this.props.userData}
           header={false} category={ch} categoryTotals={this.props.categoryTotals}
           createCategory={this.createCategory} editCategory={this.editCategory}
           range={this.props.range} />)}

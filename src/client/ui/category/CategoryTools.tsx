@@ -1,8 +1,8 @@
 import * as React from 'react';
-import moment from 'moment';
 import DatePicker from 'material-ui/DatePicker';
 import { Category } from '../../../shared/types/Session';
 import { ToolIcon, Edit, ExpandLess, ExpandMore, Add } from '../Icons';
+import { toMoment } from '../../../shared/util/Time';
 
 export class AddCategoryButton extends React.PureComponent<{
   onAdd: (p?: Category) => void;
@@ -51,7 +51,7 @@ export class ToggleButton extends React.PureComponent<{
 
 export class CategoryDatePicker extends React.PureComponent<{ value: Date, onChange: (d: Date) => void, label: string }, {}> {
   private onChange = (_: any, date: Date) => this.props.onChange(date);
-  private formatDate = (date: Date) => moment(date).format('D.M.YYYY');
+  private formatDate = (date: Date) => toMoment(date).format('D.M.YYYY');
   public render() {
     return (
       <DatePicker

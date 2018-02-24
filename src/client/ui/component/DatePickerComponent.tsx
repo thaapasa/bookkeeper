@@ -1,10 +1,10 @@
 import * as React from 'react';
-import moment from 'moment';
 import DatePicker from 'material-ui/DatePicker';
 import { PickDateObject } from '../../data/StateTypes';
 import { Action } from '../../../shared/types/Common';
 import { pickDateE } from '../../data/State';
 import { unsubscribeAll } from '../../util/ClientUtil';
+import { toMoment } from '../../../shared/util/Time';
 const debug = require('debug')('bookkeeper:date-picker');
 
 interface DatePickerProps {
@@ -21,7 +21,7 @@ class DatePickerComponent extends React.Component<DatePickerProps, {}> {
     debug('Dismissing date picker');
     this.props.pick.resolve(undefined);
   }
-  private formatDate = (d: Date) => moment(d).format('D.M.YYYY');
+  private formatDate = (d: Date) => toMoment(d).format('D.M.YYYY');
 
   private setRef = (ref: DatePicker | null) => {
     if (ref) {
