@@ -2,6 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 import { colorScheme } from '../Colors';
 import { media } from '../Styles';
+import { Recurring } from '../Icons';
 
 const tableBgColor = colorScheme.primary.light;
 const separatorColor = colorScheme.gray.standard;
@@ -33,11 +34,33 @@ const OptionalColumn = Column.extend`
 
 const textColWidth = '20%';
 
+const recurringIconStyle = { width: 20, height: 20, color: colorScheme.secondary.light };
+export function RecurringExpenseIcon() {
+  return (
+    <Corner><Recurring style={recurringIconStyle} /></Corner>
+  );
+}
+
+const Corner = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50px;
+  height: 50px;
+  padding-top: 18px;
+  background-color: ${colorScheme.gray.light};
+  transform: rotate(45deg);
+  top: -32px;
+  left: -31px;
+  z-index: 0;
+`;
+
 export const DateColumn = Column.extend`
   text-align: right;
   width: 40px;
+  position: relative;
 `;
-export const AvatarColumn = OptionalColumn.extend`
+export const AvatarColumn = Column.extend`
   padding: 0 8px;
   padding-top: 1px;
   width: 32px;

@@ -1,9 +1,10 @@
 import * as React from 'react';
+import styled from 'styled-components';
 import apiConnect from '../../data/ApiConnect';
 import { UserAvatar } from '../component/UserAvatar';
 import ActivatableTextField from '../component/ActivatableTextField';
 import { PlainTextField } from '../component/PlainTextField';
-import { ExpandLess, ExpandMore, Delete, Edit, Repeat, ToolIcon } from '../Icons';
+import { ExpandLess, ExpandMore, Delete, Edit, ToolIcon } from '../Icons';
 import * as colors from '../Colors';
 import { PlainReceiverField } from './ExpenseDialogComponents';
 import ExpenseInfo from './details/ExpenseInfo';
@@ -17,7 +18,7 @@ import { Map } from '../../../shared/util/Objects';
 import { toDate, formatDate, toMoment } from '../../../shared/util/Time';
 import { ExpenseFilterFunction } from './ExpenseFilterRow';
 import { equal, notEqual } from '../Symbols';
-import { DateColumn, AvatarColumn, NameColumn, ReceiverColumn, CategoryColumn, SourceColumn, SumColumn, BalanceColumn, ToolColumn, Row } from './ExpenseTableLayout';
+import { RecurringExpenseIcon, DateColumn, AvatarColumn, NameColumn, ReceiverColumn, CategoryColumn, SourceColumn, SumColumn, BalanceColumn, ToolColumn, Row } from './ExpenseTableLayout';
 
 const emptyDivision: ExpenseDivisionItem[] = [];
 
@@ -82,9 +83,9 @@ export class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState
     this.props.onUpdated(newData);
   }
 
-  private editDate = async (expense: UserExpense) => {
+  private editDate = async () => {
     try {
-      const date = await pickDate(toMoment(expense.date).toDate());
+      const date = await pickDate(toMoment(this.props.expense.date).toDate());
       this.updateExpense({ date: formatDate(date) });
       return true;
     } catch (e) {
@@ -161,7 +162,10 @@ export class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState
     return (
       <React.Fragment>
         <Row>
-          <DateColumn onClick={() => this.editDate(expense)}>{toMoment(expense.date).format('D.M.')}</DateColumn>
+          <DateColumn onClick={this.editDate}>
+            {expense.recurringExpenseId ? <RecurringExpenseIcon /> : null}
+            <DateContainer>{toMoment(expense.date).format('D.M.')}</DateContainer>
+          </DateColumn>
           <AvatarColumn>
             <UserAvatar user={this.props.userMap[expense.userId]} size={32} onClick={
               () => this.props.addFilter(
@@ -171,8 +175,6 @@ export class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState
             } />
           </AvatarColumn>
           <NameColumn>
-            {expense.recurringExpenseId ?
-              <div style={{ display: 'inline-block', width: '14pt', verticalAlign: 'top' }}><Repeat style={{ width: '12pt', height: '12pt', position: 'absolute' }} /></div> : ''}
             <ActivatableTextField
               editorType={PlainTextField}
               name="title" value={expense.title}
@@ -234,3 +236,8 @@ export default class ExpenseRowMapper extends React.Component<CommonExpenseRowPr
     );
   }
 }
+
+const DateContainer = styled.div`
+  position: relative;
+  z-index: 1;
+`;
