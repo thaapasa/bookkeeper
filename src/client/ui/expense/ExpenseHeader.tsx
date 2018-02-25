@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { ExpenseRowContainer } from './ExpenseRow';
 import { colorScheme } from '../Colors';
+import { ExpenseRowContainer } from './ExpenseHelper';
 
 export default function ExpenseHeader() {
   return (

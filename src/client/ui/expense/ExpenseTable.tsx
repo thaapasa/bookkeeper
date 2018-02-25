@@ -1,17 +1,16 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import Avatar from 'material-ui/Avatar';
-import Chip from 'material-ui/Chip';
 import ExpenseRow from './ExpenseRow';
 import ExpenseHeader from './ExpenseHeader';
 import RefreshIndicator from 'material-ui/RefreshIndicator';
 import Money from '../../../shared/util/Money';
 import { MonthlyStatus } from './MonthlyStatus';
 import { UserExpense, ExpenseStatus, Expense } from '../../../shared/types/Expense';
-import { ExpenseTotals, ExpenseFilter, ExpenseFilterFunction } from './ExpenseHelper';
+import { ExpenseTotals } from './ExpenseHelper';
 import { connect } from '../component/BaconConnect';
 import { userDataE, UserDataProps } from '../../data/Categories';
 import { colorScheme } from '../Colors';
+import ExpenseFilterRow, { ExpenseFilter, ExpenseFilterFunction } from './ExpenseFilterRow';
 
 interface ExpenseTableProps {
   expenses: UserExpense[];
@@ -52,6 +51,10 @@ class ExpenseTable extends React.Component<ExpenseTableProps, ExpenseTableState>
     return this.props.expenses ? this.state.filters.reduce((a, b) => a.filter(b.filter), this.props.expenses) : [];
   }
 
+  private onUpdateExpense = (e: UserExpense) => {
+    this.props.onUpdateExpense(e.id, e);
+  }
+
   private renderExpense = (expense: UserExpense) => {
     return (
       <ExpenseRow
@@ -59,8 +62,7 @@ class ExpenseTable extends React.Component<ExpenseTableProps, ExpenseTableState>
         userData={this.props.userData}
         key={'expense-row-' + expense.id}
         addFilter={this.addFilter}
-        // tslint:disable-next-line jsx-no-lambda
-        onUpdated={e => this.props.onUpdateExpense(expense.id, e)} />
+        onUpdated={this.onUpdateExpense} />
     );
   }
 
@@ -71,34 +73,8 @@ class ExpenseTable extends React.Component<ExpenseTableProps, ExpenseTableState>
     return { totalIncome: income, totalExpense: expense };
   }
 
-  private renderFilterRow() {
-    if (this.state.filters.length === 0) { return null; }
-    return (
-      <div className="expense-row bk-table-row" key="filters">
-        <div className="expense-filters">{
-          this.state.filters.map((f, index) => <Chip
-            key={index}
-            style={{ margin: '0.3em', padding: 0 }}
-            // tslint:disable-next-line jsx-no-lambda
-            onRequestDelete={() => this.removeFilter(index)}>
-            {f.avatar ? <Avatar src={f.avatar} /> : null}
-            {f.name}
-          </Chip>)
-        }</div>
-      </div>
-    );
-  }
-
-  private renderLoadingIndicator() {
-    return (
-      <div className="loading-indicator-big">
-        <RefreshIndicator left={-30} top={-30} status="loading" size={60} />
-      </div>
-    );
-  }
-
-  private renderContents() {
-    if (this.props.loading) { return this.renderLoadingIndicator(); }
+  private renderExpenseRows() {
+    if (this.props.loading) { return <LoadingIndicator />; }
     const filtered = this.getFilteredExpenses();
     return filtered.map(this.renderExpense);
   }
@@ -108,8 +84,8 @@ class ExpenseTable extends React.Component<ExpenseTableProps, ExpenseTableState>
       <ExpenseTableContainer>
         <ExpenseHeader />
         <ExpenseDataArea>
-          {this.renderFilterRow()}
-          {this.renderContents()}
+          <ExpenseFilterRow filters={this.state.filters} onRemoveFilter={this.removeFilter} />
+          {this.renderExpenseRows()}
         </ExpenseDataArea>
         <MonthlyStatus
           {...this.props}
@@ -123,6 +99,20 @@ class ExpenseTable extends React.Component<ExpenseTableProps, ExpenseTableState>
 }
 
 export default connect(userDataE.map(userData => ({ userData })))(ExpenseTable);
+
+function LoadingIndicator() {
+  return (
+    <RefreshIndicatorContainer>
+      <RefreshIndicator left={-30} top={-30} status="loading" size={60} />
+    </RefreshIndicatorContainer>
+  );
+}
+
+const RefreshIndicatorContainer = styled.div`
+  position: absolute;
+  left: 50%;
+  top: 50%;
+`;
 
 const ExpenseTableContainer = styled.div`
   font-size: 13px;

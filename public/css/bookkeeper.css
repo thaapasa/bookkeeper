@@ -61,15 +61,6 @@ html, body, #root {
 .category-table-header {
     font-weight: 600;
 }
-.expense-filters {
-    text-align: center;
-    flex-grow: 1;
-    align-items: center;
-}
-.expense-filters > div {
-    display: inline-flex !important;
-    vertical-align: middle;
-}
 .expense-detail {
     margin: 0em 0.4em;
     padding: 0;

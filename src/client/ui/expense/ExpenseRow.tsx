@@ -1,5 +1,4 @@
 import * as React from 'react';
-import styled from 'styled-components';
 import apiConnect from '../../data/ApiConnect';
 import { UserAvatar } from '../component/UserAvatar';
 import ActivatableTextField from '../component/ActivatableTextField';
@@ -8,7 +7,7 @@ import { ExpandLess, ExpandMore, Delete, Edit, Repeat, ToolIcon } from '../Icons
 import * as colors from '../Colors';
 import { PlainReceiverField } from './ExpenseDialogComponents';
 import ExpenseDivision from './ExpenseDivision';
-import { expenseName,  ExpenseFilterFunction } from './ExpenseHelper';
+import { expenseName, ExpenseRowContainer } from './ExpenseHelper';
 import Money from '../../../shared/util/Money';
 import { Expense, UserExpense, UserExpenseWithDetails, ExpenseDivisionItem, RecurringExpenseTarget } from '../../../shared/types/Expense';
 import { User, Source, Category } from '../../../shared/types/Session';
@@ -16,6 +15,8 @@ import { pickDate, notifyError, notify, confirm, updateExpenses, editExpense } f
 import { getFullCategoryName, UserDataProps } from '../../data/Categories';
 import { Map } from '../../../shared/util/Objects';
 import { toDate, formatDate, toMoment } from '../../../shared/util/Time';
+import { ExpenseFilterFunction } from './ExpenseFilterRow';
+import { equal, notEqual } from '../Symbols';
 
 const emptyDivision: ExpenseDivisionItem[] = [];
 
@@ -188,8 +189,8 @@ export class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState
           <div className="expense-detail sum">{Money.from(expense.sum).format()}</div>
           <div className="expense-detail balance optional" style={{ color: colors.forMoney(expense.userBalance) }} onClick={
             () => Money.zero.equals(expense.userBalance) ?
-              this.props.addFilter(e => Money.zero.equals(e.userBalance), 'Balanssi == 0') :
-              this.props.addFilter(e => !Money.zero.equals(e.userBalance), 'Balanssi != 0')
+              this.props.addFilter(e => Money.zero.equals(e.userBalance), `Balanssi ${equal} 0`) :
+              this.props.addFilter(e => !Money.zero.equals(e.userBalance), `Balanssi ${notEqual} 0`)
           }>{Money.from(expense.userBalance).format()}</div>
           <div className="expense-detail tools">
             <ToolIcon title="Tiedot" onClick={() => this.toggleDetails(expense, this.state.details)} icon={this.state.details ? ExpandLess : ExpandMore} />
@@ -232,13 +233,3 @@ export default class ExpenseRowMapper extends React.Component<CommonExpenseRowPr
     );
   }
 }
-
-export const ExpenseRowContainer = styled.div`
-  position: relative;
-  height: 41px !important;
-  display: flex;
-  border-top: 1px solid ${colors.colorScheme.gray.standard};
-  background-color: ${colors.colorScheme.primary.light};
-  white-space: nowrap;
-  align-items: center;
-`;
