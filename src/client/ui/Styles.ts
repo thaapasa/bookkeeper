@@ -1,4 +1,5 @@
 import { Size } from './Types';
+import { css, SimpleInterpolation } from 'styled-components';
 
 // See responsive UI specs at https://material.io/guidelines/layout/responsive-ui.html
 export const smallDeviceMaxWidth = 600;
@@ -19,3 +20,11 @@ export function getScreenSizeClassName(windowSize: Size): ScreenSizeClassName {
   if (isLargeDevice(windowSize)) { return 'large'; }
   return 'medium';
 }
+
+export const media = {
+  small: (s: TemplateStringsArray, ...i: SimpleInterpolation[]) => css`
+    @media (max-width: ${smallDeviceMaxWidth}px) {
+      ${ css(s, ...i) }
+    }
+  `,
+};

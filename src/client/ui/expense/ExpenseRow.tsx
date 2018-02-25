@@ -6,7 +6,7 @@ import { PlainTextField } from '../component/PlainTextField';
 import { ExpandLess, ExpandMore, Delete, Edit, Repeat, ToolIcon } from '../Icons';
 import * as colors from '../Colors';
 import { PlainReceiverField } from './ExpenseDialogComponents';
-import ExpenseDivision from './ExpenseDivision';
+import ExpenseInfo from './details/ExpenseInfo';
 import { expenseName, ExpenseRowContainer } from './ExpenseHelper';
 import Money from '../../../shared/util/Money';
 import { Expense, UserExpense, UserExpenseWithDetails, ExpenseDivisionItem, RecurringExpenseTarget } from '../../../shared/types/Expense';
@@ -206,7 +206,7 @@ export class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState
   private renderDetails() {
     if (!this.state.isLoading && !this.state.details) { return null; }
     return (
-      <ExpenseDivision
+      <ExpenseInfo
         loading={this.state.isLoading}
         key={'expense-division-' + this.props.expense.id}
         expense={this.props.expense}

@@ -103,19 +103,12 @@ html, body, #root {
 .expense-detail.total-label { flex-grow: 1; text-align: right; }
 .expense-detail.total-sum   { width: 6em; }
 
-.expense-description {
-    padding: 0 2em;
-    white-space: pre-wrap;
-}
 .expense-recurrence {
     display: inline-block;
     float: right;
 }
 
 /** Expense division */
-.expense-division {
-    min-height: 60pt;
-}
 .details-loading-indicator {
     position: relative;
     height: 60pt;
@@ -177,10 +170,6 @@ html, body, #root {
 
 @media (max-width: 600px) {
 
-    .expense-division .mobile {
-        display: block;
-    }
-
     .optional {
         display: none !important;
     }
@@ -204,18 +193,6 @@ html, body, #root {
     .expense-detail.date { width: 3.3em; }
     .expense-detail.tools { width: 36px; min-width: 36px; }
     .expense-detail.description { min-width: 5em; }
-
-    .expense-division .expense-details {
-        display: inline-block;
-        max-width: 35em;
-        min-width: 20em;
-        height: auto;
-    }
-    .expense-division .tools-mobile {
-        display: inline-block;
-        width: auto;
-        vertical-align: top;
-    }
 
     .expense-detail-mobile {
         display: block;

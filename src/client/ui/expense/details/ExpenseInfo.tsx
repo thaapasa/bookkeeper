@@ -1,30 +1,19 @@
 import * as React from 'react';
-import * as colors from '../Colors';
-import UserAvatar from '../component/UserAvatar';
+import styled from 'styled-components';
+import * as colors from '../../Colors';
+import UserAvatar from '../../component/UserAvatar';
 import IconButton from 'material-ui/IconButton';
-import { expenseName } from './ExpenseHelper';
-import { Repeat } from '../Icons';
-import apiConnect from '../../data/ApiConnect';
+import { expenseName } from './../ExpenseHelper';
+import { Repeat } from '../../Icons';
+import apiConnect from '../../../data/ApiConnect';
 import RefreshIndicator from 'material-ui/RefreshIndicator';
-import Money, { MoneyLike } from '../../../shared/util/Money';
-import { RecurringExpensePeriod, ExpenseDivisionItem, UserExpense } from '../../../shared/types/Expense';
-import { Map } from '../../../shared/util/Objects';
-import { User, Source } from '../../../shared/types/Session';
-import { confirm, notify, notifyError, updateExpenses } from '../../data/State';
-import { toDate } from '../../../shared/util/Time';
-
-const styles = {
-  tool: {
-    margin: '0',
-    padding: '0',
-    width: 36,
-    height: 36,
-  },
-  toolIcon: {
-    color: colors.tool,
-    fontSize: '15pt',
-  },
-};
+import Money, { MoneyLike } from '../../../../shared/util/Money';
+import { RecurringExpensePeriod, ExpenseDivisionItem, UserExpense } from '../../../../shared/types/Expense';
+import { Map } from '../../../../shared/util/Objects';
+import { User, Source } from '../../../../shared/types/Session';
+import { confirm, notify, notifyError, updateExpenses } from '../../../data/State';
+import { toDate } from '../../../../shared/util/Time';
+import BasicData from './BasicData';
 
 function divisionItem(sum: MoneyLike) {
   const s = Money.orZero(sum);
@@ -40,16 +29,7 @@ function getBalance(data: Map<MoneyLike>) {
   return divisionTypes.map(t => Money.orZero(data[t])).reduce((a, b) => a.plus(b), Money.zero).negate();
 }
 
-function DetailRow(props: { name: string, value: string }) {
-  return (
-    <div className="expense-detail-mobile">
-      <span className="detail-label">{props.name + ':'}</span>
-      {props.value}
-    </div>
-  );
-}
-
-interface ExpenseDivisionProps {
+interface ExpenseInfoProps {
   division: ExpenseDivisionItem[];
   loading: boolean;
   expense: UserExpense;
@@ -60,26 +40,25 @@ interface ExpenseDivisionProps {
   fullCategoryName: string;
 }
 
-export default class ExpenseDivision extends React.Component<ExpenseDivisionProps, {}> {
+export default class ExpenseInfo extends React.Component<ExpenseInfoProps, {}> {
 
   public render() {
     if (this.props.loading) { return this.renderLoading(); }
     const division = this.props.division;
     const expense = this.props.expense;
     const isIncome = expense.type === 'income';
-    const user = this.props.user;
     const users: Map<Map<MoneyLike>> = {};
     division.forEach(d => { users[d.userId] = { ...users[d.userId], [d.type]: d.sum }; });
     return (
-      <div className="expense-division">
-        {this.renderDetails(user, expense)}
-        {this.props.expense.description ? <div className="expense-description">{this.props.expense.description}</div> : null}
+      <ExpenseInfoContainer>
+        <BasicData {...this.props} />
+        {this.props.expense.description ? <Description>{this.props.expense.description}</Description> : null}
         <div className="expense-recurrence">
           {this.props.expense.recurringExpenseId ? 'Tämä on toistuva tapahtuma' : <IconButton onClick={this.createRecurring}><Repeat /></IconButton>}
         </div>
         {this.renderUserHeaderRow(isIncome)}
         {Object.keys(users).map(userId => this.renderUser(userId, isIncome, users))}
-      </div>
+      </ExpenseInfoContainer>
     );
   }
 
@@ -87,26 +66,6 @@ export default class ExpenseDivision extends React.Component<ExpenseDivisionProp
     return (
       <div className="expense-division">
         <div className="details-loading-indicator"><RefreshIndicator left={-20} top={20} status="loading" size={40} /></div>
-      </div>
-    );
-  }
-
-  // tslint:disable jsx-no-lambda
-  private renderDetails(user: User, expense: UserExpense) {
-    return (
-      <div className="mobile">
-        <div className="expense-details">
-          <DetailRow name="Kirjaaja" value={user.firstName} />
-          <DetailRow name="Kohde" value={expense.receiver} />
-          <DetailRow name="Kategoria" value={this.props.fullCategoryName} />
-          <DetailRow name="Lähde" value={this.props.source.name} />
-        </div>
-        <div className="tools-mobile">
-          <IconButton iconClassName="material-icons" title="Muokkaa" style={styles.tool} iconStyle={styles.toolIcon}
-            onClick={() => this.props.onModify(expense)}>edit</IconButton>
-          <IconButton iconClassName="material-icons" title="Poista" style={styles.tool} iconStyle={styles.toolIcon}
-            onClick={() => this.props.onDelete(expense)}>delete</IconButton>
-        </div>
       </div>
     );
   }
@@ -154,3 +113,16 @@ export default class ExpenseDivision extends React.Component<ExpenseDivisionProp
   }
 
 }
+
+const ExpenseInfoContainer = styled.div`
+  min-height: 60pt;
+  background-color: ${colors.colorScheme.primary.light};
+  border-top: 1px solid ${colors.colorScheme.gray.standard};
+  border-bottom: 1px solid ${colors.colorScheme.gray.standard};
+  padding-top: 8px;
+`;
+
+const Description = styled.div`
+  padding: 0 2em;
+  white-space: pre-wrap;
+`;
