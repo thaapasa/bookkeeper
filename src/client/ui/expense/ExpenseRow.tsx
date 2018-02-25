@@ -162,7 +162,7 @@ export class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState
         <ExpenseRowContainer key={expense.id} className={className} style={style}>
           <div className="expense-detail date" onClick={() => this.editDate(expense)}>{toMoment(expense.date).format('D.M.')}</div>
           <div className="expense-detail user optional">
-            <UserAvatar user={this.props.userMap[expense.userId]} size={25} onClick={
+            <UserAvatar user={this.props.userMap[expense.userId]} size={32} onClick={
               () => this.props.addFilter(
                 e => e.userId === expense.userId,
                 this.props.user.firstName,

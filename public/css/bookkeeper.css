@@ -72,6 +72,8 @@ html, body, #root {
 .expense-detail.date {
     width: 3.2em;
     text-align: right;
+    flex-shrink: 0;
+    flex-grow: 0;
 }
 .expense-detail.status-description { flex-grow: 1; width: 10em; min-width: 5em; margin-left: 1em; }
 .expense-detail.status-label       { width: 6em; min-width: 3em; }
@@ -85,9 +87,11 @@ html, body, #root {
 .expense-detail.balance     { width:  5em; text-align: right; }
 .expense-detail.sum         { width: 6em; min-width: 5em; }
 .expense-detail.user {
+    flex-shrink: 0;
+    flex-grow: 0;
     margin-top: 0.6em;
     margin-bottom: 0.4em;
-    width: 28px;
+    width: 32px;
 }
 .expense-detail.tools {
     margin-top: 0;
