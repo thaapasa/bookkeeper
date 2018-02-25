@@ -120,3 +120,7 @@ export function compareRanges(a: DateRange, b: DateRange) {
   if (c !== 0) { return c; }
   return compareDates(a.end, b.end);
 }
+
+export async function timeout(ms: number): Promise<void> {
+  return new Promise<void>(resolve => setTimeout(resolve, ms));
+}

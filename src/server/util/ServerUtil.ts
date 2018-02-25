@@ -4,8 +4,10 @@ import { db } from '../data/Db';
 import { SessionBasicInfo } from '../../shared/types/Session';
 import { Request, Response } from 'express';
 import { TokenNotPresentError, InvalidGroupError } from '../../shared/types/Errors';
-import { toMoment } from '../../shared/util/Time';
+import { toMoment, timeout } from '../../shared/util/Time';
 const debug = require('debug')('bookkeeper:server');
+
+const requestDelayMs = process.env.DELAY ? parseInt(process.env.DELAY, 10) : undefined;
 
 interface ErrorInfo {
   type: 'error';
@@ -49,6 +51,7 @@ export function processRequest<T>(handler: (session: SessionBasicInfo, req: Requ
       const session = await sessions.tx.getSession(db)(token, req.query.groupId);
       if (groupRequired && !session.group.id) { throw new InvalidGroupError(); }
       const r = await handler(session, req, res);
+      if (requestDelayMs) { await timeout(requestDelayMs); }
       await setNoCacheHeaders(res).json(r);
     } catch (e) {
       handleError(res)(e);
