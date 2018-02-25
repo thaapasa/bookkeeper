@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { colorScheme } from '../Colors';
 import { media } from '../Styles';
 import { Recurring } from '../Icons';
+import RefreshIndicator from 'material-ui/RefreshIndicator';
 
 const tableBgColor = colorScheme.primary.light;
 const separatorColor = colorScheme.gray.standard;
@@ -119,3 +120,30 @@ const RecurringExpenseSeparatorItem = styled(AllColumns)`
 export function RecurringExpenseSeparator() {
   return <Row><RecurringExpenseSeparatorItem /></Row>;
 }
+
+export function LoadingIndicator(props: { forRow?: boolean }) {
+  const forRow = !!props.forRow;
+  return (
+    <Row>
+      <AllColumns>
+        <RefreshIndicatorContainer className={forRow ? 'row' : 'primary'}>
+          <RefreshIndicator left={forRow ? 16 : -30} top={forRow ? 0 : -30} status="loading" size={forRow ? 30 : 60} />
+        </RefreshIndicatorContainer>
+      </AllColumns>
+    </Row>
+  );
+}
+
+const RefreshIndicatorContainer = styled.div`
+  &.primary {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+  }
+  &.row {
+    position: relative;
+    width: 100%;
+    text-align: center;
+    height: 30px;
+  }
+`;

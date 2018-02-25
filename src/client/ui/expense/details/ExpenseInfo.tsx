@@ -6,12 +6,12 @@ import IconButton from 'material-ui/IconButton';
 import { expenseName } from './../ExpenseHelper';
 import { Repeat } from '../../Icons';
 import apiConnect from '../../../data/ApiConnect';
-import RefreshIndicator from 'material-ui/RefreshIndicator';
 import Money, { MoneyLike } from '../../../../shared/util/Money';
 import { RecurringExpensePeriod, ExpenseDivisionItem, UserExpense } from '../../../../shared/types/Expense';
 import { Map } from '../../../../shared/util/Objects';
 import { User, Source } from '../../../../shared/types/Session';
 import { confirm, notify, notifyError, updateExpenses } from '../../../data/State';
+import { LoadingIndicator, Row, AllColumns } from '../ExpenseTableLayout';
 import { toDate } from '../../../../shared/util/Time';
 import BasicData from './BasicData';
 
@@ -43,30 +43,28 @@ interface ExpenseInfoProps {
 export default class ExpenseInfo extends React.Component<ExpenseInfoProps, {}> {
 
   public render() {
-    if (this.props.loading) { return this.renderLoading(); }
+    if (this.props.loading) {
+      return <LoadingIndicator forRow={true} />;
+    }
     const division = this.props.division;
     const expense = this.props.expense;
     const isIncome = expense.type === 'income';
     const users: Map<Map<MoneyLike>> = {};
     division.forEach(d => { users[d.userId] = { ...users[d.userId], [d.type]: d.sum }; });
     return (
-      <ExpenseInfoContainer>
-        <BasicData {...this.props} />
-        {this.props.expense.description ? <Description>{this.props.expense.description}</Description> : null}
-        <div className="expense-recurrence">
-          {this.props.expense.recurringExpenseId ? 'Tämä on toistuva tapahtuma' : <IconButton onClick={this.createRecurring}><Repeat /></IconButton>}
-        </div>
-        {this.renderUserHeaderRow(isIncome)}
-        {Object.keys(users).map(userId => this.renderUser(userId, isIncome, users))}
-      </ExpenseInfoContainer>
-    );
-  }
-
-  private renderLoading() {
-    return (
-      <div className="expense-division">
-        <div className="details-loading-indicator"><RefreshIndicator left={-20} top={20} status="loading" size={40} /></div>
-      </div>
+      <Row>
+        <AllColumns>
+          <ExpenseInfoContainer>
+            <BasicData {...this.props} />
+            {this.props.expense.description ? <Description>{this.props.expense.description}</Description> : null}
+            <div className="expense-recurrence">
+              {this.props.expense.recurringExpenseId ? 'Tämä on toistuva tapahtuma' : <IconButton onClick={this.createRecurring}><Repeat /></IconButton>}
+            </div>
+            {this.renderUserHeaderRow(isIncome)}
+            {Object.keys(users).map(userId => this.renderUser(userId, isIncome, users))}
+          </ExpenseInfoContainer>
+        </AllColumns>
+      </Row>
     );
   }
 
@@ -116,9 +114,6 @@ export default class ExpenseInfo extends React.Component<ExpenseInfoProps, {}> {
 
 const ExpenseInfoContainer = styled.div`
   min-height: 60pt;
-  background-color: ${colors.colorScheme.primary.light};
-  border-top: 1px solid ${colors.colorScheme.gray.standard};
-  border-bottom: 1px solid ${colors.colorScheme.gray.standard};
   padding-top: 8px;
 `;
 

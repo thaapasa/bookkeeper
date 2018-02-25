@@ -2,7 +2,6 @@ import * as React from 'react';
 import styled from 'styled-components';
 import ExpenseRow from './ExpenseRow';
 import ExpenseHeader from './ExpenseHeader';
-import RefreshIndicator from 'material-ui/RefreshIndicator';
 import Money from '../../../shared/util/Money';
 import { MonthlyStatus } from './MonthlyStatus';
 import { UserExpense, ExpenseStatus, Expense } from '../../../shared/types/Expense';
@@ -11,7 +10,7 @@ import { connect } from '../component/BaconConnect';
 import { userDataE, UserDataProps } from '../../data/Categories';
 import ExpenseFilterRow, { ExpenseFilter, ExpenseFilterFunction } from './ExpenseFilterRow';
 import { partition } from '../../../shared/util/Arrays';
-import { ExpenseTableLayout, RecurringExpenseSeparator, AllColumns, Row } from './ExpenseTableLayout';
+import { ExpenseTableLayout, RecurringExpenseSeparator, LoadingIndicator } from './ExpenseTableLayout';
 import { colorScheme } from '../Colors';
 import { media } from '../Styles';
 
@@ -122,18 +121,6 @@ class ExpenseTable extends React.Component<ExpenseTableProps, ExpenseTableState>
 
 export default connect(userDataE.map(userData => ({ userData })))(ExpenseTable);
 
-function LoadingIndicator() {
-  return (
-    <Row>
-      <AllColumns>
-        <RefreshIndicatorContainer>
-          <RefreshIndicator left={-30} top={-30} status="loading" size={60} />
-        </RefreshIndicatorContainer>
-      </AllColumns>
-    </Row>
-  );
-}
-
 const ExpenseArea = styled.div`
   flex: 1;
   overflow-y: auto;
@@ -155,12 +142,6 @@ const ExpenseFiller = styled.div`
   width: 100%;
   flex: 1;
   background-color: ${colorScheme.gray.light};
-`;
-
-const RefreshIndicatorContainer = styled.div`
-  position: absolute;
-  left: 50%;
-  top: 50%;
 `;
 
 const ExpenseTableContainer = styled.div`
