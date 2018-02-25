@@ -21,11 +21,14 @@ export function getTitle(group?: Group) {
   return title;
 }
 
-function clearLoginData() {
+function clearLoginData(clearRefreshToken: boolean) {
+  debug('Clearing login data');
   document.title = getTitle();
   sessionBus.push(null);
   apiConnect.setToken(null);
-  localStorage.removeItem(refreshTokenKey);
+  if (clearRefreshToken) {
+    localStorage.removeItem(refreshTokenKey);
+  }
 }
 
 async function getLoginFromLocalStorage(): Promise<Session | null> {
@@ -49,7 +52,7 @@ async function getLoginFromLocalStorage(): Promise<Session | null> {
 loginBus.onValue(session => {
   debug('Current session is', session);
   if (!session) {
-    clearLoginData();
+    clearLoginData(false);
     return;
   }
   if (session && session.refreshToken) {
@@ -76,7 +79,7 @@ export async function login(username: string, password: string): Promise<void> {
     return;
   } catch (e) {
     debug('Error when logging in', e);
-    clearLoginData();
+    clearLoginData(true);
     throw e;
   }
 }
@@ -105,5 +108,5 @@ export async function logout() {
   } catch (e) {
     debug('Error when logging out', e);
   }
-  clearLoginData();
+  clearLoginData(true);
 }
