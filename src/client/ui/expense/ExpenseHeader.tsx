@@ -1,25 +1,28 @@
 import * as React from 'react';
-import { colorScheme } from '../Colors';
-import { ExpenseRowContainer } from './ExpenseHelper';
+import { Row, DateColumn, AvatarColumn, NameColumn, ReceiverColumn, CategoryColumn, SourceColumn, SumColumn, BalanceColumn, ToolColumn } from './ExpenseTableLayout';
 
 export default function ExpenseHeader() {
   return (
-    <Header>
-      <div className="expense-detail date">Pvm</div>
-      <div className="expense-detail user optional" />
-      <div className="expense-detail title">Nimi</div>
-      <div className="expense-detail receiver optional">Kohde</div>
-      <div className="expense-detail category optional">Kategoria</div>
-      <div className="expense-detail source optional">Lähde</div>
-      <div className="expense-detail sum">Summa</div>
-      <div className="expense-detail balance optional">Balanssi</div>
-      <div className="expense-detail tools" />
-    </Header>
+    <Row>
+      <DateCol>Pvm</DateCol>
+      <AvatarCol />
+      <NameCol>Nimi</NameCol>
+      <ReceiverCol>Kohde</ReceiverCol>
+      <CategoryCol>Kategoria</CategoryCol>
+      <SourceCol>Lähde</SourceCol>
+      <SumCol>Summa</SumCol>
+      <BalanceCol>Balanssi</BalanceCol>
+      <ToolCol />
+    </Row>
   );
 }
 
-const Header = ExpenseRowContainer.extend`
-  border-top: none;
-  color: ${colorScheme.secondary.dark};
-  font-weight: bold;
-`;
+const DateCol = DateColumn.withComponent('th');
+const AvatarCol = AvatarColumn.withComponent('th');
+const NameCol = NameColumn.withComponent('th');
+const ReceiverCol = ReceiverColumn.withComponent('th');
+const CategoryCol = CategoryColumn.withComponent('th');
+const SourceCol = SourceColumn.withComponent('th');
+const SumCol = SumColumn.withComponent('th');
+const BalanceCol = BalanceColumn.withComponent('th');
+const ToolCol = ToolColumn.withComponent('th');

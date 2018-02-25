@@ -1,10 +1,10 @@
 import * as React from 'react';
-import styled from 'styled-components';
 import Avatar from 'material-ui/Avatar';
 import Chip from 'material-ui/Chip';
 import { UserExpense } from '../../../shared/types/Expense';
-import { ExpenseRowContainer } from './ExpenseHelper';
 import { colorScheme } from '../Colors';
+import { AllColumns, Row } from './ExpenseTableLayout';
+import styled from 'styled-components';
 
 export type ExpenseFilterFunction = (expense: UserExpense) => boolean;
 
@@ -23,13 +23,13 @@ export default class ExpenseFilterRow extends React.Component<ExpenseFilterRowPr
   public render() {
     if (this.props.filters.length === 0) { return null; }
     return (
-      <ExpenseRowContainer>
+      <Row>
         <FilterArea>{
           this.props.filters.map((f, index) => (
             <ExpenseFilterItem filter={f} index={index} key={index} onRemove={this.props.onRemoveFilter} />
           ))}
         </FilterArea>
-      </ExpenseRowContainer>
+      </Row>
     );
   }
 }
@@ -53,7 +53,7 @@ class ExpenseFilterItem extends React.Component<{ filter: ExpenseFilter, index: 
   }
 }
 
-const FilterArea = styled.div`
+const FilterArea = styled(AllColumns)`
   text-align: center;
   flex-grow: 1;
   align-items: center;

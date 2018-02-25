@@ -9,9 +9,11 @@ import { UserExpense, ExpenseStatus, Expense } from '../../../shared/types/Expen
 import { ExpenseTotals } from './ExpenseHelper';
 import { connect } from '../component/BaconConnect';
 import { userDataE, UserDataProps } from '../../data/Categories';
-import { colorScheme } from '../Colors';
 import ExpenseFilterRow, { ExpenseFilter, ExpenseFilterFunction } from './ExpenseFilterRow';
 import { partition } from '../../../shared/util/Arrays';
+import { ExpenseTableLayout, RecurringExpenseSeparator, AllColumns, Row } from './ExpenseTableLayout';
+import { colorScheme } from '../Colors';
+import { media } from '../Styles';
 
 interface ExpenseTableProps {
   expenses: UserExpense[];
@@ -95,11 +97,17 @@ class ExpenseTable extends React.Component<ExpenseTableProps, ExpenseTableState>
   public render() {
     return (
       <ExpenseTableContainer>
-        <ExpenseHeader />
-        <ExpenseDataArea>
-          <ExpenseFilterRow filters={this.state.filters} onRemoveFilter={this.removeFilter} />
-          {this.renderExpenseRows()}
-        </ExpenseDataArea>
+        <ExpenseArea>
+          <ExpenseTableLayout>
+            <thead>
+              <ExpenseHeader />
+              <ExpenseFilterRow filters={this.state.filters} onRemoveFilter={this.removeFilter} />
+            </thead>
+            <tbody>
+              {this.renderExpenseRows()}
+            </tbody>
+          </ExpenseTableLayout>
+        </ExpenseArea>
         <MonthlyStatus
           {...this.props}
           totals={this.calculateTotals(this.props.expenses)}
@@ -115,19 +123,26 @@ export default connect(userDataE.map(userData => ({ userData })))(ExpenseTable);
 
 function LoadingIndicator() {
   return (
-    <RefreshIndicatorContainer>
-      <RefreshIndicator left={-30} top={-30} status="loading" size={60} />
-    </RefreshIndicatorContainer>
+    <Row>
+      <RefreshIndicatorContainer>
+        <RefreshIndicator left={-30} top={-30} status="loading" size={60} />
+      </RefreshIndicatorContainer>
+    </Row>
   );
 }
 
-const RecurringExpenseSeparator = styled.div`
+const ExpenseArea = styled.div`
+  flex: 1;
   width: 100%;
-  border-top: 1px solid ${colorScheme.gray.standard};
-  margin-bottom: 24px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  white-space: nowrap;
+  align-items: center;
+  background-color: ${colorScheme.gray.light};
 `;
 
-const RefreshIndicatorContainer = styled.div`
+const RefreshIndicatorContainer = styled(AllColumns)`
   position: absolute;
   left: 50%;
   top: 50%;
@@ -137,14 +152,11 @@ const ExpenseTableContainer = styled.div`
   font-size: 13px;
   display: flex;
   height: 100%;
-  width: 100%;
   flex-direction: column;
-`;
+  background-color: ${colorScheme.primary.light};
+  padding: 0 16px;
 
-const ExpenseDataArea = styled.div`
-  flex: 1;
-  width: 100%;
-  background-color: ${colorScheme.gray.light};
-  overflow-y: auto;
-  overflow-x: hidden;
+  ${media.small`
+    padding: 0;
+  `}
 `;

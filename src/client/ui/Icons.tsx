@@ -11,14 +11,14 @@ import RepeatSVG from 'material-ui/svg-icons/av/repeat';
 import LibraryAdd from 'material-ui/svg-icons/av/library-add';
 import IconButton from 'material-ui/IconButton';
 import AddCircleSVG from 'material-ui/svg-icons/content/add-circle';
+import AutoRenewSVG from 'material-ui/svg-icons/action/autorenew';
 import * as colors from './Colors';
 
 const styles = {
   tool: {
-    margin: '3pt',
-    padding: '4pt 1pt',
-    width: '16pt',
-    height: '16pt',
+    padding: '9px 4px',
+    width: '22px',
+    height: '22px',
   },
 };
 
@@ -33,6 +33,7 @@ export const ExpandMore = ExpandMoreSVG;
 export const Repeat = RepeatSVG;
 export const Add = LibraryAdd;
 export const PlusCircle = AddCircleSVG;
+export const Recurring = AutoRenewSVG;
 
 export function ToolIcon(props: {
   icon: any,

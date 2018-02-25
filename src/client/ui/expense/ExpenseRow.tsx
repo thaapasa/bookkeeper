@@ -7,7 +7,7 @@ import { ExpandLess, ExpandMore, Delete, Edit, Repeat, ToolIcon } from '../Icons
 import * as colors from '../Colors';
 import { PlainReceiverField } from './ExpenseDialogComponents';
 import ExpenseInfo from './details/ExpenseInfo';
-import { expenseName, ExpenseRowContainer } from './ExpenseHelper';
+import { expenseName } from './ExpenseHelper';
 import Money from '../../../shared/util/Money';
 import { Expense, UserExpense, UserExpenseWithDetails, ExpenseDivisionItem, RecurringExpenseTarget } from '../../../shared/types/Expense';
 import { User, Source, Category } from '../../../shared/types/Session';
@@ -17,6 +17,7 @@ import { Map } from '../../../shared/util/Objects';
 import { toDate, formatDate, toMoment } from '../../../shared/util/Time';
 import { ExpenseFilterFunction } from './ExpenseFilterRow';
 import { equal, notEqual } from '../Symbols';
+import { DateColumn, AvatarColumn, NameColumn, ReceiverColumn, CategoryColumn, SourceColumn, SumColumn, BalanceColumn, ToolColumn, Row } from './ExpenseTableLayout';
 
 const emptyDivision: ExpenseDivisionItem[] = [];
 
@@ -147,7 +148,7 @@ export class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState
 
   public render() {
     const expense = this.props.expense;
-    const className = 'bk-table-row expense-row expense-item ' + expense.type + (expense.confirmed ? '' : ' unconfirmed');
+    // const className = 'bk-table-row expense-row expense-item ' + expense.type + (expense.confirmed ? '' : ' unconfirmed');
     const style = {
       background: !expense.confirmed ? colors.unconfirmedStripes :
         (expense.type === 'income' ? colors.income : undefined),
@@ -159,17 +160,17 @@ export class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState
     }
     return (
       <React.Fragment>
-        <ExpenseRowContainer key={expense.id} className={className} style={style}>
-          <div className="expense-detail date" onClick={() => this.editDate(expense)}>{toMoment(expense.date).format('D.M.')}</div>
-          <div className="expense-detail user optional">
+        <Row>
+          <DateColumn onClick={() => this.editDate(expense)}>{toMoment(expense.date).format('D.M.')}</DateColumn>
+          <AvatarColumn>
             <UserAvatar user={this.props.userMap[expense.userId]} size={32} onClick={
               () => this.props.addFilter(
                 e => e.userId === expense.userId,
                 this.props.user.firstName,
                 this.props.user.image)
             } />
-          </div>
-          <div className="expense-detail title" style={{ whiteSpace: 'nowrap' }}>
+          </AvatarColumn>
+          <NameColumn>
             {expense.recurringExpenseId ?
               <div style={{ display: 'inline-block', width: '14pt', verticalAlign: 'top' }}><Repeat style={{ width: '12pt', height: '12pt', position: 'absolute' }} /></div> : ''}
             <ActivatableTextField
@@ -178,26 +179,26 @@ export class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState
               style={{ display: 'inline-block', verticalAlign: 'middle' }}
               onChange={v => this.updateExpense({ title: v })}
             />
-          </div>
-          <div className="expense-detail receiver optional"><ActivatableTextField
+          </NameColumn>
+          <ReceiverColumn><ActivatableTextField
             name="receiver" value={expense.receiver}
             editorType={PlainReceiverField}
             onChange={v => this.updateExpense({ receiver: v })}
-          /></div>
-          <div className="expense-detail category optional">{this.fullCategoryLink(expense.categoryId)}</div>
-          <div className="expense-detail source optional">{this.getSource()}</div>
-          <div className="expense-detail sum">{Money.from(expense.sum).format()}</div>
-          <div className="expense-detail balance optional" style={{ color: colors.forMoney(expense.userBalance) }} onClick={
+          /></ReceiverColumn>
+          <CategoryColumn>{this.fullCategoryLink(expense.categoryId)}</CategoryColumn>
+          <SourceColumn>{this.getSource()}</SourceColumn>
+          <SumColumn>{Money.from(expense.sum).format()}</SumColumn>
+          <BalanceColumn style={{ color: colors.forMoney(expense.userBalance) }} onClick={
             () => Money.zero.equals(expense.userBalance) ?
               this.props.addFilter(e => Money.zero.equals(e.userBalance), `Balanssi ${equal} 0`) :
               this.props.addFilter(e => !Money.zero.equals(e.userBalance), `Balanssi ${notEqual} 0`)
-          }>{Money.from(expense.userBalance).format()}</div>
-          <div className="expense-detail tools">
+          }>{Money.from(expense.userBalance).format()}</BalanceColumn>
+          <ToolColumn>
             <ToolIcon title="Tiedot" onClick={() => this.toggleDetails(expense, this.state.details)} icon={this.state.details ? ExpandLess : ExpandMore} />
             <ToolIcon title="Muokkaa" onClick={() => this.modifyExpense(expense)} icon={Edit} />
             <ToolIcon className="optional" title="Poista" onClick={() => this.deleteExpense(expense)} icon={Delete} />
-          </div>
-        </ExpenseRowContainer>
+          </ToolColumn>
+        </Row>
         {this.renderDetails()}
       </React.Fragment>
     );
