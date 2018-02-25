@@ -71,6 +71,7 @@ const StatusContainer = styled.div`
   display: flex;
   justify-content: flex-end;
   font-size: 14px;
+  margin: 0 16px;
   border-top: 1px solid rgb(224, 224, 224);
 `;
 

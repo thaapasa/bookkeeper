@@ -107,6 +107,7 @@ class ExpenseTable extends React.Component<ExpenseTableProps, ExpenseTableState>
               {this.renderExpenseRows()}
             </tbody>
           </ExpenseTableLayout>
+          <ExpenseFiller />
         </ExpenseArea>
         <MonthlyStatus
           {...this.props}
@@ -133,12 +134,24 @@ function LoadingIndicator() {
 
 const ExpenseArea = styled.div`
   flex: 1;
-  width: 100%;
   overflow-y: auto;
   overflow-x: hidden;
   position: relative;
   white-space: nowrap;
   align-items: center;
+  background-color: ${colorScheme.primary.light};
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+
+  ${media.small`
+    padding: 0;
+  `}
+`;
+
+const ExpenseFiller = styled.div`
+  width: 100%;
+  flex: 1;
   background-color: ${colorScheme.gray.light};
 `;
 
@@ -154,9 +167,4 @@ const ExpenseTableContainer = styled.div`
   height: 100%;
   flex-direction: column;
   background-color: ${colorScheme.primary.light};
-  padding: 0 16px;
-
-  ${media.small`
-    padding: 0;
-  `}
 `;
