@@ -125,9 +125,11 @@ export default connect(userDataE.map(userData => ({ userData })))(ExpenseTable);
 function LoadingIndicator() {
   return (
     <Row>
-      <RefreshIndicatorContainer>
-        <RefreshIndicator left={-30} top={-30} status="loading" size={60} />
-      </RefreshIndicatorContainer>
+      <AllColumns>
+        <RefreshIndicatorContainer>
+          <RefreshIndicator left={-30} top={-30} status="loading" size={60} />
+        </RefreshIndicatorContainer>
+      </AllColumns>
     </Row>
   );
 }
@@ -155,7 +157,7 @@ const ExpenseFiller = styled.div`
   background-color: ${colorScheme.gray.light};
 `;
 
-const RefreshIndicatorContainer = styled(AllColumns)`
+const RefreshIndicatorContainer = styled.div`
   position: absolute;
   left: 50%;
   top: 50%;

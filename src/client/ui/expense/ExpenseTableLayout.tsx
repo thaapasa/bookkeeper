@@ -14,11 +14,21 @@ export const ExpenseTableLayout = styled.table`
   table-layout: fixed;
 `;
 
-export const Row = styled.tr``;
+export const Row = styled.tr`
+  &:first-of-type {
+    td, th { border-top: none; }
+  }
+  &:last-of-type {
+    td, th { border-bottom: 1px solid ${separatorColor}; }
+  }
+  td {
+    border-top: 1px solid ${separatorColor};
+    border-collapse: collapse;
+  }
+`;
 
 const Column = styled.td`
   text-align: left;
-  border-top: 1px solid ${separatorColor};
   height: 40px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -28,7 +38,7 @@ const OptionalColumn = Column.extend`
   ${media.small`
     display: none;
     visibility: collapse;
-    width: 0;
+      width: 0;
   `}
 `;
 
