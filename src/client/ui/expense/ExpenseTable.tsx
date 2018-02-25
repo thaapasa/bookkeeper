@@ -11,6 +11,7 @@ import { connect } from '../component/BaconConnect';
 import { userDataE, UserDataProps } from '../../data/Categories';
 import { colorScheme } from '../Colors';
 import ExpenseFilterRow, { ExpenseFilter, ExpenseFilterFunction } from './ExpenseFilterRow';
+import { partition } from '../../../shared/util/Arrays';
 
 interface ExpenseTableProps {
   expenses: UserExpense[];
@@ -76,7 +77,19 @@ class ExpenseTable extends React.Component<ExpenseTableProps, ExpenseTableState>
   private renderExpenseRows() {
     if (this.props.loading) { return <LoadingIndicator />; }
     const filtered = this.getFilteredExpenses();
-    return filtered.map(this.renderExpense);
+    const [recurring, normal] = partition(e => !!e.recurringExpenseId, filtered);
+    if (recurring.length < 1) {
+      return normal.map(this.renderExpense);
+    } else if (normal.length < 1) {
+      return recurring.map(this.renderExpense);
+    }
+    return (
+      <React.Fragment>
+        {recurring.map(this.renderExpense)}
+        <RecurringExpenseSeparator />
+        {normal.map(this.renderExpense)}
+      </React.Fragment>
+    );
   }
 
   public render() {
@@ -107,6 +120,12 @@ function LoadingIndicator() {
     </RefreshIndicatorContainer>
   );
 }
+
+const RecurringExpenseSeparator = styled.div`
+  width: 100%;
+  border-top: 1px solid ${colorScheme.gray.standard};
+  margin-bottom: 24px;
+`;
 
 const RefreshIndicatorContainer = styled.div`
   position: absolute;

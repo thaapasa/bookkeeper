@@ -55,3 +55,7 @@ export function arrayContains(arr: ReadonlyArray<any>, value: any): boolean {
   }
   return false;
 }
+
+export function partition<T>(filter: (item: T) => boolean, arr: ReadonlyArray<T>): [T[], T[]] {
+  return arr.reduce<[T[], T[]]>(([t, f], i) => filter(i) ? [t.concat(i), f] : [t, f.concat(i)], [[], []]);
+}
