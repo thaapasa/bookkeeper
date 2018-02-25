@@ -4,6 +4,7 @@ import * as colors from '../Colors';
 import styled from 'styled-components';
 import { ExpenseTotals, money } from './ExpenseHelper';
 import { ExpenseStatus } from '../../../shared/types/Expense';
+import { media } from '../Styles';
 
 interface StatusProps {
   unconfirmedBefore: boolean;
@@ -71,8 +72,11 @@ const StatusContainer = styled.div`
   display: flex;
   justify-content: flex-end;
   font-size: 14px;
-  margin: 0 16px;
   border-top: 1px solid rgb(224, 224, 224);
+  margin: 0 16px;
+  ${media.small`
+    margin: 0;
+  `}
 `;
 
 const MonthlyCalculation = styled.div`

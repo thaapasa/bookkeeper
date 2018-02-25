@@ -18,7 +18,7 @@ export const Row = styled.tr``;
 
 const Column = styled.td`
   text-align: left;
-  border-bottom: 1px solid ${separatorColor};
+  border-top: 1px solid ${separatorColor};
   height: 40px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -62,7 +62,7 @@ export const DateColumn = Column.extend`
 `;
 export const AvatarColumn = Column.extend`
   padding: 0 8px;
-  padding-top: 1px;
+  padding-top: 2px;
   width: 32px;
 `;
 export const NameColumn = Column.extend`

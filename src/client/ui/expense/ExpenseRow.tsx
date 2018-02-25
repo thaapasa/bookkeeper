@@ -17,7 +17,7 @@ import { getFullCategoryName, UserDataProps } from '../../data/Categories';
 import { Map } from '../../../shared/util/Objects';
 import { toDate, formatDate, toMoment } from '../../../shared/util/Time';
 import { ExpenseFilterFunction } from './ExpenseFilterRow';
-import { equal, notEqual } from '../Symbols';
+import { equal, notEqual } from '../../../shared/util/Symbols';
 import { RecurringExpenseIcon, DateColumn, AvatarColumn, NameColumn, ReceiverColumn, CategoryColumn, SourceColumn, SumColumn, BalanceColumn, ToolColumn, Row } from './ExpenseTableLayout';
 
 const emptyDivision: ExpenseDivisionItem[] = [];

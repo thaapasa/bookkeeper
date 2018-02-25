@@ -6,6 +6,15 @@ Big.RM = 0;
 
 export type MoneyLike = number | Big | Money | string;
 
+const numberFormatOptions: Intl.NumberFormatOptions = {
+  style: 'currency',
+  currency: 'EUR',
+  currencyDisplay: 'symbol',
+  useGrouping: true,
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+};
+
 export default class Money {
 
   public value: Big;
@@ -68,7 +77,7 @@ export default class Money {
 
   public format(scale?: number): string {
     if (scale === undefined) { scale = 2; }
-    return `${this.value.toFixed(scale)} €`;
+    return `${Number(this.value).toLocaleString('fi', numberFormatOptions)}`;
   }
 
   public inspect(): string {
