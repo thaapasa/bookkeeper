@@ -6,7 +6,7 @@ VALUES ('jenni', 'jenni@fi.fi', encode(digest('salasana', 'sha1'), 'hex'), 'Jenn
 INSERT INTO users (username, email, password, first_name, last_name, default_group_id, image)
 VALUES ('sale', 'sauli@fi.fi', encode(digest('salasana', 'sha1'), 'hex'), 'Sauli', 'Niinistö', 1, '2.jpg');
 
-INSERT INTO sources (group_id, name) VALUES (1, 'Yhteinen tili'), (1, 'Jennin tili'), (1, 'Salen tili') RETURNING id;
+INSERT INTO sources (group_id, name, image) VALUES (1, 'Yhteinen tili', 'spankki.jpg'), (1, 'Jennin tili', 'op-white.jpg'), (1, 'Salen tili', 'op-orange.jpg') RETURNING id;
 INSERT INTO source_users (source_id, user_id, share) VALUES (1, 1, 1), (1, 2, 1), (2, 1, 1), (3, 2, 1);
 
 INSERT INTO group_users (user_id, group_id, default_source_id) VALUES (1, 1, 1);

@@ -57,3 +57,7 @@ jonkun arvon, esim. `localStorage.debug = 'bookkeeper*'`.
 
 - Yksikkötestit: Aja `npm test`
 - Palvelimen testit: TODO
+
+## Kuvat
+
+- Lähde (kortti): 52 x 34 px = 208 x 136 px @4x

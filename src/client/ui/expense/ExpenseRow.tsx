@@ -18,7 +18,7 @@ import { Map } from '../../../shared/util/Objects';
 import { toDate, formatDate, toMoment } from '../../../shared/util/Time';
 import { ExpenseFilterFunction } from './ExpenseFilterRow';
 import { equal, notEqual } from '../../../shared/util/Symbols';
-import { RecurringExpenseIcon, DateColumn, AvatarColumn, NameColumn, ReceiverColumn, CategoryColumn, SourceColumn, SumColumn, BalanceColumn, ToolColumn, Row } from './ExpenseTableLayout';
+import { RecurringExpenseIcon, DateColumn, AvatarColumn, NameColumn, ReceiverColumn, CategoryColumn, SourceColumn, SumColumn, BalanceColumn, ToolColumn, Row, sourceWidth } from './ExpenseTableLayout';
 
 const emptyDivision: ExpenseDivisionItem[] = [];
 
@@ -67,7 +67,7 @@ export class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState
   private getSource() {
     const source = this.props.source;
     const content = source.image ?
-      <img src={source.image} title={source.name} style={{ maxWidth: '48px', maxHeight: '24px' }} /> :
+      <SourceImage src={source.image} title={source.name} /> :
       (source.abbreviation ? source.abbreviation : source.name);
     const avatar = source.image ? source.image : undefined;
     return (
@@ -240,4 +240,9 @@ export default class ExpenseRowMapper extends React.Component<CommonExpenseRowPr
 const DateContainer = styled.div`
   position: relative;
   z-index: 1;
+`;
+
+const SourceImage = styled.img`
+  max-width: ${sourceWidth}px;
+  max-height: 34px;
 `;

@@ -45,3 +45,8 @@ ALTER TABLE expenses ADD COLUMN recurring_expense_id INTEGER REFERENCES recurrin
 ALTER TABLE expenses ADD COLUMN template BOOLEAN NOT NULL DEFAULT FALSE;
 DROP INDEX "expenses_group_date";
 CREATE INDEX "expenses_group_date" ON expenses (group_id, template, date);
+
+-- On 26.2.2018
+UPDATE sources SET image='spankki.png' WHERE name='Yhteinen tili' AND group_id=(SELECT group_id from groups where name='Mäntyniemi');
+UPDATE sources SET image='op-white.png' WHERE name='Jennin tili' AND group_id=(SELECT group_id from groups where name='Mäntyniemi');
+UPDATE sources SET image='op-orange.png' WHERE name='Salen tili' AND group_id=(SELECT group_id from groups where name='Mäntyniemi');

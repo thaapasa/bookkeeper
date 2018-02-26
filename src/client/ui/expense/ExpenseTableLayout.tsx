@@ -89,8 +89,10 @@ export const ReceiverColumn = OptionalColumn.extend`
 export const CategoryColumn = OptionalColumn.extend`
   width: ${textColWidth};
 `;
+export const sourceWidth = 52;
 export const SourceColumn = OptionalColumn.extend`
-  width: 40px;
+  padding-top: 4px;
+  width: ${sourceWidth}px;
 `;
 export const SumColumn = Column.extend`
   width: 72px;
