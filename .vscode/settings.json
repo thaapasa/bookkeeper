@@ -7,7 +7,6 @@
         "**/CVS": true,
         "**/.DS_Store": true,
         "node_modules": true,
-        "build-server": true,
         ".idea": true,
         "*.iml": true
     },
