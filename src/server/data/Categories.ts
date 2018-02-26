@@ -2,23 +2,15 @@ import { db, DbAccess } from './Db';
 import Money from '../../shared/util/Money';
 import { NotFoundError } from '../../shared/types/Errors';
 import { Category, CategoryAndTotals } from '../../shared/types/Session';
-import { NumberMap } from '../../shared/util/Objects';
+import { partition, toMap } from '../../shared/util/Arrays';
 const debug = require('debug')('bookkeeper:categories');
 
 function createCategoryObject<T extends Category>(categories: T[]): T[] {
-  const res: T[] = [];
-  const subs: NumberMap<Category> = {};
-  debug(categories);
-  categories.forEach(c => {
-    if (c.parentId === null) {
-      c.children = [];
-      subs[c.id] = c;
-      res.push(c);
-    } else {
-      subs[c.parentId].children.push(c);
-    }
-  });
-  return res;
+  const [parents, subs] = partition(i => i.parentId === null, categories);
+  parents.forEach(p => p.children = []);
+  const parentMap = toMap(parents, 'id');
+  subs.forEach(s => parentMap['' + s.parentId].children.push(s));
+  return parents;
 }
 
 function sumChildTotalsToParent(categoryTable: CategoryAndTotals[]): CategoryAndTotals[] {
