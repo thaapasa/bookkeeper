@@ -51,7 +51,9 @@ SELECT
   SUM(CASE WHEN type='expense' AND template=false AND date >= $2::DATE AND date < $3::DATE THEN sum::NUMERIC ELSE 0::NUMERIC END) AS expenses,
   SUM(CASE WHEN type='income' AND template=false AND date >= $2::DATE AND date < $3::DATE THEN sum::NUMERIC ELSE 0::NUMERIC END) AS income
 FROM categories
-LEFT JOIN expenses ON categories.id=category_id WHERE expenses.id IS NULL OR expenses.group_id=$1::INTEGER
+LEFT JOIN expenses ON categories.id=category_id
+WHERE categories.group_id=$1::INTEGER
+  AND (expenses.id IS NULL OR expenses.group_id=$1::INTEGER)
 GROUP BY categories.id, categories.parent_id
 ORDER BY (CASE WHEN parent_id IS NULL THEN 1 ELSE 0 END) DESC, parent_id ASC, name`,
       [groupId, params.startDate, params.endDate]);
