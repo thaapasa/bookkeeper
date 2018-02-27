@@ -18,7 +18,7 @@ import { Map } from '../../../shared/util/Objects';
 import { toDate, formatDate, toMoment } from '../../../shared/util/Time';
 import { ExpenseFilterFunction } from './ExpenseFilterRow';
 import { equal, notEqual } from '../../../shared/util/Symbols';
-import { RecurringExpenseIcon, DateColumn, AvatarColumn, NameColumn, ReceiverColumn, CategoryColumn, SourceColumn, SumColumn, BalanceColumn, ToolColumn, Row, sourceWidth } from './ExpenseTableLayout';
+import { RecurringExpenseIcon, UnconfirmedIcon, DateColumn, AvatarColumn, NameColumn, ReceiverColumn, CategoryColumn, SourceColumn, SumColumn, BalanceColumn, ToolColumn, Row, sourceWidth } from './ExpenseTableLayout';
 
 const emptyDivision: ExpenseDivisionItem[] = [];
 
@@ -175,6 +175,7 @@ export class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState
             } />
           </AvatarColumn>
           <NameColumn>
+            {this.props.expense.confirmed ? null : <UnconfirmedIcon />}
             <ActivatableTextField
               editorType={PlainTextField}
               name="title" value={expense.title}

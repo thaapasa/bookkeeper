@@ -1,7 +1,8 @@
 import * as React from 'react';
+import styled from 'styled-components';
 import Money, { MoneyLike } from '../../../shared/util/Money';
 import * as colors from '../Colors';
-import styled from 'styled-components';
+import { UnconfirmedIcon } from './ExpenseTableLayout';
 import { ExpenseTotals, money } from './ExpenseHelper';
 import { ExpenseStatus } from '../../../shared/types/Expense';
 import { media } from '../Styles';
@@ -24,7 +25,6 @@ export class MonthlyStatus extends React.Component<StatusProps, {}> {
     const filteredIncome = this.props.filteredTotals ? this.props.filteredTotals.totalIncome : 0;
     const filteredExpense = this.props.filteredTotals ? this.props.filteredTotals.totalExpense : 0;
     const filteredStyle = { display: (!this.props.showFiltered ? 'none' : ''), backgroundColor: 'rgb(224, 224, 224)' };
-    const uncofirmedStyle = { background: this.props.unconfirmedBefore ? colors.unconfirmedStripes : undefined };
     return (
       <StatusContainer>
         <MonthlyCalculation style={filteredStyle}>
@@ -39,7 +39,8 @@ export class MonthlyStatus extends React.Component<StatusProps, {}> {
           <CalculationRow title="Menot" sum={Money.from(expense).abs().negate()} />
           <CalculationRow title="" sum={Money.from(income).minus(expense)} drawTopBorder={true} />
         </MonthlyCalculation>
-        <MonthlyCalculation style={uncofirmedStyle}>
+        <MonthlyCalculation>
+          {this.props.unconfirmedBefore ? <UnconfirmedIcon /> : null}
           <CalculationHeader>Saatavat/velat</CalculationHeader>
           <CalculationRow title="Ennen" sum={this.props.startStatus.balance} />
           <CalculationRow title="Muutos" sum={this.props.monthStatus.balance} />
@@ -81,6 +82,7 @@ const StatusContainer = styled.div`
 `;
 
 const MonthlyCalculation = styled.div`
+  position: relative;
   width: 200px;
   padding: 20px;
 `;

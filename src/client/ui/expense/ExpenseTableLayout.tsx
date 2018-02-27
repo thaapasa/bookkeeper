@@ -2,7 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 import { colorScheme } from '../Colors';
 import { media } from '../Styles';
-import { Recurring } from '../Icons';
+import { QuestionBookmark, Recurring } from '../Icons';
 import RefreshIndicator from 'material-ui/RefreshIndicator';
 
 const tableBgColor = colorScheme.primary.light;
@@ -45,27 +45,6 @@ const OptionalColumn = Column.extend`
 
 const textColWidth = '20%';
 
-const recurringIconStyle = { width: 20, height: 20, color: colorScheme.secondary.light };
-export function RecurringExpenseIcon() {
-  return (
-    <Corner><Recurring style={recurringIconStyle} /></Corner>
-  );
-}
-
-const Corner = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 50px;
-  height: 50px;
-  padding-top: 18px;
-  background-color: ${colorScheme.gray.light};
-  transform: rotate(45deg);
-  top: -32px;
-  left: -31px;
-  z-index: 0;
-`;
-
 export const DateColumn = Column.extend`
   text-align: right;
   width: 40px;
@@ -77,6 +56,7 @@ export const AvatarColumn = Column.extend`
   width: 32px;
 `;
 export const NameColumn = Column.extend`
+  position: relative;
   padding-left: 4px;
   width: ${textColWidth};
   ${media.small`
@@ -112,6 +92,41 @@ export const ToolColumn = Column.extend`
 
 export function AllColumns(props: { className?: string, children?: any }) {
   return <Column colSpan={9} className={props.className}>{props.children}</Column>;
+}
+
+const Corner = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50px;
+  height: 50px;
+  padding-top: 18px;
+  background-color: ${colorScheme.gray.light};
+  transform: rotate(45deg);
+  top: -32px;
+  left: -31px;
+  z-index: 0;
+`;
+
+const recurringIconStyle = { width: 20, height: 20, color: colorScheme.secondary.light };
+export function RecurringExpenseIcon() {
+  return (
+    <Corner title="Toistuva kirjaus"><Recurring style={recurringIconStyle} /></Corner>
+  );
+}
+
+const UnconfirmedIconArea = styled.div`
+  position: absolute;
+  top: 0;
+  right: 16px;
+  width: 18px;
+  height: 24px;
+`;
+
+export function UnconfirmedIcon({ size }: { size?: number }) {
+  return (
+    <UnconfirmedIconArea title="Alustava kirjaus"><QuestionBookmark size={size || 24} /></UnconfirmedIconArea>
+  );
 }
 
 const RecurringExpenseSeparatorItem = styled(AllColumns)`
