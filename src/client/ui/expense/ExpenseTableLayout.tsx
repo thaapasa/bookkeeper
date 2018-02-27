@@ -74,14 +74,24 @@ export const SourceColumn = OptionalColumn.extend`
   padding-top: 4px;
   width: ${sourceWidth}px;
 `;
-export const SumColumn = Column.extend`
-  width: 72px;
+const MoneyColumn = Column.extend`
+  position: relative;
+  width: 80px;
   text-align: right;
+  padding-right: 8px;
 `;
-export const BalanceColumn = OptionalColumn.extend`
-  width: 72px;
-  text-align: right;
+export const SumColumn = MoneyColumn.extend`
+  &.income {
+    background-color: ${colorScheme.primary.standard};
+  }
+  &.income:before {
+    content: '+';
+    position: absolute;
+    left: 8px;
+    color: ${colorScheme.secondary.standard};
+  }
 `;
+export const BalanceColumn = MoneyColumn;
 export const ToolColumn = Column.extend`
   width: 100px;
   text-align: right;

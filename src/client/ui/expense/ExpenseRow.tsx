@@ -190,7 +190,7 @@ export class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState
           /></ReceiverColumn>
           <CategoryColumn>{this.fullCategoryLink(expense.categoryId)}</CategoryColumn>
           <SourceColumn>{this.getSource()}</SourceColumn>
-          <SumColumn>{Money.from(expense.sum).format()}</SumColumn>
+          <SumColumn className={expense.type}>{Money.from(expense.sum).format()}</SumColumn>
           <BalanceColumn style={{ color: colors.forMoney(expense.userBalance) }} onClick={
             () => Money.zero.equals(expense.userBalance) ?
               this.props.addFilter(e => Money.zero.equals(e.userBalance), `Balanssi ${equal} 0`) :
