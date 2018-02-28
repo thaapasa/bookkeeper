@@ -69,7 +69,7 @@ function DivisionItem({ sum }: { sum: MoneyLike }) {
 }
 
 const DivisionTable = styled.table`
-  margin: 8px 8px;
+  margin: 0 8px;
   padding: 0;
   border-collapse: collapse;
   ${media.small`
@@ -84,6 +84,7 @@ const DivisionRow = styled.tr`
 
 const UserColumn = styled.td`
   width: 32px;
+  height: 32px;
   padding: 8px;
   padding-left: 24px;
 `;

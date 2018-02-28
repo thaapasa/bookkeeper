@@ -28,7 +28,7 @@ export default class ExpenseInfo extends React.Component<ExpenseInfoProps, {}> {
     return (
       <Row>
         <AllColumns className="gray">
-          <ExpenseInfoContainer>
+          <ExpenseInfoContainer className="expense-info-container">
             <BasicData {...this.props} />
             <RecurrenceInfo expense={this.props.expense} />
             {this.props.expense.description ? <Description>{this.props.expense.description}</Description> : null}
@@ -42,7 +42,6 @@ export default class ExpenseInfo extends React.Component<ExpenseInfoProps, {}> {
 
 const ExpenseInfoContainer = styled.div`
   position: relative;
-  min-height: 60pt;
   margin: 0 16px;
   background-color: ${colorScheme.primary.light};
   border-left: 1px solid ${colorScheme.primary.standard};
