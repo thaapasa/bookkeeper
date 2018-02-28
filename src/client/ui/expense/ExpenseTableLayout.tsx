@@ -71,10 +71,17 @@ export const CategoryColumn = OptionalColumn.extend`
 `;
 export const sourceWidth = 52;
 export const SourceColumn = OptionalColumn.extend`
-  padding-top: 4px;
-  width: ${sourceWidth}px;
+  padding: 4px;
+  padding-bottom: 0;
+  width: ${sourceWidth + 8}px;
 `;
 const MoneyColumn = Column.extend`
+  position: relative;
+  width: 80px;
+  text-align: right;
+  padding-right: 8px;
+`;
+const OptMoneyColumn = OptionalColumn.extend`
   position: relative;
   width: 80px;
   text-align: right;
@@ -91,7 +98,7 @@ export const SumColumn = MoneyColumn.extend`
     color: ${colorScheme.secondary.standard};
   }
 `;
-export const BalanceColumn = MoneyColumn;
+export const BalanceColumn = OptMoneyColumn;
 export const ToolColumn = Column.extend`
   width: 100px;
   text-align: right;

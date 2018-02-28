@@ -79,7 +79,7 @@ function hasUnconfirmedBefore(tx: DbAccess) {
   return async (groupId: number, startDate: time.DateLike): Promise<boolean> => {
     const s = await tx.queryObject<{ amount: number }>('expenses.count_unconfirmed_before',
       'SELECT COUNT(*) AS amount FROM expenses WHERE group_id=$1 AND template=false AND date < $2::DATE AND confirmed=false',
-      [groupId, startDate]);
+      [groupId, time.formatDate(startDate)]);
     return s.amount > 0;
   };
 }

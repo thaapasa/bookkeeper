@@ -9,6 +9,7 @@ import { media } from '../Styles';
 
 interface StatusProps {
   unconfirmedBefore: boolean;
+  unconfirmedDuring: boolean;
   startStatus: ExpenseStatus;
   monthStatus: ExpenseStatus;
   endStatus: ExpenseStatus;
@@ -20,6 +21,7 @@ interface StatusProps {
 export class MonthlyStatus extends React.Component<StatusProps, {}> {
 
   public render() {
+    const hasUnconfirmed = this.props.unconfirmedBefore || this.props.unconfirmedDuring;
     const income = this.props.totals ? this.props.totals.totalIncome : 0;
     const expense = this.props.totals ? this.props.totals.totalExpense : 0;
     const filteredIncome = this.props.filteredTotals ? this.props.filteredTotals.totalIncome : 0;
@@ -40,7 +42,7 @@ export class MonthlyStatus extends React.Component<StatusProps, {}> {
           <CalculationRow title="" sum={Money.from(income).minus(expense)} drawTopBorder={true} />
         </MonthlyCalculation>
         <MonthlyCalculation>
-          {this.props.unconfirmedBefore ? <UnconfirmedIcon /> : null}
+          {hasUnconfirmed ? <UnconfirmedIcon /> : null}
           <CalculationHeader>Saatavat/velat</CalculationHeader>
           <CalculationRow title="Ennen" sum={this.props.startStatus.balance} />
           <CalculationRow title="Muutos" sum={this.props.monthStatus.balance} />

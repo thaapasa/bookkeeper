@@ -110,6 +110,7 @@ class ExpenseTable extends React.Component<ExpenseTableProps, ExpenseTableState>
         </ExpenseArea>
         <MonthlyStatus
           {...this.props}
+          unconfirmedDuring={this.props.expenses.find(e => !e.confirmed) !== undefined}
           totals={this.calculateTotals(this.props.expenses)}
           showFiltered={(this.state.filters.length > 0)}
           filteredTotals={this.calculateTotals(this.getFilteredExpenses())}
