@@ -16,6 +16,7 @@ export const ExpenseTableLayout = styled.table`
 `;
 
 export const Row = styled.tr`
+  padding: 0;
   &:first-of-type {
     td, th { border-top: none; }
   }
@@ -29,10 +30,15 @@ export const Row = styled.tr`
 `;
 
 const Column = styled.td`
+  padding: 0;
   text-align: left;
   height: 40px;
   overflow: hidden;
   text-overflow: ellipsis;
+
+  &.gray {
+    background-color: ${colorScheme.gray.light};
+  }
 `;
 
 const OptionalColumn = Column.extend`

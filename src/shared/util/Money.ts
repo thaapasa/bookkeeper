@@ -15,6 +15,8 @@ const numberFormatOptions: Intl.NumberFormatOptions = {
   maximumFractionDigits: 2,
 };
 
+export type MoneySign = 'positive' | 'negative' | 'zero';
+
 export default class Money {
 
   public value: Big;
@@ -64,6 +66,17 @@ export default class Money {
 
   public static negate(value: MoneyLike): Money {
     return Money.from(value).negate();
+  }
+
+  public sign(): MoneySign {
+    return Money.sign(this.value);
+  }
+
+  public static sign(value: MoneyLike): MoneySign {
+    const b = Money.toBig(value);
+    if (b.gt(0)) { return 'positive'; }
+    if (b.lt(0)) { return 'negative'; }
+    return 'zero';
   }
 
   public abs(): Money {
