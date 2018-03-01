@@ -39,6 +39,9 @@ const Column = styled.td`
   &.gray {
     background-color: ${colorScheme.gray.light};
   }
+  &.dark {
+    background-color: ${colorScheme.secondary.dark};
+  }
 `;
 
 const OptionalColumn = Column.extend`
