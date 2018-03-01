@@ -72,7 +72,7 @@ const DivisionTable = styled.table`
   margin: 0 10px;
   padding: 0;
   border-collapse: collapse;
-  ${media.small`
+  ${media.mobilePortrait`
     width: calc(100% - 20px);
   `}
 `;

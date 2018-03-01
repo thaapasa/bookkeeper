@@ -78,7 +78,7 @@ const StatusContainer = styled.div`
   border-top: 1px solid ${colors.colorScheme.gray.standard};
   border-collapse: collapse;
   margin: 0 16px;
-  ${media.small`
+  ${media.mobilePortrait`
     margin: 0;
   `}
 `;

@@ -95,7 +95,7 @@ class ExpenseTable extends React.Component<ExpenseTableProps, ExpenseTableState>
 
   public render() {
     return (
-      <ExpenseTableContainer>
+      <ExpenseTableContainer className="expense-table-container">
         <ExpenseArea>
           <ExpenseTableLayout>
             <thead>
@@ -134,7 +134,7 @@ const ExpenseArea = styled.div`
   display: flex;
   flex-direction: column;
 
-  ${media.small`
+  ${media.mobile`
     padding: 0;
   `}
 `;

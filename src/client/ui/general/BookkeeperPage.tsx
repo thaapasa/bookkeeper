@@ -13,7 +13,7 @@ import { Session } from '../../../shared/types/Session';
 import { categoryPagePath, expensePagePath, expenseMonthPathPattern, categoryViewMonthPattern, categoryViewYearPattern } from '../../util/Links';
 import { colorScheme } from '../Colors';
 import { Size } from '../Types';
-import { isSmallDevice, getScreenSizeClassName, largeDeviceMinWidth } from '../Styles';
+import { getScreenSizeClassName, largeDeviceMinWidth, isMobilePortraitSize } from '../Styles';
 
 interface PageProps {
   session: Session;
@@ -28,7 +28,7 @@ const appLinks: AppLink[] = [
 export default class BookkeeperPage extends React.Component<PageProps, {}> {
 
   public render() {
-    const smallDevice = isSmallDevice(this.props.windowSize);
+    const smallDevice = isMobilePortraitSize(this.props.windowSize);
     const className = getScreenSizeClassName(this.props.windowSize);
     return (
       <Page>
@@ -37,8 +37,8 @@ export default class BookkeeperPage extends React.Component<PageProps, {}> {
         <Router>
           <ContentContainer>
             <TopBar links={smallDevice ? appLinks : undefined} />
-            <NavigationBar links={smallDevice ? undefined : appLinks} windowSize={this.props.windowSize} />
-            <MainContent className={className}>
+            <NavigationBar links={smallDevice ? undefined : appLinks} />
+            <MainContent className={'main-content ' + className}>
               <Switch>
                 <Route path={expenseMonthPathPattern('date')} component={RoutedMonthView} />
                 <Route path={expensePagePath} component={RoutedMonthView} />
@@ -79,7 +79,8 @@ const MainContent = styled.div`
   box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.5);
   overflow: hidden;
 
-  &.small {
+  &.mobile-portrait,
+  &.mobile-landscape {
     margin: 0;
     box-shadow: none;
   }

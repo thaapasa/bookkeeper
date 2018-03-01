@@ -44,15 +44,24 @@ const Column = styled.td`
   }
 `;
 
-const OptionalColumn = Column.extend`
-  ${media.small`
+const WebColumn = Column.extend`
+  ${media.mobile`
     display: none;
     visibility: collapse;
-      width: 0;
+    width: 0;
+  `}
+`;
+
+const MobileLandscapeColumn = Column.extend`
+  ${media.mobilePortrait`
+    display: none;
+    visibility: collapse;
+    width: 0;
   `}
 `;
 
 const textColWidth = '20%';
+const textColWidthMobile = '30%';
 
 export const DateColumn = Column.extend`
   text-align: right;
@@ -68,18 +77,27 @@ export const NameColumn = Column.extend`
   position: relative;
   padding-left: 4px;
   width: ${textColWidth};
-  ${media.small`
+  ${media.mobilePortrait`
     width: 100%;
   `}
+  ${media.mobileLandscape`
+    width: ${textColWidthMobile};
+  `}
 `;
-export const ReceiverColumn = OptionalColumn.extend`
+export const ReceiverColumn = MobileLandscapeColumn.extend`
   width: ${textColWidth};
+  ${media.mobileLandscape`
+    width: ${textColWidthMobile};
+  `}
 `;
-export const CategoryColumn = OptionalColumn.extend`
+export const CategoryColumn = MobileLandscapeColumn.extend`
   width: ${textColWidth};
+  ${media.mobileLandscape`
+    width: ${textColWidthMobile};
+  `}
 `;
 export const sourceWidth = 52;
-export const SourceColumn = OptionalColumn.extend`
+export const SourceColumn = WebColumn.extend`
   padding: 4px;
   padding-bottom: 0;
   width: ${sourceWidth + 8}px;
@@ -90,7 +108,7 @@ const MoneyColumn = Column.extend`
   text-align: right;
   padding-right: 8px;
 `;
-const OptMoneyColumn = OptionalColumn.extend`
+const OptMoneyColumn = WebColumn.extend`
   position: relative;
   width: 80px;
   text-align: right;
@@ -111,8 +129,9 @@ export const BalanceColumn = OptMoneyColumn;
 export const ToolColumn = Column.extend`
   width: 100px;
   text-align: right;
-  ${media.small`
+  ${media.mobile`
     width: 33px;
+    overflow: hidden;
   `}
 `;
 

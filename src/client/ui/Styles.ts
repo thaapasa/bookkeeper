@@ -2,28 +2,59 @@ import { Size } from './Types';
 import { css, SimpleInterpolation } from 'styled-components';
 
 // See responsive UI specs at https://material.io/guidelines/layout/responsive-ui.html
-export const smallDeviceMaxWidth = 600;
+export type ScreenSizeClassName = 'mobile-portrait' | 'mobile-landscape' | 'web' | 'large';
+
+export const mobilePortraitMaxWidth = 600;
+export const mobileLandscapeMaxWidth = 840;
 export const largeDeviceMinWidth = 1400;
 
-export function isSmallDevice(windowSize: Size) {
-  return windowSize.width < smallDeviceMaxWidth;
+export function isMobilePortraitSize(windowSize: Size) {
+  return windowSize.width < mobilePortraitMaxWidth;
 }
 
-export function isLargeDevice(windowSize: Size) {
+export function isMobileLandscapeSize(windowSize: Size) {
+  return windowSize.width >= mobilePortraitMaxWidth && windowSize.width < mobileLandscapeMaxWidth;
+}
+
+export function isWebSize(windowSize: Size) {
+  return windowSize.width >= mobileLandscapeMaxWidth && windowSize.width < largeDeviceMinWidth;
+}
+
+export function isLargeSize(windowSize: Size) {
   return windowSize.width > largeDeviceMinWidth;
 }
 
-export type ScreenSizeClassName = 'small' | 'medium' | 'large';
-
 export function getScreenSizeClassName(windowSize: Size): ScreenSizeClassName {
-  if (isSmallDevice(windowSize)) { return 'small'; }
-  if (isLargeDevice(windowSize)) { return 'large'; }
-  return 'medium';
+  const w = windowSize.width;
+  if (w < mobilePortraitMaxWidth) { return 'mobile-portrait'; }
+  if (w < mobileLandscapeMaxWidth) { return 'mobile-landscape'; }
+  if (w < largeDeviceMinWidth) { return 'web'; }
+  return 'large';
 }
 
 export const media = {
-  small: (s: TemplateStringsArray, ...i: SimpleInterpolation[]) => css`
-    @media (max-width: ${smallDeviceMaxWidth}px) {
+  mobilePortrait: (s: TemplateStringsArray, ...i: SimpleInterpolation[]) => css`
+    @media screen and (max-width: ${mobilePortraitMaxWidth - 1}px) {
+      ${ css(s, ...i) }
+    }
+  `,
+  mobileLandscape: (s: TemplateStringsArray, ...i: SimpleInterpolation[]) => css`
+    @media screen and (min-width: ${mobilePortraitMaxWidth}px) and (max-width: ${mobileLandscapeMaxWidth - 1}px) {
+      ${ css(s, ...i) }
+    }
+  `,
+  mobile: (s: TemplateStringsArray, ...i: SimpleInterpolation[]) => css`
+    @media screen and (max-width: ${mobileLandscapeMaxWidth - 1}px) {
+      ${ css(s, ...i) }
+    }
+  `,
+  web: (s: TemplateStringsArray, ...i: SimpleInterpolation[]) => css`
+    @media screen and (min-width: ${mobilePortraitMaxWidth}px) and (max-width: ${mobileLandscapeMaxWidth - 1}px) {
+      ${ css(s, ...i) }
+    }
+  `,
+  largeDevice: (s: TemplateStringsArray, ...i: SimpleInterpolation[]) => css`
+    @media screen and (min-width: ${largeDeviceMinWidth}px) {
       ${ css(s, ...i) }
     }
   `,

@@ -68,7 +68,7 @@ function DetailRow(props: { name: string, value: string }) {
 const SmallDeviceContainer = styled.div`
   display: none;
 
-  ${media.small`
+  ${media.mobilePortrait`
     display: block;
   `}
 `;

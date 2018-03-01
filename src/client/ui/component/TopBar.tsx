@@ -1,12 +1,9 @@
 import * as React from 'react';
-import * as B from 'baconjs';
 import * as colors from '../Colors';
 import { validSessionE } from '../../data/Login';
 import { User, Group } from '../../../shared/types/Session';
 import { connect } from './BaconConnect';
-import { windowSizeP } from '../../data/State';
 import { AppBar } from 'material-ui';
-import { Size } from '../Types';
 import { Map } from '../../../shared/util/Objects';
 import MenuDrawer from './MenuDrawer';
 import { AppLink } from './NavigationBar';
@@ -14,7 +11,6 @@ import { AppLink } from './NavigationBar';
 interface TopBarProps {
   user: User;
   group: Group;
-  windowSize: Size;
   links?: AppLink[];
 }
 
@@ -44,11 +40,7 @@ class TopBar extends React.Component<TopBarProps, TopBarState> {
   }
 }
 
-export default connect(B.combineTemplate<any, { user: User, group: Group, windowSize: Size }>({
-  user: validSessionE.map(s => s.user),
-  group: validSessionE.map(s => s.group),
-  windowSize: windowSizeP,
-}))(TopBar);
+export default connect(validSessionE.map(s => ({ user: s.user, group: s.group })))(TopBar);
 
 const styles: Map<React.CSSProperties> = {
   topBar: {
