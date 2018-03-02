@@ -7,6 +7,7 @@ import BasicData from './BasicData';
 import DivisionInfo from './DivisionInfo';
 import RecurrenceInfo from './RecurrenceInfo';
 import { colorScheme } from '../../Colors';
+import ExpenseInfoTools from './ExpenseInfoTools';
 
 interface ExpenseInfoProps {
   division: ExpenseDivisionItem[];
@@ -33,6 +34,7 @@ export default class ExpenseInfo extends React.Component<ExpenseInfoProps, {}> {
             <RecurrenceInfo expense={this.props.expense} />
             {this.props.expense.description ? <Description>{this.props.expense.description}</Description> : null}
             <DivisionInfo {...this.props}/>
+            <ExpenseInfoTools {...this.props} />
           </ExpenseInfoContainer>
         </AllColumns>
       </Row>
