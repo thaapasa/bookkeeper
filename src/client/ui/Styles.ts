@@ -21,7 +21,7 @@ export function isWebSize(windowSize: Size) {
 }
 
 export function isLargeSize(windowSize: Size) {
-  return windowSize.width > largeDeviceMinWidth;
+  return windowSize.width >= largeDeviceMinWidth;
 }
 
 export function getScreenSizeClassName(windowSize: Size): ScreenSizeClassName {
@@ -30,6 +30,24 @@ export function getScreenSizeClassName(windowSize: Size): ScreenSizeClassName {
   if (w < mobileLandscapeMaxWidth) { return 'mobile-landscape'; }
   if (w < largeDeviceMinWidth) { return 'web'; }
   return 'large';
+}
+
+export function isScreenAtLeast(windowSize: Size, screenClass: ScreenSizeClassName) {
+  switch (screenClass) {
+    case 'mobile-portrait': return true;
+    case 'mobile-landscape': return windowSize.width >= mobilePortraitMaxWidth;
+    case 'web': return windowSize.width >= mobileLandscapeMaxWidth;
+    case 'large': return windowSize.width >= largeDeviceMinWidth;
+  }
+}
+
+export function isSizeClassAtLeast(windowSize: ScreenSizeClassName, screenClass: ScreenSizeClassName) {
+  switch (screenClass) {
+    case 'mobile-portrait': return windowSize === 'mobile-portrait';
+    case 'mobile-landscape': return windowSize === 'mobile-portrait' || windowSize === 'mobile-landscape';
+    case 'web': return windowSize === 'web' || windowSize === 'large';
+    case 'large': return windowSize === 'large';
+  }
 }
 
 export const media = {

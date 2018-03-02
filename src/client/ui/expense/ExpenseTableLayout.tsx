@@ -1,12 +1,40 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import { colorScheme } from '../Colors';
-import { media } from '../Styles';
+import { media, ScreenSizeClassName } from '../Styles';
 import { QuestionBookmark, Recurring } from '../Icons';
 import RefreshIndicator from 'material-ui/RefreshIndicator';
+import { Map } from '../../../shared/util/Objects';
 
 const tableBgColor = colorScheme.primary.light;
 const separatorColor = colorScheme.gray.standard;
+
+export const columnSizes: Map<ScreenSizeClassName> = {
+  date: 'mobile-portrait',
+  avatar: 'mobile-portrait',
+  name: 'mobile-portrait',
+  receiver: 'mobile-landscape',
+  category: 'mobile-landscape',
+  source: 'mobile-landscape',
+  sum: 'mobile-portrait',
+  balance: 'web',
+  tools: 'mobile-portrait',
+};
+const columns = Object.keys(columnSizes);
+
+export const maxColumnsForSize2 = {
+  'mobile-portrait': columns.filter(c => columnSizes[c] === 'mobile-portrait').length,
+  'mobile-landscape': columns.filter(c => columnSizes[c] === 'mobile-portrait' || columnSizes[c] === 'mobile-landscape').length,
+  web: columns.length,
+  large: columns.length,
+};
+
+export const maxColumnsForSize = {
+  'mobile-portrait': columns.length,
+  'mobile-landscape': columns.length,
+  web: columns.length,
+  large: columns.length,
+};
 
 export const ExpenseTableLayout = styled.table`
   width: 100%;
@@ -17,6 +45,7 @@ export const ExpenseTableLayout = styled.table`
 
 export const Row = styled.tr`
   padding: 0;
+  width: 100%;
   &:first-of-type {
     td, th { border-top: none; }
   }
@@ -46,22 +75,17 @@ const Column = styled.td`
 
 const WebColumn = Column.extend`
   ${media.mobile`
-    display: none;
-    visibility: collapse;
+    visibility: hidden;
     width: 0;
   `}
 `;
 
 const MobileLandscapeColumn = Column.extend`
   ${media.mobilePortrait`
-    display: none;
-    visibility: collapse;
+    visibility: hidden;
     width: 0;
   `}
 `;
-
-const textColWidth = '20%';
-const textColWidthMobile = '30%';
 
 export const DateColumn = Column.extend`
   text-align: right;
@@ -76,26 +100,10 @@ export const AvatarColumn = Column.extend`
 export const NameColumn = Column.extend`
   position: relative;
   padding-left: 4px;
-  width: ${textColWidth};
-  ${media.mobilePortrait`
-    width: 100%;
-  `}
-  ${media.mobileLandscape`
-    width: ${textColWidthMobile};
-  `}
 `;
-export const ReceiverColumn = MobileLandscapeColumn.extend`
-  width: ${textColWidth};
-  ${media.mobileLandscape`
-    width: ${textColWidthMobile};
-  `}
-`;
-export const CategoryColumn = MobileLandscapeColumn.extend`
-  width: ${textColWidth};
-  ${media.mobileLandscape`
-    width: ${textColWidthMobile};
-  `}
-`;
+export const ReceiverColumn = MobileLandscapeColumn;
+export const CategoryColumn = MobileLandscapeColumn;
+
 export const sourceWidth = 52;
 export const SourceColumn = WebColumn.extend`
   padding: 4px;
@@ -135,7 +143,7 @@ export const ToolColumn = Column.extend`
   `}
 `;
 
-export function AllColumns(props: { className?: string, children?: any }) {
+export function AllColumns(props: {className?: string, children?: any }) {
   return <Column colSpan={9} className={props.className}>{props.children}</Column>;
 }
 
@@ -187,7 +195,7 @@ export function LoadingIndicator(props: { forRow?: boolean }) {
   const forRow = !!props.forRow;
   return (
     <Row>
-      <AllColumns>
+      <AllColumns {...props}>
         <RefreshIndicatorContainer className={forRow ? 'row' : 'primary'}>
           <RefreshIndicator left={forRow ? 16 : -30} top={forRow ? 0 : -30} status="loading" size={forRow ? 30 : 60} />
         </RefreshIndicatorContainer>

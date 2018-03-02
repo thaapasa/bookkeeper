@@ -66,14 +66,10 @@ export class CategoryTable extends React.Component<CategoryViewProps, {}> {
   private renderSubCategory = (c: Category) => {
     return (
       <React.Fragment key={'subcategory-' + c.id}>
-        <CategoryRow category={c} header={true} userData={this.props.userData}
-          categoryTotals={this.props.categoryTotals}
-          createCategory={this.createCategory} editCategory={this.editCategory}
-          range={this.props.range} />
-        {c.children.map(ch => <CategoryRow key={ch.id} userData={this.props.userData}
-          header={false} category={ch} categoryTotals={this.props.categoryTotals}
-          createCategory={this.createCategory} editCategory={this.editCategory}
-          range={this.props.range} />)}
+        <CategoryRow {...this.props} category={c} header={true}
+          createCategory={this.createCategory} editCategory={this.editCategory} />
+        {c.children.map(ch => <CategoryRow key={ch.id} {...this.props} header={false} category={ch}
+          createCategory={this.createCategory} editCategory={this.editCategory} />)}
       </React.Fragment>
     );
   }
