@@ -18,7 +18,15 @@ interface StatusProps {
   filteredTotals: ExpenseTotals | null;
 }
 
-export class MonthlyStatus extends React.Component<StatusProps, {}> {
+interface MonthlyStatusState {
+  expanded: boolean;
+}
+
+export class MonthlyStatus extends React.Component<StatusProps, MonthlyStatusState> {
+
+  public state: MonthlyStatusState = {
+    expanded: false,
+  };
 
   public render() {
     const hasUnconfirmed = this.props.unconfirmedBefore || this.props.unconfirmedDuring;
@@ -26,58 +34,64 @@ export class MonthlyStatus extends React.Component<StatusProps, {}> {
     const expense = this.props.totals ? this.props.totals.totalExpense : 0;
     const filteredIncome = this.props.filteredTotals ? this.props.filteredTotals.totalIncome : 0;
     const filteredExpense = this.props.filteredTotals ? this.props.filteredTotals.totalExpense : 0;
-    const filteredStyle = { display: (!this.props.showFiltered ? 'none' : ''), backgroundColor: 'rgb(224, 224, 224)' };
+    const filteredStyle = { display: (!this.props.showFiltered ? 'none' : ''), backgroundColor: colors.colorScheme.gray.light };
+    const expanded = this.state.expanded;
     return (
-      <StatusContainer>
-        <MonthlyCalculation style={filteredStyle}>
-          <CalculationHeader>Suodatetut tulot ja menot</CalculationHeader>
-          <CalculationRow title="Tulot" sum={filteredIncome} />
-          <CalculationRow title="Menot" sum={Money.from(filteredExpense).abs().negate()} />
-          <CalculationRow title="" sum={Money.from(filteredIncome).minus(filteredExpense)} drawTopBorder={true} />
-        </MonthlyCalculation>
-        <MonthlyCalculation>
-          <CalculationHeader>Tulot ja menot</CalculationHeader>
-          <CalculationRow title="Tulot" sum={income} />
-          <CalculationRow title="Menot" sum={Money.from(expense).abs().negate()} />
-          <CalculationRow title="" sum={Money.from(income).minus(expense)} drawTopBorder={true} />
-        </MonthlyCalculation>
-        <MonthlyCalculation>
+      <StatusContainer className={expanded ? 'expanded' : ''}>
+        <StatusBlock title="Suodatetut" style={filteredStyle} incomeTitle="Tulot" expenseTitle="Menot" income={filteredIncome} expense={filteredExpense} expanded={expanded} />
+        <StatusBlock title="Tulot ja menot" incomeTitle="Tulot" expenseTitle="Menot" income={income} expense={expense} expanded={expanded} className={this.props.showFiltered ? 'optional' : undefined} />
+        <StatusBlock title="Saatavat/velat" incomeTitle="Saatavat" expenseTitle="Velat" income={this.props.startStatus.balance}
+          expense={this.props.endStatus.balance} expanded={expanded}>
           {hasUnconfirmed ? <UnconfirmedIcon /> : null}
-          <CalculationHeader>Saatavat/velat</CalculationHeader>
-          <CalculationRow title="Ennen" sum={this.props.startStatus.balance} />
-          <CalculationRow title="Muutos" sum={this.props.monthStatus.balance} />
-          <CalculationRow title="" sum={this.props.endStatus.balance} drawTopBorder={true} />
-        </MonthlyCalculation>
+        </StatusBlock>
       </StatusContainer>
     );
   }
 }
 
+function StatusBlock({ title, incomeTitle, expenseTitle, expanded, style, income, expense, className, children }:
+  { title: string, incomeTitle: string, expenseTitle: string, expanded: boolean,
+    style?: React.CSSProperties, income: MoneyLike, expense: MoneyLike, className?: string, children?: any }) {
+  return (
+    <MonthlyCalculation style={style} className={className}>
+      {children}
+      <CalculationHeader>{title}</CalculationHeader>
+      {expanded && <CalculationRow title={incomeTitle} sum={income} />}
+      {expanded && <CalculationRow title={expenseTitle} sum={Money.from(expense).abs().negate()} />}
+      <CalculationRow title="" sum={Money.from(income).minus(expense)} drawTopBorder={true} />
+    </MonthlyCalculation>
+  );
+}
+
 const CalculationRowContainer = styled.div`
   display: flex;
   flex-direction: row;
-  padding: 3px 0px;
+  align-items: center;
+  height: 30px;
 `;
 
 const CalculationTitle = styled.div`
   display: inline-block;
-  width: 100px;
+  width: 80px;
 `;
 
 const CalculationSum = styled.div`
   display: inline-block;
-  flex-grow: 1;
+  width: 80px;
   text-align: right;
 `;
 
 const StatusContainer = styled.div`
-  height: 130px;
+  height: 64px;
   display: flex;
   justify-content: flex-end;
   font-size: 14px;
   border-top: 1px solid ${colors.colorScheme.gray.standard};
   border-collapse: collapse;
   margin: 0 16px;
+  &.expanded {
+    height: 150px;
+  }
   ${media.mobilePortrait`
     margin: 0;
   `}
@@ -85,14 +99,18 @@ const StatusContainer = styled.div`
 
 const MonthlyCalculation = styled.div`
   position: relative;
-  width: 200px;
-  padding: 20px;
+  padding: 0 16px;
+  ${media.mobilePortrait`
+    &.optional {
+      display: none;
+    }
+  `}
 `;
 
 const CalculationHeader = styled.div`
-  color: rgb(117, 117, 117);
+  color: ${colors.colorScheme.secondary.dark};
   font-weight: 600;
-  margin-bottom: 5px;
+  margin: 8px 0;
   font-size: 14px;
 `;
 
