@@ -74,6 +74,7 @@ interface ExpenseDialogProps {
   onExpensesUpdated: (date: Date) => void;
   group: Group;
   user: User;
+  expenseCounter: number;
 }
 
 interface ExpenseDialogState extends ExpenseInEditor {
@@ -212,8 +213,10 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDi
   }
 
   public componentWillReceiveProps(nextProps: ExpenseDialogProps) {
-    debug('Settings props for', nextProps.original);
-    this.pushExpenseToInputStreams(nextProps.original);
+    if (this.props.expenseCounter !== nextProps.expenseCounter) {
+      debug('Settings props for', nextProps.original);
+      this.pushExpenseToInputStreams(nextProps.original);
+    }
   }
 
   private requestSave = (event: React.SyntheticEvent<any>) => {
@@ -399,7 +402,10 @@ interface ExpenseDialogListenerState {
   open: boolean;
   original: UserExpenseWithDetails | null;
   resolve: (e: ExpenseInEditor | null) => void;
+  expenseCounter: number;
 }
+
+let expenseCounter: number = 1;
 
 export default class ExpenseDialogListener extends React.Component<{}, ExpenseDialogListenerState> {
 
@@ -409,6 +415,7 @@ export default class ExpenseDialogListener extends React.Component<{}, ExpenseDi
     open: false,
     original: null,
     resolve: noop,
+    expenseCounter: 0,
   };
 
   public componentDidMount() {
@@ -425,14 +432,15 @@ export default class ExpenseDialogListener extends React.Component<{}, ExpenseDi
   }
 
   private handleOpen = async (data: ExpenseDialogObject) => {
+    expenseCounter += 1;
     if (data.expenseId) {
       debug('Edit expense', data.expenseId);
       this.setState({ open: false, original: null });
       const original = await apiConnect.getExpense(data.expenseId);
-      this.setState({ open: true, original, resolve: data.resolve });
+      this.setState({ open: true, original, resolve: data.resolve, expenseCounter });
     } else {
       debug('Create new expense');
-      this.setState({ open: true, original: null, resolve: data.resolve });
+      this.setState({ open: true, original: null, resolve: data.resolve, expenseCounter });
     }
   }
 
@@ -445,7 +453,7 @@ export default class ExpenseDialogListener extends React.Component<{}, ExpenseDi
 
   public render() {
     return this.state.open ?
-      <ConnectedExpenseDialog {...this.state} onExpensesUpdated={this.onExpensesUpdated} createNew={!this.state.original} onClose={this.closeDialog} /> :
+      <ConnectedExpenseDialog {...this.state} expenseCounter={this.state.expenseCounter} onExpensesUpdated={this.onExpensesUpdated} createNew={!this.state.original} onClose={this.closeDialog} /> :
       null;
   }
 }
