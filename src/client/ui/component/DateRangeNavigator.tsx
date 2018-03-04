@@ -7,14 +7,15 @@ import { toDateRangeName, toMoment } from '../../../shared/util/Time';
 import { NavigationConfig } from '../../data/StateTypes';
 import { yearSuffix, monthSuffix } from '../../util/Links';
 import { KeyCodes } from '../../util/Io';
-import { History } from 'history';
+import { navigationP } from '../../data/State';
+import { connect } from './BaconConnect';
+import { withRouter, RouteComponentProps } from 'react-router';
 const debug = require('debug')('bookkeeper:navigator');
 
-export interface DateRangeNavigatorProps extends NavigationConfig {
-  history: History;
+export interface DateRangeNavigatorProps extends NavigationConfig, RouteComponentProps<{}> {
 }
 
-export default class DateRangeNavigator extends React.Component<DateRangeNavigatorProps, {}> {
+export class DateRangeNavigator extends React.Component<DateRangeNavigatorProps, {}> {
 
   private navigateOffset = (offset: number) => {
     const rangeSuffix = this.props.dateRange.type === 'month' ?
@@ -77,3 +78,5 @@ const TitleArea = styled.div`
   font-size: 12pt;
   color: ${colors.colorScheme.primary.text};
 `;
+
+export default connect(navigationP)(withRouter(DateRangeNavigator));

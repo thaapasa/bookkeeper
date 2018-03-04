@@ -2,14 +2,11 @@ import * as React from 'react';
 import styled from 'styled-components';
 import { ToolbarGroup } from 'material-ui/Toolbar';
 import { Toolbar } from 'material-ui';
-import { connect } from './BaconConnect';
-import { navigationP } from '../../data/State';
 import { Map } from '../../../shared/util/Objects';
-import { Route, Link, withRouter, RouteComponentProps } from 'react-router-dom';
+import { Route, Link  } from 'react-router-dom';
 import FlatButton from 'material-ui/FlatButton';
 import DateRangeNavigator from './DateRangeNavigator';
 import { colorScheme } from '../Colors';
-import { NavigationConfig } from '../../data/StateTypes';
 import { AddExpenseIcon } from '../icons/AddExpenseIcon';
 import { media } from '../Styles';
 
@@ -18,11 +15,11 @@ export interface AppLink {
   path: string;
 }
 
-interface NavigationBarProps extends NavigationConfig, RouteComponentProps<{}> {
+interface NavigationBarProps {
   links?: AppLink[];
 }
 
-export class NavigationBar extends React.Component<NavigationBarProps, {}> {
+export default class NavigationBar extends React.Component<NavigationBarProps, {}> {
   public render() {
     return (
       <Toolbar style={styles.toolbar}>
@@ -30,7 +27,7 @@ export class NavigationBar extends React.Component<NavigationBarProps, {}> {
           {this.props.links && this.props.links.map(l => <LinkButton key={l.label} label={l.label} to={l.path} />)}
         </ToolbarGroup>
         <ToolbarGroup>
-          <DateRangeNavigator {...this.props} />
+          <DateRangeNavigator />
         </ToolbarGroup>
         <ToolbarGroup style={styles.pad} />
         <StyledAddExpenseIcon />
@@ -39,9 +36,7 @@ export class NavigationBar extends React.Component<NavigationBarProps, {}> {
   }
 }
 
-export default connect(navigationP)(withRouter(NavigationBar));
-
-const StyledAddExpenseIcon = styled(AddExpenseIcon)`
+export const StyledAddExpenseIcon = styled(AddExpenseIcon)`
   position: absolute;
   right: 27px;
   bottom: -21px;

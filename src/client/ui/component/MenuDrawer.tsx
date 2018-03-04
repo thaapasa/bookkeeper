@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import { Drawer, MenuItem } from 'material-ui';
-import { User } from '../../../shared/types/Session';
+import { User, Group } from '../../../shared/types/Session';
 import { connect } from './BaconConnect';
 import { validSessionE, logout } from '../../data/Login';
 import { UserAvatar } from './UserAvatar';
@@ -14,6 +14,7 @@ interface MenuDrawerProps extends RouteComponentProps<{}> {
   open: boolean;
   onRequestChange: (open: boolean) => void;
   user: User;
+  group: Group;
   links?: AppLink[];
 }
 
@@ -34,6 +35,7 @@ class MenuDrawerImpl extends React.Component<MenuDrawerProps, {}> {
   public render() {
     return (
       <Drawer open={this.props.open} docked={false} onRequestChange={this.props.onRequestChange}>
+        <GroupName>{this.props.group.name}</GroupName>
         <UserInfo>
           <UserAvatar user={this.props.user} size={40} />
           <UserName>{this.props.user.firstName} {this.props.user.lastName}</UserName>
@@ -48,6 +50,13 @@ class MenuDrawerImpl extends React.Component<MenuDrawerProps, {}> {
 }
 
 export const MenuDrawer = withRouter(MenuDrawerImpl);
+
+const GroupName = styled.div`
+  padding: 16px;
+  background-color: ${colorScheme.primary.standard};
+  font-weight: bold;
+  color: ${colorScheme.secondary.dark};
+`;
 
 const UserInfo = styled.div`
   margin: 16px;
@@ -71,4 +80,4 @@ const Divider = styled.div`
   margin: 8px 16px;
 `;
 
-export default connect(validSessionE.map(s => ({ user: s.user })))(MenuDrawer);
+export default connect(validSessionE.map(s => ({ user: s.user, group: s.group })))(MenuDrawer);

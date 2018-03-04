@@ -13,7 +13,7 @@ import { Session } from '../../../shared/types/Session';
 import { categoryPagePath, expensePagePath, expenseMonthPathPattern, categoryViewMonthPattern, categoryViewYearPattern } from '../../util/Links';
 import { colorScheme } from '../Colors';
 import { Size } from '../Types';
-import { getScreenSizeClassName, largeDeviceMinWidth, isMobilePortraitSize } from '../Styles';
+import { getScreenSizeClassName, largeDeviceMinWidth, isMobileSize } from '../Styles';
 
 interface PageProps {
   session: Session;
@@ -28,7 +28,7 @@ const appLinks: AppLink[] = [
 export default class BookkeeperPage extends React.Component<PageProps, {}> {
 
   public render() {
-    const smallDevice = isMobilePortraitSize(this.props.windowSize);
+    const isMobileDevice = isMobileSize(this.props.windowSize);
     const className = getScreenSizeClassName(this.props.windowSize);
     return (
       <Page>
@@ -36,8 +36,8 @@ export default class BookkeeperPage extends React.Component<PageProps, {}> {
         <ConfirmationDialog />
         <Router>
           <ContentContainer>
-            <TopBar links={smallDevice ? appLinks : undefined} />
-            <NavigationBar links={smallDevice ? undefined : appLinks} />
+            <TopBar links={appLinks} windowSize={this.props.windowSize} />
+            {isMobileDevice ? null : <NavigationBar links={appLinks} />}
             <MainContent className={'main-content ' + className}>
               <Switch>
                 <Route path={expenseMonthPathPattern('date')} component={RoutedMonthView} />

@@ -16,6 +16,10 @@ export function isMobileLandscapeSize(windowSize: Size) {
   return windowSize.width >= mobilePortraitMaxWidth && windowSize.width < mobileLandscapeMaxWidth;
 }
 
+export function isMobileSize(windowSize: Size) {
+  return windowSize.width < mobileLandscapeMaxWidth;
+}
+
 export function isWebSize(windowSize: Size) {
   return windowSize.width >= mobileLandscapeMaxWidth && windowSize.width < largeDeviceMinWidth;
 }
