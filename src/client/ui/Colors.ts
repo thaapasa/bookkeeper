@@ -84,7 +84,7 @@ export const muiTheme = getMuiTheme({
     accent2Color: colorScheme.primary.standard,
     textColor: colorScheme.text,
     secondaryTextColor: colorScheme.secondary.text,
-    alternateTextColor: colorScheme.primary.text,
+    alternateTextColor: colorScheme.secondary.light,
   },
   appBar: {
     height: 56,

@@ -11,6 +11,7 @@ import { AddExpenseIcon } from '../icons/AddExpenseIcon';
 import { Size } from '../Types';
 import { isMobileSize } from '../Styles';
 import DateRangeNavigator from './DateRangeNavigator';
+import { MenuIcon } from '../Icons';
 
 interface TopBarProps {
   user: User;
@@ -44,7 +45,8 @@ class TopBar extends React.Component<TopBarProps, TopBarState> {
   public render() {
     return (
       <React.Fragment>
-        <AppBar title={this.getTitle()} style={styles.topBar} onLeftIconButtonClick={this.toggleMenu}>
+        <AppBar title={this.getTitle()} style={styles.topBar} onLeftIconButtonClick={this.toggleMenu}
+          titleStyle={styles.titleStyle} iconElementLeft={<MenuIcon style={styles.iconStyle}/>}>
           {this.getContents()}
         </AppBar>
         <MenuDrawer open={this.state.menuOpen} onRequestChange={this.changeMenu} links={this.props.links} />
@@ -66,5 +68,12 @@ const styles: Map<React.CSSProperties> = {
   topBar: {
     backgroundColor: colors.colorScheme.primary.dark,
     justifyContent: 'center',
+  },
+  titleStyle: {
+    color: colors.colorScheme.primary.text,
+  },
+  iconStyle: {
+    color: colors.colorScheme.primary.text,
+    padding: 12,
   },
 };

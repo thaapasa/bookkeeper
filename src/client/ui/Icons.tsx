@@ -12,6 +12,7 @@ import LibraryAdd from 'material-ui/svg-icons/av/library-add';
 import IconButton from 'material-ui/IconButton';
 import AddCircleSVG from 'material-ui/svg-icons/content/add-circle';
 import AutoRenewSVG from 'material-ui/svg-icons/action/autorenew';
+import MenuIconSVG from 'material-ui/svg-icons/navigation/menu';
 import * as colors from './Colors';
 
 const styles = {
@@ -34,6 +35,7 @@ export const Repeat = RepeatSVG;
 export const Add = LibraryAdd;
 export const PlusCircle = AddCircleSVG;
 export const Recurring = AutoRenewSVG;
+export const MenuIcon = MenuIconSVG;
 
 export function ToolIcon(props: {
   icon: any,
