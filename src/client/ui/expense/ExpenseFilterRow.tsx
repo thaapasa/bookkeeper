@@ -46,11 +46,19 @@ class ExpenseFilterItem extends React.Component<{ filter: ExpenseFilter, index: 
         backgroundColor={colorScheme.primary.standard}
         labelColor={colorScheme.secondary.dark}
         onRequestDelete={this.onRemove}>
-        {f.avatar ? <Avatar src={f.avatar} /> : null}
+        {f.avatar ? <Avatar style={getIconStyle(f.avatar)} /> : null}
         {f.name}
       </Chip>
     );
   }
+}
+
+function getIconStyle(icon: string): React.CSSProperties {
+  return {
+    backgroundImage: `url(${icon})`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+  };
 }
 
 const FilterArea = styled(AllColumns)`
