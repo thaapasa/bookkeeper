@@ -6,6 +6,7 @@ import { UnconfirmedIcon } from './ExpenseTableLayout';
 import { ExpenseTotals, money } from './ExpenseHelper';
 import { ExpenseStatus } from '../../../shared/types/Expense';
 import { media } from '../Styles';
+import { ExpandLess, ExpandMore } from '../Icons';
 
 interface StatusProps {
   unconfirmedBefore: boolean;
@@ -28,6 +29,10 @@ export class MonthlyStatus extends React.Component<StatusProps, MonthlyStatusSta
     expanded: false,
   };
 
+  private toggle = () => {
+    this.setState(s => ({ expanded: !s.expanded }));
+  }
+
   public render() {
     const hasUnconfirmed = this.props.unconfirmedBefore || this.props.unconfirmedDuring;
     const income = this.props.totals ? this.props.totals.totalIncome : 0;
@@ -44,6 +49,9 @@ export class MonthlyStatus extends React.Component<StatusProps, MonthlyStatusSta
           expense={this.props.endStatus.balance} expanded={expanded}>
           {hasUnconfirmed ? <UnconfirmedIcon /> : null}
         </StatusBlock>
+        <ToolArea>
+          {this.state.expanded ? <ExpandMore onClick={this.toggle} /> : <ExpandLess onClick={this.toggle} />}
+        </ToolArea>
       </StatusContainer>
     );
   }
@@ -63,6 +71,10 @@ function StatusBlock({ title, incomeTitle, expenseTitle, expanded, style, income
   );
 }
 
+const ToolArea = styled.div`
+  padding: 4px;
+`;
+
 const CalculationRowContainer = styled.div`
   display: flex;
   flex-direction: row;
@@ -72,7 +84,7 @@ const CalculationRowContainer = styled.div`
 
 const CalculationTitle = styled.div`
   display: inline-block;
-  width: 80px;
+  width: 75px;
 `;
 
 const CalculationSum = styled.div`
@@ -92,7 +104,7 @@ const StatusContainer = styled.div`
   &.expanded {
     height: 150px;
   }
-  ${media.mobilePortrait`
+  ${media.mobile`
     margin: 0;
   `}
 `;
