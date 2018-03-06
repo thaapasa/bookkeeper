@@ -26,6 +26,9 @@ export function formatDate(m: any): string {
 export function fromDate(str: any): Moment {
   return moment(str, datePattern);
 }
+export function readableDate(date: DateLike): string {
+  return toMoment(date).format('D.M.');
+}
 
 export function iso(m: any): string {
   return moment(m).format('YYYY-MM-DDTHH:mm:ssZ');

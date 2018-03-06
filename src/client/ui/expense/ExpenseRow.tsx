@@ -15,7 +15,7 @@ import { User, Source, Category } from '../../../shared/types/Session';
 import { pickDate, notifyError, notify, confirm, updateExpenses, editExpense } from '../../data/State';
 import { getFullCategoryName, UserDataProps } from '../../data/Categories';
 import { Map } from '../../../shared/util/Objects';
-import { toDate, formatDate, toMoment } from '../../../shared/util/Time';
+import { toDate, formatDate, toMoment, readableDate } from '../../../shared/util/Time';
 import { ExpenseFilterFunction } from './ExpenseFilterRow';
 import { equal, notEqual } from '../../../shared/util/Symbols';
 import { RecurringExpenseIcon, UnconfirmedIcon, DateColumn, AvatarColumn, NameColumn, ReceiverColumn, CategoryColumn, SourceColumn, SumColumn, BalanceColumn, ToolColumn, Row, sourceWidth } from './ExpenseTableLayout';
@@ -86,6 +86,7 @@ export class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState
   private editDate = async () => {
     try {
       const date = await pickDate(toMoment(this.props.expense.date).toDate());
+      notify(`Muutettu kirjauksen ${this.props.expense.title} päiväksi ${readableDate(date)}`);
       this.updateExpense({ date: formatDate(date) });
       return true;
     } catch (e) {
@@ -164,7 +165,7 @@ export class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState
         <Row>
           <DateColumn onClick={this.editDate}>
             {expense.recurringExpenseId ? <RecurringExpenseIcon /> : null}
-            <DateContainer>{toMoment(expense.date).format('D.M.')}</DateContainer>
+            <DateContainer>{readableDate(expense.date)}</DateContainer>
           </DateColumn>
           <AvatarColumn>
             <UserAvatar user={this.props.userMap[expense.userId]} size={32} onClick={

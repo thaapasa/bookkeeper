@@ -9,9 +9,26 @@ const debug = require('debug')('bookkeeper:date-picker');
 
 interface DatePickerProps {
   pick: PickDateObject;
+  pickCounter: number;
 }
 
 class DatePickerComponent extends React.Component<DatePickerProps, {}> {
+
+  private ref: DatePicker | null = null;
+
+  public componentDidMount() {
+    this.open();
+  }
+
+  public componentDidUpdate(prevProps: DatePickerProps) {
+    if (prevProps.pickCounter !== this.props.pickCounter) {
+      this.open();
+    }
+  }
+
+  private open = () => {
+    if (this.ref) { this.ref.openDialog(); }
+  }
 
   private onChange = (_: any, d: Date) => {
     debug('Selecting date', d);
@@ -23,12 +40,7 @@ class DatePickerComponent extends React.Component<DatePickerProps, {}> {
   }
   private formatDate = (d: Date) => toMoment(d).format('D.M.YYYY');
 
-  private setRef = (ref: DatePicker | null) => {
-    if (ref) {
-      debug('Opening dialog');
-      ref.openDialog();
-    }
-  }
+  private setRef = (ref: DatePicker | null) => this.ref = ref;
 
   public render() {
     return (
@@ -49,15 +61,23 @@ class DatePickerComponent extends React.Component<DatePickerProps, {}> {
 
 interface DatePickerConnectorState {
   pick: PickDateObject | null;
+  pickCounter: number;
 }
+
+let pickCounter: number = 0;
 
 export default class DatePickerConnector extends React.Component<{}, DatePickerConnectorState> {
 
-  public state: DatePickerConnectorState = { pick: null };
+  public state: DatePickerConnectorState = { pick: null, pickCounter: 0 };
   private unsub: Action[] = [];
 
   public componentDidMount() {
-    this.unsub.push(pickDateE.onValue(pick => this.setState({ pick })));
+    this.unsub.push(pickDateE.onValue(this.pickDate));
+  }
+
+  private pickDate = (pick: PickDateObject | null) => {
+    pickCounter += 1;
+    this.setState({ pick, pickCounter });
   }
 
   public componentWillUnmount() {
@@ -65,7 +85,7 @@ export default class DatePickerConnector extends React.Component<{}, DatePickerC
   }
 
   public render() {
-    return this.state.pick ? <DatePickerComponent pick={this.state.pick} /> : null;
+    return this.state.pick ? <DatePickerComponent pick={this.state.pick} pickCounter={this.state.pickCounter} /> : null;
   }
 
 }
