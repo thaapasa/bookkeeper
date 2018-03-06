@@ -11,6 +11,7 @@ import { userDataE, UserDataProps } from '../../data/Categories';
 import ExpenseFilterRow, { ExpenseFilter, ExpenseFilterFunction } from './ExpenseFilterRow';
 import { partition } from '../../../shared/util/Arrays';
 import { ExpenseTableLayout, RecurringExpenseSeparator, LoadingIndicator } from './ExpenseTableLayout';
+import RecurringSummaryRow from './RecurringSummaryRow';
 import { colorScheme } from '../Colors';
 import { media } from '../Styles';
 
@@ -27,6 +28,7 @@ interface ExpenseTableProps {
 
 interface ExpenseTableState {
   filters: ExpenseFilter[];
+  recurringExpanded: boolean;
 }
 
 // TODO: tänne myös expensejen ja incomen total laskettuna!
@@ -34,6 +36,7 @@ class ExpenseTable extends React.Component<ExpenseTableProps, ExpenseTableState>
 
   public state: ExpenseTableState = {
     filters: [],
+    recurringExpanded: false,
   };
 
   private addFilter = (filter: ExpenseFilterFunction, name: string, avatar?: string) => {
@@ -75,6 +78,17 @@ class ExpenseTable extends React.Component<ExpenseTableProps, ExpenseTableState>
     return { totalIncome: income, totalExpense: expense };
   }
 
+  private toggleRecurring = () => this.setState(s => ({ recurringExpanded: !s.recurringExpanded }));
+
+  private renderRecurringExpenses(recurring: UserExpense[]) {
+    return (
+      <React.Fragment>
+        <RecurringSummaryRow recurring={recurring} onToggle={this.toggleRecurring} isExpanded={this.state.recurringExpanded} />
+        {this.state.recurringExpanded ? recurring.map(this.renderExpense) : null}
+      </React.Fragment>
+    );
+  }
+
   private renderExpenseRows() {
     if (this.props.loading) { return <LoadingIndicator />; }
     const filtered = this.getFilteredExpenses();
@@ -82,11 +96,11 @@ class ExpenseTable extends React.Component<ExpenseTableProps, ExpenseTableState>
     if (recurring.length < 1) {
       return normal.map(this.renderExpense);
     } else if (normal.length < 1) {
-      return recurring.map(this.renderExpense);
+      return this.renderRecurringExpenses(recurring);
     }
     return (
       <React.Fragment>
-        {recurring.map(this.renderExpense)}
+        {this.renderRecurringExpenses(recurring)}
         <RecurringExpenseSeparator />
         {normal.map(this.renderExpense)}
       </React.Fragment>

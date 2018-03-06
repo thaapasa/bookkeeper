@@ -101,6 +101,10 @@ export default class Money {
     return new Money(this.value.plus(Money.toBig(o)));
   }
 
+  public static plus(a: MoneyLike, b: MoneyLike): Money {
+    return Money.from(a).plus(b);
+  }
+
   public minus(o: any): Money {
     return new Money(this.value.minus(Money.toBig(o)));
   }
