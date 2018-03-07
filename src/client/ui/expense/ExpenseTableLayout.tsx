@@ -58,10 +58,12 @@ export const Row = styled.tr`
   }
 `;
 
+export const rowHeight = 40;
+
 const Column = styled.td`
   padding: 0;
   text-align: left;
-  height: 40px;
+  height: ${rowHeight}px;
   overflow: hidden;
   text-overflow: ellipsis;
 
@@ -143,7 +145,7 @@ export const ToolColumn = Column.extend`
   `}
 `;
 
-export function AllColumns(props: {className?: string, children?: any }) {
+export function AllColumns(props: { className?: string, children?: any }) {
   return <Column colSpan={9} className={props.className}>{props.children}</Column>;
 }
 
@@ -159,6 +161,9 @@ const Corner = styled.div`
   top: -32px;
   left: -31px;
   z-index: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
 `;
 
 const recurringIconStyle = { width: 20, height: 20, color: colorScheme.secondary.light };
