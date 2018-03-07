@@ -46,7 +46,7 @@ export class MonthlyStatus extends React.Component<StatusProps, MonthlyStatusSta
         <StatusBlock title="Suodatetut" style={filteredStyle} incomeTitle="Tulot" expenseTitle="Menot" income={filteredIncome} expense={filteredExpense} expanded={expanded} />
         <StatusBlock title="Tulot ja menot" incomeTitle="Tulot" expenseTitle="Menot" income={income} expense={expense} expanded={expanded} className={this.props.showFiltered ? 'optional' : undefined} />
         <StatusBlock title="Saatavat/velat" incomeTitle="Ennen" expenseTitle="Tämä kk" income={this.props.startStatus.balance}
-          expense={this.props.monthStatus.balance} expanded={expanded}>
+          expense={Money.from(this.props.monthStatus.balance).negate()} expanded={expanded}>
           {hasUnconfirmed ? <UnconfirmedIcon /> : null}
         </StatusBlock>
         <ToolArea>
@@ -60,13 +60,16 @@ export class MonthlyStatus extends React.Component<StatusProps, MonthlyStatusSta
 function StatusBlock({ title, incomeTitle, expenseTitle, expanded, style, income, expense, className, children }:
   { title: string, incomeTitle: string, expenseTitle: string, expanded: boolean,
     style?: React.CSSProperties, income: MoneyLike, expense: MoneyLike, className?: string, children?: any }) {
+  const inc = Money.from(income);
+  const exp = Money.from(expense).negate();
+  const sum = inc.plus(exp);
   return (
     <MonthlyCalculation style={style} className={className}>
       {children}
       <CalculationHeader>{title}</CalculationHeader>
-      {expanded && <CalculationRow title={incomeTitle} sum={income} />}
-      {expanded && <CalculationRow title={expenseTitle} sum={Money.from(expense).abs().negate()} />}
-      <CalculationRow title="" sum={Money.from(income).minus(expense)} drawTopBorder={true} />
+      {expanded && <CalculationRow title={incomeTitle} sum={inc} />}
+      {expanded && <CalculationRow title={expenseTitle} sum={exp} />}
+      <CalculationRow title="" sum={sum} drawTopBorder={true} />
     </MonthlyCalculation>
   );
 }
@@ -126,7 +129,7 @@ const CalculationHeader = styled.div`
   font-size: 14px;
 `;
 
-function CalculationRow({ title, sum, drawTopBorder }: { title: string, sum: MoneyLike, drawTopBorder?: boolean }) {
+function CalculationRow({ title, sum, drawTopBorder }: { title: string, sum: Money, drawTopBorder?: boolean }) {
   const rowStyle = { borderTop: (drawTopBorder ? '1px solid rgb(224, 224, 224)' : 'none') };
   return (
     <CalculationRowContainer style={rowStyle}>
