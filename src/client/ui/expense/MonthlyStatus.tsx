@@ -45,8 +45,8 @@ export class MonthlyStatus extends React.Component<StatusProps, MonthlyStatusSta
       <StatusContainer className={expanded ? 'expanded' : ''}>
         <StatusBlock title="Suodatetut" style={filteredStyle} incomeTitle="Tulot" expenseTitle="Menot" income={filteredIncome} expense={filteredExpense} expanded={expanded} />
         <StatusBlock title="Tulot ja menot" incomeTitle="Tulot" expenseTitle="Menot" income={income} expense={expense} expanded={expanded} className={this.props.showFiltered ? 'optional' : undefined} />
-        <StatusBlock title="Saatavat/velat" incomeTitle="Saatavat" expenseTitle="Velat" income={this.props.startStatus.balance}
-          expense={this.props.endStatus.balance} expanded={expanded}>
+        <StatusBlock title="Saatavat/velat" incomeTitle="Ennen" expenseTitle="Tämä kk" income={this.props.startStatus.balance}
+          expense={this.props.monthStatus.balance} expanded={expanded}>
           {hasUnconfirmed ? <UnconfirmedIcon /> : null}
         </StatusBlock>
         <ToolArea>
