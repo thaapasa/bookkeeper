@@ -14,6 +14,7 @@ import { CategoryTable } from './CategoryTable';
 import CategoryChart, { CategoryChartData } from './CategoryChart';
 import { UserDataProps, userDataE } from '../../data/Categories';
 import { categoryPagePath } from '../../util/Links';
+import Money from '../../../shared/util/Money';
 
 interface CategoryViewProps {
   categories: Category[];
@@ -56,7 +57,7 @@ class CategoryView extends React.Component<CategoryViewProps, CategoryViewState>
     return this.props.categories.map(c => ({
       categoryId: c.id,
       categoryName: c.name,
-      categoryTotal: categoryTotals[c.id] && categoryTotals[c.id].totalExpenses || 0,
+      categoryTotal: Money.toValue(categoryTotals[c.id] && categoryTotals[c.id].totalExpenses || 0),
     }));
   }
 

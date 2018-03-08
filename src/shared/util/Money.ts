@@ -32,6 +32,7 @@ export default class Money {
   }
 
   public static toValue(m: MoneyLike): number {
+    if (typeof m === 'number') { return m; }
     return parseInt(Money.from(m).value.times(100).round().toString(), 10) / 100;
   }
 
@@ -77,6 +78,14 @@ export default class Money {
     if (b.gt(0)) { return 'positive'; }
     if (b.lt(0)) { return 'negative'; }
     return 'zero';
+  }
+
+  public valueOf(): number {
+    return Money.toValue(this);
+  }
+
+  public static valueOf(m: MoneyLike): number {
+    return Money.toValue(m);
   }
 
   public abs(): Money {

@@ -42,11 +42,6 @@ html, body, #root {
 .category-table-row > .category-name { flex-grow: 1; }
 .category-table-row > .category-tools { width: 8em; text-align: right; }
 
-.category-chart-container {
-    height: 450px;
-    /*width: 800px;*/
-}
-
 .Axis .domain {
     display: none;
 }
@@ -223,10 +218,6 @@ html, body, #root {
     .expense-division-item {
         margin: 0.1em 0.3em;
         display: inline-block;
-    }
-
-    .category-chart-container {
-        height: 480px;
     }
 
     .Axis-Bottom text {
