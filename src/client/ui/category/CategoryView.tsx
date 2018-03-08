@@ -1,5 +1,6 @@
 import * as React from 'react';
 import * as B from 'baconjs';
+import styled from 'styled-components';
 import { History } from 'history';
 import { Map } from '../../../shared/util/Objects';
 import { Category, CategoryAndTotals } from '../../../shared/types/Session';
@@ -10,9 +11,10 @@ import { validSessionE, updateSession } from '../../data/Login';
 import { needUpdateE, navigationBus } from '../../data/State';
 import { connect } from '../component/BaconConnect';
 import { CategoryTable } from './CategoryTable';
-import { CategoryChartData } from './CategoryChart';
+import CategoryChart, { CategoryChartData } from './CategoryChart';
 import { UserDataProps, userDataE } from '../../data/Categories';
 import { categoryPagePath } from '../../util/Links';
+import Money from '../../../shared/util/Money';
 
 interface CategoryViewProps {
   categories: Category[];
@@ -55,7 +57,7 @@ class CategoryView extends React.Component<CategoryViewProps, CategoryViewState>
     return this.props.categories.map(c => ({
       categoryId: c.id,
       categoryName: c.name,
-      categoryTotal: categoryTotals[c.id] && categoryTotals[c.id].totalExpenses || 0,
+      categoryTotal: Money.toValue(categoryTotals[c.id] && categoryTotals[c.id].totalExpenses || 0),
     }));
   }
 
@@ -86,16 +88,26 @@ class CategoryView extends React.Component<CategoryViewProps, CategoryViewState>
   public render() {
     if (this.state.isLoading) { return null; }
     return (
-      <CategoryTable
-        {...this.props}
-        userData={this.props.userData}
-        onCategoriesChanged={this.refresh}
-        categoryTotals={this.state.categoryTotals}
-        categoryChartData={this.state.categoryChartData} />
+      <CategoryViewContainer>
+        <CategoryChart chartData={this.state.categoryChartData} />
+        <CategoryTable
+          {...this.props}
+          userData={this.props.userData}
+          onCategoriesChanged={this.refresh}
+          categoryTotals={this.state.categoryTotals} />
+      </CategoryViewContainer>
     );
   }
 
 }
+
+const CategoryViewContainer = styled.div`
+  font-size: 13px;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+`;
 
 export default connect(B.combineTemplate<any, { categories: Category[], userData: UserDataProps }>({
   categories: validSessionE.map(s => s.categories),

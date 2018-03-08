@@ -9,17 +9,9 @@ import { UserExpense } from '../../../shared/types/Expense';
 import { DateRange } from '../../../shared/util/Time';
 import { Map } from '../../../shared/util/Objects';
 import { UserDataProps } from '../../data/Categories';
-
-const styles: Map<React.CSSProperties> = {
-  mainCategory: {
-    background: colors.topItem,
-    color: 'white',
-    fontWeight: 'bold',
-  },
-  category: {
-    background: colors.subItem,
-  },
-};
+import { ExpenseTableLayout } from '../expense/ExpenseTableLayout';
+import { Row, NameColumn, SumColumn, ToolColumn, AllColumns } from './CategoryTableLayout';
+import Money, { MoneyLike } from '../../../shared/util/Money';
 
 interface CategoryRowProps {
   category: Category;
@@ -53,19 +45,24 @@ export default class CategoryRow extends React.Component<CategoryRowProps, Categ
 
   private renderCategoryExpenses = (expenses: UserExpense[]) => {
     if (this.state.isLoading) {
-      return <div className="bk-table-row category-table-row"><div className="category-name">Ladataan...</div></div>;
+      return <AllColumns>Ladataan...</AllColumns>;
     }
-    return expenses && expenses.length > 0 ? expenses.map(expense => (
-      <ExpenseRow
-        expense={expense}
-        userData={this.props.userData}
-        key={'expense-row-' + expense.id}
-        addFilter={noop}
-        onUpdated={this.reload} />
-    )) : (
-      <div className="bk-table-row category-table-row">
-        <div className="category-name">Ei kirjauksia</div>
-      </div>
+    if (!expenses || expenses.length < 1) {
+      return <AllColumns>Ei kirjauksia</AllColumns>;
+    }
+    return (
+      <ExpenseTableLayout>
+        <tbody>
+          {expenses.map(expense => (
+            <ExpenseRow
+              expense={expense}
+              userData={this.props.userData}
+              key={'expense-row-' + expense.id}
+              addFilter={noop}
+              onUpdated={this.reload} />
+          ))}
+        </tbody>
+      </ExpenseTableLayout>
     );
   }
 
@@ -83,13 +80,14 @@ export default class CategoryRow extends React.Component<CategoryRowProps, Categ
     const category = this.props.category;
     const header = this.props.header;
     const totals = this.props.categoryTotals['' + category.id];
+    const className = this.props.category.parentId ? 'sub-category' : 'main-category';
     return (
-      <div className="category-container">
-        <div className="bk-table-row category-table-row" style={header ? styles.mainCategory : styles.category}>
-          <div className="category-name">{category.name}</div>
-          <div className="category-sum">{header && totals ? totals.totalExpenses + ' / ' + totals.totalIncome : ''}</div>
-          <div className="category-totals">{totals ? totals.expenses + ' / ' + totals.income : '0 / 0'}</div>
-          <div className="category-tools">
+      <React.Fragment>
+        <Row className={className}>
+          <NameColumn>{category.name}</NameColumn>
+          <SumColumn>{header && totals ? formatMoney(totals.totalExpenses) + ' / ' + formatMoney(totals.totalIncome) : ''}</SumColumn>
+          <SumColumn>{totals ? formatMoney(totals.expenses) + ' / ' + formatMoney(totals.income) : '0 / 0'}</SumColumn>
+          <ToolColumn>
             {header ?
               <AddCategoryButton parent={category} color={colors.white} onAdd={this.props.createCategory} /> : null}
             <EditCategoryButton category={category} color={header ? colors.white : null}
@@ -97,10 +95,14 @@ export default class CategoryRow extends React.Component<CategoryRowProps, Categ
             <ToggleButton category={category} color={header ? colors.white : null}
               onToggle={this.state.open ? this.close : this.open}
               state={this.state.open} />
-          </div>
-        </div>
-        {this.state.open ? this.renderCategoryExpenses(this.state.expenses) : null}
-      </div>
+          </ToolColumn>
+        </Row>
+        {this.state.open ? <Row>{this.renderCategoryExpenses(this.state.expenses)}</Row> : null}
+      </React.Fragment>
     );
   }
+}
+
+function formatMoney(m?: MoneyLike): string {
+  return m ? Money.from(m).format(2, { style: 'decimal' }) : '-';
 }

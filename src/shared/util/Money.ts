@@ -32,6 +32,7 @@ export default class Money {
   }
 
   public static toValue(m: MoneyLike): number {
+    if (typeof m === 'number') { return m; }
     return parseInt(Money.from(m).value.times(100).round().toString(), 10) / 100;
   }
 
@@ -79,6 +80,14 @@ export default class Money {
     return 'zero';
   }
 
+  public valueOf(): number {
+    return Money.toValue(this);
+  }
+
+  public static valueOf(m: MoneyLike): number {
+    return Money.toValue(m);
+  }
+
   public abs(): Money {
     return Money.from(this.value.abs());
   }
@@ -88,9 +97,10 @@ export default class Money {
     return this.value.toFixed(scale);
   }
 
-  public format(scale?: number): string {
+  public format(scale?: number, options?: Intl.NumberFormatOptions): string {
     if (scale === undefined) { scale = 2; }
-    return `${Number(this.value).toLocaleString('fi', numberFormatOptions)}`;
+    const opts = options ? { ...numberFormatOptions, ...options } : numberFormatOptions;
+    return `${Number(this.value).toLocaleString('fi', opts)}`;
   }
 
   public inspect(): string {

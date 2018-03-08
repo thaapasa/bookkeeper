@@ -1,18 +1,20 @@
 import * as React from 'react';
+import styled from 'styled-components';
 import { scaleBand, scaleLinear } from 'd3-scale';
 import * as d3Axis from 'd3-axis';
 import { select as d3Select } from 'd3-selection';
-import Money, { MoneyLike } from '../../../shared/util/Money';
+import Money from '../../../shared/util/Money';
+import { media } from '../Styles';
 
 export interface CategoryChartData {
   categoryId: number;
   categoryName: string;
-  categoryTotal: MoneyLike;
+  categoryTotal: number;
 }
 
 interface Scales {
-  xScale: any;
-  yScale: any;
+  xScale: d3Axis.AxisScale<string>;
+  yScale: d3Axis.AxisScale<number>;
 }
 
 interface Margins {
@@ -42,8 +44,8 @@ class Bars extends React.Component<BarsProps, {}> {
           key={datum.categoryName}
           x={xScale(datum.categoryName)}
           y={yScale(datum.categoryTotal)}
-          height={height - margins.bottom - yScale(datum.categoryTotal)}
-          width={xScale.bandwidth()}
+          height={height - margins.bottom - (yScale(datum.categoryTotal) || 0)}
+          width={xScale.bandwidth ? xScale.bandwidth() : 0}
           fill="#A252B6"
         />
       )) : <rect />
@@ -53,13 +55,24 @@ class Bars extends React.Component<BarsProps, {}> {
   }
 }
 
-interface AxisProps {
-  readonly orient: string;
-  readonly scale: any;
+type Orient = 'Bottom' | 'Left' | 'Top' | 'Right';
+function getAxis<Domain>(orient: Orient, scale: d3Axis.AxisScale<Domain>): d3Axis.Axis<Domain> {
+  switch (orient) {
+    case 'Bottom': return d3Axis.axisBottom(scale);
+    case 'Top': return d3Axis.axisTop(scale);
+    case 'Left': return d3Axis.axisLeft(scale);
+    case 'Right': return d3Axis.axisRight(scale);
+    default: throw new Error('Invalid orient:' + orient);
+  }
+}
+
+interface AxisProps<Domain> {
+  readonly orient: 'Bottom' | 'Left' | 'Top' | 'Right';
+  readonly scale: d3Axis.AxisScale<Domain>;
   readonly tickSize: number;
   readonly translate: string;
 }
-class Axis extends React.Component<AxisProps, {}> {
+class Axis<Domain> extends React.Component<AxisProps<Domain>, {}> {
   private axisElement: SVGElement | null = null;
 
   public componentDidMount() {
@@ -71,26 +84,45 @@ class Axis extends React.Component<AxisProps, {}> {
   }
 
   private renderAxis() {
-    const axisType = `axis${this.props.orient}`;
-    const axis = (d3Axis as any)[axisType]()
-      .scale(this.props.scale)
+    if (!this.axisElement) { return; }
+    const axis = getAxis(this.props.orient, this.props.scale)
       .tickSize(-this.props.tickSize)
-      .tickPadding([12])
+      .tickPadding(12)
       .ticks([4]);
 
-    d3Select(this.axisElement).call(axis);
+    d3Select(this.axisElement).call(axis as any);
   }
+
+  private setRef = (el: SVGElement | null) => this.axisElement = el;
 
   public render() {
     return (
-      <g
+      <AxisG
         className={`Axis Axis-${this.props.orient}`}
-        ref={(el) => { this.axisElement = el; }}
+        innerRef={this.setRef}
         transform={this.props.translate}
       />
     );
   }
 }
+
+const AxisG = styled.g`
+  .domain {
+    display: none;
+  }
+  line {
+    stroke: #E0E0E0;
+  }
+  &.Axis-Bottom .tick line {
+    display: none;
+  }
+  ${media.mobile`
+    &.Axis-Bottom text {
+      transform: rotate(-45deg);
+      text-anchor: end;
+    }
+  `}
+`;
 
 interface AxesProps {
   scales: Scales;
@@ -102,14 +134,14 @@ function Axes({ scales, margins, svgDimensions }: AxesProps) {
 
   const { height, width } = svgDimensions;
 
-  const xProps = {
+  const xProps: AxisProps<string> = {
     orient: 'Bottom',
     scale: scales.xScale,
     translate: `translate(0, ${height - margins.bottom})`,
     tickSize: height - margins.top - margins.bottom,
   };
 
-  const yProps = {
+  const yProps: AxisProps<number> = {
     orient: 'Left',
     scale: scales.yScale,
     translate: `translate(${margins.left}, 0)`,
@@ -130,8 +162,8 @@ interface CategoryChartState {
 
 export default class CategoryChart extends React.Component<{ chartData: CategoryChartData[] | undefined }, CategoryChartState> {
 
-  private xScale = scaleBand();
-  private yScale = scaleLinear();
+  private xScale = scaleBand<string>();
+  private yScale = scaleLinear<number>();
   private chartContainer: HTMLDivElement | null = null;
 
   public state: CategoryChartState = {
@@ -160,8 +192,8 @@ export default class CategoryChart extends React.Component<{ chartData: Category
   private renderChart(parentWidth: number) {
 
     const chartData = this.props.chartData;
-    const margins = { top: 50, right: 20, bottom: 100, left: 60 };
-    const width = (chartData && parentWidth > chartData.length * 80) ? chartData.length * 80 : parentWidth;
+    const margins = { top: 50, right: 20, bottom: 80, left: 60 };
+    const width = Math.min(chartData && chartData.length * 90 || 3000, parentWidth);
     const svgDimensions = {
       width: Math.max(width, 300),
       height: 500,
@@ -169,34 +201,31 @@ export default class CategoryChart extends React.Component<{ chartData: Category
 
     const maxValue = chartData ? Math.max(...chartData.map(d => Money.toValue(d.categoryTotal))) * 1.1 : 0;
     // scaleBand type
-    const xScale = chartData ? this.xScale
+    const xScale: d3Axis.AxisScale<string> = chartData ? this.xScale
       .padding(0.5)
       .domain(chartData.map(d => d.categoryName))
       .range([margins.left, svgDimensions.width - margins.right]) : this.xScale;
 
     // scaleLinear type
-    const yScale = this.yScale
+    const yScale: d3Axis.AxisScale<number> = this.yScale
       // scaleLinear domain required at least two values, min and max
       .domain([0, maxValue])
       .range([svgDimensions.height - margins.bottom, margins.top]);
 
     return (
-      <div className="category-chart-container">
-        <svg width={svgDimensions.width} height={svgDimensions.height}>
-          // Bars and Axis comes here
-          <Axes
-            scales={{ xScale, yScale }}
-            margins={margins}
-            svgDimensions={svgDimensions}
-          />
-          <Bars
-            scales={{ xScale, yScale }}
-            margins={margins}
-            data={chartData}
-            svgDimensions={svgDimensions}
-          />
-        </svg>
-      </div>
+      <svg width={svgDimensions.width} height={svgDimensions.height}>
+        <Axes
+          scales={{ xScale, yScale }}
+          margins={margins}
+          svgDimensions={svgDimensions}
+        />
+        <Bars
+          scales={{ xScale, yScale }}
+          margins={margins}
+          data={chartData}
+          svgDimensions={svgDimensions}
+        />
+      </svg>
     );
   }
 

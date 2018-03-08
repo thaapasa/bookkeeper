@@ -139,6 +139,7 @@ export const BalanceColumn = OptMoneyColumn;
 export const ToolColumn = Column.extend`
   width: 100px;
   text-align: right;
+  white-space: nowrap;
   ${media.mobile`
     width: 33px;
     overflow: hidden;
