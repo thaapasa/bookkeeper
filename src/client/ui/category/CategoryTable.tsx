@@ -1,7 +1,5 @@
 import * as React from 'react';
-import styled from 'styled-components';
 import CategoryDialog from './CategoryDialog';
-import CategoryChart, { CategoryChartData } from './CategoryChart';
 import { Category, CategoryAndTotals } from '../../../shared/types/Session';
 import { AddCategoryButton } from './CategoryTools';
 import CategoryRow from './CategoryRow';
@@ -15,7 +13,6 @@ interface CategoryViewProps {
   categories: Category[];
   range: TypedDateRange;
   categoryTotals: Map<CategoryAndTotals>;
-  categoryChartData?: CategoryChartData[];
   onCategoriesChanged: Action;
   userData: UserDataProps;
 }
@@ -52,14 +49,13 @@ export class CategoryTable extends React.Component<CategoryViewProps, {}> {
 
   public render() {
     return (
-      <CategoryTableContainer>
-        <CategoryChart chartData={this.props.categoryChartData} />
+      <React.Fragment>
         <CategoryHeader onAdd={this.createCategory} />
         <div className="category-data-area">
           {this.props.categories.map(this.renderSubCategory)}
         </div>
         <CategoryDialog ref={r => this.categoryDialog = r} categories={this.props.categories} />
-      </CategoryTableContainer>
+      </React.Fragment>
     );
   }
 
@@ -75,11 +71,3 @@ export class CategoryTable extends React.Component<CategoryViewProps, {}> {
   }
 
 }
-
-const CategoryTableContainer = styled.div`
-  font-size: 13px;
-  width: 100%;
-  height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
-`;
