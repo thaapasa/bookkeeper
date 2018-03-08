@@ -1,7 +1,5 @@
 {
     "editor.tabSize": 2,
-    "editor.fontFamily": "Fira Code Retina, Fira Code, Consolas, 'Courier New', monospace",
-    "editor.fontLigatures": true,
     "files.exclude": {
         "**/.git": true,
         "**/.svn": true,
