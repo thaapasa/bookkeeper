@@ -1,8 +1,8 @@
 import * as React from 'react';
 import CategoryDialog from './CategoryDialog';
 import { Category, CategoryAndTotals } from '../../../shared/types/Session';
-import { AddCategoryButton } from './CategoryTools';
 import CategoryRow from './CategoryRow';
+import { CategoryHeader } from './CategoryTableLayout';
 import { TypedDateRange } from '../../../shared/util/Time';
 import { Map } from '../../../shared/util/Objects';
 import { Action } from '../../../shared/types/Common';
@@ -15,18 +15,6 @@ interface CategoryViewProps {
   categoryTotals: Map<CategoryAndTotals>;
   onCategoriesChanged: Action;
   userData: UserDataProps;
-}
-
-function CategoryHeader({ onAdd }: { onAdd: (p?: Category) => void }) {
-  return (
-    <div className="category-table-row category-table-header header no-border">
-      <div className="category-name">Nimi</div>
-      <div className="category-totals">Kulut / Tulot</div>
-      <div className="category-tools">
-        <AddCategoryButton onAdd={onAdd} />
-      </div>
-    </div>
-  );
 }
 
 export class CategoryTable extends React.Component<CategoryViewProps, {}> {
@@ -51,9 +39,7 @@ export class CategoryTable extends React.Component<CategoryViewProps, {}> {
     return (
       <React.Fragment>
         <CategoryHeader onAdd={this.createCategory} />
-        <div className="category-data-area">
-          {this.props.categories.map(this.renderSubCategory)}
-        </div>
+        {this.props.categories.map(this.renderSubCategory)}
         <CategoryDialog ref={r => this.categoryDialog = r} categories={this.props.categories} />
       </React.Fragment>
     );
