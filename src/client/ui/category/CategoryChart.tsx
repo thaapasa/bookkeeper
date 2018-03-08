@@ -1,8 +1,10 @@
 import * as React from 'react';
+import styled from 'styled-components';
 import { scaleBand, scaleLinear } from 'd3-scale';
 import * as d3Axis from 'd3-axis';
 import { select as d3Select } from 'd3-selection';
 import Money from '../../../shared/util/Money';
+import { media } from '../Styles';
 
 export interface CategoryChartData {
   categoryId: number;
@@ -95,14 +97,32 @@ class Axis<Domain> extends React.Component<AxisProps<Domain>, {}> {
 
   public render() {
     return (
-      <g
+      <AxisG
         className={`Axis Axis-${this.props.orient}`}
-        ref={this.setRef}
+        innerRef={this.setRef}
         transform={this.props.translate}
       />
     );
   }
 }
+
+const AxisG = styled.g`
+  .domain {
+    display: none;
+  }
+  line {
+    stroke: #E0E0E0;
+  }
+  &.Axis-Bottom .tick line {
+    display: none;
+  }
+  ${media.mobile`
+    &.Axis-Bottom text {
+      transform: rotate(-45deg);
+      text-anchor: end;
+    }
+  `}
+`;
 
 interface AxesProps {
   scales: Scales;
@@ -172,8 +192,8 @@ export default class CategoryChart extends React.Component<{ chartData: Category
   private renderChart(parentWidth: number) {
 
     const chartData = this.props.chartData;
-    const margins = { top: 50, right: 20, bottom: 100, left: 60 };
-    const width = (chartData && parentWidth > chartData.length * 80) ? chartData.length * 80 : parentWidth;
+    const margins = { top: 50, right: 20, bottom: 80, left: 60 };
+    const width = Math.min(chartData && chartData.length * 90 || 3000, parentWidth);
     const svgDimensions = {
       width: Math.max(width, 300),
       height: 500,
