@@ -41,6 +41,9 @@ export const ExpenseTableLayout = styled.table`
   background-color: ${tableBgColor};
   border-spacing: 0;
   table-layout: fixed;
+  &.padding {
+    padding: 0 16px;
+  }
 `;
 
 export const Row = styled.tr`

@@ -65,6 +65,7 @@ export const ToolColumn = styled.div`
 
 export const AllColumns = styled.div`
   flex: 1;
+  padding: 0 16px;
 `;
 
 export function CategoryHeader({ onAdd }: { onAdd: (p?: Category) => void }) {

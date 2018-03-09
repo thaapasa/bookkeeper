@@ -51,7 +51,7 @@ export default class CategoryRow extends React.Component<CategoryRowProps, Categ
       return <AllColumns>Ei kirjauksia</AllColumns>;
     }
     return (
-      <ExpenseTableLayout>
+      <ExpenseTableLayout className="padding">
         <tbody>
           {expenses.map(expense => (
             <ExpenseRow
