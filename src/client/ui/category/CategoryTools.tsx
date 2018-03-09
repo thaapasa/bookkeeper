@@ -8,12 +8,13 @@ export class AddCategoryButton extends React.PureComponent<{
   onAdd: (p?: Category) => void;
   parent?: Category;
   color?: string | null;
+  icon?: React.ComponentType<any>,
 }, {}> {
   private add = () => {
     this.props.onAdd(this.props.parent);
   }
   public render() {
-    return <ToolIcon title="Lisää" onClick={this.add} icon={Add} color={this.props.color} />;
+    return <ToolIcon title="Lisää" onClick={this.add} icon={this.props.icon || Add} color={this.props.color} />;
   }
 }
 

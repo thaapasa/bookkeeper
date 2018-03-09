@@ -8,7 +8,7 @@ import ExpandMoreSVG from 'material-ui/svg-icons/navigation/expand-more';
 import DeleteSVG from 'material-ui/svg-icons/action/delete';
 import EditSVG from 'material-ui/svg-icons/image/edit';
 import RepeatSVG from 'material-ui/svg-icons/av/repeat';
-import LibraryAdd from 'material-ui/svg-icons/av/library-add';
+import ContentAdd from 'material-ui/svg-icons/content/add';
 import IconButton from 'material-ui/IconButton';
 import AddCircleSVG from 'material-ui/svg-icons/content/add-circle';
 import AutoRenewSVG from 'material-ui/svg-icons/action/autorenew';
@@ -32,13 +32,13 @@ export const Delete = DeleteSVG;
 export const ExpandLess = ExpandLessSVG;
 export const ExpandMore = ExpandMoreSVG;
 export const Repeat = RepeatSVG;
-export const Add = LibraryAdd;
+export const Add = ContentAdd;
 export const PlusCircle = AddCircleSVG;
 export const Recurring = AutoRenewSVG;
 export const MenuIcon = MenuIconSVG;
 
 export function ToolIcon(props: {
-  icon: any,
+  icon: React.ComponentType<any>,
   color?: string | null,
   title: string,
   style?: React.CSSProperties,

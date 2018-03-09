@@ -4,6 +4,7 @@ import { rowHeight } from '../expense/ExpenseTableLayout';
 import { Category } from '../../../shared/types/Session';
 import { AddCategoryButton } from './CategoryTools';
 import { colorScheme } from '../Colors';
+import { PlusCircle } from '../Icons';
 
 export const Row = styled.div`
   padding: 0 16px;
@@ -72,7 +73,7 @@ export function CategoryHeader({ onAdd }: { onAdd: (p?: Category) => void }) {
       <SumColumn className="header">Tulot</SumColumn>
       <SumColumn className="header">Kulut</SumColumn>
       <ToolColumn>
-        <AddCategoryButton onAdd={onAdd} color={colorScheme.gray.veryDark} />
+        <AddCategoryButton onAdd={onAdd} color={colorScheme.gray.veryDark} icon={PlusCircle} />
       </ToolColumn>
     </Row>
   );
