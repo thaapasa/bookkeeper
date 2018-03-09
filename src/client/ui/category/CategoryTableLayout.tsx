@@ -7,8 +7,7 @@ import { colorScheme } from '../Colors';
 import { PlusCircle } from '../Icons';
 
 export const Row = styled.div`
-  padding: 0 16px;
-  width: calc(100% - 32px);
+  width: 100%;
   min-height: ${rowHeight}px;
   display: flex;
   flex-direction: row;
@@ -27,6 +26,7 @@ export const Row = styled.div`
 
 export const NameColumn = styled.div`
   flex: 1;
+  padding-left: 16px;
   &.header {
     font-weight: bold;
   }
@@ -54,7 +54,8 @@ export const SumColumn = styled.div`
 `;
 
 export const ToolColumn = styled.div`
-  width: 100px;
+  padding-right: 12px;
+  width: 70px;
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
