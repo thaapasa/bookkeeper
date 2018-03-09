@@ -41,10 +41,19 @@ export const SumColumn = styled.div`
   padding: 0;
   padding-right: 8px;
   white-space: nowrap;
+  width: 75px;
+  text-align: right;
+  &.header {
+    font-weight: bold;
+  }
+  &.unimportant {
+    color: ${colorScheme.gray.dark};
+    opacity: 0.5;
+  }
 `;
 
 export const ToolColumn = styled.div`
-  width: 130px;
+  width: 100px;
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
@@ -60,9 +69,10 @@ export function CategoryHeader({ onAdd }: { onAdd: (p?: Category) => void }) {
   return (
     <Row className="category-header">
       <NameColumn className="header">Nimi</NameColumn>
-      <SumColumn>Kulut / Tulot</SumColumn>
+      <SumColumn className="header">Tulot</SumColumn>
+      <SumColumn className="header">Kulut</SumColumn>
       <ToolColumn>
-        <AddCategoryButton onAdd={onAdd} />
+        <AddCategoryButton onAdd={onAdd} color={colorScheme.gray.veryDark} />
       </ToolColumn>
     </Row>
   );

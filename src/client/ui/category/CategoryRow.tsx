@@ -76,26 +76,40 @@ export default class CategoryRow extends React.Component<CategoryRowProps, Categ
     this.setState({ open: false, expenses: [] });
   }
 
+  public renderTools() {
+    const toolColor = this.props.header ? colors.colorScheme.gray.veryDark : colors.colorScheme.secondary.standard;
+    if (this.props.header) {
+      return (
+        <ToolColumn>
+          <AddCategoryButton parent={this.props.category} color={toolColor} onAdd={this.props.createCategory} />
+        </ToolColumn>
+      );
+    } else {
+      return (
+        <ToolColumn>
+          <EditCategoryButton category={this.props.category} color={toolColor}
+            onEdit={this.props.editCategory} />
+          <ToggleButton category={this.props.category} color={toolColor}
+            onToggle={this.state.open ? this.close : this.open} state={this.state.open} />
+        </ToolColumn>
+      );
+    }
+  }
+
   public render() {
     const category = this.props.category;
     const header = this.props.header;
     const totals = this.props.categoryTotals['' + category.id];
     const className = this.props.category.parentId ? 'sub-category' : 'main-category';
+    const income = totals ? (header ? totals.totalIncome : totals.income) : Money.zero;
+    const expense = totals ? (header ? totals.totalExpenses : totals.expenses) : Money.zero;
     return (
       <React.Fragment>
         <Row className={className}>
           <NameColumn>{category.name}</NameColumn>
-          <SumColumn>{header && totals ? formatMoney(totals.totalExpenses) + ' / ' + formatMoney(totals.totalIncome) : ''}</SumColumn>
-          <SumColumn>{totals ? formatMoney(totals.expenses) + ' / ' + formatMoney(totals.income) : '0 / 0'}</SumColumn>
-          <ToolColumn>
-            {header ?
-              <AddCategoryButton parent={category} color={colors.white} onAdd={this.props.createCategory} /> : null}
-            <EditCategoryButton category={category} color={header ? colors.white : null}
-              onEdit={this.props.editCategory} />
-            <ToggleButton category={category} color={header ? colors.white : null}
-              onToggle={this.state.open ? this.close : this.open}
-              state={this.state.open} />
-          </ToolColumn>
+          <SumColumn className={colors.classNameForMoney(income)}>{formatMoney(income)}</SumColumn>
+          <SumColumn className={colors.classNameForMoney(expense)}>{formatMoney(expense)}</SumColumn>
+          {this.renderTools()}
         </Row>
         {this.state.open ? <Row>{this.renderCategoryExpenses(this.state.expenses)}</Row> : null}
       </React.Fragment>
@@ -104,5 +118,5 @@ export default class CategoryRow extends React.Component<CategoryRowProps, Categ
 }
 
 function formatMoney(m?: MoneyLike): string {
-  return m ? Money.from(m).format(2, { style: 'decimal' }) : '-';
+  return m ? Money.from(m).format() : '-';
 }

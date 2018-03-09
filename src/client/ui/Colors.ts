@@ -73,6 +73,12 @@ export function forMoney(m?: MoneyLike): string {
   return b ? (b.gt(0) ? positive : (b.lt(0) ? negative : unimportant)) : unimportant;
 }
 
+export function classNameForMoney(m?: MoneyLike): 'positive' | 'negative' | 'unimportant' {
+  if (!m) { return 'unimportant'; }
+  const b = Money.from(m);
+  return b ? (b.gt(0) ? 'positive' : (b.lt(0) ? 'negative' : 'unimportant')) : 'unimportant';
+}
+
 export function diagonalStripes(color1: string, color2: string, width1: string, width2: string): string {
   return `repeating-linear-gradient(45deg, ${color1}, ${color1} ${width1}, ${color2} ${width1}, ${color2} ${width2})`;
 }

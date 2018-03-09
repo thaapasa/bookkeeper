@@ -39,16 +39,18 @@ export class CategoryTable extends React.Component<CategoryViewProps, {}> {
     return (
       <React.Fragment>
         <CategoryHeader onAdd={this.createCategory} />
-        {this.props.categories.map(this.renderSubCategory)}
+        {this.props.categories.map(this.renderCategory)}
         <CategoryDialog ref={r => this.categoryDialog = r} categories={this.props.categories} />
       </React.Fragment>
     );
   }
 
-  private renderSubCategory = (c: Category) => {
+  private renderCategory = (c: Category) => {
     return (
       <React.Fragment key={'subcategory-' + c.id}>
         <CategoryRow {...this.props} category={c} header={true}
+          createCategory={this.createCategory} editCategory={this.editCategory} />
+        <CategoryRow {...this.props} category={{ ...c, name: 'Pääkategorian kirjaukset', parentId: c.id, children: [] }} header={false}
           createCategory={this.createCategory} editCategory={this.editCategory} />
         {c.children.map(ch => <CategoryRow key={ch.id} {...this.props} header={false} category={ch}
           createCategory={this.createCategory} editCategory={this.editCategory} />)}
