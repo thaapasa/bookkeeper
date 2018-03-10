@@ -1,6 +1,7 @@
 import users from './data/Users';
 import sessions from './data/Sessions';
 import expenses, { ExpenseSearchParams } from './data/Expenses';
+import admin, { DbStatus } from './data/admin/Admin';
 import categories, { CategoryInput, CategoryQueryInput } from './data/Categories';
 import sources from './data/Sources';
 import { config } from './Config';
@@ -183,5 +184,9 @@ export function registerAPI(app: Express) {
       V.validate(recurringExpenseTargetSchema, req.query).target,
       V.validate(expenseSchema, req.body),
       session.group.defaultSourceId || 0), true));
+
+  // GET /api/admin/status
+  app.get('/api/admin/status', server.processRequest((session, req): Promise<DbStatus> =>
+    admin.getDbStatus(session.group.id), true));
 
 }
