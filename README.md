@@ -62,3 +62,40 @@ for example: `localStorage.debug = 'bookkeeper*'`.
 
 - Source image (bank card): 52 x 34 px = 208 x 136 px @4x
 
+## Sum / balance calculation
+
+Each expense has a sum stored in DB table `expenses.sum`, and a corresponding
+division as rows in `expense_division`.
+
+### Expense sum invariant
+
+Expense sum is always non-negative.
+
+### Expense division invariant
+
+For each `expense_division.expense_id`, the sum `sum(expense_division.sum)` equals `0`.
+
+### Expense type invariants
+
+- For each expense with `expense.type = expense`:
+  - The sum of division rows with `expense_division.type = cost` must equal `-expense.sum`
+  - The sum of division rows with `expense_division.type = benefit` must equal `expense.sum`
+- For each expense with `expense.type = income`:
+  - The sum of division rows with `expense_division.type = income` must equal `expense.sum`
+  - The sum of division rows with `expense_division.type = split` must equal `-expense.sum`
+
+### User balance / debts
+
+For user `u` with id `u.id`, we define `user value` as the 
+sum `sum(expense_division.sum)` of all division rows 
+with `expense_division.user_id = u.id`.
+
+A positive `user value` means that the user has gained more benefit than losses from the
+registered expenses, and a negative value means that the user has paid for more than what
+he has benefitted.
+
+Thus, we further define `user balance` to equal `user value` negated, so that 
+`user balance` means (semantically) what the user's current balance is (in regards to the
+registered entries); a positive `user balance` means that the user is owed money, and 
+a negative `user balance` means that the user is behind the budget and should pay for
+shared expenses.
