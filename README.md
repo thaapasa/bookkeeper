@@ -1,25 +1,25 @@
 # Kukkaro (bookkeeper)
 
-## Kehitys
+## Development
 
-### Asetukset
+### Settings
 
-Aseta gitin autorebase käyttöön:
+Setup autorebase on `git`:
 
 ```sh
 git config branch.autosetuprebase always
 git config branch.master.rebase true
 ```
 
-Asenna kehitystyökalut:
+Install development tools:
 
 ```sh
 npm install -g ts-node typescript nodemon tslint
 ```
 
-### Palvelin
+### Server
 
-Luo tiedosto `.env` ja laita sinne sisällöksi (korjaa konffit vastaamaan omaa ympäristöä):
+Create file `.env` with the following contents (adjust as required):
 
 ```sh
 SERVER_PORT=3100
@@ -28,36 +28,37 @@ SHOW_ERROR_CAUSE=true
 SESSION_TIMEOUT=20 minutes
 DB_URL=postgresql://localhost/bookkeeper?user=bookkeeper&password=kakkuloskakahvit&ssl=false
 DB_SSL=false
+DEBUG=bookkeeper*
 ```
 
-Käynnistä ajamalla `npm run watch:server`.
+Start server by running `npm run watch-server`.
 
-Lokitusta näkee kun asettaa `DEBUG`-ympäristömuuttujan, esim. `DEBUG=bookkeeper* npm run watch:server`.
+The `DEBUG` switch (in `.env` or supplied as an environment variable) controls logging output.
 
-### Appis
+### Client web app
 
-Käynnistä ajamalla `npm run start:client`.
+Start development build by running `npm run start-client`.
 
-Lokituksen saa näkyviin kun asettaa `localStorage`en konsolissa `debug`-muuttujaan
-jonkun arvon, esim. `localStorage.debug = 'bookkeeper*'`.
+You can see console logging by setting the `debug` variable to `localStorage`; 
+for example: `localStorage.debug = 'bookkeeper*'`.
 
-### Skriptit
+### npm scripts
 
 `npm run <target>`:
 
-- `watch-server`: Käynnistää palvelimen kehitystä varten (ajaa `nodemon`in avulla `ts-node`a)
-- `watch-client`: Käynnistää appiksen kehitystä varten
-- `build-server`: Kääntää palvelimesta prod-buildin hakemistoon `build-server/`
-- `build-client`: Kääntää appiksesta prod-buildin hakemistoon `build/`
-- `start-server-prod`: Käynnistää prod-buildatun palvelimen (vaatii että `build-server` on ajettu)
-- `ps-server`: Listaa ajossa olevan kehityspalvelimen prosessinumeron
-- `kill-server`: Tappaa ajossa olevan kehityspalvelimen (aja jos palvelimen portti ei ole vapautunut)
+- `watch-server`: Start server for development use (runs `ts-node` with `nodemon`)
+- `watch-client`: Start client builder for development
+- `build-server`: Build production version of server under `build-server/`
+- `build-client`: Build production bundle of web app under `build/`
+- `start-server-prod`: Starts the production server (requires that `build-server` has been run)
+- `ps-server`: Shows the process number of the active server
+- `kill-server`: Kills the running server instance (in case the port has not been released)
 
-### Testaus
+### Testing
 
-- Yksikkötestit: Aja `npm test`
-- Palvelimen testit: TODO
+- Unit tests: run `npm test`
 
-## Kuvat
+## Images
 
-- Lähde (kortti): 52 x 34 px = 208 x 136 px @4x
+- Source image (bank card): 52 x 34 px = 208 x 136 px @4x
+
