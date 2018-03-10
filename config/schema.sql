@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS groups (
   id SERIAL PRIMARY KEY,
   name VARCHAR(128)
 );
-COMMENT ON TABLE groups IS 'All expenses belong to a single group. Users can be part of many groups.';
+COMMENT ON TABLE groups IS 'All idnses belong to a single group. Users can be part of many groups.';
 
 CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY,
@@ -80,11 +80,11 @@ COMMENT ON TABLE categories IS 'Expense categories';
 CREATE TYPE recurring_period AS ENUM ('monthly', 'yearly');
 COMMENT ON TYPE recurring_period IS 'How often a recurring expense occurs';
 
-CREATE TYPE expense_type AS ENUM ('expense', 'income');
-COMMENT ON TYPE expense_type IS 'Expense is split to cost and benefit, income is split to income and split';
+CREATE TYPE expense_type AS ENUM ('expense', 'income', 'transfer');
+COMMENT ON TYPE expense_type IS 'Expense is split to cost and benefit, income is split to income and split, transfer is split to transferor and transferee';
 
-CREATE TYPE expense_division_type AS ENUM ('cost', 'benefit', 'income', 'split');
-COMMENT ON TYPE expense_division_type IS 'Expenses are divided into items of this type. Cost (negative) and benefit (positive) must sum to zero; similarly income (positive) and split (negative)';
+CREATE TYPE expense_division_type AS ENUM ('cost', 'benefit', 'income', 'split', 'transferor', 'transferee');
+COMMENT ON TYPE expense_division_type IS 'Expenses are divided into items of this type. Cost (negative) and benefit (positive) must sum to zero; similarly income (positive) and split (negative); transferor (-) and transferee (+).';
 
 CREATE TABLE IF NOT EXISTS expenses (
   id SERIAL PRIMARY KEY,

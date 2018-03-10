@@ -4,7 +4,8 @@ import apiConnect from '../../data/ApiConnect';
 import { UserAvatar } from '../component/UserAvatar';
 import ActivatableTextField from '../component/ActivatableTextField';
 import { PlainTextField } from '../component/PlainTextField';
-import { ExpandLess, ExpandMore, Delete, Edit, ToolIcon } from '../Icons';
+import { ExpandLess, ExpandMore, Delete, Edit, ToolIcon, ExpenseTypeIcon } from '../Icons';
+import { Flex, VCenterRow } from '../Styles';
 import * as colors from '../Colors';
 import { PlainReceiverField } from './ExpenseDialogComponents';
 import ExpenseInfo from './details/ExpenseInfo';
@@ -191,7 +192,11 @@ export class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState
           /></ReceiverColumn>
           <CategoryColumn>{this.fullCategoryLink(expense.categoryId)}</CategoryColumn>
           <SourceColumn>{this.getSource()}</SourceColumn>
-          <SumColumn className={expense.type}>{Money.from(expense.sum).format()}</SumColumn>
+          <SumColumn className={expense.type}>
+            <VCenterRow className="fill">
+              <ExpenseTypeIcon type={expense.type} color={colors.colorScheme.secondary.dark} size={20} /><Flex /><div>{Money.from(expense.sum).format()}</div>
+            </VCenterRow>
+          </SumColumn>
           <BalanceColumn style={{ color: colors.forMoney(expense.userBalance) }} onClick={
             () => Money.zero.equals(expense.userBalance) ?
               this.props.addFilter(e => Money.zero.equals(e.userBalance), `Balanssi ${equal} 0`) :

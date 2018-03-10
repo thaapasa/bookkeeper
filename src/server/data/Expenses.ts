@@ -9,7 +9,7 @@ import { mapValues } from '../../shared/util/Objects';
 const debug = require('debug')('bookkeeper:api:expenses');
 
 function calculateBalance(o: ExpenseStatus): ExpenseStatus {
-  const value = Money.from(o.cost).plus(o.benefit).plus(o.income).plus(o.split);
+  const value = Money.from(o.cost).plus(o.benefit).plus(o.income).plus(o.split).plus(o.transferor).plus(o.transferee);
   return {
     ...o,
     value: value.toString(),
@@ -34,6 +34,8 @@ const zeroStatus: ExpenseStatus = {
   income: '0.00',
   split: '0.00',
   value: '0.00',
+  transferor: '0.00',
+  transferee: '0.00',
 };
 
 function getByMonth(groupId: number, userId: number, year: number, month: number): Promise<ExpenseCollection> {

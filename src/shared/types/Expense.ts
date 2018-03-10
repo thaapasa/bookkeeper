@@ -1,8 +1,32 @@
 import { DbObject } from './Common';
 import { MoneyLike } from '../util/Money';
+import { Map } from '../util/Objects';
 
-export type ExpenseType = 'expense' | 'income';
-export type ExpenseDivisionType = 'cost' | 'benefit' | 'income' | 'split';
+export type ExpenseType = 'expense' | 'income' | 'transfer';
+export type ExpenseDivisionType = 'cost' | 'benefit' | 'income' | 'split' | 'transferor' | 'transferee';
+
+export const expenseTypes: ExpenseType[] = ['expense', 'income', 'transfer'];
+
+export function getExpenseTypeLabel(type: ExpenseType): string {
+  switch (type) {
+    case 'income': return 'Tulo';
+    case 'expense': return 'Kulu';
+    case 'transfer': return 'Siirto';
+    default: return '?';
+  }
+}
+
+export const expenseBeneficiary: Map<ExpenseDivisionType> = {
+  expense: 'benefit',
+  income: 'split',
+  transfer: 'transferee',
+};
+
+export const expensePayer: Map<ExpenseDivisionType> = {
+  expense: 'cost',
+  income: 'income',
+  transfer: 'transferor',
+};
 
 export interface ExpenseDivisionItem {
   userId: number;
@@ -40,6 +64,8 @@ export interface UserExpense extends Expense {
   userCost: MoneyLike;
   userIncome: MoneyLike;
   userSplit: MoneyLike;
+  userTransferor: MoneyLike;
+  userTransferee: MoneyLike;
   userValue: MoneyLike;
 }
 
@@ -72,6 +98,8 @@ export interface ExpenseStatus {
   cost: MoneyLike;
   income: MoneyLike;
   split: MoneyLike;
+  transferor: MoneyLike;
+  transferee: MoneyLike;
   value: MoneyLike;
 }
 

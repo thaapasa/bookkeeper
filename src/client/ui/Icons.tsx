@@ -10,10 +10,12 @@ import EditSVG from 'material-ui/svg-icons/image/edit';
 import RepeatSVG from 'material-ui/svg-icons/av/repeat';
 import ContentAdd from 'material-ui/svg-icons/content/add';
 import IconButton from 'material-ui/IconButton';
+import RedoSVG from 'material-ui/svg-icons/content/redo';
 import AddCircleSVG from 'material-ui/svg-icons/content/add-circle';
 import AutoRenewSVG from 'material-ui/svg-icons/action/autorenew';
 import MenuIconSVG from 'material-ui/svg-icons/navigation/menu';
 import * as colors from './Colors';
+import { ExpenseType } from '../../shared/types/Expense';
 
 const styles = {
   tool: {
@@ -25,6 +27,7 @@ const styles = {
 
 export const Income = AttachMoneySVG;
 export const Expense = PaymentSVG;
+export const Transfer = RedoSVG;
 export const NavigateLeft = ChevronLeftSVG;
 export const NavigateRight = ChevronRightSVG;
 export const Edit = EditSVG;
@@ -36,6 +39,16 @@ export const Add = ContentAdd;
 export const PlusCircle = AddCircleSVG;
 export const Recurring = AutoRenewSVG;
 export const MenuIcon = MenuIconSVG;
+
+export function ExpenseTypeIcon(props: { type: ExpenseType, size?: number, color?: string }): any {
+  const style = { width: props.size, height: props.size, color: props.color };
+  switch (props.type) {
+    case 'expense': return <Expense style={style} />;
+    case 'income': return <Income style={style} />;
+    case 'transfer': return <Transfer style={style} />;
+    default: return null;
+  }
+}
 
 export function ToolIcon(props: {
   icon: React.ComponentType<any>,

@@ -13,7 +13,7 @@ import { expenseName } from './ExpenseHelper';
 import { unsubscribeAll, stopEventPropagation } from '../../util/ClientUtil';
 import { splitByShares, negateDivision, HasShares, HasSum } from '../../../shared/util/Splitter';
 import { Category, Source, CategoryData, Group, User } from '../../../shared/types/Session';
-import { UserExpenseWithDetails, ExpenseDivisionType, ExpenseInEditor, ExpenseData, RecurringExpenseTarget } from '../../../shared/types/Expense';
+import { UserExpenseWithDetails, ExpenseDivisionType, ExpenseInEditor, ExpenseData, RecurringExpenseTarget, expenseBeneficiary, ExpenseDivision } from '../../../shared/types/Expense';
 import { toDate, formatDate } from '../../../shared/util/Time';
 import { noop, identity } from '../../../shared/util/Util';
 import { connect } from '../component/BaconConnect';
@@ -121,7 +121,7 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDi
       sum: e ? e.sum.toString() : '',
       userId: e ? e.userId : this.props.user.id,
       date: e ? toDate(e.date) : new Date(),
-      benefit: e ? e.division.filter(d => d.type === (e.type === 'expense' ? 'benefit' : 'split')).map(d => d.userId) : this.getDefaultSourceUsers(),
+      benefit: e ? e.division.filter(d => d.type === expenseBeneficiary[e.type]).map(d => d.userId) : this.getDefaultSourceUsers(),
       description: e && e.description || '',
       confirmed: e ? e.confirmed : true,
       type: e ? e.type : 'expense',
@@ -146,15 +146,24 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDi
     }
   }
 
-  private calculateDivision(expense: ExpenseInEditor, sum: MoneyLike) {
-    if (expense.type === 'expense') {
-      const benefit = splitByShares(sum, expense.benefit.map(id => ({ userId: id, share: 1 })));
-      const cost = this.calculateCost(sum, expense.sourceId, benefit);
-      return benefit.map(fixItem('benefit')).concat(cost.map(fixItem('cost')));
-    } else {
-      const income = [{ userId: expense.userId, sum }];
-      const split = negateDivision(splitByShares(sum, expense.benefit.map(id => ({ userId: id, share: 1 }))));
-      return income.map(fixItem('income')).concat(split.map(fixItem('split')));
+  private calculateDivision(expense: ExpenseInEditor, sum: MoneyLike): ExpenseDivision {
+    switch (expense.type) {
+      case 'expense': {
+        const benefit = splitByShares(sum, expense.benefit.map(id => ({ userId: id, share: 1 })));
+        const cost = this.calculateCost(sum, expense.sourceId, benefit);
+        return benefit.map(fixItem('benefit')).concat(cost.map(fixItem('cost')));
+      }
+      case 'income': {
+        const income = [{ userId: expense.userId, sum }];
+        const split = negateDivision(splitByShares(sum, expense.benefit.map(id => ({ userId: id, share: 1 }))));
+        return income.map(fixItem('income')).concat(split.map(fixItem('split')));
+      }
+      case 'transfer': {
+        const transferee = splitByShares(sum, expense.benefit.map(id => ({ userId: id, share: 1 })));
+        const transferor = this.calculateCost(sum, expense.sourceId, transferee);
+        return transferee.map(fixItem('transferee')).concat(transferor.map(fixItem('transferor')));
+      }
+      default: throw new Error('Unknown expense type ' + expense.type);
     }
   }
 

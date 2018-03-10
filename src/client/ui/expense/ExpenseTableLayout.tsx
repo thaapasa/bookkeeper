@@ -128,14 +128,9 @@ const OptMoneyColumn = WebColumn.extend`
   padding-right: 8px;
 `;
 export const SumColumn = MoneyColumn.extend`
+  width: 100px;
   &.income {
     background-color: ${colorScheme.primary.standard};
-  }
-  &.income:before {
-    content: '+';
-    position: absolute;
-    left: 8px;
-    color: ${colorScheme.secondary.standard};
   }
 `;
 export const BalanceColumn = OptMoneyColumn;

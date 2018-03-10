@@ -75,14 +75,39 @@ Expense sum is always non-negative.
 
 For each `expense_division.expense_id`, the sum `sum(expense_division.sum)` equals `0`.
 
-### Expense type invariants
+### Expense types
+
+There are three types of expenses: `expense`, `income`, and `transfer`.
+
+- `expense`: user has purchased something. 
+  The sum `sum(expense.sum)` for `expense.type = expense` gives the total cost of the registered
+  expenses.
+  Each `expense` is divided into `cost`s and `benefit`s:
+    - `cost`: tracks who has paid for the expense
+    - `benefit`: tracks who benefits from the purchase
+- `income`: user has received income.
+  The sum `sum(expense.sum)` for `expense.type = income` gives the total income of the registered
+  expenses.
+  Each `income` is divided into `income`s and `split`s:
+    - `income`: tracks who has received the money
+    - `split`: tracks who should benefit from the money
+- `transfer`: money is transferred within the group.
+  These expenses do not contribute to total cost or income, but they do affect user balance.
+  Each `transfer` is divided into `transferor`s and `transferee`s:
+    - `transferor`: tracks who has transferred the money
+    - `transferee`: tracks who has received the money
+
+#### Invariants
 
 - For each expense with `expense.type = expense`:
-  - The sum of division rows with `expense_division.type = cost` must equal `-expense.sum`
-  - The sum of division rows with `expense_division.type = benefit` must equal `expense.sum`
+    - The sum of division rows with `expense_division.type = cost` must equal `-expense.sum`
+    - The sum of division rows with `expense_division.type = benefit` must equal `expense.sum`
 - For each expense with `expense.type = income`:
-  - The sum of division rows with `expense_division.type = income` must equal `expense.sum`
-  - The sum of division rows with `expense_division.type = split` must equal `-expense.sum`
+    - The sum of division rows with `expense_division.type = income` must equal `expense.sum`
+    - The sum of division rows with `expense_division.type = split` must equal `-expense.sum`
+- For each expense with `expense.type = transfer`:
+    - The sum of division rows with `expense_division.type = transferor` must equal `-expense.sum`
+    - The sum of division rows with `expense_division.type = transferee` must equal `expense.sum`
 
 ### User balance / debts
 

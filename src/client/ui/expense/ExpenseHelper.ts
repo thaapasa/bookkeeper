@@ -20,5 +20,7 @@ export const zeroStatus: ExpenseStatus = {
   cost: 0,
   income: 0,
   split: 0,
+  transferor: 0,
+  transferee: 0,
   value: 0,
 };

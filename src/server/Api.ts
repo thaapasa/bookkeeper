@@ -121,7 +121,7 @@ export function registerAPI(app: Express) {
     userId: V.positiveInt,
     date: V.date,
     receiver: V.stringWithLength(1, 50),
-    type: V.either('expense', 'income'),
+    type: V.either('expense', 'income', 'transfer'),
     sum: V.money,
     title: V.stringWithLength(1, 255),
     description: V.optional(V.or(V.string, V.null)),

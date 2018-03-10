@@ -2,17 +2,18 @@ import * as React from 'react';
 import * as Bacon from 'baconjs';
 import DatePicker from 'material-ui/DatePicker';
 import DropDownMenu from 'material-ui/DropDownMenu';
-import Checkbox from 'material-ui/Checkbox';
 import MenuItem from 'material-ui/MenuItem';
 import TextField from 'material-ui/TextField';
 import AutoComplete from 'material-ui/AutoComplete';
-import { Expense, Income } from '../Icons';
+import { ExpenseTypeIcon } from '../Icons';
 import apiConnect from '../../data/ApiConnect';
 import { PlainAutoComplete } from '../component/PlainTextField';
 import { stopEventPropagation, unsubscribeAll } from '../../util/ClientUtil';
 import { Source } from '../../../shared/types/Session';
-import { ExpenseType } from '../../../shared/types/Expense';
+import { ExpenseType, getExpenseTypeLabel, expenseTypes } from '../../../shared/types/Expense';
 import { toMoment } from '../../../shared/util/Time';
+import { IconButton } from 'material-ui';
+import { VCenterRow } from '../Styles';
 
 const styles = {
   category: { width: '50%' },
@@ -112,18 +113,26 @@ export function SourceSelector(props: {
   );
 }
 
-export function TypeSelector(props: {
-  value: string,
+export class TypeSelector extends React.Component<{
+  value: ExpenseType,
   onChange: (s: ExpenseType) => void,
-}) {
-  return (
-    <Checkbox
-      label={props.value === 'income' ? 'Tulo' : 'Kulu'}
-      checkedIcon={<Income />}
-      uncheckedIcon={<Expense />}
-      checked={props.value === 'income'}
-      onCheck={(e, v) => props.onChange(v ? 'income' : 'expense')} />
-  );
+}, {}> {
+  private toggle = () => {
+    const toggled = expenseTypes[(expenseTypes.indexOf(this.props.value) + 1) % expenseTypes.length];
+    if (toggled && this.props.onChange) {
+      this.props.onChange(toggled);
+    }
+  }
+  public render() {
+    return (
+      <VCenterRow>
+        <IconButton onClick={this.toggle}>
+          <ExpenseTypeIcon type={this.props.value} />
+        </IconButton>
+        {getExpenseTypeLabel(this.props.value)}
+      </VCenterRow>
+    );
+  }
 }
 
 export function DateField(props: {
