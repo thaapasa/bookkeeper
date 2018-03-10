@@ -1,5 +1,6 @@
 import * as React from 'react';
 import * as B from 'baconjs';
+import styled from 'styled-components';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import UserSelector from '../component/UserSelector';
@@ -329,7 +330,7 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDi
     )];
 
     return (
-      <Dialog
+      <StyledDialog
         contentClassName="expense-dialog"
         bodyClassName="expense-dialog-body"
         title={this.props.createNew ? 'Uusi kirjaus' : 'Muokkaa kirjausta'}
@@ -382,10 +383,20 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDi
           <DescriptionField value={this.state.description} onChange={v => this.inputStreams.description.push(v)}
             errorText={this.state.errors.description} />
         </form>
-      </Dialog>
+      </StyledDialog>
     );
   }
 }
+
+const StyledDialog = styled(Dialog)`
+  .expense-dialog {
+    width: 100% !important;
+    transform: none !important;
+  }
+  .expense-dialog-body {
+    max-height: calc(100vh - 10em) !important;
+  }
+`;
 
 interface BProps {
   sources: Source[];
