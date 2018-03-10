@@ -13,7 +13,7 @@ function divisionOfType(division: ExpenseDivisionItem[] | undefined, type: Expen
   return division ? division.filter(d => d.type === type) : [];
 }
 
-function validateDivision(items: ExpenseDivisionItem[], sum: MoneyLike, field: string) {
+function validateDivision(items: ExpenseDivisionItem[], sum: MoneyLike, field: ExpenseDivisionType) {
   const calculated = items.map(i => Money.from(i.sum)).reduce((a, b) => a.plus(b), Money.zero);
   if (!Money.from(sum).equals(calculated)) {
     throw new Validator.InvalidInputError(field, calculated,
@@ -57,7 +57,18 @@ export function determineDivision(expense: Expense, source: Source): ExpenseDivi
       validateDivision(givenBenefit, expense.sum, 'benefit') :
       negateDivision(cost);
     return cost.map(addType('cost')).concat(benefit.map(addType('benefit')));
+  } else if (expense.type === 'transfer') {
+    const givenTransferor = divisionOfType(expense.division, 'transferor');
+    const givenTransferee = divisionOfType(expense.division, 'transferee');
+    const transferor = givenTransferor.length > 0 ?
+      validateDivision(givenTransferor, Money.negate(expense.sum), 'transferor') :
+      getCostFromSource(expense.sum, source);
+    const transferee = givenTransferee.length > 0 ?
+      validateDivision(givenTransferee, expense.sum, 'transferee') :
+      negateDivision(transferor);
+    return transferor.map(addType('transferor')).concat(transferee.map(addType('transferee')));
   } else {
-    throw new Validator.InvalidInputError('type', expense.type, 'Unrecognized expense type; expected expense or income');
+    throw new Validator.InvalidInputError('type', expense.type,
+      'Unrecognized expense type; expected expense, income, or transfer');
   }
 }

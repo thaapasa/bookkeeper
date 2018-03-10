@@ -50,3 +50,11 @@ CREATE INDEX "expenses_group_date" ON expenses (group_id, template, date);
 UPDATE sources SET image='spankki.png' WHERE name='Yhteinen tili' AND group_id=(SELECT group_id from groups where name='Mäntyniemi');
 UPDATE sources SET image='op-white.png' WHERE name='Jennin tili' AND group_id=(SELECT group_id from groups where name='Mäntyniemi');
 UPDATE sources SET image='op-orange.png' WHERE name='Salen tili' AND group_id=(SELECT group_id from groups where name='Mäntyniemi');
+
+-- On 10.3.2018
+ALTER TYPE expense_type ADD VALUE 'transfer';
+COMMENT ON TYPE expense_type IS 'Expense is split to cost and benefit, income is split to income and split, transfer is split to transferor and transferee';
+
+ALTER TYPE expense_division_type ADD VALUE 'transferor';
+ALTER TYPE expense_division_type ADD VALUE 'transferee';
+COMMENT ON TYPE expense_division_type IS 'Expenses are divided into items of this type. Cost (negative) and benefit (positive) must sum to zero; similarly income (positive) and split (negative); transferor (-) and transferee (+).';

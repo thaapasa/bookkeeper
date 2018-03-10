@@ -1,5 +1,5 @@
 import { Size } from './Types';
-import { css, SimpleInterpolation } from 'styled-components';
+import styled, { css, SimpleInterpolation } from 'styled-components';
 
 // See responsive UI specs at https://material.io/guidelines/layout/responsive-ui.html
 export type ScreenSizeClassName = 'mobile-portrait' | 'mobile-landscape' | 'web' | 'large';
@@ -81,3 +81,17 @@ export const media = {
     }
   `,
 };
+
+export const VCenterRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  &.fill {
+    justify-content: space-between;
+  }
+`;
+
+export const Flex = styled.div`
+  flex: 1;
+`;

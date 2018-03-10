@@ -13,6 +13,8 @@ function mapExpense<T extends UserExpense | UserExpenseWithDetails>(e: T): T {
   e.userBalance = Money.from(e.userBalance, 0);
   e.userIncome = Money.from(e.userIncome, 0);
   e.userSplit = Money.from(e.userSplit, 0);
+  e.userTransferor = Money.from(e.userTransferor, 0);
+  e.userTransferee = Money.from(e.userTransferee, 0);
   return e;
 }
 
@@ -22,6 +24,8 @@ function mapStatus(s: ExpenseStatus): ExpenseStatus {
     benefit: Money.from(s.benefit),
     income: Money.from(s.income),
     split: Money.from(s.split),
+    transferor: Money.from(s.transferor),
+    transferee: Money.from(s.transferee),
     value: Money.from(s.value),
     balance: Money.from(s.balance),
   };
