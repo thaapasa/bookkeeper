@@ -7,7 +7,7 @@
     "postinstall": "yarn update-revision",
     "watch-client": "react-scripts-ts start",
     "watch-server": "yarn update-revision && nodemon",
-    "test-client": "react-scripts-ts test --env=jsdom",
+    "test-client": "jest --runInBand",
     "test": "yarn test-client",
     "build-client": "react-scripts-ts build",
     "build-server": "tsc",
