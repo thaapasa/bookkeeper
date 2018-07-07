@@ -14,7 +14,7 @@ git config branch.master.rebase true
 Install development tools:
 
 ```sh
-npm install -g ts-node typescript nodemon tslint
+yarn global add ts-node typescript nodemon tslint
 ```
 
 ### Server
@@ -31,20 +31,20 @@ DB_SSL=false
 DEBUG=bookkeeper*
 ```
 
-Start server by running `npm run watch-server`.
+Start server by running `yarn watch-server`.
 
 The `DEBUG` switch (in `.env` or supplied as an environment variable) controls logging output.
 
 ### Client web app
 
-Start development build by running `npm run start-client`.
+Start development build by running `yarn start-client`.
 
 You can see console logging by setting the `debug` variable to `localStorage`; 
 for example: `localStorage.debug = 'bookkeeper*'`.
 
-### npm scripts
+### yarn scripts
 
-`npm run <target>`:
+`yarn <target>`:
 
 - `watch-server`: Start server for development use (runs `ts-node` with `nodemon`)
 - `watch-client`: Start client builder for development
@@ -56,7 +56,7 @@ for example: `localStorage.debug = 'bookkeeper*'`.
 
 ### Testing
 
-- Unit tests: run `npm test`
+- Unit tests: run `yarn test`
 
 ## Images
 
@@ -83,31 +83,31 @@ There are three types of expenses: `expense`, `income`, and `transfer`.
   The sum `sum(expense.sum)` for `expense.type = expense` gives the total cost of the registered
   expenses.
   Each `expense` is divided into `cost`s and `benefit`s:
-    - `cost`: tracks who has paid for the expense
-    - `benefit`: tracks who benefits from the purchase
+      - `cost`: tracks who has paid for the expense
+      - `benefit`: tracks who benefits from the purchase
 - `income`: user has received income.
   The sum `sum(expense.sum)` for `expense.type = income` gives the total income of the registered
   expenses.
   Each `income` is divided into `income`s and `split`s:
-    - `income`: tracks who has received the money
-    - `split`: tracks who should benefit from the money
+      - `income`: tracks who has received the money
+      - `split`: tracks who should benefit from the money
 - `transfer`: money is transferred within the group.
   These expenses do not contribute to total cost or income, but they do affect user balance.
   Each `transfer` is divided into `transferor`s and `transferee`s:
-    - `transferor`: tracks who has transferred the money
-    - `transferee`: tracks who has received the money
+      - `transferor`: tracks who has transferred the money
+      - `transferee`: tracks who has received the money
 
 #### Invariants
 
 - For each expense with `expense.type = expense`:
-    - The sum of division rows with `expense_division.type = cost` must equal `-expense.sum`
-    - The sum of division rows with `expense_division.type = benefit` must equal `expense.sum`
+      - The sum of division rows with `expense_division.type = cost` must equal `-expense.sum`
+      - The sum of division rows with `expense_division.type = benefit` must equal `expense.sum`
 - For each expense with `expense.type = income`:
-    - The sum of division rows with `expense_division.type = income` must equal `expense.sum`
-    - The sum of division rows with `expense_division.type = split` must equal `-expense.sum`
+      - The sum of division rows with `expense_division.type = income` must equal `expense.sum`
+      - The sum of division rows with `expense_division.type = split` must equal `-expense.sum`
 - For each expense with `expense.type = transfer`:
-    - The sum of division rows with `expense_division.type = transferor` must equal `-expense.sum`
-    - The sum of division rows with `expense_division.type = transferee` must equal `expense.sum`
+      - The sum of division rows with `expense_division.type = transferor` must equal `-expense.sum`
+      - The sum of division rows with `expense_division.type = transferee` must equal `expense.sum`
 
 ### User balance / debts
 

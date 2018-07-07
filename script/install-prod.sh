@@ -12,7 +12,7 @@ fi
 
 echo "Installing new revision $REV"
 
-npm i || exit -1
+yarn || exit -1
 
 echo "Stopping server"
 script/stop-server.sh || exit -1
@@ -20,7 +20,7 @@ script/stop-server.sh || exit -1
 echo "Backing up database"
 ~/bin/backup-bookkeeper.sh "before-server-$REV"
 
-npm run clean || exit -1
+yarn clean || exit -1
 
 echo "Extracting server..."
 
