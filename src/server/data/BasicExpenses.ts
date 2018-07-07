@@ -1,4 +1,4 @@
-import { db, DbAccess } from './Db';
+import { db } from './Db';
 import { Moment } from 'moment';
 import * as time from '../../shared/util/Time';
 import Money, { MoneyLike } from '../../shared/util/Money';
@@ -9,18 +9,19 @@ import { determineDivision } from './ExpenseDivision';
 import { NotFoundError } from '../../shared/types/Errors';
 import { Expense, UserExpense, ExpenseDivisionType, ExpenseDivisionItem, ExpenseStatus } from '../../shared/types/Expense';
 import { ApiMessage } from '../../shared/types/Api';
+import { IBaseProtocol } from '../../../node_modules/pg-promise';
 const debug = require('debug')('bookkeeper:api:expenses');
 
 function expenseSelect(where: string): string {
   return `
 SELECT
   MIN(id) AS id, MIN(date) AS date, MIN(receiver) AS receiver, MIN(type) AS type, MIN(sum) AS sum,
-  MIN(title) AS title, MIN(description) AS description, BOOL_AND(confirmed) AS confirmed, MIN(source_id) AS source_id,
-  MIN(user_id) AS user_id, MIN(created_by_id) AS created_by_id, MIN(group_id) AS group_id, MIN(category_id) AS category_id,
-  MIN(created) AS created, MIN(recurring_expense_id) AS recurring_expense_id,
-  SUM(cost) AS user_cost, SUM(benefit) AS user_benefit, SUM(income) AS user_income, SUM(split) AS user_split,
-  SUM(transferor) AS user_transferor, SUM(transferee) AS user_transferee,
-  SUM(cost + benefit + income + split + transferor + transferee) AS user_value
+  MIN(title) AS title, MIN(description) AS description, BOOL_AND(confirmed) AS confirmed, MIN(source_id) AS "sourceId",
+  MIN(user_id) AS "userId", MIN(created_by_id) AS "createdById", MIN(group_id) AS "groupId", MIN(category_id) AS "categoryId",
+  MIN(created) AS created, MIN(recurring_expense_id) AS "recurringExpenseId",
+  SUM(cost) AS "userCost", SUM(benefit) AS "userBenefit", SUM(income) AS "userIncome", SUM(split) AS "userSplit",
+  SUM(transferor) AS "userTransferor", SUM(transferee) AS "userTransferee",
+  SUM(cost + benefit + income + split + transferor + transferee) AS "userValue"
 FROM (
   SELECT
     id, date::DATE, receiver, e.type, e.sum::MONEY::NUMERIC, title, description, confirmed,
@@ -32,7 +33,7 @@ FROM (
     (CASE WHEN d.type = 'transferor' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS transferor,
     (CASE WHEN d.type = 'transferee' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS transferee
   FROM expenses e
-  LEFT JOIN expense_division d ON (d.expense_id = e.id AND d.user_id = $1)
+  LEFT JOIN expense_division d ON (d.expense_id = e.id AND d.user_id = $/userId/)
   ${where}
 ) breakdown
 GROUP BY id ORDER BY date ASC, title ASC, id
@@ -56,14 +57,17 @@ FROM (
     (CASE WHEN d.type = 'transferor' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS transferor,
     (CASE WHEN d.type = 'transferee' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS transferee
   FROM expenses e
-  LEFT JOIN expense_division d ON (d.expense_id = e.id AND d.user_id = $1::INTEGER)
-  WHERE group_id=$2::INTEGER AND template=false AND date >= $3::DATE AND date < $4::DATE
+  LEFT JOIN expense_division d ON (d.expense_id = e.id AND d.user_id = $/userId/::INTEGER)
+  WHERE group_id=$/groupId/::INTEGER AND template=false AND date >= $/startDate/::DATE AND date < $/endDate/::DATE
 ) breakdown
 `;
 
-function getAll(tx: DbAccess) {
+function getAll(tx: IBaseProtocol<any>) {
   return async (groupId: number, userId: number): Promise<Expense[]> => {
-    const expenses = await tx.queryList<UserExpense>('expenses.get_all', expenseSelect(`WHERE group_id=$2`), [userId, groupId]);
+    const expenses = await tx.manyOrNone<UserExpense>(
+      expenseSelect(`WHERE group_id=$/groupId/`),
+      { userId, groupId },
+    );
     return expenses.map(mapExpense);
   };
 }
@@ -75,60 +79,69 @@ function mapExpense(e: UserExpense): UserExpense {
   return e;
 }
 
-function countTotalBetween(tx: DbAccess) {
+function countTotalBetween(tx: IBaseProtocol<any>) {
   return async (groupId: number, userId: number, startDate: string | Moment, endDate: string | Moment): Promise<ExpenseStatus> => {
-    return await tx.queryObject('expenses.count_total_between',
-      countTotalSelect, [userId, groupId, time.formatDate(startDate), time.formatDate(endDate)]) as ExpenseStatus;
+    return tx.one<ExpenseStatus>(
+      countTotalSelect, { userId, groupId, startDate: time.formatDate(startDate), endDate: time.formatDate(endDate) });
   };
 }
 
-function hasUnconfirmedBefore(tx: DbAccess) {
+function hasUnconfirmedBefore(tx: IBaseProtocol<any>) {
   return async (groupId: number, startDate: time.DateLike): Promise<boolean> => {
-    const s = await tx.queryObject<{ amount: number }>('expenses.count_unconfirmed_before',
-      'SELECT COUNT(*) AS amount FROM expenses WHERE group_id=$1 AND template=false AND date < $2::DATE AND confirmed=false',
-      [groupId, time.formatDate(startDate)]);
+    const s = await tx.one<{ amount: number }>(`
+SELECT COUNT(*) AS amount
+FROM expenses
+WHERE group_id=$1 AND template=false AND date < $/startDate/::DATE AND confirmed=false`,
+     { groupId, startDate: time.formatDate(startDate) });
     return s.amount > 0;
   };
 }
 
-function getById(tx: DbAccess) {
+function getById(tx: IBaseProtocol<any>) {
   return async (groupId: number, userId: number, expenseId: number): Promise<UserExpense> => {
-    const expense = await tx.queryObject('expenses.get_by_id', expenseSelect(`WHERE id=$2 AND group_id=$3`),
-      [userId, expenseId, groupId]);
+    const expense = await tx.oneOrNone(
+        expenseSelect(`WHERE id=$/expenseId/ AND group_id=$/groupId/`),
+        { userId, expenseId, groupId },
+      );
     return mapExpense(expense as UserExpense);
   };
 }
 
-function deleteById(tx: DbAccess) {
+function deleteById(tx: IBaseProtocol<any>) {
   return async (groupId: number, expenseId: number): Promise<ApiMessage> => {
-    await tx.update('expenses.delete_by_id', 'DELETE FROM expenses WHERE id=$1 AND group_id=$2',
-      [expenseId, groupId]);
+    await tx.none(
+      `DELETE FROM expenses WHERE id=$/expenseId/ AND group_id=$/groupId/`,
+      { expenseId, groupId },
+    );
     return { status: 'OK', message: 'Expense deleted', expenseId };
   };
 }
 
-export function storeDivision(tx: DbAccess) {
-  return (expenseId: number, userId: number, type: ExpenseDivisionType, sum: MoneyLike) => tx.insert('expense.create.division',
-    'INSERT INTO expense_division (expense_id, user_id, type, sum) ' +
-    'VALUES ($1::INTEGER, $2::INTEGER, $3::expense_division_type, $4::NUMERIC::MONEY)',
-    [expenseId, userId, type, Money.toString(sum)]);
+export function storeDivision(tx: IBaseProtocol<any>) {
+  return (expenseId: number, userId: number, type: ExpenseDivisionType, sum: MoneyLike) => tx.none(`
+INSERT INTO expense_division (expense_id, user_id, type, sum)
+VALUES ($/expenseId/::INTEGER, $/userId/::INTEGER, $/type/::expense_division_type, $/sum/::NUMERIC::MONEY)`,
+    { expenseId, userId, type, sum: Money.toString(sum) });
 }
 
-function deleteDivision(tx: DbAccess) {
-  return (expenseId: number): Promise<number> => tx.insert('expense.delete.division',
-    'DELETE FROM expense_division WHERE expense_id=$1::INTEGER', [expenseId]);
+function deleteDivision(tx: IBaseProtocol<any>) {
+  return (expenseId: number): Promise<null> => tx.none(`
+DELETE FROM expense_division WHERE expense_id=$/expenseId/::INTEGER`,
+  { expenseId });
 }
 
-function getDivision(tx: DbAccess) {
+function getDivision(tx: IBaseProtocol<any>) {
   return async (expenseId: number): Promise<ExpenseDivisionItem[]> => {
-    const items = await tx.queryList('expense.get.division',
-      'SELECT user_id, type, sum::MONEY::NUMERIC FROM expense_division WHERE expense_id=$1::INTEGER ORDER BY type, user_id',
-      [expenseId]);
+    const items = await tx.manyOrNone(`
+SELECT user_id as "userId", type, sum::MONEY::NUMERIC
+FROM expense_division
+WHERE expense_id=$/expenseId/::INTEGER ORDER BY type, user_id`,
+      { expenseId });
     return items as ExpenseDivisionItem[];
   };
 }
 
-function createDivision(tx: DbAccess) {
+function createDivision(tx: IBaseProtocol<any>) {
   return async (expenseId: number, division: ExpenseDivisionItem[]) => {
     await Promise.all(division.map(d => storeDivision(tx)(expenseId, d.userId, d.type, d.sum)));
     return expenseId;
@@ -143,7 +156,7 @@ export function setDefaults(expense: Expense): Expense {
 }
 
 function createExpense(userId: number, groupId: number, expense: Expense, defaultSourceId: number): Promise<ApiMessage> {
-  return db.transaction(async tx => {
+  return db.tx(async tx => {
     expense = setDefaults(expense);
     debug('Creating expense', expense);
     const sourceId = expense.sourceId || defaultSourceId;
@@ -166,22 +179,31 @@ function createExpense(userId: number, groupId: number, expense: Expense, defaul
   });
 }
 
-function insert(tx: DbAccess) {
+function insert(tx: IBaseProtocol<any>) {
   return async (userId: number, expense: Expense, division: ExpenseDivisionItem[]): Promise<number> => {
-    const expenseId = await tx.insert('expenses.create',
-      'INSERT INTO expenses (created_by_id, user_id, group_id, date, created, type, receiver, sum, title, ' +
-      'description, confirmed, source_id, category_id, template, recurring_expense_id) ' +
-      'VALUES ($1::INTEGER, $2::INTEGER, $3::INTEGER, $4::DATE, NOW(), $5::expense_type, $6, ' +
-      '$7::NUMERIC::MONEY, $8, $9, $10::BOOLEAN, $11::INTEGER, $12::INTEGER, $13::BOOLEAN, $14) RETURNING id',
-      [userId, expense.userId, expense.groupId, expense.date, expense.type, expense.receiver, expense.sum.toString(),
-        expense.title, expense.description, expense.confirmed, expense.sourceId, expense.categoryId,
-        expense.template || false, expense.recurringExpenseId || null]);
+    const expenseId = await tx.one<number>(`
+INSERT INTO expenses (
+  created_by_id, user_id, group_id, date, created, type,
+  receiver, sum, title, description, confirmed,
+  source_id, category_id, template, recurring_expense_id)
+VALUES (
+  $/userId/::INTEGER, $/userId/::INTEGER, $/groupId/::INTEGER, $/date/::DATE, NOW(), $/type/::expense_type,
+  $/receiver/, $/sum/::NUMERIC::MONEY, $/title/, $/description/, $/confirmed/::BOOLEAN,
+  $/sourceId/::INTEGER, $/categoryId/::INTEGER, $/template/::BOOLEAN, $/recurringExpenseId/)
+RETURNING id`,
+      {
+        ...expense,
+        userId,
+        sum: expense.sum.toString(),
+        template: expense.template || false,
+        recurringExpenseId: expense.recurringExpenseId || null,
+      });
     await createDivision(tx)(expenseId, division);
     return expenseId;
   };
 }
 
-function updateExpense(tx: DbAccess) {
+function updateExpense(tx: IBaseProtocol<any>) {
   return async (original: Expense, expense: Expense, defaultSourceId: number): Promise<ApiMessage> => {
     expense = setDefaults(expense);
     debug('Updating expense', original, 'to', expense);
@@ -192,19 +214,26 @@ function updateExpense(tx: DbAccess) {
     ]);
     const division = determineDivision(expense, source);
     await deleteDivision(tx)(original.id);
-    await tx.insert('expenses.update',
-      'UPDATE expenses SET date=$2::DATE, receiver=$3, sum=$4::NUMERIC::MONEY, title=$5, description=$6, ' +
-      'type=$7::expense_type, confirmed=$8::BOOLEAN, source_id=$9::INTEGER, category_id=$10::INTEGER ' +
-      'WHERE id=$1',
-      [original.id, expense.date, expense.receiver, expense.sum.toString(), expense.title,
-      expense.description, expense.type, expense.confirmed, source.id, cat.id]);
+    await tx.none(`
+UPDATE expenses
+SET date=$/date/::DATE, receiver=$/receiver/, sum=$/sum/::NUMERIC::MONEY, title=$/title/,
+  description=$/description/, type=$/type/::expense_type, confirmed=$/confirmed/::BOOLEAN,
+  source_id=$/sourceId/::INTEGER, category_id=$/categoryId/::INTEGER
+WHERE id=$/id/`,
+      {
+        ...expense,
+        id: original.id,
+        sum: expense.sum.toString(),
+        sourceId: source.id,
+        categoryId: cat.id,
+      });
     await createDivision(tx)(original.id, division);
     return { status: 'OK', message: 'Expense updated', expenseId: original.id };
   };
 }
 
 function updateExpenseById(groupId: number, userId: number, expenseId: number, expense: Expense, defaultSourceId: number) {
-  return db.transaction(async (tx): Promise<ApiMessage> => {
+  return db.tx(async (tx): Promise<ApiMessage> => {
     const e = await getById(tx)(groupId, userId, expenseId);
     return updateExpense(tx)(e, expense, defaultSourceId);
   });
@@ -215,17 +244,19 @@ interface ReceiverInfo {
   amount: number;
 }
 
-function queryReceivers(tx: DbAccess) {
+function queryReceivers(tx: IBaseProtocol<any>) {
   return async (groupId: number, receiver: string): Promise<ReceiverInfo[]> => {
     debug('Receivers', groupId, receiver);
-    return await tx.queryList('expenses.receiver_search',
-      'SELECT receiver, COUNT(*) AS AMOUNT FROM expenses WHERE group_id=$1 AND receiver ILIKE $2 ' +
-      'GROUP BY receiver ORDER BY amount DESC',
-      [groupId, `%${receiver}%`]) as ReceiverInfo[];
+    return tx.manyOrNone<ReceiverInfo>(`
+SELECT receiver, COUNT(*) AS amount
+FROM expenses
+WHERE group_id=$/groupId/ AND receiver ILIKE $/receiver/
+GROUP BY receiver ORDER BY amount DESC`,
+      { groupId, receiver: `%${receiver}%` });
   };
 }
 
-function copyExpense(tx: DbAccess) {
+function copyExpense(tx: IBaseProtocol<any>) {
   return async (
     groupId: number,
     userId: number,
@@ -238,7 +269,7 @@ function copyExpense(tx: DbAccess) {
   };
 }
 
-function getExpenseAndDivision(tx: DbAccess) {
+function getExpenseAndDivision(tx: IBaseProtocol<any>) {
   return (groupId: number, userId: number, expenseId: number): Promise<[Expense, ExpenseDivisionItem[]]> => Promise.all([
     getById(tx)(groupId, userId, expenseId),
     getDivision(tx)(expenseId),
@@ -249,7 +280,7 @@ export default {
   getAll: getAll(db),
   getById: getById(db),
   getDivision: getDivision(db),
-  deleteById: (groupId: number, expenseId: number) => db.transaction(tx => deleteById(tx)(groupId, expenseId)),
+  deleteById: (groupId: number, expenseId: number) => db.tx(tx => deleteById(tx)(groupId, expenseId)),
   create: createExpense,
   update: updateExpenseById,
   queryReceivers: queryReceivers(db),
