@@ -19,7 +19,10 @@
     "deploy": "sh script/deploy.sh",
     "clean": "rm -rf build/ dist/ build-server/",
     "ps-server": "ps -ef | grep ./src/server/BokkeeperServer.ts | grep -v grep | awk '{ print $2; }'",
-    "kill-server": "ps -ef | grep ./src/server/BookkeeperServer.ts | grep -v grep | awk '{ print $2; }' | xargs kill"
+    "kill-server": "ps -ef | grep ./src/server/BookkeeperServer.ts | grep -v grep | awk '{ print $2; }' | xargs kill",
+    "migrate": "knex migrate:latest",
+    "migrate-make": "knex migrate:make",
+    "migrate-rollback": "knex migrate:rollback"
   },
   "repository": {
     "type": "git",
