@@ -1,6 +1,6 @@
-import { DbAccess } from '../Db';
 import { ExpenseType } from '../../../shared/types/Expense';
 import { MoneyLike } from '../../../shared/util/Money';
+import { IBaseProtocol } from '../../../../node_modules/pg-promise';
 
 export interface InvalidDivision {
   id: number;
@@ -11,9 +11,9 @@ export interface InvalidDivision {
   zero: MoneyLike;
 }
 
-export function getInvalidDivision(tx: DbAccess) {
+export function getInvalidDivision(tx: IBaseProtocol<any>) {
   return async (groupId: number): Promise<InvalidDivision[]> =>
-    tx.queryList<InvalidDivision>('admin.query_invalid_division', `
+    tx.manyOrNone<InvalidDivision>(`
 SELECT *
 FROM (
   SELECT
@@ -92,10 +92,10 @@ FROM (
         ELSE '0.00' :: NUMERIC END) AS transferee
       FROM expenses e
         LEFT JOIN expense_division d ON (d.expense_id = e.id)
-        WHERE group_id=$1
+        WHERE group_id=$/groupId/
     ) breakdown
     GROUP BY id
   ) data
   ORDER BY data.id) overview
-WHERE sum <> positive OR sum <> -negative OR zero <> 0`, [groupId]);
+WHERE sum <> positive OR sum <> -negative OR zero <> 0`, { groupId });
 }

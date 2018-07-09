@@ -72,10 +72,11 @@ export interface CategoryInput {
 }
 
 function create(tx: IBaseProtocol<any>) {
-  return (groupId: number, data: CategoryInput): Promise<null> =>
-    tx.none(`
+  return (groupId: number, data: CategoryInput): Promise<number> =>
+    tx.one<number>(`
 INSERT INTO categories (group_id, parent_id, name)
-VALUES ($/groupId/::INTEGER, $/parentId/::INTEGER, $/name/) RETURNING id`,
+VALUES ($/groupId/::INTEGER, $/parentId/::INTEGER, $/name/)
+RETURNING id`,
       { groupId, parentId: data.parentId || null, name: data.name });
 }
 
@@ -91,7 +92,7 @@ WHERE id=$/id/::INTEGER AND group_id=$/groupId/::INTEGER`,
 }
 
 function update(groupId: number, categoryId: number, data: CategoryInput) {
-  return db.tx('upd', async (tx): Promise<Category> => {
+  return db.tx(async (tx): Promise<Category> => {
     const original = await getById(tx)(groupId, categoryId);
     if (!original) { throw new NotFoundError('CATEGORY_NOT_FOUND', 'category'); }
     await tx.none(`
