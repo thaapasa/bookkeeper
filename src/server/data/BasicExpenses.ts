@@ -91,7 +91,7 @@ function hasUnconfirmedBefore(tx: IBaseProtocol<any>) {
     const s = await tx.one<{ amount: number }>(`
 SELECT COUNT(*) AS amount
 FROM expenses
-WHERE group_id=$1 AND template=false AND date < $/startDate/::DATE AND confirmed=false`,
+WHERE group_id=$/groupId/ AND template=false AND date < $/startDate/::DATE AND confirmed=false`,
      { groupId, startDate: time.formatDate(startDate) });
     return s.amount > 0;
   };
@@ -181,7 +181,7 @@ function createExpense(userId: number, groupId: number, expense: Expense, defaul
 
 function insert(tx: IBaseProtocol<any>) {
   return async (userId: number, expense: Expense, division: ExpenseDivisionItem[]): Promise<number> => {
-    const expenseId = await tx.one<number>(`
+    const expenseId = (await tx.one<{ id: number }>(`
 INSERT INTO expenses (
   created_by_id, user_id, group_id, date, created, type,
   receiver, sum, title, description, confirmed,
@@ -197,7 +197,7 @@ RETURNING id`,
         sum: expense.sum.toString(),
         template: expense.template || false,
         recurringExpenseId: expense.recurringExpenseId || null,
-      });
+      })).id;
     await createDivision(tx)(expenseId, division);
     return expenseId;
   };

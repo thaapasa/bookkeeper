@@ -34,11 +34,11 @@ function createRecurring(groupId: number, userId: number, expenseId: number, rec
       nextMissing = nextRecurrence(expense.date, recurrence.period);
       return [{ ...expense, template: true }, division];
     });
-    const recurringExpenseId = await tx.one<number>(`
+    const recurringExpenseId = (await tx.one<{ id: number }>(`
 INSERT INTO recurring_expenses (template_expense_id, period, next_missing, group_id)
 VALUES ($/templateId/::INTEGER, $/period/, $/nextMissing/::DATE, $/groupId/)
 RETURNING id`,
-      { templateId, period: recurrence.period, nextMissing, groupId });
+      { templateId, period: recurrence.period, nextMissing, groupId })).id;
 
     await tx.none(`
 UPDATE expenses

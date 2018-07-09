@@ -13,14 +13,14 @@ export function mapUser(user: RawUserData): User {
 const select = `
 SELECT
   id, username, email, first_name as "firstName", last_name as "lastName", image
-FROM users`;
+FROM users u`;
 
 function getAll(tx: IBaseProtocol<any>) {
   return async (groupId: number): Promise<User[]> => {
     const users = await tx.manyOrNone<RawUserData>(`
 ${select}
 WHERE
-  (SELECT COUNT(*) FROM group_users WHERE user_id=users.id AND group_id=$/groupId/::INTEGER) > 0`,
+  (SELECT COUNT(*) FROM group_users WHERE user_id=u.id AND group_id=$/groupId/::INTEGER) > 0`,
       { groupId });
     if (users === undefined) { throw new NotFoundError('USER_NOT_FOUND', 'user'); }
     return users.map(mapUser);

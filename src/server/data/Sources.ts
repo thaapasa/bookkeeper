@@ -43,12 +43,12 @@ function getAll(tx: IBaseProtocol<any>) {
 
 function getById(tx: IBaseProtocol<any>) {
   return async (groupId: number, id: number): Promise<Source> => {
-    const s = await tx.oneOrNone<SourceData>(
+    const s = await tx.manyOrNone<SourceData>(
       `${select} WHERE id=$/id/::INTEGER AND group_id=$/groupId/::INTEGER`,
       { id, groupId },
     );
     if (!s) { throw new NotFoundError('SOURCE_NOT_FOUND', 'source'); }
-    return createGroupObject([s])[0];
+    return createGroupObject(s)[0];
   };
 }
 
