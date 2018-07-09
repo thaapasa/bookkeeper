@@ -56,7 +56,7 @@ class Bars extends React.Component<BarsProps, {}> {
 }
 
 type Orient = 'Bottom' | 'Left' | 'Top' | 'Right';
-function getAxis<Domain>(orient: Orient, scale: d3Axis.AxisScale<Domain>): d3Axis.Axis<Domain> {
+function getAxis<D extends d3Axis.AxisDomain>(orient: Orient, scale: d3Axis.AxisScale<D>): d3Axis.Axis<D> {
   switch (orient) {
     case 'Bottom': return d3Axis.axisBottom(scale);
     case 'Top': return d3Axis.axisTop(scale);
@@ -66,13 +66,13 @@ function getAxis<Domain>(orient: Orient, scale: d3Axis.AxisScale<Domain>): d3Axi
   }
 }
 
-interface AxisProps<Domain> {
+interface AxisProps<D extends d3Axis.AxisDomain> {
   readonly orient: 'Bottom' | 'Left' | 'Top' | 'Right';
-  readonly scale: d3Axis.AxisScale<Domain>;
+  readonly scale: d3Axis.AxisScale<D>;
   readonly tickSize: number;
   readonly translate: string;
 }
-class Axis<Domain> extends React.Component<AxisProps<Domain>, {}> {
+class Axis<D extends d3Axis.AxisDomain> extends React.Component<AxisProps<D>, {}> {
   private axisElement: SVGElement | null = null;
 
   public componentDidMount() {
