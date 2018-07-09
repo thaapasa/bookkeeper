@@ -47,7 +47,7 @@ function getById(tx: IBaseProtocol<any>) {
       `${select} WHERE id=$/id/::INTEGER AND group_id=$/groupId/::INTEGER`,
       { id, groupId },
     );
-    if (!s) { throw new NotFoundError('SOURCE_NOT_FOUND', 'source'); }
+    if (!s || s.length < 1) { throw new NotFoundError('SOURCE_NOT_FOUND', 'source'); }
     return createGroupObject(s)[0];
   };
 }

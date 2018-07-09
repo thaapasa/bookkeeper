@@ -11,6 +11,7 @@ import sources from './Sources';
 import { determineDivision } from './ExpenseDivision';
 import { flatten } from '../../shared/util/Arrays';
 import { IBaseProtocol } from '../../../node_modules/pg-promise';
+import { camelCaseObject } from '../../shared/util/Util';
 const debug = require('debug')('bookkeeper:api:recurring-expenses');
 
 function nextRecurrence(from: string | Moment, period: RecurringExpensePeriod): Moment {
@@ -96,11 +97,12 @@ function createMissingRecurrenceForDate(tx: IBaseProtocol<any>, e: [Expense, Exp
 function createMissing(tx: IBaseProtocol<any>) {
   debug('Checking for missing expenses');
   return async (groupId: number, userId: number, date: Moment) => {
-    const list = await tx.manyOrNone<Recurrence>(`
+    const list = await tx.map<Recurrence>(`
 SELECT *
 FROM recurring_expenses
 WHERE group_id=$/groupId/ AND next_missing < $/nextMissing/::DATE`,
       { groupId, nextMissing: date },
+      camelCaseObject,
     );
     return Promise.all(list.map(createMissingRecurrences(tx, groupId, userId, date)));
   };

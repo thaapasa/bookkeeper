@@ -107,11 +107,11 @@ FROM sessions s
 function getSession(tx: IBaseProtocol<any>) {
   return async (token: string, groupId: number): Promise<SessionBasicInfo> => {
     await purgeExpiredSessions(tx)();
-    const userData = await tx.one<RawUserData>(
+    const userData = await tx.oneOrNone<RawUserData>(
       tokenSelect + 'WHERE s.token=$/token/ AND s.refresh_token IS NOT NULL AND s.expiry_time > NOW()',
       { token, groupId },
     );
-    if (userData === undefined) {
+    if (!userData) {
       throw new AuthenticationError('INVALID_TOKEN', 'Access token is invalid', token);
     }
     await tx.none(`
@@ -127,11 +127,11 @@ WHERE token=$/token/`,
 function getUserInfoByRefreshToken(tx: IBaseProtocol<any>) {
   return async (token: string, groupId: number): Promise<RawUserData> => {
     await purgeExpiredSessions(tx)();
-    const userData = await tx.one<RawUserData>(
+    const userData = await tx.oneOrNone<RawUserData>(
       tokenSelect + 'WHERE s.token=$/token/ AND s.refresh_token IS NULL AND s.expiry_time > NOW()',
       { token, groupId },
     );
-    if (userData === undefined) {
+    if (!userData) {
       throw new AuthenticationError('INVALID_TOKEN', 'Refresh token is invalid', token);
     }
     await tx.none(`DELETE FROM sessions WHERE refresh_token=$/token/ OR token=$/token/`, { token });

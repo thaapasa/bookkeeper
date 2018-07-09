@@ -36,7 +36,8 @@ FROM (
   LEFT JOIN expense_division d ON (d.expense_id = e.id AND d.user_id = $/userId/)
   ${where}
 ) breakdown
-GROUP BY id ORDER BY date ASC, title ASC, id
+GROUP BY id
+ORDER BY date ASC, title ASC, id
 `;
 }
 
@@ -64,16 +65,17 @@ FROM (
 
 function getAll(tx: IBaseProtocol<any>) {
   return async (groupId: number, userId: number): Promise<Expense[]> => {
-    const expenses = await tx.manyOrNone<UserExpense>(
+    const expenses = await tx.map(
       expenseSelect(`WHERE group_id=$/groupId/`),
       { userId, groupId },
+      mapExpense,
     );
-    return expenses.map(mapExpense);
+    return expenses;
   };
 }
 
 function mapExpense(e: UserExpense): UserExpense {
-  if (e === undefined) { throw new NotFoundError('EXPENSE_NOT_FOUND', 'expense'); }
+  if (!e) { throw new NotFoundError('EXPENSE_NOT_FOUND', 'expense'); }
   e.date = time.toMoment(e.date).format('YYYY-MM-DD');
   e.userBalance = Money.from(e.userValue).negate().toString();
   return e;
@@ -89,7 +91,8 @@ function countTotalBetween(tx: IBaseProtocol<any>) {
 function hasUnconfirmedBefore(tx: IBaseProtocol<any>) {
   return async (groupId: number, startDate: time.DateLike): Promise<boolean> => {
     const s = await tx.one<{ amount: number }>(`
-SELECT COUNT(*) AS amount
+SELECT
+  COUNT(*) AS amount
 FROM expenses
 WHERE group_id=$/groupId/ AND template=false AND date < $/startDate/::DATE AND confirmed=false`,
      { groupId, startDate: time.formatDate(startDate) });
@@ -99,11 +102,14 @@ WHERE group_id=$/groupId/ AND template=false AND date < $/startDate/::DATE AND c
 
 function getById(tx: IBaseProtocol<any>) {
   return async (groupId: number, userId: number, expenseId: number): Promise<UserExpense> => {
-    const expense = await tx.oneOrNone(
-        expenseSelect(`WHERE id=$/expenseId/ AND group_id=$/groupId/`),
-        { userId, expenseId, groupId },
-      );
-    return mapExpense(expense as UserExpense);
+    const expense = await tx.map(
+      expenseSelect(`WHERE id=$/expenseId/ AND group_id=$/groupId/`),
+      { userId, expenseId, groupId },
+      mapExpense,
+    );
+    debug('Expense is', expense, 'params', groupId, userId, expenseId);
+    if (!expense || expense.length < 1) { throw new NotFoundError('EXPENSE_NOT_FOUND', 'expense'); }
+    return expense[0];
   };
 }
 
@@ -119,25 +125,30 @@ function deleteById(tx: IBaseProtocol<any>) {
 
 export function storeDivision(tx: IBaseProtocol<any>) {
   return (expenseId: number, userId: number, type: ExpenseDivisionType, sum: MoneyLike) => tx.none(`
-INSERT INTO expense_division (expense_id, user_id, type, sum)
-VALUES ($/expenseId/::INTEGER, $/userId/::INTEGER, $/type/::expense_division_type, $/sum/::NUMERIC::MONEY)`,
+INSERT INTO expense_division
+  (expense_id, user_id, type, sum)
+VALUES
+  ($/expenseId/::INTEGER, $/userId/::INTEGER, $/type/::expense_division_type, $/sum/::NUMERIC::MONEY)`,
     { expenseId, userId, type, sum: Money.toString(sum) });
 }
 
 function deleteDivision(tx: IBaseProtocol<any>) {
   return (expenseId: number): Promise<null> => tx.none(`
-DELETE FROM expense_division WHERE expense_id=$/expenseId/::INTEGER`,
+DELETE FROM expense_division
+WHERE expense_id=$/expenseId/::INTEGER`,
   { expenseId });
 }
 
 function getDivision(tx: IBaseProtocol<any>) {
   return async (expenseId: number): Promise<ExpenseDivisionItem[]> => {
-    const items = await tx.manyOrNone(`
-SELECT user_id as "userId", type, sum::MONEY::NUMERIC
+    const items = await tx.manyOrNone<ExpenseDivisionItem>(`
+SELECT
+  user_id as "userId", type, sum::MONEY::NUMERIC
 FROM expense_division
-WHERE expense_id=$/expenseId/::INTEGER ORDER BY type, user_id`,
+WHERE expense_id=$/expenseId/::INTEGER
+ORDER BY type, user_id`,
       { expenseId });
-    return items as ExpenseDivisionItem[];
+    return items;
   };
 }
 
@@ -248,7 +259,8 @@ function queryReceivers(tx: IBaseProtocol<any>) {
   return async (groupId: number, receiver: string): Promise<ReceiverInfo[]> => {
     debug('Receivers', groupId, receiver);
     return tx.manyOrNone<ReceiverInfo>(`
-SELECT receiver, COUNT(*) AS amount
+SELECT
+  receiver, COUNT(*) AS amount
 FROM expenses
 WHERE group_id=$/groupId/ AND receiver ILIKE $/receiver/
 GROUP BY receiver ORDER BY amount DESC`,

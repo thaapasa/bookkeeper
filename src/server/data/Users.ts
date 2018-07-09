@@ -22,7 +22,7 @@ ${select}
 WHERE
   (SELECT COUNT(*) FROM group_users WHERE user_id=u.id AND group_id=$/groupId/::INTEGER) > 0`,
       { groupId });
-    if (users === undefined) { throw new NotFoundError('USER_NOT_FOUND', 'user'); }
+    if (!users || users.length < 1) { throw new NotFoundError('USER_NOT_FOUND', 'user'); }
     return users.map(mapUser);
   };
 }
@@ -35,21 +35,21 @@ WHERE id=$/userId/::INTEGER AND
   (SELECT COUNT(*) FROM group_users WHERE user_id=u.id AND group_id=COALESCE($/groupId/, u.default_group_id)) > 0`,
       { userId, groupId },
     );
-    if (user === undefined) { throw new NotFoundError('USER_NOT_FOUND', 'user'); }
+    if (!user) { throw new NotFoundError('USER_NOT_FOUND', 'user'); }
     return mapUser(user);
   };
 }
 
 function getGroups(tx: IBaseProtocol<any>) {
   return async (userId: number): Promise<Group[]> => {
-    const group = await tx.manyOrNone<Group>(`
+    const groups = await tx.manyOrNone<Group>(`
 SELECT
   id, name
 FROM groups
 WHERE id IN (SELECT group_id FROM group_users WHERE user_id=$/userId/)`,
       { userId },
     );
-    return group as Group[];
+    return groups;
   };
 }
 
@@ -66,7 +66,7 @@ FROM users u
 WHERE username=$/username/ AND password=ENCODE(DIGEST($/password/, 'sha1'), 'hex')`,
       { username, password, groupId },
     );
-    if (user === undefined) { throw new AuthenticationError('INVALID_CREDENTIALS', 'Invalid username or password'); }
+    if (!user) { throw new AuthenticationError('INVALID_CREDENTIALS', 'Invalid username or password'); }
     return user;
   };
 }
