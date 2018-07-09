@@ -107,7 +107,6 @@ function getById(tx: IBaseProtocol<any>) {
       { userId, expenseId, groupId },
       mapExpense,
     );
-    debug('Expense is', expense, 'params', groupId, userId, expenseId);
     if (!expense || expense.length < 1) { throw new NotFoundError('EXPENSE_NOT_FOUND', 'expense'); }
     return expense[0];
   };
