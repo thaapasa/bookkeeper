@@ -1,4 +1,4 @@
-import { db, DbAccess } from './Db';
+import { db } from './Db';
 import * as time from '../../shared/util/Time';
 import Money from '../../shared/util/Money';
 import recurring from './RecurringExpenses';
@@ -6,6 +6,7 @@ import basic from './BasicExpenses';
 import { ExpenseCollection, ExpenseStatus, UserExpense } from '../../shared/types/Expense';
 import { Moment } from 'moment';
 import { mapValues } from '../../shared/util/Objects';
+import { IBaseProtocol } from '../../../node_modules/pg-promise';
 const debug = require('debug')('bookkeeper:api:expenses');
 
 function calculateBalance(o: ExpenseStatus): ExpenseStatus {
@@ -17,12 +18,13 @@ function calculateBalance(o: ExpenseStatus): ExpenseStatus {
   };
 }
 
-function getBetween(tx: DbAccess) {
+function getBetween(tx: IBaseProtocol<any>) {
   return async (groupId: number, userId: number, startDate: Moment | string, endDate: Moment | string) => {
     debug('Querying for expenses between', time.iso(startDate), 'and', time.iso(endDate), 'for group', groupId);
-    const expenses = await tx.queryList<UserExpense>('expenses.get_between',
-      basic.expenseSelect('WHERE group_id=$2 AND template=false AND date >= $3::DATE AND date < $4::DATE'),
-      [userId, groupId, time.formatDate(startDate), time.formatDate(endDate)]);
+    const expenses = await tx.manyOrNone<UserExpense>(
+      basic.expenseSelect(`WHERE group_id=$/groupId/ AND template=false AND date >= $/startDate/::DATE AND date < $/endDate/::DATE`),
+      { userId, groupId, startDate: time.formatDate(startDate), endDate: time.formatDate(endDate) },
+    );
     return expenses.map(basic.mapExpense);
   };
 }
@@ -41,7 +43,7 @@ const zeroStatus: ExpenseStatus = {
 function getByMonth(groupId: number, userId: number, year: number, month: number): Promise<ExpenseCollection> {
   const startDate = time.month(year, month);
   const endDate = startDate.clone().add(1, 'months');
-  return db.transaction(async (tx: DbAccess): Promise<ExpenseCollection> => {
+  return db.tx(async (tx): Promise<ExpenseCollection> => {
     await recurring.tx.createMissing(tx)(groupId, userId, endDate);
     const [expenses, startStatus, monthStatus, unconfirmedBefore] = await Promise.all([
       getBetween(tx)(groupId, userId, startDate, endDate),
@@ -65,13 +67,15 @@ export interface ExpenseSearchParams {
   categoryId?: number;
 }
 
-function search(tx: DbAccess) {
+function search(tx: IBaseProtocol<any>) {
   return async (groupId: number, userId: number, params: ExpenseSearchParams): Promise<UserExpense[]> => {
     debug(`Searching for ${JSON.stringify(params)}`);
-    const expenses = await tx.queryList<UserExpense>('expenses.search',
-      basic.expenseSelect('WHERE group_id=$2 AND template=false AND date::DATE >= $3::DATE AND date::DATE <= $4::DATE ' +
-        'AND ($5::INTEGER IS NULL OR category_id=$5::INTEGER)'),
-      [userId, groupId, params.startDate, params.endDate, params.categoryId || null]);
+    const expenses = await tx.manyOrNone<UserExpense>(
+      basic.expenseSelect(`
+WHERE group_id=$/groupId/ AND template=false
+  AND date::DATE >= $/startDate/::DATE AND date::DATE <= $/endDate/::DATE
+  AND ($/categoryId/::INTEGER IS NULL OR category_id=$/categoryId/::INTEGER)`),
+      { userId, groupId, startDate: params.startDate, endDate: params.endDate, categoryId: params.categoryId || null });
     return expenses.map(basic.mapExpense);
   };
 }

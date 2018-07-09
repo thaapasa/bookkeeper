@@ -1,6 +1,7 @@
-import { db, DbAccess } from './Db';
+import { db } from './Db';
 import { Source } from '../../shared/types/Session';
 import { NotFoundError } from '../../shared/types/Errors';
+import { IBaseProtocol } from '../../../node_modules/pg-promise';
 
 function getImage(img: string | undefined): string | undefined {
   return img ? `img/sources/${img}` : undefined;
@@ -22,24 +23,32 @@ function createGroupObject(rows: SourceData[]): Source[] {
   }, [] as Source[]);
 }
 
-const select = 'SELECT s.id, s.group_id, name, abbreviation, image, ' +
-  '(SELECT SUM(share) FROM source_users WHERE source_id = s.id)::INTEGER AS shares, so.user_id, so.share ' +
-  'FROM sources s ' +
-  'LEFT JOIN source_users so ON (so.source_id = s.id)';
+const select = `
+SELECT
+  s.id, s.group_id as "groupId", name, abbreviation, image,
+  (SELECT SUM(share) FROM source_users WHERE source_id = s.id)::INTEGER AS shares,
+  so.user_id as "userId", so.share
+FROM sources s
+LEFT JOIN source_users so ON (so.source_id = s.id)`;
 
-function getAll(tx: DbAccess) {
+function getAll(tx: IBaseProtocol<any>) {
   return async (groupId: number): Promise<Source[]> => {
-    const s = await tx.queryList('sources.get_all', `${select} WHERE group_id = $1::INTEGER`, [groupId]);
-    return createGroupObject(s as SourceData[]);
+    const s = await tx.manyOrNone<SourceData>(
+      `${select} WHERE group_id = $/groupId/::INTEGER`,
+      { groupId },
+    );
+    return createGroupObject(s);
   };
 }
 
-function getById(tx: DbAccess) {
+function getById(tx: IBaseProtocol<any>) {
   return async (groupId: number, id: number): Promise<Source> => {
-    const s = await tx.queryList('sources.get_by_id',
-      `${select} WHERE id=$1::INTEGER AND group_id=$2::INTEGER`, [id, groupId]);
-    if (!s) { throw new NotFoundError('SOURCE_NOT_FOUND', 'source'); }
-    return createGroupObject(s as SourceData[])[0];
+    const s = await tx.manyOrNone<SourceData>(
+      `${select} WHERE id=$/id/::INTEGER AND group_id=$/groupId/::INTEGER`,
+      { id, groupId },
+    );
+    if (!s || s.length < 1) { throw new NotFoundError('SOURCE_NOT_FOUND', 'source'); }
+    return createGroupObject(s)[0];
   };
 }
 
