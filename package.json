@@ -6,7 +6,7 @@
   "scripts": {
     "postinstall": "yarn update-revision",
     "watch-client": "react-scripts-ts start",
-    "watch-server": "yarn update-revision && nodemon",
+    "watch-server": "yarn update-revision && yarn migrate && nodemon",
     "test-client": "jest --runInBand",
     "test": "yarn test-client",
     "build-client": "react-scripts-ts build",
