@@ -6,7 +6,7 @@
   "scripts": {
     "postinstall": "yarn update-revision",
     "watch-client": "react-scripts-ts start",
-    "watch-server": "yarn update-revision && nodemon",
+    "watch-server": "yarn update-revision && yarn migrate && nodemon",
     "test-client": "jest --runInBand",
     "test": "yarn test-client",
     "build-client": "react-scripts-ts build",
@@ -19,7 +19,10 @@
     "deploy": "sh script/deploy.sh",
     "clean": "rm -rf build/ dist/ build-server/",
     "ps-server": "ps -ef | grep ./src/server/BokkeeperServer.ts | grep -v grep | awk '{ print $2; }'",
-    "kill-server": "ps -ef | grep ./src/server/BookkeeperServer.ts | grep -v grep | awk '{ print $2; }' | xargs kill"
+    "kill-server": "ps -ef | grep ./src/server/BookkeeperServer.ts | grep -v grep | awk '{ print $2; }' | xargs kill",
+    "migrate": "knex migrate:latest",
+    "migrate-make": "knex migrate:make",
+    "migrate-rollback": "knex migrate:rollback"
   },
   "repository": {
     "type": "git",
@@ -71,6 +74,7 @@
     "@types/react-router-dom": "4.2.7",
     "@types/react-tap-event-plugin": "0.0.30",
     "jest": "23.3.0",
+    "knex": "0.15.0",
     "nodemon": "1.17.5",
     "react-scripts-ts": "2.16.0",
     "ts-jest": "23.0.0",
