@@ -11,17 +11,13 @@ git config branch.autosetuprebase always
 git config branch.master.rebase true
 ```
 
-Install development tools:
-
-```sh
-yarn global add ts-node typescript nodemon tslint
-```
+Install deps with `yarn`.
 
 ### Server
 
 Create file `.env` with the following contents (adjust as required):
 
-```sh
+```ini
 SERVER_PORT=3100
 LOG_LEVEL=info
 SHOW_ERROR_CAUSE=true
@@ -39,7 +35,7 @@ The `DEBUG` switch (in `.env` or supplied as an environment variable) controls l
 
 Start development build by running `yarn start-client`.
 
-You can see console logging by setting the `debug` variable to `localStorage`; 
+You can see console logging by setting the `debug` variable to `localStorage`;
 for example: `localStorage.debug = 'bookkeeper*'`.
 
 ### yarn scripts
@@ -53,10 +49,13 @@ for example: `localStorage.debug = 'bookkeeper*'`.
 - `start-server-prod`: Starts the production server (requires that `build-server` has been run)
 - `ps-server`: Shows the process number of the active server
 - `kill-server`: Kills the running server instance (in case the port has not been released)
+- `migrate`: Run migrations (this is automatically run on dev-server startup)
+- `migrate-make migration-name`: Create a new migration file
+- `migrate-rollback`: Rollback latest migration
 
 ### Testing
 
-- Unit tests: run `yarn test`
+- Unit tests: run `yarn test` while the dev server is running
 
 ## Images
 
@@ -79,7 +78,7 @@ For each `expense_division.expense_id`, the sum `sum(expense_division.sum)` equa
 
 There are three types of expenses: `expense`, `income`, and `transfer`.
 
-- `expense`: user has purchased something. 
+- `expense`: user has purchased something.
   The sum `sum(expense.sum)` for `expense.type = expense` gives the total cost of the registered
   expenses.
   Each `expense` is divided into `cost`s and `benefit`s:
@@ -111,16 +110,16 @@ There are three types of expenses: `expense`, `income`, and `transfer`.
 
 ### User balance / debts
 
-For user `u` with id `u.id`, we define `user value` as the 
-sum `sum(expense_division.sum)` of all division rows 
+For user `u` with id `u.id`, we define `user value` as the
+sum `sum(expense_division.sum)` of all division rows
 with `expense_division.user_id = u.id`.
 
 A positive `user value` means that the user has gained more benefit than losses from the
 registered expenses, and a negative value means that the user has paid for more than what
 he has benefitted.
 
-Thus, we further define `user balance` to equal `user value` negated, so that 
+Thus, we further define `user balance` to equal `user value` negated, so that
 `user balance` means (semantically) what the user's current balance is (in regards to the
-registered entries); a positive `user balance` means that the user is owed money, and 
+registered entries); a positive `user balance` means that the user is owed money, and
 a negative `user balance` means that the user is behind the budget and should pay for
 shared expenses.
