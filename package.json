@@ -88,5 +88,19 @@
     "test": "test"
   },
   "proxy": "http://localhost:3100",
-  "description": "Kukkaro - a web tool for tracking your income and expenses."
+  "description": "Kukkaro - a web tool for tracking your income and expenses.",
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(tsx?)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
+  }
 }
