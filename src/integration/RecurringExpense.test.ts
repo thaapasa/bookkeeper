@@ -4,8 +4,10 @@ import { SessionWithControl, getSession } from '../shared/util/test/TestClient';
 import { ExpenseCollection, Expense, UserExpense } from '../shared/types/Expense';
 import Money, { MoneyLike } from '../shared/util/Money';
 import { ApiMessage } from '../shared/types/Api';
+import { nextRecurrence } from '../server/data/RecurringExpenses';
+import { formatDate } from '../shared/util/Time';
 
-describe('recurringExpense', () => {
+describe('recurring expenses', () => {
 
   let session: SessionWithControl;
 
@@ -27,7 +29,17 @@ describe('recurringExpense', () => {
     return Money.from(m.monthStatus.benefit);
   }
 
-  it('recurring expense template should not show up on expense queries', async () => {
+  it('calculates next recurrence correctly', async () => {
+    expect(formatDate(nextRecurrence('2017-01-01', 'monthly'))).toBe('2017-02-01');
+    expect(formatDate(nextRecurrence('2017-01-31', 'monthly'))).toBe('2017-02-28');
+    expect(formatDate(nextRecurrence('2017-12-31', 'monthly'))).toBe('2018-01-31');
+    expect(formatDate(nextRecurrence('2017-12-01', 'monthly'))).toBe('2018-01-01');
+    expect(formatDate(nextRecurrence('2004-02-29', 'yearly'))).toBe('2005-02-28');
+    expect(formatDate(nextRecurrence('2004-02-28', 'yearly'))).toBe('2005-02-28');
+    expect(formatDate(nextRecurrence('2004-03-01', 'yearly'))).toBe('2005-03-01');
+  });
+
+  it('templates should not show up on expense queries', async () => {
     const monthBenefit1 = await checkMonthStatus();
     const expenseId = checkCreateStatus(await newExpense(session, {
       sum: '150.00', confirmed: false, date: '2017-01-15', title: 'Tonnikalaa',
@@ -49,6 +61,21 @@ describe('recurringExpense', () => {
 
     const e2 = await session.get<Expense>(`/api/expense/${expenseId}`);
     expect(e2.recurringExpenseId).toEqual(s.recurringExpenseId);
+  });
+
+  it('creates 1/month', async () => {
+    const expenseId = checkCreateStatus(await newExpense(session, {
+      sum: '150.00', confirmed: false, date: '2017-01-01', title: 'Pan-galactic gargleblaster',
+    }));
+    const s = await session.put<ApiMessage>(`/api/expense/recurring/${expenseId}`, { period: 'monthly' });
+    expect(s.recurringExpenseId).toBeGreaterThan(0);
+    expect(s.templateExpenseId).toBeGreaterThan(0);
+    captureId(s);
+
+    await session.get<ExpenseCollection>('/api/expense/month', { year: 2017, month: 2 });
+    const expenses = await session.get<ExpenseCollection>('/api/expense/month', { year: 2017, month: 1 });
+    const matches = expenses.expenses.filter(e => e.recurringExpenseId === s.recurringExpenseId);
+    expect(matches).toMatchObject([{ title: 'Pan-galactic gargleblaster', date: '2017-01-01' }]);
   });
 
 });

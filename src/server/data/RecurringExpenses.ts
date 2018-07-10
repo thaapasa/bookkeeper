@@ -14,7 +14,7 @@ import { IBaseProtocol } from '../../../node_modules/pg-promise';
 import { camelCaseObject } from '../../shared/util/Util';
 const debug = require('debug')('bookkeeper:api:recurring-expenses');
 
-function nextRecurrence(from: string | Moment, period: RecurringExpensePeriod): Moment {
+export function nextRecurrence(from: string | Moment, period: RecurringExpensePeriod): Moment {
   const date = fromDate(from);
   switch (period) {
     case 'monthly': return date.add(1, 'month');
@@ -39,7 +39,7 @@ function createRecurring(groupId: number, userId: number, expenseId: number, rec
 INSERT INTO recurring_expenses (template_expense_id, period, next_missing, group_id)
 VALUES ($/templateId/::INTEGER, $/period/, $/nextMissing/::DATE, $/groupId/)
 RETURNING id`,
-      { templateId, period: recurrence.period, nextMissing, groupId })).id;
+      { templateId, period: recurrence.period, nextMissing: formatDate(nextMissing), groupId })).id;
 
     await tx.none(`
 UPDATE expenses
@@ -72,7 +72,7 @@ function createMissingRecurrences(tx: IBaseProtocol<any>, groupId: number, userI
     if (dates.length < 1) { return; }
     const lastDate = dates[dates.length - 1];
     const nextMissing = nextRecurrence(lastDate, recurrence.period);
-    debug('Creating missing expenses for', recurrence, dates, 'next missing is', nextMissing);
+    debug('Creating missing expenses for', recurrence, dates, 'next missing is', formatDate(nextMissing));
     const expense = await expenses.tx.getExpenseAndDivision(tx)(groupId, userId, recurrence.templateExpenseId);
     await Promise.all(dates.map(createMissingRecurrenceForDate(tx, expense)));
     await tx.none(`
