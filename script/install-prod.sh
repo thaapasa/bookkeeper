@@ -35,6 +35,9 @@ cd dist
 tar xzvf ../deploy/client-$REV.tar.gz || exit -1
 cd ..
 
+echo "Running db migrations"
+yarn migrate
+
 echo "Starting server"
 script/start-server.sh || exit -1
 
