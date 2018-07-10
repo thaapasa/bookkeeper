@@ -1,9 +1,10 @@
 import { db } from './Db';
 import Money from '../../shared/util/Money';
-import { NotFoundError } from '../../shared/types/Errors';
+import { NotFoundError, InvalidInputError } from '../../shared/types/Errors';
 import { Category, CategoryAndTotals } from '../../shared/types/Session';
 import { partition, toMap } from '../../shared/util/Arrays';
 import { IBaseProtocol } from '../../../node_modules/pg-promise';
+import { ApiMessage } from '../../shared/types/Api';
 const debug = require('debug')('bookkeeper:categories');
 
 function createCategoryObject<T extends Category>(categories: T[]): T[] {
@@ -71,23 +72,51 @@ export interface CategoryInput {
   readonly name: string;
 }
 
-function create(tx: IBaseProtocol<any>) {
-  return async (groupId: number, data: CategoryInput): Promise<number> =>
-    (await tx.one<{ id: number }>(`
+function insert(tx: IBaseProtocol<any>) {
+  return async (groupId: number, data: CategoryInput): Promise<number> => {
+    debug('Creating new category', data);
+    return (await tx.one<{ id: number }>(`
 INSERT INTO categories (group_id, parent_id, name)
 VALUES ($/groupId/::INTEGER, $/parentId/::INTEGER, $/name/)
 RETURNING id`,
       { groupId, parentId: data.parentId || null, name: data.name })).id;
+  };
+}
+
+function create(tx: IBaseProtocol<any>) {
+  return async (groupId: number, data: CategoryInput): Promise<number> => {
+    if (!data.parentId) { return insert(tx)(groupId, data); }
+    const parent = await getById(tx)(groupId, data.parentId);
+    debug('Parent is', parent);
+    if (!parent) { throw new NotFoundError('CATEGORY_NOT_FOUND', 'category'); }
+    if (parent.parentId !== null && parent.parentId > 0) {
+      throw new InvalidInputError('INVALID_PARENT', 'Sub-category cannot be parent');
+    }
+    return insert(tx)(groupId, data);
+  };
 }
 
 function getById(tx: IBaseProtocol<any>) {
   return async (groupId: number, id: number): Promise<Category> => {
     const cat = await tx.oneOrNone<Category>(`
-SELECT id, parent_id, name FROM categories
+SELECT
+  id, parent_id as "parentId", name
+FROM categories
 WHERE id=$/id/::INTEGER AND group_id=$/groupId/::INTEGER`,
       { id, groupId });
     if (!cat) { throw new NotFoundError('CATEGORY_NOT_FOUND', 'category'); }
     return cat as Category;
+  };
+}
+
+function remove(tx: IBaseProtocol<any>) {
+  return async (groupId: number, id: number): Promise<ApiMessage> => {
+    await tx.none(`
+DELETE FROM categories
+WHERE id=$/id/::INTEGER AND group_id=$/groupId/::INTEGER`,
+      { id, groupId },
+    );
+    return { status: 'OK', message: 'Category deleted', categoryId: id };
   };
 }
 
@@ -110,6 +139,7 @@ export default {
   getById: getById(db),
   create: create(db),
   update,
+  remove: remove(db),
   tx: {
     getAll,
     getById,

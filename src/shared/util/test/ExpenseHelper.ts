@@ -1,6 +1,6 @@
 import 'jest';
 import Money, { MoneyLike } from '../Money';
-import { Session } from '../../types/Session';
+import { Session, CategoryData } from '../../types/Session';
 import { ExpenseDivisionItem, Expense } from '../../types/Expense';
 import { SessionWithControl } from './TestClient';
 import { isDbObject } from '../../types/Common';
@@ -8,6 +8,7 @@ import { isApiMessageWithExpenseId, ApiMessage, isApiMessageWithRecurringExpense
 
 let createdIds: number[] = [];
 let createdRecurrences: number[] = [];
+const createdCategories: number[] = [];
 
 export function captureId<T>(e: T): T {
   if (isDbObject(e)) {
@@ -59,6 +60,12 @@ export async function newExpense(session: SessionWithControl, expense?: Partial<
   return captureId(await session.put<ApiMessage>('/api/expense', data));
 }
 
+export async function newCategory(session: SessionWithControl, data: CategoryData): Promise<ApiMessage> {
+  const d = await session.put<ApiMessage>('/api/category', data);
+  createdCategories.push(d.categoryId!);
+  return d;
+}
+
 export async function deleteCreated(session: SessionWithControl): Promise<boolean> {
   if (!session) { return false; }
   try {
@@ -67,6 +74,10 @@ export async function deleteCreated(session: SessionWithControl): Promise<boolea
     }
     for (const id of createdIds) {
       await session.del(`/api/expense/${id}`);
+    }
+    const revCats = createdCategories.reverse();
+    for (const id of revCats) {
+      await session.del(`/api/category/${id}`);
     }
     return true;
   } finally {

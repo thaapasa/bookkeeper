@@ -86,6 +86,10 @@ export function registerAPI(app: Express) {
   app.get('/api/category/:id', server.processRequest((session, req): Promise<Category> =>
     categories.getById(session.group.id, parseInt(req.params.id, 10)), true));
 
+  // DELETE /api/category/categoryId
+  app.delete('/api/category/:id', server.processRequest((session, req): Promise<ApiMessage> =>
+    categories.remove(session.group.id, parseInt(req.params.id, 10)), true));
+
   // GET /api/source/list
   app.get('/api/source/list', server.processRequest((session): Promise<Source[]> =>
     sources.getAll(session.group.id), true));

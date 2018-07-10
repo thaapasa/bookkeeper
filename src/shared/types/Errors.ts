@@ -51,6 +51,12 @@ export class AuthenticationError extends Error {
   }
 }
 
+export class InvalidInputError extends Error {
+  constructor(code: string, cause: string) {
+    super(code, cause, 400);
+  }
+}
+
 export class TokenNotPresentError extends Error {
   constructor() {
     super('TOKEN_MISSING', 'Authorization token missing', 401);
