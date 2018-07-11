@@ -133,11 +133,12 @@ export async function timeout(ms: number): Promise<void> {
 export interface Week {
   weekNumber: number;
   year: number;
+  firstInstant: Date;
 }
 
 export function getWeek(date: MomentInput): Week {
   const m = moment(date);
-  return { weekNumber: m.week(), year: m.weekYear() };
+  return { weekNumber: m.week(), year: m.weekYear(), firstInstant: m.toDate() };
 }
 
 export function getWeeksForMonth(date: MomentInput): Week[] {

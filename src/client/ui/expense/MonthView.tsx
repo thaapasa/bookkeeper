@@ -6,7 +6,7 @@ import { UserExpense, ExpenseStatus } from '../../../shared/types/Expense';
 import { zeroStatus } from './ExpenseHelper';
 import { History } from 'history';
 import { needUpdateE, navigationBus } from '../../data/State';
-import { toMoment, isSameMonth, monthRange } from '../../../shared/util/Time';
+import { toMoment, isSameMonth, monthRange, getWeeksForMonth } from '../../../shared/util/Time';
 import { expensesForMonthPath, expensePagePath } from '../../util/Links';
 const debug = require('debug')('bookkeeper:month-view');
 
@@ -80,6 +80,7 @@ export default class MonthView extends React.PureComponent<MonthViewProps, Month
   public render() {
     return (
       <ExpenseTable
+        weeks={getWeeksForMonth(this.props.date)}
         expenses={this.state.expenses}
         loading={this.state.loading}
         startStatus={this.state.startStatus}

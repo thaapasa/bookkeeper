@@ -14,6 +14,7 @@ import { ExpenseTableLayout, RecurringExpenseSeparator, LoadingIndicator } from 
 import RecurringSummaryRow from './RecurringSummaryRow';
 import { colorScheme } from '../Colors';
 import { media } from '../Styles';
+import { Week, fromDate } from '../../../shared/util/Time';
 
 interface ExpenseTableProps {
   expenses: UserExpense[];
@@ -24,6 +25,8 @@ interface ExpenseTableProps {
   unconfirmedBefore: boolean;
   onUpdateExpense: (expenseId: number, expense: UserExpense) => void;
   userData: UserDataProps;
+  weeks: Week[];
+  renderCalendar?: boolean;
 }
 
 interface ExpenseTableState {
@@ -94,7 +97,7 @@ class ExpenseTable extends React.Component<ExpenseTableProps, ExpenseTableState>
     const filtered = this.getFilteredExpenses();
     const [recurring, normal] = partition(e => !!e.recurringExpenseId, filtered);
     if (recurring.length < 1) {
-      return normal.map(this.renderExpense);
+      return this.renderNormalExpenses(normal);
     } else if (normal.length < 1) {
       return this.renderRecurringExpenses(recurring);
     }
@@ -102,7 +105,28 @@ class ExpenseTable extends React.Component<ExpenseTableProps, ExpenseTableState>
       <React.Fragment>
         {this.renderRecurringExpenses(recurring)}
         <RecurringExpenseSeparator />
-        {normal.map(this.renderExpense)}
+        {this.renderNormalExpenses(normal)}
+      </React.Fragment>
+    );
+  }
+
+  private renderNormalExpenses(expenses: UserExpense[]) {
+    return this.props.renderCalendar !== false ?
+      this.renderWithCalendar(expenses) :
+      expenses.map(this.renderExpense);
+  }
+
+  private renderWithCalendar(expenses: UserExpense[]) {
+    const exps = partitionToWeeks(expenses, this.props.weeks);
+    return exps.map(w => this.renderWeekExpenses(w.week, w.expenses));
+  }
+
+  private renderWeekExpenses(week: Week, expenses: UserExpense[]) {
+    const weekName = `${week.weekNumber}/${week.year}`;
+    return (
+      <React.Fragment key={weekName}>
+        <tr><td>Viikko {weekName}</td></tr>
+        {expenses.map(this.renderExpense)}
       </React.Fragment>
     );
   }
@@ -132,6 +156,22 @@ class ExpenseTable extends React.Component<ExpenseTableProps, ExpenseTableState>
       </ExpenseTableContainer>
     );
   }
+}
+
+interface WeekExpenses {
+  week: Week;
+  expenses: UserExpense[];
+}
+
+function partitionToWeeks(expenses: UserExpense[], weeks: Week[]): WeekExpenses[] {
+  const result: WeekExpenses[] = weeks.map(w => ({ week: w, expenses: [] }));
+  let weekIdx = 0;
+  for (const exp of expenses) {
+    while (weekIdx < weeks.length - 1 &&
+      fromDate(exp.date).isAfter(weeks[weekIdx + 1].firstInstant)) { weekIdx++; }
+    result[weekIdx].expenses.push(exp);
+  }
+  return result;
 }
 
 export default connect(userDataE.map(userData => ({ userData })))(ExpenseTable);
