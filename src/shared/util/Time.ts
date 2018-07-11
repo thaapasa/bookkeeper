@@ -1,6 +1,8 @@
 import { leftPad } from './Util';
-import { Moment, isMoment, MomentInput } from 'moment';
-const moment = require('moment');
+import moment, { Moment, isMoment, MomentInput } from 'moment';
+import 'moment/locale/fi';
+
+moment.locale('fi');
 
 export type DateLike = Date | Moment | string;
 
@@ -126,4 +128,27 @@ export function compareRanges(a: DateRange, b: DateRange) {
 
 export async function timeout(ms: number): Promise<void> {
   return new Promise<void>(resolve => setTimeout(resolve, ms));
+}
+
+export interface Week {
+  weekNumber: number;
+  year: number;
+}
+
+export function getWeek(date: MomentInput): Week {
+  const m = moment(date);
+  return { weekNumber: m.week(), year: m.weekYear() };
+}
+
+export function getWeeksForMonth(date: MomentInput): Week[] {
+  const firstInstant = moment(date).startOf('month');
+  const lastInstant = moment(date).endOf('month');
+  const weeks: Week[] = [];
+
+  let monday = firstInstant.clone().startOf('week');
+  while (monday.isBefore(lastInstant)) {
+    weeks.push(getWeek(monday));
+    monday = monday.add(1, 'week');
+  }
+  return weeks;
 }
