@@ -7,7 +7,6 @@ import { Category, CategoryAndTotals } from '../../../shared/types/Session';
 import { AddCategoryButton, EditCategoryButton, ToggleButton } from './CategoryTools';
 import { UserExpense } from '../../../shared/types/Expense';
 import { DateRange } from '../../../shared/util/Time';
-import { Map } from '../../../shared/util/Objects';
 import { UserDataProps } from '../../data/Categories';
 import { ExpenseTableLayout } from '../expense/ExpenseTableLayout';
 import { Row, NameColumn, SumColumn, ToolColumn, AllColumns } from './CategoryTableLayout';
@@ -18,7 +17,7 @@ interface CategoryRowProps {
   header: boolean;
   createCategory: (p?: Category) => void;
   editCategory: (p: Category) => void;
-  categoryTotals: Map<CategoryAndTotals>;
+  categoryTotals: Record<string, CategoryAndTotals>;
   range: DateRange;
   userData: UserDataProps;
 }

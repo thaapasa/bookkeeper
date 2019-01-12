@@ -1,13 +1,5 @@
 import { arrayContains } from '../../shared/util/Arrays';
 
-export interface Map<T> {
-  [key: string]: T;
-}
-
-export interface NumberMap<T> {
-  [key: number]: T;
-}
-
 export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
 export function pick<T, K extends keyof T>(names: ReadonlyArray<K>, obj: T): Pick<T, K> {

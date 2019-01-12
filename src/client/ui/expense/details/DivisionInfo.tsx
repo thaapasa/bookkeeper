@@ -4,7 +4,6 @@ import * as colors from '../../Colors';
 import UserAvatar from '../../component/UserAvatar';
 import Money, { MoneyLike } from '../../../../shared/util/Money';
 import { ExpenseDivisionItem, UserExpense } from '../../../../shared/types/Expense';
-import { Map } from '../../../../shared/util/Objects';
 import { media } from '../../Styles';
 
 interface DivisionInfoProps {
@@ -20,7 +19,7 @@ export default class ExpenseInfo extends React.Component<DivisionInfoProps, {}> 
     const division = this.props.division;
     const expense = this.props.expense;
     const isIncome = expense.type === 'income';
-    const users: Map<Map<MoneyLike>> = {};
+    const users: Record<string, Record<string, MoneyLike>> = {};
     division.forEach(d => { users[d.userId] = { ...users[d.userId], [d.type]: d.sum }; });
 
     return (
@@ -46,7 +45,7 @@ export default class ExpenseInfo extends React.Component<DivisionInfoProps, {}> 
     );
   }
 
-  private renderUser(userId: string, isIncome: boolean, user: Map<MoneyLike>) {
+  private renderUser(userId: string, isIncome: boolean, user: Record<string, MoneyLike>) {
     return (
       <DivisionRow key={userId}>
         <UserColumn><UserAvatar userId={parseInt(userId, 10)} size={32} /></UserColumn>
@@ -59,7 +58,7 @@ export default class ExpenseInfo extends React.Component<DivisionInfoProps, {}> 
 
 }
 
-function getBalance(data: Map<MoneyLike>) {
+function getBalance(data: Record<string, MoneyLike>) {
   return divisionTypes.map(t => Money.orZero(data[t])).reduce((a, b) => a.plus(b), Money.zero).negate();
 }
 

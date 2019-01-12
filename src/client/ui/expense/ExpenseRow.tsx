@@ -15,7 +15,6 @@ import { Expense, UserExpense, UserExpenseWithDetails, ExpenseDivisionItem, Recu
 import { User, Source, Category } from '../../../shared/types/Session';
 import { pickDate, notifyError, notify, confirm, updateExpenses, editExpense } from '../../data/State';
 import { getFullCategoryName, UserDataProps } from '../../data/Categories';
-import { Map } from '../../../shared/util/Objects';
 import { toDate, formatDate, toMoment, readableDate } from '../../../shared/util/Time';
 import { ExpenseFilterFunction } from './ExpenseFilterRow';
 import { equal, notEqual } from '../../../shared/util/Symbols';
@@ -33,8 +32,8 @@ interface ExpenseRowProps extends CommonExpenseRowProps {
   user: User;
   source: Source;
   fullCategoryName: string;
-  categoryMap: Map<Category>;
-  userMap: Map<User>;
+  categoryMap: Record<string, Category>;
+  userMap: Record<string, User>;
 }
 
 interface ExpenseRowState {

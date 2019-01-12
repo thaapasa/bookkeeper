@@ -1,6 +1,5 @@
 import Money from '../../shared/util/Money';
 import { Session, Category, CategoryAndTotals, CategoryData } from '../../shared/types/Session';
-import { Map } from '../../shared/util/Objects';
 import { FetchClient } from '../../shared/util/FetchClient';
 import { ApiMessage } from '../../shared/types/Api';
 import { ExpenseCollection, ExpenseStatus, UserExpense, RecurringExpensePeriod, UserExpenseWithDetails, ExpenseData, RecurringExpenseTarget } from '../../shared/types/Expense';
@@ -50,24 +49,24 @@ export class ApiConnect {
     this.currentToken = token;
   }
 
-  private authHeader(): Map<string> {
+  private authHeader(): Record<string, string> {
     if (!this.currentToken) { return {}; }
     return { Authorization: `Bearer ${this.currentToken || ''}` };
   }
 
-  private get<T>(path: string, query?: Map<string>): Promise<T> {
+  private get<T>(path: string, query?: Record<string, string>): Promise<T> {
     return client.get<T>(path, query, this.authHeader());
   }
 
-  private put<T>(path: string, body?: any, query?: Map<string>): Promise<T> {
+  private put<T>(path: string, body?: any, query?: Record<string, string>): Promise<T> {
     return client.put<T>(path, body, query, this.authHeader());
   }
 
-  private post<T>(path: string, body?: any, query?: Map<string>): Promise<T> {
+  private post<T>(path: string, body?: any, query?: Record<string, string>): Promise<T> {
     return client.post<T>(path, body, query, this.authHeader());
   }
 
-  private del<T>(path: string, data?: any, query?: Map<string>): Promise<T> {
+  private del<T>(path: string, data?: any, query?: Record<string, string>): Promise<T> {
     return client.del<T>(path, data, query, this.authHeader());
   }
 
@@ -92,7 +91,7 @@ export class ApiConnect {
     return mapExpenseObject(collection);
   }
 
-  public searchExpenses(startDate: DateLike, endDate: DateLike, query: Map<string | number>): Promise<UserExpense[]> {
+  public searchExpenses(startDate: DateLike, endDate: DateLike, query: Record<string, string | number>): Promise<UserExpense[]> {
     const q = { ...query, startDate: formatDate(startDate), endDate: formatDate(endDate) };
     return this.get<UserExpense[]>('/api/expense/search', q).then(l => l.map(mapExpense));
   }

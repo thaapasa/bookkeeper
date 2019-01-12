@@ -2,7 +2,6 @@ import * as React from 'react';
 import * as B from 'baconjs';
 import styled from 'styled-components';
 import { History } from 'history';
-import { Map } from '../../../shared/util/Objects';
 import { Category, CategoryAndTotals } from '../../../shared/types/Session';
 import { TypedDateRange, compareRanges } from '../../../shared/util/Time';
 import { unsubscribeAll } from '../../util/ClientUtil';
@@ -24,7 +23,7 @@ interface CategoryViewProps {
 }
 
 interface CategoryViewState {
-  categoryTotals: Map<CategoryAndTotals>;
+  categoryTotals: Record<string, CategoryAndTotals>;
   categoryChartData?: CategoryChartData[];
   isLoading: boolean;
 }
@@ -53,7 +52,7 @@ class CategoryView extends React.Component<CategoryViewProps, CategoryViewState>
     unsubscribeAll(this.unsub);
   }
 
-  private formCategoryChartData(categoryTotals: Map<CategoryAndTotals>): CategoryChartData[] {
+  private formCategoryChartData(categoryTotals: Record<string, CategoryAndTotals>): CategoryChartData[] {
     return this.props.categories.map(c => ({
       categoryId: c.id,
       categoryName: c.name,
@@ -61,9 +60,9 @@ class CategoryView extends React.Component<CategoryViewProps, CategoryViewState>
     }));
   }
 
-  private getCategoryTotals = async (): Promise<Map<CategoryAndTotals>> => {
+  private getCategoryTotals = async (): Promise<Record<string, CategoryAndTotals>> => {
     const totals = await apiConnect.getCategoryTotals(this.props.range.start, this.props.range.end);
-    const totalsMap: Map<CategoryAndTotals> = {};
+    const totalsMap: Record<string, CategoryAndTotals> = {};
     totals.forEach(t => {
       totalsMap['' + t.id] = t;
       if (t.children && t.children.length > 0) {

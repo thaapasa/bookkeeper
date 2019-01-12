@@ -73,7 +73,12 @@ interface AxisProps<D extends d3Axis.AxisDomain> {
   readonly translate: string;
 }
 class Axis<D extends d3Axis.AxisDomain> extends React.Component<AxisProps<D>, {}> {
-  private axisElement: SVGElement | null = null;
+  private axisElement: React.RefObject<SVGGElement>;
+
+  constructor(props: AxisProps<D>) {
+    super(props);
+    this.axisElement = React.createRef<SVGGElement>();
+  }
 
   public componentDidMount() {
     this.renderAxis();
@@ -90,16 +95,14 @@ class Axis<D extends d3Axis.AxisDomain> extends React.Component<AxisProps<D>, {}
       .tickPadding(12)
       .ticks([4]);
 
-    d3Select(this.axisElement).call(axis as any);
+    d3Select(this.axisElement.current).call(axis as any);
   }
-
-  private setRef = (el: SVGElement | null) => this.axisElement = el;
 
   public render() {
     return (
       <AxisG
         className={`Axis Axis-${this.props.orient}`}
-        innerRef={this.setRef}
+        ref={this.axisElement}
         transform={this.props.translate}
       />
     );
@@ -164,7 +167,7 @@ export default class CategoryChart extends React.Component<{ chartData: Category
 
   private xScale = scaleBand<string>();
   private yScale = scaleLinear<number>();
-  private chartContainer: HTMLDivElement | null = null;
+  private chartContainer = React.createRef<HTMLDivElement>();
 
   public state: CategoryChartState = {
     containerWidth: null,
@@ -181,7 +184,7 @@ export default class CategoryChart extends React.Component<{ chartData: Category
 
   private adjustChartWidth = () => {
     const containerWidth = this.state.containerWidth;
-    const currentContainerWidth = this.chartContainer && this.chartContainer.getBoundingClientRect().width;
+    const currentContainerWidth = this.chartContainer.current && this.chartContainer.current.getBoundingClientRect().width;
     const shouldResize = containerWidth !== currentContainerWidth;
 
     if (shouldResize) {
@@ -234,7 +237,7 @@ export default class CategoryChart extends React.Component<{ chartData: Category
 
     return (
       <div
-        ref={(el) => { this.chartContainer = el; }}
+        ref={this.chartContainer}
         className="Responsive-wrapper"
       >
         {containerWidth != null && this.renderChart(containerWidth)}

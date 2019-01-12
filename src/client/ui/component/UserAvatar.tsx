@@ -2,7 +2,6 @@ import * as React from 'react';
 import Avatar from 'material-ui/Avatar';
 import { cyan500, cyan900 } from 'material-ui/styles/colors';
 import { User } from '../../../shared/types/Session';
-import { Map } from '../../../shared/util/Objects';
 import { connect } from './BaconConnect';
 import { userMapE } from '../../data/Login';
 import styled from 'styled-components';
@@ -45,7 +44,7 @@ export function UserAvatar(props: UserAvatarProps) {
 
 interface UserIdAvatarProps extends CommonAvatarProps {
   userId: number;
-  userMap: Map<User>;
+  userMap: Record<string, User>;
 }
 
 export class UserIdAvatar extends React.Component<UserIdAvatarProps, {}> {

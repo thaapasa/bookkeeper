@@ -23,8 +23,6 @@ interface ActivatableTextFieldState {
 
 export default class ActivatableTextField extends React.Component<ActivatableTextFieldProps, ActivatableTextFieldState> {
 
-  private editorRef: EditorType | null = null;
-
   public state: ActivatableTextFieldState;
 
   constructor(props: ActivatableTextFieldProps) {
@@ -72,16 +70,13 @@ export default class ActivatableTextField extends React.Component<ActivatableTex
       onChange: this.updateValue,
       // onBlur: i => this.commit(this.state.value),
       onKeyUp: this.handleKeyPress,
-      ref: this.setRef,
-    });
+    } as any);
   }
 
   private activate = (i: any) => {
     debug('Activating editor', this.props.editorType, 'for', this.props.value);
     this.setState({ edit: true, value: this.props.value });
   }
-  private setRef = (i: EditorType | null) => this.editorRef = i;
-  private clearRef = (i: any) => this.editorRef = null;
 
   public render() {
     if (this.state.edit) { return this.createEditor(); }
@@ -89,7 +84,6 @@ export default class ActivatableTextField extends React.Component<ActivatableTex
       <div
         style={this.props.style}
         onClick={this.activate}
-        ref={this.clearRef}
       >{this.props.value}</div>
     );
   }

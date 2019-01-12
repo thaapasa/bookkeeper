@@ -1,6 +1,5 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import { Map } from '../../../shared/util/Objects';
 import { colorScheme } from '../Colors';
 import { PlusCircle } from '../Icons';
 import { createExpense } from '../../data/State';
@@ -31,7 +30,7 @@ const BlackContent = styled.div`
   z-index: 0;
 `;
 
-const styles: Map<React.CSSProperties> = {
+const styles: Record<string, React.CSSProperties> = {
   addExpenseIcon: {
     position: 'absolute',
     top: 0,

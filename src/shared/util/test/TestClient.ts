@@ -1,17 +1,16 @@
 import { FetchClient } from '../FetchClient';
 import fetch from 'node-fetch';
-import { Map } from '../Objects';
 import { Session } from '../../types/Session';
 
 const baseUrl = 'http://localhost:3100';
 
 const client = new FetchClient(() => fetch as any, baseUrl);
 
-function authHeader(token: string): Map<string> {
+function authHeader(token: string): Record<string, string> {
   return { Authorization: `Bearer ${token}` };
 }
 
-export function get<T>(token: string, path: string, query?: Map<any>): Promise<T> {
+export function get<T>(token: string, path: string, query?: Record<string, any>): Promise<T> {
   return client.get<T>(path, query, authHeader(token));
 }
 
@@ -23,7 +22,7 @@ export function post<T>(token: string, path: string, data: any): Promise<T> {
   return client.post<T>(path, data, undefined, authHeader(token));
 }
 
-export function del<T>(token: string, path: string, query?: Map<any>): Promise<T> {
+export function del<T>(token: string, path: string, query?: Record<string, any>): Promise<T> {
   return client.del<T>(path, undefined, query, authHeader(token));
 }
 
@@ -44,11 +43,11 @@ export async function refreshSession(refreshToken: string) {
 }
 
 export interface SessionWithControl extends Session {
-  get: <T>(path: string, query?: Map<any>) => Promise<T>;
+  get: <T>(path: string, query?: Record<string, any>) => Promise<T>;
   logout: () => Promise<void>;
   put: <T>(path: string, data: any) => Promise<T>;
   post: <T>(path: string, data: any) => Promise<T>;
-  del: (path: string, query?: Map<any>) => Promise<void>;
+  del: (path: string, query?: Record<string, any>) => Promise<void>;
 }
 
 function decorateSession(s: Session): SessionWithControl {

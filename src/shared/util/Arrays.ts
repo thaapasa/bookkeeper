@@ -1,5 +1,4 @@
 import { getRandomInt } from './Util';
-import { Map } from './Objects';
 
 // https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
 export function shuffle<T>(a: T[]): T[] {
@@ -21,7 +20,7 @@ export function sortAndCompareElements<T>(ar1: T[], ar2: T[]): boolean {
 }
 
 export function indices(num: number): number[] {
-  return Array.apply(null, { length: num }).map(Number.call, Number);
+  return Array.from(new Array(num), (_, i) => i);
 }
 
 export function flatten<T>(arr: any): T[] {
@@ -29,14 +28,14 @@ export function flatten<T>(arr: any): T[] {
 }
 
 /** Assume input: Array of [name, value] fields */
-export function toObject(ar: string[][]): Map<string> {
-  const res: Map<string> = {};
+export function toObject(ar: string[][]): Record<string, string> {
+  const res: Record<string, string> = {};
   ar.forEach(a => res[a[0]] = a[1]);
   return res;
 }
 
-export function toMap<T, K extends keyof T>(arr: T[], keyProp: K): Map<T> {
-  const map: Map<T> = {};
+export function toMap<T, K extends keyof T>(arr: T[], keyProp: K): Record<string, T> {
+  const map: Record<string, T> = {};
   for (const v of arr) {
     map['' + v[keyProp]] = v;
   }

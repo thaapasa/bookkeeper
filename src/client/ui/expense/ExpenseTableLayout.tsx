@@ -4,12 +4,11 @@ import { colorScheme } from '../Colors';
 import { media, ScreenSizeClassName } from '../Styles';
 import { QuestionBookmark, Recurring } from '../Icons';
 import RefreshIndicator from 'material-ui/RefreshIndicator';
-import { Map } from '../../../shared/util/Objects';
 
 const tableBgColor = colorScheme.primary.light;
 const separatorColor = colorScheme.gray.standard;
 
-export const columnSizes: Map<ScreenSizeClassName> = {
+export const columnSizes: Record<string, ScreenSizeClassName> = {
   date: 'mobile-portrait',
   avatar: 'mobile-portrait',
   name: 'mobile-portrait',
@@ -78,31 +77,31 @@ const Column = styled.td`
   }
 `;
 
-const WebColumn = Column.extend`
+const WebColumn = styled(Column)`
   ${media.mobile`
     visibility: hidden;
     width: 0;
   `}
 `;
 
-const MobileLandscapeColumn = Column.extend`
+const MobileLandscapeColumn = styled(Column)`
   ${media.mobilePortrait`
     visibility: hidden;
     width: 0;
   `}
 `;
 
-export const DateColumn = Column.extend`
+export const DateColumn = styled(Column)`
   text-align: right;
   width: 40px;
   position: relative;
 `;
-export const AvatarColumn = Column.extend`
+export const AvatarColumn = styled(Column)`
   padding: 0 8px;
   padding-top: 2px;
   width: 32px;
 `;
-export const NameColumn = Column.extend`
+export const NameColumn = styled(Column)`
   position: relative;
   padding-left: 4px;
 `;
@@ -110,31 +109,31 @@ export const ReceiverColumn = MobileLandscapeColumn;
 export const CategoryColumn = MobileLandscapeColumn;
 
 export const sourceWidth = 52;
-export const SourceColumn = WebColumn.extend`
+export const SourceColumn = styled(WebColumn)`
   padding: 4px;
   padding-bottom: 0;
   width: ${sourceWidth + 8}px;
 `;
-const MoneyColumn = Column.extend`
+const MoneyColumn = styled(Column)`
   position: relative;
   width: 80px;
   text-align: right;
   padding-right: 8px;
 `;
-const OptMoneyColumn = WebColumn.extend`
+const OptMoneyColumn = styled(WebColumn)`
   position: relative;
   width: 80px;
   text-align: right;
   padding-right: 8px;
 `;
-export const SumColumn = MoneyColumn.extend`
+export const SumColumn = styled(MoneyColumn)`
   width: 100px;
   &.income {
     background-color: ${colorScheme.primary.standard};
   }
 `;
 export const BalanceColumn = OptMoneyColumn;
-export const ToolColumn = Column.extend`
+export const ToolColumn = styled(Column)`
   width: 100px;
   text-align: right;
   white-space: nowrap;

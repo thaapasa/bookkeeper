@@ -1,10 +1,9 @@
 import { db } from './Db';
 import { User, Group } from '../../shared/types/Session';
-import { Map } from '../../shared/util/Objects';
 import { NotFoundError, AuthenticationError } from '../../shared/types/Errors';
 import { IBaseProtocol } from '../../../node_modules/pg-promise';
 
-export type RawUserData = Map<any>;
+export type RawUserData = Record<string, any>;
 
 export function mapUser(user: RawUserData): User {
   return { ...user as User, image: user.image ? `img/users/${user.image}` : undefined };

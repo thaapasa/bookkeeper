@@ -2,7 +2,6 @@ import * as React from 'react';
 import styled from 'styled-components';
 import { ToolbarGroup } from 'material-ui/Toolbar';
 import { Toolbar } from 'material-ui';
-import { Map } from '../../../shared/util/Objects';
 import { Route, Link  } from 'react-router-dom';
 import FlatButton from 'material-ui/FlatButton';
 import DateRangeNavigator from './DateRangeNavigator';
@@ -57,7 +56,7 @@ export function LinkButton({ label, to }: { label: string, to: string }) {
   );
 }
 
-const styles: Map<React.CSSProperties> = {
+const styles: Record<string, React.CSSProperties> = {
   toolbar: {
     position: 'relative',
     width: '100%',

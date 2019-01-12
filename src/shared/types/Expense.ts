@@ -1,6 +1,5 @@
 import { DbObject } from './Common';
 import { MoneyLike } from '../util/Money';
-import { Map } from '../util/Objects';
 
 export type ExpenseType = 'expense' | 'income' | 'transfer';
 export type ExpenseDivisionType = 'cost' | 'benefit' | 'income' | 'split' | 'transferor' | 'transferee';
@@ -16,13 +15,13 @@ export function getExpenseTypeLabel(type: ExpenseType): string {
   }
 }
 
-export const expenseBeneficiary: Map<ExpenseDivisionType> = {
+export const expenseBeneficiary: Record<string, ExpenseDivisionType> = {
   expense: 'benefit',
   income: 'split',
   transfer: 'transferee',
 };
 
-export const expensePayer: Map<ExpenseDivisionType> = {
+export const expensePayer: Record<string, ExpenseDivisionType> = {
   expense: 'cost',
   income: 'income',
   transfer: 'transferor',

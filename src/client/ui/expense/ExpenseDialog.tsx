@@ -23,7 +23,7 @@ import { categoryDataSourceP, categoryMapE, isSubcategoryOf } from '../../data/C
 import { notify, notifyError, expenseDialogE, updateExpenses, confirm } from '../../data/State';
 import { sortAndCompareElements, valuesToArray } from '../../../shared/util/Arrays';
 import { ExpenseDialogObject } from '../../data/StateTypes';
-import { omit, Map } from '../../../shared/util/Objects';
+import { omit } from '../../../shared/util/Objects';
 const debug = require('debug')('bookkeeper:expense-dialog');
 
 type CategoryInfo = Pick<Category, 'name' | 'id'>;
@@ -35,11 +35,11 @@ function errorIf(condition: boolean, error: string): string | undefined {
 const fields: ReadonlyArray<keyof ExpenseInEditor> = ['title', 'sourceId', 'categoryId', 'subcategoryId',
   'receiver', 'sum', 'userId', 'date', 'benefit', 'description', 'confirmed', 'type'];
 
-const parsers: Map<(v: string) => any> = {
+const parsers: Record<string, (v: string) => any> = {
   sum: v => v.replace(/,/, '.'),
 };
 
-const validators: Map<(v: string) => any> = {
+const validators: Record<string, (v: string) => any> = {
   title: v => errorIf(v.length < 1, 'Nimi puuttuu'),
   sourceId: v => errorIf(!v, 'Lähde puuttuu'),
   categoryId: v => errorIf(!v, 'Kategoria puuttuu'),
@@ -68,9 +68,9 @@ interface ExpenseDialogProps {
   original: UserExpenseWithDetails | null;
   sources: Source[];
   categories: Category[];
-  sourceMap: Map<Source>;
+  sourceMap: Record<string, Source>;
   categorySource: CategoryData[];
-  categoryMap: Map<Category>;
+  categoryMap: Record<string, Category>;
   onClose: (e: ExpenseInEditor | null) => void;
   onExpensesUpdated: (date: Date) => void;
   group: Group;
@@ -80,14 +80,14 @@ interface ExpenseDialogProps {
 
 interface ExpenseDialogState extends ExpenseInEditor {
   subcategories: CategoryInfo[];
-  errors: Map<string | undefined>;
+  errors: Record<string, string | undefined>;
   valid: boolean;
 }
 
 export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDialogState> {
 
   private readonly saveLock: B.Bus<any, boolean> = new B.Bus<any, boolean>();
-  private inputStreams: Map<B.Bus<any, any>> = {};
+  private inputStreams: Record<string, B.Bus<any, any>> = {};
   private readonly submitStream: B.Bus<any, true> = new B.Bus<any, true>();
   private unsub: any[] = [];
   public state = this.getDefaultState(null);
@@ -176,8 +176,8 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDi
       this.unsub.push(this.inputStreams[k]);
     });
 
-    const validity: Map<B.Property<any, boolean>> = {};
-    const values: Map<B.EventStream<any, any>> = {};
+    const validity: Record<string, B.Property<any, boolean>> = {};
+    const values: Record<string, B.EventStream<any, any>> = {};
     fields.forEach(k => {
       this.inputStreams[k].onValue(v => this.setState({ [k]: v } as any));
       const parsed = parsers[k] ? this.inputStreams[k].map(parsers[k]) : this.inputStreams[k].map(identity);
@@ -401,9 +401,9 @@ const StyledDialog = styled(Dialog)`
 interface BProps {
   sources: Source[];
   categories: Category[];
-  sourceMap: Map<Source>;
+  sourceMap: Record<string, Source>;
   categorySource: CategoryData[];
-  categoryMap: Map<Category>;
+  categoryMap: Record<string, Category>;
   group: Group;
   user: User;
 }

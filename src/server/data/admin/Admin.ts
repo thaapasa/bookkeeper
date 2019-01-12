@@ -1,7 +1,6 @@
 import { db } from '../Db';
 import { ExpenseType } from '../../../shared/types/Expense';
 import { MoneyLike } from '../../../shared/util/Money';
-import { Map } from '../../../shared/util/Objects';
 import { InvalidDivision, getInvalidDivision } from './InvalidDivisionQuery';
 import { IBaseProtocol } from '../../../../node_modules/pg-promise';
 
@@ -44,7 +43,7 @@ GROUP BY type`, { groupId }))
 
 function getInvalidZeroSumRows(tx: IBaseProtocol<any>) {
   return async (groupId: number): Promise<ZeroSumData[]> =>
-    (await tx.manyOrNone<Map<string>>(`
+    (await tx.manyOrNone<Record<string, string>>(`
 SELECT id, zerosum FROM
   (SELECT id, SUM(d.sum::NUMERIC) as zerosum
     FROM expenses e

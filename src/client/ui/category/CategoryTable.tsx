@@ -4,7 +4,6 @@ import { Category, CategoryAndTotals } from '../../../shared/types/Session';
 import CategoryRow from './CategoryRow';
 import { CategoryHeader } from './CategoryTableLayout';
 import { TypedDateRange } from '../../../shared/util/Time';
-import { Map } from '../../../shared/util/Objects';
 import { Action } from '../../../shared/types/Common';
 import { UserDataProps } from '../../data/Categories';
 const debug = require('debug')('bookkeeper:category-view');
@@ -12,7 +11,7 @@ const debug = require('debug')('bookkeeper:category-view');
 interface CategoryViewProps {
   categories: Category[];
   range: TypedDateRange;
-  categoryTotals: Map<CategoryAndTotals>;
+  categoryTotals: Record<string, CategoryAndTotals>;
   onCategoriesChanged: Action;
   userData: UserDataProps;
 }

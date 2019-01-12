@@ -4,7 +4,6 @@ import { validSessionE } from '../../data/Login';
 import { User, Group } from '../../../shared/types/Session';
 import { connect } from './BaconConnect';
 import { AppBar, ToolbarGroup } from 'material-ui';
-import { Map } from '../../../shared/util/Objects';
 import MenuDrawer from './MenuDrawer';
 import { AppLink } from './NavigationBar';
 import { AddExpenseIcon } from '../icons/AddExpenseIcon';
@@ -64,7 +63,7 @@ class TopBar extends React.Component<TopBarProps, TopBarState> {
 
 export default connect(validSessionE.map(s => ({ user: s.user, group: s.group })))(TopBar);
 
-const styles: Map<React.CSSProperties> = {
+const styles: Record<string, React.CSSProperties> = {
   topBar: {
     backgroundColor: colors.colorScheme.primary.dark,
     justifyContent: 'center',
