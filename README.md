@@ -13,6 +13,14 @@ git config branch.master.rebase true
 
 Install deps with `yarn`.
 
+### Database
+
+If you want to use a docker DB, start postgres DB with 
+`docker run -p 15488:5432 --name bookkeeper-db -d postgres:latest`.
+
+Note for Windows: if server gives error `role "Username" does not exist`, 
+log in to database (for example, with DBeaver), and create the missing role.
+
 ### Server
 
 Create file `.env` with the following contents (adjust as required):
@@ -22,7 +30,7 @@ SERVER_PORT=3100
 LOG_LEVEL=info
 SHOW_ERROR_CAUSE=true
 SESSION_TIMEOUT=20 minutes
-DB_URL=postgresql://localhost/bookkeeper?user=bookkeeper&password=kakkuloskakahvit&ssl=false
+DB_URL=postgresql://localhost:15488/postgres?user=postgres&password=postgres
 DB_SSL=false
 DEBUG=bookkeeper*
 ```
