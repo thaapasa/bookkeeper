@@ -37,10 +37,10 @@ export default class ExpenseInfo extends React.Component<DivisionInfoProps, {}> 
   private renderUserHeaderRow(isIncome: boolean) {
     return (
       <DivisionRow>
-        <UserHeader>Jako:</UserHeader>
-        <DivisionHeader>{isIncome ? 'Tulo' : 'Kulu'}</DivisionHeader>
-        <DivisionHeader>{isIncome ? 'Jako' : 'Hyöty'}</DivisionHeader>
-        <DivisionHeader>Balanssi</DivisionHeader>
+        <UserColumn as="th">Jako:</UserColumn>
+        <DivisionColumn as="th">{isIncome ? 'Tulo' : 'Kulu'}</DivisionColumn>
+        <DivisionColumn as="th">{isIncome ? 'Jako' : 'Hyöty'}</DivisionColumn>
+        <DivisionColumn as="th">Balanssi</DivisionColumn>
       </DivisionRow>
     );
   }
@@ -97,6 +97,3 @@ const DivisionColumn = styled.td`
     padding-right: 24px;
   }
 `;
-
-const UserHeader = UserColumn.withComponent('th');
-const DivisionHeader = DivisionColumn.withComponent('th');
