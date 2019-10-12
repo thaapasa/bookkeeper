@@ -1,6 +1,8 @@
 "use strict";
 
 exports.up = knex => knex.raw(`
+  CREATE EXTENSION pgcrypto;
+
   CREATE TYPE recurring_period AS ENUM ('monthly', 'yearly');
   COMMENT ON TYPE recurring_period IS 'How often a recurring expense occurs';
 

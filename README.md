@@ -15,8 +15,7 @@ Install deps with `yarn`.
 
 ### Database
 
-If you want to use a docker DB, start postgres DB with 
-`docker run -p 15488:5432 --name bookkeeper-db -d postgres:latest`.
+If you want to use a docker DB, start postgres DB with `yarn create-dev-db`.
 
 Note for Windows: if server gives error `role "Username" does not exist`, 
 log in to database (for example, with DBeaver), and create the missing role.
@@ -30,7 +29,7 @@ SERVER_PORT=3100
 LOG_LEVEL=info
 SHOW_ERROR_CAUSE=true
 SESSION_TIMEOUT=20 minutes
-DB_URL=postgresql://localhost:15488/postgres?user=postgres&password=postgres
+DB_URL=postgresql://postgres:postgres@localhost:15488/postgres
 DB_SSL=false
 DEBUG=bookkeeper*
 ```
