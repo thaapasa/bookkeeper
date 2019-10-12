@@ -2,9 +2,13 @@
   "compilerOptions": {
     "baseUrl": "src",
     "outDir": "build-server",
-    "module": "commonjs",
+    "module": "esnext",
     "target": "es5",
-    "lib": ["dom", "es2015", "es2016"],
+    "lib": [
+      "dom",
+      "es2015",
+      "es2016"
+    ],
     "sourceMap": true,
     "strict": true,
     "esModuleInterop": true,
@@ -16,7 +20,12 @@
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "noImplicitAny": true,
-    "noUnusedLocals": true
+    "noUnusedLocals": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true
   },
   "include": [
     "**/*.ts",
