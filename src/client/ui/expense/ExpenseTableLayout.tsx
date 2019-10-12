@@ -22,8 +22,13 @@ export const columnSizes: Record<string, ScreenSizeClassName> = {
 const columns = Object.keys(columnSizes);
 
 export const maxColumnsForSize2 = {
-  'mobile-portrait': columns.filter(c => columnSizes[c] === 'mobile-portrait').length,
-  'mobile-landscape': columns.filter(c => columnSizes[c] === 'mobile-portrait' || columnSizes[c] === 'mobile-landscape').length,
+  'mobile-portrait': columns.filter(c => columnSizes[c] === 'mobile-portrait')
+    .length,
+  'mobile-landscape': columns.filter(
+    c =>
+      columnSizes[c] === 'mobile-portrait' ||
+      columnSizes[c] === 'mobile-landscape'
+  ).length,
   web: columns.length,
   large: columns.length,
 };
@@ -49,10 +54,16 @@ export const Row = styled.tr`
   padding: 0;
   width: 100%;
   &:first-of-type {
-    td, th { border-top: none; }
+    td,
+    th {
+      border-top: none;
+    }
   }
   &:last-of-type {
-    td, th { border-bottom: 1px solid ${separatorColor}; }
+    td,
+    th {
+      border-bottom: 1px solid ${separatorColor};
+    }
   }
   td {
     border-top: 1px solid ${separatorColor};
@@ -143,8 +154,12 @@ export const ToolColumn = styled(Column)`
   `}
 `;
 
-export function AllColumns(props: { className?: string, children?: any }) {
-  return <Column colSpan={9} className={props.className}>{props.children}</Column>;
+export function AllColumns(props: { className?: string; children?: any }) {
+  return (
+    <Column colSpan={9} className={props.className}>
+      {props.children}
+    </Column>
+  );
 }
 
 const Corner = styled.div`
@@ -164,10 +179,16 @@ const Corner = styled.div`
   justify-content: flex-end;
 `;
 
-const recurringIconStyle = { width: 20, height: 20, color: colorScheme.secondary.light };
+const recurringIconStyle = {
+  width: 20,
+  height: 20,
+  color: colorScheme.secondary.light,
+};
 export function RecurringExpenseIcon() {
   return (
-    <Corner title="Toistuva kirjaus"><Recurring style={recurringIconStyle} /></Corner>
+    <Corner title="Toistuva kirjaus">
+      <Recurring style={recurringIconStyle} />
+    </Corner>
   );
 }
 
@@ -181,7 +202,9 @@ const UnconfirmedIconArea = styled.div`
 
 export function UnconfirmedIcon({ size }: { size?: number }) {
   return (
-    <UnconfirmedIconArea title="Alustava kirjaus"><QuestionBookmark size={size || 24} /></UnconfirmedIconArea>
+    <UnconfirmedIconArea title="Alustava kirjaus">
+      <QuestionBookmark size={size || 24} />
+    </UnconfirmedIconArea>
   );
 }
 
@@ -191,7 +214,11 @@ const RecurringExpenseSeparatorItem = styled(AllColumns)`
 `;
 
 export function RecurringExpenseSeparator() {
-  return <Row><RecurringExpenseSeparatorItem /></Row>;
+  return (
+    <Row>
+      <RecurringExpenseSeparatorItem />
+    </Row>
+  );
 }
 
 export function LoadingIndicator(props: { forRow?: boolean }) {
@@ -200,7 +227,12 @@ export function LoadingIndicator(props: { forRow?: boolean }) {
     <Row>
       <AllColumns {...props}>
         <RefreshIndicatorContainer className={forRow ? 'row' : 'primary'}>
-          <RefreshIndicator left={forRow ? 16 : -30} top={forRow ? 0 : -30} status="loading" size={forRow ? 30 : 60} />
+          <RefreshIndicator
+            left={forRow ? 16 : -30}
+            top={forRow ? 0 : -30}
+            status="loading"
+            size={forRow ? 30 : 60}
+          />
         </RefreshIndicatorContainer>
       </AllColumns>
     </Row>

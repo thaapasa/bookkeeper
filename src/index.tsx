@@ -13,6 +13,6 @@ ReactDOM.render(
   <MuiThemeProvider muiTheme={muiTheme}>
     <App />
   </MuiThemeProvider>,
-  document.getElementById('root') as HTMLElement,
+  document.getElementById('root') as HTMLElement
 );
 registerServiceWorker();

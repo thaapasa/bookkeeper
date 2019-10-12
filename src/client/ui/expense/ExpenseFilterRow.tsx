@@ -19,14 +19,24 @@ interface ExpenseFilterRowProps {
   onRemoveFilter: (index: number) => void;
 }
 
-export default class ExpenseFilterRow extends React.Component<ExpenseFilterRowProps, {}> {
+export default class ExpenseFilterRow extends React.Component<
+  ExpenseFilterRowProps,
+  {}
+> {
   public render() {
-    if (this.props.filters.length === 0) { return null; }
+    if (this.props.filters.length === 0) {
+      return null;
+    }
     return (
       <Row>
-        <FilterArea>{
-          this.props.filters.map((f, index) => (
-            <ExpenseFilterItem filter={f} index={index} key={index} onRemove={this.props.onRemoveFilter} />
+        <FilterArea>
+          {this.props.filters.map((f, index) => (
+            <ExpenseFilterItem
+              filter={f}
+              index={index}
+              key={index}
+              onRemove={this.props.onRemoveFilter}
+            />
           ))}
         </FilterArea>
       </Row>
@@ -34,24 +44,10 @@ export default class ExpenseFilterRow extends React.Component<ExpenseFilterRowPr
   }
 }
 
-class ExpenseFilterItem extends React.Component<{ filter: ExpenseFilter, index: number, onRemove: (index: number) => void }, {}> {
-  private onRemove = () => {
-    this.props.onRemove(this.props.index);
-  }
-  public render() {
-    const f = this.props.filter;
-    return (
-      <Chip
-        style={chipStyle}
-        backgroundColor={colorScheme.primary.standard}
-        labelColor={colorScheme.secondary.dark}
-        onRequestDelete={this.onRemove}>
-        {f.avatar ? <Avatar style={getIconStyle(f.avatar)} /> : null}
-        {f.name}
-      </Chip>
-    );
-  }
-}
+const chipStyle: React.CSSProperties = {
+  margin: '0.3em',
+  padding: 0,
+};
 
 function getIconStyle(icon: string): React.CSSProperties {
   return {
@@ -59,6 +55,29 @@ function getIconStyle(icon: string): React.CSSProperties {
     backgroundSize: 'cover',
     backgroundPosition: 'center',
   };
+}
+
+class ExpenseFilterItem extends React.Component<
+  { filter: ExpenseFilter; index: number; onRemove: (index: number) => void },
+  {}
+> {
+  private onRemove = () => {
+    this.props.onRemove(this.props.index);
+  };
+  public render() {
+    const f = this.props.filter;
+    return (
+      <Chip
+        style={chipStyle}
+        backgroundColor={colorScheme.primary.standard}
+        labelColor={colorScheme.secondary.dark}
+        onRequestDelete={this.onRemove}
+      >
+        {f.avatar ? <Avatar style={getIconStyle(f.avatar)} /> : null}
+        {f.name}
+      </Chip>
+    );
+  }
 }
 
 const FilterArea = styled(AllColumns)`
@@ -71,8 +90,3 @@ const FilterArea = styled(AllColumns)`
     vertical-align: middle;
   }
 `;
-
-const chipStyle: React.CSSProperties = {
-  margin: '0.3em',
-  padding: 0,
-};

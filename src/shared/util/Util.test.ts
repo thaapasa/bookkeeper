@@ -2,9 +2,7 @@ import 'jest';
 import { underscoreToCamelCase } from './Util';
 
 describe('strings', () => {
-
   describe('underscoreToCamelCase', () => {
-
     it('should convert case correctly', () => {
       expect(underscoreToCamelCase('simple')).toEqual('simple');
       expect(underscoreToCamelCase('my_variable')).toEqual('myVariable');
@@ -18,5 +16,4 @@ describe('strings', () => {
       expect(underscoreToCamelCase(5)).toEqual('5');
     });
   });
-
 });

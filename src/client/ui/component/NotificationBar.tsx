@@ -14,16 +14,19 @@ interface NotificationBarProps {
 
 class NotificationBar extends React.Component<NotificationBarProps, {}> {
   private getMessage() {
-    return this.props.notification.cause ?
-      this.props.notification.message + ', cause: ' + this.props.notification.message :
-      this.props.notification.message;
+    return this.props.notification.cause
+      ? this.props.notification.message +
+          ', cause: ' +
+          this.props.notification.message
+      : this.props.notification.message;
   }
   public render() {
     return (
       <Snackbar
         open={true}
         message={this.getMessage()}
-        onRequestClose={this.props.onClose} />
+        onRequestClose={this.props.onClose}
+      />
     );
   }
 }
@@ -32,8 +35,10 @@ interface NotificationBarConnectorState {
   notification: Notification | null;
 }
 
-export default class NotificationBarConnector extends React.Component<{}, NotificationBarConnectorState> {
-
+export default class NotificationBarConnector extends React.Component<
+  {},
+  NotificationBarConnectorState
+> {
   private timer: Timeout | undefined;
   private queue: Notification[] = [];
   private unsub: Action[] = [];
@@ -46,7 +51,9 @@ export default class NotificationBarConnector extends React.Component<{}, Notifi
   }
 
   public componentWillUnmount() {
-    if (this.timer) { clearTimeout(this.timer); }
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
     this.timer = undefined;
     unsubscribeAll(this.unsub);
   }
@@ -56,7 +63,7 @@ export default class NotificationBarConnector extends React.Component<{}, Notifi
     if (!this.timer) {
       this.scheduleNext();
     }
-  }
+  };
 
   private scheduleNext = () => {
     this.timer = undefined;
@@ -67,16 +74,21 @@ export default class NotificationBarConnector extends React.Component<{}, Notifi
     } else {
       this.setState({ notification: null });
     }
-  }
+  };
 
   private dismissCurrent = () => {
-    if (this.timer) { clearTimeout(this.timer); }
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
     this.scheduleNext();
-  }
+  };
 
   public render() {
-    return this.state.notification ?
-      <NotificationBar notification={this.state.notification} onClose={this.dismissCurrent} /> :
-      null;
+    return this.state.notification ? (
+      <NotificationBar
+        notification={this.state.notification}
+        onClose={this.dismissCurrent}
+      />
+    ) : null;
   }
 }

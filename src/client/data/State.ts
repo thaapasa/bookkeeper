@@ -1,5 +1,12 @@
 import * as B from 'baconjs';
-import { ConfirmationObject, ConfirmationAction, Notification, PickDateObject, ExpenseDialogObject, NavigationConfig } from './StateTypes';
+import {
+  ConfirmationObject,
+  ConfirmationAction,
+  Notification,
+  PickDateObject,
+  ExpenseDialogObject,
+  NavigationConfig,
+} from './StateTypes';
 import { DateLike, toDate, monthRange } from '../../shared/util/Time';
 import { ExpenseInEditor } from '../../shared/types/Expense';
 import { Size } from '../ui/Types';
@@ -17,9 +24,13 @@ interface ConfirmationSettings<T> {
 export const confirmationE = confirmationBus;
 
 /* Returns a promise that will be resolved to either true of false depending on user input */
-export function confirm<T>(title: string, content: string, options?: ConfirmationSettings<T>): Promise<T> {
-  return new Promise<T>((resolve) => {
-    const op = options ||  {};
+export function confirm<T>(
+  title: string,
+  content: string,
+  options?: ConfirmationSettings<T>
+): Promise<T> {
+  return new Promise<T>(resolve => {
+    const op = options || {};
     const actions: Array<ConfirmationAction<T>> = op.actions || [
       { label: op.okText ? op.okText : 'OK', value: true as any },
       { label: op.cancelText ? op.cancelText : 'Peruuta', value: false as any },
@@ -43,14 +54,16 @@ const pickDateBus = new B.Bus<PickDateObject>();
 
 /* Returns a promise that will be resolved to the selected date  */
 export function pickDate(initialDate?: Date): Promise<Date> {
-  return new Promise((resolve) => pickDateBus.push({ resolve, initialDate }));
+  return new Promise(resolve => pickDateBus.push({ resolve, initialDate }));
 }
 
 export const pickDateE = pickDateBus;
 
 const expenseDialogBus = new B.Bus<ExpenseDialogObject>();
 
-export function editExpense(expenseId: number): Promise<ExpenseInEditor | null> {
+export function editExpense(
+  expenseId: number
+): Promise<ExpenseInEditor | null> {
   return new Promise<ExpenseInEditor | null>(resolve => {
     expenseDialogBus.push({ expenseId, resolve });
   });
@@ -74,7 +87,10 @@ export function updateExpenses(date: DateLike) {
 export const needUpdateE = needUpdateBus;
 
 export const navigationBus = new B.Bus<NavigationConfig>();
-export const navigationP = navigationBus.toProperty({ pathPrefix: expensePagePath, dateRange: monthRange(new Date()) });
+export const navigationP = navigationBus.toProperty({
+  pathPrefix: expensePagePath,
+  dateRange: monthRange(new Date()),
+});
 
 export const windowSizeBus = new B.Bus<Size>();
 export const windowSizeP = windowSizeBus.toProperty();

@@ -3,7 +3,10 @@ import styled from 'styled-components';
 import * as colors from '../../Colors';
 import UserAvatar from '../../component/UserAvatar';
 import Money, { MoneyLike } from '../../../../shared/util/Money';
-import { ExpenseDivisionItem, UserExpense } from '../../../../shared/types/Expense';
+import {
+  ExpenseDivisionItem,
+  UserExpense,
+} from '../../../../shared/types/Expense';
 import { media } from '../../Styles';
 
 interface DivisionInfoProps {
@@ -13,22 +16,30 @@ interface DivisionInfoProps {
 
 const divisionTypes = ['cost', 'benefit', 'income', 'split'];
 
-export default class ExpenseInfo extends React.Component<DivisionInfoProps, {}> {
+function getBalance(data: Record<string, MoneyLike>) {
+  return divisionTypes
+    .map(t => Money.orZero(data[t]))
+    .reduce((a, b) => a.plus(b), Money.zero)
+    .negate();
+}
 
+export default class ExpenseInfo extends React.Component<DivisionInfoProps> {
   public render() {
     const division = this.props.division;
     const expense = this.props.expense;
     const isIncome = expense.type === 'income';
     const users: Record<string, Record<string, MoneyLike>> = {};
-    division.forEach(d => { users[d.userId] = { ...users[d.userId], [d.type]: d.sum }; });
+    division.forEach(d => {
+      users[d.userId] = { ...users[d.userId], [d.type]: d.sum };
+    });
 
     return (
       <DivisionTable>
-        <thead>
-          {this.renderUserHeaderRow(isIncome)}
-        </thead>
+        <thead>{this.renderUserHeaderRow(isIncome)}</thead>
         <tbody>
-          {Object.keys(users).map(userId => this.renderUser(userId, isIncome, users[userId]))}
+          {Object.keys(users).map(userId =>
+            this.renderUser(userId, isIncome, users[userId])
+          )}
         </tbody>
       </DivisionTable>
     );
@@ -45,26 +56,29 @@ export default class ExpenseInfo extends React.Component<DivisionInfoProps, {}> 
     );
   }
 
-  private renderUser(userId: string, isIncome: boolean, user: Record<string, MoneyLike>) {
+  private renderUser(
+    userId: string,
+    isIncome: boolean,
+    user: Record<string, MoneyLike>
+  ) {
     return (
       <DivisionRow key={userId}>
-        <UserColumn><UserAvatar userId={parseInt(userId, 10)} size={32} /></UserColumn>
+        <UserColumn>
+          <UserAvatar userId={parseInt(userId, 10)} size={32} />
+        </UserColumn>
         <DivisionItem sum={isIncome ? user.income : user.cost} />
         <DivisionItem sum={isIncome ? user.split : user.benefit} />
         <DivisionItem sum={getBalance(user)} />
       </DivisionRow>
     );
   }
-
-}
-
-function getBalance(data: Record<string, MoneyLike>) {
-  return divisionTypes.map(t => Money.orZero(data[t])).reduce((a, b) => a.plus(b), Money.zero).negate();
 }
 
 function DivisionItem({ sum }: { sum: MoneyLike }) {
   const s = Money.orZero(sum);
-  return <DivisionColumn className={Money.sign(s)}>{s.format()}</DivisionColumn>;
+  return (
+    <DivisionColumn className={Money.sign(s)}>{s.format()}</DivisionColumn>
+  );
 }
 
 const DivisionTable = styled.table`
@@ -90,9 +104,15 @@ const UserColumn = styled.td`
 const DivisionColumn = styled.td`
   width: 86px;
   text-align: right;
-  &.positive { color: ${colors.positive}; }
-  &.negative { color: ${colors.negative}; }
-  &.zero { color: ${colors.unimportant}; }
+  &.positive {
+    color: ${colors.positive};
+  }
+  &.negative {
+    color: ${colors.negative};
+  }
+  &.zero {
+    color: ${colors.unimportant};
+  }
   &:last-of-type {
     padding-right: 24px;
   }

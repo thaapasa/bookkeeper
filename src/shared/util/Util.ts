@@ -1,22 +1,41 @@
 export function ucFirst(str: any): string {
-  return typeof str === 'string' && str.length > 0 ? (str.charAt(0).toUpperCase() + str.substr(1)) : '';
+  return typeof str === 'string' && str.length > 0
+    ? str.charAt(0).toUpperCase() + str.substr(1)
+    : '';
 }
 
 export function underscoreToCamelCase(str: any): string {
-  if (typeof str === 'number') { return str.toString(); }
-  if (typeof str !== 'string') { return ''; }
-  if (str.length < 2) { return str; }
-  return str.split('_').map((v, i) => (i === 0) ? v : ucFirst(v)).join('');
+  if (typeof str === 'number') {
+    return str.toString();
+  }
+  if (typeof str !== 'string') {
+    return '';
+  }
+  if (str.length < 2) {
+    return str;
+  }
+  return str
+    .split('_')
+    .map((v, i) => (i === 0 ? v : ucFirst(v)))
+    .join('');
 }
 
 export function camelCaseObject<T extends object>(o: T): T {
-  if (typeof o !== 'object') { return o;  }
+  if (typeof o !== 'object') {
+    return o;
+  }
   const r = {} as T;
-  Object.keys(o).forEach(k => (r as any)[underscoreToCamelCase(k)] = (o as any)[k]);
+  Object.keys(o).forEach(
+    k => ((r as any)[underscoreToCamelCase(k)] = (o as any)[k])
+  );
   return r;
 }
 
-export function leftPad(s: string | number, length: number, padding: string = ' '): string {
+export function leftPad(
+  s: string | number,
+  length: number,
+  padding = ' '
+): string {
   let res = (s || '').toString();
   while (res.length < length) {
     res = padding + res;
@@ -38,4 +57,6 @@ export async function asyncIdentity<T>(x: T): Promise<T> {
   return x;
 }
 
-export function noop() { return; }
+export function noop() {
+  return;
+}

@@ -8,27 +8,41 @@ export interface CategoryDataSource {
   text: string;
 }
 
-export function getFullCategoryName(categoryId: number, categoryMap: Record<string, Category>): string {
+export function getFullCategoryName(
+  categoryId: number,
+  categoryMap: Record<string, Category>
+): string {
   let categoryString = '';
   const category = categoryMap[categoryId];
   if (category.parentId) {
-    categoryString += getFullCategoryName(category.parentId, categoryMap) + ' - ';
+    categoryString +=
+      getFullCategoryName(category.parentId, categoryMap) + ' - ';
   }
   categoryString += category.name;
   return categoryString;
 }
 
-function catToDataSource(arr: Category[], categoryMap: Record<string, Category>): CategoryDataSource[] {
-  return arr ? flatten(arr
-    .map(c => ([{ value: c.id, text: getFullCategoryName(c.id, categoryMap) }]
-      .concat(catToDataSource(c.children, categoryMap))))) :
-    [];
+function catToDataSource(
+  arr: Category[],
+  categoryMap: Record<string, Category>
+): CategoryDataSource[] {
+  return arr
+    ? flatten(
+        arr.map(c =>
+          [
+            { value: c.id, text: getFullCategoryName(c.id, categoryMap) },
+          ].concat(catToDataSource(c.children, categoryMap))
+        )
+      )
+    : [];
 }
 
 function addToMap(arr: Category[], map: Record<string, Category>) {
   for (const c of arr) {
     map[c.id] = c;
-    if (c.children) { addToMap(c.children, map); }
+    if (c.children) {
+      addToMap(c.children, map);
+    }
   }
 }
 
@@ -38,11 +52,22 @@ function toCategoryMap(arr: Category[]): Record<string, Category> {
   return map;
 }
 
-export const categoryMapE: B.EventStream<Record<string, Category>> = validSessionE.map(s => toCategoryMap(s.categories));
-export const categoryDataSourceP: B.Property<CategoryDataSource[]> =
-  B.combineWith((s, map) => catToDataSource(s.categories, map), validSessionE, categoryMapE);
+export const categoryMapE: B.EventStream<
+  Record<string, Category>
+> = validSessionE.map(s => toCategoryMap(s.categories));
+export const categoryDataSourceP: B.Property<
+  CategoryDataSource[]
+> = B.combineWith(
+  (s, map) => catToDataSource(s.categories, map),
+  validSessionE,
+  categoryMapE
+);
 
-export function isSubcategoryOf(subId: number, parentId: number, categoryMap: Record<string, Category>): boolean {
+export function isSubcategoryOf(
+  subId: number,
+  parentId: number,
+  categoryMap: Record<string, Category>
+): boolean {
   const sub = categoryMap[subId];
   return sub && sub.parentId === parentId;
 }

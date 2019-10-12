@@ -2,7 +2,7 @@ declare interface FixedRequestInit {
   body?: any;
   cache?: RequestCache;
   credentials?: RequestCredentials;
-  headers?: { [key: string]: string } | undefined,
+  headers?: { [key: string]: string } | undefined;
   integrity?: string;
   keepalive?: boolean;
   method?: string;
@@ -13,4 +13,7 @@ declare interface FixedRequestInit {
   window?: any;
 }
 
-declare function fetch(input: RequestInfo, init?: FixedRequestInit): Promise<Response>;
+declare function fetch(
+  input: RequestInfo,
+  init?: FixedRequestInit
+): Promise<Response>;

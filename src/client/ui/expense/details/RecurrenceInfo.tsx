@@ -7,14 +7,17 @@ interface RecurrenceInfoProps {
   expense: UserExpense;
 }
 
-export default class RecurrenceInfo extends React.Component<RecurrenceInfoProps, {}> {
-
+export default class RecurrenceInfo extends React.Component<
+  RecurrenceInfoProps,
+  {}
+> {
   public render() {
     return this.props.expense.recurringExpenseId ? (
-      <RecurrenceInfoContainer>Tämä on toistuva tapahtuma</RecurrenceInfoContainer>
+      <RecurrenceInfoContainer>
+        Tämä on toistuva tapahtuma
+      </RecurrenceInfoContainer>
     ) : null;
   }
-
 }
 
 const RecurrenceInfoContainer = styled.div`

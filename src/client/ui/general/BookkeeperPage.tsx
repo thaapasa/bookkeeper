@@ -10,10 +10,20 @@ import NotificationBar from '../component/NotificationBar';
 import DatePickerComponent from '../component/DatePickerComponent';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { Session } from '../../../shared/types/Session';
-import { categoryPagePath, expensePagePath, expenseMonthPathPattern, categoryViewMonthPattern, categoryViewYearPattern } from '../../util/Links';
+import {
+  categoryPagePath,
+  expensePagePath,
+  expenseMonthPathPattern,
+  categoryViewMonthPattern,
+  categoryViewYearPattern,
+} from '../../util/Links';
 import { colorScheme } from '../Colors';
 import { Size } from '../Types';
-import { getScreenSizeClassName, largeDeviceMinWidth, isMobileSize } from '../Styles';
+import {
+  getScreenSizeClassName,
+  largeDeviceMinWidth,
+  isMobileSize,
+} from '../Styles';
 
 interface PageProps {
   session: Session;
@@ -26,7 +36,6 @@ const appLinks: AppLink[] = [
 ];
 
 export default class BookkeeperPage extends React.Component<PageProps, {}> {
-
   public render() {
     const isMobileDevice = isMobileSize(this.props.windowSize);
     const className = getScreenSizeClassName(this.props.windowSize);
@@ -40,10 +49,19 @@ export default class BookkeeperPage extends React.Component<PageProps, {}> {
             {isMobileDevice ? null : <NavigationBar links={appLinks} />}
             <MainContent className={'main-content ' + className}>
               <Switch>
-                <Route path={expenseMonthPathPattern('date')} component={RoutedMonthView} />
+                <Route
+                  path={expenseMonthPathPattern('date')}
+                  component={RoutedMonthView}
+                />
                 <Route path={expensePagePath} component={RoutedMonthView} />
-                <Route path={categoryViewYearPattern('year')} component={RoutedCategoryView} />
-                <Route path={categoryViewMonthPattern('month')} component={RoutedCategoryView} />
+                <Route
+                  path={categoryViewYearPattern('year')}
+                  component={RoutedCategoryView}
+                />
+                <Route
+                  path={categoryViewMonthPattern('month')}
+                  component={RoutedCategoryView}
+                />
                 <Route path={categoryPagePath} component={RoutedCategoryView} />
                 <Route exact={true} path="/" component={RoutedMonthView} />
               </Switch>
@@ -76,7 +94,7 @@ const MainContent = styled.div`
   margin: 32px;
   margin-top: 40px;
   background-color: ${colorScheme.primary.light};
-  box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.5);
+  box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.5);
   overflow: hidden;
 
   &.mobile-portrait,

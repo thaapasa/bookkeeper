@@ -13,7 +13,6 @@ interface LoginPageState {
 }
 
 export default class LoginPage extends React.Component<{}, LoginPageState> {
-
   public state: LoginPageState = {
     username: '',
     password: '',
@@ -24,7 +23,8 @@ export default class LoginPage extends React.Component<{}, LoginPageState> {
   private handleLoginError = (er: any) => {
     if (er && er.status === 401) {
       this.setState({
-        statusMessage: 'Kirjautuminen epäonnistui. Ole hyvä ja tarkista käyttäjätunnuksesi ja salasanasi.',
+        statusMessage:
+          'Kirjautuminen epäonnistui. Ole hyvä ja tarkista käyttäjätunnuksesi ja salasanasi.',
         showStatusMessage: true,
       });
     } else {
@@ -33,7 +33,7 @@ export default class LoginPage extends React.Component<{}, LoginPageState> {
         showStatusMessage: true,
       });
     }
-  }
+  };
 
   private handleSubmit = async (event: React.FormEvent<any>) => {
     event.preventDefault();
@@ -46,10 +46,12 @@ export default class LoginPage extends React.Component<{}, LoginPageState> {
     } catch (e) {
       this.handleLoginError(e);
     }
-  }
+  };
 
-  private setUserName = (_: any, username: string) => this.setState({ username });
-  private setPassword = (_: any, password: string) => this.setState({ password });
+  private setUserName = (_: any, username: string) =>
+    this.setState({ username });
+  private setPassword = (_: any, password: string) =>
+    this.setState({ password });
 
   public render() {
     return (
@@ -63,20 +65,23 @@ export default class LoginPage extends React.Component<{}, LoginPageState> {
               floatingLabelText="Käyttäjätunnus"
               value={this.state.username}
               onChange={this.setUserName}
-            /><br />
+            />
+            <br />
             <TextField
               hintText="Salasana"
               floatingLabelText="Salasana"
               type="password"
               value={this.state.password}
               onChange={this.setPassword}
-            /><br />
-            <LoginButton
-              type="submit"
-              label="Kirjaudu"
-              primary={true}
-            /><br />
-            {this.state.showStatusMessage ? <Title>{this.state.statusMessage}</Title> : ''}
+            />
+            <br />
+            <LoginButton type="submit" label="Kirjaudu" primary={true} />
+            <br />
+            {this.state.showStatusMessage ? (
+              <Title>{this.state.statusMessage}</Title>
+            ) : (
+              ''
+            )}
           </form>
         </LoginPaper>
       </Page>
@@ -84,7 +89,7 @@ export default class LoginPage extends React.Component<{}, LoginPageState> {
   }
 }
 
-const LoginPaper = styled(Paper) `
+const LoginPaper = styled(Paper)`
   margin: 36px;
   padding: 36px;
   text-align: center;
@@ -97,7 +102,7 @@ const Title = styled.title`
   max-width: 250px;
 `;
 
-const LoginButton = styled(RaisedButton) `
+const LoginButton = styled(RaisedButton)`
   margin: 30px;
 `;
 

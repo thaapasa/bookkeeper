@@ -1,5 +1,7 @@
 import { db } from './Db';
 import { Moment } from 'moment';
+import { IBaseProtocol } from 'pg-promise';
+
 import * as time from '../../shared/util/Time';
 import Money, { MoneyLike } from '../../shared/util/Money';
 import categories from './Categories';
@@ -7,10 +9,17 @@ import users from './Users';
 import sources from './Sources';
 import { determineDivision } from './ExpenseDivision';
 import { NotFoundError } from '../../shared/types/Errors';
-import { Expense, UserExpense, ExpenseDivisionType, ExpenseDivisionItem, ExpenseStatus } from '../../shared/types/Expense';
+import {
+  Expense,
+  UserExpense,
+  ExpenseDivisionType,
+  ExpenseDivisionItem,
+  ExpenseStatus,
+} from '../../shared/types/Expense';
 import { ApiMessage } from '../../shared/types/Api';
-import { IBaseProtocol } from '../../../node_modules/pg-promise';
-const debug = require('debug')('bookkeeper:api:expenses');
+import debugSetup from 'debug';
+
+const debug = debugSetup('bookkeeper:api:expenses');
 
 function expenseSelect(where: string): string {
   return `
@@ -63,51 +72,75 @@ FROM (
 ) breakdown
 `;
 
+function mapExpense(e: UserExpense): UserExpense {
+  if (!e) {
+    throw new NotFoundError('EXPENSE_NOT_FOUND', 'expense');
+  }
+  e.date = time.toMoment(e.date).format('YYYY-MM-DD');
+  e.userBalance = Money.from(e.userValue)
+    .negate()
+    .toString();
+  return e;
+}
+
 function getAll(tx: IBaseProtocol<any>) {
   return async (groupId: number, userId: number): Promise<Expense[]> => {
     const expenses = await tx.map(
       expenseSelect(`WHERE group_id=$/groupId/`),
       { userId, groupId },
-      mapExpense,
+      mapExpense
     );
     return expenses;
   };
 }
 
-function mapExpense(e: UserExpense): UserExpense {
-  if (!e) { throw new NotFoundError('EXPENSE_NOT_FOUND', 'expense'); }
-  e.date = time.toMoment(e.date).format('YYYY-MM-DD');
-  e.userBalance = Money.from(e.userValue).negate().toString();
-  return e;
-}
-
 function countTotalBetween(tx: IBaseProtocol<any>) {
-  return async (groupId: number, userId: number, startDate: string | Moment, endDate: string | Moment): Promise<ExpenseStatus> => {
-    return tx.one<ExpenseStatus>(
-      countTotalSelect, { userId, groupId, startDate: time.formatDate(startDate), endDate: time.formatDate(endDate) });
+  return async (
+    groupId: number,
+    userId: number,
+    startDate: string | Moment,
+    endDate: string | Moment
+  ): Promise<ExpenseStatus> => {
+    return tx.one<ExpenseStatus>(countTotalSelect, {
+      userId,
+      groupId,
+      startDate: time.formatDate(startDate),
+      endDate: time.formatDate(endDate),
+    });
   };
 }
 
 function hasUnconfirmedBefore(tx: IBaseProtocol<any>) {
-  return async (groupId: number, startDate: time.DateLike): Promise<boolean> => {
-    const s = await tx.one<{ amount: number }>(`
+  return async (
+    groupId: number,
+    startDate: time.DateLike
+  ): Promise<boolean> => {
+    const s = await tx.one<{ amount: number }>(
+      `
 SELECT
   COUNT(*) AS amount
 FROM expenses
 WHERE group_id=$/groupId/ AND template=false AND date < $/startDate/::DATE AND confirmed=false`,
-     { groupId, startDate: time.formatDate(startDate) });
+      { groupId, startDate: time.formatDate(startDate) }
+    );
     return s.amount > 0;
   };
 }
 
 function getById(tx: IBaseProtocol<any>) {
-  return async (groupId: number, userId: number, expenseId: number): Promise<UserExpense> => {
+  return async (
+    groupId: number,
+    userId: number,
+    expenseId: number
+  ): Promise<UserExpense> => {
     const expense = await tx.map(
       expenseSelect(`WHERE id=$/expenseId/ AND group_id=$/groupId/`),
       { userId, expenseId, groupId },
-      mapExpense,
+      mapExpense
     );
-    if (!expense || expense.length < 1) { throw new NotFoundError('EXPENSE_NOT_FOUND', 'expense'); }
+    if (!expense || expense.length < 1) {
+      throw new NotFoundError('EXPENSE_NOT_FOUND', 'expense');
+    }
     return expense[0];
   };
 }
@@ -116,82 +149,79 @@ function deleteById(tx: IBaseProtocol<any>) {
   return async (groupId: number, expenseId: number): Promise<ApiMessage> => {
     await tx.none(
       `DELETE FROM expenses WHERE id=$/expenseId/ AND group_id=$/groupId/`,
-      { expenseId, groupId },
+      { expenseId, groupId }
     );
     return { status: 'OK', message: 'Expense deleted', expenseId };
   };
 }
 
 export function storeDivision(tx: IBaseProtocol<any>) {
-  return (expenseId: number, userId: number, type: ExpenseDivisionType, sum: MoneyLike) => tx.none(`
+  return (
+    expenseId: number,
+    userId: number,
+    type: ExpenseDivisionType,
+    sum: MoneyLike
+  ) =>
+    tx.none(
+      `
 INSERT INTO expense_division
   (expense_id, user_id, type, sum)
 VALUES
   ($/expenseId/::INTEGER, $/userId/::INTEGER, $/type/::expense_division_type, $/sum/::NUMERIC::MONEY)`,
-    { expenseId, userId, type, sum: Money.toString(sum) });
+      { expenseId, userId, type, sum: Money.toString(sum) }
+    );
 }
 
 function deleteDivision(tx: IBaseProtocol<any>) {
-  return (expenseId: number): Promise<null> => tx.none(`
+  return (expenseId: number): Promise<null> =>
+    tx.none(
+      `
 DELETE FROM expense_division
 WHERE expense_id=$/expenseId/::INTEGER`,
-  { expenseId });
+      { expenseId }
+    );
 }
 
 function getDivision(tx: IBaseProtocol<any>) {
   return async (expenseId: number): Promise<ExpenseDivisionItem[]> => {
-    const items = await tx.manyOrNone<ExpenseDivisionItem>(`
+    const items = await tx.manyOrNone<ExpenseDivisionItem>(
+      `
 SELECT
   user_id as "userId", type, sum::MONEY::NUMERIC
 FROM expense_division
 WHERE expense_id=$/expenseId/::INTEGER
 ORDER BY type, user_id`,
-      { expenseId });
+      { expenseId }
+    );
     return items;
   };
 }
 
 function createDivision(tx: IBaseProtocol<any>) {
   return async (expenseId: number, division: ExpenseDivisionItem[]) => {
-    await Promise.all(division.map(d => storeDivision(tx)(expenseId, d.userId, d.type, d.sum)));
+    await Promise.all(
+      division.map(d => storeDivision(tx)(expenseId, d.userId, d.type, d.sum))
+    );
     return expenseId;
   };
 }
 
 export function setDefaults(expense: Expense): Expense {
   expense.description = expense.description ? expense.description : null;
-  expense.confirmed = expense.confirmed === undefined ? true : expense.confirmed;
+  expense.confirmed =
+    expense.confirmed === undefined ? true : expense.confirmed;
   delete expense.recurringExpenseId;
   return expense;
 }
 
-function createExpense(userId: number, groupId: number, expense: Expense, defaultSourceId: number): Promise<ApiMessage> {
-  return db.tx(async tx => {
-    expense = setDefaults(expense);
-    debug('Creating expense', expense);
-    const sourceId = expense.sourceId || defaultSourceId;
-    const [cat, user, source] = await Promise.all([
-      categories.tx.getById(tx)(groupId, expense.categoryId),
-      users.tx.getById(tx)(groupId, expense.userId),
-      sources.tx.getById(tx)(groupId, sourceId),
-    ]);
-
-    const division = determineDivision(expense, source);
-    const id = await insert(tx)(userId, {
-      ...expense,
-      userId: user.id,
-      groupId,
-      sourceId: source.id,
-      categoryId: cat.id,
-      sum: expense.sum,
-    }, division);
-    return { status: 'OK', message: 'Expense created', expenseId: id };
-  });
-}
-
 function insert(tx: IBaseProtocol<any>) {
-  return async (userId: number, expense: Expense, division: ExpenseDivisionItem[]): Promise<number> => {
-    const expenseId = (await tx.one<{ id: number }>(`
+  return async (
+    userId: number,
+    expense: Expense,
+    division: ExpenseDivisionItem[]
+  ): Promise<number> => {
+    const expenseId = (await tx.one<{ id: number }>(
+      `
 INSERT INTO expenses (
   created_by_id, user_id, group_id, date, created, type,
   receiver, sum, title, description, confirmed,
@@ -207,14 +237,52 @@ RETURNING id`,
         sum: expense.sum.toString(),
         template: expense.template || false,
         recurringExpenseId: expense.recurringExpenseId || null,
-      })).id;
+      }
+    )).id;
     await createDivision(tx)(expenseId, division);
     return expenseId;
   };
 }
 
+function createExpense(
+  userId: number,
+  groupId: number,
+  expense: Expense,
+  defaultSourceId: number
+): Promise<ApiMessage> {
+  return db.tx(async tx => {
+    expense = setDefaults(expense);
+    debug('Creating expense', expense);
+    const sourceId = expense.sourceId || defaultSourceId;
+    const [cat, user, source] = await Promise.all([
+      categories.tx.getById(tx)(groupId, expense.categoryId),
+      users.tx.getById(tx)(groupId, expense.userId),
+      sources.tx.getById(tx)(groupId, sourceId),
+    ]);
+
+    const division = determineDivision(expense, source);
+    const id = await insert(tx)(
+      userId,
+      {
+        ...expense,
+        userId: user.id,
+        groupId,
+        sourceId: source.id,
+        categoryId: cat.id,
+        sum: expense.sum,
+      },
+      division
+    );
+    return { status: 'OK', message: 'Expense created', expenseId: id };
+  });
+}
+
 function updateExpense(tx: IBaseProtocol<any>) {
-  return async (original: Expense, expense: Expense, defaultSourceId: number): Promise<ApiMessage> => {
+  return async (
+    original: Expense,
+    expense: Expense,
+    defaultSourceId: number
+  ): Promise<ApiMessage> => {
     expense = setDefaults(expense);
     debug('Updating expense', original, 'to', expense);
     const sourceId = expense.sourceId || defaultSourceId;
@@ -224,7 +292,8 @@ function updateExpense(tx: IBaseProtocol<any>) {
     ]);
     const division = determineDivision(expense, source);
     await deleteDivision(tx)(original.id);
-    await tx.none(`
+    await tx.none(
+      `
 UPDATE expenses
 SET date=$/date/::DATE, receiver=$/receiver/, sum=$/sum/::NUMERIC::MONEY, title=$/title/,
   description=$/description/, type=$/type/::expense_type, confirmed=$/confirmed/::BOOLEAN,
@@ -236,17 +305,26 @@ WHERE id=$/id/`,
         sum: expense.sum.toString(),
         sourceId: source.id,
         categoryId: cat.id,
-      });
+      }
+    );
     await createDivision(tx)(original.id, division);
     return { status: 'OK', message: 'Expense updated', expenseId: original.id };
   };
 }
 
-function updateExpenseById(groupId: number, userId: number, expenseId: number, expense: Expense, defaultSourceId: number) {
-  return db.tx(async (tx): Promise<ApiMessage> => {
-    const e = await getById(tx)(groupId, userId, expenseId);
-    return updateExpense(tx)(e, expense, defaultSourceId);
-  });
+function updateExpenseById(
+  groupId: number,
+  userId: number,
+  expenseId: number,
+  expense: Expense,
+  defaultSourceId: number
+) {
+  return db.tx(
+    async (tx): Promise<ApiMessage> => {
+      const e = await getById(tx)(groupId, userId, expenseId);
+      return updateExpense(tx)(e, expense, defaultSourceId);
+    }
+  );
 }
 
 interface ReceiverInfo {
@@ -257,14 +335,28 @@ interface ReceiverInfo {
 function queryReceivers(tx: IBaseProtocol<any>) {
   return async (groupId: number, receiver: string): Promise<ReceiverInfo[]> => {
     debug('Receivers', groupId, receiver);
-    return tx.manyOrNone<ReceiverInfo>(`
+    return tx.manyOrNone<ReceiverInfo>(
+      `
 SELECT
   receiver, COUNT(*) AS amount
 FROM expenses
 WHERE group_id=$/groupId/ AND receiver ILIKE $/receiver/
 GROUP BY receiver ORDER BY amount DESC`,
-      { groupId, receiver: `%${receiver}%` });
+      { groupId, receiver: `%${receiver}%` }
+    );
   };
+}
+
+function getExpenseAndDivision(tx: IBaseProtocol<any>) {
+  return (
+    groupId: number,
+    userId: number,
+    expenseId: number
+  ): Promise<[Expense, ExpenseDivisionItem[]]> =>
+    Promise.all([
+      getById(tx)(groupId, userId, expenseId),
+      getDivision(tx)(expenseId),
+    ]);
 }
 
 function copyExpense(tx: IBaseProtocol<any>) {
@@ -272,26 +364,22 @@ function copyExpense(tx: IBaseProtocol<any>) {
     groupId: number,
     userId: number,
     expenseId: number,
-    mapper: (e: [Expense, ExpenseDivisionItem[]],
-  ) => [Expense, ExpenseDivisionItem[]]): Promise<number> => {
+    mapper: (
+      e: [Expense, ExpenseDivisionItem[]]
+    ) => [Expense, ExpenseDivisionItem[]]
+  ): Promise<number> => {
     const e = await getExpenseAndDivision(tx)(groupId, userId, expenseId);
     const [expense, division] = mapper ? mapper(e) : e;
     return insert(tx)(userId, expense, division);
   };
 }
 
-function getExpenseAndDivision(tx: IBaseProtocol<any>) {
-  return (groupId: number, userId: number, expenseId: number): Promise<[Expense, ExpenseDivisionItem[]]> => Promise.all([
-    getById(tx)(groupId, userId, expenseId),
-    getDivision(tx)(expenseId),
-  ]);
-}
-
 export default {
   getAll: getAll(db),
   getById: getById(db),
   getDivision: getDivision(db),
-  deleteById: (groupId: number, expenseId: number) => db.tx(tx => deleteById(tx)(groupId, expenseId)),
+  deleteById: (groupId: number, expenseId: number) =>
+    db.tx(tx => deleteById(tx)(groupId, expenseId)),
   create: createExpense,
   update: updateExpenseById,
   queryReceivers: queryReceivers(db),

@@ -5,7 +5,8 @@ import { Action } from '../../../shared/types/Common';
 import { pickDateE } from '../../data/State';
 import { unsubscribeAll } from '../../util/ClientUtil';
 import { toMoment } from '../../../shared/util/Time';
-const debug = require('debug')('bookkeeper:date-picker');
+import debugSetup from 'debug';
+const debug = debugSetup('bookkeeper:date-picker');
 
 interface DatePickerProps {
   pick: PickDateObject;
@@ -13,7 +14,6 @@ interface DatePickerProps {
 }
 
 class DatePickerComponent extends React.Component<DatePickerProps, {}> {
-
   private ref: DatePicker | null = null;
 
   public componentDidMount() {
@@ -27,20 +27,22 @@ class DatePickerComponent extends React.Component<DatePickerProps, {}> {
   }
 
   private open = () => {
-    if (this.ref) { this.ref.openDialog(); }
-  }
+    if (this.ref) {
+      this.ref.openDialog();
+    }
+  };
 
   private onChange = (_: any, d: Date) => {
     debug('Selecting date', d);
     this.props.pick.resolve(d);
-  }
+  };
   private onDismiss = () => {
     debug('Dismissing date picker');
     this.props.pick.resolve(undefined);
-  }
+  };
   private formatDate = (d: Date) => toMoment(d).format('D.M.YYYY');
 
-  private setRef = (ref: DatePicker | null) => this.ref = ref;
+  private setRef = (ref: DatePicker | null) => (this.ref = ref);
 
   public render() {
     return (
@@ -64,10 +66,12 @@ interface DatePickerConnectorState {
   pickCounter: number;
 }
 
-let pickCounter: number = 0;
+let pickCounter = 0;
 
-export default class DatePickerConnector extends React.Component<{}, DatePickerConnectorState> {
-
+export default class DatePickerConnector extends React.Component<
+  {},
+  DatePickerConnectorState
+> {
   public state: DatePickerConnectorState = { pick: null, pickCounter: 0 };
   private unsub: Action[] = [];
 
@@ -78,14 +82,18 @@ export default class DatePickerConnector extends React.Component<{}, DatePickerC
   private pickDate = (pick: PickDateObject | null) => {
     pickCounter += 1;
     this.setState({ pick, pickCounter });
-  }
+  };
 
   public componentWillUnmount() {
     unsubscribeAll(this.unsub);
   }
 
   public render() {
-    return this.state.pick ? <DatePickerComponent pick={this.state.pick} pickCounter={this.state.pickCounter} /> : null;
+    return this.state.pick ? (
+      <DatePickerComponent
+        pick={this.state.pick}
+        pickCounter={this.state.pickCounter}
+      />
+    ) : null;
   }
-
 }

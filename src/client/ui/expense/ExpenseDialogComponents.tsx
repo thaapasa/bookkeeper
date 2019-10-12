@@ -10,7 +10,11 @@ import apiConnect from '../../data/ApiConnect';
 import { PlainAutoComplete } from '../component/PlainTextField';
 import { stopEventPropagation, unsubscribeAll } from '../../util/ClientUtil';
 import { Source } from '../../../shared/types/Session';
-import { ExpenseType, getExpenseTypeLabel, expenseTypes } from '../../../shared/types/Expense';
+import {
+  ExpenseType,
+  getExpenseTypeLabel,
+  expenseTypes,
+} from '../../../shared/types/Expense';
 import { toMoment } from '../../../shared/util/Time';
 import { IconButton } from 'material-ui';
 import { VCenterRow } from '../Styles';
@@ -21,9 +25,9 @@ const styles = {
 
 // tslint:disable jsx-no-lambda
 export function SumField(props: {
-  value: string,
-  errorText?: string,
-  onChange: (s: string) => void,
+  value: string;
+  errorText?: string;
+  onChange: (s: string) => void;
 }) {
   return (
     <TextField
@@ -32,16 +36,17 @@ export function SumField(props: {
       floatingLabelFixed={true}
       value={props.value}
       errorText={props.errorText}
-      onChange={(i, e) => props.onChange(e)} />
+      onChange={(i, e) => props.onChange(e)}
+    />
   );
 }
 
 export function TitleField(props: {
-  value: string,
-  errorText?: string,
-  dataSource: any[],
-  onChange: (s: string) => void,
-  onSelect: (s: number) => void,
+  value: string;
+  errorText?: string;
+  dataSource: any[];
+  onChange: (s: string) => void;
+  onSelect: (s: number) => void;
 }) {
   return (
     <AutoComplete
@@ -50,23 +55,24 @@ export function TitleField(props: {
       floatingLabelText="Kuvaus"
       searchText={props.value}
       filter={AutoComplete.caseInsensitiveFilter}
-      onNewRequest={(v) => (typeof v === 'object') ? props.onSelect(v.value) : ''}
+      onNewRequest={v => (typeof v === 'object' ? props.onSelect(v.value) : '')}
       errorText={props.errorText}
       fullWidth={true}
       onKeyUp={stopEventPropagation}
       dataSource={props.dataSource}
-      onUpdateInput={(v) => props.onChange(v)} />
+      onUpdateInput={v => props.onChange(v)}
+    />
   );
 }
 
 export function CategorySelector(props: {
-  category: number,
-  subcategory: number,
-  categories: any[],
-  subcategories: any[],
-  onChangeCategory: (id: number) => void,
-  onChangeSubcategory: (id: number) => void,
-  errorText?: string,
+  category: number;
+  subcategory: number;
+  categories: any[];
+  subcategories: any[];
+  onChangeCategory: (id: number) => void;
+  onChangeSubcategory: (id: number) => void;
+  errorText?: string;
 }) {
   return (
     <div onKeyUp={stopEventPropagation}>
@@ -76,8 +82,9 @@ export function CategorySelector(props: {
         style={styles.category}
         // autoWidth={false}
         // onKeyUp={stopEventPropagation}
-        onChange={(i, j, v) => props.onChangeCategory(v)}>
-        {props.categories.map((row) => (
+        onChange={(i, j, v) => props.onChangeCategory(v)}
+      >
+        {props.categories.map(row => (
           <MenuItem key={row.id} value={row.id} primaryText={row.name} />
         ))}
       </DropDownMenu>
@@ -87,42 +94,59 @@ export function CategorySelector(props: {
         style={styles.category}
         // autoWidth={false}
         // onKeyUp={stopEventPropagation}
-        onChange={(i, j, v) => props.onChangeSubcategory(v)}>
+        onChange={(i, j, v) => props.onChangeSubcategory(v)}
+      >
         {props.subcategories.map(row => (
           <MenuItem key={row.id} value={row.id} primaryText={row.name} />
         ))}
       </DropDownMenu>
-      {props.errorText ? [<br key="br" />, <div className="error-text" key="error">{props.errorText}</div>] : null}
+      {props.errorText
+        ? [
+            <br key="br" />,
+            <div className="error-text" key="error">
+              {props.errorText}
+            </div>,
+          ]
+        : null}
     </div>
   );
 }
 
 export function SourceSelector(props: {
-  value: number,
-  onChange: (id: number) => void,
-  sources: Source[],
-  style?: React.CSSProperties,
+  value: number;
+  onChange: (id: number) => void;
+  sources: Source[];
+  style?: React.CSSProperties;
 }) {
   return (
     <DropDownMenu
       value={props.value}
       style={props.style}
-      onChange={(event, index, sourceId) => props.onChange(sourceId)}>
-      {props.sources.map(s => <MenuItem key={s.id} value={s.id} primaryText={s.name} />)}
+      onChange={(event, index, sourceId) => props.onChange(sourceId)}
+    >
+      {props.sources.map(s => (
+        <MenuItem key={s.id} value={s.id} primaryText={s.name} />
+      ))}
     </DropDownMenu>
   );
 }
 
-export class TypeSelector extends React.Component<{
-  value: ExpenseType,
-  onChange: (s: ExpenseType) => void,
-}, {}> {
+export class TypeSelector extends React.Component<
+  {
+    value: ExpenseType;
+    onChange: (s: ExpenseType) => void;
+  },
+  {}
+> {
   private toggle = () => {
-    const toggled = expenseTypes[(expenseTypes.indexOf(this.props.value) + 1) % expenseTypes.length];
+    const toggled =
+      expenseTypes[
+        (expenseTypes.indexOf(this.props.value) + 1) % expenseTypes.length
+      ];
     if (toggled && this.props.onChange) {
       this.props.onChange(toggled);
     }
-  }
+  };
   public render() {
     return (
       <VCenterRow>
@@ -136,8 +160,8 @@ export class TypeSelector extends React.Component<{
 }
 
 export function DateField(props: {
-  value: Date,
-  onChange: (date: Date) => void,
+  value: Date;
+  onChange: (date: Date) => void;
 }) {
   return (
     <DatePicker
@@ -147,7 +171,8 @@ export function DateField(props: {
       // floatingLabelFixed={true}
       fullWidth={true}
       autoOk={true}
-      onChange={(event, date) => props.onChange(date)} />
+      onChange={(event, date) => props.onChange(date)}
+    />
   );
 }
 
@@ -167,22 +192,30 @@ interface ReceiverFieldState {
   receivers: any[];
 }
 
-export class ReceiverField extends React.Component<ReceiverFieldProps, ReceiverFieldState> {
-
+export class ReceiverField extends React.Component<
+  ReceiverFieldProps,
+  ReceiverFieldState
+> {
   private inputStream = new Bacon.Bus<string>();
   private unsub: any[] = [];
   public state: ReceiverFieldState = { receivers: [] };
 
   public componentDidMount() {
-    this.unsub.push(this.inputStream.onValue(v => this.props.onChange(null, v)));
-    this.unsub.push(this.inputStream
-      .filter(v => v && v.length > 2 && v.length < 10 || false)
-      .debounceImmediate(500)
-      .flatMapLatest(v => Bacon.fromPromise(apiConnect.queryReceivers(v)))
-      .onValue(v => this.setState({ receivers: v })));
-    this.unsub.push(this.inputStream
-      .filter(v => !v || v.length < 3)
-      .onValue(() => this.setState({ receivers: [] })));
+    this.unsub.push(
+      this.inputStream.onValue(v => this.props.onChange(null, v))
+    );
+    this.unsub.push(
+      this.inputStream
+        .filter(v => (v && v.length > 2 && v.length < 10) || false)
+        .debounceImmediate(500)
+        .flatMapLatest(v => Bacon.fromPromise(apiConnect.queryReceivers(v)))
+        .onValue(v => this.setState({ receivers: v }))
+    );
+    this.unsub.push(
+      this.inputStream
+        .filter(v => !v || v.length < 3)
+        .onValue(() => this.setState({ receivers: [] }))
+    );
   }
 
   public componentWillUnmount() {
@@ -210,10 +243,17 @@ export class ReceiverField extends React.Component<ReceiverFieldProps, ReceiverF
   }
 }
 
-export class PlainReceiverField extends React.Component<ReceiverFieldProps, {}> {
+export class PlainReceiverField extends React.Component<
+  ReceiverFieldProps,
+  {}
+> {
   public render() {
     return (
-      <ReceiverField {...this.props} value={this.props.value || ''} editorType={PlainAutoComplete}>
+      <ReceiverField
+        {...this.props}
+        value={this.props.value || ''}
+        editorType={PlainAutoComplete}
+      >
         {this.props.children}
       </ReceiverField>
     );
@@ -221,9 +261,9 @@ export class PlainReceiverField extends React.Component<ReceiverFieldProps, {}> 
 }
 
 export function DescriptionField(props: {
-  value: string,
-  errorText?: string,
-  onChange: (s: string) => void,
+  value: string;
+  errorText?: string;
+  onChange: (s: string) => void;
 }) {
   return (
     <TextField

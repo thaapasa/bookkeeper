@@ -13,7 +13,7 @@ export interface UserShare {
 
 export interface Source extends DbObject {
   name: string;
-  abbreviation: string |  null;
+  abbreviation: string | null;
   shares: number;
   users: UserShare[];
   image?: string;

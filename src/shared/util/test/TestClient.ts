@@ -10,7 +10,11 @@ function authHeader(token: string): Record<string, string> {
   return { Authorization: `Bearer ${token}` };
 }
 
-export function get<T>(token: string, path: string, query?: Record<string, any>): Promise<T> {
+export function get<T>(
+  token: string,
+  path: string,
+  query?: Record<string, any>
+): Promise<T> {
   return client.get<T>(path, query, authHeader(token));
 }
 
@@ -22,7 +26,11 @@ export function post<T>(token: string, path: string, data: any): Promise<T> {
   return client.post<T>(path, data, undefined, authHeader(token));
 }
 
-export function del<T>(token: string, path: string, query?: Record<string, any>): Promise<T> {
+export function del<T>(
+  token: string,
+  path: string,
+  query?: Record<string, any>
+): Promise<T> {
   return client.del<T>(path, undefined, query, authHeader(token));
 }
 
@@ -34,7 +42,21 @@ function refresh(refreshToken: string): Promise<Session> {
   return put<Session>(refreshToken, '/api/session/refresh', {});
 }
 
-export function getSession(username: string, password: string): Promise<SessionWithControl> {
+function decorateSession(s: Session): SessionWithControl {
+  return {
+    ...s,
+    get: (path, query) => get(s.token, path, query),
+    logout: () => del(s.token, '/api/session'),
+    put: (path, data) => put(s.token, path, data),
+    post: (path, data) => post(s.token, path, data),
+    del: (path, query) => del(s.token, path, query),
+  };
+}
+
+export function getSession(
+  username: string,
+  password: string
+): Promise<SessionWithControl> {
   return login(username, password).then(decorateSession);
 }
 
@@ -48,15 +70,4 @@ export interface SessionWithControl extends Session {
   put: <T>(path: string, data: any) => Promise<T>;
   post: <T>(path: string, data: any) => Promise<T>;
   del: (path: string, query?: Record<string, any>) => Promise<void>;
-}
-
-function decorateSession(s: Session): SessionWithControl {
-  return {
-    ...s,
-    get: (path, query) => get(s.token, path, query),
-    logout: () => del(s.token, '/api/session'),
-    put: (path, data) => put(s.token, path, data),
-    post: (path, data) => post(s.token, path, data),
-    del: (path, query) => del(s.token, path, query),
-  };
 }

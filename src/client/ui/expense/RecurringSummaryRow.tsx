@@ -1,6 +1,11 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import { RecurringExpenseIcon, Row, AllColumns, rowHeight } from './ExpenseTableLayout';
+import {
+  RecurringExpenseIcon,
+  Row,
+  AllColumns,
+  rowHeight,
+} from './ExpenseTableLayout';
 import { ExpandLess, ExpandMore } from '../Icons';
 import { UserExpense } from '../../../shared/types/Expense';
 import Money from '../../../shared/util/Money';
@@ -14,17 +19,25 @@ interface RecurringSummaryRowProps {
 }
 
 export default function RecurringSummaryRow(props: RecurringSummaryRowProps) {
-  const expense = props.recurring.filter(s => s.type === 'expense')
-    .map(s => Money.from(s.sum)).reduce(Money.plus, Money.zero);
-  const income = props.recurring.filter(s => s.type === 'income')
-    .map(s => Money.from(s.sum)).reduce(Money.plus, Money.zero);
-  const balance = props.recurring.map(s => Money.from(s.userBalance)).reduce(Money.plus, Money.zero);
+  const expense = props.recurring
+    .filter(s => s.type === 'expense')
+    .map(s => Money.from(s.sum))
+    .reduce(Money.plus, Money.zero);
+  const income = props.recurring
+    .filter(s => s.type === 'income')
+    .map(s => Money.from(s.sum))
+    .reduce(Money.plus, Money.zero);
+  const balance = props.recurring
+    .map(s => Money.from(s.userBalance))
+    .reduce(Money.plus, Money.zero);
   return (
     <Row>
       <AllColumns>
         <RowContainer>
           <RecurringExpenseIcon />
-          <Name><Emph>Toistuvat</Emph> ({props.recurring.length} kpl)</Name>
+          <Name>
+            <Emph>Toistuvat</Emph> ({props.recurring.length} kpl)
+          </Name>
           <Item>
             Tulot: <Sum>{income.format()}</Sum>
           </Item>
@@ -34,7 +47,13 @@ export default function RecurringSummaryRow(props: RecurringSummaryRowProps) {
           <Item className="optional">
             Balanssi: <Sum>{balance.format()}</Sum>
           </Item>
-          <Tools>{props.isExpanded ? <ExpandLess onClick={props.onToggle} /> : <ExpandMore onClick={props.onToggle} />}</Tools>
+          <Tools>
+            {props.isExpanded ? (
+              <ExpandLess onClick={props.onToggle} />
+            ) : (
+              <ExpandMore onClick={props.onToggle} />
+            )}
+          </Tools>
         </RowContainer>
       </AllColumns>
     </Row>

@@ -14,7 +14,8 @@ class Config {
   public logLevel = process.env.LOG_LEVEL || 'info';
   public showErrorCause: boolean = process.env.SHOW_ERROR_CAUSE === 'true';
   public sessionTimeout = process.env.SESSION_TIMEOUT || '20 minutes';
-  public dbUrl = process.env.DB_URL || 'postgresql://localhost/bookkeeper?user=bookkeeper&password=kakkuloskakahvit&ssl=false';
+  public dbUrl =
+    process.env.DB_URL || 'postgresql://postgres:postgres@localhost/postgres';
   public dbSSL: boolean = process.env.DB_SSL === 'true';
 }
 

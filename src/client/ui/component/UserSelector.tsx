@@ -22,29 +22,40 @@ interface UserSelectorProps {
 }
 
 export class UserSelector extends React.Component<UserSelectorProps, {}> {
-
   private switchSelection = (id: number) => {
     const oldS = this.props.selected;
     const foundAt = oldS.indexOf(id);
-    const newS = foundAt >= 0 ? oldS.slice().filter(i => i !== id) : oldS.slice();
-    if (foundAt < 0) { newS.push(id); }
+    const newS =
+      foundAt >= 0 ? oldS.slice().filter(i => i !== id) : oldS.slice();
+    if (foundAt < 0) {
+      newS.push(id);
+    }
     newS.sort();
-    if (this.props.onChange) { this.props.onChange(newS); }
-  }
+    if (this.props.onChange) {
+      this.props.onChange(newS);
+    }
+  };
 
   public render() {
     return (
       <Container style={this.props.style}>
-        {this.props.users.map(u =>
+        {this.props.users.map(u => (
           <StyledUserAvatar
             key={u.id}
             userId={u.id}
-            className={this.props.selected.includes(u.id) ? 'selected' : 'unselected'}
-            // tslint:disable-next-line jsx-no-lambda
-            onClick={x => this.switchSelection(u.id)}>{u.firstName.charAt(0)}</StyledUserAvatar>)}
+            className={
+              this.props.selected.includes(u.id) ? 'selected' : 'unselected'
+            }
+            onClick={() => this.switchSelection(u.id)}
+          >
+            {u.firstName.charAt(0)}
+          </StyledUserAvatar>
+        ))}
       </Container>
     );
   }
 }
 
-export default connect(validSessionE.map(s => ({ users: s.users })))(UserSelector);
+export default connect(validSessionE.map(s => ({ users: s.users })))(
+  UserSelector
+);

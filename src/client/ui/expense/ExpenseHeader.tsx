@@ -1,5 +1,16 @@
 import * as React from 'react';
-import { Row, DateColumn, AvatarColumn, NameColumn, ReceiverColumn, CategoryColumn, SourceColumn, SumColumn, BalanceColumn, ToolColumn } from './ExpenseTableLayout';
+import {
+  Row,
+  DateColumn,
+  AvatarColumn,
+  NameColumn,
+  ReceiverColumn,
+  CategoryColumn,
+  SourceColumn,
+  SumColumn,
+  BalanceColumn,
+  ToolColumn,
+} from './ExpenseTableLayout';
 
 export default function ExpenseHeader() {
   return (

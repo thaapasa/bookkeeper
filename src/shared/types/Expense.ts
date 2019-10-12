@@ -2,16 +2,26 @@ import { DbObject } from './Common';
 import { MoneyLike } from '../util/Money';
 
 export type ExpenseType = 'expense' | 'income' | 'transfer';
-export type ExpenseDivisionType = 'cost' | 'benefit' | 'income' | 'split' | 'transferor' | 'transferee';
+export type ExpenseDivisionType =
+  | 'cost'
+  | 'benefit'
+  | 'income'
+  | 'split'
+  | 'transferor'
+  | 'transferee';
 
 export const expenseTypes: ExpenseType[] = ['expense', 'income', 'transfer'];
 
 export function getExpenseTypeLabel(type: ExpenseType): string {
   switch (type) {
-    case 'income': return 'Tulo';
-    case 'expense': return 'Kulu';
-    case 'transfer': return 'Siirto';
-    default: return '?';
+    case 'income':
+      return 'Tulo';
+    case 'expense':
+      return 'Kulu';
+    case 'transfer':
+      return 'Siirto';
+    default:
+      return '?';
   }
 }
 
@@ -83,12 +93,18 @@ export interface ExpenseInEditor {
   type: ExpenseType;
 }
 
-export interface UserExpenseWithDetails extends UserExpense {
+export interface UserExpenseWithDetails extends UserExpense {
   division: ExpenseDivision;
 }
 
 export function isExpense(e: any): e is Expense {
-  return typeof e === 'object' && typeof e.id === 'number' && typeof e.categoryId === 'number' && typeof e.title === 'string' && typeof e.template === 'boolean';
+  return (
+    typeof e === 'object' &&
+    typeof e.id === 'number' &&
+    typeof e.categoryId === 'number' &&
+    typeof e.title === 'string' &&
+    typeof e.template === 'boolean'
+  );
 }
 
 export interface ExpenseStatus {

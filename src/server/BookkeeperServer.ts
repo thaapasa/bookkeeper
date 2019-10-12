@@ -17,7 +17,9 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static('public'));
 
 api.registerAPI(app);
-app.get(/\/p\/.*/, (_, res) => res.sendFile(path.join(curDir + '/public/index.html')));
+app.get(/\/p\/.*/, (_, res) =>
+  res.sendFile(path.join(curDir + '/public/index.html'))
+);
 
 try {
   app.listen(config.port, () => {

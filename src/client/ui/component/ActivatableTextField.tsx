@@ -1,7 +1,8 @@
 import * as React from 'react';
 import TextField from 'material-ui/TextField';
 import { KeyCodes } from '../../util/Io';
-const debug = require('debug')('bookkeeper:activatable-text-field');
+import debugSetup from 'debug';
+const debug = debugSetup('bookkeeper:activatable-text-field');
 
 type EditorType = React.ComponentClass<any>;
 
@@ -21,8 +22,10 @@ interface ActivatableTextFieldState {
   value: string;
 }
 
-export default class ActivatableTextField extends React.Component<ActivatableTextFieldProps, ActivatableTextFieldState> {
-
+export default class ActivatableTextField extends React.Component<
+  ActivatableTextFieldProps,
+  ActivatableTextFieldState
+> {
   public state: ActivatableTextFieldState;
 
   constructor(props: ActivatableTextFieldProps) {
@@ -31,19 +34,23 @@ export default class ActivatableTextField extends React.Component<ActivatableTex
   }
   private commit = (value: string) => {
     debug('Committing', value);
-    if (this.props.onChange) { this.props.onChange(value); }
+    if (this.props.onChange) {
+      this.props.onChange(value);
+    }
     this.close();
-  }
+  };
 
   private cancel = () => {
     debug('Cancelling');
-    if (this.props.onCancel) { this.props.onCancel(); }
+    if (this.props.onCancel) {
+      this.props.onCancel();
+    }
     this.close();
-  }
+  };
 
   private close = () => {
     this.setState({ value: this.props.value, edit: false });
-  }
+  };
 
   private handleKeyPress = (event: KeyboardEvent) => {
     const code = event.keyCode;
@@ -55,7 +62,7 @@ export default class ActivatableTextField extends React.Component<ActivatableTex
       return false;
     }
     return;
-  }
+  };
 
   private updateValue = (i: any, value: string) => this.setState({ value });
 
@@ -73,18 +80,19 @@ export default class ActivatableTextField extends React.Component<ActivatableTex
     } as any);
   }
 
-  private activate = (i: any) => {
+  private activate = (_: any) => {
     debug('Activating editor', this.props.editorType, 'for', this.props.value);
     this.setState({ edit: true, value: this.props.value });
-  }
+  };
 
   public render() {
-    if (this.state.edit) { return this.createEditor(); }
+    if (this.state.edit) {
+      return this.createEditor();
+    }
     return (
-      <div
-        style={this.props.style}
-        onClick={this.activate}
-      >{this.props.value}</div>
+      <div style={this.props.style} onClick={this.activate}>
+        {this.props.value}
+      </div>
     );
   }
 }

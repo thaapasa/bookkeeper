@@ -22,24 +22,27 @@ const StyledAvatar = styled(Avatar)`
     filter: grayscale(100%) opacity(40%);
   }
   &.selected {
-    -moz-box-shadow:    0 0 4px 2px #748dac;
+    -moz-box-shadow: 0 0 4px 2px #748dac;
     -webkit-box-shadow: 0 0 4px 2px #748dac;
-    box-shadow:         0 0 4px 2px #748dac;
+    box-shadow: 0 0 4px 2px #748dac;
   }
 `;
 
 export function UserAvatar(props: UserAvatarProps) {
   const user = props.user;
   return user && user.id ? (
-    <StyledAvatar style={props.style}
+    <StyledAvatar
+      style={props.style}
       color={cyan900}
       size={props.size}
       backgroundColor={cyan500}
       className={props.className}
       src={user.image || undefined}
-      // tslint:disable-next-line jsx-no-lambda
-      onClick={x => props.onClick && props.onClick(user.id)}>{user.image ? undefined : user.firstName.charAt(0)}</StyledAvatar>
-    ) : null;
+      onClick={() => props.onClick && props.onClick(user.id)}
+    >
+      {user.image ? undefined : user.firstName.charAt(0)}
+    </StyledAvatar>
+  ) : null;
 }
 
 interface UserIdAvatarProps extends CommonAvatarProps {

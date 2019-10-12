@@ -23,13 +23,29 @@ interface TopBarState {
   menuOpen: boolean;
 }
 
+const styles: Record<string, React.CSSProperties> = {
+  topBar: {
+    backgroundColor: colors.colorScheme.primary.dark,
+    justifyContent: 'center',
+  },
+  titleStyle: {
+    color: colors.colorScheme.primary.text,
+  },
+  iconStyle: {
+    color: colors.colorScheme.primary.text,
+    padding: 12,
+  },
+};
+
 class TopBar extends React.Component<TopBarProps, TopBarState> {
   public state: TopBarState = {
     menuOpen: false,
   };
 
   private getTitle() {
-    return isMobileSize(this.props.windowSize) ? undefined : this.props.group.name;
+    return isMobileSize(this.props.windowSize)
+      ? undefined
+      : this.props.group.name;
   }
 
   private getContents() {
@@ -44,35 +60,32 @@ class TopBar extends React.Component<TopBarProps, TopBarState> {
   public render() {
     return (
       <React.Fragment>
-        <AppBar title={this.getTitle()} style={styles.topBar} onLeftIconButtonClick={this.toggleMenu}
-          titleStyle={styles.titleStyle} iconElementLeft={<MenuIcon style={styles.iconStyle}/>}>
+        <AppBar
+          title={this.getTitle()}
+          style={styles.topBar}
+          onLeftIconButtonClick={this.toggleMenu}
+          titleStyle={styles.titleStyle}
+          iconElementLeft={<MenuIcon style={styles.iconStyle} />}
+        >
           {this.getContents()}
         </AppBar>
-        <MenuDrawer open={this.state.menuOpen} onRequestChange={this.changeMenu} links={this.props.links} />
+        <MenuDrawer
+          open={this.state.menuOpen}
+          onRequestChange={this.changeMenu}
+          links={this.props.links}
+        />
       </React.Fragment>
     );
   }
 
   private toggleMenu = () => {
     this.setState(s => ({ menuOpen: !s.menuOpen }));
-  }
+  };
   private changeMenu = (menuOpen: boolean) => {
     this.setState({ menuOpen });
-  }
+  };
 }
 
-export default connect(validSessionE.map(s => ({ user: s.user, group: s.group })))(TopBar);
-
-const styles: Record<string, React.CSSProperties> = {
-  topBar: {
-    backgroundColor: colors.colorScheme.primary.dark,
-    justifyContent: 'center',
-  },
-  titleStyle: {
-    color: colors.colorScheme.primary.text,
-  },
-  iconStyle: {
-    color: colors.colorScheme.primary.text,
-    padding: 12,
-  },
-};
+export default connect(
+  validSessionE.map(s => ({ user: s.user, group: s.group }))
+)(TopBar);

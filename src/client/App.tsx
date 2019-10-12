@@ -19,7 +19,6 @@ interface AppState {
 }
 
 export default class App extends React.Component<{}, AppState> {
-
   private unsub: Action[] = [];
 
   public state: AppState = {
@@ -47,14 +46,22 @@ export default class App extends React.Component<{}, AppState> {
   private updateWindowDimensions = () => {
     const size = { width: window.innerWidth, height: window.innerHeight };
     windowSizeBus.push(size);
-    this.setState({ hasSize: size.width > 0 && size.height > 0, windowSize: size });
-  }
+    this.setState({
+      hasSize: size.width > 0 && size.height > 0,
+      windowSize: size,
+    });
+  };
 
   public render() {
-    return (this.state.initialized) ?
-      (this.state.session && this.state.hasSize ?
-        <BookkeeperPage session={this.state.session} windowSize={this.state.windowSize} /> :
-        <LoginPage />) :
-      null;
+    return this.state.initialized ? (
+      this.state.session && this.state.hasSize ? (
+        <BookkeeperPage
+          session={this.state.session}
+          windowSize={this.state.windowSize}
+        />
+      ) : (
+        <LoginPage />
+      )
+    ) : null;
   }
 }

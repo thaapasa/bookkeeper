@@ -8,7 +8,8 @@ import { History } from 'history';
 import { needUpdateE, navigationBus } from '../../data/State';
 import { toMoment, isSameMonth, monthRange } from '../../../shared/util/Time';
 import { expensesForMonthPath, expensePagePath } from '../../util/Links';
-const debug = require('debug')('bookkeeper:month-view');
+import debugSetup from 'debug';
+const debug = debugSetup('bookkeeper:month-view');
 
 interface MonthViewProps {
   date: Date;
@@ -24,8 +25,10 @@ interface MonthViewState {
   unconfirmedBefore: boolean;
 }
 
-export default class MonthView extends React.PureComponent<MonthViewProps, MonthViewState> {
-
+export default class MonthView extends React.PureComponent<
+  MonthViewProps,
+  MonthViewState
+> {
   private unsub: any[] = [];
 
   public state: MonthViewState = {
@@ -53,10 +56,22 @@ export default class MonthView extends React.PureComponent<MonthViewProps, Month
   }
 
   private async loadExpenses(date: Date) {
-    navigationBus.push({ dateRange: monthRange(date), pathPrefix: expensePagePath });
-    this.setState({ loading: true, expenses: [], startStatus: zeroStatus, endStatus: zeroStatus, monthStatus: zeroStatus });
+    navigationBus.push({
+      dateRange: monthRange(date),
+      pathPrefix: expensePagePath,
+    });
+    this.setState({
+      loading: true,
+      expenses: [],
+      startStatus: zeroStatus,
+      endStatus: zeroStatus,
+      monthStatus: zeroStatus,
+    });
     const m = toMoment(date);
-    const expenses = await apiConnect.getExpensesForMonth(m.get('year'), m.get('month') + 1);
+    const expenses = await apiConnect.getExpensesForMonth(
+      m.get('year'),
+      m.get('month') + 1
+    );
     debug('Expenses for', date, expenses);
     this.setState({ loading: false, ...expenses });
   }
@@ -71,11 +86,13 @@ export default class MonthView extends React.PureComponent<MonthViewProps, Month
       debug('Navigating to', path);
       this.props.history.push(path);
     }
-  }
+  };
 
   private onUpdateExpense = (id: number, data: UserExpense) => {
-    this.setState(s => ({ expenses: s.expenses.map(e => e.id === id ? data : e) }));
-  }
+    this.setState(s => ({
+      expenses: s.expenses.map(e => (e.id === id ? data : e)),
+    }));
+  };
 
   public render() {
     return (
@@ -86,7 +103,8 @@ export default class MonthView extends React.PureComponent<MonthViewProps, Month
         endStatus={this.state.endStatus}
         monthStatus={this.state.monthStatus}
         unconfirmedBefore={this.state.unconfirmedBefore}
-        onUpdateExpense={this.onUpdateExpense} />
+        onUpdateExpense={this.onUpdateExpense}
+      />
     );
   }
 }

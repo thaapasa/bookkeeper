@@ -26,8 +26,10 @@ describe('Money', () => {
   });
 
   it('should have plus', () => {
-    expect(new Money('10').plus(new Money(12.50)).toString()).toEqual('22.50');
-    expect(new Money('10').plus(new Money(12.50)).equals(new Money(22.50))).toEqual(true);
+    expect(new Money('10').plus(new Money(12.5)).toString()).toEqual('22.50');
+    expect(
+      new Money('10').plus(new Money(12.5)).equals(new Money(22.5))
+    ).toEqual(true);
   });
   it('should equal when created from money', () => {
     const m = new Money(100);

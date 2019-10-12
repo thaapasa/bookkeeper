@@ -9,9 +9,14 @@ export function unsubscribeAll(arr: any[]): void {
   arr.splice(0, arr.length);
 }
 
-export function combineClassNames(...classNames: Array<string | undefined>): string {
+export function combineClassNames(
+  ...classNames: Array<string | undefined>
+): string {
   const names: string[] = classNames.filter(i => i !== undefined) as string[];
-  return names.reduce((res, cur) => cur ? (res ? res + ' ' + cur : cur) : res, '');
+  return names.reduce(
+    (res, cur) => (cur ? (res ? res + ' ' + cur : cur) : res),
+    ''
+  );
 }
 
 export function stopEventPropagation(event: any): void {

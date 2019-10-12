@@ -11,8 +11,9 @@ interface ConfirmationDialogProps<T> {
   onFinish: Action;
 }
 
-class ConfirmationDialog<T> extends React.Component<ConfirmationDialogProps<T>, {}> {
-
+class ConfirmationDialog<T> extends React.Component<
+  ConfirmationDialogProps<T>
+> {
   private handleKeyPress = (event: React.KeyboardEvent<any>) => {
     const code = event.keyCode;
     if (code === KeyCodes.enter) {
@@ -21,24 +22,27 @@ class ConfirmationDialog<T> extends React.Component<ConfirmationDialogProps<T>, 
       return this.resolveWithIfDefined(false);
     }
     return;
-  }
+  };
 
   private resolveWithIfDefined = (value: any) => {
-    if (this.props.confirmation.actions.find(a => a.value === value) !== undefined) {
+    if (
+      this.props.confirmation.actions.find(a => a.value === value) !== undefined
+    ) {
       this.resolveWith(value);
       return false;
     }
     return;
-  }
+  };
 
   private resolveWith = async (value: T) => {
     await this.props.confirmation.resolve(value);
     this.props.onFinish();
-  }
+  };
 
   public render() {
     const actions = this.props.confirmation.actions.map((a, i) => (
       <FlatButton
+        key={i}
         label={a.label}
         primary={i === 0}
         tabIndex={i + 2}
@@ -55,7 +59,8 @@ class ConfirmationDialog<T> extends React.Component<ConfirmationDialogProps<T>, 
         modal={false}
         open={true}
         // tslint:disable-next-line jsx-no-lambda
-        onRequestClose={() => this.resolveWithIfDefined(false)}>
+        onRequestClose={() => this.resolveWithIfDefined(false)}
+      >
         <div onKeyUp={this.handleKeyPress}>
           {this.props.confirmation.content}
         </div>
@@ -68,14 +73,18 @@ interface ConfirmationConnectDialogState {
   confirmation: ConfirmationObject<any> | null;
 }
 
-export default class ConfirmationConnectDialog extends React.Component<{}, ConfirmationConnectDialogState> {
-
+export default class ConfirmationConnectDialog extends React.Component<
+  {},
+  ConfirmationConnectDialogState
+> {
   private unsubscribe: Action | null = null;
 
   public state: ConfirmationConnectDialogState = { confirmation: null };
 
   public componentDidMount() {
-    this.unsubscribe = confirmationE.onValue((confirmation) => this.setState({ confirmation }));
+    this.unsubscribe = confirmationE.onValue(confirmation =>
+      this.setState({ confirmation })
+    );
   }
 
   public componentWillUnmount() {
@@ -87,11 +96,14 @@ export default class ConfirmationConnectDialog extends React.Component<{}, Confi
 
   private close = () => {
     this.setState({ confirmation: null });
-  }
+  };
 
   public render() {
-    return this.state.confirmation ?
-      <ConfirmationDialog confirmation={this.state.confirmation} onFinish={this.close} /> :
-      null;
+    return this.state.confirmation ? (
+      <ConfirmationDialog
+        confirmation={this.state.confirmation}
+        onFinish={this.close}
+      />
+    ) : null;
   }
 }
