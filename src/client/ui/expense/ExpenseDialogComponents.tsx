@@ -169,7 +169,7 @@ interface ReceiverFieldState {
 
 export class ReceiverField extends React.Component<ReceiverFieldProps, ReceiverFieldState> {
 
-  private inputStream = new Bacon.Bus<any, string>();
+  private inputStream = new Bacon.Bus<string>();
   private unsub: any[] = [];
   public state: ReceiverFieldState = { receivers: [] };
 

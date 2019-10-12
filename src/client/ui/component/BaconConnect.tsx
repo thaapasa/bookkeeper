@@ -12,7 +12,7 @@ type InferableComponentEnhancerWithProps<TInjectedProps, TNeedsProps> =
 export function connect<
   TBaconProps,
   TNeedsProps,
->(source: B.Observable<any, TBaconProps>): InferableComponentEnhancerWithProps<TBaconProps, TNeedsProps> {
+>(source: B.Observable<TBaconProps>): InferableComponentEnhancerWithProps<TBaconProps, TNeedsProps> {
   return <P extends TBaconProps>(component: React.ComponentType<P>):
     React.ComponentClass<Omit<P, keyof TBaconProps> & TNeedsProps> => {
     return class extends React.Component<Omit<P, keyof TBaconProps> & TNeedsProps, TBaconProps & { hasReceivedProps: boolean }> {

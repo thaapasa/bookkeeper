@@ -2,19 +2,20 @@ import * as B from 'baconjs';
 import { Session, Group, User, Source } from '../../shared/types/Session';
 import apiConnect from './ApiConnect';
 import { toMap } from '../../shared/util/Arrays';
-const debug = require('debug')('bookkeeper:login');
+import debugSetup from 'debug';
+const debug = debugSetup('bookkeeper:login');
 
-const loginBus = new B.Bus<any, Session | null>();
-const sessionBus = new B.Bus<any, Session | null>();
+const loginBus = new B.Bus<Session | null>();
+const sessionBus = new B.Bus<Session | null>();
 
 export const sessionP = sessionBus.toProperty(null);
-export const validSessionE: B.EventStream<any, Session> = sessionP.filter(s => s !== null) as any;
-export const userMapE: B.EventStream<any, Record<string, User>> = validSessionE.map(s => toMap(s.users, 'id'));
-export const sourceMapE: B.EventStream<any, Record<string, Source>> = validSessionE.map(s => toMap(s.sources, 'id'));
+export const validSessionE: B.EventStream<Session> = sessionP.filter(s => s !== null) as any;
+export const userMapE: B.EventStream<Record<string, User>> = validSessionE.map(s => toMap(s.users, 'id'));
+export const sourceMapE: B.EventStream<Record<string, Source>> = validSessionE.map(s => toMap(s.sources, 'id'));
 
 const refreshTokenKey = 'refreshToken';
 
-export function getTitle(group?: Group) {
+export function getTitle(group?: Group): string {
   const groupName = group ? group.name : undefined;
   const title = groupName ? `Kukkaro - ${groupName}` : 'Kukkaro';
   return title;

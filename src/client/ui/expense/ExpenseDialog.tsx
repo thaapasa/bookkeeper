@@ -13,13 +13,13 @@ import { SumField, TypeSelector, TitleField, CategorySelector, SourceSelector, D
 import { expenseName } from './ExpenseHelper';
 import { unsubscribeAll, stopEventPropagation } from '../../util/ClientUtil';
 import { splitByShares, negateDivision, HasShares, HasSum } from '../../../shared/util/Splitter';
-import { Category, Source, CategoryData, Group, User } from '../../../shared/types/Session';
+import { Category, Source, Group, User } from '../../../shared/types/Session';
 import { UserExpenseWithDetails, ExpenseDivisionType, ExpenseInEditor, ExpenseData, RecurringExpenseTarget, expenseBeneficiary, ExpenseDivision } from '../../../shared/types/Expense';
 import { toDate, formatDate } from '../../../shared/util/Time';
 import { noop, identity } from '../../../shared/util/Util';
 import { connect } from '../component/BaconConnect';
 import { validSessionE, sourceMapE } from '../../data/Login';
-import { categoryDataSourceP, categoryMapE, isSubcategoryOf } from '../../data/Categories';
+import { categoryDataSourceP, categoryMapE, isSubcategoryOf, CategoryDataSource } from '../../data/Categories';
 import { notify, notifyError, expenseDialogE, updateExpenses, confirm } from '../../data/State';
 import { sortAndCompareElements, valuesToArray } from '../../../shared/util/Arrays';
 import { ExpenseDialogObject } from '../../data/StateTypes';
@@ -69,7 +69,7 @@ interface ExpenseDialogProps {
   sources: Source[];
   categories: Category[];
   sourceMap: Record<string, Source>;
-  categorySource: CategoryData[];
+  categorySource: CategoryDataSource[];
   categoryMap: Record<string, Category>;
   onClose: (e: ExpenseInEditor | null) => void;
   onExpensesUpdated: (date: Date) => void;
@@ -86,9 +86,9 @@ interface ExpenseDialogState extends ExpenseInEditor {
 
 export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDialogState> {
 
-  private readonly saveLock: B.Bus<any, boolean> = new B.Bus<any, boolean>();
-  private inputStreams: Record<string, B.Bus<any, any>> = {};
-  private readonly submitStream: B.Bus<any, true> = new B.Bus<any, true>();
+  private readonly saveLock: B.Bus<boolean> = new B.Bus<boolean>();
+  private inputStreams: Record<string, B.Bus<any>> = {};
+  private readonly submitStream: B.Bus<true> = new B.Bus<true>();
   private unsub: any[] = [];
   public state = this.getDefaultState(null);
 
@@ -172,12 +172,12 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps, ExpenseDi
     this.inputStreams = {};
     this.unsub.push(this.submitStream);
     fields.forEach(k => {
-      this.inputStreams[k] = new B.Bus<any, any>();
+      this.inputStreams[k] = new B.Bus<any>();
       this.unsub.push(this.inputStreams[k]);
     });
 
-    const validity: Record<string, B.Property<any, boolean>> = {};
-    const values: Record<string, B.EventStream<any, any>> = {};
+    const validity: Record<string, B.Property<boolean>> = {};
+    const values: Record<string, B.EventStream<any>> = {};
     fields.forEach(k => {
       this.inputStreams[k].onValue(v => this.setState({ [k]: v } as any));
       const parsed = parsers[k] ? this.inputStreams[k].map(parsers[k]) : this.inputStreams[k].map(identity);
@@ -398,16 +398,6 @@ const StyledDialog = styled(Dialog)`
   }
 `;
 
-interface BProps {
-  sources: Source[];
-  categories: Category[];
-  sourceMap: Record<string, Source>;
-  categorySource: CategoryData[];
-  categoryMap: Record<string, Category>;
-  group: Group;
-  user: User;
-}
-
 const ConnectedExpenseDialog = connect(B.combineTemplate({
   sources: validSessionE.map(s => s.sources),
   categories: validSessionE.map(s => s.categories),
@@ -416,7 +406,7 @@ const ConnectedExpenseDialog = connect(B.combineTemplate({
   sourceMap: sourceMapE,
   categorySource: categoryDataSourceP,
   categoryMap: categoryMapE,
-}) as B.Property<any, BProps>)(ExpenseDialog);
+}))(ExpenseDialog);
 
 interface ExpenseDialogListenerState {
   open: boolean;

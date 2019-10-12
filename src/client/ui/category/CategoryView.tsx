@@ -108,7 +108,7 @@ const CategoryViewContainer = styled.div`
   overflow-x: hidden;
 `;
 
-export default connect(B.combineTemplate<any, { categories: Category[], userData: UserDataProps }>({
+export default connect(B.combineTemplate({
   categories: validSessionE.map(s => s.categories),
   userData: userDataE,
 }))(CategoryView);

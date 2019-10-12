@@ -2,7 +2,7 @@ import * as React from 'react';
 import Snackbar from 'material-ui/Snackbar';
 import { Notification } from '../../data/StateTypes';
 import { notificationE } from '../../data/State';
-import { Action } from '../../../shared/types/Common';
+import { Action, Timeout } from '../../../shared/types/Common';
 import { unsubscribeAll } from '../../util/ClientUtil';
 
 const msgInterval = 5000;
@@ -34,7 +34,7 @@ interface NotificationBarConnectorState {
 
 export default class NotificationBarConnector extends React.Component<{}, NotificationBarConnectorState> {
 
-  private timer: NodeJS.Timer | undefined;
+  private timer: Timeout | undefined;
   private queue: Notification[] = [];
   private unsub: Action[] = [];
   public state: NotificationBarConnectorState = {

@@ -119,8 +119,8 @@ export class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState
       await apiConnect.deleteExpense(e.id);
       notify(`Poistettu kirjaus ${name}`);
       await updateExpenses(toDate(e.date));
-    } catch (e) {
-      notifyError(`Virhe poistettaessa kirjausta ${name}`, e);
+    } catch (err) {
+      notifyError(`Virhe poistettaessa kirjausta ${expenseName(e)}`, err);
     }
   }
 
@@ -138,8 +138,8 @@ export class ExpenseRow extends React.Component<ExpenseRowProps, ExpenseRowState
       await apiConnect.deleteRecurringById(e.id, target);
       notify(`Poistettu kirjaus ${name}`);
       await updateExpenses(toDate(e.date));
-    } catch (e) {
-      notifyError(`Virhe poistettaessa toistuvaa kirjausta ${name}`, e);
+    } catch (err) {
+      notifyError(`Virhe poistettaessa toistuvaa kirjausta ${expenseName(e)}`, err);
     }
   }
 

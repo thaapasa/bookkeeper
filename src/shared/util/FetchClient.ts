@@ -1,5 +1,6 @@
 import { AuthenticationError, Error } from '../types/Errors';
-const debug = require('debug')('net:fetch-client');
+import debugSetup from 'debug';
+const debug = debugSetup('net:fetch-client');
 
 export type FetchType = () => (input: RequestInfo, init?: FixedRequestInit) => Promise<Response>;
 

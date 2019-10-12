@@ -7,3 +7,6 @@ export function isDbObject(e: any): e is DbObject {
 }
 
 export type Action = () => void;
+
+export type ReturnType<T> = T extends (...args: any[]) => infer R ? R : any;
+export type Timeout = ReturnType<typeof setTimeout>;

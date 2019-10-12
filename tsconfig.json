@@ -1,34 +1,33 @@
 {
   "compilerOptions": {
-    "baseUrl": "src",
-    "outDir": "build-server",
-    "module": "esnext",
     "target": "es5",
     "lib": [
       "dom",
-      "es2015",
-      "es2016"
+      "dom.iterable",
+      "esnext"
     ],
-    "sourceMap": true,
-    "strict": true,
-    "esModuleInterop": true,
     "allowJs": false,
-    "jsx": "react",
-    "moduleResolution": "node",
-    "rootDir": "src",
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
     "forceConsistentCasingInFileNames": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react",
+    "baseUrl": "src",
+    "outDir": "build-server",
+    "sourceMap": true,
+    "rootDir": "src",
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "noImplicitAny": true,
-    "noUnusedLocals": true,
-    "skipLibCheck": true,
-    "allowSyntheticDefaultImports": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true
+    "noUnusedLocals": true
   },
   "include": [
-    "**/*.ts",
-    "**/*.tsx"
+    "src"
   ]
 }

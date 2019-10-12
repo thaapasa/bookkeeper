@@ -7,7 +7,9 @@ import { Action } from '../shared/types/Common';
 import { unsubscribeAll } from './util/ClientUtil';
 import { windowSizeBus } from './data/State';
 import { Size } from './ui/Types';
-const debug = require('debug')('bookkeeper:app');
+import debugSetup from 'debug';
+
+const debug = debugSetup('bookkeeper:app');
 
 interface AppState {
   session: Session | null;

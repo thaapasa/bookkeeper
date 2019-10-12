@@ -3,7 +3,7 @@ import { flatten } from '../../shared/util/Arrays';
 import { Category, Source, User } from '../../shared/types/Session';
 import { validSessionE, userMapE, sourceMapE } from '../../client/data/Login';
 
-export interface CategoryData {
+export interface CategoryDataSource {
   value: number;
   text: string;
 }
@@ -18,7 +18,7 @@ export function getFullCategoryName(categoryId: number, categoryMap: Record<stri
   return categoryString;
 }
 
-function catToDataSource(arr: Category[], categoryMap: Record<string, Category>): CategoryData[] {
+function catToDataSource(arr: Category[], categoryMap: Record<string, Category>): CategoryDataSource[] {
   return arr ? flatten(arr
     .map(c => ([{ value: c.id, text: getFullCategoryName(c.id, categoryMap) }]
       .concat(catToDataSource(c.children, categoryMap))))) :
@@ -38,8 +38,8 @@ function toCategoryMap(arr: Category[]): Record<string, Category> {
   return map;
 }
 
-export const categoryMapE: B.EventStream<any, Record<string, Category>> = validSessionE.map(s => toCategoryMap(s.categories));
-export const categoryDataSourceP: B.Property<any, CategoryData[]> =
+export const categoryMapE: B.EventStream<Record<string, Category>> = validSessionE.map(s => toCategoryMap(s.categories));
+export const categoryDataSourceP: B.Property<CategoryDataSource[]> =
   B.combineWith((s, map) => catToDataSource(s.categories, map), validSessionE, categoryMapE);
 
 export function isSubcategoryOf(subId: number, parentId: number, categoryMap: Record<string, Category>): boolean {
@@ -53,7 +53,7 @@ export interface UserDataProps {
   categoryMap: Record<string, Category>;
 }
 
-export const userDataE = B.combineTemplate<any, UserDataProps>({
+export const userDataE = B.combineTemplate({
   userMap: userMapE,
   sourceMap: sourceMapE,
   categoryMap: categoryMapE,
