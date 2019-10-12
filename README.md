@@ -34,6 +34,9 @@ DB_SSL=false
 DEBUG=bookkeeper*
 ```
 
+Setup database schema by running `yarn migrate`.
+Add example data by running `yarn seed`.
+
 Start server by running `yarn watch-server`.
 
 The `DEBUG` switch (in `.env` or supplied as an environment variable) controls logging output.

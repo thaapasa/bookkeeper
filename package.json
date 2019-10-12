@@ -23,7 +23,8 @@
     "kill-server": "ps -ef | grep ./src/server/BookkeeperServer.ts | grep -v grep | awk '{ print $2; }' | xargs kill",
     "migrate": "knex migrate:latest",
     "migrate-make": "knex migrate:make",
-    "migrate-rollback": "knex migrate:rollback"
+    "migrate-rollback": "knex migrate:rollback",
+    "seed": "knex seed:run"
   },
   "repository": {
     "type": "git",
