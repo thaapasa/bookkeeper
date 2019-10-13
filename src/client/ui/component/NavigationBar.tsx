@@ -3,11 +3,10 @@ import styled from 'styled-components';
 import { ToolbarGroup } from 'material-ui/Toolbar';
 import { Toolbar } from 'material-ui';
 import { Route, Link } from 'react-router-dom';
-import FlatButton from 'material-ui/FlatButton';
 import DateRangeNavigator from './DateRangeNavigator';
-import { colorScheme } from '../Colors';
 import { AddExpenseIcon } from '../icons/AddExpenseIcon';
 import { media } from '../Styles';
+import { Button } from '@material-ui/core';
 
 export interface AppLink {
   label: string;
@@ -29,18 +28,6 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: 'center',
   },
   pad: { flex: 1 },
-};
-
-const linkStyle: React.CSSProperties = {
-  marginLeft: '10px',
-  minWidth: '140px',
-  color: colorScheme.primary.dark,
-  textTransform: 'uppercase',
-};
-
-const selectedLinkStyle: React.CSSProperties = {
-  ...linkStyle,
-  color: colorScheme.secondary.standard,
 };
 
 export default class NavigationBar extends React.Component<
@@ -76,17 +63,26 @@ export const StyledAddExpenseIcon = styled(AddExpenseIcon)`
   `}
 `;
 
+const StyledButton = styled(Button)`
+  margin-left: 10px;
+  width: 140px;
+`;
+
+const PlainLink = styled(Link)`
+  text-decoration: none;
+`;
+
 export function LinkButton({ label, to }: { label: string; to: string }) {
   return (
     /* eslint-disable react/no-children-prop */
     <Route
       path={to}
       children={({ match }) => (
-        <Link to={to}>
-          <FlatButton style={match ? selectedLinkStyle : linkStyle}>
+        <PlainLink to={to}>
+          <StyledButton variant="text" color={match ? 'primary' : 'default'}>
             {label}
-          </FlatButton>
-        </Link>
+          </StyledButton>
+        </PlainLink>
       )}
     />
   );

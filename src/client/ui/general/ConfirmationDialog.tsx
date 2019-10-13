@@ -1,10 +1,10 @@
 import * as React from 'react';
 import Dialog from 'material-ui/Dialog';
-import FlatButton from 'material-ui/FlatButton';
 import { ConfirmationObject } from '../../data/StateTypes';
 import { KeyCodes } from '../../util/Io';
 import { confirmationE } from '../../data/State';
 import { Action } from '../../../shared/types/Common';
+import { Button } from '@material-ui/core';
 
 interface ConfirmationDialogProps<T> {
   confirmation: ConfirmationObject<T>;
@@ -41,15 +41,15 @@ class ConfirmationDialog<T> extends React.Component<
 
   public render() {
     const actions = this.props.confirmation.actions.map((a, i) => (
-      <FlatButton
+      <Button
         key={i}
-        label={a.label}
-        primary={i === 0}
+        color={i === 0 ? 'primary' : 'default'}
         tabIndex={i + 2}
         onKeyUp={this.handleKeyPress}
-        // tslint:disable-next-line jsx-no-lambda
         onClick={() => this.resolveWith(a.value)}
-      />
+      >
+        {a.label}
+      </Button>
     ));
 
     return (
@@ -58,7 +58,6 @@ class ConfirmationDialog<T> extends React.Component<
         actions={actions}
         modal={false}
         open={true}
-        // tslint:disable-next-line jsx-no-lambda
         onRequestClose={() => this.resolveWithIfDefined(false)}
       >
         <div onKeyUp={this.handleKeyPress}>

@@ -34,6 +34,8 @@
   "license": "ISC",
   "homepage": "https://kukkaro.pomeranssi.fi",
   "dependencies": {
+    "@material-ui/core": "4.5.1",
+    "@types/material-ui": "0.21.7",
     "baconjs": "3.0.10",
     "big.js": "5.2.2",
     "body-parser": "1.19.0",
@@ -69,7 +71,6 @@
     "@types/dotenv": "6.1.1",
     "@types/express": "4.17.1",
     "@types/jest": "24.0.18",
-    "@types/material-ui": "0.21.5",
     "@types/node": "12.7.12",
     "@types/node-fetch": "2.5.2",
     "@types/react": "16.9.5",

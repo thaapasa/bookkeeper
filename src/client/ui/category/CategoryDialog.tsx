@@ -1,9 +1,9 @@
 import * as React from 'react';
 import Dialog from 'material-ui/Dialog';
-import FlatButton from 'material-ui/FlatButton';
 import TextField from 'material-ui/TextField';
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
+import { Button } from '@material-ui/core';
 import apiConnect from '../../data/ApiConnect';
 import { Category } from '../../../shared/types/Session';
 import { notify, notifyError } from '../../data/State';
@@ -138,25 +138,23 @@ export default class CategoryDialog extends React.Component<
 
   public render() {
     const actions = [
-      <FlatButton
-        key="cancel"
-        label="Peruuta"
-        primary={true}
-        onClick={this.cancel}
-      />,
-      <FlatButton
+      <Button key="cancel" variant="text" onClick={this.cancel}>
+        Peruuta
+      </Button>,
+      <Button
         key="save"
-        label="Tallenna"
-        primary={true}
+        variant="text"
+        color="primary"
         disabled={!this.state.valid}
-        keyboardFocused={true}
         onClick={this.requestSave}
-      />,
+      >
+        Tallenna
+      </Button>,
     ];
 
     return (
       <Dialog
-        contentClassName="category-dialog"
+        className="category-dialog"
         title={this.state.createNew ? 'Uusi kategoria' : 'Muokkaa kategoriaa'}
         actions={actions}
         modal={true}

@@ -2,7 +2,6 @@ import * as React from 'react';
 import * as B from 'baconjs';
 import styled from 'styled-components';
 import Dialog from 'material-ui/Dialog';
-import FlatButton from 'material-ui/FlatButton';
 import UserSelector from '../component/UserSelector';
 import Checkbox from 'material-ui/Checkbox';
 import UserAvatar from '../component/UserAvatar';
@@ -61,6 +60,7 @@ import {
 import { ExpenseDialogObject } from '../../data/StateTypes';
 import { omit } from '../../../shared/util/Objects';
 import debug from 'debug';
+import { Button } from '@material-ui/core';
 
 const log = debug('bookkeeper:expense-dialog');
 
@@ -446,23 +446,20 @@ export class ExpenseDialog extends React.Component<
     return this.props.onClose(null);
   };
 
-  // tslint:disable jsx-no-lambda
   public render() {
     const actions = [
-      <FlatButton
-        key="cancel"
-        label="Peruuta"
-        primary={true}
-        onClick={this.dismiss}
-      />,
-      <FlatButton
+      <Button key="cancel" variant="text" onClick={this.dismiss}>
+        Peruuta
+      </Button>,
+      <Button
         key="save"
-        label="Tallenna"
-        primary={true}
+        variant="text"
+        color="primary"
         disabled={!this.state.valid}
-        keyboardFocused={true}
         onClick={this.requestSave}
-      />,
+      >
+        Tallenna
+      </Button>,
     ];
 
     return (
