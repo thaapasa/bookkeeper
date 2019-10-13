@@ -65,6 +65,7 @@ const TextButton = styled.button`
   border: 0;
   font-size: 13px;
   outline: none;
+  background: none;
   &:hover {
     text-decoration: underline;
   }
@@ -93,7 +94,6 @@ interface ExpenseRowState {
   isLoading: boolean;
 }
 
-// tslint:disable jsx-no-lambda
 export class ExpenseRow extends React.Component<
   ExpenseRowProps,
   ExpenseRowState

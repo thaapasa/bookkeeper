@@ -1,11 +1,11 @@
-import { db } from './Db';
-import Money from '../../shared/util/Money';
-import { NotFoundError, InvalidInputError } from '../../shared/types/Errors';
-import { Category, CategoryAndTotals } from '../../shared/types/Session';
-import { partition, toMap } from '../../shared/util/Arrays';
+import debug from 'debug';
 import { IBaseProtocol } from 'pg-promise';
 import { ApiMessage } from '../../shared/types/Api';
-import debug from 'debug';
+import { InvalidInputError, NotFoundError } from '../../shared/types/Errors';
+import { Category, CategoryAndTotals } from '../../shared/types/Session';
+import { partition, toMap } from '../../shared/util/Arrays';
+import Money from '../../shared/util/Money';
+import { db } from './Db';
 
 const log = debug('bookkeeper:categories');
 

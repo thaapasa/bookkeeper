@@ -25,6 +25,7 @@ import Money, { MoneyLike } from '../../../shared/util/Money';
 interface CategoryRowProps {
   category: Category;
   header: boolean;
+  title?: string;
   createCategory: (p?: Category) => void;
   editCategory: (p: Category) => void;
   categoryTotals: Record<string, CategoryAndTotals>;
@@ -133,9 +134,7 @@ export default class CategoryRow extends React.Component<
     const category = this.props.category;
     const header = this.props.header;
     const totals = this.props.categoryTotals['' + category.id];
-    const className = this.props.category.parentId
-      ? 'sub-category'
-      : 'main-category';
+    const className = header ? 'main-category' : 'sub-category';
     const income = totals
       ? header
         ? totals.totalIncome
@@ -149,7 +148,7 @@ export default class CategoryRow extends React.Component<
     return (
       <React.Fragment>
         <Row className={className}>
-          <NameColumn>{category.name}</NameColumn>
+          <NameColumn>{this.props.title || category.name}</NameColumn>
           <SumColumn className={colors.classNameForMoney(income)}>
             {formatMoney(income)}
           </SumColumn>

@@ -1,12 +1,21 @@
-import * as React from 'react';
-import Dialog from 'material-ui/Dialog';
-import SelectField from 'material-ui/SelectField';
-import MenuItem from 'material-ui/MenuItem';
-import { Button, TextField } from '@material-ui/core';
-import apiConnect from '../../data/ApiConnect';
-import { Category } from '../../../shared/types/Session';
-import { notify, notifyError } from '../../data/State';
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+} from '@material-ui/core';
 import debug from 'debug';
+import * as React from 'react';
+import styled from 'styled-components';
+import { Category } from '../../../shared/types/Session';
+import apiConnect from '../../data/ApiConnect';
+import { notify, notifyError } from '../../data/State';
 
 const log = debug('bookkeeper:category-dialog');
 
@@ -18,7 +27,7 @@ interface CategoryDialogProps {
   categories: Category[];
 }
 
-type CategoryResolve = (c: number | null) => void;
+type CategoryResolve = (c: number | null | PromiseLike<number | null>) => void;
 
 interface CategoryDialogState {
   open: boolean;
@@ -30,9 +39,20 @@ interface CategoryDialogState {
   valid: boolean;
 }
 
+const Form = styled.form`
+  position: relative;
+  z-index: 1;
+`;
+
+const DialogControl = styled(FormControl)`
+  width: 100%;
+  margin: 8px 0 !important;
+  box-sizing: border-box;
+`;
+
 export default class CategoryDialog extends React.Component<
   CategoryDialogProps,
-  any
+  CategoryDialogState
 > {
   public state: CategoryDialogState = {
     open: false,
@@ -52,7 +72,7 @@ export default class CategoryDialog extends React.Component<
       parentId: parent ? parent.id : 0,
       createNew: true,
       id: 0,
-      valid: true,
+      valid: false,
     });
   };
 
@@ -68,7 +88,7 @@ export default class CategoryDialog extends React.Component<
     });
   };
 
-  private getCategories(): Category[] {
+  get categories(): Category[] {
     return defaultCategory.concat(this.props.categories);
   }
 
@@ -76,7 +96,7 @@ export default class CategoryDialog extends React.Component<
     s: Partial<CategoryDialogState>
   ): Promise<number | null> {
     return new Promise<number | null>(resolve => {
-      this.setState({ ...s, resolve });
+      this.setState({ ...s, resolve } as any);
     });
   }
 
@@ -129,63 +149,72 @@ export default class CategoryDialog extends React.Component<
 
   private updateName = (event: React.ChangeEvent<HTMLInputElement>) => {
     const name = event.target.value;
-    this.setState({ name, valid: name && name.length > 0 });
+    this.setState({ name, valid: (name && name.length > 0) || false });
   };
 
-  private changeCategory = (i: any, j: any, v: number) => {
-    this.setState({ parentId: v });
+  private changeCategory = (
+    e: React.ChangeEvent<{ name?: string; value: unknown }>
+  ) => {
+    this.setState({ parentId: Number(e.target.value) });
   };
 
   public render() {
-    const actions = [
-      <Button key="cancel" variant="text" onClick={this.cancel}>
-        Peruuta
-      </Button>,
-      <Button
-        key="save"
-        variant="text"
-        color="primary"
-        disabled={!this.state.valid}
-        onClick={this.requestSave}
-      >
-        Tallenna
-      </Button>,
-    ];
-
     return (
       <Dialog
         className="category-dialog"
-        title={this.state.createNew ? 'Uusi kategoria' : 'Muokkaa kategoriaa'}
-        actions={actions}
-        modal={true}
-        autoDetectWindowHeight={true}
-        autoScrollBodyContent={true}
+        fullWidth={true}
         open={this.state.open}
-        onRequestClose={this.cancel}
+        onClose={this.cancel}
       >
-        <form onSubmit={this.requestSave}>
-          <TextField
-            key="name"
-            placeholder="Nimi"
-            label="Nimi"
-            InputLabelProps={{ shrink: true }}
-            fullWidth={true}
-            value={this.state.name}
-            onChange={this.updateName}
-          />
-          <SelectField
-            key="category"
-            value={this.state.parentId}
-            floatingLabelText="Yläkategoria"
-            floatingLabelFixed={true}
-            style={{ width: '100%' }}
-            onChange={this.changeCategory}
+        <DialogTitle>
+          {this.state.createNew ? 'Uusi kategoria' : 'Muokkaa kategoriaa'}
+        </DialogTitle>
+        <DialogContent>
+          <Form onSubmit={this.requestSave}>
+            <DialogControl>
+              <TextField
+                key="name"
+                placeholder="Nimi"
+                label="Nimi"
+                InputLabelProps={{ shrink: true }}
+                fullWidth={true}
+                value={this.state.name}
+                onChange={this.updateName}
+              />
+            </DialogControl>
+            <DialogControl>
+              <InputLabel htmlFor="category-dialog-parentId">
+                Yläkategoria
+              </InputLabel>
+              <Select
+                key="category"
+                inputProps={{ id: 'category-dialog-parentId' }}
+                value={this.state.parentId}
+                fullWidth={true}
+                onChange={this.changeCategory}
+              >
+                {this.categories.map(c => (
+                  <MenuItem key={c.id} value={c.id}>
+                    {c.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </DialogControl>
+          </Form>
+        </DialogContent>
+        <DialogActions>
+          <Button variant="text" onClick={this.cancel}>
+            Peruuta
+          </Button>
+          <Button
+            variant="text"
+            color="primary"
+            disabled={!this.state.valid}
+            onClick={this.requestSave}
           >
-            {this.getCategories().map(c => (
-              <MenuItem key={c.id} value={c.id} primaryText={c.name} />
-            ))}
-          </SelectField>
-        </form>
+            Tallenna
+          </Button>
+        </DialogActions>
       </Dialog>
     );
   }

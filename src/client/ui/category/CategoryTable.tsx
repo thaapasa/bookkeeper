@@ -63,10 +63,9 @@ export class CategoryTable extends React.Component<CategoryViewProps, {}> {
         />
         <CategoryRow
           {...this.props}
+          title="Pääkategorian kirjaukset"
           category={{
             ...c,
-            name: 'Pääkategorian kirjaukset',
-            parentId: c.id,
             children: [],
           }}
           header={false}
