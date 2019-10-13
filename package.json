@@ -8,7 +8,7 @@
     "create-dev-db": "docker run -p 15488:5432 --name bookkeeper-db -d postgres:9.6.15",
     "watch-client": "react-scripts start",
     "watch-server": "yarn update-revision && yarn migrate && nodemon",
-    "test-client": "jest --runInBand",
+    "test-client": "react-scripts test",
     "test": "yarn test-client",
     "build-client": "react-scripts build",
     "build-server": "tsc",
@@ -95,20 +95,6 @@
   },
   "proxy": "http://localhost:3100",
   "description": "Kukkaro - a web tool for tracking your income and expenses.",
-  "jest": {
-    "transform": {
-      "^.+\\.tsx?$": "ts-jest"
-    },
-    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(tsx?)$",
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "jsx",
-      "json",
-      "node"
-    ]
-  },
   "browserslist": {
     "production": [
       ">0.2%",
