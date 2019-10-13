@@ -1,9 +1,8 @@
 import * as React from 'react';
 import Dialog from 'material-ui/Dialog';
-import TextField from 'material-ui/TextField';
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
-import { Button } from '@material-ui/core';
+import { Button, TextField } from '@material-ui/core';
 import apiConnect from '../../data/ApiConnect';
 import { Category } from '../../../shared/types/Session';
 import { notify, notifyError } from '../../data/State';
@@ -128,7 +127,8 @@ export default class CategoryDialog extends React.Component<
     this.closeDialog(null);
   };
 
-  private updateName = (_: any, name: string) => {
+  private updateName = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const name = event.target.value;
     this.setState({ name, valid: name && name.length > 0 });
   };
 
@@ -166,9 +166,9 @@ export default class CategoryDialog extends React.Component<
         <form onSubmit={this.requestSave}>
           <TextField
             key="name"
-            hintText="Nimi"
-            floatingLabelText="Nimi"
-            floatingLabelFixed={true}
+            placeholder="Nimi"
+            label="Nimi"
+            InputLabelProps={{ shrink: true }}
             fullWidth={true}
             value={this.state.name}
             onChange={this.updateName}

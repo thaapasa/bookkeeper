@@ -3,7 +3,6 @@ import * as Bacon from 'baconjs';
 import DatePicker from 'material-ui/DatePicker';
 import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
-import TextField from 'material-ui/TextField';
 import AutoComplete from 'material-ui/AutoComplete';
 import { ExpenseTypeIcon } from '../Icons';
 import apiConnect from '../../data/ApiConnect';
@@ -18,6 +17,7 @@ import {
 import { toMoment } from '../../../shared/util/Time';
 import { IconButton } from 'material-ui';
 import { VCenterRow } from '../Styles';
+import { TextField } from '@material-ui/core';
 
 const styles = {
   category: { width: '50%' },
@@ -31,12 +31,13 @@ export function SumField(props: {
 }) {
   return (
     <TextField
-      hintText="0.00"
-      floatingLabelText="Summa"
-      floatingLabelFixed={true}
+      placeholder="0.00"
+      label="Summa"
+      InputLabelProps={{ shrink: true }}
       value={props.value}
-      errorText={props.errorText}
-      onChange={(i, e) => props.onChange(e)}
+      helperText={props.errorText}
+      error={Boolean(props.errorText)}
+      onChange={e => props.onChange(e.target.value)}
     />
   );
 }
@@ -267,14 +268,15 @@ export function DescriptionField(props: {
 }) {
   return (
     <TextField
-      multiLine={true}
-      hintText="Tarkempi selite"
-      floatingLabelText="Selite"
-      floatingLabelFixed={true}
+      multiline={true}
+      placeholder="Tarkempi selite"
+      label="Selite"
+      InputLabelProps={{ shrink: true }}
       fullWidth={true}
-      errorText={props.errorText}
+      helperText={props.errorText}
+      error={Boolean(props.errorText)}
       value={props.value}
-      onChange={(i, e) => props.onChange(e)}
+      onChange={e => props.onChange(e.target.value)}
     />
   );
 }
