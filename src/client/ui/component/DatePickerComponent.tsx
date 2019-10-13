@@ -5,8 +5,8 @@ import { Action } from '../../../shared/types/Common';
 import { pickDateE } from '../../data/State';
 import { unsubscribeAll } from '../../util/ClientUtil';
 import { toMoment } from '../../../shared/util/Time';
-import debugSetup from 'debug';
-const debug = debugSetup('bookkeeper:date-picker');
+import debug from 'debug';
+const log = debug('bookkeeper:date-picker');
 
 interface DatePickerProps {
   pick: PickDateObject;
@@ -33,11 +33,11 @@ class DatePickerComponent extends React.Component<DatePickerProps, {}> {
   };
 
   private onChange = (_: any, d: Date) => {
-    debug('Selecting date', d);
+    log('Selecting date', d);
     this.props.pick.resolve(d);
   };
   private onDismiss = () => {
-    debug('Dismissing date picker');
+    log('Dismissing date picker');
     this.props.pick.resolve(undefined);
   };
   private formatDate = (d: Date) => toMoment(d).format('D.M.YYYY');

@@ -1,8 +1,8 @@
 import Money from '../../shared/util/Money';
 import { Error } from '../../shared/types/Errors';
-import debugSetup from 'debug';
+import debug from 'debug';
 
-const debug = debugSetup('bookkeeper:validator');
+const log = debug('bookkeeper:validator');
 
 class InvalidInputError<T> extends Error {
   constructor(field: string, input: T, requirement: string) {
@@ -49,14 +49,14 @@ export class Validator {
     prefix?: string
   ): T {
     const result = {};
-    debug('Validating', object);
+    log('Validating', object);
     Object.keys(schema).forEach(field => {
       const validator = (schema as any)[field];
       const fieldName = fieldPath(prefix, field);
-      debug('Validating', fieldName);
+      log('Validating', fieldName);
       (result as any)[field] = validator(object[field], fieldName);
     });
-    debug('Validated input to', result);
+    log('Validated input to', result);
     return result as T;
   }
 
@@ -161,14 +161,7 @@ export class Validator {
         );
       }
       return i.map((item: any) => {
-        debug(
-          'Validating sub-object',
-          item,
-          'of',
-          field,
-          'with schema',
-          schema
-        );
+        log('Validating sub-object', item, 'of', field, 'with schema', schema);
         return Validator.validate(schema, item, field);
       });
     };

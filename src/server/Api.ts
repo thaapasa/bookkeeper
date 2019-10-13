@@ -30,12 +30,12 @@ import {
   Source,
 } from '../shared/types/Session';
 import { toMoment } from '../shared/util/Time';
-import debugSetup from 'debug';
+import debug from 'debug';
 
-const debug = debugSetup('bookkeeper:api');
+const log = debug('bookkeeper:api');
 
 export function registerAPI(app: Express) {
-  debug('Registering API');
+  log('Registering API');
 
   // GET /api/status
   app.get(

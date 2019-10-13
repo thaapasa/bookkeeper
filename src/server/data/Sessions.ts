@@ -8,10 +8,10 @@ import { Session, SessionBasicInfo } from '../../shared/types/Session';
 import { AuthenticationError } from '../../shared/types/Errors';
 import { ApiMessage } from '../../shared/types/Api';
 import { IBaseProtocol } from 'pg-promise';
-import debugSetup from 'debug';
+import debug from 'debug';
 import crypto from 'crypto';
 
-const debug = debugSetup('bookkeeper:api:sessions');
+const log = debug('bookkeeper:api:sessions');
 
 const randomBytes = promisify(crypto.randomBytes);
 
@@ -39,7 +39,7 @@ function purgeExpiredSessions(tx: IBaseProtocol<any>) {
 function createSession(tx: IBaseProtocol<any>) {
   return async (user: RawUserData): Promise<string[]> => {
     const tokens = await Promise.all([createToken(), createToken()]);
-    debug('User', user.email, 'logged in with token', tokens[0]);
+    log('User', user.email, 'logged in with token', tokens[0]);
     await tx.none(
       `
 INSERT INTO sessions (token, refresh_token, user_id, login_time, expiry_time)
@@ -105,7 +105,7 @@ function login(
   password: string,
   groupId: number
 ): Promise<Session> {
-  debug('Login for', username);
+  log('Login for', username);
   return db.tx(async tx => {
     const user = await users.tx.getByCredentials(tx)(
       username,
@@ -141,7 +141,7 @@ function getUserInfoByRefreshToken(tx: IBaseProtocol<any>) {
   };
 }
 function refresh(refreshToken: string, groupId: number): Promise<Session> {
-  debug('Refreshing session with', refreshToken);
+  log('Refreshing session with', refreshToken);
   return db.tx(async tx => {
     const user = await getUserInfoByRefreshToken(tx)(refreshToken, groupId);
     const tokens = await createSession(tx)(user);
@@ -152,7 +152,7 @@ function refresh(refreshToken: string, groupId: number): Promise<Session> {
 
 function logout(tx: IBaseProtocol<any>) {
   return async (session: SessionBasicInfo): Promise<ApiMessage> => {
-    debug('Logout for', session.token);
+    log('Logout for', session.token);
     if (!session.token) {
       throw new AuthenticationError(
         'INVALID_TOKEN',

@@ -7,9 +7,9 @@ import MenuItem from 'material-ui/MenuItem';
 import apiConnect from '../../data/ApiConnect';
 import { Category } from '../../../shared/types/Session';
 import { notify, notifyError } from '../../data/State';
-import debugSetup from 'debug';
+import debug from 'debug';
 
-const debug = debugSetup('bookkeeper:category-dialog');
+const log = debug('bookkeeper:category-dialog');
 
 const defaultCategory: Category[] = [
   { id: 0, name: '[Ei yläkategoriaa]', children: [], parentId: null },
@@ -46,7 +46,7 @@ export default class CategoryDialog extends React.Component<
   };
 
   public createCategory = (parent?: Category): Promise<number | null> => {
-    debug('Create category under', parent);
+    log('Create category under', parent);
     return this.startEditing({
       open: true,
       name: '',
@@ -58,7 +58,7 @@ export default class CategoryDialog extends React.Component<
   };
 
   public editCategory = (category: Category): Promise<number | null> => {
-    debug('Edit category', category);
+    log('Edit category', category);
     return this.startEditing({
       open: true,
       name: category.name,
@@ -82,7 +82,7 @@ export default class CategoryDialog extends React.Component<
   }
 
   private closeDialog = (id: number | null) => {
-    debug('Closing dialog, resolving to', id);
+    log('Closing dialog, resolving to', id);
     this.setState({ open: false });
     if (this.state.resolve) {
       this.state.resolve(id);
@@ -105,7 +105,7 @@ export default class CategoryDialog extends React.Component<
       parentId: s.parentId,
       children: [],
     };
-    debug('Save category data', data);
+    log('Save category data', data);
     try {
       const id = createNew
         ? (await apiConnect.storeCategory(data)).categoryId || 0

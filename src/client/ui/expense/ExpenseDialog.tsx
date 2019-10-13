@@ -60,9 +60,9 @@ import {
 } from '../../../shared/util/Arrays';
 import { ExpenseDialogObject } from '../../data/StateTypes';
 import { omit } from '../../../shared/util/Objects';
-import debugSetup from 'debug';
+import debug from 'debug';
 
-const debug = debugSetup('bookkeeper:expense-dialog');
+const log = debug('bookkeeper:expense-dialog');
 
 type CategoryInfo = Pick<Category, 'name' | 'id'>;
 
@@ -205,13 +205,13 @@ export class ExpenseDialog extends React.Component<
     const benefitUserIds = benefit.map(b => b.userId);
     if (sortAndCompareElements(sourceUserIds, benefitUserIds)) {
       // Create cost based on benefit calculation
-      debug(
+      log(
         'Source has same users than who benefit; creating benefit based on cost'
       );
       return negateDivision(benefit);
     } else {
       // Calculate cost manually
-      debug('Calculating cost by source users');
+      log('Calculating cost by source users');
       return negateDivision(splitByShares(sum, sourceUsers));
     }
   }
@@ -333,13 +333,13 @@ export class ExpenseDialog extends React.Component<
 
   private pushExpenseToInputStreams(expense: UserExpenseWithDetails | null) {
     const newState = this.getDefaultState(expense);
-    debug('Start editing', newState);
+    log('Start editing', newState);
     fields.map(k => this.inputStreams[k].push(newState[k]));
   }
 
   public componentWillReceiveProps(nextProps: ExpenseDialogProps) {
     if (this.props.expenseCounter !== nextProps.expenseCounter) {
-      debug('Settings props for', nextProps.original);
+      log('Settings props for', nextProps.original);
       this.pushExpenseToInputStreams(nextProps.original);
     }
   }
@@ -352,7 +352,7 @@ export class ExpenseDialog extends React.Component<
 
   private saveExpense = async (expense: ExpenseInEditor) => {
     const createNew = !this.props.original;
-    debug(createNew ? 'Create new expense' : 'save expense', expense);
+    log(createNew ? 'Create new expense' : 'save expense', expense);
     const sum = Money.from(expense.sum);
     const division = this.calculateDivision(expense, sum);
     const data: ExpenseData = {
@@ -639,7 +639,7 @@ export default class ExpenseDialogListener extends React.Component<
   private handleOpen = async (data: ExpenseDialogObject) => {
     expenseCounter += 1;
     if (data.expenseId) {
-      debug('Edit expense', data.expenseId);
+      log('Edit expense', data.expenseId);
       this.setState({ open: false, original: null });
       const original = await apiConnect.getExpense(data.expenseId);
       this.setState({
@@ -649,7 +649,7 @@ export default class ExpenseDialogListener extends React.Component<
         expenseCounter,
       });
     } else {
-      debug('Create new expense');
+      log('Create new expense');
       this.setState({
         open: true,
         original: null,
@@ -660,7 +660,7 @@ export default class ExpenseDialogListener extends React.Component<
   };
 
   private closeDialog = (e: ExpenseInEditor | null) => {
-    debug('Closing dialog');
+    log('Closing dialog');
     this.state.resolve(e);
     this.setState({ open: false, original: null });
     return false;

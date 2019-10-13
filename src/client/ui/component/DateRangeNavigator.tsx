@@ -10,8 +10,8 @@ import { KeyCodes } from '../../util/Io';
 import { navigationP } from '../../data/State';
 import { connect } from './BaconConnect';
 import { withRouter, RouteComponentProps } from 'react-router';
-import debugSetup from 'debug';
-const debug = debugSetup('bookkeeper:navigator');
+import debug from 'debug';
+const log = debug('bookkeeper:navigator');
 
 export interface DateRangeNavigatorProps
   extends NavigationConfig,
@@ -35,7 +35,7 @@ export class DateRangeNavigator extends React.Component<
               .add(offset, 'year')
           );
     const link = this.props.pathPrefix + rangeSuffix;
-    debug('Navigating to', link);
+    log('Navigating to', link);
     this.props.history.push(link);
   };
 

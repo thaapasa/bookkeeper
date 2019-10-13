@@ -8,8 +8,8 @@ import { History } from 'history';
 import { needUpdateE, navigationBus } from '../../data/State';
 import { toMoment, isSameMonth, monthRange } from '../../../shared/util/Time';
 import { expensesForMonthPath, expensePagePath } from '../../util/Links';
-import debugSetup from 'debug';
-const debug = debugSetup('bookkeeper:month-view');
+import debug from 'debug';
+const log = debug('bookkeeper:month-view');
 
 interface MonthViewProps {
   date: Date;
@@ -72,18 +72,18 @@ export default class MonthView extends React.PureComponent<
       m.get('year'),
       m.get('month') + 1
     );
-    debug('Expenses for', date, expenses);
+    log('Expenses for', date, expenses);
     this.setState({ loading: false, ...expenses });
   }
 
   private refreshExpensesFor = (date: Date) => {
-    debug('Expenses updated, refreshing for date', date);
+    log('Expenses updated, refreshing for date', date);
     if (isSameMonth(date, this.props.date)) {
-      debug('Reloading expenses for this month');
+      log('Reloading expenses for this month');
       this.loadExpenses(date);
     } else {
       const path = expensesForMonthPath(date);
-      debug('Navigating to', path);
+      log('Navigating to', path);
       this.props.history.push(path);
     }
   };

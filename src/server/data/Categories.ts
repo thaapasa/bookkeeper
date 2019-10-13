@@ -5,9 +5,9 @@ import { Category, CategoryAndTotals } from '../../shared/types/Session';
 import { partition, toMap } from '../../shared/util/Arrays';
 import { IBaseProtocol } from 'pg-promise';
 import { ApiMessage } from '../../shared/types/Api';
-import debugSetup from 'debug';
+import debug from 'debug';
 
-const debug = debugSetup('bookkeeper:categories');
+const log = debug('bookkeeper:categories');
 
 function createCategoryObject<T extends Category>(categories: T[]): T[] {
   const [parents, subs] = partition(i => i.parentId === null, categories);
@@ -21,7 +21,7 @@ function sumChildTotalsToParent(
   categoryTable: CategoryAndTotals[]
 ): CategoryAndTotals[] {
   categoryTable.forEach(c => {
-    debug('Summing childs of', c.id);
+    log('Summing childs of', c.id);
     if (c.parentId === null) {
       let expenseSum = Money.from(c.expenses);
       let incomeSum = Money.from(c.income);
@@ -86,7 +86,7 @@ export interface CategoryInput {
 
 function insert(tx: IBaseProtocol<any>) {
   return async (groupId: number, data: CategoryInput): Promise<number> => {
-    debug('Creating new category', data);
+    log('Creating new category', data);
     return (await tx.one<{ id: number }>(
       `
 INSERT INTO categories (group_id, parent_id, name)
@@ -120,7 +120,7 @@ function create(tx: IBaseProtocol<any>) {
       return insert(tx)(groupId, data);
     }
     const parent = await getById(tx)(groupId, data.parentId);
-    debug('Parent is', parent);
+    log('Parent is', parent);
     if (!parent) {
       throw new NotFoundError('CATEGORY_NOT_FOUND', 'category');
     }

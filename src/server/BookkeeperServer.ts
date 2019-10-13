@@ -6,8 +6,8 @@ import * as bodyParser from 'body-parser';
 import { config } from './Config';
 import * as api from './Api';
 import * as path from 'path';
-import debugSetup from 'debug';
-const debug = debugSetup('bookkeeper:server');
+import debug from 'debug';
+const log = debug('bookkeeper:server');
 
 const curDir = process.cwd();
 const app = express();
@@ -23,8 +23,8 @@ app.get(/\/p\/.*/, (_, res) =>
 
 try {
   app.listen(config.port, () => {
-    debug('Kukkaro server started with configuration', config);
+    log('Kukkaro server started with configuration', config);
   });
 } catch (er) {
-  debug('Error in server:', er);
+  log('Error in server:', er);
 }

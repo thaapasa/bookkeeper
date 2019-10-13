@@ -1,6 +1,6 @@
 import { AuthenticationError, Error } from '../types/Errors';
-import debugSetup from 'debug';
-const debug = debugSetup('net:fetch-client');
+import debug from 'debug';
+const log = debug('net:fetch-client');
 
 export type FetchType = () => (
   input: RequestInfo,
@@ -45,14 +45,14 @@ export class FetchClient {
   ): Promise<T> {
     try {
       const queryPath = this.toQuery(path, query);
-      debug(`${method} ${queryPath}`, 'with body', body);
+      log(`${method} ${queryPath}`, 'with body', body);
       const options = {
         method,
         body: body ? JSON.stringify(body) : undefined,
         headers,
       };
       const res = await this.fetch()(queryPath, options);
-      debug(`${method} ${queryPath}`, 'result', res.status);
+      log(`${method} ${queryPath}`, 'result', res.status);
       switch (res.status) {
         case 200:
           return (await res.json()) as T;
@@ -70,7 +70,7 @@ export class FetchClient {
           );
       }
     } catch (e) {
-      debug('Error in fetch client:', e);
+      log('Error in fetch client:', e);
       throw e;
     }
   }
@@ -93,7 +93,7 @@ export class FetchClient {
     query?: Record<string, any>,
     headers?: Record<string, string>
   ): Promise<T> {
-    debug('put put');
+    log('put put');
     return this.req(path, {
       method: 'PUT',
       body,

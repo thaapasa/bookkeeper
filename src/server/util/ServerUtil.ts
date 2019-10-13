@@ -8,9 +8,9 @@ import {
   InvalidGroupError,
 } from '../../shared/types/Errors';
 import { toMoment, timeout } from '../../shared/util/Time';
-import debugSetup from 'debug';
+import debug from 'debug';
 
-const debug = debugSetup('bookkeeper:server');
+const log = debug('bookkeeper:server');
 
 const requestDelayMs = process.env.DELAY
   ? parseInt(process.env.DELAY, 10)
@@ -51,7 +51,7 @@ export function getToken(req: Request): string {
 
 function handleError(res: Response) {
   return (e: any) => {
-    debug('Error', e);
+    log('Error', e);
     const data: ErrorInfo = {
       type: 'error',
       code: e.code ? e.code : 'INTERNAL_ERROR',
@@ -71,7 +71,7 @@ export function processUnauthorizedRequest(
   handler: (req: Request, res: Response) => Promise<any>
 ) {
   return async (req: Request, res: Response): Promise<void> => {
-    debug(req.method, req.url);
+    log(req.method, req.url);
     try {
       const r = await handler(req, res);
       await setNoCacheHeaders(res).json(r);
@@ -90,7 +90,7 @@ export function processRequest<T>(
   groupRequired?: boolean
 ) {
   return async (req: Request, res: Response) => {
-    debug(req.method, req.url);
+    log(req.method, req.url);
     try {
       const token = getToken(req);
       const session = await sessions.tx.getSession(db)(

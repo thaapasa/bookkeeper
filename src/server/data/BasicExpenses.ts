@@ -17,9 +17,9 @@ import {
   ExpenseStatus,
 } from '../../shared/types/Expense';
 import { ApiMessage } from '../../shared/types/Api';
-import debugSetup from 'debug';
+import debug from 'debug';
 
-const debug = debugSetup('bookkeeper:api:expenses');
+const log = debug('bookkeeper:api:expenses');
 
 function expenseSelect(where: string): string {
   return `
@@ -252,7 +252,7 @@ function createExpense(
 ): Promise<ApiMessage> {
   return db.tx(async tx => {
     expense = setDefaults(expense);
-    debug('Creating expense', expense);
+    log('Creating expense', expense);
     const sourceId = expense.sourceId || defaultSourceId;
     const [cat, user, source] = await Promise.all([
       categories.tx.getById(tx)(groupId, expense.categoryId),
@@ -284,7 +284,7 @@ function updateExpense(tx: IBaseProtocol<any>) {
     defaultSourceId: number
   ): Promise<ApiMessage> => {
     expense = setDefaults(expense);
-    debug('Updating expense', original, 'to', expense);
+    log('Updating expense', original, 'to', expense);
     const sourceId = expense.sourceId || defaultSourceId;
     const [cat, source] = await Promise.all([
       categories.tx.getById(tx)(original.groupId, expense.categoryId),
@@ -334,7 +334,7 @@ interface ReceiverInfo {
 
 function queryReceivers(tx: IBaseProtocol<any>) {
   return async (groupId: number, receiver: string): Promise<ReceiverInfo[]> => {
-    debug('Receivers', groupId, receiver);
+    log('Receivers', groupId, receiver);
     return tx.manyOrNone<ReceiverInfo>(
       `
 SELECT

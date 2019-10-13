@@ -6,8 +6,8 @@ import { CategoryHeader } from './CategoryTableLayout';
 import { TypedDateRange } from '../../../shared/util/Time';
 import { Action } from '../../../shared/types/Common';
 import { UserDataProps } from '../../data/Categories';
-import debugSetup from 'debug';
-const debug = debugSetup('bookkeeper:category-view');
+import debug from 'debug';
+const log = debug('bookkeeper:category-view');
 
 interface CategoryViewProps {
   categories: Category[];
@@ -25,7 +25,7 @@ export class CategoryTable extends React.Component<CategoryViewProps, {}> {
       return;
     }
     const c = await this.categoryDialog.createCategory(parent);
-    debug('Created new category', c);
+    log('Created new category', c);
     this.props.onCategoriesChanged();
   };
 
@@ -34,7 +34,7 @@ export class CategoryTable extends React.Component<CategoryViewProps, {}> {
       return;
     }
     const c = await this.categoryDialog.editCategory(category);
-    debug('Modified category', c);
+    log('Modified category', c);
     this.props.onCategoriesChanged();
   };
 

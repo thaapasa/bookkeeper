@@ -23,9 +23,9 @@ import { determineDivision } from './ExpenseDivision';
 import { flatten } from '../../shared/util/Arrays';
 import { IBaseProtocol } from 'pg-promise';
 import { camelCaseObject } from '../../shared/util/Util';
-import debugSetup from 'debug';
+import debug from 'debug';
 
-const debug = debugSetup('bookkeeper:api:recurring-expenses');
+const log = debug('bookkeeper:api:recurring-expenses');
 
 export function nextRecurrence(
   from: string | Moment,
@@ -54,7 +54,7 @@ function createRecurring(
 ) {
   return db.tx(
     async (tx: IBaseProtocol<any>): Promise<ApiMessage> => {
-      debug('Create', recurrence.period, 'recurring expense from', expenseId);
+      log('Create', recurrence.period, 'recurring expense from', expenseId);
       let nextMissing: Moment | null = null;
       const templateId = await expenses.tx.copyExpense(tx)(
         groupId,
@@ -121,8 +121,8 @@ function createMissingRecurrenceForDate(
   return (date: string): Promise<number> => {
     const [exp, division] = e;
     const expense = { ...exp, template: false, date };
-    debug('Creating missing expense', expense.title, expense.date);
-    // debug('Creating missing expense', expense, 'with division', division);
+    log('Creating missing expense', expense.title, expense.date);
+    // log('Creating missing expense', expense, 'with division', division);
     return expenses.tx.insert(tx)(expense.userId, expense, division);
   };
 }
@@ -144,7 +144,7 @@ function createMissingRecurrences(
     }
     const lastDate = dates[dates.length - 1];
     const nextMissing = nextRecurrence(lastDate, recurrence.period);
-    debug(
+    log(
       'Creating missing expenses for',
       recurrence,
       dates,
@@ -171,7 +171,7 @@ WHERE id=$/recurringExpenseId/`,
 }
 
 function createMissing(tx: IBaseProtocol<any>) {
-  debug('Checking for missing expenses');
+  log('Checking for missing expenses');
   return async (groupId: number, userId: number, date: Moment) => {
     const list = await tx.map<Recurrence>(
       `
@@ -240,7 +240,7 @@ async function deleteRecurringById(
   target: RecurringExpenseTarget
 ): Promise<ApiMessage> {
   return db.tx(async tx => {
-    debug('Deleting recurring expense', expenseId, '- targeting', target);
+    log('Deleting recurring expense', expenseId, '- targeting', target);
     if (target === 'single') {
       return expenses.deleteById(groupId, expenseId);
     }
@@ -322,7 +322,7 @@ async function updateRecurringExpense(
     throw new InvalidExpense(`Invalid target ${target}`);
   }
   expense = setDefaults(expense);
-  debug('Updating recurring expense', original, 'to', expense);
+  log('Updating recurring expense', original, 'to', expense);
   const sourceId = expense.sourceId || defaultSourceId;
   const [cat, source] = await Promise.all([
     categories.tx.getById(tx)(original.groupId, expense.categoryId),
@@ -386,7 +386,7 @@ async function updateRecurring(
   defaultSourceId: number
 ): Promise<ApiMessage> {
   return db.tx(async tx => {
-    debug('Updating recurring expense', expenseId, '- targeting', target);
+    log('Updating recurring expense', expenseId, '- targeting', target);
     const org = await expenses.tx.getById(tx)(groupId, userId, expenseId);
     if (!org.recurringExpenseId) {
       throw new InvalidExpense('Not a recurring expense');

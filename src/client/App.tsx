@@ -7,9 +7,9 @@ import { Action } from '../shared/types/Common';
 import { unsubscribeAll } from './util/ClientUtil';
 import { windowSizeBus } from './data/State';
 import { Size } from './ui/Types';
-import debugSetup from 'debug';
+import debug from 'debug';
 
-const debug = debugSetup('bookkeeper:app');
+const log = debug('bookkeeper:app');
 
 interface AppState {
   session: Session | null;
@@ -29,7 +29,7 @@ export default class App extends React.Component<{}, AppState> {
   };
 
   public async componentDidMount() {
-    debug('Initializing bookkeeper client');
+    log('Initializing bookkeeper client');
     this.updateWindowDimensions();
     window.addEventListener('resize', this.updateWindowDimensions);
     this.unsub.push(sessionP.onValue(session => this.setState({ session })));

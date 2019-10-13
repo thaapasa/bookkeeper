@@ -11,9 +11,9 @@ import {
 import { Moment } from 'moment';
 import { mapValues } from '../../shared/util/Objects';
 import { IBaseProtocol } from 'pg-promise';
-import debugSetup from 'debug';
+import debug from 'debug';
 
-const debug = debugSetup('bookkeeper:api:expenses');
+const log = debug('bookkeeper:api:expenses');
 
 function calculateBalance(o: ExpenseStatus): ExpenseStatus {
   const value = Money.from(o.cost)
@@ -36,7 +36,7 @@ function getBetween(tx: IBaseProtocol<any>) {
     startDate: Moment | string,
     endDate: Moment | string
   ) => {
-    debug(
+    log(
       'Querying for expenses between',
       time.iso(startDate),
       'and',
@@ -125,7 +125,7 @@ function search(tx: IBaseProtocol<any>) {
     userId: number,
     params: ExpenseSearchParams
   ): Promise<UserExpense[]> => {
-    debug(`Searching for ${JSON.stringify(params)}`);
+    log(`Searching for ${JSON.stringify(params)}`);
     const expenses = await tx.manyOrNone<UserExpense>(
       basic.expenseSelect(`
 WHERE group_id=$/groupId/ AND template=false

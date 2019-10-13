@@ -1,8 +1,8 @@
 import * as React from 'react';
 import TextField from 'material-ui/TextField';
 import { KeyCodes } from '../../util/Io';
-import debugSetup from 'debug';
-const debug = debugSetup('bookkeeper:activatable-text-field');
+import debug from 'debug';
+const log = debug('bookkeeper:activatable-text-field');
 
 type EditorType = React.ComponentClass<any>;
 
@@ -33,7 +33,7 @@ export default class ActivatableTextField extends React.Component<
     this.state = { edit: false, value: props.value };
   }
   private commit = (value: string) => {
-    debug('Committing', value);
+    log('Committing', value);
     if (this.props.onChange) {
       this.props.onChange(value);
     }
@@ -41,7 +41,7 @@ export default class ActivatableTextField extends React.Component<
   };
 
   private cancel = () => {
-    debug('Cancelling');
+    log('Cancelling');
     if (this.props.onCancel) {
       this.props.onCancel();
     }
@@ -81,7 +81,7 @@ export default class ActivatableTextField extends React.Component<
   }
 
   private activate = (_: any) => {
-    debug('Activating editor', this.props.editorType, 'for', this.props.value);
+    log('Activating editor', this.props.editorType, 'for', this.props.value);
     this.setState({ edit: true, value: this.props.value });
   };
 

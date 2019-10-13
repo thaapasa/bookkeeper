@@ -1,8 +1,8 @@
 import Money, { MoneyLike } from './Money';
 import { indices } from './Arrays';
-import debugSetup from 'debug';
+import debug from 'debug';
 import assert from 'assert';
-const debug = debugSetup('bookkeeper:splitter');
+const log = debug('bookkeeper:splitter');
 
 export interface HasShares {
   userId: number;
@@ -19,7 +19,7 @@ export function splitByShares<T extends HasShares>(
 ): Array<T & HasSum> {
   const numShares = division.map(d => d.share).reduce((a, b) => a + b, 0);
   const moneySum = Money.from(sum);
-  debug('Splitting', moneySum.format(), 'to', numShares, 'parts by', division);
+  log('Splitting', moneySum.format(), 'to', numShares, 'parts by', division);
   const part = moneySum.divide(numShares);
   const res: Array<T & HasSum> = division.map(d => ({
     sum: part.multiply(d.share),
@@ -32,16 +32,16 @@ export function splitByShares<T extends HasShares>(
     const shares = remainder.toCents();
     const ids: number[] = [];
     res.forEach((d, i) => indices(d.share).forEach(() => ids.push(i)));
-    debug('Extra share receivers:', ids);
+    log('Extra share receivers:', ids);
     for (let i = 0; i < shares; i++) {
-      debug('Adding 1 cent to share #', i, ':', ids[i]);
+      log('Adding 1 cent to share #', i, ':', ids[i]);
       res[ids[i]].sum = res[ids[i]].sum.plus(Money.cent);
     }
   }
 
   const newTotal = res.map(d => d.sum).reduce((a, b) => a.plus(b), Money.zero);
   assert(newTotal.equals(moneySum));
-  debug('Divided to', res);
+  log('Divided to', res);
   return res;
 }
 
