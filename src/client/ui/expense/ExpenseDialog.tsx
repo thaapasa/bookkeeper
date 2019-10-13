@@ -150,7 +150,7 @@ export class ExpenseDialog extends React.Component<
   public state = this.getDefaultState(null);
 
   private getDefaultSourceId(): number | undefined {
-    return this.props.group.defaultSourceId;
+    return this.props.group.defaultSourceId || undefined;
   }
 
   private getDefaultSourceUsers(): number[] {
@@ -337,10 +337,10 @@ export class ExpenseDialog extends React.Component<
     fields.map(k => this.inputStreams[k].push(newState[k]));
   }
 
-  public componentWillReceiveProps(nextProps: ExpenseDialogProps) {
-    if (this.props.expenseCounter !== nextProps.expenseCounter) {
-      log('Settings props for', nextProps.original);
-      this.pushExpenseToInputStreams(nextProps.original);
+  public componenDidUpdate(prevProps: ExpenseDialogProps) {
+    if (this.props.expenseCounter !== prevProps.expenseCounter) {
+      log('Settings props for', this.props.original);
+      this.pushExpenseToInputStreams(this.props.original);
     }
   }
 

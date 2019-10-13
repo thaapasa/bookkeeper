@@ -61,6 +61,15 @@ import {
 
 const emptyDivision: ExpenseDivisionItem[] = [];
 
+const TextButton = styled.button`
+  border: 0;
+  font-size: 13px;
+  outline: none;
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
 interface CommonExpenseRowProps {
   expense: UserExpense;
   onUpdated: (expense: UserExpense) => void;
@@ -97,7 +106,7 @@ export class ExpenseRow extends React.Component<
   private categoryLink(id: number) {
     const cat = this.props.categoryMap[id];
     return (
-      <a
+      <TextButton
         key={cat.id}
         onClick={() =>
           this.props.addFilter(
@@ -110,7 +119,7 @@ export class ExpenseRow extends React.Component<
         style={{ color: colors.action }}
       >
         {cat.name}
-      </a>
+      </TextButton>
     );
   }
 
@@ -132,7 +141,7 @@ export class ExpenseRow extends React.Component<
     );
     const avatar = source.image ? source.image : undefined;
     return (
-      <a
+      <TextButton
         key={source.id}
         onClick={() =>
           this.props.addFilter(
@@ -143,7 +152,7 @@ export class ExpenseRow extends React.Component<
         }
       >
         {content}
-      </a>
+      </TextButton>
     );
   }
 
@@ -375,8 +384,7 @@ export class ExpenseRow extends React.Component<
 }
 
 export default class ExpenseRowMapper extends React.Component<
-  CommonExpenseRowProps & { userData: UserDataProps },
-  {}
+  CommonExpenseRowProps & { userData: UserDataProps }
 > {
   public render() {
     return (
