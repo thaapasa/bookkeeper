@@ -95,7 +95,7 @@ export const navigationP = navigationBus.toProperty({
 export const windowSizeBus = new B.Bus<Size>();
 export const windowSizeP = windowSizeBus.toProperty();
 
-windowSizeP.onValue(s => {
+windowSizeP.onValue(() => {
   // If windowSizeP is not "read" here, the first render of TopBar is missed. Don't know why.
 });
 
