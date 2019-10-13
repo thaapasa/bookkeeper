@@ -1,12 +1,13 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-import express from 'express';
 import * as bodyParser from 'body-parser';
-import { config } from './Config';
-import * as api from './Api';
-import * as path from 'path';
 import debug from 'debug';
+import express from 'express';
+import * as path from 'path';
+import * as api from './Api';
+import { config } from './Config';
+
 const log = debug('bookkeeper:server');
 
 const curDir = process.cwd();

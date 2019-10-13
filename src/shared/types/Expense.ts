@@ -1,5 +1,7 @@
 import { DbObject } from './Common';
 import { MoneyLike } from '../util/Money';
+import * as t from 'io-ts';
+import { TISODate, ISODate } from './Time';
 
 export type ExpenseType = 'expense' | 'income' | 'transfer';
 export type ExpenseDivisionType =
@@ -126,13 +128,23 @@ export interface ExpenseCollection {
   unconfirmedBefore: boolean;
 }
 
-export type RecurringExpensePeriod = 'monthly' | 'yearly';
+export const TRecurringExpensePeriod = t.keyof({ monthly: null, yearly: null });
+export type RecurringExpensePeriod = t.TypeOf<typeof TRecurringExpensePeriod>;
 
-export interface Recurrence extends DbObject {
-  period: RecurringExpensePeriod;
-  occursUntil?: string;
-  nextMissing: string;
+export const TRecurringExpenseTarget = t.keyof({
+  single: null,
+  all: null,
+  after: null,
+});
+export type RecurringExpenseTarget = t.TypeOf<typeof TRecurringExpenseTarget>;
+
+export const TRecurringExpenseInput = t.intersection([
+  t.type({ period: TRecurringExpensePeriod }),
+  t.partial({ occursUntil: TISODate }),
+]);
+export type RecurringExpenseInput = t.TypeOf<typeof TRecurringExpenseInput>;
+
+export interface Recurrence extends DbObject, RecurringExpenseInput {
+  nextMissing: ISODate;
   templateExpenseId: number;
 }
-
-export type RecurringExpenseTarget = 'single' | 'all' | 'after';

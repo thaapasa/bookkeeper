@@ -1,29 +1,30 @@
-import { db } from './Db';
+import debug from 'debug';
 import { Moment } from 'moment';
-import { Validator } from '../util/Validator';
-import expenses, { setDefaults, storeDivision } from './BasicExpenses';
+import { IBaseProtocol } from 'pg-promise';
+import { ApiMessage } from '../../shared/types/Api';
+import { InvalidExpense } from '../../shared/types/Errors';
 import {
-  RecurringExpensePeriod,
-  Recurrence,
-  ExpenseDivisionItem,
   Expense,
+  ExpenseDivisionItem,
+  Recurrence,
+  RecurringExpenseInput,
+  RecurringExpensePeriod,
   RecurringExpenseTarget,
 } from '../../shared/types/Expense';
-import { ApiMessage } from '../../shared/types/Api';
+import { flatten } from '../../shared/util/Arrays';
 import {
+  DateLike,
   formatDate,
   fromDate,
-  DateLike,
   toMoment,
 } from '../../shared/util/Time';
-import { InvalidExpense } from '../../shared/types/Errors';
-import categories from './Categories';
-import sources from './Sources';
-import { determineDivision } from './ExpenseDivision';
-import { flatten } from '../../shared/util/Arrays';
-import { IBaseProtocol } from 'pg-promise';
 import { camelCaseObject } from '../../shared/util/Util';
-import debug from 'debug';
+import { Validator } from '../util/Validator';
+import expenses, { setDefaults, storeDivision } from './BasicExpenses';
+import categories from './Categories';
+import { db } from './Db';
+import { determineDivision } from './ExpenseDivision';
+import sources from './Sources';
 
 const log = debug('bookkeeper:api:recurring-expenses');
 
@@ -50,7 +51,7 @@ function createRecurring(
   groupId: number,
   userId: number,
   expenseId: number,
-  recurrence: Recurrence
+  recurrence: RecurringExpenseInput
 ) {
   return db.tx(
     async (tx: IBaseProtocol<any>): Promise<ApiMessage> => {

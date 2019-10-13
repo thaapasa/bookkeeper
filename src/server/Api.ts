@@ -1,36 +1,41 @@
-import users from './data/Users';
-import sessions from './data/Sessions';
-import expenses, { ExpenseSearchParams } from './data/Expenses';
-import admin, { DbStatus } from './data/admin/Admin';
-import categories, {
-  CategoryInput,
-  CategoryQueryInput,
-} from './data/Categories';
-import sources from './data/Sources';
-import { config } from './Config';
-import * as server from './util/ServerUtil';
-import { Validator as V, Schema } from './util/Validator';
+import debug from 'debug';
 import { Express } from 'express';
-import {
-  Expense,
-  Recurrence,
-  UserExpense,
-  ExpenseCollection,
-  UserExpenseWithDetails,
-  RecurringExpenseTarget,
-} from '../shared/types/Expense';
+import * as t from 'io-ts';
 import { ApiMessage, ApiStatus } from '../shared/types/Api';
 import {
-  Session,
-  SessionBasicInfo,
-  Group,
-  User,
+  Expense,
+  ExpenseCollection,
+  TRecurringExpenseInput,
+  TRecurringExpenseTarget,
+  UserExpense,
+  UserExpenseWithDetails,
+} from '../shared/types/Expense';
+import {
   Category,
   CategoryAndTotals,
+  Group,
+  Session,
+  SessionBasicInfo,
   Source,
+  User,
 } from '../shared/types/Session';
+import { TISODate } from '../shared/types/Time';
 import { toMoment } from '../shared/util/Time';
-import debug from 'debug';
+import { config } from './Config';
+import admin, { DbStatus } from './data/admin/Admin';
+import categories, { CategoryInput } from './data/Categories';
+import expenses from './data/Expenses';
+import sessions from './data/Sessions';
+import sources from './data/Sources';
+import users from './data/Users';
+import * as server from './util/ServerUtil';
+import { Schema, Validator as V } from './util/Validator';
+import {
+  validate,
+  intStringBetween,
+  TIntString,
+  stringWithLength,
+} from '../shared/types/Validator';
 
 const log = debug('bookkeeper:api');
 
@@ -139,16 +144,16 @@ export function registerAPI(app: Express) {
     }, true)
   );
 
-  const dateSchema: Schema<CategoryQueryInput> = {
-    startDate: V.date,
-    endDate: V.date,
-  };
+  const TDateRange = t.type({
+    startDate: TISODate,
+    endDate: TISODate,
+  });
 
   // GET /api/category/totals
   app.get(
     '/api/category/totals',
     server.processRequest((session, req): Promise<CategoryAndTotals[]> => {
-      const params = V.validate(dateSchema, req.query);
+      const params = validate(TDateRange, req.query);
       return categories.getTotals(session.group.id, params);
     }, true)
   );
@@ -216,17 +221,14 @@ export function registerAPI(app: Express) {
   );
 
   // GET /api/expense/month
-  const monthSchema: Schema<{ year: number; month: number }> = {
-    year: V.intBetween(1500, 3000),
-    month: V.intBetween(1, 12),
-  };
+  const TYearMonth = t.type({
+    year: intStringBetween(1500, 3000),
+    month: intStringBetween(1, 12),
+  });
   app.get(
     '/api/expense/month',
     server.processRequest((session, req): Promise<ExpenseCollection> => {
-      const params = V.validate(monthSchema, {
-        year: req.query.year,
-        month: req.query.month,
-      });
+      const params = validate(TYearMonth, req.query);
       return expenses.getByMonth(
         session.group.id,
         session.user.id,
@@ -236,15 +238,17 @@ export function registerAPI(app: Express) {
     }, true)
   );
 
-  const searchSchema: Schema<ExpenseSearchParams> = {
-    startDate: V.date,
-    endDate: V.date,
-    categoryId: V.optional(V.positiveInt),
-  };
+  const searchSchema = t.intersection([
+    t.type({
+      startDate: TISODate,
+      endDate: TISODate,
+    }),
+    t.partial({ categoryId: TIntString }),
+  ]);
   app.get(
     '/api/expense/search',
     server.processRequest((session, req): Promise<UserExpense[]> => {
-      const params = V.validate(searchSchema, req.query);
+      const params = validate(searchSchema, req.query);
       return expenses.search(session.group.id, session.user.id, params);
     }, true)
   );
@@ -283,12 +287,9 @@ export function registerAPI(app: Express) {
     )
   );
 
-  interface ReceiverSchema {
-    receiver: string;
-  }
-  const receiverSchema: Schema<ReceiverSchema> = {
-    receiver: V.stringWithLength(3, 50),
-  };
+  const TReceiverSearch = t.type({
+    receiver: stringWithLength(3, 50),
+  });
   // GET /api/expense/receivers?receiver=[query]
   app.get(
     '/api/expense/receivers',
@@ -296,7 +297,7 @@ export function registerAPI(app: Express) {
       async (session, req): Promise<string[]> =>
         (await expenses.queryReceivers(
           session.group.id,
-          V.validate(receiverSchema, req.query).receiver
+          validate(TReceiverSearch, req.query).receiver
         )).map(r => r.receiver),
       true
     )
@@ -346,16 +347,9 @@ export function registerAPI(app: Express) {
     )
   );
 
-  const recurringExpenseSchema: Schema<Recurrence> = {
-    period: V.either('monthly', 'yearly'),
-    occursUntil: V.optional(V.date),
-  };
-
-  const recurringExpenseTargetSchema: Schema<{
-    target: RecurringExpenseTarget;
-  }> = {
-    target: V.either('all', 'single', 'after'),
-  };
+  const recurringExpenseTargetSchema = t.type({
+    target: TRecurringExpenseTarget,
+  });
 
   // PUT /api/expense/recurring/[expenseId]
   app.put(
@@ -366,7 +360,7 @@ export function registerAPI(app: Express) {
           session.group.id,
           session.user.id,
           parseInt(req.params.id, 10),
-          V.validate(recurringExpenseSchema, req.body)
+          validate(TRecurringExpenseInput, req.body)
         ),
       true
     )
@@ -381,7 +375,7 @@ export function registerAPI(app: Express) {
           session.group.id,
           session.user.id,
           parseInt(req.params.id, 10),
-          V.validate(recurringExpenseTargetSchema, req.query).target
+          validate(recurringExpenseTargetSchema, req.query).target
         ),
       true
     )
@@ -396,7 +390,7 @@ export function registerAPI(app: Express) {
           session.group.id,
           session.user.id,
           parseInt(req.params.id, 10),
-          V.validate(recurringExpenseTargetSchema, req.query).target,
+          validate(recurringExpenseTargetSchema, req.query).target,
           V.validate(expenseSchema, req.body),
           session.group.defaultSourceId || 0
         ),
