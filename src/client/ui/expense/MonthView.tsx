@@ -45,9 +45,9 @@ export default class MonthView extends React.PureComponent<
     this.unsub.push(needUpdateE.onValue(this.refreshExpensesFor));
   }
 
-  public async componentWillUpdate(newProps: MonthViewProps) {
-    if (!toMoment(newProps.date).isSame(this.props.date, 'month')) {
-      this.loadExpenses(newProps.date);
+  public async componentDidUpdate(prevProps: MonthViewProps) {
+    if (!toMoment(prevProps.date).isSame(this.props.date, 'month')) {
+      this.loadExpenses(this.props.date);
     }
   }
 
