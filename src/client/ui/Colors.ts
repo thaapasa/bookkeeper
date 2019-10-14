@@ -2,6 +2,8 @@ import styled from 'styled-components';
 import * as colors from 'material-ui/styles/colors';
 import Money, { MoneyLike } from '../../shared/util/Money';
 import { getMuiTheme } from 'material-ui/styles';
+import { createMuiTheme } from '@material-ui/core';
+import { SimplePaletteColorOptions } from '@material-ui/core/styles';
 
 interface ColorDef {
   standard: string;
@@ -46,6 +48,20 @@ export const colorScheme: ColorScheme = {
   gray,
   text: '#000000',
   white: '#ffffff',
+};
+
+const primaryPalette: SimplePaletteColorOptions = {
+  light: colorScheme.primary.light,
+  dark: colorScheme.primary.dark,
+  main: colorScheme.primary.standard,
+  contrastText: colorScheme.primary.text,
+};
+
+const secondaryPalette: SimplePaletteColorOptions = {
+  light: colorScheme.secondary.light,
+  dark: colorScheme.secondary.dark,
+  main: colorScheme.secondary.standard,
+  contrastText: colorScheme.secondary.text,
 };
 
 export const navigation = colorScheme.secondary.standard;
@@ -126,6 +142,13 @@ export const muiTheme = getMuiTheme({
   },
   appBar: {
     height: 56,
+  },
+});
+
+export const muiThemeMUICore = createMuiTheme({
+  palette: {
+    primary: secondaryPalette,
+    secondary: primaryPalette,
   },
 });
 
