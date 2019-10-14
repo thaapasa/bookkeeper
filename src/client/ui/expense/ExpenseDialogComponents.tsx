@@ -3,7 +3,6 @@ import * as Bacon from 'baconjs';
 import DatePicker from 'material-ui/DatePicker';
 import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
-import AutoComplete from 'material-ui/AutoComplete';
 import { ExpenseTypeIcon } from '../Icons';
 import apiConnect from '../../data/ApiConnect';
 import { PlainAutoComplete } from '../component/PlainTextField';
@@ -18,6 +17,7 @@ import { toMoment } from '../../../shared/util/Time';
 import { IconButton } from 'material-ui';
 import { VCenterRow } from '../Styles';
 import { TextField } from '@material-ui/core';
+import AutoComplete from '../component/AutoComplete';
 
 const styles = {
   category: { width: '50%' },
@@ -42,26 +42,31 @@ export function SumField(props: {
   );
 }
 
-export function TitleField(props: {
+export function TitleField<T>(props: {
   value: string;
   errorText?: string;
-  dataSource: any[];
+  dataSource: T[];
   onChange: (s: string) => void;
   onSelect: (s: number) => void;
 }) {
   return (
     <AutoComplete
-      hintText="Ruokaostokset"
-      floatingLabelFixed={true}
-      floatingLabelText="Kuvaus"
-      searchText={props.value}
-      filter={AutoComplete.caseInsensitiveFilter}
-      onNewRequest={v => (typeof v === 'object' ? props.onSelect(v.value) : '')}
+      value={props.value}
+      onChange={props.onChange}
+      placeholder="Ruokaostokset"
+      label="Kuvaus"
       errorText={props.errorText}
       fullWidth={true}
-      onKeyUp={stopEventPropagation}
-      dataSource={props.dataSource}
-      onUpdateInput={v => props.onChange(v)}
+      getSuggestions={input =>
+        props.dataSource.filter(d =>
+          String(d)
+            .toLowerCase()
+            .startsWith(input.toLowerCase())
+        )
+      }
+      getSuggestionValue={i => String(i)}
+      renderSuggestion={s => String(s)}
+      onSelectSuggestion={s => props.onChange(String(s))}
     />
   );
 }
@@ -229,14 +234,13 @@ export class ReceiverField extends React.Component<
     return React.createElement(type, {
       name: this.props.name,
       id: this.props.id,
-      filter: AutoComplete.noFilter,
       dataSource: this.state.receivers,
       onUpdateInput: (r: string) => this.inputStream.push(r),
-      hintText: this.props.hintText || 'Kauppa',
-      floatingLabelText: 'Saaja',
-      floatingLabelFixed: true,
+      placeholder: this.props.hintText || 'Kauppa',
+      label: 'Saaja',
       fullWidth: true,
-      errorText: this.props.errorText,
+      error: Boolean(this.props.errorText),
+      helpText: this.props.errorText,
       searchText: this.props.value,
       onBlur: this.props.onBlur,
       onKeyUp: this.props.onKeyUp,
@@ -244,10 +248,7 @@ export class ReceiverField extends React.Component<
   }
 }
 
-export class PlainReceiverField extends React.Component<
-  ReceiverFieldProps,
-  {}
-> {
+export class PlainReceiverField extends React.Component<ReceiverFieldProps> {
   public render() {
     return (
       <ReceiverField

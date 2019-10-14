@@ -1,19 +1,20 @@
 import * as React from 'react';
-import TextField from 'material-ui/TextField';
 import { KeyCodes } from '../../util/Io';
 import debug from 'debug';
+import { TextField } from '@material-ui/core';
+import { TextFieldProps } from '@material-ui/core/TextField';
 const log = debug('bookkeeper:activatable-text-field');
 
-type EditorType = React.ComponentClass<any>;
+type EditorType = React.ComponentClass<TextFieldProps>;
 
 interface ActivatableTextFieldProps {
   editorType?: EditorType;
   name?: string;
   style?: React.CSSProperties;
   value: string;
-  id?: number;
-  hintText?: string;
-  onChange: (e: string) => void;
+  id?: string;
+  placeholder?: string;
+  onChange: (value: string) => void;
   onCancel?: () => void;
 }
 
@@ -52,7 +53,7 @@ export default class ActivatableTextField extends React.Component<
     this.setState({ value: this.props.value, edit: false });
   };
 
-  private handleKeyPress = (event: KeyboardEvent) => {
+  private handleKeyPress = (event: React.KeyboardEvent) => {
     const code = event.keyCode;
     if (code === KeyCodes.enter) {
       this.commit(this.state.value);
@@ -64,23 +65,25 @@ export default class ActivatableTextField extends React.Component<
     return;
   };
 
-  private updateValue = (i: any, value: string) => this.setState({ value });
+  private updateValue = (event: React.ChangeEvent<HTMLInputElement>) =>
+    this.setState({ value: event.target.value });
 
   private createEditor() {
-    const type = this.props.editorType ? this.props.editorType : TextField;
-    return React.createElement(type, {
-      name: this.props.name,
-      id: this.props.id,
-      style: this.props.style,
-      hintText: this.props.hintText,
-      value: this.state.value,
-      onChange: this.updateValue,
-      // onBlur: i => this.commit(this.state.value),
-      onKeyUp: this.handleKeyPress,
-    } as any);
+    const Type = this.props.editorType ? this.props.editorType : TextField;
+    return (
+      <Type
+        value={this.props.value}
+        onChange={this.updateValue}
+        name={this.props.name}
+        id={this.props.id}
+        style={this.props.style}
+        placeholder={this.props.placeholder}
+        onKeyUp={this.handleKeyPress}
+      />
+    );
   }
 
-  private activate = (_: any) => {
+  private activate = () => {
     log('Activating editor', this.props.editorType, 'for', this.props.value);
     this.setState({ edit: true, value: this.props.value });
   };
