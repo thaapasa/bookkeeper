@@ -10,9 +10,10 @@ import Autosuggest, {
 import styled from 'styled-components';
 
 export interface AutoCompleteProps<T> {
+  id?: string;
   name?: string;
   value: string;
-  onChange: (value: string) => void;
+  onChange: (value: React.ChangeEvent<{ value: string }>) => void;
   fullWidth?: boolean;
   placeholder?: string;
   getSuggestions: (input: string) => T[];
@@ -37,6 +38,8 @@ export default class AutoComplete<T> extends React.Component<
     return (
       <Autosuggest
         inputProps={{
+          id: this.props.id,
+          name: this.props.name,
           value: this.props.value,
           onChange: this.setInputValue,
         }}
@@ -71,7 +74,7 @@ export default class AutoComplete<T> extends React.Component<
     if (typeof value !== 'string') {
       return;
     }
-    this.props.onChange(value);
+    this.props.onChange(e);
     this.setState({
       suggestions: this.props.getSuggestions(value),
     });
@@ -103,7 +106,6 @@ export default class AutoComplete<T> extends React.Component<
     return (
       <StandardTextField
         {...other}
-        name={this.props.name}
         fullWidth={this.props.fullWidth}
         placeholder={this.props.placeholder}
         type="text"

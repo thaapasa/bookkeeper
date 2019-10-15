@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import apiConnect from '../../data/ApiConnect';
 import { UserAvatar } from '../component/UserAvatar';
 import ActivatableTextField from '../component/ActivatableTextField';
-import { PlainTextField } from '../component/PlainTextField';
 import {
   ExpandLess,
   ExpandMore,
@@ -14,7 +13,6 @@ import {
 } from '../Icons';
 import { Flex, VCenterRow } from '../Styles';
 import * as colors from '../Colors';
-import { PlainReceiverField } from './ExpenseDialogComponents';
 import ExpenseInfo from './details/ExpenseInfo';
 import { expenseName } from './ExpenseHelper';
 import Money from '../../../shared/util/Money';
@@ -58,6 +56,10 @@ import {
   Row,
   sourceWidth,
 } from './ExpenseTableLayout';
+import { TextField } from '@material-ui/core';
+import debug from 'debug';
+
+const log = debug('bookkeeper:expense-row');
 
 const emptyDivision: ExpenseDivisionItem[] = [];
 
@@ -157,6 +159,7 @@ export class ExpenseRow extends React.Component<
   }
 
   private updateExpense = async (data: Partial<UserExpense>) => {
+    log('Updating expense with data', data);
     const exp = await apiConnect.getExpense(this.props.expense.id);
     const newData: UserExpense = { ...exp, ...data };
     await apiConnect.updateExpense(this.props.expense.id, newData);
@@ -291,10 +294,9 @@ export class ExpenseRow extends React.Component<
           <NameColumn>
             {this.props.expense.confirmed ? null : <UnconfirmedIcon />}
             <ActivatableTextField
-              editorType={PlainTextField}
-              name="title"
+              editorType={TextField}
               value={expense.title}
-              style={{ display: 'inline-block', verticalAlign: 'middle' }}
+              viewStyle={{ display: 'inline-block', verticalAlign: 'middle' }}
               onChange={v => this.updateExpense({ title: v })}
             />
           </NameColumn>
@@ -302,7 +304,7 @@ export class ExpenseRow extends React.Component<
             <ActivatableTextField
               name="receiver"
               value={expense.receiver}
-              editorType={PlainReceiverField}
+              editorType={TextField}
               onChange={v => this.updateExpense({ receiver: v })}
             />
           </ReceiverColumn>

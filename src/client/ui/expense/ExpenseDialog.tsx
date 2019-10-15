@@ -19,7 +19,11 @@ import {
   DescriptionField,
 } from './ExpenseDialogComponents';
 import { expenseName } from './ExpenseHelper';
-import { unsubscribeAll, stopEventPropagation } from '../../util/ClientUtil';
+import {
+  unsubscribeAll,
+  stopEventPropagation,
+  eventValue,
+} from '../../util/ClientUtil';
 import {
   splitByShares,
   negateDivision,
@@ -528,11 +532,11 @@ export class ExpenseDialog extends React.Component<
             onSelect={this.selectCategory}
             dataSource={this.props.categorySource}
             errorText={this.state.errors.title}
-            onChange={v => this.inputStreams.title.push(v)}
+            onChange={v => this.inputStreams.title.push(eventValue(v))}
           />
           <ReceiverField
             value={this.state.receiver}
-            onChange={(e, v) => this.inputStreams.receiver.push(v)}
+            onChange={e => this.inputStreams.receiver.push(eventValue(e))}
             errorText={this.state.errors.receiver}
             onKeyUp={stopEventPropagation}
           />

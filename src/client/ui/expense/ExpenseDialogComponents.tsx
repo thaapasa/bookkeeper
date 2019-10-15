@@ -5,7 +5,6 @@ import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
 import { ExpenseTypeIcon } from '../Icons';
 import apiConnect from '../../data/ApiConnect';
-import { PlainAutoComplete } from '../component/PlainTextField';
 import { stopEventPropagation, unsubscribeAll } from '../../util/ClientUtil';
 import { Source } from '../../../shared/types/Session';
 import {
@@ -46,7 +45,7 @@ export function TitleField<T>(props: {
   value: string;
   errorText?: string;
   dataSource: T[];
-  onChange: (s: string) => void;
+  onChange: (s: string | React.ChangeEvent<{ value: string }>) => void;
   onSelect: (s: number) => void;
 }) {
   return (
@@ -182,20 +181,20 @@ export function DateField(props: {
   );
 }
 
-interface ReceiverFieldProps {
+export interface ReceiverFieldProps {
   name?: string;
   id?: string;
-  hintText?: string;
   value: string;
+  fullWidth?: boolean;
+  placeholder?: string;
   errorText?: string;
-  onChange: (event: any, r: string) => void;
+  onChange: (event: string | React.ChangeEvent<{ value: string }>) => void;
   onBlur?: () => void;
   onKeyUp?: (event: any) => void;
-  editorType?: React.ComponentClass<any>;
 }
 
 interface ReceiverFieldState {
-  receivers: any[];
+  receivers: string[];
 }
 
 export class ReceiverField extends React.Component<
@@ -207,9 +206,7 @@ export class ReceiverField extends React.Component<
   public state: ReceiverFieldState = { receivers: [] };
 
   public componentDidMount() {
-    this.unsub.push(
-      this.inputStream.onValue(v => this.props.onChange(null, v))
-    );
+    this.unsub.push(this.inputStream.onValue(v => this.props.onChange(v)));
     this.unsub.push(
       this.inputStream
         .filter(v => (v && v.length > 2 && v.length < 10) || false)
@@ -230,10 +227,34 @@ export class ReceiverField extends React.Component<
   }
 
   public render() {
-    const type = this.props.editorType ? this.props.editorType : AutoComplete;
-    return React.createElement(type, {
-      name: this.props.name,
-      id: this.props.id,
+    return (
+      <AutoComplete
+        name={this.props.name}
+        id={this.props.id}
+        value={this.props.value}
+        onChange={this.props.onChange}
+        fullWidth={this.props.fullWidth}
+        placeholder={this.props.placeholder}
+        getSuggestions={i => this.state.receivers.filter(r => r.startsWith(i))}
+        getSuggestionValue={String}
+        renderSuggestion={String}
+        onSelectSuggestion={this.props.onChange}
+        errorText={this.props.errorText}
+      />
+    );
+
+    /*
+
+  getSuggestions: (input: string) => T[];
+  getSuggestionValue: (item: T) => string;
+  renderSuggestion: (item: T) => string;
+  onSelectSuggestion: (item: T) => void;
+  style?: React.CSSProperties;
+  label?: string;
+  errorText?: string;
+  */
+
+    /*
       dataSource: this.state.receivers,
       onUpdateInput: (r: string) => this.inputStream.push(r),
       placeholder: this.props.hintText || 'Kauppa',
@@ -245,17 +266,14 @@ export class ReceiverField extends React.Component<
       onBlur: this.props.onBlur,
       onKeyUp: this.props.onKeyUp,
     });
+    */
   }
 }
 
 export class PlainReceiverField extends React.Component<ReceiverFieldProps> {
   public render() {
     return (
-      <ReceiverField
-        {...this.props}
-        value={this.props.value || ''}
-        editorType={PlainAutoComplete}
-      >
+      <ReceiverField {...this.props} value={this.props.value || ''}>
         {this.props.children}
       </ReceiverField>
     );

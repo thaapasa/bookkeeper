@@ -1,38 +1,48 @@
 import * as React from 'react';
 import { KeyCodes } from '../../util/Io';
 import debug from 'debug';
-import { TextField } from '@material-ui/core';
 import { TextFieldProps } from '@material-ui/core/TextField';
+import { AutoCompleteProps } from './AutoComplete';
+import { ReceiverFieldProps } from '../expense/ExpenseDialogComponents';
+import { omit } from 'shared/util/Objects';
+import { eventValue } from 'client/util/ClientUtil';
 const log = debug('bookkeeper:activatable-text-field');
 
-type EditorType = React.ComponentClass<TextFieldProps>;
+export type EditorType<T> = React.ComponentType<
+  TextFieldProps | AutoCompleteProps<T> | ReceiverFieldProps
+>;
 
-interface ActivatableTextFieldProps {
-  editorType?: EditorType;
-  name?: string;
-  style?: React.CSSProperties;
+export type ActivatableTextFieldProps<T> = {
+  editorType: EditorType<T>;
+  viewStyle?: React.CSSProperties;
   value: string;
-  id?: string;
   placeholder?: string;
   onChange: (value: string) => void;
   onCancel?: () => void;
-}
+} & T;
 
 interface ActivatableTextFieldState {
   edit: boolean;
   value: string;
 }
 
-export default class ActivatableTextField extends React.Component<
-  ActivatableTextFieldProps,
+export default class ActivatableTextField<T> extends React.Component<
+  ActivatableTextFieldProps<T>,
   ActivatableTextFieldState
 > {
   public state: ActivatableTextFieldState;
 
-  constructor(props: ActivatableTextFieldProps) {
+  constructor(props: ActivatableTextFieldProps<T>) {
     super(props);
     this.state = { edit: false, value: props.value };
   }
+
+  componentDidUpdate(prevProps: ActivatableTextFieldProps<T>) {
+    if (this.props.value !== prevProps.value) {
+      this.setState({ value: this.props.value });
+    }
+  }
+
   private commit = (value: string) => {
     log('Committing', value);
     if (this.props.onChange) {
@@ -66,18 +76,20 @@ export default class ActivatableTextField extends React.Component<
   };
 
   private updateValue = (event: React.ChangeEvent<HTMLInputElement>) =>
-    this.setState({ value: event.target.value });
+    this.setState({ value: eventValue(event) });
 
   private createEditor() {
-    const Type = this.props.editorType ? this.props.editorType : TextField;
+    const Type: EditorType<T> = this.props.editorType;
+    const childProps = omit(
+      ['editorType', 'onChange', 'viewStyle'],
+      this.props
+    );
     return (
       <Type
-        value={this.props.value}
+        autoFocus={true}
+        {...(childProps as any)}
+        value={this.state.value}
         onChange={this.updateValue}
-        name={this.props.name}
-        id={this.props.id}
-        style={this.props.style}
-        placeholder={this.props.placeholder}
         onKeyUp={this.handleKeyPress}
       />
     );
@@ -91,11 +103,12 @@ export default class ActivatableTextField extends React.Component<
   public render() {
     if (this.state.edit) {
       return this.createEditor();
+    } else {
+      return (
+        <div style={this.props.viewStyle} onClick={this.activate}>
+          {this.props.value}
+        </div>
+      );
     }
-    return (
-      <div style={this.props.style} onClick={this.activate}>
-        {this.props.value}
-      </div>
-    );
   }
 }

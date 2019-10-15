@@ -96,17 +96,18 @@ function getByMonth(
           .then(calculateBalance),
         basic.tx.hasUnconfirmedBefore(tx)(groupId, startDate),
       ]);
+      const endStatus = mapValues(
+        k =>
+          Money.from(startStatus[k])
+            .plus(monthStatus[k])
+            .toString(),
+        zeroStatus
+      );
       return {
         expenses,
         startStatus,
         monthStatus,
-        endStatus: mapValues(
-          k =>
-            Money.from(startStatus[k])
-              .plus(monthStatus[k])
-              .toString(),
-          zeroStatus
-        ),
+        endStatus,
         unconfirmedBefore,
       };
     }

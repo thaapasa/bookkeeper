@@ -15,18 +15,20 @@ export function omit<T, K extends keyof T>(
   names: ReadonlyArray<K>,
   obj: T
 ): Omit<T, K> {
-  const res: T & Omit<T, K> = {} as any;
+  const res: Omit<T, K> = {} as any;
   Object.keys(obj)
     .filter(n => !arrayContains(names, n))
     .forEach(n => ((res as any)[n] = (obj as any)[n]));
   return res;
 }
 
-export function mapValues<T, K extends keyof T>(
-  mapper: (key: K, value: T[K]) => T[K],
-  obj: T
-): T {
-  const res: T = { ...(obj as any) };
-  Object.keys(obj).forEach(k => (res[k as K] = mapper(k as K, obj[k as K])));
+export function mapValues<Src, Tgt>(
+  mapper: (key: keyof Src, value: Src[keyof Src]) => Tgt,
+  obj: Src
+): Record<keyof Src, Tgt> {
+  const res: Record<keyof Src, Tgt> = {} as any;
+  (Object.keys(obj) as Array<keyof Src>).forEach(
+    k => (res[k] = mapper(k, obj[k]))
+  );
   return res;
 }
