@@ -8,12 +8,17 @@ import { eventValue } from 'client/util/ClientUtil';
 import { ReceiverFieldProps } from '../expense/ReceiverField';
 const log = debug('bookkeeper:activatable-text-field');
 
+/*
 type EditorTypeProps<T> =
   | TextFieldProps
   | AutoCompleteProps<T>
   | ReceiverFieldProps;
+*/
 
-type EditorType<T> = React.ComponentType<EditorTypeProps<T>>;
+type EditorType<T> =
+  | React.ComponentType<TextFieldProps>
+  | React.ComponentType<AutoCompleteProps<T>>
+  | React.ComponentType<ReceiverFieldProps>;
 
 export type ActivatableTextFieldProps<T> = {
   editorId?: string;
@@ -85,7 +90,7 @@ export default class ActivatableTextField<T> extends React.Component<
   private createEditor() {
     const Type: EditorType<T> = this.props.editorType;
     const childProps = omit(
-      ['editorType', 'onChange', 'viewStyle'],
+      ['editorType', 'editorId', 'onChange', 'viewStyle'],
       this.props
     );
     return (

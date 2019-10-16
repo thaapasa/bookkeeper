@@ -12,9 +12,10 @@ export interface ReceiverFieldProps {
   fullWidth?: boolean;
   placeholder?: string;
   errorText?: string;
+  autoFocus?: boolean;
   onChange: (event: string | React.ChangeEvent<{ value: string }>) => void;
   onBlur?: () => void;
-  onKeyUp?: (event: any) => void;
+  onKeyUp?: (event: React.KeyboardEvent<any>) => void;
 }
 
 interface ReceiverFieldState {
@@ -66,6 +67,8 @@ export class ReceiverField extends React.Component<
         onSelectSuggestion={this.selectReceiver}
         getSuggestionValue={identity}
         errorText={this.props.errorText}
+        onKeyUp={this.props.onKeyUp}
+        autoFocus={this.props.autoFocus}
       />
     );
   }

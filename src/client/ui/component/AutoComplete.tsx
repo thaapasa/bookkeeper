@@ -23,9 +23,11 @@ export interface AutoCompleteProps<T> {
   getSuggestionValue: (suggestion: T) => string;
   fullWidth?: boolean;
   placeholder?: string;
+  autoFocus?: boolean;
   style?: React.CSSProperties;
   label?: string;
   errorText?: string;
+  onKeyUp?: (event: React.KeyboardEvent<any>) => void;
 }
 
 export default class AutoComplete<T> extends React.Component<
@@ -40,6 +42,7 @@ export default class AutoComplete<T> extends React.Component<
           value: this.props.value,
           onChange: this.setInputValue,
           style: { margin: '6px 0' },
+          onKeyUp: this.props.onKeyUp,
         }}
         getSuggestionValue={this.props.getSuggestionValue}
         onSuggestionsFetchRequested={this.fetchSuggestions}
@@ -102,6 +105,7 @@ export default class AutoComplete<T> extends React.Component<
     return (
       <StandardTextField
         {...other}
+        autoFocus={this.props.autoFocus}
         fullWidth={this.props.fullWidth}
         placeholder={this.props.placeholder}
         type="text"
@@ -127,7 +131,6 @@ const StandardTextField = styled(TextField)`
 const FloatingPaper = styled(Paper)`
   position: absolute;
   padding-right: 32px;
-  background-color: teal;
   z-index: 2;
 `;
 

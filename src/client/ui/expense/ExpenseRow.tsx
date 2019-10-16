@@ -58,6 +58,7 @@ import {
 } from './ExpenseTableLayout';
 import { TextField } from '@material-ui/core';
 import debug from 'debug';
+import { ReceiverField } from './ReceiverField';
 
 const log = debug('bookkeeper:expense-row');
 
@@ -305,7 +306,7 @@ export class ExpenseRow extends React.Component<
             <ActivatableTextField
               editorId={`expense-row-receiver-${this.props.expense.id}`}
               value={expense.receiver}
-              editorType={TextField}
+              editorType={ReceiverField}
               onChange={v => this.updateExpense({ receiver: v })}
             />
           </ReceiverColumn>
