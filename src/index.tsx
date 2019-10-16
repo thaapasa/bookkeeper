@@ -11,15 +11,18 @@ import App from './client/App';
 import './index.css';
 import { muiTheme, muiThemeMUICore } from './client/ui/Colors';
 import { ThemeProvider } from '@material-ui/styles';
+import { StylesProvider } from '@material-ui/core/styles';
 
 ReactDOM.render(
-  <MuiThemeProvider muiTheme={muiTheme}>
-    <ThemeProvider theme={muiThemeMUICore}>
-      <MuiPickersUtilsProvider utils={MomentUtils}>
-        <App />
-      </MuiPickersUtilsProvider>
-    </ThemeProvider>
-  </MuiThemeProvider>,
+  <StylesProvider injectFirst>
+    <MuiThemeProvider muiTheme={muiTheme}>
+      <ThemeProvider theme={muiThemeMUICore}>
+        <MuiPickersUtilsProvider utils={MomentUtils}>
+          <App />
+        </MuiPickersUtilsProvider>
+      </ThemeProvider>
+    </MuiThemeProvider>
+  </StylesProvider>,
   document.getElementById('root') as HTMLElement
 );
 registerServiceWorker();

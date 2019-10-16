@@ -294,6 +294,7 @@ export class ExpenseRow extends React.Component<
           <NameColumn>
             {this.props.expense.confirmed ? null : <UnconfirmedIcon />}
             <ActivatableTextField
+              editorId={`expense-row-name-${this.props.expense.id}`}
               editorType={TextField}
               value={expense.title}
               viewStyle={{ display: 'inline-block', verticalAlign: 'middle' }}
@@ -302,7 +303,7 @@ export class ExpenseRow extends React.Component<
           </NameColumn>
           <ReceiverColumn>
             <ActivatableTextField
-              name="receiver"
+              editorId={`expense-row-receiver-${this.props.expense.id}`}
               value={expense.receiver}
               editorType={TextField}
               onChange={v => this.updateExpense({ receiver: v })}

@@ -81,6 +81,9 @@ export const subItem = colors.grey200;
 export const tool = colorScheme.gray.veryDark;
 export const unconfirmed = colors.amber50;
 
+export const highlightBg = orangeRed.light;
+export const highlightFg = orangeRed.dark;
+
 export function diagonalStripes(
   color1: string,
   color2: string,

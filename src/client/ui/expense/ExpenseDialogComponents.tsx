@@ -1,11 +1,9 @@
 import * as React from 'react';
-import * as Bacon from 'baconjs';
 import DatePicker from 'material-ui/DatePicker';
 import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
 import { ExpenseTypeIcon } from '../Icons';
-import apiConnect from '../../data/ApiConnect';
-import { stopEventPropagation, unsubscribeAll } from '../../util/ClientUtil';
+import { stopEventPropagation } from '../../util/ClientUtil';
 import { Source } from '../../../shared/types/Session';
 import {
   ExpenseType,
@@ -16,7 +14,6 @@ import { toMoment } from '../../../shared/util/Time';
 import { IconButton } from 'material-ui';
 import { VCenterRow } from '../Styles';
 import { TextField } from '@material-ui/core';
-import AutoComplete from '../component/AutoComplete';
 
 const styles = {
   category: { width: '50%' },
@@ -37,35 +34,6 @@ export function SumField(props: {
       helperText={props.errorText}
       error={Boolean(props.errorText)}
       onChange={e => props.onChange(e.target.value)}
-    />
-  );
-}
-
-export function TitleField<T>(props: {
-  value: string;
-  errorText?: string;
-  dataSource: T[];
-  onChange: (s: string | React.ChangeEvent<{ value: string }>) => void;
-  onSelect: (s: number) => void;
-}) {
-  return (
-    <AutoComplete
-      value={props.value}
-      onChange={props.onChange}
-      placeholder="Ruokaostokset"
-      label="Kuvaus"
-      errorText={props.errorText}
-      fullWidth={true}
-      getSuggestions={input =>
-        props.dataSource.filter(d =>
-          String(d)
-            .toLowerCase()
-            .startsWith(input.toLowerCase())
-        )
-      }
-      getSuggestionValue={i => String(i)}
-      renderSuggestion={s => String(s)}
-      onSelectSuggestion={s => props.onChange(String(s))}
     />
   );
 }
@@ -179,105 +147,6 @@ export function DateField(props: {
       onChange={(event, date) => props.onChange(date)}
     />
   );
-}
-
-export interface ReceiverFieldProps {
-  name?: string;
-  id?: string;
-  value: string;
-  fullWidth?: boolean;
-  placeholder?: string;
-  errorText?: string;
-  onChange: (event: string | React.ChangeEvent<{ value: string }>) => void;
-  onBlur?: () => void;
-  onKeyUp?: (event: any) => void;
-}
-
-interface ReceiverFieldState {
-  receivers: string[];
-}
-
-export class ReceiverField extends React.Component<
-  ReceiverFieldProps,
-  ReceiverFieldState
-> {
-  private inputStream = new Bacon.Bus<string>();
-  private unsub: any[] = [];
-  public state: ReceiverFieldState = { receivers: [] };
-
-  public componentDidMount() {
-    this.unsub.push(this.inputStream.onValue(v => this.props.onChange(v)));
-    this.unsub.push(
-      this.inputStream
-        .filter(v => (v && v.length > 2 && v.length < 10) || false)
-        .debounceImmediate(500)
-        .flatMapLatest(v => Bacon.fromPromise(apiConnect.queryReceivers(v)))
-        .onValue(v => this.setState({ receivers: v }))
-    );
-    this.unsub.push(
-      this.inputStream
-        .filter(v => !v || v.length < 3)
-        .onValue(() => this.setState({ receivers: [] }))
-    );
-  }
-
-  public componentWillUnmount() {
-    this.inputStream.end();
-    unsubscribeAll(this.unsub);
-  }
-
-  public render() {
-    return (
-      <AutoComplete
-        name={this.props.name}
-        id={this.props.id}
-        value={this.props.value}
-        onChange={this.props.onChange}
-        fullWidth={this.props.fullWidth}
-        placeholder={this.props.placeholder}
-        getSuggestions={i => this.state.receivers.filter(r => r.startsWith(i))}
-        getSuggestionValue={String}
-        renderSuggestion={String}
-        onSelectSuggestion={this.props.onChange}
-        errorText={this.props.errorText}
-      />
-    );
-
-    /*
-
-  getSuggestions: (input: string) => T[];
-  getSuggestionValue: (item: T) => string;
-  renderSuggestion: (item: T) => string;
-  onSelectSuggestion: (item: T) => void;
-  style?: React.CSSProperties;
-  label?: string;
-  errorText?: string;
-  */
-
-    /*
-      dataSource: this.state.receivers,
-      onUpdateInput: (r: string) => this.inputStream.push(r),
-      placeholder: this.props.hintText || 'Kauppa',
-      label: 'Saaja',
-      fullWidth: true,
-      error: Boolean(this.props.errorText),
-      helpText: this.props.errorText,
-      searchText: this.props.value,
-      onBlur: this.props.onBlur,
-      onKeyUp: this.props.onKeyUp,
-    });
-    */
-  }
-}
-
-export class PlainReceiverField extends React.Component<ReceiverFieldProps> {
-  public render() {
-    return (
-      <ReceiverField {...this.props} value={this.props.value || ''}>
-        {this.props.children}
-      </ReceiverField>
-    );
-  }
 }
 
 export function DescriptionField(props: {

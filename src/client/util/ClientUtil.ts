@@ -28,5 +28,5 @@ export function stopEventPropagation(event: any): void {
 export function eventValue(
   e: string | React.ChangeEvent<{ value: string }>
 ): string {
-  return typeof e === 'string' ? e : e.target.value;
+  return (typeof e === 'string' ? e : e.target.value) || '';
 }

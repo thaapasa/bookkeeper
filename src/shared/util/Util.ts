@@ -31,6 +31,27 @@ export function camelCaseObject<T extends object>(o: T): T {
   return r;
 }
 
+export function filterCaseInsensitive(
+  match: string,
+  values: string[]
+): string[] {
+  const matcher = (match || '').toLowerCase();
+  return values.filter(v => v.toLowerCase().includes(matcher));
+}
+
+export function filterMapCaseInsensitive<T>(
+  match: string,
+  values: T[],
+  mapper: (v: T) => string
+): T[] {
+  const matcher = (match || '').toLowerCase();
+  return values.filter(v =>
+    mapper(v)
+      .toLowerCase()
+      .includes(matcher)
+  );
+}
+
 export function leftPad(
   s: string | number,
   length: number,

@@ -3,23 +3,27 @@ import { KeyCodes } from '../../util/Io';
 import debug from 'debug';
 import { TextFieldProps } from '@material-ui/core/TextField';
 import { AutoCompleteProps } from './AutoComplete';
-import { ReceiverFieldProps } from '../expense/ExpenseDialogComponents';
 import { omit } from 'shared/util/Objects';
 import { eventValue } from 'client/util/ClientUtil';
+import { ReceiverFieldProps } from '../expense/ReceiverField';
 const log = debug('bookkeeper:activatable-text-field');
 
-export type EditorType<T> = React.ComponentType<
-  TextFieldProps | AutoCompleteProps<T> | ReceiverFieldProps
->;
+type EditorTypeProps<T> =
+  | TextFieldProps
+  | AutoCompleteProps<T>
+  | ReceiverFieldProps;
+
+type EditorType<T> = React.ComponentType<EditorTypeProps<T>>;
 
 export type ActivatableTextFieldProps<T> = {
+  editorId?: string;
   editorType: EditorType<T>;
   viewStyle?: React.CSSProperties;
   value: string;
   placeholder?: string;
   onChange: (value: string) => void;
   onCancel?: () => void;
-} & T;
+};
 
 interface ActivatableTextFieldState {
   edit: boolean;
@@ -86,8 +90,9 @@ export default class ActivatableTextField<T> extends React.Component<
     );
     return (
       <Type
-        autoFocus={true}
         {...(childProps as any)}
+        id={this.props.editorId}
+        autoFocus={true}
         value={this.state.value}
         onChange={this.updateValue}
         onKeyUp={this.handleKeyPress}

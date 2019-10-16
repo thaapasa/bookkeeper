@@ -1,5 +1,5 @@
 import { Paper } from '@material-ui/core';
-import TextField, { StandardTextFieldProps } from '@material-ui/core/TextField';
+import TextField from '@material-ui/core/TextField';
 import React from 'react';
 import Autosuggest, {
   InputProps,
@@ -8,45 +8,43 @@ import Autosuggest, {
   SuggestionsFetchRequestedParams,
 } from 'react-autosuggest';
 import styled from 'styled-components';
+import { highlightBg, highlightFg } from '../Colors';
+import { eventValue } from 'client/util/ClientUtil';
 
 export interface AutoCompleteProps<T> {
-  id?: string;
+  id: string;
   name?: string;
   value: string;
-  onChange: (value: React.ChangeEvent<{ value: string }>) => void;
+  onChange: (value: string | React.ChangeEvent<{ value: string }>) => void;
+  suggestions: T[];
+  onUpdateSuggestions: (input: string) => void;
+  onClearSuggestions: () => void;
+  onSelectSuggestion: (suggestion: T) => void;
+  getSuggestionValue: (suggestion: T) => string;
   fullWidth?: boolean;
   placeholder?: string;
-  getSuggestions: (input: string) => T[];
-  getSuggestionValue: (item: T) => string;
-  renderSuggestion: (item: T) => string;
-  onSelectSuggestion: (item: T) => void;
   style?: React.CSSProperties;
   label?: string;
   errorText?: string;
 }
 
-interface AutoCompleteState<T> {
-  suggestions: T[];
-}
-
 export default class AutoComplete<T> extends React.Component<
-  AutoCompleteProps<T>,
-  AutoCompleteState<T>
+  AutoCompleteProps<T>
 > {
-  public state: AutoCompleteState<T> = { suggestions: [] };
   public render() {
     return (
       <Autosuggest
+        id={this.props.id}
         inputProps={{
-          id: this.props.id,
           name: this.props.name,
           value: this.props.value,
           onChange: this.setInputValue,
+          style: { margin: '6px 0' },
         }}
-        getSuggestionValue={this.renderSuggestion}
+        getSuggestionValue={this.props.getSuggestionValue}
         onSuggestionsFetchRequested={this.fetchSuggestions}
-        onSuggestionsClearRequested={this.clearSuggestions}
-        suggestions={this.state.suggestions}
+        onSuggestionsClearRequested={this.props.onClearSuggestions}
+        suggestions={this.props.suggestions}
         renderSuggestionsContainer={this.renderContainer}
         renderSuggestion={this.renderSuggestion}
         renderInputComponent={this.renderInput}
@@ -63,25 +61,23 @@ export default class AutoComplete<T> extends React.Component<
   };
 
   private fetchSuggestions = (params: SuggestionsFetchRequestedParams) => {
-    this.setState({
-      suggestions: this.props.getSuggestions(params.value),
-    });
+    this.props.onUpdateSuggestions(params.value);
   };
-  private clearSuggestions = () => this.setState({ suggestions: [] });
 
-  private setInputValue = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    if (typeof value !== 'string') {
-      return;
-    }
+  private setInputValue = async (e: React.ChangeEvent<HTMLInputElement>) => {
     this.props.onChange(e);
-    this.setState({
-      suggestions: this.props.getSuggestions(value),
-    });
+    this.props.onUpdateSuggestions(eventValue(e));
   };
 
-  private renderSuggestion = (item: T) => {
-    return this.props.renderSuggestion(item);
+  private renderSuggestion = (
+    item: T,
+    params: { query: string; isHighlighted: boolean }
+  ) => {
+    return (
+      <Item className={params.isHighlighted ? 'highlight' : 'normal'}>
+        {this.props.getSuggestionValue(item)}
+      </Item>
+    );
   };
 
   private renderContainer = (params: RenderSuggestionsContainerParams) => {
@@ -123,12 +119,22 @@ export default class AutoComplete<T> extends React.Component<
   };
 }
 
-const StandardTextField = TextField as React.ComponentType<
-  StandardTextFieldProps
->;
+const StandardTextField = styled(TextField)`
+  margin: 8px 0;
+  position: relative;
+`;
 
 const FloatingPaper = styled(Paper)`
   position: absolute;
   padding-right: 32px;
-  z-index: 1;
+  background-color: teal;
+  z-index: 2;
+`;
+
+const Item = styled.div`
+  padding: 4px 8px;
+  &.highlight {
+    background: ${highlightBg};
+    color: ${highlightFg};
+  }
 `;

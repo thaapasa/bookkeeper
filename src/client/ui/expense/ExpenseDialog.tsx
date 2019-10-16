@@ -11,11 +11,9 @@ import { KeyCodes } from '../../util/Io';
 import {
   SumField,
   TypeSelector,
-  TitleField,
   CategorySelector,
   SourceSelector,
   DateField,
-  ReceiverField,
   DescriptionField,
 } from './ExpenseDialogComponents';
 import { expenseName } from './ExpenseHelper';
@@ -65,6 +63,8 @@ import { ExpenseDialogObject } from '../../data/StateTypes';
 import { omit } from '../../../shared/util/Objects';
 import debug from 'debug';
 import { Button } from '@material-ui/core';
+import { TitleField } from './TitleField';
+import { ReceiverField } from './ReceiverField';
 
 const log = debug('bookkeeper:expense-dialog');
 
@@ -528,6 +528,7 @@ export class ExpenseDialog extends React.Component<
             </div>
           </div>
           <TitleField
+            id="expense-dialog-title"
             value={this.state.title}
             onSelect={this.selectCategory}
             dataSource={this.props.categorySource}
@@ -535,6 +536,8 @@ export class ExpenseDialog extends React.Component<
             onChange={v => this.inputStreams.title.push(eventValue(v))}
           />
           <ReceiverField
+            id="expense-dialog-receiver"
+            fullWidth={true}
             value={this.state.receiver}
             onChange={e => this.inputStreams.receiver.push(eventValue(e))}
             errorText={this.state.errors.receiver}
