@@ -1,8 +1,7 @@
 import * as React from 'react';
-import RaisedButton from 'material-ui/RaisedButton';
 import styled from 'styled-components';
 import { login } from '../../data/Login';
-import { Card, TextField } from '@material-ui/core';
+import { Card, TextField, Button } from '@material-ui/core';
 
 interface LoginPageState {
   username: string;
@@ -74,7 +73,9 @@ export default class LoginPage extends React.Component<{}, LoginPageState> {
               onChange={this.setPassword}
             />
             <br />
-            <LoginButton type="submit" label="Kirjaudu" primary={true} />
+            <LoginButton type="submit" color="primary" variant="contained">
+              Kirjaudu
+            </LoginButton>
             <br />
             {this.state.showStatusMessage ? (
               <Title>{this.state.statusMessage}</Title>
@@ -107,7 +108,7 @@ const Title = styled.title`
   max-width: 250px;
 `;
 
-const LoginButton = styled(RaisedButton)`
+const LoginButton = styled(Button)`
   margin: 30px;
 `;
 

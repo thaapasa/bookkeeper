@@ -1,6 +1,5 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import { Drawer, MenuItem } from 'material-ui';
 import { User, Group } from '../../../shared/types/Session';
 import { connect } from './BaconConnect';
 import { validSessionE, logout } from '../../data/Login';
@@ -9,6 +8,7 @@ import { colorScheme } from '../Colors';
 import { AppLink } from './NavigationBar';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { History } from 'history';
+import { Drawer, MenuItem } from '@material-ui/core';
 
 interface MenuDrawerProps extends RouteComponentProps<{}> {
   open: boolean;
@@ -39,8 +39,8 @@ class MenuDrawerImpl extends React.Component<MenuDrawerProps, {}> {
     return (
       <Drawer
         open={this.props.open}
-        docked={false}
-        onRequestChange={this.props.onRequestChange}
+        anchor="left"
+        onClose={() => this.props.onRequestChange(false)}
       >
         <GroupName>{this.props.group.name}</GroupName>
         <UserInfo>

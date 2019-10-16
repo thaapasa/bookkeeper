@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { colorScheme } from '../Colors';
 import { media, ScreenSizeClassName } from '../Styles';
 import { QuestionBookmark, Recurring } from '../Icons';
-import RefreshIndicator from 'material-ui/RefreshIndicator';
+import { CircularProgress } from '@material-ui/core';
 
 const tableBgColor = colorScheme.primary.light;
 const separatorColor = colorScheme.gray.standard;
@@ -221,18 +221,28 @@ export function RecurringExpenseSeparator() {
   );
 }
 
+const Progress = styled(CircularProgress)`
+  &.row {
+    left: 16px;
+    top: 0;
+    width: 30px;
+    height: 30px;
+  }
+  &.primary {
+    left: -30px;
+    top: -30px;
+    width: 60px;
+    height: 60px;
+  }
+`;
+
 export function LoadingIndicator(props: { forRow?: boolean }) {
-  const forRow = !!props.forRow;
+  const className = props.forRow ? 'row' : 'primary';
   return (
     <Row>
       <AllColumns {...props}>
-        <RefreshIndicatorContainer className={forRow ? 'row' : 'primary'}>
-          <RefreshIndicator
-            left={forRow ? 16 : -30}
-            top={forRow ? 0 : -30}
-            status="loading"
-            size={forRow ? 30 : 60}
-          />
+        <RefreshIndicatorContainer className={className}>
+          <Progress className={className} />
         </RefreshIndicatorContainer>
       </AllColumns>
     </Row>

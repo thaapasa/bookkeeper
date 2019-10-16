@@ -7,10 +7,11 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Checkbox,
+  FormControlLabel,
 } from '@material-ui/core';
 import debug from 'debug';
 import UserSelector from '../component/UserSelector';
-import Checkbox from 'material-ui/Checkbox';
 import UserAvatar from '../component/UserAvatar';
 import Money, { MoneyLike } from '../../../shared/util/Money';
 import apiConnect from '../../data/ApiConnect';
@@ -476,10 +477,16 @@ export class ExpenseDialog extends React.Component<
                 />
               </SumArea>
               <div className="expense-confirmed">
-                <Checkbox
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={!this.state.confirmed}
+                      onChange={e =>
+                        this.inputStreams.confirmed.push(!e.target.checked)
+                      }
+                    />
+                  }
                   label="Alustava"
-                  checked={!this.state.confirmed}
-                  onCheck={(e, v) => this.inputStreams.confirmed.push(!v)}
                 />
               </div>
               <div className="expense-type">
