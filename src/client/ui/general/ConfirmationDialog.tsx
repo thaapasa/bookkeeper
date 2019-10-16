@@ -1,10 +1,15 @@
 import * as React from 'react';
-import Dialog from 'material-ui/Dialog';
 import { ConfirmationObject } from '../../data/StateTypes';
 import { KeyCodes } from '../../util/Io';
 import { confirmationE } from '../../data/State';
 import { Action } from '../../../shared/types/Common';
-import { Button } from '@material-ui/core';
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogActions,
+  DialogTitle,
+} from '@material-ui/core';
 
 interface ConfirmationDialogProps<T> {
   confirmation: ConfirmationObject<T>;
@@ -40,29 +45,29 @@ class ConfirmationDialog<T> extends React.Component<
   };
 
   public render() {
-    const actions = this.props.confirmation.actions.map((a, i) => (
-      <Button
-        key={i}
-        color={i === 0 ? 'primary' : 'default'}
-        tabIndex={i + 2}
-        onKeyUp={this.handleKeyPress}
-        onClick={() => this.resolveWith(a.value)}
-      >
-        {a.label}
-      </Button>
-    ));
-
     return (
       <Dialog
         title={this.props.confirmation.title}
-        actions={actions}
-        modal={false}
         open={true}
-        onRequestClose={() => this.resolveWithIfDefined(false)}
+        onClose={() => this.resolveWithIfDefined(false)}
       >
-        <div onKeyUp={this.handleKeyPress}>
+        <DialogTitle>{this.props.confirmation.title}</DialogTitle>
+        <DialogContent onKeyUp={this.handleKeyPress}>
           {this.props.confirmation.content}
-        </div>
+        </DialogContent>
+        <DialogActions>
+          {this.props.confirmation.actions.map((a, i) => (
+            <Button
+              key={i}
+              color={i === 0 ? 'primary' : 'default'}
+              tabIndex={i + 2}
+              onKeyUp={this.handleKeyPress}
+              onClick={() => this.resolveWith(a.value)}
+            >
+              {a.label}
+            </Button>
+          ))}
+        </DialogActions>
       </Dialog>
     );
   }

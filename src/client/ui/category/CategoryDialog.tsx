@@ -187,7 +187,6 @@ export default class CategoryDialog extends React.Component<
                 Yläkategoria
               </InputLabel>
               <Select
-                key="category"
                 inputProps={{ id: 'category-dialog-parentId' }}
                 value={this.state.parentId}
                 fullWidth={true}

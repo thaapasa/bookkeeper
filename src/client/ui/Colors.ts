@@ -1,9 +1,9 @@
 import styled from 'styled-components';
-import * as colors from 'material-ui/styles/colors';
 import Money, { MoneyLike } from '../../shared/util/Money';
 import { getMuiTheme } from 'material-ui/styles';
 import { createMuiTheme } from '@material-ui/core';
 import { SimplePaletteColorOptions } from '@material-ui/core/styles';
+import { teal, grey, amber, lime } from '@material-ui/core/colors';
 
 interface ColorDef {
   standard: string;
@@ -75,11 +75,11 @@ export const negative = colorScheme.secondary.dark;
 export const unimportant = colorScheme.gray.dark;
 export const header = colorScheme.gray.dark;
 
-export const topItem = colors.teal500;
-export const subItem = colors.grey200;
+export const topItem = teal[500];
+export const subItem = grey[500];
 
 export const tool = colorScheme.gray.veryDark;
-export const unconfirmed = colors.amber50;
+export const unconfirmed = amber[50];
 
 export const highlightBg = orangeRed.light;
 export const highlightFg = orangeRed.dark;
@@ -99,7 +99,7 @@ export const unconfirmedStripes = diagonalStripes(
   '0.5em',
   '1em'
 );
-export const income = colors.lime100;
+export const income = lime[100];
 
 export function forMoney(m?: MoneyLike): string {
   if (!m) {

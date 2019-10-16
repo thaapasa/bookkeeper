@@ -1,5 +1,6 @@
 import * as React from 'react';
-import IconButton from 'material-ui/IconButton';
+import { withRouter, RouteComponentProps } from 'react-router';
+import { IconButton } from '@material-ui/core';
 import * as colors from '../Colors';
 import { NavigateLeft, NavigateRight } from '../Icons';
 import styled from 'styled-components';
@@ -9,7 +10,6 @@ import { yearSuffix, monthSuffix } from '../../util/Links';
 import { KeyCodes } from '../../util/Io';
 import { navigationP } from '../../data/State';
 import { connect } from './BaconConnect';
-import { withRouter, RouteComponentProps } from 'react-router';
 import debug from 'debug';
 const log = debug('bookkeeper:navigator');
 

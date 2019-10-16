@@ -1,10 +1,9 @@
 import * as React from 'react';
-import Avatar from 'material-ui/Avatar';
-import Chip from 'material-ui/Chip';
+import styled from 'styled-components';
+import { Chip, Avatar } from '@material-ui/core';
 import { UserExpense } from '../../../shared/types/Expense';
 import { colorScheme } from '../Colors';
 import { AllColumns, Row } from './ExpenseTableLayout';
-import styled from 'styled-components';
 
 export type ExpenseFilterFunction = (expense: UserExpense) => boolean;
 
@@ -47,15 +46,9 @@ export default class ExpenseFilterRow extends React.Component<
 const chipStyle: React.CSSProperties = {
   margin: '0.3em',
   padding: 0,
+  backgroundColor: colorScheme.primary.standard,
+  color: colorScheme.secondary.dark,
 };
-
-function getIconStyle(icon: string): React.CSSProperties {
-  return {
-    backgroundImage: `url(${icon})`,
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-  };
-}
 
 class ExpenseFilterItem extends React.Component<
   { filter: ExpenseFilter; index: number; onRemove: (index: number) => void },
@@ -69,13 +62,10 @@ class ExpenseFilterItem extends React.Component<
     return (
       <Chip
         style={chipStyle}
-        backgroundColor={colorScheme.primary.standard}
-        labelColor={colorScheme.secondary.dark}
-        onRequestDelete={this.onRemove}
-      >
-        {f.avatar ? <Avatar style={getIconStyle(f.avatar)} /> : null}
-        {f.name}
-      </Chip>
+        onDelete={this.onRemove}
+        label={f.name}
+        avatar={f.avatar ? <Avatar src={f.avatar} /> : undefined}
+      />
     );
   }
 }

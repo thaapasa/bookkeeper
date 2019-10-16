@@ -1,7 +1,14 @@
 import * as React from 'react';
 import * as B from 'baconjs';
 import styled from 'styled-components';
-import Dialog from 'material-ui/Dialog';
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+} from '@material-ui/core';
+import debug from 'debug';
 import UserSelector from '../component/UserSelector';
 import Checkbox from 'material-ui/Checkbox';
 import UserAvatar from '../component/UserAvatar';
@@ -11,7 +18,6 @@ import { KeyCodes } from '../../util/Io';
 import {
   SumField,
   TypeSelector,
-  CategorySelector,
   SourceSelector,
   DateField,
   DescriptionField,
@@ -61,10 +67,9 @@ import {
 } from '../../../shared/util/Arrays';
 import { ExpenseDialogObject } from '../../data/StateTypes';
 import { omit } from '../../../shared/util/Objects';
-import debug from 'debug';
-import { Button } from '@material-ui/core';
 import { TitleField } from './TitleField';
 import { ReceiverField } from './ReceiverField';
+import { CategorySelector } from './CategorySelector';
 
 const log = debug('bookkeeper:expense-dialog');
 
@@ -451,137 +456,123 @@ export class ExpenseDialog extends React.Component<
   };
 
   public render() {
-    const actions = [
-      <Button key="cancel" variant="text" onClick={this.dismiss}>
-        Peruuta
-      </Button>,
-      <Button
-        key="save"
-        variant="text"
-        color="primary"
-        disabled={!this.state.valid}
-        onClick={this.requestSave}
-      >
-        Tallenna
-      </Button>,
-    ];
-
     return (
-      <StyledDialog
-        contentClassName="expense-dialog"
-        bodyClassName="expense-dialog-body"
-        title={this.props.createNew ? 'Uusi kirjaus' : 'Muokkaa kirjausta'}
-        actions={actions}
-        modal={true}
-        autoDetectWindowHeight={true}
-        autoScrollBodyContent={true}
-        open={true}
-        onRequestClose={this.dismiss}
-      >
-        <form onSubmit={this.requestSave} onKeyUp={this.handleKeyPress}>
-          <div>
-            <UserAvatar
-              userId={this.state.userId}
-              style={{ verticalAlign: 'middle' }}
+      <StyledDialog open={true} onClose={this.dismiss}>
+        <DialogTitle>
+          {this.props.createNew ? 'Uusi kirjaus' : 'Muokkaa kirjausta'}
+        </DialogTitle>
+        <DialogContent className="expense-dialog-body">
+          <form onSubmit={this.requestSave} onKeyUp={this.handleKeyPress}>
+            <Row>
+              <UserAvatar
+                userId={this.state.userId}
+                style={{ verticalAlign: 'middle' }}
+              />
+              <SumArea>
+                <SumField
+                  value={this.state.sum}
+                  errorText={this.state.errors.sum}
+                  onChange={v => this.inputStreams.sum.push(v)}
+                />
+              </SumArea>
+              <div className="expense-confirmed">
+                <Checkbox
+                  label="Alustava"
+                  checked={!this.state.confirmed}
+                  onCheck={(e, v) => this.inputStreams.confirmed.push(!v)}
+                />
+              </div>
+              <div className="expense-type">
+                <TypeSelector
+                  value={this.state.type}
+                  onChange={v => this.inputStreams.type.push(v)}
+                />
+              </div>
+            </Row>
+            <TitleField
+              id="expense-dialog-title"
+              value={this.state.title}
+              onSelect={this.selectCategory}
+              dataSource={this.props.categorySource}
+              errorText={this.state.errors.title}
+              onChange={v => this.inputStreams.title.push(eventValue(v))}
             />
-            <div
-              className="expense-sum"
-              style={{
-                height: '72px',
-                marginLeft: '2em',
-                display: 'inline-block',
-                verticalAlign: 'middle',
-              }}
-            >
-              <SumField
-                value={this.state.sum}
-                errorText={this.state.errors.sum}
-                onChange={v => this.inputStreams.sum.push(v)}
+            <ReceiverField
+              id="expense-dialog-receiver"
+              fullWidth={true}
+              value={this.state.receiver}
+              onChange={e => this.inputStreams.receiver.push(eventValue(e))}
+              errorText={this.state.errors.receiver}
+              onKeyUp={stopEventPropagation}
+            />
+            <CategorySelector
+              category={this.state.categoryId}
+              categories={this.props.categories}
+              onChangeCategory={v => this.inputStreams.categoryId.push(v)}
+              errorText={this.state.errors.categoryId}
+              subcategory={this.state.subcategoryId}
+              subcategories={this.state.subcategories}
+              onChangeSubcategory={v => this.inputStreams.subcategoryId.push(v)}
+            />
+            <br />
+            <div style={{ display: 'flex', flexWrap: 'nowrap' }}>
+              <SourceSelector
+                value={this.state.sourceId}
+                sources={this.props.sources}
+                style={{ flexGrow: 1 }}
+                onChange={v => this.inputStreams.sourceId.push(v)}
+              />
+              <UserSelector
+                style={{ paddingTop: '0.5em' }}
+                selected={this.state.benefit}
+                onChange={v => this.inputStreams.benefit.push(v)}
               />
             </div>
-            <div
-              className="expense-confirmed"
-              style={{
-                marginLeft: '2em',
-                display: 'inline-block',
-                verticalAlign: 'middle',
-              }}
-            >
-              <Checkbox
-                label="Alustava"
-                checked={!this.state.confirmed}
-                onCheck={(e, v) => this.inputStreams.confirmed.push(!v)}
-              />
-            </div>
-            <div
-              className="expense-type"
-              style={{
-                marginLeft: '2em',
-                display: 'inline-block',
-                verticalAlign: 'middle',
-              }}
-            >
-              <TypeSelector
-                value={this.state.type}
-                onChange={v => this.inputStreams.type.push(v)}
-              />
-            </div>
-          </div>
-          <TitleField
-            id="expense-dialog-title"
-            value={this.state.title}
-            onSelect={this.selectCategory}
-            dataSource={this.props.categorySource}
-            errorText={this.state.errors.title}
-            onChange={v => this.inputStreams.title.push(eventValue(v))}
-          />
-          <ReceiverField
-            id="expense-dialog-receiver"
-            fullWidth={true}
-            value={this.state.receiver}
-            onChange={e => this.inputStreams.receiver.push(eventValue(e))}
-            errorText={this.state.errors.receiver}
-            onKeyUp={stopEventPropagation}
-          />
-          <CategorySelector
-            category={this.state.categoryId}
-            categories={this.props.categories}
-            onChangeCategory={v => this.inputStreams.categoryId.push(v)}
-            errorText={this.state.errors.categoryId}
-            subcategory={this.state.subcategoryId}
-            subcategories={this.state.subcategories}
-            onChangeSubcategory={v => this.inputStreams.subcategoryId.push(v)}
-          />
-          <br />
-          <div style={{ display: 'flex', flexWrap: 'nowrap' }}>
-            <SourceSelector
-              value={this.state.sourceId}
-              sources={this.props.sources}
-              style={{ flexGrow: 1 }}
-              onChange={v => this.inputStreams.sourceId.push(v)}
-            />
-            <UserSelector
-              style={{ paddingTop: '0.5em' }}
-              selected={this.state.benefit}
-              onChange={v => this.inputStreams.benefit.push(v)}
-            />
-          </div>
-          <br />
+            <br />
 
-          <DateField
-            value={this.state.date}
-            onChange={v => this.inputStreams.date.push(v)}
-          />
-          <DescriptionField
-            value={this.state.description}
-            onChange={v => this.inputStreams.description.push(v)}
-            errorText={this.state.errors.description}
-          />
-        </form>
+            <DateField
+              value={this.state.date}
+              onChange={v => this.inputStreams.date.push(v)}
+            />
+            <DescriptionField
+              value={this.state.description}
+              onChange={v => this.inputStreams.description.push(v)}
+              errorText={this.state.errors.description}
+            />
+          </form>
+        </DialogContent>
+        <DialogActions>
+          <Button key="cancel" variant="text" onClick={this.dismiss}>
+            Peruuta
+          </Button>
+          <Button
+            key="save"
+            variant="text"
+            color="primary"
+            disabled={!this.state.valid}
+            onClick={this.requestSave}
+          >
+            Tallenna
+          </Button>
+        </DialogActions>
       </StyledDialog>
     );
   }
 }
+
+const Row = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+`;
+
+const SumArea = styled.div`
+  height: 72px;
+  margin-left: 1em;
+  display: inline-block;
+  vertical-align: middle;
+`;
 
 const StyledDialog = styled(Dialog)`
   .expense-dialog {

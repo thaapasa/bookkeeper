@@ -6,11 +6,12 @@ import { validSessionE } from '../../data/Login';
 import styled from 'styled-components';
 
 const Container = styled.div`
-  display: inline-block;
+  display: inline-flex;
+  flex-direction: row;
 `;
 
 const StyledUserAvatar = styled(UserAvatar)`
-  margin: 0 0.2em;
+  margin: 0.2em;
   vertical-align: top;
 `;
 

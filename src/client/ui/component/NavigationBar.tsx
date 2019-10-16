@@ -1,12 +1,11 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import { ToolbarGroup } from 'material-ui/Toolbar';
-import { Toolbar } from 'material-ui';
 import { Route, Link } from 'react-router-dom';
 import DateRangeNavigator from './DateRangeNavigator';
 import { AddExpenseIcon } from '../icons/AddExpenseIcon';
 import { media } from '../Styles';
-import { Button } from '@material-ui/core';
+import { Button, Toolbar } from '@material-ui/core';
+import { colorScheme } from '../Colors';
 
 export interface AppLink {
   label: string;
@@ -18,10 +17,6 @@ interface NavigationBarProps {
 }
 
 const styles: Record<string, React.CSSProperties> = {
-  toolbar: {
-    position: 'relative',
-    width: '100%',
-  },
   links: {
     flex: 1,
     justifyContent: 'flex-start',
@@ -36,7 +31,7 @@ export default class NavigationBar extends React.Component<
 > {
   public render() {
     return (
-      <Toolbar style={styles.toolbar}>
+      <Bar>
         <ToolbarGroup style={styles.links}>
           {this.props.links &&
             this.props.links.map(l => (
@@ -48,10 +43,18 @@ export default class NavigationBar extends React.Component<
         </ToolbarGroup>
         <ToolbarGroup style={styles.pad} />
         <StyledAddExpenseIcon />
-      </Toolbar>
+      </Bar>
     );
   }
 }
+
+const Bar = styled(Toolbar)`
+  background-color: ${colorScheme.primary.standard};
+  min-height: inherit;
+  position: relative;
+`;
+
+const ToolbarGroup = styled.div``;
 
 export const StyledAddExpenseIcon = styled(AddExpenseIcon)`
   position: absolute;

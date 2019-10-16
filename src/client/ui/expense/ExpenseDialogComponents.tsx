@@ -1,9 +1,6 @@
 import * as React from 'react';
 import DatePicker from 'material-ui/DatePicker';
-import DropDownMenu from 'material-ui/DropDownMenu';
-import MenuItem from 'material-ui/MenuItem';
 import { ExpenseTypeIcon } from '../Icons';
-import { stopEventPropagation } from '../../util/ClientUtil';
 import { Source } from '../../../shared/types/Session';
 import {
   ExpenseType,
@@ -11,13 +8,8 @@ import {
   expenseTypes,
 } from '../../../shared/types/Expense';
 import { toMoment } from '../../../shared/util/Time';
-import { IconButton } from 'material-ui';
 import { VCenterRow } from '../Styles';
-import { TextField } from '@material-ui/core';
-
-const styles = {
-  category: { width: '50%' },
-};
+import { TextField, MenuItem, Select, IconButton } from '@material-ui/core';
 
 // tslint:disable jsx-no-lambda
 export function SumField(props: {
@@ -38,53 +30,6 @@ export function SumField(props: {
   );
 }
 
-export function CategorySelector(props: {
-  category: number;
-  subcategory: number;
-  categories: any[];
-  subcategories: any[];
-  onChangeCategory: (id: number) => void;
-  onChangeSubcategory: (id: number) => void;
-  errorText?: string;
-}) {
-  return (
-    <div onKeyUp={stopEventPropagation}>
-      <DropDownMenu
-        key="category"
-        value={props.category}
-        style={styles.category}
-        // autoWidth={false}
-        // onKeyUp={stopEventPropagation}
-        onChange={(i, j, v) => props.onChangeCategory(v)}
-      >
-        {props.categories.map(row => (
-          <MenuItem key={row.id} value={row.id} primaryText={row.name} />
-        ))}
-      </DropDownMenu>
-      <DropDownMenu
-        key="subcategory"
-        value={props.subcategory}
-        style={styles.category}
-        // autoWidth={false}
-        // onKeyUp={stopEventPropagation}
-        onChange={(i, j, v) => props.onChangeSubcategory(v)}
-      >
-        {props.subcategories.map(row => (
-          <MenuItem key={row.id} value={row.id} primaryText={row.name} />
-        ))}
-      </DropDownMenu>
-      {props.errorText
-        ? [
-            <br key="br" />,
-            <div className="error-text" key="error">
-              {props.errorText}
-            </div>,
-          ]
-        : null}
-    </div>
-  );
-}
-
 export function SourceSelector(props: {
   value: number;
   onChange: (id: number) => void;
@@ -92,15 +37,17 @@ export function SourceSelector(props: {
   style?: React.CSSProperties;
 }) {
   return (
-    <DropDownMenu
+    <Select
       value={props.value}
       style={props.style}
-      onChange={(event, index, sourceId) => props.onChange(sourceId)}
+      onChange={e => props.onChange(Number(e.target.value))}
     >
       {props.sources.map(s => (
-        <MenuItem key={s.id} value={s.id} primaryText={s.name} />
+        <MenuItem key={s.id} value={s.id}>
+          {s.name}
+        </MenuItem>
       ))}
-    </DropDownMenu>
+    </Select>
   );
 }
 
@@ -124,7 +71,7 @@ export class TypeSelector extends React.Component<
     return (
       <VCenterRow>
         <IconButton onClick={this.toggle}>
-          <ExpenseTypeIcon type={this.props.value} />
+          <ExpenseTypeIcon type={this.props.value} size={24} />
         </IconButton>
         {getExpenseTypeLabel(this.props.value)}
       </VCenterRow>

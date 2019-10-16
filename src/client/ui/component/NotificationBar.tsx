@@ -1,5 +1,5 @@
 import * as React from 'react';
-import Snackbar from 'material-ui/Snackbar';
+import Snackbar from '@material-ui/core/Snackbar';
 import { Notification } from '../../data/StateTypes';
 import { notificationE } from '../../data/State';
 import { Action, Timeout } from '../../../shared/types/Common';
@@ -25,7 +25,7 @@ class NotificationBar extends React.Component<NotificationBarProps, {}> {
       <Snackbar
         open={true}
         message={this.getMessage()}
-        onRequestClose={this.props.onClose}
+        onClose={this.props.onClose}
       />
     );
   }

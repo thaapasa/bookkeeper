@@ -1,6 +1,6 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import IconButton from 'material-ui/IconButton';
+import { IconButton } from '@material-ui/core';
 import { Repeat, Edit, Delete } from '../../Icons';
 import {
   confirm,
@@ -78,28 +78,25 @@ export default class ExpenseInfoTools extends React.Component<
           <IconButton
             title="Muuta toistuvaksi"
             style={styles.tool}
-            iconStyle={styles.toolIcon}
             onClick={this.createRecurring}
           >
-            <Repeat color={colors.tool} />
+            <Repeat color={colors.tool} style={styles.toolIcon} />
           </IconButton>
         )}
         <MobileTools>
           <IconButton
             title="Muokkaa"
             style={styles.tool}
-            iconStyle={styles.toolIcon}
             onClick={this.onModify}
           >
-            <Edit />
+            <Edit style={styles.toolIcon} />
           </IconButton>
           <IconButton
             title="Poista"
             style={styles.tool}
-            iconStyle={styles.toolIcon}
             onClick={this.onDelete}
           >
-            <Delete />
+            <Delete style={styles.toolIcon} />
           </IconButton>
         </MobileTools>
       </ToolContainer>
