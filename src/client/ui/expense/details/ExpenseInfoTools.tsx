@@ -80,7 +80,7 @@ export default class ExpenseInfoTools extends React.Component<
             style={styles.tool}
             onClick={this.createRecurring}
           >
-            <Repeat color={colors.tool} style={styles.toolIcon} />
+            <Repeat style={styles.toolIcon} />
           </IconButton>
         )}
         <MobileTools>

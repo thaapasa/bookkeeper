@@ -1,19 +1,18 @@
 import * as React from 'react';
-import PaymentSVG from 'material-ui/svg-icons/action/payment';
-import AttachMoneySVG from 'material-ui/svg-icons/editor/attach-money';
-import ChevronLeftSVG from 'material-ui/svg-icons/navigation/chevron-left';
-import ChevronRightSVG from 'material-ui/svg-icons/navigation/chevron-right';
-import ExpandLessSVG from 'material-ui/svg-icons/navigation/expand-less';
-import ExpandMoreSVG from 'material-ui/svg-icons/navigation/expand-more';
-import DeleteSVG from 'material-ui/svg-icons/action/delete';
-import EditSVG from 'material-ui/svg-icons/image/edit';
-import RepeatSVG from 'material-ui/svg-icons/av/repeat';
-import ContentAdd from 'material-ui/svg-icons/content/add';
-import IconButton from 'material-ui/IconButton';
-import RedoSVG from 'material-ui/svg-icons/content/redo';
-import AddCircleSVG from 'material-ui/svg-icons/content/add-circle';
-import AutoRenewSVG from 'material-ui/svg-icons/action/autorenew';
-import MenuIconSVG from 'material-ui/svg-icons/navigation/menu';
+import PaymentSVG from '@material-ui/icons/Payment';
+import AttachMoneySVG from '@material-ui/icons/AttachMoney';
+import ChevronLeftSVG from '@material-ui/icons/ChevronLeft';
+import ChevronRightSVG from '@material-ui/icons/ChevronRight';
+import ExpandLessSVG from '@material-ui/icons/ExpandLess';
+import ExpandMoreSVG from '@material-ui/icons/ExpandMore';
+import DeleteSVG from '@material-ui/icons/Delete';
+import EditSVG from '@material-ui/icons/Edit';
+import RepeatSVG from '@material-ui/icons/Repeat';
+import ContentAdd from '@material-ui/icons/Add';
+import RedoSVG from '@material-ui/icons/Redo';
+import AddCircleSVG from '@material-ui/icons/AddCircle';
+import AutoRenewSVG from '@material-ui/icons/Autorenew';
+import MenuIconSVG from '@material-ui/icons/Menu';
 import * as colors from './Colors';
 import { ExpenseType } from '../../shared/types/Expense';
 
@@ -72,18 +71,6 @@ export function ToolIcon(props: {
     style: { ...styles.tool, ...props.style },
     icon: undefined,
   });
-}
-
-export function ToolButton(props: {
-  title: string;
-  onClick?: () => void;
-  icon: any;
-}) {
-  return (
-    <IconButton title={props.title} style={styles.tool} onClick={props.onClick}>
-      {React.createElement(props.icon, { color: colors.tool }, null)}
-    </IconButton>
-  );
 }
 
 export class QuestionBookmark extends React.Component<{ size: number }, {}> {

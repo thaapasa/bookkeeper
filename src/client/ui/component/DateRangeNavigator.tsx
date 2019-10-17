@@ -63,13 +63,13 @@ export class DateRangeNavigator extends React.Component<
       <NavigationContainer onKeyUp={this.handleKeyPress} tabIndex={1}>
         <div>
           <StyledIconButton onClick={this.navigatePrev} title="Edellinen">
-            <NavigateLeft color={colors.navigation} />
+            <NavigateLeft color="primary" />
           </StyledIconButton>
         </div>
         <TitleArea>{toDateRangeName(this.props.dateRange)}</TitleArea>
         <div>
           <StyledIconButton onClick={this.navigateNext} title="Seuraava">
-            <NavigateRight color={colors.navigation} />
+            <NavigateRight color="primary" />
           </StyledIconButton>
         </div>
       </NavigationContainer>
