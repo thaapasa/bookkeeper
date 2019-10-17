@@ -1,5 +1,4 @@
 import * as React from 'react';
-import DatePicker from 'material-ui/DatePicker';
 import { ExpenseTypeIcon } from '../Icons';
 import { Source } from '../../../shared/types/Session';
 import {
@@ -7,7 +6,6 @@ import {
   getExpenseTypeLabel,
   expenseTypes,
 } from '../../../shared/types/Expense';
-import { toMoment } from '../../../shared/util/Time';
 import { VCenterRow } from '../Styles';
 import { TextField, MenuItem, Select, IconButton } from '@material-ui/core';
 
@@ -77,23 +75,6 @@ export class TypeSelector extends React.Component<
       </VCenterRow>
     );
   }
-}
-
-export function DateField(props: {
-  value: Date;
-  onChange: (date: Date) => void;
-}) {
-  return (
-    <DatePicker
-      value={props.value}
-      formatDate={d => toMoment(d).format('D.M.YYYY')}
-      floatingLabelText="Päivämäärä"
-      // floatingLabelFixed={true}
-      fullWidth={true}
-      autoOk={true}
-      onChange={(event, date) => props.onChange(date)}
-    />
-  );
 }
 
 export function DescriptionField(props: {

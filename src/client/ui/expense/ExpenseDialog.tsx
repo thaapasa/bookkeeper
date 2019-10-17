@@ -20,7 +20,6 @@ import {
   SumField,
   TypeSelector,
   SourceSelector,
-  DateField,
   DescriptionField,
 } from './ExpenseDialogComponents';
 import { expenseName } from './ExpenseHelper';
@@ -71,6 +70,7 @@ import { omit } from '../../../shared/util/Objects';
 import { TitleField } from './TitleField';
 import { ReceiverField } from './ReceiverField';
 import { CategorySelector } from './CategorySelector';
+import { DateField } from './DateField';
 
 const log = debug('bookkeeper:expense-dialog');
 

@@ -1,64 +1,54 @@
 import * as React from 'react';
-import DatePicker from 'material-ui/DatePicker';
+import {
+  KeyboardDatePicker,
+  MaterialUiPickersDate,
+} from '@material-ui/pickers';
 import { PickDateObject } from '../../data/StateTypes';
 import { Action } from '../../../shared/types/Common';
 import { pickDateE } from '../../data/State';
 import { unsubscribeAll } from '../../util/ClientUtil';
-import { toMoment } from '../../../shared/util/Time';
-import debug from 'debug';
-const log = debug('bookkeeper:date-picker');
+import { datePickerFormat } from '../expense/DateField';
 
 interface DatePickerProps {
   pick: PickDateObject;
   pickCounter: number;
 }
 
-class DatePickerComponent extends React.Component<DatePickerProps, {}> {
-  private ref: DatePicker | null = null;
+interface DatePickerState {
+  date?: Date;
+}
 
-  public componentDidMount() {
-    this.open();
-  }
+class DatePickerComponent extends React.Component<
+  DatePickerProps,
+  DatePickerState
+> {
+  state: DatePickerState = { date: this.props.pick.initialDate };
 
-  public componentDidUpdate(prevProps: DatePickerProps) {
-    if (prevProps.pickCounter !== this.props.pickCounter) {
-      this.open();
+  componentDidUpdate(prevProps: DatePickerProps) {
+    if (prevProps.pick.initialDate !== this.props.pick.initialDate) {
+      this.setState({ date: this.props.pick.initialDate });
     }
   }
-
-  private open = () => {
-    if (this.ref) {
-      this.ref.openDialog();
-    }
-  };
-
-  private onChange = (_: any, d: Date) => {
-    log('Selecting date', d);
-    this.props.pick.resolve(d);
-  };
-  private onDismiss = () => {
-    log('Dismissing date picker');
-    this.props.pick.resolve(undefined);
-  };
-  private formatDate = (d: Date) => toMoment(d).format('D.M.YYYY');
-
-  private setRef = (ref: DatePicker | null) => (this.ref = ref);
 
   public render() {
     return (
-      <DatePicker
-        textFieldStyle={{ display: 'none' }}
-        formatDate={this.formatDate}
+      <KeyboardDatePicker
+        variant="dialog"
+        format={datePickerFormat}
         name="date-picker"
-        defaultDate={this.props.pick.initialDate}
-        container="dialog"
-        ref={this.setRef}
-        autoOk={true}
+        value={this.state.date}
         onChange={this.onChange}
-        onDismiss={this.onDismiss}
       />
     );
   }
+
+  private onChange = (edited: MaterialUiPickersDate | null) => {
+    const date = edited && edited.isValid() ? edited.toDate() : undefined;
+    if (date) {
+      this.setState({ date });
+      this.props.pick.resolve(date);
+    }
+  };
 }
 
 interface DatePickerConnectorState {
