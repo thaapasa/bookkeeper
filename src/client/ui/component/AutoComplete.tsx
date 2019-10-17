@@ -93,12 +93,8 @@ export default class AutoComplete<T> extends React.Component<
 
   private renderInput = (props: InputProps<T>) => {
     const {
-      inputRef = () => {
-        // Ignore
-      },
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       defaultValue,
-      ref,
       ...other
     } = props;
 
@@ -111,12 +107,6 @@ export default class AutoComplete<T> extends React.Component<
         type="text"
         error={Boolean(this.props.errorText)}
         helperText={this.props.errorText}
-        InputProps={{
-          inputRef: node => {
-            ref(node);
-            inputRef(node);
-          },
-        }}
         onChange={this.setInputValue}
       />
     );
