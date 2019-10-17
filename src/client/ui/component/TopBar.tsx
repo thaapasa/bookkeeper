@@ -1,9 +1,10 @@
 import * as React from 'react';
 import * as colors from '../Colors';
+import styled from 'styled-components';
+
 import { validSessionE } from '../../data/Login';
 import { User, Group } from '../../../shared/types/Session';
 import { connect } from './BaconConnect';
-import { AppBar, ToolbarGroup } from 'material-ui';
 import MenuDrawer from './MenuDrawer';
 import { AppLink } from './NavigationBar';
 import { AddExpenseIcon } from '../icons/AddExpenseIcon';
@@ -11,6 +12,7 @@ import { Size } from '../Types';
 import { isMobileSize } from '../Styles';
 import DateRangeNavigator from './DateRangeNavigator';
 import { MenuIcon } from '../Icons';
+import { AppBar, Toolbar, IconButton, Typography } from '@material-ui/core';
 
 interface TopBarProps {
   user: User;
@@ -42,7 +44,7 @@ class TopBar extends React.Component<TopBarProps, TopBarState> {
     menuOpen: false,
   };
 
-  private getTitle() {
+  get title() {
     return isMobileSize(this.props.windowSize)
       ? undefined
       : this.props.group.name;
@@ -60,14 +62,19 @@ class TopBar extends React.Component<TopBarProps, TopBarState> {
   public render() {
     return (
       <React.Fragment>
-        <AppBar
-          title={this.getTitle()}
-          style={styles.topBar}
-          onLeftIconButtonClick={this.toggleMenu}
-          titleStyle={styles.titleStyle}
-          iconElementLeft={<MenuIcon style={styles.iconStyle} />}
-        >
-          {this.getContents()}
+        <AppBar color="secondary" position="static">
+          <TopToolBar>
+            <IconButton
+              edge="start"
+              aria-label="menu"
+              size="small"
+              onClick={this.toggleMenu}
+            >
+              <MenuIcon style={styles.iconStyle} />
+            </IconButton>
+            <Title variant="h6">{this.title}</Title>
+            {this.getContents()}
+          </TopToolBar>
         </AppBar>
         <MenuDrawer
           open={this.state.menuOpen}
@@ -81,10 +88,21 @@ class TopBar extends React.Component<TopBarProps, TopBarState> {
   private toggleMenu = () => {
     this.setState(s => ({ menuOpen: !s.menuOpen }));
   };
+
   private changeMenu = (menuOpen: boolean) => {
     this.setState({ menuOpen });
   };
 }
+
+const TopToolBar = styled(Toolbar)`
+  height: 56px;
+`;
+
+const ToolbarGroup = styled.div``;
+
+const Title = styled(Typography)`
+  margin-left: 8px;
+`;
 
 export default connect(
   validSessionE.map(s => ({ user: s.user, group: s.group }))

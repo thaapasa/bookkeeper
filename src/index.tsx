@@ -4,25 +4,22 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import MomentUtils from '@date-io/moment';
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import { ThemeProvider } from '@material-ui/styles';
 import { StylesProvider } from '@material-ui/core/styles';
 import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 import registerServiceWorker from './client/registerServiceWorker';
 import './index.css';
 import App from './client/App';
-import { muiTheme, muiThemeMUICore } from './client/ui/Colors';
+import { muiTheme } from './client/ui/Colors';
 import { fiLocale } from 'shared/types/Time';
 
 ReactDOM.render(
   <StylesProvider injectFirst>
-    <MuiThemeProvider muiTheme={muiTheme}>
-      <ThemeProvider theme={muiThemeMUICore}>
-        <MuiPickersUtilsProvider utils={MomentUtils} locale={fiLocale}>
-          <App />
-        </MuiPickersUtilsProvider>
-      </ThemeProvider>
-    </MuiThemeProvider>
+    <ThemeProvider theme={muiTheme}>
+      <MuiPickersUtilsProvider utils={MomentUtils} locale={fiLocale}>
+        <App />
+      </MuiPickersUtilsProvider>
+    </ThemeProvider>
   </StylesProvider>,
   document.getElementById('root') as HTMLElement
 );

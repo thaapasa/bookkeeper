@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 import Money, { MoneyLike } from '../../shared/util/Money';
-import { getMuiTheme } from 'material-ui/styles';
 import { createMuiTheme } from '@material-ui/core';
 import { SimplePaletteColorOptions } from '@material-ui/core/styles';
 import { teal, grey, amber, lime } from '@material-ui/core/colors';
@@ -131,24 +130,7 @@ export function classNameForMoney(
     : 'unimportant';
 }
 
-export const muiTheme = getMuiTheme({
-  palette: {
-    primary1Color: colorScheme.secondary.standard,
-    primary2Color: colorScheme.primary.standard,
-    accent1Color: colorScheme.secondary.dark,
-    accent2Color: colorScheme.primary.standard,
-    textColor: colorScheme.text,
-    pickerHeaderColor: colorScheme.secondary.dark,
-    secondaryTextColor: colorScheme.secondary.text,
-    alternateTextColor: colorScheme.secondary.light,
-    canvasColor: colorScheme.primary.light,
-  },
-  appBar: {
-    height: 56,
-  },
-});
-
-export const muiThemeMUICore = createMuiTheme({
+export const muiTheme = createMuiTheme({
   palette: {
     primary: secondaryPalette,
     secondary: primaryPalette,
