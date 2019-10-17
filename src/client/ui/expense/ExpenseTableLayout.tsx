@@ -3,13 +3,12 @@ import styled from 'styled-components';
 import { colorScheme } from '../Colors';
 import { media, ScreenSizeClassName } from '../Styles';
 import { QuestionBookmark, Recurring } from '../Icons';
-import RefreshIndicator from 'material-ui/RefreshIndicator';
-import { Map } from '../../../shared/util/Objects';
+import { CircularProgress } from '@material-ui/core';
 
 const tableBgColor = colorScheme.primary.light;
 const separatorColor = colorScheme.gray.standard;
 
-export const columnSizes: Map<ScreenSizeClassName> = {
+export const columnSizes: Record<string, ScreenSizeClassName> = {
   date: 'mobile-portrait',
   avatar: 'mobile-portrait',
   name: 'mobile-portrait',
@@ -23,8 +22,13 @@ export const columnSizes: Map<ScreenSizeClassName> = {
 const columns = Object.keys(columnSizes);
 
 export const maxColumnsForSize2 = {
-  'mobile-portrait': columns.filter(c => columnSizes[c] === 'mobile-portrait').length,
-  'mobile-landscape': columns.filter(c => columnSizes[c] === 'mobile-portrait' || columnSizes[c] === 'mobile-landscape').length,
+  'mobile-portrait': columns.filter(c => columnSizes[c] === 'mobile-portrait')
+    .length,
+  'mobile-landscape': columns.filter(
+    c =>
+      columnSizes[c] === 'mobile-portrait' ||
+      columnSizes[c] === 'mobile-landscape'
+  ).length,
   web: columns.length,
   large: columns.length,
 };
@@ -50,10 +54,16 @@ export const Row = styled.tr`
   padding: 0;
   width: 100%;
   &:first-of-type {
-    td, th { border-top: none; }
+    td,
+    th {
+      border-top: none;
+    }
   }
   &:last-of-type {
-    td, th { border-bottom: 1px solid ${separatorColor}; }
+    td,
+    th {
+      border-bottom: 1px solid ${separatorColor};
+    }
   }
   td {
     border-top: 1px solid ${separatorColor};
@@ -78,31 +88,31 @@ const Column = styled.td`
   }
 `;
 
-const WebColumn = Column.extend`
+const WebColumn = styled(Column)`
   ${media.mobile`
     visibility: hidden;
     width: 0;
   `}
 `;
 
-const MobileLandscapeColumn = Column.extend`
+const MobileLandscapeColumn = styled(Column)`
   ${media.mobilePortrait`
     visibility: hidden;
     width: 0;
   `}
 `;
 
-export const DateColumn = Column.extend`
+export const DateColumn = styled(Column)`
   text-align: right;
   width: 40px;
   position: relative;
 `;
-export const AvatarColumn = Column.extend`
+export const AvatarColumn = styled(Column)`
   padding: 0 8px;
   padding-top: 2px;
   width: 32px;
 `;
-export const NameColumn = Column.extend`
+export const NameColumn = styled(Column)`
   position: relative;
   padding-left: 4px;
 `;
@@ -110,31 +120,31 @@ export const ReceiverColumn = MobileLandscapeColumn;
 export const CategoryColumn = MobileLandscapeColumn;
 
 export const sourceWidth = 52;
-export const SourceColumn = WebColumn.extend`
+export const SourceColumn = styled(WebColumn)`
   padding: 4px;
   padding-bottom: 0;
   width: ${sourceWidth + 8}px;
 `;
-const MoneyColumn = Column.extend`
+const MoneyColumn = styled(Column)`
   position: relative;
   width: 80px;
   text-align: right;
   padding-right: 8px;
 `;
-const OptMoneyColumn = WebColumn.extend`
+const OptMoneyColumn = styled(WebColumn)`
   position: relative;
   width: 80px;
   text-align: right;
   padding-right: 8px;
 `;
-export const SumColumn = MoneyColumn.extend`
+export const SumColumn = styled(MoneyColumn)`
   width: 100px;
   &.income {
     background-color: ${colorScheme.primary.standard};
   }
 `;
 export const BalanceColumn = OptMoneyColumn;
-export const ToolColumn = Column.extend`
+export const ToolColumn = styled(Column)`
   width: 100px;
   text-align: right;
   white-space: nowrap;
@@ -144,8 +154,12 @@ export const ToolColumn = Column.extend`
   `}
 `;
 
-export function AllColumns(props: { className?: string, children?: any }) {
-  return <Column colSpan={9} className={props.className}>{props.children}</Column>;
+export function AllColumns(props: { className?: string; children?: any }) {
+  return (
+    <Column colSpan={9} className={props.className}>
+      {props.children}
+    </Column>
+  );
 }
 
 const Corner = styled.div`
@@ -165,10 +179,16 @@ const Corner = styled.div`
   justify-content: flex-end;
 `;
 
-const recurringIconStyle = { width: 20, height: 20, color: colorScheme.secondary.light };
+const recurringIconStyle = {
+  width: 20,
+  height: 20,
+  color: colorScheme.secondary.light,
+};
 export function RecurringExpenseIcon() {
   return (
-    <Corner title="Toistuva kirjaus"><Recurring style={recurringIconStyle} /></Corner>
+    <Corner title="Toistuva kirjaus">
+      <Recurring style={recurringIconStyle} />
+    </Corner>
   );
 }
 
@@ -182,7 +202,9 @@ const UnconfirmedIconArea = styled.div`
 
 export function UnconfirmedIcon({ size }: { size?: number }) {
   return (
-    <UnconfirmedIconArea title="Alustava kirjaus"><QuestionBookmark size={size || 24} /></UnconfirmedIconArea>
+    <UnconfirmedIconArea title="Alustava kirjaus">
+      <QuestionBookmark size={size || 24} />
+    </UnconfirmedIconArea>
   );
 }
 
@@ -192,16 +214,35 @@ const RecurringExpenseSeparatorItem = styled(AllColumns)`
 `;
 
 export function RecurringExpenseSeparator() {
-  return <Row><RecurringExpenseSeparatorItem /></Row>;
+  return (
+    <Row>
+      <RecurringExpenseSeparatorItem />
+    </Row>
+  );
 }
 
+const Progress = styled(CircularProgress)`
+  &.row {
+    left: 16px;
+    top: 0;
+    width: 30px;
+    height: 30px;
+  }
+  &.primary {
+    left: -30px;
+    top: -30px;
+    width: 60px;
+    height: 60px;
+  }
+`;
+
 export function LoadingIndicator(props: { forRow?: boolean }) {
-  const forRow = !!props.forRow;
+  const className = props.forRow ? 'row' : 'primary';
   return (
     <Row>
       <AllColumns {...props}>
-        <RefreshIndicatorContainer className={forRow ? 'row' : 'primary'}>
-          <RefreshIndicator left={forRow ? 16 : -30} top={forRow ? 0 : -30} status="loading" size={forRow ? 30 : 60} />
+        <RefreshIndicatorContainer className={className}>
+          <Progress className={className} />
         </RefreshIndicatorContainer>
       </AllColumns>
     </Row>

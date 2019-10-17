@@ -1,6 +1,5 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import { Drawer, MenuItem } from 'material-ui';
 import { User, Group } from '../../../shared/types/Session';
 import { connect } from './BaconConnect';
 import { validSessionE, logout } from '../../data/Login';
@@ -9,6 +8,7 @@ import { colorScheme } from '../Colors';
 import { AppLink } from './NavigationBar';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { History } from 'history';
+import { Drawer, MenuItem } from '@material-ui/core';
 
 interface MenuDrawerProps extends RouteComponentProps<{}> {
   open: boolean;
@@ -18,10 +18,13 @@ interface MenuDrawerProps extends RouteComponentProps<{}> {
   links?: AppLink[];
 }
 
-class MenuLink extends React.Component<AppLink & { history: History, onSelect: (path: string) => void }, {}> {
+class MenuLink extends React.Component<
+  AppLink & { history: History; onSelect: (path: string) => void },
+  {}
+> {
   private onSelect = () => {
     this.props.onSelect(this.props.path);
-  }
+  };
   public render() {
     return <MenuItem onClick={this.onSelect}>{this.props.label}</MenuItem>;
   }
@@ -31,17 +34,30 @@ class MenuDrawerImpl extends React.Component<MenuDrawerProps, {}> {
   private onSelect = (path: string) => {
     this.props.history.push(path);
     this.props.onRequestChange(false);
-  }
+  };
   public render() {
     return (
-      <Drawer open={this.props.open} docked={false} onRequestChange={this.props.onRequestChange}>
+      <Drawer
+        open={this.props.open}
+        anchor="left"
+        onClose={() => this.props.onRequestChange(false)}
+      >
         <GroupName>{this.props.group.name}</GroupName>
         <UserInfo>
           <UserAvatar user={this.props.user} size={40} />
-          <UserName>{this.props.user.firstName} {this.props.user.lastName}</UserName>
+          <UserName>
+            {this.props.user.firstName} {this.props.user.lastName}
+          </UserName>
         </UserInfo>
-        {this.props.links && this.props.links.map(l =>
-          <MenuLink key={l.label} history={this.props.history} {...l} onSelect={this.onSelect} />)}
+        {this.props.links &&
+          this.props.links.map(l => (
+            <MenuLink
+              key={l.label}
+              history={this.props.history}
+              {...l}
+              onSelect={this.onSelect}
+            />
+          ))}
         {this.props.links && this.props.links.length > 0 ? <Divider /> : null}
         <MenuItem onClick={logout}>Kirjaudu ulos</MenuItem>
       </Drawer>
@@ -80,4 +96,6 @@ const Divider = styled.div`
   margin: 8px 16px;
 `;
 
-export default connect(validSessionE.map(s => ({ user: s.user, group: s.group })))(MenuDrawer);
+export default connect(
+  validSessionE.map(s => ({ user: s.user, group: s.group }))
+)(MenuDrawer);

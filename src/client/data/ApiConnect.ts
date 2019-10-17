@@ -1,9 +1,21 @@
 import Money from '../../shared/util/Money';
-import { Session, Category, CategoryAndTotals, CategoryData } from '../../shared/types/Session';
-import { Map } from '../../shared/util/Objects';
+import {
+  Session,
+  Category,
+  CategoryAndTotals,
+  CategoryData,
+} from '../../shared/types/Session';
 import { FetchClient } from '../../shared/util/FetchClient';
 import { ApiMessage } from '../../shared/types/Api';
-import { ExpenseCollection, ExpenseStatus, UserExpense, RecurringExpensePeriod, UserExpenseWithDetails, ExpenseData, RecurringExpenseTarget } from '../../shared/types/Expense';
+import {
+  ExpenseCollection,
+  ExpenseStatus,
+  UserExpense,
+  RecurringExpensePeriod,
+  UserExpenseWithDetails,
+  ExpenseData,
+  RecurringExpenseTarget,
+} from '../../shared/types/Expense';
 import { formatDate, DateLike } from '../../shared/util/Time';
 const client = new FetchClient(() => fetch);
 
@@ -50,24 +62,38 @@ export class ApiConnect {
     this.currentToken = token;
   }
 
-  private authHeader(): Map<string> {
-    if (!this.currentToken) { return {}; }
+  private authHeader(): Record<string, string> {
+    if (!this.currentToken) {
+      return {};
+    }
     return { Authorization: `Bearer ${this.currentToken || ''}` };
   }
 
-  private get<T>(path: string, query?: Map<string>): Promise<T> {
+  private get<T>(path: string, query?: Record<string, string>): Promise<T> {
     return client.get<T>(path, query, this.authHeader());
   }
 
-  private put<T>(path: string, body?: any, query?: Map<string>): Promise<T> {
+  private put<T>(
+    path: string,
+    body?: any,
+    query?: Record<string, string>
+  ): Promise<T> {
     return client.put<T>(path, body, query, this.authHeader());
   }
 
-  private post<T>(path: string, body?: any, query?: Map<string>): Promise<T> {
+  private post<T>(
+    path: string,
+    body?: any,
+    query?: Record<string, string>
+  ): Promise<T> {
     return client.post<T>(path, body, query, this.authHeader());
   }
 
-  private del<T>(path: string, data?: any, query?: Map<string>): Promise<T> {
+  private del<T>(
+    path: string,
+    data?: any,
+    query?: Record<string, string>
+  ): Promise<T> {
     return client.del<T>(path, data, query, this.authHeader());
   }
 
@@ -87,25 +113,46 @@ export class ApiConnect {
     return this.put<Session>('/api/session/refresh');
   }
 
-  public async getExpensesForMonth(year: number, month: number): Promise<ExpenseCollection> {
-    const collection = await this.get<ExpenseCollection>('/api/expense/month', { year: year.toString(), month: month.toString() });
+  public async getExpensesForMonth(
+    year: number,
+    month: number
+  ): Promise<ExpenseCollection> {
+    const collection = await this.get<ExpenseCollection>('/api/expense/month', {
+      year: year.toString(),
+      month: month.toString(),
+    });
     return mapExpenseObject(collection);
   }
 
-  public searchExpenses(startDate: DateLike, endDate: DateLike, query: Map<string | number>): Promise<UserExpense[]> {
-    const q = { ...query, startDate: formatDate(startDate), endDate: formatDate(endDate) };
-    return this.get<UserExpense[]>('/api/expense/search', q).then(l => l.map(mapExpense));
+  public searchExpenses(
+    startDate: DateLike,
+    endDate: DateLike,
+    query: Record<string, string | number>
+  ): Promise<UserExpense[]> {
+    const q = {
+      ...query,
+      startDate: formatDate(startDate),
+      endDate: formatDate(endDate),
+    };
+    return this.get<UserExpense[]>('/api/expense/search', q).then(l =>
+      l.map(mapExpense)
+    );
   }
 
   public getExpense(id: number | string): Promise<UserExpenseWithDetails> {
-    return this.get<UserExpenseWithDetails>(`/api/expense/${toInt(id)}`).then(mapExpense);
+    return this.get<UserExpenseWithDetails>(`/api/expense/${toInt(id)}`).then(
+      mapExpense
+    );
   }
 
   public storeExpense(expense: ExpenseData): Promise<ApiMessage> {
     return this.put<ApiMessage>('/api/expense', expense);
   }
 
-  public updateExpense(id: number | string, expense: ExpenseData): Promise<ApiMessage> {
+  public updateExpense(
+    id: number | string,
+    expense: ExpenseData
+  ): Promise<ApiMessage> {
     return this.post<ApiMessage>(`/api/expense/${toInt(id)}`, expense);
   }
 
@@ -113,16 +160,35 @@ export class ApiConnect {
     return this.del<ApiMessage>(`/api/expense/${toInt(id)}`);
   }
 
-  public createRecurring(id: number | string, period: RecurringExpensePeriod): Promise<ApiMessage> {
-    return this.put<ApiMessage>(`/api/expense/recurring/${toInt(id)}`, { period });
+  public createRecurring(
+    id: number | string,
+    period: RecurringExpensePeriod
+  ): Promise<ApiMessage> {
+    return this.put<ApiMessage>(`/api/expense/recurring/${toInt(id)}`, {
+      period,
+    });
   }
 
-  public updateRecurringExpense(id: number | string, expense: ExpenseData, target: RecurringExpenseTarget): Promise<ApiMessage> {
-    return this.post<ApiMessage>(`/api/expense/recurring/${toInt(id)}?target=${encodeURIComponent(target)}`, expense);
+  public updateRecurringExpense(
+    id: number | string,
+    expense: ExpenseData,
+    target: RecurringExpenseTarget
+  ): Promise<ApiMessage> {
+    return this.post<ApiMessage>(
+      `/api/expense/recurring/${toInt(id)}?target=${encodeURIComponent(
+        target
+      )}`,
+      expense
+    );
   }
 
-  public deleteRecurringById(id: number | string, target: RecurringExpenseTarget): Promise<ApiMessage> {
-    return this.del<ApiMessage>(`/api/expense/recurring/${toInt(id)}?target=${encodeURIComponent(target)}`);
+  public deleteRecurringById(
+    id: number | string,
+    target: RecurringExpenseTarget
+  ): Promise<ApiMessage> {
+    return this.del<ApiMessage>(
+      `/api/expense/recurring/${toInt(id)}?target=${encodeURIComponent(target)}`
+    );
   }
 
   public queryReceivers(receiver: string): Promise<string[]> {
@@ -137,7 +203,10 @@ export class ApiConnect {
     return this.put<ApiMessage>('/api/category', category);
   }
 
-  public getCategoryTotals(startDate: Date, endDate: Date): Promise<CategoryAndTotals[]> {
+  public getCategoryTotals(
+    startDate: Date,
+    endDate: Date
+  ): Promise<CategoryAndTotals[]> {
     const q = {
       startDate: formatDate(startDate),
       endDate: formatDate(endDate),
@@ -145,10 +214,12 @@ export class ApiConnect {
     return this.get<CategoryAndTotals[]>('/api/category/totals', q);
   }
 
-  public updateCategory(id: number | string, category: CategoryData): Promise<Category> {
+  public updateCategory(
+    id: number | string,
+    category: CategoryData
+  ): Promise<Category> {
     return this.post(`/api/category/${toInt(id)}`, category);
   }
-
 }
 
 const apiConnect = new ApiConnect();

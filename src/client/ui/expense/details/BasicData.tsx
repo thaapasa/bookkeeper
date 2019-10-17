@@ -20,10 +20,9 @@ export default class BasicData extends React.Component<BasicDataProps, {}> {
       </SmallDeviceContainer>
     );
   }
-
 }
 
-function DetailRow(props: { name: string, value: string }) {
+function DetailRow(props: { name: string; value: string }) {
   return (
     <DetailRowContainer>
       <DetailLabel>{props.name + ':'}</DetailLabel>

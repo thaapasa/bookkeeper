@@ -23,43 +23,97 @@ interface MonthlyStatusState {
   expanded: boolean;
 }
 
-export class MonthlyStatus extends React.Component<StatusProps, MonthlyStatusState> {
-
+export class MonthlyStatus extends React.Component<
+  StatusProps,
+  MonthlyStatusState
+> {
   public state: MonthlyStatusState = {
     expanded: false,
   };
 
   private toggle = () => {
     this.setState(s => ({ expanded: !s.expanded }));
-  }
+  };
 
   public render() {
-    const hasUnconfirmed = this.props.unconfirmedBefore || this.props.unconfirmedDuring;
+    const hasUnconfirmed =
+      this.props.unconfirmedBefore || this.props.unconfirmedDuring;
     const income = this.props.totals ? this.props.totals.totalIncome : 0;
     const expense = this.props.totals ? this.props.totals.totalExpense : 0;
-    const filteredIncome = this.props.filteredTotals ? this.props.filteredTotals.totalIncome : 0;
-    const filteredExpense = this.props.filteredTotals ? this.props.filteredTotals.totalExpense : 0;
-    const filteredStyle = { display: (!this.props.showFiltered ? 'none' : ''), backgroundColor: colors.colorScheme.gray.light };
+    const filteredIncome = this.props.filteredTotals
+      ? this.props.filteredTotals.totalIncome
+      : 0;
+    const filteredExpense = this.props.filteredTotals
+      ? this.props.filteredTotals.totalExpense
+      : 0;
+    const filteredStyle = {
+      display: !this.props.showFiltered ? 'none' : '',
+      backgroundColor: colors.colorScheme.gray.light,
+    };
     const expanded = this.state.expanded;
     return (
       <StatusContainer className={expanded ? 'expanded' : ''}>
-        <StatusBlock title="Suodatetut" style={filteredStyle} incomeTitle="Tulot" expenseTitle="Menot" income={filteredIncome} expense={filteredExpense} expanded={expanded} />
-        <StatusBlock title="Tulot ja menot" incomeTitle="Tulot" expenseTitle="Menot" income={income} expense={expense} expanded={expanded} className={this.props.showFiltered ? 'optional' : undefined} />
-        <StatusBlock title="Saatavat/velat" incomeTitle="Ennen" expenseTitle="Tämä kk" income={this.props.startStatus.balance}
-          expense={Money.from(this.props.monthStatus.balance).negate()} expanded={expanded}>
+        <StatusBlock
+          title="Suodatetut"
+          style={filteredStyle}
+          incomeTitle="Tulot"
+          expenseTitle="Menot"
+          income={filteredIncome}
+          expense={filteredExpense}
+          expanded={expanded}
+        />
+        <StatusBlock
+          title="Tulot ja menot"
+          incomeTitle="Tulot"
+          expenseTitle="Menot"
+          income={income}
+          expense={expense}
+          expanded={expanded}
+          className={this.props.showFiltered ? 'optional' : undefined}
+        />
+        <StatusBlock
+          title="Saatavat/velat"
+          incomeTitle="Ennen"
+          expenseTitle="Tämä kk"
+          income={this.props.startStatus.balance}
+          expense={Money.from(this.props.monthStatus.balance).negate()}
+          expanded={expanded}
+        >
           {hasUnconfirmed ? <UnconfirmedIcon /> : null}
         </StatusBlock>
         <ToolArea>
-          {this.state.expanded ? <ExpandMore onClick={this.toggle} /> : <ExpandLess onClick={this.toggle} />}
+          {this.state.expanded ? (
+            <ExpandMore onClick={this.toggle} />
+          ) : (
+            <ExpandLess onClick={this.toggle} />
+          )}
         </ToolArea>
       </StatusContainer>
     );
   }
 }
 
-function StatusBlock({ title, incomeTitle, expenseTitle, expanded, style, income, expense, className, children }:
-  { title: string, incomeTitle: string, expenseTitle: string, expanded: boolean,
-    style?: React.CSSProperties, income: MoneyLike, expense: MoneyLike, className?: string, children?: any }) {
+function StatusBlock({
+  title,
+  incomeTitle,
+  expenseTitle,
+  expanded,
+  style,
+  income,
+  expense,
+  className,
+  children,
+}: {
+  title: string;
+  incomeTitle: string;
+  expenseTitle: string;
+  expanded: boolean;
+  style?: React.CSSProperties;
+  income: MoneyLike;
+  expense: MoneyLike;
+  className?: string;
+  children?: any;
+}) {
   const inc = Money.from(income);
   const exp = Money.from(expense).negate();
   const sum = inc.plus(exp);
@@ -129,8 +183,18 @@ const CalculationHeader = styled.div`
   font-size: 14px;
 `;
 
-function CalculationRow({ title, sum, drawTopBorder }: { title: string, sum: Money, drawTopBorder?: boolean }) {
-  const rowStyle = { borderTop: (drawTopBorder ? '1px solid rgb(224, 224, 224)' : 'none') };
+function CalculationRow({
+  title,
+  sum,
+  drawTopBorder,
+}: {
+  title: string;
+  sum: Money;
+  drawTopBorder?: boolean;
+}) {
+  const rowStyle = {
+    borderTop: drawTopBorder ? '1px solid rgb(224, 224, 224)' : 'none',
+  };
   return (
     <CalculationRowContainer style={rowStyle}>
       <CalculationTitle>{title}</CalculationTitle>

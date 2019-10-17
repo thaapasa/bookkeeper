@@ -18,7 +18,6 @@ const numberFormatOptions: Intl.NumberFormatOptions = {
 export type MoneySign = 'positive' | 'negative' | 'zero';
 
 export default class Money {
-
   public value: Big;
 
   public static toBig(m: MoneyLike): Big {
@@ -32,8 +31,18 @@ export default class Money {
   }
 
   public static toValue(m: MoneyLike): number {
-    if (typeof m === 'number') { return m; }
-    return parseInt(Money.from(m).value.times(100).round().toString(), 10) / 100;
+    if (typeof m === 'number') {
+      return m;
+    }
+    return (
+      parseInt(
+        Money.from(m)
+          .value.times(100)
+          .round()
+          .toString(),
+        10
+      ) / 100
+    );
   }
 
   public constructor(value: MoneyLike) {
@@ -50,10 +59,14 @@ export default class Money {
 
   public static from(value: MoneyLike | null, defaultValue?: MoneyLike): Money {
     if (value === null || value === undefined) {
-      if (defaultValue === undefined) { throw new Error('Money.from(undefined)'); }
+      if (defaultValue === undefined) {
+        throw new Error('Money.from(undefined)');
+      }
       return Money.from(defaultValue);
     }
-    if (Money.isMoney(value)) { return value; }
+    if (Money.isMoney(value)) {
+      return value;
+    }
     return new Money(value);
   }
 
@@ -75,8 +88,12 @@ export default class Money {
 
   public static sign(value: MoneyLike): MoneySign {
     const b = Money.toBig(value);
-    if (b.gt(0)) { return 'positive'; }
-    if (b.lt(0)) { return 'negative'; }
+    if (b.gt(0)) {
+      return 'positive';
+    }
+    if (b.lt(0)) {
+      return 'negative';
+    }
     return 'zero';
   }
 
@@ -93,13 +110,19 @@ export default class Money {
   }
 
   public toString(scale?: number): string {
-    if (scale === undefined) { scale = 2; }
+    if (scale === undefined) {
+      scale = 2;
+    }
     return this.value.toFixed(scale);
   }
 
   public format(scale?: number, options?: Intl.NumberFormatOptions): string {
-    if (scale === undefined) { scale = 2; }
-    const opts = options ? { ...numberFormatOptions, ...options } : numberFormatOptions;
+    if (scale === undefined) {
+      scale = 2;
+    }
+    const opts = options
+      ? { ...numberFormatOptions, ...options }
+      : numberFormatOptions;
     return `${Number(this.value).toLocaleString('fi', opts)}`;
   }
 
@@ -123,10 +146,18 @@ export default class Money {
     return parseInt(this.value.times(100).toFixed(0), 10);
   }
 
-  public gte(o: MoneyLike): boolean { return this.value.gte(Money.toBig(o)); }
-  public gt(o: MoneyLike): boolean { return this.value.gt(Money.toBig(o)); }
-  public lte(o: MoneyLike): boolean { return this.value.lte(Money.toBig(o)); }
-  public lt(o: MoneyLike): boolean { return this.value.lt(Money.toBig(o)); }
+  public gte(o: MoneyLike): boolean {
+    return this.value.gte(Money.toBig(o));
+  }
+  public gt(o: MoneyLike): boolean {
+    return this.value.gt(Money.toBig(o));
+  }
+  public lte(o: MoneyLike): boolean {
+    return this.value.lte(Money.toBig(o));
+  }
+  public lt(o: MoneyLike): boolean {
+    return this.value.lt(Money.toBig(o));
+  }
 
   public divide(o: MoneyLike): Money {
     return new Money(this.value.div(Money.toBig(o)));

@@ -8,9 +8,14 @@ interface MonthRouteParams {
   date?: string;
 }
 
-export default class RoutedMonthView extends React.Component<RouteComponentProps<MonthRouteParams>, {}> {
+export default class RoutedMonthView extends React.Component<
+  RouteComponentProps<MonthRouteParams>,
+  {}
+> {
   private getDate(): Date {
-    if (!this.props.match.params.date) { return new Date(); }
+    if (!this.props.match.params.date) {
+      return new Date();
+    }
     return toMoment(this.props.match.params.date, monthPattern).toDate();
   }
 

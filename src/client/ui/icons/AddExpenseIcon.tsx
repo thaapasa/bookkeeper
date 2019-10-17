@@ -1,9 +1,20 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import { Map } from '../../../shared/util/Objects';
 import { colorScheme } from '../Colors';
 import { PlusCircle } from '../Icons';
 import { createExpense } from '../../data/State';
+
+const styles: Record<string, React.CSSProperties> = {
+  addExpenseIcon: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '40px',
+    height: '40px',
+    color: colorScheme.secondary.standard,
+    zIndex: 1,
+  },
+};
 
 export function AddExpenseIcon(props: { className?: string }) {
   return (
@@ -30,15 +41,3 @@ const BlackContent = styled.div`
   background: black;
   z-index: 0;
 `;
-
-const styles: Map<React.CSSProperties> = {
-  addExpenseIcon: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '40px',
-    height: '40px',
-    color: colorScheme.secondary.standard,
-    zIndex: 1,
-  },
-};

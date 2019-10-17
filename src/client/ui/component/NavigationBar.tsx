@@ -1,14 +1,11 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import { ToolbarGroup } from 'material-ui/Toolbar';
-import { Toolbar } from 'material-ui';
-import { Map } from '../../../shared/util/Objects';
-import { Route, Link  } from 'react-router-dom';
-import FlatButton from 'material-ui/FlatButton';
+import { Route, Link } from 'react-router-dom';
 import DateRangeNavigator from './DateRangeNavigator';
-import { colorScheme } from '../Colors';
 import { AddExpenseIcon } from '../icons/AddExpenseIcon';
 import { media } from '../Styles';
+import { Button, Toolbar } from '@material-ui/core';
+import { colorScheme } from '../Colors';
 
 export interface AppLink {
   label: string;
@@ -19,22 +16,45 @@ interface NavigationBarProps {
   links?: AppLink[];
 }
 
-export default class NavigationBar extends React.Component<NavigationBarProps, {}> {
+const styles: Record<string, React.CSSProperties> = {
+  links: {
+    flex: 1,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+  },
+  pad: { flex: 1 },
+};
+
+export default class NavigationBar extends React.Component<
+  NavigationBarProps,
+  {}
+> {
   public render() {
     return (
-      <Toolbar style={styles.toolbar}>
+      <Bar>
         <ToolbarGroup style={styles.links}>
-          {this.props.links && this.props.links.map(l => <LinkButton key={l.label} label={l.label} to={l.path} />)}
+          {this.props.links &&
+            this.props.links.map(l => (
+              <LinkButton key={l.label} label={l.label} to={l.path} />
+            ))}
         </ToolbarGroup>
         <ToolbarGroup>
           <DateRangeNavigator />
         </ToolbarGroup>
         <ToolbarGroup style={styles.pad} />
         <StyledAddExpenseIcon />
-      </Toolbar>
+      </Bar>
     );
   }
 }
+
+const Bar = styled(Toolbar)`
+  background-color: ${colorScheme.primary.standard};
+  min-height: inherit;
+  position: relative;
+`;
+
+const ToolbarGroup = styled.div``;
 
 export const StyledAddExpenseIcon = styled(AddExpenseIcon)`
   position: absolute;
@@ -46,38 +66,27 @@ export const StyledAddExpenseIcon = styled(AddExpenseIcon)`
   `}
 `;
 
-export function LinkButton({ label, to }: { label: string, to: string }) {
+const StyledButton = styled(Button)`
+  margin-left: 10px;
+  width: 140px;
+`;
+
+const PlainLink = styled(Link)`
+  text-decoration: none;
+`;
+
+export function LinkButton({ label, to }: { label: string; to: string }) {
   return (
-    // tslint:disable-next-line jsx-no-lambda
-    <Route path={to} children={({ match }) => (
-        <Link to={to}>
-          <FlatButton style={match ? selectedLinkStyle : linkStyle}>{label}</FlatButton>
-        </Link>
-      )} />
+    /* eslint-disable react/no-children-prop */
+    <Route
+      path={to}
+      children={({ match }) => (
+        <PlainLink to={to}>
+          <StyledButton variant="text" color={match ? 'primary' : 'default'}>
+            {label}
+          </StyledButton>
+        </PlainLink>
+      )}
+    />
   );
 }
-
-const styles: Map<React.CSSProperties> = {
-  toolbar: {
-    position: 'relative',
-    width: '100%',
-  },
-  links: {
-    flex: 1,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-  },
-  pad: { flex: 1 },
-};
-
-const linkStyle: React.CSSProperties = {
-  marginLeft: '10px',
-  minWidth: '140px',
-  color: colorScheme.primary.dark,
-  textTransform: 'uppercase',
-};
-
-const selectedLinkStyle: React.CSSProperties = {
-  ...linkStyle,
-  color: colorScheme.secondary.standard,
-};

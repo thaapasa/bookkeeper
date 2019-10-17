@@ -1,5 +1,6 @@
 import * as React from 'react';
-import IconButton from 'material-ui/IconButton';
+import { withRouter, RouteComponentProps } from 'react-router';
+import { IconButton } from '@material-ui/core';
 import * as colors from '../Colors';
 import { NavigateLeft, NavigateRight } from '../Icons';
 import styled from 'styled-components';
@@ -9,22 +10,34 @@ import { yearSuffix, monthSuffix } from '../../util/Links';
 import { KeyCodes } from '../../util/Io';
 import { navigationP } from '../../data/State';
 import { connect } from './BaconConnect';
-import { withRouter, RouteComponentProps } from 'react-router';
-const debug = require('debug')('bookkeeper:navigator');
+import debug from 'debug';
+const log = debug('bookkeeper:navigator');
 
-export interface DateRangeNavigatorProps extends NavigationConfig, RouteComponentProps<{}> {
-}
+export interface DateRangeNavigatorProps
+  extends NavigationConfig,
+    RouteComponentProps<{}> {}
 
-export class DateRangeNavigator extends React.Component<DateRangeNavigatorProps, {}> {
-
+export class DateRangeNavigator extends React.Component<
+  DateRangeNavigatorProps,
+  {}
+> {
   private navigateOffset = (offset: number) => {
-    const rangeSuffix = this.props.dateRange.type === 'month' ?
-      monthSuffix(toMoment(this.props.dateRange.start).clone().add(offset, 'months')) :
-      yearSuffix(toMoment(this.props.dateRange.start).clone().add(offset, 'year'));
+    const rangeSuffix =
+      this.props.dateRange.type === 'month'
+        ? monthSuffix(
+            toMoment(this.props.dateRange.start)
+              .clone()
+              .add(offset, 'months')
+          )
+        : yearSuffix(
+            toMoment(this.props.dateRange.start)
+              .clone()
+              .add(offset, 'year')
+          );
     const link = this.props.pathPrefix + rangeSuffix;
-    debug('Navigating to', link);
+    log('Navigating to', link);
     this.props.history.push(link);
-  }
+  };
 
   private handleKeyPress = (event: React.KeyboardEvent<any>) => {
     switch (event.keyCode) {
@@ -36,26 +49,28 @@ export class DateRangeNavigator extends React.Component<DateRangeNavigatorProps,
         return false;
     }
     return;
-  }
+  };
 
   private navigateNext = () => {
     this.navigateOffset(1);
-  }
+  };
   private navigatePrev = () => {
     this.navigateOffset(-1);
-  }
+  };
 
   public render() {
     return (
       <NavigationContainer onKeyUp={this.handleKeyPress} tabIndex={1}>
         <div>
-          <StyledIconButton onClick={this.navigatePrev}
-            title="Edellinen"><NavigateLeft color={colors.navigation} /></StyledIconButton>
+          <StyledIconButton onClick={this.navigatePrev} title="Edellinen">
+            <NavigateLeft color="primary" />
+          </StyledIconButton>
         </div>
         <TitleArea>{toDateRangeName(this.props.dateRange)}</TitleArea>
         <div>
-          <StyledIconButton onClick={this.navigateNext}
-            title="Seuraava"><NavigateRight color={colors.navigation} /></StyledIconButton>
+          <StyledIconButton onClick={this.navigateNext} title="Seuraava">
+            <NavigateRight color="primary" />
+          </StyledIconButton>
         </div>
       </NavigationContainer>
     );

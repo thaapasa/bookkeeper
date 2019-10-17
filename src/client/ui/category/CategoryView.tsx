@@ -2,7 +2,6 @@ import * as React from 'react';
 import * as B from 'baconjs';
 import styled from 'styled-components';
 import { History } from 'history';
-import { Map } from '../../../shared/util/Objects';
 import { Category, CategoryAndTotals } from '../../../shared/types/Session';
 import { TypedDateRange, compareRanges } from '../../../shared/util/Time';
 import { unsubscribeAll } from '../../util/ClientUtil';
@@ -24,13 +23,15 @@ interface CategoryViewProps {
 }
 
 interface CategoryViewState {
-  categoryTotals: Map<CategoryAndTotals>;
+  categoryTotals: Record<string, CategoryAndTotals>;
   categoryChartData?: CategoryChartData[];
   isLoading: boolean;
 }
 
-class CategoryView extends React.Component<CategoryViewProps, CategoryViewState> {
-
+class CategoryView extends React.Component<
+  CategoryViewProps,
+  CategoryViewState
+> {
   private unsub: any[] = [];
 
   public state: CategoryViewState = {
@@ -53,40 +54,54 @@ class CategoryView extends React.Component<CategoryViewProps, CategoryViewState>
     unsubscribeAll(this.unsub);
   }
 
-  private formCategoryChartData(categoryTotals: Map<CategoryAndTotals>): CategoryChartData[] {
+  private formCategoryChartData(
+    categoryTotals: Record<string, CategoryAndTotals>
+  ): CategoryChartData[] {
     return this.props.categories.map(c => ({
       categoryId: c.id,
       categoryName: c.name,
-      categoryTotal: Money.toValue(categoryTotals[c.id] && categoryTotals[c.id].totalExpenses || 0),
+      categoryTotal: Money.toValue(
+        (categoryTotals[c.id] && categoryTotals[c.id].totalExpenses) || 0
+      ),
     }));
   }
 
-  private getCategoryTotals = async (): Promise<Map<CategoryAndTotals>> => {
-    const totals = await apiConnect.getCategoryTotals(this.props.range.start, this.props.range.end);
-    const totalsMap: Map<CategoryAndTotals> = {};
+  private getCategoryTotals = async (): Promise<
+    Record<string, CategoryAndTotals>
+  > => {
+    const totals = await apiConnect.getCategoryTotals(
+      this.props.range.start,
+      this.props.range.end
+    );
+    const totalsMap: Record<string, CategoryAndTotals> = {};
     totals.forEach(t => {
       totalsMap['' + t.id] = t;
       if (t.children && t.children.length > 0) {
-        t.children.forEach(ch => totalsMap['' + ch.id] = ch);
+        t.children.forEach(ch => (totalsMap['' + ch.id] = ch));
       }
     });
     return totalsMap;
-  }
+  };
 
   private loadCategories = async () => {
-    navigationBus.push({ pathPrefix: categoryPagePath, dateRange: this.props.range });
+    navigationBus.push({
+      pathPrefix: categoryPagePath,
+      dateRange: this.props.range,
+    });
     this.setState({ isLoading: true });
     const categoryTotals = await this.getCategoryTotals();
     const categoryChartData = this.formCategoryChartData(categoryTotals);
     this.setState({ categoryTotals, categoryChartData, isLoading: false });
-  }
+  };
 
   private refresh = async () => {
     await updateSession();
-  }
+  };
 
   public render() {
-    if (this.state.isLoading) { return null; }
+    if (this.state.isLoading) {
+      return null;
+    }
     return (
       <CategoryViewContainer>
         <CategoryChart chartData={this.state.categoryChartData} />
@@ -94,11 +109,11 @@ class CategoryView extends React.Component<CategoryViewProps, CategoryViewState>
           {...this.props}
           userData={this.props.userData}
           onCategoriesChanged={this.refresh}
-          categoryTotals={this.state.categoryTotals} />
+          categoryTotals={this.state.categoryTotals}
+        />
       </CategoryViewContainer>
     );
   }
-
 }
 
 const CategoryViewContainer = styled.div`
@@ -109,7 +124,9 @@ const CategoryViewContainer = styled.div`
   overflow-x: hidden;
 `;
 
-export default connect(B.combineTemplate<any, { categories: Category[], userData: UserDataProps }>({
-  categories: validSessionE.map(s => s.categories),
-  userData: userDataE,
-}))(CategoryView);
+export default connect(
+  B.combineTemplate({
+    categories: validSessionE.map(s => s.categories),
+    userData: userDataE,
+  })
+)(CategoryView);

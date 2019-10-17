@@ -20,7 +20,6 @@ function checkSession(s: Session) {
 }
 
 describe('session', () => {
-
   function login(): Promise<client.SessionWithControl> {
     return client.getSession('sale', 'salasana');
   }
@@ -70,5 +69,4 @@ describe('session', () => {
     await expectThrow(() => session.get(testUrl));
     await expectThrow(() => client.refreshSession(session.refreshToken));
   });
-
 });

@@ -1,7 +1,8 @@
 import styled from 'styled-components';
-import * as colors from 'material-ui/styles/colors';
 import Money, { MoneyLike } from '../../shared/util/Money';
-import { getMuiTheme } from 'material-ui/styles';
+import { createMuiTheme } from '@material-ui/core';
+import { SimplePaletteColorOptions } from '@material-ui/core/styles';
+import { teal, grey, amber, lime } from '@material-ui/core/colors';
 
 interface ColorDef {
   standard: string;
@@ -48,6 +49,20 @@ export const colorScheme: ColorScheme = {
   white: '#ffffff',
 };
 
+const primaryPalette: SimplePaletteColorOptions = {
+  light: colorScheme.primary.light,
+  dark: colorScheme.primary.dark,
+  main: colorScheme.primary.standard,
+  contrastText: colorScheme.primary.text,
+};
+
+const secondaryPalette: SimplePaletteColorOptions = {
+  light: colorScheme.secondary.light,
+  dark: colorScheme.secondary.dark,
+  main: colorScheme.secondary.standard,
+  contrastText: colorScheme.secondary.text,
+};
+
 export const navigation = colorScheme.secondary.standard;
 export const white = colorScheme.primary.light;
 
@@ -59,44 +74,66 @@ export const negative = colorScheme.secondary.dark;
 export const unimportant = colorScheme.gray.dark;
 export const header = colorScheme.gray.dark;
 
-export const topItem = colors.teal500;
-export const subItem = colors.grey200;
+export const topItem = teal[500];
+export const subItem = grey[500];
 
 export const tool = colorScheme.gray.veryDark;
-export const unconfirmed = colors.amber50;
-export const unconfirmedStripes = diagonalStripes(unconfirmed, white, '0.5em', '1em');
-export const income = colors.lime100;
+export const unconfirmed = amber[50];
 
-export function forMoney(m?: MoneyLike): string {
-  if (!m) { return unimportant; }
-  const b = Money.from(m);
-  return b ? (b.gt(0) ? positive : (b.lt(0) ? negative : unimportant)) : unimportant;
-}
+export const highlightBg = orangeRed.light;
+export const highlightFg = orangeRed.dark;
 
-export function classNameForMoney(m?: MoneyLike): 'positive' | 'negative' | 'unimportant' {
-  if (!m) { return 'unimportant'; }
-  const b = Money.from(m);
-  return b ? (b.gt(0) ? 'positive' : (b.lt(0) ? 'negative' : 'unimportant')) : 'unimportant';
-}
-
-export function diagonalStripes(color1: string, color2: string, width1: string, width2: string): string {
+export function diagonalStripes(
+  color1: string,
+  color2: string,
+  width1: string,
+  width2: string
+): string {
   return `repeating-linear-gradient(45deg, ${color1}, ${color1} ${width1}, ${color2} ${width1}, ${color2} ${width2})`;
 }
 
-export const muiTheme = getMuiTheme({
+export const unconfirmedStripes = diagonalStripes(
+  unconfirmed,
+  white,
+  '0.5em',
+  '1em'
+);
+export const income = lime[100];
+
+export function forMoney(m?: MoneyLike): string {
+  if (!m) {
+    return unimportant;
+  }
+  const b = Money.from(m);
+  return b
+    ? b.gt(0)
+      ? positive
+      : b.lt(0)
+      ? negative
+      : unimportant
+    : unimportant;
+}
+
+export function classNameForMoney(
+  m?: MoneyLike
+): 'positive' | 'negative' | 'unimportant' {
+  if (!m) {
+    return 'unimportant';
+  }
+  const b = Money.from(m);
+  return b
+    ? b.gt(0)
+      ? 'positive'
+      : b.lt(0)
+      ? 'negative'
+      : 'unimportant'
+    : 'unimportant';
+}
+
+export const muiTheme = createMuiTheme({
   palette: {
-    primary1Color: colorScheme.secondary.standard,
-    primary2Color: colorScheme.primary.standard,
-    accent1Color: colorScheme.secondary.dark,
-    accent2Color: colorScheme.primary.standard,
-    textColor: colorScheme.text,
-    pickerHeaderColor: colorScheme.secondary.dark,
-    secondaryTextColor: colorScheme.secondary.text,
-    alternateTextColor: colorScheme.secondary.light,
-    canvasColor: colorScheme.primary.light,
-  },
-  appBar: {
-    height: 56,
+    primary: secondaryPalette,
+    secondary: primaryPalette,
   },
 });
 

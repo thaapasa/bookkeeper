@@ -5,21 +5,27 @@ import { Omit } from '../../../shared/util/Objects';
 import { unsubscribeAll } from '../../util/ClientUtil';
 
 // InferableComponentEnhancerWithProps taken from react-redux 5.0.8
-type InferableComponentEnhancerWithProps<TInjectedProps, TNeedsProps> =
-  <P extends TInjectedProps>(component: React.ComponentType<P>) =>
-    React.ComponentClass<Omit<P, keyof TInjectedProps> & TNeedsProps>;
+type InferableComponentEnhancerWithProps<TInjectedProps, TNeedsProps> = <
+  P extends TInjectedProps
+>(
+  component: React.ComponentType<P>
+) => React.ComponentClass<Omit<P, keyof TInjectedProps> & TNeedsProps>;
 
-export function connect<
-  TBaconProps,
-  TNeedsProps,
->(source: B.Observable<any, TBaconProps>): InferableComponentEnhancerWithProps<TBaconProps, TNeedsProps> {
-  return <P extends TBaconProps>(component: React.ComponentType<P>):
-    React.ComponentClass<Omit<P, keyof TBaconProps> & TNeedsProps> => {
-    return class extends React.Component<Omit<P, keyof TBaconProps> & TNeedsProps, TBaconProps & { hasReceivedProps: boolean }> {
-
-      public state: Readonly<TBaconProps & { hasReceivedProps: boolean }> = { hasReceivedProps: false } as any;
+export function connect<TBaconProps, TNeedsProps>(
+  source: B.Observable<TBaconProps>
+): InferableComponentEnhancerWithProps<TBaconProps, TNeedsProps> {
+  return <P extends TBaconProps>(
+    component: React.ComponentType<P>
+  ): React.ComponentClass<Omit<P, keyof TBaconProps> & TNeedsProps> => {
+    return class ConnectedComponent extends React.Component<
+      Omit<P, keyof TBaconProps> & TNeedsProps,
+      TBaconProps & { hasReceivedProps: boolean }
+    > {
+      public state: Readonly<TBaconProps & { hasReceivedProps: boolean }> = {
+        hasReceivedProps: false,
+      } as any;
       private unsub: Action[] = [];
-      private mounted: boolean = false;
+      private mounted = false;
 
       public componentDidMount() {
         this.mounted = true;
@@ -32,16 +38,20 @@ export function connect<
       }
 
       private setData = (data: TBaconProps) => {
-        if (!this.mounted) { return; }
+        if (!this.mounted) {
+          return;
+        }
         this.setState({ ...(data as any), hasReceivedProps: true });
-      }
+      };
 
       public render() {
-        return this.state.hasReceivedProps ?
-          React.createElement(component,
-            { ...(this.state as any), ...(this.props as any) } as any,
-            this.props.children) :
-          null;
+        return this.state.hasReceivedProps
+          ? React.createElement(
+              component,
+              { ...(this.state as any), ...(this.props as any) } as any,
+              this.props.children
+            )
+          : null;
       }
     };
   };

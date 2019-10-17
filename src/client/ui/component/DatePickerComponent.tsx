@@ -1,62 +1,54 @@
 import * as React from 'react';
-import DatePicker from 'material-ui/DatePicker';
+import {
+  KeyboardDatePicker,
+  MaterialUiPickersDate,
+} from '@material-ui/pickers';
 import { PickDateObject } from '../../data/StateTypes';
 import { Action } from '../../../shared/types/Common';
 import { pickDateE } from '../../data/State';
 import { unsubscribeAll } from '../../util/ClientUtil';
-import { toMoment } from '../../../shared/util/Time';
-const debug = require('debug')('bookkeeper:date-picker');
+import { datePickerFormat } from '../expense/DateField';
 
 interface DatePickerProps {
   pick: PickDateObject;
   pickCounter: number;
 }
 
-class DatePickerComponent extends React.Component<DatePickerProps, {}> {
+interface DatePickerState {
+  date?: Date;
+}
 
-  private ref: DatePicker | null = null;
+class DatePickerComponent extends React.Component<
+  DatePickerProps,
+  DatePickerState
+> {
+  state: DatePickerState = { date: this.props.pick.initialDate };
 
-  public componentDidMount() {
-    this.open();
-  }
-
-  public componentDidUpdate(prevProps: DatePickerProps) {
-    if (prevProps.pickCounter !== this.props.pickCounter) {
-      this.open();
+  componentDidUpdate(prevProps: DatePickerProps) {
+    if (prevProps.pick.initialDate !== this.props.pick.initialDate) {
+      this.setState({ date: this.props.pick.initialDate });
     }
   }
 
-  private open = () => {
-    if (this.ref) { this.ref.openDialog(); }
-  }
-
-  private onChange = (_: any, d: Date) => {
-    debug('Selecting date', d);
-    this.props.pick.resolve(d);
-  }
-  private onDismiss = () => {
-    debug('Dismissing date picker');
-    this.props.pick.resolve(undefined);
-  }
-  private formatDate = (d: Date) => toMoment(d).format('D.M.YYYY');
-
-  private setRef = (ref: DatePicker | null) => this.ref = ref;
-
   public render() {
     return (
-      <DatePicker
-        textFieldStyle={{ display: 'none' }}
-        formatDate={this.formatDate}
+      <KeyboardDatePicker
+        variant="dialog"
+        format={datePickerFormat}
         name="date-picker"
-        defaultDate={this.props.pick.initialDate}
-        container="dialog"
-        ref={this.setRef}
-        autoOk={true}
+        value={this.state.date}
         onChange={this.onChange}
-        onDismiss={this.onDismiss}
       />
     );
   }
+
+  private onChange = (edited: MaterialUiPickersDate | null) => {
+    const date = edited && edited.isValid() ? edited.toDate() : undefined;
+    if (date) {
+      this.setState({ date });
+      this.props.pick.resolve(date);
+    }
+  };
 }
 
 interface DatePickerConnectorState {
@@ -64,10 +56,12 @@ interface DatePickerConnectorState {
   pickCounter: number;
 }
 
-let pickCounter: number = 0;
+let pickCounter = 0;
 
-export default class DatePickerConnector extends React.Component<{}, DatePickerConnectorState> {
-
+export default class DatePickerConnector extends React.Component<
+  {},
+  DatePickerConnectorState
+> {
   public state: DatePickerConnectorState = { pick: null, pickCounter: 0 };
   private unsub: Action[] = [];
 
@@ -78,14 +72,18 @@ export default class DatePickerConnector extends React.Component<{}, DatePickerC
   private pickDate = (pick: PickDateObject | null) => {
     pickCounter += 1;
     this.setState({ pick, pickCounter });
-  }
+  };
 
   public componentWillUnmount() {
     unsubscribeAll(this.unsub);
   }
 
   public render() {
-    return this.state.pick ? <DatePickerComponent pick={this.state.pick} pickCounter={this.state.pickCounter} /> : null;
+    return this.state.pick ? (
+      <DatePickerComponent
+        pick={this.state.pick}
+        pickCounter={this.state.pickCounter}
+      />
+    ) : null;
   }
-
 }

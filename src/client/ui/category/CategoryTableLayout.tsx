@@ -75,7 +75,11 @@ export function CategoryHeader({ onAdd }: { onAdd: (p?: Category) => void }) {
       <SumColumn className="header">Tulot</SumColumn>
       <SumColumn className="header">Kulut</SumColumn>
       <ToolColumn>
-        <AddCategoryButton onAdd={onAdd} color={colorScheme.gray.veryDark} icon={PlusCircle} />
+        <AddCategoryButton
+          onAdd={onAdd}
+          color={colorScheme.gray.veryDark}
+          icon={PlusCircle}
+        />
       </ToolColumn>
     </Row>
   );

@@ -1,9 +1,7 @@
 import * as React from 'react';
-import Paper from 'material-ui/Paper';
-import TextField from 'material-ui/TextField';
-import RaisedButton from 'material-ui/RaisedButton';
 import styled from 'styled-components';
 import { login } from '../../data/Login';
+import { Card, TextField, Button } from '@material-ui/core';
 
 interface LoginPageState {
   username: string;
@@ -13,7 +11,6 @@ interface LoginPageState {
 }
 
 export default class LoginPage extends React.Component<{}, LoginPageState> {
-
   public state: LoginPageState = {
     username: '',
     password: '',
@@ -24,7 +21,8 @@ export default class LoginPage extends React.Component<{}, LoginPageState> {
   private handleLoginError = (er: any) => {
     if (er && er.status === 401) {
       this.setState({
-        statusMessage: 'Kirjautuminen epäonnistui. Ole hyvä ja tarkista käyttäjätunnuksesi ja salasanasi.',
+        statusMessage:
+          'Kirjautuminen epäonnistui. Ole hyvä ja tarkista käyttäjätunnuksesi ja salasanasi.',
         showStatusMessage: true,
       });
     } else {
@@ -33,7 +31,7 @@ export default class LoginPage extends React.Component<{}, LoginPageState> {
         showStatusMessage: true,
       });
     }
-  }
+  };
 
   private handleSubmit = async (event: React.FormEvent<any>) => {
     event.preventDefault();
@@ -46,37 +44,44 @@ export default class LoginPage extends React.Component<{}, LoginPageState> {
     } catch (e) {
       this.handleLoginError(e);
     }
-  }
+  };
 
-  private setUserName = (_: any, username: string) => this.setState({ username });
-  private setPassword = (_: any, password: string) => this.setState({ password });
+  private setUserName = (event: React.ChangeEvent<HTMLInputElement>) =>
+    this.setState({ username: event.target.value });
+  private setPassword = (event: React.ChangeEvent<HTMLInputElement>) =>
+    this.setState({ password: event.target.value });
 
   public render() {
     return (
       <Page>
-        <LoginPaper zDepth={1}>
+        <LoginPaper>
           <form onSubmit={this.handleSubmit}>
             <Title>Kirjaudu sisään</Title>
             <br />
-            <TextField
-              hintText="Käyttäjätunnus"
-              floatingLabelText="Käyttäjätunnus"
+            <EditField
+              placeholder="Käyttäjätunnus"
+              label="Käyttäjätunnus"
               value={this.state.username}
               onChange={this.setUserName}
-            /><br />
-            <TextField
-              hintText="Salasana"
-              floatingLabelText="Salasana"
+            />
+            <br />
+            <EditField
+              placeholder="Salasana"
+              label="Salasana"
               type="password"
               value={this.state.password}
               onChange={this.setPassword}
-            /><br />
-            <LoginButton
-              type="submit"
-              label="Kirjaudu"
-              primary={true}
-            /><br />
-            {this.state.showStatusMessage ? <Title>{this.state.statusMessage}</Title> : ''}
+            />
+            <br />
+            <LoginButton type="submit" color="primary" variant="contained">
+              Kirjaudu
+            </LoginButton>
+            <br />
+            {this.state.showStatusMessage ? (
+              <Title>{this.state.statusMessage}</Title>
+            ) : (
+              ''
+            )}
           </form>
         </LoginPaper>
       </Page>
@@ -84,11 +89,17 @@ export default class LoginPage extends React.Component<{}, LoginPageState> {
   }
 }
 
-const LoginPaper = styled(Paper) `
+const LoginPaper = styled(Card)`
   margin: 36px;
   padding: 36px;
   text-align: center;
   display: inline-block;
+  z-index: 1;
+`;
+
+const EditField = styled(TextField)`
+  margin: 8px 0px;
+  width: 250px;
 `;
 
 const Title = styled.title`
@@ -97,7 +108,7 @@ const Title = styled.title`
   max-width: 250px;
 `;
 
-const LoginButton = styled(RaisedButton) `
+const LoginButton = styled(Button)`
   margin: 30px;
 `;
 

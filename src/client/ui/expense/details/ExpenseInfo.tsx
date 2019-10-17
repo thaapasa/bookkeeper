@@ -1,6 +1,9 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import { ExpenseDivisionItem, UserExpense } from '../../../../shared/types/Expense';
+import {
+  ExpenseDivisionItem,
+  UserExpense,
+} from '../../../../shared/types/Expense';
 import { User, Source } from '../../../../shared/types/Session';
 import { LoadingIndicator, Row, AllColumns } from '../ExpenseTableLayout';
 import BasicData from './BasicData';
@@ -21,7 +24,6 @@ interface ExpenseInfoProps {
 }
 
 export default class ExpenseInfo extends React.Component<ExpenseInfoProps, {}> {
-
   public render() {
     if (this.props.loading) {
       return <LoadingIndicator forRow={true} />;
@@ -32,8 +34,10 @@ export default class ExpenseInfo extends React.Component<ExpenseInfoProps, {}> {
           <ExpenseInfoContainer className="expense-info-container">
             <BasicData {...this.props} />
             <RecurrenceInfo expense={this.props.expense} />
-            {this.props.expense.description ? <Description>{this.props.expense.description}</Description> : null}
-            <DivisionInfo {...this.props}/>
+            {this.props.expense.description ? (
+              <Description>{this.props.expense.description}</Description>
+            ) : null}
+            <DivisionInfo {...this.props} />
             <ExpenseInfoTools {...this.props} />
           </ExpenseInfoContainer>
         </AllColumns>

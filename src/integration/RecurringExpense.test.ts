@@ -1,21 +1,39 @@
 import 'jest';
-import { checkCreateStatus, cleanup, newExpense, captureId } from '../shared/util/test/ExpenseHelper';
+import {
+  checkCreateStatus,
+  cleanup,
+  newExpense,
+  captureId,
+} from '../shared/util/test/ExpenseHelper';
 import { SessionWithControl, getSession } from '../shared/util/test/TestClient';
-import { ExpenseCollection, Expense, UserExpense } from '../shared/types/Expense';
+import {
+  ExpenseCollection,
+  Expense,
+  UserExpense,
+} from '../shared/types/Expense';
 import Money, { MoneyLike } from '../shared/util/Money';
 import { ApiMessage } from '../shared/types/Api';
 import { nextRecurrence } from '../server/data/RecurringExpenses';
 import { formatDate } from '../shared/util/Time';
 
 describe('recurring expenses', () => {
-
   let session: SessionWithControl;
 
-  beforeEach(async () => { session = await getSession('sale', 'salasana'); });
-  afterEach(async () => { await cleanup(session); });
+  beforeEach(async () => {
+    session = await getSession('sale', 'salasana');
+  });
+  afterEach(async () => {
+    await cleanup(session);
+  });
 
-  async function checkMonthStatus(expectedBenefit?: MoneyLike, expectItems?: (items: UserExpense[]) => any): Promise<Money> {
-    const m = await session.get<ExpenseCollection>(`/api/expense/month`, { year: 2017, month: 1 });
+  async function checkMonthStatus(
+    expectedBenefit?: MoneyLike,
+    expectItems?: (items: UserExpense[]) => any
+  ): Promise<Money> {
+    const m = await session.get<ExpenseCollection>(`/api/expense/month`, {
+      year: 2017,
+      month: 1,
+    });
     expect(m).toHaveProperty('monthStatus');
     expect(m.monthStatus).toHaveProperty('benefit');
     if (expectedBenefit) {
@@ -30,30 +48,58 @@ describe('recurring expenses', () => {
   }
 
   it('calculates next recurrence correctly', async () => {
-    expect(formatDate(nextRecurrence('2017-01-01', 'monthly'))).toBe('2017-02-01');
-    expect(formatDate(nextRecurrence('2017-01-31', 'monthly'))).toBe('2017-02-28');
-    expect(formatDate(nextRecurrence('2017-12-31', 'monthly'))).toBe('2018-01-31');
-    expect(formatDate(nextRecurrence('2017-12-01', 'monthly'))).toBe('2018-01-01');
-    expect(formatDate(nextRecurrence('2004-02-29', 'yearly'))).toBe('2005-02-28');
-    expect(formatDate(nextRecurrence('2004-02-28', 'yearly'))).toBe('2005-02-28');
-    expect(formatDate(nextRecurrence('2004-03-01', 'yearly'))).toBe('2005-03-01');
+    expect(formatDate(nextRecurrence('2017-01-01', 'monthly'))).toBe(
+      '2017-02-01'
+    );
+    expect(formatDate(nextRecurrence('2017-01-31', 'monthly'))).toBe(
+      '2017-02-28'
+    );
+    expect(formatDate(nextRecurrence('2017-12-31', 'monthly'))).toBe(
+      '2018-01-31'
+    );
+    expect(formatDate(nextRecurrence('2017-12-01', 'monthly'))).toBe(
+      '2018-01-01'
+    );
+    expect(formatDate(nextRecurrence('2004-02-29', 'yearly'))).toBe(
+      '2005-02-28'
+    );
+    expect(formatDate(nextRecurrence('2004-02-28', 'yearly'))).toBe(
+      '2005-02-28'
+    );
+    expect(formatDate(nextRecurrence('2004-03-01', 'yearly'))).toBe(
+      '2005-03-01'
+    );
   });
 
   it('templates should not show up on expense queries', async () => {
     const monthBenefit1 = await checkMonthStatus();
-    const expenseId = checkCreateStatus(await newExpense(session, {
-      sum: '150.00', confirmed: false, date: '2017-01-15', title: 'Tonnikalaa',
-    }));
+    const expenseId = checkCreateStatus(
+      await newExpense(session, {
+        sum: '150.00',
+        confirmed: false,
+        date: '2017-01-15',
+        title: 'Tonnikalaa',
+      })
+    );
 
     const e = await session.get<Expense>(`/api/expense/${expenseId}`);
     expect(e).toHaveProperty('division');
-    expect(e.division).toContainEqual({ userId: 2, type: 'benefit', sum: '75.00' });
+    expect(e.division).toContainEqual({
+      userId: 2,
+      type: 'benefit',
+      sum: '75.00',
+    });
     expect(e).toHaveProperty('recurringExpenseId');
     expect(e.recurringExpenseId).toBeNull();
 
-    const monthBenefit2 = await checkMonthStatus(monthBenefit1.plus('75').toString(),
-      ex => expect(ex.find(i => i.id === expenseId)).toBeTruthy);
-    const s = await session.put<ApiMessage>(`/api/expense/recurring/${expenseId}`, { period: 'monthly' });
+    const monthBenefit2 = await checkMonthStatus(
+      monthBenefit1.plus('75').toString(),
+      ex => expect(ex.find(i => i.id === expenseId)).toBeTruthy
+    );
+    const s = await session.put<ApiMessage>(
+      `/api/expense/recurring/${expenseId}`,
+      { period: 'monthly' }
+    );
     expect(s.recurringExpenseId).toBeGreaterThan(0);
     expect(s.templateExpenseId).toBeGreaterThan(0);
     captureId(s);
@@ -64,18 +110,35 @@ describe('recurring expenses', () => {
   });
 
   it('creates 1/month', async () => {
-    const expenseId = checkCreateStatus(await newExpense(session, {
-      sum: '150.00', confirmed: false, date: '2017-01-01', title: 'Pan-galactic gargleblaster',
-    }));
-    const s = await session.put<ApiMessage>(`/api/expense/recurring/${expenseId}`, { period: 'monthly' });
+    const expenseId = checkCreateStatus(
+      await newExpense(session, {
+        sum: '150.00',
+        confirmed: false,
+        date: '2017-01-01',
+        title: 'Pan-galactic gargleblaster',
+      })
+    );
+    const s = await session.put<ApiMessage>(
+      `/api/expense/recurring/${expenseId}`,
+      { period: 'monthly' }
+    );
     expect(s.recurringExpenseId).toBeGreaterThan(0);
     expect(s.templateExpenseId).toBeGreaterThan(0);
     captureId(s);
 
-    await session.get<ExpenseCollection>('/api/expense/month', { year: 2017, month: 2 });
-    const expenses = await session.get<ExpenseCollection>('/api/expense/month', { year: 2017, month: 1 });
-    const matches = expenses.expenses.filter(e => e.recurringExpenseId === s.recurringExpenseId);
-    expect(matches).toMatchObject([{ title: 'Pan-galactic gargleblaster', date: '2017-01-01' }]);
+    await session.get<ExpenseCollection>('/api/expense/month', {
+      year: 2017,
+      month: 2,
+    });
+    const expenses = await session.get<ExpenseCollection>(
+      '/api/expense/month',
+      { year: 2017, month: 1 }
+    );
+    const matches = expenses.expenses.filter(
+      e => e.recurringExpenseId === s.recurringExpenseId
+    );
+    expect(matches).toMatchObject([
+      { title: 'Pan-galactic gargleblaster', date: '2017-01-01' },
+    ]);
   });
-
 });

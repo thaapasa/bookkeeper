@@ -4,11 +4,39 @@ import { Session, CategoryData } from '../../types/Session';
 import { ExpenseDivisionItem, Expense } from '../../types/Expense';
 import { SessionWithControl } from './TestClient';
 import { isDbObject } from '../../types/Common';
-import { isApiMessageWithExpenseId, ApiMessage, isApiMessageWithRecurringExpenseId } from '../../types/Api';
+import {
+  isApiMessageWithExpenseId,
+  ApiMessage,
+  isApiMessageWithRecurringExpenseId,
+} from '../../types/Api';
 
 let createdIds: number[] = [];
 let createdRecurrences: number[] = [];
 const createdCategories: number[] = [];
+
+export function findSourceId(name: string, session: Session): number {
+  const user = session.sources.find(u => u.name === name);
+  if (!user) {
+    throw new Error('Source not found');
+  }
+  return user.id;
+}
+
+export function findCategoryId(name: string, session: Session): number {
+  const c = session.categories.find(s => s.name === name);
+  if (!c) {
+    throw new Error('Category not found');
+  }
+  return c.id;
+}
+
+export function findUserId(name: string, session: Session): number {
+  const user = session.users.find(u => u.username === name);
+  if (!user) {
+    throw new Error('User not found');
+  }
+  return user.id;
+}
 
 export function captureId<T>(e: T): T {
   if (isDbObject(e)) {
@@ -45,7 +73,10 @@ export const division = {
   },
 };
 
-export async function newExpense(session: SessionWithControl, expense?: Partial<Expense>): Promise<ApiMessage> {
+export async function newExpense(
+  session: SessionWithControl,
+  expense?: Partial<Expense>
+): Promise<ApiMessage> {
   const data = {
     userId: session.user.id,
     date: '2018-01-22',
@@ -60,14 +91,23 @@ export async function newExpense(session: SessionWithControl, expense?: Partial<
   return captureId(await session.put<ApiMessage>('/api/expense', data));
 }
 
-export async function newCategory(session: SessionWithControl, data: CategoryData): Promise<ApiMessage> {
+export async function newCategory(
+  session: SessionWithControl,
+  data: CategoryData
+): Promise<ApiMessage> {
   const d = await session.put<ApiMessage>('/api/category', data);
-  createdCategories.push(d.categoryId!);
+  if (d.categoryId) {
+    createdCategories.push(d.categoryId);
+  }
   return d;
 }
 
-export async function deleteCreated(session: SessionWithControl): Promise<boolean> {
-  if (!session) { return false; }
+export async function deleteCreated(
+  session: SessionWithControl
+): Promise<boolean> {
+  if (!session) {
+    return false;
+  }
   try {
     for (const id of createdRecurrences) {
       await session.del(`/api/expense/recurring/${id}?target=all`);
@@ -90,26 +130,10 @@ export async function deleteCreated(session: SessionWithControl): Promise<boolea
 export function checkCreateStatus(s: ApiMessage): number {
   expect(s.status).toEqual('OK');
   expect(s.expenseId).toBeGreaterThan(0);
-  if (!s.expenseId) { throw new Error('not-reached'); }
+  if (!s.expenseId) {
+    throw new Error('not-reached');
+  }
   return s.expenseId;
-}
-
-export function findSourceId(name: string, session: Session): number {
-  const user = session.sources.find(u => u.name === name);
-  if (!user) { throw new Error('Source not found'); }
-  return user.id;
-}
-
-export function findCategoryId(name: string, session: Session): number {
-  const c = session.categories.find(s => s.name === name);
-  if (!c) { throw new Error('Category not found'); }
-  return c.id;
-}
-
-export function findUserId(name: string, session: Session): number {
-  const user = session.users.find(u => u.username === name);
-  if (!user) { throw new Error('User not found'); }
-  return user.id;
 }
 
 export async function cleanup(session: SessionWithControl) {

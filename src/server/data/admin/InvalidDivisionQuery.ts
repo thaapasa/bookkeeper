@@ -1,6 +1,6 @@
 import { ExpenseType } from '../../../shared/types/Expense';
 import { MoneyLike } from '../../../shared/util/Money';
-import { IBaseProtocol } from '../../../../node_modules/pg-promise';
+import { IBaseProtocol } from 'pg-promise';
 
 export interface InvalidDivision {
   id: number;
@@ -13,7 +13,8 @@ export interface InvalidDivision {
 
 export function getInvalidDivision(tx: IBaseProtocol<any>) {
   return async (groupId: number): Promise<InvalidDivision[]> =>
-    tx.manyOrNone<InvalidDivision>(`
+    tx.manyOrNone<InvalidDivision>(
+      `
 SELECT *
 FROM (
   SELECT
@@ -97,5 +98,7 @@ FROM (
     GROUP BY id
   ) data
   ORDER BY data.id) overview
-WHERE sum <> positive OR sum <> -negative OR zero <> 0`, { groupId });
+WHERE sum <> positive OR sum <> -negative OR zero <> 0`,
+      { groupId }
+    );
 }

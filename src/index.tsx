@@ -3,19 +3,24 @@
  */
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-const injectTapEventPlugin = require('react-tap-event-plugin');
+import MomentUtils from '@date-io/moment';
+import { ThemeProvider } from '@material-ui/styles';
+import { StylesProvider } from '@material-ui/core/styles';
+import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 import registerServiceWorker from './client/registerServiceWorker';
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import App from './client/App';
 import './index.css';
+import App from './client/App';
 import { muiTheme } from './client/ui/Colors';
-
-injectTapEventPlugin();
+import { fiLocale } from 'shared/types/Time';
 
 ReactDOM.render(
-  <MuiThemeProvider muiTheme={muiTheme}>
-    <App />
-  </MuiThemeProvider>,
-  document.getElementById('root') as HTMLElement,
+  <StylesProvider injectFirst>
+    <ThemeProvider theme={muiTheme}>
+      <MuiPickersUtilsProvider utils={MomentUtils} locale={fiLocale}>
+        <App />
+      </MuiPickersUtilsProvider>
+    </ThemeProvider>
+  </StylesProvider>,
+  document.getElementById('root') as HTMLElement
 );
 registerServiceWorker();

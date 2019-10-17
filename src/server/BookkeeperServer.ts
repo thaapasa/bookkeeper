@@ -1,12 +1,14 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-import express from 'express';
 import * as bodyParser from 'body-parser';
-import { config } from './Config';
-import * as api from './Api';
+import debug from 'debug';
+import express from 'express';
 import * as path from 'path';
-const debug = require('debug')('bookkeeper:server');
+import * as api from './Api';
+import { config } from './Config';
+
+const log = debug('bookkeeper:server');
 
 const curDir = process.cwd();
 const app = express();
@@ -16,12 +18,14 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static('public'));
 
 api.registerAPI(app);
-app.get(/\/p\/.*/, (s, r) => r.sendFile(path.join(curDir + '/public/index.html')));
+app.get(/\/p\/.*/, (_, res) =>
+  res.sendFile(path.join(curDir + '/public/index.html'))
+);
 
 try {
   app.listen(config.port, () => {
-    debug('Kukkaro server started with configuration', config);
+    log('Kukkaro server started with configuration', config);
   });
 } catch (er) {
-  debug('Error in server:', er);
+  log('Error in server:', er);
 }

@@ -1,28 +1,39 @@
 import { DbObject } from './Common';
 import { MoneyLike } from '../util/Money';
-import { Map } from '../util/Objects';
+import * as t from 'io-ts';
+import { TISODate, ISODate } from './Time';
 
 export type ExpenseType = 'expense' | 'income' | 'transfer';
-export type ExpenseDivisionType = 'cost' | 'benefit' | 'income' | 'split' | 'transferor' | 'transferee';
+export type ExpenseDivisionType =
+  | 'cost'
+  | 'benefit'
+  | 'income'
+  | 'split'
+  | 'transferor'
+  | 'transferee';
 
 export const expenseTypes: ExpenseType[] = ['expense', 'income', 'transfer'];
 
 export function getExpenseTypeLabel(type: ExpenseType): string {
   switch (type) {
-    case 'income': return 'Tulo';
-    case 'expense': return 'Kulu';
-    case 'transfer': return 'Siirto';
-    default: return '?';
+    case 'income':
+      return 'Tulo';
+    case 'expense':
+      return 'Kulu';
+    case 'transfer':
+      return 'Siirto';
+    default:
+      return '?';
   }
 }
 
-export const expenseBeneficiary: Map<ExpenseDivisionType> = {
+export const expenseBeneficiary: Record<string, ExpenseDivisionType> = {
   expense: 'benefit',
   income: 'split',
   transfer: 'transferee',
 };
 
-export const expensePayer: Map<ExpenseDivisionType> = {
+export const expensePayer: Record<string, ExpenseDivisionType> = {
   expense: 'cost',
   income: 'income',
   transfer: 'transferor',
@@ -84,12 +95,18 @@ export interface ExpenseInEditor {
   type: ExpenseType;
 }
 
-export interface UserExpenseWithDetails extends UserExpense {
+export interface UserExpenseWithDetails extends UserExpense {
   division: ExpenseDivision;
 }
 
 export function isExpense(e: any): e is Expense {
-  return typeof e === 'object' && typeof e.id === 'number' && typeof e.categoryId === 'number' && typeof e.title === 'string' && typeof e.template === 'boolean';
+  return (
+    typeof e === 'object' &&
+    typeof e.id === 'number' &&
+    typeof e.categoryId === 'number' &&
+    typeof e.title === 'string' &&
+    typeof e.template === 'boolean'
+  );
 }
 
 export interface ExpenseStatus {
@@ -111,13 +128,23 @@ export interface ExpenseCollection {
   unconfirmedBefore: boolean;
 }
 
-export type RecurringExpensePeriod = 'monthly' | 'yearly';
+export const TRecurringExpensePeriod = t.keyof({ monthly: null, yearly: null });
+export type RecurringExpensePeriod = t.TypeOf<typeof TRecurringExpensePeriod>;
 
-export interface Recurrence extends DbObject {
-  period: RecurringExpensePeriod;
-  occursUntil?: string;
-  nextMissing: string;
+export const TRecurringExpenseTarget = t.keyof({
+  single: null,
+  all: null,
+  after: null,
+});
+export type RecurringExpenseTarget = t.TypeOf<typeof TRecurringExpenseTarget>;
+
+export const TRecurringExpenseInput = t.intersection([
+  t.type({ period: TRecurringExpensePeriod }),
+  t.partial({ occursUntil: TISODate }),
+]);
+export type RecurringExpenseInput = t.TypeOf<typeof TRecurringExpenseInput>;
+
+export interface Recurrence extends DbObject, RecurringExpenseInput {
+  nextMissing: ISODate;
   templateExpenseId: number;
 }
-
-export type RecurringExpenseTarget = 'single' | 'all' | 'after';

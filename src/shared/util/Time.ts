@@ -1,6 +1,5 @@
 import { leftPad } from './Util';
-import { Moment, isMoment, MomentInput } from 'moment';
-const moment = require('moment');
+import moment, { Moment, isMoment, MomentInput } from 'moment';
 
 export type DateLike = Date | Moment | string;
 
@@ -9,12 +8,16 @@ export function month(year: number, mon: number): Moment {
 }
 
 export function toMoment(d?: MomentInput, pattern?: string): Moment {
-  if (isMoment(d)) { return d; }
+  if (isMoment(d)) {
+    return d;
+  }
   return moment(d, pattern);
 }
 
 export function toDate(d: DateLike): Date {
-  if (d instanceof Date) { return d; }
+  if (d instanceof Date) {
+    return d;
+  }
   return toMoment(d).toDate();
 }
 
@@ -34,11 +37,28 @@ export function iso(m: any): string {
   return moment(m).format('YYYY-MM-DDTHH:mm:ssZ');
 }
 
-const months = ['', 'Tammikuu', 'Helmikuu', 'Maaliskuu', 'Huhtikuu', 'Toukokuu', 'Kesäkuu', 'Heinäkuu', 'Elokuu',
-  'Syyskuu', 'Lokakuu', 'Marraskuu', 'Joulukuu'];
+const months = [
+  '',
+  'Tammikuu',
+  'Helmikuu',
+  'Maaliskuu',
+  'Huhtikuu',
+  'Toukokuu',
+  'Kesäkuu',
+  'Heinäkuu',
+  'Elokuu',
+  'Syyskuu',
+  'Lokakuu',
+  'Marraskuu',
+  'Joulukuu',
+];
 
-export function getFinnishMonthName(monthNumber: number | string | DateLike): string {
-  if (typeof monthNumber === 'number') { return months[monthNumber]; }
+export function getFinnishMonthName(
+  monthNumber: number | string | DateLike
+): string {
+  if (typeof monthNumber === 'number') {
+    return months[monthNumber];
+  }
   if (typeof monthNumber === 'string' && /^[0-9]*$/.exec(monthNumber)) {
     return months[parseInt(monthNumber, 10)];
   }
@@ -67,9 +87,12 @@ export function toYearName(x: DateLike) {
 
 export function toDateRangeName(x: TypedDateRange) {
   switch (x.type) {
-    case 'month': return toMonthName(x.start);
-    case 'year': return toYearName(x.start);
-    default: return '?';
+    case 'month':
+      return toMonthName(x.start);
+    case 'year':
+      return toYearName(x.start);
+    default:
+      return '?';
   }
 }
 
@@ -85,14 +108,20 @@ function fromYearValue(y: DateLike): Moment | undefined {
 
 export function yearRange(date: DateLike): TypedDateRange {
   const m = fromYearValue(date) || toMoment(date);
-  const start = m.clone().startOf('year').toDate();
+  const start = m
+    .clone()
+    .startOf('year')
+    .toDate();
   const end = m.endOf('year').toDate();
   return { start, end, type: 'year' };
 }
 
 export function monthRange(date: DateLike): TypedDateRange {
   const m = toMoment(date);
-  const start = m.clone().startOf('month').toDate();
+  const start = m
+    .clone()
+    .startOf('month')
+    .toDate();
   const end = m.endOf('month').toDate();
   return { start, end, type: 'month' };
 }
@@ -100,7 +129,9 @@ export function monthRange(date: DateLike): TypedDateRange {
 export function isSameMonth(a: DateLike, b: DateLike) {
   const am = toMoment(a);
   const bm = toMoment(b);
-  if (am.get('year') !== bm.get('year')) { return false; }
+  if (am.get('year') !== bm.get('year')) {
+    return false;
+  }
   return am.get('month') === bm.get('month');
 }
 
@@ -108,19 +139,31 @@ export function compareDates(first: DateLike, second: DateLike): number {
   if (!first) {
     return !second ? 0 : -1;
   }
-  if (!second) { return 1; }
+  if (!second) {
+    return 1;
+  }
   const a = toDate(first).getTime();
   const b = toDate(second).getTime();
-  if (a < b) { return -1; }
-  if (a > b) { return 1; }
+  if (a < b) {
+    return -1;
+  }
+  if (a > b) {
+    return 1;
+  }
   return 0;
 }
 
 export function compareRanges(a: DateRange, b: DateRange) {
-  if (!a) { return !b ? 0 : -1; }
-  if (!b) { return 1; }
+  if (!a) {
+    return !b ? 0 : -1;
+  }
+  if (!b) {
+    return 1;
+  }
   const c = compareDates(a.start, b.start);
-  if (c !== 0) { return c; }
+  if (c !== 0) {
+    return c;
+  }
   return compareDates(a.end, b.end);
 }
 

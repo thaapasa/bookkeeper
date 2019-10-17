@@ -7,7 +7,9 @@ import { Action } from '../shared/types/Common';
 import { unsubscribeAll } from './util/ClientUtil';
 import { windowSizeBus } from './data/State';
 import { Size } from './ui/Types';
-const debug = require('debug')('bookkeeper:app');
+import debug from 'debug';
+
+const log = debug('bookkeeper:app');
 
 interface AppState {
   session: Session | null;
@@ -17,7 +19,6 @@ interface AppState {
 }
 
 export default class App extends React.Component<{}, AppState> {
-
   private unsub: Action[] = [];
 
   public state: AppState = {
@@ -28,7 +29,7 @@ export default class App extends React.Component<{}, AppState> {
   };
 
   public async componentDidMount() {
-    debug('Initializing bookkeeper client');
+    log('Initializing bookkeeper client');
     this.updateWindowDimensions();
     window.addEventListener('resize', this.updateWindowDimensions);
     this.unsub.push(sessionP.onValue(session => this.setState({ session })));
@@ -45,14 +46,22 @@ export default class App extends React.Component<{}, AppState> {
   private updateWindowDimensions = () => {
     const size = { width: window.innerWidth, height: window.innerHeight };
     windowSizeBus.push(size);
-    this.setState({ hasSize: size.width > 0 && size.height > 0, windowSize: size });
-  }
+    this.setState({
+      hasSize: size.width > 0 && size.height > 0,
+      windowSize: size,
+    });
+  };
 
   public render() {
-    return (this.state.initialized) ?
-      (this.state.session && this.state.hasSize ?
-        <BookkeeperPage session={this.state.session} windowSize={this.state.windowSize} /> :
-        <LoginPage />) :
-      null;
+    return this.state.initialized ? (
+      this.state.session && this.state.hasSize ? (
+        <BookkeeperPage
+          session={this.state.session}
+          windowSize={this.state.windowSize}
+        />
+      ) : (
+        <LoginPage />
+      )
+    ) : null;
   }
 }

@@ -1,21 +1,33 @@
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+} from '@material-ui/core';
+import debug from 'debug';
 import * as React from 'react';
-import Dialog from 'material-ui/Dialog';
-import FlatButton from 'material-ui/FlatButton';
-import TextField from 'material-ui/TextField';
-import SelectField from 'material-ui/SelectField';
-import MenuItem from 'material-ui/MenuItem';
-import apiConnect from '../../data/ApiConnect';
+import styled from 'styled-components';
 import { Category } from '../../../shared/types/Session';
+import apiConnect from '../../data/ApiConnect';
 import { notify, notifyError } from '../../data/State';
-const debug = require('debug')('bookkeeper:category-dialog');
 
-const defaultCategory: Category[] = [{ id: 0, name: '[Ei yläkategoriaa]', children: [], parentId: null }];
+const log = debug('bookkeeper:category-dialog');
+
+const defaultCategory: Category[] = [
+  { id: 0, name: '[Ei yläkategoriaa]', children: [], parentId: null },
+];
 
 interface CategoryDialogProps {
   categories: Category[];
 }
 
-type CategoryResolve = (c: number | null) => void;
+type CategoryResolve = (c: number | null | PromiseLike<number | null>) => void;
 
 interface CategoryDialogState {
   open: boolean;
@@ -27,8 +39,21 @@ interface CategoryDialogState {
   valid: boolean;
 }
 
-export default class CategoryDialog extends React.Component<CategoryDialogProps, any> {
+const Form = styled.form`
+  position: relative;
+  z-index: 1;
+`;
 
+const DialogControl = styled(FormControl)`
+  width: 100%;
+  margin: 8px 0 !important;
+  box-sizing: border-box;
+`;
+
+export default class CategoryDialog extends React.Component<
+  CategoryDialogProps,
+  CategoryDialogState
+> {
   public state: CategoryDialogState = {
     open: false,
     name: '',
@@ -40,37 +65,55 @@ export default class CategoryDialog extends React.Component<CategoryDialogProps,
   };
 
   public createCategory = (parent?: Category): Promise<number | null> => {
-    debug('Create category under', parent);
-    return this.startEditing({ open: true, name: '', parentId: parent ? parent.id : 0, createNew: true, id: 0, valid: true });
-  }
+    log('Create category under', parent);
+    return this.startEditing({
+      open: true,
+      name: '',
+      parentId: parent ? parent.id : 0,
+      createNew: true,
+      id: 0,
+      valid: false,
+    });
+  };
 
   public editCategory = (category: Category): Promise<number | null> => {
-    debug('Edit category', category);
-    return this.startEditing({ open: true, name: category.name, parentId: category.parentId || 0, createNew: false, id: category.id, valid: true });
-  }
+    log('Edit category', category);
+    return this.startEditing({
+      open: true,
+      name: category.name,
+      parentId: category.parentId || 0,
+      createNew: false,
+      id: category.id,
+      valid: true,
+    });
+  };
 
-  private getCategories(): Category[] {
+  get categories(): Category[] {
     return defaultCategory.concat(this.props.categories);
   }
 
-  private startEditing(s: Partial<CategoryDialogState>): Promise<number | null> {
-    return new Promise<number | null>((resolve) => {
-      this.setState({ ...s, resolve });
+  private startEditing(
+    s: Partial<CategoryDialogState>
+  ): Promise<number | null> {
+    return new Promise<number | null>(resolve => {
+      this.setState({ ...s, resolve } as any);
     });
   }
 
   private closeDialog = (id: number | null) => {
-    debug('Closing dialog, resolving to', id);
+    log('Closing dialog, resolving to', id);
     this.setState({ open: false });
-    if (this.state.resolve) { this.state.resolve(id); }
+    if (this.state.resolve) {
+      this.state.resolve(id);
+    }
     return false;
-  }
+  };
 
   private requestSave = (event: React.SyntheticEvent<any>) => {
     event.preventDefault();
     event.stopPropagation();
     this.saveCategory(this.state);
-  }
+  };
 
   private async saveCategory(s: CategoryDialogState): Promise<number | null> {
     const createNew = !s.id;
@@ -81,81 +124,96 @@ export default class CategoryDialog extends React.Component<CategoryDialogProps,
       parentId: s.parentId,
       children: [],
     };
-    debug('Save category data', data);
+    log('Save category data', data);
     try {
-      const id = createNew ?
-        (await apiConnect.storeCategory(data)).categoryId || 0 :
-        (await apiConnect.updateCategory(s.id, data)).id;
+      const id = createNew
+        ? (await apiConnect.storeCategory(data)).categoryId || 0
+        : (await apiConnect.updateCategory(s.id, data)).id;
       this.closeDialog(id);
       notify(`${createNew ? 'Tallennettu' : 'Päivitetty'} ${name}`);
       return id;
     } catch (e) {
-      notifyError(`Virhe ${createNew ? 'tallennettaessa' : 'päivitettäessä'} kirjausta ${name}`, e);
+      notifyError(
+        `Virhe ${
+          createNew ? 'tallennettaessa' : 'päivitettäessä'
+        } kirjausta ${name}`,
+        e
+      );
       return null;
     }
   }
 
   private cancel = () => {
     this.closeDialog(null);
-  }
+  };
 
-  private updateName = (_: any, name: string) => {
-    this.setState({ name, valid: name && name.length > 0 });
-  }
+  private updateName = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const name = event.target.value;
+    this.setState({ name, valid: (name && name.length > 0) || false });
+  };
 
-  private changeCategory = (i: any, j: any, v: number) => {
-    this.setState({ parentId: v });
-  }
+  private changeCategory = (
+    e: React.ChangeEvent<{ name?: string; value: unknown }>
+  ) => {
+    this.setState({ parentId: Number(e.target.value) });
+  };
 
   public render() {
-    const actions = [(
-      <FlatButton
-        key="cancel"
-        label="Peruuta"
-        primary={true}
-        onClick={this.cancel} />
-    ), (
-      <FlatButton
-        key="save"
-        label="Tallenna"
-        primary={true}
-        disabled={!this.state.valid}
-        keyboardFocused={true}
-        onClick={this.requestSave} />
-    )];
-
     return (
       <Dialog
-        contentClassName="category-dialog"
-        title={this.state.createNew ? 'Uusi kategoria' : 'Muokkaa kategoriaa'}
-        actions={actions}
-        modal={true}
-        autoDetectWindowHeight={true}
-        autoScrollBodyContent={true}
+        className="category-dialog"
+        fullWidth={true}
         open={this.state.open}
-        onRequestClose={this.cancel}>
-        <form onSubmit={this.requestSave}>
-          <TextField
-            key="name"
-            hintText="Nimi"
-            floatingLabelText="Nimi"
-            floatingLabelFixed={true}
-            fullWidth={true}
-            value={this.state.name}
-            onChange={this.updateName}
-          />
-          <SelectField
-            key="category"
-            value={this.state.parentId}
-            floatingLabelText="Yläkategoria"
-            floatingLabelFixed={true}
-            style={{ width: '100%' }}
-            onChange={this.changeCategory}>
-            {this.getCategories().map((c) => (
-              <MenuItem key={c.id} value={c.id} primaryText={c.name} />
-            ))}
-          </SelectField>
-        </form>
+        onClose={this.cancel}
+      >
+        <DialogTitle>
+          {this.state.createNew ? 'Uusi kategoria' : 'Muokkaa kategoriaa'}
+        </DialogTitle>
+        <DialogContent>
+          <Form onSubmit={this.requestSave}>
+            <DialogControl>
+              <TextField
+                key="name"
+                placeholder="Nimi"
+                label="Nimi"
+                InputLabelProps={{ shrink: true }}
+                fullWidth={true}
+                value={this.state.name}
+                onChange={this.updateName}
+              />
+            </DialogControl>
+            <DialogControl>
+              <InputLabel htmlFor="category-dialog-parentId">
+                Yläkategoria
+              </InputLabel>
+              <Select
+                inputProps={{ id: 'category-dialog-parentId' }}
+                value={this.state.parentId}
+                fullWidth={true}
+                onChange={this.changeCategory}
+              >
+                {this.categories.map(c => (
+                  <MenuItem key={c.id} value={c.id}>
+                    {c.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </DialogControl>
+          </Form>
+        </DialogContent>
+        <DialogActions>
+          <Button variant="text" onClick={this.cancel}>
+            Peruuta
+          </Button>
+          <Button
+            variant="text"
+            color="primary"
+            disabled={!this.state.valid}
+            onClick={this.requestSave}
+          >
+            Tallenna
+          </Button>
+        </DialogActions>
       </Dialog>
     );
   }

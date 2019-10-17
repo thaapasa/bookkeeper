@@ -4,13 +4,24 @@ import ExpenseRow from './ExpenseRow';
 import ExpenseHeader from './ExpenseHeader';
 import Money from '../../../shared/util/Money';
 import { MonthlyStatus } from './MonthlyStatus';
-import { UserExpense, ExpenseStatus, Expense } from '../../../shared/types/Expense';
+import {
+  UserExpense,
+  ExpenseStatus,
+  Expense,
+} from '../../../shared/types/Expense';
 import { ExpenseTotals } from './ExpenseHelper';
 import { connect } from '../component/BaconConnect';
 import { userDataE, UserDataProps } from '../../data/Categories';
-import ExpenseFilterRow, { ExpenseFilter, ExpenseFilterFunction } from './ExpenseFilterRow';
+import ExpenseFilterRow, {
+  ExpenseFilter,
+  ExpenseFilterFunction,
+} from './ExpenseFilterRow';
 import { partition } from '../../../shared/util/Arrays';
-import { ExpenseTableLayout, RecurringExpenseSeparator, LoadingIndicator } from './ExpenseTableLayout';
+import {
+  ExpenseTableLayout,
+  RecurringExpenseSeparator,
+  LoadingIndicator,
+} from './ExpenseTableLayout';
 import RecurringSummaryRow from './RecurringSummaryRow';
 import { colorScheme } from '../Colors';
 import { media } from '../Styles';
@@ -32,33 +43,44 @@ interface ExpenseTableState {
 }
 
 // TODO: tänne myös expensejen ja incomen total laskettuna!
-class ExpenseTable extends React.Component<ExpenseTableProps, ExpenseTableState> {
-
+class ExpenseTable extends React.Component<
+  ExpenseTableProps,
+  ExpenseTableState
+> {
   public state: ExpenseTableState = {
     filters: [],
     recurringExpanded: false,
   };
 
-  private addFilter = (filter: ExpenseFilterFunction, name: string, avatar?: string) => {
+  private addFilter = (
+    filter: ExpenseFilterFunction,
+    name: string,
+    avatar?: string
+  ) => {
     this.setState(s => ({
       filters: s.filters.concat({ filter, name, avatar }),
     }));
-  }
+  };
 
   private removeFilter = (index: number) => {
     this.setState(s => {
       s.filters.splice(index, 1);
       return s;
     });
-  }
+  };
 
   private getFilteredExpenses = (): UserExpense[] => {
-    return this.props.expenses ? this.state.filters.reduce((a, b) => a.filter(b.filter), this.props.expenses) : [];
-  }
+    return this.props.expenses
+      ? this.state.filters.reduce(
+          (a, b) => a.filter(b.filter),
+          this.props.expenses
+        )
+      : [];
+  };
 
   private onUpdateExpense = (e: UserExpense) => {
     this.props.onUpdateExpense(e.id, e);
-  }
+  };
 
   private renderExpense = (expense: UserExpense) => {
     return (
@@ -67,32 +89,51 @@ class ExpenseTable extends React.Component<ExpenseTableProps, ExpenseTableState>
         userData={this.props.userData}
         key={'expense-row-' + expense.id}
         addFilter={this.addFilter}
-        onUpdated={this.onUpdateExpense} />
+        onUpdated={this.onUpdateExpense}
+      />
     );
-  }
+  };
 
   private calculateTotals(expenses: Expense[]): ExpenseTotals | null {
-    if (expenses.length < 1) { return null; }
-    const income = expenses.filter(e => e.type === 'income').reduce((s, c) => s.plus(c.sum), Money.zero);
-    const expense = expenses.filter(e => e.type === 'expense').reduce((s, c) => s.plus(c.sum), Money.zero);
+    if (expenses.length < 1) {
+      return null;
+    }
+    const income = expenses
+      .filter(e => e.type === 'income')
+      .reduce((s, c) => s.plus(c.sum), Money.zero);
+    const expense = expenses
+      .filter(e => e.type === 'expense')
+      .reduce((s, c) => s.plus(c.sum), Money.zero);
     return { totalIncome: income, totalExpense: expense };
   }
 
-  private toggleRecurring = () => this.setState(s => ({ recurringExpanded: !s.recurringExpanded }));
+  private toggleRecurring = () =>
+    this.setState(s => ({ recurringExpanded: !s.recurringExpanded }));
 
   private renderRecurringExpenses(recurring: UserExpense[]) {
     return (
       <React.Fragment>
-        <RecurringSummaryRow recurring={recurring} onToggle={this.toggleRecurring} isExpanded={this.state.recurringExpanded} />
-        {this.state.recurringExpanded ? recurring.map(this.renderExpense) : null}
+        <RecurringSummaryRow
+          recurring={recurring}
+          onToggle={this.toggleRecurring}
+          isExpanded={this.state.recurringExpanded}
+        />
+        {this.state.recurringExpanded
+          ? recurring.map(this.renderExpense)
+          : null}
       </React.Fragment>
     );
   }
 
   private renderExpenseRows() {
-    if (this.props.loading) { return <LoadingIndicator />; }
+    if (this.props.loading) {
+      return <LoadingIndicator />;
+    }
     const filtered = this.getFilteredExpenses();
-    const [recurring, normal] = partition(e => !!e.recurringExpenseId, filtered);
+    const [recurring, normal] = partition(
+      e => !!e.recurringExpenseId,
+      filtered
+    );
     if (recurring.length < 1) {
       return normal.map(this.renderExpense);
     } else if (normal.length < 1) {
@@ -114,19 +155,22 @@ class ExpenseTable extends React.Component<ExpenseTableProps, ExpenseTableState>
           <ExpenseTableLayout>
             <thead>
               <ExpenseHeader />
-              <ExpenseFilterRow filters={this.state.filters} onRemoveFilter={this.removeFilter} />
+              <ExpenseFilterRow
+                filters={this.state.filters}
+                onRemoveFilter={this.removeFilter}
+              />
             </thead>
-            <tbody>
-              {this.renderExpenseRows()}
-            </tbody>
+            <tbody>{this.renderExpenseRows()}</tbody>
           </ExpenseTableLayout>
           <ExpenseFiller />
         </ExpenseArea>
         <MonthlyStatus
           {...this.props}
-          unconfirmedDuring={this.props.expenses.find(e => !e.confirmed) !== undefined}
+          unconfirmedDuring={
+            this.props.expenses.find(e => !e.confirmed) !== undefined
+          }
           totals={this.calculateTotals(this.props.expenses)}
-          showFiltered={(this.state.filters.length > 0)}
+          showFiltered={this.state.filters.length > 0}
           filteredTotals={this.calculateTotals(this.getFilteredExpenses())}
         />
       </ExpenseTableContainer>
