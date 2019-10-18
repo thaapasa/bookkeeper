@@ -1,7 +1,11 @@
 import * as React from 'react';
+import { Card, TextField, Button } from '@material-ui/core';
 import styled from 'styled-components';
 import { login } from '../../data/Login';
-import { Card, TextField, Button } from '@material-ui/core';
+import { media } from '../Styles';
+import { colorScheme } from '../Colors';
+
+const publicUrl = process.env.PUBLIC_URL || '';
 
 interface LoginPageState {
   username: string;
@@ -55,34 +59,35 @@ export default class LoginPage extends React.Component<{}, LoginPageState> {
     return (
       <Page>
         <LoginPaper>
-          <form onSubmit={this.handleSubmit}>
+          <Form onSubmit={this.handleSubmit}>
             <Title>Kirjaudu sisään</Title>
-            <br />
             <EditField
               placeholder="Käyttäjätunnus"
               label="Käyttäjätunnus"
               value={this.state.username}
               onChange={this.setUserName}
+              autoCapitalize="off"
+              autoCorrect="off"
+              autoFocus={true}
             />
-            <br />
             <EditField
               placeholder="Salasana"
               label="Salasana"
               type="password"
+              autoCapitalize="off"
+              autoCorrect="off"
               value={this.state.password}
               onChange={this.setPassword}
             />
-            <br />
             <LoginButton type="submit" color="primary" variant="contained">
               Kirjaudu
             </LoginButton>
-            <br />
             {this.state.showStatusMessage ? (
-              <Title>{this.state.statusMessage}</Title>
+              <ErrorText>{this.state.statusMessage}</ErrorText>
             ) : (
               ''
             )}
-          </form>
+          </Form>
         </LoginPaper>
       </Page>
     );
@@ -90,34 +95,56 @@ export default class LoginPage extends React.Component<{}, LoginPageState> {
 }
 
 const LoginPaper = styled(Card)`
-  margin: 36px;
-  padding: 36px;
-  text-align: center;
   display: inline-block;
+  margin: 15vh 32px 32px 32px;
+  padding: 36px;
   z-index: 1;
+`;
+
+const Form = styled.form`
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  width: 248px;
 `;
 
 const EditField = styled(TextField)`
   margin: 8px 0px;
-  width: 250px;
 `;
 
 const Title = styled.title`
-  height: 30px;
   display: inline-block;
-  max-width: 250px;
+  height: 24px;
+  margin-bottom: 3vh;
+  font-size: 14pt;
+`;
+
+const ErrorText = styled.div`
+  margin-top: 3vh;
+  color: ${colorScheme.secondary.dark};
+  text-align: center;
 `;
 
 const LoginButton = styled(Button)`
-  margin: 30px;
+  display: inline-block;
+  margin-top: 5vh;
 `;
 
 const Page = styled.div`
-  margin: auto;
-  text-align: center;
-  background: url(${process.env.PUBLIC_URL || ''}/img/money-bg.jpg);
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+  background: url(${publicUrl}/img/money-bg.jpg);
+  background-color: #d6d6d6;
   background-size: cover;
   background-repeat: no-repeat;
   width: 100%;
   height: 100%;
+
+  ${media.mobilePortrait`
+    background-size: 1024px;
+    background-position: center top;
+  `}
 `;
