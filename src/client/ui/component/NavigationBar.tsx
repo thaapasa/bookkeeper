@@ -5,7 +5,6 @@ import DateRangeNavigator from './DateRangeNavigator';
 import { AddExpenseIcon } from '../icons/AddExpenseIcon';
 import { media } from '../Styles';
 import { Button, Toolbar } from '@material-ui/core';
-import { colorScheme } from '../Colors';
 
 export interface AppLink {
   label: string;
@@ -25,10 +24,7 @@ const styles: Record<string, React.CSSProperties> = {
   pad: { flex: 1 },
 };
 
-export default class NavigationBar extends React.Component<
-  NavigationBarProps,
-  {}
-> {
+export default class NavigationBar extends React.Component<NavigationBarProps> {
   public render() {
     return (
       <Bar>
@@ -49,7 +45,7 @@ export default class NavigationBar extends React.Component<
 }
 
 const Bar = styled(Toolbar)`
-  background-color: ${colorScheme.primary.standard};
+  background-color: #e3dfdd;
   min-height: inherit;
   position: relative;
 `;
