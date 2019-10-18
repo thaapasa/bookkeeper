@@ -35,31 +35,34 @@ class MenuDrawerImpl extends React.Component<MenuDrawerProps, {}> {
     this.props.history.push(path);
     this.props.onRequestChange(false);
   };
+  private onClose = () => this.props.onRequestChange(false);
   public render() {
     return (
-      <Drawer
-        open={this.props.open}
-        anchor="left"
-        onClose={() => this.props.onRequestChange(false)}
-      >
+      <Drawer open={this.props.open} anchor="left" onClose={this.onClose}>
         <GroupName>{this.props.group.name}</GroupName>
-        <UserInfo>
-          <UserAvatar user={this.props.user} size={40} />
-          <UserName>
-            {this.props.user.firstName} {this.props.user.lastName}
-          </UserName>
-        </UserInfo>
-        {this.props.links &&
-          this.props.links.map(l => (
-            <MenuLink
-              key={l.label}
-              history={this.props.history}
-              {...l}
-              onSelect={this.onSelect}
-            />
-          ))}
+        <ItemArea>
+          <UserInfo>
+            <UserAvatar user={this.props.user} size={40} />
+            <UserName>
+              {this.props.user.firstName} {this.props.user.lastName}
+            </UserName>
+          </UserInfo>
+        </ItemArea>
+        <ItemArea>
+          {this.props.links &&
+            this.props.links.map(l => (
+              <MenuLink
+                key={l.label}
+                history={this.props.history}
+                {...l}
+                onSelect={this.onSelect}
+              />
+            ))}
+        </ItemArea>
         {this.props.links && this.props.links.length > 0 ? <Divider /> : null}
-        <MenuItem onClick={logout}>Kirjaudu ulos</MenuItem>
+        <ItemArea className="bottom">
+          <MenuItem onClick={logout}>Kirjaudu ulos</MenuItem>
+        </ItemArea>
       </Drawer>
     );
   }
@@ -68,10 +71,18 @@ class MenuDrawerImpl extends React.Component<MenuDrawerProps, {}> {
 export const MenuDrawer = withRouter(MenuDrawerImpl);
 
 const GroupName = styled.div`
-  padding: 16px;
+  padding: 16px 24px;
   background-color: ${colorScheme.primary.standard};
   font-weight: bold;
   color: ${colorScheme.secondary.dark};
+`;
+
+const ItemArea = styled.div`
+  margin: 4px 8px;
+
+  &.bottom {
+    margin-bottom: 16px;
+  }
 `;
 
 const UserInfo = styled.div`
@@ -93,7 +104,7 @@ const UserName = styled.span`
 const Divider = styled.div`
   border-bottom: 1px solid ${colorScheme.gray.standard};
   flex: 1;
-  margin: 8px 16px;
+  margin: 8px 24px;
 `;
 
 export default connect(
