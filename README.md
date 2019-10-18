@@ -13,6 +13,24 @@ git config branch.master.rebase true
 
 Install deps with `yarn`.
 
+#### VS Code
+
+Install the ESLint plugin and set eslint options to user settings:
+
+```json
+{
+  "eslint.autoFixOnSave": true,
+    "eslint.enable": true,
+    "eslint.validate": [
+        "javascript",
+        "javascriptreact",
+        { "language": "typescript", "autoFix": true },
+        { "language": "typescriptreact", "autoFix": true }
+    ]
+  }
+}
+```
+
 ### Database
 
 If you want to use a docker DB, start postgres DB with `yarn create-dev-db`.
