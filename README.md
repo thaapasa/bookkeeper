@@ -20,14 +20,14 @@ Install the ESLint plugin and set eslint options to user settings:
 ```json
 {
   "eslint.autoFixOnSave": true,
-    "eslint.enable": true,
-    "eslint.validate": [
-        "javascript",
-        "javascriptreact",
-        { "language": "typescript", "autoFix": true },
-        { "language": "typescriptreact", "autoFix": true }
-    ]
-  }
+  "eslint.enable": true,
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    { "language": "typescript", "autoFix": true },
+    { "language": "typescriptreact", "autoFix": true }
+  ],
+  "eslint.packageManager": "yarn"
 }
 ```
 
@@ -41,6 +41,9 @@ log in to database (for example, with DBeaver), and create the missing role.
 ### Server
 
 Create file `.env` with the following contents (adjust as required):
+
+Local dev DB is running on port `15488` by default (if installed via Docker
+with `yarn create-dev-db`).
 
 ```ini
 SERVER_PORT=3100

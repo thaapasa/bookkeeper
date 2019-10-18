@@ -9,7 +9,6 @@ import {
 import { VCenterRow } from '../Styles';
 import { TextField, MenuItem, Select, IconButton } from '@material-ui/core';
 
-// tslint:disable jsx-no-lambda
 export function SumField(props: {
   value: string;
   errorText?: string;
