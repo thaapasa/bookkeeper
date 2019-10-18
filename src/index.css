@@ -8,3 +8,8 @@ body {
 #root {
     width: 100%;
 }
+
+.react-autosuggest__container {
+    width: 100%;
+    box-sizing: border-box;
+}

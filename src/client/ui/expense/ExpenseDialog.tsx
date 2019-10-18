@@ -45,32 +45,20 @@ import {
   ExpenseDivision,
 } from '../../../shared/types/Expense';
 import { toDate, formatDate } from '../../../shared/util/Time';
-import { noop, identity } from '../../../shared/util/Util';
-import { connect } from '../component/BaconConnect';
-import { validSessionE, sourceMapE } from '../../data/Login';
-import {
-  categoryDataSourceP,
-  categoryMapE,
-  isSubcategoryOf,
-  CategoryDataSource,
-} from '../../data/Categories';
-import {
-  notify,
-  notifyError,
-  expenseDialogE,
-  updateExpenses,
-  confirm,
-} from '../../data/State';
+import { identity } from '../../../shared/util/Util';
+import { isSubcategoryOf, CategoryDataSource } from '../../data/Categories';
+import { notify, notifyError, confirm } from '../../data/State';
 import {
   sortAndCompareElements,
   valuesToArray,
 } from '../../../shared/util/Arrays';
-import { ExpenseDialogObject } from '../../data/StateTypes';
 import { omit } from '../../../shared/util/Objects';
 import { TitleField } from './TitleField';
 import { ReceiverField } from './ReceiverField';
 import { CategorySelector } from './CategorySelector';
 import { DateField } from './DateField';
+import { isMobileSize } from '../Styles';
+import { Size } from '../Types';
 
 const log = debug('bookkeeper:expense-dialog');
 
@@ -141,6 +129,7 @@ interface ExpenseDialogProps {
   group: Group;
   user: User;
   expenseCounter: number;
+  windowSize: Size;
 }
 
 interface ExpenseDialogState extends ExpenseInEditor {
@@ -158,6 +147,10 @@ export class ExpenseDialog extends React.Component<
   private readonly submitStream: B.Bus<true> = new B.Bus<true>();
   private unsub: any[] = [];
   public state = this.getDefaultState(null);
+
+  get isMobile() {
+    return isMobileSize(this.props.windowSize);
+  }
 
   private getDefaultSourceId(): number | undefined {
     return this.props.group.defaultSourceId || undefined;
@@ -458,13 +451,18 @@ export class ExpenseDialog extends React.Component<
 
   public render() {
     return (
-      <StyledDialog open={true} onClose={this.dismiss}>
+      <Dialog
+        open={true}
+        onClose={this.dismiss}
+        scroll="paper"
+        fullScreen={this.isMobile}
+      >
         <DialogTitle>
           {this.props.createNew ? 'Uusi kirjaus' : 'Muokkaa kirjausta'}
         </DialogTitle>
-        <DialogContent className="expense-dialog-body">
-          <form onSubmit={this.requestSave} onKeyUp={this.handleKeyPress}>
-            <Row>
+        <DialogContent className="expense-dialog-content" dividers={true}>
+          <Form onSubmit={this.requestSave} onKeyUp={this.handleKeyPress}>
+            <Row className="row sum">
               <UserAvatar
                 userId={this.state.userId}
                 style={{ verticalAlign: 'middle' }}
@@ -476,7 +474,7 @@ export class ExpenseDialog extends React.Component<
                   onChange={v => this.inputStreams.sum.push(v)}
                 />
               </SumArea>
-              <div className="expense-confirmed">
+              <ConfirmArea>
                 <FormControlLabel
                   control={
                     <Checkbox
@@ -488,41 +486,48 @@ export class ExpenseDialog extends React.Component<
                   }
                   label="Alustava"
                 />
-              </div>
-              <div className="expense-type">
+              </ConfirmArea>
+              <TypeArea>
                 <TypeSelector
                   value={this.state.type}
                   onChange={v => this.inputStreams.type.push(v)}
                 />
-              </div>
+              </TypeArea>
             </Row>
-            <TitleField
-              id="expense-dialog-title"
-              value={this.state.title}
-              onSelect={this.selectCategory}
-              dataSource={this.props.categorySource}
-              errorText={this.state.errors.title}
-              onChange={v => this.inputStreams.title.push(eventValue(v))}
-            />
-            <ReceiverField
-              id="expense-dialog-receiver"
-              fullWidth={true}
-              value={this.state.receiver}
-              onChange={e => this.inputStreams.receiver.push(eventValue(e))}
-              errorText={this.state.errors.receiver}
-              onKeyUp={stopEventPropagation}
-            />
-            <CategorySelector
-              category={this.state.categoryId}
-              categories={this.props.categories}
-              onChangeCategory={v => this.inputStreams.categoryId.push(v)}
-              errorText={this.state.errors.categoryId}
-              subcategory={this.state.subcategoryId}
-              subcategories={this.state.subcategories}
-              onChangeSubcategory={v => this.inputStreams.subcategoryId.push(v)}
-            />
-            <br />
-            <div style={{ display: 'flex', flexWrap: 'nowrap' }}>
+            <Row className="row input title">
+              <TitleField
+                id="expense-dialog-title"
+                value={this.state.title}
+                onSelect={this.selectCategory}
+                dataSource={this.props.categorySource}
+                errorText={this.state.errors.title}
+                onChange={v => this.inputStreams.title.push(eventValue(v))}
+              />
+            </Row>
+            <Row className="row input receiver">
+              <ReceiverField
+                id="expense-dialog-receiver"
+                fullWidth={true}
+                value={this.state.receiver}
+                onChange={e => this.inputStreams.receiver.push(eventValue(e))}
+                errorText={this.state.errors.receiver}
+                onKeyUp={stopEventPropagation}
+              />
+            </Row>
+            <Row className="row select category">
+              <CategorySelector
+                category={this.state.categoryId}
+                categories={this.props.categories}
+                onChangeCategory={v => this.inputStreams.categoryId.push(v)}
+                errorText={this.state.errors.categoryId}
+                subcategory={this.state.subcategoryId}
+                subcategories={this.state.subcategories}
+                onChangeSubcategory={v =>
+                  this.inputStreams.subcategoryId.push(v)
+                }
+              />
+            </Row>
+            <Row className="row select source">
               <SourceSelector
                 value={this.state.sourceId}
                 sources={this.props.sources}
@@ -530,23 +535,24 @@ export class ExpenseDialog extends React.Component<
                 onChange={v => this.inputStreams.sourceId.push(v)}
               />
               <UserSelector
-                style={{ paddingTop: '0.5em' }}
                 selected={this.state.benefit}
                 onChange={v => this.inputStreams.benefit.push(v)}
               />
-            </div>
-            <br />
-
-            <DateField
-              value={this.state.date}
-              onChange={v => this.inputStreams.date.push(v)}
-            />
-            <DescriptionField
-              value={this.state.description}
-              onChange={v => this.inputStreams.description.push(v)}
-              errorText={this.state.errors.description}
-            />
-          </form>
+            </Row>
+            <Row className="row input date">
+              <DateField
+                value={this.state.date}
+                onChange={v => this.inputStreams.date.push(v)}
+              />
+            </Row>
+            <Row className="row input description">
+              <DescriptionField
+                value={this.state.description}
+                onChange={v => this.inputStreams.description.push(v)}
+                errorText={this.state.errors.description}
+              />
+            </Row>
+          </Form>
         </DialogContent>
         <DialogActions>
           <Button key="cancel" variant="text" onClick={this.dismiss}>
@@ -562,121 +568,50 @@ export class ExpenseDialog extends React.Component<
             Tallenna
           </Button>
         </DialogActions>
-      </StyledDialog>
+      </Dialog>
     );
   }
 }
 
+const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+`;
+
 const Row = styled.div`
   display: flex;
+  width: 100%;
+  box-sizing: border-box;
   flex-direction: row;
   align-items: flex-start;
   justify-content: space-between;
+  height: 80px;
+
+  &.source {
+    & > div:first-of-type {
+      margin-right: 16px;
+    }
+  }
 `;
 
 const SumArea = styled.div`
-  height: 72px;
   margin-left: 1em;
   display: inline-block;
   vertical-align: middle;
 `;
 
-const StyledDialog = styled(Dialog)`
-  .expense-dialog {
-    width: 100% !important;
-    transform: none !important;
-  }
-  .expense-dialog-body {
-    max-height: calc(100vh - 10em) !important;
-  }
+const ConfirmArea = styled.div`
+  margin-top: 14px;
+  margin-left: 1em;
+  display: inline-block;
+  vertical-align: middle;
 `;
 
-const ConnectedExpenseDialog = connect(
-  B.combineTemplate({
-    sources: validSessionE.map(s => s.sources),
-    categories: validSessionE.map(s => s.categories),
-    user: validSessionE.map(s => s.user),
-    group: validSessionE.map(s => s.group),
-    sourceMap: sourceMapE,
-    categorySource: categoryDataSourceP,
-    categoryMap: categoryMapE,
-  })
-)(ExpenseDialog);
-
-interface ExpenseDialogListenerState {
-  open: boolean;
-  original: UserExpenseWithDetails | null;
-  resolve: (e: ExpenseInEditor | null) => void;
-  expenseCounter: number;
-}
-
-let expenseCounter = 1;
-
-export default class ExpenseDialogListener extends React.Component<
-  {},
-  ExpenseDialogListenerState
-> {
-  private unsub: any[] = [];
-
-  public state: ExpenseDialogListenerState = {
-    open: false,
-    original: null,
-    resolve: noop,
-    expenseCounter: 0,
-  };
-
-  public componentDidMount() {
-    this.unsub.push(expenseDialogE.onValue(e => this.handleOpen(e)));
-  }
-
-  public componentWillUnmount() {
-    unsubscribeAll(this.unsub);
-    this.unsub = [];
-  }
-
-  private onExpensesUpdated = (date: Date) => {
-    updateExpenses(date);
-  };
-
-  private handleOpen = async (data: ExpenseDialogObject) => {
-    expenseCounter += 1;
-    if (data.expenseId) {
-      log('Edit expense', data.expenseId);
-      this.setState({ open: false, original: null });
-      const original = await apiConnect.getExpense(data.expenseId);
-      this.setState({
-        open: true,
-        original,
-        resolve: data.resolve,
-        expenseCounter,
-      });
-    } else {
-      log('Create new expense');
-      this.setState({
-        open: true,
-        original: null,
-        resolve: data.resolve,
-        expenseCounter,
-      });
-    }
-  };
-
-  private closeDialog = (e: ExpenseInEditor | null) => {
-    log('Closing dialog');
-    this.state.resolve(e);
-    this.setState({ open: false, original: null });
-    return false;
-  };
-
-  public render() {
-    return this.state.open ? (
-      <ConnectedExpenseDialog
-        {...this.state}
-        expenseCounter={this.state.expenseCounter}
-        onExpensesUpdated={this.onExpensesUpdated}
-        createNew={!this.state.original}
-        onClose={this.closeDialog}
-      />
-    ) : null;
-  }
-}
+const TypeArea = styled.div`
+  margin-top: 10px;
+  width: 92px;
+  display: inline-block;
+  vertical-align: middle;
+`;

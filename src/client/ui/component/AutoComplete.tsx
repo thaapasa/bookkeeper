@@ -9,7 +9,7 @@ import Autosuggest, {
 } from 'react-autosuggest';
 import styled from 'styled-components';
 import { highlightBg, highlightFg } from '../Colors';
-import { eventValue } from 'client/util/ClientUtil';
+import { eventValue } from '../../util/ClientUtil';
 
 export interface AutoCompleteProps<T> {
   id: string;
@@ -41,7 +41,7 @@ export default class AutoComplete<T> extends React.Component<
           name: this.props.name,
           value: this.props.value,
           onChange: this.setInputValue,
-          style: { margin: '6px 0' },
+          style: { margin: '6px 0', ...this.props.style },
           onKeyUp: this.props.onKeyUp,
         }}
         getSuggestionValue={this.props.getSuggestionValue}
@@ -105,6 +105,8 @@ export default class AutoComplete<T> extends React.Component<
         fullWidth={this.props.fullWidth}
         placeholder={this.props.placeholder}
         type="text"
+        label={this.props.label}
+        InputLabelProps={{ shrink: true }}
         error={Boolean(this.props.errorText)}
         helperText={this.props.errorText}
         onChange={this.setInputValue}

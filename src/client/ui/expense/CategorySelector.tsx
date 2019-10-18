@@ -1,11 +1,13 @@
 import * as React from 'react';
-import { stopEventPropagation } from '../../util/ClientUtil';
-import { Select, MenuItem } from '@material-ui/core';
+import {
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  FormHelperText,
+} from '@material-ui/core';
 import styled from 'styled-components';
-
-const styles = {
-  category: { width: '50%' },
-};
+import { stopEventPropagation } from '../../util/ClientUtil';
 
 export function CategorySelector(props: {
   category: number;
@@ -16,38 +18,43 @@ export function CategorySelector(props: {
   onChangeSubcategory: (id: number) => void;
   errorText?: string;
 }) {
+  const id = 'category-selector';
   return (
     <Row onKeyUp={stopEventPropagation}>
-      <StyledSelect
-        value={props.category}
-        style={styles.category}
-        onChange={e => props.onChangeCategory(Number(e.target.value))}
-      >
-        {props.categories.map(row => (
-          <MenuItem key={row.id} value={row.id}>
-            {row.name}
-          </MenuItem>
-        ))}
-      </StyledSelect>
-      <StyledSelect
-        value={props.subcategory}
-        style={styles.category}
-        onChange={e => props.onChangeSubcategory(Number(e.target.value))}
-      >
-        {props.subcategories.map(row => (
-          <MenuItem key={row.id} value={row.id}>
-            {row.name}
-          </MenuItem>
-        ))}
-      </StyledSelect>
-      {props.errorText
-        ? [
-            <br key="br" />,
-            <div className="error-text" key="error">
-              {props.errorText}
-            </div>,
-          ]
-        : null}
+      <StyledControl>
+        <InputLabel htmlFor={id} shrink={true}>
+          Kategoria
+        </InputLabel>
+        <Select
+          id={id}
+          value={props.category}
+          onChange={e => props.onChangeCategory(Number(e.target.value))}
+        >
+          {props.categories.map(row => (
+            <MenuItem key={row.id} value={row.id}>
+              {row.name}
+            </MenuItem>
+          ))}
+        </Select>
+        {props.errorText ? (
+          <FormHelperText error={true}>{props.errorText}</FormHelperText>
+        ) : null}
+      </StyledControl>
+      <StyledControl>
+        <InputLabel htmlFor={id} shrink={true}>
+          Alikategoria
+        </InputLabel>
+        <Select
+          value={props.subcategory}
+          onChange={e => props.onChangeSubcategory(Number(e.target.value))}
+        >
+          {props.subcategories.map(row => (
+            <MenuItem key={row.id} value={row.id}>
+              {row.name}
+            </MenuItem>
+          ))}
+        </Select>
+      </StyledControl>
     </Row>
   );
 }
@@ -55,10 +62,15 @@ export function CategorySelector(props: {
 const Row = styled.div`
   display: flex;
   flex-direction: row;
+  flex: 1;
+  align-items: flex-start;
+  justify-content: flex-start;
 `;
 
-const StyledSelect = styled(Select)`
-  margin: 8px;
+const StyledControl = styled(FormControl)`
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 8px;
 
   &:first-of-type {
     margin-left: 0;

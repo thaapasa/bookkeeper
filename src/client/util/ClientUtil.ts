@@ -1,4 +1,7 @@
-export function unsubscribeAll(arr: any[]): void {
+export type UnsubscribingFunction = () => void;
+export type Unsubscriber = UnsubscribingFunction | { end: () => void };
+
+export function unsubscribeAll(arr: Unsubscriber[]): void {
   arr.forEach(i => {
     if (typeof i === 'function') {
       i();

@@ -59,6 +59,7 @@ export class ReceiverField extends React.Component<
         id={this.props.id}
         value={this.props.value}
         onChange={this.props.onChange}
+        label="Kohde"
         fullWidth={this.props.fullWidth}
         placeholder={this.props.placeholder}
         suggestions={this.state.receivers}

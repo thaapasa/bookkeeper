@@ -7,7 +7,14 @@ import {
   expenseTypes,
 } from '../../../shared/types/Expense';
 import { VCenterRow } from '../Styles';
-import { TextField, MenuItem, Select, IconButton } from '@material-ui/core';
+import {
+  TextField,
+  MenuItem,
+  Select,
+  IconButton,
+  FormControl,
+  InputLabel,
+} from '@material-ui/core';
 
 export function SumField(props: {
   value: string;
@@ -23,6 +30,7 @@ export function SumField(props: {
       helperText={props.errorText}
       error={Boolean(props.errorText)}
       onChange={e => props.onChange(e.target.value)}
+      autoFocus
     />
   );
 }
@@ -33,18 +41,25 @@ export function SourceSelector(props: {
   sources: Source[];
   style?: React.CSSProperties;
 }) {
+  const id = 'expense-dialog-source';
   return (
-    <Select
-      value={props.value}
-      style={props.style}
-      onChange={e => props.onChange(Number(e.target.value))}
-    >
-      {props.sources.map(s => (
-        <MenuItem key={s.id} value={s.id}>
-          {s.name}
-        </MenuItem>
-      ))}
-    </Select>
+    <FormControl fullWidth={true}>
+      <InputLabel htmlFor={id} shrink={true}>
+        Lähde
+      </InputLabel>
+      <Select
+        id={id}
+        value={props.value}
+        style={props.style}
+        onChange={e => props.onChange(Number(e.target.value))}
+      >
+        {props.sources.map(s => (
+          <MenuItem key={s.id} value={s.id}>
+            {s.name}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
   );
 }
 

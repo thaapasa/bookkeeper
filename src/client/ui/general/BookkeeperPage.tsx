@@ -4,7 +4,7 @@ import TopBar from '../component/TopBar';
 import NavigationBar, { AppLink } from '../component/NavigationBar';
 import RoutedMonthView from '../expense/RoutedMonthView';
 import RoutedCategoryView from '../category/RoutedCategoryView';
-import ExpenseDialog from '../expense/ExpenseDialog';
+import ExpenseDialog from '../expense/ExpenseDialogListener';
 import ConfirmationDialog from './ConfirmationDialog';
 import NotificationBar from '../component/NotificationBar';
 import DatePickerComponent from '../component/DatePickerComponent';
@@ -41,7 +41,7 @@ export default class BookkeeperPage extends React.Component<PageProps, {}> {
     const className = getScreenSizeClassName(this.props.windowSize);
     return (
       <Page>
-        <ExpenseDialog />
+        <ExpenseDialog windowSize={this.props.windowSize} />
         <ConfirmationDialog />
         <Router>
           <ContentContainer>
