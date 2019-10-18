@@ -1,16 +1,17 @@
 import * as React from 'react';
 import { withRouter, RouteComponentProps } from 'react-router';
 import { IconButton } from '@material-ui/core';
+import styled from 'styled-components';
+import debug from 'debug';
 import * as colors from '../Colors';
 import { NavigateLeft, NavigateRight } from '../Icons';
-import styled from 'styled-components';
 import { toDateRangeName, toMoment } from '../../../shared/util/Time';
 import { NavigationConfig } from '../../data/StateTypes';
 import { yearSuffix, monthSuffix } from '../../util/Links';
 import { KeyCodes } from '../../util/Io';
 import { navigationP } from '../../data/State';
 import { connect } from './BaconConnect';
-import debug from 'debug';
+
 const log = debug('bookkeeper:navigator');
 
 export interface DateRangeNavigatorProps
@@ -18,8 +19,7 @@ export interface DateRangeNavigatorProps
     RouteComponentProps<{}> {}
 
 export class DateRangeNavigator extends React.Component<
-  DateRangeNavigatorProps,
-  {}
+  DateRangeNavigatorProps
 > {
   private navigateOffset = (offset: number) => {
     const rangeSuffix =
@@ -51,12 +51,9 @@ export class DateRangeNavigator extends React.Component<
     return;
   };
 
-  private navigateNext = () => {
-    this.navigateOffset(1);
-  };
-  private navigatePrev = () => {
-    this.navigateOffset(-1);
-  };
+  private navigateNext = () => this.navigateOffset(1);
+
+  private navigatePrev = () => this.navigateOffset(-1);
 
   public render() {
     return (
@@ -80,7 +77,9 @@ export class DateRangeNavigator extends React.Component<
 const NavigationContainer = styled.div`
   height: 48px !important;
   display: flex;
+  flex-direction: row;
   align-items: center;
+  justify-content: center;
 `;
 
 const StyledIconButton = styled(IconButton)`

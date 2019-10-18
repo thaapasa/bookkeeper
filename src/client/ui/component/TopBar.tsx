@@ -1,7 +1,8 @@
 import * as React from 'react';
-import * as colors from '../Colors';
 import styled from 'styled-components';
+import { AppBar, Toolbar, IconButton, Typography } from '@material-ui/core';
 
+import * as colors from '../Colors';
 import { validSessionE } from '../../data/Login';
 import { User, Group } from '../../../shared/types/Session';
 import { connect } from './BaconConnect';
@@ -12,7 +13,6 @@ import { Size } from '../Types';
 import { isMobileSize } from '../Styles';
 import DateRangeNavigator from './DateRangeNavigator';
 import { MenuIcon } from '../Icons';
-import { AppBar, Toolbar, IconButton, Typography } from '@material-ui/core';
 
 interface TopBarProps {
   user: User;
@@ -44,26 +44,30 @@ class TopBar extends React.Component<TopBarProps, TopBarState> {
     menuOpen: false,
   };
 
+  get isMobile() {
+    return isMobileSize(this.props.windowSize);
+  }
+
   get title() {
-    return isMobileSize(this.props.windowSize)
-      ? undefined
-      : this.props.group.name;
+    return this.isMobile ? undefined : this.props.group.name;
   }
 
   private getContents() {
-    return isMobileSize(this.props.windowSize) ? (
-      <ToolbarGroup>
+    return this.isMobile ? (
+      <>
         <DateRangeNavigator />
         <AddExpenseIcon />
-      </ToolbarGroup>
+      </>
     ) : null;
   }
 
   public render() {
     return (
       <React.Fragment>
-        <AppBar color="secondary" position="static">
-          <TopToolBar>
+        <TopAppBar color="secondary" position="static">
+          <TopToolBar
+            className={`top-tool-bar ${this.isMobile ? 'mobile' : 'normal'}`}
+          >
             <IconButton
               edge="start"
               aria-label="menu"
@@ -72,10 +76,10 @@ class TopBar extends React.Component<TopBarProps, TopBarState> {
             >
               <MenuIcon style={styles.iconStyle} />
             </IconButton>
-            <Title variant="h6">{this.title}</Title>
+            {this.title ? <Title variant="h6">{this.title}</Title> : null}
             {this.getContents()}
           </TopToolBar>
-        </AppBar>
+        </TopAppBar>
         <MenuDrawer
           open={this.state.menuOpen}
           onRequestChange={this.changeMenu}
@@ -85,20 +89,29 @@ class TopBar extends React.Component<TopBarProps, TopBarState> {
     );
   }
 
-  private toggleMenu = () => {
-    this.setState(s => ({ menuOpen: !s.menuOpen }));
-  };
+  private toggleMenu = () => this.setState(s => ({ menuOpen: !s.menuOpen }));
 
-  private changeMenu = (menuOpen: boolean) => {
-    this.setState({ menuOpen });
-  };
+  private changeMenu = (menuOpen: boolean) => this.setState({ menuOpen });
 }
 
-const TopToolBar = styled(Toolbar)`
-  height: 56px;
+const height = '56px';
+
+const TopAppBar = styled(AppBar)`
+  background-color: ${colors.colorScheme.primary.dark};
 `;
 
-const ToolbarGroup = styled.div``;
+const TopToolBar = styled(Toolbar)`
+  height: ${height};
+  display: flex;
+  flex: 1 !important;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+
+  &.mobile {
+    justify-content: space-between;
+  }
+`;
 
 const Title = styled(Typography)`
   margin-left: 8px;
