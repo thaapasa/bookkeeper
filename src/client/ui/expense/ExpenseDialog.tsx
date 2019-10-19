@@ -130,6 +130,7 @@ interface ExpenseDialogProps {
   user: User;
   expenseCounter: number;
   windowSize: Size;
+  values: Partial<ExpenseInEditor>;
 }
 
 interface ExpenseDialogState extends ExpenseInEditor {
@@ -146,7 +147,7 @@ export class ExpenseDialog extends React.Component<
   private inputStreams: Record<string, B.Bus<any>> = {};
   private readonly submitStream: B.Bus<true> = new B.Bus<true>();
   private unsub: any[] = [];
-  public state = this.getDefaultState(null);
+  public state = this.getDefaultState(null, {});
 
   get isMobile() {
     return isMobileSize(this.props.windowSize);
@@ -172,24 +173,29 @@ export class ExpenseDialog extends React.Component<
   }
 
   private getDefaultState(
-    original: UserExpenseWithDetails | null
+    original: UserExpenseWithDetails | null,
+    values: Partial<ExpenseInEditor>
   ): ExpenseDialogState {
     const e = original;
     return {
-      title: e ? e.title : '',
-      sourceId: e ? e.sourceId : this.getDefaultSourceId() || 0,
-      categoryId: (e && this.findParentCategory(e.categoryId)) || 0,
-      subcategoryId: e ? e.categoryId : 0,
-      receiver: e ? e.receiver : '',
-      sum: e ? e.sum.toString() : '',
+      title: values.title ? values.title : e ? e.title : '',
+      sourceId:
+        values.sourceId || (e ? e.sourceId : this.getDefaultSourceId()) || 0,
+      categoryId:
+        values.categoryId || (e && this.findParentCategory(e.categoryId)) || 0,
+      subcategoryId: values.subcategoryId || (e ? e.categoryId : 0),
+      receiver: values.receiver || (e ? e.receiver : ''),
+      sum: values.sum ? values.sum : e ? e.sum.toString() : '',
       userId: e ? e.userId : this.props.user.id,
       date: e ? toDate(e.date) : new Date(),
-      benefit: e
-        ? e.division
-            .filter(d => d.type === expenseBeneficiary[e.type])
-            .map(d => d.userId)
-        : this.getDefaultSourceUsers(),
-      description: (e && e.description) || '',
+      benefit:
+        values.benefit ||
+        (e
+          ? e.division
+              .filter(d => d.type === expenseBeneficiary[e.type])
+              .map(d => d.userId)
+          : this.getDefaultSourceUsers()),
+      description: values.description || (e && e.description) || '',
       confirmed: e ? e.confirmed : true,
       type: e ? e.type : 'expense',
       subcategories: [],
@@ -327,23 +333,26 @@ export class ExpenseDialog extends React.Component<
       .filter(e => e.allValid)
       .onValue(e => this.saveExpense(e));
 
-    this.pushExpenseToInputStreams(this.props.original);
+    this.pushExpenseToInputStreams(this.props.original, this.props.values);
   }
 
   public componentWillUnmount() {
     unsubscribeAll(this.unsub);
   }
 
-  private pushExpenseToInputStreams(expense: UserExpenseWithDetails | null) {
-    const newState = this.getDefaultState(expense);
+  private pushExpenseToInputStreams(
+    expense: UserExpenseWithDetails | null,
+    values: Partial<ExpenseInEditor>
+  ) {
+    const newState = this.getDefaultState(expense, values);
     log('Start editing', newState);
     fields.map(k => this.inputStreams[k].push(newState[k]));
   }
 
-  public componenDidUpdate(prevProps: ExpenseDialogProps) {
+  public componentDidUpdate(prevProps: ExpenseDialogProps) {
     if (this.props.expenseCounter !== prevProps.expenseCounter) {
       log('Settings props for', this.props.original);
-      this.pushExpenseToInputStreams(this.props.original);
+      this.pushExpenseToInputStreams(this.props.original, this.props.values);
     }
   }
 

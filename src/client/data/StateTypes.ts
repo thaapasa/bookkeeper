@@ -26,6 +26,7 @@ export interface PickDateObject {
 export interface ExpenseDialogObject {
   expenseId: number | null;
   resolve: (e: ExpenseInEditor | null) => void;
+  values?: Partial<ExpenseInEditor>;
 }
 
 export interface NavigationConfig {

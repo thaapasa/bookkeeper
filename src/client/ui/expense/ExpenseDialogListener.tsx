@@ -35,6 +35,7 @@ interface ExpenseDialogListenerState {
   original: UserExpenseWithDetails | null;
   resolve: (e: ExpenseInEditor | null) => void;
   expenseCounter: number;
+  values: Partial<ExpenseInEditor>;
 }
 
 let expenseCounter = 1;
@@ -50,6 +51,7 @@ export default class ExpenseDialogListener extends React.Component<
     original: null,
     resolve: noop,
     expenseCounter: 0,
+    values: {},
   };
 
   public componentDidMount() {
@@ -76,6 +78,7 @@ export default class ExpenseDialogListener extends React.Component<
         original,
         resolve: data.resolve,
         expenseCounter,
+        values: data.values || {},
       });
     } else {
       log('Create new expense');
@@ -84,6 +87,7 @@ export default class ExpenseDialogListener extends React.Component<
         original: null,
         resolve: data.resolve,
         expenseCounter,
+        values: data.values || {},
       });
     }
   };
@@ -104,6 +108,7 @@ export default class ExpenseDialogListener extends React.Component<
         onExpensesUpdated={this.onExpensesUpdated}
         createNew={!this.state.original}
         onClose={this.closeDialog}
+        values={this.state.values}
       />
     ) : null;
   }

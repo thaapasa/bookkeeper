@@ -16,6 +16,7 @@ import {
   expenseMonthPathPattern,
   categoryViewMonthPattern,
   categoryViewYearPattern,
+  newExpensePath,
 } from '../../util/Links';
 import { colorScheme } from '../Colors';
 import { Size } from '../Types';
@@ -24,6 +25,7 @@ import {
   largeDeviceMinWidth,
   isMobileSize,
 } from '../Styles';
+import { NewExpenseView } from '../expense/NewExpenseView';
 
 interface PageProps {
   session: Session;
@@ -49,6 +51,7 @@ export default class BookkeeperPage extends React.Component<PageProps, {}> {
             {isMobileDevice ? null : <NavigationBar links={appLinks} />}
             <MainContent className={'main-content ' + className}>
               <Switch>
+                <Route path={newExpensePath} component={NewExpenseView} />
                 <Route
                   path={expenseMonthPathPattern('date')}
                   component={RoutedMonthView}
