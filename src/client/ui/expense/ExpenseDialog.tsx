@@ -101,9 +101,6 @@ const validators: Record<string, (v: string) => any> = {
   benefit: v => errorIf(v.length < 1, 'Jonkun pitää hyötyä'),
 };
 
-// const defaultCategory: CategoryInfo[] = [{ id: 0, name: 'Kategoria' }];
-const defaultSubcategory: CategoryInfo[] = [{ id: 0, name: 'Alikategoria' }];
-
 function allTrue(...args: boolean[]): boolean {
   return args.reduce((a, b) => a && b, true);
 }
@@ -301,9 +298,9 @@ export class ExpenseDialog extends React.Component<
     });
     values.categoryId.onValue(id => {
       this.setState({
-        subcategories: defaultSubcategory.concat(
-          id ? this.props.categoryMap[id].children || [] : []
-        ),
+        subcategories:
+          (this.props.categoryMap[id] && this.props.categoryMap[id].children) ||
+          [],
       });
     });
     B.combineAsArray(values.categoryId, values.subcategoryId).onValue(

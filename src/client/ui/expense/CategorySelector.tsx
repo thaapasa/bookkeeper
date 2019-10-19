@@ -30,6 +30,7 @@ export function CategorySelector(props: {
           value={props.category}
           onChange={e => props.onChangeCategory(Number(e.target.value))}
         >
+          <MenuItem value={0}>-- Valitse --</MenuItem>
           {props.categories.map(row => (
             <MenuItem key={row.id} value={row.id}>
               {row.name}
@@ -48,6 +49,7 @@ export function CategorySelector(props: {
           value={props.subcategory}
           onChange={e => props.onChangeSubcategory(Number(e.target.value))}
         >
+          <MenuItem value={0}>-- Valitse --</MenuItem>
           {props.subcategories.map(row => (
             <MenuItem key={row.id} value={row.id}>
               {row.name}
