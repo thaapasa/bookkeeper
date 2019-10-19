@@ -15,6 +15,7 @@ import AutoRenewSVG from '@material-ui/icons/Autorenew';
 import MenuIconSVG from '@material-ui/icons/Menu';
 import * as colors from './Colors';
 import { ExpenseType } from '../../shared/types/Expense';
+import { SvgIconProps } from '@material-ui/core/SvgIcon';
 
 const styles = {
   tool: {
@@ -58,19 +59,26 @@ export function ExpenseTypeIcon(props: {
 }
 
 export function ToolIcon(props: {
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<SvgIconProps>;
   color?: string | null;
   title: string;
   style?: React.CSSProperties;
   className?: string;
   onClick: () => void;
 }) {
-  return React.createElement(props.icon, {
-    ...props,
-    color: props.color || colors.tool,
-    style: { ...styles.tool, ...props.style },
-    icon: undefined,
-  });
+  const { icon, ...rest } = props;
+  const Type = icon;
+  return (
+    <Type
+      {...rest}
+      color="action"
+      style={{
+        ...styles.tool,
+        ...props.style,
+        color: props.color || undefined,
+      }}
+    />
+  );
 }
 
 export class QuestionBookmark extends React.Component<{ size: number }, {}> {
