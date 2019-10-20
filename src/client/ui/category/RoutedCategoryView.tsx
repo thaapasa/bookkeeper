@@ -13,8 +13,7 @@ interface CategoryRouteParams {
 }
 
 export default class RoutedCategoryView extends React.Component<
-  RouteComponentProps<CategoryRouteParams>,
-  {}
+  RouteComponentProps<CategoryRouteParams>
 > {
   private getDates(): TypedDateRange {
     if (this.props.match.params.year) {

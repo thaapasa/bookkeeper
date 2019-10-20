@@ -3,6 +3,7 @@ import { DateLike, toMoment } from '../../shared/util/Time';
 export const expensePagePath = '/p/kulut';
 export const categoryPagePath = '/p/kategoriat';
 export const newExpensePath = expensePagePath + '/uusi';
+export const infoPagePath = '/p/info';
 
 export const yearPattern = 'YYYY';
 export const monthPattern = 'YYYY-MM';

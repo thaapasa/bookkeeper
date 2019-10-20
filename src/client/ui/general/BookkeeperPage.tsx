@@ -17,6 +17,7 @@ import {
   categoryViewMonthPattern,
   categoryViewYearPattern,
   newExpensePath,
+  infoPagePath,
 } from '../../util/Links';
 import { colorScheme } from '../Colors';
 import { Size } from '../Types';
@@ -26,6 +27,7 @@ import {
   isMobileSize,
 } from '../Styles';
 import { NewExpenseView } from '../expense/NewExpenseView';
+import InfoView from '../info/InfoView';
 
 interface PageProps {
   session: Session;
@@ -35,6 +37,7 @@ interface PageProps {
 const appLinks: AppLink[] = [
   { label: 'Kulut', path: expensePagePath },
   { label: 'Kategoriat', path: categoryPagePath },
+  { label: 'Tiedot', path: infoPagePath },
 ];
 
 export default class BookkeeperPage extends React.Component<PageProps, {}> {
@@ -66,6 +69,7 @@ export default class BookkeeperPage extends React.Component<PageProps, {}> {
                   component={RoutedCategoryView}
                 />
                 <Route path={categoryPagePath} component={RoutedCategoryView} />
+                <Route path={infoPagePath} component={InfoView} />
                 <Route exact={true} path="/" component={RoutedMonthView} />
               </Switch>
             </MainContent>
