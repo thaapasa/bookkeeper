@@ -35,9 +35,9 @@ interface PageProps {
 }
 
 const appLinks: AppLink[] = [
-  { label: 'Kulut', path: expensePagePath },
-  { label: 'Kategoriat', path: categoryPagePath },
-  { label: 'Tiedot', path: infoPagePath },
+  { label: 'Kulut', path: expensePagePath, showInHeader: true },
+  { label: 'Kategoriat', path: categoryPagePath, showInHeader: true },
+  { label: 'Tiedot', path: infoPagePath, showInHeader: false },
 ];
 
 export default class BookkeeperPage extends React.Component<PageProps, {}> {

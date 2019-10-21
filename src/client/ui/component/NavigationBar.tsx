@@ -9,6 +9,7 @@ import { Button, Toolbar } from '@material-ui/core';
 export interface AppLink {
   label: string;
   path: string;
+  showInHeader: boolean;
 }
 
 interface NavigationBarProps {
@@ -30,9 +31,11 @@ export default class NavigationBar extends React.Component<NavigationBarProps> {
       <Bar>
         <ToolbarGroup style={styles.links}>
           {this.props.links &&
-            this.props.links.map(l => (
-              <LinkButton key={l.label} label={l.label} to={l.path} />
-            ))}
+            this.props.links
+              .filter(l => l.showInHeader)
+              .map(l => (
+                <LinkButton key={l.label} label={l.label} to={l.path} />
+              ))}
         </ToolbarGroup>
         <ToolbarGroup>
           <DateRangeNavigator />

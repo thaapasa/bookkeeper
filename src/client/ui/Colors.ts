@@ -41,9 +41,12 @@ const orangeRed: ColorDef = {
   text: '#000000',
 };
 
+export const primaryColors = lightBrown;
+export const secondaryColors = orangeRed;
+
 export const colorScheme: ColorScheme = {
-  primary: lightBrown,
-  secondary: orangeRed,
+  primary: primaryColors,
+  secondary: secondaryColors,
   gray,
   text: '#000000',
   white: '#ffffff',
