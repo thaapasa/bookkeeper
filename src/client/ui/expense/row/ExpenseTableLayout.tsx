@@ -1,8 +1,8 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import { colorScheme } from '../Colors';
-import { media, ScreenSizeClassName } from '../Styles';
-import { QuestionBookmark, Recurring } from '../Icons';
+import { colorScheme } from '../../Colors';
+import { media, ScreenSizeClassName } from '../../Styles';
+import { QuestionBookmark, Recurring } from '../../Icons';
 import { CircularProgress } from '@material-ui/core';
 
 const tableBgColor = colorScheme.primary.light;

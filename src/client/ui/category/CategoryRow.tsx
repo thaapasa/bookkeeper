@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as colors from '../Colors';
 import apiConnect from '../../data/ApiConnect';
-import ExpenseRow from '../expense/ExpenseRow';
+import ExpenseRow from '../expense/row/ExpenseRow';
 import { noop } from '../../../shared/util/Util';
 import { Category, CategoryAndTotals } from '../../../shared/types/Session';
 import {
@@ -12,7 +12,7 @@ import {
 import { UserExpense } from '../../../shared/types/Expense';
 import { DateRange } from '../../../shared/util/Time';
 import { UserDataProps } from '../../data/Categories';
-import { ExpenseTableLayout } from '../expense/ExpenseTableLayout';
+import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
 import {
   Row,
   NameColumn,

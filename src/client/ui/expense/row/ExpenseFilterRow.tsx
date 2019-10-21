@@ -1,8 +1,8 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import { Chip, Avatar } from '@material-ui/core';
-import { UserExpense } from '../../../shared/types/Expense';
-import { colorScheme } from '../Colors';
+import { UserExpense } from '../../../../shared/types/Expense';
+import { colorScheme } from '../../Colors';
 import { AllColumns, Row } from './ExpenseTableLayout';
 
 export type ExpenseFilterFunction = (expense: UserExpense) => boolean;
@@ -19,8 +19,7 @@ interface ExpenseFilterRowProps {
 }
 
 export default class ExpenseFilterRow extends React.Component<
-  ExpenseFilterRowProps,
-  {}
+  ExpenseFilterRowProps
 > {
   public render() {
     if (this.props.filters.length === 0) {

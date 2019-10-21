@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import ExpenseRow from './ExpenseRow';
-import ExpenseHeader from './ExpenseHeader';
+import ExpenseRow from './row/ExpenseRow';
+import ExpenseHeader from './row/ExpenseHeader';
 import Money from '../../../shared/util/Money';
 import { MonthlyStatus } from './MonthlyStatus';
 import {
@@ -15,14 +15,14 @@ import { userDataE, UserDataProps } from '../../data/Categories';
 import ExpenseFilterRow, {
   ExpenseFilter,
   ExpenseFilterFunction,
-} from './ExpenseFilterRow';
+} from './row/ExpenseFilterRow';
 import { partition } from '../../../shared/util/Arrays';
 import {
   ExpenseTableLayout,
   RecurringExpenseSeparator,
   LoadingIndicator,
-} from './ExpenseTableLayout';
-import RecurringSummaryRow from './RecurringSummaryRow';
+} from './row/ExpenseTableLayout';
+import RecurringSummaryRow from './row/RecurringSummaryRow';
 import { colorScheme } from '../Colors';
 import { media } from '../Styles';
 

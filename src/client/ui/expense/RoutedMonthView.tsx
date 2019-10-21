@@ -9,10 +9,9 @@ interface MonthRouteParams {
 }
 
 export default class RoutedMonthView extends React.Component<
-  RouteComponentProps<MonthRouteParams>,
-  {}
+  RouteComponentProps<MonthRouteParams>
 > {
-  private getDate(): Date {
+  get date(): Date {
     if (!this.props.match.params.date) {
       return new Date();
     }
@@ -20,7 +19,7 @@ export default class RoutedMonthView extends React.Component<
   }
 
   public render() {
-    const date = this.getDate();
+    const date = this.date;
     return <MonthView date={date} history={this.props.history} />;
   }
 }

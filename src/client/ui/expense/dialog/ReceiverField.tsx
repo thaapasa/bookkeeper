@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as B from 'baconjs';
-import apiConnect from '../../data/ApiConnect';
-import AutoComplete from '../component/AutoComplete';
+import apiConnect from '../../../data/ApiConnect';
+import AutoComplete from '../../component/AutoComplete';
 import { identity } from 'shared/util/Util';
 import { unsubscribeAll } from 'client/util/ClientUtil';
 

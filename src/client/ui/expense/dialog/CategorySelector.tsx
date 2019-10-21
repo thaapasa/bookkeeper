@@ -7,7 +7,7 @@ import {
   FormHelperText,
 } from '@material-ui/core';
 import styled from 'styled-components';
-import { stopEventPropagation } from '../../util/ClientUtil';
+import { stopEventPropagation } from '../../../util/ClientUtil';
 
 export function CategorySelector(props: {
   category: number;

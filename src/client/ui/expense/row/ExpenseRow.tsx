@@ -1,8 +1,8 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import apiConnect from '../../data/ApiConnect';
-import { UserAvatar } from '../component/UserAvatar';
-import ActivatableTextField from '../component/ActivatableTextField';
+import apiConnect from '../../../data/ApiConnect';
+import { UserAvatar } from '../../component/UserAvatar';
+import ActivatableTextField from '../../component/ActivatableTextField';
 import {
   ExpandLess,
   ExpandMore,
@@ -10,20 +10,20 @@ import {
   Edit,
   ToolIcon,
   ExpenseTypeIcon,
-} from '../Icons';
-import { Flex, VCenterRow } from '../Styles';
-import * as colors from '../Colors';
-import ExpenseInfo from './details/ExpenseInfo';
-import { expenseName } from './ExpenseHelper';
-import Money from '../../../shared/util/Money';
+} from '../../Icons';
+import { Flex, VCenterRow } from '../../Styles';
+import * as colors from '../../Colors';
+import ExpenseInfo from '../details/ExpenseInfo';
+import { expenseName } from '../ExpenseHelper';
+import Money from '../../../../shared/util/Money';
 import {
   Expense,
   UserExpense,
   UserExpenseWithDetails,
   ExpenseDivisionItem,
   RecurringExpenseTarget,
-} from '../../../shared/types/Expense';
-import { User, Source, Category } from '../../../shared/types/Session';
+} from '../../../../shared/types/Expense';
+import { User, Source, Category } from '../../../../shared/types/Session';
 import {
   pickDate,
   notifyError,
@@ -31,16 +31,16 @@ import {
   confirm,
   updateExpenses,
   editExpense,
-} from '../../data/State';
-import { getFullCategoryName, UserDataProps } from '../../data/Categories';
+} from '../../../data/State';
+import { getFullCategoryName, UserDataProps } from '../../../data/Categories';
 import {
   toDate,
   formatDate,
   toMoment,
   readableDate,
-} from '../../../shared/util/Time';
+} from '../../../../shared/util/Time';
 import { ExpenseFilterFunction } from './ExpenseFilterRow';
-import { equal, notEqual } from '../../../shared/util/Symbols';
+import { equal, notEqual } from '../../../../shared/util/Symbols';
 import {
   RecurringExpenseIcon,
   UnconfirmedIcon,
@@ -58,7 +58,7 @@ import {
 } from './ExpenseTableLayout';
 import { TextField } from '@material-ui/core';
 import debug from 'debug';
-import { ReceiverField } from './ReceiverField';
+import { ReceiverField } from '../dialog/ReceiverField';
 
 const log = debug('bookkeeper:expense-row');
 

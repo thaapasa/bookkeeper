@@ -7,7 +7,7 @@ import { PickDateObject } from '../../data/StateTypes';
 import { Action } from '../../../shared/types/Common';
 import { pickDateE } from '../../data/State';
 import { unsubscribeAll } from '../../util/ClientUtil';
-import { datePickerFormat } from '../expense/DateField';
+import { datePickerFormat } from '../expense/dialog/DateField';
 
 interface DatePickerProps {
   pick: PickDateObject;

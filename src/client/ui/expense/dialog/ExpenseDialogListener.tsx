@@ -1,20 +1,20 @@
 import * as React from 'react';
 import * as B from 'baconjs';
 import debug from 'debug';
-import apiConnect from '../../data/ApiConnect';
-import { unsubscribeAll, Unsubscriber } from '../../util/ClientUtil';
+import apiConnect from '../../../data/ApiConnect';
+import { unsubscribeAll, Unsubscriber } from '../../../util/ClientUtil';
 import {
   UserExpenseWithDetails,
   ExpenseInEditor,
-} from '../../../shared/types/Expense';
-import { noop } from '../../../shared/util/Util';
-import { connect } from '../component/BaconConnect';
-import { validSessionE, sourceMapE } from '../../data/Login';
-import { categoryDataSourceP, categoryMapE } from '../../data/Categories';
-import { expenseDialogE, updateExpenses } from '../../data/State';
-import { ExpenseDialogObject } from '../../data/StateTypes';
+} from '../../../../shared/types/Expense';
+import { noop } from '../../../../shared/util/Util';
+import { connect } from '../../component/BaconConnect';
+import { validSessionE, sourceMapE } from '../../../data/Login';
+import { categoryDataSourceP, categoryMapE } from '../../../data/Categories';
+import { expenseDialogE, updateExpenses } from '../../../data/State';
+import { ExpenseDialogObject } from '../../../data/StateTypes';
 import { ExpenseDialog } from './ExpenseDialog';
-import { Size } from '../Types';
+import { Size } from '../../Types';
 
 const log = debug('bookkeeper:expense-dialog');
 

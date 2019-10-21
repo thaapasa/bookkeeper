@@ -11,30 +11,35 @@ import {
   FormControlLabel,
 } from '@material-ui/core';
 import debug from 'debug';
-import UserSelector from '../component/UserSelector';
-import UserAvatar from '../component/UserAvatar';
-import Money, { MoneyLike } from '../../../shared/util/Money';
-import apiConnect from '../../data/ApiConnect';
-import { KeyCodes } from '../../util/Io';
+import UserSelector from '../../component/UserSelector';
+import UserAvatar from '../../component/UserAvatar';
+import Money, { MoneyLike } from '../../../../shared/util/Money';
+import apiConnect from '../../../data/ApiConnect';
+import { KeyCodes } from '../../../util/Io';
 import {
   SumField,
   TypeSelector,
   SourceSelector,
   DescriptionField,
 } from './ExpenseDialogComponents';
-import { expenseName } from './ExpenseHelper';
+import { expenseName } from '../ExpenseHelper';
 import {
   unsubscribeAll,
   stopEventPropagation,
   eventValue,
-} from '../../util/ClientUtil';
+} from '../../../util/ClientUtil';
 import {
   splitByShares,
   negateDivision,
   HasShares,
   HasSum,
-} from '../../../shared/util/Splitter';
-import { Category, Source, Group, User } from '../../../shared/types/Session';
+} from '../../../../shared/util/Splitter';
+import {
+  Category,
+  Source,
+  Group,
+  User,
+} from '../../../../shared/types/Session';
 import {
   UserExpenseWithDetails,
   ExpenseDivisionType,
@@ -43,22 +48,22 @@ import {
   RecurringExpenseTarget,
   expenseBeneficiary,
   ExpenseDivision,
-} from '../../../shared/types/Expense';
-import { toDate, formatDate } from '../../../shared/util/Time';
-import { identity } from '../../../shared/util/Util';
-import { isSubcategoryOf, CategoryDataSource } from '../../data/Categories';
-import { notify, notifyError, confirm } from '../../data/State';
+} from '../../../../shared/types/Expense';
+import { toDate, formatDate } from '../../../../shared/util/Time';
+import { identity } from '../../../../shared/util/Util';
+import { isSubcategoryOf, CategoryDataSource } from '../../../data/Categories';
+import { notify, notifyError, confirm } from '../../../data/State';
 import {
   sortAndCompareElements,
   valuesToArray,
-} from '../../../shared/util/Arrays';
-import { omit } from '../../../shared/util/Objects';
+} from '../../../../shared/util/Arrays';
+import { omit } from '../../../../shared/util/Objects';
 import { TitleField } from './TitleField';
 import { ReceiverField } from './ReceiverField';
 import { CategorySelector } from './CategorySelector';
 import { DateField } from './DateField';
-import { isMobileSize } from '../Styles';
-import { Size } from '../Types';
+import { isMobileSize } from '../../Styles';
+import { Size } from '../../Types';
 
 const log = debug('bookkeeper:expense-dialog');
 

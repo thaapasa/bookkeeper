@@ -5,7 +5,7 @@ import {
   UserExpense,
 } from '../../../../shared/types/Expense';
 import { User, Source } from '../../../../shared/types/Session';
-import { LoadingIndicator, Row, AllColumns } from '../ExpenseTableLayout';
+import { LoadingIndicator, Row, AllColumns } from '../row/ExpenseTableLayout';
 import BasicData from './BasicData';
 import DivisionInfo from './DivisionInfo';
 import RecurrenceInfo from './RecurrenceInfo';

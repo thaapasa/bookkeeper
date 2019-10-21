@@ -6,7 +6,7 @@ import RoutedMonthView from '../expense/RoutedMonthView';
 import RoutedCategoryView from '../category/RoutedCategoryView';
 import InfoView from '../info/InfoView';
 import SearchView from '../search/SearchView';
-import ExpenseDialog from '../expense/ExpenseDialogListener';
+import ExpenseDialog from '../expense/dialog/ExpenseDialogListener';
 import ConfirmationDialog from './ConfirmationDialog';
 import NotificationBar from '../component/NotificationBar';
 import DatePickerComponent from '../component/DatePickerComponent';

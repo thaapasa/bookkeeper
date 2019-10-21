@@ -1,5 +1,5 @@
 import * as React from 'react';
-import AutoComplete from '../component/AutoComplete';
+import AutoComplete from '../../component/AutoComplete';
 import { filterMapCaseInsensitive } from 'shared/util/Util';
 import { CategoryDataSource } from 'client/data/Categories';
 import { last } from 'shared/util/Arrays';
