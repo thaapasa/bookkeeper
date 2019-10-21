@@ -24,7 +24,7 @@ import {
 } from './row/ExpenseTableLayout';
 import RecurringSummaryRow from './row/RecurringSummaryRow';
 import { colorScheme } from '../Colors';
-import { media } from '../Styles';
+import { media, PageContentContainer } from '../Styles';
 
 interface ExpenseTableProps {
   expenses: UserExpense[];
@@ -150,7 +150,7 @@ class ExpenseTable extends React.Component<
 
   public render() {
     return (
-      <ExpenseTableContainer className="expense-table-container">
+      <PageContentContainer>
         <ExpenseArea>
           <ExpenseTableLayout>
             <thead>
@@ -173,7 +173,7 @@ class ExpenseTable extends React.Component<
           showFiltered={this.state.filters.length > 0}
           filteredTotals={this.calculateTotals(this.getFilteredExpenses())}
         />
-      </ExpenseTableContainer>
+      </PageContentContainer>
     );
   }
 }
@@ -201,12 +201,4 @@ const ExpenseFiller = styled.div`
   width: 100%;
   flex: 1;
   background-color: ${colorScheme.gray.light};
-`;
-
-const ExpenseTableContainer = styled.div`
-  font-size: 13px;
-  display: flex;
-  height: 100%;
-  flex-direction: column;
-  background-color: ${colorScheme.primary.light};
 `;

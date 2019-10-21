@@ -1,5 +1,6 @@
 import { Size } from './Types';
 import styled, { css, SimpleInterpolation } from 'styled-components';
+import { primaryColors } from './Colors';
 
 // See responsive UI specs at https://material.io/guidelines/layout/responsive-ui.html
 export type ScreenSizeClassName =
@@ -131,4 +132,19 @@ export const VCenterRow = styled.div`
 
 export const Flex = styled.div`
   flex: 1;
+`;
+
+export const PageContentContainer = styled.div`
+  font-size: 13px;
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  background-color: ${primaryColors.light};
+  box-sizing: border-box;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  &.padded {
+    padding: 24px;
+  }
 `;

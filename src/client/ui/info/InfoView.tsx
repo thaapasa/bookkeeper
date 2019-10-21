@@ -6,6 +6,7 @@ import { connect } from '../component/BaconConnect';
 import { userDataE, UserDataProps } from 'client/data/Categories';
 import { validSessionE } from 'client/data/Login';
 import { secondaryColors, primaryColors } from '../Colors';
+import { PageContentContainer } from '../Styles';
 
 class InfoView extends React.Component<{
   userData: UserDataProps;
@@ -16,11 +17,11 @@ class InfoView extends React.Component<{
   }
   public render() {
     return (
-      <InfoViewContainer>
+      <PageContentContainer className="padded">
         {this.renderUsers()}
         {this.renderCategories()}
         {this.renderSources()}
-      </InfoViewContainer>
+      </PageContentContainer>
     );
   }
 
@@ -99,16 +100,6 @@ const ItemWithId = (props: { id: string | number; children: any }) => (
     {props.children}
   </ItemView>
 );
-
-const InfoViewContainer = styled.div`
-  font-size: 13px;
-  width: 100%;
-  height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 24px;
-  box-sizing: border-box;
-`;
 
 const ItemView = styled.div`
   display: flex;

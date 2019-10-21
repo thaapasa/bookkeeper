@@ -1,6 +1,5 @@
 import * as React from 'react';
 import * as B from 'baconjs';
-import styled from 'styled-components';
 import { History } from 'history';
 import { Category, CategoryAndTotals } from '../../../shared/types/Session';
 import { TypedDateRange, compareRanges } from '../../../shared/util/Time';
@@ -14,6 +13,7 @@ import CategoryChart, { CategoryChartData } from './CategoryChart';
 import { UserDataProps, userDataE } from '../../data/Categories';
 import { categoryPagePath } from '../../util/Links';
 import Money from '../../../shared/util/Money';
+import { PageContentContainer } from '../Styles';
 
 interface CategoryViewProps {
   categories: Category[];
@@ -103,7 +103,7 @@ class CategoryView extends React.Component<
       return null;
     }
     return (
-      <CategoryViewContainer>
+      <PageContentContainer>
         <CategoryChart chartData={this.state.categoryChartData} />
         <CategoryTable
           {...this.props}
@@ -111,18 +111,10 @@ class CategoryView extends React.Component<
           onCategoriesChanged={this.refresh}
           categoryTotals={this.state.categoryTotals}
         />
-      </CategoryViewContainer>
+      </PageContentContainer>
     );
   }
 }
-
-const CategoryViewContainer = styled.div`
-  font-size: 13px;
-  width: 100%;
-  height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
-`;
 
 export default connect(
   B.combineTemplate({
