@@ -8,11 +8,11 @@ import { User, Group } from '../../../shared/types/Session';
 import { connect } from './BaconConnect';
 import MenuDrawer from './MenuDrawer';
 import { AppLink } from './NavigationBar';
-import { AddExpenseIcon } from '../icons/AddExpenseIcon';
 import { Size } from '../Types';
 import { isMobileSize } from '../Styles';
 import DateRangeNavigator from './DateRangeNavigator';
 import { MenuIcon } from '../Icons';
+import { AddExpenseIcon } from '../icons/AddExpenseIcon';
 
 interface TopBarProps {
   user: User;

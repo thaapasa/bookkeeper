@@ -68,6 +68,7 @@ const secondaryPalette: SimplePaletteColorOptions = {
 
 export const navigation = colorScheme.secondary.standard;
 export const white = colorScheme.primary.light;
+export const navigationBar = '#e3dfdd';
 
 // action is used in expense table category links
 export const action = colorScheme.secondary.dark;

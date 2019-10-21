@@ -1,10 +1,11 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import { Route, Link } from 'react-router-dom';
-import DateRangeNavigator from './DateRangeNavigator';
-import { AddExpenseIcon } from '../icons/AddExpenseIcon';
-import { media } from '../Styles';
 import { Button, Toolbar } from '@material-ui/core';
+import DateRangeNavigator from './DateRangeNavigator';
+import { media } from '../Styles';
+import { CreateLinks } from './CreateLinks';
+import { navigationBar } from '../Colors';
 
 export interface AppLink {
   label: string;
@@ -32,14 +33,14 @@ export default class NavigationBar extends React.Component<NavigationBarProps> {
           <DateRangeNavigator />
         </ToolbarGroup>
         <PadGroup />
-        <StyledAddExpenseIcon />
+        <AddExpenseLinks />
       </Bar>
     );
   }
 }
 
 const Bar = styled(Toolbar)`
-  background-color: #e3dfdd;
+  background-color: ${navigationBar};
   min-height: inherit;
   position: relative;
 `;
@@ -60,14 +61,10 @@ const PadGroup = styled(ToolbarGroup)`
   `}
 `;
 
-export const StyledAddExpenseIcon = styled(AddExpenseIcon)`
+export const AddExpenseLinks = styled(CreateLinks)`
   position: absolute;
   right: 27px;
   bottom: -21px;
-  ${media.mobile`
-    bottom: 6px;
-    right: 11px;
-  `}
 `;
 
 const StyledButton = styled(Button)`

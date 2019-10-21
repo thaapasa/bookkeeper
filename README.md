@@ -154,3 +154,14 @@ Thus, we further define `user balance` to equal `user value` negated, so that
 registered entries); a positive `user balance` means that the user is owed money, and
 a negative `user balance` means that the user is behind the budget and should pay for
 shared expenses.
+
+### Add custom links
+
+Open browser inspector, and add links to `localStorage` from there:
+
+```js
+window.localStorage.setItem('createLinks', JSON.stringify([
+  { title: 'S-market', href: '/p/kulut/uusi?title=S-market&sum=50' },
+  { title: 'Mustapekka', href: '/p/kulut/uusi?title=Mustapekka&sum=50' },
+]));
+```

@@ -1,29 +1,27 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import { colorScheme } from '../Colors';
+import { secondaryColors } from '../Colors';
 import { PlusCircle } from '../Icons';
 import { createExpense } from '../../data/State';
-
-const styles: Record<string, React.CSSProperties> = {
-  addExpenseIcon: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '40px',
-    height: '40px',
-    color: colorScheme.secondary.standard,
-    zIndex: 1,
-  },
-};
 
 export function AddExpenseIcon(props: { className?: string }) {
   return (
     <AddExpenseIconContainer className={props.className}>
       <BlackContent />
-      <PlusCircle style={styles.addExpenseIcon} onClick={createExpense} />
+      <PlusIcon onClick={createExpense} />
     </AddExpenseIconContainer>
   );
 }
+
+const PlusIcon = styled(PlusCircle)`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 40px;
+  height: 40px;
+  color: ${secondaryColors.standard};
+  z-index: 1;
+`;
 
 const AddExpenseIconContainer = styled.div`
   position: relative;
