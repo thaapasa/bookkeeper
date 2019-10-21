@@ -4,6 +4,8 @@ import TopBar from '../component/TopBar';
 import NavigationBar, { AppLink } from '../component/NavigationBar';
 import RoutedMonthView from '../expense/RoutedMonthView';
 import RoutedCategoryView from '../category/RoutedCategoryView';
+import InfoView from '../info/InfoView';
+import SearchView from '../search/SearchView';
 import ExpenseDialog from '../expense/ExpenseDialogListener';
 import ConfirmationDialog from './ConfirmationDialog';
 import NotificationBar from '../component/NotificationBar';
@@ -18,6 +20,7 @@ import {
   categoryViewYearPattern,
   newExpensePath,
   infoPagePath,
+  searchPagePath,
 } from '../../util/Links';
 import { colorScheme } from '../Colors';
 import { Size } from '../Types';
@@ -27,7 +30,6 @@ import {
   isMobileSize,
 } from '../Styles';
 import { NewExpenseView } from '../expense/NewExpenseView';
-import InfoView from '../info/InfoView';
 
 interface PageProps {
   session: Session;
@@ -37,6 +39,7 @@ interface PageProps {
 const appLinks: AppLink[] = [
   { label: 'Kulut', path: expensePagePath, showInHeader: true },
   { label: 'Kategoriat', path: categoryPagePath, showInHeader: true },
+  { label: 'Haku', path: searchPagePath, showInHeader: true },
   { label: 'Tiedot', path: infoPagePath, showInHeader: false },
 ];
 
@@ -69,6 +72,7 @@ export default class BookkeeperPage extends React.Component<PageProps, {}> {
                   component={RoutedCategoryView}
                 />
                 <Route path={categoryPagePath} component={RoutedCategoryView} />
+                <Route path={searchPagePath} component={SearchView} />
                 <Route path={infoPagePath} component={InfoView} />
                 <Route exact={true} path="/" component={RoutedMonthView} />
               </Switch>

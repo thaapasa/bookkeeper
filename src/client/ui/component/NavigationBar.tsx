@@ -16,31 +16,22 @@ interface NavigationBarProps {
   links?: AppLink[];
 }
 
-const styles: Record<string, React.CSSProperties> = {
-  links: {
-    flex: 1,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-  },
-  pad: { flex: 1 },
-};
-
 export default class NavigationBar extends React.Component<NavigationBarProps> {
   public render() {
     return (
       <Bar>
-        <ToolbarGroup style={styles.links}>
+        <LinkGroup>
           {this.props.links &&
             this.props.links
               .filter(l => l.showInHeader)
               .map(l => (
                 <LinkButton key={l.label} label={l.label} to={l.path} />
               ))}
-        </ToolbarGroup>
+        </LinkGroup>
         <ToolbarGroup>
           <DateRangeNavigator />
         </ToolbarGroup>
-        <ToolbarGroup style={styles.pad} />
+        <PadGroup />
         <StyledAddExpenseIcon />
       </Bar>
     );
@@ -54,6 +45,20 @@ const Bar = styled(Toolbar)`
 `;
 
 const ToolbarGroup = styled.div``;
+
+const LinkGroup = styled(ToolbarGroup)`
+  flex: 1;
+  justify-content: flex-start;
+  align-items: center;
+`;
+
+const PadGroup = styled(ToolbarGroup)`
+  width: 80px;
+  ${media.largeDevice`
+    width: inherit;
+    flex: 1;
+  `}
+`;
 
 export const StyledAddExpenseIcon = styled(AddExpenseIcon)`
   position: absolute;
