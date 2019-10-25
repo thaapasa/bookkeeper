@@ -5,6 +5,7 @@ import { connect } from '../component/BaconConnect';
 import { userDataE, UserDataProps } from 'client/data/Categories';
 import { validSessionE } from 'client/data/Login';
 import { PageContentContainer } from '../Styles';
+import { QueryView } from './QueryView';
 
 class SearchView extends React.Component<{
   userData: UserDataProps;
@@ -12,8 +13,14 @@ class SearchView extends React.Component<{
 }> {
   public render() {
     return (
-      <PageContentContainer className="padded">Tee haku</PageContentContainer>
+      <PageContentContainer className="padded">
+        <QueryView categories={this.props.session.categories} />
+      </PageContentContainer>
     );
+  }
+
+  renderSearchContainer() {
+    return;
   }
 }
 
