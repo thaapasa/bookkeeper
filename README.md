@@ -161,7 +161,7 @@ Open browser inspector, and add links to `localStorage` from there:
 
 ```js
 window.localStorage.setItem('createLinks', JSON.stringify([
-  { title: 'S-market', href: '/p/kulut/uusi?title=S-market&sum=50' },
-  { title: 'Mustapekka', href: '/p/kulut/uusi?title=Mustapekka&sum=50' },
+  { title: 'S-market', values: { title: 'S-market', sum: '50' } },
+  { title: 'Mustapekka', values: { title: 'Mustapekka', sum: '50' }  },
 ]));
 ```

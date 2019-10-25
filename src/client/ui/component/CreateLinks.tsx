@@ -3,13 +3,15 @@ import styled from 'styled-components';
 
 import { AddExpenseIcon } from '../icons/AddExpenseIcon';
 import { secondaryColors, navigationBar } from '../Colors';
+import { ExpenseInEditor } from 'shared/types/Expense';
+import { expenseDialogE } from 'client/data/State';
 
-interface Link {
-  href: string;
+interface CreateExpenseItem {
   title: string;
+  values: Partial<ExpenseInEditor>;
 }
 
-function getLinks(): Link[] {
+function getItems(): CreateExpenseItem[] {
   try {
     return JSON.parse(window.localStorage.getItem('createLinks') || '') || [];
   } catch (e) {
@@ -17,22 +19,22 @@ function getLinks(): Link[] {
   }
 }
 
-const links: Link[] = getLinks();
+const items: CreateExpenseItem[] = getItems();
 
 export class CreateLinks extends React.Component<{}> {
   get height() {
-    return 40 + (34 + 12) * links.length;
+    return 40 + (34 + 12) * items.length;
   }
 
   render() {
     return (
       <LinksContainer
         theme={{ maxHeight: `${this.height}px` }}
-        className={links.length > 0 ? 'enabled' : 'disabled'}
+        className={items.length > 0 ? 'enabled' : 'disabled'}
       >
         <LinksArea>
           <AddExpenseIcon />
-          {links.map((l, i) => (
+          {items.map((l, i) => (
             <LinkIcon key={i} {...l} />
           ))}
         </LinksArea>
@@ -41,10 +43,14 @@ export class CreateLinks extends React.Component<{}> {
   }
 }
 
-const LinkIcon = (props: Link) => (
-  <LinkA href={props.href} title={props.title}>
-    <LinkIconArea>{props.title.substring(0, 1).toUpperCase()}</LinkIconArea>
-  </LinkA>
+function addExpense(values: Partial<ExpenseInEditor>) {
+  expenseDialogE.push({ expenseId: null, resolve: () => {}, values });
+}
+
+const LinkIcon = (props: CreateExpenseItem) => (
+  <LinkIconArea onClick={() => addExpense(props.values)}>
+    {props.title.substring(0, 1).toUpperCase()}
+  </LinkIconArea>
 );
 
 const LinksContainer = styled.div`
@@ -81,9 +87,6 @@ const LinkIconArea = styled.div`
   justify-content: center;
   margin-top: 8px;
   margin-bottom: 4px;
-`;
-
-const LinkA = styled.a`
   text-decoration: none;
   color: ${secondaryColors.text};
   font-weight: bold;

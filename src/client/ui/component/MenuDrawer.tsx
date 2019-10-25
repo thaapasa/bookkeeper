@@ -7,7 +7,6 @@ import { UserAvatar } from './UserAvatar';
 import { colorScheme } from '../Colors';
 import { AppLink } from './NavigationBar';
 import { RouteComponentProps, withRouter } from 'react-router';
-import { History } from 'history';
 import { Drawer, MenuItem } from '@material-ui/core';
 
 interface MenuDrawerProps extends RouteComponentProps<{}> {
@@ -19,7 +18,7 @@ interface MenuDrawerProps extends RouteComponentProps<{}> {
 }
 
 class MenuLink extends React.Component<
-  AppLink & { history: History; onSelect: (path: string) => void },
+  AppLink & { onSelect: (path: string) => void },
   {}
 > {
   private onSelect = () => {
@@ -51,12 +50,7 @@ class MenuDrawerImpl extends React.Component<MenuDrawerProps, {}> {
         <ItemArea>
           {this.props.links &&
             this.props.links.map(l => (
-              <MenuLink
-                key={l.label}
-                history={this.props.history}
-                {...l}
-                onSelect={this.onSelect}
-              />
+              <MenuLink key={l.label} {...l} onSelect={this.onSelect} />
             ))}
         </ItemArea>
         {this.props.links && this.props.links.length > 0 ? <Divider /> : null}

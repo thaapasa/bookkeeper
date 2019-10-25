@@ -4,8 +4,14 @@ import { parseQueryString } from '../../util/UrlUtils';
 import RoutedMonthView from './RoutedMonthView';
 import { expenseDialogE } from 'client/data/State';
 
-export class NewExpenseView extends React.Component<RouteComponentProps<{}>> {
+type NewExpenseViewProps = RouteComponentProps<{}>;
+
+export class NewExpenseView extends React.Component<NewExpenseViewProps> {
   componentDidMount() {
+    this.openEditor();
+  }
+
+  openEditor = () => {
     const params = parseQueryString(document.location.search);
     expenseDialogE.push({
       expenseId: null,
@@ -23,7 +29,7 @@ export class NewExpenseView extends React.Component<RouteComponentProps<{}>> {
         description: params.description,
       },
     });
-  }
+  };
 
   render() {
     return <RoutedMonthView {...this.props} />;
