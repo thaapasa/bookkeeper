@@ -64,7 +64,7 @@ The `DEBUG` switch (in `.env` or supplied as an environment variable) controls l
 
 ### Client web app
 
-Start development build by running `yarn start-client`.
+Start development build by running `yarn watch-client`.
 
 You can see console logging by setting the `debug` variable to `localStorage`;
 for example: `localStorage.debug = 'bookkeeper*'`.
