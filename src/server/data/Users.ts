@@ -14,7 +14,8 @@ export function mapUser(user: RawUserData): User {
 
 const select = `
 SELECT
-  id, username, email, first_name as "firstName", last_name as "lastName", image
+  id, username, email, first_name as "firstName", last_name as "lastName", image,
+  expense_shortcuts as "expenseShortcuts"
 FROM users u`;
 
 function getAll(tx: IBaseProtocol<any>) {
@@ -74,6 +75,7 @@ function getByCredentials(tx: IBaseProtocol<any>) {
 SELECT
   u.id, username, email, first_name as "firstName", last_name as "lastName",
   default_group_id as "defaultGroupId", image, g.id as "groupId", g.name as "groupName",
+  u.expense_shortcuts as "expenseShortcuts",
   go.default_source_id as "defaultSourceId"
 FROM users u
   LEFT JOIN group_users go ON (go.user_id = u.id AND go.group_id = COALESCE($/groupId/, u.default_group_id))

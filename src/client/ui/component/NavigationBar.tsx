@@ -4,8 +4,8 @@ import { Route, Link } from 'react-router-dom';
 import { Button, Toolbar } from '@material-ui/core';
 import DateRangeNavigator from './DateRangeNavigator';
 import { media } from '../Styles';
-import { CreateLinks } from './CreateLinks';
 import { navigationBar } from '../Colors';
+import { ExpenseShortcutsView } from './ExpenseShortcutsView';
 
 export interface AppLink {
   label: string;
@@ -61,7 +61,7 @@ const PadGroup = styled(ToolbarGroup)`
   `}
 `;
 
-export const AddExpenseLinks = styled(CreateLinks)`
+export const AddExpenseLinks = styled(ExpenseShortcutsView)`
   position: absolute;
   right: 27px;
   bottom: -21px;

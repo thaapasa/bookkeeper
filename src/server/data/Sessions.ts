@@ -19,7 +19,8 @@ const tokenSelect = `
 SELECT
   s.token, s.refresh_token as "refreshToken", s.user_id as id, s.login_time as "loginTime",
   u.username, u.email, u.first_name as "firstName", u.last_name as "lastName", u.image,
-  u.default_group_id as "defaultGroupId", g.id AS "groupId", g.name as "groupName",
+  u.default_group_id as "defaultGroupId", u.expense_shortcuts as "expenseShortcuts",
+  g.id AS "groupId", g.name as "groupName",
   go.default_source_id as "defaultSourceId"
 FROM sessions s
   INNER JOIN users u ON (s.user_id = u.id)
@@ -74,6 +75,7 @@ function createSessionInfo(
       lastName: userData.lastName,
       image: userData.image,
       defaultGroupId: userData.defaultGroupId,
+      expenseShortcuts: userData.expenseShortcuts,
     }),
     group: {
       id: userData.groupId,

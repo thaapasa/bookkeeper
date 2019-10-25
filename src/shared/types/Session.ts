@@ -1,5 +1,6 @@
 import { DbObject } from './Common';
 import { MoneyLike } from '../util/Money';
+import { ExpenseInEditor } from './Expense';
 
 export interface Group extends DbObject {
   name: string;
@@ -36,6 +37,11 @@ export interface CategoryAndTotals extends Category {
   children: CategoryAndTotals[];
 }
 
+export interface ExpenseShortcut {
+  title: string;
+  values: Partial<ExpenseInEditor>;
+}
+
 export interface User extends DbObject {
   username: string;
   email: string;
@@ -43,6 +49,7 @@ export interface User extends DbObject {
   lastName: string;
   image?: string;
   defaultGroupId?: number | null;
+  expenseShortcuts: ExpenseShortcut[];
 }
 
 export interface SessionBasicInfo {
