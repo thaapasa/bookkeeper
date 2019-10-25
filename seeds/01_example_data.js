@@ -1,13 +1,15 @@
-"use strict";
+'use strict';
 
-exports.seed = knex => knex.raw(`
+exports.seed = knex =>
+  knex.raw(`
   INSERT INTO groups (name) VALUES ('Mäntyniemi');
   INSERT INTO groups (name) VALUES ('Herrakerho');
 
   INSERT INTO users (username, email, password, first_name, last_name, default_group_id, image)
     VALUES ('jenni', 'jenni@fi.fi', encode(digest('salasana', 'sha1'), 'hex'), 'Jenni', 'Haukio', 1, '1.png');
-  INSERT INTO users (username, email, password, first_name, last_name, default_group_id, image)
-    VALUES ('sale', 'sauli@fi.fi', encode(digest('salasana', 'sha1'), 'hex'), 'Sauli', 'Niinistö', 1, '2.jpg');
+  INSERT INTO users (username, email, password, first_name, last_name, default_group_id, image, expense_shortcuts)
+    VALUES ('sale', 'sauli@fi.fi', encode(digest('salasana', 'sha1'), 'hex'), 'Sauli', 'Niinistö', 1, '2.jpg', 
+      '[{"title":"S-market","values":{"sum":"79.36","title":"Ruokaostokset","benefit":[1,2],"receiver":"S-market","sourceId":3,"categoryId":1,"description":"Kävin kotimatkalla kaupassa","subcategoryId":6}}]');
 
   INSERT INTO sources (group_id, name, image) VALUES 
     (1, 'Yhteinen tili', 'spankki.png'),
@@ -28,4 +30,4 @@ exports.seed = knex => knex.raw(`
     (1, 1, 'Työpaikkalounas'), (1, 1, 'Ravintola'), (1, 1, 'Ruokakauppa'),
     (2, 1, 'Lehtitilaukset'), (2, 1, 'Elokuvat ja sarjat'), (2, 1, 'Kirjat'),
     (3, 1, 'Lainanhoito'), (3, 1, 'Pakolliset'), (3, 1, 'Sisustus'), (3, 1, 'Rakentaminen'), (3, 1, 'Piha');
-`)
+`);
