@@ -14,8 +14,8 @@ import {
 import { flatten } from '../../shared/util/Arrays';
 import {
   DateLike,
-  formatDate,
-  fromDate,
+  toISODate,
+  fromISODate,
   toMoment,
 } from '../../shared/util/Time';
 import { camelCaseObject } from '../../shared/util/Util';
@@ -32,7 +32,7 @@ export function nextRecurrence(
   from: string | Moment,
   period: RecurringExpensePeriod
 ): Moment {
-  const date = fromDate(from);
+  const date = fromISODate(from);
   switch (period) {
     case 'monthly':
       return date.add(1, 'month');
@@ -56,7 +56,7 @@ function createRecurring(
   return db.tx(
     async (tx: IBaseProtocol<any>): Promise<ApiMessage> => {
       log('Create', recurrence.period, 'recurring expense from', expenseId);
-      let nextMissing: Moment | null = null;
+      let nextMissing: Moment | undefined;
       const templateId = await expenses.tx.copyExpense(tx)(
         groupId,
         userId,
@@ -82,7 +82,7 @@ RETURNING id`,
         {
           templateId,
           period: recurrence.period,
-          nextMissing: formatDate(nextMissing),
+          nextMissing: toISODate(nextMissing),
           groupId,
         }
       )).id;
@@ -109,7 +109,7 @@ function getDatesUpTo(recurrence: Recurrence, date: Moment): string[] {
   let generating = toMoment(recurrence.nextMissing);
   const dates: string[] = [];
   while (generating.isBefore(date)) {
-    dates.push(formatDate(generating));
+    dates.push(toISODate(generating));
     generating = nextRecurrence(generating, recurrence.period);
   }
   return dates;
@@ -150,7 +150,7 @@ function createMissingRecurrences(
       recurrence,
       dates,
       'next missing is',
-      formatDate(nextMissing)
+      toISODate(nextMissing)
     );
     const expense = await expenses.tx.getExpenseAndDivision(tx)(
       groupId,
@@ -164,7 +164,7 @@ UPDATE recurring_expenses
 SET next_missing=$/nextMissing/::DATE
 WHERE id=$/recurringExpenseId/`,
       {
-        nextMissing: formatDate(nextMissing),
+        nextMissing: toISODate(nextMissing),
         recurringExpenseId: recurrence.id,
       }
     );

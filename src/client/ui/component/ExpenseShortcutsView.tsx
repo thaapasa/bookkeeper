@@ -3,11 +3,11 @@ import styled from 'styled-components';
 
 import { AddExpenseIcon } from '../icons/AddExpenseIcon';
 import { secondaryColors, navigationBar } from '../Colors';
-import { ExpenseInEditor } from 'shared/types/Expense';
-import { expenseDialogE } from 'client/data/State';
-import { ExpenseShortcut } from 'shared/types/Session';
+import { ExpenseInEditor } from '../../../shared/types/Expense';
+import { expenseDialogE } from '../../../client/data/State';
+import { ExpenseShortcut } from '../../../shared/types/Session';
 import { connect } from './BaconConnect';
-import { validSessionE } from 'client/data/Login';
+import { validSessionE } from '../../../client/data/Login';
 
 class ExpenseShortcutsViewImpl extends React.Component<{
   shortcuts: ExpenseShortcut[];

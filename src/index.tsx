@@ -11,7 +11,7 @@ import registerServiceWorker from './client/registerServiceWorker';
 import './index.css';
 import App from './client/App';
 import { muiTheme } from './client/ui/Colors';
-import { fiLocale } from 'shared/types/Time';
+import { fiLocale } from './shared/util/Time';
 
 ReactDOM.render(
   <StylesProvider injectFirst>

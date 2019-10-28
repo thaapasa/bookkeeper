@@ -9,6 +9,7 @@ import {
   TRecurringExpenseTarget,
   UserExpense,
   UserExpenseWithDetails,
+  TExpenseQuery,
 } from '../shared/types/Expense';
 import {
   Category,
@@ -19,12 +20,12 @@ import {
   Source,
   User,
 } from '../shared/types/Session';
-import { TISODate } from '../shared/types/Time';
-import { toMoment } from '../shared/util/Time';
+import { toMoment, TISODate } from '../shared/util/Time';
 import { config } from './Config';
 import admin, { DbStatus } from './data/admin/Admin';
 import categories, { CategoryInput } from './data/Categories';
 import expenses from './data/Expenses';
+import expenseSearch from './data/ExpenseSearch';
 import sessions from './data/Sessions';
 import sources from './data/Sources';
 import users from './data/Users';
@@ -33,7 +34,6 @@ import { Schema, Validator as V } from './util/Validator';
 import {
   validate,
   intStringBetween,
-  TIntString,
   stringWithLength,
 } from '../shared/types/Validator';
 
@@ -227,7 +227,7 @@ export function registerAPI(app: Express) {
   });
   app.get(
     '/api/expense/month',
-    server.processRequest((session, req): Promise<ExpenseCollection> => {
+    server.processRequest<ExpenseCollection>((session, req) => {
       const params = validate(TYearMonth, req.query);
       return expenses.getByMonth(
         session.group.id,
@@ -238,19 +238,13 @@ export function registerAPI(app: Express) {
     }, true)
   );
 
-  const searchSchema = t.intersection([
-    t.type({
-      startDate: TISODate,
-      endDate: TISODate,
-    }),
-    t.partial({ categoryId: TIntString }),
-  ]);
+  // GET /api/expense/search?[ExpenseSearch]
   app.get(
     '/api/expense/search',
-    server.processRequest((session, req): Promise<UserExpense[]> => {
-      const params = validate(searchSchema, req.query);
-      return expenses.search(session.group.id, session.user.id, params);
-    }, true)
+    server.processRequest<UserExpense[]>(async (session, req) => {
+      const query = validate(TExpenseQuery, req.query);
+      return expenseSearch.search(session.user.id, session.group.id, query);
+    })
   );
 
   // PUT /api/expense
@@ -275,8 +269,8 @@ export function registerAPI(app: Express) {
   };
   app.put(
     '/api/expense',
-    server.processRequest(
-      (session, req): Promise<ApiMessage> =>
+    server.processRequest<ApiMessage>(
+      (session, req) =>
         expenses.create(
           session.user.id,
           session.group.id,
@@ -293,8 +287,8 @@ export function registerAPI(app: Express) {
   // GET /api/expense/receivers?receiver=[query]
   app.get(
     '/api/expense/receivers',
-    server.processRequest(
-      async (session, req): Promise<string[]> =>
+    server.processRequest<string[]>(
+      async (session, req) =>
         (await expenses.queryReceivers(
           session.group.id,
           validate(TReceiverSearch, req.query).receiver
@@ -306,8 +300,8 @@ export function registerAPI(app: Express) {
   // POST /api/expense/[expenseId]
   app.post(
     '/api/expense/:id',
-    server.processRequest(
-      (session, req): Promise<ApiMessage> =>
+    server.processRequest<ApiMessage>(
+      (session, req) =>
         expenses.update(
           session.group.id,
           session.user.id,
@@ -322,8 +316,8 @@ export function registerAPI(app: Express) {
   // GET /api/expense/[expenseId]
   app.get(
     '/api/expense/:id',
-    server.processRequest(
-      (session, req): Promise<UserExpenseWithDetails> =>
+    server.processRequest<UserExpenseWithDetails>(
+      (session, req) =>
         expenses
           .getById(
             session.group.id,
@@ -340,8 +334,8 @@ export function registerAPI(app: Express) {
   // DELETE /api/expense/[expenseId]
   app.delete(
     '/api/expense/:id',
-    server.processRequest(
-      (session, req): Promise<ApiMessage> =>
+    server.processRequest<ApiMessage>(
+      (session, req) =>
         expenses.deleteById(session.group.id, parseInt(req.params.id, 10)),
       true
     )
@@ -354,8 +348,8 @@ export function registerAPI(app: Express) {
   // PUT /api/expense/recurring/[expenseId]
   app.put(
     '/api/expense/recurring/:id',
-    server.processRequest(
-      (session, req): Promise<ApiMessage> =>
+    server.processRequest<ApiMessage>(
+      (session, req) =>
         expenses.createRecurring(
           session.group.id,
           session.user.id,
@@ -369,8 +363,8 @@ export function registerAPI(app: Express) {
   // DELETE /api/expense/recurring/[expenseId]
   app.delete(
     '/api/expense/recurring/:id',
-    server.processRequest(
-      (session, req): Promise<ApiMessage> =>
+    server.processRequest<ApiMessage>(
+      (session, req) =>
         expenses.deleteRecurringById(
           session.group.id,
           session.user.id,
@@ -384,8 +378,8 @@ export function registerAPI(app: Express) {
   // POST /api/expense/recurring/[expenseId]
   app.post(
     '/api/expense/recurring/:id',
-    server.processRequest(
-      (session, req): Promise<ApiMessage> =>
+    server.processRequest<ApiMessage>(
+      (session, req) =>
         expenses.updateRecurring(
           session.group.id,
           session.user.id,
@@ -401,8 +395,8 @@ export function registerAPI(app: Express) {
   // GET /api/admin/status
   app.get(
     '/api/admin/status',
-    server.processRequest(
-      (session): Promise<DbStatus> => admin.getDbStatus(session.group.id),
+    server.processRequest<DbStatus>(
+      session => admin.getDbStatus(session.group.id),
       true
     )
   );

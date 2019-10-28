@@ -35,7 +35,7 @@ import {
 import { getFullCategoryName, UserDataProps } from '../../../data/Categories';
 import {
   toDate,
-  formatDate,
+  toISODate,
   toMoment,
   readableDate,
 } from '../../../../shared/util/Time';
@@ -175,7 +175,7 @@ export class ExpenseRow extends React.Component<
           this.props.expense.title
         } päiväksi ${readableDate(date)}`
       );
-      this.updateExpense({ date: formatDate(date) });
+      this.updateExpense({ date: toISODate(date) });
       return true;
     } catch (e) {
       notifyError('Virhe muutettaessa päivämäärää', e);

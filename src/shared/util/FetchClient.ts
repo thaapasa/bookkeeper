@@ -7,6 +7,16 @@ export type FetchType = () => (
   init?: FixedRequestInit
 ) => Promise<Response>;
 
+function encodeComponent(x: any) {
+  if (!x) {
+    return '';
+  } else if (typeof x === 'string') {
+    return encodeURIComponent(x);
+  } else {
+    return encodeURIComponent(JSON.stringify(x));
+  }
+}
+
 export class FetchClient {
   private fetch: FetchType;
   private baseUrl: string;
@@ -22,9 +32,7 @@ export class FetchClient {
       ? fullPath +
           '?' +
           Object.keys(query)
-            .map(
-              k => encodeURIComponent(k) + '=' + encodeURIComponent(query[k])
-            )
+            .map(k => encodeComponent(k) + '=' + encodeComponent(query[k]))
             .join('&')
       : fullPath;
   }

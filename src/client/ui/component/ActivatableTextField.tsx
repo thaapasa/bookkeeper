@@ -3,17 +3,10 @@ import { KeyCodes } from '../../util/Io';
 import debug from 'debug';
 import { TextFieldProps } from '@material-ui/core/TextField';
 import { AutoCompleteProps } from './AutoComplete';
-import { omit } from 'shared/util/Objects';
-import { eventValue } from 'client/util/ClientUtil';
+import { omit } from '../../../shared/util/Objects';
+import { eventValue } from '../../../client/util/ClientUtil';
 import { ReceiverFieldProps } from '../expense/dialog/ReceiverField';
 const log = debug('bookkeeper:activatable-text-field');
-
-/*
-type EditorTypeProps<T> =
-  | TextFieldProps
-  | AutoCompleteProps<T>
-  | ReceiverFieldProps;
-*/
 
 type EditorType<T> =
   | React.ComponentType<TextFieldProps>

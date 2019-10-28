@@ -1,7 +1,8 @@
 import { DbObject } from './Common';
 import { MoneyLike } from '../util/Money';
 import * as t from 'io-ts';
-import { TISODate, ISODate } from './Time';
+import { TISODate, ISODate } from '../util/Time';
+import { TIntString } from './Validator';
 
 export type ExpenseType = 'expense' | 'income' | 'transfer';
 export type ExpenseDivisionType =
@@ -148,3 +149,12 @@ export interface Recurrence extends DbObject, RecurringExpenseInput {
   nextMissing: ISODate;
   templateExpenseId: number;
 }
+
+export const TExpenseQuery = t.partial({
+  search: t.string,
+  receiver: t.string,
+  categoryId: TIntString,
+  startDate: TISODate,
+  endDate: TISODate,
+});
+export type ExpenseQuery = t.TypeOf<typeof TExpenseQuery>;

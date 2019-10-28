@@ -104,8 +104,8 @@ function countTotalBetween(tx: IBaseProtocol<any>) {
     return tx.one<ExpenseStatus>(countTotalSelect, {
       userId,
       groupId,
-      startDate: time.formatDate(startDate),
-      endDate: time.formatDate(endDate),
+      startDate: time.toISODate(startDate),
+      endDate: time.toISODate(endDate),
     });
   };
 }
@@ -121,7 +121,7 @@ SELECT
   COUNT(*) AS amount
 FROM expenses
 WHERE group_id=$/groupId/ AND template=false AND date < $/startDate/::DATE AND confirmed=false`,
-      { groupId, startDate: time.formatDate(startDate) }
+      { groupId, startDate: time.toISODate(startDate) }
     );
     return s.amount > 0;
   };

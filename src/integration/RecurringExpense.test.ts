@@ -14,7 +14,7 @@ import {
 import Money, { MoneyLike } from '../shared/util/Money';
 import { ApiMessage } from '../shared/types/Api';
 import { nextRecurrence } from '../server/data/RecurringExpenses';
-import { formatDate } from '../shared/util/Time';
+import { toISODate } from '../shared/util/Time';
 
 describe('recurring expenses', () => {
   let session: SessionWithControl;
@@ -48,25 +48,25 @@ describe('recurring expenses', () => {
   }
 
   it('calculates next recurrence correctly', async () => {
-    expect(formatDate(nextRecurrence('2017-01-01', 'monthly'))).toBe(
+    expect(toISODate(nextRecurrence('2017-01-01', 'monthly'))).toBe(
       '2017-02-01'
     );
-    expect(formatDate(nextRecurrence('2017-01-31', 'monthly'))).toBe(
+    expect(toISODate(nextRecurrence('2017-01-31', 'monthly'))).toBe(
       '2017-02-28'
     );
-    expect(formatDate(nextRecurrence('2017-12-31', 'monthly'))).toBe(
+    expect(toISODate(nextRecurrence('2017-12-31', 'monthly'))).toBe(
       '2018-01-31'
     );
-    expect(formatDate(nextRecurrence('2017-12-01', 'monthly'))).toBe(
+    expect(toISODate(nextRecurrence('2017-12-01', 'monthly'))).toBe(
       '2018-01-01'
     );
-    expect(formatDate(nextRecurrence('2004-02-29', 'yearly'))).toBe(
+    expect(toISODate(nextRecurrence('2004-02-29', 'yearly'))).toBe(
       '2005-02-28'
     );
-    expect(formatDate(nextRecurrence('2004-02-28', 'yearly'))).toBe(
+    expect(toISODate(nextRecurrence('2004-02-28', 'yearly'))).toBe(
       '2005-02-28'
     );
-    expect(formatDate(nextRecurrence('2004-03-01', 'yearly'))).toBe(
+    expect(toISODate(nextRecurrence('2004-03-01', 'yearly'))).toBe(
       '2005-03-01'
     );
   });

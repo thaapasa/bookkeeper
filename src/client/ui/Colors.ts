@@ -19,7 +19,7 @@ interface ColorScheme {
   white: string;
 }
 
-const gray = {
+export const gray = {
   standard: '#e1e2e1',
   light: '#f5f5f6',
   dark: '#919192',

@@ -1,5 +1,18 @@
+import * as t from 'io-ts';
 import { leftPad } from './Util';
 import moment, { Moment, isMoment, MomentInput } from 'moment';
+
+require('moment/locale/fi');
+
+export const fiLocale = 'fi-FI';
+
+// Setup Finnish locale globally
+moment.locale(fiLocale);
+
+export const ISODateRegExp = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
+export const ISODatePattern = 'YYYY-MM-DD';
+export const TISODate = t.refinement(t.string, s => ISODateRegExp.test(s));
+export type ISODate = t.TypeOf<typeof TISODate>;
 
 export type DateLike = Date | Moment | string;
 
@@ -21,14 +34,13 @@ export function toDate(d: DateLike): Date {
   return toMoment(d).toDate();
 }
 
-const datePattern = 'YYYY-MM-DD';
-export function formatDate(m: any): string {
-  const mom = moment.isMoment(m) ? m : moment(m);
-  return mom.format(datePattern);
+export function toISODate(m?: MomentInput): ISODate {
+  return toMoment(m).format(ISODatePattern);
 }
-export function fromDate(str: any): Moment {
-  return moment(str, datePattern);
+export function fromISODate(str: any): Moment {
+  return moment(str, ISODatePattern);
 }
+
 export function readableDate(date: DateLike): string {
   return toMoment(date).format('D.M.');
 }

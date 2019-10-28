@@ -15,8 +15,9 @@ import {
   UserExpenseWithDetails,
   ExpenseData,
   RecurringExpenseTarget,
+  ExpenseQuery,
 } from '../../shared/types/Expense';
-import { formatDate, DateLike } from '../../shared/util/Time';
+import { toISODate } from '../../shared/util/Time';
 const client = new FetchClient(() => fetch);
 
 function mapExpense<T extends UserExpense | UserExpenseWithDetails>(e: T): T {
@@ -69,7 +70,7 @@ export class ApiConnect {
     return { Authorization: `Bearer ${this.currentToken || ''}` };
   }
 
-  private get<T>(path: string, query?: Record<string, string>): Promise<T> {
+  private get<T>(path: string, query?: Record<string, any>): Promise<T> {
     return client.get<T>(path, query, this.authHeader());
   }
 
@@ -124,18 +125,9 @@ export class ApiConnect {
     return mapExpenseObject(collection);
   }
 
-  public searchExpenses(
-    startDate: DateLike,
-    endDate: DateLike,
-    query: Record<string, string | number>
-  ): Promise<UserExpense[]> {
-    const q = {
-      ...query,
-      startDate: formatDate(startDate),
-      endDate: formatDate(endDate),
-    };
-    return this.get<UserExpense[]>('/api/expense/search', q).then(l =>
-      l.map(mapExpense)
+  public async searchExpenses(query: ExpenseQuery): Promise<UserExpense[]> {
+    return (await this.get<UserExpense[]>(`/api/expense/search`, query)).map(
+      mapExpense
     );
   }
 
@@ -208,8 +200,8 @@ export class ApiConnect {
     endDate: Date
   ): Promise<CategoryAndTotals[]> {
     const q = {
-      startDate: formatDate(startDate),
-      endDate: formatDate(endDate),
+      startDate: toISODate(startDate),
+      endDate: toISODate(endDate),
     };
     return this.get<CategoryAndTotals[]>('/api/category/totals', q);
   }

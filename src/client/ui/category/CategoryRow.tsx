@@ -10,7 +10,7 @@ import {
   ToggleButton,
 } from './CategoryTools';
 import { UserExpense } from '../../../shared/types/Expense';
-import { DateRange } from '../../../shared/util/Time';
+import { DateRange, toISODate } from '../../../shared/util/Time';
 import { UserDataProps } from '../../data/Categories';
 import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
 import {
@@ -85,11 +85,11 @@ export default class CategoryRow extends React.Component<
 
   private open = async () => {
     this.setState({ open: true, isLoading: true });
-    const expenses = await apiConnect.searchExpenses(
-      this.props.range.start,
-      this.props.range.end,
-      { categoryId: this.props.category.id }
-    );
+    const expenses = await apiConnect.searchExpenses({
+      startDate: toISODate(this.props.range.start),
+      endDate: toISODate(this.props.range.end),
+      categoryId: this.props.category.id,
+    });
     this.setState({ isLoading: false, expenses });
   };
 

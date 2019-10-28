@@ -51,8 +51,8 @@ function getBetween(tx: IBaseProtocol<any>) {
       {
         userId,
         groupId,
-        startDate: time.formatDate(startDate),
-        endDate: time.formatDate(endDate),
+        startDate: time.toISODate(startDate),
+        endDate: time.toISODate(endDate),
       }
     );
     return expenses.map(basic.mapExpense);
@@ -114,36 +114,6 @@ function getByMonth(
   );
 }
 
-export interface ExpenseSearchParams {
-  startDate: string;
-  endDate: string;
-  categoryId?: number;
-}
-
-function search(tx: IBaseProtocol<any>) {
-  return async (
-    groupId: number,
-    userId: number,
-    params: ExpenseSearchParams
-  ): Promise<UserExpense[]> => {
-    log(`Searching for ${JSON.stringify(params)}`);
-    const expenses = await tx.manyOrNone<UserExpense>(
-      basic.expenseSelect(`
-WHERE group_id=$/groupId/ AND template=false
-  AND date::DATE >= $/startDate/::DATE AND date::DATE <= $/endDate/::DATE
-  AND ($/categoryId/::INTEGER IS NULL OR category_id=$/categoryId/::INTEGER)`),
-      {
-        userId,
-        groupId,
-        startDate: params.startDate,
-        endDate: params.endDate,
-        categoryId: params.categoryId || null,
-      }
-    );
-    return expenses.map(basic.mapExpense);
-  };
-}
-
 export default {
   getAll: basic.getAll,
   getByMonth,
@@ -153,7 +123,6 @@ export default {
   queryReceivers: basic.queryReceivers,
   create: basic.create,
   update: basic.update,
-  search: search(db),
   createRecurring: recurring.createRecurring,
   deleteRecurringById: recurring.deleteRecurringById,
   updateRecurring: recurring.updateRecurring,

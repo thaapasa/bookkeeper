@@ -2,7 +2,7 @@ import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
 import { parseQueryString } from '../../util/UrlUtils';
 import RoutedMonthView from './RoutedMonthView';
-import { expenseDialogE } from 'client/data/State';
+import { expenseDialogE } from '../../data/State';
 
 type NewExpenseViewProps = RouteComponentProps<{}>;
 

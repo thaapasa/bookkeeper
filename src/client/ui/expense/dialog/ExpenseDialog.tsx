@@ -49,7 +49,7 @@ import {
   expenseBeneficiary,
   ExpenseDivision,
 } from '../../../../shared/types/Expense';
-import { toDate, formatDate } from '../../../../shared/util/Time';
+import { toDate, toISODate } from '../../../../shared/util/Time';
 import { identity } from '../../../../shared/util/Util';
 import { isSubcategoryOf, CategoryDataSource } from '../../../data/Categories';
 import { notify, notifyError, confirm } from '../../../data/State';
@@ -372,7 +372,7 @@ export class ExpenseDialog extends React.Component<
     const data: ExpenseData = {
       ...omit(['subcategoryId', 'benefit'], expense),
       division,
-      date: formatDate(expense.date),
+      date: toISODate(expense.date),
       categoryId: expense.subcategoryId
         ? expense.subcategoryId
         : expense.categoryId,
