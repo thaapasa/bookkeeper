@@ -14,6 +14,8 @@ export const ISODatePattern = 'YYYY-MM-DD';
 export const TISODate = t.refinement(t.string, s => ISODateRegExp.test(s));
 export type ISODate = t.TypeOf<typeof TISODate>;
 
+export const displayDatePattern = 'D.M.YYYY';
+
 export type DateLike = Date | Moment | string;
 
 export function month(year: number, mon: number): Moment {
@@ -84,7 +86,7 @@ export interface DateRange {
 }
 
 export interface TypedDateRange extends DateRange {
-  type: 'year' | 'month';
+  type: 'year' | 'month' | 'custom';
 }
 
 export function toMonthName(x: DateLike) {
@@ -97,12 +99,18 @@ export function toYearName(x: DateLike) {
   return '' + m.get('year');
 }
 
-export function toDateRangeName(x: TypedDateRange) {
+export function toDateRangeName(x: TypedDateRange): string {
   switch (x.type) {
     case 'month':
       return toMonthName(x.start);
     case 'year':
       return toYearName(x.start);
+    case 'custom':
+      return (
+        toMoment(x.start).format(displayDatePattern) +
+        ' - ' +
+        toMoment(x.end).format(displayDatePattern)
+      );
     default:
       return '?';
   }

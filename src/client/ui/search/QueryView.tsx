@@ -5,16 +5,20 @@ import { Category } from '../../../shared/types/Session';
 import AutoComplete from '../component/AutoComplete';
 import { eventValue } from '../../util/ClientUtil';
 import { CircularProgress } from '@material-ui/core';
+import { ExpenseQuery } from 'shared/types/Expense';
+import { DateRangeSelector } from './DateRangeSelector';
+import { TypedDateRange } from 'shared/util/Time';
 
 interface QueryViewProps {
   categories: Category[];
-  onSearch: (query: string) => void;
+  onSearch: (query: ExpenseQuery) => void;
   isSearching: boolean;
 }
 
 interface QueryViewState {
   input: string;
   categorySuggestions: Category[];
+  dateRange?: TypedDateRange;
 }
 
 function getCategorySuggestions(
@@ -30,11 +34,16 @@ function getCategorySuggestions(
 
 export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
   public state: QueryViewState = { input: '', categorySuggestions: [] };
-  private inputStream = new B.Bus<string>();
+  private inputBus = new B.Bus<string>();
+  private dateRangeBus = new B.Bus<TypedDateRange | undefined>();
 
   componentDidMount() {
-    this.inputStream.onValue(input => this.setState({ input }));
-    this.inputStream.debounce(300).onValue(this.doSearch);
+    this.inputBus.onValue(input => this.setState({ input }));
+    this.dateRangeBus.onValue(dateRange => this.setState({ dateRange }));
+    B.combineTemplate({
+      search: this.inputBus.debounce(300),
+      dateRange: this.dateRangeBus.toProperty(undefined),
+    }).onValue(v => this.doSearch(v));
   }
 
   render() {
@@ -57,12 +66,13 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
             {this.props.isSearching ? <CircularProgress size={28} /> : null}
           </ProgressArea>
         </Row>
+        <DateRangeSelector onSelectRange={this.selectDateRange} />
       </QueryArea>
     );
   }
 
-  private doSearch = (input: string) => {
-    this.props.onSearch(input);
+  private doSearch = (query: ExpenseQuery) => {
+    this.props.onSearch(query);
   };
 
   private clearSuggestions = () => this.setState({ categorySuggestions: [] });
@@ -82,7 +92,11 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
   };
 
   private onChange = (e: string | React.ChangeEvent<{ value: string }>) =>
-    this.inputStream.push(eventValue(e));
+    this.inputBus.push(eventValue(e));
+
+  private selectDateRange = (dateRange: TypedDateRange) => {
+    this.setState({ dateRange });
+  };
 }
 
 const QueryArea = styled.div`

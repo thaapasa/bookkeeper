@@ -12,6 +12,7 @@ import apiConnect from '../../data/ApiConnect';
 import { unsubscribeAll, Unsubscriber } from '../../util/ClientUtil';
 import { ResultsView } from './ResultsView';
 import { noop } from '../../../shared/util/Util';
+import { TypedDateRange } from 'shared/util/Time';
 
 const log = debug('bookkeeper:expense-search');
 
@@ -23,6 +24,7 @@ interface SearchViewProps {
 interface SearchViewState {
   isSearching: boolean;
   results: UserExpense[];
+  dateRange?: TypedDateRange;
 }
 
 function isEmptyQuery(q: ExpenseQuery) {
@@ -63,10 +65,10 @@ class SearchView extends React.Component<SearchViewProps, SearchViewState> {
     );
   }
 
-  private onSearch = (search: string) => {
-    log('Searching for', search);
+  private onSearch = (query: ExpenseQuery) => {
+    log('Searching for', query);
     this.setState({ isSearching: true });
-    this.searchBus.push({ search });
+    this.searchBus.push(query);
   };
 
   private onResults = (results: UserExpense[]) => {
