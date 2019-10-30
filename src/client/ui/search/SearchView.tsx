@@ -12,7 +12,6 @@ import apiConnect from '../../data/ApiConnect';
 import { unsubscribeAll, Unsubscriber } from '../../util/ClientUtil';
 import { ResultsView } from './ResultsView';
 import { noop } from '../../../shared/util/Util';
-import { TypedDateRange } from 'shared/util/Time';
 
 const log = debug('bookkeeper:expense-search');
 
@@ -24,7 +23,7 @@ interface SearchViewProps {
 interface SearchViewState {
   isSearching: boolean;
   results: UserExpense[];
-  dateRange?: TypedDateRange;
+  query?: ExpenseQuery;
 }
 
 function isEmptyQuery(q: ExpenseQuery) {
@@ -41,8 +40,10 @@ class SearchView extends React.Component<SearchViewProps, SearchViewState> {
   private unsub: Unsubscriber[] = [];
 
   componentDidMount() {
-    const resultsE = this.searchBus.flatMapLatest(q =>
-      isEmptyQuery(q) ? B.once([]) : B.fromPromise(apiConnect.searchExpenses(q))
+    const resultsE = this.searchBus.flatMapLatest(query =>
+      isEmptyQuery(query)
+        ? B.once([])
+        : B.fromPromise(apiConnect.searchExpenses(query))
     );
     this.unsub.push(resultsE.onValue(this.onResults));
     this.unsub.push(resultsE.onError(this.onError));
@@ -73,7 +74,7 @@ class SearchView extends React.Component<SearchViewProps, SearchViewState> {
 
   private onResults = (results: UserExpense[]) => {
     log('Received results', results);
-    this.setState({ isSearching: false, results });
+    this.setState({ results, isSearching: false });
   };
 
   private onError = (error: any) => {

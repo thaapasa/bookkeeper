@@ -7,7 +7,7 @@ import { eventValue } from '../../util/ClientUtil';
 import { CircularProgress } from '@material-ui/core';
 import { ExpenseQuery } from 'shared/types/Expense';
 import { DateRangeSelector } from './DateRangeSelector';
-import { TypedDateRange } from 'shared/util/Time';
+import { TypedDateRange, toDateRangeName } from 'shared/util/Time';
 
 interface QueryViewProps {
   categories: Category[];
@@ -47,6 +47,7 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
   }
 
   render() {
+    console.log('Rendering query view with range', this.state.dateRange);
     return (
       <QueryArea>
         <Row>
@@ -66,7 +67,15 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
             {this.props.isSearching ? <CircularProgress size={28} /> : null}
           </ProgressArea>
         </Row>
-        <DateRangeSelector onSelectRange={this.selectDateRange} />
+        <Row>
+          {this.state.dateRange
+            ? `Haetaan ajalta ${toDateRangeName(this.state.dateRange)}`
+            : 'Ei aikaehtoja'}
+        </Row>
+        <DateRangeSelector
+          dateRange={this.state.dateRange}
+          onSelectRange={this.selectDateRange}
+        />
       </QueryArea>
     );
   }
@@ -94,7 +103,8 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
   private onChange = (e: string | React.ChangeEvent<{ value: string }>) =>
     this.inputBus.push(eventValue(e));
 
-  private selectDateRange = (dateRange: TypedDateRange) => {
+  private selectDateRange = (dateRange?: TypedDateRange) => {
+    console.log('Set search range', dateRange);
     this.setState({ dateRange });
   };
 }
