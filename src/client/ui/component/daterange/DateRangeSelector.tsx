@@ -6,10 +6,12 @@ import {
   DateRangeSelectorProps,
   RangeTypeOrNone,
   toYearRange,
+  toMonthRange,
 } from './Common';
 import { YearSelector } from './YearSelector';
 import { TypedDateRange, toMoment, compareDates } from 'shared/util/Time';
 import { useCompare } from 'client/ui/utils/Hooks';
+import { MonthSelector } from './MonthSelector';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -36,6 +38,10 @@ function getRangeDefault(
       return;
     case 'year':
       return toYearRange(toMoment(current && current.start).year());
+    case 'month': {
+      const cur = toMoment(current && current.start);
+      return toMonthRange(cur.year(), cur.month() + 1);
+    }
     default:
       return;
   }
@@ -46,7 +52,6 @@ const DateRangeSelectorImpl = (props: DateRangeSelectorProps) => {
   const [selectedType, changeType] = React.useState<RangeType | 'none'>(
     props.dateRange ? props.dateRange.type : 'none'
   );
-  console.log('Value is', selectedType, '- range is', props.dateRange);
   const selectedChanged = useCompare(selectedType);
   React.useEffect(
     () =>
@@ -62,20 +67,13 @@ const DateRangeSelectorImpl = (props: DateRangeSelectorProps) => {
           <TabButton onClick={() => changeType('none')}>Kaikki</TabButton>
           <TabButton onClick={() => changeType('year')}>Vuosi</TabButton>
           <TabButton onClick={() => changeType('month')}>Kuukausi</TabButton>
-          <TabButton onClick={() => changeType('custom')}>Muokattu</TabButton>
         </Tab>
       </Tabs>
       <TabPanel selected={selectedType} type="year">
-        <YearSelector
-          dateRange={props.dateRange}
-          onSelectRange={props.onSelectRange}
-        />
+        <YearSelector {...props} />
       </TabPanel>
       <TabPanel selected={selectedType} type="month">
-        Kuu kaudesta kesään
-      </TabPanel>
-      <TabPanel selected={selectedType} type="custom">
-        Kiks koks
+        <MonthSelector {...props} />
       </TabPanel>
     </Container>
   );

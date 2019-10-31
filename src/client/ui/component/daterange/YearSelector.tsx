@@ -32,7 +32,6 @@ export function YearSelector(props: SelectorProps) {
     year,
     changeYear,
   ]);
-  console.log('Render year selector for', yearProp, year);
   return (
     <>
       <StyledIconButton onClick={prev} title="Edellinen">

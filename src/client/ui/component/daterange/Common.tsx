@@ -19,6 +19,25 @@ export function isValidYear(year: string | number): boolean {
   );
 }
 
+export function isValidMonth(month: string | number): boolean {
+  const m = Number(month);
+  return (
+    String(m) === String(month) && m === Math.round(m) && m >= 1 && m <= 12
+  );
+}
+
+export function toMonthRange(
+  year: string | number,
+  month: string | number
+): TypedDateRange {
+  const m = toMoment(`${year}-${month}`, 'YYYY-M');
+  return {
+    type: 'month',
+    start: m.startOf('month').toDate(),
+    end: m.endOf('month').toDate(),
+  };
+}
+
 export function toYearRange(year: string | number): TypedDateRange {
   const m = toMoment(year, 'YYYY');
   return {
@@ -26,6 +45,13 @@ export function toYearRange(year: string | number): TypedDateRange {
     start: m.startOf('year').toDate(),
     end: m.endOf('year').toDate(),
   };
+}
+
+export function nextMonth(year: number, month: number): [number, number] {
+  return month >= 12 ? [year + 1, 1] : [year, month + 1];
+}
+export function prevMonth(year: number, month: number): [number, number] {
+  return month <= 1 ? [year - 1, 12] : [year, month - 1];
 }
 
 export const NumberInput = styled(TextField)`
