@@ -8,7 +8,7 @@ import {
   toYearRange,
 } from './Common';
 import { YearSelector } from './YearSelector';
-import { TypedDateRange, toMoment } from 'shared/util/Time';
+import { TypedDateRange, toMoment, compareDates } from 'shared/util/Time';
 import { useCompare } from 'client/ui/utils/Hooks';
 
 interface TabPanelProps {
@@ -41,7 +41,7 @@ function getRangeDefault(
   }
 }
 
-export function DateRangeSelector(props: DateRangeSelectorProps) {
+const DateRangeSelectorImpl = (props: DateRangeSelectorProps) => {
   const { onSelectRange, dateRange } = props;
   const [selectedType, changeType] = React.useState<RangeType | 'none'>(
     props.dateRange ? props.dateRange.type : 'none'
@@ -79,7 +79,22 @@ export function DateRangeSelector(props: DateRangeSelectorProps) {
       </TabPanel>
     </Container>
   );
-}
+};
+
+export const DateRangeSelector = React.memo(
+  DateRangeSelectorImpl,
+  (prev, next) =>
+    (prev.dateRange && prev.dateRange.type) ===
+      (next.dateRange && next.dateRange.type) &&
+    compareDates(
+      prev.dateRange && prev.dateRange.start,
+      next.dateRange && next.dateRange.start
+    ) === 0 &&
+    compareDates(
+      prev.dateRange && prev.dateRange.end,
+      next.dateRange && next.dateRange.end
+    ) === 0
+);
 
 const Container = styled.div`
   display: block;

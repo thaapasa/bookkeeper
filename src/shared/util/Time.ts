@@ -155,7 +155,7 @@ export function isSameMonth(a: DateLike, b: DateLike) {
   return am.get('month') === bm.get('month');
 }
 
-export function compareDates(first: DateLike, second: DateLike): number {
+export function compareDates(first?: DateLike, second?: DateLike): number {
   if (!first) {
     return !second ? 0 : -1;
   }

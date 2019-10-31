@@ -47,7 +47,6 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
   }
 
   render() {
-    console.log('Rendering query view with range', this.state.dateRange);
     return (
       <QueryArea>
         <Row>
