@@ -1,13 +1,20 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import { Button } from '@material-ui/core';
-import { RangeType, DateRangeSelectorProps } from './Common';
+import {
+  RangeType,
+  DateRangeSelectorProps,
+  RangeTypeOrNone,
+  toYearRange,
+} from './Common';
 import { YearSelector } from './YearSelector';
+import { TypedDateRange, toMoment } from 'shared/util/Time';
+import { useCompare } from 'client/ui/utils/Hooks';
 
 interface TabPanelProps {
   children?: React.ReactNode;
   type: RangeType;
-  selected: RangeType | 'none';
+  selected: RangeTypeOrNone;
 }
 
 function TabPanel(props: TabPanelProps) {
@@ -20,15 +27,33 @@ function TabPanel(props: TabPanelProps) {
   );
 }
 
+function getRangeDefault(
+  type: RangeTypeOrNone,
+  current?: TypedDateRange
+): TypedDateRange | undefined {
+  switch (type) {
+    case 'none':
+      return;
+    case 'year':
+      return toYearRange(toMoment(current && current.start).year());
+    default:
+      return;
+  }
+}
+
 export function DateRangeSelector(props: DateRangeSelectorProps) {
-  const { onSelectRange } = props;
+  const { onSelectRange, dateRange } = props;
   const [selectedType, changeType] = React.useState<RangeType | 'none'>(
     props.dateRange ? props.dateRange.type : 'none'
   );
   console.log('Value is', selectedType, '- range is', props.dateRange);
+  const selectedChanged = useCompare(selectedType);
   React.useEffect(
-    () => (selectedType === 'none' ? onSelectRange() : undefined),
-    [selectedType, onSelectRange]
+    () =>
+      selectedChanged
+        ? onSelectRange(getRangeDefault(selectedType, dateRange))
+        : undefined,
+    [selectedChanged, selectedType, onSelectRange, dateRange]
   );
   return (
     <Container>
@@ -42,7 +67,6 @@ export function DateRangeSelector(props: DateRangeSelectorProps) {
       </Tabs>
       <TabPanel selected={selectedType} type="year">
         <YearSelector
-          selected={selectedType}
           dateRange={props.dateRange}
           onSelectRange={props.onSelectRange}
         />
