@@ -6,7 +6,7 @@ import AutoComplete from '../component/AutoComplete';
 import { eventValue } from '../../util/ClientUtil';
 import { CircularProgress } from '@material-ui/core';
 import { ExpenseQuery } from 'shared/types/Expense';
-import { DateRangeSelector } from './DateRangeSelector';
+import { DateRangeSelector } from '../component/daterange/DateRangeSelector';
 import { TypedDateRange, toDateRangeName } from 'shared/util/Time';
 
 interface QueryViewProps {
