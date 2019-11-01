@@ -102,6 +102,7 @@ const Panel = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+  margin-top: 4px;
   &.hidden {
     display: none;
   }

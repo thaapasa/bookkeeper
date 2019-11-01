@@ -32,3 +32,15 @@ export function mapValues<Src, Tgt>(
   );
   return res;
 }
+
+export const typedKeys: <T>(obj: T) => Array<keyof T> = Object.keys;
+
+export function filterTruthyProps<T>(obj: T): Partial<T> {
+  const res: Partial<T> = {};
+  typedKeys(obj).forEach(k => {
+    if (obj[k]) {
+      res[k] = obj[k];
+    }
+  });
+  return res;
+}

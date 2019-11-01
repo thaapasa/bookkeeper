@@ -18,6 +18,7 @@ import {
   ExpenseQuery,
 } from '../../shared/types/Expense';
 import { toISODate } from '../../shared/util/Time';
+import { filterTruthyProps } from 'shared/util/Objects';
 const client = new FetchClient(() => fetch);
 
 function mapExpense<T extends UserExpense | UserExpenseWithDetails>(e: T): T {
@@ -126,9 +127,10 @@ export class ApiConnect {
   }
 
   public async searchExpenses(query: ExpenseQuery): Promise<UserExpense[]> {
-    return (await this.get<UserExpense[]>(`/api/expense/search`, query)).map(
-      mapExpense
-    );
+    return (await this.get<UserExpense[]>(
+      `/api/expense/search`,
+      filterTruthyProps(query)
+    )).map(mapExpense);
   }
 
   public getExpense(id: number | string): Promise<UserExpenseWithDetails> {

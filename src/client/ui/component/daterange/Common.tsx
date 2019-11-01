@@ -55,7 +55,17 @@ export function prevMonth(year: number, month: number): [number, number] {
 }
 
 export const NumberInput = styled(TextField)`
-  width: 80px;
+  width: 85px;
+  &.month {
+    width: 75px;
+  }
+  margin: 0 2px;
+  &:first-of-type {
+    margin-left: 0;
+  }
+  &:last-of-type {
+    margin-right: 0;
+  }
 `;
 
 export const StyledIconButton = styled(IconButton)`

@@ -63,6 +63,7 @@ export function MonthSelector(props: SelectorProps) {
         <NavigateLeft color="primary" />
       </StyledIconButton>
       <NumberInput
+        className="year"
         value={year}
         label="Vuosi"
         variant="filled"
@@ -70,6 +71,7 @@ export function MonthSelector(props: SelectorProps) {
         onChange={changeYear}
       />
       <NumberInput
+        className="month"
         value={month}
         label="Kuukausi"
         variant="filled"

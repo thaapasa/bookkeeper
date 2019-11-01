@@ -5,9 +5,13 @@ import { Category } from '../../../shared/types/Session';
 import AutoComplete from '../component/AutoComplete';
 import { eventValue } from '../../util/ClientUtil';
 import { CircularProgress } from '@material-ui/core';
-import { ExpenseQuery } from 'shared/types/Expense';
+import { ExpenseQuery } from '../../../shared/types/Expense';
 import { DateRangeSelector } from '../component/daterange/DateRangeSelector';
-import { TypedDateRange, toDateRangeName } from 'shared/util/Time';
+import {
+  TypedDateRange,
+  toDateRangeName,
+  toISODate,
+} from '../../../shared/util/Time';
 
 interface QueryViewProps {
   categories: Category[];
@@ -41,45 +45,56 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
     this.inputBus.onValue(input => this.setState({ input }));
     this.dateRangeBus.onValue(dateRange => this.setState({ dateRange }));
     B.combineTemplate({
-      search: this.inputBus.debounce(300),
+      search: this.inputBus.debounce(300).toProperty(''),
       dateRange: this.dateRangeBus.toProperty(undefined),
-    }).onValue(v => this.doSearch(v));
+    }).onValue(v =>
+      this.doSearch({
+        search: v.search,
+        startDate: v.dateRange && toISODate(v.dateRange.start),
+        endDate: v.dateRange && toISODate(v.dateRange.end),
+      })
+    );
   }
 
   render() {
     return (
       <QueryArea>
-        <Row>
-          <AutoComplete
-            id="search-terms"
-            label="Hakuehdot"
-            value={this.state.input}
-            onChange={this.onChange}
-            fullWidth={true}
-            suggestions={this.state.categorySuggestions}
-            onUpdateSuggestions={this.updateSuggestions}
-            onSelectSuggestion={this.selectSuggestion}
-            getSuggestionValue={this.getSuggestionValue}
-            onClearSuggestions={this.clearSuggestions}
+        <Block>
+          <Row>
+            <AutoComplete
+              id="search-terms"
+              label="Hakuehdot"
+              value={this.state.input}
+              onChange={this.onChange}
+              fullWidth={true}
+              suggestions={this.state.categorySuggestions}
+              onUpdateSuggestions={this.updateSuggestions}
+              onSelectSuggestion={this.selectSuggestion}
+              getSuggestionValue={this.getSuggestionValue}
+              onClearSuggestions={this.clearSuggestions}
+            />
+            <ProgressArea>
+              {this.props.isSearching ? <CircularProgress size={28} /> : null}
+            </ProgressArea>
+          </Row>
+          <Row>
+            {this.state.dateRange
+              ? `Haetaan ajalta ${toDateRangeName(this.state.dateRange)}`
+              : 'Ei aikaehtoja'}
+          </Row>
+        </Block>
+        <Block>
+          <DateRangeSelector
+            dateRange={this.state.dateRange}
+            onSelectRange={this.selectDateRange}
           />
-          <ProgressArea>
-            {this.props.isSearching ? <CircularProgress size={28} /> : null}
-          </ProgressArea>
-        </Row>
-        <Row>
-          {this.state.dateRange
-            ? `Haetaan ajalta ${toDateRangeName(this.state.dateRange)}`
-            : 'Ei aikaehtoja'}
-        </Row>
-        <DateRangeSelector
-          dateRange={this.state.dateRange}
-          onSelectRange={this.selectDateRange}
-        />
+        </Block>
       </QueryArea>
     );
   }
 
   private doSearch = (query: ExpenseQuery) => {
+    console.log('Update search', query);
     this.props.onSearch(query);
   };
 
@@ -102,15 +117,26 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
   private onChange = (e: string | React.ChangeEvent<{ value: string }>) =>
     this.inputBus.push(eventValue(e));
 
-  private selectDateRange = (dateRange?: TypedDateRange) => {
-    console.log('Set search range', dateRange);
-    this.setState({ dateRange });
-  };
+  private selectDateRange = (dateRange?: TypedDateRange) =>
+    this.dateRangeBus.push(dateRange);
 }
 
 const QueryArea = styled.div`
-  width: 480px;
   margin: 24px 24px 0 24px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+`;
+
+const Block = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: 96px;
+`;
+
+const Row = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 `;
 
 const ProgressArea = styled.div`
@@ -119,10 +145,4 @@ const ProgressArea = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-`;
-
-const Row = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
 `;

@@ -27,7 +27,9 @@ interface SearchViewState {
 }
 
 function isEmptyQuery(q: ExpenseQuery) {
-  return !q.search && !q.categoryId && !q.receiver;
+  return (
+    !q.search && !q.categoryId && !q.receiver && (!q.startDate || !q.endDate)
+  );
 }
 
 class SearchView extends React.Component<SearchViewProps, SearchViewState> {

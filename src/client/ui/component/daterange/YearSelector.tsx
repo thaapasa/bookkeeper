@@ -38,6 +38,7 @@ export function YearSelector(props: SelectorProps) {
         <NavigateLeft color="primary" />
       </StyledIconButton>
       <NumberInput
+        className="year"
         value={year}
         label="Vuosi"
         variant="filled"
