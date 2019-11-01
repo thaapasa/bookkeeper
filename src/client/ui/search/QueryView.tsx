@@ -5,16 +5,24 @@ import { Category } from '../../../shared/types/Session';
 import AutoComplete from '../component/AutoComplete';
 import { eventValue } from '../../util/ClientUtil';
 import { CircularProgress } from '@material-ui/core';
+import { ExpenseQuery } from '../../../shared/types/Expense';
+import { DateRangeSelector } from '../component/daterange/DateRangeSelector';
+import {
+  TypedDateRange,
+  toDateRangeName,
+  toISODate,
+} from '../../../shared/util/Time';
 
 interface QueryViewProps {
   categories: Category[];
-  onSearch: (query: string) => void;
+  onSearch: (query: ExpenseQuery) => void;
   isSearching: boolean;
 }
 
 interface QueryViewState {
   input: string;
   categorySuggestions: Category[];
+  dateRange?: TypedDateRange;
 }
 
 function getCategorySuggestions(
@@ -30,39 +38,64 @@ function getCategorySuggestions(
 
 export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
   public state: QueryViewState = { input: '', categorySuggestions: [] };
-  private inputStream = new B.Bus<string>();
+  private inputBus = new B.Bus<string>();
+  private dateRangeBus = new B.Bus<TypedDateRange | undefined>();
 
   componentDidMount() {
-    this.inputStream.onValue(input => this.setState({ input }));
-    this.inputStream.debounce(300).onValue(this.doSearch);
+    this.inputBus.onValue(input => this.setState({ input }));
+    this.dateRangeBus.onValue(dateRange => this.setState({ dateRange }));
+    B.combineTemplate({
+      search: this.inputBus.debounce(300).toProperty(''),
+      dateRange: this.dateRangeBus.toProperty(undefined),
+    }).onValue(v =>
+      this.doSearch({
+        search: v.search,
+        startDate: v.dateRange && toISODate(v.dateRange.start),
+        endDate: v.dateRange && toISODate(v.dateRange.end),
+      })
+    );
   }
 
   render() {
     return (
       <QueryArea>
-        <Row>
-          <AutoComplete
-            id="search-terms"
-            label="Hakuehdot"
-            value={this.state.input}
-            onChange={this.onChange}
-            fullWidth={true}
-            suggestions={this.state.categorySuggestions}
-            onUpdateSuggestions={this.updateSuggestions}
-            onSelectSuggestion={this.selectSuggestion}
-            getSuggestionValue={this.getSuggestionValue}
-            onClearSuggestions={this.clearSuggestions}
+        <Block>
+          <Row>
+            <AutoComplete
+              id="search-terms"
+              label="Hakuehdot"
+              value={this.state.input}
+              onChange={this.onChange}
+              fullWidth={true}
+              suggestions={this.state.categorySuggestions}
+              onUpdateSuggestions={this.updateSuggestions}
+              onSelectSuggestion={this.selectSuggestion}
+              getSuggestionValue={this.getSuggestionValue}
+              onClearSuggestions={this.clearSuggestions}
+            />
+            <ProgressArea>
+              {this.props.isSearching ? <CircularProgress size={28} /> : null}
+            </ProgressArea>
+          </Row>
+          <Row>
+            {this.state.dateRange
+              ? `Haetaan ajalta ${toDateRangeName(this.state.dateRange)}`
+              : 'Ei aikaehtoja'}
+          </Row>
+        </Block>
+        <Block>
+          <DateRangeSelector
+            dateRange={this.state.dateRange}
+            onSelectRange={this.selectDateRange}
           />
-          <ProgressArea>
-            {this.props.isSearching ? <CircularProgress size={28} /> : null}
-          </ProgressArea>
-        </Row>
+        </Block>
       </QueryArea>
     );
   }
 
-  private doSearch = (input: string) => {
-    this.props.onSearch(input);
+  private doSearch = (query: ExpenseQuery) => {
+    console.log('Update search', query);
+    this.props.onSearch(query);
   };
 
   private clearSuggestions = () => this.setState({ categorySuggestions: [] });
@@ -82,12 +115,28 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
   };
 
   private onChange = (e: string | React.ChangeEvent<{ value: string }>) =>
-    this.inputStream.push(eventValue(e));
+    this.inputBus.push(eventValue(e));
+
+  private selectDateRange = (dateRange?: TypedDateRange) =>
+    this.dateRangeBus.push(dateRange);
 }
 
 const QueryArea = styled.div`
-  width: 480px;
   margin: 24px 24px 0 24px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+`;
+
+const Block = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: 96px;
+`;
+
+const Row = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 `;
 
 const ProgressArea = styled.div`
@@ -96,10 +145,4 @@ const ProgressArea = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-`;
-
-const Row = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
 `;

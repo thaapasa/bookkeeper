@@ -23,10 +23,13 @@ interface SearchViewProps {
 interface SearchViewState {
   isSearching: boolean;
   results: UserExpense[];
+  query?: ExpenseQuery;
 }
 
 function isEmptyQuery(q: ExpenseQuery) {
-  return !q.search && !q.categoryId && !q.receiver;
+  return (
+    !q.search && !q.categoryId && !q.receiver && (!q.startDate || !q.endDate)
+  );
 }
 
 class SearchView extends React.Component<SearchViewProps, SearchViewState> {
@@ -39,8 +42,10 @@ class SearchView extends React.Component<SearchViewProps, SearchViewState> {
   private unsub: Unsubscriber[] = [];
 
   componentDidMount() {
-    const resultsE = this.searchBus.flatMapLatest(q =>
-      isEmptyQuery(q) ? B.once([]) : B.fromPromise(apiConnect.searchExpenses(q))
+    const resultsE = this.searchBus.flatMapLatest(query =>
+      isEmptyQuery(query)
+        ? B.once([])
+        : B.fromPromise(apiConnect.searchExpenses(query))
     );
     this.unsub.push(resultsE.onValue(this.onResults));
     this.unsub.push(resultsE.onError(this.onError));
@@ -63,15 +68,15 @@ class SearchView extends React.Component<SearchViewProps, SearchViewState> {
     );
   }
 
-  private onSearch = (search: string) => {
-    log('Searching for', search);
+  private onSearch = (query: ExpenseQuery) => {
+    log('Searching for', query);
     this.setState({ isSearching: true });
-    this.searchBus.push({ search });
+    this.searchBus.push(query);
   };
 
   private onResults = (results: UserExpense[]) => {
     log('Received results', results);
-    this.setState({ isSearching: false, results });
+    this.setState({ results, isSearching: false });
   };
 
   private onError = (error: any) => {
