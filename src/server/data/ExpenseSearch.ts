@@ -13,13 +13,21 @@ function searchExpenses(tx: IBaseProtocol<any>) {
     query: ExpenseQuery
   ): Promise<UserExpense[]> => {
     log(`Searching for ${JSON.stringify(query)}`);
+    const categoryIds =
+      typeof query.categoryId === 'number'
+        ? [query.categoryId]
+        : query.categoryId || [];
     const expenses = await tx.manyOrNone<UserExpense>(
       basic.expenseSelect(`
       WHERE group_id=$/groupId/
       AND template=false
       AND ($/startDate/ IS NULL OR date::DATE >= $/startDate/::DATE)
       AND ($/endDate/ IS NULL OR date::DATE <= $/endDate/::DATE)
-      AND ($/categoryId/ IS NULL OR category_id=$/categoryId/)
+      ${
+        categoryIds.length > 0
+          ? `AND (category_id IN ($/categoryIds:csv/))`
+          : ''
+      }
       AND ($/receiver/ IS NULL OR receiver=$/receiver/)
       AND (
         $/search/ = ''
@@ -31,7 +39,7 @@ function searchExpenses(tx: IBaseProtocol<any>) {
         groupId,
         startDate: query.startDate,
         endDate: query.endDate,
-        categoryId: query.categoryId,
+        categoryIds,
         receiver: query.receiver,
         search: query.search || '',
       }

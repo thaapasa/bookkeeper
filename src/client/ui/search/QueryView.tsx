@@ -1,10 +1,10 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import * as B from 'baconjs';
+import { CircularProgress, Chip } from '@material-ui/core';
 import { Category } from '../../../shared/types/Session';
 import AutoComplete from '../component/AutoComplete';
 import { eventValue } from '../../util/ClientUtil';
-import { CircularProgress } from '@material-ui/core';
 import { ExpenseQuery } from '../../../shared/types/Expense';
 import { DateRangeSelector } from '../component/daterange/DateRangeSelector';
 import {
@@ -12,6 +12,7 @@ import {
   toDateRangeName,
   toISODate,
 } from '../../../shared/util/Time';
+import { unnest } from '../../../shared/util/Arrays';
 
 interface QueryViewProps {
   categories: Category[];
@@ -23,6 +24,7 @@ interface QueryViewState {
   input: string;
   categorySuggestions: Category[];
   dateRange?: TypedDateRange;
+  selectedCategories: Category[];
 }
 
 function getCategorySuggestions(
@@ -33,13 +35,22 @@ function getCategorySuggestions(
     return [];
   }
   const lowerInput = input.toLowerCase();
-  return categories.filter(c => c.name.toLowerCase().includes(lowerInput));
+  const filter = (c: Category) => c.name.toLowerCase().includes(lowerInput);
+  return [
+    ...categories.filter(filter),
+    ...unnest(categories.map(c => c.children)).filter(filter),
+  ];
 }
 
 export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
-  public state: QueryViewState = { input: '', categorySuggestions: [] };
+  public state: QueryViewState = {
+    input: '',
+    categorySuggestions: [],
+    selectedCategories: [],
+  };
   private inputBus = new B.Bus<string>();
   private dateRangeBus = new B.Bus<TypedDateRange | undefined>();
+  private categoriesBus = new B.Bus<number[]>();
 
   componentDidMount() {
     this.inputBus.onValue(input => this.setState({ input }));
@@ -47,11 +58,13 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
     B.combineTemplate({
       search: this.inputBus.debounce(300).toProperty(''),
       dateRange: this.dateRangeBus.toProperty(undefined),
+      categoryId: this.categoriesBus.toProperty([]),
     }).onValue(v =>
       this.doSearch({
         search: v.search,
         startDate: v.dateRange && toISODate(v.dateRange.start),
         endDate: v.dateRange && toISODate(v.dateRange.end),
+        categoryId: v.categoryId,
       })
     );
   }
@@ -82,6 +95,7 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
               ? `Haetaan ajalta ${toDateRangeName(this.state.dateRange)}`
               : 'Ei aikaehtoja'}
           </Row>
+          {this.renderSelections()}
         </Block>
         <Block>
           <DateRangeSelector
@@ -93,19 +107,50 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
     );
   }
 
+  private renderSelections() {
+    if (this.state.selectedCategories.length < 1) {
+      return null;
+    }
+    return (
+      <Row className="top-margin">
+        {this.state.selectedCategories.map(c => (
+          <Suggestion
+            key={c.id}
+            label={c.name}
+            onDelete={() => this.removeCategory(c)}
+          />
+        ))}
+      </Row>
+    );
+  }
+
   private doSearch = (query: ExpenseQuery) => {
-    console.log('Update search', query);
     this.props.onSearch(query);
   };
 
   private clearSuggestions = () => this.setState({ categorySuggestions: [] });
   private getSuggestionValue = (suggestion: Category) => suggestion.name;
   private selectSuggestion = (suggestion: Category) => {
-    this.setState({ input: suggestion.name });
+    this.setState(
+      s => ({
+        selectedCategories: [...s.selectedCategories, suggestion],
+      }),
+      () =>
+        this.categoriesBus.push(this.state.selectedCategories.map(c => c.id))
+    );
+    this.inputBus.push('');
+  };
+  private removeCategory = (cat: Category) => {
+    this.setState(
+      s => ({
+        selectedCategories: s.selectedCategories.filter(c => c.id !== cat.id),
+      }),
+      () =>
+        this.categoriesBus.push(this.state.selectedCategories.map(c => c.id))
+    );
   };
 
   private updateSuggestions = (search: string) => {
-    console.log('Update suggestions', search);
     this.setState({
       categorySuggestions: getCategorySuggestions(
         this.props.categories,
@@ -137,6 +182,20 @@ const Row = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+
+  &.top-margin {
+    margin-top: 8px;
+  }
+`;
+
+const Suggestion = styled(Chip)`
+  margin: 0 4px;
+  &:first-of-type {
+    margin-left: 0;
+  }
+  &:last-of-type {
+    margin-right: 0;
+  }
 `;
 
 const ProgressArea = styled.div`

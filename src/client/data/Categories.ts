@@ -1,7 +1,7 @@
 import * as B from 'baconjs';
 import { sourceMapE, userMapE, validSessionE } from '../../client/data/Login';
 import { Category, Source, User } from '../../shared/types/Session';
-import { flatten } from '../../shared/util/Arrays';
+import { unnest } from '../../shared/util/Arrays';
 
 export interface CategoryDataSource {
   value: number;
@@ -27,7 +27,7 @@ function catToDataSource(
   categoryMap: Record<string, Category>
 ): CategoryDataSource[] {
   return arr
-    ? flatten(
+    ? unnest(
         arr.map(c =>
           [
             { value: c.id, text: getFullCategoryName(c.id, categoryMap) },

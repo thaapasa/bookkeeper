@@ -27,8 +27,11 @@ interface SearchViewState {
 }
 
 function isEmptyQuery(q: ExpenseQuery) {
+  const hasCategory =
+    typeof q.categoryId === 'number' ||
+    (typeof q.categoryId === 'object' && q.categoryId.length > 0);
   return (
-    !q.search && !q.categoryId && !q.receiver && (!q.startDate || !q.endDate)
+    !q.search && !hasCategory && !q.receiver && (!q.startDate || !q.endDate)
   );
 }
 

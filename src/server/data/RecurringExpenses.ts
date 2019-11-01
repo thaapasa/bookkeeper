@@ -11,7 +11,7 @@ import {
   RecurringExpensePeriod,
   RecurringExpenseTarget,
 } from '../../shared/types/Expense';
-import { flatten } from '../../shared/util/Arrays';
+import { unnest } from '../../shared/util/Arrays';
 import {
   DateLike,
   toISODate,
@@ -303,7 +303,7 @@ async function createDivisionForRecurrence(
 ): Promise<number> {
   const ids = await getRecurringExpenseIds(tx, recurringExpenseId, afterDate);
   await Promise.all(
-    flatten(
+    unnest(
       ids.map(expenseId =>
         division.map(d => storeDivision(tx)(expenseId, d.userId, d.type, d.sum))
       )

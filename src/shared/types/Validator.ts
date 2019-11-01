@@ -1,5 +1,5 @@
 import * as t from 'io-ts';
-import { isRight, either } from 'fp-ts/lib/Either';
+import { isRight, either, isLeft } from 'fp-ts/lib/Either';
 
 export class ValidationError {
   readonly errors: t.Errors;
@@ -47,6 +47,33 @@ export const TIntString = new t.Type<number, string, unknown>(
       }
     }),
   String
+);
+
+const intArrayStringRE = /^\[[0-9]+(,[0-9]+)*\]$/;
+
+export const TIntArrayString = new t.Type<number[], string, unknown>(
+  'IntString',
+  t.array(t.number).is,
+  (u, c) =>
+    either.chain(t.string.validate(u, c), s => {
+      if (s === '[]') {
+        return t.success([]);
+      }
+      if (!intArrayStringRE.test(s)) {
+        return t.failure(u, c, 'cannot parse to int array');
+      }
+      const ints = s.substr(1, s.length - 2).split(',');
+      const res: number[] = [];
+      for (const i of ints) {
+        const n = TIntString.decode(i);
+        if (isLeft(n)) {
+          return t.failure(u, c, `cannot convert ${n} to number`);
+        }
+        res.push(n.right);
+      }
+      return t.success(res);
+    }),
+  n => '[' + n.join(',') + ']'
 );
 
 export function intStringBetween(min: number, max: number) {

@@ -16,6 +16,7 @@ import {
   ExpenseData,
   RecurringExpenseTarget,
   ExpenseQuery,
+  TExpenseQuery,
 } from '../../shared/types/Expense';
 import { toISODate } from '../../shared/util/Time';
 import { filterTruthyProps } from 'shared/util/Objects';
@@ -129,7 +130,7 @@ export class ApiConnect {
   public async searchExpenses(query: ExpenseQuery): Promise<UserExpense[]> {
     return (await this.get<UserExpense[]>(
       `/api/expense/search`,
-      filterTruthyProps(query)
+      TExpenseQuery.encode(filterTruthyProps(query))
     )).map(mapExpense);
   }
 

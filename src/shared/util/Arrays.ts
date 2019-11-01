@@ -37,11 +37,10 @@ export function last<T>(arr: T[]): T {
   return arr[arr.length - 1];
 }
 
-export function flatten<T>(arr: any): T[] {
-  return arr.reduce(
-    (a: any, b: any) => a.concat(Array.isArray(b) ? flatten(b) : b),
-    []
-  );
+export function unnest<T>(arr: T[][]): T[] {
+  const res: T[] = [];
+  arr.forEach(a => a.forEach(b => res.push(b)));
+  return res;
 }
 
 /** Assume input: Array of [name, value] fields */
