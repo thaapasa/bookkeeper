@@ -11,7 +11,7 @@
     "test-client": "react-scripts test",
     "test": "yarn test-client",
     "build-client": "react-scripts build",
-    "build-server": "tsc",
+    "build-server": "yarn tsc -p ./tsconfig.prod.json",
     "build-all": "yarn update-revision && yarn build-server && yarn build-client",
     "start-server-prod": "DEBUG=bookkeeper* NODE_ENV=production node build-server/server/BookkeeperServer.js",
     "eject-client": "react-scripts eject",
