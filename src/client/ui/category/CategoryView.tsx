@@ -104,13 +104,15 @@ class CategoryView extends React.Component<
     }
     return (
       <PageContentContainer>
-        <CategoryChart chartData={this.state.categoryChartData} />
-        <CategoryTable
-          {...this.props}
-          userData={this.props.userData}
-          onCategoriesChanged={this.refresh}
-          categoryTotals={this.state.categoryTotals}
-        />
+        <div>
+          <CategoryChart chartData={this.state.categoryChartData} />
+          <CategoryTable
+            {...this.props}
+            userData={this.props.userData}
+            onCategoriesChanged={this.refresh}
+            categoryTotals={this.state.categoryTotals}
+          />
+        </div>
       </PageContentContainer>
     );
   }

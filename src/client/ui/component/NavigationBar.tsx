@@ -41,7 +41,7 @@ export default class NavigationBar extends React.Component<NavigationBarProps> {
 
 const Bar = styled(Toolbar)`
   background-color: ${navigationBar};
-  min-height: inherit;
+  min-height: auto;
   position: relative;
 `;
 
