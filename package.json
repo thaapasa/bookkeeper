@@ -14,6 +14,7 @@
     "build-server": "yarn tsc -p ./tsconfig.prod.json",
     "build-all": "yarn update-revision && yarn build-server && yarn build-client",
     "start-server-prod": "DEBUG=bookkeeper* NODE_ENV=production node build-server/server/BookkeeperServer.js",
+    "run-server": "NODE_ENV=production node build-server/server/BookkeeperServer.js",
     "eject-client": "react-scripts eject",
     "update-revision": "sh script/update-revision.sh",
     "lint": "eslint \"src/**/*.ts\" \"src/**/*.tsx\"",
