@@ -1,10 +1,11 @@
 import * as t from 'io-ts';
 import { isRight, either, isLeft } from 'fp-ts/lib/Either';
+import { ioErrorReporter } from '../validation/ioTsErrorReporter';
 
 export class ValidationError {
-  readonly errors: t.Errors;
+  readonly errors: string[];
   readonly value: any;
-  constructor(errors: t.Errors, value: any) {
+  constructor(errors: string[], value: any) {
     this.errors = errors;
     this.value = value;
   }
@@ -15,8 +16,7 @@ export function validate<A, O, I>(type: t.Type<A, O, I>, object: any): A {
   if (isRight(res)) {
     return res.right;
   }
-  const errors = res.left;
-  throw new ValidationError(object, errors);
+  throw new ValidationError(object, ioErrorReporter(res));
 }
 
 export const TNumberString = new t.Type<number, string, unknown>(

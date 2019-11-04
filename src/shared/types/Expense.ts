@@ -52,7 +52,7 @@ export interface ExpenseData {
   categoryId: number;
   confirmed: boolean;
   description: string | null;
-  date: string;
+  date: ISODate;
   receiver: string;
   sourceId: number;
   sum: MoneyLike;

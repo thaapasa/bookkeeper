@@ -19,7 +19,8 @@ import {
   TExpenseQuery,
 } from '../../shared/types/Expense';
 import { toISODate } from '../../shared/util/Time';
-import { filterTruthyProps } from 'shared/util/Objects';
+import { filterTruthyProps } from '../../shared/util/Objects';
+
 const client = new FetchClient(() => fetch);
 
 function mapExpense<T extends UserExpense | UserExpenseWithDetails>(e: T): T {

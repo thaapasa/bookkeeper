@@ -1,5 +1,5 @@
-import { FetchClient } from '../FetchClient';
 import fetch from 'node-fetch';
+import { FetchClient } from '../FetchClient';
 import { Session } from '../../types/Session';
 
 const baseUrl = 'http://localhost:3100';
@@ -53,11 +53,12 @@ function decorateSession(s: Session): SessionWithControl {
   };
 }
 
-export function getSession(
+export async function getSession(
   username: string,
   password: string
 ): Promise<SessionWithControl> {
-  return login(username, password).then(decorateSession);
+  const session = await login(username, password);
+  return decorateSession(session);
 }
 
 export async function refreshSession(refreshToken: string) {
