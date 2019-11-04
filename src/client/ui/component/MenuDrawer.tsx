@@ -52,6 +52,12 @@ class MenuDrawerImpl extends React.Component<MenuDrawerProps, {}> {
             this.props.links.map(l => (
               <MenuLink key={l.label} {...l} onSelect={this.onSelect} />
             ))}
+          <MenuLink
+            label="Päivitä"
+            showInHeader={false}
+            path="/"
+            onSelect={this.onReload}
+          />
         </ItemArea>
         {this.props.links && this.props.links.length > 0 ? <Divider /> : null}
         <ItemArea className="bottom">
@@ -60,6 +66,7 @@ class MenuDrawerImpl extends React.Component<MenuDrawerProps, {}> {
       </Drawer>
     );
   }
+  private onReload = () => window.location.reload(true);
 }
 
 export const MenuDrawer = withRouter(MenuDrawerImpl);
