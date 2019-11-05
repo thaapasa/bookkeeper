@@ -39,6 +39,7 @@ export interface CategoryAndTotals extends Category {
 
 export interface ExpenseShortcut {
   title: string;
+  icon?: string;
   values: Partial<ExpenseInEditor>;
 }
 

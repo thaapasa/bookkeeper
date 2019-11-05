@@ -43,9 +43,19 @@ function addExpense(values: Partial<ExpenseInEditor>) {
 
 const LinkIcon = (props: ExpenseShortcut) => (
   <LinkIconArea onClick={() => addExpense(props.values)}>
-    {props.title.substring(0, 1).toUpperCase()}
+    {props.icon ? (
+      <LinkImage src={props.icon} title={props.title} />
+    ) : (
+      props.title.substring(0, 1).toUpperCase()
+    )}
   </LinkIconArea>
 );
+
+const LinkImage = styled.img`
+  width: 34px;
+  height: 34px;
+  border-radius: 16px;
+`;
 
 const LinksContainer = styled.div`
   position: absolute;
