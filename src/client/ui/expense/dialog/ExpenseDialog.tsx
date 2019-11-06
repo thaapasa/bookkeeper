@@ -189,7 +189,7 @@ export class ExpenseDialog extends React.Component<
       receiver: values.receiver || (e ? e.receiver : ''),
       sum: values.sum ? values.sum : e ? e.sum.toString() : '',
       userId: e ? e.userId : this.props.user.id,
-      date: e ? toDate(e.date) : new Date(),
+      date: values.date || (e ? toDate(e.date) : new Date()),
       benefit:
         values.benefit ||
         (e
@@ -198,8 +198,13 @@ export class ExpenseDialog extends React.Component<
               .map(d => d.userId)
           : this.getDefaultSourceUsers()),
       description: values.description || (e && e.description) || '',
-      confirmed: e ? e.confirmed : true,
-      type: e ? e.type : 'expense',
+      confirmed:
+        values.confirmed !== undefined
+          ? values.confirmed
+          : e
+          ? e.confirmed
+          : true,
+      type: values.type || (e ? e.type : 'expense'),
       subcategories: [],
       errors: {},
       valid: false,

@@ -17,7 +17,6 @@ import ExpenseInfo from '../details/ExpenseInfo';
 import { expenseName } from '../ExpenseHelper';
 import Money from '../../../../shared/util/Money';
 import {
-  Expense,
   UserExpense,
   UserExpenseWithDetails,
   ExpenseDivisionItem,
@@ -201,11 +200,12 @@ export class ExpenseRow extends React.Component<
     }
   };
 
-  private deleteExpense = async (e: Expense) => {
+  private deleteExpense = async () => {
+    const e = this.props.expense;
     try {
       const name = expenseName(e);
       if (e.recurringExpenseId) {
-        return this.deleteRecurringExpense(e);
+        return this.deleteRecurringExpense();
       }
       const b = await confirm<boolean>(
         'Poista kirjaus',
@@ -223,7 +223,8 @@ export class ExpenseRow extends React.Component<
     }
   };
 
-  private deleteRecurringExpense = async (e: Expense) => {
+  private deleteRecurringExpense = async () => {
+    const e = this.props.expense;
     try {
       const name = expenseName(e);
       const target = await confirm<RecurringExpenseTarget | null>(
@@ -252,8 +253,8 @@ export class ExpenseRow extends React.Component<
     }
   };
 
-  private modifyExpense = async (expense: UserExpense) => {
-    const e = await apiConnect.getExpense(expense.id);
+  private modifyExpense = async () => {
+    const e = await apiConnect.getExpense(this.props.expense.id);
     editExpense(e.id);
   };
 
@@ -349,13 +350,13 @@ export class ExpenseRow extends React.Component<
             />
             <ToolIcon
               title="Muokkaa"
-              onClick={() => this.modifyExpense(expense)}
+              onClick={this.modifyExpense}
               icon={Edit}
             />
             <ToolIcon
               className="optional"
               title="Poista"
-              onClick={() => this.deleteExpense(expense)}
+              onClick={this.deleteExpense}
               icon={Delete}
             />
           </ToolColumn>

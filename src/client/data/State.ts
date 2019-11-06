@@ -84,6 +84,10 @@ export function updateExpenses(date: DateLike) {
   return true;
 }
 
+export function createNewExpense(values: Partial<ExpenseInEditor>) {
+  expenseDialogE.push({ expenseId: null, resolve: () => {}, values });
+}
+
 export const needUpdateE = needUpdateBus;
 
 export const navigationBus = new B.Bus<NavigationConfig>();

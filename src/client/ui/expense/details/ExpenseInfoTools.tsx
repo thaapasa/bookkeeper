@@ -1,12 +1,13 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import { IconButton } from '@material-ui/core';
-import { Repeat, Edit, Delete } from '../../Icons';
+import { Repeat, Edit, Delete, Copy } from '../../Icons';
 import {
   confirm,
   updateExpenses,
   notify,
   notifyError,
+  createNewExpense,
 } from '../../../data/State';
 import { expenseName } from '../ExpenseHelper';
 import {
@@ -14,14 +15,19 @@ import {
   RecurringExpensePeriod,
 } from '../../../../shared/types/Expense';
 import apiConnect from '../../../data/ApiConnect';
-import { toDate } from '../../../../shared/util/Time';
+import { toDate, toMoment, ISODatePattern } from '../../../../shared/util/Time';
 import * as colors from '../../Colors';
 import { media } from '../../Styles';
+import Money from '../../../../shared/util/Money';
+import { Category } from '../../../../shared/types/Session';
+import { connect } from '../../component/BaconConnect';
+import { categoryMapE } from '../../../data/Categories';
 
 interface RecurrenceInfoProps {
   expense: UserExpense;
   onModify: (e: UserExpense) => void;
   onDelete: (e: UserExpense) => void;
+  categoryMap: Record<string, Category>;
 }
 
 const styles = {
@@ -37,9 +43,7 @@ const styles = {
   },
 };
 
-export default class ExpenseInfoTools extends React.Component<
-  RecurrenceInfoProps
-> {
+class ExpenseInfoTools extends React.Component<RecurrenceInfoProps> {
   private createRecurring = async () => {
     try {
       const period = await confirm<RecurringExpensePeriod | undefined>(
@@ -71,9 +75,33 @@ export default class ExpenseInfoTools extends React.Component<
     this.props.onDelete(this.props.expense);
   };
 
+  private onCopy = () => {
+    const e = this.props.expense;
+    const cat = this.props.categoryMap[e.categoryId];
+    const subcategoryId = (cat.parentId && e.categoryId) || undefined;
+    const categoryId =
+      (subcategoryId ? cat.parentId : e.categoryId) || undefined;
+    const date = toMoment(e.date, ISODatePattern).toDate();
+    createNewExpense({
+      title: e.title,
+      sum: Money.from(e.sum).toString(),
+      receiver: e.receiver,
+      type: e.type,
+      description: e.description || undefined,
+      date,
+      categoryId,
+      subcategoryId,
+      sourceId: e.sourceId,
+      confirmed: e.confirmed,
+    });
+  };
+
   public render() {
     return (
       <ToolContainer>
+        <IconButton title="Kopioi" style={styles.tool} onClick={this.onCopy}>
+          <Copy style={styles.toolIcon} />
+        </IconButton>
         {this.props.expense.recurringExpenseId ? null : (
           <IconButton
             title="Muuta toistuvaksi"
@@ -119,3 +147,7 @@ const MobileTools = styled.div`
     flex-direction: row;
   `}
 `;
+
+export default connect(categoryMapE.map(categoryMap => ({ categoryMap })))(
+  ExpenseInfoTools
+);

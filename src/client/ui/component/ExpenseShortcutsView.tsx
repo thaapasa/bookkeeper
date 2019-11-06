@@ -3,8 +3,7 @@ import styled from 'styled-components';
 
 import { AddExpenseIcon } from '../icons/AddExpenseIcon';
 import { secondaryColors, navigationBar } from '../Colors';
-import { ExpenseInEditor } from '../../../shared/types/Expense';
-import { expenseDialogE } from '../../../client/data/State';
+import { createNewExpense } from '../../../client/data/State';
 import { ExpenseShortcut } from '../../../shared/types/Session';
 import { connect } from './BaconConnect';
 import { validSessionE } from '../../../client/data/Login';
@@ -37,12 +36,8 @@ export const ExpenseShortcutsView = connect(
   validSessionE.map(s => ({ shortcuts: s.user.expenseShortcuts || [] }))
 )(ExpenseShortcutsViewImpl);
 
-function addExpense(values: Partial<ExpenseInEditor>) {
-  expenseDialogE.push({ expenseId: null, resolve: () => {}, values });
-}
-
 const LinkIcon = (props: ExpenseShortcut) => (
-  <LinkIconArea onClick={() => addExpense(props.values)}>
+  <LinkIconArea onClick={() => createNewExpense(props.values)}>
     {props.icon ? (
       <LinkImage src={props.icon} title={props.title} />
     ) : (

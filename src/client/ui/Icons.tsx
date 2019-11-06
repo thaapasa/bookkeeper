@@ -7,6 +7,7 @@ import ExpandLessSVG from '@material-ui/icons/ExpandLess';
 import ExpandMoreSVG from '@material-ui/icons/ExpandMore';
 import DeleteSVG from '@material-ui/icons/Delete';
 import EditSVG from '@material-ui/icons/Edit';
+import FileCopySVG from '@material-ui/icons/FileCopy';
 import RepeatSVG from '@material-ui/icons/Repeat';
 import ContentAdd from '@material-ui/icons/Add';
 import RedoSVG from '@material-ui/icons/Redo';
@@ -39,6 +40,7 @@ export const Add = ContentAdd;
 export const PlusCircle = AddCircleSVG;
 export const Recurring = AutoRenewSVG;
 export const MenuIcon = MenuIconSVG;
+export const Copy = FileCopySVG;
 
 export function ExpenseTypeIcon(props: {
   type: ExpenseType;

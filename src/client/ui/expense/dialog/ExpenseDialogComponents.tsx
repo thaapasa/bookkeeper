@@ -63,13 +63,10 @@ export function SourceSelector(props: {
   );
 }
 
-export class TypeSelector extends React.Component<
-  {
-    value: ExpenseType;
-    onChange: (s: ExpenseType) => void;
-  },
-  {}
-> {
+export class TypeSelector extends React.Component<{
+  value: ExpenseType;
+  onChange: (s: ExpenseType) => void;
+}> {
   private toggle = () => {
     const toggled =
       expenseTypes[

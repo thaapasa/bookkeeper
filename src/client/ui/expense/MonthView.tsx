@@ -1,7 +1,7 @@
 import * as React from 'react';
 import ExpenseTable from './ExpenseTable';
 import apiConnect from '../../data/ApiConnect';
-import { unsubscribeAll } from '../../util/ClientUtil';
+import { unsubscribeAll, Unsubscriber } from '../../util/ClientUtil';
 import { UserExpense, ExpenseStatus } from '../../../shared/types/Expense';
 import { zeroStatus } from './ExpenseHelper';
 import { History } from 'history';
@@ -29,7 +29,7 @@ export default class MonthView extends React.PureComponent<
   MonthViewProps,
   MonthViewState
 > {
-  private unsub: any[] = [];
+  private unsub: Unsubscriber[] = [];
 
   public state: MonthViewState = {
     loading: false,
