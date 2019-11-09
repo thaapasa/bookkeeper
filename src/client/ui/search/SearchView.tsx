@@ -11,7 +11,7 @@ import { ExpenseQuery, UserExpense } from '../../../shared/types/Expense';
 import apiConnect from '../../data/ApiConnect';
 import { unsubscribeAll, Unsubscriber } from '../../util/ClientUtil';
 import { ResultsView } from './ResultsView';
-import { noop } from '../../../shared/util/Util';
+import { needUpdateE } from 'client/data/State';
 
 const log = debug('bookkeeper:expense-search');
 
@@ -42,16 +42,20 @@ class SearchView extends React.Component<SearchViewProps, SearchViewState> {
   };
 
   private searchBus = new B.Bus<ExpenseQuery>();
+  private repeatSearchBus = new B.Bus<true>();
   private unsub: Unsubscriber[] = [];
 
   componentDidMount() {
-    const resultsE = this.searchBus.flatMapLatest(query =>
-      isEmptyQuery(query)
-        ? B.once([])
-        : B.fromPromise(apiConnect.searchExpenses(query))
-    );
+    const resultsE = this.searchBus
+      .sampledBy(B.mergeAll<any>(this.searchBus, this.repeatSearchBus))
+      .flatMapLatest(query =>
+        isEmptyQuery(query)
+          ? B.once([])
+          : B.fromPromise(apiConnect.searchExpenses(query))
+      );
     this.unsub.push(resultsE.onValue(this.onResults));
     this.unsub.push(resultsE.onError(this.onError));
+    this.unsub.push(needUpdateE.onValue(this.onRepeatSearch));
   }
 
   componentWillUnmount() {
@@ -66,10 +70,18 @@ class SearchView extends React.Component<SearchViewProps, SearchViewState> {
           onSearch={this.onSearch}
           isSearching={this.state.isSearching}
         />
-        <ResultsView results={this.state.results} onUpdate={noop} />
+        <ResultsView
+          results={this.state.results}
+          onUpdate={this.onRepeatSearch}
+        />
       </PageContentContainer>
     );
   }
+
+  private onRepeatSearch = () => {
+    log('Repeating search');
+    this.repeatSearchBus.push(true);
+  };
 
   private onSearch = (query: ExpenseQuery) => {
     log('Searching for', query);

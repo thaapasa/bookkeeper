@@ -10,6 +10,7 @@ import { userDataE, UserDataProps } from 'client/data/Categories';
 import {
   ExpenseTableLayout,
   AllColumns,
+  Row,
 } from '../expense/row/ExpenseTableLayout';
 import { toMoment } from 'shared/util/Time';
 import { Moment } from 'moment';
@@ -51,7 +52,9 @@ class ResultsViewImpl extends React.Component<ResultsProps> {
             const header =
               showYears &&
               (!lastResDate || !lastResDate.isSame(mom, 'year')) ? (
-                <YearHeader>Vuosi {mom.year()}</YearHeader>
+                <Row>
+                  <YearHeader>Vuosi {mom.year()}</YearHeader>
+                </Row>
               ) : null;
             lastResDate = mom;
             return (
