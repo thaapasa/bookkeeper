@@ -122,12 +122,11 @@ const StandardTextField = styled(TextField)`
 
 const FloatingPaper = styled(Paper)`
   position: absolute;
-  padding-right: 32px;
   z-index: 2;
 `;
 
 const Item = styled.div`
-  padding: 4px 8px;
+  padding: 12px 24px;
   &.highlight {
     background: ${highlightBg};
     color: ${highlightFg};
