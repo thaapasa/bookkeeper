@@ -21,6 +21,7 @@ import {
   newExpensePath,
   infoPagePath,
   searchPagePath,
+  shortcutsPage,
 } from '../../util/Links';
 import { colorScheme } from '../Colors';
 import { Size } from '../Types';
@@ -30,6 +31,8 @@ import {
   isMobileSize,
 } from '../Styles';
 import { NewExpenseView } from '../expense/NewExpenseView';
+import ShortcutsView from './ShortcutsView';
+import FrontpageView from '../expense/FrontpageView';
 
 interface PageProps {
   session: Session;
@@ -37,6 +40,7 @@ interface PageProps {
 }
 
 const appLinks: AppLink[] = [
+  { label: 'Linkit', path: shortcutsPage, showInHeader: false },
   { label: 'Kulut', path: expensePagePath, showInHeader: true },
   { label: 'Kategoriat', path: categoryPagePath, showInHeader: true },
   { label: 'Haku', path: searchPagePath, showInHeader: true },
@@ -71,10 +75,11 @@ export default class BookkeeperPage extends React.Component<PageProps, {}> {
                   path={categoryViewMonthPattern('month')}
                   component={RoutedCategoryView}
                 />
+                <Route path={shortcutsPage} component={ShortcutsView} />
                 <Route path={categoryPagePath} component={RoutedCategoryView} />
                 <Route path={searchPagePath} component={SearchView} />
                 <Route path={infoPagePath} component={InfoView} />
-                <Route exact={true} path="/" component={RoutedMonthView} />
+                <Route exact={true} path="/" component={FrontpageView} />
               </Switch>
             </MainContent>
           </ContentContainer>

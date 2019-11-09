@@ -8,6 +8,38 @@ import { ExpenseShortcut } from '../../../shared/types/Session';
 import { connect } from './BaconConnect';
 import { validSessionE } from '../../../client/data/Login';
 
+class ExpenseShortcutsListImpl extends React.Component<{
+  shortcuts: ExpenseShortcut[];
+  showTitles?: boolean;
+}> {
+  get height() {
+    return 40 + (34 + 12) * this.props.shortcuts.length;
+  }
+
+  render() {
+    const titles = this.props.showTitles === true;
+    return (
+      <LinksArea className={titles ? 'with-titles' : ''}>
+        {titles ? (
+          <TitledRow>
+            <AddExpenseIcon />
+            <Title>Uusi kirjaus</Title>
+          </TitledRow>
+        ) : (
+          <AddExpenseIcon />
+        )}
+        {this.props.shortcuts.map((l, i) =>
+          titles ? (
+            <LinkWithTitle key={i} {...l} />
+          ) : (
+            <LinkIcon key={i} {...l} />
+          )
+        )}
+      </LinksArea>
+    );
+  }
+}
+
 class ExpenseShortcutsViewImpl extends React.Component<{
   shortcuts: ExpenseShortcut[];
 }> {
@@ -21,12 +53,7 @@ class ExpenseShortcutsViewImpl extends React.Component<{
         theme={{ maxHeight: `${this.height}px` }}
         className={this.props.shortcuts.length > 0 ? 'enabled' : 'disabled'}
       >
-        <LinksArea>
-          <AddExpenseIcon />
-          {this.props.shortcuts.map((l, i) => (
-            <LinkIcon key={i} {...l} />
-          ))}
-        </LinksArea>
+        <ExpenseShortcutsListImpl {...this.props} />
       </LinksContainer>
     );
   }
@@ -36,8 +63,14 @@ export const ExpenseShortcutsView = connect(
   validSessionE.map(s => ({ shortcuts: s.user.expenseShortcuts || [] }))
 )(ExpenseShortcutsViewImpl);
 
-const LinkIcon = (props: ExpenseShortcut) => (
-  <LinkIconArea onClick={() => createNewExpense(props.values)}>
+export const ExpenseShortcutsList = connect(
+  validSessionE.map(s => ({ shortcuts: s.user.expenseShortcuts || [] }))
+)(ExpenseShortcutsListImpl);
+
+const LinkIcon = (props: ExpenseShortcut & { noClick?: boolean }) => (
+  <LinkIconArea
+    onClick={() => !props.noClick && createNewExpense(props.values)}
+  >
     {props.icon ? (
       <LinkImage src={props.icon} title={props.title} />
     ) : (
@@ -46,10 +79,29 @@ const LinkIcon = (props: ExpenseShortcut) => (
   </LinkIconArea>
 );
 
+const LinkWithTitle = (props: ExpenseShortcut) => (
+  <TitledRow onClick={() => createNewExpense(props.values)}>
+    <LinkIcon {...props} noClick />
+    <Title>{props.title}</Title>
+  </TitledRow>
+);
+
 const LinkImage = styled.img`
   width: 34px;
   height: 34px;
   border-radius: 16px;
+`;
+
+const TitledRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+`;
+const Title = styled.div`
+  font-size: 14px;
+  margin-left: 8px;
+  color: ${secondaryColors.dark};
 `;
 
 const LinksContainer = styled.div`
@@ -74,11 +126,16 @@ const LinksArea = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  &.with-titles {
+    align-items: flex-start;
+  }
 `;
 
 const LinkIconArea = styled.div`
   width: 34px;
   height: 34px;
+  margin: 0 4px;
   background-color: ${secondaryColors.standard};
   border-radius: 18px;
   display: flex;
