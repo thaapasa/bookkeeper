@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as B from 'baconjs';
 import debug from 'debug';
-import { Session } from '../../../shared/types/Session';
+import { Session, Category } from '../../../shared/types/Session';
 import { connect } from '../component/BaconConnect';
 import { userDataE, UserDataProps } from '../../data/Categories';
 import { validSessionE } from '../../data/Login';
@@ -44,6 +44,7 @@ class SearchView extends React.Component<SearchViewProps, SearchViewState> {
   private searchBus = new B.Bus<ExpenseQuery>();
   private repeatSearchBus = new B.Bus<true>();
   private unsub: Unsubscriber[] = [];
+  private queryRef = React.createRef<QueryView>();
 
   componentDidMount() {
     const resultsE = this.searchBus
@@ -66,6 +67,7 @@ class SearchView extends React.Component<SearchViewProps, SearchViewState> {
     return (
       <PageContentContainer>
         <QueryView
+          ref={this.queryRef}
           categories={this.props.session.categories}
           onSearch={this.onSearch}
           isSearching={this.state.isSearching}
@@ -73,6 +75,7 @@ class SearchView extends React.Component<SearchViewProps, SearchViewState> {
         <ResultsView
           results={this.state.results}
           onUpdate={this.onRepeatSearch}
+          onSelectCategory={this.onAddCategoryToSearch}
         />
       </PageContentContainer>
     );
@@ -87,6 +90,12 @@ class SearchView extends React.Component<SearchViewProps, SearchViewState> {
     log('Searching for', query);
     this.setState({ isSearching: true });
     this.searchBus.push(query);
+  };
+
+  private onAddCategoryToSearch = (cat: Category) => {
+    if (this.queryRef.current) {
+      this.queryRef.current.addCategory(cat);
+    }
   };
 
   private onResults = (results: UserExpense[]) => {

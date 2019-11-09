@@ -14,10 +14,12 @@ import {
 } from '../expense/row/ExpenseTableLayout';
 import { toMoment } from 'shared/util/Time';
 import { Moment } from 'moment';
+import { Category } from 'shared/types/Session';
 
 interface ResultsProps {
   results: UserExpense[];
   onUpdate: () => void;
+  onSelectCategory: (cat: Category) => void;
   userData: UserDataProps;
 }
 
@@ -64,6 +66,7 @@ class ResultsViewImpl extends React.Component<ResultsProps> {
                   expense={e}
                   onUpdated={this.props.onUpdate}
                   addFilter={noop}
+                  selectCategory={this.props.onSelectCategory}
                   userData={this.props.userData}
                 />
               </React.Fragment>

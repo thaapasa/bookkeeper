@@ -76,6 +76,7 @@ const TextButton = styled.button`
 interface CommonExpenseRowProps {
   expense: UserExpense;
   onUpdated: (expense: UserExpense) => void;
+  selectCategory?: (categorey: Category) => void;
   addFilter: (
     filter: ExpenseFilterFunction,
     name: string,
@@ -105,19 +106,24 @@ export class ExpenseRow extends React.Component<
     isLoading: false,
   };
 
+  private onClickCategory = (cat: Category) => {
+    if (this.props.selectCategory) {
+      this.props.selectCategory(cat);
+    }
+    this.props.addFilter(
+      e =>
+        e.categoryId === cat.id ||
+        this.props.categoryMap[e.categoryId].parentId === cat.id,
+      getFullCategoryName(cat.id, this.props.categoryMap)
+    );
+  };
+
   private categoryLink(id: number) {
     const cat = this.props.categoryMap[id];
     return (
       <TextButton
         key={cat.id}
-        onClick={() =>
-          this.props.addFilter(
-            e =>
-              e.categoryId === cat.id ||
-              this.props.categoryMap[e.categoryId].parentId === cat.id,
-            getFullCategoryName(cat.id, this.props.categoryMap)
-          )
-        }
+        onClick={() => this.onClickCategory(cat)}
         style={{ color: colors.action }}
       >
         {cat.name}

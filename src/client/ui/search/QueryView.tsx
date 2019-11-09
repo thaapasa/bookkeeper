@@ -69,6 +69,10 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
     );
   }
 
+  addCategory = (cat: Category) => {
+    this.selectSuggestion(cat);
+  };
+
   render() {
     return (
       <QueryArea>
