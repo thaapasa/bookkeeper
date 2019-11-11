@@ -28,7 +28,7 @@ function searchExpenses(tx: IBaseProtocol<any>) {
           ? `AND (category_id IN ($/categoryIds:csv/))`
           : ''
       }
-      AND ($/receiver/ IS NULL OR receiver=$/receiver/)
+      ${query.receiver ? `AND (receiver ILIKE '%$/receiver:value/%')` : ''}
       AND (
         $/search/ = ''
         OR title ILIKE '%$/search:value/%'

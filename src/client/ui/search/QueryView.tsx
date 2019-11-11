@@ -20,17 +20,41 @@ interface QueryViewProps {
   isSearching: boolean;
 }
 
+interface CategorySuggestion {
+  id: number;
+  type: 'category';
+  category: Category;
+}
+
+interface ReceiverSuggestion {
+  id: number;
+  type: 'receiver';
+  receiver: string;
+}
+
+function isReceiverSuggestion(x: Suggestion): x is ReceiverSuggestion {
+  return x.type === 'receiver';
+}
+
+type Suggestion = CategorySuggestion | ReceiverSuggestion;
+
+function isSameSuggestion(s1: Suggestion, s2: Suggestion) {
+  return s1.type === s2.type && s1.id === s2.id;
+}
+
+let receiverId = 1;
+
 interface QueryViewState {
   input: string;
-  categorySuggestions: Category[];
+  suggestions: Suggestion[];
   dateRange?: TypedDateRange;
-  selectedCategories: Category[];
+  selectedSuggestions: Suggestion[];
 }
 
 function getCategorySuggestions(
   categories: Category[],
   input: string
-): Category[] {
+): CategorySuggestion[] {
   if (!input || input.length < 1) {
     return [];
   }
@@ -39,29 +63,32 @@ function getCategorySuggestions(
   return [
     ...categories.filter(filter),
     ...unnest(categories.map(c => c.children)).filter(filter),
-  ];
+  ].map(category => ({ type: 'category', category, id: category.id }));
 }
 
 export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
   public state: QueryViewState = {
     input: '',
-    categorySuggestions: [],
-    selectedCategories: [],
+    suggestions: [],
+    selectedSuggestions: [],
   };
   private inputBus = new B.Bus<string>();
   private dateRangeBus = new B.Bus<TypedDateRange | undefined>();
   private categoriesBus = new B.Bus<number[]>();
+  private receiverBus = new B.Bus<string | undefined>();
 
   componentDidMount() {
     this.inputBus.onValue(input => this.setState({ input }));
     this.dateRangeBus.onValue(dateRange => this.setState({ dateRange }));
     B.combineTemplate({
       search: this.inputBus.debounce(300).toProperty(''),
+      receiver: this.receiverBus.toProperty(undefined),
       dateRange: this.dateRangeBus.toProperty(undefined),
       categoryId: this.categoriesBus.toProperty([]),
     }).onValue(v =>
       this.doSearch({
         search: v.search,
+        receiver: v.receiver,
         startDate: v.dateRange && toISODate(v.dateRange.start),
         endDate: v.dateRange && toISODate(v.dateRange.end),
         categoryId: v.categoryId,
@@ -69,8 +96,8 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
     );
   }
 
-  addCategory = (cat: Category) => {
-    this.selectSuggestion(cat);
+  addCategory = (category: Category) => {
+    this.selectSuggestion({ type: 'category', category, id: category.id });
   };
 
   render() {
@@ -84,7 +111,7 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
               value={this.state.input}
               onChange={this.onChange}
               fullWidth={true}
-              suggestions={this.state.categorySuggestions}
+              suggestions={this.state.suggestions}
               onUpdateSuggestions={this.updateSuggestions}
               onSelectSuggestion={this.selectSuggestion}
               getSuggestionValue={this.getSuggestionValue}
@@ -112,16 +139,16 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
   }
 
   private renderSelections() {
-    if (this.state.selectedCategories.length < 1) {
+    if (this.state.selectedSuggestions.length < 1) {
       return null;
     }
     return (
       <Row className="top-margin">
-        {this.state.selectedCategories.map(c => (
+        {this.state.selectedSuggestions.map(c => (
           <Suggestion
             key={c.id}
-            label={c.name}
-            onDelete={() => this.removeCategory(c)}
+            label={this.getSuggestionValue(c)}
+            onDelete={() => this.removeSelection(c)}
           />
         ))}
       </Row>
@@ -132,34 +159,57 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
     this.props.onSearch(query);
   };
 
-  private clearSuggestions = () => this.setState({ categorySuggestions: [] });
-  private getSuggestionValue = (suggestion: Category) => suggestion.name;
-  private selectSuggestion = (suggestion: Category) => {
+  private clearSuggestions = () => this.setState({ suggestions: [] });
+  private getSuggestionValue = (suggestion: Suggestion) =>
+    suggestion.type === 'category'
+      ? suggestion.category.name
+      : suggestion.receiver;
+
+  private selectSuggestion = (suggestion: Suggestion) => {
     this.setState(
       s => ({
-        selectedCategories: [...s.selectedCategories, suggestion],
+        selectedSuggestions: [
+          ...(suggestion.type === 'receiver'
+            ? s.selectedSuggestions.filter(s => s.type !== 'receiver')
+            : s.selectedSuggestions),
+          suggestion,
+        ],
       }),
-      () =>
-        this.categoriesBus.push(this.state.selectedCategories.map(c => c.id))
+      this.pushSelections
     );
     this.inputBus.push('');
   };
-  private removeCategory = (cat: Category) => {
+
+  private removeSelection = (suggestion: Suggestion) => {
     this.setState(
       s => ({
-        selectedCategories: s.selectedCategories.filter(c => c.id !== cat.id),
+        selectedSuggestions: s.selectedSuggestions.filter(
+          c => !isSameSuggestion(c, suggestion)
+        ),
       }),
-      () =>
-        this.categoriesBus.push(this.state.selectedCategories.map(c => c.id))
+      this.pushSelections
     );
   };
 
+  private pushSelections = () => {
+    this.categoriesBus.push(
+      this.state.selectedSuggestions
+        .filter(s => s.type === 'category')
+        .map(c => c.id)
+    );
+    const receiver = this.state.selectedSuggestions.find(isReceiverSuggestion);
+    this.receiverBus.push(receiver ? receiver.receiver : undefined);
+  };
+
   private updateSuggestions = (search: string) => {
+    const receiverSuggestions: ReceiverSuggestion[] = search
+      ? [{ type: 'receiver', receiver: search, id: receiverId++ }]
+      : [];
     this.setState({
-      categorySuggestions: getCategorySuggestions(
-        this.props.categories,
-        search
-      ),
+      suggestions: [
+        ...receiverSuggestions,
+        ...getCategorySuggestions(this.props.categories, search),
+      ],
     });
   };
 
