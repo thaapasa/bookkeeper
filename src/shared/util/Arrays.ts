@@ -85,3 +85,7 @@ export function partition<T>(
     [[], []]
   );
 }
+
+export function typedFilter<S, T>(f: (x: any) => x is T, arr: S[]): T[] {
+  return arr.filter(f) as any;
+}
