@@ -74,18 +74,20 @@ function createRecurring(
           return [{ ...expense, template: true }, division];
         }
       );
-      const recurringExpenseId = (await tx.one<{ id: number }>(
-        `
+      const recurringExpenseId = (
+        await tx.one<{ id: number }>(
+          `
 INSERT INTO recurring_expenses (template_expense_id, period, next_missing, group_id)
 VALUES ($/templateId/::INTEGER, $/period/, $/nextMissing/::DATE, $/groupId/)
 RETURNING id`,
-        {
-          templateId,
-          period: recurrence.period,
-          nextMissing: toISODate(nextMissing),
-          groupId,
-        }
-      )).id;
+          {
+            templateId,
+            period: recurrence.period,
+            nextMissing: toISODate(nextMissing),
+            groupId,
+          }
+        )
+      ).id;
 
       await tx.none(
         `
@@ -285,14 +287,16 @@ async function getRecurringExpenseIds(
   recurringExpenseId: number,
   afterDate: DateLike | null
 ): Promise<number[]> {
-  return (await tx.manyOrNone<{ id: number }>(
-    `
+  return (
+    await tx.manyOrNone<{ id: number }>(
+      `
 SELECT id
 FROM expenses
 WHERE recurring_expense_id=$/recurringExpenseId/
   AND (template=true OR $/afterDate/::DATE IS NULL OR date >= $/afterDate/::DATE)`,
-    { recurringExpenseId, afterDate }
-  )).map(e => e.id);
+      { recurringExpenseId, afterDate }
+    )
+  ).map(e => e.id);
 }
 
 async function createDivisionForRecurrence(

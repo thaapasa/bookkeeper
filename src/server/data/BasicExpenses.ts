@@ -220,8 +220,9 @@ function insert(tx: IBaseProtocol<any>) {
     expense: Expense,
     division: ExpenseDivisionItem[]
   ): Promise<number> => {
-    const expenseId = (await tx.one<{ id: number }>(
-      `
+    const expenseId = (
+      await tx.one<{ id: number }>(
+        `
 INSERT INTO expenses (
   created_by_id, user_id, group_id, date, created, type,
   receiver, sum, title, description, confirmed,
@@ -231,14 +232,15 @@ VALUES (
   $/receiver/, $/sum/::NUMERIC::MONEY, $/title/, $/description/, $/confirmed/::BOOLEAN,
   $/sourceId/::INTEGER, $/categoryId/::INTEGER, $/template/::BOOLEAN, $/recurringExpenseId/)
 RETURNING id`,
-      {
-        ...expense,
-        userId,
-        sum: expense.sum.toString(),
-        template: expense.template || false,
-        recurringExpenseId: expense.recurringExpenseId || null,
-      }
-    )).id;
+        {
+          ...expense,
+          userId,
+          sum: expense.sum.toString(),
+          template: expense.template || false,
+          recurringExpenseId: expense.recurringExpenseId || null,
+        }
+      )
+    ).id;
     await createDivision(tx)(expenseId, division);
     return expenseId;
   };

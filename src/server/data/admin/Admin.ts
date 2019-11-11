@@ -23,20 +23,23 @@ export interface DbStatus {
 
 function getExpenseTypeStatus(tx: IBaseProtocol<any>) {
   return async (groupId: number): Promise<TypeStatus[]> =>
-    (await tx.manyOrNone<TypeStatus>(
-      `
+    (
+      await tx.manyOrNone<TypeStatus>(
+        `
 SELECT COUNT(*) as count, SUM(sum::NUMERIC) AS sum, type
 FROM expenses
 WHERE group_id=$/groupId/
 GROUP BY type`,
-      { groupId }
-    )).map(s => ({ ...s, count: parseInt('' + s.count, 10) }));
+        { groupId }
+      )
+    ).map(s => ({ ...s, count: parseInt('' + s.count, 10) }));
 }
 
 function getInvalidZeroSumRows(tx: IBaseProtocol<any>) {
   return async (groupId: number): Promise<ZeroSumData[]> =>
-    (await tx.manyOrNone<Record<string, string>>(
-      `
+    (
+      await tx.manyOrNone<Record<string, string>>(
+        `
 SELECT id, zerosum FROM
   (SELECT id, SUM(d.sum::NUMERIC) as zerosum
     FROM expenses e
@@ -44,8 +47,9 @@ SELECT id, zerosum FROM
     WHERE e.group_id=$/groupId/
     GROUP BY e.id) data
 WHERE zerosum <> 0`,
-      { groupId }
-    )).map(s => ({ id: parseInt(s.id, 10), zerosum: parseInt(s.zerosum, 10) }));
+        { groupId }
+      )
+    ).map(s => ({ id: parseInt(s.id, 10), zerosum: parseInt(s.zerosum, 10) }));
 }
 
 export async function getDbStatus(groupId: number): Promise<DbStatus> {

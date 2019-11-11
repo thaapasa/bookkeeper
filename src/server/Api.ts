@@ -289,10 +289,12 @@ export function registerAPI(app: Express) {
     '/api/expense/receivers',
     server.processRequest<string[]>(
       async (session, req) =>
-        (await expenses.queryReceivers(
-          session.group.id,
-          validate(TReceiverSearch, req.query).receiver
-        )).map(r => r.receiver),
+        (
+          await expenses.queryReceivers(
+            session.group.id,
+            validate(TReceiverSearch, req.query).receiver
+          )
+        ).map(r => r.receiver),
       true
     )
   );

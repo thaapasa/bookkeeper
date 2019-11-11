@@ -87,13 +87,15 @@ export interface CategoryInput {
 function insert(tx: IBaseProtocol<any>) {
   return async (groupId: number, data: CategoryInput): Promise<number> => {
     log('Creating new category', data);
-    return (await tx.one<{ id: number }>(
-      `
+    return (
+      await tx.one<{ id: number }>(
+        `
 INSERT INTO categories (group_id, parent_id, name)
 VALUES ($/groupId/::INTEGER, $/parentId/::INTEGER, $/name/)
 RETURNING id`,
-      { groupId, parentId: data.parentId || null, name: data.name }
-    )).id;
+        { groupId, parentId: data.parentId || null, name: data.name }
+      )
+    ).id;
   };
 }
 

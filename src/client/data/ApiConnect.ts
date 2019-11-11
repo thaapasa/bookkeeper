@@ -129,10 +129,12 @@ export class ApiConnect {
   }
 
   public async searchExpenses(query: ExpenseQuery): Promise<UserExpense[]> {
-    return (await this.get<UserExpense[]>(
-      `/api/expense/search`,
-      TExpenseQuery.encode(filterTruthyProps(query))
-    )).map(mapExpense);
+    return (
+      await this.get<UserExpense[]>(
+        `/api/expense/search`,
+        TExpenseQuery.encode(filterTruthyProps(query))
+      )
+    ).map(mapExpense);
   }
 
   public getExpense(id: number | string): Promise<UserExpenseWithDetails> {

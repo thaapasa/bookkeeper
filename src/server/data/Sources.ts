@@ -16,25 +16,22 @@ function createGroupObject(rows: SourceData[]): Source[] {
   if (!rows || rows.length < 1) {
     return [];
   }
-  return rows.reduce(
-    (list, v) => {
-      if (
-        (list[list.length - 1] ? list[list.length - 1].id : undefined) !== v.id
-      ) {
-        list.push({
-          id: v.id,
-          name: v.name,
-          abbreviation: v.abbreviation,
-          shares: v.shares,
-          users: [],
-          image: getImage(v.image),
-        });
-      }
-      list[list.length - 1].users.push({ userId: v.userId, share: v.share });
-      return list;
-    },
-    [] as Source[]
-  );
+  return rows.reduce((list, v) => {
+    if (
+      (list[list.length - 1] ? list[list.length - 1].id : undefined) !== v.id
+    ) {
+      list.push({
+        id: v.id,
+        name: v.name,
+        abbreviation: v.abbreviation,
+        shares: v.shares,
+        users: [],
+        image: getImage(v.image),
+      });
+    }
+    list[list.length - 1].users.push({ userId: v.userId, share: v.share });
+    return list;
+  }, [] as Source[]);
 }
 
 const select = `
