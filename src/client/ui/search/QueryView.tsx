@@ -13,6 +13,7 @@ import {
   toISODate,
 } from '../../../shared/util/Time';
 import { unnest } from '../../../shared/util/Arrays';
+import { secondaryColors } from '../Colors';
 
 interface QueryViewProps {
   categories: Category[];
@@ -149,6 +150,7 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
             key={c.id}
             label={this.getSuggestionValue(c)}
             onDelete={() => this.removeSelection(c)}
+            className={c.type}
           />
         ))}
       </Row>
@@ -163,7 +165,7 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
   private getSuggestionValue = (suggestion: Suggestion) =>
     suggestion.type === 'category'
       ? suggestion.category.name
-      : suggestion.receiver;
+      : `Kohde: ${suggestion.receiver}`;
 
   private selectSuggestion = (suggestion: Suggestion) => {
     this.setState(
@@ -249,6 +251,9 @@ const Suggestion = styled(Chip)`
   }
   &:last-of-type {
     margin-right: 0;
+  }
+  &.receiver {
+    background-color: ${secondaryColors.light};
   }
 `;
 
