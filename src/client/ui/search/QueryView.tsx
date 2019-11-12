@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import * as B from 'baconjs';
-import { CircularProgress, Chip } from '@material-ui/core';
+import { CircularProgress, Chip, IconButton } from '@material-ui/core';
 import { Category } from '../../../shared/types/Session';
 import AutoComplete from '../component/AutoComplete';
 import { eventValue } from '../../util/ClientUtil';
@@ -13,7 +13,9 @@ import {
   toISODate,
 } from '../../../shared/util/Time';
 import { unnest } from '../../../shared/util/Arrays';
-import { secondaryColors } from '../Colors';
+import { secondaryColors, gray } from '../Colors';
+import { Search, Delete } from '../Icons';
+import { KeyCodes } from 'client/util/Io';
 
 interface QueryViewProps {
   categories: Category[];
@@ -77,16 +79,24 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
   private dateRangeBus = new B.Bus<TypedDateRange | undefined>();
   private categoriesBus = new B.Bus<number[]>();
   private receiverBus = new B.Bus<string | undefined>();
+  private executeSearchBus = new B.Bus<void>();
 
   componentDidMount() {
     this.inputBus.onValue(input => this.setState({ input }));
     this.dateRangeBus.onValue(dateRange => this.setState({ dateRange }));
-    B.combineTemplate({
-      search: this.inputBus.debounce(300).toProperty(''),
+    const searchTriggers = B.mergeAll<any>(
+      this.executeSearchBus,
+      this.receiverBus,
+      this.dateRangeBus,
+      this.categoriesBus
+    );
+    const searchData = B.combineTemplate({
+      search: this.inputBus.toProperty(''),
       receiver: this.receiverBus.toProperty(undefined),
       dateRange: this.dateRangeBus.toProperty(undefined),
       categoryId: this.categoriesBus.toProperty([]),
-    }).onValue(v =>
+    });
+    searchData.sampledBy(searchTriggers).onValue(v =>
       this.doSearch({
         search: v.search,
         receiver: v.receiver,
@@ -106,6 +116,11 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
       <QueryArea>
         <Block>
           <Row>
+            <ClearIconArea>
+              <IconButton size="small" onClick={this.onClear}>
+                <Delete />
+              </IconButton>
+            </ClearIconArea>
             <AutoComplete
               id="search-terms"
               label="Hakuehdot"
@@ -117,7 +132,14 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
               onSelectSuggestion={this.selectSuggestion}
               getSuggestionValue={this.getSuggestionValue}
               onClearSuggestions={this.clearSuggestions}
+              inputClassName="pad-left"
+              onKeyUp={this.onInputKeyUp}
             />
+            <SearchButtonArea>
+              <IconButton size="small" onClick={this.startSearch}>
+                <Search color="primary" />
+              </IconButton>
+            </SearchButtonArea>
             <ProgressArea>
               {this.props.isSearching ? <CircularProgress size={28} /> : null}
             </ProgressArea>
@@ -157,8 +179,16 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
     );
   }
 
+  private startSearch = () => this.executeSearchBus.push();
+
   private doSearch = (query: ExpenseQuery) => {
     this.props.onSearch(query);
+  };
+
+  private onInputKeyUp = (event: React.KeyboardEvent<any>) => {
+    if (event.keyCode === KeyCodes.enter) {
+      this.startSearch();
+    }
   };
 
   private clearSuggestions = () => this.setState({ suggestions: [] });
@@ -218,6 +248,10 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
   private onChange = (e: string | React.ChangeEvent<{ value: string }>) =>
     this.inputBus.push(eventValue(e));
 
+  private onClear = () => {
+    this.inputBus.push('');
+  };
+
   private selectDateRange = (dateRange?: TypedDateRange) =>
     this.dateRangeBus.push(dateRange);
 }
@@ -226,6 +260,32 @@ const QueryArea = styled.div`
   margin: 24px 24px 0 24px;
   display: grid;
   grid-template-columns: 1fr 1fr;
+`;
+
+const SearchToolArea = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 46px;
+  background-color: #f7f7f7;
+  border: 1px solid ${gray.standard};
+  border-bottom: 1px solid ${gray.dark};
+  border-radius: 4px;
+`;
+
+const ClearIconArea = styled(SearchToolArea)`
+  border-right: none;
+  border-bottom-right-radius: 0;
+  border-top-right-radius: 0;
+`;
+
+const SearchButtonArea = styled(SearchToolArea)`
+  width: 50px;
+  border-left: none;
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
 `;
 
 const Block = styled.div`

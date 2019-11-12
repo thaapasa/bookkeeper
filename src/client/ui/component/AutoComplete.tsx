@@ -28,6 +28,7 @@ export interface AutoCompleteProps<T> {
   label?: string;
   errorText?: string;
   onKeyUp?: (event: React.KeyboardEvent<any>) => void;
+  inputClassName?: string;
 }
 
 export default class AutoComplete<T> extends React.Component<
@@ -110,6 +111,7 @@ export default class AutoComplete<T> extends React.Component<
         error={Boolean(this.props.errorText)}
         helperText={this.props.errorText}
         onChange={this.setInputValue}
+        className={this.props.inputClassName}
       />
     );
   };
@@ -118,6 +120,10 @@ export default class AutoComplete<T> extends React.Component<
 const StandardTextField = styled(TextField)`
   margin: 8px 0;
   position: relative;
+  &.pad-left input,
+  &.pad-left label {
+    padding-left: 8px;
+  }
 `;
 
 const FloatingPaper = styled(Paper)`
