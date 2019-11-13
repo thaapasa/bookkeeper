@@ -10,3 +10,7 @@ export function parseQueryString(query: string): Record<string, string> {
   );
   return res;
 }
+
+export function reloadApp() {
+  document.location.href = `/?refresh=${Math.random()}`;
+}

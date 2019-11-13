@@ -8,6 +8,7 @@ import { colorScheme } from '../Colors';
 import { AppLink } from './NavigationBar';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { Drawer, MenuItem } from '@material-ui/core';
+import { reloadApp } from 'client/util/UrlUtils';
 
 interface MenuDrawerProps extends RouteComponentProps<{}> {
   open: boolean;
@@ -66,7 +67,7 @@ class MenuDrawerImpl extends React.Component<MenuDrawerProps, {}> {
       </Drawer>
     );
   }
-  private onReload = () => window.location.reload(true);
+  private onReload = () => reloadApp();
 }
 
 export const MenuDrawer = withRouter(MenuDrawerImpl);
