@@ -36,8 +36,10 @@ dropdb -h localhost -p ${PORT} -U postgres -w postgres || exit -1
 createdb -h localhost -p ${PORT} -U postgres -w postgres || exit -1
 
 echo "Restoring prod DB dump"
-pg_restore --role=postgres --no-owner -d "$DB_URL" --no-acl <$DUMP || exit -1
+pg_restore --role=postgres --no-owner -d "$DB_URL" --no-acl <$DUMP
 
 rm $DUMP
+
+psql "$DB_URL" -c "UPDATE users set image=case id % 2 when 0 then '2.jpg' else '1.png' end;"
 
 echo "All done!"
