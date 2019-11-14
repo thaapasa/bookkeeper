@@ -11,11 +11,13 @@ import {
   TypedDateRange,
   toDateRangeName,
   toISODate,
+  toMoment,
 } from '../../../shared/util/Time';
 import { unnest } from '../../../shared/util/Arrays';
 import { secondaryColors, gray } from '../Colors';
 import { Search, Delete } from '../Icons';
 import { KeyCodes } from 'client/util/Io';
+import { toYearRange } from '../component/daterange/Common';
 
 interface QueryViewProps {
   categories: Category[];
@@ -74,6 +76,7 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
     input: '',
     suggestions: [],
     selectedSuggestions: [],
+    dateRange: toYearRange(toMoment().year()),
   };
   private inputBus = new B.Bus<string>();
   private dateRangeBus = new B.Bus<TypedDateRange | undefined>();
