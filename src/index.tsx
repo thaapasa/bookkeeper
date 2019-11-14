@@ -7,7 +7,6 @@ import MomentUtils from '@date-io/moment';
 import { ThemeProvider } from '@material-ui/styles';
 import { StylesProvider } from '@material-ui/core/styles';
 import { MuiPickersUtilsProvider } from '@material-ui/pickers';
-import registerServiceWorker from './client/registerServiceWorker';
 import './index.css';
 import App from './client/App';
 import { muiTheme } from './client/ui/Colors';
@@ -23,4 +22,6 @@ ReactDOM.render(
   </StylesProvider>,
   document.getElementById('root') as HTMLElement
 );
-registerServiceWorker();
+
+// Uncomment the following to re-enable the service worker
+// registerServiceWorker();
