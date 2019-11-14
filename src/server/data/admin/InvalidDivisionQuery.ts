@@ -62,7 +62,7 @@ FROM (
         date :: DATE,
         receiver,
         e.type,
-        e.sum :: MONEY :: NUMERIC,
+        e.sum,
         title,
         description,
         confirmed,
@@ -74,22 +74,22 @@ FROM (
         created,
         recurring_expense_id,
         (CASE WHEN d.type = 'cost'
-          THEN d.sum :: NUMERIC
+          THEN d.sum
         ELSE '0.00' :: NUMERIC END) AS cost,
         (CASE WHEN d.type = 'benefit'
-          THEN d.sum :: NUMERIC
+          THEN d.sum
         ELSE '0.00' :: NUMERIC END) AS benefit,
         (CASE WHEN d.type = 'income'
-          THEN d.sum :: NUMERIC
+          THEN d.sum
         ELSE '0.00' :: NUMERIC END) AS income,
         (CASE WHEN d.type = 'split'
-          THEN d.sum :: NUMERIC
+          THEN d.sum
         ELSE '0.00' :: NUMERIC END) AS split,
         (CASE WHEN d.type = 'transferor'
-          THEN d.sum :: NUMERIC
+          THEN d.sum
         ELSE '0.00' :: NUMERIC END) AS transferor,
         (CASE WHEN d.type = 'transferee'
-          THEN d.sum :: NUMERIC
+          THEN d.sum
         ELSE '0.00' :: NUMERIC END) AS transferee
       FROM expenses e
         LEFT JOIN expense_division d ON (d.expense_id = e.id)

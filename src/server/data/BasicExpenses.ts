@@ -33,14 +33,14 @@ SELECT
   SUM(cost + benefit + income + split + transferor + transferee) AS "userValue"
 FROM (
   SELECT
-    id, date::DATE, receiver, e.type, e.sum::MONEY::NUMERIC, title, description, confirmed,
+    id, date::DATE, receiver, e.type, e.sum, title, description, confirmed,
     source_id, e.user_id, created_by_id, group_id, category_id, created, recurring_expense_id,
-    (CASE WHEN d.type = 'cost' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS cost,
-    (CASE WHEN d.type = 'benefit' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS benefit,
-    (CASE WHEN d.type = 'income' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS income,
-    (CASE WHEN d.type = 'split' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS split,
-    (CASE WHEN d.type = 'transferor' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS transferor,
-    (CASE WHEN d.type = 'transferee' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS transferee
+    (CASE WHEN d.type = 'cost' THEN d.sum ELSE '0.00'::NUMERIC END) AS cost,
+    (CASE WHEN d.type = 'benefit' THEN d.sum ELSE '0.00'::NUMERIC END) AS benefit,
+    (CASE WHEN d.type = 'income' THEN d.sum ELSE '0.00'::NUMERIC END) AS income,
+    (CASE WHEN d.type = 'split' THEN d.sum ELSE '0.00'::NUMERIC END) AS split,
+    (CASE WHEN d.type = 'transferor' THEN d.sum ELSE '0.00'::NUMERIC END) AS transferor,
+    (CASE WHEN d.type = 'transferee' THEN d.sum ELSE '0.00'::NUMERIC END) AS transferee
   FROM expenses e
   LEFT JOIN expense_division d ON (d.expense_id = e.id AND d.user_id = $/userId/)
   ${where}
@@ -60,12 +60,12 @@ SELECT
   COALESCE(SUM(transferee), '0.00'::NUMERIC) AS transferee
 FROM (
   SELECT
-    (CASE WHEN d.type = 'cost' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS cost,
-    (CASE WHEN d.type = 'benefit' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS benefit,
-    (CASE WHEN d.type = 'income' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS income,
-    (CASE WHEN d.type = 'split' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS split,
-    (CASE WHEN d.type = 'transferor' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS transferor,
-    (CASE WHEN d.type = 'transferee' THEN d.sum::NUMERIC ELSE '0.00'::NUMERIC END) AS transferee
+    (CASE WHEN d.type = 'cost' THEN d.sum ELSE '0.00'::NUMERIC END) AS cost,
+    (CASE WHEN d.type = 'benefit' THEN d.sum ELSE '0.00'::NUMERIC END) AS benefit,
+    (CASE WHEN d.type = 'income' THEN d.sum ELSE '0.00'::NUMERIC END) AS income,
+    (CASE WHEN d.type = 'split' THEN d.sum ELSE '0.00'::NUMERIC END) AS split,
+    (CASE WHEN d.type = 'transferor' THEN d.sum ELSE '0.00'::NUMERIC END) AS transferor,
+    (CASE WHEN d.type = 'transferee' THEN d.sum ELSE '0.00'::NUMERIC END) AS transferee
   FROM expenses e
   LEFT JOIN expense_division d ON (d.expense_id = e.id AND d.user_id = $/userId/::INTEGER)
   WHERE group_id=$/groupId/::INTEGER AND template=false AND date >= $/startDate/::DATE AND date < $/endDate/::DATE
@@ -167,7 +167,7 @@ export function storeDivision(tx: IBaseProtocol<any>) {
 INSERT INTO expense_division
   (expense_id, user_id, type, sum)
 VALUES
-  ($/expenseId/::INTEGER, $/userId/::INTEGER, $/type/::expense_division_type, $/sum/::NUMERIC::MONEY)`,
+  ($/expenseId/::INTEGER, $/userId/::INTEGER, $/type/::expense_division_type, $/sum/)`,
       { expenseId, userId, type, sum: Money.toString(sum) }
     );
 }
@@ -187,7 +187,7 @@ function getDivision(tx: IBaseProtocol<any>) {
     const items = await tx.manyOrNone<ExpenseDivisionItem>(
       `
 SELECT
-  user_id as "userId", type, sum::MONEY::NUMERIC
+  user_id as "userId", type, sum
 FROM expense_division
 WHERE expense_id=$/expenseId/::INTEGER
 ORDER BY type, user_id`,
@@ -229,7 +229,7 @@ INSERT INTO expenses (
   source_id, category_id, template, recurring_expense_id)
 VALUES (
   $/userId/::INTEGER, $/userId/::INTEGER, $/groupId/::INTEGER, $/date/::DATE, NOW(), $/type/::expense_type,
-  $/receiver/, $/sum/::NUMERIC::MONEY, $/title/, $/description/, $/confirmed/::BOOLEAN,
+  $/receiver/, $/sum/, $/title/, $/description/, $/confirmed/::BOOLEAN,
   $/sourceId/::INTEGER, $/categoryId/::INTEGER, $/template/::BOOLEAN, $/recurringExpenseId/)
 RETURNING id`,
         {
@@ -297,7 +297,7 @@ function updateExpense(tx: IBaseProtocol<any>) {
     await tx.none(
       `
 UPDATE expenses
-SET date=$/date/::DATE, receiver=$/receiver/, sum=$/sum/::NUMERIC::MONEY, title=$/title/,
+SET date=$/date/::DATE, receiver=$/receiver/, sum=$/sum/, title=$/title/,
   description=$/description/, type=$/type/::expense_type, confirmed=$/confirmed/::BOOLEAN,
   source_id=$/sourceId/::INTEGER, category_id=$/categoryId/::INTEGER
 WHERE id=$/id/`,

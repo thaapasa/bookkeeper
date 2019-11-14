@@ -26,7 +26,7 @@ function getExpenseTypeStatus(tx: IBaseProtocol<any>) {
     (
       await tx.manyOrNone<TypeStatus>(
         `
-SELECT COUNT(*) as count, SUM(sum::NUMERIC) AS sum, type
+SELECT COUNT(*) as count, SUM(sum) AS sum, type
 FROM expenses
 WHERE group_id=$/groupId/
 GROUP BY type`,
@@ -41,7 +41,7 @@ function getInvalidZeroSumRows(tx: IBaseProtocol<any>) {
       await tx.manyOrNone<Record<string, string>>(
         `
 SELECT id, zerosum FROM
-  (SELECT id, SUM(d.sum::NUMERIC) as zerosum
+  (SELECT id, SUM(d.sum) as zerosum
     FROM expenses e
       LEFT JOIN expense_division d ON (e.id = d.expense_id)
     WHERE e.group_id=$/groupId/
