@@ -1,6 +1,7 @@
-"use strict";
+'use strict';
 
-exports.up = knex => knex.raw(`
+exports.up = knex =>
+  knex.raw(`
   CREATE EXTENSION pgcrypto;
 
   CREATE TYPE recurring_period AS ENUM ('monthly', 'yearly');
@@ -161,6 +162,7 @@ exports.up = knex => knex.raw(`
   ALTER TABLE expenses ADD COLUMN recurring_expense_id INTEGER REFERENCES recurring_expenses(id) DEFAULT NULL;
 `);
 
-exports.down = knex => knex.raw(`
+exports.down = knex =>
+  knex.raw(`
   DROP TABLE cannot_rollback_this_migration;
 `);
