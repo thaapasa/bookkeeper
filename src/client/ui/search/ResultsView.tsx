@@ -7,14 +7,11 @@ import ExpenseRow from '../expense/row/ExpenseRow';
 import { noop } from '../../../shared/util/Util';
 import { connect } from '../component/BaconConnect';
 import { userDataE, UserDataProps } from 'client/data/Categories';
-import {
-  ExpenseTableLayout,
-  AllColumns,
-  Row,
-} from '../expense/row/ExpenseTableLayout';
+import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
 import { toMoment } from 'shared/util/Time';
-import { Moment } from 'moment';
 import { Category } from 'shared/types/Session';
+import { groupBy } from 'shared/util/Arrays';
+import { typedKeys } from 'shared/util/Objects';
 
 interface ResultsProps {
   results: UserExpense[];
@@ -40,38 +37,47 @@ class ResultsViewImpl extends React.Component<ResultsProps> {
     );
   }
 
+  get resultsByYears(): Record<string, UserExpense[]> | undefined {
+    return this.props.results && this.props.results.length > 0
+      ? groupBy(e => String(toMoment(e.date).year()), this.props.results)
+      : undefined;
+  }
+
   private renderResults() {
-    if (!this.props.results || this.props.results.length < 1) {
+    const results = this.resultsByYears;
+    if (!results) {
       return <Info>Ei tuloksia, tarkista hakuehdot</Info>;
     }
-    const showYears = this.hasResultsFromPreviousYears;
-    let lastResDate: Moment | undefined;
+    const years = typedKeys(results);
+    const showYears = years.length > 1;
+    return showYears
+      ? years.map(y => this.renderYear(y, results[y]))
+      : this.renderExpenses(results[years[0]]);
+  }
+
+  private renderYear(year: string, expenses: UserExpense[]) {
+    return (
+      <React.Fragment key={year}>
+        <YearHeader>Vuosi {year}</YearHeader>
+        {this.renderExpenses(expenses)}
+      </React.Fragment>
+    );
+  }
+
+  private renderExpenses(expenses: UserExpense[]) {
     return (
       <ExpenseTableLayout className="padding">
         <tbody>
-          {this.props.results.map(e => {
-            const mom = toMoment(e.date);
-            const header =
-              showYears &&
-              (!lastResDate || !lastResDate.isSame(mom, 'year')) ? (
-                <Row>
-                  <YearHeader>Vuosi {mom.year()}</YearHeader>
-                </Row>
-              ) : null;
-            lastResDate = mom;
-            return (
-              <React.Fragment key={e.id}>
-                {header}
-                <ExpenseRow
-                  expense={e}
-                  onUpdated={this.props.onUpdate}
-                  addFilter={noop}
-                  selectCategory={this.props.onSelectCategory}
-                  userData={this.props.userData}
-                />
-              </React.Fragment>
-            );
-          })}
+          {expenses.map(e => (
+            <ExpenseRow
+              key={e.id}
+              expense={e}
+              onUpdated={this.props.onUpdate}
+              addFilter={noop}
+              selectCategory={this.props.onSelectCategory}
+              userData={this.props.userData}
+            />
+          ))}
         </tbody>
       </ExpenseTableLayout>
     );
@@ -91,9 +97,9 @@ const Header = styled.div`
   margin: 8px 24px;
 `;
 
-const YearHeader = styled(AllColumns)`
+const YearHeader = styled.div`
   color: ${secondaryColors.dark};
-  padding: 0px 8px;
+  padding: 16px 24px;
   background-color: ${gray.light};
   width: 100%;
   font-size: 16px;

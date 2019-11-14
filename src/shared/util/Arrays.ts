@@ -86,6 +86,21 @@ export function partition<T>(
   );
 }
 
+export function groupBy<T, K extends string>(
+  filter: (item: T) => K,
+  arr: ReadonlyArray<T>
+): Record<K, T[]> {
+  const res: Record<K, T[]> = {} as any;
+  arr.forEach(a => {
+    const key = filter(a);
+    if (!res[key]) {
+      res[key] = [];
+    }
+    res[key].push(a);
+  });
+  return res;
+}
+
 export function typedFilter<S, T>(f: (x: any) => x is T, arr: S[]): T[] {
   return arr.filter(f) as any;
 }
