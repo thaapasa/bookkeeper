@@ -30,9 +30,7 @@ function isEmptyQuery(q: ExpenseQuery) {
   const hasCategory =
     typeof q.categoryId === 'number' ||
     (typeof q.categoryId === 'object' && q.categoryId.length > 0);
-  return (
-    !q.search && !hasCategory && !q.receiver && (!q.startDate || !q.endDate)
-  );
+  return !q.search && !hasCategory && !q.receiver;
 }
 
 class SearchView extends React.Component<SearchViewProps, SearchViewState> {
@@ -105,7 +103,7 @@ class SearchView extends React.Component<SearchViewProps, SearchViewState> {
 
   private onError = (error: any) => {
     log('Got error from search:', error);
-    this.setState({ isSearching: false, results: [] });
+    this.setState({ results: [], isSearching: false });
   };
 }
 
