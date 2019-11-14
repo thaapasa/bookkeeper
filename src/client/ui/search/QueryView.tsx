@@ -144,7 +144,13 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
               </IconButton>
             </SearchButtonArea>
             <ProgressArea>
-              {this.props.isSearching ? <CircularProgress size={28} /> : null}
+              {this.props.isSearching ? (
+                <CircularProgress
+                  size={38}
+                  variant="indeterminate"
+                  disableShrink
+                />
+              ) : null}
             </ProgressArea>
           </Row>
           <Row>
@@ -321,9 +327,10 @@ const Suggestion = styled(Chip)`
 `;
 
 const ProgressArea = styled.div`
-  width: 40px;
-  height: 40px;
+  width: 64px;
+  height: 48px;
+  margin-right: 8px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
 `;
