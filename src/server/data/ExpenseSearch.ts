@@ -23,6 +23,7 @@ function searchExpenses(tx: IBaseProtocol<any>) {
       AND template=false
       AND ($/startDate/ IS NULL OR date::DATE >= $/startDate/::DATE)
       AND ($/endDate/ IS NULL OR date::DATE <= $/endDate/::DATE)
+      AND ($/expenseUserId/ IS NULL OR e.user_id = $/expenseUserId/)
       ${
         categoryIds.length > 0
           ? `AND (category_id IN ($/categoryIds:csv/))`
@@ -37,6 +38,7 @@ function searchExpenses(tx: IBaseProtocol<any>) {
       {
         userId,
         groupId,
+        expenseUserId: query.userId,
         startDate: query.startDate,
         endDate: query.endDate,
         categoryIds,

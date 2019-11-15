@@ -1,8 +1,14 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import * as B from 'baconjs';
-import { CircularProgress, Chip, IconButton } from '@material-ui/core';
-import { Category } from '../../../shared/types/Session';
+import {
+  CircularProgress,
+  Chip,
+  IconButton,
+  Checkbox,
+  FormControlLabel,
+} from '@material-ui/core';
+import { Category, User } from '../../../shared/types/Session';
 import AutoComplete from '../component/AutoComplete';
 import { eventValue } from '../../util/ClientUtil';
 import { ExpenseQuery } from '../../../shared/types/Expense';
@@ -24,6 +30,7 @@ interface QueryViewProps {
   categories: Category[];
   onSearch: (query: ExpenseQuery) => void;
   isSearching: boolean;
+  user: User;
 }
 
 interface CategorySuggestion {
@@ -55,6 +62,7 @@ interface QueryViewState {
   suggestions: Suggestion[];
   dateRange?: TypedDateRange;
   selectedSuggestions: Suggestion[];
+  ownExpenses: boolean;
 }
 
 function getCategorySuggestions(
@@ -78,27 +86,32 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
     suggestions: [],
     selectedSuggestions: [],
     dateRange: toYearRange(toMoment().year()),
+    ownExpenses: false,
   };
   private inputBus = new B.Bus<string>();
   private dateRangeBus = new B.Bus<TypedDateRange | undefined>();
   private categoriesBus = new B.Bus<number[]>();
   private receiverBus = new B.Bus<string | undefined>();
   private executeSearchBus = new B.Bus<void>();
+  private ownExpensesBus = new B.Bus<boolean>();
 
   componentDidMount() {
     this.inputBus.onValue(input => this.setState({ input }));
     this.dateRangeBus.onValue(dateRange => this.setState({ dateRange }));
+    this.ownExpensesBus.onValue(ownExpenses => this.setState({ ownExpenses }));
     const searchTriggers = B.mergeAll<any>(
       this.executeSearchBus,
       this.receiverBus,
       this.dateRangeBus,
-      this.categoriesBus
+      this.categoriesBus,
+      this.ownExpensesBus
     );
     const searchData = B.combineTemplate({
       search: this.inputBus.toProperty(''),
       receiver: this.receiverBus.toProperty(undefined),
       dateRange: this.dateRangeBus.toProperty(undefined),
       categoryId: this.categoriesBus.toProperty([]),
+      ownExpenses: this.ownExpensesBus.toProperty(false),
     });
     searchData.sampledBy(searchTriggers).onValue(v =>
       this.doSearch({
@@ -107,6 +120,7 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
         startDate: v.dateRange && toISODate(v.dateRange.start),
         endDate: v.dateRange && toISODate(v.dateRange.end),
         categoryId: v.categoryId,
+        userId: v.ownExpenses ? this.props.user.id : undefined,
       })
     );
 
@@ -160,6 +174,16 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
             </ProgressArea>
           </Row>
           <Row>
+            <CheckLabel
+              control={
+                <Checkbox
+                  value="foo"
+                  checked={this.state.ownExpenses}
+                  onChange={this.onToggleOwnExpenses}
+                />
+              }
+              label="Vain omat"
+            />
             {this.state.dateRange
               ? `Haetaan ajalta ${toDateRangeName(this.state.dateRange)}`
               : 'Ei aikaehtoja'}
@@ -260,6 +284,9 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
     });
   };
 
+  private onToggleOwnExpenses = (_event: any, checked: boolean) =>
+    this.ownExpensesBus.push(checked);
+
   private onChange = (e: string | React.ChangeEvent<{ value: string }>) =>
     this.inputBus.push(eventValue(e));
 
@@ -339,4 +366,10 @@ const ProgressArea = styled.div`
   display: flex;
   align-items: center;
   justify-content: flex-end;
+`;
+
+const CheckLabel = styled(FormControlLabel)`
+  & span {
+    font-size: 13px;
+  }
 `;

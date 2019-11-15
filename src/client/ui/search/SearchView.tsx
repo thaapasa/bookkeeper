@@ -69,6 +69,7 @@ class SearchView extends React.Component<SearchViewProps, SearchViewState> {
           categories={this.props.session.categories}
           onSearch={this.onSearch}
           isSearching={this.state.isSearching}
+          user={this.props.session.user}
         />
         <ResultsView
           results={this.state.results}

@@ -156,5 +156,6 @@ export const TExpenseQuery = t.partial({
   categoryId: t.union([TIntString, TIntArrayString]),
   startDate: TISODate,
   endDate: TISODate,
+  userId: TIntString,
 });
 export type ExpenseQuery = t.TypeOf<typeof TExpenseQuery>;
