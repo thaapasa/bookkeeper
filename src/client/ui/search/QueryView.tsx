@@ -6,6 +6,7 @@ import { Category } from '../../../shared/types/Session';
 import AutoComplete from '../component/AutoComplete';
 import { eventValue } from '../../util/ClientUtil';
 import { ExpenseQuery } from '../../../shared/types/Expense';
+import { parseQueryString } from '../../util/UrlUtils';
 import { DateRangeSelector } from '../component/daterange/DateRangeSelector';
 import {
   TypedDateRange,
@@ -108,6 +109,11 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
         categoryId: v.categoryId,
       })
     );
+
+    const params = parseQueryString(document.location.search);
+    if (params && params.hae) {
+      this.inputBus.push(params.hae);
+    }
   }
 
   addCategory = (category: Category) => {

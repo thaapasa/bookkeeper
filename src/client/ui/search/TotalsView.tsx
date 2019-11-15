@@ -1,0 +1,81 @@
+import * as React from 'react';
+import styled from 'styled-components';
+import { UserExpense } from 'shared/types/Expense';
+import { secondaryColors, gray } from '../Colors';
+import Money from 'shared/util/Money';
+import { media } from '../Styles';
+
+interface TotalsViewProps {
+  results: UserExpense[];
+}
+
+export class TotalsView extends React.Component<TotalsViewProps> {
+  render() {
+    const sum = this.props.results.reduce(
+      (p, c) => p.plus(c.sum),
+      Money.from(0)
+    );
+    const income = this.props.results
+      .filter(r => r.type === 'income')
+      .reduce((p, c) => p.plus(c.sum), Money.from(0));
+    const cost = this.props.results
+      .filter(r => r.type === 'expense')
+      .reduce((p, c) => p.plus(c.sum), Money.from(0));
+    return (
+      <>
+        <TotalsPadding />
+        <TotalsArea>
+          <Total>
+            <Label>Yhteensä</Label>
+            {sum.format()}
+          </Total>
+          <Total>
+            <Label>Tulot</Label>
+            {income.format()}
+          </Total>
+          <Total>
+            <Label>Menot</Label>
+            {cost.format()}
+          </Total>
+        </TotalsArea>
+      </>
+    );
+  }
+}
+
+const totalAreaSize = 48;
+
+const TotalsPadding = styled.div`
+  height: ${totalAreaSize}px;
+`;
+
+const TotalsArea = styled.div`
+  position: fixed;
+  left: 32px;
+  right: 32px;
+  bottom: 32px;
+  height: ${totalAreaSize}px;
+  background-color: white;
+  border-top: 1px solid ${gray.standard};
+  z-index: 1;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+
+  ${media.mobile`
+    left: 0;
+    right: 0;
+    bottom: 0;
+  `}
+`;
+
+const Label = styled.span`
+  margin-right: 12px;
+  color: ${secondaryColors.dark};
+  font-weight: bold;
+`;
+
+const Total = styled.div`
+  margin-left: 32px;
+`;

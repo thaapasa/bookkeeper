@@ -135,6 +135,7 @@ export const Flex = styled.div`
 `;
 
 export const PageContentContainer = styled.div`
+  position: relative;
   font-size: 13px;
   display: flex;
   height: 100%;

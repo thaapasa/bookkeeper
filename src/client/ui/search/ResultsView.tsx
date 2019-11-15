@@ -12,6 +12,7 @@ import { toMoment } from 'shared/util/Time';
 import { Category } from 'shared/types/Session';
 import { groupBy } from 'shared/util/Arrays';
 import { typedKeys } from 'shared/util/Objects';
+import { TotalsView } from './TotalsView';
 
 interface ResultsProps {
   results: UserExpense[];
@@ -26,8 +27,13 @@ class ResultsViewImpl extends React.Component<ResultsProps> {
       <ResultsArea>
         <Header>Hakutulokset</Header>
         {this.renderResults()}
+        {this.hasResults ? <TotalsView results={this.props.results} /> : null}
       </ResultsArea>
     );
+  }
+
+  get hasResults(): boolean {
+    return this.props.results && this.props.results.length > 0;
   }
 
   get hasResultsFromPreviousYears(): boolean {
