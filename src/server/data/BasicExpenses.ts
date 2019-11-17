@@ -299,7 +299,7 @@ function updateExpense(tx: IBaseProtocol<any>) {
 UPDATE expenses
 SET date=$/date/::DATE, receiver=$/receiver/, sum=$/sum/, title=$/title/,
   description=$/description/, type=$/type/::expense_type, confirmed=$/confirmed/::BOOLEAN,
-  source_id=$/sourceId/::INTEGER, category_id=$/categoryId/::INTEGER
+  source_id=$/sourceId/::INTEGER, category_id=$/categoryId/::INTEGER, user_id=$/userId/::INTEGER
 WHERE id=$/id/`,
       {
         ...expense,

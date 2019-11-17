@@ -64,6 +64,7 @@ import { CategorySelector } from './CategorySelector';
 import { DateField } from './DateField';
 import { isMobileSize } from '../../Styles';
 import { Size } from '../../Types';
+import { gray } from 'client/ui/Colors';
 
 const log = debug('bookkeeper:expense-dialog');
 
@@ -86,6 +87,7 @@ const fields: ReadonlyArray<keyof ExpenseInEditor> = [
   'description',
   'confirmed',
   'type',
+  'userId',
 ];
 
 const parsers: Record<string, (v: string) => any> = {
@@ -104,6 +106,7 @@ const validators: Record<string, (v: string) => any> = {
       'Summa on virheellinen'
     ),
   benefit: v => errorIf(v.length < 1, 'Jonkun pitää hyötyä'),
+  userId: v => errorIf(!v, 'Omistaja puuttuu'),
 };
 
 function allTrue(...args: boolean[]): boolean {
@@ -130,6 +133,7 @@ interface ExpenseDialogProps {
   onExpensesUpdated: (date: Date) => void;
   group: Group;
   user: User;
+  users: User[];
   expenseCounter: number;
   windowSize: Size;
   values: Partial<ExpenseInEditor>;
@@ -139,6 +143,7 @@ interface ExpenseDialogState extends ExpenseInEditor {
   subcategories: CategoryInfo[];
   errors: Record<string, string | undefined>;
   valid: boolean;
+  showOwnerSelect: boolean;
 }
 
 export class ExpenseDialog extends React.Component<
@@ -208,6 +213,7 @@ export class ExpenseDialog extends React.Component<
       subcategories: [],
       errors: {},
       valid: false,
+      showOwnerSelect: false,
     };
   }
 
@@ -465,6 +471,26 @@ export class ExpenseDialog extends React.Component<
     return this.props.onClose(null);
   };
 
+  private closeEditors = () => {
+    this.setState({ showOwnerSelect: false });
+  };
+
+  private openOwnerSelector = (
+    _userId: number,
+    event: React.MouseEvent<any>
+  ) => {
+    this.setState({ showOwnerSelect: true });
+    event.stopPropagation();
+    return false;
+  };
+
+  private setUserId = (userId: number, event: React.MouseEvent<any>) => {
+    this.inputStreams.userId.push(userId);
+    this.setState({ showOwnerSelect: false });
+    event.stopPropagation();
+    return false;
+  };
+
   public render() {
     return (
       <Dialog
@@ -476,12 +502,32 @@ export class ExpenseDialog extends React.Component<
         <DialogTitle>
           {this.props.createNew ? 'Uusi kirjaus' : 'Muokkaa kirjausta'}
         </DialogTitle>
-        <DialogContent className="expense-dialog-content" dividers={true}>
+        <DialogContent
+          className="expense-dialog-content"
+          dividers={true}
+          onClick={this.closeEditors}
+        >
           <Form onSubmit={this.requestSave} onKeyUp={this.handleKeyPress}>
-            <Row className="row sum">
+            <Row className="row sum parent">
+              <OwnerSelectorArea
+                id="owner-selector-area"
+                className={this.state.showOwnerSelect ? 'visible' : 'hidden'}
+              >
+                {this.props.users.map(u => (
+                  <UserAvatar
+                    key={u.id}
+                    userId={u.id}
+                    className={
+                      u.id === this.state.userId ? 'selected' : 'unselected'
+                    }
+                    onClick={this.setUserId}
+                  />
+                ))}
+              </OwnerSelectorArea>
               <UserAvatar
                 userId={this.state.userId}
                 style={{ verticalAlign: 'middle' }}
+                onClick={this.openOwnerSelector}
               />
               <SumArea>
                 <SumField
@@ -601,7 +647,7 @@ const Row = styled.div`
   width: 100%;
   box-sizing: border-box;
   flex-direction: row;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   height: 80px;
 
@@ -609,6 +655,37 @@ const Row = styled.div`
     & > div:first-of-type {
       margin-right: 16px;
     }
+  }
+
+  &.parent {
+    position: relative;
+  }
+`;
+
+const OwnerSelectorArea = styled.div`
+  position: absolute;
+  top: 8px;
+  left: -24px;
+  padding: 12px 10px 12px 24px;
+  border-radius: 4px;
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+  background-color: ${gray.light};
+  display: flex;
+  flex-direction: row;
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
+  z-index: 1;
+
+  & > div {
+    margin-right: 8px;
+  }
+
+  &.visible {
+    display: flex;
+  }
+
+  &.hidden {
+    display: none;
   }
 `;
 
@@ -619,14 +696,12 @@ const SumArea = styled.div`
 `;
 
 const ConfirmArea = styled.div`
-  margin-top: 14px;
   margin-left: 1em;
   display: inline-block;
   vertical-align: middle;
 `;
 
 const TypeArea = styled.div`
-  margin-top: 10px;
   width: 92px;
   display: inline-block;
   vertical-align: middle;

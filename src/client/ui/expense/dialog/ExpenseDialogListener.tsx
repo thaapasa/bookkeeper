@@ -27,6 +27,7 @@ const ConnectedExpenseDialog = connect(
     sourceMap: sourceMapE,
     categorySource: categoryDataSourceP,
     categoryMap: categoryMapE,
+    users: validSessionE.map(s => s.users),
   })
 )(ExpenseDialog);
 

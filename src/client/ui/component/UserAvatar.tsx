@@ -10,7 +10,7 @@ interface CommonAvatarProps {
   style?: React.CSSProperties;
   size?: number;
   className?: string;
-  onClick?: (userId: number) => void;
+  onClick?: (userId: number, event: React.MouseEvent<HTMLDivElement>) => void;
 }
 
 interface UserAvatarProps extends CommonAvatarProps {
@@ -43,7 +43,9 @@ export function UserAvatar(props: UserAvatarProps) {
       style={style}
       className={props.className}
       src={user.image || undefined}
-      onClick={() => props.onClick && props.onClick(user.id)}
+      onClick={(event: React.MouseEvent<HTMLDivElement>) =>
+        props.onClick && props.onClick(user.id, event)
+      }
     >
       {user.image ? undefined : user.firstName.charAt(0)}
     </StyledAvatar>
