@@ -8,7 +8,7 @@ export default class ShortcutsView extends React.Component<{}> {
     return (
       <PageContentContainer>
         <LinksContainer>
-          <ExpenseShortcutsList showTitles={true} />
+          <ShortcutsList showTitles={true} />
         </LinksContainer>
       </PageContentContainer>
     );
@@ -20,4 +20,8 @@ const LinksContainer = styled.div`
   align-items: center;
   justify-content: center;
   padding-top: 24px;
+`;
+
+const ShortcutsList = styled(ExpenseShortcutsList)`
+  zoom: 150%;
 `;

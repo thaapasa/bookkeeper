@@ -69,7 +69,12 @@ export function editExpense(
   });
 }
 
-export function createExpense(): Promise<ExpenseInEditor | null> {
+export function createExpense(
+  event?: React.MouseEvent<any>
+): Promise<ExpenseInEditor | null> {
+  if (event) {
+    event.stopPropagation();
+  }
   return new Promise<ExpenseInEditor | null>(resolve => {
     expenseDialogBus.push({ expenseId: null, resolve });
   });

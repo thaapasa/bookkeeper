@@ -33,7 +33,7 @@ export default class NavigationBar extends React.Component<NavigationBarProps> {
           <DateRangeNavigator />
         </ToolbarGroup>
         <PadGroup />
-        <AddExpenseLinks />
+        <ExpenseShortcutsView />
       </Bar>
     );
   }
@@ -59,12 +59,6 @@ const PadGroup = styled(ToolbarGroup)`
     width: inherit;
     flex: 1;
   `}
-`;
-
-export const AddExpenseLinks = styled(ExpenseShortcutsView)`
-  position: absolute;
-  right: 27px;
-  bottom: -21px;
 `;
 
 const StyledButton = styled(Button)`
