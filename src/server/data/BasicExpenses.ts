@@ -228,13 +228,14 @@ INSERT INTO expenses (
   receiver, sum, title, description, confirmed,
   source_id, category_id, template, recurring_expense_id)
 VALUES (
-  $/userId/::INTEGER, $/userId/::INTEGER, $/groupId/::INTEGER, $/date/::DATE, NOW(), $/type/::expense_type,
+  $/userId/::INTEGER, $/expenseOwnerId/::INTEGER, $/groupId/::INTEGER, $/date/::DATE, NOW(), $/type/::expense_type,
   $/receiver/, $/sum/, $/title/, $/description/, $/confirmed/::BOOLEAN,
   $/sourceId/::INTEGER, $/categoryId/::INTEGER, $/template/::BOOLEAN, $/recurringExpenseId/)
 RETURNING id`,
         {
           ...expense,
           userId,
+          expenseOwnerId: expense.userId,
           sum: expense.sum.toString(),
           template: expense.template || false,
           recurringExpenseId: expense.recurringExpenseId || null,
