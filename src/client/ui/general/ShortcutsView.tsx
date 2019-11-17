@@ -23,5 +23,5 @@ const LinksContainer = styled.div`
 `;
 
 const ShortcutsList = styled(ExpenseShortcutsList)`
-  zoom: 150%;
+  transform: scale(1.35) translateY(30px);
 `;
