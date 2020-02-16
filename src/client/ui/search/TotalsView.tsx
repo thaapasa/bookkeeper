@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { UserExpense } from 'shared/types/Expense';
 import { secondaryColors, gray } from '../Colors';
 import Money from 'shared/util/Money';
-import { media } from '../Styles';
+import { media, mainContentMaxWidth } from '../Styles';
 
 interface TotalsViewProps {
   results: UserExpense[];
@@ -24,20 +24,22 @@ export class TotalsView extends React.Component<TotalsViewProps> {
     return (
       <>
         <TotalsPadding />
-        <TotalsArea>
-          <Total>
-            <Label>Yhteensä</Label>
-            {sum.format()}
-          </Total>
-          <Total>
-            <Label>Tulot</Label>
-            {income.format()}
-          </Total>
-          <Total>
-            <Label>Menot</Label>
-            {cost.format()}
-          </Total>
-        </TotalsArea>
+        <TotalsPositioner>
+          <TotalsArea>
+            <Total>
+              <Label>Yhteensä</Label>
+              {sum.format()}
+            </Total>
+            <Total>
+              <Label>Tulot</Label>
+              {income.format()}
+            </Total>
+            <Total>
+              <Label>Menot</Label>
+              {cost.format()}
+            </Total>
+          </TotalsArea>
+        </TotalsPositioner>
       </>
     );
   }
@@ -49,15 +51,14 @@ const TotalsPadding = styled.div`
   height: ${totalAreaSize}px;
 `;
 
-const TotalsArea = styled.div`
+const TotalsPositioner = styled.div`
   position: fixed;
+  z-index: 1;
   left: 32px;
   right: 32px;
   bottom: 32px;
   height: ${totalAreaSize}px;
-  background-color: white;
-  border-top: 1px solid ${gray.standard};
-  z-index: 1;
+
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
@@ -67,6 +68,26 @@ const TotalsArea = styled.div`
     left: 0;
     right: 0;
     bottom: 0;
+  `}
+
+  ${media.largeDevice`
+    justify-content: center;
+  `}
+`;
+
+const TotalsArea = styled.div`
+  height: ${totalAreaSize}px;
+  background-color: white;
+  border-top: 1px solid ${gray.standard};
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  flex: 1;
+
+  ${media.largeDevice`
+    flex: none;
+    width: ${mainContentMaxWidth}px;
   `}
 `;
 

@@ -27,8 +27,9 @@ import { colorScheme } from '../Colors';
 import { Size } from '../Types';
 import {
   getScreenSizeClassName,
-  largeDeviceMinWidth,
   isMobileSize,
+  mainContentMaxWidth,
+  mainContentMargin,
 } from '../Styles';
 import { NewExpenseView } from '../expense/NewExpenseView';
 import ShortcutsView from './ShortcutsView';
@@ -107,7 +108,7 @@ const ContentContainer = styled.div`
 
 const MainContent = styled.div`
   flex: 1;
-  margin: 32px;
+  margin: ${mainContentMargin}px;
   margin-top: 40px;
   background-color: ${colorScheme.primary.light};
   box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.5);
@@ -122,6 +123,6 @@ const MainContent = styled.div`
   &.large {
     margin-left: auto;
     margin-right: auto;
-    width: ${largeDeviceMinWidth - 64}px;
+    width: ${mainContentMaxWidth}px;
   }
 `;
