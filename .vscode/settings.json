@@ -21,5 +21,8 @@
         { "language": "typescriptreact", "autoFix": true }
     ],
     "eslint.packageManager": "yarn",
-    "tslint.packageManager": "yarn"
+    "tslint.packageManager": "yarn",
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    }
 }

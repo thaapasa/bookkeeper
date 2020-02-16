@@ -19,5 +19,10 @@ module.exports = {
     react: {
       version: "detect",
     },
+    "import/resolver": {
+      node: {
+        "paths": ["src/shared", "src/server", "src/client"]
+      }
+    }
   },
 };

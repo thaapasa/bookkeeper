@@ -1,5 +1,5 @@
 import debug from 'debug';
-import { ExpenseQuery, UserExpense } from '../../shared/types/Expense';
+import { ExpenseQuery, UserExpense } from 'shared/types/Expense';
 import { IBaseProtocol } from 'pg-promise';
 import basic from './BasicExpenses';
 import { db } from './Db';
