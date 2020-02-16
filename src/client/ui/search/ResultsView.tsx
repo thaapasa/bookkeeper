@@ -13,6 +13,7 @@ import { Category } from 'shared/types/Session';
 import { groupBy } from 'shared/util/Arrays';
 import { typedKeys } from 'shared/util/Objects';
 import { TotalsView } from './TotalsView';
+import Money from 'shared/util/Money';
 
 interface ResultsProps {
   results: UserExpense[];
@@ -64,7 +65,7 @@ class ResultsViewImpl extends React.Component<ResultsProps> {
   private renderYear(year: string, expenses: UserExpense[]) {
     return (
       <React.Fragment key={year}>
-        <YearHeader>Vuosi {year}</YearHeader>
+        <YearHeader year={year} expenses={expenses} />
         {this.renderExpenses(expenses)}
       </React.Fragment>
     );
@@ -94,6 +95,39 @@ export const ResultsView = connect(B.combineTemplate({ userData: userDataE }))(
   ResultsViewImpl
 );
 
+function YearHeader({
+  year,
+  expenses,
+}: {
+  year: string;
+  expenses: UserExpense[];
+}) {
+  const sum = expenses.reduce((p, c) => p.plus(c.sum), Money.from(0));
+  const income = expenses
+    .filter(r => r.type === 'income')
+    .reduce((p, c) => p.plus(c.sum), Money.from(0));
+  const cost = expenses
+    .filter(r => r.type === 'expense')
+    .reduce((p, c) => p.plus(c.sum), Money.from(0));
+  return (
+    <YearHeaderRow>
+      <HeaderText>Vuosi {year}</HeaderText>
+      <SumColumn>
+        <SumLabel>Yhteensä</SumLabel>
+        <SumValue>{sum.format()}</SumValue>
+      </SumColumn>
+      <SumColumn>
+        <SumLabel>Tulot</SumLabel>
+        <SumValue>{income.format()}</SumValue>
+      </SumColumn>
+      <SumColumn>
+        <SumLabel>Menot</SumLabel>
+        <SumValue>{cost.format()}</SumValue>
+      </SumColumn>
+    </YearHeaderRow>
+  );
+}
+
 const ResultsArea = styled.div`
   padding-top: 16px;
 `;
@@ -103,12 +137,35 @@ const Header = styled.div`
   margin: 8px 24px;
 `;
 
-const YearHeader = styled.div`
-  color: ${secondaryColors.dark};
+const YearHeaderRow = styled.div`
   padding: 16px 24px;
   background-color: ${gray.light};
   width: 100%;
+  display: flex;
+  flex-direction: row;
+  box-sizing: border-box;
+`;
+
+const HeaderText = styled.div`
+  color: ${secondaryColors.dark};
   font-size: 16px;
+  flex: 1;
+`;
+
+const SumColumn = styled.div`
+  display: flex;
+  flex-direction: row;
+  margin-left: 16px;
+`;
+
+const SumLabel = styled.span`
+  font-weight: bold;
+  color: ${secondaryColors.dark};
+`;
+
+const SumValue = styled.div`
+  margin-left: 8px;
+  color: ${secondaryColors.text};
 `;
 
 const Info = styled.div`
