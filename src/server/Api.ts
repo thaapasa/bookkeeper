@@ -1,7 +1,6 @@
 import debug from 'debug';
 import { Express } from 'express';
 import * as t from 'io-ts';
-import { ApiMessage, ApiStatus } from '../shared/types/Api';
 import {
   Expense,
   ExpenseCollection,
@@ -10,7 +9,7 @@ import {
   UserExpense,
   UserExpenseWithDetails,
   TExpenseQuery,
-} from '../shared/types/Expense';
+} from 'shared/types/Expense';
 import {
   Category,
   CategoryAndTotals,
@@ -19,8 +18,9 @@ import {
   SessionBasicInfo,
   Source,
   User,
-} from '../shared/types/Session';
-import { toMoment, TISODate } from '../shared/util/Time';
+} from 'shared/types/Session';
+import { ApiStatus, ApiMessage } from 'shared/types/Api';
+import { toMoment, TISODate } from 'shared/util/Time';
 import { config } from './Config';
 import admin, { DbStatus } from './data/admin/Admin';
 import categories, { CategoryInput } from './data/Categories';
@@ -35,7 +35,7 @@ import {
   validate,
   intStringBetween,
   stringWithLength,
-} from '../shared/types/Validator';
+} from 'shared/types/Validator';
 
 const log = debug('bookkeeper:api');
 
