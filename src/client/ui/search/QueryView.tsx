@@ -128,6 +128,9 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
     if (params && params.hae) {
       this.inputBus.push(params.hae);
     }
+    if (params && params.kaikki) {
+      setImmediate(() => this.dateRangeBus.push(undefined));
+    }
   }
 
   addCategory = (category: Category) => {

@@ -93,15 +93,21 @@ export default class AutoComplete<T> extends React.Component<
   };
 
   private renderInput = (props: InputProps<T>) => {
+    /* eslint-disable @typescript-eslint/no-unused-vars */
     const {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       defaultValue,
+      contentEditable,
+      draggable,
+      spellCheck,
       ...other
     } = props;
 
     return (
       <StandardTextField
         {...other}
+        draggable={false}
+        contentEditable={true}
+        spellCheck={false}
         autoFocus={this.props.autoFocus}
         fullWidth={this.props.fullWidth}
         placeholder={this.props.placeholder}

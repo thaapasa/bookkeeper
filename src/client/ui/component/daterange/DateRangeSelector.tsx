@@ -82,16 +82,9 @@ const DateRangeSelectorImpl = (props: DateRangeSelectorProps) => {
 export const DateRangeSelector = React.memo(
   DateRangeSelectorImpl,
   (prev, next) =>
-    (prev.dateRange && prev.dateRange.type) ===
-      (next.dateRange && next.dateRange.type) &&
-    compareDates(
-      prev.dateRange && prev.dateRange.start,
-      next.dateRange && next.dateRange.start
-    ) === 0 &&
-    compareDates(
-      prev.dateRange && prev.dateRange.end,
-      next.dateRange && next.dateRange.end
-    ) === 0
+    prev.dateRange?.type === next.dateRange?.type &&
+    compareDates(prev.dateRange?.start, next.dateRange?.start) === 0 &&
+    compareDates(prev.dateRange?.end, next.dateRange?.end) === 0
 );
 
 const Container = styled.div`
