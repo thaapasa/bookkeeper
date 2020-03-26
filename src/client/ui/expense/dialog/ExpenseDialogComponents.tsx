@@ -27,7 +27,7 @@ export function SumField(props: {
       label="Summa"
       InputLabelProps={{ shrink: true }}
       value={props.value}
-      helperText={props.errorText}
+      helperText={props.errorText || ' '}
       error={Boolean(props.errorText)}
       onChange={e => props.onChange(e.target.value)}
       autoFocus

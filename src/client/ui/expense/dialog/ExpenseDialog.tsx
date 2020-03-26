@@ -503,7 +503,7 @@ export class ExpenseDialog extends React.Component<
           {this.props.createNew ? 'Uusi kirjaus' : 'Muokkaa kirjausta'}
         </DialogTitle>
         <DialogContent
-          className="expense-dialog-content"
+          className="expense-dialog-content vertical-scroll-area"
           dividers={true}
           onClick={this.closeEditors}
         >
@@ -636,6 +636,7 @@ export class ExpenseDialog extends React.Component<
 }
 
 const Form = styled.form`
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;

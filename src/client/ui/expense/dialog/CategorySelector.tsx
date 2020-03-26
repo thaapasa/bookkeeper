@@ -17,11 +17,12 @@ export function CategorySelector(props: {
   onChangeCategory: (id: number) => void;
   onChangeSubcategory: (id: number) => void;
   errorText?: string;
+  className?: string;
 }) {
   const id = 'category-selector';
   return (
-    <Row onKeyUp={stopEventPropagation}>
-      <StyledControl>
+    <Row onKeyUp={stopEventPropagation} className={props.className}>
+      <StyledControl className="category-control main-category">
         <InputLabel htmlFor={id} shrink={true}>
           Kategoria
         </InputLabel>
@@ -37,11 +38,11 @@ export function CategorySelector(props: {
             </MenuItem>
           ))}
         </Select>
-        {props.errorText ? (
-          <FormHelperText error={true}>{props.errorText}</FormHelperText>
-        ) : null}
+        <FormHelperText error={!!props.errorText}>
+          {props.errorText}
+        </FormHelperText>
       </StyledControl>
-      <StyledControl>
+      <StyledControl className="category-control sub-category">
         <InputLabel htmlFor={id} shrink={true}>
           Alikategoria
         </InputLabel>

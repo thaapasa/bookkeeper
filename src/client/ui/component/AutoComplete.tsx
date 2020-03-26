@@ -106,7 +106,7 @@ export default class AutoComplete<T> extends React.Component<
       <StandardTextField
         {...other}
         draggable={false}
-        contentEditable={true}
+        contentEditable={false}
         spellCheck={false}
         autoFocus={this.props.autoFocus}
         fullWidth={this.props.fullWidth}
@@ -115,7 +115,7 @@ export default class AutoComplete<T> extends React.Component<
         label={this.props.label}
         InputLabelProps={{ shrink: true }}
         error={Boolean(this.props.errorText)}
-        helperText={this.props.errorText}
+        helperText={this.props.errorText || ' '}
         onChange={this.setInputValue}
         className={this.props.inputClassName}
       />
