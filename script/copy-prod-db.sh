@@ -32,8 +32,8 @@ else
 fi
 
 echo "Clearing local database"
-dropdb -h localhost -p ${PORT} -U postgres -w postgres || exit -1
-createdb -h localhost -p ${PORT} -U postgres -w postgres || exit -1
+dropdb -h localhost -p ${PORT} -U postgres postgres || exit -1
+createdb -h localhost -p ${PORT} -U postgres postgres || exit -1
 
 echo "Restoring prod DB dump"
 pg_restore --role=postgres --no-owner -d "$DB_URL" --no-acl <$DUMP
