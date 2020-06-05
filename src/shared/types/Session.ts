@@ -41,6 +41,7 @@ export interface ExpenseShortcut {
   title: string;
   icon?: string;
   values: Partial<ExpenseInEditor>;
+  background?: string;
 }
 
 export interface User extends DbObject {

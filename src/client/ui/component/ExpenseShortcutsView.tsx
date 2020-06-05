@@ -74,6 +74,7 @@ export const ExpenseShortcutsList = connect(
 const LinkIcon = (props: ExpenseShortcut & { noClick?: boolean }) => (
   <LinkIconArea
     onClick={() => !props.noClick && createNewExpense(props.values)}
+    style={{ background: props.background }}
   >
     {props.icon ? (
       <LinkImage src={props.icon} title={props.title} />
