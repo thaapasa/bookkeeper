@@ -14,3 +14,15 @@ export function parseQueryString(query: string): Record<string, string> {
 export function reloadApp() {
   document.location.href = `/?refresh=${Math.random()}`;
 }
+
+export function uri(strings: TemplateStringsArray, ...keys: any[]) {
+  let res = '';
+  for (let i = 0; i < strings.length; ++i) {
+    res = res.concat(strings[i]);
+    const v = keys[i];
+    if (i < strings.length - 1 && v !== undefined) {
+      res = res.concat(encodeURIComponent(String(v)));
+    }
+  }
+  return res;
+}

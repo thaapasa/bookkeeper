@@ -1,12 +1,12 @@
-import Money from '../../shared/util/Money';
+import Money from 'shared/util/Money';
 import {
   Session,
   Category,
   CategoryAndTotals,
   CategoryData,
-} from '../../shared/types/Session';
-import { FetchClient } from '../../shared/util/FetchClient';
-import { ApiMessage } from '../../shared/types/Api';
+} from 'shared/types/Session';
+import { FetchClient } from 'shared/util/FetchClient';
+import { ApiMessage } from 'shared/types/Api';
 import {
   ExpenseCollection,
   ExpenseStatus,
@@ -17,9 +17,10 @@ import {
   RecurringExpenseTarget,
   ExpenseQuery,
   TExpenseQuery,
-} from '../../shared/types/Expense';
-import { toISODate } from '../../shared/util/Time';
-import { filterTruthyProps } from '../../shared/util/Objects';
+} from 'shared/types/Expense';
+import { toISODate } from 'shared/util/Time';
+import { filterTruthyProps } from 'shared/util/Objects';
+import { uri } from 'client/util/UrlUtils';
 
 const client = new FetchClient(() => fetch);
 
@@ -53,10 +54,6 @@ function mapExpenseObject(e: ExpenseCollection): ExpenseCollection {
   e.endStatus = mapStatus(e.endStatus);
   e.monthStatus = mapStatus(e.monthStatus);
   return e;
-}
-
-function toInt(n: number | string) {
-  return typeof n === 'number' ? n : parseInt(n, 10);
 }
 
 export class ApiConnect {
@@ -138,7 +135,7 @@ export class ApiConnect {
   }
 
   public getExpense(id: number | string): Promise<UserExpenseWithDetails> {
-    return this.get<UserExpenseWithDetails>(`/api/expense/${toInt(id)}`).then(
+    return this.get<UserExpenseWithDetails>(uri`/api/expense/${id}`).then(
       mapExpense
     );
   }
@@ -151,18 +148,18 @@ export class ApiConnect {
     id: number | string,
     expense: ExpenseData
   ): Promise<ApiMessage> {
-    return this.post<ApiMessage>(`/api/expense/${toInt(id)}`, expense);
+    return this.post<ApiMessage>(uri`/api/expense/${id}`, expense);
   }
 
   public deleteExpense(id: number | string): Promise<ApiMessage> {
-    return this.del<ApiMessage>(`/api/expense/${toInt(id)}`);
+    return this.del<ApiMessage>(uri`/api/expense/${id}`);
   }
 
   public createRecurring(
     id: number | string,
     period: RecurringExpensePeriod
   ): Promise<ApiMessage> {
-    return this.put<ApiMessage>(`/api/expense/recurring/${toInt(id)}`, {
+    return this.put<ApiMessage>(uri`/api/expense/recurring/${id}`, {
       period,
     });
   }
@@ -173,9 +170,7 @@ export class ApiConnect {
     target: RecurringExpenseTarget
   ): Promise<ApiMessage> {
     return this.post<ApiMessage>(
-      `/api/expense/recurring/${toInt(id)}?target=${encodeURIComponent(
-        target
-      )}`,
+      uri`/api/expense/recurring/${id}?target=${target}`,
       expense
     );
   }
@@ -185,7 +180,7 @@ export class ApiConnect {
     target: RecurringExpenseTarget
   ): Promise<ApiMessage> {
     return this.del<ApiMessage>(
-      `/api/expense/recurring/${toInt(id)}?target=${encodeURIComponent(target)}`
+      uri`/api/expense/recurring/${id}?target=${target}`
     );
   }
 
@@ -216,7 +211,7 @@ export class ApiConnect {
     id: number | string,
     category: CategoryData
   ): Promise<Category> {
-    return this.post(`/api/category/${toInt(id)}`, category);
+    return this.post(uri`/api/category/${id}`, category);
   }
 }
 

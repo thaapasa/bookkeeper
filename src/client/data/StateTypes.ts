@@ -1,5 +1,5 @@
-import { ExpenseInEditor } from '../../shared/types/Expense';
-import { TypedDateRange } from '../../shared/util/Time';
+import { ExpenseInEditor } from 'shared/types/Expense';
+import { TypedDateRange } from 'shared/util/Time';
 
 export interface ConfirmationAction<T> {
   label: string;
