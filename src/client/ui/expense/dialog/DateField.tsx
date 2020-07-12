@@ -1,8 +1,5 @@
 import * as React from 'react';
-import {
-  KeyboardDatePicker,
-  MaterialUiPickersDate,
-} from '@material-ui/pickers';
+import { KeyboardDatePicker } from '@material-ui/pickers';
 
 interface DateFieldProps {
   value: Date;
@@ -25,7 +22,7 @@ export class DateField extends React.Component<DateFieldProps> {
     );
   }
 
-  private onChange = (date: MaterialUiPickersDate | null) => {
+  private onChange = (date: any | null) => {
     if (date && date.isValid()) {
       this.props.onChange(date.toDate());
     }

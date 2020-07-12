@@ -1,13 +1,11 @@
 import * as React from 'react';
-import {
-  KeyboardDatePicker,
-  MaterialUiPickersDate,
-} from '@material-ui/pickers';
+import { KeyboardDatePicker } from '@material-ui/pickers';
 import { PickDateObject } from '../../data/StateTypes';
-import { Action } from '../../../shared/types/Common';
+import { Action } from 'shared/types/Common';
 import { pickDateE } from '../../data/State';
 import { unsubscribeAll } from '../../util/ClientUtil';
 import { datePickerFormat } from '../expense/dialog/DateField';
+import { AnyObject } from '../Types';
 
 interface DatePickerProps {
   pick: PickDateObject;
@@ -42,7 +40,7 @@ class DatePickerComponent extends React.Component<
     );
   }
 
-  private onChange = (edited: MaterialUiPickersDate | null) => {
+  private onChange = (edited: any | null) => {
     const date = edited && edited.isValid() ? edited.toDate() : undefined;
     if (date) {
       this.setState({ date });
@@ -59,7 +57,7 @@ interface DatePickerConnectorState {
 let pickCounter = 0;
 
 export default class DatePickerConnector extends React.Component<
-  {},
+  AnyObject,
   DatePickerConnectorState
 > {
   public state: DatePickerConnectorState = { pick: null, pickCounter: 0 };

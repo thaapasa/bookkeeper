@@ -1,16 +1,13 @@
 import * as React from 'react';
-import { Category } from '../../../shared/types/Session';
+import { Category } from 'shared/types/Session';
 import { ToolIcon, Edit, ExpandLess, ExpandMore, Add } from '../Icons';
 
-export class AddCategoryButton extends React.PureComponent<
-  {
-    onAdd: (p?: Category) => void;
-    parent?: Category;
-    color?: string | null;
-    icon?: React.ComponentType<any>;
-  },
-  {}
-> {
+export class AddCategoryButton extends React.PureComponent<{
+  onAdd: (p?: Category) => void;
+  parent?: Category;
+  color?: string | null;
+  icon?: React.ComponentType<any>;
+}> {
   private add = () => {
     this.props.onAdd(this.props.parent);
   };
@@ -26,14 +23,11 @@ export class AddCategoryButton extends React.PureComponent<
   }
 }
 
-export class EditCategoryButton extends React.PureComponent<
-  {
-    onEdit: (p: Category) => void;
-    category: Category;
-    color?: string | null;
-  },
-  {}
-> {
+export class EditCategoryButton extends React.PureComponent<{
+  onEdit: (p: Category) => void;
+  category: Category;
+  color?: string | null;
+}> {
   private edit = () => {
     this.props.onEdit(this.props.category);
   };
@@ -49,15 +43,12 @@ export class EditCategoryButton extends React.PureComponent<
   }
 }
 
-export class ToggleButton extends React.PureComponent<
-  {
-    state: boolean;
-    onToggle: (c?: Category) => void;
-    category?: Category;
-    color?: string | null;
-  },
-  {}
-> {
+export class ToggleButton extends React.PureComponent<{
+  state: boolean;
+  onToggle: (c?: Category) => void;
+  category?: Category;
+  color?: string | null;
+}> {
   private toggle = () => {
     this.props.onToggle(this.props.category);
   };

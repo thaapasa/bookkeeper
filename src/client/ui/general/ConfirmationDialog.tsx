@@ -2,7 +2,7 @@ import * as React from 'react';
 import { ConfirmationObject } from '../../data/StateTypes';
 import { KeyCodes } from '../../util/Io';
 import { confirmationE } from '../../data/State';
-import { Action } from '../../../shared/types/Common';
+import { Action } from 'shared/types/Common';
 import {
   Button,
   Dialog,
@@ -10,6 +10,7 @@ import {
   DialogActions,
   DialogTitle,
 } from '@material-ui/core';
+import { AnyObject } from '../Types';
 
 interface ConfirmationDialogProps<T> {
   confirmation: ConfirmationObject<T>;
@@ -78,7 +79,7 @@ interface ConfirmationConnectDialogState {
 }
 
 export default class ConfirmationConnectDialog extends React.Component<
-  {},
+  AnyObject,
   ConfirmationConnectDialogState
 > {
   private unsubscribe: Action | null = null;

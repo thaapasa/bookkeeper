@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { UserExpense } from 'shared/types/Expense';
 import { secondaryColors, gray } from '../Colors';
 import ExpenseRow from '../expense/row/ExpenseRow';
-import { noop } from '../../../shared/util/Util';
+import { noop } from 'shared/util/Util';
 import { connect } from '../component/BaconConnect';
 import { userDataE, UserDataProps } from 'client/data/Categories';
 import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';

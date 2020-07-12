@@ -1,4 +1,4 @@
-import { DateLike, toMoment } from '../../shared/util/Time';
+import { DateLike, toMoment } from 'shared/util/Time';
 
 export const shortcutsPage = '/p/linkit';
 export const expensePagePath = '/p/kulut';

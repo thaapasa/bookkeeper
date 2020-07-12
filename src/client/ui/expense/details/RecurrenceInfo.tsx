@@ -1,6 +1,6 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import { UserExpense } from '../../../../shared/types/Expense';
+import { UserExpense } from 'shared/types/Expense';
 import * as colors from '../../Colors';
 
 interface RecurrenceInfoProps {
@@ -8,8 +8,7 @@ interface RecurrenceInfoProps {
 }
 
 export default class RecurrenceInfo extends React.Component<
-  RecurrenceInfoProps,
-  {}
+  RecurrenceInfoProps
 > {
   public render() {
     return this.props.expense.recurringExpenseId ? (

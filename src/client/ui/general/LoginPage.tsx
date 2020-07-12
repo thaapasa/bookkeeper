@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { Card, TextField, Button } from '@material-ui/core';
 import styled from 'styled-components';
-import { login } from '../../data/Login';
+import { login } from 'client/data/Login';
 import { media } from '../Styles';
 import { colorScheme } from '../Colors';
+import { AnyObject } from '../Types';
 
 const publicUrl = process.env.PUBLIC_URL || '';
 
@@ -14,7 +15,10 @@ interface LoginPageState {
   statusMessage: string;
 }
 
-export default class LoginPage extends React.Component<{}, LoginPageState> {
+export default class LoginPage extends React.Component<
+  AnyObject,
+  LoginPageState
+> {
   public state: LoginPageState = {
     username: '',
     password: '',

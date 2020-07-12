@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as B from 'baconjs';
-import { Action } from '../../../shared/types/Common';
-import { Omit } from '../../../shared/util/Objects';
+import { Action } from 'shared/types/Common';
+import { Omit } from 'shared/util/Objects';
 import { unsubscribeAll } from '../../util/ClientUtil';
 
 // InferableComponentEnhancerWithProps taken from react-redux 5.0.8

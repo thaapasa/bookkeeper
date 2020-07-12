@@ -1,13 +1,13 @@
 import * as React from 'react';
 import * as B from 'baconjs';
 import debug from 'debug';
-import { Session, Category } from '../../../shared/types/Session';
+import { Session, Category } from 'shared/types/Session';
 import { connect } from '../component/BaconConnect';
 import { userDataE, UserDataProps } from '../../data/Categories';
 import { validSessionE } from '../../data/Login';
 import { PageContentContainer } from '../Styles';
 import { QueryView } from './QueryView';
-import { ExpenseQuery, UserExpense } from '../../../shared/types/Expense';
+import { ExpenseQuery, UserExpense } from 'shared/types/Expense';
 import apiConnect from '../../data/ApiConnect';
 import { unsubscribeAll, Unsubscriber } from '../../util/ClientUtil';
 import { ResultsView } from './ResultsView';

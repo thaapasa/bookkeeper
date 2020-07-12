@@ -36,6 +36,7 @@ import {
   intStringBetween,
   stringWithLength,
 } from 'shared/types/Validator';
+import { optNumber } from 'shared/util/Util';
 
 const log = debug('bookkeeper:api');
 
@@ -61,14 +62,18 @@ export function registerAPI(app: Express) {
     '/api/session',
     server.processUnauthorizedRequest(
       (req): Promise<Session> =>
-        sessions.login(req.body.username, req.body.password, req.query.groupId)
+        sessions.login(
+          req.body.username,
+          req.body.password,
+          optNumber(req.query.groupId)
+        )
     )
   );
   app.put(
     '/api/session/refresh',
     server.processUnauthorizedRequest(
       (req): Promise<Session> =>
-        sessions.refresh(server.getToken(req), req.query.groupId)
+        sessions.refresh(server.getToken(req), optNumber(req.query.groupId))
     )
   );
 

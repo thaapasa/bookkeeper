@@ -28,11 +28,7 @@ function checkValueAndBalance(status: ExpenseStatus, _i: any, _name: string) {
       .plus(status.split)
       .toString()
   );
-  expect(status.balance).toEqual(
-    Money.from(status.value)
-      .negate()
-      .toString()
-  );
+  expect(status.balance).toEqual(Money.from(status.value).negate().toString());
 }
 
 describe('expense', () => {
@@ -270,9 +266,7 @@ describe('expense', () => {
     expect(
       Money.equals(
         feb2.endStatus.cost,
-        Money.from(feb1.endStatus.cost)
-          .plus('-500')
-          .plus('-740')
+        Money.from(feb1.endStatus.cost).plus('-500').plus('-740')
       )
     ).toBeTruthy();
     expect(
@@ -284,9 +278,7 @@ describe('expense', () => {
     expect(
       Money.equals(
         feb2.endStatus.benefit,
-        Money.from(feb1.endStatus.benefit)
-          .plus('370')
-          .plus('250')
+        Money.from(feb1.endStatus.benefit).plus('370').plus('250')
       )
     ).toBeTruthy();
 
@@ -299,9 +291,7 @@ describe('expense', () => {
     expect(
       Money.equals(
         feb2.endStatus.balance,
-        Money.from(feb1.endStatus.balance)
-          .plus('250')
-          .plus('370')
+        Money.from(feb1.endStatus.balance).plus('250').plus('370')
       )
     ).toBeTruthy();
     expect(
@@ -313,9 +303,7 @@ describe('expense', () => {
     expect(
       Money.equals(
         feb2.endStatus.value,
-        Money.from(feb1.endStatus.value)
-          .plus('-250')
-          .plus('-370')
+        Money.from(feb1.endStatus.value).plus('-250').plus('-370')
       )
     ).toBeTruthy();
   });

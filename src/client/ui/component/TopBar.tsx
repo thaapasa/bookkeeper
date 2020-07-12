@@ -4,7 +4,7 @@ import { AppBar, Toolbar, IconButton, Typography } from '@material-ui/core';
 
 import * as colors from '../Colors';
 import { validSessionE } from '../../data/Login';
-import { User, Group } from '../../../shared/types/Session';
+import { User, Group } from 'shared/types/Session';
 import { connect } from './BaconConnect';
 import MenuDrawer from './MenuDrawer';
 import { AppLink } from './NavigationBar';

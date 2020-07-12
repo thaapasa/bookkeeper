@@ -2,8 +2,9 @@ import * as React from 'react';
 import Snackbar from '@material-ui/core/Snackbar';
 import { Notification } from '../../data/StateTypes';
 import { notificationE } from '../../data/State';
-import { Action, Timeout } from '../../../shared/types/Common';
+import { Action, Timeout } from 'shared/types/Common';
 import { unsubscribeAll } from '../../util/ClientUtil';
+import { AnyObject } from '../Types';
 
 const msgInterval = 5000;
 
@@ -12,7 +13,7 @@ interface NotificationBarProps {
   onClose: Action;
 }
 
-class NotificationBar extends React.Component<NotificationBarProps, {}> {
+class NotificationBar extends React.Component<NotificationBarProps> {
   private getMessage() {
     return this.props.notification.cause
       ? this.props.notification.message +
@@ -36,7 +37,7 @@ interface NotificationBarConnectorState {
 }
 
 export default class NotificationBarConnector extends React.Component<
-  {},
+  AnyObject,
   NotificationBarConnectorState
 > {
   private timer: Timeout | undefined;

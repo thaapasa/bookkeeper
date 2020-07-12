@@ -11,7 +11,7 @@ import ConfirmationDialog from './ConfirmationDialog';
 import NotificationBar from '../component/NotificationBar';
 import DatePickerComponent from '../component/DatePickerComponent';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import { Session } from '../../../shared/types/Session';
+import { Session } from 'shared/types/Session';
 import {
   categoryPagePath,
   expensePagePath,
@@ -48,7 +48,7 @@ const appLinks: AppLink[] = [
   { label: 'Tiedot', path: infoPagePath, showInHeader: false },
 ];
 
-export default class BookkeeperPage extends React.Component<PageProps, {}> {
+export default class BookkeeperPage extends React.Component<PageProps> {
   public render() {
     const isMobileDevice = isMobileSize(this.props.windowSize);
     const className = getScreenSizeClassName(this.props.windowSize);

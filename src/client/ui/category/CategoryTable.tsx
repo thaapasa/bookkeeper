@@ -1,10 +1,10 @@
 import * as React from 'react';
 import CategoryDialog from './CategoryDialog';
-import { Category, CategoryAndTotals } from '../../../shared/types/Session';
+import { Category, CategoryAndTotals } from 'shared/types/Session';
 import CategoryRow from './CategoryRow';
 import { CategoryHeader } from './CategoryTableLayout';
-import { TypedDateRange } from '../../../shared/util/Time';
-import { Action } from '../../../shared/types/Common';
+import { TypedDateRange } from 'shared/util/Time';
+import { Action } from 'shared/types/Common';
 import { UserDataProps } from '../../data/Categories';
 import debug from 'debug';
 const log = debug('bookkeeper:category-view');
@@ -17,7 +17,7 @@ interface CategoryViewProps {
   userData: UserDataProps;
 }
 
-export class CategoryTable extends React.Component<CategoryViewProps, {}> {
+export class CategoryTable extends React.Component<CategoryViewProps> {
   private categoryDialog: CategoryDialog | null = null;
 
   private createCategory = async (parent?: Category) => {

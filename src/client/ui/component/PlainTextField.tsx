@@ -3,7 +3,7 @@ import { TextField } from '@material-ui/core';
 import { TextFieldProps } from '@material-ui/core/TextField';
 import AutoComplete, { AutoCompleteProps } from './AutoComplete';
 
-export class PlainTextField extends React.Component<TextFieldProps, {}> {
+export class PlainTextField extends React.Component<TextFieldProps> {
   public render() {
     return (
       <TextField
@@ -23,8 +23,7 @@ export class PlainTextField extends React.Component<TextFieldProps, {}> {
 }
 
 export class PlainAutoComplete<T> extends React.Component<
-  AutoCompleteProps<T>,
-  {}
+  AutoCompleteProps<T>
 > {
   public render() {
     return (

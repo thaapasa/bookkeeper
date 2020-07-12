@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { scaleBand, scaleLinear } from 'd3-scale';
 import * as d3Axis from 'd3-axis';
 import { select as d3Select } from 'd3-selection';
-import Money from '../../../shared/util/Money';
+import Money from 'shared/util/Money';
 import { media } from '../Styles';
 
 export interface CategoryChartData {
@@ -31,7 +31,7 @@ interface BarsProps {
   svgDimensions: { height: number };
 }
 
-class Bars extends React.Component<BarsProps, {}> {
+class Bars extends React.Component<BarsProps> {
   public render() {
     const { scales, margins, data, svgDimensions } = this.props;
     const { xScale, yScale } = scales;
@@ -81,10 +81,7 @@ interface AxisProps<D extends d3Axis.AxisDomain> {
   readonly tickSize: number;
   readonly translate: string;
 }
-class Axis<D extends d3Axis.AxisDomain> extends React.Component<
-  AxisProps<D>,
-  {}
-> {
+class Axis<D extends d3Axis.AxisDomain> extends React.Component<AxisProps<D>> {
   private axisElement: React.RefObject<SVGGElement> = React.createRef<
     SVGGElement
   >();

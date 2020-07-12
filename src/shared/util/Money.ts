@@ -35,13 +35,7 @@ export default class Money {
       return m;
     }
     return (
-      parseInt(
-        Money.from(m)
-          .value.times(100)
-          .round()
-          .toString(),
-        10
-      ) / 100
+      parseInt(Money.from(m).value.times(100).round().toString(), 10) / 100
     );
   }
 

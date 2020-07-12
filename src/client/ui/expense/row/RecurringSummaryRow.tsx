@@ -7,8 +7,8 @@ import {
   rowHeight,
 } from './ExpenseTableLayout';
 import { ExpandLess, ExpandMore } from '../../Icons';
-import { UserExpense } from '../../../../shared/types/Expense';
-import Money from '../../../../shared/util/Money';
+import { UserExpense } from 'shared/types/Expense';
+import Money from 'shared/util/Money';
 import { colorScheme } from '../../Colors';
 import { media } from '../../Styles';
 

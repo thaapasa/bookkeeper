@@ -1,4 +1,5 @@
 import { getRandomInt } from './Util';
+import { AnyObject } from 'client/ui/Types';
 
 // https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
 export function shuffle<T>(a: T[]): T[] {
@@ -61,7 +62,7 @@ export function toMap<T, K extends keyof T>(
   return map;
 }
 
-export function valuesToArray<T extends object>(a: T): Array<T[keyof T]> {
+export function valuesToArray<T extends AnyObject>(a: T): Array<T[keyof T]> {
   const res: Array<T[keyof T]> = [];
   Object.keys(a).map(k => res.push((a as any)[k]));
   return res;

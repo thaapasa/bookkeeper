@@ -1,10 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import {
-  ExpenseDivisionItem,
-  UserExpense,
-} from '../../../../shared/types/Expense';
-import { User, Source } from '../../../../shared/types/Session';
+import { ExpenseDivisionItem, UserExpense } from 'shared/types/Expense';
+import { User, Source } from 'shared/types/Session';
 import { LoadingIndicator, Row, AllColumns } from '../row/ExpenseTableLayout';
 import BasicData from './BasicData';
 import DivisionInfo from './DivisionInfo';
@@ -23,7 +20,7 @@ interface ExpenseInfoProps {
   fullCategoryName: string;
 }
 
-export default class ExpenseInfo extends React.Component<ExpenseInfoProps, {}> {
+export default class ExpenseInfo extends React.Component<ExpenseInfoProps> {
   public render() {
     if (this.props.loading) {
       return <LoadingIndicator forRow={true} />;

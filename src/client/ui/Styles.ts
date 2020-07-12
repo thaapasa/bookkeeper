@@ -101,7 +101,7 @@ export const media = {
     ...i: SimpleInterpolation[]
   ) => css`
     @media screen and (min-width: ${mobilePortraitMaxWidth}px) and (max-width: ${mobileLandscapeMaxWidth -
-        1}px) {
+      1}px) {
       ${css(s, ...i)}
     }
   `,
@@ -112,7 +112,7 @@ export const media = {
   `,
   web: (s: TemplateStringsArray, ...i: SimpleInterpolation[]) => css`
     @media screen and (min-width: ${mobilePortraitMaxWidth}px) and (max-width: ${mobileLandscapeMaxWidth -
-        1}px) {
+      1}px) {
       ${css(s, ...i)}
     }
   `,

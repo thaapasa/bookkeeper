@@ -13,7 +13,7 @@ import {
 import debug from 'debug';
 import UserSelector from '../../component/UserSelector';
 import UserAvatar from '../../component/UserAvatar';
-import Money, { MoneyLike } from '../../../../shared/util/Money';
+import Money, { MoneyLike } from 'shared/util/Money';
 import apiConnect from '../../../data/ApiConnect';
 import { KeyCodes } from '../../../util/Io';
 import {
@@ -27,19 +27,14 @@ import {
   unsubscribeAll,
   stopEventPropagation,
   eventValue,
-} from '../../../util/ClientUtil';
+} from 'client/util/ClientUtil';
 import {
   splitByShares,
   negateDivision,
   HasShares,
   HasSum,
-} from '../../../../shared/util/Splitter';
-import {
-  Category,
-  Source,
-  Group,
-  User,
-} from '../../../../shared/types/Session';
+} from 'shared/util/Splitter';
+import { Category, Source, Group, User } from 'shared/types/Session';
 import {
   UserExpenseWithDetails,
   ExpenseDivisionType,
@@ -48,16 +43,13 @@ import {
   RecurringExpenseTarget,
   expenseBeneficiary,
   ExpenseDivision,
-} from '../../../../shared/types/Expense';
-import { toDate, toISODate } from '../../../../shared/util/Time';
-import { identity } from '../../../../shared/util/Util';
-import { isSubcategoryOf, CategoryDataSource } from '../../../data/Categories';
-import { notify, notifyError, confirm } from '../../../data/State';
-import {
-  sortAndCompareElements,
-  valuesToArray,
-} from '../../../../shared/util/Arrays';
-import { omit } from '../../../../shared/util/Objects';
+} from 'shared/types/Expense';
+import { toDate, toISODate } from 'shared/util/Time';
+import { identity } from 'shared/util/Util';
+import { isSubcategoryOf, CategoryDataSource } from 'client/data/Categories';
+import { notify, notifyError, confirm } from 'client/data/State';
+import { sortAndCompareElements, valuesToArray } from 'shared/util/Arrays';
+import { omit } from 'shared/util/Objects';
 import { TitleField } from './TitleField';
 import { ReceiverField } from './ReceiverField';
 import { CategorySelector } from './CategorySelector';

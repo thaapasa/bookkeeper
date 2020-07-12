@@ -56,7 +56,9 @@ export const categoryMapE: B.EventStream<Record<
   string,
   Category
 >> = validSessionE.map(s => toCategoryMap(s.categories));
-export const categoryDataSourceP: B.Property<CategoryDataSource[]> = B.combineWith(
+export const categoryDataSourceP: B.Property<
+  CategoryDataSource[]
+> = B.combineWith(
   (s, map) => catToDataSource(s.categories, map),
   validSessionE,
   categoryMapE

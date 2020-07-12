@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import debug from 'debug';
 import * as colors from '../Colors';
 import { NavigateLeft, NavigateRight } from '../Icons';
-import { toDateRangeName, toMoment } from '../../../shared/util/Time';
+import { toDateRangeName, toMoment } from 'shared/util/Time';
 import { NavigationConfig } from '../../data/StateTypes';
 import { yearSuffix, monthSuffix } from '../../util/Links';
 import { KeyCodes } from '../../util/Io';
@@ -16,7 +16,7 @@ const log = debug('bookkeeper:navigator');
 
 export interface DateRangeNavigatorProps
   extends NavigationConfig,
-    RouteComponentProps<{}> {}
+    RouteComponentProps {}
 
 export class DateRangeNavigator extends React.Component<
   DateRangeNavigatorProps
@@ -25,14 +25,10 @@ export class DateRangeNavigator extends React.Component<
     const rangeSuffix =
       this.props.dateRange.type === 'month'
         ? monthSuffix(
-            toMoment(this.props.dateRange.start)
-              .clone()
-              .add(offset, 'months')
+            toMoment(this.props.dateRange.start).clone().add(offset, 'months')
           )
         : yearSuffix(
-            toMoment(this.props.dateRange.start)
-              .clone()
-              .add(offset, 'year')
+            toMoment(this.props.dateRange.start).clone().add(offset, 'year')
           );
     const link = this.props.pathPrefix + rangeSuffix;
     log('Navigating to', link);

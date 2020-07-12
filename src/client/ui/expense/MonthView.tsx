@@ -1,13 +1,13 @@
 import * as React from 'react';
 import ExpenseTable from './ExpenseTable';
-import apiConnect from '../../data/ApiConnect';
-import { unsubscribeAll, Unsubscriber } from '../../util/ClientUtil';
-import { UserExpense, ExpenseStatus } from '../../../shared/types/Expense';
+import apiConnect from 'client/data/ApiConnect';
+import { unsubscribeAll, Unsubscriber } from 'client/util/ClientUtil';
+import { UserExpense, ExpenseStatus } from 'shared/types/Expense';
 import { zeroStatus } from './ExpenseHelper';
 import { History } from 'history';
-import { needUpdateE, navigationBus } from '../../data/State';
-import { toMoment, isSameMonth, monthRange } from '../../../shared/util/Time';
-import { expensesForMonthPath, expensePagePath } from '../../util/Links';
+import { needUpdateE, navigationBus } from 'client/data/State';
+import { toMoment, isSameMonth, monthRange } from 'shared/util/Time';
+import { expensesForMonthPath, expensePagePath } from 'client/util/Links';
 import debug from 'debug';
 const log = debug('bookkeeper:month-view');
 
