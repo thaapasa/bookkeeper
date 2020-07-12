@@ -1,9 +1,9 @@
 import * as React from 'react';
 import * as B from 'baconjs';
-import { identity } from '../../../../shared/util/Util';
-import apiConnect from '../../../data/ApiConnect';
+import { identity } from 'shared/util/Util';
+import apiConnect from 'client/data/ApiConnect';
 import AutoComplete from '../../component/AutoComplete';
-import { unsubscribeAll } from '../../../util/ClientUtil';
+import { unsubscribeAll } from 'client/util/ClientUtil';
 
 export interface ReceiverFieldProps {
   id: string;

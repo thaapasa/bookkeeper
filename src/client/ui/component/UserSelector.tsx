@@ -1,6 +1,6 @@
 import * as React from 'react';
 import UserAvatar from './UserAvatar';
-import { User } from '../../../shared/types/Session';
+import { User } from 'shared/types/Session';
 import { connect } from './BaconConnect';
 import { validSessionE } from '../../data/Login';
 import styled from 'styled-components';
@@ -22,7 +22,7 @@ interface UserSelectorProps {
   users: User[];
 }
 
-export class UserSelector extends React.Component<UserSelectorProps, {}> {
+export class UserSelector extends React.Component<UserSelectorProps> {
   private switchSelection = (id: number) => {
     const oldS = this.props.selected;
     const foundAt = oldS.indexOf(id);

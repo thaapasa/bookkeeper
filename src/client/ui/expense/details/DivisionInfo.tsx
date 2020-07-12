@@ -2,11 +2,8 @@ import * as React from 'react';
 import styled from 'styled-components';
 import * as colors from '../../Colors';
 import UserAvatar from '../../component/UserAvatar';
-import Money, { MoneyLike } from '../../../../shared/util/Money';
-import {
-  ExpenseDivisionItem,
-  UserExpense,
-} from '../../../../shared/types/Expense';
+import Money, { MoneyLike } from 'shared/util/Money';
+import { ExpenseDivisionItem, UserExpense } from 'shared/types/Expense';
 import { media } from '../../Styles';
 
 interface DivisionInfoProps {

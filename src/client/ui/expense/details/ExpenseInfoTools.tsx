@@ -8,20 +8,17 @@ import {
   notify,
   notifyError,
   createNewExpense,
-} from '../../../data/State';
+} from 'client/data/State';
 import { expenseName } from '../ExpenseHelper';
-import {
-  UserExpense,
-  RecurringExpensePeriod,
-} from '../../../../shared/types/Expense';
-import apiConnect from '../../../data/ApiConnect';
-import { toDate, toMoment, ISODatePattern } from '../../../../shared/util/Time';
+import { UserExpense, RecurringExpensePeriod } from 'shared/types/Expense';
+import apiConnect from 'client/data/ApiConnect';
+import { toDate, toMoment, ISODatePattern } from 'shared/util/Time';
 import * as colors from '../../Colors';
 import { media } from '../../Styles';
-import Money from '../../../../shared/util/Money';
-import { Category } from '../../../../shared/types/Session';
+import Money from 'shared/util/Money';
+import { Category } from 'shared/types/Session';
 import { connect } from '../../component/BaconConnect';
-import { categoryMapE } from '../../../data/Categories';
+import { categoryMapE } from 'client/data/Categories';
 
 interface RecurrenceInfoProps {
   expense: UserExpense;

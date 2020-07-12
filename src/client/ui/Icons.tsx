@@ -87,7 +87,7 @@ export function ToolIcon(props: {
   );
 }
 
-export class QuestionBookmark extends React.Component<{ size: number }, {}> {
+export class QuestionBookmark extends React.Component<{ size: number }> {
   public render() {
     const color = colors.colorScheme.secondary.light;
     const questionColor = colors.colorScheme.secondary.dark;

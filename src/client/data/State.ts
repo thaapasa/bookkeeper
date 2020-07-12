@@ -7,10 +7,11 @@ import {
   ExpenseDialogObject,
   NavigationConfig,
 } from './StateTypes';
-import { DateLike, toDate, monthRange } from '../../shared/util/Time';
-import { ExpenseInEditor } from '../../shared/types/Expense';
+import { DateLike, toDate, monthRange } from 'shared/util/Time';
+import { ExpenseInEditor } from 'shared/types/Expense';
 import { Size } from '../ui/Types';
 import { expensePagePath } from '../util/Links';
+import { noop } from 'shared/util/Util';
 
 /* Push event to confirmationBus to show a confirmation dialog */
 const confirmationBus = new B.Bus<ConfirmationObject<any>>();
@@ -90,7 +91,7 @@ export function updateExpenses(date: DateLike) {
 }
 
 export function createNewExpense(values: Partial<ExpenseInEditor>) {
-  expenseDialogE.push({ expenseId: null, resolve: () => {}, values });
+  expenseDialogE.push({ expenseId: null, resolve: noop, values });
 }
 
 export const needUpdateE = needUpdateBus;

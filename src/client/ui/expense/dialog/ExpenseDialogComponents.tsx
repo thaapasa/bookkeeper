@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { ExpenseTypeIcon } from '../../Icons';
-import { Source } from '../../../../shared/types/Session';
+import { Source } from 'shared/types/Session';
 import {
   ExpenseType,
   getExpenseTypeLabel,
   expenseTypes,
-} from '../../../../shared/types/Expense';
+} from 'shared/types/Expense';
 import { VCenterRow } from '../../Styles';
 import {
   TextField,

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { User } from '../../../shared/types/Session';
+import { User } from 'shared/types/Session';
 import { connect } from './BaconConnect';
 import { userMapE } from '../../data/Login';
 import styled from 'styled-components';
@@ -57,7 +57,7 @@ interface UserIdAvatarProps extends CommonAvatarProps {
   userMap: Record<string, User>;
 }
 
-export class UserIdAvatar extends React.Component<UserIdAvatarProps, {}> {
+export class UserIdAvatar extends React.Component<UserIdAvatarProps> {
   public render() {
     const user = this.props.userMap[this.props.userId];
     return user ? <UserAvatar {...this.props} user={user} /> : null;

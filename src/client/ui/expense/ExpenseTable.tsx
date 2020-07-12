@@ -2,13 +2,9 @@ import * as React from 'react';
 import styled from 'styled-components';
 import ExpenseRow from './row/ExpenseRow';
 import ExpenseHeader from './row/ExpenseHeader';
-import Money from '../../../shared/util/Money';
+import Money from 'shared/util/Money';
 import { MonthlyStatus } from './MonthlyStatus';
-import {
-  UserExpense,
-  ExpenseStatus,
-  Expense,
-} from '../../../shared/types/Expense';
+import { UserExpense, ExpenseStatus, Expense } from 'shared/types/Expense';
 import { ExpenseTotals } from './ExpenseHelper';
 import { connect } from '../component/BaconConnect';
 import { userDataE, UserDataProps } from '../../data/Categories';
@@ -16,7 +12,7 @@ import ExpenseFilterRow, {
   ExpenseFilter,
   ExpenseFilterFunction,
 } from './row/ExpenseFilterRow';
-import { partition } from '../../../shared/util/Arrays';
+import { partition } from 'shared/util/Arrays';
 import {
   ExpenseTableLayout,
   RecurringExpenseSeparator,

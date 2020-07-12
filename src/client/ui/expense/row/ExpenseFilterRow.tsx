@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import { Chip, Avatar } from '@material-ui/core';
-import { UserExpense } from '../../../../shared/types/Expense';
+import { UserExpense } from 'shared/types/Expense';
 import { colorScheme } from '../../Colors';
 import { AllColumns, Row } from './ExpenseTableLayout';
 
@@ -49,10 +49,11 @@ const chipStyle: React.CSSProperties = {
   color: colorScheme.secondary.dark,
 };
 
-class ExpenseFilterItem extends React.Component<
-  { filter: ExpenseFilter; index: number; onRemove: (index: number) => void },
-  {}
-> {
+class ExpenseFilterItem extends React.Component<{
+  filter: ExpenseFilter;
+  index: number;
+  onRemove: (index: number) => void;
+}> {
   private onRemove = () => {
     this.props.onRemove(this.props.index);
   };

@@ -8,10 +8,10 @@ import {
   Checkbox,
   FormControlLabel,
 } from '@material-ui/core';
-import { Category, User } from '../../../shared/types/Session';
+import { Category, User } from 'shared/types/Session';
 import AutoComplete from '../component/AutoComplete';
 import { eventValue } from '../../util/ClientUtil';
-import { ExpenseQuery } from '../../../shared/types/Expense';
+import { ExpenseQuery } from 'shared/types/Expense';
 import { parseQueryString } from '../../util/UrlUtils';
 import { DateRangeSelector } from '../component/daterange/DateRangeSelector';
 import {
@@ -19,8 +19,8 @@ import {
   toDateRangeName,
   toISODate,
   toMoment,
-} from '../../../shared/util/Time';
-import { unnest } from '../../../shared/util/Arrays';
+} from 'shared/util/Time';
+import { unnest } from 'shared/util/Arrays';
 import { secondaryColors, gray } from '../Colors';
 import { Search, Delete } from '../Icons';
 import { KeyCodes } from 'client/util/Io';

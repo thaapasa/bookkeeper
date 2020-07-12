@@ -11,18 +11,20 @@ module.exports = {
     sourceType: 'module',
   },
   rules: {
-    "@typescript-eslint/explicit-function-return-type": "off",
-    "@typescript-eslint/no-explicit-any": "off",
-    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+    '@typescript-eslint/explicit-function-return-type': 'off',
+    '@typescript-eslint/explicit-module-boundary-types': 'off',
+    '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    'react/prop-types': 'off',
   },
   settings: {
     react: {
-      version: "detect",
+      version: 'detect',
     },
-    "import/resolver": {
+    'import/resolver': {
       node: {
-        "paths": ["src/shared", "src/server", "src/client"]
-      }
-    }
+        paths: ['src/shared', 'src/server', 'src/client'],
+      },
+    },
   },
 };

@@ -30,10 +30,7 @@ function setNoCacheHeaders(res: Response): Response {
     'private, no-cache, no-store, must-revalidate, max-age=0'
   );
   res.set('Pragma', 'no-cache');
-  const time =
-    toMoment()
-      .utc()
-      .format(httpDateHeaderPattern) + ' GMT';
+  const time = toMoment().utc().format(httpDateHeaderPattern) + ' GMT';
   res.set('Date', time);
   res.set('Expires', time);
   return res;

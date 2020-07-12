@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { monthPattern } from '../../util/Links';
+import { monthPattern } from 'client/util/Links';
 import { RouteComponentProps } from 'react-router';
 import MonthView from './MonthView';
-import { toMoment } from '../../../shared/util/Time';
+import { toMoment } from 'shared/util/Time';
 
 interface MonthRouteParams {
   date?: string;

@@ -1,3 +1,5 @@
+import { AnyObject } from 'client/ui/Types';
+
 export function ucFirst(str: any): string {
   return typeof str === 'string' && str.length > 0
     ? str.charAt(0).toUpperCase() + str.substr(1)
@@ -20,7 +22,7 @@ export function underscoreToCamelCase(str: any): string {
     .join('');
 }
 
-export function camelCaseObject<T extends object>(o: T): T {
+export function camelCaseObject<T extends AnyObject>(o: T): T {
   if (typeof o !== 'object') {
     return o;
   }
@@ -45,11 +47,7 @@ export function filterMapCaseInsensitive<T>(
   mapper: (v: T) => string
 ): T[] {
   const matcher = (match || '').toLowerCase();
-  return values.filter(v =>
-    mapper(v)
-      .toLowerCase()
-      .includes(matcher)
-  );
+  return values.filter(v => mapper(v).toLowerCase().includes(matcher));
 }
 
 export function leftPad(

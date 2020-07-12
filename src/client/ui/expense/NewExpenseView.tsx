@@ -1,10 +1,11 @@
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
-import { parseQueryString } from '../../util/UrlUtils';
+import { parseQueryString } from 'client/util/UrlUtils';
 import RoutedMonthView from './RoutedMonthView';
-import { expenseDialogE } from '../../data/State';
+import { expenseDialogE } from 'client/data/State';
+import { noop } from 'shared/util/Util';
 
-type NewExpenseViewProps = RouteComponentProps<{}>;
+type NewExpenseViewProps = RouteComponentProps;
 
 export class NewExpenseView extends React.Component<NewExpenseViewProps> {
   componentDidMount() {
@@ -15,7 +16,7 @@ export class NewExpenseView extends React.Component<NewExpenseViewProps> {
     const params = parseQueryString(document.location.search);
     expenseDialogE.push({
       expenseId: null,
-      resolve: () => {},
+      resolve: noop,
       values: {
         sum: params.sum,
         title: params.title,

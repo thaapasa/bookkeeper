@@ -1,6 +1,6 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import { User, Group } from '../../../shared/types/Session';
+import { User, Group } from 'shared/types/Session';
 import { connect } from './BaconConnect';
 import { validSessionE, logout } from '../../data/Login';
 import { UserAvatar } from './UserAvatar';
@@ -10,7 +10,7 @@ import { RouteComponentProps, withRouter } from 'react-router';
 import { Drawer, MenuItem } from '@material-ui/core';
 import { reloadApp } from 'client/util/UrlUtils';
 
-interface MenuDrawerProps extends RouteComponentProps<{}> {
+interface MenuDrawerProps extends RouteComponentProps {
   open: boolean;
   onRequestChange: (open: boolean) => void;
   user: User;
@@ -19,8 +19,7 @@ interface MenuDrawerProps extends RouteComponentProps<{}> {
 }
 
 class MenuLink extends React.Component<
-  AppLink & { onSelect: (path: string) => void },
-  {}
+  AppLink & { onSelect: (path: string) => void }
 > {
   private onSelect = () => {
     this.props.onSelect(this.props.path);
@@ -30,7 +29,7 @@ class MenuLink extends React.Component<
   }
 }
 
-class MenuDrawerImpl extends React.Component<MenuDrawerProps, {}> {
+class MenuDrawerImpl extends React.Component<MenuDrawerProps> {
   private onSelect = (path: string) => {
     this.props.history.push(path);
     this.props.onRequestChange(false);

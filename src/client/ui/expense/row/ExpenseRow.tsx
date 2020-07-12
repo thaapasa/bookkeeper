@@ -1,6 +1,6 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import apiConnect from '../../../data/ApiConnect';
+import apiConnect from 'client/data/ApiConnect';
 import { UserAvatar } from '../../component/UserAvatar';
 import ActivatableTextField from '../../component/ActivatableTextField';
 import {
@@ -15,14 +15,14 @@ import { Flex, VCenterRow } from '../../Styles';
 import * as colors from '../../Colors';
 import ExpenseInfo from '../details/ExpenseInfo';
 import { expenseName } from '../ExpenseHelper';
-import Money from '../../../../shared/util/Money';
+import Money from 'shared/util/Money';
 import {
   UserExpense,
   UserExpenseWithDetails,
   ExpenseDivisionItem,
   RecurringExpenseTarget,
-} from '../../../../shared/types/Expense';
-import { User, Source, Category } from '../../../../shared/types/Session';
+} from 'shared/types/Expense';
+import { User, Source, Category } from 'shared/types/Session';
 import {
   pickDate,
   notifyError,
@@ -30,16 +30,11 @@ import {
   confirm,
   updateExpenses,
   editExpense,
-} from '../../../data/State';
-import { getFullCategoryName, UserDataProps } from '../../../data/Categories';
-import {
-  toDate,
-  toISODate,
-  toMoment,
-  readableDate,
-} from '../../../../shared/util/Time';
+} from 'client/data/State';
+import { getFullCategoryName, UserDataProps } from 'client/data/Categories';
+import { toDate, toISODate, toMoment, readableDate } from 'shared/util/Time';
 import { ExpenseFilterFunction } from './ExpenseFilterRow';
-import { equal, notEqual } from '../../../../shared/util/Symbols';
+import { equal, notEqual } from 'shared/util/Symbols';
 import {
   RecurringExpenseIcon,
   UnconfirmedIcon,

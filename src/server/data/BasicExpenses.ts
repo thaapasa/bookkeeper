@@ -77,9 +77,7 @@ function mapExpense(e: UserExpense): UserExpense {
     throw new NotFoundError('EXPENSE_NOT_FOUND', 'expense');
   }
   e.date = time.toMoment(e.date).format('YYYY-MM-DD');
-  e.userBalance = Money.from(e.userValue)
-    .negate()
-    .toString();
+  e.userBalance = Money.from(e.userValue).negate().toString();
   return e;
 }
 

@@ -1,10 +1,10 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import Money, { MoneyLike } from '../../../shared/util/Money';
+import Money, { MoneyLike } from 'shared/util/Money';
 import * as colors from '../Colors';
 import { UnconfirmedIcon } from './row/ExpenseTableLayout';
 import { ExpenseTotals, money } from './ExpenseHelper';
-import { ExpenseStatus } from '../../../shared/types/Expense';
+import { ExpenseStatus } from 'shared/types/Expense';
 import { media } from '../Styles';
 import { ExpandLess, ExpandMore } from '../Icons';
 

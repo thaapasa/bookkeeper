@@ -6,7 +6,7 @@ import { sessionP, checkLoginState } from './data/Login';
 import { Action } from '../shared/types/Common';
 import { unsubscribeAll } from './util/ClientUtil';
 import { windowSizeBus } from './data/State';
-import { Size } from './ui/Types';
+import { Size, AnyObject } from './ui/Types';
 import debug from 'debug';
 
 const log = debug('bookkeeper:app');
@@ -18,7 +18,7 @@ interface AppState {
   windowSize: Size;
 }
 
-export default class App extends React.Component<{}, AppState> {
+export default class App extends React.Component<AnyObject, AppState> {
   private unsub: Action[] = [];
 
   public state: AppState = {

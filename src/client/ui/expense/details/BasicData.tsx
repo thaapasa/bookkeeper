@@ -1,8 +1,8 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import { UserExpense } from '../../../../shared/types/Expense';
+import { UserExpense } from 'shared/types/Expense';
 import { media } from '../../Styles';
-import { Source } from '../../../../shared/types/Session';
+import { Source } from 'shared/types/Session';
 
 interface BasicDataProps {
   expense: UserExpense;
@@ -10,7 +10,7 @@ interface BasicDataProps {
   fullCategoryName: string;
 }
 
-export default class BasicData extends React.Component<BasicDataProps, {}> {
+export default class BasicData extends React.Component<BasicDataProps> {
   public render() {
     return (
       <SmallDeviceContainer>

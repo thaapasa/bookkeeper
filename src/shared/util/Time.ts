@@ -128,20 +128,14 @@ function fromYearValue(y: DateLike): Moment | undefined {
 
 export function yearRange(date: DateLike): TypedDateRange {
   const m = fromYearValue(date) || toMoment(date);
-  const start = m
-    .clone()
-    .startOf('year')
-    .toDate();
+  const start = m.clone().startOf('year').toDate();
   const end = m.endOf('year').toDate();
   return { start, end, type: 'year' };
 }
 
 export function monthRange(date: DateLike): TypedDateRange {
   const m = toMoment(date);
-  const start = m
-    .clone()
-    .startOf('month')
-    .toDate();
+  const start = m.clone().startOf('month').toDate();
   const end = m.endOf('month').toDate();
   return { start, end, type: 'month' };
 }

@@ -1,18 +1,15 @@
 import * as React from 'react';
 import * as B from 'baconjs';
 import debug from 'debug';
-import apiConnect from '../../../data/ApiConnect';
-import { unsubscribeAll, Unsubscriber } from '../../../util/ClientUtil';
-import {
-  UserExpenseWithDetails,
-  ExpenseInEditor,
-} from '../../../../shared/types/Expense';
-import { noop } from '../../../../shared/util/Util';
+import apiConnect from 'client/data/ApiConnect';
+import { unsubscribeAll, Unsubscriber } from 'client/util/ClientUtil';
+import { UserExpenseWithDetails, ExpenseInEditor } from 'shared/types/Expense';
+import { noop } from 'shared/util/Util';
 import { connect } from '../../component/BaconConnect';
-import { validSessionE, sourceMapE } from '../../../data/Login';
-import { categoryDataSourceP, categoryMapE } from '../../../data/Categories';
-import { expenseDialogE, updateExpenses } from '../../../data/State';
-import { ExpenseDialogObject } from '../../../data/StateTypes';
+import { validSessionE, sourceMapE } from 'client/data/Login';
+import { categoryDataSourceP, categoryMapE } from 'client/data/Categories';
+import { expenseDialogE, updateExpenses } from 'client/data/State';
+import { ExpenseDialogObject } from 'client/data/StateTypes';
 import { ExpenseDialog } from './ExpenseDialog';
 import { Size } from '../../Types';
 

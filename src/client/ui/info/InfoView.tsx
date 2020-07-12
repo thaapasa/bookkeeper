@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as B from 'baconjs';
 import styled from 'styled-components';
-import { Session } from '../../../shared/types/Session';
+import { Session } from 'shared/types/Session';
 import { connect } from '../component/BaconConnect';
 import { userDataE, UserDataProps } from '../../data/Categories';
 import { validSessionE } from '../../data/Login';

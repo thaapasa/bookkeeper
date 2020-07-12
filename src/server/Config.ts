@@ -5,6 +5,7 @@ const port = process.env.SERVER_PORT;
 class Config {
   public environment = env;
 
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   public version: string = require('../../package.json').version;
   public commitId = commitId;
   public revision = commitId.substr(0, 8);

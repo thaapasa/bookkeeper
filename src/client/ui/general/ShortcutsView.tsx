@@ -2,8 +2,9 @@ import * as React from 'react';
 import { PageContentContainer } from '../Styles';
 import { ExpenseShortcutsList } from '../component/ExpenseShortcutsView';
 import styled from 'styled-components';
+import { AnyObject } from '../Types';
 
-export default class ShortcutsView extends React.Component<{}> {
+export default class ShortcutsView extends React.Component<AnyObject> {
   public render() {
     return (
       <PageContentContainer>

@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { AddExpenseIcon } from '../icons/AddExpenseIcon';
 import { secondaryColors, navigationBar } from '../Colors';
 import { createNewExpense, createExpense } from '../../data/State';
-import { ExpenseShortcut } from '../../../shared/types/Session';
+import { ExpenseShortcut } from 'shared/types/Session';
 import { connect } from './BaconConnect';
 import { validSessionE } from '../../data/Login';
 
@@ -21,8 +21,9 @@ class ExpenseShortcutsListImpl extends React.Component<{
     const titles = this.props.showTitles === true;
     return (
       <LinksArea
-        className={`${titles ? 'with-titles' : ''} ${this.props.className ||
-          ''} `}
+        className={`${titles ? 'with-titles' : ''} ${
+          this.props.className || ''
+        } `}
       >
         {titles ? (
           <TitledRow onClick={createExpense}>
