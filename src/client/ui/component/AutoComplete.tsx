@@ -99,6 +99,8 @@ export default class AutoComplete<T> extends React.Component<
       contentEditable,
       draggable,
       spellCheck,
+      color,
+      size,
       ...other
     } = props;
 

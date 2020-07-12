@@ -1,14 +1,12 @@
 import { config } from '../Config';
 import sessions from '../data/Sessions';
 import { db } from '../data/Db';
-import { SessionBasicInfo } from '../../shared/types/Session';
+import { SessionBasicInfo } from 'shared/types/Session';
 import { Request, Response } from 'express';
-import {
-  TokenNotPresentError,
-  InvalidGroupError,
-} from '../../shared/types/Errors';
-import { toMoment, timeout } from '../../shared/util/Time';
+import { TokenNotPresentError, InvalidGroupError } from 'shared/types/Errors';
+import { toMoment, timeout } from 'shared/util/Time';
 import debug from 'debug';
+import { optNumber } from 'shared/util/Util';
 
 const log = debug('bookkeeper:server');
 
@@ -92,7 +90,7 @@ export function processRequest<T>(
       const token = getToken(req);
       const session = await sessions.tx.getSession(db)(
         token,
-        req.query.groupId
+        optNumber(req.query.groupId)
       );
       if (groupRequired && !session.group.id) {
         throw new InvalidGroupError();

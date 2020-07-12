@@ -1,8 +1,5 @@
 import * as React from 'react';
-import {
-  KeyboardDatePicker,
-  MaterialUiPickersDate,
-} from '@material-ui/pickers';
+import { KeyboardDatePicker } from '@material-ui/pickers';
 import { PickDateObject } from '../../data/StateTypes';
 import { Action } from 'shared/types/Common';
 import { pickDateE } from '../../data/State';
@@ -43,7 +40,7 @@ class DatePickerComponent extends React.Component<
     );
   }
 
-  private onChange = (edited: MaterialUiPickersDate | null) => {
+  private onChange = (edited: any | null) => {
     const date = edited && edited.isValid() ? edited.toDate() : undefined;
     if (date) {
       this.setState({ date });

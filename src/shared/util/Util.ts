@@ -68,6 +68,10 @@ export function getRandomInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min)) + min;
 }
 
+export function optNumber(x: any): number | undefined {
+  return x === null || x === undefined ? undefined : Number(x);
+}
+
 export function identity<T>(x: T): T {
   return x;
 }

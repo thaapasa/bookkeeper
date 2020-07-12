@@ -68,7 +68,7 @@ function getByCredentials(tx: IBaseProtocol<any>) {
   return async (
     username: string,
     password: string,
-    groupId: number
+    groupId?: number
   ): Promise<RawUserData> => {
     const user = await tx.oneOrNone<RawUserData>(
       `

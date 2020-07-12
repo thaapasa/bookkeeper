@@ -105,7 +105,7 @@ function appendInfo(tx: IBaseProtocol<any>) {
 function login(
   username: string,
   password: string,
-  groupId: number
+  groupId?: number
 ): Promise<Session> {
   log('Login for', username);
   return db.tx(async tx => {
@@ -121,7 +121,7 @@ function login(
 }
 
 function getUserInfoByRefreshToken(tx: IBaseProtocol<any>) {
-  return async (token: string, groupId: number): Promise<RawUserData> => {
+  return async (token: string, groupId?: number): Promise<RawUserData> => {
     await purgeExpiredSessions(tx)();
     const userData = await tx.oneOrNone<RawUserData>(
       tokenSelect +
@@ -142,7 +142,7 @@ function getUserInfoByRefreshToken(tx: IBaseProtocol<any>) {
     return userData;
   };
 }
-function refresh(refreshToken: string, groupId: number): Promise<Session> {
+function refresh(refreshToken: string, groupId?: number): Promise<Session> {
   log('Refreshing session with', refreshToken);
   return db.tx(async tx => {
     const user = await getUserInfoByRefreshToken(tx)(refreshToken, groupId);
@@ -177,7 +177,7 @@ WHERE (token=$/token/ AND refresh_token IS NOT NULL)
 }
 
 function getSession(tx: IBaseProtocol<any>) {
-  return async (token: string, groupId: number): Promise<SessionBasicInfo> => {
+  return async (token: string, groupId?: number): Promise<SessionBasicInfo> => {
     await purgeExpiredSessions(tx)();
     const userData = await tx.oneOrNone<RawUserData>(
       tokenSelect +
