@@ -10,7 +10,11 @@ import {
   createNewExpense,
 } from 'client/data/State';
 import { expenseName } from '../ExpenseHelper';
-import { UserExpense, RecurringExpensePeriod } from 'shared/types/Expense';
+import {
+  UserExpense,
+  RecurringExpensePeriod,
+  ExpenseDivision,
+} from 'shared/types/Expense';
 import apiConnect from 'client/data/ApiConnect';
 import { toDate, toMoment, ISODatePattern } from 'shared/util/Time';
 import * as colors from '../../Colors';
@@ -19,9 +23,13 @@ import Money from 'shared/util/Money';
 import { Category } from 'shared/types/Session';
 import { connect } from '../../component/BaconConnect';
 import { categoryMapE } from 'client/data/Categories';
+import debug from 'debug';
+
+const log = debug('bookkeeper:expense');
 
 interface RecurrenceInfoProps {
   expense: UserExpense;
+  division: ExpenseDivision;
   onModify: (e: UserExpense) => void;
   onDelete: (e: UserExpense) => void;
   categoryMap: Record<string, Category>;
@@ -74,11 +82,13 @@ class ExpenseInfoTools extends React.Component<RecurrenceInfoProps> {
 
   private onCopy = () => {
     const e = this.props.expense;
+    const division = this.props.division;
     const cat = this.props.categoryMap[e.categoryId];
     const subcategoryId = (cat.parentId && e.categoryId) || undefined;
     const categoryId =
       (subcategoryId ? cat.parentId : e.categoryId) || undefined;
     const date = toMoment(e.date, ISODatePattern).toDate();
+    log('Copying expense', e, division);
     createNewExpense({
       title: e.title,
       sum: Money.from(e.sum).toString(),
@@ -86,6 +96,7 @@ class ExpenseInfoTools extends React.Component<RecurrenceInfoProps> {
       type: e.type,
       description: e.description || undefined,
       date,
+      benefit: division.filter(d => d.type === 'benefit').map(d => d.userId),
       categoryId,
       subcategoryId,
       sourceId: e.sourceId,
