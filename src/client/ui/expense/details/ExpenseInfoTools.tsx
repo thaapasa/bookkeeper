@@ -1,4 +1,5 @@
 import * as React from 'react';
+import * as B from 'baconjs';
 import styled from 'styled-components';
 import { IconButton } from '@material-ui/core';
 import { Repeat, Edit, Delete, Copy } from '../../Icons';
@@ -20,10 +21,12 @@ import { toDate, toMoment, ISODatePattern } from 'shared/util/Time';
 import * as colors from '../../Colors';
 import { media } from '../../Styles';
 import Money from 'shared/util/Money';
-import { Category } from 'shared/types/Session';
+import { Category, Source } from 'shared/types/Session';
 import { connect } from '../../component/BaconConnect';
 import { categoryMapE } from 'client/data/Categories';
 import debug from 'debug';
+import { getBenefitorsForExpense } from '../dialog/ExpenseDialogData';
+import { sourceMapE } from 'client/data/Login';
 
 const log = debug('bookkeeper:expense');
 
@@ -33,6 +36,7 @@ interface RecurrenceInfoProps {
   onModify: (e: UserExpense) => void;
   onDelete: (e: UserExpense) => void;
   categoryMap: Record<string, Category>;
+  sourceMap: Record<string, Source>;
 }
 
 const styles = {
@@ -96,7 +100,7 @@ class ExpenseInfoTools extends React.Component<RecurrenceInfoProps> {
       type: e.type,
       description: e.description || undefined,
       date,
-      benefit: division.filter(d => d.type === 'benefit').map(d => d.userId),
+      benefit: getBenefitorsForExpense(e, division, this.props.sourceMap),
       categoryId,
       subcategoryId,
       sourceId: e.sourceId,
@@ -156,6 +160,6 @@ const MobileTools = styled.div`
   `}
 `;
 
-export default connect(categoryMapE.map(categoryMap => ({ categoryMap })))(
-  ExpenseInfoTools
-);
+export default connect(
+  B.combineTemplate({ categoryMap: categoryMapE, sourceMap: sourceMapE })
+)(ExpenseInfoTools);
