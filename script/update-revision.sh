@@ -3,21 +3,20 @@
 pushd . >/dev/null
 cd `dirname $0`/..
 
+if [ $# -lt 1 ] ; then
+  echo "USAGE: $0 [server/client]"
+  exit
+fi
+
 REV=`git rev-parse HEAD`
 VERSION=`cat package.json | grep "version" | head -n 1 | sed 's/.*"\([0-9.]*\)".*/\1/g'`
-SERVER_FILE=src/server/revision.ts
-CLIENT_FILE=src/client/revision.ts
+FILE=src/$1/revision.ts
 
-echo "Writing server version $VERSION (revision $REV)"
+echo "Writing server version $VERSION (revision $REV) to $FILE"
 
-CONTENTS="export default {
+echo "export default {
   commitId: '$REV',
   version: '$VERSION',
-};"
-
-echo "$CONTENTS" >$SERVER_FILE
-echo "$CONTENTS" >$CLIENT_FILE
-
-echo "Wrote files $SERVER_FILE and $CLIENT_FILE"
+};" >$FILE
 
 popd >/dev/null
