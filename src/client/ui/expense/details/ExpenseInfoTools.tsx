@@ -68,7 +68,7 @@ class ExpenseInfoTools extends React.Component<RecurrenceInfoProps> {
       );
       if (period) {
         await apiConnect.createRecurring(this.props.expense.id, period);
-        await updateExpenses(toDate(this.props.expense.date));
+        updateExpenses(toDate(this.props.expense.date));
         notify('Kirjaus muutettu toistuvaksi');
       }
     } catch (e) {

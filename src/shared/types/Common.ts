@@ -3,7 +3,11 @@ export interface DbObject {
 }
 
 export function isDbObject(e: any): e is DbObject {
-  return typeof e === 'object' && typeof e.id === 'number';
+  return isDefined(e) && typeof e === 'object' && typeof e.id === 'number';
+}
+
+export function isDefined<T>(x: T | undefined | null): x is T {
+  return x !== undefined && x !== null;
 }
 
 export type Action = () => void;
