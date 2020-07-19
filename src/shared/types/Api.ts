@@ -2,6 +2,7 @@ export interface ApiStatus {
   readonly status: string;
   readonly timestamp: string;
   readonly version: string;
+  readonly commitId: string;
   readonly revision: string;
   readonly environment: string;
 }

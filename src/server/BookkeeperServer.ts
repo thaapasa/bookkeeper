@@ -24,7 +24,10 @@ app.get(/\/p\/.*/, (_, res) =>
 
 try {
   app.listen(config.port, () => {
-    log('Kukkaro server started with configuration', config);
+    log(
+      `Kukkaro server ${config.version} (revision ${config.revision}) started with configuration`,
+      config
+    );
   });
 } catch (er) {
   log('Error in server:', er);

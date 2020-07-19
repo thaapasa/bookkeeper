@@ -52,6 +52,7 @@ export function registerAPI(app: Express) {
         timestamp: toMoment().format(),
         version: config.version,
         revision: config.revision,
+        commitId: config.commitId,
         environment: config.environment,
       })
     )
