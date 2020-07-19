@@ -9,6 +9,7 @@ import { AppLink } from './NavigationBar';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { Drawer, MenuItem } from '@material-ui/core';
 import { reloadApp } from 'client/util/UrlUtils';
+import { config } from 'client/Config';
 
 interface MenuDrawerProps extends RouteComponentProps {
   open: boolean;
@@ -61,6 +62,9 @@ class MenuDrawerImpl extends React.Component<MenuDrawerProps> {
         </ItemArea>
         {this.props.links && this.props.links.length > 0 ? <Divider /> : null}
         <ItemArea className="bottom">
+          <MenuInfo>
+            Kukkaro {config.version} ({config.revision})
+          </MenuInfo>
           <MenuItem onClick={logout}>Kirjaudu ulos</MenuItem>
         </ItemArea>
       </Drawer>
@@ -106,6 +110,11 @@ const Divider = styled.div`
   border-bottom: 1px solid ${colorScheme.gray.standard};
   flex: 1;
   margin: 8px 24px;
+`;
+
+const MenuInfo = styled.div`
+  font-size: 9pt;
+  padding: 2px 16px 8px 16px;
 `;
 
 export default connect(
