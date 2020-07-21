@@ -4,7 +4,7 @@ import { ExpenseDivisionItem, UserExpense } from 'shared/types/Expense';
 import { User, Source } from 'shared/types/Session';
 import { LoadingIndicator, Row, AllColumns } from '../row/ExpenseTableLayout';
 import BasicData from './BasicData';
-import DivisionInfo from './DivisionInfo';
+import { DivisionInfo } from './DivisionInfo';
 import RecurrenceInfo from './RecurrenceInfo';
 import { colorScheme } from '../../Colors';
 import ExpenseInfoTools from './ExpenseInfoTools';
@@ -34,7 +34,10 @@ export default class ExpenseInfo extends React.Component<ExpenseInfoProps> {
             {this.props.expense.description ? (
               <Description>{this.props.expense.description}</Description>
             ) : null}
-            <DivisionInfo {...this.props} />
+            <DivisionInfo
+              division={this.props.division}
+              expenseType={this.props.expense.type}
+            />
             <ExpenseInfoTools {...this.props} />
           </ExpenseInfoContainer>
         </AllColumns>

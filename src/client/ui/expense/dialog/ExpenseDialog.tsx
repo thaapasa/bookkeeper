@@ -35,6 +35,7 @@ import {
   ExpenseData,
   RecurringExpenseTarget,
   expenseBeneficiary,
+  ExpenseDivision,
 } from 'shared/types/Expense';
 import { toDate, toISODate } from 'shared/util/Time';
 import { identity } from 'shared/util/Util';
@@ -50,6 +51,7 @@ import { isMobileSize } from '../../Styles';
 import { Size } from '../../Types';
 import { gray } from 'client/ui/Colors';
 import { calculateDivision } from './ExpenseDialogData';
+import { DivisionInfo } from '../details/DivisionInfo';
 
 const log = debug('bookkeeper:expense-dialog');
 
@@ -121,6 +123,7 @@ interface ExpenseDialogState extends ExpenseInEditor {
   errors: Record<string, string | undefined>;
   valid: boolean;
   showOwnerSelect: boolean;
+  division: ExpenseDivision | null;
 }
 
 export class ExpenseDialog extends React.Component<
@@ -191,6 +194,7 @@ export class ExpenseDialog extends React.Component<
       errors: {},
       valid: false,
       showOwnerSelect: false,
+      division: null,
     };
   }
 
@@ -203,7 +207,7 @@ export class ExpenseDialog extends React.Component<
     });
 
     const validity: Record<string, B.Property<boolean>> = {};
-    const values: Record<string, B.EventStream<any>> = {};
+    const values: Record<keyof ExpenseInEditor, B.EventStream<any>> = {} as any;
     fields.forEach(k => {
       this.inputStreams[k].onValue(v => this.setState({ [k]: v } as any));
       const parsed = parsers[k]
@@ -244,7 +248,14 @@ export class ExpenseDialog extends React.Component<
 
     const allValid = B.combineWith(allTrue, valuesToArray(validity) as any);
     allValid.onValue(valid => this.setState({ valid }));
-    const expense = B.combineTemplate(values);
+    const expense: B.Property<ExpenseInEditor> = B.combineTemplate(values);
+    B.combineTemplate({ expense, allValid })
+      .map(({ allValid, expense }) =>
+        allValid
+          ? calculateDivision(expense, expense.sum, this.props.sourceMap)
+          : null
+      )
+      .onValue(division => this.setState({ division }));
 
     B.combineWith(
       (e, v, h) => ({ ...e, allValid: v && !h }),
@@ -511,6 +522,14 @@ export class ExpenseDialog extends React.Component<
                 onChange={v => this.inputStreams.benefit.push(v)}
               />
             </Row>
+            {this.state.division ? (
+              <Row className="row select division">
+                <DivisionInfo
+                  expenseType={this.state.type}
+                  division={this.state.division}
+                />
+              </Row>
+            ) : null}
             <Row className="row input date">
               <DateField
                 value={this.state.date}
@@ -570,6 +589,10 @@ const Row = styled.div`
 
   &.parent {
     position: relative;
+  }
+
+  &.division {
+    height: inherit;
   }
 `;
 
