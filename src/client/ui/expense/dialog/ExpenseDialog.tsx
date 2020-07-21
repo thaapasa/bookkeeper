@@ -13,7 +13,7 @@ import {
 import debug from 'debug';
 import UserSelector from '../../component/UserSelector';
 import UserAvatar from '../../component/UserAvatar';
-import Money, { MoneyLike } from 'shared/util/Money';
+import Money from 'shared/util/Money';
 import apiConnect from '../../../data/ApiConnect';
 import { KeyCodes } from '../../../util/Io';
 import {
@@ -28,27 +28,19 @@ import {
   stopEventPropagation,
   eventValue,
 } from 'client/util/ClientUtil';
-import {
-  splitByShares,
-  negateDivision,
-  HasShares,
-  HasSum,
-} from 'shared/util/Splitter';
 import { Category, Source, Group, User } from 'shared/types/Session';
 import {
   UserExpenseWithDetails,
-  ExpenseDivisionType,
   ExpenseInEditor,
   ExpenseData,
   RecurringExpenseTarget,
   expenseBeneficiary,
-  ExpenseDivision,
 } from 'shared/types/Expense';
 import { toDate, toISODate } from 'shared/util/Time';
 import { identity } from 'shared/util/Util';
 import { isSubcategoryOf, CategoryDataSource } from 'client/data/Categories';
 import { notify, notifyError, confirm } from 'client/data/State';
-import { sortAndCompareElements, valuesToArray } from 'shared/util/Arrays';
+import { valuesToArray } from 'shared/util/Arrays';
 import { omit } from 'shared/util/Objects';
 import { TitleField } from './TitleField';
 import { ReceiverField } from './ReceiverField';
@@ -57,6 +49,7 @@ import { DateField } from './DateField';
 import { isMobileSize } from '../../Styles';
 import { Size } from '../../Types';
 import { gray } from 'client/ui/Colors';
+import { calculateDivision } from './ExpenseDialogData';
 
 const log = debug('bookkeeper:expense-dialog');
 
@@ -103,14 +96,6 @@ const validators: Record<string, (v: string) => any> = {
 
 function allTrue(...args: boolean[]): boolean {
   return args.reduce((a, b) => a && b, true);
-}
-
-function fixItem(type: ExpenseDivisionType) {
-  return (item: any) => {
-    item.sum = item.sum.toString();
-    item.type = type;
-    return item;
-  };
 }
 
 interface ExpenseDialogProps {
@@ -209,73 +194,6 @@ export class ExpenseDialog extends React.Component<
     };
   }
 
-  private calculateCost(
-    sum: MoneyLike,
-    sourceId: number,
-    benefit: Array<HasShares & HasSum>
-  ) {
-    const sourceUsers = this.props.sourceMap[sourceId].users;
-    const sourceUserIds = sourceUsers.map(s => s.userId);
-    const benefitUserIds = benefit.map(b => b.userId);
-    if (sortAndCompareElements(sourceUserIds, benefitUserIds)) {
-      // Create cost based on benefit calculation
-      log(
-        'Source has same users than who benefit; creating benefit based on cost'
-      );
-      return negateDivision(benefit);
-    } else {
-      // Calculate cost manually
-      log('Calculating cost by source users');
-      return negateDivision(splitByShares(sum, sourceUsers));
-    }
-  }
-
-  private calculateDivision(
-    expense: ExpenseInEditor,
-    sum: MoneyLike
-  ): ExpenseDivision {
-    switch (expense.type) {
-      case 'expense': {
-        const benefit = splitByShares(
-          sum,
-          expense.benefit.map(id => ({ userId: id, share: 1 }))
-        );
-        const cost = this.calculateCost(sum, expense.sourceId, benefit);
-        return benefit
-          .map(fixItem('benefit'))
-          .concat(cost.map(fixItem('cost')));
-      }
-      case 'income': {
-        const income = [{ userId: expense.userId, sum }];
-        const split = negateDivision(
-          splitByShares(
-            sum,
-            expense.benefit.map(id => ({ userId: id, share: 1 }))
-          )
-        );
-        return income
-          .map(fixItem('income'))
-          .concat(split.map(fixItem('split')));
-      }
-      case 'transfer': {
-        const transferee = splitByShares(
-          sum,
-          expense.benefit.map(id => ({ userId: id, share: 1 }))
-        );
-        const transferor = this.calculateCost(
-          sum,
-          expense.sourceId,
-          transferee
-        );
-        return transferee
-          .map(fixItem('transferee'))
-          .concat(transferor.map(fixItem('transferor')));
-      }
-      default:
-        throw new Error('Unknown expense type ' + expense.type);
-    }
-  }
-
   public componentDidMount() {
     this.inputStreams = {};
     this.unsub.push(this.submitStream);
@@ -371,7 +289,7 @@ export class ExpenseDialog extends React.Component<
     const createNew = !this.props.original;
     log(createNew ? 'Create new expense' : 'save expense', expense);
     const sum = Money.from(expense.sum);
-    const division = this.calculateDivision(expense, sum);
+    const division = calculateDivision(expense, sum, this.props.sourceMap);
     const data: ExpenseData = {
       ...omit(['subcategoryId', 'benefit'], expense),
       division,
