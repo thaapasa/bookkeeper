@@ -1,8 +1,8 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import apiConnect from 'client/data/ApiConnect';
-import { UserAvatar } from '../../component/UserAvatar';
-import ActivatableTextField from '../../component/ActivatableTextField';
+import { UserAvatar } from 'client/ui/component/UserAvatar';
+import ActivatableTextField from 'client/ui/component/ActivatableTextField';
 import {
   ExpandLess,
   ExpandMore,
@@ -10,10 +10,10 @@ import {
   Edit,
   ToolIcon,
   ExpenseTypeIcon,
-} from '../../Icons';
-import { Flex, VCenterRow } from '../../Styles';
-import * as colors from '../../Colors';
-import ExpenseInfo from '../details/ExpenseInfo';
+} from 'client/ui/Icons';
+import { Flex, VCenterRow } from 'client/ui/Styles';
+import * as colors from 'client/ui/Colors';
+import { ExpenseInfo } from '../details/ExpenseInfo';
 import { expenseName } from '../ExpenseHelper';
 import Money from 'shared/util/Money';
 import {

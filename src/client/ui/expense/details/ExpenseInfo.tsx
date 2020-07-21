@@ -6,7 +6,7 @@ import { LoadingIndicator, Row, AllColumns } from '../row/ExpenseTableLayout';
 import BasicData from './BasicData';
 import { DivisionInfo } from './DivisionInfo';
 import RecurrenceInfo from './RecurrenceInfo';
-import { colorScheme } from '../../Colors';
+import { colorScheme } from 'client/ui/Colors';
 import ExpenseInfoTools from './ExpenseInfoTools';
 
 interface ExpenseInfoProps {
@@ -20,31 +20,29 @@ interface ExpenseInfoProps {
   fullCategoryName: string;
 }
 
-export default class ExpenseInfo extends React.Component<ExpenseInfoProps> {
-  public render() {
-    if (this.props.loading) {
-      return <LoadingIndicator forRow={true} />;
-    }
-    return (
-      <Row>
-        <AllColumns className="dark">
-          <ExpenseInfoContainer className="expense-info-container">
-            <BasicData {...this.props} />
-            <RecurrenceInfo expense={this.props.expense} />
-            {this.props.expense.description ? (
-              <Description>{this.props.expense.description}</Description>
-            ) : null}
-            <DivisionInfo
-              division={this.props.division}
-              expenseType={this.props.expense.type}
-            />
-            <ExpenseInfoTools {...this.props} />
-          </ExpenseInfoContainer>
-        </AllColumns>
-      </Row>
-    );
+export const ExpenseInfo = (props: ExpenseInfoProps) => {
+  if (props.loading) {
+    return <LoadingIndicator forRow={true} />;
   }
-}
+  return (
+    <Row>
+      <AllColumns className="dark">
+        <ExpenseInfoContainer className="expense-info-container">
+          <BasicData {...props} />
+          <RecurrenceInfo expense={props.expense} />
+          {props.expense.description ? (
+            <Description>{props.expense.description}</Description>
+          ) : null}
+          <DivisionInfo
+            division={props.division}
+            expenseType={props.expense.type}
+          />
+          <ExpenseInfoTools {...props} />
+        </ExpenseInfoContainer>
+      </AllColumns>
+    </Row>
+  );
+};
 
 const ExpenseInfoContainer = styled.div`
   position: relative;
