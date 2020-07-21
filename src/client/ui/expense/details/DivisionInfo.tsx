@@ -15,7 +15,14 @@ interface DivisionInfoProps {
   expenseType: ExpenseType;
 }
 
-const divisionTypes = ['cost', 'benefit', 'income', 'split'];
+const divisionTypes = [
+  'cost',
+  'benefit',
+  'income',
+  'split',
+  'transferor',
+  'transferee',
+];
 
 function getBalance(data: Record<string, MoneyLike>) {
   return divisionTypes
@@ -24,23 +31,39 @@ function getBalance(data: Record<string, MoneyLike>) {
     .negate();
 }
 
+type ShownColumns = ExpenseDivisionType[];
+const ColumnData: Record<ExpenseType, ShownColumns> = {
+  income: ['income', 'split'],
+  expense: ['cost', 'benefit'],
+  transfer: ['transferor', 'transferee'],
+};
+
+const ColumnLabels: Record<ExpenseDivisionType, string> = {
+  income: 'Tulo',
+  split: 'Jako',
+  cost: 'Meno',
+  benefit: 'Hyöty',
+  transferor: 'Annettu',
+  transferee: 'Saatu',
+};
+
 export const DivisionInfo = ({ division, expenseType }: DivisionInfoProps) => {
-  const isIncome = expenseType === 'income';
   const users: Record<string, Record<ExpenseDivisionType, MoneyLike>> = {};
   division.forEach(d => {
     users[d.userId] = { ...users[d.userId], [d.type]: d.sum };
   });
 
+  const cols = ColumnData[expenseType];
   return (
     <DivisionTable>
       <thead>
-        <UserHeaderRow isIncome={isIncome} />
+        <UserHeaderRow cols={cols} />
       </thead>
       <tbody>
         {Object.keys(users).map(userId => (
           <DivisionUser
             userId={userId}
-            isIncome={isIncome}
+            cols={cols}
             userDivision={users[userId]}
             key={userId}
           />
@@ -50,30 +73,34 @@ export const DivisionInfo = ({ division, expenseType }: DivisionInfoProps) => {
   );
 };
 
-const UserHeaderRow = ({ isIncome }: { isIncome: boolean }) => (
+const UserHeaderRow = ({ cols }: { cols: ShownColumns }) => (
   <DivisionRow>
     <UserColumn as="th">Jako:</UserColumn>
-    <DivisionColumn as="th">{isIncome ? 'Tulo' : 'Kulu'}</DivisionColumn>
-    <DivisionColumn as="th">{isIncome ? 'Jako' : 'Hyöty'}</DivisionColumn>
+    {cols.map(c => (
+      <DivisionColumn as="th" key={c}>
+        {ColumnLabels[c]}
+      </DivisionColumn>
+    ))}
     <DivisionColumn as="th">Balanssi</DivisionColumn>
   </DivisionRow>
 );
 
 const DivisionUser = ({
   userId,
-  isIncome,
+  cols,
   userDivision,
 }: {
   userId: string;
-  isIncome: boolean;
+  cols: ShownColumns;
   userDivision: Record<ExpenseDivisionType, MoneyLike>;
 }) => (
   <DivisionRow key={userId}>
     <UserColumn>
       <UserAvatar userId={parseInt(userId, 10)} size={32} />
     </UserColumn>
-    <DivisionItem sum={isIncome ? userDivision.income : userDivision.cost} />
-    <DivisionItem sum={isIncome ? userDivision.split : userDivision.benefit} />
+    {cols.map(c => (
+      <DivisionItem key={c} sum={userDivision[c]} />
+    ))}
     <DivisionItem sum={getBalance(userDivision)} />
   </DivisionRow>
 );
