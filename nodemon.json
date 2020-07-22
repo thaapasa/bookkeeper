@@ -1,6 +1,6 @@
 {
     "watch": ["src"],
     "ext": "ts",
-    "ignore": ["src/**/*.test.ts"],
+    "ignore": ["src/**/*.test.ts", "src/client/revision.ts"],
     "exec": "ts-node --project tsconfig.server.json -r tsconfig-paths/register --files ./src/server/BookkeeperServer.ts"
 }
