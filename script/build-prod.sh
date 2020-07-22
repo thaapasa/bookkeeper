@@ -7,7 +7,7 @@ echo "Updating dependencies"
 yarn || exit -1
 
 mkdir -p deploy || exit -1
-sh script/update-revision.sh
+yarn update-revisions
 
 REV=`git rev-parse HEAD | cut -c 1-8`
 echo "Building server, revision $REV..."
