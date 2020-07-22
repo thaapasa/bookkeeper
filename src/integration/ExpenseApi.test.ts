@@ -163,11 +163,10 @@ describe('expense', () => {
       year: 2017,
       month: 1,
     });
-    s.expenses.forEach(
-      e =>
-        expect(toMoment(e.date).isBefore(monthEnd)).toEqual(true) &&
-        expect(toMoment(e.date).isSameOrAfter(monthStart)).toEqual(true)
-    );
+    s.expenses.forEach(e => {
+      expect(toMoment(e.date).isBefore(monthEnd)).toEqual(true);
+      expect(toMoment(e.date).isSameOrAfter(monthStart)).toEqual(true);
+    });
   });
 
   it('should have new expense in month view', async () => {
