@@ -252,7 +252,11 @@ export class ExpenseDialog extends React.Component<
     B.combineTemplate({ expense, allValid })
       .map(({ allValid, expense }) =>
         allValid
-          ? calculateDivision(expense, expense.sum, this.props.sourceMap)
+          ? calculateDivision(
+              expense,
+              expense.sum,
+              this.props.sourceMap[expense.sourceId]
+            )
           : null
       )
       .onValue(division => this.setState({ division }));
@@ -300,7 +304,11 @@ export class ExpenseDialog extends React.Component<
     const createNew = !this.props.original;
     log(createNew ? 'Create new expense' : 'save expense', expense);
     const sum = Money.from(expense.sum);
-    const division = calculateDivision(expense, sum, this.props.sourceMap);
+    const division = calculateDivision(
+      expense,
+      sum,
+      this.props.sourceMap[expense.sourceId]
+    );
     const data: ExpenseData = {
       ...omit(['subcategoryId', 'benefit'], expense),
       division,
