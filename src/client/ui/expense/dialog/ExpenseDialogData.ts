@@ -5,7 +5,7 @@ import {
   ExpenseDivisionType,
 } from 'shared/types/Expense';
 import { Source } from 'shared/types/Session';
-import Money, { MoneyLike } from 'shared/util/Money';
+import { MoneyLike } from 'shared/util/Money';
 import {
   splitByShares,
   HasShares,
@@ -48,7 +48,7 @@ export function getBenefitorsFromDivision(
 export function calculateDivision(
   expense: ExpenseInEditor,
   sum: MoneyLike,
-  sourceMap: Record<string, Source>
+  source: Source
 ): ExpenseDivision {
   switch (expense.type) {
     case 'expense': {
@@ -56,19 +56,19 @@ export function calculateDivision(
         sum,
         expense.benefit.map(id => ({ userId: id, share: 1 }))
       );
-      const cost = calculateCost(sum, sourceMap[expense.sourceId], benefit);
+      const cost = calculateDivisionCounterpart(sum, source, benefit, false);
       return benefit
         .map(itemTypeFixers.benefit)
         .concat(cost.map(itemTypeFixers.cost));
     }
     case 'income': {
-      const income = [{ userId: expense.userId, sum: Money.from(sum) }];
       const split = negateDivision(
         splitByShares(
           sum,
           expense.benefit.map(id => ({ userId: id, share: 1 }))
         )
       );
+      const income = calculateDivisionCounterpart(sum, source, split, true);
       return income
         .map(itemTypeFixers.income)
         .concat(split.map(itemTypeFixers.split));
@@ -78,10 +78,11 @@ export function calculateDivision(
         sum,
         expense.benefit.map(id => ({ userId: id, share: 1 }))
       );
-      const transferor = calculateCost(
+      const transferor = calculateDivisionCounterpart(
         sum,
-        sourceMap[expense.sourceId],
-        transferee
+        source,
+        transferee,
+        false
       );
       return transferee
         .map(itemTypeFixers.transferee)
@@ -92,24 +93,25 @@ export function calculateDivision(
   }
 }
 
-function calculateCost(
+function calculateDivisionCounterpart(
   sum: MoneyLike,
   source: Source,
-  benefit: Array<HasShares & HasSum>
+  otherDivision: Array<HasShares & HasSum>,
+  expectPositive: boolean
 ) {
   const sourceUsers = source.users;
   const sourceUserIds = sourceUsers.map(s => s.userId);
-  const benefitUserIds = benefit.map(b => b.userId);
+  const benefitUserIds = otherDivision.map(b => b.userId);
   if (sortAndCompareElements(sourceUserIds, benefitUserIds)) {
-    // Create cost based on benefit calculation
     log(
-      'Source has same users than who benefit; creating benefit based on cost'
+      'Division pair has same users creating counterpart based on other part'
     );
-    return negateDivision(benefit);
+    return negateDivision(otherDivision);
   } else {
-    // Calculate cost manually
-    log('Calculating cost by source users');
-    return negateDivision(splitByShares(sum, sourceUsers));
+    // Calculate counterpart manually
+    log('Calculating counterpart by source users');
+    const positiveDivision = splitByShares(sum, sourceUsers);
+    return expectPositive ? positiveDivision : negateDivision(positiveDivision);
   }
 }
 

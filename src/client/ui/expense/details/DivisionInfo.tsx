@@ -1,17 +1,28 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import * as colors from '../../Colors';
-import UserAvatar from '../../component/UserAvatar';
+import * as colors from 'client/ui/Colors';
+import UserAvatar from 'client/ui/component/UserAvatar';
 import Money, { MoneyLike } from 'shared/util/Money';
-import { ExpenseDivisionItem, UserExpense } from 'shared/types/Expense';
-import { media } from '../../Styles';
+import {
+  ExpenseDivisionItem,
+  ExpenseDivisionType,
+  ExpenseType,
+} from 'shared/types/Expense';
+import { media } from 'client/ui/Styles';
 
 interface DivisionInfoProps {
   division: ExpenseDivisionItem[];
-  expense: UserExpense;
+  expenseType: ExpenseType;
 }
 
-const divisionTypes = ['cost', 'benefit', 'income', 'split'];
+const divisionTypes = [
+  'cost',
+  'benefit',
+  'income',
+  'split',
+  'transferor',
+  'transferee',
+];
 
 function getBalance(data: Record<string, MoneyLike>) {
   return divisionTypes
@@ -20,56 +31,79 @@ function getBalance(data: Record<string, MoneyLike>) {
     .negate();
 }
 
-export default class ExpenseInfo extends React.Component<DivisionInfoProps> {
-  public render() {
-    const division = this.props.division;
-    const expense = this.props.expense;
-    const isIncome = expense.type === 'income';
-    const users: Record<string, Record<string, MoneyLike>> = {};
-    division.forEach(d => {
-      users[d.userId] = { ...users[d.userId], [d.type]: d.sum };
-    });
+type ShownColumns = ExpenseDivisionType[];
+const ColumnData: Record<ExpenseType, ShownColumns> = {
+  income: ['income', 'split'],
+  expense: ['cost', 'benefit'],
+  transfer: ['transferor', 'transferee'],
+};
 
-    return (
-      <DivisionTable>
-        <thead>{this.renderUserHeaderRow(isIncome)}</thead>
-        <tbody>
-          {Object.keys(users).map(userId =>
-            this.renderUser(userId, isIncome, users[userId])
-          )}
-        </tbody>
-      </DivisionTable>
-    );
-  }
+const ColumnLabels: Record<ExpenseDivisionType, string> = {
+  income: 'Tulo',
+  split: 'Jako',
+  cost: 'Meno',
+  benefit: 'Hyöty',
+  transferor: 'Annettu',
+  transferee: 'Saatu',
+};
 
-  private renderUserHeaderRow(isIncome: boolean) {
-    return (
-      <DivisionRow>
-        <UserColumn as="th">Jako:</UserColumn>
-        <DivisionColumn as="th">{isIncome ? 'Tulo' : 'Kulu'}</DivisionColumn>
-        <DivisionColumn as="th">{isIncome ? 'Jako' : 'Hyöty'}</DivisionColumn>
-        <DivisionColumn as="th">Balanssi</DivisionColumn>
-      </DivisionRow>
-    );
-  }
+export const DivisionInfo = ({ division, expenseType }: DivisionInfoProps) => {
+  const users: Record<string, Record<ExpenseDivisionType, MoneyLike>> = {};
+  division.forEach(d => {
+    users[d.userId] = { ...users[d.userId], [d.type]: d.sum };
+  });
 
-  private renderUser(
-    userId: string,
-    isIncome: boolean,
-    user: Record<string, MoneyLike>
-  ) {
-    return (
-      <DivisionRow key={userId}>
-        <UserColumn>
-          <UserAvatar userId={parseInt(userId, 10)} size={32} />
-        </UserColumn>
-        <DivisionItem sum={isIncome ? user.income : user.cost} />
-        <DivisionItem sum={isIncome ? user.split : user.benefit} />
-        <DivisionItem sum={getBalance(user)} />
-      </DivisionRow>
-    );
-  }
-}
+  const cols = ColumnData[expenseType];
+  return (
+    <DivisionTable>
+      <thead>
+        <UserHeaderRow cols={cols} />
+      </thead>
+      <tbody>
+        {Object.keys(users).map(userId => (
+          <DivisionUser
+            userId={userId}
+            cols={cols}
+            userDivision={users[userId]}
+            key={userId}
+          />
+        ))}
+      </tbody>
+    </DivisionTable>
+  );
+};
+
+const UserHeaderRow = ({ cols }: { cols: ShownColumns }) => (
+  <DivisionRow>
+    <UserColumn as="th">Jako:</UserColumn>
+    {cols.map(c => (
+      <DivisionColumn as="th" key={c}>
+        {ColumnLabels[c]}
+      </DivisionColumn>
+    ))}
+    <DivisionColumn as="th">Balanssi</DivisionColumn>
+  </DivisionRow>
+);
+
+const DivisionUser = ({
+  userId,
+  cols,
+  userDivision,
+}: {
+  userId: string;
+  cols: ShownColumns;
+  userDivision: Record<ExpenseDivisionType, MoneyLike>;
+}) => (
+  <DivisionRow key={userId}>
+    <UserColumn>
+      <UserAvatar userId={parseInt(userId, 10)} size={32} />
+    </UserColumn>
+    {cols.map(c => (
+      <DivisionItem key={c} sum={userDivision[c]} />
+    ))}
+    <DivisionItem sum={getBalance(userDivision)} />
+  </DivisionRow>
+);
 
 function DivisionItem({ sum }: { sum: MoneyLike }) {
   const s = Money.orZero(sum);

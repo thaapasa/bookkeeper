@@ -48,17 +48,20 @@ export interface ExpenseDivisionItem {
 
 export type ExpenseDivision = ExpenseDivisionItem[];
 
-export interface ExpenseData {
+export interface BaseExpenseData {
+  userId: number;
   categoryId: number;
+  sourceId: number;
+  type: ExpenseType;
   confirmed: boolean;
+  title: string;
+  receiver: string;
+}
+
+export interface ExpenseData extends BaseExpenseData {
   description: string | null;
   date: ISODate;
-  receiver: string;
-  sourceId: number;
   sum: MoneyLike;
-  title: string;
-  type: ExpenseType;
-  userId: number;
   division?: ExpenseDivision;
 }
 
@@ -81,19 +84,12 @@ export interface UserExpense extends Expense {
   userValue: MoneyLike;
 }
 
-export interface ExpenseInEditor {
-  title: string;
-  sourceId: number;
-  categoryId: number;
+export interface ExpenseInEditor extends BaseExpenseData {
   subcategoryId: number;
-  receiver: string;
   sum: string;
-  userId: number;
   date: Date;
   benefit: number[];
   description: string;
-  confirmed: boolean;
-  type: ExpenseType;
 }
 
 export interface UserExpenseWithDetails extends UserExpense {

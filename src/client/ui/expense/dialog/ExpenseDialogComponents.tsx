@@ -40,12 +40,13 @@ export function SourceSelector(props: {
   onChange: (id: number) => void;
   sources: Source[];
   style?: React.CSSProperties;
+  title: string;
 }) {
   const id = 'expense-dialog-source';
   return (
     <FormControl fullWidth={true}>
       <InputLabel htmlFor={id} shrink={true}>
-        Lähde
+        {props.title}
       </InputLabel>
       <Select
         id={id}
