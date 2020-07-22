@@ -1,18 +1,18 @@
 import * as React from 'react';
 import * as B from 'baconjs';
 import { History } from 'history';
-import { Category, CategoryAndTotals } from '../../../shared/types/Session';
-import { TypedDateRange, compareRanges } from '../../../shared/util/Time';
-import { unsubscribeAll } from '../../util/ClientUtil';
-import apiConnect from '../../data/ApiConnect';
-import { validSessionE, updateSession } from '../../data/Login';
-import { needUpdateE, navigationBus } from '../../data/State';
+import { Category, CategoryAndTotals } from 'shared/types/Session';
+import { TypedDateRange, compareRanges } from 'shared/util/Time';
+import { unsubscribeAll } from 'client/util/ClientUtil';
+import apiConnect from 'client/data/ApiConnect';
+import { validSessionE, updateSession } from 'client/data/Login';
+import { needUpdateE, navigationBus } from 'client/data/State';
 import { connect } from '../component/BaconConnect';
 import { CategoryTable } from './CategoryTable';
 import CategoryChart, { CategoryChartData } from './CategoryChart';
-import { UserDataProps, userDataE } from '../../data/Categories';
-import { categoryPagePath } from '../../util/Links';
-import Money from '../../../shared/util/Money';
+import { UserDataProps, userDataE } from 'client/data/Categories';
+import { categoryPagePath } from 'client/util/Links';
+import Money from 'shared/util/Money';
 import { PageContentContainer } from '../Styles';
 
 interface CategoryViewProps {

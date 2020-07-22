@@ -1,17 +1,17 @@
 import * as React from 'react';
 import * as colors from '../Colors';
-import apiConnect from '../../data/ApiConnect';
+import apiConnect from 'client/data/ApiConnect';
 import ExpenseRow from '../expense/row/ExpenseRow';
-import { noop } from '../../../shared/util/Util';
-import { Category, CategoryAndTotals } from '../../../shared/types/Session';
+import { noop } from 'shared/util/Util';
+import { Category, CategoryAndTotals } from 'shared/types/Session';
 import {
   AddCategoryButton,
   EditCategoryButton,
   ToggleButton,
 } from './CategoryTools';
-import { UserExpense } from '../../../shared/types/Expense';
-import { DateRange, toISODate } from '../../../shared/util/Time';
-import { UserDataProps } from '../../data/Categories';
+import { UserExpense } from 'shared/types/Expense';
+import { DateRange, toISODate } from 'shared/util/Time';
+import { UserDataProps } from 'client/data/Categories';
 import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
 import {
   Row,
@@ -20,7 +20,7 @@ import {
   ToolColumn,
   AllColumns,
 } from './CategoryTableLayout';
-import Money, { MoneyLike } from '../../../shared/util/Money';
+import Money, { MoneyLike } from 'shared/util/Money';
 
 interface CategoryRowProps {
   category: Category;

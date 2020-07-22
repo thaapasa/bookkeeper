@@ -6,10 +6,10 @@ import debug from 'debug';
 import * as colors from '../Colors';
 import { NavigateLeft, NavigateRight } from '../Icons';
 import { toDateRangeName, toMoment } from 'shared/util/Time';
-import { NavigationConfig } from '../../data/StateTypes';
-import { yearSuffix, monthSuffix } from '../../util/Links';
-import { KeyCodes } from '../../util/Io';
-import { navigationP } from '../../data/State';
+import { NavigationConfig } from 'client/data/StateTypes';
+import { yearSuffix, monthSuffix } from 'client/util/Links';
+import { KeyCodes } from 'client/util/Io';
+import { navigationP } from 'client/data/State';
 import { connect } from './BaconConnect';
 
 const log = debug('bookkeeper:navigator');

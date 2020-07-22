@@ -2,7 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 import { User, Group } from 'shared/types/Session';
 import { connect } from './BaconConnect';
-import { validSessionE, logout } from '../../data/Login';
+import { validSessionE, logout } from 'client/data/Login';
 import { UserAvatar } from './UserAvatar';
 import { colorScheme } from '../Colors';
 import { AppLink } from './NavigationBar';

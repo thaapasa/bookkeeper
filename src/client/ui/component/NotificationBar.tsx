@@ -1,9 +1,9 @@
 import * as React from 'react';
 import Snackbar from '@material-ui/core/Snackbar';
-import { Notification } from '../../data/StateTypes';
-import { notificationE } from '../../data/State';
+import { Notification } from 'client/data/StateTypes';
+import { notificationE } from 'client/data/State';
 import { Action, Timeout } from 'shared/types/Common';
-import { unsubscribeAll } from '../../util/ClientUtil';
+import { unsubscribeAll } from 'client/util/ClientUtil';
 import { AnyObject } from '../Types';
 
 const msgInterval = 5000;

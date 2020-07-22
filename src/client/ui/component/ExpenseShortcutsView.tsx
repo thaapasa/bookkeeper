@@ -3,10 +3,10 @@ import styled from 'styled-components';
 
 import { AddExpenseIcon } from '../icons/AddExpenseIcon';
 import { secondaryColors, navigationBar } from '../Colors';
-import { createNewExpense, createExpense } from '../../data/State';
+import { createNewExpense, createExpense } from 'client/data/State';
 import { ExpenseShortcut } from 'shared/types/Session';
 import { connect } from './BaconConnect';
-import { validSessionE } from '../../data/Login';
+import { validSessionE } from 'client/data/Login';
 
 class ExpenseShortcutsListImpl extends React.Component<{
   shortcuts: ExpenseShortcut[];

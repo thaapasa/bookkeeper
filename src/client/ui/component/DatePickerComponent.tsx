@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { KeyboardDatePicker } from '@material-ui/pickers';
-import { PickDateObject } from '../../data/StateTypes';
+import { PickDateObject } from 'client/data/StateTypes';
 import { Action } from 'shared/types/Common';
-import { pickDateE } from '../../data/State';
-import { unsubscribeAll } from '../../util/ClientUtil';
+import { pickDateE } from 'client/data/State';
+import { unsubscribeAll } from 'client/util/ClientUtil';
 import { datePickerFormat } from '../expense/dialog/DateField';
 import { AnyObject } from '../Types';
 

@@ -9,7 +9,7 @@ import Autosuggest, {
 } from 'react-autosuggest';
 import styled from 'styled-components';
 import { highlightBg, highlightFg } from '../Colors';
-import { eventValue } from '../../util/ClientUtil';
+import { eventValue } from 'client/util/ClientUtil';
 
 export interface AutoCompleteProps<T> {
   id: string;

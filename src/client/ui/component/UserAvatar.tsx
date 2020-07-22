@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { User } from 'shared/types/Session';
 import { connect } from './BaconConnect';
-import { userMapE } from '../../data/Login';
+import { userMapE } from 'client/data/Login';
 import styled from 'styled-components';
 import { Avatar } from '@material-ui/core';
 import { cyan } from '@material-ui/core/colors';

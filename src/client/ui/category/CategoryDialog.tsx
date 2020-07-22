@@ -13,9 +13,9 @@ import {
 import debug from 'debug';
 import * as React from 'react';
 import styled from 'styled-components';
-import { Category } from '../../../shared/types/Session';
-import apiConnect from '../../data/ApiConnect';
-import { notify, notifyError } from '../../data/State';
+import { Category } from 'shared/types/Session';
+import apiConnect from 'client/data/ApiConnect';
+import { notify, notifyError } from 'client/data/State';
 
 const log = debug('bookkeeper:category-dialog');
 
