@@ -9,6 +9,7 @@ export interface ReceiverFieldProps {
   id: string;
   name?: string;
   value: string;
+  title: string;
   fullWidth?: boolean;
   placeholder?: string;
   errorText?: string;
@@ -59,7 +60,7 @@ export class ReceiverField extends React.Component<
         id={this.props.id}
         value={this.props.value}
         onChange={this.props.onChange}
-        label="Kohde"
+        label={this.props.title}
         fullWidth={this.props.fullWidth}
         placeholder={this.props.placeholder}
         suggestions={this.state.receivers}

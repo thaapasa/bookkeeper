@@ -11,11 +11,11 @@ import {
   FormControlLabel,
 } from '@material-ui/core';
 import debug from 'debug';
-import UserSelector from '../../component/UserSelector';
-import UserAvatar from '../../component/UserAvatar';
+import UserSelector from 'client/ui/component/UserSelector';
+import UserAvatar from 'client/ui/component/UserAvatar';
 import Money from 'shared/util/Money';
-import apiConnect from '../../../data/ApiConnect';
-import { KeyCodes } from '../../../util/Io';
+import apiConnect from 'client/data/ApiConnect';
+import { KeyCodes } from 'client/util/Io';
 import {
   SumField,
   TypeSelector,
@@ -36,6 +36,7 @@ import {
   RecurringExpenseTarget,
   expenseBeneficiary,
   ExpenseDivision,
+  ExpenseType,
 } from 'shared/types/Expense';
 import { toDate, toISODate } from 'shared/util/Time';
 import { identity } from 'shared/util/Util';
@@ -47,8 +48,8 @@ import { TitleField } from './TitleField';
 import { ReceiverField } from './ReceiverField';
 import { CategorySelector } from './CategorySelector';
 import { DateField } from './DateField';
-import { isMobileSize } from '../../Styles';
-import { Size } from '../../Types';
+import { isMobileSize } from 'client/ui/Styles';
+import { Size } from 'client/ui/Types';
 import { gray } from 'client/ui/Colors';
 import { calculateDivision } from './ExpenseDialogData';
 import { DivisionInfo } from '../details/DivisionInfo';
@@ -60,6 +61,18 @@ type CategoryInfo = Pick<Category, 'name' | 'id'>;
 function errorIf(condition: boolean, error: string): string | undefined {
   return condition ? error : undefined;
 }
+
+const SourceTitles: Record<ExpenseType, string> = {
+  expense: 'Lähde',
+  income: 'Kohde',
+  transfer: 'Maksaja',
+};
+
+const ReceiverTitles: Record<ExpenseType, string> = {
+  expense: 'Kohde',
+  income: 'Maksaja',
+  transfer: 'Saaja',
+};
 
 const fields: ReadonlyArray<keyof ExpenseInEditor> = [
   'title',
@@ -136,8 +149,16 @@ export class ExpenseDialog extends React.Component<
   private unsub: any[] = [];
   public state = this.getDefaultState(null, {});
 
-  get isMobile() {
+  get isMobile(): boolean {
     return isMobileSize(this.props.windowSize);
+  }
+
+  get sourceTitle(): string {
+    return SourceTitles[this.state.type] ?? 'Lähde';
+  }
+
+  get receiverTitle(): string {
+    return ReceiverTitles[this.state.type] ?? 'Kohde';
   }
 
   private getDefaultSourceId(): number | undefined {
@@ -503,6 +524,7 @@ export class ExpenseDialog extends React.Component<
                 onChange={e => this.inputStreams.receiver.push(eventValue(e))}
                 errorText={this.state.errors.receiver}
                 onKeyUp={stopEventPropagation}
+                title={this.receiverTitle}
               />
             </Row>
             <Row className="row select category">
@@ -523,6 +545,7 @@ export class ExpenseDialog extends React.Component<
                 value={this.state.sourceId}
                 sources={this.props.sources}
                 style={{ flexGrow: 1 }}
+                title={this.sourceTitle}
                 onChange={v => this.inputStreams.sourceId.push(v)}
               />
               <UserSelector
