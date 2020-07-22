@@ -1,98 +1,84 @@
 import * as React from 'react';
 import * as B from 'baconjs';
 import styled from 'styled-components';
-import { Session } from 'shared/types/Session';
+import { Session, Source, Category, User } from 'shared/types/Session';
 import { connect } from '../component/BaconConnect';
-import { userDataE, UserDataProps } from '../../data/Categories';
-import { validSessionE } from '../../data/Login';
+import { userDataE, UserDataProps } from 'client/data/Categories';
+import { validSessionE } from 'client/data/Login';
 import { secondaryColors, primaryColors } from '../Colors';
 import { PageContentContainer } from '../Styles';
 
-class InfoView extends React.Component<{
-  userData: UserDataProps;
-  session: Session;
-}> {
-  get user() {
-    return this.props.session.user;
-  }
-  public render() {
-    return (
-      <PageContentContainer className="padded">
-        {this.renderUsers()}
-        {this.renderCategories()}
-        {this.renderSources()}
-      </PageContentContainer>
-    );
-  }
+const InfoView = (props: { userData: UserDataProps; session: Session }) => (
+  <PageContentContainer className="padded">
+    <UsersView user={props.session.user} userMap={props.userData.userMap} />
+    <CategoriesView categories={props.session.categories} />
+    <SourcesView sources={props.session.sources} />
+  </PageContentContainer>
+);
 
-  renderUsers() {
-    return (
-      <>
-        <InfoItem>
-          <Label>Kirjautunut käyttäjä</Label>
-          <Value>
-            <ItemWithId id={this.user.id}>
-              {this.user.firstName} {this.user.lastName}
-            </ItemWithId>
-          </Value>
-        </InfoItem>
-        <InfoItem>
-          <Label>Käyttäjät</Label>
-          <Value>
-            {Object.values(this.props.userData.userMap).map(v => (
-              <ItemWithId key={v.id} id={v.id}>
-                {v.firstName} {v.lastName}
-              </ItemWithId>
-            ))}
-          </Value>
-        </InfoItem>
-      </>
-    );
-  }
+const UsersView = ({
+  user,
+  userMap,
+}: {
+  user: User;
+  userMap: Record<string, User>;
+}) => (
+  <>
+    <InfoItem>
+      <Label>Kirjautunut käyttäjä</Label>
+      <Value>
+        <ItemWithId id={user.id}>
+          {user.firstName} {user.lastName}
+        </ItemWithId>
+      </Value>
+    </InfoItem>
+    <InfoItem>
+      <Label>Käyttäjät</Label>
+      <Value>
+        {Object.values(userMap).map(v => (
+          <ItemWithId key={v.id} id={v.id}>
+            {v.firstName} {v.lastName}
+          </ItemWithId>
+        ))}
+      </Value>
+    </InfoItem>
+  </>
+);
 
-  renderCategories() {
-    return (
-      <>
-        <InfoItem>
-          <Label>Kategoriat</Label>
-          <Value>
-            {Object.values(this.props.session.categories).map(cat => (
-              <ItemWithId key={cat.id} id={cat.id}>
-                {cat.name}
-                {cat.children.length > 0 ? (
-                  <SubValue>
-                    {cat.children.map(c => (
-                      <ItemWithId key={c.id} id={c.id}>
-                        {c.name}
-                      </ItemWithId>
-                    ))}
-                  </SubValue>
-                ) : null}
-              </ItemWithId>
-            ))}
-          </Value>
-        </InfoItem>
-      </>
-    );
-  }
+const CategoriesView = ({ categories }: { categories: Category[] }) => (
+  <InfoItem>
+    <Label>Kategoriat</Label>
+    <Value>
+      {Object.values(categories).map(cat => (
+        <ItemWithId key={cat.id} id={cat.id}>
+          {cat.name}
+          {cat.children.length > 0 ? (
+            <SubValue>
+              {cat.children.map(c => (
+                <ItemWithId key={c.id} id={c.id}>
+                  {c.name}
+                </ItemWithId>
+              ))}
+            </SubValue>
+          ) : null}
+        </ItemWithId>
+      ))}
+    </Value>
+  </InfoItem>
+);
 
-  renderSources() {
-    return (
-      <>
-        <InfoItem>
-          <Label>Lähteet</Label>
-          <Value>
-            {Object.values(this.props.session.sources).map(s => (
-              <ItemWithId key={s.id} id={s.id}>
-                {s.name}
-              </ItemWithId>
-            ))}
-          </Value>
-        </InfoItem>
-      </>
-    );
-  }
-}
+const SourcesView = ({ sources }: { sources: Source[] }) => (
+  <InfoItem>
+    <Label>Lähteet</Label>
+    <Value>
+      {Object.values(sources).map(s => (
+        <ItemWithId key={s.id} id={s.id}>
+          {s.name}
+        </ItemWithId>
+      ))}
+    </Value>
+  </InfoItem>
+);
 
 const ItemWithId = (props: { id: string | number; children: any }) => (
   <ItemView>
