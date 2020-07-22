@@ -11,8 +11,8 @@ export function parseQueryString(query: string): Record<string, string> {
   return res;
 }
 
-export function reloadApp() {
-  document.location.href = `/?refresh=${Math.random()}`;
+export function reloadApp(path = '/') {
+  document.location.href = `${path}?refresh=${Math.random()}`;
 }
 
 export function uri(strings: TemplateStringsArray, ...keys: any[]) {

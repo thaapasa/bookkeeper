@@ -6,7 +6,7 @@ import {
   CategoryData,
 } from 'shared/types/Session';
 import { FetchClient } from 'shared/util/FetchClient';
-import { ApiMessage } from 'shared/types/Api';
+import { ApiMessage, ApiStatus } from 'shared/types/Api';
 import {
   ExpenseCollection,
   ExpenseStatus,
@@ -112,6 +112,10 @@ export class ApiConnect {
 
   public refreshSession(): Promise<Session> {
     return this.put<Session>('/api/session/refresh');
+  }
+
+  public getApiStatus(): Promise<ApiStatus> {
+    return this.get<ApiStatus>('/api/status');
   }
 
   public async getExpensesForMonth(
