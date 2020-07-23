@@ -32,4 +32,6 @@ cd ..
 
 echo "Client built"
 
+echo "Deployed revision $REV"
+
 popd >/dev/null
