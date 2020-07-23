@@ -13,10 +13,20 @@ function searchExpenses(tx: IBaseProtocol<any>) {
     query: ExpenseQuery
   ): Promise<UserExpense[]> => {
     log(`Searching for ${JSON.stringify(query)}`);
-    const categoryIds =
+    const inputCategoryIds =
       typeof query.categoryId === 'number'
         ? [query.categoryId]
         : query.categoryId || [];
+    const categoryIds =
+      inputCategoryIds.length > 0
+        ? (
+            await tx.manyOrNone<{ id: number }>(
+              `SELECT id FROM categories
+                WHERE id IN ($/ids:csv/) OR parent_id IN ($/ids:csv/)`,
+              { ids: inputCategoryIds }
+            )
+          ).map(({ id }) => id)
+        : [];
     const expenses = await tx.manyOrNone<UserExpense>(
       basic.expenseSelect(`
       WHERE group_id=$/groupId/
