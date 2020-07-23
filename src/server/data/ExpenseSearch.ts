@@ -22,8 +22,9 @@ function searchExpenses(tx: IBaseProtocol<any>) {
         ? (
             await tx.manyOrNone<{ id: number }>(
               `SELECT id FROM categories
-                WHERE id IN ($/ids:csv/) OR parent_id IN ($/ids:csv/)`,
-              { ids: inputCategoryIds }
+                WHERE group_id = $/groupId/
+                AND id IN ($/ids:csv/) OR parent_id IN ($/ids:csv/)`,
+              { ids: inputCategoryIds, groupId }
             )
           ).map(({ id }) => id)
         : [];
