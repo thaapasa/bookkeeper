@@ -20,14 +20,18 @@ import {
   toISODate,
   toMoment,
 } from 'shared/util/Time';
-import { unnest } from 'shared/util/Arrays';
 import { secondaryColors, gray } from '../Colors';
 import { Search, Delete } from '../Icons';
 import { KeyCodes } from 'client/util/Io';
 import { toYearRange } from '../component/daterange/Common';
+import {
+  CategoryDataSource,
+  getFullCategoryName,
+} from 'client/data/Categories';
 
 interface QueryViewProps {
-  categories: Category[];
+  categorySource: CategoryDataSource[];
+  categoryMap: Record<string, Category>;
   onSearch: (query: ExpenseQuery) => void;
   isSearching: boolean;
   user: User;
@@ -36,7 +40,7 @@ interface QueryViewProps {
 interface CategorySuggestion {
   id: number;
   type: 'category';
-  category: Category;
+  name: string;
 }
 
 interface ReceiverSuggestion {
@@ -66,18 +70,18 @@ interface QueryViewState {
 }
 
 function getCategorySuggestions(
-  categories: Category[],
+  categorySource: CategoryDataSource[],
   input: string
 ): CategorySuggestion[] {
   if (!input || input.length < 1) {
     return [];
   }
   const lowerInput = input.toLowerCase();
-  const filter = (c: Category) => c.name.toLowerCase().includes(lowerInput);
-  return [
-    ...categories.filter(filter),
-    ...unnest(categories.map(c => c.children)).filter(filter),
-  ].map(category => ({ type: 'category', category, id: category.id }));
+  const filter = (c: CategoryDataSource) =>
+    c.text.toLowerCase().includes(lowerInput);
+  return categorySource
+    .filter(filter)
+    .map(c => ({ type: 'category', id: c.value, name: c.text }));
 }
 
 export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
@@ -134,7 +138,11 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
   }
 
   addCategory = (category: Category) => {
-    this.selectSuggestion({ type: 'category', category, id: category.id });
+    this.selectSuggestion({
+      type: 'category',
+      id: category.id,
+      name: getFullCategoryName(category.id, this.props.categoryMap),
+    });
   };
 
   render() {
@@ -236,7 +244,7 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
   private clearSuggestions = () => this.setState({ suggestions: [] });
   private getSuggestionValue = (suggestion: Suggestion) =>
     suggestion.type === 'category'
-      ? suggestion.category.name
+      ? suggestion.name
       : `Kohde: ${suggestion.receiver}`;
 
   private selectSuggestion = (suggestion: Suggestion) => {
@@ -282,7 +290,7 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
     this.setState({
       suggestions: [
         ...receiverSuggestions,
-        ...getCategorySuggestions(this.props.categories, search),
+        ...getCategorySuggestions(this.props.categorySource, search),
       ],
     });
   };

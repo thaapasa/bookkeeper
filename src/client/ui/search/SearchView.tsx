@@ -3,13 +3,18 @@ import * as B from 'baconjs';
 import debug from 'debug';
 import { Session, Category } from 'shared/types/Session';
 import { connect } from '../component/BaconConnect';
-import { userDataE, UserDataProps } from '../../data/Categories';
-import { validSessionE } from '../../data/Login';
+import {
+  userDataE,
+  UserDataProps,
+  categoryDataSourceP,
+  CategoryDataSource,
+} from 'client/data/Categories';
+import { validSessionE } from 'client/data/Login';
 import { PageContentContainer } from '../Styles';
 import { QueryView } from './QueryView';
 import { ExpenseQuery, UserExpense } from 'shared/types/Expense';
-import apiConnect from '../../data/ApiConnect';
-import { unsubscribeAll, Unsubscriber } from '../../util/ClientUtil';
+import apiConnect from 'client/data/ApiConnect';
+import { unsubscribeAll, Unsubscriber } from 'client/util/ClientUtil';
 import { ResultsView } from './ResultsView';
 import { needUpdateE } from 'client/data/State';
 
@@ -18,6 +23,7 @@ const log = debug('bookkeeper:expense-search');
 interface SearchViewProps {
   userData: UserDataProps;
   session: Session;
+  categorySource: CategoryDataSource[];
 }
 
 interface SearchViewState {
@@ -66,7 +72,8 @@ class SearchView extends React.Component<SearchViewProps, SearchViewState> {
       <PageContentContainer>
         <QueryView
           ref={this.queryRef}
-          categories={this.props.session.categories}
+          categoryMap={this.props.userData.categoryMap}
+          categorySource={this.props.categorySource}
           onSearch={this.onSearch}
           isSearching={this.state.isSearching}
           user={this.props.session.user}
@@ -109,5 +116,9 @@ class SearchView extends React.Component<SearchViewProps, SearchViewState> {
 }
 
 export default connect(
-  B.combineTemplate({ session: validSessionE, userData: userDataE })
+  B.combineTemplate({
+    session: validSessionE,
+    userData: userDataE,
+    categorySource: categoryDataSourceP,
+  })
 )(SearchView);
