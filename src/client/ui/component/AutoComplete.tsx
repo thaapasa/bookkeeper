@@ -27,6 +27,7 @@ export interface AutoCompleteProps<T> {
   style?: React.CSSProperties;
   label?: string;
   errorText?: string;
+  autoHideErrorText?: boolean;
   onKeyUp?: (event: React.KeyboardEvent<any>) => void;
   inputClassName?: string;
 }
@@ -104,6 +105,8 @@ export default class AutoComplete<T> extends React.Component<
       ...other
     } = props;
 
+    const defaultErrorText = this.props.autoHideErrorText ? null : ' ';
+
     return (
       <StandardTextField
         {...other}
@@ -117,7 +120,7 @@ export default class AutoComplete<T> extends React.Component<
         label={this.props.label}
         InputLabelProps={{ shrink: true }}
         error={Boolean(this.props.errorText)}
-        helperText={this.props.errorText || ' '}
+        helperText={this.props.errorText || defaultErrorText}
         onChange={this.setInputValue}
         className={this.props.inputClassName}
       />

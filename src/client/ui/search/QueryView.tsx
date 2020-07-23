@@ -149,7 +149,7 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
     return (
       <QueryArea>
         <Block>
-          <Row>
+          <Row className="top-align">
             <ClearIconArea>
               <IconButton size="small" onClick={this.onClear}>
                 <Delete />
@@ -167,6 +167,7 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
               getSuggestionValue={this.getSuggestionValue}
               onClearSuggestions={this.clearSuggestions}
               inputClassName="pad-left"
+              autoHideErrorText={true}
               onKeyUp={this.onInputKeyUp}
             />
             <SearchButtonArea>
@@ -188,7 +189,6 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
             <CheckLabel
               control={
                 <Checkbox
-                  value="foo"
                   checked={this.state.ownExpenses}
                   onChange={this.onToggleOwnExpenses}
                 />
@@ -320,6 +320,7 @@ const SearchToolArea = styled.div`
   flex-direction: row;
   align-items: center;
   justify-content: center;
+  margin-top: 6px;
   width: 40px;
   height: 46px;
   background-color: #f7f7f7;
@@ -354,6 +355,9 @@ const Row = styled.div`
 
   &.top-margin {
     margin-top: 8px;
+  }
+  &.top-align {
+    align-items: flex-start;
   }
 `;
 
