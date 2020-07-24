@@ -32,6 +32,19 @@ export const TNumberString = new t.Type<number, string, unknown>(
   String
 );
 
+export const TBooleanString = new t.Type<boolean, string, unknown>(
+  'BooleanString',
+  t.boolean.is,
+  (u, c) =>
+    either.chain(t.string.validate(u, c), s => {
+      const lows = s.toLowerCase();
+      return lows === 'true' || lows === 'false'
+        ? t.success(Boolean(lows))
+        : t.failure(u, c, 'cannot parse to a boolean');
+    }),
+  String
+);
+
 export const TIntString = new t.Type<number, string, unknown>(
   'IntString',
   t.number.is,

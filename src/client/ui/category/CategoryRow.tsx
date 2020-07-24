@@ -89,6 +89,7 @@ export default class CategoryRow extends React.Component<
       startDate: toISODate(this.props.range.start),
       endDate: toISODate(this.props.range.end),
       categoryId: this.props.category.id,
+      includeSubCategories: false,
     });
     this.setState({ isLoading: false, expenses });
   };

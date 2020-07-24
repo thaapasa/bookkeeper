@@ -56,7 +56,12 @@ class SearchView extends React.Component<SearchViewProps, SearchViewState> {
       .flatMapLatest(query =>
         isEmptyQuery(query)
           ? B.once([])
-          : B.fromPromise(apiConnect.searchExpenses(query))
+          : B.fromPromise(
+              apiConnect.searchExpenses({
+                includeSubCategories: true,
+                ...query,
+              })
+            )
       );
     this.unsub.push(resultsE.onValue(this.onResults));
     this.unsub.push(resultsE.onError(this.onError));

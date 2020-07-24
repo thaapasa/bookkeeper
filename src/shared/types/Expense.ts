@@ -2,7 +2,7 @@ import * as t from 'io-ts';
 import { ISODate, TISODate } from 'shared/util/Time';
 import { MoneyLike } from 'shared/util/Money';
 import { DbObject } from './Common';
-import { TIntString, TIntArrayString } from './Validator';
+import { TIntString, TIntArrayString, TBooleanString } from './Validator';
 
 export type ExpenseType = 'expense' | 'income' | 'transfer';
 export type ExpenseDivisionType =
@@ -153,5 +153,6 @@ export const TExpenseQuery = t.partial({
   startDate: TISODate,
   endDate: TISODate,
   userId: TIntString,
+  includeSubCategories: TBooleanString,
 });
 export type ExpenseQuery = t.TypeOf<typeof TExpenseQuery>;

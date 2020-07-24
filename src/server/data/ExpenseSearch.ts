@@ -18,7 +18,7 @@ function searchExpenses(tx: IBaseProtocol<any>) {
         ? [query.categoryId]
         : query.categoryId || [];
     const categoryIds =
-      inputCategoryIds.length > 0
+      query.includeSubCategories && inputCategoryIds.length > 0
         ? (
             await tx.manyOrNone<{ id: number }>(
               `SELECT id FROM categories
@@ -27,7 +27,7 @@ function searchExpenses(tx: IBaseProtocol<any>) {
               { ids: inputCategoryIds, groupId }
             )
           ).map(({ id }) => id)
-        : [];
+        : inputCategoryIds;
     const expenses = await tx.manyOrNone<UserExpense>(
       basic.expenseSelect(`
       WHERE group_id=$/groupId/
