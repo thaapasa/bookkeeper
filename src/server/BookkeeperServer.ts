@@ -13,9 +13,9 @@ const log = debug('bookkeeper:server');
 const curDir = process.cwd();
 const app = express();
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static('public'));
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 api.registerAPI(app);
 app.get(/\/p\/.*/, (_, res) =>
