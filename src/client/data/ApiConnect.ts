@@ -80,12 +80,16 @@ export class ApiConnect {
     details: {
       method: string;
       query?: Record<string, any>;
+      headers?: Record<string, string>;
       body?: any;
     },
     allowRefreshAndRetry = true
   ): Promise<T> {
     try {
-      return await client.req(path, { ...details, headers: this.authHeader() });
+      return await client.req(path, {
+        ...details,
+        headers: { ...details.headers, ...this.authHeader() },
+      });
     } catch (e) {
       if (e && e instanceof AuthenticationError && allowRefreshAndRetry) {
         log('Authentication error from API, trying to refresh session');
@@ -115,7 +119,12 @@ export class ApiConnect {
   ): Promise<T> {
     return this.req<T>(
       path,
-      { method: 'PUT', body, query },
+      {
+        method: 'PUT',
+        body,
+        query,
+        headers: { ...FetchClient.contentTypeJson },
+      },
       allowRefreshAndRetry
     );
   }
@@ -125,7 +134,12 @@ export class ApiConnect {
     body?: any,
     query?: Record<string, string>
   ): Promise<T> {
-    return this.req<T>(path, { method: 'POST', body, query });
+    return this.req<T>(path, {
+      method: 'POST',
+      body,
+      query,
+      headers: { ...FetchClient.contentTypeJson },
+    });
   }
 
   private del<T>(
