@@ -44,7 +44,9 @@ jobs:
         run: cp .env.ci .env
 
       - name: Setup database
-        run: yarn migrate
+        run: |
+          yarn migrate
+          yarn seed
 
       - name: Lint
         run: yarn lint
