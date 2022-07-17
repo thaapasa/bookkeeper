@@ -37,7 +37,7 @@ export class FetchClient {
       : fullPath;
   }
 
-  private async req<T>(
+  async req<T>(
     path: string,
     {
       method,
@@ -101,7 +101,6 @@ export class FetchClient {
     query?: Record<string, any>,
     headers?: Record<string, string>
   ): Promise<T> {
-    log('put put');
     return this.req(path, {
       method: 'PUT',
       body,

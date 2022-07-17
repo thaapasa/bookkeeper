@@ -18,9 +18,14 @@ import {
   ExpenseQuery,
   TExpenseQuery,
 } from 'shared/types/Expense';
-import { toISODate } from 'shared/util/Time';
+import { timeoutImmediate, toISODate } from 'shared/util/Time';
 import { filterTruthyProps } from 'shared/util/Objects';
 import { uri } from 'client/util/UrlUtils';
+import { AuthenticationError } from 'shared/types/Errors';
+import debug from 'debug';
+import { checkLoginState } from './Login';
+
+const log = debug('net:api-connect');
 
 const client = new FetchClient(() => fetch);
 
@@ -70,16 +75,49 @@ export class ApiConnect {
     return { Authorization: `Bearer ${this.currentToken || ''}` };
   }
 
-  private get<T>(path: string, query?: Record<string, any>): Promise<T> {
-    return client.get<T>(path, query, this.authHeader());
+  private async req<T>(
+    path: string,
+    details: {
+      method: string;
+      query?: Record<string, any>;
+      body?: any;
+    },
+    allowRefreshAndRetry = true
+  ): Promise<T> {
+    try {
+      return await client.req(path, { ...details, headers: this.authHeader() });
+    } catch (e) {
+      if (e && e instanceof AuthenticationError && allowRefreshAndRetry) {
+        log('Authentication error from API, trying to refresh session');
+        if (await checkLoginState()) {
+          log(`Session refreshed, retrying request`);
+          await timeoutImmediate();
+          return this.req<T>(path, details, false);
+        }
+      }
+      throw e;
+    }
+  }
+
+  private get<T>(
+    path: string,
+    query?: Record<string, any>,
+    allowRefreshAndRetry?: boolean
+  ): Promise<T> {
+    return this.req<T>(path, { method: 'GET', query }, allowRefreshAndRetry);
   }
 
   private put<T>(
     path: string,
     body?: any,
-    query?: Record<string, string>
+    query?: Record<string, string>,
+    allowRefreshAndRetry?: boolean
   ): Promise<T> {
-    return client.put<T>(path, body, query, this.authHeader());
+    return this.req<T>(
+      path,
+      { method: 'PUT', body, query },
+      allowRefreshAndRetry
+    );
   }
 
   private post<T>(
@@ -87,15 +125,15 @@ export class ApiConnect {
     body?: any,
     query?: Record<string, string>
   ): Promise<T> {
-    return client.post<T>(path, body, query, this.authHeader());
+    return this.req<T>(path, { method: 'POST', body, query });
   }
 
   private del<T>(
     path: string,
-    data?: any,
+    body?: any,
     query?: Record<string, string>
   ): Promise<T> {
-    return client.del<T>(path, data, query, this.authHeader());
+    return this.req<T>(path, { method: 'DELETE', body, query });
   }
 
   public login(username: string, password: string): Promise<Session> {
@@ -107,11 +145,16 @@ export class ApiConnect {
   }
 
   public getSession(): Promise<Session> {
-    return this.get<Session>('/api/session');
+    return this.get<Session>('/api/session', undefined, false);
   }
 
   public refreshSession(): Promise<Session> {
-    return this.put<Session>('/api/session/refresh');
+    return this.put<Session>(
+      '/api/session/refresh',
+      undefined,
+      undefined,
+      false
+    );
   }
 
   public getApiStatus(): Promise<ApiStatus> {
