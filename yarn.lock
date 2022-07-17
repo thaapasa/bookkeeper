@@ -3723,10 +3723,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"assert-options@npm:0.6.2":
-  version: 0.6.2
-  resolution: "assert-options@npm:0.6.2"
-  checksum: bf8333ce27fd711f760b4ecde3e220a6baff2c793ec6e799b08a82559c80a88c48c0763918f090b5fc49ae381d15f564fe32479e31776881149a73dfd63cea42
+"assert-options@npm:0.7.0":
+  version: 0.7.0
+  resolution: "assert-options@npm:0.7.0"
+  checksum: 447e3de35a57860b29d7f3907cfdd97cff8a763195bac9cf1f5982011904ec464da239cbc6f5ee2090f1a20be9babc1b7aa1468225bbd15ae5d96ca067dd720f
   languageName: node
   linkType: hard
 
@@ -4254,11 +4254,11 @@ __metadata:
     io-ts: 2.2.9
     knex: 0.21.2
     moment: 2.29.4
-    node-fetch: 2.6.0
+    node-fetch: 3.2.8
     nodemon: 2.0.4
     path: 0.12.7
-    pg: 8.3.0
-    pg-promise: 10.5.8
+    pg: 8.7.3
+    pg-promise: 10.11.1
     prettier: 2.0.5
     react: 16.13.1
     react-autosuggest: 10.0.2
@@ -6200,6 +6200,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"data-uri-to-buffer@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "data-uri-to-buffer@npm:4.0.0"
+  checksum: a010653869abe8bb51259432894ac62c52bf79ad761d418d94396f48c346f2ae739c46b254e8bb5987bded8a653d467db1968db3a69bab1d33aa5567baa5cfc7
+  languageName: node
+  linkType: hard
+
 "data-urls@npm:^1.0.0, data-urls@npm:^1.1.0":
   version: 1.1.0
   resolution: "data-urls@npm:1.1.0"
@@ -7593,6 +7600,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fetch-blob@npm:^3.1.2, fetch-blob@npm:^3.1.4":
+  version: 3.2.0
+  resolution: "fetch-blob@npm:3.2.0"
+  dependencies:
+    node-domexception: ^1.0.0
+    web-streams-polyfill: ^3.0.3
+  checksum: f19bc28a2a0b9626e69fd7cf3a05798706db7f6c7548da657cbf5026a570945f5eeaedff52007ea35c8bcd3d237c58a20bf1543bc568ab2422411d762dd3d5bf
+  languageName: node
+  linkType: hard
+
 "figgy-pudding@npm:^3.5.1":
   version: 3.5.2
   resolution: "figgy-pudding@npm:3.5.2"
@@ -7899,6 +7916,15 @@ __metadata:
     combined-stream: ^1.0.6
     mime-types: ^2.1.12
   checksum: 10c1780fa13dbe1ff3100114c2ce1f9307f8be10b14bf16e103815356ff567b6be39d70fc4a40f8990b9660012dc24b0f5e1dde1b6426166eb23a445ba068ca3
+  languageName: node
+  linkType: hard
+
+"formdata-polyfill@npm:^4.0.10":
+  version: 4.0.10
+  resolution: "formdata-polyfill@npm:4.0.10"
+  dependencies:
+    fetch-blob: ^3.1.2
+  checksum: 82a34df292afadd82b43d4a740ce387bc08541e0a534358425193017bf9fb3567875dc5f69564984b1da979979b70703aa73dee715a17b6c229752ae736dd9db
   languageName: node
   linkType: hard
 
@@ -11601,10 +11627,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-fetch@npm:2.6.0":
-  version: 2.6.0
-  resolution: "node-fetch@npm:2.6.0"
-  checksum: 2b741e9315c1c07df4a291d0b304892fa7e8d623fe789fedd53f9bcb8d09102b07591b4b93e552a65dfc457eee9d5d879d0440aefdb64f2d78e7cb78cbad28e9
+"node-domexception@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "node-domexception@npm:1.0.0"
+  checksum: ee1d37dd2a4eb26a8a92cd6b64dfc29caec72bff5e1ed9aba80c294f57a31ba4895a60fd48347cf17dd6e766da0ae87d75657dfd1f384ebfa60462c2283f5c7f
+  languageName: node
+  linkType: hard
+
+"node-fetch@npm:3.2.8":
+  version: 3.2.8
+  resolution: "node-fetch@npm:3.2.8"
+  dependencies:
+    data-uri-to-buffer: ^4.0.0
+    fetch-blob: ^3.1.4
+    formdata-polyfill: ^4.0.10
+  checksum: 2f7fc3e59fbede43a273e988d2f2a3dd68160618114e32ad537477db253808b65221f1dbfd666b8fb33ff07bf1de9d6448035b0f8ada5ef876c5afec93b27318
   languageName: node
   linkType: hard
 
@@ -12594,10 +12631,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pg-connection-string@npm:2.3.0, pg-connection-string@npm:^2.2.3, pg-connection-string@npm:^2.3.0":
+"pg-connection-string@npm:2.3.0":
   version: 2.3.0
   resolution: "pg-connection-string@npm:2.3.0"
   checksum: 159254e4af196e16b4db36627f0ff58517b6822776c1c0e0db6c80f3bcb6871ef0d4f19746774f2644b0d539cb907897c1bf151e67b4d0e36b026218d77656d5
+  languageName: node
+  linkType: hard
+
+"pg-connection-string@npm:^2.5.0":
+  version: 2.5.0
+  resolution: "pg-connection-string@npm:2.5.0"
+  checksum: a6f3a068f7c9416a5b33a326811caf0dfaaee045c225b7c628b4c9b4e9a2b25bdd12a21e4c48940e1000ea223a4e608ca122d2ff3dd08c8b1db0fc9f5705133a
   languageName: node
   linkType: hard
 
@@ -12608,38 +12652,38 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pg-minify@npm:1.6.1":
-  version: 1.6.1
-  resolution: "pg-minify@npm:1.6.1"
-  checksum: f4e209b399823810f466aa56e649b96eb618e1ff8dfa4faafca156d7d5472ca0e03a987f0826234720b77e3da0a2dd22a055d30f2837128f626d5cb611d0dbfd
+"pg-minify@npm:1.6.2":
+  version: 1.6.2
+  resolution: "pg-minify@npm:1.6.2"
+  checksum: 3d2668b5cd575298ef2bd82b388ed7eeb0b66c51ee722039c1b6c011cfcf7e5fb464488a6422338034d505c0549946cf10a07c722d3c6948d9b7c2cc42f7c26f
   languageName: node
   linkType: hard
 
-"pg-pool@npm:^3.2.1":
-  version: 3.2.1
-  resolution: "pg-pool@npm:3.2.1"
+"pg-pool@npm:^3.4.1, pg-pool@npm:^3.5.1":
+  version: 3.5.1
+  resolution: "pg-pool@npm:3.5.1"
   peerDependencies:
     pg: ">=8.0"
-  checksum: 58cfc291fd17a6a27450e964dd409d653f600390158bd5e04041ac8d4a3acec14f25f4a59637d82ce685f84c1e17c984b403c702c10482e6853a1d727bb00fa3
+  checksum: 42833c25f18fee41a1b2d955978f1403e93164762a7e57d3a870429103d302f1899b393ab021bb8144272037eb3f13bdb9f16a4c4afaa3efd3d2c3689738038f
   languageName: node
   linkType: hard
 
-"pg-promise@npm:10.5.8":
-  version: 10.5.8
-  resolution: "pg-promise@npm:10.5.8"
+"pg-promise@npm:10.11.1":
+  version: 10.11.1
+  resolution: "pg-promise@npm:10.11.1"
   dependencies:
-    assert-options: 0.6.2
-    pg: 8.2.2
-    pg-minify: 1.6.1
-    spex: 3.0.2
-  checksum: 20d2e396d185048203ea125632fd8d7ac289c636b399b65ac5635c5527031461d7a3c0a096d052eaa8ac1946658f727553928e7c1c0fc4f855d14d0b7bd110d2
+    assert-options: 0.7.0
+    pg: 8.7.1
+    pg-minify: 1.6.2
+    spex: 3.2.0
+  checksum: 17e59742af51646db9581e825689ef4766993182833775bdedbe32bd4b4bcf7b63a1fd67a6d0be2ef231f6111df798a204d7b702d14cd7731e06c54ae6e8546a
   languageName: node
   linkType: hard
 
-"pg-protocol@npm:^1.2.5":
-  version: 1.2.5
-  resolution: "pg-protocol@npm:1.2.5"
-  checksum: 3900f133cccc28984e80b94284564a9a71ec76c996694560d2bc95e467ddddc2a8be3d3b5d22dc64a1ac88d9a3a5a1b2cefca87209c696c205a3df986fc96147
+"pg-protocol@npm:^1.5.0":
+  version: 1.5.0
+  resolution: "pg-protocol@npm:1.5.0"
+  checksum: b839d12cafe942ef9cbc5b13c174eb2356804fb4fe8ead8279f46a36be90722d19a91409955beb8a3d5301639c44854e49749de4aef02dc361fee3e2a61fb1e4
   languageName: node
   linkType: hard
 
@@ -12656,35 +12700,43 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pg@npm:8.2.2":
-  version: 8.2.2
-  resolution: "pg@npm:8.2.2"
+"pg@npm:8.7.1":
+  version: 8.7.1
+  resolution: "pg@npm:8.7.1"
   dependencies:
     buffer-writer: 2.0.0
     packet-reader: 1.0.0
-    pg-connection-string: ^2.2.3
-    pg-pool: ^3.2.1
-    pg-protocol: ^1.2.5
+    pg-connection-string: ^2.5.0
+    pg-pool: ^3.4.1
+    pg-protocol: ^1.5.0
     pg-types: ^2.1.0
     pgpass: 1.x
-    semver: 4.3.2
-  checksum: 929fd76df50b8b3308b5c8d99f5506878708bad2b59ee5c0ffc7d2e9271d5ffb79ea134e3d9a2ae2899993dce4f7044883a3e70841c66085b292ff3090773c9a
+  peerDependencies:
+    pg-native: ">=2.0.0"
+  peerDependenciesMeta:
+    pg-native:
+      optional: true
+  checksum: 3a17d9a73df9c9f5f99400751144f9d5e8dbe1948ca44f5b5eecb2166ad78cab36d070c2a97438cd3a5d1d083e70af1d3e0aad4554a45fe74b77d98ed4487242
   languageName: node
   linkType: hard
 
-"pg@npm:8.3.0":
-  version: 8.3.0
-  resolution: "pg@npm:8.3.0"
+"pg@npm:8.7.3":
+  version: 8.7.3
+  resolution: "pg@npm:8.7.3"
   dependencies:
     buffer-writer: 2.0.0
     packet-reader: 1.0.0
-    pg-connection-string: ^2.3.0
-    pg-pool: ^3.2.1
-    pg-protocol: ^1.2.5
+    pg-connection-string: ^2.5.0
+    pg-pool: ^3.5.1
+    pg-protocol: ^1.5.0
     pg-types: ^2.1.0
     pgpass: 1.x
-    semver: 4.3.2
-  checksum: 88b4447557d0241699d4277d04b8fa2b6a5a3ee8606701f983f3aa1ca2099c41a34ac6c39ffa7211b8908a87fa452e707befdd868a7ce8a9db5720a7ed566c7e
+  peerDependencies:
+    pg-native: ">=2.0.0"
+  peerDependenciesMeta:
+    pg-native:
+      optional: true
+  checksum: d0e7040967779b9ccea16897f099510bcaf6bc86f77a6d8fa7e293c24d8bd2fd2ec46d99d6d1adc9be4cc8f254aa909361346b693088c1ba4501414f7afb2fe3
   languageName: node
   linkType: hard
 
@@ -15100,15 +15152,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"semver@npm:4.3.2":
-  version: 4.3.2
-  resolution: "semver@npm:4.3.2"
-  bin:
-    semver: ./bin/semver
-  checksum: a0bc4015f01c1843a4f270b0a8e668bbc99e2847d239ae9103c7eb54ab6b5c426d8e857c8796025fefeb131984825da977b0c2bcfbb2179ac22dbb018f91acfd
-  languageName: node
-  linkType: hard
-
 "semver@npm:6.3.0, semver@npm:^6.0.0, semver@npm:^6.1.2, semver@npm:^6.2.0, semver@npm:^6.3.0":
   version: 6.3.0
   resolution: "semver@npm:6.3.0"
@@ -15625,10 +15668,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"spex@npm:3.0.2":
-  version: 3.0.2
-  resolution: "spex@npm:3.0.2"
-  checksum: 10b42aff5567e211c692aa6d22902d620694276d7ab8948425c09f07f64087d39df10ed36bbca130ffd88628779da624c61f269535a5466bf7b27ef1cf378790
+"spex@npm:3.2.0":
+  version: 3.2.0
+  resolution: "spex@npm:3.2.0"
+  checksum: 2c562283bf9bfd4f101aa3622f00599bd2e5954ecb88339a2018d54dc2501a24d6c8e6a1f4148161ffce09dff28b81643927c4bb2795bbccdf4cf0592a45422b
   languageName: node
   linkType: hard
 
@@ -17049,6 +17092,13 @@ __metadata:
   dependencies:
     minimalistic-assert: ^1.0.0
   checksum: 2abc306c96930b757972a1c4650eb6b25b5d99f24088714957f88629e137db569368c5de0e57986c89ea70db2f1df9bba11a87cb6d0c8694b6f53a0159fab3bf
+  languageName: node
+  linkType: hard
+
+"web-streams-polyfill@npm:^3.0.3":
+  version: 3.2.1
+  resolution: "web-streams-polyfill@npm:3.2.1"
+  checksum: b119c78574b6d65935e35098c2afdcd752b84268e18746606af149e3c424e15621b6f1ff0b42b2676dc012fc4f0d313f964b41a4b5031e525faa03997457da02
   languageName: node
   linkType: hard
 
