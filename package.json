@@ -71,7 +71,7 @@
   },
   "devDependencies": {
     "@types/big.js": "6.1.5",
-    "@types/body-parser": "1.19.0",
+    "@types/body-parser": "1.19.2",
     "@types/d3": "5.7.2",
     "@types/d3-axis": "1.0.12",
     "@types/debug": "4.1.7",

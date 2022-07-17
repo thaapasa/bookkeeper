@@ -99,7 +99,7 @@ export function processRequest<T>(
       if (requestDelayMs) {
         await timeout(requestDelayMs);
       }
-      await setNoCacheHeaders(res).json(r);
+      setNoCacheHeaders(res).json(r);
     } catch (e) {
       handleError(res)(e);
     }
