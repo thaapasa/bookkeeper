@@ -7,6 +7,19 @@ jobs:
     name: Build and test bookkeeper
     runs-on: ubuntu-20.04
 
+    services:
+      postgres:
+        image: postgres:11.8
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 15488:5432
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -27,5 +40,27 @@ jobs:
       - name: Build deps
         run: yarn
 
-      - name: Build
-        run: yarn build
+      - name: Setup CI env
+        run: cp .env.ci .env
+
+      - name: Setup database
+        run: yarn migrate
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Build server
+        run: yarn build-server
+      
+      - name: Build client
+        run: yarn build-client
+
+      - name: Start server
+        run: ./script/start-server.sh
+
+      - name: Run tests
+        run: yarn test
+
+      - name: Stop server
+        run: ./script/stop-server.sh
+    
