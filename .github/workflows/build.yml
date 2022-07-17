@@ -37,7 +37,7 @@ jobs:
         with:
           node-version: 14.15.5
 
-      - name: Build deps
+      - name: Install deps
         run: yarn
 
       - name: Setup CI env

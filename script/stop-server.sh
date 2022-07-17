@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 echo "Shutting down server"
 PIDS=`ps -ef | grep BookkeeperServer | grep -v grep | awk '{print $2;}'`
