@@ -3,7 +3,7 @@
   "compilerOptions": {
     "noEmit": false,
     "module": "commonjs",
-    "lib": ["dom", "es2015", "es2016"],
+    "lib": ["es2020", "dom"],
     "paths": {
       "shared/*": ["./shared/*", "../build-server/shared/*"],
       "server/*": ["./server/*", "../build-server/server/*"],
