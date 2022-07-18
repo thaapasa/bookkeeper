@@ -70,6 +70,7 @@ const TextButton = styled.button`
 
 export interface CommonExpenseRowProps {
   expense: UserExpense;
+  prev?: UserExpense | null;
   onUpdated: (expense: UserExpense) => void;
   selectCategory?: (categorey: Category) => void;
   addFilter: (
@@ -245,7 +246,7 @@ export class ExpenseRow extends React.Component<
       }
       await apiConnect.deleteRecurringById(e.id, target);
       notify(`Poistettu kirjaus ${name}`);
-      await updateExpenses(toDate(e.date));
+      updateExpenses(toDate(e.date));
     } catch (err) {
       notifyError(
         `Virhe poistettaessa toistuvaa kirjausta ${expenseName(e)}`,
@@ -279,7 +280,10 @@ export class ExpenseRow extends React.Component<
         <Row>
           <DateColumn onClick={this.editDate}>
             {expense.recurringExpenseId ? <RecurringExpenseIcon /> : null}
-            <DateContainer>{readableDate(expense.date)}</DateContainer>
+            <DateContainer>
+              <WeekDay>{weekDay(expense.date, this.props.prev)}</WeekDay>
+              {readableDate(expense.date)}
+            </DateContainer>
           </DateColumn>
           <AvatarColumn>
             <UserAvatar
@@ -409,6 +413,11 @@ const ExpenseRowMapper: React.FC<
 
 export default ExpenseRowMapper;
 
+function weekDay(date: string, prev?: UserExpense | null) {
+  const m = toMoment(date);
+  return !prev || !m.isSame(prev.date, 'day') ? m.format('dd') : null;
+}
+
 const DateContainer = styled.div`
   position: relative;
   z-index: 1;
@@ -421,6 +430,13 @@ const SourceImage = styled.img`
 
 const OptionalIcons = styled.div`
   display: inline-block;
+  ${media.mobile`
+    display: none;
+  `}
+`;
+
+const WeekDay = styled.span`
+  padding-right: 4px;
   ${media.mobile`
     display: none;
   `}

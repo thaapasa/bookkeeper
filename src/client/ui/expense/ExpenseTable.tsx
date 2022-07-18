@@ -186,10 +186,11 @@ class ExpenseTable extends React.Component<
 export default connect(userDataE.map(userData => ({ userData })))(ExpenseTable);
 
 const ExpenseItem: React.FC<
-  { item: UserExpense; userData: UserDataProps } & Omit<
-    CommonExpenseRowProps,
-    'expense'
-  >
+  {
+    item: UserExpense;
+    userData: UserDataProps;
+    prev: UserExpense | null;
+  } & Omit<CommonExpenseRowProps, 'expense'>
 > = ({ item, ...props }) => <ExpenseRow expense={item} {...props} />;
 
 const ExpenseArea = styled.div`

@@ -121,8 +121,12 @@ const MobileLandscapeColumn = styled(Column)`
 
 export const DateColumn = styled(Column)`
   text-align: right;
-  width: 40px;
+  width: 60px;
   position: relative;
+
+  ${media.mobile`
+    width: 40px;
+  `}
 `;
 export const AvatarColumn = styled(Column)`
   padding: 0 8px;

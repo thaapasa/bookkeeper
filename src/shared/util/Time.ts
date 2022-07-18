@@ -43,8 +43,8 @@ export function fromISODate(str: any): Moment {
   return moment(str, ISODatePattern);
 }
 
-export function readableDate(date?: DateLike): string {
-  return date ? toMoment(date).format('D.M.') : '-';
+export function readableDate(date?: DateLike, long?: boolean): string {
+  return date ? toMoment(date).format(long ? 'dd D.M.' : 'D.M.') : '-';
 }
 
 export function iso(m: any): string {

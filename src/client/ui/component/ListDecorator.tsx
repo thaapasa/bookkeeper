@@ -5,10 +5,10 @@ type ListDecoratorProps<T, R> = {
   /** Items to render */
   items: T[];
   /** Component that renders one item */
-  itemRenderer: React.ComponentType<{ item: T } & R>;
+  itemRenderer: React.ComponentType<{ item: T; prev: T | null } & R>;
   /** Component that renders the separator between items */
   separator?: React.ComponentType<{ prev: T | null; next: T | null }>;
-} & Omit<R, 'item'>;
+} & Omit<R, 'item' | 'prev'>;
 
 export const ListDecorator = function <T, R>({
   items,
@@ -27,7 +27,12 @@ export const ListDecorator = function <T, R>({
           key={`separator-${idx}`}
         />
       ) : null,
-      <ItemRenderer item={item} key={`item-${idx}`} {...(rest as any)} />,
+      <ItemRenderer
+        item={item}
+        key={`item-${idx}`}
+        prev={idx > 0 ? items[idx - 1] : null}
+        {...(rest as any)}
+      />,
     ])
     .flat(1);
   pieces.push(
