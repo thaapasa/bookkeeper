@@ -11,6 +11,9 @@ import Autosuggest, {
 import styled from 'styled-components';
 import { highlightBg, highlightFg } from '../Colors';
 import { eventValue } from 'client/util/ClientUtil';
+import debug from 'debug';
+
+const log = debug('ui:autocomplete');
 
 export interface AutoCompleteProps<T> {
   id: string;
@@ -63,6 +66,7 @@ export default class AutoComplete<T> extends React.Component<
     _: React.FormEvent<any>,
     data: SuggestionSelectedEventData<T>
   ) => {
+    log(`Selected suggestion: ${data.suggestion}`);
     this.props.onSelectSuggestion(data.suggestion);
   };
 
@@ -71,14 +75,16 @@ export default class AutoComplete<T> extends React.Component<
   };
 
   private setInputFromSuggest = (
-    e: React.FormEvent<HTMLElement>,
-    params: ChangeEvent
+    _e: React.FormEvent<HTMLElement>,
+    _params: ChangeEvent
   ) => {
-    this.props.onChange(params.newValue);
-    this.props.onUpdateSuggestions(eventValue(params.newValue));
+    // This is called when the suggestion is navigated (using keyboard, for example)
+    // Not selected yet!
+    // log(`Input from suggestion: ${params.newValue}`);
   };
 
   private setInputFromField = (e: React.ChangeEvent<any>) => {
+    log(`Input from textfield: ${e.target.value}`);
     this.props.onChange(e);
     this.props.onUpdateSuggestions(eventValue(e));
     return false;
