@@ -149,32 +149,30 @@ WHERE id=$/id/::INTEGER AND group_id=$/groupId/::INTEGER`,
 }
 
 function update(groupId: number, categoryId: number, data: CategoryInput) {
-  return db.tx(
-    async (tx): Promise<Category> => {
-      const original = await getById(tx)(groupId, categoryId);
-      if (!original) {
-        throw new NotFoundError('CATEGORY_NOT_FOUND', 'category');
-      }
-      await tx.none(
-        `
+  return db.tx(async (tx): Promise<Category> => {
+    const original = await getById(tx)(groupId, categoryId);
+    if (!original) {
+      throw new NotFoundError('CATEGORY_NOT_FOUND', 'category');
+    }
+    await tx.none(
+      `
 UPDATE categories
 SET parent_id=$/parentId/::INTEGER, name=$/name/
 WHERE id=$/categoryId/::INTEGER AND group_id=$/groupId/::INTEGER`,
-        {
-          parentId: data.parentId || null,
-          name: data.name,
-          categoryId,
-          groupId,
-        }
-      );
-      return {
-        id: categoryId,
+      {
         parentId: data.parentId || null,
         name: data.name,
-        children: [],
-      };
-    }
-  );
+        categoryId,
+        groupId,
+      }
+    );
+    return {
+      id: categoryId,
+      parentId: data.parentId || null,
+      name: data.name,
+      children: [],
+    };
+  });
 }
 
 export default {

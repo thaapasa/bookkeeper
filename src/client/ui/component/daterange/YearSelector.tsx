@@ -24,14 +24,14 @@ export function YearSelector(props: SelectorProps) {
     },
     [setYear, onSelectRange]
   );
-  const prev = React.useCallback(() => changeYear(Number(year) - 1), [
-    year,
-    changeYear,
-  ]);
-  const next = React.useCallback(() => changeYear(Number(year) + 1), [
-    year,
-    changeYear,
-  ]);
+  const prev = React.useCallback(
+    () => changeYear(Number(year) - 1),
+    [year, changeYear]
+  );
+  const next = React.useCallback(
+    () => changeYear(Number(year) + 1),
+    [year, changeYear]
+  );
   return (
     <>
       <StyledIconButton onClick={prev} title="Edellinen">

@@ -24,7 +24,7 @@ interface ReceiverFieldState {
 }
 
 export class ReceiverField extends React.Component<
-  ReceiverFieldProps,
+  React.PropsWithChildren<ReceiverFieldProps>,
   ReceiverFieldState
 > {
   private searchStream = new B.Bus<string>();
@@ -82,7 +82,9 @@ export class ReceiverField extends React.Component<
   private clearReceivers = async () => this.setState({ receivers: [] });
 }
 
-export class PlainReceiverField extends React.Component<ReceiverFieldProps> {
+export class PlainReceiverField extends React.Component<
+  React.PropsWithChildren<ReceiverFieldProps>
+> {
   public render() {
     return (
       <ReceiverField {...this.props} value={this.props.value || ''}>

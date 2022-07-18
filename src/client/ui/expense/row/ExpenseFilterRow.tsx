@@ -18,9 +18,7 @@ interface ExpenseFilterRowProps {
   onRemoveFilter: (index: number) => void;
 }
 
-export default class ExpenseFilterRow extends React.Component<
-  ExpenseFilterRowProps
-> {
+export default class ExpenseFilterRow extends React.Component<ExpenseFilterRowProps> {
   public render() {
     if (this.props.filters.length === 0) {
       return null;

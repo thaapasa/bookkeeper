@@ -2,7 +2,8 @@ import { Paper } from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
 import React from 'react';
 import Autosuggest, {
-  InputProps,
+  ChangeEvent,
+  RenderInputComponentProps,
   RenderSuggestionsContainerParams,
   SuggestionSelectedEventData,
   SuggestionsFetchRequestedParams,
@@ -10,6 +11,9 @@ import Autosuggest, {
 import styled from 'styled-components';
 import { highlightBg, highlightFg } from '../Colors';
 import { eventValue } from 'client/util/ClientUtil';
+import debug from 'debug';
+
+const log = debug('ui:autocomplete');
 
 export interface AutoCompleteProps<T> {
   id: string;
@@ -42,7 +46,7 @@ export default class AutoComplete<T> extends React.Component<
         inputProps={{
           name: this.props.name,
           value: this.props.value,
-          onChange: this.setInputValue,
+          onChange: this.setInputFromSuggest,
           style: { margin: '6px 0', ...this.props.style },
           onKeyUp: this.props.onKeyUp,
         }}
@@ -62,6 +66,7 @@ export default class AutoComplete<T> extends React.Component<
     _: React.FormEvent<any>,
     data: SuggestionSelectedEventData<T>
   ) => {
+    log(`Selected suggestion: ${data.suggestion}`);
     this.props.onSelectSuggestion(data.suggestion);
   };
 
@@ -69,9 +74,20 @@ export default class AutoComplete<T> extends React.Component<
     this.props.onUpdateSuggestions(params.value);
   };
 
-  private setInputValue = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  private setInputFromSuggest = (
+    _e: React.FormEvent<HTMLElement>,
+    _params: ChangeEvent
+  ) => {
+    // This is called when the suggestion is navigated (using keyboard, for example)
+    // Not selected yet!
+    // log(`Input from suggestion: ${params.newValue}`);
+  };
+
+  private setInputFromField = (e: React.ChangeEvent<any>) => {
+    log(`Input from textfield: ${e.target.value}`);
     this.props.onChange(e);
     this.props.onUpdateSuggestions(eventValue(e));
+    return false;
   };
 
   private renderSuggestion = (
@@ -93,7 +109,7 @@ export default class AutoComplete<T> extends React.Component<
     );
   };
 
-  private renderInput = (props: InputProps<T>) => {
+  private renderInput = (props: RenderInputComponentProps) => {
     /* eslint-disable @typescript-eslint/no-unused-vars */
     const {
       defaultValue,
@@ -121,7 +137,7 @@ export default class AutoComplete<T> extends React.Component<
         InputLabelProps={{ shrink: true }}
         error={Boolean(this.props.errorText)}
         helperText={this.props.errorText || defaultErrorText}
-        onChange={this.setInputValue}
+        onChange={this.setInputFromField}
         className={this.props.inputClassName}
       />
     );

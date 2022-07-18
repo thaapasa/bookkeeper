@@ -54,7 +54,7 @@ export function notifyError(message: string, cause: any) {
 const pickDateBus = new B.Bus<PickDateObject>();
 
 /* Returns a promise that will be resolved to the selected date  */
-export function pickDate(initialDate?: Date): Promise<Date> {
+export function pickDate(initialDate?: Date): Promise<Date | undefined> {
   return new Promise(resolve => pickDateBus.push({ resolve, initialDate }));
 }
 

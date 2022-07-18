@@ -53,58 +53,56 @@ function createRecurring(
   expenseId: number,
   recurrence: RecurringExpenseInput
 ) {
-  return db.tx(
-    async (tx: IBaseProtocol<any>): Promise<ApiMessage> => {
-      log('Create', recurrence.period, 'recurring expense from', expenseId);
-      let nextMissing: Moment | undefined;
-      const templateId = await expenses.tx.copyExpense(tx)(
-        groupId,
-        userId,
-        expenseId,
-        e => {
-          const [expense, division] = e;
-          if (expense.recurringExpenseId && expense.recurringExpenseId > 0) {
-            throw new Validator.InvalidInputError(
-              'recurringExpenseId',
-              expense.recurringExpenseId,
-              'Expense is already a recurring expense'
-            );
-          }
-          nextMissing = nextRecurrence(expense.date, recurrence.period);
-          return [{ ...expense, template: true }, division];
+  return db.tx(async (tx: IBaseProtocol<any>): Promise<ApiMessage> => {
+    log('Create', recurrence.period, 'recurring expense from', expenseId);
+    let nextMissing: Moment | undefined;
+    const templateId = await expenses.tx.copyExpense(tx)(
+      groupId,
+      userId,
+      expenseId,
+      e => {
+        const [expense, division] = e;
+        if (expense.recurringExpenseId && expense.recurringExpenseId > 0) {
+          throw new Validator.InvalidInputError(
+            'recurringExpenseId',
+            expense.recurringExpenseId,
+            'Expense is already a recurring expense'
+          );
         }
-      );
-      const recurringExpenseId = (
-        await tx.one<{ id: number }>(
-          `
+        nextMissing = nextRecurrence(expense.date, recurrence.period);
+        return [{ ...expense, template: true }, division];
+      }
+    );
+    const recurringExpenseId = (
+      await tx.one<{ id: number }>(
+        `
 INSERT INTO recurring_expenses (template_expense_id, period, next_missing, group_id)
 VALUES ($/templateId/::INTEGER, $/period/, $/nextMissing/::DATE, $/groupId/)
 RETURNING id`,
-          {
-            templateId,
-            period: recurrence.period,
-            nextMissing: toISODate(nextMissing),
-            groupId,
-          }
-        )
-      ).id;
+        {
+          templateId,
+          period: recurrence.period,
+          nextMissing: toISODate(nextMissing),
+          groupId,
+        }
+      )
+    ).id;
 
-      await tx.none(
-        `
+    await tx.none(
+      `
 UPDATE expenses
 SET recurring_expense_id=$/recurringExpenseId/
 WHERE id IN ($/expenseId/, $/templateId/)`,
-        { recurringExpenseId, expenseId, templateId }
-      );
-      return {
-        status: 'OK',
-        message: 'Recurrence created',
-        expenseId,
-        templateExpenseId: templateId,
-        recurringExpenseId,
-      };
-    }
-  );
+      { recurringExpenseId, expenseId, templateId }
+    );
+    return {
+      status: 'OK',
+      message: 'Recurrence created',
+      expenseId,
+      templateExpenseId: templateId,
+      recurringExpenseId,
+    };
+  });
 }
 
 function getDatesUpTo(recurrence: Recurrence, date: Moment): string[] {

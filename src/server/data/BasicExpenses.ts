@@ -208,7 +208,7 @@ export function setDefaults(expense: Expense): Expense {
   expense.description = expense.description ? expense.description : null;
   expense.confirmed =
     expense.confirmed === undefined ? true : expense.confirmed;
-  delete expense.recurringExpenseId;
+  expense.recurringExpenseId = null;
   return expense;
 }
 
@@ -320,12 +320,10 @@ function updateExpenseById(
   expense: Expense,
   defaultSourceId: number
 ) {
-  return db.tx(
-    async (tx): Promise<ApiMessage> => {
-      const e = await getById(tx)(groupId, userId, expenseId);
-      return updateExpense(tx)(e, expense, defaultSourceId);
-    }
-  );
+  return db.tx(async (tx): Promise<ApiMessage> => {
+    const e = await getById(tx)(groupId, userId, expenseId);
+    return updateExpense(tx)(e, expense, defaultSourceId);
+  });
 }
 
 interface ReceiverInfo {

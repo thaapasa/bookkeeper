@@ -57,7 +57,9 @@ interface UserIdAvatarProps extends CommonAvatarProps {
   userMap: Record<string, User>;
 }
 
-export class UserIdAvatar extends React.Component<UserIdAvatarProps> {
+export class UserIdAvatar extends React.Component<
+  React.PropsWithChildren<UserIdAvatarProps>
+> {
   public render() {
     const user = this.props.userMap[this.props.userId];
     return user ? <UserAvatar {...this.props} user={user} /> : null;
