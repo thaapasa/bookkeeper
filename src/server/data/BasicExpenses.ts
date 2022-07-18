@@ -208,7 +208,7 @@ export function setDefaults(expense: Expense): Expense {
   expense.description = expense.description ? expense.description : null;
   expense.confirmed =
     expense.confirmed === undefined ? true : expense.confirmed;
-  delete expense.recurringExpenseId;
+  expense.recurringExpenseId = null;
   return expense;
 }
 
