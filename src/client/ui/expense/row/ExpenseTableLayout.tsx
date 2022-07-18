@@ -1,27 +1,46 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import { colorScheme } from '../../Colors';
-import { media, ScreenSizeClassName } from '../../Styles';
+import {
+  getScreenSizeClassName,
+  media,
+  ScreenSizeClassName,
+} from '../../Styles';
 import { QuestionBookmark, Recurring } from '../../Icons';
 import { CircularProgress } from '@material-ui/core';
+import { windowSizeP } from 'client/data/State';
+import { Size } from 'client/ui/Types';
+import { connect } from 'client/ui/component/BaconConnect';
 
 const tableBgColor = colorScheme.primary.light;
 const separatorColor = colorScheme.gray.standard;
 
-export const columnSizes: Record<string, ScreenSizeClassName> = {
+const columns = [
+  'date',
+  'avatar',
+  'name',
+  'receiver',
+  'category',
+  'source',
+  'sum',
+  'balance',
+  'tools',
+] as const;
+type ExpenseRowColumns = typeof columns[number];
+
+export const columnSizes: Record<ExpenseRowColumns, ScreenSizeClassName> = {
   date: 'mobile-portrait',
   avatar: 'mobile-portrait',
   name: 'mobile-portrait',
   receiver: 'mobile-landscape',
   category: 'mobile-landscape',
-  source: 'mobile-landscape',
+  source: 'web',
   sum: 'mobile-portrait',
   balance: 'web',
   tools: 'mobile-portrait',
 };
-const columns = Object.keys(columnSizes);
 
-export const maxColumnsForSize2 = {
+export const maxColumnsForSize = {
   'mobile-portrait': columns.filter(c => columnSizes[c] === 'mobile-portrait')
     .length,
   'mobile-landscape': columns.filter(
@@ -33,12 +52,10 @@ export const maxColumnsForSize2 = {
   large: columns.length,
 };
 
-export const maxColumnsForSize = {
-  'mobile-portrait': columns.length,
-  'mobile-landscape': columns.length,
-  web: columns.length,
-  large: columns.length,
-};
+export function getVisibleColumns(windowSize: Size) {
+  const size = getScreenSizeClassName(windowSize);
+  return maxColumnsForSize[size];
+}
 
 export const ExpenseTableLayout = styled.table`
   width: 100%;
@@ -90,14 +107,14 @@ const Column = styled.td`
 
 const WebColumn = styled(Column)`
   ${media.mobile`
-    visibility: hidden;
+    display: none;
     width: 0;
   `}
 `;
 
 const MobileLandscapeColumn = styled(Column)`
   ${media.mobilePortrait`
-    visibility: hidden;
+    display: none;
     width: 0;
   `}
 `;
@@ -154,13 +171,17 @@ export const ToolColumn = styled(Column)`
   `}
 `;
 
-export function AllColumns(props: { className?: string; children?: any }) {
-  return (
-    <Column colSpan={9} className={props.className}>
-      {props.children}
-    </Column>
-  );
-}
+const AllColumnsComponent: React.FC<
+  React.PropsWithChildren<{ className?: string; size: Size }>
+> = ({ className, children, size }) => (
+  <Column colSpan={getVisibleColumns(size)} className={className}>
+    {children}
+  </Column>
+);
+
+export const AllColumns = connect(windowSizeP.map(size => ({ size })))(
+  AllColumnsComponent
+);
 
 const Corner = styled.div`
   position: absolute;

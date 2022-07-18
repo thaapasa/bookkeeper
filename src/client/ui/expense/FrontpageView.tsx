@@ -7,16 +7,7 @@ import RoutedMonthView from './RoutedMonthView';
 import { connect } from '../component/BaconConnect';
 import { windowSizeP } from 'client/data/State';
 
-class FrontpageView extends React.Component<
-  RouteComponentProps & { size: Size }
-> {
-  public render() {
-    if (isMobileSize(this.props.size)) {
-      return <ShortcutsView />;
-    } else {
-      return <RoutedMonthView {...this.props} />;
-    }
-  }
-}
+const FrontpageView: React.FC<RouteComponentProps & { size: Size }> = props =>
+  isMobileSize(props.size) ? <ShortcutsView /> : <RoutedMonthView {...props} />;
 
 export default connect(windowSizeP.map(size => ({ size })))(FrontpageView);

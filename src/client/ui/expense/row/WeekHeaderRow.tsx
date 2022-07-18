@@ -2,11 +2,11 @@ import { colorScheme } from 'client/ui/Colors';
 import { media } from 'client/ui/Styles';
 import * as React from 'react';
 import styled from 'styled-components';
-import { Row } from './ExpenseTableLayout';
+import { AllColumns, Row } from './ExpenseTableLayout';
 
 export const WeekHeaderRow: React.FC<{ week: string }> = ({ week }) => (
   <WeekRow>
-    <WeekData colSpan={9}>Viikko {week}</WeekData>
+    <WeekData>Viikko {week}</WeekData>
   </WeekRow>
 );
 
@@ -16,7 +16,7 @@ const WeekRow = styled(Row)`
   `}
 `;
 
-const WeekData = styled.td`
+const WeekData = styled(AllColumns)`
   padding: 12px 4px;
   color: ${colorScheme.secondary.dark};
   font-weight: bold;
