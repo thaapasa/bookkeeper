@@ -1,0 +1,26 @@
+import { colorScheme } from 'client/ui/Colors';
+import { media } from 'client/ui/Styles';
+import * as React from 'react';
+import styled from 'styled-components';
+import { Row } from './ExpenseTableLayout';
+
+export const WeekHeaderRow: React.FC<{ week: string }> = ({ week }) => (
+  <WeekRow>
+    <WeekData colSpan={9}>Viikko {week}</WeekData>
+  </WeekRow>
+);
+
+const WeekRow = styled(Row)`
+  ${media.mobile`
+    display: none;
+  `}
+`;
+
+const WeekData = styled.td`
+  padding: 12px 4px;
+  color: ${colorScheme.secondary.dark};
+  font-weight: bold;
+  font-size: 11pt;
+  font-style: italic;
+  background-color: ${colorScheme.gray.light};
+`;

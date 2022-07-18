@@ -68,7 +68,7 @@ const TextButton = styled.button`
   }
 `;
 
-interface CommonExpenseRowProps {
+export interface CommonExpenseRowProps {
   expense: UserExpense;
   onUpdated: (expense: UserExpense) => void;
   selectCategory?: (categorey: Category) => void;
@@ -389,25 +389,23 @@ export class ExpenseRow extends React.Component<
   }
 }
 
-export default class ExpenseRowMapper extends React.Component<
+const ExpenseRowMapper: React.FC<
   CommonExpenseRowProps & { userData: UserDataProps }
-> {
-  public render() {
-    return (
-      <ExpenseRow
-        {...this.props}
-        categoryMap={this.props.userData.categoryMap}
-        userMap={this.props.userData.userMap}
-        user={this.props.userData.userMap[this.props.expense.userId]}
-        source={this.props.userData.sourceMap[this.props.expense.sourceId]}
-        fullCategoryName={getFullCategoryName(
-          this.props.expense.categoryId,
-          this.props.userData.categoryMap
-        )}
-      />
-    );
-  }
-}
+> = props => (
+  <ExpenseRow
+    {...props}
+    categoryMap={props.userData.categoryMap}
+    userMap={props.userData.userMap}
+    user={props.userData.userMap[props.expense.userId]}
+    source={props.userData.sourceMap[props.expense.sourceId]}
+    fullCategoryName={getFullCategoryName(
+      props.expense.categoryId,
+      props.userData.categoryMap
+    )}
+  />
+);
+
+export default ExpenseRowMapper;
 
 const DateContainer = styled.div`
   position: relative;

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import ExpenseRow from './row/ExpenseRow';
+import ExpenseRow, { CommonExpenseRowProps } from './row/ExpenseRow';
 import ExpenseHeader from './row/ExpenseHeader';
 import Money from 'shared/util/Money';
 import { MonthlyStatus } from './MonthlyStatus';
@@ -21,6 +21,8 @@ import {
 import RecurringSummaryRow from './row/RecurringSummaryRow';
 import { colorScheme } from '../Colors';
 import { media, PageContentContainer } from '../Styles';
+import { ListDecorator } from '../component/ListDecorator';
+import { ExpenseRowSeparator } from './row/ExpenseRowSeparator';
 
 interface ExpenseTableProps {
   expenses: UserExpense[];
@@ -136,11 +138,18 @@ class ExpenseTable extends React.Component<
       return this.renderRecurringExpenses(recurring);
     }
     return (
-      <React.Fragment>
+      <>
         {this.renderRecurringExpenses(recurring)}
         <RecurringExpenseSeparator />
-        {normal.map(this.renderExpense)}
-      </React.Fragment>
+        <ListDecorator
+          items={normal}
+          itemRenderer={ExpenseItem}
+          userData={this.props.userData}
+          addFilter={this.addFilter}
+          onUpdated={this.onUpdateExpense}
+          separator={ExpenseRowSeparator}
+        />
+      </>
     );
   }
 
@@ -175,6 +184,13 @@ class ExpenseTable extends React.Component<
 }
 
 export default connect(userDataE.map(userData => ({ userData })))(ExpenseTable);
+
+const ExpenseItem: React.FC<
+  { item: UserExpense; userData: UserDataProps } & Omit<
+    CommonExpenseRowProps,
+    'expense'
+  >
+> = ({ item, ...props }) => <ExpenseRow expense={item} {...props} />;
 
 const ExpenseArea = styled.div`
   flex: 1;
