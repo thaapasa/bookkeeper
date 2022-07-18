@@ -105,6 +105,9 @@
     "tslib": "2.4.0",
     "typescript": "4.7.4"
   },
+  "resolutions": {
+    "nth-check": "2.1.1"
+  },
   "directories": {
     "test": "test"
   },
