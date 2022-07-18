@@ -11,7 +11,7 @@ import {
   ToolIcon,
   ExpenseTypeIcon,
 } from 'client/ui/Icons';
-import { Flex, VCenterRow } from 'client/ui/Styles';
+import { Flex, media, VCenterRow } from 'client/ui/Styles';
 import * as colors from 'client/ui/Colors';
 import { ExpenseInfo } from '../details/ExpenseInfo';
 import { expenseName } from '../ExpenseHelper';
@@ -349,17 +349,19 @@ export class ExpenseRow extends React.Component<
               onClick={() => this.toggleDetails(expense, this.state.details)}
               icon={this.state.details ? ExpandLess : ExpandMore}
             />
-            <ToolIcon
-              title="Muokkaa"
-              onClick={this.modifyExpense}
-              icon={Edit}
-            />
-            <ToolIcon
-              className="optional"
-              title="Poista"
-              onClick={this.deleteExpense}
-              icon={Delete}
-            />
+            <OptionalIcons>
+              <ToolIcon
+                title="Muokkaa"
+                onClick={this.modifyExpense}
+                icon={Edit}
+              />
+              <ToolIcon
+                className="optional"
+                title="Poista"
+                onClick={this.deleteExpense}
+                icon={Delete}
+              />
+            </OptionalIcons>
           </ToolColumn>
         </Row>
         {this.renderDetails()}
@@ -415,4 +417,11 @@ const DateContainer = styled.div`
 const SourceImage = styled.img`
   max-width: ${sourceWidth}px;
   max-height: 34px;
+`;
+
+const OptionalIcons = styled.div`
+  display: inline-block;
+  ${media.mobile`
+    display: none;
+  `}
 `;

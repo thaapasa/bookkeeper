@@ -17,8 +17,9 @@ const WeekRow = styled(Row)`
 `;
 
 const WeekData = styled(AllColumns)`
-  padding: 12px 4px;
+  padding: 16px 4px 8px 4px;
   color: ${colorScheme.secondary.dark};
+  height: inherit;
   font-weight: bold;
   font-size: 11pt;
   font-style: italic;
