@@ -18,7 +18,7 @@ export function connect<TBaconProps, TNeedsProps>(
     component: React.ComponentType<P>
   ): React.ComponentClass<Omit<P, keyof TBaconProps> & TNeedsProps> => {
     return class ConnectedComponent extends React.Component<
-      Omit<P, keyof TBaconProps> & TNeedsProps,
+      React.PropsWithChildren<Omit<P, keyof TBaconProps> & TNeedsProps>,
       TBaconProps & { hasReceivedProps: boolean }
     > {
       public state: Readonly<TBaconProps & { hasReceivedProps: boolean }> = {

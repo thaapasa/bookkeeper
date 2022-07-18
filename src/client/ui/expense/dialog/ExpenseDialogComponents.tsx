@@ -29,7 +29,9 @@ export function SumField(props: {
       value={props.value}
       helperText={props.errorText || ' '}
       error={Boolean(props.errorText)}
-      onChange={e => props.onChange(e.target.value)}
+      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+        props.onChange(e.target.value)
+      }
       autoFocus
     />
   );
@@ -104,7 +106,9 @@ export function DescriptionField(props: {
       helperText={props.errorText}
       error={Boolean(props.errorText)}
       value={props.value}
-      onChange={e => props.onChange(e.target.value)}
+      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+        props.onChange(e.target.value)
+      }
     />
   );
 }

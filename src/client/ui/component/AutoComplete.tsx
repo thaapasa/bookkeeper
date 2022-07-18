@@ -2,7 +2,8 @@ import { Paper } from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
 import React from 'react';
 import Autosuggest, {
-  InputProps,
+  ChangeEvent,
+  RenderInputComponentProps,
   RenderSuggestionsContainerParams,
   SuggestionSelectedEventData,
   SuggestionsFetchRequestedParams,
@@ -42,7 +43,7 @@ export default class AutoComplete<T> extends React.Component<
         inputProps={{
           name: this.props.name,
           value: this.props.value,
-          onChange: this.setInputValue,
+          onChange: this.setInputFromSuggest,
           style: { margin: '6px 0', ...this.props.style },
           onKeyUp: this.props.onKeyUp,
         }}
@@ -69,9 +70,18 @@ export default class AutoComplete<T> extends React.Component<
     this.props.onUpdateSuggestions(params.value);
   };
 
-  private setInputValue = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  private setInputFromSuggest = (
+    e: React.FormEvent<HTMLElement>,
+    params: ChangeEvent
+  ) => {
+    this.props.onChange(params.newValue);
+    this.props.onUpdateSuggestions(eventValue(params.newValue));
+  };
+
+  private setInputFromField = (e: React.ChangeEvent<any>) => {
     this.props.onChange(e);
     this.props.onUpdateSuggestions(eventValue(e));
+    return false;
   };
 
   private renderSuggestion = (
@@ -93,7 +103,7 @@ export default class AutoComplete<T> extends React.Component<
     );
   };
 
-  private renderInput = (props: InputProps<T>) => {
+  private renderInput = (props: RenderInputComponentProps) => {
     /* eslint-disable @typescript-eslint/no-unused-vars */
     const {
       defaultValue,
@@ -121,7 +131,7 @@ export default class AutoComplete<T> extends React.Component<
         InputLabelProps={{ shrink: true }}
         error={Boolean(this.props.errorText)}
         helperText={this.props.errorText || defaultErrorText}
-        onChange={this.setInputValue}
+        onChange={this.setInputFromField}
         className={this.props.inputClassName}
       />
     );
