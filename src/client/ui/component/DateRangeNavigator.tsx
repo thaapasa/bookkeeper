@@ -18,9 +18,7 @@ export interface DateRangeNavigatorProps
   extends NavigationConfig,
     RouteComponentProps {}
 
-export class DateRangeNavigator extends React.Component<
-  DateRangeNavigatorProps
-> {
+export class DateRangeNavigator extends React.Component<DateRangeNavigatorProps> {
   private navigateOffset = (offset: number) => {
     const rangeSuffix =
       this.props.dateRange.type === 'month'

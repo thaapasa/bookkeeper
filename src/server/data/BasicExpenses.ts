@@ -320,12 +320,10 @@ function updateExpenseById(
   expense: Expense,
   defaultSourceId: number
 ) {
-  return db.tx(
-    async (tx): Promise<ApiMessage> => {
-      const e = await getById(tx)(groupId, userId, expenseId);
-      return updateExpense(tx)(e, expense, defaultSourceId);
-    }
-  );
+  return db.tx(async (tx): Promise<ApiMessage> => {
+    const e = await getById(tx)(groupId, userId, expenseId);
+    return updateExpense(tx)(e, expense, defaultSourceId);
+  });
 }
 
 interface ReceiverInfo {

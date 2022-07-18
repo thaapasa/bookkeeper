@@ -82,9 +82,8 @@ interface AxisProps<D extends d3Axis.AxisDomain> {
   readonly translate: string;
 }
 class Axis<D extends d3Axis.AxisDomain> extends React.Component<AxisProps<D>> {
-  private axisElement: React.RefObject<SVGGElement> = React.createRef<
-    SVGGElement
-  >();
+  private axisElement: React.RefObject<SVGGElement> =
+    React.createRef<SVGGElement>();
 
   public componentDidMount() {
     this.renderAxis();

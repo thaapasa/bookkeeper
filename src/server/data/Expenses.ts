@@ -78,15 +78,10 @@ function getByMonth(
 ): Promise<ExpenseCollection> {
   const startDate = time.month(year, month);
   const endDate = startDate.clone().add(1, 'months');
-  return db.tx(
-    async (tx): Promise<ExpenseCollection> => {
-      await recurring.tx.createMissing(tx)(groupId, userId, endDate);
-      const [
-        expenses,
-        startStatus,
-        monthStatus,
-        unconfirmedBefore,
-      ] = await Promise.all([
+  return db.tx(async (tx): Promise<ExpenseCollection> => {
+    await recurring.tx.createMissing(tx)(groupId, userId, endDate);
+    const [expenses, startStatus, monthStatus, unconfirmedBefore] =
+      await Promise.all([
         getBetween(tx)(groupId, userId, startDate, endDate),
         basic.tx
           .countTotalBetween(tx)(groupId, userId, '2000-01', startDate)
@@ -96,19 +91,18 @@ function getByMonth(
           .then(calculateBalance),
         basic.tx.hasUnconfirmedBefore(tx)(groupId, startDate),
       ]);
-      const endStatus = mapValues(
-        k => Money.from(startStatus[k]).plus(monthStatus[k]).toString(),
-        zeroStatus
-      );
-      return {
-        expenses,
-        startStatus,
-        monthStatus,
-        endStatus,
-        unconfirmedBefore,
-      };
-    }
-  );
+    const endStatus = mapValues(
+      k => Money.from(startStatus[k]).plus(monthStatus[k]).toString(),
+      zeroStatus
+    );
+    return {
+      expenses,
+      startStatus,
+      monthStatus,
+      endStatus,
+      unconfirmedBefore,
+    };
+  });
 }
 
 export default {
