@@ -9,7 +9,6 @@ import {
   MenuItem,
   Select,
   SelectChangeEvent,
-  TextField,
 } from '@mui/material';
 import debug from 'debug';
 import * as React from 'react';
@@ -18,6 +17,8 @@ import styled from 'styled-components';
 import { Category } from 'shared/types/Session';
 import apiConnect from 'client/data/ApiConnect';
 import { notify, notifyError } from 'client/data/State';
+
+import { TextEdit } from '../component/TextEdit';
 
 const log = debug('bookkeeper:category-dialog');
 
@@ -149,8 +150,7 @@ export default class CategoryDialog extends React.Component<
     this.closeDialog(null);
   };
 
-  private updateName = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const name = event.target.value;
+  private updateName = (name: string) => {
     this.setState({ name, valid: (name && name.length > 0) || false });
   };
 
@@ -175,10 +175,11 @@ export default class CategoryDialog extends React.Component<
         <DialogContent>
           <Form onSubmit={this.requestSave}>
             <DialogControl>
-              <TextField
+              <TextEdit
+                label="Nimi"
                 key="name"
                 placeholder="Nimi"
-                label="Nimi"
+                variant="outlined"
                 InputLabelProps={{ shrink: true }}
                 fullWidth={true}
                 value={this.state.name}
@@ -190,7 +191,8 @@ export default class CategoryDialog extends React.Component<
                 Yläkategoria
               </InputLabel>
               <Select
-                inputProps={{ id: 'category-dialog-parentId' }}
+                labelId="category-dialog-parentId"
+                label="Yläkategoria"
                 value={this.state.parentId}
                 fullWidth={true}
                 onChange={this.changeCategory}

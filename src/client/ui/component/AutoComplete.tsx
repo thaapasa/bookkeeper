@@ -1,4 +1,4 @@
-import { Paper, TextField } from '@mui/material';
+import { Paper } from '@mui/material';
 import debug from 'debug';
 import React from 'react';
 import Autosuggest, {
@@ -10,9 +10,8 @@ import Autosuggest, {
 } from 'react-autosuggest';
 import styled from 'styled-components';
 
-import { eventValue } from 'client/util/ClientUtil';
-
 import { highlightBg, highlightFg } from '../Colors';
+import { TextEdit } from './TextEdit';
 
 const log = debug('ui:autocomplete');
 
@@ -84,10 +83,10 @@ export default class AutoComplete<T> extends React.Component<
     // log(`Input from suggestion: ${params.newValue}`);
   };
 
-  private setInputFromField = (e: React.ChangeEvent<any>) => {
-    log(`Input from textfield: ${e.target.value}`);
-    this.props.onChange(e);
-    this.props.onUpdateSuggestions(eventValue(e));
+  private setInputFromField = (input: string) => {
+    log(`Input from textfield: ${input}`);
+    this.props.onChange(input);
+    this.props.onUpdateSuggestions(input);
     return false;
   };
 
@@ -129,6 +128,7 @@ export default class AutoComplete<T> extends React.Component<
         {...other}
         draggable={false}
         contentEditable={false}
+        variant="standard"
         spellCheck={false}
         autoFocus={this.props.autoFocus}
         fullWidth={this.props.fullWidth}
@@ -145,7 +145,7 @@ export default class AutoComplete<T> extends React.Component<
   };
 }
 
-const StandardTextField = styled(TextField)`
+const StandardTextField = styled(TextEdit)`
   margin: 8px 0;
   position: relative;
   &.pad-left input,

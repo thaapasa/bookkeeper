@@ -9,5 +9,5 @@ export const TextEdit: React.FC<
       onChange(e.target.value),
     [onChange]
   );
-  return <TextField {...props} onChange={onChangeHandler} />;
+  return <TextField variant="standard" {...props} onChange={onChangeHandler} />;
 };
