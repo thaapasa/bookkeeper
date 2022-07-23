@@ -1,9 +1,11 @@
 import * as React from 'react';
-import UserAvatar from './UserAvatar';
-import { User } from 'shared/types/Session';
-import { connect } from './BaconConnect';
-import { validSessionE } from 'client/data/Login';
 import styled from 'styled-components';
+
+import { User } from 'shared/types/Session';
+import { validSessionE } from 'client/data/Login';
+
+import { connect } from './BaconConnect';
+import UserAvatar from './UserAvatar';
 
 const Container = styled.div`
   display: inline-flex;

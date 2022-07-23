@@ -1,5 +1,5 @@
-import * as React from 'react';
 import { KeyboardDatePicker } from '@material-ui/pickers';
+import * as React from 'react';
 
 interface DateFieldProps {
   value: Date;

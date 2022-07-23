@@ -1,4 +1,5 @@
 import 'jest';
+
 import { Session } from '../shared/types/Session';
 import * as client from '../shared/util/test/TestClient';
 import { expectThrow } from '../shared/util/test/TestUtil';

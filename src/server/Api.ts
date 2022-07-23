@@ -1,14 +1,16 @@
 import debug from 'debug';
 import { Express } from 'express';
 import * as t from 'io-ts';
+
+import { ApiMessage, ApiStatus } from 'shared/types/Api';
 import {
   Expense,
   ExpenseCollection,
+  TExpenseQuery,
   TRecurringExpenseInput,
   TRecurringExpenseTarget,
   UserExpense,
   UserExpenseWithDetails,
-  TExpenseQuery,
 } from 'shared/types/Expense';
 import {
   Category,
@@ -19,8 +21,14 @@ import {
   Source,
   User,
 } from 'shared/types/Session';
-import { ApiStatus, ApiMessage } from 'shared/types/Api';
-import { toMoment, TISODate } from 'shared/util/Time';
+import {
+  intStringBetween,
+  stringWithLength,
+  validate,
+} from 'shared/types/Validator';
+import { TISODate, toMoment } from 'shared/util/Time';
+import { optNumber } from 'shared/util/Util';
+
 import { config } from './Config';
 import admin, { DbStatus } from './data/admin/Admin';
 import categories, { CategoryInput } from './data/Categories';
@@ -31,12 +39,6 @@ import sources from './data/Sources';
 import users from './data/Users';
 import * as server from './util/ServerUtil';
 import { Schema, Validator as V } from './util/Validator';
-import {
-  validate,
-  intStringBetween,
-  stringWithLength,
-} from 'shared/types/Validator';
-import { optNumber } from 'shared/util/Util';
 
 const log = debug('bookkeeper:api');
 

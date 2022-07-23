@@ -1,7 +1,9 @@
+import { Avatar, Chip } from '@material-ui/core';
 import * as React from 'react';
 import styled from 'styled-components';
-import { Chip, Avatar } from '@material-ui/core';
+
 import { UserExpense } from 'shared/types/Expense';
+
 import { colorScheme } from '../../Colors';
 import { AllColumns, Row } from './ExpenseTableLayout';
 

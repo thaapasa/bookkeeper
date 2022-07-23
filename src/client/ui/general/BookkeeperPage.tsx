@@ -1,39 +1,41 @@
 import * as React from 'react';
-import styled from 'styled-components';
-import TopBar from '../component/TopBar';
-import NavigationBar, { AppLink } from '../component/NavigationBar';
-import RoutedMonthView from '../expense/RoutedMonthView';
-import RoutedCategoryView from '../category/RoutedCategoryView';
-import InfoView from '../info/InfoView';
-import SearchView from '../search/SearchView';
-import ExpenseDialog from '../expense/dialog/ExpenseDialogListener';
-import ConfirmationDialog from './ConfirmationDialog';
-import NotificationBar from '../component/NotificationBar';
-import DatePickerComponent from '../component/DatePickerComponent';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import styled from 'styled-components';
+
 import { Session } from 'shared/types/Session';
+
 import {
   categoryPagePath,
-  expensePagePath,
-  expenseMonthPathPattern,
   categoryViewMonthPattern,
   categoryViewYearPattern,
-  newExpensePath,
+  expenseMonthPathPattern,
+  expensePagePath,
   infoPagePath,
+  newExpensePath,
   searchPagePath,
   shortcutsPage,
 } from '../../util/Links';
+import RoutedCategoryView from '../category/RoutedCategoryView';
 import { colorScheme } from '../Colors';
-import { Size } from '../Types';
+import DatePickerComponent from '../component/DatePickerComponent';
+import NavigationBar, { AppLink } from '../component/NavigationBar';
+import NotificationBar from '../component/NotificationBar';
+import TopBar from '../component/TopBar';
+import ExpenseDialog from '../expense/dialog/ExpenseDialogListener';
+import FrontpageView from '../expense/FrontpageView';
+import { NewExpenseView } from '../expense/NewExpenseView';
+import RoutedMonthView from '../expense/RoutedMonthView';
+import InfoView from '../info/InfoView';
+import SearchView from '../search/SearchView';
 import {
   getScreenSizeClassName,
   isMobileSize,
-  mainContentMaxWidth,
   mainContentMargin,
+  mainContentMaxWidth,
 } from '../Styles';
-import { NewExpenseView } from '../expense/NewExpenseView';
+import { Size } from '../Types';
+import ConfirmationDialog from './ConfirmationDialog';
 import ShortcutsView from './ShortcutsView';
-import FrontpageView from '../expense/FrontpageView';
 
 interface PageProps {
   session: Session;

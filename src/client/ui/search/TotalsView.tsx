@@ -1,9 +1,11 @@
 import * as React from 'react';
 import styled from 'styled-components';
+
 import { UserExpense } from 'shared/types/Expense';
-import { secondaryColors, gray } from '../Colors';
 import Money from 'shared/util/Money';
-import { media, mainContentMaxWidth } from '../Styles';
+
+import { gray, secondaryColors } from '../Colors';
+import { mainContentMaxWidth, media } from '../Styles';
 
 interface TotalsViewProps {
   results: UserExpense[];

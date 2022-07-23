@@ -13,6 +13,7 @@ import {
 import debug from 'debug';
 import * as React from 'react';
 import styled from 'styled-components';
+
 import { Category } from 'shared/types/Session';
 import apiConnect from 'client/data/ApiConnect';
 import { notify, notifyError } from 'client/data/State';

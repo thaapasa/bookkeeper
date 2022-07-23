@@ -1,14 +1,15 @@
 import * as React from 'react';
+
 import {
-  Row,
-  DateColumn,
   AvatarColumn,
+  BalanceColumn,
+  CategoryColumn,
+  DateColumn,
   NameColumn,
   ReceiverColumn,
-  CategoryColumn,
+  Row,
   SourceColumn,
   SumColumn,
-  BalanceColumn,
   ToolColumn,
 } from './ExpenseTableLayout';
 

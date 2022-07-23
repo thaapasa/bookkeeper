@@ -1,7 +1,8 @@
 import * as B from 'baconjs';
-import { sourceMapE, userMapE, validSessionE } from 'client/data/Login';
+
 import { Category, Source, User } from 'shared/types/Session';
 import { unnest } from 'shared/util/Arrays';
+import { sourceMapE, userMapE, validSessionE } from 'client/data/Login';
 
 export interface CategoryDataSource {
   value: number;

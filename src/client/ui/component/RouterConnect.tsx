@@ -1,5 +1,5 @@
-import * as React from 'react';
 import * as B from 'baconjs';
+import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
 
 export function connectRouter<TRouteProps>(bus: B.Bus<TRouteProps>) {

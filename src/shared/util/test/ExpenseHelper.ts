@@ -1,14 +1,15 @@
 import 'jest';
-import Money, { MoneyLike } from '../Money';
-import { Session, CategoryData } from '../../types/Session';
-import { ExpenseDivisionItem, Expense } from '../../types/Expense';
-import { SessionWithControl } from './TestClient';
-import { isDbObject } from '../../types/Common';
+
 import {
-  isApiMessageWithExpenseId,
   ApiMessage,
+  isApiMessageWithExpenseId,
   isApiMessageWithRecurringExpenseId,
 } from '../../types/Api';
+import { isDbObject } from '../../types/Common';
+import { Expense, ExpenseDivisionItem } from '../../types/Expense';
+import { CategoryData, Session } from '../../types/Session';
+import Money, { MoneyLike } from '../Money';
+import { SessionWithControl } from './TestClient';
 
 let createdIds: number[] = [];
 let createdRecurrences: number[] = [];

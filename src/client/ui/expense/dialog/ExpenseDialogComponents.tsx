@@ -1,20 +1,22 @@
-import * as React from 'react';
-import { ExpenseTypeIcon } from '../../Icons';
-import { Source } from 'shared/types/Session';
 import {
-  ExpenseType,
-  getExpenseTypeLabel,
-  expenseTypes,
-} from 'shared/types/Expense';
-import { VCenterRow } from '../../Styles';
-import {
-  TextField,
+  FormControl,
+  IconButton,
+  InputLabel,
   MenuItem,
   Select,
-  IconButton,
-  FormControl,
-  InputLabel,
+  TextField,
 } from '@material-ui/core';
+import * as React from 'react';
+
+import {
+  ExpenseType,
+  expenseTypes,
+  getExpenseTypeLabel,
+} from 'shared/types/Expense';
+import { Source } from 'shared/types/Session';
+
+import { ExpenseTypeIcon } from '../../Icons';
+import { VCenterRow } from '../../Styles';
 
 export function SumField(props: {
   value: string;

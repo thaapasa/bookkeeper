@@ -1,15 +1,17 @@
 import * as React from 'react';
+
 import { toMoment } from 'shared/util/Time';
+
 import { NavigateLeft, NavigateRight } from '../../Icons';
 import {
-  SelectorProps,
-  isValidYear,
-  StyledIconButton,
-  NumberInput,
   isValidMonth,
-  toMonthRange,
-  prevMonth,
+  isValidYear,
   nextMonth,
+  NumberInput,
+  prevMonth,
+  SelectorProps,
+  StyledIconButton,
+  toMonthRange,
 } from './Common';
 
 export function MonthSelector(props: SelectorProps) {

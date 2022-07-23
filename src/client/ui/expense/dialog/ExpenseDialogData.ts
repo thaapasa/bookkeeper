@@ -1,19 +1,20 @@
+import debug from 'debug';
+
 import {
   Expense,
   ExpenseDivision,
-  ExpenseInEditor,
   ExpenseDivisionType,
+  ExpenseInEditor,
 } from 'shared/types/Expense';
 import { Source } from 'shared/types/Session';
+import { sortAndCompareElements } from 'shared/util/Arrays';
 import { MoneyLike } from 'shared/util/Money';
 import {
-  splitByShares,
   HasShares,
   HasSum,
   negateDivision,
+  splitByShares,
 } from 'shared/util/Splitter';
-import { sortAndCompareElements } from 'shared/util/Arrays';
-import debug from 'debug';
 
 const log = debug('bookkeeper:expense-dialog');
 

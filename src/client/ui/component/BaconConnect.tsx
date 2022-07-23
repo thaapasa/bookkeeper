@@ -1,5 +1,6 @@
-import * as React from 'react';
 import * as B from 'baconjs';
+import * as React from 'react';
+
 import { Action } from 'shared/types/Common';
 import { Omit } from 'shared/util/Objects';
 import { unsubscribeAll } from 'client/util/ClientUtil';

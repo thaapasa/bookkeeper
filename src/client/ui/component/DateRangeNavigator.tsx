@@ -1,15 +1,17 @@
-import * as React from 'react';
-import { withRouter, RouteComponentProps } from 'react-router';
 import { IconButton } from '@material-ui/core';
-import styled from 'styled-components';
 import debug from 'debug';
+import * as React from 'react';
+import { RouteComponentProps, withRouter } from 'react-router';
+import styled from 'styled-components';
+
+import { toDateRangeName, toMoment } from 'shared/util/Time';
+import { navigationP } from 'client/data/State';
+import { NavigationConfig } from 'client/data/StateTypes';
+import { KeyCodes } from 'client/util/Io';
+import { monthSuffix, yearSuffix } from 'client/util/Links';
+
 import * as colors from '../Colors';
 import { NavigateLeft, NavigateRight } from '../Icons';
-import { toDateRangeName, toMoment } from 'shared/util/Time';
-import { NavigationConfig } from 'client/data/StateTypes';
-import { yearSuffix, monthSuffix } from 'client/util/Links';
-import { KeyCodes } from 'client/util/Io';
-import { navigationP } from 'client/data/State';
 import { connect } from './BaconConnect';
 
 const log = debug('bookkeeper:navigator');

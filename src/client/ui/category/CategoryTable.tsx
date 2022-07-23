@@ -1,12 +1,15 @@
+import debug from 'debug';
 import * as React from 'react';
-import CategoryDialog from './CategoryDialog';
+
+import { Action } from 'shared/types/Common';
 import { Category, CategoryAndTotals } from 'shared/types/Session';
+import { TypedDateRange } from 'shared/util/Time';
+
+import { UserDataProps } from '../../data/Categories';
+import CategoryDialog from './CategoryDialog';
 import CategoryRow from './CategoryRow';
 import { CategoryHeader } from './CategoryTableLayout';
-import { TypedDateRange } from 'shared/util/Time';
-import { Action } from 'shared/types/Common';
-import { UserDataProps } from '../../data/Categories';
-import debug from 'debug';
+
 const log = debug('bookkeeper:category-view');
 
 interface CategoryViewProps {

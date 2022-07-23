@@ -1,15 +1,17 @@
-import * as React from 'react';
-import styled from 'styled-components';
-import { User, Group } from 'shared/types/Session';
-import { connect } from './BaconConnect';
-import { validSessionE, logout } from 'client/data/Login';
-import { UserAvatar } from './UserAvatar';
-import { colorScheme } from '../Colors';
-import { AppLink } from './NavigationBar';
-import { RouteComponentProps, withRouter } from 'react-router';
 import { Drawer, MenuItem } from '@material-ui/core';
-import { reloadApp } from 'client/util/UrlUtils';
+import * as React from 'react';
+import { RouteComponentProps, withRouter } from 'react-router';
+import styled from 'styled-components';
+
+import { Group, User } from 'shared/types/Session';
 import { config } from 'client/Config';
+import { logout, validSessionE } from 'client/data/Login';
+import { reloadApp } from 'client/util/UrlUtils';
+
+import { colorScheme } from '../Colors';
+import { connect } from './BaconConnect';
+import { AppLink } from './NavigationBar';
+import { UserAvatar } from './UserAvatar';
 
 interface MenuDrawerProps extends RouteComponentProps {
   open: boolean;

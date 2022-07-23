@@ -1,6 +1,7 @@
+import { IBaseProtocol } from 'pg-promise';
+
 import { ExpenseType } from '../../../shared/types/Expense';
 import { MoneyLike } from '../../../shared/util/Money';
-import { IBaseProtocol } from 'pg-promise';
 
 export interface InvalidDivision {
   id: number;

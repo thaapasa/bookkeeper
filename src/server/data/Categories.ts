@@ -1,5 +1,6 @@
 import debug from 'debug';
 import { IBaseProtocol } from 'pg-promise';
+
 import { ApiMessage } from '../../shared/types/Api';
 import { InvalidInputError, NotFoundError } from '../../shared/types/Errors';
 import { Category, CategoryAndTotals } from '../../shared/types/Session';

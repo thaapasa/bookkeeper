@@ -1,32 +1,34 @@
-import * as React from 'react';
-import * as B from 'baconjs';
-import styled from 'styled-components';
 import { IconButton } from '@material-ui/core';
-import { Repeat, Edit, Delete, Copy } from '../../Icons';
+import * as B from 'baconjs';
+import debug from 'debug';
+import * as React from 'react';
+import styled from 'styled-components';
+
+import {
+  ExpenseDivision,
+  RecurringExpensePeriod,
+  UserExpense,
+} from 'shared/types/Expense';
+import { Category, Source } from 'shared/types/Session';
+import Money from 'shared/util/Money';
+import { ISODatePattern, toDate, toMoment } from 'shared/util/Time';
+import apiConnect from 'client/data/ApiConnect';
+import { categoryMapE } from 'client/data/Categories';
+import { sourceMapE } from 'client/data/Login';
 import {
   confirm,
-  updateExpenses,
+  createNewExpense,
   notify,
   notifyError,
-  createNewExpense,
+  updateExpenses,
 } from 'client/data/State';
-import { expenseName } from '../ExpenseHelper';
-import {
-  UserExpense,
-  RecurringExpensePeriod,
-  ExpenseDivision,
-} from 'shared/types/Expense';
-import apiConnect from 'client/data/ApiConnect';
-import { toDate, toMoment, ISODatePattern } from 'shared/util/Time';
+
 import * as colors from '../../Colors';
-import { media } from '../../Styles';
-import Money from 'shared/util/Money';
-import { Category, Source } from 'shared/types/Session';
 import { connect } from '../../component/BaconConnect';
-import { categoryMapE } from 'client/data/Categories';
-import debug from 'debug';
+import { Copy, Delete, Edit, Repeat } from '../../Icons';
+import { media } from '../../Styles';
 import { getBenefitorsForExpense } from '../dialog/ExpenseDialogData';
-import { sourceMapE } from 'client/data/Login';
+import { expenseName } from '../ExpenseHelper';
 
 const log = debug('bookkeeper:expense');
 

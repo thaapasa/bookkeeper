@@ -1,8 +1,9 @@
 import * as React from 'react';
 import styled from 'styled-components';
+
+import { createExpense } from '../../data/State';
 import { secondaryColors } from '../Colors';
 import { PlusCircle } from '../Icons';
-import { createExpense } from '../../data/State';
 
 export function AddExpenseIcon(props: { className?: string }) {
   return (

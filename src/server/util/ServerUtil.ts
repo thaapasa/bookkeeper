@@ -1,12 +1,14 @@
-import { config } from '../Config';
-import sessions from '../data/Sessions';
-import { db } from '../data/Db';
-import { SessionBasicInfo } from 'shared/types/Session';
-import { Request, Response } from 'express';
-import { TokenNotPresentError, InvalidGroupError } from 'shared/types/Errors';
-import { toMoment, timeout } from 'shared/util/Time';
 import debug from 'debug';
+import { Request, Response } from 'express';
+
+import { InvalidGroupError, TokenNotPresentError } from 'shared/types/Errors';
+import { SessionBasicInfo } from 'shared/types/Session';
+import { timeout, toMoment } from 'shared/util/Time';
 import { optNumber } from 'shared/util/Util';
+
+import { config } from '../Config';
+import { db } from '../data/Db';
+import sessions from '../data/Sessions';
 
 const log = debug('bookkeeper:server');
 

@@ -1,6 +1,7 @@
 import 'jest';
+
 import Money from './Money';
-import { splitByShares, HasSum } from './Splitter';
+import { HasSum, splitByShares } from './Splitter';
 
 function calculateSum(d: HasSum[]) {
   return d.map(s => s.sum).reduce((a, b) => a.plus(b), Money.zero);

@@ -1,18 +1,20 @@
-import * as React from 'react';
 import * as B from 'baconjs';
-import { Session, Source, Category, User } from 'shared/types/Session';
-import { connect } from '../component/BaconConnect';
+import * as React from 'react';
+
+import { Category, Session, Source, User } from 'shared/types/Session';
 import { userDataE, UserDataProps } from 'client/data/Categories';
 import { validSessionE } from 'client/data/Login';
+
+import { connect } from '../component/BaconConnect';
 import { PageContentContainer } from '../Styles';
-import { VersionInfoView } from './VersionInfoView';
 import {
   InfoItem,
-  Label,
-  Value,
-  SubValue,
   ItemWithId,
+  Label,
+  SubValue,
+  Value,
 } from './InfoLayoutElements';
+import { VersionInfoView } from './VersionInfoView';
 
 const InfoView = (props: { userData: UserDataProps; session: Session }) => (
   <PageContentContainer className="padded">

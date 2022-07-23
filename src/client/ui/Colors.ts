@@ -1,8 +1,9 @@
-import styled from 'styled-components';
-import Money, { MoneyLike } from '../../shared/util/Money';
 import { createMuiTheme } from '@material-ui/core';
+import { amber, grey, lime, teal } from '@material-ui/core/colors';
 import { SimplePaletteColorOptions } from '@material-ui/core/styles';
-import { teal, grey, amber, lime } from '@material-ui/core/colors';
+import styled from 'styled-components';
+
+import Money, { MoneyLike } from '../../shared/util/Money';
 
 interface ColorDef {
   standard: string;

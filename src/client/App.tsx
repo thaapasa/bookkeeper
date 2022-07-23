@@ -1,13 +1,14 @@
+import debug from 'debug';
 import * as React from 'react';
+
+import { Action } from '../shared/types/Common';
+import { Session } from '../shared/types/Session';
+import { checkLoginState, sessionP } from './data/Login';
+import { windowSizeBus } from './data/State';
 import BookkeeperPage from './ui/general/BookkeeperPage';
 import LoginPage from './ui/general/LoginPage';
-import { Session } from '../shared/types/Session';
-import { sessionP, checkLoginState } from './data/Login';
-import { Action } from '../shared/types/Common';
+import { AnyObject, Size } from './ui/Types';
 import { unsubscribeAll } from './util/ClientUtil';
-import { windowSizeBus } from './data/State';
-import { Size, AnyObject } from './ui/Types';
-import debug from 'debug';
 
 const log = debug('bookkeeper:app');
 

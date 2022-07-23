@@ -1,15 +1,17 @@
-import * as React from 'react';
-import { ConfirmationObject } from '../../data/StateTypes';
-import { KeyCodes } from '../../util/Io';
-import { confirmationE } from '../../data/State';
-import { Action } from 'shared/types/Common';
 import {
   Button,
   Dialog,
-  DialogContent,
   DialogActions,
+  DialogContent,
   DialogTitle,
 } from '@material-ui/core';
+import * as React from 'react';
+
+import { Action } from 'shared/types/Common';
+
+import { confirmationE } from '../../data/State';
+import { ConfirmationObject } from '../../data/StateTypes';
+import { KeyCodes } from '../../util/Io';
 import { AnyObject } from '../Types';
 
 interface ConfirmationDialogProps<T> {

@@ -1,7 +1,9 @@
+import moment from 'moment';
 import * as React from 'react';
+
 import { UserExpense } from 'shared/types/Expense';
 import { toMoment } from 'shared/util/Time';
-import moment from 'moment';
+
 import { WeekHeaderRow } from './WeekHeaderRow';
 
 interface ExpenseRowSeparatorProps {

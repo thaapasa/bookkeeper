@@ -1,5 +1,6 @@
+import { either, isLeft, isRight } from 'fp-ts/lib/Either';
 import * as t from 'io-ts';
-import { isRight, either, isLeft } from 'fp-ts/lib/Either';
+
 import { ioErrorReporter } from '../validation/ioTsErrorReporter';
 
 export class ValidationError {

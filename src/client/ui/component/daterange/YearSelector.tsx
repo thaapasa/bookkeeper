@@ -1,11 +1,13 @@
 import * as React from 'react';
+
 import { toMoment } from 'shared/util/Time';
+
 import { NavigateLeft, NavigateRight } from '../../Icons';
 import {
-  SelectorProps,
   isValidYear,
-  StyledIconButton,
   NumberInput,
+  SelectorProps,
+  StyledIconButton,
   toYearRange,
 } from './Common';
 

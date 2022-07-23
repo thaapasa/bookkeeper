@@ -1,7 +1,9 @@
-import { colorScheme } from 'client/ui/Colors';
-import { media } from 'client/ui/Styles';
 import * as React from 'react';
 import styled from 'styled-components';
+
+import { colorScheme } from 'client/ui/Colors';
+import { media } from 'client/ui/Styles';
+
 import { AllColumns, Row } from './ExpenseTableLayout';
 
 export const WeekHeaderRow: React.FC<{ week: string }> = ({ week }) => (

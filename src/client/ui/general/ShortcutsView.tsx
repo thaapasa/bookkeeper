@@ -1,7 +1,8 @@
 import * as React from 'react';
-import { PageContentContainer } from '../Styles';
-import { ExpenseShortcutsList } from '../component/ExpenseShortcutsView';
 import styled from 'styled-components';
+
+import { ExpenseShortcutsList } from '../component/ExpenseShortcutsView';
+import { PageContentContainer } from '../Styles';
 import { AnyObject } from '../Types';
 
 export default class ShortcutsView extends React.Component<AnyObject> {

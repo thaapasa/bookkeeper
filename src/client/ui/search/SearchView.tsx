@@ -1,22 +1,24 @@
-import * as React from 'react';
 import * as B from 'baconjs';
 import debug from 'debug';
-import { Session, Category } from 'shared/types/Session';
-import { connect } from '../component/BaconConnect';
+import * as React from 'react';
+
+import { ExpenseQuery, UserExpense } from 'shared/types/Expense';
+import { Category, Session } from 'shared/types/Session';
+import apiConnect from 'client/data/ApiConnect';
 import {
+  CategoryDataSource,
+  categoryDataSourceP,
   userDataE,
   UserDataProps,
-  categoryDataSourceP,
-  CategoryDataSource,
 } from 'client/data/Categories';
 import { validSessionE } from 'client/data/Login';
+import { needUpdateE } from 'client/data/State';
+import { unsubscribeAll, Unsubscriber } from 'client/util/ClientUtil';
+
+import { connect } from '../component/BaconConnect';
 import { PageContentContainer } from '../Styles';
 import { QueryView } from './QueryView';
-import { ExpenseQuery, UserExpense } from 'shared/types/Expense';
-import apiConnect from 'client/data/ApiConnect';
-import { unsubscribeAll, Unsubscriber } from 'client/util/ClientUtil';
 import { ResultsView } from './ResultsView';
-import { needUpdateE } from 'client/data/State';
 
 const log = debug('bookkeeper:expense-search');
 

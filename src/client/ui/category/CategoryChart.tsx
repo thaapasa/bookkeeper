@@ -1,9 +1,11 @@
+import * as d3Axis from 'd3-axis';
+import { scaleBand, scaleLinear } from 'd3-scale';
+import { select as d3Select } from 'd3-selection';
 import * as React from 'react';
 import styled from 'styled-components';
-import { scaleBand, scaleLinear } from 'd3-scale';
-import * as d3Axis from 'd3-axis';
-import { select as d3Select } from 'd3-selection';
+
 import Money from 'shared/util/Money';
+
 import { media } from '../Styles';
 
 export interface CategoryChartData {

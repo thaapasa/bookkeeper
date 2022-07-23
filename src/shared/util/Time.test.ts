@@ -1,5 +1,6 @@
 import 'jest';
-import { toDateRangeName, monthRange, month, yearRange } from './Time';
+
+import { month, monthRange, toDateRangeName, yearRange } from './Time';
 
 describe('time', () => {
   describe('dateRange', () => {

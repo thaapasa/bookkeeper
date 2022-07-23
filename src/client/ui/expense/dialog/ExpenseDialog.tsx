@@ -1,58 +1,60 @@
-import * as React from 'react';
-import * as B from 'baconjs';
-import styled from 'styled-components';
 import {
   Button,
+  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  Checkbox,
   FormControlLabel,
 } from '@material-ui/core';
+import * as B from 'baconjs';
 import debug from 'debug';
-import UserSelector from 'client/ui/component/UserSelector';
-import UserAvatar from 'client/ui/component/UserAvatar';
-import Money from 'shared/util/Money';
-import apiConnect from 'client/data/ApiConnect';
-import { KeyCodes } from 'client/util/Io';
+import * as React from 'react';
+import styled from 'styled-components';
+
 import {
-  SumField,
-  TypeSelector,
-  SourceSelector,
-  DescriptionField,
-} from './ExpenseDialogComponents';
-import { expenseName } from '../ExpenseHelper';
-import {
-  unsubscribeAll,
-  stopEventPropagation,
-  eventValue,
-} from 'client/util/ClientUtil';
-import { Category, Source, Group, User } from 'shared/types/Session';
-import {
-  UserExpenseWithDetails,
-  ExpenseInEditor,
-  ExpenseData,
-  RecurringExpenseTarget,
   expenseBeneficiary,
+  ExpenseData,
   ExpenseDivision,
+  ExpenseInEditor,
   ExpenseType,
+  RecurringExpenseTarget,
+  UserExpenseWithDetails,
 } from 'shared/types/Expense';
+import { Category, Group, Source, User } from 'shared/types/Session';
+import { valuesToArray } from 'shared/util/Arrays';
+import Money from 'shared/util/Money';
+import { omit } from 'shared/util/Objects';
 import { toDate, toISODate } from 'shared/util/Time';
 import { identity } from 'shared/util/Util';
-import { isSubcategoryOf, CategoryDataSource } from 'client/data/Categories';
-import { notify, notifyError, confirm } from 'client/data/State';
-import { valuesToArray } from 'shared/util/Arrays';
-import { omit } from 'shared/util/Objects';
-import { TitleField } from './TitleField';
-import { ReceiverField } from './ReceiverField';
-import { CategorySelector } from './CategorySelector';
-import { DateField } from './DateField';
+import apiConnect from 'client/data/ApiConnect';
+import { CategoryDataSource, isSubcategoryOf } from 'client/data/Categories';
+import { confirm, notify, notifyError } from 'client/data/State';
+import { gray } from 'client/ui/Colors';
+import UserAvatar from 'client/ui/component/UserAvatar';
+import UserSelector from 'client/ui/component/UserSelector';
 import { isMobileSize } from 'client/ui/Styles';
 import { Size } from 'client/ui/Types';
-import { gray } from 'client/ui/Colors';
-import { calculateDivision } from './ExpenseDialogData';
+import {
+  eventValue,
+  stopEventPropagation,
+  unsubscribeAll,
+} from 'client/util/ClientUtil';
+import { KeyCodes } from 'client/util/Io';
+
 import { DivisionInfo } from '../details/DivisionInfo';
+import { expenseName } from '../ExpenseHelper';
+import { CategorySelector } from './CategorySelector';
+import { DateField } from './DateField';
+import {
+  DescriptionField,
+  SourceSelector,
+  SumField,
+  TypeSelector,
+} from './ExpenseDialogComponents';
+import { calculateDivision } from './ExpenseDialogData';
+import { ReceiverField } from './ReceiverField';
+import { TitleField } from './TitleField';
 
 const log = debug('bookkeeper:expense-dialog');
 

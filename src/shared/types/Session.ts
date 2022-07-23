@@ -1,5 +1,5 @@
-import { DbObject } from './Common';
 import { MoneyLike } from '../util/Money';
+import { DbObject } from './Common';
 import { ExpenseInEditor } from './Expense';
 
 export interface Group extends DbObject {

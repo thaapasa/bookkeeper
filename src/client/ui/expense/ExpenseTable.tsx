@@ -1,28 +1,30 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import ExpenseRow, { CommonExpenseRowProps } from './row/ExpenseRow';
-import ExpenseHeader from './row/ExpenseHeader';
+
+import { Expense, ExpenseStatus, UserExpense } from 'shared/types/Expense';
+import { partition } from 'shared/util/Arrays';
 import Money from 'shared/util/Money';
-import { MonthlyStatus } from './MonthlyStatus';
-import { UserExpense, ExpenseStatus, Expense } from 'shared/types/Expense';
-import { ExpenseTotals } from './ExpenseHelper';
-import { connect } from '../component/BaconConnect';
+
 import { userDataE, UserDataProps } from '../../data/Categories';
+import { colorScheme } from '../Colors';
+import { connect } from '../component/BaconConnect';
+import { ListDecorator } from '../component/ListDecorator';
+import { media, PageContentContainer } from '../Styles';
+import { ExpenseTotals } from './ExpenseHelper';
+import { MonthlyStatus } from './MonthlyStatus';
 import ExpenseFilterRow, {
   ExpenseFilter,
   ExpenseFilterFunction,
 } from './row/ExpenseFilterRow';
-import { partition } from 'shared/util/Arrays';
+import ExpenseHeader from './row/ExpenseHeader';
+import ExpenseRow, { CommonExpenseRowProps } from './row/ExpenseRow';
+import { ExpenseRowSeparator } from './row/ExpenseRowSeparator';
 import {
   ExpenseTableLayout,
-  RecurringExpenseSeparator,
   LoadingIndicator,
+  RecurringExpenseSeparator,
 } from './row/ExpenseTableLayout';
 import RecurringSummaryRow from './row/RecurringSummaryRow';
-import { colorScheme } from '../Colors';
-import { media, PageContentContainer } from '../Styles';
-import { ListDecorator } from '../component/ListDecorator';
-import { ExpenseRowSeparator } from './row/ExpenseRowSeparator';
 
 interface ExpenseTableProps {
   expenses: UserExpense[];

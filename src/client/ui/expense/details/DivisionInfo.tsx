@@ -1,13 +1,14 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import * as colors from 'client/ui/Colors';
-import UserAvatar from 'client/ui/component/UserAvatar';
-import Money, { MoneyLike } from 'shared/util/Money';
+
 import {
   ExpenseDivisionItem,
   ExpenseDivisionType,
   ExpenseType,
 } from 'shared/types/Expense';
+import Money, { MoneyLike } from 'shared/util/Money';
+import * as colors from 'client/ui/Colors';
+import UserAvatar from 'client/ui/component/UserAvatar';
 import { media } from 'client/ui/Styles';
 
 interface DivisionInfoProps {

@@ -1,10 +1,12 @@
-import * as React from 'react';
-import { User } from 'shared/types/Session';
-import { connect } from './BaconConnect';
-import { userMapE } from 'client/data/Login';
-import styled from 'styled-components';
 import { Avatar } from '@material-ui/core';
 import { cyan } from '@material-ui/core/colors';
+import * as React from 'react';
+import styled from 'styled-components';
+
+import { User } from 'shared/types/Session';
+import { userMapE } from 'client/data/Login';
+
+import { connect } from './BaconConnect';
 
 interface CommonAvatarProps {
   style?: React.CSSProperties;

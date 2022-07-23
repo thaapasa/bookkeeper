@@ -1,6 +1,7 @@
 import * as t from 'io-ts';
+import moment, { isMoment, Moment, MomentInput } from 'moment';
+
 import { leftPad } from './Util';
-import moment, { Moment, isMoment, MomentInput } from 'moment';
 
 require('moment/locale/fi');
 

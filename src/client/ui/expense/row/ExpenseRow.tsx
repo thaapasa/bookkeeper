@@ -1,58 +1,60 @@
-import * as React from 'react';
-import styled from 'styled-components';
-import apiConnect from 'client/data/ApiConnect';
-import { UserAvatar } from 'client/ui/component/UserAvatar';
-import ActivatableTextField from 'client/ui/component/ActivatableTextField';
-import {
-  ExpandLess,
-  ExpandMore,
-  Delete,
-  Edit,
-  ToolIcon,
-  ExpenseTypeIcon,
-} from 'client/ui/Icons';
-import { Flex, media, VCenterRow } from 'client/ui/Styles';
-import * as colors from 'client/ui/Colors';
-import { ExpenseInfo } from '../details/ExpenseInfo';
-import { expenseName } from '../ExpenseHelper';
-import Money from 'shared/util/Money';
-import {
-  UserExpense,
-  UserExpenseWithDetails,
-  ExpenseDivisionItem,
-  RecurringExpenseTarget,
-} from 'shared/types/Expense';
-import { User, Source, Category } from 'shared/types/Session';
-import {
-  pickDate,
-  notifyError,
-  notify,
-  confirm,
-  updateExpenses,
-  editExpense,
-} from 'client/data/State';
-import { getFullCategoryName, UserDataProps } from 'client/data/Categories';
-import { toDate, toISODate, toMoment, readableDate } from 'shared/util/Time';
-import { ExpenseFilterFunction } from './ExpenseFilterRow';
-import { equal, notEqual } from 'shared/util/Symbols';
-import {
-  RecurringExpenseIcon,
-  UnconfirmedIcon,
-  DateColumn,
-  AvatarColumn,
-  NameColumn,
-  ReceiverColumn,
-  CategoryColumn,
-  SourceColumn,
-  SumColumn,
-  BalanceColumn,
-  ToolColumn,
-  Row,
-  sourceWidth,
-} from './ExpenseTableLayout';
 import { TextField } from '@material-ui/core';
 import debug from 'debug';
+import * as React from 'react';
+import styled from 'styled-components';
+
+import {
+  ExpenseDivisionItem,
+  RecurringExpenseTarget,
+  UserExpense,
+  UserExpenseWithDetails,
+} from 'shared/types/Expense';
+import { Category, Source, User } from 'shared/types/Session';
+import Money from 'shared/util/Money';
+import { equal, notEqual } from 'shared/util/Symbols';
+import { readableDate, toDate, toISODate, toMoment } from 'shared/util/Time';
+import apiConnect from 'client/data/ApiConnect';
+import { getFullCategoryName, UserDataProps } from 'client/data/Categories';
+import {
+  confirm,
+  editExpense,
+  notify,
+  notifyError,
+  pickDate,
+  updateExpenses,
+} from 'client/data/State';
+import * as colors from 'client/ui/Colors';
+import ActivatableTextField from 'client/ui/component/ActivatableTextField';
+import { UserAvatar } from 'client/ui/component/UserAvatar';
+import {
+  Delete,
+  Edit,
+  ExpandLess,
+  ExpandMore,
+  ExpenseTypeIcon,
+  ToolIcon,
+} from 'client/ui/Icons';
+import { Flex, media, VCenterRow } from 'client/ui/Styles';
+
+import { ExpenseInfo } from '../details/ExpenseInfo';
 import { ReceiverField } from '../dialog/ReceiverField';
+import { expenseName } from '../ExpenseHelper';
+import { ExpenseFilterFunction } from './ExpenseFilterRow';
+import {
+  AvatarColumn,
+  BalanceColumn,
+  CategoryColumn,
+  DateColumn,
+  NameColumn,
+  ReceiverColumn,
+  RecurringExpenseIcon,
+  Row,
+  SourceColumn,
+  sourceWidth,
+  SumColumn,
+  ToolColumn,
+  UnconfirmedIcon,
+} from './ExpenseTableLayout';
 
 const log = debug('bookkeeper:expense-row');
 

@@ -1,6 +1,7 @@
-import * as React from 'react';
 import { TextField } from '@material-ui/core';
 import { TextFieldProps } from '@material-ui/core/TextField';
+import * as React from 'react';
+
 import AutoComplete, { AutoCompleteProps } from './AutoComplete';
 
 export class PlainTextField extends React.Component<TextFieldProps> {

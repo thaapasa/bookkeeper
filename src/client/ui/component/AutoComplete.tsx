@@ -1,5 +1,6 @@
 import { Paper } from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
+import debug from 'debug';
 import React from 'react';
 import Autosuggest, {
   ChangeEvent,
@@ -9,9 +10,10 @@ import Autosuggest, {
   SuggestionsFetchRequestedParams,
 } from 'react-autosuggest';
 import styled from 'styled-components';
-import { highlightBg, highlightFg } from '../Colors';
+
 import { eventValue } from 'client/util/ClientUtil';
-import debug from 'debug';
+
+import { highlightBg, highlightFg } from '../Colors';
 
 const log = debug('ui:autocomplete');
 

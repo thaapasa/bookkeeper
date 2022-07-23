@@ -1,12 +1,13 @@
-import * as React from 'react';
 import {
-  Select,
-  MenuItem,
   FormControl,
-  InputLabel,
   FormHelperText,
+  InputLabel,
+  MenuItem,
+  Select,
 } from '@material-ui/core';
+import * as React from 'react';
 import styled from 'styled-components';
+
 import { stopEventPropagation } from 'client/util/ClientUtil';
 
 export function CategorySelector(props: {

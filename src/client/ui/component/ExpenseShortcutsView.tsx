@@ -1,12 +1,13 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
-import { AddExpenseIcon } from '../icons/AddExpenseIcon';
-import { secondaryColors, navigationBar } from '../Colors';
-import { createNewExpense, createExpense } from 'client/data/State';
 import { ExpenseShortcut } from 'shared/types/Session';
-import { connect } from './BaconConnect';
 import { validSessionE } from 'client/data/Login';
+import { createExpense, createNewExpense } from 'client/data/State';
+
+import { navigationBar, secondaryColors } from '../Colors';
+import { AddExpenseIcon } from '../icons/AddExpenseIcon';
+import { connect } from './BaconConnect';
 
 class ExpenseShortcutsListImpl extends React.Component<{
   shortcuts: ExpenseShortcut[];

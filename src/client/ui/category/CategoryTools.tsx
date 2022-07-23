@@ -1,6 +1,8 @@
 import * as React from 'react';
+
 import { Category } from 'shared/types/Session';
-import { ToolIcon, Edit, ExpandLess, ExpandMore, Add } from '../Icons';
+
+import { Add, Edit, ExpandLess, ExpandMore, ToolIcon } from '../Icons';
 
 export class AddCategoryButton extends React.PureComponent<{
   onAdd: (p?: Category) => void;

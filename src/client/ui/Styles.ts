@@ -1,6 +1,7 @@
-import { Size } from './Types';
 import styled, { css, SimpleInterpolation } from 'styled-components';
+
 import { primaryColors } from './Colors';
+import { Size } from './Types';
 
 // See responsive UI specs at https://material.io/guidelines/layout/responsive-ui.html
 export type ScreenSizeClassName =

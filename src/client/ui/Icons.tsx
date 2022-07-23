@@ -1,25 +1,26 @@
-import * as React from 'react';
-import PaymentSVG from '@material-ui/icons/Payment';
+import { SvgIconProps } from '@material-ui/core/SvgIcon';
+import ContentAdd from '@material-ui/icons/Add';
+import AddCircleSVG from '@material-ui/icons/AddCircle';
 import AttachMoneySVG from '@material-ui/icons/AttachMoney';
+import AutoRenewSVG from '@material-ui/icons/Autorenew';
 import ChevronLeftSVG from '@material-ui/icons/ChevronLeft';
 import ChevronRightSVG from '@material-ui/icons/ChevronRight';
+import ClearSVG from '@material-ui/icons/Clear';
+import DeleteSVG from '@material-ui/icons/Delete';
+import EditSVG from '@material-ui/icons/Edit';
 import ExpandLessSVG from '@material-ui/icons/ExpandLess';
 import ExpandMoreSVG from '@material-ui/icons/ExpandMore';
-import DeleteSVG from '@material-ui/icons/Delete';
-import ClearSVG from '@material-ui/icons/Clear';
-import EditSVG from '@material-ui/icons/Edit';
 import FileCopySVG from '@material-ui/icons/FileCopy';
-import RepeatSVG from '@material-ui/icons/Repeat';
-import ContentAdd from '@material-ui/icons/Add';
-import RedoSVG from '@material-ui/icons/Redo';
-import SearchSVG from '@material-ui/icons/Search';
-import AddCircleSVG from '@material-ui/icons/AddCircle';
-import AutoRenewSVG from '@material-ui/icons/Autorenew';
 import MenuIconSVG from '@material-ui/icons/Menu';
+import PaymentSVG from '@material-ui/icons/Payment';
+import RedoSVG from '@material-ui/icons/Redo';
 import RefreshSVG from '@material-ui/icons/Refresh';
-import * as colors from './Colors';
+import RepeatSVG from '@material-ui/icons/Repeat';
+import SearchSVG from '@material-ui/icons/Search';
+import * as React from 'react';
+
 import { ExpenseType } from '../../shared/types/Expense';
-import { SvgIconProps } from '@material-ui/core/SvgIcon';
+import * as colors from './Colors';
 
 const styles = {
   tool: {

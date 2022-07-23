@@ -1,6 +1,7 @@
+import { IconButton, TextField } from '@material-ui/core';
 import styled from 'styled-components';
-import { TypedDateRange, toMoment } from 'shared/util/Time';
-import { TextField, IconButton } from '@material-ui/core';
+
+import { toMoment, TypedDateRange } from 'shared/util/Time';
 
 export type RangeType = TypedDateRange['type'];
 export type RangeTypeOrNone = RangeType | 'none';

@@ -1,5 +1,7 @@
 import 'jest';
+
 import * as t from 'io-ts';
+
 import { TIntArrayString } from './Validator';
 
 describe('Validator', () => {

@@ -1,10 +1,12 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import { rowHeight } from '../expense/row/ExpenseTableLayout';
+
 import { Category } from 'shared/types/Session';
-import { AddCategoryButton } from './CategoryTools';
+
 import { colorScheme } from '../Colors';
+import { rowHeight } from '../expense/row/ExpenseTableLayout';
 import { PlusCircle } from '../Icons';
+import { AddCategoryButton } from './CategoryTools';
 
 export const Row = styled.div`
   width: 100%;

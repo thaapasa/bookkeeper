@@ -1,6 +1,7 @@
-import pgp from 'pg-promise';
-import { config } from '../Config';
 import debug from 'debug';
+import pgp from 'pg-promise';
+
+import { config } from '../Config';
 const log = debug('bookkeeper:sql');
 
 const logSql = process.env.LOG_SQL === 'true';

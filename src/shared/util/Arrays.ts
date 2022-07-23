@@ -1,5 +1,6 @@
-import { getRandomInt } from './Util';
 import { AnyObject } from 'client/ui/Types';
+
+import { getRandomInt } from './Util';
 
 // https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
 export function shuffle<T>(a: T[]): T[] {

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import { secondaryColors, primaryColors } from '../Colors';
+
+import { primaryColors, secondaryColors } from '../Colors';
 
 export const ItemView = styled.div`
   display: flex;

@@ -1,6 +1,8 @@
 import 'jest';
-import Money from './Money';
+
 import { Big } from 'big.js';
+
+import Money from './Money';
 
 describe('Money', () => {
   it('should be created from valid strings', () => {

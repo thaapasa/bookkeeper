@@ -1,8 +1,10 @@
 import * as React from 'react';
 import styled from 'styled-components';
+
 import { UserExpense } from 'shared/types/Expense';
-import { media } from '../../Styles';
 import { Source } from 'shared/types/Session';
+
+import { media } from '../../Styles';
 
 interface BasicDataProps {
   expense: UserExpense;

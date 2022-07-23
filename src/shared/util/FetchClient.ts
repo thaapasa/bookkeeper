@@ -1,5 +1,7 @@
-import { AuthenticationError, Error } from '../types/Errors';
 import debug from 'debug';
+
+import { AuthenticationError, Error } from '../types/Errors';
+
 const log = debug('net:fetch-client');
 
 export type FetchType = () => (

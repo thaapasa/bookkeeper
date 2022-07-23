@@ -1,18 +1,19 @@
+import { AppBar, IconButton, Toolbar, Typography } from '@material-ui/core';
 import * as React from 'react';
 import styled from 'styled-components';
-import { AppBar, Toolbar, IconButton, Typography } from '@material-ui/core';
 
-import * as colors from '../Colors';
+import { Group, User } from 'shared/types/Session';
+
 import { validSessionE } from '../../data/Login';
-import { User, Group } from 'shared/types/Session';
-import { connect } from './BaconConnect';
-import MenuDrawer from './MenuDrawer';
-import { AppLink } from './NavigationBar';
-import { Size } from '../Types';
-import { isMobileSize } from '../Styles';
-import DateRangeNavigator from './DateRangeNavigator';
+import * as colors from '../Colors';
 import { MenuIcon } from '../Icons';
 import { AddExpenseIcon } from '../icons/AddExpenseIcon';
+import { isMobileSize } from '../Styles';
+import { Size } from '../Types';
+import { connect } from './BaconConnect';
+import DateRangeNavigator from './DateRangeNavigator';
+import MenuDrawer from './MenuDrawer';
+import { AppLink } from './NavigationBar';
 
 interface TopBarProps {
   user: User;

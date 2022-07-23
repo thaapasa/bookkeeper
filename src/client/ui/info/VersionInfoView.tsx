@@ -1,12 +1,14 @@
-import * as React from 'react';
-import apiConnect from 'client/data/ApiConnect';
-import debug from 'debug';
-import { InfoItem, Label, Value, ItemWithId } from './InfoLayoutElements';
-import { config } from 'client/Config';
-import { Refresh } from '../Icons';
 import { IconButton } from '@material-ui/core';
-import { reloadApp } from 'client/util/UrlUtils';
+import debug from 'debug';
+import * as React from 'react';
+
+import { config } from 'client/Config';
+import apiConnect from 'client/data/ApiConnect';
 import { infoPagePath } from 'client/util/Links';
+import { reloadApp } from 'client/util/UrlUtils';
+
+import { Refresh } from '../Icons';
+import { InfoItem, ItemWithId, Label, Value } from './InfoLayoutElements';
 
 const log = debug('bookkeeper:version');
 

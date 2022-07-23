@@ -1,8 +1,11 @@
 import * as B from 'baconjs';
-import { Session, Group, User, Source } from 'shared/types/Session';
-import apiConnect from './ApiConnect';
-import { toMap } from 'shared/util/Arrays';
 import debug from 'debug';
+
+import { Group, Session, Source, User } from 'shared/types/Session';
+import { toMap } from 'shared/util/Arrays';
+
+import apiConnect from './ApiConnect';
+
 const log = debug('bookkeeper:login');
 
 const loginBus = new B.Bus<Session | null>();

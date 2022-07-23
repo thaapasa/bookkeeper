@@ -1,4 +1,5 @@
 import * as React from 'react';
+
 import { isDefined } from 'shared/types/Common';
 
 type ListDecoratorProps<T, R> = {

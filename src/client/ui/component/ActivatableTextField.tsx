@@ -1,11 +1,14 @@
-import * as React from 'react';
-import { KeyCodes } from '../../util/Io';
-import debug from 'debug';
 import { TextFieldProps } from '@material-ui/core/TextField';
-import { AutoCompleteProps } from './AutoComplete';
+import debug from 'debug';
+import * as React from 'react';
+
 import { omit } from 'shared/util/Objects';
 import { eventValue } from 'client/util/ClientUtil';
+
+import { KeyCodes } from '../../util/Io';
 import { ReceiverFieldProps } from '../expense/dialog/ReceiverField';
+import { AutoCompleteProps } from './AutoComplete';
+
 const log = debug('bookkeeper:activatable-text-field');
 
 type EditorType<T> =

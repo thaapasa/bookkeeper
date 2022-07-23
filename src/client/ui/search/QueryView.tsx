@@ -1,33 +1,35 @@
+import {
+  Checkbox,
+  Chip,
+  CircularProgress,
+  FormControlLabel,
+  IconButton,
+} from '@material-ui/core';
+import * as B from 'baconjs';
 import * as React from 'react';
 import styled from 'styled-components';
-import * as B from 'baconjs';
-import {
-  CircularProgress,
-  Chip,
-  IconButton,
-  Checkbox,
-  FormControlLabel,
-} from '@material-ui/core';
-import { Category, User } from 'shared/types/Session';
-import AutoComplete from '../component/AutoComplete';
-import { eventValue } from '../../util/ClientUtil';
+
 import { ExpenseQuery } from 'shared/types/Expense';
-import { parseQueryString } from '../../util/UrlUtils';
-import { DateRangeSelector } from '../component/daterange/DateRangeSelector';
+import { Category, User } from 'shared/types/Session';
 import {
-  TypedDateRange,
   toDateRangeName,
   toISODate,
   toMoment,
+  TypedDateRange,
 } from 'shared/util/Time';
-import { secondaryColors, gray } from '../Colors';
-import { Search, Delete } from '../Icons';
-import { KeyCodes } from 'client/util/Io';
-import { toYearRange } from '../component/daterange/Common';
 import {
   CategoryDataSource,
   getFullCategoryName,
 } from 'client/data/Categories';
+import { KeyCodes } from 'client/util/Io';
+
+import { eventValue } from '../../util/ClientUtil';
+import { parseQueryString } from '../../util/UrlUtils';
+import { gray, secondaryColors } from '../Colors';
+import AutoComplete from '../component/AutoComplete';
+import { toYearRange } from '../component/daterange/Common';
+import { DateRangeSelector } from '../component/daterange/DateRangeSelector';
+import { Delete, Search } from '../Icons';
 
 interface QueryViewProps {
   categorySource: CategoryDataSource[];

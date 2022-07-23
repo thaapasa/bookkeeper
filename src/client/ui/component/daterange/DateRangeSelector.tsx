@@ -1,17 +1,19 @@
+import { Button } from '@material-ui/core';
 import * as React from 'react';
 import styled from 'styled-components';
-import { Button } from '@material-ui/core';
-import {
-  RangeType,
-  DateRangeSelectorProps,
-  RangeTypeOrNone,
-  toYearRange,
-  toMonthRange,
-} from './Common';
-import { YearSelector } from './YearSelector';
-import { TypedDateRange, toMoment, compareDates } from 'shared/util/Time';
+
+import { compareDates, toMoment, TypedDateRange } from 'shared/util/Time';
 import { useCompare } from 'client/ui/utils/Hooks';
+
+import {
+  DateRangeSelectorProps,
+  RangeType,
+  RangeTypeOrNone,
+  toMonthRange,
+  toYearRange,
+} from './Common';
 import { MonthSelector } from './MonthSelector';
+import { YearSelector } from './YearSelector';
 
 interface TabPanelProps {
   children?: React.ReactNode;

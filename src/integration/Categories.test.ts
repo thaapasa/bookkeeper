@@ -1,7 +1,7 @@
 import 'jest';
 
 import { cleanup, newCategory } from '../shared/util/test/ExpenseHelper';
-import { SessionWithControl, getSession } from '../shared/util/test/TestClient';
+import { getSession, SessionWithControl } from '../shared/util/test/TestClient';
 import { expectThrow } from '../shared/util/test/TestUtil';
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */

@@ -1,13 +1,15 @@
 import * as React from 'react';
 import styled from 'styled-components';
+
 import { ExpenseDivisionItem, UserExpense } from 'shared/types/Expense';
-import { User, Source } from 'shared/types/Session';
-import { LoadingIndicator, Row, AllColumns } from '../row/ExpenseTableLayout';
+import { Source, User } from 'shared/types/Session';
+import { colorScheme } from 'client/ui/Colors';
+
+import { AllColumns, LoadingIndicator, Row } from '../row/ExpenseTableLayout';
 import BasicData from './BasicData';
 import { DivisionInfo } from './DivisionInfo';
-import RecurrenceInfo from './RecurrenceInfo';
-import { colorScheme } from 'client/ui/Colors';
 import ExpenseInfoTools from './ExpenseInfoTools';
+import RecurrenceInfo from './RecurrenceInfo';
 
 interface ExpenseInfoProps {
   division: ExpenseDivisionItem[];

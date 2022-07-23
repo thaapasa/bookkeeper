@@ -1,8 +1,10 @@
 import * as t from 'io-ts';
-import { ISODate, TISODate } from 'shared/util/Time';
+
 import { MoneyLike } from 'shared/util/Money';
+import { ISODate, TISODate } from 'shared/util/Time';
+
 import { DbObject } from './Common';
-import { TIntString, TIntArrayString, TBooleanString } from './Validator';
+import { TBooleanString, TIntArrayString, TIntString } from './Validator';
 
 export type ExpenseType = 'expense' | 'income' | 'transfer';
 export type ExpenseDivisionType =

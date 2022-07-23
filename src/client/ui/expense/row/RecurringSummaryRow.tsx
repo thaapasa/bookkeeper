@@ -1,16 +1,18 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import {
-  RecurringExpenseIcon,
-  Row,
-  AllColumns,
-  rowHeight,
-} from './ExpenseTableLayout';
-import { ExpandLess, ExpandMore } from '../../Icons';
+
 import { UserExpense } from 'shared/types/Expense';
 import Money from 'shared/util/Money';
+
 import { colorScheme } from '../../Colors';
+import { ExpandLess, ExpandMore } from '../../Icons';
 import { media } from '../../Styles';
+import {
+  AllColumns,
+  RecurringExpenseIcon,
+  Row,
+  rowHeight,
+} from './ExpenseTableLayout';
 
 interface RecurringSummaryRowProps {
   recurring: UserExpense[];

@@ -1,26 +1,28 @@
 import * as React from 'react';
-import * as colors from '../Colors';
-import apiConnect from 'client/data/ApiConnect';
-import ExpenseRow from '../expense/row/ExpenseRow';
-import { noop } from 'shared/util/Util';
+
+import { UserExpense } from 'shared/types/Expense';
 import { Category, CategoryAndTotals } from 'shared/types/Session';
+import Money, { MoneyLike } from 'shared/util/Money';
+import { DateRange, toISODate } from 'shared/util/Time';
+import { noop } from 'shared/util/Util';
+import apiConnect from 'client/data/ApiConnect';
+import { UserDataProps } from 'client/data/Categories';
+
+import * as colors from '../Colors';
+import ExpenseRow from '../expense/row/ExpenseRow';
+import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
+import {
+  AllColumns,
+  NameColumn,
+  Row,
+  SumColumn,
+  ToolColumn,
+} from './CategoryTableLayout';
 import {
   AddCategoryButton,
   EditCategoryButton,
   ToggleButton,
 } from './CategoryTools';
-import { UserExpense } from 'shared/types/Expense';
-import { DateRange, toISODate } from 'shared/util/Time';
-import { UserDataProps } from 'client/data/Categories';
-import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
-import {
-  Row,
-  NameColumn,
-  SumColumn,
-  ToolColumn,
-  AllColumns,
-} from './CategoryTableLayout';
-import Money, { MoneyLike } from 'shared/util/Money';
 
 interface CategoryRowProps {
   category: Category;

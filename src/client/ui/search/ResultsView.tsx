@@ -1,19 +1,21 @@
-import * as React from 'react';
 import * as B from 'baconjs';
+import * as React from 'react';
 import styled from 'styled-components';
+
 import { UserExpense } from 'shared/types/Expense';
-import { secondaryColors, gray } from '../Colors';
-import ExpenseRow from '../expense/row/ExpenseRow';
-import { noop } from 'shared/util/Util';
-import { connect } from '../component/BaconConnect';
-import { userDataE, UserDataProps } from 'client/data/Categories';
-import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
-import { toMoment } from 'shared/util/Time';
 import { Category } from 'shared/types/Session';
 import { groupBy } from 'shared/util/Arrays';
-import { typedKeys } from 'shared/util/Objects';
-import { TotalsView } from './TotalsView';
 import Money from 'shared/util/Money';
+import { typedKeys } from 'shared/util/Objects';
+import { toMoment } from 'shared/util/Time';
+import { noop } from 'shared/util/Util';
+import { userDataE, UserDataProps } from 'client/data/Categories';
+
+import { gray, secondaryColors } from '../Colors';
+import { connect } from '../component/BaconConnect';
+import ExpenseRow from '../expense/row/ExpenseRow';
+import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
+import { TotalsView } from './TotalsView';
 
 interface ResultsProps {
   results: UserExpense[];
