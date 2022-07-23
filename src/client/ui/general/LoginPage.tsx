@@ -6,99 +6,62 @@ import { login } from 'client/data/Login';
 
 import { colorScheme } from '../Colors';
 import { media } from '../Styles';
-import { AnyObject } from '../Types';
 
 const publicUrl = process.env.PUBLIC_URL || '';
 
-interface LoginPageState {
-  username: string;
-  password: string;
-  showStatusMessage: boolean;
-  statusMessage: string;
-}
+export const LoginPage: React.FC = () => {
+  const [username, setUsername] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [statusMessage, setStatusMessage] = React.useState<string | null>(null);
 
-export default class LoginPage extends React.Component<
-  AnyObject,
-  LoginPageState
-> {
-  public state: LoginPageState = {
-    username: '',
-    password: '',
-    showStatusMessage: false,
-    statusMessage: '',
-  };
-
-  private handleLoginError = (er: any) => {
-    if (er && er.status === 401) {
-      this.setState({
-        statusMessage:
-          'Kirjautuminen epäonnistui. Ole hyvä ja tarkista käyttäjätunnuksesi ja salasanasi.',
-        showStatusMessage: true,
-      });
-    } else {
-      this.setState({
-        statusMessage: 'Kirjautumisessa tapahtui virhe.',
-        showStatusMessage: true,
-      });
-    }
-  };
-
-  private handleSubmit = async (event: React.FormEvent<any>) => {
+  const handleSubmit = async (event: React.FormEvent<any>) => {
     event.preventDefault();
-    this.setState({
-      statusMessage: '',
-      showStatusMessage: false,
-    });
+    setStatusMessage(null);
     try {
-      await login(this.state.username, this.state.password);
-    } catch (e) {
-      this.handleLoginError(e);
+      await login(username, password);
+    } catch (er: any) {
+      if (er && er.status === 401) {
+        setStatusMessage(
+          'Kirjautuminen epäonnistui. Ole hyvä ja tarkista käyttäjätunnuksesi ja salasanasi.'
+        );
+      } else {
+        setStatusMessage('Kirjautumisessa tapahtui virhe.');
+      }
     }
   };
 
-  private setUserName = (event: React.ChangeEvent<HTMLInputElement>) =>
-    this.setState({ username: event.target.value });
-  private setPassword = (event: React.ChangeEvent<HTMLInputElement>) =>
-    this.setState({ password: event.target.value });
-
-  public render() {
-    return (
-      <Page>
-        <LoginPaper>
-          <Form onSubmit={this.handleSubmit}>
-            <Title>Kirjaudu sisään</Title>
-            <EditField
-              placeholder="Käyttäjätunnus"
-              label="Käyttäjätunnus"
-              value={this.state.username}
-              onChange={this.setUserName}
-              autoCapitalize="off"
-              autoCorrect="off"
-              autoFocus={true}
-            />
-            <EditField
-              placeholder="Salasana"
-              label="Salasana"
-              type="password"
-              autoCapitalize="off"
-              autoCorrect="off"
-              value={this.state.password}
-              onChange={this.setPassword}
-            />
-            <LoginButton type="submit" color="primary" variant="contained">
-              Kirjaudu
-            </LoginButton>
-            {this.state.showStatusMessage ? (
-              <ErrorText>{this.state.statusMessage}</ErrorText>
-            ) : (
-              ''
-            )}
-          </Form>
-        </LoginPaper>
-      </Page>
-    );
-  }
-}
+  return (
+    <Page>
+      <LoginPaper>
+        <Form onSubmit={handleSubmit}>
+          <Title>Kirjaudu sisään</Title>
+          <EditField
+            placeholder="Käyttäjätunnus"
+            label="Käyttäjätunnus"
+            value={username}
+            onChange={i => setUsername(i.target.value)}
+            autoCapitalize="off"
+            autoCorrect="off"
+            autoFocus={true}
+          />
+          <EditField
+            placeholder="Salasana"
+            label="Salasana"
+            type="password"
+            autoCapitalize="off"
+            autoCorrect="off"
+            value={password}
+            onChange={i => setPassword(i.target.value)}
+          />
+          <LoginButton type="submit" color="primary" variant="contained">
+            Kirjaudu
+          </LoginButton>
+          {statusMessage !== null ? <ErrorText>{statusMessage}</ErrorText> : ''}
+        </Form>
+      </LoginPaper>
+    </Page>
+  );
+};
 
 const LoginPaper = styled(Card)`
   display: inline-block;
@@ -116,7 +79,7 @@ const Form = styled.form`
 `;
 
 const EditField = styled(TextField)`
-  margin: 8px 0px;
+  margin: 8px;
 `;
 
 const Title = styled.title`
