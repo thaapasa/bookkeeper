@@ -1,4 +1,4 @@
-import { Button, Toolbar } from '@material-ui/core';
+import { Button, Toolbar } from '@mui/material';
 import * as React from 'react';
 import { Link, Route } from 'react-router-dom';
 import styled from 'styled-components';
@@ -78,7 +78,7 @@ export function LinkButton({ label, to }: { label: string; to: string }) {
       path={to}
       children={({ match }) => (
         <PlainLink to={to}>
-          <StyledButton variant="text" color={match ? 'primary' : 'default'}>
+          <StyledButton variant="text" color={match ? 'primary' : 'inherit'}>
             {label}
           </StyledButton>
         </PlainLink>

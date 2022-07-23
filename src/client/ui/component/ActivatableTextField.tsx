@@ -1,11 +1,11 @@
-import { TextFieldProps } from '@material-ui/core/TextField';
+import { TextFieldProps } from '@mui/material/TextField';
 import debug from 'debug';
 import * as React from 'react';
 
 import { omit } from 'shared/util/Objects';
 import { eventValue } from 'client/util/ClientUtil';
+import { KeyCodes } from 'client/util/Io';
 
-import { KeyCodes } from '../../util/Io';
 import { ReceiverFieldProps } from '../expense/dialog/ReceiverField';
 import { AutoCompleteProps } from './AutoComplete';
 

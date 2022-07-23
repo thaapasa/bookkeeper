@@ -5,7 +5,7 @@ import {
   MenuItem,
   Select,
   TextField,
-} from '@material-ui/core';
+} from '@mui/material';
 import * as React from 'react';
 
 import {

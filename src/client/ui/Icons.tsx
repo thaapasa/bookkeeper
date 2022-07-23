@@ -1,25 +1,26 @@
-import { SvgIconProps } from '@material-ui/core/SvgIcon';
-import ContentAdd from '@material-ui/icons/Add';
-import AddCircleSVG from '@material-ui/icons/AddCircle';
-import AttachMoneySVG from '@material-ui/icons/AttachMoney';
-import AutoRenewSVG from '@material-ui/icons/Autorenew';
-import ChevronLeftSVG from '@material-ui/icons/ChevronLeft';
-import ChevronRightSVG from '@material-ui/icons/ChevronRight';
-import ClearSVG from '@material-ui/icons/Clear';
-import DeleteSVG from '@material-ui/icons/Delete';
-import EditSVG from '@material-ui/icons/Edit';
-import ExpandLessSVG from '@material-ui/icons/ExpandLess';
-import ExpandMoreSVG from '@material-ui/icons/ExpandMore';
-import FileCopySVG from '@material-ui/icons/FileCopy';
-import MenuIconSVG from '@material-ui/icons/Menu';
-import PaymentSVG from '@material-ui/icons/Payment';
-import RedoSVG from '@material-ui/icons/Redo';
-import RefreshSVG from '@material-ui/icons/Refresh';
-import RepeatSVG from '@material-ui/icons/Repeat';
-import SearchSVG from '@material-ui/icons/Search';
+import ContentAdd from '@mui/icons-material/Add';
+import AddCircleSVG from '@mui/icons-material/AddCircle';
+import AttachMoneySVG from '@mui/icons-material/AttachMoney';
+import AutoRenewSVG from '@mui/icons-material/Autorenew';
+import ChevronLeftSVG from '@mui/icons-material/ChevronLeft';
+import ChevronRightSVG from '@mui/icons-material/ChevronRight';
+import ClearSVG from '@mui/icons-material/Clear';
+import DeleteSVG from '@mui/icons-material/Delete';
+import EditSVG from '@mui/icons-material/Edit';
+import ExpandLessSVG from '@mui/icons-material/ExpandLess';
+import ExpandMoreSVG from '@mui/icons-material/ExpandMore';
+import FileCopySVG from '@mui/icons-material/FileCopy';
+import MenuIconSVG from '@mui/icons-material/Menu';
+import PaymentSVG from '@mui/icons-material/Payment';
+import RedoSVG from '@mui/icons-material/Redo';
+import RefreshSVG from '@mui/icons-material/Refresh';
+import RepeatSVG from '@mui/icons-material/Repeat';
+import SearchSVG from '@mui/icons-material/Search';
+import { SvgIconProps } from '@mui/material/SvgIcon';
 import * as React from 'react';
 
-import { ExpenseType } from '../../shared/types/Expense';
+import { ExpenseType } from 'shared/types/Expense';
+
 import * as colors from './Colors';
 
 const styles = {

@@ -1,5 +1,4 @@
-import { Paper } from '@material-ui/core';
-import TextField from '@material-ui/core/TextField';
+import { Paper, TextField } from '@mui/material';
 import debug from 'debug';
 import React from 'react';
 import Autosuggest, {

@@ -4,7 +4,7 @@ import {
   InputLabel,
   MenuItem,
   Select,
-} from '@material-ui/core';
+} from '@mui/material';
 import * as React from 'react';
 import styled from 'styled-components';
 

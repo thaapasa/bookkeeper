@@ -1,4 +1,4 @@
-import { AppBar, IconButton, Toolbar, Typography } from '@material-ui/core';
+import { AppBar, IconButton, Toolbar, Typography } from '@mui/material';
 import * as React from 'react';
 import styled from 'styled-components';
 

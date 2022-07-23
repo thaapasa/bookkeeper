@@ -4,7 +4,7 @@ import {
   CircularProgress,
   FormControlLabel,
   IconButton,
-} from '@material-ui/core';
+} from '@mui/material';
 import * as B from 'baconjs';
 import * as React from 'react';
 import styled from 'styled-components';

@@ -1,10 +1,10 @@
-import { Avatar, Chip } from '@material-ui/core';
+import { Avatar, Chip } from '@mui/material';
 import * as React from 'react';
 import styled from 'styled-components';
 
 import { UserExpense } from 'shared/types/Expense';
+import { colorScheme } from 'client/ui/Colors';
 
-import { colorScheme } from '../../Colors';
 import { AllColumns, Row } from './ExpenseTableLayout';
 
 export type ExpenseFilterFunction = (expense: UserExpense) => boolean;

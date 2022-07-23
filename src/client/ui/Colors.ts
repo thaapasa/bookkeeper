@@ -1,9 +1,9 @@
-import { createMuiTheme } from '@material-ui/core';
-import { amber, grey, lime, teal } from '@material-ui/core/colors';
-import { SimplePaletteColorOptions } from '@material-ui/core/styles';
+import { amber, grey, lime, teal } from '@mui/material/colors';
+import { createTheme } from '@mui/material/styles';
+import { SimplePaletteColorOptions } from '@mui/material/styles';
 import styled from 'styled-components';
 
-import Money, { MoneyLike } from '../../shared/util/Money';
+import Money, { MoneyLike } from 'shared/util/Money';
 
 interface ColorDef {
   standard: string;
@@ -135,7 +135,7 @@ export function classNameForMoney(
     : 'unimportant';
 }
 
-export const muiTheme = createMuiTheme({
+export const muiTheme = createTheme({
   palette: {
     primary: secondaryPalette,
     secondary: primaryPalette,

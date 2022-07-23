@@ -8,8 +8,9 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  SelectChangeEvent,
   TextField,
-} from '@material-ui/core';
+} from '@mui/material';
 import debug from 'debug';
 import * as React from 'react';
 import styled from 'styled-components';
@@ -154,7 +155,8 @@ export default class CategoryDialog extends React.Component<
   };
 
   private changeCategory = (
-    e: React.ChangeEvent<{ name?: string; value: unknown }>
+    e: SelectChangeEvent<number>,
+    _child: React.ReactNode
   ) => {
     this.setState({ parentId: Number(e.target.value) });
   };

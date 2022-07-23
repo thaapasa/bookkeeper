@@ -1,4 +1,4 @@
-import { IconButton } from '@material-ui/core';
+import { IconButton } from '@mui/material';
 import debug from 'debug';
 import * as React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
