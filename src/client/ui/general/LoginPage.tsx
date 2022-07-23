@@ -1,10 +1,11 @@
-import { Button, Card, TextField } from '@mui/material';
+import { Button, Card } from '@mui/material';
 import * as React from 'react';
 import styled from 'styled-components';
 
 import { login } from 'client/data/Login';
 
 import { colorScheme } from '../Colors';
+import { TextEdit } from '../component/TextEdit';
 import { media } from '../Styles';
 
 const publicUrl = process.env.PUBLIC_URL || '';
@@ -39,7 +40,7 @@ export const LoginPage: React.FC = () => {
             placeholder="Käyttäjätunnus"
             label="Käyttäjätunnus"
             value={username}
-            onChange={i => setUsername(i.target.value)}
+            onChange={setUsername}
             autoCapitalize="off"
             autoCorrect="off"
             autoFocus={true}
@@ -51,7 +52,7 @@ export const LoginPage: React.FC = () => {
             autoCapitalize="off"
             autoCorrect="off"
             value={password}
-            onChange={i => setPassword(i.target.value)}
+            onChange={setPassword}
           />
           <LoginButton type="submit" color="primary" variant="contained">
             Kirjaudu
@@ -78,7 +79,7 @@ const Form = styled.form`
   width: 248px;
 `;
 
-const EditField = styled(TextField)`
+const EditField = styled(TextEdit)`
   margin: 8px;
 `;
 
