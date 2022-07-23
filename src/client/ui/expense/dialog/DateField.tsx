@@ -1,3 +1,4 @@
+import { TextField } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import * as React from 'react';
 
@@ -16,7 +17,7 @@ export class DateField extends React.Component<DateFieldProps> {
         inputFormat={datePickerFormat}
         value={this.props.value}
         onChange={this.onChange}
-        renderInput={_i => <span>Moi</span>}
+        renderInput={params => <TextField {...params} variant="standard" />}
       />
     );
   }

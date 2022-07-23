@@ -4,8 +4,8 @@ import * as React from 'react';
 import { Action } from 'shared/types/Common';
 import { Category, CategoryAndTotals } from 'shared/types/Session';
 import { TypedDateRange } from 'shared/util/Time';
+import { UserDataProps } from 'client/data/Categories';
 
-import { UserDataProps } from '../../data/Categories';
 import CategoryDialog from './CategoryDialog';
 import CategoryRow from './CategoryRow';
 import { CategoryHeader } from './CategoryTableLayout';
