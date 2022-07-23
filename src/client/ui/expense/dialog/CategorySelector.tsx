@@ -24,13 +24,14 @@ export function CategorySelector(props: {
   return (
     <Row onKeyUp={stopEventPropagation} className={props.className}>
       <StyledControl className="category-control main-category">
-        <InputLabel htmlFor={id} shrink={true}>
+        <InputLabel htmlFor={`${id}-cat`} shrink={true}>
           Kategoria
         </InputLabel>
         <Select
-          id={id}
+          labelId={`${id}-cat`}
           value={props.category}
           onChange={e => props.onChangeCategory(Number(e.target.value))}
+          label="Kategoria"
         >
           <MenuItem value={0}>-- Valitse --</MenuItem>
           {props.categories.map(row => (
@@ -44,10 +45,12 @@ export function CategorySelector(props: {
         </FormHelperText>
       </StyledControl>
       <StyledControl className="category-control sub-category">
-        <InputLabel htmlFor={id} shrink={true}>
+        <InputLabel htmlFor={`${id}-subcat`} shrink={true}>
           Alikategoria
         </InputLabel>
         <Select
+          labelId={`${id}-subcat`}
+          label="Alikategoria"
           value={props.subcategory}
           onChange={e => props.onChangeSubcategory(Number(e.target.value))}
         >

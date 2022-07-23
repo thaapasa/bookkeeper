@@ -50,9 +50,10 @@ export function SourceSelector(props: {
         {props.title}
       </InputLabel>
       <Select
-        id={id}
+        labelId={id}
         value={props.value}
         style={props.style}
+        label={props.title}
         onChange={e => props.onChange(Number(e.target.value))}
       >
         {props.sources.map(s => (
