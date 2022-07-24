@@ -4,8 +4,7 @@ import {
   InputLabel,
   MenuItem,
   Select,
-  TextField,
-} from '@material-ui/core';
+} from '@mui/material';
 import * as React from 'react';
 
 import {
@@ -14,9 +13,9 @@ import {
   getExpenseTypeLabel,
 } from 'shared/types/Expense';
 import { Source } from 'shared/types/Session';
-
-import { ExpenseTypeIcon } from '../../Icons';
-import { VCenterRow } from '../../Styles';
+import { TextEdit } from 'client/ui/component/TextEdit';
+import { ExpenseTypeIcon } from 'client/ui/Icons';
+import { VCenterRow } from 'client/ui/Styles';
 
 export function SumField(props: {
   value: string;
@@ -24,16 +23,14 @@ export function SumField(props: {
   onChange: (s: string) => void;
 }) {
   return (
-    <TextField
+    <TextEdit
       placeholder="0.00"
       label="Summa"
       InputLabelProps={{ shrink: true }}
       value={props.value}
       helperText={props.errorText || ' '}
       error={Boolean(props.errorText)}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-        props.onChange(e.target.value)
-      }
+      onChange={props.onChange}
       autoFocus
     />
   );
@@ -48,14 +45,15 @@ export function SourceSelector(props: {
 }) {
   const id = 'expense-dialog-source';
   return (
-    <FormControl fullWidth={true}>
+    <FormControl fullWidth={true} variant="standard">
       <InputLabel htmlFor={id} shrink={true}>
         {props.title}
       </InputLabel>
       <Select
-        id={id}
+        labelId={id}
         value={props.value}
         style={props.style}
+        label={props.title}
         onChange={e => props.onChange(Number(e.target.value))}
       >
         {props.sources.map(s => (
@@ -99,7 +97,7 @@ export function DescriptionField(props: {
   onChange: (s: string) => void;
 }) {
   return (
-    <TextField
+    <TextEdit
       multiline={true}
       placeholder="Tarkempi selite"
       label="Selite"
@@ -108,9 +106,7 @@ export function DescriptionField(props: {
       helperText={props.errorText}
       error={Boolean(props.errorText)}
       value={props.value}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-        props.onChange(e.target.value)
-      }
+      onChange={props.onChange}
     />
   );
 }

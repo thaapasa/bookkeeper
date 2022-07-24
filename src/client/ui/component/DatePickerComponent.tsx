@@ -1,4 +1,5 @@
-import { KeyboardDatePicker } from '@material-ui/pickers';
+import { TextField } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers';
 import * as React from 'react';
 
 import { Action } from 'shared/types/Common';
@@ -32,12 +33,11 @@ class DatePickerComponent extends React.Component<
 
   public render() {
     return (
-      <KeyboardDatePicker
-        variant="dialog"
-        format={datePickerFormat}
-        name="date-picker"
+      <DatePicker
+        inputFormat={datePickerFormat}
         value={this.state.date}
         onChange={this.onChange}
+        renderInput={params => <TextField {...params} variant="standard" />}
       />
     );
   }

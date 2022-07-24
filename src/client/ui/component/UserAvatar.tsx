@@ -1,5 +1,5 @@
-import { Avatar } from '@material-ui/core';
-import { cyan } from '@material-ui/core/colors';
+import { Avatar } from '@mui/material';
+import { cyan } from '@mui/material/colors';
 import * as React from 'react';
 import styled from 'styled-components';
 

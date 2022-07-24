@@ -38,8 +38,8 @@ createdb -h localhost -p ${PORT} -U postgres postgres || exit -1
 echo "Restoring prod DB dump"
 pg_restore --role=postgres --no-owner -d "$DB_URL" --no-acl <$DUMP
 
-rm $DUMP
+psql "$DB_URL" -c "UPDATE users set image=case id % 2 when 0 then '2.jpg' else '1.png' end, password=encode(digest('password', 'sha1'), 'hex');"
 
-psql "$DB_URL" -c "UPDATE users set image=case id % 2 when 0 then '2.jpg' else '1.png' end;"
+rm $DUMP
 
 echo "All done!"

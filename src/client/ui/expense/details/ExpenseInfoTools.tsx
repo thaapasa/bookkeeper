@@ -1,4 +1,4 @@
-import { IconButton } from '@material-ui/core';
+import { IconButton } from '@mui/material';
 import * as B from 'baconjs';
 import debug from 'debug';
 import * as React from 'react';

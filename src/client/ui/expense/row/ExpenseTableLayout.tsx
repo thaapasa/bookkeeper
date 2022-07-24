@@ -1,18 +1,17 @@
-import { CircularProgress } from '@material-ui/core';
+import { CircularProgress } from '@mui/material';
 import * as React from 'react';
 import styled from 'styled-components';
 
 import { windowSizeP } from 'client/data/State';
+import { colorScheme } from 'client/ui/Colors';
 import { connect } from 'client/ui/component/BaconConnect';
-import { Size } from 'client/ui/Types';
-
-import { colorScheme } from '../../Colors';
-import { QuestionBookmark, Recurring } from '../../Icons';
+import { QuestionBookmark, Recurring } from 'client/ui/Icons';
 import {
   getScreenSizeClassName,
   media,
   ScreenSizeClassName,
-} from '../../Styles';
+} from 'client/ui/Styles';
+import { Size } from 'client/ui/Types';
 
 const tableBgColor = colorScheme.primary.light;
 const separatorColor = colorScheme.gray.standard;

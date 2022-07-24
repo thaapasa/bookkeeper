@@ -6,7 +6,7 @@ import {
   DialogContent,
   DialogTitle,
   FormControlLabel,
-} from '@material-ui/core';
+} from '@mui/material';
 import * as B from 'baconjs';
 import debug from 'debug';
 import * as React from 'react';

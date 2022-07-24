@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { Session } from 'shared/types/Session';
-
 import {
   categoryPagePath,
   categoryViewMonthPattern,
@@ -14,11 +13,12 @@ import {
   newExpensePath,
   searchPagePath,
   shortcutsPage,
-} from '../../util/Links';
+} from 'client/util/Links';
+
 import RoutedCategoryView from '../category/RoutedCategoryView';
 import { colorScheme } from '../Colors';
 import DatePickerComponent from '../component/DatePickerComponent';
-import NavigationBar, { AppLink } from '../component/NavigationBar';
+import { AppLink, NavigationBar } from '../component/NavigationBar';
 import NotificationBar from '../component/NotificationBar';
 import TopBar from '../component/TopBar';
 import ExpenseDialog from '../expense/dialog/ExpenseDialogListener';
@@ -50,49 +50,47 @@ const appLinks: AppLink[] = [
   { label: 'Tiedot', path: infoPagePath, showInHeader: false },
 ];
 
-export default class BookkeeperPage extends React.Component<PageProps> {
-  public render() {
-    const isMobileDevice = isMobileSize(this.props.windowSize);
-    const className = getScreenSizeClassName(this.props.windowSize);
-    return (
-      <Page>
-        <ExpenseDialog windowSize={this.props.windowSize} />
-        <ConfirmationDialog />
-        <Router>
-          <ContentContainer>
-            <TopBar links={appLinks} windowSize={this.props.windowSize} />
-            {isMobileDevice ? null : <NavigationBar links={appLinks} />}
-            <MainContent className={'main-content ' + className}>
-              <Switch>
-                <Route path={newExpensePath} component={NewExpenseView} />
-                <Route
-                  path={expenseMonthPathPattern('date')}
-                  component={RoutedMonthView}
-                />
-                <Route path={expensePagePath} component={RoutedMonthView} />
-                <Route
-                  path={categoryViewYearPattern('year')}
-                  component={RoutedCategoryView}
-                />
-                <Route
-                  path={categoryViewMonthPattern('month')}
-                  component={RoutedCategoryView}
-                />
-                <Route path={shortcutsPage} component={ShortcutsView} />
-                <Route path={categoryPagePath} component={RoutedCategoryView} />
-                <Route path={searchPagePath} component={SearchView} />
-                <Route path={infoPagePath} component={InfoView} />
-                <Route exact={true} path="/" component={FrontpageView} />
-              </Switch>
-            </MainContent>
-          </ContentContainer>
-        </Router>
-        <DatePickerComponent />
-        <NotificationBar />
-      </Page>
-    );
-  }
-}
+export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
+  const isMobileDevice = isMobileSize(windowSize);
+  const className = getScreenSizeClassName(windowSize);
+  return (
+    <Page>
+      <ExpenseDialog windowSize={windowSize} />
+      <ConfirmationDialog />
+      <Router>
+        <ContentContainer>
+          <TopBar links={appLinks} windowSize={windowSize} />
+          {isMobileDevice ? null : <NavigationBar links={appLinks} />}
+          <MainContent className={'main-content ' + className}>
+            <Switch>
+              <Route path={newExpensePath} component={NewExpenseView} />
+              <Route
+                path={expenseMonthPathPattern('date')}
+                component={RoutedMonthView}
+              />
+              <Route path={expensePagePath} component={RoutedMonthView} />
+              <Route
+                path={categoryViewYearPattern('year')}
+                component={RoutedCategoryView}
+              />
+              <Route
+                path={categoryViewMonthPattern('month')}
+                component={RoutedCategoryView}
+              />
+              <Route path={shortcutsPage} component={ShortcutsView} />
+              <Route path={categoryPagePath} component={RoutedCategoryView} />
+              <Route path={searchPagePath} component={SearchView} />
+              <Route path={infoPagePath} component={InfoView} />
+              <Route exact={true} path="/" component={FrontpageView} />
+            </Switch>
+          </MainContent>
+        </ContentContainer>
+      </Router>
+      <DatePickerComponent />
+      <NotificationBar />
+    </Page>
+  );
+};
 
 const Page = styled.div`
   width: 100%;

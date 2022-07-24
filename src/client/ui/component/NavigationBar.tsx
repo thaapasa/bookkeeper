@@ -1,9 +1,9 @@
-import { Button, Toolbar } from '@material-ui/core';
+import { Button, Toolbar } from '@mui/material';
 import * as React from 'react';
 import { Link, Route } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { navigationBar } from '../Colors';
+import { gray, navigationBar } from '../Colors';
 import { media } from '../Styles';
 import DateRangeNavigator from './DateRangeNavigator';
 import { ExpenseShortcutsView } from './ExpenseShortcutsView';
@@ -18,27 +18,21 @@ interface NavigationBarProps {
   links?: AppLink[];
 }
 
-export default class NavigationBar extends React.Component<NavigationBarProps> {
-  public render() {
-    return (
-      <Bar>
-        <LinkGroup>
-          {this.props.links &&
-            this.props.links
-              .filter(l => l.showInHeader)
-              .map(l => (
-                <LinkButton key={l.label} label={l.label} to={l.path} />
-              ))}
-        </LinkGroup>
-        <ToolbarGroup>
-          <DateRangeNavigator />
-        </ToolbarGroup>
-        <PadGroup />
-        <ExpenseShortcutsView />
-      </Bar>
-    );
-  }
-}
+export const NavigationBar: React.FC<NavigationBarProps> = ({ links }) => (
+  <Bar>
+    <LinkGroup>
+      {links &&
+        links
+          .filter(l => l.showInHeader)
+          .map(l => <LinkButton key={l.label} label={l.label} to={l.path} />)}
+    </LinkGroup>
+    <ToolbarGroup>
+      <DateRangeNavigator />
+    </ToolbarGroup>
+    <PadGroup />
+    <ExpenseShortcutsView />
+  </Bar>
+);
 
 const Bar = styled(Toolbar)`
   background-color: ${navigationBar};
@@ -78,7 +72,12 @@ export function LinkButton({ label, to }: { label: string; to: string }) {
       path={to}
       children={({ match }) => (
         <PlainLink to={to}>
-          <StyledButton variant="text" color={match ? 'primary' : 'default'}>
+          <StyledButton
+            variant="text"
+            disableElevation
+            color={match ? 'primary' : 'inherit'}
+            style={match ? undefined : { color: gray.veryDark }}
+          >
             {label}
           </StyledButton>
         </PlainLink>

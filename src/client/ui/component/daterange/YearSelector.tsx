@@ -1,8 +1,8 @@
 import * as React from 'react';
 
 import { toMoment } from 'shared/util/Time';
+import { NavigateLeft, NavigateRight } from 'client/ui/Icons';
 
-import { NavigateLeft, NavigateRight } from '../../Icons';
 import {
   isValidYear,
   NumberInput,

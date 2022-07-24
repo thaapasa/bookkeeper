@@ -4,14 +4,14 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-} from '@material-ui/core';
+} from '@mui/material';
 import * as React from 'react';
 
 import { Action } from 'shared/types/Common';
+import { confirmationE } from 'client/data/State';
+import { ConfirmationObject } from 'client/data/StateTypes';
+import { KeyCodes } from 'client/util/Io';
 
-import { confirmationE } from '../../data/State';
-import { ConfirmationObject } from '../../data/StateTypes';
-import { KeyCodes } from '../../util/Io';
 import { AnyObject } from '../Types';
 
 interface ConfirmationDialogProps<T> {
@@ -62,7 +62,7 @@ class ConfirmationDialog<T> extends React.Component<
           {this.props.confirmation.actions.map((a, i) => (
             <Button
               key={i}
-              color={i === 0 ? 'primary' : 'default'}
+              color={i === 0 ? 'primary' : 'inherit'}
               tabIndex={i + 2}
               onKeyUp={this.handleKeyPress}
               onClick={() => this.resolveWith(a.value)}

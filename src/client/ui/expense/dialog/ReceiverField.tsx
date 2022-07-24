@@ -3,13 +3,11 @@ import * as React from 'react';
 
 import { identity } from 'shared/util/Util';
 import apiConnect from 'client/data/ApiConnect';
+import { AutoComplete } from 'client/ui/component/AutoComplete';
 import { unsubscribeAll } from 'client/util/ClientUtil';
-
-import AutoComplete from '../../component/AutoComplete';
 
 export interface ReceiverFieldProps {
   id: string;
-  name?: string;
   value: string;
   title: string;
   fullWidth?: boolean;
@@ -58,7 +56,6 @@ export class ReceiverField extends React.Component<
   public render() {
     return (
       <AutoComplete
-        name={this.props.name}
         id={this.props.id}
         value={this.props.value}
         onChange={this.props.onChange}
@@ -67,7 +64,6 @@ export class ReceiverField extends React.Component<
         placeholder={this.props.placeholder}
         suggestions={this.state.receivers}
         onUpdateSuggestions={this.updateReceivers}
-        onClearSuggestions={this.clearReceivers}
         onSelectSuggestion={this.selectReceiver}
         getSuggestionValue={identity}
         errorText={this.props.errorText}
@@ -80,8 +76,6 @@ export class ReceiverField extends React.Component<
   private updateReceivers = (search: string) => this.searchStream.push(search);
 
   private selectReceiver = (receiver: string) => this.props.onChange(receiver);
-
-  private clearReceivers = async () => this.setState({ receivers: [] });
 }
 
 export class PlainReceiverField extends React.Component<

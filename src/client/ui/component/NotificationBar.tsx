@@ -1,4 +1,4 @@
-import Snackbar from '@material-ui/core/Snackbar';
+import Snackbar from '@mui/material/Snackbar';
 import * as React from 'react';
 
 import { Action, Timeout } from 'shared/types/Common';

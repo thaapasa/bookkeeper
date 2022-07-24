@@ -1,4 +1,4 @@
-import { Drawer, MenuItem } from '@material-ui/core';
+import { Drawer, MenuItem } from '@mui/material';
 import * as React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
 import styled from 'styled-components';

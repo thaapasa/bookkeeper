@@ -1,169 +1,116 @@
-import { Paper } from '@material-ui/core';
-import TextField from '@material-ui/core/TextField';
+import {
+  Autocomplete,
+  AutocompleteChangeReason,
+  AutocompleteInputChangeReason,
+  TextField,
+} from '@mui/material';
 import debug from 'debug';
 import React from 'react';
-import Autosuggest, {
-  ChangeEvent,
-  RenderInputComponentProps,
-  RenderSuggestionsContainerParams,
-  SuggestionSelectedEventData,
-  SuggestionsFetchRequestedParams,
-} from 'react-autosuggest';
-import styled from 'styled-components';
-
-import { eventValue } from 'client/util/ClientUtil';
-
-import { highlightBg, highlightFg } from '../Colors';
 
 const log = debug('ui:autocomplete');
 
 export interface AutoCompleteProps<T> {
   id: string;
-  name?: string;
   value: string;
   onChange: (value: string | React.ChangeEvent<{ value: string }>) => void;
   suggestions: T[];
   onUpdateSuggestions: (input: string) => void;
-  onClearSuggestions: () => void;
   onSelectSuggestion: (suggestion: T) => void;
   getSuggestionValue: (suggestion: T) => string;
   fullWidth?: boolean;
   placeholder?: string;
   autoFocus?: boolean;
   style?: React.CSSProperties;
+  inputStyle?: React.CSSProperties;
   label?: string;
   errorText?: string;
   autoHideErrorText?: boolean;
   onKeyUp?: (event: React.KeyboardEvent<any>) => void;
+  className?: string;
   inputClassName?: string;
 }
 
-export default class AutoComplete<T> extends React.Component<
-  AutoCompleteProps<T>
-> {
-  public render() {
-    return (
-      <Autosuggest
-        id={this.props.id}
-        inputProps={{
-          name: this.props.name,
-          value: this.props.value,
-          onChange: this.setInputFromSuggest,
-          style: { margin: '6px 0', ...this.props.style },
-          onKeyUp: this.props.onKeyUp,
-        }}
-        getSuggestionValue={this.props.getSuggestionValue}
-        onSuggestionsFetchRequested={this.fetchSuggestions}
-        onSuggestionsClearRequested={this.props.onClearSuggestions}
-        suggestions={this.props.suggestions}
-        renderSuggestionsContainer={this.renderContainer}
-        renderSuggestion={this.renderSuggestion}
-        renderInputComponent={this.renderInput}
-        onSuggestionSelected={this.onSelectSuggestion}
-      />
-    );
-  }
+export const AutoComplete: React.FC<AutoCompleteProps<any>> = ({
+  id,
+  value,
+  suggestions,
+  onSelectSuggestion,
+  onChange,
+  onUpdateSuggestions,
+  getSuggestionValue,
+  fullWidth,
+  style,
+  inputStyle,
+  autoFocus,
+  placeholder,
+  label,
+  onKeyUp,
+  errorText,
+  autoHideErrorText,
+  className,
+  inputClassName,
+}) => {
+  const onChangeHandler = React.useCallback(
+    (
+      _event: React.SyntheticEvent,
+      value: string | null,
+      reason: AutocompleteChangeReason
+    ) => {
+      switch (reason) {
+        case 'selectOption':
+          log(`Selected suggestion: ${value}`);
+          onSelectSuggestion(value);
+          return;
+      }
+    },
+    [onSelectSuggestion]
+  );
 
-  private onSelectSuggestion = (
-    _: React.FormEvent<any>,
-    data: SuggestionSelectedEventData<T>
-  ) => {
-    log(`Selected suggestion: ${data.suggestion}`);
-    this.props.onSelectSuggestion(data.suggestion);
-  };
+  const onInputChangeHandler = React.useCallback(
+    (
+      _event: React.SyntheticEvent,
+      value: string,
+      reason: AutocompleteInputChangeReason
+    ) => {
+      switch (reason) {
+        case 'input':
+          log(`Input from textfield: ${value}`);
+          onChange(value);
+          onUpdateSuggestions(value);
+          return;
+      }
+    },
+    [onChange, onUpdateSuggestions]
+  );
 
-  private fetchSuggestions = (params: SuggestionsFetchRequestedParams) => {
-    this.props.onUpdateSuggestions(params.value);
-  };
+  const defaultErrorText = autoHideErrorText ? null : ' ';
 
-  private setInputFromSuggest = (
-    _e: React.FormEvent<HTMLElement>,
-    _params: ChangeEvent
-  ) => {
-    // This is called when the suggestion is navigated (using keyboard, for example)
-    // Not selected yet!
-    // log(`Input from suggestion: ${params.newValue}`);
-  };
-
-  private setInputFromField = (e: React.ChangeEvent<any>) => {
-    log(`Input from textfield: ${e.target.value}`);
-    this.props.onChange(e);
-    this.props.onUpdateSuggestions(eventValue(e));
-    return false;
-  };
-
-  private renderSuggestion = (
-    item: T,
-    params: { query: string; isHighlighted: boolean }
-  ) => {
-    return (
-      <Item className={params.isHighlighted ? 'highlight' : 'normal'}>
-        {this.props.getSuggestionValue(item)}
-      </Item>
-    );
-  };
-
-  private renderContainer = (params: RenderSuggestionsContainerParams) => {
-    return (
-      <FloatingPaper {...params.containerProps} square={true}>
-        {params.children}
-      </FloatingPaper>
-    );
-  };
-
-  private renderInput = (props: RenderInputComponentProps) => {
-    /* eslint-disable @typescript-eslint/no-unused-vars */
-    const {
-      defaultValue,
-      contentEditable,
-      draggable,
-      spellCheck,
-      color,
-      size,
-      ...other
-    } = props;
-
-    const defaultErrorText = this.props.autoHideErrorText ? null : ' ';
-
-    return (
-      <StandardTextField
-        {...other}
-        draggable={false}
-        contentEditable={false}
-        spellCheck={false}
-        autoFocus={this.props.autoFocus}
-        fullWidth={this.props.fullWidth}
-        placeholder={this.props.placeholder}
-        type="text"
-        label={this.props.label}
-        InputLabelProps={{ shrink: true }}
-        error={Boolean(this.props.errorText)}
-        helperText={this.props.errorText || defaultErrorText}
-        onChange={this.setInputFromField}
-        className={this.props.inputClassName}
-      />
-    );
-  };
-}
-
-const StandardTextField = styled(TextField)`
-  margin: 8px 0;
-  position: relative;
-  &.pad-left input,
-  &.pad-left label {
-    padding-left: 8px;
-  }
-`;
-
-const FloatingPaper = styled(Paper)`
-  position: absolute;
-  z-index: 2;
-`;
-
-const Item = styled.div`
-  padding: 12px 24px;
-  &.highlight {
-    background: ${highlightBg};
-    color: ${highlightFg};
-  }
-`;
+  return (
+    <Autocomplete
+      id={id}
+      inputValue={value}
+      renderInput={params => (
+        <TextField
+          {...params}
+          variant="standard"
+          spellCheck={false}
+          autoFocus={autoFocus}
+          label={label}
+          placeholder={placeholder}
+          error={Boolean(errorText)}
+          helperText={errorText || defaultErrorText}
+          className={`autocomplete-input ${inputClassName ?? ''}`}
+          onKeyUp={onKeyUp}
+          style={inputStyle}
+        />
+      )}
+      fullWidth={fullWidth}
+      options={suggestions}
+      onChange={onChangeHandler}
+      onInputChange={onInputChangeHandler}
+      getOptionLabel={getSuggestionValue}
+      style={style}
+      className={className}
+    />
+  );
+};

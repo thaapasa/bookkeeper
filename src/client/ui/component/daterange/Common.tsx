@@ -1,4 +1,4 @@
-import { IconButton, TextField } from '@material-ui/core';
+import { IconButton, TextField } from '@mui/material';
 import styled from 'styled-components';
 
 import { toMoment, TypedDateRange } from 'shared/util/Time';
