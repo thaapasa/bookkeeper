@@ -40,4 +40,6 @@ pg_restore --role=postgres --no-owner -d "$DB_URL" --no-acl <$DUMP
 
 psql "$DB_URL" -c "UPDATE users set image=case id % 2 when 0 then '2.jpg' else '1.png' end, password=encode(digest('password', 'sha1'), 'hex');"
 
+rm $DUMP
+
 echo "All done!"
