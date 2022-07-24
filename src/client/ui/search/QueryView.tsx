@@ -21,12 +21,12 @@ import {
   CategoryDataSource,
   getFullCategoryName,
 } from 'client/data/Categories';
+import { eventValue } from 'client/util/ClientUtil';
 import { KeyCodes } from 'client/util/Io';
+import { parseQueryString } from 'client/util/UrlUtils';
 
-import { eventValue } from '../../util/ClientUtil';
-import { parseQueryString } from '../../util/UrlUtils';
 import { gray, secondaryColors } from '../Colors';
-import AutoComplete from '../component/AutoComplete';
+import { AutoComplete } from '../component/AutoComplete';
 import { toYearRange } from '../component/daterange/Common';
 import { DateRangeSelector } from '../component/daterange/DateRangeSelector';
 import { Delete, Search } from '../Icons';
@@ -157,7 +157,7 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
                 <Delete />
               </IconButton>
             </ClearIconArea>
-            <AutoComplete
+            <StyledComplete
               id="search-terms"
               label="Hakuehdot"
               value={this.state.input}
@@ -167,7 +167,6 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
               onUpdateSuggestions={this.updateSuggestions}
               onSelectSuggestion={this.selectSuggestion}
               getSuggestionValue={this.getSuggestionValue}
-              onClearSuggestions={this.clearSuggestions}
               inputClassName="pad-left"
               autoHideErrorText={true}
               onKeyUp={this.onInputKeyUp}
@@ -243,7 +242,6 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
     }
   };
 
-  private clearSuggestions = () => this.setState({ suggestions: [] });
   private getSuggestionValue = (suggestion: Suggestion) =>
     suggestion.type === 'category'
       ? suggestion.name
@@ -310,6 +308,10 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
   private selectDateRange = (dateRange?: TypedDateRange) =>
     this.dateRangeBus.push(dateRange);
 }
+
+const StyledComplete = styled(AutoComplete)`
+  margin-top: 6px;
+`;
 
 const QueryArea = styled.div`
   margin: 24px 24px 0 24px;

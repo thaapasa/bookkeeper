@@ -3,8 +3,7 @@ import * as React from 'react';
 import { last } from 'shared/util/Arrays';
 import { filterMapCaseInsensitive } from 'shared/util/Util';
 import { CategoryDataSource } from 'client/data/Categories';
-
-import AutoComplete from '../../component/AutoComplete';
+import { AutoComplete } from 'client/ui/component/AutoComplete';
 
 interface TitleFieldState {
   suggestions: CategoryDataSource[];
@@ -34,7 +33,6 @@ export class TitleField extends React.Component<
         value={this.props.value}
         onChange={this.props.onChange}
         onUpdateSuggestions={this.updateSuggestions}
-        onClearSuggestions={this.clearSuggestions}
         onSelectSuggestion={this.selectCategory}
         getSuggestionValue={dsToString}
         placeholder="Ruokaostokset"
@@ -61,6 +59,4 @@ export class TitleField extends React.Component<
         dsToString
       ),
     });
-
-  clearSuggestions = () => this.setState({ suggestions: [] });
 }
