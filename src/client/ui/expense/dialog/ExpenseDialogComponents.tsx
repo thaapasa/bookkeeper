@@ -66,30 +66,27 @@ export function SourceSelector(props: {
   );
 }
 
-export class TypeSelector extends React.Component<{
+export const TypeSelector: React.FC<{
   value: ExpenseType;
   onChange: (s: ExpenseType) => void;
-}> {
-  private toggle = () => {
+}> = ({ value, onChange }) => {
+  const toggle = React.useCallback(() => {
     const toggled =
-      expenseTypes[
-        (expenseTypes.indexOf(this.props.value) + 1) % expenseTypes.length
-      ];
-    if (toggled && this.props.onChange) {
-      this.props.onChange(toggled);
+      expenseTypes[(expenseTypes.indexOf(value) + 1) % expenseTypes.length];
+    if (toggled && onChange) {
+      onChange(toggled);
     }
-  };
-  public render() {
-    return (
-      <VCenterRow>
-        <IconButton onClick={this.toggle}>
-          <ExpenseTypeIcon type={this.props.value} size={24} />
-        </IconButton>
-        {getExpenseTypeLabel(this.props.value)}
-      </VCenterRow>
-    );
-  }
-}
+  }, [onChange, value]);
+
+  return (
+    <VCenterRow>
+      <IconButton onClick={toggle}>
+        <ExpenseTypeIcon type={value} size={24} />
+      </IconButton>
+      {getExpenseTypeLabel(value)}
+    </VCenterRow>
+  );
+};
 
 export function DescriptionField(props: {
   value: string;
