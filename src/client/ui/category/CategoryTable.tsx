@@ -12,7 +12,7 @@ import { CategoryHeader } from './CategoryTableLayout';
 
 const log = debug('bookkeeper:category-view');
 
-interface CategoryViewProps {
+interface CategoryTableProps {
   categories: Category[];
   range: TypedDateRange;
   categoryTotals: Record<string, CategoryAndTotals>;
@@ -20,72 +20,88 @@ interface CategoryViewProps {
   userData: UserDataProps;
 }
 
-export class CategoryTable extends React.Component<CategoryViewProps> {
-  private categoryDialog: CategoryDialog | null = null;
+export const CategoryTable: React.FC<CategoryTableProps> = ({
+  onCategoriesChanged,
+  categories,
+  ...props
+}) => {
+  const categoryDialogRef = React.useRef<CategoryDialog>(null);
 
-  private createCategory = async (parent?: Category) => {
-    if (!this.categoryDialog) {
+  const createCategory = async (parent?: Category) => {
+    if (!categoryDialogRef.current) {
       return;
     }
-    const c = await this.categoryDialog.createCategory(parent);
+    const c = await categoryDialogRef.current.createCategory(parent);
     log('Created new category', c);
-    this.props.onCategoriesChanged();
+    onCategoriesChanged();
   };
 
-  private editCategory = async (category: Category) => {
-    if (!this.categoryDialog) {
+  const editCategory = async (category: Category) => {
+    if (!categoryDialogRef.current) {
       return;
     }
-    const c = await this.categoryDialog.editCategory(category);
+    const c = await categoryDialogRef.current.editCategory(category);
     log('Modified category', c);
-    this.props.onCategoriesChanged();
+    onCategoriesChanged();
   };
 
-  public render() {
-    return (
-      <React.Fragment>
-        <CategoryHeader onAdd={this.createCategory} />
-        {this.props.categories.map(this.renderCategory)}
-        <CategoryDialog
-          ref={r => (this.categoryDialog = r)}
-          categories={this.props.categories}
-        />
-      </React.Fragment>
-    );
-  }
-
-  private renderCategory = (c: Category) => {
-    return (
-      <React.Fragment key={'subcategory-' + c.id}>
-        <CategoryRow
-          {...this.props}
+  return (
+    <React.Fragment>
+      <CategoryHeader onAdd={createCategory} />
+      {categories.map(c => (
+        <CategoryView
+          {...props}
           category={c}
-          header={true}
-          createCategory={this.createCategory}
-          editCategory={this.editCategory}
+          key={c.id}
+          editCategory={editCategory}
+          createCategory={createCategory}
         />
-        <CategoryRow
-          {...this.props}
-          title="Pääkategorian kirjaukset"
-          category={{
-            ...c,
-            children: [],
-          }}
-          header={false}
-          createCategory={this.createCategory}
-          editCategory={this.editCategory}
-        />
-        {c.children.map(ch => (
-          <CategoryRow
-            key={ch.id}
-            {...this.props}
-            header={false}
-            category={ch}
-            createCategory={this.createCategory}
-            editCategory={this.editCategory}
-          />
-        ))}
-      </React.Fragment>
-    );
-  };
-}
+      ))}
+      <CategoryDialog ref={categoryDialogRef} categories={categories} />
+    </React.Fragment>
+  );
+};
+
+type CategoryViewProps = {
+  category: Category;
+  createCategory: (p?: Category) => void;
+  editCategory: (p: Category) => void;
+} & Pick<CategoryTableProps, 'range' | 'categoryTotals' | 'userData'>;
+
+const CategoryView: React.FC<CategoryViewProps> = ({
+  category,
+  createCategory,
+  editCategory,
+  ...props
+}) => (
+  <>
+    <CategoryRow
+      {...props}
+      category={category}
+      header={true}
+      createCategory={createCategory}
+      editCategory={editCategory}
+    />
+    <CategoryRow
+      {...props}
+      title="Pääkategorian kirjaukset"
+      category={{
+        ...category,
+        children: [],
+      }}
+      header={false}
+      createCategory={createCategory}
+      editCategory={editCategory}
+    />
+    {category.children.map(ch => (
+      <CategoryRow
+        key={ch.id}
+        {...props}
+        header={false}
+        category={ch}
+        createCategory={createCategory}
+        editCategory={editCategory}
+      />
+    ))}
+  </>
+);
