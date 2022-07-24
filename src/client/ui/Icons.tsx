@@ -1,3 +1,4 @@
+import { DonutSmall } from '@mui/icons-material';
 import ContentAdd from '@mui/icons-material/Add';
 import AddCircleSVG from '@mui/icons-material/AddCircle';
 import AttachMoneySVG from '@mui/icons-material/AttachMoney';
@@ -46,6 +47,7 @@ export const Repeat = RepeatSVG;
 export const Clear = ClearSVG;
 export const Add = ContentAdd;
 export const Search = SearchSVG;
+export const Split = DonutSmall;
 export const PlusCircle = AddCircleSVG;
 export const Refresh = RefreshSVG;
 export const Recurring = AutoRenewSVG;

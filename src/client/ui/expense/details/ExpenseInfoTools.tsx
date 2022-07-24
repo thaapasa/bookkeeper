@@ -24,7 +24,7 @@ import {
 } from 'client/data/State';
 import * as colors from 'client/ui/Colors';
 import { connect } from 'client/ui/component/BaconConnect';
-import { Copy, Delete, Edit, Repeat } from 'client/ui/Icons';
+import { Copy, Delete, Edit, Repeat, Split } from 'client/ui/Icons';
 import { media } from 'client/ui/Styles';
 
 import { getBenefitorsForExpense } from '../dialog/ExpenseDialogData';
@@ -109,6 +109,9 @@ const ExpenseInfoTools: React.FC<RecurrenceInfoProps> = ({
 
   return (
     <ToolContainer>
+      <ToolIconButton title="Pilko" onClick={() => undefined}>
+        <Split style={styles.toolIcon} />
+      </ToolIconButton>
       <ToolIconButton title="Kopioi" onClick={onCopy}>
         <Copy style={styles.toolIcon} />
       </ToolIconButton>
