@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import styled from 'styled-components';
+import styled, { createGlobalStyle } from 'styled-components';
 
 import { Session } from 'shared/types/Session';
 import {
@@ -54,7 +54,8 @@ export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
   const isMobileDevice = isMobileSize(windowSize);
   const className = getScreenSizeClassName(windowSize);
   return (
-    <Page>
+    <Page className="bookkeeper-page">
+      <GlobalStyle />
       <ExpenseDialog windowSize={windowSize} />
       <ConfirmationDialog />
       <Router>
@@ -124,5 +125,12 @@ const MainContent = styled.div`
     margin-left: auto;
     margin-right: auto;
     width: ${mainContentMaxWidth}px;
+  }
+`;
+
+/** This disables LastPass icon on text fields */
+const GlobalStyle = createGlobalStyle`
+  div[id^='__lpform_'] {
+    display: none;
   }
 `;
