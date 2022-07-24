@@ -16,6 +16,7 @@ import RedoSVG from '@mui/icons-material/Redo';
 import RefreshSVG from '@mui/icons-material/Refresh';
 import RepeatSVG from '@mui/icons-material/Repeat';
 import SearchSVG from '@mui/icons-material/Search';
+import TodaySVG from '@mui/icons-material/Today';
 import { SvgIconProps } from '@mui/material/SvgIcon';
 import * as React from 'react';
 
@@ -31,6 +32,7 @@ const styles = {
   },
 };
 
+export const Today = TodaySVG;
 export const Income = AttachMoneySVG;
 export const Expense = PaymentSVG;
 export const Transfer = RedoSVG;

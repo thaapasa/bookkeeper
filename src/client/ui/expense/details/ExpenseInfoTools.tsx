@@ -22,11 +22,11 @@ import {
   notifyError,
   updateExpenses,
 } from 'client/data/State';
+import * as colors from 'client/ui/Colors';
+import { connect } from 'client/ui/component/BaconConnect';
+import { Copy, Delete, Edit, Repeat } from 'client/ui/Icons';
+import { media } from 'client/ui/Styles';
 
-import * as colors from '../../Colors';
-import { connect } from '../../component/BaconConnect';
-import { Copy, Delete, Edit, Repeat } from '../../Icons';
-import { media } from '../../Styles';
 import { getBenefitorsForExpense } from '../dialog/ExpenseDialogData';
 import { expenseName } from '../ExpenseHelper';
 
@@ -109,33 +109,21 @@ const ExpenseInfoTools: React.FC<RecurrenceInfoProps> = ({
 
   return (
     <ToolContainer>
-      <IconButton title="Kopioi" style={styles.tool} onClick={onCopy}>
+      <ToolIconButton title="Kopioi" onClick={onCopy}>
         <Copy style={styles.toolIcon} />
-      </IconButton>
+      </ToolIconButton>
       {expense.recurringExpenseId ? null : (
-        <IconButton
-          title="Muuta toistuvaksi"
-          style={styles.tool}
-          onClick={createRecurring}
-        >
+        <ToolIconButton title="Muuta toistuvaksi" onClick={createRecurring}>
           <Repeat style={styles.toolIcon} />
-        </IconButton>
+        </ToolIconButton>
       )}
       <MobileTools>
-        <IconButton
-          title="Muokkaa"
-          style={styles.tool}
-          onClick={() => onModify(expense)}
-        >
+        <ToolIconButton title="Muokkaa" onClick={() => onModify(expense)}>
           <Edit style={styles.toolIcon} />
-        </IconButton>
-        <IconButton
-          title="Poista"
-          style={styles.tool}
-          onClick={() => onDelete(expense)}
-        >
+        </ToolIconButton>
+        <ToolIconButton title="Poista" onClick={() => onDelete(expense)}>
           <Delete style={styles.toolIcon} />
-        </IconButton>
+        </ToolIconButton>
       </MobileTools>
     </ToolContainer>
   );
@@ -160,3 +148,10 @@ const MobileTools = styled.div`
 export default connect(
   B.combineTemplate({ categoryMap: categoryMapE, sourceMap: sourceMapE })
 )(ExpenseInfoTools);
+
+export const ToolIconButton = styled(IconButton)`
+  margin: 0px;
+  padding: 0px;
+  width: 36px;
+  height: 36px;
+`;

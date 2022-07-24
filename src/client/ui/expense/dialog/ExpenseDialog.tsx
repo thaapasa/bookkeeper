@@ -33,6 +33,7 @@ import { confirm, notify, notifyError } from 'client/data/State';
 import { gray } from 'client/ui/Colors';
 import UserAvatar from 'client/ui/component/UserAvatar';
 import UserSelector from 'client/ui/component/UserSelector';
+import { Today } from 'client/ui/Icons';
 import { isMobileSize } from 'client/ui/Styles';
 import { Size } from 'client/ui/Types';
 import {
@@ -372,6 +373,8 @@ export class ExpenseDialog extends React.Component<
     return null;
   };
 
+  private setToday = () => this.inputStreams.date.push(new Date());
+
   private saveRecurring = async (
     originalId: number,
     data: ExpenseData
@@ -568,6 +571,14 @@ export class ExpenseDialog extends React.Component<
                 value={this.state.date}
                 onChange={v => this.inputStreams.date.push(v)}
               />
+              <TodayButton
+                title="Tänään"
+                variant="contained"
+                startIcon={<Today />}
+                onClick={this.setToday}
+              >
+                Tänään
+              </TodayButton>
             </Row>
             <Row className="row input description">
               <DescriptionField
@@ -627,6 +638,17 @@ const Row = styled.div`
   &.division {
     height: inherit;
   }
+
+  &.date {
+    justify-content: flex-start;
+    align-items: flex-end;
+  }
+`;
+
+const TodayButton = styled(Button)`
+  margin-left: 16px;
+  position: relative;
+  top: 1px;
 `;
 
 const OwnerSelectorArea = styled.div`
