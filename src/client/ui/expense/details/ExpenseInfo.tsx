@@ -22,24 +22,26 @@ interface ExpenseInfoProps {
   fullCategoryName: string;
 }
 
-export const ExpenseInfo = (props: ExpenseInfoProps) => {
-  if (props.loading) {
+export const ExpenseInfo: React.FC<ExpenseInfoProps> = ({
+  loading,
+  expense,
+  division,
+  ...props
+}) => {
+  if (loading) {
     return <LoadingIndicator forRow={true} />;
   }
   return (
     <Row>
       <AllColumns className="dark">
         <ExpenseInfoContainer className="expense-info-container">
-          <BasicData {...props} />
-          <RecurrenceInfo expense={props.expense} />
-          {props.expense.description ? (
-            <Description>{props.expense.description}</Description>
+          <BasicData expense={expense} {...props} />
+          <RecurrenceInfo expense={expense} />
+          {expense.description ? (
+            <Description>{expense.description}</Description>
           ) : null}
-          <DivisionInfo
-            division={props.division}
-            expenseType={props.expense.type}
-          />
-          <ExpenseInfoTools {...props} />
+          <DivisionInfo division={division} expenseType={expense.type} />
+          <ExpenseInfoTools division={division} expense={expense} {...props} />
         </ExpenseInfoContainer>
       </AllColumns>
     </Row>

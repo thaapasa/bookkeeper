@@ -63,12 +63,21 @@ export function pickDate(initialDate?: Date): Promise<Date | undefined> {
 export const pickDateE = pickDateBus;
 
 const expenseDialogBus = new B.Bus<ExpenseDialogObject>();
+const expenseSplitBus = new B.Bus<ExpenseDialogObject>();
 
 export function editExpense(
   expenseId: number
 ): Promise<ExpenseInEditor | null> {
   return new Promise<ExpenseInEditor | null>(resolve => {
     expenseDialogBus.push({ expenseId, resolve });
+  });
+}
+
+export function splitExpense(
+  expenseId: number
+): Promise<ExpenseInEditor | null> {
+  return new Promise<ExpenseInEditor | null>(resolve => {
+    expenseSplitBus.push({ expenseId, resolve });
   });
 }
 
@@ -84,6 +93,7 @@ export function createExpense(
 }
 
 export const expenseDialogE = expenseDialogBus;
+export const expenseSplitE = expenseSplitBus;
 
 const needUpdateBus = new B.Bus<Date>();
 

@@ -116,7 +116,7 @@ function allTrue(...args: boolean[]): boolean {
   return args.reduce((a, b) => a && b, true);
 }
 
-interface ExpenseDialogProps {
+export interface ExpenseDialogProps {
   createNew: boolean;
   original: UserExpenseWithDetails | null;
   sources: Source[];
