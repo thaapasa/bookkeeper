@@ -9,20 +9,3 @@ body {
 #root {
     width: 100%;
 }
-
-.react-autosuggest__container {
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.react-autosuggest__suggestions-list {
-    padding-inline-start: 0;
-}
-
-.react-autosuggest__suggestion {
-    list-style-type: none;
-}
-
-.vertical-scroll-area {
-    overflow-y: scroll !important;
-}

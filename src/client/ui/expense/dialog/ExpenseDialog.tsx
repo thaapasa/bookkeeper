@@ -3,7 +3,6 @@ import {
   Checkbox,
   Dialog,
   DialogActions,
-  DialogContent,
   DialogTitle,
   FormControlLabel,
 } from '@mui/material';
@@ -49,6 +48,7 @@ import { CategorySelector } from './CategorySelector';
 import { DateField } from './DateField';
 import {
   DescriptionField,
+  ExpenseDialogContent,
   SourceSelector,
   SumField,
   TypeSelector,
@@ -457,11 +457,7 @@ export class ExpenseDialog extends React.Component<
         <DialogTitle>
           {this.props.createNew ? 'Uusi kirjaus' : 'Muokkaa kirjausta'}
         </DialogTitle>
-        <DialogContent
-          className="expense-dialog-content vertical-scroll-area"
-          dividers={true}
-          onClick={this.closeEditors}
-        >
+        <ExpenseDialogContent dividers={true} onClick={this.closeEditors}>
           <Form onSubmit={this.requestSave} onKeyUp={this.handleKeyPress}>
             <Row className="row sum parent">
               <OwnerSelectorArea
@@ -588,7 +584,7 @@ export class ExpenseDialog extends React.Component<
               />
             </Row>
           </Form>
-        </DialogContent>
+        </ExpenseDialogContent>
         <DialogActions>
           <Button key="cancel" variant="text" onClick={this.dismiss}>
             Peruuta
