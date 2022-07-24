@@ -27,7 +27,7 @@ import { createExpenseDialogListener } from '../expense/dialog/ExpenseDialogList
 import FrontpageView from '../expense/FrontpageView';
 import { NewExpenseView } from '../expense/NewExpenseView';
 import RoutedMonthView from '../expense/RoutedMonthView';
-import { ExpenseSplitPage } from '../expense/split/ExpenseSplitPage';
+import { ExpenseSplitDialog } from '../expense/split/ExpenseSplitDialog';
 import InfoView from '../info/InfoView';
 import SearchView from '../search/SearchView';
 import {
@@ -59,7 +59,7 @@ const ExpenseDialogBinder = createExpenseDialogListener(
 );
 
 const ExpenseSplitBinder = createExpenseDialogListener(
-  ExpenseSplitPage,
+  ExpenseSplitDialog,
   expenseSplitE
 );
 
