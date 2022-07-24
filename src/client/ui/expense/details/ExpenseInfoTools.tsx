@@ -54,12 +54,17 @@ const styles = {
   },
 };
 
-class ExpenseInfoTools extends React.Component<RecurrenceInfoProps> {
-  private createRecurring = async () => {
+const ExpenseInfoTools: React.FC<RecurrenceInfoProps> = ({
+  expense,
+  onModify,
+  onDelete,
+  ...props
+}) => {
+  const createRecurring = async () => {
     try {
       const period = await confirm<RecurringExpensePeriod | undefined>(
         'Muuta toistuvaksi',
-        `Kuinka usein kirjaus ${expenseName(this.props.expense)} toistuu?`,
+        `Kuinka usein kirjaus ${expenseName(expense)} toistuu?`,
         {
           actions: [
             { label: 'Kuukausittain', value: 'monthly' },
@@ -69,8 +74,8 @@ class ExpenseInfoTools extends React.Component<RecurrenceInfoProps> {
         }
       );
       if (period) {
-        await apiConnect.createRecurring(this.props.expense.id, period);
-        updateExpenses(toDate(this.props.expense.date));
+        await apiConnect.createRecurring(expense.id, period);
+        updateExpenses(toDate(expense.date));
         notify('Kirjaus muutettu toistuvaksi');
       }
     } catch (e) {
@@ -78,18 +83,10 @@ class ExpenseInfoTools extends React.Component<RecurrenceInfoProps> {
     }
   };
 
-  private onModify = () => {
-    this.props.onModify(this.props.expense);
-  };
-
-  private onDelete = () => {
-    this.props.onDelete(this.props.expense);
-  };
-
-  private onCopy = () => {
-    const e = this.props.expense;
-    const division = this.props.division;
-    const cat = this.props.categoryMap[e.categoryId];
+  const onCopy = () => {
+    const e = expense;
+    const division = props.division;
+    const cat = props.categoryMap[e.categoryId];
     const subcategoryId = (cat.parentId && e.categoryId) || undefined;
     const categoryId =
       (subcategoryId ? cat.parentId : e.categoryId) || undefined;
@@ -102,7 +99,7 @@ class ExpenseInfoTools extends React.Component<RecurrenceInfoProps> {
       type: e.type,
       description: e.description || undefined,
       date,
-      benefit: getBenefitorsForExpense(e, division, this.props.sourceMap),
+      benefit: getBenefitorsForExpense(e, division, props.sourceMap),
       categoryId,
       subcategoryId,
       sourceId: e.sourceId,
@@ -110,41 +107,39 @@ class ExpenseInfoTools extends React.Component<RecurrenceInfoProps> {
     });
   };
 
-  public render() {
-    return (
-      <ToolContainer>
-        <IconButton title="Kopioi" style={styles.tool} onClick={this.onCopy}>
-          <Copy style={styles.toolIcon} />
+  return (
+    <ToolContainer>
+      <IconButton title="Kopioi" style={styles.tool} onClick={onCopy}>
+        <Copy style={styles.toolIcon} />
+      </IconButton>
+      {expense.recurringExpenseId ? null : (
+        <IconButton
+          title="Muuta toistuvaksi"
+          style={styles.tool}
+          onClick={createRecurring}
+        >
+          <Repeat style={styles.toolIcon} />
         </IconButton>
-        {this.props.expense.recurringExpenseId ? null : (
-          <IconButton
-            title="Muuta toistuvaksi"
-            style={styles.tool}
-            onClick={this.createRecurring}
-          >
-            <Repeat style={styles.toolIcon} />
-          </IconButton>
-        )}
-        <MobileTools>
-          <IconButton
-            title="Muokkaa"
-            style={styles.tool}
-            onClick={this.onModify}
-          >
-            <Edit style={styles.toolIcon} />
-          </IconButton>
-          <IconButton
-            title="Poista"
-            style={styles.tool}
-            onClick={this.onDelete}
-          >
-            <Delete style={styles.toolIcon} />
-          </IconButton>
-        </MobileTools>
-      </ToolContainer>
-    );
-  }
-}
+      )}
+      <MobileTools>
+        <IconButton
+          title="Muokkaa"
+          style={styles.tool}
+          onClick={() => onModify(expense)}
+        >
+          <Edit style={styles.toolIcon} />
+        </IconButton>
+        <IconButton
+          title="Poista"
+          style={styles.tool}
+          onClick={() => onDelete(expense)}
+        >
+          <Delete style={styles.toolIcon} />
+        </IconButton>
+      </MobileTools>
+    </ToolContainer>
+  );
+};
 
 const ToolContainer = styled.div`
   position: absolute;
