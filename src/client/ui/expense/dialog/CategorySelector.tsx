@@ -23,7 +23,10 @@ export function CategorySelector(props: {
   const id = 'category-selector';
   return (
     <Row onKeyUp={stopEventPropagation} className={props.className}>
-      <StyledControl className="category-control main-category">
+      <StyledControl
+        className="category-control main-category"
+        variant="standard"
+      >
         <InputLabel htmlFor={`${id}-cat`} shrink={true}>
           Kategoria
         </InputLabel>
@@ -44,7 +47,10 @@ export function CategorySelector(props: {
           {props.errorText}
         </FormHelperText>
       </StyledControl>
-      <StyledControl className="category-control sub-category">
+      <StyledControl
+        className="category-control sub-category"
+        variant="standard"
+      >
         <InputLabel htmlFor={`${id}-subcat`} shrink={true}>
           Alikategoria
         </InputLabel>

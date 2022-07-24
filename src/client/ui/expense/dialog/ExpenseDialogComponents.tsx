@@ -45,7 +45,7 @@ export function SourceSelector(props: {
 }) {
   const id = 'expense-dialog-source';
   return (
-    <FormControl fullWidth={true}>
+    <FormControl fullWidth={true} variant="standard">
       <InputLabel htmlFor={id} shrink={true}>
         {props.title}
       </InputLabel>
