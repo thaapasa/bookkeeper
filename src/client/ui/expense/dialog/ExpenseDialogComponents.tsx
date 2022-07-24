@@ -6,6 +6,7 @@ import {
   Select,
 } from '@mui/material';
 import * as React from 'react';
+import styled from 'styled-components';
 
 import {
   ExpenseType,
@@ -13,8 +14,9 @@ import {
   getExpenseTypeLabel,
 } from 'shared/types/Expense';
 import { Source } from 'shared/types/Session';
+import Money, { sanitizeMoneyInput } from 'shared/util/Money';
 import { TextEdit } from 'client/ui/component/TextEdit';
-import { ExpenseTypeIcon } from 'client/ui/Icons';
+import { Add, ExpenseTypeIcon } from 'client/ui/Icons';
 import { VCenterRow } from 'client/ui/Styles';
 
 export function SumField(props: {
@@ -22,17 +24,31 @@ export function SumField(props: {
   errorText?: string;
   onChange: (s: string) => void;
 }) {
+  const addToSum = () => {
+    const sum = window.prompt('Syötä summaan lisättävä määrä:');
+    if (sum) {
+      props.onChange(
+        new Money(props.value || '0').plus(sanitizeMoneyInput(sum)).toString()
+      );
+    }
+  };
   return (
-    <TextEdit
-      placeholder="0.00"
-      label="Summa"
-      InputLabelProps={{ shrink: true }}
-      value={props.value}
-      helperText={props.errorText || ' '}
-      error={Boolean(props.errorText)}
-      onChange={props.onChange}
-      autoFocus
-    />
+    <SumArea>
+      <TextEdit
+        placeholder="0.00"
+        label="Summa"
+        name="sum"
+        InputLabelProps={{ shrink: true }}
+        value={props.value}
+        helperText={props.errorText || ' '}
+        error={Boolean(props.errorText)}
+        onChange={props.onChange}
+        type="text"
+        autoFocus
+        autoComplete="false"
+      />
+      <Add onClick={addToSum} />
+    </SumArea>
   );
 }
 
@@ -107,3 +123,10 @@ export function DescriptionField(props: {
     />
   );
 }
+
+const SumArea = styled.div`
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+`;

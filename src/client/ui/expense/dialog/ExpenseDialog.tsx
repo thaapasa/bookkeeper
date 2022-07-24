@@ -23,7 +23,7 @@ import {
 } from 'shared/types/Expense';
 import { Category, Group, Source, User } from 'shared/types/Session';
 import { valuesToArray } from 'shared/util/Arrays';
-import Money from 'shared/util/Money';
+import Money, { sanitizeMoneyInput } from 'shared/util/Money';
 import { omit } from 'shared/util/Objects';
 import { toDate, toISODate } from 'shared/util/Time';
 import { identity } from 'shared/util/Util';
@@ -93,7 +93,7 @@ const fields: ReadonlyArray<keyof ExpenseInEditor> = [
 ];
 
 const parsers: Record<string, (v: string) => any> = {
-  sum: v => v.replace(/,/, '.'),
+  sum: sanitizeMoneyInput,
 };
 
 const validators: Record<string, (v: string) => any> = {

@@ -177,3 +177,7 @@ export default class Money {
   public static euro = new Money('1');
   public static cent = new Money('0.01');
 }
+
+export function sanitizeMoneyInput(v: string): string {
+  return v?.replace(/,/, '.').replace(/ +/g, '') ?? '';
+}
