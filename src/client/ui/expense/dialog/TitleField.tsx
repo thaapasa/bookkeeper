@@ -19,7 +19,7 @@ export class TitleField extends React.Component<
     value: string;
     errorText?: string;
     dataSource: CategoryDataSource[];
-    onChange: (s: string | React.ChangeEvent<{ value: string }>) => void;
+    onChange: (s: string) => void;
     onSelect: (s: number) => void;
   },
   TitleFieldState
@@ -29,7 +29,6 @@ export class TitleField extends React.Component<
   render() {
     return (
       <AutoComplete
-        id={this.props.id}
         value={this.props.value}
         onChange={this.props.onChange}
         onUpdateSuggestions={this.updateSuggestions}

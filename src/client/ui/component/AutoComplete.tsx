@@ -10,9 +10,9 @@ import React from 'react';
 const log = debug('ui:autocomplete');
 
 export interface AutoCompleteProps<T> {
-  id: string;
+  id?: string;
   value: string;
-  onChange: (value: string | React.ChangeEvent<{ value: string }>) => void;
+  onChange: (value: string) => void;
   suggestions: T[];
   onUpdateSuggestions: (input: string) => void;
   onSelectSuggestion: (suggestion: T) => void;

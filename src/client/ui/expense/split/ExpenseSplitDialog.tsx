@@ -1,5 +1,5 @@
 import { Cancel } from '@mui/icons-material';
-import { Button, Dialog, Grid, Typography } from '@mui/material';
+import { Button, Dialog, Grid } from '@mui/material';
 import * as React from 'react';
 
 import { UserExpense } from 'shared/types/Expense';
@@ -16,15 +16,19 @@ export const ExpenseSplitDialog: React.FC<ExpenseDialogProps> = ({
   original,
   onClose,
   windowSize,
-  categoryMap,
+  ...props
 }) => {
   const isMobile = isMobileSize(windowSize);
 
-  const [splits, setSplits] = React.useState<ExpenseSplit[]>([]);
+  const [splits, setSplits] = React.useState<(ExpenseSplit | null)[]>([]);
 
   React.useEffect(() => {
     setSplits(initialSplit(original));
   }, [original]);
+
+  const addRow = () => {
+    setSplits([...splits, null]);
+  };
 
   if (!original) {
     return null;
@@ -39,20 +43,17 @@ export const ExpenseSplitDialog: React.FC<ExpenseDialogProps> = ({
     >
       <SplitHeader expense={original} />
       <ExpenseDialogContent dividers={true}>
-        <Typography color="text.secondary" variant="body2">
-          Pilko kirjaus osiin
-        </Typography>
-        <Grid container>
+        <Grid container alignItems="center" spacing={2}>
           {splits.map((s, i) => (
-            <SplitRow
-              key={i}
-              split={s}
-              editSum={i !== 0}
-              categoryMap={categoryMap}
-            />
+            <SplitRow key={i} split={s} editSum={i !== 0} {...props} />
           ))}
           <Grid item xs={4} container justifyContent="flex-start">
-            <Button startIcon={<Add />} variant="contained" color="secondary">
+            <Button
+              startIcon={<Add />}
+              variant="contained"
+              color="secondary"
+              onClick={addRow}
+            >
               Lisää rivi
             </Button>
           </Grid>
