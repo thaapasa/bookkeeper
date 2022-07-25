@@ -19,6 +19,8 @@ interface SplitRowProps
   > {
   split: ExpenseSplit | null;
   editSum: boolean;
+  splitIndex: number;
+  saveSplit: (i: number, split: ExpenseSplit) => void;
 }
 
 export const SplitRow: React.FC<SplitRowProps> = props => {
@@ -51,6 +53,8 @@ const SplitEditor: React.FC<SplitRowProps> = ({
   split,
   categorySource,
   categoryMap,
+  splitIndex,
+  saveSplit,
 }) => {
   const [title, setTitle] = React.useState(split?.title ?? '');
   const [sum, setSum] = React.useState(
@@ -62,6 +66,17 @@ const SplitEditor: React.FC<SplitRowProps> = ({
   const selectCategory = (catId: number) => {
     setTitle(categorySource.find(s => s.value === catId)?.text ?? '');
     setCatId(catId);
+  };
+
+  const save = () => {
+    if (catId) {
+      saveSplit(splitIndex, {
+        title,
+        sum: Money.from(sum),
+        categoryId: catId,
+        sourceId: 1,
+      });
+    }
   };
 
   return (
@@ -82,7 +97,7 @@ const SplitEditor: React.FC<SplitRowProps> = ({
         <SumField value={sum} onChange={setSum} />
       </Grid>
       <Grid item xs={2} container justifyContent="flex-end">
-        <ToolIconButton>
+        <ToolIconButton onClick={save}>
           <Save />
         </ToolIconButton>
         <ToolIconButton>

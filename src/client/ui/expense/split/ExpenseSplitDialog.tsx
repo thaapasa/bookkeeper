@@ -9,6 +9,7 @@ import { isMobileSize } from 'client/ui/Styles';
 
 import { ExpenseDialogProps } from '../dialog/ExpenseDialog';
 import { ExpenseDialogContent } from '../dialog/ExpenseDialogComponents';
+import { calculateSplits } from './SplitCalc';
 import { SplitHeader } from './SplitHeader';
 import { SplitRow } from './SplitRow';
 
@@ -30,6 +31,16 @@ export const ExpenseSplitDialog: React.FC<ExpenseDialogProps> = ({
     setSplits([...splits, null]);
   };
 
+  const saveSplit = React.useCallback(
+    (i: number, split: ExpenseSplit) => {
+      const newSplits = [...splits];
+      newSplits[i] = split;
+      const fixedSplits = calculateSplits(newSplits, original?.sum ?? '0');
+      setSplits(fixedSplits);
+    },
+    [setSplits, splits, original]
+  );
+
   if (!original) {
     return null;
   }
@@ -45,7 +56,14 @@ export const ExpenseSplitDialog: React.FC<ExpenseDialogProps> = ({
       <ExpenseDialogContent dividers={true}>
         <Grid container alignItems="center" spacing={2}>
           {splits.map((s, i) => (
-            <SplitRow key={i} split={s} editSum={i !== 0} {...props} />
+            <SplitRow
+              {...props}
+              key={i}
+              split={s}
+              splitIndex={i}
+              saveSplit={saveSplit}
+              editSum={i !== 0}
+            />
           ))}
           <Grid item xs={4} container justifyContent="flex-start">
             <Button
