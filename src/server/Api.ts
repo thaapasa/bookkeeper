@@ -12,6 +12,7 @@ import {
   UserExpense,
   UserExpenseWithDetails,
 } from 'shared/types/Expense';
+import { ExpenseSplit } from 'shared/types/ExpenseSplit';
 import {
   Category,
   CategoryAndTotals,
@@ -23,6 +24,7 @@ import {
 } from 'shared/types/Session';
 import {
   intStringBetween,
+  NonEmptyArray,
   stringWithLength,
   validate,
 } from 'shared/types/Validator';
@@ -152,7 +154,7 @@ export function registerAPI(app: Express) {
     }, true)
   );
 
-  const TDateRange = t.type({
+  const DateRange = t.type({
     startDate: TISODate,
     endDate: TISODate,
   });
@@ -161,7 +163,7 @@ export function registerAPI(app: Express) {
   app.get(
     '/api/category/totals',
     server.processRequest((session, req): Promise<CategoryAndTotals[]> => {
-      const params = validate(TDateRange, req.query);
+      const params = validate(DateRange, req.query);
       return categories.getTotals(session.group.id, params);
     }, true)
   );
@@ -229,14 +231,14 @@ export function registerAPI(app: Express) {
   );
 
   // GET /api/expense/month
-  const TYearMonth = t.type({
+  const YearMonth = t.type({
     year: intStringBetween(1500, 3000),
     month: intStringBetween(1, 12),
   });
   app.get(
     '/api/expense/month',
     server.processRequest<ExpenseCollection>((session, req) => {
-      const params = validate(TYearMonth, req.query);
+      const params = validate(YearMonth, req.query);
       return expenses.getByMonth(
         session.group.id,
         session.user.id,
@@ -289,7 +291,7 @@ export function registerAPI(app: Express) {
     )
   );
 
-  const TReceiverSearch = t.type({
+  const ReceiverSearch = t.type({
     receiver: stringWithLength(3, 50),
   });
   // GET /api/expense/receivers?receiver=[query]
@@ -300,9 +302,27 @@ export function registerAPI(app: Express) {
         (
           await expenses.queryReceivers(
             session.group.id,
-            validate(TReceiverSearch, req.query).receiver
+            validate(ReceiverSearch, req.query).receiver
           )
         ).map(r => r.receiver),
+      true
+    )
+  );
+
+  const ExpenseSplitBody = t.type({
+    splits: NonEmptyArray(ExpenseSplit),
+  });
+  // POST /api/expense/[expenseId]/split
+  app.post(
+    '/api/expense/:id/split',
+    server.processRequest<ApiMessage>(
+      (session, req) =>
+        expenses.split(
+          session.group.id,
+          session.user.id,
+          validate(t.number, req.params.id),
+          validate(ExpenseSplitBody, req.body).splits
+        ),
       true
     )
   );

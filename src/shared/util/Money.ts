@@ -1,10 +1,24 @@
 import { Big } from 'big.js';
+import { isRight } from 'fp-ts/lib/Either';
+import * as io from 'io-ts';
 // Two decimal places
 Big.DP = 2;
 // Round down (truncate)
 Big.RM = 0;
 
 export type MoneyLike = number | Big | Money | string;
+
+export function isMoneyLike(e: unknown): e is MoneyLike {
+  switch (typeof e) {
+    case 'number':
+    case 'string':
+      return true;
+    case 'object':
+      return (e !== null && Money.isMoney(e)) || Money.isBig(e);
+    default:
+      return false;
+  }
+}
 
 const numberFormatOptions: Intl.NumberFormatOptions = {
   style: 'currency',
@@ -61,7 +75,9 @@ export default class Money {
     if (Money.isMoney(value)) {
       return value;
     }
-    return new Money(value);
+    return new Money(
+      typeof value === 'string' ? sanitizeMoneyInput(value) : value
+    );
   }
 
   public static toString(value: MoneyLike) {
@@ -97,6 +113,10 @@ export default class Money {
 
   public static valueOf(m: MoneyLike): number {
     return Money.toValue(m);
+  }
+
+  public isValid(): boolean {
+    return !isNaN(this.valueOf());
   }
 
   public abs(): Money {
@@ -181,3 +201,31 @@ export default class Money {
 export function sanitizeMoneyInput(v: string): string {
   return v?.replace(/,/, '.').replace(/ +/g, '') ?? '';
 }
+
+export const MoneyV = new io.Type<Money, MoneyLike, unknown>(
+  'Money',
+  Money.isMoney,
+  (i, ctx) => {
+    try {
+      if (!isMoneyLike(i)) {
+        return io.failure(i, ctx);
+      }
+      const v = Money.from(i);
+      return v.isValid() ? io.success(v) : io.failure(v, ctx);
+    } catch (e) {
+      return io.failure(i, ctx);
+    }
+  },
+  m => m.toString()
+);
+export type MoneyV = io.TypeOf<typeof MoneyV>;
+
+export const MoneyLike = new io.Type<MoneyLike, MoneyLike, unknown>(
+  'MoneyLike',
+  isMoneyLike,
+  (i, ctx) =>
+    isMoneyLike(i) && isRight(MoneyV.decode(i))
+      ? io.success(i)
+      : io.failure(i, ctx),
+  m => m
+);

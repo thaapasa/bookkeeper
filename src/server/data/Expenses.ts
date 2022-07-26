@@ -115,6 +115,7 @@ export default {
   queryReceivers: basic.queryReceivers,
   create: basic.create,
   update: basic.update,
+  split: basic.split,
   createRecurring: recurring.createRecurring,
   deleteRecurringById: recurring.deleteRecurringById,
   updateRecurring: recurring.updateRecurring,

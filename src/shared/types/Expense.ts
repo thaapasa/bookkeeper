@@ -4,7 +4,7 @@ import { MoneyLike } from 'shared/util/Money';
 import { ISODate, TISODate } from 'shared/util/Time';
 
 import { DbObject } from './Common';
-import { TBooleanString, TIntArrayString, TIntString } from './Validator';
+import { BooleanString, IntArrayString, IntString } from './Validator';
 
 export type ExpenseType = 'expense' | 'income' | 'transfer';
 export type ExpenseDivisionType =
@@ -151,10 +151,10 @@ export interface Recurrence extends DbObject, RecurringExpenseInput {
 export const TExpenseQuery = t.partial({
   search: t.string,
   receiver: t.string,
-  categoryId: t.union([TIntString, TIntArrayString]),
+  categoryId: t.union([IntString, IntArrayString]),
   startDate: TISODate,
   endDate: TISODate,
-  userId: TIntString,
-  includeSubCategories: TBooleanString,
+  userId: IntString,
+  includeSubCategories: BooleanString,
 });
 export type ExpenseQuery = t.TypeOf<typeof TExpenseQuery>;
