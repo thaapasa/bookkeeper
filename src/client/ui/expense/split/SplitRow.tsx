@@ -12,17 +12,22 @@ import { ToolIconButton } from '../details/ExpenseInfoTools';
 import { ExpenseDialogProps } from '../dialog/ExpenseDialog';
 import { SumField } from '../dialog/ExpenseDialogComponents';
 import { TitleField } from '../dialog/TitleField';
+import { SourceIcon } from '../row/ExpenseRowComponents';
 import { ExpenseSplitInEditor, SplitTools } from './ExpenseSplit.hooks';
 
 type SplitRowProps = {
   split: ExpenseSplitInEditor;
   editSum: boolean;
   splitIndex: number;
-} & Pick<ExpenseDialogProps, 'categoryMap' | 'categorySource' | 'categories'> &
+} & Pick<
+  ExpenseDialogProps,
+  'categoryMap' | 'categorySource' | 'categories' | 'sourceMap'
+> &
   Pick<SplitTools, 'saveSplit' | 'removeSplit'>;
 
 export const SplitRow: React.FC<SplitRowProps> = props => {
-  const { split, categoryMap, editSum, removeSplit, splitIndex } = props;
+  const { split, categoryMap, editSum, removeSplit, splitIndex, sourceMap } =
+    props;
   const [edit, toggleEdit] = useToggle(!split.title);
   return edit ? (
     <SplitEditor {...props} close={toggleEdit} />
@@ -47,6 +52,12 @@ export const SplitRow: React.FC<SplitRowProps> = props => {
           <ToolIconButton onClick={() => removeSplit(splitIndex)}>
             <Delete />
           </ToolIconButton>
+        ) : null}
+      </Grid>
+      <Grid item xs={4}></Grid>
+      <Grid item xs={8}>
+        {split.sourceId ? (
+          <SourceIcon source={sourceMap[split.sourceId]} />
         ) : null}
       </Grid>
     </>
