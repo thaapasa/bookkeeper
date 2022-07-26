@@ -3,14 +3,16 @@ import { Grid } from '@mui/material';
 import * as React from 'react';
 
 import { isDefined } from 'shared/types/Common';
+import { ExpenseSplit } from 'shared/types/ExpenseSplit';
 import Money from 'shared/util/Money';
 import { getFullCategoryName } from 'client/data/Categories';
+import UserSelector from 'client/ui/component/UserSelector';
 import { Delete, Edit } from 'client/ui/Icons';
 import { useToggle } from 'client/ui/utils/Hooks';
 
 import { ToolIconButton } from '../details/ExpenseInfoTools';
 import { ExpenseDialogProps } from '../dialog/ExpenseDialog';
-import { SumField } from '../dialog/ExpenseDialogComponents';
+import { SourceSelector, SumField } from '../dialog/ExpenseDialogComponents';
 import { TitleField } from '../dialog/TitleField';
 import { SourceIcon } from '../row/ExpenseRowComponents';
 import { ExpenseSplitInEditor, SplitTools } from './ExpenseSplit.hooks';
@@ -21,7 +23,7 @@ type SplitRowProps = {
   splitIndex: number;
 } & Pick<
   ExpenseDialogProps,
-  'categoryMap' | 'categorySource' | 'categories' | 'sourceMap'
+  'categoryMap' | 'categorySource' | 'categories' | 'sourceMap' | 'sources'
 > &
   Pick<SplitTools, 'saveSplit' | 'removeSplit'>;
 
@@ -54,7 +56,7 @@ export const SplitRow: React.FC<SplitRowProps> = props => {
           </ToolIconButton>
         ) : null}
       </Grid>
-      <Grid item xs={4}></Grid>
+      <Grid item xs={4} />
       <Grid item xs={8}>
         {split.sourceId ? (
           <SourceIcon source={sourceMap[split.sourceId]} />
@@ -73,8 +75,9 @@ const SplitEditor: React.FC<SplitRowProps & { close: () => void }> = ({
   editSum,
   removeSplit,
   close,
+  sources,
 }) => {
-  const [title, setTitle] = React.useState(split?.title ?? '');
+  const [title, setTitle] = React.useState(split.title ?? '');
   const [sum, setSum] = React.useState(
     Money.from(split?.sum ?? '0').toString()
   );
@@ -85,15 +88,24 @@ const SplitEditor: React.FC<SplitRowProps & { close: () => void }> = ({
     setTitle(categorySource.find(s => s.value === catId)?.text ?? '');
     setCatId(catId);
   };
+  const [sourceId, setSourceId] = React.useState(
+    split.sourceId ?? sources[0]?.id ?? 0
+  );
+  const [benefit, setBenefit] = React.useState<number[]>(split.benefit);
 
-  const allValid = title !== '' && isDefined(catId);
-  const validSplit = allValid
+  const allValid =
+    title !== '' &&
+    isDefined(sourceId) &&
+    isDefined(catId) &&
+    benefit.length > 0;
+  const validSplit: ExpenseSplit | undefined = allValid
     ? {
         title,
         sum: Money.from(sum),
         categoryId: catId,
-        sourceId: split.sourceId ?? 0,
+        sourceId: sourceId,
         key: split.key,
+        benefit,
       }
     : undefined;
 
@@ -134,6 +146,17 @@ const SplitEditor: React.FC<SplitRowProps & { close: () => void }> = ({
             <Delete />
           </ToolIconButton>
         ) : null}
+      </Grid>
+      <Grid item xs={7}>
+        <SourceSelector
+          sources={sources}
+          value={sourceId ?? 0}
+          onChange={setSourceId}
+          title="Lähde"
+        />
+      </Grid>
+      <Grid item xs={5}>
+        <UserSelector selected={benefit} onChange={setBenefit} />
       </Grid>
     </>
   );
