@@ -9,13 +9,14 @@ module.exports = {
   parserOptions: {
     sourceType: 'module',
   },
-  plugins: ['simple-import-sort'],
+  plugins: ['prettier', 'simple-import-sort', 'unused-imports'],
   rules: {
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     'react/prop-types': 'off',
+    'unused-imports/no-unused-imports': 'error',
     'simple-import-sort/imports': [
       'warn',
       {
