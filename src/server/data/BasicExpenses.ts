@@ -2,8 +2,6 @@ import debug from 'debug';
 import { Moment } from 'moment';
 import { IBaseProtocol } from 'pg-promise';
 
-import { ExpenseSplit } from 'shared/types/ExpenseSplit';
-
 import { ApiMessage } from 'shared/types/Api';
 import { NotFoundError } from 'shared/types/Errors';
 import {
@@ -329,19 +327,6 @@ function updateExpenseById(
   });
 }
 
-function splitExpense(
-  groupId: number,
-  userId: number,
-  expenseId: number,
-  splits: ExpenseSplit[]
-) {
-  return db.tx(async (tx): Promise<ApiMessage> => {
-    const e = await getById(tx)(groupId, userId, expenseId);
-    log(`Splitting`, e, 'to', splits);
-    return { status: 'OK', message: `Yeah ${splits.length}` };
-  });
-}
-
 interface ReceiverInfo {
   receiver: string;
   amount: number;
@@ -397,7 +382,6 @@ export default {
     db.tx(tx => deleteById(tx)(groupId, expenseId)),
   create: createExpense,
   update: updateExpenseById,
-  split: splitExpense,
   queryReceivers: queryReceivers(db),
   tx: {
     getById,

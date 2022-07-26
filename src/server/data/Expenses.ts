@@ -13,6 +13,7 @@ import * as time from 'shared/util/Time';
 
 import basic from './BasicExpenses';
 import { db } from './Db';
+import split from './ExpenseSplit';
 import recurring from './RecurringExpenses';
 
 const log = debug('bookkeeper:api:expenses');
@@ -116,7 +117,7 @@ export default {
   queryReceivers: basic.queryReceivers,
   create: basic.create,
   update: basic.update,
-  split: basic.split,
+  split: split.split,
   createRecurring: recurring.createRecurring,
   deleteRecurringById: recurring.deleteRecurringById,
   updateRecurring: recurring.updateRecurring,
