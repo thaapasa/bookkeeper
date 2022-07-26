@@ -223,7 +223,7 @@ export class ExpenseRow extends React.Component<
 
   private modifyExpense = async () => {
     const e = await apiConnect.getExpense(this.props.expense.id);
-    editExpense(e.id);
+    await editExpense(e.id);
   };
 
   public render() {

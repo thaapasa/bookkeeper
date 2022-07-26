@@ -1,6 +1,7 @@
 import * as B from 'baconjs';
 
 import { ExpenseInEditor } from 'shared/types/Expense';
+import { ExpenseSplit } from 'shared/types/ExpenseSplit';
 import { DateLike, monthRange, toDate } from 'shared/util/Time';
 import { noop } from 'shared/util/Util';
 
@@ -62,8 +63,8 @@ export function pickDate(initialDate?: Date): Promise<Date | undefined> {
 
 export const pickDateE = pickDateBus;
 
-const expenseDialogBus = new B.Bus<ExpenseDialogObject>();
-const expenseSplitBus = new B.Bus<ExpenseDialogObject>();
+const expenseDialogBus = new B.Bus<ExpenseDialogObject<ExpenseInEditor>>();
+const expenseSplitBus = new B.Bus<ExpenseDialogObject<ExpenseSplit[]>>();
 
 export function editExpense(
   expenseId: number
@@ -75,8 +76,8 @@ export function editExpense(
 
 export function splitExpense(
   expenseId: number
-): Promise<ExpenseInEditor | null> {
-  return new Promise<ExpenseInEditor | null>(resolve => {
+): Promise<ExpenseSplit[] | null> {
+  return new Promise<ExpenseSplit[] | null>(resolve => {
     expenseSplitBus.push({ expenseId, resolve });
   });
 }

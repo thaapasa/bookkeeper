@@ -1,3 +1,5 @@
+import { isDefined } from 'shared/types/Common';
+import { ExpenseSplit } from 'shared/types/ExpenseSplit';
 import Money, { MoneyLike } from 'shared/util/Money';
 
 import { ExpenseSplitInEditor } from './ExpenseSplit.hooks';
@@ -28,4 +30,16 @@ export function calculateSplits(
   );
 
   return [{ ...first, sum: left.toString() }, ...fixed];
+}
+
+export function isSplitComplete(
+  split: ExpenseSplitInEditor
+): split is ExpenseSplit {
+  return (
+    Money.from(split.sum).gt(0) &&
+    split.title !== '' &&
+    split.benefit.length > 0 &&
+    isDefined(split.categoryId) &&
+    isDefined(split.sourceId)
+  );
 }

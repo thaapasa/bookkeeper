@@ -116,7 +116,7 @@ function allTrue(...args: boolean[]): boolean {
   return args.reduce((a, b) => a && b, true);
 }
 
-export interface ExpenseDialogProps {
+export interface ExpenseDialogProps<D> {
   createNew: boolean;
   original: UserExpenseWithDetails | null;
   sources: Source[];
@@ -124,14 +124,14 @@ export interface ExpenseDialogProps {
   sourceMap: Record<string, Source>;
   categorySource: CategoryDataSource[];
   categoryMap: Record<string, Category>;
-  onClose: (e: ExpenseInEditor | null) => void;
+  onClose: (e: D | null) => void;
   onExpensesUpdated: (date: Date) => void;
   group: Group;
   user: User;
   users: User[];
   expenseCounter: number;
   windowSize: Size;
-  values: Partial<ExpenseInEditor>;
+  values: Partial<D>;
 }
 
 interface ExpenseDialogState extends ExpenseInEditor {
@@ -143,7 +143,7 @@ interface ExpenseDialogState extends ExpenseInEditor {
 }
 
 export class ExpenseDialog extends React.Component<
-  ExpenseDialogProps,
+  ExpenseDialogProps<ExpenseInEditor>,
   ExpenseDialogState
 > {
   private readonly saveLock: B.Bus<boolean> = new B.Bus<boolean>();
@@ -311,7 +311,7 @@ export class ExpenseDialog extends React.Component<
     fields.map(k => this.inputStreams[k].push(newState[k]));
   }
 
-  public componentDidUpdate(prevProps: ExpenseDialogProps) {
+  public componentDidUpdate(prevProps: ExpenseDialogProps<ExpenseInEditor>) {
     if (this.props.expenseCounter !== prevProps.expenseCounter) {
       log('Settings props for', this.props.original);
       this.pushExpenseToInputStreams(this.props.original, this.props.values);

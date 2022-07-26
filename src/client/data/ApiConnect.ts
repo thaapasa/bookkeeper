@@ -13,6 +13,7 @@ import {
   UserExpense,
   UserExpenseWithDetails,
 } from 'shared/types/Expense';
+import { ExpenseSplit } from 'shared/types/ExpenseSplit';
 import {
   Category,
   CategoryAndTotals,
@@ -205,6 +206,13 @@ export class ApiConnect {
 
   public storeExpense(expense: ExpenseData): Promise<ApiMessage> {
     return this.put<ApiMessage>('/api/expense', expense);
+  }
+
+  public splitExpense(
+    id: number | string,
+    splits: ExpenseSplit[]
+  ): Promise<ApiMessage> {
+    return this.post<ApiMessage>(`/api/expense/${id}/split`, { splits });
   }
 
   public updateExpense(

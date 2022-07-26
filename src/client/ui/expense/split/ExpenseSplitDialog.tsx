@@ -1,6 +1,7 @@
 import { Dialog, Divider, Grid } from '@mui/material';
 import * as React from 'react';
 
+import { ExpenseSplit } from 'shared/types/ExpenseSplit';
 import { isMobileSize } from 'client/ui/Styles';
 
 import { ExpenseDialogProps } from '../dialog/ExpenseDialog';
@@ -10,18 +11,13 @@ import { SplitButtons } from './SplitButtons';
 import { SplitHeader } from './SplitHeader';
 import { SplitRow } from './SplitRow';
 
-export const ExpenseSplitDialog: React.FC<ExpenseDialogProps> = ({
-  original,
-  onClose,
-  windowSize,
-  ...props
-}) => {
+export const ExpenseSplitDialog: React.FC<
+  ExpenseDialogProps<ExpenseSplit[]>
+> = ({ original, onClose, windowSize, ...props }) => {
   const isMobile = isMobileSize(windowSize);
 
-  const { addRow, splits, ...tools } = useExpenseSplit(
-    original,
-    props.sourceMap
-  );
+  const { addRow, splits, validSplits, splitExpense, ...tools } =
+    useExpenseSplit(original, props.sourceMap, onClose);
 
   if (!original) {
     return null;
@@ -53,7 +49,11 @@ export const ExpenseSplitDialog: React.FC<ExpenseDialogProps> = ({
               />
             </React.Fragment>
           ))}
-          <SplitButtons addRow={addRow} onClose={() => onClose(null)} />
+          <SplitButtons
+            addRow={addRow}
+            onClose={() => onClose(null)}
+            splitExpense={validSplits ? splitExpense : undefined}
+          />
         </Grid>
       </ExpenseDialogContent>
     </Dialog>

@@ -23,7 +23,7 @@ type SplitRowProps = {
   editSum: boolean;
   splitIndex: number;
 } & Pick<
-  ExpenseDialogProps,
+  ExpenseDialogProps<ExpenseSplit[]>,
   'categoryMap' | 'categorySource' | 'categories' | 'sourceMap' | 'sources'
 > &
   Pick<SplitTools, 'saveSplit' | 'removeSplit'>;

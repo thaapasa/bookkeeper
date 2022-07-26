@@ -5,10 +5,11 @@ import { MakeOptional } from 'shared/types/Common';
 import { UserExpenseWithDetails } from 'shared/types/Expense';
 import { ExpenseSplit } from 'shared/types/ExpenseSplit';
 import { IdProvider } from 'shared/util/IdProvider';
+import apiConnect from 'client/data/ApiConnect';
 
 import { ExpenseDialogProps } from '../dialog/ExpenseDialog';
 import { getBenefitorsForExpense } from '../dialog/ExpenseDialogData';
-import { calculateSplits } from './SplitCalc';
+import { calculateSplits, isSplitComplete } from './SplitCalc';
 
 const log = debug('ui:expense-split');
 
@@ -19,11 +20,12 @@ export type ExpenseSplitInEditor = MakeOptional<
 
 const KeyProvider = new IdProvider();
 
-type SourceMap = ExpenseDialogProps['sourceMap'];
+type SourceMap = ExpenseDialogProps<any>['sourceMap'];
 
 export function useExpenseSplit(
   original: UserExpenseWithDetails | null,
-  sourceMap: SourceMap
+  sourceMap: SourceMap,
+  onClose: (expense: ExpenseSplit[] | null) => void
 ) {
   const [splits, setSplits] = React.useState<ExpenseSplitInEditor[]>([]);
 
@@ -58,7 +60,16 @@ export function useExpenseSplit(
     [setSplits, splits, original]
   );
 
-  return { addRow, saveSplit, removeSplit, splits };
+  const validSplits = splits.length > 1 && splits.every(isSplitComplete);
+
+  const splitExpense = async () => {
+    if (original && validSplits) {
+      await apiConnect.splitExpense(original.id, splits);
+      onClose(splits);
+    }
+  };
+
+  return { addRow, saveSplit, removeSplit, splits, validSplits, splitExpense };
 }
 
 export type SplitTools = ReturnType<typeof useExpenseSplit>;

@@ -2,7 +2,7 @@ import * as B from 'baconjs';
 import debug from 'debug';
 import * as React from 'react';
 
-import { ExpenseInEditor, UserExpenseWithDetails } from 'shared/types/Expense';
+import { UserExpenseWithDetails } from 'shared/types/Expense';
 import { noop } from 'shared/util/Util';
 import apiConnect from 'client/data/ApiConnect';
 import { categoryDataSourceP, categoryMapE } from 'client/data/Categories';
@@ -17,19 +17,19 @@ import { ExpenseDialogProps } from './ExpenseDialog';
 
 const log = debug('bookkeeper:expense-dialog');
 
-interface ExpenseDialogListenerState {
+interface ExpenseDialogListenerState<D> {
   open: boolean;
   original: UserExpenseWithDetails | null;
-  resolve: (e: ExpenseInEditor | null) => void;
+  resolve: (e: D | null) => void;
   expenseCounter: number;
-  values: Partial<ExpenseInEditor>;
+  values: Partial<D>;
 }
 
 let expenseCounter = 1;
 
-export function createExpenseDialogListener(
-  Dialog: React.ComponentType<ExpenseDialogProps>,
-  bus: B.EventStream<ExpenseDialogObject>
+export function createExpenseDialogListener<D>(
+  Dialog: React.ComponentType<ExpenseDialogProps<D>>,
+  bus: B.EventStream<ExpenseDialogObject<D>>
 ) {
   const ConnectedDialog = connect(
     B.combineTemplate({
@@ -46,11 +46,11 @@ export function createExpenseDialogListener(
 
   return class ExpenseDialogListener extends React.Component<
     { windowSize: Size },
-    ExpenseDialogListenerState
+    ExpenseDialogListenerState<D>
   > {
     private unsub: Unsubscriber[] = [];
 
-    public state: ExpenseDialogListenerState = {
+    public state: ExpenseDialogListenerState<D> = {
       open: false,
       original: null,
       resolve: noop,
@@ -71,7 +71,7 @@ export function createExpenseDialogListener(
       updateExpenses(date);
     };
 
-    private handleOpen = async (data: ExpenseDialogObject) => {
+    private handleOpen = async (data: ExpenseDialogObject<D>) => {
       expenseCounter += 1;
       if (data.expenseId) {
         log('Edit expense', data.expenseId);
@@ -96,7 +96,7 @@ export function createExpenseDialogListener(
       }
     };
 
-    private closeDialog = (e: ExpenseInEditor | null) => {
+    private closeDialog = (e: D | null) => {
       log('Closing dialog');
       this.state.resolve(e);
       this.setState({ open: false, original: null });
