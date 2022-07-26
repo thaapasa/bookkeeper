@@ -90,6 +90,8 @@ function emptySplit(
     sum: '0',
     title: '',
     key: KeyProvider.nextStr('splitrow-'),
+    sourceId: original?.sourceId,
+    categoryId: original?.categoryId,
     benefit: original
       ? getBenefitorsForExpense(original, original.division, sourceMap)
       : [],

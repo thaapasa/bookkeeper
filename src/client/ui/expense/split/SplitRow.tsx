@@ -1,6 +1,7 @@
 import { Save } from '@mui/icons-material';
 import { Grid } from '@mui/material';
 import * as React from 'react';
+import styled from 'styled-components';
 
 import { isDefined } from 'shared/types/Common';
 import { ExpenseSplit } from 'shared/types/ExpenseSplit';
@@ -35,7 +36,7 @@ export const SplitRow: React.FC<SplitRowProps> = props => {
     <SplitEditor {...props} close={toggleEdit} />
   ) : (
     <>
-      <Grid item xs={4}>
+      <Grid item xs={3}>
         {split.title}
       </Grid>{' '}
       <Grid item xs={4}>
@@ -43,10 +44,18 @@ export const SplitRow: React.FC<SplitRowProps> = props => {
           ? getFullCategoryName(split.categoryId, categoryMap)
           : 'Valitse kategoria'}{' '}
       </Grid>
+      <RGrid item xs={2}>
+        {split.sourceId ? (
+          <SourceIcon source={sourceMap[split.sourceId]} />
+        ) : null}
+        <FootNote>
+          <UserSelector selected={split.benefit} />
+        </FootNote>
+      </RGrid>
       <Grid item xs={2}>
         {Money.from(split.sum).format()}
       </Grid>
-      <Grid item container xs={2} justifyContent="flex-end">
+      <Grid item container xs={1} justifyContent="flex-end">
         <ToolIconButton onClick={toggleEdit}>
           <Edit />
         </ToolIconButton>
@@ -54,12 +63,6 @@ export const SplitRow: React.FC<SplitRowProps> = props => {
           <ToolIconButton onClick={() => removeSplit(splitIndex)}>
             <Delete />
           </ToolIconButton>
-        ) : null}
-      </Grid>
-      <Grid item xs={4} />
-      <Grid item xs={8}>
-        {split.sourceId ? (
-          <SourceIcon source={sourceMap[split.sourceId]} />
         ) : null}
       </Grid>
     </>
@@ -118,7 +121,7 @@ const SplitEditor: React.FC<SplitRowProps & { close: () => void }> = ({
 
   return (
     <>
-      <Grid item xs={4}>
+      <Grid item xs={5}>
         <TitleField
           id="split-title"
           value={title}
@@ -137,7 +140,7 @@ const SplitEditor: React.FC<SplitRowProps & { close: () => void }> = ({
           Money.from(sum).format()
         )}
       </Grid>
-      <Grid item xs={2} container justifyContent="flex-end">
+      <Grid item xs={1} container justifyContent="flex-end">
         <ToolIconButton onClick={save} disabled={!allValid}>
           <Save />
         </ToolIconButton>
@@ -161,3 +164,15 @@ const SplitEditor: React.FC<SplitRowProps & { close: () => void }> = ({
     </>
   );
 };
+
+const RGrid = styled(Grid)`
+  position: relative;
+`;
+
+const FootNote = styled.div`
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  transform: scale(60%);
+  transform-origin: bottom right;
+`;
