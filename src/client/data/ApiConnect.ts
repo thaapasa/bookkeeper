@@ -212,7 +212,9 @@ export class ApiConnect {
     id: number | string,
     splits: ExpenseSplit[]
   ): Promise<ApiMessage> {
-    return this.post<ApiMessage>(`/api/expense/${id}/split`, { splits });
+    return this.post<ApiMessage>(`/api/expense/${id}/split`, {
+      splits: splits.map(ExpenseSplit.encode),
+    });
   }
 
   public updateExpense(

@@ -81,8 +81,11 @@ function initialSplit(
   return [
     original
       ? {
-          ...original,
+          sum: original.sum,
+          title: original.title,
           key: KeyProvider.nextStr('splitrow-'),
+          sourceId: original.sourceId,
+          categoryId: original.categoryId,
           benefit: getBenefitorsForExpense(
             original,
             original.division,

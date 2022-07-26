@@ -25,6 +25,7 @@ import {
 import {
   intStringBetween,
   NonEmptyArray,
+  NumberString,
   stringWithLength,
   validate,
 } from 'shared/types/Validator';
@@ -43,6 +44,7 @@ import * as server from './util/ServerUtil';
 import { Schema, Validator as V } from './util/Validator';
 
 const log = debug('bookkeeper:api');
+const ExpenseIdType = t.type({ expenseId: NumberString });
 
 export function registerAPI(app: Express) {
   log('Registering API');
@@ -314,13 +316,13 @@ export function registerAPI(app: Express) {
   });
   // POST /api/expense/[expenseId]/split
   app.post(
-    '/api/expense/:id/split',
+    '/api/expense/:expenseId/split',
     server.processRequest<ApiMessage>(
       (session, req) =>
         expenses.split(
           session.group.id,
           session.user.id,
-          validate(t.number, req.params.id),
+          validate(ExpenseIdType, req.params).expenseId,
           validate(ExpenseSplitBody, req.body).splits
         ),
       true
@@ -329,13 +331,13 @@ export function registerAPI(app: Express) {
 
   // POST /api/expense/[expenseId]
   app.post(
-    '/api/expense/:id',
+    '/api/expense/:expenseId',
     server.processRequest<ApiMessage>(
       (session, req) =>
         expenses.update(
           session.group.id,
           session.user.id,
-          parseInt(req.params.id, 10),
+          validate(ExpenseIdType, req.params).expenseId,
           V.validate(expenseSchema, req.body),
           session.group.defaultSourceId || 0
         ),

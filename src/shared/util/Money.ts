@@ -227,5 +227,5 @@ export const MoneyLike = new io.Type<MoneyLike, MoneyLike, unknown>(
     isMoneyLike(i) && isRight(MoneyV.decode(i))
       ? io.success(i)
       : io.failure(i, ctx),
-  m => m
+  m => (Money.isMoney(m) ? m.toString() : Money.isBig(m) ? m.toString() : m)
 );
