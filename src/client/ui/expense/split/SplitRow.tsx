@@ -2,7 +2,6 @@ import { Save } from '@mui/icons-material';
 import { Grid } from '@mui/material';
 import * as React from 'react';
 
-import { ExpenseSplit } from 'shared/types/ExpenseSplit';
 import Money from 'shared/util/Money';
 import { getFullCategoryName } from 'client/data/Categories';
 import { Delete } from 'client/ui/Icons';
@@ -11,22 +10,19 @@ import { ToolIconButton } from '../details/ExpenseInfoTools';
 import { ExpenseDialogProps } from '../dialog/ExpenseDialog';
 import { SumField } from '../dialog/ExpenseDialogComponents';
 import { TitleField } from '../dialog/TitleField';
+import { ExpenseSplitInEditor, SplitTools } from './ExpenseSplit.hooks';
 
-interface SplitRowProps
-  extends Pick<
-    ExpenseDialogProps,
-    'categoryMap' | 'categorySource' | 'categories'
-  > {
-  split: ExpenseSplit | null;
+type SplitRowProps = {
+  split: ExpenseSplitInEditor;
   editSum: boolean;
   splitIndex: number;
-  saveSplit: (i: number, split: ExpenseSplit) => void;
-}
+} & Pick<ExpenseDialogProps, 'categoryMap' | 'categorySource' | 'categories'> &
+  Pick<SplitTools, 'saveSplit' | 'removeSplit'>;
 
 export const SplitRow: React.FC<SplitRowProps> = props => {
-  const { split, categoryMap } = props;
+  const { split, categoryMap, editSum, removeSplit, splitIndex } = props;
   const [edit] = React.useState(false);
-  const showEditor = edit || !split;
+  const showEditor = edit || !split.title;
   return showEditor ? (
     <SplitEditor {...props} />
   ) : (
@@ -35,15 +31,19 @@ export const SplitRow: React.FC<SplitRowProps> = props => {
         {split.title}
       </Grid>{' '}
       <Grid item xs={4}>
-        {getFullCategoryName(split.categoryId, categoryMap)}{' '}
+        {split.categoryId
+          ? getFullCategoryName(split.categoryId, categoryMap)
+          : 'Valitse kategoria'}{' '}
       </Grid>
       <Grid item xs={2}>
         {Money.from(split.sum).format()}
       </Grid>
       <Grid item container xs={2} justifyContent="flex-end">
-        <ToolIconButton>
-          <Delete />
-        </ToolIconButton>
+        {editSum ? (
+          <ToolIconButton onClick={() => removeSplit(splitIndex)}>
+            <Delete />
+          </ToolIconButton>
+        ) : null}
       </Grid>
     </>
   );
@@ -55,6 +55,8 @@ const SplitEditor: React.FC<SplitRowProps> = ({
   categoryMap,
   splitIndex,
   saveSplit,
+  editSum,
+  removeSplit,
 }) => {
   const [title, setTitle] = React.useState(split?.title ?? '');
   const [sum, setSum] = React.useState(
@@ -74,7 +76,8 @@ const SplitEditor: React.FC<SplitRowProps> = ({
         title,
         sum: Money.from(sum),
         categoryId: catId,
-        sourceId: 1,
+        sourceId: split.sourceId ?? 0,
+        key: split.key,
       });
     }
   };
@@ -100,9 +103,11 @@ const SplitEditor: React.FC<SplitRowProps> = ({
         <ToolIconButton onClick={save}>
           <Save />
         </ToolIconButton>
-        <ToolIconButton>
-          <Delete />
-        </ToolIconButton>
+        {editSum ? (
+          <ToolIconButton onClick={() => removeSplit(splitIndex)}>
+            <Delete />
+          </ToolIconButton>
+        ) : null}
       </Grid>
     </>
   );

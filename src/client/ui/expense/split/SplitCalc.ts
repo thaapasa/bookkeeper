@@ -1,5 +1,6 @@
-import { ExpenseSplit } from 'shared/types/ExpenseSplit';
 import Money, { MoneyLike } from 'shared/util/Money';
+
+import { ExpenseSplitInEditor } from './ExpenseSplit.hooks';
 
 /**
  * Calculates the cost of the first split so that the split rows add up
@@ -9,20 +10,17 @@ import Money, { MoneyLike } from 'shared/util/Money';
  * @param sum the sum of the original expense
  */
 export function calculateSplits(
-  splits: (ExpenseSplit | null)[],
+  splits: ExpenseSplitInEditor[],
   sum: MoneyLike
-): (ExpenseSplit | null)[] {
+): ExpenseSplitInEditor[] {
   if (splits.length === 0) {
     return [];
   }
   if (splits.length === 1) {
-    return [splits[0] ? { ...splits[0], sum } : null];
+    return [{ ...splits[0], sum }];
   }
 
   const [first, ...fixed] = splits;
-  if (!first) {
-    return splits;
-  }
 
   const left = fixed.reduce(
     (acc, split) => acc.minus(split?.sum ?? '0'),
