@@ -1,3 +1,4 @@
+import debug from 'debug';
 import * as React from 'react';
 
 import { MakeOptional } from 'shared/types/Common';
@@ -6,6 +7,8 @@ import { ExpenseSplit } from 'shared/types/ExpenseSplit';
 import { IdProvider } from 'shared/util/IdProvider';
 
 import { calculateSplits } from './SplitCalc';
+
+const log = debug('ui:expense-split');
 
 export type ExpenseSplitInEditor = MakeOptional<
   ExpenseSplit,
@@ -21,12 +24,13 @@ export function useExpenseSplit(original: UserExpenseWithDetails | null) {
     setSplits(initialSplit(original));
   }, [original]);
 
-  const addRow = () => {
+  const addRow = React.useCallback(() => {
     setSplits([...splits, emptySplit()]);
-  };
+  }, [setSplits, splits]);
 
   const saveSplit = React.useCallback(
     (i: number, split: ExpenseSplit) => {
+      log('Saving split', split);
       const newSplits = [...splits];
       newSplits[i] = split;
       const fixedSplits = calculateSplits(newSplits, original?.sum ?? '0');
@@ -37,6 +41,8 @@ export function useExpenseSplit(original: UserExpenseWithDetails | null) {
 
   const removeSplit = React.useCallback(
     (i: number) => {
+      // Do not allow deleting the first entry
+      if (i === 0) return;
       const newSplits = [...splits];
       newSplits.splice(i, 1);
       const fixedSplits = calculateSplits(newSplits, original?.sum ?? '0');

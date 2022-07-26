@@ -58,7 +58,7 @@ export const AutoComplete: React.FC<AutoCompleteProps<any>> = ({
     ) => {
       switch (reason) {
         case 'selectOption':
-          log(`Selected suggestion: ${value}`);
+          log(`Selected suggestion:`, value);
           onSelectSuggestion(value);
           return;
       }
