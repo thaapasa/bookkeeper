@@ -2,14 +2,12 @@ import { Cancel } from '@mui/icons-material';
 import { Button, Dialog, Grid } from '@mui/material';
 import * as React from 'react';
 
-import { UserExpense } from 'shared/types/Expense';
-import { ExpenseSplit } from 'shared/types/ExpenseSplit';
 import { Add, Split } from 'client/ui/Icons';
 import { isMobileSize } from 'client/ui/Styles';
 
 import { ExpenseDialogProps } from '../dialog/ExpenseDialog';
 import { ExpenseDialogContent } from '../dialog/ExpenseDialogComponents';
-import { calculateSplits } from './SplitCalc';
+import { useExpenseSplit } from './ExpenseSplit.hooks';
 import { SplitHeader } from './SplitHeader';
 import { SplitRow } from './SplitRow';
 
@@ -21,25 +19,7 @@ export const ExpenseSplitDialog: React.FC<ExpenseDialogProps> = ({
 }) => {
   const isMobile = isMobileSize(windowSize);
 
-  const [splits, setSplits] = React.useState<(ExpenseSplit | null)[]>([]);
-
-  React.useEffect(() => {
-    setSplits(initialSplit(original));
-  }, [original]);
-
-  const addRow = () => {
-    setSplits([...splits, null]);
-  };
-
-  const saveSplit = React.useCallback(
-    (i: number, split: ExpenseSplit) => {
-      const newSplits = [...splits];
-      newSplits[i] = split;
-      const fixedSplits = calculateSplits(newSplits, original?.sum ?? '0');
-      setSplits(fixedSplits);
-    },
-    [setSplits, splits, original]
-  );
+  const { addRow, saveSplit, splits } = useExpenseSplit(original);
 
   if (!original) {
     return null;
@@ -99,7 +79,3 @@ export const ExpenseSplitDialog: React.FC<ExpenseDialogProps> = ({
     </Dialog>
   );
 };
-
-function initialSplit(original?: UserExpense | null): ExpenseSplit[] {
-  return original ? [{ ...original }] : [];
-}
