@@ -2,10 +2,11 @@ import {
   Expense,
   ExpenseDivisionItem,
   ExpenseDivisionType,
-} from '../../shared/types/Expense';
-import { Source } from '../../shared/types/Session';
-import Money, { MoneyLike } from '../../shared/util/Money';
-import { negateDivision, splitByShares } from '../../shared/util/Splitter';
+} from 'shared/types/Expense';
+import { Source } from 'shared/types/Session';
+import Money, { MoneyLike } from 'shared/util/Money';
+import { negateDivision, splitByShares } from 'shared/util/Splitter';
+
 import { Validator } from '../util/Validator';
 
 interface ExpenseDivisionItemNoType {

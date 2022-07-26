@@ -1,21 +1,17 @@
 import 'jest';
 
-import { nextRecurrence } from '../server/data/RecurringExpenses';
-import { ApiMessage } from '../shared/types/Api';
-import {
-  Expense,
-  ExpenseCollection,
-  UserExpense,
-} from '../shared/types/Expense';
-import Money, { MoneyLike } from '../shared/util/Money';
+import { ApiMessage } from 'shared/types/Api';
+import { Expense, ExpenseCollection, UserExpense } from 'shared/types/Expense';
+import Money, { MoneyLike } from 'shared/util/Money';
 import {
   captureId,
   checkCreateStatus,
   cleanup,
   newExpense,
-} from '../shared/util/test/ExpenseHelper';
-import { getSession, SessionWithControl } from '../shared/util/test/TestClient';
-import { toISODate } from '../shared/util/Time';
+} from 'shared/util/test/ExpenseHelper';
+import { getSession, SessionWithControl } from 'shared/util/test/TestClient';
+import { toISODate } from 'shared/util/Time';
+import { nextRecurrence } from 'server/data/RecurringExpenses';
 
 describe('recurring expenses', () => {
   let session: SessionWithControl;

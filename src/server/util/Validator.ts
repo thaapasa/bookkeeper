@@ -1,7 +1,7 @@
 import debug from 'debug';
 
-import { Error } from '../../shared/types/Errors';
-import Money from '../../shared/util/Money';
+import { Error } from 'shared/types/Errors';
+import Money from 'shared/util/Money';
 
 const log = debug('bookkeeper:validator');
 

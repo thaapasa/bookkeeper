@@ -1,4 +1,4 @@
-import { arrayContains } from '../../shared/util/Arrays';
+import { arrayContains } from 'shared/util/Arrays';
 
 export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 

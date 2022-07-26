@@ -1,7 +1,8 @@
 import { IBaseProtocol } from 'pg-promise';
 
-import { ExpenseType } from '../../../shared/types/Expense';
-import { MoneyLike } from '../../../shared/util/Money';
+import { ExpenseType } from 'shared/types/Expense';
+import { MoneyLike } from 'shared/util/Money';
+
 import { db } from '../Db';
 import { getInvalidDivision, InvalidDivision } from './InvalidDivisionQuery';
 

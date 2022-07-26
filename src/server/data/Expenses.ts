@@ -6,10 +6,11 @@ import {
   ExpenseCollection,
   ExpenseStatus,
   UserExpense,
-} from '../../shared/types/Expense';
-import Money from '../../shared/util/Money';
-import { mapValues } from '../../shared/util/Objects';
-import * as time from '../../shared/util/Time';
+} from 'shared/types/Expense';
+import Money from 'shared/util/Money';
+import { mapValues } from 'shared/util/Objects';
+import * as time from 'shared/util/Time';
+
 import basic from './BasicExpenses';
 import { db } from './Db';
 import recurring from './RecurringExpenses';

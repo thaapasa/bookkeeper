@@ -1,22 +1,22 @@
 import 'jest';
 
-import { ApiMessage } from '../shared/types/Api';
+import { ApiMessage } from 'shared/types/Api';
 import {
   Expense,
   ExpenseCollection,
   ExpenseStatus,
-} from '../shared/types/Expense';
-import Money from '../shared/util/Money';
+} from 'shared/types/Expense';
+import Money from 'shared/util/Money';
 import {
   checkCreateStatus,
   cleanup,
   division,
   findUserId,
   newExpense,
-} from '../shared/util/test/ExpenseHelper';
-import { getSession, SessionWithControl } from '../shared/util/test/TestClient';
-import { expectThrow } from '../shared/util/test/TestUtil';
-import { toMoment } from '../shared/util/Time';
+} from 'shared/util/test/ExpenseHelper';
+import { getSession, SessionWithControl } from 'shared/util/test/TestClient';
+import { expectThrow } from 'shared/util/test/TestUtil';
+import { toMoment } from 'shared/util/Time';
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 

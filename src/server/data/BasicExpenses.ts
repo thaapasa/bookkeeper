@@ -4,17 +4,18 @@ import { IBaseProtocol } from 'pg-promise';
 
 import { ExpenseSplit } from 'shared/types/ExpenseSplit';
 
-import { ApiMessage } from '../../shared/types/Api';
-import { NotFoundError } from '../../shared/types/Errors';
+import { ApiMessage } from 'shared/types/Api';
+import { NotFoundError } from 'shared/types/Errors';
 import {
   Expense,
   ExpenseDivisionItem,
   ExpenseDivisionType,
   ExpenseStatus,
   UserExpense,
-} from '../../shared/types/Expense';
-import Money, { MoneyLike } from '../../shared/util/Money';
-import * as time from '../../shared/util/Time';
+} from 'shared/types/Expense';
+import Money, { MoneyLike } from 'shared/util/Money';
+import * as time from 'shared/util/Time';
+
 import categories from './Categories';
 import { db } from './Db';
 import { determineDivision } from './ExpenseDivision';

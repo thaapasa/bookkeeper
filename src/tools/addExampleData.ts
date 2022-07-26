@@ -1,10 +1,10 @@
 import debug from 'debug';
 
-import { ApiMessage } from '../shared/types/Api';
-import { ExpenseData } from '../shared/types/Expense';
-import { unnest } from '../shared/util/Arrays';
-import * as client from '../shared/util/test/TestClient';
-import { toISODate, toMoment } from '../shared/util/Time';
+import { ApiMessage } from 'shared/types/Api';
+import { ExpenseData } from 'shared/types/Expense';
+import { unnest } from 'shared/util/Arrays';
+import * as client from 'shared/util/test/TestClient';
+import { toISODate, toMoment } from 'shared/util/Time';
 
 const log = debug('bookkeeper:data:example');
 

@@ -2,8 +2,8 @@ import debug from 'debug';
 import { Moment } from 'moment';
 import { IBaseProtocol } from 'pg-promise';
 
-import { ApiMessage } from '../../shared/types/Api';
-import { InvalidExpense } from '../../shared/types/Errors';
+import { ApiMessage } from 'shared/types/Api';
+import { InvalidExpense } from 'shared/types/Errors';
 import {
   Expense,
   ExpenseDivisionItem,
@@ -11,15 +11,11 @@ import {
   RecurringExpenseInput,
   RecurringExpensePeriod,
   RecurringExpenseTarget,
-} from '../../shared/types/Expense';
-import { unnest } from '../../shared/util/Arrays';
-import {
-  DateLike,
-  fromISODate,
-  toISODate,
-  toMoment,
-} from '../../shared/util/Time';
-import { camelCaseObject } from '../../shared/util/Util';
+} from 'shared/types/Expense';
+import { unnest } from 'shared/util/Arrays';
+import { DateLike, fromISODate, toISODate, toMoment } from 'shared/util/Time';
+import { camelCaseObject } from 'shared/util/Util';
+
 import { Validator } from '../util/Validator';
 import expenses, { setDefaults, storeDivision } from './BasicExpenses';
 import categories from './Categories';
