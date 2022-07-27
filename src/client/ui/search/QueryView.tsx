@@ -17,13 +17,13 @@ import {
   toMoment,
   TypedDateRange,
 } from 'shared/util/Time';
+import { parseQueryString } from 'shared/util/UrlUtils';
 import {
   CategoryDataSource,
   getFullCategoryName,
 } from 'client/data/Categories';
 import { eventValue } from 'client/util/ClientUtil';
 import { KeyCodes } from 'client/util/Io';
-import { parseQueryString } from 'client/util/UrlUtils';
 
 import { gray, secondaryColors } from '../Colors';
 import { AutoComplete } from '../component/AutoComplete';

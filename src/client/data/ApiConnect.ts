@@ -24,7 +24,7 @@ import { FetchClient } from 'shared/util/FetchClient';
 import Money from 'shared/util/Money';
 import { filterTruthyProps } from 'shared/util/Objects';
 import { timeoutImmediate, toISODate } from 'shared/util/Time';
-import { uri } from 'client/util/UrlUtils';
+import { uri } from 'shared/util/UrlUtils';
 
 import { checkLoginState } from './Login';
 
@@ -198,9 +198,11 @@ export class ApiConnect {
     ).map(mapExpense);
   }
 
-  public getExpense(id: number | string): Promise<UserExpenseWithDetails> {
-    return this.get<UserExpenseWithDetails>(uri`/api/expense/${id}`).then(
-      mapExpense
+  public async getExpense(
+    id: number | string
+  ): Promise<UserExpenseWithDetails> {
+    return mapExpense(
+      await this.get<UserExpenseWithDetails>(uri`/api/expense/${id}`)
     );
   }
 
@@ -212,7 +214,7 @@ export class ApiConnect {
     id: number | string,
     splits: ExpenseSplit[]
   ): Promise<ApiMessage> {
-    return this.post<ApiMessage>(`/api/expense/${id}/split`, {
+    return this.post<ApiMessage>(uri`/api/expense/${id}/split`, {
       splits: splits.map(ExpenseSplit.encode),
     });
   }

@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
 
+import { parseQueryString } from 'shared/util/UrlUtils';
 import { noop } from 'shared/util/Util';
 import { expenseDialogE } from 'client/data/State';
-import { parseQueryString } from 'client/util/UrlUtils';
 
 import RoutedMonthView from './RoutedMonthView';
 

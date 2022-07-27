@@ -16,6 +16,7 @@ import {
 } from 'shared/util/test/ExpenseHelper';
 import { getSession, SessionWithControl } from 'shared/util/test/TestClient';
 import { ISODate, toISODate } from 'shared/util/Time';
+import { uri } from 'shared/util/UrlUtils';
 import { nextRecurrence } from 'server/data/RecurringExpenses';
 
 describe('recurring expenses', () => {
@@ -76,7 +77,7 @@ describe('recurring expenses', () => {
     );
 
     await expect(
-      session.get<Expense>(`/api/expense/${expenseId}`)
+      session.get<Expense>(uri`/api/expense/${expenseId}`)
     ).resolves.toMatchObject({
       division: expect.arrayContaining([
         { userId: 2, type: 'benefit', sum: '75.00' },
