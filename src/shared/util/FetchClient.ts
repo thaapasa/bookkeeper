@@ -73,15 +73,26 @@ export class FetchClient {
             await res.json()
           );
         default:
+          const data = await res.json();
           throw new Error(
-            'Error in fetch client',
-            await res.json(),
-            res.status
+            'code' in data ? data.code : 'ERROR',
+            `Error ${res.status} from ${method} ${path}`,
+            res.status,
+            data
           );
       }
-    } catch (e) {
+    } catch (e: any) {
+      if (e instanceof Error) {
+        throw e;
+      }
       log('Error in fetch client:', e);
-      throw e;
+      const data = { ...e };
+      throw new Error(
+        'code' in data ? data.code : 'ERROR',
+        'cause' in data ? data.cause : e.message,
+        'status' in data ? data.status : 500,
+        data
+      );
     }
   }
 
@@ -137,6 +148,6 @@ export class FetchClient {
     query?: Record<string, any>,
     headers?: Record<string, string>
   ): Promise<T> {
-    return this.req(path, { method: 'DELETE', query, headers });
+    return this.req(path, { method: 'DELETE', query, headers, body: data });
   }
 }

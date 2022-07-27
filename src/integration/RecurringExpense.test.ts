@@ -5,9 +5,7 @@ import {
   Expense,
   ExpenseCollection,
   RecurringExpensePeriod,
-  UserExpense,
 } from 'shared/types/Expense';
-import Money, { MoneyLike } from 'shared/util/Money';
 import {
   captureId,
   checkCreateStatus,
@@ -19,6 +17,8 @@ import { ISODate, toISODate } from 'shared/util/Time';
 import { uri } from 'shared/util/UrlUtils';
 import { nextRecurrence } from 'server/data/RecurringExpenses';
 
+import { checkMonthStatus } from './MonthStatus';
+
 describe('recurring expenses', () => {
   let session: SessionWithControl;
 
@@ -28,27 +28,6 @@ describe('recurring expenses', () => {
   afterEach(async () => {
     await cleanup(session);
   });
-
-  async function checkMonthStatus(
-    expectedBenefit?: MoneyLike,
-    expectItems?: (items: UserExpense[]) => any
-  ): Promise<Money> {
-    const m = await session.get<ExpenseCollection>(`/api/expense/month`, {
-      year: 2017,
-      month: 1,
-    });
-    expect(m).toHaveProperty('monthStatus');
-    expect(m.monthStatus).toHaveProperty('benefit');
-    if (expectedBenefit) {
-      expect(m.monthStatus.benefit).toEqual(expectedBenefit);
-    }
-    expect(m).toHaveProperty('expenses');
-    expect(m.expenses).toBeInstanceOf(Array);
-    if (expectItems) {
-      expectItems(m.expenses);
-    }
-    return Money.from(m.monthStatus.benefit);
-  }
 
   it.each<[ISODate, RecurringExpensePeriod, ISODate]>([
     ['2017-01-01', 'monthly', '2017-02-01'],
@@ -66,7 +45,7 @@ describe('recurring expenses', () => {
   );
 
   it('templates should not show up on expense queries', async () => {
-    const monthBenefit1 = await checkMonthStatus();
+    const monthBenefit1 = await checkMonthStatus(session);
     const expenseId = checkCreateStatus(
       await newExpense(session, {
         sum: '150.00',
@@ -86,6 +65,7 @@ describe('recurring expenses', () => {
     });
 
     const monthBenefit2 = await checkMonthStatus(
+      session,
       monthBenefit1.plus('75').toString(),
       ex => expect(ex.find(i => i.id === expenseId)).toBeTruthy
     );
@@ -96,7 +76,7 @@ describe('recurring expenses', () => {
     expect(s.recurringExpenseId).toBeGreaterThan(0);
     expect(s.templateExpenseId).toBeGreaterThan(0);
     captureId(s);
-    checkMonthStatus(monthBenefit2.toString());
+    checkMonthStatus(session, monthBenefit2.toString());
 
     const e2 = await session.get<Expense>(`/api/expense/${expenseId}`);
     expect(e2.recurringExpenseId).toEqual(s.recurringExpenseId);

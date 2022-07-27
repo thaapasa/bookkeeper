@@ -127,28 +127,28 @@ export interface ExpenseCollection {
   unconfirmedBefore: boolean;
 }
 
-export const TRecurringExpensePeriod = t.keyof({ monthly: null, yearly: null });
-export type RecurringExpensePeriod = t.TypeOf<typeof TRecurringExpensePeriod>;
+export const RecurringExpensePeriod = t.keyof({ monthly: null, yearly: null });
+export type RecurringExpensePeriod = t.TypeOf<typeof RecurringExpensePeriod>;
 
-export const TRecurringExpenseTarget = t.keyof({
+export const RecurringExpenseTarget = t.keyof({
   single: null,
   all: null,
   after: null,
 });
-export type RecurringExpenseTarget = t.TypeOf<typeof TRecurringExpenseTarget>;
+export type RecurringExpenseTarget = t.TypeOf<typeof RecurringExpenseTarget>;
 
-export const TRecurringExpenseInput = t.intersection([
-  t.type({ period: TRecurringExpensePeriod }),
+export const RecurringExpenseInput = t.intersection([
+  t.type({ period: RecurringExpensePeriod }),
   t.partial({ occursUntil: TISODate }),
 ]);
-export type RecurringExpenseInput = t.TypeOf<typeof TRecurringExpenseInput>;
+export type RecurringExpenseInput = t.TypeOf<typeof RecurringExpenseInput>;
 
 export interface Recurrence extends DbObject, RecurringExpenseInput {
   nextMissing: ISODate;
   templateExpenseId: number;
 }
 
-export const TExpenseQuery = t.partial({
+export const ExpenseQuery = t.partial({
   search: t.string,
   receiver: t.string,
   categoryId: t.union([IntString, IntArrayString]),
@@ -157,4 +157,4 @@ export const TExpenseQuery = t.partial({
   userId: IntString,
   includeSubCategories: BooleanString,
 });
-export type ExpenseQuery = t.TypeOf<typeof TExpenseQuery>;
+export type ExpenseQuery = t.TypeOf<typeof ExpenseQuery>;

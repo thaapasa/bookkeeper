@@ -9,7 +9,6 @@ import {
   ExpenseStatus,
   RecurringExpensePeriod,
   RecurringExpenseTarget,
-  TExpenseQuery,
   UserExpense,
   UserExpenseWithDetails,
 } from 'shared/types/Expense';
@@ -193,7 +192,7 @@ export class ApiConnect {
     return (
       await this.get<UserExpense[]>(
         `/api/expense/search`,
-        TExpenseQuery.encode(filterTruthyProps(query))
+        ExpenseQuery.encode(filterTruthyProps(query))
       )
     ).map(mapExpense);
   }

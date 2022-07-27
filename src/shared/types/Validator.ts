@@ -2,13 +2,13 @@ import { either, isLeft, isRight } from 'fp-ts/lib/Either';
 import * as io from 'io-ts';
 
 import { ioErrorReporter } from '../validation/ioTsErrorReporter';
+import { Error } from './Errors';
 
-export class ValidationError {
+export class ValidationError extends Error {
   readonly errors: string[];
-  readonly value: any;
   constructor(errors: string[], value: any) {
+    super('VALIDATION_ERROR', errors, 400, value);
     this.errors = errors;
-    this.value = value;
   }
 }
 
@@ -17,7 +17,7 @@ export function validate<A, O, I>(type: io.Type<A, O, I>, object: any): A {
   if (isRight(res)) {
     return res.right;
   }
-  throw new ValidationError(object, ioErrorReporter(res));
+  throw new ValidationError(ioErrorReporter(res), object);
 }
 
 export const NumberString = new io.Type<number, string, unknown>(
@@ -112,10 +112,10 @@ export function stringWithLength(min: number, max: number) {
   return io.refinement(io.string, t => t.length >= min && t.length <= max);
 }
 
-export function NonEmptyArray<C extends io.Any>(codec: C) {
+export function NonEmptyArray<C extends io.Any>(codec: C, name?: string) {
   return io.refinement(
     io.array(codec),
     a => a.length > 0,
-    `NonEmptyArray<${codec.name}>`
+    name ?? `NonEmptyArray<${codec.name}>`
   );
 }
