@@ -6,9 +6,9 @@ import { Error } from './Errors';
 
 export class ValidationError extends Error {
   readonly errors: string[];
-  constructor(errors: string[], value: any) {
+  constructor(errors: string[] | string, value: any) {
     super('VALIDATION_ERROR', errors, 400, value);
-    this.errors = errors;
+    this.errors = Array.isArray(errors) ? errors : [errors];
   }
 }
 
