@@ -80,6 +80,15 @@ export default class Money {
     );
   }
 
+  public static parse(value: MoneyLike | null): Money | undefined {
+    if (value === null || value === undefined) return;
+    try {
+      return Money.from(value);
+    } catch (e) {
+      return;
+    }
+  }
+
   public static toString(value: MoneyLike) {
     return Money.from(value).toString();
   }

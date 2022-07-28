@@ -40,7 +40,7 @@ export function isSplitComplete(
   split: ExpenseSplitInEditor
 ): split is ExpenseSplitInEditor {
   return (
-    Money.from(split.sum).gt(0) &&
+    (Money.parse(split.sum)?.gt(0) ?? false) &&
     split.title !== '' &&
     split.benefit.length > 0 &&
     isDefined(split.categoryId) &&
