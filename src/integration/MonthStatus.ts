@@ -1,16 +1,16 @@
-import { ExpenseCollection, UserExpense } from 'shared/types/Expense';
-import Money, { MoneyLike } from 'shared/util/Money';
+import { ExpenseStatus, UserExpense } from 'shared/types/Expense';
+import { YearMonth } from 'shared/types/Time';
+import { MoneyLike } from 'shared/util/Money';
+import { fetchMonthStatus } from 'shared/util/test/ExpenseHelper';
 import { SessionWithControl } from 'shared/util/test/TestClient';
 
 export async function checkMonthStatus(
   session: SessionWithControl,
+  month: YearMonth,
   expectedBenefit?: MoneyLike,
   expectItems?: (items: UserExpense[]) => any
-): Promise<Money> {
-  const m = await session.get<ExpenseCollection>(`/api/expense/month`, {
-    year: 2017,
-    month: 1,
-  });
+): Promise<ExpenseStatus> {
+  const m = await fetchMonthStatus(session, month);
   expect(m).toHaveProperty('monthStatus');
   expect(m.monthStatus).toHaveProperty('benefit');
   if (expectedBenefit) {
@@ -21,5 +21,5 @@ export async function checkMonthStatus(
   if (expectItems) {
     expectItems(m.expenses);
   }
-  return Money.from(m.monthStatus.benefit);
+  return m.monthStatus;
 }

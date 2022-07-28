@@ -6,6 +6,8 @@ import {
   ExpenseCollection,
   RecurringExpensePeriod,
 } from 'shared/types/Expense';
+import { YearMonth } from 'shared/types/Time';
+import Money from 'shared/util/Money';
 import {
   captureId,
   checkCreateStatus,
@@ -18,6 +20,8 @@ import { uri } from 'shared/util/UrlUtils';
 import { nextRecurrence } from 'server/data/RecurringExpenses';
 
 import { checkMonthStatus } from './MonthStatus';
+
+const month: YearMonth = { year: 2017, month: 1 };
 
 describe('recurring expenses', () => {
   let session: SessionWithControl;
@@ -45,7 +49,7 @@ describe('recurring expenses', () => {
   );
 
   it('templates should not show up on expense queries', async () => {
-    const monthBenefit1 = await checkMonthStatus(session);
+    const status1 = await checkMonthStatus(session, month);
     const expenseId = checkCreateStatus(
       await newExpense(session, {
         sum: '150.00',
@@ -66,7 +70,8 @@ describe('recurring expenses', () => {
 
     const monthBenefit2 = await checkMonthStatus(
       session,
-      monthBenefit1.plus('75').toString(),
+      month,
+      Money.from(status1.benefit).plus('75').toString(),
       ex => expect(ex.find(i => i.id === expenseId)).toBeTruthy
     );
     const s = await session.put<ApiMessage>(
@@ -76,7 +81,7 @@ describe('recurring expenses', () => {
     expect(s.recurringExpenseId).toBeGreaterThan(0);
     expect(s.templateExpenseId).toBeGreaterThan(0);
     captureId(s);
-    checkMonthStatus(session, monthBenefit2.toString());
+    checkMonthStatus(session, month, monthBenefit2.benefit);
 
     const e2 = await session.get<Expense>(`/api/expense/${expenseId}`);
     expect(e2.recurringExpenseId).toEqual(s.recurringExpenseId);

@@ -26,9 +26,7 @@ function validateDivision(
   sum: MoneyLike,
   field: ExpenseDivisionType
 ) {
-  const calculated = items
-    .map(i => Money.from(i.sum))
-    .reduce((a, b) => a.plus(b), Money.zero);
+  const calculated = items.reduce((a, b) => a.plus(b.sum), Money.zero);
   if (!Money.from(sum).equals(calculated)) {
     throw new Validator.InvalidInputError(
       field,

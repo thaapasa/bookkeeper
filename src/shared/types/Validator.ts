@@ -46,7 +46,7 @@ export const BooleanString = new io.Type<boolean, string, unknown>(
   String
 );
 
-export const IntString = new io.Type<number, string, unknown>(
+export const IntString = new io.Type<number, string | number, unknown>(
   'IntString',
   io.number.is,
   (u, c) =>
@@ -91,7 +91,7 @@ export const IntArrayString = new io.Type<number[], string, unknown>(
 );
 
 export function intStringBetween(min: number, max: number) {
-  return new io.Type<number, string, unknown>(
+  return new io.Type<number, string | number, unknown>(
     `IntStringBetween${min}And${max}`,
     io.number.is,
     (u, c) =>

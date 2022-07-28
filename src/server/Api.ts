@@ -22,8 +22,8 @@ import {
   Source,
   User,
 } from 'shared/types/Session';
+import { YearMonth } from 'shared/types/Time';
 import {
-  intStringBetween,
   NonEmptyArray,
   NumberString,
   stringWithLength,
@@ -234,10 +234,6 @@ export function createApi() {
   );
 
   // GET /api/expense/month
-  const YearMonth = t.type({
-    year: intStringBetween(1500, 3000),
-    month: intStringBetween(1, 12),
-  });
   app.get(
     '/expense/month',
     server.processRequest<ExpenseCollection>((session, req) => {

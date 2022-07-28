@@ -8,11 +8,13 @@ import {
 import { isDbObject } from 'shared/types/Common';
 import {
   Expense,
+  ExpenseCollection,
   ExpenseDivisionItem,
   UserExpenseWithDetails,
 } from 'shared/types/Expense';
 import { ExpenseSplit } from 'shared/types/ExpenseSplit';
 import { CategoryData, Session } from 'shared/types/Session';
+import { YearMonth } from 'shared/types/Time';
 
 import Money, { MoneyLike } from '../Money';
 import { uri } from '../UrlUtils';
@@ -97,6 +99,13 @@ export async function newExpense(
     ...expense,
   };
   return captureId(await session.put<ApiMessage>('/api/expense', data));
+}
+
+export async function fetchMonthStatus(
+  session: SessionWithControl,
+  month: YearMonth
+) {
+  return session.get<ExpenseCollection>(`/api/expense/month`, month);
 }
 
 export async function fetchExpense(
