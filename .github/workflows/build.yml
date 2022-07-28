@@ -61,7 +61,16 @@ jobs:
         run: ./script/start-server.sh
 
       - name: Run tests
+        id: run-tests
+        continue-on-error: true
         run: yarn test
+
+      - name: Tests failed, dump server logs (See previous step for test logs)
+        if: steps.run-tests.outcome != 'success'
+        run: |
+          echo "Tests failed, dumping server logs"
+          cat log/server.log
+          exit 1
 
       - name: Stop server
         run: ./script/stop-server.sh
