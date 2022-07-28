@@ -70,6 +70,11 @@ jobs:
         run: |
           echo "Tests failed, dumping server logs"
           cat log/server.log
+
+      - name: Re-run tests in verbose mode
+        if: steps.run-tests.outcome != 'success'
+        run: |
+          DEBUG=* yarn test --silent=false
           exit 1
 
       - name: Stop server
