@@ -1,6 +1,6 @@
 import debug from 'debug';
 
-import { AuthenticationError, Error } from '../types/Errors';
+import { AuthenticationError, BkError } from '../types/Errors';
 
 const log = debug('net:fetch-client');
 
@@ -74,7 +74,7 @@ export class FetchClient {
           );
         default:
           const data = await res.json();
-          throw new Error(
+          throw new BkError(
             'code' in data ? data.code : 'ERROR',
             `Error ${res.status} from ${method} ${path}`,
             res.status,
@@ -82,12 +82,12 @@ export class FetchClient {
           );
       }
     } catch (e: any) {
-      if (e instanceof Error) {
+      if (e instanceof BkError) {
         throw e;
       }
       log('Error in fetch client:', e);
       const data = { ...e };
-      throw new Error(
+      throw new BkError(
         'code' in data ? data.code : 'ERROR',
         'cause' in data ? data.cause : e.message,
         'status' in data ? data.status : 500,

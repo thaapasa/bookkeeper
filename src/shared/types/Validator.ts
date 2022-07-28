@@ -2,13 +2,14 @@ import { either, isLeft, isRight } from 'fp-ts/lib/Either';
 import * as io from 'io-ts';
 
 import { ioErrorReporter } from '../validation/ioTsErrorReporter';
-import { Error } from './Errors';
+import { BkError } from './Errors';
 
-export class ValidationError extends Error {
+export class ValidationError extends BkError {
   readonly errors: string[];
   constructor(errors: string[] | string, value: any) {
     super('VALIDATION_ERROR', errors, 400, value);
     this.errors = Array.isArray(errors) ? errors : [errors];
+    Object.setPrototypeOf(this, ValidationError.prototype);
   }
 }
 

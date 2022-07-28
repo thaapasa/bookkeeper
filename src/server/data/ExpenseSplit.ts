@@ -2,7 +2,7 @@ import debug from 'debug';
 import { IBaseProtocol } from 'pg-promise';
 
 import { ApiMessage } from 'shared/types/Api';
-import { Error } from 'shared/types/Errors';
+import { BkError } from 'shared/types/Errors';
 import { Expense } from 'shared/types/Expense';
 import { ExpenseSplit } from 'shared/types/ExpenseSplit';
 import Money from 'shared/util/Money';
@@ -51,7 +51,7 @@ async function createSplit(
 
 async function checkSplits(splits: ExpenseSplit[], expense: Expense) {
   if (splits.length < 2) {
-    throw new Error(
+    throw new BkError(
       'INVALID_SPLIT',
       'Expense splitting requires at least two splits',
       400,
@@ -61,7 +61,7 @@ async function checkSplits(splits: ExpenseSplit[], expense: Expense) {
 
   const partSum = splits.reduce((acc, s) => acc.plus(s.sum), Money.from(0));
   if (!partSum.equals(expense.sum)) {
-    throw new Error(
+    throw new BkError(
       'INVALID_SPLIT',
       `Split sums (${partSum.toString()}) do not match expense sum (${
         expense.sum

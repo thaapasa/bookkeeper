@@ -1,5 +1,5 @@
 import { isDefined } from 'shared/types/Common';
-import { Error } from 'shared/types/Errors';
+import { BkError } from 'shared/types/Errors';
 import { arrayContains } from 'shared/util/Arrays';
 
 export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
@@ -49,7 +49,7 @@ export function filterTruthyProps<T>(obj: T): Partial<T> {
 
 export function requireDefined<T>(t: T | undefined | null, title?: string): T {
   if (!isDefined(t)) {
-    throw new Error(
+    throw new BkError(
       'NOT_DEFINED',
       `Required value${title ? ' ' + title : ''} was ${t}`,
       500,

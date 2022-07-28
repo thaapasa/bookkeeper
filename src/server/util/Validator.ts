@@ -1,17 +1,18 @@
 import debug from 'debug';
 
-import { Error } from 'shared/types/Errors';
+import { BkError } from 'shared/types/Errors';
 import Money from 'shared/util/Money';
 
 const log = debug('bookkeeper:validator');
 
-class InvalidInputError<T> extends Error {
+class InvalidInputError<T> extends BkError {
   constructor(field: string, input: T, requirement: string) {
     super('INVALID_INPUT', `Invalid input in ${field}`, 400, {
       field,
       input,
       requirement,
     });
+    Object.setPrototypeOf(this, InvalidInputError.prototype);
   }
 }
 
