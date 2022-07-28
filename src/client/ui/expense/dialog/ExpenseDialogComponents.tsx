@@ -1,4 +1,5 @@
 import {
+  DialogContent,
   FormControl,
   IconButton,
   InputLabel,
@@ -129,4 +130,8 @@ const SumArea = styled.div`
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
+`;
+
+export const ExpenseDialogContent = styled(DialogContent)`
+  overflow-y: scroll !important;
 `;

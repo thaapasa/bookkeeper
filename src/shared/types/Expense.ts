@@ -1,21 +1,37 @@
 import * as t from 'io-ts';
 
 import { MoneyLike } from 'shared/util/Money';
+import { typedKeys } from 'shared/util/Objects';
 import { ISODate, TISODate } from 'shared/util/Time';
 
 import { DbObject } from './Common';
-import { TBooleanString, TIntArrayString, TIntString } from './Validator';
+import {
+  BooleanString,
+  IntArrayString,
+  IntString,
+  NonEmptyArray,
+} from './Validator';
 
-export type ExpenseType = 'expense' | 'income' | 'transfer';
-export type ExpenseDivisionType =
-  | 'cost'
-  | 'benefit'
-  | 'income'
-  | 'split'
-  | 'transferor'
-  | 'transferee';
+export const ExpenseType = t.keyof(
+  { expense: 0, income: 0, transfer: 0 },
+  'ExpenseType'
+);
+export type ExpenseType = t.TypeOf<typeof ExpenseType>;
 
-export const expenseTypes: ExpenseType[] = ['expense', 'income', 'transfer'];
+export const ExpenseDivisionType = t.keyof(
+  {
+    cost: 0,
+    benefit: 0,
+    income: 0,
+    split: 0,
+    transferor: 0,
+    transferee: 0,
+  },
+  'ExpenseDivisionType'
+);
+export type ExpenseDivisionType = t.TypeOf<typeof ExpenseDivisionType>;
+
+export const expenseTypes = typedKeys(ExpenseType.keys);
 
 export function getExpenseTypeLabel(type: ExpenseType): string {
   switch (type) {
@@ -30,25 +46,33 @@ export function getExpenseTypeLabel(type: ExpenseType): string {
   }
 }
 
-export const expenseBeneficiary: Record<string, ExpenseDivisionType> = {
+export const expenseBeneficiary: Record<ExpenseType, ExpenseDivisionType> = {
   expense: 'benefit',
   income: 'split',
   transfer: 'transferee',
 };
 
-export const expensePayer: Record<string, ExpenseDivisionType> = {
+export const expensePayer: Record<ExpenseType, ExpenseDivisionType> = {
   expense: 'cost',
   income: 'income',
   transfer: 'transferor',
 };
 
-export interface ExpenseDivisionItem {
-  userId: number;
-  type: ExpenseDivisionType;
-  sum: MoneyLike;
-}
+export const ExpenseDivisionItem = t.type(
+  {
+    userId: t.number,
+    type: ExpenseDivisionType,
+    sum: MoneyLike,
+  },
+  'ExpenseDivisionItem'
+);
+export type ExpenseDivisionItem = t.TypeOf<typeof ExpenseDivisionItem>;
 
-export type ExpenseDivision = ExpenseDivisionItem[];
+export const ExpenseDivision = NonEmptyArray(
+  ExpenseDivisionItem,
+  'ExpenseDivision'
+);
+export type ExpenseDivision = t.TypeOf<typeof ExpenseDivision>;
 
 export interface BaseExpenseData {
   userId: number;
@@ -127,34 +151,34 @@ export interface ExpenseCollection {
   unconfirmedBefore: boolean;
 }
 
-export const TRecurringExpensePeriod = t.keyof({ monthly: null, yearly: null });
-export type RecurringExpensePeriod = t.TypeOf<typeof TRecurringExpensePeriod>;
+export const RecurringExpensePeriod = t.keyof({ monthly: null, yearly: null });
+export type RecurringExpensePeriod = t.TypeOf<typeof RecurringExpensePeriod>;
 
-export const TRecurringExpenseTarget = t.keyof({
+export const RecurringExpenseTarget = t.keyof({
   single: null,
   all: null,
   after: null,
 });
-export type RecurringExpenseTarget = t.TypeOf<typeof TRecurringExpenseTarget>;
+export type RecurringExpenseTarget = t.TypeOf<typeof RecurringExpenseTarget>;
 
-export const TRecurringExpenseInput = t.intersection([
-  t.type({ period: TRecurringExpensePeriod }),
+export const RecurringExpenseInput = t.intersection([
+  t.type({ period: RecurringExpensePeriod }),
   t.partial({ occursUntil: TISODate }),
 ]);
-export type RecurringExpenseInput = t.TypeOf<typeof TRecurringExpenseInput>;
+export type RecurringExpenseInput = t.TypeOf<typeof RecurringExpenseInput>;
 
 export interface Recurrence extends DbObject, RecurringExpenseInput {
   nextMissing: ISODate;
   templateExpenseId: number;
 }
 
-export const TExpenseQuery = t.partial({
+export const ExpenseQuery = t.partial({
   search: t.string,
   receiver: t.string,
-  categoryId: t.union([TIntString, TIntArrayString]),
+  categoryId: t.union([IntString, IntArrayString]),
   startDate: TISODate,
   endDate: TISODate,
-  userId: TIntString,
-  includeSubCategories: TBooleanString,
+  userId: IntString,
+  includeSubCategories: BooleanString,
 });
-export type ExpenseQuery = t.TypeOf<typeof TExpenseQuery>;
+export type ExpenseQuery = t.TypeOf<typeof ExpenseQuery>;

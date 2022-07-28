@@ -3,9 +3,10 @@ import debug from 'debug';
 import { IBaseProtocol } from 'pg-promise';
 import { promisify } from 'util';
 
-import { ApiMessage } from '../../shared/types/Api';
-import { AuthenticationError } from '../../shared/types/Errors';
-import { Session, SessionBasicInfo } from '../../shared/types/Session';
+import { ApiMessage } from 'shared/types/Api';
+import { AuthenticationError } from 'shared/types/Errors';
+import { Session, SessionBasicInfo } from 'shared/types/Session';
+
 import { config } from '../Config';
 import categories from './Categories';
 import { db } from './Db';

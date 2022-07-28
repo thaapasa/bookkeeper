@@ -1,8 +1,9 @@
 import debug from 'debug';
 import * as React from 'react';
 
-import { Action } from '../shared/types/Common';
-import { Session } from '../shared/types/Session';
+import { Action } from 'shared/types/Common';
+import { Session } from 'shared/types/Session';
+
 import { checkLoginState, sessionP } from './data/Login';
 import { windowSizeBus } from './data/State';
 import { BookkeeperPage } from './ui/general/BookkeeperPage';

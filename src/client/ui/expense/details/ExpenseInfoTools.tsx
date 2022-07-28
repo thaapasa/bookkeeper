@@ -20,11 +20,12 @@ import {
   createNewExpense,
   notify,
   notifyError,
+  splitExpense,
   updateExpenses,
 } from 'client/data/State';
 import * as colors from 'client/ui/Colors';
 import { connect } from 'client/ui/component/BaconConnect';
-import { Copy, Delete, Edit, Repeat } from 'client/ui/Icons';
+import { Copy, Delete, Edit, Repeat, Split } from 'client/ui/Icons';
 import { media } from 'client/ui/Styles';
 
 import { getBenefitorsForExpense } from '../dialog/ExpenseDialogData';
@@ -42,12 +43,6 @@ interface RecurrenceInfoProps {
 }
 
 const styles = {
-  tool: {
-    margin: '0',
-    padding: '0',
-    width: 36,
-    height: 36,
-  },
   toolIcon: {
     color: colors.tool,
     fontSize: '15pt',
@@ -109,6 +104,9 @@ const ExpenseInfoTools: React.FC<RecurrenceInfoProps> = ({
 
   return (
     <ToolContainer>
+      <ToolIconButton title="Pilko" onClick={() => splitExpense(expense.id)}>
+        <Split style={styles.toolIcon} />
+      </ToolIconButton>
       <ToolIconButton title="Kopioi" onClick={onCopy}>
         <Copy style={styles.toolIcon} />
       </ToolIconButton>

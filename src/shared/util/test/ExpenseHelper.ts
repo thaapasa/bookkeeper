@@ -4,11 +4,20 @@ import {
   ApiMessage,
   isApiMessageWithExpenseId,
   isApiMessageWithRecurringExpenseId,
-} from '../../types/Api';
-import { isDbObject } from '../../types/Common';
-import { Expense, ExpenseDivisionItem } from '../../types/Expense';
-import { CategoryData, Session } from '../../types/Session';
+} from 'shared/types/Api';
+import { isDbObject } from 'shared/types/Common';
+import {
+  Expense,
+  ExpenseCollection,
+  ExpenseDivisionItem,
+  UserExpenseWithDetails,
+} from 'shared/types/Expense';
+import { ExpenseSplit } from 'shared/types/ExpenseSplit';
+import { CategoryData, Session } from 'shared/types/Session';
+import { YearMonth } from 'shared/types/Time';
+
 import Money, { MoneyLike } from '../Money';
+import { uri } from '../UrlUtils';
 import { SessionWithControl } from './TestClient';
 
 let createdIds: number[] = [];
@@ -92,6 +101,32 @@ export async function newExpense(
   return captureId(await session.put<ApiMessage>('/api/expense', data));
 }
 
+export async function fetchMonthStatus(
+  session: SessionWithControl,
+  month: YearMonth
+) {
+  return session.get<ExpenseCollection>(`/api/expense/month`, month);
+}
+
+export async function fetchExpense(
+  session: SessionWithControl,
+  expenseId: number
+): Promise<UserExpenseWithDetails> {
+  return await session.get<UserExpenseWithDetails>(
+    uri`/api/expense/${expenseId}`
+  );
+}
+
+export async function splitExpense(
+  session: SessionWithControl,
+  expenseId: number,
+  splits: ExpenseSplit[]
+): Promise<ApiMessage> {
+  return await session.post<ApiMessage>(uri`/api/expense/${expenseId}/split`, {
+    splits,
+  });
+}
+
 export async function newCategory(
   session: SessionWithControl,
   data: CategoryData
@@ -111,14 +146,14 @@ export async function deleteCreated(
   }
   try {
     for (const id of createdRecurrences) {
-      await session.del(`/api/expense/recurring/${id}?target=all`);
+      await session.del(uri`/api/expense/recurring/${id}?target=all`);
     }
     for (const id of createdIds) {
-      await session.del(`/api/expense/${id}`);
+      await session.del(uri`/api/expense/${id}`);
     }
     const revCats = createdCategories.reverse();
     for (const id of revCats) {
-      await session.del(`/api/category/${id}`);
+      await session.del(uri`/api/category/${id}`);
     }
     return true;
   } finally {

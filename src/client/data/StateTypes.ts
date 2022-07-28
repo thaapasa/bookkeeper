@@ -1,4 +1,3 @@
-import { ExpenseInEditor } from 'shared/types/Expense';
 import { TypedDateRange } from 'shared/util/Time';
 
 export interface ConfirmationAction<T> {
@@ -23,10 +22,10 @@ export interface PickDateObject {
   resolve: (value?: Date) => void;
 }
 
-export interface ExpenseDialogObject {
+export interface ExpenseDialogObject<D> {
   expenseId: number | null;
-  resolve: (e: ExpenseInEditor | null) => void;
-  values?: Partial<ExpenseInEditor>;
+  resolve: (e: D | null) => void;
+  values?: Partial<D>;
 }
 
 export interface NavigationConfig {

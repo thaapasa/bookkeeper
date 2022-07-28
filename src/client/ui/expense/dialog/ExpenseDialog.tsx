@@ -3,7 +3,6 @@ import {
   Checkbox,
   Dialog,
   DialogActions,
-  DialogContent,
   DialogTitle,
   FormControlLabel,
 } from '@mui/material';
@@ -49,6 +48,7 @@ import { CategorySelector } from './CategorySelector';
 import { DateField } from './DateField';
 import {
   DescriptionField,
+  ExpenseDialogContent,
   SourceSelector,
   SumField,
   TypeSelector,
@@ -116,7 +116,7 @@ function allTrue(...args: boolean[]): boolean {
   return args.reduce((a, b) => a && b, true);
 }
 
-interface ExpenseDialogProps {
+export interface ExpenseDialogProps<D> {
   createNew: boolean;
   original: UserExpenseWithDetails | null;
   sources: Source[];
@@ -124,14 +124,14 @@ interface ExpenseDialogProps {
   sourceMap: Record<string, Source>;
   categorySource: CategoryDataSource[];
   categoryMap: Record<string, Category>;
-  onClose: (e: ExpenseInEditor | null) => void;
+  onClose: (e: D | null) => void;
   onExpensesUpdated: (date: Date) => void;
   group: Group;
   user: User;
   users: User[];
   expenseCounter: number;
   windowSize: Size;
-  values: Partial<ExpenseInEditor>;
+  values: Partial<D>;
 }
 
 interface ExpenseDialogState extends ExpenseInEditor {
@@ -143,7 +143,7 @@ interface ExpenseDialogState extends ExpenseInEditor {
 }
 
 export class ExpenseDialog extends React.Component<
-  ExpenseDialogProps,
+  ExpenseDialogProps<ExpenseInEditor>,
   ExpenseDialogState
 > {
   private readonly saveLock: B.Bus<boolean> = new B.Bus<boolean>();
@@ -277,8 +277,9 @@ export class ExpenseDialog extends React.Component<
       .map(({ allValid, expense }) =>
         allValid
           ? calculateDivision(
-              expense,
+              expense.type,
               expense.sum,
+              expense.benefit,
               this.props.sourceMap[expense.sourceId]
             )
           : null
@@ -311,7 +312,7 @@ export class ExpenseDialog extends React.Component<
     fields.map(k => this.inputStreams[k].push(newState[k]));
   }
 
-  public componentDidUpdate(prevProps: ExpenseDialogProps) {
+  public componentDidUpdate(prevProps: ExpenseDialogProps<ExpenseInEditor>) {
     if (this.props.expenseCounter !== prevProps.expenseCounter) {
       log('Settings props for', this.props.original);
       this.pushExpenseToInputStreams(this.props.original, this.props.values);
@@ -329,8 +330,9 @@ export class ExpenseDialog extends React.Component<
     log(createNew ? 'Create new expense' : 'save expense', expense);
     const sum = Money.from(expense.sum);
     const division = calculateDivision(
-      expense,
+      expense.type,
       sum,
+      expense.benefit,
       this.props.sourceMap[expense.sourceId]
     );
     const data: ExpenseData = {
@@ -457,11 +459,7 @@ export class ExpenseDialog extends React.Component<
         <DialogTitle>
           {this.props.createNew ? 'Uusi kirjaus' : 'Muokkaa kirjausta'}
         </DialogTitle>
-        <DialogContent
-          className="expense-dialog-content vertical-scroll-area"
-          dividers={true}
-          onClick={this.closeEditors}
-        >
+        <ExpenseDialogContent dividers={true} onClick={this.closeEditors}>
           <Form onSubmit={this.requestSave} onKeyUp={this.handleKeyPress}>
             <Row className="row sum parent">
               <OwnerSelectorArea
@@ -588,7 +586,7 @@ export class ExpenseDialog extends React.Component<
               />
             </Row>
           </Form>
-        </DialogContent>
+        </ExpenseDialogContent>
         <DialogActions>
           <Button key="cancel" variant="text" onClick={this.dismiss}>
             Peruuta

@@ -2,17 +2,18 @@ import debug from 'debug';
 import { Moment } from 'moment';
 import { IBaseProtocol } from 'pg-promise';
 
-import { ApiMessage } from '../../shared/types/Api';
-import { NotFoundError } from '../../shared/types/Errors';
+import { ApiMessage } from 'shared/types/Api';
+import { NotFoundError } from 'shared/types/Errors';
 import {
   Expense,
   ExpenseDivisionItem,
   ExpenseDivisionType,
   ExpenseStatus,
   UserExpense,
-} from '../../shared/types/Expense';
-import Money, { MoneyLike } from '../../shared/util/Money';
-import * as time from '../../shared/util/Time';
+} from 'shared/types/Expense';
+import Money, { MoneyLike } from 'shared/util/Money';
+import * as time from 'shared/util/Time';
+
 import categories from './Categories';
 import { db } from './Db';
 import { determineDivision } from './ExpenseDivision';
@@ -245,13 +246,13 @@ RETURNING id`,
   };
 }
 
-function createExpense(
-  userId: number,
-  groupId: number,
-  expense: Expense,
-  defaultSourceId: number
-): Promise<ApiMessage> {
-  return db.tx(async tx => {
+function createExpense(tx: IBaseProtocol<any>) {
+  return async (
+    userId: number,
+    groupId: number,
+    expense: Expense,
+    defaultSourceId: number
+  ): Promise<ApiMessage> => {
     expense = setDefaults(expense);
     log('Creating expense', expense);
     const sourceId = expense.sourceId || defaultSourceId;
@@ -275,7 +276,7 @@ function createExpense(
       division
     );
     return { status: 'OK', message: 'Expense created', expenseId: id };
-  });
+  };
 }
 
 function updateExpense(tx: IBaseProtocol<any>) {
@@ -379,12 +380,14 @@ export default {
   getDivision: getDivision(db),
   deleteById: (groupId: number, expenseId: number) =>
     db.tx(tx => deleteById(tx)(groupId, expenseId)),
-  create: createExpense,
+  create: createExpense(db),
   update: updateExpenseById,
   queryReceivers: queryReceivers(db),
   tx: {
+    deleteById,
     getById,
     insert,
+    create: createExpense,
     getDivision,
     countTotalBetween,
     hasUnconfirmedBefore,

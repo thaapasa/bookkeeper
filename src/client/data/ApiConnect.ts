@@ -9,10 +9,10 @@ import {
   ExpenseStatus,
   RecurringExpensePeriod,
   RecurringExpenseTarget,
-  TExpenseQuery,
   UserExpense,
   UserExpenseWithDetails,
 } from 'shared/types/Expense';
+import { ExpenseSplit } from 'shared/types/ExpenseSplit';
 import {
   Category,
   CategoryAndTotals,
@@ -23,13 +23,13 @@ import { FetchClient } from 'shared/util/FetchClient';
 import Money from 'shared/util/Money';
 import { filterTruthyProps } from 'shared/util/Objects';
 import { timeoutImmediate, toISODate } from 'shared/util/Time';
-import { uri } from 'client/util/UrlUtils';
+import { uri } from 'shared/util/UrlUtils';
 
 import { checkLoginState } from './Login';
 
 const log = debug('net:api-connect');
 
-const client = new FetchClient(() => fetch);
+const client = new FetchClient(fetch.bind(window));
 
 function mapExpense<T extends UserExpense | UserExpenseWithDetails>(e: T): T {
   e.userBenefit = Money.from(e.userBenefit, 0);
@@ -192,19 +192,30 @@ export class ApiConnect {
     return (
       await this.get<UserExpense[]>(
         `/api/expense/search`,
-        TExpenseQuery.encode(filterTruthyProps(query))
+        ExpenseQuery.encode(filterTruthyProps(query))
       )
     ).map(mapExpense);
   }
 
-  public getExpense(id: number | string): Promise<UserExpenseWithDetails> {
-    return this.get<UserExpenseWithDetails>(uri`/api/expense/${id}`).then(
-      mapExpense
+  public async getExpense(
+    id: number | string
+  ): Promise<UserExpenseWithDetails> {
+    return mapExpense(
+      await this.get<UserExpenseWithDetails>(uri`/api/expense/${id}`)
     );
   }
 
   public storeExpense(expense: ExpenseData): Promise<ApiMessage> {
     return this.put<ApiMessage>('/api/expense', expense);
+  }
+
+  public splitExpense(
+    id: number | string,
+    splits: ExpenseSplit[]
+  ): Promise<ApiMessage> {
+    return this.post<ApiMessage>(uri`/api/expense/${id}/split`, {
+      splits: splits.map(ExpenseSplit.encode),
+    });
   }
 
   public updateExpense(

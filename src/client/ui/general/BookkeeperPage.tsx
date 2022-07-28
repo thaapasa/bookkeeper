@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import styled, { createGlobalStyle } from 'styled-components';
 
 import { Session } from 'shared/types/Session';
+import { expenseDialogE, expenseSplitE } from 'client/data/State';
 import {
   categoryPagePath,
   categoryViewMonthPattern,
@@ -21,10 +22,12 @@ import DatePickerComponent from '../component/DatePickerComponent';
 import { AppLink, NavigationBar } from '../component/NavigationBar';
 import NotificationBar from '../component/NotificationBar';
 import TopBar from '../component/TopBar';
-import ExpenseDialog from '../expense/dialog/ExpenseDialogListener';
+import { ExpenseDialog } from '../expense/dialog/ExpenseDialog';
+import { createExpenseDialogListener } from '../expense/dialog/ExpenseDialogListener';
 import FrontpageView from '../expense/FrontpageView';
 import { NewExpenseView } from '../expense/NewExpenseView';
 import RoutedMonthView from '../expense/RoutedMonthView';
+import { ExpenseSplitDialog } from '../expense/split/ExpenseSplitDialog';
 import InfoView from '../info/InfoView';
 import SearchView from '../search/SearchView';
 import {
@@ -50,13 +53,24 @@ const appLinks: AppLink[] = [
   { label: 'Tiedot', path: infoPagePath, showInHeader: false },
 ];
 
+const ExpenseDialogBinder = createExpenseDialogListener(
+  ExpenseDialog,
+  expenseDialogE
+);
+
+const ExpenseSplitBinder = createExpenseDialogListener(
+  ExpenseSplitDialog,
+  expenseSplitE
+);
+
 export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
   const isMobileDevice = isMobileSize(windowSize);
   const className = getScreenSizeClassName(windowSize);
   return (
     <Page className="bookkeeper-page">
       <GlobalStyle />
-      <ExpenseDialog windowSize={windowSize} />
+      <ExpenseDialogBinder windowSize={windowSize} />
+      <ExpenseSplitBinder windowSize={windowSize} />
       <ConfirmationDialog />
       <Router>
         <ContentContainer>

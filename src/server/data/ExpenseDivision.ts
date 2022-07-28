@@ -2,10 +2,11 @@ import {
   Expense,
   ExpenseDivisionItem,
   ExpenseDivisionType,
-} from '../../shared/types/Expense';
-import { Source } from '../../shared/types/Session';
-import Money, { MoneyLike } from '../../shared/util/Money';
-import { negateDivision, splitByShares } from '../../shared/util/Splitter';
+} from 'shared/types/Expense';
+import { Source } from 'shared/types/Session';
+import Money, { MoneyLike } from 'shared/util/Money';
+import { negateDivision, splitByShares } from 'shared/util/Splitter';
+
 import { Validator } from '../util/Validator';
 
 interface ExpenseDivisionItemNoType {
@@ -25,9 +26,7 @@ function validateDivision(
   sum: MoneyLike,
   field: ExpenseDivisionType
 ) {
-  const calculated = items
-    .map(i => Money.from(i.sum))
-    .reduce((a, b) => a.plus(b), Money.zero);
+  const calculated = items.reduce((a, b) => a.plus(b.sum), Money.zero);
   if (!Money.from(sum).equals(calculated)) {
     throw new Validator.InvalidInputError(
       field,

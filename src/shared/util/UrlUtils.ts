@@ -15,6 +15,16 @@ export function reloadApp(path = '/') {
   document.location.href = `${path}?refresh=${Math.random()}`;
 }
 
+/**
+ * This is a string interpolator that automatically encode URI components.
+ * All variables used to construct the string are URL-encoded.
+ * This allows you to create properly formatted URLs (or URIs) with
+ * code like this:
+ *
+ * ```ts
+ * const path = uri`https://server.com/thing/${thingId}?param=${param}`
+ * ```
+ */
 export function uri(strings: TemplateStringsArray, ...keys: any[]) {
   let res = '';
   for (let i = 0; i < strings.length; ++i) {

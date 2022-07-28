@@ -40,6 +40,7 @@ import { ExpenseInfo } from '../details/ExpenseInfo';
 import { ReceiverField } from '../dialog/ReceiverField';
 import { expenseName } from '../ExpenseHelper';
 import { ExpenseFilterFunction } from './ExpenseFilterRow';
+import { SourceIcon, TextButton } from './ExpenseRowComponents';
 import {
   AvatarColumn,
   BalanceColumn,
@@ -50,7 +51,6 @@ import {
   RecurringExpenseIcon,
   Row,
   SourceColumn,
-  sourceWidth,
   SumColumn,
   ToolColumn,
   UnconfirmedIcon,
@@ -59,16 +59,6 @@ import {
 const log = debug('bookkeeper:expense-row');
 
 const emptyDivision: ExpenseDivisionItem[] = [];
-
-const TextButton = styled.button`
-  border: 0;
-  font-size: 13px;
-  outline: none;
-  background: none;
-  &:hover {
-    text-decoration: underline;
-  }
-`;
 
 export interface CommonExpenseRowProps {
   expense: UserExpense;
@@ -134,32 +124,6 @@ export class ExpenseRow extends React.Component<
     return cat.parentId
       ? [this.categoryLink(cat.parentId), ' - ', this.categoryLink(id)]
       : this.categoryLink(id);
-  }
-
-  private getSource() {
-    const source = this.props.source;
-    const content = source.image ? (
-      <SourceImage src={source.image} title={source.name} />
-    ) : source.abbreviation ? (
-      source.abbreviation
-    ) : (
-      source.name
-    );
-    const avatar = source.image ? source.image : undefined;
-    return (
-      <TextButton
-        key={source.id}
-        onClick={() =>
-          this.props.addFilter(
-            e => e.sourceId === source.id,
-            source.name,
-            avatar
-          )
-        }
-      >
-        {content}
-      </TextButton>
-    );
   }
 
   private updateExpense = async (data: Partial<UserExpense>) => {
@@ -259,11 +223,12 @@ export class ExpenseRow extends React.Component<
 
   private modifyExpense = async () => {
     const e = await apiConnect.getExpense(this.props.expense.id);
-    editExpense(e.id);
+    await editExpense(e.id);
   };
 
   public render() {
     const expense = this.props.expense;
+    const source = this.props.source;
     // const className = 'bk-table-row expense-row expense-item ' + expense.type + (expense.confirmed ? '' : ' unconfirmed');
     const style = {
       background: !expense.confirmed
@@ -321,7 +286,18 @@ export class ExpenseRow extends React.Component<
           <CategoryColumn>
             {this.fullCategoryLink(expense.categoryId)}
           </CategoryColumn>
-          <SourceColumn>{this.getSource()}</SourceColumn>
+          <SourceColumn>
+            <SourceIcon
+              source={source}
+              onClick={() =>
+                this.props.addFilter(
+                  e => e.sourceId === source.id,
+                  source.name,
+                  source.image ? source.image : undefined
+                )
+              }
+            />
+          </SourceColumn>
           <SumColumn className={expense.type}>
             <VCenterRow className="fill">
               <ExpenseTypeIcon
@@ -423,11 +399,6 @@ function weekDay(date: string, prev?: UserExpense | null) {
 const DateContainer = styled.div`
   position: relative;
   z-index: 1;
-`;
-
-const SourceImage = styled.img`
-  max-width: ${sourceWidth}px;
-  max-height: 34px;
 `;
 
 const OptionalIcons = styled.div`

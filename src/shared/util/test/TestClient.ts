@@ -1,11 +1,12 @@
 import fetch from 'node-fetch';
 
-import { Session } from '../../types/Session';
+import { Session } from 'shared/types/Session';
+
 import { FetchClient } from '../FetchClient';
 
 const baseUrl = 'http://localhost:3100';
 
-const client = new FetchClient(() => fetch as any, baseUrl);
+const client = new FetchClient(fetch as any, baseUrl);
 
 function authHeader(token: string): Record<string, string> {
   return { Authorization: `Bearer ${token}` };

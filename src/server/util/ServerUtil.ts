@@ -50,16 +50,11 @@ function handleError(res: Response) {
   return (e: any) => {
     log('Error', e);
     const data: ErrorInfo = {
+      ...(config.showErrorCause ? e : undefined),
       type: 'error',
       code: e.code ? e.code : 'INTERNAL_ERROR',
     };
     const status = typeof e.status === 'number' ? e.status : 500;
-    if (config.showErrorCause) {
-      data.cause = e.cause ? e.cause : e;
-    }
-    if (e.info) {
-      data.info = e.info;
-    }
     res.status(status).json(data);
   };
 }
@@ -71,7 +66,7 @@ export function processUnauthorizedRequest(
     log(req.method, req.url);
     try {
       const r = await handler(req, res);
-      await setNoCacheHeaders(res).json(r);
+      setNoCacheHeaders(res).json(r);
     } catch (e) {
       handleError(res)(e);
     }

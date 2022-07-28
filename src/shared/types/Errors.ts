@@ -24,7 +24,7 @@ export function emptyToError(errorType: any, p1?: any, p2?: any, p3?: any) {
   };
 }
 
-export class Error {
+export class BkError {
   public code: string;
   public cause: any;
   public status: number;
@@ -34,41 +34,48 @@ export class Error {
     this.cause = cause;
     this.status = status;
     this.data = data;
+    Object.setPrototypeOf(this, BkError.prototype);
   }
 }
 
-export class NotFoundError extends Error {
+export class NotFoundError extends BkError {
   constructor(code: string, name: string) {
     super(code, `${ucFirst(name)} not found`, 404);
+    Object.setPrototypeOf(this, NotFoundError.prototype);
   }
 }
 
-export class InvalidExpense extends Error {
+export class InvalidExpense extends BkError {
   constructor(message: string) {
     super('INVALID_EXPENSE', message, 400);
+    Object.setPrototypeOf(this, InvalidExpense.prototype);
   }
 }
 
-export class AuthenticationError extends Error {
+export class AuthenticationError extends BkError {
   constructor(code: string, cause: any, data?: any) {
     super(code, cause, 401, data);
+    Object.setPrototypeOf(this, AuthenticationError.prototype);
   }
 }
 
-export class InvalidInputError extends Error {
+export class InvalidInputError extends BkError {
   constructor(code: string, cause: string) {
     super(code, cause, 400);
+    Object.setPrototypeOf(this, InvalidInputError.prototype);
   }
 }
 
-export class TokenNotPresentError extends Error {
+export class TokenNotPresentError extends BkError {
   constructor() {
     super('TOKEN_MISSING', 'Authorization token missing', 401);
+    Object.setPrototypeOf(this, TokenNotPresentError.prototype);
   }
 }
 
-export class InvalidGroupError extends Error {
+export class InvalidGroupError extends BkError {
   constructor() {
     super('INVALID_GROUP', 'Group not selected or invalid group', 400);
+    Object.setPrototypeOf(this, InvalidGroupError.prototype);
   }
 }

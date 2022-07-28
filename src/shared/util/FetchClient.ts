@@ -1,10 +1,10 @@
 import debug from 'debug';
 
-import { AuthenticationError, Error } from '../types/Errors';
+import { AuthenticationError, BkError } from '../types/Errors';
 
 const log = debug('net:fetch-client');
 
-export type FetchType = () => (
+export type FetchType = (
   input: RequestInfo,
   init?: FixedRequestInit
 ) => Promise<Response>;
@@ -61,7 +61,7 @@ export class FetchClient {
         body: body ? JSON.stringify(body) : undefined,
         headers,
       };
-      const res = await this.fetch()(queryPath, options);
+      const res = await this.fetch(queryPath, options);
       log(`${method} ${queryPath}`, 'result', res.status);
       switch (res.status) {
         case 200:
@@ -73,15 +73,27 @@ export class FetchClient {
             await res.json()
           );
         default:
-          throw new Error(
-            'Error in fetch client',
-            await res.json(),
-            res.status
+          const data = await res.json();
+          log('Error received from API', data);
+          throw new BkError(
+            'code' in data ? data.code : 'ERROR',
+            `Error ${res.status} from ${method} ${path}`,
+            res.status,
+            data
           );
       }
-    } catch (e) {
+    } catch (e: any) {
+      if (e instanceof BkError) {
+        throw e;
+      }
       log('Error in fetch client:', e);
-      throw e;
+      const data = { ...e };
+      throw new BkError(
+        'code' in data ? data.code : 'ERROR',
+        'cause' in data ? data.cause : e.message,
+        'status' in data ? data.status : 500,
+        data
+      );
     }
   }
 
@@ -137,6 +149,6 @@ export class FetchClient {
     query?: Record<string, any>,
     headers?: Record<string, string>
   ): Promise<T> {
-    return this.req(path, { method: 'DELETE', query, headers });
+    return this.req(path, { method: 'DELETE', query, headers, body: data });
   }
 }

@@ -1,7 +1,8 @@
 import { IBaseProtocol } from 'pg-promise';
 
-import { AuthenticationError, NotFoundError } from '../../shared/types/Errors';
-import { Group, User } from '../../shared/types/Session';
+import { AuthenticationError, NotFoundError } from 'shared/types/Errors';
+import { Group, User } from 'shared/types/Session';
+
 import { db } from './Db';
 
 export type RawUserData = Record<string, any>;
