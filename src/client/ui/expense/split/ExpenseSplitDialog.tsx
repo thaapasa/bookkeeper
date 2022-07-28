@@ -13,11 +13,11 @@ import { SplitRow } from './SplitRow';
 
 export const ExpenseSplitDialog: React.FC<
   ExpenseDialogProps<ExpenseSplit[]>
-> = ({ original, onClose, windowSize, ...props }) => {
+> = ({ original, onClose, onExpensesUpdated, windowSize, ...props }) => {
   const isMobile = isMobileSize(windowSize);
 
   const { addRow, splits, validSplits, splitExpense, ...tools } =
-    useExpenseSplit(original, props.sourceMap, onClose);
+    useExpenseSplit(original, props.sourceMap, onClose, onExpensesUpdated);
 
   if (!original) {
     return null;

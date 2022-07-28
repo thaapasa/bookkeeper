@@ -5,6 +5,7 @@ import { MakeOptional } from 'shared/types/Common';
 import { UserExpenseWithDetails } from 'shared/types/Expense';
 import { ExpenseSplit } from 'shared/types/ExpenseSplit';
 import { IdProvider } from 'shared/util/IdProvider';
+import { toMoment } from 'shared/util/Time';
 import apiConnect from 'client/data/ApiConnect';
 
 import { ExpenseDialogProps } from '../dialog/ExpenseDialog';
@@ -28,7 +29,8 @@ type SourceMap = ExpenseDialogProps<any>['sourceMap'];
 export function useExpenseSplit(
   original: UserExpenseWithDetails | null,
   sourceMap: SourceMap,
-  onClose: (expense: ExpenseSplit[] | null) => void
+  onClose: ExpenseDialogProps<any>['onClose'],
+  onExpensesUpdated: ExpenseDialogProps<any>['onExpensesUpdated']
 ) {
   const [splits, setSplits] = React.useState<ExpenseSplitInEditor[]>([]);
 
@@ -70,6 +72,7 @@ export function useExpenseSplit(
       const finalized = finalizeSplits(original.type, splits, sourceMap);
       await apiConnect.splitExpense(original.id, finalized);
       onClose(finalized);
+      onExpensesUpdated(toMoment(original.date).toDate());
     }
   };
 
