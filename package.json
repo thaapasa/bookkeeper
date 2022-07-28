@@ -8,7 +8,7 @@
     "create-dev-db": "docker run -e POSTGRES_PASSWORD=postgres -p 15488:5432 --name bookkeeper-db -d postgres:14.3",
     "watch-client": "yarn update-revision client && react-scripts start",
     "watch-server": "yarn update-revision server && yarn migrate && nodemon",
-    "test-client": "react-scripts test",
+    "test-client": "react-scripts test --runInBand",
     "test": "yarn test-client",
     "build-client": "react-scripts build",
     "build-server": "tsc -p ./tsconfig.prod.json",
