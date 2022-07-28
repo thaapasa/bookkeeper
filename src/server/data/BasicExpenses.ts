@@ -246,13 +246,13 @@ RETURNING id`,
   };
 }
 
-function createExpense(
-  userId: number,
-  groupId: number,
-  expense: Expense,
-  defaultSourceId: number
-): Promise<ApiMessage> {
-  return db.tx(async tx => {
+function createExpense(tx: IBaseProtocol<any>) {
+  return async (
+    userId: number,
+    groupId: number,
+    expense: Expense,
+    defaultSourceId: number
+  ): Promise<ApiMessage> => {
     expense = setDefaults(expense);
     log('Creating expense', expense);
     const sourceId = expense.sourceId || defaultSourceId;
@@ -276,7 +276,7 @@ function createExpense(
       division
     );
     return { status: 'OK', message: 'Expense created', expenseId: id };
-  });
+  };
 }
 
 function updateExpense(tx: IBaseProtocol<any>) {
@@ -380,12 +380,14 @@ export default {
   getDivision: getDivision(db),
   deleteById: (groupId: number, expenseId: number) =>
     db.tx(tx => deleteById(tx)(groupId, expenseId)),
-  create: createExpense,
+  create: createExpense(db),
   update: updateExpenseById,
   queryReceivers: queryReceivers(db),
   tx: {
+    deleteById,
     getById,
     insert,
+    create: createExpense,
     getDivision,
     countTotalBetween,
     hasUnconfirmedBefore,

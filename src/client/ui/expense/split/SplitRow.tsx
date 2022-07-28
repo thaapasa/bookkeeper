@@ -101,7 +101,7 @@ const SplitEditor: React.FC<SplitRowProps & { close: () => void }> = ({
     isDefined(sourceId) &&
     isDefined(catId) &&
     benefit.length > 0;
-  const validSplit: ExpenseSplit | undefined = allValid
+  const validSplit: ExpenseSplitInEditor | undefined = allValid
     ? {
         title,
         sum: Money.from(sum),

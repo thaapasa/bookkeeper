@@ -1,13 +1,15 @@
 import debug from 'debug';
+import { IBaseProtocol } from 'pg-promise';
 
 import { ApiMessage } from 'shared/types/Api';
 import { Error } from 'shared/types/Errors';
-import { UserExpense } from 'shared/types/Expense';
+import { Expense } from 'shared/types/Expense';
 import { ExpenseSplit } from 'shared/types/ExpenseSplit';
 import Money from 'shared/util/Money';
 
 import basic from './BasicExpenses';
 import { db } from './Db';
+import { toBaseExpense } from './ExpenseUtils';
 
 const log = debug('bookkeeper:api:expenses');
 
@@ -18,14 +20,36 @@ function splitExpense(
   splits: ExpenseSplit[]
 ) {
   return db.tx(async (tx): Promise<ApiMessage> => {
-    const e = await basic.tx.getById(tx)(groupId, userId, expenseId);
-    await checkSplits(splits, e);
-    log(`Splitting`, e, 'to', splits);
-    return { status: 'OK', message: `Yeah ${splits.length}` };
+    const expense = toBaseExpense(
+      await basic.tx.getById(tx)(groupId, userId, expenseId)
+    );
+    await checkSplits(splits, expense);
+    log(`Splitting`, expense, 'to', splits);
+    await Promise.all(splits.map(s => createSplit(tx, expense, s)));
+    await basic.tx.deleteById(tx)(groupId, expenseId);
+    return {
+      status: 'OK',
+      message: `Splitted expense ${expenseId} into ${splits.length} parts`,
+    };
   });
 }
 
-async function checkSplits(splits: ExpenseSplit[], expense: UserExpense) {
+async function createSplit(
+  tx: IBaseProtocol<any>,
+  expense: Expense,
+  split: ExpenseSplit
+) {
+  const splitted = { ...expense, ...split };
+  log(`Creating new expense`, splitted);
+  await basic.tx.create(tx)(
+    expense.userId,
+    expense.groupId,
+    splitted,
+    expense.groupId
+  );
+}
+
+async function checkSplits(splits: ExpenseSplit[], expense: Expense) {
   if (splits.length < 2) {
     throw new Error(
       'INVALID_SPLIT',

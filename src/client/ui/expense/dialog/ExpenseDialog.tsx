@@ -277,8 +277,9 @@ export class ExpenseDialog extends React.Component<
       .map(({ allValid, expense }) =>
         allValid
           ? calculateDivision(
-              expense,
+              expense.type,
               expense.sum,
+              expense.benefit,
               this.props.sourceMap[expense.sourceId]
             )
           : null
@@ -329,8 +330,9 @@ export class ExpenseDialog extends React.Component<
     log(createNew ? 'Create new expense' : 'save expense', expense);
     const sum = Money.from(expense.sum);
     const division = calculateDivision(
-      expense,
+      expense.type,
       sum,
+      expense.benefit,
       this.props.sourceMap[expense.sourceId]
     );
     const data: ExpenseData = {

@@ -1,7 +1,11 @@
 import { isDefined } from 'shared/types/Common';
+import { ExpenseType } from 'shared/types/Expense';
 import { ExpenseSplit } from 'shared/types/ExpenseSplit';
+import { Source } from 'shared/types/Session';
 import Money, { MoneyLike } from 'shared/util/Money';
+import { requireDefined } from 'shared/util/Objects';
 
+import { calculateDivision } from '../dialog/ExpenseDialogData';
 import { ExpenseSplitInEditor } from './ExpenseSplit.hooks';
 
 /**
@@ -34,7 +38,7 @@ export function calculateSplits(
 
 export function isSplitComplete(
   split: ExpenseSplitInEditor
-): split is ExpenseSplit {
+): split is ExpenseSplitInEditor {
   return (
     Money.from(split.sum).gt(0) &&
     split.title !== '' &&
@@ -42,4 +46,32 @@ export function isSplitComplete(
     isDefined(split.categoryId) &&
     isDefined(split.sourceId)
   );
+}
+
+export function finalizeSplits(
+  type: ExpenseType,
+  splits: ExpenseSplitInEditor[],
+  sourceMap: Record<number, Source>
+): ExpenseSplit[] {
+  return splits.map(s =>
+    finalizeSplit(
+      type,
+      s,
+      requireDefined(sourceMap[s.sourceId ?? 0], 'Expense source')
+    )
+  );
+}
+
+export function finalizeSplit(
+  type: ExpenseType,
+  split: ExpenseSplitInEditor,
+  source: Source
+): ExpenseSplit {
+  const { benefit, key, ...rest } = split;
+  return {
+    ...rest,
+    categoryId: requireDefined(split.categoryId, 'Category id'),
+    sourceId: requireDefined(split.sourceId, 'Source id'),
+    division: calculateDivision(type, split.sum, benefit, source),
+  };
 }

@@ -9,14 +9,17 @@ import apiConnect from 'client/data/ApiConnect';
 
 import { ExpenseDialogProps } from '../dialog/ExpenseDialog';
 import { getBenefitorsForExpense } from '../dialog/ExpenseDialogData';
-import { calculateSplits, isSplitComplete } from './SplitCalc';
+import { calculateSplits, finalizeSplits, isSplitComplete } from './SplitCalc';
 
 const log = debug('ui:expense-split');
 
-export type ExpenseSplitInEditor = MakeOptional<
-  ExpenseSplit,
-  'categoryId' | 'sourceId'
->;
+export type ExpenseSplitInEditor = Omit<
+  MakeOptional<ExpenseSplit, 'categoryId' | 'sourceId'>,
+  'division'
+> & {
+  benefit: number[];
+  key: string;
+};
 
 const KeyProvider = new IdProvider();
 
@@ -38,7 +41,7 @@ export function useExpenseSplit(
   }, [setSplits, splits, original, sourceMap]);
 
   const saveSplit = React.useCallback(
-    (i: number, split: ExpenseSplit) => {
+    (i: number, split: ExpenseSplitInEditor) => {
       log('Saving split', split);
       const newSplits = [...splits];
       newSplits[i] = split;
@@ -64,8 +67,9 @@ export function useExpenseSplit(
 
   const splitExpense = async () => {
     if (original && validSplits) {
-      await apiConnect.splitExpense(original.id, splits);
-      onClose(splits);
+      const finalized = finalizeSplits(original.type, splits, sourceMap);
+      await apiConnect.splitExpense(original.id, finalized);
+      onClose(finalized);
     }
   };
 

@@ -4,7 +4,7 @@ import {
   Expense,
   ExpenseDivision,
   ExpenseDivisionType,
-  ExpenseInEditor,
+  ExpenseType,
 } from 'shared/types/Expense';
 import { Source } from 'shared/types/Session';
 import { sortAndCompareElements } from 'shared/util/Arrays';
@@ -47,18 +47,19 @@ export function getBenefitorsFromDivision(
 }
 
 export function calculateDivision(
-  expense: ExpenseInEditor,
+  type: ExpenseType,
   sum: MoneyLike,
+  benefit: number[],
   source: Source
 ): ExpenseDivision {
-  switch (expense.type) {
+  switch (type) {
     case 'expense': {
-      const benefit = splitByShares(
+      const ben = splitByShares(
         sum,
-        expense.benefit.map(id => ({ userId: id, share: 1 }))
+        benefit.map(id => ({ userId: id, share: 1 }))
       );
-      const cost = calculateDivisionCounterpart(sum, source, benefit, false);
-      return benefit
+      const cost = calculateDivisionCounterpart(sum, source, ben, false);
+      return ben
         .map(itemTypeFixers.benefit)
         .concat(cost.map(itemTypeFixers.cost));
     }
@@ -66,7 +67,7 @@ export function calculateDivision(
       const split = negateDivision(
         splitByShares(
           sum,
-          expense.benefit.map(id => ({ userId: id, share: 1 }))
+          benefit.map(id => ({ userId: id, share: 1 }))
         )
       );
       const income = calculateDivisionCounterpart(sum, source, split, true);
@@ -77,7 +78,7 @@ export function calculateDivision(
     case 'transfer': {
       const transferee = splitByShares(
         sum,
-        expense.benefit.map(id => ({ userId: id, share: 1 }))
+        benefit.map(id => ({ userId: id, share: 1 }))
       );
       const transferor = calculateDivisionCounterpart(
         sum,
@@ -90,7 +91,7 @@ export function calculateDivision(
         .concat(transferor.map(itemTypeFixers.transferor));
     }
     default:
-      throw new Error('Unknown expense type ' + expense.type);
+      throw new Error('Unknown expense type ' + type);
   }
 }
 

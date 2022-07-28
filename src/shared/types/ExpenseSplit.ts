@@ -2,7 +2,7 @@ import * as io from 'io-ts';
 
 import { MoneyLike } from 'shared/util/Money';
 
-import { NonEmptyArray } from './Validator';
+import { ExpenseDivision } from './Expense';
 
 export const ExpenseSplit = io.type(
   {
@@ -10,8 +10,7 @@ export const ExpenseSplit = io.type(
     sourceId: io.number,
     title: io.string,
     sum: MoneyLike,
-    key: io.string,
-    benefit: NonEmptyArray(io.number),
+    division: ExpenseDivision,
   },
   'ExpenseSplit'
 );

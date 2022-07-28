@@ -73,7 +73,6 @@ const SPLIT_DATA: ExpenseSplit = {
   sourceId: 1,
   categoryId: 1,
   sum: '10.00',
-  benefit: [1],
-  key: 's-1',
+  division: [{ sum: '10.00', type: 'benefit', userId: 1 }],
   title: 'Osa',
 };
