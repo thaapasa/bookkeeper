@@ -29,7 +29,7 @@ import { checkLoginState } from './Login';
 
 const log = debug('net:api-connect');
 
-const client = new FetchClient(() => fetch);
+const client = new FetchClient(fetch.bind(window));
 
 function mapExpense<T extends UserExpense | UserExpenseWithDetails>(e: T): T {
   e.userBenefit = Money.from(e.userBenefit, 0);

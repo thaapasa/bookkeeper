@@ -10,7 +10,6 @@ module.exports = {
     sourceType: 'module',
   },
   plugins: ['prettier', 'simple-import-sort', 'unused-imports'],
-  ecmaFeatures: { destructuring: true },
   rules: {
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',

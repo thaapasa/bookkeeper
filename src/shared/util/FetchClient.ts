@@ -4,7 +4,7 @@ import { AuthenticationError, BkError } from '../types/Errors';
 
 const log = debug('net:fetch-client');
 
-export type FetchType = () => (
+export type FetchType = (
   input: RequestInfo,
   init?: FixedRequestInit
 ) => Promise<Response>;
@@ -61,7 +61,7 @@ export class FetchClient {
         body: body ? JSON.stringify(body) : undefined,
         headers,
       };
-      const res = await this.fetch()(queryPath, options);
+      const res = await this.fetch(queryPath, options);
       log(`${method} ${queryPath}`, 'result', res.status);
       switch (res.status) {
         case 200:
@@ -74,6 +74,7 @@ export class FetchClient {
           );
         default:
           const data = await res.json();
+          log('Error received from API', data);
           throw new BkError(
             'code' in data ? data.code : 'ERROR',
             `Error ${res.status} from ${method} ${path}`,
