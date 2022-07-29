@@ -140,6 +140,9 @@ const MobileTools = styled.div`
   ${media.mobile`
     display: flex;
     flex-direction: row;
+    position: absolute;
+    right: 0;
+    top: 40px;
   `}
 `;
 
