@@ -2,21 +2,14 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import { colorScheme } from 'client/ui/Colors';
-import { media } from 'client/ui/Styles';
 
 import { AllColumns, Row } from './ExpenseTableLayout';
 
 export const WeekHeaderRow: React.FC<{ week: string }> = ({ week }) => (
-  <WeekRow>
+  <Row>
     <WeekData>Viikko {week}</WeekData>
-  </WeekRow>
+  </Row>
 );
-
-const WeekRow = styled(Row)`
-  ${media.mobile`
-    display: none;
-  `}
-`;
 
 const WeekData = styled(AllColumns)`
   padding: 16px 4px 8px 4px;
