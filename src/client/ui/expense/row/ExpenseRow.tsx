@@ -243,7 +243,7 @@ export class ExpenseRow extends React.Component<
       style.background = colors.income;
     }
     return (
-      <React.Fragment>
+      <>
         <Row>
           <DateColumn onClick={this.editDate}>
             {expense.recurringExpenseId ? <RecurringExpenseIcon /> : null}
@@ -347,7 +347,7 @@ export class ExpenseRow extends React.Component<
           </ToolColumn>
         </Row>
         {this.renderDetails()}
-      </React.Fragment>
+      </>
     );
   }
 

@@ -9,12 +9,14 @@ type ListDecoratorProps<T, R> = {
   itemRenderer: React.ComponentType<{ item: T; prev: T | null } & R>;
   /** Component that renders the separator between items */
   separator?: React.ComponentType<{ prev: T | null; next: T | null }>;
+  itemKey?: (item: T) => string;
 } & Omit<R, 'item' | 'prev'>;
 
 export const ListDecorator = function <T, R>({
   items,
   separator,
   itemRenderer,
+  itemKey,
   ...rest
 }: ListDecoratorProps<T, R>) {
   const ItemRenderer = itemRenderer;
@@ -25,12 +27,12 @@ export const ListDecorator = function <T, R>({
         <Separator
           prev={idx > 0 ? items[idx - 1] : null}
           next={item}
-          key={`separator-${idx}`}
+          key={`separator-${itemKey?.(item) ?? idx}`}
         />
       ) : null,
       <ItemRenderer
         item={item}
-        key={`item-${idx}`}
+        key={`item-${itemKey?.(item) ?? idx}`}
         prev={idx > 0 ? items[idx - 1] : null}
         {...(rest as any)}
       />,

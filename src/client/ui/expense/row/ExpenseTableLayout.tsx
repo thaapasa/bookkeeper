@@ -66,6 +66,10 @@ export const ExpenseTableLayout = styled.table`
   &.padding {
     padding: 0 16px;
   }
+
+  &.loading > tbody {
+    filter: opacity(40%);
+  }
 `;
 
 export const Row = styled.tr`

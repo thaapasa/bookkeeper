@@ -64,7 +64,6 @@ export default class MonthView extends React.PureComponent<
     });
     this.setState({
       loading: true,
-      expenses: [],
       startStatus: zeroStatus,
       endStatus: zeroStatus,
       monthStatus: zeroStatus,

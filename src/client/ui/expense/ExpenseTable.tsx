@@ -126,7 +126,7 @@ class ExpenseTable extends React.Component<
   }
 
   private renderExpenseRows() {
-    if (this.props.loading) {
+    if (this.props.loading && this.props.expenses.length < 1) {
       return <LoadingIndicator />;
     }
     const filtered = this.getFilteredExpenses();
@@ -150,6 +150,7 @@ class ExpenseTable extends React.Component<
           addFilter={this.addFilter}
           onUpdated={this.onUpdateExpense}
           separator={ExpenseRowSeparator}
+          itemKey={expenseToKey}
         />
       </>
     );
@@ -159,7 +160,7 @@ class ExpenseTable extends React.Component<
     return (
       <PageContentContainer>
         <ExpenseArea>
-          <ExpenseTableLayout>
+          <ExpenseTableLayout className={this.props.loading ? 'loading' : ''}>
             <thead>
               <ExpenseHeader />
               <ExpenseFilterRow
@@ -217,3 +218,7 @@ const ExpenseFiller = styled.div`
   flex: 1;
   background-color: ${colorScheme.gray.light};
 `;
+
+function expenseToKey(e: Expense) {
+  return String(e.id);
+}
