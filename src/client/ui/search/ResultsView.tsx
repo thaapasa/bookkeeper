@@ -45,14 +45,12 @@ const ResultsContents: React.FC<ResultsProps> = ({ results, ...rest }) => {
     return <Info>Ei tuloksia, tarkista hakuehdot</Info>;
   }
   const years = typedKeys(resultsByYears);
-  return years.length > 1 ? (
+  return (
     <>
       {years.map(y => (
         <ExpenseYear key={y} year={y} results={resultsByYears[y]} {...rest} />
       ))}
     </>
-  ) : (
-    <ExpenseList results={results} {...rest} />
   );
 };
 
