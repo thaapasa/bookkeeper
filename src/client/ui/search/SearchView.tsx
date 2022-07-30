@@ -5,6 +5,7 @@ import * as React from 'react';
 import { ExpenseQuery, UserExpense } from 'shared/types/Expense';
 import { Category, Session } from 'shared/types/Session';
 import apiConnect from 'client/data/ApiConnect';
+import { AsyncData, UnitializedData } from 'client/data/AsyncData';
 import {
   CategoryDataSource,
   categoryDataSourceP,
@@ -12,11 +13,11 @@ import {
   UserDataProps,
 } from 'client/data/Categories';
 import { validSessionE } from 'client/data/Login';
-import { needUpdateE } from 'client/data/State';
-import { unsubscribeAll, Unsubscriber } from 'client/util/ClientUtil';
 
 import { connect } from '../component/BaconConnect';
 import { PageContentContainer } from '../Styles';
+import { usePersistentMemo } from '../utils/usePersistentMemo';
+import { useWhenMounted } from '../utils/useWhenMounted';
 import { QueryView } from './QueryView';
 import { ResultsView } from './ResultsView';
 
@@ -28,12 +29,6 @@ interface SearchViewProps {
   categorySource: CategoryDataSource[];
 }
 
-interface SearchViewState {
-  isSearching: boolean;
-  results: UserExpense[];
-  query?: ExpenseQuery;
-}
-
 function isEmptyQuery(q: ExpenseQuery) {
   const hasCategory =
     typeof q.categoryId === 'number' ||
@@ -41,20 +36,26 @@ function isEmptyQuery(q: ExpenseQuery) {
   return !q.search && !hasCategory && !q.receiver;
 }
 
-class SearchView extends React.Component<SearchViewProps, SearchViewState> {
-  public state: SearchViewState = {
-    isSearching: false,
-    results: [],
-  };
+const SearchView: React.FC<SearchViewProps> = ({
+  userData,
+  session,
+  categorySource,
+}) => {
+  const [results, setResults] =
+    React.useState<AsyncData<UserExpense[]>>(UnitializedData);
 
-  private searchBus = new B.Bus<ExpenseQuery>();
-  private repeatSearchBus = new B.Bus<true>();
-  private unsub: Unsubscriber[] = [];
-  private queryRef = React.createRef<QueryView>();
+  log('Current results', results);
 
-  componentDidMount() {
-    const resultsE = this.searchBus
-      .sampledBy(B.mergeAll<any>(this.searchBus, this.repeatSearchBus))
+  const searchBus = usePersistentMemo(() => new B.Bus<ExpenseQuery>(), []);
+  const repeatSearchBus = usePersistentMemo(() => new B.Bus<true>(), []);
+
+  // We can't use React.useEffect() here because it is run too late
+  // (after initial render, and after the query view submits the query).
+  // Thus, use this custom hook instead. It will run the setup code during the first
+  // render (and unsubscribe when this component unmounts).
+  useWhenMounted(() => {
+    const resultsE = searchBus
+      .sampledBy(B.mergeAll<any>(searchBus, repeatSearchBus))
       .flatMapLatest(query =>
         isEmptyQuery(query)
           ? B.once([])
@@ -65,62 +66,52 @@ class SearchView extends React.Component<SearchViewProps, SearchViewState> {
               })
             )
       );
-    this.unsub.push(resultsE.onValue(this.onResults));
-    this.unsub.push(resultsE.onError(this.onError));
-    this.unsub.push(needUpdateE.onValue(this.onRepeatSearch));
-  }
+    const unsubs = [
+      resultsE.onValue(value => setResults({ type: 'loaded', value })),
+      resultsE.onError(error => setResults({ type: 'error', error })),
+    ];
+    return () => unsubs.forEach(u => u());
+  }, [searchBus, repeatSearchBus, setResults]);
 
-  componentWillUnmount() {
-    unsubscribeAll(this.unsub);
-  }
+  const onSearch = React.useCallback(
+    (query: ExpenseQuery) => {
+      log('Searching for', query);
+      setResults({ type: 'loading' });
+      searchBus.push(query);
+    },
+    [setResults, searchBus]
+  );
 
-  public render() {
-    return (
-      <PageContentContainer>
-        <QueryView
-          ref={this.queryRef}
-          categoryMap={this.props.userData.categoryMap}
-          categorySource={this.props.categorySource}
-          onSearch={this.onSearch}
-          isSearching={this.state.isSearching}
-          user={this.props.session.user}
-        />
-        <ResultsView
-          results={this.state.results}
-          onUpdate={this.onRepeatSearch}
-          onSelectCategory={this.onAddCategoryToSearch}
-        />
-      </PageContentContainer>
-    );
-  }
-
-  private onRepeatSearch = () => {
+  const onRepeatSearch = React.useCallback(() => {
     log('Repeating search');
-    this.repeatSearchBus.push(true);
-  };
+    repeatSearchBus.push(true);
+  }, [repeatSearchBus]);
 
-  private onSearch = (query: ExpenseQuery) => {
-    log('Searching for', query);
-    this.setState({ isSearching: true });
-    this.searchBus.push(query);
-  };
+  const queryRef = React.useRef<QueryView>(null);
 
-  private onAddCategoryToSearch = (cat: Category) => {
-    if (this.queryRef.current) {
-      this.queryRef.current.addCategory(cat);
-    }
-  };
+  const onAddCategoryToSearch = React.useCallback(
+    (cat: Category) => queryRef.current?.addCategory(cat),
+    [queryRef]
+  );
 
-  private onResults = (results: UserExpense[]) => {
-    log('Received results', results);
-    this.setState({ results, isSearching: false });
-  };
-
-  private onError = (error: any) => {
-    log('Got error from search:', error);
-    this.setState({ results: [], isSearching: false });
-  };
-}
+  return (
+    <PageContentContainer>
+      <QueryView
+        ref={queryRef}
+        categoryMap={userData.categoryMap}
+        categorySource={categorySource}
+        onSearch={onSearch}
+        isSearching={results.type === 'loading'}
+        user={session.user}
+      />
+      <ResultsView
+        results={results.type === 'loaded' ? results.value : []}
+        onUpdate={onRepeatSearch}
+        onSelectCategory={onAddCategoryToSearch}
+      />
+    </PageContentContainer>
+  );
+};
 
 export default connect(
   B.combineTemplate({
