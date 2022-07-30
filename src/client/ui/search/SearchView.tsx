@@ -112,6 +112,7 @@ const SearchView: React.FC<
         onSearch={onSearch}
         isSearching={results.type === 'loading'}
         user={session.user}
+        {...match.params}
       />
       <ResultsView
         results={results.type === 'loaded' ? results.value : []}

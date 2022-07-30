@@ -27,7 +27,7 @@ import { KeyCodes } from 'client/util/Io';
 
 import { gray, secondaryColors } from '../Colors';
 import { AutoComplete } from '../component/AutoComplete';
-import { toYearRange } from '../component/daterange/Common';
+import { parseMonthRange, toYearRange } from '../component/daterange/Common';
 import { DateRangeSelector } from '../component/daterange/DateRangeSelector';
 import { Delete, Search } from '../Icons';
 
@@ -37,6 +37,8 @@ interface QueryViewProps {
   onSearch: (query: ExpenseQuery) => void;
   isSearching: boolean;
   user: User;
+  year?: string;
+  month?: string;
 }
 
 interface CategorySuggestion {
@@ -136,6 +138,17 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
     }
     if (params && params.kaikki) {
       setImmediate(() => this.dateRangeBus.push(undefined));
+    }
+  }
+
+  componentDidUpdate(prevProps: QueryViewProps) {
+    if (this.props.month && prevProps.month !== this.props.month) {
+      // Browsed to month from props
+      this.selectDateRange(parseMonthRange(this.props.month));
+    }
+    if (this.props.year && prevProps.year !== this.props.year) {
+      // Browsed to year from props
+      this.selectDateRange(toYearRange(this.props.year));
     }
   }
 

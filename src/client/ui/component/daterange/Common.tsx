@@ -39,6 +39,15 @@ export function toMonthRange(
   };
 }
 
+export function parseMonthRange(monthInput: string): TypedDateRange {
+  const m = toMoment(monthInput, 'YYYY-M');
+  return {
+    type: 'month',
+    start: m.startOf('month').toDate(),
+    end: m.endOf('month').toDate(),
+  };
+}
+
 export function toYearRange(year: string | number): TypedDateRange {
   const m = toMoment(year, 'YYYY');
   return {
