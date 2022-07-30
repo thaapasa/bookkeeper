@@ -24,74 +24,70 @@ interface ResultsProps {
   userData: UserDataProps;
 }
 
-class ResultsViewImpl extends React.Component<ResultsProps> {
-  render() {
-    return (
-      <ResultsArea>
-        <Header>Hakutulokset</Header>
-        {this.renderResults()}
-        {this.hasResults ? <TotalsView results={this.props.results} /> : null}
-      </ResultsArea>
-    );
-  }
+const ResultsViewImpl: React.FC<ResultsProps> = ({ results, ...rest }) => {
+  const hasResults = results && results.length > 0;
+  return (
+    <ResultsArea>
+      <Header>Hakutulokset</Header>
+      <ResultsContents results={results} {...rest} />
+      {hasResults ? <TotalsView results={results} /> : null}
+    </ResultsArea>
+  );
+};
 
-  get hasResults(): boolean {
-    return this.props.results && this.props.results.length > 0;
-  }
-
-  get hasResultsFromPreviousYears(): boolean {
-    const today = toMoment();
-    return (
-      this.props.results.find(r => !today.isSame(r.date, 'year')) !== undefined
-    );
-  }
-
-  get resultsByYears(): Record<string, UserExpense[]> | undefined {
-    return this.props.results && this.props.results.length > 0
-      ? groupBy(e => String(toMoment(e.date).year()), this.props.results)
+const ResultsContents: React.FC<ResultsProps> = ({ results, ...rest }) => {
+  const resultsByYears: Record<string, UserExpense[]> | undefined =
+    results && results.length > 0
+      ? groupBy(e => String(toMoment(e.date).year()), results)
       : undefined;
-  }
 
-  private renderResults() {
-    const results = this.resultsByYears;
-    if (!results) {
-      return <Info>Ei tuloksia, tarkista hakuehdot</Info>;
-    }
-    const years = typedKeys(results);
-    const showYears = years.length > 1;
-    return showYears
-      ? years.map(y => this.renderYear(y, results[y]))
-      : this.renderExpenses(results[years[0]]);
+  if (!resultsByYears) {
+    return <Info>Ei tuloksia, tarkista hakuehdot</Info>;
   }
+  const years = typedKeys(resultsByYears);
+  return years.length > 1 ? (
+    <>
+      {years.map(y => (
+        <ExpenseYear key={y} year={y} results={resultsByYears[y]} {...rest} />
+      ))}
+    </>
+  ) : (
+    <ExpenseList results={results} {...rest} />
+  );
+};
 
-  private renderYear(year: string, expenses: UserExpense[]) {
-    return (
-      <React.Fragment key={year}>
-        <YearHeader year={year} expenses={expenses} />
-        {this.renderExpenses(expenses)}
-      </React.Fragment>
-    );
-  }
+const ExpenseYear: React.FC<ResultsProps & { year: string }> = ({
+  results,
+  year,
+  ...rest
+}) => (
+  <>
+    <YearHeader year={year} expenses={results} />
+    <ExpenseList results={results} {...rest} />
+  </>
+);
 
-  private renderExpenses(expenses: UserExpense[]) {
-    return (
-      <ExpenseTableLayout className="padding">
-        <tbody>
-          {expenses.map(e => (
-            <ExpenseRow
-              key={e.id}
-              expense={e}
-              onUpdated={this.props.onUpdate}
-              addFilter={noop}
-              selectCategory={this.props.onSelectCategory}
-              userData={this.props.userData}
-            />
-          ))}
-        </tbody>
-      </ExpenseTableLayout>
-    );
-  }
-}
+const ExpenseList: React.FC<ResultsProps> = ({
+  results,
+  onUpdate,
+  onSelectCategory,
+  userData,
+}) => (
+  <ExpenseTableLayout className="padding">
+    <tbody>
+      {results.map(e => (
+        <ExpenseRow
+          key={e.id}
+          expense={e}
+          onUpdated={onUpdate}
+          addFilter={noop}
+          selectCategory={onSelectCategory}
+          userData={userData}
+        />
+      ))}
+    </tbody>
+  </ExpenseTableLayout>
+);
 
 export const ResultsView = connect(B.combineTemplate({ userData: userDataE }))(
   ResultsViewImpl
