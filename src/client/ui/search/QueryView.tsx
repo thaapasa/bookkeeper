@@ -137,17 +137,24 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
       this.inputBus.push(params.hae);
     }
     if (params && params.kaikki) {
-      setImmediate(() => this.dateRangeBus.push(undefined));
+      setImmediate(() => this.selectDateRange(undefined));
+    } else {
+      if (this.props.month) {
+        const r = parseMonthRange(this.props.month);
+        setImmediate(() => this.selectDateRange(r));
+      }
+      if (this.props.year) {
+        const r = toYearRange(this.props.year);
+        setImmediate(() => this.selectDateRange(r));
+      }
     }
   }
 
   componentDidUpdate(prevProps: QueryViewProps) {
     if (this.props.month && prevProps.month !== this.props.month) {
-      // Browsed to month from props
       this.selectDateRange(parseMonthRange(this.props.month));
     }
     if (this.props.year && prevProps.year !== this.props.year) {
-      // Browsed to year from props
       this.selectDateRange(toYearRange(this.props.year));
     }
   }
