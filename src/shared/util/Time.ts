@@ -141,6 +141,13 @@ export function monthRange(date: DateLike): TypedDateRange {
   return { start, end, type: 'month' };
 }
 
+export function toDateRange(start: DateLike, end: DateLike): TypedDateRange {
+  const s = toMoment(start);
+  if (s.isSame(end, 'month')) return monthRange(s);
+  if (s.isSame(end, 'year')) return yearRange(s);
+  return { type: 'custom', start: s.toDate(), end: toMoment(end).toDate() };
+}
+
 export function isSameMonth(a: DateLike, b: DateLike) {
   const am = toMoment(a);
   const bm = toMoment(b);

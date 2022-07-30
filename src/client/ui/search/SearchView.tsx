@@ -1,9 +1,11 @@
 import * as B from 'baconjs';
 import debug from 'debug';
 import * as React from 'react';
+import { RouteComponentProps } from 'react-router';
 
 import { ExpenseQuery, UserExpense } from 'shared/types/Expense';
 import { Category, Session } from 'shared/types/Session';
+import { toDateRange } from 'shared/util/Time';
 import apiConnect from 'client/data/ApiConnect';
 import { AsyncData, UnitializedData } from 'client/data/AsyncData';
 import {
@@ -13,6 +15,8 @@ import {
   UserDataProps,
 } from 'client/data/Categories';
 import { validSessionE } from 'client/data/Login';
+import { navigationBus } from 'client/data/State';
+import { searchPagePath } from 'client/util/Links';
 
 import { connect } from '../component/BaconConnect';
 import { PageContentContainer } from '../Styles';
@@ -36,18 +40,16 @@ function isEmptyQuery(q: ExpenseQuery) {
   return !q.search && !hasCategory && !q.receiver;
 }
 
-const SearchView: React.FC<SearchViewProps> = ({
-  userData,
-  session,
-  categorySource,
-}) => {
+const SearchView: React.FC<
+  RouteComponentProps<{ year?: string; month?: string }> & SearchViewProps
+> = ({ userData, session, categorySource, match }) => {
   const [results, setResults] =
     React.useState<AsyncData<UserExpense[]>>(UnitializedData);
 
-  log('Current results', results);
-
   const searchBus = usePersistentMemo(() => new B.Bus<ExpenseQuery>(), []);
   const repeatSearchBus = usePersistentMemo(() => new B.Bus<true>(), []);
+
+  log(`Param year`, match.params.year, `month`, match.params.month);
 
   // We can't use React.useEffect() here because it is run too late
   // (after initial render, and after the query view submits the query).
@@ -77,6 +79,13 @@ const SearchView: React.FC<SearchViewProps> = ({
     (query: ExpenseQuery) => {
       log('Searching for', query);
       setResults({ type: 'loading' });
+      navigationBus.push({
+        pathPrefix: searchPagePath,
+        dateRange: toDateRange(
+          query.startDate ?? new Date(),
+          query.endDate ?? new Date()
+        ),
+      });
       searchBus.push(query);
     },
     [setResults, searchBus]

@@ -94,6 +94,14 @@ export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
               />
               <Route path={shortcutsPage} component={ShortcutsView} />
               <Route path={categoryPagePath} component={RoutedCategoryView} />
+              <Route
+                path={`${searchPagePath}/m/:month`}
+                component={SearchView}
+              />
+              <Route
+                path={`${searchPagePath}/y/:year`}
+                component={SearchView}
+              />
               <Route path={searchPagePath} component={SearchView} />
               <Route path={infoPagePath} component={InfoView} />
               <Route exact={true} path="/" component={FrontpageView} />
