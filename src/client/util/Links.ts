@@ -3,6 +3,7 @@ import { DateLike, toMoment } from 'shared/util/Time';
 export const shortcutsPage = '/p/linkit';
 export const expensePagePath = '/p/kulut';
 export const categoryPagePath = '/p/kategoriat';
+export const statisticsPage = '/p/tilastot';
 export const newExpensePath = expensePagePath + '/uusi';
 export const searchPagePath = '/p/haku';
 export const infoPagePath = '/p/info';

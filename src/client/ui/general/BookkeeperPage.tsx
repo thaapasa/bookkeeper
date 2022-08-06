@@ -14,6 +14,7 @@ import {
   newExpensePath,
   searchPagePath,
   shortcutsPage,
+  statisticsPage,
 } from 'client/util/Links';
 
 import RoutedCategoryView from '../category/RoutedCategoryView';
@@ -30,6 +31,7 @@ import RoutedMonthView from '../expense/RoutedMonthView';
 import { ExpenseSplitDialog } from '../expense/split/ExpenseSplitDialog';
 import InfoView from '../info/InfoView';
 import SearchView from '../search/SearchView';
+import { StatisticsView } from '../statistics/StatisticsView';
 import {
   getScreenSizeClassName,
   isMobileSize,
@@ -49,6 +51,7 @@ const appLinks: AppLink[] = [
   { label: 'Linkit', path: shortcutsPage, showInHeader: false },
   { label: 'Kulut', path: expensePagePath, showInHeader: true },
   { label: 'Kategoriat', path: categoryPagePath, showInHeader: true },
+  { label: 'Tilastot', path: statisticsPage, showInHeader: true },
   { label: 'Haku', path: searchPagePath, showInHeader: true },
   { label: 'Tiedot', path: infoPagePath, showInHeader: false },
 ];
@@ -103,6 +106,7 @@ export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
                 component={SearchView}
               />
               <Route path={searchPagePath} component={SearchView} />
+              <Route path={statisticsPage} component={StatisticsView} />
               <Route path={infoPagePath} component={InfoView} />
               <Route exact={true} path="/" component={FrontpageView} />
             </Switch>
