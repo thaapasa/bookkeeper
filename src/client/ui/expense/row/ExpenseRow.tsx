@@ -242,9 +242,12 @@ export class ExpenseRow extends React.Component<
     } else if (expense.type === 'income') {
       style.background = colors.income;
     }
+    const firstDay =
+      !this.props.prev ||
+      !toMoment(expense.date).isSame(this.props.prev.date, 'day');
     return (
       <>
-        <Row>
+        <Row className={firstDay ? 'first-day' : ''}>
           <DateColumn onClick={this.editDate}>
             {expense.recurringExpenseId ? <RecurringExpenseIcon /> : null}
             <DateContainer>
@@ -410,6 +413,7 @@ const OptionalIcons = styled.div`
 
 const WeekDay = styled.span`
   padding-right: 4px;
+  font-weight: bold;
   ${media.mobile`
     display: none;
   `}

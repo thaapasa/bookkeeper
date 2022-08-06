@@ -3,7 +3,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import { windowSizeP } from 'client/data/State';
-import { colorScheme } from 'client/ui/Colors';
+import { colorScheme, primaryColors } from 'client/ui/Colors';
 import { connect } from 'client/ui/component/BaconConnect';
 import { QuestionBookmark, Recurring } from 'client/ui/Icons';
 import {
@@ -90,6 +90,16 @@ export const Row = styled.tr`
   td {
     border-top: 1px solid ${separatorColor};
     border-collapse: collapse;
+  }
+
+  &.first-day {
+    background: linear-gradient(
+      ${primaryColors.standard}cc 0%,
+      ${tableBgColor} 20%
+    );
+    & td {
+      padding-top: 4px;
+    }
   }
 `;
 
