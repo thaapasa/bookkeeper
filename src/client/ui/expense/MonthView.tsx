@@ -105,6 +105,7 @@ export default class MonthView extends React.PureComponent<
         monthStatus={this.state.monthStatus}
         unconfirmedBefore={this.state.unconfirmedBefore}
         onUpdateExpense={this.onUpdateExpense}
+        dateBorder={true}
       />
     );
   }

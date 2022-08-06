@@ -78,6 +78,7 @@ interface ExpenseRowProps extends CommonExpenseRowProps {
   fullCategoryName: string;
   categoryMap: Record<string, Category>;
   userMap: Record<string, User>;
+  dateBorder?: boolean;
 }
 
 interface ExpenseRowState {
@@ -247,7 +248,7 @@ export class ExpenseRow extends React.Component<
       !toMoment(expense.date).isSame(this.props.prev.date, 'day');
     return (
       <>
-        <Row className={firstDay ? 'first-day' : ''}>
+        <Row className={firstDay && this.props.dateBorder ? 'first-day' : ''}>
           <DateColumn onClick={this.editDate}>
             {expense.recurringExpenseId ? <RecurringExpenseIcon /> : null}
             <DateContainer>

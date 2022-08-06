@@ -35,6 +35,7 @@ interface ExpenseTableProps {
   unconfirmedBefore: boolean;
   onUpdateExpense: (expenseId: number, expense: UserExpense) => void;
   userData: UserDataProps;
+  dateBorder?: boolean;
 }
 
 interface ExpenseTableState {
@@ -151,6 +152,7 @@ class ExpenseTable extends React.Component<
           onUpdated={this.onUpdateExpense}
           separator={ExpenseRowSeparator}
           itemKey={expenseToKey}
+          dateBorder={this.props.dateBorder}
         />
       </>
     );
@@ -193,6 +195,7 @@ const ExpenseItem: React.FC<
     item: UserExpense;
     userData: UserDataProps;
     prev: UserExpense | null;
+    dateBorder?: boolean;
   } & Omit<CommonExpenseRowProps, 'expense'>
 > = ({ item, ...props }) => <ExpenseRow expense={item} {...props} />;
 
