@@ -3,11 +3,13 @@ import * as B from 'baconjs';
 import * as React from 'react';
 
 import { Category } from 'shared/types/Session';
+import apiConnect from 'client/data/ApiConnect';
 import { categoryMapE, getFullCategoryName } from 'client/data/Categories';
 
 import { connect } from '../component/BaconConnect';
 import { ChipList } from '../component/ChipList';
 import { useList } from '../utils/Hooks';
+import { useAsyncData } from '../utils/useAsyncData';
 import { StatisticsSourceView } from './StatisticsSourceView';
 
 export const StatisticsViewImpl: React.FC<{
@@ -24,6 +26,11 @@ export const StatisticsViewImpl: React.FC<{
     [categoryMap]
   );
 
+  const statistics = useAsyncData(
+    apiConnect.loadStatistics,
+    cats.length > 0,
+    cats
+  );
   return (
     <Grid container margin="16px">
       <Grid item xs={12}>
@@ -32,9 +39,13 @@ export const StatisticsViewImpl: React.FC<{
       <Grid item xs={12} marginTop="16px">
         <ChipList items={cats} onDelete={removeCat} getName={getCatName} />
       </Grid>
+      <Grid item xs={12} marginTop="16px">
+        Data: {JSON.stringify(statistics, null, 2)}
+      </Grid>
     </Grid>
   );
 };
+
 export const StatisticsView = connect(
   B.combineTemplate({ categoryMap: categoryMapE })
 )(StatisticsViewImpl);
