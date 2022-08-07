@@ -1,7 +1,6 @@
-import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { FormControl, Grid, InputLabel, MenuItem, Select } from '@mui/material';
 import * as B from 'baconjs';
 import * as React from 'react';
-import styled from 'styled-components';
 
 import {
   CategoryDataSource,
@@ -15,26 +14,27 @@ const StatisticsSourceImpl: React.FC<{
   addCategory: (cat: number) => void;
 }> = ({ categorySource, addCategory }) => {
   return (
-    <QueryArea>
-      <Block>
-        <Row className="top-align">
-          <FormControl fullWidth>
-            <InputLabel>Kategoria</InputLabel>
-            <Select
-              label="Kategoria"
-              value={undefined}
-              onChange={e => addCategory(Number(e.target.value))}
-            >
-              {categorySource.map(c => (
-                <MenuItem key={c.value} value={c.value}>
-                  {c.text}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Row>
-      </Block>
-    </QueryArea>
+    <Grid container columnSpacing="16px">
+      <Grid item xs={8}>
+        <FormControl fullWidth>
+          <InputLabel>Kategoria</InputLabel>
+          <Select
+            label="Kategoria"
+            value={''}
+            onChange={e => addCategory(Number(e.target.value))}
+          >
+            {categorySource.map(c => (
+              <MenuItem key={c.value} value={c.value}>
+                {c.text}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Grid>
+      <Grid item xs={4}>
+        Valitse aika
+      </Grid>
+    </Grid>
   );
 };
 
@@ -43,28 +43,3 @@ export const StatisticsSourceView = connect(
     categorySource: categoryDataSourceP,
   })
 )(StatisticsSourceImpl);
-
-const QueryArea = styled.div`
-  margin: 24px 24px 0 24px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-`;
-
-const Block = styled.div`
-  display: flex;
-  flex-direction: column;
-  min-height: 96px;
-`;
-
-const Row = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-
-  &.top-margin {
-    margin-top: 8px;
-  }
-  &.top-align {
-    align-items: flex-start;
-  }
-`;
