@@ -22,6 +22,6 @@ export type AsyncData<T> =
   | AsyncDataLoaded<T>
   | AsyncDataError;
 
-export const UnitializedData: AsyncDataUninitialized = Object.freeze({
+export const UninitializedData: AsyncDataUninitialized = Object.freeze({
   type: 'uninitialized',
 });

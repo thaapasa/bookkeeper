@@ -270,7 +270,7 @@ export class ApiConnect {
     return this.put<ApiMessage>('/api/category', category);
   }
 
-  public getCategoryTotals = async (
+  public getCategoryTotals = (
     startDate: Date,
     endDate: Date
   ): Promise<CategoryAndTotals[]> =>
@@ -279,12 +279,12 @@ export class ApiConnect {
       endDate: toISODate(endDate),
     });
 
-  public updateCategory = async (
+  public updateCategory = (
     id: number | string,
     category: CategoryData
   ): Promise<Category> => this.post(uri`/api/category/${id}`, category);
 
-  public loadStatistics = async (categoryIds: number[]): Promise<any> =>
+  public loadStatistics = (categoryIds: number[]): Promise<any> =>
     this.post(uri`/api/statistics/category`, { categoryIds });
 }
 

@@ -7,7 +7,7 @@ import { ExpenseQuery, UserExpense } from 'shared/types/Expense';
 import { Category, Session } from 'shared/types/Session';
 import { toDateRange } from 'shared/util/Time';
 import apiConnect from 'client/data/ApiConnect';
-import { AsyncData, UnitializedData } from 'client/data/AsyncData';
+import { AsyncData, UninitializedData } from 'client/data/AsyncData';
 import {
   CategoryDataSource,
   categoryDataSourceP,
@@ -44,7 +44,7 @@ const SearchView: React.FC<
   RouteComponentProps<{ year?: string; month?: string }> & SearchViewProps
 > = ({ userData, session, categorySource, match }) => {
   const [results, setResults] =
-    React.useState<AsyncData<UserExpense[]>>(UnitializedData);
+    React.useState<AsyncData<UserExpense[]>>(UninitializedData);
 
   const searchBus = usePersistentMemo(() => new B.Bus<ExpenseQuery>(), []);
   const repeatSearchBus = usePersistentMemo(() => new B.Bus<true>(), []);

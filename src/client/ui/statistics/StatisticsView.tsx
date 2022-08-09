@@ -4,6 +4,7 @@ import * as React from 'react';
 
 import { Category } from 'shared/types/Session';
 import apiConnect from 'client/data/ApiConnect';
+import { UninitializedData } from 'client/data/AsyncData';
 import { categoryMapE, getFullCategoryName } from 'client/data/Categories';
 
 import { connect } from '../component/BaconConnect';
@@ -31,6 +32,8 @@ export const StatisticsViewImpl: React.FC<{
     cats.length > 0,
     cats
   );
+  const data = cats.length > 0 ? statistics : UninitializedData;
+
   return (
     <Grid container margin="16px">
       <Grid item xs={12}>
@@ -40,7 +43,7 @@ export const StatisticsViewImpl: React.FC<{
         <ChipList items={cats} onDelete={removeCat} getName={getCatName} />
       </Grid>
       <Grid item xs={12} marginTop="16px">
-        Data: {JSON.stringify(statistics, null, 2)}
+        Data: {JSON.stringify(data, null, 2)}
       </Grid>
     </Grid>
   );

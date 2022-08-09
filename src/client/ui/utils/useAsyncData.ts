@@ -1,13 +1,13 @@
 import * as React from 'react';
 
-import { AsyncData, UnitializedData } from 'client/data/AsyncData';
+import { AsyncData, UninitializedData } from 'client/data/AsyncData';
 
 export function useAsyncData<T, P extends any[]>(
   dataSource: (...params: P) => Promise<T>,
   valid: boolean,
   ...params: P
 ) {
-  const [data, setData] = React.useState<AsyncData<T>>(UnitializedData);
+  const [data, setData] = React.useState<AsyncData<T>>(UninitializedData);
   React.useEffect(() => {
     if (valid) {
       dataSource(...params)
