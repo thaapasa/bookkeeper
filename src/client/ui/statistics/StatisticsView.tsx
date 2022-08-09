@@ -11,6 +11,7 @@ import { connect } from '../component/BaconConnect';
 import { ChipList } from '../component/ChipList';
 import { useList } from '../utils/Hooks';
 import { useAsyncData } from '../utils/useAsyncData';
+import { StatisticsChart } from './StatisticsChart';
 import { StatisticsSourceView } from './StatisticsSourceView';
 
 export const StatisticsViewImpl: React.FC<{
@@ -43,7 +44,11 @@ export const StatisticsViewImpl: React.FC<{
         <ChipList items={cats} onDelete={removeCat} getName={getCatName} />
       </Grid>
       <Grid item xs={12} marginTop="16px">
-        Data: {JSON.stringify(data, null, 2)}
+        {data.type === 'loaded' ? (
+          <StatisticsChart statistics={data.value} />
+        ) : (
+          JSON.stringify(data, null, 2)
+        )}
       </Grid>
     </Grid>
   );

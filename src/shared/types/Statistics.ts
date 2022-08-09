@@ -17,7 +17,7 @@ export const CategoryStatisticsData = io.type({
 });
 export type CategoryStatisticsData = io.TypeOf<typeof CategoryStatisticsData>;
 
-export const CategoryStatistics = io.union([
+export const CategoryStatistics = io.intersection([
   StatisticsSearchType,
   io.type({
     statistics: io.record(io.string, io.array(CategoryStatisticsData)),
