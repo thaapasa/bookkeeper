@@ -13,6 +13,7 @@ import * as server from '../util/ServerUtil';
 import { createCategoryApi } from './CategoryApi';
 import { createExpenseApi } from './ExpenseApi';
 import { createSessionApi } from './SessionApi';
+import { createStatisticsApi } from './StatisticsApi';
 
 const log = debug('bookkeeper:api');
 
@@ -24,6 +25,7 @@ export function createApi() {
   api.use('/session', createSessionApi());
   api.use('/category', createCategoryApi());
   api.use('/expense', createExpenseApi());
+  api.use('/statistics', createStatisticsApi());
 
   // GET /api/status
   api.get(
