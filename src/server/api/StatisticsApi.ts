@@ -2,6 +2,8 @@ import { Router } from 'express';
 import * as io from 'io-ts';
 
 import { NonEmptyArray, validate } from 'shared/types/Validator';
+import { db } from 'server/data/Db';
+import { getCategoryStatistics } from 'server/data/Statistics';
 
 import * as server from '../util/ServerUtil';
 
@@ -17,9 +19,11 @@ export function createStatisticsApi() {
   // POST /api/statistics/category
   api.post(
     '/category',
-    server.processRequest(async (_session, req) => {
+    server.processRequest(async (session, req) => {
       const body = validate(CategoryIdsType, req.body);
-      return { categoryIds: body.categoryIds };
+      return db.tx(tx =>
+        getCategoryStatistics(tx, session.group.id, body.categoryIds)
+      );
     }, true)
   );
 

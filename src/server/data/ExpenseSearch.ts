@@ -4,6 +4,7 @@ import { IBaseProtocol } from 'pg-promise';
 import { ExpenseQuery, UserExpense } from 'shared/types/Expense';
 
 import basic from './BasicExpenses';
+import categories from './Categories';
 import { db } from './Db';
 
 const log = debug('bookkeeper:api:expenses:search');
@@ -21,14 +22,7 @@ function searchExpenses(tx: IBaseProtocol<any>) {
         : query.categoryId || [];
     const categoryIds =
       query.includeSubCategories && inputCategoryIds.length > 0
-        ? (
-            await tx.manyOrNone<{ id: number }>(
-              `SELECT id FROM categories
-                WHERE group_id = $/groupId/
-                AND id IN ($/ids:csv/) OR parent_id IN ($/ids:csv/)`,
-              { ids: inputCategoryIds, groupId }
-            )
-          ).map(({ id }) => id)
+        ? await categories.tx.expandSubCategories(tx, groupId, inputCategoryIds)
         : inputCategoryIds;
     const expenses = await tx.manyOrNone<UserExpense>(
       basic.expenseSelect(`

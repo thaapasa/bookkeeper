@@ -12,8 +12,13 @@ moment.locale(fiLocale);
 
 export const ISODateRegExp = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
 export const ISODatePattern = 'YYYY-MM-DD';
-export const TISODate = t.refinement(t.string, s => ISODateRegExp.test(s));
-export type ISODate = t.TypeOf<typeof TISODate>;
+export const ISODate = t.refinement(t.string, s => ISODateRegExp.test(s));
+export type ISODate = t.TypeOf<typeof ISODate>;
+
+export const ISOMonthRegExp = /^[0-9]{4}-[0-9]{2}$/;
+export const ISOMonthPattern = 'YYYY-MM';
+export const ISOMonth = t.refinement(t.string, s => ISOMonthRegExp.test(s));
+export type ISOMonth = t.TypeOf<typeof ISOMonth>;
 
 export const displayDatePattern = 'D.M.YYYY';
 

@@ -4,7 +4,7 @@ import * as t from 'io-ts';
 import { ApiMessage } from 'shared/types/Api';
 import { Category, CategoryAndTotals } from 'shared/types/Session';
 import { validate } from 'shared/types/Validator';
-import { TISODate } from 'shared/util/Time';
+import { ISODate } from 'shared/util/Time';
 
 import categories, { CategoryInput } from '../data/Categories';
 import * as server from '../util/ServerUtil';
@@ -43,8 +43,8 @@ export function createCategoryApi() {
   );
 
   const DateRange = t.type({
-    startDate: TISODate,
-    endDate: TISODate,
+    startDate: ISODate,
+    endDate: ISODate,
   });
 
   // GET /api/category/totals
