@@ -48,7 +48,7 @@ const expenseSchema: Schema<Expense> = {
 };
 
 /**
- * Creates expense API.
+ * Creates expense API router.
  * Assumed attach path: `/api/expense`
  */
 export function createExpenseApi() {
