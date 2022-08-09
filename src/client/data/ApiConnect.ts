@@ -19,6 +19,7 @@ import {
   CategoryData,
   Session,
 } from 'shared/types/Session';
+import { CategoryStatistics } from 'shared/types/Statistics';
 import { FetchClient } from 'shared/util/FetchClient';
 import Money from 'shared/util/Money';
 import { filterTruthyProps } from 'shared/util/Objects';
@@ -284,7 +285,9 @@ export class ApiConnect {
     category: CategoryData
   ): Promise<Category> => this.post(uri`/api/category/${id}`, category);
 
-  public loadStatistics = (categoryIds: number[]): Promise<any> =>
+  public loadStatistics = (
+    categoryIds: number[]
+  ): Promise<CategoryStatistics> =>
     this.post(uri`/api/statistics/category`, { categoryIds });
 }
 

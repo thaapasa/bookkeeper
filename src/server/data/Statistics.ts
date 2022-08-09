@@ -1,15 +1,13 @@
 import { ITask } from 'pg-promise';
 
-import { MoneyLike } from 'shared/util/Money';
-import { ISOMonth, toMoment } from 'shared/util/Time';
+import {
+  CategoryStatistics,
+  CategoryStatisticsData,
+} from 'shared/types/Statistics';
+import { groupBy } from 'shared/util/Arrays';
+import { toMoment } from 'shared/util/Time';
 
 import Categories from './Categories';
-
-interface CategoryStatisticsData {
-  sum: MoneyLike;
-  month: ISOMonth;
-  categoryId: number;
-}
 
 export async function loadCategoryStatisticsData(
   tx: ITask<any>,
@@ -42,11 +40,14 @@ export async function getCategoryStatistics(
   tx: ITask<any>,
   groupId: number,
   categoryIds: number[]
-) {
+): Promise<CategoryStatistics> {
   const ids = await Categories.tx.expandSubCategories(tx, groupId, categoryIds);
   if (ids.length < 1) {
-    return [];
+    return { categoryIds, statistics: {} };
   }
   const statistics = await loadCategoryStatisticsData(tx, groupId, ids);
-  return statistics;
+  return {
+    categoryIds: ids,
+    statistics: groupBy(s => String(s.categoryId), statistics),
+  };
 }
