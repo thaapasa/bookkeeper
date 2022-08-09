@@ -6,7 +6,7 @@ import debug from 'debug';
 import express from 'express';
 import * as path from 'path';
 
-import * as api from './Api';
+import { createApi } from './api/Api';
 import { config } from './Config';
 
 const log = debug('bookkeeper:server');
@@ -18,7 +18,7 @@ app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-app.use('/api', api.createApi());
+app.use('/api', createApi());
 
 app.get(/\/p\/.*/, (_, res) =>
   res.sendFile(path.join(curDir + '/public/index.html'))
