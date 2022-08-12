@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import { CategoryStatistics } from 'shared/types/Statistics';
+import Money from 'shared/util/Money';
 
 import { createLabeledChart } from '../chart/LabeledChart';
 import { MeasureSize } from '../utils/MeasureSize';
@@ -26,8 +27,14 @@ const Months = [
 const StatisticsChartImpl: React.FC<{
   statistics: CategoryStatistics;
   size: Size;
-}> = ({ size }) => {
-  return <LabeledChart size={size} maxValue={10000} labels={Months} />;
+}> = ({ statistics, size }) => {
+  const maxValue = Object.values(statistics.statistics)
+    .flat()
+    .reduce((p, c) => (p.gt(c.sum) ? p : new Money(c.sum)), new Money(0));
+
+  return (
+    <LabeledChart size={size} maxValue={maxValue.valueOf()} labels={Months} />
+  );
 };
 
 export const StatisticsChart = MeasureSize(StatisticsChartImpl);

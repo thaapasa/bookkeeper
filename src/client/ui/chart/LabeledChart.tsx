@@ -49,7 +49,7 @@ export function createLabeledChart<P extends CommonChartProps>(
       .domain([minValue ?? 0, maxValue ?? 0])
       .range([svgDimensions.height - margins.bottom, margins.top]);
 
-    const scales = React.useMemo(() => ({ xScale, yScale }), [xScale, yScale]);
+    const scales = { xScale, yScale };
 
     const GraphRenderer = graphRenderer as any;
     return (

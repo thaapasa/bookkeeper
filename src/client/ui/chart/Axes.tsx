@@ -48,7 +48,9 @@ const Axis: React.FC<AxisProps<any>> = ({
 }) => {
   const axisRef = React.useRef<SVGGElement>(null);
 
-  // Render the axis whenever it changes
+  // Render the axis whenever it changes.
+  // Must be updated on each render as the scales objects will be the same
+  // (even though the range may change) - thus no deps array
   React.useEffect(() => {
     const axis = getAxis(orient, scale)
       .tickSize(-tickSize)
@@ -58,7 +60,7 @@ const Axis: React.FC<AxisProps<any>> = ({
     if (axisRef.current) {
       d3Select(axisRef.current).call(axis);
     }
-  }, [orient, scale, tickSize]);
+  });
 
   return (
     <AxisG
