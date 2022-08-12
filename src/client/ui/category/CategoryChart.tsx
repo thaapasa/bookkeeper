@@ -1,12 +1,11 @@
 import * as d3Axis from 'd3-axis';
 import { scaleBand, scaleLinear } from 'd3-scale';
-import { select as d3Select } from 'd3-selection';
 import * as React from 'react';
-import styled from 'styled-components';
 
 import Money from 'shared/util/Money';
 
-import { media } from '../Styles';
+import { Axes } from '../chart/Axis';
+import { ChartScales } from '../chart/types';
 
 export interface CategoryChartData {
   categoryId: number;
@@ -14,20 +13,8 @@ export interface CategoryChartData {
   categoryTotal: number;
 }
 
-interface Scales {
-  xScale: d3Axis.AxisScale<string>;
-  yScale: d3Axis.AxisScale<number>;
-}
-
-interface Margins {
-  bottom: number;
-  top: number;
-  left: number;
-  right: number;
-}
-
 interface BarsProps {
-  scales: Scales;
+  scales: ChartScales;
   margins: { bottom: number };
   data?: CategoryChartData[];
   svgDimensions: { height: number };
@@ -56,115 +43,6 @@ class Bars extends React.Component<BarsProps> {
 
     return <g>{bars}</g>;
   }
-}
-
-type Orient = 'Bottom' | 'Left' | 'Top' | 'Right';
-function getAxis<D extends d3Axis.AxisDomain>(
-  orient: Orient,
-  scale: d3Axis.AxisScale<D>
-): d3Axis.Axis<D> {
-  switch (orient) {
-    case 'Bottom':
-      return d3Axis.axisBottom(scale);
-    case 'Top':
-      return d3Axis.axisTop(scale);
-    case 'Left':
-      return d3Axis.axisLeft(scale);
-    case 'Right':
-      return d3Axis.axisRight(scale);
-    default:
-      throw new Error('Invalid orient:' + orient);
-  }
-}
-
-interface AxisProps<D extends d3Axis.AxisDomain> {
-  readonly orient: 'Bottom' | 'Left' | 'Top' | 'Right';
-  readonly scale: d3Axis.AxisScale<D>;
-  readonly tickSize: number;
-  readonly translate: string;
-}
-class Axis<D extends d3Axis.AxisDomain> extends React.Component<AxisProps<D>> {
-  private axisElement: React.RefObject<SVGGElement> =
-    React.createRef<SVGGElement>();
-
-  public componentDidMount() {
-    this.renderAxis();
-  }
-
-  public componentDidUpdate() {
-    this.renderAxis();
-  }
-
-  private renderAxis() {
-    if (!this.axisElement) {
-      return;
-    }
-    const axis = getAxis(this.props.orient, this.props.scale)
-      .tickSize(-this.props.tickSize)
-      .tickPadding(12)
-      .ticks([4]);
-
-    d3Select(this.axisElement.current).call(axis as any);
-  }
-
-  public render() {
-    return (
-      <AxisG
-        className={`Axis Axis-${this.props.orient}`}
-        ref={this.axisElement}
-        transform={this.props.translate}
-      />
-    );
-  }
-}
-
-const AxisG = styled.g`
-  .domain {
-    display: none;
-  }
-  line {
-    stroke: #e0e0e0;
-  }
-  &.Axis-Bottom .tick line {
-    display: none;
-  }
-  ${media.mobile`
-    &.Axis-Bottom text {
-      transform: rotate(-45deg);
-      text-anchor: end;
-    }
-  `}
-`;
-
-interface AxesProps {
-  scales: Scales;
-  margins: Margins;
-  svgDimensions: { height: number; width: number };
-}
-
-function Axes({ scales, margins, svgDimensions }: AxesProps) {
-  const { height, width } = svgDimensions;
-
-  const xProps: AxisProps<string> = {
-    orient: 'Bottom',
-    scale: scales.xScale,
-    translate: `translate(0, ${height - margins.bottom})`,
-    tickSize: height - margins.top - margins.bottom,
-  };
-
-  const yProps: AxisProps<number> = {
-    orient: 'Left',
-    scale: scales.yScale,
-    translate: `translate(${margins.left}, 0)`,
-    tickSize: width - margins.left - margins.right,
-  };
-
-  return (
-    <g>
-      <Axis {...xProps} />
-      <Axis {...yProps} />
-    </g>
-  );
 }
 
 interface CategoryChartState {
