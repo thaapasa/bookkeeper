@@ -22,7 +22,7 @@ export const Axes: React.FC<AxesProps> = ({
       orient="Bottom"
       scale={scales.xScale}
       translate={`translate(0, ${height - margins.bottom})`}
-      tickSize={height - margins.top - margins.bottom}
+      tickSize={width - margins.left - margins.right}
     />
     <Axis
       orient="Left"
@@ -46,23 +46,24 @@ const Axis: React.FC<AxisProps<any>> = ({
   tickSize,
   translate,
 }) => {
-  const axisElement = React.useRef<SVGGElement>(null);
+  const axisRef = React.useRef<SVGGElement>(null);
 
+  // Render the axis whenever it changes
   React.useEffect(() => {
     const axis = getAxis(orient, scale)
       .tickSize(-tickSize)
       .tickPadding(12)
       .ticks([4]);
 
-    if (axisElement.current) {
-      d3Select(axisElement.current).call(axis);
+    if (axisRef.current) {
+      d3Select(axisRef.current).call(axis);
     }
   }, [orient, scale, tickSize]);
 
   return (
     <AxisG
       className={`Axis Axis-${orient}`}
-      ref={axisElement}
+      ref={axisRef}
       transform={translate}
     />
   );
