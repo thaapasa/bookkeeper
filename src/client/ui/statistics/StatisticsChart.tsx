@@ -7,22 +7,26 @@ import { CategoryStatistics } from 'shared/types/Statistics';
 import { Axes } from '../chart/Axes';
 import { MeasureSize } from '../utils/MeasureSize';
 import { Size } from '../utils/useElementSize';
+import { usePersistentMemo } from '../utils/usePersistentMemo';
+
+const ChartMargins = { top: 50, right: 20, bottom: 80, left: 60 };
 
 const StatisticsChartImpl: React.FC<{
   statistics: CategoryStatistics;
   size: Size;
 }> = ({ statistics, size }) => {
-  const xScaleP = React.useMemo(() => scaleBand<string>(), []);
-  const yScaleP = React.useMemo(() => scaleLinear<number>(), []);
+  const xScaleP = usePersistentMemo(() => scaleBand<string>(), []);
+  const yScaleP = usePersistentMemo(() => scaleLinear<number>(), []);
 
   const { width } = size;
 
   const chartData = statistics;
-  const margins = { top: 50, right: 20, bottom: 80, left: 60 };
-  const svgDimensions = {
-    width: Math.max(width, 300),
-    height: 500,
-  };
+  const margins = ChartMargins;
+
+  const svgDimensions = React.useMemo(
+    () => ({ width: Math.max(width, 300), height: 500 }),
+    [width]
+  );
 
   const maxValue = 10000;
 

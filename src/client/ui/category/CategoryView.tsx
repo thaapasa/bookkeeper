@@ -14,7 +14,7 @@ import { categoryPagePath } from 'client/util/Links';
 
 import { connect } from '../component/BaconConnect';
 import { PageContentContainer } from '../Styles';
-import CategoryChart, { CategoryChartData } from './CategoryChart';
+import { CategoryChart, CategoryChartData } from './CategoryChart';
 import { CategoryTable } from './CategoryTable';
 
 interface CategoryViewProps {
