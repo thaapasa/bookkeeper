@@ -88,7 +88,7 @@ export const Row = styled.tr`
     }
   }
   td {
-    border-top: 1px solid ${separatorColor};
+    border-top: 1px dotted ${separatorColor}77;
     border-collapse: collapse;
   }
 
