@@ -18,4 +18,5 @@ export interface CommonChartProps {
   scales: ChartScales;
   margins: ChartMargins;
   svgDimensions: { height: number; width: number };
+  maxValue: number;
 }

@@ -60,6 +60,7 @@ export function createLabeledChart<P extends CommonChartProps>(
             scales={scales}
             margins={margins}
             svgDimensions={svgDimensions}
+            maxValue={maxValue ?? 0}
             {...rest}
           />
         ) : null}

@@ -30,7 +30,8 @@ export async function loadCategoryStatisticsData(
         AND date > $/start/
         AND date <= $/end/
         AND category_id IN ($/categoryIds:csv/)
-      GROUP BY month, category_id`,
+      GROUP BY month, category_id
+      ORDER BY month, category_id`,
     { groupId, start, end, categoryIds }
   );
   return statistics;

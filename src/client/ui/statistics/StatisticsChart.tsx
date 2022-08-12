@@ -6,8 +6,9 @@ import Money from 'shared/util/Money';
 import { createLabeledChart } from '../chart/LabeledChart';
 import { MeasureSize } from '../utils/MeasureSize';
 import { Size } from '../utils/useElementSize';
+import { StatisticsGraph } from './StatisticsGraph';
 
-const LabeledChart = createLabeledChart();
+const LabeledChart = createLabeledChart(StatisticsGraph);
 
 const Months = [
   'Tammi',
@@ -33,7 +34,12 @@ const StatisticsChartImpl: React.FC<{
     .reduce((p, c) => (p.gt(c.sum) ? p : new Money(c.sum)), new Money(0));
 
   return (
-    <LabeledChart size={size} maxValue={maxValue.valueOf()} labels={Months} />
+    <LabeledChart
+      size={size}
+      maxValue={maxValue.valueOf()}
+      labels={Months}
+      data={statistics}
+    />
   );
 };
 
