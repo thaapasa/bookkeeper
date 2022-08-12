@@ -4,45 +4,13 @@ import * as React from 'react';
 
 import Money from 'shared/util/Money';
 
-import { Axes } from '../chart/Axis';
-import { ChartScales } from '../chart/types';
+import { Axes } from '../chart/Axes';
+import { CategoryBars } from './CategoryBars';
 
 export interface CategoryChartData {
   categoryId: number;
   categoryName: string;
   categoryTotal: number;
-}
-
-interface BarsProps {
-  scales: ChartScales;
-  margins: { bottom: number };
-  data?: CategoryChartData[];
-  svgDimensions: { height: number };
-}
-
-class Bars extends React.Component<BarsProps> {
-  public render() {
-    const { scales, margins, data, svgDimensions } = this.props;
-    const { xScale, yScale } = scales;
-    const { height } = svgDimensions;
-
-    const bars = data ? (
-      data.map(datum => (
-        <rect
-          key={datum.categoryName}
-          x={xScale(datum.categoryName)}
-          y={yScale(datum.categoryTotal)}
-          height={height - margins.bottom - (yScale(datum.categoryTotal) || 0)}
-          width={xScale.bandwidth ? xScale.bandwidth() : 0}
-          fill="#A252B6"
-        />
-      ))
-    ) : (
-      <rect />
-    );
-
-    return <g>{bars}</g>;
-  }
 }
 
 interface CategoryChartState {
@@ -118,7 +86,7 @@ export default class CategoryChart extends React.Component<
           margins={margins}
           svgDimensions={svgDimensions}
         />
-        <Bars
+        <CategoryBars
           scales={{ xScale, yScale }}
           margins={margins}
           data={chartData}

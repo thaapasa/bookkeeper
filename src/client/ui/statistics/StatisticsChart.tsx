@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import { CategoryStatistics } from 'shared/types/Statistics';
 
-import { Axes } from '../chart/Axis';
+import { Axes } from '../chart/Axes';
 import { MeasureSize } from '../utils/MeasureSize';
 import { Size } from '../utils/useElementSize';
 
