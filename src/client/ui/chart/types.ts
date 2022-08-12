@@ -13,3 +13,9 @@ export interface ChartMargins {
 }
 
 export type ChartOrient = 'Bottom' | 'Left' | 'Top' | 'Right';
+
+export interface CommonChartProps {
+  scales: ChartScales;
+  margins: ChartMargins;
+  svgDimensions: { height: number; width: number };
+}

@@ -1,13 +1,10 @@
 import * as React from 'react';
 
-import { ChartScales } from '../chart/types';
+import { CommonChartProps } from '../chart/types';
 import { CategoryChartData } from './CategoryChart';
 
-interface BarsProps {
-  scales: ChartScales;
-  margins: { bottom: number };
+interface BarsProps extends CommonChartProps {
   data?: CategoryChartData[];
-  svgDimensions: { height: number };
 }
 
 export const CategoryBars: React.FC<BarsProps> = ({
