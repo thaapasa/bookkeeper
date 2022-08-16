@@ -1,7 +1,5 @@
-import * as t from 'io-ts';
+import * as io from 'io-ts';
 import moment, { isMoment, Moment, MomentInput } from 'moment';
-
-import { leftPad } from './Util';
 
 require('moment/locale/fi');
 
@@ -12,13 +10,13 @@ moment.locale(fiLocale);
 
 export const ISODateRegExp = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
 export const ISODatePattern = 'YYYY-MM-DD';
-export const ISODate = t.refinement(t.string, s => ISODateRegExp.test(s));
-export type ISODate = t.TypeOf<typeof ISODate>;
+export const ISODate = io.refinement(io.string, s => ISODateRegExp.test(s));
+export type ISODate = io.TypeOf<typeof ISODate>;
 
 export const ISOMonthRegExp = /^[0-9]{4}-[0-9]{2}$/;
 export const ISOMonthPattern = 'YYYY-MM';
-export const ISOMonth = t.refinement(t.string, s => ISOMonthRegExp.test(s));
-export type ISOMonth = t.TypeOf<typeof ISOMonth>;
+export const ISOMonth = io.refinement(io.string, s => ISOMonthRegExp.test(s));
+export type ISOMonth = io.TypeOf<typeof ISOMonth>;
 
 export const displayDatePattern = 'D.M.YYYY';
 
@@ -86,15 +84,6 @@ export function getFinnishMonthName(
   return months[i];
 }
 
-export interface DateRange {
-  start: Date;
-  end: Date;
-}
-
-export interface TypedDateRange extends DateRange {
-  type: 'year' | 'month' | 'custom';
-}
-
 export function toMonthName(x: DateLike) {
   const m = toMoment(x);
   return getFinnishMonthName(m.get('month') + 1) + ' ' + m.get('year');
@@ -103,54 +92,6 @@ export function toMonthName(x: DateLike) {
 export function toYearName(x: DateLike) {
   const m = toMoment(x);
   return '' + m.get('year');
-}
-
-export function toDateRangeName(x: TypedDateRange): string {
-  switch (x.type) {
-    case 'month':
-      return toMonthName(x.start);
-    case 'year':
-      return toYearName(x.start);
-    case 'custom':
-      return (
-        toMoment(x.start).format(displayDatePattern) +
-        ' - ' +
-        toMoment(x.end).format(displayDatePattern)
-      );
-    default:
-      return '?';
-  }
-}
-
-const yearRE = /[0-9]{4}/;
-
-function fromYearValue(y: DateLike): Moment | undefined {
-  if (typeof y === 'number' || (typeof y === 'string' && yearRE.test(y))) {
-    const year = parseInt(y, 10);
-    return moment(leftPad(year, 4, '0') + '-01-01');
-  }
-  return;
-}
-
-export function yearRange(date: DateLike): TypedDateRange {
-  const m = fromYearValue(date) || toMoment(date);
-  const start = m.clone().startOf('year').toDate();
-  const end = m.endOf('year').toDate();
-  return { start, end, type: 'year' };
-}
-
-export function monthRange(date: DateLike): TypedDateRange {
-  const m = toMoment(date);
-  const start = m.clone().startOf('month').toDate();
-  const end = m.endOf('month').toDate();
-  return { start, end, type: 'month' };
-}
-
-export function toDateRange(start: DateLike, end: DateLike): TypedDateRange {
-  const s = toMoment(start);
-  if (s.isSame(end, 'month')) return monthRange(s);
-  if (s.isSame(end, 'year')) return yearRange(s);
-  return { type: 'custom', start: s.toDate(), end: toMoment(end).toDate() };
 }
 
 export function isSameMonth(a: DateLike, b: DateLike) {
@@ -178,20 +119,6 @@ export function compareDates(first?: DateLike, second?: DateLike): number {
     return 1;
   }
   return 0;
-}
-
-export function compareRanges(a: DateRange, b: DateRange) {
-  if (!a) {
-    return !b ? 0 : -1;
-  }
-  if (!b) {
-    return 1;
-  }
-  const c = compareDates(a.start, b.start);
-  if (c !== 0) {
-    return c;
-  }
-  return compareDates(a.end, b.end);
 }
 
 export async function timeout(ms: number): Promise<void> {

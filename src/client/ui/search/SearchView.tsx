@@ -5,7 +5,7 @@ import { RouteComponentProps } from 'react-router';
 
 import { ExpenseQuery, UserExpense } from 'shared/types/Expense';
 import { Category, Session } from 'shared/types/Session';
-import { toDateRange } from 'shared/util/Time';
+import { toDateRange } from 'shared/util/TimeRange';
 import apiConnect from 'client/data/ApiConnect';
 import { AsyncData, UninitializedData } from 'client/data/AsyncData';
 import {

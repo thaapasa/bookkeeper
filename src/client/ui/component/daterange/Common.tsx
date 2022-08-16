@@ -1,7 +1,8 @@
 import { IconButton, TextField } from '@mui/material';
 import styled from 'styled-components';
 
-import { toMoment, TypedDateRange } from 'shared/util/Time';
+import { toMoment } from 'shared/util/Time';
+import { TypedDateRange } from 'shared/util/TimeRange';
 
 export type RangeType = TypedDateRange['type'];
 export type RangeTypeOrNone = RangeType | 'none';

@@ -3,7 +3,7 @@ import * as React from 'react';
 
 import { Action } from 'shared/types/Common';
 import { Category, CategoryAndTotals } from 'shared/types/Session';
-import { TypedDateRange } from 'shared/util/Time';
+import { TypedDateRange } from 'shared/util/TimeRange';
 import { UserDataProps } from 'client/data/Categories';
 
 import CategoryDialog from './CategoryDialog';

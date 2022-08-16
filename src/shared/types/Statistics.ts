@@ -13,6 +13,7 @@ export type StatisticsSearchType = io.TypeOf<typeof StatisticsSearchType>;
 export const CategoryStatisticsData = io.type({
   sum: MoneyLike,
   month: ISOMonth,
+  range: io.number,
   categoryId: io.number,
 });
 export type CategoryStatisticsData = io.TypeOf<typeof CategoryStatisticsData>;

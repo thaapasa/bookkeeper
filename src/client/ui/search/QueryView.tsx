@@ -11,12 +11,8 @@ import styled from 'styled-components';
 
 import { ExpenseQuery } from 'shared/types/Expense';
 import { Category, User } from 'shared/types/Session';
-import {
-  toDateRangeName,
-  toISODate,
-  toMoment,
-  TypedDateRange,
-} from 'shared/util/Time';
+import { toISODate, toMoment } from 'shared/util/Time';
+import { toDateRangeName, TypedDateRange } from 'shared/util/TimeRange';
 import { parseQueryString } from 'shared/util/UrlUtils';
 import {
   CategoryDataSource,

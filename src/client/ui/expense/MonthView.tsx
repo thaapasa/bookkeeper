@@ -3,7 +3,8 @@ import { History } from 'history';
 import * as React from 'react';
 
 import { ExpenseStatus, UserExpense } from 'shared/types/Expense';
-import { isSameMonth, monthRange, toMoment } from 'shared/util/Time';
+import { isSameMonth, toMoment } from 'shared/util/Time';
+import { monthRange } from 'shared/util/TimeRange';
 import apiConnect from 'client/data/ApiConnect';
 import { navigationBus, needUpdateE } from 'client/data/State';
 import { unsubscribeAll, Unsubscriber } from 'client/util/ClientUtil';

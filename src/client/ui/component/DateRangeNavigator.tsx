@@ -4,7 +4,8 @@ import * as React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
 import styled from 'styled-components';
 
-import { toDateRangeName, toMoment } from 'shared/util/Time';
+import { toMoment } from 'shared/util/Time';
+import { toDateRangeName } from 'shared/util/TimeRange';
 import { navigationP } from 'client/data/State';
 import { NavigationConfig } from 'client/data/StateTypes';
 import { KeyCodes } from 'client/util/Io';

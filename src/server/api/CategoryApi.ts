@@ -1,10 +1,9 @@
 import { Router } from 'express';
-import * as t from 'io-ts';
 
 import { ApiMessage } from 'shared/types/Api';
 import { Category, CategoryAndTotals } from 'shared/types/Session';
 import { validate } from 'shared/types/Validator';
-import { ISODate } from 'shared/util/Time';
+import { DateRange } from 'shared/util/TimeRange';
 
 import categories, { CategoryInput } from '../data/Categories';
 import * as server from '../util/ServerUtil';
@@ -41,11 +40,6 @@ export function createCategoryApi() {
       return { status: 'OK', message: 'Category created', categoryId: id };
     }, true)
   );
-
-  const DateRange = t.type({
-    startDate: ISODate,
-    endDate: ISODate,
-  });
 
   // GET /api/category/totals
   api.get(

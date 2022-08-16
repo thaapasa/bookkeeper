@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
 
-import { monthRange, TypedDateRange, yearRange } from 'shared/util/Time';
+import { monthRange, TypedDateRange, yearRange } from 'shared/util/TimeRange';
 
 import CategoryView from './CategoryView';
 

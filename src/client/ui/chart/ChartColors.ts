@@ -14,9 +14,7 @@ export const ChartColors = [
 type ColorType = typeof colors.indigo;
 type ColorLighness = keyof ColorType;
 
-const LightnessOffsets: ColorLighness[] = [
-  50, 100, 200, 300, 400, 500, 600, 700, 800, 900,
-];
+const LightnessOffsets: ColorLighness[] = [700, 500, 400, 300, 200, 100];
 
 export function getChartColor(index: number, offset: number): string {
   return ChartColors[index % ChartColors.length][
