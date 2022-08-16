@@ -11,7 +11,6 @@ import { StatisticsGraph } from './StatisticsGraph';
 
 const LabeledChart = createLabeledChart(StatisticsGraph);
 
-/*
 const Months = [
   'Tammi',
   'Helmi',
@@ -26,7 +25,6 @@ const Months = [
   'Marras',
   'Joulu',
 ];
-*/
 
 const MonthDomain = numberRange(0, 11).map(i => String(i));
 
@@ -44,6 +42,7 @@ const StatisticsChartImpl: React.FC<{
       maxValue={maxValue.valueOf()}
       labels={MonthDomain}
       data={statistics}
+      labelFormatter={m => Months[Number(m)] ?? m}
     />
   );
 };

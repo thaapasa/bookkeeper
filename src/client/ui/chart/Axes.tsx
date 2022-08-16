@@ -10,12 +10,14 @@ interface AxesProps {
   scales: ChartScales;
   margins: ChartMargins;
   svgDimensions: { height: number; width: number };
+  labelFormatter?: (label: string) => string;
 }
 
 export const Axes: React.FC<AxesProps> = ({
   scales,
   margins,
   svgDimensions: { height, width },
+  labelFormatter,
 }) => (
   <g>
     <Axis
@@ -23,6 +25,7 @@ export const Axes: React.FC<AxesProps> = ({
       scale={scales.xScale}
       translate={`translate(0, ${height - margins.bottom})`}
       tickSize={width - margins.left - margins.right}
+      labelFormatter={labelFormatter}
     />
     <Axis
       orient="Left"
@@ -34,10 +37,11 @@ export const Axes: React.FC<AxesProps> = ({
 );
 
 interface AxisProps<D extends d3Axis.AxisDomain> {
-  readonly orient: 'Bottom' | 'Left' | 'Top' | 'Right';
-  readonly scale: d3Axis.AxisScale<D>;
-  readonly tickSize: number;
-  readonly translate: string;
+  orient: 'Bottom' | 'Left' | 'Top' | 'Right';
+  scale: d3Axis.AxisScale<D>;
+  tickSize: number;
+  translate: string;
+  labelFormatter?: (label: string) => string;
 }
 
 const Axis: React.FC<AxisProps<any>> = ({
@@ -45,6 +49,7 @@ const Axis: React.FC<AxisProps<any>> = ({
   scale,
   tickSize,
   translate,
+  labelFormatter,
 }) => {
   const axisRef = React.useRef<SVGGElement>(null);
 
@@ -52,10 +57,13 @@ const Axis: React.FC<AxisProps<any>> = ({
   // Must be updated on each render as the scales objects will be the same
   // (even though the range may change) - thus no deps array
   React.useEffect(() => {
-    const axis = getAxis(orient, scale)
+    let axis = getAxis(orient, scale)
       .tickSize(-tickSize)
       .tickPadding(12)
       .ticks([6]);
+    if (labelFormatter) {
+      axis = axis.tickFormat(labelFormatter);
+    }
 
     if (axisRef.current) {
       d3Select(axisRef.current).call(axis);

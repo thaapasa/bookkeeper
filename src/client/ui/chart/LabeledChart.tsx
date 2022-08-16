@@ -11,6 +11,7 @@ interface LabeledChartProps {
   maxValue?: number;
   minValue?: number;
   labels: string[];
+  labelFormatter?: (domain: string) => string;
 }
 
 const ChartMargins = { top: 50, right: 20, bottom: 80, left: 60 };
@@ -20,7 +21,7 @@ export function createLabeledChart<P extends CommonChartProps>(
 ) {
   const LabeledChartView: React.FC<
     LabeledChartProps & Omit<P, keyof CommonChartProps>
-  > = ({ size, maxValue, minValue, labels, ...rest }) => {
+  > = ({ size, maxValue, minValue, labels, labelFormatter, ...rest }) => {
     const xScaleP = usePersistentMemo(() => scaleBand<string>(), []);
     const yScaleP = usePersistentMemo(() => scaleLinear<number>(), []);
 
@@ -54,7 +55,12 @@ export function createLabeledChart<P extends CommonChartProps>(
     const GraphRenderer = graphRenderer as any;
     return (
       <svg width={svgDimensions.width} height={svgDimensions.height}>
-        <Axes scales={scales} margins={margins} svgDimensions={svgDimensions} />
+        <Axes
+          scales={scales}
+          margins={margins}
+          svgDimensions={svgDimensions}
+          labelFormatter={labelFormatter}
+        />
         {GraphRenderer ? (
           <GraphRenderer
             scales={scales}
