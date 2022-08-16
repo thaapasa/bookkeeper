@@ -5,20 +5,20 @@ import {
   CategoryStatisticsData,
 } from 'shared/types/Statistics';
 import { groupBy } from 'shared/util/Arrays';
-import { toMoment } from 'shared/util/Time';
+import { toISODate, toMoment } from 'shared/util/Time';
+import { DateRange } from 'shared/util/TimeRange';
 
 import Categories from './Categories';
 
 export async function loadCategoryStatisticsData(
   tx: ITask<any>,
   groupId: number,
+  range: DateRange,
   categoryIds: number[]
 ): Promise<CategoryStatisticsData[]> {
   if (categoryIds.length < 1) {
     return [];
   }
-  const start = toMoment().subtract(5, 'years').startOf('year').format();
-  const end = toMoment().endOf('year').format();
 
   const statistics = await tx.manyOrNone<CategoryStatisticsData>(
     `SELECT SUM(sum), month, category_id AS "categoryId"
@@ -32,7 +32,7 @@ export async function loadCategoryStatisticsData(
         AND category_id IN ($/categoryIds:csv/)
       GROUP BY month, category_id
       ORDER BY month, category_id`,
-    { groupId, start, end, categoryIds }
+    { groupId, start: range.startDate, end: range.endDate, categoryIds }
   );
   return statistics;
 }
@@ -43,12 +43,17 @@ export async function getCategoryStatistics(
   categoryIds: number[]
 ): Promise<CategoryStatistics> {
   const ids = await Categories.tx.expandSubCategories(tx, groupId, categoryIds);
+  const range = {
+    startDate: toISODate(toMoment().subtract(5, 'years').startOf('year')),
+    endDate: toISODate(toMoment()),
+  };
   if (ids.length < 1) {
-    return { categoryIds, statistics: {} };
+    return { categoryIds, statistics: {}, range };
   }
-  const statistics = await loadCategoryStatisticsData(tx, groupId, ids);
+  const statistics = await loadCategoryStatisticsData(tx, groupId, range, ids);
   return {
     categoryIds: ids,
     statistics: groupBy(s => String(s.categoryId), statistics),
+    range,
   };
 }

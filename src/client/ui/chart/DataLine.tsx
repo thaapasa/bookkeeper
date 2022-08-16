@@ -1,27 +1,23 @@
-import { interpolateNumber } from 'd3-interpolate';
 import { select as d3Select } from 'd3-selection';
 import { line } from 'd3-shape';
 import * as React from 'react';
 
-import { ChartScales } from '../chart/types';
+import { CommonChartProps } from './types';
 
 type DataPoint = [number, number];
 
-export const DataLine: React.FC<{
-  values: DataPoint[];
-  scales: ChartScales;
-  maxValue: number;
-  maxKey: number;
-  color: string;
-}> = ({ values, scales: { xScale, yScale }, maxKey, maxValue, color }) => {
-  const [x1, x2] = xScale.range();
-  const [y1, y2] = yScale.range();
-  const xscale = interpolateNumber(x1, x2);
-  const yscale = interpolateNumber(y1, y2);
+export const DataLine: React.FC<
+  CommonChartProps & {
+    values: DataPoint[];
+    maxKey: number;
+    color: string;
+  }
+> = ({ values, scales: { xScale, yScale }, color }) => {
+  const xOffs = xScale.bandwidth ? xScale.bandwidth() / 2 : 0;
   const ref = React.useRef<SVGPathElement>(null);
   const valueLine = line()
-    .x(v => xscale(v[0] / maxKey))
-    .y(v => yscale(v[1] / maxValue));
+    .x(v => xOffs + (xScale(String(v[0])) ?? 0))
+    .y(v => yScale(v[1]) ?? 0);
 
   React.useEffect(() => {
     if (ref.current) {
@@ -30,7 +26,7 @@ export const DataLine: React.FC<{
         .attr('class', 'line')
         .attr('fill', 'none')
         .attr('stroke', color)
-        .attr('stroke-width', 1.5)
+        .attr('stroke-width', 1.2)
         .attr('d', valueLine);
     }
   });

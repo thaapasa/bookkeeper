@@ -67,3 +67,11 @@ export function toRecord<T extends string | number | symbol, S>(
   items.forEach(i => (res[i] = conv(i)));
   return res;
 }
+
+export function recordFromPairs<K extends string | number | symbol, V>(
+  items: [K, V][]
+): Record<K, V> {
+  const res: Record<K, V> = {} as any;
+  items.forEach(([k, v]) => (res[k] = v));
+  return res;
+}

@@ -2,6 +2,7 @@ import * as io from 'io-ts';
 
 import { MoneyLike } from 'shared/util/Money';
 import { ISOMonth } from 'shared/util/Time';
+import { DateRange } from 'shared/util/TimeRange';
 
 import { NonEmptyArray } from './Validator';
 
@@ -13,7 +14,6 @@ export type StatisticsSearchType = io.TypeOf<typeof StatisticsSearchType>;
 export const CategoryStatisticsData = io.type({
   sum: MoneyLike,
   month: ISOMonth,
-  range: io.number,
   categoryId: io.number,
 });
 export type CategoryStatisticsData = io.TypeOf<typeof CategoryStatisticsData>;
@@ -22,6 +22,7 @@ export const CategoryStatistics = io.intersection([
   StatisticsSearchType,
   io.type({
     statistics: io.record(io.string, io.array(CategoryStatisticsData)),
+    range: DateRange,
   }),
 ]);
 export type CategoryStatistics = io.TypeOf<typeof CategoryStatistics>;

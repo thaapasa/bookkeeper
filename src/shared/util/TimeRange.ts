@@ -27,6 +27,18 @@ export interface TypedDateRange extends UIDateRange {
   type: 'year' | 'month' | 'custom';
 }
 
+export interface MomentRange {
+  startTime: Moment;
+  endTime: Moment;
+}
+
+export function dateRangeToMomentRange(r: DateRange) {
+  return {
+    startTime: toMoment(r.startDate).startOf('day'),
+    endTime: toMoment(r.endDate).endOf('day'),
+  };
+}
+
 export function toDateRangeName(x: TypedDateRange): string {
   switch (x.type) {
     case 'month':

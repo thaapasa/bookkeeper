@@ -1,6 +1,6 @@
 import 'jest';
 
-import { indices, sortAndCompareElements } from './Arrays';
+import { indices, numberRange, sortAndCompareElements } from './Arrays';
 
 describe('arrays', () => {
   it('should create indices', () => {
@@ -17,5 +17,13 @@ describe('arrays', () => {
     expect(sortAndCompareElements([1], [])).toEqual(false);
     expect(sortAndCompareElements([2], [1])).toEqual(false);
     expect(sortAndCompareElements([1, 2, 3], [1, 2])).toEqual(false);
+  });
+  it.each<[number, number, number[]]>([
+    [0, 5, [0, 1, 2, 3, 4, 5]],
+    [3, 3, [3]],
+    [4, 3, []],
+    [2, 5, [2, 3, 4, 5]],
+  ])('should make range [%s, %s]: %s', (min, max, expected) => {
+    expect(numberRange(min, max)).toMatchObject(expected);
   });
 });

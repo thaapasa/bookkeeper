@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import { CategoryStatistics } from 'shared/types/Statistics';
+import { numberRange } from 'shared/util/Arrays';
 import Money from 'shared/util/Money';
 
 import { createLabeledChart } from '../chart/LabeledChart';
@@ -10,6 +11,7 @@ import { StatisticsGraph } from './StatisticsGraph';
 
 const LabeledChart = createLabeledChart(StatisticsGraph);
 
+/*
 const Months = [
   'Tammi',
   'Helmi',
@@ -24,6 +26,9 @@ const Months = [
   'Marras',
   'Joulu',
 ];
+*/
+
+const MonthDomain = numberRange(0, 11).map(i => String(i));
 
 const StatisticsChartImpl: React.FC<{
   statistics: CategoryStatistics;
@@ -37,7 +42,7 @@ const StatisticsChartImpl: React.FC<{
     <LabeledChart
       size={size}
       maxValue={maxValue.valueOf()}
-      labels={Months}
+      labels={MonthDomain}
       data={statistics}
     />
   );

@@ -32,6 +32,11 @@ export function indices(num: number): number[] {
   return Array.from(new Array(num), (_, i) => i);
 }
 
+export function numberRange(min: number, max: number): number[] {
+  const len = max - min + 1;
+  return Array.from(new Array(len), (_, i) => i + min);
+}
+
 export function last<T>(arr: T[]): T {
   if (arr.length < 1) {
     throw new Error('last: No elements in array');

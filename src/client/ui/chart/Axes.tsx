@@ -55,7 +55,7 @@ const Axis: React.FC<AxisProps<any>> = ({
     const axis = getAxis(orient, scale)
       .tickSize(-tickSize)
       .tickPadding(12)
-      .ticks([4]);
+      .ticks([6]);
 
     if (axisRef.current) {
       d3Select(axisRef.current).call(axis);
