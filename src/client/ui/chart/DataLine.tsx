@@ -1,3 +1,4 @@
+import { curveBumpX } from 'd3';
 import { select as d3Select } from 'd3-selection';
 import { line } from 'd3-shape';
 import * as React from 'react';
@@ -5,6 +6,8 @@ import * as React from 'react';
 import { CommonChartProps } from './types';
 
 type DataPoint = [number, number];
+
+// See examples of data curve from https://observablehq.com/@d3/d3-line
 
 export const DataLine: React.FC<
   CommonChartProps & {
@@ -16,6 +19,7 @@ export const DataLine: React.FC<
   const xOffs = xScale.bandwidth ? xScale.bandwidth() / 2 : 0;
   const ref = React.useRef<SVGPathElement>(null);
   const valueLine = line()
+    .curve(curveBumpX)
     .x(v => xOffs + (xScale(String(v[0])) ?? 0))
     .y(v => yScale(v[1]) ?? 0);
 
