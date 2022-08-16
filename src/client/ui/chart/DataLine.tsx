@@ -5,12 +5,15 @@ import * as React from 'react';
 
 import { ChartScales } from '../chart/types';
 
+type DataPoint = [number, number];
+
 export const DataLine: React.FC<{
-  values: [number, number][];
+  values: DataPoint[];
   scales: ChartScales;
   maxValue: number;
   maxKey: number;
-}> = ({ values, scales: { xScale, yScale }, maxKey, maxValue }) => {
+  color: string;
+}> = ({ values, scales: { xScale, yScale }, maxKey, maxValue, color }) => {
   const [x1, x2] = xScale.range();
   const [y1, y2] = yScale.range();
   const xscale = interpolateNumber(x1, x2);
@@ -26,7 +29,7 @@ export const DataLine: React.FC<{
         .data([values])
         .attr('class', 'line')
         .attr('fill', 'none')
-        .attr('stroke', 'steelblue')
+        .attr('stroke', color)
         .attr('stroke-width', 1.5)
         .attr('d', valueLine);
     }
