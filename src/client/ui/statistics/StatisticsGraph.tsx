@@ -11,6 +11,7 @@ import { toMoment } from 'shared/util/Time';
 import { dateRangeToMomentRange, MomentRange } from 'shared/util/TimeRange';
 
 import { getChartColor } from '../chart/ChartColors';
+import { DataBars } from '../chart/DataBars';
 import { DataLines } from '../chart/DataLine';
 import { ChartDataLine, CommonChartProps } from '../chart/types';
 
@@ -18,16 +19,20 @@ interface StatisticsGraphProps extends CommonChartProps<number> {
   data: CategoryStatistics;
 }
 
-export const StatisticsGraph: React.FC<StatisticsGraphProps> = ({
+export const StatisticsBarGraph: React.FC<StatisticsGraphProps> = ({
   data,
   ...rest
 }) => {
   const chartData = React.useMemo(() => convertData(data), [data]);
-  return (
-    <g>
-      <DataLines data={chartData} {...rest} />
-    </g>
-  );
+  return <DataBars data={chartData} {...rest} />;
+};
+
+export const StatisticsLineGraph: React.FC<StatisticsGraphProps> = ({
+  data,
+  ...rest
+}) => {
+  const chartData = React.useMemo(() => convertData(data), [data]);
+  return <DataLines data={chartData} {...rest} />;
 };
 
 function convertData(data: CategoryStatistics): ChartDataLine<number>[] {

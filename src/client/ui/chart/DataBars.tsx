@@ -1,41 +1,98 @@
+import { AxisScale } from 'd3-axis';
+import { scaleBand } from 'd3-scale';
 import * as React from 'react';
 
 import { typedKeys } from 'shared/util/Objects';
 
-import { CommonChartProps } from './types';
+import {
+  ChartDataColumn,
+  ChartDataLine,
+  CommonChartProps,
+  Domain,
+} from './types';
 
-interface DataBarsProps<Domain extends string>
-  extends CommonChartProps<Domain> {
-  data: Record<Domain, number>;
+interface DataBarsProps<X extends Domain> extends CommonChartProps<X> {
+  data: ChartDataLine<X>[];
 }
 
-export const DataBars: React.FC<DataBarsProps<any>> = <Domain extends string>({
+export const DataBars: React.FC<DataBarsProps<any>> = <X extends Domain>({
   data,
   margins,
-  svgDimensions: { height },
-  scales: { xScale, yScale },
-}: DataBarsProps<Domain>) => {
-  const keys = typedKeys(data);
-  console.log('data', data);
-  console.log('keys', keys);
-  console.log(xScale(keys[0]));
-  console.log(xScale(keys[1]));
+  ...rest
+}: DataBarsProps<X>) => {
+  const grouped = React.useMemo(() => byDomain(data), [data]);
+  const keys = typedKeys(grouped);
+  const allKeys = grouped[keys[0]].values.map(v => v.key);
+
+  const xSubgroup = scaleBand<string>()
+    .domain(allKeys)
+    .range([0, rest.scales.xScale.bandwidth?.() ?? allKeys.length]);
+
   return (
-    <g>
-      {keys ? (
-        keys.map(k => (
-          <rect
-            key={k}
-            x={xScale(k)}
-            y={yScale(data[k])}
-            height={height - margins.bottom}
-            width={xScale.bandwidth ? xScale.bandwidth() : 1}
-            fill="#A252B6"
-          />
-        ))
-      ) : (
-        <rect />
-      )}
+    <>
+      {keys.map(k => (
+        <DataBarGroup
+          key={k}
+          data={grouped[k]}
+          transform={`translate(${
+            (rest.scales.xScale(Number(k) as any) || 0) +
+            margins.left +
+            (rest.scales.xScale.bandwidth?.() ?? 0) / 2
+          },0)`}
+          xSubScale={xSubgroup}
+          margins={margins}
+          {...rest}
+        />
+      ))}
+    </>
+  );
+};
+
+interface DataBarGroupProps<X extends Domain> extends CommonChartProps<X> {
+  data: ChartDataColumn<X>;
+  transform: string;
+  xSubScale: AxisScale<string>;
+}
+
+export const DataBarGroup: React.FC<DataBarGroupProps<any>> = <
+  X extends Domain
+>({
+  data,
+  scales: { yScale },
+  xSubScale,
+  svgDimensions: { height },
+  transform,
+  margins,
+}: DataBarGroupProps<X>) => {
+  return (
+    <g transform={transform}>
+      {data.values.map(d => (
+        <rect
+          key={d.key}
+          x={xSubScale(d.key) || 0}
+          y={yScale(d.value) || 0}
+          height={height - (yScale(d.value) || 0) - margins.bottom}
+          width={xSubScale.bandwidth?.() ?? 1}
+          fill={d.color}
+        />
+      ))}
     </g>
   );
 };
+
+function byDomain<X extends Domain>(
+  data: ChartDataLine<X>[]
+): Record<X, ChartDataColumn<X>> {
+  const res: Record<X, ChartDataColumn<X>> = {} as any;
+
+  data.forEach(line => {
+    const { key, color, ...rest } = line;
+    typedKeys(rest).map(l => {
+      if (l !== 'key' && l !== 'color') {
+        res[l] ??= { domain: l, values: [] };
+        res[l].values.push({ key, color: line.color, value: rest[l] ?? 0 });
+      }
+    });
+  });
+  return res;
+}

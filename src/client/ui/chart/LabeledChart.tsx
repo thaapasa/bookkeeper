@@ -27,7 +27,7 @@ function createXScale<Domain extends AxisDomain>(
 ): AxisScale<Domain> {
   const range = [ChartMargins.left, chartWidth - ChartMargins.right];
   if (type === 'band') {
-    return scaleBand<Domain>(domain, range).padding(0.5);
+    return scaleBand<Domain>(domain, range).padding(0.3);
   } else if (type === 'point') {
     return scalePoint(domain, range);
   } else {
@@ -57,7 +57,7 @@ export function createLabeledChart<P extends CommonChartProps<any>>(
 
     const xScale = usePersistentMemo(
       () => createXScale(scaleType, domain, svgDimensions.width),
-      [(svgDimensions.width, maxValue)]
+      [svgDimensions.width, domain, maxValue]
     );
     const yScale = usePersistentMemo(
       () =>

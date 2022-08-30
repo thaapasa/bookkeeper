@@ -7,10 +7,13 @@ import Money from 'shared/util/Money';
 import { createLabeledChart } from '../chart/LabeledChart';
 import { MeasureSize } from '../utils/MeasureSize';
 import { Size } from '../utils/useElementSize';
-import { StatisticsGraph } from './StatisticsGraph';
+import { StatisticsBarGraph, StatisticsLineGraph } from './StatisticsGraph';
 import { Months } from './types';
 
-const LabeledChart = createLabeledChart(StatisticsGraph, 'point');
+const LabeledLineChart = createLabeledChart(StatisticsLineGraph, 'point');
+const LabeledBarChart = createLabeledChart(StatisticsBarGraph, 'band');
+
+const useLines = false;
 
 /**
  * Statistics chart data:
@@ -29,8 +32,9 @@ const StatisticsChartImpl: React.FC<{
     .flat()
     .reduce((p, c) => (p.gt(c.sum) ? p : new Money(c.sum)), new Money(0));
 
+  const Chart = useLines ? LabeledLineChart : LabeledBarChart;
   return (
-    <LabeledChart
+    <Chart
       size={size}
       maxValue={maxValue.valueOf()}
       domain={months}
