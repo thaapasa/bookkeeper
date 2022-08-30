@@ -11,65 +11,59 @@ import { toMoment } from 'shared/util/Time';
 import { dateRangeToMomentRange, MomentRange } from 'shared/util/TimeRange';
 
 import { getChartColor } from '../chart/ChartColors';
-import { DataLine } from '../chart/DataLine';
-import { ChartMargins, CommonChartProps } from '../chart/types';
+import { DataLines } from '../chart/DataLine';
+import { ChartDataLine, CommonChartProps } from '../chart/types';
 
-interface StatisticsGraphProps extends CommonChartProps<string> {
+interface StatisticsGraphProps extends CommonChartProps<number> {
   data: CategoryStatistics;
 }
 
 export const StatisticsGraph: React.FC<StatisticsGraphProps> = ({
   data,
   ...rest
-}) => (
-  <g>
-    {Object.keys(data.statistics).map((k, index) => (
-      <CategoryGraph
-        {...rest}
-        key={k}
-        index={index}
-        data={data.statistics[k]}
-        range={dateRangeToMomentRange(data.range)}
-      />
-    ))}
-  </g>
-);
-
-const CategoryGraph: React.FC<
-  CommonChartProps<string> & {
-    data: CategoryStatisticsData[];
-    index: number;
-    range: MomentRange;
-  }
-> = ({ data, index, ...rest }) => {
-  const byYears = groupBy(i => i.month.substring(0, 4), data);
+}) => {
+  const chartData = React.useMemo(() => convertData(data), [data]);
   return (
-    <>
-      {typedKeys(byYears).map(y => (
-        <YearLine
-          key={y}
-          year={y}
-          data={byYears[y]}
-          color={getChartColor(index, 2022 - Number(y))}
-          {...rest}
-        />
-      ))}
-    </>
+    <g>
+      <DataLines data={chartData} {...rest} />
+    </g>
   );
 };
 
-const YearLine: React.FC<
-  CommonChartProps<string> & {
-    year: string;
-    data: CategoryStatisticsData[];
-    margins: ChartMargins;
-    color: string;
-    range: MomentRange;
-  }
-> = ({ data, range, year, ...rest }) => {
-  const values = yearDataToDataPoints(data, range);
-  return <DataLine data={values} {...rest} />;
-};
+function convertData(data: CategoryStatistics): ChartDataLine<number>[] {
+  const keys = typedKeys(data.statistics);
+  const range = dateRangeToMomentRange(data.range);
+  return keys
+    .map((k, i) => convertAllYears(k, i, data.statistics[k], range))
+    .flat();
+}
+
+function convertAllYears(
+  key: string,
+  categoryIdx: number,
+  data: CategoryStatisticsData[],
+  range: MomentRange
+): ChartDataLine<string>[] {
+  const byYears = groupBy(i => i.month.substring(0, 4), data);
+  return typedKeys(byYears).map((year, i) =>
+    convertOneYear(`${key}-${year}`, categoryIdx, i, byYears[year], range)
+  );
+}
+
+function convertOneYear(
+  key: string,
+  categoryIdx: number,
+  yearIdx: number,
+  data: CategoryStatisticsData[],
+  range: MomentRange
+): ChartDataLine<string> {
+  const line = yearDataToDataPoints(data, range);
+  return {
+    ...recordFromPairs(line.map(([d, v]) => [String(d), v])),
+    key,
+    color: getChartColor(categoryIdx, yearIdx),
+  } as any;
+}
 
 function yearDataToDataPoints(
   data: CategoryStatisticsData[],
@@ -102,12 +96,3 @@ function yearDataToDataPoints(
 
   return numberRange(startPoint, endPoint).map(m => [m, inputMap[m] ?? 0]);
 }
-
-/*
-function yearDataToDataRecord(
-  data: CategoryStatisticsData[],
-  range: MomentRange
-): Record<string, number> {
-  return recordFromPairs(yearDataToDataPoints(data, range));
-}
-*/

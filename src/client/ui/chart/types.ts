@@ -1,7 +1,9 @@
 import * as d3Axis from 'd3-axis';
 
-export interface ChartScales<XDomain> {
-  xScale: d3Axis.AxisScale<XDomain>;
+export type Domain = string | number;
+
+export interface ChartScales<X extends Domain> {
+  xScale: d3Axis.AxisScale<X>;
   yScale: d3Axis.AxisScale<number>;
 }
 
@@ -14,8 +16,8 @@ export interface ChartMargins {
 
 export type ChartOrient = 'Bottom' | 'Left' | 'Top' | 'Right';
 
-export interface CommonChartProps<XDomain> {
-  scales: ChartScales<XDomain>;
+export interface CommonChartProps<X extends Domain> {
+  scales: ChartScales<X>;
   margins: ChartMargins;
   svgDimensions: { height: number; width: number };
   maxValue: number;
@@ -24,3 +26,8 @@ export interface CommonChartProps<XDomain> {
 export type CommonChartDomain<P> = P extends CommonChartProps<infer D>
   ? D
   : never;
+
+export type ChartDataLine<X extends Domain> = {
+  key: string;
+  color?: string;
+} & Partial<Record<X, number>>;

@@ -4,16 +4,16 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import { media } from '../Styles';
-import { ChartMargins, ChartOrient, ChartScales } from './types';
+import { ChartMargins, ChartOrient, ChartScales, Domain } from './types';
 
-interface AxesProps<XDomain> {
-  scales: ChartScales<XDomain>;
+interface AxesProps<X extends Domain> {
+  scales: ChartScales<X>;
   margins: ChartMargins;
   svgDimensions: { height: number; width: number };
-  labelFormatter?: (label: XDomain) => string;
+  labelFormatter?: (label: X) => string;
 }
 
-export const Axes: React.FC<AxesProps<any>> = <D extends d3Axis.AxisDomain>({
+export const Axes: React.FC<AxesProps<any>> = <D extends Domain>({
   scales,
   margins,
   svgDimensions: { height, width },
@@ -36,12 +36,12 @@ export const Axes: React.FC<AxesProps<any>> = <D extends d3Axis.AxisDomain>({
   </g>
 );
 
-interface AxisProps<Domain extends d3Axis.AxisDomain> {
+interface AxisProps<X extends Domain> {
   orient: ChartOrient;
-  scale: d3Axis.AxisScale<Domain>;
+  scale: d3Axis.AxisScale<X>;
   tickSize: number;
   translate: string;
-  labelFormatter?: (label: Domain) => string;
+  labelFormatter?: (label: X) => string;
 }
 
 const Axis: React.FC<AxisProps<any>> = ({
