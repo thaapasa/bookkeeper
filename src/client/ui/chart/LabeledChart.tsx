@@ -1,10 +1,14 @@
-import { scaleBand, scaleLinear } from 'd3-scale';
+import { AxisDomain, AxisScale } from 'd3-axis';
+import { scaleBand, scaleLinear, scalePoint } from 'd3-scale';
 import * as React from 'react';
 
 import { Size } from '../utils/useElementSize';
+import { useObjectMemo } from '../utils/useObjectMemo';
 import { usePersistentMemo } from '../utils/usePersistentMemo';
 import { Axes } from './Axes';
 import { CommonChartProps } from './types';
+
+type ScaleType = 'band' | 'point';
 
 interface LabeledChartProps {
   size: Size;
@@ -16,15 +20,28 @@ interface LabeledChartProps {
 
 const ChartMargins = { top: 50, right: 20, bottom: 80, left: 60 };
 
-export function createLabeledChart<P extends CommonChartProps>(
-  graphRenderer?: React.ComponentType<P>
+function createXScale<Domain extends AxisDomain>(
+  type: ScaleType,
+  domain: Domain[],
+  chartWidth: number
+): AxisScale<Domain> {
+  const range = [ChartMargins.left, chartWidth - ChartMargins.right];
+  if (type === 'band') {
+    return scaleBand<Domain>(domain, range).padding(0.5);
+  } else if (type === 'point') {
+    return scalePoint(domain, range);
+  } else {
+    throw new Error(`Invalid scale type ${type}`);
+  }
+}
+
+export function createLabeledChart<P extends CommonChartProps<any>>(
+  graphRenderer: React.ComponentType<P>,
+  scaleType: ScaleType
 ) {
   const LabeledChartView: React.FC<
-    LabeledChartProps & Omit<P, keyof CommonChartProps>
+    LabeledChartProps & Omit<P, keyof CommonChartProps<any>>
   > = ({ size, maxValue, minValue, labels, labelFormatter, ...rest }) => {
-    const xScaleP = usePersistentMemo(() => scaleBand<string>(), []);
-    const yScaleP = usePersistentMemo(() => scaleLinear<number>(), []);
-
     const containerWidth = size.width;
 
     const margins = ChartMargins;
@@ -37,20 +54,19 @@ export function createLabeledChart<P extends CommonChartProps>(
       [width]
     );
 
-    const xScale =
-      maxValue !== undefined && labels.length > 0
-        ? xScaleP
-            .padding(0.5)
-            .domain(labels)
-            .range([margins.left, svgDimensions.width - margins.right])
-        : xScaleP;
+    const xScale = usePersistentMemo(
+      () => createXScale(scaleType, labels, svgDimensions.width),
+      [(svgDimensions.width, maxValue)]
+    );
+    const yScale = usePersistentMemo(
+      () =>
+        scaleLinear<number>()
+          .domain([minValue ?? 0, maxValue ?? 0])
+          .range([svgDimensions.height - margins.bottom, margins.top]),
+      [minValue, maxValue, svgDimensions.height]
+    );
 
-    const yScale = yScaleP
-      // scaleLinear domain required at least two values, min and max
-      .domain([minValue ?? 0, maxValue ?? 0])
-      .range([svgDimensions.height - margins.bottom, margins.top]);
-
-    const scales = { xScale, yScale };
+    const scales = useObjectMemo({ xScale, yScale });
 
     const GraphRenderer = graphRenderer as any;
     return (

@@ -3,7 +3,7 @@ import * as React from 'react';
 import { CommonChartProps } from '../chart/types';
 import { CategoryChartData } from './CategoryChart';
 
-interface BarsProps extends CommonChartProps {
+interface BarsProps extends CommonChartProps<string> {
   data?: CategoryChartData[];
 }
 

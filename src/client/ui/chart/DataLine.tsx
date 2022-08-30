@@ -10,7 +10,7 @@ type DataPoint = [number, number];
 // See examples of data curve from https://observablehq.com/@d3/d3-line
 
 export const DataLine: React.FC<
-  CommonChartProps & {
+  CommonChartProps<string> & {
     values: DataPoint[];
     maxKey: number;
     color: string;

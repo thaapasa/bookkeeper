@@ -14,7 +14,7 @@ import { getChartColor } from '../chart/ChartColors';
 import { DataLine } from '../chart/DataLine';
 import { ChartMargins, CommonChartProps } from '../chart/types';
 
-interface StatisticsGraphProps extends CommonChartProps {
+interface StatisticsGraphProps extends CommonChartProps<string> {
   data: CategoryStatistics;
 }
 
@@ -36,7 +36,7 @@ export const StatisticsGraph: React.FC<StatisticsGraphProps> = ({
 );
 
 const CategoryGraph: React.FC<
-  CommonChartProps & {
+  CommonChartProps<string> & {
     data: CategoryStatisticsData[];
     index: number;
     range: MomentRange;
@@ -59,7 +59,7 @@ const CategoryGraph: React.FC<
 };
 
 const YearLine: React.FC<
-  CommonChartProps & {
+  CommonChartProps<string> & {
     year: string;
     data: CategoryStatisticsData[];
     margins: ChartMargins;

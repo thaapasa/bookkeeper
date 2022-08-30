@@ -18,14 +18,14 @@ interface CategoryChartProps {
   size: Size;
 }
 
-const LabeledChart = createLabeledChart(CategoryBars);
+const LabeledChart = createLabeledChart(CategoryBars, 'band');
 
 const CategoryChartImpl: React.FC<CategoryChartProps> = ({
   chartData,
   size,
 }) => {
   const maxValue = chartData
-    ? Math.max(...chartData.map(d => Money.toValue(d.categoryTotal))) * 1.1
+    ? Math.max(...chartData.map(d => Money.toValue(d.categoryTotal)))
     : 0;
   const labels = React.useMemo(
     () => chartData?.map(d => d.categoryName) ?? [],

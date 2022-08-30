@@ -1,5 +1,5 @@
 import { colors } from '@mui/material';
-import { scaleBand, scaleOrdinal, stackOffsetNone, stackOrderNone } from 'd3';
+import { stackOffsetNone, stackOrderNone } from 'd3';
 import { select as d3Select } from 'd3-selection';
 import { stack } from 'd3-shape';
 import * as React from 'react';
@@ -23,9 +23,9 @@ export const DataBars: React.FC<DataBarsProps<any, any>> = <
 >({
   keys,
   data,
-  scales: { xScale, yScale },
+  scales: { xScale },
 }: DataBarsProps<T, D>) => {
-  const xOffs = xScale.bandwidth ? xScale.bandwidth() / 2 : 0;
+  // const xOffs = xScale.bandwidth ? xScale.bandwidth() / 2 : 0;
   const ref = React.useRef<SVGGElement>(null);
   const valueStack = stack()
     .keys(keys)
@@ -33,13 +33,14 @@ export const DataBars: React.FC<DataBarsProps<any, any>> = <
     .offset(stackOffsetNone);
   const series = valueStack(data);
 
-  const xScale = scaleBand(keys, xRange).padding(xPadding);
-  const yScale = yType(yDomain, yRange);
+  /*
+  const xScaleT = scaleBand(keys, xRange).padding(xPadding);
+  const yScaleT = yType(yDomain, yRange);
 
   const color = scaleOrdinal()
     .domain(keys)
     .range(['#e41a1c', '#377eb8', '#4daf4a']);
-
+*/
   React.useEffect(() => {
     d3Select(ref.current)
       .data(series)
@@ -51,9 +52,9 @@ export const DataBars: React.FC<DataBarsProps<any, any>> = <
       .data(identity)
       .enter()
       .append('rect')
-      .attr('x', d => xScale(d.data.group))
-      .attr('y', d => yScale(d[1]))
-      .attr('height', d => yScale(d[0]) - yScale(d[1]))
+      //.attr('x', d => xScale(d.data.group))
+      //.attr('y', d => yScale(d[1]))
+      //.attr('height', d => yScale(d[0]) - yScale(d[1]))
       .attr('width', xScale.bandwidth?.() ?? 1);
   });
 

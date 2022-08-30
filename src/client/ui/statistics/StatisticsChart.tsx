@@ -9,7 +9,7 @@ import { MeasureSize } from '../utils/MeasureSize';
 import { Size } from '../utils/useElementSize';
 import { StatisticsGraph } from './StatisticsGraph';
 
-const LabeledChart = createLabeledChart(StatisticsGraph);
+const LabeledChart = createLabeledChart(StatisticsGraph, 'point');
 
 const Months = [
   'Tammi',

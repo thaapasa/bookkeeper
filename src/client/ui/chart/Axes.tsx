@@ -6,14 +6,14 @@ import styled from 'styled-components';
 import { media } from '../Styles';
 import { ChartMargins, ChartOrient, ChartScales } from './types';
 
-interface AxesProps {
-  scales: ChartScales;
+interface AxesProps<XDomain> {
+  scales: ChartScales<XDomain>;
   margins: ChartMargins;
   svgDimensions: { height: number; width: number };
   labelFormatter?: (label: string) => string;
 }
 
-export const Axes: React.FC<AxesProps> = ({
+export const Axes: React.FC<AxesProps<string>> = ({
   scales,
   margins,
   svgDimensions: { height, width },
@@ -37,7 +37,7 @@ export const Axes: React.FC<AxesProps> = ({
 );
 
 interface AxisProps<D extends d3Axis.AxisDomain> {
-  orient: 'Bottom' | 'Left' | 'Top' | 'Right';
+  orient: ChartOrient;
   scale: d3Axis.AxisScale<D>;
   tickSize: number;
   translate: string;
