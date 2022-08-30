@@ -27,7 +27,7 @@ const CategoryChartImpl: React.FC<CategoryChartProps> = ({
   const maxValue = chartData
     ? Math.max(...chartData.map(d => Money.toValue(d.categoryTotal)))
     : 0;
-  const labels = React.useMemo(
+  const domain = React.useMemo(
     () => chartData?.map(d => d.categoryName) ?? [],
     [chartData]
   );
@@ -36,7 +36,7 @@ const CategoryChartImpl: React.FC<CategoryChartProps> = ({
     <LabeledChart
       size={size}
       maxValue={maxValue}
-      labels={labels}
+      domain={domain}
       data={chartData}
     />
   );

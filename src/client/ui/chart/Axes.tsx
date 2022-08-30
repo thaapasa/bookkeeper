@@ -10,15 +10,15 @@ interface AxesProps<XDomain> {
   scales: ChartScales<XDomain>;
   margins: ChartMargins;
   svgDimensions: { height: number; width: number };
-  labelFormatter?: (label: string) => string;
+  labelFormatter?: (label: XDomain) => string;
 }
 
-export const Axes: React.FC<AxesProps<string>> = ({
+export const Axes: React.FC<AxesProps<any>> = <D extends d3Axis.AxisDomain>({
   scales,
   margins,
   svgDimensions: { height, width },
   labelFormatter,
-}) => (
+}: AxesProps<D>) => (
   <g>
     <Axis
       orient="Bottom"
@@ -36,12 +36,12 @@ export const Axes: React.FC<AxesProps<string>> = ({
   </g>
 );
 
-interface AxisProps<D extends d3Axis.AxisDomain> {
+interface AxisProps<Domain extends d3Axis.AxisDomain> {
   orient: ChartOrient;
-  scale: d3Axis.AxisScale<D>;
+  scale: d3Axis.AxisScale<Domain>;
   tickSize: number;
   translate: string;
-  labelFormatter?: (label: string) => string;
+  labelFormatter?: (label: Domain) => string;
 }
 
 const Axis: React.FC<AxisProps<any>> = ({

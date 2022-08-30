@@ -20,3 +20,7 @@ export interface CommonChartProps<XDomain> {
   svgDimensions: { height: number; width: number };
   maxValue: number;
 }
+
+export type CommonChartDomain<P> = P extends CommonChartProps<infer D>
+  ? D
+  : never;

@@ -6,16 +6,16 @@ import { Size } from '../utils/useElementSize';
 import { useObjectMemo } from '../utils/useObjectMemo';
 import { usePersistentMemo } from '../utils/usePersistentMemo';
 import { Axes } from './Axes';
-import { CommonChartProps } from './types';
+import { CommonChartDomain, CommonChartProps } from './types';
 
 type ScaleType = 'band' | 'point';
 
-interface LabeledChartProps {
+interface LabeledChartProps<XDomain extends AxisDomain> {
   size: Size;
   maxValue?: number;
   minValue?: number;
-  labels: string[];
-  labelFormatter?: (domain: string) => string;
+  domain: XDomain[];
+  labelFormatter?: (domain: XDomain) => string;
 }
 
 const ChartMargins = { top: 50, right: 20, bottom: 80, left: 60 };
@@ -40,13 +40,14 @@ export function createLabeledChart<P extends CommonChartProps<any>>(
   scaleType: ScaleType
 ) {
   const LabeledChartView: React.FC<
-    LabeledChartProps & Omit<P, keyof CommonChartProps<any>>
-  > = ({ size, maxValue, minValue, labels, labelFormatter, ...rest }) => {
+    LabeledChartProps<CommonChartDomain<P>> &
+      Omit<P, keyof CommonChartProps<any>>
+  > = ({ size, maxValue, minValue, domain, labelFormatter, ...rest }) => {
     const containerWidth = size.width;
 
     const margins = ChartMargins;
     const width = Math.min(
-      maxValue !== undefined && labels.length > 0 ? labels.length * 90 : 10000,
+      maxValue !== undefined && domain.length > 0 ? domain.length * 90 : 10000,
       containerWidth
     );
     const svgDimensions = React.useMemo(
@@ -55,7 +56,7 @@ export function createLabeledChart<P extends CommonChartProps<any>>(
     );
 
     const xScale = usePersistentMemo(
-      () => createXScale(scaleType, labels, svgDimensions.width),
+      () => createXScale(scaleType, domain, svgDimensions.width),
       [(svgDimensions.width, maxValue)]
     );
     const yScale = usePersistentMemo(

@@ -68,7 +68,7 @@ const YearLine: React.FC<
   }
 > = ({ data, range, year, ...rest }) => {
   const values = yearDataToDataPoints(data, range);
-  return <DataLine values={values} {...rest} maxKey={11} />;
+  return <DataLine data={values} {...rest} />;
 };
 
 function yearDataToDataPoints(
@@ -102,3 +102,12 @@ function yearDataToDataPoints(
 
   return numberRange(startPoint, endPoint).map(m => [m, inputMap[m] ?? 0]);
 }
+
+/*
+function yearDataToDataRecord(
+  data: CategoryStatisticsData[],
+  range: MomentRange
+): Record<string, number> {
+  return recordFromPairs(yearDataToDataPoints(data, range));
+}
+*/

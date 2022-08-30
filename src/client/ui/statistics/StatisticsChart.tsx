@@ -8,25 +8,18 @@ import { createLabeledChart } from '../chart/LabeledChart';
 import { MeasureSize } from '../utils/MeasureSize';
 import { Size } from '../utils/useElementSize';
 import { StatisticsGraph } from './StatisticsGraph';
+import { Months } from './types';
 
 const LabeledChart = createLabeledChart(StatisticsGraph, 'point');
 
-const Months = [
-  'Tammi',
-  'Helmi',
-  'Maalis',
-  'Huhti',
-  'Touko',
-  'Kesä',
-  'Heinä',
-  'Elo',
-  'Syys',
-  'Loka',
-  'Marras',
-  'Joulu',
-];
+/**
+ * Statistics chart data:
+ *
+ * XDomain = month number as string (1=Jan, 2=Feb, etc.)
+ * YDomain = number (euros)
+ */
 
-const MonthDomain = numberRange(0, 11).map(i => String(i));
+const months = numberRange(1, 12).map(i => String(i));
 
 const StatisticsChartImpl: React.FC<{
   statistics: CategoryStatistics;
@@ -40,9 +33,9 @@ const StatisticsChartImpl: React.FC<{
     <LabeledChart
       size={size}
       maxValue={maxValue.valueOf()}
-      labels={MonthDomain}
+      domain={months}
       data={statistics}
-      labelFormatter={m => Months[Number(m)] ?? m}
+      labelFormatter={m => Months[Number(m) - 1]}
     />
   );
 };
