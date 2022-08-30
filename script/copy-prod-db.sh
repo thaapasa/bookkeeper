@@ -32,7 +32,7 @@ else
 fi
 
 echo "Clearing local database"
-dropdb -h localhost -p ${PORT} -U postgres postgres || exit -1
+dropdb -h localhost -p ${PORT} -U postgres postgres || echo Could not clear local db
 createdb -h localhost -p ${PORT} -U postgres postgres || exit -1
 
 echo "Restoring prod DB dump"
