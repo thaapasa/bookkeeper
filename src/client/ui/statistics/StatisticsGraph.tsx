@@ -44,9 +44,16 @@ function convertAllYears(
   data: CategoryStatisticsData[],
   range: MomentRange
 ): ChartDataLine<string>[] {
+  const thisYear = toMoment().year();
   const byYears = groupBy(i => i.month.substring(0, 4), data);
-  return typedKeys(byYears).map((year, i) =>
-    convertOneYear(`${key}-${year}`, categoryIdx, i, byYears[year], range)
+  return typedKeys(byYears).map(year =>
+    convertOneYear(
+      `${key}-${year}`,
+      categoryIdx,
+      thisYear - Number(year),
+      byYears[year],
+      range
+    )
   );
 }
 
