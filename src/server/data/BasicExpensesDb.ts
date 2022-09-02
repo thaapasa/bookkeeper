@@ -14,7 +14,7 @@ import {
 import Money, { MoneyLike } from 'shared/util/Money';
 import * as time from 'shared/util/Time';
 
-import categories from './Categories';
+import { CategoriesDb } from './CategoriesDb';
 import { determineDivision } from './ExpenseDivision';
 import sources from './Sources';
 
@@ -252,7 +252,7 @@ async function update(
   log('Updating expense', original, 'to', expense);
   const sourceId = expense.sourceId || defaultSourceId;
   const [cat, source] = await Promise.all([
-    categories.tx.getById(tx)(original.groupId, expense.categoryId),
+    CategoriesDb.getById(tx, original.groupId, expense.categoryId),
     sources.tx.getById(tx)(original.groupId, sourceId),
   ]);
   const division = determineDivision(expense, source);

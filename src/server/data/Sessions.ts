@@ -8,7 +8,7 @@ import { AuthenticationError } from 'shared/types/Errors';
 import { Session, SessionBasicInfo } from 'shared/types/Session';
 
 import { config } from '../Config';
-import categories from './Categories';
+import { CategoriesDb } from './CategoriesDb';
 import { db } from './Db';
 import sources from './Sources';
 import users, { mapUser, RawUserData } from './Users';
@@ -93,7 +93,7 @@ function appendInfo(tx: IBaseProtocol<any>) {
     Promise.all([
       users.tx.getGroups(tx)(session.user.id),
       sources.tx.getAll(tx)(session.group.id),
-      categories.tx.getAll(tx)(session.group.id),
+      CategoriesDb.getAll(tx, session.group.id),
       users.tx.getAll(tx)(session.group.id),
     ]).then(a => ({
       groups: a[0],

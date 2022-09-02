@@ -5,7 +5,7 @@ import { Category, CategoryAndTotals } from 'shared/types/Session';
 import { validate } from 'shared/types/Validator';
 import { DateRange } from 'shared/util/TimeRange';
 
-import categories, { CategoryInput } from '../data/Categories';
+import { CategoriesDb, CategoryInput } from '../data/CategoriesDb';
 import * as server from '../util/ServerUtil';
 import { Schema, Validator as V } from '../util/Validator';
 
@@ -19,8 +19,9 @@ export function createCategoryApi() {
   // GET /api/category/list
   api.get(
     '/list',
-    server.processRequest(
-      (session): Promise<Category[]> => categories.getAll(session.group.id),
+    server.processTxRequest(
+      (tx, session): Promise<Category[]> =>
+        CategoriesDb.getAll(tx, session.group.id),
       true
     )
   );
@@ -32,8 +33,9 @@ export function createCategoryApi() {
   };
   api.put(
     '/',
-    server.processRequest(async (session, req): Promise<ApiMessage> => {
-      const id = await categories.create(
+    server.processTxRequest(async (tx, session, req): Promise<ApiMessage> => {
+      const id = await CategoriesDb.create(
+        tx,
         session.group.id,
         V.validate(categorySchema, req.body)
       );
@@ -44,18 +46,22 @@ export function createCategoryApi() {
   // GET /api/category/totals
   api.get(
     '/totals',
-    server.processRequest((session, req): Promise<CategoryAndTotals[]> => {
-      const params = validate(DateRange, req.query);
-      return categories.getTotals(session.group.id, params);
-    }, true)
+    server.processTxRequest(
+      (tx, session, req): Promise<CategoryAndTotals[]> => {
+        const params = validate(DateRange, req.query);
+        return CategoriesDb.getTotals(tx, session.group.id, params);
+      },
+      true
+    )
   );
 
   // POST /api/category/categoryId
   api.post(
     '/:id',
-    server.processRequest(
-      (session, req): Promise<Category> =>
-        categories.update(
+    server.processTxRequest(
+      (tx, session, req): Promise<Category> =>
+        CategoriesDb.update(
+          tx,
           session.group.id,
           parseInt(req.params.id, 10),
           V.validate(categorySchema, req.body)
@@ -67,9 +73,9 @@ export function createCategoryApi() {
   // GET /api/category/categoryId
   api.get(
     '/:id',
-    server.processRequest(
-      (session, req): Promise<Category> =>
-        categories.getById(session.group.id, parseInt(req.params.id, 10)),
+    server.processTxRequest(
+      (tx, session, req): Promise<Category> =>
+        CategoriesDb.getById(tx, session.group.id, parseInt(req.params.id, 10)),
       true
     )
   );
@@ -77,9 +83,9 @@ export function createCategoryApi() {
   // DELETE /api/category/categoryId
   api.delete(
     '/:id',
-    server.processRequest(
-      (session, req): Promise<ApiMessage> =>
-        categories.remove(session.group.id, parseInt(req.params.id, 10)),
+    server.processTxRequest(
+      (tx, session, req): Promise<ApiMessage> =>
+        CategoriesDb.remove(tx, session.group.id, parseInt(req.params.id, 10)),
       true
     )
   );

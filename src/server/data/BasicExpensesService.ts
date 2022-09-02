@@ -5,7 +5,7 @@ import { ApiMessage } from 'shared/types/Api';
 import { Expense, ExpenseDivisionItem } from 'shared/types/Expense';
 
 import { BasicExpenseDb } from './BasicExpensesDb';
-import categories from './Categories';
+import { CategoriesDb } from './CategoriesDb';
 import { determineDivision } from './ExpenseDivision';
 import sources from './Sources';
 import users from './Users';
@@ -22,7 +22,7 @@ export async function createExpense(
   expense = BasicExpenseDb.setDefaults(expense);
   const sourceId = expense.sourceId || defaultSourceId;
   const [cat, user, source] = await Promise.all([
-    categories.tx.getById(tx)(groupId, expense.categoryId),
+    CategoriesDb.getById(tx, groupId, expense.categoryId),
     users.tx.getById(tx)(groupId, expense.userId),
     sources.tx.getById(tx)(groupId, sourceId),
   ]);

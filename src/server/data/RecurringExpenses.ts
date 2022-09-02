@@ -19,7 +19,7 @@ import { camelCaseObject } from 'shared/util/Util';
 import { Validator } from '../util/Validator';
 import { BasicExpenseDb } from './BasicExpensesDb';
 import { copyExpense } from './BasicExpensesService';
-import categories from './Categories';
+import { CategoriesDb } from './CategoriesDb';
 import { db } from './Db';
 import { determineDivision } from './ExpenseDivision';
 import sources from './Sources';
@@ -324,7 +324,7 @@ async function updateRecurringExpense(
   log('Updating recurring expense', original, 'to', expense);
   const sourceId = expense.sourceId || defaultSourceId;
   const [cat, source] = await Promise.all([
-    categories.tx.getById(tx)(original.groupId, expense.categoryId),
+    CategoriesDb.getById(tx, original.groupId, expense.categoryId),
     sources.tx.getById(tx)(original.groupId, sourceId),
   ]);
   await tx.none(
