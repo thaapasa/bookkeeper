@@ -3,7 +3,7 @@ import { IBaseProtocol } from 'pg-promise';
 
 import { ExpenseQuery, UserExpense } from 'shared/types/Expense';
 
-import basic from './BasicExpenses';
+import { BasicExpenseDb } from './BasicExpensesDb';
 import categories from './Categories';
 import { db } from './Db';
 
@@ -25,7 +25,7 @@ function searchExpenses(tx: IBaseProtocol<any>) {
         ? await categories.tx.expandSubCategories(tx, groupId, inputCategoryIds)
         : inputCategoryIds;
     const expenses = await tx.manyOrNone<UserExpense>(
-      basic.expenseSelect(`
+      BasicExpenseDb.expenseSelect(`
       WHERE group_id=$/groupId/
       AND template=false
       AND ($/startDate/ IS NULL OR date::DATE >= $/startDate/::DATE)
@@ -53,7 +53,7 @@ function searchExpenses(tx: IBaseProtocol<any>) {
         search: query.search || '',
       }
     );
-    return expenses.map(basic.mapExpense);
+    return expenses.map(BasicExpenseDb.mapExpense);
   };
 }
 

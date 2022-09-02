@@ -11,7 +11,8 @@ import Money from 'shared/util/Money';
 import { mapValues } from 'shared/util/Objects';
 import * as time from 'shared/util/Time';
 
-import basic from './BasicExpenses';
+import { BasicExpenseDb as basic } from './BasicExpensesDb';
+import { createExpense } from './BasicExpensesService';
 import { db } from './Db';
 import split from './ExpenseSplit';
 import recurring from './RecurringExpenses';
@@ -86,13 +87,13 @@ function getByMonth(
     const [expenses, startStatus, monthStatus, unconfirmedBefore] =
       await Promise.all([
         getBetween(tx)(groupId, userId, startDate, endDate),
-        basic.tx
-          .countTotalBetween(tx)(groupId, userId, '2000-01', startDate)
+        basic
+          .countTotalBetween(tx, groupId, userId, '2000-01', startDate)
           .then(calculateBalance),
-        basic.tx
-          .countTotalBetween(tx)(groupId, userId, startDate, endDate)
+        basic
+          .countTotalBetween(tx, groupId, userId, startDate, endDate)
           .then(calculateBalance),
-        basic.tx.hasUnconfirmedBefore(tx)(groupId, startDate),
+        basic.hasUnconfirmedBefore(tx, groupId, startDate),
       ]);
     const endStatus = mapValues(
       k => Money.from(startStatus[k]).plus(monthStatus[k]).toString(),
@@ -115,7 +116,7 @@ export default {
   getDivision: basic.getDivision,
   deleteById: basic.deleteById,
   queryReceivers: basic.queryReceivers,
-  create: basic.create,
+  create: createExpense,
   update: basic.update,
   split: split.split,
   createRecurring: recurring.createRecurring,

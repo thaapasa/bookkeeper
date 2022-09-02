@@ -1,5 +1,6 @@
 import debug from 'debug';
 import { Request, Response } from 'express';
+import { ITask } from 'pg-promise';
 
 import { InvalidGroupError, TokenNotPresentError } from 'shared/types/Errors';
 import { SessionBasicInfo } from 'shared/types/Session';
@@ -101,4 +102,19 @@ export function processRequest<T>(
       handleError(res)(e);
     }
   };
+}
+
+export function processTxRequest<T>(
+  handler: (
+    tx: ITask<any>,
+    session: SessionBasicInfo,
+    req: Request,
+    res: Response
+  ) => Promise<T>,
+  groupRequired?: boolean
+) {
+  return processRequest(
+    (session, req, res) => db.tx(tx => handler(tx, session, req, res)),
+    groupRequired
+  );
 }

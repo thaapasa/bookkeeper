@@ -17,7 +17,8 @@ import { DateLike, fromISODate, toISODate, toMoment } from 'shared/util/Time';
 import { camelCaseObject } from 'shared/util/Util';
 
 import { Validator } from '../util/Validator';
-import expenses, { setDefaults, storeDivision } from './BasicExpenses';
+import { BasicExpenseDb } from './BasicExpensesDb';
+import { copyExpense } from './BasicExpensesService';
 import categories from './Categories';
 import { db } from './Db';
 import { determineDivision } from './ExpenseDivision';
@@ -53,23 +54,18 @@ function createRecurring(
   return db.tx(async (tx: IBaseProtocol<any>): Promise<ApiMessage> => {
     log('Create', recurrence.period, 'recurring expense from', expenseId);
     let nextMissing: Moment | undefined;
-    const templateId = await expenses.tx.copyExpense(tx)(
-      groupId,
-      userId,
-      expenseId,
-      e => {
-        const [expense, division] = e;
-        if (expense.recurringExpenseId && expense.recurringExpenseId > 0) {
-          throw new Validator.InvalidInputError(
-            'recurringExpenseId',
-            expense.recurringExpenseId,
-            'Expense is already a recurring expense'
-          );
-        }
-        nextMissing = nextRecurrence(expense.date, recurrence.period);
-        return [{ ...expense, template: true }, division];
+    const templateId = await copyExpense(tx, groupId, userId, expenseId, e => {
+      const [expense, division] = e;
+      if (expense.recurringExpenseId && expense.recurringExpenseId > 0) {
+        throw new Validator.InvalidInputError(
+          'recurringExpenseId',
+          expense.recurringExpenseId,
+          'Expense is already a recurring expense'
+        );
       }
-    );
+      nextMissing = nextRecurrence(expense.date, recurrence.period);
+      return [{ ...expense, template: true }, division];
+    });
     const recurringExpenseId = (
       await tx.one<{ id: number }>(
         `
@@ -121,7 +117,7 @@ function createMissingRecurrenceForDate(
     const expense = { ...exp, template: false, date };
     log('Creating missing expense', expense.title, expense.date);
     // log('Creating missing expense', expense, 'with division', division);
-    return expenses.tx.insert(tx)(expense.userId, expense, division);
+    return BasicExpenseDb.insert(tx, expense.userId, expense, division);
   };
 }
 
@@ -149,7 +145,8 @@ function createMissingRecurrences(
       'next missing is',
       toISODate(nextMissing)
     );
-    const expense = await expenses.tx.getExpenseAndDivision(tx)(
+    const expense = await BasicExpenseDb.getExpenseAndDivision(
+      tx,
       groupId,
       userId,
       recurrence.templateExpenseId
@@ -232,33 +229,33 @@ WHERE id=$/recurringExpenseId/`,
 }
 
 async function deleteRecurringById(
+  tx: IBaseProtocol<any>,
   groupId: number,
   userId: number,
   expenseId: number,
   target: RecurringExpenseTarget
 ): Promise<ApiMessage> {
-  return db.tx(async tx => {
-    log('Deleting recurring expense', expenseId, '- targeting', target);
-    if (target === 'single') {
-      return expenses.deleteById(groupId, expenseId);
-    }
-    const exp = await expenses.tx.getById(tx)(groupId, userId, expenseId);
-    if (!exp.recurringExpenseId) {
-      throw new InvalidExpense('Not a recurring expense');
-    }
-    switch (target) {
-      case 'all':
-        return deleteRecurrenceAndExpenses(tx, exp.recurringExpenseId);
-      case 'after':
-        return deleteRecurrenceAfter(
-          tx,
-          expenseId,
-          exp.date,
-          exp.recurringExpenseId
-        );
-    }
-    throw new InvalidExpense(`Invalid target ${target}`);
-  });
+  log('Deleting recurring expense', expenseId, '- targeting', target);
+  if (target === 'single') {
+    return BasicExpenseDb.deleteById(tx, groupId, expenseId);
+  }
+  const exp = await BasicExpenseDb.getById(tx, groupId, userId, expenseId);
+  if (!exp.recurringExpenseId) {
+    throw new InvalidExpense('Not a recurring expense');
+  }
+  switch (target) {
+    case 'all':
+      return deleteRecurrenceAndExpenses(tx, exp.recurringExpenseId);
+    case 'after':
+      return deleteRecurrenceAfter(
+        tx,
+        expenseId,
+        exp.date,
+        exp.recurringExpenseId
+      );
+    default:
+      throw new InvalidExpense(`Invalid target ${target}`);
+  }
 }
 
 function deleteDivisionForRecurrence(
@@ -304,7 +301,9 @@ async function createDivisionForRecurrence(
   await Promise.all(
     unnest(
       ids.map(expenseId =>
-        division.map(d => storeDivision(tx)(expenseId, d.userId, d.type, d.sum))
+        division.map(d =>
+          BasicExpenseDb.storeDivision(tx, expenseId, d.userId, d.type, d.sum)
+        )
       )
     )
   );
@@ -321,7 +320,7 @@ async function updateRecurringExpense(
   if (!original.recurringExpenseId) {
     throw new InvalidExpense(`Invalid target ${target}`);
   }
-  expense = setDefaults(expense);
+  expense = BasicExpenseDb.setDefaults(expense);
   log('Updating recurring expense', original, 'to', expense);
   const sourceId = expense.sourceId || defaultSourceId;
   const [cat, source] = await Promise.all([
@@ -387,13 +386,13 @@ async function updateRecurring(
 ): Promise<ApiMessage> {
   return db.tx(async tx => {
     log('Updating recurring expense', expenseId, '- targeting', target);
-    const org = await expenses.tx.getById(tx)(groupId, userId, expenseId);
+    const org = await BasicExpenseDb.getById(tx, groupId, userId, expenseId);
     if (!org.recurringExpenseId) {
       throw new InvalidExpense('Not a recurring expense');
     }
 
     if (target === 'single') {
-      return expenses.tx.updateExpense(tx)(org, expense, defaultSourceId);
+      return BasicExpenseDb.update(tx, org, expense, defaultSourceId);
     } else {
       return updateRecurringExpense(tx, target, org, expense, defaultSourceId);
     }
