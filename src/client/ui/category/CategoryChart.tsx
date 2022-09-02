@@ -1,11 +1,18 @@
 import * as React from 'react';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 
 import Money from 'shared/util/Money';
 
-import { createLabeledChart } from '../chart/LabeledChart';
 import { MeasureSize } from '../utils/MeasureSize';
 import { Size } from '../utils/useElementSize';
-import { CategoryBars } from './CategoryBars';
 
 export interface CategoryChartData {
   categoryId: number;
@@ -18,28 +25,34 @@ interface CategoryChartProps {
   size: Size;
 }
 
-const LabeledChart = createLabeledChart(CategoryBars, 'band');
-
 const CategoryChartImpl: React.FC<CategoryChartProps> = ({
   chartData,
   size,
 }) => {
-  const maxValue = chartData
-    ? Math.max(...chartData.map(d => Money.toValue(d.categoryTotal)))
-    : 0;
-  const domain = React.useMemo(
-    () => chartData?.map(d => d.categoryName) ?? [],
-    [chartData]
-  );
-
+  const thin = size.width < 550;
   return (
-    <LabeledChart
-      size={size}
-      maxValue={maxValue}
-      domain={domain}
+    <BarChart
+      width={size.width}
+      height={300}
       data={chartData}
-    />
+      margin={ChartMargins}
+    >
+      <CartesianGrid strokeDasharray="3 3" />
+      <XAxis dataKey="categoryName" />
+      <YAxis
+        tickFormatter={thin ? formatThin : formatMoney}
+        width={thin ? 16 : undefined}
+      />
+      <Tooltip formatter={formatMoney} />
+      <Legend />
+      <Bar dataKey="categoryTotal" fill="#A252B6" name="Summa" />
+    </BarChart>
   );
 };
+
+const formatThin = (v: number) =>
+  v > 1000 ? `${Math.round(v / 1000)}K` : `${v}`;
+const ChartMargins = { left: 32, top: 32, right: 32, bottom: 0 };
+const formatMoney = (v: number) => Money.from(v).format();
 
 export const CategoryChart = MeasureSize(CategoryChartImpl);
