@@ -27,6 +27,8 @@ export function createSessionApi() {
         )
     )
   );
+
+  // PUT /api/session/refresh
   api.put(
     '/refresh',
     server.processUnauthorizedRequest(
@@ -37,11 +39,13 @@ export function createSessionApi() {
 
   // GET /api/session
   api.get(
-    '',
+    '/',
     server.processRequest(
       (session): Promise<Session> => sessions.appendInfo(session)
     )
   );
+
+  // GET /api/session/bare
   api.get(
     '/bare',
     server.processRequest(async (session): Promise<SessionBasicInfo> => session)

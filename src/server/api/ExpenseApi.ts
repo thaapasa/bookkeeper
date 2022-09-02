@@ -80,7 +80,6 @@ export function createExpenseApi() {
   );
 
   // PUT /api/expense
-
   api.put(
     '/',
     server.processRequest<ApiMessage>(
@@ -193,7 +192,7 @@ function createRecurringExpenseApi() {
 
   // PUT /api/expense/recurring/[expenseId]
   api.put(
-    '/recurring/:id',
+    '/:id',
     server.processRequest<ApiMessage>(
       (session, req) =>
         expenses.createRecurring(
@@ -208,7 +207,7 @@ function createRecurringExpenseApi() {
 
   // DELETE /api/expense/recurring/[expenseId]
   api.delete(
-    '/recurring/:id',
+    '/:id',
     server.processRequest<ApiMessage>(
       (session, req) =>
         expenses.deleteRecurringById(
@@ -223,7 +222,7 @@ function createRecurringExpenseApi() {
 
   // POST /api/expense/recurring/[expenseId]
   api.post(
-    '/recurring/:id',
+    '/:id',
     server.processRequest<ApiMessage>(
       (session, req) =>
         expenses.updateRecurring(
