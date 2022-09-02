@@ -3,12 +3,14 @@ import { colors } from '@mui/material';
 import { clamp } from 'shared/util/Numbers';
 
 export const ChartColors = [
-  colors.indigo,
   colors.teal,
-  colors.lightGreen,
-  colors.amber,
-  colors.brown,
+  colors.blue,
+  colors.purple,
   colors.blueGrey,
+  colors.green,
+  colors.indigo,
+  colors.pink,
+  colors.lime,
 ];
 
 type ColorType = typeof colors.indigo;

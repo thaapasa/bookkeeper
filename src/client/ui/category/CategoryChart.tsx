@@ -11,6 +11,7 @@ import {
 
 import Money from 'shared/util/Money';
 
+import { getChartColor } from '../chart/ChartColors';
 import { MeasureSize } from '../utils/MeasureSize';
 import { Size } from '../utils/useElementSize';
 
@@ -45,7 +46,7 @@ const CategoryChartImpl: React.FC<CategoryChartProps> = ({
       />
       <Tooltip formatter={formatMoney} />
       <Legend />
-      <Bar dataKey="categoryTotal" fill="#A252B6" name="Summa" />
+      <Bar dataKey="categoryTotal" fill={getChartColor(0, 1)} name="Summa" />
     </BarChart>
   );
 };
