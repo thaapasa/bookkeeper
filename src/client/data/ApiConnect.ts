@@ -19,6 +19,7 @@ import {
   CategoryData,
   Session,
 } from 'shared/types/Session';
+import { CategoryStatistics } from 'shared/types/Statistics';
 import { FetchClient } from 'shared/util/FetchClient';
 import Money from 'shared/util/Money';
 import { filterTruthyProps } from 'shared/util/Objects';
@@ -270,23 +271,24 @@ export class ApiConnect {
     return this.put<ApiMessage>('/api/category', category);
   }
 
-  public getCategoryTotals(
+  public getCategoryTotals = (
     startDate: Date,
     endDate: Date
-  ): Promise<CategoryAndTotals[]> {
-    const q = {
+  ): Promise<CategoryAndTotals[]> =>
+    this.get<CategoryAndTotals[]>('/api/category/totals', {
       startDate: toISODate(startDate),
       endDate: toISODate(endDate),
-    };
-    return this.get<CategoryAndTotals[]>('/api/category/totals', q);
-  }
+    });
 
-  public updateCategory(
+  public updateCategory = (
     id: number | string,
     category: CategoryData
-  ): Promise<Category> {
-    return this.post(uri`/api/category/${id}`, category);
-  }
+  ): Promise<Category> => this.post(uri`/api/category/${id}`, category);
+
+  public loadStatistics = (
+    categoryIds: number[]
+  ): Promise<CategoryStatistics> =>
+    this.post(uri`/api/statistics/category`, { categoryIds });
 }
 
 const apiConnect = new ApiConnect();

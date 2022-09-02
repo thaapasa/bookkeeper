@@ -2,7 +2,8 @@ import { Button } from '@mui/material';
 import * as React from 'react';
 import styled from 'styled-components';
 
-import { compareDates, toMoment, TypedDateRange } from 'shared/util/Time';
+import { compareDates, toMoment } from 'shared/util/Time';
+import { TypedDateRange } from 'shared/util/TimeRange';
 import { useCompare } from 'client/ui/utils/Hooks';
 
 import {

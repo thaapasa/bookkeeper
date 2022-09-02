@@ -58,3 +58,20 @@ export function requireDefined<T>(t: T | undefined | null, title?: string): T {
   }
   return t;
 }
+
+export function toRecord<T extends string | number | symbol, S>(
+  items: T[],
+  conv: (t: T) => S
+): Record<T, S> {
+  const res: Record<T, S> = {} as any;
+  items.forEach(i => (res[i] = conv(i)));
+  return res;
+}
+
+export function recordFromPairs<K extends string | number | symbol, V>(
+  items: [K, V][]
+): Record<K, V> {
+  const res: Record<K, V> = {} as any;
+  items.forEach(([k, v]) => (res[k] = v));
+  return res;
+}

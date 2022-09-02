@@ -1,4 +1,4 @@
-import { TypedDateRange } from 'shared/util/Time';
+import { TypedDateRange } from 'shared/util/TimeRange';
 
 export interface ConfirmationAction<T> {
   label: string;

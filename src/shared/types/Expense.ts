@@ -2,7 +2,7 @@ import * as t from 'io-ts';
 
 import { MoneyLike } from 'shared/util/Money';
 import { typedKeys } from 'shared/util/Objects';
-import { ISODate, TISODate } from 'shared/util/Time';
+import { ISODate } from 'shared/util/Time';
 
 import { DbObject } from './Common';
 import {
@@ -163,7 +163,7 @@ export type RecurringExpenseTarget = t.TypeOf<typeof RecurringExpenseTarget>;
 
 export const RecurringExpenseInput = t.intersection([
   t.type({ period: RecurringExpensePeriod }),
-  t.partial({ occursUntil: TISODate }),
+  t.partial({ occursUntil: ISODate }),
 ]);
 export type RecurringExpenseInput = t.TypeOf<typeof RecurringExpenseInput>;
 
@@ -176,8 +176,8 @@ export const ExpenseQuery = t.partial({
   search: t.string,
   receiver: t.string,
   categoryId: t.union([IntString, IntArrayString]),
-  startDate: TISODate,
-  endDate: TISODate,
+  startDate: ISODate,
+  endDate: ISODate,
   userId: IntString,
   includeSubCategories: BooleanString,
 });

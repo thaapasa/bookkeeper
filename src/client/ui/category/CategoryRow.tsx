@@ -3,7 +3,8 @@ import * as React from 'react';
 import { UserExpense } from 'shared/types/Expense';
 import { Category, CategoryAndTotals } from 'shared/types/Session';
 import Money, { MoneyLike } from 'shared/util/Money';
-import { DateRange, toISODate } from 'shared/util/Time';
+import { toISODate } from 'shared/util/Time';
+import { UIDateRange } from 'shared/util/TimeRange';
 import { noop } from 'shared/util/Util';
 import apiConnect from 'client/data/ApiConnect';
 import { UserDataProps } from 'client/data/Categories';
@@ -31,7 +32,7 @@ interface CategoryRowProps {
   createCategory: (p?: Category) => void;
   editCategory: (p: Category) => void;
   categoryTotals: Record<string, CategoryAndTotals>;
-  range: DateRange;
+  range: UIDateRange;
   userData: UserDataProps;
 }
 

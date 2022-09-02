@@ -254,7 +254,6 @@ function createExpense(tx: IBaseProtocol<any>) {
     defaultSourceId: number
   ): Promise<ApiMessage> => {
     expense = setDefaults(expense);
-    log('Creating expense', expense);
     const sourceId = expense.sourceId || defaultSourceId;
     const [cat, user, source] = await Promise.all([
       categories.tx.getById(tx)(groupId, expense.categoryId),
@@ -275,6 +274,7 @@ function createExpense(tx: IBaseProtocol<any>) {
       },
       division
     );
+    log('Created expense', id, expense);
     return { status: 'OK', message: 'Expense created', expenseId: id };
   };
 }

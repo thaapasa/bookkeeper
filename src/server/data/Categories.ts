@@ -177,6 +177,23 @@ WHERE id=$/categoryId/::INTEGER AND group_id=$/groupId/::INTEGER`,
   });
 }
 
+async function expandSubCategories(
+  tx: IBaseProtocol<any>,
+  groupId: number,
+  inputCategoryIds: number[]
+) {
+  if (inputCategoryIds.length < 1) {
+    return [];
+  }
+  const cats = await tx.manyOrNone<{ id: number }>(
+    `SELECT id FROM categories
+        WHERE group_id = $/groupId/
+        AND id IN ($/ids:csv/) OR parent_id IN ($/ids:csv/)`,
+    { ids: inputCategoryIds, groupId }
+  );
+  return cats.map(c => c.id);
+}
+
 export default {
   getAll: getAll(db),
   getTotals: getTotals(db),
@@ -187,5 +204,6 @@ export default {
   tx: {
     getAll,
     getById,
+    expandSubCategories,
   },
 };

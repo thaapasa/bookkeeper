@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import { Category, CategoryAndTotals } from 'shared/types/Session';
 import Money from 'shared/util/Money';
-import { compareRanges, TypedDateRange } from 'shared/util/Time';
+import { compareRanges, TypedDateRange } from 'shared/util/TimeRange';
 import apiConnect from 'client/data/ApiConnect';
 import { userDataE, UserDataProps } from 'client/data/Categories';
 import { updateSession, validSessionE } from 'client/data/Login';
@@ -14,7 +14,7 @@ import { categoryPagePath } from 'client/util/Links';
 
 import { connect } from '../component/BaconConnect';
 import { PageContentContainer } from '../Styles';
-import CategoryChart, { CategoryChartData } from './CategoryChart';
+import { CategoryChart, CategoryChartData } from './CategoryChart';
 import { CategoryTable } from './CategoryTable';
 
 interface CategoryViewProps {
