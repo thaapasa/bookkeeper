@@ -45,7 +45,7 @@ export const StatisticsViewImpl: React.FC<{
       </Grid>
       <Grid item xs={12} marginTop="16px">
         {data.type === 'loaded' ? (
-          <StatisticsChart statistics={data.value} />
+          <StatisticsChart statistics={data.value} categoryMap={categoryMap} />
         ) : (
           JSON.stringify(data, null, 2)
         )}
