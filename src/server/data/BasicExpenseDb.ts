@@ -21,7 +21,7 @@ import { SourceDb } from './SourceDb';
 const log = debug('bookkeeper:api:expenses');
 
 function expenseSelect(where: string): string {
-  return `
+  return `--sql
 SELECT
   MIN(id) AS id, MIN(date) AS date, MIN(receiver) AS receiver, MIN(type) AS type, MIN(sum) AS sum,
   MIN(title) AS title, MIN(description) AS description, BOOL_AND(confirmed) AS confirmed, MIN(source_id) AS "sourceId",
@@ -49,7 +49,7 @@ ORDER BY date ASC, title ASC, id
 `;
 }
 
-const countTotalSelect = `
+const countTotalSelect = `--sql
 SELECT
   COALESCE(SUM(benefit), '0.00'::NUMERIC) as benefit,
   COALESCE(SUM(cost), '0.00'::NUMERIC) AS cost,
@@ -114,8 +114,7 @@ async function hasUnconfirmedBefore(
   startDate: time.DateLike
 ): Promise<boolean> {
   const s = await tx.one<{ amount: number }>(
-    `SELECT
-        COUNT(*) AS amount
+    `SELECT COUNT(*) AS amount
       FROM expenses
       WHERE group_id=$/groupId/ AND template=false AND date < $/startDate/::DATE AND confirmed=false`,
     { groupId, startDate: time.toISODate(startDate) }
@@ -182,8 +181,7 @@ async function getDivision(
   expenseId: number
 ): Promise<ExpenseDivisionItem[]> {
   const items = await tx.manyOrNone<ExpenseDivisionItem>(
-    `SELECT
-        user_id as "userId", type, sum
+    `SELECT user_id as "userId", type, sum
       FROM expense_division
       WHERE expense_id=$/expenseId/::INTEGER
       ORDER BY type, user_id`,
@@ -287,8 +285,7 @@ function queryReceivers(
 ): Promise<ReceiverInfo[]> {
   log('Receivers', groupId, receiver);
   return tx.manyOrNone<ReceiverInfo>(
-    `SELECT
-        receiver, COUNT(*) AS amount
+    `SELECT receiver, COUNT(*) AS amount
       FROM expenses
       WHERE group_id=$/groupId/ AND receiver ILIKE $/receiver/
       GROUP BY receiver ORDER BY amount DESC`,

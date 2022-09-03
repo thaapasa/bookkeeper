@@ -61,8 +61,7 @@ async function getTotals(
   params: CategoryQueryInput
 ): Promise<CategoryAndTotals[]> {
   const cats = await tx.manyOrNone<CategoryAndTotals>(
-    `SELECT
-        categories.id, categories.parent_id as "parentId",
+    `SELECT categories.id, categories.parent_id as "parentId",
         SUM(CASE WHEN type='expense' AND template=false AND date >= $/startDate/::DATE AND date < $/endDate/::DATE THEN sum ELSE 0::NUMERIC END) AS expenses,
         SUM(CASE WHEN type='income' AND template=false AND date >= $/startDate/::DATE AND date < $/endDate/::DATE THEN sum ELSE 0::NUMERIC END) AS income
       FROM categories
@@ -104,8 +103,7 @@ async function getById(
   id: number
 ): Promise<Category> {
   const cat = await tx.oneOrNone<Category>(
-    `SELECT
-        id, parent_id as "parentId", name
+    `SELECT id, parent_id as "parentId", name
       FROM categories
       WHERE id=$/id/::INTEGER AND group_id=$/groupId/::INTEGER`,
     { id, groupId }

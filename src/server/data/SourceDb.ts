@@ -34,7 +34,7 @@ function createGroupObject(rows: SourceData[]): Source[] {
   }, [] as Source[]);
 }
 
-const select = `
+const select = `--sql
 SELECT
   s.id, s.group_id as "groupId", name, abbreviation, image,
   (SELECT SUM(share) FROM source_users WHERE source_id = s.id)::INTEGER AS shares,

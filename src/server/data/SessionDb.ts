@@ -16,7 +16,7 @@ const log = debug('bookkeeper:api:sessions');
 
 const randomBytes = promisify(crypto.randomBytes);
 
-const tokenSelect = `
+const tokenSelect = `--sql
 SELECT
   s.token, s.refresh_token as "refreshToken", s.user_id as id, s.login_time as "loginTime",
   u.username, u.email, u.first_name as "firstName", u.last_name as "lastName", u.image,

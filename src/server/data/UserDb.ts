@@ -12,7 +12,7 @@ function mapUser(user: RawUserData): User {
   };
 }
 
-const select = `
+const select = `--sql
 SELECT
   id, username, email, first_name as "firstName", last_name as "lastName", image,
   expense_shortcuts as "expenseShortcuts"
@@ -71,8 +71,8 @@ async function getByCredentials(
   groupId?: number
 ): Promise<RawUserData> {
   const user = await tx.oneOrNone<RawUserData>(
-    `SELECT
-        u.id, username, email, first_name as "firstName", last_name as "lastName",
+    `SELECT u.id,
+        username, email, first_name as "firstName", last_name as "lastName",
         default_group_id as "defaultGroupId", image, g.id as "groupId", g.name as "groupName",
         u.expense_shortcuts as "expenseShortcuts",
         go.default_source_id as "defaultSourceId"

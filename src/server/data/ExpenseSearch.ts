@@ -24,7 +24,7 @@ export async function searchExpenses(
       ? await CategoryDb.expandSubCategories(tx, groupId, inputCategoryIds)
       : inputCategoryIds;
   const expenses = await tx.manyOrNone<UserExpense>(
-    BasicExpenseDb.expenseSelect(`
+    BasicExpenseDb.expenseSelect(`--sql
       WHERE group_id=$/groupId/
       AND template=false
       AND ($/startDate/ IS NULL OR date::DATE >= $/startDate/::DATE)

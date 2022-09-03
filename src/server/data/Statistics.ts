@@ -10,7 +10,7 @@ import { DateRange } from 'shared/util/TimeRange';
 
 import { CategoryDb } from './CategoryDb';
 
-export async function loadCategoryStatisticsData(
+async function loadCategoryStatisticsData(
   tx: ITask<any>,
   groupId: number,
   range: DateRange,
@@ -37,7 +37,7 @@ export async function loadCategoryStatisticsData(
   return statistics;
 }
 
-export async function getCategoryStatistics(
+async function getCategoryStatistics(
   tx: ITask<any>,
   groupId: number,
   categoryIds: number[]
@@ -57,3 +57,7 @@ export async function getCategoryStatistics(
     range,
   };
 }
+
+export const StatisticsDb = {
+  getCategoryStatistics,
+};
