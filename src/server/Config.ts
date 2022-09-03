@@ -1,3 +1,6 @@
+import * as dotenv from 'dotenv';
+dotenv.config();
+
 const env = process.env.NODE_ENV || 'development';
 import revision from './revision';
 const port = process.env.SERVER_PORT;

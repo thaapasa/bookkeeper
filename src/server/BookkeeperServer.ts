@@ -1,6 +1,3 @@
-import * as dotenv from 'dotenv';
-dotenv.config();
-
 import * as bodyParser from 'body-parser';
 import debug from 'debug';
 import express from 'express';
