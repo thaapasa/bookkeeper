@@ -5,8 +5,9 @@ import { Group, Session, SessionBasicInfo } from 'shared/types/Session';
 import { optNumber } from 'shared/util/Util';
 import { SessionDb } from 'server/data/SessionDb';
 import { UserDb } from 'server/data/UserDb';
+import { Requests } from 'server/server/RequestHandling';
 
-import * as server from '../util/ServerUtil';
+import * as server from '../server/ServerUtil';
 
 /**
  * Creates session API router.
@@ -18,7 +19,7 @@ export function createSessionApi() {
   // PUT /api/session
   api.put(
     '/',
-    server.processUnauthorizedTxRequest(
+    Requests.unauthorizedTxRequest(
       (tx, req): Promise<Session> =>
         SessionDb.login(
           tx,
@@ -32,7 +33,7 @@ export function createSessionApi() {
   // PUT /api/session/refresh
   api.put(
     '/refresh',
-    server.processUnauthorizedTxRequest(
+    Requests.unauthorizedTxRequest(
       (tx, req): Promise<Session> =>
         SessionDb.refresh(
           tx,
@@ -45,7 +46,7 @@ export function createSessionApi() {
   // GET /api/session
   api.get(
     '/',
-    server.processTxRequest(
+    Requests.txRequest(
       (tx, session): Promise<Session> => SessionDb.appendInfo(tx, session)
     )
   );
@@ -53,13 +54,13 @@ export function createSessionApi() {
   // GET /api/session/bare
   api.get(
     '/bare',
-    server.processRequest(async (session): Promise<SessionBasicInfo> => session)
+    Requests.request(async (session): Promise<SessionBasicInfo> => session)
   );
 
   // DELETE /api/session
   api.delete(
     '/',
-    server.processTxRequest(
+    Requests.txRequest(
       (tx, session): Promise<ApiMessage> => SessionDb.logout(tx, session)
     )
   );
@@ -67,7 +68,7 @@ export function createSessionApi() {
   // GET /api/session/groups
   api.get(
     '/groups',
-    server.processTxRequest(
+    Requests.txRequest(
       (tx, session): Promise<Group[]> => UserDb.getGroups(tx, session.user.id)
     )
   );

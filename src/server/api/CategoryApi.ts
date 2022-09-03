@@ -4,9 +4,9 @@ import { ApiMessage } from 'shared/types/Api';
 import { Category, CategoryAndTotals } from 'shared/types/Session';
 import { validate } from 'shared/types/Validator';
 import { DateRange } from 'shared/util/TimeRange';
+import { Requests } from 'server/server/RequestHandling';
 
 import { CategoryDb, CategoryInput } from '../data/CategoryDb';
-import * as server from '../util/ServerUtil';
 import { Schema, Validator as V } from '../util/Validator';
 
 /**
@@ -19,7 +19,7 @@ export function createCategoryApi() {
   // GET /api/category/list
   api.get(
     '/list',
-    server.processTxRequest(
+    Requests.txRequest(
       (tx, session): Promise<Category[]> =>
         CategoryDb.getAll(tx, session.group.id),
       true
@@ -33,7 +33,7 @@ export function createCategoryApi() {
   };
   api.put(
     '/',
-    server.processTxRequest(async (tx, session, req): Promise<ApiMessage> => {
+    Requests.txRequest(async (tx, session, req): Promise<ApiMessage> => {
       const id = await CategoryDb.create(
         tx,
         session.group.id,
@@ -46,19 +46,16 @@ export function createCategoryApi() {
   // GET /api/category/totals
   api.get(
     '/totals',
-    server.processTxRequest(
-      (tx, session, req): Promise<CategoryAndTotals[]> => {
-        const params = validate(DateRange, req.query);
-        return CategoryDb.getTotals(tx, session.group.id, params);
-      },
-      true
-    )
+    Requests.txRequest((tx, session, req): Promise<CategoryAndTotals[]> => {
+      const params = validate(DateRange, req.query);
+      return CategoryDb.getTotals(tx, session.group.id, params);
+    }, true)
   );
 
   // POST /api/category/categoryId
   api.post(
     '/:id',
-    server.processTxRequest(
+    Requests.txRequest(
       (tx, session, req): Promise<Category> =>
         CategoryDb.update(
           tx,
@@ -73,7 +70,7 @@ export function createCategoryApi() {
   // GET /api/category/categoryId
   api.get(
     '/:id',
-    server.processTxRequest(
+    Requests.txRequest(
       (tx, session, req): Promise<Category> =>
         CategoryDb.getById(tx, session.group.id, parseInt(req.params.id, 10)),
       true
@@ -83,7 +80,7 @@ export function createCategoryApi() {
   // DELETE /api/category/categoryId
   api.delete(
     '/:id',
-    server.processTxRequest(
+    Requests.txRequest(
       (tx, session, req): Promise<ApiMessage> =>
         CategoryDb.remove(tx, session.group.id, parseInt(req.params.id, 10)),
       true
