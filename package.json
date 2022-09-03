@@ -66,7 +66,8 @@
     "recharts": "^2.1.13",
     "styled-components": "^5.3.5",
     "tsconfig-paths": "4.0.0",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "zod": "^3.18.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.4",
