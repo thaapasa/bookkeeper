@@ -197,7 +197,7 @@ async function expandSubCategories(
   return cats.map(c => c.id);
 }
 
-export const CategoriesDb = {
+export const CategoryDb = {
   getAll,
   getTotals,
   getById,

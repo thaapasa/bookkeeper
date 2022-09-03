@@ -8,7 +8,7 @@ import { groupBy } from 'shared/util/Arrays';
 import { toISODate, toMoment } from 'shared/util/Time';
 import { DateRange } from 'shared/util/TimeRange';
 
-import { CategoriesDb } from './CategoriesDb';
+import { CategoryDb } from './CategoryDb';
 
 export async function loadCategoryStatisticsData(
   tx: ITask<any>,
@@ -42,7 +42,7 @@ export async function getCategoryStatistics(
   groupId: number,
   categoryIds: number[]
 ): Promise<CategoryStatistics> {
-  const ids = await CategoriesDb.expandSubCategories(tx, groupId, categoryIds);
+  const ids = await CategoryDb.expandSubCategories(tx, groupId, categoryIds);
   const range = {
     startDate: toISODate(toMoment().subtract(5, 'years').startOf('year')),
     endDate: toISODate(toMoment()),

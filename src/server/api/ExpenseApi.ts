@@ -19,10 +19,11 @@ import {
   stringWithLength,
   validate,
 } from 'shared/types/Validator';
-import { updateExpenseById } from 'server/data/BasicExpensesService';
+import { updateExpenseById } from 'server/data/BasicExpenseService';
+import { searchExpenses } from 'server/data/ExpenseSearch';
+import { splitExpense } from 'server/data/ExpenseSplit';
 
 import expenses from '../data/Expenses';
-import expenseSearch from '../data/ExpenseSearch';
 import * as server from '../util/ServerUtil';
 import { Schema, Validator as V } from '../util/Validator';
 
@@ -74,9 +75,9 @@ export function createExpenseApi() {
   // GET /api/expense/search?[ExpenseSearch]
   api.get(
     '/search',
-    server.processRequest<UserExpense[]>(async (session, req) => {
+    server.processTxRequest<UserExpense[]>(async (tx, session, req) => {
       const query = validate(ExpenseQuery, req.query);
-      return expenseSearch.search(session.user.id, session.group.id, query);
+      return searchExpenses(tx, session.user.id, session.group.id, query);
     })
   );
 
@@ -122,9 +123,10 @@ export function createExpenseApi() {
   // POST /api/expense/[expenseId]/split
   api.post(
     '/:expenseId/split',
-    server.processRequest<ApiMessage>(
-      (session, req) =>
-        expenses.split(
+    server.processTxRequest<ApiMessage>(
+      (tx, session, req) =>
+        splitExpense(
+          tx,
           session.group.id,
           session.user.id,
           validate(ExpenseIdType, req.params).expenseId,

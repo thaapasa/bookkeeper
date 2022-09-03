@@ -17,12 +17,12 @@ import { DateLike, fromISODate, toISODate, toMoment } from 'shared/util/Time';
 import { camelCaseObject } from 'shared/util/Util';
 
 import { Validator } from '../util/Validator';
-import { BasicExpenseDb } from './BasicExpensesDb';
-import { copyExpense } from './BasicExpensesService';
-import { CategoriesDb } from './CategoriesDb';
+import { BasicExpenseDb } from './BasicExpenseDb';
+import { copyExpense } from './BasicExpenseService';
+import { CategoryDb } from './CategoryDb';
 import { db } from './Db';
 import { determineDivision } from './ExpenseDivision';
-import sources from './Sources';
+import { SourceDb } from './SourceDb';
 
 const log = debug('bookkeeper:api:recurring-expenses');
 
@@ -68,10 +68,9 @@ function createRecurring(
     });
     const recurringExpenseId = (
       await tx.one<{ id: number }>(
-        `
-INSERT INTO recurring_expenses (template_expense_id, period, next_missing, group_id)
-VALUES ($/templateId/::INTEGER, $/period/, $/nextMissing/::DATE, $/groupId/)
-RETURNING id`,
+        `INSERT INTO recurring_expenses (template_expense_id, period, next_missing, group_id)
+          VALUES ($/templateId/::INTEGER, $/period/, $/nextMissing/::DATE, $/groupId/)
+          RETURNING id`,
         {
           templateId,
           period: recurrence.period,
@@ -82,10 +81,9 @@ RETURNING id`,
     ).id;
 
     await tx.none(
-      `
-UPDATE expenses
-SET recurring_expense_id=$/recurringExpenseId/
-WHERE id IN ($/expenseId/, $/templateId/)`,
+      `UPDATE expenses
+        SET recurring_expense_id=$/recurringExpenseId/
+        WHERE id IN ($/expenseId/, $/templateId/)`,
       { recurringExpenseId, expenseId, templateId }
     );
     return {
@@ -153,10 +151,9 @@ function createMissingRecurrences(
     );
     await Promise.all(dates.map(createMissingRecurrenceForDate(tx, expense)));
     await tx.none(
-      `
-UPDATE recurring_expenses
-SET next_missing=$/nextMissing/::DATE
-WHERE id=$/recurringExpenseId/`,
+      `UPDATE recurring_expenses
+        SET next_missing=$/nextMissing/::DATE
+        WHERE id=$/recurringExpenseId/`,
       {
         nextMissing: toISODate(nextMissing),
         recurringExpenseId: recurrence.id,
@@ -169,10 +166,9 @@ function createMissing(tx: IBaseProtocol<any>) {
   log('Checking for missing expenses');
   return async (groupId: number, userId: number, date: Moment) => {
     const list = await tx.map<Recurrence>(
-      `
-SELECT *
-FROM recurring_expenses
-WHERE group_id=$/groupId/ AND next_missing < $/nextMissing/::DATE`,
+      `SELECT *
+        FROM recurring_expenses
+        WHERE group_id=$/groupId/ AND next_missing < $/nextMissing/::DATE`,
       { groupId, nextMissing: date },
       camelCaseObject
     );
@@ -209,16 +205,14 @@ async function deleteRecurrenceAfter(
 ): Promise<ApiMessage> {
   const [expenseCount] = await Promise.all([
     tx.none(
-      `
-DELETE FROM expenses
-WHERE recurring_expense_id=$/recurringExpenseId/ AND (id=$/expenseId/ OR date > $/afterDate/::date)`,
+      `DELETE FROM expenses
+        WHERE recurring_expense_id=$/recurringExpenseId/ AND (id=$/expenseId/ OR date > $/afterDate/::date)`,
       { recurringExpenseId, expenseId, afterDate }
     ),
     tx.none(
-      `
-UPDATE recurring_expenses
-SET occurs_until=$/afterDate/::date
-WHERE id=$/recurringExpenseId/`,
+      `UPDATE recurring_expenses
+        SET occurs_until=$/afterDate/::date
+        WHERE id=$/recurringExpenseId/`,
       { recurringExpenseId, afterDate }
     ),
   ]);
@@ -264,12 +258,12 @@ function deleteDivisionForRecurrence(
   afterDate: DateLike | null
 ): Promise<null> {
   return tx.none(
-    `
-DELETE FROM expense_division WHERE expense_id IN (
-  SELECT id FROM expenses
-  WHERE recurring_expense_id=$/recurringExpenseId/::INTEGER
-    AND (template=true OR $/afterDate/::DATE IS NULL OR date >= $/afterDate/::DATE)
-)`,
+    `DELETE FROM expense_division
+      WHERE expense_id IN (
+        SELECT id FROM expenses
+        WHERE recurring_expense_id=$/recurringExpenseId/::INTEGER
+          AND (template=true OR $/afterDate/::DATE IS NULL OR date >= $/afterDate/::DATE)
+      )`,
     { recurringExpenseId, afterDate }
   );
 }
@@ -281,11 +275,10 @@ async function getRecurringExpenseIds(
 ): Promise<number[]> {
   return (
     await tx.manyOrNone<{ id: number }>(
-      `
-SELECT id
-FROM expenses
-WHERE recurring_expense_id=$/recurringExpenseId/
-  AND (template=true OR $/afterDate/::DATE IS NULL OR date >= $/afterDate/::DATE)`,
+      `SELECT id
+        FROM expenses
+        WHERE recurring_expense_id=$/recurringExpenseId/
+          AND (template=true OR $/afterDate/::DATE IS NULL OR date >= $/afterDate/::DATE)`,
       { recurringExpenseId, afterDate }
     )
   ).map(e => e.id);
@@ -324,16 +317,15 @@ async function updateRecurringExpense(
   log('Updating recurring expense', original, 'to', expense);
   const sourceId = expense.sourceId || defaultSourceId;
   const [cat, source] = await Promise.all([
-    CategoriesDb.getById(tx, original.groupId, expense.categoryId),
-    sources.tx.getById(tx)(original.groupId, sourceId),
+    CategoryDb.getById(tx, original.groupId, expense.categoryId),
+    SourceDb.getById(tx, original.groupId, sourceId),
   ]);
   await tx.none(
-    `
-UPDATE expenses
-SET date=$/date/::DATE, receiver=$/receiver/, sum=$/sum/, title=$/title/,
-  description=$/description/, type=$/type/::expense_type, confirmed=$/confirmed/::BOOLEAN,
-  source_id=$/sourceId/::INTEGER, category_id=$/categoryId/::INTEGER
-WHERE id=$/id/`,
+    `UPDATE expenses
+      SET date=$/date/::DATE, receiver=$/receiver/, sum=$/sum/, title=$/title/,
+        description=$/description/, type=$/type/::expense_type, confirmed=$/confirmed/::BOOLEAN,
+        source_id=$/sourceId/::INTEGER, category_id=$/categoryId/::INTEGER
+      WHERE id=$/id/`,
     {
       ...expense,
       id: original.id,
@@ -345,13 +337,12 @@ WHERE id=$/id/`,
   const division = determineDivision(expense, source);
   const afterDate = target === 'after' ? original.date : null;
   await tx.none(
-    `
-UPDATE expenses
-SET receiver=$/receiver/, sum=$/sum/, title=$/title/, description=$/description/,
-  type=$/type/::expense_type, confirmed=$/confirmed/::BOOLEAN,
-  source_id=$/sourceId/::INTEGER, category_id=$/categoryId/::INTEGER
-WHERE recurring_expense_id=$/recurringExpenseId/
-  AND (template = true OR $/afterDate/::DATE IS NULL OR date >= $/afterDate/::DATE)`,
+    `UPDATE expenses
+      SET receiver=$/receiver/, sum=$/sum/, title=$/title/, description=$/description/,
+        type=$/type/::expense_type, confirmed=$/confirmed/::BOOLEAN,
+        source_id=$/sourceId/::INTEGER, category_id=$/categoryId/::INTEGER
+      WHERE recurring_expense_id=$/recurringExpenseId/
+        AND (template = true OR $/afterDate/::DATE IS NULL OR date >= $/afterDate/::DATE)`,
     {
       ...expense,
       recurringExpenseId: original.recurringExpenseId,

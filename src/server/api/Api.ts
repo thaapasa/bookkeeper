@@ -4,11 +4,11 @@ import { Router } from 'express';
 import { ApiStatus } from 'shared/types/Api';
 import { Source, User } from 'shared/types/Session';
 import { toMoment } from 'shared/util/Time';
+import { SourceDb } from 'server/data/SourceDb';
+import { UserDb } from 'server/data/UserDb';
 
 import { config } from '../Config';
 import admin, { DbStatus } from '../data/admin/Admin';
-import sources from '../data/Sources';
-import users from '../data/Users';
 import * as server from '../util/ServerUtil';
 import { createCategoryApi } from './CategoryApi';
 import { createExpenseApi } from './ExpenseApi';
@@ -45,8 +45,8 @@ export function createApi() {
   // GET /api/user/list
   api.get(
     '/user/list',
-    server.processRequest(
-      (session): Promise<User[]> => users.getAll(session.group.id),
+    server.processTxRequest(
+      (tx, session): Promise<User[]> => UserDb.getAll(tx, session.group.id),
       true
     )
   );
@@ -54,9 +54,9 @@ export function createApi() {
   // GET /api/user/[userid]
   api.get(
     '/user/:id',
-    server.processRequest(
-      (session, req): Promise<User> =>
-        users.getById(session.group.id, parseInt(req.params.id, 10)),
+    server.processTxRequest(
+      (tx, session, req): Promise<User> =>
+        UserDb.getById(tx, session.group.id, parseInt(req.params.id, 10)),
       true
     )
   );
@@ -64,17 +64,17 @@ export function createApi() {
   // GET /api/source/list
   api.get(
     '/source/list',
-    server.processRequest(
-      (session): Promise<Source[]> => sources.getAll(session.group.id),
+    server.processTxRequest(
+      (tx, session): Promise<Source[]> => SourceDb.getAll(tx, session.group.id),
       true
     )
   );
   // GET /api/source/:id
   api.get(
     '/source/:id',
-    server.processRequest(
-      (session, req): Promise<Source> =>
-        sources.getById(session.group.id, parseInt(req.params.id, 10)),
+    server.processTxRequest(
+      (tx, session, req): Promise<Source> =>
+        SourceDb.getById(tx, session.group.id, parseInt(req.params.id, 10)),
       true
     )
   );

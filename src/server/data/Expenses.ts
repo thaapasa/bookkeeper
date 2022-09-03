@@ -11,10 +11,10 @@ import Money from 'shared/util/Money';
 import { mapValues } from 'shared/util/Objects';
 import * as time from 'shared/util/Time';
 
-import { BasicExpenseDb as basic } from './BasicExpensesDb';
-import { createExpense } from './BasicExpensesService';
+import { BasicExpenseDb as basic } from './BasicExpenseDb';
+import { createExpense } from './BasicExpenseService';
 import { db } from './Db';
-import split from './ExpenseSplit';
+import { splitExpense } from './ExpenseSplit';
 import recurring from './RecurringExpenses';
 
 const log = debug('bookkeeper:api:expenses');
@@ -118,7 +118,7 @@ export default {
   queryReceivers: basic.queryReceivers,
   create: createExpense,
   update: basic.update,
-  split: split.split,
+  split: splitExpense,
   createRecurring: recurring.createRecurring,
   deleteRecurringById: recurring.deleteRecurringById,
   updateRecurring: recurring.updateRecurring,

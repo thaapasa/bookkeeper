@@ -4,11 +4,11 @@ import { IBaseProtocol } from 'pg-promise';
 import { ApiMessage } from 'shared/types/Api';
 import { Expense, ExpenseDivisionItem } from 'shared/types/Expense';
 
-import { BasicExpenseDb } from './BasicExpensesDb';
-import { CategoriesDb } from './CategoriesDb';
+import { BasicExpenseDb } from './BasicExpenseDb';
+import { CategoryDb } from './CategoryDb';
 import { determineDivision } from './ExpenseDivision';
-import sources from './Sources';
-import users from './Users';
+import { SourceDb } from './SourceDb';
+import { UserDb } from './UserDb';
 
 const log = debug('bookkeeper:api:expenses');
 
@@ -22,9 +22,9 @@ export async function createExpense(
   expense = BasicExpenseDb.setDefaults(expense);
   const sourceId = expense.sourceId || defaultSourceId;
   const [cat, user, source] = await Promise.all([
-    CategoriesDb.getById(tx, groupId, expense.categoryId),
-    users.tx.getById(tx)(groupId, expense.userId),
-    sources.tx.getById(tx)(groupId, sourceId),
+    CategoryDb.getById(tx, groupId, expense.categoryId),
+    UserDb.getById(tx, groupId, expense.userId),
+    SourceDb.getById(tx, groupId, sourceId),
   ]);
 
   const division = determineDivision(expense, source);

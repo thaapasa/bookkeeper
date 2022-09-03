@@ -1,38 +1,35 @@
 import debug from 'debug';
 import { IBaseProtocol } from 'pg-promise';
 
-import { ApiMessage } from 'shared/types/Api';
 import { BkError } from 'shared/types/Errors';
 import { Expense } from 'shared/types/Expense';
 import { ExpenseSplit } from 'shared/types/ExpenseSplit';
 import Money from 'shared/util/Money';
 
-import { BasicExpenseDb } from './BasicExpensesDb';
-import { createExpense } from './BasicExpensesService';
-import { db } from './Db';
+import { BasicExpenseDb } from './BasicExpenseDb';
+import { createExpense } from './BasicExpenseService';
 import { toBaseExpense } from './ExpenseUtils';
 
 const log = debug('bookkeeper:api:expenses');
 
-function splitExpense(
+export async function splitExpense(
+  tx: IBaseProtocol<any>,
   groupId: number,
   userId: number,
   expenseId: number,
   splits: ExpenseSplit[]
 ) {
-  return db.tx(async (tx): Promise<ApiMessage> => {
-    const expense = toBaseExpense(
-      await BasicExpenseDb.getById(tx, groupId, userId, expenseId)
-    );
-    await checkSplits(splits, expense);
-    log(`Splitting`, expense, 'to', splits);
-    await Promise.all(splits.map(s => createSplit(tx, expense, s)));
-    await BasicExpenseDb.deleteById(tx, groupId, expenseId);
-    return {
-      status: 'OK',
-      message: `Splitted expense ${expenseId} into ${splits.length} parts`,
-    };
-  });
+  const expense = toBaseExpense(
+    await BasicExpenseDb.getById(tx, groupId, userId, expenseId)
+  );
+  await checkSplits(splits, expense);
+  log(`Splitting`, expense, 'to', splits);
+  await Promise.all(splits.map(s => createSplit(tx, expense, s)));
+  await BasicExpenseDb.deleteById(tx, groupId, expenseId);
+  return {
+    status: 'OK',
+    message: `Splitted expense ${expenseId} into ${splits.length} parts`,
+  };
 }
 
 async function createSplit(
@@ -73,7 +70,3 @@ async function checkSplits(splits: ExpenseSplit[], expense: Expense) {
     );
   }
 }
-
-export default {
-  split: splitExpense,
-};

@@ -14,9 +14,9 @@ import {
 import Money, { MoneyLike } from 'shared/util/Money';
 import * as time from 'shared/util/Time';
 
-import { CategoriesDb } from './CategoriesDb';
+import { CategoryDb } from './CategoryDb';
 import { determineDivision } from './ExpenseDivision';
-import sources from './Sources';
+import { SourceDb } from './SourceDb';
 
 const log = debug('bookkeeper:api:expenses');
 
@@ -252,8 +252,8 @@ async function update(
   log('Updating expense', original, 'to', expense);
   const sourceId = expense.sourceId || defaultSourceId;
   const [cat, source] = await Promise.all([
-    CategoriesDb.getById(tx, original.groupId, expense.categoryId),
-    sources.tx.getById(tx)(original.groupId, sourceId),
+    CategoryDb.getById(tx, original.groupId, expense.categoryId),
+    SourceDb.getById(tx, original.groupId, sourceId),
   ]);
   const division = determineDivision(expense, source);
   await deleteDivision(tx, original.id);
