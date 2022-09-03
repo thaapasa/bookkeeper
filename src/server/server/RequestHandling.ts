@@ -11,7 +11,7 @@ import { SessionDb } from 'server/data/SessionDb';
 
 import { db } from '../data/Db';
 import { ServerUtil } from './ServerUtil';
-import { validate } from './Validation';
+import { validateOr } from './Validation';
 
 const log = debug('bookkeeper:server');
 
@@ -85,16 +85,20 @@ function processTxRequest<T>(
   );
 }
 
-function processValidatedRequest<Params, Body, Return>(
-  spec: {
-    params?: z.ZodType<Params>;
-    body?: z.ZodType<Body>;
-  },
+type ValidatorSpec<P, Q, B> = {
+  params?: z.ZodType<P, any, any>;
+  query?: z.ZodType<Q, any, any>;
+  body?: z.ZodType<B, any, any>;
+};
+
+function processValidatedRequest<Return, P, Q, B>(
+  spec: ValidatorSpec<P, Q, B>,
   handler: (
     session: SessionBasicInfo,
     data: {
-      params: Params;
-      body: Body;
+      params: P;
+      query: Q;
+      body: B;
     },
     req: Request,
     res: Response
@@ -102,25 +106,22 @@ function processValidatedRequest<Params, Body, Return>(
   groupRequired?: boolean
 ): RequestHandler {
   return processRequest((session, req, res) => {
-    const params = spec.params
-      ? validate(req.params, spec.params)
-      : ({} as Params);
-    const body = spec.body ? validate(req.body, spec.body) : ({} as Body);
-    return handler(session, { params, body }, req, res);
+    const params = validateOr(req.params, spec.params, {} as P);
+    const body = validateOr(req.body, spec.body, {} as B);
+    const query = validateOr(req.query, spec.query, {} as Q);
+    return handler(session, { params, query, body }, req, res);
   }, groupRequired);
 }
 
-function processValidatedTxRequest<Params, Body, Return>(
-  spec: {
-    params?: z.ZodType<Params>;
-    body?: z.ZodType<Body>;
-  },
+function processValidatedTxRequest<Return, P, Q, B>(
+  spec: ValidatorSpec<P, Q, B>,
   handler: (
     tx: ITask<any>,
     session: SessionBasicInfo,
     data: {
-      params: Params;
-      body: Body;
+      params: P;
+      query: Q;
+      body: B;
     },
     req: Request,
     res: Response

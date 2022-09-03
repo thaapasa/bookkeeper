@@ -1,5 +1,6 @@
 import { either, isLeft, isRight } from 'fp-ts/lib/Either';
 import * as io from 'io-ts';
+import { z } from 'zod';
 
 import { ioErrorReporter } from '../validation/ioTsErrorReporter';
 import { BkError } from './Errors';
@@ -46,6 +47,9 @@ export const BooleanString = new io.Type<boolean, string, unknown>(
     }),
   String
 );
+export const BooleanStringZ = z
+  .enum(['true', 'false'])
+  .transform(s => s === 'true');
 
 export const IntString = new io.Type<number, string | number, unknown>(
   'IntString',
@@ -63,6 +67,18 @@ export const IntString = new io.Type<number, string | number, unknown>(
     }),
   String
 );
+
+export const IntStringZ = z
+  .string()
+  .refine(s => {
+    try {
+      const n = Number(s);
+      return !isNaN(n);
+    } catch (e) {
+      return false;
+    }
+  })
+  .transform(n => Number(n));
 
 const intArrayStringRE = /^\[[0-9]+(,[0-9]+)*\]$/;
 
@@ -90,6 +106,10 @@ export const IntArrayString = new io.Type<number[], string, unknown>(
     }),
   n => '[' + n.join(',') + ']'
 );
+export const IntArrayStringZ = z
+  .string()
+  .regex(intArrayStringRE)
+  .transform((r): number[] => JSON.parse(r));
 
 export function intStringBetween(min: number, max: number) {
   return new io.Type<number, string | number, unknown>(

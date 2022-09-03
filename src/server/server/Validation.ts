@@ -12,9 +12,17 @@ export function validate<T>(data: unknown, codec: ZodType<T>): T {
   }
 }
 
+export function validateOr<T>(
+  data: unknown,
+  codec: ZodType<T> | undefined,
+  def: T
+): T {
+  return codec ? validate(data, codec) : def;
+}
+
 export class DataValidationError extends BkError {
   constructor(error: ZodError) {
-    super('INVALID_DATA', 'Data format is invalid', 400, error.format());
+    super('VALIDATION_ERROR', 'Data format is invalid', 400, error.format());
     Object.setPrototypeOf(this, DataValidationError.prototype);
   }
 }

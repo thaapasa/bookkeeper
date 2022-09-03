@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import * as t from 'io-ts';
+import { z } from 'zod';
 
 import { ApiMessage } from 'shared/types/Api';
 import {
@@ -8,17 +8,11 @@ import {
   ExpenseQuery,
   RecurringExpenseInput,
   RecurringExpenseTarget,
-  UserExpense,
   UserExpenseWithDetails,
 } from 'shared/types/Expense';
 import { ExpenseSplit } from 'shared/types/ExpenseSplit';
 import { YearMonth } from 'shared/types/Time';
-import {
-  NonEmptyArray,
-  NumberString,
-  stringWithLength,
-  validate,
-} from 'shared/types/Validator';
+import { validate } from 'shared/types/Validator';
 import { updateExpenseById } from 'server/data/BasicExpenseService';
 import { Expenses } from 'server/data/Expenses';
 import { searchExpenses } from 'server/data/ExpenseSearch';
@@ -26,8 +20,7 @@ import { splitExpense } from 'server/data/ExpenseSplit';
 import { Requests } from 'server/server/RequestHandling';
 
 import { Schema, Validator as V } from '../util/Validator';
-
-const ExpenseIdType = t.type({ expenseId: NumberString });
+import { ExpenseIdType, IdType } from './Validations';
 
 const expenseSchema: Schema<Expense> = {
   userId: V.positiveInt,
@@ -76,10 +69,11 @@ export function createExpenseApi() {
   // GET /api/expense/search?[ExpenseSearch]
   api.get(
     '/search',
-    Requests.txRequest<UserExpense[]>(async (tx, session, req) => {
-      const query = validate(ExpenseQuery, req.query);
-      return searchExpenses(tx, session.user.id, session.group.id, query);
-    })
+    Requests.validatedTxRequest(
+      { query: ExpenseQuery },
+      (tx, session, { query }) =>
+        searchExpenses(tx, session.user.id, session.group.id, query)
+    )
   );
 
   // PUT /api/expense
@@ -98,40 +92,37 @@ export function createExpenseApi() {
     )
   );
 
-  const ReceiverSearch = t.type({
-    receiver: stringWithLength(3, 50),
+  const ReceiverSearch = z.object({
+    receiver: z.string().min(3).max(50),
   });
   // GET /api/expense/receivers?receiver=[query]
   api.get(
     '/receivers',
-    Requests.txRequest<string[]>(
-      async (tx, session, req) =>
+    Requests.validatedTxRequest(
+      { query: ReceiverSearch },
+      async (tx, session, { query }) =>
         (
-          await Expenses.queryReceivers(
-            tx,
-            session.group.id,
-            validate(ReceiverSearch, req.query).receiver
-          )
+          await Expenses.queryReceivers(tx, session.group.id, query.receiver)
         ).map(r => r.receiver),
       true
     )
   );
 
-  const ExpenseSplitBody = t.type(
-    { splits: NonEmptyArray(ExpenseSplit) },
-    'ExpenseSplitBody'
-  );
+  const ExpenseSplitBody = z.object({
+    splits: z.array(ExpenseSplit).nonempty(),
+  });
   // POST /api/expense/[expenseId]/split
   api.post(
     '/:expenseId/split',
-    Requests.txRequest<ApiMessage>(
-      (tx, session, req) =>
+    Requests.validatedTxRequest(
+      { params: ExpenseIdType, body: ExpenseSplitBody },
+      (tx, session, { params, body }) =>
         splitExpense(
           tx,
           session.group.id,
           session.user.id,
-          validate(ExpenseIdType, req.params).expenseId,
-          validate(ExpenseSplitBody, req.body).splits
+          params.expenseId,
+          body.splits
         ),
       true
     )
@@ -140,13 +131,14 @@ export function createExpenseApi() {
   // POST /api/expense/[expenseId]
   api.post(
     '/:expenseId',
-    Requests.txRequest<ApiMessage>(
-      (tx, session, req) =>
+    Requests.validatedTxRequest(
+      { params: ExpenseIdType },
+      (tx, session, { params }, req) =>
         updateExpenseById(
           tx,
           session.group.id,
           session.user.id,
-          validate(ExpenseIdType, req.params).expenseId,
+          params.expenseId,
           V.validate(expenseSchema, req.body),
           session.group.defaultSourceId || 0
         ),
@@ -191,22 +183,25 @@ export function createExpenseApi() {
 function createRecurringExpenseApi() {
   const api = Router();
 
-  const RecurringExpenseTargetSchema = t.type(
-    { target: RecurringExpenseTarget },
-    'RecurringExpenseTargetSchema'
-  );
+  const RecurringExpenseTargetSchema = z.object({
+    target: RecurringExpenseTarget,
+  });
 
   // PUT /api/expense/recurring/[expenseId]
   api.put(
     '/:id',
-    Requests.txRequest<ApiMessage>(
-      (tx, session, req) =>
+    Requests.validatedTxRequest(
+      {
+        body: RecurringExpenseInput,
+        params: IdType,
+      },
+      (tx, session, { body, params }) =>
         Expenses.createRecurring(
           tx,
           session.group.id,
           session.user.id,
-          parseInt(req.params.id, 10),
-          validate(RecurringExpenseInput, req.body)
+          params.id,
+          body
         ),
       true
     )
@@ -215,14 +210,15 @@ function createRecurringExpenseApi() {
   // DELETE /api/expense/recurring/[expenseId]
   api.delete(
     '/:id',
-    Requests.txRequest<ApiMessage>(
-      (tx, session, req) =>
+    Requests.validatedTxRequest(
+      { query: RecurringExpenseTargetSchema, params: IdType },
+      (tx, session, { query, params }) =>
         Expenses.deleteRecurringById(
           tx,
           session.group.id,
           session.user.id,
-          parseInt(req.params.id, 10),
-          validate(RecurringExpenseTargetSchema, req.query).target
+          params.id,
+          query.target
         ),
       true
     )
@@ -231,14 +227,15 @@ function createRecurringExpenseApi() {
   // POST /api/expense/recurring/[expenseId]
   api.post(
     '/:id',
-    Requests.txRequest<ApiMessage>(
-      (tx, session, req) =>
+    Requests.validatedTxRequest(
+      { query: RecurringExpenseTargetSchema, params: IdType },
+      (tx, session, { query, params }, req) =>
         Expenses.updateRecurring(
           tx,
           session.group.id,
           session.user.id,
-          parseInt(req.params.id, 10),
-          validate(RecurringExpenseTargetSchema, req.query).target,
+          params.id,
+          query.target,
           V.validate(expenseSchema, req.body),
           session.group.defaultSourceId || 0
         ),

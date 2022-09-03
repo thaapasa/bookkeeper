@@ -1,37 +1,25 @@
-import * as t from 'io-ts';
+import { z } from 'zod';
 
-import { MoneyLike } from 'shared/util/Money';
-import { typedKeys } from 'shared/util/Objects';
-import { ISODate } from 'shared/util/Time';
+import { MoneyLike, MoneyLikeZ } from 'shared/util/Money';
+import { ISODate, ISODateZ } from 'shared/util/Time';
 
 import { DbObject } from './Common';
-import {
-  BooleanString,
-  IntArrayString,
-  IntString,
-  NonEmptyArray,
-} from './Validator';
+import { BooleanStringZ, IntArrayStringZ, IntStringZ } from './Validator';
 
-export const ExpenseType = t.keyof(
-  { expense: 0, income: 0, transfer: 0 },
-  'ExpenseType'
-);
-export type ExpenseType = t.TypeOf<typeof ExpenseType>;
+export const ExpenseType = z.enum(['expense', 'income', 'transfer']);
+export type ExpenseType = z.infer<typeof ExpenseType>;
 
-export const ExpenseDivisionType = t.keyof(
-  {
-    cost: 0,
-    benefit: 0,
-    income: 0,
-    split: 0,
-    transferor: 0,
-    transferee: 0,
-  },
-  'ExpenseDivisionType'
-);
-export type ExpenseDivisionType = t.TypeOf<typeof ExpenseDivisionType>;
+export const ExpenseDivisionType = z.enum([
+  'cost',
+  'benefit',
+  'income',
+  'split',
+  'transferor',
+  'transferee',
+]);
+export type ExpenseDivisionType = z.infer<typeof ExpenseDivisionType>;
 
-export const expenseTypes = typedKeys(ExpenseType.keys);
+export const expenseTypes = ExpenseType.options;
 
 export function getExpenseTypeLabel(type: ExpenseType): string {
   switch (type) {
@@ -58,21 +46,15 @@ export const expensePayer: Record<ExpenseType, ExpenseDivisionType> = {
   transfer: 'transferor',
 };
 
-export const ExpenseDivisionItem = t.type(
-  {
-    userId: t.number,
-    type: ExpenseDivisionType,
-    sum: MoneyLike,
-  },
-  'ExpenseDivisionItem'
-);
-export type ExpenseDivisionItem = t.TypeOf<typeof ExpenseDivisionItem>;
+export const ExpenseDivisionItem = z.object({
+  userId: z.number(),
+  type: ExpenseDivisionType,
+  sum: MoneyLikeZ,
+});
+export type ExpenseDivisionItem = z.infer<typeof ExpenseDivisionItem>;
 
-export const ExpenseDivision = NonEmptyArray(
-  ExpenseDivisionItem,
-  'ExpenseDivision'
-);
-export type ExpenseDivision = t.TypeOf<typeof ExpenseDivision>;
+export const ExpenseDivision = z.array(ExpenseDivisionItem);
+export type ExpenseDivision = z.infer<typeof ExpenseDivision>;
 
 export interface BaseExpenseData {
   userId: number;
@@ -151,34 +133,33 @@ export interface ExpenseCollection {
   unconfirmedBefore: boolean;
 }
 
-export const RecurringExpensePeriod = t.keyof({ monthly: null, yearly: null });
-export type RecurringExpensePeriod = t.TypeOf<typeof RecurringExpensePeriod>;
+export const RecurringExpensePeriod = z.enum(['monthly', 'yearly']);
+export type RecurringExpensePeriod = z.infer<typeof RecurringExpensePeriod>;
 
-export const RecurringExpenseTarget = t.keyof({
-  single: null,
-  all: null,
-  after: null,
+export const RecurringExpenseTarget = z.enum(['single', 'all', 'after']);
+export type RecurringExpenseTarget = z.infer<typeof RecurringExpenseTarget>;
+
+export const RecurringExpenseInput = z.object({
+  period: RecurringExpensePeriod,
+  occursUntil: ISODateZ.optional(),
 });
-export type RecurringExpenseTarget = t.TypeOf<typeof RecurringExpenseTarget>;
-
-export const RecurringExpenseInput = t.intersection([
-  t.type({ period: RecurringExpensePeriod }),
-  t.partial({ occursUntil: ISODate }),
-]);
-export type RecurringExpenseInput = t.TypeOf<typeof RecurringExpenseInput>;
+export type RecurringExpenseInput = z.infer<typeof RecurringExpenseInput>;
 
 export interface Recurrence extends DbObject, RecurringExpenseInput {
   nextMissing: ISODate;
   templateExpenseId: number;
 }
 
-export const ExpenseQuery = t.partial({
-  search: t.string,
-  receiver: t.string,
-  categoryId: t.union([IntString, IntArrayString]),
-  startDate: ISODate,
-  endDate: ISODate,
-  userId: IntString,
-  includeSubCategories: BooleanString,
-});
-export type ExpenseQuery = t.TypeOf<typeof ExpenseQuery>;
+export const ExpenseQuery = z
+  .object({
+    search: z.string(),
+    receiver: z.string(),
+    categoryId: IntStringZ.or(IntArrayStringZ),
+    startDate: ISODateZ,
+    endDate: ISODateZ,
+    userId: IntStringZ,
+    includeSubCategories: BooleanStringZ,
+  })
+  .partial();
+
+export type ExpenseQuery = z.infer<typeof ExpenseQuery>;

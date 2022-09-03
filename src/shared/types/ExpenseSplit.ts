@@ -1,17 +1,14 @@
-import * as io from 'io-ts';
+import { z } from 'zod';
 
-import { MoneyLike } from 'shared/util/Money';
+import { MoneyLikeZ } from 'shared/util/Money';
 
 import { ExpenseDivision } from './Expense';
 
-export const ExpenseSplit = io.type(
-  {
-    categoryId: io.number,
-    sourceId: io.number,
-    title: io.string,
-    sum: MoneyLike,
-    division: ExpenseDivision,
-  },
-  'ExpenseSplit'
-);
-export type ExpenseSplit = io.TypeOf<typeof ExpenseSplit>;
+export const ExpenseSplit = z.object({
+  categoryId: z.number(),
+  sourceId: z.number(),
+  title: z.string(),
+  sum: MoneyLikeZ,
+  division: ExpenseDivision,
+});
+export type ExpenseSplit = z.infer<typeof ExpenseSplit>;

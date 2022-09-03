@@ -1,6 +1,7 @@
 import { Big } from 'big.js';
 import { isRight } from 'fp-ts/lib/Either';
 import * as io from 'io-ts';
+import { z } from 'zod';
 // Two decimal places
 Big.DP = 2;
 // Round down (truncate)
@@ -236,3 +237,9 @@ export const MoneyLike = new io.Type<MoneyLike, MoneyLike, unknown>(
       : io.failure(i, ctx),
   m => (Money.isMoney(m) ? m.toString() : Money.isBig(m) ? m.toString() : m)
 );
+
+export const MoneyLikeZ = z
+  .string()
+  .refine(t => isMoneyLike(t) && isRight(MoneyV.decode(t)), {
+    message: 'String does not encode a proper monetary amount',
+  });
