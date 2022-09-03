@@ -2,7 +2,6 @@ import { Router } from 'express';
 
 import { ApiMessage } from 'shared/types/Api';
 import { Category, CategoryAndTotals } from 'shared/types/Session';
-import { validate } from 'shared/types/Validator';
 import { DateRange } from 'shared/util/TimeRange';
 import { Requests } from 'server/server/RequestHandling';
 
@@ -46,10 +45,13 @@ export function createCategoryApi() {
   // GET /api/category/totals
   api.get(
     '/totals',
-    Requests.txRequest((tx, session, req): Promise<CategoryAndTotals[]> => {
-      const params = validate(DateRange, req.query);
-      return CategoryDb.getTotals(tx, session.group.id, params);
-    }, true)
+    Requests.validatedTxRequest(
+      { query: DateRange },
+      (tx, session, { query }): Promise<CategoryAndTotals[]> => {
+        return CategoryDb.getTotals(tx, session.group.id, query);
+      },
+      true
+    )
   );
 
   // POST /api/category/categoryId

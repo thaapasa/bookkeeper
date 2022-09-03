@@ -4,7 +4,6 @@ import { z } from 'zod';
 import { ApiMessage } from 'shared/types/Api';
 import {
   Expense,
-  ExpenseCollection,
   ExpenseQuery,
   RecurringExpenseInput,
   RecurringExpenseTarget,
@@ -12,7 +11,6 @@ import {
 } from 'shared/types/Expense';
 import { ExpenseSplit } from 'shared/types/ExpenseSplit';
 import { YearMonth } from 'shared/types/Time';
-import { validate } from 'shared/types/Validator';
 import { updateExpenseById } from 'server/data/BasicExpenseService';
 import { Expenses } from 'server/data/Expenses';
 import { searchExpenses } from 'server/data/ExpenseSearch';
@@ -54,16 +52,18 @@ export function createExpenseApi() {
   // GET /api/expense/month
   api.get(
     '/month',
-    Requests.txRequest<ExpenseCollection>((tx, session, req) => {
-      const params = validate(YearMonth, req.query);
-      return Expenses.getByMonth(
-        tx,
-        session.group.id,
-        session.user.id,
-        params.year,
-        params.month
-      );
-    }, true)
+    Requests.validatedTxRequest(
+      { query: YearMonth },
+      (tx, session, { query }) =>
+        Expenses.getByMonth(
+          tx,
+          session.group.id,
+          session.user.id,
+          query.year,
+          query.month
+        ),
+      true
+    )
   );
 
   // GET /api/expense/search?[ExpenseSearch]
