@@ -31,7 +31,6 @@ const CategoryChartImpl: React.FC<CategoryChartProps> = ({
   size,
 }) => {
   const thin = useThinFormat(size);
-  console.log(chartData);
   const expenseColor = 0;
   const incomeColor = 1;
   return (
