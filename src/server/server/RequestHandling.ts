@@ -1,5 +1,5 @@
 import debug from 'debug';
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Request, RequestHandler, Response } from 'express';
 import { ITask } from 'pg-promise';
 import { z } from 'zod';
 
@@ -11,6 +11,7 @@ import { SessionDb } from 'server/data/SessionDb';
 
 import { db } from '../data/Db';
 import { ServerUtil } from './ServerUtil';
+import { validate } from './Validation';
 
 const log = debug('bookkeeper:server');
 
@@ -20,7 +21,7 @@ const requestDelayMs = process.env.DELAY
 
 function processUnauthorizedRequest<T>(
   handler: (req: Request, res: Response) => Promise<T>
-) {
+): RequestHandler {
   return async (
     req: Request,
     res: Response,
@@ -43,7 +44,7 @@ function processUnauthorizedRequest<T>(
 
 function processUnauthorizedTxRequest<T>(
   handler: (tx: ITask<any>, req: Request, res: Response) => Promise<T>
-) {
+): RequestHandler {
   return processUnauthorizedRequest((req, res) =>
     db.tx(tx => handler(tx, req, res))
   );
@@ -56,7 +57,7 @@ function processRequest<T>(
     res: Response
   ) => Promise<T>,
   groupRequired?: boolean
-) {
+): RequestHandler {
   return processUnauthorizedRequest(async (req, res) => {
     const token = ServerUtil.getToken(req);
     const session = await db.tx(tx =>
@@ -77,7 +78,7 @@ function processTxRequest<T>(
     res: Response
   ) => Promise<T>,
   groupRequired?: boolean
-) {
+): RequestHandler {
   return processRequest(
     (session, req, res) => db.tx(tx => handler(tx, session, req, res)),
     groupRequired
@@ -99,10 +100,12 @@ function processValidatedRequest<Params, Body, Return>(
     res: Response
   ) => Promise<Return>,
   groupRequired?: boolean
-) {
+): RequestHandler {
   return processRequest((session, req, res) => {
-    const params = spec.params?.parse(req.params) ?? ({} as Params);
-    const body = spec.body?.parse(req.body) ?? ({} as Body);
+    const params = spec.params
+      ? validate(req.params, spec.params)
+      : ({} as Params);
+    const body = spec.body ? validate(req.body, spec.body) : ({} as Body);
     return handler(session, { params, body }, req, res);
   }, groupRequired);
 }
@@ -123,7 +126,7 @@ function processValidatedTxRequest<Params, Body, Return>(
     res: Response
   ) => Promise<Return>,
   groupRequired?: boolean
-) {
+): RequestHandler {
   return processValidatedRequest(
     spec,
     (...p) => db.tx(tx => handler(tx, ...p)),
