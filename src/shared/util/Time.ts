@@ -1,5 +1,6 @@
 import * as io from 'io-ts';
 import moment, { isMoment, Moment, MomentInput } from 'moment';
+import { z } from 'zod';
 
 require('moment/locale/fi');
 
@@ -12,10 +13,12 @@ export const ISODateRegExp = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
 export const ISODatePattern = 'YYYY-MM-DD';
 export const ISODate = io.refinement(io.string, s => ISODateRegExp.test(s));
 export type ISODate = io.TypeOf<typeof ISODate>;
+export const ISODateZ = z.string().regex(ISODateRegExp);
 
 export const ISOMonthRegExp = /^[0-9]{4}-[0-9]{2}$/;
 export const ISOMonthPattern = 'YYYY-MM';
 export const ISOMonth = io.refinement(io.string, s => ISOMonthRegExp.test(s));
+export const ISOMonthZ = z.string().regex(ISOMonthRegExp);
 export type ISOMonth = io.TypeOf<typeof ISOMonth>;
 
 export const displayDatePattern = 'D.M.YYYY';

@@ -1,6 +1,7 @@
 import debug from 'debug';
 import { NextFunction, Request, Response } from 'express';
 import { ITask } from 'pg-promise';
+import { z } from 'zod';
 
 import { InvalidGroupError } from 'shared/types/Errors';
 import { SessionBasicInfo } from 'shared/types/Session';
@@ -83,9 +84,58 @@ function processTxRequest<T>(
   );
 }
 
+function processValidatedRequest<Params, Body, Return>(
+  spec: {
+    params?: z.ZodType<Params>;
+    body?: z.ZodType<Body>;
+  },
+  handler: (
+    session: SessionBasicInfo,
+    data: {
+      params: Params;
+      body: Body;
+    },
+    req: Request,
+    res: Response
+  ) => Promise<Return>,
+  groupRequired?: boolean
+) {
+  return processRequest((session, req, res) => {
+    const params = spec.params?.parse(req.params) ?? ({} as Params);
+    const body = spec.body?.parse(req.body) ?? ({} as Body);
+    return handler(session, { params, body }, req, res);
+  }, groupRequired);
+}
+
+function processValidatedTxRequest<Params, Body, Return>(
+  spec: {
+    params?: z.ZodType<Params>;
+    body?: z.ZodType<Body>;
+  },
+  handler: (
+    tx: ITask<any>,
+    session: SessionBasicInfo,
+    data: {
+      params: Params;
+      body: Body;
+    },
+    req: Request,
+    res: Response
+  ) => Promise<Return>,
+  groupRequired?: boolean
+) {
+  return processValidatedRequest(
+    spec,
+    (...p) => db.tx(tx => handler(tx, ...p)),
+    groupRequired
+  );
+}
+
 export const Requests = {
   unauthorizedRequest: processUnauthorizedRequest,
   unauthorizedTxRequest: processUnauthorizedTxRequest,
   request: processRequest,
   txRequest: processTxRequest,
+  validatedRequest: processValidatedRequest,
+  validatedTxRequest: processValidatedTxRequest,
 };

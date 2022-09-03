@@ -1,28 +1,22 @@
-import * as io from 'io-ts';
+import { z } from 'zod';
 
-import { MoneyLike } from 'shared/util/Money';
-import { ISOMonth } from 'shared/util/Time';
-import { DateRange } from 'shared/util/TimeRange';
+import { ISOMonthZ } from 'shared/util/Time';
+import { DateRangeZ } from 'shared/util/TimeRange';
 
-import { NonEmptyArray } from './Validator';
-
-export const StatisticsSearchType = io.type({
-  categoryIds: NonEmptyArray(io.number),
+export const StatisticsSearchType = z.object({
+  categoryIds: z.array(z.number()),
 });
-export type StatisticsSearchType = io.TypeOf<typeof StatisticsSearchType>;
+export type StatisticsSearchType = z.infer<typeof StatisticsSearchType>;
 
-export const CategoryStatisticsData = io.type({
-  sum: MoneyLike,
-  month: ISOMonth,
-  categoryId: io.number,
+export const CategoryStatisticsData = z.object({
+  sum: z.string(),
+  month: ISOMonthZ,
+  categoryId: z.number(),
 });
-export type CategoryStatisticsData = io.TypeOf<typeof CategoryStatisticsData>;
+export type CategoryStatisticsData = z.infer<typeof CategoryStatisticsData>;
 
-export const CategoryStatistics = io.intersection([
-  StatisticsSearchType,
-  io.type({
-    statistics: io.record(io.string, io.array(CategoryStatisticsData)),
-    range: DateRange,
-  }),
-]);
-export type CategoryStatistics = io.TypeOf<typeof CategoryStatistics>;
+export const CategoryStatistics = StatisticsSearchType.extend({
+  statistics: z.record(z.string(), z.array(CategoryStatisticsData)),
+  range: DateRangeZ,
+});
+export type CategoryStatistics = z.infer<typeof CategoryStatistics>;

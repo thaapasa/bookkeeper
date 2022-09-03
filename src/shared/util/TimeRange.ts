@@ -1,11 +1,13 @@
 import * as io from 'io-ts';
 import { Moment } from 'moment';
+import { z } from 'zod';
 
 import {
   compareDates,
   DateLike,
   displayDatePattern,
   ISODate,
+  ISODateZ,
   toMoment,
   toMonthName,
   toYearName,
@@ -16,6 +18,7 @@ export const DateRange = io.type({
   startDate: ISODate,
   endDate: ISODate,
 });
+export const DateRangeZ = z.object({ startDate: ISODateZ, endDate: ISODateZ });
 export type DateRange = io.TypeOf<typeof DateRange>;
 
 export interface UIDateRange {

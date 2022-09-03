@@ -1,10 +1,6 @@
 import { Router } from 'express';
 
-import {
-  CategoryStatistics,
-  StatisticsSearchType,
-} from 'shared/types/Statistics';
-import { validate } from 'shared/types/Validator';
+import { StatisticsSearchType } from 'shared/types/Statistics';
 import { StatisticsDb } from 'server/data/Statistics';
 import { Requests } from 'server/server/RequestHandling';
 
@@ -18,14 +14,16 @@ export function createStatisticsApi() {
   // POST /api/statistics/category
   api.post(
     '/category',
-    Requests.txRequest<CategoryStatistics>(async (tx, session, req) => {
-      const body = validate(StatisticsSearchType, req.body);
-      return StatisticsDb.getCategoryStatistics(
-        tx,
-        session.group.id,
-        body.categoryIds
-      );
-    }, true)
+    Requests.validatedTxRequest(
+      { body: StatisticsSearchType },
+      async (tx, session, { body }) =>
+        StatisticsDb.getCategoryStatistics(
+          tx,
+          session.group.id,
+          body.categoryIds
+        ),
+      true
+    )
   );
 
   return api;
