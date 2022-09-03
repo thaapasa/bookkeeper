@@ -24,12 +24,13 @@ export function emptyToError(errorType: any, p1?: any, p2?: any, p3?: any) {
   };
 }
 
-export class BkError {
+export class BkError extends Error {
   public code: string;
   public cause: any;
   public status: number;
   public data: any;
   constructor(code: string, cause: any, status: number, data?: any) {
+    super(String(cause));
     this.code = code;
     this.cause = cause;
     this.status = status;
