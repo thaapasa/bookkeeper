@@ -1,0 +1,39 @@
+import debug from 'debug';
+import express from 'express';
+
+import { config } from 'server/Config';
+
+const log = debug('bookkeeper:api:error');
+
+function isUserError(status: number) {
+  return status >= 400 && status < 500;
+}
+
+export function createErrorHandler() {
+  return (
+    err: any,
+    req: express.Request,
+    res: express.Response,
+    _: express.NextFunction
+  ) => {
+    const status = typeof err.status === 'number' ? err.status : 500;
+
+    log(
+      `Error processing ${req.method} ${req.path} -> ${status}`,
+      !isUserError(status) ? err : err.message
+    );
+    const data: ErrorInfo = {
+      ...(config.showErrorCause ? err : undefined),
+      type: 'error',
+      code: err.code ? err.code : 'INTERNAL_ERROR',
+    };
+    res.status(status).json(data);
+  };
+}
+
+interface ErrorInfo {
+  type: 'error';
+  code: string;
+  cause?: any;
+  info?: any;
+}

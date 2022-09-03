@@ -6,10 +6,11 @@ import { Source, User } from 'shared/types/Session';
 import { toMoment } from 'shared/util/Time';
 import { SourceDb } from 'server/data/SourceDb';
 import { UserDb } from 'server/data/UserDb';
+import { createErrorHandler } from 'server/server/ErrorHandler';
+import { Requests } from 'server/server/RequestHandling';
 
 import { config } from '../Config';
 import { AdminDb, DbStatus } from '../data/admin/Admin';
-import * as server from '../util/ServerUtil';
 import { createCategoryApi } from './CategoryApi';
 import { createExpenseApi } from './ExpenseApi';
 import { createSessionApi } from './SessionApi';
@@ -22,6 +23,7 @@ export function createApi() {
 
   const api = Router();
 
+  // Attach subrouters
   api.use('/session', createSessionApi());
   api.use('/category', createCategoryApi());
   api.use('/expense', createExpenseApi());
@@ -30,7 +32,7 @@ export function createApi() {
   // GET /api/status
   api.get(
     '/status',
-    server.processUnauthorizedRequest(
+    Requests.unauthorizedRequest(
       async (): Promise<ApiStatus> => ({
         status: 'OK',
         timestamp: toMoment().format(),
@@ -45,7 +47,7 @@ export function createApi() {
   // GET /api/user/list
   api.get(
     '/user/list',
-    server.processTxRequest(
+    Requests.txRequest(
       (tx, session): Promise<User[]> => UserDb.getAll(tx, session.group.id),
       true
     )
@@ -54,7 +56,7 @@ export function createApi() {
   // GET /api/user/[userid]
   api.get(
     '/user/:id',
-    server.processTxRequest(
+    Requests.txRequest(
       (tx, session, req): Promise<User> =>
         UserDb.getById(tx, session.group.id, parseInt(req.params.id, 10)),
       true
@@ -64,15 +66,16 @@ export function createApi() {
   // GET /api/source/list
   api.get(
     '/source/list',
-    server.processTxRequest(
+    Requests.txRequest(
       (tx, session): Promise<Source[]> => SourceDb.getAll(tx, session.group.id),
       true
     )
   );
+
   // GET /api/source/:id
   api.get(
     '/source/:id',
-    server.processTxRequest(
+    Requests.txRequest(
       (tx, session, req): Promise<Source> =>
         SourceDb.getById(tx, session.group.id, parseInt(req.params.id, 10)),
       true
@@ -82,18 +85,23 @@ export function createApi() {
   // GET /api/admin/status
   api.get(
     '/admin/status',
-    server.processTxRequest<DbStatus>(
+    Requests.txRequest<DbStatus>(
       (tx, session) => AdminDb.getDbStatus(tx, session.group.id),
       true
     )
   );
 
+  // Return 404 for non-matched /api paths
   api.all('/*', (req, res) => {
-    log(`${req.path} not found`);
-    res
-      .status(404)
-      .json({ error: `/api${req.path} not found`, code: 'NOT_FOUND' });
+    log(`Request ${req.method} ${req.path} not mapped -> 404`);
+    res.status(404).json({
+      error: `${req.method} /api${req.path} not mapped`,
+      code: 'NOT_FOUND',
+    });
   });
+
+  // Handle errors
+  api.use(createErrorHandler());
 
   return api;
 }

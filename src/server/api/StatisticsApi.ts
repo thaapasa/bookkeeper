@@ -6,8 +6,7 @@ import {
 } from 'shared/types/Statistics';
 import { validate } from 'shared/types/Validator';
 import { StatisticsDb } from 'server/data/Statistics';
-
-import * as server from '../util/ServerUtil';
+import { Requests } from 'server/server/RequestHandling';
 
 /**
  * Creates statistics API router.
@@ -19,7 +18,7 @@ export function createStatisticsApi() {
   // POST /api/statistics/category
   api.post(
     '/category',
-    server.processTxRequest<CategoryStatistics>(async (tx, session, req) => {
+    Requests.txRequest<CategoryStatistics>(async (tx, session, req) => {
       const body = validate(StatisticsSearchType, req.body);
       return StatisticsDb.getCategoryStatistics(
         tx,
