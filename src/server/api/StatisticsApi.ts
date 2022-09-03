@@ -5,8 +5,7 @@ import {
   StatisticsSearchType,
 } from 'shared/types/Statistics';
 import { validate } from 'shared/types/Validator';
-import { db } from 'server/data/Db';
-import { getCategoryStatistics } from 'server/data/Statistics';
+import { StatisticsDb } from 'server/data/Statistics';
 
 import * as server from '../util/ServerUtil';
 
@@ -20,10 +19,12 @@ export function createStatisticsApi() {
   // POST /api/statistics/category
   api.post(
     '/category',
-    server.processRequest<CategoryStatistics>(async (session, req) => {
+    server.processTxRequest<CategoryStatistics>(async (tx, session, req) => {
       const body = validate(StatisticsSearchType, req.body);
-      return db.tx(tx =>
-        getCategoryStatistics(tx, session.group.id, body.categoryIds)
+      return StatisticsDb.getCategoryStatistics(
+        tx,
+        session.group.id,
+        body.categoryIds
       );
     }, true)
   );

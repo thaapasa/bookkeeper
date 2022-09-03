@@ -3,8 +3,6 @@ import { IBaseProtocol } from 'pg-promise';
 import { NotFoundError } from 'shared/types/Errors';
 import { Source } from 'shared/types/Session';
 
-import { db } from './Db';
-
 function getImage(img: string | undefined): string | undefined {
   return img ? `img/sources/${img}` : undefined;
 }
@@ -36,7 +34,7 @@ function createGroupObject(rows: SourceData[]): Source[] {
   }, [] as Source[]);
 }
 
-const select = `
+const select = `--sql
 SELECT
   s.id, s.group_id as "groupId", name, abbreviation, image,
   (SELECT SUM(share) FROM source_users WHERE source_id = s.id)::INTEGER AS shares,
@@ -44,34 +42,33 @@ SELECT
 FROM sources s
 LEFT JOIN source_users so ON (so.source_id = s.id)`;
 
-function getAll(tx: IBaseProtocol<any>) {
-  return async (groupId: number): Promise<Source[]> => {
-    const s = await tx.manyOrNone<SourceData>(
-      `${select} WHERE group_id = $/groupId/::INTEGER`,
-      { groupId }
-    );
-    return createGroupObject(s);
-  };
+async function getAll(
+  tx: IBaseProtocol<any>,
+  groupId: number
+): Promise<Source[]> {
+  const s = await tx.manyOrNone<SourceData>(
+    `${select} WHERE group_id = $/groupId/::INTEGER`,
+    { groupId }
+  );
+  return createGroupObject(s);
 }
 
-function getById(tx: IBaseProtocol<any>) {
-  return async (groupId: number, id: number): Promise<Source> => {
-    const s = await tx.manyOrNone<SourceData>(
-      `${select} WHERE id=$/id/::INTEGER AND group_id=$/groupId/::INTEGER`,
-      { id, groupId }
-    );
-    if (!s || s.length < 1) {
-      throw new NotFoundError('SOURCE_NOT_FOUND', 'source');
-    }
-    return createGroupObject(s)[0];
-  };
+async function getById(
+  tx: IBaseProtocol<any>,
+  groupId: number,
+  id: number
+): Promise<Source> {
+  const s = await tx.manyOrNone<SourceData>(
+    `${select} WHERE id=$/id/::INTEGER AND group_id=$/groupId/::INTEGER`,
+    { id, groupId }
+  );
+  if (!s || s.length < 1) {
+    throw new NotFoundError('SOURCE_NOT_FOUND', 'source');
+  }
+  return createGroupObject(s)[0];
 }
 
-export default {
-  getAll: getAll(db),
-  getById: getById(db),
-  tx: {
-    getById,
-    getAll,
-  },
+export const SourceDb = {
+  getById,
+  getAll,
 };

@@ -17,7 +17,7 @@ import {
 import { getSession, SessionWithControl } from 'shared/util/test/TestClient';
 import { ISODate, toISODate } from 'shared/util/Time';
 import { uri } from 'shared/util/UrlUtils';
-import { nextRecurrence } from 'server/data/RecurringExpenses';
+import { RecurringExpenseDb } from 'server/data/RecurringExpenseDb';
 
 import { checkMonthStatus } from './MonthStatus';
 
@@ -44,7 +44,9 @@ describe('recurring expenses', () => {
   ])(
     'calculates next recurrence of %s (%s) to be %s',
     (start, period, expected) => {
-      expect(toISODate(nextRecurrence(start, period))).toBe(expected);
+      expect(toISODate(RecurringExpenseDb.nextRecurrence(start, period))).toBe(
+        expected
+      );
     }
   );
 

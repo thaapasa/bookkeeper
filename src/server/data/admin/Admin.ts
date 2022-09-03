@@ -3,7 +3,6 @@ import { IBaseProtocol } from 'pg-promise';
 import { ExpenseType } from 'shared/types/Expense';
 import { MoneyLike } from 'shared/util/Money';
 
-import { db } from '../Db';
 import { getInvalidDivision, InvalidDivision } from './InvalidDivisionQuery';
 
 interface TypeStatus {
@@ -23,47 +22,52 @@ export interface DbStatus {
   invalidDivision: InvalidDivision[];
 }
 
-function getExpenseTypeStatus(tx: IBaseProtocol<any>) {
-  return async (groupId: number): Promise<TypeStatus[]> =>
-    (
-      await tx.manyOrNone<TypeStatus>(
-        `
-SELECT COUNT(*) as count, SUM(sum) AS sum, type
-FROM expenses
-WHERE group_id=$/groupId/
-GROUP BY type`,
-        { groupId }
-      )
-    ).map(s => ({ ...s, count: parseInt('' + s.count, 10) }));
+async function getExpenseTypeStatus(
+  tx: IBaseProtocol<any>,
+  groupId: number
+): Promise<TypeStatus[]> {
+  const rows = await tx.manyOrNone<TypeStatus>(
+    `SELECT COUNT(*) as count, SUM(sum) AS sum, type
+        FROM expenses
+        WHERE group_id=$/groupId/
+        GROUP BY type`,
+    { groupId }
+  );
+  return rows.map(s => ({ ...s, count: Number(s.count) }));
 }
 
-function getInvalidZeroSumRows(tx: IBaseProtocol<any>) {
-  return async (groupId: number): Promise<ZeroSumData[]> =>
-    (
-      await tx.manyOrNone<Record<string, string>>(
-        `
-SELECT id, zerosum FROM
-  (SELECT id, SUM(d.sum) as zerosum
-    FROM expenses e
-      LEFT JOIN expense_division d ON (e.id = d.expense_id)
-    WHERE e.group_id=$/groupId/
-    GROUP BY e.id) data
-WHERE zerosum <> 0`,
-        { groupId }
-      )
-    ).map(s => ({ id: parseInt(s.id, 10), zerosum: parseInt(s.zerosum, 10) }));
+async function getInvalidZeroSumRows(
+  tx: IBaseProtocol<any>,
+  groupId: number
+): Promise<ZeroSumData[]> {
+  const rows = await tx.manyOrNone<Record<string, string>>(
+    `SELECT id, zerosum FROM
+        (SELECT id, SUM(d.sum) as zerosum
+          FROM expenses e
+            LEFT JOIN expense_division d ON (e.id = d.expense_id)
+          WHERE e.group_id=$/groupId/
+          GROUP BY e.id) data
+      WHERE zerosum <> 0`,
+    { groupId }
+  );
+
+  return rows.map(s => ({
+    id: Number(s.id),
+    zerosum: Number(s.zerosum),
+  }));
 }
 
-export async function getDbStatus(groupId: number): Promise<DbStatus> {
-  return db.tx(async tx => {
-    return {
-      status: await getExpenseTypeStatus(tx)(groupId),
-      invalidZerosum: await getInvalidZeroSumRows(tx)(groupId),
-      invalidDivision: await getInvalidDivision(tx)(groupId),
-    };
-  });
+async function getDbStatus(
+  tx: IBaseProtocol<any>,
+  groupId: number
+): Promise<DbStatus> {
+  return {
+    status: await getExpenseTypeStatus(tx, groupId),
+    invalidZerosum: await getInvalidZeroSumRows(tx, groupId),
+    invalidDivision: await getInvalidDivision(tx, groupId),
+  };
 }
 
-export default {
+export const AdminDb = {
   getDbStatus,
 };

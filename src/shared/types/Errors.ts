@@ -39,8 +39,8 @@ export class BkError {
 }
 
 export class NotFoundError extends BkError {
-  constructor(code: string, name: string) {
-    super(code, `${ucFirst(name)} not found`, 404);
+  constructor(code: string, name: string, id?: string | number) {
+    super(code, `${ucFirst(name)}${id ? ` with id ${id}` : ''} not found`, 404);
     Object.setPrototypeOf(this, NotFoundError.prototype);
   }
 }

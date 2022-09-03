@@ -3,29 +3,28 @@ import { IBaseProtocol } from 'pg-promise';
 
 import { ExpenseQuery, UserExpense } from 'shared/types/Expense';
 
-import basic from './BasicExpenses';
-import categories from './Categories';
-import { db } from './Db';
+import { BasicExpenseDb } from './BasicExpenseDb';
+import { CategoryDb } from './CategoryDb';
 
 const log = debug('bookkeeper:api:expenses:search');
 
-function searchExpenses(tx: IBaseProtocol<any>) {
-  return async (
-    userId: number,
-    groupId: number,
-    query: ExpenseQuery
-  ): Promise<UserExpense[]> => {
-    log(`Searching for ${JSON.stringify(query)}`);
-    const inputCategoryIds =
-      typeof query.categoryId === 'number'
-        ? [query.categoryId]
-        : query.categoryId || [];
-    const categoryIds =
-      query.includeSubCategories && inputCategoryIds.length > 0
-        ? await categories.tx.expandSubCategories(tx, groupId, inputCategoryIds)
-        : inputCategoryIds;
-    const expenses = await tx.manyOrNone<UserExpense>(
-      basic.expenseSelect(`
+export async function searchExpenses(
+  tx: IBaseProtocol<any>,
+  userId: number,
+  groupId: number,
+  query: ExpenseQuery
+): Promise<UserExpense[]> {
+  log(`Searching for ${JSON.stringify(query)}`);
+  const inputCategoryIds =
+    typeof query.categoryId === 'number'
+      ? [query.categoryId]
+      : query.categoryId || [];
+  const categoryIds =
+    query.includeSubCategories && inputCategoryIds.length > 0
+      ? await CategoryDb.expandSubCategories(tx, groupId, inputCategoryIds)
+      : inputCategoryIds;
+  const expenses = await tx.manyOrNone<UserExpense>(
+    BasicExpenseDb.expenseSelect(`--sql
       WHERE group_id=$/groupId/
       AND template=false
       AND ($/startDate/ IS NULL OR date::DATE >= $/startDate/::DATE)
@@ -42,24 +41,16 @@ function searchExpenses(tx: IBaseProtocol<any>) {
         OR title ILIKE '%$/search:value/%'
         OR receiver ILIKE '%$/search:value/%'
       )`),
-      {
-        userId,
-        groupId,
-        expenseUserId: query.userId,
-        startDate: query.startDate,
-        endDate: query.endDate,
-        categoryIds,
-        receiver: query.receiver,
-        search: query.search || '',
-      }
-    );
-    return expenses.map(basic.mapExpense);
-  };
+    {
+      userId,
+      groupId,
+      expenseUserId: query.userId,
+      startDate: query.startDate,
+      endDate: query.endDate,
+      categoryIds,
+      receiver: query.receiver,
+      search: query.search || '',
+    }
+  );
+  return expenses.map(BasicExpenseDb.mapExpense);
 }
-
-export default {
-  search: searchExpenses(db),
-  tx: {
-    search: searchExpenses,
-  },
-};

@@ -19,9 +19,11 @@ import {
   stringWithLength,
   validate,
 } from 'shared/types/Validator';
+import { updateExpenseById } from 'server/data/BasicExpenseService';
+import { Expenses } from 'server/data/Expenses';
+import { searchExpenses } from 'server/data/ExpenseSearch';
+import { splitExpense } from 'server/data/ExpenseSplit';
 
-import expenses from '../data/Expenses';
-import expenseSearch from '../data/ExpenseSearch';
 import * as server from '../util/ServerUtil';
 import { Schema, Validator as V } from '../util/Validator';
 
@@ -59,9 +61,10 @@ export function createExpenseApi() {
   // GET /api/expense/month
   api.get(
     '/month',
-    server.processRequest<ExpenseCollection>((session, req) => {
+    server.processTxRequest<ExpenseCollection>((tx, session, req) => {
       const params = validate(YearMonth, req.query);
-      return expenses.getByMonth(
+      return Expenses.getByMonth(
+        tx,
         session.group.id,
         session.user.id,
         params.year,
@@ -73,18 +76,19 @@ export function createExpenseApi() {
   // GET /api/expense/search?[ExpenseSearch]
   api.get(
     '/search',
-    server.processRequest<UserExpense[]>(async (session, req) => {
+    server.processTxRequest<UserExpense[]>(async (tx, session, req) => {
       const query = validate(ExpenseQuery, req.query);
-      return expenseSearch.search(session.user.id, session.group.id, query);
+      return searchExpenses(tx, session.user.id, session.group.id, query);
     })
   );
 
   // PUT /api/expense
   api.put(
     '/',
-    server.processRequest<ApiMessage>(
-      (session, req) =>
-        expenses.create(
+    server.processTxRequest<ApiMessage>(
+      (tx, session, req) =>
+        Expenses.create(
+          tx,
           session.user.id,
           session.group.id,
           V.validate(expenseSchema, req.body),
@@ -100,10 +104,11 @@ export function createExpenseApi() {
   // GET /api/expense/receivers?receiver=[query]
   api.get(
     '/receivers',
-    server.processRequest<string[]>(
-      async (session, req) =>
+    server.processTxRequest<string[]>(
+      async (tx, session, req) =>
         (
-          await expenses.queryReceivers(
+          await Expenses.queryReceivers(
+            tx,
             session.group.id,
             validate(ReceiverSearch, req.query).receiver
           )
@@ -119,9 +124,10 @@ export function createExpenseApi() {
   // POST /api/expense/[expenseId]/split
   api.post(
     '/:expenseId/split',
-    server.processRequest<ApiMessage>(
-      (session, req) =>
-        expenses.split(
+    server.processTxRequest<ApiMessage>(
+      (tx, session, req) =>
+        splitExpense(
+          tx,
           session.group.id,
           session.user.id,
           validate(ExpenseIdType, req.params).expenseId,
@@ -134,9 +140,10 @@ export function createExpenseApi() {
   // POST /api/expense/[expenseId]
   api.post(
     '/:expenseId',
-    server.processRequest<ApiMessage>(
-      (session, req) =>
-        expenses.update(
+    server.processTxRequest<ApiMessage>(
+      (tx, session, req) =>
+        updateExpenseById(
+          tx,
           session.group.id,
           session.user.id,
           validate(ExpenseIdType, req.params).expenseId,
@@ -150,17 +157,16 @@ export function createExpenseApi() {
   // GET /api/expense/[expenseId]
   api.get(
     '/:id',
-    server.processRequest<UserExpenseWithDetails>(
-      (session, req) =>
-        expenses
-          .getById(
-            session.group.id,
-            session.user.id,
-            parseInt(req.params.id, 10)
-          )
-          .then(e =>
-            expenses.getDivision(e.id).then(division => ({ ...e, division }))
-          ),
+    server.processTxRequest<UserExpenseWithDetails>(
+      (tx, session, req) =>
+        Expenses.getById(
+          tx,
+          session.group.id,
+          session.user.id,
+          parseInt(req.params.id, 10)
+        ).then(e =>
+          Expenses.getDivision(tx, e.id).then(division => ({ ...e, division }))
+        ),
       true
     )
   );
@@ -168,9 +174,9 @@ export function createExpenseApi() {
   // DELETE /api/expense/[expenseId]
   api.delete(
     '/:id',
-    server.processRequest<ApiMessage>(
-      (session, req) =>
-        expenses.deleteById(session.group.id, parseInt(req.params.id, 10)),
+    server.processTxRequest<ApiMessage>(
+      (tx, session, req) =>
+        Expenses.deleteById(tx, session.group.id, parseInt(req.params.id, 10)),
       true
     )
   );
@@ -193,9 +199,10 @@ function createRecurringExpenseApi() {
   // PUT /api/expense/recurring/[expenseId]
   api.put(
     '/:id',
-    server.processRequest<ApiMessage>(
-      (session, req) =>
-        expenses.createRecurring(
+    server.processTxRequest<ApiMessage>(
+      (tx, session, req) =>
+        Expenses.createRecurring(
+          tx,
           session.group.id,
           session.user.id,
           parseInt(req.params.id, 10),
@@ -208,9 +215,10 @@ function createRecurringExpenseApi() {
   // DELETE /api/expense/recurring/[expenseId]
   api.delete(
     '/:id',
-    server.processRequest<ApiMessage>(
-      (session, req) =>
-        expenses.deleteRecurringById(
+    server.processTxRequest<ApiMessage>(
+      (tx, session, req) =>
+        Expenses.deleteRecurringById(
+          tx,
           session.group.id,
           session.user.id,
           parseInt(req.params.id, 10),
@@ -223,9 +231,10 @@ function createRecurringExpenseApi() {
   // POST /api/expense/recurring/[expenseId]
   api.post(
     '/:id',
-    server.processRequest<ApiMessage>(
-      (session, req) =>
-        expenses.updateRecurring(
+    server.processTxRequest<ApiMessage>(
+      (tx, session, req) =>
+        Expenses.updateRecurring(
+          tx,
           session.group.id,
           session.user.id,
           parseInt(req.params.id, 10),
