@@ -4576,9 +4576,7 @@ __metadata:
     eslint-plugin-simple-import-sort: ^7.0.0
     eslint-plugin-unused-imports: ^2.0.0
     express: 4.18.1
-    fp-ts: 2.12.1
     history: 5.3.0
-    io-ts: 2.2.16
     knex: 2.2.0
     moment: 2.29.4
     node-fetch: 2.6.7
@@ -7093,13 +7091,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fp-ts@npm:2.12.1":
-  version: 2.12.1
-  resolution: "fp-ts@npm:2.12.1"
-  checksum: 1e20e6b468191640a5f83cd52ccbfb361d27a6afbc47230870e63094b569cd9ae8763d0b9dee50eaed568bce8dd72e32ad1d695161bda8ec73e0296a02359832
-  languageName: node
-  linkType: hard
-
 "fraction.js@npm:^4.2.0":
   version: 4.2.0
   resolution: "fraction.js@npm:4.2.0"
@@ -7895,15 +7886,6 @@ __metadata:
   version: 2.2.0
   resolution: "interpret@npm:2.2.0"
   checksum: f51efef7cb8d02da16408ffa3504cd6053014c5aeb7bb8c223727e053e4235bf565e45d67028b0c8740d917c603807aa3c27d7bd2f21bf20b6417e2bb3e5fd6e
-  languageName: node
-  linkType: hard
-
-"io-ts@npm:2.2.16":
-  version: 2.2.16
-  resolution: "io-ts@npm:2.2.16"
-  peerDependencies:
-    fp-ts: ^2.5.0
-  checksum: 1b5855682e413cc92cfb5c51d0bdb24c99e407ab4e67821a53078f5d8dedbc387840c5b240cb19dd5d542bbdd2e2317ece17674a674f3de561ca0f00ae765bba
   languageName: node
   linkType: hard
 

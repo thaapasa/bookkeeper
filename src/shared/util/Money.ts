@@ -1,6 +1,4 @@
 import { Big } from 'big.js';
-import { isRight } from 'fp-ts/lib/Either';
-import * as io from 'io-ts';
 import { z } from 'zod';
 // Two decimal places
 Big.DP = 2;
@@ -210,36 +208,21 @@ export function sanitizeMoneyInput(v: string): string {
   return v?.replace(/,/, '.').replace(/ +/g, '') ?? '';
 }
 
-export const MoneyV = new io.Type<Money, MoneyLike, unknown>(
-  'Money',
-  Money.isMoney,
-  (i, ctx) => {
-    try {
-      if (!isMoneyLike(i)) {
-        return io.failure(i, ctx);
-      }
-      const v = Money.from(i);
-      return v.isValid() ? io.success(v) : io.failure(v, ctx);
-    } catch (e) {
-      return io.failure(i, ctx);
-    }
-  },
-  m => m.toString()
-);
-export type MoneyV = io.TypeOf<typeof MoneyV>;
+const BigShape = z.object({
+  c: z.array(z.number()),
+  abs: z.function(),
+  cmp: z.function(),
+});
+const MoneyShape = z.object({ value: BigShape });
 
-export const MoneyLike = new io.Type<MoneyLike, MoneyLike, unknown>(
-  'MoneyLike',
-  isMoneyLike,
-  (i, ctx) =>
-    isMoneyLike(i) && isRight(MoneyV.decode(i))
-      ? io.success(i)
-      : io.failure(i, ctx),
-  m => (Money.isMoney(m) ? m.toString() : Money.isBig(m) ? m.toString() : m)
-);
+export const MoneyV = z
+  .any()
+  .refine(isMoneyLike)
+  .transform(v => Money.from(v))
+  .refine(v => v.isValid());
 
 export const MoneyLikeZ = z
-  .string()
-  .refine(t => isMoneyLike(t) && isRight(MoneyV.decode(t)), {
+  .union([z.string(), z.number(), MoneyShape, BigShape])
+  .refine(t => isMoneyLike(t) && MoneyV.safeParse(t).success, {
     message: 'String does not encode a proper monetary amount',
   });
