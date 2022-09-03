@@ -13,9 +13,8 @@ import * as time from 'shared/util/Time';
 
 import { BasicExpenseDb as basic } from './BasicExpenseDb';
 import { createExpense } from './BasicExpenseService';
-import { db } from './Db';
 import { splitExpense } from './ExpenseSplit';
-import recurring from './RecurringExpenses';
+import { RecurringExpenseDb } from './RecurringExpenseDb';
 
 const log = debug('bookkeeper:api:expenses');
 
@@ -33,34 +32,31 @@ function calculateBalance(o: ExpenseStatus): ExpenseStatus {
   };
 }
 
-function getBetween(tx: IBaseProtocol<any>) {
-  return async (
-    groupId: number,
-    userId: number,
-    startDate: Moment | string,
-    endDate: Moment | string
-  ) => {
-    log(
-      'Querying for expenses between',
-      time.iso(startDate),
-      'and',
-      time.iso(endDate),
-      'for group',
-      groupId
-    );
-    const expenses = await tx.manyOrNone<UserExpense>(
-      basic.expenseSelect(
-        `WHERE group_id=$/groupId/ AND template=false AND date >= $/startDate/::DATE AND date < $/endDate/::DATE`
-      ),
-      {
-        userId,
-        groupId,
-        startDate: time.toISODate(startDate),
-        endDate: time.toISODate(endDate),
-      }
-    );
-    return expenses.map(basic.mapExpense);
-  };
+async function getBetween(
+  tx: IBaseProtocol<any>,
+  groupId: number,
+  userId: number,
+  startDate: Moment | string,
+  endDate: Moment | string
+) {
+  log(
+    `Querying for expenses between ${time.iso(startDate)} and ${time.iso(
+      endDate
+    )} for group ${groupId}`
+  );
+  const expenses = await tx.manyOrNone<UserExpense>(
+    basic.expenseSelect(
+      `WHERE group_id=$/groupId/ AND template=false
+        AND date >= $/startDate/::DATE AND date < $/endDate/::DATE`
+    ),
+    {
+      userId,
+      groupId,
+      startDate: time.toISODate(startDate),
+      endDate: time.toISODate(endDate),
+    }
+  );
+  return expenses.map(basic.mapExpense);
 }
 
 const zeroStatus: ExpenseStatus = {
@@ -74,7 +70,8 @@ const zeroStatus: ExpenseStatus = {
   transferee: '0.00',
 };
 
-function getByMonth(
+async function getByMonth(
+  tx: IBaseProtocol<any>,
   groupId: number,
   userId: number,
   year: number,
@@ -82,35 +79,32 @@ function getByMonth(
 ): Promise<ExpenseCollection> {
   const startDate = time.month(year, month);
   const endDate = startDate.clone().add(1, 'months');
-  return db.tx(async (tx): Promise<ExpenseCollection> => {
-    await recurring.tx.createMissing(tx)(groupId, userId, endDate);
-    const [expenses, startStatus, monthStatus, unconfirmedBefore] =
-      await Promise.all([
-        getBetween(tx)(groupId, userId, startDate, endDate),
-        basic
-          .countTotalBetween(tx, groupId, userId, '2000-01', startDate)
-          .then(calculateBalance),
-        basic
-          .countTotalBetween(tx, groupId, userId, startDate, endDate)
-          .then(calculateBalance),
-        basic.hasUnconfirmedBefore(tx, groupId, startDate),
-      ]);
-    const endStatus = mapValues(
-      k => Money.from(startStatus[k]).plus(monthStatus[k]).toString(),
-      zeroStatus
-    );
-    return {
-      expenses,
-      startStatus,
-      monthStatus,
-      endStatus,
-      unconfirmedBefore,
-    };
-  });
+  await RecurringExpenseDb.createMissing(tx, groupId, userId, endDate);
+  const [expenses, startStatus, monthStatus, unconfirmedBefore] =
+    await Promise.all([
+      getBetween(tx, groupId, userId, startDate, endDate),
+      basic
+        .countTotalBetween(tx, groupId, userId, '2000-01', startDate)
+        .then(calculateBalance),
+      basic
+        .countTotalBetween(tx, groupId, userId, startDate, endDate)
+        .then(calculateBalance),
+      basic.hasUnconfirmedBefore(tx, groupId, startDate),
+    ]);
+  const endStatus = mapValues(
+    k => Money.from(startStatus[k]).plus(monthStatus[k]).toString(),
+    zeroStatus
+  );
+  return {
+    expenses,
+    startStatus,
+    monthStatus,
+    endStatus,
+    unconfirmedBefore,
+  };
 }
 
-export default {
-  getAll: basic.getAll,
+export const Expenses = {
   getByMonth,
   getById: basic.getById,
   getDivision: basic.getDivision,
@@ -119,7 +113,7 @@ export default {
   create: createExpense,
   update: basic.update,
   split: splitExpense,
-  createRecurring: recurring.createRecurring,
-  deleteRecurringById: recurring.deleteRecurringById,
-  updateRecurring: recurring.updateRecurring,
+  createRecurring: RecurringExpenseDb.createRecurring,
+  deleteRecurringById: RecurringExpenseDb.deleteRecurringById,
+  updateRecurring: RecurringExpenseDb.updateRecurring,
 };

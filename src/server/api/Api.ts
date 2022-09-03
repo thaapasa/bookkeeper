@@ -8,7 +8,7 @@ import { SourceDb } from 'server/data/SourceDb';
 import { UserDb } from 'server/data/UserDb';
 
 import { config } from '../Config';
-import admin, { DbStatus } from '../data/admin/Admin';
+import { AdminDb, DbStatus } from '../data/admin/Admin';
 import * as server from '../util/ServerUtil';
 import { createCategoryApi } from './CategoryApi';
 import { createExpenseApi } from './ExpenseApi';
@@ -82,8 +82,8 @@ export function createApi() {
   // GET /api/admin/status
   api.get(
     '/admin/status',
-    server.processRequest<DbStatus>(
-      session => admin.getDbStatus(session.group.id),
+    server.processTxRequest<DbStatus>(
+      (tx, session) => AdminDb.getDbStatus(tx, session.group.id),
       true
     )
   );

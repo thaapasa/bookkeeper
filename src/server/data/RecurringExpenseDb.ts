@@ -20,13 +20,12 @@ import { Validator } from '../util/Validator';
 import { BasicExpenseDb } from './BasicExpenseDb';
 import { copyExpense } from './BasicExpenseService';
 import { CategoryDb } from './CategoryDb';
-import { db } from './Db';
 import { determineDivision } from './ExpenseDivision';
 import { SourceDb } from './SourceDb';
 
 const log = debug('bookkeeper:api:recurring-expenses');
 
-export function nextRecurrence(
+function nextRecurrence(
   from: string | Moment,
   period: RecurringExpensePeriod
 ): Moment {
@@ -45,55 +44,54 @@ export function nextRecurrence(
   }
 }
 
-function createRecurring(
+async function createRecurring(
+  tx: IBaseProtocol<any>,
   groupId: number,
   userId: number,
   expenseId: number,
   recurrence: RecurringExpenseInput
-) {
-  return db.tx(async (tx: IBaseProtocol<any>): Promise<ApiMessage> => {
-    log('Create', recurrence.period, 'recurring expense from', expenseId);
-    let nextMissing: Moment | undefined;
-    const templateId = await copyExpense(tx, groupId, userId, expenseId, e => {
-      const [expense, division] = e;
-      if (expense.recurringExpenseId && expense.recurringExpenseId > 0) {
-        throw new Validator.InvalidInputError(
-          'recurringExpenseId',
-          expense.recurringExpenseId,
-          'Expense is already a recurring expense'
-        );
-      }
-      nextMissing = nextRecurrence(expense.date, recurrence.period);
-      return [{ ...expense, template: true }, division];
-    });
-    const recurringExpenseId = (
-      await tx.one<{ id: number }>(
-        `INSERT INTO recurring_expenses (template_expense_id, period, next_missing, group_id)
+): Promise<ApiMessage> {
+  log('Create', recurrence.period, 'recurring expense from', expenseId);
+  let nextMissing: Moment | undefined;
+  const templateId = await copyExpense(tx, groupId, userId, expenseId, e => {
+    const [expense, division] = e;
+    if (expense.recurringExpenseId && expense.recurringExpenseId > 0) {
+      throw new Validator.InvalidInputError(
+        'recurringExpenseId',
+        expense.recurringExpenseId,
+        'Expense is already a recurring expense'
+      );
+    }
+    nextMissing = nextRecurrence(expense.date, recurrence.period);
+    return [{ ...expense, template: true }, division];
+  });
+  const recurringExpenseId = (
+    await tx.one<{ id: number }>(
+      `INSERT INTO recurring_expenses (template_expense_id, period, next_missing, group_id)
           VALUES ($/templateId/::INTEGER, $/period/, $/nextMissing/::DATE, $/groupId/)
           RETURNING id`,
-        {
-          templateId,
-          period: recurrence.period,
-          nextMissing: toISODate(nextMissing),
-          groupId,
-        }
-      )
-    ).id;
+      {
+        templateId,
+        period: recurrence.period,
+        nextMissing: toISODate(nextMissing),
+        groupId,
+      }
+    )
+  ).id;
 
-    await tx.none(
-      `UPDATE expenses
+  await tx.none(
+    `UPDATE expenses
         SET recurring_expense_id=$/recurringExpenseId/
         WHERE id IN ($/expenseId/, $/templateId/)`,
-      { recurringExpenseId, expenseId, templateId }
-    );
-    return {
-      status: 'OK',
-      message: 'Recurrence created',
-      expenseId,
-      templateExpenseId: templateId,
-      recurringExpenseId,
-    };
-  });
+    { recurringExpenseId, expenseId, templateId }
+  );
+  return {
+    status: 'OK',
+    message: 'Recurrence created',
+    expenseId,
+    templateExpenseId: templateId,
+    recurringExpenseId,
+  };
 }
 
 function getDatesUpTo(recurrence: Recurrence, date: Moment): string[] {
@@ -162,20 +160,23 @@ function createMissingRecurrences(
   };
 }
 
-function createMissing(tx: IBaseProtocol<any>) {
+async function createMissing(
+  tx: IBaseProtocol<any>,
+  groupId: number,
+  userId: number,
+  date: Moment
+) {
   log('Checking for missing expenses');
-  return async (groupId: number, userId: number, date: Moment) => {
-    const list = await tx.map<Recurrence>(
-      `SELECT *
+  const list = await tx.map<Recurrence>(
+    `SELECT *
         FROM recurring_expenses
         WHERE group_id=$/groupId/ AND next_missing < $/nextMissing/::DATE`,
-      { groupId, nextMissing: date },
-      camelCaseObject
-    );
-    return Promise.all(
-      list.map(createMissingRecurrences(tx, groupId, userId, date))
-    );
-  };
+    { groupId, nextMissing: date },
+    camelCaseObject
+  );
+  return Promise.all(
+    list.map(createMissingRecurrences(tx, groupId, userId, date))
+  );
 }
 
 async function deleteRecurrenceAndExpenses(
@@ -368,6 +369,7 @@ async function updateRecurringExpense(
 }
 
 async function updateRecurring(
+  tx: IBaseProtocol<any>,
   groupId: number,
   userId: number,
   expenseId: number,
@@ -375,26 +377,23 @@ async function updateRecurring(
   expense: Expense,
   defaultSourceId: number
 ): Promise<ApiMessage> {
-  return db.tx(async tx => {
-    log('Updating recurring expense', expenseId, '- targeting', target);
-    const org = await BasicExpenseDb.getById(tx, groupId, userId, expenseId);
-    if (!org.recurringExpenseId) {
-      throw new InvalidExpense('Not a recurring expense');
-    }
+  log('Updating recurring expense', expenseId, '- targeting', target);
+  const org = await BasicExpenseDb.getById(tx, groupId, userId, expenseId);
+  if (!org.recurringExpenseId) {
+    throw new InvalidExpense('Not a recurring expense');
+  }
 
-    if (target === 'single') {
-      return BasicExpenseDb.update(tx, org, expense, defaultSourceId);
-    } else {
-      return updateRecurringExpense(tx, target, org, expense, defaultSourceId);
-    }
-  });
+  if (target === 'single') {
+    return BasicExpenseDb.update(tx, org, expense, defaultSourceId);
+  } else {
+    return updateRecurringExpense(tx, target, org, expense, defaultSourceId);
+  }
 }
 
-export default {
+export const RecurringExpenseDb = {
+  nextRecurrence,
   createRecurring,
   deleteRecurringById,
   updateRecurring,
-  tx: {
-    createMissing,
-  },
+  createMissing,
 };
