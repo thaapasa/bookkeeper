@@ -62,9 +62,8 @@ class CategoryView extends React.Component<
     return this.props.categories.map(c => ({
       categoryId: c.id,
       categoryName: c.name,
-      categoryTotal: Money.toValue(
-        (categoryTotals[c.id] && categoryTotals[c.id].totalExpenses) || 0
-      ),
+      categoryExpense: Money.toValue(categoryTotals[c.id]?.totalExpenses ?? 0),
+      categoryIncome: Money.toValue(categoryTotals[c.id]?.totalIncome ?? 0),
     }));
   }
 

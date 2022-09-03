@@ -140,13 +140,11 @@ export default class Money {
   }
 
   public format(scale?: number, options?: Intl.NumberFormatOptions): string {
-    if (scale === undefined) {
-      scale = 2;
-    }
-    const opts = options
-      ? { ...numberFormatOptions, ...options }
-      : numberFormatOptions;
-    return `${Number(this.value).toLocaleString('fi', opts)}`;
+    return `${Number(this.value).toLocaleString('fi', {
+      ...numberFormatOptions,
+      ...options,
+      minimumFractionDigits: scale ?? 2,
+    })}`;
   }
 
   public inspect(): string {
