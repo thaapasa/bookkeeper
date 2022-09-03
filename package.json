@@ -29,7 +29,7 @@
     "migrate-make": "knex migrate:make",
     "migrate-rollback": "knex migrate:rollback",
     "seed": "knex seed:run",
-    "example-data": "DEBUG=bookkeeper*,net* ts-node --files --project tsconfig.server.json src/tools/addExampleData.ts"
+    "example-data": "SWC_NODE_PROJECT=tsconfig.server.json DEBUG=\"bookkeeper*,net*\" node -r dotenv/config -r tsconfig-paths/register -r @swc-node/register src/tools/addExampleData.ts"
   },
   "repository": {
     "type": "git",

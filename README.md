@@ -73,7 +73,7 @@ for example: `localStorage.debug = 'bookkeeper*'`.
 
 `yarn <target>`:
 
-- `watch-server`: Start server for development use (runs `ts-node` with `nodemon`)
+- `watch-server`: Start server for development use (runs `swc` with `nodemon`)
 - `watch-client`: Start client builder for development
 - `build-server`: Build production version of server under `build-server/`
 - `build-client`: Build production bundle of web app under `build/`
