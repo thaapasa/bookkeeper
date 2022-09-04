@@ -190,12 +190,11 @@ export class ApiConnect {
   }
 
   public async searchExpenses(query: ExpenseQuery): Promise<UserExpense[]> {
-    return (
-      await this.get<UserExpense[]>(
-        `/api/expense/search`,
-        ExpenseQuery.encode(filterTruthyProps(query))
-      )
-    ).map(mapExpense);
+    const expenses = await this.get<UserExpense[]>(
+      `/api/expense/search`,
+      filterTruthyProps(query)
+    );
+    return expenses.map(mapExpense);
   }
 
   public async getExpense(
@@ -214,9 +213,7 @@ export class ApiConnect {
     id: number | string,
     splits: ExpenseSplit[]
   ): Promise<ApiMessage> {
-    return this.post<ApiMessage>(uri`/api/expense/${id}/split`, {
-      splits: splits.map(ExpenseSplit.encode),
-    });
+    return this.post<ApiMessage>(uri`/api/expense/${id}/split`, { splits });
   }
 
   public updateExpense(

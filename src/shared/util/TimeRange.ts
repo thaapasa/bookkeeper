@@ -5,7 +5,7 @@ import {
   compareDates,
   DateLike,
   displayDatePattern,
-  ISODateZ,
+  ISODate,
   toMoment,
   toMonthName,
   toYearName,
@@ -13,10 +13,9 @@ import {
 import { leftPad } from './Util';
 
 export const DateRange = z.object({
-  startDate: ISODateZ,
-  endDate: ISODateZ,
+  startDate: ISODate,
+  endDate: ISODate,
 });
-export const DateRangeZ = z.object({ startDate: ISODateZ, endDate: ISODateZ });
 export type DateRange = z.infer<typeof DateRange>;
 
 export interface UIDateRange {

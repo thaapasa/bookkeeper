@@ -1,6 +1,6 @@
 import 'jest';
 
-import { IntArrayStringZ } from './Validator';
+import { IntArrayString } from './Validator';
 
 describe('Validator', () => {
   it.each([
@@ -9,6 +9,6 @@ describe('Validator', () => {
     ['[0, 4, 1]', [0, 4, 1]],
     ['[0,4,1]', [0, 4, 1]],
   ])('can decode IntArrayStringZ %s to %s', (str, expected) => {
-    expect(IntArrayStringZ.parse(str)).toEqual(expected);
+    expect(IntArrayString.parse(str)).toEqual(expected);
   });
 });

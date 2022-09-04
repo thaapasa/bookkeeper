@@ -4,7 +4,7 @@ import { arrayContains } from 'shared/util/Arrays';
 
 export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
-export function pick<T, K extends keyof T>(
+export function pick<T extends object, K extends keyof T>(
   names: ReadonlyArray<K>,
   obj: T
 ): Pick<T, K> {
@@ -13,7 +13,7 @@ export function pick<T, K extends keyof T>(
   return res;
 }
 
-export function omit<T, K extends keyof T>(
+export function omit<T extends object, K extends keyof T>(
   names: ReadonlyArray<K>,
   obj: T
 ): Omit<T, K> {
@@ -24,7 +24,7 @@ export function omit<T, K extends keyof T>(
   return res;
 }
 
-export function mapValues<Src, Tgt>(
+export function mapValues<Src extends object, Tgt>(
   mapper: (key: keyof Src, value: Src[keyof Src]) => Tgt,
   obj: Src
 ): Record<keyof Src, Tgt> {

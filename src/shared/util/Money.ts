@@ -5,7 +5,7 @@ Big.DP = 2;
 // Round down (truncate)
 Big.RM = 0;
 
-export type MoneyLike = number | Big | Money | string;
+export type MoneyLike = string | number | Money | Big;
 
 export function isMoneyLike(e: unknown): e is MoneyLike {
   switch (typeof e) {
@@ -208,20 +208,27 @@ export function sanitizeMoneyInput(v: string): string {
   return v?.replace(/,/, '.').replace(/ +/g, '') ?? '';
 }
 
-const BigShape = z.object({
-  c: z.array(z.number()),
-  abs: z.function(),
-  cmp: z.function(),
-});
-const MoneyShape = z.object({ value: BigShape });
-
 export const MoneyV = z
   .any()
   .refine(isMoneyLike)
   .transform(v => Money.from(v))
   .refine(v => v.isValid());
 
-export const MoneyLikeZ = z
+const BigShape = z
+  .object({
+    c: z.array(z.number()),
+    abs: z.function(),
+    cmp: z.function(),
+  })
+  .refine(v => Money.isBig(v))
+  .transform<Big>(v => v as Big);
+
+const MoneyShape = z
+  .object({ value: BigShape })
+  .refine(v => Money.isMoney(v))
+  .transform<Money>(v => v as Money);
+
+export const MoneyLike = z
   .union([z.string(), z.number(), MoneyShape, BigShape])
   .refine(t => isMoneyLike(t) && MoneyV.safeParse(t).success, {
     message: 'String does not encode a proper monetary amount',

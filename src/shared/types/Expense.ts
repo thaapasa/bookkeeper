@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import { MoneyLike, MoneyLikeZ } from 'shared/util/Money';
-import { ISODate, ISODateZ } from 'shared/util/Time';
+import { MoneyLike } from 'shared/util/Money';
+import { ISODate } from 'shared/util/Time';
 
 import { DbObject } from './Common';
-import { BooleanStringZ, IntArrayStringZ, IntStringZ } from './Validator';
+import { BooleanString, IntArrayString, IntString } from './Validator';
 
 export const ExpenseType = z.enum(['expense', 'income', 'transfer']);
 export type ExpenseType = z.infer<typeof ExpenseType>;
@@ -49,7 +49,7 @@ export const expensePayer: Record<ExpenseType, ExpenseDivisionType> = {
 export const ExpenseDivisionItem = z.object({
   userId: z.number(),
   type: ExpenseDivisionType,
-  sum: MoneyLikeZ,
+  sum: MoneyLike,
 });
 export type ExpenseDivisionItem = z.infer<typeof ExpenseDivisionItem>;
 
@@ -141,7 +141,7 @@ export type RecurringExpenseTarget = z.infer<typeof RecurringExpenseTarget>;
 
 export const RecurringExpenseInput = z.object({
   period: RecurringExpensePeriod,
-  occursUntil: ISODateZ.optional(),
+  occursUntil: ISODate.optional(),
 });
 export type RecurringExpenseInput = z.infer<typeof RecurringExpenseInput>;
 
@@ -154,11 +154,11 @@ export const ExpenseQuery = z
   .object({
     search: z.string(),
     receiver: z.string(),
-    categoryId: IntStringZ.or(IntArrayStringZ),
-    startDate: ISODateZ,
-    endDate: ISODateZ,
-    userId: IntStringZ,
-    includeSubCategories: BooleanStringZ,
+    categoryId: IntString.or(IntArrayString),
+    startDate: ISODate,
+    endDate: ISODate,
+    userId: IntString,
+    includeSubCategories: BooleanString,
   })
   .partial();
 

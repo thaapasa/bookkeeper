@@ -10,13 +10,13 @@ moment.locale(fiLocale);
 
 export const ISODateRegExp = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
 export const ISODatePattern = 'YYYY-MM-DD';
-export const ISODateZ = z.string().regex(ISODateRegExp);
-export type ISODate = z.infer<typeof ISODateZ>;
+export const ISODate = z.string().regex(ISODateRegExp);
+export type ISODate = z.infer<typeof ISODate>;
 
 export const ISOMonthRegExp = /^[0-9]{4}-[0-9]{2}$/;
 export const ISOMonthPattern = 'YYYY-MM';
-export const ISOMonthZ = z.string().regex(ISOMonthRegExp);
-export type ISOMonth = z.infer<typeof ISOMonthZ>;
+export const ISOMonth = z.string().regex(ISOMonthRegExp);
+export type ISOMonth = z.infer<typeof ISOMonth>;
 
 export const displayDatePattern = 'D.M.YYYY';
 

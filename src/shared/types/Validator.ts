@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-export const BooleanStringZ = z
+export const BooleanString = z
   .enum(['true', 'false'])
   .transform(s => s === 'true');
 
-export const IntStringZ = z
+export const IntString = z
   .string()
   .refine(s => {
     try {
@@ -18,7 +18,7 @@ export const IntStringZ = z
 
 const intArrayStringRE = /^\[([0-9]+(, ?[0-9]+)*)?\]$/;
 
-export const IntArrayStringZ = z
+export const IntArrayString = z
   .string()
   .regex(intArrayStringRE)
   .transform((r): number[] => JSON.parse(r));
