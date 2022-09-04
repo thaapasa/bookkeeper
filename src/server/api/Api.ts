@@ -15,6 +15,7 @@ import { createCategoryApi } from './CategoryApi';
 import { createExpenseApi } from './ExpenseApi';
 import { createSessionApi } from './SessionApi';
 import { createStatisticsApi } from './StatisticsApi';
+import { IdParamType } from './Validations';
 
 const log = debug('bookkeeper:api');
 
@@ -75,9 +76,10 @@ export function createApi() {
   // GET /api/source/:id
   api.get(
     '/source/:id',
-    Requests.txRequest(
-      (tx, session, req): Promise<Source> =>
-        SourceDb.getById(tx, session.group.id, parseInt(req.params.id, 10)),
+    Requests.validatedTxRequest(
+      { params: IdParamType },
+      (tx, session, { params }): Promise<Source> =>
+        SourceDb.getById(tx, session.group.id, params.id),
       true
     )
   );

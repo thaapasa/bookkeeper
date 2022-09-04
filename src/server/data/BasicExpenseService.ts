@@ -7,6 +7,7 @@ import {
   ExpenseDivisionItem,
   ExpenseInput,
 } from 'shared/types/Expense';
+import { ObjectId } from 'shared/types/Id';
 
 import { BasicExpenseDb } from './BasicExpenseDb';
 import { CategoryDb } from './CategoryDb';
@@ -78,4 +79,17 @@ export async function copyExpense(
   );
   const [expense, division] = mapper ? mapper(e) : e;
   return BasicExpenseDb.insert(tx, userId, expense, division);
+}
+
+export async function getExpenseAndDivision(
+  tx: IBaseProtocol<any>,
+  groupId: ObjectId,
+  userId: ObjectId,
+  expenseId: ObjectId
+): Promise<Expense & { division: ExpenseDivisionItem[] }> {
+  const [expense, division] = await Promise.all([
+    BasicExpenseDb.getById(tx, groupId, userId, expenseId),
+    BasicExpenseDb.getDivision(tx, expenseId),
+  ]);
+  return { ...expense, division };
 }

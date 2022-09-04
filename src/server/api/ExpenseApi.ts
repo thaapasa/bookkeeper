@@ -9,17 +9,19 @@ import {
   RecurringExpenseInput,
   RecurringExpenseTarget,
   UserExpense,
-  UserExpenseWithDetails,
 } from 'shared/types/Expense';
 import { ExpenseSplit } from 'shared/types/ExpenseSplit';
 import { YearMonth } from 'shared/types/Time';
-import { updateExpenseById } from 'server/data/BasicExpenseService';
+import {
+  getExpenseAndDivision,
+  updateExpenseById,
+} from 'server/data/BasicExpenseService';
 import { Expenses } from 'server/data/Expenses';
 import { searchExpenses } from 'server/data/ExpenseSearch';
 import { splitExpense } from 'server/data/ExpenseSplit';
 import { Requests } from 'server/server/RequestHandling';
 
-import { ExpenseIdParamType, IdParamType } from './Validations';
+import { IdParamType } from './Validations';
 
 /**
  * Creates expense API router.
@@ -28,6 +30,7 @@ import { ExpenseIdParamType, IdParamType } from './Validations';
 export function createExpenseApi() {
   const api = Router();
 
+  // Attach recurring expense API
   api.use('/recurring', createRecurringExpenseApi());
 
   // GET /api/expense/month
@@ -95,15 +98,15 @@ export function createExpenseApi() {
   });
   // POST /api/expense/[expenseId]/split
   api.post(
-    '/:expenseId/split',
+    '/:id/split',
     Requests.validatedTxRequest(
-      { params: ExpenseIdParamType, body: ExpenseSplitBody },
+      { params: IdParamType, body: ExpenseSplitBody },
       (tx, session, { params, body }) =>
         splitExpense(
           tx,
           session.group.id,
           session.user.id,
-          params.expenseId,
+          params.id,
           body.splits
         ),
       true
@@ -112,15 +115,15 @@ export function createExpenseApi() {
 
   // POST /api/expense/[expenseId]
   api.post(
-    '/:expenseId',
+    '/:id',
     Requests.validatedTxRequest(
-      { params: ExpenseIdParamType, body: ExpenseInput },
+      { params: IdParamType, body: ExpenseInput },
       (tx, session, { params, body }) =>
         updateExpenseById(
           tx,
           session.group.id,
           session.user.id,
-          params.expenseId,
+          params.id,
           body,
           session.group.defaultSourceId || 0
         ),
@@ -131,16 +134,10 @@ export function createExpenseApi() {
   // GET /api/expense/[expenseId]
   api.get(
     '/:id',
-    Requests.txRequest<UserExpenseWithDetails>(
-      (tx, session, req) =>
-        Expenses.getById(
-          tx,
-          session.group.id,
-          session.user.id,
-          parseInt(req.params.id, 10)
-        ).then(e =>
-          Expenses.getDivision(tx, e.id).then(division => ({ ...e, division }))
-        ),
+    Requests.validatedTxRequest(
+      { params: IdParamType },
+      (tx, session, { params }) =>
+        getExpenseAndDivision(tx, session.group.id, session.user.id, params.id),
       true
     )
   );
@@ -148,9 +145,10 @@ export function createExpenseApi() {
   // DELETE /api/expense/[expenseId]
   api.delete(
     '/:id',
-    Requests.txRequest<ApiMessage>(
-      (tx, session, req) =>
-        Expenses.deleteById(tx, session.group.id, parseInt(req.params.id, 10)),
+    Requests.validatedTxRequest(
+      { params: IdParamType },
+      (tx, session, { params }) =>
+        Expenses.deleteById(tx, session.group.id, params.id),
       true
     )
   );
