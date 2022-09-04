@@ -103,7 +103,8 @@
   },
   "resolutions": {
     "nth-check": "2.1.1",
-    "@mui/styled-engine": "npm:@mui/styled-engine-sc@latest"
+    "@mui/styled-engine": "npm:@mui/styled-engine-sc@latest",
+    "eslint-plugin-react": "7.31.5"
   },
   "directories": {
     "test": "test"

@@ -2,13 +2,14 @@ module.exports = {
   parser: '@typescript-eslint/parser',
   extends: [
     'plugin:@typescript-eslint/recommended',
+    'plugin:react/recommended',
     'plugin:react-hooks/recommended',
     'plugin:prettier/recommended',
   ],
   parserOptions: {
     sourceType: 'module',
   },
-  plugins: ['prettier', 'simple-import-sort', 'unused-imports'],
+  plugins: ['react', 'prettier', 'simple-import-sort', 'unused-imports'],
   rules: {
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
