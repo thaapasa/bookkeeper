@@ -7,7 +7,7 @@ import { TypedDateRange } from 'shared/util/TimeRange';
 import { UserDataProps } from 'client/data/Categories';
 
 import CategoryDialog from './CategoryDialog';
-import CategoryRow from './CategoryRow';
+import { CategoryRow } from './CategoryRow';
 import { CategoryHeader } from './CategoryTableLayout';
 
 const log = debug('bookkeeper:category-view');
