@@ -12,26 +12,27 @@ interface BasicDataProps {
   fullCategoryName: string;
 }
 
-export default class BasicData extends React.Component<BasicDataProps> {
-  public render() {
-    return (
-      <SmallDeviceContainer>
-        <DetailRow name="Kohde" value={this.props.expense.receiver} />
-        <DetailRow name="Kategoria" value={this.props.fullCategoryName} />
-        <DetailRow name="Lähde" value={this.props.source.name} />
-      </SmallDeviceContainer>
-    );
-  }
-}
+export const BasicData: React.FC<BasicDataProps> = ({
+  expense,
+  fullCategoryName,
+  source,
+}) => (
+  <SmallDeviceContainer>
+    <DetailRow name="Kohde" value={expense.receiver} />
+    <DetailRow name="Kategoria" value={fullCategoryName} />
+    <DetailRow name="Lähde" value={source.name} />
+  </SmallDeviceContainer>
+);
 
-function DetailRow(props: { name: string; value: string }) {
-  return (
-    <DetailRowContainer>
-      <DetailLabel>{props.name + ':'}</DetailLabel>
-      {props.value}
-    </DetailRowContainer>
-  );
-}
+const DetailRow: React.FC<{ name: string; value: string }> = ({
+  name,
+  value,
+}) => (
+  <DetailRowContainer>
+    <DetailLabel>{name + ':'}</DetailLabel>
+    {value}
+  </DetailRowContainer>
+);
 
 const SmallDeviceContainer = styled.div`
   display: none;

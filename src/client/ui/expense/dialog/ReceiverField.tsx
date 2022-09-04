@@ -4,7 +4,7 @@ import * as React from 'react';
 import { identity } from 'shared/util/Util';
 import apiConnect from 'client/data/ApiConnect';
 import { AutoComplete } from 'client/ui/component/AutoComplete';
-import { unsubscribeAll } from 'client/util/ClientUtil';
+import { usePersistentMemo } from 'client/ui/utils/usePersistentMemo';
 
 export interface ReceiverFieldProps {
   id: string;
@@ -19,64 +19,59 @@ export interface ReceiverFieldProps {
   onKeyUp?: (event: React.KeyboardEvent<any>) => void;
 }
 
-interface ReceiverFieldState {
-  receivers: string[];
-}
+export const ReceiverField: React.FC<
+  React.PropsWithChildren<ReceiverFieldProps>
+> = ({ onChange, title, value, ...props }) => {
+  const searchStream = usePersistentMemo(() => new B.Bus<string>(), []);
 
-export class ReceiverField extends React.Component<
-  React.PropsWithChildren<ReceiverFieldProps>,
-  ReceiverFieldState
-> {
-  private searchStream = new B.Bus<string>();
-  private unsub: any[] = [];
+  const [receivers, setReceivers] = React.useState<string[]>([]);
 
-  public state: ReceiverFieldState = { receivers: [] };
+  // Update upstream props when searching
+  React.useEffect(
+    () => searchStream.onValue(onChange),
+    [searchStream, onChange]
+  );
 
-  public componentDidMount() {
-    this.unsub.push(this.searchStream.onValue(v => this.props.onChange(v)));
-    this.unsub.push(
-      this.searchStream
+  // Load receivers when search input changes
+  React.useEffect(
+    () =>
+      searchStream
         .filter(v => (v && v.length > 2) || false)
         .debounceImmediate(500)
         .flatMapLatest(v => B.fromPromise(apiConnect.queryReceivers(v)))
-        .onValue(v => this.setState({ receivers: v }))
-    );
-    this.unsub.push(
-      this.searchStream
+        .onValue(setReceivers),
+    [searchStream, setReceivers]
+  );
+
+  // Clear receiver list when search string is too short
+  React.useEffect(
+    () =>
+      searchStream
         .filter(v => !v || v.length < 3)
-        .onValue(() => this.setState({ receivers: [] }))
-    );
-  }
+        .onValue(() => setReceivers([])),
+    [searchStream, setReceivers]
+  );
 
-  public componentWillUnmount() {
-    this.searchStream.end();
-    unsubscribeAll(this.unsub);
-  }
+  const updateReceivers = React.useCallback(
+    (search: string) => searchStream.push(search),
+    [searchStream]
+  );
 
-  public render() {
-    return (
-      <AutoComplete
-        id={this.props.id}
-        value={this.props.value}
-        onChange={this.props.onChange}
-        label={this.props.title}
-        fullWidth={this.props.fullWidth}
-        placeholder={this.props.placeholder}
-        suggestions={this.state.receivers}
-        onUpdateSuggestions={this.updateReceivers}
-        onSelectSuggestion={this.selectReceiver}
-        getSuggestionValue={identity}
-        errorText={this.props.errorText}
-        onKeyUp={this.props.onKeyUp}
-        autoFocus={this.props.autoFocus}
-      />
-    );
-  }
+  const selectReceiver = onChange;
 
-  private updateReceivers = (search: string) => this.searchStream.push(search);
-
-  private selectReceiver = (receiver: string) => this.props.onChange(receiver);
-}
+  return (
+    <AutoComplete
+      value={value}
+      onChange={onChange}
+      label={title}
+      suggestions={receivers}
+      onUpdateSuggestions={updateReceivers}
+      onSelectSuggestion={selectReceiver}
+      getSuggestionValue={identity}
+      {...props}
+    />
+  );
+};
 
 export class PlainReceiverField extends React.Component<
   React.PropsWithChildren<ReceiverFieldProps>

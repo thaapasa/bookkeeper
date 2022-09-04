@@ -6,10 +6,10 @@ import { Source, User } from 'shared/types/Session';
 import { colorScheme } from 'client/ui/Colors';
 
 import { AllColumns, LoadingIndicator, Row } from '../row/ExpenseTableLayout';
-import BasicData from './BasicData';
+import { BasicData } from './BasicData';
 import { DivisionInfo } from './DivisionInfo';
-import ExpenseInfoTools from './ExpenseInfoTools';
-import RecurrenceInfo from './RecurrenceInfo';
+import { ExpenseInfoTools } from './ExpenseInfoTools';
+import { RecurrenceInfo } from './RecurrenceInfo';
 
 interface ExpenseInfoProps {
   division: ExpenseDivisionItem[];

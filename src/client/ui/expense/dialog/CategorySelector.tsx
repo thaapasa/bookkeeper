@@ -8,69 +8,65 @@ import {
 import * as React from 'react';
 import styled from 'styled-components';
 
+import { ObjectId } from 'shared/types/Id';
 import { stopEventPropagation } from 'client/util/ClientUtil';
 
-export function CategorySelector(props: {
-  category: number;
-  subcategory: number;
+const id = 'category-selector';
+export const CategorySelector: React.FC<{
+  category: ObjectId;
+  subcategory: ObjectId;
   categories: any[];
   subcategories: any[];
-  onChangeCategory: (id: number) => void;
-  onChangeSubcategory: (id: number) => void;
+  onChangeCategory: (id: ObjectId) => void;
+  onChangeSubcategory: (id: ObjectId) => void;
   errorText?: string;
   className?: string;
-}) {
-  const id = 'category-selector';
-  return (
-    <Row onKeyUp={stopEventPropagation} className={props.className}>
-      <StyledControl
-        className="category-control main-category"
-        variant="standard"
+}> = props => (
+  <Row onKeyUp={stopEventPropagation} className={props.className}>
+    <StyledControl
+      className="category-control main-category"
+      variant="standard"
+    >
+      <InputLabel htmlFor={`${id}-cat`} shrink={true}>
+        Kategoria
+      </InputLabel>
+      <Select
+        labelId={`${id}-cat`}
+        value={props.category}
+        onChange={e => props.onChangeCategory(Number(e.target.value))}
+        label="Kategoria"
       >
-        <InputLabel htmlFor={`${id}-cat`} shrink={true}>
-          Kategoria
-        </InputLabel>
-        <Select
-          labelId={`${id}-cat`}
-          value={props.category}
-          onChange={e => props.onChangeCategory(Number(e.target.value))}
-          label="Kategoria"
-        >
-          <MenuItem value={0}>-- Valitse --</MenuItem>
-          {props.categories.map(row => (
-            <MenuItem key={row.id} value={row.id}>
-              {row.name}
-            </MenuItem>
-          ))}
-        </Select>
-        <FormHelperText error={!!props.errorText}>
-          {props.errorText}
-        </FormHelperText>
-      </StyledControl>
-      <StyledControl
-        className="category-control sub-category"
-        variant="standard"
+        <MenuItem value={0}>-- Valitse --</MenuItem>
+        {props.categories.map(row => (
+          <MenuItem key={row.id} value={row.id}>
+            {row.name}
+          </MenuItem>
+        ))}
+      </Select>
+      <FormHelperText error={!!props.errorText}>
+        {props.errorText}
+      </FormHelperText>
+    </StyledControl>
+    <StyledControl className="category-control sub-category" variant="standard">
+      <InputLabel htmlFor={`${id}-subcat`} shrink={true}>
+        Alikategoria
+      </InputLabel>
+      <Select
+        labelId={`${id}-subcat`}
+        label="Alikategoria"
+        value={props.subcategory}
+        onChange={e => props.onChangeSubcategory(Number(e.target.value))}
       >
-        <InputLabel htmlFor={`${id}-subcat`} shrink={true}>
-          Alikategoria
-        </InputLabel>
-        <Select
-          labelId={`${id}-subcat`}
-          label="Alikategoria"
-          value={props.subcategory}
-          onChange={e => props.onChangeSubcategory(Number(e.target.value))}
-        >
-          <MenuItem value={0}>-- Valitse --</MenuItem>
-          {props.subcategories.map(row => (
-            <MenuItem key={row.id} value={row.id}>
-              {row.name}
-            </MenuItem>
-          ))}
-        </Select>
-      </StyledControl>
-    </Row>
-  );
-}
+        <MenuItem value={0}>-- Valitse --</MenuItem>
+        {props.subcategories.map(row => (
+          <MenuItem key={row.id} value={row.id}>
+            {row.name}
+          </MenuItem>
+        ))}
+      </Select>
+    </StyledControl>
+  </Row>
+);
 
 const Row = styled.div`
   display: flex;

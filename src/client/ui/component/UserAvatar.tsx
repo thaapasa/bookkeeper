@@ -33,39 +33,37 @@ const StyledAvatar = styled(Avatar)`
   }
 `;
 
-export function UserAvatar(props: UserAvatarProps) {
-  const user = props.user;
-  const style = props.style || {};
-  if (props.size) {
-    style.width = props.size;
-    style.height = props.size;
-  }
-  return user && user.id ? (
+export const UserAvatar: React.FC<UserAvatarProps> = ({
+  user,
+  style,
+  size,
+  className,
+  onClick,
+}) =>
+  user?.id ? (
     <StyledAvatar
-      style={style}
-      className={props.className}
+      style={{
+        ...style,
+        ...(size ? { width: size, height: size } : undefined),
+      }}
+      className={className}
       src={user.image || undefined}
-      onClick={(event: React.MouseEvent<HTMLDivElement>) =>
-        props.onClick && props.onClick(user.id, event)
-      }
+      onClick={event => onClick?.(user.id, event)}
     >
       {user.image ? undefined : user.firstName.charAt(0)}
     </StyledAvatar>
   ) : null;
-}
 
 interface UserIdAvatarProps extends CommonAvatarProps {
   userId: number;
   userMap: Record<string, User>;
 }
 
-export class UserIdAvatar extends React.Component<
+export const UserIdAvatar: React.FC<
   React.PropsWithChildren<UserIdAvatarProps>
-> {
-  public render() {
-    const user = this.props.userMap[this.props.userId];
-    return user ? <UserAvatar {...this.props} user={user} /> : null;
-  }
-}
+> = ({ userMap, userId, ...props }) => {
+  const user = userMap[userId];
+  return user ? <UserAvatar {...props} user={user} /> : null;
+};
 
 export default connect(userMapE.map(userMap => ({ userMap })))(UserIdAvatar);

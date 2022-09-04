@@ -49,7 +49,7 @@ const styles = {
   },
 };
 
-const ExpenseInfoTools: React.FC<RecurrenceInfoProps> = ({
+const ExpenseInfoToolsImpl: React.FC<RecurrenceInfoProps> = ({
   expense,
   onModify,
   onDelete,
@@ -146,9 +146,9 @@ const MobileTools = styled.div`
   `}
 `;
 
-export default connect(
+export const ExpenseInfoTools = connect(
   B.combineTemplate({ categoryMap: categoryMapE, sourceMap: sourceMapE })
-)(ExpenseInfoTools);
+)(ExpenseInfoToolsImpl);
 
 export const ToolIconButton = styled(IconButton)`
   margin: 0px;

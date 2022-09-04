@@ -1,5 +1,6 @@
 import { TextField } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
+import { Moment } from 'moment';
 import * as React from 'react';
 
 interface DateFieldProps {
@@ -9,22 +10,23 @@ interface DateFieldProps {
 
 export const datePickerFormat = 'DD.MM.YYYY';
 
-export class DateField extends React.Component<DateFieldProps> {
-  render() {
-    return (
-      <DatePicker
-        label="Päivämäärä"
-        inputFormat={datePickerFormat}
-        value={this.props.value}
-        onChange={this.onChange}
-        renderInput={params => <TextField {...params} variant="standard" />}
-      />
-    );
-  }
+export const DateField: React.FC<DateFieldProps> = ({ value, onChange }) => {
+  const changeHandler = React.useCallback(
+    (date: Moment | null) => {
+      if (date?.isValid()) {
+        onChange(date.toDate());
+      }
+    },
+    [onChange]
+  );
 
-  private onChange = (date: any | null) => {
-    if (date && date.isValid()) {
-      this.props.onChange(date.toDate());
-    }
-  };
-}
+  return (
+    <DatePicker
+      label="Päivämäärä"
+      inputFormat={datePickerFormat}
+      value={value}
+      onChange={changeHandler}
+      renderInput={params => <TextField {...params} variant="standard" />}
+    />
+  );
+};

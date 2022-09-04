@@ -9,15 +9,12 @@ interface RecurrenceInfoProps {
   expense: UserExpense;
 }
 
-export default class RecurrenceInfo extends React.Component<RecurrenceInfoProps> {
-  public render() {
-    return this.props.expense.recurringExpenseId ? (
-      <RecurrenceInfoContainer>
-        Tämä on toistuva tapahtuma
-      </RecurrenceInfoContainer>
-    ) : null;
-  }
-}
+export const RecurrenceInfo: React.FC<RecurrenceInfoProps> = ({ expense }) =>
+  expense.recurringExpenseId ? (
+    <RecurrenceInfoContainer>
+      Tämä on toistuva tapahtuma
+    </RecurrenceInfoContainer>
+  ) : null;
 
 const RecurrenceInfoContainer = styled.div`
   width: 100%;

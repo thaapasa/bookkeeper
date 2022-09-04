@@ -48,7 +48,10 @@ const ColumnLabels: Record<ExpenseDivisionType, string> = {
   transferee: 'Saatu',
 };
 
-export const DivisionInfo = ({ division, expenseType }: DivisionInfoProps) => {
+export const DivisionInfo: React.FC<DivisionInfoProps> = ({
+  division,
+  expenseType,
+}) => {
   const users: Record<string, Record<ExpenseDivisionType, MoneyLike>> = {};
   division.forEach(d => {
     users[d.userId] = { ...users[d.userId], [d.type]: d.sum };
@@ -74,7 +77,9 @@ export const DivisionInfo = ({ division, expenseType }: DivisionInfoProps) => {
   );
 };
 
-const UserHeaderRow = ({ cols }: { cols: ShownColumns }) => (
+const UserHeaderRow: React.FC<{
+  cols: ShownColumns;
+}> = ({ cols }) => (
   <DivisionRow>
     <UserColumn as="th">Jako:</UserColumn>
     {cols.map(c => (
@@ -86,15 +91,11 @@ const UserHeaderRow = ({ cols }: { cols: ShownColumns }) => (
   </DivisionRow>
 );
 
-const DivisionUser = ({
-  userId,
-  cols,
-  userDivision,
-}: {
+const DivisionUser: React.FC<{
   userId: string;
   cols: ShownColumns;
   userDivision: Record<ExpenseDivisionType, MoneyLike>;
-}) => (
+}> = ({ userId, cols, userDivision }) => (
   <DivisionRow key={userId}>
     <UserColumn>
       <UserAvatar userId={parseInt(userId, 10)} size={32} />
@@ -106,12 +107,12 @@ const DivisionUser = ({
   </DivisionRow>
 );
 
-function DivisionItem({ sum }: { sum: MoneyLike }) {
+const DivisionItem: React.FC<{ sum: MoneyLike }> = ({ sum }) => {
   const s = Money.orZero(sum);
   return (
     <DivisionColumn className={Money.sign(s)}>{s.format()}</DivisionColumn>
   );
-}
+};
 
 const DivisionTable = styled.table`
   margin: 0 8px;
