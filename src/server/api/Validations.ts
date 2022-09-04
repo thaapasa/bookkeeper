@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { IntString } from 'shared/types/Validator';
+import { ObjectId } from 'shared/types/Id';
 
-export const IdType = z.object({ id: IntString });
-export const ExpenseIdType = z.object({ expenseId: IntString });
+export const IdType = z.object({ id: ObjectId });
+export const ExpenseIdType = z.object({ expenseId: ObjectId });

@@ -2,6 +2,7 @@ import debug from 'debug';
 import { IBaseProtocol } from 'pg-promise';
 
 import { ApiMessage } from 'shared/types/Api';
+import { CategoryInput } from 'shared/types/Category';
 import { InvalidInputError, NotFoundError } from 'shared/types/Errors';
 import { Category, CategoryAndTotals } from 'shared/types/Session';
 import { partition, toMap } from 'shared/util/Arrays';
@@ -75,12 +76,6 @@ async function getTotals(
   const categories = createCategoryObject(cats as CategoryAndTotals[]);
   return sumChildTotalsToParent(categories);
 }
-
-export interface CategoryInput {
-  readonly parentId?: number;
-  readonly name: string;
-}
-
 async function insert(
   tx: IBaseProtocol<any>,
   groupId: number,
