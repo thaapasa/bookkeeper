@@ -9,61 +9,43 @@ import { navigationBar, secondaryColors } from '../Colors';
 import { AddExpenseIcon } from '../icons/AddExpenseIcon';
 import { connect } from './BaconConnect';
 
-class ExpenseShortcutsListImpl extends React.Component<{
+const ExpenseShortcutsListImpl: React.FC<{
   shortcuts: ExpenseShortcut[];
   showTitles?: boolean;
   className?: string;
-}> {
-  get height() {
-    return 40 + (34 + 12) * this.props.shortcuts.length;
-  }
-
-  render() {
-    const titles = this.props.showTitles === true;
-    return (
-      <LinksArea
-        className={`${titles ? 'with-titles' : ''} ${
-          this.props.className || ''
-        } `}
-      >
-        {titles ? (
-          <TitledRow onClick={createExpense}>
-            <AddExpenseIcon />
-            <Title>Uusi kirjaus</Title>
-          </TitledRow>
-        ) : (
+}> = ({ showTitles, className, shortcuts }) => {
+  const titles = showTitles === true;
+  return (
+    <LinksArea className={`${titles ? 'with-titles' : ''} ${className || ''} `}>
+      {titles ? (
+        <TitledRow onClick={createExpense}>
           <AddExpenseIcon />
-        )}
-        {this.props.shortcuts.map((l, i) =>
-          titles ? (
-            <LinkWithTitle key={i} {...l} />
-          ) : (
-            <LinkIcon key={i} {...l} />
-          )
-        )}
-      </LinksArea>
-    );
-  }
-}
+          <Title>Uusi kirjaus</Title>
+        </TitledRow>
+      ) : (
+        <AddExpenseIcon />
+      )}
+      {shortcuts.map((l, i) =>
+        titles ? <LinkWithTitle key={i} {...l} /> : <LinkIcon key={i} {...l} />
+      )}
+    </LinksArea>
+  );
+};
 
-class ExpenseShortcutsViewImpl extends React.Component<{
+const ExpenseShortcutsViewImpl: React.FC<{
   shortcuts: ExpenseShortcut[];
-}> {
-  get height() {
-    return 40 + (34 + 12) * this.props.shortcuts.length;
-  }
+}> = props => {
+  const height = 40 + (34 + 12) * props.shortcuts.length;
 
-  render() {
-    return (
-      <LinksContainer
-        theme={{ maxHeight: `${this.height}px` }}
-        className={this.props.shortcuts.length > 0 ? 'enabled' : 'disabled'}
-      >
-        <ExpenseShortcutsListImpl {...this.props} />
-      </LinksContainer>
-    );
-  }
-}
+  return (
+    <LinksContainer
+      theme={{ maxHeight: `${height}px` }}
+      className={props.shortcuts.length > 0 ? 'enabled' : 'disabled'}
+    >
+      <ExpenseShortcutsListImpl {...props} />
+    </LinksContainer>
+  );
+};
 
 export const ExpenseShortcutsView = connect(
   validSessionE.map(s => ({ shortcuts: s.user.expenseShortcuts || [] }))
@@ -73,7 +55,7 @@ export const ExpenseShortcutsList = connect(
   validSessionE.map(s => ({ shortcuts: s.user.expenseShortcuts || [] }))
 )(ExpenseShortcutsListImpl);
 
-const LinkIcon = (props: ExpenseShortcut & { noClick?: boolean }) => (
+const LinkIcon: React.FC<ExpenseShortcut & { noClick?: boolean }> = props => (
   <LinkIconArea
     onClick={() => !props.noClick && createNewExpense(props.values)}
     style={{ background: props.background }}
@@ -86,7 +68,7 @@ const LinkIcon = (props: ExpenseShortcut & { noClick?: boolean }) => (
   </LinkIconArea>
 );
 
-const LinkWithTitle = (props: ExpenseShortcut) => (
+const LinkWithTitle: React.FC<ExpenseShortcut> = props => (
   <TitledRow onClick={() => createNewExpense(props.values)}>
     <LinkIcon {...props} noClick />
     <Title>{props.title}</Title>

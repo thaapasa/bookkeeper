@@ -11,8 +11,10 @@ import {
   toYearRange,
 } from './Common';
 
-export function YearSelector(props: SelectorProps) {
-  const { dateRange, onSelectRange } = props;
+export const YearSelector: React.FC<SelectorProps> = ({
+  dateRange,
+  onSelectRange,
+}) => {
   const yearProp = toMoment(dateRange ? dateRange.start : undefined).year();
   const [year, setYear] = React.useState<string>(String(yearProp));
   React.useEffect(() => setYear(String(yearProp)), [yearProp]);
@@ -52,4 +54,4 @@ export function YearSelector(props: SelectorProps) {
       </StyledIconButton>
     </>
   );
-}
+};

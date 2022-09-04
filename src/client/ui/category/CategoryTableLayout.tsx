@@ -70,19 +70,19 @@ export const AllColumns = styled.div`
   padding: 0 16px;
 `;
 
-export function CategoryHeader({ onAdd }: { onAdd: (p?: Category) => void }) {
-  return (
-    <Row className="category-header">
-      <NameColumn className="header">Nimi</NameColumn>
-      <SumColumn className="header">Tulot</SumColumn>
-      <SumColumn className="header">Kulut</SumColumn>
-      <ToolColumn>
-        <AddCategoryButton
-          onAdd={onAdd}
-          color={colorScheme.gray.veryDark}
-          icon={PlusCircle}
-        />
-      </ToolColumn>
-    </Row>
-  );
-}
+export const CategoryHeader: React.FC<{ onAdd: (p?: Category) => void }> = ({
+  onAdd,
+}) => (
+  <Row className="category-header">
+    <NameColumn className="header">Nimi</NameColumn>
+    <SumColumn className="header">Tulot</SumColumn>
+    <SumColumn className="header">Kulut</SumColumn>
+    <ToolColumn>
+      <AddCategoryButton
+        onAdd={onAdd}
+        color={colorScheme.gray.veryDark}
+        icon={PlusCircle}
+      />
+    </ToolColumn>
+  </Row>
+);

@@ -65,23 +65,22 @@ const PlainLink = styled(Link)`
   text-decoration: none;
 `;
 
-export function LinkButton({ label, to }: { label: string; to: string }) {
-  return (
-    /* eslint-disable react/no-children-prop */
-    <Route
-      path={to}
-      children={({ match }) => (
-        <PlainLink to={to}>
-          <StyledButton
-            variant="text"
-            disableElevation
-            color={match ? 'primary' : 'inherit'}
-            style={match ? undefined : { color: gray.veryDark }}
-          >
-            {label}
-          </StyledButton>
-        </PlainLink>
-      )}
-    />
-  );
-}
+export const LinkButton: React.FC<{ label: string; to: string }> = ({
+  label,
+  to,
+}) => (
+  <Route path={to}>
+    {({ match }) => (
+      <PlainLink to={to}>
+        <StyledButton
+          variant="text"
+          disableElevation
+          color={match ? 'primary' : 'inherit'}
+          style={match ? undefined : { color: gray.veryDark }}
+        >
+          {label}
+        </StyledButton>
+      </PlainLink>
+    )}
+  </Route>
+);

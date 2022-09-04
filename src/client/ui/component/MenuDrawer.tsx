@@ -21,59 +21,57 @@ interface MenuDrawerProps extends RouteComponentProps {
   links?: AppLink[];
 }
 
-class MenuLink extends React.Component<
-  AppLink & { onSelect: (path: string) => void }
-> {
-  private onSelect = () => {
-    this.props.onSelect(this.props.path);
-  };
-  public render() {
-    return <MenuItem onClick={this.onSelect}>{this.props.label}</MenuItem>;
-  }
-}
+const MenuLink: React.FC<AppLink & { onSelect: (path: string) => void }> = ({
+  onSelect,
+  label,
+  path,
+}) => <MenuItem onClick={() => onSelect(path)}>{label}</MenuItem>;
 
-class MenuDrawerImpl extends React.Component<MenuDrawerProps> {
-  private onSelect = (path: string) => {
-    this.props.history.push(path);
-    this.props.onRequestChange(false);
+const MenuDrawerImpl: React.FC<MenuDrawerProps> = ({
+  history,
+  onRequestChange,
+  open,
+  group,
+  user,
+  links,
+}) => {
+  const onSelect = (path: string) => {
+    history.push(path);
+    onRequestChange(false);
   };
-  private onClose = () => this.props.onRequestChange(false);
-  public render() {
-    return (
-      <Drawer open={this.props.open} anchor="left" onClose={this.onClose}>
-        <GroupName>{this.props.group.name}</GroupName>
-        <ItemArea>
-          <UserInfo>
-            <UserAvatar user={this.props.user} size={40} />
-            <UserName>
-              {this.props.user.firstName} {this.props.user.lastName}
-            </UserName>
-          </UserInfo>
-        </ItemArea>
-        <ItemArea>
-          {this.props.links &&
-            this.props.links.map(l => (
-              <MenuLink key={l.label} {...l} onSelect={this.onSelect} />
-            ))}
-          <MenuLink
-            label="Päivitä"
-            showInHeader={false}
-            path="/"
-            onSelect={this.onReload}
-          />
-        </ItemArea>
-        {this.props.links && this.props.links.length > 0 ? <Divider /> : null}
-        <ItemArea className="bottom">
-          <MenuInfo>
-            Kukkaro {config.version} ({config.revision})
-          </MenuInfo>
-          <MenuItem onClick={logout}>Kirjaudu ulos</MenuItem>
-        </ItemArea>
-      </Drawer>
-    );
-  }
-  private onReload = () => reloadApp();
-}
+  const onClose = () => onRequestChange(false);
+  const onReload = () => reloadApp();
+  return (
+    <Drawer open={open} anchor="left" onClose={onClose}>
+      <GroupName>{group.name}</GroupName>
+      <ItemArea>
+        <UserInfo>
+          <UserAvatar user={user} size={40} />
+          <UserName>
+            {user.firstName} {user.lastName}
+          </UserName>
+        </UserInfo>
+      </ItemArea>
+      <ItemArea>
+        {links &&
+          links.map(l => <MenuLink key={l.label} {...l} onSelect={onSelect} />)}
+        <MenuLink
+          label="Päivitä"
+          showInHeader={false}
+          path="/"
+          onSelect={onReload}
+        />
+      </ItemArea>
+      {links && links.length > 0 ? <Divider /> : null}
+      <ItemArea className="bottom">
+        <MenuInfo>
+          Kukkaro {config.version} ({config.revision})
+        </MenuInfo>
+        <MenuItem onClick={logout}>Kirjaudu ulos</MenuItem>
+      </ItemArea>
+    </Drawer>
+  );
+};
 
 export const MenuDrawer = withRouter(MenuDrawerImpl);
 

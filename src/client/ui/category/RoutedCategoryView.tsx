@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { RouteComponentProps } from 'react-router';
 
 import { monthRange, TypedDateRange, yearRange } from 'shared/util/TimeRange';
@@ -10,21 +10,19 @@ interface CategoryRouteParams {
   month?: string;
 }
 
-export default class RoutedCategoryView extends React.Component<
+export const RoutedCategoryView: React.FC<
   RouteComponentProps<CategoryRouteParams>
-> {
-  private getDates(): TypedDateRange {
-    if (this.props.match.params.year) {
-      return yearRange(this.props.match.params.year);
-    } else if (this.props.match.params.month) {
-      return monthRange(this.props.match.params.month);
-    } else {
-      return yearRange(new Date());
-    }
-  }
+> = ({ match, history }) => {
+  const range = getDates(match.params);
+  return <CategoryView range={range} history={history} />;
+};
 
-  public render() {
-    const range = this.getDates();
-    return <CategoryView range={range} history={this.props.history} />;
+function getDates(params: CategoryRouteParams): TypedDateRange {
+  if (params.year) {
+    return yearRange(params.year);
+  } else if (params.month) {
+    return monthRange(params.month);
+  } else {
+    return yearRange(new Date());
   }
 }

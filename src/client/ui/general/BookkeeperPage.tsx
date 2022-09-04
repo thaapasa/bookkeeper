@@ -17,7 +17,7 @@ import {
   statisticsPage,
 } from 'client/util/Links';
 
-import RoutedCategoryView from '../category/RoutedCategoryView';
+import { RoutedCategoryView } from '../category/RoutedCategoryView';
 import { colorScheme } from '../Colors';
 import DatePickerComponent from '../component/DatePickerComponent';
 import { AppLink, NavigationBar } from '../component/NavigationBar';

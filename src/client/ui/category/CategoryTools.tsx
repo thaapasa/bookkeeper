@@ -4,64 +4,43 @@ import { Category } from 'shared/types/Session';
 
 import { Add, Edit, ExpandLess, ExpandMore, ToolIcon } from '../Icons';
 
-export class AddCategoryButton extends React.PureComponent<{
+export const AddCategoryButton: React.FC<{
   onAdd: (p?: Category) => void;
   parent?: Category;
   color?: string | null;
   icon?: React.ComponentType<any>;
-}> {
-  private add = () => {
-    this.props.onAdd(this.props.parent);
-  };
-  public render() {
-    return (
-      <ToolIcon
-        title="Lisää"
-        onClick={this.add}
-        icon={this.props.icon || Add}
-        color={this.props.color}
-      />
-    );
-  }
-}
+}> = ({ onAdd, parent, color, icon }) => (
+  <ToolIcon
+    title="Lisää"
+    onClick={() => onAdd(parent)}
+    icon={icon || Add}
+    color={color}
+  />
+);
 
-export class EditCategoryButton extends React.PureComponent<{
+export const EditCategoryButton: React.FC<{
   onEdit: (p: Category) => void;
   category: Category;
   color?: string | null;
-}> {
-  private edit = () => {
-    this.props.onEdit(this.props.category);
-  };
-  public render() {
-    return (
-      <ToolIcon
-        title="Muokkaa"
-        onClick={this.edit}
-        icon={Edit}
-        color={this.props.color}
-      />
-    );
-  }
-}
+}> = ({ onEdit, category, color }) => (
+  <ToolIcon
+    title="Muokkaa"
+    onClick={() => onEdit(category)}
+    icon={Edit}
+    color={color}
+  />
+);
 
-export class ToggleButton extends React.PureComponent<{
+export const ToggleButton: React.FC<{
   state: boolean;
   onToggle: (c?: Category) => void;
   category?: Category;
   color?: string | null;
-}> {
-  private toggle = () => {
-    this.props.onToggle(this.props.category);
-  };
-  public render() {
-    return (
-      <ToolIcon
-        title={this.props.state ? 'Sulje' : 'Avaa'}
-        onClick={this.toggle}
-        icon={this.props.state ? ExpandLess : ExpandMore}
-        color={this.props.color}
-      />
-    );
-  }
-}
+}> = ({ state, onToggle, category, color }) => (
+  <ToolIcon
+    title={state ? 'Sulje' : 'Avaa'}
+    onClick={() => onToggle(category)}
+    icon={state ? ExpandLess : ExpandMore}
+    color={color}
+  />
+);

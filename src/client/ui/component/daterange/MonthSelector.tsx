@@ -14,8 +14,10 @@ import {
   toMonthRange,
 } from './Common';
 
-export function MonthSelector(props: SelectorProps) {
-  const { dateRange, onSelectRange } = props;
+export const MonthSelector: React.FC<SelectorProps> = ({
+  dateRange,
+  onSelectRange,
+}) => {
   const startProp = toMoment(dateRange ? dateRange.start : undefined);
   const yearProp = startProp.year();
   const monthProp = startProp.month() + 1;
@@ -85,4 +87,4 @@ export function MonthSelector(props: SelectorProps) {
       </StyledIconButton>
     </>
   );
-}
+};

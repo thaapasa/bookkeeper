@@ -50,7 +50,7 @@ function getRangeDefault(
   }
 }
 
-const DateRangeSelectorImpl = (props: DateRangeSelectorProps) => {
+const DateRangeSelectorImpl: React.FC<DateRangeSelectorProps> = props => {
   const { onSelectRange, dateRange } = props;
   const [selectedType, changeType] = React.useState<RangeType | 'none'>(
     props.dateRange ? props.dateRange.type : 'none'

@@ -10,6 +10,7 @@ import { MenuIcon } from '../Icons';
 import { AddExpenseIcon } from '../icons/AddExpenseIcon';
 import { isMobileSize } from '../Styles';
 import { Size } from '../Types';
+import { useToggle } from '../utils/Hooks';
 import { connect } from './BaconConnect';
 import DateRangeNavigator from './DateRangeNavigator';
 import MenuDrawer from './MenuDrawer';
@@ -20,10 +21,6 @@ interface TopBarProps {
   group: Group;
   links?: AppLink[];
   windowSize: Size;
-}
-
-interface TopBarState {
-  menuOpen: boolean;
 }
 
 const styles: Record<string, React.CSSProperties> = {
@@ -40,60 +37,38 @@ const styles: Record<string, React.CSSProperties> = {
   },
 };
 
-class TopBar extends React.Component<TopBarProps, TopBarState> {
-  public state: TopBarState = {
-    menuOpen: false,
-  };
+const TopBar: React.FC<TopBarProps> = ({ windowSize, group, links }) => {
+  const [menuOpen, toggleMenu, setMenu] = useToggle();
+  const isMobile = isMobileSize(windowSize);
+  const title = isMobile ? undefined : group.name;
 
-  get isMobile() {
-    return isMobileSize(this.props.windowSize);
-  }
-
-  get title() {
-    return this.isMobile ? undefined : this.props.group.name;
-  }
-
-  private getContents() {
-    return this.isMobile ? (
-      <>
-        <DateRangeNavigator />
-        <AddExpenseIcon />
-      </>
-    ) : null;
-  }
-
-  public render() {
-    return (
-      <React.Fragment>
-        <TopAppBar color="secondary" position="static">
-          <TopToolBar
-            className={`top-tool-bar ${this.isMobile ? 'mobile' : 'normal'}`}
+  return (
+    <>
+      <TopAppBar color="secondary" position="static">
+        <TopToolBar
+          className={`top-tool-bar ${isMobile ? 'mobile' : 'normal'}`}
+        >
+          <IconButton
+            edge="start"
+            aria-label="menu"
+            size="small"
+            onClick={toggleMenu}
           >
-            <IconButton
-              edge="start"
-              aria-label="menu"
-              size="small"
-              onClick={this.toggleMenu}
-            >
-              <MenuIcon style={styles.iconStyle} />
-            </IconButton>
-            {this.title ? <Title variant="h6">{this.title}</Title> : null}
-            {this.getContents()}
-          </TopToolBar>
-        </TopAppBar>
-        <MenuDrawer
-          open={this.state.menuOpen}
-          onRequestChange={this.changeMenu}
-          links={this.props.links}
-        />
-      </React.Fragment>
-    );
-  }
-
-  private toggleMenu = () => this.setState(s => ({ menuOpen: !s.menuOpen }));
-
-  private changeMenu = (menuOpen: boolean) => this.setState({ menuOpen });
-}
+            <MenuIcon style={styles.iconStyle} />
+          </IconButton>
+          {title ? <Title variant="h6">{title}</Title> : null}
+          {isMobile ? (
+            <>
+              <DateRangeNavigator />
+              <AddExpenseIcon />
+            </>
+          ) : null}
+        </TopToolBar>
+      </TopAppBar>
+      <MenuDrawer open={menuOpen} onRequestChange={setMenu} links={links} />
+    </>
+  );
+};
 
 const height = '56px';
 

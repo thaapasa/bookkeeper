@@ -46,7 +46,7 @@ export const CategoryTable: React.FC<CategoryTableProps> = ({
   };
 
   return (
-    <React.Fragment>
+    <>
       <CategoryHeader onAdd={createCategory} />
       {categories.map(c => (
         <CategoryView
@@ -58,7 +58,7 @@ export const CategoryTable: React.FC<CategoryTableProps> = ({
         />
       ))}
       <CategoryDialog ref={categoryDialogRef} categories={categories} />
-    </React.Fragment>
+    </>
   );
 };
 
