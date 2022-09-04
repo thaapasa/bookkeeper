@@ -24,11 +24,13 @@ export interface CategoryChartData {
 interface CategoryChartProps {
   chartData: CategoryChartData[] | undefined;
   size: Size;
+  className?: string;
 }
 
 const CategoryChartImpl: React.FC<CategoryChartProps> = ({
   chartData,
   size,
+  className,
 }) => {
   const thin = useThinFormat(size);
   const expenseColor = 0;
@@ -36,9 +38,10 @@ const CategoryChartImpl: React.FC<CategoryChartProps> = ({
   return (
     <BarChart
       width={size.width}
-      height={300}
+      height={size.height}
       data={chartData}
       margin={ChartMargins}
+      className={className}
     >
       <CartesianGrid strokeDasharray="3 3" />
       <XAxis dataKey="categoryName" />

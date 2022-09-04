@@ -1,19 +1,20 @@
 import * as B from 'baconjs';
 import { History } from 'history';
 import * as React from 'react';
+import styled from 'styled-components';
 
 import { Category, CategoryAndTotals } from 'shared/types/Session';
 import Money from 'shared/util/Money';
-import { compareRanges, TypedDateRange } from 'shared/util/TimeRange';
+import { TypedDateRange } from 'shared/util/TimeRange';
 import apiConnect from 'client/data/ApiConnect';
 import { userDataE, UserDataProps } from 'client/data/Categories';
 import { updateSession, validSessionE } from 'client/data/Login';
 import { navigationBus, needUpdateE } from 'client/data/State';
-import { unsubscribeAll } from 'client/util/ClientUtil';
 import { categoryPagePath } from 'client/util/Links';
 
 import { connect } from '../component/BaconConnect';
 import { PageContentContainer } from '../Styles';
+import { useDeferredData } from '../utils/useAsyncData';
 import { CategoryChart, CategoryChartData } from './CategoryChart';
 import { CategoryTable } from './CategoryTable';
 
@@ -24,99 +25,77 @@ interface CategoryViewProps {
   userData: UserDataProps;
 }
 
-interface CategoryViewState {
-  categoryTotals: Record<string, CategoryAndTotals>;
-  categoryChartData?: CategoryChartData[];
-  isLoading: boolean;
+const CategoryView: React.FC<CategoryViewProps> = ({
+  range,
+  categories,
+  ...rest
+}) => {
+  const { data, loadData } = useDeferredData(
+    loadCategories,
+    true,
+    categories,
+    range
+  );
+
+  // Load data when range / categories change
+  React.useEffect(() => loadData(), [loadData]);
+
+  // Load data when needUpdate is signalled
+  React.useEffect(() => needUpdateE.onValue(loadData), [loadData]);
+
+  if (data.type !== 'loaded') {
+    return null;
+  }
+  return (
+    <PageContentContainer>
+      <div>
+        <StyledChart chartData={data.value.categoryChartData} />
+        <CategoryTable
+          {...rest}
+          categories={categories}
+          range={range}
+          onCategoriesChanged={updateSession}
+          categoryTotals={data.value.categoryTotals}
+        />
+      </div>
+    </PageContentContainer>
+  );
+};
+
+async function getCategoryTotals(
+  range: TypedDateRange
+): Promise<Record<string, CategoryAndTotals>> {
+  const totals = await apiConnect.getCategoryTotals(range.start, range.end);
+  const totalsMap: Record<string, CategoryAndTotals> = {};
+  totals.forEach(t => {
+    totalsMap['' + t.id] = t;
+    if (t.children && t.children.length > 0) {
+      t.children.forEach(ch => (totalsMap['' + ch.id] = ch));
+    }
+  });
+  return totalsMap;
 }
 
-class CategoryView extends React.Component<
-  CategoryViewProps,
-  CategoryViewState
-> {
-  private unsub: any[] = [];
+async function loadCategories(categories: Category[], range: TypedDateRange) {
+  navigationBus.push({
+    pathPrefix: categoryPagePath,
+    dateRange: range,
+  });
+  const categoryTotals = await getCategoryTotals(range);
+  const categoryChartData = formCategoryChartData(categories, categoryTotals);
+  return { categoryTotals, categoryChartData };
+}
 
-  public state: CategoryViewState = {
-    categoryTotals: {},
-    isLoading: true,
-  };
-
-  public async componentDidMount() {
-    this.unsub.push(needUpdateE.onValue(this.loadCategories));
-    await this.loadCategories();
-  }
-
-  public componentDidUpdate(prevProps: CategoryViewProps) {
-    if (compareRanges(this.props.range, prevProps.range) !== 0) {
-      this.loadCategories();
-    }
-  }
-
-  public componentWillUnmount() {
-    unsubscribeAll(this.unsub);
-  }
-
-  private formCategoryChartData(
-    categoryTotals: Record<string, CategoryAndTotals>
-  ): CategoryChartData[] {
-    return this.props.categories.map(c => ({
-      categoryId: c.id,
-      categoryName: c.name,
-      categoryExpense: Money.toValue(categoryTotals[c.id]?.totalExpenses ?? 0),
-      categoryIncome: Money.toValue(categoryTotals[c.id]?.totalIncome ?? 0),
-    }));
-  }
-
-  private getCategoryTotals = async (): Promise<
-    Record<string, CategoryAndTotals>
-  > => {
-    const totals = await apiConnect.getCategoryTotals(
-      this.props.range.start,
-      this.props.range.end
-    );
-    const totalsMap: Record<string, CategoryAndTotals> = {};
-    totals.forEach(t => {
-      totalsMap['' + t.id] = t;
-      if (t.children && t.children.length > 0) {
-        t.children.forEach(ch => (totalsMap['' + ch.id] = ch));
-      }
-    });
-    return totalsMap;
-  };
-
-  private loadCategories = async () => {
-    navigationBus.push({
-      pathPrefix: categoryPagePath,
-      dateRange: this.props.range,
-    });
-    this.setState({ isLoading: true });
-    const categoryTotals = await this.getCategoryTotals();
-    const categoryChartData = this.formCategoryChartData(categoryTotals);
-    this.setState({ categoryTotals, categoryChartData, isLoading: false });
-  };
-
-  private refresh = async () => {
-    await updateSession();
-  };
-
-  public render() {
-    if (this.state.isLoading) {
-      return null;
-    }
-    return (
-      <PageContentContainer>
-        <div>
-          <CategoryChart chartData={this.state.categoryChartData} />
-          <CategoryTable
-            {...this.props}
-            userData={this.props.userData}
-            onCategoriesChanged={this.refresh}
-            categoryTotals={this.state.categoryTotals}
-          />
-        </div>
-      </PageContentContainer>
-    );
-  }
+function formCategoryChartData(
+  categories: Category[],
+  categoryTotals: Record<string, CategoryAndTotals>
+): CategoryChartData[] {
+  return categories.map(c => ({
+    categoryId: c.id,
+    categoryName: c.name,
+    categoryExpense: Money.toValue(categoryTotals[c.id]?.totalExpenses ?? 0),
+    categoryIncome: Money.toValue(categoryTotals[c.id]?.totalIncome ?? 0),
+  }));
 }
 
 export default connect(
@@ -125,3 +104,7 @@ export default connect(
     userData: userDataE,
   })
 )(CategoryView);
+
+const StyledChart = styled(CategoryChart)`
+  height: 320px;
+`;

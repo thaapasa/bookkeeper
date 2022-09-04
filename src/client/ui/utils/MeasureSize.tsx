@@ -5,7 +5,9 @@ import { Size, useElementSize } from './useElementSize';
 export function MeasureSize<T>(
   component: React.ComponentType<T & { size: Size }>
 ) {
-  return function MeasuredComponent(props: Omit<T, 'size'>) {
+  const MeasuredComponent: React.FC<
+    Omit<T, 'size'> & { className?: string }
+  > = ({ className, ...props }) => {
     const containerRef = React.useRef<HTMLDivElement>(null);
 
     const size = useElementSize(containerRef);
@@ -13,9 +15,10 @@ export function MeasureSize<T>(
     const Component = component as any;
 
     return (
-      <div ref={containerRef}>
+      <div ref={containerRef} className={className}>
         {size ? <Component size={size} {...props} /> : null}
       </div>
     );
   };
+  return MeasuredComponent;
 }
