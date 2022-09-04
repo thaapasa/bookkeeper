@@ -15,7 +15,7 @@ import {
   UserDataProps,
 } from 'client/data/Categories';
 import { validSessionE } from 'client/data/Login';
-import { navigationBus } from 'client/data/State';
+import { navigationBus, needUpdateE } from 'client/data/State';
 import { searchPagePath } from 'client/util/Links';
 
 import { connect } from '../component/BaconConnect';
@@ -102,6 +102,8 @@ const SearchView: React.FC<
     (cat: Category) => queryRef.current?.addCategory(cat),
     [queryRef]
   );
+
+  React.useEffect(() => needUpdateE.onValue(onRepeatSearch), [onRepeatSearch]);
 
   return (
     <PageContentContainer>
