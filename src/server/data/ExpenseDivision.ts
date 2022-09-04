@@ -1,7 +1,7 @@
 import {
-  Expense,
   ExpenseDivisionItem,
   ExpenseDivisionType,
+  ExpenseInput,
 } from 'shared/types/Expense';
 import { Source } from 'shared/types/Session';
 import Money, { MoneyLike } from 'shared/util/Money';
@@ -49,7 +49,7 @@ function getCostFromSource(
   );
 }
 
-function getDefaultIncome(expense: Expense): ExpenseDivisionItem[] {
+function getDefaultIncome(expense: ExpenseInput): ExpenseDivisionItem[] {
   return [{ userId: expense.userId, sum: expense.sum, type: 'income' }];
 }
 
@@ -60,7 +60,7 @@ function addType(type: ExpenseDivisionType) {
 }
 
 export function determineDivision(
-  expense: Expense,
+  expense: ExpenseInput,
   source: Source
 ): ExpenseDivisionItem[] {
   if (expense.type === 'income') {

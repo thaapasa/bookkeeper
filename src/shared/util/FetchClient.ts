@@ -55,14 +55,14 @@ export class FetchClient {
   ): Promise<T> {
     try {
       const queryPath = this.toQuery(path, query);
-      log(`${method} ${queryPath}`, 'with body', body);
+      log(`${method} ${queryPath} with body`, body);
       const options = {
         method,
         body: body ? JSON.stringify(body) : undefined,
         headers,
       };
       const res = await this.fetch(queryPath, options);
-      log(`${method} ${queryPath}`, 'result', res.status);
+      log(`${method} ${queryPath} -> ${res.status}`);
       switch (res.status) {
         case 200:
           return (await res.json()) as T;

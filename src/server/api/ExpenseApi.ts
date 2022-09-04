@@ -3,10 +3,12 @@ import { z } from 'zod';
 
 import { ApiMessage } from 'shared/types/Api';
 import {
-  Expense,
+  ExpenseCollection,
+  ExpenseInput,
   ExpenseQuery,
   RecurringExpenseInput,
   RecurringExpenseTarget,
+  UserExpense,
   UserExpenseWithDetails,
 } from 'shared/types/Expense';
 import { ExpenseSplit } from 'shared/types/ExpenseSplit';
@@ -17,28 +19,7 @@ import { searchExpenses } from 'server/data/ExpenseSearch';
 import { splitExpense } from 'server/data/ExpenseSplit';
 import { Requests } from 'server/server/RequestHandling';
 
-import { Schema, Validator as V } from '../util/Validator';
-import { ExpenseIdType, IdType } from './Validations';
-
-const expenseSchema: Schema<Expense> = {
-  userId: V.positiveInt,
-  date: V.date,
-  receiver: V.stringWithLength(1, 50),
-  type: V.either('expense', 'income', 'transfer'),
-  sum: V.money,
-  title: V.stringWithLength(1, 255),
-  description: V.optional(V.or(V.string, V.null)),
-  confirmed: V.optional(V.boolean),
-  sourceId: V.optional(V.positiveInt),
-  categoryId: V.positiveInt,
-  division: V.optional(
-    V.listOfObjects({
-      userId: V.positiveInt,
-      sum: V.money,
-      type: V.stringWithLength(1, 10),
-    })
-  ),
-};
+import { ExpenseIdParamType, IdParamType } from './Validations';
 
 /**
  * Creates expense API router.
@@ -53,7 +34,7 @@ export function createExpenseApi() {
   api.get(
     '/month',
     Requests.validatedTxRequest(
-      { query: YearMonth },
+      { query: YearMonth, response: ExpenseCollection },
       (tx, session, { query }) =>
         Expenses.getByMonth(
           tx,
@@ -70,7 +51,7 @@ export function createExpenseApi() {
   api.get(
     '/search',
     Requests.validatedTxRequest(
-      { query: ExpenseQuery },
+      { query: ExpenseQuery, response: z.array(UserExpense) },
       (tx, session, { query }) =>
         searchExpenses(tx, session.user.id, session.group.id, query)
     )
@@ -79,14 +60,15 @@ export function createExpenseApi() {
   // PUT /api/expense
   api.put(
     '/',
-    Requests.txRequest<ApiMessage>(
-      (tx, session, req) =>
+    Requests.validatedTxRequest(
+      { body: ExpenseInput, response: ApiMessage },
+      (tx, session, { body }) =>
         Expenses.create(
           tx,
           session.user.id,
           session.group.id,
-          V.validate(expenseSchema, req.body),
-          session.group.defaultSourceId || 0
+          body,
+          session.group.defaultSourceId ?? 0
         ),
       true
     )
@@ -115,7 +97,7 @@ export function createExpenseApi() {
   api.post(
     '/:expenseId/split',
     Requests.validatedTxRequest(
-      { params: ExpenseIdType, body: ExpenseSplitBody },
+      { params: ExpenseIdParamType, body: ExpenseSplitBody },
       (tx, session, { params, body }) =>
         splitExpense(
           tx,
@@ -132,14 +114,14 @@ export function createExpenseApi() {
   api.post(
     '/:expenseId',
     Requests.validatedTxRequest(
-      { params: ExpenseIdType },
-      (tx, session, { params }, req) =>
+      { params: ExpenseIdParamType, body: ExpenseInput },
+      (tx, session, { params, body }) =>
         updateExpenseById(
           tx,
           session.group.id,
           session.user.id,
           params.expenseId,
-          V.validate(expenseSchema, req.body),
+          body,
           session.group.defaultSourceId || 0
         ),
       true
@@ -193,7 +175,7 @@ function createRecurringExpenseApi() {
     Requests.validatedTxRequest(
       {
         body: RecurringExpenseInput,
-        params: IdType,
+        params: IdParamType,
       },
       (tx, session, { body, params }) =>
         Expenses.createRecurring(
@@ -211,7 +193,7 @@ function createRecurringExpenseApi() {
   api.delete(
     '/:id',
     Requests.validatedTxRequest(
-      { query: RecurringExpenseTargetSchema, params: IdType },
+      { query: RecurringExpenseTargetSchema, params: IdParamType },
       (tx, session, { query, params }) =>
         Expenses.deleteRecurringById(
           tx,
@@ -228,15 +210,19 @@ function createRecurringExpenseApi() {
   api.post(
     '/:id',
     Requests.validatedTxRequest(
-      { query: RecurringExpenseTargetSchema, params: IdType },
-      (tx, session, { query, params }, req) =>
+      {
+        query: RecurringExpenseTargetSchema,
+        params: IdParamType,
+        body: ExpenseInput,
+      },
+      (tx, session, { query, params, body }) =>
         Expenses.updateRecurring(
           tx,
           session.group.id,
           session.user.id,
           params.id,
           query.target,
-          V.validate(expenseSchema, req.body),
+          body,
           session.group.defaultSourceId || 0
         ),
       true

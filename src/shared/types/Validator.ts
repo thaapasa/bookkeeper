@@ -9,7 +9,7 @@ export const IntString = z
   .refine(s => {
     try {
       const n = Number(s);
-      return !isNaN(n);
+      return !isNaN(n) && Math.round(n) === n;
     } catch (e) {
       return false;
     }

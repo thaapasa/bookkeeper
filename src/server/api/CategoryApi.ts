@@ -7,7 +7,7 @@ import { DateRange } from 'shared/util/TimeRange';
 import { Requests } from 'server/server/RequestHandling';
 
 import { CategoryDb } from '../data/CategoryDb';
-import { IdType } from './Validations';
+import { IdParamType } from './Validations';
 
 /**
  * Creates category API router.
@@ -55,7 +55,7 @@ export function createCategoryApi() {
   api.post(
     '/:id',
     Requests.validatedTxRequest(
-      { body: CategoryInput, params: IdType },
+      { body: CategoryInput, params: IdParamType },
       (tx, session, { body, params }): Promise<Category> =>
         CategoryDb.update(tx, session.group.id, params.id, body),
       true
@@ -66,7 +66,7 @@ export function createCategoryApi() {
   api.get(
     '/:id',
     Requests.validatedTxRequest(
-      { params: IdType },
+      { params: IdParamType },
       (tx, session, { params }): Promise<Category> =>
         CategoryDb.getById(tx, session.group.id, params.id),
       true
@@ -77,7 +77,7 @@ export function createCategoryApi() {
   api.delete(
     '/:id',
     Requests.validatedTxRequest(
-      { params: IdType, response: ApiMessage },
+      { params: IdParamType, response: ApiMessage },
       (tx, session, { params }) =>
         CategoryDb.remove(tx, session.group.id, params.id),
       true

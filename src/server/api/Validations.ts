@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { ObjectId } from 'shared/types/Id';
+import { ObjectIdString } from 'shared/types/Id';
 
-export const IdType = z.object({ id: ObjectId });
-export const ExpenseIdType = z.object({ expenseId: ObjectId });
+export const IdParamType = z.object({ id: ObjectIdString });
+export const ExpenseIdParamType = z.object({ expenseId: ObjectIdString });

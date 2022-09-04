@@ -3,7 +3,8 @@ import { z } from 'zod';
 import { MoneyLike } from 'shared/util/Money';
 import { ISODate } from 'shared/util/Time';
 
-import { DbObject } from './Common';
+import { DbObject, ShortString } from './Common';
+import { ObjectId } from './Id';
 import { BooleanString, IntArrayString, IntString } from './Validator';
 
 export const ExpenseType = z.enum(['expense', 'income', 'transfer']);
@@ -56,41 +57,55 @@ export type ExpenseDivisionItem = z.infer<typeof ExpenseDivisionItem>;
 export const ExpenseDivision = z.array(ExpenseDivisionItem);
 export type ExpenseDivision = z.infer<typeof ExpenseDivision>;
 
-export interface BaseExpenseData {
-  userId: number;
-  categoryId: number;
-  sourceId: number;
-  type: ExpenseType;
+export const BaseExpenseData = z.object({
+  userId: ObjectId,
+  categoryId: ObjectId,
+  sourceId: ObjectId,
+  type: ExpenseType,
+  confirmed: z.boolean(),
+  title: ShortString,
+  receiver: ShortString,
+});
+export type BaseExpenseData = z.infer<typeof BaseExpenseData>;
+
+export const ExpenseData = BaseExpenseData.extend({
+  description: z.string().or(z.null()),
+  date: ISODate,
+  sum: MoneyLike,
+  division: ExpenseDivision.optional(),
+});
+export type ExpenseData = z.infer<typeof ExpenseData>;
+
+export const Expense = DbObject.merge(ExpenseData).extend({
+  groupId: ObjectId,
+  created: z.date(),
+  createdById: z.number(),
+  recurringExpenseId: ObjectId.or(z.null()),
+});
+export type Expense = z.infer<typeof Expense>;
+
+export const ExpenseInput = ExpenseData.extend({
+  confirmed: z.boolean().optional(),
+  description: z.union([z.string(), z.null(), z.undefined()]),
+});
+export type ExpenseInput = z.infer<typeof ExpenseInput>;
+
+export interface ExpenseInputWithDefaults extends ExpenseInput {
   confirmed: boolean;
-  title: string;
-  receiver: string;
-}
-
-export interface ExpenseData extends BaseExpenseData {
   description: string | null;
-  date: ISODate;
-  sum: MoneyLike;
-  division?: ExpenseDivision;
 }
 
-export interface Expense extends DbObject, ExpenseData {
-  groupId: number;
-  created: Date;
-  createdById: number;
-  recurringExpenseId: number | null;
-  template: boolean;
-}
-
-export interface UserExpense extends Expense {
-  userBalance: MoneyLike;
-  userBenefit: MoneyLike;
-  userCost: MoneyLike;
-  userIncome: MoneyLike;
-  userSplit: MoneyLike;
-  userTransferor: MoneyLike;
-  userTransferee: MoneyLike;
-  userValue: MoneyLike;
-}
+export const UserExpense = Expense.extend({
+  userBalance: MoneyLike,
+  userBenefit: MoneyLike,
+  userCost: MoneyLike,
+  userIncome: MoneyLike,
+  userSplit: MoneyLike,
+  userTransferor: MoneyLike,
+  userTransferee: MoneyLike,
+  userValue: MoneyLike,
+});
+export type UserExpense = z.infer<typeof UserExpense>;
 
 export interface ExpenseInEditor extends BaseExpenseData {
   subcategoryId: number;
@@ -109,29 +124,30 @@ export function isExpense(e: any): e is Expense {
     typeof e === 'object' &&
     typeof e.id === 'number' &&
     typeof e.categoryId === 'number' &&
-    typeof e.title === 'string' &&
-    typeof e.template === 'boolean'
+    typeof e.title === 'string'
   );
 }
 
-export interface ExpenseStatus {
-  balance: MoneyLike;
-  benefit: MoneyLike;
-  cost: MoneyLike;
-  income: MoneyLike;
-  split: MoneyLike;
-  transferor: MoneyLike;
-  transferee: MoneyLike;
-  value: MoneyLike;
-}
+export const ExpenseStatus = z.object({
+  balance: MoneyLike,
+  benefit: MoneyLike,
+  cost: MoneyLike,
+  income: MoneyLike,
+  split: MoneyLike,
+  transferor: MoneyLike,
+  transferee: MoneyLike,
+  value: MoneyLike,
+});
+export type ExpenseStatus = z.infer<typeof ExpenseStatus>;
 
-export interface ExpenseCollection {
-  expenses: UserExpense[];
-  monthStatus: ExpenseStatus;
-  startStatus: ExpenseStatus;
-  endStatus: ExpenseStatus;
-  unconfirmedBefore: boolean;
-}
+export const ExpenseCollection = z.object({
+  expenses: z.array(UserExpense),
+  monthStatus: ExpenseStatus,
+  startStatus: ExpenseStatus,
+  endStatus: ExpenseStatus,
+  unconfirmedBefore: z.boolean(),
+});
+export type ExpenseCollection = z.infer<typeof ExpenseCollection>;
 
 export const RecurringExpensePeriod = z.enum(['monthly', 'yearly']);
 export type RecurringExpensePeriod = z.infer<typeof RecurringExpensePeriod>;

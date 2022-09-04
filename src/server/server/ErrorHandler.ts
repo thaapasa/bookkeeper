@@ -5,6 +5,8 @@ import { config } from 'server/Config';
 
 const log = debug('bookkeeper:api:error');
 
+const logUserErrors = false;
+
 function isUserError(status: number) {
   return status >= 400 && status < 500;
 }
@@ -20,7 +22,9 @@ export function createErrorHandler() {
 
     log(
       `Error processing ${req.method} ${req.path} -> ${status}`,
-      !isUserError(status) ? err : err.message
+      logUserErrors || !isUserError(status)
+        ? JSON.stringify(err, null, 2)
+        : err.message
     );
     const data: ErrorInfo = {
       ...(config.showErrorCause ? err : undefined),
