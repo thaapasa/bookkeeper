@@ -2,7 +2,12 @@ import debug from 'debug';
 import { IBaseProtocol } from 'pg-promise';
 
 import { ApiMessage } from 'shared/types/Api';
-import { Expense, ExpenseDivisionItem } from 'shared/types/Expense';
+import {
+  Expense,
+  ExpenseDivisionItem,
+  ExpenseInput,
+} from 'shared/types/Expense';
+import { ObjectId } from 'shared/types/Id';
 
 import { BasicExpenseDb } from './BasicExpenseDb';
 import { CategoryDb } from './CategoryDb';
@@ -16,10 +21,10 @@ export async function createExpense(
   tx: IBaseProtocol<any>,
   userId: number,
   groupId: number,
-  expense: Expense,
+  expenseInput: ExpenseInput,
   defaultSourceId: number
 ): Promise<ApiMessage> {
-  expense = BasicExpenseDb.setDefaults(expense);
+  const expense = BasicExpenseDb.setDefaults(expenseInput);
   const sourceId = expense.sourceId || defaultSourceId;
   const [cat, user, source] = await Promise.all([
     CategoryDb.getById(tx, groupId, expense.categoryId),
@@ -50,7 +55,7 @@ export async function updateExpenseById(
   groupId: number,
   userId: number,
   expenseId: number,
-  expense: Expense,
+  expense: ExpenseInput,
   defaultSourceId: number
 ) {
   const e = await BasicExpenseDb.getById(tx, groupId, userId, expenseId);
@@ -74,4 +79,17 @@ export async function copyExpense(
   );
   const [expense, division] = mapper ? mapper(e) : e;
   return BasicExpenseDb.insert(tx, userId, expense, division);
+}
+
+export async function getExpenseAndDivision(
+  tx: IBaseProtocol<any>,
+  groupId: ObjectId,
+  userId: ObjectId,
+  expenseId: ObjectId
+): Promise<Expense & { division: ExpenseDivisionItem[] }> {
+  const [expense, division] = await Promise.all([
+    BasicExpenseDb.getById(tx, groupId, userId, expenseId),
+    BasicExpenseDb.getDivision(tx, expenseId),
+  ]);
+  return { ...expense, division };
 }

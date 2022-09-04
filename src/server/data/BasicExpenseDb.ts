@@ -8,9 +8,12 @@ import {
   Expense,
   ExpenseDivisionItem,
   ExpenseDivisionType,
+  ExpenseInput,
+  ExpenseInputWithDefaults,
   ExpenseStatus,
   UserExpense,
 } from 'shared/types/Expense';
+import { ObjectId } from 'shared/types/Id';
 import Money, { MoneyLike } from 'shared/util/Money';
 import * as time from 'shared/util/Time';
 
@@ -201,18 +204,27 @@ async function createDivision(
   return expenseId;
 }
 
-function setDefaults(expense: Expense): Expense {
-  expense.description = expense.description ? expense.description : null;
-  expense.confirmed =
-    expense.confirmed === undefined ? true : expense.confirmed;
-  expense.recurringExpenseId = null;
-  return expense;
+function setDefaults(
+  expense: Expense | ExpenseInput
+): ExpenseInputWithDefaults {
+  const data = {
+    ...expense,
+    description: expense.description || null,
+    confirmed: expense.confirmed ?? true,
+    recurringExpenseId: null,
+  };
+  return data;
 }
+
+export type ExpenseInsert = Omit<
+  Expense,
+  'id' | 'createdById' | 'created' | 'recurringExpenseId' | 'template'
+> & { template?: boolean; recurringExpenseId?: ObjectId | null };
 
 async function insert(
   tx: IBaseProtocol<any>,
   userId: number,
-  expense: Expense,
+  expense: ExpenseInsert,
   division: ExpenseDivisionItem[]
 ): Promise<number> {
   const expenseId = (
@@ -243,10 +255,10 @@ async function insert(
 async function update(
   tx: IBaseProtocol<any>,
   original: Expense,
-  expense: Expense,
+  expenseInput: ExpenseInput,
   defaultSourceId: number
 ): Promise<ApiMessage> {
-  expense = setDefaults(expense);
+  const expense = setDefaults(expenseInput);
   log('Updating expense', original, 'to', expense);
   const sourceId = expense.sourceId || defaultSourceId;
   const [cat, source] = await Promise.all([

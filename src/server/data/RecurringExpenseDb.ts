@@ -3,10 +3,11 @@ import { Moment } from 'moment';
 import { IBaseProtocol } from 'pg-promise';
 
 import { ApiMessage } from 'shared/types/Api';
-import { InvalidExpense } from 'shared/types/Errors';
+import { InvalidExpense, InvalidInputError } from 'shared/types/Errors';
 import {
   Expense,
   ExpenseDivisionItem,
+  ExpenseInput,
   Recurrence,
   RecurringExpenseInput,
   RecurringExpensePeriod,
@@ -16,7 +17,6 @@ import { unnest } from 'shared/util/Arrays';
 import { DateLike, fromISODate, toISODate, toMoment } from 'shared/util/Time';
 import { camelCaseObject } from 'shared/util/Util';
 
-import { Validator } from '../util/Validator';
 import { BasicExpenseDb } from './BasicExpenseDb';
 import { copyExpense } from './BasicExpenseService';
 import { CategoryDb } from './CategoryDb';
@@ -36,10 +36,9 @@ function nextRecurrence(
     case 'yearly':
       return date.add(1, 'year');
     default:
-      throw new Validator.InvalidInputError(
-        'period',
-        period,
-        'Unrecognized period type, expected monthly or yearly'
+      throw new InvalidInputError(
+        'INVALID_INPUT',
+        `Unrecognized period type ${period}`
       );
   }
 }
@@ -51,15 +50,14 @@ async function createRecurring(
   expenseId: number,
   recurrence: RecurringExpenseInput
 ): Promise<ApiMessage> {
-  log('Create', recurrence.period, 'recurring expense from', expenseId);
+  log(`Create ${recurrence.period} recurring expense from ${expenseId}`);
   let nextMissing: Moment | undefined;
   const templateId = await copyExpense(tx, groupId, userId, expenseId, e => {
     const [expense, division] = e;
     if (expense.recurringExpenseId && expense.recurringExpenseId > 0) {
-      throw new Validator.InvalidInputError(
-        'recurringExpenseId',
-        expense.recurringExpenseId,
-        'Expense is already a recurring expense'
+      throw new InvalidInputError(
+        'INVALID_INPUT',
+        `Expense ${expenseId} is already a recurring expense (${expense.recurringExpenseId})`
       );
     }
     nextMissing = nextRecurrence(expense.date, recurrence.period);
@@ -308,13 +306,13 @@ async function updateRecurringExpense(
   tx: IBaseProtocol<any>,
   target: RecurringExpenseTarget,
   original: Expense,
-  expense: Expense,
+  expenseInput: ExpenseInput,
   defaultSourceId: number
 ): Promise<ApiMessage> {
   if (!original.recurringExpenseId) {
     throw new InvalidExpense(`Invalid target ${target}`);
   }
-  expense = BasicExpenseDb.setDefaults(expense);
+  const expense = BasicExpenseDb.setDefaults(expenseInput);
   log('Updating recurring expense', original, 'to', expense);
   const sourceId = expense.sourceId || defaultSourceId;
   const [cat, source] = await Promise.all([
@@ -374,13 +372,13 @@ async function updateRecurring(
   userId: number,
   expenseId: number,
   target: RecurringExpenseTarget,
-  expense: Expense,
+  expense: ExpenseInput,
   defaultSourceId: number
 ): Promise<ApiMessage> {
-  log('Updating recurring expense', expenseId, '- targeting', target);
+  log(`Updating recurring expense ${expenseId} - targeting ${target}`);
   const org = await BasicExpenseDb.getById(tx, groupId, userId, expenseId);
   if (!org.recurringExpenseId) {
-    throw new InvalidExpense('Not a recurring expense');
+    throw new InvalidExpense(`${expenseId} is not a recurring expense`);
   }
 
   if (target === 'single') {

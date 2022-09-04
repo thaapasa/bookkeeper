@@ -1,18 +1,19 @@
 import { Big } from 'big.js';
-import { isRight } from 'fp-ts/lib/Either';
-import * as io from 'io-ts';
+import { z } from 'zod';
 // Two decimal places
 Big.DP = 2;
 // Round down (truncate)
 Big.RM = 0;
 
-export type MoneyLike = number | Big | Money | string;
+export type MoneyLike = string | number | Money | Big;
 
+const MoneyLikeRE = /^-?[0-9]+(.[0-9]+)?$/;
 export function isMoneyLike(e: unknown): e is MoneyLike {
   switch (typeof e) {
     case 'number':
-    case 'string':
       return true;
+    case 'string':
+      return MoneyLikeRE.test(e);
     case 'object':
       return (e !== null && Money.isMoney(e)) || Money.isBig(e);
     default:
@@ -209,30 +210,28 @@ export function sanitizeMoneyInput(v: string): string {
   return v?.replace(/,/, '.').replace(/ +/g, '') ?? '';
 }
 
-export const MoneyV = new io.Type<Money, MoneyLike, unknown>(
-  'Money',
-  Money.isMoney,
-  (i, ctx) => {
-    try {
-      if (!isMoneyLike(i)) {
-        return io.failure(i, ctx);
-      }
-      const v = Money.from(i);
-      return v.isValid() ? io.success(v) : io.failure(v, ctx);
-    } catch (e) {
-      return io.failure(i, ctx);
-    }
-  },
-  m => m.toString()
-);
-export type MoneyV = io.TypeOf<typeof MoneyV>;
+export const MoneyV = z
+  .any()
+  .refine(v => isMoneyLike(v))
+  .transform(v => Money.from(v))
+  .refine(v => v.isValid());
 
-export const MoneyLike = new io.Type<MoneyLike, MoneyLike, unknown>(
-  'MoneyLike',
-  isMoneyLike,
-  (i, ctx) =>
-    isMoneyLike(i) && isRight(MoneyV.decode(i))
-      ? io.success(i)
-      : io.failure(i, ctx),
-  m => (Money.isMoney(m) ? m.toString() : Money.isBig(m) ? m.toString() : m)
-);
+const BigShape = z
+  .object({
+    c: z.array(z.number()),
+    abs: z.function(),
+    cmp: z.function(),
+  })
+  .refine(v => Money.isBig(v))
+  .transform<Big>(v => v as Big);
+
+const MoneyShape = z
+  .object({ value: BigShape })
+  .refine(v => Money.isMoney(v))
+  .transform<Money>(v => v as Money);
+
+export const MoneyLike = z
+  .union([z.string(), z.number(), MoneyShape, BigShape])
+  .refine(t => isMoneyLike(t) && MoneyV.safeParse(t).success, {
+    message: 'String does not encode a proper monetary amount',
+  });

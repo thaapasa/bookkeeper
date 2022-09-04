@@ -1,5 +1,5 @@
-import * as io from 'io-ts';
 import { Moment } from 'moment';
+import { z } from 'zod';
 
 import {
   compareDates,
@@ -12,11 +12,11 @@ import {
 } from './Time';
 import { leftPad } from './Util';
 
-export const DateRange = io.type({
+export const DateRange = z.object({
   startDate: ISODate,
   endDate: ISODate,
 });
-export type DateRange = io.TypeOf<typeof DateRange>;
+export type DateRange = z.infer<typeof DateRange>;
 
 export interface UIDateRange {
   start: Date;

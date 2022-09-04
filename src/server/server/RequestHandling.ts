@@ -1,6 +1,7 @@
 import debug from 'debug';
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Request, RequestHandler, Response } from 'express';
 import { ITask } from 'pg-promise';
+import { z } from 'zod';
 
 import { InvalidGroupError } from 'shared/types/Errors';
 import { SessionBasicInfo } from 'shared/types/Session';
@@ -10,6 +11,7 @@ import { SessionDb } from 'server/data/SessionDb';
 
 import { db } from '../data/Db';
 import { ServerUtil } from './ServerUtil';
+import { validateOr } from './Validation';
 
 const log = debug('bookkeeper:server');
 
@@ -19,7 +21,7 @@ const requestDelayMs = process.env.DELAY
 
 function processUnauthorizedRequest<T>(
   handler: (req: Request, res: Response) => Promise<T>
-) {
+): RequestHandler {
   return async (
     req: Request,
     res: Response,
@@ -42,7 +44,7 @@ function processUnauthorizedRequest<T>(
 
 function processUnauthorizedTxRequest<T>(
   handler: (tx: ITask<any>, req: Request, res: Response) => Promise<T>
-) {
+): RequestHandler {
   return processUnauthorizedRequest((req, res) =>
     db.tx(tx => handler(tx, req, res))
   );
@@ -55,7 +57,7 @@ function processRequest<T>(
     res: Response
   ) => Promise<T>,
   groupRequired?: boolean
-) {
+): RequestHandler {
   return processUnauthorizedRequest(async (req, res) => {
     const token = ServerUtil.getToken(req);
     const session = await db.tx(tx =>
@@ -76,9 +78,65 @@ function processTxRequest<T>(
     res: Response
   ) => Promise<T>,
   groupRequired?: boolean
-) {
+): RequestHandler {
   return processRequest(
     (session, req, res) => db.tx(tx => handler(tx, session, req, res)),
+    groupRequired
+  );
+}
+
+type ValidatorSpec<R, P, Q, B> = {
+  params?: z.ZodType<P, any, any>;
+  query?: z.ZodType<Q, any, any>;
+  body?: z.ZodType<B, any, any>;
+  response?: z.ZodType<R, any, any>;
+};
+
+type HandlerParams<P, Q, B> = {
+  params: P;
+  query: Q;
+  body: B;
+};
+
+function processValidatedRequest<Return, P, Q, B>(
+  spec: ValidatorSpec<Return, P, Q, B>,
+  handler: (
+    session: SessionBasicInfo,
+    data: HandlerParams<P, Q, B>,
+    req: Request,
+    res: Response
+  ) => Promise<Return>,
+  groupRequired?: boolean
+): RequestHandler {
+  return processRequest(async (session, req, res) => {
+    const ctx = `${req.method} ${req.originalUrl}`;
+    const params = validateOr(
+      req.params,
+      spec.params,
+      {} as P,
+      `${ctx} params`
+    );
+    const body = validateOr(req.body, spec.body, {} as B, `${ctx} body`);
+    const query = validateOr(req.query, spec.query, {} as Q, `${ctx} query`);
+    const response = await handler(session, { params, query, body }, req, res);
+    return validateOr(response, spec.response, response, `${ctx} return value`);
+  }, groupRequired);
+}
+
+function processValidatedTxRequest<Return, P, Q, B>(
+  spec: ValidatorSpec<Return, P, Q, B>,
+  handler: (
+    tx: ITask<any>,
+    session: SessionBasicInfo,
+    data: HandlerParams<P, Q, B>,
+    req: Request,
+    res: Response
+  ) => Promise<Return>,
+  groupRequired?: boolean
+): RequestHandler {
+  return processValidatedRequest(
+    spec,
+    (...p) => db.tx(tx => handler(tx, ...p)),
     groupRequired
   );
 }
@@ -88,4 +146,6 @@ export const Requests = {
   unauthorizedTxRequest: processUnauthorizedTxRequest,
   request: processRequest,
   txRequest: processTxRequest,
+  validatedRequest: processValidatedRequest,
+  validatedTxRequest: processValidatedTxRequest,
 };

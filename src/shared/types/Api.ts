@@ -1,30 +1,36 @@
-export interface ApiStatus {
-  readonly status: string;
-  readonly timestamp: string;
-  readonly version: string;
-  readonly commitId: string;
-  readonly revision: string;
-  readonly environment: string;
-}
+import { z } from 'zod';
 
-export interface ApiMessage {
+import { ObjectId } from './Id';
+
+export type ApiStatus = Readonly<{
   status: string;
-  message: string;
-  userId?: number;
-  expenseId?: number;
-  templateExpenseId?: number;
-  recurringExpenseId?: number;
-  categoryId?: number;
-}
+  timestamp: string;
+  version: string;
+  commitId: string;
+  revision: string;
+  environment: string;
+}>;
+
+export const ApiMessage = z.object({
+  status: z.string(),
+  message: z.string(),
+  userId: ObjectId.optional(),
+  expenseId: ObjectId.optional(),
+  templateExpenseId: ObjectId.optional(),
+  recurringExpenseId: ObjectId.optional(),
+  categoryId: ObjectId.optional(),
+});
+
+export type ApiMessage = z.infer<typeof ApiMessage>;
 
 export function isApiMessage(e: any): e is ApiMessage {
-  return typeof e === 'object' && e.status && e.message;
+  return typeof e === 'object' && e && e.status && e.message;
 }
 
 export function isApiMessageWithExpenseId(
   e: any
 ): e is ApiMessage & { expenseId: number } {
-  return typeof e === 'object' && e.status && e.message && e.expenseId;
+  return typeof e === 'object' && e && e.status && e.message && e.expenseId;
 }
 
 export function isApiMessageWithRecurringExpenseId(

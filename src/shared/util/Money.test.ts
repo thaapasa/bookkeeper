@@ -2,7 +2,9 @@ import 'jest';
 
 import { Big } from 'big.js';
 
-import Money from './Money';
+import { validate } from 'server/server/Validation';
+
+import Money, { MoneyLike } from './Money';
 
 describe('Money', () => {
   it('should be created from valid strings', () => {
@@ -43,4 +45,17 @@ describe('Money', () => {
     expect(new Money('2').divide(3).toString()).toEqual('0.66');
     expect(new Money('2').divide(3).toString(3)).toEqual('0.660');
   });
+
+  it.each([[25], ['25'], [26.44], ['0'], ['0.00']])(
+    'validates %s as MoneyLike',
+    val => expect(validate(val, MoneyLike, 'tests')).toEqual(val)
+  );
+
+  it.each([['25.00 €'], ['foo'], ['12e'], ['263,45 €']])(
+    'does not accept %s as MoneyLike',
+    val =>
+      expect(() => validate(val, MoneyLike, 'tests')).toThrowError(
+        new Error('Data format is invalid at tests')
+      )
+  );
 });

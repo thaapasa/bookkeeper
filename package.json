@@ -19,6 +19,7 @@
     "update-revision": "bash script/update-revision.sh",
     "update-revisions": "yarn update-revision server && yarn update-revision client",
     "lint": "yarn lint-es",
+    "lint-all": "yarn lint-es && yarn lint-tsc",
     "lint-es": "eslint \"src/**/*.ts\" \"src/**/*.tsx\"",
     "lint-tsc": "tsc --noEmit",
     "deploy": "sh script/deploy.sh",
@@ -51,9 +52,7 @@
     "debug": "4.3.4",
     "dotenv": "16.0.1",
     "express": "4.18.1",
-    "fp-ts": "2.12.1",
     "history": "5.3.0",
-    "io-ts": "2.2.16",
     "moment": "2.29.4",
     "node-fetch": "2.6.7",
     "path": "0.12.7",
@@ -66,7 +65,8 @@
     "recharts": "^2.1.13",
     "styled-components": "^5.3.5",
     "tsconfig-paths": "4.0.0",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "zod": "^3.18.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.4",

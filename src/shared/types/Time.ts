@@ -1,9 +1,9 @@
-import * as io from 'io-ts';
+import { z } from 'zod';
 
-import { intStringBetween } from './Validator';
+import { IntString } from './Validator';
 
-export const YearMonth = io.type({
-  year: intStringBetween(1500, 3000),
-  month: intStringBetween(1, 12),
+export const YearMonth = z.object({
+  year: IntString.refine(r => r >= 1500 && r <= 3000),
+  month: IntString.refine(r => r >= 1 && r <= 12),
 });
-export type YearMonth = io.TypeOf<typeof YearMonth>;
+export type YearMonth = z.infer<typeof YearMonth>;
