@@ -85,44 +85,44 @@ function processTxRequest<T>(
   );
 }
 
-type ValidatorSpec<P, Q, B> = {
+type ValidatorSpec<R, P, Q, B> = {
   params?: z.ZodType<P, any, any>;
   query?: z.ZodType<Q, any, any>;
   body?: z.ZodType<B, any, any>;
+  response?: z.ZodType<R, any, any>;
+};
+
+type HandlerParams<P, Q, B> = {
+  params: P;
+  query: Q;
+  body: B;
 };
 
 function processValidatedRequest<Return, P, Q, B>(
-  spec: ValidatorSpec<P, Q, B>,
+  spec: ValidatorSpec<Return, P, Q, B>,
   handler: (
     session: SessionBasicInfo,
-    data: {
-      params: P;
-      query: Q;
-      body: B;
-    },
+    data: HandlerParams<P, Q, B>,
     req: Request,
     res: Response
   ) => Promise<Return>,
   groupRequired?: boolean
 ): RequestHandler {
-  return processRequest((session, req, res) => {
+  return processRequest(async (session, req, res) => {
     const params = validateOr(req.params, spec.params, {} as P);
     const body = validateOr(req.body, spec.body, {} as B);
     const query = validateOr(req.query, spec.query, {} as Q);
-    return handler(session, { params, query, body }, req, res);
+    const response = await handler(session, { params, query, body }, req, res);
+    return validateOr(response, spec.response, response);
   }, groupRequired);
 }
 
 function processValidatedTxRequest<Return, P, Q, B>(
-  spec: ValidatorSpec<P, Q, B>,
+  spec: ValidatorSpec<Return, P, Q, B>,
   handler: (
     tx: ITask<any>,
     session: SessionBasicInfo,
-    data: {
-      params: P;
-      query: Q;
-      body: B;
-    },
+    data: HandlerParams<P, Q, B>,
     req: Request,
     res: Response
   ) => Promise<Return>,

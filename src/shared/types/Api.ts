@@ -1,3 +1,7 @@
+import { z } from 'zod';
+
+import { ObjectId } from './Id';
+
 export type ApiStatus = Readonly<{
   status: string;
   timestamp: string;
@@ -7,15 +11,17 @@ export type ApiStatus = Readonly<{
   environment: string;
 }>;
 
-export type ApiMessage = Readonly<{
-  status: string;
-  message: string;
-  userId?: number;
-  expenseId?: number;
-  templateExpenseId?: number;
-  recurringExpenseId?: number;
-  categoryId?: number;
-}>;
+export const ApiMessage = z.object({
+  status: z.string(),
+  message: z.string(),
+  userId: ObjectId.optional(),
+  expenseId: ObjectId.optional(),
+  templateExpenseId: ObjectId.optional(),
+  recurringExpenseId: ObjectId.optional(),
+  categoryId: ObjectId.optional(),
+});
+
+export type ApiMessage = z.infer<typeof ApiMessage>;
 
 export function isApiMessage(e: any): e is ApiMessage {
   return typeof e === 'object' && e && e.status && e.message;

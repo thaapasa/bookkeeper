@@ -30,8 +30,8 @@ export function createCategoryApi() {
   api.put(
     '/',
     Requests.validatedTxRequest(
-      { body: CategoryInput },
-      async (tx, session, { body }): Promise<ApiMessage> => {
+      { body: CategoryInput, response: ApiMessage },
+      async (tx, session, { body }) => {
         const id = await CategoryDb.create(tx, session.group.id, body);
         return { status: 'OK', message: 'Category created', categoryId: id };
       },
@@ -77,8 +77,8 @@ export function createCategoryApi() {
   api.delete(
     '/:id',
     Requests.validatedTxRequest(
-      { params: IdType },
-      (tx, session, { params }): Promise<ApiMessage> =>
+      { params: IdType, response: ApiMessage },
+      (tx, session, { params }) =>
         CategoryDb.remove(tx, session.group.id, params.id),
       true
     )
