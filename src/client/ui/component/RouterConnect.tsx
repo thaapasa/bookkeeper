@@ -2,12 +2,14 @@ import * as B from 'baconjs';
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
 
-export function connectRouter<TRouteProps>(bus: B.Bus<TRouteProps>) {
+export function connectRouter<
+  RouteProps extends { [K in keyof RouteProps]?: string }
+>(bus: B.Bus<RouteProps>) {
   return (
     payload: React.ComponentType
-  ): React.ComponentClass<RouteComponentProps<TRouteProps>> => {
+  ): React.ComponentClass<RouteComponentProps<RouteProps>> => {
     return class RouteComponent extends React.Component<
-      RouteComponentProps<TRouteProps>
+      RouteComponentProps<RouteProps>
     > {
       public componentDidMount() {
         bus.push(this.props.match.params);

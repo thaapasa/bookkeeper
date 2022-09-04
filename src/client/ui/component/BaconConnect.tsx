@@ -1,59 +1,39 @@
 import * as B from 'baconjs';
 import * as React from 'react';
 
-import { Action } from 'shared/types/Common';
 import { Omit } from 'shared/util/Objects';
-import { unsubscribeAll } from 'client/util/ClientUtil';
 
 // InferableComponentEnhancerWithProps taken from react-redux 5.0.8
-type InferableComponentEnhancerWithProps<TInjectedProps, TNeedsProps> = <
-  P extends TInjectedProps
+type InferableComponentEnhancerWithProps<InjectedProps, NeedsProps> = <
+  P extends InjectedProps
 >(
   component: React.ComponentType<P>
-) => React.ComponentClass<Omit<P, keyof TInjectedProps> & TNeedsProps>;
+) => React.ComponentType<Omit<P, keyof InjectedProps> & NeedsProps>;
 
-export function connect<TBaconProps, TNeedsProps>(
-  source: B.Observable<TBaconProps>
-): InferableComponentEnhancerWithProps<TBaconProps, TNeedsProps> {
-  return <P extends TBaconProps>(
+export function connect<BaconProps, NeedsProps>(
+  source: B.Observable<BaconProps>
+): InferableComponentEnhancerWithProps<BaconProps, NeedsProps> {
+  return <P extends BaconProps>(
     component: React.ComponentType<P>
-  ): React.ComponentClass<Omit<P, keyof TBaconProps> & TNeedsProps> => {
-    return class ConnectedComponent extends React.Component<
-      React.PropsWithChildren<Omit<P, keyof TBaconProps> & TNeedsProps>,
-      TBaconProps & { hasReceivedProps: boolean }
-    > {
-      public state: Readonly<TBaconProps & { hasReceivedProps: boolean }> = {
-        hasReceivedProps: false,
-      } as any;
-      private unsub: Action[] = [];
-      private mounted = false;
+  ): React.ComponentType<Omit<P, keyof BaconProps> & NeedsProps> => {
+    const WrappedComponent: React.FC<
+      React.PropsWithChildren<Omit<P, keyof BaconProps> & NeedsProps>
+    > = ({ children, ...props }) => {
+      const [state, setState] = React.useState<
+        { data: BaconProps } | undefined
+      >();
+      React.useEffect(
+        () => source.onValue(data => setState({ data })),
+        [setState]
+      );
 
-      public componentDidMount() {
-        this.mounted = true;
-        this.unsub.push(source.onValue(this.setData));
-      }
-
-      public componentWillUnmount() {
-        this.mounted = false;
-        unsubscribeAll(this.unsub);
-      }
-
-      private setData = (data: TBaconProps) => {
-        if (!this.mounted) {
-          return;
-        }
-        this.setState({ ...(data as any), hasReceivedProps: true });
-      };
-
-      public render() {
-        return this.state.hasReceivedProps
-          ? React.createElement(
-              component,
-              { ...(this.state as any), ...(this.props as any) } as any,
-              this.props.children
-            )
-          : null;
-      }
+      const Component = component as any;
+      return state ? (
+        <Component {...state.data} {...props}>
+          {children}
+        </Component>
+      ) : null;
     };
+    return WrappedComponent;
   };
 }
