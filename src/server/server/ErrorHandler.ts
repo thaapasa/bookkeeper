@@ -5,7 +5,7 @@ import { config } from 'server/Config';
 
 const log = debug('bookkeeper:api:error');
 
-const logUserErrors = true;
+const logUserErrors = false;
 
 function isUserError(status: number) {
   return status >= 400 && status < 500;

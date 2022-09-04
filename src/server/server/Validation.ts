@@ -1,12 +1,12 @@
-import { ZodError, ZodType } from 'zod';
+import { z, ZodError } from 'zod';
 
 import { BkError } from 'shared/types/Errors';
 
-export function validate<T>(
+export function validate<T extends z.ZodTypeAny>(
   data: unknown,
-  codec: ZodType<T>,
+  codec: T,
   context: string
-): T {
+): z.output<T> {
   try {
     return codec.parse(data);
   } catch (e) {
@@ -16,12 +16,12 @@ export function validate<T>(
   }
 }
 
-export function validateOr<T>(
+export function validateOr<T extends z.ZodTypeAny>(
   data: unknown,
-  codec: ZodType<T> | undefined,
-  def: T,
+  codec: T | undefined,
+  def: z.output<T>,
   context: string
-): T {
+): z.output<T> {
   return codec ? validate(data, codec, context) : def;
 }
 

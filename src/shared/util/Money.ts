@@ -7,11 +7,13 @@ Big.RM = 0;
 
 export type MoneyLike = string | number | Money | Big;
 
+const MoneyLikeRE = /^-?[0-9]+(.[0-9]+)?$/;
 export function isMoneyLike(e: unknown): e is MoneyLike {
   switch (typeof e) {
     case 'number':
-    case 'string':
       return true;
+    case 'string':
+      return MoneyLikeRE.test(e);
     case 'object':
       return (e !== null && Money.isMoney(e)) || Money.isBig(e);
     default:
@@ -210,7 +212,7 @@ export function sanitizeMoneyInput(v: string): string {
 
 export const MoneyV = z
   .any()
-  .refine(isMoneyLike)
+  .refine(v => isMoneyLike(v))
   .transform(v => Money.from(v))
   .refine(v => v.isValid());
 
