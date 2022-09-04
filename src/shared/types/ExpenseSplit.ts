@@ -2,12 +2,14 @@ import { z } from 'zod';
 
 import { MoneyLike } from 'shared/util/Money';
 
+import { ShortString } from './Common';
 import { ExpenseDivision } from './Expense';
+import { ObjectId } from './Id';
 
 export const ExpenseSplit = z.object({
-  categoryId: z.number(),
-  sourceId: z.number(),
-  title: z.string(),
+  categoryId: ObjectId,
+  sourceId: ObjectId,
+  title: ShortString,
   sum: MoneyLike,
   division: ExpenseDivision,
 });

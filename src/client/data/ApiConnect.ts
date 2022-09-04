@@ -213,7 +213,9 @@ export class ApiConnect {
     id: number | string,
     splits: ExpenseSplit[]
   ): Promise<ApiMessage> {
-    return this.post<ApiMessage>(uri`/api/expense/${id}/split`, { splits });
+    return this.post<ApiMessage>(uri`/api/expense/${id}/split`, {
+      splits: splits.map(s => ({ ...s, sum: Money.from(s.sum).toString() })),
+    });
   }
 
   public updateExpense(
