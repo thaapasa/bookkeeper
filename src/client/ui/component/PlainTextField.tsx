@@ -3,35 +3,25 @@ import * as React from 'react';
 
 import { AutoComplete, AutoCompleteProps } from './AutoComplete';
 
-export class PlainTextField extends React.Component<TextFieldProps> {
-  public render() {
-    return (
-      <TextField
-        {...this.props}
-        variant="standard"
-        style={{ ...this.props.style, margin: 0, padding: 0 }}
-        InputProps={{
-          style: {
-            margin: 0,
-            padding: 0,
-            fontSize: '11pt',
-          },
-        }}
-      />
-    );
-  }
-}
+export const PlainTextField: React.FC<TextFieldProps> = props => (
+  <TextField
+    {...props}
+    variant="standard"
+    style={{ ...props.style, margin: 0, padding: 0 }}
+    InputProps={{
+      style: {
+        margin: 0,
+        padding: 0,
+        fontSize: '11pt',
+      },
+    }}
+  />
+);
 
-export class PlainAutoComplete<T> extends React.Component<
-  AutoCompleteProps<T>
-> {
-  public render() {
-    return (
-      <AutoComplete
-        {...this.props}
-        label=""
-        style={{ ...this.props.style, margin: 0, padding: 0, fontSize: '11pt' }}
-      />
-    );
-  }
-}
+export const PlainAutoComplete: React.FC<AutoCompleteProps<any>> = props => (
+  <AutoComplete
+    {...props}
+    label=""
+    style={{ ...props.style, margin: 0, padding: 0, fontSize: '11pt' }}
+  />
+);

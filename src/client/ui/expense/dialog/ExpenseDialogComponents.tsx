@@ -20,16 +20,18 @@ import { TextEdit } from 'client/ui/component/TextEdit';
 import { Add, ExpenseTypeIcon } from 'client/ui/Icons';
 import { VCenterRow } from 'client/ui/Styles';
 
-export function SumField(props: {
+export const SumField: React.FC<{
   value: string;
   errorText?: string;
   onChange: (s: string) => void;
-}) {
+}> = ({ value, onChange, errorText }) => {
   const addToSum = () => {
     const sum = window.prompt('Syötä summaan lisättävä määrä:');
     if (sum) {
-      props.onChange(
-        new Money(props.value || '0').plus(sanitizeMoneyInput(sum)).toString()
+      onChange(
+        new Money(sanitizeMoneyInput(value || '0'))
+          .plus(sanitizeMoneyInput(sum))
+          .toString()
       );
     }
   };
@@ -40,10 +42,10 @@ export function SumField(props: {
         label="Summa"
         name="sum"
         InputLabelProps={{ shrink: true }}
-        value={props.value}
-        helperText={props.errorText || ' '}
-        error={Boolean(props.errorText)}
-        onChange={props.onChange}
+        value={value}
+        helperText={errorText || ' '}
+        error={Boolean(errorText)}
+        onChange={onChange}
         type="text"
         autoFocus
         autoComplete="false"
@@ -51,29 +53,29 @@ export function SumField(props: {
       <Add onClick={addToSum} />
     </SumArea>
   );
-}
+};
 
-export function SourceSelector(props: {
+export const SourceSelector: React.FC<{
   value: number;
   onChange: (id: number) => void;
   sources: Source[];
   style?: React.CSSProperties;
   title: string;
-}) {
+}> = ({ title, value, style, onChange, sources }) => {
   const id = 'expense-dialog-source';
   return (
     <FormControl fullWidth={true} variant="standard">
       <InputLabel htmlFor={id} shrink={true}>
-        {props.title}
+        {title}
       </InputLabel>
       <Select
         labelId={id}
-        value={props.value}
-        style={props.style}
-        label={props.title}
-        onChange={e => props.onChange(Number(e.target.value))}
+        value={value}
+        style={style}
+        label={title}
+        onChange={e => onChange(Number(e.target.value))}
       >
-        {props.sources.map(s => (
+        {sources.map(s => (
           <MenuItem key={s.id} value={s.id}>
             {s.name}
           </MenuItem>
@@ -81,7 +83,7 @@ export function SourceSelector(props: {
       </Select>
     </FormControl>
   );
-}
+};
 
 export const TypeSelector: React.FC<{
   value: ExpenseType;
@@ -105,25 +107,23 @@ export const TypeSelector: React.FC<{
   );
 };
 
-export function DescriptionField(props: {
+export const DescriptionField: React.FC<{
   value: string;
   errorText?: string;
   onChange: (s: string) => void;
-}) {
-  return (
-    <TextEdit
-      multiline={true}
-      placeholder="Tarkempi selite"
-      label="Selite"
-      InputLabelProps={{ shrink: true }}
-      fullWidth={true}
-      helperText={props.errorText}
-      error={Boolean(props.errorText)}
-      value={props.value}
-      onChange={props.onChange}
-    />
-  );
-}
+}> = ({ value, errorText, onChange }) => (
+  <TextEdit
+    multiline={true}
+    placeholder="Tarkempi selite"
+    label="Selite"
+    InputLabelProps={{ shrink: true }}
+    fullWidth={true}
+    helperText={errorText}
+    error={Boolean(errorText)}
+    value={value}
+    onChange={onChange}
+  />
+);
 
 const SumArea = styled.div`
   display: inline-flex;
