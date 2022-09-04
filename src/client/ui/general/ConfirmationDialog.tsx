@@ -48,6 +48,7 @@ class ConfirmationDialog<T> extends React.Component<
   };
 
   public render() {
+    const actions = this.props.confirmation.actions.reverse();
     return (
       <Dialog
         title={this.props.confirmation.title}
@@ -59,10 +60,11 @@ class ConfirmationDialog<T> extends React.Component<
           {this.props.confirmation.content}
         </DialogContent>
         <DialogActions>
-          {this.props.confirmation.actions.map((a, i) => (
+          {actions.map((a, i) => (
             <Button
               key={i}
-              color={i === 0 ? 'primary' : 'inherit'}
+              color={'primary'}
+              variant={i !== 0 ? 'contained' : 'text'}
               tabIndex={i + 2}
               onKeyUp={this.handleKeyPress}
               onClick={() => this.resolveWith(a.value)}

@@ -572,6 +572,7 @@ export class ExpenseDialog extends React.Component<
               <TodayButton
                 title="Tänään"
                 variant="contained"
+                color="secondary"
                 startIcon={<Today />}
                 onClick={this.setToday}
               >
@@ -593,7 +594,7 @@ export class ExpenseDialog extends React.Component<
           </Button>
           <Button
             key="save"
-            variant="text"
+            variant="contained"
             color="primary"
             disabled={!this.state.valid}
             onClick={this.requestSave}
