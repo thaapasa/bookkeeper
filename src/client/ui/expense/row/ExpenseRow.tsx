@@ -186,7 +186,7 @@ export class ExpenseRow extends React.Component<
       }
       await apiConnect.deleteExpense(e.id);
       notify(`Poistettu kirjaus ${name}`);
-      await updateExpenses(toDate(e.date));
+      updateExpenses(toDate(e.date));
     } catch (err) {
       notifyError(`Virhe poistettaessa kirjausta ${expenseName(e)}`, err);
     }

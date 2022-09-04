@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import { UserExpense } from 'shared/types/Expense';
+import { ObjectId } from 'shared/types/Id';
 import { Category, CategoryAndTotals } from 'shared/types/Session';
 import Money, { MoneyLike } from 'shared/util/Money';
 import { toISODate } from 'shared/util/Time';
@@ -8,10 +9,12 @@ import { UIDateRange } from 'shared/util/TimeRange';
 import { noop } from 'shared/util/Util';
 import apiConnect from 'client/data/ApiConnect';
 import { UserDataProps } from 'client/data/Categories';
+import { needUpdateE } from 'client/data/State';
 
 import * as colors from '../Colors';
 import ExpenseRow from '../expense/row/ExpenseRow';
 import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
+import { useDeferredData } from '../utils/useAsyncData';
 import {
   AllColumns,
   NameColumn,
@@ -56,45 +59,8 @@ export default class CategoryRow extends React.Component<
     open: false,
   };
 
-  private reload = () => {
-    if (this.state.open) {
-      this.open();
-    }
-  };
-
-  private renderCategoryExpenses = (expenses: UserExpense[]) => {
-    if (this.state.isLoading) {
-      return <AllColumns>Ladataan...</AllColumns>;
-    }
-    if (!expenses || expenses.length < 1) {
-      return <AllColumns>Ei kirjauksia</AllColumns>;
-    }
-    return (
-      <ExpenseTableLayout className="padding">
-        <tbody>
-          {expenses.map(expense => (
-            <ExpenseRow
-              expense={expense}
-              userData={this.props.userData}
-              key={'expense-row-' + expense.id}
-              addFilter={noop}
-              onUpdated={this.reload}
-            />
-          ))}
-        </tbody>
-      </ExpenseTableLayout>
-    );
-  };
-
   private open = async () => {
-    this.setState({ open: true, isLoading: true });
-    const expenses = await apiConnect.searchExpenses({
-      startDate: toISODate(this.props.range.start),
-      endDate: toISODate(this.props.range.end),
-      categoryId: this.props.category.id,
-      includeSubCategories: false,
-    });
-    this.setState({ isLoading: false, expenses });
+    this.setState({ open: true });
   };
 
   private close = () => {
@@ -162,9 +128,64 @@ export default class CategoryRow extends React.Component<
           {this.renderTools()}
         </Row>
         {this.state.open ? (
-          <Row>{this.renderCategoryExpenses(this.state.expenses)}</Row>
+          <Row>
+            <CategoryRowExpenses
+              range={this.props.range}
+              category={this.props.category}
+              userData={this.props.userData}
+            />
+          </Row>
         ) : null}
       </React.Fragment>
     );
   }
+}
+
+/**
+ * Renders the category expense list when opening the category expander
+ */
+const CategoryRowExpenses: React.FC<{
+  range: UIDateRange;
+  category: Category;
+  userData: UserDataProps;
+}> = ({ range, category, userData }) => {
+  const { data, loadData } = useDeferredData(
+    searchExpenses,
+    true,
+    range,
+    category.id
+  );
+  React.useEffect(loadData, [loadData]);
+  React.useEffect(() => needUpdateE.onValue(loadData), [loadData]);
+
+  if (data.type !== 'loaded') {
+    return <AllColumns>Ladataan...</AllColumns>;
+  }
+  if (!data.value || data.value.length < 1) {
+    return <AllColumns>Ei kirjauksia</AllColumns>;
+  }
+  return (
+    <ExpenseTableLayout className="padding">
+      <tbody>
+        {data.value.map(expense => (
+          <ExpenseRow
+            expense={expense}
+            userData={userData}
+            key={'expense-row-' + expense.id}
+            addFilter={noop}
+            onUpdated={loadData}
+          />
+        ))}
+      </tbody>
+    </ExpenseTableLayout>
+  );
+};
+
+function searchExpenses(range: UIDateRange, categoryId: ObjectId) {
+  return apiConnect.searchExpenses({
+    startDate: toISODate(range.start),
+    endDate: toISODate(range.end),
+    categoryId,
+    includeSubCategories: false,
+  });
 }
