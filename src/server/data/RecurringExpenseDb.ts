@@ -3,7 +3,7 @@ import { Moment } from 'moment';
 import { IBaseProtocol } from 'pg-promise';
 
 import { ApiMessage } from 'shared/types/Api';
-import { InvalidExpense } from 'shared/types/Errors';
+import { InvalidExpense, InvalidInputError } from 'shared/types/Errors';
 import {
   Expense,
   ExpenseDivisionItem,
@@ -17,7 +17,6 @@ import { unnest } from 'shared/util/Arrays';
 import { DateLike, fromISODate, toISODate, toMoment } from 'shared/util/Time';
 import { camelCaseObject } from 'shared/util/Util';
 
-import { Validator } from '../util/Validator';
 import { BasicExpenseDb } from './BasicExpenseDb';
 import { copyExpense } from './BasicExpenseService';
 import { CategoryDb } from './CategoryDb';
@@ -37,10 +36,9 @@ function nextRecurrence(
     case 'yearly':
       return date.add(1, 'year');
     default:
-      throw new Validator.InvalidInputError(
-        'period',
-        period,
-        'Unrecognized period type, expected monthly or yearly'
+      throw new InvalidInputError(
+        'INVALID_INPUT',
+        `Unrecognized period type ${period}`
       );
   }
 }
@@ -57,10 +55,9 @@ async function createRecurring(
   const templateId = await copyExpense(tx, groupId, userId, expenseId, e => {
     const [expense, division] = e;
     if (expense.recurringExpenseId && expense.recurringExpenseId > 0) {
-      throw new Validator.InvalidInputError(
-        'recurringExpenseId',
-        expense.recurringExpenseId,
-        'Expense is already a recurring expense'
+      throw new InvalidInputError(
+        'INVALID_INPUT',
+        `Expense ${expenseId} is already a recurring expense (${expense.recurringExpenseId})`
       );
     }
     nextMissing = nextRecurrence(expense.date, recurrence.period);

@@ -1,3 +1,4 @@
+import { InvalidInputError } from 'shared/types/Errors';
 import {
   ExpenseDivisionItem,
   ExpenseDivisionType,
@@ -6,8 +7,6 @@ import {
 import { Source } from 'shared/types/Session';
 import Money, { MoneyLike } from 'shared/util/Money';
 import { negateDivision, splitByShares } from 'shared/util/Splitter';
-
-import { Validator } from '../util/Validator';
 
 interface ExpenseDivisionItemNoType {
   userId: number;
@@ -28,10 +27,9 @@ function validateDivision(
 ) {
   const calculated = items.reduce((a, b) => a.plus(b.sum), Money.zero);
   if (!Money.from(sum).equals(calculated)) {
-    throw new Validator.InvalidInputError(
-      field,
-      calculated,
-      `Division sum must match expense sum ${sum.toString()}, is ${calculated.toString()}`
+    throw new InvalidInputError(
+      'INVALID_INPUT',
+      `${field} Division sum must match expense sum ${sum.toString()}, is ${calculated.toString()}`
     );
   }
   return items;
@@ -110,10 +108,9 @@ export function determineDivision(
       .map(addType('transferor'))
       .concat(transferee.map(addType('transferee')));
   } else {
-    throw new Validator.InvalidInputError(
-      'type',
-      expense.type,
-      'Unrecognized expense type; expected expense, income, or transfer'
+    throw new InvalidInputError(
+      'INVALID_INPUT',
+      `Unrecognized expense ${expense.type}`
     );
   }
 }
