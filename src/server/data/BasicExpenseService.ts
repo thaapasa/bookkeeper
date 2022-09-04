@@ -1,5 +1,5 @@
 import debug from 'debug';
-import { IBaseProtocol } from 'pg-promise';
+import { ITask } from 'pg-promise';
 
 import { ApiMessage } from 'shared/types/Api';
 import {
@@ -18,7 +18,7 @@ import { UserDb } from './UserDb';
 const log = debug('bookkeeper:api:expenses');
 
 export async function createExpense(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   userId: number,
   groupId: number,
   expenseInput: ExpenseInput,
@@ -51,7 +51,7 @@ export async function createExpense(
 }
 
 export async function updateExpenseById(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   groupId: number,
   userId: number,
   expenseId: number,
@@ -63,7 +63,7 @@ export async function updateExpenseById(
 }
 
 export async function copyExpense(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   groupId: number,
   userId: number,
   expenseId: number,
@@ -82,7 +82,7 @@ export async function copyExpense(
 }
 
 export async function getExpenseAndDivision(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   groupId: ObjectId,
   userId: ObjectId,
   expenseId: ObjectId

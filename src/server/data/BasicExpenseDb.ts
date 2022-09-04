@@ -1,6 +1,6 @@
 import debug from 'debug';
 import { Moment } from 'moment';
-import { IBaseProtocol } from 'pg-promise';
+import { ITask } from 'pg-promise';
 
 import { ApiMessage } from 'shared/types/Api';
 import { NotFoundError } from 'shared/types/Errors';
@@ -84,7 +84,7 @@ function mapExpense(e: UserExpense): UserExpense {
 }
 
 async function getAll(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   groupId: number,
   userId: number
 ): Promise<Expense[]> {
@@ -97,7 +97,7 @@ async function getAll(
 }
 
 async function countTotalBetween(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   groupId: number,
   userId: number,
   startDate: string | Moment,
@@ -112,7 +112,7 @@ async function countTotalBetween(
 }
 
 async function hasUnconfirmedBefore(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   groupId: number,
   startDate: time.DateLike
 ): Promise<boolean> {
@@ -126,7 +126,7 @@ async function hasUnconfirmedBefore(
 }
 
 async function getById(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   groupId: number,
   userId: number,
   expenseId: number
@@ -143,7 +143,7 @@ async function getById(
 }
 
 async function deleteById(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   groupId: number,
   expenseId: number
 ): Promise<ApiMessage> {
@@ -155,7 +155,7 @@ async function deleteById(
 }
 
 const storeDivision = (
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   expenseId: number,
   userId: number,
   type: ExpenseDivisionType,
@@ -169,10 +169,7 @@ const storeDivision = (
     { expenseId, userId, type, sum: Money.toString(sum) }
   );
 
-const deleteDivision = (
-  tx: IBaseProtocol<any>,
-  expenseId: number
-): Promise<null> =>
+const deleteDivision = (tx: ITask<any>, expenseId: number): Promise<null> =>
   tx.none(
     `DELETE FROM expense_division
       WHERE expense_id=$/expenseId/::INTEGER`,
@@ -180,7 +177,7 @@ const deleteDivision = (
   );
 
 async function getDivision(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   expenseId: number
 ): Promise<ExpenseDivisionItem[]> {
   const items = await tx.manyOrNone<ExpenseDivisionItem>(
@@ -194,7 +191,7 @@ async function getDivision(
 }
 
 async function createDivision(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   expenseId: number,
   division: ExpenseDivisionItem[]
 ) {
@@ -222,7 +219,7 @@ export type ExpenseInsert = Omit<
 > & { template?: boolean; recurringExpenseId?: ObjectId | null };
 
 async function insert(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   userId: number,
   expense: ExpenseInsert,
   division: ExpenseDivisionItem[]
@@ -253,7 +250,7 @@ async function insert(
 }
 
 async function update(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   original: Expense,
   expenseInput: ExpenseInput,
   defaultSourceId: number
@@ -291,7 +288,7 @@ interface ReceiverInfo {
 }
 
 function queryReceivers(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   groupId: number,
   receiver: string
 ): Promise<ReceiverInfo[]> {
@@ -306,7 +303,7 @@ function queryReceivers(
 }
 
 const getExpenseAndDivision = (
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   groupId: number,
   userId: number,
   expenseId: number

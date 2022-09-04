@@ -1,4 +1,4 @@
-import { IBaseProtocol } from 'pg-promise';
+import { ITask } from 'pg-promise';
 
 import { ExpenseType } from 'shared/types/Expense';
 import { MoneyLike } from 'shared/util/Money';
@@ -13,7 +13,7 @@ export interface InvalidDivision {
 }
 
 export async function getInvalidDivision(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   groupId: number
 ): Promise<InvalidDivision[]> {
   return await tx.manyOrNone<InvalidDivision>(

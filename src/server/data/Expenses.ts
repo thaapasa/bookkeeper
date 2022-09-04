@@ -1,6 +1,6 @@
 import debug from 'debug';
 import { Moment } from 'moment';
-import { IBaseProtocol } from 'pg-promise';
+import { ITask } from 'pg-promise';
 
 import {
   ExpenseCollection,
@@ -33,7 +33,7 @@ function calculateBalance(o: ExpenseStatus): ExpenseStatus {
 }
 
 async function getBetween(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   groupId: number,
   userId: number,
   startDate: Moment | string,
@@ -71,7 +71,7 @@ const zeroStatus: ExpenseStatus = {
 };
 
 async function getByMonth(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   groupId: number,
   userId: number,
   year: number,

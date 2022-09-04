@@ -1,5 +1,5 @@
 import debug from 'debug';
-import { IBaseProtocol } from 'pg-promise';
+import { ITask } from 'pg-promise';
 
 import { ApiMessage } from 'shared/types/Api';
 import { CategoryInput } from 'shared/types/Category';
@@ -37,10 +37,7 @@ function sumChildTotalsToParent(
   return categoryTable;
 }
 
-async function getAll(
-  tx: IBaseProtocol<any>,
-  groupId: number
-): Promise<Category[]> {
+async function getAll(tx: ITask<any>, groupId: number): Promise<Category[]> {
   const cats = await tx.manyOrNone<Category>(
     `SELECT id, parent_id AS "parentId", name FROM categories
       WHERE group_id=$/groupId/::INTEGER
@@ -57,7 +54,7 @@ export interface CategoryQueryInput {
 }
 
 async function getTotals(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   groupId: number,
   params: CategoryQueryInput
 ): Promise<CategoryAndTotals[]> {
@@ -77,7 +74,7 @@ async function getTotals(
   return sumChildTotalsToParent(categories);
 }
 async function insert(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   groupId: number,
   data: CategoryInput
 ): Promise<number> {
@@ -93,7 +90,7 @@ async function insert(
 }
 
 async function getById(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   groupId: number,
   id: number
 ): Promise<Category> {
@@ -110,7 +107,7 @@ async function getById(
 }
 
 async function create(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   groupId: number,
   data: CategoryInput
 ): Promise<number> {
@@ -132,7 +129,7 @@ async function create(
 }
 
 async function remove(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   groupId: number,
   id: number
 ): Promise<ApiMessage> {
@@ -145,7 +142,7 @@ async function remove(
 }
 
 async function update(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   groupId: number,
   categoryId: number,
   data: CategoryInput
@@ -174,7 +171,7 @@ async function update(
 }
 
 async function expandSubCategories(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   groupId: number,
   inputCategoryIds: number[]
 ) {

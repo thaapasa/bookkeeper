@@ -1,5 +1,5 @@
 import debug from 'debug';
-import { IBaseProtocol } from 'pg-promise';
+import { ITask } from 'pg-promise';
 
 import { ExpenseQuery, UserExpense } from 'shared/types/Expense';
 
@@ -9,7 +9,7 @@ import { CategoryDb } from './CategoryDb';
 const log = debug('bookkeeper:api:expenses:search');
 
 export async function searchExpenses(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   userId: number,
   groupId: number,
   query: ExpenseQuery

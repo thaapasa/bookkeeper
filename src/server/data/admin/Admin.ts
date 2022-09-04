@@ -1,4 +1,4 @@
-import { IBaseProtocol } from 'pg-promise';
+import { ITask } from 'pg-promise';
 
 import { ExpenseType } from 'shared/types/Expense';
 import { MoneyLike } from 'shared/util/Money';
@@ -23,7 +23,7 @@ export interface DbStatus {
 }
 
 async function getExpenseTypeStatus(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   groupId: number
 ): Promise<TypeStatus[]> {
   const rows = await tx.manyOrNone<TypeStatus>(
@@ -37,7 +37,7 @@ async function getExpenseTypeStatus(
 }
 
 async function getInvalidZeroSumRows(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   groupId: number
 ): Promise<ZeroSumData[]> {
   const rows = await tx.manyOrNone<Record<string, string>>(
@@ -57,10 +57,7 @@ async function getInvalidZeroSumRows(
   }));
 }
 
-async function getDbStatus(
-  tx: IBaseProtocol<any>,
-  groupId: number
-): Promise<DbStatus> {
+async function getDbStatus(tx: ITask<any>, groupId: number): Promise<DbStatus> {
   return {
     status: await getExpenseTypeStatus(tx, groupId),
     invalidZerosum: await getInvalidZeroSumRows(tx, groupId),

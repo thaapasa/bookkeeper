@@ -1,6 +1,6 @@
 import debug from 'debug';
 import { Moment } from 'moment';
-import { IBaseProtocol } from 'pg-promise';
+import { ITask } from 'pg-promise';
 
 import { ApiMessage } from 'shared/types/Api';
 import { InvalidExpense, InvalidInputError } from 'shared/types/Errors';
@@ -44,7 +44,7 @@ function nextRecurrence(
 }
 
 async function createRecurring(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   groupId: number,
   userId: number,
   expenseId: number,
@@ -103,7 +103,7 @@ function getDatesUpTo(recurrence: Recurrence, date: Moment): string[] {
 }
 
 function createMissingRecurrenceForDate(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   e: [Expense, ExpenseDivisionItem[]]
 ) {
   return (date: string): Promise<number> => {
@@ -116,7 +116,7 @@ function createMissingRecurrenceForDate(
 }
 
 function createMissingRecurrences(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   groupId: number,
   userId: number,
   date: Moment
@@ -159,7 +159,7 @@ function createMissingRecurrences(
 }
 
 async function createMissing(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   groupId: number,
   userId: number,
   date: Moment
@@ -178,7 +178,7 @@ async function createMissing(
 }
 
 async function deleteRecurrenceAndExpenses(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   recurringExpenseId: number
 ): Promise<ApiMessage> {
   const [expenseCount] = await Promise.all([
@@ -197,7 +197,7 @@ async function deleteRecurrenceAndExpenses(
 }
 
 async function deleteRecurrenceAfter(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   expenseId: number,
   afterDate: DateLike,
   recurringExpenseId: number
@@ -222,7 +222,7 @@ async function deleteRecurrenceAfter(
 }
 
 async function deleteRecurringById(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   groupId: number,
   userId: number,
   expenseId: number,
@@ -252,7 +252,7 @@ async function deleteRecurringById(
 }
 
 function deleteDivisionForRecurrence(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   recurringExpenseId: number,
   afterDate: DateLike | null
 ): Promise<null> {
@@ -268,7 +268,7 @@ function deleteDivisionForRecurrence(
 }
 
 async function getRecurringExpenseIds(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   recurringExpenseId: number,
   afterDate: DateLike | null
 ): Promise<number[]> {
@@ -284,7 +284,7 @@ async function getRecurringExpenseIds(
 }
 
 async function createDivisionForRecurrence(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   recurringExpenseId: number,
   division: ExpenseDivisionItem[],
   afterDate: DateLike | null
@@ -303,7 +303,7 @@ async function createDivisionForRecurrence(
 }
 
 async function updateRecurringExpense(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   target: RecurringExpenseTarget,
   original: Expense,
   expenseInput: ExpenseInput,
@@ -367,7 +367,7 @@ async function updateRecurringExpense(
 }
 
 async function updateRecurring(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   groupId: number,
   userId: number,
   expenseId: number,

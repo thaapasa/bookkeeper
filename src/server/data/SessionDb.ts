@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import debug from 'debug';
-import { IBaseProtocol } from 'pg-promise';
+import { ITask } from 'pg-promise';
 import { promisify } from 'util';
 
 import { ApiMessage } from 'shared/types/Api';
@@ -33,12 +33,12 @@ async function createToken(): Promise<string> {
   return buf.toString('hex');
 }
 
-async function purgeExpiredSessions(tx: IBaseProtocol<any>) {
+async function purgeExpiredSessions(tx: ITask<any>) {
   await tx.none('DELETE FROM sessions WHERE expiry_time <= NOW()');
 }
 
 async function createSession(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   user: RawUserData
 ): Promise<string[]> {
   const tokens = await Promise.all([createToken(), createToken()]);
@@ -87,7 +87,7 @@ function createSessionInfo(
 }
 
 async function appendInfo(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   session: SessionBasicInfo
 ): Promise<Session> {
   const [groups, sources, categories, users] = await Promise.all([
@@ -100,7 +100,7 @@ async function appendInfo(
 }
 
 async function login(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   username: string,
   password: string,
   groupId?: number
@@ -113,7 +113,7 @@ async function login(
 }
 
 async function getUserInfoByRefreshToken(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   token: string,
   groupId?: number
 ): Promise<RawUserData> {
@@ -138,7 +138,7 @@ async function getUserInfoByRefreshToken(
 }
 
 async function refresh(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   refreshToken: string,
   groupId?: number
 ): Promise<Session> {
@@ -150,7 +150,7 @@ async function refresh(
 }
 
 async function logout(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   session: SessionBasicInfo
 ): Promise<ApiMessage> {
   log('Logout for', session.token);
@@ -171,7 +171,7 @@ async function logout(
 }
 
 async function getSession(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   token: string,
   groupId?: number
 ): Promise<SessionBasicInfo> {

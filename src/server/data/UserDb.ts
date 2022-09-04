@@ -1,4 +1,4 @@
-import { IBaseProtocol } from 'pg-promise';
+import { ITask } from 'pg-promise';
 
 import { AuthenticationError, NotFoundError } from 'shared/types/Errors';
 import { Group, User } from 'shared/types/Session';
@@ -18,10 +18,7 @@ SELECT
   expense_shortcuts as "expenseShortcuts"
 FROM users u`;
 
-async function getAll(
-  tx: IBaseProtocol<any>,
-  groupId: number
-): Promise<User[]> {
+async function getAll(tx: ITask<any>, groupId: number): Promise<User[]> {
   const users = await tx.manyOrNone<RawUserData>(
     `${select}
       WHERE
@@ -35,7 +32,7 @@ async function getAll(
 }
 
 async function getById(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   groupId: number,
   userId: number
 ): Promise<User> {
@@ -51,10 +48,7 @@ async function getById(
   return mapUser(user);
 }
 
-async function getGroups(
-  tx: IBaseProtocol<any>,
-  userId: number
-): Promise<Group[]> {
+async function getGroups(tx: ITask<any>, userId: number): Promise<Group[]> {
   const groups = await tx.manyOrNone<Group>(
     `SELECT id, name
       FROM groups
@@ -65,7 +59,7 @@ async function getGroups(
 }
 
 async function getByCredentials(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   username: string,
   password: string,
   groupId?: number

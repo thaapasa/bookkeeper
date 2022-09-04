@@ -1,5 +1,5 @@
 import debug from 'debug';
-import { IBaseProtocol } from 'pg-promise';
+import { ITask } from 'pg-promise';
 
 import { BkError } from 'shared/types/Errors';
 import { Expense } from 'shared/types/Expense';
@@ -13,7 +13,7 @@ import { toBaseExpense } from './ExpenseUtils';
 const log = debug('bookkeeper:api:expenses');
 
 export async function splitExpense(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   groupId: number,
   userId: number,
   expenseId: number,
@@ -33,7 +33,7 @@ export async function splitExpense(
 }
 
 async function createSplit(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   expense: Expense,
   split: ExpenseSplit
 ) {

@@ -1,4 +1,4 @@
-import { IBaseProtocol } from 'pg-promise';
+import { ITask } from 'pg-promise';
 
 import { NotFoundError } from 'shared/types/Errors';
 import { Source } from 'shared/types/Session';
@@ -42,10 +42,7 @@ SELECT
 FROM sources s
 LEFT JOIN source_users so ON (so.source_id = s.id)`;
 
-async function getAll(
-  tx: IBaseProtocol<any>,
-  groupId: number
-): Promise<Source[]> {
+async function getAll(tx: ITask<any>, groupId: number): Promise<Source[]> {
   const s = await tx.manyOrNone<SourceData>(
     `${select} WHERE group_id = $/groupId/::INTEGER`,
     { groupId }
@@ -54,7 +51,7 @@ async function getAll(
 }
 
 async function getById(
-  tx: IBaseProtocol<any>,
+  tx: ITask<any>,
   groupId: number,
   id: number
 ): Promise<Source> {
