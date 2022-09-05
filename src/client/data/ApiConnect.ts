@@ -13,12 +13,14 @@ import {
   UserExpenseWithDetails,
 } from 'shared/types/Expense';
 import { ExpenseSplit } from 'shared/types/ExpenseSplit';
+import { ObjectId } from 'shared/types/Id';
 import {
   Category,
   CategoryAndTotals,
   CategoryData,
   Session,
 } from 'shared/types/Session';
+import { Source, SourcePatch } from 'shared/types/Source';
 import { CategoryStatistics } from 'shared/types/Statistics';
 import { FetchClient } from 'shared/util/FetchClient';
 import Money from 'shared/util/Money';
@@ -139,6 +141,19 @@ export class ApiConnect {
   ): Promise<T> {
     return this.req<T>(path, {
       method: 'POST',
+      body,
+      query,
+      headers: { ...FetchClient.contentTypeJson },
+    });
+  }
+
+  private patch<T>(
+    path: string,
+    body?: any,
+    query?: Record<string, string>
+  ): Promise<T> {
+    return this.req<T>(path, {
+      method: 'PATCH',
       body,
       query,
       headers: { ...FetchClient.contentTypeJson },
@@ -288,6 +303,9 @@ export class ApiConnect {
     categoryIds: number[]
   ): Promise<CategoryStatistics> =>
     this.post(uri`/api/statistics/category`, { categoryIds });
+
+  public patchSource = (sourceId: ObjectId, data: SourcePatch) =>
+    this.patch<Source>(uri`/api/source/${sourceId}`, data);
 }
 
 const apiConnect = new ApiConnect();

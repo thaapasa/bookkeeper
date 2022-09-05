@@ -1,15 +1,17 @@
 import { ITask } from 'pg-promise';
 
 import { NotFoundError } from 'shared/types/Errors';
+import { ObjectId } from 'shared/types/Id';
 import { Source } from 'shared/types/Session';
+import { SourcePatch } from 'shared/types/Source';
 
 function getImage(img: string | undefined): string | undefined {
   return img ? `img/sources/${img}` : undefined;
 }
 
 interface SourceData extends Source {
-  userId: number;
-  share: number;
+  userId: ObjectId;
+  share: ObjectId;
 }
 
 function createGroupObject(rows: SourceData[]): Source[] {
@@ -52,8 +54,8 @@ async function getAll(tx: ITask<any>, groupId: number): Promise<Source[]> {
 
 async function getById(
   tx: ITask<any>,
-  groupId: number,
-  id: number
+  groupId: ObjectId,
+  id: ObjectId
 ): Promise<Source> {
   const s = await tx.manyOrNone<SourceData>(
     `${select} WHERE id=$/id/::INTEGER AND group_id=$/groupId/::INTEGER`,
@@ -65,7 +67,25 @@ async function getById(
   return createGroupObject(s)[0];
 }
 
+async function update(
+  tx: ITask<any>,
+  groupId: ObjectId,
+  id: ObjectId,
+  data: SourcePatch
+): Promise<Source> {
+  // Check that source id is correct
+  const source = await getById(tx, groupId, id);
+  await tx.none(
+    `UPDATE sources
+      SET name=$/name/
+      WHERE id=$/id/ AND group_id=$/groupId/`,
+    { id, groupId, name: data.name }
+  );
+  return { ...source, name: data.name };
+}
+
 export const SourceDb = {
   getById,
   getAll,
+  update,
 };

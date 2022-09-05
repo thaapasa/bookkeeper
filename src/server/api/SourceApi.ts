@@ -1,6 +1,7 @@
 import { Router } from 'express';
 
 import { Source } from 'shared/types/Session';
+import { SourcePatch } from 'shared/types/Source';
 import { SourceDb } from 'server/data/SourceDb';
 import { Requests } from 'server/server/RequestHandling';
 
@@ -30,6 +31,15 @@ export function createSourceApi() {
       (tx, session, { params }): Promise<Source> =>
         SourceDb.getById(tx, session.group.id, params.id),
       true
+    )
+  );
+
+  api.patch(
+    '/:id',
+    Requests.validatedTxRequest(
+      { params: IdParamType, body: SourcePatch },
+      (tx, session, { params, body }) =>
+        SourceDb.update(tx, session.group.id, params.id, body)
     )
   );
 
