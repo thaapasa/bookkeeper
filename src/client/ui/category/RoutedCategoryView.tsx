@@ -12,16 +12,21 @@ interface CategoryRouteParams {
 
 export const RoutedCategoryView: React.FC<
   RouteComponentProps<CategoryRouteParams>
-> = ({ match, history }) => {
-  const range = getDates(match.params);
+> = ({
+  match: {
+    params: { year, month },
+  },
+  history,
+}) => {
+  const range = React.useMemo(() => getDates(year, month), [year, month]);
   return <CategoryView range={range} history={history} />;
 };
 
-function getDates(params: CategoryRouteParams): TypedDateRange {
-  if (params.year) {
-    return yearRange(params.year);
-  } else if (params.month) {
-    return monthRange(params.month);
+function getDates(year?: string, month?: string): TypedDateRange {
+  if (year) {
+    return yearRange(year);
+  } else if (month) {
+    return monthRange(month);
   } else {
     return yearRange(new Date());
   }

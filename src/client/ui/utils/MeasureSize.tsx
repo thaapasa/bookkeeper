@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { useDebounced } from './useDebounced';
 import { Size, useElementSize } from './useElementSize';
 
 export function MeasureSize<T>(
@@ -12,11 +13,12 @@ export function MeasureSize<T>(
 
     const size = useElementSize(containerRef);
 
-    const Component = component as any;
+    const debouncedSize = useDebounced(size);
 
+    const Component = component as any;
     return (
       <div ref={containerRef} className={className}>
-        {size ? <Component size={size} {...props} /> : null}
+        {size ? <Component size={debouncedSize ?? size} {...props} /> : null}
       </div>
     );
   };
