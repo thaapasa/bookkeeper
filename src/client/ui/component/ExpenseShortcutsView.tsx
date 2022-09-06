@@ -2,6 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import { ExpenseShortcut } from 'shared/types/Session';
+import { spaced } from 'shared/util/Strings';
 import { validSessionE } from 'client/data/Login';
 import { createExpense, createNewExpense } from 'client/data/State';
 
@@ -16,7 +17,7 @@ const ExpenseShortcutsListImpl: React.FC<{
 }> = ({ showTitles, className, shortcuts }) => {
   const titles = showTitles === true;
   return (
-    <LinksArea className={`${titles ? 'with-titles' : ''} ${className || ''} `}>
+    <LinksArea className={spaced`${titles ? 'with-titles' : ''} ${className} `}>
       {titles ? (
         <TitledRow onClick={createExpense}>
           <AddExpenseIcon />

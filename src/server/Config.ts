@@ -10,7 +10,7 @@ class Config {
 
   public version = revision.version;
   public commitId = revision.commitId;
-  public revision = revision.commitId.substr(0, 8);
+  public revision = revision.commitId.substring(0, 8);
 
   public port = port ? parseInt(port, 10) : 3100;
   public refreshTokenTimeout = process.env.REFRESH_TOKEN_TIMEOUT || '2 weeks';

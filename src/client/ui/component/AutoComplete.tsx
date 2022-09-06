@@ -7,6 +7,8 @@ import {
 import debug from 'debug';
 import React from 'react';
 
+import { spaced } from 'shared/util/Strings';
+
 const log = debug('ui:autocomplete');
 
 export interface AutoCompleteProps<T> {
@@ -99,7 +101,7 @@ export const AutoComplete: React.FC<AutoCompleteProps<any>> = ({
           placeholder={placeholder}
           error={Boolean(errorText)}
           helperText={errorText || defaultErrorText}
-          className={`autocomplete-input ${inputClassName ?? ''}`}
+          className={spaced`autocomplete-input ${inputClassName}`}
           onKeyUp={onKeyUp}
           style={inputStyle}
         />

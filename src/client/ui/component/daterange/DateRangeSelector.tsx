@@ -2,6 +2,7 @@ import { Button } from '@mui/material';
 import * as React from 'react';
 import styled from 'styled-components';
 
+import { spaced } from 'shared/util/Strings';
 import { compareDates, toMoment } from 'shared/util/Time';
 import { TypedDateRange } from 'shared/util/TimeRange';
 import { useWhenChanged } from 'client/ui/hooks/useWhenChanged';
@@ -20,17 +21,23 @@ interface TabPanelProps {
   children?: React.ReactNode;
   type: RangeType;
   selected: RangeTypeOrNone;
+  className?: string;
 }
 
-function TabPanel(props: TabPanelProps) {
-  const { children, type, selected, ...other } = props;
-
-  return (
-    <Panel className={type !== selected ? 'hidden' : ''} {...other}>
-      {children}
-    </Panel>
-  );
-}
+const TabPanel: React.FC<TabPanelProps> = ({
+  children,
+  type,
+  selected,
+  className,
+  ...other
+}) => (
+  <Panel
+    className={spaced`${className} ${type !== selected ? 'hidden' : undefined}`}
+    {...other}
+  >
+    {children}
+  </Panel>
+);
 
 function getRangeDefault(
   type: RangeTypeOrNone,

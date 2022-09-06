@@ -2,7 +2,7 @@ import { AnyObject } from 'client/ui/Types';
 
 export function ucFirst(str: any): string {
   return typeof str === 'string' && str.length > 0
-    ? str.charAt(0).toUpperCase() + str.substr(1)
+    ? str.charAt(0).toUpperCase() + str.substring(1)
     : '';
 }
 
