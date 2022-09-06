@@ -23,7 +23,7 @@ export const StatisticsViewImpl: React.FC<{
 }> = ({ categoryMap }) => {
   const {
     list: cats,
-    addItem: addCat,
+    addItems: addCats,
     removeItem: removeCat,
   } = useList<number>();
 
@@ -45,7 +45,7 @@ export const StatisticsViewImpl: React.FC<{
   return (
     <Grid container columnSpacing={2} rowSpacing={1} padding="16px">
       <Grid item md={6} xs={12}>
-        <StatisticsSourceView addCategory={addCat} />
+        <StatisticsSourceView addCategories={addCats} />
       </Grid>
       <Grid item md={6} xs={12}>
         <StatisticsChartTypeSelector selected={type} onChange={setType} />

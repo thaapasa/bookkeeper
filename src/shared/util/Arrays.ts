@@ -50,6 +50,10 @@ export function unnest<T>(arr: T[][]): T[] {
   return res;
 }
 
+export function toArray<T>(t: T | T[]): T[] {
+  return Array.isArray(t) ? t : [t];
+}
+
 /** Assume input: Array of [name, value] fields */
 export function toObject(ar: string[][]): Record<string, string> {
   const res: Record<string, string> = {};
