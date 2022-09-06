@@ -8,8 +8,8 @@ import { ExpenseSplit } from 'shared/types/ExpenseSplit';
 import Money from 'shared/util/Money';
 import { getFullCategoryName } from 'client/data/Categories';
 import UserSelector from 'client/ui/component/UserSelector';
+import { useToggle } from 'client/ui/hooks/useToggle';
 import { Delete, Edit } from 'client/ui/Icons';
-import { useToggle } from 'client/ui/utils/Hooks';
 
 import { ToolIconButton } from '../details/ExpenseInfoTools';
 import { ExpenseDialogProps } from '../dialog/ExpenseDialog';

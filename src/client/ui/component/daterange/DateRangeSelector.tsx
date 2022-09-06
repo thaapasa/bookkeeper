@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 import { compareDates, toMoment } from 'shared/util/Time';
 import { TypedDateRange } from 'shared/util/TimeRange';
-import { useCompare } from 'client/ui/utils/Hooks';
+import { useWhenChanged } from 'client/ui/hooks/useWhenChanged';
 
 import {
   DateRangeSelectorProps,
@@ -55,13 +55,13 @@ const DateRangeSelectorImpl: React.FC<DateRangeSelectorProps> = props => {
   const [selectedType, changeType] = React.useState<RangeType | 'none'>(
     props.dateRange ? props.dateRange.type : 'none'
   );
-  const selectedChanged = useCompare(selectedType);
+  const changedSelection = useWhenChanged(selectedType);
   React.useEffect(
     () =>
-      selectedChanged
-        ? onSelectRange(getRangeDefault(selectedType, dateRange))
+      changedSelection
+        ? onSelectRange(getRangeDefault(changedSelection, dateRange))
         : undefined,
-    [selectedChanged, selectedType, onSelectRange, dateRange]
+    [changedSelection, onSelectRange, dateRange]
   );
   return (
     <Container>

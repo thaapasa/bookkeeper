@@ -12,7 +12,7 @@ import { createRoot } from 'react-dom/client';
 
 import { assertDefined } from 'shared/util/Util';
 
-import App from './client/App';
+import { App } from './client/App';
 import { muiTheme } from './client/ui/Colors';
 
 const container = document.getElementById('root');

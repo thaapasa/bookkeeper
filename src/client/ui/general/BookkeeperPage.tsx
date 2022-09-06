@@ -25,7 +25,7 @@ import NotificationBar from '../component/NotificationBar';
 import TopBar from '../component/TopBar';
 import { ExpenseDialog } from '../expense/dialog/ExpenseDialog';
 import { createExpenseDialogListener } from '../expense/dialog/ExpenseDialogListener';
-import FrontpageView from '../expense/FrontpageView';
+import { FrontpageView } from '../expense/FrontpageView';
 import { NewExpenseView } from '../expense/NewExpenseView';
 import RoutedMonthView from '../expense/RoutedMonthView';
 import { ExpenseSplitDialog } from '../expense/split/ExpenseSplitDialog';
@@ -40,7 +40,8 @@ import {
 } from '../Styles';
 import { Size } from '../Types';
 import ConfirmationDialog from './ConfirmationDialog';
-import ShortcutsView from './ShortcutsView';
+import { PathNotFoundError } from './ErrorView';
+import { ShortcutsView } from './ShortcutsView';
 
 interface PageProps {
   session: Session;
@@ -69,6 +70,7 @@ const ExpenseSplitBinder = createExpenseDialogListener(
 export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
   const isMobileDevice = isMobileSize(windowSize);
   const className = getScreenSizeClassName(windowSize);
+  console.log('BKPAGE', window);
   return (
     <Page className="bookkeeper-page">
       <GlobalStyle />
@@ -109,6 +111,7 @@ export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
               <Route path={statisticsPage} component={StatisticsView} />
               <Route path={infoPagePath} component={InfoView} />
               <Route exact={true} path="/" component={FrontpageView} />
+              <Route component={PathNotFoundError} />
             </Switch>
           </MainContent>
         </ContentContainer>

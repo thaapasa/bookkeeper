@@ -1,6 +1,6 @@
 import Money from 'shared/util/Money';
 
-import { Size } from '../utils/useElementSize';
+import { Size } from '../Types';
 
 export const formatMoneyThin = (v: number) =>
   v > 1000 ? `${Math.round(v / 1000)}K` : `${v}`;

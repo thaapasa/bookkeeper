@@ -3,14 +3,14 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import { Group, User } from 'shared/types/Session';
+import { validSessionE } from 'client/data/Login';
 
-import { validSessionE } from '../../data/Login';
 import * as colors from '../Colors';
+import { useToggle } from '../hooks/useToggle';
 import { MenuIcon } from '../Icons';
 import { AddExpenseIcon } from '../icons/AddExpenseIcon';
 import { isMobileSize } from '../Styles';
 import { Size } from '../Types';
-import { useToggle } from '../utils/Hooks';
 import { connect } from './BaconConnect';
 import DateRangeNavigator from './DateRangeNavigator';
 import MenuDrawer from './MenuDrawer';

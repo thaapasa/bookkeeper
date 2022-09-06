@@ -11,8 +11,8 @@ import {
 
 import { getChartColor } from '../chart/ChartColors';
 import { formatMoney, formatMoneyThin, useThinFormat } from '../chart/Format';
+import { Size } from '../Types';
 import { MeasureSize } from '../utils/MeasureSize';
-import { Size } from '../utils/useElementSize';
 
 export interface CategoryChartData {
   categoryId: number;

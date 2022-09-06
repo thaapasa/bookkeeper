@@ -1,9 +1,6 @@
 import * as React from 'react';
 
-export interface Size {
-  width: number;
-  height: number;
-}
+import { Size } from '../Types';
 
 /**
  * Keeps track of the given element size in the DOM, updating it if the window

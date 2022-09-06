@@ -22,8 +22,8 @@ import { getFullCategoryName } from 'client/data/Categories';
 
 import { getChartColor } from '../chart/ChartColors';
 import { formatMoney, formatMoneyThin, useThinFormat } from '../chart/Format';
+import { Size } from '../Types';
 import { MeasureSize } from '../utils/MeasureSize';
-import { Size } from '../utils/useElementSize';
 import { Months } from './types';
 
 const useLines = true;

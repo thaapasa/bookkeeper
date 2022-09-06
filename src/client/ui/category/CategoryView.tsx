@@ -13,8 +13,8 @@ import { navigationBus, needUpdateE } from 'client/data/State';
 import { categoryPagePath } from 'client/util/Links';
 
 import { connect } from '../component/BaconConnect';
+import { useDeferredData } from '../hooks/useAsyncData';
 import { PageContentContainer } from '../Styles';
-import { useDeferredData } from '../utils/useAsyncData';
 import { CategoryChart, CategoryChartData } from './CategoryChart';
 import { CategoryTable } from './CategoryTable';
 

@@ -9,8 +9,8 @@ import { categoryMapE, getFullCategoryName } from 'client/data/Categories';
 
 import { connect } from '../component/BaconConnect';
 import { ChipList } from '../component/ChipList';
-import { useList } from '../utils/Hooks';
-import { useAsyncData } from '../utils/useAsyncData';
+import { useAsyncData } from '../hooks/useAsyncData';
+import { useList } from '../hooks/useList';
 import { StatisticsChart } from './StatisticsChart';
 import { StatisticsSourceView } from './StatisticsSourceView';
 

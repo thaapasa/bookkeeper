@@ -13,8 +13,8 @@ import { needUpdateE } from 'client/data/State';
 import * as colors from '../Colors';
 import ExpenseRow from '../expense/row/ExpenseRow';
 import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
-import { useToggle } from '../utils/Hooks';
-import { useDeferredData } from '../utils/useAsyncData';
+import { useDeferredData } from '../hooks/useAsyncData';
+import { useToggle } from '../hooks/useToggle';
 import {
   AllColumns,
   NameColumn,
