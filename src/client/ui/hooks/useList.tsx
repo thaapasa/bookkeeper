@@ -2,11 +2,13 @@ import React from 'react';
 
 import { toArray } from 'shared/util/Arrays';
 
+import { useLocalStorage } from './useLocalStorage';
+
 /**
  * @return hook functions for managing the contents of a list
  */
-export function useList<T>(initial?: T[]) {
-  const [list, setList] = React.useState<T[]>(initial ?? []);
+export function useLocalStorageList<T>(key: string, initial?: T[]) {
+  const [list, setList] = useLocalStorage<T[]>(key, initial ?? []);
   const addItems = React.useCallback(
     (items: T | T[]) =>
       setList([...list, ...toArray(items).filter(i => !list.includes(i))]),
@@ -16,5 +18,6 @@ export function useList<T>(initial?: T[]) {
     (t: T) => setList(list.filter(l => l !== t)),
     [list, setList]
   );
-  return { list, addItems, removeItem };
+  const clear = React.useCallback(() => setList([]), [setList]);
+  return { list, addItems, removeItem, clear };
 }

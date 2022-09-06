@@ -1,4 +1,5 @@
-import { Grid } from '@mui/material';
+import ClearIcon from '@mui/icons-material/Clear';
+import { Grid, IconButton } from '@mui/material';
 import * as B from 'baconjs';
 import * as React from 'react';
 
@@ -12,13 +13,12 @@ import { AsyncDataView } from '../component/AsyncDataView';
 import { connect } from '../component/BaconConnect';
 import { ChipList } from '../component/ChipList';
 import { useAsyncData } from '../hooks/useAsyncData';
-import { useList } from '../hooks/useList';
+import { useLocalStorageList } from '../hooks/useList';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { CategorySelector } from './category/CategorySelector';
 import { CategoryStatisticsChart } from './category/CategoryStatisticsChart';
 import { StatisticsChartTypeSelector } from './ChartTypeSelector';
 import { StatisticsChartType } from './types';
-
 export const StatisticsViewImpl: React.FC<{
   categoryMap: Record<string, Category>;
 }> = ({ categoryMap }) => {
@@ -26,7 +26,8 @@ export const StatisticsViewImpl: React.FC<{
     list: cats,
     addItems: addCats,
     removeItem: removeCat,
-  } = useList<number>();
+    clear: clearCats,
+  } = useLocalStorageList<number>('statistics.categories');
 
   const getCatName = React.useCallback(
     (c: number) => getFullCategoryName(c, categoryMap),
@@ -54,9 +55,15 @@ export const StatisticsViewImpl: React.FC<{
       <Grid item md={6} xs={12}>
         <StatisticsChartTypeSelector selected={type} onChange={setType} />
       </Grid>
-      <Grid item xs={12}>
-        <ChipList items={cats} onDelete={removeCat} getName={getCatName} />
-      </Grid>
+       
+      {cats.length > 0 ? (
+        <Grid item xs={12}>
+          <IconButton color="primary" onClick={clearCats}>
+            <ClearIcon />
+          </IconButton>
+          <ChipList items={cats} onDelete={removeCat} getName={getCatName} />
+        </Grid>
+      ) : null}
       <Grid item xs={12}>
         <AsyncDataView
           data={data}

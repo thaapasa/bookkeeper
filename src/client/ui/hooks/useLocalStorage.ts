@@ -37,9 +37,7 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
 function readStored<T>(key: string, defaultValue: T) {
   try {
     const v = localStorage.getItem(key);
-    if (isDefined(v)) {
-      return JSON.parse(v);
-    }
+    return isDefined(v) ? JSON.parse(v) : defaultValue;
   } catch (e) {
     return defaultValue;
   }
