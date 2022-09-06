@@ -13,6 +13,7 @@ import { connect } from '../component/BaconConnect';
 import { ChipList } from '../component/ChipList';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useList } from '../hooks/useList';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 import { CategorySelector } from './category/CategorySelector';
 import { CategoryStatisticsChart } from './category/CategoryStatisticsChart';
 import { StatisticsChartTypeSelector } from './ChartTypeSelector';
@@ -40,7 +41,10 @@ export const StatisticsViewImpl: React.FC<{
   const data: AsyncData<CategoryStatistics> =
     cats.length > 0 ? statistics : UninitializedData;
 
-  const [type, setType] = React.useState<StatisticsChartType>('months');
+  const [type, setType] = useLocalStorage<StatisticsChartType>(
+    'statistics.chart.type',
+    'months'
+  );
 
   return (
     <Grid container columnSpacing={2} rowSpacing={1} padding="16px">
