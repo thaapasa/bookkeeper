@@ -1,7 +1,7 @@
 import { Router } from 'express';
 
 import { StatisticsSearchType } from 'shared/types/Statistics';
-import { StatisticsDb } from 'server/data/Statistics';
+import { StatisticsDb } from 'server/data/StatisticsDb';
 import { Requests } from 'server/server/RequestHandling';
 
 /**
