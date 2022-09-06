@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 export const Months = [
   'Tammi',
   'Helmi',
@@ -12,3 +14,6 @@ export const Months = [
   'Marras',
   'Joulu',
 ];
+
+export const StatisticsChartType = z.enum(['yearly', 'months', 'years']);
+export type StatisticsChartType = z.infer<typeof StatisticsChartType>;

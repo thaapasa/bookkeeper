@@ -70,7 +70,6 @@ const ExpenseSplitBinder = createExpenseDialogListener(
 export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
   const isMobileDevice = isMobileSize(windowSize);
   const className = getScreenSizeClassName(windowSize);
-  console.log('BKPAGE', window);
   return (
     <Page className="bookkeeper-page">
       <GlobalStyle />
@@ -126,6 +125,10 @@ const Page = styled.div`
   width: 100%;
   height: 100%;
   background-color: ${colorScheme.gray.light};
+
+  .MuiFormControlLabel-label {
+    font-size: 15px;
+  }
 `;
 
 const ContentContainer = styled.div`

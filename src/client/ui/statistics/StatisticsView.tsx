@@ -11,8 +11,10 @@ import { connect } from '../component/BaconConnect';
 import { ChipList } from '../component/ChipList';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useList } from '../hooks/useList';
+import { StatisticsChartTypeSelector } from './ChartTypeSelector';
 import { StatisticsChart } from './StatisticsChart';
 import { StatisticsSourceView } from './StatisticsSourceView';
+import { StatisticsChartType } from './types';
 
 export const StatisticsViewImpl: React.FC<{
   categoryMap: Record<string, Category>;
@@ -35,17 +37,26 @@ export const StatisticsViewImpl: React.FC<{
   );
   const data = cats.length > 0 ? statistics : UninitializedData;
 
+  const [type, setType] = React.useState<StatisticsChartType>('months');
+
   return (
     <Grid container margin="16px">
-      <Grid item xs={12}>
+      <Grid item xs={6} paddingRight="16px">
         <StatisticsSourceView addCategory={addCat} />
+      </Grid>
+      <Grid item xs={6}>
+        <StatisticsChartTypeSelector selected={type} onChange={setType} />
       </Grid>
       <Grid item xs={12} marginTop="16px">
         <ChipList items={cats} onDelete={removeCat} getName={getCatName} />
       </Grid>
       <Grid item xs={12} marginTop="16px">
         {data.type === 'loaded' ? (
-          <StatisticsChart statistics={data.value} categoryMap={categoryMap} />
+          <StatisticsChart
+            type={type}
+            statistics={data.value}
+            categoryMap={categoryMap}
+          />
         ) : (
           JSON.stringify(data, null, 2)
         )}
