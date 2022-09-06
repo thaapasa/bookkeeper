@@ -1,11 +1,13 @@
 import { Moment } from 'moment';
 import { z } from 'zod';
 
+import { numberRange } from './Arrays';
 import {
   compareDates,
   DateLike,
   displayDatePattern,
   ISODate,
+  monthToYear,
   toMoment,
   toMonthName,
   toYearName,
@@ -30,6 +32,24 @@ export interface TypedDateRange extends UIDateRange {
 export interface MomentRange {
   startTime: Moment;
   endTime: Moment;
+}
+
+export function getYearsInRange(range: DateRange) {
+  return numberRange(monthToYear(range.startDate), monthToYear(range.endDate));
+}
+
+export function getMonthsInRange(range: DateRange) {
+  const years = getYearsInRange(range);
+  const startYear = years[0];
+  const endYear = years[years.length - 1];
+  return years
+    .map(y =>
+      numberRange(
+        y === startYear ? toMoment(range.startDate).month() + 1 : 1,
+        y === endYear ? toMoment(range.endDate).month() + 1 : 12
+      ).map(m => `${y}-${leftPad(m, 2, '0')}`)
+    )
+    .flat(1);
 }
 
 export function dateRangeToMomentRange(r: DateRange) {

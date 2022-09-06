@@ -26,6 +26,10 @@ export function month(year: number, mon: number): Moment {
   return moment({ year, month: mon - 1, day: 1 });
 }
 
+export function monthToYear(month: ISOMonth | ISODate): number {
+  return Number(month.substring(0, 4));
+}
+
 export function toMoment(d?: MomentInput, pattern?: string): Moment {
   if (isMoment(d)) {
     return d;

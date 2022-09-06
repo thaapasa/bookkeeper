@@ -5,6 +5,7 @@ import { CategoryStatistics } from 'shared/types/Statistics';
 
 import { Size } from '../Types';
 import { MeasureSize } from '../utils/MeasureSize';
+import { MonthsCategoryChart } from './MonthsChart';
 import { StatisticsChartType } from './types';
 import { YearlyCategoryChart } from './YearlyChart';
 import { YearsCategoryChart } from './YearsChart';
@@ -20,6 +21,8 @@ const StatisticsGraphImpl: React.FC<{
       return <YearlyCategoryChart {...props} />;
     case 'years':
       return <YearsCategoryChart {...props} />;
+    case 'months':
+      return <MonthsCategoryChart {...props} />;
     default:
       return null;
   }

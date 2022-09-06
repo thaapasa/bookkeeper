@@ -16,7 +16,11 @@ import { CategoryStatistics } from 'shared/types/Statistics';
 import { numberRange } from 'shared/util/Arrays';
 import Money from 'shared/util/Money';
 import { typedKeys } from 'shared/util/Objects';
-import { dateRangeToMomentRange, MomentRange } from 'shared/util/TimeRange';
+import {
+  dateRangeToMomentRange,
+  getYearsInRange,
+  MomentRange,
+} from 'shared/util/TimeRange';
 import { leftPad } from 'shared/util/Util';
 import { getFullCategoryName } from 'client/data/Categories';
 
@@ -88,7 +92,7 @@ const ChartMargins = { left: 16, top: 32, right: 48, bottom: 0 };
 function convertData(data: CategoryStatistics) {
   const keys = typedKeys(data.statistics);
   const range = dateRangeToMomentRange(data.range);
-  const years = numberRange(range.startTime.year(), range.endTime.year());
+  const years = getYearsInRange(data.range);
 
   const chartData = numberRange(0, 11).map(m =>
     findEntriesForMonth(data, m, keys, range, years)
