@@ -13,9 +13,9 @@ import { connect } from '../component/BaconConnect';
 import { ChipList } from '../component/ChipList';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useList } from '../hooks/useList';
+import { CategorySelector } from './category/CategorySelector';
+import { CategoryStatisticsChart } from './category/CategoryStatisticsChart';
 import { StatisticsChartTypeSelector } from './ChartTypeSelector';
-import { StatisticsChart } from './StatisticsChart';
-import { StatisticsSourceView } from './StatisticsSourceView';
 import { StatisticsChartType } from './types';
 
 export const StatisticsViewImpl: React.FC<{
@@ -45,7 +45,7 @@ export const StatisticsViewImpl: React.FC<{
   return (
     <Grid container columnSpacing={2} rowSpacing={1} padding="16px">
       <Grid item md={6} xs={12}>
-        <StatisticsSourceView addCategories={addCats} />
+        <CategorySelector addCategories={addCats} />
       </Grid>
       <Grid item md={6} xs={12}>
         <StatisticsChartTypeSelector selected={type} onChange={setType} />
@@ -56,7 +56,7 @@ export const StatisticsViewImpl: React.FC<{
       <Grid item xs={12}>
         <AsyncDataView
           data={data}
-          renderer={StatisticsChart}
+          renderer={CategoryStatisticsChart}
           type={type}
           categoryMap={categoryMap}
           uninitializedText="Valitse kategoria näyttääksesi tilastot"

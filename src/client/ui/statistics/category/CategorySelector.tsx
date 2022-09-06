@@ -10,9 +10,9 @@ import {
   categoryMapE,
 } from 'client/data/Categories';
 
-import { connect } from '../component/BaconConnect';
+import { connect } from '../../component/BaconConnect';
 
-const StatisticsSourceImpl: React.FC<{
+const CategorySelectorImpl: React.FC<{
   categorySource: CategoryDataSource[];
   categoryMap: Record<ObjectId, Category>;
   addCategories: (cat: number | number[]) => void;
@@ -42,9 +42,9 @@ const StatisticsSourceImpl: React.FC<{
   </FormControl>
 );
 
-export const StatisticsSourceView = connect(
+export const CategorySelector = connect(
   B.combineTemplate({
     categorySource: categoryDataSourceP,
     categoryMap: categoryMapE,
   })
-)(StatisticsSourceImpl);
+)(CategorySelectorImpl);

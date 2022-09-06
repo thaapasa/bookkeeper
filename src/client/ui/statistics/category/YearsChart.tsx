@@ -10,18 +10,23 @@ import {
 } from 'recharts';
 
 import { Category } from 'shared/types/Session';
-import { CategoryStatistics } from 'shared/types/Statistics';
+import {
+  CategoryStatistics,
+  CategoryStatisticsData,
+} from 'shared/types/Statistics';
 import Money from 'shared/util/Money';
 import { typedKeys } from 'shared/util/Objects';
-import { ISOMonth } from 'shared/util/Time';
-import { getMonthsInRange } from 'shared/util/TimeRange';
+import { getYearsInRange } from 'shared/util/TimeRange';
 import { getFullCategoryName } from 'client/data/Categories';
+import { getChartColor } from 'client/ui/chart/ChartColors';
+import {
+  formatMoney,
+  formatMoneyThin,
+  useThinFormat,
+} from 'client/ui/chart/Format';
+import { Size } from 'client/ui/Types';
 
-import { getChartColor } from '../chart/ChartColors';
-import { formatMoney, formatMoneyThin, useThinFormat } from '../chart/Format';
-import { Size } from '../Types';
-
-export const MonthsCategoryChart: React.FC<{
+export const YearsCategoryChart: React.FC<{
   data: CategoryStatistics;
   categoryMap: Record<string, Category>;
   size: Size;
@@ -37,12 +42,12 @@ export const MonthsCategoryChart: React.FC<{
       margin={ChartMargins}
     >
       <CartesianGrid strokeDasharray="3 3" />
-      <XAxis dataKey="month" tickFormatter={formatMonth} />
+      <XAxis dataKey="year" />
       <YAxis
         tickFormatter={thin ? formatMoneyThin : formatMoney}
         width={thin ? 32 : undefined}
       />
-      <Tooltip formatter={formatMoney} labelFormatter={formatMonth} />
+      <Tooltip formatter={formatMoney} />
       <Legend />
       {keys.map(v => (
         <Line
@@ -57,10 +62,6 @@ export const MonthsCategoryChart: React.FC<{
   );
 };
 
-function formatMonth(m: ISOMonth) {
-  return m.replace('-', '/');
-}
-
 function useNameFormat(categoryMap: Record<string, Category>) {
   return React.useCallback(
     (key: string) => getFullCategoryName(Number(key), categoryMap),
@@ -70,31 +71,53 @@ function useNameFormat(categoryMap: Record<string, Category>) {
 
 const ChartMargins = { left: 16, top: 32, right: 48, bottom: 0 };
 
-type MonthlyData = { month: ISOMonth } & Record<number, number>;
+interface YearlyDataItem {
+  year: number;
+  sum: number;
+  categoryId: number;
+}
+
+type YearlyData = { year: number } & Record<number, number>;
 
 function convertData(data: CategoryStatistics) {
   const keys = typedKeys(data.statistics);
-  const allMonths = getMonthsInRange(data.range);
-  const allData = Object.values(data.statistics).flat(1);
+  const years = getYearsInRange(data.range);
+  const summedYears = keys.map(catId => sumYears(data.statistics[catId]));
+  const allData = summedYears.flat(1);
 
-  const byMonths: Record<ISOMonth, MonthlyData> = {};
+  const byYears: Record<number, YearlyData> = {};
+
   for (const stat of allData) {
-    const month = stat.month;
-    byMonths[month] ??= { month };
-    byMonths[month][stat.categoryId] = Money.from(stat.sum).valueOf();
+    const year = stat.year;
+    byYears[year] ??= { year };
+    byYears[year][stat.categoryId] = stat.sum;
   }
 
   return {
-    chartData: allMonths
-      .map(month => byMonths[month] ?? { month })
+    chartData: years
+      .map(year => byYears[year] ?? { year })
       .map(d => fillMissing(d, keys)),
     keys: keys.map((key, i) => ({ key, color: getChartColor(i, 0) })),
   };
 }
 
-function fillMissing(data: MonthlyData, keys: string[]) {
+function fillMissing(data: YearlyData, keys: string[]) {
   for (const k of keys) {
     data[Number(k)] ??= 0;
   }
   return data;
+}
+
+function sumYears(catData: CategoryStatisticsData[]): YearlyDataItem[] {
+  const byYears: Record<number, Omit<YearlyDataItem, 'sum'> & { sum: Money }> =
+    {};
+  for (const d of catData) {
+    const year = Number(d.month.substring(0, 4));
+    byYears[year] ??= { year, categoryId: d.categoryId, sum: new Money(0) };
+    byYears[year].sum = byYears[year].sum.plus(d.sum);
+  }
+  return Object.values(byYears).map<YearlyDataItem>(v => ({
+    ...v,
+    sum: v.sum.valueOf(),
+  }));
 }

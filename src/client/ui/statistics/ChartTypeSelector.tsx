@@ -10,7 +10,7 @@ import * as React from 'react';
 import { StatisticsChartType } from './types';
 
 const TypeLabels: Record<StatisticsChartType, string> = {
-  yearly: 'Vuosittainen',
+  recurring: 'Vuositoisto',
   months: 'Kuukaudet',
   years: 'Vuodet',
 };

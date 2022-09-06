@@ -23,15 +23,19 @@ import {
 } from 'shared/util/TimeRange';
 import { leftPad } from 'shared/util/Util';
 import { getFullCategoryName } from 'client/data/Categories';
+import { getChartColor } from 'client/ui/chart/ChartColors';
+import {
+  formatMoney,
+  formatMoneyThin,
+  useThinFormat,
+} from 'client/ui/chart/Format';
+import { Size } from 'client/ui/Types';
 
-import { getChartColor } from '../chart/ChartColors';
-import { formatMoney, formatMoneyThin, useThinFormat } from '../chart/Format';
-import { Size } from '../Types';
-import { Months } from './types';
+import { Months } from '../types';
 
 const useLines = true;
 
-export const YearlyCategoryChart: React.FC<{
+export const YearlyRecurringCategoryChart: React.FC<{
   data: CategoryStatistics;
   categoryMap: Record<string, Category>;
   size: Size;

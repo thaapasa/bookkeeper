@@ -2,12 +2,12 @@ import * as React from 'react';
 
 import { Category } from 'shared/types/Session';
 import { CategoryStatistics } from 'shared/types/Statistics';
+import { Size } from 'client/ui/Types';
+import { MeasureSize } from 'client/ui/utils/MeasureSize';
 
-import { Size } from '../Types';
-import { MeasureSize } from '../utils/MeasureSize';
+import { StatisticsChartType } from '../types';
 import { MonthsCategoryChart } from './MonthsChart';
-import { StatisticsChartType } from './types';
-import { YearlyCategoryChart } from './YearlyChart';
+import { YearlyRecurringCategoryChart } from './YearlyRecurringChart';
 import { YearsCategoryChart } from './YearsChart';
 
 const StatisticsGraphImpl: React.FC<{
@@ -17,8 +17,8 @@ const StatisticsGraphImpl: React.FC<{
   size: Size;
 }> = ({ type, ...props }) => {
   switch (type) {
-    case 'yearly':
-      return <YearlyCategoryChart {...props} />;
+    case 'recurring':
+      return <YearlyRecurringCategoryChart {...props} />;
     case 'years':
       return <YearsCategoryChart {...props} />;
     case 'months':
@@ -28,4 +28,4 @@ const StatisticsGraphImpl: React.FC<{
   }
 };
 
-export const StatisticsChart = MeasureSize(StatisticsGraphImpl);
+export const CategoryStatisticsChart = MeasureSize(StatisticsGraphImpl);
