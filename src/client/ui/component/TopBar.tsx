@@ -12,7 +12,7 @@ import { AddExpenseIcon } from '../icons/AddExpenseIcon';
 import { isMobileSize } from '../Styles';
 import { Size } from '../Types';
 import { connect } from './BaconConnect';
-import DateRangeNavigator from './DateRangeNavigator';
+import { DateRangeNavigator } from './DateRangeNavigator';
 import MenuDrawer from './MenuDrawer';
 import { AppLink } from './NavigationBar';
 

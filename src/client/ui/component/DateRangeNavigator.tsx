@@ -17,59 +17,51 @@ import { connect } from './BaconConnect';
 
 const log = debug('bookkeeper:navigator');
 
-export interface DateRangeNavigatorProps
-  extends NavigationConfig,
-    RouteComponentProps {}
+export type DateRangeNavigatorProps = NavigationConfig & RouteComponentProps;
 
-export class DateRangeNavigator extends React.Component<DateRangeNavigatorProps> {
-  private navigateOffset = (offset: number) => {
+const DateRangeNavigatorImpl: React.FC<DateRangeNavigatorProps> = ({
+  dateRange,
+  pathPrefix,
+  history,
+}) => {
+  const navigateOffset = (offset: number) => {
     const rangeSuffix =
-      this.props.dateRange.type === 'month'
-        ? monthSuffix(
-            toMoment(this.props.dateRange.start).clone().add(offset, 'months')
-          )
-        : yearSuffix(
-            toMoment(this.props.dateRange.start).clone().add(offset, 'year')
-          );
-    const link = this.props.pathPrefix + rangeSuffix;
+      dateRange.type === 'month'
+        ? monthSuffix(toMoment(dateRange.start).clone().add(offset, 'months'))
+        : yearSuffix(toMoment(dateRange.start).clone().add(offset, 'year'));
+    const link = pathPrefix + rangeSuffix;
     log('Navigating to', link);
-    this.props.history.push(link);
+    history.push(link);
   };
 
-  private handleKeyPress = (event: React.KeyboardEvent<any>) => {
+  const handleKeyPress = (event: React.KeyboardEvent<any>) => {
     switch (event.keyCode) {
       case KeyCodes.right:
-        this.navigateOffset(1);
+        navigateOffset(1);
         return false;
       case KeyCodes.left:
-        this.navigateOffset(-1);
+        navigateOffset(-1);
         return false;
     }
     return;
   };
 
-  private navigateNext = () => this.navigateOffset(1);
-
-  private navigatePrev = () => this.navigateOffset(-1);
-
-  public render() {
-    return (
-      <NavigationContainer onKeyUp={this.handleKeyPress} tabIndex={1}>
-        <div>
-          <StyledIconButton onClick={this.navigatePrev} title="Edellinen">
-            <NavigateLeft color="primary" />
-          </StyledIconButton>
-        </div>
-        <TitleArea>{toDateRangeName(this.props.dateRange)}</TitleArea>
-        <div>
-          <StyledIconButton onClick={this.navigateNext} title="Seuraava">
-            <NavigateRight color="primary" />
-          </StyledIconButton>
-        </div>
-      </NavigationContainer>
-    );
-  }
-}
+  return (
+    <NavigationContainer onKeyUp={handleKeyPress} tabIndex={1}>
+      <div>
+        <StyledIconButton onClick={() => navigateOffset(-1)} title="Edellinen">
+          <NavigateLeft color="primary" />
+        </StyledIconButton>
+      </div>
+      <TitleArea>{toDateRangeName(dateRange)}</TitleArea>
+      <div>
+        <StyledIconButton onClick={() => navigateOffset(1)} title="Seuraava">
+          <NavigateRight color="primary" />
+        </StyledIconButton>
+      </div>
+    </NavigationContainer>
+  );
+};
 
 const NavigationContainer = styled.div`
   height: 48px !important;
@@ -90,4 +82,6 @@ const TitleArea = styled.div`
   color: ${colors.colorScheme.primary.text};
 `;
 
-export default connect(navigationP)(withRouter(DateRangeNavigator));
+export const DateRangeNavigator = connect(navigationP)(
+  withRouter(DateRangeNavigatorImpl)
+);

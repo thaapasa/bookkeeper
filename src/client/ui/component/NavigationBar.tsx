@@ -5,7 +5,7 @@ import styled from 'styled-components';
 
 import { gray, navigationBar } from '../Colors';
 import { media } from '../Styles';
-import DateRangeNavigator from './DateRangeNavigator';
+import { DateRangeNavigator } from './DateRangeNavigator';
 import { ExpenseShortcutsView } from './ExpenseShortcutsView';
 
 export interface AppLink {
