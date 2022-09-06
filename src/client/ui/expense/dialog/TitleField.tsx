@@ -5,57 +5,56 @@ import { filterMapCaseInsensitive } from 'shared/util/Util';
 import { CategoryDataSource } from 'client/data/Categories';
 import { AutoComplete } from 'client/ui/component/AutoComplete';
 
-interface TitleFieldState {
-  suggestions: CategoryDataSource[];
+interface TitleFieldProps {
+  id: string;
+  value: string;
+  errorText?: string;
+  dataSource: CategoryDataSource[];
+  onChange: (s: string) => void;
+  onSelect: (s: number) => void;
 }
 
-function dsToString(ds: CategoryDataSource) {
-  return ds.text;
-}
+export const TitleField: React.FC<TitleFieldProps> = ({
+  value,
+  errorText,
+  dataSource,
+  onChange,
+  onSelect,
+}) => {
+  const [suggestions, setSuggestions] = React.useState<CategoryDataSource[]>(
+    []
+  );
 
-export class TitleField extends React.Component<
-  {
-    id: string;
-    value: string;
-    errorText?: string;
-    dataSource: CategoryDataSource[];
-    onChange: (s: string) => void;
-    onSelect: (s: number) => void;
-  },
-  TitleFieldState
-> {
-  state: TitleFieldState = { suggestions: [] };
+  const selectCategory = React.useCallback(
+    (c: CategoryDataSource) => {
+      if (c) {
+        onSelect(c.value);
+        onChange(last((c.text || '').split('-')).trim());
+      }
+    },
+    [onSelect, onChange]
+  );
 
-  render() {
-    return (
-      <AutoComplete
-        value={this.props.value}
-        onChange={this.props.onChange}
-        onUpdateSuggestions={this.updateSuggestions}
-        onSelectSuggestion={this.selectCategory}
-        getSuggestionValue={dsToString}
-        placeholder="Ruokaostokset"
-        label="Kuvaus"
-        errorText={this.props.errorText}
-        fullWidth={true}
-        suggestions={this.state.suggestions}
-      />
-    );
-  }
+  const updateSuggestions = React.useCallback(
+    (search: string) =>
+      setSuggestions(filterMapCaseInsensitive(search, dataSource, dsToString)),
+    [setSuggestions, dataSource]
+  );
 
-  selectCategory = (c: CategoryDataSource) => {
-    if (c) {
-      this.props.onSelect(c.value);
-      this.props.onChange(last((c.text || '').split('-')).trim());
-    }
-  };
+  return (
+    <AutoComplete
+      value={value}
+      onChange={onChange}
+      onUpdateSuggestions={updateSuggestions}
+      onSelectSuggestion={selectCategory}
+      getSuggestionValue={dsToString}
+      placeholder="Ruokaostokset"
+      label="Kuvaus"
+      errorText={errorText}
+      fullWidth={true}
+      suggestions={suggestions}
+    />
+  );
+};
 
-  updateSuggestions = (search: string) =>
-    this.setState({
-      suggestions: filterMapCaseInsensitive(
-        search,
-        this.props.dataSource,
-        dsToString
-      ),
-    });
-}
+const dsToString = (ds: CategoryDataSource) => ds.text;
