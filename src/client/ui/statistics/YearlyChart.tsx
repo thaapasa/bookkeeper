@@ -32,11 +32,11 @@ import { Months } from './types';
 const useLines = true;
 
 export const YearlyCategoryChart: React.FC<{
-  statistics: CategoryStatistics;
+  data: CategoryStatistics;
   categoryMap: Record<string, Category>;
   size: Size;
-}> = ({ statistics, size, categoryMap }) => {
-  const { chartData, keys } = convertData(statistics);
+}> = ({ data, size, categoryMap }) => {
+  const { chartData, keys } = convertData(data);
   const nameFormat = useNameFormat(categoryMap);
   const thin = useThinFormat(size);
   const ChartContainer = useLines ? LineChart : BarChart;

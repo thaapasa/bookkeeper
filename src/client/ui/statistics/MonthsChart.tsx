@@ -22,11 +22,11 @@ import { formatMoney, formatMoneyThin, useThinFormat } from '../chart/Format';
 import { Size } from '../Types';
 
 export const MonthsCategoryChart: React.FC<{
-  statistics: CategoryStatistics;
+  data: CategoryStatistics;
   categoryMap: Record<string, Category>;
   size: Size;
-}> = ({ statistics, size, categoryMap }) => {
-  const { chartData, keys } = convertData(statistics);
+}> = ({ data, size, categoryMap }) => {
+  const { chartData, keys } = convertData(data);
   const nameFormat = useNameFormat(categoryMap);
   const thin = useThinFormat(size);
   return (

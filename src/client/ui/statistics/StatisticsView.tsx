@@ -3,10 +3,12 @@ import * as B from 'baconjs';
 import * as React from 'react';
 
 import { Category } from 'shared/types/Session';
+import { CategoryStatistics } from 'shared/types/Statistics';
 import apiConnect from 'client/data/ApiConnect';
-import { UninitializedData } from 'client/data/AsyncData';
+import { AsyncData, UninitializedData } from 'client/data/AsyncData';
 import { categoryMapE, getFullCategoryName } from 'client/data/Categories';
 
+import { AsyncDataView } from '../component/AsyncDataView';
 import { connect } from '../component/BaconConnect';
 import { ChipList } from '../component/ChipList';
 import { useAsyncData } from '../hooks/useAsyncData';
@@ -35,31 +37,30 @@ export const StatisticsViewImpl: React.FC<{
     cats.length > 0,
     cats
   );
-  const data = cats.length > 0 ? statistics : UninitializedData;
+  const data: AsyncData<CategoryStatistics> =
+    cats.length > 0 ? statistics : UninitializedData;
 
   const [type, setType] = React.useState<StatisticsChartType>('months');
 
   return (
-    <Grid container margin="16px">
-      <Grid item xs={6} paddingRight="16px">
+    <Grid container columnSpacing={2} rowSpacing={1} padding="16px">
+      <Grid item md={6} xs={12}>
         <StatisticsSourceView addCategory={addCat} />
       </Grid>
-      <Grid item xs={6}>
+      <Grid item md={6} xs={12}>
         <StatisticsChartTypeSelector selected={type} onChange={setType} />
       </Grid>
-      <Grid item xs={12} marginTop="16px">
+      <Grid item xs={12}>
         <ChipList items={cats} onDelete={removeCat} getName={getCatName} />
       </Grid>
-      <Grid item xs={12} marginTop="16px">
-        {data.type === 'loaded' ? (
-          <StatisticsChart
-            type={type}
-            statistics={data.value}
-            categoryMap={categoryMap}
-          />
-        ) : (
-          JSON.stringify(data, null, 2)
-        )}
+      <Grid item xs={12}>
+        <AsyncDataView
+          data={data}
+          renderer={StatisticsChart}
+          type={type}
+          categoryMap={categoryMap}
+          uninitializedText="Valitse kategoria näyttääksesi tilastot"
+        />
       </Grid>
     </Grid>
   );
