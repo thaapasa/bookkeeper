@@ -300,9 +300,10 @@ export class ApiConnect {
   ): Promise<Category> => this.post(uri`/api/category/${id}`, category);
 
   public loadStatistics = (
-    categoryIds: number[]
+    categoryIds: number[],
+    onlyOwn: boolean
   ): Promise<CategoryStatistics> =>
-    this.post(uri`/api/statistics/category`, { categoryIds });
+    this.post(uri`/api/statistics/category`, { categoryIds, onlyOwn });
 
   public patchSource = (sourceId: ObjectId, data: SourcePatch) =>
     this.patch<Source>(uri`/api/source/${sourceId}`, data);

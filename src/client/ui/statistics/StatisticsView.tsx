@@ -1,5 +1,11 @@
 import ClearIcon from '@mui/icons-material/Clear';
-import { Checkbox, FormControlLabel, Grid, IconButton } from '@mui/material';
+import {
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
+  Grid,
+  IconButton,
+} from '@mui/material';
 import * as B from 'baconjs';
 import * as React from 'react';
 
@@ -34,14 +40,6 @@ export const StatisticsViewImpl: React.FC<{
     [categoryMap]
   );
 
-  const statistics = useAsyncData(
-    apiConnect.loadStatistics,
-    cats.length > 0,
-    cats
-  );
-  const data: AsyncData<CategoryStatistics> =
-    cats.length > 0 ? statistics : UninitializedData;
-
   const [type, setType] = useLocalStorage<StatisticsChartType>(
     'statistics.chart.type',
     'months'
@@ -52,6 +50,20 @@ export const StatisticsViewImpl: React.FC<{
     true
   );
 
+  const [onlyOwn, setOnlyOwn] = useLocalStorage(
+    'statistics.chart.onlyOwn',
+    false
+  );
+
+  const statistics = useAsyncData(
+    apiConnect.loadStatistics,
+    cats.length > 0,
+    cats,
+    onlyOwn
+  );
+  const data: AsyncData<CategoryStatistics> =
+    cats.length > 0 ? statistics : UninitializedData;
+
   return (
     <Grid container columnSpacing={2} rowSpacing={1} padding="16px">
       <Grid item md={6} xs={12}>
@@ -61,12 +73,26 @@ export const StatisticsViewImpl: React.FC<{
         <StatisticsChartTypeSelector selected={type} onChange={setType} />
       </Grid>
       <Grid item md={2} xs={2}>
-        <FormControlLabel
-          control={
-            <Checkbox checked={stacked} onChange={() => setStacked(!stacked)} />
-          }
-          label="Koosta alueet"
-        />
+        <FormGroup row>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={stacked}
+                onChange={() => setStacked(!stacked)}
+              />
+            }
+            label="Koosta alueet"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={onlyOwn}
+                onChange={() => setOnlyOwn(!onlyOwn)}
+              />
+            }
+            label="Vain omat kirjaukset"
+          />
+        </FormGroup>
       </Grid>
       {cats.length > 0 ? (
         <Grid item xs={12}>

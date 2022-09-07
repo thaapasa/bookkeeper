@@ -20,7 +20,9 @@ export function createStatisticsApi() {
         StatisticsDb.getCategoryStatistics(
           tx,
           session.group.id,
-          body.categoryIds
+          session.user.id,
+          body.categoryIds,
+          body.onlyOwn === true
         ),
       true
     )

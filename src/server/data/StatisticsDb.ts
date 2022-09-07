@@ -1,5 +1,6 @@
 import { ITask } from 'pg-promise';
 
+import { ObjectId } from 'shared/types/Id';
 import {
   CategoryStatistics,
   CategoryStatisticsData,
@@ -10,9 +11,10 @@ import { DateRange } from 'shared/util/TimeRange';
 
 async function loadCategoryStatisticsData(
   tx: ITask<any>,
-  groupId: number,
+  groupId: ObjectId,
   range: DateRange,
-  categoryIds: number[]
+  categoryIds: number[],
+  userId: ObjectId | undefined
 ): Promise<CategoryStatisticsData[]> {
   if (categoryIds.length < 1) {
     return [];
@@ -21,24 +23,27 @@ async function loadCategoryStatisticsData(
   const statistics = await tx.manyOrNone<CategoryStatisticsData>(
     `SELECT SUM(sum), month, category_id AS "categoryId"
       FROM (
-        SELECT sum, group_id, category_id, date, SUBSTRING(date::TEXT, 0, 8) AS month
+        SELECT sum, user_id, group_id, category_id, date, SUBSTRING(date::TEXT, 0, 8) AS month
         FROM expenses
       ) mexp
       WHERE group_id = $/groupId/
         AND date > $/start/
         AND date <= $/end/
         AND category_id IN ($/categoryIds:csv/)
+        ${userId ? 'AND user_id = $/userId/' : ''}
       GROUP BY month, category_id
       ORDER BY month, category_id`,
-    { groupId, start: range.startDate, end: range.endDate, categoryIds }
+    { groupId, start: range.startDate, end: range.endDate, categoryIds, userId }
   );
   return statistics;
 }
 
 async function getCategoryStatistics(
   tx: ITask<any>,
-  groupId: number,
-  categoryIds: number[]
+  groupId: ObjectId,
+  userId: ObjectId,
+  categoryIds: number[],
+  onlyOwn: boolean
 ): Promise<CategoryStatistics> {
   const range = {
     startDate: toISODate(toMoment().subtract(5, 'years').startOf('year')),
@@ -51,7 +56,8 @@ async function getCategoryStatistics(
     tx,
     groupId,
     range,
-    categoryIds
+    categoryIds,
+    onlyOwn ? userId : undefined
   );
   return {
     categoryIds,

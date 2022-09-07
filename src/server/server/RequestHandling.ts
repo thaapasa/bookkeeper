@@ -31,7 +31,7 @@ function processUnauthorizedRequest<T>(
       if (requestDelayMs) {
         await timeout(requestDelayMs);
       }
-      log(req.method, req.url);
+      log(req.method, req.originalUrl);
       const r = await handler(req, res);
       // Handler succeeded: output response
       ServerUtil.setNoCacheHeaders(res).json(r);

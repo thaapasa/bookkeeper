@@ -5,6 +5,7 @@ import { DateRange } from 'shared/util/TimeRange';
 
 export const StatisticsSearchType = z.object({
   categoryIds: z.array(z.number()),
+  onlyOwn: z.boolean().optional(),
 });
 export type StatisticsSearchType = z.infer<typeof StatisticsSearchType>;
 
