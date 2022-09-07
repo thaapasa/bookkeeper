@@ -1,5 +1,5 @@
 import ClearIcon from '@mui/icons-material/Clear';
-import { Grid, IconButton } from '@mui/material';
+import { Checkbox, FormControlLabel, Grid, IconButton } from '@mui/material';
 import * as B from 'baconjs';
 import * as React from 'react';
 
@@ -47,15 +47,27 @@ export const StatisticsViewImpl: React.FC<{
     'months'
   );
 
+  const [stacked, setStacked] = useLocalStorage(
+    'statistics.chart.stacked',
+    true
+  );
+
   return (
     <Grid container columnSpacing={2} rowSpacing={1} padding="16px">
       <Grid item md={6} xs={12}>
         <CategorySelector addCategories={addCats} />
       </Grid>
-      <Grid item md={6} xs={12}>
+      <Grid item md={4} xs={10}>
         <StatisticsChartTypeSelector selected={type} onChange={setType} />
       </Grid>
-       
+      <Grid item md={2} xs={2}>
+        <FormControlLabel
+          control={
+            <Checkbox checked={stacked} onChange={() => setStacked(!stacked)} />
+          }
+          label="Koosta alueet"
+        />
+      </Grid>
       {cats.length > 0 ? (
         <Grid item xs={12}>
           <IconButton color="primary" onClick={clearCats}>
@@ -71,6 +83,7 @@ export const StatisticsViewImpl: React.FC<{
           type={type}
           categoryMap={categoryMap}
           uninitializedText="Valitse kategoria näyttääksesi tilastot"
+          stacked={stacked}
         />
       </Grid>
     </Grid>

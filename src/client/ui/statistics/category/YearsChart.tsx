@@ -1,5 +1,7 @@
 import * as React from 'react';
 import {
+  Area,
+  AreaChart,
   CartesianGrid,
   Legend,
   Line,
@@ -30,14 +32,16 @@ export const YearsCategoryChart: React.FC<{
   data: CategoryStatistics;
   categoryMap: Record<string, Category>;
   size: Size;
-}> = ({ data, size, categoryMap }) => {
+  stacked: boolean;
+}> = ({ data, size, categoryMap, stacked }) => {
   const { chartData, keys } = convertData(data);
   const nameFormat = useNameFormat(categoryMap);
   const thin = useThinFormat(size);
+  const ChartContainer = stacked ? AreaChart : LineChart;
   return (
-    <LineChart
+    <ChartContainer
       width={size.width}
-      height={400}
+      height={450}
       data={chartData}
       margin={ChartMargins}
     >
@@ -49,16 +53,28 @@ export const YearsCategoryChart: React.FC<{
       />
       <Tooltip formatter={formatMoney} />
       <Legend />
-      {keys.map(v => (
-        <Line
-          type="monotone"
-          key={v.key}
-          dataKey={v.key}
-          stroke={v.color}
-          name={nameFormat(v.key)}
-        />
-      ))}
-    </LineChart>
+      {keys.map(v =>
+        stacked ? (
+          <Area
+            type="monotone"
+            key={v.key}
+            dataKey={v.key}
+            stroke={v.color}
+            fill={`${v.color}77`}
+            stackId={1}
+            name={nameFormat(v.key)}
+          />
+        ) : (
+          <Line
+            type="monotone"
+            key={v.key}
+            dataKey={v.key}
+            stroke={v.color}
+            name={nameFormat(v.key)}
+          />
+        )
+      )}
+    </ChartContainer>
   );
 };
 

@@ -13,6 +13,7 @@ import { YearsCategoryChart } from './YearsChart';
 const StatisticsGraphImpl: React.FC<{
   type: StatisticsChartType;
   data: CategoryStatistics;
+  stacked: boolean;
   categoryMap: Record<string, Category>;
   size: Size;
 }> = ({ type, ...props }) => {
