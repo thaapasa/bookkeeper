@@ -60,8 +60,8 @@ async function getTotals(
 ): Promise<CategoryAndTotals[]> {
   const cats = await tx.manyOrNone<CategoryAndTotals>(
     `SELECT categories.id, categories.parent_id as "parentId",
-        SUM(CASE WHEN type='expense' AND template=false AND date >= $/startDate/::DATE AND date < $/endDate/::DATE THEN sum ELSE 0::NUMERIC END) AS expenses,
-        SUM(CASE WHEN type='income' AND template=false AND date >= $/startDate/::DATE AND date < $/endDate/::DATE THEN sum ELSE 0::NUMERIC END) AS income
+        SUM(CASE WHEN type='expense' AND template=false AND date >= $/startDate/::DATE AND date <= $/endDate/::DATE THEN sum ELSE 0::NUMERIC END) AS expenses,
+        SUM(CASE WHEN type='income' AND template=false AND date >= $/startDate/::DATE AND date <= $/endDate/::DATE THEN sum ELSE 0::NUMERIC END) AS income
       FROM categories
       LEFT JOIN expenses ON categories.id = category_id
       WHERE categories.group_id = $/groupId/
