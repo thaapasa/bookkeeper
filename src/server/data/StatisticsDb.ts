@@ -23,14 +23,17 @@ async function loadCategoryStatisticsData(
   const statistics = await tx.manyOrNone<CategoryStatisticsData>(
     `SELECT SUM(sum), month, category_id AS "categoryId"
       FROM (
-        SELECT sum, user_id, group_id, category_id, date, SUBSTRING(date::TEXT, 0, 8) AS month
+        SELECT CASE WHEN type = 'income' THEN -sum ELSE sum END AS sum, 
+          user_id, group_id, category_id, date, SUBSTRING(date::TEXT, 0, 8) AS month
         FROM expenses
+        WHERE group_id = $/groupId/
+          AND date > $/start/
+          AND date <= $/end/
+          AND template = false
+          AND category_id IN ($/categoryIds:csv/)
+          AND type IN ('expense', 'income')
+          ${userId ? 'AND user_id = $/userId/' : ''}
       ) mexp
-      WHERE group_id = $/groupId/
-        AND date > $/start/
-        AND date <= $/end/
-        AND category_id IN ($/categoryIds:csv/)
-        ${userId ? 'AND user_id = $/userId/' : ''}
       GROUP BY month, category_id
       ORDER BY month, category_id`,
     { groupId, start: range.startDate, end: range.endDate, categoryIds, userId }

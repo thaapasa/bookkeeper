@@ -101,13 +101,13 @@ async function countTotalBetween(
   groupId: number,
   userId: number,
   startDate: string | Moment,
-  endDate: string | Moment
+  endDateExclusive: string | Moment
 ): Promise<ExpenseStatus> {
   return await tx.one<ExpenseStatus>(countTotalSelect, {
     userId,
     groupId,
     startDate: time.toISODate(startDate),
-    endDate: time.toISODate(endDate),
+    endDate: time.toISODate(endDateExclusive),
   });
 }
 
