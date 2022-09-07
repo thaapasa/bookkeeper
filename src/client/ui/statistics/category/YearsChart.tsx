@@ -21,6 +21,7 @@ import { typedKeys } from 'shared/util/Objects';
 import { getYearsInRange } from 'shared/util/TimeRange';
 import { getFullCategoryName } from 'client/data/Categories';
 import { getChartColor } from 'client/ui/chart/ChartColors';
+import { calculateChartHeight } from 'client/ui/chart/ChartSize';
 import {
   formatMoney,
   formatMoneyThin,
@@ -41,7 +42,7 @@ export const YearsCategoryChart: React.FC<{
   return (
     <ChartContainer
       width={size.width}
-      height={450}
+      height={calculateChartHeight(keys.length)}
       data={chartData}
       margin={ChartMargins}
     >

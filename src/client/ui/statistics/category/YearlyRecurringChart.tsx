@@ -24,6 +24,7 @@ import {
 import { leftPad } from 'shared/util/Util';
 import { getFullCategoryName } from 'client/data/Categories';
 import { getChartColor } from 'client/ui/chart/ChartColors';
+import { calculateChartHeight } from 'client/ui/chart/ChartSize';
 import {
   formatMoney,
   formatMoneyThin,
@@ -47,7 +48,7 @@ export const YearlyRecurringCategoryChart: React.FC<{
   return (
     <ChartContainer
       width={size.width}
-      height={400}
+      height={calculateChartHeight(keys.length)}
       data={chartData}
       margin={ChartMargins}
     >

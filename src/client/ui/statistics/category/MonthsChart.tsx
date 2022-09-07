@@ -19,6 +19,7 @@ import { ISOMonth } from 'shared/util/Time';
 import { getMonthsInRange } from 'shared/util/TimeRange';
 import { getFullCategoryName } from 'client/data/Categories';
 import { getChartColor } from 'client/ui/chart/ChartColors';
+import { calculateChartHeight } from 'client/ui/chart/ChartSize';
 import {
   formatMoney,
   formatMoneyThin,
@@ -39,7 +40,7 @@ export const MonthsCategoryChart: React.FC<{
   return (
     <ChartContainer
       width={size.width}
-      height={400}
+      height={calculateChartHeight(keys.length)}
       data={chartData}
       margin={ChartMargins}
     >
