@@ -59,8 +59,9 @@ export default class MonthView extends React.PureComponent<
   }
 
   private async loadExpenses(date: Date) {
+    const m = toMoment(date);
     navigationBus.push({
-      dateRange: monthRange(date),
+      dateRange: monthRange(m),
       pathPrefix: expensePagePath,
     });
     this.setState({
@@ -69,7 +70,6 @@ export default class MonthView extends React.PureComponent<
       endStatus: zeroStatus,
       monthStatus: zeroStatus,
     });
-    const m = toMoment(date);
     const expenses = await apiConnect.getExpensesForMonth(
       m.get('year'),
       m.get('month') + 1

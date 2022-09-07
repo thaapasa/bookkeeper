@@ -7,7 +7,7 @@ import { connect } from '../component/BaconConnect';
 import { ShortcutsView } from '../general/ShortcutsView';
 import { isMobileSize } from '../Styles';
 import { Size } from '../Types';
-import RoutedMonthView from './RoutedMonthView';
+import { RoutedMonthView } from './RoutedMonthView';
 
 const FrontpageViewImpl: React.FC<
   RouteComponentProps & { size: Size }

@@ -27,7 +27,7 @@ import { ExpenseDialog } from '../expense/dialog/ExpenseDialog';
 import { createExpenseDialogListener } from '../expense/dialog/ExpenseDialogListener';
 import { FrontpageView } from '../expense/FrontpageView';
 import { NewExpenseView } from '../expense/NewExpenseView';
-import RoutedMonthView from '../expense/RoutedMonthView';
+import { RoutedMonthView } from '../expense/RoutedMonthView';
 import { ExpenseSplitDialog } from '../expense/split/ExpenseSplitDialog';
 import InfoView from '../info/InfoView';
 import SearchView from '../search/SearchView';

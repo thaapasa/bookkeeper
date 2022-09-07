@@ -5,7 +5,7 @@ import { parseQueryString } from 'shared/util/UrlUtils';
 import { noop } from 'shared/util/Util';
 import { expenseDialogE } from 'client/data/State';
 
-import RoutedMonthView from './RoutedMonthView';
+import { RoutedMonthView } from './RoutedMonthView';
 
 type NewExpenseViewProps = RouteComponentProps;
 
