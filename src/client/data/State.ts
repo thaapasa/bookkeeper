@@ -119,8 +119,9 @@ export const navigationP = navigationBus.toProperty({
 export const windowSizeBus = new B.Bus<Size>();
 export const windowSizeP = windowSizeBus.toProperty();
 
-// Start listening to window size to not miss any updates
+// Start listening to buses to not miss any updates
 windowSizeP.onValue(noop);
+navigationP.onValue(noop);
 
 /* Export state to window globals for debugging */
 if (process.env.NODE_ENV === 'development') {
