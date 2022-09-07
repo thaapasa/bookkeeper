@@ -7,7 +7,7 @@ import {
   IconButton,
 } from '@mui/material';
 import * as B from 'baconjs';
-import * as React from 'react';
+import React from 'react';
 
 import { Category } from 'shared/types/Session';
 import { CategoryStatistics } from 'shared/types/Statistics';
@@ -42,7 +42,7 @@ export const StatisticsViewImpl: React.FC<{
 
   const [type, setType] = useLocalStorage<StatisticsChartType>(
     'statistics.chart.type',
-    'months'
+    'years'
   );
 
   const [stacked, setStacked] = useLocalStorage(

@@ -27,6 +27,8 @@ import {
 } from 'client/ui/chart/Format';
 import { Size } from 'client/ui/Types';
 
+import { EmptyChart } from '../EmptyChart';
+
 export const MonthsCategoryChart: React.FC<{
   data: CategoryStatistics;
   categoryMap: Record<string, Category>;
@@ -37,6 +39,8 @@ export const MonthsCategoryChart: React.FC<{
   const nameFormat = useNameFormat(categoryMap);
   const thin = useThinFormat(size);
   const ChartContainer = stacked ? AreaChart : LineChart;
+
+  if (keys.length < 1) return <EmptyChart />;
   return (
     <ChartContainer
       width={size.width}

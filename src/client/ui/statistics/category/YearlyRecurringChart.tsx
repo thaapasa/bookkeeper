@@ -32,6 +32,7 @@ import {
 } from 'client/ui/chart/Format';
 import { Size } from 'client/ui/Types';
 
+import { EmptyChart } from '../EmptyChart';
 import { Months } from '../types';
 
 const useLines = true;
@@ -45,6 +46,8 @@ export const YearlyRecurringCategoryChart: React.FC<{
   const nameFormat = useNameFormat(categoryMap);
   const thin = useThinFormat(size);
   const ChartContainer = useLines ? LineChart : BarChart;
+
+  if (keys.length < 1) return <EmptyChart />;
   return (
     <ChartContainer
       width={size.width}
