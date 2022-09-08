@@ -5,6 +5,8 @@ export interface ChartKeyInfo {
   color: string;
   /** Label name */
   name?: string;
+  /** True when this value is an estimate */
+  estimate?: boolean;
 }
 
 export type ChartKeyType = string | number;

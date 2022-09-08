@@ -80,6 +80,7 @@ export const YearsCategoryChart: React.FC<CategoryGraphProps> = ({
             type="monotone"
             key={v.key}
             dataKey={v.key}
+            strokeDasharray={v.estimate ? '3 3' : undefined}
             stroke={v.color}
             fill={`${v.color}77`}
             stackId={1}
@@ -144,8 +145,9 @@ function convertData(
             k,
             {
               key: `${k.key}i`,
-              color: getChartColor(i, 2),
+              color: getChartColor(i, 3),
               name: `${k.name} (arvio)`,
+              estimate: true,
             },
           ])
           .flat(1),
