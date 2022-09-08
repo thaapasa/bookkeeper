@@ -186,14 +186,14 @@ function createEstimationsForYear(
   range: MomentRange
 ): ChartColumnData<number> {
   const lastYear = toMoment(data.range.endDate).year();
-  const keys = data.categoryIds;
+  const keys = typedKeys(data.statistics);
 
   return recordFromPairs(
     keys.map(k => [
       `${k}i`,
       year !== lastYear
         ? 0
-        : estimateMissingYearlyExpenses(k, data, chartData, range),
+        : estimateMissingYearlyExpenses(Number(k), data, chartData, range),
     ])
   );
 }
