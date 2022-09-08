@@ -9,15 +9,8 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
     );
   }
   const [value, setValue] = React.useState<T>(() =>
-    readStored(key, initialValue)
+    readStored(key, readStored(key, initialValue))
   );
-
-  React.useEffect(() => {
-    const v = localStorage.getItem(key);
-    if (isDefined(v)) {
-      setValue(JSON.parse(v));
-    }
-  }, [setValue, key]);
 
   const storeItem = React.useCallback(
     (v: T) => {
