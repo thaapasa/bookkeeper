@@ -11,34 +11,50 @@ import {
   YAxis,
 } from 'recharts';
 
+import { ObjectId } from 'shared/types/Id';
 import { Category } from 'shared/types/Session';
 import {
   CategoryStatistics,
   CategoryStatisticsData,
 } from 'shared/types/Statistics';
 import Money from 'shared/util/Money';
-import { typedKeys } from 'shared/util/Objects';
-import { getYearsInRange } from 'shared/util/TimeRange';
+import { recordFromPairs, typedKeys } from 'shared/util/Objects';
+import { toMoment } from 'shared/util/Time';
+import {
+  dateRangeToMomentRange,
+  getYearsInRange,
+  MomentRange,
+} from 'shared/util/TimeRange';
 import { getFullCategoryName } from 'client/data/Categories';
 import { getChartColor } from 'client/ui/chart/ChartColors';
 import { calculateChartHeight } from 'client/ui/chart/ChartSize';
+import { fillMissingForNumericKeys } from 'client/ui/chart/ChartTools';
+import {
+  ChartColumn,
+  ChartColumnData,
+  ChartData,
+} from 'client/ui/chart/ChartTypes';
 import {
   formatMoney,
   formatMoneyThin,
   useThinFormat,
 } from 'client/ui/chart/Format';
-import { Size } from 'client/ui/Types';
 
 import { EmptyChart } from '../EmptyChart';
+import { CategoryGraphProps } from './CategoryStatisticsChart';
+import { estimateMissingYearlyExpenses } from './ExpenseEstimation';
 
-export const YearsCategoryChart: React.FC<{
-  data: CategoryStatistics;
-  categoryMap: Record<string, Category>;
-  size: Size;
-  stacked: boolean;
-}> = ({ data, size, categoryMap, stacked }) => {
-  const { chartData, keys } = convertData(data);
-  const nameFormat = useNameFormat(categoryMap);
+export const YearsCategoryChart: React.FC<CategoryGraphProps> = ({
+  data,
+  size,
+  categoryMap,
+  stacked,
+  interpolated,
+}) => {
+  const { chartData, keys } = React.useMemo(
+    () => convertData(data, categoryMap, interpolated),
+    [data, categoryMap, interpolated]
+  );
   const thin = useThinFormat(size);
   const ChartContainer = stacked ? AreaChart : LineChart;
 
@@ -67,7 +83,7 @@ export const YearsCategoryChart: React.FC<{
             stroke={v.color}
             fill={`${v.color}77`}
             stackId={1}
-            name={nameFormat(v.key)}
+            name={v.name ?? v.key}
           />
         ) : (
           <Line
@@ -75,20 +91,13 @@ export const YearsCategoryChart: React.FC<{
             key={v.key}
             dataKey={v.key}
             stroke={v.color}
-            name={nameFormat(v.key)}
+            name={v.name ?? v.key}
           />
         )
       )}
     </ChartContainer>
   );
 };
-
-function useNameFormat(categoryMap: Record<string, Category>) {
-  return React.useCallback(
-    (key: string) => getFullCategoryName(Number(key), categoryMap),
-    [categoryMap]
-  );
-}
 
 const ChartMargins = { left: 16, top: 32, right: 48, bottom: 0 };
 
@@ -98,35 +107,49 @@ interface YearlyDataItem {
   categoryId: number;
 }
 
-type YearlyData = { year: number } & Record<number, number>;
-
-function convertData(data: CategoryStatistics) {
-  const keys = typedKeys(data.statistics);
+function convertData(
+  data: CategoryStatistics,
+  categoryMap: Record<ObjectId, Category>,
+  interpolated: boolean
+): ChartData<'year', number> {
+  const cats = typedKeys(data.statistics);
   const years = getYearsInRange(data.range);
-  const summedYears = keys.map(catId => sumYears(data.statistics[catId]));
+  const summedYears = cats.map(catId => sumYears(data.statistics[catId]));
   const allData = summedYears.flat(1);
 
-  const byYears: Record<number, YearlyData> = {};
+  const byYears: Record<number, ChartColumn<'year', number>> = {};
 
   for (const stat of allData) {
     const year = stat.year;
-    byYears[year] ??= { year };
+    byYears[year] ??= { year: String(year) };
     byYears[year][stat.categoryId] = stat.sum;
   }
 
-  return {
-    chartData: years
-      .map(year => byYears[year] ?? { year })
-      .map(d => fillMissing(d, keys)),
-    keys: keys.map((key, i) => ({ key, color: getChartColor(i, 0) })),
-  };
-}
+  const chartData = years
+    .map(year => byYears[year] ?? { year })
+    .map(d => fillMissingForNumericKeys(d, cats));
 
-function fillMissing(data: YearlyData, keys: string[]) {
-  for (const k of keys) {
-    data[Number(k)] ??= 0;
-  }
-  return data;
+  const keys = cats.map((key, i) => ({
+    key,
+    color: getChartColor(i, 0),
+    name: getFullCategoryName(Number(key), categoryMap),
+  }));
+
+  return !interpolated
+    ? { chartData, keys }
+    : {
+        chartData: addInterpolated(chartData, data),
+        keys: keys
+          .map((k, i) => [
+            k,
+            {
+              key: `${k.key}i`,
+              color: getChartColor(i, 2),
+              name: `${k.name} (arvio)`,
+            },
+          ])
+          .flat(1),
+      };
 }
 
 function sumYears(catData: CategoryStatisticsData[]): YearlyDataItem[] {
@@ -141,4 +164,34 @@ function sumYears(catData: CategoryStatisticsData[]): YearlyDataItem[] {
     ...v,
     sum: v.sum.valueOf(),
   }));
+}
+
+function addInterpolated(
+  chartData: ChartColumn<'year', number>[],
+  data: CategoryStatistics
+): ChartColumn<'year', number>[] {
+  const range = dateRangeToMomentRange(data.range);
+  return chartData.map(d => ({
+    ...d,
+    ...getInterpolations(chartData, data, Number(d.year), range),
+  }));
+}
+
+function getInterpolations(
+  chartData: ChartColumn<'year', number>[],
+  data: CategoryStatistics,
+  year: number,
+  range: MomentRange
+): ChartColumnData<number> {
+  const lastYear = toMoment(data.range.endDate).year();
+  const keys = data.categoryIds;
+
+  return recordFromPairs(
+    keys.map(k => [
+      `${k}i`,
+      year !== lastYear
+        ? 0
+        : estimateMissingYearlyExpenses(k, data, chartData, range),
+    ])
+  );
 }

@@ -11,6 +11,7 @@ import {
   YAxis,
 } from 'recharts';
 
+import { ObjectId } from 'shared/types/Id';
 import { Category } from 'shared/types/Session';
 import { CategoryStatistics } from 'shared/types/Statistics';
 import Money from 'shared/util/Money';
@@ -20,23 +21,27 @@ import { getMonthsInRange } from 'shared/util/TimeRange';
 import { getFullCategoryName } from 'client/data/Categories';
 import { getChartColor } from 'client/ui/chart/ChartColors';
 import { calculateChartHeight } from 'client/ui/chart/ChartSize';
+import { fillMissingForNumericKeys } from 'client/ui/chart/ChartTools';
+import { ChartColumn, ChartData } from 'client/ui/chart/ChartTypes';
 import {
   formatMoney,
   formatMoneyThin,
   useThinFormat,
 } from 'client/ui/chart/Format';
-import { Size } from 'client/ui/Types';
 
 import { EmptyChart } from '../EmptyChart';
+import { CategoryGraphProps } from './CategoryStatisticsChart';
 
-export const MonthsCategoryChart: React.FC<{
-  data: CategoryStatistics;
-  categoryMap: Record<string, Category>;
-  size: Size;
-  stacked: boolean;
-}> = ({ data, size, categoryMap, stacked }) => {
-  const { chartData, keys } = convertData(data);
-  const nameFormat = useNameFormat(categoryMap);
+export const MonthsCategoryChart: React.FC<CategoryGraphProps> = ({
+  data,
+  size,
+  categoryMap,
+  stacked,
+}) => {
+  const { chartData, keys } = React.useMemo(
+    () => convertData(data, categoryMap),
+    [data, categoryMap]
+  );
   const thin = useThinFormat(size);
   const ChartContainer = stacked ? AreaChart : LineChart;
 
@@ -65,7 +70,7 @@ export const MonthsCategoryChart: React.FC<{
             stroke={v.color}
             fill={`${v.color}77`}
             stackId={1}
-            name={nameFormat(v.key)}
+            name={v.name ?? v.key}
           />
         ) : (
           <Line
@@ -73,7 +78,7 @@ export const MonthsCategoryChart: React.FC<{
             key={v.key}
             dataKey={v.key}
             stroke={v.color}
-            name={nameFormat(v.key)}
+            name={v.name ?? v.key}
           />
         )
       )}
@@ -85,23 +90,17 @@ function formatMonth(m: ISOMonth) {
   return m.replace('-', '/');
 }
 
-function useNameFormat(categoryMap: Record<string, Category>) {
-  return React.useCallback(
-    (key: string) => getFullCategoryName(Number(key), categoryMap),
-    [categoryMap]
-  );
-}
-
 const ChartMargins = { left: 16, top: 32, right: 48, bottom: 0 };
 
-type MonthlyData = { month: ISOMonth } & Record<number, number>;
-
-function convertData(data: CategoryStatistics) {
+function convertData(
+  data: CategoryStatistics,
+  categoryMap: Record<ObjectId, Category>
+): ChartData<'month', number> {
   const keys = typedKeys(data.statistics);
   const allMonths = getMonthsInRange(data.range);
   const allData = Object.values(data.statistics).flat(1);
 
-  const byMonths: Record<ISOMonth, MonthlyData> = {};
+  const byMonths: Record<ISOMonth, ChartColumn<'month', number>> = {};
   for (const stat of allData) {
     const month = stat.month;
     byMonths[month] ??= { month };
@@ -111,14 +110,11 @@ function convertData(data: CategoryStatistics) {
   return {
     chartData: allMonths
       .map(month => byMonths[month] ?? { month })
-      .map(d => fillMissing(d, keys)),
-    keys: keys.map((key, i) => ({ key, color: getChartColor(i, 0) })),
+      .map(d => fillMissingForNumericKeys(d, keys)),
+    keys: keys.map((key, i) => ({
+      key,
+      color: getChartColor(i, 0),
+      name: getFullCategoryName(Number(key), categoryMap),
+    })),
   };
-}
-
-function fillMissing(data: MonthlyData, keys: string[]) {
-  for (const k of keys) {
-    data[Number(k)] ??= 0;
-  }
-  return data;
 }

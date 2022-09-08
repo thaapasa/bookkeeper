@@ -11,6 +11,7 @@ import {
   YAxis,
 } from 'recharts';
 
+import { ObjectId } from 'shared/types/Id';
 import { Category } from 'shared/types/Session';
 import { CategoryStatistics } from 'shared/types/Statistics';
 import { numberRange } from 'shared/util/Arrays';
@@ -25,25 +26,28 @@ import { leftPad } from 'shared/util/Util';
 import { getFullCategoryName } from 'client/data/Categories';
 import { getChartColor } from 'client/ui/chart/ChartColors';
 import { calculateChartHeight } from 'client/ui/chart/ChartSize';
+import { ChartColumn, ChartData } from 'client/ui/chart/ChartTypes';
 import {
   formatMoney,
   formatMoneyThin,
   useThinFormat,
 } from 'client/ui/chart/Format';
-import { Size } from 'client/ui/Types';
 
 import { EmptyChart } from '../EmptyChart';
 import { Months } from '../types';
+import { CategoryGraphProps } from './CategoryStatisticsChart';
 
 const useLines = true;
 
-export const YearlyRecurringCategoryChart: React.FC<{
-  data: CategoryStatistics;
-  categoryMap: Record<string, Category>;
-  size: Size;
-}> = ({ data, size, categoryMap }) => {
-  const { chartData, keys } = convertData(data);
-  const nameFormat = useNameFormat(categoryMap);
+export const YearlyRecurringCategoryChart: React.FC<CategoryGraphProps> = ({
+  data,
+  size,
+  categoryMap,
+}) => {
+  const { chartData, keys } = React.useMemo(
+    () => convertData(data, categoryMap),
+    [data, categoryMap]
+  );
   const thin = useThinFormat(size);
   const ChartContainer = useLines ? LineChart : BarChart;
 
@@ -70,14 +74,14 @@ export const YearlyRecurringCategoryChart: React.FC<{
             key={v.key}
             dataKey={v.key}
             stroke={v.color}
-            name={nameFormat(v.key)}
+            name={v.name ?? v.key}
           />
         ) : (
           <Bar
             key={v.key}
             dataKey={v.key}
             fill={v.color}
-            name={nameFormat(v.key)}
+            name={v.name ?? v.key}
           />
         )
       )}
@@ -85,19 +89,12 @@ export const YearlyRecurringCategoryChart: React.FC<{
   );
 };
 
-function useNameFormat(categoryMap: Record<string, Category>) {
-  return React.useCallback(
-    (key: string) => {
-      const [cat, year] = key.split('-');
-      return `${getFullCategoryName(Number(cat), categoryMap)} (${year})`;
-    },
-    [categoryMap]
-  );
-}
-
 const ChartMargins = { left: 16, top: 32, right: 48, bottom: 0 };
 
-function convertData(data: CategoryStatistics) {
+function convertData(
+  data: CategoryStatistics,
+  categoryMap: Record<ObjectId, Category>
+): ChartData<'month', string> {
   const keys = typedKeys(data.statistics);
   const range = dateRangeToMomentRange(data.range);
   const years = getYearsInRange(data.range);
@@ -112,6 +109,7 @@ function convertData(data: CategoryStatistics) {
         years.map(y => ({
           key: `${k}-${y}`,
           color: getChartColor(i, years[years.length - 1] - y),
+          name: `${getFullCategoryName(Number(k), categoryMap)} (${y})`,
         }))
       )
       .flat(1),
@@ -124,8 +122,10 @@ function findEntriesForMonth(
   keys: string[],
   range: MomentRange,
   years: number[]
-) {
-  const monthData: Record<string, any> = { month: Months[month] };
+): ChartColumn<'month', string> {
+  const monthData: ChartColumn<'month', string> = {
+    month: Months[month],
+  } as any;
   for (const key of keys) {
     for (const year of years) {
       if (range.endTime.isAfter(`${year}-${leftPad(month + 1, 2, '0')}-01`)) {

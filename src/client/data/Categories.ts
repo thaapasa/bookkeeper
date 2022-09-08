@@ -15,6 +15,7 @@ export function getFullCategoryName(
 ): string {
   let categoryString = '';
   const category = categoryMap[categoryId];
+  if (!category) return '';
   if (category.parentId) {
     categoryString +=
       getFullCategoryName(category.parentId, categoryMap) + ' - ';

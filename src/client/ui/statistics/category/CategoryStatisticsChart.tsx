@@ -10,13 +10,17 @@ import { MonthsCategoryChart } from './MonthsChart';
 import { YearlyRecurringCategoryChart } from './YearlyRecurringChart';
 import { YearsCategoryChart } from './YearsChart';
 
-const StatisticsGraphImpl: React.FC<{
-  type: StatisticsChartType;
+export interface CategoryGraphProps {
   data: CategoryStatistics;
   stacked: boolean;
+  interpolated: boolean;
   categoryMap: Record<string, Category>;
   size: Size;
-}> = ({ type, ...props }) => {
+}
+
+const StatisticsGraphImpl: React.FC<
+  CategoryGraphProps & { type: StatisticsChartType }
+> = ({ type, ...props }) => {
   switch (type) {
     case 'recurring':
       return <YearlyRecurringCategoryChart {...props} />;
