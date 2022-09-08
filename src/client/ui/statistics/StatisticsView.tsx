@@ -55,8 +55,8 @@ export const StatisticsViewImpl: React.FC<{
     false
   );
 
-  const [interpolated, setInterpolated] = useLocalStorage(
-    'statistics.chart.interpolate',
+  const [estimated, setEstimated] = useLocalStorage(
+    'statistics.chart.estimate',
     false
   );
 
@@ -102,8 +102,8 @@ export const StatisticsViewImpl: React.FC<{
           <FormControlLabel
             control={
               <Checkbox
-                checked={interpolated}
-                onChange={() => setInterpolated(!interpolated)}
+                checked={estimated}
+                onChange={() => setEstimated(!estimated)}
               />
             }
             label="Sisällytä arvio"
@@ -126,7 +126,7 @@ export const StatisticsViewImpl: React.FC<{
           categoryMap={categoryMap}
           uninitializedText="Valitse kategoria näyttääksesi tilastot"
           stacked={stacked}
-          interpolated={interpolated}
+          estimated={estimated}
         />
       </Grid>
     </Grid>

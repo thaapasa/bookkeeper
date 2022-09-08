@@ -13,7 +13,7 @@ import { YearsCategoryChart } from './YearsChart';
 export interface CategoryGraphProps {
   data: CategoryStatistics;
   stacked: boolean;
-  interpolated: boolean;
+  estimated: boolean;
   categoryMap: Record<string, Category>;
   size: Size;
 }

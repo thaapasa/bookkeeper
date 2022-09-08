@@ -49,11 +49,11 @@ export const YearsCategoryChart: React.FC<CategoryGraphProps> = ({
   size,
   categoryMap,
   stacked,
-  interpolated,
+  estimated,
 }) => {
   const { chartData, keys } = React.useMemo(
-    () => convertData(data, categoryMap, interpolated),
-    [data, categoryMap, interpolated]
+    () => convertData(data, categoryMap, estimated),
+    [data, categoryMap, estimated]
   );
   const thin = useThinFormat(size);
   const ChartContainer = stacked ? AreaChart : LineChart;
@@ -111,7 +111,7 @@ interface YearlyDataItem {
 function convertData(
   data: CategoryStatistics,
   categoryMap: Record<ObjectId, Category>,
-  interpolated: boolean
+  estimated: boolean
 ): ChartData<'year', number> {
   const cats = typedKeys(data.statistics);
   const years = getYearsInRange(data.range);
@@ -136,10 +136,10 @@ function convertData(
     name: getFullCategoryName(Number(key), categoryMap),
   }));
 
-  return !interpolated
+  return !estimated
     ? { chartData, keys }
     : {
-        chartData: addInterpolated(chartData, data),
+        chartData: addEstimated(chartData, data),
         keys: keys
           .map((k, i) => [
             k,
@@ -168,18 +168,18 @@ function sumYears(catData: CategoryStatisticsData[]): YearlyDataItem[] {
   }));
 }
 
-function addInterpolated(
+function addEstimated(
   chartData: ChartColumn<'year', number>[],
   data: CategoryStatistics
 ): ChartColumn<'year', number>[] {
   const range = dateRangeToMomentRange(data.range);
   return chartData.map(d => ({
     ...d,
-    ...getInterpolations(chartData, data, Number(d.year), range),
+    ...createEstimationsForYear(chartData, data, Number(d.year), range),
   }));
 }
 
-function getInterpolations(
+function createEstimationsForYear(
   chartData: ChartColumn<'year', number>[],
   data: CategoryStatistics,
   year: number,
