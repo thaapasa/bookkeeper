@@ -68,6 +68,11 @@ export function assertDefined<T>(t: T | undefined | null): asserts t is T {
   }
 }
 
+export function assertTrue(t: boolean): asserts t is true {
+  if (!t) {
+    throw new Error(`Condition failed: expected true, was false`);
+  }
+}
 // Returns a random integer between min (included) and max (excluded)
 // Using Math.round() will give you a non-uniform distribution!
 export function getRandomInt(min: number, max: number): number {
