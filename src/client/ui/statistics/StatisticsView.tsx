@@ -55,6 +55,11 @@ export const StatisticsViewImpl: React.FC<{
     false
   );
 
+  const [estimated, setEstimated] = useLocalStorage(
+    'statistics.chart.estimate',
+    false
+  );
+
   const statistics = useAsyncData(
     apiConnect.loadStatistics,
     cats.length > 0,
@@ -93,6 +98,17 @@ export const StatisticsViewImpl: React.FC<{
             label="Vain omat kirjaukset"
           />
         </FormGroup>
+        {type === 'years' ? (
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={estimated}
+                onChange={() => setEstimated(!estimated)}
+              />
+            }
+            label="Sisällytä arvio"
+          />
+        ) : null}
       </Grid>
       {cats.length > 0 ? (
         <Grid item xs={12}>
@@ -110,6 +126,7 @@ export const StatisticsViewImpl: React.FC<{
           categoryMap={categoryMap}
           uninitializedText="Valitse kategoria näyttääksesi tilastot"
           stacked={stacked}
+          estimated={estimated}
         />
       </Grid>
     </Grid>

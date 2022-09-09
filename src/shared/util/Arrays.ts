@@ -97,7 +97,7 @@ export function partition<T>(
   );
 }
 
-export function groupBy<T, K extends string>(
+export function groupBy<T, K extends string | number>(
   filter: (item: T) => K,
   arr: ReadonlyArray<T>
 ): Record<K, T[]> {
