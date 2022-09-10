@@ -21,8 +21,8 @@ import { getMonthsInRange } from 'shared/util/TimeRange';
 import { getFullCategoryName } from 'client/data/Categories';
 import { getChartColor } from 'client/ui/chart/ChartColors';
 import { calculateChartHeight } from 'client/ui/chart/ChartSize';
-import { fillMissingForNumericKeys } from 'client/ui/chart/ChartTools';
 import { ChartColumn, ChartData } from 'client/ui/chart/ChartTypes';
+import { fillMissingForNumericKeys } from 'client/ui/chart/ChartUtils';
 import {
   formatMoney,
   formatMoneyThin,

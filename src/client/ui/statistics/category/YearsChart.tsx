@@ -28,12 +28,15 @@ import {
 import { getFullCategoryName } from 'client/data/Categories';
 import { getChartColor } from 'client/ui/chart/ChartColors';
 import { calculateChartHeight } from 'client/ui/chart/ChartSize';
-import { fillMissingForNumericKeys } from 'client/ui/chart/ChartTools';
 import {
   ChartColumn,
   ChartColumnData,
   ChartData,
 } from 'client/ui/chart/ChartTypes';
+import {
+  fillMissingForNumericKeys,
+  mapChartData,
+} from 'client/ui/chart/ChartUtils';
 import {
   formatMoney,
   formatMoneyThin,
@@ -135,23 +138,32 @@ function convertData(
     color: getChartColor(i, 0),
     name: getFullCategoryName(Number(key), categoryMap),
   }));
+  const result: ChartData<'year', number> = { chartData, keys };
+  if (!estimated) return result;
 
-  return !estimated
-    ? { chartData, keys }
-    : {
-        chartData: addEstimated(chartData, data),
-        keys: keys
-          .map((k, i) => [
-            k,
-            {
-              key: `${k.key}i`,
-              color: getChartColor(i, 3),
-              name: `${k.name} (arvio)`,
-              estimate: true,
-            },
-          ])
-          .flat(1),
-      };
+  const range = dateRangeToMomentRange(data.range);
+
+  return mapChartData(
+    result,
+    (k, i) => [
+      k,
+      {
+        key: `${k.key}i`,
+        color: getChartColor(i, 3),
+        name: `${k.name} (arvio)`,
+        estimate: true,
+      },
+    ],
+    d => ({
+      ...d,
+      ...createEstimationsForYear(
+        result.chartData,
+        data,
+        Number(d.year),
+        range
+      ),
+    })
+  );
 }
 
 function sumYears(catData: CategoryStatisticsData[]): YearlyDataItem[] {
@@ -165,17 +177,6 @@ function sumYears(catData: CategoryStatisticsData[]): YearlyDataItem[] {
   return Object.values(byYears).map<YearlyDataItem>(v => ({
     ...v,
     sum: v.sum.valueOf(),
-  }));
-}
-
-function addEstimated(
-  chartData: ChartColumn<'year', number>[],
-  data: CategoryStatistics
-): ChartColumn<'year', number>[] {
-  const range = dateRangeToMomentRange(data.range);
-  return chartData.map(d => ({
-    ...d,
-    ...createEstimationsForYear(chartData, data, Number(d.year), range),
   }));
 }
 
