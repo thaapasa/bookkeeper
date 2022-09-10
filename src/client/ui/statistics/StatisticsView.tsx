@@ -24,6 +24,7 @@ import { useLocalStorage } from '../hooks/useLocalStorage';
 import { CategorySelector } from './category/CategorySelector';
 import { CategoryStatisticsChart } from './category/CategoryStatisticsChart';
 import { StatisticsChartTypeSelector } from './ChartTypeSelector';
+import { StatisticsChartRangeSelector } from './StatisticsChartRangeSelector';
 import { StatisticsChartType } from './types';
 export const StatisticsViewImpl: React.FC<{
   categoryMap: Record<string, Category>;
@@ -93,6 +94,9 @@ export const StatisticsViewImpl: React.FC<{
             label="Vain omat kirjaukset"
           />
         </FormGroup>
+      </Grid>
+      <Grid item xs={12}>
+        <StatisticsChartRangeSelector />
       </Grid>
       {cats.length > 0 ? (
         <Grid item xs={12}>
