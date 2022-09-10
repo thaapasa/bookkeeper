@@ -18,6 +18,11 @@ export const ISOMonthPattern = 'YYYY-MM';
 export const ISOMonth = z.string().regex(ISOMonthRegExp);
 export type ISOMonth = z.infer<typeof ISOMonth>;
 
+export const Year = z.number().int().min(1500).max(3000);
+export type Year = z.infer<typeof Year>;
+export const Month = z.number().int().min(1).max(12);
+export type Month = z.infer<typeof Month>;
+
 export const displayDatePattern = 'D.M.YYYY';
 
 export type DateLike = Date | Moment | string;

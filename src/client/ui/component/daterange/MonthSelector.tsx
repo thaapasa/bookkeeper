@@ -1,69 +1,36 @@
 import * as React from 'react';
 
-import { toMoment } from 'shared/util/Time';
-
 import { NavigateLeft, NavigateRight } from '../../Icons';
-import {
-  isValidMonth,
-  isValidYear,
-  nextMonth,
-  NumberInput,
-  prevMonth,
-  SelectorProps,
-  StyledIconButton,
-  toMonthRange,
-} from './Common';
+import { nextMonth, NumberInput, prevMonth, StyledIconButton } from './Common';
 
-export const MonthSelector: React.FC<SelectorProps> = ({
-  dateRange,
-  onSelectRange,
+interface MonthSelectorProps {
+  year: number;
+  month: number;
+  onSelect: (year: number, month: number) => void;
+}
+
+export const MonthSelector: React.FC<MonthSelectorProps> = ({
+  year,
+  month,
+  onSelect,
 }) => {
-  const startProp = toMoment(dateRange ? dateRange.start : undefined);
-  const yearProp = startProp.year();
-  const monthProp = startProp.month() + 1;
-  const [year, setYear] = React.useState<string>(String(yearProp));
-  const [month, setMonth] = React.useState<string>(String(monthProp));
-  React.useEffect(() => setYear(String(yearProp)), [yearProp]);
-  React.useEffect(() => setMonth(String(monthProp)), [monthProp]);
   const changeYear = React.useCallback(
-    (e: number | React.ChangeEvent<{ value: string }>) => {
-      const newYear = typeof e === 'object' ? e.target.value : e;
-      setYear(String(newYear));
-      if (isValidYear(newYear) && isValidMonth(month)) {
-        onSelectRange(toMonthRange(newYear, month));
-      }
-    },
-    [setYear, onSelectRange, month]
+    (e: React.ChangeEvent<{ value: string }>) =>
+      onSelect(Number(e.target.value), month),
+    [onSelect, month]
   );
   const changeMonth = React.useCallback(
-    (e: number | React.ChangeEvent<{ value: string }>) => {
-      const newMonth = typeof e === 'object' ? e.target.value : e;
-      setMonth(String(newMonth));
-      if (isValidYear(year) && isValidMonth(newMonth)) {
-        onSelectRange(toMonthRange(year, newMonth));
-      }
-    },
-    [setMonth, onSelectRange, year]
+    (e: React.ChangeEvent<{ value: string }>) =>
+      onSelect(year, Number(e.target.value)),
+    [onSelect, year]
   );
-  const prev = React.useCallback(() => {
-    const [y, m] = prevMonth(Number(year), Number(month));
-    setYear(String(y));
-    setMonth(String(m));
-    if (isValidYear(y) && isValidMonth(m)) {
-      onSelectRange(toMonthRange(y, m));
-    }
-  }, [year, month, onSelectRange]);
-  const next = React.useCallback(() => {
-    const [y, m] = nextMonth(Number(year), Number(month));
-    setYear(String(y));
-    setMonth(String(m));
-    if (isValidYear(y) && isValidMonth(m)) {
-      onSelectRange(toMonthRange(y, m));
-    }
-  }, [year, month, onSelectRange]);
+
   return (
     <>
-      <StyledIconButton onClick={prev} title="Edellinen">
+      <StyledIconButton
+        onClick={() => onSelect(...prevMonth(year, month))}
+        title="Edellinen"
+      >
         <NavigateLeft color="primary" />
       </StyledIconButton>
       <NumberInput
@@ -82,7 +49,10 @@ export const MonthSelector: React.FC<SelectorProps> = ({
         InputLabelProps={{ shrink: true }}
         onChange={changeMonth}
       />
-      <StyledIconButton onClick={next} title="Seuraava">
+      <StyledIconButton
+        onClick={() => onSelect(...nextMonth(year, month))}
+        title="Seuraava"
+      >
         <NavigateRight color="primary" />
       </StyledIconButton>
     </>

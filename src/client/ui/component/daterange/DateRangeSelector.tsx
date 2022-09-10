@@ -1,89 +1,61 @@
-import { Button } from '@mui/material';
 import * as React from 'react';
-import styled from 'styled-components';
 
-import { compareDates, toMoment } from 'shared/util/Time';
+import { AllPeriod, MonthPeriod, YearPeriod } from 'shared/util/Period';
+import { compareDates } from 'shared/util/Time';
 import { TypedDateRange } from 'shared/util/TimeRange';
-import { useWhenChanged } from 'client/ui/hooks/useWhenChanged';
 
-import {
-  DateRangeSelectorProps,
-  RangeType,
-  RangeTypeOrNone,
-  toMonthRange,
-  toYearRange,
-} from './Common';
-import { MonthSelector } from './MonthSelector';
-import { YearSelector } from './YearSelector';
+import { DateRangeSelectorProps, toMonthRange, toYearRange } from './Common';
+import { PeriodSelector } from './PeriodSelector';
 
-interface TabPanelProps {
-  children?: React.ReactNode;
-  type: RangeType;
-  selected: RangeTypeOrNone;
-  className?: string;
-}
+type RangePeriod = AllPeriod | YearPeriod | MonthPeriod;
+const AllowedPeriods: RangePeriod['type'][] = ['all', 'year', 'month'];
 
-const TabPanel: React.FC<TabPanelProps> = ({
-  children,
-  type,
-  selected,
-  className,
-  ...other
-}) => (
-  <Panel selected={type === selected} className={className} {...other}>
-    {children}
-  </Panel>
-);
+const DateRangeSelectorImpl: React.FC<DateRangeSelectorProps> = ({
+  onSelectRange,
+  dateRange,
+}) => {
+  const [period, setPeriod] = React.useState<RangePeriod>(
+    rangeToPeriod(dateRange)
+  );
+  React.useEffect(
+    () => onSelectRange(periodToRange(period)),
+    [onSelectRange, period]
+  );
 
-function getRangeDefault(
-  type: RangeTypeOrNone,
-  current?: TypedDateRange
-): TypedDateRange | undefined {
-  switch (type) {
-    case 'none':
-      return;
+  return (
+    <PeriodSelector
+      period={period}
+      onSelect={setPeriod}
+      allowed={AllowedPeriods}
+    />
+  );
+};
+
+function rangeToPeriod(range: TypedDateRange | undefined): RangePeriod {
+  switch (range?.type) {
     case 'year':
-      return toYearRange(toMoment(current && current.start).year());
-    case 'month': {
-      const cur = toMoment(current && current.start);
-      return toMonthRange(cur.year(), cur.month() + 1);
-    }
+      return { type: 'year', year: range.start.getFullYear() };
+    case 'month':
+      return {
+        type: 'month',
+        year: range.start.getFullYear(),
+        month: range.start.getMonth() + 1,
+      };
     default:
-      return;
+      return { type: 'all' };
   }
 }
 
-const DateRangeSelectorImpl: React.FC<DateRangeSelectorProps> = props => {
-  const { onSelectRange, dateRange } = props;
-  const [selectedType, changeType] = React.useState<RangeType | 'none'>(
-    props.dateRange ? props.dateRange.type : 'none'
-  );
-  const changedSelection = useWhenChanged(selectedType);
-  React.useEffect(
-    () =>
-      changedSelection
-        ? onSelectRange(getRangeDefault(changedSelection, dateRange))
-        : undefined,
-    [changedSelection, onSelectRange, dateRange]
-  );
-  return (
-    <Container>
-      <Tabs>
-        <Tab>
-          <TabButton onClick={() => changeType('none')}>Kaikki</TabButton>
-          <TabButton onClick={() => changeType('year')}>Vuosi</TabButton>
-          <TabButton onClick={() => changeType('month')}>Kuukausi</TabButton>
-        </Tab>
-      </Tabs>
-      <TabPanel selected={selectedType} type="year">
-        <YearSelector {...props} />
-      </TabPanel>
-      <TabPanel selected={selectedType} type="month">
-        <MonthSelector {...props} />
-      </TabPanel>
-    </Container>
-  );
-};
+function periodToRange(period: RangePeriod): TypedDateRange | undefined {
+  switch (period.type) {
+    case 'year':
+      return toYearRange(period.year);
+    case 'month':
+      return toMonthRange(period.year, period.month);
+    default:
+      return undefined;
+  }
+}
 
 export const DateRangeSelector = React.memo(
   DateRangeSelectorImpl,
@@ -92,28 +64,3 @@ export const DateRangeSelector = React.memo(
     compareDates(prev.dateRange?.start, next.dateRange?.start) === 0 &&
     compareDates(prev.dateRange?.end, next.dateRange?.end) === 0
 );
-
-const Container = styled.div`
-  display: block;
-`;
-
-const Panel = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  margin-top: 4px;
-  display: ${(props: { selected?: boolean }) =>
-    props.selected ? 'inherit' : 'none'};
-`;
-
-const Tabs = styled.div`
-  display: flex;
-  flex-direction: row;
-`;
-
-const Tab = styled.div``;
-
-const TabButton = styled(Button)`
-  text-transform: none;
-  padding: 4px 6px;
-`;
