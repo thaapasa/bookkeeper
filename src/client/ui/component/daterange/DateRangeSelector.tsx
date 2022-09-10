@@ -2,7 +2,6 @@ import { Button } from '@mui/material';
 import * as React from 'react';
 import styled from 'styled-components';
 
-import { spaced } from 'shared/util/Strings';
 import { compareDates, toMoment } from 'shared/util/Time';
 import { TypedDateRange } from 'shared/util/TimeRange';
 import { useWhenChanged } from 'client/ui/hooks/useWhenChanged';
@@ -31,10 +30,7 @@ const TabPanel: React.FC<TabPanelProps> = ({
   className,
   ...other
 }) => (
-  <Panel
-    className={spaced`${className} ${type !== selected ? 'hidden' : undefined}`}
-    {...other}
-  >
+  <Panel selected={type === selected} className={className} {...other}>
     {children}
   </Panel>
 );
@@ -106,9 +102,8 @@ const Panel = styled.div`
   flex-direction: row;
   align-items: center;
   margin-top: 4px;
-  &.hidden {
-    display: none;
-  }
+  display: ${(props: { selected?: boolean }) =>
+    props.selected ? 'inherit' : 'none'};
 `;
 
 const Tabs = styled.div`
