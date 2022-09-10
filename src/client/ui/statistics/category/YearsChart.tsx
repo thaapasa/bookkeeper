@@ -30,8 +30,8 @@ import { getChartColor } from 'client/ui/chart/ChartColors';
 import { calculateChartHeight } from 'client/ui/chart/ChartSize';
 import {
   ChartColumn,
-  ChartColumnData,
   ChartData,
+  ChartKeyInfo,
 } from 'client/ui/chart/ChartTypes';
 import {
   fillMissingForNumericKeys,
@@ -53,10 +53,11 @@ export const YearsCategoryChart: React.FC<CategoryGraphProps> = ({
   categoryMap,
   stacked,
   estimated,
+  separateEstimate,
 }) => {
   const { chartData, keys } = React.useMemo(
-    () => convertData(data, categoryMap, estimated),
-    [data, categoryMap, estimated]
+    () => convertData(data, categoryMap, estimated, separateEstimate),
+    [data, categoryMap, estimated, separateEstimate]
   );
   const thin = useThinFormat(size);
   const ChartContainer = stacked ? AreaChart : LineChart;
@@ -114,7 +115,8 @@ interface YearlyDataItem {
 function convertData(
   data: CategoryStatistics,
   categoryMap: Record<ObjectId, Category>,
-  estimated: boolean
+  estimated: boolean,
+  separateEstimate: boolean
 ): ChartData<'year', number> {
   const cats = typedKeys(data.statistics);
   const years = getYearsInRange(data.range);
@@ -136,35 +138,37 @@ function convertData(
   const keys = cats.map((key, i) => ({
     key,
     color: getChartColor(i, 0),
-    name: getFullCategoryName(Number(key), categoryMap),
+    name:
+      getFullCategoryName(Number(key), categoryMap) +
+      (estimated && !separateEstimate ? ' (arvio)' : ''),
   }));
   const result: ChartData<'year', number> = { chartData, keys };
+  // If we are not estimating then we're done here
   if (!estimated) return result;
 
   const range = dateRangeToMomentRange(data.range);
-
+  // Map chart data to add estimates (either as separate lines or merged into the chart data)
   return mapChartData(
     result,
-    (k, i) => [
-      k,
-      {
-        key: `${k.key}i`,
-        color: getChartColor(i, 3),
-        name: `${k.name} (arvio)`,
-        estimate: true,
-      },
-    ],
-    d => ({
-      ...d,
-      ...createEstimationsForYear(
+    (k, i) => (separateEstimate ? [k, createEstimateKey(k, i)] : [k]),
+    d =>
+      createEstimationsForYear(
+        d,
         result.chartData,
         data,
         Number(d.year),
-        range
-      ),
-    })
+        range,
+        separateEstimate
+      )
   );
 }
+
+const createEstimateKey = (k: ChartKeyInfo, i: number): ChartKeyInfo => ({
+  key: `${k.key}i`,
+  color: getChartColor(i, 3),
+  name: `${k.name} (arvio)`,
+  estimate: true,
+});
 
 function sumYears(catData: CategoryStatisticsData[]): YearlyDataItem[] {
   const byYears: Record<number, Omit<YearlyDataItem, 'sum'> & { sum: Money }> =
@@ -181,20 +185,45 @@ function sumYears(catData: CategoryStatisticsData[]): YearlyDataItem[] {
 }
 
 function createEstimationsForYear(
+  column: ChartColumn<'year', number>,
   chartData: ChartColumn<'year', number>[],
   data: CategoryStatistics,
   year: number,
-  range: MomentRange
-): ChartColumnData<number> {
+  range: MomentRange,
+  separateEstimate: boolean
+): ChartColumn<'year', number> {
   const lastYear = toMoment(data.range.endDate).year();
   const keys = typedKeys(data.statistics);
 
-  return recordFromPairs(
+  if (year !== lastYear) {
+    return separateEstimate
+      ? { ...column, ...recordFromPairs(keys.map(k => [`${k}i`, 0])) }
+      : column;
+  }
+
+  if (separateEstimate) {
+    return {
+      ...column,
+      ...recordFromPairs(
+        keys.map(k => [
+          `${k}i`,
+          estimateMissingYearlyExpenses(Number(k), data, chartData, range),
+        ])
+      ),
+    };
+  }
+
+  const estimates = recordFromPairs(
     keys.map(k => [
-      `${k}i`,
-      year !== lastYear
-        ? 0
-        : estimateMissingYearlyExpenses(Number(k), data, chartData, range),
+      k,
+      estimateMissingYearlyExpenses(Number(k), data, chartData, range),
     ])
   );
+
+  return recordFromPairs(
+    typedKeys(column).map(k => [
+      k,
+      k === 'year' ? column[k] : column[k] + estimates[k],
+    ])
+  ) as any;
 }
