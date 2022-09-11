@@ -20,7 +20,6 @@ const log = debug('bookkeeper:statistics:estimate');
  * month distribution calculation
  */
 const useMonthDistributionTolerance = 0.3;
-const lastYearWeight = 0.3;
 
 export function estimateMissingYearlyExpenses(
   categoryId: number,
@@ -97,11 +96,10 @@ function estimateFromMontlyDistribution(
     .reduce(sum, 0);
 
   const ongoingMonthPercentage = percentages[ongoingMonth];
-  const positionInMonth =
-    (range.endTime.date() - 1) / range.endTime.daysInMonth();
+  const positionInMonth = range.endTime.date() / range.endTime.daysInMonth();
 
   const remainingPercentage =
-    percentagesFromMonthsLeft + positionInMonth * ongoingMonthPercentage;
+    percentagesFromMonthsLeft + (1 - positionInMonth) * ongoingMonthPercentage;
   assertTrue(remainingPercentage <= 1);
 
   // yearTotal = currentSum + remainingPercentage * yearTotal
@@ -124,11 +122,18 @@ function weightedEstimateFromLastYear(
   remainingPercentage: number,
   lastYearSum: number
 ) {
+  const lastYearWeight = remainingPercentage / 0.8;
   // Use a weighted estimate of direct interpolation and last years expenses
-  log(`Using year expenses: ${formatMoney(lastYearSum)}`);
+  log(
+    `Using year expenses: ${formatMoney(
+      lastYearSum
+    )} with weight ${lastYearWeight.toFixed(2)}`
+  );
 
+  const interpolatedEstimate = estimateByThisYear * remainingPercentage;
   const fullEstimate =
-    lastYearWeight * lastYearSum + (1 - lastYearWeight) * estimateByThisYear;
+    lastYearWeight * lastYearSum + (1 - lastYearWeight) * interpolatedEstimate;
+
   const remaining = fullEstimate * remainingPercentage;
   log(
     `Weighted estimate ${formatMoney(fullEstimate)}, remaining: ${formatMoney(

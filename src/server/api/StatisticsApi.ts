@@ -2,6 +2,7 @@ import { Router } from 'express';
 
 import { StatisticsSearchType } from 'shared/types/Statistics';
 import { StatisticsDb } from 'server/data/StatisticsDb';
+import { getRangeForQueries } from 'server/data/StatisticsService';
 import { Requests } from 'server/server/RequestHandling';
 
 /**
@@ -22,7 +23,7 @@ export function createStatisticsApi() {
           session.group.id,
           session.user.id,
           body.categoryIds,
-          body.range,
+          getRangeForQueries(body.range),
           body.onlyOwn === true
         ),
       true

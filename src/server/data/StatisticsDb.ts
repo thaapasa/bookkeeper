@@ -1,3 +1,4 @@
+import debug from 'debug';
 import { ITask } from 'pg-promise';
 
 import { ObjectId } from 'shared/types/Id';
@@ -6,8 +7,9 @@ import {
   CategoryStatisticsData,
 } from 'shared/types/Statistics';
 import { groupBy } from 'shared/util/Arrays';
-import { toISODate, toMoment } from 'shared/util/Time';
 import { DateRange } from 'shared/util/TimeRange';
+
+const log = debug('bookkeeper:api:statistics');
 
 async function loadCategoryStatisticsData(
   tx: ITask<any>,
@@ -46,16 +48,13 @@ async function getCategoryStatistics(
   groupId: ObjectId,
   userId: ObjectId,
   categoryIds: number[],
-  inputRange: DateRange | undefined,
+  range: DateRange,
   onlyOwn: boolean
 ): Promise<CategoryStatistics> {
-  const range = inputRange ?? {
-    startDate: toISODate(toMoment().subtract(5, 'years').startOf('year')),
-    endDate: toISODate(toMoment()),
-  };
   if (categoryIds.length < 1) {
     return { categoryIds, statistics: {}, range };
   }
+  log(`Querying for statistics between ${range.startDate} - ${range.endDate}`);
   const statistics = await loadCategoryStatisticsData(
     tx,
     groupId,

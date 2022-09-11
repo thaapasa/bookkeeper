@@ -7,10 +7,12 @@ import {
   DateLike,
   displayDatePattern,
   ISODate,
+  ISOMonth,
   monthToYear,
   toMoment,
   toMonthName,
   toYearName,
+  Year,
 } from './Time';
 import { leftPad } from './Util';
 
@@ -34,12 +36,13 @@ export interface MomentRange {
   endTime: Moment;
 }
 
-export function getYearsInRange(range: DateRange) {
+export function getYearsInRange(range: DateRange): Year[] {
   return numberRange(monthToYear(range.startDate), monthToYear(range.endDate));
 }
 
-export function getMonthsInRange(range: DateRange) {
+export function getMonthsInRange(range: DateRange): ISOMonth[] {
   const years = getYearsInRange(range);
+  if (years.length < 1) return [];
   const startYear = years[0];
   const endYear = years[years.length - 1];
   return years

@@ -34,6 +34,7 @@ export function indices(num: number): number[] {
 
 export function numberRange(min: number, max: number): number[] {
   const len = max - min + 1;
+  if (len < 0) return [];
   return Array.from(new Array(len), (_, i) => i + min);
 }
 
