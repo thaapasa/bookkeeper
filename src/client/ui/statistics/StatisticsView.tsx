@@ -9,8 +9,10 @@ import {
 import * as B from 'baconjs';
 import React from 'react';
 
+import { isDefined } from 'shared/types/Common';
 import { Category } from 'shared/types/Session';
 import { CategoryStatistics } from 'shared/types/Statistics';
+import { DateRange } from 'shared/util/TimeRange';
 import apiConnect from 'client/data/ApiConnect';
 import { AsyncData, UninitializedData } from 'client/data/AsyncData';
 import { categoryMapE, getFullCategoryName } from 'client/data/Categories';
@@ -41,6 +43,8 @@ export const StatisticsViewImpl: React.FC<{
     [categoryMap]
   );
 
+  const [range, setRange] = React.useState<DateRange | undefined>(undefined);
+
   const [type, setType] = useLocalStorage<StatisticsChartType>(
     'statistics.chart.type',
     'years'
@@ -58,8 +62,10 @@ export const StatisticsViewImpl: React.FC<{
 
   const statistics = useAsyncData(
     apiConnect.loadStatistics,
-    cats.length > 0,
+    cats.length > 0 && isDefined(range),
     cats,
+    range?.startDate ?? '',
+    range?.endDate ?? '',
     onlyOwn
   );
   const data: AsyncData<CategoryStatistics> =
@@ -96,7 +102,7 @@ export const StatisticsViewImpl: React.FC<{
         </FormGroup>
       </Grid>
       <Grid item xs={12}>
-        <StatisticsChartRangeSelector />
+        <StatisticsChartRangeSelector onChange={setRange} />
       </Grid>
       {cats.length > 0 ? (
         <Grid item xs={12}>

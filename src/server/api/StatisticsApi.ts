@@ -22,6 +22,7 @@ export function createStatisticsApi() {
           session.group.id,
           session.user.id,
           body.categoryIds,
+          body.range,
           body.onlyOwn === true
         ),
       true

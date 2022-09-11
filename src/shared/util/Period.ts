@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
-import { Month, toMoment, Year } from './Time';
+import { Month, toISODate, toMoment, Year } from './Time';
+import { DateRange } from './TimeRange';
 
 export const YearPeriod = z.object({
   type: z.literal('year'),
@@ -40,5 +41,39 @@ export function periodToYearAndMonth(p: Period): [Year, Month] {
     default:
       const m = toMoment();
       return [m.year(), m.month() + 1];
+  }
+}
+
+export function periodsToDateRange(start: Period, end: Period): DateRange {
+  return { startDate: toDateAtStart(start), endDate: toDateAtEnd(end) };
+}
+
+const pastDate = '2000-01-01';
+
+function toDateAtStart(p: Period) {
+  switch (p.type) {
+    case 'all':
+      return pastDate;
+    case 'year':
+      return toISODate(toMoment(p.year, 'YYYY').startOf('year'));
+    case 'month':
+      return toISODate(
+        toMoment(`${p.year}-${p.month}`, 'YYYY-MM').startOf('month')
+      );
+    default:
+      return toISODate();
+  }
+}
+
+function toDateAtEnd(p: Period) {
+  switch (p.type) {
+    case 'year':
+      return toISODate(toMoment(p.year, 'YYYY').endOf('year'));
+    case 'month':
+      return toISODate(
+        toMoment(`${p.year}-${p.month}`, 'YYYY-MM').endOf('month')
+      );
+    default:
+      return toISODate();
   }
 }

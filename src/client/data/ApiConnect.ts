@@ -25,7 +25,7 @@ import { CategoryStatistics } from 'shared/types/Statistics';
 import { FetchClient } from 'shared/util/FetchClient';
 import Money from 'shared/util/Money';
 import { filterTruthyProps } from 'shared/util/Objects';
-import { timeoutImmediate, toISODate } from 'shared/util/Time';
+import { ISODate, timeoutImmediate, toISODate } from 'shared/util/Time';
 import { uri } from 'shared/util/UrlUtils';
 
 import { checkLoginState } from './Login';
@@ -301,9 +301,15 @@ export class ApiConnect {
 
   public loadStatistics = (
     categoryIds: number[],
+    startDate: ISODate,
+    endDate: ISODate,
     onlyOwn: boolean
   ): Promise<CategoryStatistics> =>
-    this.post(uri`/api/statistics/category`, { categoryIds, onlyOwn });
+    this.post(uri`/api/statistics/category`, {
+      categoryIds,
+      range: { startDate, endDate },
+      onlyOwn,
+    });
 
   public patchSource = (sourceId: ObjectId, data: SourcePatch) =>
     this.patch<Source>(uri`/api/source/${sourceId}`, data);

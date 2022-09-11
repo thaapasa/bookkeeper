@@ -46,9 +46,10 @@ async function getCategoryStatistics(
   groupId: ObjectId,
   userId: ObjectId,
   categoryIds: number[],
+  inputRange: DateRange | undefined,
   onlyOwn: boolean
 ): Promise<CategoryStatistics> {
-  const range = {
+  const range = inputRange ?? {
     startDate: toISODate(toMoment().subtract(5, 'years').startOf('year')),
     endDate: toISODate(toMoment()),
   };

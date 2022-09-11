@@ -1,8 +1,13 @@
 import { FormLabel, Grid } from '@mui/material';
 import * as React from 'react';
 
-import { MonthPeriod, NowPeriod, YearPeriod } from 'shared/util/Period';
-import { TypedDateRange } from 'shared/util/TimeRange';
+import {
+  MonthPeriod,
+  NowPeriod,
+  periodsToDateRange,
+  YearPeriod,
+} from 'shared/util/Period';
+import { DateRange } from 'shared/util/TimeRange';
 
 import { PeriodSelector } from '../component/daterange/PeriodSelector';
 import { useLocalStorage } from '../hooks/useLocalStorage';
@@ -11,9 +16,8 @@ type ChartPeriod = NowPeriod | YearPeriod | MonthPeriod;
 const AllowedPeriods: ChartPeriod['type'][] = ['now', 'year', 'month'];
 
 export const StatisticsChartRangeSelector: React.FC<{
-  // TODO: Missing mapping
-  onChange?: (type: TypedDateRange) => void;
-}> = ({}) => {
+  onChange: (type: DateRange) => void;
+}> = ({ onChange }) => {
   const [start, setStart] = useLocalStorage<ChartPeriod>(
     'statistics.chart.period.start',
     { type: 'year', year: new Date().getFullYear() - 5 }
@@ -21,6 +25,10 @@ export const StatisticsChartRangeSelector: React.FC<{
   const [end, setEnd] = useLocalStorage<ChartPeriod>(
     'statistics.chart.period.end',
     { type: 'now' }
+  );
+  React.useEffect(
+    () => onChange(periodsToDateRange(start, end)),
+    [onChange, start, end]
   );
   return (
     <Grid container>
