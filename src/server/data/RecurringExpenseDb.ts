@@ -105,65 +105,65 @@ function getDatesUpTo(recurrence: Recurrence, date: Moment): string[] {
 
 function createMissingRecurrenceForDate(
   tx: ITask<any>,
-  e: [Expense, ExpenseDivisionItem[]]
-) {
-  return (date: string): Promise<number> => {
-    const [exp, division] = e;
-    const expense = { ...exp, template: false, date };
-    log('Creating missing expense', expense.title, expense.date);
-    // log('Creating missing expense', expense, 'with division', division);
-    return BasicExpenseDb.insert(tx, expense.userId, expense, division);
-  };
+  e: [Expense, ExpenseDivisionItem[]],
+  date: string
+): Promise<number> {
+  const [exp, division] = e;
+  const expense = { ...exp, template: false, date };
+  log('Creating missing expense', expense.title, expense.date);
+  // log('Creating missing expense', expense, 'with division', division);
+  return BasicExpenseDb.insert(tx, expense.userId, expense, division);
 }
 
-function createMissingRecurrences(
+async function createMissingRecurrences(
   tx: ITask<any>,
   groupId: number,
   userId: number,
-  date: Moment
+  date: Moment,
+  recurrenceDb: RecurrenceInDb
 ) {
-  return async (recurrenceDb: RecurrenceInDb): Promise<void> => {
-    const recurrence: Recurrence = {
-      ...recurrenceDb,
-      period: {
-        amount: recurrenceDb.periodAmount,
-        unit: recurrenceDb.periodUnit,
-      },
-    };
-    const until = recurrence.occursUntil
-      ? toMoment(recurrence.occursUntil)
-      : null;
-    const maxDate = until && until.isBefore(date) ? until : toMoment(date);
-    const dates = getDatesUpTo(recurrence, maxDate);
-    if (dates.length < 1) {
-      return;
-    }
-    const lastDate = dates[dates.length - 1];
-    const nextMissing = nextRecurrence(lastDate, recurrence.period);
-    log(
-      'Creating missing expenses for',
-      recurrence,
-      dates,
-      'next missing is',
-      toISODate(nextMissing)
-    );
-    const expense = await BasicExpenseDb.getExpenseAndDivision(
-      tx,
-      groupId,
-      userId,
-      recurrence.templateExpenseId
-    );
-    await Promise.all(dates.map(createMissingRecurrenceForDate(tx, expense)));
-    await tx.none(
-      `UPDATE recurring_expenses
+  const recurrence: Recurrence = {
+    ...recurrenceDb,
+    period: {
+      amount: recurrenceDb.periodAmount,
+      unit: recurrenceDb.periodUnit,
+    },
+  };
+  const until = recurrence.occursUntil
+    ? toMoment(recurrence.occursUntil)
+    : null;
+  const maxDate = until && until.isBefore(date) ? until : toMoment(date);
+  const dates = getDatesUpTo(recurrence, maxDate);
+  if (dates.length < 1) {
+    return;
+  }
+  const lastDate = dates[dates.length - 1];
+  const nextMissing = nextRecurrence(lastDate, recurrence.period);
+  log(
+    'Creating missing expenses for',
+    recurrence,
+    dates,
+    'next missing is',
+    toISODate(nextMissing)
+  );
+  const expense = await BasicExpenseDb.getExpenseAndDivision(
+    tx,
+    groupId,
+    userId,
+    recurrence.templateExpenseId
+  );
+  await tx.batch(
+    dates.map(date => createMissingRecurrenceForDate(tx, expense, date))
+  );
+  await tx.none(
+    `UPDATE recurring_expenses
         SET next_missing=$/nextMissing/::DATE
         WHERE id=$/recurringExpenseId/`,
-      {
-        nextMissing: toISODate(nextMissing),
-        recurringExpenseId: recurrence.id,
-      }
-    );
-  };
+    {
+      nextMissing: toISODate(nextMissing),
+      recurringExpenseId: recurrence.id,
+    }
+  );
 }
 
 interface RecurrenceInDb
@@ -180,7 +180,7 @@ async function createMissing(
   groupId: number,
   userId: number,
   date: Moment
-) {
+): Promise<void> {
   log('Checking for missing expenses');
   const list = await tx.map<RecurrenceInDb>(
     `SELECT *
@@ -189,8 +189,8 @@ async function createMissing(
     { groupId, nextMissing: date },
     camelCaseObject
   );
-  return Promise.all(
-    list.map(createMissingRecurrences(tx, groupId, userId, date))
+  await tx.batch(
+    list.map(v => createMissingRecurrences(tx, groupId, userId, date, v))
   );
 }
 
