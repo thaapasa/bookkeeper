@@ -24,18 +24,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      #- uses: actions/cache@v3
-      #  id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
-      #  with:
-      #    path: node_modules:./yarn/cache
-      #    key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-      #    restore-keys: |
-      #      ${{ runner.os }}-yarn-
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn config get cacheFolder)"
 
-      - name: Use Node.js 14.15.5
+      - uses: actions/cache@v3
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Use Node.js 16.14.0
         uses: actions/setup-node@v1
         with:
-          node-version: 14.15.5
+          node-version: 16.14.0
 
       - name: Install deps
         run: yarn
