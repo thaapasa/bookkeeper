@@ -42,7 +42,10 @@ export function splitByShares<T extends HasShares>(
 
   const newTotal = res.map(d => d.sum).reduce((a, b) => a.plus(b), Money.zero);
   assert(newTotal.equals(moneySum));
-  log('Divided to', res);
+  log(
+    'Divided to',
+    res.map(r => ({ ...r, sum: sum.toString() }))
+  );
   return res;
 }
 

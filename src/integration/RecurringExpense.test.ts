@@ -1,13 +1,10 @@
 import 'jest';
 
 import { ApiMessage } from 'shared/types/Api';
-import {
-  Expense,
-  ExpenseCollection,
-  RecurringExpensePeriod,
-} from 'shared/types/Expense';
+import { Expense, ExpenseCollection } from 'shared/types/Expense';
 import { YearMonth } from 'shared/types/Time';
 import Money from 'shared/util/Money';
+import { RecurrencePeriod } from 'shared/util/Recurrence';
 import {
   captureId,
   checkCreateStatus,
@@ -33,16 +30,19 @@ describe('recurring expenses', () => {
     await cleanup(session);
   });
 
-  it.each<[ISODate, RecurringExpensePeriod, ISODate]>([
-    ['2017-01-01', 'monthly', '2017-02-01'],
-    ['2017-01-31', 'monthly', '2017-02-28'],
-    ['2017-12-31', 'monthly', '2018-01-31'],
-    ['2017-12-01', 'monthly', '2018-01-01'],
-    ['2004-02-29', 'yearly', '2005-02-28'],
-    ['2004-02-28', 'yearly', '2005-02-28'],
-    ['2004-03-01', 'yearly', '2005-03-01'],
+  it.each<[ISODate, RecurrencePeriod, ISODate]>([
+    ['2017-01-01', { amount: 1, unit: 'months' }, '2017-02-01'],
+    ['2017-01-31', { amount: 1, unit: 'months' }, '2017-02-28'],
+    ['2017-12-31', { amount: 1, unit: 'months' }, '2018-01-31'],
+    ['2017-12-01', { amount: 1, unit: 'months' }, '2018-01-01'],
+    ['2004-02-29', { amount: 1, unit: 'years' }, '2005-02-28'],
+    ['2004-02-28', { amount: 1, unit: 'years' }, '2005-02-28'],
+    ['2004-03-01', { amount: 1, unit: 'years' }, '2005-03-01'],
+    ['2004-03-01', { amount: 1, unit: 'weeks' }, '2004-03-08'],
+    ['2004-03-02', { amount: 1, unit: 'weeks' }, '2004-03-09'],
+    ['2004-03-02', { amount: 1, unit: 'quarters' }, '2004-06-02'],
   ])(
-    'calculates next recurrence of %s (%s) to be %s',
+    'T45 - calculates next recurrence of %s (%s) to be %s',
     (start, period, expected) => {
       expect(toISODate(RecurringExpenseDb.nextRecurrence(start, period))).toBe(
         expected
@@ -50,7 +50,7 @@ describe('recurring expenses', () => {
     }
   );
 
-  it('templates should not show up on expense queries', async () => {
+  it('T53 - templates should not show up on expense queries', async () => {
     const status1 = await checkMonthStatus(session, month);
     const expenseId = checkCreateStatus(
       await newExpense(session, {
@@ -78,7 +78,7 @@ describe('recurring expenses', () => {
     );
     const s = await session.put<ApiMessage>(
       `/api/expense/recurring/${expenseId}`,
-      { period: 'monthly' }
+      { period: { amount: 1, unit: 'months' } }
     );
     expect(s.recurringExpenseId).toBeGreaterThan(0);
     expect(s.templateExpenseId).toBeGreaterThan(0);
@@ -89,7 +89,7 @@ describe('recurring expenses', () => {
     expect(e2.recurringExpenseId).toEqual(s.recurringExpenseId);
   });
 
-  it('creates 1/month', async () => {
+  it('T92 - creates 1/month', async () => {
     const expenseId = checkCreateStatus(
       await newExpense(session, {
         sum: '150.00',
@@ -100,7 +100,7 @@ describe('recurring expenses', () => {
     );
     const s = await session.put<ApiMessage>(
       `/api/expense/recurring/${expenseId}`,
-      { period: 'monthly' }
+      { period: { amount: 1, unit: 'months' } }
     );
     expect(s.recurringExpenseId).toBeGreaterThan(0);
     expect(s.templateExpenseId).toBeGreaterThan(0);

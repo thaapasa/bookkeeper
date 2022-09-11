@@ -7,7 +7,6 @@ import {
   ExpenseData,
   ExpenseQuery,
   ExpenseStatus,
-  RecurringExpensePeriod,
   RecurringExpenseTarget,
   UserExpense,
   UserExpenseWithDetails,
@@ -25,6 +24,7 @@ import { CategoryStatistics } from 'shared/types/Statistics';
 import { FetchClient } from 'shared/util/FetchClient';
 import Money from 'shared/util/Money';
 import { filterTruthyProps } from 'shared/util/Objects';
+import { RecurrencePeriod } from 'shared/util/Recurrence';
 import { ISODate, timeoutImmediate, toISODate } from 'shared/util/Time';
 import { uri } from 'shared/util/UrlUtils';
 
@@ -246,7 +246,7 @@ export class ApiConnect {
 
   public createRecurring(
     id: number | string,
-    period: RecurringExpensePeriod
+    period: RecurrencePeriod
   ): Promise<ApiMessage> {
     return this.put<ApiMessage>(uri`/api/expense/recurring/${id}`, {
       period,

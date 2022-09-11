@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { MoneyLike } from 'shared/util/Money';
+import { RecurrencePeriod } from 'shared/util/Recurrence';
 import { ISODate } from 'shared/util/Time';
 
 import { DbObject, ShortString } from './Common';
@@ -149,14 +150,11 @@ export const ExpenseCollection = z.object({
 });
 export type ExpenseCollection = z.infer<typeof ExpenseCollection>;
 
-export const RecurringExpensePeriod = z.enum(['monthly', 'yearly']);
-export type RecurringExpensePeriod = z.infer<typeof RecurringExpensePeriod>;
-
 export const RecurringExpenseTarget = z.enum(['single', 'all', 'after']);
 export type RecurringExpenseTarget = z.infer<typeof RecurringExpenseTarget>;
 
 export const RecurringExpenseInput = z.object({
-  period: RecurringExpensePeriod,
+  period: RecurrencePeriod,
   occursUntil: ISODate.optional(),
 });
 export type RecurringExpenseInput = z.infer<typeof RecurringExpenseInput>;

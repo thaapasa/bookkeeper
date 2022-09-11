@@ -4,13 +4,10 @@ import debug from 'debug';
 import * as React from 'react';
 import styled from 'styled-components';
 
-import {
-  ExpenseDivision,
-  RecurringExpensePeriod,
-  UserExpense,
-} from 'shared/types/Expense';
+import { ExpenseDivision, UserExpense } from 'shared/types/Expense';
 import { Category, Source } from 'shared/types/Session';
 import Money from 'shared/util/Money';
+import { RecurrencePeriod } from 'shared/util/Recurrence';
 import { ISODatePattern, toDate, toMoment } from 'shared/util/Time';
 import apiConnect from 'client/data/ApiConnect';
 import { categoryMapE } from 'client/data/Categories';
@@ -57,13 +54,18 @@ const ExpenseInfoToolsImpl: React.FC<RecurrenceInfoProps> = ({
 }) => {
   const createRecurring = async () => {
     try {
-      const period = await confirm<RecurringExpensePeriod | undefined>(
+      const period = await confirm<RecurrencePeriod | undefined>(
         'Muuta toistuvaksi',
         `Kuinka usein kirjaus ${expenseName(expense)} toistuu?`,
         {
           actions: [
-            { label: 'Kuukausittain', value: 'monthly' },
-            { label: 'Vuosittain', value: 'yearly' },
+            { label: 'Viikoittain', value: { amount: 1, unit: 'weeks' } },
+            { label: 'Kuukausittain', value: { amount: 1, unit: 'months' } },
+            {
+              label: 'Kvartaaleittain',
+              value: { amount: 1, unit: 'quarters' },
+            },
+            { label: 'Vuosittain', value: { amount: 1, unit: 'years' } },
             { label: 'Peruuta', value: undefined },
           ],
         }

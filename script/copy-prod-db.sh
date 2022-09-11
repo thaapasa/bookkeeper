@@ -33,6 +33,7 @@ fi
 
 echo "Clearing local database"
 dropdb -h localhost -p ${PORT} -U postgres postgres || echo Could not clear local db
+echo "Creating new empty database"
 createdb -h localhost -p ${PORT} -U postgres postgres || exit -1
 
 echo "Restoring prod DB dump"
