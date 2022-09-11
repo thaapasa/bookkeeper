@@ -3,6 +3,7 @@ import { Moment } from 'moment';
 import { ITask } from 'pg-promise';
 
 import { ApiMessage } from 'shared/types/Api';
+import { DbObject } from 'shared/types/Common';
 import { InvalidExpense, InvalidInputError } from 'shared/types/Errors';
 import {
   Expense,
@@ -10,11 +11,18 @@ import {
   ExpenseInput,
   Recurrence,
   RecurringExpenseInput,
-  RecurringExpensePeriod,
   RecurringExpenseTarget,
 } from 'shared/types/Expense';
+import { ObjectId } from 'shared/types/Id';
 import { unnest } from 'shared/util/Arrays';
-import { DateLike, fromISODate, toISODate, toMoment } from 'shared/util/Time';
+import { RecurrencePeriod, RecurrenceUnit } from 'shared/util/Recurrence';
+import {
+  DateLike,
+  fromISODate,
+  ISODate,
+  toISODate,
+  toMoment,
+} from 'shared/util/Time';
 import { camelCaseObject } from 'shared/util/Util';
 
 import { BasicExpenseDb } from './BasicExpenseDb';
@@ -27,30 +35,22 @@ const log = debug('bookkeeper:api:recurring-expenses');
 
 function nextRecurrence(
   from: string | Moment,
-  period: RecurringExpensePeriod
+  period: RecurrencePeriod
 ): Moment {
   const date = fromISODate(from);
-  switch (period) {
-    case 'monthly':
-      return date.add(1, 'month');
-    case 'yearly':
-      return date.add(1, 'year');
-    default:
-      throw new InvalidInputError(
-        'INVALID_INPUT',
-        `Unrecognized period type ${period}`
-      );
-  }
+  return date.add(period.amount, period.unit);
 }
 
 async function createRecurring(
   tx: ITask<any>,
-  groupId: number,
-  userId: number,
-  expenseId: number,
+  groupId: ObjectId,
+  userId: ObjectId,
+  expenseId: ObjectId,
   recurrence: RecurringExpenseInput
 ): Promise<ApiMessage> {
-  log(`Create ${recurrence.period} recurring expense from ${expenseId}`);
+  log(
+    `Create recurring expense with a period of ${recurrence.period.amount} ${recurrence.period.unit} from ${expenseId}`
+  );
   let nextMissing: Moment | undefined;
   const templateId = await copyExpense(tx, groupId, userId, expenseId, e => {
     const [expense, division] = e;
@@ -65,12 +65,13 @@ async function createRecurring(
   });
   const recurringExpenseId = (
     await tx.one<{ id: number }>(
-      `INSERT INTO recurring_expenses (template_expense_id, period, next_missing, group_id)
-          VALUES ($/templateId/::INTEGER, $/period/, $/nextMissing/::DATE, $/groupId/)
+      `INSERT INTO recurring_expenses (template_expense_id, period_amount, period_unit, next_missing, group_id)
+          VALUES ($/templateId/, $/periodAmount/, $/periodUnit/, $/nextMissing/::DATE, $/groupId/)
           RETURNING id`,
       {
         templateId,
-        period: recurrence.period,
+        periodAmount: recurrence.period.amount,
+        periodUnit: recurrence.period.unit,
         nextMissing: toISODate(nextMissing),
         groupId,
       }
@@ -121,7 +122,14 @@ function createMissingRecurrences(
   userId: number,
   date: Moment
 ) {
-  return async (recurrence: Recurrence): Promise<void> => {
+  return async (recurrenceDb: RecurrenceInDb): Promise<void> => {
+    const recurrence: Recurrence = {
+      ...recurrenceDb,
+      period: {
+        amount: recurrenceDb.periodAmount,
+        unit: recurrenceDb.periodUnit,
+      },
+    };
     const until = recurrence.occursUntil
       ? toMoment(recurrence.occursUntil)
       : null;
@@ -158,6 +166,15 @@ function createMissingRecurrences(
   };
 }
 
+interface RecurrenceInDb
+  extends DbObject,
+    Omit<RecurringExpenseInput, 'period'> {
+  nextMissing: ISODate;
+  templateExpenseId: number;
+  periodAmount: number;
+  periodUnit: RecurrenceUnit;
+}
+
 async function createMissing(
   tx: ITask<any>,
   groupId: number,
@@ -165,7 +182,7 @@ async function createMissing(
   date: Moment
 ) {
   log('Checking for missing expenses');
-  const list = await tx.map<Recurrence>(
+  const list = await tx.map<RecurrenceInDb>(
     `SELECT *
         FROM recurring_expenses
         WHERE group_id=$/groupId/ AND next_missing < $/nextMissing/::DATE`,

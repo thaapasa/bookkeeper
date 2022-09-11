@@ -56,7 +56,7 @@ async function addExampleData() {
     session
   );
   await session.put(`/api/expense/recurring/${debtE.expenseId}`, {
-    period: 'monthly',
+    period: { amount: 1, unit: 'months' },
   });
   await session.logout();
   log('Example data created');
