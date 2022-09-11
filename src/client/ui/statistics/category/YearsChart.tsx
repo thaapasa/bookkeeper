@@ -54,6 +54,7 @@ export const YearsCategoryChart: React.FC<CategoryGraphProps> = ({
   stacked,
   estimated,
   separateEstimate,
+  stackMainCats,
 }) => {
   const { chartData, keys } = React.useMemo(
     () => convertData(data, categoryMap, estimated, separateEstimate),
@@ -87,7 +88,9 @@ export const YearsCategoryChart: React.FC<CategoryGraphProps> = ({
             strokeDasharray={v.estimate ? '3 3' : undefined}
             stroke={v.color}
             fill={`${v.color}77`}
-            stackId={1}
+            stackId={
+              stackMainCats ? categoryMap[v.dataId].parentId ?? v.dataId : 1
+            }
             name={v.name ?? v.key}
           />
         ) : (
@@ -138,6 +141,7 @@ function convertData(
   const keys = cats.map((key, i) => ({
     key,
     color: getChartColor(i, 0),
+    dataId: Number(key),
     name:
       getFullCategoryName(Number(key), categoryMap) +
       (estimated && !separateEstimate ? ' (arvio)' : ''),
@@ -167,6 +171,7 @@ const createEstimateKey = (k: ChartKeyInfo, i: number): ChartKeyInfo => ({
   key: `${k.key}i`,
   color: getChartColor(i, 3),
   name: `${k.name} (arvio)`,
+  dataId: k.dataId,
   estimate: true,
 });
 

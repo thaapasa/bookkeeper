@@ -115,6 +115,7 @@ function convertData(
       key,
       color: getChartColor(i, 0),
       name: getFullCategoryName(Number(key), categoryMap),
+      dataId: Number(key),
     })),
   };
 }

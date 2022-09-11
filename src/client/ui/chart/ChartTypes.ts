@@ -7,6 +7,7 @@ export interface ChartKeyInfo {
   name?: string;
   /** True when this value is an estimate */
   estimate?: boolean;
+  dataId: number;
 }
 
 export type ChartKeyType = string | number;

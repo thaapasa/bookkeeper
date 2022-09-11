@@ -110,6 +110,7 @@ function convertData(
           key: `${k}-${y}`,
           color: getChartColor(i, years[years.length - 1] - y),
           name: `${getFullCategoryName(Number(k), categoryMap)} (${y})`,
+          dataId: Number(k),
         }))
       )
       .flat(1),

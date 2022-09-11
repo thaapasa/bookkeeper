@@ -22,6 +22,7 @@ interface BaseCategoryGraphProps {
 export type CategoryGraphProps = BaseCategoryGraphProps & {
   estimated: boolean;
   separateEstimate: boolean;
+  stackMainCats: boolean;
 };
 
 const StatisticsGraphImpl: React.FC<
@@ -35,6 +36,10 @@ const StatisticsGraphImpl: React.FC<
     'statistics.chart.estimate.separate',
     false
   );
+  const [stackMainCats, setStackMainCats] = useLocalStorage(
+    'statistics.chart.estimate.stackMainCategories',
+    false
+  );
 
   return (
     <>
@@ -42,6 +47,7 @@ const StatisticsGraphImpl: React.FC<
         type={type}
         estimated={estimated}
         separateEstimate={separateEstimate}
+        stackMainCats={stackMainCats}
         {...props}
       />
       {type === 'years' && props.stacked ? (
@@ -63,6 +69,15 @@ const StatisticsGraphImpl: React.FC<
               />
             }
             label="Arvio erillään"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={stackMainCats}
+                onChange={() => setStackMainCats(!stackMainCats)}
+              />
+            }
+            label="Alueet pääkategorioittain"
           />
         </FormGroup>
       ) : null}
