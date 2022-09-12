@@ -23,6 +23,7 @@ import DatePickerComponent from '../component/DatePickerComponent';
 import { AppLink, NavigationBar } from '../component/NavigationBar';
 import NotificationBar from '../component/NotificationBar';
 import TopBar from '../component/TopBar';
+import { ModalDialogConnector } from '../dialog/ModalDialogConnector';
 import { ExpenseDialog } from '../expense/dialog/ExpenseDialog';
 import { createExpenseDialogListener } from '../expense/dialog/ExpenseDialogListener';
 import { FrontpageView } from '../expense/FrontpageView';
@@ -76,6 +77,7 @@ export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
       <ExpenseDialogBinder windowSize={windowSize} />
       <ExpenseSplitBinder windowSize={windowSize} />
       <ConfirmationDialog />
+      <ModalDialogConnector />
       <Router>
         <ContentContainer>
           <TopBar links={appLinks} windowSize={windowSize} />
