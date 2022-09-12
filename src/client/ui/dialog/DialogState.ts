@@ -16,7 +16,7 @@ function promptUser<T, D extends DialogData>(
   });
 }
 
-export const DialogActions = {
+export const UserPrompts = {
   /**
    * Ask the user confirmation from the users with a dialog.
    * Returns a promise that will be resolved to either true of false depending on user input.
@@ -34,7 +34,7 @@ export const DialogActions = {
    * Returns a promise that will be resolved to one of the options; or undefined if the dialog
    * was cancelled.
    */
-  select: <T extends string>(
+  select: <T>(
     title: string,
     description: string,
     options: DialogSelectOption<T>[]

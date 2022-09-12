@@ -16,7 +16,6 @@ import { readableDate, toDate, toISODate, toMoment } from 'shared/util/Time';
 import apiConnect from 'client/data/ApiConnect';
 import { getFullCategoryName, UserDataProps } from 'client/data/Categories';
 import {
-  confirm,
   editExpense,
   notify,
   notifyError,
@@ -26,6 +25,7 @@ import {
 import * as colors from 'client/ui/Colors';
 import ActivatableTextField from 'client/ui/component/ActivatableTextField';
 import { UserAvatar } from 'client/ui/component/UserAvatar';
+import { UserPrompts } from 'client/ui/dialog/DialogState';
 import {
   Delete,
   Edit,
@@ -176,10 +176,9 @@ export class ExpenseRow extends React.Component<
       if (e.recurringExpenseId) {
         return this.deleteRecurringExpense();
       }
-      const b = await confirm<boolean>(
+      const b = await UserPrompts.confirm(
         'Poista kirjaus',
-        `Haluatko varmasti poistaa kirjauksen ${name}?`,
-        { okText: 'Poista' }
+        `Haluatko varmasti poistaa kirjauksen ${name}?`
       );
       if (!b) {
         return;
@@ -196,17 +195,14 @@ export class ExpenseRow extends React.Component<
     const e = this.props.expense;
     try {
       const name = expenseName(e);
-      const target = await confirm<RecurringExpenseTarget | null>(
+      const target = await UserPrompts.select<RecurringExpenseTarget>(
         'Poista toistuva kirjaus',
         `Haluatko varmasti poistaa kirjauksen ${name}?`,
-        {
-          actions: [
-            { label: 'Vain tämä', value: 'single' },
-            { label: 'Kaikki', value: 'all' },
-            { label: 'Tästä eteenpäin', value: 'after' },
-            { label: 'Peruuta', value: null },
-          ],
-        }
+        [
+          { label: 'Vain tämä', value: 'single' },
+          { label: 'Kaikki', value: 'all' },
+          { label: 'Tästä eteenpäin', value: 'after' },
+        ]
       );
       if (!target) {
         return;

@@ -3,7 +3,7 @@ import * as React from 'react';
 
 import { DialogContentRendererProps, OptionSelectDialogData } from './Dialog';
 
-type OptionSelectDialogProps<T extends string> = DialogContentRendererProps<T> &
+type OptionSelectDialogProps<T> = DialogContentRendererProps<T> &
   OptionSelectDialogData<T>;
 
 export const OptionSelectDialogContents: React.FC<

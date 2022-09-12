@@ -9,40 +9,11 @@ import { noop } from 'shared/util/Util';
 import { Size } from '../ui/Types';
 import { expensePagePath } from '../util/Links';
 import {
-  ConfirmationAction,
-  ConfirmationObject,
   ExpenseDialogObject,
   NavigationConfig,
   Notification,
   PickDateObject,
 } from './StateTypes';
-
-/* Push event to confirmationBus to show a confirmation dialog */
-const confirmationBus = new B.Bus<ConfirmationObject<any>>();
-
-interface ConfirmationSettings<T> {
-  okText?: string;
-  cancelText?: string;
-  actions?: Array<ConfirmationAction<T>>;
-}
-
-export const confirmationE = confirmationBus;
-
-/* Returns a promise that will be resolved to either true of false depending on user input */
-export function confirm<T>(
-  title: string,
-  content: string,
-  options?: ConfirmationSettings<T>
-): Promise<T> {
-  return new Promise<T>(resolve => {
-    const op = options || {};
-    const actions: Array<ConfirmationAction<T>> = op.actions || [
-      { label: op.okText ? op.okText : 'OK', value: true as any },
-      { label: op.cancelText ? op.cancelText : 'Peruuta', value: false as any },
-    ];
-    confirmationBus.push({ title, content, actions, resolve });
-  });
-}
 
 const notificationBus = new B.Bus<Notification>();
 export const notificationE = notificationBus;
@@ -126,8 +97,6 @@ navigationP.onValue(noop);
 /* Export state to window globals for debugging */
 if (process.env.NODE_ENV === 'development') {
   (window as any).state = {
-    confirmationBus,
-    confirmationE,
     notificationBus,
     notificationE,
     pickDateBus,

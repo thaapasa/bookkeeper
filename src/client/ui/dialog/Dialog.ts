@@ -1,9 +1,9 @@
-export type DialogSelectOption<T extends string> = {
+export type DialogSelectOption<T> = {
   value: T;
   label: string;
 };
 
-export type OptionSelectDialogData<T extends string> = {
+export type OptionSelectDialogData<T> = {
   type: 'option';
   description: string;
   options: DialogSelectOption<T>[];

@@ -28,10 +28,11 @@ import { toDate, toISODate } from 'shared/util/Time';
 import { identity } from 'shared/util/Util';
 import apiConnect from 'client/data/ApiConnect';
 import { CategoryDataSource, isSubcategoryOf } from 'client/data/Categories';
-import { confirm, notify, notifyError } from 'client/data/State';
+import { notify, notifyError } from 'client/data/State';
 import { gray } from 'client/ui/Colors';
 import UserAvatar from 'client/ui/component/UserAvatar';
 import UserSelector from 'client/ui/component/UserSelector';
+import { UserPrompts } from 'client/ui/dialog/DialogState';
 import { Today } from 'client/ui/Icons';
 import { isMobileSize } from 'client/ui/Styles';
 import { Size } from 'client/ui/Types';
@@ -381,17 +382,14 @@ export class ExpenseDialog extends React.Component<
     originalId: number,
     data: ExpenseData
   ): Promise<boolean> => {
-    const target = await confirm<RecurringExpenseTarget | null>(
+    const target = await UserPrompts.select<RecurringExpenseTarget>(
       'Tallenna toistuva kirjaus',
       'Mitä kirjauksia haluat muuttaa?',
-      {
-        actions: [
-          { label: 'Vain tämä', value: 'single' },
-          { label: 'Kaikki', value: 'all' },
-          { label: 'Tästä eteenpäin', value: 'after' },
-          { label: 'Peruuta', value: null },
-        ],
-      }
+      [
+        { label: 'Vain tämä', value: 'single' },
+        { label: 'Kaikki', value: 'all' },
+        { label: 'Tästä eteenpäin', value: 'after' },
+      ]
     );
     if (!target) {
       return false;

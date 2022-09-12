@@ -40,7 +40,6 @@ import {
   mainContentMaxWidth,
 } from '../Styles';
 import { Size } from '../Types';
-import ConfirmationDialog from './ConfirmationDialog';
 import { PathNotFoundError } from './ErrorView';
 import { ShortcutsView } from './ShortcutsView';
 
@@ -76,7 +75,6 @@ export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
       <GlobalStyle />
       <ExpenseDialogBinder windowSize={windowSize} />
       <ExpenseSplitBinder windowSize={windowSize} />
-      <ConfirmationDialog />
       <ModalDialogConnector />
       <Router>
         <ContentContainer>
