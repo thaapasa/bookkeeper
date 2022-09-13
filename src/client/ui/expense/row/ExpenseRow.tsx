@@ -1,4 +1,3 @@
-import { TextField } from '@mui/material';
 import debug from 'debug';
 import * as React from 'react';
 import styled from 'styled-components';
@@ -23,7 +22,8 @@ import {
   updateExpenses,
 } from 'client/data/State';
 import * as colors from 'client/ui/Colors';
-import ActivatableTextField from 'client/ui/component/ActivatableTextField';
+import { ActivatableTextField } from 'client/ui/component/ActivatableTextField';
+import { TextEdit } from 'client/ui/component/TextEdit';
 import { UserAvatar } from 'client/ui/component/UserAvatar';
 import { UserPrompts } from 'client/ui/dialog/DialogState';
 import {
@@ -268,8 +268,7 @@ export class ExpenseRow extends React.Component<
           <NameColumn>
             {this.props.expense.confirmed ? null : <UnconfirmedIcon />}
             <ActivatableTextField
-              editorId={`expense-row-name-${this.props.expense.id}`}
-              editorType={TextField}
+              editorType={TextEdit}
               value={expense.title}
               viewStyle={{ display: 'inline-block', verticalAlign: 'middle' }}
               onChange={v => this.updateExpense({ title: v })}
@@ -277,7 +276,6 @@ export class ExpenseRow extends React.Component<
           </NameColumn>
           <ReceiverColumn>
             <ActivatableTextField
-              editorId={`expense-row-receiver-${this.props.expense.id}`}
               value={expense.receiver}
               editorType={ReceiverField}
               onChange={v => this.updateExpense({ receiver: v })}

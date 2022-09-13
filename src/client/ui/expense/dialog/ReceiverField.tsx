@@ -14,7 +14,7 @@ export interface ReceiverFieldProps {
   placeholder?: string;
   errorText?: string;
   autoFocus?: boolean;
-  onChange: (event: string | React.ChangeEvent<{ value: string }>) => void;
+  onChange: (event: string) => void;
   onBlur?: () => void;
   onKeyUp?: (event: React.KeyboardEvent<any>) => void;
 }

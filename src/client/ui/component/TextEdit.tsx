@@ -2,9 +2,11 @@ import { TextField, TextFieldProps } from '@mui/material';
 import * as React from 'react';
 import styled from 'styled-components';
 
-export const TextEdit: React.FC<
-  Omit<TextFieldProps, 'onChange'> & { onChange: (s: string) => void }
-> = ({ onChange, ...props }) => {
+export type TextEditProps = Omit<TextFieldProps, 'onChange'> & {
+  onChange: (s: string) => void;
+};
+
+export const TextEdit: React.FC<TextEditProps> = ({ onChange, ...props }) => {
   const onChangeHandler = React.useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) =>
       onChange(e.target.value),

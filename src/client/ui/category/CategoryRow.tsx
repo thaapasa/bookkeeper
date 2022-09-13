@@ -100,7 +100,6 @@ export const CategoryRow: React.FC<CategoryRowProps> = props => {
               onEdit={editCategory}
             />
             <ToggleButton
-              category={category}
               color={toolColor}
               onToggle={toggleOpen}
               state={open}

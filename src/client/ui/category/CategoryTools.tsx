@@ -33,13 +33,12 @@ export const EditCategoryButton: React.FC<{
 
 export const ToggleButton: React.FC<{
   state: boolean;
-  onToggle: (c?: Category) => void;
-  category?: Category;
+  onToggle: () => void;
   color?: string | null;
-}> = ({ state, onToggle, category, color }) => (
+}> = ({ state, onToggle, color }) => (
   <ToolIcon
     title={state ? 'Sulje' : 'Avaa'}
-    onClick={() => onToggle(category)}
+    onClick={onToggle}
     icon={state ? ExpandLess : ExpandMore}
     color={color}
   />
