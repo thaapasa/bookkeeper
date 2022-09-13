@@ -23,7 +23,7 @@ export function notify(message: string): void {
 }
 
 export function notifyError(message: string, cause: any) {
-  notificationBus.push({ message, cause });
+  notificationBus.push({ message, cause, severity: 'warning' });
 }
 
 const pickDateBus = new B.Bus<PickDateObject>();

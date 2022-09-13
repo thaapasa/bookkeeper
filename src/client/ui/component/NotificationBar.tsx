@@ -1,3 +1,4 @@
+import { Alert } from '@mui/material';
 import Snackbar from '@mui/material/Snackbar';
 import * as React from 'react';
 
@@ -15,30 +16,26 @@ interface NotificationBarProps {
   onClose: Action;
 }
 
-class NotificationBar extends React.Component<NotificationBarProps> {
-  private getMessage() {
-    return this.props.notification.cause
-      ? this.props.notification.message +
-          ', cause: ' +
-          this.props.notification.message
-      : this.props.notification.message;
-  }
-  public render() {
-    return (
-      <Snackbar
-        open={true}
-        message={this.getMessage()}
-        onClose={this.props.onClose}
-      />
-    );
-  }
-}
+const NotificationBarView: React.FC<NotificationBarProps> = ({
+  notification,
+  onClose,
+}) => {
+  const message = notification.cause
+    ? notification.message + ', cause: ' + notification.message
+    : notification.message;
+
+  return (
+    <Snackbar open={true} onClose={onClose}>
+      <Alert severity={notification.severity ?? 'success'}>{message}</Alert>
+    </Snackbar>
+  );
+};
 
 interface NotificationBarConnectorState {
   notification: Notification | null;
 }
 
-export default class NotificationBarConnector extends React.Component<
+export class NotificationBar extends React.Component<
   AnyObject,
   NotificationBarConnectorState
 > {
@@ -88,7 +85,7 @@ export default class NotificationBarConnector extends React.Component<
 
   public render() {
     return this.state.notification ? (
-      <NotificationBar
+      <NotificationBarView
         notification={this.state.notification}
         onClose={this.dismissCurrent}
       />

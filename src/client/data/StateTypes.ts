@@ -1,3 +1,5 @@
+import { AlertColor } from '@mui/material';
+
 import { TypedDateRange } from 'shared/util/TimeRange';
 
 export interface ConfirmationAction<T> {
@@ -15,6 +17,7 @@ export interface ConfirmationObject<T> {
 export interface Notification {
   message: string;
   cause?: any;
+  severity?: AlertColor;
 }
 
 export interface PickDateObject {
