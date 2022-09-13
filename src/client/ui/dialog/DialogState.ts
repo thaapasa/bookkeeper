@@ -1,6 +1,7 @@
 import * as B from 'baconjs';
 
 import { TextEditorComponent } from '../component/TextEditVariants';
+import { DateSelectDialogComponent } from './DateSelectDialogContents';
 import { DialogConfig, DialogData, DialogSelectOption } from './Dialog';
 import { OptionSelectDialogContents } from './OptionSelectDialogContents';
 import { TextPromptDialogContents } from './TextPromptDialogContents';
@@ -63,5 +64,18 @@ export const UserPrompts = {
       title,
       rendererProps: { description, initialText, editorType },
       contentRenderer: TextPromptDialogContents,
+    }),
+
+  /**
+   * Ask the user to input a text string in a dialog.
+   * Returns a promise that will be resolved to the text that was entered; or undefined if the dialog
+   * was cancelled.
+   */
+  selectDate: (title: string, initialDate?: Date): Promise<Date | undefined> =>
+    promptUser({
+      type: 'date',
+      title,
+      rendererProps: { initialDate },
+      contentRenderer: DateSelectDialogComponent,
     }),
 };

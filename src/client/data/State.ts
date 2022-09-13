@@ -12,7 +12,6 @@ import {
   ExpenseDialogObject,
   NavigationConfig,
   Notification,
-  PickDateObject,
 } from './StateTypes';
 
 const notificationBus = new B.Bus<Notification>();
@@ -29,15 +28,6 @@ export function notifyError(
 ) {
   notificationBus.push({ message, cause, severity: 'warning', ...params });
 }
-
-const pickDateBus = new B.Bus<PickDateObject>();
-
-/* Returns a promise that will be resolved to the selected date  */
-export function pickDate(initialDate?: Date): Promise<Date | undefined> {
-  return new Promise(resolve => pickDateBus.push({ resolve, initialDate }));
-}
-
-export const pickDateE = pickDateBus;
 
 const expenseDialogBus = new B.Bus<ExpenseDialogObject<ExpenseInEditor>>();
 const expenseSplitBus = new B.Bus<ExpenseDialogObject<ExpenseSplit[]>>();
@@ -103,8 +93,6 @@ if (process.env.NODE_ENV === 'development') {
   (window as any).state = {
     notificationBus,
     notificationE,
-    pickDateBus,
-    pickDateE,
     expenseDialogBus,
     expenseDialogE,
     needUpdateBus,

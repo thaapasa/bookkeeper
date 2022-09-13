@@ -20,7 +20,7 @@ export const OptionSelectDialogContents: React.FC<
       <DialogContent onKeyUp={handleKeyPress}>{description}</DialogContent>
       <DialogActions>
         <Button
-          color={'primary'}
+          color="primary"
           variant="text"
           onKeyUp={handleKeyPress}
           onClick={onCancel}

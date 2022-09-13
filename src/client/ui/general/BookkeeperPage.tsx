@@ -20,7 +20,6 @@ import {
 
 import { RoutedCategoryView } from '../category/RoutedCategoryView';
 import { colorScheme } from '../Colors';
-import DatePickerComponent from '../component/DatePickerComponent';
 import { AppLink, NavigationBar } from '../component/NavigationBar';
 import { NotificationBar } from '../component/NotificationBar';
 import { TopBar } from '../component/TopBar';
@@ -119,7 +118,6 @@ export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
           </MainContent>
         </ContentContainer>
       </Router>
-      <DatePickerComponent />
       <NotificationBar />
     </Page>
   );

@@ -20,7 +20,15 @@ export type TextPromptDialogData = {
   editorType?: TextEditorComponent;
 };
 
-export type DialogData = OptionSelectDialogData<any> | TextPromptDialogData;
+export type DateSelectDialogData = {
+  type: 'date';
+  initialDate?: Date;
+};
+
+export type DialogData =
+  | OptionSelectDialogData<any>
+  | TextPromptDialogData
+  | DateSelectDialogData;
 
 export interface DialogContentRendererProps<T> {
   onSelect: (value: T) => void;

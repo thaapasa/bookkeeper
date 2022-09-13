@@ -16,8 +16,8 @@ import apiConnect from 'client/data/ApiConnect';
 import { getFullCategoryName, UserDataProps } from 'client/data/Categories';
 import {
   editExpense,
+  needUpdateE,
   notifyError,
-  pickDate,
   updateExpenses,
 } from 'client/data/State';
 import * as colors from 'client/ui/Colors';
@@ -135,13 +135,18 @@ export class ExpenseRow extends React.Component<
   };
 
   private editDate = async () => {
-    const date = await pickDate(toMoment(this.props.expense.date).toDate());
+    const date = await UserPrompts.selectDate(
+      'Valitse päivä',
+      toMoment(this.props.expense.date).toDate()
+    );
+    if (!date) return;
     await executeOperation(
       () => this.updateExpense({ date: toISODate(date) }),
       {
         success: `Muutettu kirjauksen ${
           this.props.expense.title
         } päiväksi ${readableDate(date)}`,
+        postProcess: () => needUpdateE.push(date),
       }
     );
   };
