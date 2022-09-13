@@ -1,11 +1,13 @@
-import { Button, Grid, Typography } from '@mui/material';
+import { Grid, Typography } from '@mui/material';
 import debug from 'debug';
 import * as React from 'react';
 import styled from 'styled-components';
 
+import { MaybePromise } from 'shared/types/Promise';
 import apiConnect from 'client/data/ApiConnect';
 
 import { colorScheme } from '../Colors';
+import { ActionButton } from '../component/ActionButton';
 import { UserPrompts } from '../dialog/DialogState';
 import { ReceiverField } from '../expense/dialog/ReceiverField';
 import { PageContentContainer } from '../Styles';
@@ -29,7 +31,7 @@ export const ToolsView: React.FC = () => (
 
 const ToolButton: React.FC<{
   title: string;
-  action: () => PromiseLike<any>;
+  action: () => MaybePromise<any>;
   buttonText: string;
 }> = ({ title, action, buttonText }) => (
   <>
@@ -37,9 +39,9 @@ const ToolButton: React.FC<{
       {title}
     </Grid>
     <Grid item xs={8}>
-      <Button onClick={action} variant="contained" color="primary">
+      <ActionButton onClick={action} variant="contained" color="primary">
         {buttonText}
-      </Button>
+      </ActionButton>
     </Grid>
   </>
 );
