@@ -9,7 +9,7 @@ import { usePersistentMemo } from 'client/ui/hooks/usePersistentMemo';
 export interface ReceiverFieldProps {
   id: string;
   value: string;
-  title: string;
+  title?: string;
   fullWidth?: boolean;
   placeholder?: string;
   errorText?: string;
@@ -68,6 +68,7 @@ export const ReceiverField: React.FC<
       onUpdateSuggestions={updateReceivers}
       onSelectSuggestion={selectReceiver}
       getSuggestionValue={identity}
+      autoHideErrorText={true}
       {...props}
     />
   );

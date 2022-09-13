@@ -20,8 +20,8 @@ export const TextEdit: React.FC<TextEditProps> = ({
   return (
     <StyledField
       variant="standard"
-      width={width}
       {...props}
+      width={width}
       onChange={onChangeHandler}
     />
   );
@@ -29,7 +29,7 @@ export const TextEdit: React.FC<TextEditProps> = ({
 
 // Disable LastPass icon (background image) on text fields
 const StyledField = styled(TextField)`
-  width: ${({ width }: { width?: string }) => width ?? 'inherit'};
+  ${({ width }: { width?: string }) => (width ? `width: ${width};` : '')}
   & input {
     background-image: none !important;
   }

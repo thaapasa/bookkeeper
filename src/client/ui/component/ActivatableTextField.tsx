@@ -1,3 +1,4 @@
+import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import debug from 'debug';
 import * as React from 'react';
 import styled from 'styled-components';
@@ -76,21 +77,34 @@ export const ActivatableTextField: React.FC<ActivatableTextFieldProps<any>> = <
   const Type = (editorType ?? TextEdit) as any;
 
   return edit ? (
-    <Type
-      className={className}
-      autoFocus={true}
-      value={value}
-      onChange={setValue}
-      onKeyUp={handleKeyPress}
-      {...rest}
-    />
+    <EditorContainer>
+      <Type
+        autoFocus={true}
+        {...rest}
+        className={className}
+        value={value}
+        onChange={setValue}
+        onKeyUp={handleKeyPress}
+      />
+      <CancelOutlinedIcon color="action" onClick={cancel} fontSize="small" />
+    </EditorContainer>
   ) : (
-    <ValueView className={className} style={viewStyle} onClick={activate}>
+    <ValueContainer className={className} style={viewStyle} onClick={activate}>
       {value}
-    </ValueView>
+    </ValueContainer>
   );
 };
 
-const ValueView = styled.div`
+const EditorContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  & > div,
+  & > svg {
+    padding-right: 8px;
+  }
+`;
+
+const ValueContainer = styled.div`
   cursor: pointer;
 `;

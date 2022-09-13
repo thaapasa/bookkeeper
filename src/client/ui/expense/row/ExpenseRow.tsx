@@ -267,6 +267,7 @@ export class ExpenseRow extends React.Component<
           <NameColumn>
             {this.props.expense.confirmed ? null : <UnconfirmedIcon />}
             <ActivatableTextField
+              fullWidth
               value={expense.title}
               viewStyle={{ display: 'inline-block', verticalAlign: 'middle' }}
               onChange={v => this.updateExpense({ title: v })}
@@ -274,6 +275,7 @@ export class ExpenseRow extends React.Component<
           </NameColumn>
           <ReceiverColumn>
             <ActivatableTextField
+              fullWidth
               value={expense.receiver}
               editorType={ReceiverField}
               onChange={v => this.updateExpense({ receiver: v })}
