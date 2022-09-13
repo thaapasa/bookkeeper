@@ -1,15 +1,14 @@
-import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
-import { IconButton } from '@mui/material';
 import * as B from 'baconjs';
 import * as React from 'react';
 
+import { ObjectId } from 'shared/types/Id';
 import { Category, Session, Source, User } from 'shared/types/Session';
 import apiConnect from 'client/data/ApiConnect';
 import { userDataE, UserDataProps } from 'client/data/Categories';
 import { updateSession, validSessionE } from 'client/data/Login';
 
+import { ActivatableTextField } from '../component/ActivatableTextField';
 import { connect } from '../component/BaconConnect';
-import { requestStringValue } from '../general/QueryUser';
 import { PageContentContainer } from '../Styles';
 import {
   InfoItem,
@@ -87,14 +86,11 @@ const SourcesView = ({ sources }: { sources: Source[] }) => {
       <Value>
         {Object.values(sources).map(s => (
           <ItemWithId key={s.id} id={s.id}>
-            {s.name}{' '}
-            <IconButton
-              size="small"
-              aria-label="Nimeä uudelleen"
-              onClick={() => renameSource(s)}
-            >
-              <EditOutlinedIcon fontSize="small" />
-            </IconButton>
+            <ActivatableTextField
+              value={s.name}
+              onChange={name => renameSource(s.id, name)}
+              width="360px"
+            />
           </ItemWithId>
         ))}
       </Value>
@@ -102,14 +98,9 @@ const SourcesView = ({ sources }: { sources: Source[] }) => {
   );
 };
 
-async function renameSource(source: Source) {
-  const name = await requestStringValue(
-    `Vaihda kohteen ${source.name} nimi`,
-    'Syötä uusi nimi',
-    source.name
-  );
+async function renameSource(sourceId: ObjectId, name: string) {
   if (name) {
-    await apiConnect.patchSource(source.id, { name });
+    await apiConnect.patchSource(sourceId, { name });
     await updateSession();
   }
 }

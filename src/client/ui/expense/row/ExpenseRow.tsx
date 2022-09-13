@@ -23,7 +23,6 @@ import {
 } from 'client/data/State';
 import * as colors from 'client/ui/Colors';
 import { ActivatableTextField } from 'client/ui/component/ActivatableTextField';
-import { TextEdit } from 'client/ui/component/TextEdit';
 import { UserAvatar } from 'client/ui/component/UserAvatar';
 import { UserPrompts } from 'client/ui/dialog/DialogState';
 import {
@@ -268,7 +267,6 @@ export class ExpenseRow extends React.Component<
           <NameColumn>
             {this.props.expense.confirmed ? null : <UnconfirmedIcon />}
             <ActivatableTextField
-              editorType={TextEdit}
               value={expense.title}
               viewStyle={{ display: 'inline-block', verticalAlign: 'middle' }}
               onChange={v => this.updateExpense({ title: v })}

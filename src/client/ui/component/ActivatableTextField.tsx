@@ -6,7 +6,7 @@ import { KeyCodes } from 'client/util/Io';
 
 import { ReceiverFieldProps } from '../expense/dialog/ReceiverField';
 import { AutoCompleteProps } from './AutoComplete';
-import { TextEditProps } from './TextEdit';
+import { TextEdit, TextEditProps } from './TextEdit';
 
 const log = debug('bookkeeper:activatable-text-field');
 
@@ -15,10 +15,12 @@ type EditorType<T> =
   | React.ComponentType<AutoCompleteProps<T>>
   | React.ComponentType<ReceiverFieldProps>;
 
-export type ActivatableTextFieldProps<E extends EditorType<any>> = {
+export type ActivatableTextFieldProps<
+  E extends EditorType<any> = React.ComponentType<TextEditProps>
+> = {
   editorId?: string;
   viewStyle?: React.CSSProperties;
-  editorType: React.ComponentType<E>;
+  editorType?: React.ComponentType<E>;
   value: string;
   className?: string;
   onChange: (value: string) => void;
@@ -71,7 +73,7 @@ export const ActivatableTextField: React.FC<ActivatableTextFieldProps<any>> = <
     setEdit(true);
   };
 
-  const Type = editorType as any;
+  const Type = (editorType ?? TextEdit) as any;
 
   return edit ? (
     <Type
