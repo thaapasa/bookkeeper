@@ -18,6 +18,7 @@ export interface Notification {
   message: string;
   cause?: any;
   severity?: AlertColor;
+  immediate?: boolean;
 }
 
 export interface PickDateObject {

@@ -14,8 +14,6 @@ import { categoryMapE } from 'client/data/Categories';
 import { sourceMapE } from 'client/data/Login';
 import {
   createNewExpense,
-  notify,
-  notifyError,
   splitExpense,
   updateExpenses,
 } from 'client/data/State';
@@ -24,6 +22,7 @@ import { connect } from 'client/ui/component/BaconConnect';
 import { UserPrompts } from 'client/ui/dialog/DialogState';
 import { Copy, Delete, Edit, Repeat, Split } from 'client/ui/Icons';
 import { media } from 'client/ui/Styles';
+import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { getBenefitorsForExpense } from '../dialog/ExpenseDialogData';
 import { expenseName } from '../ExpenseHelper';
@@ -53,27 +52,27 @@ const ExpenseInfoToolsImpl: React.FC<RecurrenceInfoProps> = ({
   ...props
 }) => {
   const createRecurring = async () => {
-    try {
-      const period = await UserPrompts.select<RecurrencePeriod>(
-        'Muuta toistuvaksi',
-        `Kuinka usein kirjaus ${expenseName(expense)} toistuu?`,
-        [
-          { label: 'Viikoittain', value: { amount: 1, unit: 'weeks' } },
-          { label: 'Kuukausittain', value: { amount: 1, unit: 'months' } },
-          {
-            label: 'Kvartaaleittain',
-            value: { amount: 1, unit: 'quarters' },
-          },
-          { label: 'Vuosittain', value: { amount: 1, unit: 'years' } },
-        ]
+    const period = await UserPrompts.select<RecurrencePeriod>(
+      'Muuta toistuvaksi',
+      `Kuinka usein kirjaus ${expenseName(expense)} toistuu?`,
+      [
+        { label: 'Viikoittain', value: { amount: 1, unit: 'weeks' } },
+        { label: 'Kuukausittain', value: { amount: 1, unit: 'months' } },
+        {
+          label: 'Kvartaaleittain',
+          value: { amount: 1, unit: 'quarters' },
+        },
+        { label: 'Vuosittain', value: { amount: 1, unit: 'years' } },
+      ]
+    );
+    if (period) {
+      await executeOperation(
+        () => apiConnect.createRecurring(expense.id, period),
+        {
+          success: 'Kirjaus muutettu toistuvaksi',
+          postProcess: () => updateExpenses(toDate(expense.date)),
+        }
       );
-      if (period) {
-        await apiConnect.createRecurring(expense.id, period);
-        updateExpenses(toDate(expense.date));
-        notify('Kirjaus muutettu toistuvaksi');
-      }
-    } catch (e) {
-      notifyError('Virhe muutettaessa kirjausta toistuvaksi', e);
     }
   };
 

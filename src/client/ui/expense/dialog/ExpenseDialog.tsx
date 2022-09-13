@@ -28,7 +28,6 @@ import { toDate, toISODate } from 'shared/util/Time';
 import { identity } from 'shared/util/Util';
 import apiConnect from 'client/data/ApiConnect';
 import { CategoryDataSource, isSubcategoryOf } from 'client/data/Categories';
-import { notify, notifyError } from 'client/data/State';
 import { gray } from 'client/ui/Colors';
 import UserAvatar from 'client/ui/component/UserAvatar';
 import UserSelector from 'client/ui/component/UserSelector';
@@ -41,6 +40,7 @@ import {
   stopEventPropagation,
   unsubscribeAll,
 } from 'client/util/ClientUtil';
+import { executeOperation } from 'client/util/ExecuteOperation';
 import { KeyCodes } from 'client/util/Io';
 
 import { DivisionInfo } from '../details/DivisionInfo';
@@ -347,32 +347,31 @@ export class ExpenseDialog extends React.Component<
 
     const name = expenseName(data);
     this.saveLock.push(true);
-    try {
-      if (this.props.original) {
-        if (this.props.original.recurringExpenseId) {
-          if (!(await this.saveRecurring(this.props.original.id, data))) {
-            // User canceled, break out
-            return;
+    await executeOperation(
+      async () => {
+        if (this.props.original) {
+          if (this.props.original.recurringExpenseId) {
+            if (!(await this.saveRecurring(this.props.original.id, data))) {
+              // User canceled, break out
+              return;
+            }
+          } else {
+            await apiConnect.updateExpense(this.props.original.id, data);
           }
         } else {
-          await apiConnect.updateExpense(this.props.original.id, data);
+          await apiConnect.storeExpense(data);
         }
-      } else {
-        await apiConnect.storeExpense(data);
+      },
+      {
+        success: `${createNew ? 'Tallennettu' : 'Päivitetty'} ${name}`,
+        postProcess: () => {
+          this.props.onExpensesUpdated(expense.date);
+          this.props.onClose(expense);
+        },
       }
-      notify(`${createNew ? 'Tallennettu' : 'Päivitetty'} ${name}`);
-      this.props.onExpensesUpdated(expense.date);
-      this.props.onClose(expense);
-    } catch (error) {
-      notifyError(
-        `Virhe ${
-          createNew ? 'tallennettaessa' : 'päivitettäessä'
-        } kirjausta ${name}`,
-        error
-      );
-    } finally {
-      this.saveLock.push(false);
-    }
+    );
+    this.saveLock.push(false);
+
     return null;
   };
 

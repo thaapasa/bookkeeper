@@ -60,7 +60,7 @@ export class NotificationBar extends React.Component<
 
   private showMessage = (notification: Notification) => {
     this.queue.push(notification);
-    if (!this.timer) {
+    if (!this.timer || notification.immediate) {
       this.scheduleNext();
     }
   };

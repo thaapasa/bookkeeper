@@ -277,8 +277,8 @@ export class ApiConnect {
     return this.get<string[]>('/api/receiver/query', { receiver });
   }
 
-  public renameReceiver(oldName: string, newName: string): Promise<void> {
-    return this.put('/api/receiver/rename', { oldName, newName });
+  public renameReceiver(oldName: string, newName: string): Promise<ApiMessage> {
+    return this.put<ApiMessage>('/api/receiver/rename', { oldName, newName });
   }
 
   public getCategoryList(): Promise<Category[]> {

@@ -16,7 +16,6 @@ import apiConnect from 'client/data/ApiConnect';
 import { getFullCategoryName, UserDataProps } from 'client/data/Categories';
 import {
   editExpense,
-  notify,
   notifyError,
   pickDate,
   updateExpenses,
@@ -34,6 +33,7 @@ import {
   ToolIcon,
 } from 'client/ui/Icons';
 import { Flex, media, VCenterRow } from 'client/ui/Styles';
+import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { ExpenseInfo } from '../details/ExpenseInfo';
 import { ReceiverField } from '../dialog/ReceiverField';
@@ -135,19 +135,15 @@ export class ExpenseRow extends React.Component<
   };
 
   private editDate = async () => {
-    try {
-      const date = await pickDate(toMoment(this.props.expense.date).toDate());
-      notify(
-        `Muutettu kirjauksen ${
+    const date = await pickDate(toMoment(this.props.expense.date).toDate());
+    await executeOperation(
+      () => this.updateExpense({ date: toISODate(date) }),
+      {
+        success: `Muutettu kirjauksen ${
           this.props.expense.title
-        } päiväksi ${readableDate(date)}`
-      );
-      this.updateExpense({ date: toISODate(date) });
-      return true;
-    } catch (e) {
-      notifyError('Virhe muutettaessa päivämäärää', e);
-      return false;
-    }
+        } päiväksi ${readableDate(date)}`,
+      }
+    );
   };
 
   private toggleDetails = async (
@@ -170,51 +166,38 @@ export class ExpenseRow extends React.Component<
 
   private deleteExpense = async () => {
     const e = this.props.expense;
-    try {
-      const name = expenseName(e);
-      if (e.recurringExpenseId) {
-        return this.deleteRecurringExpense();
-      }
-      const b = await UserPrompts.confirm(
-        'Poista kirjaus',
-        `Haluatko varmasti poistaa kirjauksen ${name}?`
-      );
-      if (!b) {
-        return;
-      }
-      await apiConnect.deleteExpense(e.id);
-      notify(`Poistettu kirjaus ${name}`);
-      updateExpenses(toDate(e.date));
-    } catch (err) {
-      notifyError(`Virhe poistettaessa kirjausta ${expenseName(e)}`, err);
+    const name = expenseName(e);
+    if (e.recurringExpenseId) {
+      return this.deleteRecurringExpense();
     }
+
+    await executeOperation(() => apiConnect.deleteExpense(e.id), {
+      confirmTitle: 'Poista kirjaus',
+      confirm: `Haluatko varmasti poistaa kirjauksen ${name}?`,
+      success: `Poistettu kirjaus ${name}`,
+      postProcess: () => updateExpenses(toDate(e.date)),
+    });
   };
 
   private deleteRecurringExpense = async () => {
     const e = this.props.expense;
-    try {
-      const name = expenseName(e);
-      const target = await UserPrompts.select<RecurringExpenseTarget>(
-        'Poista toistuva kirjaus',
-        `Haluatko varmasti poistaa kirjauksen ${name}?`,
-        [
-          { label: 'Vain tämä', value: 'single' },
-          { label: 'Kaikki', value: 'all' },
-          { label: 'Tästä eteenpäin', value: 'after' },
-        ]
-      );
-      if (!target) {
-        return;
-      }
-      await apiConnect.deleteRecurringById(e.id, target);
-      notify(`Poistettu kirjaus ${name}`);
-      updateExpenses(toDate(e.date));
-    } catch (err) {
-      notifyError(
-        `Virhe poistettaessa toistuvaa kirjausta ${expenseName(e)}`,
-        err
-      );
-    }
+
+    const name = expenseName(e);
+    const target = await UserPrompts.select<RecurringExpenseTarget>(
+      'Poista toistuva kirjaus',
+      `Haluatko varmasti poistaa kirjauksen ${name}?`,
+      [
+        { label: 'Vain tämä', value: 'single' },
+        { label: 'Kaikki', value: 'all' },
+        { label: 'Tästä eteenpäin', value: 'after' },
+      ]
+    );
+    if (!target) return;
+
+    await executeOperation(() => apiConnect.deleteRecurringById(e.id, target), {
+      success: `Poistettu kirjaus ${name}`,
+      postProcess: () => updateExpenses(toDate(e.date)),
+    });
   };
 
   private modifyExpense = async () => {

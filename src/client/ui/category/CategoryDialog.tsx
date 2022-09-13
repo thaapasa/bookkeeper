@@ -16,7 +16,7 @@ import styled from 'styled-components';
 
 import { Category } from 'shared/types/Session';
 import apiConnect from 'client/data/ApiConnect';
-import { notify, notifyError } from 'client/data/State';
+import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { TextEdit } from '../component/TextEdit';
 
@@ -118,7 +118,9 @@ export default class CategoryDialog extends React.Component<
     this.saveCategory(this.state);
   };
 
-  private async saveCategory(s: CategoryDialogState): Promise<number | null> {
+  private async saveCategory(
+    s: CategoryDialogState
+  ): Promise<number | undefined> {
     const createNew = !s.id;
     const name = s.name;
 
@@ -128,22 +130,16 @@ export default class CategoryDialog extends React.Component<
       children: [],
     };
     log('Save category data', data);
-    try {
-      const id = createNew
-        ? (await apiConnect.storeCategory(data)).categoryId || 0
-        : (await apiConnect.updateCategory(s.id, data)).id;
-      this.closeDialog(id);
-      notify(`${createNew ? 'Tallennettu' : 'Päivitetty'} ${name}`);
-      return id;
-    } catch (e) {
-      notifyError(
-        `Virhe ${
-          createNew ? 'tallennettaessa' : 'päivitettäessä'
-        } kirjausta ${name}`,
-        e
-      );
-      return null;
-    }
+    return executeOperation(
+      () =>
+        createNew
+          ? apiConnect.storeCategory(data).then(c => c.categoryId || 0)
+          : apiConnect.updateCategory(s.id, data).then(c => c.id),
+      {
+        success: `${createNew ? 'Tallennettu' : 'Päivitetty'} ${name}`,
+        postProcess: this.closeDialog,
+      }
+    );
   }
 
   private cancel = () => {

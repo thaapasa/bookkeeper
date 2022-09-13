@@ -18,12 +18,16 @@ import {
 const notificationBus = new B.Bus<Notification>();
 export const notificationE = notificationBus;
 
-export function notify(message: string): void {
-  notificationBus.push({ message });
+export function notify(message: string, params?: Partial<Notification>): void {
+  notificationBus.push({ message, ...params });
 }
 
-export function notifyError(message: string, cause: any) {
-  notificationBus.push({ message, cause, severity: 'warning' });
+export function notifyError(
+  message: string,
+  cause: any,
+  params?: Partial<Notification>
+) {
+  notificationBus.push({ message, cause, severity: 'warning', ...params });
 }
 
 const pickDateBus = new B.Bus<PickDateObject>();

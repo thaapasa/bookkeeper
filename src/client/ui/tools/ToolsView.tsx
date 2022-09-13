@@ -5,6 +5,7 @@ import styled from 'styled-components';
 
 import { MaybePromise } from 'shared/types/Promise';
 import apiConnect from 'client/data/ApiConnect';
+import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { colorScheme } from '../Colors';
 import { ActionButton } from '../component/ActionButton';
@@ -61,7 +62,9 @@ async function changeReceiverName() {
   );
   if (!newName) return;
   log(`Renaming ${oldName} to ${newName}`);
-  await apiConnect.renameReceiver(oldName, newName);
+  await executeOperation(() => apiConnect.renameReceiver(oldName, newName), {
+    success: m => `Muutettu ${oldName} → ${newName}: ${m.count} kirjausta`,
+  });
 }
 
 const Title = styled(Typography)`
