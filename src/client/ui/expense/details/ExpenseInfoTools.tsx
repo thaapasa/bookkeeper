@@ -13,7 +13,6 @@ import apiConnect from 'client/data/ApiConnect';
 import { categoryMapE } from 'client/data/Categories';
 import { sourceMapE } from 'client/data/Login';
 import {
-  confirm,
   createNewExpense,
   notify,
   notifyError,
@@ -22,6 +21,7 @@ import {
 } from 'client/data/State';
 import * as colors from 'client/ui/Colors';
 import { connect } from 'client/ui/component/BaconConnect';
+import { UserPrompts } from 'client/ui/dialog/DialogState';
 import { Copy, Delete, Edit, Repeat, Split } from 'client/ui/Icons';
 import { media } from 'client/ui/Styles';
 
@@ -54,21 +54,18 @@ const ExpenseInfoToolsImpl: React.FC<RecurrenceInfoProps> = ({
 }) => {
   const createRecurring = async () => {
     try {
-      const period = await confirm<RecurrencePeriod | undefined>(
+      const period = await UserPrompts.select<RecurrencePeriod>(
         'Muuta toistuvaksi',
         `Kuinka usein kirjaus ${expenseName(expense)} toistuu?`,
-        {
-          actions: [
-            { label: 'Viikoittain', value: { amount: 1, unit: 'weeks' } },
-            { label: 'Kuukausittain', value: { amount: 1, unit: 'months' } },
-            {
-              label: 'Kvartaaleittain',
-              value: { amount: 1, unit: 'quarters' },
-            },
-            { label: 'Vuosittain', value: { amount: 1, unit: 'years' } },
-            { label: 'Peruuta', value: undefined },
-          ],
-        }
+        [
+          { label: 'Viikoittain', value: { amount: 1, unit: 'weeks' } },
+          { label: 'Kuukausittain', value: { amount: 1, unit: 'months' } },
+          {
+            label: 'Kvartaaleittain',
+            value: { amount: 1, unit: 'quarters' },
+          },
+          { label: 'Vuosittain', value: { amount: 1, unit: 'years' } },
+        ]
       );
       if (period) {
         await apiConnect.createRecurring(expense.id, period);
