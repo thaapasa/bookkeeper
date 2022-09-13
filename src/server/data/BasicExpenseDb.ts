@@ -302,6 +302,22 @@ function queryReceivers(
   );
 }
 
+async function renameReceiver(
+  tx: ITask<any>,
+  groupId: number,
+  oldName: string,
+  newName: string
+): Promise<number> {
+  log('Renaming receiver', oldName, 'to', newName);
+  const res = await tx.result(
+    `UPDATE expenses
+      SET receiver=$/newName/
+      WHERE group_id=$/groupId/ AND receiver=$/oldName/`,
+    { groupId, oldName, newName }
+  );
+  return res.rowCount;
+}
+
 const getExpenseAndDivision = (
   tx: ITask<any>,
   groupId: number,
@@ -320,6 +336,7 @@ export const BasicExpenseDb = {
   deleteById,
   update,
   queryReceivers,
+  renameReceiver,
   storeDivision,
   insert,
   countTotalBetween,

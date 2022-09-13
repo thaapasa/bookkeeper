@@ -19,6 +19,7 @@ export const ApiMessage = z.object({
   templateExpenseId: ObjectId.optional(),
   recurringExpenseId: ObjectId.optional(),
   categoryId: ObjectId.optional(),
+  count: z.number().int().optional(),
 });
 
 export type ApiMessage = z.infer<typeof ApiMessage>;

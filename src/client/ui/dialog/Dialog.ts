@@ -1,3 +1,7 @@
+import React from 'react';
+
+import { TextEditorComponent } from '../component/TextEditVariants';
+
 export type DialogSelectOption<T> = {
   value: T;
   label: string;
@@ -13,6 +17,7 @@ export type TextPromptDialogData = {
   type: 'text';
   description: string;
   initialText?: string;
+  editorType?: TextEditorComponent;
 };
 
 export type DialogData = OptionSelectDialogData<any> | TextPromptDialogData;

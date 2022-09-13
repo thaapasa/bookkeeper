@@ -1,6 +1,8 @@
-import { Button, DialogActions, DialogContent, TextField } from '@mui/material';
+import { Button, DialogActions, DialogContent } from '@mui/material';
 import * as React from 'react';
+import styled from 'styled-components';
 
+import { TextEdit } from '../component/TextEdit';
 import { DialogContentRendererProps, TextPromptDialogData } from './Dialog';
 
 type TextPromptDialogProps = DialogContentRendererProps<string> &
@@ -12,13 +14,15 @@ export const TextPromptDialogContents: React.FC<TextPromptDialogProps> = ({
   onCancel,
   description,
   initialText,
+  editorType,
 }) => {
   const [text, setText] = React.useState(initialText ?? '');
+  const Editor = (editorType ?? TextEdit) as any;
   return (
     <>
-      <DialogContent onKeyUp={handleKeyPress}>{description}</DialogContent>
       <DialogContent onKeyUp={handleKeyPress}>
-        <TextField value={text} onChange={e => setText(e.target.value)} />
+        <Description>{description}</Description>
+        <Editor value={text} onChange={setText} width="400px" />
       </DialogContent>
       <DialogActions>
         <Button
@@ -41,3 +45,7 @@ export const TextPromptDialogContents: React.FC<TextPromptDialogProps> = ({
     </>
   );
 };
+
+const Description = styled.div`
+  margin-bottom: 8px;
+`;

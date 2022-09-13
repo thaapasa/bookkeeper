@@ -274,7 +274,11 @@ export class ApiConnect {
   }
 
   public queryReceivers(receiver: string): Promise<string[]> {
-    return this.get<string[]>('/api/expense/receivers', { receiver });
+    return this.get<string[]>('/api/receiver/query', { receiver });
+  }
+
+  public renameReceiver(oldName: string, newName: string): Promise<void> {
+    return this.put('/api/receiver/rename', { oldName, newName });
   }
 
   public getCategoryList(): Promise<Category[]> {

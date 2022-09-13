@@ -12,6 +12,7 @@ import { config } from '../Config';
 import { AdminDb, DbStatus } from '../data/admin/Admin';
 import { createCategoryApi } from './CategoryApi';
 import { createExpenseApi } from './ExpenseApi';
+import { createReceiverApi } from './ReceiverApi';
 import { createSessionApi } from './SessionApi';
 import { createSourceApi } from './SourceApi';
 import { createStatisticsApi } from './StatisticsApi';
@@ -29,6 +30,7 @@ export function createApi() {
   api.use('/expense', createExpenseApi());
   api.use('/statistics', createStatisticsApi());
   api.use('/source', createSourceApi());
+  api.use('/receiver', createReceiverApi());
 
   // GET /api/status
   api.get(

@@ -15,6 +15,7 @@ import {
   searchPagePath,
   shortcutsPage,
   statisticsPage,
+  toolsPagePath,
 } from 'client/util/Links';
 
 import { RoutedCategoryView } from '../category/RoutedCategoryView';
@@ -39,6 +40,7 @@ import {
   mainContentMargin,
   mainContentMaxWidth,
 } from '../Styles';
+import { ToolsView } from '../tools/ToolsView';
 import { Size } from '../Types';
 import { PathNotFoundError } from './ErrorView';
 import { ShortcutsView } from './ShortcutsView';
@@ -55,6 +57,7 @@ const appLinks: AppLink[] = [
   { label: 'Tilastot', path: statisticsPage, showInHeader: true },
   { label: 'Haku', path: searchPagePath, showInHeader: true },
   { label: 'Tiedot', path: infoPagePath, showInHeader: false },
+  { label: 'Työkalut', path: toolsPagePath, showInHeader: false },
 ];
 
 const ExpenseDialogBinder = createExpenseDialogListener(
@@ -109,6 +112,7 @@ export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
               <Route path={searchPagePath} component={SearchView} />
               <Route path={statisticsPage} component={StatisticsView} />
               <Route path={infoPagePath} component={InfoView} />
+              <Route path={toolsPagePath} component={ToolsView} />
               <Route exact={true} path="/" component={FrontpageView} />
               <Route component={PathNotFoundError} />
             </Switch>

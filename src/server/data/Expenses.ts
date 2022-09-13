@@ -110,6 +110,7 @@ export const Expenses = {
   getDivision: basic.getDivision,
   deleteById: basic.deleteById,
   queryReceivers: basic.queryReceivers,
+  renameReceiver: basic.renameReceiver,
   create: createExpense,
   update: basic.update,
   split: splitExpense,

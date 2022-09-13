@@ -1,5 +1,6 @@
 import * as B from 'baconjs';
 
+import { TextEditorComponent } from '../component/TextEditVariants';
 import { DialogConfig, DialogData, DialogSelectOption } from './Dialog';
 import { OptionSelectDialogContents } from './OptionSelectDialogContents';
 import { TextPromptDialogContents } from './TextPromptDialogContents';
@@ -53,12 +54,14 @@ export const UserPrompts = {
    */
   promptText: (
     title: string,
-    description: string
+    description: string,
+    initialText?: string,
+    editorType?: TextEditorComponent
   ): Promise<string | undefined> =>
     promptUser({
       type: 'text',
       title,
-      rendererProps: { description },
+      rendererProps: { description, initialText, editorType },
       contentRenderer: TextPromptDialogContents,
     }),
 };

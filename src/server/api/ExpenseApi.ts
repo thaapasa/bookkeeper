@@ -77,22 +77,6 @@ export function createExpenseApi() {
     )
   );
 
-  const ReceiverSearch = z.object({
-    receiver: z.string().min(3).max(50),
-  });
-  // GET /api/expense/receivers?receiver=[query]
-  api.get(
-    '/receivers',
-    Requests.validatedTxRequest(
-      { query: ReceiverSearch },
-      async (tx, session, { query }) =>
-        (
-          await Expenses.queryReceivers(tx, session.group.id, query.receiver)
-        ).map(r => r.receiver),
-      true
-    )
-  );
-
   const ExpenseSplitBody = z.object({
     splits: z.array(ExpenseSplit).nonempty(),
   });
