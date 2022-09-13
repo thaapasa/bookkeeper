@@ -1,5 +1,6 @@
 import debug from 'debug';
 import * as React from 'react';
+import styled from 'styled-components';
 
 import { KeyCodes } from 'client/util/Io';
 
@@ -82,8 +83,12 @@ export const ActivatableTextField: React.FC<ActivatableTextFieldProps<any>> = <
       {...rest}
     />
   ) : (
-    <div className={className} style={viewStyle} onClick={activate}>
+    <ValueView className={className} style={viewStyle} onClick={activate}>
       {value}
-    </div>
+    </ValueView>
   );
 };
+
+const ValueView = styled.div`
+  cursor: pointer;
+`;
