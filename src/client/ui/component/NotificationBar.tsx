@@ -3,6 +3,7 @@ import Snackbar from '@mui/material/Snackbar';
 import * as React from 'react';
 
 import { Action, Timeout } from 'shared/types/Common';
+import { toReadableErrorMessage } from 'shared/types/Errors';
 import { notificationE } from 'client/data/State';
 import { Notification } from 'client/data/StateTypes';
 import { unsubscribeAll } from 'client/util/ClientUtil';
@@ -21,7 +22,9 @@ const NotificationBarView: React.FC<NotificationBarProps> = ({
   onClose,
 }) => {
   const message = notification.cause
-    ? notification.message + ', cause: ' + notification.message
+    ? notification.message +
+      ', syy: ' +
+      toReadableErrorMessage(notification.cause)
     : notification.message;
 
   return (

@@ -1,3 +1,5 @@
+import { joinStr } from 'shared/util/Strings';
+
 import { ucFirst } from '../util/Util';
 
 export function undefinedToError(errorType: any, p1?: any, p2?: any, p3?: any) {
@@ -22,6 +24,11 @@ export function emptyToError(errorType: any, p1?: any, p2?: any, p3?: any) {
       return value;
     }
   };
+}
+
+const colonSpaced = joinStr(': ');
+export function toReadableErrorMessage(e: any) {
+  return colonSpaced`${e?.message}: ${e?.data?.cause}`;
 }
 
 export class BkError extends Error {
