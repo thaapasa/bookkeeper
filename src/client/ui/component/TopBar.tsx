@@ -37,7 +37,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
 };
 
-const TopBar: React.FC<TopBarProps> = ({ windowSize, group, links }) => {
+const TopBarImpl: React.FC<TopBarProps> = ({ windowSize, group, links }) => {
   const [menuOpen, toggleMenu, setMenu] = useToggle();
   const isMobile = isMobileSize(windowSize);
   const title = isMobile ? undefined : group.name;
@@ -93,6 +93,6 @@ const Title = styled(Typography)`
   margin-left: 8px;
 `;
 
-export default connect(
+export const TopBar = connect(
   validSessionE.map(s => ({ user: s.user, group: s.group }))
-)(TopBar);
+)(TopBarImpl);

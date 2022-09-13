@@ -21,8 +21,8 @@ import { RoutedCategoryView } from '../category/RoutedCategoryView';
 import { colorScheme } from '../Colors';
 import DatePickerComponent from '../component/DatePickerComponent';
 import { AppLink, NavigationBar } from '../component/NavigationBar';
-import TopBar from '../component/TopBar';
 import { NotificationBar } from '../component/NotificationBar';
+import { TopBar } from '../component/TopBar';
 import { ModalDialogConnector } from '../dialog/ModalDialogConnector';
 import { ExpenseDialog } from '../expense/dialog/ExpenseDialog';
 import { createExpenseDialogListener } from '../expense/dialog/ExpenseDialogListener';
@@ -30,8 +30,8 @@ import { FrontpageView } from '../expense/FrontpageView';
 import { NewExpenseView } from '../expense/NewExpenseView';
 import { RoutedMonthView } from '../expense/RoutedMonthView';
 import { ExpenseSplitDialog } from '../expense/split/ExpenseSplitDialog';
-import InfoView from '../info/InfoView';
-import SearchView from '../search/SearchView';
+import { InfoView } from '../info/InfoView';
+import { SearchView } from '../search/SearchView';
 import { StatisticsView } from '../statistics/StatisticsView';
 import {
   getScreenSizeClassName,

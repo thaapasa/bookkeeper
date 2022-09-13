@@ -19,22 +19,22 @@ import {
 } from './InfoLayoutElements';
 import { VersionInfoView } from './VersionInfoView';
 
-const InfoView = (props: { userData: UserDataProps; session: Session }) => (
+const InfoViewImpl: React.FC<{ userData: UserDataProps; session: Session }> = ({
+  userData,
+  session,
+}) => (
   <PageContentContainer className="padded">
     <VersionInfoView />
-    <UsersView user={props.session.user} userMap={props.userData.userMap} />
-    <SourcesView sources={props.session.sources} />
-    <CategoriesView categories={props.session.categories} />
+    <UsersView user={session.user} userMap={userData.userMap} />
+    <SourcesView sources={session.sources} />
+    <CategoriesView categories={session.categories} />
   </PageContentContainer>
 );
 
-const UsersView = ({
-  user,
-  userMap,
-}: {
+const UsersView: React.FC<{
   user: User;
   userMap: Record<string, User>;
-}) => (
+}> = ({ user, userMap }) => (
   <>
     <InfoItem>
       <Label>Kirjautunut käyttäjä</Label>
@@ -57,7 +57,9 @@ const UsersView = ({
   </>
 );
 
-const CategoriesView = ({ categories }: { categories: Category[] }) => (
+const CategoriesView: React.FC<{ categories: Category[] }> = ({
+  categories,
+}) => (
   <InfoItem>
     <Label>Kategoriat</Label>
     <Value>
@@ -79,7 +81,7 @@ const CategoriesView = ({ categories }: { categories: Category[] }) => (
   </InfoItem>
 );
 
-const SourcesView = ({ sources }: { sources: Source[] }) => {
+const SourcesView: React.FC<{ sources: Source[] }> = ({ sources }) => {
   return (
     <InfoItem>
       <Label>Lähteet</Label>
@@ -105,6 +107,6 @@ async function renameSource(sourceId: ObjectId, name: string) {
   }
 }
 
-export default connect(
+export const InfoView = connect(
   B.combineTemplate({ session: validSessionE, userData: userDataE })
-)(InfoView);
+)(InfoViewImpl);

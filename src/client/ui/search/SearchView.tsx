@@ -40,7 +40,7 @@ function isEmptyQuery(q: ExpenseQuery) {
   return !q.search && !hasCategory && !q.receiver;
 }
 
-const SearchView: React.FC<
+const SearchViewImpl: React.FC<
   RouteComponentProps<{ year?: string; month?: string }> & SearchViewProps
 > = ({ userData, session, categorySource, match }) => {
   const [results, setResults] =
@@ -125,10 +125,10 @@ const SearchView: React.FC<
   );
 };
 
-export default connect(
+export const SearchView = connect(
   B.combineTemplate({
     session: validSessionE,
     userData: userDataE,
     categorySource: categoryDataSourceP,
   })
-)(SearchView);
+)(SearchViewImpl);
