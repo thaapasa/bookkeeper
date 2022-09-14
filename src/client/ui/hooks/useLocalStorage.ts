@@ -23,6 +23,7 @@ export function useLocalStorage<T>(
         throw new Error(`Cannot store function to localStorage; got ${v.name}`);
       }
 
+      console.log('Storing', key, v);
       localStorage.setItem(key, JSON.stringify(v));
       setValue(v);
     },
@@ -39,6 +40,7 @@ function readStored<T>(key: string, defaultValue: T, codec?: z.ZodType<T>) {
     const json = JSON.parse(v);
     if (codec) {
       const parsed = codec.safeParse(json);
+      console.log('Parsed', json, 'to', parsed);
       return parsed.success ? parsed.data : defaultValue;
     }
     return json;
