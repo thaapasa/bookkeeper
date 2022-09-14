@@ -15,11 +15,11 @@ import { CategoryStatistics } from 'shared/types/Statistics';
 import { DateRange } from 'shared/util/TimeRange';
 import apiConnect from 'client/data/ApiConnect';
 import { AsyncData, UninitializedData } from 'client/data/AsyncData';
-import { categoryMapE, getFullCategoryName } from 'client/data/Categories';
+import { categoryMapE } from 'client/data/Categories';
 
 import { AsyncDataView } from '../component/AsyncDataView';
 import { connect } from '../component/BaconConnect';
-import { ChipList } from '../component/ChipList';
+import { CategoryChipList } from '../component/CategoryChipList';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useLocalStorageList } from '../hooks/useList';
 import { useLocalStorage } from '../hooks/useLocalStorage';
@@ -28,6 +28,7 @@ import { CategoryStatisticsChart } from './category/CategoryStatisticsChart';
 import { StatisticsChartTypeSelector } from './ChartTypeSelector';
 import { StatisticsChartRangeSelector } from './StatisticsChartRangeSelector';
 import { StatisticsChartType } from './types';
+
 export const StatisticsViewImpl: React.FC<{
   categoryMap: Record<string, Category>;
 }> = ({ categoryMap }) => {
@@ -37,11 +38,6 @@ export const StatisticsViewImpl: React.FC<{
     removeItem: removeCat,
     clear: clearCats,
   } = useLocalStorageList<number>('statistics.categories');
-
-  const getCatName = React.useCallback(
-    (c: number) => getFullCategoryName(c, categoryMap),
-    [categoryMap]
-  );
 
   const [range, setRange] = React.useState<DateRange | undefined>(undefined);
 
@@ -59,6 +55,13 @@ export const StatisticsViewImpl: React.FC<{
     'statistics.chart.onlyOwn',
     false
   );
+
+  const expandCategory = (parentId: number) => {
+    const children = categoryMap[parentId]?.children.map(c => c.id) ?? [];
+    if (!children) return;
+    if (children.every(c => cats.includes(c))) removeCat(children);
+    else addCats(children);
+  };
 
   const statistics = useAsyncData(
     apiConnect.loadStatistics,
@@ -109,7 +112,12 @@ export const StatisticsViewImpl: React.FC<{
           <IconButton color="primary" onClick={clearCats}>
             <ClearIcon />
           </IconButton>
-          <ChipList items={cats} onDelete={removeCat} getName={getCatName} />
+          <CategoryChipList
+            selected={cats}
+            onDelete={removeCat}
+            categoryMap={categoryMap}
+            onExpand={expandCategory}
+          />
         </Grid>
       ) : null}
       <Grid item xs={12}>
