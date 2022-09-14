@@ -20,7 +20,11 @@ import {
   Session,
 } from 'shared/types/Session';
 import { Source, SourcePatch } from 'shared/types/Source';
-import { CategoryStatistics } from 'shared/types/Statistics';
+import {
+  CategorySelection,
+  CategoryStatistics,
+  StatisticsSearchType,
+} from 'shared/types/Statistics';
 import { FetchClient } from 'shared/util/FetchClient';
 import Money from 'shared/util/Money';
 import { filterTruthyProps } from 'shared/util/Objects';
@@ -304,16 +308,18 @@ export class ApiConnect {
   ): Promise<Category> => this.post(uri`/api/category/${id}`, category);
 
   public loadStatistics = (
-    categoryIds: number[],
+    categoryIds: CategorySelection[],
     startDate: ISODate,
     endDate: ISODate,
     onlyOwn: boolean
-  ): Promise<CategoryStatistics> =>
-    this.post(uri`/api/statistics/category`, {
+  ): Promise<CategoryStatistics> => {
+    const body: StatisticsSearchType = {
       categoryIds,
       range: { startDate, endDate },
       onlyOwn,
-    });
+    };
+    return this.post(uri`/api/statistics/category`, body);
+  };
 
   public patchSource = (sourceId: ObjectId, data: SourcePatch) =>
     this.patch<Source>(uri`/api/source/${sourceId}`, data);

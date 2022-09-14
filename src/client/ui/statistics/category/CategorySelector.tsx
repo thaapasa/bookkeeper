@@ -4,6 +4,7 @@ import * as React from 'react';
 
 import { ObjectId } from 'shared/types/Id';
 import { Category } from 'shared/types/Session';
+import { CategorySelection } from 'shared/types/Statistics';
 import {
   CategoryDataSource,
   categoryDataSourceP,
@@ -15,7 +16,7 @@ import { connect } from '../../component/BaconConnect';
 const CategorySelectorImpl: React.FC<{
   categorySource: CategoryDataSource[];
   categoryMap: Record<ObjectId, Category>;
-  addCategories: (cat: number | number[]) => void;
+  addCategories: (cat: CategorySelection | CategorySelection[]) => void;
 }> = ({ categorySource, addCategories, categoryMap }) => (
   <FormControl fullWidth>
     <InputLabel>Kategoria</InputLabel>
@@ -24,15 +25,22 @@ const CategorySelectorImpl: React.FC<{
       value={''}
       onChange={e => {
         const catId = Number(e.target.value);
+        if (catId === 0) {
+          // Add all parent categories
+          const mainCats = Object.values(categoryMap).filter(
+            c => c.parentId === null
+          );
+          addCategories(mainCats.map(c => ({ id: c.id, grouped: true })));
+          return;
+        }
         const cat = categoryMap[catId];
         if (!cat) return;
-        if (cat.children) {
-          addCategories([cat.id, ...cat.children.map(c => c.id)]);
-        } else {
-          addCategories(catId);
-        }
+        addCategories({ id: cat.id, grouped: cat.parentId === null });
       }}
     >
+      <MenuItem key={0} value={0}>
+        Kaikki pääkategoriat
+      </MenuItem>
       {categorySource.map(c => (
         <MenuItem key={c.value} value={c.value}>
           {c.text}

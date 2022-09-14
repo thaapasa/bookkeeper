@@ -1,15 +1,20 @@
 import React from 'react';
+import { z } from 'zod';
 
 import { isDefined } from 'shared/types/Common';
 
-export function useLocalStorage<T>(key: string, initialValue: T) {
+export function useLocalStorage<T>(
+  key: string,
+  initialValue: T,
+  codec?: z.ZodType<T>
+) {
   if (typeof initialValue === 'function') {
     throw new Error(
       `Cannot store function to localStorage; got ${initialValue.name}`
     );
   }
   const [value, setValue] = React.useState<T>(() =>
-    readStored(key, readStored(key, initialValue))
+    readStored(key, initialValue, codec)
   );
 
   const storeItem = React.useCallback(
@@ -18,6 +23,7 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
         throw new Error(`Cannot store function to localStorage; got ${v.name}`);
       }
 
+      console.log('Storing', key, v);
       localStorage.setItem(key, JSON.stringify(v));
       setValue(v);
     },
@@ -27,10 +33,17 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
   return [value, storeItem] as const;
 }
 
-function readStored<T>(key: string, defaultValue: T) {
+function readStored<T>(key: string, defaultValue: T, codec?: z.ZodType<T>) {
   try {
     const v = localStorage.getItem(key);
-    return isDefined(v) ? JSON.parse(v) : defaultValue;
+    if (!isDefined(v)) return defaultValue;
+    const json = JSON.parse(v);
+    if (codec) {
+      const parsed = codec.safeParse(json);
+      console.log('Parsed', json, 'to', parsed);
+      return parsed.success ? parsed.data : defaultValue;
+    }
+    return json;
   } catch (e) {
     return defaultValue;
   }
