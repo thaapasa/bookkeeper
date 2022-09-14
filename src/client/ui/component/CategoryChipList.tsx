@@ -2,18 +2,11 @@ import AllInclusiveIcon from '@mui/icons-material/AllInclusive';
 import { Chip } from '@mui/material';
 import * as React from 'react';
 import styled from 'styled-components';
-import { z } from 'zod';
 
 import { ObjectId } from 'shared/types/Id';
 import { Category } from 'shared/types/Session';
+import { CategorySelection } from 'shared/types/Statistics';
 import { getFullCategoryName } from 'client/data/Categories';
-
-export const CategorySelection = z.object({
-  id: ObjectId,
-  grouped: z.boolean().optional(),
-});
-
-export type CategorySelection = z.infer<typeof CategorySelection>;
 
 interface CategoryListProps {
   selected: CategorySelection[];

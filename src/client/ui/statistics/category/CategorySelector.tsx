@@ -4,12 +4,12 @@ import * as React from 'react';
 
 import { ObjectId } from 'shared/types/Id';
 import { Category } from 'shared/types/Session';
+import { CategorySelection } from 'shared/types/Statistics';
 import {
   CategoryDataSource,
   categoryDataSourceP,
   categoryMapE,
 } from 'client/data/Categories';
-import { CategorySelection } from 'client/ui/component/CategoryChipList';
 
 import { connect } from '../../component/BaconConnect';
 

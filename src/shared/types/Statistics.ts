@@ -3,8 +3,17 @@ import { z } from 'zod';
 import { ISOMonth } from 'shared/util/Time';
 import { DateRange } from 'shared/util/TimeRange';
 
+import { ObjectId } from './Id';
+
+export const CategorySelection = z.object({
+  id: ObjectId,
+  grouped: z.boolean().optional(),
+});
+
+export type CategorySelection = z.infer<typeof CategorySelection>;
+
 export const StatisticsSearchType = z.object({
-  categoryIds: z.array(z.number()),
+  categoryIds: z.array(CategorySelection),
   onlyOwn: z.boolean().optional(),
   range: DateRange.optional(),
 });

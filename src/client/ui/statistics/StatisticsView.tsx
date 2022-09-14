@@ -12,7 +12,7 @@ import { z } from 'zod';
 
 import { isDefined } from 'shared/types/Common';
 import { Category } from 'shared/types/Session';
-import { CategoryStatistics } from 'shared/types/Statistics';
+import { CategorySelection, CategoryStatistics } from 'shared/types/Statistics';
 import { DateRange } from 'shared/util/TimeRange';
 import apiConnect from 'client/data/ApiConnect';
 import { AsyncData, UninitializedData } from 'client/data/AsyncData';
@@ -20,10 +20,7 @@ import { categoryMapE } from 'client/data/Categories';
 
 import { AsyncDataView } from '../component/AsyncDataView';
 import { connect } from '../component/BaconConnect';
-import {
-  CategoryChipList,
-  CategorySelection,
-} from '../component/CategoryChipList';
+import { CategoryChipList } from '../component/CategoryChipList';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useLocalStorageList } from '../hooks/useList';
 import { useLocalStorage } from '../hooks/useLocalStorage';
@@ -110,12 +107,10 @@ export const StatisticsViewImpl: React.FC<{
     addCats({ ...cat, grouped: true });
   };
 
-  const catIds = React.useMemo(() => cats.map(c => c.id), [cats]);
-
   const statistics = useAsyncData(
     apiConnect.loadStatistics,
     cats.length > 0 && isDefined(range),
-    catIds,
+    cats,
     range?.startDate ?? '',
     range?.endDate ?? '',
     onlyOwn
