@@ -9,13 +9,14 @@ import {
   categoryDataSourceP,
   categoryMapE,
 } from 'client/data/Categories';
+import { CategorySelection } from 'client/ui/component/CategoryChipList';
 
 import { connect } from '../../component/BaconConnect';
 
 const CategorySelectorImpl: React.FC<{
   categorySource: CategoryDataSource[];
   categoryMap: Record<ObjectId, Category>;
-  addCategories: (cat: number | number[]) => void;
+  addCategories: (cat: CategorySelection) => void;
 }> = ({ categorySource, addCategories, categoryMap }) => (
   <FormControl fullWidth>
     <InputLabel>Kategoria</InputLabel>
@@ -26,11 +27,7 @@ const CategorySelectorImpl: React.FC<{
         const catId = Number(e.target.value);
         const cat = categoryMap[catId];
         if (!cat) return;
-        if (cat.children) {
-          addCategories([cat.id, ...cat.children.map(c => c.id)]);
-        } else {
-          addCategories(catId);
-        }
+        addCategories({ id: cat.id, grouped: cat.parentId === null });
       }}
     >
       {categorySource.map(c => (

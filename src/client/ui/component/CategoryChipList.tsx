@@ -1,54 +1,53 @@
+import AllInclusiveIcon from '@mui/icons-material/AllInclusive';
 import { Chip } from '@mui/material';
 import * as React from 'react';
 import styled from 'styled-components';
+import { z } from 'zod';
 
 import { ObjectId } from 'shared/types/Id';
 import { Category } from 'shared/types/Session';
 import { getFullCategoryName } from 'client/data/Categories';
 
-import { PlusCircle } from '../Icons';
+export const CategorySelection = z.object({
+  id: ObjectId,
+  grouped: z.boolean().optional(),
+});
+
+export type CategorySelection = z.infer<typeof CategorySelection>;
 
 interface CategoryListProps {
-  selected: ObjectId[];
-  onExpand?: (catId: ObjectId) => void;
-  onGroup?: (catId: ObjectId) => void;
-  onDelete: (catId: ObjectId) => void;
+  selected: CategorySelection[];
+  onExpand: (catId: CategorySelection) => void;
+  onDelete: (catId: CategorySelection) => void;
   categoryMap: Record<ObjectId, Category>;
 }
 
 export const CategoryChipList: React.FC<CategoryListProps> = ({
   selected,
-  categoryMap,
   ...props
-}) => {
-  return (
-    <>
-      {selected.map(catId => (
-        <CategoryChip
-          {...props}
-          key={catId}
-          category={categoryMap[catId]}
-          categoryMap={categoryMap}
-        />
-      ))}
-    </>
-  );
-};
+}) => (
+  <>
+    {selected.map(cat => (
+      <CategoryChip {...props} key={cat.id} cat={cat} />
+    ))}
+  </>
+);
 
 const CategoryChip: React.FC<
-  Pick<CategoryListProps, 'categoryMap' | 'onDelete' | 'onExpand'> & {
-    category: Category;
+  Omit<CategoryListProps, 'selected'> & {
+    cat: CategorySelection;
   }
-> = ({ category, categoryMap, onDelete, onExpand }) => {
+> = ({ cat, categoryMap, onDelete, onExpand }) => {
+  const category = categoryMap[cat.id];
   const isParent = category.parentId === null;
   return (
     <StyledChip
       key={category.id}
       label={getFullCategoryName(category.id, categoryMap)}
-      onDelete={() => onDelete(category.id)}
+      onDelete={() => onDelete(cat)}
       variant={isParent ? 'filled' : 'outlined'}
-      avatar={isParent ? <PlusCircle /> : undefined}
-      onClick={isParent ? () => onExpand?.(category.id) : undefined}
+      avatar={isParent && cat.grouped ? <AllInclusiveIcon /> : undefined}
+      onClick={() => onExpand(cat)}
     />
   );
 };

@@ -8,6 +8,7 @@ import {
 } from '@mui/material';
 import * as B from 'baconjs';
 import React from 'react';
+import { z } from 'zod';
 
 import { isDefined } from 'shared/types/Common';
 import { Category } from 'shared/types/Session';
@@ -19,7 +20,10 @@ import { categoryMapE } from 'client/data/Categories';
 
 import { AsyncDataView } from '../component/AsyncDataView';
 import { connect } from '../component/BaconConnect';
-import { CategoryChipList } from '../component/CategoryChipList';
+import {
+  CategoryChipList,
+  CategorySelection,
+} from '../component/CategoryChipList';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useLocalStorageList } from '../hooks/useList';
 import { useLocalStorage } from '../hooks/useLocalStorage';
@@ -29,44 +33,89 @@ import { StatisticsChartTypeSelector } from './ChartTypeSelector';
 import { StatisticsChartRangeSelector } from './StatisticsChartRangeSelector';
 import { StatisticsChartType } from './types';
 
+function cmpCat(a: CategorySelection, b: CategorySelection) {
+  return a.id === b.id;
+}
+
 export const StatisticsViewImpl: React.FC<{
   categoryMap: Record<string, Category>;
 }> = ({ categoryMap }) => {
   const {
     list: cats,
     addItems: addCats,
-    removeItem: removeCat,
+    removeItem: removeCats,
     clear: clearCats,
-  } = useLocalStorageList<number>('statistics.categories');
+  } = useLocalStorageList<CategorySelection>(
+    'statistics.categories',
+    [],
+    z.array(CategorySelection),
+    cmpCat
+  );
 
   const [range, setRange] = React.useState<DateRange | undefined>(undefined);
 
-  const [type, setType] = useLocalStorage<StatisticsChartType>(
+  const [type, setType] = useLocalStorage(
     'statistics.chart.type',
-    'years'
+    'years',
+    StatisticsChartType
   );
 
   const [stacked, setStacked] = useLocalStorage(
     'statistics.chart.stacked',
-    true
+    true,
+    z.boolean()
   );
 
   const [onlyOwn, setOnlyOwn] = useLocalStorage(
     'statistics.chart.onlyOwn',
-    false
+    false,
+    z.boolean()
   );
 
-  const expandCategory = (parentId: number) => {
-    const children = categoryMap[parentId]?.children.map(c => c.id) ?? [];
-    if (!children) return;
-    if (children.every(c => cats.includes(c))) removeCat(children);
-    else addCats(children);
+  const expandCategory = (cat: CategorySelection) => {
+    const category = categoryMap[cat.id];
+    if (!category) return;
+
+    const children = category?.children?.map(c => ({ id: c.id })) ?? [];
+    if (children.length < 1) {
+      // This is a child category
+      if (category.parentId && category.parentId !== cat.id) {
+        const parentEntry = { id: category.parentId };
+        if (cats.find(cmpCat.bind(this, parentEntry)) === undefined) {
+          addCats(parentEntry);
+        }
+      }
+      return;
+    }
+
+    // Prio 1: remove grouping
+    if (cat.grouped) {
+      removeCats(cat);
+      addCats({ ...cat, grouped: false });
+      return;
+    }
+
+    // Prio 2: add all child cats
+    const allChildrenIncluded = children.every(
+      c => cats.find(cmpCat.bind(this, c)) !== undefined
+    );
+    if (!allChildrenIncluded) {
+      addCats(children);
+      return;
+    }
+
+    // Prio 3: remove children and group
+    removeCats(children);
+    removeCats(cat);
+    addCats({ ...cat, grouped: true });
   };
+
+  const catIds = React.useMemo(() => cats.map(c => c.id), [cats]);
 
   const statistics = useAsyncData(
     apiConnect.loadStatistics,
     cats.length > 0 && isDefined(range),
-    cats,
+    catIds,
     range?.startDate ?? '',
     range?.endDate ?? '',
     onlyOwn
@@ -114,7 +163,7 @@ export const StatisticsViewImpl: React.FC<{
           </IconButton>
           <CategoryChipList
             selected={cats}
-            onDelete={removeCat}
+            onDelete={removeCats}
             categoryMap={categoryMap}
             onExpand={expandCategory}
           />

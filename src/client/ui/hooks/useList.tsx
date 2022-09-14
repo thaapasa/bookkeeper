@@ -1,8 +1,9 @@
 import React from 'react';
+import { z } from 'zod';
 
 import { toArray } from 'shared/util/Arrays';
 
-import { useLocalStorage } from './useLocalStorage';
+import { useForceReload } from './useForceReload';
 
 const DefaultCompare = (a: any, b: any): boolean => a === b;
 
@@ -12,24 +13,34 @@ const DefaultCompare = (a: any, b: any): boolean => a === b;
 export function useLocalStorageList<T>(
   key: string,
   initial?: T[],
+  codec?: z.ZodType<T[]>,
   cmp: (a: T, b: T) => boolean = DefaultCompare
 ) {
-  const [list, setList] = useLocalStorage<T[]>(key, initial ?? []);
+  const reloader = useForceReload();
+  const list = React.useRef<T[]>(initial ?? []);
+
   const addItems = React.useCallback(
-    (items: T | T[]) =>
-      setList([
-        ...list,
-        ...toArray(items).filter(i => !list.find(i2 => cmp(i, i2))),
-      ]),
-    [list, setList, cmp]
+    (items: T | T[]) => {
+      list.current = [
+        ...list.current,
+        ...toArray(items).filter(i => !list.current.find(i2 => cmp(i, i2))),
+      ];
+      reloader();
+    },
+    [reloader, cmp]
   );
   const removeItem = React.useCallback(
     (t: T | T[]) => {
       const tAr = toArray(t);
-      setList(list.filter(l => !tAr.find(l2 => cmp(l, l2))));
+      list.current = list.current.filter(l => !tAr.find(l2 => cmp(l, l2)));
+      reloader();
     },
-    [list, setList, cmp]
+    [reloader, cmp]
   );
-  const clear = React.useCallback(() => setList([]), [setList]);
-  return { list, addItems, removeItem, clear };
+  const clear = React.useCallback(() => {
+    list.current = [];
+    reloader();
+  }, [reloader]);
+
+  return { list: list.current, addItems, removeItem, clear };
 }
