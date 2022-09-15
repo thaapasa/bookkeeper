@@ -61,6 +61,7 @@ export const YearsCategoryChart: React.FC<CategoryGraphProps> = ({
     [data, categoryMap, estimated, separateEstimate]
   );
   const thin = useThinFormat(size);
+  const lastYear = data.range.endDate.substring(0, 4);
   const ChartContainer = stacked ? AreaChart : LineChart;
 
   if (keys.length < 1) return <EmptyChart />;
@@ -72,7 +73,14 @@ export const YearsCategoryChart: React.FC<CategoryGraphProps> = ({
       margin={ChartMargins}
     >
       <CartesianGrid strokeDasharray="3 3" />
-      <XAxis dataKey="year" />
+      <XAxis
+        dataKey="year"
+        tickFormatter={year =>
+          estimated && !separateEstimate && year === lastYear
+            ? `${year} (arvio)`
+            : year
+        }
+      />
       <YAxis
         tickFormatter={thin ? formatMoneyThin : formatMoney}
         width={thin ? 32 : undefined}
@@ -142,9 +150,7 @@ function convertData(
     key,
     color: getChartColor(i, 0),
     dataId: Number(key),
-    name:
-      getFullCategoryName(Number(key), categoryMap) +
-      (estimated && !separateEstimate ? ' (arvio)' : ''),
+    name: getFullCategoryName(Number(key), categoryMap),
   }));
   const result: ChartData<'year', number> = { chartData, keys };
   // If we are not estimating then we're done here
