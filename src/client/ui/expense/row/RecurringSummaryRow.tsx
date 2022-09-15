@@ -12,6 +12,7 @@ import {
   RecurringExpenseIcon,
   Row,
   rowHeight,
+  UnconfirmedIcon,
 } from './ExpenseTableLayout';
 
 interface RecurringSummaryRowProps {
@@ -20,25 +21,33 @@ interface RecurringSummaryRowProps {
   onToggle: () => void;
 }
 
-export default function RecurringSummaryRow(props: RecurringSummaryRowProps) {
-  const expense = props.recurring
+export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
+  recurring,
+  isExpanded,
+  onToggle,
+}) => {
+  const expense = recurring
     .filter(s => s.type === 'expense')
     .map(s => Money.from(s.sum))
     .reduce(Money.plus, Money.zero);
-  const income = props.recurring
+  const income = recurring
     .filter(s => s.type === 'income')
     .map(s => Money.from(s.sum))
     .reduce(Money.plus, Money.zero);
-  const balance = props.recurring
+  const balance = recurring
     .map(s => Money.from(s.userBalance))
     .reduce(Money.plus, Money.zero);
+  const hasUnconfirmed = recurring.some(r => !r.confirmed);
   return (
     <Row>
       <AllColumns>
         <RowContainer>
           <RecurringExpenseIcon />
           <Name>
-            <Emph>Toistuvat</Emph> ({props.recurring.length} kpl)
+            {hasUnconfirmed ? (
+              <UnconfirmedIcon title="Sisältää alustavia kirjauksia" />
+            ) : null}
+            <Emph>Toistuvat</Emph> ({recurring.length} kpl)
           </Name>
           <Item>
             Tulot: <Sum>{income.format()}</Sum>
@@ -50,17 +59,17 @@ export default function RecurringSummaryRow(props: RecurringSummaryRowProps) {
             Balanssi: <Sum>{balance.format()}</Sum>
           </Item>
           <Tools>
-            {props.isExpanded ? (
-              <ExpandLess onClick={props.onToggle} />
+            {isExpanded ? (
+              <ExpandLess onClick={onToggle} />
             ) : (
-              <ExpandMore onClick={props.onToggle} />
+              <ExpandMore onClick={onToggle} />
             )}
           </Tools>
         </RowContainer>
       </AllColumns>
     </Row>
   );
-}
+};
 
 const Emph = styled.span`
   color: ${colorScheme.secondary.dark};
@@ -69,6 +78,10 @@ const Emph = styled.span`
 
 const Name = styled.div`
   padding: 0 0 0 16px;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
   flex: 1;
   position: relative;
   z-index: 1;

@@ -240,13 +240,15 @@ const UnconfirmedIconArea = styled.div`
   height: 24px;
 `;
 
-export function UnconfirmedIcon({ size }: { size?: number }) {
-  return (
-    <UnconfirmedIconArea title="Alustava kirjaus">
-      <QuestionBookmark size={size || 24} />
-    </UnconfirmedIconArea>
-  );
-}
+type UnconfimedIconProps = { size?: number; title?: string };
+export const UnconfirmedIcon: React.FC<UnconfimedIconProps> = ({
+  size,
+  title,
+}) => (
+  <UnconfirmedIconArea title={title ?? 'Alustava kirjaus'}>
+    <QuestionBookmark size={size || 24} />
+  </UnconfirmedIconArea>
+);
 
 const RecurringExpenseSeparatorItem = styled(AllColumns)`
   background-color: ${colorScheme.gray.light};

@@ -58,7 +58,7 @@ const PadGroup = styled(ToolbarGroup)`
 
 const StyledButton = styled(Button)`
   margin-left: 10px;
-  width: 140px;
+  width: 112px;
 `;
 
 const PlainLink = styled(Link)`

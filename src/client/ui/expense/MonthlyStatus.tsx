@@ -81,7 +81,9 @@ export class MonthlyStatus extends React.Component<
           expense={Money.from(this.props.monthStatus.balance).negate()}
           expanded={expanded}
         >
-          {hasUnconfirmed ? <UnconfirmedIcon /> : null}
+          {hasUnconfirmed ? (
+            <UnconfirmedIcon title="Sisältää alustavia kirjauksia" />
+          ) : null}
         </StatusBlock>
         <ToolArea>
           {this.state.expanded ? (

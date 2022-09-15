@@ -24,7 +24,7 @@ import {
   LoadingIndicator,
   RecurringExpenseSeparator,
 } from './row/ExpenseTableLayout';
-import RecurringSummaryRow from './row/RecurringSummaryRow';
+import { RecurringSummaryRow } from './row/RecurringSummaryRow';
 
 interface ExpenseTableProps {
   expenses: UserExpense[];
