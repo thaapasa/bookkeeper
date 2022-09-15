@@ -8,10 +8,10 @@ import {
   UserExpense,
   UserExpenseWithDetails,
 } from 'shared/expense/Expense';
+import { readableDate, toDate, toISODate, toMoment } from 'shared/time';
 import { Category, Source, User } from 'shared/types/Session';
 import Money from 'shared/util/Money';
 import { equal, notEqual } from 'shared/util/Symbols';
-import { readableDate, toDate, toISODate, toMoment } from 'shared/util/Time';
 import apiConnect from 'client/data/ApiConnect';
 import { getFullCategoryName, UserDataProps } from 'client/data/Categories';
 import {

@@ -7,9 +7,9 @@ import {
   ExpenseStatus,
   UserExpense,
 } from 'shared/expense/Expense';
+import * as time from 'shared/time';
 import Money from 'shared/util/Money';
 import { mapValues } from 'shared/util/Objects';
-import * as time from 'shared/util/Time';
 
 import { BasicExpenseDb as basic } from './BasicExpenseDb';
 import { createExpense } from './BasicExpenseService';

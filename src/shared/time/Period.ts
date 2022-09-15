@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
-import { Month, toISODate, toMoment, Year } from './Time';
+import { toMoment } from './Moment';
+import { Month, toISODate, Year } from './Time';
 import { DateRange } from './TimeRange';
 
 export const YearPeriod = z.object({

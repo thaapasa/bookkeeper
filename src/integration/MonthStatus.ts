@@ -1,6 +1,6 @@
 import { ExpenseStatus, UserExpense } from 'shared/expense/Expense';
 import { fetchMonthStatus } from 'shared/expense/test/ExpenseHelper';
-import { YearMonth } from 'shared/types/Time';
+import { YearMonth } from 'shared/time';
 import { MoneyLike } from 'shared/util/Money';
 import { SessionWithControl } from 'shared/util/test/TestClient';
 

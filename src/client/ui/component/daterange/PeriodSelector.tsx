@@ -7,7 +7,7 @@ import {
   Period,
   periodToYearAndMonth,
   PeriodType,
-} from 'shared/util/Period';
+} from 'shared/time';
 import { colorScheme } from 'client/ui/Colors';
 
 import { MonthSelector } from './MonthSelector';

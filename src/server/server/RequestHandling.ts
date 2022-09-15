@@ -3,9 +3,9 @@ import { NextFunction, Request, RequestHandler, Response } from 'express';
 import { ITask } from 'pg-promise';
 import { z } from 'zod';
 
+import { timeout } from 'shared/time';
 import { InvalidGroupError } from 'shared/types/Errors';
 import { SessionBasicInfo } from 'shared/types/Session';
-import { timeout } from 'shared/util/Time';
 import { optNumber } from 'shared/util/Util';
 import { SessionDb } from 'server/data/SessionDb';
 

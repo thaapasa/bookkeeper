@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
 
-import { toMoment } from 'shared/util/Time';
+import { toMoment } from 'shared/time';
 
 import MonthView from './MonthView';
 

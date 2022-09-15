@@ -2,13 +2,13 @@ import debug from 'debug';
 
 import { sum } from 'shared/math/Numbers';
 import { toPercentageDistribution } from 'shared/math/Percentages';
+import { MomentRange } from 'shared/time';
 import {
   CategoryStatistics,
   CategoryStatisticsData,
 } from 'shared/types/Statistics';
 import { groupBy, numberRange } from 'shared/util/Arrays';
 import Money from 'shared/util/Money';
-import { MomentRange } from 'shared/util/TimeRange';
 import { assertTrue } from 'shared/util/Util';
 import { ChartColumn } from 'client/ui/chart/ChartTypes';
 import { formatMoney } from 'client/ui/chart/Format';

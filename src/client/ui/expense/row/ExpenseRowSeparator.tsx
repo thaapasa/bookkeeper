@@ -2,7 +2,7 @@ import moment from 'moment';
 import * as React from 'react';
 
 import { UserExpense } from 'shared/expense/Expense';
-import { toMoment } from 'shared/util/Time';
+import { toMoment } from 'shared/time';
 
 import { WeekHeaderRow } from './WeekHeaderRow';
 

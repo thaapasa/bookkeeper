@@ -11,6 +11,12 @@ import {
   YAxis,
 } from 'recharts';
 
+import {
+  dateRangeToMomentRange,
+  getYearsInRange,
+  MomentRange,
+  toMoment,
+} from 'shared/time';
 import { ObjectId } from 'shared/types/Id';
 import { Category } from 'shared/types/Session';
 import {
@@ -19,12 +25,6 @@ import {
 } from 'shared/types/Statistics';
 import Money from 'shared/util/Money';
 import { recordFromPairs, typedKeys } from 'shared/util/Objects';
-import { toMoment } from 'shared/util/Time';
-import {
-  dateRangeToMomentRange,
-  getYearsInRange,
-  MomentRange,
-} from 'shared/util/TimeRange';
 import { getFullCategoryName } from 'client/data/Categories';
 import { getChartColor } from 'client/ui/chart/ChartColors';
 import { calculateChartHeight } from 'client/ui/chart/ChartSize';

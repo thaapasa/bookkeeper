@@ -2,8 +2,7 @@ import * as B from 'baconjs';
 
 import { ExpenseInEditor } from 'shared/expense/Expense';
 import { ExpenseSplit } from 'shared/expense/ExpenseSplit';
-import { DateLike, toDate } from 'shared/util/Time';
-import { monthRange } from 'shared/util/TimeRange';
+import { DateLike, monthRange, toDate } from 'shared/time';
 import { noop } from 'shared/util/Util';
 
 import { Size } from '../ui/Types';

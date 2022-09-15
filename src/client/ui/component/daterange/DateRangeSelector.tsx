@@ -1,8 +1,12 @@
 import * as React from 'react';
 
-import { AllPeriod, MonthPeriod, YearPeriod } from 'shared/util/Period';
-import { compareDates } from 'shared/util/Time';
-import { TypedDateRange } from 'shared/util/TimeRange';
+import {
+  AllPeriod,
+  compareDates,
+  MonthPeriod,
+  TypedDateRange,
+  YearPeriod,
+} from 'shared/time';
 
 import { DateRangeSelectorProps, toMonthRange, toYearRange } from './Common';
 import { PeriodSelector } from './PeriodSelector';

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 
+import { toMoment } from 'shared/time';
 import { TokenNotPresentError } from 'shared/types/Errors';
-import { toMoment } from 'shared/util/Time';
 
 const httpDateHeaderPattern = 'ddd, DD MMM YYYY HH:mm:ss';
 function setNoCacheHeaders(res: Response): Response {

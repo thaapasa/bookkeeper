@@ -3,9 +3,9 @@ import { History } from 'history';
 import * as React from 'react';
 import styled from 'styled-components';
 
+import { TypedDateRange } from 'shared/time';
 import { Category, CategoryAndTotals } from 'shared/types/Session';
 import Money from 'shared/util/Money';
-import { TypedDateRange } from 'shared/util/TimeRange';
 import apiConnect from 'client/data/ApiConnect';
 import { userDataE, UserDataProps } from 'client/data/Categories';
 import { updateSession, validSessionE } from 'client/data/Login';

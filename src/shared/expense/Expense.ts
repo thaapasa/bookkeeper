@@ -1,11 +1,11 @@
 import { z } from 'zod';
 
 import { RecurrencePeriod } from '../expense/Recurrence';
+import { ISODate } from '../time/Time';
 import { DbObject, ShortString } from '../types/Common';
 import { ObjectId } from '../types/Id';
 import { BooleanString, IntArrayString, IntString } from '../types/Primitives';
 import { MoneyLike } from '../util/Money';
-import { ISODate } from '../util/Time';
 
 export const ExpenseType = z.enum(['expense', 'income', 'transfer']);
 export type ExpenseType = z.infer<typeof ExpenseType>;

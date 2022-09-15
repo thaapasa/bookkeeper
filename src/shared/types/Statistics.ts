@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
-import { ISOMonth } from 'shared/util/Time';
-import { DateRange } from 'shared/util/TimeRange';
+import { DateRange, ISOMonth } from 'shared/time';
 
 import { ObjectId } from './Id';
 

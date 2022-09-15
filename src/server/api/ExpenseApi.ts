@@ -10,8 +10,8 @@ import {
   UserExpense,
 } from 'shared/expense/Expense';
 import { ExpenseSplit } from 'shared/expense/ExpenseSplit';
+import { YearMonth } from 'shared/time';
 import { ApiMessage } from 'shared/types/Api';
-import { YearMonth } from 'shared/types/Time';
 import {
   getExpenseAndDivision,
   updateExpenseById,

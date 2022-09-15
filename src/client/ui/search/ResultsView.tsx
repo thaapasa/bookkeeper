@@ -3,11 +3,11 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import { UserExpense } from 'shared/expense/Expense';
+import { toMoment } from 'shared/time';
 import { Category } from 'shared/types/Session';
 import { groupBy } from 'shared/util/Arrays';
 import Money from 'shared/util/Money';
 import { typedKeys } from 'shared/util/Objects';
-import { toMoment } from 'shared/util/Time';
 import { noop } from 'shared/util/Util';
 import { userDataE, UserDataProps } from 'client/data/Categories';
 

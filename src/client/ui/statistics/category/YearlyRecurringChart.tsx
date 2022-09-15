@@ -11,17 +11,17 @@ import {
   YAxis,
 } from 'recharts';
 
+import {
+  dateRangeToMomentRange,
+  getYearsInRange,
+  MomentRange,
+} from 'shared/time';
 import { ObjectId } from 'shared/types/Id';
 import { Category } from 'shared/types/Session';
 import { CategoryStatistics } from 'shared/types/Statistics';
 import { numberRange } from 'shared/util/Arrays';
 import Money from 'shared/util/Money';
 import { typedKeys } from 'shared/util/Objects';
-import {
-  dateRangeToMomentRange,
-  getYearsInRange,
-  MomentRange,
-} from 'shared/util/TimeRange';
 import { leftPad } from 'shared/util/Util';
 import { getFullCategoryName } from 'client/data/Categories';
 import { getChartColor } from 'client/ui/chart/ChartColors';

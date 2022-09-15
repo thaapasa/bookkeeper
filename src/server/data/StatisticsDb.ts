@@ -1,6 +1,7 @@
 import debug from 'debug';
 import { ITask } from 'pg-promise';
 
+import { DateRange } from 'shared/time';
 import { ObjectId } from 'shared/types/Id';
 import {
   CategorySelection,
@@ -8,7 +9,6 @@ import {
   CategoryStatisticsData,
 } from 'shared/types/Statistics';
 import { groupBy, partition } from 'shared/util/Arrays';
-import { DateRange } from 'shared/util/TimeRange';
 
 const log = debug('bookkeeper:api:statistics');
 

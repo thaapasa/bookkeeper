@@ -2,12 +2,12 @@ import { FormLabel, Grid } from '@mui/material';
 import * as React from 'react';
 
 import {
+  DateRange,
   MonthPeriod,
   NowPeriod,
   periodsToDateRange,
   YearPeriod,
-} from 'shared/util/Period';
-import { DateRange } from 'shared/util/TimeRange';
+} from 'shared/time';
 
 import { PeriodSelector } from '../component/daterange/PeriodSelector';
 import { useLocalStorage } from '../hooks/useLocalStorage';

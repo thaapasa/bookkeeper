@@ -12,11 +12,11 @@ import {
   findUserId,
   newExpense,
 } from 'shared/expense/test/ExpenseHelper';
+import { toMoment } from 'shared/time';
 import { ApiMessage } from 'shared/types/Api';
 import Money from 'shared/util/Money';
 import { getSession, SessionWithControl } from 'shared/util/test/TestClient';
 import { expectThrow } from 'shared/util/test/TestUtil';
-import { toMoment } from 'shared/util/Time';
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 

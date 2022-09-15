@@ -1,6 +1,6 @@
 import { AlertColor } from '@mui/material';
 
-import { TypedDateRange } from 'shared/util/TimeRange';
+import { TypedDateRange } from 'shared/time';
 
 export interface Notification {
   message: string;

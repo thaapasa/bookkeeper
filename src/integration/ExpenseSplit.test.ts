@@ -9,7 +9,7 @@ import {
   newExpense,
   splitExpense,
 } from 'shared/expense/test/ExpenseHelper';
-import { YearMonth } from 'shared/types/Time';
+import { YearMonth } from 'shared/time';
 import Money from 'shared/util/Money';
 import { getSession, SessionWithControl } from 'shared/util/test/TestClient';
 

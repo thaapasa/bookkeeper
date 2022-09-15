@@ -1,5 +1,4 @@
-import { toISODate, toMoment } from 'shared/util/Time';
-import { DateRange } from 'shared/util/TimeRange';
+import { DateRange, toISODate, toMoment } from 'shared/time';
 
 export function getRangeForQueries(range: DateRange | undefined): DateRange {
   if (!range)

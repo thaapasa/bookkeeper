@@ -11,11 +11,11 @@ import {
   ExpenseStatus,
   UserExpense,
 } from 'shared/expense/Expense';
+import * as time from 'shared/time';
 import { ApiMessage } from 'shared/types/Api';
 import { NotFoundError } from 'shared/types/Errors';
 import { ObjectId } from 'shared/types/Id';
 import Money, { MoneyLike } from 'shared/util/Money';
-import * as time from 'shared/util/Time';
 
 import { CategoryDb } from './CategoryDb';
 import { determineDivision } from './ExpenseDivision';

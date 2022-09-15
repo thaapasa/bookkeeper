@@ -11,13 +11,12 @@ import {
   YAxis,
 } from 'recharts';
 
+import { getMonthsInRange, ISOMonth } from 'shared/time';
 import { ObjectId } from 'shared/types/Id';
 import { Category } from 'shared/types/Session';
 import { CategoryStatistics } from 'shared/types/Statistics';
 import Money from 'shared/util/Money';
 import { typedKeys } from 'shared/util/Objects';
-import { ISOMonth } from 'shared/util/Time';
-import { getMonthsInRange } from 'shared/util/TimeRange';
 import { getFullCategoryName } from 'client/data/Categories';
 import { getChartColor } from 'client/ui/chart/ChartColors';
 import { calculateChartHeight } from 'client/ui/chart/ChartSize';
