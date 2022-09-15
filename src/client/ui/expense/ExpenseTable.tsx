@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
-import { Expense, ExpenseStatus, UserExpense } from 'shared/expense/Expense';
+import { Expense, ExpenseStatus, UserExpense } from 'shared/expense';
 import { partition } from 'shared/util/Arrays';
 import Money from 'shared/util/Money';
 

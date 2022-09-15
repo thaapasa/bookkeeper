@@ -9,11 +9,7 @@ import {
 import * as React from 'react';
 import styled from 'styled-components';
 
-import {
-  ExpenseType,
-  expenseTypes,
-  getExpenseTypeLabel,
-} from 'shared/expense/Expense';
+import { ExpenseType, expenseTypes, getExpenseTypeLabel } from 'shared/expense';
 import { Source } from 'shared/types/Session';
 import Money, { sanitizeMoneyInput } from 'shared/util/Money';
 import { TextEdit } from 'client/ui/component/TextEdit';

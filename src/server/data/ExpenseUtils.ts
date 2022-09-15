@@ -1,4 +1,4 @@
-import { Expense, UserExpense } from 'shared/expense/Expense';
+import { Expense, UserExpense } from 'shared/expense';
 
 export function toBaseExpense(expense: UserExpense): Expense {
   const {

@@ -5,13 +5,11 @@ import {
   ExpenseDivision,
   ExpenseDivisionType,
   ExpenseType,
-} from 'shared/expense/Expense';
-import {
   HasShares,
   HasSum,
   negateDivision,
   splitByShares,
-} from 'shared/expense/Splitter';
+} from 'shared/expense';
 import { Source } from 'shared/types/Session';
 import { sortAndCompareElements } from 'shared/util/Arrays';
 import { MoneyLike } from 'shared/util/Money';

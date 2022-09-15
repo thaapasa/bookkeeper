@@ -19,7 +19,7 @@ import {
   ExpenseType,
   RecurringExpenseTarget,
   UserExpenseWithDetails,
-} from 'shared/expense/Expense';
+} from 'shared/expense';
 import { toDate, toISODate } from 'shared/time';
 import { Category, Group, Source, User } from 'shared/types/Session';
 import { valuesToArray } from 'shared/util/Arrays';

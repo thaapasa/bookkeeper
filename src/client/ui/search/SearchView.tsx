@@ -3,7 +3,7 @@ import debug from 'debug';
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
 
-import { ExpenseQuery, UserExpense } from 'shared/expense/Expense';
+import { ExpenseQuery, UserExpense } from 'shared/expense';
 import { toDateRange } from 'shared/time';
 import { Category, Session } from 'shared/types/Session';
 import apiConnect from 'client/data/ApiConnect';

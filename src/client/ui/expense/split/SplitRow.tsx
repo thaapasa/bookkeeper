@@ -3,7 +3,7 @@ import { Grid } from '@mui/material';
 import * as React from 'react';
 import styled from 'styled-components';
 
-import { ExpenseSplit } from 'shared/expense/ExpenseSplit';
+import { ExpenseSplit } from 'shared/expense';
 import { isDefined } from 'shared/types/Common';
 import Money from 'shared/util/Money';
 import { getFullCategoryName } from 'client/data/Categories';

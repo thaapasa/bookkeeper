@@ -4,13 +4,13 @@ import {
   ExpenseCollection,
   ExpenseData,
   ExpenseQuery,
+  ExpenseSplit,
   ExpenseStatus,
+  RecurrencePeriod,
   RecurringExpenseTarget,
   UserExpense,
   UserExpenseWithDetails,
-} from 'shared/expense/Expense';
-import { ExpenseSplit } from 'shared/expense/ExpenseSplit';
-import { RecurrencePeriod } from 'shared/expense/Recurrence';
+} from 'shared/expense';
 import { ISODate, timeoutImmediate, toISODate } from 'shared/time';
 import { ApiMessage, ApiStatus } from 'shared/types/Api';
 import { AuthenticationError } from 'shared/types/Errors';

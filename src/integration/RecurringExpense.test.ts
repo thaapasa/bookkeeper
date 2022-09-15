@@ -1,13 +1,12 @@
 import 'jest';
 
-import { Expense, ExpenseCollection } from 'shared/expense/Expense';
-import { RecurrencePeriod } from 'shared/expense/Recurrence';
+import { Expense, ExpenseCollection, RecurrencePeriod } from 'shared/expense';
 import {
   captureId,
   checkCreateStatus,
   cleanup,
   newExpense,
-} from 'shared/expense/test/ExpenseHelper';
+} from 'shared/expense/test';
 import { ISODate, toISODate } from 'shared/time';
 import { YearMonth } from 'shared/time';
 import { ApiMessage } from 'shared/types/Api';

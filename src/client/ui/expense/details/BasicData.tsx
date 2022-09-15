@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
-import { UserExpense } from 'shared/expense/Expense';
+import { UserExpense } from 'shared/expense';
 import { Source } from 'shared/types/Session';
 import { media } from 'client/ui/Styles';
 

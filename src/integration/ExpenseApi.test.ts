@@ -1,17 +1,13 @@
 import 'jest';
 
-import {
-  Expense,
-  ExpenseCollection,
-  ExpenseStatus,
-} from 'shared/expense/Expense';
+import { Expense, ExpenseCollection, ExpenseStatus } from 'shared/expense';
 import {
   checkCreateStatus,
   cleanup,
   division,
   findUserId,
   newExpense,
-} from 'shared/expense/test/ExpenseHelper';
+} from 'shared/expense/test';
 import { toMoment } from 'shared/time';
 import { ApiMessage } from 'shared/types/Api';
 import Money from 'shared/util/Money';

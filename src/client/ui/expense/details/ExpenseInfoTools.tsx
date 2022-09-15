@@ -4,8 +4,7 @@ import debug from 'debug';
 import * as React from 'react';
 import styled from 'styled-components';
 
-import { ExpenseDivision, UserExpense } from 'shared/expense/Expense';
-import { RecurrencePeriod } from 'shared/expense/Recurrence';
+import { ExpenseDivision, RecurrencePeriod, UserExpense } from 'shared/expense';
 import { ISODatePattern, toDate, toMoment } from 'shared/time';
 import { Category, Source } from 'shared/types/Session';
 import Money from 'shared/util/Money';

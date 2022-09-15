@@ -10,7 +10,7 @@ import {
   ExpenseInputWithDefaults,
   ExpenseStatus,
   UserExpense,
-} from 'shared/expense/Expense';
+} from 'shared/expense';
 import * as time from 'shared/time';
 import { ApiMessage } from 'shared/types/Api';
 import { NotFoundError } from 'shared/types/Errors';

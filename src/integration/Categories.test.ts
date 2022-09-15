@@ -1,6 +1,6 @@
 import 'jest';
 
-import { cleanup, newCategory } from 'shared/expense/test/ExpenseHelper';
+import { cleanup, newCategory } from 'shared/expense/test';
 import { getSession, SessionWithControl } from 'shared/util/test/TestClient';
 import { expectThrow } from 'shared/util/test/TestUtil';
 

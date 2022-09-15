@@ -1,7 +1,7 @@
 import { DialogTitle, Grid, Typography } from '@mui/material';
 import * as React from 'react';
 
-import { UserExpense } from 'shared/expense/Expense';
+import { UserExpense } from 'shared/expense';
 import Money from 'shared/util/Money';
 
 export const SplitHeader: React.FC<{ expense: UserExpense }> = ({

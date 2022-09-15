@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
-import { ExpenseDivisionItem, UserExpense } from 'shared/expense/Expense';
+import { ExpenseDivisionItem, UserExpense } from 'shared/expense';
 import { Source, User } from 'shared/types/Session';
 import { colorScheme } from 'client/ui/Colors';
 

@@ -2,8 +2,9 @@ import {
   ExpenseDivisionItem,
   ExpenseDivisionType,
   ExpenseInput,
-} from 'shared/expense/Expense';
-import { negateDivision, splitByShares } from 'shared/expense/Splitter';
+  negateDivision,
+  splitByShares,
+} from 'shared/expense';
 import { InvalidInputError } from 'shared/types/Errors';
 import { Source } from 'shared/types/Session';
 import Money, { MoneyLike } from 'shared/util/Money';

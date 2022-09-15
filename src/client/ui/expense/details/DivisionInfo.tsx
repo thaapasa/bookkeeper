@@ -5,7 +5,7 @@ import {
   ExpenseDivisionItem,
   ExpenseDivisionType,
   ExpenseType,
-} from 'shared/expense/Expense';
+} from 'shared/expense';
 import Money, { MoneyLike } from 'shared/util/Money';
 import * as colors from 'client/ui/Colors';
 import UserAvatar from 'client/ui/component/UserAvatar';

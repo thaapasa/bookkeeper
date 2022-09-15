@@ -1,6 +1,6 @@
 import debug from 'debug';
 
-import { ExpenseData } from 'shared/expense/Expense';
+import { ExpenseData } from 'shared/expense';
 import { toISODate, toMoment } from 'shared/time';
 import { ApiMessage } from 'shared/types/Api';
 import { unnest } from 'shared/util/Arrays';

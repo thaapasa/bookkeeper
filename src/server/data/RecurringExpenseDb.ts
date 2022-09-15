@@ -7,10 +7,11 @@ import {
   ExpenseDivisionItem,
   ExpenseInput,
   Recurrence,
+  RecurrencePeriod,
+  RecurrenceUnit,
   RecurringExpenseInput,
   RecurringExpenseTarget,
-} from 'shared/expense/Expense';
-import { RecurrencePeriod, RecurrenceUnit } from 'shared/expense/Recurrence';
+} from 'shared/expense';
 import {
   DateLike,
   fromISODate,

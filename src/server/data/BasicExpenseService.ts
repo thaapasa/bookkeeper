@@ -1,11 +1,7 @@
 import debug from 'debug';
 import { ITask } from 'pg-promise';
 
-import {
-  Expense,
-  ExpenseDivisionItem,
-  ExpenseInput,
-} from 'shared/expense/Expense';
+import { Expense, ExpenseDivisionItem, ExpenseInput } from 'shared/expense';
 import { ApiMessage } from 'shared/types/Api';
 import { ObjectId } from 'shared/types/Id';
 

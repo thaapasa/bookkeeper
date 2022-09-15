@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
-import { UserExpense } from 'shared/expense/Expense';
+import { UserExpense } from 'shared/expense';
 import { Minus, Plus } from 'shared/types/Letters';
 import Money from 'shared/util/Money';
 import { colorScheme } from 'client/ui/Colors';

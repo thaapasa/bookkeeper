@@ -1,8 +1,7 @@
 import debug from 'debug';
 import * as React from 'react';
 
-import { UserExpenseWithDetails } from 'shared/expense/Expense';
-import { ExpenseSplit } from 'shared/expense/ExpenseSplit';
+import { ExpenseSplit, UserExpenseWithDetails } from 'shared/expense';
 import { toMoment } from 'shared/time';
 import { MakeOptional } from 'shared/types/Common';
 import { IdProvider } from 'shared/util/IdProvider';

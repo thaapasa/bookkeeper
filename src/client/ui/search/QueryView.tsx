@@ -9,7 +9,7 @@ import * as B from 'baconjs';
 import * as React from 'react';
 import styled from 'styled-components';
 
-import { ExpenseQuery } from 'shared/expense/Expense';
+import { ExpenseQuery } from 'shared/expense';
 import {
   toDateRangeName,
   toISODate,

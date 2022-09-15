@@ -5,11 +5,11 @@ import {
   ExpenseCollection,
   ExpenseInput,
   ExpenseQuery,
+  ExpenseSplit,
   RecurringExpenseInput,
   RecurringExpenseTarget,
   UserExpense,
-} from 'shared/expense/Expense';
-import { ExpenseSplit } from 'shared/expense/ExpenseSplit';
+} from 'shared/expense';
 import { YearMonth } from 'shared/time';
 import { ApiMessage } from 'shared/types/Api';
 import {

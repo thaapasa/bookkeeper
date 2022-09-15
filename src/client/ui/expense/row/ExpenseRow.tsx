@@ -7,7 +7,7 @@ import {
   RecurringExpenseTarget,
   UserExpense,
   UserExpenseWithDetails,
-} from 'shared/expense/Expense';
+} from 'shared/expense';
 import { readableDate, toDate, toISODate, toMoment } from 'shared/time';
 import { Category, Source, User } from 'shared/types/Session';
 import Money from 'shared/util/Money';

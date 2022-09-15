@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
-import { UserExpense } from 'shared/expense/Expense';
+import { UserExpense } from 'shared/expense';
 import * as colors from 'client/ui/Colors';
 
 interface RecurrenceInfoProps {

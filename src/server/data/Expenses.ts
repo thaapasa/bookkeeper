@@ -2,11 +2,7 @@ import debug from 'debug';
 import { Moment } from 'moment';
 import { ITask } from 'pg-promise';
 
-import {
-  ExpenseCollection,
-  ExpenseStatus,
-  UserExpense,
-} from 'shared/expense/Expense';
+import { ExpenseCollection, ExpenseStatus, UserExpense } from 'shared/expense';
 import * as time from 'shared/time';
 import Money from 'shared/util/Money';
 import { mapValues } from 'shared/util/Objects';

@@ -5,7 +5,7 @@ import {
   ExpenseCollection,
   ExpenseDivisionItem,
   UserExpenseWithDetails,
-} from 'shared/expense/Expense';
+} from 'shared/expense';
 import { YearMonth } from 'shared/time';
 import {
   ApiMessage,
