@@ -2,10 +2,12 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import { UserExpense } from 'shared/expense/Expense';
+import { Minus, Plus } from 'shared/types/Letters';
 import Money from 'shared/util/Money';
 import { colorScheme } from 'client/ui/Colors';
+import { useWindowSize } from 'client/ui/hooks/useWindowSize';
 import { ExpandLess, ExpandMore } from 'client/ui/Icons';
-import { media } from 'client/ui/Styles';
+import { isMobileSize, media } from 'client/ui/Styles';
 
 import {
   AllColumns,
@@ -38,6 +40,7 @@ export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
     .map(s => Money.from(s.userBalance))
     .reduce(Money.plus, Money.zero);
   const hasUnconfirmed = recurring.some(r => !r.confirmed);
+  const isMobile = isMobileSize(useWindowSize());
   return (
     <Row>
       <AllColumns>
@@ -47,13 +50,21 @@ export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
             {hasUnconfirmed ? (
               <UnconfirmedIcon title="Sisältää alustavia kirjauksia" />
             ) : null}
-            <Emph>Toistuvat</Emph> ({recurring.length} kpl)
+            <Emph>Toistuvat </Emph> ({recurring.length} kpl)
           </Name>
           <Item>
-            Tulot: <Sum>{income.format()}</Sum>
+            {isMobile ? null : 'Tulot: '}
+            <Sum>
+              {isMobile ? `${Plus} ` : null}
+              {income.format()}
+            </Sum>
           </Item>
           <Item>
-            Menot: <Sum>{expense.format()}</Sum>
+            {isMobile ? null : 'Menot: '}
+            <Sum>
+              {isMobile ? `${Minus} ` : null}
+              {expense.format()}
+            </Sum>
           </Item>
           <Item className="optional">
             Balanssi: <Sum>{balance.format()}</Sum>
@@ -74,6 +85,7 @@ export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
 const Emph = styled.span`
   color: ${colorScheme.secondary.dark};
   font-weight: bold;
+  padding-right: 4px;
 `;
 
 const Name = styled.div`
@@ -101,6 +113,7 @@ const Sum = styled.span`
   display: inline-block;
   text-align: right;
   font-weight: bold;
+  vertical-align: bottom;
 `;
 
 const Tools = styled.div`

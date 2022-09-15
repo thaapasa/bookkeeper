@@ -91,9 +91,12 @@ export function isSizeClassAtLeast(
   }
 }
 
+const mpmw = mobilePortraitMaxWidth;
+const mlmw = mobileLandscapeMaxWidth;
+
 export const media = {
   mobilePortrait: (s: TemplateStringsArray, ...i: SimpleInterpolation[]) => css`
-    @media screen and (max-width: ${mobilePortraitMaxWidth - 1}px) {
+    @media screen and (max-width: ${mpmw - 1}px) {
       ${css(s, ...i)}
     }
   `,
@@ -101,19 +104,17 @@ export const media = {
     s: TemplateStringsArray,
     ...i: SimpleInterpolation[]
   ) => css`
-    @media screen and (min-width: ${mobilePortraitMaxWidth}px) and (max-width: ${mobileLandscapeMaxWidth -
-      1}px) {
+    @media screen and (min-width: ${mpmw}px) and (max-width: ${mlmw - 1}px) {
       ${css(s, ...i)}
     }
   `,
   mobile: (s: TemplateStringsArray, ...i: SimpleInterpolation[]) => css`
-    @media screen and (max-width: ${mobileLandscapeMaxWidth - 1}px) {
+    @media screen and (max-width: ${mlmw - 1}px) {
       ${css(s, ...i)}
     }
   `,
   web: (s: TemplateStringsArray, ...i: SimpleInterpolation[]) => css`
-    @media screen and (min-width: ${mobilePortraitMaxWidth}px) and (max-width: ${mobileLandscapeMaxWidth -
-      1}px) {
+    @media screen and (min-width: ${mpmw}px) and (max-width: ${mlmw - 1}px) {
       ${css(s, ...i)}
     }
   `,
