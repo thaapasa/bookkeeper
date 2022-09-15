@@ -22,7 +22,7 @@ import TodaySVG from '@mui/icons-material/Today';
 import { SvgIconProps } from '@mui/material/SvgIcon';
 import * as React from 'react';
 
-import { ExpenseType } from 'shared/types/Expense';
+import { ExpenseType } from 'shared/expense/Expense';
 
 import * as colors from './Colors';
 

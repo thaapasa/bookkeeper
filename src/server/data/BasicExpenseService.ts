@@ -1,12 +1,12 @@
 import debug from 'debug';
 import { ITask } from 'pg-promise';
 
-import { ApiMessage } from 'shared/types/Api';
 import {
   Expense,
   ExpenseDivisionItem,
   ExpenseInput,
-} from 'shared/types/Expense';
+} from 'shared/expense/Expense';
+import { ApiMessage } from 'shared/types/Api';
 import { ObjectId } from 'shared/types/Id';
 
 import { BasicExpenseDb } from './BasicExpenseDb';

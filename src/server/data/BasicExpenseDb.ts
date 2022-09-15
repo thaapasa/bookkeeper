@@ -2,8 +2,6 @@ import debug from 'debug';
 import { Moment } from 'moment';
 import { ITask } from 'pg-promise';
 
-import { ApiMessage } from 'shared/types/Api';
-import { NotFoundError } from 'shared/types/Errors';
 import {
   Expense,
   ExpenseDivisionItem,
@@ -12,7 +10,9 @@ import {
   ExpenseInputWithDefaults,
   ExpenseStatus,
   UserExpense,
-} from 'shared/types/Expense';
+} from 'shared/expense/Expense';
+import { ApiMessage } from 'shared/types/Api';
+import { NotFoundError } from 'shared/types/Errors';
 import { ObjectId } from 'shared/types/Id';
 import Money, { MoneyLike } from 'shared/util/Money';
 import * as time from 'shared/util/Time';

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { IntString } from './Validator';
+import { IntString } from './Primitives';
 
 export const YearMonth = z.object({
   year: IntString.refine(r => r >= 1500 && r <= 3000),

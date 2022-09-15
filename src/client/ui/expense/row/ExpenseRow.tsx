@@ -7,7 +7,7 @@ import {
   RecurringExpenseTarget,
   UserExpense,
   UserExpenseWithDetails,
-} from 'shared/types/Expense';
+} from 'shared/expense/Expense';
 import { Category, Source, User } from 'shared/types/Session';
 import Money from 'shared/util/Money';
 import { equal, notEqual } from 'shared/util/Symbols';

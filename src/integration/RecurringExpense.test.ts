@@ -1,16 +1,16 @@
 import 'jest';
 
-import { ApiMessage } from 'shared/types/Api';
-import { Expense, ExpenseCollection } from 'shared/types/Expense';
-import { YearMonth } from 'shared/types/Time';
-import Money from 'shared/util/Money';
-import { RecurrencePeriod } from 'shared/util/Recurrence';
+import { Expense, ExpenseCollection } from 'shared/expense/Expense';
+import { RecurrencePeriod } from 'shared/expense/Recurrence';
 import {
   captureId,
   checkCreateStatus,
   cleanup,
   newExpense,
-} from 'shared/util/test/ExpenseHelper';
+} from 'shared/expense/test/ExpenseHelper';
+import { ApiMessage } from 'shared/types/Api';
+import { YearMonth } from 'shared/types/Time';
+import Money from 'shared/util/Money';
 import { getSession, SessionWithControl } from 'shared/util/test/TestClient';
 import { ISODate, toISODate } from 'shared/util/Time';
 import { uri } from 'shared/util/UrlUtils';

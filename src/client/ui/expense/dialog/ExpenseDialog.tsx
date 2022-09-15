@@ -19,7 +19,7 @@ import {
   ExpenseType,
   RecurringExpenseTarget,
   UserExpenseWithDetails,
-} from 'shared/types/Expense';
+} from 'shared/expense/Expense';
 import { Category, Group, Source, User } from 'shared/types/Session';
 import { valuesToArray } from 'shared/util/Arrays';
 import Money, { sanitizeMoneyInput } from 'shared/util/Money';

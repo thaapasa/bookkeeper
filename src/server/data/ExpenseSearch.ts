@@ -1,7 +1,7 @@
 import debug from 'debug';
 import { ITask } from 'pg-promise';
 
-import { ExpenseQuery, UserExpense } from 'shared/types/Expense';
+import { ExpenseQuery, UserExpense } from 'shared/expense/Expense';
 
 import { BasicExpenseDb } from './BasicExpenseDb';
 import { CategoryDb } from './CategoryDb';

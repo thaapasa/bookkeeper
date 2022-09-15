@@ -1,16 +1,16 @@
 import 'jest';
 
-import { UserExpenseWithDetails } from 'shared/types/Expense';
-import { ExpenseSplit } from 'shared/types/ExpenseSplit';
-import { YearMonth } from 'shared/types/Time';
-import Money from 'shared/util/Money';
+import { UserExpenseWithDetails } from 'shared/expense/Expense';
+import { ExpenseSplit } from 'shared/expense/ExpenseSplit';
 import {
   cleanup,
   fetchExpense,
   fetchMonthStatus,
   newExpense,
   splitExpense,
-} from 'shared/util/test/ExpenseHelper';
+} from 'shared/expense/test/ExpenseHelper';
+import { YearMonth } from 'shared/types/Time';
+import Money from 'shared/util/Money';
 import { getSession, SessionWithControl } from 'shared/util/test/TestClient';
 
 import { checkMonthStatus } from './MonthStatus';

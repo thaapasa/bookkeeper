@@ -1,6 +1,6 @@
+import { ExpenseInEditor } from '../expense/Expense';
 import { MoneyLike } from '../util/Money';
 import { DbObject } from './Common';
-import { ExpenseInEditor } from './Expense';
 
 export interface Group extends DbObject {
   name: string;

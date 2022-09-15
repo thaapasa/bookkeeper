@@ -1,7 +1,7 @@
 import debug from 'debug';
 
+import { ExpenseData } from 'shared/expense/Expense';
 import { ApiMessage } from 'shared/types/Api';
-import { ExpenseData } from 'shared/types/Expense';
 import { unnest } from 'shared/util/Arrays';
 import * as client from 'shared/util/test/TestClient';
 import { toISODate, toMoment } from 'shared/util/Time';

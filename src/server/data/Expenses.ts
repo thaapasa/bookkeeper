@@ -6,7 +6,7 @@ import {
   ExpenseCollection,
   ExpenseStatus,
   UserExpense,
-} from 'shared/types/Expense';
+} from 'shared/expense/Expense';
 import Money from 'shared/util/Money';
 import { mapValues } from 'shared/util/Objects';
 import * as time from 'shared/util/Time';

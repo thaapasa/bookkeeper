@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
-import { UserExpense } from 'shared/types/Expense';
+import { UserExpense } from 'shared/expense/Expense';
 import Money from 'shared/util/Money';
 
 import { gray, secondaryColors } from '../Colors';

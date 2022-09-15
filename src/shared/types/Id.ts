@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { IntString } from './Validator';
+import { IntString } from './Primitives';
 
 export const ObjectId = z.number().int().nonnegative();
 export type ObjectId = z.infer<typeof ObjectId>;

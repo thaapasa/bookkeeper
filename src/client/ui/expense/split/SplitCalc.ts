@@ -1,6 +1,6 @@
+import { ExpenseType } from 'shared/expense/Expense';
+import { ExpenseSplit } from 'shared/expense/ExpenseSplit';
 import { isDefined } from 'shared/types/Common';
-import { ExpenseType } from 'shared/types/Expense';
-import { ExpenseSplit } from 'shared/types/ExpenseSplit';
 import { Source } from 'shared/types/Session';
 import Money, { MoneyLike } from 'shared/util/Money';
 import { requireDefined } from 'shared/util/Objects';

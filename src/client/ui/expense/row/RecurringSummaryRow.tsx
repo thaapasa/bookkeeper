@@ -1,12 +1,12 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
-import { UserExpense } from 'shared/types/Expense';
+import { UserExpense } from 'shared/expense/Expense';
 import Money from 'shared/util/Money';
+import { colorScheme } from 'client/ui/Colors';
+import { ExpandLess, ExpandMore } from 'client/ui/Icons';
+import { media } from 'client/ui/Styles';
 
-import { colorScheme } from '../../Colors';
-import { ExpandLess, ExpandMore } from '../../Icons';
-import { media } from '../../Styles';
 import {
   AllColumns,
   RecurringExpenseIcon,

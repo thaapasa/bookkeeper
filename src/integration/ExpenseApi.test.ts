@@ -1,19 +1,19 @@
 import 'jest';
 
-import { ApiMessage } from 'shared/types/Api';
 import {
   Expense,
   ExpenseCollection,
   ExpenseStatus,
-} from 'shared/types/Expense';
-import Money from 'shared/util/Money';
+} from 'shared/expense/Expense';
 import {
   checkCreateStatus,
   cleanup,
   division,
   findUserId,
   newExpense,
-} from 'shared/util/test/ExpenseHelper';
+} from 'shared/expense/test/ExpenseHelper';
+import { ApiMessage } from 'shared/types/Api';
+import Money from 'shared/util/Money';
 import { getSession, SessionWithControl } from 'shared/util/test/TestClient';
 import { expectThrow } from 'shared/util/test/TestUtil';
 import { toMoment } from 'shared/util/Time';

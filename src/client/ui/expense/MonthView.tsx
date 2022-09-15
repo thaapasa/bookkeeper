@@ -2,7 +2,7 @@ import debug from 'debug';
 import { History } from 'history';
 import * as React from 'react';
 
-import { ExpenseStatus, UserExpense } from 'shared/types/Expense';
+import { ExpenseStatus, UserExpense } from 'shared/expense/Expense';
 import { isSameMonth, toMoment } from 'shared/util/Time';
 import { monthRange } from 'shared/util/TimeRange';
 import apiConnect from 'client/data/ApiConnect';

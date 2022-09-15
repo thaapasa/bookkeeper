@@ -1,12 +1,12 @@
-import { InvalidInputError } from 'shared/types/Errors';
 import {
   ExpenseDivisionItem,
   ExpenseDivisionType,
   ExpenseInput,
-} from 'shared/types/Expense';
+} from 'shared/expense/Expense';
+import { negateDivision, splitByShares } from 'shared/expense/Splitter';
+import { InvalidInputError } from 'shared/types/Errors';
 import { Source } from 'shared/types/Session';
 import Money, { MoneyLike } from 'shared/util/Money';
-import { negateDivision, splitByShares } from 'shared/util/Splitter';
 
 interface ExpenseDivisionItemNoType {
   userId: number;

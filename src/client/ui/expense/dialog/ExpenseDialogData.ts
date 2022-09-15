@@ -5,16 +5,16 @@ import {
   ExpenseDivision,
   ExpenseDivisionType,
   ExpenseType,
-} from 'shared/types/Expense';
-import { Source } from 'shared/types/Session';
-import { sortAndCompareElements } from 'shared/util/Arrays';
-import { MoneyLike } from 'shared/util/Money';
+} from 'shared/expense/Expense';
 import {
   HasShares,
   HasSum,
   negateDivision,
   splitByShares,
-} from 'shared/util/Splitter';
+} from 'shared/expense/Splitter';
+import { Source } from 'shared/types/Session';
+import { sortAndCompareElements } from 'shared/util/Arrays';
+import { MoneyLike } from 'shared/util/Money';
 
 const log = debug('bookkeeper:expense-dialog');
 

@@ -1,8 +1,8 @@
 import 'jest';
 
-import { IntArrayString } from './Validator';
+import { IntArrayString } from './Primitives';
 
-describe('Validator', () => {
+describe('Primitive types', () => {
   it.each([
     ['[]', []],
     ['[1]', [1]],

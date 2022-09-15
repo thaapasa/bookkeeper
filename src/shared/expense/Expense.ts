@@ -1,12 +1,11 @@
 import { z } from 'zod';
 
-import { MoneyLike } from 'shared/util/Money';
-import { RecurrencePeriod } from 'shared/util/Recurrence';
-import { ISODate } from 'shared/util/Time';
-
-import { DbObject, ShortString } from './Common';
-import { ObjectId } from './Id';
-import { BooleanString, IntArrayString, IntString } from './Validator';
+import { RecurrencePeriod } from '../expense/Recurrence';
+import { DbObject, ShortString } from '../types/Common';
+import { ObjectId } from '../types/Id';
+import { BooleanString, IntArrayString, IntString } from '../types/Primitives';
+import { MoneyLike } from '../util/Money';
+import { ISODate } from '../util/Time';
 
 export const ExpenseType = z.enum(['expense', 'income', 'transfer']);
 export type ExpenseType = z.infer<typeof ExpenseType>;
@@ -122,6 +121,7 @@ export interface UserExpenseWithDetails extends UserExpense {
 
 export function isExpense(e: any): e is Expense {
   return (
+    e &&
     typeof e === 'object' &&
     typeof e.id === 'number' &&
     typeof e.categoryId === 'number' &&

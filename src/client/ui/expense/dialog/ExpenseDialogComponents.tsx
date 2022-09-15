@@ -13,7 +13,7 @@ import {
   ExpenseType,
   expenseTypes,
   getExpenseTypeLabel,
-} from 'shared/types/Expense';
+} from 'shared/expense/Expense';
 import { Source } from 'shared/types/Session';
 import Money, { sanitizeMoneyInput } from 'shared/util/Money';
 import { TextEdit } from 'client/ui/component/TextEdit';

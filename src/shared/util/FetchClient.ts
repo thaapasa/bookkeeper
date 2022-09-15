@@ -83,7 +83,7 @@ export class FetchClient {
           );
       }
     } catch (e: any) {
-      if (e instanceof BkError) {
+      if (e instanceof BkError || e instanceof AuthenticationError) {
         throw e;
       }
       log('Error in fetch client:', e);

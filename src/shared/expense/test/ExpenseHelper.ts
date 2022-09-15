@@ -1,24 +1,24 @@
 import 'jest';
 
 import {
+  Expense,
+  ExpenseCollection,
+  ExpenseDivisionItem,
+  UserExpenseWithDetails,
+} from 'shared/expense/Expense';
+import {
   ApiMessage,
   isApiMessageWithExpenseId,
   isApiMessageWithRecurringExpenseId,
 } from 'shared/types/Api';
 import { isDbObject } from 'shared/types/Common';
-import {
-  Expense,
-  ExpenseCollection,
-  ExpenseDivisionItem,
-  UserExpenseWithDetails,
-} from 'shared/types/Expense';
-import { ExpenseSplit } from 'shared/types/ExpenseSplit';
 import { CategoryData, Session } from 'shared/types/Session';
 import { YearMonth } from 'shared/types/Time';
+import Money, { MoneyLike } from 'shared/util/Money';
+import { SessionWithControl } from 'shared/util/test/TestClient';
+import { uri } from 'shared/util/UrlUtils';
 
-import Money, { MoneyLike } from '../Money';
-import { uri } from '../UrlUtils';
-import { SessionWithControl } from './TestClient';
+import { ExpenseSplit } from '../ExpenseSplit';
 
 let createdIds: number[] = [];
 let createdRecurrences: number[] = [];

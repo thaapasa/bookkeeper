@@ -2,7 +2,7 @@ import * as B from 'baconjs';
 import * as React from 'react';
 import styled from 'styled-components';
 
-import { UserExpense } from 'shared/types/Expense';
+import { UserExpense } from 'shared/expense/Expense';
 import { Category } from 'shared/types/Session';
 import { groupBy } from 'shared/util/Arrays';
 import Money from 'shared/util/Money';

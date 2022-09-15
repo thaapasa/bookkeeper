@@ -1,4 +1,4 @@
-import { ExpenseData, ExpenseStatus } from 'shared/types/Expense';
+import { ExpenseData, ExpenseStatus } from 'shared/expense/Expense';
 import Money, { MoneyLike } from 'shared/util/Money';
 
 export function expenseName(e: ExpenseData): string {

@@ -1,6 +1,6 @@
 import 'jest';
 
-import Money from './Money';
+import Money from '../util/Money';
 import { HasSum, splitByShares } from './Splitter';
 
 function calculateSum(d: HasSum[]) {

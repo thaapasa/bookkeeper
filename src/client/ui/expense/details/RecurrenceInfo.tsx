@@ -1,9 +1,8 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
-import { UserExpense } from 'shared/types/Expense';
-
-import * as colors from '../../Colors';
+import { UserExpense } from 'shared/expense/Expense';
+import * as colors from 'client/ui/Colors';
 
 interface RecurrenceInfoProps {
   expense: UserExpense;

@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import { MoneyLike } from 'shared/util/Money';
+import { ShortString } from 'shared/types/Common';
+import { ObjectId } from 'shared/types/Id';
 
-import { ShortString } from './Common';
+import { MoneyLike } from '../util/Money';
 import { ExpenseDivision } from './Expense';
-import { ObjectId } from './Id';
 
 export const ExpenseSplit = z.object({
   categoryId: ObjectId,

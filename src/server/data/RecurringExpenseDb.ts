@@ -2,9 +2,6 @@ import debug from 'debug';
 import { Moment } from 'moment';
 import { ITask } from 'pg-promise';
 
-import { ApiMessage } from 'shared/types/Api';
-import { DbObject } from 'shared/types/Common';
-import { InvalidExpense, InvalidInputError } from 'shared/types/Errors';
 import {
   Expense,
   ExpenseDivisionItem,
@@ -12,10 +9,13 @@ import {
   Recurrence,
   RecurringExpenseInput,
   RecurringExpenseTarget,
-} from 'shared/types/Expense';
+} from 'shared/expense/Expense';
+import { RecurrencePeriod, RecurrenceUnit } from 'shared/expense/Recurrence';
+import { ApiMessage } from 'shared/types/Api';
+import { DbObject } from 'shared/types/Common';
+import { InvalidExpense, InvalidInputError } from 'shared/types/Errors';
 import { ObjectId } from 'shared/types/Id';
 import { unnest } from 'shared/util/Arrays';
-import { RecurrencePeriod, RecurrenceUnit } from 'shared/util/Recurrence';
 import {
   DateLike,
   fromISODate,

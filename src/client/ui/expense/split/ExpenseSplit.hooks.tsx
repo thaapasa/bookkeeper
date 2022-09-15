@@ -1,9 +1,9 @@
 import debug from 'debug';
 import * as React from 'react';
 
+import { UserExpenseWithDetails } from 'shared/expense/Expense';
+import { ExpenseSplit } from 'shared/expense/ExpenseSplit';
 import { MakeOptional } from 'shared/types/Common';
-import { UserExpenseWithDetails } from 'shared/types/Expense';
-import { ExpenseSplit } from 'shared/types/ExpenseSplit';
 import { IdProvider } from 'shared/util/IdProvider';
 import { toMoment } from 'shared/util/Time';
 import apiConnect from 'client/data/ApiConnect';

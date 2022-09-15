@@ -1,7 +1,5 @@
 import debug from 'debug';
 
-import { ApiMessage, ApiStatus } from 'shared/types/Api';
-import { AuthenticationError } from 'shared/types/Errors';
 import {
   ExpenseCollection,
   ExpenseData,
@@ -10,8 +8,11 @@ import {
   RecurringExpenseTarget,
   UserExpense,
   UserExpenseWithDetails,
-} from 'shared/types/Expense';
-import { ExpenseSplit } from 'shared/types/ExpenseSplit';
+} from 'shared/expense/Expense';
+import { ExpenseSplit } from 'shared/expense/ExpenseSplit';
+import { RecurrencePeriod } from 'shared/expense/Recurrence';
+import { ApiMessage, ApiStatus } from 'shared/types/Api';
+import { AuthenticationError } from 'shared/types/Errors';
 import { ObjectId } from 'shared/types/Id';
 import {
   Category,
@@ -28,7 +29,6 @@ import {
 import { FetchClient } from 'shared/util/FetchClient';
 import Money from 'shared/util/Money';
 import { filterTruthyProps } from 'shared/util/Objects';
-import { RecurrencePeriod } from 'shared/util/Recurrence';
 import { ISODate, timeoutImmediate, toISODate } from 'shared/util/Time';
 import { uri } from 'shared/util/UrlUtils';
 

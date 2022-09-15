@@ -1,7 +1,7 @@
 import { Dialog, Divider, Grid } from '@mui/material';
 import * as React from 'react';
 
-import { ExpenseSplit } from 'shared/types/ExpenseSplit';
+import { ExpenseSplit } from 'shared/expense/ExpenseSplit';
 import { isMobileSize } from 'client/ui/Styles';
 
 import { ExpenseDialogProps } from '../dialog/ExpenseDialog';

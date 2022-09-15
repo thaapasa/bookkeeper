@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
 
-import { ApiMessage } from 'shared/types/Api';
 import {
   ExpenseCollection,
   ExpenseInput,
@@ -9,8 +8,9 @@ import {
   RecurringExpenseInput,
   RecurringExpenseTarget,
   UserExpense,
-} from 'shared/types/Expense';
-import { ExpenseSplit } from 'shared/types/ExpenseSplit';
+} from 'shared/expense/Expense';
+import { ExpenseSplit } from 'shared/expense/ExpenseSplit';
+import { ApiMessage } from 'shared/types/Api';
 import { YearMonth } from 'shared/types/Time';
 import {
   getExpenseAndDivision,

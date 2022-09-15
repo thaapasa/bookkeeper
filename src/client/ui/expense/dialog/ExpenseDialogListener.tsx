@@ -2,7 +2,7 @@ import * as B from 'baconjs';
 import debug from 'debug';
 import * as React from 'react';
 
-import { UserExpenseWithDetails } from 'shared/types/Expense';
+import { UserExpenseWithDetails } from 'shared/expense/Expense';
 import { noop } from 'shared/util/Util';
 import apiConnect from 'client/data/ApiConnect';
 import { categoryDataSourceP, categoryMapE } from 'client/data/Categories';

@@ -1,8 +1,8 @@
 import assert from 'assert';
 import debug from 'debug';
 
-import { indices } from './Arrays';
-import Money, { MoneyLike } from './Money';
+import { indices } from '../util/Arrays';
+import Money, { MoneyLike } from '../util/Money';
 const log = debug('bookkeeper:splitter');
 
 export interface HasShares {

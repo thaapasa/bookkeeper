@@ -4,10 +4,10 @@ import debug from 'debug';
 import * as React from 'react';
 import styled from 'styled-components';
 
-import { ExpenseDivision, UserExpense } from 'shared/types/Expense';
+import { ExpenseDivision, UserExpense } from 'shared/expense/Expense';
+import { RecurrencePeriod } from 'shared/expense/Recurrence';
 import { Category, Source } from 'shared/types/Session';
 import Money from 'shared/util/Money';
-import { RecurrencePeriod } from 'shared/util/Recurrence';
 import { ISODatePattern, toDate, toMoment } from 'shared/util/Time';
 import apiConnect from 'client/data/ApiConnect';
 import { categoryMapE } from 'client/data/Categories';

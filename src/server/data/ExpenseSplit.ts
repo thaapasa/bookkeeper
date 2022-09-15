@@ -1,9 +1,9 @@
 import debug from 'debug';
 import { ITask } from 'pg-promise';
 
+import { Expense } from 'shared/expense/Expense';
+import { ExpenseSplit } from 'shared/expense/ExpenseSplit';
 import { BkError } from 'shared/types/Errors';
-import { Expense } from 'shared/types/Expense';
-import { ExpenseSplit } from 'shared/types/ExpenseSplit';
 import Money from 'shared/util/Money';
 
 import { BasicExpenseDb } from './BasicExpenseDb';
