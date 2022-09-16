@@ -6,6 +6,7 @@ import {
   ExpenseDivisionItem,
   UserExpenseWithDetails,
 } from 'shared/expense';
+import { uri } from 'shared/net';
 import { YearMonth } from 'shared/time';
 import {
   ApiMessage,
@@ -16,7 +17,6 @@ import { isDbObject } from 'shared/types/Common';
 import { CategoryData, Session } from 'shared/types/Session';
 import Money, { MoneyLike } from 'shared/util/Money';
 import { SessionWithControl } from 'shared/util/test/TestClient';
-import { uri } from 'shared/util/UrlUtils';
 
 import { ExpenseSplit } from '../ExpenseSplit';
 

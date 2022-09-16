@@ -10,6 +10,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import { ExpenseQuery } from 'shared/expense';
+import { parseQueryString } from 'shared/net';
 import {
   toDateRangeName,
   toISODate,
@@ -17,7 +18,6 @@ import {
   TypedDateRange,
 } from 'shared/time';
 import { Category, User } from 'shared/types/Session';
-import { parseQueryString } from 'shared/util/UrlUtils';
 import {
   CategoryDataSource,
   getFullCategoryName,

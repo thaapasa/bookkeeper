@@ -2,7 +2,7 @@ import fetch from 'node-fetch';
 
 import { Session } from 'shared/types/Session';
 
-import { FetchClient } from '../FetchClient';
+import { FetchClient } from '../../net/FetchClient';
 
 const baseUrl = 'http://localhost:3100';
 

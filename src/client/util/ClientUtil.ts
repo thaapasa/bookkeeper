@@ -23,3 +23,7 @@ export function eventValue(
 ): string {
   return (typeof e === 'string' ? e : e.target.value) || '';
 }
+
+export function reloadApp(path = '/') {
+  document.location.href = `${path}?refresh=${Math.random()}`;
+}

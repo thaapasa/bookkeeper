@@ -2,9 +2,9 @@ import { IconButton } from '@mui/material';
 import debug from 'debug';
 import * as React from 'react';
 
-import { reloadApp } from 'shared/util/UrlUtils';
 import { config } from 'client/Config';
 import apiConnect from 'client/data/ApiConnect';
+import { reloadApp } from 'client/util/ClientUtil';
 import { infoPagePath } from 'client/util/Links';
 
 import { Refresh } from '../Icons';

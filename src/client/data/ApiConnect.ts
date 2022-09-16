@@ -11,6 +11,7 @@ import {
   UserExpense,
   UserExpenseWithDetails,
 } from 'shared/expense';
+import { FetchClient, uri } from 'shared/net';
 import { ISODate, timeoutImmediate, toISODate } from 'shared/time';
 import { ApiMessage, ApiStatus } from 'shared/types/Api';
 import { AuthenticationError } from 'shared/types/Errors';
@@ -27,10 +28,8 @@ import {
   CategoryStatistics,
   StatisticsSearchType,
 } from 'shared/types/Statistics';
-import { FetchClient } from 'shared/util/FetchClient';
 import Money from 'shared/util/Money';
 import { filterTruthyProps } from 'shared/util/Objects';
-import { uri } from 'shared/util/UrlUtils';
 
 import { checkLoginState } from './Login';
 

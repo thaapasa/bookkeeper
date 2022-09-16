@@ -7,12 +7,12 @@ import {
   cleanup,
   newExpense,
 } from 'shared/expense/test';
+import { uri } from 'shared/net';
 import { ISODate, toISODate } from 'shared/time';
 import { YearMonth } from 'shared/time';
 import { ApiMessage } from 'shared/types/Api';
 import Money from 'shared/util/Money';
 import { getSession, SessionWithControl } from 'shared/util/test/TestClient';
-import { uri } from 'shared/util/UrlUtils';
 import { RecurringExpenseDb } from 'server/data/RecurringExpenseDb';
 
 import { checkMonthStatus } from './MonthStatus';

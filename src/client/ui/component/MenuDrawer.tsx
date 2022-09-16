@@ -4,9 +4,9 @@ import { RouteComponentProps, withRouter } from 'react-router';
 import styled from 'styled-components';
 
 import { Group, User } from 'shared/types/Session';
-import { reloadApp } from 'shared/util/UrlUtils';
 import { config } from 'client/Config';
 import { logout, validSessionE } from 'client/data/Login';
+import { reloadApp } from 'client/util/ClientUtil';
 
 import { colorScheme } from '../Colors';
 import { connect } from './BaconConnect';

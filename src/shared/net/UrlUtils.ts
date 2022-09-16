@@ -11,10 +11,6 @@ export function parseQueryString(query: string): Record<string, string> {
   return res;
 }
 
-export function reloadApp(path = '/') {
-  document.location.href = `${path}?refresh=${Math.random()}`;
-}
-
 /**
  * This is a string interpolator that automatically encode URI components.
  * All variables used to construct the string are URL-encoded.

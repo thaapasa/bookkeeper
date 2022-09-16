@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
 
-import { parseQueryString } from 'shared/util/UrlUtils';
+import { parseQueryString } from 'shared/net';
 import { noop } from 'shared/util/Util';
 import { expenseDialogE } from 'client/data/State';
 
