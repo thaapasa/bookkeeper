@@ -4,7 +4,10 @@ import styled from 'styled-components';
 
 import { Row } from '../category/CategoryTableLayout';
 import { secondaryColors } from '../Colors';
-import { getSearchSuggestionValue, SearchSuggestion } from './SearchInputField';
+import {
+  getSearchSuggestionValue,
+  SearchSuggestion,
+} from './SearchSuggestions';
 
 export const SelectedSuggestionsView: React.FC<{
   suggestions: SearchSuggestion[];

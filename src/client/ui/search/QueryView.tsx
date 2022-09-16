@@ -1,22 +1,9 @@
-import {
-  Checkbox,
-  Chip,
-  CircularProgress,
-  FormControlLabel,
-  IconButton,
-} from '@mui/material';
 import * as B from 'baconjs';
 import * as React from 'react';
-import styled from 'styled-components';
 
 import { ExpenseQuery } from 'shared/expense';
 import { parseQueryString } from 'shared/net';
-import {
-  toDateRangeName,
-  toISODate,
-  toMoment,
-  TypedDateRange,
-} from 'shared/time';
+import { toISODate, toMoment, TypedDateRange } from 'shared/time';
 import { Category, User } from 'shared/types';
 import {
   CategoryDataSource,
@@ -24,12 +11,13 @@ import {
 } from 'client/data/Categories';
 import { eventValue } from 'client/util/ClientUtil';
 
-import { gray, secondaryColors } from '../Colors';
 import { parseMonthRange, toYearRange } from '../component/daterange/Common';
-import { DateRangeSelector } from '../component/daterange/DateRangeSelector';
-import { Icons } from '../icons/Icons';
-import { SearchInputField } from './SearchInputField';
-import { SelectedSuggestionsView } from './SelectedSuggestionsView';
+import { QuerySearchLayout } from './QuerySearchLayout';
+import {
+  isReceiverSuggestion,
+  isSameSuggestion,
+  SearchSuggestion,
+} from './SearchSuggestions';
 
 interface QueryViewProps {
   categorySource: CategoryDataSource[];
@@ -41,32 +29,10 @@ interface QueryViewProps {
   month?: string;
 }
 
-interface CategorySuggestion {
-  id: number;
-  type: 'category';
-  name: string;
-}
-
-interface ReceiverSuggestion {
-  id: number;
-  type: 'receiver';
-  receiver: string;
-}
-
-function isReceiverSuggestion(x: Suggestion): x is ReceiverSuggestion {
-  return x.type === 'receiver';
-}
-
-type Suggestion = CategorySuggestion | ReceiverSuggestion;
-
-function isSameSuggestion(s1: Suggestion, s2: Suggestion) {
-  return s1.type === s2.type && s1.id === s2.id;
-}
-
 interface QueryViewState {
   input: string;
   dateRange?: TypedDateRange;
-  selectedSuggestions: Suggestion[];
+  selectedSuggestions: SearchSuggestion[];
   ownExpenses: boolean;
 }
 
@@ -150,62 +116,21 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
 
   render() {
     return (
-      <QueryArea>
-        <Block>
-          <Row className="top-align">
-            <ClearIconArea>
-              <IconButton size="small" onClick={this.onClear}>
-                <Icons.Delete />
-              </IconButton>
-            </ClearIconArea>
-            <SearchInputField
-              value={this.state.input}
-              onChange={this.onChange}
-              selectSuggestion={this.selectSuggestion}
-              startSearch={this.startSearch}
-              categorySource={this.props.categorySource}
-            />
-            <SearchButtonArea>
-              <IconButton size="small" onClick={this.startSearch}>
-                <Icons.Search color="primary" />
-              </IconButton>
-            </SearchButtonArea>
-            <ProgressArea>
-              {this.props.isSearching ? (
-                <CircularProgress
-                  size={38}
-                  variant="indeterminate"
-                  disableShrink
-                />
-              ) : null}
-            </ProgressArea>
-          </Row>
-          <Row>
-            <CheckLabel
-              control={
-                <Checkbox
-                  checked={this.state.ownExpenses}
-                  onChange={this.onToggleOwnExpenses}
-                />
-              }
-              label="Vain omat"
-            />
-            {this.state.dateRange
-              ? `Haetaan ajalta ${toDateRangeName(this.state.dateRange)}`
-              : 'Ei aikaehtoja'}
-          </Row>
-          <SelectedSuggestionsView
-            suggestions={this.state.selectedSuggestions}
-            onRemove={this.removeSelection}
-          />
-        </Block>
-        <Block>
-          <DateRangeSelector
-            dateRange={this.state.dateRange}
-            onSelectRange={this.selectDateRange}
-          />
-        </Block>
-      </QueryArea>
+      <QuerySearchLayout
+        onClear={this.onClear}
+        input={this.state.input}
+        onChange={this.onChange}
+        selectSuggestion={this.selectSuggestion}
+        startSearch={this.startSearch}
+        categorySource={this.props.categorySource}
+        isSearching={this.props.isSearching}
+        ownExpenses={this.state.ownExpenses}
+        onToggleOwnExpenses={this.onToggleOwnExpenses}
+        selectedSuggestions={this.state.selectedSuggestions}
+        removeSuggestion={this.removeSelection}
+        dateRange={this.state.dateRange}
+        onSelectRange={this.selectDateRange}
+      />
     );
   }
 
@@ -215,7 +140,7 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
     this.props.onSearch(query);
   };
 
-  private selectSuggestion = (suggestion: Suggestion) => {
+  private selectSuggestion = (suggestion: SearchSuggestion) => {
     this.setState(
       s => ({
         selectedSuggestions: [
@@ -230,7 +155,7 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
     this.inputBus.push('');
   };
 
-  private removeSelection = (suggestion: Suggestion) => {
+  private removeSelection = (suggestion: SearchSuggestion) => {
     this.setState(
       s => ({
         selectedSuggestions: s.selectedSuggestions.filter(
@@ -264,83 +189,3 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
   private selectDateRange = (dateRange?: TypedDateRange) =>
     this.dateRangeBus.push(dateRange);
 }
-
-const QueryArea = styled.div`
-  margin: 24px 24px 0 24px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-`;
-
-const SearchToolArea = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  margin-top: 6px;
-  width: 40px;
-  height: 46px;
-  background-color: #f7f7f7;
-  border: 1px solid ${gray.standard};
-  border-bottom: 1px solid ${gray.dark};
-  border-radius: 4px;
-`;
-
-const ClearIconArea = styled(SearchToolArea)`
-  border-right: none;
-  border-bottom-right-radius: 0;
-  border-top-right-radius: 0;
-`;
-
-const SearchButtonArea = styled(SearchToolArea)`
-  width: 50px;
-  border-left: none;
-  border-bottom-left-radius: 0;
-  border-top-left-radius: 0;
-`;
-
-const Block = styled.div`
-  display: flex;
-  flex-direction: column;
-  min-height: 96px;
-`;
-
-const Row = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-
-  &.top-margin {
-    margin-top: 8px;
-  }
-  &.top-align {
-    align-items: flex-start;
-  }
-`;
-
-const Suggestion = styled(Chip)`
-  margin: 0 4px;
-  &:first-of-type {
-    margin-left: 0;
-  }
-  &:last-of-type {
-    margin-right: 0;
-  }
-  &.receiver {
-    background-color: ${secondaryColors.light};
-  }
-`;
-
-const ProgressArea = styled.div`
-  width: 64px;
-  height: 48px;
-  margin-right: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-`;
-
-const CheckLabel = styled(FormControlLabel)`
-  & span {
-    font-size: 13px;
-  }
-`;

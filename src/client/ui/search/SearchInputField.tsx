@@ -6,20 +6,12 @@ import { CategoryDataSource } from 'client/data/Categories';
 import { KeyCodes } from 'client/util/Io';
 
 import { AutoComplete } from '../component/AutoComplete';
-
-interface CategorySuggestion {
-  id: number;
-  type: 'category';
-  name: string;
-}
-
-interface ReceiverSuggestion {
-  id: number;
-  type: 'receiver';
-  receiver: string;
-}
-
-export type SearchSuggestion = CategorySuggestion | ReceiverSuggestion;
+import {
+  CategorySuggestion,
+  getSearchSuggestionValue,
+  ReceiverSuggestion,
+  SearchSuggestion,
+} from './SearchSuggestions';
 
 type SearchInputProps = {
   value: string;
@@ -92,12 +84,6 @@ function getCategorySuggestions(
   return categorySource
     .filter(filter)
     .map(c => ({ type: 'category', id: c.value, name: c.text }));
-}
-
-export function getSearchSuggestionValue(suggestion: SearchSuggestion) {
-  return suggestion.type === 'category'
-    ? suggestion.name
-    : `Kohde: ${suggestion.receiver}`;
 }
 
 const StyledComplete = styled(AutoComplete)`
