@@ -28,7 +28,8 @@ import { gray, secondaryColors } from '../Colors';
 import { parseMonthRange, toYearRange } from '../component/daterange/Common';
 import { DateRangeSelector } from '../component/daterange/DateRangeSelector';
 import { Icons } from '../icons/Icons';
-import { getSearchSuggestionValue, SearchInputField } from './SearchInputField';
+import { SearchInputField } from './SearchInputField';
+import { SelectedSuggestionsView } from './SelectedSuggestionsView';
 
 interface QueryViewProps {
   categorySource: CategoryDataSource[];
@@ -193,7 +194,10 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
               ? `Haetaan ajalta ${toDateRangeName(this.state.dateRange)}`
               : 'Ei aikaehtoja'}
           </Row>
-          {this.renderSelections()}
+          <SelectedSuggestionsView
+            suggestions={this.state.selectedSuggestions}
+            onRemove={this.removeSelection}
+          />
         </Block>
         <Block>
           <DateRangeSelector
@@ -202,24 +206,6 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
           />
         </Block>
       </QueryArea>
-    );
-  }
-
-  private renderSelections() {
-    if (this.state.selectedSuggestions.length < 1) {
-      return null;
-    }
-    return (
-      <Row className="top-margin">
-        {this.state.selectedSuggestions.map(c => (
-          <Suggestion
-            key={c.id}
-            label={getSearchSuggestionValue(c)}
-            onDelete={() => this.removeSelection(c)}
-            className={c.type}
-          />
-        ))}
-      </Row>
     );
   }
 

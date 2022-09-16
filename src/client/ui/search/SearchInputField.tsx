@@ -19,12 +19,12 @@ interface ReceiverSuggestion {
   receiver: string;
 }
 
-type Suggestion = CategorySuggestion | ReceiverSuggestion;
+export type SearchSuggestion = CategorySuggestion | ReceiverSuggestion;
 
 type SearchInputProps = {
   value: string;
   onChange: (value: string) => void;
-  selectSuggestion: (s: Suggestion) => void;
+  selectSuggestion: (s: SearchSuggestion) => void;
   startSearch: () => void;
   categorySource: CategoryDataSource[];
 };
@@ -38,7 +38,7 @@ export const SearchInputField: React.FC<SearchInputProps> = ({
   startSearch,
   categorySource,
 }) => {
-  const [suggestions, setSuggestions] = React.useState<Suggestion[]>([]);
+  const [suggestions, setSuggestions] = React.useState<SearchSuggestion[]>([]);
   const onInputKeyUp = React.useCallback(
     (event: React.KeyboardEvent<any>) => {
       if (event.keyCode === KeyCodes.enter) {
@@ -94,7 +94,7 @@ function getCategorySuggestions(
     .map(c => ({ type: 'category', id: c.value, name: c.text }));
 }
 
-export function getSearchSuggestionValue(suggestion: Suggestion) {
+export function getSearchSuggestionValue(suggestion: SearchSuggestion) {
   return suggestion.type === 'category'
     ? suggestion.name
     : `Kohde: ${suggestion.receiver}`;
