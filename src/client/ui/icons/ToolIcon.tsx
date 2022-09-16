@@ -1,5 +1,6 @@
-import { SvgIconProps } from '@mui/material/SvgIcon';
 import * as React from 'react';
+
+import { Icon, RenderIcon } from './Icons';
 
 const styles = {
   tool: {
@@ -10,7 +11,7 @@ const styles = {
 };
 
 export function ToolIcon(props: {
-  icon: React.ComponentType<SvgIconProps>;
+  icon: Icon;
   color?: string | null;
   title: string;
   style?: React.CSSProperties;
@@ -18,9 +19,9 @@ export function ToolIcon(props: {
   onClick: () => void;
 }) {
   const { icon, ...rest } = props;
-  const Type = icon;
   return (
-    <Type
+    <RenderIcon
+      icon={icon}
       {...rest}
       color="action"
       style={{

@@ -5,7 +5,6 @@ import { Category } from 'shared/types';
 
 import { colorScheme } from '../Colors';
 import { rowHeight } from '../expense/row/ExpenseTableLayout';
-import { Icons } from '../icons/Icons';
 import { AddCategoryButton } from './CategoryTools';
 
 export const Row = styled.div`
@@ -81,7 +80,7 @@ export const CategoryHeader: React.FC<{ onAdd: (p?: Category) => void }> = ({
       <AddCategoryButton
         onAdd={onAdd}
         color={colorScheme.gray.veryDark}
-        icon={Icons.PlusCircle}
+        icon="PlusCircle"
       />
     </ToolColumn>
   </Row>
