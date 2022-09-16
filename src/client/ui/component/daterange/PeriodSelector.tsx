@@ -10,6 +10,7 @@ import {
 } from 'shared/time';
 import { colorScheme } from 'client/ui/Colors';
 
+import { Column } from '../BasicElements';
 import { MonthSelector } from './MonthSelector';
 import { YearSelector } from './YearSelector';
 
@@ -48,7 +49,7 @@ export const PeriodSelector: React.FC<PeriodSelectorProps<any>> = <
 
   return (
     <Container>
-      <Tabs>
+      <Column>
         <Tab>
           {validPeriods.map(v => (
             <TabButton
@@ -60,7 +61,7 @@ export const PeriodSelector: React.FC<PeriodSelectorProps<any>> = <
             </TabButton>
           ))}
         </Tab>
-      </Tabs>
+      </Column>
       {type === 'year' ? (
         <TabPanel type="year">
           <YearSelector year={year} onSelect={setYear} />
@@ -92,9 +93,9 @@ function valuesToPeriod<P extends Period>(
 
 const PeriodTitles: Record<PeriodType, string> = {
   all: 'Kaikki',
-  now: 'Nykyhetki',
+  now: 'Nyt',
   year: 'Vuosi',
-  month: 'Kuukausi',
+  month: 'Kuu',
 };
 
 interface TabPanelProps {
@@ -113,8 +114,10 @@ const TabPanel: React.FC<React.PropsWithChildren<TabPanelProps>> = ({
   </Panel>
 );
 
-const Container = styled.div`
-  display: block;
+const Container = styled(Column)`
+  display: flex;
+  min-width: 188px;
+  white-space: nowrap;
 `;
 
 const Panel = styled.div`
@@ -122,11 +125,6 @@ const Panel = styled.div`
   flex-direction: row;
   align-items: center;
   margin-top: 4px;
-`;
-
-const Tabs = styled.div`
-  display: flex;
-  flex-direction: row;
 `;
 
 const Tab = styled.div``;

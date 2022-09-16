@@ -18,15 +18,16 @@ const TypeLabels: Record<StatisticsChartType, string> = {
 export const StatisticsChartTypeSelector: React.FC<{
   selected: StatisticsChartType;
   onChange: (type: StatisticsChartType) => void;
-}> = ({ selected, onChange }) => (
+  row?: boolean;
+}> = ({ selected, onChange, row }) => (
   <FormControl>
     <FormLabel>Tyyppi</FormLabel>
-    <RadioGroup row>
+    <RadioGroup row={row}>
       {StatisticsChartType.options.map(type => (
         <FormControlLabel
           key={type}
           value={type}
-          control={<Radio checked={selected === type} />}
+          control={<Radio checked={selected === type} size="small" />}
           label={TypeLabels[type]}
           onChange={() => onChange(type)}
         />

@@ -20,6 +20,7 @@ import {
 import apiConnect from 'client/data/ApiConnect';
 import { AsyncData, UninitializedData } from 'client/data/AsyncData';
 import { categoryMapE } from 'client/data/Categories';
+import { windowSizeP } from 'client/data/State';
 
 import { AsyncDataView } from '../component/AsyncDataView';
 import { connect } from '../component/BaconConnect';
@@ -27,6 +28,8 @@ import { CategoryChipList } from '../component/CategoryChipList';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useLocalStorageList } from '../hooks/useList';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import { isMobileSize } from '../Styles';
+import { Size } from '../Types';
 import { CategorySelector } from './category/CategorySelector';
 import { CategoryStatisticsChart } from './category/CategoryStatisticsChart';
 import { StatisticsChartTypeSelector } from './ChartTypeSelector';
@@ -39,7 +42,8 @@ function cmpCat(a: CategorySelection, b: CategorySelection) {
 
 export const StatisticsViewImpl: React.FC<{
   categoryMap: Record<string, Category>;
-}> = ({ categoryMap }) => {
+  size: Size;
+}> = ({ categoryMap, size }) => {
   const {
     list: cats,
     addItems: addCats,
@@ -121,15 +125,11 @@ export const StatisticsViewImpl: React.FC<{
   const data: AsyncData<CategoryStatistics> =
     cats.length > 0 ? statistics : UninitializedData;
 
+  const isMobile = isMobileSize(size);
   return (
     <Grid container columnSpacing={2} rowSpacing={1} padding="16px">
-      <Grid item md={6} xs={12}>
+      <Grid item md={5} sm={8}>
         <CategorySelector addCategories={addCats} />
-      </Grid>
-      <Grid item md={4} xs={10}>
-        <StatisticsChartTypeSelector selected={type} onChange={setType} />
-      </Grid>
-      <Grid item md={2} xs={2}>
         <FormGroup row>
           <FormControlLabel
             control={
@@ -151,7 +151,14 @@ export const StatisticsViewImpl: React.FC<{
           />
         </FormGroup>
       </Grid>
-      <Grid item xs={12}>
+      <Grid item md={2} sm={4}>
+        <StatisticsChartTypeSelector
+          selected={type}
+          onChange={setType}
+          row={isMobile}
+        />
+      </Grid>
+      <Grid item md={5} sm={12}>
         <StatisticsChartRangeSelector onChange={setRange} />
       </Grid>
       {cats.length > 0 ? (
@@ -182,5 +189,5 @@ export const StatisticsViewImpl: React.FC<{
 };
 
 export const StatisticsView = connect(
-  B.combineTemplate({ categoryMap: categoryMapE })
+  B.combineTemplate({ categoryMap: categoryMapE, size: windowSizeP })
 )(StatisticsViewImpl);

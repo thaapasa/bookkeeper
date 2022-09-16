@@ -1,5 +1,6 @@
-import { FormLabel, Grid } from '@mui/material';
+import { FormLabel } from '@mui/material';
 import * as React from 'react';
+import styled from 'styled-components';
 
 import {
   DateRange,
@@ -9,6 +10,7 @@ import {
   YearPeriod,
 } from 'shared/time';
 
+import { Column, Row } from '../component/BasicElements';
 import { PeriodSelector } from '../component/daterange/PeriodSelector';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 
@@ -31,24 +33,27 @@ export const StatisticsChartRangeSelector: React.FC<{
     [onChange, start, end]
   );
   return (
-    <Grid container>
-      <Grid item xs={4}>
+    <Container>
+      <Row>
         <FormLabel>Aikaväli</FormLabel>
-      </Grid>
-      <Grid item xs={4}>
+      </Row>
+      <Row>
         <PeriodSelector
           period={start}
           onSelect={setStart}
           allowed={['year', 'month']}
         />
-      </Grid>
-      <Grid item xs={4}>
         <PeriodSelector
           period={end}
           onSelect={setEnd}
           allowed={AllowedPeriods}
         />
-      </Grid>
-    </Grid>
+      </Row>
+    </Container>
   );
 };
+
+const Container = styled(Column)`
+  flex: 1;
+  justify-content: space-around;
+`;
