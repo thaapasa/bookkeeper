@@ -55,7 +55,6 @@ export const SearchInputField: React.FC<SearchInputProps> = ({
 
   return (
     <StyledComplete
-      id="search-terms"
       label="Hakuehdot"
       value={value}
       onChange={onChange}

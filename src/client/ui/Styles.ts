@@ -114,7 +114,7 @@ export const media = {
     }
   `,
   web: (s: TemplateStringsArray, ...i: SimpleInterpolation[]) => css`
-    @media screen and (min-width: ${mpmw}px) and (max-width: ${mlmw - 1}px) {
+    @media screen and (min-width: ${mpmw}px) {
       ${css(s, ...i)}
     }
   `,

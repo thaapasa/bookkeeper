@@ -12,6 +12,7 @@ import { gray, secondaryColors } from '../Colors';
 import { connect } from '../component/BaconConnect';
 import ExpenseRow from '../expense/row/ExpenseRow';
 import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
+import { media } from '../Styles';
 import { TotalsView } from './TotalsView';
 
 interface ResultsProps {
@@ -122,7 +123,9 @@ function YearHeader({
 }
 
 const ResultsArea = styled.div`
-  padding-top: 16px;
+  ${media.web`
+    overflow-y: scroll;
+  `}
 `;
 
 const Header = styled.div`

@@ -2,7 +2,6 @@ import { Chip } from '@mui/material';
 import * as React from 'react';
 import styled from 'styled-components';
 
-import { Row } from '../category/CategoryTableLayout';
 import { secondaryColors } from '../Colors';
 import {
   getSearchSuggestionValue,
@@ -17,7 +16,7 @@ export const SelectedSuggestionsView: React.FC<{
     return null;
   }
   return (
-    <Row className="top-margin">
+    <>
       {suggestions.map(c => (
         <Suggestion
           key={c.id}
@@ -26,7 +25,7 @@ export const SelectedSuggestionsView: React.FC<{
           className={c.type}
         />
       ))}
-    </Row>
+    </>
   );
 };
 

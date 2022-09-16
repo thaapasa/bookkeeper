@@ -2,6 +2,7 @@ import {
   Checkbox,
   CircularProgress,
   FormControlLabel,
+  Grid,
   IconButton,
 } from '@mui/material';
 import * as React from 'react';
@@ -11,6 +12,7 @@ import { toDateRangeName, TypedDateRange } from 'shared/time';
 import { CategoryDataSource } from 'client/data/Categories';
 
 import { gray } from '../Colors';
+import { Row } from '../component/BasicElements';
 import { DateRangeSelector } from '../component/daterange/DateRangeSelector';
 import { Icons } from '../icons/Icons';
 import { SearchInputField } from './SearchInputField';
@@ -48,9 +50,9 @@ export const QuerySearchLayout: React.FC<QuerySearchLayoutProps> = ({
   dateRange,
   onSelectRange,
 }) => (
-  <QueryArea>
-    <Block>
-      <Row className="top-align">
+  <Grid container padding="16px" rowGap="16px">
+    <Grid item md={7} xs={12} sm={12}>
+      <Row>
         <ClearIconArea>
           <IconButton size="small" onClick={onClear}>
             <Icons.Delete />
@@ -74,33 +76,30 @@ export const QuerySearchLayout: React.FC<QuerySearchLayoutProps> = ({
           ) : null}
         </ProgressArea>
       </Row>
-      <Row>
-        <CheckLabel
-          control={
-            <Checkbox checked={ownExpenses} onChange={onToggleOwnExpenses} />
-          }
-          label="Vain omat"
-        />
-        {dateRange
-          ? `Haetaan ajalta ${toDateRangeName(dateRange)}`
-          : 'Ei aikaehtoja'}
-      </Row>
+      <br />
+      {dateRange
+        ? `Haetaan ajalta ${toDateRangeName(dateRange)}`
+        : 'Ei aikaehtoja'}
+    </Grid>
+    <Grid item md={3} sm={7} xs={12}>
+      <DateRangeSelector dateRange={dateRange} onSelectRange={onSelectRange} />
+    </Grid>
+    <Grid item md={2} sm={5} xs={12}>
+      <CheckLabel
+        control={
+          <Checkbox checked={ownExpenses} onChange={onToggleOwnExpenses} />
+        }
+        label="Vain omat"
+      />
+    </Grid>
+    <Grid item xs={12}>
       <SelectedSuggestionsView
         suggestions={selectedSuggestions}
         onRemove={removeSuggestion}
       />
-    </Block>
-    <Block>
-      <DateRangeSelector dateRange={dateRange} onSelectRange={onSelectRange} />
-    </Block>
-  </QueryArea>
+    </Grid>
+  </Grid>
 );
-
-const QueryArea = styled.div`
-  margin: 24px 24px 0 24px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-`;
 
 const SearchToolArea = styled.div`
   display: flex;
@@ -127,25 +126,6 @@ const SearchButtonArea = styled(SearchToolArea)`
   border-left: none;
   border-bottom-left-radius: 0;
   border-top-left-radius: 0;
-`;
-
-const Block = styled.div`
-  display: flex;
-  flex-direction: column;
-  min-height: 96px;
-`;
-
-const Row = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-
-  &.top-margin {
-    margin-top: 8px;
-  }
-  &.top-align {
-    align-items: flex-start;
-  }
 `;
 
 const ProgressArea = styled.div`
