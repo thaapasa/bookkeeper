@@ -23,13 +23,12 @@ import {
   getFullCategoryName,
 } from 'client/data/Categories';
 import { eventValue } from 'client/util/ClientUtil';
-import { KeyCodes } from 'client/util/Io';
 
 import { gray, secondaryColors } from '../Colors';
-import { AutoComplete } from '../component/AutoComplete';
 import { parseMonthRange, toYearRange } from '../component/daterange/Common';
 import { DateRangeSelector } from '../component/daterange/DateRangeSelector';
 import { Icons } from '../icons/Icons';
+import { getSearchSuggestionValue, SearchInputField } from './SearchInputField';
 
 interface QueryViewProps {
   categorySource: CategoryDataSource[];
@@ -63,35 +62,16 @@ function isSameSuggestion(s1: Suggestion, s2: Suggestion) {
   return s1.type === s2.type && s1.id === s2.id;
 }
 
-let receiverId = 1;
-
 interface QueryViewState {
   input: string;
-  suggestions: Suggestion[];
   dateRange?: TypedDateRange;
   selectedSuggestions: Suggestion[];
   ownExpenses: boolean;
 }
 
-function getCategorySuggestions(
-  categorySource: CategoryDataSource[],
-  input: string
-): CategorySuggestion[] {
-  if (!input || input.length < 1) {
-    return [];
-  }
-  const lowerInput = input.toLowerCase();
-  const filter = (c: CategoryDataSource) =>
-    c.text.toLowerCase().includes(lowerInput);
-  return categorySource
-    .filter(filter)
-    .map(c => ({ type: 'category', id: c.value, name: c.text }));
-}
-
 export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
   public state: QueryViewState = {
     input: '',
-    suggestions: [],
     selectedSuggestions: [],
     dateRange: toYearRange(toMoment().year()),
     ownExpenses: false,
@@ -177,19 +157,12 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
                 <Icons.Delete />
               </IconButton>
             </ClearIconArea>
-            <StyledComplete
-              id="search-terms"
-              label="Hakuehdot"
+            <SearchInputField
               value={this.state.input}
               onChange={this.onChange}
-              fullWidth={true}
-              suggestions={this.state.suggestions}
-              onUpdateSuggestions={this.updateSuggestions}
-              onSelectSuggestion={this.selectSuggestion}
-              getSuggestionValue={this.getSuggestionValue}
-              inputClassName="pad-left"
-              autoHideErrorText={true}
-              onKeyUp={this.onInputKeyUp}
+              selectSuggestion={this.selectSuggestion}
+              startSearch={this.startSearch}
+              categorySource={this.props.categorySource}
             />
             <SearchButtonArea>
               <IconButton size="small" onClick={this.startSearch}>
@@ -241,7 +214,7 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
         {this.state.selectedSuggestions.map(c => (
           <Suggestion
             key={c.id}
-            label={this.getSuggestionValue(c)}
+            label={getSearchSuggestionValue(c)}
             onDelete={() => this.removeSelection(c)}
             className={c.type}
           />
@@ -255,17 +228,6 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
   private doSearch = (query: ExpenseQuery) => {
     this.props.onSearch(query);
   };
-
-  private onInputKeyUp = (event: React.KeyboardEvent<any>) => {
-    if (event.keyCode === KeyCodes.enter) {
-      this.startSearch();
-    }
-  };
-
-  private getSuggestionValue = (suggestion: Suggestion) =>
-    suggestion.type === 'category'
-      ? suggestion.name
-      : `Kohde: ${suggestion.receiver}`;
 
   private selectSuggestion = (suggestion: Suggestion) => {
     this.setState(
@@ -303,18 +265,6 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
     this.receiverBus.push(receiver ? receiver.receiver : undefined);
   };
 
-  private updateSuggestions = (search: string) => {
-    const receiverSuggestions: ReceiverSuggestion[] = search
-      ? [{ type: 'receiver', receiver: search, id: receiverId++ }]
-      : [];
-    this.setState({
-      suggestions: [
-        ...receiverSuggestions,
-        ...getCategorySuggestions(this.props.categorySource, search),
-      ],
-    });
-  };
-
   private onToggleOwnExpenses = (_event: any, checked: boolean) =>
     this.ownExpensesBus.push(checked);
 
@@ -328,10 +278,6 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
   private selectDateRange = (dateRange?: TypedDateRange) =>
     this.dateRangeBus.push(dateRange);
 }
-
-const StyledComplete = styled(AutoComplete)`
-  margin-top: 6px;
-`;
 
 const QueryArea = styled.div`
   margin: 24px 24px 0 24px;
