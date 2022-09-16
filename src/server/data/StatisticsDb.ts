@@ -8,7 +8,7 @@ import {
   CategoryStatistics,
   CategoryStatisticsData,
 } from 'shared/types/Statistics';
-import { groupBy, partition } from 'shared/util/Arrays';
+import { groupBy, partition } from 'shared/util';
 
 const log = debug('bookkeeper:api:statistics');
 

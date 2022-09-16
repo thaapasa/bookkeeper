@@ -1,7 +1,6 @@
 import * as React from 'react';
 
-import { last } from 'shared/util/Arrays';
-import { filterMapCaseInsensitive } from 'shared/util/Util';
+import { filterMapCaseInsensitive, last } from 'shared/util';
 import { CategoryDataSource } from 'client/data/Categories';
 import { AutoComplete } from 'client/ui/component/AutoComplete';
 

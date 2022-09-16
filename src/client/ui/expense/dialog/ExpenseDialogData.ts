@@ -11,8 +11,7 @@ import {
   splitByShares,
 } from 'shared/expense';
 import { Source } from 'shared/types/Session';
-import { sortAndCompareElements } from 'shared/util/Arrays';
-import { MoneyLike } from 'shared/util/Money';
+import { MoneyLike, sortAndCompareElements } from 'shared/util';
 
 const log = debug('bookkeeper:expense-dialog');
 

@@ -7,7 +7,7 @@ import {
 import debug from 'debug';
 import React from 'react';
 
-import { spaced } from 'shared/util/Strings';
+import { spaced } from 'shared/util';
 
 const log = debug('ui:autocomplete');
 

@@ -4,8 +4,7 @@ import { ITask } from 'pg-promise';
 
 import { ExpenseCollection, ExpenseStatus, UserExpense } from 'shared/expense';
 import * as time from 'shared/time';
-import Money from 'shared/util/Money';
-import { mapValues } from 'shared/util/Objects';
+import { mapValues, Money } from 'shared/util';
 
 import { BasicExpenseDb as basic } from './BasicExpenseDb';
 import { createExpense } from './BasicExpenseService';

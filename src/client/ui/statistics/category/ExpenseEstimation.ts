@@ -6,9 +6,7 @@ import {
   CategoryStatistics,
   CategoryStatisticsData,
 } from 'shared/types/Statistics';
-import { groupBy, numberRange } from 'shared/util/Arrays';
-import Money from 'shared/util/Money';
-import { assertTrue } from 'shared/util/Util';
+import { assertTrue, groupBy, Money, numberRange } from 'shared/util';
 import { ChartColumn } from 'client/ui/chart/ChartTypes';
 import { formatMoney } from 'client/ui/chart/Format';
 

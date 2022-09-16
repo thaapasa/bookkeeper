@@ -2,7 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import { ExpenseShortcut } from 'shared/types/Session';
-import { spaced } from 'shared/util/Strings';
+import { spaced } from 'shared/util';
 import { validSessionE } from 'client/data/Login';
 import { createExpense, createNewExpense } from 'client/data/State';
 

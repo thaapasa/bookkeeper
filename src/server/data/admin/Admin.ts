@@ -1,7 +1,7 @@
 import { ITask } from 'pg-promise';
 
 import { ExpenseType } from 'shared/expense';
-import { MoneyLike } from 'shared/util/Money';
+import { MoneyLike } from 'shared/util';
 
 import { getInvalidDivision, InvalidDivision } from './InvalidDivisionQuery';
 

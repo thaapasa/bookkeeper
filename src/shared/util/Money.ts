@@ -32,7 +32,7 @@ const numberFormatOptions: Intl.NumberFormatOptions = {
 
 export type MoneySign = 'positive' | 'negative' | 'zero';
 
-export default class Money {
+export class Money {
   public value: Big;
 
   public static toBig(m: MoneyLike): Big {

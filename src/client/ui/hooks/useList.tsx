@@ -1,7 +1,7 @@
 import React from 'react';
 import { z } from 'zod';
 
-import { toArray } from 'shared/util/Arrays';
+import { toArray } from 'shared/util';
 
 import { useLocalStorage } from './useLocalStorage';
 

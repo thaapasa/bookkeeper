@@ -7,6 +7,7 @@ import {
   UserExpenseWithDetails,
 } from 'shared/expense';
 import { uri } from 'shared/net';
+import { SessionWithControl } from 'shared/net/test';
 import { YearMonth } from 'shared/time';
 import {
   ApiMessage,
@@ -15,8 +16,7 @@ import {
 } from 'shared/types/Api';
 import { isDbObject } from 'shared/types/Common';
 import { CategoryData, Session } from 'shared/types/Session';
-import Money, { MoneyLike } from 'shared/util/Money';
-import { SessionWithControl } from 'shared/util/test/TestClient';
+import { Money, MoneyLike } from 'shared/util';
 
 import { ExpenseSplit } from '../ExpenseSplit';
 

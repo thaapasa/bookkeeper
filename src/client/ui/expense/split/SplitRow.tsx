@@ -5,7 +5,7 @@ import styled from 'styled-components';
 
 import { ExpenseSplit } from 'shared/expense';
 import { isDefined } from 'shared/types/Common';
-import Money from 'shared/util/Money';
+import { Money } from 'shared/util';
 import { getFullCategoryName } from 'client/data/Categories';
 import UserSelector from 'client/ui/component/UserSelector';
 import { useToggle } from 'client/ui/hooks/useToggle';

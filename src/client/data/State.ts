@@ -2,7 +2,7 @@ import * as B from 'baconjs';
 
 import { ExpenseInEditor, ExpenseSplit } from 'shared/expense';
 import { DateLike, monthRange, toDate } from 'shared/time';
-import { noop } from 'shared/util/Util';
+import { noop } from 'shared/util';
 
 import { Size } from '../ui/Types';
 import { expensePagePath } from '../util/Links';

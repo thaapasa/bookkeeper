@@ -8,11 +8,11 @@ import {
   findUserId,
   newExpense,
 } from 'shared/expense/test';
+import { createTestClient, SessionWithControl } from 'shared/net/test';
 import { toMoment } from 'shared/time';
 import { ApiMessage } from 'shared/types/Api';
-import Money from 'shared/util/Money';
-import { getSession, SessionWithControl } from 'shared/util/test/TestClient';
-import { expectThrow } from 'shared/util/test/TestUtil';
+import { Money } from 'shared/util';
+import { expectThrow } from 'shared/util/test';
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
@@ -31,9 +31,10 @@ describe('expense', () => {
   let session: SessionWithControl;
   let u1id: number;
   let u2id: number;
+  const client = createTestClient();
 
   beforeEach(async () => {
-    session = await getSession('sale', 'salasana');
+    session = await client.getSession('sale', 'salasana');
     u1id = findUserId('jenni', session);
     u2id = findUserId('sale', session);
   });

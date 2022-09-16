@@ -1,4 +1,4 @@
-import { joinStr } from 'shared/util/Strings';
+import { joinStr } from 'shared/util';
 
 import { ucFirst } from '../util/Util';
 

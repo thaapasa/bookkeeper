@@ -11,7 +11,7 @@ import styled from 'styled-components';
 
 import { ExpenseType, expenseTypes, getExpenseTypeLabel } from 'shared/expense';
 import { Source } from 'shared/types/Session';
-import Money, { sanitizeMoneyInput } from 'shared/util/Money';
+import { Money, sanitizeMoneyInput } from 'shared/util';
 import { TextEdit } from 'client/ui/component/TextEdit';
 import { Add, ExpenseTypeIcon } from 'client/ui/Icons';
 import { VCenterRow } from 'client/ui/Styles';

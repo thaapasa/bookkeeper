@@ -10,7 +10,7 @@ import type {} from '@mui/x-date-pickers/themeAugmentation';
 import * as React from 'react';
 import { createRoot } from 'react-dom/client';
 
-import { assertDefined } from 'shared/util/Util';
+import { assertDefined } from 'shared/util';
 
 import { App } from './client/App';
 import { muiTheme } from './client/ui/Colors';

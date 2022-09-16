@@ -28,8 +28,7 @@ import {
   CategoryStatistics,
   StatisticsSearchType,
 } from 'shared/types/Statistics';
-import Money from 'shared/util/Money';
-import { filterTruthyProps } from 'shared/util/Objects';
+import { filterTruthyProps, Money } from 'shared/util';
 
 import { checkLoginState } from './Login';
 

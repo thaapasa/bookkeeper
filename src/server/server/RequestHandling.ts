@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { timeout } from 'shared/time';
 import { InvalidGroupError } from 'shared/types/Errors';
 import { SessionBasicInfo } from 'shared/types/Session';
-import { optNumber } from 'shared/util/Util';
+import { optNumber } from 'shared/util';
 import { SessionDb } from 'server/data/SessionDb';
 
 import { db } from '../data/Db';

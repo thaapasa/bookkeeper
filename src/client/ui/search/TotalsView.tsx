@@ -2,7 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import { UserExpense } from 'shared/expense';
-import Money from 'shared/util/Money';
+import { Money } from 'shared/util';
 
 import { gray, secondaryColors } from '../Colors';
 import { mainContentMaxWidth, media } from '../Styles';

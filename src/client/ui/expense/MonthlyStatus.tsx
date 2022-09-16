@@ -2,7 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import { ExpenseStatus } from 'shared/expense';
-import Money, { MoneyLike } from 'shared/util/Money';
+import { Money, MoneyLike } from 'shared/util';
 
 import * as colors from '../Colors';
 import { ExpandLess, ExpandMore } from '../Icons';

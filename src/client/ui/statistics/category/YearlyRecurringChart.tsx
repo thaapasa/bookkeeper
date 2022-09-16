@@ -19,10 +19,7 @@ import {
 import { ObjectId } from 'shared/types/Id';
 import { Category } from 'shared/types/Session';
 import { CategoryStatistics } from 'shared/types/Statistics';
-import { numberRange } from 'shared/util/Arrays';
-import Money from 'shared/util/Money';
-import { typedKeys } from 'shared/util/Objects';
-import { leftPad } from 'shared/util/Util';
+import { leftPad, Money, numberRange, typedKeys } from 'shared/util';
 import { getFullCategoryName } from 'client/data/Categories';
 import { getChartColor } from 'client/ui/chart/ChartColors';
 import { calculateChartHeight } from 'client/ui/chart/ChartSize';

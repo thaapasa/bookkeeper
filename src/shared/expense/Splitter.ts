@@ -2,7 +2,7 @@ import assert from 'assert';
 import debug from 'debug';
 
 import { indices } from '../util/Arrays';
-import Money, { MoneyLike } from '../util/Money';
+import { Money, MoneyLike } from '../util/Money';
 const log = debug('bookkeeper:splitter');
 
 export interface HasShares {

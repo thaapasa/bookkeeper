@@ -1,4 +1,4 @@
-import Money from 'shared/util/Money';
+import { Money } from 'shared/util';
 
 import { Size } from '../Types';
 

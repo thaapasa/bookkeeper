@@ -5,10 +5,7 @@ import styled from 'styled-components';
 import { UserExpense } from 'shared/expense';
 import { toMoment } from 'shared/time';
 import { Category } from 'shared/types/Session';
-import { groupBy } from 'shared/util/Arrays';
-import Money from 'shared/util/Money';
-import { typedKeys } from 'shared/util/Objects';
-import { noop } from 'shared/util/Util';
+import { groupBy, Money, noop, typedKeys } from 'shared/util';
 import { userDataE, UserDataProps } from 'client/data/Categories';
 
 import { gray, secondaryColors } from '../Colors';

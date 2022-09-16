@@ -8,9 +8,9 @@ import {
   newExpense,
   splitExpense,
 } from 'shared/expense/test';
+import { createTestClient, SessionWithControl } from 'shared/net/test';
 import { YearMonth } from 'shared/time';
-import Money from 'shared/util/Money';
-import { getSession, SessionWithControl } from 'shared/util/test/TestClient';
+import { Money } from 'shared/util';
 
 import { checkMonthStatus } from './MonthStatus';
 
@@ -20,8 +20,10 @@ describe('splitting expenses', () => {
   let session: SessionWithControl;
   let expense: UserExpenseWithDetails;
 
+  const client = createTestClient();
+
   beforeEach(async () => {
-    session = await getSession('sale', 'salasana');
+    session = await client.getSession('sale', 'salasana');
     const m = await newExpense(session, {
       sum: '100.00',
       confirmed: false,

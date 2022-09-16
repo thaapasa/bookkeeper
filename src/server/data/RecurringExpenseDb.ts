@@ -23,8 +23,7 @@ import { ApiMessage } from 'shared/types/Api';
 import { DbObject } from 'shared/types/Common';
 import { InvalidExpense, InvalidInputError } from 'shared/types/Errors';
 import { ObjectId } from 'shared/types/Id';
-import { unnest } from 'shared/util/Arrays';
-import { camelCaseObject } from 'shared/util/Util';
+import { camelCaseObject, unnest } from 'shared/util';
 
 import { BasicExpenseDb } from './BasicExpenseDb';
 import { copyExpense } from './BasicExpenseService';

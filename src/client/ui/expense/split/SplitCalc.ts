@@ -1,8 +1,7 @@
 import { ExpenseSplit, ExpenseType } from 'shared/expense';
 import { isDefined } from 'shared/types/Common';
 import { Source } from 'shared/types/Session';
-import Money, { MoneyLike } from 'shared/util/Money';
-import { requireDefined } from 'shared/util/Objects';
+import { Money, MoneyLike, requireDefined } from 'shared/util';
 
 import { calculateDivision } from '../dialog/ExpenseDialogData';
 import { ExpenseSplitInEditor } from './ExpenseSplit.hooks';

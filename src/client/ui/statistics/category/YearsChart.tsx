@@ -23,8 +23,7 @@ import {
   CategoryStatistics,
   CategoryStatisticsData,
 } from 'shared/types/Statistics';
-import Money from 'shared/util/Money';
-import { recordFromPairs, typedKeys } from 'shared/util/Objects';
+import { Money, recordFromPairs, typedKeys } from 'shared/util';
 import { getFullCategoryName } from 'client/data/Categories';
 import { getChartColor } from 'client/ui/chart/ChartColors';
 import { calculateChartHeight } from 'client/ui/chart/ChartSize';

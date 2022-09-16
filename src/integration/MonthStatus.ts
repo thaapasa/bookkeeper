@@ -1,8 +1,8 @@
 import { ExpenseStatus, UserExpense } from 'shared/expense';
 import { fetchMonthStatus } from 'shared/expense/test';
+import { SessionWithControl } from 'shared/net/test';
 import { YearMonth } from 'shared/time';
-import { MoneyLike } from 'shared/util/Money';
-import { SessionWithControl } from 'shared/util/test/TestClient';
+import { MoneyLike } from 'shared/util';
 
 export async function checkMonthStatus(
   session: SessionWithControl,

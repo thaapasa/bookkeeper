@@ -1,11 +1,12 @@
 import debug from 'debug';
 
 import { ExpenseData } from 'shared/expense';
+import { createTestClient, SessionWithControl } from 'shared/net/test';
 import { toISODate, toMoment } from 'shared/time';
 import { ApiMessage } from 'shared/types/Api';
-import { unnest } from 'shared/util/Arrays';
-import * as client from 'shared/util/test/TestClient';
+import { unnest } from 'shared/util';
 
+const client = createTestClient();
 const log = debug('bookkeeper:data:example');
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
@@ -37,7 +38,7 @@ async function addExampleData() {
 
   async function addExpense(
     expense: Partial<ExpenseData>,
-    session: client.SessionWithControl
+    session: SessionWithControl
   ) {
     const data = { ...defaultExpense, ...expense };
     return session.put<ApiMessage>('/api/expense', data);

@@ -3,7 +3,7 @@ import debug from 'debug';
 import * as React from 'react';
 
 import { UserExpenseWithDetails } from 'shared/expense';
-import { noop } from 'shared/util/Util';
+import { noop } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { categoryDataSourceP, categoryMapE } from 'client/data/Categories';
 import { sourceMapE, validSessionE } from 'client/data/Login';

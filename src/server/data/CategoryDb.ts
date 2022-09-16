@@ -5,8 +5,7 @@ import { ApiMessage } from 'shared/types/Api';
 import { CategoryInput } from 'shared/types/Category';
 import { InvalidInputError, NotFoundError } from 'shared/types/Errors';
 import { Category, CategoryAndTotals } from 'shared/types/Session';
-import { partition, toMap } from 'shared/util/Arrays';
-import Money from 'shared/util/Money';
+import { Money, partition, toMap } from 'shared/util';
 
 const log = debug('bookkeeper:categories');
 

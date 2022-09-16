@@ -1,8 +1,8 @@
 import 'jest';
 
+import { createTestClient, SessionWithControl } from 'shared/net/test';
 import { Session } from 'shared/types/Session';
-import * as client from 'shared/util/test/TestClient';
-import { expectThrow } from 'shared/util/test/TestUtil';
+import { expectThrow } from 'shared/util/test';
 
 function checkSession(s: Session) {
   expect(s.users).toBeInstanceOf(Array);
@@ -21,7 +21,8 @@ function checkSession(s: Session) {
 }
 
 describe('session', () => {
-  function login(): Promise<client.SessionWithControl> {
+  const client = createTestClient();
+  function login(): Promise<SessionWithControl> {
     return client.getSession('sale', 'salasana');
   }
 

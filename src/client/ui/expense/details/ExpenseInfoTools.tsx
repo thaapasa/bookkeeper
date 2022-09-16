@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import { ExpenseDivision, RecurrencePeriod, UserExpense } from 'shared/expense';
 import { ISODatePattern, toDate, toMoment } from 'shared/time';
 import { Category, Source } from 'shared/types/Session';
-import Money from 'shared/util/Money';
+import { Money } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { categoryMapE } from 'client/data/Categories';
 import { sourceMapE } from 'client/data/Login';

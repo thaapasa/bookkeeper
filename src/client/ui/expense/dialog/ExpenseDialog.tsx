@@ -22,10 +22,13 @@ import {
 } from 'shared/expense';
 import { toDate, toISODate } from 'shared/time';
 import { Category, Group, Source, User } from 'shared/types/Session';
-import { valuesToArray } from 'shared/util/Arrays';
-import Money, { sanitizeMoneyInput } from 'shared/util/Money';
-import { omit } from 'shared/util/Objects';
-import { identity } from 'shared/util/Util';
+import {
+  identity,
+  Money,
+  omit,
+  sanitizeMoneyInput,
+  valuesToArray,
+} from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { CategoryDataSource, isSubcategoryOf } from 'client/data/Categories';
 import { gray } from 'client/ui/Colors';

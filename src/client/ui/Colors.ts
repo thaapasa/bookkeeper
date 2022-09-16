@@ -3,7 +3,7 @@ import { createTheme } from '@mui/material/styles';
 import { SimplePaletteColorOptions } from '@mui/material/styles';
 import styled from 'styled-components';
 
-import Money, { MoneyLike } from 'shared/util/Money';
+import { Money, MoneyLike } from 'shared/util';
 
 interface ColorDef {
   standard: string;

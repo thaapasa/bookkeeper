@@ -1,7 +1,7 @@
 import * as B from 'baconjs';
 import * as React from 'react';
 
-import { identity } from 'shared/util/Util';
+import { identity } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { AutoComplete } from 'client/ui/component/AutoComplete';
 import { usePersistentMemo } from 'client/ui/hooks/usePersistentMemo';

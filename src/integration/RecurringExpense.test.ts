@@ -8,11 +8,11 @@ import {
   newExpense,
 } from 'shared/expense/test';
 import { uri } from 'shared/net';
+import { createTestClient, SessionWithControl } from 'shared/net/test';
 import { ISODate, toISODate } from 'shared/time';
 import { YearMonth } from 'shared/time';
 import { ApiMessage } from 'shared/types/Api';
-import Money from 'shared/util/Money';
-import { getSession, SessionWithControl } from 'shared/util/test/TestClient';
+import { Money } from 'shared/util';
 import { RecurringExpenseDb } from 'server/data/RecurringExpenseDb';
 
 import { checkMonthStatus } from './MonthStatus';
@@ -21,9 +21,10 @@ const month: YearMonth = { year: 2017, month: 1 };
 
 describe('recurring expenses', () => {
   let session: SessionWithControl;
+  const client = createTestClient();
 
   beforeEach(async () => {
-    session = await getSession('sale', 'salasana');
+    session = await client.getSession('sale', 'salasana');
   });
   afterEach(async () => {
     await cleanup(session);

@@ -2,7 +2,7 @@ import * as B from 'baconjs';
 import debug from 'debug';
 
 import { Group, Session, Source, User } from 'shared/types/Session';
-import { toMap } from 'shared/util/Arrays';
+import { toMap } from 'shared/util';
 
 import apiConnect from './ApiConnect';
 

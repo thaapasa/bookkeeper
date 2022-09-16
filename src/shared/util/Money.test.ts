@@ -4,7 +4,7 @@ import { Big } from 'big.js';
 
 import { validate } from 'server/server/Validation';
 
-import Money, { MoneyLike } from './Money';
+import { Money, MoneyLike } from './Money';
 
 describe('Money', () => {
   it('should be created from valid strings', () => {

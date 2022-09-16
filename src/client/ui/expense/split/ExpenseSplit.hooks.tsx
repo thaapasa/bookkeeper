@@ -4,7 +4,7 @@ import * as React from 'react';
 import { ExpenseSplit, UserExpenseWithDetails } from 'shared/expense';
 import { toMoment } from 'shared/time';
 import { MakeOptional } from 'shared/types/Common';
-import { IdProvider } from 'shared/util/IdProvider';
+import { IdProvider } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 
 import { ExpenseDialogProps } from '../dialog/ExpenseDialog';

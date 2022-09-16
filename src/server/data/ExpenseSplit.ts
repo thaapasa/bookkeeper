@@ -3,7 +3,7 @@ import { ITask } from 'pg-promise';
 
 import { Expense, ExpenseSplit } from 'shared/expense';
 import { BkError } from 'shared/types/Errors';
-import Money from 'shared/util/Money';
+import { Money } from 'shared/util';
 
 import { BasicExpenseDb } from './BasicExpenseDb';
 import { createExpense } from './BasicExpenseService';

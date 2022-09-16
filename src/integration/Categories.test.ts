@@ -1,16 +1,17 @@
 import 'jest';
 
 import { cleanup, newCategory } from 'shared/expense/test';
-import { getSession, SessionWithControl } from 'shared/util/test/TestClient';
-import { expectThrow } from 'shared/util/test/TestUtil';
+import { createTestClient, SessionWithControl } from 'shared/net/test';
+import { expectThrow } from 'shared/util/test';
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
 describe('categories', () => {
   let session: SessionWithControl;
+  const client = createTestClient();
 
   beforeEach(async () => {
-    session = await getSession('sale', 'salasana');
+    session = await client.getSession('sale', 'salasana');
   });
 
   afterEach(async () => {
