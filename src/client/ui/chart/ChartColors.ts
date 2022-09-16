@@ -1,6 +1,6 @@
 import { colors } from '@mui/material';
 
-import { clamp } from 'shared/math/Numbers';
+import { clamp } from 'shared/math';
 
 export const ChartColors = [
   colors.teal,

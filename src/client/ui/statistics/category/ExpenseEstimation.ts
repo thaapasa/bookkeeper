@@ -1,7 +1,6 @@
 import debug from 'debug';
 
-import { sum } from 'shared/math/Numbers';
-import { toPercentageDistribution } from 'shared/math/Percentages';
+import { sum, toPercentageDistribution } from 'shared/math';
 import { MomentRange } from 'shared/time';
 import {
   CategoryStatistics,
