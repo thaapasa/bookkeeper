@@ -50,13 +50,38 @@ interface PageProps {
 }
 
 const appLinks: AppLink[] = [
-  { label: 'Linkit', path: shortcutsPage, showInHeader: false },
-  { label: 'Kulut', path: expensePagePath, showInHeader: true },
-  { label: 'Kategoriat', path: categoryPagePath, showInHeader: true },
-  { label: 'Tilastot', path: statisticsPage, showInHeader: true },
-  { label: 'Haku', path: searchPagePath, showInHeader: true },
-  { label: 'Tiedot', path: infoPagePath, showInHeader: false },
-  { label: 'Työkalut', path: toolsPagePath, showInHeader: false },
+  {
+    label: 'Linkit',
+    path: shortcutsPage,
+    showInHeader: false,
+    icon: 'Shortcut',
+  },
+  {
+    label: 'Kulut',
+    path: expensePagePath,
+    showInHeader: true,
+    icon: 'Money',
+  },
+  {
+    label: 'Kategoriat',
+    path: categoryPagePath,
+    showInHeader: true,
+    icon: 'Category',
+  },
+  {
+    label: 'Tilastot',
+    path: statisticsPage,
+    showInHeader: true,
+    icon: 'Chart',
+  },
+  { label: 'Haku', path: searchPagePath, showInHeader: true, icon: 'Search' },
+  { label: 'Tiedot', path: infoPagePath, showInHeader: false, icon: 'Info' },
+  {
+    label: 'Työkalut',
+    path: toolsPagePath,
+    showInHeader: false,
+    icon: 'Tools',
+  },
 ];
 
 const ExpenseDialogBinder = createExpenseDialogListener(

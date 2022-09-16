@@ -9,6 +9,7 @@ import { logout, validSessionE } from 'client/data/Login';
 import { reloadApp } from 'client/util/ClientUtil';
 
 import { colorScheme } from '../Colors';
+import { RenderIcon } from '../icons/Icons';
 import { connect } from './BaconConnect';
 import { AppLink } from './NavigationBar';
 import { UserAvatar } from './UserAvatar';
@@ -25,7 +26,13 @@ const MenuLink: React.FC<AppLink & { onSelect: (path: string) => void }> = ({
   onSelect,
   label,
   path,
-}) => <MenuItem onClick={() => onSelect(path)}>{label}</MenuItem>;
+  icon,
+}) => (
+  <MenuItem onClick={() => onSelect(path)}>
+    <PaddedIcon icon={icon} fontSize="small" color="action" />
+    {label}
+  </MenuItem>
+);
 
 const MenuDrawerImpl: React.FC<MenuDrawerProps> = ({
   history,
@@ -60,6 +67,7 @@ const MenuDrawerImpl: React.FC<MenuDrawerProps> = ({
           showInHeader={false}
           path="/"
           onSelect={onReload}
+          icon="Refresh"
         />
       </ItemArea>
       {links && links.length > 0 ? <Divider /> : null}
@@ -80,6 +88,10 @@ const GroupName = styled.div`
   background-color: ${colorScheme.primary.standard};
   font-weight: bold;
   color: ${colorScheme.secondary.dark};
+`;
+
+const PaddedIcon = styled(RenderIcon)`
+  margin-right: 8px;
 `;
 
 const ItemArea = styled.div`

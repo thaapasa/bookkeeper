@@ -4,6 +4,7 @@ import { Link, Route } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { gray, navigationBar } from '../Colors';
+import { Icon, RenderIcon } from '../icons/Icons';
 import { media } from '../Styles';
 import { DateRangeNavigator } from './DateRangeNavigator';
 import { ExpenseShortcutsView } from './ExpenseShortcutsView';
@@ -12,6 +13,7 @@ export interface AppLink {
   label: string;
   path: string;
   showInHeader: boolean;
+  icon?: Icon;
 }
 
 interface NavigationBarProps {
@@ -24,7 +26,14 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({ links }) => (
       {links &&
         links
           .filter(l => l.showInHeader)
-          .map(l => <LinkButton key={l.label} label={l.label} to={l.path} />)}
+          .map(l => (
+            <LinkButton
+              key={l.label}
+              label={l.label}
+              to={l.path}
+              icon={l.icon}
+            />
+          ))}
     </LinkGroup>
     <ToolbarGroup>
       <DateRangeNavigator />
@@ -57,18 +66,23 @@ const PadGroup = styled(ToolbarGroup)`
 `;
 
 const StyledButton = styled(Button)`
-  margin-left: 10px;
-  width: 112px;
+  margin-left: 8px;
+  padding: 6px 16px;
+
+  &:last-of-type {
+    margin-left: 0;
+  }
 `;
 
 const PlainLink = styled(Link)`
   text-decoration: none;
 `;
 
-export const LinkButton: React.FC<{ label: string; to: string }> = ({
-  label,
-  to,
-}) => (
+export const LinkButton: React.FC<{
+  label: string;
+  to: string;
+  icon?: Icon;
+}> = ({ label, to, icon }) => (
   <Route path={to}>
     {({ match }) => (
       <PlainLink to={to}>
@@ -77,6 +91,7 @@ export const LinkButton: React.FC<{ label: string; to: string }> = ({
           disableElevation
           color={match ? 'primary' : 'inherit'}
           style={match ? undefined : { color: gray.veryDark }}
+          startIcon={<RenderIcon icon={icon} />}
         >
           {label}
         </StyledButton>
