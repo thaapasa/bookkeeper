@@ -44,6 +44,7 @@ import {
 
 import { EmptyChart } from '../EmptyChart';
 import { CategoryGraphProps } from './CategoryStatisticsChart';
+import { getChartMargins } from './Common';
 import { estimateMissingYearlyExpenses } from './ExpenseEstimation';
 
 export const YearsCategoryChart: React.FC<CategoryGraphProps> = ({
@@ -69,7 +70,7 @@ export const YearsCategoryChart: React.FC<CategoryGraphProps> = ({
       width={size.width}
       height={calculateChartHeight(keys.length)}
       data={chartData}
-      margin={ChartMargins}
+      margin={getChartMargins(size)}
     >
       <CartesianGrid strokeDasharray="3 3" />
       <XAxis
@@ -113,8 +114,6 @@ export const YearsCategoryChart: React.FC<CategoryGraphProps> = ({
     </ChartContainer>
   );
 };
-
-const ChartMargins = { left: 16, top: 32, right: 48, bottom: 0 };
 
 interface YearlyDataItem {
   year: number;

@@ -27,6 +27,7 @@ import {
 
 import { EmptyChart } from '../EmptyChart';
 import { CategoryGraphProps } from './CategoryStatisticsChart';
+import { getChartMargins } from './Common';
 
 export const MonthsCategoryChart: React.FC<CategoryGraphProps> = ({
   data,
@@ -47,7 +48,7 @@ export const MonthsCategoryChart: React.FC<CategoryGraphProps> = ({
       width={size.width}
       height={calculateChartHeight(keys.length)}
       data={chartData}
-      margin={ChartMargins}
+      margin={getChartMargins(size)}
     >
       <CartesianGrid strokeDasharray="3 3" />
       <XAxis dataKey="month" tickFormatter={formatMonth} />
@@ -85,8 +86,6 @@ export const MonthsCategoryChart: React.FC<CategoryGraphProps> = ({
 function formatMonth(m: ISOMonth) {
   return m.replace('-', '/');
 }
-
-const ChartMargins = { left: 16, top: 32, right: 48, bottom: 0 };
 
 function convertData(
   data: CategoryStatistics,

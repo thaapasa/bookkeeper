@@ -31,6 +31,7 @@ import {
 import { EmptyChart } from '../EmptyChart';
 import { Months } from '../types';
 import { CategoryGraphProps } from './CategoryStatisticsChart';
+import { getChartMargins } from './Common';
 
 const useLines = true;
 
@@ -52,7 +53,7 @@ export const YearlyRecurringCategoryChart: React.FC<CategoryGraphProps> = ({
       width={size.width}
       height={calculateChartHeight(keys.length)}
       data={chartData}
-      margin={ChartMargins}
+      margin={getChartMargins(size)}
     >
       <CartesianGrid strokeDasharray="3 3" />
       <XAxis dataKey="month" />
@@ -83,8 +84,6 @@ export const YearlyRecurringCategoryChart: React.FC<CategoryGraphProps> = ({
     </ChartContainer>
   );
 };
-
-const ChartMargins = { left: 16, top: 32, right: 48, bottom: 0 };
 
 function convertData(
   data: CategoryStatistics,

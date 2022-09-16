@@ -28,7 +28,7 @@ import { CategoryChipList } from '../component/CategoryChipList';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useLocalStorageList } from '../hooks/useList';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { isMobileSize } from '../Styles';
+import { isMobileSize, PageContentContainer } from '../Styles';
 import { Size } from '../Types';
 import { CategorySelector } from './category/CategorySelector';
 import { CategoryStatisticsChart } from './category/CategoryStatisticsChart';
@@ -127,64 +127,66 @@ export const StatisticsViewImpl: React.FC<{
 
   const isMobile = isMobileSize(size);
   return (
-    <Grid container columnSpacing={2} rowSpacing={1} padding="16px">
-      <Grid item md={5} sm={8}>
-        <CategorySelector addCategories={addCats} />
-        <FormGroup row>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={stacked}
-                onChange={() => setStacked(!stacked)}
-              />
-            }
-            label="Koosta alueet"
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={onlyOwn}
-                onChange={() => setOnlyOwn(!onlyOwn)}
-              />
-            }
-            label="Vain omat kirjaukset"
-          />
-        </FormGroup>
-      </Grid>
-      <Grid item md={2} sm={4}>
-        <StatisticsChartTypeSelector
-          selected={type}
-          onChange={setType}
-          row={isMobile}
-        />
-      </Grid>
-      <Grid item md={5} sm={12}>
-        <StatisticsChartRangeSelector onChange={setRange} />
-      </Grid>
-      {cats.length > 0 ? (
-        <Grid item xs={12}>
-          <IconButton color="primary" onClick={clearCats}>
-            <ClearIcon />
-          </IconButton>
-          <CategoryChipList
-            selected={cats}
-            onDelete={removeCats}
-            categoryMap={categoryMap}
-            onExpand={expandCategory}
+    <PageContentContainer>
+      <Grid container columnSpacing={2} rowSpacing={1} padding="16px">
+        <Grid item md={5} sm={8}>
+          <CategorySelector addCategories={addCats} />
+          <FormGroup row>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={stacked}
+                  onChange={() => setStacked(!stacked)}
+                />
+              }
+              label="Koosta alueet"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={onlyOwn}
+                  onChange={() => setOnlyOwn(!onlyOwn)}
+                />
+              }
+              label="Vain omat kirjaukset"
+            />
+          </FormGroup>
+        </Grid>
+        <Grid item md={2} sm={4}>
+          <StatisticsChartTypeSelector
+            selected={type}
+            onChange={setType}
+            row={isMobile}
           />
         </Grid>
-      ) : null}
-      <Grid item xs={12}>
-        <AsyncDataView
-          data={data}
-          renderer={CategoryStatisticsChart}
-          type={type}
-          categoryMap={categoryMap}
-          uninitializedText="Valitse kategoria näyttääksesi tilastot"
-          stacked={stacked}
-        />
+        <Grid item md={5} sm={12}>
+          <StatisticsChartRangeSelector onChange={setRange} />
+        </Grid>
+        {cats.length > 0 ? (
+          <Grid item xs={12}>
+            <IconButton color="primary" onClick={clearCats}>
+              <ClearIcon />
+            </IconButton>
+            <CategoryChipList
+              selected={cats}
+              onDelete={removeCats}
+              categoryMap={categoryMap}
+              onExpand={expandCategory}
+            />
+          </Grid>
+        ) : null}
+        <Grid item xs={12}>
+          <AsyncDataView
+            data={data}
+            renderer={CategoryStatisticsChart}
+            type={type}
+            categoryMap={categoryMap}
+            uninitializedText="Valitse kategoria näyttääksesi tilastot"
+            stacked={stacked}
+          />
+        </Grid>
       </Grid>
-    </Grid>
+    </PageContentContainer>
   );
 };
 
