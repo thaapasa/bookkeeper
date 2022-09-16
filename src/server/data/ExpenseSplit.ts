@@ -2,7 +2,7 @@ import debug from 'debug';
 import { ITask } from 'pg-promise';
 
 import { Expense, ExpenseSplit } from 'shared/expense';
-import { BkError } from 'shared/types/Errors';
+import { BkError } from 'shared/types';
 import { Money } from 'shared/util';
 
 import { BasicExpenseDb } from './BasicExpenseDb';

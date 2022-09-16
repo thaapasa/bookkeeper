@@ -1,6 +1,6 @@
 import { z, ZodError } from 'zod';
 
-import { BkError } from 'shared/types/Errors';
+import { BkError } from 'shared/types';
 
 export function validate<T extends z.ZodTypeAny>(
   data: unknown,

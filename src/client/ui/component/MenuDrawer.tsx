@@ -3,7 +3,7 @@ import * as React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
 import styled from 'styled-components';
 
-import { Group, User } from 'shared/types/Session';
+import { Group, User } from 'shared/types';
 import { config } from 'client/Config';
 import { logout, validSessionE } from 'client/data/Login';
 import { reloadApp } from 'client/util/ClientUtil';

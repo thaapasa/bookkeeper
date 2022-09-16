@@ -19,10 +19,13 @@ import {
   toISODate,
   toMoment,
 } from 'shared/time';
-import { ApiMessage } from 'shared/types/Api';
-import { DbObject } from 'shared/types/Common';
-import { InvalidExpense, InvalidInputError } from 'shared/types/Errors';
-import { ObjectId } from 'shared/types/Id';
+import {
+  ApiMessage,
+  DbObject,
+  InvalidExpense,
+  InvalidInputError,
+  ObjectId,
+} from 'shared/types';
 import { camelCaseObject, unnest } from 'shared/util';
 
 import { BasicExpenseDb } from './BasicExpenseDb';

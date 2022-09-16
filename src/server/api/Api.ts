@@ -2,8 +2,7 @@ import debug from 'debug';
 import { Router } from 'express';
 
 import { toMoment } from 'shared/time';
-import { ApiStatus } from 'shared/types/Api';
-import { User } from 'shared/types/Session';
+import { ApiStatus, User } from 'shared/types';
 import { UserDb } from 'server/data/UserDb';
 import { createErrorHandler } from 'server/server/ErrorHandler';
 import { Requests } from 'server/server/RequestHandling';

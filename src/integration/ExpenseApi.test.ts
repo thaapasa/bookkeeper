@@ -10,7 +10,7 @@ import {
 } from 'shared/expense/test';
 import { createTestClient, SessionWithControl } from 'shared/net/test';
 import { toMoment } from 'shared/time';
-import { ApiMessage } from 'shared/types/Api';
+import { ApiMessage } from 'shared/types';
 import { Money } from 'shared/util';
 import { expectThrow } from 'shared/util/test';
 

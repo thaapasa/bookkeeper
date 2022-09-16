@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { isDefined } from 'shared/types/Common';
+import { isDefined } from 'shared/types';
 
 type ListDecoratorProps<T, R> = {
   /** Items to render */

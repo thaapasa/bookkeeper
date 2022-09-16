@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import { StatisticsSearchType } from 'shared/types/Statistics';
+import { StatisticsSearchType } from 'shared/types';
 import { StatisticsDb } from 'server/data/StatisticsDb';
 import { getRangeForQueries } from 'server/data/StatisticsService';
 import { Requests } from 'server/server/RequestHandling';

@@ -11,7 +11,7 @@ import {
   UserExpense,
 } from 'shared/expense';
 import { YearMonth } from 'shared/time';
-import { ApiMessage } from 'shared/types/Api';
+import { ApiMessage } from 'shared/types';
 import {
   getExpenseAndDivision,
   updateExpenseById,

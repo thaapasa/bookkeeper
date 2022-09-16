@@ -1,9 +1,12 @@
 import { Router } from 'express';
 
 import { DateRange } from 'shared/time';
-import { ApiMessage } from 'shared/types/Api';
-import { CategoryInput } from 'shared/types/Category';
-import { Category, CategoryAndTotals } from 'shared/types/Session';
+import {
+  ApiMessage,
+  Category,
+  CategoryAndTotals,
+  CategoryInput,
+} from 'shared/types';
 import { Requests } from 'server/server/RequestHandling';
 
 import { CategoryDb } from '../data/CategoryDb';

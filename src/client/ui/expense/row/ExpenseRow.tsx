@@ -9,7 +9,7 @@ import {
   UserExpenseWithDetails,
 } from 'shared/expense';
 import { readableDate, toDate, toISODate, toMoment } from 'shared/time';
-import { Category, Source, User } from 'shared/types/Session';
+import { Category, Source, User } from 'shared/types';
 import { Money } from 'shared/util';
 import { equal, notEqual } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';

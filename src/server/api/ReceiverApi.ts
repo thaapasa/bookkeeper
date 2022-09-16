@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 
-import { ApiMessage } from 'shared/types/Api';
+import { ApiMessage } from 'shared/types';
 import { Expenses } from 'server/data/Expenses';
 import { Requests } from 'server/server/RequestHandling';
 

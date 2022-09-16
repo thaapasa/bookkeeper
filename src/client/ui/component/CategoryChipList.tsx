@@ -3,9 +3,7 @@ import { Chip } from '@mui/material';
 import * as React from 'react';
 import styled from 'styled-components';
 
-import { ObjectId } from 'shared/types/Id';
-import { Category } from 'shared/types/Session';
-import { CategorySelection } from 'shared/types/Statistics';
+import { Category, CategorySelection, ObjectId } from 'shared/types';
 import { getFullCategoryName } from 'client/data/Categories';
 
 interface CategoryListProps {

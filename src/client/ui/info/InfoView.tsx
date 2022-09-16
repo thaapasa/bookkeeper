@@ -1,8 +1,7 @@
 import * as B from 'baconjs';
 import * as React from 'react';
 
-import { ObjectId } from 'shared/types/Id';
-import { Category, Session, Source, User } from 'shared/types/Session';
+import { Category, ObjectId, Session, Source, User } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
 import { userDataE, UserDataProps } from 'client/data/Categories';
 import { updateSession, validSessionE } from 'client/data/Login';

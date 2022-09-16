@@ -1,6 +1,6 @@
 import * as B from 'baconjs';
 
-import { Category, Source, User } from 'shared/types/Session';
+import { Category, Source, User } from 'shared/types';
 import { unnest } from 'shared/util';
 import { sourceMapE, userMapE, validSessionE } from 'client/data/Login';
 

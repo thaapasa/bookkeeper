@@ -1,8 +1,7 @@
 import * as React from 'react';
 
 import { toISODate, UIDateRange } from 'shared/time';
-import { ObjectId } from 'shared/types/Id';
-import { Category, CategoryAndTotals } from 'shared/types/Session';
+import { Category, CategoryAndTotals, ObjectId } from 'shared/types';
 import { Money, MoneyLike, noop } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { UserDataProps } from 'client/data/Categories';

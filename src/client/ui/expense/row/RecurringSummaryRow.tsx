@@ -2,8 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import { UserExpense } from 'shared/expense';
-import { Minus, Plus } from 'shared/types/Letters';
-import { Money } from 'shared/util';
+import { Minus, Money, Plus } from 'shared/util';
 import { colorScheme } from 'client/ui/Colors';
 import { useWindowSize } from 'client/ui/hooks/useWindowSize';
 import { ExpandLess, ExpandMore } from 'client/ui/Icons';

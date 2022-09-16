@@ -1,7 +1,7 @@
 import { Button, ButtonProps } from '@mui/material';
 import * as React from 'react';
 
-import { isPromise, MaybePromise } from 'shared/types/Promise';
+import { isPromise, MaybePromise } from 'shared/util';
 import { AsyncData } from 'client/data/AsyncData';
 
 type ActionButtonProps<T> = Omit<

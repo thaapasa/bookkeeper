@@ -13,21 +13,21 @@ import {
 } from 'shared/expense';
 import { FetchClient, uri } from 'shared/net';
 import { ISODate, timeoutImmediate, toISODate } from 'shared/time';
-import { ApiMessage, ApiStatus } from 'shared/types/Api';
-import { AuthenticationError } from 'shared/types/Errors';
-import { ObjectId } from 'shared/types/Id';
 import {
+  ApiMessage,
+  ApiStatus,
+  AuthenticationError,
   Category,
   CategoryAndTotals,
   CategoryData,
-  Session,
-} from 'shared/types/Session';
-import { Source, SourcePatch } from 'shared/types/Source';
-import {
   CategorySelection,
   CategoryStatistics,
+  ObjectId,
+  Session,
+  Source,
+  SourcePatch,
   StatisticsSearchType,
-} from 'shared/types/Statistics';
+} from 'shared/types';
 import { filterTruthyProps, Money } from 'shared/util';
 
 import { checkLoginState } from './Login';

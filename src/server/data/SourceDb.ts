@@ -1,9 +1,6 @@
 import { ITask } from 'pg-promise';
 
-import { NotFoundError } from 'shared/types/Errors';
-import { ObjectId } from 'shared/types/Id';
-import { Source } from 'shared/types/Session';
-import { SourcePatch } from 'shared/types/Source';
+import { NotFoundError, ObjectId, Source, SourcePatch } from 'shared/types';
 
 function getImage(img: string | undefined): string | undefined {
   return img ? `img/sources/${img}` : undefined;

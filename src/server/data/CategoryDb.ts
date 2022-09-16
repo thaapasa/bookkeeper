@@ -1,10 +1,14 @@
 import debug from 'debug';
 import { ITask } from 'pg-promise';
 
-import { ApiMessage } from 'shared/types/Api';
-import { CategoryInput } from 'shared/types/Category';
-import { InvalidInputError, NotFoundError } from 'shared/types/Errors';
-import { Category, CategoryAndTotals } from 'shared/types/Session';
+import {
+  ApiMessage,
+  Category,
+  CategoryAndTotals,
+  CategoryInput,
+  InvalidInputError,
+  NotFoundError,
+} from 'shared/types';
 import { Money, partition, toMap } from 'shared/util';
 
 const log = debug('bookkeeper:categories');

@@ -1,7 +1,6 @@
 import { ITask } from 'pg-promise';
 
-import { AuthenticationError, NotFoundError } from 'shared/types/Errors';
-import { Group, User } from 'shared/types/Session';
+import { AuthenticationError, Group, NotFoundError, User } from 'shared/types';
 
 export type RawUserData = Record<string, any>;
 

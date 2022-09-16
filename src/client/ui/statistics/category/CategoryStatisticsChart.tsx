@@ -1,8 +1,7 @@
 import { Checkbox, FormControlLabel, FormGroup } from '@mui/material';
 import * as React from 'react';
 
-import { Category } from 'shared/types/Session';
-import { CategoryStatistics } from 'shared/types/Statistics';
+import { Category, CategoryStatistics } from 'shared/types';
 import { useLocalStorage } from 'client/ui/hooks/useLocalStorage';
 import { Size } from 'client/ui/Types';
 import { MeasureSize } from 'client/ui/utils/MeasureSize';

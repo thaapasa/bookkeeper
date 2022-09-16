@@ -1,7 +1,7 @@
 import 'jest';
 
 import { createTestClient, SessionWithControl } from 'shared/net/test';
-import { Session } from 'shared/types/Session';
+import { Session } from 'shared/types';
 import { expectThrow } from 'shared/util/test';
 
 function checkSession(s: Session) {

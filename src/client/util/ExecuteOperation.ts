@@ -1,4 +1,4 @@
-import { MaybePromise } from 'shared/types/Promise';
+import { MaybePromise } from 'shared/util';
 import { notify, notifyError } from 'client/data/State';
 import { UserPrompts } from 'client/ui/dialog/DialogState';
 

@@ -1,8 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
-import { ObjectId } from 'shared/types/Id';
-import { User } from 'shared/types/Session';
+import { ObjectId, User } from 'shared/types';
 import { validSessionE } from 'client/data/Login';
 
 import { connect } from './BaconConnect';

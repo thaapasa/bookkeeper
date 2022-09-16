@@ -3,7 +3,7 @@ import * as React from 'react';
 
 import { ExpenseSplit, UserExpenseWithDetails } from 'shared/expense';
 import { toMoment } from 'shared/time';
-import { MakeOptional } from 'shared/types/Common';
+import { MakeOptional } from 'shared/types';
 import { IdProvider } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 

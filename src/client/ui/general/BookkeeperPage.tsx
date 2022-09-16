@@ -2,7 +2,7 @@ import * as React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import styled, { createGlobalStyle } from 'styled-components';
 
-import { Session } from 'shared/types/Session';
+import { Session } from 'shared/types';
 import { expenseDialogE, expenseSplitE } from 'client/data/State';
 import {
   categoryPagePath,

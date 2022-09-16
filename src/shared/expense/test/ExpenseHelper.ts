@@ -5,19 +5,19 @@ import {
   ExpenseCollection,
   ExpenseDivisionItem,
   UserExpenseWithDetails,
-} from 'shared/expense';
-import { uri } from 'shared/net';
-import { SessionWithControl } from 'shared/net/test';
-import { YearMonth } from 'shared/time';
+} from '../../expense';
+import { SessionWithControl } from '../../net/test';
+import { uri } from '../../net/UrlUtils';
+import { YearMonth } from '../../time';
 import {
   ApiMessage,
+  CategoryData,
   isApiMessageWithExpenseId,
   isApiMessageWithRecurringExpenseId,
-} from 'shared/types/Api';
-import { isDbObject } from 'shared/types/Common';
-import { CategoryData, Session } from 'shared/types/Session';
-import { Money, MoneyLike } from 'shared/util';
-
+  isDbObject,
+  Session,
+} from '../../types';
+import { Money, MoneyLike } from '../../util/Money';
 import { ExpenseSplit } from '../ExpenseSplit';
 
 let createdIds: number[] = [];

@@ -3,7 +3,7 @@ import debug from 'debug';
 import * as React from 'react';
 import styled from 'styled-components';
 
-import { MaybePromise } from 'shared/types/Promise';
+import { MaybePromise } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { executeOperation } from 'client/util/ExecuteOperation';
 

@@ -11,7 +11,7 @@ import { uri } from 'shared/net';
 import { createTestClient, SessionWithControl } from 'shared/net/test';
 import { ISODate, toISODate } from 'shared/time';
 import { YearMonth } from 'shared/time';
-import { ApiMessage } from 'shared/types/Api';
+import { ApiMessage } from 'shared/types';
 import { Money } from 'shared/util';
 import { RecurringExpenseDb } from 'server/data/RecurringExpenseDb';
 

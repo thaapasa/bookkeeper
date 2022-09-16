@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
-import { Category } from 'shared/types/Session';
+import { Category } from 'shared/types';
 
 import { colorScheme } from '../Colors';
 import { rowHeight } from '../expense/row/ExpenseTableLayout';

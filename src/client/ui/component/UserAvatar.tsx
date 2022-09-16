@@ -3,7 +3,7 @@ import { cyan } from '@mui/material/colors';
 import * as React from 'react';
 import styled from 'styled-components';
 
-import { User } from 'shared/types/Session';
+import { User } from 'shared/types';
 import { userMapE } from 'client/data/Login';
 
 import { connect } from './BaconConnect';

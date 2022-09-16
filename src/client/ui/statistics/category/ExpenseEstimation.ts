@@ -2,10 +2,7 @@ import debug from 'debug';
 
 import { sum, toPercentageDistribution } from 'shared/math';
 import { MomentRange } from 'shared/time';
-import {
-  CategoryStatistics,
-  CategoryStatisticsData,
-} from 'shared/types/Statistics';
+import { CategoryStatistics, CategoryStatisticsData } from 'shared/types';
 import { assertTrue, groupBy, Money, numberRange } from 'shared/util';
 import { ChartColumn } from 'client/ui/chart/ChartTypes';
 import { formatMoney } from 'client/ui/chart/Format';

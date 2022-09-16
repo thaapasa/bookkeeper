@@ -1,8 +1,7 @@
 import moment, { Moment, MomentInput } from 'moment';
 import { z } from 'zod';
 
-import { IntString } from 'shared/types/Primitives';
-
+import { IntString } from '../types/Primitives';
 import { toMoment } from './Moment';
 
 export const ISODateRegExp = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;

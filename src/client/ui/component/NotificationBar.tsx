@@ -2,8 +2,7 @@ import { Alert } from '@mui/material';
 import Snackbar from '@mui/material/Snackbar';
 import * as React from 'react';
 
-import { Action, Timeout } from 'shared/types/Common';
-import { toReadableErrorMessage } from 'shared/types/Errors';
+import { Action, Timeout, toReadableErrorMessage } from 'shared/types';
 import { notificationE } from 'client/data/State';
 import { Notification } from 'client/data/StateTypes';
 import { unsubscribeAll } from 'client/util/ClientUtil';

@@ -1,23 +1,11 @@
 import { ExpenseInEditor } from '../expense/Expense';
 import { MoneyLike } from '../util/Money';
 import { DbObject } from './Common';
+import { Source } from './Source';
 
 export interface Group extends DbObject {
   name: string;
   defaultSourceId?: number | null;
-}
-
-export interface UserShare {
-  userId: number;
-  share: number;
-}
-
-export interface Source extends DbObject {
-  name: string;
-  abbreviation: string | null;
-  shares: number;
-  users: UserShare[];
-  image?: string;
 }
 
 export interface CategoryData {

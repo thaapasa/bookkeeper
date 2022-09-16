@@ -8,7 +8,7 @@ import {
 import * as React from 'react';
 import styled from 'styled-components';
 
-import { ObjectId } from 'shared/types/Id';
+import { ObjectId } from 'shared/types';
 import { stopEventPropagation } from 'client/util/ClientUtil';
 
 const id = 'category-selector';

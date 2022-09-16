@@ -2,7 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import { ExpenseDivisionItem, UserExpense } from 'shared/expense';
-import { Source, User } from 'shared/types/Session';
+import { Source, User } from 'shared/types';
 import { colorScheme } from 'client/ui/Colors';
 
 import { AllColumns, LoadingIndicator, Row } from '../row/ExpenseTableLayout';

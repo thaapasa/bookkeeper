@@ -1,7 +1,7 @@
 import debug from 'debug';
 import * as React from 'react';
 
-import { Session } from 'shared/types/Session';
+import { Session } from 'shared/types';
 
 import { checkLoginState, sessionP } from './data/Login';
 import { windowSizeBus } from './data/State';

@@ -1,7 +1,7 @@
 import { Button, Grid } from '@mui/material';
 import * as React from 'react';
 
-import { isDefined } from 'shared/types/Common';
+import { isDefined } from 'shared/types';
 import { Add, Cancel, Split } from 'client/ui/Icons';
 
 import { SplitTools } from './ExpenseSplit.hooks';

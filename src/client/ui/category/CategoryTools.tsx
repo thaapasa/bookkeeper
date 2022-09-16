@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Category } from 'shared/types/Session';
+import { Category } from 'shared/types';
 
 import { Add, Edit, ExpandLess, ExpandMore, ToolIcon } from '../Icons';
 

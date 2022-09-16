@@ -2,8 +2,7 @@ import debug from 'debug';
 import * as React from 'react';
 
 import { TypedDateRange } from 'shared/time';
-import { Action } from 'shared/types/Common';
-import { Category, CategoryAndTotals } from 'shared/types/Session';
+import { Action, Category, CategoryAndTotals } from 'shared/types';
 import { UserDataProps } from 'client/data/Categories';
 
 import CategoryDialog from './CategoryDialog';

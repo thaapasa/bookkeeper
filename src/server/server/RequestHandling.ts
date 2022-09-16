@@ -4,8 +4,7 @@ import { ITask } from 'pg-promise';
 import { z } from 'zod';
 
 import { timeout } from 'shared/time';
-import { InvalidGroupError } from 'shared/types/Errors';
-import { SessionBasicInfo } from 'shared/types/Session';
+import { InvalidGroupError, SessionBasicInfo } from 'shared/types';
 import { optNumber } from 'shared/util';
 import { SessionDb } from 'server/data/SessionDb';
 

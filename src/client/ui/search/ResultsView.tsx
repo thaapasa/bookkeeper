@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 import { UserExpense } from 'shared/expense';
 import { toMoment } from 'shared/time';
-import { Category } from 'shared/types/Session';
+import { Category } from 'shared/types';
 import { groupBy, Money, noop, typedKeys } from 'shared/util';
 import { userDataE, UserDataProps } from 'client/data/Categories';
 

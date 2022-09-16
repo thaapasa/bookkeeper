@@ -1,7 +1,6 @@
 import { Router } from 'express';
 
-import { Source } from 'shared/types/Session';
-import { SourcePatch } from 'shared/types/Source';
+import { Source, SourcePatch } from 'shared/types';
 import { SourceDb } from 'server/data/SourceDb';
 import { Requests } from 'server/server/RequestHandling';
 

@@ -4,7 +4,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import { ExpenseSplit } from 'shared/expense';
-import { isDefined } from 'shared/types/Common';
+import { isDefined } from 'shared/types';
 import { Money } from 'shared/util';
 import { getFullCategoryName } from 'client/data/Categories';
 import UserSelector from 'client/ui/component/UserSelector';

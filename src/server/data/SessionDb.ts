@@ -3,9 +3,12 @@ import debug from 'debug';
 import { ITask } from 'pg-promise';
 import { promisify } from 'util';
 
-import { ApiMessage } from 'shared/types/Api';
-import { AuthenticationError } from 'shared/types/Errors';
-import { Session, SessionBasicInfo } from 'shared/types/Session';
+import {
+  ApiMessage,
+  AuthenticationError,
+  Session,
+  SessionBasicInfo,
+} from 'shared/types';
 
 import { config } from '../Config';
 import { CategoryDb } from './CategoryDb';

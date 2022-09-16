@@ -3,7 +3,7 @@ import debug from 'debug';
 import { ExpenseData } from 'shared/expense';
 import { createTestClient, SessionWithControl } from 'shared/net/test';
 import { toISODate, toMoment } from 'shared/time';
-import { ApiMessage } from 'shared/types/Api';
+import { ApiMessage } from 'shared/types';
 import { unnest } from 'shared/util';
 
 const client = createTestClient();

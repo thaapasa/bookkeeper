@@ -12,9 +12,7 @@ import {
   UserExpense,
 } from 'shared/expense';
 import * as time from 'shared/time';
-import { ApiMessage } from 'shared/types/Api';
-import { NotFoundError } from 'shared/types/Errors';
-import { ObjectId } from 'shared/types/Id';
+import { ApiMessage, NotFoundError, ObjectId } from 'shared/types';
 import { Money, MoneyLike } from 'shared/util';
 
 import { CategoryDb } from './CategoryDb';

@@ -2,16 +2,13 @@ import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import * as B from 'baconjs';
 import * as React from 'react';
 
-import { ObjectId } from 'shared/types/Id';
-import { Category } from 'shared/types/Session';
-import { CategorySelection } from 'shared/types/Statistics';
+import { Category, CategorySelection, ObjectId } from 'shared/types';
 import {
   CategoryDataSource,
   categoryDataSourceP,
   categoryMapE,
 } from 'client/data/Categories';
-
-import { connect } from '../../component/BaconConnect';
+import { connect } from 'client/ui/component/BaconConnect';
 
 const CategorySelectorImpl: React.FC<{
   categorySource: CategoryDataSource[];

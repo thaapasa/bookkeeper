@@ -21,7 +21,7 @@ import {
   UserExpenseWithDetails,
 } from 'shared/expense';
 import { toDate, toISODate } from 'shared/time';
-import { Category, Group, Source, User } from 'shared/types/Session';
+import { Category, Group, Source, User } from 'shared/types';
 import {
   identity,
   Money,

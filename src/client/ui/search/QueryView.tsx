@@ -17,7 +17,7 @@ import {
   toMoment,
   TypedDateRange,
 } from 'shared/time';
-import { Category, User } from 'shared/types/Session';
+import { Category, User } from 'shared/types';
 import {
   CategoryDataSource,
   getFullCategoryName,

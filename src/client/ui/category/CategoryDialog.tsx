@@ -14,7 +14,7 @@ import debug from 'debug';
 import * as React from 'react';
 import styled from 'styled-components';
 
-import { Category } from 'shared/types/Session';
+import { Category } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
 import { executeOperation } from 'client/util/ExecuteOperation';
 

@@ -1,7 +1,6 @@
 import { Router } from 'express';
 
-import { ApiMessage } from 'shared/types/Api';
-import { Group, Session, SessionBasicInfo } from 'shared/types/Session';
+import { ApiMessage, Group, Session, SessionBasicInfo } from 'shared/types';
 import { optNumber } from 'shared/util';
 import { SessionDb } from 'server/data/SessionDb';
 import { UserDb } from 'server/data/UserDb';

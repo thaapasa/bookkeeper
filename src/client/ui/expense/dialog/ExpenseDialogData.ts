@@ -10,7 +10,7 @@ import {
   negateDivision,
   splitByShares,
 } from 'shared/expense';
-import { Source } from 'shared/types/Session';
+import { Source } from 'shared/types';
 import { MoneyLike, sortAndCompareElements } from 'shared/util';
 
 const log = debug('bookkeeper:expense-dialog');

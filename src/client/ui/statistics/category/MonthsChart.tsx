@@ -12,9 +12,7 @@ import {
 } from 'recharts';
 
 import { getMonthsInRange, ISOMonth } from 'shared/time';
-import { ObjectId } from 'shared/types/Id';
-import { Category } from 'shared/types/Session';
-import { CategoryStatistics } from 'shared/types/Statistics';
+import { Category, CategoryStatistics, ObjectId } from 'shared/types';
 import { Money, typedKeys } from 'shared/util';
 import { getFullCategoryName } from 'client/data/Categories';
 import { getChartColor } from 'client/ui/chart/ChartColors';

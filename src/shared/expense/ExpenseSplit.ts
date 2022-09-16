@@ -1,8 +1,7 @@
 import { z } from 'zod';
 
-import { ShortString } from 'shared/types/Common';
-import { ObjectId } from 'shared/types/Id';
-
+import { ShortString } from '../types/Common';
+import { ObjectId } from '../types/Id';
 import { MoneyLike } from '../util/Money';
 import { ExpenseDivision } from './Expense';
 

@@ -2,7 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import { UserExpense } from 'shared/expense';
-import { Source } from 'shared/types/Session';
+import { Source } from 'shared/types';
 import { media } from 'client/ui/Styles';
 
 interface BasicDataProps {

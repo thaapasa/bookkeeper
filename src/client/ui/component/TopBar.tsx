@@ -2,7 +2,7 @@ import { AppBar, IconButton, Toolbar, Typography } from '@mui/material';
 import * as React from 'react';
 import styled from 'styled-components';
 
-import { Group, User } from 'shared/types/Session';
+import { Group, User } from 'shared/types';
 import { validSessionE } from 'client/data/Login';
 
 import * as colors from '../Colors';

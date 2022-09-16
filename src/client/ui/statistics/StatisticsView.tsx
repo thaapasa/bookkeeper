@@ -11,9 +11,12 @@ import React from 'react';
 import { z } from 'zod';
 
 import { DateRange } from 'shared/time';
-import { isDefined } from 'shared/types/Common';
-import { Category } from 'shared/types/Session';
-import { CategorySelection, CategoryStatistics } from 'shared/types/Statistics';
+import {
+  Category,
+  CategorySelection,
+  CategoryStatistics,
+  isDefined,
+} from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
 import { AsyncData, UninitializedData } from 'client/data/AsyncData';
 import { categoryMapE } from 'client/data/Categories';

@@ -1,7 +1,7 @@
 import React from 'react';
 import { z } from 'zod';
 
-import { isDefined } from 'shared/types/Common';
+import { isDefined } from 'shared/types';
 
 export function useLocalStorage<T>(
   key: string,

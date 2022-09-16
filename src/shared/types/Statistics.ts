@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
-import { DateRange, ISOMonth } from 'shared/time';
-
+import { DateRange, ISOMonth } from '../time';
 import { ObjectId } from './Id';
 
 export const CategorySelection = z.object({
