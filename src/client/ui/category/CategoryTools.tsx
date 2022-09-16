@@ -2,7 +2,8 @@ import * as React from 'react';
 
 import { Category } from 'shared/types';
 
-import { Add, Edit, ExpandLess, ExpandMore, ToolIcon } from '../Icons';
+import { Icons } from '../icons/Icons';
+import { ToolIcon } from '../icons/ToolIcon';
 
 export const AddCategoryButton: React.FC<{
   onAdd: (p?: Category) => void;
@@ -13,7 +14,7 @@ export const AddCategoryButton: React.FC<{
   <ToolIcon
     title="Lisää"
     onClick={() => onAdd(parent)}
-    icon={icon || Add}
+    icon={icon || Icons.Add}
     color={color}
   />
 );
@@ -26,7 +27,7 @@ export const EditCategoryButton: React.FC<{
   <ToolIcon
     title="Muokkaa"
     onClick={() => onEdit(category)}
-    icon={Edit}
+    icon={Icons.Edit}
     color={color}
   />
 );
@@ -39,7 +40,7 @@ export const ToggleButton: React.FC<{
   <ToolIcon
     title={state ? 'Sulje' : 'Avaa'}
     onClick={onToggle}
-    icon={state ? ExpandLess : ExpandMore}
+    icon={state ? Icons.ExpandLess : Icons.ExpandMore}
     color={color}
   />
 );

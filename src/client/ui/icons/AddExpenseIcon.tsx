@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { createExpense } from '../../data/State';
 import { secondaryColors } from '../Colors';
-import { PlusCircle } from '../Icons';
+import { Icons } from './Icons';
 
 export function AddExpenseIcon(props: { className?: string }) {
   return (
@@ -14,7 +14,7 @@ export function AddExpenseIcon(props: { className?: string }) {
   );
 }
 
-const PlusIcon = styled(PlusCircle)`
+const PlusIcon = styled(Icons.PlusCircle)`
   position: absolute;
   top: 0;
   left: 0;

@@ -1,6 +1,7 @@
 import * as React from 'react';
 
-import { NavigateLeft, NavigateRight } from '../../Icons';
+import { Icons } from 'client/ui/icons/Icons';
+
 import { nextMonth, NumberInput, prevMonth, StyledIconButton } from './Common';
 
 interface MonthSelectorProps {
@@ -31,29 +32,29 @@ export const MonthSelector: React.FC<MonthSelectorProps> = ({
         onClick={() => onSelect(...prevMonth(year, month))}
         title="Edellinen"
       >
-        <NavigateLeft color="primary" />
+        <Icons.ChevronLeft color="primary" />
       </StyledIconButton>
       <NumberInput
+        hiddenLabel
         className="year"
         value={year}
-        label="Vuosi"
         variant="filled"
-        InputLabelProps={{ shrink: true }}
+        size="small"
         onChange={changeYear}
       />
       <NumberInput
+        hiddenLabel
         className="month"
         value={month}
-        label="Kuukausi"
         variant="filled"
-        InputLabelProps={{ shrink: true }}
+        size="small"
         onChange={changeMonth}
       />
       <StyledIconButton
         onClick={() => onSelect(...nextMonth(year, month))}
         title="Seuraava"
       >
-        <NavigateRight color="primary" />
+        <Icons.ChevronRight color="primary" />
       </StyledIconButton>
     </>
   );

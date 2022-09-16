@@ -9,7 +9,7 @@ import { Money } from 'shared/util';
 import { getFullCategoryName } from 'client/data/Categories';
 import UserSelector from 'client/ui/component/UserSelector';
 import { useToggle } from 'client/ui/hooks/useToggle';
-import { Delete, Edit } from 'client/ui/Icons';
+import { Icons } from 'client/ui/icons/Icons';
 
 import { ToolIconButton } from '../details/ExpenseInfoTools';
 import { ExpenseDialogProps } from '../dialog/ExpenseDialog';
@@ -57,11 +57,11 @@ export const SplitRow: React.FC<SplitRowProps> = props => {
       </Grid>
       <Grid item container xs={1} justifyContent="flex-end">
         <ToolIconButton onClick={toggleEdit}>
-          <Edit />
+          <Icons.Edit />
         </ToolIconButton>
         {editSum ? (
           <ToolIconButton onClick={() => removeSplit(splitIndex)}>
-            <Delete />
+            <Icons.Delete />
           </ToolIconButton>
         ) : null}
       </Grid>
@@ -147,7 +147,7 @@ const SplitEditor: React.FC<SplitRowProps & { close: () => void }> = ({
         </ToolIconButton>
         {editSum ? (
           <ToolIconButton onClick={() => removeSplit(splitIndex)}>
-            <Delete />
+            <Icons.Delete />
           </ToolIconButton>
         ) : null}
       </Grid>

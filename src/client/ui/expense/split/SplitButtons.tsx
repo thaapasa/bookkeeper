@@ -2,7 +2,7 @@ import { Button, Grid } from '@mui/material';
 import * as React from 'react';
 
 import { isDefined } from 'shared/types';
-import { Add, Cancel, Split } from 'client/ui/Icons';
+import { Icons } from 'client/ui/icons/Icons';
 
 import { SplitTools } from './ExpenseSplit.hooks';
 
@@ -14,7 +14,7 @@ export const SplitButtons: React.FC<{
   <>
     <Grid item xs={4} container justifyContent="flex-start">
       <Button
-        startIcon={<Add />}
+        startIcon={<Icons.Add />}
         variant="contained"
         color="secondary"
         onClick={addRow}
@@ -23,13 +23,13 @@ export const SplitButtons: React.FC<{
       </Button>
     </Grid>
     <Grid item xs={4} container justifyContent="center">
-      <Button startIcon={<Cancel />} variant="outlined" onClick={onClose}>
+      <Button startIcon={<Icons.Cancel />} variant="outlined" onClick={onClose}>
         Peruuta
       </Button>
     </Grid>
     <Grid item xs={4} container justifyContent="flex-end">
       <Button
-        startIcon={<Split />}
+        startIcon={<Icons.Split />}
         variant="contained"
         color="primary"
         disabled={!isDefined(splitExpense)}

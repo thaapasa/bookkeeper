@@ -19,7 +19,7 @@ import {
 import * as colors from 'client/ui/Colors';
 import { connect } from 'client/ui/component/BaconConnect';
 import { UserPrompts } from 'client/ui/dialog/DialogState';
-import { Copy, Delete, Edit, Repeat, Split } from 'client/ui/Icons';
+import { Icons } from 'client/ui/icons/Icons';
 import { media } from 'client/ui/Styles';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
@@ -102,22 +102,22 @@ const ExpenseInfoToolsImpl: React.FC<RecurrenceInfoProps> = ({
   return (
     <ToolContainer>
       <ToolIconButton title="Pilko" onClick={() => splitExpense(expense.id)}>
-        <Split style={styles.toolIcon} />
+        <Icons.Split style={styles.toolIcon} />
       </ToolIconButton>
       <ToolIconButton title="Kopioi" onClick={onCopy}>
-        <Copy style={styles.toolIcon} />
+        <Icons.Copy style={styles.toolIcon} />
       </ToolIconButton>
       {expense.recurringExpenseId ? null : (
         <ToolIconButton title="Muuta toistuvaksi" onClick={createRecurring}>
-          <Repeat style={styles.toolIcon} />
+          <Icons.Repeat style={styles.toolIcon} />
         </ToolIconButton>
       )}
       <MobileTools>
         <ToolIconButton title="Muokkaa" onClick={() => onModify(expense)}>
-          <Edit style={styles.toolIcon} />
+          <Icons.Edit style={styles.toolIcon} />
         </ToolIconButton>
         <ToolIconButton title="Poista" onClick={() => onDelete(expense)}>
-          <Delete style={styles.toolIcon} />
+          <Icons.Delete style={styles.toolIcon} />
         </ToolIconButton>
       </MobileTools>
     </ToolContainer>

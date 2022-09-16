@@ -13,7 +13,8 @@ import { ExpenseType, expenseTypes, getExpenseTypeLabel } from 'shared/expense';
 import { Source } from 'shared/types';
 import { Money, sanitizeMoneyInput } from 'shared/util';
 import { TextEdit } from 'client/ui/component/TextEdit';
-import { Add, ExpenseTypeIcon } from 'client/ui/Icons';
+import { ExpenseTypeIcon } from 'client/ui/icons/ExpenseType';
+import { Icons } from 'client/ui/icons/Icons';
 import { VCenterRow } from 'client/ui/Styles';
 
 export const SumField: React.FC<{
@@ -46,7 +47,7 @@ export const SumField: React.FC<{
         autoFocus
         autoComplete="false"
       />
-      <Add onClick={addToSum} />
+      <Icons.Add onClick={addToSum} />
     </SumArea>
   );
 };

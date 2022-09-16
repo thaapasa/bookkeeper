@@ -5,7 +5,7 @@ import { ExpenseStatus } from 'shared/expense';
 import { Money, MoneyLike } from 'shared/util';
 
 import * as colors from '../Colors';
-import { ExpandLess, ExpandMore } from '../Icons';
+import { Icons } from '../icons/Icons';
 import { media } from '../Styles';
 import { ExpenseTotals, money } from './ExpenseHelper';
 import { UnconfirmedIcon } from './row/ExpenseTableLayout';
@@ -87,9 +87,9 @@ export class MonthlyStatus extends React.Component<
         </StatusBlock>
         <ToolArea>
           {this.state.expanded ? (
-            <ExpandMore onClick={this.toggle} />
+            <Icons.ExpandMore onClick={this.toggle} />
           ) : (
-            <ExpandLess onClick={this.toggle} />
+            <Icons.ExpandLess onClick={this.toggle} />
           )}
         </ToolArea>
       </StatusContainer>

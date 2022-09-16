@@ -7,8 +7,8 @@ import { validSessionE } from 'client/data/Login';
 
 import * as colors from '../Colors';
 import { useToggle } from '../hooks/useToggle';
-import { MenuIcon } from '../Icons';
 import { AddExpenseIcon } from '../icons/AddExpenseIcon';
+import { Icons } from '../icons/Icons';
 import { isMobileSize } from '../Styles';
 import { Size } from '../Types';
 import { connect } from './BaconConnect';
@@ -54,7 +54,7 @@ const TopBarImpl: React.FC<TopBarProps> = ({ windowSize, group, links }) => {
             size="small"
             onClick={toggleMenu}
           >
-            <MenuIcon style={styles.iconStyle} />
+            <Icons.Menu style={styles.iconStyle} />
           </IconButton>
           {title ? <Title variant="h6">{title}</Title> : null}
           {isMobile ? (

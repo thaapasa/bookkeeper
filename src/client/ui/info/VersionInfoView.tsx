@@ -7,7 +7,7 @@ import apiConnect from 'client/data/ApiConnect';
 import { reloadApp } from 'client/util/ClientUtil';
 import { infoPagePath } from 'client/util/Links';
 
-import { Refresh } from '../Icons';
+import { Icons } from '../icons/Icons';
 import { InfoItem, ItemWithId, Label, Value } from './InfoLayoutElements';
 
 const log = debug('bookkeeper:version');
@@ -42,7 +42,7 @@ export const VersionInfoView = () => {
         ) : null}
         <ItemWithId id="Päivitä">
           <IconButton size="small" color="primary" onClick={doReload}>
-            <Refresh />
+            <Icons.Refresh />
           </IconButton>
         </ItemWithId>
       </Value>

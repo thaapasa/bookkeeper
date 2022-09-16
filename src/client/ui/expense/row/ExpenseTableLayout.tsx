@@ -5,7 +5,8 @@ import styled from 'styled-components';
 import { windowSizeP } from 'client/data/State';
 import { colorScheme, primaryColors } from 'client/ui/Colors';
 import { connect } from 'client/ui/component/BaconConnect';
-import { QuestionBookmark, Recurring } from 'client/ui/Icons';
+import { Icons } from 'client/ui/icons/Icons';
+import { QuestionBookmark } from 'client/ui/icons/QuestionBookmark';
 import {
   getScreenSizeClassName,
   media,
@@ -224,13 +225,11 @@ const recurringIconStyle = {
   height: 20,
   color: colorScheme.secondary.light,
 };
-export function RecurringExpenseIcon() {
-  return (
-    <Corner title="Toistuva kirjaus">
-      <Recurring style={recurringIconStyle} />
-    </Corner>
-  );
-}
+export const RecurringExpenseIcon: React.FC = () => (
+  <Corner title="Toistuva kirjaus">
+    <Icons.Recurring style={recurringIconStyle} />
+  </Corner>
+);
 
 const UnconfirmedIconArea = styled.div`
   position: absolute;
@@ -255,13 +254,11 @@ const RecurringExpenseSeparatorItem = styled(AllColumns)`
   height: 24px;
 `;
 
-export function RecurringExpenseSeparator() {
-  return (
-    <Row>
-      <RecurringExpenseSeparatorItem />
-    </Row>
-  );
-}
+export const RecurringExpenseSeparator: React.FC = () => (
+  <Row>
+    <RecurringExpenseSeparatorItem />
+  </Row>
+);
 
 const Progress = styled(CircularProgress)`
   &.row {
@@ -278,7 +275,7 @@ const Progress = styled(CircularProgress)`
   }
 `;
 
-export function LoadingIndicator(props: { forRow?: boolean }) {
+export const LoadingIndicator: React.FC<{ forRow?: boolean }> = props => {
   const className = props.forRow ? 'row' : 'primary';
   return (
     <Row>
@@ -289,7 +286,7 @@ export function LoadingIndicator(props: { forRow?: boolean }) {
       </AllColumns>
     </Row>
   );
-}
+};
 
 const RefreshIndicatorContainer = styled.div`
   &.primary {

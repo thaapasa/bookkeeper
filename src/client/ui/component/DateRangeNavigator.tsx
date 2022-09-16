@@ -11,7 +11,7 @@ import { KeyCodes } from 'client/util/Io';
 import { monthSuffix, yearSuffix } from 'client/util/Links';
 
 import * as colors from '../Colors';
-import { NavigateLeft, NavigateRight } from '../Icons';
+import { Icons } from '../icons/Icons';
 import { connect } from './BaconConnect';
 
 const log = debug('bookkeeper:navigator');
@@ -49,13 +49,13 @@ const DateRangeNavigatorImpl: React.FC<DateRangeNavigatorProps> = ({
     <NavigationContainer onKeyUp={handleKeyPress} tabIndex={1}>
       <div>
         <StyledIconButton onClick={() => navigateOffset(-1)} title="Edellinen">
-          <NavigateLeft color="primary" />
+          <Icons.ChevronLeft color="primary" />
         </StyledIconButton>
       </div>
       <TitleArea>{toDateRangeName(dateRange)}</TitleArea>
       <div>
         <StyledIconButton onClick={() => navigateOffset(1)} title="Seuraava">
-          <NavigateRight color="primary" />
+          <Icons.ChevronRight color="primary" />
         </StyledIconButton>
       </div>
     </NavigationContainer>

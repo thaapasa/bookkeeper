@@ -35,7 +35,7 @@ import { gray } from 'client/ui/Colors';
 import UserAvatar from 'client/ui/component/UserAvatar';
 import UserSelector from 'client/ui/component/UserSelector';
 import { UserPrompts } from 'client/ui/dialog/DialogState';
-import { Today } from 'client/ui/Icons';
+import { Icons } from 'client/ui/icons/Icons';
 import { isMobileSize } from 'client/ui/Styles';
 import { Size } from 'client/ui/Types';
 import {
@@ -573,7 +573,7 @@ export class ExpenseDialog extends React.Component<
                 title="Tänään"
                 variant="contained"
                 color="secondary"
-                startIcon={<Today />}
+                startIcon={<Icons.Today />}
                 onClick={this.setToday}
               >
                 Tänään

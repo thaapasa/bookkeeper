@@ -24,14 +24,9 @@ import * as colors from 'client/ui/Colors';
 import { ActivatableTextField } from 'client/ui/component/ActivatableTextField';
 import { UserAvatar } from 'client/ui/component/UserAvatar';
 import { UserPrompts } from 'client/ui/dialog/DialogState';
-import {
-  Delete,
-  Edit,
-  ExpandLess,
-  ExpandMore,
-  ExpenseTypeIcon,
-  ToolIcon,
-} from 'client/ui/Icons';
+import { ExpenseTypeIcon } from 'client/ui/icons/ExpenseType';
+import { Icons } from 'client/ui/icons/Icons';
+import { ToolIcon } from 'client/ui/icons/ToolIcon';
 import { Flex, media, VCenterRow } from 'client/ui/Styles';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
@@ -315,19 +310,19 @@ export class ExpenseRow extends React.Component<
             <ToolIcon
               title="Tiedot"
               onClick={() => this.toggleDetails(expense, this.state.details)}
-              icon={this.state.details ? ExpandLess : ExpandMore}
+              icon={this.state.details ? Icons.ExpandLess : Icons.ExpandMore}
             />
             <OptionalIcons>
               <ToolIcon
                 title="Muokkaa"
                 onClick={this.modifyExpense}
-                icon={Edit}
+                icon={Icons.Edit}
               />
               <ToolIcon
                 className="optional"
                 title="Poista"
                 onClick={this.deleteExpense}
-                icon={Delete}
+                icon={Icons.Delete}
               />
             </OptionalIcons>
           </ToolColumn>

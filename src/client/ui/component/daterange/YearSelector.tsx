@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { NavigateLeft, NavigateRight } from 'client/ui/Icons';
+import { Icons } from 'client/ui/icons/Icons';
 
 import { NumberInput, StyledIconButton } from './Common';
 
@@ -22,18 +22,18 @@ export const YearSelector: React.FC<YearSelectorProps> = ({
   return (
     <>
       <StyledIconButton onClick={() => onSelect(year - 1)} title="Edellinen">
-        <NavigateLeft color="primary" />
+        <Icons.ChevronLeft color="primary" />
       </StyledIconButton>
       <NumberInput
+        hiddenLabel
         className="year"
         value={year}
-        label="Vuosi"
         variant="filled"
-        InputLabelProps={{ shrink: true }}
+        size="small"
         onChange={changeYear}
       />
       <StyledIconButton onClick={() => onSelect(year + 1)} title="Seuraava">
-        <NavigateRight color="primary" />
+        <Icons.ChevronRight color="primary" />
       </StyledIconButton>
     </>
   );

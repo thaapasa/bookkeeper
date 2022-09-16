@@ -29,7 +29,7 @@ import { gray, secondaryColors } from '../Colors';
 import { AutoComplete } from '../component/AutoComplete';
 import { parseMonthRange, toYearRange } from '../component/daterange/Common';
 import { DateRangeSelector } from '../component/daterange/DateRangeSelector';
-import { Delete, Search } from '../Icons';
+import { Icons } from '../icons/Icons';
 
 interface QueryViewProps {
   categorySource: CategoryDataSource[];
@@ -174,7 +174,7 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
           <Row className="top-align">
             <ClearIconArea>
               <IconButton size="small" onClick={this.onClear}>
-                <Delete />
+                <Icons.Delete />
               </IconButton>
             </ClearIconArea>
             <StyledComplete
@@ -193,7 +193,7 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
             />
             <SearchButtonArea>
               <IconButton size="small" onClick={this.startSearch}>
-                <Search color="primary" />
+                <Icons.Search color="primary" />
               </IconButton>
             </SearchButtonArea>
             <ProgressArea>

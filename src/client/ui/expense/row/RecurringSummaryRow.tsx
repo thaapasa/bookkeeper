@@ -5,7 +5,7 @@ import { UserExpense } from 'shared/expense';
 import { Minus, Money, Plus } from 'shared/util';
 import { colorScheme } from 'client/ui/Colors';
 import { useWindowSize } from 'client/ui/hooks/useWindowSize';
-import { ExpandLess, ExpandMore } from 'client/ui/Icons';
+import { Icons } from 'client/ui/icons/Icons';
 import { isMobileSize, media } from 'client/ui/Styles';
 
 import {
@@ -70,9 +70,9 @@ export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
           </Item>
           <Tools>
             {isExpanded ? (
-              <ExpandLess onClick={onToggle} />
+              <Icons.ExpandLess onClick={onToggle} />
             ) : (
-              <ExpandMore onClick={onToggle} />
+              <Icons.ExpandMore onClick={onToggle} />
             )}
           </Tools>
         </RowContainer>
