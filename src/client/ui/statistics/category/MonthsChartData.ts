@@ -6,7 +6,9 @@ import { getChartColor } from 'client/ui/chart/ChartColors';
 import { ChartColumn, ChartData } from 'client/ui/chart/ChartTypes';
 import { fillMissingForNumericKeys } from 'client/ui/chart/ChartUtils';
 
-export function categoryStatisticsToMonthlyData(
+import { ChartConfiguration } from './ChartTypes';
+
+function categoryStatisticsToMonthlyData(
   data: CategoryStatistics,
   categoryMap: Record<ObjectId, Category>
 ): ChartData<'month', number> {
@@ -32,4 +34,19 @@ export function categoryStatisticsToMonthlyData(
       dataId: Number(key),
     })),
   };
+}
+
+function formatMonth(m: ISOMonth) {
+  return m.replace('-', '/');
+}
+
+const MonthConfig: ChartConfiguration<'month'> = {
+  convertData: categoryStatisticsToMonthlyData,
+  dataKey: 'month',
+  tickFormatter: formatMonth,
+  labelFormatter: formatMonth,
+};
+
+export function createMonthChartConfiguration(): ChartConfiguration<'month'> {
+  return MonthConfig;
 }

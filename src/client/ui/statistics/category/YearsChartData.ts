@@ -23,6 +23,8 @@ import {
   mapChartData,
 } from 'client/ui/chart/ChartUtils';
 
+import { CategoryGraphProps } from './CategoryStatisticsChart';
+import { ChartConfiguration } from './ChartTypes';
 import { estimateMissingYearlyExpenses } from './ExpenseEstimation';
 
 interface YearlyDataItem {
@@ -31,7 +33,7 @@ interface YearlyDataItem {
   categoryId: number;
 }
 
-export function categoryStatisticsToYearlyData(
+function categoryStatisticsToYearlyData(
   data: CategoryStatistics,
   categoryMap: Record<ObjectId, Category>,
   estimated: boolean,
@@ -145,4 +147,18 @@ function createEstimationsForYear(
       k === 'year' ? column[k] : column[k] + estimates[k],
     ])
   ) as any;
+}
+
+export function createYearsChartConfiguration(
+  props: CategoryGraphProps
+): ChartConfiguration<'year'> {
+  const lastYear = props.data.range.endDate.substring(0, 4);
+  return {
+    convertData: categoryStatisticsToYearlyData,
+    dataKey: 'year',
+    tickFormatter: (year: string) =>
+      props.estimated && !props.separateEstimate && year === lastYear
+        ? `${year} (arvio)`
+        : year,
+  };
 }

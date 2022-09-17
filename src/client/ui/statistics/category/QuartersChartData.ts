@@ -6,7 +6,9 @@ import { getChartColor } from 'client/ui/chart/ChartColors';
 import { ChartColumn, ChartData } from 'client/ui/chart/ChartTypes';
 import { fillMissingForNumericKeys } from 'client/ui/chart/ChartUtils';
 
-export function categoryStatisticsToQuartersData(
+import { ChartConfiguration } from './ChartTypes';
+
+function categoryStatisticsToQuartersData(
   data: CategoryStatistics,
   categoryMap: Record<ObjectId, Category>
 ): ChartData<'quarter', number> {
@@ -36,4 +38,20 @@ export function categoryStatisticsToQuartersData(
       dataId: Number(key),
     })),
   };
+}
+
+function formatQuarter(quarter: Quarter) {
+  const [year, q] = quarter.split('-');
+  return `${q}/${year}`;
+}
+
+const QuarterConfig: ChartConfiguration<'quarter'> = {
+  convertData: categoryStatisticsToQuartersData,
+  dataKey: 'quarter',
+  tickFormatter: formatQuarter,
+  labelFormatter: formatQuarter,
+};
+
+export function createQuartersChartConfiguration(): ChartConfiguration<'quarter'> {
+  return QuarterConfig;
 }

@@ -7,15 +7,11 @@ import {
   Line,
   LineChart,
   Tooltip,
-  TooltipProps,
   XAxis,
   YAxis,
-  YAxisProps,
 } from 'recharts';
 
-import { Category, CategoryStatistics, ObjectId } from 'shared/types';
 import { calculateChartHeight } from 'client/ui/chart/ChartSize';
-import { ChartData } from 'client/ui/chart/ChartTypes';
 import {
   formatMoney,
   formatMoneyThin,
@@ -24,19 +20,11 @@ import {
 
 import { EmptyChart } from '../EmptyChart';
 import { CategoryGraphProps } from './CategoryStatisticsChart';
+import { ChartConfiguration } from './ChartTypes';
 import { getChartMargins } from './Common';
 
-type CategoryChartProps<T extends string> = CategoryGraphProps & {
-  convertData(
-    data: CategoryStatistics,
-    categoryMap: Record<ObjectId, Category>,
-    estimated: boolean,
-    separateEstimate: boolean
-  ): ChartData<T, number>;
-  dataKey: T;
-  tickFormatter?: YAxisProps['tickFormatter'];
-  labelFormatter?: TooltipProps<any, any>['labelFormatter'];
-};
+type CategoryChartProps<T extends string> = CategoryGraphProps &
+  ChartConfiguration<T>;
 
 export const CategoryChartRenderer: React.FC<CategoryChartProps<any>> = <
   T extends string
