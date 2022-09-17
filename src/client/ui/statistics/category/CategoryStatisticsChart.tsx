@@ -9,9 +9,10 @@ import { MeasureSize } from 'client/ui/utils/MeasureSize';
 
 import { StatisticsChartType } from '../types';
 import { CategoryChartRenderer } from './CategoryChartRenderer';
-import { categoryStatisticsToMonthlyData } from './MonthsChart';
+import { categoryStatisticsToMonthlyData } from './MonthsChartData';
+import { categoryStatisticsToQuartersData } from './QuartersChartData';
 import { YearlyRecurringCategoryChart } from './YearlyRecurringChart';
-import { categoryStatisticsToYearlyData } from './YearsChart';
+import { categoryStatisticsToYearlyData } from './YearsChartData';
 
 interface BaseCategoryGraphProps {
   data: CategoryStatistics;
@@ -117,6 +118,14 @@ const GraphSelector: React.FC<
           dataKey="month"
           tickFormatter={formatMonth}
           labelFormatter={formatMonth}
+          {...props}
+        />
+      );
+    case 'quarters':
+      return (
+        <CategoryChartRenderer
+          convertData={categoryStatisticsToQuartersData}
+          dataKey="quarter"
           {...props}
         />
       );

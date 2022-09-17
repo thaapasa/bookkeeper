@@ -3,7 +3,7 @@ import 'jest';
 import { month } from './Time';
 import { monthRange, toDateRangeName, yearRange } from './TimeRange';
 
-describe('time', () => {
+describe('time ranges', () => {
   describe('dateRange', () => {
     it('should format month name', () => {
       expect(toDateRangeName(monthRange(month(2017, 4)))).toEqual(
