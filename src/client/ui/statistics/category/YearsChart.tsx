@@ -1,16 +1,3 @@
-import * as React from 'react';
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  Legend,
-  Line,
-  LineChart,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
-
 import {
   dateRangeToMomentRange,
   getYearsInRange,
@@ -26,7 +13,6 @@ import {
 import { Money, recordFromPairs, typedKeys } from 'shared/util';
 import { getFullCategoryName } from 'client/data/Categories';
 import { getChartColor } from 'client/ui/chart/ChartColors';
-import { calculateChartHeight } from 'client/ui/chart/ChartSize';
 import {
   ChartColumn,
   ChartData,
@@ -36,84 +22,8 @@ import {
   fillMissingForNumericKeys,
   mapChartData,
 } from 'client/ui/chart/ChartUtils';
-import {
-  formatMoney,
-  formatMoneyThin,
-  useThinFormat,
-} from 'client/ui/chart/Format';
 
-import { EmptyChart } from '../EmptyChart';
-import { CategoryGraphProps } from './CategoryStatisticsChart';
-import { getChartMargins } from './Common';
 import { estimateMissingYearlyExpenses } from './ExpenseEstimation';
-
-export const YearsCategoryChart: React.FC<CategoryGraphProps> = ({
-  data,
-  size,
-  categoryMap,
-  stacked,
-  estimated,
-  separateEstimate,
-  stackMainCats,
-}) => {
-  const { chartData, keys } = React.useMemo(
-    () => convertData(data, categoryMap, estimated, separateEstimate),
-    [data, categoryMap, estimated, separateEstimate]
-  );
-  const thin = useThinFormat(size);
-  const lastYear = data.range.endDate.substring(0, 4);
-  const ChartContainer = stacked ? AreaChart : LineChart;
-
-  if (keys.length < 1) return <EmptyChart />;
-  return (
-    <ChartContainer
-      width={size.width}
-      height={calculateChartHeight(keys.length)}
-      data={chartData}
-      margin={getChartMargins(size)}
-    >
-      <CartesianGrid strokeDasharray="3 3" />
-      <XAxis
-        dataKey="year"
-        tickFormatter={year =>
-          estimated && !separateEstimate && year === lastYear
-            ? `${year} (arvio)`
-            : year
-        }
-      />
-      <YAxis
-        tickFormatter={thin ? formatMoneyThin : formatMoney}
-        width={thin ? 32 : undefined}
-      />
-      <Tooltip formatter={formatMoney} />
-      <Legend />
-      {keys.map(v =>
-        stacked ? (
-          <Area
-            type="monotone"
-            key={v.key}
-            dataKey={v.key}
-            strokeDasharray={v.estimate ? '3 3' : undefined}
-            stroke={v.color}
-            fill={`${v.color}77`}
-            stackId={
-              stackMainCats ? categoryMap[v.dataId].parentId ?? v.dataId : 1
-            }
-            name={v.name ?? v.key}
-          />
-        ) : (
-          <Line
-            type="monotone"
-            key={v.key}
-            dataKey={v.key}
-            stroke={v.color}
-            name={v.name ?? v.key}
-          />
-        )
-      )}
-    </ChartContainer>
-  );
-};
 
 interface YearlyDataItem {
   year: number;
@@ -121,7 +31,7 @@ interface YearlyDataItem {
   categoryId: number;
 }
 
-function convertData(
+export function categoryStatisticsToYearlyData(
   data: CategoryStatistics,
   categoryMap: Record<ObjectId, Category>,
   estimated: boolean,

@@ -41,7 +41,7 @@ export const YearlyRecurringCategoryChart: React.FC<CategoryGraphProps> = ({
   categoryMap,
 }) => {
   const { chartData, keys } = React.useMemo(
-    () => convertData(data, categoryMap),
+    () => categoryStatisticsToYearlyRecurring(data, categoryMap),
     [data, categoryMap]
   );
   const thin = useThinFormat(size);
@@ -85,7 +85,7 @@ export const YearlyRecurringCategoryChart: React.FC<CategoryGraphProps> = ({
   );
 };
 
-function convertData(
+function categoryStatisticsToYearlyRecurring(
   data: CategoryStatistics,
   categoryMap: Record<ObjectId, Category>
 ): ChartData<'month', string> {
