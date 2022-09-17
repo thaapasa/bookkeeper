@@ -49,7 +49,7 @@ const StatisticsGraphImpl: React.FC<
         stackMainCats={stackMainCats}
         {...props}
       />
-      {(type === 'years' || type === 'months') && props.stacked ? (
+      {type !== 'recurring' && props.stacked ? (
         <FormGroup row>
           {type === 'years' ? (
             <FormControlLabel
