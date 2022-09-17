@@ -11,6 +11,7 @@ import { StatisticsChartType } from './types';
 
 const TypeLabels: Record<StatisticsChartType, string> = {
   years: 'Vuodet',
+  seasons: 'Vuodenajat',
   quarters: 'Kvartaalit',
   months: 'Kuukaudet',
   recurring: 'Vuositoisto',

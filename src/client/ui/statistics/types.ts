@@ -17,6 +17,7 @@ export const Months = [
 
 export const StatisticsChartType = z.enum([
   'years',
+  'seasons',
   'quarters',
   'months',
   'recurring',

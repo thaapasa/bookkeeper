@@ -7,6 +7,7 @@ import { StatisticsChartType } from '../types';
 import { CategoryGraphProps } from './CategoryStatisticsChart';
 import { createMonthChartConfiguration } from './MonthsChartData';
 import { createQuartersChartConfiguration } from './QuartersChartData';
+import { createSeasonsChartConfiguration } from './SeasonsChartData';
 import { createYearsChartConfiguration } from './YearsChartData';
 
 export type ChartConfiguration<T extends string> = {
@@ -32,6 +33,8 @@ export function getChartConfiguration(
       return createMonthChartConfiguration();
     case 'quarters':
       return createQuartersChartConfiguration();
+    case 'seasons':
+      return createSeasonsChartConfiguration();
     default:
       return null;
   }
