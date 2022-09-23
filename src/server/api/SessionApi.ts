@@ -1,10 +1,11 @@
 import { Router } from 'express';
 
-import { ApiMessage, Group, Session, SessionBasicInfo } from 'shared/types';
+import { ApiMessage, Group, Session } from 'shared/types';
 import { optNumber } from 'shared/util';
 import { SessionDb } from 'server/data/SessionDb';
 import { UserDb } from 'server/data/UserDb';
 import { Requests } from 'server/server/RequestHandling';
+import { createValidatingRouter } from 'server/server/ValidatingRouter';
 
 import * as server from '../server/ServerUtil';
 
@@ -13,10 +14,10 @@ import * as server from '../server/ServerUtil';
  * Assumed attach path: `/api/session`
  */
 export function createSessionApi() {
-  const api = Router();
+  const api = createValidatingRouter(Router());
 
   // PUT /api/session
-  api.put(
+  api.router.put(
     '/',
     Requests.unauthorizedTxRequest(
       (tx, req): Promise<Session> =>
@@ -30,7 +31,7 @@ export function createSessionApi() {
   );
 
   // PUT /api/session/refresh
-  api.put(
+  api.router.put(
     '/refresh',
     Requests.unauthorizedTxRequest(
       (tx, req): Promise<Session> =>
@@ -43,34 +44,28 @@ export function createSessionApi() {
   );
 
   // GET /api/session
-  api.get(
+  api.getTx(
     '/',
-    Requests.txRequest(
-      (tx, session): Promise<Session> => SessionDb.appendInfo(tx, session)
-    )
+    {},
+    (tx, session): Promise<Session> => SessionDb.appendInfo(tx, session)
   );
 
   // GET /api/session/bare
-  api.get(
-    '/bare',
-    Requests.request(async (session): Promise<SessionBasicInfo> => session)
-  );
+  api.get('/bare', {}, session => session);
 
   // DELETE /api/session
-  api.delete(
+  api.deleteTx(
     '/',
-    Requests.txRequest(
-      (tx, session): Promise<ApiMessage> => SessionDb.logout(tx, session)
-    )
+    {},
+    (tx, session): Promise<ApiMessage> => SessionDb.logout(tx, session)
   );
 
   // GET /api/session/groups
-  api.get(
+  api.getTx(
     '/groups',
-    Requests.txRequest(
-      (tx, session): Promise<Group[]> => UserDb.getGroups(tx, session.user.id)
-    )
+    {},
+    (tx, session): Promise<Group[]> => UserDb.getGroups(tx, session.user.id)
   );
 
-  return api;
+  return api.router;
 }

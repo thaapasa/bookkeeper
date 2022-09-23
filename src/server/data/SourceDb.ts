@@ -59,7 +59,7 @@ async function getById(
     { id, groupId }
   );
   if (!s || s.length < 1) {
-    throw new NotFoundError('SOURCE_NOT_FOUND', 'source');
+    throw new NotFoundError('SOURCE_NOT_FOUND', 'source', id);
   }
   return createGroupObject(s)[0];
 }

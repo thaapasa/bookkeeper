@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 import { timeout } from 'shared/time';
 import { InvalidGroupError, SessionBasicInfo } from 'shared/types';
-import { optNumber } from 'shared/util';
+import { MaybePromise, optNumber } from 'shared/util';
 import { SessionDb } from 'server/data/SessionDb';
 
 import { db } from '../data/Db';
@@ -19,7 +19,7 @@ const requestDelayMs = process.env.DELAY
   : undefined;
 
 function processUnauthorizedRequest<T>(
-  handler: (req: Request, res: Response) => Promise<T>
+  handler: (req: Request, res: Response) => MaybePromise<T>
 ): RequestHandler {
   return async (
     req: Request,
@@ -42,7 +42,7 @@ function processUnauthorizedRequest<T>(
 }
 
 function processUnauthorizedTxRequest<T>(
-  handler: (tx: ITask<any>, req: Request, res: Response) => Promise<T>
+  handler: (tx: ITask<any>, req: Request, res: Response) => MaybePromise<T>
 ): RequestHandler {
   return processUnauthorizedRequest((req, res) =>
     db.tx(tx => handler(tx, req, res))
@@ -54,7 +54,7 @@ function processRequest<T>(
     session: SessionBasicInfo,
     req: Request,
     res: Response
-  ) => Promise<T>,
+  ) => MaybePromise<T>,
   groupRequired?: boolean
 ): RequestHandler {
   return processUnauthorizedRequest(async (req, res) => {
@@ -75,7 +75,7 @@ function processTxRequest<T>(
     session: SessionBasicInfo,
     req: Request,
     res: Response
-  ) => Promise<T>,
+  ) => MaybePromise<T>,
   groupRequired?: boolean
 ): RequestHandler {
   return processRequest(
@@ -104,7 +104,7 @@ function processValidatedRequest<Return, P, Q, B>(
     data: HandlerParams<P, Q, B>,
     req: Request,
     res: Response
-  ) => Promise<Return>,
+  ) => MaybePromise<Return>,
   groupRequired?: boolean
 ): RequestHandler {
   return processRequest(async (session, req, res) => {
@@ -130,7 +130,7 @@ function processValidatedTxRequest<Return, P, Q, B>(
     data: HandlerParams<P, Q, B>,
     req: Request,
     res: Response
-  ) => Promise<Return>,
+  ) => MaybePromise<Return>,
   groupRequired?: boolean
 ): RequestHandler {
   return processValidatedRequest(

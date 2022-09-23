@@ -7,85 +7,73 @@ import {
   CategoryAndTotals,
   CategoryInput,
 } from 'shared/types';
-import { Requests } from 'server/server/RequestHandling';
+import { createValidatingRouter } from 'server/server/ValidatingRouter';
 
 import { CategoryDb } from '../data/CategoryDb';
-import { IdParamType } from './Validations';
 
 /**
  * Creates category API router.
  * Assumed attach path: `/api/category`
  */
 export function createCategoryApi() {
-  const api = Router();
+  const api = createValidatingRouter(Router());
 
   // GET /api/category/list
-  api.get(
+  api.getTx(
     '/list',
-    Requests.txRequest(
-      (tx, session) => CategoryDb.getAll(tx, session.group.id),
-      true
-    )
+    {},
+    (tx, session) => CategoryDb.getAll(tx, session.group.id),
+    true
   );
 
   // PUT /api/category
 
-  api.put(
+  api.putTx(
     '/',
-    Requests.validatedTxRequest(
-      { body: CategoryInput, response: ApiMessage },
-      async (tx, session, { body }) => {
-        const id = await CategoryDb.create(tx, session.group.id, body);
-        return { status: 'OK', message: 'Category created', categoryId: id };
-      },
-      true
-    )
+    { body: CategoryInput, response: ApiMessage },
+    async (tx, session, { body }) => {
+      const id = await CategoryDb.create(tx, session.group.id, body);
+      return { status: 'OK', message: 'Category created', categoryId: id };
+    },
+    true
   );
 
   // GET /api/category/totals
-  api.get(
+  api.getTx(
     '/totals',
-    Requests.validatedTxRequest(
-      { query: DateRange },
-      (tx, session, { query }): Promise<CategoryAndTotals[]> => {
-        return CategoryDb.getTotals(tx, session.group.id, query);
-      },
-      true
-    )
+    { query: DateRange },
+    (tx, session, { query }): Promise<CategoryAndTotals[]> => {
+      return CategoryDb.getTotals(tx, session.group.id, query);
+    },
+    true
   );
 
   // POST /api/category/categoryId
-  api.post(
-    '/:id',
-    Requests.validatedTxRequest(
-      { body: CategoryInput, params: IdParamType },
-      (tx, session, { body, params }): Promise<Category> =>
-        CategoryDb.update(tx, session.group.id, params.id, body),
-      true
-    )
+  api.postTx(
+    '/:categoryId',
+    { body: CategoryInput },
+    (tx, session, { body, params }): Promise<Category> =>
+      CategoryDb.update(tx, session.group.id, params.categoryId, body),
+    true
   );
 
   // GET /api/category/categoryId
-  api.get(
-    '/:id',
-    Requests.validatedTxRequest(
-      { params: IdParamType },
-      (tx, session, { params }): Promise<Category> =>
-        CategoryDb.getById(tx, session.group.id, params.id),
-      true
-    )
+  api.getTx(
+    '/:categoryId',
+    {},
+    (tx, session, { params }): Promise<Category> =>
+      CategoryDb.getById(tx, session.group.id, params.categoryId),
+    true
   );
 
   // DELETE /api/category/categoryId
-  api.delete(
-    '/:id',
-    Requests.validatedTxRequest(
-      { params: IdParamType, response: ApiMessage },
-      (tx, session, { params }) =>
-        CategoryDb.remove(tx, session.group.id, params.id),
-      true
-    )
+  api.deleteTx(
+    '/:categoryId',
+    { response: ApiMessage },
+    (tx, session, { params }) =>
+      CategoryDb.remove(tx, session.group.id, params.categoryId),
+    true
   );
 
-  return api;
+  return api.router;
 }

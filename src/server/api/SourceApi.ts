@@ -2,45 +2,38 @@ import { Router } from 'express';
 
 import { Source, SourcePatch } from 'shared/types';
 import { SourceDb } from 'server/data/SourceDb';
-import { Requests } from 'server/server/RequestHandling';
-
-import { IdParamType } from './Validations';
+import { createValidatingRouter } from 'server/server/ValidatingRouter';
 
 /**
  * Creates source API router.
  * Assumed attach path: `/api/source`
  */
 export function createSourceApi() {
-  const api = Router();
+  const api = createValidatingRouter(Router());
 
   // GET /api/source/list
-  api.get(
+  api.getTx(
     '/list',
-    Requests.txRequest(
-      (tx, session): Promise<Source[]> => SourceDb.getAll(tx, session.group.id),
-      true
-    )
+    {},
+    (tx, session): Promise<Source[]> => SourceDb.getAll(tx, session.group.id),
+    true
   );
 
   // GET /api/source/:id
-  api.get(
-    '/:id',
-    Requests.validatedTxRequest(
-      { params: IdParamType },
-      (tx, session, { params }): Promise<Source> =>
-        SourceDb.getById(tx, session.group.id, params.id),
-      true
-    )
+  api.getTx(
+    '/:sourceId',
+    {},
+    (tx, session, { params }): Promise<Source> =>
+      SourceDb.getById(tx, session.group.id, params.sourceId),
+    true
   );
 
-  api.patch(
-    '/:id',
-    Requests.validatedTxRequest(
-      { params: IdParamType, body: SourcePatch },
-      (tx, session, { params, body }) =>
-        SourceDb.update(tx, session.group.id, params.id, body)
-    )
+  api.patchTx(
+    '/:sourceId',
+    { body: SourcePatch },
+    (tx, session, { params, body }) =>
+      SourceDb.update(tx, session.group.id, params.sourceId, body)
   );
 
-  return api;
+  return api.router;
 }
