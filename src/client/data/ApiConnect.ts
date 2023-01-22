@@ -8,6 +8,7 @@ import {
   ExpenseStatus,
   RecurrencePeriod,
   RecurringExpense,
+  RecurringExpenseCriteria,
   RecurringExpenseTarget,
   UserExpense,
   UserExpenseWithDetails,
@@ -223,8 +224,10 @@ export class ApiConnect {
     );
   }
 
-  public async getRecurringExpenses(): Promise<RecurringExpense[]> {
-    return this.get(uri`/api/expense/recurring/all`);
+  public async searchRecurringExpenses(
+    criteria: RecurringExpenseCriteria
+  ): Promise<RecurringExpense[]> {
+    return this.post(uri`/api/expense/recurring/search`, criteria);
   }
 
   public storeExpense(expense: ExpenseData): Promise<ApiMessage> {

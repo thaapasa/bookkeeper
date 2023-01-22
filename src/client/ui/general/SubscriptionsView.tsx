@@ -8,7 +8,8 @@ import { AsyncDataView } from '../component/AsyncDataView';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { PageContentContainer } from '../Styles';
 
-const loadExpenses = () => apiConnect.getRecurringExpenses();
+const loadExpenses = () =>
+  apiConnect.searchRecurringExpenses({ type: 'expense' });
 
 export const SubscriptionsView: React.FC = () => {
   const data = useAsyncData(loadExpenses, true);
@@ -23,21 +24,18 @@ export const SubscriptionsView: React.FC = () => {
 
 const SubscriptionsRenderer: React.FC<{ data: RecurringExpense[] }> = ({
   data,
-}) => {
-  console.log('DATA', data);
-  return (
-    <>
-      {data.map(d => (
-        <Subscription key={d.id} item={d} />
-      ))}
-    </>
-  );
-};
+}) => (
+  <>
+    {data.map(d => (
+      <Subscription key={d.id} item={d} />
+    ))}
+  </>
+);
 
 const Subscription: React.FC<{ item: RecurringExpense }> = ({ item }) => (
   <SubRow>
     <>
-      {item.title} {item.sum}
+      {item.title} {item.sum} ({item.period.amount} {item.period.unit})
     </>
   </SubRow>
 );

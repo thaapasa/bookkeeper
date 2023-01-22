@@ -74,7 +74,7 @@ const appLinks: AppLink[] = [
     label: 'Tilaukset',
     path: subsciptionsPagePath,
     showInHeader: true,
-    icon: 'Category',
+    icon: 'Subscriptions',
   },
   {
     label: 'Tilastot',

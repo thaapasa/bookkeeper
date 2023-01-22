@@ -163,8 +163,14 @@ export const RecurringExpense = RecurringExpenseInput.extend({
   templateExpenseId: ObjectId,
   title: z.string(),
   sum: MoneyLike,
+  categoryId: ObjectId,
 }).and(DbObject);
 export type RecurringExpense = z.infer<typeof RecurringExpense>;
+
+export const RecurringExpenseCriteria = z.object({
+  type: ExpenseType.or(z.array(ExpenseType)).optional(),
+});
+export type RecurringExpenseCriteria = z.infer<typeof RecurringExpenseCriteria>;
 
 export interface Recurrence extends DbObject, RecurringExpenseInput {
   nextMissing: ISODate;

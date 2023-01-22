@@ -6,6 +6,7 @@ import {
   ExpenseInput,
   ExpenseQuery,
   ExpenseSplit,
+  RecurringExpenseCriteria,
   RecurringExpenseInput,
   RecurringExpenseTarget,
   UserExpense,
@@ -140,11 +141,12 @@ function createRecurringExpenseApi() {
     target: RecurringExpenseTarget,
   });
 
-  // GET /api/expense/recurring/all
-  api.getTx(
-    '/all',
-    {},
-    (tx, session, {}) => Expenses.getRecurringExpenses(tx, session.group.id),
+  // GET /api/expense/recurring/search
+  api.postTx(
+    '/search',
+    { body: RecurringExpenseCriteria },
+    (tx, session, { body }) =>
+      Expenses.searchRecurringExpenses(tx, session.group.id, body),
     true
   );
 

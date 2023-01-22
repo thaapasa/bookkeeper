@@ -28,6 +28,7 @@ import RedoIcon from '@mui/icons-material/Redo';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import RepeatIcon from '@mui/icons-material/Repeat';
 import SearchIcon from '@mui/icons-material/Search';
+import SubscriptionsIcon from '@mui/icons-material/Subscriptions';
 import TodayIcon from '@mui/icons-material/Today';
 import WbSunnyIcon from '@mui/icons-material/WbSunny';
 import { SvgIconProps } from '@mui/material';
@@ -61,6 +62,7 @@ export const Icons = {
   Repeat: RepeatIcon,
   Search: SearchIcon,
   Shortcut: AppShortcutIcon,
+  Subscriptions: SubscriptionsIcon,
   Split: DonutSmallIcon,
   Sun: WbSunnyIcon,
   Today: TodayIcon,

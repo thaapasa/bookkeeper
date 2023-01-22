@@ -10,6 +10,7 @@ import {
   RecurrencePeriod,
   RecurrenceUnit,
   RecurringExpense,
+  RecurringExpenseCriteria,
   RecurringExpenseInput,
   RecurringExpenseTarget,
 } from 'shared/expense';
@@ -27,7 +28,7 @@ import {
   InvalidInputError,
   ObjectId,
 } from 'shared/types';
-import { camelCaseObject, Money, unnest } from 'shared/util';
+import { camelCaseObject, Money, toArray, unnest } from 'shared/util';
 
 import { BasicExpenseDb } from './BasicExpenseDb';
 import { copyExpense } from './BasicExpenseService';
@@ -45,15 +46,19 @@ function nextRecurrence(
   return date.add(period.amount, period.unit);
 }
 
-async function getRecurringExpenses(
+async function searchRecurringExpenses(
   tx: ITask<any>,
-  groupId: ObjectId
+  groupId: ObjectId,
+  params: RecurringExpenseCriteria = {}
 ): Promise<RecurringExpense[]> {
+  const type = params.type && toArray(params.type);
+  console.log('TPE', type, params);
   const expenses = await tx.manyOrNone(
     `SELECT * FROM recurring_expenses re
       LEFT JOIN expenses e ON (e.id = re.template_expense_id)
-      WHERE re.group_id = $/groupId/ AND e.group_id = $/groupId/`,
-    { groupId }
+      WHERE re.group_id = $/groupId/ AND e.group_id = $/groupId/
+      ${type ? 'AND e.type IN ($/type:csv/)' : ''}`,
+    { groupId, type }
   );
   return expenses.map(mapRecurringExpense);
 }
@@ -64,6 +69,7 @@ function mapRecurringExpense(row: any): RecurringExpense {
     templateExpenseId: row.template_expense_id,
     title: row.title,
     sum: Money.from(row.sum).format(),
+    categoryId: row.category_id,
     period: { unit: row.period_unit, amount: row.period_amount },
     occursUntil: row.occurs_until,
   };
@@ -434,7 +440,7 @@ async function updateRecurring(
 }
 
 export const RecurringExpenseDb = {
-  getRecurringExpenses,
+  searchRecurringExpenses,
   nextRecurrence,
   createRecurring,
   deleteRecurringById,
