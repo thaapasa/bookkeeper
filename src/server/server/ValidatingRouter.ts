@@ -17,7 +17,7 @@ export const RouteMethods = [
   'options',
   'head',
 ] as const;
-export type RouteMethod = typeof RouteMethods[number];
+export type RouteMethod = (typeof RouteMethods)[number];
 
 const TypeMap = {
   id: ObjectIdString,
@@ -147,7 +147,7 @@ function createParamType<Path extends string>(
     .map(p => p.substring(1)) as any;
   const p = recordFromPairs(
     types
-      .map<[KnownParamNames, typeof TypeMap[KnownParamNames]]>(t => [
+      .map<[KnownParamNames, (typeof TypeMap)[KnownParamNames]]>(t => [
         t,
         TypeMap[t],
       ])

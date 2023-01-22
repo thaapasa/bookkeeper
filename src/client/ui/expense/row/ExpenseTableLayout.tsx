@@ -28,7 +28,7 @@ const columns = [
   'balance',
   'tools',
 ] as const;
-type ExpenseRowColumns = typeof columns[number];
+type ExpenseRowColumns = (typeof columns)[number];
 
 export const columnSizes: Record<ExpenseRowColumns, ScreenSizeClassName> = {
   date: 'mobile-portrait',
