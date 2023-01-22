@@ -7,6 +7,7 @@ import {
   ExpenseSplit,
   ExpenseStatus,
   RecurrencePeriod,
+  RecurringExpense,
   RecurringExpenseTarget,
   UserExpense,
   UserExpenseWithDetails,
@@ -220,6 +221,10 @@ export class ApiConnect {
     return mapExpense(
       await this.get<UserExpenseWithDetails>(uri`/api/expense/${id}`)
     );
+  }
+
+  public async getRecurringExpenses(): Promise<RecurringExpense[]> {
+    return this.get(uri`/api/expense/recurring/all`);
   }
 
   public storeExpense(expense: ExpenseData): Promise<ApiMessage> {

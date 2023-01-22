@@ -72,7 +72,7 @@ FROM (
 ) breakdown
 `;
 
-function mapExpense(e: UserExpense): UserExpense {
+export function mapExpense(e: UserExpense): UserExpense {
   if (!e) {
     throw new NotFoundError('EXPENSE_NOT_FOUND', 'expense');
   }

@@ -9,6 +9,7 @@ import {
   Recurrence,
   RecurrencePeriod,
   RecurrenceUnit,
+  RecurringExpense,
   RecurringExpenseInput,
   RecurringExpenseTarget,
 } from 'shared/expense';
@@ -26,7 +27,7 @@ import {
   InvalidInputError,
   ObjectId,
 } from 'shared/types';
-import { camelCaseObject, unnest } from 'shared/util';
+import { camelCaseObject, Money, unnest } from 'shared/util';
 
 import { BasicExpenseDb } from './BasicExpenseDb';
 import { copyExpense } from './BasicExpenseService';
@@ -42,6 +43,30 @@ function nextRecurrence(
 ): Moment {
   const date = fromISODate(from);
   return date.add(period.amount, period.unit);
+}
+
+async function getRecurringExpenses(
+  tx: ITask<any>,
+  groupId: ObjectId
+): Promise<RecurringExpense[]> {
+  const expenses = await tx.manyOrNone(
+    `SELECT * FROM recurring_expenses re
+      LEFT JOIN expenses e ON (e.id = re.template_expense_id)
+      WHERE re.group_id = $/groupId/ AND e.group_id = $/groupId/`,
+    { groupId }
+  );
+  return expenses.map(mapRecurringExpense);
+}
+
+function mapRecurringExpense(row: any): RecurringExpense {
+  return {
+    id: row.id,
+    templateExpenseId: row.template_expense_id,
+    title: row.title,
+    sum: Money.from(row.sum).format(),
+    period: { unit: row.period_unit, amount: row.period_amount },
+    occursUntil: row.occurs_until,
+  };
 }
 
 async function createRecurring(
@@ -409,6 +434,7 @@ async function updateRecurring(
 }
 
 export const RecurringExpenseDb = {
+  getRecurringExpenses,
   nextRecurrence,
   createRecurring,
   deleteRecurringById,

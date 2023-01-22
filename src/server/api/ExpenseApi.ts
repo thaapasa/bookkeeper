@@ -140,6 +140,14 @@ function createRecurringExpenseApi() {
     target: RecurringExpenseTarget,
   });
 
+  // GET /api/expense/recurring/all
+  api.getTx(
+    '/all',
+    {},
+    (tx, session, {}) => Expenses.getRecurringExpenses(tx, session.group.id),
+    true
+  );
+
   // PUT /api/expense/recurring/[expenseId]
   api.putTx(
     '/:expenseId',

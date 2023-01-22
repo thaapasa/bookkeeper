@@ -15,6 +15,7 @@ import {
   searchPagePath,
   shortcutsPage,
   statisticsPage,
+  subsciptionsPagePath,
   toolsPagePath,
 } from 'client/util/Links';
 
@@ -43,6 +44,7 @@ import { ToolsView } from '../tools/ToolsView';
 import { Size } from '../Types';
 import { PathNotFoundError } from './ErrorView';
 import { ShortcutsView } from './ShortcutsView';
+import { SubscriptionsView } from './SubscriptionsView';
 
 interface PageProps {
   session: Session;
@@ -65,6 +67,12 @@ const appLinks: AppLink[] = [
   {
     label: 'Kategoriat',
     path: categoryPagePath,
+    showInHeader: true,
+    icon: 'Category',
+  },
+  {
+    label: 'Tilaukset',
+    path: subsciptionsPagePath,
     showInHeader: true,
     icon: 'Category',
   },
@@ -124,6 +132,10 @@ export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
                 component={RoutedCategoryView}
               />
               <Route path={shortcutsPage} component={ShortcutsView} />
+              <Route
+                path={subsciptionsPagePath}
+                component={SubscriptionsView}
+              />
               <Route path={categoryPagePath} component={RoutedCategoryView} />
               <Route
                 path={`${searchPagePath}/m/:month`}
