@@ -13,6 +13,7 @@ import { NoteView } from '../general/NoteView';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { PageContentContainer } from '../Styles';
 import { groupSubscriptions } from './SubscriptionData';
+import { SubscriptionItem } from './SubscriptionItem';
 import { SubscriptionGroup } from './SubscriptionTypes';
 
 const loadExpenses = async (categories: CategoryMap) =>
@@ -75,11 +76,7 @@ const CategorySubscriptions: React.FC<{
   <>
     <h3>{category.name}</h3>
     {items.map(item => (
-      <div key={item.id}>
-        <>
-          {item.title} {item.sum} ({item.period.amount} {item.period.unit})
-        </>
-      </div>
+      <SubscriptionItem key={item.id} item={item} />
     ))}
   </>
 );
@@ -88,6 +85,6 @@ const SubscriptionsContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-top: 24px;
+  padding: 16px 0;
   flex-direction: column;
 `;
