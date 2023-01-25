@@ -7,7 +7,8 @@ export const SubscriptionItem: React.FC<{
 }> = ({ item }) => (
   <div>
     <>
-      {item.title} {item.sum} ({item.period.amount} {item.period.unit})
+      {item.title} {item.sum} ({item.period.amount} {item.period.unit}) -{' '}
+      {item.recurrencePerMonth} € / kk, {item.recurrencePerYear} € / v
     </>
   </div>
 );

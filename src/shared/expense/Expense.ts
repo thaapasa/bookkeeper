@@ -164,6 +164,8 @@ export const RecurringExpense = RecurringExpenseInput.extend({
   title: z.string(),
   sum: MoneyLike,
   categoryId: ObjectId,
+  recurrencePerYear: MoneyLike,
+  recurrencePerMonth: MoneyLike,
 }).and(DbObject);
 export type RecurringExpense = z.infer<typeof RecurringExpense>;
 

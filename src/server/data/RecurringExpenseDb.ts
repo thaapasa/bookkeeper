@@ -8,6 +8,8 @@ import {
   ExpenseInput,
   Recurrence,
   RecurrencePeriod,
+  recurrencePerMonth,
+  recurrencePerYear,
   RecurrenceUnit,
   RecurringExpense,
   RecurringExpenseCriteria,
@@ -64,14 +66,21 @@ async function searchRecurringExpenses(
 }
 
 function mapRecurringExpense(row: any): RecurringExpense {
+  const period: RecurrencePeriod = {
+    unit: row.period_unit,
+    amount: row.period_amount,
+  };
+  const sum = Money.from(row.sum).toString();
   return {
     id: row.id,
     templateExpenseId: row.template_expense_id,
     title: row.title,
-    sum: Money.from(row.sum).format(),
+    sum,
     categoryId: row.category_id,
-    period: { unit: row.period_unit, amount: row.period_amount },
+    period,
     occursUntil: row.occurs_until,
+    recurrencePerMonth: recurrencePerMonth(sum, period).toString(),
+    recurrencePerYear: recurrencePerYear(sum, period).toString(),
   };
 }
 
