@@ -1,6 +1,6 @@
 import * as B from 'baconjs';
 
-import { Category, Source, User } from 'shared/types';
+import { Category, CategoryMap, Source, User } from 'shared/types';
 import { unnest } from 'shared/util';
 import { sourceMapE, userMapE, validSessionE } from 'client/data/Login';
 
@@ -11,7 +11,7 @@ export interface CategoryDataSource {
 
 export function getFullCategoryName(
   categoryId: number,
-  categoryMap: Record<string, Category>
+  categoryMap: CategoryMap
 ): string {
   let categoryString = '';
   const category = categoryMap[categoryId];
@@ -26,7 +26,7 @@ export function getFullCategoryName(
 
 function catToDataSource(
   arr: Category[],
-  categoryMap: Record<string, Category>
+  categoryMap: CategoryMap
 ): CategoryDataSource[] {
   return arr
     ? unnest(
@@ -39,7 +39,7 @@ function catToDataSource(
     : [];
 }
 
-function addToMap(arr: Category[], map: Record<string, Category>) {
+function addToMap(arr: Category[], map: CategoryMap) {
   for (const c of arr) {
     map[c.id] = c;
     if (c.children) {
@@ -48,14 +48,15 @@ function addToMap(arr: Category[], map: Record<string, Category>) {
   }
 }
 
-function toCategoryMap(arr: Category[]): Record<string, Category> {
-  const map: Record<string, Category> = {};
+function toCategoryMap(arr: Category[]): CategoryMap {
+  const map: CategoryMap = {};
   addToMap(arr, map);
   return map;
 }
 
-export const categoryMapE: B.EventStream<Record<string, Category>> =
-  validSessionE.map(s => toCategoryMap(s.categories));
+export const categoryMapE: B.EventStream<CategoryMap> = validSessionE.map(s =>
+  toCategoryMap(s.categories)
+);
 export const categoryDataSourceP: B.Property<CategoryDataSource[]> =
   B.combineWith(
     (s, map) => catToDataSource(s.categories, map),
@@ -66,7 +67,7 @@ export const categoryDataSourceP: B.Property<CategoryDataSource[]> =
 export function isSubcategoryOf(
   subId: number,
   parentId: number,
-  categoryMap: Record<string, Category>
+  categoryMap: CategoryMap
 ): boolean {
   const sub = categoryMap[subId];
   return sub && sub.parentId === parentId;
@@ -75,7 +76,7 @@ export function isSubcategoryOf(
 export interface UserDataProps {
   sourceMap: Record<string, Source>;
   userMap: Record<string, User>;
-  categoryMap: Record<string, Category>;
+  categoryMap: CategoryMap;
 }
 
 export const userDataE = B.combineTemplate({

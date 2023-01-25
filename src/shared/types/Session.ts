@@ -17,6 +17,8 @@ export interface Category extends DbObject, CategoryData {
   children: Category[];
 }
 
+export type CategoryMap = Record<string, Category>;
+
 export interface CategoryAndTotals extends Category {
   expenses: MoneyLike;
   income: MoneyLike;

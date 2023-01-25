@@ -21,7 +21,7 @@ import {
   UserExpenseWithDetails,
 } from 'shared/expense';
 import { toDate, toISODate } from 'shared/time';
-import { Category, Group, Source, User } from 'shared/types';
+import { Category, CategoryMap, Group, Source, User } from 'shared/types';
 import {
   identity,
   Money,
@@ -127,7 +127,7 @@ export interface ExpenseDialogProps<D> {
   categories: Category[];
   sourceMap: Record<string, Source>;
   categorySource: CategoryDataSource[];
-  categoryMap: Record<string, Category>;
+  categoryMap: CategoryMap;
   onClose: (e: D | null) => void;
   onExpensesUpdated: (date: Date) => void;
   group: Group;

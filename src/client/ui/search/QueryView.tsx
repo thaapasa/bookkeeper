@@ -4,7 +4,7 @@ import * as React from 'react';
 import { ExpenseQuery } from 'shared/expense';
 import { parseQueryString } from 'shared/net';
 import { toISODate, toMoment, TypedDateRange } from 'shared/time';
-import { Category, User } from 'shared/types';
+import { Category, CategoryMap, User } from 'shared/types';
 import {
   CategoryDataSource,
   getFullCategoryName,
@@ -21,7 +21,7 @@ import {
 
 interface QueryViewProps {
   categorySource: CategoryDataSource[];
-  categoryMap: Record<string, Category>;
+  categoryMap: CategoryMap;
   onSearch: (query: ExpenseQuery) => void;
   isSearching: boolean;
   user: User;

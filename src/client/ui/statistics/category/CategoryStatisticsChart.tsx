@@ -1,7 +1,7 @@
 import { Checkbox, FormControlLabel, FormGroup } from '@mui/material';
 import * as React from 'react';
 
-import { Category, CategoryStatistics } from 'shared/types';
+import { CategoryMap, CategoryStatistics } from 'shared/types';
 import { useLocalStorage } from 'client/ui/hooks/useLocalStorage';
 import { Size } from 'client/ui/Types';
 import { MeasureSize } from 'client/ui/utils/MeasureSize';
@@ -14,7 +14,7 @@ import { YearlyRecurringCategoryChart } from './YearlyRecurringChart';
 interface BaseCategoryGraphProps {
   data: CategoryStatistics;
   stacked: boolean;
-  categoryMap: Record<string, Category>;
+  categoryMap: CategoryMap;
   size: Size;
 }
 

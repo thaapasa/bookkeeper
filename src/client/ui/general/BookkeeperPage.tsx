@@ -40,11 +40,11 @@ import {
   mainContentMargin,
   mainContentMaxWidth,
 } from '../Styles';
+import { SubscriptionsView } from '../subscriptions/SubscriptionsView';
 import { ToolsView } from '../tools/ToolsView';
 import { Size } from '../Types';
 import { PathNotFoundError } from './ErrorView';
 import { ShortcutsView } from './ShortcutsView';
-import { SubscriptionsView } from './SubscriptionsView';
 
 interface PageProps {
   session: Session;
