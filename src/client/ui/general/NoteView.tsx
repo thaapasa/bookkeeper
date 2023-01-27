@@ -1,6 +1,8 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
+import { spaced } from 'shared/util';
+
 import { colorScheme } from '../Colors';
 
 export type NoteType = 'note' | 'warning';
@@ -8,6 +10,8 @@ export type NoteViewProps = {
   title?: string;
   type?: NoteType;
   className?: string;
+  fullWidth?: boolean;
+  compact?: boolean;
 };
 
 export const NoteView: React.FC<React.PropsWithChildren<NoteViewProps>> = ({
@@ -15,8 +19,14 @@ export const NoteView: React.FC<React.PropsWithChildren<NoteViewProps>> = ({
   title,
   children,
   className,
+  compact,
+  fullWidth,
 }) => (
-  <Container className={className}>
+  <Container
+    className={spaced`${className} ${compact ? 'compact' : ''} ${
+      fullWidth ? 'fullWidth' : ''
+    }`}
+  >
     {title ? <Title className={type ?? 'note'}>{title}</Title> : null}
     <Message>{children}</Message>
   </Container>
@@ -31,6 +41,16 @@ const Container = styled.div`
 
   &.nomargin {
     margin: 0;
+  }
+
+  &.compact {
+    margin: 8px 16px;
+  }
+
+  &.fullWidth {
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
   }
 `;
 

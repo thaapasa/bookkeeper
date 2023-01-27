@@ -6,7 +6,7 @@ import styled from 'styled-components';
 
 import { ExpenseDivision, RecurrencePeriod, UserExpense } from 'shared/expense';
 import { ISODatePattern, toDate, toMoment } from 'shared/time';
-import { Category, Source } from 'shared/types';
+import { CategoryMap, Source } from 'shared/types';
 import { Money } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { categoryMapE } from 'client/data/Categories';
@@ -33,7 +33,7 @@ interface RecurrenceInfoProps {
   division: ExpenseDivision;
   onModify: (e: UserExpense) => void;
   onDelete: (e: UserExpense) => void;
-  categoryMap: Record<string, Category>;
+  categoryMap: CategoryMap;
   sourceMap: Record<string, Source>;
 }
 

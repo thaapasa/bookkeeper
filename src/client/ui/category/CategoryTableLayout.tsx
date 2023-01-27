@@ -4,16 +4,10 @@ import styled from 'styled-components';
 import { Category } from 'shared/types';
 
 import { colorScheme } from '../Colors';
-import { rowHeight } from '../expense/row/ExpenseTableLayout';
+import { Row } from '../component/Row';
 import { AddCategoryButton } from './CategoryTools';
 
-export const Row = styled.div`
-  width: 100%;
-  min-height: ${rowHeight}px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  background-color: ${colorScheme.gray.light};
+export const RowElement = styled(Row)`
   &.category-header {
     background-color: ${colorScheme.primary.light};
   }
@@ -31,10 +25,10 @@ export const NameColumn = styled.div`
   &.header {
     font-weight: bold;
   }
-  ${Row}.sub-category & {
+  ${RowElement}.sub-category & {
     color: ${colorScheme.secondary.dark};
   }
-  ${Row}.main-category & {
+  ${RowElement}.main-category & {
     font-weight: bold;
   }
 `;
@@ -72,7 +66,7 @@ export const AllColumns = styled.div`
 export const CategoryHeader: React.FC<{ onAdd: (p?: Category) => void }> = ({
   onAdd,
 }) => (
-  <Row className="category-header">
+  <RowElement className="category-header">
     <NameColumn className="header">Nimi</NameColumn>
     <SumColumn className="header">Tulot</SumColumn>
     <SumColumn className="header">Kulut</SumColumn>
@@ -83,5 +77,5 @@ export const CategoryHeader: React.FC<{ onAdd: (p?: Category) => void }> = ({
         icon="PlusCircle"
       />
     </ToolColumn>
-  </Row>
+  </RowElement>
 );

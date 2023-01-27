@@ -9,7 +9,7 @@ import {
   UserExpenseWithDetails,
 } from 'shared/expense';
 import { readableDate, toDate, toISODate, toMoment } from 'shared/time';
-import { Category, Source, User } from 'shared/types';
+import { Category, CategoryMap, Source, User } from 'shared/types';
 import { Money } from 'shared/util';
 import { equal, notEqual } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
@@ -69,7 +69,7 @@ interface ExpenseRowProps extends CommonExpenseRowProps {
   user: User;
   source: Source;
   fullCategoryName: string;
-  categoryMap: Record<string, Category>;
+  categoryMap: CategoryMap;
   userMap: Record<string, User>;
   dateBorder?: boolean;
 }

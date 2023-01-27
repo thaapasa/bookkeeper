@@ -10,7 +10,7 @@ import {
   YearPeriod,
 } from 'shared/time';
 
-import { Column, Row } from '../component/BasicElements';
+import { FlexColumn, FlexRow } from '../component/BasicElements';
 import { PeriodSelector } from '../component/daterange/PeriodSelector';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 
@@ -34,10 +34,10 @@ export const StatisticsChartRangeSelector: React.FC<{
   );
   return (
     <Container>
-      <Row>
+      <FlexRow>
         <FormLabel>Aikaväli</FormLabel>
-      </Row>
-      <Row>
+      </FlexRow>
+      <FlexRow>
         <PeriodSelector
           period={start}
           onSelect={setStart}
@@ -48,12 +48,12 @@ export const StatisticsChartRangeSelector: React.FC<{
           onSelect={setEnd}
           allowed={AllowedPeriods}
         />
-      </Row>
+      </FlexRow>
     </Container>
   );
 };
 
-const Container = styled(Column)`
+const Container = styled(FlexColumn)`
   flex: 1;
   justify-content: space-around;
 `;

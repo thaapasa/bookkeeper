@@ -12,7 +12,7 @@ import { z } from 'zod';
 
 import { DateRange } from 'shared/time';
 import {
-  Category,
+  CategoryMap,
   CategorySelection,
   CategoryStatistics,
   isDefined,
@@ -41,7 +41,7 @@ function cmpCat(a: CategorySelection, b: CategorySelection) {
 }
 
 export const StatisticsViewImpl: React.FC<{
-  categoryMap: Record<string, Category>;
+  categoryMap: CategoryMap;
   size: Size;
 }> = ({ categoryMap, size }) => {
   const {

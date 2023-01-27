@@ -25,7 +25,7 @@ export const StatisticsChartTypeSelector: React.FC<{
   <>
     {StatisticsChartType.options.map(type => (
       <Tooltip key={type} title={TypeInfo[type].title} arrow>
-        <IconButton onClick={() => onChange(type)} title={TypeInfo[type].title}>
+        <IconButton onClick={() => onChange(type)}>
           <RenderIcon
             icon={TypeInfo[type].icon}
             color={selected === type ? 'primary' : 'action'}

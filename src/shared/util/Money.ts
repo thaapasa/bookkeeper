@@ -1,4 +1,4 @@
-import { Big } from 'big.js';
+import { Big, RoundingMode } from 'big.js';
 import { z } from 'zod';
 // Two decimal places
 Big.DP = 2;
@@ -183,6 +183,10 @@ export class Money {
 
   public divide(o: MoneyLike): Money {
     return new Money(this.value.div(Money.toBig(o)));
+  }
+
+  public round(scale: number, decimals: RoundingMode): Money {
+    return new Money(this.value.round(scale, decimals));
   }
 
   public multiply(o: MoneyLike): Money {

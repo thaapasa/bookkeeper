@@ -94,3 +94,7 @@ export async function asyncIdentity<T>(x: T): Promise<T> {
 export function noop() {
   return;
 }
+
+export function assertUnreachable(val: never, title?: string): never {
+  throw new Error(`${title ?? 'Unreachable value'}: ${val}`);
+}

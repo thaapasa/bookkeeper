@@ -6,6 +6,7 @@ import {
   ExpenseInput,
   ExpenseQuery,
   ExpenseSplit,
+  RecurringExpenseCriteria,
   RecurringExpenseInput,
   RecurringExpenseTarget,
   UserExpense,
@@ -139,6 +140,15 @@ function createRecurringExpenseApi() {
   const RecurringExpenseTargetSchema = z.object({
     target: RecurringExpenseTarget,
   });
+
+  // GET /api/expense/recurring/search
+  api.postTx(
+    '/search',
+    { body: RecurringExpenseCriteria },
+    (tx, session, { body }) =>
+      Expenses.searchRecurringExpenses(tx, session.group.id, body),
+    true
+  );
 
   // PUT /api/expense/recurring/[expenseId]
   api.putTx(

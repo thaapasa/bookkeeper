@@ -109,6 +109,7 @@ export const Expenses = {
   create: createExpense,
   update: basic.update,
   split: splitExpense,
+  searchRecurringExpenses: RecurringExpenseDb.searchRecurringExpenses,
   createRecurring: RecurringExpenseDb.createRecurring,
   deleteRecurringById: RecurringExpenseDb.deleteRecurringById,
   updateRecurring: RecurringExpenseDb.updateRecurring,

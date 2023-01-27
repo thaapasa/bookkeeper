@@ -12,7 +12,7 @@ import { toDateRangeName, TypedDateRange } from 'shared/time';
 import { CategoryDataSource } from 'client/data/Categories';
 
 import { gray } from '../Colors';
-import { Row } from '../component/BasicElements';
+import { FlexRow } from '../component/BasicElements';
 import { DateRangeSelector } from '../component/daterange/DateRangeSelector';
 import { Icons } from '../icons/Icons';
 import { SearchInputField } from './SearchInputField';
@@ -52,7 +52,7 @@ export const QuerySearchLayout: React.FC<QuerySearchLayoutProps> = ({
 }) => (
   <Grid container padding="16px" rowGap="16px">
     <Grid item md={7} xs={12} sm={12}>
-      <Row>
+      <FlexRow>
         <ClearIconArea>
           <IconButton size="small" onClick={onClear}>
             <Icons.Delete />
@@ -75,7 +75,7 @@ export const QuerySearchLayout: React.FC<QuerySearchLayoutProps> = ({
             <CircularProgress size={38} variant="indeterminate" disableShrink />
           ) : null}
         </ProgressArea>
-      </Row>
+      </FlexRow>
       <br />
       {dateRange
         ? `Haetaan ajalta ${toDateRangeName(dateRange)}`

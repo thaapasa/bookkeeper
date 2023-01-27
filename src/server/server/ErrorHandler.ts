@@ -22,9 +22,7 @@ export function createErrorHandler() {
 
     log(
       `Error processing ${req.method} ${req.path} -> ${status}: ${err.message}`,
-      logUserErrors || !isUserError(status)
-        ? JSON.stringify(err, null, 2)
-        : err.message
+      logUserErrors || !isUserError(status) ? err.stack : undefined
     );
     const data: ErrorInfo = {
       ...(config.showErrorCause ? err : undefined),

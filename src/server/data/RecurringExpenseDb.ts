@@ -8,7 +8,11 @@ import {
   ExpenseInput,
   Recurrence,
   RecurrencePeriod,
+  recurrencePerMonth,
+  recurrencePerYear,
   RecurrenceUnit,
+  RecurringExpense,
+  RecurringExpenseCriteria,
   RecurringExpenseInput,
   RecurringExpenseTarget,
 } from 'shared/expense';
@@ -26,7 +30,7 @@ import {
   InvalidInputError,
   ObjectId,
 } from 'shared/types';
-import { camelCaseObject, unnest } from 'shared/util';
+import { camelCaseObject, Money, toArray, unnest } from 'shared/util';
 
 import { BasicExpenseDb } from './BasicExpenseDb';
 import { copyExpense } from './BasicExpenseService';
@@ -42,6 +46,48 @@ function nextRecurrence(
 ): Moment {
   const date = fromISODate(from);
   return date.add(period.amount, period.unit);
+}
+
+async function searchRecurringExpenses(
+  tx: ITask<any>,
+  groupId: ObjectId,
+  criteria: RecurringExpenseCriteria = {}
+): Promise<RecurringExpense[]> {
+  const type = criteria.type && toArray(criteria.type);
+  const expenses = await tx.manyOrNone(
+    `SELECT * FROM recurring_expenses re
+      LEFT JOIN expenses e ON (e.id = re.template_expense_id)
+      WHERE re.group_id = $/groupId/
+        AND e.group_id = $/groupId/
+        ${
+          criteria.includeEnded
+            ? ''
+            : `AND (occurs_until IS NULL OR occurs_until >= NOW())`
+        }
+        ${type ? 'AND e.type IN ($/type:csv/)' : ''}`,
+    { groupId, type }
+  );
+  return expenses.map(mapRecurringExpense);
+}
+
+function mapRecurringExpense(row: any): RecurringExpense {
+  const period: RecurrencePeriod = {
+    unit: row.period_unit,
+    amount: row.period_amount,
+  };
+  const sum = Money.from(row.sum).toString();
+  return {
+    id: row.id,
+    templateExpenseId: row.template_expense_id,
+    title: row.title,
+    sum,
+    categoryId: row.category_id,
+    period,
+    firstOccurence: toISODate(row.date),
+    occursUntil: row.occurs_until ? toISODate(row.occurs_until) : undefined,
+    recurrencePerMonth: recurrencePerMonth(sum, period).toString(),
+    recurrencePerYear: recurrencePerYear(sum, period).toString(),
+  };
 }
 
 async function createRecurring(
@@ -409,6 +455,7 @@ async function updateRecurring(
 }
 
 export const RecurringExpenseDb = {
+  searchRecurringExpenses,
   nextRecurrence,
   createRecurring,
   deleteRecurringById,
