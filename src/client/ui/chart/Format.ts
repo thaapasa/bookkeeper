@@ -5,7 +5,7 @@ import { Size } from '../Types';
 export const formatMoneyThin = (v: number) =>
   v > 1000 ? `${Math.round(v / 1000)}K` : `${v}`;
 
-export const formatMoney = (v: number) => {
+export const formatMoney = (v: number | string) => {
   try {
     return Money.from(v).format(0);
   } catch (e) {
