@@ -51,15 +51,20 @@ function nextRecurrence(
 async function searchRecurringExpenses(
   tx: ITask<any>,
   groupId: ObjectId,
-  params: RecurringExpenseCriteria = {}
+  criteria: RecurringExpenseCriteria = {}
 ): Promise<RecurringExpense[]> {
-  const type = params.type && toArray(params.type);
-  console.log('TPE', type, params);
+  const type = criteria.type && toArray(criteria.type);
   const expenses = await tx.manyOrNone(
     `SELECT * FROM recurring_expenses re
       LEFT JOIN expenses e ON (e.id = re.template_expense_id)
-      WHERE re.group_id = $/groupId/ AND e.group_id = $/groupId/
-      ${type ? 'AND e.type IN ($/type:csv/)' : ''}`,
+      WHERE re.group_id = $/groupId/
+        AND e.group_id = $/groupId/
+        ${
+          criteria.includeEnded
+            ? ''
+            : `AND (occurs_until IS NULL OR occurs_until >= NOW())`
+        }
+        ${type ? 'AND e.type IN ($/type:csv/)' : ''}`,
     { groupId, type }
   );
   return expenses.map(mapRecurringExpense);
@@ -78,7 +83,8 @@ function mapRecurringExpense(row: any): RecurringExpense {
     sum,
     categoryId: row.category_id,
     period,
-    occursUntil: row.occurs_until,
+    firstOccurence: toISODate(row.date),
+    occursUntil: row.occurs_until ? toISODate(row.occurs_until) : undefined,
     recurrencePerMonth: recurrencePerMonth(sum, period).toString(),
     recurrencePerYear: recurrencePerYear(sum, period).toString(),
   };

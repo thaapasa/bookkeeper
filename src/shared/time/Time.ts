@@ -55,6 +55,10 @@ export function readableDate(date?: DateLike, long?: boolean): string {
   return date ? toMoment(date).format(long ? 'dd D.M.' : 'D.M.') : '-';
 }
 
+export function readableDateWithYear(date?: DateLike, long?: boolean): string {
+  return date ? toMoment(date).format(long ? 'dd D.M.YYYY' : 'D.M.YYYY') : '-';
+}
+
 export function iso(m: any): string {
   return moment(m).format('YYYY-MM-DDTHH:mm:ssZ');
 }

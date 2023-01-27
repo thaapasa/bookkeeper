@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import { RecurrencePeriod, RecurringExpense } from 'shared/expense';
+import { readableDateWithYear } from 'shared/time';
 import { Money } from 'shared/util';
 
 import { Label, Period, RowElement, Sum } from './layout';
@@ -11,6 +12,10 @@ export const SubscriptionItem: React.FC<{
 }> = ({ item }) => (
   <RowElement>
     <Label>{item.title}</Label>
+    <Label>
+      {readableDateWithYear(item.firstOccurence)}
+      {item.occursUntil ? ` - ${readableDateWithYear(item.occursUntil)}` : ''}
+    </Label>
     <Sum className="wide">{Money.from(item.sum).format()}</Sum>
     <Period>/ {getPeriodText(item.period)}</Period>
     <Sum>{Money.from(item.recurrencePerMonth).format()} / kk</Sum>
