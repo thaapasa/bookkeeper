@@ -60,6 +60,7 @@ const GroupView: React.FC<{ group: SubscriptionGroup }> = ({
     {rootItems ? (
       <CategorySubscriptions
         category={root}
+        title="Pääkategorian kirjaukset"
         items={rootItems}
         totals={rootTotals}
       />
@@ -77,12 +78,13 @@ const GroupView: React.FC<{ group: SubscriptionGroup }> = ({
 
 const CategorySubscriptions: React.FC<{
   category: Category;
+  title?: string;
   items: RecurringExpense[];
   totals?: RecurrenceTotals;
-}> = ({ category, items, totals }) => (
+}> = ({ category, items, totals, title }) => (
   <>
     <SubscriptionCategoryHeader
-      title={category.name}
+      title={title ?? category.name}
       totals={totals}
       className="child-category"
     />
