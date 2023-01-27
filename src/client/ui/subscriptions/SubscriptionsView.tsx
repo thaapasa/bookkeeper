@@ -10,7 +10,6 @@ import { AsyncDataView } from '../component/AsyncDataView';
 import { connect } from '../component/BaconConnect';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { PageContentContainer } from '../Styles';
-import { RowElement } from './layout';
 import {
   SubscriptionCategoryHeader,
   SubscriptionItem,
@@ -50,10 +49,14 @@ const SubscriptionsRenderer: React.FC<{
 );
 
 const GroupView: React.FC<{ group: SubscriptionGroup }> = ({
-  group: { root, rootItems, rootTotals, children },
+  group: { root, rootItems, rootTotals, allTotals, children },
 }) => (
   <>
-    <RowElement className="root-category">{root.name}</RowElement>
+    <SubscriptionCategoryHeader
+      title={root.name}
+      totals={allTotals}
+      className="root-category"
+    />
     {rootItems ? (
       <CategorySubscriptions
         category={root}

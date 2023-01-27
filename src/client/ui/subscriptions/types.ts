@@ -18,4 +18,5 @@ export interface SubscriptionGroup {
   rootItems?: RecurringExpense[];
   rootTotals?: RecurrenceTotals;
   children: CategorySubscriptions[];
+  allTotals: RecurrenceTotals;
 }

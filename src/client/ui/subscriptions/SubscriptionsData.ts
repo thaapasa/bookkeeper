@@ -5,6 +5,11 @@ import { Money } from 'shared/util';
 import { getRootCategoryId } from '../utils/Categories';
 import { RecurrenceTotals, SubscriptionGroup } from './types';
 
+const emptyTotals: () => RecurrenceTotals = () => ({
+  recurrencePerMonth: 0,
+  recurrencePerYear: 0,
+});
+
 export function groupSubscriptions(
   items: RecurringExpense[],
   categories: CategoryMap
@@ -15,7 +20,7 @@ export function groupSubscriptions(
     const group: SubscriptionGroup =
       rootCat in byRoot
         ? byRoot[rootCat]
-        : { root: categories[rootCat], children: [] };
+        : { root: categories[rootCat], children: [], allTotals: emptyTotals() };
     byRoot[rootCat] = group;
     if (rootCat === item.categoryId) {
       group.rootItems = (group.rootItems ?? []).concat(item);
@@ -25,28 +30,31 @@ export function groupSubscriptions(
       };
       group.rootTotals = appendToTotals(group.rootTotals, item);
     } else {
-      const cat = group.children.find(c => c.category.id === item.categoryId);
-      if (cat) {
-        cat.items.push(item);
-        cat.totals = appendToTotals(cat.totals, item);
-      } else {
-        group.children.push({
+      let cat = group.children.find(c => c.category.id === item.categoryId);
+      if (!cat) {
+        cat = {
           category: categories[item.categoryId],
-          items: [item],
-          totals: {
-            recurrencePerMonth: Money.from(item.recurrencePerMonth),
-            recurrencePerYear: Money.from(item.recurrencePerYear),
-          },
-        });
+          items: [],
+          totals: emptyTotals(),
+        };
+        group.children.push(cat);
       }
+      cat.items.push(item);
+      cat.totals = appendToTotals(cat.totals, item);
     }
   }
-  return Object.values(byRoot);
+  return Object.values(byRoot).map(g => ({
+    ...g,
+    allTotals: g.children.reduce(
+      (p, c) => appendToTotals(p, c.totals),
+      emptyTotals()
+    ),
+  }));
 }
 
 function appendToTotals(
   totals: RecurrenceTotals,
-  item: RecurringExpense
+  item: RecurrenceTotals
 ): RecurrenceTotals {
   return {
     recurrencePerMonth: Money.from(totals.recurrencePerMonth).plus(

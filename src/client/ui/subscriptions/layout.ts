@@ -5,7 +5,7 @@ import { Row } from '../component/Row';
 
 export const RowElement = styled(Row)`
   column-gap: 4px;
-  padding: 8px;
+  padding: 0 16px;
   &.root-category {
     background-color: ${colorScheme.primary.dark};
     color: ${colorScheme.primary.text};
