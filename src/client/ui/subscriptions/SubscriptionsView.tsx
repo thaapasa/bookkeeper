@@ -10,10 +10,10 @@ import { AsyncDataView } from '../component/AsyncDataView';
 import { connect } from '../component/BaconConnect';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { PageContentContainer } from '../Styles';
-import { groupSubscriptions } from './SubscriptionData';
+import { RowElement } from './layout';
 import { SubscriptionItem } from './SubscriptionItem';
-import { RowElement } from './SubscriptionLayout';
-import { SubscriptionGroup } from './SubscriptionTypes';
+import { groupSubscriptions } from './SubscriptionsData';
+import { SubscriptionGroup } from './types';
 
 const loadExpenses = async (categories: CategoryMap) =>
   groupSubscriptions(

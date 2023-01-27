@@ -9,6 +9,7 @@ export const Row = styled(FlexRow)`
   width: 100%;
   min-height: ${rowHeight}px;
   align-items: center;
+  flex-wrap: nowrap;
 `;
 
 export const HeaderRow = styled(Row)`

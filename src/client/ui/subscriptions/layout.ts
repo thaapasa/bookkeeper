@@ -4,7 +4,8 @@ import { colorScheme } from '../Colors';
 import { Row } from '../component/Row';
 
 export const RowElement = styled(Row)`
-  padding: 0 8px;
+  column-gap: 4px;
+  padding: 8px;
   &.root-category {
     background-color: ${colorScheme.primary.dark};
     color: ${colorScheme.primary.text};
@@ -14,7 +15,20 @@ export const RowElement = styled(Row)`
     background-color: ${colorScheme.primary.standard};
     color: ${colorScheme.secondary.dark};
   }
-  &.sub-category {
-    background-color: ${colorScheme.primary.standard};
-  }
+`;
+
+export const Label = styled.div`
+  flex: 1;
+`;
+
+export const Period = styled.div`
+  width: 64px;
+  white-space: nowrap;
+`;
+
+export const Sum = styled.div`
+  width: 128px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 `;

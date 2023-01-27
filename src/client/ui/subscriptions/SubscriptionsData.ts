@@ -2,7 +2,7 @@ import { RecurringExpense } from 'shared/expense';
 import { CategoryMap, ObjectId } from 'shared/types';
 
 import { getRootCategoryId } from '../utils/Categories';
-import { SubscriptionGroup } from './SubscriptionTypes';
+import { SubscriptionGroup } from './types';
 
 export function groupSubscriptions(
   items: RecurringExpense[],
