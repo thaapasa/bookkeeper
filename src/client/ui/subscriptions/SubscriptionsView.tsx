@@ -1,6 +1,5 @@
 import { combineTemplate } from 'baconjs';
 import * as React from 'react';
-import styled from 'styled-components';
 
 import { RecurringExpense } from 'shared/expense';
 import { Category, CategoryMap } from 'shared/types';
@@ -9,11 +8,11 @@ import { categoryMapE } from 'client/data/Categories';
 
 import { AsyncDataView } from '../component/AsyncDataView';
 import { connect } from '../component/BaconConnect';
-import { NoteView } from '../general/NoteView';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { PageContentContainer } from '../Styles';
 import { groupSubscriptions } from './SubscriptionData';
 import { SubscriptionItem } from './SubscriptionItem';
+import { RowElement } from './SubscriptionLayout';
 import { SubscriptionGroup } from './SubscriptionTypes';
 
 const loadExpenses = async (categories: CategoryMap) =>
@@ -28,9 +27,7 @@ const SubscriptionsViewImpl: React.FC<{
   const data = useAsyncData(loadExpenses, true, categories);
   return (
     <PageContentContainer>
-      <SubscriptionsContainer>
-        <AsyncDataView data={data} renderer={SubscriptionsRenderer} />
-      </SubscriptionsContainer>
+      <AsyncDataView data={data} renderer={SubscriptionsRenderer} />
     </PageContentContainer>
   );
 };
@@ -41,21 +38,19 @@ export const SubscriptionsView = connect(
 
 const SubscriptionsRenderer: React.FC<{
   data: SubscriptionGroup[];
-}> = ({ data }) => {
-  console.log('DATA', data);
-  return (
-    <>
-      {data.map(s => (
-        <GroupView key={s.root.id} group={s} />
-      ))}
-    </>
-  );
-};
+}> = ({ data }) => (
+  <>
+    {data.map(s => (
+      <GroupView key={s.root.id} group={s} />
+    ))}
+  </>
+);
 
 const GroupView: React.FC<{ group: SubscriptionGroup }> = ({
   group: { root, rootItems, children },
 }) => (
-  <NoteView title={root.name} fullWidth compact>
+  <>
+    <RowElement className="root-category">{root.name}</RowElement>
     {rootItems ? (
       <CategorySubscriptions category={root} items={rootItems} />
     ) : null}
@@ -66,7 +61,7 @@ const GroupView: React.FC<{ group: SubscriptionGroup }> = ({
         items={c.items}
       />
     ))}
-  </NoteView>
+  </>
 );
 
 const CategorySubscriptions: React.FC<{
@@ -74,17 +69,9 @@ const CategorySubscriptions: React.FC<{
   items: RecurringExpense[];
 }> = ({ category, items }) => (
   <>
-    <h3>{category.name}</h3>
+    <RowElement className="child-category">{category.name}</RowElement>
     {items.map(item => (
       <SubscriptionItem key={item.id} item={item} />
     ))}
   </>
 );
-
-const SubscriptionsContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px 0;
-  flex-direction: column;
-`;

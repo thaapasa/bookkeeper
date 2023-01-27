@@ -15,7 +15,7 @@ import { useToggle } from '../hooks/useToggle';
 import {
   AllColumns,
   NameColumn,
-  Row,
+  RowElement,
   SumColumn,
   ToolColumn,
 } from './CategoryTableLayout';
@@ -73,7 +73,7 @@ export const CategoryRow: React.FC<CategoryRowProps> = props => {
 
   return (
     <>
-      <Row className={clsName}>
+      <RowElement className={clsName}>
         <NameColumn>{title || category.name}</NameColumn>
         <SumColumn className={colors.classNameForMoney(income)}>
           {formatMoney(income)}
@@ -103,11 +103,11 @@ export const CategoryRow: React.FC<CategoryRowProps> = props => {
             />
           </ToolColumn>
         )}
-      </Row>
+      </RowElement>
       {open ? (
-        <Row>
+        <RowElement>
           <CategoryRowExpenses {...props} />
-        </Row>
+        </RowElement>
       ) : null}
     </>
   );

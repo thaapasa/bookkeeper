@@ -10,7 +10,7 @@ import {
 } from 'shared/time';
 import { colorScheme } from 'client/ui/Colors';
 
-import { Column } from '../BasicElements';
+import { FlexColumn } from '../BasicElements';
 import { MonthSelector } from './MonthSelector';
 import { YearSelector } from './YearSelector';
 
@@ -49,7 +49,7 @@ export const PeriodSelector: React.FC<PeriodSelectorProps<any>> = <
 
   return (
     <Container>
-      <Column>
+      <FlexColumn>
         <Tab>
           {validPeriods.map(v => (
             <TabButton
@@ -61,7 +61,7 @@ export const PeriodSelector: React.FC<PeriodSelectorProps<any>> = <
             </TabButton>
           ))}
         </Tab>
-      </Column>
+      </FlexColumn>
       {type === 'year' ? (
         <TabPanel type="year">
           <YearSelector year={year} onSelect={setYear} />
@@ -114,7 +114,7 @@ const TabPanel: React.FC<React.PropsWithChildren<TabPanelProps>> = ({
   </Panel>
 );
 
-const Container = styled(Column)`
+const Container = styled(FlexColumn)`
   display: flex;
   min-width: 188px;
   white-space: nowrap;
