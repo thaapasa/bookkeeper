@@ -15,7 +15,7 @@ import {
   searchPagePath,
   shortcutsPage,
   statisticsPage,
-  subsciptionsPagePath,
+  subscriptionsPagePath,
   toolsPagePath,
 } from 'client/util/Links';
 
@@ -72,7 +72,7 @@ const appLinks: AppLink[] = [
   },
   {
     label: 'Tilaukset',
-    path: subsciptionsPagePath,
+    path: subscriptionsPagePath,
     showInHeader: true,
     icon: 'Subscriptions',
   },
@@ -133,7 +133,7 @@ export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
               />
               <Route path={shortcutsPage} component={ShortcutsView} />
               <Route
-                path={subsciptionsPagePath}
+                path={subscriptionsPagePath}
                 component={SubscriptionsView}
               />
               <Route path={categoryPagePath} component={RoutedCategoryView} />

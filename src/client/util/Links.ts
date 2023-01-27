@@ -3,7 +3,7 @@ import { DateLike, toMoment } from 'shared/time';
 export const shortcutsPage = '/p/linkit';
 export const expensePagePath = '/p/kulut';
 export const categoryPagePath = '/p/kategoriat';
-export const subsciptionsPagePath = '/p/tilaukset';
+export const subscriptionsPagePath = '/p/tilaukset';
 export const statisticsPage = '/p/tilastot';
 export const newExpensePath = expensePagePath + '/uusi';
 export const searchPagePath = '/p/haku';
