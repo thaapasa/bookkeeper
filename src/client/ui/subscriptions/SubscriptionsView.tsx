@@ -11,9 +11,12 @@ import { connect } from '../component/BaconConnect';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { PageContentContainer } from '../Styles';
 import { RowElement } from './layout';
-import { SubscriptionItem } from './SubscriptionItem';
+import {
+  SubscriptionCategoryHeader,
+  SubscriptionItem,
+} from './SubscriptionItem';
 import { groupSubscriptions } from './SubscriptionsData';
-import { SubscriptionGroup } from './types';
+import { RecurrenceTotals, SubscriptionGroup } from './types';
 
 const loadExpenses = async (categories: CategoryMap) =>
   groupSubscriptions(
@@ -47,18 +50,23 @@ const SubscriptionsRenderer: React.FC<{
 );
 
 const GroupView: React.FC<{ group: SubscriptionGroup }> = ({
-  group: { root, rootItems, children },
+  group: { root, rootItems, rootTotals, children },
 }) => (
   <>
     <RowElement className="root-category">{root.name}</RowElement>
     {rootItems ? (
-      <CategorySubscriptions category={root} items={rootItems} />
+      <CategorySubscriptions
+        category={root}
+        items={rootItems}
+        totals={rootTotals}
+      />
     ) : null}
     {children.map(c => (
       <CategorySubscriptions
         key={c.category.id}
         category={c.category}
         items={c.items}
+        totals={c.totals}
       />
     ))}
   </>
@@ -67,9 +75,14 @@ const GroupView: React.FC<{ group: SubscriptionGroup }> = ({
 const CategorySubscriptions: React.FC<{
   category: Category;
   items: RecurringExpense[];
-}> = ({ category, items }) => (
+  totals?: RecurrenceTotals;
+}> = ({ category, items, totals }) => (
   <>
-    <RowElement className="child-category">{category.name}</RowElement>
+    <SubscriptionCategoryHeader
+      title={category.name}
+      totals={totals}
+      className="child-category"
+    />
     {items.map(item => (
       <SubscriptionItem key={item.id} item={item} />
     ))}
