@@ -3,6 +3,7 @@ import * as React from 'react';
 
 import { RecurringExpense, RecurringExpenseCriteria } from 'shared/expense';
 import { Category, CategoryMap } from 'shared/types';
+import { Money } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { categoryMapE } from 'client/data/Categories';
 
@@ -16,6 +17,7 @@ import {
   SubscriptionItem,
 } from './SubscriptionItem';
 import { groupSubscriptions } from './SubscriptionsData';
+import { TotalsChart, TotalsData } from './TotalsChart';
 import {
   RecurrenceTotals,
   SubscriptionGroup,
@@ -50,19 +52,25 @@ export const SubscriptionsView = connect(
 
 const SubscriptionsRenderer: React.FC<{
   data: SubscriptionsData;
-}> = ({ data }) => (
-  <>
-    <SubscriptionCategoryHeader
-      title="Kaikki"
-      totals={data.totals}
-      className="root-category"
-    />
-    <br />
-    {data.groups.map(s => (
-      <GroupView key={s.root.id} group={s} />
-    ))}
-  </>
-);
+}> = ({ data }) => {
+  const pieData: TotalsData[] = data.groups.map(g => ({
+    name: g.root.name,
+    sum: Money.from(g.allTotals.recurrencePerYear).valueOf(),
+  }));
+  return (
+    <>
+      <SubscriptionCategoryHeader
+        title="Kaikki"
+        totals={data.totals}
+        className="root-category"
+      />
+      <TotalsChart data={pieData} />
+      {data.groups.map(s => (
+        <GroupView key={s.root.id} group={s} />
+      ))}
+    </>
+  );
+};
 
 const GroupView: React.FC<{ group: SubscriptionGroup }> = ({
   group: { root, rootItems, rootTotals, allTotals, children },
