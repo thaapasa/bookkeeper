@@ -1,7 +1,7 @@
 import { combineTemplate } from 'baconjs';
 import * as React from 'react';
 
-import { RecurringExpense } from 'shared/expense';
+import { RecurringExpense, RecurringExpenseCriteria } from 'shared/expense';
 import { Category, CategoryMap } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
 import { categoryMapE } from 'client/data/Categories';
@@ -10,6 +10,7 @@ import { AsyncDataView } from '../component/AsyncDataView';
 import { connect } from '../component/BaconConnect';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { PageContentContainer } from '../Styles';
+import { SubscriptionCriteriaSelector } from './SubscriptionCriteriaSelector';
 import {
   SubscriptionCategoryHeader,
   SubscriptionItem,
@@ -17,18 +18,23 @@ import {
 import { groupSubscriptions } from './SubscriptionsData';
 import { RecurrenceTotals, SubscriptionGroup } from './types';
 
-const loadExpenses = async (categories: CategoryMap) =>
+const loadExpenses = async (
+  criteria: RecurringExpenseCriteria,
+  categories: CategoryMap
+) =>
   groupSubscriptions(
-    await apiConnect.searchRecurringExpenses({ type: 'expense' }),
+    await apiConnect.searchRecurringExpenses(criteria),
     categories
   );
 
 const SubscriptionsViewImpl: React.FC<{
   categories: CategoryMap;
 }> = ({ categories }) => {
-  const data = useAsyncData(loadExpenses, true, categories);
+  const [criteria, setCriteria] = React.useState<RecurringExpenseCriteria>({});
+  const data = useAsyncData(loadExpenses, true, criteria, categories);
   return (
     <PageContentContainer>
+      <SubscriptionCriteriaSelector onChange={setCriteria} />
       <AsyncDataView data={data} renderer={SubscriptionsRenderer} />
     </PageContentContainer>
   );

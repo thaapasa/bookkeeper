@@ -173,6 +173,7 @@ export type RecurringExpense = z.infer<typeof RecurringExpense>;
 export const RecurringExpenseCriteria = z.object({
   type: ExpenseType.or(z.array(ExpenseType)).optional(),
   includeEnded: z.boolean().optional(),
+  onlyOwn: z.boolean().optional(),
 });
 export type RecurringExpenseCriteria = z.infer<typeof RecurringExpenseCriteria>;
 

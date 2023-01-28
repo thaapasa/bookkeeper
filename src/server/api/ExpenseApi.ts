@@ -146,7 +146,12 @@ function createRecurringExpenseApi() {
     '/search',
     { body: RecurringExpenseCriteria },
     (tx, session, { body }) =>
-      Expenses.searchRecurringExpenses(tx, session.group.id, body),
+      Expenses.searchRecurringExpenses(
+        tx,
+        session.group.id,
+        session.user.id,
+        body
+      ),
     true
   );
 

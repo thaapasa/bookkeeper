@@ -51,6 +51,7 @@ function nextRecurrence(
 async function searchRecurringExpenses(
   tx: ITask<any>,
   groupId: ObjectId,
+  userId: ObjectId,
   criteria: RecurringExpenseCriteria = {}
 ): Promise<RecurringExpense[]> {
   const type = criteria.type && toArray(criteria.type);
@@ -64,8 +65,9 @@ async function searchRecurringExpenses(
             ? ''
             : `AND (occurs_until IS NULL OR occurs_until >= NOW())`
         }
+        ${criteria.onlyOwn ? `AND user_id = $/userId/` : ''}
         ${type ? 'AND e.type IN ($/type:csv/)' : ''}`,
-    { groupId, type }
+    { groupId, type, userId }
   );
   return expenses.map(mapRecurringExpense);
 }
