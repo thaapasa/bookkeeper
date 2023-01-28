@@ -2,8 +2,8 @@ import { combineTemplate } from 'baconjs';
 import * as React from 'react';
 
 import { RecurringExpense, RecurringExpenseCriteria } from 'shared/expense';
-import { Category, CategoryMap } from 'shared/types';
-import { Money } from 'shared/util';
+import { Category, CategoryMap, ObjectId } from 'shared/types';
+import { Money, MoneyLike } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { categoryMapE } from 'client/data/Categories';
 
@@ -53,10 +53,11 @@ export const SubscriptionsView = connect(
 const SubscriptionsRenderer: React.FC<{
   data: SubscriptionsData;
 }> = ({ data }) => {
-  const pieData: TotalsData[] = data.groups.map(g => ({
-    name: g.root.name,
-    sum: Money.from(g.allTotals.recurrencePerYear).valueOf(),
-  }));
+  const [catId, setCatId] = React.useState<ObjectId | undefined>(undefined);
+  const pieData = createPieData(data.groups, catId);
+  const selectedIndex = data.groups.findIndex(g => g.root.id === catId);
+  const selectedGroup =
+    selectedIndex >= 0 ? data.groups[selectedIndex] : undefined;
   return (
     <>
       <SubscriptionCategoryHeader
@@ -64,13 +65,47 @@ const SubscriptionsRenderer: React.FC<{
         totals={data.totals}
         className="root-category"
       />
-      <TotalsChart data={pieData} />
-      {data.groups.map(s => (
-        <GroupView key={s.root.id} group={s} />
-      ))}
+      <TotalsChart
+        data={pieData}
+        onSelectCategory={setCatId}
+        colorIndex={selectedIndex >= 0 ? selectedIndex : undefined}
+      />
+      {selectedGroup ? (
+        <GroupView group={selectedGroup} />
+      ) : (
+        data.groups.map(s => <GroupView key={s.root.id} group={s} />)
+      )}
     </>
   );
 };
+
+function createPieData(
+  groups: SubscriptionGroup[],
+  selectedCat?: ObjectId
+): TotalsData[] {
+  if (!selectedCat) {
+    return groups.map(g =>
+      total(g.root.name, g.allTotals.recurrencePerYear, g.root.id)
+    );
+  }
+  const group = groups.find(g => g.root.id === selectedCat);
+  if (!group) return [];
+  return (
+    group.rootTotals
+      ? [total(group.root.name, group.rootTotals.recurrencePerYear)]
+      : []
+  ).concat(
+    group.children.map(c => total(c.category.name, c.totals.recurrencePerYear))
+  );
+}
+
+function total(
+  name: string,
+  sum: MoneyLike,
+  categoryId?: ObjectId
+): TotalsData {
+  return { name, sum: Money.from(sum).valueOf(), categoryId };
+}
 
 const GroupView: React.FC<{ group: SubscriptionGroup }> = ({
   group: { root, rootItems, rootTotals, allTotals, children },
