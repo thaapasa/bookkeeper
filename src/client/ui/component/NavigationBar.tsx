@@ -5,7 +5,7 @@ import styled from 'styled-components';
 
 import { gray, navigationBar } from '../Colors';
 import { Icon, RenderIcon } from '../icons/Icons';
-import { media } from '../Styles';
+import { Size } from '../Types';
 import { DateRangeNavigator } from './DateRangeNavigator';
 import { ExpenseShortcutsView } from './ExpenseShortcutsView';
 
@@ -18,9 +18,13 @@ export interface AppLink {
 
 interface NavigationBarProps {
   links?: AppLink[];
+  windowSize: Size;
 }
 
-export const NavigationBar: React.FC<NavigationBarProps> = ({ links }) => (
+export const NavigationBar: React.FC<NavigationBarProps> = ({
+  links,
+  windowSize,
+}) => (
   <Bar>
     <LinkGroup>
       {links &&
@@ -31,7 +35,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({ links }) => (
               key={l.label}
               label={l.label}
               to={l.path}
-              icon={l.icon}
+              icon={windowSize.width > 920 ? l.icon : undefined}
             />
           ))}
     </LinkGroup>
@@ -59,10 +63,6 @@ const LinkGroup = styled(ToolbarGroup)`
 
 const PadGroup = styled(ToolbarGroup)`
   width: 80px;
-  ${media.largeDevice`
-    width: inherit;
-    flex: 1;
-  `}
 `;
 
 const StyledButton = styled(Button)`

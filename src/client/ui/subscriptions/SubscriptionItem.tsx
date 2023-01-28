@@ -4,7 +4,7 @@ import { RecurrencePeriod, RecurringExpense } from 'shared/expense';
 import { readableDateWithYear } from 'shared/time';
 import { Money } from 'shared/util';
 
-import { Label, Period, RowElement, Sum } from './layout';
+import { Dates, Label, Period, RowElement, Sum } from './layout';
 import { RecurrenceTotals } from './types';
 
 export const SubscriptionItem: React.FC<{
@@ -12,13 +12,15 @@ export const SubscriptionItem: React.FC<{
 }> = ({ item }) => (
   <RowElement>
     <Label>{item.title}</Label>
-    <Label>
+    <Dates className="optional">
       {readableDateWithYear(item.firstOccurence)}
       {item.occursUntil ? ` - ${readableDateWithYear(item.occursUntil)}` : ''}
-    </Label>
+    </Dates>
     <Sum className="wide">{Money.from(item.sum).format()}</Sum>
     <Period>/ {getPeriodText(item.period)}</Period>
-    <Sum>{Money.from(item.recurrencePerMonth).format()} / kk</Sum>
+    <Sum className="optional">
+      {Money.from(item.recurrencePerMonth).format()} / kk
+    </Sum>
     <Sum>{Money.from(item.recurrencePerYear).format()} / v</Sum>
   </RowElement>
 );
@@ -32,7 +34,9 @@ export const SubscriptionCategoryHeader: React.FC<{
     <Label>{title}</Label>
     {totals ? (
       <>
-        <Sum>{Money.from(totals.recurrencePerMonth).format()} / kk</Sum>
+        <Sum className="optional">
+          {Money.from(totals.recurrencePerMonth).format()} / kk
+        </Sum>
         <Sum>{Money.from(totals.recurrencePerYear).format()} / v</Sum>
       </>
     ) : null}

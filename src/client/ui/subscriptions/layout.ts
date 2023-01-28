@@ -2,6 +2,7 @@ import styled from 'styled-components';
 
 import { colorScheme } from '../Colors';
 import { Row } from '../component/Row';
+import { media } from '../Styles';
 
 export const RowElement = styled(Row)`
   column-gap: 4px;
@@ -17,17 +18,30 @@ export const RowElement = styled(Row)`
   }
 `;
 
-export const Label = styled.div`
+export const TextContainer = styled.div`
+  &.optional {
+    ${media.mobile`
+    display: none;
+    `}
+  }
+`;
+
+export const Label = styled(TextContainer)`
   flex: 1;
 `;
 
-export const Period = styled.div`
-  width: 64px;
+export const Dates = styled(TextContainer)`
+  width: 128px;
+  text-align: right;
+`;
+
+export const Period = styled(TextContainer)`
+  width: 32px;
   white-space: nowrap;
 `;
 
-export const Sum = styled.div`
-  width: 128px;
+export const Sum = styled(TextContainer)`
+  width: 104px;
   text-align: right;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;

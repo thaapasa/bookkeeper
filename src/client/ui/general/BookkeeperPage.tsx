@@ -114,7 +114,9 @@ export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
       <Router>
         <ContentContainer>
           <TopBar links={appLinks} windowSize={windowSize} />
-          {isMobileDevice ? null : <NavigationBar links={appLinks} />}
+          {isMobileDevice ? null : (
+            <NavigationBar links={appLinks} windowSize={windowSize} />
+          )}
           <MainContent className={'main-content ' + className}>
             <Switch>
               <Route path={newExpensePath} component={NewExpenseView} />
