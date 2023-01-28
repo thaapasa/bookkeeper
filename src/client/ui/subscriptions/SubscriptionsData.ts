@@ -3,7 +3,11 @@ import { CategoryMap, ObjectId } from 'shared/types';
 import { Money } from 'shared/util';
 
 import { getRootCategoryId } from '../utils/Categories';
-import { RecurrenceTotals, SubscriptionGroup } from './types';
+import {
+  RecurrenceTotals,
+  SubscriptionGroup,
+  SubscriptionsData,
+} from './types';
 
 const emptyTotals: () => RecurrenceTotals = () => ({
   recurrencePerMonth: 0,
@@ -13,7 +17,7 @@ const emptyTotals: () => RecurrenceTotals = () => ({
 export function groupSubscriptions(
   items: RecurringExpense[],
   categories: CategoryMap
-): SubscriptionGroup[] {
+): SubscriptionsData {
   const byRoot: Record<ObjectId, SubscriptionGroup> = {};
   for (const item of items) {
     const rootCat = getRootCategoryId(item.categoryId, categories);
@@ -43,13 +47,11 @@ export function groupSubscriptions(
       cat.totals = appendToTotals(cat.totals, item);
     }
   }
-  return Object.values(byRoot).map(g => ({
+  const groups = Object.values(byRoot).map(g => ({
     ...g,
-    allTotals: g.children.reduce(
-      (p, c) => appendToTotals(p, c.totals),
-      emptyTotals()
-    ),
+    allTotals: sumRecurrenceTotals(g.children.map(c => c.totals)),
   }));
+  return { groups, totals: sumRecurrenceTotals(groups.map(g => g.allTotals)) };
 }
 
 function appendToTotals(
@@ -64,4 +66,10 @@ function appendToTotals(
       item.recurrencePerYear
     ),
   };
+}
+
+export function sumRecurrenceTotals(
+  data: RecurrenceTotals[]
+): RecurrenceTotals {
+  return data.reduce((p, c) => appendToTotals(p, c), emptyTotals());
 }

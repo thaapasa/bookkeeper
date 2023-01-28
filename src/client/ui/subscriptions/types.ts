@@ -20,3 +20,8 @@ export interface SubscriptionGroup {
   children: CategorySubscriptions[];
   allTotals: RecurrenceTotals;
 }
+
+export interface SubscriptionsData {
+  groups: SubscriptionGroup[];
+  totals: RecurrenceTotals;
+}

@@ -16,7 +16,11 @@ import {
   SubscriptionItem,
 } from './SubscriptionItem';
 import { groupSubscriptions } from './SubscriptionsData';
-import { RecurrenceTotals, SubscriptionGroup } from './types';
+import {
+  RecurrenceTotals,
+  SubscriptionGroup,
+  SubscriptionsData,
+} from './types';
 
 const loadExpenses = async (
   criteria: RecurringExpenseCriteria,
@@ -45,10 +49,16 @@ export const SubscriptionsView = connect(
 )(SubscriptionsViewImpl);
 
 const SubscriptionsRenderer: React.FC<{
-  data: SubscriptionGroup[];
+  data: SubscriptionsData;
 }> = ({ data }) => (
   <>
-    {data.map(s => (
+    <SubscriptionCategoryHeader
+      title="Kaikki"
+      totals={data.totals}
+      className="root-category"
+    />
+    <br />
+    {data.groups.map(s => (
       <GroupView key={s.root.id} group={s} />
     ))}
   </>
