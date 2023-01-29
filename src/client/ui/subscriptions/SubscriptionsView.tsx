@@ -25,19 +25,26 @@ import {
 } from './types';
 
 const loadExpenses = async (
-  criteria: RecurringExpenseCriteria,
+  criteria: RecurringExpenseCriteria | undefined,
   categories: CategoryMap
 ) =>
   groupSubscriptions(
-    await apiConnect.searchRecurringExpenses(criteria),
+    criteria ? await apiConnect.searchRecurringExpenses(criteria) : [],
     categories
   );
 
 const SubscriptionsViewImpl: React.FC<{
   categories: CategoryMap;
 }> = ({ categories }) => {
-  const [criteria, setCriteria] = React.useState<RecurringExpenseCriteria>({});
-  const data = useAsyncData(loadExpenses, true, criteria, categories);
+  const [criteria, setCriteria] = React.useState<
+    RecurringExpenseCriteria | undefined
+  >(undefined);
+  const data = useAsyncData(
+    loadExpenses,
+    criteria !== undefined,
+    criteria,
+    categories
+  );
   return (
     <PageContentContainer>
       <SubscriptionCriteriaSelector onChange={setCriteria} />
