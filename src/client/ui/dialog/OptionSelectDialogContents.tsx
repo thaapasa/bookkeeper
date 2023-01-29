@@ -1,5 +1,6 @@
 import { Button, DialogActions, DialogContent } from '@mui/material';
 import * as React from 'react';
+import styled from 'styled-components';
 
 import { DialogContentRendererProps, OptionSelectDialogData } from './Dialog';
 
@@ -18,7 +19,7 @@ export const OptionSelectDialogContents: React.FC<
   return (
     <>
       <DialogContent onKeyUp={handleKeyPress}>{description}</DialogContent>
-      <DialogActions>
+      <Actions>
         <Button
           color="primary"
           variant="text"
@@ -38,7 +39,16 @@ export const OptionSelectDialogContents: React.FC<
             {o.label}
           </Button>
         ))}
-      </DialogActions>
+      </Actions>
     </>
   );
 };
+
+const Actions = styled(DialogActions)`
+  display: block;
+  text-align: right;
+
+  & > button {
+    margin: 4px 0;
+  }
+`;

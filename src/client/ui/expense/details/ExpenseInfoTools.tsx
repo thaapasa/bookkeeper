@@ -62,6 +62,7 @@ const ExpenseInfoToolsImpl: React.FC<RecurrenceInfoProps> = ({
           value: { amount: 1, unit: 'quarters' },
         },
         { label: 'Vuosittain', value: { amount: 1, unit: 'years' } },
+        { label: 'Puolivuosittain', value: { amount: 6, unit: 'months' } },
       ]
     );
     if (period) {
