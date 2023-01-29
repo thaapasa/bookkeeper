@@ -20,7 +20,7 @@ const TotalsChartImpl: React.FC<{
   onSelectCategory: (categoryId?: ObjectId) => void;
   colorIndex?: number;
 }> = ({ data, size, onSelectCategory, colorIndex }) => (
-  <PieChart width={size.width} height={300} title="Kukkeliskuu">
+  <PieChart width={size.width} height={300}>
     <Pie
       data={data}
       dataKey="sum"
