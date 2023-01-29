@@ -10,13 +10,15 @@ import { categoryMapE } from 'client/data/Categories';
 import { AsyncDataView } from '../component/AsyncDataView';
 import { connect } from '../component/BaconConnect';
 import { useAsyncData } from '../hooks/useAsyncData';
+import { useForceReload } from '../hooks/useForceReload';
 import { PageContentContainer } from '../Styles';
 import { SubscriptionCriteriaSelector } from './SubscriptionCriteriaSelector';
 import {
   SubscriptionCategoryHeader,
   SubscriptionItem,
+  ToggleCategoryVisibility,
 } from './SubscriptionItem';
-import { groupSubscriptions } from './SubscriptionsData';
+import { groupSubscriptions, sumRecurrenceTotals } from './SubscriptionsData';
 import { TotalsChart, TotalsData } from './TotalsChart';
 import {
   RecurrenceTotals,
@@ -61,15 +63,33 @@ const SubscriptionsRenderer: React.FC<{
   data: SubscriptionsData;
 }> = ({ data }) => {
   const [catId, setCatId] = React.useState<ObjectId | undefined>(undefined);
-  const pieData = createPieData(data.groups, catId);
+  const hidden = React.useMemo(() => new Set<ObjectId>(), []);
+  const forceReload = useForceReload();
+  const setVisibility = React.useCallback<ToggleCategoryVisibility>(
+    (visible, id) => {
+      if (visible) hidden.delete(id);
+      else hidden.add(id);
+      forceReload();
+    },
+    [hidden, forceReload]
+  );
+  const filteredGroups = data.groups.filter(g => !hidden.has(g.root.id));
+  const pieData = createPieData(filteredGroups, catId);
   const selectedIndex = data.groups.findIndex(g => g.root.id === catId);
   const selectedGroup =
     selectedIndex >= 0 ? data.groups[selectedIndex] : undefined;
+
+  const hasFiltered = filteredGroups.length !== data.groups.length;
+
   return (
     <>
       <SubscriptionCategoryHeader
-        title="Kaikki"
-        totals={data.totals}
+        title={hasFiltered ? 'Suodatetut' : 'Kaikki'}
+        totals={
+          hasFiltered
+            ? sumRecurrenceTotals(filteredGroups.map(g => g.allTotals))
+            : data.totals
+        }
         className="root-category"
       />
       <TotalsChart
@@ -78,9 +98,20 @@ const SubscriptionsRenderer: React.FC<{
         colorIndex={selectedIndex >= 0 ? selectedIndex : undefined}
       />
       {selectedGroup ? (
-        <GroupView group={selectedGroup} />
+        <GroupView
+          group={selectedGroup}
+          hidden={hidden}
+          setVisibility={setVisibility}
+        />
       ) : (
-        data.groups.map(s => <GroupView key={s.root.id} group={s} />)
+        data.groups.map(s => (
+          <GroupView
+            key={s.root.id}
+            group={s}
+            hidden={hidden}
+            setVisibility={setVisibility}
+          />
+        ))
       )}
     </>
   );
@@ -88,7 +119,7 @@ const SubscriptionsRenderer: React.FC<{
 
 function createPieData(
   groups: SubscriptionGroup[],
-  selectedCat?: ObjectId
+  selectedCat: ObjectId | undefined
 ): TotalsData[] {
   if (!selectedCat) {
     return groups.map(g =>
@@ -114,33 +145,44 @@ function total(
   return { name, sum: Money.from(sum).valueOf(), categoryId };
 }
 
-const GroupView: React.FC<{ group: SubscriptionGroup }> = ({
+const GroupView: React.FC<{
+  group: SubscriptionGroup;
+  hidden: Set<ObjectId>;
+  setVisibility: ToggleCategoryVisibility;
+}> = ({
   group: { root, rootItems, rootTotals, allTotals, children },
-}) => (
-  <>
-    <SubscriptionCategoryHeader
-      title={root.name}
-      totals={allTotals}
-      className="root-category"
-    />
-    {rootItems ? (
-      <CategorySubscriptions
-        category={root}
-        title="Pääkategorian kirjaukset"
-        items={rootItems}
-        totals={rootTotals}
+  hidden,
+  setVisibility,
+}) => {
+  return (
+    <>
+      <SubscriptionCategoryHeader
+        title={root.name}
+        totals={allTotals}
+        className="root-category"
+        categoryId={root.id}
+        visible={!hidden.has(root.id)}
+        setVisible={setVisibility}
       />
-    ) : null}
-    {children.map(c => (
-      <CategorySubscriptions
-        key={c.category.id}
-        category={c.category}
-        items={c.items}
-        totals={c.totals}
-      />
-    ))}
-  </>
-);
+      {rootItems ? (
+        <CategorySubscriptions
+          category={root}
+          title="Pääkategorian kirjaukset"
+          items={rootItems}
+          totals={rootTotals}
+        />
+      ) : null}
+      {children.map(c => (
+        <CategorySubscriptions
+          key={c.category.id}
+          category={c.category}
+          items={c.items}
+          totals={c.totals}
+        />
+      ))}
+    </>
+  );
+};
 
 const CategorySubscriptions: React.FC<{
   category: Category;

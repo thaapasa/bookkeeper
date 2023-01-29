@@ -30,6 +30,8 @@ import RepeatIcon from '@mui/icons-material/Repeat';
 import SearchIcon from '@mui/icons-material/Search';
 import SubscriptionsIcon from '@mui/icons-material/Subscriptions';
 import TodayIcon from '@mui/icons-material/Today';
+import HiddenIcon from '@mui/icons-material/VisibilityOffOutlined';
+import VisibleIcon from '@mui/icons-material/VisibilityOutlined';
 import WbSunnyIcon from '@mui/icons-material/WbSunny';
 import { SvgIconProps } from '@mui/material';
 import React from 'react';
@@ -51,6 +53,7 @@ export const Icons = {
   ExpandLess: ExpandLessIcon,
   ExpandMore: ExpandMoreIcon,
   Expense: PaymentIcon,
+  Hidden: HiddenIcon,
   Income: AttachMoneyIcon,
   Info: InfoIcon,
   Menu: MenuIcon,
@@ -62,12 +65,13 @@ export const Icons = {
   Repeat: RepeatIcon,
   Search: SearchIcon,
   Shortcut: AppShortcutIcon,
-  Subscriptions: SubscriptionsIcon,
   Split: DonutSmallIcon,
+  Subscriptions: SubscriptionsIcon,
   Sun: WbSunnyIcon,
   Today: TodayIcon,
   Tools: ConstructionIcon,
   Transfer: RedoIcon,
+  Visible: VisibleIcon,
 };
 
 export type Icon = keyof typeof Icons;
