@@ -9,18 +9,20 @@ type AsyncDataViewProps<T, C extends { data: T }> = {
   data: AsyncData<T>;
   renderer: React.ComponentType<C>;
   uninitializedText?: string;
+  hideUninitialized?: boolean;
 } & Omit<C, 'data'>;
 
 export const AsyncDataView = <T, C extends { data: T }>({
   data,
   uninitializedText,
+  hideUninitialized,
   renderer,
   ...rest
 }: AsyncDataViewProps<T, C>) => {
   const Renderer = renderer as any;
   switch (data.type) {
     case 'uninitialized':
-      return (
+      return hideUninitialized ? null : (
         <NoteView title="Ei tietoja" className="nomargin">
           {uninitializedText ?? 'Tietoja ei ole alustettu'}
         </NoteView>

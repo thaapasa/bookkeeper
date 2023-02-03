@@ -6,8 +6,11 @@ import { readableDateWithYear } from 'shared/time';
 import { ObjectId } from 'shared/types';
 import { Money } from 'shared/util';
 
+import { ExpanderIcon } from '../component/ExpanderIcon';
+import { useToggle } from '../hooks/useToggle';
 import { Icons } from '../icons/Icons';
-import { Dates, Label, Period, RowElement, Sum } from './layout';
+import { Dates, Label, Period, RowElement, Sum, Tools } from './layout';
+import { SubscriptionDetails } from './SubscriptionDetails';
 import { RecurrenceTotals } from './types';
 
 export type ToggleCategoryVisibility = (
@@ -17,22 +20,32 @@ export type ToggleCategoryVisibility = (
 
 export const SubscriptionItem: React.FC<{
   item: RecurringExpense;
-}> = ({ item }) => (
-  <RowElement>
-    <Label>{item.title}</Label>
-    <Dates className="optional">
-      {readableDateWithYear(item.firstOccurence)}
-      {item.occursUntil ? ` - ${readableDateWithYear(item.occursUntil)}` : ''}
-    </Dates>
-    <Sum className="wide">{Money.from(item.sum).format()}</Sum>
-    <Period>/ {getPeriodText(item.period)}</Period>
-    <Sum className="optional">
-      {Money.from(item.recurrencePerMonth).format()} / kk
-    </Sum>
-    <Sum>{Money.from(item.recurrencePerYear).format()} / v</Sum>
-  </RowElement>
-);
-
+}> = ({ item }) => {
+  const [open, toggle] = useToggle(false);
+  return (
+    <>
+      <RowElement>
+        <Label>{item.title}</Label>
+        <Dates className="optional">
+          {readableDateWithYear(item.firstOccurence)}
+          {item.occursUntil
+            ? ` - ${readableDateWithYear(item.occursUntil)}`
+            : ''}
+        </Dates>
+        <Sum className="wide">{Money.from(item.sum).format()}</Sum>
+        <Period>/ {getPeriodText(item.period)}</Period>
+        <Sum className="optional">
+          {Money.from(item.recurrencePerMonth).format()} / kk
+        </Sum>
+        <Sum>{Money.from(item.recurrencePerYear).format()} / v</Sum>
+        <Tools>
+          <ExpanderIcon title="Lisätiedot" open={open} onToggle={toggle} />
+        </Tools>
+      </RowElement>
+      {open ? <SubscriptionDetails recurringExpenseId={item.id} /> : null}
+    </>
+  );
+};
 export const SubscriptionCategoryHeader: React.FC<{
   title: string;
   totals?: RecurrenceTotals;
@@ -56,6 +69,7 @@ export const SubscriptionCategoryHeader: React.FC<{
           {Money.from(totals.recurrencePerMonth).format()} / kk
         </Sum>
         <Sum>{Money.from(totals.recurrencePerYear).format()} / v</Sum>
+        <Tools />
       </>
     ) : null}
   </RowElement>

@@ -13,6 +13,7 @@ import {
   RecurrenceUnit,
   RecurringExpense,
   RecurringExpenseCriteria,
+  RecurringExpenseDetails,
   RecurringExpenseInput,
   RecurringExpenseTarget,
 } from 'shared/expense';
@@ -28,6 +29,7 @@ import {
   DbObject,
   InvalidExpense,
   InvalidInputError,
+  NotFoundError,
   ObjectId,
 } from 'shared/types';
 import { camelCaseObject, Money, toArray, unnest } from 'shared/util';
@@ -39,6 +41,9 @@ import { determineDivision } from './ExpenseDivision';
 import { SourceDb } from './SourceDb';
 
 const log = debug('bookkeeper:api:recurring-expenses');
+
+const RecurringExpenseSelect = `SELECT *, re.id AS "recurringExpenseId" FROM recurring_expenses re
+  LEFT JOIN expenses e ON (e.id = re.template_expense_id)`;
 
 function nextRecurrence(
   from: string | Moment,
@@ -56,8 +61,8 @@ async function searchRecurringExpenses(
 ): Promise<RecurringExpense[]> {
   const type = criteria.type && toArray(criteria.type);
   const expenses = await tx.manyOrNone(
-    `SELECT * FROM recurring_expenses re
-      LEFT JOIN expenses e ON (e.id = re.template_expense_id)
+    `--sql
+    ${RecurringExpenseSelect}
       WHERE re.group_id = $/groupId/
         AND e.group_id = $/groupId/
         ${
@@ -72,6 +77,45 @@ async function searchRecurringExpenses(
   return expenses.map(mapRecurringExpense);
 }
 
+async function getRecurringExpenseDetails(
+  tx: ITask<any>,
+  groupId: ObjectId,
+  userId: ObjectId,
+  recurringExpenseId: ObjectId
+): Promise<RecurringExpenseDetails> {
+  const row = await tx.oneOrNone(
+    `--sql
+    ${RecurringExpenseSelect}
+      WHERE re.group_id = $/groupId/
+        AND e.group_id = $/groupId/
+        AND re.id = $/recurringExpenseId/`,
+    { groupId, recurringExpenseId }
+  );
+  if (!row) {
+    throw new NotFoundError(
+      'RECURRING_EXPENSE_NOT_FOUND',
+      `Recurring expense`,
+      recurringExpenseId
+    );
+  }
+  const recurringExpense = mapRecurringExpense(row);
+  const totals = await tx.one(
+    `SELECT COUNT(*) AS "count", SUM(sum) AS "sum" FROM expenses WHERE recurring_expense_id=$/recurringExpenseId/`,
+    { recurringExpenseId }
+  );
+  const [firstOccurence, lastOccurence] = await Promise.all([
+    BasicExpenseDb.getFirstRecurrence(tx, groupId, userId, recurringExpenseId),
+    BasicExpenseDb.getLastRecurrence(tx, groupId, userId, recurringExpenseId),
+  ]);
+  return {
+    recurringExpense,
+    totalExpenses: totals.count,
+    totalSum: totals.sum,
+    firstOccurence,
+    lastOccurence,
+  };
+}
+
 function mapRecurringExpense(row: any): RecurringExpense {
   const period: RecurrencePeriod = {
     unit: row.period_unit,
@@ -79,7 +123,7 @@ function mapRecurringExpense(row: any): RecurringExpense {
   };
   const sum = Money.from(row.sum).toString();
   return {
-    id: row.id,
+    id: row.recurringExpenseId,
     templateExpenseId: row.template_expense_id,
     title: row.title,
     sum,
@@ -463,4 +507,5 @@ export const RecurringExpenseDb = {
   deleteRecurringById,
   updateRecurring,
   createMissing,
+  getRecurringExpenseDetails,
 };

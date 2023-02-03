@@ -35,6 +35,20 @@ export function createRecurringExpenseApi() {
     true
   );
 
+  // GET /api/expense/recurring/[expenseId]
+  api.getTx(
+    '/:expenseId',
+    {},
+    (tx, session, { params }) =>
+      Expenses.getRecurringExpenseDetails(
+        tx,
+        session.group.id,
+        session.user.id,
+        params.expenseId
+      ),
+    true
+  );
+
   // PUT /api/expense/recurring/[expenseId]
   api.putTx(
     '/:expenseId',

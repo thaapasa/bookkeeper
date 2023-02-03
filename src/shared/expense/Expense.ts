@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-import { RecurrencePeriod } from '../expense/Recurrence';
 import { ISODate } from '../time/Time';
 import { DbObject, ShortString } from '../types/Common';
 import { ObjectId } from '../types/Id';
@@ -149,38 +148,6 @@ export const ExpenseCollection = z.object({
   unconfirmedBefore: z.boolean(),
 });
 export type ExpenseCollection = z.infer<typeof ExpenseCollection>;
-
-export const RecurringExpenseTarget = z.enum(['single', 'all', 'after']);
-export type RecurringExpenseTarget = z.infer<typeof RecurringExpenseTarget>;
-
-export const RecurringExpenseInput = z.object({
-  period: RecurrencePeriod,
-  occursUntil: ISODate.optional(),
-});
-export type RecurringExpenseInput = z.infer<typeof RecurringExpenseInput>;
-
-export const RecurringExpense = RecurringExpenseInput.extend({
-  templateExpenseId: ObjectId,
-  title: z.string(),
-  sum: MoneyLike,
-  categoryId: ObjectId,
-  firstOccurence: ISODate,
-  recurrencePerYear: MoneyLike,
-  recurrencePerMonth: MoneyLike,
-}).and(DbObject);
-export type RecurringExpense = z.infer<typeof RecurringExpense>;
-
-export const RecurringExpenseCriteria = z.object({
-  type: ExpenseType.or(z.array(ExpenseType)).optional(),
-  includeEnded: z.boolean().optional(),
-  onlyOwn: z.boolean().optional(),
-});
-export type RecurringExpenseCriteria = z.infer<typeof RecurringExpenseCriteria>;
-
-export interface Recurrence extends DbObject, RecurringExpenseInput {
-  nextMissing: ISODate;
-  templateExpenseId: number;
-}
 
 export const ExpenseQuery = z
   .object({

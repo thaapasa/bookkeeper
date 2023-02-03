@@ -9,6 +9,7 @@ import {
   RecurrencePeriod,
   RecurringExpense,
   RecurringExpenseCriteria,
+  RecurringExpenseDetails,
   RecurringExpenseTarget,
   UserExpense,
   UserExpenseWithDetails,
@@ -229,6 +230,11 @@ export class ApiConnect {
   ): Promise<RecurringExpense[]> {
     return this.post(uri`/api/expense/recurring/search`, criteria);
   }
+
+  public getRecurringExpense = async (
+    id: ObjectId
+  ): Promise<RecurringExpenseDetails | undefined> =>
+    this.get(uri`/api/expense/recurring/${id}`);
 
   public storeExpense(expense: ExpenseData): Promise<ApiMessage> {
     return this.put<ApiMessage>('/api/expense', expense);

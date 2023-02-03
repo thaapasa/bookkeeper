@@ -9,7 +9,7 @@ import {
   UserExpenseWithDetails,
 } from 'shared/expense';
 import { readableDate, toDate, toISODate, toMoment } from 'shared/time';
-import { Category, CategoryMap, Source, User } from 'shared/types';
+import { Category, CategoryMap, isDefined, Source, User } from 'shared/types';
 import { Money } from 'shared/util';
 import { equal, notEqual } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
@@ -22,6 +22,7 @@ import {
 } from 'client/data/State';
 import * as colors from 'client/ui/Colors';
 import { ActivatableTextField } from 'client/ui/component/ActivatableTextField';
+import { ExpanderIcon } from 'client/ui/component/ExpanderIcon';
 import { UserAvatar } from 'client/ui/component/UserAvatar';
 import { UserPrompts } from 'client/ui/dialog/DialogState';
 import { ExpenseTypeIcon } from 'client/ui/icons/ExpenseType';
@@ -306,10 +307,10 @@ export class ExpenseRow extends React.Component<
             {Money.from(expense.userBalance).format()}
           </BalanceColumn>
           <ToolColumn>
-            <ToolIcon
+            <ExpanderIcon
               title="Tiedot"
-              onClick={() => this.toggleDetails(expense, this.state.details)}
-              icon={this.state.details ? 'ExpandLess' : 'ExpandMore'}
+              open={isDefined(this.state.details)}
+              onToggle={() => this.toggleDetails(expense, this.state.details)}
             />
             <OptionalIcons>
               <ToolIcon

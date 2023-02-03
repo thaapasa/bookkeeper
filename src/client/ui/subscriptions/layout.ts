@@ -46,3 +46,8 @@ export const Sum = styled(TextContainer)`
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 `;
+
+export const Tools = styled(TextContainer)`
+  width: 32px;
+  text-align: right;
+`;

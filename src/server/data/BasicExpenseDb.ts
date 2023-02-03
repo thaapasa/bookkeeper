@@ -21,7 +21,10 @@ import { SourceDb } from './SourceDb';
 
 const log = debug('bookkeeper:api:expenses');
 
-function expenseSelect(where: string): string {
+function expenseSelect(
+  where: string,
+  orderBy = 'ORDER BY date ASC, title ASC, id'
+): string {
   return `--sql
 SELECT
   MIN(id) AS id, MIN(date) AS date, MIN(receiver) AS receiver, MIN(type) AS type, MIN(sum) AS sum,
@@ -46,7 +49,7 @@ FROM (
   ${where}
 ) breakdown
 GROUP BY id
-ORDER BY date ASC, title ASC, id
+${orderBy}
 `;
 }
 
@@ -316,6 +319,24 @@ async function renameReceiver(
   return res.rowCount;
 }
 
+async function getRecurrenceOccurence(
+  tx: ITask<any>,
+  groupId: ObjectId,
+  userId: ObjectId,
+  recurringExpenseId: ObjectId,
+  first: boolean
+): Promise<Expense | undefined> {
+  const expense = await tx.map(
+    expenseSelect(
+      `WHERE recurring_expense_id=$/recurringExpenseId/ AND group_id=$/groupId/`,
+      `ORDER BY date ${first ? 'ASC' : 'DESC'}`
+    ),
+    { recurringExpenseId, userId, groupId },
+    mapExpense
+  );
+  return expense[0];
+}
+
 const getExpenseAndDivision = (
   tx: ITask<any>,
   groupId: number,
@@ -343,4 +364,16 @@ export const BasicExpenseDb = {
   expenseSelect,
   mapExpense,
   setDefaults,
+  getFirstRecurrence: (
+    tx: ITask<any>,
+    groupId: ObjectId,
+    userId: ObjectId,
+    recurringExpenseId: ObjectId
+  ) => getRecurrenceOccurence(tx, groupId, userId, recurringExpenseId, true),
+  getLastRecurrence: (
+    tx: ITask<any>,
+    groupId: ObjectId,
+    userId: ObjectId,
+    recurringExpenseId: ObjectId
+  ) => getRecurrenceOccurence(tx, groupId, userId, recurringExpenseId, false),
 };
