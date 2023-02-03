@@ -6,9 +6,6 @@ import {
   ExpenseInput,
   ExpenseQuery,
   ExpenseSplit,
-  RecurringExpenseCriteria,
-  RecurringExpenseInput,
-  RecurringExpenseTarget,
   UserExpense,
 } from 'shared/expense';
 import { YearMonth } from 'shared/time';
@@ -21,6 +18,8 @@ import { Expenses } from 'server/data/Expenses';
 import { searchExpenses } from 'server/data/ExpenseSearch';
 import { splitExpense } from 'server/data/ExpenseSplit';
 import { createValidatingRouter } from 'server/server/ValidatingRouter';
+
+import { createRecurringExpenseApi } from './RecurringExpenseApi';
 
 /**
  * Creates expense API router.
@@ -124,84 +123,6 @@ export function createExpenseApi() {
     {},
     (tx, session, { params }) =>
       Expenses.deleteById(tx, session.group.id, params.expenseId),
-    true
-  );
-
-  return api.router;
-}
-
-/**
- * Creates recurring expense API.
- * Assumed attach path: `/api/expense/recurring`
- */
-function createRecurringExpenseApi() {
-  const api = createValidatingRouter(Router());
-
-  const RecurringExpenseTargetSchema = z.object({
-    target: RecurringExpenseTarget,
-  });
-
-  // GET /api/expense/recurring/search
-  api.postTx(
-    '/search',
-    { body: RecurringExpenseCriteria },
-    (tx, session, { body }) =>
-      Expenses.searchRecurringExpenses(
-        tx,
-        session.group.id,
-        session.user.id,
-        body
-      ),
-    true
-  );
-
-  // PUT /api/expense/recurring/[expenseId]
-  api.putTx(
-    '/:expenseId',
-    { body: RecurringExpenseInput },
-    (tx, session, { body, params }) =>
-      Expenses.createRecurring(
-        tx,
-        session.group.id,
-        session.user.id,
-        params.expenseId,
-        body
-      ),
-    true
-  );
-
-  // DELETE /api/expense/recurring/[expenseId]
-  api.deleteTx(
-    '/:expenseId',
-    { query: RecurringExpenseTargetSchema },
-    (tx, session, { query, params }) =>
-      Expenses.deleteRecurringById(
-        tx,
-        session.group.id,
-        session.user.id,
-        params.expenseId,
-        query.target
-      ),
-    true
-  );
-
-  // POST /api/expense/recurring/[expenseId]
-  api.postTx(
-    '/:expenseId',
-    {
-      query: RecurringExpenseTargetSchema,
-      body: ExpenseInput,
-    },
-    (tx, session, { query, params, body }) =>
-      Expenses.updateRecurring(
-        tx,
-        session.group.id,
-        session.user.id,
-        params.expenseId,
-        query.target,
-        body,
-        session.group.defaultSourceId || 0
-      ),
     true
   );
 
