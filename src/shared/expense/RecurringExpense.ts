@@ -24,6 +24,7 @@ export const RecurringExpense = RecurringExpenseInput.extend({
   firstOccurence: ISODate,
   recurrencePerYear: MoneyLike,
   recurrencePerMonth: MoneyLike,
+  nextMissing: ISODate,
 }).and(DbObject);
 export type RecurringExpense = z.infer<typeof RecurringExpense>;
 

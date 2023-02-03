@@ -30,7 +30,12 @@ const SubscriptionDetailsRenderer: React.FC<{
   data: RecurringExpenseDetails;
 }> = ({ data }) => (
   <RowElement>
-    <Label>{getLabel(data)}</Label>
+    <Label>
+      <>
+        {getLabel(data)}. Seuraava kirjaus{' '}
+        {readableDateWithYear(data.recurringExpense.nextMissing)}.
+      </>
+    </Label>
   </RowElement>
 );
 

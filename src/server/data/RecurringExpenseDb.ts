@@ -129,6 +129,7 @@ function mapRecurringExpense(row: any): RecurringExpense {
     sum,
     categoryId: row.category_id,
     period,
+    nextMissing: toISODate(row.next_missing),
     firstOccurence: toISODate(row.date),
     occursUntil: row.occurs_until ? toISODate(row.occurs_until) : undefined,
     recurrencePerMonth: recurrencePerMonth(sum, period).toString(),
