@@ -236,6 +236,11 @@ export class ApiConnect {
   ): Promise<RecurringExpenseDetails | undefined> =>
     this.get(uri`/api/subscription/${id}`);
 
+  public deleteSubscription = async (
+    id: ObjectId
+  ): Promise<RecurringExpenseDetails | undefined> =>
+    this.del(uri`/api/subscription/${id}`);
+
   public storeExpense(expense: ExpenseData): Promise<ApiMessage> {
     return this.put<ApiMessage>('/api/expense', expense);
   }

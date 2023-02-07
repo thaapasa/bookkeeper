@@ -112,6 +112,7 @@ export const Expenses = {
   searchRecurringExpenses: RecurringExpenseDb.searchRecurringExpenses,
   getRecurringExpenseDetails: RecurringExpenseDb.getRecurringExpenseDetails,
   createRecurring: RecurringExpenseDb.createRecurring,
-  deleteRecurringById: RecurringExpenseDb.deleteRecurringById,
+  deleteRecurringByExpenseId: RecurringExpenseDb.deleteRecurringByExpenseId,
   updateRecurring: RecurringExpenseDb.updateRecurring,
+  deleteRecurringById: RecurringExpenseDb.deleteRecurringById,
 };

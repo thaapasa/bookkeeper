@@ -21,6 +21,7 @@ import {
   DateLike,
   fromISODate,
   ISODate,
+  toDate,
   toISODate,
   toMoment,
 } from 'shared/time';
@@ -77,18 +78,17 @@ async function searchRecurringExpenses(
   return expenses.map(mapRecurringExpense);
 }
 
-async function getRecurringExpenseDetails(
+async function getRecurringExpenseInfo(
   tx: ITask<any>,
   groupId: ObjectId,
-  userId: ObjectId,
   recurringExpenseId: ObjectId
-): Promise<RecurringExpenseDetails> {
+): Promise<RecurringExpense> {
   const row = await tx.oneOrNone(
     `--sql
-    ${RecurringExpenseSelect}
-      WHERE re.group_id = $/groupId/
-        AND e.group_id = $/groupId/
-        AND re.id = $/recurringExpenseId/`,
+      ${RecurringExpenseSelect}
+        WHERE re.group_id = $/groupId/
+          AND e.group_id = $/groupId/
+          AND re.id = $/recurringExpenseId/`,
     { groupId, recurringExpenseId }
   );
   if (!row) {
@@ -98,7 +98,20 @@ async function getRecurringExpenseDetails(
       recurringExpenseId
     );
   }
-  const recurringExpense = mapRecurringExpense(row);
+  return mapRecurringExpense(row);
+}
+
+async function getRecurringExpenseDetails(
+  tx: ITask<any>,
+  groupId: ObjectId,
+  userId: ObjectId,
+  recurringExpenseId: ObjectId
+): Promise<RecurringExpenseDetails> {
+  const recurringExpense = await getRecurringExpenseInfo(
+    tx,
+    groupId,
+    recurringExpenseId
+  );
   const totals = await tx.one(
     `SELECT COUNT(*) AS "count", SUM(sum) AS "sum" FROM expenses WHERE recurring_expense_id=$/recurringExpenseId/`,
     { recurringExpenseId }
@@ -236,11 +249,9 @@ async function createMissingRecurrences(
   const lastDate = dates[dates.length - 1];
   const nextMissing = nextRecurrence(lastDate, recurrence.period);
   log(
-    'Creating missing expenses for',
-    recurrence,
-    dates,
-    'next missing is',
-    toISODate(nextMissing)
+    `Creating missing expenses for ${recurrence} ${dates}. Next missing is ${toISODate(
+      nextMissing
+    )}`
   );
   const expense = await BasicExpenseDb.getExpenseAndDivision(
     tx,
@@ -309,6 +320,19 @@ async function deleteRecurrenceAndExpenses(
   };
 }
 
+async function terminateRecurrenceAt(
+  tx: ITask<any>,
+  recurringExpenseId: number,
+  date: DateLike
+) {
+  await tx.none(
+    `UPDATE recurring_expenses
+        SET occurs_until=$/date/::date
+        WHERE id=$/recurringExpenseId/`,
+    { recurringExpenseId, date }
+  );
+}
+
 async function deleteRecurrenceAfter(
   tx: ITask<any>,
   expenseId: number,
@@ -321,12 +345,7 @@ async function deleteRecurrenceAfter(
         WHERE recurring_expense_id=$/recurringExpenseId/ AND (id=$/expenseId/ OR date > $/afterDate/::date)`,
       { recurringExpenseId, expenseId, afterDate }
     ),
-    tx.none(
-      `UPDATE recurring_expenses
-        SET occurs_until=$/afterDate/::date
-        WHERE id=$/recurringExpenseId/`,
-      { recurringExpenseId, afterDate }
-    ),
+    terminateRecurrenceAt(tx, recurringExpenseId, afterDate),
   ]);
   return {
     status: 'OK',
@@ -334,14 +353,14 @@ async function deleteRecurrenceAfter(
   };
 }
 
-async function deleteRecurringById(
+async function deleteRecurringByExpenseId(
   tx: ITask<any>,
-  groupId: number,
-  userId: number,
-  expenseId: number,
+  groupId: ObjectId,
+  userId: ObjectId,
+  expenseId: ObjectId,
   target: RecurringExpenseTarget
 ): Promise<ApiMessage> {
-  log('Deleting recurring expense', expenseId, '- targeting', target);
+  log(`Deleting recurring via expense ${expenseId} - targeting ${target}`);
   if (target === 'single') {
     return BasicExpenseDb.deleteById(tx, groupId, expenseId);
   }
@@ -362,6 +381,23 @@ async function deleteRecurringById(
     default:
       throw new InvalidExpense(`Invalid target ${target}`);
   }
+}
+
+async function deleteRecurringById(
+  tx: ITask<any>,
+  groupId: ObjectId,
+  recurringExpenseId: ObjectId
+): Promise<ApiMessage> {
+  const recurring = await getRecurringExpenseInfo(
+    tx,
+    groupId,
+    recurringExpenseId
+  );
+  const now = toDate(toMoment());
+  log(`Deleting recurring ${recurring.id} at ${now}`);
+
+  await terminateRecurrenceAt(tx, recurringExpenseId, now);
+  return { status: 'OK', message: `Recurrence cleared at ${now}` };
 }
 
 function deleteDivisionForRecurrence(
@@ -426,7 +462,7 @@ async function updateRecurringExpense(
     throw new InvalidExpense(`Invalid target ${target}`);
   }
   const expense = BasicExpenseDb.setDefaults(expenseInput);
-  log('Updating recurring expense', original, 'to', expense);
+  log(`Updating recurring expense ${original} to ${expense}`);
   const sourceId = expense.sourceId || defaultSourceId;
   const [cat, source] = await Promise.all([
     CategoryDb.getById(tx, original.groupId, expense.categoryId),
@@ -505,8 +541,9 @@ export const RecurringExpenseDb = {
   searchRecurringExpenses,
   nextRecurrence,
   createRecurring,
-  deleteRecurringById,
+  deleteRecurringByExpenseId,
   updateRecurring,
   createMissing,
   getRecurringExpenseDetails,
+  deleteRecurringById,
 };

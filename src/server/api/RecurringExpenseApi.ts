@@ -44,7 +44,7 @@ export function createRecurringExpenseApi() {
     '/:expenseId',
     { query: RecurringExpenseTargetSchema },
     (tx, session, { query, params }) =>
-      Expenses.deleteRecurringById(
+      Expenses.deleteRecurringByExpenseId(
         tx,
         session.group.id,
         session.user.id,

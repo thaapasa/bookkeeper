@@ -9,10 +9,11 @@ import { Category, CategoryMap, ObjectId } from 'shared/types';
 import { Money, MoneyLike } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { categoryMapE } from 'client/data/Categories';
+import { needUpdateE } from 'client/data/State';
 
 import { AsyncDataView } from '../component/AsyncDataView';
 import { connect } from '../component/BaconConnect';
-import { useAsyncData } from '../hooks/useAsyncData';
+import { useDeferredData } from '../hooks/useAsyncData';
 import { useForceReload } from '../hooks/useForceReload';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { PageContentContainer } from '../Styles';
@@ -45,12 +46,17 @@ const SubscriptionsViewImpl: React.FC<{
   const [criteria, setCriteria] = React.useState<
     RecurringExpenseCriteria | undefined
   >(undefined);
-  const data = useAsyncData(
+
+  const { data, loadData } = useDeferredData(
     loadExpenses,
     criteria !== undefined,
     criteria,
     categories
   );
+  // Load data automatically
+  React.useEffect(loadData, [loadData, criteria, categories]);
+  // Reload whenever update bus is triggered
+  React.useEffect(() => needUpdateE.onValue(loadData), [loadData]);
   return (
     <PageContentContainer>
       <SubscriptionCriteriaSelector onChange={setCriteria} />
