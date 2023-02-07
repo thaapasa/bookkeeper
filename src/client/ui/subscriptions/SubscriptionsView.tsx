@@ -180,22 +180,20 @@ function createPieData(
   );
 }
 
-function total(
+const total = (
   name: string,
   sum: MoneyLike,
   colorIndex: number,
   perMonth: boolean,
   categoryId?: ObjectId
-): TotalsData {
-  return {
-    name,
-    sum: Money.from(sum)
-      .divide(perMonth ? 12 : 1)
-      .valueOf(),
-    categoryId,
-    colorIndex,
-  };
-}
+): TotalsData => ({
+  name,
+  sum: Money.from(sum)
+    .divide(perMonth ? 12 : 1)
+    .valueOf(),
+  categoryId,
+  colorIndex,
+});
 
 const GroupView: React.FC<{
   group: SubscriptionGroup;
@@ -206,6 +204,7 @@ const GroupView: React.FC<{
   hidden,
   setVisibility,
 }) => {
+  const visible = !hidden.has(root.id);
   return (
     <>
       <SubscriptionCategoryHeader
@@ -213,25 +212,29 @@ const GroupView: React.FC<{
         totals={allTotals}
         className="root-category"
         categoryId={root.id}
-        visible={!hidden.has(root.id)}
+        visible={visible}
         setVisible={setVisibility}
       />
-      {rootItems ? (
-        <CategorySubscriptions
-          category={root}
-          title="Pääkategorian kirjaukset"
-          items={rootItems}
-          totals={rootTotals}
-        />
+      {visible ? (
+        <>
+          {rootItems ? (
+            <CategorySubscriptions
+              category={root}
+              title="Pääkategorian kirjaukset"
+              items={rootItems}
+              totals={rootTotals}
+            />
+          ) : null}
+          {children.map(c => (
+            <CategorySubscriptions
+              key={c.category.id}
+              category={c.category}
+              items={c.items}
+              totals={c.totals}
+            />
+          ))}
+        </>
       ) : null}
-      {children.map(c => (
-        <CategorySubscriptions
-          key={c.category.id}
-          category={c.category}
-          items={c.items}
-          totals={c.totals}
-        />
-      ))}
     </>
   );
 };
