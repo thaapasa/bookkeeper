@@ -35,7 +35,7 @@ const loadExpenses = async (
   categories: CategoryMap
 ) =>
   groupSubscriptions(
-    criteria ? await apiConnect.searchRecurringExpenses(criteria) : [],
+    criteria ? await apiConnect.searchSubscriptions(criteria) : [],
     categories
   );
 

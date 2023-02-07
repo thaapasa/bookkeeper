@@ -15,6 +15,7 @@ import { createReceiverApi } from './ReceiverApi';
 import { createSessionApi } from './SessionApi';
 import { createSourceApi } from './SourceApi';
 import { createStatisticsApi } from './StatisticsApi';
+import { createSubscriptionApi } from './SubscriptionApi';
 
 const log = debug('bookkeeper:api');
 
@@ -27,6 +28,7 @@ export function createApi() {
   api.use('/session', createSessionApi());
   api.use('/category', createCategoryApi());
   api.use('/expense', createExpenseApi());
+  api.use('/subscription', createSubscriptionApi());
   api.use('/statistics', createStatisticsApi());
   api.use('/source', createSourceApi());
   api.use('/receiver', createReceiverApi());

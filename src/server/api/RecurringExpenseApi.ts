@@ -3,7 +3,6 @@ import { z } from 'zod';
 
 import {
   ExpenseInput,
-  RecurringExpenseCriteria,
   RecurringExpenseInput,
   RecurringExpenseTarget,
 } from 'shared/expense';
@@ -12,6 +11,10 @@ import { createValidatingRouter } from 'server/server/ValidatingRouter';
 
 /**
  * Creates recurring expense API.
+ *
+ * This API provides a view of the recurring expenses form the point of view of the individual expenses.
+ * This means all the ids passed to the API are expense ids, not ids of the recurring expense objects.
+ *
  * Assumed attach path: `/api/expense/recurring`
  */
 export function createRecurringExpenseApi() {
@@ -20,34 +23,6 @@ export function createRecurringExpenseApi() {
   const RecurringExpenseTargetSchema = z.object({
     target: RecurringExpenseTarget,
   });
-
-  // GET /api/expense/recurring/search
-  api.postTx(
-    '/search',
-    { body: RecurringExpenseCriteria },
-    (tx, session, { body }) =>
-      Expenses.searchRecurringExpenses(
-        tx,
-        session.group.id,
-        session.user.id,
-        body
-      ),
-    true
-  );
-
-  // GET /api/expense/recurring/[expenseId]
-  api.getTx(
-    '/:expenseId',
-    {},
-    (tx, session, { params }) =>
-      Expenses.getRecurringExpenseDetails(
-        tx,
-        session.group.id,
-        session.user.id,
-        params.expenseId
-      ),
-    true
-  );
 
   // PUT /api/expense/recurring/[expenseId]
   api.putTx(

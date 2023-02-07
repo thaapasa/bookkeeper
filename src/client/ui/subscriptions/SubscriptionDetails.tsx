@@ -13,7 +13,7 @@ export const SubscriptionDetails: React.FC<{ recurringExpenseId: number }> = ({
   recurringExpenseId,
 }) => {
   const data = useAsyncData(
-    apiConnect.getRecurringExpense,
+    apiConnect.getSubscription,
     true,
     recurringExpenseId
   );

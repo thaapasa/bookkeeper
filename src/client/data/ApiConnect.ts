@@ -225,16 +225,16 @@ export class ApiConnect {
     );
   }
 
-  public async searchRecurringExpenses(
+  public async searchSubscriptions(
     criteria: RecurringExpenseCriteria
   ): Promise<RecurringExpense[]> {
-    return this.post(uri`/api/expense/recurring/search`, criteria);
+    return this.post(uri`/api/subscription/search`, criteria);
   }
 
-  public getRecurringExpense = async (
+  public getSubscription = async (
     id: ObjectId
   ): Promise<RecurringExpenseDetails | undefined> =>
-    this.get(uri`/api/expense/recurring/${id}`);
+    this.get(uri`/api/subscription/${id}`);
 
   public storeExpense(expense: ExpenseData): Promise<ApiMessage> {
     return this.put<ApiMessage>('/api/expense', expense);

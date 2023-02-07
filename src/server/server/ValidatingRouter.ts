@@ -25,6 +25,7 @@ const TypeMap = {
   sourceId: ObjectIdString,
   categoryId: ObjectIdString,
   expenseId: ObjectIdString,
+  recurringExpenseId: ObjectIdString,
 };
 type TypeMap = typeof TypeMap;
 type KnownParamNames = keyof typeof TypeMap;
