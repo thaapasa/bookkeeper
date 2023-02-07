@@ -1,5 +1,8 @@
+import { Checkbox, FormControlLabel } from '@mui/material';
 import { combineTemplate } from 'baconjs';
 import * as React from 'react';
+import styled from 'styled-components';
+import { z } from 'zod';
 
 import { RecurringExpense, RecurringExpenseCriteria } from 'shared/expense';
 import { Category, CategoryMap, ObjectId } from 'shared/types';
@@ -11,6 +14,7 @@ import { AsyncDataView } from '../component/AsyncDataView';
 import { connect } from '../component/BaconConnect';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useForceReload } from '../hooks/useForceReload';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 import { PageContentContainer } from '../Styles';
 import { SubscriptionCriteriaSelector } from './SubscriptionCriteriaSelector';
 import {
@@ -73,8 +77,13 @@ const SubscriptionsRenderer: React.FC<{
     },
     [hidden, forceReload]
   );
+  const [perMonth, setPerMonth] = useLocalStorage(
+    'subscriptions.show.months',
+    false,
+    z.boolean()
+  );
   const filteredGroups = data.groups.filter(g => !hidden.has(g.root.id));
-  const pieData = createPieData(filteredGroups, catId);
+  const pieData = createPieData(filteredGroups, catId, perMonth);
   const selectedIndex = data.groups.findIndex(g => g.root.id === catId);
   const selectedGroup =
     selectedIndex >= 0 ? data.groups[selectedIndex] : undefined;
@@ -92,11 +101,24 @@ const SubscriptionsRenderer: React.FC<{
         }
         className="root-category"
       />
-      <TotalsChart
-        data={pieData}
-        onSelectCategory={setCatId}
-        colorIndex={selectedIndex >= 0 ? selectedIndex : undefined}
-      />
+      <ChartArea>
+        <TotalsChart
+          data={pieData}
+          onSelectCategory={setCatId}
+          colorIndex={selectedIndex >= 0 ? selectedIndex : undefined}
+        />
+        <ChartTools>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={perMonth}
+                onChange={() => setPerMonth(!perMonth)}
+              />
+            }
+            label="Kulut per kk"
+          />
+        </ChartTools>
+      </ChartArea>
       {selectedGroup ? (
         <GroupView
           group={selectedGroup}
@@ -119,11 +141,18 @@ const SubscriptionsRenderer: React.FC<{
 
 function createPieData(
   groups: SubscriptionGroup[],
-  selectedCat: ObjectId | undefined
+  selectedCat: ObjectId | undefined,
+  perMonth: boolean
 ): TotalsData[] {
   if (!selectedCat) {
     return groups.map(g =>
-      total(g.root.name, g.allTotals.recurrencePerYear, g.colorIndex, g.root.id)
+      total(
+        g.root.name,
+        g.allTotals.recurrencePerYear,
+        g.colorIndex,
+        perMonth,
+        g.root.id
+      )
     );
   }
   const group = groups.find(g => g.root.id === selectedCat);
@@ -134,13 +163,19 @@ function createPieData(
           total(
             group.root.name,
             group.rootTotals.recurrencePerYear,
-            group.colorIndex
+            group.colorIndex,
+            perMonth
           ),
         ]
       : []
   ).concat(
     group.children.map(c =>
-      total(c.category.name, c.totals.recurrencePerYear, group.colorIndex)
+      total(
+        c.category.name,
+        c.totals.recurrencePerYear,
+        group.colorIndex,
+        perMonth
+      )
     )
   );
 }
@@ -149,9 +184,17 @@ function total(
   name: string,
   sum: MoneyLike,
   colorIndex: number,
+  perMonth: boolean,
   categoryId?: ObjectId
 ): TotalsData {
-  return { name, sum: Money.from(sum).valueOf(), categoryId, colorIndex };
+  return {
+    name,
+    sum: Money.from(sum)
+      .divide(perMonth ? 12 : 1)
+      .valueOf(),
+    categoryId,
+    colorIndex,
+  };
 }
 
 const GroupView: React.FC<{
@@ -210,3 +253,13 @@ const CategorySubscriptions: React.FC<{
     ))}
   </>
 );
+
+const ChartArea = styled.div`
+  position: relative;
+`;
+
+const ChartTools = styled.div`
+  position: absolute;
+  left: 16px;
+  top: 16px;
+`;
