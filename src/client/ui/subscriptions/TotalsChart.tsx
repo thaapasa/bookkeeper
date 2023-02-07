@@ -12,6 +12,7 @@ export interface TotalsData {
   name: string;
   sum: number;
   categoryId?: ObjectId;
+  colorIndex: number;
 }
 
 const TotalsChartImpl: React.FC<{
@@ -27,23 +28,23 @@ const TotalsChartImpl: React.FC<{
       nameKey="name"
       cx="50%"
       cy="50%"
-      outerRadius={90}
+      outerRadius={110}
       label={d => formatMoney(d.sum)}
       onClick={data => onSelectCategory(data.categoryId)}
     >
-      {data.map((_d, i) => (
+      {data.map((d, i) => (
         <Cell
           key={i}
           fill={
             isDefined(colorIndex)
               ? getChartColor(colorIndex, i)
-              : getChartColor(i, 0)
+              : getChartColor(d.colorIndex, 1)
           }
         />
       ))}
     </Pie>
     <Tooltip formatter={formatMoney} />
-    <Legend />
+    <Legend layout="vertical" align="right" />
   </PieChart>
 );
 

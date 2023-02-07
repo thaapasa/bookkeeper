@@ -24,7 +24,12 @@ export function groupSubscriptions(
     const group: SubscriptionGroup =
       rootCat in byRoot
         ? byRoot[rootCat]
-        : { root: categories[rootCat], children: [], allTotals: emptyTotals() };
+        : {
+            root: categories[rootCat],
+            children: [],
+            allTotals: emptyTotals(),
+            colorIndex: 0,
+          };
     byRoot[rootCat] = group;
     if (rootCat === item.categoryId) {
       group.rootItems = (group.rootItems ?? []).concat(item);
@@ -47,8 +52,10 @@ export function groupSubscriptions(
       cat.totals = appendToTotals(cat.totals, item);
     }
   }
-  const groups = Object.values(byRoot).map(g => ({
+  const groups = Object.values(byRoot).map((g, i) => ({
     ...g,
+    // Rewrite colorIndices here
+    colorIndex: i,
     allTotals: sumRecurrenceTotals(g.children.map(c => c.totals)),
   }));
   return { groups, totals: sumRecurrenceTotals(groups.map(g => g.allTotals)) };

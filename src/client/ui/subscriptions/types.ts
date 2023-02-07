@@ -14,6 +14,7 @@ export interface CategorySubscriptions {
 }
 
 export interface SubscriptionGroup {
+  colorIndex: number;
   root: Category;
   rootItems?: RecurringExpense[];
   rootTotals?: RecurrenceTotals;

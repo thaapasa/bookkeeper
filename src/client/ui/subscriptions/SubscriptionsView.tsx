@@ -123,26 +123,35 @@ function createPieData(
 ): TotalsData[] {
   if (!selectedCat) {
     return groups.map(g =>
-      total(g.root.name, g.allTotals.recurrencePerYear, g.root.id)
+      total(g.root.name, g.allTotals.recurrencePerYear, g.colorIndex, g.root.id)
     );
   }
   const group = groups.find(g => g.root.id === selectedCat);
   if (!group) return [];
   return (
     group.rootTotals
-      ? [total(group.root.name, group.rootTotals.recurrencePerYear)]
+      ? [
+          total(
+            group.root.name,
+            group.rootTotals.recurrencePerYear,
+            group.colorIndex
+          ),
+        ]
       : []
   ).concat(
-    group.children.map(c => total(c.category.name, c.totals.recurrencePerYear))
+    group.children.map(c =>
+      total(c.category.name, c.totals.recurrencePerYear, group.colorIndex)
+    )
   );
 }
 
 function total(
   name: string,
   sum: MoneyLike,
+  colorIndex: number,
   categoryId?: ObjectId
 ): TotalsData {
-  return { name, sum: Money.from(sum).valueOf(), categoryId };
+  return { name, sum: Money.from(sum).valueOf(), categoryId, colorIndex };
 }
 
 const GroupView: React.FC<{
