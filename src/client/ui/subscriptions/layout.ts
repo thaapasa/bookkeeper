@@ -16,6 +16,11 @@ export const RowElement = styled(Row)`
     background-color: ${colorScheme.primary.standard};
     color: ${colorScheme.secondary.dark};
   }
+
+  &.inactive {
+    background: ${colorScheme.gray.light};
+    color: ${colorScheme.gray.veryDark};
+  }
 `;
 
 export const TextContainer = styled.div`
@@ -31,7 +36,7 @@ export const Label = styled(TextContainer)`
 `;
 
 export const Dates = styled(TextContainer)`
-  width: 128px;
+  width: 144px;
   text-align: right;
 `;
 

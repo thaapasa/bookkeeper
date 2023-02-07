@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { RecurringExpenseDetails } from 'shared/expense';
 import { readableDateWithYear } from 'shared/time';
-import { Money } from 'shared/util';
+import { Money, spaced } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 
 import { AsyncDataView } from '../component/AsyncDataView';
@@ -28,16 +28,24 @@ export const SubscriptionDetails: React.FC<{ recurringExpenseId: number }> = ({
 
 const SubscriptionDetailsRenderer: React.FC<{
   data: RecurringExpenseDetails;
-}> = ({ data }) => (
-  <RowElement>
-    <Label>
-      <>
-        {getLabel(data)}. Seuraava kirjaus{' '}
-        {readableDateWithYear(data.recurringExpense.nextMissing)}.
-      </>
-    </Label>
-  </RowElement>
-);
+  className?: string;
+}> = ({ data, className }) => {
+  const exp = data.recurringExpense;
+  return (
+    <RowElement
+      className={spaced`${className} ${exp.occursUntil && 'inactive'}`}
+    >
+      <Label>
+        <>
+          {getLabel(data)}.
+          {exp.occursUntil
+            ? ` Tilaus on päättynyt ${readableDateWithYear(exp.occursUntil)}.`
+            : ` Seuraava kirjaus ${readableDateWithYear(exp.nextMissing)}.`}
+        </>
+      </Label>
+    </RowElement>
+  );
+};
 
 function getLabel({
   totalExpenses: num,
@@ -51,8 +59,8 @@ function getLabel({
   return `${num} tapahtuma${
     num === 1
       ? ` ${readableDateWithYear(first?.date)}`
-      : `a ajalta ${readableDateWithYear(first?.date)} - ${readableDateWithYear(
-          last?.date
-        )}`
+      : `a päivinä ${readableDateWithYear(
+          first?.date
+        )} - ${readableDateWithYear(last?.date)}`
   }: ${Money.from(sum).format()}`;
 }

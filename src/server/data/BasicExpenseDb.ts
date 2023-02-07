@@ -329,7 +329,7 @@ async function getRecurrenceOccurence(
   const expense = await tx.map(
     expenseSelect(
       `WHERE recurring_expense_id=$/recurringExpenseId/ AND group_id=$/groupId/`,
-      `ORDER BY date ${first ? 'ASC' : 'DESC'}`
+      `ORDER BY date ${first ? 'ASC' : 'DESC'} LIMIT 1`
     ),
     { recurringExpenseId, userId, groupId },
     mapExpense

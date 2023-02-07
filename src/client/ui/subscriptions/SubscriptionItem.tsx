@@ -20,11 +20,14 @@ export type ToggleCategoryVisibility = (
 
 export const SubscriptionItem: React.FC<{
   item: RecurringExpense;
-}> = ({ item }) => {
+  className?: string;
+}> = ({ item, className }) => {
   const [open, toggle] = useToggle(false);
   return (
     <>
-      <RowElement>
+      <RowElement
+        className={`${className} ${item.occursUntil ? 'inactive' : undefined}`}
+      >
         <Label>{item.title}</Label>
         <Dates className="optional">
           {readableDateWithYear(item.firstOccurence)}
