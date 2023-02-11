@@ -22,3 +22,5 @@ export const IntArrayString = z
   .string()
   .regex(intArrayStringRE)
   .transform((r): number[] => JSON.parse(r));
+
+export const IntOrString = z.number().int().or(IntString);

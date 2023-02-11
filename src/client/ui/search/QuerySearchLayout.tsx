@@ -1,4 +1,5 @@
 import {
+  Button,
   Checkbox,
   CircularProgress,
   FormControlLabel,
@@ -41,6 +42,7 @@ interface QuerySearchLayoutProps {
   onToggleUnconfirmed: (_event: any, checked: boolean) => void;
   dateRange?: TypedDateRange;
   onSelectRange: (r?: TypedDateRange) => void;
+  onSaveAsReport: () => void;
   session: Session;
 }
 
@@ -60,6 +62,7 @@ const QuerySearchLayoutImpl: React.FC<QuerySearchLayoutProps> = ({
   onToggleUnconfirmed,
   dateRange,
   onSelectRange,
+  onSaveAsReport,
   session,
 }) => (
   <Grid container padding="16px" rowGap="16px">
@@ -124,6 +127,7 @@ const QuerySearchLayoutImpl: React.FC<QuerySearchLayoutProps> = ({
         }
         label="Alustavat"
       />
+      <Button onClick={onSaveAsReport}>Tee raportti</Button>
     </Grid>
     <Grid item xs={12}>
       <SelectedSuggestionsView

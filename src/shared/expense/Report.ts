@@ -17,3 +17,4 @@ export const ReportCreationData = Report.pick({
   title: true,
   searchTerms: true,
 });
+export type ReportCreationData = z.infer<typeof ReportCreationData>;

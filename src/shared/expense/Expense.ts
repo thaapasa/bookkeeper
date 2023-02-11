@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { ISODate } from '../time/Time';
 import { DbObject, ShortString } from '../types/Common';
 import { ObjectId } from '../types/Id';
-import { BooleanString, IntArrayString, IntString } from '../types/Primitives';
+import { BooleanString, IntOrString } from '../types/Primitives';
 import { MoneyLike } from '../util/Money';
 
 export const ExpenseType = z.enum(['expense', 'income', 'transfer']);
@@ -153,10 +153,10 @@ export const ExpenseQuery = z
   .object({
     search: z.string(),
     receiver: z.string(),
-    categoryId: IntString.or(IntArrayString),
+    categoryId: IntOrString.or(z.array(IntOrString)),
     startDate: ISODate,
     endDate: ISODate,
-    userId: IntString,
+    userId: IntOrString,
     includeSubCategories: BooleanString,
     confirmed: BooleanString.optional(),
   })

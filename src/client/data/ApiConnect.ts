@@ -11,6 +11,8 @@ import {
   RecurringExpenseCriteria,
   RecurringExpenseDetails,
   RecurringExpenseTarget,
+  Report,
+  ReportCreationData,
   UserExpense,
   UserExpenseWithDetails,
 } from 'shared/expense';
@@ -347,6 +349,14 @@ export class ApiConnect {
 
   public patchSource = (sourceId: ObjectId, data: SourcePatch) =>
     this.patch<Source>(uri`/api/source/${sourceId}`, data);
+
+  public createReport = (title: string, query: ExpenseQuery) => {
+    const body: ReportCreationData = {
+      title,
+      searchTerms: filterDefinedProps(query),
+    };
+    return this.post<Report>(uri`/api/report`, body);
+  };
 
   public getDbStatus = () => this.get<DbStatus>('/api/admin/status');
 }
