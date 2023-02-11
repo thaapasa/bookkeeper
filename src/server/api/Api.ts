@@ -12,6 +12,7 @@ import { getDbStatus } from '../data/admin/Admin';
 import { createCategoryApi } from './CategoryApi';
 import { createExpenseApi } from './ExpenseApi';
 import { createReceiverApi } from './ReceiverApi';
+import { createReportApi } from './ReportApi';
 import { createSessionApi } from './SessionApi';
 import { createSourceApi } from './SourceApi';
 import { createStatisticsApi } from './StatisticsApi';
@@ -32,6 +33,7 @@ export function createApi() {
   api.use('/statistics', createStatisticsApi());
   api.use('/source', createSourceApi());
   api.use('/receiver', createReceiverApi());
+  api.use('/report', createReportApi());
 
   // GET /api/status
   api.get(

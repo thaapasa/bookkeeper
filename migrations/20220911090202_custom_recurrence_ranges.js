@@ -9,7 +9,7 @@ exports.up = knex =>
     ALTER TYPE recurring_period ADD VALUE IF NOT EXISTS 'quarters';
 
     ALTER TABLE recurring_expenses RENAME COLUMN period TO period_unit;
-    ALTER TABLE recurring_expenses ADD COLUMN period_amount SMALLINT NOT NULL DEFAULT 1;    
+    ALTER TABLE recurring_expenses ADD COLUMN period_amount SMALLINT NOT NULL DEFAULT 1;
   `);
 
 exports.down = knex =>
@@ -20,7 +20,7 @@ exports.down = knex =>
 
     ALTER TABLE recurring_expenses DROP COLUMN period_amount;
     ALTER TABLE recurring_expenses RENAME COLUMN period_unit TO period;
-    ALTER TABLE recurring_expenses ALTER COLUMN period TYPE recurring_period USING CASE period 
+    ALTER TABLE recurring_expenses ALTER COLUMN period TYPE recurring_period USING CASE period
       WHEN 'years' THEN 'yearly'::recurring_period
       ELSE 'monthly'::recurring_period
     END;
