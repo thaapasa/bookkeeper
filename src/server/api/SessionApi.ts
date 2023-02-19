@@ -16,8 +16,9 @@ import * as server from '../server/ServerUtil';
 export function createSessionApi() {
   const api = createValidatingRouter(Router());
 
-  // PUT /api/session
-  api.router.put(
+  // POST /api/session
+  // Login: create new session
+  api.router.post(
     '/',
     Requests.unauthorizedTxRequest(
       (tx, req): Promise<Session> =>

@@ -16,6 +16,7 @@ export function createSubscriptionApi() {
   const api = createValidatingRouter(Router());
 
   // GET /api/subscription/search
+  // Search for subscription
   api.postTx(
     '/search',
     { body: RecurringExpenseCriteria },
@@ -30,6 +31,7 @@ export function createSubscriptionApi() {
   );
 
   // GET /api/subscription/[recurringExpenseId]
+  // Get subscription details
   api.getTx(
     '/:recurringExpenseId',
     {},
@@ -44,6 +46,7 @@ export function createSubscriptionApi() {
   );
 
   // DELETE /api/subscription/[recurringExpenseId]
+  // Deletes a subscription, leaving the realized expenses in place
   api.deleteTx(
     '/:recurringExpenseId',
     {},

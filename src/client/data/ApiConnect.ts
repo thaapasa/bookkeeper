@@ -174,7 +174,7 @@ export class ApiConnect {
   }
 
   public login(username: string, password: string): Promise<Session> {
-    return client.put<Session>('/api/session', { username, password });
+    return client.post<Session>('/api/session', { username, password });
   }
 
   public logout(): Promise<ApiMessage> {
@@ -242,7 +242,7 @@ export class ApiConnect {
     this.del(uri`/api/subscription/${id}`);
 
   public storeExpense(expense: ExpenseData): Promise<ApiMessage> {
-    return this.put<ApiMessage>('/api/expense', expense);
+    return this.post<ApiMessage>('/api/expense', expense);
   }
 
   public splitExpense(
@@ -258,7 +258,7 @@ export class ApiConnect {
     id: number | string,
     expense: ExpenseData
   ): Promise<ApiMessage> {
-    return this.post<ApiMessage>(uri`/api/expense/${id}`, expense);
+    return this.put<ApiMessage>(uri`/api/expense/${id}`, expense);
   }
 
   public deleteExpense(id: number | string): Promise<ApiMessage> {
@@ -307,7 +307,7 @@ export class ApiConnect {
   }
 
   public storeCategory(category: CategoryData): Promise<ApiMessage> {
-    return this.put<ApiMessage>('/api/category', category);
+    return this.post<ApiMessage>('/api/category', category);
   }
 
   public getCategoryTotals = (
@@ -322,7 +322,7 @@ export class ApiConnect {
   public updateCategory = (
     id: number | string,
     category: CategoryData
-  ): Promise<Category> => this.post(uri`/api/category/${id}`, category);
+  ): Promise<Category> => this.put(uri`/api/category/${id}`, category);
 
   public loadStatistics = (
     categoryIds: CategorySelection[],

@@ -19,6 +19,7 @@ export function createCategoryApi() {
   const api = createValidatingRouter(Router());
 
   // GET /api/category/list
+  // List all categories
   api.getTx(
     '/list',
     {},
@@ -26,9 +27,9 @@ export function createCategoryApi() {
     true
   );
 
-  // PUT /api/category
-
-  api.putTx(
+  // POST /api/category
+  // Create new category
+  api.postTx(
     '/',
     { body: CategoryInput, response: ApiMessage },
     async (tx, session, { body }) => {
@@ -48,8 +49,9 @@ export function createCategoryApi() {
     true
   );
 
-  // POST /api/category/categoryId
-  api.postTx(
+  // PUT /api/category/categoryId
+  // Update category
+  api.putTx(
     '/:categoryId',
     { body: CategoryInput },
     (tx, session, { body, params }): Promise<Category> =>
@@ -58,6 +60,7 @@ export function createCategoryApi() {
   );
 
   // GET /api/category/categoryId
+  // Get category data
   api.getTx(
     '/:categoryId',
     {},
@@ -67,6 +70,7 @@ export function createCategoryApi() {
   );
 
   // DELETE /api/category/categoryId
+  // Delete category
   api.deleteTx(
     '/:categoryId',
     { response: ApiMessage },

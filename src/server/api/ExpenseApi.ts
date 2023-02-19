@@ -54,8 +54,9 @@ export function createExpenseApi() {
       searchExpenses(tx, session.user.id, session.group.id, query)
   );
 
-  // PUT /api/expense
-  api.putTx(
+  // POST /api/expense
+  // Create new expense
+  api.postTx(
     '/',
     { body: ExpenseInput, response: ApiMessage },
     (tx, session, { body }) =>
@@ -87,8 +88,9 @@ export function createExpenseApi() {
     true
   );
 
-  // POST /api/expense/[expenseId]
-  api.postTx(
+  // PUT /api/expense/[expenseId]
+  // Update expense
+  api.putTx(
     '/:expenseId',
     { body: ExpenseInput },
     (tx, session, { params, body }) =>
