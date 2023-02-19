@@ -16,6 +16,7 @@ import {
   RecurringExpenseDetails,
   RecurringExpenseInput,
   RecurringExpenseTarget,
+  UserExpense,
 } from 'shared/expense';
 import {
   DateLike,
@@ -33,12 +34,19 @@ import {
   NotFoundError,
   ObjectId,
 } from 'shared/types';
-import { camelCaseObject, Money, toArray, unnest } from 'shared/util';
+import {
+  assertDefined,
+  camelCaseObject,
+  Money,
+  toArray,
+  unnest,
+} from 'shared/util';
 
 import { BasicExpenseDb } from './BasicExpenseDb';
-import { copyExpense } from './BasicExpenseService';
+import { copyExpense, updateExpenseById } from './BasicExpenseService';
 import { CategoryDb } from './CategoryDb';
 import { determineDivision } from './ExpenseDivision';
+import { Expenses } from './Expenses';
 import { SourceDb } from './SourceDb';
 
 const log = debug('bookkeeper:api:recurring-expenses');
@@ -99,6 +107,50 @@ async function getRecurringExpenseInfo(
     );
   }
   return mapRecurringExpense(row);
+}
+
+async function getRecurringExpenseTemplate(
+  tx: ITask<any>,
+  groupId: ObjectId,
+  userId: ObjectId,
+  recurringExpenseId: ObjectId
+): Promise<UserExpense> {
+  const recurringExpense = await getRecurringExpenseInfo(
+    tx,
+    groupId,
+    recurringExpenseId
+  );
+  return BasicExpenseDb.getById(
+    tx,
+    groupId,
+    userId,
+    recurringExpense.templateExpenseId
+  );
+}
+
+async function updateRecurringExpenseTemplate(
+  tx: ITask<any>,
+  groupId: ObjectId,
+  userId: ObjectId,
+  expenseId: ObjectId,
+  data: ExpenseInput,
+  defaultSourceId: ObjectId
+): Promise<ApiMessage> {
+  const expense = await Expenses.getById(tx, groupId, userId, expenseId);
+  assertDefined(expense.recurringExpenseId);
+  const recurringExpense = await getRecurringExpenseInfo(
+    tx,
+    groupId,
+    expense.recurringExpenseId
+  );
+  return updateExpenseById(
+    tx,
+    groupId,
+    userId,
+    recurringExpense.templateExpenseId,
+    data,
+    defaultSourceId
+  );
 }
 
 async function getRecurringExpenseDetails(
@@ -545,5 +597,7 @@ export const RecurringExpenseDb = {
   updateRecurring,
   createMissing,
   getRecurringExpenseDetails,
+  getRecurringExpenseTemplate,
+  updateRecurringExpenseTemplate,
   deleteRecurringById,
 };

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import { RecurringExpenseCriteria } from 'shared/expense';
+import { ExpenseInput, RecurringExpenseCriteria } from 'shared/expense';
 import { Expenses } from 'server/data/Expenses';
 import { createValidatingRouter } from 'server/server/ValidatingRouter';
 
@@ -41,6 +41,38 @@ export function createSubscriptionApi() {
         session.group.id,
         session.user.id,
         params.recurringExpenseId
+      ),
+    true
+  );
+
+  // GET /api/subscription/[recurringExpenseId]
+  // Get subscription template
+  api.getTx(
+    '/:recurringExpenseId/template',
+    {},
+    (tx, session, { params }) =>
+      Expenses.getRecurringExpenseTemplate(
+        tx,
+        session.group.id,
+        session.user.id,
+        params.recurringExpenseId
+      ),
+    true
+  );
+
+  // PUT /api/subscription/template/[expenseId]
+  // Update subscription template. Note: template expense id used, not subscription (recurring expense) id
+  api.putTx(
+    '/template/:expenseId',
+    { body: ExpenseInput },
+    (tx, session, { params, body }) =>
+      Expenses.updateRecurringExpenseTemplate(
+        tx,
+        session.group.id,
+        session.user.id,
+        params.expenseId,
+        body,
+        session.group.defaultSourceId || 0
       ),
     true
   );

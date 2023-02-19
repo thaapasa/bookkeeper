@@ -55,4 +55,8 @@ export const Sum = styled(TextContainer)`
 export const Tools = styled(TextContainer)`
   width: 32px;
   text-align: right;
+
+  &.large {
+    width: 64px;
+  }
 `;

@@ -17,7 +17,6 @@ import {
   ExpenseDivision,
   ExpenseInEditor,
   ExpenseType,
-  RecurringExpenseTarget,
   UserExpenseWithDetails,
 } from 'shared/expense';
 import { toDate, toISODate } from 'shared/time';
@@ -29,12 +28,10 @@ import {
   sanitizeMoneyInput,
   valuesToArray,
 } from 'shared/util';
-import apiConnect from 'client/data/ApiConnect';
 import { CategoryDataSource, isSubcategoryOf } from 'client/data/Categories';
 import { gray } from 'client/ui/Colors';
 import UserAvatar from 'client/ui/component/UserAvatar';
 import UserSelector from 'client/ui/component/UserSelector';
-import { UserPrompts } from 'client/ui/dialog/DialogState';
 import { Icons } from 'client/ui/icons/Icons';
 import { isMobileSize } from 'client/ui/Styles';
 import { Size } from 'client/ui/Types';
@@ -43,11 +40,9 @@ import {
   stopEventPropagation,
   unsubscribeAll,
 } from 'client/util/ClientUtil';
-import { executeOperation } from 'client/util/ExecuteOperation';
 import { KeyCodes } from 'client/util/Io';
 
 import { DivisionInfo } from '../details/DivisionInfo';
-import { expenseName } from '../ExpenseHelper';
 import { CategorySelector } from './CategorySelector';
 import { DateField } from './DateField';
 import {
@@ -58,6 +53,10 @@ import {
   TypeSelector,
 } from './ExpenseDialogComponents';
 import { calculateDivision } from './ExpenseDialogData';
+import {
+  defaultExpenseSaveAction,
+  ExpenseSaveAction,
+} from './ExpenseSaveAction';
 import { ReceiverField } from './ReceiverField';
 import { TitleField } from './TitleField';
 
@@ -128,6 +127,7 @@ export interface ExpenseDialogProps<D> {
   sourceMap: Record<string, Source>;
   categorySource: CategoryDataSource[];
   categoryMap: CategoryMap;
+  saveAction: ExpenseSaveAction | null;
   onClose: (e: D | null) => void;
   onExpensesUpdated: (date: Date) => void;
   group: Group;
@@ -330,8 +330,6 @@ export class ExpenseDialog extends React.Component<
   };
 
   private saveExpense = async (expense: ExpenseInEditor) => {
-    const createNew = !this.props.original;
-    log(createNew ? 'Create new expense' : 'save expense', expense);
     const sum = Money.from(expense.sum);
     const division = calculateDivision(
       expense.type,
@@ -348,57 +346,22 @@ export class ExpenseDialog extends React.Component<
         : expense.categoryId,
     };
 
-    const name = expenseName(data);
     this.saveLock.push(true);
-    await executeOperation(
-      async () => {
-        if (this.props.original) {
-          if (this.props.original.recurringExpenseId) {
-            if (!(await this.saveRecurring(this.props.original.id, data))) {
-              // User canceled, break out
-              return;
-            }
-          } else {
-            await apiConnect.updateExpense(this.props.original.id, data);
-          }
-        } else {
-          await apiConnect.storeExpense(data);
-        }
-      },
-      {
-        success: `${createNew ? 'Tallennettu' : 'Päivitetty'} ${name}`,
-        postProcess: () => {
-          this.props.onExpensesUpdated(expense.date);
-          this.props.onClose(expense);
-        },
+    try {
+      const r = await (this.props.saveAction ?? defaultExpenseSaveAction)(
+        data,
+        this.props.original
+      );
+      if (r) {
+        this.props.onExpensesUpdated(expense.date);
+        this.props.onClose(expense);
       }
-    );
-    this.saveLock.push(false);
-
-    return null;
+    } finally {
+      this.saveLock.push(false);
+    }
   };
 
   private setToday = () => this.inputStreams.date.push(new Date());
-
-  private saveRecurring = async (
-    originalId: number,
-    data: ExpenseData
-  ): Promise<boolean> => {
-    const target = await UserPrompts.select<RecurringExpenseTarget>(
-      'Tallenna toistuva kirjaus',
-      'Mitä kirjauksia haluat muuttaa?',
-      [
-        { label: 'Vain tämä', value: 'single' },
-        { label: 'Kaikki', value: 'all' },
-        { label: 'Tästä eteenpäin', value: 'after' },
-      ]
-    );
-    if (!target) {
-      return false;
-    }
-    await apiConnect.updateRecurringExpense(originalId, data, target);
-    return true;
-  };
 
   private selectCategory = (id: number) => {
     const m = this.props.categoryMap;

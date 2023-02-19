@@ -100,6 +100,7 @@ async function getByMonth(
 }
 
 export const Expenses = {
+  ...RecurringExpenseDb,
   getByMonth,
   getById: basic.getById,
   getDivision: basic.getDivision,
@@ -109,10 +110,4 @@ export const Expenses = {
   create: createExpense,
   update: basic.update,
   split: splitExpense,
-  searchRecurringExpenses: RecurringExpenseDb.searchRecurringExpenses,
-  getRecurringExpenseDetails: RecurringExpenseDb.getRecurringExpenseDetails,
-  createRecurring: RecurringExpenseDb.createRecurring,
-  deleteRecurringByExpenseId: RecurringExpenseDb.deleteRecurringByExpenseId,
-  updateRecurring: RecurringExpenseDb.updateRecurring,
-  deleteRecurringById: RecurringExpenseDb.deleteRecurringById,
 };

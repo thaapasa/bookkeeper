@@ -31,10 +31,11 @@ const expenseDialogBus = new B.Bus<ExpenseDialogObject<ExpenseInEditor>>();
 const expenseSplitBus = new B.Bus<ExpenseDialogObject<ExpenseSplit[]>>();
 
 export function editExpense(
-  expenseId: number
+  expenseId: number,
+  options?: Partial<ExpenseDialogObject<ExpenseInEditor>>
 ): Promise<ExpenseInEditor | null> {
   return new Promise<ExpenseInEditor | null>(resolve => {
-    expenseDialogBus.push({ expenseId, resolve });
+    expenseDialogBus.push({ ...options, expenseId, resolve });
   });
 }
 

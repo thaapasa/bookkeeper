@@ -5,10 +5,11 @@ import { readableDateWithYear, toDate, toMoment } from 'shared/time';
 import { ObjectId } from 'shared/types';
 import { Money, spaced } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
-import { needUpdateE, updateExpenses } from 'client/data/State';
+import { editExpense, needUpdateE, updateExpenses } from 'client/data/State';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { AsyncDataView } from '../component/AsyncDataView';
+import { Row } from '../component/Row';
 import { useDeferredData } from '../hooks/useAsyncData';
 import { ToolIcon } from '../icons/ToolIcon';
 import { Label, RowElement, Tools } from './layout';
@@ -49,14 +50,21 @@ const SubscriptionDetailsRenderer: React.FC<{
             : ` Seuraava kirjaus ${readableDateWithYear(exp.nextMissing)}.`}
         </>
       </Label>
-      <Tools>
+      <Tools className="large">
         {active ? (
-          <ToolIcon
-            className="optional"
-            title="Poista"
-            onClick={() => terminateSubscription(exp.id, exp.title)}
-            icon="Delete"
-          />
+          <Row>
+            <ToolIcon
+              title="Muokkaa"
+              onClick={() => modifySubscription(exp.templateExpenseId)}
+              icon="Edit"
+            />
+            <ToolIcon
+              className="optional"
+              title="Poista"
+              onClick={() => terminateSubscription(exp.id, exp.title)}
+              icon="Delete"
+            />
+          </Row>
         ) : null}
       </Tools>
     </RowElement>
@@ -90,5 +98,14 @@ async function terminateSubscription(
     progress: 'Lopetetaan tilausta...',
     success: 'Tilaus lopetettu!',
     postProcess: () => updateExpenses(toDate(toMoment())),
+  });
+}
+
+async function modifySubscription(expenseId: ObjectId) {
+  await editExpense(expenseId, {
+    saveAction: async data => {
+      await apiConnect.updateSubscriptionTemplate(expenseId, data);
+      return true;
+    },
   });
 }

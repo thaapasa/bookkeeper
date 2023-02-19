@@ -14,6 +14,7 @@ import { Size } from 'client/ui/Types';
 import { unsubscribeAll, Unsubscriber } from 'client/util/ClientUtil';
 
 import { ExpenseDialogProps } from './ExpenseDialog';
+import { ExpenseSaveAction } from './ExpenseSaveAction';
 
 const log = debug('bookkeeper:expense-dialog');
 
@@ -22,6 +23,7 @@ interface ExpenseDialogListenerState<D> {
   original: UserExpenseWithDetails | null;
   resolve: (e: D | null) => void;
   expenseCounter: number;
+  saveAction: ExpenseSaveAction | null;
   values: Partial<D>;
 }
 
@@ -56,6 +58,7 @@ export function createExpenseDialogListener<D>(
       resolve: noop,
       expenseCounter: 0,
       values: {},
+      saveAction: null,
     };
 
     public componentDidMount() {
@@ -83,6 +86,7 @@ export function createExpenseDialogListener<D>(
           resolve: data.resolve,
           expenseCounter,
           values: data.values || {},
+          saveAction: data.saveAction ?? null,
         });
       } else {
         log('Create new expense');
@@ -92,6 +96,7 @@ export function createExpenseDialogListener<D>(
           resolve: data.resolve,
           expenseCounter,
           values: data.values || {},
+          saveAction: data.saveAction ?? null,
         });
       }
     };
@@ -111,6 +116,7 @@ export function createExpenseDialogListener<D>(
           expenseCounter={this.state.expenseCounter}
           onExpensesUpdated={this.onExpensesUpdated}
           createNew={!this.state.original}
+          saveAction={this.state.saveAction}
           onClose={this.closeDialog}
           values={this.state.values}
         />
