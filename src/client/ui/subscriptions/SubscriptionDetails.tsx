@@ -43,12 +43,10 @@ const SubscriptionDetailsRenderer: React.FC<{
   return (
     <RowElement className={spaced`${className} ${!active && 'inactive'}`}>
       <Label>
-        <>
-          {getLabel(data)}.
-          {exp.occursUntil
-            ? ` Tilaus on päättynyt ${readableDateWithYear(exp.occursUntil)}.`
-            : ` Seuraava kirjaus ${readableDateWithYear(exp.nextMissing)}.`}
-        </>
+        {getLabel(data)}.
+        {exp.occursUntil
+          ? ` Tilaus on päättynyt ${readableDateWithYear(exp.occursUntil)}.`
+          : ` Seuraava kirjaus ${readableDateWithYear(exp.nextMissing)}.`}
       </Label>
       <Tools className="large">
         {active ? (
@@ -76,7 +74,7 @@ function getLabel({
   totalSum: sum,
   firstOccurence: first,
   lastOccurence: last,
-}: RecurringExpenseDetails) {
+}: RecurringExpenseDetails): string {
   if (num === 0) {
     return 'Ei tapahtumia';
   }

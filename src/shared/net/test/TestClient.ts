@@ -35,7 +35,7 @@ export function createTestClient(baseUrl?: string) {
   });
 
   const login = (username: string, password: string) =>
-    client.put<Session>('/api/session', { username, password });
+    client.post<Session>('/api/session', { username, password });
 
   const refresh = (refreshToken: string) =>
     put<Session>(refreshToken, '/api/session/refresh', {});
