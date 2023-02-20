@@ -5,7 +5,7 @@ import { Expense, ExpenseSplit } from 'shared/expense';
 import { BkError } from 'shared/types';
 import { Money } from 'shared/util';
 
-import { BasicExpenseDb } from './BasicExpenseDb';
+import { deleteExpenseById, getExpenseById } from './BasicExpenseDb';
 import { createExpense } from './BasicExpenseService';
 import { toBaseExpense } from './ExpenseUtils';
 
@@ -19,12 +19,12 @@ export async function splitExpense(
   splits: ExpenseSplit[]
 ) {
   const expense = toBaseExpense(
-    await BasicExpenseDb.getById(tx, groupId, userId, expenseId)
+    await getExpenseById(tx, groupId, userId, expenseId)
   );
   await checkSplits(splits, expense);
   log(`Splitting`, expense, 'to', splits);
   await Promise.all(splits.map(s => createSplit(tx, expense, s)));
-  await BasicExpenseDb.deleteById(tx, groupId, expenseId);
+  await deleteExpenseById(tx, groupId, expenseId);
   return {
     status: 'OK',
     message: `Splitted expense ${expenseId} into ${splits.length} parts`,

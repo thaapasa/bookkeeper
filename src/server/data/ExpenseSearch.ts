@@ -3,8 +3,8 @@ import { ITask } from 'pg-promise';
 
 import { ExpenseQuery, UserExpense } from 'shared/expense';
 
-import { BasicExpenseDb } from './BasicExpenseDb';
-import { CategoryDb } from './CategoryDb';
+import { dbRowToExpense, expenseSelectClause } from './BasicExpenseDb';
+import { expandSubCategories } from './CategoryDb';
 
 const log = debug('bookkeeper:api:expenses:search');
 
@@ -21,10 +21,10 @@ export async function searchExpenses(
       : query.categoryId || [];
   const categoryIds =
     query.includeSubCategories && inputCategoryIds.length > 0
-      ? await CategoryDb.expandSubCategories(tx, groupId, inputCategoryIds)
+      ? await expandSubCategories(tx, groupId, inputCategoryIds)
       : inputCategoryIds;
   const expenses = await tx.manyOrNone<UserExpense>(
-    BasicExpenseDb.expenseSelect(`--sql
+    expenseSelectClause(`--sql
       WHERE group_id=$/groupId/
       AND template=false
       AND ($/startDate/ IS NULL OR date::DATE >= $/startDate/::DATE)
@@ -52,5 +52,5 @@ export async function searchExpenses(
       search: query.search || '',
     }
   );
-  return expenses.map(BasicExpenseDb.mapExpense);
+  return expenses.map(dbRowToExpense);
 }

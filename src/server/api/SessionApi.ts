@@ -2,8 +2,13 @@ import { Router } from 'express';
 
 import { ApiMessage, Group, Session } from 'shared/types';
 import { optNumber } from 'shared/util';
-import { SessionDb } from 'server/data/SessionDb';
-import { UserDb } from 'server/data/UserDb';
+import {
+  appendInfoToSession,
+  loginUserWithCredentials,
+  logoutSession,
+  refreshSessionWithRefreshToken,
+} from 'server/data/SessionDb';
+import { getGroupsForUser } from 'server/data/UserDb';
 import { Requests } from 'server/server/RequestHandling';
 import { createValidatingRouter } from 'server/server/ValidatingRouter';
 
@@ -22,7 +27,7 @@ export function createSessionApi() {
     '/',
     Requests.unauthorizedTxRequest(
       (tx, req): Promise<Session> =>
-        SessionDb.login(
+        loginUserWithCredentials(
           tx,
           req.body.username,
           req.body.password,
@@ -36,7 +41,7 @@ export function createSessionApi() {
     '/refresh',
     Requests.unauthorizedTxRequest(
       (tx, req): Promise<Session> =>
-        SessionDb.refresh(
+        refreshSessionWithRefreshToken(
           tx,
           server.getToken(req),
           optNumber(req.query.groupId)
@@ -48,7 +53,7 @@ export function createSessionApi() {
   api.getTx(
     '/',
     {},
-    (tx, session): Promise<Session> => SessionDb.appendInfo(tx, session)
+    (tx, session): Promise<Session> => appendInfoToSession(tx, session)
   );
 
   // GET /api/session/bare
@@ -58,14 +63,14 @@ export function createSessionApi() {
   api.deleteTx(
     '/',
     {},
-    (tx, session): Promise<ApiMessage> => SessionDb.logout(tx, session)
+    (tx, session): Promise<ApiMessage> => logoutSession(tx, session)
   );
 
   // GET /api/session/groups
   api.getTx(
     '/groups',
     {},
-    (tx, session): Promise<Group[]> => UserDb.getGroups(tx, session.user.id)
+    (tx, session): Promise<Group[]> => getGroupsForUser(tx, session.user.id)
   );
 
   return api.router;

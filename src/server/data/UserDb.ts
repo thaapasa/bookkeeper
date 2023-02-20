@@ -4,7 +4,7 @@ import { AuthenticationError, Group, NotFoundError, User } from 'shared/types';
 
 export type RawUserData = Record<string, any>;
 
-function mapUser(user: RawUserData): User {
+export function dbRowToUser(user: RawUserData): User {
   return {
     ...(user as User),
     image: user.image ? `img/users/${user.image}` : undefined,
@@ -17,7 +17,10 @@ SELECT
   expense_shortcuts as "expenseShortcuts"
 FROM users u`;
 
-async function getAll(tx: ITask<any>, groupId: number): Promise<User[]> {
+export async function getAllUsers(
+  tx: ITask<any>,
+  groupId: number
+): Promise<User[]> {
   const users = await tx.manyOrNone<RawUserData>(
     `${select}
       WHERE
@@ -27,10 +30,10 @@ async function getAll(tx: ITask<any>, groupId: number): Promise<User[]> {
   if (!users || users.length < 1) {
     throw new NotFoundError('USER_NOT_FOUND', 'user');
   }
-  return users.map(mapUser);
+  return users.map(dbRowToUser);
 }
 
-async function getById(
+export async function getUserById(
   tx: ITask<any>,
   groupId: number,
   userId: number
@@ -44,10 +47,13 @@ async function getById(
   if (!user) {
     throw new NotFoundError('USER_NOT_FOUND', 'user');
   }
-  return mapUser(user);
+  return dbRowToUser(user);
 }
 
-async function getGroups(tx: ITask<any>, userId: number): Promise<Group[]> {
+export async function getGroupsForUser(
+  tx: ITask<any>,
+  userId: number
+): Promise<Group[]> {
   const groups = await tx.manyOrNone<Group>(
     `SELECT id, name
       FROM groups
@@ -57,7 +63,7 @@ async function getGroups(tx: ITask<any>, userId: number): Promise<Group[]> {
   return groups;
 }
 
-async function getByCredentials(
+export async function getUserByCredentials(
   tx: ITask<any>,
   username: string,
   password: string,
@@ -83,11 +89,3 @@ async function getByCredentials(
   }
   return user;
 }
-
-export const UserDb = {
-  mapUser,
-  getAll,
-  getById,
-  getGroups,
-  getByCredentials,
-};

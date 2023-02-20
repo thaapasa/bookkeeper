@@ -1,7 +1,7 @@
 import { Router } from 'express';
 
 import { StatisticsSearchType } from 'shared/types';
-import { StatisticsDb } from 'server/data/StatisticsDb';
+import { getCategoryStatistics } from 'server/data/StatisticsDb';
 import { getRangeForQueries } from 'server/data/StatisticsService';
 import { createValidatingRouter } from 'server/server/ValidatingRouter';
 
@@ -17,7 +17,7 @@ export function createStatisticsApi() {
     '/category',
     { body: StatisticsSearchType },
     async (tx, session, { body }) =>
-      StatisticsDb.getCategoryStatistics(
+      getCategoryStatistics(
         tx,
         session.group.id,
         session.user.id,

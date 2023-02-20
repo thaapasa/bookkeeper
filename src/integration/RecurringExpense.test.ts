@@ -13,7 +13,7 @@ import { ISODate, toISODate } from 'shared/time';
 import { YearMonth } from 'shared/time';
 import { ApiMessage } from 'shared/types';
 import { Money } from 'shared/util';
-import { RecurringExpenseDb } from 'server/data/RecurringExpenseDb';
+import { calculateNextRecurrence } from 'server/data/RecurringExpenseService';
 
 import { checkMonthStatus } from './MonthStatus';
 
@@ -44,9 +44,7 @@ describe('recurring expenses', () => {
   ])(
     'T45 - calculates next recurrence of %s (%s) to be %s',
     (start, period, expected) => {
-      expect(toISODate(RecurringExpenseDb.nextRecurrence(start, period))).toBe(
-        expected
-      );
+      expect(toISODate(calculateNextRecurrence(start, period))).toBe(expected);
     }
   );
 

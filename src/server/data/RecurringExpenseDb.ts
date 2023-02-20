@@ -18,14 +18,7 @@ import {
   RecurringExpenseTarget,
   UserExpense,
 } from 'shared/expense';
-import {
-  DateLike,
-  fromISODate,
-  ISODate,
-  toDate,
-  toISODate,
-  toMoment,
-} from 'shared/time';
+import { DateLike, ISODate, toDate, toISODate, toMoment } from 'shared/time';
 import {
   ApiMessage,
   DbObject,
@@ -42,27 +35,32 @@ import {
   unnest,
 } from 'shared/util';
 
-import { BasicExpenseDb } from './BasicExpenseDb';
-import { copyExpense, updateExpenseById } from './BasicExpenseService';
-import { CategoryDb } from './CategoryDb';
+import {
+  createNewExpense,
+  deleteExpenseById,
+  getExpenseById,
+  getFirstRecurrence,
+  getLastRecurrence,
+  setExpenseDataDefaults,
+  storeExpenseDivision,
+  updateExpense,
+} from './BasicExpenseDb';
+import {
+  copyExpense,
+  getExpenseAndDivisionData,
+  updateExpenseById,
+} from './BasicExpenseService';
+import { getCategoryById } from './CategoryDb';
 import { determineDivision } from './ExpenseDivision';
-import { Expenses } from './Expenses';
-import { SourceDb } from './SourceDb';
+import { calculateNextRecurrence } from './RecurringExpenseService';
+import { getSourceById } from './SourceDb';
 
 const log = debug('bookkeeper:api:recurring-expenses');
 
 const RecurringExpenseSelect = `SELECT *, re.id AS "recurringExpenseId" FROM recurring_expenses re
   LEFT JOIN expenses e ON (e.id = re.template_expense_id)`;
 
-function nextRecurrence(
-  from: string | Moment,
-  period: RecurrencePeriod
-): Moment {
-  const date = fromISODate(from);
-  return date.add(period.amount, period.unit);
-}
-
-async function searchRecurringExpenses(
+export async function searchRecurringExpenses(
   tx: ITask<any>,
   groupId: ObjectId,
   userId: ObjectId,
@@ -109,7 +107,7 @@ async function getRecurringExpenseInfo(
   return mapRecurringExpense(row);
 }
 
-async function getRecurringExpenseTemplate(
+export async function getRecurringExpenseTemplate(
   tx: ITask<any>,
   groupId: ObjectId,
   userId: ObjectId,
@@ -120,7 +118,7 @@ async function getRecurringExpenseTemplate(
     groupId,
     recurringExpenseId
   );
-  return BasicExpenseDb.getById(
+  return getExpenseById(
     tx,
     groupId,
     userId,
@@ -128,7 +126,7 @@ async function getRecurringExpenseTemplate(
   );
 }
 
-async function updateRecurringExpenseTemplate(
+export async function updateRecurringExpenseTemplate(
   tx: ITask<any>,
   groupId: ObjectId,
   userId: ObjectId,
@@ -136,7 +134,7 @@ async function updateRecurringExpenseTemplate(
   data: ExpenseInput,
   defaultSourceId: ObjectId
 ): Promise<ApiMessage> {
-  const expense = await Expenses.getById(tx, groupId, userId, expenseId);
+  const expense = await getExpenseById(tx, groupId, userId, expenseId);
   assertDefined(expense.recurringExpenseId);
   const recurringExpense = await getRecurringExpenseInfo(
     tx,
@@ -153,7 +151,7 @@ async function updateRecurringExpenseTemplate(
   );
 }
 
-async function getRecurringExpenseDetails(
+export async function getRecurringExpenseDetails(
   tx: ITask<any>,
   groupId: ObjectId,
   userId: ObjectId,
@@ -169,8 +167,8 @@ async function getRecurringExpenseDetails(
     { recurringExpenseId }
   );
   const [firstOccurence, lastOccurence] = await Promise.all([
-    BasicExpenseDb.getFirstRecurrence(tx, groupId, userId, recurringExpenseId),
-    BasicExpenseDb.getLastRecurrence(tx, groupId, userId, recurringExpenseId),
+    getFirstRecurrence(tx, groupId, userId, recurringExpenseId),
+    getLastRecurrence(tx, groupId, userId, recurringExpenseId),
   ]);
   return {
     recurringExpense,
@@ -202,7 +200,7 @@ function mapRecurringExpense(row: any): RecurringExpense {
   };
 }
 
-async function createRecurring(
+export async function createRecurringFromExpense(
   tx: ITask<any>,
   groupId: ObjectId,
   userId: ObjectId,
@@ -221,7 +219,7 @@ async function createRecurring(
         `Expense ${expenseId} is already a recurring expense (${expense.recurringExpenseId})`
       );
     }
-    nextMissing = nextRecurrence(expense.date, recurrence.period);
+    nextMissing = calculateNextRecurrence(expense.date, recurrence.period);
     return [{ ...expense, template: true }, division];
   });
   const recurringExpenseId = (
@@ -259,7 +257,7 @@ function getDatesUpTo(recurrence: Recurrence, date: Moment): string[] {
   const dates: string[] = [];
   while (generating.isBefore(date)) {
     dates.push(toISODate(generating));
-    generating = nextRecurrence(generating, recurrence.period);
+    generating = calculateNextRecurrence(generating, recurrence.period);
   }
   return dates;
 }
@@ -273,7 +271,7 @@ function createMissingRecurrenceForDate(
   const expense = { ...exp, template: false, date };
   log('Creating missing expense', expense.title, expense.date);
   // log('Creating missing expense', expense, 'with division', division);
-  return BasicExpenseDb.insert(tx, expense.userId, expense, division);
+  return createNewExpense(tx, expense.userId, expense, division);
 }
 
 async function createMissingRecurrences(
@@ -299,13 +297,13 @@ async function createMissingRecurrences(
     return;
   }
   const lastDate = dates[dates.length - 1];
-  const nextMissing = nextRecurrence(lastDate, recurrence.period);
+  const nextMissing = calculateNextRecurrence(lastDate, recurrence.period);
   log(
     `Creating missing expenses for ${recurrence} ${dates}. Next missing is ${toISODate(
       nextMissing
     )}`
   );
-  const expense = await BasicExpenseDb.getExpenseAndDivision(
+  const expense = await getExpenseAndDivisionData(
     tx,
     groupId,
     userId,
@@ -334,7 +332,10 @@ interface RecurrenceInDb
   periodUnit: RecurrenceUnit;
 }
 
-async function createMissing(
+/**
+ * Populates all missing recurring expenses for this group, up to the given date
+ */
+export async function createMissingRecurringExpenses(
   tx: ITask<any>,
   groupId: number,
   userId: number,
@@ -405,7 +406,7 @@ async function deleteRecurrenceAfter(
   };
 }
 
-async function deleteRecurringByExpenseId(
+export async function deleteRecurringByExpenseId(
   tx: ITask<any>,
   groupId: ObjectId,
   userId: ObjectId,
@@ -414,9 +415,9 @@ async function deleteRecurringByExpenseId(
 ): Promise<ApiMessage> {
   log(`Deleting recurring via expense ${expenseId} - targeting ${target}`);
   if (target === 'single') {
-    return BasicExpenseDb.deleteById(tx, groupId, expenseId);
+    return deleteExpenseById(tx, groupId, expenseId);
   }
-  const exp = await BasicExpenseDb.getById(tx, groupId, userId, expenseId);
+  const exp = await getExpenseById(tx, groupId, userId, expenseId);
   if (!exp.recurringExpenseId) {
     throw new InvalidExpense('Not a recurring expense');
   }
@@ -435,7 +436,7 @@ async function deleteRecurringByExpenseId(
   }
 }
 
-async function deleteRecurringById(
+export async function deleteRecurringExpenseById(
   tx: ITask<any>,
   groupId: ObjectId,
   recurringExpenseId: ObjectId
@@ -495,7 +496,7 @@ async function createDivisionForRecurrence(
     unnest(
       ids.map(expenseId =>
         division.map(d =>
-          BasicExpenseDb.storeDivision(tx, expenseId, d.userId, d.type, d.sum)
+          storeExpenseDivision(tx, expenseId, d.userId, d.type, d.sum)
         )
       )
     )
@@ -513,12 +514,12 @@ async function updateRecurringExpense(
   if (!original.recurringExpenseId) {
     throw new InvalidExpense(`Invalid target ${target}`);
   }
-  const expense = BasicExpenseDb.setDefaults(expenseInput);
+  const expense = setExpenseDataDefaults(expenseInput);
   log(`Updating recurring expense ${original} to ${expense}`);
   const sourceId = expense.sourceId || defaultSourceId;
   const [cat, source] = await Promise.all([
-    CategoryDb.getById(tx, original.groupId, expense.categoryId),
-    SourceDb.getById(tx, original.groupId, sourceId),
+    getCategoryById(tx, original.groupId, expense.categoryId),
+    getSourceById(tx, original.groupId, sourceId),
   ]);
   await tx.none(
     `UPDATE expenses
@@ -567,7 +568,7 @@ async function updateRecurringExpense(
   };
 }
 
-async function updateRecurring(
+export async function updateRecurringExpenseByExpenseId(
   tx: ITask<any>,
   groupId: number,
   userId: number,
@@ -577,27 +578,14 @@ async function updateRecurring(
   defaultSourceId: number
 ): Promise<ApiMessage> {
   log(`Updating recurring expense ${expenseId} - targeting ${target}`);
-  const org = await BasicExpenseDb.getById(tx, groupId, userId, expenseId);
+  const org = await getExpenseById(tx, groupId, userId, expenseId);
   if (!org.recurringExpenseId) {
     throw new InvalidExpense(`${expenseId} is not a recurring expense`);
   }
 
   if (target === 'single') {
-    return BasicExpenseDb.update(tx, org, expense, defaultSourceId);
+    return updateExpense(tx, org, expense, defaultSourceId);
   } else {
     return updateRecurringExpense(tx, target, org, expense, defaultSourceId);
   }
 }
-
-export const RecurringExpenseDb = {
-  searchRecurringExpenses,
-  nextRecurrence,
-  createRecurring,
-  deleteRecurringByExpenseId,
-  updateRecurring,
-  createMissing,
-  getRecurringExpenseDetails,
-  getRecurringExpenseTemplate,
-  updateRecurringExpenseTemplate,
-  deleteRecurringById,
-};

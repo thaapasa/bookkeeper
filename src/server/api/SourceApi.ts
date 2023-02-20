@@ -1,7 +1,11 @@
 import { Router } from 'express';
 
 import { Source, SourcePatch } from 'shared/types';
-import { SourceDb } from 'server/data/SourceDb';
+import {
+  getAllSources,
+  getSourceById,
+  updateSource,
+} from 'server/data/SourceDb';
 import { createValidatingRouter } from 'server/server/ValidatingRouter';
 
 /**
@@ -15,7 +19,7 @@ export function createSourceApi() {
   api.getTx(
     '/list',
     {},
-    (tx, session): Promise<Source[]> => SourceDb.getAll(tx, session.group.id),
+    (tx, session): Promise<Source[]> => getAllSources(tx, session.group.id),
     true
   );
 
@@ -24,7 +28,7 @@ export function createSourceApi() {
     '/:sourceId',
     {},
     (tx, session, { params }): Promise<Source> =>
-      SourceDb.getById(tx, session.group.id, params.sourceId),
+      getSourceById(tx, session.group.id, params.sourceId),
     true
   );
 
@@ -32,7 +36,7 @@ export function createSourceApi() {
     '/:sourceId',
     { body: SourcePatch },
     (tx, session, { params, body }) =>
-      SourceDb.update(tx, session.group.id, params.sourceId, body)
+      updateSource(tx, session.group.id, params.sourceId, body)
   );
 
   return api.router;

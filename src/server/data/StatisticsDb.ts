@@ -79,7 +79,7 @@ async function loadCategoryStatisticsDataGroupedByParent(
   return statistics;
 }
 
-async function getCategoryStatistics(
+export async function getCategoryStatistics(
   tx: ITask<any>,
   groupId: ObjectId,
   userId: ObjectId,
@@ -117,7 +117,3 @@ async function getCategoryStatistics(
     range,
   };
 }
-
-export const StatisticsDb = {
-  getCategoryStatistics,
-};

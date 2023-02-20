@@ -15,13 +15,13 @@ import * as time from 'shared/time';
 import { ApiMessage, NotFoundError, ObjectId } from 'shared/types';
 import { Money, MoneyLike } from 'shared/util';
 
-import { CategoryDb } from './CategoryDb';
+import { getCategoryById } from './CategoryDb';
 import { determineDivision } from './ExpenseDivision';
-import { SourceDb } from './SourceDb';
+import { getSourceById } from './SourceDb';
 
 const log = debug('bookkeeper:api:expenses');
 
-function expenseSelect(
+export function expenseSelectClause(
   where: string,
   orderBy = 'ORDER BY date ASC, title ASC, id'
 ): string {
@@ -75,7 +75,7 @@ FROM (
 ) breakdown
 `;
 
-export function mapExpense(e: UserExpense): UserExpense {
+export function dbRowToExpense(e: UserExpense): UserExpense {
   if (!e) {
     throw new NotFoundError('EXPENSE_NOT_FOUND', 'expense');
   }
@@ -84,20 +84,20 @@ export function mapExpense(e: UserExpense): UserExpense {
   return e;
 }
 
-async function getAll(
+export async function getAllExpenses(
   tx: ITask<any>,
   groupId: number,
   userId: number
 ): Promise<Expense[]> {
   const expenses = await tx.map(
-    expenseSelect(`WHERE group_id=$/groupId/`),
+    expenseSelectClause(`WHERE group_id=$/groupId/`),
     { userId, groupId },
-    mapExpense
+    dbRowToExpense
   );
   return expenses;
 }
 
-async function countTotalBetween(
+export async function countTotalBetween(
   tx: ITask<any>,
   groupId: number,
   userId: number,
@@ -112,7 +112,7 @@ async function countTotalBetween(
   });
 }
 
-async function hasUnconfirmedBefore(
+export async function hasUnconfirmedBefore(
   tx: ITask<any>,
   groupId: number,
   startDate: time.DateLike
@@ -126,16 +126,16 @@ async function hasUnconfirmedBefore(
   return s.amount > 0;
 }
 
-async function getById(
+export async function getExpenseById(
   tx: ITask<any>,
   groupId: number,
   userId: number,
   expenseId: number
 ): Promise<UserExpense> {
   const expense = await tx.map(
-    expenseSelect(`WHERE id=$/expenseId/ AND group_id=$/groupId/`),
+    expenseSelectClause(`WHERE id=$/expenseId/ AND group_id=$/groupId/`),
     { userId, expenseId, groupId },
-    mapExpense
+    dbRowToExpense
   );
   if (!expense || expense.length < 1) {
     throw new NotFoundError('EXPENSE_NOT_FOUND', 'expense');
@@ -143,7 +143,7 @@ async function getById(
   return expense[0];
 }
 
-async function deleteById(
+export async function deleteExpenseById(
   tx: ITask<any>,
   groupId: number,
   expenseId: number
@@ -155,7 +155,7 @@ async function deleteById(
   return { status: 'OK', message: 'Expense deleted', expenseId };
 }
 
-const storeDivision = (
+export const storeExpenseDivision = (
   tx: ITask<any>,
   expenseId: number,
   userId: number,
@@ -177,7 +177,7 @@ const deleteDivision = (tx: ITask<any>, expenseId: number): Promise<null> =>
     { expenseId }
   );
 
-async function getDivision(
+export async function getExpenseDivision(
   tx: ITask<any>,
   expenseId: number
 ): Promise<ExpenseDivisionItem[]> {
@@ -197,12 +197,14 @@ async function createDivision(
   division: ExpenseDivisionItem[]
 ) {
   await Promise.all(
-    division.map(d => storeDivision(tx, expenseId, d.userId, d.type, d.sum))
+    division.map(d =>
+      storeExpenseDivision(tx, expenseId, d.userId, d.type, d.sum)
+    )
   );
   return expenseId;
 }
 
-function setDefaults(
+export function setExpenseDataDefaults(
   expense: Expense | ExpenseInput
 ): ExpenseInputWithDefaults {
   const data = {
@@ -219,7 +221,7 @@ export type ExpenseInsert = Omit<
   'id' | 'createdById' | 'created' | 'recurringExpenseId' | 'template'
 > & { template?: boolean; recurringExpenseId?: ObjectId | null };
 
-async function insert(
+export async function createNewExpense(
   tx: ITask<any>,
   userId: number,
   expense: ExpenseInsert,
@@ -250,18 +252,18 @@ async function insert(
   return expenseId;
 }
 
-async function update(
+export async function updateExpense(
   tx: ITask<any>,
   original: Expense,
   expenseInput: ExpenseInput,
   defaultSourceId: number
 ): Promise<ApiMessage> {
-  const expense = setDefaults(expenseInput);
+  const expense = setExpenseDataDefaults(expenseInput);
   log('Updating expense', original, 'to', expense);
   const sourceId = expense.sourceId || defaultSourceId;
   const [cat, source] = await Promise.all([
-    CategoryDb.getById(tx, original.groupId, expense.categoryId),
-    SourceDb.getById(tx, original.groupId, sourceId),
+    getCategoryById(tx, original.groupId, expense.categoryId),
+    getSourceById(tx, original.groupId, sourceId),
   ]);
   const division = determineDivision(expense, source);
   await deleteDivision(tx, original.id);
@@ -288,7 +290,7 @@ interface ReceiverInfo {
   amount: number;
 }
 
-function queryReceivers(
+export function queryReceivers(
   tx: ITask<any>,
   groupId: number,
   receiver: string
@@ -303,7 +305,7 @@ function queryReceivers(
   );
 }
 
-async function renameReceiver(
+export async function renameReceiver(
   tx: ITask<any>,
   groupId: number,
   oldName: string,
@@ -327,53 +329,26 @@ async function getRecurrenceOccurence(
   first: boolean
 ): Promise<Expense | undefined> {
   const expense = await tx.map(
-    expenseSelect(
+    expenseSelectClause(
       `WHERE recurring_expense_id=$/recurringExpenseId/ AND group_id=$/groupId/`,
       `ORDER BY date ${first ? 'ASC' : 'DESC'} LIMIT 1`
     ),
     { recurringExpenseId, userId, groupId },
-    mapExpense
+    dbRowToExpense
   );
   return expense[0];
 }
 
-const getExpenseAndDivision = (
+export const getFirstRecurrence = (
   tx: ITask<any>,
-  groupId: number,
-  userId: number,
-  expenseId: number
-): Promise<[Expense, ExpenseDivisionItem[]]> =>
-  Promise.all([
-    getById(tx, groupId, userId, expenseId),
-    getDivision(tx, expenseId),
-  ]);
+  groupId: ObjectId,
+  userId: ObjectId,
+  recurringExpenseId: ObjectId
+) => getRecurrenceOccurence(tx, groupId, userId, recurringExpenseId, true);
 
-export const BasicExpenseDb = {
-  getAll,
-  getById,
-  getDivision,
-  deleteById,
-  update,
-  queryReceivers,
-  renameReceiver,
-  storeDivision,
-  insert,
-  countTotalBetween,
-  hasUnconfirmedBefore,
-  getExpenseAndDivision,
-  expenseSelect,
-  mapExpense,
-  setDefaults,
-  getFirstRecurrence: (
-    tx: ITask<any>,
-    groupId: ObjectId,
-    userId: ObjectId,
-    recurringExpenseId: ObjectId
-  ) => getRecurrenceOccurence(tx, groupId, userId, recurringExpenseId, true),
-  getLastRecurrence: (
-    tx: ITask<any>,
-    groupId: ObjectId,
-    userId: ObjectId,
-    recurringExpenseId: ObjectId
-  ) => getRecurrenceOccurence(tx, groupId, userId, recurringExpenseId, false),
-};
+export const getLastRecurrence = (
+  tx: ITask<any>,
+  groupId: ObjectId,
+  userId: ObjectId,
+  recurringExpenseId: ObjectId
+) => getRecurrenceOccurence(tx, groupId, userId, recurringExpenseId, false);

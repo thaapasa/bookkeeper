@@ -6,7 +6,11 @@ import {
   RecurringExpenseInput,
   RecurringExpenseTarget,
 } from 'shared/expense';
-import { Expenses } from 'server/data/Expenses';
+import {
+  createRecurringFromExpense,
+  deleteRecurringByExpenseId,
+  updateRecurringExpenseByExpenseId,
+} from 'server/data/RecurringExpenseDb';
 import { createValidatingRouter } from 'server/server/ValidatingRouter';
 
 /**
@@ -30,7 +34,7 @@ export function createRecurringExpenseApi() {
     '/:expenseId',
     { body: RecurringExpenseInput },
     (tx, session, { body, params }) =>
-      Expenses.createRecurring(
+      createRecurringFromExpense(
         tx,
         session.group.id,
         session.user.id,
@@ -45,7 +49,7 @@ export function createRecurringExpenseApi() {
     '/:expenseId',
     { query: RecurringExpenseTargetSchema },
     (tx, session, { query, params }) =>
-      Expenses.deleteRecurringByExpenseId(
+      deleteRecurringByExpenseId(
         tx,
         session.group.id,
         session.user.id,
@@ -64,7 +68,7 @@ export function createRecurringExpenseApi() {
       body: ExpenseInput,
     },
     (tx, session, { query, params, body }) =>
-      Expenses.updateRecurring(
+      updateRecurringExpenseByExpenseId(
         tx,
         session.group.id,
         session.user.id,

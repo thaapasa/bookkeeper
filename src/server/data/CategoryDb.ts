@@ -40,7 +40,10 @@ function sumChildTotalsToParent(
   return categoryTable;
 }
 
-async function getAll(tx: ITask<any>, groupId: number): Promise<Category[]> {
+export async function getAllCategories(
+  tx: ITask<any>,
+  groupId: number
+): Promise<Category[]> {
   const cats = await tx.manyOrNone<Category>(
     `SELECT id, parent_id AS "parentId", name FROM categories
       WHERE group_id=$/groupId/::INTEGER
@@ -56,7 +59,7 @@ export interface CategoryQueryInput {
   readonly endDate: string;
 }
 
-async function getTotals(
+export async function getCategoryTotals(
   tx: ITask<any>,
   groupId: number,
   params: CategoryQueryInput
@@ -92,7 +95,7 @@ async function insert(
   ).id;
 }
 
-async function getById(
+export async function getCategoryById(
   tx: ITask<any>,
   groupId: number,
   id: number
@@ -109,7 +112,7 @@ async function getById(
   return cat as Category;
 }
 
-async function create(
+export async function createCategory(
   tx: ITask<any>,
   groupId: number,
   data: CategoryInput
@@ -117,7 +120,7 @@ async function create(
   if (!data.parentId) {
     return insert(tx, groupId, data);
   }
-  const parent = await getById(tx, groupId, data.parentId);
+  const parent = await getCategoryById(tx, groupId, data.parentId);
   log('Parent is', parent);
   if (!parent) {
     throw new NotFoundError('CATEGORY_NOT_FOUND', 'category');
@@ -131,7 +134,7 @@ async function create(
   return insert(tx, groupId, data);
 }
 
-async function remove(
+export async function deleteCategory(
   tx: ITask<any>,
   groupId: number,
   id: number
@@ -144,13 +147,13 @@ async function remove(
   return { status: 'OK', message: 'Category deleted', categoryId: id };
 }
 
-async function update(
+export async function updateCategory(
   tx: ITask<any>,
   groupId: number,
   categoryId: number,
   data: CategoryInput
 ) {
-  const original = await getById(tx, groupId, categoryId);
+  const original = await getCategoryById(tx, groupId, categoryId);
   if (!original) {
     throw new NotFoundError('CATEGORY_NOT_FOUND', 'category');
   }
@@ -173,7 +176,7 @@ async function update(
   };
 }
 
-async function expandSubCategories(
+export async function expandSubCategories(
   tx: ITask<any>,
   groupId: number,
   inputCategoryIds: number[]
@@ -189,13 +192,3 @@ async function expandSubCategories(
   );
   return cats.map(c => c.id);
 }
-
-export const CategoryDb = {
-  getAll,
-  getTotals,
-  getById,
-  create,
-  update,
-  remove,
-  expandSubCategories,
-};

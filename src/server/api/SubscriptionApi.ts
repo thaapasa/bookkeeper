@@ -1,7 +1,13 @@
 import { Router } from 'express';
 
 import { ExpenseInput, RecurringExpenseCriteria } from 'shared/expense';
-import { Expenses } from 'server/data/Expenses';
+import {
+  deleteRecurringExpenseById,
+  getRecurringExpenseDetails,
+  getRecurringExpenseTemplate,
+  searchRecurringExpenses,
+  updateRecurringExpenseTemplate,
+} from 'server/data/RecurringExpenseDb';
 import { createValidatingRouter } from 'server/server/ValidatingRouter';
 
 /**
@@ -21,12 +27,7 @@ export function createSubscriptionApi() {
     '/search',
     { body: RecurringExpenseCriteria },
     (tx, session, { body }) =>
-      Expenses.searchRecurringExpenses(
-        tx,
-        session.group.id,
-        session.user.id,
-        body
-      ),
+      searchRecurringExpenses(tx, session.group.id, session.user.id, body),
     true
   );
 
@@ -36,7 +37,7 @@ export function createSubscriptionApi() {
     '/:recurringExpenseId',
     {},
     (tx, session, { params }) =>
-      Expenses.getRecurringExpenseDetails(
+      getRecurringExpenseDetails(
         tx,
         session.group.id,
         session.user.id,
@@ -51,7 +52,7 @@ export function createSubscriptionApi() {
     '/:recurringExpenseId/template',
     {},
     (tx, session, { params }) =>
-      Expenses.getRecurringExpenseTemplate(
+      getRecurringExpenseTemplate(
         tx,
         session.group.id,
         session.user.id,
@@ -66,7 +67,7 @@ export function createSubscriptionApi() {
     '/template/:expenseId',
     { body: ExpenseInput },
     (tx, session, { params, body }) =>
-      Expenses.updateRecurringExpenseTemplate(
+      updateRecurringExpenseTemplate(
         tx,
         session.group.id,
         session.user.id,
@@ -83,7 +84,7 @@ export function createSubscriptionApi() {
     '/:recurringExpenseId',
     {},
     (tx, session, { params }) =>
-      Expenses.deleteRecurringById(
+      deleteRecurringExpenseById(
         tx,
         session.group.id,
         params.recurringExpenseId

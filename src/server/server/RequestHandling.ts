@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { timeout } from 'shared/time';
 import { InvalidGroupError, SessionBasicInfo } from 'shared/types';
 import { MaybePromise, optNumber } from 'shared/util';
-import { SessionDb } from 'server/data/SessionDb';
+import { getSessionByToken } from 'server/data/SessionDb';
 
 import { db } from '../data/Db';
 import { ServerUtil } from './ServerUtil';
@@ -60,7 +60,7 @@ function processRequest<T>(
   return processUnauthorizedRequest(async (req, res) => {
     const token = ServerUtil.getToken(req);
     const session = await db.tx(tx =>
-      SessionDb.getSession(tx, token, optNumber(req.query.groupId))
+      getSessionByToken(tx, token, optNumber(req.query.groupId))
     );
     if (groupRequired && !session.group.id) {
       throw new InvalidGroupError();

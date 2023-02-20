@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 
 import { ApiMessage } from 'shared/types';
-import { Expenses } from 'server/data/Expenses';
+import { queryReceivers, renameReceiver } from 'server/data/BasicExpenseDb';
 import { createValidatingRouter } from 'server/server/ValidatingRouter';
 
 /**
@@ -20,7 +20,7 @@ export function createReceiverApi() {
     '/query',
     { query: ReceiverSearch },
     async (tx, session, { query }) =>
-      (await Expenses.queryReceivers(tx, session.group.id, query.receiver)).map(
+      (await queryReceivers(tx, session.group.id, query.receiver)).map(
         r => r.receiver
       ),
     true
@@ -35,7 +35,7 @@ export function createReceiverApi() {
     '/rename',
     { body: RenameRequest, response: ApiMessage },
     async (tx, session, { body }) => {
-      const count = await Expenses.renameReceiver(
+      const count = await renameReceiver(
         tx,
         session.group.id,
         body.oldName,

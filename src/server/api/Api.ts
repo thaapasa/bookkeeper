@@ -3,7 +3,7 @@ import { Router } from 'express';
 
 import { toMoment } from 'shared/time';
 import { ApiStatus, DbStatus, User } from 'shared/types';
-import { UserDb } from 'server/data/UserDb';
+import { getAllUsers, getUserById } from 'server/data/UserDb';
 import { createErrorHandler } from 'server/server/ErrorHandler';
 import { Requests } from 'server/server/RequestHandling';
 
@@ -52,7 +52,7 @@ export function createApi() {
   api.get(
     '/user/list',
     Requests.txRequest(
-      (tx, session): Promise<User[]> => UserDb.getAll(tx, session.group.id),
+      (tx, session): Promise<User[]> => getAllUsers(tx, session.group.id),
       true
     )
   );
@@ -62,7 +62,7 @@ export function createApi() {
     '/user/:id',
     Requests.txRequest(
       (tx, session, req): Promise<User> =>
-        UserDb.getById(tx, session.group.id, parseInt(req.params.id, 10)),
+        getUserById(tx, session.group.id, parseInt(req.params.id, 10)),
       true
     )
   );

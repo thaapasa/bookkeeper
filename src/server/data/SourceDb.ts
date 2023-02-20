@@ -41,7 +41,10 @@ SELECT
 FROM sources s
 LEFT JOIN source_users so ON (so.source_id = s.id)`;
 
-async function getAll(tx: ITask<any>, groupId: number): Promise<Source[]> {
+export async function getAllSources(
+  tx: ITask<any>,
+  groupId: number
+): Promise<Source[]> {
   const s = await tx.manyOrNone<SourceData>(
     `${select} WHERE group_id = $/groupId/::INTEGER`,
     { groupId }
@@ -49,7 +52,7 @@ async function getAll(tx: ITask<any>, groupId: number): Promise<Source[]> {
   return createGroupObject(s);
 }
 
-async function getById(
+export async function getSourceById(
   tx: ITask<any>,
   groupId: ObjectId,
   id: ObjectId
@@ -64,14 +67,14 @@ async function getById(
   return createGroupObject(s)[0];
 }
 
-async function update(
+export async function updateSource(
   tx: ITask<any>,
   groupId: ObjectId,
   id: ObjectId,
   data: SourcePatch
 ): Promise<Source> {
   // Check that source id is correct
-  const source = await getById(tx, groupId, id);
+  const source = await getSourceById(tx, groupId, id);
   await tx.none(
     `UPDATE sources
       SET name=$/name/
@@ -80,9 +83,3 @@ async function update(
   );
   return { ...source, name: data.name };
 }
-
-export const SourceDb = {
-  getById,
-  getAll,
-  update,
-};

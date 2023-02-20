@@ -9,7 +9,14 @@ import {
 } from 'shared/types';
 import { createValidatingRouter } from 'server/server/ValidatingRouter';
 
-import { CategoryDb } from '../data/CategoryDb';
+import {
+  createCategory,
+  deleteCategory,
+  getAllCategories,
+  getCategoryById,
+  getCategoryTotals,
+  updateCategory,
+} from '../data/CategoryDb';
 
 /**
  * Creates category API router.
@@ -23,7 +30,7 @@ export function createCategoryApi() {
   api.getTx(
     '/list',
     {},
-    (tx, session) => CategoryDb.getAll(tx, session.group.id),
+    (tx, session) => getAllCategories(tx, session.group.id),
     true
   );
 
@@ -33,7 +40,7 @@ export function createCategoryApi() {
     '/',
     { body: CategoryInput, response: ApiMessage },
     async (tx, session, { body }) => {
-      const id = await CategoryDb.create(tx, session.group.id, body);
+      const id = await createCategory(tx, session.group.id, body);
       return { status: 'OK', message: 'Category created', categoryId: id };
     },
     true
@@ -44,7 +51,7 @@ export function createCategoryApi() {
     '/totals',
     { query: DateRange },
     (tx, session, { query }): Promise<CategoryAndTotals[]> => {
-      return CategoryDb.getTotals(tx, session.group.id, query);
+      return getCategoryTotals(tx, session.group.id, query);
     },
     true
   );
@@ -55,7 +62,7 @@ export function createCategoryApi() {
     '/:categoryId',
     { body: CategoryInput },
     (tx, session, { body, params }): Promise<Category> =>
-      CategoryDb.update(tx, session.group.id, params.categoryId, body),
+      updateCategory(tx, session.group.id, params.categoryId, body),
     true
   );
 
@@ -65,7 +72,7 @@ export function createCategoryApi() {
     '/:categoryId',
     {},
     (tx, session, { params }): Promise<Category> =>
-      CategoryDb.getById(tx, session.group.id, params.categoryId),
+      getCategoryById(tx, session.group.id, params.categoryId),
     true
   );
 
@@ -75,7 +82,7 @@ export function createCategoryApi() {
     '/:categoryId',
     { response: ApiMessage },
     (tx, session, { params }) =>
-      CategoryDb.remove(tx, session.group.id, params.categoryId),
+      deleteCategory(tx, session.group.id, params.categoryId),
     true
   );
 

@@ -6,10 +6,13 @@ import { ExpenseCollection, ExpenseStatus, UserExpense } from 'shared/expense';
 import * as time from 'shared/time';
 import { mapValues, Money } from 'shared/util';
 
-import { BasicExpenseDb as basic } from './BasicExpenseDb';
-import { createExpense } from './BasicExpenseService';
-import { splitExpense } from './ExpenseSplit';
-import { RecurringExpenseDb } from './RecurringExpenseDb';
+import {
+  countTotalBetween,
+  dbRowToExpense,
+  expenseSelectClause,
+  hasUnconfirmedBefore,
+} from './BasicExpenseDb';
+import { createMissingRecurringExpenses } from './RecurringExpenseDb';
 
 const log = debug('bookkeeper:api:expenses');
 
@@ -40,7 +43,7 @@ async function getBetween(
     )} for group ${groupId}`
   );
   const expenses = await tx.manyOrNone<UserExpense>(
-    basic.expenseSelect(
+    expenseSelectClause(
       `WHERE group_id=$/groupId/ AND template=false
         AND date >= $/startDate/::DATE AND date < $/endDate/::DATE`
     ),
@@ -51,7 +54,7 @@ async function getBetween(
       endDate: time.toISODate(endDate),
     }
   );
-  return expenses.map(basic.mapExpense);
+  return expenses.map(dbRowToExpense);
 }
 
 const zeroStatus: ExpenseStatus = {
@@ -65,7 +68,7 @@ const zeroStatus: ExpenseStatus = {
   transferee: '0.00',
 };
 
-async function getByMonth(
+export async function getExpensesByMonth(
   tx: ITask<any>,
   groupId: number,
   userId: number,
@@ -74,17 +77,17 @@ async function getByMonth(
 ): Promise<ExpenseCollection> {
   const startDate = time.month(year, month);
   const endDate = startDate.clone().add(1, 'months');
-  await RecurringExpenseDb.createMissing(tx, groupId, userId, endDate);
+  await createMissingRecurringExpenses(tx, groupId, userId, endDate);
   const [expenses, startStatus, monthStatus, unconfirmedBefore] =
     await Promise.all([
       getBetween(tx, groupId, userId, startDate, endDate),
-      basic
-        .countTotalBetween(tx, groupId, userId, '2000-01', startDate)
-        .then(calculateBalance),
-      basic
-        .countTotalBetween(tx, groupId, userId, startDate, endDate)
-        .then(calculateBalance),
-      basic.hasUnconfirmedBefore(tx, groupId, startDate),
+      countTotalBetween(tx, groupId, userId, '2000-01', startDate).then(
+        calculateBalance
+      ),
+      countTotalBetween(tx, groupId, userId, startDate, endDate).then(
+        calculateBalance
+      ),
+      hasUnconfirmedBefore(tx, groupId, startDate),
     ]);
   const endStatus = mapValues(
     k => Money.from(startStatus[k]).plus(monthStatus[k]).toString(),
@@ -98,16 +101,3 @@ async function getByMonth(
     unconfirmedBefore,
   };
 }
-
-export const Expenses = {
-  ...RecurringExpenseDb,
-  getByMonth,
-  getById: basic.getById,
-  getDivision: basic.getDivision,
-  deleteById: basic.deleteById,
-  queryReceivers: basic.queryReceivers,
-  renameReceiver: basic.renameReceiver,
-  create: createExpense,
-  update: basic.update,
-  split: splitExpense,
-};

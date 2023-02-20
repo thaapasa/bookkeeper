@@ -11,9 +11,15 @@ import {
 } from 'shared/types';
 
 import { config } from '../Config';
-import { CategoryDb } from './CategoryDb';
-import { SourceDb } from './SourceDb';
-import { RawUserData, UserDb } from './UserDb';
+import { getAllCategories } from './CategoryDb';
+import { getAllSources } from './SourceDb';
+import {
+  dbRowToUser,
+  getAllUsers,
+  getGroupsForUser,
+  getUserByCredentials,
+  RawUserData,
+} from './UserDb';
 
 const log = debug('bookkeeper:api:sessions');
 
@@ -70,7 +76,7 @@ function createSessionInfo(
   return {
     token,
     refreshToken,
-    user: UserDb.mapUser({
+    user: dbRowToUser({
       id: userData.id,
       username: userData.username,
       email: userData.email,
@@ -89,30 +95,30 @@ function createSessionInfo(
   };
 }
 
-async function appendInfo(
+export async function appendInfoToSession(
   tx: ITask<any>,
   session: SessionBasicInfo
 ): Promise<Session> {
   const [groups, sources, categories, users] = await Promise.all([
-    UserDb.getGroups(tx, session.user.id),
-    SourceDb.getAll(tx, session.group.id),
-    CategoryDb.getAll(tx, session.group.id),
-    UserDb.getAll(tx, session.group.id),
+    getGroupsForUser(tx, session.user.id),
+    getAllSources(tx, session.group.id),
+    getAllCategories(tx, session.group.id),
+    getAllUsers(tx, session.group.id),
   ]);
   return { ...session, groups, sources, categories, users };
 }
 
-async function login(
+export async function loginUserWithCredentials(
   tx: ITask<any>,
   username: string,
   password: string,
   groupId?: number
 ): Promise<Session> {
   log('Login for', username);
-  const user = await UserDb.getByCredentials(tx, username, password, groupId);
+  const user = await getUserByCredentials(tx, username, password, groupId);
   const tokens = await createSession(tx, user);
   const sessionInfo = createSessionInfo(tokens, user);
-  return appendInfo(tx, sessionInfo);
+  return appendInfoToSession(tx, sessionInfo);
 }
 
 async function getUserInfoByRefreshToken(
@@ -140,7 +146,7 @@ async function getUserInfoByRefreshToken(
   return userData;
 }
 
-async function refresh(
+export async function refreshSessionWithRefreshToken(
   tx: ITask<any>,
   refreshToken: string,
   groupId?: number
@@ -149,10 +155,10 @@ async function refresh(
   const user = await getUserInfoByRefreshToken(tx, refreshToken, groupId);
   const tokens = await createSession(tx, user);
   const sessionInfo = createSessionInfo(tokens, user);
-  return appendInfo(tx, sessionInfo);
+  return appendInfoToSession(tx, sessionInfo);
 }
 
-async function logout(
+export async function logoutSession(
   tx: ITask<any>,
   session: SessionBasicInfo
 ): Promise<ApiMessage> {
@@ -173,7 +179,7 @@ async function logout(
   };
 }
 
-async function getSession(
+export async function getSessionByToken(
   tx: ITask<any>,
   token: string,
   groupId?: number
@@ -203,11 +209,3 @@ async function getSession(
     userData.loginTime
   );
 }
-
-export const SessionDb = {
-  login,
-  refresh,
-  logout,
-  appendInfo,
-  getSession,
-};

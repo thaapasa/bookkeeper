@@ -10,11 +10,13 @@ import {
 } from 'shared/expense';
 import { YearMonth } from 'shared/time';
 import { ApiMessage } from 'shared/types';
+import { deleteExpenseById } from 'server/data/BasicExpenseDb';
 import {
-  getExpenseAndDivision,
+  createExpense,
+  getExpenseWithDivision,
   updateExpenseById,
 } from 'server/data/BasicExpenseService';
-import { Expenses } from 'server/data/Expenses';
+import { getExpensesByMonth } from 'server/data/Expenses';
 import { searchExpenses } from 'server/data/ExpenseSearch';
 import { splitExpense } from 'server/data/ExpenseSplit';
 import { createValidatingRouter } from 'server/server/ValidatingRouter';
@@ -36,7 +38,7 @@ export function createExpenseApi() {
     '/month',
     { query: YearMonth, response: ExpenseCollection },
     (tx, session, { query }) =>
-      Expenses.getByMonth(
+      getExpensesByMonth(
         tx,
         session.group.id,
         session.user.id,
@@ -60,7 +62,7 @@ export function createExpenseApi() {
     '/',
     { body: ExpenseInput, response: ApiMessage },
     (tx, session, { body }) =>
-      Expenses.create(
+      createExpense(
         tx,
         session.user.id,
         session.group.id,
@@ -110,7 +112,7 @@ export function createExpenseApi() {
     '/:expenseId',
     {},
     (tx, session, { params }) =>
-      getExpenseAndDivision(
+      getExpenseWithDivision(
         tx,
         session.group.id,
         session.user.id,
@@ -124,7 +126,7 @@ export function createExpenseApi() {
     '/:expenseId',
     {},
     (tx, session, { params }) =>
-      Expenses.deleteById(tx, session.group.id, params.expenseId),
+      deleteExpenseById(tx, session.group.id, params.expenseId),
     true
   );
 
