@@ -1,16 +1,6 @@
 import { ITask } from 'pg-promise';
 
-import { ExpenseType } from 'shared/expense';
-import { MoneyLike } from 'shared/util';
-
-export interface InvalidDivision {
-  id: number;
-  type: ExpenseType;
-  sum: MoneyLike;
-  positive: MoneyLike;
-  negative: MoneyLike;
-  zero: MoneyLike;
-}
+import { InvalidDivision } from 'shared/types/DbStatus';
 
 export async function getInvalidDivision(
   tx: ITask<any>,

@@ -3,15 +3,15 @@ import debug from 'debug';
 import * as React from 'react';
 import styled from 'styled-components';
 
-import { MaybePromise } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { colorScheme } from '../Colors';
-import { ActionButton } from '../component/ActionButton';
 import { UserPrompts } from '../dialog/DialogState';
 import { ReceiverField } from '../expense/dialog/ReceiverField';
 import { PageContentContainer } from '../Styles';
+import { DbStatusView } from './DbStatusView';
+import { ToolButton } from './ToolButton';
 
 const log = debug('bookkeeper:tools');
 
@@ -26,25 +26,9 @@ export const ToolsView: React.FC = () => (
         buttonText="Vaihda"
         action={changeReceiverName}
       />
+      <DbStatusView />
     </Grid>
   </PageContentContainer>
-);
-
-const ToolButton: React.FC<{
-  title: string;
-  action: () => MaybePromise<any>;
-  buttonText: string;
-}> = ({ title, action, buttonText }) => (
-  <>
-    <Grid item xs={4}>
-      {title}
-    </Grid>
-    <Grid item xs={8}>
-      <ActionButton onClick={action} variant="contained" color="primary">
-        {buttonText}
-      </ActionButton>
-    </Grid>
-  </>
 );
 
 async function changeReceiverName() {

@@ -2,13 +2,13 @@ import debug from 'debug';
 import { Router } from 'express';
 
 import { toMoment } from 'shared/time';
-import { ApiStatus, User } from 'shared/types';
+import { ApiStatus, DbStatus, User } from 'shared/types';
 import { UserDb } from 'server/data/UserDb';
 import { createErrorHandler } from 'server/server/ErrorHandler';
 import { Requests } from 'server/server/RequestHandling';
 
 import { config } from '../Config';
-import { AdminDb, DbStatus } from '../data/admin/Admin';
+import { getDbStatus } from '../data/admin/Admin';
 import { createCategoryApi } from './CategoryApi';
 import { createExpenseApi } from './ExpenseApi';
 import { createReceiverApi } from './ReceiverApi';
@@ -71,7 +71,7 @@ export function createApi() {
   api.get(
     '/admin/status',
     Requests.txRequest<DbStatus>(
-      (tx, session) => AdminDb.getDbStatus(tx, session.group.id),
+      (tx, session) => getDbStatus(tx, session.group.id),
       true
     )
   );

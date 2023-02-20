@@ -1,26 +1,8 @@
 import { ITask } from 'pg-promise';
 
-import { ExpenseType } from 'shared/expense';
-import { MoneyLike } from 'shared/util';
+import { DbStatus, TypeStatus, ZeroSumData } from 'shared/types';
 
-import { getInvalidDivision, InvalidDivision } from './InvalidDivisionQuery';
-
-interface TypeStatus {
-  type: ExpenseType;
-  count: number;
-  sum: MoneyLike;
-}
-
-interface ZeroSumData {
-  id: number;
-  zerosum: number;
-}
-
-export interface DbStatus {
-  status: TypeStatus[];
-  invalidZerosum: ZeroSumData[];
-  invalidDivision: InvalidDivision[];
-}
+import { getInvalidDivision } from './InvalidDivisionQuery';
 
 async function getExpenseTypeStatus(
   tx: ITask<any>,
@@ -57,14 +39,13 @@ async function getInvalidZeroSumRows(
   }));
 }
 
-async function getDbStatus(tx: ITask<any>, groupId: number): Promise<DbStatus> {
+export async function getDbStatus(
+  tx: ITask<any>,
+  groupId: number
+): Promise<DbStatus> {
   return {
     status: await getExpenseTypeStatus(tx, groupId),
     invalidZerosum: await getInvalidZeroSumRows(tx, groupId),
     invalidDivision: await getInvalidDivision(tx, groupId),
   };
 }
-
-export const AdminDb = {
-  getDbStatus,
-};

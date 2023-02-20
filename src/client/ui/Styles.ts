@@ -139,6 +139,11 @@ export const Flex = styled.div`
   flex: 1;
 `;
 
+export const Pre = styled.div`
+  font-family: monospace;
+  white-space: pre;
+`;
+
 export const PageContentContainer = styled.div`
   position: relative;
   font-size: 13px;

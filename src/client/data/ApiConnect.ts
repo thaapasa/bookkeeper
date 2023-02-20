@@ -25,6 +25,7 @@ import {
   CategoryData,
   CategorySelection,
   CategoryStatistics,
+  DbStatus,
   ObjectId,
   Session,
   Source,
@@ -346,6 +347,8 @@ export class ApiConnect {
 
   public patchSource = (sourceId: ObjectId, data: SourcePatch) =>
     this.patch<Source>(uri`/api/source/${sourceId}`, data);
+
+  public getDbStatus = () => this.get<DbStatus>('/api/admin/status');
 }
 
 const apiConnect = new ApiConnect();
