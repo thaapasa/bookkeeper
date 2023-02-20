@@ -5,7 +5,7 @@ import { RouteComponentProps } from 'react-router';
 
 import { ExpenseQuery, UserExpense } from 'shared/expense';
 import { toDateRange } from 'shared/time';
-import { Category, Session } from 'shared/types';
+import { Category, isDefined, Session } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
 import { AsyncData, UninitializedData } from 'client/data/AsyncData';
 import {
@@ -37,7 +37,7 @@ function isEmptyQuery(q: ExpenseQuery) {
   const hasCategory =
     typeof q.categoryId === 'number' ||
     (typeof q.categoryId === 'object' && q.categoryId.length > 0);
-  return !q.search && !hasCategory && !q.receiver;
+  return !q.search && !hasCategory && !q.receiver && !isDefined(q.confirmed);
 }
 
 const SearchViewImpl: React.FC<
