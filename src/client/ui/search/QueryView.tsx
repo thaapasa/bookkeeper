@@ -34,6 +34,7 @@ interface QueryViewState {
   dateRange?: TypedDateRange;
   selectedSuggestions: SearchSuggestion[];
   ownExpenses: boolean;
+  unconfirmed: boolean;
 }
 
 export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
@@ -42,6 +43,7 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
     selectedSuggestions: [],
     dateRange: toYearRange(toMoment().year()),
     ownExpenses: false,
+    unconfirmed: false,
   };
   private inputBus = new B.Bus<string>();
   private dateRangeBus = new B.Bus<TypedDateRange | undefined>();
@@ -49,17 +51,20 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
   private receiverBus = new B.Bus<string | undefined>();
   private executeSearchBus = new B.Bus<void>();
   private ownExpensesBus = new B.Bus<boolean>();
+  private unconfirmedBus = new B.Bus<boolean>();
 
   componentDidMount() {
     this.inputBus.onValue(input => this.setState({ input }));
     this.dateRangeBus.onValue(dateRange => this.setState({ dateRange }));
     this.ownExpensesBus.onValue(ownExpenses => this.setState({ ownExpenses }));
+    this.unconfirmedBus.onValue(unconfirmed => this.setState({ unconfirmed }));
     const searchTriggers = B.mergeAll<any>(
       this.executeSearchBus,
       this.receiverBus,
       this.dateRangeBus,
       this.categoriesBus,
-      this.ownExpensesBus
+      this.ownExpensesBus,
+      this.unconfirmedBus
     );
     const searchData = B.combineTemplate({
       search: this.inputBus.toProperty(''),
@@ -67,6 +72,7 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
       dateRange: this.dateRangeBus.toProperty(undefined),
       categoryId: this.categoriesBus.toProperty([]),
       ownExpenses: this.ownExpensesBus.toProperty(false),
+      unconfirmed: this.unconfirmedBus.toProperty(false),
     });
     searchData.sampledBy(searchTriggers).onValue(v =>
       this.doSearch({
@@ -76,6 +82,7 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
         endDate: v.dateRange && toISODate(v.dateRange.end),
         categoryId: v.categoryId,
         userId: v.ownExpenses ? this.props.user.id : undefined,
+        confirmed: v.unconfirmed ? false : undefined,
       })
     );
 
@@ -126,6 +133,8 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
         isSearching={this.props.isSearching}
         ownExpenses={this.state.ownExpenses}
         onToggleOwnExpenses={this.onToggleOwnExpenses}
+        unconfirmed={this.state.unconfirmed}
+        onToggleUnconfirmed={this.onToggleUnconfirmed}
         selectedSuggestions={this.state.selectedSuggestions}
         removeSuggestion={this.removeSelection}
         dateRange={this.state.dateRange}
@@ -178,6 +187,9 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
 
   private onToggleOwnExpenses = (_event: any, checked: boolean) =>
     this.ownExpensesBus.push(checked);
+
+  private onToggleUnconfirmed = (_event: any, checked: boolean) =>
+    this.unconfirmedBus.push(checked);
 
   private onChange = (e: string | React.ChangeEvent<{ value: string }>) =>
     this.inputBus.push(eventValue(e));

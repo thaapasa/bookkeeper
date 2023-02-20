@@ -2,6 +2,7 @@ import debug from 'debug';
 import { ITask } from 'pg-promise';
 
 import { ExpenseQuery, UserExpense } from 'shared/expense';
+import { isDefined } from 'shared/types';
 
 import { dbRowToExpense, expenseSelectClause } from './BasicExpenseDb';
 import { expandSubCategories } from './CategoryDb';
@@ -30,6 +31,7 @@ export async function searchExpenses(
       AND ($/startDate/ IS NULL OR date::DATE >= $/startDate/::DATE)
       AND ($/endDate/ IS NULL OR date::DATE <= $/endDate/::DATE)
       AND ($/expenseUserId/ IS NULL OR e.user_id = $/expenseUserId/)
+      ${isDefined(query.confirmed) ? `AND confirmed = $/confirmed/` : ''}
       ${
         categoryIds.length > 0
           ? `AND (category_id IN ($/categoryIds:csv/))`
@@ -50,6 +52,7 @@ export async function searchExpenses(
       categoryIds,
       receiver: query.receiver,
       search: query.search || '',
+      confirmed: query.confirmed,
     }
   );
   return expenses.map(dbRowToExpense);

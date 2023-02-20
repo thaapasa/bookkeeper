@@ -31,6 +31,8 @@ interface QuerySearchLayoutProps {
   isSearching: boolean;
   ownExpenses: boolean;
   onToggleOwnExpenses: (_event: any, checked: boolean) => void;
+  unconfirmed: boolean;
+  onToggleUnconfirmed: (_event: any, checked: boolean) => void;
   dateRange?: TypedDateRange;
   onSelectRange: (r?: TypedDateRange) => void;
 }
@@ -47,6 +49,8 @@ export const QuerySearchLayout: React.FC<QuerySearchLayoutProps> = ({
   isSearching,
   ownExpenses,
   onToggleOwnExpenses,
+  unconfirmed,
+  onToggleUnconfirmed,
   dateRange,
   onSelectRange,
 }) => (
@@ -90,6 +94,12 @@ export const QuerySearchLayout: React.FC<QuerySearchLayoutProps> = ({
           <Checkbox checked={ownExpenses} onChange={onToggleOwnExpenses} />
         }
         label="Vain omat"
+      />
+      <CheckLabel
+        control={
+          <Checkbox checked={unconfirmed} onChange={onToggleUnconfirmed} />
+        }
+        label="Alustavat"
       />
     </Grid>
     <Grid item xs={12}>

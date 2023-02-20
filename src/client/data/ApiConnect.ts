@@ -32,7 +32,7 @@ import {
   SourcePatch,
   StatisticsSearchType,
 } from 'shared/types';
-import { filterTruthyProps, Money } from 'shared/util';
+import { filterDefinedProps, Money } from 'shared/util';
 
 import { checkLoginState } from './Login';
 
@@ -213,7 +213,7 @@ export class ApiConnect {
   public async searchExpenses(query: ExpenseQuery): Promise<UserExpense[]> {
     const expenses = await this.get<UserExpense[]>(
       `/api/expense/search`,
-      filterTruthyProps(query)
+      filterDefinedProps(query)
     );
     return expenses.map(mapExpense);
   }

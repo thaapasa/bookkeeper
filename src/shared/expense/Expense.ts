@@ -158,6 +158,7 @@ export const ExpenseQuery = z
     endDate: ISODate,
     userId: IntString,
     includeSubCategories: BooleanString,
+    confirmed: BooleanString.optional(),
   })
   .partial();
 

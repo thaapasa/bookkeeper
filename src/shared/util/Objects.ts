@@ -36,10 +36,10 @@ export function mapValues<Src extends object, Tgt>(
 
 export const typedKeys: <T>(obj: T) => Array<keyof T> = Object.keys;
 
-export function filterTruthyProps<T>(obj: T): Partial<T> {
+export function filterDefinedProps<T>(obj: T): Partial<T> {
   const res: Partial<T> = {};
   typedKeys(obj).forEach(k => {
-    if (obj[k]) {
+    if (isDefined(obj[k])) {
       res[k] = obj[k];
     }
   });

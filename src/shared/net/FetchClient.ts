@@ -1,5 +1,7 @@
 import debug from 'debug';
 
+import { isDefined } from 'shared/types';
+
 import { AuthenticationError, BkError } from '../types/Errors';
 
 const log = debug('net:fetch-client');
@@ -10,7 +12,7 @@ export type FetchType = (
 ) => Promise<Response>;
 
 function encodeComponent(x: any) {
-  if (!x) {
+  if (!isDefined(x)) {
     return '';
   } else if (typeof x === 'string') {
     return encodeURIComponent(x);
