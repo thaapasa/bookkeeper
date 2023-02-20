@@ -5,15 +5,21 @@ import {
   Grid,
   IconButton,
 } from '@mui/material';
+import * as B from 'baconjs';
 import * as React from 'react';
 import styled from 'styled-components';
 
 import { toDateRangeName, TypedDateRange } from 'shared/time';
+import { isDefined, ObjectId, Session } from 'shared/types';
 import { CategoryDataSource } from 'client/data/Categories';
+import { validSessionE } from 'client/data/Login';
 
 import { gray } from '../Colors';
+import { connect } from '../component/BaconConnect';
 import { FlexRow } from '../component/BasicElements';
 import { DateRangeSelector } from '../component/daterange/DateRangeSelector';
+import { Row } from '../component/Row';
+import UserSelector from '../component/UserSelector';
 import { Icons } from '../icons/Icons';
 import { SearchInputField } from './SearchInputField';
 import { SearchSuggestion } from './SearchSuggestions';
@@ -29,15 +35,16 @@ interface QuerySearchLayoutProps {
   selectSuggestion: (suggestion: SearchSuggestion) => void;
   removeSuggestion: (suggestion: SearchSuggestion) => void;
   isSearching: boolean;
-  ownExpenses: boolean;
-  onToggleOwnExpenses: (_event: any, checked: boolean) => void;
+  userId: ObjectId | undefined;
+  onSetUserId: (userId: ObjectId | undefined) => void;
   unconfirmed: boolean;
   onToggleUnconfirmed: (_event: any, checked: boolean) => void;
   dateRange?: TypedDateRange;
   onSelectRange: (r?: TypedDateRange) => void;
+  session: Session;
 }
 
-export const QuerySearchLayout: React.FC<QuerySearchLayoutProps> = ({
+const QuerySearchLayoutImpl: React.FC<QuerySearchLayoutProps> = ({
   onClear,
   input,
   onChange,
@@ -47,12 +54,13 @@ export const QuerySearchLayout: React.FC<QuerySearchLayoutProps> = ({
   removeSuggestion,
   categorySource,
   isSearching,
-  ownExpenses,
-  onToggleOwnExpenses,
+  userId,
+  onSetUserId,
   unconfirmed,
   onToggleUnconfirmed,
   dateRange,
   onSelectRange,
+  session,
 }) => (
   <Grid container padding="16px" rowGap="16px">
     <Grid item md={7} xs={12} sm={12}>
@@ -89,12 +97,27 @@ export const QuerySearchLayout: React.FC<QuerySearchLayoutProps> = ({
       <DateRangeSelector dateRange={dateRange} onSelectRange={onSelectRange} />
     </Grid>
     <Grid item md={2} sm={5} xs={12}>
-      <CheckLabel
-        control={
-          <Checkbox checked={ownExpenses} onChange={onToggleOwnExpenses} />
-        }
-        label="Vain omat"
-      />
+      <Row>
+        <CheckLabel
+          control={
+            <Checkbox
+              checked={isDefined(userId)}
+              onChange={() =>
+                onSetUserId(isDefined(userId) ? undefined : session.user.id)
+              }
+            />
+          }
+          label="Vain omat"
+        />
+        {isDefined(userId) ? (
+          <UserSelector
+            singleSelection
+            selected={[userId]}
+            onChange={([id]) => onSetUserId(id)}
+            size={32}
+          />
+        ) : null}
+      </Row>
       <CheckLabel
         control={
           <Checkbox checked={unconfirmed} onChange={onToggleUnconfirmed} />
@@ -110,6 +133,12 @@ export const QuerySearchLayout: React.FC<QuerySearchLayoutProps> = ({
     </Grid>
   </Grid>
 );
+
+export const QuerySearchLayout = connect(
+  B.combineTemplate({
+    session: validSessionE,
+  })
+)(QuerySearchLayoutImpl);
 
 const SearchToolArea = styled.div`
   display: flex;

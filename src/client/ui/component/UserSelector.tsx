@@ -22,6 +22,8 @@ interface UserSelectorProps {
   onChange?: (x: ObjectId[]) => void;
   style?: React.CSSProperties;
   users: User[];
+  singleSelection?: boolean;
+  size?: number;
 }
 
 export const UserSelector: React.FC<UserSelectorProps> = ({
@@ -29,8 +31,14 @@ export const UserSelector: React.FC<UserSelectorProps> = ({
   selected,
   style,
   users,
+  singleSelection,
+  size,
 }) => {
   const switchSelection = (id: ObjectId) => {
+    if (singleSelection) {
+      onChange?.([id]);
+      return;
+    }
     const oldS = selected;
     const foundAt = oldS.indexOf(id);
     const newS =
@@ -50,6 +58,7 @@ export const UserSelector: React.FC<UserSelectorProps> = ({
           userId={u.id}
           className={selected.includes(u.id) ? 'selected' : 'unselected'}
           onClick={() => switchSelection(u.id)}
+          size={size}
         >
           {u.firstName.charAt(0)}
         </StyledUserAvatar>
