@@ -131,7 +131,7 @@ export async function newCategory(
   session: SessionWithControl,
   data: CategoryData
 ): Promise<ApiMessage> {
-  const d = await session.put<ApiMessage>('/api/category', data);
+  const d = await session.post<ApiMessage>('/api/category', data);
   if (d.categoryId) {
     createdCategories.push(d.categoryId);
   }
