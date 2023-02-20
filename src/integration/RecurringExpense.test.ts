@@ -76,7 +76,7 @@ describe('recurring expenses', () => {
       Money.from(status1.benefit).plus('75').toString(),
       ex => expect(ex.find(i => i.id === expenseId)).toBeTruthy
     );
-    const s = await session.put<ApiMessage>(
+    const s = await session.post<ApiMessage>(
       `/api/expense/recurring/${expenseId}`,
       { period: { amount: 1, unit: 'months' } }
     );
@@ -98,7 +98,7 @@ describe('recurring expenses', () => {
         title: 'Pan-galactic gargleblaster',
       })
     );
-    const s = await session.put<ApiMessage>(
+    const s = await session.post<ApiMessage>(
       `/api/expense/recurring/${expenseId}`,
       { period: { amount: 1, unit: 'months' } }
     );

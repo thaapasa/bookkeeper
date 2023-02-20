@@ -24,8 +24,9 @@ export function createRecurringExpenseApi() {
     target: RecurringExpenseTarget,
   });
 
-  // PUT /api/expense/recurring/[expenseId]
-  api.putTx(
+  // POST /api/expense/recurring/[expenseId]
+  // Create a new recurring expense from the selected expense
+  api.postTx(
     '/:expenseId',
     { body: RecurringExpenseInput },
     (tx, session, { body, params }) =>
@@ -54,8 +55,9 @@ export function createRecurringExpenseApi() {
     true
   );
 
-  // POST /api/expense/recurring/[expenseId]
-  api.postTx(
+  // PUT /api/expense/recurring/[expenseId]
+  // Update recurring expense details
+  api.putTx(
     '/:expenseId',
     {
       query: RecurringExpenseTargetSchema,

@@ -98,7 +98,7 @@ export async function newExpense(
     categoryId: findCategoryId('Ruoka', session),
     ...expense,
   };
-  return captureId(await session.put<ApiMessage>('/api/expense', data));
+  return captureId(await session.post<ApiMessage>('/api/expense', data));
 }
 
 export async function fetchMonthStatus(

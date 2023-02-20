@@ -124,7 +124,7 @@ describe('expense', () => {
     expect(e.division!.length).toEqual(2);
   });
 
-  it('should allow POST with GET data', async () => {
+  it('should allow PUT with GET data', async () => {
     const res = await newExpense(session, {
       sum: '8.46',
       division: [
@@ -133,7 +133,7 @@ describe('expense', () => {
       ],
     });
     const org = await session.get<Expense>(`/api/expense/${res.expenseId}`);
-    const s = await session.post<ApiMessage>(`/api/expense/${org.id}`, org);
+    const s = await session.put<ApiMessage>(`/api/expense/${org.id}`, org);
     expect(s.status).toEqual('OK');
     expect(s.expenseId).toEqual(org.id);
     const e = await session.get<Expense>(`/api/expense/${org.id}`);

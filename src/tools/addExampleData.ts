@@ -41,7 +41,7 @@ async function addExampleData() {
     session: SessionWithControl
   ) {
     const data = { ...defaultExpense, ...expense };
-    return session.put<ApiMessage>('/api/expense', data);
+    return session.post<ApiMessage>('/api/expense', data);
   }
 
   await addExpense({}, session);
@@ -56,7 +56,7 @@ async function addExampleData() {
     },
     session
   );
-  await session.put(`/api/expense/recurring/${debtE.expenseId}`, {
+  await session.post(`/api/expense/recurring/${debtE.expenseId}`, {
     period: { amount: 1, unit: 'months' },
   });
   await session.logout();

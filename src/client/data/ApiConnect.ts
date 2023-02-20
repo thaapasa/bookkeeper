@@ -275,7 +275,7 @@ export class ApiConnect {
     id: number | string,
     period: RecurrencePeriod
   ): Promise<ApiMessage> {
-    return this.put<ApiMessage>(uri`/api/expense/recurring/${id}`, {
+    return this.post<ApiMessage>(uri`/api/expense/recurring/${id}`, {
       period,
     });
   }
@@ -285,7 +285,7 @@ export class ApiConnect {
     expense: ExpenseData,
     target: RecurringExpenseTarget
   ): Promise<ApiMessage> {
-    return this.post<ApiMessage>(
+    return this.put<ApiMessage>(
       uri`/api/expense/recurring/${id}?target=${target}`,
       expense
     );
