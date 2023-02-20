@@ -19,6 +19,7 @@ export type RecurringExpenseInput = z.infer<typeof RecurringExpenseInput>;
 export const RecurringExpense = RecurringExpenseInput.extend({
   templateExpenseId: ObjectId,
   title: z.string(),
+  receiver: z.string(),
   sum: MoneyLike,
   categoryId: ObjectId,
   firstOccurence: ISODate,

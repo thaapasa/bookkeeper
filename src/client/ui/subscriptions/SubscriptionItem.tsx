@@ -29,6 +29,7 @@ export const SubscriptionItem: React.FC<{
         className={`${className} ${item.occursUntil ? 'inactive' : undefined}`}
       >
         <Label>{item.title}</Label>
+        <Label>{item.receiver}</Label>
         <Dates className="optional">
           {readableDateWithYear(item.firstOccurence)}
           {item.occursUntil
