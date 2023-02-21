@@ -15,6 +15,10 @@ module.exports = {
             group: ['server/*'],
             message: 'Do not import server stuff to client',
           },
+          {
+            group: ['shared/*/*'],
+            message: 'Only use first-level exports from shared',
+          },
         ],
       },
     ],

@@ -19,6 +19,10 @@ module.exports = {
             group: ['client/*'],
             message: 'Do not import client stuff to shared',
           },
+          {
+            group: ['shared/*'],
+            message: 'Do not use the shared import in shared',
+          },
         ],
       },
     ],
