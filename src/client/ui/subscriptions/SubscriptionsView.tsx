@@ -4,7 +4,10 @@ import * as React from 'react';
 import styled from 'styled-components';
 import { z } from 'zod';
 
-import { RecurringExpense, RecurringExpenseCriteria } from 'shared/expense';
+import {
+  SubscriptionResult,
+  SubscriptionSearchCriteria,
+} from 'shared/expense/Subscription';
 import { Category, CategoryMap, ObjectId } from 'shared/types';
 import { Money, MoneyLike } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
@@ -20,23 +23,29 @@ import { PageContentContainer } from '../Styles';
 import { SubscriptionCriteriaSelector } from './SubscriptionCriteriaSelector';
 import {
   SubscriptionCategoryHeader,
-  SubscriptionItem,
+  SubscriptionItemView,
   ToggleCategoryVisibility,
-} from './SubscriptionItem';
+} from './SubscriptionItemView';
 import { groupSubscriptions, sumRecurrenceTotals } from './SubscriptionsData';
 import { TotalsChart, TotalsData } from './TotalsChart';
 import {
   RecurrenceTotals,
   SubscriptionGroup,
+  SubscriptionItem,
   SubscriptionsData,
 } from './types';
 
+const emptyResponse: SubscriptionResult = {
+  recurringExpenses: [],
+  reports: [],
+};
+
 const loadExpenses = async (
-  criteria: RecurringExpenseCriteria | undefined,
+  criteria: SubscriptionSearchCriteria | undefined,
   categories: CategoryMap
 ) =>
   groupSubscriptions(
-    criteria ? await apiConnect.searchSubscriptions(criteria) : [],
+    criteria ? await apiConnect.searchSubscriptions(criteria) : emptyResponse,
     categories
   );
 
@@ -44,7 +53,7 @@ const SubscriptionsViewImpl: React.FC<{
   categories: CategoryMap;
 }> = ({ categories }) => {
   const [criteria, setCriteria] = React.useState<
-    RecurringExpenseCriteria | undefined
+    SubscriptionSearchCriteria | undefined
   >(undefined);
 
   const { data, loadData } = useDeferredData(
@@ -248,7 +257,7 @@ const GroupView: React.FC<{
 const CategorySubscriptions: React.FC<{
   category: Category;
   title?: string;
-  items: RecurringExpense[];
+  items: SubscriptionItem[];
   totals?: RecurrenceTotals;
 }> = ({ category, items, totals, title }) => (
   <>
@@ -258,7 +267,7 @@ const CategorySubscriptions: React.FC<{
       className="child-category"
     />
     {items.map(item => (
-      <SubscriptionItem key={item.id} item={item} />
+      <SubscriptionItemView key={item.id} item={item} />
     ))}
   </>
 );

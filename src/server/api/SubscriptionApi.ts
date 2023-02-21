@@ -1,13 +1,14 @@
 import { Router } from 'express';
 
-import { ExpenseInput, RecurringExpenseCriteria } from 'shared/expense';
+import { ExpenseInput } from 'shared/expense';
+import { SubscriptionSearchCriteria } from 'shared/expense/Subscription';
 import {
   deleteRecurringExpenseById,
   getRecurringExpenseDetails,
   getRecurringExpenseTemplate,
-  searchRecurringExpenses,
   updateRecurringExpenseTemplate,
 } from 'server/data/RecurringExpenseDb';
+import { searchSubscriptions } from 'server/data/SubscriptionService';
 import { createValidatingRouter } from 'server/server/ValidatingRouter';
 
 /**
@@ -25,9 +26,9 @@ export function createSubscriptionApi() {
   // Search for subscription
   api.postTx(
     '/search',
-    { body: RecurringExpenseCriteria },
+    { body: SubscriptionSearchCriteria },
     (tx, session, { body }) =>
-      searchRecurringExpenses(tx, session.group.id, session.user.id, body),
+      searchSubscriptions(tx, session.group.id, session.user.id, body),
     true
   );
 

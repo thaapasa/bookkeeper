@@ -1,4 +1,4 @@
-import { RecurringExpense } from 'shared/expense';
+import { SubscriptionResult } from 'shared/expense/Subscription';
 import { CategoryMap, ObjectId } from 'shared/types';
 import { Money } from 'shared/util';
 
@@ -15,9 +15,10 @@ const emptyTotals: () => RecurrenceTotals = () => ({
 });
 
 export function groupSubscriptions(
-  items: RecurringExpense[],
+  result: SubscriptionResult,
   categories: CategoryMap
 ): SubscriptionsData {
+  const items = [...result.recurringExpenses, ...result.reports];
   const byRoot: Record<ObjectId, SubscriptionGroup> = {};
   for (const item of items) {
     const rootCat = getRootCategoryId(item.categoryId, categories);

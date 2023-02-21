@@ -1,7 +1,7 @@
 import { Router } from 'express';
 
 import { ReportCreationData } from 'shared/expense';
-import { Reports } from 'server/data/Reports';
+import { createReport, getAllReports } from 'server/data/ReportDb';
 import { createValidatingRouter } from 'server/server/ValidatingRouter';
 
 /**
@@ -17,7 +17,7 @@ export function createReportApi() {
   api.postTx(
     '/all',
     {},
-    (tx, session, {}) => Reports.getAll(tx, session.group.id),
+    (tx, session, {}) => getAllReports(tx, session.group.id),
     true
   );
 
@@ -27,7 +27,7 @@ export function createReportApi() {
     '/',
     { body: ReportCreationData },
     (tx, session, { body }) =>
-      Reports.createReport(
+      createReport(
         tx,
         session.group.id,
         session.user.id,

@@ -1,7 +1,11 @@
 import { IconButton } from '@mui/material';
 import * as React from 'react';
 
-import { RecurrencePeriod, RecurringExpense } from 'shared/expense';
+import {
+  ExpenseReport,
+  RecurrencePeriod,
+  RecurringExpense,
+} from 'shared/expense';
 import { readableDateWithYear } from 'shared/time';
 import { ObjectId } from 'shared/types';
 import { Money } from 'shared/util';
@@ -11,14 +15,24 @@ import { useToggle } from '../hooks/useToggle';
 import { Icons } from '../icons/Icons';
 import { Dates, Label, Period, RowElement, Sum, Tools } from './layout';
 import { SubscriptionDetails } from './SubscriptionDetails';
-import { RecurrenceTotals } from './types';
+import { RecurrenceTotals, SubscriptionItem } from './types';
 
 export type ToggleCategoryVisibility = (
   isVisible: boolean,
   categoryId: ObjectId
 ) => void;
 
-export const SubscriptionItem: React.FC<{
+export const SubscriptionItemView: React.FC<{
+  item: SubscriptionItem;
+  className?: string;
+}> = ({ item, ...props }) =>
+  item.type === 'recurring' ? (
+    <RecurringExpenseItem item={item} {...props} />
+  ) : (
+    <ReportItem item={item} {...props} />
+  );
+
+const RecurringExpenseItem: React.FC<{
   item: RecurringExpense;
   className?: string;
 }> = ({ item, className }) => {
@@ -50,6 +64,22 @@ export const SubscriptionItem: React.FC<{
     </>
   );
 };
+
+const ReportItem: React.FC<{
+  item: ExpenseReport;
+  className?: string;
+}> = ({ item, className }) => {
+  return (
+    <>
+      <RowElement className={`${className}`}>
+        <Label>{item.title}</Label>
+
+        <Sum className="wide">{Money.from(item.sum).format()}</Sum>
+      </RowElement>
+    </>
+  );
+};
+
 export const SubscriptionCategoryHeader: React.FC<{
   title: string;
   totals?: RecurrenceTotals;

@@ -61,12 +61,7 @@ const SearchViewImpl: React.FC<
       .flatMapLatest(query =>
         isEmptyQuery(query)
           ? B.once([])
-          : B.fromPromise(
-              apiConnect.searchExpenses({
-                includeSubCategories: true,
-                ...query,
-              })
-            )
+          : B.fromPromise(apiConnect.searchExpenses(query))
       );
     const unsubs = [
       resultsE.onValue(value => setResults({ type: 'loaded', value })),

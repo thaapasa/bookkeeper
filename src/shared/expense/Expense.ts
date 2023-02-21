@@ -152,10 +152,12 @@ export const ExpenseQuery = z
   .object({
     search: z.string(),
     receiver: z.string(),
+    type: ExpenseType.or(z.array(ExpenseType)).optional(),
     categoryId: ObjectId.or(z.array(ObjectId)),
     startDate: ISODate,
     endDate: ISODate,
     userId: ObjectId,
+    includeRecurring: z.boolean(),
     includeSubCategories: z.boolean(),
     confirmed: z.boolean().optional(),
   })

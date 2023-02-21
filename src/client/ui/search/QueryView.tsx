@@ -82,6 +82,7 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
       categoryId: v.categoryId,
       userId: v.userId,
       confirmed: v.unconfirmed ? false : undefined,
+      includeSubCategories: true,
     }));
 
     searchData.sampledBy(searchTriggers).onValue(this.doSearch);

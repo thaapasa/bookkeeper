@@ -7,15 +7,17 @@ import {
   ExpenseSplit,
   ExpenseStatus,
   RecurrencePeriod,
-  RecurringExpense,
-  RecurringExpenseCriteria,
   RecurringExpenseDetails,
   RecurringExpenseTarget,
-  Report,
   ReportCreationData,
+  ReportDef,
   UserExpense,
   UserExpenseWithDetails,
 } from 'shared/expense';
+import {
+  SubscriptionResult,
+  SubscriptionSearchCriteria,
+} from 'shared/expense/Subscription';
 import { FetchClient, uri } from 'shared/net';
 import { ISODate, timeoutImmediate, toISODate } from 'shared/time';
 import {
@@ -230,8 +232,8 @@ export class ApiConnect {
   }
 
   public async searchSubscriptions(
-    criteria: RecurringExpenseCriteria
-  ): Promise<RecurringExpense[]> {
+    criteria: SubscriptionSearchCriteria
+  ): Promise<SubscriptionResult> {
     return this.post(uri`/api/subscription/search`, criteria);
   }
 
@@ -356,7 +358,7 @@ export class ApiConnect {
       title,
       query: filterDefinedProps(query),
     };
-    return this.post<Report>(uri`/api/report`, body);
+    return this.post<ReportDef>(uri`/api/report`, body);
   };
 
   public getDbStatus = () => this.get<DbStatus>('/api/admin/status');

@@ -7,7 +7,7 @@ exports.up = knex =>
       group_id INTEGER REFERENCES groups(id),
       user_id INTEGER REFERENCES users(id),
       title TEXT NOT NULL,
-      search_terms JSONB NOT NULL
+      query JSONB NOT NULL
     );
   `);
 
