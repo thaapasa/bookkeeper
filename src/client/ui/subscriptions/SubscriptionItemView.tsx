@@ -75,8 +75,13 @@ const ReportItem: React.FC<{
           {readableDateWithYear(item.firstDate)} -{' '}
           {readableDateWithYear(item.lastDate)}
         </Label>
-        <Sum>{Money.from(item.avgSum).format()} / kpl</Sum>
         <Sum className="wide">{Money.from(item.sum).format()}</Sum>
+        <Sum className="wide">{Money.from(item.avgSum).format()}</Sum>
+        <Period>/ kpl</Period>
+        <Sum className="optional">
+          {Money.from(item.recurrencePerMonth).format()} / kk
+        </Sum>
+        <Sum>{Money.from(item.recurrencePerYear).format()} / v</Sum>
         <Tools>
           <ToolIcon
             title="Poista"
