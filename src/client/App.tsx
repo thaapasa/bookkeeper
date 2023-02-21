@@ -1,7 +1,7 @@
 import debug from 'debug';
 import * as React from 'react';
 
-import { Session } from 'shared/types';
+import { AnyObject, Session } from 'shared/types';
 
 import { checkLoginState, sessionP } from './data/Login';
 import { windowSizeBus } from './data/State';
@@ -10,7 +10,6 @@ import { ErrorView } from './ui/general/ErrorView';
 import { LoginPage } from './ui/general/LoginPage';
 import { useAsyncData } from './ui/hooks/useAsyncData';
 import { useWindowSize } from './ui/hooks/useWindowSize';
-import { AnyObject } from './ui/Types';
 
 const log = debug('bookkeeper:app');
 

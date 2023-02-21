@@ -1,6 +1,6 @@
 import { ITask } from 'pg-promise';
 
-import { InvalidDivision } from 'shared/types/DbStatus';
+import { InvalidDivision } from 'shared/types';
 
 export async function getInvalidDivision(
   tx: ITask<any>,

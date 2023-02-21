@@ -1,7 +1,11 @@
 import { ITask } from 'pg-promise';
 
-import { ExpenseQuery, ExpenseReport, ReportDef } from 'shared/expense';
-import { SubscriptionSearchCriteria } from 'shared/expense/Subscription';
+import {
+  ExpenseQuery,
+  ExpenseReport,
+  ReportDef,
+  SubscriptionSearchCriteria,
+} from 'shared/expense';
 import { toISODate, toMoment } from 'shared/time';
 import { ApiMessage, ObjectId } from 'shared/types';
 import { Money } from 'shared/util';

@@ -1,4 +1,4 @@
-import { SubscriptionResult } from 'shared/expense/Subscription';
+import { SubscriptionResult } from 'shared/expense';
 import { CategoryMap, ObjectId } from 'shared/types';
 import { Money } from 'shared/util';
 

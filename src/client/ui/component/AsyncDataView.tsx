@@ -36,9 +36,11 @@ export const AsyncDataView = <T, C extends { data: T }>({
     case 'loaded':
       return <Renderer data={data.value} {...rest} />;
     case 'error':
-      <ErrorView title="Virhe tietojen latauksessa">
-        {data.error.message}
-      </ErrorView>;
+      return (
+        <ErrorView title="Virhe tietojen latauksessa">
+          {data.error.message}
+        </ErrorView>
+      );
     default:
       return null;
   }

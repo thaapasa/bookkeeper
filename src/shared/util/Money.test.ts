@@ -2,8 +2,7 @@ import 'jest';
 
 import { Big } from 'big.js';
 
-import { validate } from 'server/server/Validation';
-
+import { validate } from '../types/Validation';
 import { Money, MoneyLike } from './Money';
 
 describe('Money', () => {

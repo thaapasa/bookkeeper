@@ -15,9 +15,9 @@ import {
   RecurringExpenseDetails,
   RecurringExpenseInput,
   RecurringExpenseTarget,
+  SubscriptionSearchCriteria,
   UserExpense,
 } from 'shared/expense';
-import { SubscriptionSearchCriteria } from 'shared/expense/Subscription';
 import { DateLike, ISODate, toDate, toISODate, toMoment } from 'shared/time';
 import {
   ApiMessage,

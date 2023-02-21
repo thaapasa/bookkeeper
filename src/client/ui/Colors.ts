@@ -1,6 +1,5 @@
 import { amber, grey, lime, teal } from '@mui/material/colors';
-import { createTheme } from '@mui/material/styles';
-import { SimplePaletteColorOptions } from '@mui/material/styles';
+import { createTheme, SimplePaletteColorOptions } from '@mui/material/styles';
 import styled from 'styled-components';
 
 import { Money, MoneyLike } from 'shared/util';

@@ -4,13 +4,12 @@ import { ITask } from 'pg-promise';
 import { z } from 'zod';
 
 import { timeout } from 'shared/time';
-import { InvalidGroupError, SessionBasicInfo } from 'shared/types';
+import { InvalidGroupError, SessionBasicInfo, validateOr } from 'shared/types';
 import { MaybePromise, optNumber } from 'shared/util';
 import { getSessionByToken } from 'server/data/SessionDb';
 
 import { db } from '../data/Db';
 import { ServerUtil } from './ServerUtil';
-import { validateOr } from './Validation';
 
 const log = debug('bookkeeper:server');
 

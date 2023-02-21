@@ -4,10 +4,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 import { z } from 'zod';
 
-import {
-  SubscriptionResult,
-  SubscriptionSearchCriteria,
-} from 'shared/expense/Subscription';
+import { SubscriptionResult, SubscriptionSearchCriteria } from 'shared/expense';
 import { Category, CategoryMap, ObjectId } from 'shared/types';
 import { Money, MoneyLike } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';

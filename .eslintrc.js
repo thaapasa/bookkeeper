@@ -1,6 +1,10 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable no-undef */
+
 module.exports = {
   parser: '@typescript-eslint/parser',
   extends: [
+    'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:react/recommended',
     'plugin:react-hooks/recommended',
@@ -9,15 +13,27 @@ module.exports = {
   parserOptions: {
     sourceType: 'module',
   },
-  plugins: ['react', 'prettier', 'simple-import-sort', 'unused-imports'],
+  plugins: [
+    '@typescript-eslint',
+    'react',
+    'import',
+    'prettier',
+    'simple-import-sort',
+    'unused-imports',
+  ],
   rules: {
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
+    'no-empty-pattern': 'off',
     '@typescript-eslint/no-unused-vars': [
       'error',
       { argsIgnorePattern: '^_', ignoreRestSiblings: true },
     ],
+    // See https://github.com/prettier/eslint-plugin-prettier#arrow-body-style-and-prefer-arrow-callback-issue
+    'prettier/prettier': 'error',
+    'no-console': 'warn',
+    'import/no-duplicates': 'error',
     'react/prop-types': 'off',
     'unused-imports/no-unused-imports': 'error',
     'simple-import-sort/imports': [
@@ -39,6 +55,7 @@ module.exports = {
         ],
       },
     ],
+    'simple-import-sort/exports': ['warn'],
   },
   settings: {
     react: {

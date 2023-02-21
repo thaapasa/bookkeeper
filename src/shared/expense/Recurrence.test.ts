@@ -1,7 +1,6 @@
 import 'jest';
 
-import { MoneyLike } from 'shared/util';
-
+import { MoneyLike } from '../util/Money';
 import {
   RecurrencePeriod,
   recurrencePerMonth,

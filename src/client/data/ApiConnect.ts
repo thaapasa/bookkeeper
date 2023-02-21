@@ -11,13 +11,11 @@ import {
   RecurringExpenseTarget,
   ReportCreationData,
   ReportDef,
+  SubscriptionResult,
+  SubscriptionSearchCriteria,
   UserExpense,
   UserExpenseWithDetails,
 } from 'shared/expense';
-import {
-  SubscriptionResult,
-  SubscriptionSearchCriteria,
-} from 'shared/expense/Subscription';
 import { FetchClient, uri } from 'shared/net';
 import { ISODate, timeoutImmediate, toISODate } from 'shared/time';
 import {
