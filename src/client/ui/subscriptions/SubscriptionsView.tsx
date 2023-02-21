@@ -20,12 +20,12 @@ import { useDeferredData } from '../hooks/useAsyncData';
 import { useForceReload } from '../hooks/useForceReload';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { PageContentContainer } from '../Styles';
-import { SubscriptionCriteriaSelector } from './SubscriptionCriteriaSelector';
 import {
   SubscriptionCategoryHeader,
-  SubscriptionItemView,
   ToggleCategoryVisibility,
-} from './SubscriptionItemView';
+} from './SubscriptionCategoryHeader';
+import { SubscriptionCriteriaSelector } from './SubscriptionCriteriaSelector';
+import { SubscriptionItemView } from './SubscriptionItemView';
 import { groupSubscriptions, sumRecurrenceTotals } from './SubscriptionsData';
 import { TotalsChart, TotalsData } from './TotalsChart';
 import {

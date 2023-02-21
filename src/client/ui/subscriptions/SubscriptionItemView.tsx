@@ -1,4 +1,3 @@
-import { IconButton } from '@mui/material';
 import * as React from 'react';
 
 import {
@@ -7,20 +6,13 @@ import {
   RecurringExpense,
 } from 'shared/expense';
 import { readableDateWithYear } from 'shared/time';
-import { ObjectId } from 'shared/types';
 import { Money } from 'shared/util';
 
 import { ExpanderIcon } from '../component/ExpanderIcon';
 import { useToggle } from '../hooks/useToggle';
-import { Icons } from '../icons/Icons';
 import { Dates, Label, Period, RowElement, Sum, Tools } from './layout';
 import { SubscriptionDetails } from './SubscriptionDetails';
-import { RecurrenceTotals, SubscriptionItem } from './types';
-
-export type ToggleCategoryVisibility = (
-  isVisible: boolean,
-  categoryId: ObjectId
-) => void;
+import { SubscriptionItem } from './types';
 
 export const SubscriptionItemView: React.FC<{
   item: SubscriptionItem;
@@ -79,35 +71,6 @@ const ReportItem: React.FC<{
     </>
   );
 };
-
-export const SubscriptionCategoryHeader: React.FC<{
-  title: string;
-  totals?: RecurrenceTotals;
-  className?: string;
-  visible?: boolean;
-  categoryId?: ObjectId;
-  setVisible?: ToggleCategoryVisibility;
-}> = ({ title, totals, className, visible = true, setVisible, categoryId }) => (
-  <RowElement className={className}>
-    <Label>
-      {categoryId && setVisible ? (
-        <IconButton onClick={() => setVisible(!visible, categoryId)}>
-          {visible ? <Icons.Visible /> : <Icons.Hidden />}
-        </IconButton>
-      ) : null}
-      {title}
-    </Label>
-    {totals ? (
-      <>
-        <Sum className="optional">
-          {Money.from(totals.recurrencePerMonth).format()} / kk
-        </Sum>
-        <Sum>{Money.from(totals.recurrencePerYear).format()} / v</Sum>
-        <Tools />
-      </>
-    ) : null}
-  </RowElement>
-);
 
 function getPeriodText({ unit, amount }: RecurrencePeriod) {
   switch (unit) {
