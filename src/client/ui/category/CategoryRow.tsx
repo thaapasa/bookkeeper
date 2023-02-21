@@ -8,7 +8,7 @@ import { UserDataProps } from 'client/data/Categories';
 import { needUpdateE } from 'client/data/State';
 
 import * as colors from '../Colors';
-import ExpenseRow from '../expense/row/ExpenseRow';
+import { ExpenseRow } from '../expense/row/ExpenseRow';
 import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
 import { useDeferredData } from '../hooks/useAsyncData';
 import { useToggle } from '../hooks/useToggle';

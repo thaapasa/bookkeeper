@@ -8,6 +8,7 @@ import { useWindowSize } from 'client/ui/hooks/useWindowSize';
 import { Icons } from 'client/ui/icons/Icons';
 import { isMobileSize, media } from 'client/ui/Styles';
 
+import { ExpenseFilterFunction, ExpenseFilters } from './ExpenseFilters';
 import {
   AllColumns,
   RecurringExpenseIcon,
@@ -20,12 +21,18 @@ interface RecurringSummaryRowProps {
   recurring: UserExpense[];
   isExpanded: boolean;
   onToggle: () => void;
+  addFilter: (
+    filter: ExpenseFilterFunction,
+    name: string,
+    avater?: string
+  ) => void;
 }
 
 export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
   recurring,
   isExpanded,
   onToggle,
+  addFilter,
 }) => {
   const expense = recurring
     .filter(s => s.type === 'expense')
@@ -47,7 +54,12 @@ export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
           <RecurringExpenseIcon />
           <Name>
             {hasUnconfirmed ? (
-              <UnconfirmedIcon title="Sisältää alustavia kirjauksia" />
+              <UnconfirmedIcon
+                title="Sisältää alustavia kirjauksia"
+                onClick={() =>
+                  addFilter(ExpenseFilters.unconfirmed, 'Alustavat')
+                }
+              />
             ) : null}
             <Emph>Toistuvat </Emph> ({recurring.length} kpl)
           </Name>

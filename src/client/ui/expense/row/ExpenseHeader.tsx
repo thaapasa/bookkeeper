@@ -13,7 +13,7 @@ import {
   ToolColumn,
 } from './ExpenseTableLayout';
 
-export default function ExpenseHeader() {
+export function ExpenseHeader() {
   return (
     <Row>
       <DateColumn as="th">Pvm</DateColumn>

@@ -3,20 +3,18 @@ import styled from 'styled-components';
 
 import { Expense, ExpenseStatus, UserExpense } from 'shared/expense';
 import { Money, partition } from 'shared/util';
+import { userDataE, UserDataProps } from 'client/data/Categories';
 
-import { userDataE, UserDataProps } from '../../data/Categories';
 import { colorScheme } from '../Colors';
 import { connect } from '../component/BaconConnect';
 import { ListDecorator } from '../component/ListDecorator';
 import { media, PageContentContainer } from '../Styles';
 import { ExpenseTotals } from './ExpenseHelper';
 import { MonthlyStatus } from './MonthlyStatus';
-import ExpenseFilterRow, {
-  ExpenseFilter,
-  ExpenseFilterFunction,
-} from './row/ExpenseFilterRow';
-import ExpenseHeader from './row/ExpenseHeader';
-import ExpenseRow, { CommonExpenseRowProps } from './row/ExpenseRow';
+import { ExpenseFilterRow } from './row/ExpenseFilterRow';
+import { ExpenseFilter, ExpenseFilterFunction } from './row/ExpenseFilters';
+import { ExpenseHeader } from './row/ExpenseHeader';
+import { CommonExpenseRowProps, ExpenseRow } from './row/ExpenseRow';
 import { ExpenseRowSeparator } from './row/ExpenseRowSeparator';
 import {
   ExpenseTableLayout,
@@ -117,6 +115,7 @@ class ExpenseTable extends React.Component<
           recurring={recurring}
           onToggle={this.toggleRecurring}
           isExpanded={this.state.recurringExpanded}
+          addFilter={this.addFilter}
         />
         {this.state.recurringExpanded
           ? recurring.map(this.renderExpense)
@@ -178,6 +177,7 @@ class ExpenseTable extends React.Component<
           unconfirmedDuring={
             this.props.expenses.find(e => !e.confirmed) !== undefined
           }
+          addFilter={this.addFilter}
           totals={this.calculateTotals(this.props.expenses)}
           showFiltered={this.state.filters.length > 0}
           filteredTotals={this.calculateTotals(this.getFilteredExpenses())}

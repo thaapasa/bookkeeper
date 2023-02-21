@@ -239,12 +239,17 @@ const UnconfirmedIconArea = styled.div`
   height: 24px;
 `;
 
-type UnconfimedIconProps = { size?: number; title?: string };
+type UnconfimedIconProps = {
+  size?: number;
+  title?: string;
+  onClick?: () => void;
+};
 export const UnconfirmedIcon: React.FC<UnconfimedIconProps> = ({
   size,
   title,
+  onClick,
 }) => (
-  <UnconfirmedIconArea title={title ?? 'Alustava kirjaus'}>
+  <UnconfirmedIconArea title={title ?? 'Alustava kirjaus'} onClick={onClick}>
     <QuestionBookmark size={size || 24} />
   </UnconfirmedIconArea>
 );

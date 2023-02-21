@@ -10,7 +10,7 @@ import { userDataE, UserDataProps } from 'client/data/Categories';
 
 import { gray, secondaryColors } from '../Colors';
 import { connect } from '../component/BaconConnect';
-import ExpenseRow from '../expense/row/ExpenseRow';
+import { ExpenseRow } from '../expense/row/ExpenseRow';
 import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
 import { media } from '../Styles';
 import { TotalsView } from './TotalsView';

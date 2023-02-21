@@ -8,6 +8,7 @@ import * as colors from '../Colors';
 import { Icons } from '../icons/Icons';
 import { media } from '../Styles';
 import { ExpenseTotals, money } from './ExpenseHelper';
+import { ExpenseFilterFunction, ExpenseFilters } from './row/ExpenseFilters';
 import { UnconfirmedIcon } from './row/ExpenseTableLayout';
 
 interface StatusProps {
@@ -19,6 +20,11 @@ interface StatusProps {
   totals: ExpenseTotals | null;
   showFiltered: boolean;
   filteredTotals: ExpenseTotals | null;
+  addFilter: (
+    filter: ExpenseFilterFunction,
+    name: string,
+    avater?: string
+  ) => void;
 }
 
 interface MonthlyStatusState {
@@ -82,7 +88,12 @@ export class MonthlyStatus extends React.Component<
           expanded={expanded}
         >
           {hasUnconfirmed ? (
-            <UnconfirmedIcon title="Sisältää alustavia kirjauksia" />
+            <UnconfirmedIcon
+              title="Sisältää alustavia kirjauksia"
+              onClick={() =>
+                this.props.addFilter(ExpenseFilters.unconfirmed, 'Alustavat')
+              }
+            />
           ) : null}
         </StatusBlock>
         <ToolArea>

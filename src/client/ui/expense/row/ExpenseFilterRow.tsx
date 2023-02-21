@@ -2,25 +2,17 @@ import { Avatar, Chip } from '@mui/material';
 import * as React from 'react';
 import styled from 'styled-components';
 
-import { UserExpense } from 'shared/expense';
 import { colorScheme } from 'client/ui/Colors';
 
+import { ExpenseFilter } from './ExpenseFilters';
 import { AllColumns, Row } from './ExpenseTableLayout';
-
-export type ExpenseFilterFunction = (expense: UserExpense) => boolean;
-
-export interface ExpenseFilter {
-  filter: ExpenseFilterFunction;
-  name: string;
-  avatar?: string;
-}
 
 interface ExpenseFilterRowProps {
   filters: ExpenseFilter[];
   onRemoveFilter: (index: number) => void;
 }
 
-export default class ExpenseFilterRow extends React.Component<ExpenseFilterRowProps> {
+export class ExpenseFilterRow extends React.Component<ExpenseFilterRowProps> {
   public render() {
     if (this.props.filters.length === 0) {
       return null;

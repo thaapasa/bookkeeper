@@ -32,7 +32,7 @@ import { executeOperation } from 'client/util/ExecuteOperation';
 import { ExpenseInfo } from '../details/ExpenseInfo';
 import { ReceiverField } from '../dialog/ReceiverField';
 import { expenseName } from '../ExpenseHelper';
-import { ExpenseFilterFunction } from './ExpenseFilterRow';
+import { ExpenseFilterFunction, ExpenseFilters } from './ExpenseFilters';
 import { SourceIcon, TextButton } from './ExpenseRowComponents';
 import {
   AvatarColumn,
@@ -79,7 +79,7 @@ interface ExpenseRowState {
   isLoading: boolean;
 }
 
-export class ExpenseRow extends React.Component<
+export class ExpenseRowImpl extends React.Component<
   ExpenseRowProps,
   ExpenseRowState
 > {
@@ -247,7 +247,13 @@ export class ExpenseRow extends React.Component<
             />
           </AvatarColumn>
           <NameColumn>
-            {this.props.expense.confirmed ? null : <UnconfirmedIcon />}
+            {this.props.expense.confirmed ? null : (
+              <UnconfirmedIcon
+                onClick={() =>
+                  this.props.addFilter(ExpenseFilters.unconfirmed, 'Alustavat')
+                }
+              />
+            )}
             <ActivatableTextField
               fullWidth
               value={expense.title}
@@ -294,11 +300,11 @@ export class ExpenseRow extends React.Component<
             onClick={() =>
               Money.zero.equals(expense.userBalance)
                 ? this.props.addFilter(
-                    e => Money.zero.equals(e.userBalance),
+                    ExpenseFilters.zeroBalance,
                     `Balanssi ${equal} 0`
                   )
                 : this.props.addFilter(
-                    e => !Money.zero.equals(e.userBalance),
+                    ExpenseFilters.nonZeroBalance,
                     `Balanssi ${notEqual} 0`
                   )
             }
@@ -353,10 +359,10 @@ export class ExpenseRow extends React.Component<
   }
 }
 
-const ExpenseRowMapper: React.FC<
+export const ExpenseRow: React.FC<
   CommonExpenseRowProps & { userData: UserDataProps }
 > = props => (
-  <ExpenseRow
+  <ExpenseRowImpl
     {...props}
     categoryMap={props.userData.categoryMap}
     userMap={props.userData.userMap}
@@ -368,8 +374,6 @@ const ExpenseRowMapper: React.FC<
     )}
   />
 );
-
-export default ExpenseRowMapper;
 
 function weekDay(date: string, prev?: UserExpense | null) {
   const m = toMoment(date);
