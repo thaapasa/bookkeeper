@@ -13,6 +13,7 @@ export function createReportApi() {
   const api = createValidatingRouter(Router());
 
   // GET /api/report/all
+  // Get all reports
   api.postTx(
     '/all',
     {},
@@ -21,6 +22,7 @@ export function createReportApi() {
   );
 
   // POST /api/report
+  // Create new report
   api.postTx(
     '/',
     { body: ReportCreationData },
@@ -30,7 +32,7 @@ export function createReportApi() {
         session.group.id,
         session.user.id,
         body.title,
-        body.searchTerms
+        body.query
       ),
     true
   );

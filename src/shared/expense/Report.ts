@@ -9,12 +9,12 @@ export const Report = z.object({
   groupId: ObjectId,
   userId: ObjectId,
   title: z.string(),
-  searchTerms: ExpenseQuery,
+  query: ExpenseQuery,
 });
 export type Report = z.infer<typeof Report>;
 
 export const ReportCreationData = Report.pick({
   title: true,
-  searchTerms: true,
+  query: true,
 });
 export type ReportCreationData = z.infer<typeof ReportCreationData>;

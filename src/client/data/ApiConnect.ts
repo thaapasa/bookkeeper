@@ -213,9 +213,10 @@ export class ApiConnect {
   }
 
   public async searchExpenses(query: ExpenseQuery): Promise<UserExpense[]> {
-    const expenses = await this.get<UserExpense[]>(
+    const body: ExpenseQuery = filterDefinedProps(query);
+    const expenses = await this.post<UserExpense[]>(
       `/api/expense/search`,
-      filterDefinedProps(query)
+      body
     );
     return expenses.map(mapExpense);
   }
@@ -353,7 +354,7 @@ export class ApiConnect {
   public createReport = (title: string, query: ExpenseQuery) => {
     const body: ReportCreationData = {
       title,
-      searchTerms: filterDefinedProps(query),
+      query: filterDefinedProps(query),
     };
     return this.post<Report>(uri`/api/report`, body);
   };

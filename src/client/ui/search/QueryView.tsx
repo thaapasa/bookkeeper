@@ -75,8 +75,8 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
       userId: this.userIdBus.toProperty(undefined),
       unconfirmed: this.unconfirmedBus.toProperty(false),
     }).map(v => ({
-      search: v.search,
-      receiver: v.receiver,
+      search: v.search || undefined,
+      receiver: v.receiver || undefined,
       startDate: v.dateRange && toISODate(v.dateRange.start),
       endDate: v.dateRange && toISODate(v.dateRange.end),
       categoryId: v.categoryId,
