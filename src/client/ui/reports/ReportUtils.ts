@@ -10,7 +10,9 @@ export async function requestSaveReport(query: ExpenseQuery) {
     'Anna raportille nimi'
   );
   if (!title) return;
-  await executeOperation(apiConnect.createReport(title, query), {
+  // Filter out dates from reports
+  const { startDate, endDate, ...q } = query;
+  await executeOperation(apiConnect.createReport(title, q), {
     success: 'Raportti luotu',
   });
 }

@@ -361,6 +361,9 @@ export class ApiConnect {
     return this.post<ReportDef>(uri`/api/report`, body);
   };
 
+  public deleteReport = (reportId: ObjectId) =>
+    this.del<ApiMessage>(uri`/api/report/${reportId}`);
+
   public getDbStatus = () => this.get<DbStatus>('/api/admin/status');
 }
 

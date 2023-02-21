@@ -35,5 +35,6 @@ export const ExpenseReport = z.object({
   maxExpenseTitle: z.string(),
   recurrencePerYear: MoneyLike,
   recurrencePerMonth: MoneyLike,
+  reportId: ObjectId,
 });
 export type ExpenseReport = z.infer<typeof ExpenseReport>;

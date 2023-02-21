@@ -1,7 +1,11 @@
 import { Router } from 'express';
 
 import { ReportCreationData } from 'shared/expense';
-import { createReport, getAllReports } from 'server/data/ReportDb';
+import {
+  createReport,
+  deleteReport,
+  getAllReports,
+} from 'server/data/ReportDb';
 import { createValidatingRouter } from 'server/server/ValidatingRouter';
 
 /**
@@ -34,6 +38,16 @@ export function createReportApi() {
         body.title,
         body.query
       ),
+    true
+  );
+
+  // DELETE /api/report
+  // Delete report
+  api.deleteTx(
+    '/:reportId',
+    {},
+    (tx, session, { params }) =>
+      deleteReport(tx, session.group.id, params.reportId),
     true
   );
 

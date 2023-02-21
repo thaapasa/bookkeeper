@@ -3,7 +3,7 @@ import { ITask } from 'pg-promise';
 import { ExpenseQuery, ExpenseReport, ReportDef } from 'shared/expense';
 import { SubscriptionSearchCriteria } from 'shared/expense/Subscription';
 import { toISODate, toMoment } from 'shared/time';
-import { ObjectId } from 'shared/types';
+import { ApiMessage, ObjectId } from 'shared/types';
 import { Money } from 'shared/util';
 
 import { getExpenseSearchQuery } from './ExpenseSearch';
@@ -38,6 +38,21 @@ export async function createReport(
     { groupId, userId, title, query }
   );
   return row;
+}
+
+export async function deleteReport(
+  tx: ITask<any>,
+  groupId: ObjectId,
+  reportId: ObjectId
+): Promise<ApiMessage> {
+  const res = await tx.result(
+    `DELETE FROM reports WHERE (id = $/reportId/ AND group_id = $/groupId/)`,
+    { reportId, groupId }
+  );
+  return {
+    status: 'OK',
+    message: res.rowCount === 1 ? 'Report deleted' : 'No reports found',
+  };
 }
 
 export async function searchReports(
@@ -113,5 +128,6 @@ function fillInReportData(
     title: def.title,
     recurrencePerMonth: perYear.divide(12).toString(),
     recurrencePerYear: perYear.toString(),
+    reportId: def.id,
   };
 }

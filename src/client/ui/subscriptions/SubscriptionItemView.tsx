@@ -5,8 +5,11 @@ import {
   RecurrencePeriod,
   RecurringExpense,
 } from 'shared/expense';
-import { readableDateWithYear } from 'shared/time';
-import { Money, noop } from 'shared/util';
+import { readableDateWithYear, toDate, toMoment } from 'shared/time';
+import { Money } from 'shared/util';
+import apiConnect from 'client/data/ApiConnect';
+import { updateExpenses } from 'client/data/State';
+import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { ExpanderIcon } from '../component/ExpanderIcon';
 import { useToggle } from '../hooks/useToggle';
@@ -75,7 +78,11 @@ const ReportItem: React.FC<{
         <Sum>{Money.from(item.avgSum).format()} / kpl</Sum>
         <Sum className="wide">{Money.from(item.sum).format()}</Sum>
         <Tools>
-          <ToolIcon title="Poista" onClick={noop} icon="Delete" />
+          <ToolIcon
+            title="Poista"
+            onClick={() => deleteReport(item)}
+            icon="Delete"
+          />
         </Tools>
       </RowElement>
     </>
@@ -101,4 +108,13 @@ function getPeriodText({ unit, amount }: RecurrencePeriod) {
 
 function m(value: number, singular: string, plural: string) {
   return value === 1 ? singular : plural;
+}
+
+async function deleteReport(item: ExpenseReport) {
+  await executeOperation(() => apiConnect.deleteReport(item.reportId), {
+    confirm: `Haluatko poistaa raportin ${item.title}? Huom! Tämä poistaa kaikki raportin tuottamat rivit`,
+    progress: 'Poistetaan raporttia...',
+    success: 'Raportti poistettu!',
+    postProcess: () => updateExpenses(toDate(toMoment())),
+  });
 }
