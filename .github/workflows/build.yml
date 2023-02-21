@@ -36,10 +36,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
-      - name: Use Node.js 16.14.0
+      - name: Determine Node.js version
+        shell: bash
+        working-directory: .
+        run: echo "NODE_VERSION=`cat .nvmrc`" >> $GITHUB_ENV
+
+      - name: Use Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v1
         with:
-          node-version: 18.12.0
+          node-version: ${{ env.NODE_VERSION }}
 
       - name: Install deps
         run: yarn
