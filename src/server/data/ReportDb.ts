@@ -54,9 +54,15 @@ export async function searchReports(
   return reportData.flat();
 }
 
-type ExpenseReportFromDb = Omit<
+type ExpenseReportFromDb = Pick<
   ExpenseReport,
-  'title' | 'recurrencePerYear' | 'recurrencePerMonth' | 'type' | 'id'
+  | 'categoryId'
+  | 'sum'
+  | 'firstDate'
+  | 'lastDate'
+  | 'minExpenseTitle'
+  | 'maxExpenseTitle'
+  | 'count'
 >;
 
 async function calculateExpenseReports(
@@ -77,7 +83,8 @@ async function calculateExpenseReports(
     `SELECT "categoryId",
       SUM(sum) AS sum,
       MIN(date) AS "firstDate", MAX(date) AS "lastDate",
-      MIN(title) AS "minExpenseTitle", MAX(title) AS "maxExpenseTitle"
+      MIN(title) AS "minExpenseTitle", MAX(title) AS "maxExpenseTitle",
+      COUNT(*) AS count
       FROM (${clause}) results
       GROUP BY "categoryId"`,
     params
@@ -91,11 +98,14 @@ function fillInReportData(
   def: ReportDef
 ): ExpenseReport {
   const firstDate = toMoment(rowData.firstDate);
-  const lastDate = toMoment(rowData.firstDate);
+  const lastDate = toMoment(rowData.lastDate);
   const totalDays = toMoment().diff(firstDate, 'days');
-  const perYear = Money.from(rowData.sum).multiply(365.25).divide(totalDays);
+  const sum = Money.from(rowData.sum);
+  const perYear = sum.multiply(365.25).divide(totalDays);
   return {
     ...rowData,
+    sum: sum.toString(),
+    avgSum: sum.divide(rowData.count).toString(),
     firstDate: toISODate(firstDate),
     lastDate: toISODate(lastDate),
     id: `report-${def.id}-${rowData.categoryId}`,

@@ -6,10 +6,11 @@ import {
   RecurringExpense,
 } from 'shared/expense';
 import { readableDateWithYear } from 'shared/time';
-import { Money } from 'shared/util';
+import { Money, noop } from 'shared/util';
 
 import { ExpanderIcon } from '../component/ExpanderIcon';
 import { useToggle } from '../hooks/useToggle';
+import { ToolIcon } from '../icons/ToolIcon';
 import { Dates, Label, Period, RowElement, Sum, Tools } from './layout';
 import { SubscriptionDetails } from './SubscriptionDetails';
 import { SubscriptionItem } from './types';
@@ -64,9 +65,18 @@ const ReportItem: React.FC<{
   return (
     <>
       <RowElement className={`${className}`}>
-        <Label>{item.title}</Label>
-
+        <Label>Toteutuma: {item.title}</Label>
+        <Label>
+          {item.count} tapahtuma
+          {item.count !== 1 ? 'a' : ''} välillä{' '}
+          {readableDateWithYear(item.firstDate)} -{' '}
+          {readableDateWithYear(item.lastDate)}
+        </Label>
+        <Sum>{Money.from(item.avgSum).format()} / kpl</Sum>
         <Sum className="wide">{Money.from(item.sum).format()}</Sum>
+        <Tools>
+          <ToolIcon title="Poista" onClick={noop} icon="Delete" />
+        </Tools>
       </RowElement>
     </>
   );
