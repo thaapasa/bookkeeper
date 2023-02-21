@@ -7,13 +7,17 @@ import {
   ExpenseSplit,
   ExpenseStatus,
   RecurrencePeriod,
-  RecurringExpense,
-  RecurringExpenseCriteria,
   RecurringExpenseDetails,
   RecurringExpenseTarget,
+  ReportCreationData,
+  ReportDef,
   UserExpense,
   UserExpenseWithDetails,
 } from 'shared/expense';
+import {
+  SubscriptionResult,
+  SubscriptionSearchCriteria,
+} from 'shared/expense/Subscription';
 import { FetchClient, uri } from 'shared/net';
 import { ISODate, timeoutImmediate, toISODate } from 'shared/time';
 import {
@@ -211,9 +215,10 @@ export class ApiConnect {
   }
 
   public async searchExpenses(query: ExpenseQuery): Promise<UserExpense[]> {
-    const expenses = await this.get<UserExpense[]>(
+    const body: ExpenseQuery = filterDefinedProps(query);
+    const expenses = await this.post<UserExpense[]>(
       `/api/expense/search`,
-      filterDefinedProps(query)
+      body
     );
     return expenses.map(mapExpense);
   }
@@ -227,8 +232,8 @@ export class ApiConnect {
   }
 
   public async searchSubscriptions(
-    criteria: RecurringExpenseCriteria
-  ): Promise<RecurringExpense[]> {
+    criteria: SubscriptionSearchCriteria
+  ): Promise<SubscriptionResult> {
     return this.post(uri`/api/subscription/search`, criteria);
   }
 
@@ -347,6 +352,17 @@ export class ApiConnect {
 
   public patchSource = (sourceId: ObjectId, data: SourcePatch) =>
     this.patch<Source>(uri`/api/source/${sourceId}`, data);
+
+  public createReport = (title: string, query: ExpenseQuery) => {
+    const body: ReportCreationData = {
+      title,
+      query: filterDefinedProps(query),
+    };
+    return this.post<ReportDef>(uri`/api/report`, body);
+  };
+
+  public deleteReport = (reportId: ObjectId) =>
+    this.del<ApiMessage>(uri`/api/report/${reportId}`);
 
   public getDbStatus = () => this.get<DbStatus>('/api/admin/status');
 }

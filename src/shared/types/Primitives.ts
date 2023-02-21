@@ -22,3 +22,13 @@ export const IntArrayString = z
   .string()
   .regex(intArrayStringRE)
   .transform((r): number[] => JSON.parse(r));
+
+export const IntOrString = z.number().int().or(IntString);
+
+export const JSONString = <Output>(
+  codec: z.ZodType<Output, any, any>
+): z.ZodType<Output, any, string> =>
+  z
+    .string()
+    .transform(s => JSON.parse(s))
+    .transform(s => codec.parse(s));

@@ -49,11 +49,11 @@ export function createExpenseApi() {
   );
 
   // GET /api/expense/search?[ExpenseSearch]
-  api.getTx(
+  api.postTx(
     '/search',
-    { query: ExpenseQuery, response: z.array(UserExpense) },
-    (tx, session, { query }) =>
-      searchExpenses(tx, session.user.id, session.group.id, query)
+    { body: ExpenseQuery, response: z.array(UserExpense) },
+    (tx, session, { body }) =>
+      searchExpenses(tx, session.user.id, session.group.id, body)
   );
 
   // POST /api/expense

@@ -1,24 +1,34 @@
-import { IconButton } from '@mui/material';
 import * as React from 'react';
 
-import { RecurrencePeriod, RecurringExpense } from 'shared/expense';
-import { readableDateWithYear } from 'shared/time';
-import { ObjectId } from 'shared/types';
+import {
+  ExpenseReport,
+  RecurrencePeriod,
+  RecurringExpense,
+} from 'shared/expense';
+import { readableDateWithYear, toDate, toMoment } from 'shared/time';
 import { Money } from 'shared/util';
+import apiConnect from 'client/data/ApiConnect';
+import { updateExpenses } from 'client/data/State';
+import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { ExpanderIcon } from '../component/ExpanderIcon';
 import { useToggle } from '../hooks/useToggle';
-import { Icons } from '../icons/Icons';
+import { ToolIcon } from '../icons/ToolIcon';
 import { Dates, Label, Period, RowElement, Sum, Tools } from './layout';
 import { SubscriptionDetails } from './SubscriptionDetails';
-import { RecurrenceTotals } from './types';
+import { SubscriptionItem } from './types';
 
-export type ToggleCategoryVisibility = (
-  isVisible: boolean,
-  categoryId: ObjectId
-) => void;
+export const SubscriptionItemView: React.FC<{
+  item: SubscriptionItem;
+  className?: string;
+}> = ({ item, ...props }) =>
+  item.type === 'recurring' ? (
+    <RecurringExpenseItem item={item} {...props} />
+  ) : (
+    <ReportItem item={item} {...props} />
+  );
 
-export const SubscriptionItem: React.FC<{
+const RecurringExpenseItem: React.FC<{
   item: RecurringExpense;
   className?: string;
 }> = ({ item, className }) => {
@@ -50,34 +60,34 @@ export const SubscriptionItem: React.FC<{
     </>
   );
 };
-export const SubscriptionCategoryHeader: React.FC<{
-  title: string;
-  totals?: RecurrenceTotals;
+
+const ReportItem: React.FC<{
+  item: ExpenseReport;
   className?: string;
-  visible?: boolean;
-  categoryId?: ObjectId;
-  setVisible?: ToggleCategoryVisibility;
-}> = ({ title, totals, className, visible = true, setVisible, categoryId }) => (
-  <RowElement className={className}>
-    <Label>
-      {categoryId && setVisible ? (
-        <IconButton onClick={() => setVisible(!visible, categoryId)}>
-          {visible ? <Icons.Visible /> : <Icons.Hidden />}
-        </IconButton>
-      ) : null}
-      {title}
-    </Label>
-    {totals ? (
-      <>
-        <Sum className="optional">
-          {Money.from(totals.recurrencePerMonth).format()} / kk
-        </Sum>
-        <Sum>{Money.from(totals.recurrencePerYear).format()} / v</Sum>
-        <Tools />
-      </>
-    ) : null}
-  </RowElement>
-);
+}> = ({ item, className }) => {
+  return (
+    <>
+      <RowElement className={`${className}`}>
+        <Label>Toteutuma: {item.title}</Label>
+        <Label>
+          {item.count} tapahtuma
+          {item.count !== 1 ? 'a' : ''} välillä{' '}
+          {readableDateWithYear(item.firstDate)} -{' '}
+          {readableDateWithYear(item.lastDate)}
+        </Label>
+        <Sum>{Money.from(item.avgSum).format()} / kpl</Sum>
+        <Sum className="wide">{Money.from(item.sum).format()}</Sum>
+        <Tools>
+          <ToolIcon
+            title="Poista"
+            onClick={() => deleteReport(item)}
+            icon="Delete"
+          />
+        </Tools>
+      </RowElement>
+    </>
+  );
+};
 
 function getPeriodText({ unit, amount }: RecurrencePeriod) {
   switch (unit) {
@@ -98,4 +108,13 @@ function getPeriodText({ unit, amount }: RecurrencePeriod) {
 
 function m(value: number, singular: string, plural: string) {
   return value === 1 ? singular : plural;
+}
+
+async function deleteReport(item: ExpenseReport) {
+  await executeOperation(() => apiConnect.deleteReport(item.reportId), {
+    confirm: `Haluatko poistaa raportin ${item.title}? Huom! Tämä poistaa kaikki raportin tuottamat rivit`,
+    progress: 'Poistetaan raporttia...',
+    success: 'Raportti poistettu!',
+    postProcess: () => updateExpenses(toDate(toMoment())),
+  });
 }

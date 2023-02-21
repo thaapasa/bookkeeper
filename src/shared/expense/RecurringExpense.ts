@@ -4,7 +4,7 @@ import { ISODate } from '../time/Time';
 import { DbObject } from '../types/Common';
 import { ObjectId } from '../types/Id';
 import { MoneyLike } from '../util/Money';
-import { Expense, ExpenseType } from './Expense';
+import { Expense } from './Expense';
 import { RecurrencePeriod } from './Recurrence';
 
 export const RecurringExpenseTarget = z.enum(['single', 'all', 'after']);
@@ -18,6 +18,7 @@ export type RecurringExpenseInput = z.infer<typeof RecurringExpenseInput>;
 
 export const RecurringExpense = RecurringExpenseInput.extend({
   templateExpenseId: ObjectId,
+  type: z.literal('recurring'),
   title: z.string(),
   receiver: z.string(),
   sum: MoneyLike,
@@ -28,13 +29,6 @@ export const RecurringExpense = RecurringExpenseInput.extend({
   nextMissing: ISODate,
 }).and(DbObject);
 export type RecurringExpense = z.infer<typeof RecurringExpense>;
-
-export const RecurringExpenseCriteria = z.object({
-  type: ExpenseType.or(z.array(ExpenseType)).optional(),
-  includeEnded: z.boolean().optional(),
-  onlyOwn: z.boolean().optional(),
-});
-export type RecurringExpenseCriteria = z.infer<typeof RecurringExpenseCriteria>;
 
 export interface Recurrence extends DbObject, RecurringExpenseInput {
   nextMissing: ISODate;

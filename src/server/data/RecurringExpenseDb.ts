@@ -12,12 +12,12 @@ import {
   recurrencePerYear,
   RecurrenceUnit,
   RecurringExpense,
-  RecurringExpenseCriteria,
   RecurringExpenseDetails,
   RecurringExpenseInput,
   RecurringExpenseTarget,
   UserExpense,
 } from 'shared/expense';
+import { SubscriptionSearchCriteria } from 'shared/expense/Subscription';
 import { DateLike, ISODate, toDate, toISODate, toMoment } from 'shared/time';
 import {
   ApiMessage,
@@ -64,7 +64,7 @@ export async function searchRecurringExpenses(
   tx: ITask<any>,
   groupId: ObjectId,
   userId: ObjectId,
-  criteria: RecurringExpenseCriteria = {}
+  criteria: SubscriptionSearchCriteria = {}
 ): Promise<RecurringExpense[]> {
   const type = criteria.type && toArray(criteria.type);
   const expenses = await tx.manyOrNone(
@@ -187,6 +187,7 @@ function mapRecurringExpense(row: any): RecurringExpense {
   const sum = Money.from(row.sum).toString();
   return {
     id: row.recurringExpenseId,
+    type: 'recurring',
     templateExpenseId: row.template_expense_id,
     title: row.title,
     receiver: row.receiver,

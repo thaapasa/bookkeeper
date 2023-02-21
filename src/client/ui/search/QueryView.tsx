@@ -12,6 +12,7 @@ import {
 import { eventValue } from 'client/util/ClientUtil';
 
 import { parseMonthRange, toYearRange } from '../component/daterange/Common';
+import { requestSaveReport } from '../reports/ReportUtils';
 import { QuerySearchLayout } from './QuerySearchLayout';
 import {
   isReceiverSuggestion,
@@ -51,6 +52,7 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
   private executeSearchBus = new B.Bus<void>();
   private userIdBus = new B.Bus<ObjectId | undefined>();
   private unconfirmedBus = new B.Bus<boolean>();
+  private saveReportBus = new B.Bus<void>();
 
   componentDidMount() {
     this.inputBus.onValue(input => this.setState({ input }));
@@ -72,18 +74,19 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
       categoryId: this.categoriesBus.toProperty([]),
       userId: this.userIdBus.toProperty(undefined),
       unconfirmed: this.unconfirmedBus.toProperty(false),
-    });
-    searchData.sampledBy(searchTriggers).onValue(v =>
-      this.doSearch({
-        search: v.search,
-        receiver: v.receiver,
-        startDate: v.dateRange && toISODate(v.dateRange.start),
-        endDate: v.dateRange && toISODate(v.dateRange.end),
-        categoryId: v.categoryId,
-        userId: v.userId,
-        confirmed: v.unconfirmed ? false : undefined,
-      })
-    );
+    }).map(v => ({
+      search: v.search || undefined,
+      receiver: v.receiver || undefined,
+      startDate: v.dateRange && toISODate(v.dateRange.start),
+      endDate: v.dateRange && toISODate(v.dateRange.end),
+      categoryId: v.categoryId,
+      userId: v.userId,
+      confirmed: v.unconfirmed ? false : undefined,
+      includeSubCategories: true,
+    }));
+
+    searchData.sampledBy(searchTriggers).onValue(this.doSearch);
+    searchData.sampledBy(this.saveReportBus).onValue(requestSaveReport);
 
     const params = parseQueryString(document.location.search);
     if (params && params.hae) {
@@ -138,6 +141,7 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
         removeSuggestion={this.removeSelection}
         dateRange={this.state.dateRange}
         onSelectRange={this.selectDateRange}
+        onSaveAsReport={this.saveReport}
       />
     );
   }
@@ -147,6 +151,8 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
   private doSearch = (query: ExpenseQuery) => {
     this.props.onSearch(query);
   };
+
+  private saveReport = () => this.saveReportBus.push();
 
   private selectSuggestion = (suggestion: SearchSuggestion) => {
     this.setState(
