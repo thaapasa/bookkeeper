@@ -1,9 +1,8 @@
 import { z } from 'zod';
 
-import { ISODate } from 'shared/time/Time';
-import { ObjectId } from 'shared/types/Id';
-import { MoneyLike } from 'shared/util/Money';
-
+import { ISODate } from '../time/Time';
+import { ObjectId } from '../types/Id';
+import { MoneyLike } from '../util/Money';
 import { ExpenseQuery } from './Expense';
 
 export const ReportDef = z.object({

@@ -1,5 +1,4 @@
-import { AnyObject } from 'client/ui/Types';
-
+import { AnyObject } from '../types/Common';
 import { getRandomInt } from './Util';
 
 // https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle

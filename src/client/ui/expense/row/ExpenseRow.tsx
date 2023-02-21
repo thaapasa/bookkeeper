@@ -10,8 +10,7 @@ import {
 } from 'shared/expense';
 import { readableDate, toDate, toISODate, toMoment } from 'shared/time';
 import { Category, CategoryMap, isDefined, Source, User } from 'shared/types';
-import { Money } from 'shared/util';
-import { equal, notEqual } from 'shared/util';
+import { equal, Money, notEqual } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { getFullCategoryName, UserDataProps } from 'client/data/Categories';
 import {

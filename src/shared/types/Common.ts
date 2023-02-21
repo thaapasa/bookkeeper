@@ -24,3 +24,5 @@ export type MakeOptional<O, K extends keyof O> = Omit<O, K> &
 
 export const ShortString = z.string().min(1).max(255);
 export type ShortString = z.infer<typeof ShortString>;
+
+export type AnyObject = Record<string, unknown>;

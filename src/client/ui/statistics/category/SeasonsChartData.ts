@@ -1,4 +1,4 @@
-import { getSeasonsInRange, Season, toSeason } from 'shared/time/Season';
+import { getSeasonsInRange, Season, toSeason } from 'shared/time';
 import { Category, CategoryStatistics, ObjectId } from 'shared/types';
 import { Money, typedKeys } from 'shared/util';
 import { getFullCategoryName } from 'client/data/Categories';

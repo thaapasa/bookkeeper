@@ -1,7 +1,7 @@
 import Big from 'big.js';
 import { z } from 'zod';
 
-import { Money, MoneyLike } from 'shared/util';
+import { Money, MoneyLike } from '../util/Money';
 
 export const RecurrenceUnit = z.enum([
   'days',

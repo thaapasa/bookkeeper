@@ -1,9 +1,6 @@
 import { ITask } from 'pg-promise';
 
-import {
-  SubscriptionResult,
-  SubscriptionSearchCriteria,
-} from 'shared/expense/Subscription';
+import { SubscriptionResult, SubscriptionSearchCriteria } from 'shared/expense';
 import { ObjectId } from 'shared/types';
 
 import { searchRecurringExpenses } from './RecurringExpenseDb';

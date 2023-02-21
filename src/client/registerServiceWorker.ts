@@ -9,6 +9,7 @@
 // This link also includes instructions on opting out of this behavior.
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable no-console */
 
 const isLocalhost = Boolean(
   window.location.hostname === 'localhost' ||

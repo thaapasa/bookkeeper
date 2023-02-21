@@ -1,7 +1,6 @@
 import debug from 'debug';
 
-import { isDefined } from 'shared/types';
-
+import { isDefined } from '../types/Common';
 import { AuthenticationError, BkError } from '../types/Errors';
 
 const log = debug('net:fetch-client');
@@ -74,7 +73,7 @@ export class FetchClient {
             'Unauthorized: ' + res.status,
             await res.json()
           );
-        default:
+        default: {
           const data = await res.json();
           log('Error received from API', data);
           throw new BkError(
@@ -83,6 +82,7 @@ export class FetchClient {
             res.status,
             data
           );
+        }
       }
     } catch (e: any) {
       if (e instanceof BkError || e instanceof AuthenticationError) {

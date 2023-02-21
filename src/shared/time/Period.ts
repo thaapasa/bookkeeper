@@ -39,9 +39,10 @@ export function periodToYearAndMonth(p: Period): [Year, Month] {
       return [p.year, p.month];
     case 'year':
       return [p.year, 1];
-    default:
+    default: {
       const m = toMoment();
       return [m.year(), m.month() + 1];
+    }
   }
 }
 

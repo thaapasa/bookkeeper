@@ -1,7 +1,6 @@
 import { Router } from 'express';
 
-import { ExpenseInput } from 'shared/expense';
-import { SubscriptionSearchCriteria } from 'shared/expense/Subscription';
+import { ExpenseInput, SubscriptionSearchCriteria } from 'shared/expense';
 import {
   deleteRecurringExpenseById,
   getRecurringExpenseDetails,

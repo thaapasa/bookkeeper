@@ -1,4 +1,4 @@
-import { AnyObject } from 'client/ui/Types';
+import { AnyObject } from '../types/Common';
 
 export function ucFirst(str: any): string {
   return typeof str === 'string' && str.length > 0
