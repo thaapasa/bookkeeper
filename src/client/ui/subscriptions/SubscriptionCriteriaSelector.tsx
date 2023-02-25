@@ -1,13 +1,29 @@
-import { Checkbox, FormControlLabel, FormGroup } from '@mui/material';
+import {
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
+  Grid,
+  Radio,
+} from '@mui/material';
 import * as React from 'react';
 import { z } from 'zod';
 
 import { SubscriptionSearchCriteria } from 'shared/expense';
+import { isSameInterval, MomentInterval } from 'shared/time';
 import { isDefined } from 'shared/types';
 
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { Flex } from '../Styles';
-import { RowElement } from './layout';
+
+interface RangeOption {
+  range: MomentInterval;
+  label: string;
+}
+
+const rangeOptions = [
+  { label: '1v', range: { amount: 1, unit: 'years' } },
+  { label: '3v', range: { amount: 3, unit: 'years' } },
+  { label: '5v', range: { amount: 5, unit: 'years' } },
+] satisfies RangeOption[];
 
 export const SubscriptionCriteriaSelector: React.FC<{
   onChange: (criteria: SubscriptionSearchCriteria) => void;
@@ -37,6 +53,11 @@ export const SubscriptionCriteriaSelector: React.FC<{
     false,
     z.boolean()
   );
+  const [range, setRange] = useLocalStorage<MomentInterval>(
+    'subscriptions.range',
+    { amount: 5, unit: 'years' },
+    MomentInterval
+  );
   React.useEffect(
     () =>
       onChange({
@@ -47,58 +68,82 @@ export const SubscriptionCriteriaSelector: React.FC<{
           incomes ? ('income' as const) : undefined,
           transfers ? ('transfer' as const) : undefined,
         ].filter(isDefined),
+        range,
       }),
-    [onChange, includeEnded, onlyOwn, expenses, incomes, transfers]
+    [onChange, includeEnded, onlyOwn, expenses, incomes, transfers, range]
   );
 
   return (
-    <RowElement>
-      <FormGroup row>
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={includeEnded}
-              onChange={() => setIncludeEnded(!includeEnded)}
+    <Grid container width="100%" paddingLeft={2} paddingRight={2}>
+      <Grid item xs={12} md={4}>
+        <FormGroup row>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={includeEnded}
+                onChange={() => setIncludeEnded(!includeEnded)}
+              />
+            }
+            label="Myös loppuneet"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={onlyOwn}
+                onChange={() => setOnlyOwn(!onlyOwn)}
+              />
+            }
+            label="Vain omat"
+          />
+        </FormGroup>
+      </Grid>
+      <Grid item xs={12} md={4}>
+        <FormGroup row sx={{ justifyContent: 'center' }}>
+          {rangeOptions.map(r => (
+            <FormControlLabel
+              key={r.label}
+              control={
+                <Radio
+                  checked={isSameInterval(r.range, range)}
+                  onChange={() => setRange(r.range)}
+                />
+              }
+              label={r.label}
             />
-          }
-          label="Myös loppuneet"
-        />
-      </FormGroup>
-      <FormGroup row>
-        <FormControlLabel
-          control={
-            <Checkbox checked={onlyOwn} onChange={() => setOnlyOwn(!onlyOwn)} />
-          }
-          label="Vain omat"
-        />
-      </FormGroup>
-      <Flex />
-      <FormGroup row>
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={expenses}
-              onChange={() => setExpenses(!expenses)}
-            />
-          }
-          label="Menot"
-        />
-        <FormControlLabel
-          control={
-            <Checkbox checked={incomes} onChange={() => setIncomes(!incomes)} />
-          }
-          label="Tulot"
-        />
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={transfers}
-              onChange={() => setTranfers(!transfers)}
-            />
-          }
-          label="Siirrot"
-        />
-      </FormGroup>
-    </RowElement>
+          ))}
+        </FormGroup>
+      </Grid>
+      <Grid item xs={12} md={4}>
+        <FormGroup row sx={{ justifyContent: 'right' }}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={expenses}
+                onChange={() => setExpenses(!expenses)}
+              />
+            }
+            label="Menot"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={incomes}
+                onChange={() => setIncomes(!incomes)}
+              />
+            }
+            label="Tulot"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={transfers}
+                onChange={() => setTranfers(!transfers)}
+              />
+            }
+            label="Siirrot"
+          />
+        </FormGroup>
+      </Grid>
+    </Grid>
   );
 };

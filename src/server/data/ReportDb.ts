@@ -6,7 +6,7 @@ import {
   ReportDef,
   SubscriptionSearchCriteria,
 } from 'shared/expense';
-import { toISODate, toMoment } from 'shared/time';
+import { MomentInterval, toISODate, toMoment } from 'shared/time';
 import { ApiMessage, ObjectId } from 'shared/types';
 import { Money } from 'shared/util';
 
@@ -84,6 +84,8 @@ type ExpenseReportFromDb = Pick<
   | 'count'
 >;
 
+const defaultSearchRanage: MomentInterval = { amount: 5, unit: 'years' };
+
 async function calculateExpenseReports(
   tx: ITask<any>,
   groupId: ObjectId,
@@ -91,9 +93,11 @@ async function calculateExpenseReports(
   report: ReportDef,
   criteria: SubscriptionSearchCriteria
 ): Promise<ExpenseReport[]> {
+  const range = criteria.range ?? defaultSearchRanage;
   const { clause, params } = await getExpenseSearchQuery(tx, userId, groupId, {
     // Do not include recurring subscriptions as they are tracked separately
     includeRecurring: false,
+    startDate: toMoment().subtract(range.amount, range.unit).format(),
     ...report.query,
     ...(criteria.onlyOwn ? { userId } : undefined),
     ...(criteria.type ? { type: criteria.type } : undefined),
