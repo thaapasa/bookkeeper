@@ -44,5 +44,13 @@ export function useLocalStorageList<T>(
     setListS(list.current);
   }, [setListS]);
 
-  return { list: list.current, addItems, removeItem, clear };
+  const toggleItem = React.useCallback(
+    (t: T) => {
+      if (list.current.includes(t)) removeItem(t);
+      else addItems(t);
+    },
+    [removeItem, addItems]
+  );
+
+  return { list: list.current, addItems, removeItem, toggleItem, clear };
 }

@@ -8,10 +8,7 @@ import { Icons } from '../icons/Icons';
 import { Label, RowElement, Sum, Tools } from './layout';
 import { RecurrenceTotals } from './types';
 
-export type ToggleCategoryVisibility = (
-  isVisible: boolean,
-  categoryId: ObjectId
-) => void;
+export type ToggleCategoryVisibility = (categoryId: ObjectId) => void;
 
 export const SubscriptionCategoryHeader: React.FC<{
   title: string;
@@ -19,12 +16,19 @@ export const SubscriptionCategoryHeader: React.FC<{
   className?: string;
   visible?: boolean;
   categoryId?: ObjectId;
-  setVisible?: ToggleCategoryVisibility;
-}> = ({ title, totals, className, visible = true, setVisible, categoryId }) => (
+  toggleVisibility?: ToggleCategoryVisibility;
+}> = ({
+  title,
+  totals,
+  className,
+  visible = true,
+  toggleVisibility,
+  categoryId,
+}) => (
   <RowElement className={className}>
     <Label>
-      {categoryId && setVisible ? (
-        <IconButton onClick={() => setVisible(!visible, categoryId)}>
+      {categoryId && toggleVisibility ? (
+        <IconButton onClick={() => toggleVisibility(categoryId)}>
           {visible ? <Icons.Visible /> : <Icons.Hidden />}
         </IconButton>
       ) : null}

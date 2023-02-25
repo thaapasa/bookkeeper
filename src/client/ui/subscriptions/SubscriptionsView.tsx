@@ -14,7 +14,7 @@ import { needUpdateE } from 'client/data/State';
 import { AsyncDataView } from '../component/AsyncDataView';
 import { connect } from '../component/BaconConnect';
 import { useDeferredData } from '../hooks/useAsyncData';
-import { useForceReload } from '../hooks/useForceReload';
+import { useLocalStorageList } from '../hooks/useList';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { PageContentContainer } from '../Styles';
 import {
@@ -79,22 +79,19 @@ const SubscriptionsRenderer: React.FC<{
   data: SubscriptionsData;
 }> = ({ data }) => {
   const [catId, setCatId] = React.useState<ObjectId | undefined>(undefined);
-  const hidden = React.useMemo(() => new Set<ObjectId>(), []);
-  const forceReload = useForceReload();
-  const setVisibility = React.useCallback<ToggleCategoryVisibility>(
-    (visible, id) => {
-      if (visible) hidden.delete(id);
-      else hidden.add(id);
-      forceReload();
-    },
-    [hidden, forceReload]
+  const hidden = useLocalStorageList<number>(
+    'subscription.filter.hiddenCategories',
+    []
   );
+
   const [perMonth, setPerMonth] = useLocalStorage(
     'subscriptions.show.months',
     false,
     z.boolean()
   );
-  const filteredGroups = data.groups.filter(g => !hidden.has(g.root.id));
+  const filteredGroups = data.groups.filter(
+    g => !hidden.list.includes(g.root.id)
+  );
   const pieData = createPieData(filteredGroups, catId, perMonth);
   const selectedIndex = data.groups.findIndex(g => g.root.id === catId);
   const selectedGroup =
@@ -134,16 +131,16 @@ const SubscriptionsRenderer: React.FC<{
       {selectedGroup ? (
         <GroupView
           group={selectedGroup}
-          hidden={hidden}
-          setVisibility={setVisibility}
+          hidden={hidden.list}
+          toggleVisibility={hidden.toggleItem}
         />
       ) : (
         data.groups.map(s => (
           <GroupView
             key={s.root.id}
             group={s}
-            hidden={hidden}
-            setVisibility={setVisibility}
+            hidden={hidden.list}
+            toggleVisibility={hidden.toggleItem}
           />
         ))
       )}
@@ -209,14 +206,14 @@ const total = (
 
 const GroupView: React.FC<{
   group: SubscriptionGroup;
-  hidden: Set<ObjectId>;
-  setVisibility: ToggleCategoryVisibility;
+  hidden: ObjectId[];
+  toggleVisibility: ToggleCategoryVisibility;
 }> = ({
   group: { root, rootItems, rootTotals, allTotals, children },
   hidden,
-  setVisibility,
+  toggleVisibility,
 }) => {
-  const visible = !hidden.has(root.id);
+  const visible = !hidden.includes(root.id);
   return (
     <>
       <SubscriptionCategoryHeader
@@ -225,7 +222,7 @@ const GroupView: React.FC<{
         className="root-category"
         categoryId={root.id}
         visible={visible}
-        setVisible={setVisibility}
+        toggleVisibility={toggleVisibility}
       />
       {visible ? (
         <>
