@@ -1,112 +1,125 @@
 import debug from 'debug';
-import { History } from 'history';
 import * as React from 'react';
+import { useNavigate } from 'react-router';
 
-import { ExpenseStatus, UserExpense } from 'shared/expense';
-import { isSameMonth, monthRange, toMoment } from 'shared/time';
+import { UserExpense } from 'shared/expense';
+import {
+  ISODate,
+  ISODatePattern,
+  isSameMonth,
+  monthRange,
+  toISODate,
+  toMoment,
+} from 'shared/time';
 import apiConnect from 'client/data/ApiConnect';
 import { navigationBus, needUpdateE } from 'client/data/State';
-import { unsubscribeAll, Unsubscriber } from 'client/util/ClientUtil';
 import { expensePagePath, expensesForMonthPath } from 'client/util/Links';
 
+import { useDeferredData } from '../hooks/useAsyncData';
 import { zeroStatus } from './ExpenseHelper';
 import ExpenseTable from './ExpenseTable';
 const log = debug('bookkeeper:month-view');
 
 interface MonthViewProps {
   date: Date;
-  history: History;
 }
 
-interface MonthViewState {
-  loading: boolean;
-  expenses: UserExpense[];
-  startStatus: ExpenseStatus;
-  endStatus: ExpenseStatus;
-  monthStatus: ExpenseStatus;
-  unconfirmedBefore: boolean;
-}
+const zeroStatuses = {
+  startStatus: zeroStatus,
+  endStatus: zeroStatus,
+  monthStatus: zeroStatus,
+};
 
-export default class MonthView extends React.PureComponent<
-  MonthViewProps,
-  MonthViewState
-> {
-  private unsub: Unsubscriber[] = [];
+const noExpenses: UserExpense[] = [];
 
-  public state: MonthViewState = {
-    loading: false,
-    expenses: [],
-    startStatus: zeroStatus,
-    endStatus: zeroStatus,
-    monthStatus: zeroStatus,
-    unconfirmedBefore: false,
-  };
+export const MonthView: React.FC<MonthViewProps> = ({ date }) => {
+  const isoDate = toISODate(date);
+  const { data, loadData } = useDeferredData(
+    loadExpensesForDate,
+    true,
+    isoDate
+  );
+  React.useEffect(loadData, [loadData]);
 
-  public async componentDidMount() {
-    this.loadExpenses(this.props.date);
-    this.unsub.push(needUpdateE.onValue(this.refreshExpensesFor));
-  }
+  const statuses = React.useMemo(
+    () =>
+      data.type === 'loaded'
+        ? {
+            startStatus: data.value.startStatus,
+            endStatus: data.value.endStatus,
+            monthStatus: data.value.monthStatus,
+          }
+        : zeroStatuses,
+    [data]
+  );
+  const expenseResponse = data.type === 'loaded' ? data.value : undefined;
+  const loadedExpenseArray = expenseResponse?.expenses;
 
-  public async componentDidUpdate(prevProps: MonthViewProps) {
-    if (!toMoment(prevProps.date).isSame(this.props.date, 'month')) {
-      this.loadExpenses(this.props.date);
+  const [localExpenses, setExpenses] = React.useState<
+    UserExpense[] | undefined
+  >(undefined);
+
+  // React hack to auto-update local state to localExpenses array
+  // whenever loaded data changed, but also to be able to read
+  // it right away. We can set it directly as it's our internal state.
+  let expenses = localExpenses;
+  if (data.type === 'loaded') {
+    if (localExpenses !== loadedExpenseArray) {
+      setExpenses(loadedExpenseArray);
+      expenses = loadedExpenseArray;
+    }
+  } else {
+    if (localExpenses !== undefined) {
+      setExpenses(undefined);
+      expenses = undefined;
     }
   }
 
-  public componentWillUnmount() {
-    unsubscribeAll(this.unsub);
-  }
+  const navigate = useNavigate();
+  React.useEffect(
+    () =>
+      needUpdateE.onValue((newDate: Date) => {
+        log('Expenses updated, refreshing for date', newDate);
+        if (isSameMonth(newDate, date)) {
+          log('Reloading expenses for this month');
+          loadData();
+        } else {
+          const path = expensesForMonthPath(newDate);
+          log('Navigating to', path);
+          navigate(path);
+        }
+      }),
+    [loadData, navigate, date]
+  );
 
-  private async loadExpenses(date: Date) {
-    const m = toMoment(date);
-    navigationBus.push({
-      dateRange: monthRange(m),
-      pathPrefix: expensePagePath,
-    });
-    this.setState({
-      loading: true,
-      startStatus: zeroStatus,
-      endStatus: zeroStatus,
-      monthStatus: zeroStatus,
-    });
-    const expenses = await apiConnect.getExpensesForMonth(
-      m.get('year'),
-      m.get('month') + 1
-    );
-    log('Expenses for', date, expenses);
-    this.setState({ loading: false, ...expenses });
-  }
+  return (
+    <ExpenseTable
+      expenses={expenses ?? noExpenses}
+      loading={data.type === 'loading'}
+      startStatus={statuses.startStatus}
+      endStatus={statuses.endStatus}
+      monthStatus={statuses.monthStatus}
+      unconfirmedBefore={expenseResponse?.unconfirmedBefore ?? false}
+      onUpdateExpense={(id, data) =>
+        expenses
+          ? setExpenses(expenses.map(e => (e.id === id ? data : e)))
+          : undefined
+      }
+      dateBorder={true}
+    />
+  );
+};
 
-  private refreshExpensesFor = (date: Date) => {
-    log('Expenses updated, refreshing for date', date);
-    if (isSameMonth(date, this.props.date)) {
-      log('Reloading expenses for this month');
-      this.loadExpenses(date);
-    } else {
-      const path = expensesForMonthPath(date);
-      log('Navigating to', path);
-      this.props.history.push(path);
-    }
-  };
-
-  private onUpdateExpense = (id: number, data: UserExpense) => {
-    this.setState(s => ({
-      expenses: s.expenses.map(e => (e.id === id ? data : e)),
-    }));
-  };
-
-  public render() {
-    return (
-      <ExpenseTable
-        expenses={this.state.expenses}
-        loading={this.state.loading}
-        startStatus={this.state.startStatus}
-        endStatus={this.state.endStatus}
-        monthStatus={this.state.monthStatus}
-        unconfirmedBefore={this.state.unconfirmedBefore}
-        onUpdateExpense={this.onUpdateExpense}
-        dateBorder={true}
-      />
-    );
-  }
+async function loadExpensesForDate(date: ISODate) {
+  const m = toMoment(date, ISODatePattern);
+  navigationBus.push({
+    dateRange: monthRange(m),
+    pathPrefix: expensePagePath,
+  });
+  const expenses = await apiConnect.getExpensesForMonth(
+    m.get('year'),
+    m.get('month') + 1
+  );
+  log('Expenses for', date, expenses);
+  return expenses;
 }

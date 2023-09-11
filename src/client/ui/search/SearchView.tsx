@@ -1,7 +1,7 @@
 import * as B from 'baconjs';
 import debug from 'debug';
 import * as React from 'react';
-import { RouteComponentProps } from 'react-router';
+import { useParams } from 'react-router';
 
 import { ExpenseQuery, UserExpense } from 'shared/expense';
 import { toDateRange } from 'shared/time';
@@ -33,6 +33,8 @@ interface SearchViewProps {
   categorySource: CategoryDataSource[];
 }
 
+type SearchViewParams = 'year' | 'month';
+
 function isEmptyQuery(q: ExpenseQuery) {
   const hasCategory =
     typeof q.categoryId === 'number' ||
@@ -40,16 +42,19 @@ function isEmptyQuery(q: ExpenseQuery) {
   return !q.search && !hasCategory && !q.receiver && !isDefined(q.confirmed);
 }
 
-const SearchViewImpl: React.FC<
-  RouteComponentProps<{ year?: string; month?: string }> & SearchViewProps
-> = ({ userData, session, categorySource, match }) => {
+const SearchViewImpl: React.FC<SearchViewProps> = ({
+  userData,
+  session,
+  categorySource,
+}) => {
   const [results, setResults] =
     React.useState<AsyncData<UserExpense[]>>(UninitializedData);
+  const { year, month } = useParams<SearchViewParams>();
 
   const searchBus = usePersistentMemo(() => new B.Bus<ExpenseQuery>(), []);
   const repeatSearchBus = usePersistentMemo(() => new B.Bus<true>(), []);
 
-  log(`Param year`, match.params.year, `month`, match.params.month);
+  log(`Param year`, year, `month`, month);
 
   // We can't use React.useEffect() here because it is run too late
   // (after initial render, and after the query view submits the query).
@@ -109,7 +114,8 @@ const SearchViewImpl: React.FC<
         onSearch={onSearch}
         isSearching={results.type === 'loading'}
         user={session.user}
-        {...match.params}
+        year={year}
+        month={month}
       />
       <ResultsView
         results={results.type === 'loaded' ? results.value : []}

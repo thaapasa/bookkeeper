@@ -1,6 +1,6 @@
 import { styled } from '@mui/material';
 import * as React from 'react';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 import { Session } from 'shared/types';
 import { expenseDialogE, expenseSplitE } from 'client/data/State';
@@ -117,42 +117,42 @@ export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
             <NavigationBar links={appLinks} windowSize={windowSize} />
           )}
           <MainContent className={'main-content ' + className}>
-            <Switch>
-              <Route path={newExpensePath} component={NewExpenseView} />
+            <Routes>
+              <Route path={newExpensePath} element={<NewExpenseView />} />
               <Route
                 path={expenseMonthPathPattern('date')}
-                component={RoutedMonthView}
+                element={<RoutedMonthView />}
               />
-              <Route path={expensePagePath} component={RoutedMonthView} />
+              <Route path={expensePagePath} element={<RoutedMonthView />} />
               <Route
                 path={categoryViewYearPattern('year')}
-                component={RoutedCategoryView}
+                element={<RoutedCategoryView />}
               />
               <Route
                 path={categoryViewMonthPattern('month')}
-                component={RoutedCategoryView}
+                element={<RoutedCategoryView />}
               />
-              <Route path={shortcutsPage} component={ShortcutsView} />
+              <Route path={shortcutsPage} element={<ShortcutsView />} />
               <Route
                 path={subscriptionsPagePath}
-                component={SubscriptionsView}
+                element={<SubscriptionsView />}
               />
-              <Route path={categoryPagePath} component={RoutedCategoryView} />
+              <Route path={categoryPagePath} element={<RoutedCategoryView />} />
               <Route
                 path={`${searchPagePath}/m/:month`}
-                component={SearchView}
+                element={<SearchView />}
               />
               <Route
                 path={`${searchPagePath}/y/:year`}
-                component={SearchView}
+                element={<SearchView />}
               />
-              <Route path={searchPagePath} component={SearchView} />
-              <Route path={statisticsPage} component={StatisticsView} />
-              <Route path={infoPagePath} component={InfoView} />
-              <Route path={toolsPagePath} component={ToolsView} />
-              <Route exact={true} path="/" component={FrontpageView} />
-              <Route component={PathNotFoundError} />
-            </Switch>
+              <Route path={searchPagePath} element={<SearchView />} />
+              <Route path={statisticsPage} element={<StatisticsView />} />
+              <Route path={infoPagePath} element={<InfoView />} />
+              <Route path={toolsPagePath} element={<ToolsView />} />
+              <Route path="/" element={<FrontpageView />} />
+              <Route element={<PathNotFoundError />} />
+            </Routes>
           </MainContent>
         </ContentContainer>
       </Router>

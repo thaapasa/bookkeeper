@@ -13,7 +13,6 @@
     "typescript.tsdk": "node_modules/typescript/lib",
     "javascript.validate.enable": false,
     "eslint.enable": true,
-    "eslint.packageManager": "yarn",
     "editor.codeActionsOnSave": {
         "source.fixAll.eslint": true
     }

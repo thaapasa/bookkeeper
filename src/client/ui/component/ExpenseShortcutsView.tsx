@@ -40,7 +40,7 @@ const ExpenseShortcutsViewImpl: React.FC<{
 
   return (
     <LinksContainer
-      theme={{ maxHeight: `${height}px` }}
+      maxHeight={`${height}px`}
       className={props.shortcuts.length > 0 ? 'enabled' : 'disabled'}
     >
       <ExpenseShortcutsListImpl {...props} />
@@ -94,7 +94,8 @@ const Title = styled('div')`
   color: ${secondaryColors.dark};
 `;
 
-const LinksContainer = styled('div')`
+const LinksContainer = styled('div')(
+  (props: { maxHeight: string }) => `
   position: absolute;
   z-index: 1;
   top: 28px;
@@ -109,10 +110,11 @@ const LinksContainer = styled('div')`
   max-height: 32px;
 
   &.enabled:hover {
-    max-height: ${props => props.theme.maxHeight};
+    max-height: ${props.maxHeight};
     background-color: ${navigationBar};
   }
-`;
+`
+);
 
 const LinksArea = styled('div')`
   display: flex;

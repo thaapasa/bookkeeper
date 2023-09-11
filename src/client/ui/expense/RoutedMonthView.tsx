@@ -1,22 +1,14 @@
 import * as React from 'react';
-import { RouteComponentProps } from 'react-router';
+import { useParams } from 'react-router';
 
 import { toMoment } from 'shared/time';
 
-import MonthView from './MonthView';
+import { MonthView } from './MonthView';
 
-interface MonthRouteParams {
-  date?: string;
-}
+type MonthRouteParams = 'date';
 
-export const RoutedMonthView: React.FC<
-  RouteComponentProps<MonthRouteParams>
-> = ({
-  history,
-  match: {
-    params: { date },
-  },
-}) => {
+export const RoutedMonthView: React.FC = ({}) => {
+  const { date } = useParams<MonthRouteParams>();
   const jsDate = date ? toMoment(date + '-01').toDate() : new Date();
-  return <MonthView date={jsDate} history={history} />;
+  return <MonthView date={jsDate} />;
 };

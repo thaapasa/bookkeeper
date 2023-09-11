@@ -128,13 +128,16 @@ const Panel = styled('div')`
 
 const Tab = styled('div')``;
 
-const TabButton = styled(Button)`
+const TabButton = styled(Button)(
+  (props: { selected: boolean }) => `
   text-transform: none;
   padding: 4px 6px;
-  ${(props: any) =>
+  ${
     props.selected
       ? `border: 1px dotted ${colorScheme.secondary.light};
          background-color: ${colorScheme.secondary.light}77;
          color: ${colorScheme.secondary.text}`
-      : ''};
-`;
+      : ''
+  };
+  `
+);

@@ -25,10 +25,10 @@ export const NameColumn = styled('div')`
   &.header {
     font-weight: bold;
   }
-  ${RowElement}.sub-category & {
+  .sub-category & {
     color: ${colorScheme.secondary.dark};
   }
-  ${RowElement}.main-category & {
+  .main-category & {
     font-weight: bold;
   }
 `;

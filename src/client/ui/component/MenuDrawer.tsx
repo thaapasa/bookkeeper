@@ -1,6 +1,6 @@
 import { Drawer, MenuItem, styled } from '@mui/material';
 import * as React from 'react';
-import { RouteComponentProps, withRouter } from 'react-router';
+import { useNavigate } from 'react-router';
 
 import { Group, User } from 'shared/types';
 import { config } from 'client/Config';
@@ -13,7 +13,7 @@ import { connect } from './BaconConnect';
 import { AppLink } from './NavigationBar';
 import { UserAvatar } from './UserAvatar';
 
-interface MenuDrawerProps extends RouteComponentProps {
+interface MenuDrawerProps {
   open: boolean;
   onRequestChange: (open: boolean) => void;
   user: User;
@@ -33,16 +33,16 @@ const MenuLink: React.FC<AppLink & { onSelect: (path: string) => void }> = ({
   </MenuItem>
 );
 
-const MenuDrawerImpl: React.FC<MenuDrawerProps> = ({
-  history,
+export const MenuDrawer: React.FC<MenuDrawerProps> = ({
   onRequestChange,
   open,
   group,
   user,
   links,
 }) => {
+  const navigate = useNavigate();
   const onSelect = (path: string) => {
-    history.push(path);
+    navigate(path);
     onRequestChange(false);
   };
   const onClose = () => onRequestChange(false);
@@ -79,8 +79,6 @@ const MenuDrawerImpl: React.FC<MenuDrawerProps> = ({
     </Drawer>
   );
 };
-
-export const MenuDrawer = withRouter(MenuDrawerImpl);
 
 const GroupName = styled('div')`
   padding: 16px 24px;

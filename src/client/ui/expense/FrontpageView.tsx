@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { RouteComponentProps } from 'react-router';
 
 import { windowSizeP } from 'client/data/State';
 
@@ -9,10 +8,8 @@ import { isMobileSize } from '../Styles';
 import { Size } from '../Types';
 import { RoutedMonthView } from './RoutedMonthView';
 
-const FrontpageViewImpl: React.FC<
-  RouteComponentProps & { size: Size }
-> = props =>
-  isMobileSize(props.size) ? <ShortcutsView /> : <RoutedMonthView {...props} />;
+const FrontpageViewImpl: React.FC<{ size: Size }> = props =>
+  isMobileSize(props.size) ? <ShortcutsView /> : <RoutedMonthView />;
 
 export const FrontpageView = connect(windowSizeP.map(size => ({ size })))(
   FrontpageViewImpl

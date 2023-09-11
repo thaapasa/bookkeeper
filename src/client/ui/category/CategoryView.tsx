@@ -1,6 +1,5 @@
 import { styled } from '@mui/material';
 import * as B from 'baconjs';
-import { History } from 'history';
 import * as React from 'react';
 
 import { TypedDateRange } from 'shared/time';
@@ -21,7 +20,6 @@ import { CategoryTable } from './CategoryTable';
 interface CategoryViewProps {
   categories: Category[];
   range: TypedDateRange;
-  history: History;
   userData: UserDataProps;
 }
 
