@@ -2,8 +2,7 @@
   "compilerOptions": {
     "module": "esnext",
     "target": "es6",
-    "moduleResolution": "bundler",
-    "moduleResolution": "Node",
+    "moduleResolution": "node",
     "moduleDetection": "force",
     "allowImportingTsExtensions": true,
     "noEmit": true,
