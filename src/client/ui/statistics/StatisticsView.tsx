@@ -53,7 +53,8 @@ export const StatisticsViewImpl: React.FC<{
     'statistics.categories',
     [],
     z.array(CategorySelection),
-    cmpCat
+    cmpCat,
+    c => !!categoryMap[c.id]
   );
 
   const [range, setRange] = React.useState<DateRange | undefined>(undefined);
