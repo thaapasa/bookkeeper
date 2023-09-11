@@ -1,12 +1,4 @@
-import {
-  DialogContent,
-  FormControl,
-  IconButton,
-  InputLabel,
-  MenuItem,
-  Select,
-  styled,
-} from '@mui/material';
+import { DialogContent, FormControl, IconButton, InputLabel, MenuItem, Select, styled } from '@mui/material';
 import * as React from 'react';
 
 import { ExpenseType, expenseTypes, getExpenseTypeLabel } from 'shared/expense';
@@ -25,11 +17,7 @@ export const SumField: React.FC<{
   const addToSum = () => {
     const sum = window.prompt('Syötä summaan lisättävä määrä:');
     if (sum) {
-      onChange(
-        new Money(sanitizeMoneyInput(value || '0'))
-          .plus(sanitizeMoneyInput(sum))
-          .toString()
-      );
+      onChange(new Money(sanitizeMoneyInput(value || '0')).plus(sanitizeMoneyInput(sum)).toString());
     }
   };
   return (
@@ -65,13 +53,7 @@ export const SourceSelector: React.FC<{
       <InputLabel htmlFor={id} shrink={true}>
         {title}
       </InputLabel>
-      <Select
-        labelId={id}
-        value={value}
-        style={style}
-        label={title}
-        onChange={e => onChange(Number(e.target.value))}
-      >
+      <Select labelId={id} value={value} style={style} label={title} onChange={e => onChange(Number(e.target.value))}>
         {sources.map(s => (
           <MenuItem key={s.id} value={s.id}>
             {s.name}
@@ -87,8 +69,7 @@ export const TypeSelector: React.FC<{
   onChange: (s: ExpenseType) => void;
 }> = ({ value, onChange }) => {
   const toggle = React.useCallback(() => {
-    const toggled =
-      expenseTypes[(expenseTypes.indexOf(value) + 1) % expenseTypes.length];
+    const toggled = expenseTypes[(expenseTypes.indexOf(value) + 1) % expenseTypes.length];
     if (toggled && onChange) {
       onChange(toggled);
     }

@@ -13,16 +13,8 @@ interface TitleFieldProps {
   onSelect: (s: number) => void;
 }
 
-export const TitleField: React.FC<TitleFieldProps> = ({
-  value,
-  errorText,
-  dataSource,
-  onChange,
-  onSelect,
-}) => {
-  const [suggestions, setSuggestions] = React.useState<CategoryDataSource[]>(
-    []
-  );
+export const TitleField: React.FC<TitleFieldProps> = ({ value, errorText, dataSource, onChange, onSelect }) => {
+  const [suggestions, setSuggestions] = React.useState<CategoryDataSource[]>([]);
 
   const selectCategory = React.useCallback(
     (c: CategoryDataSource) => {
@@ -31,13 +23,12 @@ export const TitleField: React.FC<TitleFieldProps> = ({
         onChange(last((c.text || '').split('-')).trim());
       }
     },
-    [onSelect, onChange]
+    [onSelect, onChange],
   );
 
   const updateSuggestions = React.useCallback(
-    (search: string) =>
-      setSuggestions(filterMapCaseInsensitive(search, dataSource, dsToString)),
-    [setSuggestions, dataSource]
+    (search: string) => setSuggestions(filterMapCaseInsensitive(search, dataSource, dsToString)),
+    [setSuggestions, dataSource],
   );
 
   return (

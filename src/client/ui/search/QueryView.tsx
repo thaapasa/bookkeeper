@@ -5,20 +5,13 @@ import { ExpenseQuery } from 'shared/expense';
 import { parseQueryString } from 'shared/net';
 import { toISODate, toMoment, TypedDateRange } from 'shared/time';
 import { Category, CategoryMap, ObjectId, User } from 'shared/types';
-import {
-  CategoryDataSource,
-  getFullCategoryName,
-} from 'client/data/Categories';
+import { CategoryDataSource, getFullCategoryName } from 'client/data/Categories';
 import { eventValue } from 'client/util/ClientUtil';
 
 import { parseMonthRange, toYearRange } from '../component/daterange/Common';
 import { requestSaveReport } from '../reports/ReportUtils';
 import { QuerySearchLayout } from './QuerySearchLayout';
-import {
-  isReceiverSuggestion,
-  isSameSuggestion,
-  SearchSuggestion,
-} from './SearchSuggestions';
+import { isReceiverSuggestion, isSameSuggestion, SearchSuggestion } from './SearchSuggestions';
 
 interface QueryViewProps {
   categorySource: CategoryDataSource[];
@@ -65,7 +58,7 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
       this.dateRangeBus,
       this.categoriesBus,
       this.userIdBus,
-      this.unconfirmedBus
+      this.unconfirmedBus,
     );
     const searchData = B.combineTemplate({
       search: this.inputBus.toProperty(''),
@@ -89,10 +82,10 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
     searchData.sampledBy(this.saveReportBus).onValue(requestSaveReport);
 
     const params = parseQueryString(document.location.search);
-    if (params && params.hae) {
+    if (params?.hae) {
       this.inputBus.push(params.hae);
     }
-    if (params && params.kaikki) {
+    if (params?.kaikki) {
       setImmediate(() => this.selectDateRange(undefined));
     } else {
       if (this.props.month) {
@@ -164,7 +157,7 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
           suggestion,
         ],
       }),
-      this.pushSelections
+      this.pushSelections,
     );
     this.inputBus.push('');
   };
@@ -172,37 +165,27 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
   private removeSelection = (suggestion: SearchSuggestion) => {
     this.setState(
       s => ({
-        selectedSuggestions: s.selectedSuggestions.filter(
-          c => !isSameSuggestion(c, suggestion)
-        ),
+        selectedSuggestions: s.selectedSuggestions.filter(c => !isSameSuggestion(c, suggestion)),
       }),
-      this.pushSelections
+      this.pushSelections,
     );
   };
 
   private pushSelections = () => {
-    this.categoriesBus.push(
-      this.state.selectedSuggestions
-        .filter(s => s.type === 'category')
-        .map(c => c.id)
-    );
+    this.categoriesBus.push(this.state.selectedSuggestions.filter(s => s.type === 'category').map(c => c.id));
     const receiver = this.state.selectedSuggestions.find(isReceiverSuggestion);
     this.receiverBus.push(receiver ? receiver.receiver : undefined);
   };
 
-  private onSetUserId = (userId: ObjectId | undefined) =>
-    this.userIdBus.push(userId);
+  private onSetUserId = (userId: ObjectId | undefined) => this.userIdBus.push(userId);
 
-  private onToggleUnconfirmed = (_event: any, checked: boolean) =>
-    this.unconfirmedBus.push(checked);
+  private onToggleUnconfirmed = (_event: any, checked: boolean) => this.unconfirmedBus.push(checked);
 
-  private onChange = (e: string | React.ChangeEvent<{ value: string }>) =>
-    this.inputBus.push(eventValue(e));
+  private onChange = (e: string | React.ChangeEvent<{ value: string }>) => this.inputBus.push(eventValue(e));
 
   private onClear = () => {
     this.inputBus.push('');
   };
 
-  private selectDateRange = (dateRange?: TypedDateRange) =>
-    this.dateRangeBus.push(dateRange);
+  private selectDateRange = (dateRange?: TypedDateRange) => this.dateRangeBus.push(dateRange);
 }

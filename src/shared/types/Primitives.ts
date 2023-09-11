@@ -1,8 +1,6 @@
 import { z } from 'zod';
 
-export const BooleanString = z
-  .enum(['true', 'false'])
-  .transform(s => s === 'true');
+export const BooleanString = z.enum(['true', 'false']).transform(s => s === 'true');
 
 export const IntString = z
   .string()
@@ -25,9 +23,7 @@ export const IntArrayString = z
 
 export const IntOrString = z.number().int().or(IntString);
 
-export const JSONString = <Output>(
-  codec: z.ZodType<Output, any, any>
-): z.ZodType<Output, any, string> =>
+export const JSONString = <Output>(codec: z.ZodType<Output, any, any>): z.ZodType<Output, any, string> =>
   z
     .string()
     .transform(s => JSON.parse(s))

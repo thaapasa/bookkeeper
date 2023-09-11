@@ -19,18 +19,18 @@ export interface ReceiverFieldProps {
   onKeyUp?: (event: React.KeyboardEvent<any>) => void;
 }
 
-export const ReceiverField: React.FC<
-  React.PropsWithChildren<ReceiverFieldProps>
-> = ({ onChange, title, value, ...props }) => {
+export const ReceiverField: React.FC<React.PropsWithChildren<ReceiverFieldProps>> = ({
+  onChange,
+  title,
+  value,
+  ...props
+}) => {
   const searchStream = usePersistentMemo(() => new B.Bus<string>(), []);
 
   const [receivers, setReceivers] = React.useState<string[]>([]);
 
   // Update upstream props when searching
-  React.useEffect(
-    () => searchStream.onValue(onChange),
-    [searchStream, onChange]
-  );
+  React.useEffect(() => searchStream.onValue(onChange), [searchStream, onChange]);
 
   // Load receivers when search input changes
   React.useEffect(
@@ -40,22 +40,16 @@ export const ReceiverField: React.FC<
         .debounceImmediate(500)
         .flatMapLatest(v => B.fromPromise(apiConnect.queryReceivers(v)))
         .onValue(setReceivers),
-    [searchStream, setReceivers]
+    [searchStream, setReceivers],
   );
 
   // Clear receiver list when search string is too short
   React.useEffect(
-    () =>
-      searchStream
-        .filter(v => !v || v.length < 3)
-        .onValue(() => setReceivers([])),
-    [searchStream, setReceivers]
+    () => searchStream.filter(v => !v || v.length < 3).onValue(() => setReceivers([])),
+    [searchStream, setReceivers],
   );
 
-  const updateReceivers = React.useCallback(
-    (search: string) => searchStream.push(search),
-    [searchStream]
-  );
+  const updateReceivers = React.useCallback((search: string) => searchStream.push(search), [searchStream]);
 
   const selectReceiver = onChange;
 
@@ -74,9 +68,7 @@ export const ReceiverField: React.FC<
   );
 };
 
-export class PlainReceiverField extends React.Component<
-  React.PropsWithChildren<ReceiverFieldProps>
-> {
+export class PlainReceiverField extends React.Component<React.PropsWithChildren<ReceiverFieldProps>> {
   public render() {
     return (
       <ReceiverField {...this.props} value={this.props.value || ''}>

@@ -7,17 +7,8 @@ import { MaybePromise, recordFromPairs } from 'shared/util';
 
 import { Requests } from './RequestHandling';
 
-export const RouteMethods = [
-  'all',
-  'get',
-  'post',
-  'put',
-  'delete',
-  'patch',
-  'options',
-  'head',
-] as const;
-export type RouteMethod = (typeof RouteMethods)[number];
+export const RouteMethods = ['all', 'get', 'post', 'put', 'delete', 'patch', 'options', 'head'] as const;
+export type RouteMethod = typeof RouteMethods[number];
 
 const TypeMap = {
   id: ObjectIdString,
@@ -38,14 +29,13 @@ type ValidatorSpec<R, Q, B> = {
   response?: z.ZodType<R, any, any>;
 };
 
-type PathToParams<Path extends string> =
-  Path extends `${infer Start}/${infer Rest}`
-    ? PathToParams<Start> & PathToParams<Rest>
-    : Path extends `:${infer Param}`
-    ? {
-        [k in Param]: k extends keyof KnownTypes ? KnownTypes[k] : unknown;
-      }
-    : unknown;
+type PathToParams<Path extends string> = Path extends `${infer Start}/${infer Rest}`
+  ? PathToParams<Start> & PathToParams<Rest>
+  : Path extends `:${infer Param}`
+  ? {
+      [k in Param]: k extends keyof KnownTypes ? KnownTypes[k] : unknown;
+    }
+  : unknown;
 
 type HandlerParams<Path extends string, Q, B> = {
   params: PathToParams<Path>;
@@ -60,9 +50,9 @@ type ValidatedRequest = <Return, Path extends string, Q, B>(
     session: SessionBasicInfo,
     data: HandlerParams<Path, Q, B>,
     req: Request,
-    res: Response
+    res: Response,
   ) => MaybePromise<Return>,
-  groupRequired?: boolean
+  groupRequired?: boolean,
 ) => RequestHandler;
 
 type ValidatedTxRequest = <Return, Path extends string, Q, B>(
@@ -73,9 +63,9 @@ type ValidatedTxRequest = <Return, Path extends string, Q, B>(
     session: SessionBasicInfo,
     data: HandlerParams<Path, Q, B>,
     req: Request,
-    res: Response
+    res: Response,
   ) => MaybePromise<Return>,
-  groupRequired?: boolean
+  groupRequired?: boolean,
 ) => RequestHandler;
 
 type TxRouteMethods = {
@@ -92,30 +82,16 @@ export function createValidatingRouter(router: Router): WrappedRouter {
     RouteMethods.map<[`${RouteMethod}Tx`, ValidatedTxRequest]>(m => [
       `${m}Tx`,
       (path, spec, handler, groupRequired) =>
-        router[m](
-          path,
-          Requests.validatedTxRequest(
-            addParamType(path, spec),
-            handler,
-            groupRequired
-          )
-        ),
-    ])
+        router[m](path, Requests.validatedTxRequest(addParamType(path, spec), handler, groupRequired)),
+    ]),
   );
 
   const funs = recordFromPairs(
     RouteMethods.map<[RouteMethod, ValidatedRequest]>(m => [
       m,
       (path, spec, handler, groupRequired) =>
-        router[m](
-          path,
-          Requests.validatedRequest(
-            addParamType(path, spec),
-            handler,
-            groupRequired
-          )
-        ),
-    ])
+        router[m](path, Requests.validatedRequest(addParamType(path, spec), handler, groupRequired)),
+    ]),
   );
 
   return {
@@ -125,35 +101,24 @@ export function createValidatingRouter(router: Router): WrappedRouter {
   };
 }
 
-type ParamValidator<Path extends string> = z.ZodType<
-  PathToParams<Path>,
-  any,
-  any
->;
+type ParamValidator<Path extends string> = z.ZodType<PathToParams<Path>, any, any>;
 
 function addParamType<Path extends string, Return, Q, B>(
   path: Path,
-  spec: ValidatorSpec<Return, Q, B>
+  spec: ValidatorSpec<Return, Q, B>,
 ): ValidatorSpec<Return, Q, B> & {
   params: ParamValidator<Path>;
 } {
   return { ...spec, params: createParamType(path) };
 }
 
-function createParamType<Path extends string>(
-  path: Path
-): ParamValidator<Path> {
+function createParamType<Path extends string>(path: Path): ParamValidator<Path> {
   const types: KnownParamNames[] = path
     .split('/')
     .filter(p => p.startsWith(':'))
     .map(p => p.substring(1)) as any;
   const p = recordFromPairs(
-    types
-      .map<[KnownParamNames, (typeof TypeMap)[KnownParamNames]]>(t => [
-        t,
-        TypeMap[t],
-      ])
-      .filter(p => isDefined(p[1]))
+    types.map<[KnownParamNames, typeof TypeMap[KnownParamNames]]>(t => [t, TypeMap[t]]).filter(p => isDefined(p[1])),
   );
   return z.object(p) as any;
 }

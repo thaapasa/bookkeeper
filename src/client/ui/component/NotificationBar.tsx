@@ -2,12 +2,7 @@ import { Alert } from '@mui/material';
 import Snackbar from '@mui/material/Snackbar';
 import * as React from 'react';
 
-import {
-  Action,
-  AnyObject,
-  Timeout,
-  toReadableErrorMessage,
-} from 'shared/types';
+import { Action, AnyObject, Timeout, toReadableErrorMessage } from 'shared/types';
 import { notificationE } from 'client/data/State';
 import { Notification } from 'client/data/StateTypes';
 import { unsubscribeAll } from 'client/util/ClientUtil';
@@ -19,14 +14,9 @@ interface NotificationBarProps {
   onClose: Action;
 }
 
-const NotificationBarView: React.FC<NotificationBarProps> = ({
-  notification,
-  onClose,
-}) => {
+const NotificationBarView: React.FC<NotificationBarProps> = ({ notification, onClose }) => {
   const message = notification.cause
-    ? notification.message +
-      ', syy: ' +
-      toReadableErrorMessage(notification.cause)
+    ? notification.message + ', syy: ' + toReadableErrorMessage(notification.cause)
     : notification.message;
 
   return (
@@ -40,10 +30,7 @@ interface NotificationBarConnectorState {
   notification: Notification | null;
 }
 
-export class NotificationBar extends React.Component<
-  AnyObject,
-  NotificationBarConnectorState
-> {
+export class NotificationBar extends React.Component<AnyObject, NotificationBarConnectorState> {
   private timer: Timeout | undefined;
   private queue: Notification[] = [];
   private unsub: Action[] = [];
@@ -90,10 +77,7 @@ export class NotificationBar extends React.Component<
 
   public render() {
     return this.state.notification ? (
-      <NotificationBarView
-        notification={this.state.notification}
-        onClose={this.dismissCurrent}
-      />
+      <NotificationBarView notification={this.state.notification} onClose={this.dismissCurrent} />
     ) : null;
   }
 }

@@ -5,10 +5,7 @@ import { AuthenticationError, BkError } from '../types/Errors';
 
 const log = debug('net:fetch-client');
 
-export type FetchType = (
-  input: RequestInfo,
-  init?: FixedRequestInit
-) => Promise<Response>;
+export type FetchType = (input: RequestInfo, init?: FixedRequestInit) => Promise<Response>;
 
 function encodeComponent(x: any) {
   if (!isDefined(x)) {
@@ -52,7 +49,7 @@ export class FetchClient {
       query?: Record<string, any>;
       body?: any;
       headers?: Record<string, string>;
-    }
+    },
   ): Promise<T> {
     try {
       const queryPath = this.toQuery(path, query);
@@ -69,10 +66,7 @@ export class FetchClient {
           return (await res.json()) as T;
         case 401:
         case 403:
-          throw new AuthenticationError(
-            'Unauthorized: ' + res.status,
-            await res.json()
-          );
+          throw new AuthenticationError('Unauthorized: ' + res.status, await res.json());
         default: {
           const data = await res.json();
           log('Error received from API', data);
@@ -80,7 +74,7 @@ export class FetchClient {
             'code' in data ? data.code : 'ERROR',
             `Error ${res.status} from ${method} ${path}`,
             res.status,
-            data
+            data,
           );
         }
       }
@@ -94,7 +88,7 @@ export class FetchClient {
         'code' in data ? data.code : 'ERROR',
         'cause' in data ? data.cause : e.message,
         'status' in data ? data.status : 500,
-        data
+        data,
       );
     }
   }
@@ -103,54 +97,29 @@ export class FetchClient {
     'Content-Type': 'application/json',
   };
 
-  public get<T>(
-    path: string,
-    query?: Record<string, any>,
-    headers?: Record<string, string>
-  ): Promise<T> {
+  public get<T>(path: string, query?: Record<string, any>, headers?: Record<string, string>): Promise<T> {
     return this.req(path, { method: 'GET', query, headers });
   }
 
-  public put<T>(
-    path: string,
-    body?: any,
-    query?: Record<string, any>,
-    headers?: Record<string, string>
-  ): Promise<T> {
+  public put<T>(path: string, body?: any, query?: Record<string, any>, headers?: Record<string, string>): Promise<T> {
     return this.req(path, {
       method: 'PUT',
       body,
       query,
-      headers: { ...FetchClient.contentTypeJson, ...headers } as Record<
-        string,
-        string
-      >,
+      headers: { ...FetchClient.contentTypeJson, ...headers } as Record<string, string>,
     });
   }
 
-  public post<T>(
-    path: string,
-    body?: any,
-    query?: Record<string, any>,
-    headers?: Record<string, string>
-  ): Promise<T> {
+  public post<T>(path: string, body?: any, query?: Record<string, any>, headers?: Record<string, string>): Promise<T> {
     return this.req(path, {
       method: 'POST',
       body,
       query,
-      headers: { ...FetchClient.contentTypeJson, ...headers } as Record<
-        string,
-        string
-      >,
+      headers: { ...FetchClient.contentTypeJson, ...headers } as Record<string, string>,
     });
   }
 
-  public del<T>(
-    path: string,
-    data?: any,
-    query?: Record<string, any>,
-    headers?: Record<string, string>
-  ): Promise<T> {
+  public del<T>(path: string, data?: any, query?: Record<string, any>, headers?: Record<string, string>): Promise<T> {
     return this.req(path, { method: 'DELETE', query, headers, body: data });
   }
 }

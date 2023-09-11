@@ -1,11 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 
-import {
-  ExpenseInput,
-  RecurringExpenseInput,
-  RecurringExpenseTarget,
-} from 'shared/expense';
+import { ExpenseInput, RecurringExpenseInput, RecurringExpenseTarget } from 'shared/expense';
 import {
   createRecurringFromExpense,
   deleteRecurringByExpenseId,
@@ -34,14 +30,8 @@ export function createRecurringExpenseApi() {
     '/:expenseId',
     { body: RecurringExpenseInput },
     (tx, session, { body, params }) =>
-      createRecurringFromExpense(
-        tx,
-        session.group.id,
-        session.user.id,
-        params.expenseId,
-        body
-      ),
-    true
+      createRecurringFromExpense(tx, session.group.id, session.user.id, params.expenseId, body),
+    true,
   );
 
   // DELETE /api/expense/recurring/[expenseId]
@@ -49,14 +39,8 @@ export function createRecurringExpenseApi() {
     '/:expenseId',
     { query: RecurringExpenseTargetSchema },
     (tx, session, { query, params }) =>
-      deleteRecurringByExpenseId(
-        tx,
-        session.group.id,
-        session.user.id,
-        params.expenseId,
-        query.target
-      ),
-    true
+      deleteRecurringByExpenseId(tx, session.group.id, session.user.id, params.expenseId, query.target),
+    true,
   );
 
   // PUT /api/expense/recurring/[expenseId]
@@ -75,9 +59,9 @@ export function createRecurringExpenseApi() {
         params.expenseId,
         query.target,
         body,
-        session.group.defaultSourceId || 0
+        session.group.defaultSourceId || 0,
       ),
-    true
+    true,
   );
 
   return api.router;

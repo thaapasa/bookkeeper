@@ -1,11 +1,7 @@
 import { styled } from '@mui/material';
 import * as React from 'react';
 
-import {
-  ExpenseDivisionItem,
-  ExpenseDivisionType,
-  ExpenseType,
-} from 'shared/expense';
+import { ExpenseDivisionItem, ExpenseDivisionType, ExpenseType } from 'shared/expense';
 import { Money, MoneyLike } from 'shared/util';
 import * as colors from 'client/ui/Colors';
 import UserAvatar from 'client/ui/component/UserAvatar';
@@ -16,14 +12,7 @@ interface DivisionInfoProps {
   expenseType: ExpenseType;
 }
 
-const divisionTypes = [
-  'cost',
-  'benefit',
-  'income',
-  'split',
-  'transferor',
-  'transferee',
-];
+const divisionTypes = ['cost', 'benefit', 'income', 'split', 'transferor', 'transferee'];
 
 function getBalance(data: Record<string, MoneyLike>) {
   return divisionTypes
@@ -48,10 +37,7 @@ const ColumnLabels: Record<ExpenseDivisionType, string> = {
   transferee: 'Saatu',
 };
 
-export const DivisionInfo: React.FC<DivisionInfoProps> = ({
-  division,
-  expenseType,
-}) => {
+export const DivisionInfo: React.FC<DivisionInfoProps> = ({ division, expenseType }) => {
   const users: Record<string, Record<ExpenseDivisionType, MoneyLike>> = {};
   division.forEach(d => {
     users[d.userId] = { ...users[d.userId], [d.type]: d.sum };
@@ -65,12 +51,7 @@ export const DivisionInfo: React.FC<DivisionInfoProps> = ({
       </thead>
       <tbody>
         {Object.keys(users).map(userId => (
-          <DivisionUser
-            userId={userId}
-            cols={cols}
-            userDivision={users[userId]}
-            key={userId}
-          />
+          <DivisionUser userId={userId} cols={cols} userDivision={users[userId]} key={userId} />
         ))}
       </tbody>
     </DivisionTable>
@@ -109,9 +90,7 @@ const DivisionUser: React.FC<{
 
 const DivisionItem: React.FC<{ sum: MoneyLike }> = ({ sum }) => {
   const s = Money.orZero(sum);
-  return (
-    <DivisionColumn className={Money.sign(s)}>{s.format()}</DivisionColumn>
-  );
+  return <DivisionColumn className={Money.sign(s)}>{s.format()}</DivisionColumn>;
 };
 
 const DivisionTable = styled('table')`

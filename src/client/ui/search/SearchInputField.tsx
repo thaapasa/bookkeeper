@@ -37,7 +37,7 @@ export const SearchInputField: React.FC<SearchInputProps> = ({
         startSearch();
       }
     },
-    [startSearch]
+    [startSearch],
   );
 
   const updateSuggestions = React.useCallback(
@@ -45,12 +45,9 @@ export const SearchInputField: React.FC<SearchInputProps> = ({
       const receiverSuggestions: ReceiverSuggestion[] = search
         ? [{ type: 'receiver', receiver: search, id: receiverId.next() }]
         : [];
-      setSuggestions([
-        ...receiverSuggestions,
-        ...getCategorySuggestions(categorySource, search),
-      ]);
+      setSuggestions([...receiverSuggestions, ...getCategorySuggestions(categorySource, search)]);
     },
-    [setSuggestions, categorySource]
+    [setSuggestions, categorySource],
   );
 
   return (
@@ -70,19 +67,13 @@ export const SearchInputField: React.FC<SearchInputProps> = ({
   );
 };
 
-function getCategorySuggestions(
-  categorySource: CategoryDataSource[],
-  input: string
-): CategorySuggestion[] {
+function getCategorySuggestions(categorySource: CategoryDataSource[], input: string): CategorySuggestion[] {
   if (!input || input.length < 1) {
     return [];
   }
   const lowerInput = input.toLowerCase();
-  const filter = (c: CategoryDataSource) =>
-    c.text.toLowerCase().includes(lowerInput);
-  return categorySource
-    .filter(filter)
-    .map(c => ({ type: 'category', id: c.value, name: c.text }));
+  const filter = (c: CategoryDataSource) => c.text.toLowerCase().includes(lowerInput);
+  return categorySource.filter(filter).map(c => ({ type: 'category', id: c.value, name: c.text }));
 }
 
 const StyledComplete = styled(AutoComplete)`

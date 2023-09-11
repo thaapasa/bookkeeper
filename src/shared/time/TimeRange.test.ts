@@ -1,4 +1,4 @@
-import { expect, describe, it } from "bun:test";
+import { expect, describe, it } from 'bun:test';
 
 import { month } from './Time';
 import { monthRange, toDateRangeName, yearRange } from './TimeRange';
@@ -6,12 +6,8 @@ import { monthRange, toDateRangeName, yearRange } from './TimeRange';
 describe('time ranges', () => {
   describe('dateRange', () => {
     it('should format month name', () => {
-      expect(toDateRangeName(monthRange(month(2017, 4)))).toEqual(
-        'Huhtikuu 2017'
-      );
-      expect(toDateRangeName(monthRange(month(2025, 12)))).toEqual(
-        'Joulukuu 2025'
-      );
+      expect(toDateRangeName(monthRange(month(2017, 4)))).toEqual('Huhtikuu 2017');
+      expect(toDateRangeName(monthRange(month(2025, 12)))).toEqual('Joulukuu 2025');
     });
 
     it('should format year name', () => {

@@ -76,10 +76,7 @@ export const Icons = {
 
 export type Icon = keyof typeof Icons;
 
-export const RenderIcon: React.FC<{ icon?: Icon } & SvgIconProps> = ({
-  icon,
-  ...props
-}) => {
+export const RenderIcon: React.FC<{ icon?: Icon } & SvgIconProps> = ({ icon, ...props }) => {
   const Item = icon && Icons[icon];
   return Item ? <Item {...props} /> : null;
 };

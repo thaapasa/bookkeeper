@@ -24,11 +24,7 @@ export const ListDecorator = function <T, R>({
   const pieces = items
     .map((item, idx) => [
       Separator ? (
-        <Separator
-          prev={idx > 0 ? items[idx - 1] : null}
-          next={item}
-          key={`separator-${itemKey?.(item) ?? idx}`}
-        />
+        <Separator prev={idx > 0 ? items[idx - 1] : null} next={item} key={`separator-${itemKey?.(item) ?? idx}`} />
       ) : null,
       <ItemRenderer
         item={item}
@@ -41,15 +37,11 @@ export const ListDecorator = function <T, R>({
   pieces.push(
     items.length > 0 ? (
       Separator ? (
-        <Separator
-          prev={items[items.length - 1]}
-          next={null}
-          key={`separator-${items.length}`}
-        />
+        <Separator prev={items[items.length - 1]} next={null} key={`separator-${items.length}`} />
       ) : null
     ) : Separator ? (
       <Separator prev={null} next={null} key="separator-empty" />
-    ) : null
+    ) : null,
   );
   return <>{pieces.filter(isDefined)}</>;
 };

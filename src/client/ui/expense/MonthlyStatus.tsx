@@ -20,21 +20,14 @@ interface StatusProps {
   totals: ExpenseTotals | null;
   showFiltered: boolean;
   filteredTotals: ExpenseTotals | null;
-  addFilter: (
-    filter: ExpenseFilterFunction,
-    name: string,
-    avater?: string
-  ) => void;
+  addFilter: (filter: ExpenseFilterFunction, name: string, avater?: string) => void;
 }
 
 interface MonthlyStatusState {
   expanded: boolean;
 }
 
-export class MonthlyStatus extends React.Component<
-  StatusProps,
-  MonthlyStatusState
-> {
+export class MonthlyStatus extends React.Component<StatusProps, MonthlyStatusState> {
   public state: MonthlyStatusState = {
     expanded: false,
   };
@@ -44,16 +37,11 @@ export class MonthlyStatus extends React.Component<
   };
 
   public render() {
-    const hasUnconfirmed =
-      this.props.unconfirmedBefore || this.props.unconfirmedDuring;
+    const hasUnconfirmed = this.props.unconfirmedBefore || this.props.unconfirmedDuring;
     const income = this.props.totals ? this.props.totals.totalIncome : 0;
     const expense = this.props.totals ? this.props.totals.totalExpense : 0;
-    const filteredIncome = this.props.filteredTotals
-      ? this.props.filteredTotals.totalIncome
-      : 0;
-    const filteredExpense = this.props.filteredTotals
-      ? this.props.filteredTotals.totalExpense
-      : 0;
+    const filteredIncome = this.props.filteredTotals ? this.props.filteredTotals.totalIncome : 0;
+    const filteredExpense = this.props.filteredTotals ? this.props.filteredTotals.totalExpense : 0;
     const filteredStyle = {
       display: !this.props.showFiltered ? 'none' : '',
       backgroundColor: colors.colorScheme.gray.light,
@@ -90,9 +78,7 @@ export class MonthlyStatus extends React.Component<
           {hasUnconfirmed ? (
             <UnconfirmedIcon
               title="Sisältää alustavia kirjauksia"
-              onClick={() =>
-                this.props.addFilter(ExpenseFilters.unconfirmed, 'Alustavat')
-              }
+              onClick={() => this.props.addFilter(ExpenseFilters.unconfirmed, 'Alustavat')}
             />
           ) : null}
         </StatusBlock>

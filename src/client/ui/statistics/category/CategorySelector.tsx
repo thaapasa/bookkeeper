@@ -3,11 +3,7 @@ import * as B from 'baconjs';
 import * as React from 'react';
 
 import { Category, CategorySelection, ObjectId } from 'shared/types';
-import {
-  CategoryDataSource,
-  categoryDataSourceP,
-  categoryMapE,
-} from 'client/data/Categories';
+import { CategoryDataSource, categoryDataSourceP, categoryMapE } from 'client/data/Categories';
 import { connect } from 'client/ui/component/BaconConnect';
 
 const CategorySelectorImpl: React.FC<{
@@ -24,9 +20,7 @@ const CategorySelectorImpl: React.FC<{
         const catId = Number(e.target.value);
         if (catId === 0) {
           // Add all parent categories
-          const mainCats = Object.values(categoryMap).filter(
-            c => c.parentId === null
-          );
+          const mainCats = Object.values(categoryMap).filter(c => c.parentId === null);
           addCategories(mainCats.map(c => ({ id: c.id, grouped: true })));
           return;
         }
@@ -51,5 +45,5 @@ export const CategorySelector = connect(
   B.combineTemplate({
     categorySource: categoryDataSourceP,
     categoryMap: categoryMapE,
-  })
+  }),
 )(CategorySelectorImpl);

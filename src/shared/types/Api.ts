@@ -28,20 +28,12 @@ export function isApiMessage(e: any): e is ApiMessage {
   return typeof e === 'object' && e && e.status && e.message;
 }
 
-export function isApiMessageWithExpenseId(
-  e: any
-): e is ApiMessage & { expenseId: number } {
+export function isApiMessageWithExpenseId(e: any): e is ApiMessage & { expenseId: number } {
   return typeof e === 'object' && e && e.status && e.message && e.expenseId;
 }
 
 export function isApiMessageWithRecurringExpenseId(
-  e: any
+  e: any,
 ): e is ApiMessage & { expenseId: number; recurringExpenseId: number } {
-  return (
-    typeof e === 'object' &&
-    e.status &&
-    e.message &&
-    e.recurringExpenseId &&
-    e.expenseId
-  );
+  return typeof e === 'object' && e.status && e.message && e.recurringExpenseId && e.expenseId;
 }

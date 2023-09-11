@@ -12,10 +12,7 @@ import { ExpenseSplitInEditor } from './ExpenseSplit.hooks';
  * @param splits the split rows (first one is the automatically updating row)
  * @param sum the sum of the original expense
  */
-export function calculateSplits(
-  splits: ExpenseSplitInEditor[],
-  sum: MoneyLike
-): ExpenseSplitInEditor[] {
+export function calculateSplits(splits: ExpenseSplitInEditor[], sum: MoneyLike): ExpenseSplitInEditor[] {
   if (splits.length === 0) {
     return [];
   }
@@ -25,17 +22,12 @@ export function calculateSplits(
 
   const [first, ...fixed] = splits;
 
-  const left = fixed.reduce(
-    (acc, split) => acc.minus(split?.sum ?? '0'),
-    Money.from(sum)
-  );
+  const left = fixed.reduce((acc, split) => acc.minus(split?.sum ?? '0'), Money.from(sum));
 
   return [{ ...first, sum: left.toString() }, ...fixed];
 }
 
-export function isSplitComplete(
-  split: ExpenseSplitInEditor
-): split is ExpenseSplitInEditor {
+export function isSplitComplete(split: ExpenseSplitInEditor): split is ExpenseSplitInEditor {
   return (
     (Money.parse(split.sum)?.gt(0) ?? false) &&
     split.title !== '' &&
@@ -48,22 +40,12 @@ export function isSplitComplete(
 export function finalizeSplits(
   type: ExpenseType,
   splits: ExpenseSplitInEditor[],
-  sourceMap: Record<number, Source>
+  sourceMap: Record<number, Source>,
 ): ExpenseSplit[] {
-  return splits.map(s =>
-    finalizeSplit(
-      type,
-      s,
-      requireDefined(sourceMap[s.sourceId ?? 0], 'Expense source')
-    )
-  );
+  return splits.map(s => finalizeSplit(type, s, requireDefined(sourceMap[s.sourceId ?? 0], 'Expense source')));
 }
 
-export function finalizeSplit(
-  type: ExpenseType,
-  split: ExpenseSplitInEditor,
-  source: Source
-): ExpenseSplit {
+export function finalizeSplit(type: ExpenseType, split: ExpenseSplitInEditor, source: Source): ExpenseSplit {
   const { benefit, key, ...rest } = split;
   return {
     ...rest,

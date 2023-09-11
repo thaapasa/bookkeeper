@@ -1,4 +1,4 @@
-import { expect, describe, it } from "bun:test";
+import { expect, describe, it } from 'bun:test';
 
 import { Money } from '../util/Money';
 import { HasSum, splitByShares } from './Splitter';

@@ -4,17 +4,10 @@ import * as React from 'react';
 import { UserExpense } from 'shared/expense';
 import { Money } from 'shared/util';
 
-export const SplitHeader: React.FC<{ expense: UserExpense }> = ({
-  expense,
-}) => {
+export const SplitHeader: React.FC<{ expense: UserExpense }> = ({ expense }) => {
   return (
     <DialogTitle>
-      <Grid
-        container
-        alignItems="flex-end"
-        justifyContent="space-between"
-        width="100%"
-      >
+      <Grid container alignItems="flex-end" justifyContent="space-between" width="100%">
         <Grid item xs={8}>
           <Typography variant="h5" component="div">
             {expense.title}

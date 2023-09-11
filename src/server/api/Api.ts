@@ -46,36 +46,29 @@ export function createApi() {
         revision: config.revision,
         commitId: config.commitId,
         environment: config.environment,
-      })
-    )
+      }),
+    ),
   );
 
   // GET /api/user/list
   api.get(
     '/user/list',
-    Requests.txRequest(
-      (tx, session): Promise<User[]> => getAllUsers(tx, session.group.id),
-      true
-    )
+    Requests.txRequest((tx, session): Promise<User[]> => getAllUsers(tx, session.group.id), true),
   );
 
   // GET /api/user/[userid]
   api.get(
     '/user/:id',
     Requests.txRequest(
-      (tx, session, req): Promise<User> =>
-        getUserById(tx, session.group.id, parseInt(req.params.id, 10)),
-      true
-    )
+      (tx, session, req): Promise<User> => getUserById(tx, session.group.id, parseInt(req.params.id, 10)),
+      true,
+    ),
   );
 
   // GET /api/admin/status
   api.get(
     '/admin/status',
-    Requests.txRequest<DbStatus>(
-      (tx, session) => getDbStatus(tx, session.group.id),
-      true
-    )
+    Requests.txRequest<DbStatus>((tx, session) => getDbStatus(tx, session.group.id), true),
   );
 
   // Return 404 for non-matched /api paths

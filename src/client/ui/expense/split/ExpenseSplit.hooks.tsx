@@ -13,10 +13,7 @@ import { calculateSplits, finalizeSplits, isSplitComplete } from './SplitCalc';
 
 const log = debug('ui:expense-split');
 
-export type ExpenseSplitInEditor = Omit<
-  MakeOptional<ExpenseSplit, 'categoryId' | 'sourceId'>,
-  'division'
-> & {
+export type ExpenseSplitInEditor = Omit<MakeOptional<ExpenseSplit, 'categoryId' | 'sourceId'>, 'division'> & {
   benefit: number[];
   key: string;
 };
@@ -29,7 +26,7 @@ export function useExpenseSplit(
   original: UserExpenseWithDetails | null,
   sourceMap: SourceMap,
   onClose: ExpenseDialogProps<any>['onClose'],
-  onExpensesUpdated: ExpenseDialogProps<any>['onExpensesUpdated']
+  onExpensesUpdated: ExpenseDialogProps<any>['onExpensesUpdated'],
 ) {
   const [splits, setSplits] = React.useState<ExpenseSplitInEditor[]>([]);
 
@@ -49,7 +46,7 @@ export function useExpenseSplit(
       const fixedSplits = calculateSplits(newSplits, original?.sum ?? '0');
       setSplits(fixedSplits);
     },
-    [setSplits, splits, original]
+    [setSplits, splits, original],
   );
 
   const removeSplit = React.useCallback(
@@ -61,7 +58,7 @@ export function useExpenseSplit(
       const fixedSplits = calculateSplits(newSplits, original?.sum ?? '0');
       setSplits(fixedSplits);
     },
-    [setSplits, splits, original]
+    [setSplits, splits, original],
   );
 
   const validSplits = splits.length > 1 && splits.every(isSplitComplete);
@@ -80,10 +77,7 @@ export function useExpenseSplit(
 
 export type SplitTools = ReturnType<typeof useExpenseSplit>;
 
-function initialSplit(
-  original: UserExpenseWithDetails | null,
-  sourceMap: SourceMap
-): ExpenseSplitInEditor[] {
+function initialSplit(original: UserExpenseWithDetails | null, sourceMap: SourceMap): ExpenseSplitInEditor[] {
   return [
     original
       ? {
@@ -92,28 +86,19 @@ function initialSplit(
           key: KeyProvider.nextStr('splitrow-'),
           sourceId: original.sourceId,
           categoryId: original.categoryId,
-          benefit: getBenefitorsForExpense(
-            original,
-            original.division,
-            sourceMap
-          ),
+          benefit: getBenefitorsForExpense(original, original.division, sourceMap),
         }
       : emptySplit(original, sourceMap),
   ];
 }
 
-function emptySplit(
-  original: UserExpenseWithDetails | null,
-  sourceMap: SourceMap
-): ExpenseSplitInEditor {
+function emptySplit(original: UserExpenseWithDetails | null, sourceMap: SourceMap): ExpenseSplitInEditor {
   return {
     sum: '0',
     title: '',
     key: KeyProvider.nextStr('splitrow-'),
     sourceId: original?.sourceId,
     categoryId: original?.categoryId,
-    benefit: original
-      ? getBenefitorsForExpense(original, original.division, sourceMap)
-      : [],
+    benefit: original ? getBenefitorsForExpense(original, original.division, sourceMap) : [],
   };
 }

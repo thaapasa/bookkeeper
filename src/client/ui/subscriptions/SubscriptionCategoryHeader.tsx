@@ -17,14 +17,7 @@ export const SubscriptionCategoryHeader: React.FC<{
   visible?: boolean;
   categoryId?: ObjectId;
   toggleVisibility?: ToggleCategoryVisibility;
-}> = ({
-  title,
-  totals,
-  className,
-  visible = true,
-  toggleVisibility,
-  categoryId,
-}) => (
+}> = ({ title, totals, className, visible = true, toggleVisibility, categoryId }) => (
   <RowElement className={className}>
     <Label>
       {categoryId && toggleVisibility ? (
@@ -36,9 +29,7 @@ export const SubscriptionCategoryHeader: React.FC<{
     </Label>
     {totals ? (
       <>
-        <Sum className="optional">
-          {Money.from(totals.recurrencePerMonth).format()} / kk
-        </Sum>
+        <Sum className="optional">{Money.from(totals.recurrencePerMonth).format()} / kk</Sum>
         <Sum>{Money.from(totals.recurrencePerYear).format()} / v</Sum>
         <Tools />
       </>

@@ -1,12 +1,7 @@
-import { expect, describe, it } from "bun:test";
+import { expect, describe, it } from 'bun:test';
 
 import { MoneyLike } from '../util/Money';
-import {
-  RecurrencePeriod,
-  recurrencePerMonth,
-  recurrencePerYear,
-  RecurrenceUnit,
-} from './Recurrence';
+import { RecurrencePeriod, recurrencePerMonth, recurrencePerYear, RecurrenceUnit } from './Recurrence';
 
 function r(amount: number, unit: RecurrenceUnit): RecurrencePeriod {
   return { amount, unit };
@@ -26,12 +21,9 @@ describe('recurrence', () => {
     ['100', r(2, 'weeks'), '217.41'],
     ['100', r(1, 'days'), '3043.75'],
     ['1', r(1, 'days'), '30.43'],
-  ])(
-    'Calculates monthly recurrence of %s in %s = %s',
-    (sum, period, amount) => {
-      expect(recurrencePerMonth(sum, period).toString()).toBe(amount);
-    }
-  );
+  ])('Calculates monthly recurrence of %s in %s = %s', (sum, period, amount) => {
+    expect(recurrencePerMonth(sum, period).toString()).toBe(amount);
+  });
 
   it.each<[MoneyLike, RecurrencePeriod, MoneyLike]>([
     ['100', r(1, 'months'), '1200.00'],

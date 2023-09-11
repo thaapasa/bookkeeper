@@ -3,21 +3,14 @@ import { CategoryMap, ObjectId } from 'shared/types';
 import { Money } from 'shared/util';
 
 import { getRootCategoryId } from '../utils/Categories';
-import {
-  RecurrenceTotals,
-  SubscriptionGroup,
-  SubscriptionsData,
-} from './types';
+import { RecurrenceTotals, SubscriptionGroup, SubscriptionsData } from './types';
 
 const emptyTotals: () => RecurrenceTotals = () => ({
   recurrencePerMonth: 0,
   recurrencePerYear: 0,
 });
 
-export function groupSubscriptions(
-  result: SubscriptionResult,
-  categories: CategoryMap
-): SubscriptionsData {
+export function groupSubscriptions(result: SubscriptionResult, categories: CategoryMap): SubscriptionsData {
   const items = [...result.recurringExpenses, ...result.reports];
   const byRoot: Record<ObjectId, SubscriptionGroup> = {};
   for (const item of items) {
@@ -59,25 +52,19 @@ export function groupSubscriptions(
     colorIndex: i,
     allTotals: sumRecurrenceTotals(g.children.map(c => c.totals)),
   }));
-  return { groups, totals: sumRecurrenceTotals(groups.map(g => g.allTotals)) };
-}
-
-function appendToTotals(
-  totals: RecurrenceTotals,
-  item: RecurrenceTotals
-): RecurrenceTotals {
   return {
-    recurrencePerMonth: Money.from(totals.recurrencePerMonth).plus(
-      item.recurrencePerMonth
-    ),
-    recurrencePerYear: Money.from(totals.recurrencePerYear).plus(
-      item.recurrencePerYear
-    ),
+    groups,
+    totals: sumRecurrenceTotals(groups.map(g => g.allTotals)),
   };
 }
 
-export function sumRecurrenceTotals(
-  data: RecurrenceTotals[]
-): RecurrenceTotals {
+function appendToTotals(totals: RecurrenceTotals, item: RecurrenceTotals): RecurrenceTotals {
+  return {
+    recurrencePerMonth: Money.from(totals.recurrencePerMonth).plus(item.recurrencePerMonth),
+    recurrencePerYear: Money.from(totals.recurrencePerYear).plus(item.recurrencePerYear),
+  };
+}
+
+export function sumRecurrenceTotals(data: RecurrenceTotals[]): RecurrenceTotals {
   return data.reduce((p, c) => appendToTotals(p, c), emptyTotals());
 }

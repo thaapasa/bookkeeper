@@ -16,15 +16,8 @@ export const DateField: React.FC<DateFieldProps> = ({ value, onChange }) => {
         onChange(date);
       }
     },
-    [onChange]
+    [onChange],
   );
 
-  return (
-    <DatePicker
-      label="Päivämäärä"
-      format={datePickerFormat}
-      value={value}
-      onChange={changeHandler}
-    />
-  );
+  return <DatePicker label="Päivämäärä" format={datePickerFormat} value={value} onChange={changeHandler} />;
 };

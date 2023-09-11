@@ -1,12 +1,7 @@
 import { Button, styled } from '@mui/material';
 import * as React from 'react';
 
-import {
-  AllPeriods,
-  Period,
-  periodToYearAndMonth,
-  PeriodType,
-} from 'shared/time';
+import { AllPeriods, Period, periodToYearAndMonth, PeriodType } from 'shared/time';
 import { colorScheme } from 'client/ui/Colors';
 
 import { FlexColumn } from '../BasicElements';
@@ -19,9 +14,7 @@ export interface PeriodSelectorProps<P extends Period> {
   allowed?: P['type'][];
 }
 
-export const PeriodSelector: React.FC<PeriodSelectorProps<any>> = <
-  P extends Period,
->({
+export const PeriodSelector: React.FC<PeriodSelectorProps<any>> = <P extends Period,>({
   period,
   onSelect,
   allowed,
@@ -38,24 +31,17 @@ export const PeriodSelector: React.FC<PeriodSelectorProps<any>> = <
       setYear(year);
       setMonth(month);
     },
-    [setYear, setMonth]
+    [setYear, setMonth],
   );
 
-  React.useEffect(
-    () => onSelect(valuesToPeriod<P>(type, year, month)),
-    [onSelect, type, year, month]
-  );
+  React.useEffect(() => onSelect(valuesToPeriod<P>(type, year, month)), [onSelect, type, year, month]);
 
   return (
     <Container>
       <FlexColumn>
         <Tab>
           {validPeriods.map(v => (
-            <TabButton
-              key={v}
-              onClick={() => changeType(v)}
-              selected={type === v}
-            >
+            <TabButton key={v} onClick={() => changeType(v)} selected={type === v}>
               {PeriodTitles[v]}
             </TabButton>
           ))}
@@ -75,11 +61,7 @@ export const PeriodSelector: React.FC<PeriodSelectorProps<any>> = <
   );
 };
 
-function valuesToPeriod<P extends Period>(
-  type: P['type'],
-  year: number,
-  month: number
-): P {
+function valuesToPeriod<P extends Period>(type: P['type'], year: number, month: number): P {
   switch (type) {
     case 'month':
       return { type, year, month } as P;
@@ -102,12 +84,7 @@ interface TabPanelProps {
   className?: string;
 }
 
-const TabPanel: React.FC<React.PropsWithChildren<TabPanelProps>> = ({
-  children,
-  type,
-  className,
-  ...other
-}) => (
+const TabPanel: React.FC<React.PropsWithChildren<TabPanelProps>> = ({ children, type, className, ...other }) => (
   <Panel className={className} {...other}>
     {children}
   </Panel>
@@ -139,5 +116,5 @@ const TabButton = styled(Button)(
          color: ${colorScheme.secondary.text}`
       : ''
   };
-  `
+  `,
 );

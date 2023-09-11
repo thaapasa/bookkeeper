@@ -19,8 +19,7 @@ export type Action = () => void;
 
 export type Timeout = ReturnType<typeof setTimeout>;
 
-export type MakeOptional<O, K extends keyof O> = Omit<O, K> &
-  Partial<Pick<O, K>>;
+export type MakeOptional<O, K extends keyof O> = Omit<O, K> & Partial<Pick<O, K>>;
 
 export const ShortString = z.string().min(1).max(255);
 export type ShortString = z.infer<typeof ShortString>;

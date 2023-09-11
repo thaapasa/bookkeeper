@@ -3,6 +3,7 @@
     "module": "esnext",
     "target": "es6",
     "moduleResolution": "bundler",
+    "moduleResolution": "Node",
     "moduleDetection": "force",
     "allowImportingTsExtensions": true,
     "noEmit": true,
@@ -30,7 +31,5 @@
       "@mui/styled-engine": ["./node_modules/@mui/styled-engine-sc"]
     }
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src"]
 }

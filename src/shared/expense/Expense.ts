@@ -9,14 +9,7 @@ import { MoneyLike } from '../util/Money';
 export const ExpenseType = z.enum(['expense', 'income', 'transfer']);
 export type ExpenseType = z.infer<typeof ExpenseType>;
 
-export const ExpenseDivisionType = z.enum([
-  'cost',
-  'benefit',
-  'income',
-  'split',
-  'transferor',
-  'transferee',
-]);
+export const ExpenseDivisionType = z.enum(['cost', 'benefit', 'income', 'split', 'transferor', 'transferee']);
 export type ExpenseDivisionType = z.infer<typeof ExpenseDivisionType>;
 
 export const expenseTypes = ExpenseType.options;

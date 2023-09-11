@@ -1,12 +1,4 @@
-import {
-  Button,
-  Checkbox,
-  CircularProgress,
-  FormControlLabel,
-  Grid,
-  IconButton,
-  styled,
-} from '@mui/material';
+import { Button, Checkbox, CircularProgress, FormControlLabel, Grid, IconButton, styled } from '@mui/material';
 import * as B from 'baconjs';
 import * as React from 'react';
 
@@ -86,15 +78,11 @@ const QuerySearchLayoutImpl: React.FC<QuerySearchLayoutProps> = ({
           </IconButton>
         </SearchButtonArea>
         <ProgressArea>
-          {isSearching ? (
-            <CircularProgress size={38} variant="indeterminate" disableShrink />
-          ) : null}
+          {isSearching ? <CircularProgress size={38} variant="indeterminate" disableShrink /> : null}
         </ProgressArea>
       </FlexRow>
       <br />
-      {dateRange
-        ? `Haetaan ajalta ${toDateRangeName(dateRange)}`
-        : 'Ei aikaehtoja'}
+      {dateRange ? `Haetaan ajalta ${toDateRangeName(dateRange)}` : 'Ei aikaehtoja'}
     </Grid>
     <Grid item md={3} sm={7} xs={12}>
       <DateRangeSelector dateRange={dateRange} onSelectRange={onSelectRange} />
@@ -105,35 +93,20 @@ const QuerySearchLayoutImpl: React.FC<QuerySearchLayoutProps> = ({
           control={
             <Checkbox
               checked={isDefined(userId)}
-              onChange={() =>
-                onSetUserId(isDefined(userId) ? undefined : session.user.id)
-              }
+              onChange={() => onSetUserId(isDefined(userId) ? undefined : session.user.id)}
             />
           }
           label="Vain omat"
         />
         {isDefined(userId) ? (
-          <UserSelector
-            singleSelection
-            selected={[userId]}
-            onChange={([id]) => onSetUserId(id)}
-            size={32}
-          />
+          <UserSelector singleSelection selected={[userId]} onChange={([id]) => onSetUserId(id)} size={32} />
         ) : null}
       </Row>
-      <CheckLabel
-        control={
-          <Checkbox checked={unconfirmed} onChange={onToggleUnconfirmed} />
-        }
-        label="Alustavat"
-      />
+      <CheckLabel control={<Checkbox checked={unconfirmed} onChange={onToggleUnconfirmed} />} label="Alustavat" />
       <Button onClick={onSaveAsReport}>Tee raportti</Button>
     </Grid>
     <Grid item xs={12}>
-      <SelectedSuggestionsView
-        suggestions={selectedSuggestions}
-        onRemove={removeSuggestion}
-      />
+      <SelectedSuggestionsView suggestions={selectedSuggestions} onRemove={removeSuggestion} />
     </Grid>
   </Grid>
 );
@@ -141,7 +114,7 @@ const QuerySearchLayoutImpl: React.FC<QuerySearchLayoutProps> = ({
 export const QuerySearchLayout = connect(
   B.combineTemplate({
     session: validSessionE,
-  })
+  }),
 )(QuerySearchLayoutImpl);
 
 const SearchToolArea = styled('div')`

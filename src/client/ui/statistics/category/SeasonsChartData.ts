@@ -10,7 +10,7 @@ import { ChartConfiguration } from './ChartTypes';
 
 function categoryStatisticsToSeasonsData(
   data: CategoryStatistics,
-  categoryMap: Record<ObjectId, Category>
+  categoryMap: Record<ObjectId, Category>,
 ): ChartData<'season', number> {
   const keys = typedKeys(data.statistics);
   const allSeasions = getSeasonsInRange(data.range);
@@ -20,17 +20,13 @@ function categoryStatisticsToSeasonsData(
   for (const stat of allData) {
     const season = toSeason(stat.month);
     bySeasons[season] ??= { season };
-    bySeasons[season][stat.categoryId] = Money.from(
-      bySeasons[season][stat.categoryId] ?? 0
-    )
+    bySeasons[season][stat.categoryId] = Money.from(bySeasons[season][stat.categoryId] ?? 0)
       .plus(stat.sum)
       .valueOf();
   }
 
   return {
-    chartData: allSeasions
-      .map(season => bySeasons[season] ?? { season })
-      .map(d => fillMissingForNumericKeys(d, keys)),
+    chartData: allSeasions.map(season => bySeasons[season] ?? { season }).map(d => fillMissingForNumericKeys(d, keys)),
     keys: keys.map((key, i) => ({
       key,
       color: getChartColor(i, 0),
@@ -48,9 +44,7 @@ const SeasonNames: Record<string, string> = {
 };
 function formatSeason(season: Season) {
   const parts = season.split('-');
-  return parts.length > 2
-    ? `${SeasonNames[parts[2]]} ${parts[0]}-${parts[1]}`
-    : `${SeasonNames[parts[1]]} ${parts[0]}`;
+  return parts.length > 2 ? `${SeasonNames[parts[2]]} ${parts[0]}-${parts[1]}` : `${SeasonNames[parts[1]]} ${parts[0]}`;
 }
 
 const SeasonConfig: ChartConfiguration<'season'> = {

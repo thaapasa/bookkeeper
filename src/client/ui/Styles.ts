@@ -4,11 +4,7 @@ import { primaryColors } from './Colors';
 import { Size } from './Types';
 
 // See responsive UI specs at https://material.io/guidelines/layout/responsive-ui.html
-export type ScreenSizeClassName =
-  | 'mobile-portrait'
-  | 'mobile-landscape'
-  | 'web'
-  | 'large';
+export type ScreenSizeClassName = 'mobile-portrait' | 'mobile-landscape' | 'web' | 'large';
 
 export const mobilePortraitMaxWidth = 600;
 export const mobileLandscapeMaxWidth = 840;
@@ -22,10 +18,7 @@ export function isMobilePortraitSize(windowSize: Size) {
 }
 
 export function isMobileLandscapeSize(windowSize: Size) {
-  return (
-    windowSize.width >= mobilePortraitMaxWidth &&
-    windowSize.width < mobileLandscapeMaxWidth
-  );
+  return windowSize.width >= mobilePortraitMaxWidth && windowSize.width < mobileLandscapeMaxWidth;
 }
 
 export function isMobileSize(windowSize: Size) {
@@ -33,10 +26,7 @@ export function isMobileSize(windowSize: Size) {
 }
 
 export function isWebSize(windowSize: Size) {
-  return (
-    windowSize.width >= mobileLandscapeMaxWidth &&
-    windowSize.width < largeDeviceMinWidth
-  );
+  return windowSize.width >= mobileLandscapeMaxWidth && windowSize.width < largeDeviceMinWidth;
 }
 
 export function isLargeSize(windowSize: Size) {
@@ -57,10 +47,7 @@ export function getScreenSizeClassName(windowSize: Size): ScreenSizeClassName {
   return 'large';
 }
 
-export function isScreenAtLeast(
-  windowSize: Size,
-  screenClass: ScreenSizeClassName
-) {
+export function isScreenAtLeast(windowSize: Size, screenClass: ScreenSizeClassName) {
   switch (screenClass) {
     case 'mobile-portrait':
       return true;
@@ -73,17 +60,12 @@ export function isScreenAtLeast(
   }
 }
 
-export function isSizeClassAtLeast(
-  windowSize: ScreenSizeClassName,
-  screenClass: ScreenSizeClassName
-) {
+export function isSizeClassAtLeast(windowSize: ScreenSizeClassName, screenClass: ScreenSizeClassName) {
   switch (screenClass) {
     case 'mobile-portrait':
       return windowSize === 'mobile-portrait';
     case 'mobile-landscape':
-      return (
-        windowSize === 'mobile-portrait' || windowSize === 'mobile-landscape'
-      );
+      return windowSize === 'mobile-portrait' || windowSize === 'mobile-landscape';
     case 'web':
       return windowSize === 'web' || windowSize === 'large';
     case 'large':

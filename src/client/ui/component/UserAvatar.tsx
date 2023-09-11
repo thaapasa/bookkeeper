@@ -32,13 +32,7 @@ const StyledAvatar = styled(Avatar)`
   }
 `;
 
-export const UserAvatar: React.FC<UserAvatarProps> = ({
-  user,
-  style,
-  size,
-  className,
-  onClick,
-}) =>
+export const UserAvatar: React.FC<UserAvatarProps> = ({ user, style, size, className, onClick }) =>
   user?.id ? (
     <StyledAvatar
       style={{
@@ -58,9 +52,7 @@ interface UserIdAvatarProps extends CommonAvatarProps {
   userMap: Record<string, User>;
 }
 
-export const UserIdAvatar: React.FC<
-  React.PropsWithChildren<UserIdAvatarProps>
-> = ({ userMap, userId, ...props }) => {
+export const UserIdAvatar: React.FC<React.PropsWithChildren<UserIdAvatarProps>> = ({ userMap, userId, ...props }) => {
   const user = userMap[userId];
   return user ? <UserAvatar {...props} user={user} /> : null;
 };

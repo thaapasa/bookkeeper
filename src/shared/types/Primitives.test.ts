@@ -1,4 +1,4 @@
-import { expect, describe, it } from "bun:test";
+import { expect, describe, it } from 'bun:test';
 
 import { IntArrayString } from './Primitives';
 

@@ -34,12 +34,7 @@ import { ExpenseSplitDialog } from '../expense/split/ExpenseSplitDialog';
 import { InfoView } from '../info/InfoView';
 import { SearchView } from '../search/SearchView';
 import { StatisticsView } from '../statistics/StatisticsView';
-import {
-  getScreenSizeClassName,
-  isMobileSize,
-  mainContentMargin,
-  mainContentMaxWidth,
-} from '../Styles';
+import { getScreenSizeClassName, isMobileSize, mainContentMargin, mainContentMaxWidth } from '../Styles';
 import { SubscriptionsView } from '../subscriptions/SubscriptionsView';
 import { ToolsView } from '../tools/ToolsView';
 import { Size } from '../Types';
@@ -92,15 +87,9 @@ const appLinks: AppLink[] = [
   },
 ];
 
-const ExpenseDialogBinder = createExpenseDialogListener(
-  ExpenseDialog,
-  expenseDialogE
-);
+const ExpenseDialogBinder = createExpenseDialogListener(ExpenseDialog, expenseDialogE);
 
-const ExpenseSplitBinder = createExpenseDialogListener(
-  ExpenseSplitDialog,
-  expenseSplitE
-);
+const ExpenseSplitBinder = createExpenseDialogListener(ExpenseSplitDialog, expenseSplitE);
 
 export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
   const isMobileDevice = isMobileSize(windowSize);
@@ -113,39 +102,19 @@ export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
       <Router>
         <ContentContainer>
           <TopBar links={appLinks} windowSize={windowSize} />
-          {isMobileDevice ? null : (
-            <NavigationBar links={appLinks} windowSize={windowSize} />
-          )}
+          {isMobileDevice ? null : <NavigationBar links={appLinks} windowSize={windowSize} />}
           <MainContent className={'main-content ' + className}>
             <Routes>
               <Route path={newExpensePath} element={<NewExpenseView />} />
-              <Route
-                path={expenseMonthPathPattern('date')}
-                element={<RoutedMonthView />}
-              />
+              <Route path={expenseMonthPathPattern('date')} element={<RoutedMonthView />} />
               <Route path={expensePagePath} element={<RoutedMonthView />} />
-              <Route
-                path={categoryViewYearPattern('year')}
-                element={<RoutedCategoryView />}
-              />
-              <Route
-                path={categoryViewMonthPattern('month')}
-                element={<RoutedCategoryView />}
-              />
+              <Route path={categoryViewYearPattern('year')} element={<RoutedCategoryView />} />
+              <Route path={categoryViewMonthPattern('month')} element={<RoutedCategoryView />} />
               <Route path={shortcutsPage} element={<ShortcutsView />} />
-              <Route
-                path={subscriptionsPagePath}
-                element={<SubscriptionsView />}
-              />
+              <Route path={subscriptionsPagePath} element={<SubscriptionsView />} />
               <Route path={categoryPagePath} element={<RoutedCategoryView />} />
-              <Route
-                path={`${searchPagePath}/m/:month`}
-                element={<SearchView />}
-              />
-              <Route
-                path={`${searchPagePath}/y/:year`}
-                element={<SearchView />}
-              />
+              <Route path={`${searchPagePath}/m/:month`} element={<SearchView />} />
+              <Route path={`${searchPagePath}/y/:year`} element={<SearchView />} />
               <Route path={searchPagePath} element={<SearchView />} />
               <Route path={statisticsPage} element={<StatisticsView />} />
               <Route path={infoPagePath} element={<InfoView />} />

@@ -15,24 +15,19 @@ export function useLocalStorageList<T>(
   initial?: T[],
   codec?: z.ZodType<T[]>,
   cmp: (a: T, b: T) => boolean = DefaultCompare,
-  checkEntity?: (t: T) => boolean
+  checkEntity?: (t: T) => boolean,
 ) {
-  const [initialLs, setListS] = useLocalStorage(key, initial, codec, l =>
-    checkEntity ? l?.filter(checkEntity) : l
-  );
+  const [initialLs, setListS] = useLocalStorage(key, initial, codec, l => (checkEntity ? l?.filter(checkEntity) : l));
   const list = React.useRef<T[]>(initialLs ?? []);
 
   React.useEffect(() => setListS(list.current), [setListS]);
 
   const addItems = React.useCallback(
     (items: T | T[]) => {
-      list.current = [
-        ...list.current,
-        ...toArray(items).filter(i => !list.current.find(i2 => cmp(i, i2))),
-      ];
+      list.current = [...list.current, ...toArray(items).filter(i => !list.current.find(i2 => cmp(i, i2)))];
       setListS(list.current);
     },
-    [setListS, cmp]
+    [setListS, cmp],
   );
   const removeItem = React.useCallback(
     (t: T | T[]) => {
@@ -40,7 +35,7 @@ export function useLocalStorageList<T>(
       list.current = list.current.filter(l => !tAr.find(l2 => cmp(l, l2)));
       setListS(list.current);
     },
-    [setListS, cmp]
+    [setListS, cmp],
   );
   const clear = React.useCallback(() => {
     list.current = [];
@@ -52,7 +47,7 @@ export function useLocalStorageList<T>(
       if (list.current.includes(t)) removeItem(t);
       else addItems(t);
     },
-    [removeItem, addItems]
+    [removeItem, addItems],
   );
 
   return { list: list.current, addItems, removeItem, toggleItem, clear };

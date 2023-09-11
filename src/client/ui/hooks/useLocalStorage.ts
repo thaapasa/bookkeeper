@@ -6,20 +6,11 @@ import { isDefined } from 'shared/types';
 
 const log = debug('bookkeeper:local-storage');
 
-export function useLocalStorage<T>(
-  key: string,
-  initialValue: T,
-  codec?: z.ZodType<T>,
-  init?: (v: T) => T
-) {
+export function useLocalStorage<T>(key: string, initialValue: T, codec?: z.ZodType<T>, init?: (v: T) => T) {
   if (typeof initialValue === 'function') {
-    throw new Error(
-      `Cannot store function to localStorage; got ${initialValue.name}`
-    );
+    throw new Error(`Cannot store function to localStorage; got ${initialValue.name}`);
   }
-  const [value, setValue] = React.useState<T>(() =>
-    readStored(key, initialValue, codec, init)
-  );
+  const [value, setValue] = React.useState<T>(() => readStored(key, initialValue, codec, init));
 
   const storeItem = React.useCallback(
     (v: T) => {
@@ -31,18 +22,13 @@ export function useLocalStorage<T>(
       localStorage.setItem(key, JSON.stringify(v));
       setValue(v);
     },
-    [setValue, key]
+    [setValue, key],
   );
 
   return [value, storeItem] as const;
 }
 
-function readStored<T>(
-  key: string,
-  defaultValue: T,
-  codec?: z.ZodType<T>,
-  init?: (v: T) => T
-) {
+function readStored<T>(key: string, defaultValue: T, codec?: z.ZodType<T>, init?: (v: T) => T) {
   try {
     const v = localStorage.getItem(key);
     if (!isDefined(v)) return defaultValue;

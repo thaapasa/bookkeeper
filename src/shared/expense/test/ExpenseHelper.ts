@@ -1,11 +1,6 @@
-import { expect } from "bun:test";
+import { expect } from 'bun:test';
 
-import {
-  Expense,
-  ExpenseCollection,
-  ExpenseDivisionItem,
-  UserExpenseWithDetails,
-} from '../../expense';
+import { Expense, ExpenseCollection, ExpenseDivisionItem, UserExpenseWithDetails } from '../../expense';
 import { SessionWithControl } from '../../net/test';
 import { uri } from '../../net/UrlUtils';
 import { YearMonth } from '../../time';
@@ -83,10 +78,7 @@ export const division = {
   },
 };
 
-export async function newExpense(
-  session: SessionWithControl,
-  expense?: Partial<Expense>
-): Promise<ApiMessage> {
+export async function newExpense(session: SessionWithControl, expense?: Partial<Expense>): Promise<ApiMessage> {
   const data = {
     userId: session.user.id,
     date: '2018-01-22',
@@ -101,36 +93,25 @@ export async function newExpense(
   return captureId(await session.post<ApiMessage>('/api/expense', data));
 }
 
-export async function fetchMonthStatus(
-  session: SessionWithControl,
-  month: YearMonth
-) {
+export async function fetchMonthStatus(session: SessionWithControl, month: YearMonth) {
   return session.get<ExpenseCollection>(`/api/expense/month`, month);
 }
 
-export async function fetchExpense(
-  session: SessionWithControl,
-  expenseId: number
-): Promise<UserExpenseWithDetails> {
-  return await session.get<UserExpenseWithDetails>(
-    uri`/api/expense/${expenseId}`
-  );
+export async function fetchExpense(session: SessionWithControl, expenseId: number): Promise<UserExpenseWithDetails> {
+  return await session.get<UserExpenseWithDetails>(uri`/api/expense/${expenseId}`);
 }
 
 export async function splitExpense(
   session: SessionWithControl,
   expenseId: number,
-  splits: ExpenseSplit[]
+  splits: ExpenseSplit[],
 ): Promise<ApiMessage> {
   return await session.post<ApiMessage>(uri`/api/expense/${expenseId}/split`, {
     splits,
   });
 }
 
-export async function newCategory(
-  session: SessionWithControl,
-  data: CategoryData
-): Promise<ApiMessage> {
+export async function newCategory(session: SessionWithControl, data: CategoryData): Promise<ApiMessage> {
   const d = await session.post<ApiMessage>('/api/category', data);
   if (d.categoryId) {
     createdCategories.push(d.categoryId);
@@ -138,9 +119,7 @@ export async function newCategory(
   return d;
 }
 
-export async function deleteCreated(
-  session: SessionWithControl
-): Promise<boolean> {
+export async function deleteCreated(session: SessionWithControl): Promise<boolean> {
   if (!session) {
     return false;
   }

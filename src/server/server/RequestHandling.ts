@@ -13,18 +13,10 @@ import { ServerUtil } from './ServerUtil';
 
 const log = debug('bookkeeper:server');
 
-const requestDelayMs = process.env.DELAY
-  ? parseInt(process.env.DELAY, 10)
-  : undefined;
+const requestDelayMs = process.env.DELAY ? parseInt(process.env.DELAY, 10) : undefined;
 
-function processUnauthorizedRequest<T>(
-  handler: (req: Request, res: Response) => MaybePromise<T>
-): RequestHandler {
-  return async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
+function processUnauthorizedRequest<T>(handler: (req: Request, res: Response) => MaybePromise<T>): RequestHandler {
+  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       if (requestDelayMs) {
         await timeout(requestDelayMs);
@@ -41,26 +33,18 @@ function processUnauthorizedRequest<T>(
 }
 
 function processUnauthorizedTxRequest<T>(
-  handler: (tx: ITask<any>, req: Request, res: Response) => MaybePromise<T>
+  handler: (tx: ITask<any>, req: Request, res: Response) => MaybePromise<T>,
 ): RequestHandler {
-  return processUnauthorizedRequest((req, res) =>
-    db.tx(tx => handler(tx, req, res))
-  );
+  return processUnauthorizedRequest((req, res) => db.tx(tx => handler(tx, req, res)));
 }
 
 function processRequest<T>(
-  handler: (
-    session: SessionBasicInfo,
-    req: Request,
-    res: Response
-  ) => MaybePromise<T>,
-  groupRequired?: boolean
+  handler: (session: SessionBasicInfo, req: Request, res: Response) => MaybePromise<T>,
+  groupRequired?: boolean,
 ): RequestHandler {
   return processUnauthorizedRequest(async (req, res) => {
     const token = ServerUtil.getToken(req);
-    const session = await db.tx(tx =>
-      getSessionByToken(tx, token, optNumber(req.query.groupId))
-    );
+    const session = await db.tx(tx => getSessionByToken(tx, token, optNumber(req.query.groupId)));
     if (groupRequired && !session.group.id) {
       throw new InvalidGroupError();
     }
@@ -69,18 +53,10 @@ function processRequest<T>(
 }
 
 function processTxRequest<T>(
-  handler: (
-    tx: ITask<any>,
-    session: SessionBasicInfo,
-    req: Request,
-    res: Response
-  ) => MaybePromise<T>,
-  groupRequired?: boolean
+  handler: (tx: ITask<any>, session: SessionBasicInfo, req: Request, res: Response) => MaybePromise<T>,
+  groupRequired?: boolean,
 ): RequestHandler {
-  return processRequest(
-    (session, req, res) => db.tx(tx => handler(tx, session, req, res)),
-    groupRequired
-  );
+  return processRequest((session, req, res) => db.tx(tx => handler(tx, session, req, res)), groupRequired);
 }
 
 type ValidatorSpec<R, P, Q, B> = {
@@ -102,18 +78,13 @@ function processValidatedRequest<Return, P, Q, B>(
     session: SessionBasicInfo,
     data: HandlerParams<P, Q, B>,
     req: Request,
-    res: Response
+    res: Response,
   ) => MaybePromise<Return>,
-  groupRequired?: boolean
+  groupRequired?: boolean,
 ): RequestHandler {
   return processRequest(async (session, req, res) => {
     const ctx = `${req.method} ${req.originalUrl}`;
-    const params = validateOr(
-      req.params,
-      spec.params,
-      {} as P,
-      `${ctx} params`
-    );
+    const params = validateOr(req.params, spec.params, {} as P, `${ctx} params`);
     const body = validateOr(req.body, spec.body, {} as B, `${ctx} body`);
     const query = validateOr(req.query, spec.query, {} as Q, `${ctx} query`);
     const response = await handler(session, { params, query, body }, req, res);
@@ -128,15 +99,11 @@ function processValidatedTxRequest<Return, P, Q, B>(
     session: SessionBasicInfo,
     data: HandlerParams<P, Q, B>,
     req: Request,
-    res: Response
+    res: Response,
   ) => MaybePromise<Return>,
-  groupRequired?: boolean
+  groupRequired?: boolean,
 ): RequestHandler {
-  return processValidatedRequest(
-    spec,
-    (...p) => db.tx(tx => handler(tx, ...p)),
-    groupRequired
-  );
+  return processValidatedRequest(spec, (...p) => db.tx(tx => handler(tx, ...p)), groupRequired);
 }
 
 export const Requests = {

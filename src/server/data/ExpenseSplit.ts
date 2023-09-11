@@ -16,11 +16,9 @@ export async function splitExpense(
   groupId: number,
   userId: number,
   expenseId: number,
-  splits: ExpenseSplit[]
+  splits: ExpenseSplit[],
 ) {
-  const expense = toBaseExpense(
-    await getExpenseById(tx, groupId, userId, expenseId)
-  );
+  const expense = toBaseExpense(await getExpenseById(tx, groupId, userId, expenseId));
   await checkSplits(splits, expense);
   log(`Splitting`, expense, 'to', splits);
   await Promise.all(splits.map(s => createSplit(tx, expense, s)));
@@ -31,41 +29,24 @@ export async function splitExpense(
   };
 }
 
-async function createSplit(
-  tx: ITask<any>,
-  expense: Expense,
-  split: ExpenseSplit
-) {
+async function createSplit(tx: ITask<any>, expense: Expense, split: ExpenseSplit) {
   const splitted = { ...expense, ...split };
   log(`Creating new expense`, splitted);
-  await createExpense(
-    tx,
-    expense.userId,
-    expense.groupId,
-    splitted,
-    expense.groupId
-  );
+  await createExpense(tx, expense.userId, expense.groupId, splitted, expense.groupId);
 }
 
 async function checkSplits(splits: ExpenseSplit[], expense: Expense) {
   if (splits.length < 2) {
-    throw new BkError(
-      'INVALID_SPLIT',
-      'Expense splitting requires at least two splits',
-      400,
-      splits
-    );
+    throw new BkError('INVALID_SPLIT', 'Expense splitting requires at least two splits', 400, splits);
   }
 
   const partSum = splits.reduce((acc, s) => acc.plus(s.sum), Money.from(0));
   if (!partSum.equals(expense.sum)) {
     throw new BkError(
       'INVALID_SPLIT',
-      `Split sums (${partSum.toString()}) do not match expense sum (${
-        expense.sum
-      })`,
+      `Split sums (${partSum.toString()}) do not match expense sum (${expense.sum})`,
       400,
-      splits
+      splits,
     );
   }
 }

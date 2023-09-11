@@ -22,9 +22,7 @@ import { TextEdit } from '../component/TextEdit';
 
 const log = debug('bookkeeper:category-dialog');
 
-const defaultCategory: Category[] = [
-  { id: 0, name: '[Ei yläkategoriaa]', children: [], parentId: null },
-];
+const defaultCategory: Category[] = [{ id: 0, name: '[Ei yläkategoriaa]', children: [], parentId: null }];
 
 interface CategoryDialogProps {
   categories: Category[];
@@ -53,10 +51,7 @@ const DialogControl = styled(FormControl)`
   box-sizing: border-box;
 `;
 
-export default class CategoryDialog extends React.Component<
-  CategoryDialogProps,
-  CategoryDialogState
-> {
+export default class CategoryDialog extends React.Component<CategoryDialogProps, CategoryDialogState> {
   public state: CategoryDialogState = {
     open: false,
     name: '',
@@ -95,9 +90,7 @@ export default class CategoryDialog extends React.Component<
     return defaultCategory.concat(this.props.categories);
   }
 
-  private startEditing(
-    s: Partial<CategoryDialogState>
-  ): Promise<number | null> {
+  private startEditing(s: Partial<CategoryDialogState>): Promise<number | null> {
     return new Promise<number | null>(resolve => {
       this.setState({ ...s, resolve } as any);
     });
@@ -118,9 +111,7 @@ export default class CategoryDialog extends React.Component<
     this.saveCategory(this.state);
   };
 
-  private async saveCategory(
-    s: CategoryDialogState
-  ): Promise<number | undefined> {
+  private async saveCategory(s: CategoryDialogState): Promise<number | undefined> {
     const createNew = !s.id;
     const name = s.name;
 
@@ -138,7 +129,7 @@ export default class CategoryDialog extends React.Component<
       {
         success: `${createNew ? 'Tallennettu' : 'Päivitetty'} ${name}`,
         postProcess: this.closeDialog,
-      }
+      },
     );
   }
 
@@ -150,24 +141,14 @@ export default class CategoryDialog extends React.Component<
     this.setState({ name, valid: (name && name.length > 0) || false });
   };
 
-  private changeCategory = (
-    e: SelectChangeEvent<number>,
-    _child: React.ReactNode
-  ) => {
+  private changeCategory = (e: SelectChangeEvent<number>, _child: React.ReactNode) => {
     this.setState({ parentId: Number(e.target.value) });
   };
 
   public render() {
     return (
-      <Dialog
-        className="category-dialog"
-        fullWidth={true}
-        open={this.state.open}
-        onClose={this.cancel}
-      >
-        <DialogTitle>
-          {this.state.createNew ? 'Uusi kategoria' : 'Muokkaa kategoriaa'}
-        </DialogTitle>
+      <Dialog className="category-dialog" fullWidth={true} open={this.state.open} onClose={this.cancel}>
+        <DialogTitle>{this.state.createNew ? 'Uusi kategoria' : 'Muokkaa kategoriaa'}</DialogTitle>
         <DialogContent>
           <Form onSubmit={this.requestSave}>
             <DialogControl>
@@ -183,9 +164,7 @@ export default class CategoryDialog extends React.Component<
               />
             </DialogControl>
             <DialogControl>
-              <InputLabel htmlFor="category-dialog-parentId">
-                Yläkategoria
-              </InputLabel>
+              <InputLabel htmlFor="category-dialog-parentId">Yläkategoria</InputLabel>
               <Select
                 labelId="category-dialog-parentId"
                 label="Yläkategoria"
@@ -206,12 +185,7 @@ export default class CategoryDialog extends React.Component<
           <Button variant="text" onClick={this.cancel}>
             Peruuta
           </Button>
-          <Button
-            variant="text"
-            color="primary"
-            disabled={!this.state.valid}
-            onClick={this.requestSave}
-          >
+          <Button variant="text" color="primary" disabled={!this.state.valid} onClick={this.requestSave}>
             Tallenna
           </Button>
         </DialogActions>

@@ -6,28 +6,14 @@ import { colorScheme, primaryColors } from 'client/ui/Colors';
 import { connect } from 'client/ui/component/BaconConnect';
 import { Icons } from 'client/ui/icons/Icons';
 import { QuestionBookmark } from 'client/ui/icons/QuestionBookmark';
-import {
-  getScreenSizeClassName,
-  media,
-  ScreenSizeClassName,
-} from 'client/ui/Styles';
+import { getScreenSizeClassName, media, ScreenSizeClassName } from 'client/ui/Styles';
 import { Size } from 'client/ui/Types';
 
 const tableBgColor = colorScheme.primary.light;
 const separatorColor = colorScheme.gray.standard;
 
-const columns = [
-  'date',
-  'avatar',
-  'name',
-  'receiver',
-  'category',
-  'source',
-  'sum',
-  'balance',
-  'tools',
-] as const;
-type ExpenseRowColumns = (typeof columns)[number];
+const columns = ['date', 'avatar', 'name', 'receiver', 'category', 'source', 'sum', 'balance', 'tools'] as const;
+type ExpenseRowColumns = typeof columns[number];
 
 export const columnSizes: Record<ExpenseRowColumns, ScreenSizeClassName> = {
   date: 'mobile-portrait',
@@ -42,13 +28,9 @@ export const columnSizes: Record<ExpenseRowColumns, ScreenSizeClassName> = {
 };
 
 export const maxColumnsForSize = {
-  'mobile-portrait': columns.filter(c => columnSizes[c] === 'mobile-portrait')
+  'mobile-portrait': columns.filter(c => columnSizes[c] === 'mobile-portrait').length,
+  'mobile-landscape': columns.filter(c => columnSizes[c] === 'mobile-portrait' || columnSizes[c] === 'mobile-landscape')
     .length,
-  'mobile-landscape': columns.filter(
-    c =>
-      columnSizes[c] === 'mobile-portrait' ||
-      columnSizes[c] === 'mobile-landscape'
-  ).length,
   web: columns.length,
   large: columns.length,
 };
@@ -190,17 +172,17 @@ export const ToolColumn = styled(Column)`
   `}
 `;
 
-const AllColumnsComponent: React.FC<
-  React.PropsWithChildren<{ className?: string; size: Size }>
-> = ({ className, children, size }) => (
+const AllColumnsComponent: React.FC<React.PropsWithChildren<{ className?: string; size: Size }>> = ({
+  className,
+  children,
+  size,
+}) => (
   <Column colSpan={getVisibleColumns(size)} className={className}>
     {children}
   </Column>
 );
 
-export const AllColumns = connect(windowSizeP.map(size => ({ size })))(
-  AllColumnsComponent
-);
+export const AllColumns = connect(windowSizeP.map(size => ({ size })))(AllColumnsComponent);
 
 const Corner = styled('div')`
   position: absolute;
@@ -243,13 +225,9 @@ type UnconfimedIconProps = {
   title?: string;
   onClick?: () => void;
 };
-export const UnconfirmedIcon: React.FC<UnconfimedIconProps> = ({
-  size,
-  title,
-  onClick,
-}) => (
+export const UnconfirmedIcon: React.FC<UnconfimedIconProps> = ({ size, title, onClick }) => (
   <UnconfirmedIconArea title={title ?? 'Alustava kirjaus'} onClick={onClick}>
-    <QuestionBookmark size={size || 24} />
+    <QuestionBookmark size={size || 24} title="Alustava kirjaus" />
   </UnconfirmedIconArea>
 );
 

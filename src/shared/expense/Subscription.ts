@@ -11,9 +11,7 @@ export const SubscriptionSearchCriteria = z.object({
   onlyOwn: z.boolean().optional(),
   range: MomentInterval.optional(),
 });
-export type SubscriptionSearchCriteria = z.infer<
-  typeof SubscriptionSearchCriteria
->;
+export type SubscriptionSearchCriteria = z.infer<typeof SubscriptionSearchCriteria>;
 
 export const SubscriptionResult = z.object({
   recurringExpenses: z.array(RecurringExpense),

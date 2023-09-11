@@ -1,9 +1,4 @@
-import {
-  Autocomplete,
-  AutocompleteChangeReason,
-  AutocompleteInputChangeReason,
-  TextField,
-} from '@mui/material';
+import { Autocomplete, AutocompleteChangeReason, AutocompleteInputChangeReason, TextField } from '@mui/material';
 import debug from 'debug';
 import React from 'react';
 
@@ -53,11 +48,7 @@ export const AutoComplete: React.FC<AutoCompleteProps<any>> = ({
   inputClassName,
 }) => {
   const onChangeHandler = React.useCallback(
-    (
-      _event: React.SyntheticEvent,
-      value: string | null,
-      reason: AutocompleteChangeReason
-    ) => {
+    (_event: React.SyntheticEvent, value: string | null, reason: AutocompleteChangeReason) => {
       switch (reason) {
         case 'selectOption':
           log(`Selected suggestion:`, value);
@@ -65,15 +56,11 @@ export const AutoComplete: React.FC<AutoCompleteProps<any>> = ({
           return;
       }
     },
-    [onSelectSuggestion]
+    [onSelectSuggestion],
   );
 
   const onInputChangeHandler = React.useCallback(
-    (
-      _event: React.SyntheticEvent,
-      value: string,
-      reason: AutocompleteInputChangeReason
-    ) => {
+    (_event: React.SyntheticEvent, value: string, reason: AutocompleteInputChangeReason) => {
       switch (reason) {
         case 'input':
           log(`Input from textfield: ${value}`);
@@ -82,7 +69,7 @@ export const AutoComplete: React.FC<AutoCompleteProps<any>> = ({
           return;
       }
     },
-    [onChange, onUpdateSuggestions]
+    [onChange, onUpdateSuggestions],
   );
 
   const defaultErrorText = autoHideErrorText ? null : ' ';

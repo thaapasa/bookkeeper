@@ -41,8 +41,7 @@ export const UserSelector: React.FC<UserSelectorProps> = ({
     }
     const oldS = selected;
     const foundAt = oldS.indexOf(id);
-    const newS =
-      foundAt >= 0 ? oldS.slice().filter(i => i !== id) : oldS.slice();
+    const newS = foundAt >= 0 ? oldS.slice().filter(i => i !== id) : oldS.slice();
     if (foundAt < 0) {
       newS.push(id);
     }
@@ -67,6 +66,4 @@ export const UserSelector: React.FC<UserSelectorProps> = ({
   );
 };
 
-export default connect(validSessionE.map(s => ({ users: s.users })))(
-  UserSelector
-);
+export default connect(validSessionE.map(s => ({ users: s.users })))(UserSelector);

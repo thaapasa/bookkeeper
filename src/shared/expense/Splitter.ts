@@ -14,10 +14,7 @@ export interface HasSum {
   sum: Money;
 }
 
-export function splitByShares<T extends HasShares>(
-  sum: MoneyLike,
-  division: T[]
-): Array<T & HasSum> {
+export function splitByShares<T extends HasShares>(sum: MoneyLike, division: T[]): Array<T & HasSum> {
   const numShares = division.map(d => d.share).reduce((a, b) => a + b, 0);
   const moneySum = Money.from(sum);
   log('Splitting', moneySum.format(), 'to', numShares, 'parts by', division);
@@ -44,7 +41,7 @@ export function splitByShares<T extends HasShares>(
   assert(newTotal.equals(moneySum));
   log(
     'Divided to',
-    res.map(r => ({ ...r, sum: sum.toString() }))
+    res.map(r => ({ ...r, sum: sum.toString() })),
   );
   return res;
 }

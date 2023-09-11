@@ -35,9 +35,7 @@ const ResultsViewImpl: React.FC<ResultsProps> = ({ results, ...rest }) => {
 
 const ResultsContents: React.FC<ResultsProps> = ({ results, ...rest }) => {
   const resultsByYears: Record<string, UserExpense[]> | undefined =
-    results && results.length > 0
-      ? groupBy(e => String(toMoment(e.date).year()), results)
-      : undefined;
+    results && results.length > 0 ? groupBy(e => String(toMoment(e.date).year()), results) : undefined;
 
   if (!resultsByYears) {
     return <Info>Ei tuloksia, tarkista hakuehdot</Info>;
@@ -52,23 +50,14 @@ const ResultsContents: React.FC<ResultsProps> = ({ results, ...rest }) => {
   );
 };
 
-const ExpenseYear: React.FC<ResultsProps & { year: string }> = ({
-  results,
-  year,
-  ...rest
-}) => (
+const ExpenseYear: React.FC<ResultsProps & { year: string }> = ({ results, year, ...rest }) => (
   <>
     <YearHeader year={year} expenses={results} />
     <ExpenseList results={results} {...rest} />
   </>
 );
 
-const ExpenseList: React.FC<ResultsProps> = ({
-  results,
-  onUpdate,
-  onSelectCategory,
-  userData,
-}) => (
+const ExpenseList: React.FC<ResultsProps> = ({ results, onUpdate, onSelectCategory, userData }) => (
   <ExpenseTableLayout className="padding">
     <tbody>
       {results.map(e => (
@@ -85,9 +74,7 @@ const ExpenseList: React.FC<ResultsProps> = ({
   </ExpenseTableLayout>
 );
 
-export const ResultsView = connect(B.combineTemplate({ userData: userDataE }))(
-  ResultsViewImpl
-);
+export const ResultsView = connect(B.combineTemplate({ userData: userDataE }))(ResultsViewImpl);
 
 function YearHeader({
   year,
@@ -97,12 +84,8 @@ function YearHeader({
   expenses: UserExpense[];
 }) {
   const sum = expenses.reduce((p, c) => p.plus(c.sum), Money.from(0));
-  const income = expenses
-    .filter(r => r.type === 'income')
-    .reduce((p, c) => p.plus(c.sum), Money.from(0));
-  const cost = expenses
-    .filter(r => r.type === 'expense')
-    .reduce((p, c) => p.plus(c.sum), Money.from(0));
+  const income = expenses.filter(r => r.type === 'income').reduce((p, c) => p.plus(c.sum), Money.from(0));
+  const cost = expenses.filter(r => r.type === 'expense').reduce((p, c) => p.plus(c.sum), Money.from(0));
   return (
     <YearHeaderRow>
       <HeaderText>Vuosi {year}</HeaderText>

@@ -10,7 +10,7 @@ import { ChartConfiguration } from './ChartTypes';
 
 function categoryStatisticsToMonthlyData(
   data: CategoryStatistics,
-  categoryMap: Record<ObjectId, Category>
+  categoryMap: Record<ObjectId, Category>,
 ): ChartData<'month', number> {
   const keys = typedKeys(data.statistics);
   const allMonths = getMonthsInRange(data.range);
@@ -24,9 +24,7 @@ function categoryStatisticsToMonthlyData(
   }
 
   return {
-    chartData: allMonths
-      .map(month => byMonths[month] ?? { month })
-      .map(d => fillMissingForNumericKeys(d, keys)),
+    chartData: allMonths.map(month => byMonths[month] ?? { month }).map(d => fillMissingForNumericKeys(d, keys)),
     keys: keys.map((key, i) => ({
       key,
       color: getChartColor(i, 0),

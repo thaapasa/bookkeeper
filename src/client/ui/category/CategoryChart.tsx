@@ -1,13 +1,5 @@
 import * as React from 'react';
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Legend,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
+import { Bar, BarChart, CartesianGrid, Legend, Tooltip, XAxis, YAxis } from 'recharts';
 
 import { getChartColor } from '../chart/ChartColors';
 import { formatMoney, formatMoneyThin, useThinFormat } from '../chart/Format';
@@ -27,22 +19,12 @@ interface CategoryChartProps {
   className?: string;
 }
 
-const CategoryChartImpl: React.FC<CategoryChartProps> = ({
-  chartData,
-  size,
-  className,
-}) => {
+const CategoryChartImpl: React.FC<CategoryChartProps> = ({ chartData, size, className }) => {
   const thin = useThinFormat(size);
   const expenseColor = 0;
   const incomeColor = 1;
   return (
-    <BarChart
-      width={size.width}
-      height={size.height}
-      data={chartData}
-      margin={ChartMargins}
-      className={className}
-    >
+    <BarChart width={size.width} height={size.height} data={chartData} margin={ChartMargins} className={className}>
       <CartesianGrid strokeDasharray="3 3" />
       <XAxis dataKey="categoryName" />
       <YAxis
@@ -63,18 +45,8 @@ const CategoryChartImpl: React.FC<CategoryChartProps> = ({
       />
       <Tooltip formatter={formatMoney} />
       <Legend />
-      <Bar
-        dataKey="categoryExpense"
-        fill={getChartColor(expenseColor, 2)}
-        name="Menot"
-        yAxisId="expense"
-      />
-      <Bar
-        dataKey="categoryIncome"
-        fill={getChartColor(incomeColor, 2)}
-        name="Tulot"
-        yAxisId="income"
-      />
+      <Bar dataKey="categoryExpense" fill={getChartColor(expenseColor, 2)} name="Menot" yAxisId="expense" />
+      <Bar dataKey="categoryIncome" fill={getChartColor(incomeColor, 2)} name="Tulot" yAxisId="income" />
     </BarChart>
   );
 };

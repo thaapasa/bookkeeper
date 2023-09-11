@@ -16,48 +16,27 @@ import { useDeferredData } from '../hooks/useAsyncData';
 import { useLocalStorageList } from '../hooks/useList';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { PageContentContainer } from '../Styles';
-import {
-  SubscriptionCategoryHeader,
-  ToggleCategoryVisibility,
-} from './SubscriptionCategoryHeader';
+import { SubscriptionCategoryHeader, ToggleCategoryVisibility } from './SubscriptionCategoryHeader';
 import { SubscriptionCriteriaSelector } from './SubscriptionCriteriaSelector';
 import { SubscriptionItemView } from './SubscriptionItemView';
 import { groupSubscriptions, sumRecurrenceTotals } from './SubscriptionsData';
 import { TotalsChart, TotalsData } from './TotalsChart';
-import {
-  RecurrenceTotals,
-  SubscriptionGroup,
-  SubscriptionItem,
-  SubscriptionsData,
-} from './types';
+import { RecurrenceTotals, SubscriptionGroup, SubscriptionItem, SubscriptionsData } from './types';
 
 const emptyResponse: SubscriptionResult = {
   recurringExpenses: [],
   reports: [],
 };
 
-const loadExpenses = async (
-  criteria: SubscriptionSearchCriteria | undefined,
-  categories: CategoryMap
-) =>
-  groupSubscriptions(
-    criteria ? await apiConnect.searchSubscriptions(criteria) : emptyResponse,
-    categories
-  );
+const loadExpenses = async (criteria: SubscriptionSearchCriteria | undefined, categories: CategoryMap) =>
+  groupSubscriptions(criteria ? await apiConnect.searchSubscriptions(criteria) : emptyResponse, categories);
 
 const SubscriptionsViewImpl: React.FC<{
   categories: CategoryMap;
 }> = ({ categories }) => {
-  const [criteria, setCriteria] = React.useState<
-    SubscriptionSearchCriteria | undefined
-  >(undefined);
+  const [criteria, setCriteria] = React.useState<SubscriptionSearchCriteria | undefined>(undefined);
 
-  const { data, loadData } = useDeferredData(
-    loadExpenses,
-    criteria !== undefined,
-    criteria,
-    categories
-  );
+  const { data, loadData } = useDeferredData(loadExpenses, criteria !== undefined, criteria, categories);
   // Load data automatically
   React.useEffect(loadData, [loadData, criteria, categories]);
   // Reload whenever update bus is triggered
@@ -70,31 +49,19 @@ const SubscriptionsViewImpl: React.FC<{
   );
 };
 
-export const SubscriptionsView = connect(
-  combineTemplate({ categories: categoryMapE })
-)(SubscriptionsViewImpl);
+export const SubscriptionsView = connect(combineTemplate({ categories: categoryMapE }))(SubscriptionsViewImpl);
 
 const SubscriptionsRenderer: React.FC<{
   data: SubscriptionsData;
 }> = ({ data }) => {
   const [catId, setCatId] = React.useState<ObjectId | undefined>(undefined);
-  const hidden = useLocalStorageList<number>(
-    'subscription.filter.hiddenCategories',
-    []
-  );
+  const hidden = useLocalStorageList<number>('subscription.filter.hiddenCategories', []);
 
-  const [perMonth, setPerMonth] = useLocalStorage(
-    'subscriptions.show.months',
-    false,
-    z.boolean()
-  );
-  const filteredGroups = data.groups.filter(
-    g => !hidden.list.includes(g.root.id)
-  );
+  const [perMonth, setPerMonth] = useLocalStorage('subscriptions.show.months', false, z.boolean());
+  const filteredGroups = data.groups.filter(g => !hidden.list.includes(g.root.id));
   const pieData = createPieData(filteredGroups, catId, perMonth);
   const selectedIndex = data.groups.findIndex(g => g.root.id === catId);
-  const selectedGroup =
-    selectedIndex >= 0 ? data.groups[selectedIndex] : undefined;
+  const selectedGroup = selectedIndex >= 0 ? data.groups[selectedIndex] : undefined;
 
   const hasFiltered = filteredGroups.length !== data.groups.length;
 
@@ -102,11 +69,7 @@ const SubscriptionsRenderer: React.FC<{
     <>
       <SubscriptionCategoryHeader
         title={hasFiltered ? 'Suodatetut' : 'Kaikki'}
-        totals={
-          hasFiltered
-            ? sumRecurrenceTotals(filteredGroups.map(g => g.allTotals))
-            : data.totals
-        }
+        totals={hasFiltered ? sumRecurrenceTotals(filteredGroups.map(g => g.allTotals)) : data.totals}
         className="root-category"
       />
       <ChartArea>
@@ -117,30 +80,16 @@ const SubscriptionsRenderer: React.FC<{
         />
         <ChartTools>
           <FormControlLabel
-            control={
-              <Checkbox
-                checked={perMonth}
-                onChange={() => setPerMonth(!perMonth)}
-              />
-            }
+            control={<Checkbox checked={perMonth} onChange={() => setPerMonth(!perMonth)} />}
             label="Kulut per kk"
           />
         </ChartTools>
       </ChartArea>
       {selectedGroup ? (
-        <GroupView
-          group={selectedGroup}
-          hidden={hidden.list}
-          toggleVisibility={hidden.toggleItem}
-        />
+        <GroupView group={selectedGroup} hidden={hidden.list} toggleVisibility={hidden.toggleItem} />
       ) : (
         data.groups.map(s => (
-          <GroupView
-            key={s.root.id}
-            group={s}
-            hidden={hidden.list}
-            toggleVisibility={hidden.toggleItem}
-          />
+          <GroupView key={s.root.id} group={s} hidden={hidden.list} toggleVisibility={hidden.toggleItem} />
         ))
       )}
     </>
@@ -150,42 +99,16 @@ const SubscriptionsRenderer: React.FC<{
 function createPieData(
   groups: SubscriptionGroup[],
   selectedCat: ObjectId | undefined,
-  perMonth: boolean
+  perMonth: boolean,
 ): TotalsData[] {
   if (!selectedCat) {
-    return groups.map(g =>
-      total(
-        g.root.name,
-        g.allTotals.recurrencePerYear,
-        g.colorIndex,
-        perMonth,
-        g.root.id
-      )
-    );
+    return groups.map(g => total(g.root.name, g.allTotals.recurrencePerYear, g.colorIndex, perMonth, g.root.id));
   }
   const group = groups.find(g => g.root.id === selectedCat);
   if (!group) return [];
   return (
-    group.rootTotals
-      ? [
-          total(
-            group.root.name,
-            group.rootTotals.recurrencePerYear,
-            group.colorIndex,
-            perMonth
-          ),
-        ]
-      : []
-  ).concat(
-    group.children.map(c =>
-      total(
-        c.category.name,
-        c.totals.recurrencePerYear,
-        group.colorIndex,
-        perMonth
-      )
-    )
-  );
+    group.rootTotals ? [total(group.root.name, group.rootTotals.recurrencePerYear, group.colorIndex, perMonth)] : []
+  ).concat(group.children.map(c => total(c.category.name, c.totals.recurrencePerYear, group.colorIndex, perMonth)));
 }
 
 const total = (
@@ -193,7 +116,7 @@ const total = (
   sum: MoneyLike,
   colorIndex: number,
   perMonth: boolean,
-  categoryId?: ObjectId
+  categoryId?: ObjectId,
 ): TotalsData => ({
   name,
   sum: Money.from(sum)
@@ -207,11 +130,7 @@ const GroupView: React.FC<{
   group: SubscriptionGroup;
   hidden: ObjectId[];
   toggleVisibility: ToggleCategoryVisibility;
-}> = ({
-  group: { root, rootItems, rootTotals, allTotals, children },
-  hidden,
-  toggleVisibility,
-}) => {
+}> = ({ group: { root, rootItems, rootTotals, allTotals, children }, hidden, toggleVisibility }) => {
   const visible = !hidden.includes(root.id);
   return (
     <>
@@ -234,12 +153,7 @@ const GroupView: React.FC<{
             />
           ) : null}
           {children.map(c => (
-            <CategorySubscriptions
-              key={c.category.id}
-              category={c.category}
-              items={c.items}
-              totals={c.totals}
-            />
+            <CategorySubscriptions key={c.category.id} category={c.category} items={c.items} totals={c.totals} />
           ))}
         </>
       ) : null}
@@ -254,11 +168,7 @@ const CategorySubscriptions: React.FC<{
   totals?: RecurrenceTotals;
 }> = ({ category, items, totals, title }) => (
   <>
-    <SubscriptionCategoryHeader
-      title={title ?? category.name}
-      totals={totals}
-      className="child-category"
-    />
+    <SubscriptionCategoryHeader title={title ?? category.name} totals={totals} className="child-category" />
     {items.map(item => (
       <SubscriptionItemView key={item.id} item={item} />
     ))}

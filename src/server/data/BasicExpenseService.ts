@@ -23,7 +23,7 @@ export async function createExpense(
   userId: number,
   groupId: number,
   expenseInput: ExpenseInput,
-  defaultSourceId: number
+  defaultSourceId: number,
 ): Promise<ApiMessage> {
   const expense = setExpenseDataDefaults(expenseInput);
   const sourceId = expense.sourceId || defaultSourceId;
@@ -45,7 +45,7 @@ export async function createExpense(
       categoryId: cat.id,
       sum: expense.sum,
     },
-    division
+    division,
   );
   log('Created expense', id, expense);
   return { status: 'OK', message: 'Expense created', expenseId: id };
@@ -57,7 +57,7 @@ export async function updateExpenseById(
   userId: number,
   expenseId: number,
   expense: ExpenseInput,
-  defaultSourceId: number
+  defaultSourceId: number,
 ) {
   const e = await getExpenseById(tx, groupId, userId, expenseId);
   return updateExpense(tx, e, expense, defaultSourceId);
@@ -68,9 +68,7 @@ export async function copyExpense(
   groupId: number,
   userId: number,
   expenseId: number,
-  mapper: (
-    e: [Expense, ExpenseDivisionItem[]]
-  ) => [Expense, ExpenseDivisionItem[]]
+  mapper: (e: [Expense, ExpenseDivisionItem[]]) => [Expense, ExpenseDivisionItem[]],
 ) {
   const e = await getExpenseAndDivisionData(tx, groupId, userId, expenseId);
   const [expense, division] = mapper ? mapper(e) : e;
@@ -81,18 +79,15 @@ export const getExpenseAndDivisionData = (
   tx: ITask<any>,
   groupId: number,
   userId: number,
-  expenseId: number
+  expenseId: number,
 ): Promise<[Expense, ExpenseDivisionItem[]]> =>
-  Promise.all([
-    getExpenseById(tx, groupId, userId, expenseId),
-    getExpenseDivision(tx, expenseId),
-  ]);
+  Promise.all([getExpenseById(tx, groupId, userId, expenseId), getExpenseDivision(tx, expenseId)]);
 
 export async function getExpenseWithDivision(
   tx: ITask<any>,
   groupId: ObjectId,
   userId: ObjectId,
-  expenseId: ObjectId
+  expenseId: ObjectId,
 ): Promise<Expense & { division: ExpenseDivisionItem[] }> {
   const [expense, division] = await Promise.all([
     getExpenseById(tx, groupId, userId, expenseId),

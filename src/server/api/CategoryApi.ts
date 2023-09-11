@@ -1,12 +1,7 @@
 import { Router } from 'express';
 
 import { DateRange } from 'shared/time';
-import {
-  ApiMessage,
-  Category,
-  CategoryAndTotals,
-  CategoryInput,
-} from 'shared/types';
+import { ApiMessage, Category, CategoryAndTotals, CategoryInput } from 'shared/types';
 import { createValidatingRouter } from 'server/server/ValidatingRouter';
 
 import {
@@ -27,12 +22,7 @@ export function createCategoryApi() {
 
   // GET /api/category/list
   // List all categories
-  api.getTx(
-    '/list',
-    {},
-    (tx, session) => getAllCategories(tx, session.group.id),
-    true
-  );
+  api.getTx('/list', {}, (tx, session) => getAllCategories(tx, session.group.id), true);
 
   // POST /api/category
   // Create new category
@@ -43,7 +33,7 @@ export function createCategoryApi() {
       const id = await createCategory(tx, session.group.id, body);
       return { status: 'OK', message: 'Category created', categoryId: id };
     },
-    true
+    true,
   );
 
   // GET /api/category/totals
@@ -53,7 +43,7 @@ export function createCategoryApi() {
     (tx, session, { query }): Promise<CategoryAndTotals[]> => {
       return getCategoryTotals(tx, session.group.id, query);
     },
-    true
+    true,
   );
 
   // PUT /api/category/categoryId
@@ -61,9 +51,8 @@ export function createCategoryApi() {
   api.putTx(
     '/:categoryId',
     { body: CategoryInput },
-    (tx, session, { body, params }): Promise<Category> =>
-      updateCategory(tx, session.group.id, params.categoryId, body),
-    true
+    (tx, session, { body, params }): Promise<Category> => updateCategory(tx, session.group.id, params.categoryId, body),
+    true,
   );
 
   // GET /api/category/categoryId
@@ -71,9 +60,8 @@ export function createCategoryApi() {
   api.getTx(
     '/:categoryId',
     {},
-    (tx, session, { params }): Promise<Category> =>
-      getCategoryById(tx, session.group.id, params.categoryId),
-    true
+    (tx, session, { params }): Promise<Category> => getCategoryById(tx, session.group.id, params.categoryId),
+    true,
   );
 
   // DELETE /api/category/categoryId
@@ -81,9 +69,8 @@ export function createCategoryApi() {
   api.deleteTx(
     '/:categoryId',
     { response: ApiMessage },
-    (tx, session, { params }) =>
-      deleteCategory(tx, session.group.id, params.categoryId),
-    true
+    (tx, session, { params }) => deleteCategory(tx, session.group.id, params.categoryId),
+    true,
   );
 
   return api.router;

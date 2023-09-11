@@ -17,7 +17,7 @@ const log = debug('bookkeeper:navigator');
 
 export type DateRangeNavigatorProps = NavigationConfig;
 
-const DateRangeNavigatorImpl: React.FC<DateRangeNavigatorProps> = ({
+const DateRangeNavigatorImpl: React.FC<React.PropsWithChildren<DateRangeNavigatorProps>> = ({
   dateRange,
   pathPrefix,
 }) => {
@@ -45,7 +45,7 @@ const DateRangeNavigatorImpl: React.FC<DateRangeNavigatorProps> = ({
   };
 
   return (
-    <NavigationContainer onKeyUp={handleKeyPress} tabIndex={1}>
+    <NavigationContainer onKeyUp={handleKeyPress} tabIndex={0}>
       <div>
         <StyledIconButton onClick={() => navigateOffset(-1)} title="Edellinen">
           <Icons.ChevronLeft color="primary" />

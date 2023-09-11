@@ -11,9 +11,7 @@ import { TextPromptDialogContents } from './TextPromptDialogContents';
 const dialogActionBus = new B.Bus<DialogConfig<any, any>>();
 export const dialogActionE = dialogActionBus;
 
-function promptUser<T, D extends DialogData>(
-  config: Omit<DialogConfig<T, D>, 'resolve'>
-) {
+function promptUser<T, D extends DialogData>(config: Omit<DialogConfig<T, D>, 'resolve'>) {
   return new Promise<T | undefined>(resolve => {
     dialogActionBus.push({ ...config, resolve });
   });
@@ -37,11 +35,7 @@ export const UserPrompts = {
    * Returns a promise that will be resolved to one of the options; or undefined if the dialog
    * was cancelled.
    */
-  select: <T>(
-    title: string,
-    description: string,
-    options: DialogSelectOption<T>[]
-  ): Promise<T | undefined> =>
+  select: <T>(title: string, description: string, options: DialogSelectOption<T>[]): Promise<T | undefined> =>
     promptUser({
       type: 'option',
       title,
@@ -58,7 +52,7 @@ export const UserPrompts = {
     title: string,
     description: string,
     initialText?: string,
-    editorType?: TextEditorComponent
+    editorType?: TextEditorComponent,
   ): Promise<string | undefined> =>
     promptUser({
       type: 'text',
@@ -72,10 +66,7 @@ export const UserPrompts = {
    * Returns a promise that will be resolved to the text that was entered; or undefined if the dialog
    * was cancelled.
    */
-  selectDate: (
-    title: string,
-    initialDate?: Moment
-  ): Promise<Moment | undefined> =>
+  selectDate: (title: string, initialDate?: Moment): Promise<Moment | undefined> =>
     promptUser({
       type: 'date',
       title,

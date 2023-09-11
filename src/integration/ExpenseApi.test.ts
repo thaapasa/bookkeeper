@@ -1,13 +1,7 @@
-import { expect, describe, it, beforeEach, afterEach } from "bun:test";
+import { expect, describe, it, beforeEach, afterEach } from 'bun:test';
 
 import { Expense, ExpenseCollection, ExpenseStatus } from 'shared/expense';
-import {
-  checkCreateStatus,
-  cleanup,
-  division,
-  findUserId,
-  newExpense,
-} from 'shared/expense/test';
+import { checkCreateStatus, cleanup, division, findUserId, newExpense } from 'shared/expense/test';
 import { createTestClient, SessionWithControl } from 'shared/net/test';
 import { toMoment } from 'shared/time';
 import { ApiMessage } from 'shared/types';
@@ -18,11 +12,7 @@ import { expectThrow } from 'shared/util/test';
 
 function checkValueAndBalance(status: ExpenseStatus, _i: any, _name: string) {
   expect(status.value).toEqual(
-    Money.from(status.cost)
-      .plus(status.benefit)
-      .plus(status.income)
-      .plus(status.split)
-      .toString()
+    Money.from(status.cost).plus(status.benefit).plus(status.income).plus(status.split).toString(),
   );
   expect(status.balance).toEqual(Money.from(status.value).negate().toString());
 }
@@ -158,7 +148,7 @@ describe('expense', () => {
           { type: 'cost', userId: 1, sum: '5.00' },
           { type: 'cost', userId: 2, sum: '3.46' },
         ],
-      })
+      }),
     );
   });
 
@@ -228,88 +218,32 @@ describe('expense', () => {
       }),
     ]);
 
-    expect(
-      Money.equals(
-        jan2.monthStatus.cost,
-        Money.from(jan1.monthStatus.cost).plus('-500')
-      )
-    ).toBeTruthy();
-    expect(
-      Money.equals(
-        feb2.monthStatus.cost,
-        Money.from(feb1.monthStatus.cost).plus('-740')
-      )
-    ).toBeTruthy();
-    expect(
-      Money.equals(
-        jan2.monthStatus.benefit,
-        Money.from(jan1.monthStatus.benefit).plus('250')
-      )
-    ).toBeTruthy();
-    expect(
-      Money.equals(
-        feb2.monthStatus.benefit,
-        Money.from(feb1.monthStatus.benefit).plus('370')
-      )
-    ).toBeTruthy();
+    expect(Money.equals(jan2.monthStatus.cost, Money.from(jan1.monthStatus.cost).plus('-500'))).toBeTruthy();
+    expect(Money.equals(feb2.monthStatus.cost, Money.from(feb1.monthStatus.cost).plus('-740'))).toBeTruthy();
+    expect(Money.equals(jan2.monthStatus.benefit, Money.from(jan1.monthStatus.benefit).plus('250'))).toBeTruthy();
+    expect(Money.equals(feb2.monthStatus.benefit, Money.from(feb1.monthStatus.benefit).plus('370'))).toBeTruthy();
 
     [jan1, jan2, feb1, feb2].forEach((o, i) =>
       ['monthStatus', 'startStatus', 'endStatus'].forEach(status =>
-        checkValueAndBalance((o as any)[status], i, status)
-      )
+        checkValueAndBalance((o as any)[status], i, status),
+      ),
     );
 
     expect(feb1.startStatus).toEqual(jan1.endStatus);
     expect(feb2.startStatus).toEqual(jan2.endStatus);
 
+    expect(Money.equals(jan2.endStatus.cost, Money.from(jan1.endStatus.cost).plus('-500'))).toBeTruthy();
+    expect(Money.equals(feb2.endStatus.cost, Money.from(feb1.endStatus.cost).plus('-500').plus('-740'))).toBeTruthy();
+    expect(Money.equals(jan2.endStatus.benefit, Money.from(jan1.endStatus.benefit).plus('250'))).toBeTruthy();
     expect(
-      Money.equals(
-        jan2.endStatus.cost,
-        Money.from(jan1.endStatus.cost).plus('-500')
-      )
-    ).toBeTruthy();
-    expect(
-      Money.equals(
-        feb2.endStatus.cost,
-        Money.from(feb1.endStatus.cost).plus('-500').plus('-740')
-      )
-    ).toBeTruthy();
-    expect(
-      Money.equals(
-        jan2.endStatus.benefit,
-        Money.from(jan1.endStatus.benefit).plus('250')
-      )
-    ).toBeTruthy();
-    expect(
-      Money.equals(
-        feb2.endStatus.benefit,
-        Money.from(feb1.endStatus.benefit).plus('370').plus('250')
-      )
+      Money.equals(feb2.endStatus.benefit, Money.from(feb1.endStatus.benefit).plus('370').plus('250')),
     ).toBeTruthy();
 
+    expect(Money.equals(jan2.endStatus.balance, Money.from(jan1.endStatus.balance).plus('250'))).toBeTruthy();
     expect(
-      Money.equals(
-        jan2.endStatus.balance,
-        Money.from(jan1.endStatus.balance).plus('250')
-      )
+      Money.equals(feb2.endStatus.balance, Money.from(feb1.endStatus.balance).plus('250').plus('370')),
     ).toBeTruthy();
-    expect(
-      Money.equals(
-        feb2.endStatus.balance,
-        Money.from(feb1.endStatus.balance).plus('250').plus('370')
-      )
-    ).toBeTruthy();
-    expect(
-      Money.equals(
-        jan2.endStatus.value,
-        Money.from(jan1.endStatus.value).plus('-250')
-      )
-    ).toBeTruthy();
-    expect(
-      Money.equals(
-        feb2.endStatus.value,
-        Money.from(feb1.endStatus.value).plus('-250').plus('-370')
-      )
-    ).toBeTruthy();
+    expect(Money.equals(jan2.endStatus.value, Money.from(jan1.endStatus.value).plus('-250'))).toBeTruthy();
+    expect(Money.equals(feb2.endStatus.value, Money.from(feb1.endStatus.value).plus('-250').plus('-370'))).toBeTruthy();
   });
 });

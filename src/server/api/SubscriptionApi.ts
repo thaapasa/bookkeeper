@@ -26,9 +26,8 @@ export function createSubscriptionApi() {
   api.postTx(
     '/search',
     { body: SubscriptionSearchCriteria },
-    (tx, session, { body }) =>
-      searchSubscriptions(tx, session.group.id, session.user.id, body),
-    true
+    (tx, session, { body }) => searchSubscriptions(tx, session.group.id, session.user.id, body),
+    true,
   );
 
   // GET /api/subscription/[recurringExpenseId]
@@ -37,13 +36,8 @@ export function createSubscriptionApi() {
     '/:recurringExpenseId',
     {},
     (tx, session, { params }) =>
-      getRecurringExpenseDetails(
-        tx,
-        session.group.id,
-        session.user.id,
-        params.recurringExpenseId
-      ),
-    true
+      getRecurringExpenseDetails(tx, session.group.id, session.user.id, params.recurringExpenseId),
+    true,
   );
 
   // GET /api/subscription/[recurringExpenseId]
@@ -52,13 +46,8 @@ export function createSubscriptionApi() {
     '/:recurringExpenseId/template',
     {},
     (tx, session, { params }) =>
-      getRecurringExpenseTemplate(
-        tx,
-        session.group.id,
-        session.user.id,
-        params.recurringExpenseId
-      ),
-    true
+      getRecurringExpenseTemplate(tx, session.group.id, session.user.id, params.recurringExpenseId),
+    true,
   );
 
   // PUT /api/subscription/template/[expenseId]
@@ -73,9 +62,9 @@ export function createSubscriptionApi() {
         session.user.id,
         params.expenseId,
         body,
-        session.group.defaultSourceId || 0
+        session.group.defaultSourceId || 0,
       ),
-    true
+    true,
   );
 
   // DELETE /api/subscription/[recurringExpenseId]
@@ -83,13 +72,8 @@ export function createSubscriptionApi() {
   api.deleteTx(
     '/:recurringExpenseId',
     {},
-    (tx, session, { params }) =>
-      deleteRecurringExpenseById(
-        tx,
-        session.group.id,
-        params.recurringExpenseId
-      ),
-    true
+    (tx, session, { params }) => deleteRecurringExpenseById(tx, session.group.id, params.recurringExpenseId),
+    true,
   );
 
   return api.router;

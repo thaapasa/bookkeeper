@@ -5,16 +5,7 @@ import { numberRange } from '../util/Arrays';
 import { leftPad } from '../util/Util';
 import { toMoment } from './Moment';
 import { toMonthName } from './Months';
-import {
-  compareDates,
-  DateLike,
-  displayDatePattern,
-  ISODate,
-  ISOMonth,
-  monthToYear,
-  toYearName,
-  Year,
-} from './Time';
+import { compareDates, DateLike, displayDatePattern, ISODate, ISOMonth, monthToYear, toYearName, Year } from './Time';
 
 export const DateRange = z.object({
   startDate: ISODate,
@@ -49,8 +40,8 @@ export function getMonthsInRange(range: DateRange): ISOMonth[] {
     .map(y =>
       numberRange(
         y === startYear ? toMoment(range.startDate).month() + 1 : 1,
-        y === endYear ? toMoment(range.endDate).month() + 1 : 12
-      ).map(m => `${y}-${leftPad(m, 2, '0')}`)
+        y === endYear ? toMoment(range.endDate).month() + 1 : 12,
+      ).map(m => `${y}-${leftPad(m, 2, '0')}`),
     )
     .flat(1);
 }
@@ -69,11 +60,7 @@ export function toDateRangeName(x: TypedDateRange): string {
     case 'year':
       return toYearName(x.start);
     case 'custom':
-      return (
-        toMoment(x.start).format(displayDatePattern) +
-        ' - ' +
-        toMoment(x.end).format(displayDatePattern)
-      );
+      return toMoment(x.start).format(displayDatePattern) + ' - ' + toMoment(x.end).format(displayDatePattern);
     default:
       return '?';
   }
@@ -105,7 +92,7 @@ const yearRE = /[0-9]{4}/;
 function fromYearValue(y: DateLike): Moment | undefined {
   if (typeof y === 'number' || (typeof y === 'string' && yearRE.test(y))) {
     const year = parseInt(y, 10);
-    return toMoment(leftPad(year, 4, '0') + '-01-01');
+    return toMoment(`${leftPad(year, 4, '0')}-01-01`);
   }
   return;
 }

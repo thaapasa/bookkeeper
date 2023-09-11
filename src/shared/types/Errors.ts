@@ -13,11 +13,7 @@ export function undefinedToError(errorType: any, p1?: any, p2?: any, p3?: any) {
 
 export function emptyToError(errorType: any, p1?: any, p2?: any, p3?: any) {
   return (value: any) => {
-    if (
-      value === undefined ||
-      value === null ||
-      (Array.isArray(value) && value.length === 0)
-    ) {
+    if (value === undefined || value === null || (Array.isArray(value) && value.length === 0)) {
       throw new errorType(p1, p2, p3);
     } else {
       return value;

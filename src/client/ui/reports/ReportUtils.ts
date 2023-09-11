@@ -5,10 +5,7 @@ import { executeOperation } from 'client/util/ExecuteOperation';
 import { UserPrompts } from '../dialog/DialogState';
 
 export async function requestSaveReport(query: ExpenseQuery) {
-  const title = await UserPrompts.promptText(
-    'Raportti',
-    'Anna raportille nimi'
-  );
+  const title = await UserPrompts.promptText('Raportti', 'Anna raportille nimi');
   if (!title) return;
   // Filter out dates from reports
   const { startDate, endDate, ...q } = query;

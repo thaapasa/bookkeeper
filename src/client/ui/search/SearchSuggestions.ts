@@ -13,14 +13,10 @@ export interface ReceiverSuggestion {
 export type SearchSuggestion = CategorySuggestion | ReceiverSuggestion;
 
 export function getSearchSuggestionValue(suggestion: SearchSuggestion) {
-  return suggestion.type === 'category'
-    ? suggestion.name
-    : `Kohde: ${suggestion.receiver}`;
+  return suggestion.type === 'category' ? suggestion.name : `Kohde: ${suggestion.receiver}`;
 }
 
-export function isReceiverSuggestion(
-  x: SearchSuggestion
-): x is ReceiverSuggestion {
+export function isReceiverSuggestion(x: SearchSuggestion): x is ReceiverSuggestion {
   return x.type === 'receiver';
 }
 

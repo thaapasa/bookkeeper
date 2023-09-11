@@ -12,10 +12,7 @@ interface CategoryListProps {
   categoryMap: Record<ObjectId, Category>;
 }
 
-export const CategoryChipList: React.FC<CategoryListProps> = ({
-  selected,
-  ...props
-}) => (
+export const CategoryChipList: React.FC<CategoryListProps> = ({ selected, ...props }) => (
   <>
     {selected.map(cat => (
       <CategoryChip {...props} key={cat.id} cat={cat} />

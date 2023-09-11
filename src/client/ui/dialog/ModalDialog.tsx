@@ -7,10 +7,7 @@ import { DialogConfig, DialogData } from './Dialog';
 
 type ModalDialogProps<T, D extends DialogData> = DialogConfig<T, D>;
 
-export const ModalDialog: React.FC<ModalDialogProps<any, any>> = <
-  T,
-  D extends DialogData,
->({
+export const ModalDialog: React.FC<ModalDialogProps<any, any>> = <T, D extends DialogData>({
   title,
   contentRenderer,
   resolve,
@@ -29,7 +26,7 @@ export const ModalDialog: React.FC<ModalDialogProps<any, any>> = <
       }
       return;
     },
-    [resolve, enterResolution]
+    [resolve, enterResolution],
   );
 
   const ContentRenderer = contentRenderer as any;
@@ -37,19 +34,9 @@ export const ModalDialog: React.FC<ModalDialogProps<any, any>> = <
   const onCancel = React.useCallback(() => resolve(undefined), [resolve]);
 
   return (
-    <Dialog
-      title={title}
-      open={true}
-      onClose={() => onCancel}
-      onKeyUp={handleKeyPress}
-    >
+    <Dialog title={title} open={true} onClose={() => onCancel} onKeyUp={handleKeyPress}>
       <DialogTitle>{title}</DialogTitle>
-      <ContentRenderer
-        onSelect={resolve}
-        onCancel={onCancel}
-        handleKeyPress={handleKeyPress}
-        {...rendererProps}
-      />
+      <ContentRenderer onSelect={resolve} onCancel={onCancel} handleKeyPress={handleKeyPress} {...rendererProps} />
     </Dialog>
   );
 };

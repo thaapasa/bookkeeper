@@ -17,11 +17,7 @@
  */
 export function joinStr(joiner: string, prefix = '', suffix = '') {
   return (_strings: TemplateStringsArray, ...keys: any[]) =>
-    prefix +
-    keys
-      .filter(v => !(v === undefined || v === null || v === ''))
-      .join(joiner) +
-    suffix;
+    prefix + keys.filter(v => !(v === undefined || v === null || v === '')).join(joiner) + suffix;
 }
 
 /**

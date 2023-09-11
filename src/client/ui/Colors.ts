@@ -1,9 +1,5 @@
 import { amber, grey, lime, teal } from '@mui/material/colors';
-import {
-  createTheme,
-  SimplePaletteColorOptions,
-  styled,
-} from '@mui/material/styles';
+import { createTheme, SimplePaletteColorOptions, styled } from '@mui/material/styles';
 
 import { Money, MoneyLike } from 'shared/util';
 
@@ -90,21 +86,11 @@ export const unconfirmed = amber[50];
 export const highlightBg = orangeRed.light;
 export const highlightFg = orangeRed.dark;
 
-export function diagonalStripes(
-  color1: string,
-  color2: string,
-  width1: string,
-  width2: string
-): string {
+export function diagonalStripes(color1: string, color2: string, width1: string, width2: string): string {
   return `repeating-linear-gradient(45deg, ${color1}, ${color1} ${width1}, ${color2} ${width1}, ${color2} ${width2})`;
 }
 
-export const unconfirmedStripes = diagonalStripes(
-  unconfirmed,
-  white,
-  '0.5em',
-  '1em'
-);
+export const unconfirmedStripes = diagonalStripes(unconfirmed, white, '0.5em', '1em');
 export const income = lime[100];
 
 export function forMoney(m?: MoneyLike): string {
@@ -112,29 +98,15 @@ export function forMoney(m?: MoneyLike): string {
     return unimportant;
   }
   const b = Money.from(m);
-  return b
-    ? b.gt(0)
-      ? positive
-      : b.lt(0)
-      ? negative
-      : unimportant
-    : unimportant;
+  return b ? (b.gt(0) ? positive : b.lt(0) ? negative : unimportant) : unimportant;
 }
 
-export function classNameForMoney(
-  m?: MoneyLike
-): 'positive' | 'negative' | 'unimportant' {
+export function classNameForMoney(m?: MoneyLike): 'positive' | 'negative' | 'unimportant' {
   if (!m) {
     return 'unimportant';
   }
   const b = Money.from(m);
-  return b
-    ? b.gt(0)
-      ? 'positive'
-      : b.lt(0)
-      ? 'negative'
-      : 'unimportant'
-    : 'unimportant';
+  return b ? (b.gt(0) ? 'positive' : b.lt(0) ? 'negative' : 'unimportant') : 'unimportant';
 }
 
 export const muiTheme = createTheme({

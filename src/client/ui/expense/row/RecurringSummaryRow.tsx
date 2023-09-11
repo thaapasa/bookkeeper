@@ -9,23 +9,13 @@ import { Icons } from 'client/ui/icons/Icons';
 import { isMobileSize, media } from 'client/ui/Styles';
 
 import { ExpenseFilterFunction, ExpenseFilters } from './ExpenseFilters';
-import {
-  AllColumns,
-  RecurringExpenseIcon,
-  Row,
-  rowHeight,
-  UnconfirmedIcon,
-} from './ExpenseTableLayout';
+import { AllColumns, RecurringExpenseIcon, Row, rowHeight, UnconfirmedIcon } from './ExpenseTableLayout';
 
 interface RecurringSummaryRowProps {
   recurring: UserExpense[];
   isExpanded: boolean;
   onToggle: () => void;
-  addFilter: (
-    filter: ExpenseFilterFunction,
-    name: string,
-    avater?: string
-  ) => void;
+  addFilter: (filter: ExpenseFilterFunction, name: string, avater?: string) => void;
 }
 
 export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
@@ -42,9 +32,7 @@ export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
     .filter(s => s.type === 'income')
     .map(s => Money.from(s.sum))
     .reduce(Money.plus, Money.zero);
-  const balance = recurring
-    .map(s => Money.from(s.userBalance))
-    .reduce(Money.plus, Money.zero);
+  const balance = recurring.map(s => Money.from(s.userBalance)).reduce(Money.plus, Money.zero);
   const hasUnconfirmed = recurring.some(r => !r.confirmed);
   const isMobile = isMobileSize(useWindowSize());
   return (
@@ -56,9 +44,7 @@ export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
             {hasUnconfirmed ? (
               <UnconfirmedIcon
                 title="Sisältää alustavia kirjauksia"
-                onClick={() =>
-                  addFilter(ExpenseFilters.unconfirmed, 'Alustavat')
-                }
+                onClick={() => addFilter(ExpenseFilters.unconfirmed, 'Alustavat')}
               />
             ) : null}
             <Emph>Toistuvat </Emph> ({recurring.length} kpl)
@@ -81,11 +67,7 @@ export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
             Balanssi: <Sum>{balance.format()}</Sum>
           </Item>
           <Tools>
-            {isExpanded ? (
-              <Icons.ExpandLess onClick={onToggle} />
-            ) : (
-              <Icons.ExpandMore onClick={onToggle} />
-            )}
+            {isExpanded ? <Icons.ExpandLess onClick={onToggle} /> : <Icons.ExpandMore onClick={onToggle} />}
           </Tools>
         </RowContainer>
       </AllColumns>

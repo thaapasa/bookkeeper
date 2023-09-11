@@ -4,24 +4,18 @@ import { DbStatus, TypeStatus, ZeroSumData } from 'shared/types';
 
 import { getInvalidDivision } from './InvalidDivisionQuery';
 
-async function getExpenseTypeStatus(
-  tx: ITask<any>,
-  groupId: number
-): Promise<TypeStatus[]> {
+async function getExpenseTypeStatus(tx: ITask<any>, groupId: number): Promise<TypeStatus[]> {
   const rows = await tx.manyOrNone<TypeStatus>(
     `SELECT COUNT(*) as count, SUM(sum) AS sum, type
         FROM expenses
         WHERE group_id=$/groupId/
         GROUP BY type`,
-    { groupId }
+    { groupId },
   );
   return rows.map(s => ({ ...s, count: Number(s.count) }));
 }
 
-async function getInvalidZeroSumRows(
-  tx: ITask<any>,
-  groupId: number
-): Promise<ZeroSumData[]> {
+async function getInvalidZeroSumRows(tx: ITask<any>, groupId: number): Promise<ZeroSumData[]> {
   const rows = await tx.manyOrNone<Record<string, string>>(
     `SELECT id, zerosum FROM
         (SELECT id, SUM(d.sum) as zerosum
@@ -30,7 +24,7 @@ async function getInvalidZeroSumRows(
           WHERE e.group_id=$/groupId/
           GROUP BY e.id) data
       WHERE zerosum <> 0`,
-    { groupId }
+    { groupId },
   );
 
   return rows.map(s => ({
@@ -39,10 +33,7 @@ async function getInvalidZeroSumRows(
   }));
 }
 
-export async function getDbStatus(
-  tx: ITask<any>,
-  groupId: number
-): Promise<DbStatus> {
+export async function getDbStatus(tx: ITask<any>, groupId: number): Promise<DbStatus> {
   return {
     status: await getExpenseTypeStatus(tx, groupId),
     invalidZerosum: await getInvalidZeroSumRows(tx, groupId),

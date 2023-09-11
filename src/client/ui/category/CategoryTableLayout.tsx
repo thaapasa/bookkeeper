@@ -63,19 +63,13 @@ export const AllColumns = styled('div')`
   padding: 0 16px;
 `;
 
-export const CategoryHeader: React.FC<{ onAdd: (p?: Category) => void }> = ({
-  onAdd,
-}) => (
+export const CategoryHeader: React.FC<{ onAdd: (p?: Category) => void }> = ({ onAdd }) => (
   <RowElement className="category-header">
     <NameColumn className="header">Nimi</NameColumn>
     <SumColumn className="header">Tulot</SumColumn>
     <SumColumn className="header">Kulut</SumColumn>
     <ToolColumn>
-      <AddCategoryButton
-        onAdd={onAdd}
-        color={colorScheme.gray.veryDark}
-        icon="PlusCircle"
-      />
+      <AddCategoryButton onAdd={onAdd} color={colorScheme.gray.veryDark} icon="PlusCircle" />
     </ToolColumn>
   </RowElement>
 );

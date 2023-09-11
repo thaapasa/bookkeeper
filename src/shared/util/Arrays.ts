@@ -62,10 +62,7 @@ export function toObject(ar: string[][]): Record<string, string> {
   return res;
 }
 
-export function toMap<T, K extends keyof T>(
-  arr: T[],
-  keyProp: K
-): Record<string, T> {
+export function toMap<T, K extends keyof T>(arr: T[], keyProp: K): Record<string, T> {
   const map: Record<string, T> = {};
   for (const v of arr) {
     map['' + v[keyProp]] = v;
@@ -88,20 +85,11 @@ export function arrayContains(arr: ReadonlyArray<any>, value: any): boolean {
   return false;
 }
 
-export function partition<T>(
-  filter: (item: T) => boolean,
-  arr: ReadonlyArray<T>
-): [T[], T[]] {
-  return arr.reduce<[T[], T[]]>(
-    ([t, f], i) => (filter(i) ? [t.concat(i), f] : [t, f.concat(i)]),
-    [[], []]
-  );
+export function partition<T>(filter: (item: T) => boolean, arr: ReadonlyArray<T>): [T[], T[]] {
+  return arr.reduce<[T[], T[]]>(([t, f], i) => (filter(i) ? [t.concat(i), f] : [t, f.concat(i)]), [[], []]);
 }
 
-export function groupBy<T, K extends string | number>(
-  filter: (item: T) => K,
-  arr: ReadonlyArray<T>
-): Record<K, T[]> {
+export function groupBy<T, K extends string | number>(filter: (item: T) => K, arr: ReadonlyArray<T>): Record<K, T[]> {
   const res: Record<K, T[]> = {} as any;
   arr.forEach(a => {
     const key = filter(a);

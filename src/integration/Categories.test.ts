@@ -1,4 +1,4 @@
-import { expect, describe, it, beforeEach, afterEach } from "bun:test";
+import { expect, describe, it, beforeEach, afterEach } from 'bun:test';
 
 import { cleanup, newCategory } from 'shared/expense/test';
 import { createTestClient, SessionWithControl } from 'shared/net/test';
@@ -26,8 +26,6 @@ describe('categories', () => {
       parentId: c1.categoryId!,
     });
     expect(c2.categoryId).toBeGreaterThan(0);
-    await expectThrow(() =>
-      newCategory(session, { name: 'Alin', parentId: c2.categoryId! })
-    );
+    await expectThrow(() => newCategory(session, { name: 'Alin', parentId: c2.categoryId! }));
   });
 });

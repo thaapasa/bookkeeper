@@ -4,8 +4,7 @@ import * as React from 'react';
 import { TextEdit } from '../component/TextEdit';
 import { DialogContentRendererProps, TextPromptDialogData } from './Dialog';
 
-type TextPromptDialogProps = DialogContentRendererProps<string> &
-  TextPromptDialogData;
+type TextPromptDialogProps = DialogContentRendererProps<string> & TextPromptDialogData;
 
 export const TextPromptDialogContents: React.FC<TextPromptDialogProps> = ({
   handleKeyPress,
@@ -24,20 +23,10 @@ export const TextPromptDialogContents: React.FC<TextPromptDialogProps> = ({
         <Editor value={text} onChange={setText} width="400px" />
       </DialogContent>
       <DialogActions>
-        <Button
-          color="primary"
-          variant="text"
-          onKeyUp={handleKeyPress}
-          onClick={() => onCancel()}
-        >
+        <Button color="primary" variant="text" onKeyUp={handleKeyPress} onClick={() => onCancel()}>
           Peruuta
         </Button>
-        <Button
-          color="primary"
-          variant="contained"
-          onKeyUp={handleKeyPress}
-          onClick={() => onSelect(text)}
-        >
+        <Button color="primary" variant="contained" onKeyUp={handleKeyPress} onClick={() => onSelect(text)}>
           OK
         </Button>
       </DialogActions>

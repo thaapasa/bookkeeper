@@ -2,10 +2,7 @@ import { ITask } from 'pg-promise';
 
 import { InvalidDivision } from 'shared/types';
 
-export async function getInvalidDivision(
-  tx: ITask<any>,
-  groupId: number
-): Promise<InvalidDivision[]> {
+export async function getInvalidDivision(tx: ITask<any>, groupId: number): Promise<InvalidDivision[]> {
   return await tx.manyOrNone<InvalidDivision>(
     `SELECT *
       FROM (
@@ -70,6 +67,6 @@ export async function getInvalidDivision(
         ) data
         ORDER BY data.id) overview
       WHERE sum <> positive OR sum <> -negative OR zero <> 0`,
-    { groupId }
+    { groupId },
   );
 }

@@ -19,11 +19,8 @@ export function createReceiverApi() {
   api.getTx(
     '/query',
     { query: ReceiverSearch },
-    async (tx, session, { query }) =>
-      (await queryReceivers(tx, session.group.id, query.receiver)).map(
-        r => r.receiver
-      ),
-    true
+    async (tx, session, { query }) => (await queryReceivers(tx, session.group.id, query.receiver)).map(r => r.receiver),
+    true,
   );
 
   const RenameRequest = z.object({
@@ -35,15 +32,10 @@ export function createReceiverApi() {
     '/rename',
     { body: RenameRequest, response: ApiMessage },
     async (tx, session, { body }) => {
-      const count = await renameReceiver(
-        tx,
-        session.group.id,
-        body.oldName,
-        body.newName
-      );
+      const count = await renameReceiver(tx, session.group.id, body.oldName, body.newName);
       return { status: 'OK', message: `${count} expenses updated`, count };
     },
-    true
+    true,
   );
 
   return api.router;

@@ -18,7 +18,8 @@
     "eject-client": "react-scripts eject",
     "update-revision": "bash script/update-revision.sh",
     "update-revisions": "yarn update-revision server && yarn update-revision client",
-    "lint": "yarn lint-es && yarn lint-tsc",
+    "lint": "biome check src",
+    "format": "biome format src --write",
     "lint-es": "eslint \"src/**/*.ts\" \"src/**/*.tsx\"",
     "lint-tsc": "tsc --noEmit",
     "deploy": "sh script/deploy.sh",
@@ -68,6 +69,7 @@
     "zod": "3.22.2"
   },
   "devDependencies": {
+    "@biomejs/biome": "1.1.2",
     "@types/big.js": "6.2.0",
     "@types/body-parser": "1.19.2",
     "@types/debug": "4.1.8",
@@ -95,16 +97,8 @@
   "proxy": "http://localhost:3100",
   "description": "Kukkaro - a web tool for tracking your income and expenses.",
   "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "production": [">0.2%", "not dead", "not op_mini all"],
+    "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
   },
   "packageManager": "yarn@3.2.1"
 }

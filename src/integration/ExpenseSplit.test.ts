@@ -1,13 +1,7 @@
-import { afterEach, beforeEach, expect, describe, it } from "bun:test";
+import { afterEach, beforeEach, expect, describe, it } from 'bun:test';
 
 import { ExpenseSplit, UserExpenseWithDetails } from 'shared/expense';
-import {
-  cleanup,
-  fetchExpense,
-  fetchMonthStatus,
-  newExpense,
-  splitExpense,
-} from 'shared/expense/test';
+import { cleanup, fetchExpense, fetchMonthStatus, newExpense, splitExpense } from 'shared/expense/test';
 import { createTestClient, SessionWithControl } from 'shared/net/test';
 import { YearMonth } from 'shared/time';
 import { Money } from 'shared/util';
@@ -38,16 +32,14 @@ describe('splitting expenses', () => {
 
   it('should not allow invalid split data', async () => {
     expect(expense).toMatchObject({ title: 'Ruokakauppa' });
-    await expect(
-      splitExpense(session, expense.id, [{ foo: 'bar' }, { baz: 'kok' }] as any)
-    ).rejects.toMatchObject({ code: 'VALIDATION_ERROR' });
+    await expect(splitExpense(session, expense.id, [{ foo: 'bar' }, { baz: 'kok' }] as any)).rejects.toMatchObject({
+      code: 'VALIDATION_ERROR',
+    });
   });
 
   it('should not create splits without at least two split items', async () => {
     expect(expense).toMatchObject({ title: 'Ruokakauppa' });
-    await expect(
-      splitExpense(session, expense.id, [{ ...SPLIT_DATA }])
-    ).rejects.toMatchObject({
+    await expect(splitExpense(session, expense.id, [{ ...SPLIT_DATA }])).rejects.toMatchObject({
       code: 'INVALID_SPLIT',
       data: { cause: 'Expense splitting requires at least two splits' },
     });
@@ -59,7 +51,7 @@ describe('splitting expenses', () => {
       splitExpense(session, expense.id, [
         { ...SPLIT_DATA, sum: '15.00' },
         { ...SPLIT_DATA, sum: '80.00' },
-      ])
+      ]),
     ).rejects.toMatchObject({
       code: 'INVALID_SPLIT',
       data: { cause: 'Split sums (95.00) do not match expense sum (100.00)' },
@@ -96,7 +88,7 @@ describe('splitting expenses', () => {
             { type: 'cost', sum: '-85.00', userId },
           ],
         },
-      ])
+      ]),
     ).resolves.toMatchObject({ status: 'OK' });
     expect(checkMonthStatus(await fetchMonthStatus(session, month))).toMatchObject({
       ...status,

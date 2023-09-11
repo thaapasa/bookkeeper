@@ -1,4 +1,4 @@
-import { expect } from "bun:test";
+import { expect } from 'bun:test';
 
 import { ExpenseCollection, ExpenseStatus, UserExpense } from 'shared/expense';
 import { MoneyLike } from 'shared/util';
@@ -6,7 +6,7 @@ import { MoneyLike } from 'shared/util';
 export function checkMonthStatus(
   m: ExpenseCollection,
   expectedBenefit?: MoneyLike,
-  expectItems?: (items: UserExpense[]) => any
+  expectItems?: (items: UserExpense[]) => any,
 ): ExpenseStatus {
   //const m = await fetchMonthStatus(session, month);
   expect(m).toHaveProperty('monthStatus');

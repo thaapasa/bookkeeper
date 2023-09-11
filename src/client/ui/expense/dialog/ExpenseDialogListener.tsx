@@ -32,7 +32,7 @@ let expenseCounter = 1;
 
 export function createExpenseDialogListener<D>(
   Dialog: React.ComponentType<ExpenseDialogProps<D>>,
-  bus: B.EventStream<ExpenseDialogObject<D>>
+  bus: B.EventStream<ExpenseDialogObject<D>>,
 ) {
   const ConnectedDialog = connect(
     B.combineTemplate({
@@ -44,13 +44,10 @@ export function createExpenseDialogListener<D>(
       categorySource: categoryDataSourceP,
       categoryMap: categoryMapE,
       users: validSessionE.map(s => s.users),
-    })
+    }),
   )(Dialog);
 
-  return class ExpenseDialogListener extends React.Component<
-    { windowSize: Size },
-    ExpenseDialogListenerState<D>
-  > {
+  return class ExpenseDialogListener extends React.Component<{ windowSize: Size }, ExpenseDialogListenerState<D>> {
     private unsub: Unsubscriber[] = [];
 
     public state: ExpenseDialogListenerState<D> = {

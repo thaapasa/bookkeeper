@@ -59,9 +59,7 @@ function toDateAtStart(p: Period) {
     case 'year':
       return toISODate(toMoment(p.year, 'YYYY').startOf('year'));
     case 'month':
-      return toISODate(
-        toMoment(`${p.year}-${p.month}`, 'YYYY-MM').startOf('month')
-      );
+      return toISODate(toMoment(`${p.year}-${p.month}`, 'YYYY-MM').startOf('month'));
     default:
       return toISODate();
   }
@@ -72,9 +70,7 @@ function toDateAtEnd(p: Period) {
     case 'year':
       return toISODate(toMoment(p.year, 'YYYY').endOf('year'));
     case 'month':
-      return toISODate(
-        toMoment(`${p.year}-${p.month}`, 'YYYY-MM').endOf('month')
-      );
+      return toISODate(toMoment(`${p.year}-${p.month}`, 'YYYY-MM').endOf('month'));
     default:
       return toISODate();
   }

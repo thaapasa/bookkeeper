@@ -10,7 +10,7 @@ import { ChartConfiguration } from './ChartTypes';
 
 function categoryStatisticsToQuartersData(
   data: CategoryStatistics,
-  categoryMap: Record<ObjectId, Category>
+  categoryMap: Record<ObjectId, Category>,
 ): ChartData<'quarter', number> {
   const keys = typedKeys(data.statistics);
   const allQuarters = getQuartersInRange(data.range);
@@ -20,9 +20,7 @@ function categoryStatisticsToQuartersData(
   for (const stat of allData) {
     const quarter = toQuarter(stat.month);
     byQuarters[quarter] ??= { quarter };
-    byQuarters[quarter][stat.categoryId] = Money.from(
-      byQuarters[quarter][stat.categoryId] ?? 0
-    )
+    byQuarters[quarter][stat.categoryId] = Money.from(byQuarters[quarter][stat.categoryId] ?? 0)
       .plus(stat.sum)
       .valueOf();
   }

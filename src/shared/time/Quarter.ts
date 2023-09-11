@@ -30,11 +30,9 @@ export function getQuartersInRange(range: DateRange): Quarter[] {
   return years
     .map(y =>
       numberRange(
-        y === startYear
-          ? Math.floor(toMoment(range.startDate).month() / 3) + 1
-          : 1,
-        y === endYear ? Math.floor(toMoment(range.endDate).month() / 3) + 1 : 4
-      ).map(q => `${y}-Q${q}`)
+        y === startYear ? Math.floor(toMoment(range.startDate).month() / 3) + 1 : 1,
+        y === endYear ? Math.floor(toMoment(range.endDate).month() / 3) + 1 : 4,
+      ).map(q => `${y}-Q${q}`),
     )
     .flat(1);
 }

@@ -16,11 +16,7 @@ export interface AsyncDataError {
   error: any;
 }
 
-export type AsyncData<T> =
-  | AsyncDataUninitialized
-  | AsyncDataLoading
-  | AsyncDataLoaded<T>
-  | AsyncDataError;
+export type AsyncData<T> = AsyncDataUninitialized | AsyncDataLoading | AsyncDataLoaded<T> | AsyncDataError;
 
 export const UninitializedData: AsyncDataUninitialized = Object.freeze({
   type: 'uninitialized',

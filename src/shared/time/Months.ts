@@ -17,9 +17,7 @@ const months = [
   'Joulukuu',
 ];
 
-export function getFinnishMonthName(
-  monthNumber: number | string | DateLike
-): string {
+export function getFinnishMonthName(monthNumber: number | string | DateLike): string {
   if (typeof monthNumber === 'number') {
     return months[monthNumber];
   }
