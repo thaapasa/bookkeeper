@@ -12,6 +12,7 @@ import {
   ReceiverSuggestion,
   SearchSuggestion,
 } from './SearchSuggestions';
+import { styled } from '@mui/material';
 
 type SearchInputProps = {
   value: string;

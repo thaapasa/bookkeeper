@@ -10,6 +10,7 @@ import { isMobileSize, media } from 'client/ui/Styles';
 
 import { ExpenseFilterFunction, ExpenseFilters } from './ExpenseFilters';
 import { AllColumns, RecurringExpenseIcon, Row, rowHeight, UnconfirmedIcon } from './ExpenseTableLayout';
+import { styled } from '@mui/material';
 
 interface RecurringSummaryRowProps {
   recurring: UserExpense[];

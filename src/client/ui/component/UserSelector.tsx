@@ -6,6 +6,7 @@ import { validSessionE } from 'client/data/Login';
 
 import { connect } from './BaconConnect';
 import UserAvatar from './UserAvatar';
+import { styled } from '@mui/material';
 
 const Container = styled('div')`
   display: inline-flex;

@@ -8,6 +8,7 @@ import { KeyCodes } from 'client/util/Io';
 import { AutoCompleteProps } from './AutoComplete';
 import { TextEdit, TextEditProps } from './TextEdit';
 import { TextEditorComponent } from './TextEditVariants';
+import { styled } from '@mui/material';
 
 const log = debug('bookkeeper:activatable-text-field');
 

@@ -2,6 +2,7 @@ import { styled } from '@mui/material';
 import * as React from 'react';
 
 import { primaryColors, secondaryColors } from '../Colors';
+import { styled } from '@mui/material';
 
 export const ItemView = styled('div')`
   display: flex;

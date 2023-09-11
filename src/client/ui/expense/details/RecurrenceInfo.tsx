@@ -3,6 +3,7 @@ import * as React from 'react';
 
 import { UserExpense } from 'shared/expense';
 import * as colors from 'client/ui/Colors';
+import { styled } from '@mui/material';
 
 interface RecurrenceInfoProps {
   expense: UserExpense;

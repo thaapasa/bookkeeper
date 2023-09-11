@@ -3,6 +3,7 @@ import * as React from 'react';
 
 import { ExpenseShortcutsList } from '../component/ExpenseShortcutsView';
 import { PageContentContainer } from '../Styles';
+import { styled } from '@mui/material';
 
 export const ShortcutsView: React.FC = () => (
   <PageContentContainer>

@@ -18,6 +18,7 @@ import { CommonExpenseRowProps, ExpenseRow } from './row/ExpenseRow';
 import { ExpenseRowSeparator } from './row/ExpenseRowSeparator';
 import { ExpenseTableLayout, LoadingIndicator, RecurringExpenseSeparator } from './row/ExpenseTableLayout';
 import { RecurringSummaryRow } from './row/RecurringSummaryRow';
+import { styled } from '@mui/material';
 
 interface ExpenseTableProps {
   expenses: UserExpense[];

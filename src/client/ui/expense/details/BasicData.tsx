@@ -4,6 +4,7 @@ import * as React from 'react';
 import { UserExpense } from 'shared/expense';
 import { Source } from 'shared/types';
 import { media } from 'client/ui/Styles';
+import { styled } from '@mui/material';
 
 interface BasicDataProps {
   expense: UserExpense;

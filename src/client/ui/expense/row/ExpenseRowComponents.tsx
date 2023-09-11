@@ -4,6 +4,7 @@ import * as React from 'react';
 import { Source } from 'shared/types';
 
 import { sourceWidth } from './ExpenseTableLayout';
+import { styled } from '@mui/material';
 
 export const SourceIcon: React.FC<{
   source: Source;

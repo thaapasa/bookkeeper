@@ -4,6 +4,7 @@ import * as React from 'react';
 import { createExpense } from '../../data/State';
 import { secondaryColors } from '../Colors';
 import { Icons } from './Icons';
+import { styled } from '@mui/material';
 
 export function AddExpenseIcon(props: { className?: string }) {
   return (

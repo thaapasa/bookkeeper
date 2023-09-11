@@ -14,6 +14,7 @@ import { ExpenseRow } from '../expense/row/ExpenseRow';
 import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
 import { media } from '../Styles';
 import { TotalsView } from './TotalsView';
+import { styled } from '@mui/material';
 
 interface ResultsProps {
   results: UserExpense[];
