@@ -1,4 +1,4 @@
-import 'jest';
+import { expect, describe, it } from "bun:test";
 
 import { getSeasonsInRange, Season, toSeason } from './Season';
 

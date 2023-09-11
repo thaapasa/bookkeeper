@@ -1,4 +1,4 @@
-import 'jest';
+import { expect, describe, it, beforeEach, afterEach } from "bun:test";
 
 import { cleanup, newCategory } from 'shared/expense/test';
 import { createTestClient, SessionWithControl } from 'shared/net/test';

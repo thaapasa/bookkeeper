@@ -1,4 +1,4 @@
-import 'jest';
+import { expect, describe, it } from "bun:test";
 
 import { month } from './Time';
 import { monthRange, toDateRangeName, yearRange } from './TimeRange';

@@ -1,5 +1,3 @@
-import 'jest';
-
 import { fail } from 'assert';
 
 export async function expectThrow<T>(p: () => Promise<T>) {

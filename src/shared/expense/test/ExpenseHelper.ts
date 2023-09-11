@@ -1,4 +1,4 @@
-import 'jest';
+import { expect } from "bun:test";
 
 import {
   Expense,
