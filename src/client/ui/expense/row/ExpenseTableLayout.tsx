@@ -1,6 +1,5 @@
-import { CircularProgress } from '@mui/material';
+import { CircularProgress, styled } from '@mui/material';
 import * as React from 'react';
-import styled from 'styled-components';
 
 import { windowSizeP } from 'client/data/State';
 import { colorScheme, primaryColors } from 'client/ui/Colors';
@@ -59,7 +58,7 @@ export function getVisibleColumns(windowSize: Size) {
   return maxColumnsForSize[size];
 }
 
-export const ExpenseTableLayout = styled.table`
+export const ExpenseTableLayout = styled('table')`
   width: 100%;
   background-color: ${tableBgColor};
   border-spacing: 0;
@@ -73,7 +72,7 @@ export const ExpenseTableLayout = styled.table`
   }
 `;
 
-export const Row = styled.tr`
+export const Row = styled('tr')`
   padding: 0;
   width: 100%;
   &:first-of-type {
@@ -106,7 +105,7 @@ export const Row = styled.tr`
 
 export const rowHeight = 40;
 
-const Column = styled.td`
+const Column = styled('td')`
   padding: 0;
   text-align: left;
   height: ${rowHeight}px;
@@ -203,7 +202,7 @@ export const AllColumns = connect(windowSizeP.map(size => ({ size })))(
   AllColumnsComponent
 );
 
-const Corner = styled.div`
+const Corner = styled('div')`
   position: absolute;
   top: 0;
   left: 0;
@@ -231,7 +230,7 @@ export const RecurringExpenseIcon: React.FC = () => (
   </Corner>
 );
 
-const UnconfirmedIconArea = styled.div`
+const UnconfirmedIconArea = styled('div')`
   position: absolute;
   top: 0;
   right: 16px;
@@ -293,7 +292,7 @@ export const LoadingIndicator: React.FC<{ forRow?: boolean }> = props => {
   );
 };
 
-const RefreshIndicatorContainer = styled.div`
+const RefreshIndicatorContainer = styled('div')`
   &.primary {
     position: absolute;
     left: 50%;

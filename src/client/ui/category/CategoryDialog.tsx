@@ -9,10 +9,10 @@ import {
   MenuItem,
   Select,
   SelectChangeEvent,
+  styled,
 } from '@mui/material';
 import debug from 'debug';
 import * as React from 'react';
-import styled from 'styled-components';
 
 import { Category } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
@@ -42,7 +42,7 @@ interface CategoryDialogState {
   valid: boolean;
 }
 
-const Form = styled.form`
+const Form = styled('form')`
   position: relative;
   z-index: 1;
 `;

@@ -1,6 +1,5 @@
-import { Button, Card } from '@mui/material';
+import { Button, Card, styled } from '@mui/material';
 import * as React from 'react';
-import styled from 'styled-components';
 
 import { login } from 'client/data/Login';
 
@@ -71,7 +70,7 @@ const LoginPaper = styled(Card)`
   z-index: 1;
 `;
 
-const Form = styled.form`
+const Form = styled('form')`
   display: inline-flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -83,14 +82,14 @@ const EditField = styled(TextEdit)`
   margin: 8px;
 `;
 
-const Title = styled.title`
+const Title = styled('title')`
   display: inline-block;
   height: 24px;
   margin-bottom: 3vh;
   font-size: 14pt;
 `;
 
-const ErrorText = styled.div`
+const ErrorText = styled('div')`
   margin-top: 3vh;
   color: ${colorScheme.secondary.dark};
   text-align: center;
@@ -101,7 +100,7 @@ const LoginButton = styled(Button)`
   margin-top: 5vh;
 `;
 
-const Page = styled.div`
+const Page = styled('div')`
   display: flex;
   flex-direction: row;
   align-items: flex-start;

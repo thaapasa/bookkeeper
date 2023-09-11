@@ -5,10 +5,10 @@ import {
   FormControlLabel,
   Grid,
   IconButton,
+  styled,
 } from '@mui/material';
 import * as B from 'baconjs';
 import * as React from 'react';
-import styled from 'styled-components';
 
 import { toDateRangeName, TypedDateRange } from 'shared/time';
 import { isDefined, ObjectId, Session } from 'shared/types';
@@ -144,7 +144,7 @@ export const QuerySearchLayout = connect(
   })
 )(QuerySearchLayoutImpl);
 
-const SearchToolArea = styled.div`
+const SearchToolArea = styled('div')`
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -171,7 +171,7 @@ const SearchButtonArea = styled(SearchToolArea)`
   border-top-left-radius: 0;
 `;
 
-const ProgressArea = styled.div`
+const ProgressArea = styled('div')`
   width: 64px;
   height: 48px;
   margin-right: 8px;

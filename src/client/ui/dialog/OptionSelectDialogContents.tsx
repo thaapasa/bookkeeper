@@ -1,6 +1,5 @@
-import { Button, DialogActions, DialogContent } from '@mui/material';
+import { Button, DialogActions, DialogContent, styled } from '@mui/material';
 import * as React from 'react';
-import styled from 'styled-components';
 
 import { DialogContentRendererProps, OptionSelectDialogData } from './Dialog';
 

@@ -1,5 +1,4 @@
-import { IconButton, TextField } from '@mui/material';
-import styled from 'styled-components';
+import { IconButton, styled, TextField } from '@mui/material';
 
 import { toMoment, TypedDateRange } from 'shared/time';
 

@@ -1,6 +1,9 @@
 import { amber, grey, lime, teal } from '@mui/material/colors';
-import { createTheme, SimplePaletteColorOptions } from '@mui/material/styles';
-import styled from 'styled-components';
+import {
+  createTheme,
+  SimplePaletteColorOptions,
+  styled,
+} from '@mui/material/styles';
 
 import { Money, MoneyLike } from 'shared/util';
 
@@ -143,6 +146,6 @@ export const muiTheme = createTheme({
 
 // This is here only so that we use styled in this file. We must reference styled here or
 // else watch recompile fails with a warning "module not found" (looks like a bug)
-export const unused = styled.div`
+export const unused = styled('div')`
   width: 100%;
 `;

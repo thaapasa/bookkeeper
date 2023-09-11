@@ -1,6 +1,5 @@
-import { Button } from '@mui/material';
+import { Button, styled } from '@mui/material';
 import * as React from 'react';
-import styled from 'styled-components';
 
 import {
   AllPeriods,
@@ -21,7 +20,7 @@ export interface PeriodSelectorProps<P extends Period> {
 }
 
 export const PeriodSelector: React.FC<PeriodSelectorProps<any>> = <
-  P extends Period
+  P extends Period,
 >({
   period,
   onSelect,
@@ -120,19 +119,19 @@ const Container = styled(FlexColumn)`
   white-space: nowrap;
 `;
 
-const Panel = styled.div`
+const Panel = styled('div')`
   display: flex;
   flex-direction: row;
   align-items: center;
   margin-top: 4px;
 `;
 
-const Tab = styled.div``;
+const Tab = styled('div')``;
 
 const TabButton = styled(Button)`
   text-transform: none;
   padding: 4px 6px;
-  ${(props: { selected?: boolean }) =>
+  ${(props: any) =>
     props.selected
       ? `border: 1px dotted ${colorScheme.secondary.light};
          background-color: ${colorScheme.secondary.light}77;

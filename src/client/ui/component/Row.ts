@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import { styled } from '@mui/material';
 
 import { colorScheme } from '../Colors';
 import { FlexRow } from './BasicElements';

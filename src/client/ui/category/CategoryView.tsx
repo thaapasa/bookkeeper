@@ -1,7 +1,7 @@
+import { styled } from '@mui/material';
 import * as B from 'baconjs';
 import { History } from 'history';
 import * as React from 'react';
-import styled from 'styled-components';
 
 import { TypedDateRange } from 'shared/time';
 import { Category, CategoryAndTotals } from 'shared/types';

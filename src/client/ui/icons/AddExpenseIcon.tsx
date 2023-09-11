@@ -1,5 +1,5 @@
+import { styled } from '@mui/material';
 import * as React from 'react';
-import styled from 'styled-components';
 
 import { createExpense } from '../../data/State';
 import { secondaryColors } from '../Colors';
@@ -24,13 +24,13 @@ const PlusIcon = styled(Icons.PlusCircle)`
   z-index: 1;
 `;
 
-const AddExpenseIconContainer = styled.div`
+const AddExpenseIconContainer = styled('div')`
   position: relative;
   width: 40px;
   height: 40px;
 `;
 
-const BlackContent = styled.div`
+const BlackContent = styled('div')`
   position: absolute;
   top: 5px;
   right: 5px;

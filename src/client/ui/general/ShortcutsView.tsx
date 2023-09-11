@@ -1,5 +1,5 @@
+import { styled } from '@mui/material';
 import * as React from 'react';
-import styled from 'styled-components';
 
 import { ExpenseShortcutsList } from '../component/ExpenseShortcutsView';
 import { PageContentContainer } from '../Styles';
@@ -12,7 +12,7 @@ export const ShortcutsView: React.FC = () => (
   </PageContentContainer>
 );
 
-const LinksContainer = styled.div`
+const LinksContainer = styled('div')`
   display: flex;
   align-items: center;
   justify-content: center;

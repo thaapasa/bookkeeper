@@ -1,8 +1,7 @@
-import { IconButton } from '@mui/material';
+import { IconButton, styled } from '@mui/material';
 import debug from 'debug';
 import * as React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
-import styled from 'styled-components';
 
 import { toDateRangeName, toMoment } from 'shared/time';
 import { navigationP } from 'client/data/State';
@@ -62,7 +61,7 @@ const DateRangeNavigatorImpl: React.FC<DateRangeNavigatorProps> = ({
   );
 };
 
-const NavigationContainer = styled.div`
+const NavigationContainer = styled('div')`
   height: 48px !important;
   display: flex;
   flex-direction: row;
@@ -74,7 +73,7 @@ const StyledIconButton = styled(IconButton)`
   padding: 0px;
 `;
 
-const TitleArea = styled.div`
+const TitleArea = styled('div')`
   text-align: center;
   width: 140px;
   font-size: 12pt;

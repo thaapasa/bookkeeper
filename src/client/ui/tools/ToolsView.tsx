@@ -1,7 +1,6 @@
-import { Grid, Typography } from '@mui/material';
+import { Grid, styled, Typography } from '@mui/material';
 import debug from 'debug';
 import * as React from 'react';
-import styled from 'styled-components';
 
 import apiConnect from 'client/data/ApiConnect';
 import { executeOperation } from 'client/util/ExecuteOperation';

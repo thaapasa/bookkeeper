@@ -1,5 +1,5 @@
+import { styled } from '@mui/material';
 import * as React from 'react';
-import styled from 'styled-components';
 
 import { ExpenseShortcut } from 'shared/types';
 import { spaced } from 'shared/util';
@@ -76,25 +76,25 @@ const LinkWithTitle: React.FC<ExpenseShortcut> = props => (
   </TitledRow>
 );
 
-const LinkImage = styled.img`
+const LinkImage = styled('img')`
   width: 34px;
   height: 34px;
   border-radius: 16px;
 `;
 
-const TitledRow = styled.div`
+const TitledRow = styled('div')`
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
 `;
-const Title = styled.div`
+const Title = styled('div')`
   font-size: 14px;
   margin-left: 8px;
   color: ${secondaryColors.dark};
 `;
 
-const LinksContainer = styled.div`
+const LinksContainer = styled('div')`
   position: absolute;
   z-index: 1;
   top: 28px;
@@ -103,7 +103,9 @@ const LinksContainer = styled.div`
   border-radius: 22px;
 
   overflow: hidden;
-  transition: max-height 0.33s ease-in-out, background-color 0.33s ease-in-out;
+  transition:
+    max-height 0.33s ease-in-out,
+    background-color 0.33s ease-in-out;
   max-height: 32px;
 
   &.enabled:hover {
@@ -112,7 +114,7 @@ const LinksContainer = styled.div`
   }
 `;
 
-const LinksArea = styled.div`
+const LinksArea = styled('div')`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -122,7 +124,7 @@ const LinksArea = styled.div`
   }
 `;
 
-const LinkIconArea = styled.div`
+const LinkIconArea = styled('div')`
   width: 34px;
   height: 34px;
   margin: 0 4px;

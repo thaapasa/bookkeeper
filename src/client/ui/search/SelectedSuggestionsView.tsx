@@ -1,6 +1,5 @@
-import { Chip } from '@mui/material';
+import { Chip, styled } from '@mui/material';
 import * as React from 'react';
-import styled from 'styled-components';
 
 import { secondaryColors } from '../Colors';
 import {

@@ -1,8 +1,7 @@
-import { IconButton } from '@mui/material';
+import { IconButton, styled } from '@mui/material';
 import * as B from 'baconjs';
 import debug from 'debug';
 import * as React from 'react';
-import styled from 'styled-components';
 
 import { ExpenseDivision, RecurrencePeriod, UserExpense } from 'shared/expense';
 import { ISODatePattern, toDate, toMoment } from 'shared/time';
@@ -125,7 +124,7 @@ const ExpenseInfoToolsImpl: React.FC<RecurrenceInfoProps> = ({
   );
 };
 
-const ToolContainer = styled.div`
+const ToolContainer = styled('div')`
   position: absolute;
   right: 0;
   top: 0;
@@ -133,7 +132,7 @@ const ToolContainer = styled.div`
   flex-direction: row;
 `;
 
-const MobileTools = styled.div`
+const MobileTools = styled('div')`
   display: none;
   ${media.mobile`
     display: flex;

@@ -1,6 +1,5 @@
-import { TextField, TextFieldProps } from '@mui/material';
+import { styled, TextField, TextFieldProps } from '@mui/material';
 import * as React from 'react';
-import styled from 'styled-components';
 
 export type TextEditProps = Omit<TextFieldProps, 'onChange'> & {
   onChange: (s: string) => void;

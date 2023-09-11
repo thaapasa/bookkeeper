@@ -29,12 +29,12 @@ export type ChartColumnData<K extends ChartKeyType = ChartKeyType> = {
  */
 export type ChartColumn<
   L extends string,
-  K extends ChartKeyType = ChartKeyType
+  K extends ChartKeyType = ChartKeyType,
 > = { [t in L]: string } & ChartColumnData<K>;
 
 export interface ChartData<
   L extends string,
-  K extends ChartKeyType = ChartKeyType
+  K extends ChartKeyType = ChartKeyType,
 > {
   keys: ChartKeyInfo[];
   chartData: ChartColumn<L, K>[];

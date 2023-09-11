@@ -5,11 +5,11 @@ import {
   DialogActions,
   DialogTitle,
   FormControlLabel,
+  styled,
 } from '@mui/material';
 import * as B from 'baconjs';
 import debug from 'debug';
 import * as React from 'react';
-import styled from 'styled-components';
 
 import {
   expenseBeneficiary,
@@ -570,7 +570,7 @@ export class ExpenseDialog extends React.Component<
   }
 }
 
-const Form = styled.form`
+const Form = styled('form')`
   position: relative;
   display: flex;
   flex-direction: column;
@@ -578,7 +578,7 @@ const Form = styled.form`
   justify-content: flex-start;
 `;
 
-const Row = styled.div`
+const Row = styled('div')`
   display: flex;
   width: 100%;
   box-sizing: border-box;
@@ -613,7 +613,7 @@ const TodayButton = styled(Button)`
   top: 1px;
 `;
 
-const OwnerSelectorArea = styled.div`
+const OwnerSelectorArea = styled('div')`
   position: absolute;
   top: 8px;
   left: -24px;
@@ -640,19 +640,19 @@ const OwnerSelectorArea = styled.div`
   }
 `;
 
-const SumArea = styled.div`
+const SumArea = styled('div')`
   margin-left: 1em;
   display: inline-block;
   vertical-align: middle;
 `;
 
-const ConfirmArea = styled.div`
+const ConfirmArea = styled('div')`
   margin-left: 1em;
   display: inline-block;
   vertical-align: middle;
 `;
 
-const TypeArea = styled.div`
+const TypeArea = styled('div')`
   width: 92px;
   display: inline-block;
   vertical-align: middle;

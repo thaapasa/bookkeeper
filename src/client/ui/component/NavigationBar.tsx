@@ -1,7 +1,6 @@
-import { Button, Toolbar } from '@mui/material';
+import { Button, styled, Toolbar } from '@mui/material';
 import * as React from 'react';
 import { Link, Route } from 'react-router-dom';
-import styled from 'styled-components';
 
 import { gray, navigationBar } from '../Colors';
 import { Icon, RenderIcon } from '../icons/Icons';
@@ -53,7 +52,7 @@ const Bar = styled(Toolbar)`
   position: relative;
 `;
 
-const ToolbarGroup = styled.div``;
+const ToolbarGroup = styled('div')``;
 
 const LinkGroup = styled(ToolbarGroup)`
   flex: 1;

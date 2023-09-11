@@ -1,6 +1,6 @@
+import { styled } from '@mui/material';
 import * as React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import styled, { createGlobalStyle } from 'styled-components';
 
 import { Session } from 'shared/types';
 import { expenseDialogE, expenseSplitE } from 'client/data/State';
@@ -107,7 +107,6 @@ export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
   const className = getScreenSizeClassName(windowSize);
   return (
     <Page className="bookkeeper-page">
-      <GlobalStyle />
       <ExpenseDialogBinder windowSize={windowSize} />
       <ExpenseSplitBinder windowSize={windowSize} />
       <ModalDialogConnector />
@@ -162,7 +161,7 @@ export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
   );
 };
 
-const Page = styled.div`
+const Page = styled('div')`
   width: 100%;
   height: 100%;
   background-color: ${colorScheme.gray.light};
@@ -172,7 +171,7 @@ const Page = styled.div`
   }
 `;
 
-const ContentContainer = styled.div`
+const ContentContainer = styled('div')`
   height: 100%;
   width: 100%;
   display: flex;
@@ -180,7 +179,7 @@ const ContentContainer = styled.div`
   justify-content: flex-start;
 `;
 
-const MainContent = styled.div`
+const MainContent = styled('div')`
   flex: 1;
   margin: ${mainContentMargin}px;
   margin-top: 40px;
@@ -202,8 +201,10 @@ const MainContent = styled.div`
 `;
 
 /** This disables LastPass icon on text fields */
+/*
 const GlobalStyle = createGlobalStyle`
   div[id^='__lpform_'] {
     display: none;
   }
 `;
+*/
