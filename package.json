@@ -9,15 +9,15 @@
     "watch-client": "bun run update-revision client && react-scripts start",
     "watch-server": "bun run update-revision server && bun run migrate && bun run --watch src/server/BookkeeperServer.ts",
     "test-client": "react-scripts test --runInBand",
-    "test": "yarn test-client",
+    "test": "bun run test-client",
     "build-client": "react-scripts build",
     "build-server": "tsc -p ./tsconfig.prod.json",
-    "build-all": "yarn update-revisions && yarn build-server && yarn build-client",
+    "build-all": "bun run update-revisions && bun run build-server && bun run build-client",
     "start-server-prod": "DEBUG=bookkeeper* NODE_ENV=production node build-server/server/BookkeeperServer.ts",
     "run-server": "NODE_ENV=production bun run src/server/BookkeeperServer.ts",
     "eject-client": "react-scripts eject",
     "update-revision": "bash script/update-revision.sh",
-    "update-revisions": "yarn update-revision server && yarn update-revision client",
+    "update-revisions": "bun run update-revision server && bun run update-revision client",
     "lint": "biome check src",
     "format": "biome format src --write",
     "lint-biome": "biome format src --write",
@@ -46,7 +46,7 @@
     "@mui/material": "5.14.8",
     "@mui/system": "5.14.8",
     "@mui/x-date-pickers": "6.13.0",
-    "@types/node-fetch": "^2.6.4",
+    "@types/node-fetch": "2.6.4",
     "assert": "2.1.0",
     "baconjs": "3.0.17",
     "big.js": "6.2.1",
@@ -72,7 +72,7 @@
     "@types/big.js": "6.2.0",
     "@types/body-parser": "1.19.2",
     "@types/debug": "4.1.8",
-    "@types/express": "4.17.16",
+    "@types/express": "4.17.17",
     "@types/react": "18.2.21",
     "@types/react-dom": "18.2.7",
     "@types/react-router": "5.1.20",
@@ -87,14 +87,10 @@
     "nth-check": "2.1.1",
     "react": "18.2.0"
   },
-  "directories": {
-    "test": "test"
-  },
   "proxy": "http://localhost:3100",
   "description": "Kukkaro - a web tool for tracking your income and expenses.",
   "browserslist": {
     "production": [">0.2%", "not dead", "not op_mini all"],
     "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
-  },
-  "packageManager": "yarn@3.2.1"
+  }
 }
