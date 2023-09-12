@@ -5,6 +5,5 @@ import * as React from 'react';
  */
 export function useObjectMemo<O extends object>(o: O): O {
   const deps = [...Object.keys(o), ...Object.values(o)];
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   return React.useMemo(() => ({ ...o }), deps);
 }
