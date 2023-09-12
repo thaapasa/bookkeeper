@@ -77,7 +77,7 @@ windowSizeP.onValue(noop);
 navigationP.onValue(noop);
 
 /* Export state to window globals for debugging */
-if (process.env.NODE_ENV === 'development') {
+if (import.meta.env.NODE_ENV === 'development') {
   (window as any).state = {
     notificationBus,
     notificationE,

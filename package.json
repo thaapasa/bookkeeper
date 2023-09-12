@@ -27,7 +27,7 @@
     "migrate-make": "knex migrate:make",
     "migrate-rollback": "knex migrate:rollback",
     "seed": "knex seed:run",
-    "example-data": "SWC_NODE_PROJECT=tsconfig.server.json DEBUG=\"bookkeeper*,net*\" node -r dotenv/config -r tsconfig-paths/register -r @swc-node/register src/tools/addExampleData.ts"
+    "example-data": "DEBUG=\"bookkeeper*,net*\" bun run src/tools/addExampleData.ts"
   },
   "repository": {
     "type": "git",
@@ -44,7 +44,6 @@
     "@mui/system": "5.14.8",
     "@mui/x-date-pickers": "6.13.0",
     "@types/node-fetch": "2.6.4",
-    "assert": "2.1.0",
     "baconjs": "3.0.17",
     "big.js": "6.2.1",
     "body-parser": "1.20.2",
@@ -75,6 +74,7 @@
     "@types/react-router-dom": "5.3.3",
     "@typescript-eslint/eslint-plugin": "6.7.0",
     "@typescript-eslint/parser": "6.7.0",
+    "@vitejs/plugin-react-swc": "3.3.2",
     "bun-types": "1.0.1",
     "eslint": "8.49.0",
     "eslint-config-prettier": "9.0.0",
@@ -87,15 +87,15 @@
     "knex": "2.5.1",
     "pino-pretty": "10.2.0",
     "prettier": "3.0.3",
-    "react-scripts": "5.0.1",
     "tslib": "2.6.2",
-    "typescript": "5.2.2"
+    "typescript": "5.2.2",
+    "vite": "4.4.9",
+    "vite-tsconfig-paths": "4.2.1"
   },
   "resolutions": {
     "nth-check": "2.1.1",
     "react": "18.2.0"
   },
-  "proxy": "http://localhost:3100",
   "description": "Kukkaro - a web tool for tracking your income and expenses.",
   "browserslist": {
     "production": [">0.2%", "not dead", "not op_mini all"],

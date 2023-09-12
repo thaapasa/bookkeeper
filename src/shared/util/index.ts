@@ -1,4 +1,5 @@
 export * from './Arrays';
+export * from './Assert';
 export * from './IdProvider';
 export * from './Money';
 export * from './Objects';

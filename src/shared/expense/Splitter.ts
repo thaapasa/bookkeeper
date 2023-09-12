@@ -1,7 +1,7 @@
-import assert from 'assert';
 import { Logger } from 'pino';
 
 import { indices } from '../util/Arrays';
+import { assert } from '../util/Assert';
 import { Money, MoneyLike } from '../util/Money';
 
 export interface HasShares {

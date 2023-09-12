@@ -1,14 +1,14 @@
-import { fail } from 'assert';
 import { expect } from 'bun:test';
 import { printValue } from 'test/output';
 
 import { assertDefined } from 'shared/util';
+import { fail } from 'shared/util/Assert';
 
 import { expectSome } from './expectSome';
 
 export function expectArrayContaining<T>(
   actual: T[] | undefined | null,
-  expected: T[],
+  expected: T[]
 ): asserts actual is T[] {
   expect(actual).toBeArray();
   assertDefined(actual);

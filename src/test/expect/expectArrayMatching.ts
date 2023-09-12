@@ -1,14 +1,14 @@
-import { fail } from 'assert';
 import { expect } from 'bun:test';
 import { printValue } from 'test/output';
 
 import { assertDefined } from 'shared/util';
+import { fail } from 'shared/util/Assert';
 
 import { expectSome } from './expectSome';
 
 export function expectArrayMatching<E extends object, A extends object>(
   actual: A[] | undefined | null,
-  expected: E[],
+  expected: E[]
 ) {
   expect(actual).toBeArray();
   assertDefined(actual);
@@ -18,8 +18,8 @@ export function expectArrayMatching<E extends object, A extends object>(
     } catch (e) {
       fail(
         `Expected ${printValue(actual)} to contain value matching ${printValue(
-          exp,
-        )}, but could not find it`,
+          exp
+        )}, but could not find it`
       );
     }
   }

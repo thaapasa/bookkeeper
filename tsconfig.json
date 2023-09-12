@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "module": "esnext",
-    "target": "es6",
+    "module": "ESNext",
+    "target": "ESNext",
     "moduleResolution": "node",
     "moduleDetection": "force",
     "allowImportingTsExtensions": true,
@@ -14,18 +14,21 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "allowJs": false,
-    "types": ["bun-types"],
+    "types": ["bun-types", "vite/client"],
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "baseUrl": "./src",
-    "outDir": "build-server",
     "sourceMap": true,
     "rootDir": "src",
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "noImplicitAny": true,
-    "noUnusedLocals": true
+    "noUnusedLocals": true,
+    "paths": {
+      "shared/*": ["./shared/*"]
+    }
   },
-  "include": ["src"]
+  "include": ["src"],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }
