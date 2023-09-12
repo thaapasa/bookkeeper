@@ -74,7 +74,7 @@ export function createApi() {
   api.all('/*', (req, res) => {
     logger.warn(`Request ${req.method} ${req.path} not mapped -> 404`);
     res.status(404).json({
-      error: `${req.method} /api${req.originalUrl} not mapped`,
+      error: `${req.method} /api${req.path} not mapped`,
       code: 'NOT_FOUND',
     });
   });

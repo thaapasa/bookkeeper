@@ -1,4 +1,4 @@
-import { fail } from "../Assert";
+import { fail } from '../Assert';
 
 export async function expectThrow<T>(p: () => Promise<T>) {
   try {

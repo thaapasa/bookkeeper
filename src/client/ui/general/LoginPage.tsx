@@ -43,7 +43,6 @@ export const LoginPage: React.FC = () => {
             autoCapitalize="off"
             autoComplete="username"
             autoCorrect="off"
-            autoComplete='username'
             autoFocus={true}
           />
           <EditField
@@ -53,7 +52,6 @@ export const LoginPage: React.FC = () => {
             autoCapitalize="off"
             autoComplete="current-password"
             autoCorrect="off"
-            autoComplete='current-password'
             value={password}
             onChange={setPassword}
           />

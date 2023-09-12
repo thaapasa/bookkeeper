@@ -82,7 +82,7 @@ export class ApiConnect {
     if (!this.currentToken) {
       return {};
     }
-    return { Authorization: `Bearer ${this.currentToken || ''}` };
+    return this.authHeaderForToken(this.currentToken);
   }
 
   private async req<T>(
@@ -113,6 +113,8 @@ export class ApiConnect {
     }
   }
 
+  protected authHeaderForToken = (token: string) => ({ Authorization: `Bearer ${token || ''}` });
+
   private get<T>(
     path: string,
     query?: Record<string, any>,
@@ -126,6 +128,7 @@ export class ApiConnect {
     body?: any,
     query?: Record<string, string>,
     allowRefreshAndRetry?: boolean,
+    headers?: Record<string, string>,
   ): Promise<T> {
     return this.req<T>(
       path,
@@ -133,7 +136,7 @@ export class ApiConnect {
         method: 'PUT',
         body,
         query,
-        headers: { ...FetchClient.contentTypeJson },
+        headers: { ...FetchClient.contentTypeJson, ...headers },
       },
       allowRefreshAndRetry,
     );
@@ -173,8 +176,14 @@ export class ApiConnect {
     return this.get<Session>('/api/session', undefined, false);
   }
 
-  public refreshSession(): Promise<Session> {
-    return this.put<Session>('/api/session/refresh', undefined, undefined, false);
+  public refreshSession(token: string): Promise<Session> {
+    return this.put<Session>(
+      '/api/session/refresh',
+      undefined,
+      undefined,
+      false,
+      this.authHeaderForToken(token),
+    );
   }
 
   public getApiStatus(): Promise<ApiStatus> {

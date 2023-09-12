@@ -1,4 +1,4 @@
-import moment, {  Moment } from 'moment';
+import moment, { Moment } from 'moment';
 import { z } from 'zod';
 
 import { numberRange } from '../util/Arrays';

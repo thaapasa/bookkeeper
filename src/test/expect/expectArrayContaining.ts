@@ -8,7 +8,7 @@ import { expectSome } from './expectSome';
 
 export function expectArrayContaining<T>(
   actual: T[] | undefined | null,
-  expected: T[]
+  expected: T[],
 ): asserts actual is T[] {
   expect(actual).toBeArray();
   assertDefined(actual);

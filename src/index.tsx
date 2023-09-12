@@ -2,13 +2,12 @@
  * This is Bookkeeper client (web app) index file
  */
 
-import ReactDOM from 'react-dom/client';
-
 import { ThemeProvider } from '@mui/material/styles';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import type {} from '@mui/x-date-pickers/themeAugmentation';
 import * as React from 'react';
+import ReactDOM from 'react-dom/client';
 
 import { assertDefined } from 'shared/util';
 
