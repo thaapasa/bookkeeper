@@ -7,6 +7,7 @@ import { toMoment } from 'shared/time';
 import { ApiMessage } from 'shared/types';
 import { Money } from 'shared/util';
 import { expectThrow } from 'shared/util/test';
+import { expectArrayContaining } from 'test/expect/expectArrayContaining';
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
@@ -68,18 +69,13 @@ describe('expense', () => {
     const e = await session.get<Expense>(`/api/expense/${res.expenseId}`);
     expect(e).toMatchObject({ sum: '8.46' });
     expect(e).toHaveProperty('division');
-    // TODO
-    /*
-    expect(e.division).toEqual(
-      expect.arrayContaining([
-        { userId: u1id, type: 'cost', sum: '-4.23' },
-        { userId: u2id, type: 'cost', sum: '-4.23' },
-        { userId: u1id, type: 'benefit', sum: '4.23' },
-        { userId: u2id, type: 'benefit', sum: '4.23' },
-      ])
-    );
-    */
-    expect(e.division!.length).toEqual(4);
+    expectArrayContaining(e.division, [
+      { userId: u1id, type: 'cost', sum: '-4.23' },
+      { userId: u2id, type: 'cost', sum: '-4.23' },
+      { userId: u1id, type: 'benefit', sum: '4.23' },
+      { userId: u2id, type: 'benefit', sum: '4.23' },
+    ]);
+    expect(e.division.length).toEqual(4);
   });
 
   it('should create benefit based on given cost', async () => {
@@ -92,18 +88,13 @@ describe('expense', () => {
     });
     const e = await session.get<Expense>(`/api/expense/${res.expenseId}`);
     expect(e).toHaveProperty('division');
-    // TODO
-    /* 
-    expect(e.division).toEqual(
-      expect.arrayContaining([
-        { userId: u1id, type: 'cost', sum: '-5.00' },
-        { userId: u2id, type: 'cost', sum: '-3.46' },
-        { userId: u1id, type: 'benefit', sum: '5.00' },
-        { userId: u2id, type: 'benefit', sum: '3.46' },
-      ])
-    );
-    */
-    expect(e.division!.length).toEqual(4);
+    expectArrayContaining(e.division, [
+      { userId: u1id, type: 'cost', sum: '-5.00' },
+      { userId: u2id, type: 'cost', sum: '-3.46' },
+      { userId: u1id, type: 'benefit', sum: '5.00' },
+      { userId: u2id, type: 'benefit', sum: '3.46' },
+    ]);
+    expect(e.division.length).toEqual(4);
   });
 
   it('should create income split', async () => {
@@ -111,16 +102,11 @@ describe('expense', () => {
     const e = await session.get<Expense>(`/api/expense/${res.expenseId}`);
     expect(e).toMatchObject({ sum: '200.00' });
     expect(e).toHaveProperty('division');
-    // TODO
-    /*
-    expect(e.division).toEqual(
-      expect.arrayContaining([
-        { userId: u2id, type: 'income', sum: '200.00' },
-        { userId: u2id, type: 'split', sum: '-200.00' },
-      ])
-    );
-    */
-    expect(e.division!.length).toEqual(2);
+    expectArrayContaining(e.division, [
+      { userId: u2id, type: 'income', sum: '200.00' },
+      { userId: u2id, type: 'split', sum: '-200.00' },
+    ]);
+    expect(e.division.length).toEqual(2);
   });
 
   it('should allow PUT with GET data', async () => {

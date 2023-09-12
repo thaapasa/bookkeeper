@@ -8,7 +8,6 @@ export function checkMonthStatus(
   expectedBenefit?: MoneyLike,
   expectItems?: (items: UserExpense[]) => any,
 ): ExpenseStatus {
-  //const m = await fetchMonthStatus(session, month);
   expect(m).toHaveProperty('monthStatus');
   expect(m.monthStatus).toHaveProperty('benefit');
   if (expectedBenefit) {

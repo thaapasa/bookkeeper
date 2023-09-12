@@ -7,6 +7,7 @@ import { YearMonth } from 'shared/time';
 import { Money } from 'shared/util';
 
 import { checkMonthStatus } from './MonthStatus';
+import { expectArrayMatching } from 'test/expect/expectArrayMatching';
 
 const month: YearMonth = { year: 2017, month: 1 };
 
@@ -99,15 +100,11 @@ describe('splitting expenses', () => {
     await expect(fetchExpense(session, expense.id)).rejects.toMatchObject({
       status: 404,
     });
-    // TODO
-    /*
-    await expect(fetchMonthStatus(session, month)).resolves.toMatchObject({
-      expenses: expect.arrayContaining([
-        expect.objectContaining({ title: 'Pilke1', sum: '15.00' }),
-        expect.objectContaining({ title: 'Pilke2', sum: '85.00' }),
-      ]),
-    });
-    */
+    const newStatus = await fetchMonthStatus(session, month);
+    expectArrayMatching(newStatus.expenses, [
+      { title: 'Pilke1', sum: '15.00' },
+      { title: 'Pilke2', sum: '85.00' },
+    ]);
   });
 });
 

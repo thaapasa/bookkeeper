@@ -7,9 +7,11 @@ import { createTestClient, SessionWithControl } from 'shared/net/test';
 import { ISODate, toISODate, YearMonth } from 'shared/time';
 import { ApiMessage } from 'shared/types';
 import { Money } from 'shared/util';
+import { expectArrayContaining } from 'test/expect/expectArrayContaining';
 import { calculateNextRecurrence } from 'server/data/RecurringExpenseService';
 
 import { checkMonthStatus } from './MonthStatus';
+import { uri } from 'shared/net';
 
 const month: YearMonth = { year: 2017, month: 1 };
 
@@ -50,17 +52,9 @@ describe('recurring expenses', () => {
       }),
     );
 
-    // TODO
-    /*
-    await expect(
-      session.get<Expense>(uri`/api/expense/${expenseId}`)
-    ).resolves.toMatchObject({
-      division: expect.arrayContaining([
-        { userId: 2, type: 'benefit', sum: '75.00' },
-      ]),
-      recurringExpenseId: null,
-    });
-    */
+    const data = await session.get<Expense>(uri`/api/expense/${expenseId}`);
+    expect(data.recurringExpenseId).toBeNull();
+    expectArrayContaining(data.division, [{ userId: 2, type: 'benefit', sum: '75.00' }]);
 
     const monthBenefit2 = checkMonthStatus(
       await fetchMonthStatus(session, month),
