@@ -1,3 +1,4 @@
+import { Moment } from 'moment';
 import { z } from 'zod';
 
 import { ISODate } from '../time/Time';
@@ -108,7 +109,7 @@ export type UserExpense = z.infer<typeof UserExpense>;
 export interface ExpenseInEditor extends BaseExpenseData {
   subcategoryId: number;
   sum: string;
-  date: Date;
+  date: Moment;
   benefit: number[];
   description: string;
 }

@@ -1,11 +1,12 @@
-import { Button, DialogActions, DialogContent, TextField } from '@mui/material';
+import { Button, DialogActions, DialogContent } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
+import { Moment } from 'moment';
 import * as React from 'react';
 
 import { datePickerFormat } from '../expense/dialog/DateField';
 import { DateSelectDialogData, DialogContentRendererProps } from './Dialog';
 
-type TextPromptDialogProps = DialogContentRendererProps<Date> &
+type TextPromptDialogProps = DialogContentRendererProps<Moment> &
   DateSelectDialogData;
 
 export const DateSelectDialogComponent: React.FC<TextPromptDialogProps> = ({
@@ -14,10 +15,10 @@ export const DateSelectDialogComponent: React.FC<TextPromptDialogProps> = ({
   handleKeyPress,
   onCancel,
 }) => {
-  const [date, setDate] = React.useState<Date | undefined>(initialDate);
+  const [date, setDate] = React.useState<Moment | undefined>(initialDate);
 
-  const changeHandler = (edited: any | null) => {
-    const date = edited && edited.isValid() ? edited.toDate() : undefined;
+  const changeHandler = (edited: Moment | null) => {
+    const date = edited && edited.isValid() ? edited : undefined;
     if (date) {
       setDate(date);
     }
@@ -26,10 +27,9 @@ export const DateSelectDialogComponent: React.FC<TextPromptDialogProps> = ({
     <>
       <DialogContent>
         <DatePicker
-          inputFormat={datePickerFormat}
+          format={datePickerFormat}
           value={date}
           onChange={changeHandler}
-          renderInput={params => <TextField {...params} variant="standard" />}
         />
       </DialogContent>
       <DialogActions>

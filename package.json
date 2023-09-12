@@ -44,7 +44,7 @@
     "@mui/icons-material": "5.14.8",
     "@mui/material": "5.14.8",
     "@mui/system": "5.14.8",
-    "@mui/x-date-pickers": "5.0.19",
+    "@mui/x-date-pickers": "6.13.0",
     "assert": "2.0.0",
     "baconjs": "3.0.17",
     "big.js": "6.2.1",

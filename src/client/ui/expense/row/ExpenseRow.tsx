@@ -131,7 +131,7 @@ export class ExpenseRowImpl extends React.Component<
   private editDate = async () => {
     const date = await UserPrompts.selectDate(
       'Valitse päivä',
-      toMoment(this.props.expense.date).toDate()
+      toMoment(this.props.expense.date)
     );
     if (!date) return;
     await executeOperation(

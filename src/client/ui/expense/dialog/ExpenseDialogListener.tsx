@@ -1,5 +1,6 @@
 import * as B from 'baconjs';
 import debug from 'debug';
+import { Moment } from 'moment';
 import * as React from 'react';
 
 import { UserExpenseWithDetails } from 'shared/expense';
@@ -70,7 +71,7 @@ export function createExpenseDialogListener<D>(
       this.unsub = [];
     }
 
-    private onExpensesUpdated = (date: Date) => {
+    private onExpensesUpdated = (date: Moment) => {
       updateExpenses(date);
     };
 

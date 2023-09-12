@@ -1,7 +1,8 @@
 import * as B from 'baconjs';
+import { Moment } from 'moment';
 
 import { ExpenseInEditor, ExpenseSplit } from 'shared/expense';
-import { DateLike, monthRange, toDate } from 'shared/time';
+import { DateLike, monthRange, toMoment } from 'shared/time';
 import { noop } from 'shared/util';
 
 import { Size } from '../ui/Types';
@@ -61,10 +62,10 @@ export function createExpense(
 export const expenseDialogE = expenseDialogBus;
 export const expenseSplitE = expenseSplitBus;
 
-const needUpdateBus = new B.Bus<Date>();
+const needUpdateBus = new B.Bus<Moment>();
 
 export function updateExpenses(date: DateLike) {
-  needUpdateBus.push(toDate(date));
+  needUpdateBus.push(toMoment(date));
   return true;
 }
 

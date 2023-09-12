@@ -82,7 +82,7 @@ const ExpenseInfoToolsImpl: React.FC<RecurrenceInfoProps> = ({
     const subcategoryId = (cat.parentId && e.categoryId) || undefined;
     const categoryId =
       (subcategoryId ? cat.parentId : e.categoryId) || undefined;
-    const date = toMoment(e.date, ISODatePattern).toDate();
+    const date = toMoment(e.date, ISODatePattern);
     log('Copying expense', e, division);
     createNewExpense({
       title: e.title,

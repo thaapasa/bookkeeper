@@ -71,7 +71,7 @@ export function useExpenseSplit(
       const finalized = finalizeSplits(original.type, splits, sourceMap);
       await apiConnect.splitExpense(original.id, finalized);
       onClose(finalized);
-      onExpensesUpdated(toMoment(original.date).toDate());
+      onExpensesUpdated(toMoment(original.date));
     }
   };
 

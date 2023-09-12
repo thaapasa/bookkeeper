@@ -1,3 +1,4 @@
+import { Moment } from 'moment';
 import React from 'react';
 
 import { TextEditorComponent } from '../component/TextEditVariants';
@@ -22,7 +23,7 @@ export type TextPromptDialogData = {
 
 export type DateSelectDialogData = {
   type: 'date';
-  initialDate?: Date;
+  initialDate?: Moment;
 };
 
 export type DialogData =

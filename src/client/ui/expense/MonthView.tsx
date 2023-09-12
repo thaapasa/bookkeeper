@@ -1,4 +1,5 @@
 import debug from 'debug';
+import { Moment } from 'moment';
 import * as React from 'react';
 import { useNavigate } from 'react-router';
 
@@ -78,8 +79,8 @@ export const MonthView: React.FC<MonthViewProps> = ({ date }) => {
   const navigate = useNavigate();
   React.useEffect(
     () =>
-      needUpdateE.onValue((newDate: Date) => {
-        log('Expenses updated, refreshing for date', newDate);
+      needUpdateE.onValue((newDate: Moment) => {
+        log('Expenses updated, refreshing for date', toISODate(newDate));
         if (isSameMonth(newDate, date)) {
           log('Reloading expenses for this month');
           loadData();
