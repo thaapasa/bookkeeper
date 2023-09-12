@@ -4,7 +4,6 @@ import * as React from 'react';
 import { spaced } from 'shared/util';
 
 import { colorScheme } from '../Colors';
-import { styled } from '@mui/system';
 
 export type NoteType = 'note' | 'warning';
 export type NoteViewProps = {

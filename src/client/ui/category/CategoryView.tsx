@@ -16,7 +16,6 @@ import { useDeferredData } from '../hooks/useAsyncData';
 import { PageContentContainer } from '../Styles';
 import { CategoryChart, CategoryChartData } from './CategoryChart';
 import { CategoryTable } from './CategoryTable';
-import { styled } from '@mui/material';
 
 interface CategoryViewProps {
   categories: Category[];

@@ -17,7 +17,7 @@ export const DateSelectDialogComponent: React.FC<TextPromptDialogProps> = ({
   const [date, setDate] = React.useState<Moment | undefined>(initialDate);
 
   const changeHandler = (edited: Moment | null) => {
-    const date = edited && edited.isValid() ? edited : undefined;
+    const date = edited?.isValid() ? edited : undefined;
     if (date) {
       setDate(date);
     }

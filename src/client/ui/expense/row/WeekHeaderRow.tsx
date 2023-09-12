@@ -4,7 +4,6 @@ import * as React from 'react';
 import { colorScheme } from 'client/ui/Colors';
 
 import { AllColumns, Row } from './ExpenseTableLayout';
-import { styled } from '@mui/material';
 
 export const WeekHeaderRow: React.FC<{ week: string }> = ({ week }) => (
   <Row>

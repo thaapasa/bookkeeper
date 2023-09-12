@@ -6,7 +6,6 @@ import { Category } from 'shared/types';
 import { colorScheme } from '../Colors';
 import { Row } from '../component/Row';
 import { AddCategoryButton } from './CategoryTools';
-import { styled } from '@mui/material';
 
 export const RowElement = styled(Row)`
   &.category-header {

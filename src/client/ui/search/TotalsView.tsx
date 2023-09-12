@@ -6,7 +6,6 @@ import { Money } from 'shared/util';
 
 import { gray, secondaryColors } from '../Colors';
 import { mainContentMaxWidth, media } from '../Styles';
-import { styled } from '@mui/material';
 
 interface TotalsViewProps {
   results: UserExpense[];

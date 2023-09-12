@@ -38,7 +38,6 @@ import {
   ToolColumn,
   UnconfirmedIcon,
 } from './ExpenseTableLayout';
-import { styled } from '@mui/material';
 
 const log = debug('bookkeeper:expense-row');
 

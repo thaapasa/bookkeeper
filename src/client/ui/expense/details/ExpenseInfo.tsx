@@ -10,7 +10,6 @@ import { BasicData } from './BasicData';
 import { DivisionInfo } from './DivisionInfo';
 import { ExpenseInfoTools } from './ExpenseInfoTools';
 import { RecurrenceInfo } from './RecurrenceInfo';
-import { styled } from '@mui/material';
 
 interface ExpenseInfoProps {
   division: ExpenseDivisionItem[];

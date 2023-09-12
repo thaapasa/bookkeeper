@@ -10,7 +10,6 @@ import { media } from '../Styles';
 import { ExpenseTotals, money } from './ExpenseHelper';
 import { ExpenseFilterFunction, ExpenseFilters } from './row/ExpenseFilters';
 import { UnconfirmedIcon } from './row/ExpenseTableLayout';
-import { styled } from '@mui/material';
 
 interface StatusProps {
   unconfirmedBefore: boolean;
