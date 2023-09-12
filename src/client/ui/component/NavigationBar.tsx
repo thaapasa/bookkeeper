@@ -48,7 +48,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
 
 const Bar = styled(Toolbar)`
   background-color: ${navigationBar};
-  min-height: auto;
+  min-height: auto !important;
   position: relative;
 `;
 
