@@ -15,7 +15,7 @@ export type ChartConfiguration<T extends string> = {
     data: CategoryStatistics,
     categoryMap: Record<ObjectId, Category>,
     estimated: boolean,
-    separateEstimate: boolean
+    separateEstimate: boolean,
   ): ChartData<T, number>;
   dataKey: T;
   tickFormatter?: YAxisProps['tickFormatter'];
@@ -24,7 +24,7 @@ export type ChartConfiguration<T extends string> = {
 
 export function getChartConfiguration(
   type: Omit<StatisticsChartType, 'recurring'>,
-  props: CategoryGraphProps
+  props: CategoryGraphProps,
 ): ChartConfiguration<any> | null {
   switch (type) {
     case 'years':

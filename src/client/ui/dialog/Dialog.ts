@@ -26,10 +26,7 @@ export type DateSelectDialogData = {
   initialDate?: Moment;
 };
 
-export type DialogData =
-  | OptionSelectDialogData<any>
-  | TextPromptDialogData
-  | DateSelectDialogData;
+export type DialogData = OptionSelectDialogData<any> | TextPromptDialogData | DateSelectDialogData;
 
 export interface DialogContentRendererProps<T> {
   onSelect: (value: T) => void;

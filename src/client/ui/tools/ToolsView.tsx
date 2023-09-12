@@ -20,11 +20,7 @@ export const ToolsView: React.FC = () => (
       <Grid item xs={12}>
         <Title>Työkalut</Title>
       </Grid>
-      <ToolButton
-        title="Vaihda kohteiden nimi"
-        buttonText="Vaihda"
-        action={changeReceiverName}
-      />
+      <ToolButton title="Vaihda kohteiden nimi" buttonText="Vaihda" action={changeReceiverName} />
       <DbStatusView />
     </Grid>
   </PageContentContainer>
@@ -35,14 +31,10 @@ async function changeReceiverName() {
     'Valitse kohde',
     'Minkä kohteen nimen haluat muuttaa?',
     '',
-    ReceiverField
+    ReceiverField,
   );
   if (!oldName) return;
-  const newName = await UserPrompts.promptText(
-    'Vaihda nimi',
-    'Syötä uusi nimi kohteelle:',
-    oldName
-  );
+  const newName = await UserPrompts.promptText('Vaihda nimi', 'Syötä uusi nimi kohteelle:', oldName);
   if (!newName) return;
   log(`Renaming ${oldName} to ${newName}`);
   await executeOperation(() => apiConnect.renameReceiver(oldName, newName), {

@@ -44,15 +44,8 @@ const TopBarImpl: React.FC<TopBarProps> = ({ windowSize, group, links }) => {
   return (
     <>
       <TopAppBar color="secondary" position="static">
-        <TopToolBar
-          className={`top-tool-bar ${isMobile ? 'mobile' : 'normal'}`}
-        >
-          <IconButton
-            edge="start"
-            aria-label="menu"
-            size="small"
-            onClick={toggleMenu}
-          >
+        <TopToolBar className={`top-tool-bar ${isMobile ? 'mobile' : 'normal'}`}>
+          <IconButton edge="start" aria-label="menu" size="small" onClick={toggleMenu}>
             <Icons.Menu style={styles.iconStyle} />
           </IconButton>
           {title ? <Title variant="h6">{title}</Title> : null}
@@ -92,6 +85,4 @@ const Title = styled(Typography)`
   margin-left: 8px;
 `;
 
-export const TopBar = connect(
-  validSessionE.map(s => ({ user: s.user, group: s.group }))
-)(TopBarImpl);
+export const TopBar = connect(validSessionE.map(s => ({ user: s.user, group: s.group })))(TopBarImpl);

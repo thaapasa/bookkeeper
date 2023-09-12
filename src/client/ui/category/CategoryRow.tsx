@@ -12,18 +12,8 @@ import { ExpenseRow } from '../expense/row/ExpenseRow';
 import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
 import { useDeferredData } from '../hooks/useAsyncData';
 import { useToggle } from '../hooks/useToggle';
-import {
-  AllColumns,
-  NameColumn,
-  RowElement,
-  SumColumn,
-  ToolColumn,
-} from './CategoryTableLayout';
-import {
-  AddCategoryButton,
-  EditCategoryButton,
-  ToggleButton,
-} from './CategoryTools';
+import { AllColumns, NameColumn, RowElement, SumColumn, ToolColumn } from './CategoryTableLayout';
+import { AddCategoryButton, EditCategoryButton, ToggleButton } from './CategoryTools';
 
 interface CategoryRowProps {
   category: Category;
@@ -42,65 +32,29 @@ function formatMoney(m?: MoneyLike): string {
 }
 
 export const CategoryRow: React.FC<CategoryRowProps> = props => {
-  const {
-    category,
-    header,
-    categoryTotals,
-    className,
-    title,
-    createCategory,
-    editCategory,
-  } = props;
+  const { category, header, categoryTotals, className, title, createCategory, editCategory } = props;
   const [open, toggleOpen] = useToggle();
 
   const totals = categoryTotals['' + category.id];
-  const clsName = `${className ?? ''} ${
-    header ? 'main-category' : 'sub-category'
-  }`;
-  const income = totals
-    ? header
-      ? totals.totalIncome
-      : totals.income
-    : Money.zero;
-  const expense = totals
-    ? header
-      ? totals.totalExpenses
-      : totals.expenses
-    : Money.zero;
-  const toolColor = header
-    ? colors.colorScheme.gray.veryDark
-    : colors.colorScheme.secondary.standard;
+  const clsName = `${className ?? ''} ${header ? 'main-category' : 'sub-category'}`;
+  const income = totals ? (header ? totals.totalIncome : totals.income) : Money.zero;
+  const expense = totals ? (header ? totals.totalExpenses : totals.expenses) : Money.zero;
+  const toolColor = header ? colors.colorScheme.gray.veryDark : colors.colorScheme.secondary.standard;
 
   return (
     <>
       <RowElement className={clsName}>
         <NameColumn>{title || category.name}</NameColumn>
-        <SumColumn className={colors.classNameForMoney(income)}>
-          {formatMoney(income)}
-        </SumColumn>
-        <SumColumn className={colors.classNameForMoney(expense)}>
-          {formatMoney(expense)}
-        </SumColumn>
+        <SumColumn className={colors.classNameForMoney(income)}>{formatMoney(income)}</SumColumn>
+        <SumColumn className={colors.classNameForMoney(expense)}>{formatMoney(expense)}</SumColumn>
         {header ? (
           <ToolColumn>
-            <AddCategoryButton
-              parent={category}
-              color={toolColor}
-              onAdd={createCategory}
-            />
+            <AddCategoryButton parent={category} color={toolColor} onAdd={createCategory} />
           </ToolColumn>
         ) : (
           <ToolColumn>
-            <EditCategoryButton
-              category={category}
-              color={toolColor}
-              onEdit={editCategory}
-            />
-            <ToggleButton
-              color={toolColor}
-              onToggle={toggleOpen}
-              state={open}
-            />
+            <EditCategoryButton category={category} color={toolColor} onEdit={editCategory} />
+            <ToggleButton color={toolColor} onToggle={toggleOpen} state={open} />
           </ToolColumn>
         )}
       </RowElement>
@@ -121,12 +75,7 @@ const CategoryRowExpenses: React.FC<{
   category: Category;
   userData: UserDataProps;
 }> = ({ range, category, userData }) => {
-  const { data, loadData } = useDeferredData(
-    searchExpenses,
-    true,
-    range,
-    category.id
-  );
+  const { data, loadData } = useDeferredData(searchExpenses, true, range, category.id);
   React.useEffect(loadData, [loadData]);
   React.useEffect(() => needUpdateE.onValue(loadData), [loadData]);
 

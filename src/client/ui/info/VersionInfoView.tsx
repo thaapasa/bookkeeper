@@ -18,9 +18,7 @@ interface VersionInfo {
 }
 
 export const VersionInfoView = () => {
-  const [serverVersion, setServerVersion] = React.useState<VersionInfo | null>(
-    null
-  );
+  const [serverVersion, setServerVersion] = React.useState<VersionInfo | null>(null);
   React.useMemo(async () => {
     const status = await apiConnect.getApiStatus();
     log(`API status`, status);

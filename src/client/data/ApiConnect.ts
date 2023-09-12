@@ -96,7 +96,7 @@ export class ApiConnect {
       headers?: Record<string, string>;
       body?: any;
     },
-    allowRefreshAndRetry = true
+    allowRefreshAndRetry = true,
   ): Promise<T> {
     try {
       return await client.req(path, {
@@ -107,7 +107,7 @@ export class ApiConnect {
       if (e && e instanceof AuthenticationError && allowRefreshAndRetry) {
         log('Authentication error from API, trying to refresh session');
         if (await checkLoginState()) {
-          log(`Session refreshed, retrying request`);
+          log('Session refreshed, retrying request');
           await timeoutImmediate();
           return this.req<T>(path, details, false);
         }
@@ -116,20 +116,11 @@ export class ApiConnect {
     }
   }
 
-  private get<T>(
-    path: string,
-    query?: Record<string, any>,
-    allowRefreshAndRetry?: boolean
-  ): Promise<T> {
+  private get<T>(path: string, query?: Record<string, any>, allowRefreshAndRetry?: boolean): Promise<T> {
     return this.req<T>(path, { method: 'GET', query }, allowRefreshAndRetry);
   }
 
-  private put<T>(
-    path: string,
-    body?: any,
-    query?: Record<string, string>,
-    allowRefreshAndRetry?: boolean
-  ): Promise<T> {
+  private put<T>(path: string, body?: any, query?: Record<string, string>, allowRefreshAndRetry?: boolean): Promise<T> {
     return this.req<T>(
       path,
       {
@@ -138,15 +129,11 @@ export class ApiConnect {
         query,
         headers: { ...FetchClient.contentTypeJson },
       },
-      allowRefreshAndRetry
+      allowRefreshAndRetry,
     );
   }
 
-  private post<T>(
-    path: string,
-    body?: any,
-    query?: Record<string, string>
-  ): Promise<T> {
+  private post<T>(path: string, body?: any, query?: Record<string, string>): Promise<T> {
     return this.req<T>(path, {
       method: 'POST',
       body,
@@ -155,11 +142,7 @@ export class ApiConnect {
     });
   }
 
-  private patch<T>(
-    path: string,
-    body?: any,
-    query?: Record<string, string>
-  ): Promise<T> {
+  private patch<T>(path: string, body?: any, query?: Record<string, string>): Promise<T> {
     return this.req<T>(path, {
       method: 'PATCH',
       body,
@@ -168,11 +151,7 @@ export class ApiConnect {
     });
   }
 
-  private del<T>(
-    path: string,
-    body?: any,
-    query?: Record<string, string>
-  ): Promise<T> {
+  private del<T>(path: string, body?: any, query?: Record<string, string>): Promise<T> {
     return this.req<T>(path, { method: 'DELETE', body, query });
   }
 
@@ -189,22 +168,14 @@ export class ApiConnect {
   }
 
   public refreshSession(): Promise<Session> {
-    return this.put<Session>(
-      '/api/session/refresh',
-      undefined,
-      undefined,
-      false
-    );
+    return this.put<Session>('/api/session/refresh', undefined, undefined, false);
   }
 
   public getApiStatus(): Promise<ApiStatus> {
     return this.get<ApiStatus>('/api/status');
   }
 
-  public async getExpensesForMonth(
-    year: number,
-    month: number
-  ): Promise<ExpenseCollection> {
+  public async getExpensesForMonth(year: number, month: number): Promise<ExpenseCollection> {
     const collection = await this.get<ExpenseCollection>('/api/expense/month', {
       year: year.toString(),
       month: month.toString(),
@@ -214,60 +185,38 @@ export class ApiConnect {
 
   public async searchExpenses(query: ExpenseQuery): Promise<UserExpense[]> {
     const body: ExpenseQuery = filterDefinedProps(query);
-    const expenses = await this.post<UserExpense[]>(
-      `/api/expense/search`,
-      body
-    );
+    const expenses = await this.post<UserExpense[]>('/api/expense/search', body);
     return expenses.map(mapExpense);
   }
 
-  public async getExpense(
-    id: number | string
-  ): Promise<UserExpenseWithDetails> {
-    return mapExpense(
-      await this.get<UserExpenseWithDetails>(uri`/api/expense/${id}`)
-    );
+  public async getExpense(id: number | string): Promise<UserExpenseWithDetails> {
+    return mapExpense(await this.get<UserExpenseWithDetails>(uri`/api/expense/${id}`));
   }
 
-  public async searchSubscriptions(
-    criteria: SubscriptionSearchCriteria
-  ): Promise<SubscriptionResult> {
+  public async searchSubscriptions(criteria: SubscriptionSearchCriteria): Promise<SubscriptionResult> {
     return this.post(uri`/api/subscription/search`, criteria);
   }
 
-  public getSubscription = async (
-    id: ObjectId
-  ): Promise<RecurringExpenseDetails | undefined> =>
+  public getSubscription = async (id: ObjectId): Promise<RecurringExpenseDetails | undefined> =>
     this.get(uri`/api/subscription/${id}`);
 
-  public updateSubscriptionTemplate = async (
-    id: ObjectId,
-    expense: ExpenseData
-  ): Promise<ApiMessage> =>
+  public updateSubscriptionTemplate = async (id: ObjectId, expense: ExpenseData): Promise<ApiMessage> =>
     this.put<ApiMessage>(uri`/api/subscription/template/${id}`, expense);
 
-  public deleteSubscription = async (
-    id: ObjectId
-  ): Promise<RecurringExpenseDetails | undefined> =>
+  public deleteSubscription = async (id: ObjectId): Promise<RecurringExpenseDetails | undefined> =>
     this.del(uri`/api/subscription/${id}`);
 
   public storeExpense(expense: ExpenseData): Promise<ApiMessage> {
     return this.post<ApiMessage>('/api/expense', expense);
   }
 
-  public splitExpense(
-    id: number | string,
-    splits: ExpenseSplit[]
-  ): Promise<ApiMessage> {
+  public splitExpense(id: number | string, splits: ExpenseSplit[]): Promise<ApiMessage> {
     return this.post<ApiMessage>(uri`/api/expense/${id}/split`, {
       splits: splits.map(s => ({ ...s, sum: Money.from(s.sum).toString() })),
     });
   }
 
-  public updateExpense(
-    id: number | string,
-    expense: ExpenseData
-  ): Promise<ApiMessage> {
+  public updateExpense(id: number | string, expense: ExpenseData): Promise<ApiMessage> {
     return this.put<ApiMessage>(uri`/api/expense/${id}`, expense);
   }
 
@@ -275,10 +224,7 @@ export class ApiConnect {
     return this.del<ApiMessage>(uri`/api/expense/${id}`);
   }
 
-  public createRecurring(
-    id: number | string,
-    period: RecurrencePeriod
-  ): Promise<ApiMessage> {
+  public createRecurring(id: number | string, period: RecurrencePeriod): Promise<ApiMessage> {
     return this.post<ApiMessage>(uri`/api/expense/recurring/${id}`, {
       period,
     });
@@ -287,21 +233,13 @@ export class ApiConnect {
   public updateRecurringExpense(
     id: number | string,
     expense: ExpenseData,
-    target: RecurringExpenseTarget
+    target: RecurringExpenseTarget,
   ): Promise<ApiMessage> {
-    return this.put<ApiMessage>(
-      uri`/api/expense/recurring/${id}?target=${target}`,
-      expense
-    );
+    return this.put<ApiMessage>(uri`/api/expense/recurring/${id}?target=${target}`, expense);
   }
 
-  public deleteRecurringById(
-    id: number | string,
-    target: RecurringExpenseTarget
-  ): Promise<ApiMessage> {
-    return this.del<ApiMessage>(
-      uri`/api/expense/recurring/${id}?target=${target}`
-    );
+  public deleteRecurringById(id: number | string, target: RecurringExpenseTarget): Promise<ApiMessage> {
+    return this.del<ApiMessage>(uri`/api/expense/recurring/${id}?target=${target}`);
   }
 
   public queryReceivers(receiver: string): Promise<string[]> {
@@ -320,25 +258,20 @@ export class ApiConnect {
     return this.post<ApiMessage>('/api/category', category);
   }
 
-  public getCategoryTotals = (
-    startDate: Date,
-    endDate: Date
-  ): Promise<CategoryAndTotals[]> =>
+  public getCategoryTotals = (startDate: Date, endDate: Date): Promise<CategoryAndTotals[]> =>
     this.get<CategoryAndTotals[]>('/api/category/totals', {
       startDate: toISODate(startDate),
       endDate: toISODate(endDate),
     });
 
-  public updateCategory = (
-    id: number | string,
-    category: CategoryData
-  ): Promise<Category> => this.put(uri`/api/category/${id}`, category);
+  public updateCategory = (id: number | string, category: CategoryData): Promise<Category> =>
+    this.put(uri`/api/category/${id}`, category);
 
   public loadStatistics = (
     categoryIds: CategorySelection[],
     startDate: ISODate,
     endDate: ISODate,
-    onlyOwn: boolean
+    onlyOwn: boolean,
   ): Promise<CategoryStatistics> => {
     const body: StatisticsSearchType = {
       categoryIds,
@@ -359,8 +292,7 @@ export class ApiConnect {
     return this.post<ReportDef>(uri`/api/report`, body);
   };
 
-  public deleteReport = (reportId: ObjectId) =>
-    this.del<ApiMessage>(uri`/api/report/${reportId}`);
+  public deleteReport = (reportId: ObjectId) => this.del<ApiMessage>(uri`/api/report/${reportId}`);
 
   public getDbStatus = () => this.get<DbStatus>('/api/admin/status');
 }

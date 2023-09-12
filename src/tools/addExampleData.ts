@@ -14,10 +14,7 @@ const log = debug('bookkeeper:data:example');
 async function addExampleData() {
   log('Adding example data to database');
   const session = await client.getSession('sale', 'salasana');
-  const allCategories = [
-    ...session.categories,
-    ...unnest(session.categories.map(c => c.children)),
-  ];
+  const allCategories = [...session.categories, ...unnest(session.categories.map(c => c.children))];
   const foodC = allCategories.find(c => c.name === 'Ruokakauppa')!;
   const detbC = allCategories.find(c => c.name === 'Lainanhoito')!;
   const saleS = session.sources.find(s => s.name.includes('Sale'))!;
@@ -36,10 +33,7 @@ async function addExampleData() {
     sourceId: saleS.id,
   };
 
-  async function addExpense(
-    expense: Partial<ExpenseData>,
-    session: SessionWithControl
-  ) {
+  async function addExpense(expense: Partial<ExpenseData>, session: SessionWithControl) {
     const data = { ...defaultExpense, ...expense };
     return session.post<ApiMessage>('/api/expense', data);
   }
@@ -54,7 +48,7 @@ async function addExampleData() {
       sourceId: commonS.id,
       date: toISODate(toMoment().subtract(2, 'year')),
     },
-    session
+    session,
   );
   await session.post(`/api/expense/recurring/${debtE.expenseId}`, {
     period: { amount: 1, unit: 'months' },

@@ -1,18 +1,13 @@
-import 'jest';
+import { afterEach, beforeEach, expect, describe, it } from 'bun:test';
 
 import { ExpenseSplit, UserExpenseWithDetails } from 'shared/expense';
-import {
-  cleanup,
-  fetchExpense,
-  fetchMonthStatus,
-  newExpense,
-  splitExpense,
-} from 'shared/expense/test';
+import { cleanup, fetchExpense, fetchMonthStatus, newExpense, splitExpense } from 'shared/expense/test';
 import { createTestClient, SessionWithControl } from 'shared/net/test';
 import { YearMonth } from 'shared/time';
 import { Money } from 'shared/util';
 
 import { checkMonthStatus } from './MonthStatus';
+import { expectArrayMatching } from 'test/expect/expectArrayMatching';
 
 const month: YearMonth = { year: 2017, month: 1 };
 
@@ -38,16 +33,14 @@ describe('splitting expenses', () => {
 
   it('should not allow invalid split data', async () => {
     expect(expense).toMatchObject({ title: 'Ruokakauppa' });
-    await expect(
-      splitExpense(session, expense.id, [{ foo: 'bar' }, { baz: 'kok' }] as any)
-    ).rejects.toMatchObject({ code: 'VALIDATION_ERROR' });
+    await expect(splitExpense(session, expense.id, [{ foo: 'bar' }, { baz: 'kok' }] as any)).rejects.toMatchObject({
+      code: 'VALIDATION_ERROR',
+    });
   });
 
   it('should not create splits without at least two split items', async () => {
     expect(expense).toMatchObject({ title: 'Ruokakauppa' });
-    await expect(
-      splitExpense(session, expense.id, [{ ...SPLIT_DATA }])
-    ).rejects.toMatchObject({
+    await expect(splitExpense(session, expense.id, [{ ...SPLIT_DATA }])).rejects.toMatchObject({
       code: 'INVALID_SPLIT',
       data: { cause: 'Expense splitting requires at least two splits' },
     });
@@ -59,7 +52,7 @@ describe('splitting expenses', () => {
       splitExpense(session, expense.id, [
         { ...SPLIT_DATA, sum: '15.00' },
         { ...SPLIT_DATA, sum: '80.00' },
-      ])
+      ]),
     ).rejects.toMatchObject({
       code: 'INVALID_SPLIT',
       data: { cause: 'Split sums (95.00) do not match expense sum (100.00)' },
@@ -67,7 +60,8 @@ describe('splitting expenses', () => {
   });
 
   it('T61 - should split expense into two parts', async () => {
-    const status = await checkMonthStatus(session, month);
+    const m = await fetchMonthStatus(session, month);
+    const status = checkMonthStatus(m);
     expect(expense).toMatchObject({
       title: 'Ruokakauppa',
       userBalance: '0.00',
@@ -95,9 +89,9 @@ describe('splitting expenses', () => {
             { type: 'cost', sum: '-85.00', userId },
           ],
         },
-      ])
+      ]),
     ).resolves.toMatchObject({ status: 'OK' });
-    expect(await checkMonthStatus(session, month)).toMatchObject({
+    expect(checkMonthStatus(await fetchMonthStatus(session, month))).toMatchObject({
       ...status,
       benefit: Money.from(status.benefit).plus(50).toString(),
       cost: Money.from(status.cost).minus(50).toString(),
@@ -106,12 +100,11 @@ describe('splitting expenses', () => {
     await expect(fetchExpense(session, expense.id)).rejects.toMatchObject({
       status: 404,
     });
-    await expect(fetchMonthStatus(session, month)).resolves.toMatchObject({
-      expenses: expect.arrayContaining([
-        expect.objectContaining({ title: 'Pilke1', sum: '15.00' }),
-        expect.objectContaining({ title: 'Pilke2', sum: '85.00' }),
-      ]),
-    });
+    const newStatus = await fetchMonthStatus(session, month);
+    expectArrayMatching(newStatus.expenses, [
+      { title: 'Pilke1', sum: '15.00' },
+      { title: 'Pilke2', sum: '85.00' },
+    ]);
   });
 });
 

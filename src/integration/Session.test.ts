@@ -1,4 +1,4 @@
-import 'jest';
+import { expect, describe, it } from 'bun:test';
 
 import { createTestClient, SessionWithControl } from 'shared/net/test';
 import { Session } from 'shared/types';

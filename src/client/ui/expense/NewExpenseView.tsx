@@ -20,9 +20,7 @@ export class NewExpenseView extends React.Component {
         sum: params.sum,
         title: params.title,
         categoryId: params.categoryId ? Number(params.categoryId) : undefined,
-        subcategoryId: params.subcategoryId
-          ? Number(params.subcategoryId)
-          : undefined,
+        subcategoryId: params.subcategoryId ? Number(params.subcategoryId) : undefined,
         receiver: params.receiver,
         sourceId: params.sourceId ? Number(params.sourceId) : undefined,
         benefit: params.benefit ? JSON.parse(params.benefit) : undefined,

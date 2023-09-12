@@ -24,7 +24,7 @@ root.render(
     <LocalizationProvider dateAdapter={AdapterMoment}>
       <App />
     </LocalizationProvider>
-  </ThemeProvider>
+  </ThemeProvider>,
 );
 
 // Uncomment the following to re-enable the service worker

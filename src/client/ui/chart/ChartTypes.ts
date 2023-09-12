@@ -27,15 +27,11 @@ export type ChartColumnData<K extends ChartKeyType = ChartKeyType> = {
  * tells the position in the Y-axis.
  * The type L denotes the label name that contains the label of the x-axis position.
  */
-export type ChartColumn<
-  L extends string,
-  K extends ChartKeyType = ChartKeyType,
-> = { [t in L]: string } & ChartColumnData<K>;
+export type ChartColumn<L extends string, K extends ChartKeyType = ChartKeyType> = {
+  [t in L]: string;
+} & ChartColumnData<K>;
 
-export interface ChartData<
-  L extends string,
-  K extends ChartKeyType = ChartKeyType,
-> {
+export interface ChartData<L extends string, K extends ChartKeyType = ChartKeyType> {
   keys: ChartKeyInfo[];
   chartData: ChartColumn<L, K>[];
 }

@@ -2,12 +2,7 @@ import debug from 'debug';
 import { ITask } from 'pg-promise';
 
 import { DateRange } from 'shared/time';
-import {
-  CategorySelection,
-  CategoryStatistics,
-  CategoryStatisticsData,
-  ObjectId,
-} from 'shared/types';
+import { CategorySelection, CategoryStatistics, CategoryStatisticsData, ObjectId } from 'shared/types';
 import { groupBy, partition } from 'shared/util';
 
 const log = debug('bookkeeper:api:statistics');
@@ -17,7 +12,7 @@ async function loadCategoryStatisticsData(
   groupId: ObjectId,
   range: DateRange,
   categoryIds: number[],
-  userId: ObjectId | undefined
+  userId: ObjectId | undefined,
 ): Promise<CategoryStatisticsData[]> {
   if (categoryIds.length < 1) {
     return [];
@@ -39,7 +34,13 @@ async function loadCategoryStatisticsData(
       ) mexp
       GROUP BY month, category_id
       ORDER BY month, category_id`,
-    { groupId, start: range.startDate, end: range.endDate, categoryIds, userId }
+    {
+      groupId,
+      start: range.startDate,
+      end: range.endDate,
+      categoryIds,
+      userId,
+    },
   );
   return statistics;
 }
@@ -49,7 +50,7 @@ async function loadCategoryStatisticsDataGroupedByParent(
   groupId: ObjectId,
   range: DateRange,
   categoryIds: number[],
-  userId: ObjectId | undefined
+  userId: ObjectId | undefined,
 ): Promise<CategoryStatisticsData[]> {
   if (categoryIds.length < 1) {
     return [];
@@ -74,7 +75,13 @@ async function loadCategoryStatisticsDataGroupedByParent(
       ) mexp
       GROUP BY month, parent_id
       ORDER BY month, parent_id`,
-    { groupId, start: range.startDate, end: range.endDate, categoryIds, userId }
+    {
+      groupId,
+      start: range.startDate,
+      end: range.endDate,
+      categoryIds,
+      userId,
+    },
   );
   return statistics;
 }
@@ -85,7 +92,7 @@ export async function getCategoryStatistics(
   userId: ObjectId,
   categoryIds: CategorySelection[],
   range: DateRange,
-  onlyOwn: boolean
+  onlyOwn: boolean,
 ): Promise<CategoryStatistics> {
   if (categoryIds.length < 1) {
     return { categoryIds, statistics: {}, range };
@@ -98,14 +105,14 @@ export async function getCategoryStatistics(
       groupId,
       range,
       alone.map(c => c.id),
-      onlyOwn ? userId : undefined
+      onlyOwn ? userId : undefined,
     ),
     loadCategoryStatisticsDataGroupedByParent(
       tx,
       groupId,
       range,
       groped.map(c => c.id),
-      onlyOwn ? userId : undefined
+      onlyOwn ? userId : undefined,
     ),
   ]);
   return {

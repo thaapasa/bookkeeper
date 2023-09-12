@@ -1,12 +1,6 @@
 import * as React from 'react';
 
-import {
-  AllPeriod,
-  compareDates,
-  MonthPeriod,
-  TypedDateRange,
-  YearPeriod,
-} from 'shared/time';
+import { AllPeriod, compareDates, MonthPeriod, TypedDateRange, YearPeriod } from 'shared/time';
 
 import { DateRangeSelectorProps, toMonthRange, toYearRange } from './Common';
 import { PeriodSelector } from './PeriodSelector';
@@ -14,25 +8,11 @@ import { PeriodSelector } from './PeriodSelector';
 type RangePeriod = AllPeriod | YearPeriod | MonthPeriod;
 const AllowedPeriods: RangePeriod['type'][] = ['all', 'year', 'month'];
 
-const DateRangeSelectorImpl: React.FC<DateRangeSelectorProps> = ({
-  onSelectRange,
-  dateRange,
-}) => {
-  const [period, setPeriod] = React.useState<RangePeriod>(
-    rangeToPeriod(dateRange)
-  );
-  React.useEffect(
-    () => onSelectRange(periodToRange(period)),
-    [onSelectRange, period]
-  );
+const DateRangeSelectorImpl: React.FC<DateRangeSelectorProps> = ({ onSelectRange, dateRange }) => {
+  const [period, setPeriod] = React.useState<RangePeriod>(rangeToPeriod(dateRange));
+  React.useEffect(() => onSelectRange(periodToRange(period)), [onSelectRange, period]);
 
-  return (
-    <PeriodSelector
-      period={period}
-      onSelect={setPeriod}
-      allowed={AllowedPeriods}
-    />
-  );
+  return <PeriodSelector period={period} onSelect={setPeriod} allowed={AllowedPeriods} />;
 };
 
 function rangeToPeriod(range: TypedDateRange | undefined): RangePeriod {
@@ -66,5 +46,5 @@ export const DateRangeSelector = React.memo(
   (prev, next) =>
     prev.dateRange?.type === next.dateRange?.type &&
     compareDates(prev.dateRange?.start, next.dateRange?.start) === 0 &&
-    compareDates(prev.dateRange?.end, next.dateRange?.end) === 0
+    compareDates(prev.dateRange?.end, next.dateRange?.end) === 0,
 );

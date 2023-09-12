@@ -2,23 +2,13 @@ import { styled } from '@mui/material';
 import debug from 'debug';
 import * as React from 'react';
 
-import {
-  ExpenseDivisionItem,
-  RecurringExpenseTarget,
-  UserExpense,
-  UserExpenseWithDetails,
-} from 'shared/expense';
+import { ExpenseDivisionItem, RecurringExpenseTarget, UserExpense, UserExpenseWithDetails } from 'shared/expense';
 import { readableDate, toDate, toISODate, toMoment } from 'shared/time';
 import { Category, CategoryMap, isDefined, Source, User } from 'shared/types';
 import { equal, Money, notEqual } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { getFullCategoryName, UserDataProps } from 'client/data/Categories';
-import {
-  editExpense,
-  needUpdateE,
-  notifyError,
-  updateExpenses,
-} from 'client/data/State';
+import { editExpense, needUpdateE, notifyError, updateExpenses } from 'client/data/State';
 import * as colors from 'client/ui/Colors';
 import { ActivatableTextField } from 'client/ui/component/ActivatableTextField';
 import { ExpanderIcon } from 'client/ui/component/ExpanderIcon';
@@ -58,11 +48,7 @@ export interface CommonExpenseRowProps {
   prev?: UserExpense | null;
   onUpdated: (expense: UserExpense) => void;
   selectCategory?: (categorey: Category) => void;
-  addFilter: (
-    filter: ExpenseFilterFunction,
-    name: string,
-    avater?: string
-  ) => void;
+  addFilter: (filter: ExpenseFilterFunction, name: string, avater?: string) => void;
 }
 
 interface ExpenseRowProps extends CommonExpenseRowProps {
@@ -79,10 +65,7 @@ interface ExpenseRowState {
   isLoading: boolean;
 }
 
-export class ExpenseRowImpl extends React.Component<
-  ExpenseRowProps,
-  ExpenseRowState
-> {
+export class ExpenseRowImpl extends React.Component<ExpenseRowProps, ExpenseRowState> {
   public state: ExpenseRowState = {
     details: null,
     isLoading: false,
@@ -93,21 +76,15 @@ export class ExpenseRowImpl extends React.Component<
       this.props.selectCategory(cat);
     }
     this.props.addFilter(
-      e =>
-        e.categoryId === cat.id ||
-        this.props.categoryMap[e.categoryId].parentId === cat.id,
-      getFullCategoryName(cat.id, this.props.categoryMap)
+      e => e.categoryId === cat.id || this.props.categoryMap[e.categoryId].parentId === cat.id,
+      getFullCategoryName(cat.id, this.props.categoryMap),
     );
   };
 
   private categoryLink(id: number) {
     const cat = this.props.categoryMap[id];
     return (
-      <TextButton
-        key={cat.id}
-        onClick={() => this.onClickCategory(cat)}
-        style={{ color: colors.action }}
-      >
+      <TextButton key={cat.id} onClick={() => this.onClickCategory(cat)} style={{ color: colors.action }}>
         {cat.name}
       </TextButton>
     );
@@ -115,9 +92,7 @@ export class ExpenseRowImpl extends React.Component<
 
   private fullCategoryLink(id: number) {
     const cat = this.props.categoryMap[id];
-    return cat.parentId
-      ? [this.categoryLink(cat.parentId), ' - ', this.categoryLink(id)]
-      : this.categoryLink(id);
+    return cat.parentId ? [this.categoryLink(cat.parentId), ' - ', this.categoryLink(id)] : this.categoryLink(id);
   }
 
   private updateExpense = async (data: Partial<UserExpense>) => {
@@ -129,26 +104,15 @@ export class ExpenseRowImpl extends React.Component<
   };
 
   private editDate = async () => {
-    const date = await UserPrompts.selectDate(
-      'Valitse päivä',
-      toMoment(this.props.expense.date)
-    );
+    const date = await UserPrompts.selectDate('Valitse päivä', toMoment(this.props.expense.date));
     if (!date) return;
-    await executeOperation(
-      () => this.updateExpense({ date: toISODate(date) }),
-      {
-        success: `Muutettu kirjauksen ${
-          this.props.expense.title
-        } päiväksi ${readableDate(date)}`,
-        postProcess: () => needUpdateE.push(date),
-      }
-    );
+    await executeOperation(() => this.updateExpense({ date: toISODate(date) }), {
+      success: `Muutettu kirjauksen ${this.props.expense.title} päiväksi ${readableDate(date)}`,
+      postProcess: () => needUpdateE.push(date),
+    });
   };
 
-  private toggleDetails = async (
-    expense: UserExpense,
-    currentDetails: UserExpenseWithDetails | null
-  ) => {
+  private toggleDetails = async (expense: UserExpense, currentDetails: UserExpenseWithDetails | null) => {
     if (currentDetails) {
       this.setState({ details: null, isLoading: false });
     } else {
@@ -189,7 +153,7 @@ export class ExpenseRowImpl extends React.Component<
         { label: 'Vain tämä', value: 'single' },
         { label: 'Kaikki', value: 'all' },
         { label: 'Tästä eteenpäin', value: 'after' },
-      ]
+      ],
     );
     if (!target) return;
 
@@ -220,9 +184,7 @@ export class ExpenseRowImpl extends React.Component<
     } else if (expense.type === 'income') {
       style.background = colors.income;
     }
-    const firstDay =
-      !this.props.prev ||
-      !toMoment(expense.date).isSame(this.props.prev.date, 'day');
+    const firstDay = !this.props.prev || !toMoment(expense.date).isSame(this.props.prev.date, 'day');
     return (
       <>
         <Row className={firstDay && this.props.dateBorder ? 'first-day' : ''}>
@@ -238,21 +200,13 @@ export class ExpenseRowImpl extends React.Component<
               user={this.props.userMap[expense.userId]}
               size={32}
               onClick={() =>
-                this.props.addFilter(
-                  e => e.userId === expense.userId,
-                  this.props.user.firstName,
-                  this.props.user.image
-                )
+                this.props.addFilter(e => e.userId === expense.userId, this.props.user.firstName, this.props.user.image)
               }
             />
           </AvatarColumn>
           <NameColumn>
             {this.props.expense.confirmed ? null : (
-              <UnconfirmedIcon
-                onClick={() =>
-                  this.props.addFilter(ExpenseFilters.unconfirmed, 'Alustavat')
-                }
-              />
+              <UnconfirmedIcon onClick={() => this.props.addFilter(ExpenseFilters.unconfirmed, 'Alustavat')} />
             )}
             <ActivatableTextField
               fullWidth
@@ -269,9 +223,7 @@ export class ExpenseRowImpl extends React.Component<
               onChange={v => this.updateExpense({ receiver: v })}
             />
           </ReceiverColumn>
-          <CategoryColumn>
-            {this.fullCategoryLink(expense.categoryId)}
-          </CategoryColumn>
+          <CategoryColumn>{this.fullCategoryLink(expense.categoryId)}</CategoryColumn>
           <SourceColumn>
             <SourceIcon
               source={source}
@@ -279,18 +231,14 @@ export class ExpenseRowImpl extends React.Component<
                 this.props.addFilter(
                   e => e.sourceId === source.id,
                   source.name,
-                  source.image ? source.image : undefined
+                  source.image ? source.image : undefined,
                 )
               }
             />
           </SourceColumn>
           <SumColumn className={expense.type}>
             <VCenterRow className="fill">
-              <ExpenseTypeIcon
-                type={expense.type}
-                color={colors.colorScheme.secondary.dark}
-                size={20}
-              />
+              <ExpenseTypeIcon type={expense.type} color={colors.colorScheme.secondary.dark} size={20} />
               <Flex />
               <div>{Money.from(expense.sum).format()}</div>
             </VCenterRow>
@@ -299,14 +247,8 @@ export class ExpenseRowImpl extends React.Component<
             style={{ color: colors.forMoney(expense.userBalance) }}
             onClick={() =>
               Money.zero.equals(expense.userBalance)
-                ? this.props.addFilter(
-                    ExpenseFilters.zeroBalance,
-                    `Balanssi ${equal} 0`
-                  )
-                : this.props.addFilter(
-                    ExpenseFilters.nonZeroBalance,
-                    `Balanssi ${notEqual} 0`
-                  )
+                ? this.props.addFilter(ExpenseFilters.zeroBalance, `Balanssi ${equal} 0`)
+                : this.props.addFilter(ExpenseFilters.nonZeroBalance, `Balanssi ${notEqual} 0`)
             }
           >
             {Money.from(expense.userBalance).format()}
@@ -318,17 +260,8 @@ export class ExpenseRowImpl extends React.Component<
               onToggle={() => this.toggleDetails(expense, this.state.details)}
             />
             <OptionalIcons>
-              <ToolIcon
-                title="Muokkaa"
-                onClick={this.modifyExpense}
-                icon="Edit"
-              />
-              <ToolIcon
-                className="optional"
-                title="Poista"
-                onClick={this.deleteExpense}
-                icon="Delete"
-              />
+              <ToolIcon title="Muokkaa" onClick={this.modifyExpense} icon="Edit" />
+              <ToolIcon className="optional" title="Poista" onClick={this.deleteExpense} icon="Delete" />
             </OptionalIcons>
           </ToolColumn>
         </Row>
@@ -348,9 +281,7 @@ export class ExpenseRowImpl extends React.Component<
         expense={this.props.expense}
         onDelete={this.deleteExpense}
         onModify={this.modifyExpense}
-        division={
-          this.state.details ? this.state.details.division : emptyDivision
-        }
+        division={this.state.details ? this.state.details.division : emptyDivision}
         user={this.props.user}
         source={this.props.source}
         fullCategoryName={this.props.fullCategoryName}
@@ -359,19 +290,14 @@ export class ExpenseRowImpl extends React.Component<
   }
 }
 
-export const ExpenseRow: React.FC<
-  CommonExpenseRowProps & { userData: UserDataProps }
-> = props => (
+export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataProps }> = props => (
   <ExpenseRowImpl
     {...props}
     categoryMap={props.userData.categoryMap}
     userMap={props.userData.userMap}
     user={props.userData.userMap[props.expense.userId]}
     source={props.userData.sourceMap[props.expense.sourceId]}
-    fullCategoryName={getFullCategoryName(
-      props.expense.categoryId,
-      props.userData.categoryMap
-    )}
+    fullCategoryName={getFullCategoryName(props.expense.categoryId, props.userData.categoryMap)}
   />
 );
 

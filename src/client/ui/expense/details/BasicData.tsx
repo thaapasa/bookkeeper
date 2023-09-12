@@ -11,11 +11,7 @@ interface BasicDataProps {
   fullCategoryName: string;
 }
 
-export const BasicData: React.FC<BasicDataProps> = ({
-  expense,
-  fullCategoryName,
-  source,
-}) => (
+export const BasicData: React.FC<BasicDataProps> = ({ expense, fullCategoryName, source }) => (
   <SmallDeviceContainer>
     <DetailRow name="Kohde" value={expense.receiver} />
     <DetailRow name="Kategoria" value={fullCategoryName} />
@@ -23,10 +19,7 @@ export const BasicData: React.FC<BasicDataProps> = ({
   </SmallDeviceContainer>
 );
 
-const DetailRow: React.FC<{ name: string; value: string }> = ({
-  name,
-  value,
-}) => (
+const DetailRow: React.FC<{ name: string; value: string }> = ({ name, value }) => (
   <DetailRowContainer>
     <DetailLabel>{name + ':'}</DetailLabel>
     {value}

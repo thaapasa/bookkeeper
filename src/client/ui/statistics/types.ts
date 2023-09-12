@@ -15,11 +15,5 @@ export const Months = [
   'Joulu',
 ];
 
-export const StatisticsChartType = z.enum([
-  'years',
-  'seasons',
-  'quarters',
-  'months',
-  'recurring',
-]);
+export const StatisticsChartType = z.enum(['years', 'seasons', 'quarters', 'months', 'recurring']);
 export type StatisticsChartType = z.infer<typeof StatisticsChartType>;

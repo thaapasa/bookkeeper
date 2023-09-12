@@ -10,11 +10,7 @@ import { Money } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { categoryMapE } from 'client/data/Categories';
 import { sourceMapE } from 'client/data/Login';
-import {
-  createNewExpense,
-  splitExpense,
-  updateExpenses,
-} from 'client/data/State';
+import { createNewExpense, splitExpense, updateExpenses } from 'client/data/State';
 import * as colors from 'client/ui/Colors';
 import { connect } from 'client/ui/component/BaconConnect';
 import { UserPrompts } from 'client/ui/dialog/DialogState';
@@ -43,12 +39,7 @@ const styles = {
   },
 };
 
-const ExpenseInfoToolsImpl: React.FC<RecurrenceInfoProps> = ({
-  expense,
-  onModify,
-  onDelete,
-  ...props
-}) => {
+const ExpenseInfoToolsImpl: React.FC<RecurrenceInfoProps> = ({ expense, onModify, onDelete, ...props }) => {
   const createRecurring = async () => {
     const period = await UserPrompts.select<RecurrencePeriod>(
       'Muuta toistuvaksi',
@@ -62,16 +53,13 @@ const ExpenseInfoToolsImpl: React.FC<RecurrenceInfoProps> = ({
         },
         { label: 'Vuosittain', value: { amount: 1, unit: 'years' } },
         { label: 'Puolivuosittain', value: { amount: 6, unit: 'months' } },
-      ]
+      ],
     );
     if (period) {
-      await executeOperation(
-        () => apiConnect.createRecurring(expense.id, period),
-        {
-          success: 'Kirjaus muutettu toistuvaksi',
-          postProcess: () => updateExpenses(toDate(expense.date)),
-        }
-      );
+      await executeOperation(() => apiConnect.createRecurring(expense.id, period), {
+        success: 'Kirjaus muutettu toistuvaksi',
+        postProcess: () => updateExpenses(toDate(expense.date)),
+      });
     }
   };
 
@@ -80,8 +68,7 @@ const ExpenseInfoToolsImpl: React.FC<RecurrenceInfoProps> = ({
     const division = props.division;
     const cat = props.categoryMap[e.categoryId];
     const subcategoryId = (cat.parentId && e.categoryId) || undefined;
-    const categoryId =
-      (subcategoryId ? cat.parentId : e.categoryId) || undefined;
+    const categoryId = (subcategoryId ? cat.parentId : e.categoryId) || undefined;
     const date = toMoment(e.date, ISODatePattern);
     log('Copying expense', e, division);
     createNewExpense({
@@ -143,9 +130,9 @@ const MobileTools = styled('div')`
   `}
 `;
 
-export const ExpenseInfoTools = connect(
-  B.combineTemplate({ categoryMap: categoryMapE, sourceMap: sourceMapE })
-)(ExpenseInfoToolsImpl);
+export const ExpenseInfoTools = connect(B.combineTemplate({ categoryMap: categoryMapE, sourceMap: sourceMapE }))(
+  ExpenseInfoToolsImpl,
+);
 
 export const ToolIconButton = styled(IconButton)`
   margin: 0px;

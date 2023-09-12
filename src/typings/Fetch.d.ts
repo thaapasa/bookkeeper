@@ -13,7 +13,4 @@ declare interface FixedRequestInit {
   window?: any;
 }
 
-declare function fetch(
-  input: RequestInfo,
-  init?: FixedRequestInit
-): Promise<Response>;
+declare function fetch(input: RequestInfo, init?: FixedRequestInit): Promise<Response>;

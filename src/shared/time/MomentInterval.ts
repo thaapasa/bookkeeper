@@ -2,16 +2,10 @@ import { unitOfTime } from 'moment';
 import { z } from 'zod';
 
 type MomentUnit = unitOfTime.Base;
-const unitValues = [
-  'year',
-  'years',
-  'month',
-  'months',
-  'week',
-  'weeks',
-  'day',
-  'days',
-] satisfies [MomentUnit, ...MomentUnit[]];
+const unitValues = ['year', 'years', 'month', 'months', 'week', 'weeks', 'day', 'days'] satisfies [
+  MomentUnit,
+  ...MomentUnit[],
+];
 
 export const MomentIntervalUnit = z.enum(unitValues);
 export type MomentIntervalUnit = z.infer<typeof MomentIntervalUnit>;
@@ -34,7 +28,5 @@ const canonicalUnits: Record<MomentIntervalUnit, MomentIntervalUnit> = {
 };
 
 export function isSameInterval(a: MomentInterval, b: MomentInterval) {
-  return (
-    canonicalUnits[a.unit] === canonicalUnits[b.unit] && a.amount === b.amount
-  );
+  return canonicalUnits[a.unit] === canonicalUnits[b.unit] && a.amount === b.amount;
 }

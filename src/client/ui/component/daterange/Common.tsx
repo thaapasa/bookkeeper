@@ -14,22 +14,15 @@ export type SelectorProps = DateRangeSelectorProps;
 
 export function isValidYear(year: string | number): boolean {
   const y = Number(year);
-  return (
-    String(y) === String(year) && y === Math.round(y) && y > 2000 && y < 2100
-  );
+  return String(y) === String(year) && y === Math.round(y) && y > 2000 && y < 2100;
 }
 
 export function isValidMonth(month: string | number): boolean {
   const m = Number(month);
-  return (
-    String(m) === String(month) && m === Math.round(m) && m >= 1 && m <= 12
-  );
+  return String(m) === String(month) && m === Math.round(m) && m >= 1 && m <= 12;
 }
 
-export function toMonthRange(
-  year: string | number,
-  month: string | number
-): TypedDateRange {
+export function toMonthRange(year: string | number, month: string | number): TypedDateRange {
   const m = toMoment(`${year}-${month}`, 'YYYY-M');
   return {
     type: 'month',

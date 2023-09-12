@@ -9,21 +9,9 @@ import { expandSubCategories } from './CategoryDb';
 
 const log = debug('bookkeeper:api:expenses:search');
 
-export async function getExpenseSearchQuery(
-  tx: ITask<any>,
-  userId: number,
-  groupId: number,
-  query: ExpenseQuery
-) {
-  const type = Array.isArray(query.type)
-    ? query.type
-    : isDefined(query.type)
-    ? [query.type]
-    : undefined;
-  const inputCategoryIds =
-    typeof query.categoryId === 'number'
-      ? [query.categoryId]
-      : query.categoryId || [];
+export async function getExpenseSearchQuery(tx: ITask<any>, userId: number, groupId: number, query: ExpenseQuery) {
+  const type = Array.isArray(query.type) ? query.type : isDefined(query.type) ? [query.type] : undefined;
+  const inputCategoryIds = typeof query.categoryId === 'number' ? [query.categoryId] : query.categoryId || [];
   const categoryIds =
     query.includeSubCategories && inputCategoryIds.length > 0
       ? await expandSubCategories(tx, groupId, inputCategoryIds)
@@ -36,18 +24,10 @@ export async function getExpenseSearchQuery(
       AND ($/startDate/ IS NULL OR date::DATE >= $/startDate/::DATE)
       AND ($/endDate/ IS NULL OR date::DATE <= $/endDate/::DATE)
       AND ($/expenseUserId/ IS NULL OR e.user_id = $/expenseUserId/)
-      ${
-        query.includeRecurring === false
-          ? 'AND e.recurring_expense_id IS NULL'
-          : ''
-      }
+      ${query.includeRecurring === false ? 'AND e.recurring_expense_id IS NULL' : ''}
       ${type ? `AND e.type IN ($/type:csv/)` : ''}
       ${isDefined(query.confirmed) ? `AND confirmed = $/confirmed/` : ''}
-      ${
-        categoryIds.length > 0
-          ? `AND (category_id IN ($/categoryIds:csv/))`
-          : ''
-      }
+      ${categoryIds.length > 0 ? `AND (category_id IN ($/categoryIds:csv/))` : ''}
       ${query.receiver ? `AND (receiver ILIKE '%$/receiver:value/%')` : ''}
       AND (
         $/search/ = ''
@@ -73,15 +53,10 @@ export async function searchExpenses(
   tx: ITask<any>,
   userId: number,
   groupId: number,
-  query: ExpenseQuery
+  query: ExpenseQuery,
 ): Promise<UserExpense[]> {
   log(`Searching for ${JSON.stringify(query)}`);
-  const { clause, params } = await getExpenseSearchQuery(
-    tx,
-    userId,
-    groupId,
-    query
-  );
+  const { clause, params } = await getExpenseSearchQuery(tx, userId, groupId, query);
   const expenses = await tx.manyOrNone<UserExpense>(clause, params);
   return expenses.map(dbRowToExpense);
 }

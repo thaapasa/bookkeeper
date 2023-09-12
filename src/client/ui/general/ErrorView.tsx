@@ -2,9 +2,7 @@ import * as React from 'react';
 
 import { NoteView } from './NoteView';
 
-export const ErrorView: React.FC<
-  React.PropsWithChildren<{ title: string }>
-> = ({ title, children }) => (
+export const ErrorView: React.FC<React.PropsWithChildren<{ title: string }>> = ({ title, children }) => (
   <NoteView title={title} type="warning">
     {children}
   </NoteView>

@@ -10,14 +10,9 @@ export async function searchSubscriptions(
   tx: ITask<any>,
   groupId: ObjectId,
   userId: ObjectId,
-  criteria: SubscriptionSearchCriteria
+  criteria: SubscriptionSearchCriteria,
 ): Promise<SubscriptionResult> {
-  const recurringExpenses = await searchRecurringExpenses(
-    tx,
-    groupId,
-    userId,
-    criteria
-  );
+  const recurringExpenses = await searchRecurringExpenses(tx, groupId, userId, criteria);
   const reports = await searchReports(tx, groupId, userId, criteria);
   return { recurringExpenses, reports };
 }

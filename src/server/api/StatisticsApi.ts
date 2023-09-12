@@ -23,9 +23,9 @@ export function createStatisticsApi() {
         session.user.id,
         body.categoryIds,
         getRangeForQueries(body.range),
-        body.onlyOwn === true
+        body.onlyOwn === true,
       ),
-    true
+    true,
   );
 
   return api.router;

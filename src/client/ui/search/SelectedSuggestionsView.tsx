@@ -2,10 +2,7 @@ import { Chip, styled } from '@mui/material';
 import * as React from 'react';
 
 import { secondaryColors } from '../Colors';
-import {
-  getSearchSuggestionValue,
-  SearchSuggestion,
-} from './SearchSuggestions';
+import { getSearchSuggestionValue, SearchSuggestion } from './SearchSuggestions';
 
 export const SelectedSuggestionsView: React.FC<{
   suggestions: SearchSuggestion[];
@@ -17,12 +14,7 @@ export const SelectedSuggestionsView: React.FC<{
   return (
     <>
       {suggestions.map(c => (
-        <Suggestion
-          key={c.id}
-          label={getSearchSuggestionValue(c)}
-          onDelete={() => onRemove(c)}
-          className={c.type}
-        />
+        <Suggestion key={c.id} label={getSearchSuggestionValue(c)} onDelete={() => onRemove(c)} className={c.type} />
       ))}
     </>
   );

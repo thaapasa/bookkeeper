@@ -1,21 +1,11 @@
 import { Router } from 'express';
 import { z } from 'zod';
 
-import {
-  ExpenseCollection,
-  ExpenseInput,
-  ExpenseQuery,
-  ExpenseSplit,
-  UserExpense,
-} from 'shared/expense';
+import { ExpenseCollection, ExpenseInput, ExpenseQuery, ExpenseSplit, UserExpense } from 'shared/expense';
 import { YearMonth } from 'shared/time';
 import { ApiMessage } from 'shared/types';
 import { deleteExpenseById } from 'server/data/BasicExpenseDb';
-import {
-  createExpense,
-  getExpenseWithDivision,
-  updateExpenseById,
-} from 'server/data/BasicExpenseService';
+import { createExpense, getExpenseWithDivision, updateExpenseById } from 'server/data/BasicExpenseService';
 import { getExpensesByMonth } from 'server/data/Expenses';
 import { searchExpenses } from 'server/data/ExpenseSearch';
 import { splitExpense } from 'server/data/ExpenseSplit';
@@ -37,23 +27,13 @@ export function createExpenseApi() {
   api.getTx(
     '/month',
     { query: YearMonth, response: ExpenseCollection },
-    (tx, session, { query }) =>
-      getExpensesByMonth(
-        tx,
-        session.group.id,
-        session.user.id,
-        query.year,
-        query.month
-      ),
-    true
+    (tx, session, { query }) => getExpensesByMonth(tx, session.group.id, session.user.id, query.year, query.month),
+    true,
   );
 
   // GET /api/expense/search?[ExpenseSearch]
-  api.postTx(
-    '/search',
-    { body: ExpenseQuery, response: z.array(UserExpense) },
-    (tx, session, { body }) =>
-      searchExpenses(tx, session.user.id, session.group.id, body)
+  api.postTx('/search', { body: ExpenseQuery, response: z.array(UserExpense) }, (tx, session, { body }) =>
+    searchExpenses(tx, session.user.id, session.group.id, body),
   );
 
   // POST /api/expense
@@ -62,14 +42,8 @@ export function createExpenseApi() {
     '/',
     { body: ExpenseInput, response: ApiMessage },
     (tx, session, { body }) =>
-      createExpense(
-        tx,
-        session.user.id,
-        session.group.id,
-        body,
-        session.group.defaultSourceId ?? 0
-      ),
-    true
+      createExpense(tx, session.user.id, session.group.id, body, session.group.defaultSourceId ?? 0),
+    true,
   );
 
   const ExpenseSplitBody = z.object({
@@ -80,14 +54,8 @@ export function createExpenseApi() {
     '/:expenseId/split',
     { body: ExpenseSplitBody },
     (tx, session, { params, body }) =>
-      splitExpense(
-        tx,
-        session.group.id,
-        session.user.id,
-        params.expenseId,
-        body.splits
-      ),
-    true
+      splitExpense(tx, session.group.id, session.user.id, params.expenseId, body.splits),
+    true,
   );
 
   // PUT /api/expense/[expenseId]
@@ -102,32 +70,25 @@ export function createExpenseApi() {
         session.user.id,
         params.expenseId,
         body,
-        session.group.defaultSourceId || 0
+        session.group.defaultSourceId || 0,
       ),
-    true
+    true,
   );
 
   // GET /api/expense/[expenseId]
   api.getTx(
     '/:expenseId',
     {},
-    (tx, session, { params }) =>
-      getExpenseWithDivision(
-        tx,
-        session.group.id,
-        session.user.id,
-        params.expenseId
-      ),
-    true
+    (tx, session, { params }) => getExpenseWithDivision(tx, session.group.id, session.user.id, params.expenseId),
+    true,
   );
 
   // DELETE /api/expense/[expenseId]
   api.deleteTx(
     '/:expenseId',
     {},
-    (tx, session, { params }) =>
-      deleteExpenseById(tx, session.group.id, params.expenseId),
-    true
+    (tx, session, { params }) => deleteExpenseById(tx, session.group.id, params.expenseId),
+    true,
   );
 
   return api.router;

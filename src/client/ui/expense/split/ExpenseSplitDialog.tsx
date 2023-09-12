@@ -11,25 +11,28 @@ import { SplitButtons } from './SplitButtons';
 import { SplitHeader } from './SplitHeader';
 import { SplitRow } from './SplitRow';
 
-export const ExpenseSplitDialog: React.FC<
-  ExpenseDialogProps<ExpenseSplit[]>
-> = ({ original, onClose, onExpensesUpdated, windowSize, ...props }) => {
+export const ExpenseSplitDialog: React.FC<ExpenseDialogProps<ExpenseSplit[]>> = ({
+  original,
+  onClose,
+  onExpensesUpdated,
+  windowSize,
+  ...props
+}) => {
   const isMobile = isMobileSize(windowSize);
 
-  const { addRow, splits, validSplits, splitExpense, ...tools } =
-    useExpenseSplit(original, props.sourceMap, onClose, onExpensesUpdated);
+  const { addRow, splits, validSplits, splitExpense, ...tools } = useExpenseSplit(
+    original,
+    props.sourceMap,
+    onClose,
+    onExpensesUpdated,
+  );
 
   if (!original) {
     return null;
   }
 
   return (
-    <Dialog
-      open={true}
-      onClose={() => onClose(null)}
-      scroll="paper"
-      fullScreen={isMobile}
-    >
+    <Dialog open={true} onClose={() => onClose(null)} scroll="paper" fullScreen={isMobile}>
       <SplitHeader expense={original} />
       <ExpenseDialogContent dividers={true}>
         <Grid container alignItems="center" spacing={2}>
@@ -40,13 +43,7 @@ export const ExpenseSplitDialog: React.FC<
                   <Divider flexItem />
                 </Grid>
               ) : null}
-              <SplitRow
-                {...props}
-                {...tools}
-                split={s}
-                splitIndex={i}
-                editSum={i !== 0}
-              />
+              <SplitRow {...props} {...tools} split={s} splitIndex={i} editSum={i !== 0} />
             </React.Fragment>
           ))}
           <SplitButtons

@@ -12,17 +12,12 @@ function isUserError(status: number) {
 }
 
 export function createErrorHandler() {
-  return (
-    err: any,
-    req: express.Request,
-    res: express.Response,
-    _: express.NextFunction
-  ) => {
+  return (err: any, req: express.Request, res: express.Response, _: express.NextFunction) => {
     const status = typeof err.status === 'number' ? err.status : 500;
 
     log(
       `Error processing ${req.method} ${req.path} -> ${status}: ${err.message}`,
-      logUserErrors || !isUserError(status) ? err.stack : undefined
+      logUserErrors || !isUserError(status) ? err.stack : undefined,
     );
     const data: ErrorInfo = {
       ...(config.showErrorCause ? err : undefined),

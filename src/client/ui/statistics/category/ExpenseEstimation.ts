@@ -19,7 +19,7 @@ export function estimateMissingYearlyExpenses(
   categoryId: number,
   data: CategoryStatistics,
   chartData: ChartColumn<'year', number>[],
-  range: MomentRange
+  range: MomentRange,
 ) {
   const lastData = chartData[chartData.length - 1];
   const currentSum = lastData[categoryId];
@@ -33,11 +33,9 @@ export function estimateMissingYearlyExpenses(
   const estimateByThisYear = currentSum / yearPercentage;
 
   log(
-    `Estimating ${yearEnd.year()} for ${categoryId}, at ${(
-      yearPercentage * 100
-    ).toFixed(2)} % (${dayAtEnd}/${daysInYear}) with ${formatMoney(
-      currentSum
-    )} -> ${formatMoney(estimateByThisYear)}`
+    `Estimating ${yearEnd.year()} for ${categoryId}, at ${(yearPercentage * 100).toFixed(
+      2,
+    )} % (${dayAtEnd}/${daysInYear}) with ${formatMoney(currentSum)} -> ${formatMoney(estimateByThisYear)}`,
   );
 
   const lastYearData = chartData[chartData.length - 2];
@@ -48,52 +46,37 @@ export function estimateMissingYearlyExpenses(
 
   if (yearPercentage < useMonthDistributionTolerance) {
     // Not enough data for this year to calculate by monthly distribution
-    return weightedEstimateFromLastYear(
-      estimateByThisYear,
-      remainingPercentage,
-      lastYearData[categoryId]
-    );
+    return weightedEstimateFromLastYear(estimateByThisYear, remainingPercentage, lastYearData[categoryId]);
   }
 
   // Calculate estimation based on last year's monthly distribution
-  return estimateFromMontlyDistribution(
-    currentSum,
-    range,
-    data.statistics[categoryId]
-  );
+  return estimateFromMontlyDistribution(currentSum, range, data.statistics[categoryId]);
 }
 
 function estimateFromMontlyDistribution(
   currentSum: number,
   range: MomentRange,
-  categoryData: CategoryStatisticsData[]
+  categoryData: CategoryStatisticsData[],
 ) {
   const lastYear = range.endTime.year() - 1;
   // Calculate estimation based on last year's monthly distribution
   const months = groupBy(
     d => Number(d.month.substring(5, 7)),
-    categoryData?.filter(e => Number(e.month.substring(0, 4)) === lastYear)
+    categoryData?.filter(e => Number(e.month.substring(0, 4)) === lastYear),
   );
-  const sumDistribution = numberRange(1, 12).map(m =>
-    Money.from(months[m]?.[0]?.sum ?? 0).valueOf()
-  );
+  const sumDistribution = numberRange(1, 12).map(m => Money.from(months[m]?.[0]?.sum ?? 0).valueOf());
   const percentages = toPercentageDistribution(sumDistribution);
-  log(
-    `Estimating based on last year distribution ${sumDistribution}: ${percentages}`
-  );
+  log(`Estimating based on last year distribution ${sumDistribution}: ${percentages}`);
 
   // Zero based months here
   const ongoingMonth = range.endTime.month();
   const monthsLeft = numberRange(ongoingMonth + 1, 11);
-  const percentagesFromMonthsLeft = monthsLeft
-    .map(m => percentages[m])
-    .reduce(sum, 0);
+  const percentagesFromMonthsLeft = monthsLeft.map(m => percentages[m]).reduce(sum, 0);
 
   const ongoingMonthPercentage = percentages[ongoingMonth];
   const positionInMonth = range.endTime.date() / range.endTime.daysInMonth();
 
-  const remainingPercentage =
-    percentagesFromMonthsLeft + (1 - positionInMonth) * ongoingMonthPercentage;
+  const remainingPercentage = percentagesFromMonthsLeft + (1 - positionInMonth) * ongoingMonthPercentage;
   assertTrue(remainingPercentage <= 1);
 
   // yearTotal = currentSum + remainingPercentage * yearTotal
@@ -102,45 +85,25 @@ function estimateFromMontlyDistribution(
   // (1 - remainingPercentage) * yearTotal = currentSum
   // yearTotal = currentSum / (1 - remainingPercentage)
   const yearTotal = currentSum / (1.0 - remainingPercentage);
-  log(
-    `Remaining percentage of sums is ${remainingPercentage.toFixed(
-      2
-    )} -> ${formatMoney(yearTotal)}`
-  );
+  log(`Remaining percentage of sums is ${remainingPercentage.toFixed(2)} -> ${formatMoney(yearTotal)}`);
 
   return yearTotal - currentSum;
 }
 
-function weightedEstimateFromLastYear(
-  estimateByThisYear: number,
-  remainingPercentage: number,
-  lastYearSum: number
-) {
+function weightedEstimateFromLastYear(estimateByThisYear: number, remainingPercentage: number, lastYearSum: number) {
   const lastYearWeight = remainingPercentage / 0.8;
   // Use a weighted estimate of direct interpolation and last years expenses
-  log(
-    `Using year expenses: ${formatMoney(
-      lastYearSum
-    )} with weight ${lastYearWeight.toFixed(2)}`
-  );
+  log(`Using year expenses: ${formatMoney(lastYearSum)} with weight ${lastYearWeight.toFixed(2)}`);
 
   const interpolatedEstimate = estimateByThisYear * remainingPercentage;
-  const fullEstimate =
-    lastYearWeight * lastYearSum + (1 - lastYearWeight) * interpolatedEstimate;
+  const fullEstimate = lastYearWeight * lastYearSum + (1 - lastYearWeight) * interpolatedEstimate;
 
   const remaining = fullEstimate * remainingPercentage;
-  log(
-    `Weighted estimate ${formatMoney(fullEstimate)}, remaining: ${formatMoney(
-      remaining
-    )}`
-  );
+  log(`Weighted estimate ${formatMoney(fullEstimate)}, remaining: ${formatMoney(remaining)}`);
   return remaining;
 }
 
-function interpolateEstimate(
-  estimateByThisYear: number,
-  remainingPercentage: number
-) {
+function interpolateEstimate(estimateByThisYear: number, remainingPercentage: number) {
   // Directly interpolate estimate
   const remaining = estimateByThisYear * remainingPercentage;
   log(`Estimated remaining by this year alone: ${formatMoney(remaining)}`);

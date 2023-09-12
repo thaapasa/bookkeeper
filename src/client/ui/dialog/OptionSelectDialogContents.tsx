@@ -3,12 +3,9 @@ import * as React from 'react';
 
 import { DialogContentRendererProps, OptionSelectDialogData } from './Dialog';
 
-type OptionSelectDialogProps<T> = DialogContentRendererProps<T> &
-  OptionSelectDialogData<T>;
+type OptionSelectDialogProps<T> = DialogContentRendererProps<T> & OptionSelectDialogData<T>;
 
-export const OptionSelectDialogContents: React.FC<
-  OptionSelectDialogProps<any>
-> = <T extends string>({
+export const OptionSelectDialogContents: React.FC<OptionSelectDialogProps<any>> = <T extends string>({
   handleKeyPress,
   onSelect,
   onCancel,
@@ -19,12 +16,7 @@ export const OptionSelectDialogContents: React.FC<
     <>
       <DialogContent onKeyUp={handleKeyPress}>{description}</DialogContent>
       <Actions>
-        <Button
-          color="primary"
-          variant="text"
-          onKeyUp={handleKeyPress}
-          onClick={onCancel}
-        >
+        <Button color="primary" variant="text" onKeyUp={handleKeyPress} onClick={onCancel}>
           Peruuta
         </Button>
         {options.map(o => (

@@ -8,12 +8,7 @@ import { toDateRange } from 'shared/time';
 import { Category, isDefined, Session } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
 import { AsyncData, UninitializedData } from 'client/data/AsyncData';
-import {
-  CategoryDataSource,
-  categoryDataSourceP,
-  userDataE,
-  UserDataProps,
-} from 'client/data/Categories';
+import { CategoryDataSource, categoryDataSourceP, userDataE, UserDataProps } from 'client/data/Categories';
 import { validSessionE } from 'client/data/Login';
 import { navigationBus, needUpdateE } from 'client/data/State';
 import { searchPagePath } from 'client/util/Links';
@@ -36,19 +31,12 @@ interface SearchViewProps {
 type SearchViewParams = 'year' | 'month';
 
 function isEmptyQuery(q: ExpenseQuery) {
-  const hasCategory =
-    typeof q.categoryId === 'number' ||
-    (typeof q.categoryId === 'object' && q.categoryId.length > 0);
+  const hasCategory = typeof q.categoryId === 'number' || (typeof q.categoryId === 'object' && q.categoryId.length > 0);
   return !q.search && !hasCategory && !q.receiver && !isDefined(q.confirmed);
 }
 
-const SearchViewImpl: React.FC<SearchViewProps> = ({
-  userData,
-  session,
-  categorySource,
-}) => {
-  const [results, setResults] =
-    React.useState<AsyncData<UserExpense[]>>(UninitializedData);
+const SearchViewImpl: React.FC<SearchViewProps> = ({ userData, session, categorySource }) => {
+  const [results, setResults] = React.useState<AsyncData<UserExpense[]>>(UninitializedData);
   const { year, month } = useParams<SearchViewParams>();
 
   const searchBus = usePersistentMemo(() => new B.Bus<ExpenseQuery>(), []);
@@ -63,11 +51,7 @@ const SearchViewImpl: React.FC<SearchViewProps> = ({
   useWhenMounted(() => {
     const resultsE = searchBus
       .sampledBy(B.mergeAll<any>(searchBus, repeatSearchBus))
-      .flatMapLatest(query =>
-        isEmptyQuery(query)
-          ? B.once([])
-          : B.fromPromise(apiConnect.searchExpenses(query))
-      );
+      .flatMapLatest(query => (isEmptyQuery(query) ? B.once([]) : B.fromPromise(apiConnect.searchExpenses(query))));
     const unsubs = [
       resultsE.onValue(value => setResults({ type: 'loaded', value })),
       resultsE.onError(error => setResults({ type: 'error', error })),
@@ -81,14 +65,11 @@ const SearchViewImpl: React.FC<SearchViewProps> = ({
       setResults({ type: 'loading' });
       navigationBus.push({
         pathPrefix: searchPagePath,
-        dateRange: toDateRange(
-          query.startDate ?? new Date(),
-          query.endDate ?? new Date()
-        ),
+        dateRange: toDateRange(query.startDate ?? new Date(), query.endDate ?? new Date()),
       });
       searchBus.push(query);
     },
-    [setResults, searchBus]
+    [setResults, searchBus],
   );
 
   const onRepeatSearch = React.useCallback(() => {
@@ -98,10 +79,7 @@ const SearchViewImpl: React.FC<SearchViewProps> = ({
 
   const queryRef = React.useRef<QueryView>(null);
 
-  const onAddCategoryToSearch = React.useCallback(
-    (cat: Category) => queryRef.current?.addCategory(cat),
-    [queryRef]
-  );
+  const onAddCategoryToSearch = React.useCallback((cat: Category) => queryRef.current?.addCategory(cat), [queryRef]);
 
   React.useEffect(() => needUpdateE.onValue(onRepeatSearch), [onRepeatSearch]);
 
@@ -131,5 +109,5 @@ export const SearchView = connect(
     session: validSessionE,
     userData: userDataE,
     categorySource: categoryDataSourceP,
-  })
+  }),
 )(SearchViewImpl);

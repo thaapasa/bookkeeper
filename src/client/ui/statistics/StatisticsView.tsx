@@ -1,22 +1,11 @@
 import ClearIcon from '@mui/icons-material/Clear';
-import {
-  Checkbox,
-  FormControlLabel,
-  FormGroup,
-  Grid,
-  IconButton,
-} from '@mui/material';
+import { Checkbox, FormControlLabel, FormGroup, Grid, IconButton } from '@mui/material';
 import * as B from 'baconjs';
 import React from 'react';
 import { z } from 'zod';
 
 import { DateRange } from 'shared/time';
-import {
-  CategoryMap,
-  CategorySelection,
-  CategoryStatistics,
-  isDefined,
-} from 'shared/types';
+import { CategoryMap, CategorySelection, CategoryStatistics, isDefined } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
 import { AsyncData, UninitializedData } from 'client/data/AsyncData';
 import { categoryMapE } from 'client/data/Categories';
@@ -54,28 +43,16 @@ export const StatisticsViewImpl: React.FC<{
     [],
     z.array(CategorySelection),
     cmpCat,
-    c => !!categoryMap[c.id]
+    c => !!categoryMap[c.id],
   );
 
   const [range, setRange] = React.useState<DateRange | undefined>(undefined);
 
-  const [type, setType] = useLocalStorage(
-    'statistics.chart.type',
-    'years',
-    StatisticsChartType
-  );
+  const [type, setType] = useLocalStorage('statistics.chart.type', 'years', StatisticsChartType);
 
-  const [stacked, setStacked] = useLocalStorage(
-    'statistics.chart.stacked',
-    true,
-    z.boolean()
-  );
+  const [stacked, setStacked] = useLocalStorage('statistics.chart.stacked', true, z.boolean());
 
-  const [onlyOwn, setOnlyOwn] = useLocalStorage(
-    'statistics.chart.onlyOwn',
-    false,
-    z.boolean()
-  );
+  const [onlyOwn, setOnlyOwn] = useLocalStorage('statistics.chart.onlyOwn', false, z.boolean());
 
   const expandCategory = (cat: CategorySelection) => {
     const category = categoryMap[cat.id];
@@ -101,9 +78,7 @@ export const StatisticsViewImpl: React.FC<{
     }
 
     // Prio 2: add all child cats
-    const allChildrenIncluded = children.every(
-      c => cats.find(cmpCat.bind(this, c)) !== undefined
-    );
+    const allChildrenIncluded = children.every(c => cats.find(cmpCat.bind(this, c)) !== undefined);
     if (!allChildrenIncluded) {
       addCats(children);
       return;
@@ -121,10 +96,9 @@ export const StatisticsViewImpl: React.FC<{
     cats,
     range?.startDate ?? '',
     range?.endDate ?? '',
-    onlyOwn
+    onlyOwn,
   );
-  const data: AsyncData<CategoryStatistics> =
-    cats.length > 0 ? statistics : UninitializedData;
+  const data: AsyncData<CategoryStatistics> = cats.length > 0 ? statistics : UninitializedData;
 
   const isMobile = isMobileSize(size);
   return (
@@ -134,31 +108,17 @@ export const StatisticsViewImpl: React.FC<{
           <CategorySelector addCategories={addCats} />
           <FormGroup row>
             <FormControlLabel
-              control={
-                <Checkbox
-                  checked={stacked}
-                  onChange={() => setStacked(!stacked)}
-                />
-              }
+              control={<Checkbox checked={stacked} onChange={() => setStacked(!stacked)} />}
               label="Koosta alueet"
             />
             <FormControlLabel
-              control={
-                <Checkbox
-                  checked={onlyOwn}
-                  onChange={() => setOnlyOwn(!onlyOwn)}
-                />
-              }
+              control={<Checkbox checked={onlyOwn} onChange={() => setOnlyOwn(!onlyOwn)} />}
               label="Vain omat kirjaukset"
             />
           </FormGroup>
         </Grid>
         <Grid item md={2} sm={4}>
-          <StatisticsChartTypeSelector
-            selected={type}
-            onChange={setType}
-            row={isMobile}
-          />
+          <StatisticsChartTypeSelector selected={type} onChange={setType} row={isMobile} />
         </Grid>
         <Grid item md={5} sm={12}>
           <StatisticsChartRangeSelector onChange={setRange} />
@@ -191,6 +151,6 @@ export const StatisticsViewImpl: React.FC<{
   );
 };
 
-export const StatisticsView = connect(
-  B.combineTemplate({ categoryMap: categoryMapE, size: windowSizeP })
-)(StatisticsViewImpl);
+export const StatisticsView = connect(B.combineTemplate({ categoryMap: categoryMapE, size: windowSizeP }))(
+  StatisticsViewImpl,
+);

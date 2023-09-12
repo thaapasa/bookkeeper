@@ -3,23 +3,12 @@ import debug from 'debug';
 import { ITask } from 'pg-promise';
 import { promisify } from 'util';
 
-import {
-  ApiMessage,
-  AuthenticationError,
-  Session,
-  SessionBasicInfo,
-} from 'shared/types';
+import { ApiMessage, AuthenticationError, Session, SessionBasicInfo } from 'shared/types';
 
 import { config } from '../Config';
 import { getAllCategories } from './CategoryDb';
 import { getAllSources } from './SourceDb';
-import {
-  dbRowToUser,
-  getAllUsers,
-  getGroupsForUser,
-  getUserByCredentials,
-  RawUserData,
-} from './UserDb';
+import { dbRowToUser, getAllUsers, getGroupsForUser, getUserByCredentials, RawUserData } from './UserDb';
 
 const log = debug('bookkeeper:api:sessions');
 
@@ -46,10 +35,7 @@ async function purgeExpiredSessions(tx: ITask<any>) {
   await tx.none('DELETE FROM sessions WHERE expiry_time <= NOW()');
 }
 
-async function createSession(
-  tx: ITask<any>,
-  user: RawUserData
-): Promise<string[]> {
+async function createSession(tx: ITask<any>, user: RawUserData): Promise<string[]> {
   const tokens = await Promise.all([createToken(), createToken()]);
   log('User', user.email, 'logged in with token', tokens[0]);
   await tx.none(
@@ -63,16 +49,12 @@ async function createSession(
       userId: user.id,
       sessionTimeout: config.sessionTimeout,
       refreshTokenTimeout: config.refreshTokenTimeout,
-    }
+    },
   );
   return tokens;
 }
 
-function createSessionInfo(
-  [token, refreshToken]: string[],
-  userData: RawUserData,
-  loginTime?: Date
-): SessionBasicInfo {
+function createSessionInfo([token, refreshToken]: string[], userData: RawUserData, loginTime?: Date): SessionBasicInfo {
   return {
     token,
     refreshToken,
@@ -95,10 +77,7 @@ function createSessionInfo(
   };
 }
 
-export async function appendInfoToSession(
-  tx: ITask<any>,
-  session: SessionBasicInfo
-): Promise<Session> {
+export async function appendInfoToSession(tx: ITask<any>, session: SessionBasicInfo): Promise<Session> {
   const [groups, sources, categories, users] = await Promise.all([
     getGroupsForUser(tx, session.user.id),
     getAllSources(tx, session.group.id),
@@ -112,7 +91,7 @@ export async function loginUserWithCredentials(
   tx: ITask<any>,
   username: string,
   password: string,
-  groupId?: number
+  groupId?: number,
 ): Promise<Session> {
   log('Login for', username);
   const user = await getUserByCredentials(tx, username, password, groupId);
@@ -121,35 +100,23 @@ export async function loginUserWithCredentials(
   return appendInfoToSession(tx, sessionInfo);
 }
 
-async function getUserInfoByRefreshToken(
-  tx: ITask<any>,
-  token: string,
-  groupId?: number
-): Promise<RawUserData> {
+async function getUserInfoByRefreshToken(tx: ITask<any>, token: string, groupId?: number): Promise<RawUserData> {
   await purgeExpiredSessions(tx);
   const userData = await tx.oneOrNone<RawUserData>(
-    tokenSelect +
-      'WHERE s.token=$/token/ AND s.refresh_token IS NULL AND s.expiry_time > NOW()',
-    { token, groupId }
+    tokenSelect + 'WHERE s.token=$/token/ AND s.refresh_token IS NULL AND s.expiry_time > NOW()',
+    { token, groupId },
   );
   if (!userData) {
-    throw new AuthenticationError(
-      'INVALID_TOKEN',
-      'Refresh token is invalid',
-      token
-    );
+    throw new AuthenticationError('INVALID_TOKEN', 'Refresh token is invalid', token);
   }
-  await tx.none(
-    `DELETE FROM sessions WHERE refresh_token=$/token/ OR token=$/token/`,
-    { token }
-  );
+  await tx.none(`DELETE FROM sessions WHERE refresh_token=$/token/ OR token=$/token/`, { token });
   return userData;
 }
 
 export async function refreshSessionWithRefreshToken(
   tx: ITask<any>,
   refreshToken: string,
-  groupId?: number
+  groupId?: number,
 ): Promise<Session> {
   log('Refreshing session with', refreshToken);
   const user = await getUserInfoByRefreshToken(tx, refreshToken, groupId);
@@ -158,10 +125,7 @@ export async function refreshSessionWithRefreshToken(
   return appendInfoToSession(tx, sessionInfo);
 }
 
-export async function logoutSession(
-  tx: ITask<any>,
-  session: SessionBasicInfo
-): Promise<ApiMessage> {
+export async function logoutSession(tx: ITask<any>, session: SessionBasicInfo): Promise<ApiMessage> {
   log('Logout for', session.token);
   if (!session.token) {
     throw new AuthenticationError('INVALID_TOKEN', 'Session token is missing');
@@ -170,7 +134,7 @@ export async function logoutSession(
     `DELETE FROM sessions
       WHERE (token=$/token/ AND refresh_token IS NOT NULL)
         OR (token=$/refreshToken/ AND refresh_token IS NULL)`,
-    { token: session.token, refreshToken: session.refreshToken }
+    { token: session.token, refreshToken: session.refreshToken },
   );
   return {
     status: 'OK',
@@ -179,33 +143,20 @@ export async function logoutSession(
   };
 }
 
-export async function getSessionByToken(
-  tx: ITask<any>,
-  token: string,
-  groupId?: number
-): Promise<SessionBasicInfo> {
+export async function getSessionByToken(tx: ITask<any>, token: string, groupId?: number): Promise<SessionBasicInfo> {
   await purgeExpiredSessions(tx);
   const userData = await tx.oneOrNone<RawUserData>(
-    tokenSelect +
-      'WHERE s.token=$/token/ AND s.refresh_token IS NOT NULL AND s.expiry_time > NOW()',
-    { token, groupId }
+    tokenSelect + 'WHERE s.token=$/token/ AND s.refresh_token IS NOT NULL AND s.expiry_time > NOW()',
+    { token, groupId },
   );
   if (!userData) {
-    throw new AuthenticationError(
-      'INVALID_TOKEN',
-      'Access token is invalid',
-      token
-    );
+    throw new AuthenticationError('INVALID_TOKEN', 'Access token is invalid', token);
   }
   await tx.none(
     `UPDATE sessions
         SET expiry_time=NOW() + $/sessionTimeout/::INTERVAL
         WHERE token=$/token/`,
-    { token, sessionTimeout: config.sessionTimeout }
+    { token, sessionTimeout: config.sessionTimeout },
   );
-  return createSessionInfo(
-    [userData.token, userData.refreshToken],
-    userData,
-    userData.loginTime
-  );
+  return createSessionInfo([userData.token, userData.refreshToken], userData, userData.loginTime);
 }

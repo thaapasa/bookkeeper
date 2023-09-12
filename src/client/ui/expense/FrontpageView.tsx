@@ -11,6 +11,4 @@ import { RoutedMonthView } from './RoutedMonthView';
 const FrontpageViewImpl: React.FC<{ size: Size }> = props =>
   isMobileSize(props.size) ? <ShortcutsView /> : <RoutedMonthView />;
 
-export const FrontpageView = connect(windowSizeP.map(size => ({ size })))(
-  FrontpageViewImpl
-);
+export const FrontpageView = connect(windowSizeP.map(size => ({ size })))(FrontpageViewImpl);

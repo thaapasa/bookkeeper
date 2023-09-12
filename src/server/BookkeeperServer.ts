@@ -17,15 +17,13 @@ app.use(bodyParser.json());
 
 app.use('/api', createApi());
 
-app.get(/\/p\/.*/, (_, res) =>
-  res.sendFile(path.join(curDir + '/public/index.html'))
-);
+app.get(/\/p\/.*/, (_, res) => res.sendFile(path.join(curDir + '/public/index.html')));
 
 try {
   app.listen(config.port, () => {
     log(
       `Kukkaro server ${config.version} (revision ${config.revision}) started in port ${config.port} with configuration`,
-      config
+      config,
     );
   });
 } catch (er) {

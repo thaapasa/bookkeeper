@@ -49,9 +49,7 @@ export class Money {
     if (typeof m === 'number') {
       return m;
     }
-    return (
-      parseInt(Money.from(m).value.times(100).round().toString(), 10) / 100
-    );
+    return parseInt(Money.from(m).value.times(100).round().toString(), 10) / 100;
   }
 
   public constructor(value: MoneyLike) {
@@ -76,9 +74,7 @@ export class Money {
     if (Money.isMoney(value)) {
       return value;
     }
-    return new Money(
-      typeof value === 'string' ? sanitizeMoneyInput(value) : value
-    );
+    return new Money(typeof value === 'string' ? sanitizeMoneyInput(value) : value);
   }
 
   public static parse(value: MoneyLike | null): Money | undefined {
@@ -134,10 +130,7 @@ export class Money {
   }
 
   public toString(scale?: number): string {
-    if (scale === undefined) {
-      scale = 2;
-    }
-    return this.value.toFixed(scale);
+    return this.value.toFixed(scale ?? 2);
   }
 
   public format(scale?: number, options?: Intl.NumberFormatOptions): string {

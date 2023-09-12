@@ -16,17 +16,13 @@ export const DbStatusView: React.FC = () => {
   const { data, loadData } = useDeferredData(loadDbStatus, true);
   return (
     <>
-      <ToolButton
-        title="Tarkista tietokannan tila"
-        buttonText="Tarkista"
-        action={loadData}
-      />
-      <AsyncDataView hideUninitialized data={data} renderer={DataView} />
+      <ToolButton title="Tarkista tietokannan tila" buttonText="Tarkista" action={loadData} />
+      <AsyncDataView hideUninitialized data={data} renderer={RawDataView} />
     </>
   );
 };
 
-const DataView: React.FC<{ data: DbStatus }> = ({ data }) => (
+const RawDataView: React.FC<{ data: DbStatus }> = ({ data }) => (
   <NoteView title="Tietokannan tila">
     <Pre>{JSON.stringify(data, null, 2)}</Pre>
   </NoteView>

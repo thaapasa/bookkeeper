@@ -8,10 +8,7 @@ import { usePersistentMemo } from './usePersistentMemo';
  * (during the render operation), and runs the unsubscriber function returned
  * from the setup function when the parent unmounts.
  */
-export function useWhenMounted<F extends () => Unsubscriber | undefined>(
-  f: F,
-  deps: any[]
-): void {
+export function useWhenMounted<F extends () => Unsubscriber | undefined>(f: F, deps: any[]): void {
   const unsub = usePersistentMemo(f, deps);
   useOnUnmount(() => {
     if (typeof unsub === 'function') unsub();

@@ -8,9 +8,7 @@ import { ModalDialog } from './ModalDialog';
 const log = debug('bookkeeper:modal-dialog');
 
 export const ModalDialogConnector: React.FC = () => {
-  const [dialog, setDialog] = React.useState<
-    DialogConfig<any, any> | undefined
-  >(undefined);
+  const [dialog, setDialog] = React.useState<DialogConfig<any, any> | undefined>(undefined);
 
   React.useEffect(() => dialogActionE.onValue(setDialog), [setDialog]);
 
@@ -20,7 +18,7 @@ export const ModalDialogConnector: React.FC = () => {
       dialog?.resolve(value);
       setDialog(undefined);
     },
-    [dialog, setDialog]
+    [dialog, setDialog],
   );
 
   if (!dialog) return null;

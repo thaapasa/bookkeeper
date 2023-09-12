@@ -1,6 +1,0 @@
-{
-    "watch": ["src/server", "src/shared"],
-    "ext": "ts",
-    "ignore": ["src/**/*.test.ts"],
-    "exec": "SWC_NODE_PROJECT=tsconfig.server.json node -r dotenv/config -r tsconfig-paths/register -r @swc-node/register ./src/server/BookkeeperServer.ts"
-}

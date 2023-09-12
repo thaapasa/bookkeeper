@@ -16,9 +16,7 @@ function createGroupObject(rows: SourceData[]): Source[] {
     return [];
   }
   return rows.reduce((list, v) => {
-    if (
-      (list[list.length - 1] ? list[list.length - 1].id : undefined) !== v.id
-    ) {
+    if ((list[list.length - 1] ? list[list.length - 1].id : undefined) !== v.id) {
       list.push({
         id: v.id,
         name: v.name,
@@ -41,26 +39,16 @@ SELECT
 FROM sources s
 LEFT JOIN source_users so ON (so.source_id = s.id)`;
 
-export async function getAllSources(
-  tx: ITask<any>,
-  groupId: number
-): Promise<Source[]> {
-  const s = await tx.manyOrNone<SourceData>(
-    `${select} WHERE group_id = $/groupId/::INTEGER`,
-    { groupId }
-  );
+export async function getAllSources(tx: ITask<any>, groupId: number): Promise<Source[]> {
+  const s = await tx.manyOrNone<SourceData>(`${select} WHERE group_id = $/groupId/::INTEGER`, { groupId });
   return createGroupObject(s);
 }
 
-export async function getSourceById(
-  tx: ITask<any>,
-  groupId: ObjectId,
-  id: ObjectId
-): Promise<Source> {
-  const s = await tx.manyOrNone<SourceData>(
-    `${select} WHERE id=$/id/::INTEGER AND group_id=$/groupId/::INTEGER`,
-    { id, groupId }
-  );
+export async function getSourceById(tx: ITask<any>, groupId: ObjectId, id: ObjectId): Promise<Source> {
+  const s = await tx.manyOrNone<SourceData>(`${select} WHERE id=$/id/::INTEGER AND group_id=$/groupId/::INTEGER`, {
+    id,
+    groupId,
+  });
   if (!s || s.length < 1) {
     throw new NotFoundError('SOURCE_NOT_FOUND', 'source', id);
   }
@@ -71,7 +59,7 @@ export async function updateSource(
   tx: ITask<any>,
   groupId: ObjectId,
   id: ObjectId,
-  data: SourcePatch
+  data: SourcePatch,
 ): Promise<Source> {
   // Check that source id is correct
   const source = await getSourceById(tx, groupId, id);
@@ -79,7 +67,7 @@ export async function updateSource(
     `UPDATE sources
       SET name=$/name/
       WHERE id=$/id/ AND group_id=$/groupId/`,
-    { id, groupId, name: data.name }
+    { id, groupId, name: data.name },
   );
   return { ...source, name: data.name };
 }

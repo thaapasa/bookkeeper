@@ -1,11 +1,4 @@
-import {
-  FormControl,
-  FormHelperText,
-  InputLabel,
-  MenuItem,
-  Select,
-  styled,
-} from '@mui/material';
+import { FormControl, FormHelperText, InputLabel, MenuItem, Select, styled } from '@mui/material';
 import * as React from 'react';
 
 import { ObjectId } from 'shared/types';
@@ -23,10 +16,7 @@ export const CategorySelector: React.FC<{
   className?: string;
 }> = props => (
   <Row onKeyUp={stopEventPropagation} className={props.className}>
-    <StyledControl
-      className="category-control main-category"
-      variant="standard"
-    >
+    <StyledControl className="category-control main-category" variant="standard">
       <InputLabel htmlFor={`${id}-cat`} shrink={true}>
         Kategoria
       </InputLabel>
@@ -43,9 +33,7 @@ export const CategorySelector: React.FC<{
           </MenuItem>
         ))}
       </Select>
-      <FormHelperText error={!!props.errorText}>
-        {props.errorText}
-      </FormHelperText>
+      <FormHelperText error={!!props.errorText}>{props.errorText}</FormHelperText>
     </StyledControl>
     <StyledControl className="category-control sub-category" variant="standard">
       <InputLabel htmlFor={`${id}-subcat`} shrink={true}>

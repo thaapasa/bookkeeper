@@ -13,12 +13,7 @@ export const SplitButtons: React.FC<{
 }> = ({ addRow, onClose, splitExpense }) => (
   <>
     <Grid item xs={4} container justifyContent="flex-start">
-      <Button
-        startIcon={<Icons.Add />}
-        variant="contained"
-        color="secondary"
-        onClick={addRow}
-      >
+      <Button startIcon={<Icons.Add />} variant="contained" color="secondary" onClick={addRow}>
         Lisää rivi
       </Button>
     </Grid>

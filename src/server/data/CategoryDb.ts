@@ -1,14 +1,7 @@
 import debug from 'debug';
 import { ITask } from 'pg-promise';
 
-import {
-  ApiMessage,
-  Category,
-  CategoryAndTotals,
-  CategoryInput,
-  InvalidInputError,
-  NotFoundError,
-} from 'shared/types';
+import { ApiMessage, Category, CategoryAndTotals, CategoryInput, InvalidInputError, NotFoundError } from 'shared/types';
 import { Money, partition, toMap } from 'shared/util';
 
 const log = debug('bookkeeper:categories');
@@ -21,9 +14,7 @@ function createCategoryObject<T extends Category>(categories: T[]): T[] {
   return parents;
 }
 
-function sumChildTotalsToParent(
-  categoryTable: CategoryAndTotals[]
-): CategoryAndTotals[] {
+function sumChildTotalsToParent(categoryTable: CategoryAndTotals[]): CategoryAndTotals[] {
   categoryTable.forEach(c => {
     log('Summing childs of', c.id);
     if (c.parentId === null) {
@@ -40,16 +31,13 @@ function sumChildTotalsToParent(
   return categoryTable;
 }
 
-export async function getAllCategories(
-  tx: ITask<any>,
-  groupId: number
-): Promise<Category[]> {
+export async function getAllCategories(tx: ITask<any>, groupId: number): Promise<Category[]> {
   const cats = await tx.manyOrNone<Category>(
     `SELECT id, parent_id AS "parentId", name FROM categories
       WHERE group_id=$/groupId/::INTEGER
       ORDER BY (CASE WHEN parent_id IS NULL THEN 1 ELSE 0 END) DESC, parent_id ASC, name
       `,
-    { groupId }
+    { groupId },
   );
   return createCategoryObject(cats);
 }
@@ -62,7 +50,7 @@ export interface CategoryQueryInput {
 export async function getCategoryTotals(
   tx: ITask<any>,
   groupId: number,
-  params: CategoryQueryInput
+  params: CategoryQueryInput,
 ): Promise<CategoryAndTotals[]> {
   const cats = await tx.manyOrNone<CategoryAndTotals>(
     `SELECT categories.id, categories.parent_id as "parentId",
@@ -74,37 +62,29 @@ export async function getCategoryTotals(
         AND (expenses.id IS NULL OR expenses.group_id = $/groupId/::INTEGER)
       GROUP BY categories.id, categories.parent_id
       ORDER BY (CASE WHEN parent_id IS NULL THEN 1 ELSE 0 END) DESC, parent_id ASC, name`,
-    { groupId, startDate: params.startDate, endDate: params.endDate }
+    { groupId, startDate: params.startDate, endDate: params.endDate },
   );
   const categories = createCategoryObject(cats as CategoryAndTotals[]);
   return sumChildTotalsToParent(categories);
 }
-async function insert(
-  tx: ITask<any>,
-  groupId: number,
-  data: CategoryInput
-): Promise<number> {
+async function insert(tx: ITask<any>, groupId: number, data: CategoryInput): Promise<number> {
   log('Creating new category', data);
   return (
     await tx.one<{ id: number }>(
       `INSERT INTO categories (group_id, parent_id, name)
         VALUES ($/groupId/::INTEGER, $/parentId/::INTEGER, $/name/)
         RETURNING id`,
-      { groupId, parentId: data.parentId || null, name: data.name }
+      { groupId, parentId: data.parentId || null, name: data.name },
     )
   ).id;
 }
 
-export async function getCategoryById(
-  tx: ITask<any>,
-  groupId: number,
-  id: number
-): Promise<Category> {
+export async function getCategoryById(tx: ITask<any>, groupId: number, id: number): Promise<Category> {
   const cat = await tx.oneOrNone<Category>(
     `SELECT id, parent_id as "parentId", name
       FROM categories
       WHERE id=$/id/::INTEGER AND group_id=$/groupId/::INTEGER`,
-    { id, groupId }
+    { id, groupId },
   );
   if (!cat) {
     throw new NotFoundError('CATEGORY_NOT_FOUND', 'category');
@@ -112,11 +92,7 @@ export async function getCategoryById(
   return cat as Category;
 }
 
-export async function createCategory(
-  tx: ITask<any>,
-  groupId: number,
-  data: CategoryInput
-): Promise<number> {
+export async function createCategory(tx: ITask<any>, groupId: number, data: CategoryInput): Promise<number> {
   if (!data.parentId) {
     return insert(tx, groupId, data);
   }
@@ -126,33 +102,21 @@ export async function createCategory(
     throw new NotFoundError('CATEGORY_NOT_FOUND', 'category');
   }
   if (parent.parentId !== null && parent.parentId > 0) {
-    throw new InvalidInputError(
-      'INVALID_PARENT',
-      'Sub-category cannot be parent'
-    );
+    throw new InvalidInputError('INVALID_PARENT', 'Sub-category cannot be parent');
   }
   return insert(tx, groupId, data);
 }
 
-export async function deleteCategory(
-  tx: ITask<any>,
-  groupId: number,
-  id: number
-): Promise<ApiMessage> {
+export async function deleteCategory(tx: ITask<any>, groupId: number, id: number): Promise<ApiMessage> {
   await tx.none(
     `DELETE FROM categories
       WHERE id=$/id/::INTEGER AND group_id=$/groupId/::INTEGER`,
-    { id, groupId }
+    { id, groupId },
   );
   return { status: 'OK', message: 'Category deleted', categoryId: id };
 }
 
-export async function updateCategory(
-  tx: ITask<any>,
-  groupId: number,
-  categoryId: number,
-  data: CategoryInput
-) {
+export async function updateCategory(tx: ITask<any>, groupId: number, categoryId: number, data: CategoryInput) {
   const original = await getCategoryById(tx, groupId, categoryId);
   if (!original) {
     throw new NotFoundError('CATEGORY_NOT_FOUND', 'category');
@@ -166,7 +130,7 @@ export async function updateCategory(
       name: data.name,
       categoryId,
       groupId,
-    }
+    },
   );
   return {
     id: categoryId,
@@ -176,11 +140,7 @@ export async function updateCategory(
   };
 }
 
-export async function expandSubCategories(
-  tx: ITask<any>,
-  groupId: number,
-  inputCategoryIds: number[]
-) {
+export async function expandSubCategories(tx: ITask<any>, groupId: number, inputCategoryIds: number[]) {
   if (inputCategoryIds.length < 1) {
     return [];
   }
@@ -188,7 +148,7 @@ export async function expandSubCategories(
     `SELECT id FROM categories
         WHERE group_id = $/groupId/
         AND id IN ($/ids:csv/) OR parent_id IN ($/ids:csv/)`,
-    { ids: inputCategoryIds, groupId }
+    { ids: inputCategoryIds, groupId },
   );
   return cats.map(c => c.id);
 }

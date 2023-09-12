@@ -19,11 +19,7 @@ interface CategoryTableProps {
   userData: UserDataProps;
 }
 
-export const CategoryTable: React.FC<CategoryTableProps> = ({
-  onCategoriesChanged,
-  categories,
-  ...props
-}) => {
+export const CategoryTable: React.FC<CategoryTableProps> = ({ onCategoriesChanged, categories, ...props }) => {
   const categoryDialogRef = React.useRef<CategoryDialog>(null);
 
   const createCategory = async (parent?: Category) => {
@@ -48,13 +44,7 @@ export const CategoryTable: React.FC<CategoryTableProps> = ({
     <>
       <CategoryHeader onAdd={createCategory} />
       {categories.map(c => (
-        <CategoryView
-          {...props}
-          category={c}
-          key={c.id}
-          editCategory={editCategory}
-          createCategory={createCategory}
-        />
+        <CategoryView {...props} category={c} key={c.id} editCategory={editCategory} createCategory={createCategory} />
       ))}
       <CategoryDialog ref={categoryDialogRef} categories={categories} />
     </>
@@ -67,12 +57,7 @@ type CategoryViewProps = {
   editCategory: (p: Category) => void;
 } & Pick<CategoryTableProps, 'range' | 'categoryTotals' | 'userData'>;
 
-const CategoryView: React.FC<CategoryViewProps> = ({
-  category,
-  createCategory,
-  editCategory,
-  ...props
-}) => (
+const CategoryView: React.FC<CategoryViewProps> = ({ category, createCategory, editCategory, ...props }) => (
   <>
     <CategoryRow
       {...props}

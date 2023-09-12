@@ -8,11 +8,7 @@ export function getRangeForQueries(range: DateRange | undefined): DateRange {
     };
   const now = toMoment();
   return {
-    startDate: now.isBefore(range.startDate, 'day')
-      ? toISODate(now)
-      : range.startDate,
-    endDate: now.isBefore(range.endDate, 'day')
-      ? toISODate(now)
-      : range.endDate,
+    startDate: now.isBefore(range.startDate, 'day') ? toISODate(now) : range.startDate,
+    endDate: now.isBefore(range.endDate, 'day') ? toISODate(now) : range.endDate,
   };
 }

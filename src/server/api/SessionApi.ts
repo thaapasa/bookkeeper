@@ -27,13 +27,8 @@ export function createSessionApi() {
     '/',
     Requests.unauthorizedTxRequest(
       (tx, req): Promise<Session> =>
-        loginUserWithCredentials(
-          tx,
-          req.body.username,
-          req.body.password,
-          optNumber(req.query.groupId)
-        )
-    )
+        loginUserWithCredentials(tx, req.body.username, req.body.password, optNumber(req.query.groupId)),
+    ),
   );
 
   // PUT /api/session/refresh
@@ -41,37 +36,21 @@ export function createSessionApi() {
     '/refresh',
     Requests.unauthorizedTxRequest(
       (tx, req): Promise<Session> =>
-        refreshSessionWithRefreshToken(
-          tx,
-          server.getToken(req),
-          optNumber(req.query.groupId)
-        )
-    )
+        refreshSessionWithRefreshToken(tx, server.getToken(req), optNumber(req.query.groupId)),
+    ),
   );
 
   // GET /api/session
-  api.getTx(
-    '/',
-    {},
-    (tx, session): Promise<Session> => appendInfoToSession(tx, session)
-  );
+  api.getTx('/', {}, (tx, session): Promise<Session> => appendInfoToSession(tx, session));
 
   // GET /api/session/bare
   api.get('/bare', {}, session => session);
 
   // DELETE /api/session
-  api.deleteTx(
-    '/',
-    {},
-    (tx, session): Promise<ApiMessage> => logoutSession(tx, session)
-  );
+  api.deleteTx('/', {}, (tx, session): Promise<ApiMessage> => logoutSession(tx, session));
 
   // GET /api/session/groups
-  api.getTx(
-    '/groups',
-    {},
-    (tx, session): Promise<Group[]> => getGroupsForUser(tx, session.user.id)
-  );
+  api.getTx('/groups', {}, (tx, session): Promise<Group[]> => getGroupsForUser(tx, session.user.id));
 
   return api.router;
 }

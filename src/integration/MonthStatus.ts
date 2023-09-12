@@ -1,16 +1,13 @@
-import { ExpenseStatus, UserExpense } from 'shared/expense';
-import { fetchMonthStatus } from 'shared/expense/test';
-import { SessionWithControl } from 'shared/net/test';
-import { YearMonth } from 'shared/time';
+import { expect } from 'bun:test';
+
+import { ExpenseCollection, ExpenseStatus, UserExpense } from 'shared/expense';
 import { MoneyLike } from 'shared/util';
 
-export async function checkMonthStatus(
-  session: SessionWithControl,
-  month: YearMonth,
+export function checkMonthStatus(
+  m: ExpenseCollection,
   expectedBenefit?: MoneyLike,
-  expectItems?: (items: UserExpense[]) => any
-): Promise<ExpenseStatus> {
-  const m = await fetchMonthStatus(session, month);
+  expectItems?: (items: UserExpense[]) => any,
+): ExpenseStatus {
   expect(m).toHaveProperty('monthStatus');
   expect(m.monthStatus).toHaveProperty('benefit');
   if (expectedBenefit) {

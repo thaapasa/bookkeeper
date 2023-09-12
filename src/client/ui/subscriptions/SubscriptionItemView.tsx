@@ -1,10 +1,6 @@
 import * as React from 'react';
 
-import {
-  ExpenseReport,
-  RecurrencePeriod,
-  RecurringExpense,
-} from 'shared/expense';
+import { ExpenseReport, RecurrencePeriod, RecurringExpense } from 'shared/expense';
 import { readableDateWithYear, toDate, toMoment } from 'shared/time';
 import { Money } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
@@ -22,11 +18,7 @@ export const SubscriptionItemView: React.FC<{
   item: SubscriptionItem;
   className?: string;
 }> = ({ item, ...props }) =>
-  item.type === 'recurring' ? (
-    <RecurringExpenseItem item={item} {...props} />
-  ) : (
-    <ReportItem item={item} {...props} />
-  );
+  item.type === 'recurring' ? <RecurringExpenseItem item={item} {...props} /> : <ReportItem item={item} {...props} />;
 
 const RecurringExpenseItem: React.FC<{
   item: RecurringExpense;
@@ -35,22 +27,16 @@ const RecurringExpenseItem: React.FC<{
   const [open, toggle] = useToggle(false);
   return (
     <>
-      <RowElement
-        className={`${className} ${item.occursUntil ? 'inactive' : undefined}`}
-      >
+      <RowElement className={`${className} ${item.occursUntil ? 'inactive' : undefined}`}>
         <Label>{item.title}</Label>
         <Label>{item.receiver}</Label>
         <Dates className="optional">
           {readableDateWithYear(item.firstOccurence)}
-          {item.occursUntil
-            ? ` - ${readableDateWithYear(item.occursUntil)}`
-            : ''}
+          {item.occursUntil ? ` - ${readableDateWithYear(item.occursUntil)}` : ''}
         </Dates>
         <Sum className="wide">{Money.from(item.sum).format()}</Sum>
         <Period>/ {getPeriodText(item.period)}</Period>
-        <Sum className="optional">
-          {Money.from(item.recurrencePerMonth).format()} / kk
-        </Sum>
+        <Sum className="optional">{Money.from(item.recurrencePerMonth).format()} / kk</Sum>
         <Sum>{Money.from(item.recurrencePerYear).format()} / v</Sum>
         <Tools>
           <ExpanderIcon title="Lisätiedot" open={open} onToggle={toggle} />
@@ -71,23 +57,16 @@ const ReportItem: React.FC<{
         <Label>Toteutuma: {item.title}</Label>
         <Label>
           {item.count} tapahtuma
-          {item.count !== 1 ? 'a' : ''} välillä{' '}
-          {readableDateWithYear(item.firstDate)} -{' '}
+          {item.count !== 1 ? 'a' : ''} välillä {readableDateWithYear(item.firstDate)} -{' '}
           {readableDateWithYear(item.lastDate)}
         </Label>
         <Sum className="wide">{Money.from(item.sum).format()}</Sum>
         <Sum className="wide">{Money.from(item.avgSum).format()}</Sum>
         <Period>/ kpl</Period>
-        <Sum className="optional">
-          {Money.from(item.recurrencePerMonth).format()} / kk
-        </Sum>
+        <Sum className="optional">{Money.from(item.recurrencePerMonth).format()} / kk</Sum>
         <Sum>{Money.from(item.recurrencePerYear).format()} / v</Sum>
         <Tools>
-          <ToolIcon
-            title="Poista"
-            onClick={() => deleteReport(item)}
-            icon="Delete"
-          />
+          <ToolIcon title="Poista" onClick={() => deleteReport(item)} icon="Delete" />
         </Tools>
       </RowElement>
     </>

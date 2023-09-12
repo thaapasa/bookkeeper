@@ -7,9 +7,7 @@ import { Size } from '../Types';
  * size is changed.
  */
 export function useElementSize(ref: React.RefObject<HTMLElement>): Size | null {
-  const [size, setSize] = React.useState<Size | null>(
-    ref.current?.getBoundingClientRect() ?? null
-  );
+  const [size, setSize] = React.useState<Size | null>(ref.current?.getBoundingClientRect() ?? null);
 
   // TODO: See if this pattern could be used instead of the effect below
   // Updating size during rendering is a valid pattern:
@@ -20,11 +18,7 @@ export function useElementSize(ref: React.RefObject<HTMLElement>): Size | null {
   React.useEffect(() => {
     if (ref.current) {
       const realSize = ref.current.getBoundingClientRect();
-      if (
-        !size ||
-        realSize.width !== size.width ||
-        realSize.height !== size.height
-      ) {
+      if (!size || realSize.width !== size.width || realSize.height !== size.height) {
         setSize(realSize);
       }
     }

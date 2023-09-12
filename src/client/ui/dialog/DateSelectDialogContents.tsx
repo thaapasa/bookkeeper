@@ -6,8 +6,7 @@ import * as React from 'react';
 import { datePickerFormat } from '../expense/dialog/DateField';
 import { DateSelectDialogData, DialogContentRendererProps } from './Dialog';
 
-type TextPromptDialogProps = DialogContentRendererProps<Moment> &
-  DateSelectDialogData;
+type TextPromptDialogProps = DialogContentRendererProps<Moment> & DateSelectDialogData;
 
 export const DateSelectDialogComponent: React.FC<TextPromptDialogProps> = ({
   onSelect,
@@ -18,7 +17,7 @@ export const DateSelectDialogComponent: React.FC<TextPromptDialogProps> = ({
   const [date, setDate] = React.useState<Moment | undefined>(initialDate);
 
   const changeHandler = (edited: Moment | null) => {
-    const date = edited && edited.isValid() ? edited : undefined;
+    const date = edited?.isValid() ? edited : undefined;
     if (date) {
       setDate(date);
     }
@@ -26,19 +25,10 @@ export const DateSelectDialogComponent: React.FC<TextPromptDialogProps> = ({
   return (
     <>
       <DialogContent>
-        <DatePicker
-          format={datePickerFormat}
-          value={date}
-          onChange={changeHandler}
-        />
+        <DatePicker format={datePickerFormat} value={date} onChange={changeHandler} />
       </DialogContent>
       <DialogActions>
-        <Button
-          color="primary"
-          variant="text"
-          onKeyUp={handleKeyPress}
-          onClick={onCancel}
-        >
+        <Button color="primary" variant="text" onKeyUp={handleKeyPress} onClick={onCancel}>
           Peruuta
         </Button>
         <Button

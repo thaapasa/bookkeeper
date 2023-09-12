@@ -3,13 +3,7 @@ import { z } from 'zod';
 
 import { Money, MoneyLike } from '../util/Money';
 
-export const RecurrenceUnit = z.enum([
-  'days',
-  'weeks',
-  'months',
-  'years',
-  'quarters',
-]);
+export const RecurrenceUnit = z.enum(['days', 'weeks', 'months', 'years', 'quarters']);
 export type RecurrenceUnit = z.infer<typeof RecurrenceUnit>;
 
 export const RecurrencePeriod = z.object({
@@ -39,10 +33,7 @@ const monthlyMultipliers: Record<RecurrenceUnit, number> = {
   quarters: 1.0 / 2.9999999,
 };
 
-export function recurrencePerMonth(
-  sum: MoneyLike,
-  period: RecurrencePeriod
-): Money {
+export function recurrencePerMonth(sum: MoneyLike, period: RecurrencePeriod): Money {
   const money = Money.from(sum);
   return money
     .multiply(monthlyMultipliers[period.unit])
@@ -50,10 +41,7 @@ export function recurrencePerMonth(
     .round(2, Big.roundHalfUp);
 }
 
-export function recurrencePerYear(
-  sum: MoneyLike,
-  period: RecurrencePeriod
-): Money {
+export function recurrencePerYear(sum: MoneyLike, period: RecurrencePeriod): Money {
   const money = Money.from(sum);
   return money.multiply(yearlyMultipliers[period.unit]).divide(period.amount);
 }

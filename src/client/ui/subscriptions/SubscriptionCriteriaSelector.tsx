@@ -1,10 +1,4 @@
-import {
-  Checkbox,
-  FormControlLabel,
-  FormGroup,
-  Grid,
-  Radio,
-} from '@mui/material';
+import { Checkbox, FormControlLabel, FormGroup, Grid, Radio } from '@mui/material';
 import * as React from 'react';
 import { z } from 'zod';
 
@@ -28,35 +22,15 @@ const rangeOptions = [
 export const SubscriptionCriteriaSelector: React.FC<{
   onChange: (criteria: SubscriptionSearchCriteria) => void;
 }> = ({ onChange }) => {
-  const [includeEnded, setIncludeEnded] = useLocalStorage(
-    'subscriptions.includeEnded',
-    false,
-    z.boolean()
-  );
-  const [onlyOwn, setOnlyOwn] = useLocalStorage(
-    'subscriptions.onlyOwn',
-    false,
-    z.boolean()
-  );
-  const [expenses, setExpenses] = useLocalStorage(
-    'subscriptions.type.expense',
-    true,
-    z.boolean()
-  );
-  const [incomes, setIncomes] = useLocalStorage(
-    'subscriptions.type.income',
-    false,
-    z.boolean()
-  );
-  const [transfers, setTranfers] = useLocalStorage(
-    'subscriptions.type.transfer',
-    false,
-    z.boolean()
-  );
+  const [includeEnded, setIncludeEnded] = useLocalStorage('subscriptions.includeEnded', false, z.boolean());
+  const [onlyOwn, setOnlyOwn] = useLocalStorage('subscriptions.onlyOwn', false, z.boolean());
+  const [expenses, setExpenses] = useLocalStorage('subscriptions.type.expense', true, z.boolean());
+  const [incomes, setIncomes] = useLocalStorage('subscriptions.type.income', false, z.boolean());
+  const [transfers, setTranfers] = useLocalStorage('subscriptions.type.transfer', false, z.boolean());
   const [range, setRange] = useLocalStorage<MomentInterval>(
     'subscriptions.range',
     { amount: 5, unit: 'years' },
-    MomentInterval
+    MomentInterval,
   );
   React.useEffect(
     () =>
@@ -70,7 +44,7 @@ export const SubscriptionCriteriaSelector: React.FC<{
         ].filter(isDefined),
         range,
       }),
-    [onChange, includeEnded, onlyOwn, expenses, incomes, transfers, range]
+    [onChange, includeEnded, onlyOwn, expenses, incomes, transfers, range],
   );
 
   return (
@@ -78,21 +52,11 @@ export const SubscriptionCriteriaSelector: React.FC<{
       <Grid item xs={12} md={4}>
         <FormGroup row>
           <FormControlLabel
-            control={
-              <Checkbox
-                checked={includeEnded}
-                onChange={() => setIncludeEnded(!includeEnded)}
-              />
-            }
+            control={<Checkbox checked={includeEnded} onChange={() => setIncludeEnded(!includeEnded)} />}
             label="Myös loppuneet"
           />
           <FormControlLabel
-            control={
-              <Checkbox
-                checked={onlyOwn}
-                onChange={() => setOnlyOwn(!onlyOwn)}
-              />
-            }
+            control={<Checkbox checked={onlyOwn} onChange={() => setOnlyOwn(!onlyOwn)} />}
             label="Vain omat"
           />
         </FormGroup>
@@ -102,12 +66,7 @@ export const SubscriptionCriteriaSelector: React.FC<{
           {rangeOptions.map(r => (
             <FormControlLabel
               key={r.label}
-              control={
-                <Radio
-                  checked={isSameInterval(r.range, range)}
-                  onChange={() => setRange(r.range)}
-                />
-              }
+              control={<Radio checked={isSameInterval(r.range, range)} onChange={() => setRange(r.range)} />}
               label={r.label}
             />
           ))}
@@ -116,30 +75,15 @@ export const SubscriptionCriteriaSelector: React.FC<{
       <Grid item xs={12} md={4}>
         <FormGroup row sx={{ justifyContent: 'right' }}>
           <FormControlLabel
-            control={
-              <Checkbox
-                checked={expenses}
-                onChange={() => setExpenses(!expenses)}
-              />
-            }
+            control={<Checkbox checked={expenses} onChange={() => setExpenses(!expenses)} />}
             label="Menot"
           />
           <FormControlLabel
-            control={
-              <Checkbox
-                checked={incomes}
-                onChange={() => setIncomes(!incomes)}
-              />
-            }
+            control={<Checkbox checked={incomes} onChange={() => setIncomes(!incomes)} />}
             label="Tulot"
           />
           <FormControlLabel
-            control={
-              <Checkbox
-                checked={transfers}
-                onChange={() => setTranfers(!transfers)}
-              />
-            }
+            control={<Checkbox checked={transfers} onChange={() => setTranfers(!transfers)} />}
             label="Siirrot"
           />
         </FormGroup>

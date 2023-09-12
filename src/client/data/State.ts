@@ -7,11 +7,7 @@ import { noop } from 'shared/util';
 
 import { Size } from '../ui/Types';
 import { expensePagePath } from '../util/Links';
-import {
-  ExpenseDialogObject,
-  NavigationConfig,
-  Notification,
-} from './StateTypes';
+import { ExpenseDialogObject, NavigationConfig, Notification } from './StateTypes';
 
 const notificationBus = new B.Bus<Notification>();
 export const notificationE = notificationBus;
@@ -20,11 +16,7 @@ export function notify(message: string, params?: Partial<Notification>): void {
   notificationBus.push({ message, ...params });
 }
 
-export function notifyError(
-  message: string,
-  cause: any,
-  params?: Partial<Notification>
-) {
+export function notifyError(message: string, cause: any, params?: Partial<Notification>) {
   notificationBus.push({ message, cause, severity: 'warning', ...params });
 }
 
@@ -33,24 +25,20 @@ const expenseSplitBus = new B.Bus<ExpenseDialogObject<ExpenseSplit[]>>();
 
 export function editExpense(
   expenseId: number,
-  options?: Partial<ExpenseDialogObject<ExpenseInEditor>>
+  options?: Partial<ExpenseDialogObject<ExpenseInEditor>>,
 ): Promise<ExpenseInEditor | null> {
   return new Promise<ExpenseInEditor | null>(resolve => {
     expenseDialogBus.push({ ...options, expenseId, resolve });
   });
 }
 
-export function splitExpense(
-  expenseId: number
-): Promise<ExpenseSplit[] | null> {
+export function splitExpense(expenseId: number): Promise<ExpenseSplit[] | null> {
   return new Promise<ExpenseSplit[] | null>(resolve => {
     expenseSplitBus.push({ expenseId, resolve });
   });
 }
 
-export function createExpense(
-  event?: React.MouseEvent<any>
-): Promise<ExpenseInEditor | null> {
+export function createExpense(event?: React.MouseEvent<any>): Promise<ExpenseInEditor | null> {
   if (event) {
     event.stopPropagation();
   }

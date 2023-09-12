@@ -16,11 +16,7 @@ import { ExpenseFilter, ExpenseFilterFunction } from './row/ExpenseFilters';
 import { ExpenseHeader } from './row/ExpenseHeader';
 import { CommonExpenseRowProps, ExpenseRow } from './row/ExpenseRow';
 import { ExpenseRowSeparator } from './row/ExpenseRowSeparator';
-import {
-  ExpenseTableLayout,
-  LoadingIndicator,
-  RecurringExpenseSeparator,
-} from './row/ExpenseTableLayout';
+import { ExpenseTableLayout, LoadingIndicator, RecurringExpenseSeparator } from './row/ExpenseTableLayout';
 import { RecurringSummaryRow } from './row/RecurringSummaryRow';
 
 interface ExpenseTableProps {
@@ -41,20 +37,13 @@ interface ExpenseTableState {
 }
 
 // TODO: tänne myös expensejen ja incomen total laskettuna!
-class ExpenseTable extends React.Component<
-  ExpenseTableProps,
-  ExpenseTableState
-> {
+class ExpenseTable extends React.Component<ExpenseTableProps, ExpenseTableState> {
   public state: ExpenseTableState = {
     filters: [],
     recurringExpanded: false,
   };
 
-  private addFilter = (
-    filter: ExpenseFilterFunction,
-    name: string,
-    avatar?: string
-  ) => {
+  private addFilter = (filter: ExpenseFilterFunction, name: string, avatar?: string) => {
     this.setState(s => ({
       filters: s.filters.concat({ filter, name, avatar }),
     }));
@@ -68,12 +57,7 @@ class ExpenseTable extends React.Component<
   };
 
   private getFilteredExpenses = (): UserExpense[] => {
-    return this.props.expenses
-      ? this.state.filters.reduce(
-          (a, b) => a.filter(b.filter),
-          this.props.expenses
-        )
-      : [];
+    return this.props.expenses ? this.state.filters.reduce((a, b) => a.filter(b.filter), this.props.expenses) : [];
   };
 
   private onUpdateExpense = (e: UserExpense) => {
@@ -96,17 +80,12 @@ class ExpenseTable extends React.Component<
     if (expenses.length < 1) {
       return null;
     }
-    const income = expenses
-      .filter(e => e.type === 'income')
-      .reduce((s, c) => s.plus(c.sum), Money.zero);
-    const expense = expenses
-      .filter(e => e.type === 'expense')
-      .reduce((s, c) => s.plus(c.sum), Money.zero);
+    const income = expenses.filter(e => e.type === 'income').reduce((s, c) => s.plus(c.sum), Money.zero);
+    const expense = expenses.filter(e => e.type === 'expense').reduce((s, c) => s.plus(c.sum), Money.zero);
     return { totalIncome: income, totalExpense: expense };
   }
 
-  private toggleRecurring = () =>
-    this.setState(s => ({ recurringExpanded: !s.recurringExpanded }));
+  private toggleRecurring = () => this.setState(s => ({ recurringExpanded: !s.recurringExpanded }));
 
   private renderRecurringExpenses(recurring: UserExpense[]) {
     return (
@@ -117,9 +96,7 @@ class ExpenseTable extends React.Component<
           isExpanded={this.state.recurringExpanded}
           addFilter={this.addFilter}
         />
-        {this.state.recurringExpanded
-          ? recurring.map(this.renderExpense)
-          : null}
+        {this.state.recurringExpanded ? recurring.map(this.renderExpense) : null}
       </React.Fragment>
     );
   }
@@ -129,10 +106,7 @@ class ExpenseTable extends React.Component<
       return <LoadingIndicator />;
     }
     const filtered = this.getFilteredExpenses();
-    const [recurring, normal] = partition(
-      e => !!e.recurringExpenseId,
-      filtered
-    );
+    const [recurring, normal] = partition(e => !!e.recurringExpenseId, filtered);
     if (recurring.length < 1) {
       return normal.map(this.renderExpense);
     } else if (normal.length < 1) {
@@ -163,10 +137,7 @@ class ExpenseTable extends React.Component<
           <ExpenseTableLayout className={this.props.loading ? 'loading' : ''}>
             <thead>
               <ExpenseHeader />
-              <ExpenseFilterRow
-                filters={this.state.filters}
-                onRemoveFilter={this.removeFilter}
-              />
+              <ExpenseFilterRow filters={this.state.filters} onRemoveFilter={this.removeFilter} />
             </thead>
             <tbody>{this.renderExpenseRows()}</tbody>
           </ExpenseTableLayout>
@@ -174,9 +145,7 @@ class ExpenseTable extends React.Component<
         </ExpenseArea>
         <MonthlyStatus
           {...this.props}
-          unconfirmedDuring={
-            this.props.expenses.find(e => !e.confirmed) !== undefined
-          }
+          unconfirmedDuring={this.props.expenses.find(e => !e.confirmed) !== undefined}
           addFilter={this.addFilter}
           totals={this.calculateTotals(this.props.expenses)}
           showFiltered={this.state.filters.length > 0}

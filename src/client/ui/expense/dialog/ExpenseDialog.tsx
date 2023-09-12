@@ -1,12 +1,4 @@
-import {
-  Button,
-  Checkbox,
-  Dialog,
-  DialogActions,
-  DialogTitle,
-  FormControlLabel,
-  styled,
-} from '@mui/material';
+import { Button, Checkbox, Dialog, DialogActions, DialogTitle, FormControlLabel, styled } from '@mui/material';
 import * as B from 'baconjs';
 import debug from 'debug';
 import { Moment } from 'moment';
@@ -22,13 +14,7 @@ import {
 } from 'shared/expense';
 import { toISODate, toMoment } from 'shared/time';
 import { Category, CategoryMap, Group, Source, User } from 'shared/types';
-import {
-  identity,
-  Money,
-  omit,
-  sanitizeMoneyInput,
-  valuesToArray,
-} from 'shared/util';
+import { identity, Money, omit, sanitizeMoneyInput, valuesToArray } from 'shared/util';
 import { CategoryDataSource, isSubcategoryOf } from 'client/data/Categories';
 import { gray } from 'client/ui/Colors';
 import UserAvatar from 'client/ui/component/UserAvatar';
@@ -36,11 +22,7 @@ import UserSelector from 'client/ui/component/UserSelector';
 import { Icons } from 'client/ui/icons/Icons';
 import { isMobileSize } from 'client/ui/Styles';
 import { Size } from 'client/ui/Types';
-import {
-  eventValue,
-  stopEventPropagation,
-  unsubscribeAll,
-} from 'client/util/ClientUtil';
+import { eventValue, stopEventPropagation, unsubscribeAll } from 'client/util/ClientUtil';
 import { KeyCodes } from 'client/util/Io';
 
 import { DivisionInfo } from '../details/DivisionInfo';
@@ -54,10 +36,7 @@ import {
   TypeSelector,
 } from './ExpenseDialogComponents';
 import { calculateDivision } from './ExpenseDialogData';
-import {
-  defaultExpenseSaveAction,
-  ExpenseSaveAction,
-} from './ExpenseSaveAction';
+import { defaultExpenseSaveAction, ExpenseSaveAction } from './ExpenseSaveAction';
 import { ReceiverField } from './ReceiverField';
 import { TitleField } from './TitleField';
 
@@ -108,10 +87,7 @@ const validators: Record<string, (v: string) => any> = {
   receiver: v => errorIf(v.length < 1, 'Kohde puuttuu'),
   sum: v =>
     errorIf(v.length === 0, 'Summa puuttuu') ||
-    errorIf(
-      v.match(/^[0-9]+([.][0-9]{1,2})?$/) == null,
-      'Summa on virheellinen'
-    ),
+    errorIf(v.match(/^[0-9]+([.][0-9]{1,2})?$/) == null, 'Summa on virheellinen'),
   benefit: v => errorIf(v.length < 1, 'Jonkun pitää hyötyä'),
   userId: v => errorIf(!v, 'Omistaja puuttuu'),
 };
@@ -147,10 +123,7 @@ interface ExpenseDialogState extends ExpenseInEditor {
   division: ExpenseDivision | null;
 }
 
-export class ExpenseDialog extends React.Component<
-  ExpenseDialogProps<ExpenseInEditor>,
-  ExpenseDialogState
-> {
+export class ExpenseDialog extends React.Component<ExpenseDialogProps<ExpenseInEditor>, ExpenseDialogState> {
   private readonly saveLock: B.Bus<boolean> = new B.Bus<boolean>();
   private inputStreams: Record<string, B.Bus<any>> = {};
   private readonly submitStream: B.Bus<true> = new B.Bus<true>();
@@ -175,14 +148,14 @@ export class ExpenseDialog extends React.Component<
 
   private getDefaultSourceUsers(): number[] {
     const sId = this.getDefaultSourceId();
-    const source = sId && this.props.sourceMap[sId];
-    return (source && source.users.map(u => u.userId)) || [this.props.user.id];
+    const source = sId ? this.props.sourceMap[sId] : undefined;
+    return source?.users.map(u => u.userId) || [this.props.user.id];
   }
 
   private findParentCategory(categoryId: number): number | undefined {
     const map = this.props.categoryMap;
     let current = map[categoryId];
-    while (current && current.parentId && current.parentId > 0) {
+    while (current?.parentId && current.parentId > 0) {
       current = map[current.parentId];
     }
     return current ? current.id : undefined;
@@ -190,15 +163,13 @@ export class ExpenseDialog extends React.Component<
 
   private getDefaultState(
     original: UserExpenseWithDetails | null,
-    values: Partial<ExpenseInEditor>
+    values: Partial<ExpenseInEditor>,
   ): ExpenseDialogState {
     const e = original;
     return {
       title: values.title ? values.title : e ? e.title : '',
-      sourceId:
-        values.sourceId || (e ? e.sourceId : this.getDefaultSourceId()) || 0,
-      categoryId:
-        values.categoryId || (e && this.findParentCategory(e.categoryId)) || 0,
+      sourceId: values.sourceId || (e ? e.sourceId : this.getDefaultSourceId()) || 0,
+      categoryId: values.categoryId || (e && this.findParentCategory(e.categoryId)) || 0,
       subcategoryId: values.subcategoryId || (e ? e.categoryId : 0),
       receiver: values.receiver || (e ? e.receiver : ''),
       sum: values.sum ? values.sum : e ? e.sum.toString() : '',
@@ -207,17 +178,10 @@ export class ExpenseDialog extends React.Component<
       benefit:
         values.benefit ||
         (e
-          ? e.division
-              .filter(d => d.type === expenseBeneficiary[e.type])
-              .map(d => d.userId)
+          ? e.division.filter(d => d.type === expenseBeneficiary[e.type]).map(d => d.userId)
           : this.getDefaultSourceUsers()),
-      description: values.description || (e && e.description) || '',
-      confirmed:
-        values.confirmed !== undefined
-          ? values.confirmed
-          : e
-          ? e.confirmed
-          : true,
+      description: values.description || e?.description || '',
+      confirmed: values.confirmed !== undefined ? values.confirmed : e ? e.confirmed : true,
       type: values.type || (e ? e.type : 'expense'),
       subcategories: [],
       errors: {},
@@ -239,16 +203,12 @@ export class ExpenseDialog extends React.Component<
     const values: Record<keyof ExpenseInEditor, B.EventStream<any>> = {} as any;
     fields.forEach(k => {
       this.inputStreams[k].onValue(v => this.setState({ [k]: v } as any));
-      const parsed = parsers[k]
-        ? this.inputStreams[k].map(parsers[k])
-        : this.inputStreams[k].map(identity);
+      const parsed = parsers[k] ? this.inputStreams[k].map(parsers[k]) : this.inputStreams[k].map(identity);
       values[k] = parsed;
       const validator = validators[k];
       if (validator) {
         const error = parsed.map(v => validator(v));
-        error.onValue(e =>
-          this.setState(s => ({ errors: { ...s.errors, [k]: e } }))
-        );
+        error.onValue(e => this.setState(s => ({ errors: { ...s.errors, [k]: e } })));
         const isValid = error.map(v => v === undefined).toProperty();
         validity[k] = isValid;
       } else {
@@ -257,23 +217,15 @@ export class ExpenseDialog extends React.Component<
     });
     values.categoryId.onValue(id => {
       this.setState({
-        subcategories:
-          (this.props.categoryMap[id] && this.props.categoryMap[id].children) ||
-          [],
+        subcategories: this.props.categoryMap[id]?.children || [],
       });
     });
-    B.combineAsArray(values.categoryId, values.subcategoryId).onValue(
-      ([id, subId]) => {
-        if (subId > 0 && !isSubcategoryOf(subId, id, this.props.categoryMap)) {
-          this.inputStreams.subcategoryId.push(0);
-        }
+    B.combineAsArray(values.categoryId, values.subcategoryId).onValue(([id, subId]) => {
+      if (subId > 0 && !isSubcategoryOf(subId, id, this.props.categoryMap)) {
+        this.inputStreams.subcategoryId.push(0);
       }
-    );
-    values.sourceId.onValue(v =>
-      this.inputStreams.benefit.push(
-        this.props.sourceMap[v].users.map(u => u.userId)
-      )
-    );
+    });
+    values.sourceId.onValue(v => this.inputStreams.benefit.push(this.props.sourceMap[v].users.map(u => u.userId)));
 
     const allValid = B.combineWith(allTrue, valuesToArray(validity) as any);
     allValid.onValue(valid => this.setState({ valid }));
@@ -281,22 +233,12 @@ export class ExpenseDialog extends React.Component<
     B.combineTemplate({ expense, allValid })
       .map(({ allValid, expense }) =>
         allValid
-          ? calculateDivision(
-              expense.type,
-              expense.sum,
-              expense.benefit,
-              this.props.sourceMap[expense.sourceId]
-            )
-          : null
+          ? calculateDivision(expense.type, expense.sum, expense.benefit, this.props.sourceMap[expense.sourceId])
+          : null,
       )
       .onValue(division => this.setState({ division }));
 
-    B.combineWith(
-      (e, v, h) => ({ ...e, allValid: v && !h }),
-      expense,
-      allValid,
-      this.saveLock.toProperty(false)
-    )
+    B.combineWith((e, v, h) => ({ ...e, allValid: v && !h }), expense, allValid, this.saveLock.toProperty(false))
       .sampledBy(this.submitStream)
       .filter(e => e.allValid)
       .onValue(e => this.saveExpense(e));
@@ -308,10 +250,7 @@ export class ExpenseDialog extends React.Component<
     unsubscribeAll(this.unsub);
   }
 
-  private pushExpenseToInputStreams(
-    expense: UserExpenseWithDetails | null,
-    values: Partial<ExpenseInEditor>
-  ) {
+  private pushExpenseToInputStreams(expense: UserExpenseWithDetails | null, values: Partial<ExpenseInEditor>) {
     const newState = this.getDefaultState(expense, values);
     log('Start editing', newState);
     fields.map(k => this.inputStreams[k].push(newState[k]));
@@ -332,27 +271,17 @@ export class ExpenseDialog extends React.Component<
 
   private saveExpense = async (expense: ExpenseInEditor) => {
     const sum = Money.from(expense.sum);
-    const division = calculateDivision(
-      expense.type,
-      sum,
-      expense.benefit,
-      this.props.sourceMap[expense.sourceId]
-    );
+    const division = calculateDivision(expense.type, sum, expense.benefit, this.props.sourceMap[expense.sourceId]);
     const data: ExpenseData = {
       ...omit(['subcategoryId', 'benefit'], expense),
       division,
       date: toISODate(expense.date),
-      categoryId: expense.subcategoryId
-        ? expense.subcategoryId
-        : expense.categoryId,
+      categoryId: expense.subcategoryId ? expense.subcategoryId : expense.categoryId,
     };
 
     this.saveLock.push(true);
     try {
-      const r = await (this.props.saveAction ?? defaultExpenseSaveAction)(
-        data,
-        this.props.original
-      );
+      const r = await (this.props.saveAction ?? defaultExpenseSaveAction)(data, this.props.original);
       if (r) {
         this.props.onExpensesUpdated(toMoment(expense.date));
         this.props.onClose(expense);
@@ -396,10 +325,7 @@ export class ExpenseDialog extends React.Component<
     this.setState({ showOwnerSelect: false });
   };
 
-  private openOwnerSelector = (
-    _userId: number,
-    event: React.MouseEvent<any>
-  ) => {
+  private openOwnerSelector = (_userId: number, event: React.MouseEvent<any>) => {
     this.setState({ showOwnerSelect: true });
     event.stopPropagation();
     return false;
@@ -414,29 +340,17 @@ export class ExpenseDialog extends React.Component<
 
   public render() {
     return (
-      <Dialog
-        open={true}
-        onClose={this.dismiss}
-        scroll="paper"
-        fullScreen={this.isMobile}
-      >
-        <DialogTitle>
-          {this.props.createNew ? 'Uusi kirjaus' : 'Muokkaa kirjausta'}
-        </DialogTitle>
+      <Dialog open={true} onClose={this.dismiss} scroll="paper" fullScreen={this.isMobile}>
+        <DialogTitle>{this.props.createNew ? 'Uusi kirjaus' : 'Muokkaa kirjausta'}</DialogTitle>
         <ExpenseDialogContent dividers={true} onClick={this.closeEditors}>
           <Form onSubmit={this.requestSave} onKeyUp={this.handleKeyPress}>
             <Row className="row sum parent">
-              <OwnerSelectorArea
-                id="owner-selector-area"
-                className={this.state.showOwnerSelect ? 'visible' : 'hidden'}
-              >
+              <OwnerSelectorArea id="owner-selector-area" className={this.state.showOwnerSelect ? 'visible' : 'hidden'}>
                 {this.props.users.map(u => (
                   <UserAvatar
                     key={u.id}
                     userId={u.id}
-                    className={
-                      u.id === this.state.userId ? 'selected' : 'unselected'
-                    }
+                    className={u.id === this.state.userId ? 'selected' : 'unselected'}
                     onClick={this.setUserId}
                   />
                 ))}
@@ -458,19 +372,14 @@ export class ExpenseDialog extends React.Component<
                   control={
                     <Checkbox
                       checked={!this.state.confirmed}
-                      onChange={e =>
-                        this.inputStreams.confirmed.push(!e.target.checked)
-                      }
+                      onChange={e => this.inputStreams.confirmed.push(!e.target.checked)}
                     />
                   }
                   label="Alustava"
                 />
               </ConfirmArea>
               <TypeArea>
-                <TypeSelector
-                  value={this.state.type}
-                  onChange={v => this.inputStreams.type.push(v)}
-                />
+                <TypeSelector value={this.state.type} onChange={v => this.inputStreams.type.push(v)} />
               </TypeArea>
             </Row>
             <Row className="row input title">
@@ -502,9 +411,7 @@ export class ExpenseDialog extends React.Component<
                 errorText={this.state.errors.categoryId}
                 subcategory={this.state.subcategoryId}
                 subcategories={this.state.subcategories}
-                onChangeSubcategory={v =>
-                  this.inputStreams.subcategoryId.push(v)
-                }
+                onChangeSubcategory={v => this.inputStreams.subcategoryId.push(v)}
               />
             </Row>
             <Row className="row select source">
@@ -515,24 +422,15 @@ export class ExpenseDialog extends React.Component<
                 title={this.sourceTitle}
                 onChange={v => this.inputStreams.sourceId.push(v)}
               />
-              <UserSelector
-                selected={this.state.benefit}
-                onChange={v => this.inputStreams.benefit.push(v)}
-              />
+              <UserSelector selected={this.state.benefit} onChange={v => this.inputStreams.benefit.push(v)} />
             </Row>
             {this.state.division ? (
               <Row className="row select division">
-                <DivisionInfo
-                  expenseType={this.state.type}
-                  division={this.state.division}
-                />
+                <DivisionInfo expenseType={this.state.type} division={this.state.division} />
               </Row>
             ) : null}
             <Row className="row input date">
-              <DateField
-                value={this.state.date}
-                onChange={v => this.inputStreams.date.push(v)}
-              />
+              <DateField value={this.state.date} onChange={v => this.inputStreams.date.push(v)} />
               <TodayButton
                 title="Tänään"
                 variant="contained"

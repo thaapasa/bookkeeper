@@ -1,27 +1,10 @@
-import {
-  dateRangeToMomentRange,
-  getYearsInRange,
-  MomentRange,
-  toMoment,
-} from 'shared/time';
-import {
-  Category,
-  CategoryStatistics,
-  CategoryStatisticsData,
-  ObjectId,
-} from 'shared/types';
+import { dateRangeToMomentRange, getYearsInRange, MomentRange, toMoment } from 'shared/time';
+import { Category, CategoryStatistics, CategoryStatisticsData, ObjectId } from 'shared/types';
 import { Money, recordFromPairs, typedKeys } from 'shared/util';
 import { getFullCategoryName } from 'client/data/Categories';
 import { getChartColor } from 'client/ui/chart/ChartColors';
-import {
-  ChartColumn,
-  ChartData,
-  ChartKeyInfo,
-} from 'client/ui/chart/ChartTypes';
-import {
-  fillMissingForNumericKeys,
-  mapChartData,
-} from 'client/ui/chart/ChartUtils';
+import { ChartColumn, ChartData, ChartKeyInfo } from 'client/ui/chart/ChartTypes';
+import { fillMissingForNumericKeys, mapChartData } from 'client/ui/chart/ChartUtils';
 
 import { CategoryGraphProps } from './CategoryStatisticsChart';
 import { ChartConfiguration } from './ChartTypes';
@@ -37,7 +20,7 @@ function categoryStatisticsToYearlyData(
   data: CategoryStatistics,
   categoryMap: Record<ObjectId, Category>,
   estimated: boolean,
-  separateEstimate: boolean
+  separateEstimate: boolean,
 ): ChartData<'year', number> {
   const cats = typedKeys(data.statistics);
   const years = getYearsInRange(data.range);
@@ -52,9 +35,7 @@ function categoryStatisticsToYearlyData(
     byYears[year][stat.categoryId] = stat.sum;
   }
 
-  const chartData = years
-    .map(year => byYears[year] ?? { year })
-    .map(d => fillMissingForNumericKeys(d, cats));
+  const chartData = years.map(year => byYears[year] ?? { year }).map(d => fillMissingForNumericKeys(d, cats));
 
   const keys = cats.map((key, i) => ({
     key,
@@ -71,15 +52,7 @@ function categoryStatisticsToYearlyData(
   return mapChartData(
     result,
     (k, i) => (separateEstimate ? [k, createEstimateKey(k, i)] : [k]),
-    d =>
-      createEstimationsForYear(
-        d,
-        result.chartData,
-        data,
-        Number(d.year),
-        range,
-        separateEstimate
-      )
+    d => createEstimationsForYear(d, result.chartData, data, Number(d.year), range, separateEstimate),
   );
 }
 
@@ -92,8 +65,7 @@ const createEstimateKey = (k: ChartKeyInfo, i: number): ChartKeyInfo => ({
 });
 
 function sumYears(catData: CategoryStatisticsData[]): YearlyDataItem[] {
-  const byYears: Record<number, Omit<YearlyDataItem, 'sum'> & { sum: Money }> =
-    {};
+  const byYears: Record<number, Omit<YearlyDataItem, 'sum'> & { sum: Money }> = {};
   for (const d of catData) {
     const year = Number(d.month.substring(0, 4));
     byYears[year] ??= { year, categoryId: d.categoryId, sum: new Money(0) };
@@ -111,54 +83,35 @@ function createEstimationsForYear(
   data: CategoryStatistics,
   year: number,
   range: MomentRange,
-  separateEstimate: boolean
+  separateEstimate: boolean,
 ): ChartColumn<'year', number> {
   const lastYear = toMoment(data.range.endDate).year();
   const keys = typedKeys(data.statistics);
 
   if (year !== lastYear) {
-    return separateEstimate
-      ? { ...column, ...recordFromPairs(keys.map(k => [`${k}i`, 0])) }
-      : column;
+    return separateEstimate ? { ...column, ...recordFromPairs(keys.map(k => [`${k}i`, 0])) } : column;
   }
 
   if (separateEstimate) {
     return {
       ...column,
-      ...recordFromPairs(
-        keys.map(k => [
-          `${k}i`,
-          estimateMissingYearlyExpenses(Number(k), data, chartData, range),
-        ])
-      ),
+      ...recordFromPairs(keys.map(k => [`${k}i`, estimateMissingYearlyExpenses(Number(k), data, chartData, range)])),
     };
   }
 
   const estimates = recordFromPairs(
-    keys.map(k => [
-      k,
-      estimateMissingYearlyExpenses(Number(k), data, chartData, range),
-    ])
+    keys.map(k => [k, estimateMissingYearlyExpenses(Number(k), data, chartData, range)]),
   );
 
-  return recordFromPairs(
-    typedKeys(column).map(k => [
-      k,
-      k === 'year' ? column[k] : column[k] + estimates[k],
-    ])
-  ) as any;
+  return recordFromPairs(typedKeys(column).map(k => [k, k === 'year' ? column[k] : column[k] + estimates[k]])) as any;
 }
 
-export function createYearsChartConfiguration(
-  props: CategoryGraphProps
-): ChartConfiguration<'year'> {
+export function createYearsChartConfiguration(props: CategoryGraphProps): ChartConfiguration<'year'> {
   const lastYear = props.data.range.endDate.substring(0, 4);
   return {
     convertData: categoryStatisticsToYearlyData,
     dataKey: 'year',
     tickFormatter: (year: string) =>
-      props.estimated && !props.separateEstimate && year === lastYear
-        ? `${year} (arvio)`
-        : year,
+      props.estimated && !props.separateEstimate && year === lastYear ? `${year} (arvio)` : year,
   };
 }
