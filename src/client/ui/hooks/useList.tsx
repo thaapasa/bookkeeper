@@ -14,9 +14,12 @@ export function useLocalStorageList<T>(
   key: string,
   initial?: T[],
   codec?: z.ZodType<T[]>,
-  cmp: (a: T, b: T) => boolean = DefaultCompare
+  cmp: (a: T, b: T) => boolean = DefaultCompare,
+  checkEntity?: (t: T) => boolean
 ) {
-  const [initialLs, setListS] = useLocalStorage(key, initial, codec);
+  const [initialLs, setListS] = useLocalStorage(key, initial, codec, l =>
+    checkEntity ? l?.filter(checkEntity) : l
+  );
   const list = React.useRef<T[]>(initialLs ?? []);
 
   React.useEffect(() => setListS(list.current), [setListS]);

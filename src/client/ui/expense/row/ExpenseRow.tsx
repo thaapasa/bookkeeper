@@ -1,6 +1,6 @@
+import { styled } from '@mui/material';
 import debug from 'debug';
 import * as React from 'react';
-import styled from 'styled-components';
 
 import {
   ExpenseDivisionItem,
@@ -380,19 +380,19 @@ function weekDay(date: string, prev?: UserExpense | null) {
   return !prev || !m.isSame(prev.date, 'day') ? m.format('dd') : null;
 }
 
-const DateContainer = styled.div`
+const DateContainer = styled('div')`
   position: relative;
   z-index: 1;
 `;
 
-const OptionalIcons = styled.div`
+const OptionalIcons = styled('div')`
   display: inline-block;
   ${media.mobile`
     display: none;
   `}
 `;
 
-const WeekDay = styled.span`
+const WeekDay = styled('span')`
   padding-right: 4px;
   font-weight: bold;
   ${media.mobile`

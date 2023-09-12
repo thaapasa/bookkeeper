@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import { styled } from '@mui/material';
 
 import { colorScheme } from '../Colors';
 import { Row } from '../component/Row';
@@ -23,7 +23,7 @@ export const RowElement = styled(Row)`
   }
 `;
 
-export const TextContainer = styled.div`
+export const TextContainer = styled('div')`
   &.optional {
     ${media.mobile`
     display: none;

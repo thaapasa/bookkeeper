@@ -9,7 +9,8 @@ const log = debug('bookkeeper:local-storage');
 export function useLocalStorage<T>(
   key: string,
   initialValue: T,
-  codec?: z.ZodType<T>
+  codec?: z.ZodType<T>,
+  init?: (v: T) => T
 ) {
   if (typeof initialValue === 'function') {
     throw new Error(
@@ -17,7 +18,7 @@ export function useLocalStorage<T>(
     );
   }
   const [value, setValue] = React.useState<T>(() =>
-    readStored(key, initialValue, codec)
+    readStored(key, initialValue, codec, init)
   );
 
   const storeItem = React.useCallback(
@@ -36,7 +37,12 @@ export function useLocalStorage<T>(
   return [value, storeItem] as const;
 }
 
-function readStored<T>(key: string, defaultValue: T, codec?: z.ZodType<T>) {
+function readStored<T>(
+  key: string,
+  defaultValue: T,
+  codec?: z.ZodType<T>,
+  init?: (v: T) => T
+) {
   try {
     const v = localStorage.getItem(key);
     if (!isDefined(v)) return defaultValue;
@@ -44,9 +50,10 @@ function readStored<T>(key: string, defaultValue: T, codec?: z.ZodType<T>) {
     if (codec) {
       const parsed = codec.safeParse(json);
       log('Parsed', json, 'to', parsed);
-      return parsed.success ? parsed.data : defaultValue;
+      const p = parsed.success ? parsed.data : defaultValue;
+      return init ? init(p) : p;
     }
-    return json;
+    return init ? init(json) : json;
   } catch (e) {
     return defaultValue;
   }

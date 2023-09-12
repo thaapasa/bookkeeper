@@ -1,7 +1,6 @@
-import { Button, Toolbar } from '@mui/material';
+import { Button, styled, Toolbar } from '@mui/material';
 import * as React from 'react';
-import { Link, Route } from 'react-router-dom';
-import styled from 'styled-components';
+import { Link, useMatch } from 'react-router-dom';
 
 import { gray, navigationBar } from '../Colors';
 import { Icon, RenderIcon } from '../icons/Icons';
@@ -49,11 +48,11 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
 
 const Bar = styled(Toolbar)`
   background-color: ${navigationBar};
-  min-height: auto;
+  min-height: auto !important;
   position: relative;
 `;
 
-const ToolbarGroup = styled.div``;
+const ToolbarGroup = styled('div')``;
 
 const LinkGroup = styled(ToolbarGroup)`
   flex: 1;
@@ -82,20 +81,19 @@ export const LinkButton: React.FC<{
   label: string;
   to: string;
   icon?: Icon;
-}> = ({ label, to, icon }) => (
-  <Route path={to}>
-    {({ match }) => (
-      <PlainLink to={to}>
-        <StyledButton
-          variant="text"
-          disableElevation
-          color={match ? 'primary' : 'inherit'}
-          style={match ? undefined : { color: gray.veryDark }}
-          startIcon={<RenderIcon icon={icon} />}
-        >
-          {label}
-        </StyledButton>
-      </PlainLink>
-    )}
-  </Route>
-);
+}> = ({ label, to, icon }) => {
+  const match = useMatch(to);
+  return (
+    <PlainLink to={to}>
+      <StyledButton
+        variant="text"
+        disableElevation
+        color={match ? 'primary' : 'inherit'}
+        style={match ? undefined : { color: gray.veryDark }}
+        startIcon={<RenderIcon icon={icon} />}
+      >
+        {label}
+      </StyledButton>
+    </PlainLink>
+  );
+};

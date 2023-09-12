@@ -1,5 +1,5 @@
+import { styled } from '@mui/material';
 import * as React from 'react';
-import styled from 'styled-components';
 
 import { Expense, ExpenseStatus, UserExpense } from 'shared/expense';
 import { Money, partition } from 'shared/util';
@@ -198,7 +198,7 @@ const ExpenseItem: React.FC<
   } & Omit<CommonExpenseRowProps, 'expense'>
 > = ({ item, ...props }) => <ExpenseRow expense={item} {...props} />;
 
-const ExpenseArea = styled.div`
+const ExpenseArea = styled('div')`
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
@@ -215,7 +215,7 @@ const ExpenseArea = styled.div`
   `}
 `;
 
-const ExpenseFiller = styled.div`
+const ExpenseFiller = styled('div')`
   width: 100%;
   flex: 1;
   background-color: ${colorScheme.gray.light};

@@ -1,5 +1,5 @@
+import { styled } from '@mui/material';
 import * as React from 'react';
-import styled from 'styled-components';
 
 import { ExpenseDivisionItem, UserExpense } from 'shared/expense';
 import { Source, User } from 'shared/types';
@@ -48,13 +48,13 @@ export const ExpenseInfo: React.FC<ExpenseInfoProps> = ({
   );
 };
 
-const ExpenseInfoContainer = styled.div`
+const ExpenseInfoContainer = styled('div')`
   position: relative;
   margin-left: 16px;
   background-color: ${colorScheme.primary.light};
 `;
 
-const Description = styled.div`
+const Description = styled('div')`
   background-color: ${colorScheme.gray.light};
   width: 100%;
   padding: 12px 16px;

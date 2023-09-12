@@ -1,7 +1,7 @@
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
+import { styled } from '@mui/material';
 import debug from 'debug';
 import * as React from 'react';
-import styled from 'styled-components';
 
 import { KeyCodes } from 'client/util/Io';
 
@@ -16,7 +16,7 @@ type EditorType<T> =
   | React.ComponentType<AutoCompleteProps<T>>;
 
 export type ActivatableTextFieldProps<
-  E extends EditorType<any> = React.ComponentType<TextEditProps>
+  E extends EditorType<any> = React.ComponentType<TextEditProps>,
 > = {
   editorId?: string;
   viewStyle?: React.CSSProperties;
@@ -28,7 +28,7 @@ export type ActivatableTextFieldProps<
 } & Omit<E, 'onChange' | 'value'>;
 
 export const ActivatableTextField: React.FC<ActivatableTextFieldProps<any>> = <
-  E extends EditorType<any>
+  E extends EditorType<any>,
 >({
   value: valueFromProps,
   onChange,
@@ -94,7 +94,7 @@ export const ActivatableTextField: React.FC<ActivatableTextFieldProps<any>> = <
   );
 };
 
-const EditorContainer = styled.div`
+const EditorContainer = styled('div')`
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -104,6 +104,6 @@ const EditorContainer = styled.div`
   }
 `;
 
-const ValueContainer = styled.div`
+const ValueContainer = styled('div')`
   cursor: pointer;
 `;

@@ -17,7 +17,7 @@ export function fillMissingForNumericKeys<T extends string>(
 
 export function mapChartData<
   L extends string,
-  K extends ChartKeyType = ChartKeyType
+  K extends ChartKeyType = ChartKeyType,
 >(
   data: ChartData<L, K>,
   keyMapper: (key: ChartKeyInfo, i: number) => ChartKeyInfo[],

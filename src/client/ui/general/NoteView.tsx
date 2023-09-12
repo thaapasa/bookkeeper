@@ -1,5 +1,5 @@
+import { styled } from '@mui/system';
 import * as React from 'react';
-import styled from 'styled-components';
 
 import { spaced } from 'shared/util';
 
@@ -32,7 +32,7 @@ export const NoteView: React.FC<React.PropsWithChildren<NoteViewProps>> = ({
   </Container>
 );
 
-const Container = styled.div`
+const Container = styled('div')`
   background-color: ${colorScheme.primary.standard};
   border-radius: 4px;
   margin: 32px;
@@ -54,7 +54,7 @@ const Container = styled.div`
   }
 `;
 
-const Title = styled.div`
+const Title = styled('div')`
   padding: 8px 16px;
   font-size: 18px;
   border-top-left-radius: 4px;
@@ -70,6 +70,6 @@ const Title = styled.div`
   }
 `;
 
-const Message = styled.div`
+const Message = styled('div')`
   padding: 16px;
 `;

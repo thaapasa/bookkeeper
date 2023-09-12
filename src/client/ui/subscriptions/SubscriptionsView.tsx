@@ -1,7 +1,6 @@
-import { Checkbox, FormControlLabel } from '@mui/material';
+import { Checkbox, FormControlLabel, styled } from '@mui/material';
 import { combineTemplate } from 'baconjs';
 import * as React from 'react';
-import styled from 'styled-components';
 import { z } from 'zod';
 
 import { SubscriptionResult, SubscriptionSearchCriteria } from 'shared/expense';
@@ -266,11 +265,11 @@ const CategorySubscriptions: React.FC<{
   </>
 );
 
-const ChartArea = styled.div`
+const ChartArea = styled('div')`
   position: relative;
 `;
 
-const ChartTools = styled.div`
+const ChartTools = styled('div')`
   position: absolute;
   left: 16px;
   top: 16px;

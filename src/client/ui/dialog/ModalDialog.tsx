@@ -9,7 +9,7 @@ type ModalDialogProps<T, D extends DialogData> = DialogConfig<T, D>;
 
 export const ModalDialog: React.FC<ModalDialogProps<any, any>> = <
   T,
-  D extends DialogData
+  D extends DialogData,
 >({
   title,
   contentRenderer,

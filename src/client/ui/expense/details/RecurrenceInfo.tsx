@@ -1,5 +1,5 @@
+import { styled } from '@mui/material';
 import * as React from 'react';
-import styled from 'styled-components';
 
 import { UserExpense } from 'shared/expense';
 import * as colors from 'client/ui/Colors';
@@ -15,7 +15,7 @@ export const RecurrenceInfo: React.FC<RecurrenceInfoProps> = ({ expense }) =>
     </RecurrenceInfoContainer>
   ) : null;
 
-const RecurrenceInfoContainer = styled.div`
+const RecurrenceInfoContainer = styled('div')`
   width: 100%;
   padding: 12px 16px;
   background-color: ${colors.colorScheme.gray.light};

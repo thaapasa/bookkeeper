@@ -1,5 +1,5 @@
+import { styled } from '@mui/material';
 import * as React from 'react';
-import styled from 'styled-components';
 
 import { Source } from 'shared/types';
 
@@ -23,12 +23,12 @@ export const SourceIcon: React.FC<{
   );
 };
 
-const SourceImage = styled.img`
+const SourceImage = styled('img')`
   max-width: ${sourceWidth}px;
   max-height: 34px;
 `;
 
-export const TextButton = styled.button`
+export const TextButton = styled('button')`
   border: 0;
   font-size: 13px;
   outline: none;

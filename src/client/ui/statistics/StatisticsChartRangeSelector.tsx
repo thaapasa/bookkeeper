@@ -1,6 +1,5 @@
-import { FormLabel } from '@mui/material';
+import { FormLabel, styled } from '@mui/material';
 import * as React from 'react';
-import styled from 'styled-components';
 
 import {
   DateRange,

@@ -27,7 +27,7 @@ type CategoryChartProps<T extends string> = CategoryGraphProps &
   ChartConfiguration<T>;
 
 export const CategoryChartRenderer: React.FC<CategoryChartProps<any>> = <
-  T extends string
+  T extends string,
 >({
   convertData,
   size,

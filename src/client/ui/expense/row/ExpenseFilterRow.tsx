@@ -1,6 +1,5 @@
-import { Avatar, Chip } from '@mui/material';
+import { Avatar, Chip, styled } from '@mui/material';
 import * as React from 'react';
-import styled from 'styled-components';
 
 import { colorScheme } from 'client/ui/Colors';
 

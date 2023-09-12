@@ -1,6 +1,5 @@
-import { Button, DialogActions, DialogContent } from '@mui/material';
+import { Button, DialogActions, DialogContent, styled } from '@mui/material';
 import * as React from 'react';
-import styled from 'styled-components';
 
 import { TextEdit } from '../component/TextEdit';
 import { DialogContentRendererProps, TextPromptDialogData } from './Dialog';
@@ -46,6 +45,6 @@ export const TextPromptDialogContents: React.FC<TextPromptDialogProps> = ({
   );
 };
 
-const Description = styled.div`
+const Description = styled('div')`
   margin-bottom: 8px;
 `;

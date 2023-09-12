@@ -1,25 +1,16 @@
 import React from 'react';
-import { RouteComponentProps } from 'react-router';
+import { useParams } from 'react-router';
 
 import { monthRange, TypedDateRange, yearRange } from 'shared/time';
 
 import CategoryView from './CategoryView';
 
-interface CategoryRouteParams {
-  year?: string;
-  month?: string;
-}
+type CategoryRouteParams = 'year' | 'month';
 
-export const RoutedCategoryView: React.FC<
-  RouteComponentProps<CategoryRouteParams>
-> = ({
-  match: {
-    params: { year, month },
-  },
-  history,
-}) => {
+export const RoutedCategoryView: React.FC = () => {
+  const { year, month } = useParams<CategoryRouteParams>();
   const range = React.useMemo(() => getDates(year, month), [year, month]);
-  return <CategoryView range={range} history={history} />;
+  return <CategoryView range={range} />;
 };
 
 function getDates(year?: string, month?: string): TypedDateRange {

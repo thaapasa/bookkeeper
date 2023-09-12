@@ -1,7 +1,6 @@
-import { Drawer, MenuItem } from '@mui/material';
+import { Drawer, MenuItem, styled } from '@mui/material';
 import * as React from 'react';
-import { RouteComponentProps, withRouter } from 'react-router';
-import styled from 'styled-components';
+import { useNavigate } from 'react-router';
 
 import { Group, User } from 'shared/types';
 import { config } from 'client/Config';
@@ -14,7 +13,7 @@ import { connect } from './BaconConnect';
 import { AppLink } from './NavigationBar';
 import { UserAvatar } from './UserAvatar';
 
-interface MenuDrawerProps extends RouteComponentProps {
+interface MenuDrawerProps {
   open: boolean;
   onRequestChange: (open: boolean) => void;
   user: User;
@@ -34,16 +33,16 @@ const MenuLink: React.FC<AppLink & { onSelect: (path: string) => void }> = ({
   </MenuItem>
 );
 
-const MenuDrawerImpl: React.FC<MenuDrawerProps> = ({
-  history,
+export const MenuDrawer: React.FC<MenuDrawerProps> = ({
   onRequestChange,
   open,
   group,
   user,
   links,
 }) => {
+  const navigate = useNavigate();
   const onSelect = (path: string) => {
-    history.push(path);
+    navigate(path);
     onRequestChange(false);
   };
   const onClose = () => onRequestChange(false);
@@ -81,9 +80,7 @@ const MenuDrawerImpl: React.FC<MenuDrawerProps> = ({
   );
 };
 
-export const MenuDrawer = withRouter(MenuDrawerImpl);
-
-const GroupName = styled.div`
+const GroupName = styled('div')`
   padding: 16px 24px;
   background-color: ${colorScheme.primary.standard};
   font-weight: bold;
@@ -94,7 +91,7 @@ const PaddedIcon = styled(RenderIcon)`
   margin-right: 8px;
 `;
 
-const ItemArea = styled.div`
+const ItemArea = styled('div')`
   margin: 4px 8px;
 
   &.bottom {
@@ -102,7 +99,7 @@ const ItemArea = styled.div`
   }
 `;
 
-const UserInfo = styled.div`
+const UserInfo = styled('div')`
   margin: 16px;
   padding-bottom: 16px;
   margin-bottom: 8px;
@@ -113,18 +110,18 @@ const UserInfo = styled.div`
   border-bottom: 1px solid ${colorScheme.gray.standard};
 `;
 
-const UserName = styled.span`
+const UserName = styled('span')`
   padding-left: 16px;
   font-size: 16px;
 `;
 
-const Divider = styled.div`
+const Divider = styled('div')`
   border-bottom: 1px solid ${colorScheme.gray.standard};
   flex: 1;
   margin: 8px 24px;
 `;
 
-const MenuInfo = styled.div`
+const MenuInfo = styled('div')`
   font-size: 9pt;
   padding: 2px 16px 8px 16px;
 `;

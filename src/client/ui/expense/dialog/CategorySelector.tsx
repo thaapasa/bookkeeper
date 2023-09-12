@@ -4,9 +4,9 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  styled,
 } from '@mui/material';
 import * as React from 'react';
-import styled from 'styled-components';
 
 import { ObjectId } from 'shared/types';
 import { stopEventPropagation } from 'client/util/ClientUtil';
@@ -68,7 +68,7 @@ export const CategorySelector: React.FC<{
   </Row>
 );
 
-const Row = styled.div`
+const Row = styled('div')`
   display: flex;
   flex-direction: row;
   flex: 1;

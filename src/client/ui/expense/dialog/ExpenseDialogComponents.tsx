@@ -5,9 +5,9 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  styled,
 } from '@mui/material';
 import * as React from 'react';
-import styled from 'styled-components';
 
 import { ExpenseType, expenseTypes, getExpenseTypeLabel } from 'shared/expense';
 import { Source } from 'shared/types';
@@ -122,7 +122,7 @@ export const DescriptionField: React.FC<{
   />
 );
 
-const SumArea = styled.div`
+const SumArea = styled('div')`
   display: inline-flex;
   flex-direction: row;
   align-items: center;

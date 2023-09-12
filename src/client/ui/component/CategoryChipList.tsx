@@ -1,7 +1,6 @@
 import AllInclusiveIcon from '@mui/icons-material/AllInclusive';
-import { Chip } from '@mui/material';
+import { Chip, styled } from '@mui/material';
 import * as React from 'react';
-import styled from 'styled-components';
 
 import { Category, CategorySelection, ObjectId } from 'shared/types';
 import { getFullCategoryName } from 'client/data/Categories';

@@ -1,8 +1,7 @@
-import { IconButton } from '@mui/material';
+import { IconButton, styled } from '@mui/material';
 import debug from 'debug';
 import * as React from 'react';
-import { RouteComponentProps, withRouter } from 'react-router';
-import styled from 'styled-components';
+import { useNavigate } from 'react-router';
 
 import { toDateRangeName, toMoment } from 'shared/time';
 import { navigationP } from 'client/data/State';
@@ -16,13 +15,13 @@ import { connect } from './BaconConnect';
 
 const log = debug('bookkeeper:navigator');
 
-export type DateRangeNavigatorProps = NavigationConfig & RouteComponentProps;
+export type DateRangeNavigatorProps = NavigationConfig;
 
 const DateRangeNavigatorImpl: React.FC<DateRangeNavigatorProps> = ({
   dateRange,
   pathPrefix,
-  history,
 }) => {
+  const navigate = useNavigate();
   const navigateOffset = (offset: number) => {
     const rangeSuffix =
       dateRange.type === 'month'
@@ -30,7 +29,7 @@ const DateRangeNavigatorImpl: React.FC<DateRangeNavigatorProps> = ({
         : yearSuffix(toMoment(dateRange.start).clone().add(offset, 'year'));
     const link = pathPrefix + rangeSuffix;
     log('Navigating to', link);
-    history.push(link);
+    navigate(link);
   };
 
   const handleKeyPress = (event: React.KeyboardEvent<any>) => {
@@ -62,7 +61,7 @@ const DateRangeNavigatorImpl: React.FC<DateRangeNavigatorProps> = ({
   );
 };
 
-const NavigationContainer = styled.div`
+const NavigationContainer = styled('div')`
   height: 48px !important;
   display: flex;
   flex-direction: row;
@@ -74,13 +73,11 @@ const StyledIconButton = styled(IconButton)`
   padding: 0px;
 `;
 
-const TitleArea = styled.div`
+const TitleArea = styled('div')`
   text-align: center;
   width: 140px;
   font-size: 12pt;
   color: ${colors.colorScheme.primary.text};
 `;
 
-export const DateRangeNavigator = connect(navigationP)(
-  withRouter(DateRangeNavigatorImpl)
-);
+export const DateRangeNavigator = connect(navigationP)(DateRangeNavigatorImpl);

@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { RouteComponentProps } from 'react-router';
 
 import { parseQueryString } from 'shared/net';
 import { noop } from 'shared/util';
@@ -7,9 +6,7 @@ import { expenseDialogE } from 'client/data/State';
 
 import { RoutedMonthView } from './RoutedMonthView';
 
-type NewExpenseViewProps = RouteComponentProps;
-
-export class NewExpenseView extends React.Component<NewExpenseViewProps> {
+export class NewExpenseView extends React.Component {
   componentDidMount() {
     this.openEditor();
   }

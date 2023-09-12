@@ -1,7 +1,6 @@
 import { Save } from '@mui/icons-material';
-import { Grid } from '@mui/material';
+import { Grid, styled } from '@mui/material';
 import * as React from 'react';
-import styled from 'styled-components';
 
 import { ExpenseSplit } from 'shared/expense';
 import { isDefined } from 'shared/types';
@@ -170,7 +169,7 @@ const RGrid = styled(Grid)`
   position: relative;
 `;
 
-const FootNote = styled.div`
+const FootNote = styled('div')`
   position: absolute;
   right: 0;
   bottom: 0;

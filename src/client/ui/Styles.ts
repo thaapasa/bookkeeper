@@ -1,4 +1,4 @@
-import styled, { css, SimpleInterpolation } from 'styled-components';
+import { css, styled } from '@mui/material';
 
 import { primaryColors } from './Colors';
 import { Size } from './Types';
@@ -95,37 +95,34 @@ const mpmw = mobilePortraitMaxWidth;
 const mlmw = mobileLandscapeMaxWidth;
 
 export const media = {
-  mobilePortrait: (s: TemplateStringsArray, ...i: SimpleInterpolation[]) => css`
+  mobilePortrait: (s: TemplateStringsArray, ...i: any[]) => css`
     @media screen and (max-width: ${mpmw - 1}px) {
       ${css(s, ...i)}
     }
   `,
-  mobileLandscape: (
-    s: TemplateStringsArray,
-    ...i: SimpleInterpolation[]
-  ) => css`
+  mobileLandscape: (s: TemplateStringsArray, ...i: any[]) => css`
     @media screen and (min-width: ${mpmw}px) and (max-width: ${mlmw - 1}px) {
       ${css(s, ...i)}
     }
   `,
-  mobile: (s: TemplateStringsArray, ...i: SimpleInterpolation[]) => css`
+  mobile: (s: TemplateStringsArray, ...i: any[]) => css`
     @media screen and (max-width: ${mlmw - 1}px) {
       ${css(s, ...i)}
     }
   `,
-  web: (s: TemplateStringsArray, ...i: SimpleInterpolation[]) => css`
+  web: (s: TemplateStringsArray, ...i: any[]) => css`
     @media screen and (min-width: ${mpmw}px) {
       ${css(s, ...i)}
     }
   `,
-  largeDevice: (s: TemplateStringsArray, ...i: SimpleInterpolation[]) => css`
+  largeDevice: (s: TemplateStringsArray, ...i: any[]) => css`
     @media screen and (min-width: ${largeDeviceMinWidth}px) {
       ${css(s, ...i)}
     }
   `,
 };
 
-export const VCenterRow = styled.div`
+export const VCenterRow = styled('div')`
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -135,16 +132,16 @@ export const VCenterRow = styled.div`
   }
 `;
 
-export const Flex = styled.div`
+export const Flex = styled('div')`
   flex: 1;
 `;
 
-export const Pre = styled.div`
+export const Pre = styled('div')`
   font-family: monospace;
   white-space: pre;
 `;
 
-export const PageContentContainer = styled.div`
+export const PageContentContainer = styled('div')`
   position: relative;
   font-size: 13px;
   display: flex;

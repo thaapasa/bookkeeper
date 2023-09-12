@@ -1,5 +1,5 @@
+import { styled } from '@mui/material';
 import * as React from 'react';
-import styled from 'styled-components';
 
 import { Category } from 'shared/types';
 
@@ -19,21 +19,21 @@ export const RowElement = styled(Row)`
   }
 `;
 
-export const NameColumn = styled.div`
+export const NameColumn = styled('div')`
   flex: 1;
   padding-left: 16px;
   &.header {
     font-weight: bold;
   }
-  ${RowElement}.sub-category & {
+  .sub-category & {
     color: ${colorScheme.secondary.dark};
   }
-  ${RowElement}.main-category & {
+  .main-category & {
     font-weight: bold;
   }
 `;
 
-export const SumColumn = styled.div`
+export const SumColumn = styled('div')`
   padding: 0;
   padding-right: 8px;
   white-space: nowrap;
@@ -48,7 +48,7 @@ export const SumColumn = styled.div`
   }
 `;
 
-export const ToolColumn = styled.div`
+export const ToolColumn = styled('div')`
   padding-right: 12px;
   width: 70px;
   display: flex;
@@ -58,7 +58,7 @@ export const ToolColumn = styled.div`
   white-space: nowrap;
 `;
 
-export const AllColumns = styled.div`
+export const AllColumns = styled('div')`
   flex: 1;
   padding: 0 16px;
 `;

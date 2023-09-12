@@ -1,7 +1,6 @@
-import { Avatar } from '@mui/material';
+import { Avatar, styled } from '@mui/material';
 import { cyan } from '@mui/material/colors';
 import * as React from 'react';
-import styled from 'styled-components';
 
 import { User } from 'shared/types';
 import { userMapE } from 'client/data/Login';
