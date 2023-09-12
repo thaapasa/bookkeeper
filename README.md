@@ -7,33 +7,21 @@
 Setup autorebase on `git`:
 
 ```sh
+git config --global pull.rebase true
+```
+
+Old settings, used only for current repository:
+
+```sh
 git config branch.autosetuprebase always
 git config branch.master.rebase true
 ```
 
-Install deps with `yarn`.
-
-#### VS Code
-
-Install the ESLint plugin and set eslint options to user settings:
-
-```json
-{
-  "eslint.autoFixOnSave": true,
-  "eslint.enable": true,
-  "eslint.validate": [
-    "javascript",
-    "javascriptreact",
-    { "language": "typescript", "autoFix": true },
-    { "language": "typescriptreact", "autoFix": true }
-  ],
-  "eslint.packageManager": "yarn"
-}
-```
+Install deps with [bun](https://bun.sh/).
 
 ### Database
 
-If you want to use a docker DB, start postgres DB with `yarn create-dev-db`.
+If you want to use a docker DB, start postgres DB with `bun create-dev-db`.
 
 Note for Windows: if server gives error `role "Username" does not exist`, 
 log in to database (for example, with DBeaver), and create the missing role.
@@ -43,7 +31,7 @@ log in to database (for example, with DBeaver), and create the missing role.
 Create file `.env` with the following contents (adjust as required):
 
 Local dev DB is running on port `15488` by default (if installed via Docker
-with `yarn create-dev-db`).
+with `bun create-dev-db`).
 
 ```ini
 SERVER_PORT=3100
@@ -55,23 +43,23 @@ DB_SSL=false
 DEBUG=bookkeeper*
 ```
 
-Setup database schema by running `yarn migrate`.
-Add example data by running `yarn seed`.
+Setup database schema by running `bun migrate`.
+Add example data by running `bun seed`.
 
-Start server by running `yarn watch-server`.
+Start server by running `bun watch-server`.
 
 The `DEBUG` switch (in `.env` or supplied as an environment variable) controls logging output.
 
 ### Client web app
 
-Start development build by running `yarn watch-client`.
+Start development build by running `bun watch-client`.
 
 You can see console logging by setting the `debug` variable to `localStorage`;
 for example: `localStorage.debug = 'bookkeeper*'`.
 
-### yarn scripts
+### Package scripts
 
-`yarn <target>`:
+`bun run <target>` or just `bun <target>`:
 
 - `watch-server`: Start server for development use (runs `swc` with `nodemon`)
 - `watch-client`: Start client builder for development
@@ -86,7 +74,7 @@ for example: `localStorage.debug = 'bookkeeper*'`.
 
 ### Testing
 
-- Unit tests: run `yarn test` while the dev server is running
+- Unit tests: run `bun test` while the dev server is running
 
 ## Images
 
@@ -113,31 +101,31 @@ There are three types of expenses: `expense`, `income`, and `transfer`.
   The sum `sum(expense.sum)` for `expense.type = expense` gives the total cost of the registered
   expenses.
   Each `expense` is divided into `cost`s and `benefit`s:
-      - `cost`: tracks who has paid for the expense
-      - `benefit`: tracks who benefits from the purchase
+  - `cost`: tracks who has paid for the expense
+  - `benefit`: tracks who benefits from the purchase
 - `income`: user has received income.
   The sum `sum(expense.sum)` for `expense.type = income` gives the total income of the registered
   expenses.
   Each `income` is divided into `income`s and `split`s:
-      - `income`: tracks who has received the money
-      - `split`: tracks who should benefit from the money
+  - `income`: tracks who has received the money
+  - `split`: tracks who should benefit from the money
 - `transfer`: money is transferred within the group.
   These expenses do not contribute to total cost or income, but they do affect user balance.
   Each `transfer` is divided into `transferor`s and `transferee`s:
-      - `transferor`: tracks who has transferred the money
-      - `transferee`: tracks who has received the money
+  - `transferor`: tracks who has transferred the money
+  - `transferee`: tracks who has received the money
 
 #### Invariants
 
 - For each expense with `expense.type = expense`:
-      - The sum of division rows with `expense_division.type = cost` must equal `-expense.sum`
-      - The sum of division rows with `expense_division.type = benefit` must equal `expense.sum`
+  - The sum of division rows with `expense_division.type = cost` must equal `-expense.sum`
+  - The sum of division rows with `expense_division.type = benefit` must equal `expense.sum`
 - For each expense with `expense.type = income`:
-      - The sum of division rows with `expense_division.type = income` must equal `expense.sum`
-      - The sum of division rows with `expense_division.type = split` must equal `-expense.sum`
+  - The sum of division rows with `expense_division.type = income` must equal `expense.sum`
+  - The sum of division rows with `expense_division.type = split` must equal `-expense.sum`
 - For each expense with `expense.type = transfer`:
-      - The sum of division rows with `expense_division.type = transferor` must equal `-expense.sum`
-      - The sum of division rows with `expense_division.type = transferee` must equal `expense.sum`
+  - The sum of division rows with `expense_division.type = transferor` must equal `-expense.sum`
+  - The sum of division rows with `expense_division.type = transferee` must equal `expense.sum`
 
 ### User balance / debts
 
