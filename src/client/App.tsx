@@ -25,7 +25,7 @@ export const App: React.FC<AnyObject> = () => {
   React.useEffect(() => {
     // Logging here so it's only printed once
     log('Initializing bookkeeper client');
-    return sessionP.onValue(s => (s ? setSession(s) : null));
+    return sessionP.onValue(s => setSession(s ?? undefined));
   }, []);
 
   switch (state.type) {
