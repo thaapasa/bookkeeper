@@ -24,14 +24,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - uses: actions/cache@v3
-        id: bun-cache # use this to check for `cache-hit` (`steps.bun-cache.outputs.cache-hit != 'true'`)
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
-          restore-keys: |
-            ${{ runner.os }}-bun-
-      
       - name: Setup bun
         uses: oven-sh/setup-bun@v1
 
