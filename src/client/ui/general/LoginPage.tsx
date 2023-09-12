@@ -39,6 +39,7 @@ export const LoginPage: React.FC = () => {
             value={username}
             onChange={setUsername}
             autoCapitalize="off"
+            autoComplete="username"
             autoCorrect="off"
             autoFocus={true}
           />
@@ -47,6 +48,7 @@ export const LoginPage: React.FC = () => {
             label="Salasana"
             type="password"
             autoCapitalize="off"
+            autoComplete="current-password"
             autoCorrect="off"
             value={password}
             onChange={setPassword}
