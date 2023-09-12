@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "module": "ESNext",
-    "target": "ESNext",
+    "target": "ES6",
     "moduleResolution": "node",
     "moduleDetection": "force",
     "allowImportingTsExtensions": true,
@@ -24,10 +24,7 @@
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "noImplicitAny": true,
-    "noUnusedLocals": true,
-    "paths": {
-      "shared/*": ["./shared/*"]
-    }
+    "noUnusedLocals": true
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]

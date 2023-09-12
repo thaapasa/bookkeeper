@@ -24,7 +24,7 @@ export const App: React.FC<AnyObject> = () => {
     // Logging here so it's only printed once
     logger.info('Initializing bookkeeper client');
     return sessionP.onValue(s => setSession(s ?? undefined));
-  }, []);
+  }, [setSession]);
 
   switch (state.type) {
     case 'loaded':
