@@ -14,7 +14,7 @@ export interface PeriodSelectorProps<P extends Period> {
   allowed?: P['type'][];
 }
 
-export const PeriodSelector: React.FC<PeriodSelectorProps<any>> = <P extends Period,>({
+export const PeriodSelector: React.FC<PeriodSelectorProps<any>> = <P extends Period>({
   period,
   onSelect,
   allowed,
@@ -34,7 +34,10 @@ export const PeriodSelector: React.FC<PeriodSelectorProps<any>> = <P extends Per
     [setYear, setMonth],
   );
 
-  React.useEffect(() => onSelect(valuesToPeriod<P>(type, year, month)), [onSelect, type, year, month]);
+  React.useEffect(
+    () => onSelect(valuesToPeriod<P>(type, year, month)),
+    [onSelect, type, year, month],
+  );
 
   return (
     <Container>
@@ -84,7 +87,12 @@ interface TabPanelProps {
   className?: string;
 }
 
-const TabPanel: React.FC<React.PropsWithChildren<TabPanelProps>> = ({ children, type, className, ...other }) => (
+const TabPanel: React.FC<React.PropsWithChildren<TabPanelProps>> = ({
+  children,
+  type,
+  className,
+  ...other
+}) => (
   <Panel className={className} {...other}>
     {children}
   </Panel>

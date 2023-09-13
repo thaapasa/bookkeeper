@@ -8,7 +8,13 @@ import { ApiMessage, AuthenticationError, Session, SessionBasicInfo } from 'shar
 import { config } from '../Config';
 import { getAllCategories } from './CategoryDb';
 import { getAllSources } from './SourceDb';
-import { dbRowToUser, getAllUsers, getGroupsForUser, getUserByCredentials, RawUserData } from './UserDb';
+import {
+  dbRowToUser,
+  getAllUsers,
+  getGroupsForUser,
+  getUserByCredentials,
+  RawUserData,
+} from './UserDb';
 
 const log = debug('bookkeeper:api:sessions');
 
@@ -54,7 +60,11 @@ async function createSession(tx: ITask<any>, user: RawUserData): Promise<string[
   return tokens;
 }
 
-function createSessionInfo([token, refreshToken]: string[], userData: RawUserData, loginTime?: Date): SessionBasicInfo {
+function createSessionInfo(
+  [token, refreshToken]: string[],
+  userData: RawUserData,
+  loginTime?: Date,
+): SessionBasicInfo {
   return {
     token,
     refreshToken,
@@ -77,7 +87,10 @@ function createSessionInfo([token, refreshToken]: string[], userData: RawUserDat
   };
 }
 
-export async function appendInfoToSession(tx: ITask<any>, session: SessionBasicInfo): Promise<Session> {
+export async function appendInfoToSession(
+  tx: ITask<any>,
+  session: SessionBasicInfo,
+): Promise<Session> {
   const [groups, sources, categories, users] = await Promise.all([
     getGroupsForUser(tx, session.user.id),
     getAllSources(tx, session.group.id),
@@ -100,7 +113,11 @@ export async function loginUserWithCredentials(
   return appendInfoToSession(tx, sessionInfo);
 }
 
-async function getUserInfoByRefreshToken(tx: ITask<any>, token: string, groupId?: number): Promise<RawUserData> {
+async function getUserInfoByRefreshToken(
+  tx: ITask<any>,
+  token: string,
+  groupId?: number,
+): Promise<RawUserData> {
   await purgeExpiredSessions(tx);
   const userData = await tx.oneOrNone<RawUserData>(
     tokenSelect + 'WHERE s.token=$/token/ AND s.refresh_token IS NULL AND s.expiry_time > NOW()',
@@ -125,7 +142,10 @@ export async function refreshSessionWithRefreshToken(
   return appendInfoToSession(tx, sessionInfo);
 }
 
-export async function logoutSession(tx: ITask<any>, session: SessionBasicInfo): Promise<ApiMessage> {
+export async function logoutSession(
+  tx: ITask<any>,
+  session: SessionBasicInfo,
+): Promise<ApiMessage> {
   log('Logout for', session.token);
   if (!session.token) {
     throw new AuthenticationError('INVALID_TOKEN', 'Session token is missing');
@@ -143,10 +163,15 @@ export async function logoutSession(tx: ITask<any>, session: SessionBasicInfo): 
   };
 }
 
-export async function getSessionByToken(tx: ITask<any>, token: string, groupId?: number): Promise<SessionBasicInfo> {
+export async function getSessionByToken(
+  tx: ITask<any>,
+  token: string,
+  groupId?: number,
+): Promise<SessionBasicInfo> {
   await purgeExpiredSessions(tx);
   const userData = await tx.oneOrNone<RawUserData>(
-    tokenSelect + 'WHERE s.token=$/token/ AND s.refresh_token IS NOT NULL AND s.expiry_time > NOW()',
+    tokenSelect +
+      'WHERE s.token=$/token/ AND s.refresh_token IS NOT NULL AND s.expiry_time > NOW()',
     { token, groupId },
   );
   if (!userData) {

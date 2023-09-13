@@ -21,7 +21,10 @@ import { getSourceById } from './SourceDb';
 
 const log = debug('bookkeeper:api:expenses');
 
-export function expenseSelectClause(where: string, orderBy = 'ORDER BY date ASC, title ASC, id'): string {
+export function expenseSelectClause(
+  where: string,
+  orderBy = 'ORDER BY date ASC, title ASC, id',
+): string {
   return `--sql
 SELECT
   MIN(id) AS id, MIN(date) AS date, MIN(receiver) AS receiver, MIN(type) AS type, MIN(sum) AS sum,
@@ -81,8 +84,16 @@ export function dbRowToExpense(e: UserExpense): UserExpense {
   return e;
 }
 
-export async function getAllExpenses(tx: ITask<any>, groupId: number, userId: number): Promise<Expense[]> {
-  const expenses = await tx.map(expenseSelectClause(`WHERE group_id=$/groupId/`), { userId, groupId }, dbRowToExpense);
+export async function getAllExpenses(
+  tx: ITask<any>,
+  groupId: number,
+  userId: number,
+): Promise<Expense[]> {
+  const expenses = await tx.map(
+    expenseSelectClause(`WHERE group_id=$/groupId/`),
+    { userId, groupId },
+    dbRowToExpense,
+  );
   return expenses;
 }
 
@@ -132,8 +143,15 @@ export async function getExpenseById(
   return expense[0];
 }
 
-export async function deleteExpenseById(tx: ITask<any>, groupId: number, expenseId: number): Promise<ApiMessage> {
-  await tx.none(`DELETE FROM expenses WHERE id=$/expenseId/ AND group_id=$/groupId/`, { expenseId, groupId });
+export async function deleteExpenseById(
+  tx: ITask<any>,
+  groupId: number,
+  expenseId: number,
+): Promise<ApiMessage> {
+  await tx.none(`DELETE FROM expenses WHERE id=$/expenseId/ AND group_id=$/groupId/`, {
+    expenseId,
+    groupId,
+  });
   return { status: 'OK', message: 'Expense deleted', expenseId };
 }
 
@@ -159,7 +177,10 @@ const deleteDivision = (tx: ITask<any>, expenseId: number): Promise<null> =>
     { expenseId },
   );
 
-export async function getExpenseDivision(tx: ITask<any>, expenseId: number): Promise<ExpenseDivisionItem[]> {
+export async function getExpenseDivision(
+  tx: ITask<any>,
+  expenseId: number,
+): Promise<ExpenseDivisionItem[]> {
   const items = await tx.manyOrNone<ExpenseDivisionItem>(
     `SELECT user_id as "userId", type, sum
       FROM expense_division
@@ -171,7 +192,9 @@ export async function getExpenseDivision(tx: ITask<any>, expenseId: number): Pro
 }
 
 async function createDivision(tx: ITask<any>, expenseId: number, division: ExpenseDivisionItem[]) {
-  await Promise.all(division.map(d => storeExpenseDivision(tx, expenseId, d.userId, d.type, d.sum)));
+  await Promise.all(
+    division.map(d => storeExpenseDivision(tx, expenseId, d.userId, d.type, d.sum)),
+  );
   return expenseId;
 }
 
@@ -185,7 +208,10 @@ export function setExpenseDataDefaults(expense: Expense | ExpenseInput): Expense
   return data;
 }
 
-export type ExpenseInsert = Omit<Expense, 'id' | 'createdById' | 'created' | 'recurringExpenseId' | 'template'> & {
+export type ExpenseInsert = Omit<
+  Expense,
+  'id' | 'createdById' | 'created' | 'recurringExpenseId' | 'template'
+> & {
   template?: boolean;
   recurringExpenseId?: ObjectId | null;
 };
@@ -259,7 +285,11 @@ interface ReceiverInfo {
   amount: number;
 }
 
-export function queryReceivers(tx: ITask<any>, groupId: number, receiver: string): Promise<ReceiverInfo[]> {
+export function queryReceivers(
+  tx: ITask<any>,
+  groupId: number,
+  receiver: string,
+): Promise<ReceiverInfo[]> {
   log('Receivers', groupId, receiver);
   return tx.manyOrNone<ReceiverInfo>(
     `SELECT receiver, COUNT(*) AS amount
@@ -304,8 +334,16 @@ async function getRecurrenceOccurence(
   return expense[0];
 }
 
-export const getFirstRecurrence = (tx: ITask<any>, groupId: ObjectId, userId: ObjectId, recurringExpenseId: ObjectId) =>
-  getRecurrenceOccurence(tx, groupId, userId, recurringExpenseId, true);
+export const getFirstRecurrence = (
+  tx: ITask<any>,
+  groupId: ObjectId,
+  userId: ObjectId,
+  recurringExpenseId: ObjectId,
+) => getRecurrenceOccurence(tx, groupId, userId, recurringExpenseId, true);
 
-export const getLastRecurrence = (tx: ITask<any>, groupId: ObjectId, userId: ObjectId, recurringExpenseId: ObjectId) =>
-  getRecurrenceOccurence(tx, groupId, userId, recurringExpenseId, false);
+export const getLastRecurrence = (
+  tx: ITask<any>,
+  groupId: ObjectId,
+  userId: ObjectId,
+  recurringExpenseId: ObjectId,
+) => getRecurrenceOccurence(tx, groupId, userId, recurringExpenseId, false);

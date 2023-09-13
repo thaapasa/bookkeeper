@@ -37,7 +37,12 @@ async function createSplit(tx: ITask<any>, expense: Expense, split: ExpenseSplit
 
 async function checkSplits(splits: ExpenseSplit[], expense: Expense) {
   if (splits.length < 2) {
-    throw new BkError('INVALID_SPLIT', 'Expense splitting requires at least two splits', 400, splits);
+    throw new BkError(
+      'INVALID_SPLIT',
+      'Expense splitting requires at least two splits',
+      400,
+      splits,
+    );
   }
 
   const partSum = splits.reduce((acc, s) => acc.plus(s.sum), Money.from(0));

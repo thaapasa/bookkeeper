@@ -71,7 +71,9 @@ export function calculateDivision(
         benefit.map(id => ({ userId: id, share: 1 })),
       );
       const transferor = calculateDivisionCounterpart(sum, source, transferee, false);
-      return transferee.map(itemTypeFixers.transferee).concat(transferor.map(itemTypeFixers.transferor));
+      return transferee
+        .map(itemTypeFixers.transferee)
+        .concat(transferor.map(itemTypeFixers.transferor));
     }
     default:
       throw new Error('Unknown expense type ' + type);
@@ -98,7 +100,9 @@ function calculateDivisionCounterpart(
   }
 }
 
-type FixTypeFunc = <T extends HasSum>(item: T) => Omit<T, 'sum'> & { sum: string; type: ExpenseDivisionType };
+type FixTypeFunc = <T extends HasSum>(
+  item: T,
+) => Omit<T, 'sum'> & { sum: string; type: ExpenseDivisionType };
 
 function fixItemType(type: ExpenseDivisionType): FixTypeFunc {
   return <T extends HasSum>(item: T) => ({

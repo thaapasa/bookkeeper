@@ -9,7 +9,9 @@ interface RecurrenceInfoProps {
 }
 
 export const RecurrenceInfo: React.FC<RecurrenceInfoProps> = ({ expense }) =>
-  expense.recurringExpenseId ? <RecurrenceInfoContainer>Tämä on toistuva tapahtuma</RecurrenceInfoContainer> : null;
+  expense.recurringExpenseId ? (
+    <RecurrenceInfoContainer>Tämä on toistuva tapahtuma</RecurrenceInfoContainer>
+  ) : null;
 
 const RecurrenceInfoContainer = styled('div')`
   width: 100%;

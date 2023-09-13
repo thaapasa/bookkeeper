@@ -14,7 +14,10 @@ export function getRootCategoryId(categoryId: ObjectId, categoryMap: CategoryMap
   return cur.id;
 }
 
-export function groupByRootCategories(categoryIds: ObjectId[], categoryMap: CategoryMap): Record<ObjectId, ObjectId[]> {
+export function groupByRootCategories(
+  categoryIds: ObjectId[],
+  categoryMap: CategoryMap,
+): Record<ObjectId, ObjectId[]> {
   const data: Record<ObjectId, ObjectId[]> = {};
   categoryIds.forEach(c => {
     const root = getRootCategoryId(c, categoryMap);

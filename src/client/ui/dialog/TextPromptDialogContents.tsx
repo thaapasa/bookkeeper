@@ -26,7 +26,12 @@ export const TextPromptDialogContents: React.FC<TextPromptDialogProps> = ({
         <Button color="primary" variant="text" onKeyUp={handleKeyPress} onClick={() => onCancel()}>
           Peruuta
         </Button>
-        <Button color="primary" variant="contained" onKeyUp={handleKeyPress} onClick={() => onSelect(text)}>
+        <Button
+          color="primary"
+          variant="contained"
+          onKeyUp={handleKeyPress}
+          onClick={() => onSelect(text)}
+        >
           OK
         </Button>
       </DialogActions>

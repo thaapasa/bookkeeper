@@ -22,7 +22,9 @@ export const NoteView: React.FC<React.PropsWithChildren<NoteViewProps>> = ({
   compact,
   fullWidth,
 }) => (
-  <Container className={spaced`${className} ${compact ? 'compact' : ''} ${fullWidth ? 'fullWidth' : ''}`}>
+  <Container
+    className={spaced`${className} ${compact ? 'compact' : ''} ${fullWidth ? 'fullWidth' : ''}`}
+  >
     {title ? <Title className={type ?? 'note'}>{title}</Title> : null}
     <Message>{children}</Message>
   </Container>

@@ -6,13 +6,23 @@ import { ExpenseCollection, ExpenseStatus, UserExpense } from 'shared/expense';
 import * as time from 'shared/time';
 import { mapValues, Money } from 'shared/util';
 
-import { countTotalBetween, dbRowToExpense, expenseSelectClause, hasUnconfirmedBefore } from './BasicExpenseDb';
+import {
+  countTotalBetween,
+  dbRowToExpense,
+  expenseSelectClause,
+  hasUnconfirmedBefore,
+} from './BasicExpenseDb';
 import { createMissingRecurringExpenses } from './RecurringExpenseDb';
 
 const log = debug('bookkeeper:api:expenses');
 
 function calculateBalance(o: ExpenseStatus): ExpenseStatus {
-  const value = Money.from(o.cost).plus(o.benefit).plus(o.income).plus(o.split).plus(o.transferor).plus(o.transferee);
+  const value = Money.from(o.cost)
+    .plus(o.benefit)
+    .plus(o.income)
+    .plus(o.split)
+    .plus(o.transferor)
+    .plus(o.transferee);
   return {
     ...o,
     value: value.toString(),
@@ -27,7 +37,11 @@ async function getBetween(
   startDate: Moment | string,
   endDate: Moment | string,
 ) {
-  log(`Querying for expenses between ${time.iso(startDate)} and ${time.iso(endDate)} for group ${groupId}`);
+  log(
+    `Querying for expenses between ${time.iso(startDate)} and ${time.iso(
+      endDate,
+    )} for group ${groupId}`,
+  );
   const expenses = await tx.manyOrNone<UserExpense>(
     expenseSelectClause(
       `WHERE group_id=$/groupId/ AND template=false
@@ -71,10 +85,7 @@ export async function getExpensesByMonth(
     hasUnconfirmedBefore(tx, groupId, startDate),
   ]);
   const endStatus = mapValues(
-    k =>
-      Money.from(startStatus[k])
-        .plus(monthStatus[k])
-        .toString(),
+    k => Money.from(startStatus[k]).plus(monthStatus[k]).toString(),
     zeroStatus,
   );
   return {

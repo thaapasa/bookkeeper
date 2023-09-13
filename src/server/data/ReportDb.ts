@@ -36,11 +36,18 @@ export async function createReport(
   return row;
 }
 
-export async function deleteReport(tx: ITask<any>, groupId: ObjectId, reportId: ObjectId): Promise<ApiMessage> {
-  const res = await tx.result(`DELETE FROM reports WHERE (id = $/reportId/ AND group_id = $/groupId/)`, {
-    reportId,
-    groupId,
-  });
+export async function deleteReport(
+  tx: ITask<any>,
+  groupId: ObjectId,
+  reportId: ObjectId,
+): Promise<ApiMessage> {
+  const res = await tx.result(
+    `DELETE FROM reports WHERE (id = $/reportId/ AND group_id = $/groupId/)`,
+    {
+      reportId,
+      groupId,
+    },
+  );
   return {
     status: 'OK',
     message: res.rowCount === 1 ? 'Report deleted' : 'No reports found',
@@ -55,7 +62,9 @@ export async function searchReports(
 ): Promise<ExpenseReport[]> {
   const reports = await getAllReports(tx, groupId);
 
-  const reportData = await Promise.all(reports.map(r => calculateExpenseReports(tx, groupId, userId, r, criteria)));
+  const reportData = await Promise.all(
+    reports.map(r => calculateExpenseReports(tx, groupId, userId, r, criteria)),
+  );
   return reportData.flat();
 }
 

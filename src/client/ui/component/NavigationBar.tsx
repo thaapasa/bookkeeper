@@ -26,7 +26,12 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({ links, windowSize 
       {links
         ?.filter(l => l.showInHeader)
         .map(l => (
-          <LinkButton key={l.label} label={l.label} to={l.path} icon={windowSize.width > 920 ? l.icon : undefined} />
+          <LinkButton
+            key={l.label}
+            label={l.label}
+            to={l.path}
+            icon={windowSize.width > 920 ? l.icon : undefined}
+          />
         ))}
     </LinkGroup>
     <ToolbarGroup>

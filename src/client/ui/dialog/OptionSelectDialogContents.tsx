@@ -5,7 +5,9 @@ import { DialogContentRendererProps, OptionSelectDialogData } from './Dialog';
 
 type OptionSelectDialogProps<T> = DialogContentRendererProps<T> & OptionSelectDialogData<T>;
 
-export const OptionSelectDialogContents: React.FC<OptionSelectDialogProps<any>> = <T extends string>({
+export const OptionSelectDialogContents: React.FC<OptionSelectDialogProps<any>> = <
+  T extends string,
+>({
   handleKeyPress,
   onSelect,
   onCancel,

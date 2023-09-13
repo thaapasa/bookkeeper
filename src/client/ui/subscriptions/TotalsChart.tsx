@@ -35,7 +35,9 @@ const TotalsChartImpl: React.FC<{
       {data.map((d, i) => (
         <Cell
           key={`cell-${i}`}
-          fill={isDefined(colorIndex) ? getChartColor(colorIndex, i) : getChartColor(d.colorIndex, 1)}
+          fill={
+            isDefined(colorIndex) ? getChartColor(colorIndex, i) : getChartColor(d.colorIndex, 1)
+          }
         />
       ))}
     </Pie>

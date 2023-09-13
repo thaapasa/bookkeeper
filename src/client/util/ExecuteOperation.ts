@@ -11,7 +11,10 @@ type ExecutionOptions<T> = {
   postProcess?: (t: T) => MaybePromise<any>;
 };
 
-export async function executeOperation<T>(f: (() => Promise<T>) | Promise<T>, options: ExecutionOptions<T> = {}) {
+export async function executeOperation<T>(
+  f: (() => Promise<T>) | Promise<T>,
+  options: ExecutionOptions<T> = {},
+) {
   try {
     if (options.confirm) {
       const c = await UserPrompts.confirm(options.confirmTitle ?? 'Varmistus', options.confirm);
@@ -31,7 +34,9 @@ export async function executeOperation<T>(f: (() => Promise<T>) | Promise<T>, op
 
     // Show success notification
     if (options.success) {
-      notify(typeof options.success === 'function' ? options.success(res) : options.success, { immediate: true });
+      notify(typeof options.success === 'function' ? options.success(res) : options.success, {
+        immediate: true,
+      });
     }
 
     return res;

@@ -32,7 +32,11 @@ export const App: React.FC<AnyObject> = () => {
     case 'loaded':
       return session ? <BookkeeperPage session={session} windowSize={windowSize} /> : <LoginPage />;
     case 'error':
-      return <ErrorView title="Hups">Kirjautumistietoja ei saatu ladattua. Koita ladata sivu uusiksi!</ErrorView>;
+      return (
+        <ErrorView title="Hups">
+          Kirjautumistietoja ei saatu ladattua. Koita ladata sivu uusiksi!
+        </ErrorView>
+      );
     default:
       return null;
   }

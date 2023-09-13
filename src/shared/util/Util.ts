@@ -1,7 +1,9 @@
 import { AnyObject } from '../types/Common';
 
 export function ucFirst(str: any): string {
-  return typeof str === 'string' && str.length > 0 ? str.charAt(0).toUpperCase() + str.substring(1) : '';
+  return typeof str === 'string' && str.length > 0
+    ? str.charAt(0).toUpperCase() + str.substring(1)
+    : '';
 }
 
 export function underscoreToCamelCase(str: any): string {
@@ -36,7 +38,11 @@ export function filterCaseInsensitive(match: string, values: string[]): string[]
   return values.filter(v => v.toLowerCase().includes(matcher));
 }
 
-export function filterMapCaseInsensitive<T>(match: string, values: T[], mapper: (v: T) => string): T[] {
+export function filterMapCaseInsensitive<T>(
+  match: string,
+  values: T[],
+  mapper: (v: T) => string,
+): T[] {
   const matcher = (match || '').toLowerCase();
   return values.filter(v => mapper(v).toLowerCase().includes(matcher));
 }

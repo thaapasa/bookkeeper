@@ -116,11 +116,20 @@ export class ApiConnect {
     }
   }
 
-  private get<T>(path: string, query?: Record<string, any>, allowRefreshAndRetry?: boolean): Promise<T> {
+  private get<T>(
+    path: string,
+    query?: Record<string, any>,
+    allowRefreshAndRetry?: boolean,
+  ): Promise<T> {
     return this.req<T>(path, { method: 'GET', query }, allowRefreshAndRetry);
   }
 
-  private put<T>(path: string, body?: any, query?: Record<string, string>, allowRefreshAndRetry?: boolean): Promise<T> {
+  private put<T>(
+    path: string,
+    body?: any,
+    query?: Record<string, string>,
+    allowRefreshAndRetry?: boolean,
+  ): Promise<T> {
     return this.req<T>(
       path,
       {
@@ -193,15 +202,19 @@ export class ApiConnect {
     return mapExpense(await this.get<UserExpenseWithDetails>(uri`/api/expense/${id}`));
   }
 
-  public async searchSubscriptions(criteria: SubscriptionSearchCriteria): Promise<SubscriptionResult> {
+  public async searchSubscriptions(
+    criteria: SubscriptionSearchCriteria,
+  ): Promise<SubscriptionResult> {
     return this.post(uri`/api/subscription/search`, criteria);
   }
 
   public getSubscription = async (id: ObjectId): Promise<RecurringExpenseDetails | undefined> =>
     this.get(uri`/api/subscription/${id}`);
 
-  public updateSubscriptionTemplate = async (id: ObjectId, expense: ExpenseData): Promise<ApiMessage> =>
-    this.put<ApiMessage>(uri`/api/subscription/template/${id}`, expense);
+  public updateSubscriptionTemplate = async (
+    id: ObjectId,
+    expense: ExpenseData,
+  ): Promise<ApiMessage> => this.put<ApiMessage>(uri`/api/subscription/template/${id}`, expense);
 
   public deleteSubscription = async (id: ObjectId): Promise<RecurringExpenseDetails | undefined> =>
     this.del(uri`/api/subscription/${id}`);
@@ -238,7 +251,10 @@ export class ApiConnect {
     return this.put<ApiMessage>(uri`/api/expense/recurring/${id}?target=${target}`, expense);
   }
 
-  public deleteRecurringById(id: number | string, target: RecurringExpenseTarget): Promise<ApiMessage> {
+  public deleteRecurringById(
+    id: number | string,
+    target: RecurringExpenseTarget,
+  ): Promise<ApiMessage> {
     return this.del<ApiMessage>(uri`/api/expense/recurring/${id}?target=${target}`);
   }
 

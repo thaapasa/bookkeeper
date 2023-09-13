@@ -7,8 +7,17 @@ import { MaybePromise, recordFromPairs } from 'shared/util';
 
 import { Requests } from './RequestHandling';
 
-export const RouteMethods = ['all', 'get', 'post', 'put', 'delete', 'patch', 'options', 'head'] as const;
-export type RouteMethod = typeof RouteMethods[number];
+export const RouteMethods = [
+  'all',
+  'get',
+  'post',
+  'put',
+  'delete',
+  'patch',
+  'options',
+  'head',
+] as const;
+export type RouteMethod = (typeof RouteMethods)[number];
 
 const TypeMap = {
   id: ObjectIdString,
@@ -82,7 +91,10 @@ export function createValidatingRouter(router: Router): WrappedRouter {
     RouteMethods.map<[`${RouteMethod}Tx`, ValidatedTxRequest]>(m => [
       `${m}Tx`,
       (path, spec, handler, groupRequired) =>
-        router[m](path, Requests.validatedTxRequest(addParamType(path, spec), handler, groupRequired)),
+        router[m](
+          path,
+          Requests.validatedTxRequest(addParamType(path, spec), handler, groupRequired),
+        ),
     ]),
   );
 
@@ -90,7 +102,10 @@ export function createValidatingRouter(router: Router): WrappedRouter {
     RouteMethods.map<[RouteMethod, ValidatedRequest]>(m => [
       m,
       (path, spec, handler, groupRequired) =>
-        router[m](path, Requests.validatedRequest(addParamType(path, spec), handler, groupRequired)),
+        router[m](
+          path,
+          Requests.validatedRequest(addParamType(path, spec), handler, groupRequired),
+        ),
     ]),
   );
 
@@ -118,7 +133,9 @@ function createParamType<Path extends string>(path: Path): ParamValidator<Path> 
     .filter(p => p.startsWith(':'))
     .map(p => p.substring(1)) as any;
   const p = recordFromPairs(
-    types.map<[KnownParamNames, typeof TypeMap[KnownParamNames]]>(t => [t, TypeMap[t]]).filter(p => isDefined(p[1])),
+    types
+      .map<[KnownParamNames, (typeof TypeMap)[KnownParamNames]]>(t => [t, TypeMap[t]])
+      .filter(p => isDefined(p[1])),
   );
   return z.object(p) as any;
 }

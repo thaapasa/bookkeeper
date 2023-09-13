@@ -2,7 +2,11 @@ import { z, ZodError } from 'zod';
 
 import { BkError } from './Errors';
 
-export function validate<T extends z.ZodTypeAny>(data: unknown, codec: T, context: string): z.output<T> {
+export function validate<T extends z.ZodTypeAny>(
+  data: unknown,
+  codec: T,
+  context: string,
+): z.output<T> {
   try {
     return codec.parse(data);
   } catch (e) {

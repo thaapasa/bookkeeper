@@ -1,5 +1,15 @@
 import * as React from 'react';
-import { Area, AreaChart, CartesianGrid, Legend, Line, LineChart, Tooltip, XAxis, YAxis } from 'recharts';
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 
 import { calculateChartHeight } from 'client/ui/chart/ChartSize';
 import { formatMoney, formatMoneyThin, useThinFormat } from 'client/ui/chart/Format';
@@ -11,7 +21,7 @@ import { getChartMargins } from './Common';
 
 type CategoryChartProps<T extends string> = CategoryGraphProps & ChartConfiguration<T>;
 
-export const CategoryChartRenderer: React.FC<CategoryChartProps<any>> = <T extends string,>({
+export const CategoryChartRenderer: React.FC<CategoryChartProps<any>> = <T extends string>({
   convertData,
   size,
   data,
@@ -57,7 +67,13 @@ export const CategoryChartRenderer: React.FC<CategoryChartProps<any>> = <T exten
             name={v.name ?? v.key}
           />
         ) : (
-          <Line type="monotone" key={v.key} dataKey={v.key} stroke={v.color} name={v.name ?? v.key} />
+          <Line
+            type="monotone"
+            key={v.key}
+            dataKey={v.key}
+            stroke={v.color}
+            name={v.name ?? v.key}
+          />
         ),
       )}
     </ChartContainer>

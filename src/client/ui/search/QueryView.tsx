@@ -172,16 +172,20 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
   };
 
   private pushSelections = () => {
-    this.categoriesBus.push(this.state.selectedSuggestions.filter(s => s.type === 'category').map(c => c.id));
+    this.categoriesBus.push(
+      this.state.selectedSuggestions.filter(s => s.type === 'category').map(c => c.id),
+    );
     const receiver = this.state.selectedSuggestions.find(isReceiverSuggestion);
     this.receiverBus.push(receiver ? receiver.receiver : undefined);
   };
 
   private onSetUserId = (userId: ObjectId | undefined) => this.userIdBus.push(userId);
 
-  private onToggleUnconfirmed = (_event: any, checked: boolean) => this.unconfirmedBus.push(checked);
+  private onToggleUnconfirmed = (_event: any, checked: boolean) =>
+    this.unconfirmedBus.push(checked);
 
-  private onChange = (e: string | React.ChangeEvent<{ value: string }>) => this.inputBus.push(eventValue(e));
+  private onChange = (e: string | React.ChangeEvent<{ value: string }>) =>
+    this.inputBus.push(eventValue(e));
 
   private onClear = () => {
     this.inputBus.push('');

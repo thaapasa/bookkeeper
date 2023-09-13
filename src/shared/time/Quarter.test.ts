@@ -1,4 +1,4 @@
-import { expect, describe, it } from 'bun:test';
+import { describe, expect, it } from 'bun:test';
 
 import { getQuartersInRange, Quarter, toQuarter } from './Quarter';
 
@@ -8,7 +8,9 @@ describe('Quarter', () => {
       '2017-Q4',
       '2018-Q1',
     ]);
-    expect(getQuartersInRange({ startDate: '2017-07-01', endDate: '2017-09-30' })).toMatchObject(['2017-Q3']);
+    expect(getQuartersInRange({ startDate: '2017-07-01', endDate: '2017-09-30' })).toMatchObject([
+      '2017-Q3',
+    ]);
     expect(getQuartersInRange({ startDate: '2017-06-30', endDate: '2017-09-30' })).toMatchObject([
       '2017-Q2',
       '2017-Q3',
@@ -48,14 +50,23 @@ describe('Quarter', () => {
     expect(toQuarter(input)).toBe(quarter);
   });
 
-  it.each([['2017-Q1'], ['2017-Q2'], ['2017-Q3'], ['2017-Q4'], ['2670-Q3']])('parses valid quarter %s', quarter => {
-    expect(Quarter.parse(quarter)).toBe(quarter);
-  });
-
-  it.each([['2017-Q0'], ['2017-Q11'], ['2017-Q1 '], ['2017-Q1a'], ['2017-1'], ['201-Q1'], ['2018'], ['']])(
-    'rejects invalid quarter %s',
+  it.each([['2017-Q1'], ['2017-Q2'], ['2017-Q3'], ['2017-Q4'], ['2670-Q3']])(
+    'parses valid quarter %s',
     quarter => {
-      expect(Quarter.safeParse(quarter)).toMatchObject({ success: false });
+      expect(Quarter.parse(quarter)).toBe(quarter);
     },
   );
+
+  it.each([
+    ['2017-Q0'],
+    ['2017-Q11'],
+    ['2017-Q1 '],
+    ['2017-Q1a'],
+    ['2017-1'],
+    ['201-Q1'],
+    ['2018'],
+    [''],
+  ])('rejects invalid quarter %s', quarter => {
+    expect(Quarter.safeParse(quarter)).toMatchObject({ success: false });
+  });
 });

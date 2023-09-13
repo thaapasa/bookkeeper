@@ -19,7 +19,14 @@ import {
   UserExpense,
 } from 'shared/expense';
 import { DateLike, ISODate, toDate, toISODate, toMoment } from 'shared/time';
-import { ApiMessage, DbObject, InvalidExpense, InvalidInputError, NotFoundError, ObjectId } from 'shared/types';
+import {
+  ApiMessage,
+  DbObject,
+  InvalidExpense,
+  InvalidInputError,
+  NotFoundError,
+  ObjectId,
+} from 'shared/types';
 import { assertDefined, camelCaseObject, Money, toArray, unnest } from 'shared/util';
 
 import {
@@ -103,7 +110,14 @@ export async function updateRecurringExpenseTemplate(
   const expense = await getExpenseById(tx, groupId, userId, expenseId);
   assertDefined(expense.recurringExpenseId);
   const recurringExpense = await getRecurringExpenseInfo(tx, groupId, expense.recurringExpenseId);
-  return updateExpenseById(tx, groupId, userId, recurringExpense.templateExpenseId, data, defaultSourceId);
+  return updateExpenseById(
+    tx,
+    groupId,
+    userId,
+    recurringExpense.templateExpenseId,
+    data,
+    defaultSourceId,
+  );
 }
 
 export async function getRecurringExpenseDetails(
@@ -249,8 +263,17 @@ async function createMissingRecurrences(
   }
   const lastDate = dates[dates.length - 1];
   const nextMissing = calculateNextRecurrence(lastDate, recurrence.period);
-  log(`Creating missing expenses for ${recurrence} ${dates}. Next missing is ${toISODate(nextMissing)}`);
-  const expense = await getExpenseAndDivisionData(tx, groupId, userId, recurrence.templateExpenseId);
+  log(
+    `Creating missing expenses for ${recurrence} ${dates}. Next missing is ${toISODate(
+      nextMissing,
+    )}`,
+  );
+  const expense = await getExpenseAndDivisionData(
+    tx,
+    groupId,
+    userId,
+    recurrence.templateExpenseId,
+  );
   await tx.batch(dates.map(date => createMissingRecurrenceForDate(tx, expense, date)));
   await tx.none(
     `UPDATE recurring_expenses
@@ -290,9 +313,14 @@ export async function createMissingRecurringExpenses(
   await tx.batch(list.map(v => createMissingRecurrences(tx, groupId, userId, date, v)));
 }
 
-async function deleteRecurrenceAndExpenses(tx: ITask<any>, recurringExpenseId: number): Promise<ApiMessage> {
+async function deleteRecurrenceAndExpenses(
+  tx: ITask<any>,
+  recurringExpenseId: number,
+): Promise<ApiMessage> {
   const [expenseCount] = await Promise.all([
-    tx.none(`DELETE FROM expenses WHERE recurring_expense_id=$/recurringExpenseId/`, { recurringExpenseId }),
+    tx.none(`DELETE FROM expenses WHERE recurring_expense_id=$/recurringExpenseId/`, {
+      recurringExpenseId,
+    }),
     tx.none(`DELETE FROM recurring_expenses WHERE id=$/recurringExpenseId/`, {
       recurringExpenseId,
     }),
@@ -410,7 +438,11 @@ async function createDivisionForRecurrence(
 ): Promise<number> {
   const ids = await getRecurringExpenseIds(tx, recurringExpenseId, afterDate);
   await Promise.all(
-    unnest(ids.map(expenseId => division.map(d => storeExpenseDivision(tx, expenseId, d.userId, d.type, d.sum)))),
+    unnest(
+      ids.map(expenseId =>
+        division.map(d => storeExpenseDivision(tx, expenseId, d.userId, d.type, d.sum)),
+      ),
+    ),
   );
   return recurringExpenseId;
 }

@@ -60,7 +60,8 @@ export function createApi() {
   api.get(
     '/user/:id',
     Requests.txRequest(
-      (tx, session, req): Promise<User> => getUserById(tx, session.group.id, parseInt(req.params.id, 10)),
+      (tx, session, req): Promise<User> =>
+        getUserById(tx, session.group.id, parseInt(req.params.id, 10)),
       true,
     ),
   );

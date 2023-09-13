@@ -9,9 +9,19 @@ import { expandSubCategories } from './CategoryDb';
 
 const log = debug('bookkeeper:api:expenses:search');
 
-export async function getExpenseSearchQuery(tx: ITask<any>, userId: number, groupId: number, query: ExpenseQuery) {
-  const type = Array.isArray(query.type) ? query.type : isDefined(query.type) ? [query.type] : undefined;
-  const inputCategoryIds = typeof query.categoryId === 'number' ? [query.categoryId] : query.categoryId || [];
+export async function getExpenseSearchQuery(
+  tx: ITask<any>,
+  userId: number,
+  groupId: number,
+  query: ExpenseQuery,
+) {
+  const type = Array.isArray(query.type)
+    ? query.type
+    : isDefined(query.type)
+    ? [query.type]
+    : undefined;
+  const inputCategoryIds =
+    typeof query.categoryId === 'number' ? [query.categoryId] : query.categoryId || [];
   const categoryIds =
     query.includeSubCategories && inputCategoryIds.length > 0
       ? await expandSubCategories(tx, groupId, inputCategoryIds)

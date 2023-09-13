@@ -15,7 +15,7 @@ export const ExpenseRowSeparator: React.FC<ExpenseRowSeparatorProps> = ({ next, 
   const output: JSX.Element[] = [];
   const showWeeks = weeksToShow(prev, next);
 
-  output.push(...showWeeks.map((w, i) => <WeekHeaderRow key={w} week={w} />));
+  output.push(...showWeeks.map(w => <WeekHeaderRow key={w} week={w} />));
 
   return <>{output}</>;
 };

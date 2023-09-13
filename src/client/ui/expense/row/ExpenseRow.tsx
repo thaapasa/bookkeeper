@@ -2,7 +2,12 @@ import { styled } from '@mui/material';
 import debug from 'debug';
 import * as React from 'react';
 
-import { ExpenseDivisionItem, RecurringExpenseTarget, UserExpense, UserExpenseWithDetails } from 'shared/expense';
+import {
+  ExpenseDivisionItem,
+  RecurringExpenseTarget,
+  UserExpense,
+  UserExpenseWithDetails,
+} from 'shared/expense';
 import { readableDate, toDate, toISODate, toMoment } from 'shared/time';
 import { Category, CategoryMap, isDefined, Source, User } from 'shared/types';
 import { equal, Money, notEqual } from 'shared/util';
@@ -84,7 +89,11 @@ export class ExpenseRowImpl extends React.Component<ExpenseRowProps, ExpenseRowS
   private categoryLink(id: number) {
     const cat = this.props.categoryMap[id];
     return (
-      <TextButton key={cat.id} onClick={() => this.onClickCategory(cat)} style={{ color: colors.action }}>
+      <TextButton
+        key={cat.id}
+        onClick={() => this.onClickCategory(cat)}
+        style={{ color: colors.action }}
+      >
         {cat.name}
       </TextButton>
     );
@@ -92,7 +101,9 @@ export class ExpenseRowImpl extends React.Component<ExpenseRowProps, ExpenseRowS
 
   private fullCategoryLink(id: number) {
     const cat = this.props.categoryMap[id];
-    return cat.parentId ? [this.categoryLink(cat.parentId), ' - ', this.categoryLink(id)] : this.categoryLink(id);
+    return cat.parentId
+      ? [this.categoryLink(cat.parentId), ' - ', this.categoryLink(id)]
+      : this.categoryLink(id);
   }
 
   private updateExpense = async (data: Partial<UserExpense>) => {
@@ -112,7 +123,10 @@ export class ExpenseRowImpl extends React.Component<ExpenseRowProps, ExpenseRowS
     });
   };
 
-  private toggleDetails = async (expense: UserExpense, currentDetails: UserExpenseWithDetails | null) => {
+  private toggleDetails = async (
+    expense: UserExpense,
+    currentDetails: UserExpenseWithDetails | null,
+  ) => {
     if (currentDetails) {
       this.setState({ details: null, isLoading: false });
     } else {
@@ -184,7 +198,8 @@ export class ExpenseRowImpl extends React.Component<ExpenseRowProps, ExpenseRowS
     } else if (expense.type === 'income') {
       style.background = colors.income;
     }
-    const firstDay = !this.props.prev || !toMoment(expense.date).isSame(this.props.prev.date, 'day');
+    const firstDay =
+      !this.props.prev || !toMoment(expense.date).isSame(this.props.prev.date, 'day');
     return (
       <>
         <Row className={firstDay && this.props.dateBorder ? 'first-day' : ''}>
@@ -200,13 +215,19 @@ export class ExpenseRowImpl extends React.Component<ExpenseRowProps, ExpenseRowS
               user={this.props.userMap[expense.userId]}
               size={32}
               onClick={() =>
-                this.props.addFilter(e => e.userId === expense.userId, this.props.user.firstName, this.props.user.image)
+                this.props.addFilter(
+                  e => e.userId === expense.userId,
+                  this.props.user.firstName,
+                  this.props.user.image,
+                )
               }
             />
           </AvatarColumn>
           <NameColumn>
             {this.props.expense.confirmed ? null : (
-              <UnconfirmedIcon onClick={() => this.props.addFilter(ExpenseFilters.unconfirmed, 'Alustavat')} />
+              <UnconfirmedIcon
+                onClick={() => this.props.addFilter(ExpenseFilters.unconfirmed, 'Alustavat')}
+              />
             )}
             <ActivatableTextField
               fullWidth
@@ -238,7 +259,11 @@ export class ExpenseRowImpl extends React.Component<ExpenseRowProps, ExpenseRowS
           </SourceColumn>
           <SumColumn className={expense.type}>
             <VCenterRow className="fill">
-              <ExpenseTypeIcon type={expense.type} color={colors.colorScheme.secondary.dark} size={20} />
+              <ExpenseTypeIcon
+                type={expense.type}
+                color={colors.colorScheme.secondary.dark}
+                size={20}
+              />
               <Flex />
               <div>{Money.from(expense.sum).format()}</div>
             </VCenterRow>
@@ -261,7 +286,12 @@ export class ExpenseRowImpl extends React.Component<ExpenseRowProps, ExpenseRowS
             />
             <OptionalIcons>
               <ToolIcon title="Muokkaa" onClick={this.modifyExpense} icon="Edit" />
-              <ToolIcon className="optional" title="Poista" onClick={this.deleteExpense} icon="Delete" />
+              <ToolIcon
+                className="optional"
+                title="Poista"
+                onClick={this.deleteExpense}
+                icon="Delete"
+              />
             </OptionalIcons>
           </ToolColumn>
         </Row>

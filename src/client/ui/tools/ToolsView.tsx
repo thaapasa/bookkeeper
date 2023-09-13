@@ -34,7 +34,11 @@ async function changeReceiverName() {
     ReceiverField,
   );
   if (!oldName) return;
-  const newName = await UserPrompts.promptText('Vaihda nimi', 'Syötä uusi nimi kohteelle:', oldName);
+  const newName = await UserPrompts.promptText(
+    'Vaihda nimi',
+    'Syötä uusi nimi kohteelle:',
+    oldName,
+  );
   if (!newName) return;
   log(`Renaming ${oldName} to ${newName}`);
   await executeOperation(() => apiConnect.renameReceiver(oldName, newName), {

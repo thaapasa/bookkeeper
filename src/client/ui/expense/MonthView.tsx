@@ -88,7 +88,9 @@ export const MonthView: React.FC<MonthViewProps> = ({ date }) => {
       endStatus={statuses.endStatus}
       monthStatus={statuses.monthStatus}
       unconfirmedBefore={expenseResponse?.unconfirmedBefore ?? false}
-      onUpdateExpense={(id, data) => (expenses ? setExpenses(expenses.map(e => (e.id === id ? data : e))) : undefined)}
+      onUpdateExpense={(id, data) =>
+        expenses ? setExpenses(expenses.map(e => (e.id === id ? data : e))) : undefined
+      }
       dateBorder={true}
     />
   );

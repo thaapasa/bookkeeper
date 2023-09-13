@@ -52,7 +52,11 @@ interface UserIdAvatarProps extends CommonAvatarProps {
   userMap: Record<string, User>;
 }
 
-export const UserIdAvatar: React.FC<React.PropsWithChildren<UserIdAvatarProps>> = ({ userMap, userId, ...props }) => {
+export const UserIdAvatar: React.FC<React.PropsWithChildren<UserIdAvatarProps>> = ({
+  userMap,
+  userId,
+  ...props
+}) => {
   const user = userMap[userId];
   return user ? <UserAvatar {...props} user={user} /> : null;
 };

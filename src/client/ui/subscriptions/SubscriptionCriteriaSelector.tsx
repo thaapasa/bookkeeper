@@ -22,11 +22,19 @@ const rangeOptions = [
 export const SubscriptionCriteriaSelector: React.FC<{
   onChange: (criteria: SubscriptionSearchCriteria) => void;
 }> = ({ onChange }) => {
-  const [includeEnded, setIncludeEnded] = useLocalStorage('subscriptions.includeEnded', false, z.boolean());
+  const [includeEnded, setIncludeEnded] = useLocalStorage(
+    'subscriptions.includeEnded',
+    false,
+    z.boolean(),
+  );
   const [onlyOwn, setOnlyOwn] = useLocalStorage('subscriptions.onlyOwn', false, z.boolean());
   const [expenses, setExpenses] = useLocalStorage('subscriptions.type.expense', true, z.boolean());
   const [incomes, setIncomes] = useLocalStorage('subscriptions.type.income', false, z.boolean());
-  const [transfers, setTranfers] = useLocalStorage('subscriptions.type.transfer', false, z.boolean());
+  const [transfers, setTranfers] = useLocalStorage(
+    'subscriptions.type.transfer',
+    false,
+    z.boolean(),
+  );
   const [range, setRange] = useLocalStorage<MomentInterval>(
     'subscriptions.range',
     { amount: 5, unit: 'years' },
@@ -52,7 +60,9 @@ export const SubscriptionCriteriaSelector: React.FC<{
       <Grid item xs={12} md={4}>
         <FormGroup row>
           <FormControlLabel
-            control={<Checkbox checked={includeEnded} onChange={() => setIncludeEnded(!includeEnded)} />}
+            control={
+              <Checkbox checked={includeEnded} onChange={() => setIncludeEnded(!includeEnded)} />
+            }
             label="Myös loppuneet"
           />
           <FormControlLabel
@@ -66,7 +76,12 @@ export const SubscriptionCriteriaSelector: React.FC<{
           {rangeOptions.map(r => (
             <FormControlLabel
               key={r.label}
-              control={<Radio checked={isSameInterval(r.range, range)} onChange={() => setRange(r.range)} />}
+              control={
+                <Radio
+                  checked={isSameInterval(r.range, range)}
+                  onChange={() => setRange(r.range)}
+                />
+              }
               label={r.label}
             />
           ))}

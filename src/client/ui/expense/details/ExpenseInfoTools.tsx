@@ -39,7 +39,12 @@ const styles = {
   },
 };
 
-const ExpenseInfoToolsImpl: React.FC<RecurrenceInfoProps> = ({ expense, onModify, onDelete, ...props }) => {
+const ExpenseInfoToolsImpl: React.FC<RecurrenceInfoProps> = ({
+  expense,
+  onModify,
+  onDelete,
+  ...props
+}) => {
   const createRecurring = async () => {
     const period = await UserPrompts.select<RecurrencePeriod>(
       'Muuta toistuvaksi',
@@ -130,9 +135,9 @@ const MobileTools = styled('div')`
   `}
 `;
 
-export const ExpenseInfoTools = connect(B.combineTemplate({ categoryMap: categoryMapE, sourceMap: sourceMapE }))(
-  ExpenseInfoToolsImpl,
-);
+export const ExpenseInfoTools = connect(
+  B.combineTemplate({ categoryMap: categoryMapE, sourceMap: sourceMapE }),
+)(ExpenseInfoToolsImpl);
 
 export const ToolIconButton = styled(IconButton)`
   margin: 0px;

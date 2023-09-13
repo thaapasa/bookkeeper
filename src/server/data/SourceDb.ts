@@ -40,15 +40,24 @@ FROM sources s
 LEFT JOIN source_users so ON (so.source_id = s.id)`;
 
 export async function getAllSources(tx: ITask<any>, groupId: number): Promise<Source[]> {
-  const s = await tx.manyOrNone<SourceData>(`${select} WHERE group_id = $/groupId/::INTEGER`, { groupId });
+  const s = await tx.manyOrNone<SourceData>(`${select} WHERE group_id = $/groupId/::INTEGER`, {
+    groupId,
+  });
   return createGroupObject(s);
 }
 
-export async function getSourceById(tx: ITask<any>, groupId: ObjectId, id: ObjectId): Promise<Source> {
-  const s = await tx.manyOrNone<SourceData>(`${select} WHERE id=$/id/::INTEGER AND group_id=$/groupId/::INTEGER`, {
-    id,
-    groupId,
-  });
+export async function getSourceById(
+  tx: ITask<any>,
+  groupId: ObjectId,
+  id: ObjectId,
+): Promise<Source> {
+  const s = await tx.manyOrNone<SourceData>(
+    `${select} WHERE id=$/id/::INTEGER AND group_id=$/groupId/::INTEGER`,
+    {
+      id,
+      groupId,
+    },
+  );
   if (!s || s.length < 1) {
     throw new NotFoundError('SOURCE_NOT_FOUND', 'source', id);
   }

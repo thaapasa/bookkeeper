@@ -1,4 +1,4 @@
-import { expect, describe, it } from 'bun:test';
+import { describe, expect, it } from 'bun:test';
 
 import { indices, numberRange, sortAndCompareElements } from './Arrays';
 

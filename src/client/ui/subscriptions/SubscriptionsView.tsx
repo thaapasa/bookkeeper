@@ -28,15 +28,26 @@ const emptyResponse: SubscriptionResult = {
   reports: [],
 };
 
-const loadExpenses = async (criteria: SubscriptionSearchCriteria | undefined, categories: CategoryMap) =>
-  groupSubscriptions(criteria ? await apiConnect.searchSubscriptions(criteria) : emptyResponse, categories);
+const loadExpenses = async (
+  criteria: SubscriptionSearchCriteria | undefined,
+  categories: CategoryMap,
+) =>
+  groupSubscriptions(
+    criteria ? await apiConnect.searchSubscriptions(criteria) : emptyResponse,
+    categories,
+  );
 
 const SubscriptionsViewImpl: React.FC<{
   categories: CategoryMap;
 }> = ({ categories }) => {
   const [criteria, setCriteria] = React.useState<SubscriptionSearchCriteria | undefined>(undefined);
 
-  const { data, loadData } = useDeferredData(loadExpenses, criteria !== undefined, criteria, categories);
+  const { data, loadData } = useDeferredData(
+    loadExpenses,
+    criteria !== undefined,
+    criteria,
+    categories,
+  );
   // Load data automatically
   React.useEffect(loadData, [loadData, criteria, categories]);
   // Reload whenever update bus is triggered
@@ -49,7 +60,9 @@ const SubscriptionsViewImpl: React.FC<{
   );
 };
 
-export const SubscriptionsView = connect(combineTemplate({ categories: categoryMapE }))(SubscriptionsViewImpl);
+export const SubscriptionsView = connect(combineTemplate({ categories: categoryMapE }))(
+  SubscriptionsViewImpl,
+);
 
 const SubscriptionsRenderer: React.FC<{
   data: SubscriptionsData;
@@ -69,7 +82,9 @@ const SubscriptionsRenderer: React.FC<{
     <>
       <SubscriptionCategoryHeader
         title={hasFiltered ? 'Suodatetut' : 'Kaikki'}
-        totals={hasFiltered ? sumRecurrenceTotals(filteredGroups.map(g => g.allTotals)) : data.totals}
+        totals={
+          hasFiltered ? sumRecurrenceTotals(filteredGroups.map(g => g.allTotals)) : data.totals
+        }
         className="root-category"
       />
       <ChartArea>
@@ -86,10 +101,19 @@ const SubscriptionsRenderer: React.FC<{
         </ChartTools>
       </ChartArea>
       {selectedGroup ? (
-        <GroupView group={selectedGroup} hidden={hidden.list} toggleVisibility={hidden.toggleItem} />
+        <GroupView
+          group={selectedGroup}
+          hidden={hidden.list}
+          toggleVisibility={hidden.toggleItem}
+        />
       ) : (
         data.groups.map(s => (
-          <GroupView key={s.root.id} group={s} hidden={hidden.list} toggleVisibility={hidden.toggleItem} />
+          <GroupView
+            key={s.root.id}
+            group={s}
+            hidden={hidden.list}
+            toggleVisibility={hidden.toggleItem}
+          />
         ))
       )}
     </>
@@ -102,13 +126,21 @@ function createPieData(
   perMonth: boolean,
 ): TotalsData[] {
   if (!selectedCat) {
-    return groups.map(g => total(g.root.name, g.allTotals.recurrencePerYear, g.colorIndex, perMonth, g.root.id));
+    return groups.map(g =>
+      total(g.root.name, g.allTotals.recurrencePerYear, g.colorIndex, perMonth, g.root.id),
+    );
   }
   const group = groups.find(g => g.root.id === selectedCat);
   if (!group) return [];
   return (
-    group.rootTotals ? [total(group.root.name, group.rootTotals.recurrencePerYear, group.colorIndex, perMonth)] : []
-  ).concat(group.children.map(c => total(c.category.name, c.totals.recurrencePerYear, group.colorIndex, perMonth)));
+    group.rootTotals
+      ? [total(group.root.name, group.rootTotals.recurrencePerYear, group.colorIndex, perMonth)]
+      : []
+  ).concat(
+    group.children.map(c =>
+      total(c.category.name, c.totals.recurrencePerYear, group.colorIndex, perMonth),
+    ),
+  );
 }
 
 const total = (
@@ -130,7 +162,11 @@ const GroupView: React.FC<{
   group: SubscriptionGroup;
   hidden: ObjectId[];
   toggleVisibility: ToggleCategoryVisibility;
-}> = ({ group: { root, rootItems, rootTotals, allTotals, children }, hidden, toggleVisibility }) => {
+}> = ({
+  group: { root, rootItems, rootTotals, allTotals, children },
+  hidden,
+  toggleVisibility,
+}) => {
   const visible = !hidden.includes(root.id);
   return (
     <>
@@ -153,7 +189,12 @@ const GroupView: React.FC<{
             />
           ) : null}
           {children.map(c => (
-            <CategorySubscriptions key={c.category.id} category={c.category} items={c.items} totals={c.totals} />
+            <CategorySubscriptions
+              key={c.category.id}
+              category={c.category}
+              items={c.items}
+              totals={c.totals}
+            />
           ))}
         </>
       ) : null}
@@ -168,7 +209,11 @@ const CategorySubscriptions: React.FC<{
   totals?: RecurrenceTotals;
 }> = ({ category, items, totals, title }) => (
   <>
-    <SubscriptionCategoryHeader title={title ?? category.name} totals={totals} className="child-category" />
+    <SubscriptionCategoryHeader
+      title={title ?? category.name}
+      totals={totals}
+      className="child-category"
+    />
     {items.map(item => (
       <SubscriptionItemView key={item.id} item={item} />
     ))}

@@ -1,6 +1,8 @@
 import { fail } from 'assert';
 
-export function expectSome(tests: Function[]) {
+type TestFun = () => void;
+
+export function expectSome(tests: TestFun[]) {
   for (const test of tests) {
     try {
       test();

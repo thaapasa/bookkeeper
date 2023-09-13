@@ -26,7 +26,9 @@ function categoryStatisticsToSeasonsData(
   }
 
   return {
-    chartData: allSeasions.map(season => bySeasons[season] ?? { season }).map(d => fillMissingForNumericKeys(d, keys)),
+    chartData: allSeasions
+      .map(season => bySeasons[season] ?? { season })
+      .map(d => fillMissingForNumericKeys(d, keys)),
     keys: keys.map((key, i) => ({
       key,
       color: getChartColor(i, 0),
@@ -44,7 +46,9 @@ const SeasonNames: Record<string, string> = {
 };
 function formatSeason(season: Season) {
   const parts = season.split('-');
-  return parts.length > 2 ? `${SeasonNames[parts[2]]} ${parts[0]}-${parts[1]}` : `${SeasonNames[parts[1]]} ${parts[0]}`;
+  return parts.length > 2
+    ? `${SeasonNames[parts[2]]} ${parts[0]}-${parts[1]}`
+    : `${SeasonNames[parts[1]]} ${parts[0]}`;
 }
 
 const SeasonConfig: ChartConfiguration<'season'> = {

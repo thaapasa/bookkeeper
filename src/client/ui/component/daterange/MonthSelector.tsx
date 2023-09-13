@@ -25,8 +25,22 @@ export const MonthSelector: React.FC<MonthSelectorProps> = ({ year, month, onSel
       <StyledIconButton onClick={() => onSelect(...prevMonth(year, month))} title="Edellinen">
         <Icons.ChevronLeft color="primary" />
       </StyledIconButton>
-      <NumberInput hiddenLabel className="year" value={year} variant="filled" size="small" onChange={changeYear} />
-      <NumberInput hiddenLabel className="month" value={month} variant="filled" size="small" onChange={changeMonth} />
+      <NumberInput
+        hiddenLabel
+        className="year"
+        value={year}
+        variant="filled"
+        size="small"
+        onChange={changeYear}
+      />
+      <NumberInput
+        hiddenLabel
+        className="month"
+        value={month}
+        variant="filled"
+        size="small"
+        onChange={changeMonth}
+      />
       <StyledIconButton onClick={() => onSelect(...nextMonth(year, month))} title="Seuraava">
         <Icons.ChevronRight color="primary" />
       </StyledIconButton>

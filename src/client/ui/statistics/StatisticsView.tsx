@@ -151,6 +151,6 @@ export const StatisticsViewImpl: React.FC<{
   );
 };
 
-export const StatisticsView = connect(B.combineTemplate({ categoryMap: categoryMapE, size: windowSizeP }))(
-  StatisticsViewImpl,
-);
+export const StatisticsView = connect(
+  B.combineTemplate({ categoryMap: categoryMapE, size: windowSizeP }),
+)(StatisticsViewImpl);

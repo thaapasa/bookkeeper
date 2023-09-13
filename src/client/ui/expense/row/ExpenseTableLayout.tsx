@@ -12,8 +12,18 @@ import { Size } from 'client/ui/Types';
 const tableBgColor = colorScheme.primary.light;
 const separatorColor = colorScheme.gray.standard;
 
-const columns = ['date', 'avatar', 'name', 'receiver', 'category', 'source', 'sum', 'balance', 'tools'] as const;
-type ExpenseRowColumns = typeof columns[number];
+const columns = [
+  'date',
+  'avatar',
+  'name',
+  'receiver',
+  'category',
+  'source',
+  'sum',
+  'balance',
+  'tools',
+] as const;
+type ExpenseRowColumns = (typeof columns)[number];
 
 export const columnSizes: Record<ExpenseRowColumns, ScreenSizeClassName> = {
   date: 'mobile-portrait',
@@ -29,8 +39,9 @@ export const columnSizes: Record<ExpenseRowColumns, ScreenSizeClassName> = {
 
 export const maxColumnsForSize = {
   'mobile-portrait': columns.filter(c => columnSizes[c] === 'mobile-portrait').length,
-  'mobile-landscape': columns.filter(c => columnSizes[c] === 'mobile-portrait' || columnSizes[c] === 'mobile-landscape')
-    .length,
+  'mobile-landscape': columns.filter(
+    c => columnSizes[c] === 'mobile-portrait' || columnSizes[c] === 'mobile-landscape',
+  ).length,
   web: columns.length,
   large: columns.length,
 };
@@ -75,10 +86,7 @@ export const Row = styled('tr')`
   }
 
   &.first-day {
-    background: linear-gradient(
-      ${primaryColors.standard}cc 0%,
-      ${tableBgColor} 20%
-    );
+    background: linear-gradient(${primaryColors.standard}cc 0%, ${tableBgColor} 20%);
     & td {
       padding-top: 4px;
     }
@@ -172,11 +180,9 @@ export const ToolColumn = styled(Column)`
   `}
 `;
 
-const AllColumnsComponent: React.FC<React.PropsWithChildren<{ className?: string; size: Size }>> = ({
-  className,
-  children,
-  size,
-}) => (
+const AllColumnsComponent: React.FC<
+  React.PropsWithChildren<{ className?: string; size: Size }>
+> = ({ className, children, size }) => (
   <Column colSpan={getVisibleColumns(size)} className={className}>
     {children}
   </Column>

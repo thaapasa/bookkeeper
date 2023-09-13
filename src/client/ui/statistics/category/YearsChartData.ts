@@ -35,7 +35,9 @@ function categoryStatisticsToYearlyData(
     byYears[year][stat.categoryId] = stat.sum;
   }
 
-  const chartData = years.map(year => byYears[year] ?? { year }).map(d => fillMissingForNumericKeys(d, cats));
+  const chartData = years
+    .map(year => byYears[year] ?? { year })
+    .map(d => fillMissingForNumericKeys(d, cats));
 
   const keys = cats.map((key, i) => ({
     key,
@@ -52,7 +54,8 @@ function categoryStatisticsToYearlyData(
   return mapChartData(
     result,
     (k, i) => (separateEstimate ? [k, createEstimateKey(k, i)] : [k]),
-    d => createEstimationsForYear(d, result.chartData, data, Number(d.year), range, separateEstimate),
+    d =>
+      createEstimationsForYear(d, result.chartData, data, Number(d.year), range, separateEstimate),
   );
 }
 
@@ -89,13 +92,17 @@ function createEstimationsForYear(
   const keys = typedKeys(data.statistics);
 
   if (year !== lastYear) {
-    return separateEstimate ? { ...column, ...recordFromPairs(keys.map(k => [`${k}i`, 0])) } : column;
+    return separateEstimate
+      ? { ...column, ...recordFromPairs(keys.map(k => [`${k}i`, 0])) }
+      : column;
   }
 
   if (separateEstimate) {
     return {
       ...column,
-      ...recordFromPairs(keys.map(k => [`${k}i`, estimateMissingYearlyExpenses(Number(k), data, chartData, range)])),
+      ...recordFromPairs(
+        keys.map(k => [`${k}i`, estimateMissingYearlyExpenses(Number(k), data, chartData, range)]),
+      ),
     };
   }
 
@@ -103,10 +110,14 @@ function createEstimationsForYear(
     keys.map(k => [k, estimateMissingYearlyExpenses(Number(k), data, chartData, range)]),
   );
 
-  return recordFromPairs(typedKeys(column).map(k => [k, k === 'year' ? column[k] : column[k] + estimates[k]])) as any;
+  return recordFromPairs(
+    typedKeys(column).map(k => [k, k === 'year' ? column[k] : column[k] + estimates[k]]),
+  ) as any;
 }
 
-export function createYearsChartConfiguration(props: CategoryGraphProps): ChartConfiguration<'year'> {
+export function createYearsChartConfiguration(
+  props: CategoryGraphProps,
+): ChartConfiguration<'year'> {
   const lastYear = props.data.range.endDate.substring(0, 4);
   return {
     convertData: categoryStatisticsToYearlyData,

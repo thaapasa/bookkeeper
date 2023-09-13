@@ -20,7 +20,12 @@ export class ExpenseFilterRow extends React.Component<ExpenseFilterRowProps> {
       <Row>
         <FilterArea>
           {this.props.filters.map((f, index) => (
-            <ExpenseFilterItem filter={f} index={index} key={`filter-${index}`} onRemove={this.props.onRemoveFilter} />
+            <ExpenseFilterItem
+              filter={f}
+              index={index}
+              key={`filter-${index}`}
+              onRemove={this.props.onRemoveFilter}
+            />
           ))}
         </FilterArea>
       </Row>

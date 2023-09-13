@@ -32,14 +32,17 @@ function formatMoney(m?: MoneyLike): string {
 }
 
 export const CategoryRow: React.FC<CategoryRowProps> = props => {
-  const { category, header, categoryTotals, className, title, createCategory, editCategory } = props;
+  const { category, header, categoryTotals, className, title, createCategory, editCategory } =
+    props;
   const [open, toggleOpen] = useToggle();
 
   const totals = categoryTotals['' + category.id];
   const clsName = `${className ?? ''} ${header ? 'main-category' : 'sub-category'}`;
   const income = totals ? (header ? totals.totalIncome : totals.income) : Money.zero;
   const expense = totals ? (header ? totals.totalExpenses : totals.expenses) : Money.zero;
-  const toolColor = header ? colors.colorScheme.gray.veryDark : colors.colorScheme.secondary.standard;
+  const toolColor = header
+    ? colors.colorScheme.gray.veryDark
+    : colors.colorScheme.secondary.standard;
 
   return (
     <>

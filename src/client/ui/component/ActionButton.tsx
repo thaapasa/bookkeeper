@@ -24,7 +24,9 @@ export const ActionButton: React.FC<ActionButtonProps<any>> = <T,>({
       setData({ type: 'loaded', value: res });
       return;
     }
-    res.then(value => setData({ type: 'loaded', value })).catch(error => setData({ type: 'error', error }));
+    res
+      .then(value => setData({ type: 'loaded', value }))
+      .catch(error => setData({ type: 'error', error }));
   };
   return (
     <Button {...props} onClick={clickHandler} disabled={data.type === 'loading'}>

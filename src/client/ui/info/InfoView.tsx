@@ -12,7 +12,10 @@ import { PageContentContainer } from '../Styles';
 import { InfoItem, ItemWithId, Label, SubValue, Value } from './InfoLayoutElements';
 import { VersionInfoView } from './VersionInfoView';
 
-const InfoViewImpl: React.FC<{ userData: UserDataProps; session: Session }> = ({ userData, session }) => (
+const InfoViewImpl: React.FC<{ userData: UserDataProps; session: Session }> = ({
+  userData,
+  session,
+}) => (
   <PageContentContainer className="padded">
     <VersionInfoView />
     <UsersView user={session.user} userMap={userData.userMap} />
@@ -76,7 +79,11 @@ const SourcesView: React.FC<{ sources: Source[] }> = ({ sources }) => {
       <Value>
         {Object.values(sources).map(s => (
           <ItemWithId key={s.id} id={s.id}>
-            <ActivatableTextField value={s.name} onChange={name => renameSource(s.id, name)} width="360px" />
+            <ActivatableTextField
+              value={s.name}
+              onChange={name => renameSource(s.id, name)}
+              width="360px"
+            />
           </ItemWithId>
         ))}
       </Value>
@@ -91,4 +98,6 @@ async function renameSource(sourceId: ObjectId, name: string) {
   }
 }
 
-export const InfoView = connect(B.combineTemplate({ session: validSessionE, userData: userDataE }))(InfoViewImpl);
+export const InfoView = connect(B.combineTemplate({ session: validSessionE, userData: userDataE }))(
+  InfoViewImpl,
+);

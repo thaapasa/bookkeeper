@@ -1,4 +1,12 @@
-import { Button, Checkbox, CircularProgress, FormControlLabel, Grid, IconButton, styled } from '@mui/material';
+import {
+  Button,
+  Checkbox,
+  CircularProgress,
+  FormControlLabel,
+  Grid,
+  IconButton,
+  styled,
+} from '@mui/material';
 import * as B from 'baconjs';
 import * as React from 'react';
 
@@ -78,7 +86,9 @@ const QuerySearchLayoutImpl: React.FC<QuerySearchLayoutProps> = ({
           </IconButton>
         </SearchButtonArea>
         <ProgressArea>
-          {isSearching ? <CircularProgress size={38} variant="indeterminate" disableShrink /> : null}
+          {isSearching ? (
+            <CircularProgress size={38} variant="indeterminate" disableShrink />
+          ) : null}
         </ProgressArea>
       </FlexRow>
       <br />
@@ -99,10 +109,18 @@ const QuerySearchLayoutImpl: React.FC<QuerySearchLayoutProps> = ({
           label="Vain omat"
         />
         {isDefined(userId) ? (
-          <UserSelector singleSelection selected={[userId]} onChange={([id]) => onSetUserId(id)} size={32} />
+          <UserSelector
+            singleSelection
+            selected={[userId]}
+            onChange={([id]) => onSetUserId(id)}
+            size={32}
+          />
         ) : null}
       </Row>
-      <CheckLabel control={<Checkbox checked={unconfirmed} onChange={onToggleUnconfirmed} />} label="Alustavat" />
+      <CheckLabel
+        control={<Checkbox checked={unconfirmed} onChange={onToggleUnconfirmed} />}
+        label="Alustavat"
+      />
       <Button onClick={onSaveAsReport}>Tee raportti</Button>
     </Grid>
     <Grid item xs={12}>

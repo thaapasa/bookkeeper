@@ -1,17 +1,22 @@
-import { afterEach, beforeEach, expect, describe, it } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, it } from 'bun:test';
+import { expectArrayContaining } from 'test/expect/expectArrayContaining';
 
 import { Expense, ExpenseCollection, RecurrencePeriod } from 'shared/expense';
-import { captureId, checkCreateStatus, cleanup, fetchMonthStatus, newExpense } from 'shared/expense/test';
-
+import {
+  captureId,
+  checkCreateStatus,
+  cleanup,
+  fetchMonthStatus,
+  newExpense,
+} from 'shared/expense/test';
+import { uri } from 'shared/net';
 import { createTestClient, SessionWithControl } from 'shared/net/test';
 import { ISODate, toISODate, YearMonth } from 'shared/time';
 import { ApiMessage } from 'shared/types';
 import { Money } from 'shared/util';
-import { expectArrayContaining } from 'test/expect/expectArrayContaining';
 import { calculateNextRecurrence } from 'server/data/RecurringExpenseService';
 
 import { checkMonthStatus } from './MonthStatus';
-import { uri } from 'shared/net';
 
 const month: YearMonth = { year: 2017, month: 1 };
 
@@ -93,7 +98,10 @@ describe('recurring expenses', () => {
       year: 2017,
       month: 2,
     });
-    const expenses = await session.get<ExpenseCollection>('/api/expense/month', { year: 2017, month: 1 });
+    const expenses = await session.get<ExpenseCollection>('/api/expense/month', {
+      year: 2017,
+      month: 1,
+    });
     const matches = expenses.expenses.filter(e => e.recurringExpenseId === s.recurringExpenseId);
     expect(matches).toMatchObject([{ title: 'Pan-galactic gargleblaster', date: '2017-01-01' }]);
   });

@@ -97,11 +97,20 @@ export class FetchClient {
     'Content-Type': 'application/json',
   };
 
-  public get<T>(path: string, query?: Record<string, any>, headers?: Record<string, string>): Promise<T> {
+  public get<T>(
+    path: string,
+    query?: Record<string, any>,
+    headers?: Record<string, string>,
+  ): Promise<T> {
     return this.req(path, { method: 'GET', query, headers });
   }
 
-  public put<T>(path: string, body?: any, query?: Record<string, any>, headers?: Record<string, string>): Promise<T> {
+  public put<T>(
+    path: string,
+    body?: any,
+    query?: Record<string, any>,
+    headers?: Record<string, string>,
+  ): Promise<T> {
     return this.req(path, {
       method: 'PUT',
       body,
@@ -110,7 +119,12 @@ export class FetchClient {
     });
   }
 
-  public post<T>(path: string, body?: any, query?: Record<string, any>, headers?: Record<string, string>): Promise<T> {
+  public post<T>(
+    path: string,
+    body?: any,
+    query?: Record<string, any>,
+    headers?: Record<string, string>,
+  ): Promise<T> {
     return this.req(path, {
       method: 'POST',
       body,
@@ -119,7 +133,12 @@ export class FetchClient {
     });
   }
 
-  public del<T>(path: string, data?: any, query?: Record<string, any>, headers?: Record<string, string>): Promise<T> {
+  public del<T>(
+    path: string,
+    data?: any,
+    query?: Record<string, any>,
+    headers?: Record<string, string>,
+  ): Promise<T> {
     return this.req(path, { method: 'DELETE', query, headers, body: data });
   }
 }

@@ -1,4 +1,4 @@
-import { expect, describe, it } from 'bun:test';
+import { describe, expect, it } from 'bun:test';
 
 import { getSeasonsInRange, Season, toSeason } from './Season';
 
@@ -10,9 +10,12 @@ describe('Season', () => {
     },
   );
 
-  it.each([['2017-Q1'], ['2017-Winter'], ['2017-2018-Summer'], ['']])('rejects invalid season %s', season => {
-    expect(Season.safeParse(season)).toMatchObject({ success: false });
-  });
+  it.each([['2017-Q1'], ['2017-Winter'], ['2017-2018-Summer'], ['']])(
+    'rejects invalid season %s',
+    season => {
+      expect(Season.safeParse(season)).toMatchObject({ success: false });
+    },
+  );
 
   it.each([
     ['2017-01-01', '2016-2017-Winter'],
@@ -30,7 +33,9 @@ describe('Season', () => {
   });
 
   it('should generate seasons in range', () => {
-    expect(getSeasonsInRange({ startDate: '2017-12-31', endDate: '2018-01-01' })).toMatchObject(['2017-2018-Winter']);
+    expect(getSeasonsInRange({ startDate: '2017-12-31', endDate: '2018-01-01' })).toMatchObject([
+      '2017-2018-Winter',
+    ]);
     expect(getSeasonsInRange({ startDate: '2017-12-31', endDate: '2018-05-01' })).toMatchObject([
       '2017-2018-Winter',
       '2018-Spring',

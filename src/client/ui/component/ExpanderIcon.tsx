@@ -7,5 +7,9 @@ export const ExpanderIcon: React.FC<{
   open: boolean;
   onToggle: (state: boolean) => void;
 }> = ({ title, open, onToggle }) => (
-  <ToolIcon title={title} onClick={() => onToggle(!open)} icon={open ? 'ExpandLess' : 'ExpandMore'} />
+  <ToolIcon
+    title={title}
+    onClick={() => onToggle(!open)}
+    icon={open ? 'ExpandLess' : 'ExpandMore'}
+  />
 );

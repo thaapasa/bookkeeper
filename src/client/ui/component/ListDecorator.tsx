@@ -24,7 +24,11 @@ export const ListDecorator = function <T, R>({
   const pieces = items
     .map((item, idx) => [
       Separator ? (
-        <Separator prev={idx > 0 ? items[idx - 1] : null} next={item} key={`separator-${itemKey?.(item) ?? idx}`} />
+        <Separator
+          prev={idx > 0 ? items[idx - 1] : null}
+          next={item}
+          key={`separator-${itemKey?.(item) ?? idx}`}
+        />
       ) : null,
       <ItemRenderer
         item={item}

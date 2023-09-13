@@ -47,7 +47,10 @@ export function createExpenseDialogListener<D>(
     }),
   )(Dialog);
 
-  return class ExpenseDialogListener extends React.Component<{ windowSize: Size }, ExpenseDialogListenerState<D>> {
+  return class ExpenseDialogListener extends React.Component<
+    { windowSize: Size },
+    ExpenseDialogListenerState<D>
+  > {
     private unsub: Unsubscriber[] = [];
 
     public state: ExpenseDialogListenerState<D> = {

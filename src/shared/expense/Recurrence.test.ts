@@ -1,7 +1,12 @@
-import { expect, describe, it } from 'bun:test';
+import { describe, expect, it } from 'bun:test';
 
 import { MoneyLike } from '../util/Money';
-import { RecurrencePeriod, recurrencePerMonth, recurrencePerYear, RecurrenceUnit } from './Recurrence';
+import {
+  RecurrencePeriod,
+  recurrencePerMonth,
+  recurrencePerYear,
+  RecurrenceUnit,
+} from './Recurrence';
 
 function r(amount: number, unit: RecurrenceUnit): RecurrencePeriod {
   return { amount, unit };

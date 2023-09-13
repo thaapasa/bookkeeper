@@ -24,7 +24,9 @@ function categoryStatisticsToMonthlyData(
   }
 
   return {
-    chartData: allMonths.map(month => byMonths[month] ?? { month }).map(d => fillMissingForNumericKeys(d, keys)),
+    chartData: allMonths
+      .map(month => byMonths[month] ?? { month })
+      .map(d => fillMissingForNumericKeys(d, keys)),
     keys: keys.map((key, i) => ({
       key,
       color: getChartColor(i, 0),

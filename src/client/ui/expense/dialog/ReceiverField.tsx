@@ -49,7 +49,10 @@ export const ReceiverField: React.FC<React.PropsWithChildren<ReceiverFieldProps>
     [searchStream, setReceivers],
   );
 
-  const updateReceivers = React.useCallback((search: string) => searchStream.push(search), [searchStream]);
+  const updateReceivers = React.useCallback(
+    (search: string) => searchStream.push(search),
+    [searchStream],
+  );
 
   const selectReceiver = onChange;
 
@@ -68,7 +71,9 @@ export const ReceiverField: React.FC<React.PropsWithChildren<ReceiverFieldProps>
   );
 };
 
-export class PlainReceiverField extends React.Component<React.PropsWithChildren<ReceiverFieldProps>> {
+export class PlainReceiverField extends React.Component<
+  React.PropsWithChildren<ReceiverFieldProps>
+> {
   public render() {
     return (
       <ReceiverField {...this.props} value={this.props.value || ''}>

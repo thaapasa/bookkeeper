@@ -60,7 +60,10 @@ export function isScreenAtLeast(windowSize: Size, screenClass: ScreenSizeClassNa
   }
 }
 
-export function isSizeClassAtLeast(windowSize: ScreenSizeClassName, screenClass: ScreenSizeClassName) {
+export function isSizeClassAtLeast(
+  windowSize: ScreenSizeClassName,
+  screenClass: ScreenSizeClassName,
+) {
   switch (screenClass) {
     case 'mobile-portrait':
       return windowSize === 'mobile-portrait';

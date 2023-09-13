@@ -17,14 +17,19 @@ export function useLocalStorageList<T>(
   cmp: (a: T, b: T) => boolean = DefaultCompare,
   checkEntity?: (t: T) => boolean,
 ) {
-  const [initialLs, setListS] = useLocalStorage(key, initial, codec, l => (checkEntity ? l?.filter(checkEntity) : l));
+  const [initialLs, setListS] = useLocalStorage(key, initial, codec, l =>
+    checkEntity ? l?.filter(checkEntity) : l,
+  );
   const list = React.useRef<T[]>(initialLs ?? []);
 
   React.useEffect(() => setListS(list.current), [setListS]);
 
   const addItems = React.useCallback(
     (items: T | T[]) => {
-      list.current = [...list.current, ...toArray(items).filter(i => !list.current.find(i2 => cmp(i, i2)))];
+      list.current = [
+        ...list.current,
+        ...toArray(items).filter(i => !list.current.find(i2 => cmp(i, i2))),
+      ];
       setListS(list.current);
     },
     [setListS, cmp],

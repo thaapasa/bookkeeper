@@ -8,7 +8,12 @@ import { toDateRange } from 'shared/time';
 import { Category, isDefined, Session } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
 import { AsyncData, UninitializedData } from 'client/data/AsyncData';
-import { CategoryDataSource, categoryDataSourceP, userDataE, UserDataProps } from 'client/data/Categories';
+import {
+  CategoryDataSource,
+  categoryDataSourceP,
+  userDataE,
+  UserDataProps,
+} from 'client/data/Categories';
 import { validSessionE } from 'client/data/Login';
 import { navigationBus, needUpdateE } from 'client/data/State';
 import { searchPagePath } from 'client/util/Links';
@@ -31,7 +36,9 @@ interface SearchViewProps {
 type SearchViewParams = 'year' | 'month';
 
 function isEmptyQuery(q: ExpenseQuery) {
-  const hasCategory = typeof q.categoryId === 'number' || (typeof q.categoryId === 'object' && q.categoryId.length > 0);
+  const hasCategory =
+    typeof q.categoryId === 'number' ||
+    (typeof q.categoryId === 'object' && q.categoryId.length > 0);
   return !q.search && !hasCategory && !q.receiver && !isDefined(q.confirmed);
 }
 
@@ -51,7 +58,9 @@ const SearchViewImpl: React.FC<SearchViewProps> = ({ userData, session, category
   useWhenMounted(() => {
     const resultsE = searchBus
       .sampledBy(B.mergeAll<any>(searchBus, repeatSearchBus))
-      .flatMapLatest(query => (isEmptyQuery(query) ? B.once([]) : B.fromPromise(apiConnect.searchExpenses(query))));
+      .flatMapLatest(query =>
+        isEmptyQuery(query) ? B.once([]) : B.fromPromise(apiConnect.searchExpenses(query)),
+      );
     const unsubs = [
       resultsE.onValue(value => setResults({ type: 'loaded', value })),
       resultsE.onError(error => setResults({ type: 'error', error })),
@@ -79,7 +88,10 @@ const SearchViewImpl: React.FC<SearchViewProps> = ({ userData, session, category
 
   const queryRef = React.useRef<QueryView>(null);
 
-  const onAddCategoryToSearch = React.useCallback((cat: Category) => queryRef.current?.addCategory(cat), [queryRef]);
+  const onAddCategoryToSearch = React.useCallback(
+    (cat: Category) => queryRef.current?.addCategory(cat),
+    [queryRef],
+  );
 
   React.useEffect(() => needUpdateE.onValue(onRepeatSearch), [onRepeatSearch]);
 

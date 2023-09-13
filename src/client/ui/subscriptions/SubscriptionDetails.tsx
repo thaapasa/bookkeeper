@@ -14,7 +14,9 @@ import { useDeferredData } from '../hooks/useAsyncData';
 import { ToolIcon } from '../icons/ToolIcon';
 import { Label, RowElement, Tools } from './layout';
 
-export const SubscriptionDetails: React.FC<{ recurringExpenseId: number }> = ({ recurringExpenseId }) => {
+export const SubscriptionDetails: React.FC<{ recurringExpenseId: number }> = ({
+  recurringExpenseId,
+}) => {
   const { data, loadData } = useDeferredData(apiConnect.getSubscription, true, recurringExpenseId);
   React.useEffect(loadData, [loadData, recurringExpenseId]);
   React.useEffect(() => needUpdateE.onValue(loadData), [loadData]);
@@ -39,7 +41,11 @@ const SubscriptionDetailsRenderer: React.FC<{
       <Tools className="large">
         {active ? (
           <Row>
-            <ToolIcon title="Muokkaa" onClick={() => modifySubscription(exp.templateExpenseId)} icon="Edit" />
+            <ToolIcon
+              title="Muokkaa"
+              onClick={() => modifySubscription(exp.templateExpenseId)}
+              icon="Edit"
+            />
             <ToolIcon
               className="optional"
               title="Poista"

@@ -22,7 +22,9 @@ import { TextEdit } from '../component/TextEdit';
 
 const log = debug('bookkeeper:category-dialog');
 
-const defaultCategory: Category[] = [{ id: 0, name: '[Ei yläkategoriaa]', children: [], parentId: null }];
+const defaultCategory: Category[] = [
+  { id: 0, name: '[Ei yläkategoriaa]', children: [], parentId: null },
+];
 
 interface CategoryDialogProps {
   categories: Category[];
@@ -51,7 +53,10 @@ const DialogControl = styled(FormControl)`
   box-sizing: border-box;
 `;
 
-export default class CategoryDialog extends React.Component<CategoryDialogProps, CategoryDialogState> {
+export default class CategoryDialog extends React.Component<
+  CategoryDialogProps,
+  CategoryDialogState
+> {
   public state: CategoryDialogState = {
     open: false,
     name: '',
@@ -147,7 +152,12 @@ export default class CategoryDialog extends React.Component<CategoryDialogProps,
 
   public render() {
     return (
-      <Dialog className="category-dialog" fullWidth={true} open={this.state.open} onClose={this.cancel}>
+      <Dialog
+        className="category-dialog"
+        fullWidth={true}
+        open={this.state.open}
+        onClose={this.cancel}
+      >
         <DialogTitle>{this.state.createNew ? 'Uusi kategoria' : 'Muokkaa kategoriaa'}</DialogTitle>
         <DialogContent>
           <Form onSubmit={this.requestSave}>
@@ -185,7 +195,12 @@ export default class CategoryDialog extends React.Component<CategoryDialogProps,
           <Button variant="text" onClick={this.cancel}>
             Peruuta
           </Button>
-          <Button variant="text" color="primary" disabled={!this.state.valid} onClick={this.requestSave}>
+          <Button
+            variant="text"
+            color="primary"
+            disabled={!this.state.valid}
+            onClick={this.requestSave}
+          >
             Tallenna
           </Button>
         </DialogActions>
