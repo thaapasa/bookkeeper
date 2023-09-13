@@ -35,7 +35,9 @@ const ResultsViewImpl: React.FC<ResultsProps> = ({ results, ...rest }) => {
 
 const ResultsContents: React.FC<ResultsProps> = ({ results, ...rest }) => {
   const resultsByYears: Record<string, UserExpense[]> | undefined =
-    results && results.length > 0 ? groupBy(e => String(toMoment(e.date).year()), results) : undefined;
+    results && results.length > 0
+      ? groupBy(e => String(toMoment(e.date).year()), results)
+      : undefined;
 
   if (!resultsByYears) {
     return <Info>Ei tuloksia, tarkista hakuehdot</Info>;
@@ -76,16 +78,14 @@ const ExpenseList: React.FC<ResultsProps> = ({ results, onUpdate, onSelectCatego
 
 export const ResultsView = connect(B.combineTemplate({ userData: userDataE }))(ResultsViewImpl);
 
-function YearHeader({
-  year,
-  expenses,
-}: {
-  year: string;
-  expenses: UserExpense[];
-}) {
+function YearHeader({ year, expenses }: { year: string; expenses: UserExpense[] }) {
   const sum = expenses.reduce((p, c) => p.plus(c.sum), Money.from(0));
-  const income = expenses.filter(r => r.type === 'income').reduce((p, c) => p.plus(c.sum), Money.from(0));
-  const cost = expenses.filter(r => r.type === 'expense').reduce((p, c) => p.plus(c.sum), Money.from(0));
+  const income = expenses
+    .filter(r => r.type === 'income')
+    .reduce((p, c) => p.plus(c.sum), Money.from(0));
+  const cost = expenses
+    .filter(r => r.type === 'expense')
+    .reduce((p, c) => p.plus(c.sum), Money.from(0));
   return (
     <YearHeaderRow>
       <HeaderText>Vuosi {year}</HeaderText>

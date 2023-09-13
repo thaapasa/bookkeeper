@@ -10,7 +10,10 @@ const log = debug('bookkeeper:expense-dialog:save');
 /**
  * This is the save action that is called when expense editor save button is pressed
  */
-export type ExpenseSaveAction = (expense: ExpenseData, original: UserExpenseWithDetails | null) => Promise<boolean>;
+export type ExpenseSaveAction = (
+  expense: ExpenseData,
+  original: UserExpenseWithDetails | null,
+) => Promise<boolean>;
 
 /**
  * This is the default implementation of the expense save action

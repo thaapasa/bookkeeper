@@ -1,5 +1,15 @@
 import * as React from 'react';
-import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, Tooltip, XAxis, YAxis } from 'recharts';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 
 import { dateRangeToMomentRange, getYearsInRange, MomentRange } from 'shared/time';
 import { Category, CategoryStatistics, ObjectId } from 'shared/types';
@@ -17,7 +27,11 @@ import { getChartMargins } from './Common';
 
 const useLines = true;
 
-export const YearlyRecurringCategoryChart: React.FC<CategoryGraphProps> = ({ data, size, categoryMap }) => {
+export const YearlyRecurringCategoryChart: React.FC<CategoryGraphProps> = ({
+  data,
+  size,
+  categoryMap,
+}) => {
   const { chartData, keys } = React.useMemo(
     () => categoryStatisticsToYearlyRecurring(data, categoryMap),
     [data, categoryMap],
@@ -40,7 +54,13 @@ export const YearlyRecurringCategoryChart: React.FC<CategoryGraphProps> = ({ dat
       <Legend />
       {keys.map(v =>
         useLines ? (
-          <Line type="monotone" key={v.key} dataKey={v.key} stroke={v.color} name={v.name ?? v.key} />
+          <Line
+            type="monotone"
+            key={v.key}
+            dataKey={v.key}
+            stroke={v.color}
+            name={v.name ?? v.key}
+          />
         ) : (
           <Bar key={v.key} dataKey={v.key} fill={v.color} name={v.name ?? v.key} />
         ),
@@ -87,7 +107,8 @@ function findEntriesForMonth(
     for (const year of years) {
       if (range.endTime.isAfter(`${year}-${leftPad(month + 1, 2, '0')}-01`)) {
         monthData[`${key}-${year}`] = Money.from(
-          data.statistics[key].find(p => p.month === `${year}-${leftPad(month + 1, 2, '0')}`)?.sum ?? '0',
+          data.statistics[key].find(p => p.month === `${year}-${leftPad(month + 1, 2, '0')}`)
+            ?.sum ?? '0',
         ).valueOf();
       }
     }

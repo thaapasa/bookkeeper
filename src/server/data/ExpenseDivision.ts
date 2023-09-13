@@ -1,4 +1,10 @@
-import { ExpenseDivisionItem, ExpenseDivisionType, ExpenseInput, negateDivision, splitByShares } from 'shared/expense';
+import {
+  ExpenseDivisionItem,
+  ExpenseDivisionType,
+  ExpenseInput,
+  negateDivision,
+  splitByShares,
+} from 'shared/expense';
 import { InvalidInputError, Source } from 'shared/types';
 import { Money, MoneyLike } from 'shared/util';
 
@@ -7,11 +13,18 @@ interface ExpenseDivisionItemNoType {
   sum: MoneyLike;
 }
 
-function divisionOfType(division: ExpenseDivisionItem[] | undefined, type: ExpenseDivisionType): ExpenseDivisionItem[] {
+function divisionOfType(
+  division: ExpenseDivisionItem[] | undefined,
+  type: ExpenseDivisionType,
+): ExpenseDivisionItem[] {
   return division ? division.filter(d => d.type === type) : [];
 }
 
-function validateDivision(items: ExpenseDivisionItem[], sum: MoneyLike, field: ExpenseDivisionType) {
+function validateDivision(
+  items: ExpenseDivisionItem[],
+  sum: MoneyLike,
+  field: ExpenseDivisionType,
+) {
   const calculated = items.reduce((a, b) => a.plus(b.sum), Money.zero);
   if (!Money.from(sum).equals(calculated)) {
     throw new InvalidInputError(
@@ -46,7 +59,9 @@ export function determineDivision(expense: ExpenseInput, source: Source): Expens
     const givenIncome = divisionOfType(expense.division, 'income');
     const givenSplit = divisionOfType(expense.division, 'split');
     const income =
-      givenIncome.length > 0 ? validateDivision(givenIncome, expense.sum, 'income') : getDefaultIncome(expense);
+      givenIncome.length > 0
+        ? validateDivision(givenIncome, expense.sum, 'income')
+        : getDefaultIncome(expense);
     const split =
       givenSplit.length > 0
         ? validateDivision(givenSplit, Money.from(expense.sum).negate(), 'split')
@@ -60,7 +75,9 @@ export function determineDivision(expense: ExpenseInput, source: Source): Expens
         ? validateDivision(givenCost, Money.negate(expense.sum), 'cost')
         : getCostFromSource(expense.sum, source);
     const benefit =
-      givenBenefit.length > 0 ? validateDivision(givenBenefit, expense.sum, 'benefit') : negateDivision(cost);
+      givenBenefit.length > 0
+        ? validateDivision(givenBenefit, expense.sum, 'benefit')
+        : negateDivision(cost);
     return cost.map(addType('cost')).concat(benefit.map(addType('benefit')));
   } else if (expense.type === 'transfer') {
     const givenTransferor = divisionOfType(expense.division, 'transferor');

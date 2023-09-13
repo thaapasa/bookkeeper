@@ -67,7 +67,10 @@ export const SearchInputField: React.FC<SearchInputProps> = ({
   );
 };
 
-function getCategorySuggestions(categorySource: CategoryDataSource[], input: string): CategorySuggestion[] {
+function getCategorySuggestions(
+  categorySource: CategoryDataSource[],
+  input: string,
+): CategorySuggestion[] {
   if (!input || input.length < 1) {
     return [];
   }

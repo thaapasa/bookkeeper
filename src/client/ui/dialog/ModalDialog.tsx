@@ -36,7 +36,12 @@ export const ModalDialog: React.FC<ModalDialogProps<any, any>> = <T, D extends D
   return (
     <Dialog title={title} open={true} onClose={() => onCancel} onKeyUp={handleKeyPress}>
       <DialogTitle>{title}</DialogTitle>
-      <ContentRenderer onSelect={resolve} onCancel={onCancel} handleKeyPress={handleKeyPress} {...rendererProps} />
+      <ContentRenderer
+        onSelect={resolve}
+        onCancel={onCancel}
+        handleKeyPress={handleKeyPress}
+        {...rendererProps}
+      />
     </Dialog>
   );
 };

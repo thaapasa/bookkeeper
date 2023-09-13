@@ -51,7 +51,9 @@ const CategoryView: React.FC<CategoryViewProps> = ({ range, categories, ...rest 
   );
 };
 
-async function getCategoryTotals(range: TypedDateRange): Promise<Record<string, CategoryAndTotals>> {
+async function getCategoryTotals(
+  range: TypedDateRange,
+): Promise<Record<string, CategoryAndTotals>> {
   const totals = await apiConnect.getCategoryTotals(range.start, range.end);
   const totalsMap: Record<string, CategoryAndTotals> = {};
   totals.forEach(t => {

@@ -13,7 +13,9 @@ const log = debug('bookkeeper:activatable-text-field');
 
 type EditorType<T> = TextEditorComponent | React.ComponentType<AutoCompleteProps<T>>;
 
-export type ActivatableTextFieldProps<E extends EditorType<any> = React.ComponentType<TextEditProps>,> = {
+export type ActivatableTextFieldProps<
+  E extends EditorType<any> = React.ComponentType<TextEditProps>,
+> = {
   editorId?: string;
   viewStyle?: React.CSSProperties;
   editorType?: React.ComponentType<E>;
@@ -23,7 +25,9 @@ export type ActivatableTextFieldProps<E extends EditorType<any> = React.Componen
   onCancel?: () => void;
 } & Omit<E, 'onChange' | 'value'>;
 
-export const ActivatableTextField: React.FC<ActivatableTextFieldProps<any>> = <E extends EditorType<any>,>({
+export const ActivatableTextField: React.FC<ActivatableTextFieldProps<any>> = <
+  E extends EditorType<any>,
+>({
   value: valueFromProps,
   onChange,
   onCancel,

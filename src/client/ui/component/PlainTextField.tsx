@@ -19,5 +19,9 @@ export const PlainTextField: React.FC<TextFieldProps> = props => (
 );
 
 export const PlainAutoComplete: React.FC<AutoCompleteProps<any>> = props => (
-  <AutoComplete {...props} label="" style={{ ...props.style, margin: 0, padding: 0, fontSize: '11pt' }} />
+  <AutoComplete
+    {...props}
+    label=""
+    style={{ ...props.style, margin: 0, padding: 0, fontSize: '11pt' }}
+  />
 );

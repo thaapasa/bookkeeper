@@ -1,13 +1,19 @@
-import { afterEach, beforeEach, expect, describe, it } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, it } from 'bun:test';
+import { expectArrayMatching } from 'test/expect/expectArrayMatching';
 
 import { ExpenseSplit, UserExpenseWithDetails } from 'shared/expense';
-import { cleanup, fetchExpense, fetchMonthStatus, newExpense, splitExpense } from 'shared/expense/test';
+import {
+  cleanup,
+  fetchExpense,
+  fetchMonthStatus,
+  newExpense,
+  splitExpense,
+} from 'shared/expense/test';
 import { createTestClient, SessionWithControl } from 'shared/net/test';
 import { YearMonth } from 'shared/time';
 import { Money } from 'shared/util';
 
 import { checkMonthStatus } from './MonthStatus';
-import { expectArrayMatching } from 'test/expect/expectArrayMatching';
 
 const month: YearMonth = { year: 2017, month: 1 };
 
@@ -33,7 +39,9 @@ describe('splitting expenses', () => {
 
   it('should not allow invalid split data', async () => {
     expect(expense).toMatchObject({ title: 'Ruokakauppa' });
-    await expect(splitExpense(session, expense.id, [{ foo: 'bar' }, { baz: 'kok' }] as any)).rejects.toMatchObject({
+    await expect(
+      splitExpense(session, expense.id, [{ foo: 'bar' }, { baz: 'kok' }] as any),
+    ).rejects.toMatchObject({
       code: 'VALIDATION_ERROR',
     });
   });

@@ -15,7 +15,9 @@ const log = debug('bookkeeper:server');
 
 const requestDelayMs = process.env.DELAY ? parseInt(process.env.DELAY, 10) : undefined;
 
-function processUnauthorizedRequest<T>(handler: (req: Request, res: Response) => MaybePromise<T>): RequestHandler {
+function processUnauthorizedRequest<T>(
+  handler: (req: Request, res: Response) => MaybePromise<T>,
+): RequestHandler {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       if (requestDelayMs) {
@@ -53,10 +55,18 @@ function processRequest<T>(
 }
 
 function processTxRequest<T>(
-  handler: (tx: ITask<any>, session: SessionBasicInfo, req: Request, res: Response) => MaybePromise<T>,
+  handler: (
+    tx: ITask<any>,
+    session: SessionBasicInfo,
+    req: Request,
+    res: Response,
+  ) => MaybePromise<T>,
   groupRequired?: boolean,
 ): RequestHandler {
-  return processRequest((session, req, res) => db.tx(tx => handler(tx, session, req, res)), groupRequired);
+  return processRequest(
+    (session, req, res) => db.tx(tx => handler(tx, session, req, res)),
+    groupRequired,
+  );
 }
 
 type ValidatorSpec<R, P, Q, B> = {

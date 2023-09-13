@@ -34,7 +34,12 @@ import { ExpenseSplitDialog } from '../expense/split/ExpenseSplitDialog';
 import { InfoView } from '../info/InfoView';
 import { SearchView } from '../search/SearchView';
 import { StatisticsView } from '../statistics/StatisticsView';
-import { getScreenSizeClassName, isMobileSize, mainContentMargin, mainContentMaxWidth } from '../Styles';
+import {
+  getScreenSizeClassName,
+  isMobileSize,
+  mainContentMargin,
+  mainContentMaxWidth,
+} from '../Styles';
 import { SubscriptionsView } from '../subscriptions/SubscriptionsView';
 import { ToolsView } from '../tools/ToolsView';
 import { Size } from '../Types';

@@ -47,14 +47,20 @@ function toCategoryMap(arr: Category[]): CategoryMap {
   return map;
 }
 
-export const categoryMapE: B.EventStream<CategoryMap> = validSessionE.map(s => toCategoryMap(s.categories));
+export const categoryMapE: B.EventStream<CategoryMap> = validSessionE.map(s =>
+  toCategoryMap(s.categories),
+);
 export const categoryDataSourceP: B.Property<CategoryDataSource[]> = B.combineWith(
   (s, map) => catToDataSource(s.categories, map),
   validSessionE,
   categoryMapE,
 );
 
-export function isSubcategoryOf(subId: number, parentId: number, categoryMap: CategoryMap): boolean {
+export function isSubcategoryOf(
+  subId: number,
+  parentId: number,
+  categoryMap: CategoryMap,
+): boolean {
   const sub = categoryMap[subId];
   return sub && sub.parentId === parentId;
 }

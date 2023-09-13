@@ -5,7 +5,16 @@ import { numberRange } from '../util/Arrays';
 import { leftPad } from '../util/Util';
 import { toMoment } from './Moment';
 import { toMonthName } from './Months';
-import { compareDates, DateLike, displayDatePattern, ISODate, ISOMonth, monthToYear, toYearName, Year } from './Time';
+import {
+  compareDates,
+  DateLike,
+  displayDatePattern,
+  ISODate,
+  ISOMonth,
+  monthToYear,
+  toYearName,
+  Year,
+} from './Time';
 
 export const DateRange = z.object({
   startDate: ISODate,
@@ -60,7 +69,11 @@ export function toDateRangeName(x: TypedDateRange): string {
     case 'year':
       return toYearName(x.start);
     case 'custom':
-      return toMoment(x.start).format(displayDatePattern) + ' - ' + toMoment(x.end).format(displayDatePattern);
+      return (
+        toMoment(x.start).format(displayDatePattern) +
+        ' - ' +
+        toMoment(x.end).format(displayDatePattern)
+      );
     default:
       return '?';
   }

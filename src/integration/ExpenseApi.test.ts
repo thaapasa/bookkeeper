@@ -1,4 +1,5 @@
-import { expect, describe, it, beforeEach, afterEach } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, it } from 'bun:test';
+import { expectArrayContaining } from 'test/expect/expectArrayContaining';
 
 import { Expense, ExpenseCollection, ExpenseStatus } from 'shared/expense';
 import { checkCreateStatus, cleanup, division, findUserId, newExpense } from 'shared/expense/test';
@@ -7,7 +8,6 @@ import { toMoment } from 'shared/time';
 import { ApiMessage } from 'shared/types';
 import { Money } from 'shared/util';
 import { expectThrow } from 'shared/util/test';
-import { expectArrayContaining } from 'test/expect/expectArrayContaining';
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
@@ -204,10 +204,18 @@ describe('expense', () => {
       }),
     ]);
 
-    expect(Money.equals(jan2.monthStatus.cost, Money.from(jan1.monthStatus.cost).plus('-500'))).toBeTruthy();
-    expect(Money.equals(feb2.monthStatus.cost, Money.from(feb1.monthStatus.cost).plus('-740'))).toBeTruthy();
-    expect(Money.equals(jan2.monthStatus.benefit, Money.from(jan1.monthStatus.benefit).plus('250'))).toBeTruthy();
-    expect(Money.equals(feb2.monthStatus.benefit, Money.from(feb1.monthStatus.benefit).plus('370'))).toBeTruthy();
+    expect(
+      Money.equals(jan2.monthStatus.cost, Money.from(jan1.monthStatus.cost).plus('-500')),
+    ).toBeTruthy();
+    expect(
+      Money.equals(feb2.monthStatus.cost, Money.from(feb1.monthStatus.cost).plus('-740')),
+    ).toBeTruthy();
+    expect(
+      Money.equals(jan2.monthStatus.benefit, Money.from(jan1.monthStatus.benefit).plus('250')),
+    ).toBeTruthy();
+    expect(
+      Money.equals(feb2.monthStatus.benefit, Money.from(feb1.monthStatus.benefit).plus('370')),
+    ).toBeTruthy();
 
     [jan1, jan2, feb1, feb2].forEach((o, i) =>
       ['monthStatus', 'startStatus', 'endStatus'].forEach(status =>
@@ -218,18 +226,39 @@ describe('expense', () => {
     expect(feb1.startStatus).toEqual(jan1.endStatus);
     expect(feb2.startStatus).toEqual(jan2.endStatus);
 
-    expect(Money.equals(jan2.endStatus.cost, Money.from(jan1.endStatus.cost).plus('-500'))).toBeTruthy();
-    expect(Money.equals(feb2.endStatus.cost, Money.from(feb1.endStatus.cost).plus('-500').plus('-740'))).toBeTruthy();
-    expect(Money.equals(jan2.endStatus.benefit, Money.from(jan1.endStatus.benefit).plus('250'))).toBeTruthy();
     expect(
-      Money.equals(feb2.endStatus.benefit, Money.from(feb1.endStatus.benefit).plus('370').plus('250')),
+      Money.equals(jan2.endStatus.cost, Money.from(jan1.endStatus.cost).plus('-500')),
+    ).toBeTruthy();
+    expect(
+      Money.equals(feb2.endStatus.cost, Money.from(feb1.endStatus.cost).plus('-500').plus('-740')),
+    ).toBeTruthy();
+    expect(
+      Money.equals(jan2.endStatus.benefit, Money.from(jan1.endStatus.benefit).plus('250')),
+    ).toBeTruthy();
+    expect(
+      Money.equals(
+        feb2.endStatus.benefit,
+        Money.from(feb1.endStatus.benefit).plus('370').plus('250'),
+      ),
     ).toBeTruthy();
 
-    expect(Money.equals(jan2.endStatus.balance, Money.from(jan1.endStatus.balance).plus('250'))).toBeTruthy();
     expect(
-      Money.equals(feb2.endStatus.balance, Money.from(feb1.endStatus.balance).plus('250').plus('370')),
+      Money.equals(jan2.endStatus.balance, Money.from(jan1.endStatus.balance).plus('250')),
     ).toBeTruthy();
-    expect(Money.equals(jan2.endStatus.value, Money.from(jan1.endStatus.value).plus('-250'))).toBeTruthy();
-    expect(Money.equals(feb2.endStatus.value, Money.from(feb1.endStatus.value).plus('-250').plus('-370'))).toBeTruthy();
+    expect(
+      Money.equals(
+        feb2.endStatus.balance,
+        Money.from(feb1.endStatus.balance).plus('250').plus('370'),
+      ),
+    ).toBeTruthy();
+    expect(
+      Money.equals(jan2.endStatus.value, Money.from(jan1.endStatus.value).plus('-250')),
+    ).toBeTruthy();
+    expect(
+      Money.equals(
+        feb2.endStatus.value,
+        Money.from(feb1.endStatus.value).plus('-250').plus('-370'),
+      ),
+    ).toBeTruthy();
   });
 });

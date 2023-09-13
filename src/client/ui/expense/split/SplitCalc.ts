@@ -12,7 +12,10 @@ import { ExpenseSplitInEditor } from './ExpenseSplit.hooks';
  * @param splits the split rows (first one is the automatically updating row)
  * @param sum the sum of the original expense
  */
-export function calculateSplits(splits: ExpenseSplitInEditor[], sum: MoneyLike): ExpenseSplitInEditor[] {
+export function calculateSplits(
+  splits: ExpenseSplitInEditor[],
+  sum: MoneyLike,
+): ExpenseSplitInEditor[] {
   if (splits.length === 0) {
     return [];
   }
@@ -42,10 +45,16 @@ export function finalizeSplits(
   splits: ExpenseSplitInEditor[],
   sourceMap: Record<number, Source>,
 ): ExpenseSplit[] {
-  return splits.map(s => finalizeSplit(type, s, requireDefined(sourceMap[s.sourceId ?? 0], 'Expense source')));
+  return splits.map(s =>
+    finalizeSplit(type, s, requireDefined(sourceMap[s.sourceId ?? 0], 'Expense source')),
+  );
 }
 
-export function finalizeSplit(type: ExpenseType, split: ExpenseSplitInEditor, source: Source): ExpenseSplit {
+export function finalizeSplit(
+  type: ExpenseType,
+  split: ExpenseSplitInEditor,
+  source: Source,
+): ExpenseSplit {
   const { benefit, key, ...rest } = split;
   return {
     ...rest,

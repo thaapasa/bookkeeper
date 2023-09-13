@@ -16,7 +16,11 @@ import { ExpenseFilter, ExpenseFilterFunction } from './row/ExpenseFilters';
 import { ExpenseHeader } from './row/ExpenseHeader';
 import { CommonExpenseRowProps, ExpenseRow } from './row/ExpenseRow';
 import { ExpenseRowSeparator } from './row/ExpenseRowSeparator';
-import { ExpenseTableLayout, LoadingIndicator, RecurringExpenseSeparator } from './row/ExpenseTableLayout';
+import {
+  ExpenseTableLayout,
+  LoadingIndicator,
+  RecurringExpenseSeparator,
+} from './row/ExpenseTableLayout';
 import { RecurringSummaryRow } from './row/RecurringSummaryRow';
 
 interface ExpenseTableProps {
@@ -57,7 +61,9 @@ class ExpenseTable extends React.Component<ExpenseTableProps, ExpenseTableState>
   };
 
   private getFilteredExpenses = (): UserExpense[] => {
-    return this.props.expenses ? this.state.filters.reduce((a, b) => a.filter(b.filter), this.props.expenses) : [];
+    return this.props.expenses
+      ? this.state.filters.reduce((a, b) => a.filter(b.filter), this.props.expenses)
+      : [];
   };
 
   private onUpdateExpense = (e: UserExpense) => {
@@ -80,8 +86,12 @@ class ExpenseTable extends React.Component<ExpenseTableProps, ExpenseTableState>
     if (expenses.length < 1) {
       return null;
     }
-    const income = expenses.filter(e => e.type === 'income').reduce((s, c) => s.plus(c.sum), Money.zero);
-    const expense = expenses.filter(e => e.type === 'expense').reduce((s, c) => s.plus(c.sum), Money.zero);
+    const income = expenses
+      .filter(e => e.type === 'income')
+      .reduce((s, c) => s.plus(c.sum), Money.zero);
+    const expense = expenses
+      .filter(e => e.type === 'expense')
+      .reduce((s, c) => s.plus(c.sum), Money.zero);
     return { totalIncome: income, totalExpense: expense };
   }
 

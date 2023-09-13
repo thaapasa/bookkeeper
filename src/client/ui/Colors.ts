@@ -86,7 +86,12 @@ export const unconfirmed = amber[50];
 export const highlightBg = orangeRed.light;
 export const highlightFg = orangeRed.dark;
 
-export function diagonalStripes(color1: string, color2: string, width1: string, width2: string): string {
+export function diagonalStripes(
+  color1: string,
+  color2: string,
+  width1: string,
+  width2: string,
+): string {
   return `repeating-linear-gradient(45deg, ${color1}, ${color1} ${width1}, ${color2} ${width1}, ${color2} ${width2})`;
 }
 

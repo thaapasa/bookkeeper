@@ -1,7 +1,14 @@
 import debug from 'debug';
 import { ITask } from 'pg-promise';
 
-import { ApiMessage, Category, CategoryAndTotals, CategoryInput, InvalidInputError, NotFoundError } from 'shared/types';
+import {
+  ApiMessage,
+  Category,
+  CategoryAndTotals,
+  CategoryInput,
+  InvalidInputError,
+  NotFoundError,
+} from 'shared/types';
 import { Money, partition, toMap } from 'shared/util';
 
 const log = debug('bookkeeper:categories');
@@ -79,7 +86,11 @@ async function insert(tx: ITask<any>, groupId: number, data: CategoryInput): Pro
   ).id;
 }
 
-export async function getCategoryById(tx: ITask<any>, groupId: number, id: number): Promise<Category> {
+export async function getCategoryById(
+  tx: ITask<any>,
+  groupId: number,
+  id: number,
+): Promise<Category> {
   const cat = await tx.oneOrNone<Category>(
     `SELECT id, parent_id as "parentId", name
       FROM categories
@@ -92,7 +103,11 @@ export async function getCategoryById(tx: ITask<any>, groupId: number, id: numbe
   return cat as Category;
 }
 
-export async function createCategory(tx: ITask<any>, groupId: number, data: CategoryInput): Promise<number> {
+export async function createCategory(
+  tx: ITask<any>,
+  groupId: number,
+  data: CategoryInput,
+): Promise<number> {
   if (!data.parentId) {
     return insert(tx, groupId, data);
   }
@@ -107,7 +122,11 @@ export async function createCategory(tx: ITask<any>, groupId: number, data: Cate
   return insert(tx, groupId, data);
 }
 
-export async function deleteCategory(tx: ITask<any>, groupId: number, id: number): Promise<ApiMessage> {
+export async function deleteCategory(
+  tx: ITask<any>,
+  groupId: number,
+  id: number,
+): Promise<ApiMessage> {
   await tx.none(
     `DELETE FROM categories
       WHERE id=$/id/::INTEGER AND group_id=$/groupId/::INTEGER`,
@@ -116,7 +135,12 @@ export async function deleteCategory(tx: ITask<any>, groupId: number, id: number
   return { status: 'OK', message: 'Category deleted', categoryId: id };
 }
 
-export async function updateCategory(tx: ITask<any>, groupId: number, categoryId: number, data: CategoryInput) {
+export async function updateCategory(
+  tx: ITask<any>,
+  groupId: number,
+  categoryId: number,
+  data: CategoryInput,
+) {
   const original = await getCategoryById(tx, groupId, categoryId);
   if (!original) {
     throw new NotFoundError('CATEGORY_NOT_FOUND', 'category');
@@ -140,7 +164,11 @@ export async function updateCategory(tx: ITask<any>, groupId: number, categoryId
   };
 }
 
-export async function expandSubCategories(tx: ITask<any>, groupId: number, inputCategoryIds: number[]) {
+export async function expandSubCategories(
+  tx: ITask<any>,
+  groupId: number,
+  inputCategoryIds: number[],
+) {
   if (inputCategoryIds.length < 1) {
     return [];
   }

@@ -72,7 +72,8 @@ export function createSubscriptionApi() {
   api.deleteTx(
     '/:recurringExpenseId',
     {},
-    (tx, session, { params }) => deleteRecurringExpenseById(tx, session.group.id, params.recurringExpenseId),
+    (tx, session, { params }) =>
+      deleteRecurringExpenseById(tx, session.group.id, params.recurringExpenseId),
     true,
   );
 

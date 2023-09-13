@@ -18,7 +18,11 @@ export const SubscriptionItemView: React.FC<{
   item: SubscriptionItem;
   className?: string;
 }> = ({ item, ...props }) =>
-  item.type === 'recurring' ? <RecurringExpenseItem item={item} {...props} /> : <ReportItem item={item} {...props} />;
+  item.type === 'recurring' ? (
+    <RecurringExpenseItem item={item} {...props} />
+  ) : (
+    <ReportItem item={item} {...props} />
+  );
 
 const RecurringExpenseItem: React.FC<{
   item: RecurringExpense;

@@ -21,14 +21,25 @@ interface MenuDrawerProps {
   links?: AppLink[];
 }
 
-const MenuLink: React.FC<AppLink & { onSelect: (path: string) => void }> = ({ onSelect, label, path, icon }) => (
+const MenuLink: React.FC<AppLink & { onSelect: (path: string) => void }> = ({
+  onSelect,
+  label,
+  path,
+  icon,
+}) => (
   <MenuItem onClick={() => onSelect(path)}>
     <PaddedIcon icon={icon} fontSize="small" color="action" />
     {label}
   </MenuItem>
 );
 
-export const MenuDrawer: React.FC<MenuDrawerProps> = ({ onRequestChange, open, group, user, links }) => {
+export const MenuDrawer: React.FC<MenuDrawerProps> = ({
+  onRequestChange,
+  open,
+  group,
+  user,
+  links,
+}) => {
   const navigate = useNavigate();
   const onSelect = (path: string) => {
     navigate(path);
@@ -48,10 +59,14 @@ export const MenuDrawer: React.FC<MenuDrawerProps> = ({ onRequestChange, open, g
         </UserInfo>
       </ItemArea>
       <ItemArea>
-        {links?.map(l => (
-          <MenuLink key={l.label} {...l} onSelect={onSelect} />
-        ))}
-        <MenuLink label="Päivitä" showInHeader={false} path="/" onSelect={onReload} icon="Refresh" />
+        {links?.map(l => <MenuLink key={l.label} {...l} onSelect={onSelect} />)}
+        <MenuLink
+          label="Päivitä"
+          showInHeader={false}
+          path="/"
+          onSelect={onReload}
+          icon="Refresh"
+        />
       </ItemArea>
       {links && links.length > 0 ? <Divider /> : null}
       <ItemArea className="bottom">

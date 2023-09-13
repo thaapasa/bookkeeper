@@ -1,6 +1,5 @@
-import { expect, describe, it } from 'bun:test';
-
 import { Big } from 'big.js';
+import { describe, expect, it } from 'bun:test';
 
 import { validate } from '../types/Validation';
 import { Money, MoneyLike } from './Money';
@@ -43,11 +42,16 @@ describe('Money', () => {
     expect(new Money('2').divide(3).toString(3)).toEqual('0.660');
   });
 
-  it.each<(string | number)[]>([[25], ['25'], [26.44], ['0'], ['0.00']])('validates %s as MoneyLike', val => {
-    expect(validate(val, MoneyLike, 'tests')).toEqual(val);
-  });
+  it.each<(string | number)[]>([[25], ['25'], [26.44], ['0'], ['0.00']])(
+    'validates %s as MoneyLike',
+    val => {
+      expect(validate(val, MoneyLike, 'tests')).toEqual(val);
+    },
+  );
 
   it.each([['25.00 €'], ['foo'], ['12e'], ['263,45 €']])('does not accept %s as MoneyLike', val =>
-    expect(() => validate(val, MoneyLike, 'tests')).toThrow(new Error('Data format is invalid at tests')),
+    expect(() => validate(val, MoneyLike, 'tests')).toThrow(
+      new Error('Data format is invalid at tests'),
+    ),
   );
 });

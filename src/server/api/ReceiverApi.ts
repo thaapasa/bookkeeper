@@ -19,7 +19,8 @@ export function createReceiverApi() {
   api.getTx(
     '/query',
     { query: ReceiverSearch },
-    async (tx, session, { query }) => (await queryReceivers(tx, session.group.id, query.receiver)).map(r => r.receiver),
+    async (tx, session, { query }) =>
+      (await queryReceivers(tx, session.group.id, query.receiver)).map(r => r.receiver),
     true,
   );
 

@@ -35,7 +35,11 @@ export const UserPrompts = {
    * Returns a promise that will be resolved to one of the options; or undefined if the dialog
    * was cancelled.
    */
-  select: <T>(title: string, description: string, options: DialogSelectOption<T>[]): Promise<T | undefined> =>
+  select: <T>(
+    title: string,
+    description: string,
+    options: DialogSelectOption<T>[],
+  ): Promise<T | undefined> =>
     promptUser({
       type: 'option',
       title,

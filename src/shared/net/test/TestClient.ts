@@ -13,9 +13,11 @@ export function createTestClient(baseUrl?: string) {
   const get = <T>(token: string, path: string, query?: Record<string, any>) =>
     client.get<T>(path, query, authHeader(token));
 
-  const put = <T>(token: string, path: string, data: any) => client.put<T>(path, data, undefined, authHeader(token));
+  const put = <T>(token: string, path: string, data: any) =>
+    client.put<T>(path, data, undefined, authHeader(token));
 
-  const post = <T>(token: string, path: string, data: any) => client.post<T>(path, data, undefined, authHeader(token));
+  const post = <T>(token: string, path: string, data: any) =>
+    client.post<T>(path, data, undefined, authHeader(token));
 
   const del = <T>(token: string, path: string, query?: Record<string, any>) =>
     client.del<T>(path, undefined, query, authHeader(token));
@@ -29,7 +31,8 @@ export function createTestClient(baseUrl?: string) {
     del: (path, query) => del(s.token, path, query),
   });
 
-  const login = (username: string, password: string) => client.post<Session>('/api/session', { username, password });
+  const login = (username: string, password: string) =>
+    client.post<Session>('/api/session', { username, password });
 
   const refresh = (refreshToken: string) => put<Session>(refreshToken, '/api/session/refresh', {});
 

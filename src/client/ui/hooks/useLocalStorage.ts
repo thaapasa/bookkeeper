@@ -6,7 +6,12 @@ import { isDefined } from 'shared/types';
 
 const log = debug('bookkeeper:local-storage');
 
-export function useLocalStorage<T>(key: string, initialValue: T, codec?: z.ZodType<T>, init?: (v: T) => T) {
+export function useLocalStorage<T>(
+  key: string,
+  initialValue: T,
+  codec?: z.ZodType<T>,
+  init?: (v: T) => T,
+) {
   if (typeof initialValue === 'function') {
     throw new Error(`Cannot store function to localStorage; got ${initialValue.name}`);
   }

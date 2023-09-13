@@ -10,7 +10,10 @@ const emptyTotals: () => RecurrenceTotals = () => ({
   recurrencePerYear: 0,
 });
 
-export function groupSubscriptions(result: SubscriptionResult, categories: CategoryMap): SubscriptionsData {
+export function groupSubscriptions(
+  result: SubscriptionResult,
+  categories: CategoryMap,
+): SubscriptionsData {
   const items = [...result.recurringExpenses, ...result.reports];
   const byRoot: Record<ObjectId, SubscriptionGroup> = {};
   for (const item of items) {

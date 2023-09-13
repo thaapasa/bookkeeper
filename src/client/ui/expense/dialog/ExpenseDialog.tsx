@@ -1,4 +1,12 @@
-import { Button, Checkbox, Dialog, DialogActions, DialogTitle, FormControlLabel, styled } from '@mui/material';
+import {
+  Button,
+  Checkbox,
+  Dialog,
+  DialogActions,
+  DialogTitle,
+  FormControlLabel,
+  styled,
+} from '@mui/material';
 import * as B from 'baconjs';
 import debug from 'debug';
 import { Moment } from 'moment';
@@ -123,7 +131,10 @@ interface ExpenseDialogState extends ExpenseInEditor {
   division: ExpenseDivision | null;
 }
 
-export class ExpenseDialog extends React.Component<ExpenseDialogProps<ExpenseInEditor>, ExpenseDialogState> {
+export class ExpenseDialog extends React.Component<
+  ExpenseDialogProps<ExpenseInEditor>,
+  ExpenseDialogState
+> {
   private readonly saveLock: B.Bus<boolean> = new B.Bus<boolean>();
   private inputStreams: Record<string, B.Bus<any>> = {};
   private readonly submitStream: B.Bus<true> = new B.Bus<true>();
@@ -203,7 +214,9 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps<ExpenseInE
     const values: Record<keyof ExpenseInEditor, B.EventStream<any>> = {} as any;
     fields.forEach(k => {
       this.inputStreams[k].onValue(v => this.setState({ [k]: v } as any));
-      const parsed = parsers[k] ? this.inputStreams[k].map(parsers[k]) : this.inputStreams[k].map(identity);
+      const parsed = parsers[k]
+        ? this.inputStreams[k].map(parsers[k])
+        : this.inputStreams[k].map(identity);
       values[k] = parsed;
       const validator = validators[k];
       if (validator) {
@@ -225,7 +238,9 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps<ExpenseInE
         this.inputStreams.subcategoryId.push(0);
       }
     });
-    values.sourceId.onValue(v => this.inputStreams.benefit.push(this.props.sourceMap[v].users.map(u => u.userId)));
+    values.sourceId.onValue(v =>
+      this.inputStreams.benefit.push(this.props.sourceMap[v].users.map(u => u.userId)),
+    );
 
     const allValid = B.combineWith(allTrue, valuesToArray(validity) as any);
     allValid.onValue(valid => this.setState({ valid }));
@@ -233,12 +248,22 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps<ExpenseInE
     B.combineTemplate({ expense, allValid })
       .map(({ allValid, expense }) =>
         allValid
-          ? calculateDivision(expense.type, expense.sum, expense.benefit, this.props.sourceMap[expense.sourceId])
+          ? calculateDivision(
+              expense.type,
+              expense.sum,
+              expense.benefit,
+              this.props.sourceMap[expense.sourceId],
+            )
           : null,
       )
       .onValue(division => this.setState({ division }));
 
-    B.combineWith((e, v, h) => ({ ...e, allValid: v && !h }), expense, allValid, this.saveLock.toProperty(false))
+    B.combineWith(
+      (e, v, h) => ({ ...e, allValid: v && !h }),
+      expense,
+      allValid,
+      this.saveLock.toProperty(false),
+    )
       .sampledBy(this.submitStream)
       .filter(e => e.allValid)
       .onValue(e => this.saveExpense(e));
@@ -250,7 +275,10 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps<ExpenseInE
     unsubscribeAll(this.unsub);
   }
 
-  private pushExpenseToInputStreams(expense: UserExpenseWithDetails | null, values: Partial<ExpenseInEditor>) {
+  private pushExpenseToInputStreams(
+    expense: UserExpenseWithDetails | null,
+    values: Partial<ExpenseInEditor>,
+  ) {
     const newState = this.getDefaultState(expense, values);
     log('Start editing', newState);
     fields.map(k => this.inputStreams[k].push(newState[k]));
@@ -271,7 +299,12 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps<ExpenseInE
 
   private saveExpense = async (expense: ExpenseInEditor) => {
     const sum = Money.from(expense.sum);
-    const division = calculateDivision(expense.type, sum, expense.benefit, this.props.sourceMap[expense.sourceId]);
+    const division = calculateDivision(
+      expense.type,
+      sum,
+      expense.benefit,
+      this.props.sourceMap[expense.sourceId],
+    );
     const data: ExpenseData = {
       ...omit(['subcategoryId', 'benefit'], expense),
       division,
@@ -281,7 +314,10 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps<ExpenseInE
 
     this.saveLock.push(true);
     try {
-      const r = await (this.props.saveAction ?? defaultExpenseSaveAction)(data, this.props.original);
+      const r = await (this.props.saveAction ?? defaultExpenseSaveAction)(
+        data,
+        this.props.original,
+      );
       if (r) {
         this.props.onExpensesUpdated(toMoment(expense.date));
         this.props.onClose(expense);
@@ -345,7 +381,10 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps<ExpenseInE
         <ExpenseDialogContent dividers={true} onClick={this.closeEditors}>
           <Form onSubmit={this.requestSave} onKeyUp={this.handleKeyPress}>
             <Row className="row sum parent">
-              <OwnerSelectorArea id="owner-selector-area" className={this.state.showOwnerSelect ? 'visible' : 'hidden'}>
+              <OwnerSelectorArea
+                id="owner-selector-area"
+                className={this.state.showOwnerSelect ? 'visible' : 'hidden'}
+              >
                 {this.props.users.map(u => (
                   <UserAvatar
                     key={u.id}
@@ -379,7 +418,10 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps<ExpenseInE
                 />
               </ConfirmArea>
               <TypeArea>
-                <TypeSelector value={this.state.type} onChange={v => this.inputStreams.type.push(v)} />
+                <TypeSelector
+                  value={this.state.type}
+                  onChange={v => this.inputStreams.type.push(v)}
+                />
               </TypeArea>
             </Row>
             <Row className="row input title">
@@ -422,7 +464,10 @@ export class ExpenseDialog extends React.Component<ExpenseDialogProps<ExpenseInE
                 title={this.sourceTitle}
                 onChange={v => this.inputStreams.sourceId.push(v)}
               />
-              <UserSelector selected={this.state.benefit} onChange={v => this.inputStreams.benefit.push(v)} />
+              <UserSelector
+                selected={this.state.benefit}
+                onChange={v => this.inputStreams.benefit.push(v)}
+              />
             </Row>
             {this.state.division ? (
               <Row className="row select division">

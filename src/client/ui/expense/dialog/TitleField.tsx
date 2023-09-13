@@ -13,7 +13,13 @@ interface TitleFieldProps {
   onSelect: (s: number) => void;
 }
 
-export const TitleField: React.FC<TitleFieldProps> = ({ value, errorText, dataSource, onChange, onSelect }) => {
+export const TitleField: React.FC<TitleFieldProps> = ({
+  value,
+  errorText,
+  dataSource,
+  onChange,
+  onSelect,
+}) => {
   const [suggestions, setSuggestions] = React.useState<CategoryDataSource[]>([]);
 
   const selectCategory = React.useCallback(

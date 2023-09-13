@@ -27,7 +27,12 @@ export function createSessionApi() {
     '/',
     Requests.unauthorizedTxRequest(
       (tx, req): Promise<Session> =>
-        loginUserWithCredentials(tx, req.body.username, req.body.password, optNumber(req.query.groupId)),
+        loginUserWithCredentials(
+          tx,
+          req.body.username,
+          req.body.password,
+          optNumber(req.query.groupId),
+        ),
     ),
   );
 
@@ -50,7 +55,11 @@ export function createSessionApi() {
   api.deleteTx('/', {}, (tx, session): Promise<ApiMessage> => logoutSession(tx, session));
 
   // GET /api/session/groups
-  api.getTx('/groups', {}, (tx, session): Promise<Group[]> => getGroupsForUser(tx, session.user.id));
+  api.getTx(
+    '/groups',
+    {},
+    (tx, session): Promise<Group[]> => getGroupsForUser(tx, session.user.id),
+  );
 
   return api.router;
 }

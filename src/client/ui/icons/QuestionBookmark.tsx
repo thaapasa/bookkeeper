@@ -2,7 +2,10 @@ import * as React from 'react';
 
 import { colorScheme } from '../Colors';
 
-export const QuestionBookmark: React.FC<{ size: number; title: string }> = ({ size: height, title }) => {
+export const QuestionBookmark: React.FC<{ size: number; title: string }> = ({
+  size: height,
+  title,
+}) => {
   const color = colorScheme.secondary.light;
   const questionColor = colorScheme.secondary.dark;
   const width = (height * 14.0) / 18;

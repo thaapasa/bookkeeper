@@ -22,7 +22,12 @@ interface ExpenseInfoProps {
   fullCategoryName: string;
 }
 
-export const ExpenseInfo: React.FC<ExpenseInfoProps> = ({ loading, expense, division, ...props }) => {
+export const ExpenseInfo: React.FC<ExpenseInfoProps> = ({
+  loading,
+  expense,
+  division,
+  ...props
+}) => {
   if (loading) {
     return <LoadingIndicator forRow={true} />;
   }

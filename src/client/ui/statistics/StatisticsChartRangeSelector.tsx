@@ -17,7 +17,9 @@ export const StatisticsChartRangeSelector: React.FC<{
     type: 'year',
     year: new Date().getFullYear() - 5,
   });
-  const [end, setEnd] = useLocalStorage<ChartPeriod>('statistics.chart.period.end', { type: 'now' });
+  const [end, setEnd] = useLocalStorage<ChartPeriod>('statistics.chart.period.end', {
+    type: 'now',
+  });
   React.useEffect(() => onChange(periodsToDateRange(start, end)), [onChange, start, end]);
   return (
     <Container>

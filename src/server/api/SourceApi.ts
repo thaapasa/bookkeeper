@@ -12,13 +12,19 @@ export function createSourceApi() {
   const api = createValidatingRouter(Router());
 
   // GET /api/source/list
-  api.getTx('/list', {}, (tx, session): Promise<Source[]> => getAllSources(tx, session.group.id), true);
+  api.getTx(
+    '/list',
+    {},
+    (tx, session): Promise<Source[]> => getAllSources(tx, session.group.id),
+    true,
+  );
 
   // GET /api/source/:id
   api.getTx(
     '/:sourceId',
     {},
-    (tx, session, { params }): Promise<Source> => getSourceById(tx, session.group.id, params.sourceId),
+    (tx, session, { params }): Promise<Source> =>
+      getSourceById(tx, session.group.id, params.sourceId),
     true,
   );
 

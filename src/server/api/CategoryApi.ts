@@ -51,7 +51,8 @@ export function createCategoryApi() {
   api.putTx(
     '/:categoryId',
     { body: CategoryInput },
-    (tx, session, { body, params }): Promise<Category> => updateCategory(tx, session.group.id, params.categoryId, body),
+    (tx, session, { body, params }): Promise<Category> =>
+      updateCategory(tx, session.group.id, params.categoryId, body),
     true,
   );
 
@@ -60,7 +61,8 @@ export function createCategoryApi() {
   api.getTx(
     '/:categoryId',
     {},
-    (tx, session, { params }): Promise<Category> => getCategoryById(tx, session.group.id, params.categoryId),
+    (tx, session, { params }): Promise<Category> =>
+      getCategoryById(tx, session.group.id, params.categoryId),
     true,
   );
 

@@ -2,7 +2,10 @@ import { ITask } from 'pg-promise';
 
 import { InvalidDivision } from 'shared/types';
 
-export async function getInvalidDivision(tx: ITask<any>, groupId: number): Promise<InvalidDivision[]> {
+export async function getInvalidDivision(
+  tx: ITask<any>,
+  groupId: number,
+): Promise<InvalidDivision[]> {
   return await tx.manyOrNone<InvalidDivision>(
     `SELECT *
       FROM (

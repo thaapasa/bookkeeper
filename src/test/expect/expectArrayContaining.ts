@@ -1,10 +1,15 @@
-import { expect } from 'bun:test';
-import { assertDefined } from 'shared/util';
-import { expectSome } from './expectSome';
 import { fail } from 'assert';
+import { expect } from 'bun:test';
 import { printValue } from 'test/output';
 
-export function expectArrayContaining<T>(actual: T[] | undefined | null, expected: T[]): asserts actual is T[] {
+import { assertDefined } from 'shared/util';
+
+import { expectSome } from './expectSome';
+
+export function expectArrayContaining<T>(
+  actual: T[] | undefined | null,
+  expected: T[],
+): asserts actual is T[] {
   expect(actual).toBeArray();
   assertDefined(actual);
   for (const exp of expected) {

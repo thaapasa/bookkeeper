@@ -13,7 +13,10 @@ import { calculateSplits, finalizeSplits, isSplitComplete } from './SplitCalc';
 
 const log = debug('ui:expense-split');
 
-export type ExpenseSplitInEditor = Omit<MakeOptional<ExpenseSplit, 'categoryId' | 'sourceId'>, 'division'> & {
+export type ExpenseSplitInEditor = Omit<
+  MakeOptional<ExpenseSplit, 'categoryId' | 'sourceId'>,
+  'division'
+> & {
   benefit: number[];
   key: string;
 };
@@ -77,7 +80,10 @@ export function useExpenseSplit(
 
 export type SplitTools = ReturnType<typeof useExpenseSplit>;
 
-function initialSplit(original: UserExpenseWithDetails | null, sourceMap: SourceMap): ExpenseSplitInEditor[] {
+function initialSplit(
+  original: UserExpenseWithDetails | null,
+  sourceMap: SourceMap,
+): ExpenseSplitInEditor[] {
   return [
     original
       ? {
@@ -92,7 +98,10 @@ function initialSplit(original: UserExpenseWithDetails | null, sourceMap: Source
   ];
 }
 
-function emptySplit(original: UserExpenseWithDetails | null, sourceMap: SourceMap): ExpenseSplitInEditor {
+function emptySplit(
+  original: UserExpenseWithDetails | null,
+  sourceMap: SourceMap,
+): ExpenseSplitInEditor {
   return {
     sum: '0',
     title: '',

@@ -24,10 +24,19 @@ export type CategoryGraphProps = BaseCategoryGraphProps & {
   stackMainCats: boolean;
 };
 
-const StatisticsGraphImpl: React.FC<BaseCategoryGraphProps & { type: StatisticsChartType }> = ({ type, ...props }) => {
+const StatisticsGraphImpl: React.FC<BaseCategoryGraphProps & { type: StatisticsChartType }> = ({
+  type,
+  ...props
+}) => {
   const [estimated, setEstimated] = useLocalStorage('statistics.chart.estimate', false);
-  const [separateEstimate, setSeparateEstimate] = useLocalStorage('statistics.chart.estimate.separate', false);
-  const [stackMainCats, setStackMainCats] = useLocalStorage('statistics.chart.estimate.stackMainCategories', false);
+  const [separateEstimate, setSeparateEstimate] = useLocalStorage(
+    'statistics.chart.estimate.separate',
+    false,
+  );
+  const [stackMainCats, setStackMainCats] = useLocalStorage(
+    'statistics.chart.estimate.stackMainCategories',
+    false,
+  );
 
   return (
     <>
@@ -48,12 +57,19 @@ const StatisticsGraphImpl: React.FC<BaseCategoryGraphProps & { type: StatisticsC
           ) : null}
           {type === 'years' ? (
             <FormControlLabel
-              control={<Checkbox checked={separateEstimate} onChange={() => setSeparateEstimate(!separateEstimate)} />}
+              control={
+                <Checkbox
+                  checked={separateEstimate}
+                  onChange={() => setSeparateEstimate(!separateEstimate)}
+                />
+              }
               label="Arvio erillään"
             />
           ) : null}
           <FormControlLabel
-            control={<Checkbox checked={stackMainCats} onChange={() => setStackMainCats(!stackMainCats)} />}
+            control={
+              <Checkbox checked={stackMainCats} onChange={() => setStackMainCats(!stackMainCats)} />
+            }
             label="Alueet pääkategorioittain"
           />
         </FormGroup>
@@ -62,7 +78,10 @@ const StatisticsGraphImpl: React.FC<BaseCategoryGraphProps & { type: StatisticsC
   );
 };
 
-const GraphSelector: React.FC<CategoryGraphProps & { type: StatisticsChartType }> = ({ type, ...props }) => {
+const GraphSelector: React.FC<CategoryGraphProps & { type: StatisticsChartType }> = ({
+  type,
+  ...props
+}) => {
   if (type === 'recurring') {
     return <YearlyRecurringCategoryChart {...props} />;
   }

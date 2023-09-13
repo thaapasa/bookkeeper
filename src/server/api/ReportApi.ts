@@ -21,7 +21,8 @@ export function createReportApi() {
   api.postTx(
     '/',
     { body: ReportCreationData },
-    (tx, session, { body }) => createReport(tx, session.group.id, session.user.id, body.title, body.query),
+    (tx, session, { body }) =>
+      createReport(tx, session.group.id, session.user.id, body.title, body.query),
     true,
   );
 

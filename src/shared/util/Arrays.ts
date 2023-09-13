@@ -86,10 +86,16 @@ export function arrayContains(arr: ReadonlyArray<any>, value: any): boolean {
 }
 
 export function partition<T>(filter: (item: T) => boolean, arr: ReadonlyArray<T>): [T[], T[]] {
-  return arr.reduce<[T[], T[]]>(([t, f], i) => (filter(i) ? [t.concat(i), f] : [t, f.concat(i)]), [[], []]);
+  return arr.reduce<[T[], T[]]>(
+    ([t, f], i) => (filter(i) ? [t.concat(i), f] : [t, f.concat(i)]),
+    [[], []],
+  );
 }
 
-export function groupBy<T, K extends string | number>(filter: (item: T) => K, arr: ReadonlyArray<T>): Record<K, T[]> {
+export function groupBy<T, K extends string | number>(
+  filter: (item: T) => K,
+  arr: ReadonlyArray<T>,
+): Record<K, T[]> {
   const res: Record<K, T[]> = {} as any;
   arr.forEach(a => {
     const key = filter(a);

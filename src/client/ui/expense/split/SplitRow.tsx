@@ -38,7 +38,9 @@ export const SplitRow: React.FC<SplitRowProps> = props => {
         {split.title}
       </Grid>{' '}
       <Grid item xs={4}>
-        {split.categoryId ? getFullCategoryName(split.categoryId, categoryMap) : 'Valitse kategoria'}{' '}
+        {split.categoryId
+          ? getFullCategoryName(split.categoryId, categoryMap)
+          : 'Valitse kategoria'}{' '}
       </Grid>
       <RGrid item xs={2}>
         {split.sourceId ? <SourceIcon source={sourceMap[split.sourceId]} /> : null}
@@ -85,7 +87,11 @@ const SplitEditor: React.FC<SplitRowProps & { close: () => void }> = ({
   const [benefit, setBenefit] = React.useState<number[]>(split.benefit);
 
   const allValid =
-    title !== '' && (Money.parse(sum)?.gt(0) ?? false) && isDefined(sourceId) && isDefined(catId) && benefit.length > 0;
+    title !== '' &&
+    (Money.parse(sum)?.gt(0) ?? false) &&
+    isDefined(sourceId) &&
+    isDefined(catId) &&
+    benefit.length > 0;
   const validSplit: ExpenseSplitInEditor | undefined = allValid
     ? {
         title,
@@ -132,7 +138,12 @@ const SplitEditor: React.FC<SplitRowProps & { close: () => void }> = ({
         ) : null}
       </Grid>
       <Grid item xs={7}>
-        <SourceSelector sources={sources} value={sourceId ?? 0} onChange={setSourceId} title="Lähde" />
+        <SourceSelector
+          sources={sources}
+          value={sourceId ?? 0}
+          onChange={setSourceId}
+          title="Lähde"
+        />
       </Grid>
       <Grid item xs={5}>
         <UserSelector selected={benefit} onChange={setBenefit} />

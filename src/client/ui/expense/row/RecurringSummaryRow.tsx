@@ -9,7 +9,13 @@ import { Icons } from 'client/ui/icons/Icons';
 import { isMobileSize, media } from 'client/ui/Styles';
 
 import { ExpenseFilterFunction, ExpenseFilters } from './ExpenseFilters';
-import { AllColumns, RecurringExpenseIcon, Row, rowHeight, UnconfirmedIcon } from './ExpenseTableLayout';
+import {
+  AllColumns,
+  RecurringExpenseIcon,
+  Row,
+  rowHeight,
+  UnconfirmedIcon,
+} from './ExpenseTableLayout';
 
 interface RecurringSummaryRowProps {
   recurring: UserExpense[];
@@ -67,7 +73,11 @@ export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
             Balanssi: <Sum>{balance.format()}</Sum>
           </Item>
           <Tools>
-            {isExpanded ? <Icons.ExpandLess onClick={onToggle} /> : <Icons.ExpandMore onClick={onToggle} />}
+            {isExpanded ? (
+              <Icons.ExpandLess onClick={onToggle} />
+            ) : (
+              <Icons.ExpandMore onClick={onToggle} />
+            )}
           </Tools>
         </RowContainer>
       </AllColumns>

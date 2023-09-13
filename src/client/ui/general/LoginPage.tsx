@@ -21,7 +21,9 @@ export const LoginPage: React.FC = () => {
       await login(username, password);
     } catch (er: any) {
       if (er && er.status === 401) {
-        setStatusMessage('Kirjautuminen epäonnistui. Ole hyvä ja tarkista käyttäjätunnuksesi ja salasanasi.');
+        setStatusMessage(
+          'Kirjautuminen epäonnistui. Ole hyvä ja tarkista käyttäjätunnuksesi ja salasanasi.',
+        );
       } else {
         setStatusMessage('Kirjautumisessa tapahtui virhe.');
       }

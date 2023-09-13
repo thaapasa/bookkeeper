@@ -27,7 +27,11 @@ const ExpenseShortcutsListImpl: React.FC<{
         <AddExpenseIcon />
       )}
       {shortcuts.map((l, i) =>
-        titles ? <LinkWithTitle key={`titlelink-${i}`} {...l} /> : <LinkIcon key={`link-${i}`} {...l} />,
+        titles ? (
+          <LinkWithTitle key={`titlelink-${i}`} {...l} />
+        ) : (
+          <LinkIcon key={`link-${i}`} {...l} />
+        ),
       )}
     </LinksArea>
   );
@@ -39,26 +43,33 @@ const ExpenseShortcutsViewImpl: React.FC<{
   const height = 40 + (34 + 12) * props.shortcuts.length;
 
   return (
-    <LinksContainer maxHeight={`${height}px`} className={props.shortcuts.length > 0 ? 'enabled' : 'disabled'}>
+    <LinksContainer
+      maxHeight={`${height}px`}
+      className={props.shortcuts.length > 0 ? 'enabled' : 'disabled'}
+    >
       <ExpenseShortcutsListImpl {...props} />
     </LinksContainer>
   );
 };
 
-export const ExpenseShortcutsView = connect(validSessionE.map(s => ({ shortcuts: s.user.expenseShortcuts || [] })))(
-  ExpenseShortcutsViewImpl,
-);
+export const ExpenseShortcutsView = connect(
+  validSessionE.map(s => ({ shortcuts: s.user.expenseShortcuts || [] })),
+)(ExpenseShortcutsViewImpl);
 
-export const ExpenseShortcutsList = connect(validSessionE.map(s => ({ shortcuts: s.user.expenseShortcuts || [] })))(
-  ExpenseShortcutsListImpl,
-);
+export const ExpenseShortcutsList = connect(
+  validSessionE.map(s => ({ shortcuts: s.user.expenseShortcuts || [] })),
+)(ExpenseShortcutsListImpl);
 
 const LinkIcon: React.FC<ExpenseShortcut & { noClick?: boolean }> = props => (
   <LinkIconArea
     onClick={() => !props.noClick && createNewExpense(props.values)}
     style={{ background: props.background }}
   >
-    {props.icon ? <LinkImage src={props.icon} title={props.title} /> : props.title.substring(0, 1).toUpperCase()}
+    {props.icon ? (
+      <LinkImage src={props.icon} title={props.title} />
+    ) : (
+      props.title.substring(0, 1).toUpperCase()
+    )}
   </LinkIconArea>
 );
 

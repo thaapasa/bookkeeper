@@ -85,4 +85,6 @@ const Title = styled(Typography)`
   margin-left: 8px;
 `;
 
-export const TopBar = connect(validSessionE.map(s => ({ user: s.user, group: s.group })))(TopBarImpl);
+export const TopBar = connect(validSessionE.map(s => ({ user: s.user, group: s.group })))(
+  TopBarImpl,
+);

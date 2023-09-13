@@ -6,5 +6,6 @@ import * as React from 'react';
  * when the deps change before parent unmounts
  */
 export function useOnUnmount<F extends () => any>(f: F, deps?: any[]): void {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   React.useEffect(() => f, deps ?? []);
 }

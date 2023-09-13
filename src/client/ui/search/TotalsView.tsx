@@ -14,8 +14,12 @@ interface TotalsViewProps {
 export class TotalsView extends React.Component<TotalsViewProps> {
   render() {
     const sum = this.props.results.reduce((p, c) => p.plus(c.sum), Money.from(0));
-    const income = this.props.results.filter(r => r.type === 'income').reduce((p, c) => p.plus(c.sum), Money.from(0));
-    const cost = this.props.results.filter(r => r.type === 'expense').reduce((p, c) => p.plus(c.sum), Money.from(0));
+    const income = this.props.results
+      .filter(r => r.type === 'income')
+      .reduce((p, c) => p.plus(c.sum), Money.from(0));
+    const cost = this.props.results
+      .filter(r => r.type === 'expense')
+      .reduce((p, c) => p.plus(c.sum), Money.from(0));
     return (
       <>
         <TotalsPadding />
