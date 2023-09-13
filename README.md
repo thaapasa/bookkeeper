@@ -52,7 +52,7 @@ The `DEBUG` switch (in `.env` or supplied as an environment variable) controls l
 
 ### Client web app
 
-Start development build by running `bun watch-client`.
+Start development build by running `bun dev-client`.
 
 You can see console logging by setting the `debug` variable to `localStorage`;
 for example: `localStorage.debug = 'bookkeeper*'`.
@@ -61,8 +61,8 @@ for example: `localStorage.debug = 'bookkeeper*'`.
 
 `bun run <target>` or just `bun <target>`:
 
-- `watch-server`: Start server for development use (runs `swc` with `nodemon`)
-- `watch-client`: Start client builder for development
+- `dev-server`: Start server for development use (runs `swc` with `nodemon`)
+- `dev-client`: Start client builder for development
 - `build-server`: Build production version of server under `build-server/`
 - `build-client`: Build production bundle of web app under `build/`
 - `start-server-prod`: Starts the production server (requires that `build-server` has been run)
