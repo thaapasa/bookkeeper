@@ -25,8 +25,9 @@ export function useDeferredData<T, P extends any[]>(
   ...params: P
 ) {
   const [data, setData] = React.useState<AsyncData<T>>(UninitializedData);
-  const loadData = React.useCallback((): void => {
+  const loadData = React.useCallback(() => {
     if (valid) {
+      setData({ type: 'loading' });
       dataSource(...params)
         .then(value => setData({ type: 'loaded', value }))
         .catch(error => setData({ type: 'error', error }));
