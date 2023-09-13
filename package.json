@@ -8,7 +8,6 @@
     "create-dev-db": "docker run -e POSTGRES_PASSWORD=postgres -p 15488:5432 --name bookkeeper-db -d postgres:14.3",
     "dev-client": "bun run update-revision client && react-scripts start",
     "dev-server": "bun run update-revision server && bun run migrate && bun run --watch src/server/BookkeeperServer.ts",
-    "test": "react-scripts test --runInBand",
     "build-client": "react-scripts build",
     "build-all": "bun run update-revisions && bun run build-client",
     "start-server-prod": "DEBUG=bookkeeper* NODE_ENV=production node build-server/server/BookkeeperServer.ts",
