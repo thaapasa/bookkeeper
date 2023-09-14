@@ -12,15 +12,23 @@ fi
 
 PIDS=`ps -ef | grep BookkeeperServer | grep -v grep | awk '{print $2;}'`
 
+
 if [ "$PIDS" != "" ]; then
   echo "Server already running!"
   exit 0
 fi
 
+if [ -f "log/server.log" ] ; then
+  DATE=`date +"%Y-%m-%dT%H%M%S"`
+  NEW_NAME="log/server-before-${DATE}.log"
+  echo "Log file exists, renaming to $NEW_NAME"
+  mv log/server.log $NEW_NAME
+fi
+
 mkdir -p log
 
 echo "Starting server (port $PORT)"
-NODE_ENV=production nohup bun run src/server/BookkeeperServer.ts >log/server.log 2>&1 &
+NODE_ENV=production nohup bun run src/server/BookkeeperServer.ts >log/start-server.log &
 echo
 
 popd >/dev/null
@@ -32,4 +40,4 @@ echo
 sleep 0.33
 
 echo "Server started, startup logs:"
-cat log/server.log
+cat log/server.log | bun pino-pretty

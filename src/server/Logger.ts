@@ -9,7 +9,7 @@ function debugLogger() {
 function prodLogger() {
   const transport = pino.transport({
     target: 'pino/file',
-    options: { destination: 'log/server.log' },
+    options: { destination: 'log/server.log', append: false },
   });
   return pino(transport);
 }
