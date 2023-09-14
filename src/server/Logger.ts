@@ -1,3 +1,5 @@
 import pino from 'pino';
 
-export const logger = pino({});
+import { config } from './Config';
+
+export const logger = pino({ level: config.logLevel });

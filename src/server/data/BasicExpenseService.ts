@@ -1,8 +1,8 @@
-import debug from 'debug';
 import { ITask } from 'pg-promise';
 
 import { Expense, ExpenseDivisionItem, ExpenseInput } from 'shared/expense';
 import { ApiMessage, ObjectId } from 'shared/types';
+import { logger } from 'server/Logger';
 
 import {
   createNewExpense,
@@ -15,8 +15,6 @@ import { getCategoryById } from './CategoryDb';
 import { determineDivision } from './ExpenseDivision';
 import { getSourceById } from './SourceDb';
 import { getUserById } from './UserDb';
-
-const log = debug('bookkeeper:api:expenses');
 
 export async function createExpense(
   tx: ITask<any>,
@@ -47,7 +45,7 @@ export async function createExpense(
     },
     division,
   );
-  log('Created expense', id, expense);
+  logger.debug(expense, 'Created expense %s', id);
   return { status: 'OK', message: 'Expense created', expenseId: id };
 }
 

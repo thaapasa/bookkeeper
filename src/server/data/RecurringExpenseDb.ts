@@ -1,4 +1,3 @@
-import debug from 'debug';
 import { Moment } from 'moment';
 import { ITask } from 'pg-promise';
 
@@ -28,6 +27,7 @@ import {
   ObjectId,
 } from 'shared/types';
 import { assertDefined, camelCaseObject, Money, toArray, unnest } from 'shared/util';
+import { logger } from 'client/Logger';
 
 import {
   createNewExpense,
@@ -44,8 +44,6 @@ import { getCategoryById } from './CategoryDb';
 import { determineDivision } from './ExpenseDivision';
 import { calculateNextRecurrence } from './RecurringExpenseService';
 import { getSourceById } from './SourceDb';
-
-const log = debug('bookkeeper:api:recurring-expenses');
 
 const RecurringExpenseSelect = `SELECT *, re.id AS "recurringExpenseId" FROM recurring_expenses re
   LEFT JOIN expenses e ON (e.id = re.template_expense_id)`;
@@ -174,7 +172,7 @@ export async function createRecurringFromExpense(
   expenseId: ObjectId,
   recurrence: RecurringExpenseInput,
 ): Promise<ApiMessage> {
-  log(
+  logger.info(
     `Create recurring expense with a period of ${recurrence.period.amount} ${recurrence.period.unit} from ${expenseId}`,
   );
   let nextMissing: Moment | undefined;
@@ -236,8 +234,7 @@ function createMissingRecurrenceForDate(
 ): Promise<number> {
   const [exp, division] = e;
   const expense = { ...exp, template: false, date };
-  log('Creating missing expense', expense.title, expense.date);
-  // log('Creating missing expense', expense, 'with division', division);
+  logger.debug('Creating missing expense %s at %s', expense.title, expense.date);
   return createNewExpense(tx, expense.userId, expense, division);
 }
 
@@ -263,7 +260,7 @@ async function createMissingRecurrences(
   }
   const lastDate = dates[dates.length - 1];
   const nextMissing = calculateNextRecurrence(lastDate, recurrence.period);
-  log(
+  logger.info(
     `Creating missing expenses for ${recurrence} ${dates}. Next missing is ${toISODate(
       nextMissing,
     )}`,
@@ -302,7 +299,7 @@ export async function createMissingRecurringExpenses(
   userId: number,
   date: Moment,
 ): Promise<void> {
-  log('Checking for missing expenses');
+  logger.debug('Checking for missing expenses');
   const list = await tx.map<RecurrenceInDb>(
     `SELECT *
         FROM recurring_expenses
@@ -367,7 +364,7 @@ export async function deleteRecurringByExpenseId(
   expenseId: ObjectId,
   target: RecurringExpenseTarget,
 ): Promise<ApiMessage> {
-  log(`Deleting recurring via expense ${expenseId} - targeting ${target}`);
+  logger.info(`Deleting recurring via expense ${expenseId} - targeting ${target}`);
   if (target === 'single') {
     return deleteExpenseById(tx, groupId, expenseId);
   }
@@ -392,7 +389,7 @@ export async function deleteRecurringExpenseById(
 ): Promise<ApiMessage> {
   const recurring = await getRecurringExpenseInfo(tx, groupId, recurringExpenseId);
   const now = toDate(toMoment());
-  log(`Deleting recurring ${recurring.id} at ${now}`);
+  logger.info(`Deleting recurring ${recurring.id} at ${now}`);
 
   await terminateRecurrenceAt(tx, recurringExpenseId, now);
   return { status: 'OK', message: `Recurrence cleared at ${now}` };
@@ -458,7 +455,7 @@ async function updateRecurringExpense(
     throw new InvalidExpense(`Invalid target ${target}`);
   }
   const expense = setExpenseDataDefaults(expenseInput);
-  log(`Updating recurring expense ${original} to ${expense}`);
+  logger.debug({ original, expense }, `Updating recurring expense`);
   const sourceId = expense.sourceId || defaultSourceId;
   const [cat, source] = await Promise.all([
     getCategoryById(tx, original.groupId, expense.categoryId),
@@ -515,7 +512,7 @@ export async function updateRecurringExpenseByExpenseId(
   expense: ExpenseInput,
   defaultSourceId: number,
 ): Promise<ApiMessage> {
-  log(`Updating recurring expense ${expenseId} - targeting ${target}`);
+  logger.info(`Updating recurring expense ${expenseId} - targeting ${target}`);
   const org = await getExpenseById(tx, groupId, userId, expenseId);
   if (!org.recurringExpenseId) {
     throw new InvalidExpense(`${expenseId} is not a recurring expense`);

@@ -1,7 +1,6 @@
 import * as bodyParser from 'body-parser';
 import express from 'express';
 import * as path from 'path';
-import pinoHttp from 'pino-http';
 
 import { createApi } from './api/Api';
 import { config } from './Config';
@@ -13,7 +12,6 @@ const app = express();
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use(pinoHttp);
 
 app.use('/api', createApi());
 

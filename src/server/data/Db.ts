@@ -1,15 +1,17 @@
-import debug from 'debug';
 import pgp from 'pg-promise';
 
+import { logger } from 'server/Logger';
+
 import { config } from '../Config';
-const log = debug('bookkeeper:sql');
 
 const logSql = process.env.LOG_SQL === 'true';
 
+const sqlLogger = logger.child({ category: 'sql' });
+
 if (logSql) {
-  log('Logging all SQL queries');
+  logger.info('Logging all SQL queries');
 }
 
 export const db = pgp({
-  query: logSql ? q => log(`SQL: ${q.query}`) : undefined,
+  query: logSql ? q => sqlLogger.info(q.query) : undefined,
 })(config.dbUrl);

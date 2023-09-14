@@ -1,15 +1,13 @@
-import debug from 'debug';
 import { ITask } from 'pg-promise';
 
 import { Expense, ExpenseSplit } from 'shared/expense';
 import { BkError } from 'shared/types';
 import { Money } from 'shared/util';
+import { logger } from 'server/Logger';
 
 import { deleteExpenseById, getExpenseById } from './BasicExpenseDb';
 import { createExpense } from './BasicExpenseService';
 import { toBaseExpense } from './ExpenseUtils';
-
-const log = debug('bookkeeper:api:expenses');
 
 export async function splitExpense(
   tx: ITask<any>,
@@ -20,7 +18,7 @@ export async function splitExpense(
 ) {
   const expense = toBaseExpense(await getExpenseById(tx, groupId, userId, expenseId));
   await checkSplits(splits, expense);
-  log(`Splitting`, expense, 'to', splits);
+  logger.debug({ expense, splits }, 'Splitting expense');
   await Promise.all(splits.map(s => createSplit(tx, expense, s)));
   await deleteExpenseById(tx, groupId, expenseId);
   return {
@@ -31,7 +29,7 @@ export async function splitExpense(
 
 async function createSplit(tx: ITask<any>, expense: Expense, split: ExpenseSplit) {
   const splitted = { ...expense, ...split };
-  log(`Creating new expense`, splitted);
+  logger.debug(splitted, `Creating new expense`);
   await createExpense(tx, expense.userId, expense.groupId, splitted, expense.groupId);
 }
 

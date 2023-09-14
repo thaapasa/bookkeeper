@@ -1,10 +1,10 @@
-import debug from 'debug';
 import { Moment } from 'moment';
 import { ITask } from 'pg-promise';
 
 import { ExpenseCollection, ExpenseStatus, UserExpense } from 'shared/expense';
 import * as time from 'shared/time';
 import { mapValues, Money } from 'shared/util';
+import { logger } from 'server/Logger';
 
 import {
   countTotalBetween,
@@ -13,8 +13,6 @@ import {
   hasUnconfirmedBefore,
 } from './BasicExpenseDb';
 import { createMissingRecurringExpenses } from './RecurringExpenseDb';
-
-const log = debug('bookkeeper:api:expenses');
 
 function calculateBalance(o: ExpenseStatus): ExpenseStatus {
   const value = Money.from(o.cost)
@@ -37,7 +35,7 @@ async function getBetween(
   startDate: Moment | string,
   endDate: Moment | string,
 ) {
-  log(
+  logger.debug(
     `Querying for expenses between ${time.iso(startDate)} and ${time.iso(
       endDate,
     )} for group ${groupId}`,
