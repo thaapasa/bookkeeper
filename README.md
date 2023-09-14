@@ -52,22 +52,19 @@ The `DEBUG` switch (in `.env` or supplied as an environment variable) controls l
 
 ### Client web app
 
-Start development build by running `bun dev-client`.
-
-You can see console logging by setting the `debug` variable to `localStorage`;
-for example: `localStorage.debug = 'bookkeeper*'`.
+Start development build by running `bun ui`.
 
 ### Package scripts
 
 `bun run <target>` or just `bun <target>`:
 
-- `dev-server`: Start server for development use (runs `swc` with `nodemon`)
-- `dev-client`: Start client builder for development
+- `server`: Start server for development use (runs `bun --watch`)
+- `ui`: Start client builder for development (runs `vite`)
 - `build-server`: Build production version of server under `build-server/`
 - `build-client`: Build production bundle of web app under `build/`
-- `start-server-prod`: Starts the production server (requires that `build-server` has been run)
+- `start-server`: Runs production server
 - `ps-server`: Shows the process number of the active server
-- `kill-server`: Kills the running server instance (in case the port has not been released)
+- `stop-server`: Kills the running server instance (in case the port has not been released)
 - `migrate`: Run migrations (this is automatically run on dev-server startup)
 - `migrate-make migration-name`: Create a new migration file
 - `migrate-rollback`: Rollback latest migration
