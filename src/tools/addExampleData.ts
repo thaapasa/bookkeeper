@@ -1,4 +1,4 @@
-import debug from 'debug';
+import pino from 'pino';
 
 import { ExpenseData } from 'shared/expense';
 import { createTestClient, SessionWithControl } from 'shared/net/test';
@@ -6,13 +6,14 @@ import { toISODate, toMoment } from 'shared/time';
 import { ApiMessage } from 'shared/types';
 import { unnest } from 'shared/util';
 
-const client = createTestClient();
-const log = debug('bookkeeper:data:example');
+const logger = pino();
+
+const client = createTestClient({ logger });
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
 async function addExampleData() {
-  log('Adding example data to database');
+  logger.info('Adding example data to database');
   const session = await client.getSession('sale', 'salasana');
   const allCategories = [...session.categories, ...unnest(session.categories.map(c => c.children))];
   const foodC = allCategories.find(c => c.name === 'Ruokakauppa')!;
@@ -54,7 +55,7 @@ async function addExampleData() {
     period: { amount: 1, unit: 'months' },
   });
   await session.logout();
-  log('Example data created');
+  logger.info('Example data created');
 }
 
-addExampleData().catch(e => log('Error when adding example data', e));
+addExampleData().catch(e => logger.error(e, 'Error when adding example data'));

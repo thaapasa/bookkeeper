@@ -1,16 +1,14 @@
 import { IconButton } from '@mui/material';
-import debug from 'debug';
 import * as React from 'react';
 
 import { config } from 'client/Config';
 import apiConnect from 'client/data/ApiConnect';
+import { logger } from 'client/Logger';
 import { reloadApp } from 'client/util/ClientUtil';
 import { infoPagePath } from 'client/util/Links';
 
 import { Icons } from '../icons/Icons';
 import { InfoItem, ItemWithId, Label, Value } from './InfoLayoutElements';
-
-const log = debug('bookkeeper:version');
 
 interface VersionInfo {
   version: string;
@@ -21,7 +19,7 @@ export const VersionInfoView = () => {
   const [serverVersion, setServerVersion] = React.useState<VersionInfo | null>(null);
   React.useMemo(async () => {
     const status = await apiConnect.getApiStatus();
-    log(`API status`, status);
+    logger.info(status, `API status`);
     setServerVersion({ version: status.version, revision: status.revision });
   }, [setServerVersion]);
   const doReload = React.useCallback(() => reloadApp(infoPagePath), []);

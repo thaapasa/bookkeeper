@@ -1,5 +1,4 @@
 import * as B from 'baconjs';
-import debug from 'debug';
 import * as React from 'react';
 import { useParams } from 'react-router';
 
@@ -16,6 +15,7 @@ import {
 } from 'client/data/Categories';
 import { validSessionE } from 'client/data/Login';
 import { navigationBus, needUpdateE } from 'client/data/State';
+import { logger } from 'client/Logger';
 import { searchPagePath } from 'client/util/Links';
 
 import { connect } from '../component/BaconConnect';
@@ -24,8 +24,6 @@ import { useWhenMounted } from '../hooks/useWhenMounted';
 import { PageContentContainer } from '../Styles';
 import { QueryView } from './QueryView';
 import { ResultsView } from './ResultsView';
-
-const log = debug('bookkeeper:expense-search');
 
 interface SearchViewProps {
   userData: UserDataProps;
@@ -49,7 +47,7 @@ const SearchViewImpl: React.FC<SearchViewProps> = ({ userData, session, category
   const searchBus = usePersistentMemo(() => new B.Bus<ExpenseQuery>(), []);
   const repeatSearchBus = usePersistentMemo(() => new B.Bus<true>(), []);
 
-  log(`Param year`, year, `month`, month);
+  logger.info({ year, month }, 'Params');
 
   // We can't use React.useEffect() here because it is run too late
   // (after initial render, and after the query view submits the query).
@@ -70,7 +68,7 @@ const SearchViewImpl: React.FC<SearchViewProps> = ({ userData, session, category
 
   const onSearch = React.useCallback(
     (query: ExpenseQuery) => {
-      log('Searching for', query);
+      logger.info(query, 'Searching for');
       setResults({ type: 'loading' });
       navigationBus.push({
         pathPrefix: searchPagePath,
@@ -82,7 +80,7 @@ const SearchViewImpl: React.FC<SearchViewProps> = ({ userData, session, category
   );
 
   const onRepeatSearch = React.useCallback(() => {
-    log('Repeating search');
+    logger.debug('Repeating search');
     repeatSearchBus.push(true);
   }, [repeatSearchBus]);
 

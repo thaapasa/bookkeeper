@@ -1,5 +1,3 @@
-import debug from 'debug';
-
 import {
   Expense,
   ExpenseDivision,
@@ -12,8 +10,7 @@ import {
 } from 'shared/expense';
 import { Source } from 'shared/types';
 import { MoneyLike, sortAndCompareElements } from 'shared/util';
-
-const log = debug('bookkeeper:expense-dialog');
+import { logger } from 'client/Logger';
 
 export function getBenefitorsForExpense(
   expense: Expense,
@@ -51,6 +48,7 @@ export function calculateDivision(
       const ben = splitByShares(
         sum,
         benefit.map(id => ({ userId: id, share: 1 })),
+        logger,
       );
       const cost = calculateDivisionCounterpart(sum, source, ben, false);
       return ben.map(itemTypeFixers.benefit).concat(cost.map(itemTypeFixers.cost));
@@ -60,6 +58,7 @@ export function calculateDivision(
         splitByShares(
           sum,
           benefit.map(id => ({ userId: id, share: 1 })),
+          logger,
         ),
       );
       const income = calculateDivisionCounterpart(sum, source, split, true);
@@ -69,6 +68,7 @@ export function calculateDivision(
       const transferee = splitByShares(
         sum,
         benefit.map(id => ({ userId: id, share: 1 })),
+        logger,
       );
       const transferor = calculateDivisionCounterpart(sum, source, transferee, false);
       return transferee
@@ -90,12 +90,12 @@ function calculateDivisionCounterpart(
   const sourceUserIds = sourceUsers.map(s => s.userId);
   const benefitUserIds = otherDivision.map(b => b.userId);
   if (sortAndCompareElements(sourceUserIds, benefitUserIds)) {
-    log('Division pair has same users creating counterpart based on other part');
+    logger.info('Division pair has same users creating counterpart based on other part');
     return negateDivision(otherDivision);
   } else {
     // Calculate counterpart manually
-    log('Calculating counterpart by source users');
-    const positiveDivision = splitByShares(sum, sourceUsers);
+    logger.info('Calculating counterpart by source users');
+    const positiveDivision = splitByShares(sum, sourceUsers, logger);
     return expectPositive ? positiveDivision : negateDivision(positiveDivision);
   }
 }

@@ -3,12 +3,13 @@ import { afterEach, beforeEach, describe, expect, it } from 'bun:test';
 import { cleanup, newCategory } from 'shared/expense/test';
 import { createTestClient, SessionWithControl } from 'shared/net/test';
 import { expectThrow } from 'shared/util/test';
+import { logger } from 'server/Logger';
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
 describe('categories', () => {
   let session: SessionWithControl;
-  const client = createTestClient();
+  const client = createTestClient({ logger });
 
   beforeEach(async () => {
     session = await client.getSession('sale', 'salasana');

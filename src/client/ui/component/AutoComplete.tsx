@@ -4,12 +4,10 @@ import {
   AutocompleteInputChangeReason,
   TextField,
 } from '@mui/material';
-import debug from 'debug';
 import React from 'react';
 
 import { spaced } from 'shared/util';
-
-const log = debug('ui:autocomplete');
+import { logger } from 'client/Logger';
 
 export interface AutoCompleteProps<T> {
   id?: string;
@@ -56,7 +54,7 @@ export const AutoComplete: React.FC<AutoCompleteProps<any>> = ({
     (_event: React.SyntheticEvent, value: string | null, reason: AutocompleteChangeReason) => {
       switch (reason) {
         case 'selectOption':
-          log(`Selected suggestion:`, value);
+          logger.info(`Selected suggestion: %s`, value);
           onSelectSuggestion(value);
           return;
       }
@@ -68,7 +66,7 @@ export const AutoComplete: React.FC<AutoCompleteProps<any>> = ({
     (_event: React.SyntheticEvent, value: string, reason: AutocompleteInputChangeReason) => {
       switch (reason) {
         case 'input':
-          log(`Input from textfield: ${value}`);
+          logger.info(`Input from textfield: ${value}`);
           onChange(value);
           onUpdateSuggestions(value);
           return;

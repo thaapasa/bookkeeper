@@ -12,6 +12,7 @@ import {
 import { createTestClient, SessionWithControl } from 'shared/net/test';
 import { YearMonth } from 'shared/time';
 import { Money } from 'shared/util';
+import { logger } from 'server/Logger';
 
 import { checkMonthStatus } from './MonthStatus';
 
@@ -21,7 +22,7 @@ describe('splitting expenses', () => {
   let session: SessionWithControl;
   let expense: UserExpenseWithDetails;
 
-  const client = createTestClient();
+  const client = createTestClient({ logger });
 
   beforeEach(async () => {
     session = await client.getSession('sale', 'salasana');

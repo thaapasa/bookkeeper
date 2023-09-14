@@ -15,6 +15,7 @@ import { ISODate, toISODate, YearMonth } from 'shared/time';
 import { ApiMessage } from 'shared/types';
 import { Money } from 'shared/util';
 import { calculateNextRecurrence } from 'server/data/RecurringExpenseService';
+import { logger } from 'server/Logger';
 
 import { checkMonthStatus } from './MonthStatus';
 
@@ -22,7 +23,7 @@ const month: YearMonth = { year: 2017, month: 1 };
 
 describe('recurring expenses', () => {
   let session: SessionWithControl;
-  const client = createTestClient();
+  const client = createTestClient({ logger });
 
   beforeEach(async () => {
     session = await client.getSession('sale', 'salasana');

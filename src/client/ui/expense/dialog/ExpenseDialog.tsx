@@ -8,7 +8,6 @@ import {
   styled,
 } from '@mui/material';
 import * as B from 'baconjs';
-import debug from 'debug';
 import { Moment } from 'moment';
 import * as React from 'react';
 
@@ -24,6 +23,7 @@ import { toISODate, toMoment } from 'shared/time';
 import { Category, CategoryMap, Group, Source, User } from 'shared/types';
 import { identity, Money, omit, sanitizeMoneyInput, valuesToArray } from 'shared/util';
 import { CategoryDataSource, isSubcategoryOf } from 'client/data/Categories';
+import { logger } from 'client/Logger';
 import { gray } from 'client/ui/Colors';
 import UserAvatar from 'client/ui/component/UserAvatar';
 import UserSelector from 'client/ui/component/UserSelector';
@@ -47,8 +47,6 @@ import { calculateDivision } from './ExpenseDialogData';
 import { defaultExpenseSaveAction, ExpenseSaveAction } from './ExpenseSaveAction';
 import { ReceiverField } from './ReceiverField';
 import { TitleField } from './TitleField';
-
-const log = debug('bookkeeper:expense-dialog');
 
 type CategoryInfo = Pick<Category, 'name' | 'id'>;
 
@@ -280,13 +278,13 @@ export class ExpenseDialog extends React.Component<
     values: Partial<ExpenseInEditor>,
   ) {
     const newState = this.getDefaultState(expense, values);
-    log('Start editing', newState);
+    logger.info('Start editing %s', newState);
     fields.map(k => this.inputStreams[k].push(newState[k]));
   }
 
   public componentDidUpdate(prevProps: ExpenseDialogProps<ExpenseInEditor>) {
     if (this.props.expenseCounter !== prevProps.expenseCounter) {
-      log('Settings props for', this.props.original);
+      logger.debug('Settings props for %s', this.props.original);
       this.pushExpenseToInputStreams(this.props.original, this.props.values);
     }
   }

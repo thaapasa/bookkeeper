@@ -1,13 +1,10 @@
-import debug from 'debug';
-
 import { sum, toPercentageDistribution } from 'shared/math';
 import { MomentRange } from 'shared/time';
 import { CategoryStatistics, CategoryStatisticsData } from 'shared/types';
 import { assertTrue, groupBy, Money, numberRange } from 'shared/util';
+import { logger } from 'client/Logger';
 import { ChartColumn } from 'client/ui/chart/ChartTypes';
 import { formatMoney } from 'client/ui/chart/Format';
-
-const log = debug('bookkeeper:statistics:estimate');
 
 /**
  * How large part of the year must be passed after we switch to use the
@@ -32,7 +29,7 @@ export function estimateMissingYearlyExpenses(
 
   const estimateByThisYear = currentSum / yearPercentage;
 
-  log(
+  logger.info(
     `Estimating ${yearEnd.year()} for ${categoryId}, at ${(yearPercentage * 100).toFixed(
       2,
     )} % (${dayAtEnd}/${daysInYear}) with ${formatMoney(currentSum)} -> ${formatMoney(
@@ -74,7 +71,7 @@ function estimateFromMontlyDistribution(
     Money.from(months[m]?.[0]?.sum ?? 0).valueOf(),
   );
   const percentages = toPercentageDistribution(sumDistribution);
-  log(`Estimating based on last year distribution ${sumDistribution}: ${percentages}`);
+  logger.info(`Estimating based on last year distribution ${sumDistribution}: ${percentages}`);
 
   // Zero based months here
   const ongoingMonth = range.endTime.month();
@@ -94,7 +91,7 @@ function estimateFromMontlyDistribution(
   // (1 - remainingPercentage) * yearTotal = currentSum
   // yearTotal = currentSum / (1 - remainingPercentage)
   const yearTotal = currentSum / (1.0 - remainingPercentage);
-  log(
+  logger.info(
     `Remaining percentage of sums is ${remainingPercentage.toFixed(2)} -> ${formatMoney(
       yearTotal,
     )}`,
@@ -110,19 +107,23 @@ function weightedEstimateFromLastYear(
 ) {
   const lastYearWeight = remainingPercentage / 0.8;
   // Use a weighted estimate of direct interpolation and last years expenses
-  log(`Using year expenses: ${formatMoney(lastYearSum)} with weight ${lastYearWeight.toFixed(2)}`);
+  logger.info(
+    `Using year expenses: ${formatMoney(lastYearSum)} with weight ${lastYearWeight.toFixed(2)}`,
+  );
 
   const interpolatedEstimate = estimateByThisYear * remainingPercentage;
   const fullEstimate = lastYearWeight * lastYearSum + (1 - lastYearWeight) * interpolatedEstimate;
 
   const remaining = fullEstimate * remainingPercentage;
-  log(`Weighted estimate ${formatMoney(fullEstimate)}, remaining: ${formatMoney(remaining)}`);
+  logger.info(
+    `Weighted estimate ${formatMoney(fullEstimate)}, remaining: ${formatMoney(remaining)}`,
+  );
   return remaining;
 }
 
 function interpolateEstimate(estimateByThisYear: number, remainingPercentage: number) {
   // Directly interpolate estimate
   const remaining = estimateByThisYear * remainingPercentage;
-  log(`Estimated remaining by this year alone: ${formatMoney(remaining)}`);
+  logger.info(`Estimated remaining by this year alone: ${formatMoney(remaining)}`);
   return remaining;
 }

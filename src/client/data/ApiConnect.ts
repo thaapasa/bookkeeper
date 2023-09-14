@@ -37,7 +37,7 @@ import { logger } from 'client/Logger';
 
 import { checkLoginState } from './Login';
 
-const client = new FetchClient(fetch.bind(window));
+const client = new FetchClient(fetch.bind(window), '', logger);
 
 function mapExpense<T extends UserExpense | UserExpenseWithDetails>(e: T): T {
   e.userBenefit = Money.from(e.userBenefit, 0);

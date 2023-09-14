@@ -1,4 +1,5 @@
 import fetch from 'node-fetch';
+import { Logger } from 'pino';
 
 import { Session } from '../../types/Session';
 import { FetchClient } from '../FetchClient';
@@ -7,8 +8,12 @@ function authHeader(token: string): Record<string, string> {
   return { Authorization: `Bearer ${token}` };
 }
 
-export function createTestClient(baseUrl?: string) {
-  const client = new FetchClient(fetch as any, baseUrl ?? 'http://localhost:3100');
+export function createTestClient(opts: { baseUrl?: string; logger?: Logger }) {
+  const client = new FetchClient(
+    fetch as any,
+    opts.baseUrl ?? 'http://localhost:3100',
+    opts.logger,
+  );
 
   const get = <T>(token: string, path: string, query?: Record<string, any>) =>
     client.get<T>(path, query, authHeader(token));

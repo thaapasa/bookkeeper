@@ -1,9 +1,7 @@
-import debug from 'debug';
+import { Logger } from 'pino';
 
 import { isDefined } from '../types/Common';
 import { AuthenticationError, BkError } from '../types/Errors';
-
-const log = debug('net:fetch-client');
 
 export type FetchType = (input: RequestInfo, init?: FixedRequestInit) => Promise<Response>;
 
@@ -21,7 +19,11 @@ export class FetchClient {
   private fetch: FetchType;
   private baseUrl: string;
 
-  constructor(f: FetchType, base = '') {
+  constructor(
+    f: FetchType,
+    base = '',
+    private logger?: Logger,
+  ) {
     this.fetch = f;
     this.baseUrl = base;
   }
@@ -53,14 +55,14 @@ export class FetchClient {
   ): Promise<T> {
     try {
       const queryPath = this.toQuery(path, query);
-      log(`${method} ${queryPath} with body`, body);
+      this.logger?.debug(body, `${method} ${queryPath} with body`);
       const options = {
         method,
         body: body ? JSON.stringify(body) : undefined,
         headers,
       };
       const res = await this.fetch(queryPath, options);
-      log(`${method} ${queryPath} -> ${res.status}`);
+      this.logger?.debug(`${method} ${queryPath} -> ${res.status}`);
       switch (res.status) {
         case 200:
           return (await res.json()) as T;
@@ -69,7 +71,7 @@ export class FetchClient {
           throw new AuthenticationError('Unauthorized: ' + res.status, await res.json());
         default: {
           const data = await res.json();
-          log('Error received from API', data);
+          this.logger?.warn(data, 'Error received from API');
           throw new BkError(
             'code' in data ? data.code : 'ERROR',
             `Error ${res.status} from ${method} ${path}`,
@@ -82,7 +84,7 @@ export class FetchClient {
       if (e instanceof BkError || e instanceof AuthenticationError) {
         throw e;
       }
-      log('Error in fetch client:', e);
+      this.logger?.error(e, 'Error in fetch client');
       const data = { ...e };
       throw new BkError(
         'code' in data ? data.code : 'ERROR',
