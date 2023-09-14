@@ -1,4 +1,4 @@
-import { isMoment, Moment } from 'moment';
+import moment, { Moment } from 'moment';
 import { z } from 'zod';
 
 import { numberRange } from '../util/Arrays';
@@ -15,7 +15,7 @@ export const Quarter = z.string().regex(QuarterRegExp);
 export type Quarter = z.infer<typeof Quarter>;
 
 export function toQuarter(m: Moment | ISODate | ISOMonth): Quarter {
-  const asStr = isMoment(m) ? m.format('YYYY-MM') : m;
+  const asStr = moment.isMoment(m) ? m.format('YYYY-MM') : m;
   const year = asStr.substring(0, 4);
   // Zero-based month
   const month = Number(asStr.substring(5, 7)) - 1;

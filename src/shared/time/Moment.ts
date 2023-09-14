@@ -1,6 +1,4 @@
-import moment, { isMoment, Moment, MomentInput } from 'moment';
-
-require('moment/locale/fi');
+import moment, { Moment, MomentInput } from 'moment';
 
 export const fiLocale = 'fi-FI';
 
@@ -8,7 +6,7 @@ export const fiLocale = 'fi-FI';
 moment.locale(fiLocale);
 
 export function toMoment(d?: MomentInput, pattern?: string): Moment {
-  if (isMoment(d)) {
+  if (moment.isMoment(d)) {
     return d;
   }
   return moment(d, pattern);

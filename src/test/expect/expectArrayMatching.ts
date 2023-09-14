@@ -1,8 +1,8 @@
-import { fail } from 'assert';
 import { expect } from 'bun:test';
 import { printValue } from 'test/output';
 
 import { assertDefined } from 'shared/util';
+import { fail } from 'shared/util/Assert';
 
 import { expectSome } from './expectSome';
 

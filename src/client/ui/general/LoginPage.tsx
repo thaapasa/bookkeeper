@@ -7,7 +7,7 @@ import { colorScheme } from '../Colors';
 import { TextEdit } from '../component/TextEdit';
 import { media } from '../Styles';
 
-const publicUrl = process.env.PUBLIC_URL || '';
+const publicUrl = import.meta.env.PUBLIC_URL || '';
 
 export const LoginPage: React.FC = () => {
   const [username, setUsername] = React.useState('');

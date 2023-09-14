@@ -6,10 +6,10 @@
   "scripts": {
     "postinstall": "bun run update-revisions",
     "create-dev-db": "docker run -e POSTGRES_PASSWORD=postgres -p 15488:5432 --name bookkeeper-db -d postgres:14.3",
-    "dev-client": "bun run update-revision client && react-scripts start",
-    "dev-server": "bun run update-revision server && bun run migrate && bun run --watch src/server/BookkeeperServer.ts | bun pino-pretty",
-    "build-client": "react-scripts build",
-    "build-all": "bun run update-revisions && bun run build-client",
+    "dev-client": "bun run update-revision client && vite",
+    "dev-server": "bun run update-revision server && bun run migrate && bun run --watch src/server/BookkeeperServer.ts | pino-pretty",
+    "build-client": "vite build",
+    "build-server": "bun run src/build-server.ts",
     "start-server-prod": "DEBUG=bookkeeper* NODE_ENV=production node build-server/server/BookkeeperServer.ts",
     "run-server": "NODE_ENV=production bun run src/server/BookkeeperServer.ts",
     "update-revision": "bash script/update-revision.sh",
@@ -27,7 +27,7 @@
     "migrate-make": "knex migrate:make",
     "migrate-rollback": "knex migrate:rollback",
     "seed": "knex seed:run",
-    "example-data": "SWC_NODE_PROJECT=tsconfig.server.json DEBUG=\"bookkeeper*,net*\" node -r dotenv/config -r tsconfig-paths/register -r @swc-node/register src/tools/addExampleData.ts"
+    "example-data": "DEBUG=\"bookkeeper*,net*\" bun run src/tools/addExampleData.ts"
   },
   "repository": {
     "type": "git",
@@ -44,7 +44,6 @@
     "@mui/system": "5.14.8",
     "@mui/x-date-pickers": "6.13.0",
     "@types/node-fetch": "2.6.4",
-    "assert": "2.1.0",
     "baconjs": "3.0.17",
     "big.js": "6.2.1",
     "body-parser": "1.20.2",
@@ -52,6 +51,7 @@
     "express": "4.18.2",
     "history": "5.3.0",
     "moment": "2.29.4",
+    "nocache": "4.0.0",
     "node-fetch": "2.7.0",
     "path": "0.12.7",
     "pg": "8.11.3",
@@ -75,6 +75,7 @@
     "@types/react-router-dom": "5.3.3",
     "@typescript-eslint/eslint-plugin": "6.7.0",
     "@typescript-eslint/parser": "6.7.0",
+    "@vitejs/plugin-react-swc": "3.3.2",
     "bun-types": "1.0.1",
     "eslint": "8.49.0",
     "eslint-config-prettier": "9.0.0",
@@ -87,15 +88,15 @@
     "knex": "2.5.1",
     "pino-pretty": "10.2.0",
     "prettier": "3.0.3",
-    "react-scripts": "5.0.1",
     "tslib": "2.6.2",
-    "typescript": "5.2.2"
+    "typescript": "5.2.2",
+    "vite": "4.4.9",
+    "vite-tsconfig-paths": "4.2.1"
   },
   "resolutions": {
     "nth-check": "2.1.1",
     "react": "18.2.0"
   },
-  "proxy": "http://localhost:3100",
   "description": "Kukkaro - a web tool for tracking your income and expenses.",
   "browserslist": {
     "production": [">0.2%", "not dead", "not op_mini all"],
