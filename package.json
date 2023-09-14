@@ -9,7 +9,7 @@
     "dev-client": "bun run update-revision client && vite",
     "dev-server": "bun run update-revision server && bun run migrate && bun run --watch src/server/BookkeeperServer.ts | pino-pretty",
     "build-client": "vite build",
-    "build-all": "bun run update-revisions && bun run build-client",
+    "build-server": "bun run src/build-server.ts",
     "start-server-prod": "DEBUG=bookkeeper* NODE_ENV=production node build-server/server/BookkeeperServer.ts",
     "run-server": "NODE_ENV=production bun run src/server/BookkeeperServer.ts",
     "update-revision": "bash script/update-revision.sh",
