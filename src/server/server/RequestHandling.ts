@@ -1,4 +1,3 @@
-import debug from 'debug';
 import { NextFunction, Request, RequestHandler, Response } from 'express';
 import { ITask } from 'pg-promise';
 import { z } from 'zod';
@@ -7,11 +6,10 @@ import { timeout } from 'shared/time';
 import { InvalidGroupError, SessionBasicInfo, validateOr } from 'shared/types';
 import { MaybePromise, optNumber } from 'shared/util';
 import { getSessionByToken } from 'server/data/SessionDb';
+import { logger } from 'server/Logger';
 
 import { db } from '../data/Db';
 import { ServerUtil } from './ServerUtil';
-
-const log = debug('bookkeeper:server');
 
 const requestDelayMs = process.env.DELAY ? parseInt(process.env.DELAY, 10) : undefined;
 
@@ -23,7 +21,7 @@ function processUnauthorizedRequest<T>(
       if (requestDelayMs) {
         await timeout(requestDelayMs);
       }
-      log(req.method, req.originalUrl);
+      logger.info('%s %s', req.method, req.originalUrl);
       const r = await handler(req, res);
       // Handler succeeded: output response
       ServerUtil.setNoCacheHeaders(res).json(r);

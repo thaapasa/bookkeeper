@@ -1,5 +1,4 @@
 import { styled } from '@mui/material';
-import debug from 'debug';
 import * as React from 'react';
 
 import {
@@ -14,6 +13,7 @@ import { equal, Money, notEqual } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { getFullCategoryName, UserDataProps } from 'client/data/Categories';
 import { editExpense, needUpdateE, notifyError, updateExpenses } from 'client/data/State';
+import { logger } from 'client/Logger';
 import * as colors from 'client/ui/Colors';
 import { ActivatableTextField } from 'client/ui/component/ActivatableTextField';
 import { ExpanderIcon } from 'client/ui/component/ExpanderIcon';
@@ -43,8 +43,6 @@ import {
   ToolColumn,
   UnconfirmedIcon,
 } from './ExpenseTableLayout';
-
-const log = debug('bookkeeper:expense-row');
 
 const emptyDivision: ExpenseDivisionItem[] = [];
 
@@ -107,7 +105,7 @@ export class ExpenseRowImpl extends React.Component<ExpenseRowProps, ExpenseRowS
   }
 
   private updateExpense = async (data: Partial<UserExpense>) => {
-    log('Updating expense with data', data);
+    logger.info(data, 'Updating expense with data');
     const exp = await apiConnect.getExpense(this.props.expense.id);
     const newData: UserExpense = { ...exp, ...data };
     await apiConnect.updateExpense(this.props.expense.id, newData);

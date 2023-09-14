@@ -1,4 +1,3 @@
-import debug from 'debug';
 import { ITask } from 'pg-promise';
 
 import {
@@ -10,8 +9,7 @@ import {
   NotFoundError,
 } from 'shared/types';
 import { Money, partition, toMap } from 'shared/util';
-
-const log = debug('bookkeeper:categories');
+import { logger } from 'server/Logger';
 
 function createCategoryObject<T extends Category>(categories: T[]): T[] {
   const [parents, subs] = partition(i => i.parentId === null, categories);
@@ -23,7 +21,6 @@ function createCategoryObject<T extends Category>(categories: T[]): T[] {
 
 function sumChildTotalsToParent(categoryTable: CategoryAndTotals[]): CategoryAndTotals[] {
   categoryTable.forEach(c => {
-    log('Summing childs of', c.id);
     if (c.parentId === null) {
       let expenseSum = Money.from(c.expenses);
       let incomeSum = Money.from(c.income);
@@ -75,7 +72,7 @@ export async function getCategoryTotals(
   return sumChildTotalsToParent(categories);
 }
 async function insert(tx: ITask<any>, groupId: number, data: CategoryInput): Promise<number> {
-  log('Creating new category', data);
+  logger.debug(data, 'Creating new category');
   return (
     await tx.one<{ id: number }>(
       `INSERT INTO categories (group_id, parent_id, name)
@@ -112,7 +109,7 @@ export async function createCategory(
     return insert(tx, groupId, data);
   }
   const parent = await getCategoryById(tx, groupId, data.parentId);
-  log('Parent is', parent);
+  logger.debug(parent, 'Parent is');
   if (!parent) {
     throw new NotFoundError('CATEGORY_NOT_FOUND', 'category');
   }

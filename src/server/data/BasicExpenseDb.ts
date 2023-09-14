@@ -1,4 +1,3 @@
-import debug from 'debug';
 import { Moment } from 'moment';
 import { ITask } from 'pg-promise';
 
@@ -14,12 +13,11 @@ import {
 import * as time from 'shared/time';
 import { ApiMessage, NotFoundError, ObjectId } from 'shared/types';
 import { Money, MoneyLike } from 'shared/util';
+import { logger } from 'server/Logger';
 
 import { getCategoryById } from './CategoryDb';
 import { determineDivision } from './ExpenseDivision';
 import { getSourceById } from './SourceDb';
-
-const log = debug('bookkeeper:api:expenses');
 
 export function expenseSelectClause(
   where: string,
@@ -254,7 +252,7 @@ export async function updateExpense(
   defaultSourceId: number,
 ): Promise<ApiMessage> {
   const expense = setExpenseDataDefaults(expenseInput);
-  log('Updating expense', original, 'to', expense);
+  logger.debug({ original, expense }, 'Updating expense');
   const sourceId = expense.sourceId || defaultSourceId;
   const [cat, source] = await Promise.all([
     getCategoryById(tx, original.groupId, expense.categoryId),
@@ -290,7 +288,6 @@ export function queryReceivers(
   groupId: number,
   receiver: string,
 ): Promise<ReceiverInfo[]> {
-  log('Receivers', groupId, receiver);
   return tx.manyOrNone<ReceiverInfo>(
     `SELECT receiver, COUNT(*) AS amount
       FROM expenses
@@ -306,7 +303,7 @@ export async function renameReceiver(
   oldName: string,
   newName: string,
 ): Promise<number> {
-  log('Renaming receiver', oldName, 'to', newName);
+  logger.debug('Renaming receiver %s to %s', oldName, newName);
   const res = await tx.result(
     `UPDATE expenses
       SET receiver=$/newName/

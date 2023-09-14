@@ -1,9 +1,9 @@
-import debug from 'debug';
 import { Router } from 'express';
 
 import { toMoment } from 'shared/time';
 import { ApiStatus, DbStatus, User } from 'shared/types';
 import { getAllUsers, getUserById } from 'server/data/UserDb';
+import { logger } from 'server/Logger';
 import { createErrorHandler } from 'server/server/ErrorHandler';
 import { Requests } from 'server/server/RequestHandling';
 
@@ -18,10 +18,8 @@ import { createSourceApi } from './SourceApi';
 import { createStatisticsApi } from './StatisticsApi';
 import { createSubscriptionApi } from './SubscriptionApi';
 
-const log = debug('bookkeeper:api');
-
 export function createApi() {
-  log('Registering API');
+  logger.info('Registering API');
 
   const api = Router();
 
@@ -74,7 +72,7 @@ export function createApi() {
 
   // Return 404 for non-matched /api paths
   api.all('/*', (req, res) => {
-    log(`Request ${req.method} ${req.originalUrl} not mapped -> 404`);
+    logger.warn(`Request ${req.method} ${req.path} not mapped -> 404`);
     res.status(404).json({
       error: `${req.method} /api${req.originalUrl} not mapped`,
       code: 'NOT_FOUND',

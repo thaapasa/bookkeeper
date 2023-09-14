@@ -1,19 +1,17 @@
 import { IconButton, styled } from '@mui/material';
-import debug from 'debug';
 import * as React from 'react';
 import { useNavigate } from 'react-router';
 
 import { toDateRangeName, toMoment } from 'shared/time';
 import { navigationP } from 'client/data/State';
 import { NavigationConfig } from 'client/data/StateTypes';
+import { logger } from 'client/Logger';
 import { KeyCodes } from 'client/util/Io';
 import { monthSuffix, yearSuffix } from 'client/util/Links';
 
 import * as colors from '../Colors';
 import { Icons } from '../icons/Icons';
 import { connect } from './BaconConnect';
-
-const log = debug('bookkeeper:navigator');
 
 export type DateRangeNavigatorProps = NavigationConfig;
 
@@ -28,7 +26,7 @@ const DateRangeNavigatorImpl: React.FC<React.PropsWithChildren<DateRangeNavigato
         ? monthSuffix(toMoment(dateRange.start).clone().add(offset, 'months'))
         : yearSuffix(toMoment(dateRange.start).clone().add(offset, 'year'));
     const link = pathPrefix + rangeSuffix;
-    log('Navigating to', link);
+    logger.debug('Navigating to %s', link);
     navigate(link);
   };
 

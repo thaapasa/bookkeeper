@@ -1,10 +1,8 @@
-import debug from 'debug';
 import React from 'react';
 import { z } from 'zod';
 
 import { isDefined } from 'shared/types';
-
-const log = debug('bookkeeper:local-storage');
+import { logger } from 'client/Logger';
 
 export function useLocalStorage<T>(
   key: string,
@@ -23,7 +21,7 @@ export function useLocalStorage<T>(
         throw new Error(`Cannot store function to localStorage; got ${v.name}`);
       }
 
-      log('Storing', key, v);
+      logger.debug(v, 'Storing %s', key);
       localStorage.setItem(key, JSON.stringify(v));
       setValue(v);
     },
@@ -40,7 +38,7 @@ function readStored<T>(key: string, defaultValue: T, codec?: z.ZodType<T>, init?
     const json = JSON.parse(v);
     if (codec) {
       const parsed = codec.safeParse(json);
-      log('Parsed', json, 'to', parsed);
+      logger.debug({ json, parsed }, 'Parse results');
       const p = parsed.success ? parsed.data : defaultValue;
       return init ? init(p) : p;
     }

@@ -1,9 +1,9 @@
 import crypto from 'crypto';
-import debug from 'debug';
 import { ITask } from 'pg-promise';
 import { promisify } from 'util';
 
 import { ApiMessage, AuthenticationError, Session, SessionBasicInfo } from 'shared/types';
+import { logger } from 'client/Logger';
 
 import { config } from '../Config';
 import { getAllCategories } from './CategoryDb';
@@ -15,8 +15,6 @@ import {
   getUserByCredentials,
   RawUserData,
 } from './UserDb';
-
-const log = debug('bookkeeper:api:sessions');
 
 const randomBytes = promisify(crypto.randomBytes);
 
@@ -43,7 +41,7 @@ async function purgeExpiredSessions(tx: ITask<any>) {
 
 async function createSession(tx: ITask<any>, user: RawUserData): Promise<string[]> {
   const tokens = await Promise.all([createToken(), createToken()]);
-  log('User', user.email, 'logged in with token', tokens[0]);
+  logger.info(`User ${user.email} logged in with token ${tokens[0]}`);
   await tx.none(
     `INSERT INTO sessions (token, refresh_token, user_id, login_time, expiry_time)
       VALUES
@@ -106,7 +104,7 @@ export async function loginUserWithCredentials(
   password: string,
   groupId?: number,
 ): Promise<Session> {
-  log('Login for', username);
+  logger.info('Login for %s', username);
   const user = await getUserByCredentials(tx, username, password, groupId);
   const tokens = await createSession(tx, user);
   const sessionInfo = createSessionInfo(tokens, user);
@@ -135,7 +133,7 @@ export async function refreshSessionWithRefreshToken(
   refreshToken: string,
   groupId?: number,
 ): Promise<Session> {
-  log('Refreshing session with', refreshToken);
+  logger.info('Refreshing session with %s', refreshToken);
   const user = await getUserInfoByRefreshToken(tx, refreshToken, groupId);
   const tokens = await createSession(tx, user);
   const sessionInfo = createSessionInfo(tokens, user);
@@ -146,7 +144,7 @@ export async function logoutSession(
   tx: ITask<any>,
   session: SessionBasicInfo,
 ): Promise<ApiMessage> {
-  log('Logout for', session.token);
+  logger.info('Logout for %s', session.token);
   if (!session.token) {
     throw new AuthenticationError('INVALID_TOKEN', 'Session token is missing');
   }

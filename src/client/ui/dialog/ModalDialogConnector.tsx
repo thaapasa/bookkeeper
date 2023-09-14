@@ -1,11 +1,10 @@
-import debug from 'debug';
 import * as React from 'react';
+
+import { logger } from 'client/Logger';
 
 import { DialogConfig } from './Dialog';
 import { dialogActionE } from './DialogState';
 import { ModalDialog } from './ModalDialog';
-
-const log = debug('bookkeeper:modal-dialog');
 
 export const ModalDialogConnector: React.FC = () => {
   const [dialog, setDialog] = React.useState<DialogConfig<any, any> | undefined>(undefined);
@@ -14,7 +13,7 @@ export const ModalDialogConnector: React.FC = () => {
 
   const resolve = React.useCallback(
     <T,>(value: T | undefined) => {
-      log(`Modal dialog resolved to: ${value}`);
+      logger.debug(`Modal dialog resolved to: ${value}`);
       dialog?.resolve(value);
       setDialog(undefined);
     },
@@ -23,6 +22,6 @@ export const ModalDialogConnector: React.FC = () => {
 
   if (!dialog) return null;
 
-  log(`Rendering modal dialog of type ${dialog.type}: ${dialog.title}`);
+  logger.debug(`Rendering modal dialog of type ${dialog.type}: ${dialog.title}`);
   return <ModalDialog {...dialog} resolve={resolve} />;
 };

@@ -1,11 +1,8 @@
-import debug from 'debug';
-
 import { ExpenseData, RecurringExpenseTarget, UserExpenseWithDetails } from 'shared/expense';
 import apiConnect from 'client/data/ApiConnect';
+import { logger } from 'client/Logger';
 import { UserPrompts } from 'client/ui/dialog/DialogState';
 import { executeOperation } from 'client/util/ExecuteOperation';
-
-const log = debug('bookkeeper:expense-dialog:save');
 
 /**
  * This is the save action that is called when expense editor save button is pressed
@@ -20,7 +17,7 @@ export type ExpenseSaveAction = (
  */
 export const defaultExpenseSaveAction: ExpenseSaveAction = async (expense, original) => {
   const createNew = !original;
-  log(createNew ? 'Create new expense' : 'save expense', expense);
+  logger.info(expense, createNew ? 'Create new expense' : 'save expense');
 
   const name = expense.title;
   const res = await executeOperation(

@@ -1,9 +1,7 @@
-import debug from 'debug';
 import express from 'express';
 
 import { config } from 'server/Config';
-
-const log = debug('bookkeeper:api:error');
+import { logger } from 'server/Logger';
 
 const logUserErrors = false;
 
@@ -15,9 +13,10 @@ export function createErrorHandler() {
   return (err: any, req: express.Request, res: express.Response, _: express.NextFunction) => {
     const status = typeof err.status === 'number' ? err.status : 500;
 
-    log(
-      `Error processing ${req.method} ${req.path} -> ${status}: ${err.message}`,
-      logUserErrors || !isUserError(status) ? err.stack : undefined,
+    const shouldShowError = logUserErrors || !isUserError(status);
+    logger.error(
+      shouldShowError ? err : { error: err.message },
+      `Error processing ${req.method} ${req.path} -> ${status}`,
     );
     const data: ErrorInfo = {
       ...(config.showErrorCause ? err : undefined),

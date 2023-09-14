@@ -1,6 +1,5 @@
 import { IconButton, styled } from '@mui/material';
 import * as B from 'baconjs';
-import debug from 'debug';
 import * as React from 'react';
 
 import { ExpenseDivision, RecurrencePeriod, UserExpense } from 'shared/expense';
@@ -11,6 +10,7 @@ import apiConnect from 'client/data/ApiConnect';
 import { categoryMapE } from 'client/data/Categories';
 import { sourceMapE } from 'client/data/Login';
 import { createNewExpense, splitExpense, updateExpenses } from 'client/data/State';
+import { logger } from 'client/Logger';
 import * as colors from 'client/ui/Colors';
 import { connect } from 'client/ui/component/BaconConnect';
 import { UserPrompts } from 'client/ui/dialog/DialogState';
@@ -20,8 +20,6 @@ import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { getBenefitorsForExpense } from '../dialog/ExpenseDialogData';
 import { expenseName } from '../ExpenseHelper';
-
-const log = debug('bookkeeper:expense');
 
 interface RecurrenceInfoProps {
   expense: UserExpense;
@@ -75,7 +73,7 @@ const ExpenseInfoToolsImpl: React.FC<RecurrenceInfoProps> = ({
     const subcategoryId = (cat.parentId && e.categoryId) || undefined;
     const categoryId = (subcategoryId ? cat.parentId : e.categoryId) || undefined;
     const date = toMoment(e.date, ISODatePattern);
-    log('Copying expense', e, division);
+    logger.info({ expense: e, division }, 'Copying expense');
     createNewExpense({
       title: e.title,
       sum: Money.from(e.sum).toString(),

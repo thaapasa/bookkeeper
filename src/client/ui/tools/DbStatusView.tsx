@@ -1,16 +1,14 @@
-import debug from 'debug';
 import * as React from 'react';
 
 import { DbStatus } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
+import { logger } from 'client/Logger';
 
 import { AsyncDataView } from '../component/AsyncDataView';
 import { NoteView } from '../general/NoteView';
 import { useDeferredData } from '../hooks/useAsyncData';
 import { Pre } from '../Styles';
 import { ToolButton } from './ToolButton';
-
-const log = debug('bookkeeper:tools:dbstatus');
 
 export const DbStatusView: React.FC = () => {
   const { data, loadData } = useDeferredData(loadDbStatus, true);
@@ -30,6 +28,6 @@ const RawDataView: React.FC<{ data: DbStatus }> = ({ data }) => (
 
 async function loadDbStatus(): Promise<DbStatus> {
   const status = await apiConnect.getDbStatus();
-  log('DB status', status);
+  logger.info(status, 'DB status');
   return status;
 }

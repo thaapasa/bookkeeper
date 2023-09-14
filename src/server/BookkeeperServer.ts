@@ -1,12 +1,10 @@
 import * as bodyParser from 'body-parser';
-import debug from 'debug';
 import express from 'express';
 import * as path from 'path';
 
 import { createApi } from './api/Api';
 import { config } from './Config';
-
-const log = debug('bookkeeper:server');
+import { logger } from './Logger';
 
 const curDir = process.cwd();
 const app = express();
@@ -21,11 +19,11 @@ app.get(/\/p\/.*/, (_, res) => res.sendFile(path.join(curDir + '/public/index.ht
 
 try {
   app.listen(config.port, () => {
-    log(
-      `Kukkaro server ${config.version} (revision ${config.revision}) started in port ${config.port} with configuration`,
+    logger.info(
       config,
+      `Kukkaro server ${config.version} (revision ${config.revision}) started in port ${config.port}`,
     );
   });
 } catch (er) {
-  log('Error in server:', er);
+  logger.error(er, 'Error in server:');
 }

@@ -1,5 +1,4 @@
 import * as B from 'baconjs';
-import debug from 'debug';
 import { Moment } from 'moment';
 import * as React from 'react';
 
@@ -10,14 +9,13 @@ import { categoryDataSourceP, categoryMapE } from 'client/data/Categories';
 import { sourceMapE, validSessionE } from 'client/data/Login';
 import { updateExpenses } from 'client/data/State';
 import { ExpenseDialogObject } from 'client/data/StateTypes';
+import { logger } from 'client/Logger';
 import { connect } from 'client/ui/component/BaconConnect';
 import { Size } from 'client/ui/Types';
 import { unsubscribeAll, Unsubscriber } from 'client/util/ClientUtil';
 
 import { ExpenseDialogProps } from './ExpenseDialog';
 import { ExpenseSaveAction } from './ExpenseSaveAction';
-
-const log = debug('bookkeeper:expense-dialog');
 
 interface ExpenseDialogListenerState<D> {
   open: boolean;
@@ -51,7 +49,7 @@ export function createExpenseDialogListener<D>(
     { windowSize: Size },
     ExpenseDialogListenerState<D>
   > {
-    private unsub: Unsubscriber[] = [];
+    unsub: Unsubscriber[] = [];
 
     public state: ExpenseDialogListenerState<D> = {
       open: false,
@@ -62,23 +60,23 @@ export function createExpenseDialogListener<D>(
       saveAction: null,
     };
 
-    public componentDidMount() {
+    componentDidMount() {
       this.unsub.push(bus.onValue(e => this.handleOpen(e)));
     }
 
-    public componentWillUnmount() {
+    componentWillUnmount() {
       unsubscribeAll(this.unsub);
       this.unsub = [];
     }
 
-    private onExpensesUpdated = (date: Moment) => {
+    onExpensesUpdated = (date: Moment) => {
       updateExpenses(date);
     };
 
-    private handleOpen = async (data: ExpenseDialogObject<D>) => {
+    handleOpen = async (data: ExpenseDialogObject<D>) => {
       expenseCounter += 1;
       if (data.expenseId) {
-        log('Edit expense', data.expenseId);
+        logger.info('Edit expense %s', data.expenseId);
         this.setState({ open: false, original: null });
         const original = await apiConnect.getExpense(data.expenseId);
         this.setState({
@@ -90,7 +88,7 @@ export function createExpenseDialogListener<D>(
           saveAction: data.saveAction ?? null,
         });
       } else {
-        log('Create new expense');
+        logger.info('Create new expense');
         this.setState({
           open: true,
           original: null,
@@ -102,14 +100,14 @@ export function createExpenseDialogListener<D>(
       }
     };
 
-    private closeDialog = (e: D | null) => {
-      log('Closing dialog');
+    closeDialog = (e: D | null) => {
+      logger.info('Closing dialog');
       this.state.resolve(e);
       this.setState({ open: false, original: null });
       return false;
     };
 
-    public render() {
+    render() {
       return this.state.open ? (
         <ConnectedDialog
           {...this.state}

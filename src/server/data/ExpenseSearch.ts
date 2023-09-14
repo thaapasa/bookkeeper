@@ -1,13 +1,11 @@
-import debug from 'debug';
 import { ITask } from 'pg-promise';
 
 import { ExpenseQuery, UserExpense } from 'shared/expense';
 import { isDefined } from 'shared/types';
+import { logger } from 'server/Logger';
 
 import { dbRowToExpense, expenseSelectClause } from './BasicExpenseDb';
 import { expandSubCategories } from './CategoryDb';
-
-const log = debug('bookkeeper:api:expenses:search');
 
 export async function getExpenseSearchQuery(
   tx: ITask<any>,
@@ -65,7 +63,7 @@ export async function searchExpenses(
   groupId: number,
   query: ExpenseQuery,
 ): Promise<UserExpense[]> {
-  log(`Searching for ${JSON.stringify(query)}`);
+  logger.debug(`Searching for ${JSON.stringify(query)}`);
   const { clause, params } = await getExpenseSearchQuery(tx, userId, groupId, query);
   const expenses = await tx.manyOrNone<UserExpense>(clause, params);
   return expenses.map(dbRowToExpense);

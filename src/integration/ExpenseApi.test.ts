@@ -8,6 +8,7 @@ import { toMoment } from 'shared/time';
 import { ApiMessage } from 'shared/types';
 import { Money } from 'shared/util';
 import { expectThrow } from 'shared/util/test';
+import { logger } from 'server/Logger';
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
@@ -22,7 +23,7 @@ describe('expense', () => {
   let session: SessionWithControl;
   let u1id: number;
   let u2id: number;
-  const client = createTestClient();
+  const client = createTestClient({ logger });
 
   beforeEach(async () => {
     session = await client.getSession('sale', 'salasana');

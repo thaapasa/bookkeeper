@@ -1,15 +1,13 @@
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import { styled } from '@mui/material';
-import debug from 'debug';
 import * as React from 'react';
 
+import { logger } from 'client/Logger';
 import { KeyCodes } from 'client/util/Io';
 
 import { AutoCompleteProps } from './AutoComplete';
 import { TextEdit, TextEditProps } from './TextEdit';
 import { TextEditorComponent } from './TextEditVariants';
-
-const log = debug('bookkeeper:activatable-text-field');
 
 type EditorType<T> = TextEditorComponent | React.ComponentType<AutoCompleteProps<T>>;
 
@@ -42,13 +40,13 @@ export const ActivatableTextField: React.FC<ActivatableTextFieldProps<any>> = <
   React.useEffect(() => setValue(valueFromProps), [setValue, valueFromProps]);
 
   const commit = (value: string) => {
-    log('Committing', value);
+    logger.info('Committing %s', value);
     onChange?.(value);
     setEdit(false);
   };
 
   const cancel = () => {
-    log('Cancelling');
+    logger.info('Cancelling');
     onCancel?.();
     setEdit(false);
   };
@@ -66,7 +64,7 @@ export const ActivatableTextField: React.FC<ActivatableTextFieldProps<any>> = <
   };
 
   const activate = () => {
-    log('Activating editor', editorType, 'for', valueFromProps);
+    logger.info('Activating editor %s for %s', editorType, valueFromProps);
     setValue(valueFromProps);
     setEdit(true);
   };

@@ -1,4 +1,3 @@
-import debug from 'debug';
 import * as React from 'react';
 
 import { ExpenseSplit, UserExpenseWithDetails } from 'shared/expense';
@@ -6,12 +5,11 @@ import { toMoment } from 'shared/time';
 import { MakeOptional } from 'shared/types';
 import { IdProvider } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
+import { logger } from 'client/Logger';
 
 import { ExpenseDialogProps } from '../dialog/ExpenseDialog';
 import { getBenefitorsForExpense } from '../dialog/ExpenseDialogData';
 import { calculateSplits, finalizeSplits, isSplitComplete } from './SplitCalc';
-
-const log = debug('ui:expense-split');
 
 export type ExpenseSplitInEditor = Omit<
   MakeOptional<ExpenseSplit, 'categoryId' | 'sourceId'>,
@@ -43,7 +41,7 @@ export function useExpenseSplit(
 
   const saveSplit = React.useCallback(
     (i: number, split: ExpenseSplitInEditor) => {
-      log('Saving split', split);
+      logger.info(split, 'Saving split');
       const newSplits = [...splits];
       newSplits[i] = split;
       const fixedSplits = calculateSplits(newSplits, original?.sum ?? '0');

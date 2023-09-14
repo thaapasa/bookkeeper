@@ -1,7 +1,7 @@
-import debug from 'debug';
 import * as React from 'react';
 
 import { AnyObject, Session } from 'shared/types';
+import { logger } from 'client/Logger';
 
 import { checkLoginState, sessionP } from './data/Login';
 import { windowSizeBus } from './data/State';
@@ -10,8 +10,6 @@ import { ErrorView } from './ui/general/ErrorView';
 import { LoginPage } from './ui/general/LoginPage';
 import { useAsyncData } from './ui/hooks/useAsyncData';
 import { useWindowSize } from './ui/hooks/useWindowSize';
-
-const log = debug('bookkeeper:app');
 
 export const App: React.FC<AnyObject> = () => {
   const [session, setSession] = React.useState<Session | undefined>(undefined);
@@ -24,7 +22,7 @@ export const App: React.FC<AnyObject> = () => {
 
   React.useEffect(() => {
     // Logging here so it's only printed once
-    log('Initializing bookkeeper client');
+    logger.info('Initializing bookkeeper client');
     return sessionP.onValue(s => setSession(s ?? undefined));
   }, []);
 

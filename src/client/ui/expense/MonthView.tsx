@@ -1,4 +1,3 @@
-import debug from 'debug';
 import { Moment } from 'moment';
 import * as React from 'react';
 import { useNavigate } from 'react-router';
@@ -7,12 +6,12 @@ import { UserExpense } from 'shared/expense';
 import { ISODate, ISODatePattern, isSameMonth, monthRange, toISODate, toMoment } from 'shared/time';
 import apiConnect from 'client/data/ApiConnect';
 import { navigationBus, needUpdateE } from 'client/data/State';
+import { logger } from 'client/Logger';
 import { expensePagePath, expensesForMonthPath } from 'client/util/Links';
 
 import { useDeferredData } from '../hooks/useAsyncData';
 import { zeroStatus } from './ExpenseHelper';
 import ExpenseTable from './ExpenseTable';
-const log = debug('bookkeeper:month-view');
 
 interface MonthViewProps {
   date: Date;
@@ -67,13 +66,13 @@ export const MonthView: React.FC<MonthViewProps> = ({ date }) => {
   React.useEffect(
     () =>
       needUpdateE.onValue((newDate: Moment) => {
-        log('Expenses updated, refreshing for date', toISODate(newDate));
+        logger.info('Expenses updated, refreshing for date %s', toISODate(newDate));
         if (isSameMonth(newDate, date)) {
-          log('Reloading expenses for this month');
+          logger.info('Reloading expenses for this month');
           loadData();
         } else {
           const path = expensesForMonthPath(newDate);
-          log('Navigating to', path);
+          logger.info('Navigating to %s', path);
           navigate(path);
         }
       }),
@@ -103,6 +102,6 @@ async function loadExpensesForDate(date: ISODate) {
     pathPrefix: expensePagePath,
   });
   const expenses = await apiConnect.getExpensesForMonth(m.get('year'), m.get('month') + 1);
-  log('Expenses for', date, expenses);
+  logger.info(expenses, 'Expenses for %s', date);
   return expenses;
 }
