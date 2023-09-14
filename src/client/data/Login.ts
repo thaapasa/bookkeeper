@@ -1,12 +1,10 @@
 import * as B from 'baconjs';
-import debug from 'debug';
 
 import { Group, Session, Source, User } from 'shared/types';
 import { toMap } from 'shared/util';
+import { logger } from 'client/Logger';
 
 import apiConnect from './ApiConnect';
-
-const log = debug('bookkeeper:login');
 
 const loginBus = new B.Bus<Session | null>();
 const sessionBus = new B.Bus<Session | null>();
@@ -29,7 +27,7 @@ export function getTitle(group?: Group): string {
 }
 
 function clearLoginData(clearRefreshToken: boolean) {
-  log('Clearing login data');
+  logger.info('Clearing login data');
   document.title = getTitle();
   sessionBus.push(null);
   apiConnect.setToken(null);
@@ -41,23 +39,23 @@ function clearLoginData(clearRefreshToken: boolean) {
 async function getLoginFromLocalStorage(): Promise<Session | null> {
   const token = localStorage.getItem(refreshTokenKey);
   if (!token) {
-    log('No token present, not logged in');
+    logger.info('No token present, not logged in');
     apiConnect.setToken(null);
     return null;
   }
-  log('Not logged in but refresh token exists in localStorage', token);
+  logger.info(`Not logged in but refresh token exists in localStorage: ${token}`);
   try {
     apiConnect.setToken(token);
     return await apiConnect.refreshSession();
   } catch (e) {
-    log('Token refresh failed');
+    logger.warn(e, 'Token refresh failed');
     apiConnect.setToken(null);
     return null;
   }
 }
 
 loginBus.onValue(session => {
-  log('Current session is', session);
+  logger.info({ session }, 'Current session is');
   if (!session) {
     clearLoginData(false);
     return;
@@ -79,13 +77,13 @@ export async function checkLoginState(): Promise<boolean> {
 }
 
 export async function login(username: string, password: string): Promise<void> {
-  log('Logging in as', username);
+  logger.info(`Logging in as: ${username}`);
   try {
     const session = await apiConnect.login(username, password);
     loginBus.push(session);
     return;
   } catch (e) {
-    log('Error when logging in', e);
+    logger.info(e, 'Error when logging in');
     clearLoginData(true);
     throw e;
   }
@@ -93,27 +91,27 @@ export async function login(username: string, password: string): Promise<void> {
 
 export async function updateSession(): Promise<boolean> {
   try {
-    log('Updating session data...');
+    logger.info('Updating session data...');
     const session = await apiConnect.getSession();
     if (!session) {
-      log('Session not valid anymore, not updating');
+      logger.info('Session not valid anymore, not updating');
       return false;
     }
     loginBus.push(session);
-    log('Session data updated');
+    logger.info('Session data updated');
     return true;
   } catch (e) {
-    log('Error in session update:', e);
+    logger.warn(e, 'Error in session update');
     return false;
   }
 }
 
 export async function logout() {
-  log('Logging out');
+  logger.info('Logging out');
   try {
     await apiConnect.logout();
   } catch (e) {
-    log('Error when logging out', e);
+    logger.warn(e, 'Error when logging out');
   }
   clearLoginData(true);
 }

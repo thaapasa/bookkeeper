@@ -1,5 +1,3 @@
-import debug from 'debug';
-
 import {
   ExpenseCollection,
   ExpenseData,
@@ -35,10 +33,9 @@ import {
   StatisticsSearchType,
 } from 'shared/types';
 import { filterDefinedProps, Money } from 'shared/util';
+import { logger } from 'client/Logger';
 
 import { checkLoginState } from './Login';
-
-const log = debug('net:api-connect');
 
 const client = new FetchClient(fetch.bind(window));
 
@@ -105,9 +102,9 @@ export class ApiConnect {
       });
     } catch (e) {
       if (e && e instanceof AuthenticationError && allowRefreshAndRetry) {
-        log('Authentication error from API, trying to refresh session');
+        logger.warn(e, 'Authentication error from API, trying to refresh session');
         if (await checkLoginState()) {
-          log('Session refreshed, retrying request');
+          logger.info('Session refreshed, retrying request');
           await timeoutImmediate();
           return this.req<T>(path, details, false);
         }

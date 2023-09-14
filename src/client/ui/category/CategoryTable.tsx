@@ -1,15 +1,13 @@
-import debug from 'debug';
 import * as React from 'react';
 
 import { TypedDateRange } from 'shared/time';
 import { Action, Category, CategoryAndTotals } from 'shared/types';
 import { UserDataProps } from 'client/data/Categories';
+import { logger } from 'client/Logger';
 
 import CategoryDialog from './CategoryDialog';
 import { CategoryRow } from './CategoryRow';
 import { CategoryHeader } from './CategoryTableLayout';
-
-const log = debug('bookkeeper:category-view');
 
 interface CategoryTableProps {
   categories: Category[];
@@ -31,7 +29,7 @@ export const CategoryTable: React.FC<CategoryTableProps> = ({
       return;
     }
     const c = await categoryDialogRef.current.createCategory(parent);
-    log('Created new category', c);
+    logger.info(c, 'Created new category');
     onCategoriesChanged();
   };
 
@@ -40,7 +38,7 @@ export const CategoryTable: React.FC<CategoryTableProps> = ({
       return;
     }
     const c = await categoryDialogRef.current.editCategory(category);
-    log('Modified category', c);
+    logger.info(c, 'Modified category');
     onCategoriesChanged();
   };
 

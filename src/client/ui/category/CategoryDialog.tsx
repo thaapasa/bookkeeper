@@ -11,16 +11,14 @@ import {
   SelectChangeEvent,
   styled,
 } from '@mui/material';
-import debug from 'debug';
 import * as React from 'react';
 
 import { Category } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
+import { logger } from 'client/Logger';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { TextEdit } from '../component/TextEdit';
-
-const log = debug('bookkeeper:category-dialog');
 
 const defaultCategory: Category[] = [
   { id: 0, name: '[Ei yläkategoriaa]', children: [], parentId: null },
@@ -68,7 +66,7 @@ export default class CategoryDialog extends React.Component<
   };
 
   public createCategory = (parent?: Category): Promise<number | null> => {
-    log('Create category under', parent);
+    logger.info({ parent }, 'Create category under');
     return this.startEditing({
       open: true,
       name: '',
@@ -80,7 +78,7 @@ export default class CategoryDialog extends React.Component<
   };
 
   public editCategory = (category: Category): Promise<number | null> => {
-    log('Edit category', category);
+    logger.info({ category }, 'Edit category');
     return this.startEditing({
       open: true,
       name: category.name,
@@ -102,7 +100,7 @@ export default class CategoryDialog extends React.Component<
   }
 
   private closeDialog = (id: number | null) => {
-    log('Closing dialog, resolving to', id);
+    logger.info(`Closing dialog, resolving to ${id}`);
     this.setState({ open: false });
     if (this.state.resolve) {
       this.state.resolve(id);
@@ -125,7 +123,7 @@ export default class CategoryDialog extends React.Component<
       parentId: s.parentId,
       children: [],
     };
-    log('Save category data', data);
+    logger.info({ data }, 'Save category data');
     return executeOperation(
       () =>
         createNew
