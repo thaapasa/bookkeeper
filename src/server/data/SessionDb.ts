@@ -3,7 +3,7 @@ import { ITask } from 'pg-promise';
 import { promisify } from 'util';
 
 import { ApiMessage, AuthenticationError, Session, SessionBasicInfo } from 'shared/types';
-import { logger } from 'client/Logger';
+import { logger } from 'server/Logger';
 
 import { config } from '../Config';
 import { getAllCategories } from './CategoryDb';

@@ -27,7 +27,7 @@ import {
   ObjectId,
 } from 'shared/types';
 import { assertDefined, camelCaseObject, Money, toArray, unnest } from 'shared/util';
-import { logger } from 'client/Logger';
+import { logger } from 'server/Logger';
 
 import {
   createNewExpense,
