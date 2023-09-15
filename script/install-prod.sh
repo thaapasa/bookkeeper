@@ -12,7 +12,7 @@ fi
 
 echo "Installing new revision $REV"
 
-yarn || exit -1
+bun install || exit -1
 
 echo "Stopping server"
 script/stop-server.sh || exit -1
@@ -20,7 +20,7 @@ script/stop-server.sh || exit -1
 echo "Backing up database"
 ~/bin/backup-bookkeeper.sh "before-server-$REV"
 
-yarn clean || exit -1
+bun clean || exit -1
 
 echo "Extracting server..."
 
@@ -36,7 +36,7 @@ tar xzvf ../deploy/client-$REV.tar.gz || exit -1
 cd ..
 
 echo "Running db migrations"
-yarn migrate || exit -1
+bun migrate || exit -1
 
 echo "Starting server"
 script/start-server.sh || exit -1

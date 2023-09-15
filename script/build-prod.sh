@@ -26,8 +26,8 @@ echo "Server packaged"
 
 echo "Building client, revision $REV"
 
-yarn clean || exit -1
-yarn build-client || exit -1
+bun clean || exit -1
+bun build-client || exit -1
 
 cd dist
 tar czvf ../deploy/client-$REV.tar.gz . || exit -1
