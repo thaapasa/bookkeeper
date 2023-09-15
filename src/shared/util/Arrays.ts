@@ -1,4 +1,5 @@
 import { AnyObject } from '../types/Common';
+import { BkError } from '../types/Errors';
 import { getRandomInt } from './Util';
 
 // https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
@@ -29,6 +30,13 @@ export function sortAndCompareElements<T>(ar1: T[], ar2: T[]): boolean {
 
 export function indices(num: number): number[] {
   return Array.from(new Array(num), (_, i) => i);
+}
+
+export function pickRandomItem<T>(arr: T[]): T {
+  if (arr.length < 1) {
+    throw new BkError('No items in array', 'empty array', 500);
+  }
+  return arr[getRandomInt(0, arr.length)];
 }
 
 export function numberRange(min: number, max: number): number[] {

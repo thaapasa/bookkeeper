@@ -1,6 +1,7 @@
 import { Button, Card, styled } from '@mui/material';
 import * as React from 'react';
 
+import { pickRandomItem } from 'shared/util';
 import { login } from 'client/data/Login';
 
 import { colorScheme } from '../Colors';
@@ -9,10 +10,14 @@ import { media } from '../Styles';
 
 const publicUrl = import.meta.env.PUBLIC_URL || '';
 
+const backgroundImages = ['money-bg.webp', 'money-bg-1.webp', 'money-bg-2.webp'];
+
 export const LoginPage: React.FC = () => {
   const [username, setUsername] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [statusMessage, setStatusMessage] = React.useState<string | null>(null);
+
+  const bgImage = React.useMemo(() => pickRandomItem(backgroundImages), []);
 
   const handleSubmit = async (event: React.FormEvent<any>) => {
     event.preventDefault();
@@ -31,7 +36,7 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <Page>
+    <Page bgImage={bgImage}>
       <LoginPaper>
         <Form onSubmit={handleSubmit}>
           <Title>Kirjaudu sisään</Title>
@@ -107,7 +112,7 @@ const Page = styled('div')`
   flex-direction: row;
   align-items: flex-start;
   justify-content: center;
-  background: url(${publicUrl}/img/money-bg.webp);
+  background: url(${publicUrl}/img/${(props: { bgImage: string }) => props.bgImage});
   background-color: #d6d6d6;
   background-size: cover;
   background-repeat: no-repeat;
