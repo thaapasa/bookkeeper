@@ -59,13 +59,7 @@ jobs:
         if: steps.run-tests.outcome != 'success'
         run: |
           echo "Tests failed, dumping server logs"
-          cat log/server.log
-
-      - name: Re-run tests in verbose mode
-        if: steps.run-tests.outcome != 'success'
-        run: |
-          DEBUG=* bun test --silent=false
-          exit 1
+          cat log/server.log | bun pino-pretty
 
       - name: Stop server
         run: ./script/stop-server.sh
