@@ -9,7 +9,7 @@
     "ui": "bun run update-revision client && vite",
     "server": "bun run update-revision server && bun run migrate && bun run --watch src/server/BookkeeperServer.ts | pino-pretty",
     "build-client": "vite build",
-    "build-server": "bun run src/build-server.ts",
+    "build-server": "NODE_ENV=production bun run src/build-server.ts",
     "update-revision": "bash script/update-revision.sh",
     "update-revisions": "bun run update-revision server && bun run update-revision client",
     "lint": "bun run lint-eslint",

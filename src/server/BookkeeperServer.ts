@@ -23,7 +23,7 @@ try {
   app.listen(config.port, () => {
     logger.info(
       config,
-      `Kukkaro server ${config.version} (revision ${config.revision}) started in port ${config.port}`,
+      `Kukkaro server ${config.version} (revision ${config.revision}) started in port ${config.port}, env ${config.environment}`,
     );
   });
 } catch (er) {
