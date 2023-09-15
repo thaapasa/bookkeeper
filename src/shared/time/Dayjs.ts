@@ -7,6 +7,9 @@ import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import utc from 'dayjs/plugin/utc';
 
+import { leftPad } from '../util/Util';
+import { ISODatePattern } from './Time';
+
 export const fiLocale = 'fi';
 
 export type DayjsInput = dayjs.ConfigType;
@@ -27,4 +30,15 @@ export function toDayjs(d?: DayjsInput, pattern?: string): Dayjs {
     return d;
   }
   return dayjs(d, pattern);
+}
+
+export function dayJsForDate(
+  year: number | string,
+  month: number | string,
+  day: number | string,
+): Dayjs {
+  return dayjs(
+    `${leftPad(year, 4, '0')}-${leftPad(month, 2, '0')}-${leftPad(day, 2, '0')}`,
+    ISODatePattern,
+  );
 }

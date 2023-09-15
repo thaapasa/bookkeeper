@@ -1,9 +1,8 @@
-import dayjs, { Dayjs } from 'dayjs';
+import { Dayjs } from 'dayjs';
 import { z } from 'zod';
 
 import { IntString } from '../types/Primitives';
-import { leftPad } from '../util/Util';
-import { DayjsInput, toDayjs } from './Dayjs';
+import { dayJsForDate, DayjsInput, toDayjs } from './Dayjs';
 
 export const ISODateRegExp = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
 export const ISODatePattern = 'YYYY-MM-DD';
@@ -31,7 +30,7 @@ export const displayDatePattern = 'D.M.YYYY';
 export type DateLike = Date | Dayjs | string;
 
 export function month(year: number, mon: number): Dayjs {
-  return dayjs(`${leftPad(year, 4, '0')}-${leftPad(mon, 2, '0')}-01`, ISODatePattern);
+  return dayJsForDate(year, mon, 1);
 }
 
 export function monthToYear(month: ISOMonth | ISODate): number {

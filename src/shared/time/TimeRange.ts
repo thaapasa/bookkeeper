@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 import { numberRange } from '../util/Arrays';
 import { leftPad } from '../util/Util';
-import { toDayjs } from './Dayjs';
+import { dayJsForDate, toDayjs } from './Dayjs';
 import { toMonthName } from './Months';
 import {
   compareDates,
@@ -105,7 +105,7 @@ const yearRE = /[0-9]{4}/;
 function fromYearValue(y: DateLike): Dayjs | undefined {
   if (typeof y === 'number' || (typeof y === 'string' && yearRE.test(y))) {
     const year = typeof y === 'number' ? y : parseInt(y, 10);
-    return toDayjs(`${leftPad(year, 4, '0')}-01-01`);
+    return dayJsForDate(year, 1, 1);
   }
   return;
 }
