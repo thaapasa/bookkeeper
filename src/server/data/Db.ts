@@ -15,3 +15,7 @@ if (logSql) {
 export const db = pgp({
   query: logSql ? q => sqlLogger.info(q.query) : undefined,
 })(config.dbUrl);
+
+export async function shutdownDb() {
+  await db.$pool.end();
+}

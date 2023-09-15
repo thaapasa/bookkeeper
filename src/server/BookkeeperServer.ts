@@ -1,28 +1,46 @@
-import * as bodyParser from 'body-parser';
-import express from 'express';
-import nocache from 'nocache';
-import * as path from 'path';
+import { Server } from 'http';
 
-import { createApi } from './api/Api';
 import { config } from './Config';
+import { shutdownDb } from './data/Db';
 import { logger } from './Logger';
 import { logError } from './notifications/ErrorLogger';
 import { slackNotifier } from './notifications/SlackNotifier';
+import { setupServer } from './server/ServerSetup';
 
-const curDir = process.cwd();
-const app = express();
+const app = setupServer();
 
-app.use(express.static('public'));
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
-app.use(nocache());
+let runningServer: Server | undefined = undefined;
 
-app.use('/api', createApi());
+function closeRunningServer() {
+  const s = runningServer;
+  if (!s) return Promise.resolve();
+  return new Promise(
+    (resolve, reject) =>
+      s?.close(err => {
+        if (err) reject(err);
+        else resolve(err);
+      }),
+  );
+}
 
-app.get(/\/p\/.*/, (_, res) => res.sendFile(path.join(curDir + '/public/index.html')));
+async function shutdownServer() {
+  void slackNotifier.sendNotification(
+    `Kukkaro ${config.version} (rev ${config.revision}) running in ${config.host}:${config.port} shutting down...`,
+  );
+
+  await closeRunningServer().catch(logError);
+  logger.info('Server has shut down');
+  await shutdownDb().catch(logError);
+  logger.info('DB connection closed');
+
+  // TODO: Check why the process does not exist naturally at this point
+  process.exit(0);
+}
 
 try {
-  app.listen(config.port, () => {
+  runningServer = app.listen(config.port, () => {
+    process.on('SIGTERM', shutdownServer);
+
     logger.info(config, `Server configuration`);
     void slackNotifier
       .sendNotification(
@@ -31,5 +49,5 @@ try {
       .catch(logError);
   });
 } catch (er) {
-  logger.error(er, 'Error in server:');
+  logger.error(er, 'Error in server startup');
 }
