@@ -1,4 +1,4 @@
-import 'dayjs/locale/fi-fi';
+import 'dayjs/locale/fi';
 
 import dayjs, { Dayjs } from 'dayjs';
 import dayOfYear from 'dayjs/plugin/dayOfYear';
@@ -7,7 +7,7 @@ import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import utc from 'dayjs/plugin/utc';
 
-export const fiLocale = 'fi-FI';
+export const fiLocale = 'fi';
 
 export type DayjsInput = dayjs.ConfigType;
 
@@ -18,7 +18,7 @@ dayjs.extend(dayOfYear);
 dayjs.extend(utc);
 
 // Setup Finnish locale globally
-dayjs.locale('fi-fi');
+dayjs.locale(fiLocale);
 
 dayjs();
 
