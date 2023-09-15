@@ -1,4 +1,4 @@
-import { Moment } from 'moment';
+import { Dayjs } from 'dayjs';
 import { ITask } from 'pg-promise';
 
 import {
@@ -10,7 +10,7 @@ import {
   ExpenseStatus,
   UserExpense,
 } from 'shared/expense';
-import * as time from 'shared/time';
+import { DateLike, toDayjs, toISODate } from 'shared/time';
 import { ApiMessage, NotFoundError, ObjectId } from 'shared/types';
 import { Money, MoneyLike } from 'shared/util';
 import { logger } from 'server/Logger';
@@ -77,7 +77,7 @@ export function dbRowToExpense(e: UserExpense): UserExpense {
   if (!e) {
     throw new NotFoundError('EXPENSE_NOT_FOUND', 'expense');
   }
-  e.date = time.toMoment(e.date).format('YYYY-MM-DD');
+  e.date = toDayjs(e.date).format('YYYY-MM-DD');
   e.userBalance = Money.from(e.userValue).negate().toString();
   return e;
 }
@@ -99,27 +99,27 @@ export async function countTotalBetween(
   tx: ITask<any>,
   groupId: number,
   userId: number,
-  startDate: string | Moment,
-  endDateExclusive: string | Moment,
+  startDate: string | Dayjs,
+  endDateExclusive: string | Dayjs,
 ): Promise<ExpenseStatus> {
   return await tx.one<ExpenseStatus>(countTotalSelect, {
     userId,
     groupId,
-    startDate: time.toISODate(startDate),
-    endDate: time.toISODate(endDateExclusive),
+    startDate: toISODate(startDate),
+    endDate: toISODate(endDateExclusive),
   });
 }
 
 export async function hasUnconfirmedBefore(
   tx: ITask<any>,
   groupId: number,
-  startDate: time.DateLike,
+  startDate: DateLike,
 ): Promise<boolean> {
   const s = await tx.one<{ amount: number }>(
     `SELECT COUNT(*) AS amount
       FROM expenses
       WHERE group_id=$/groupId/ AND template=false AND date < $/startDate/::DATE AND confirmed=false`,
-    { groupId, startDate: time.toISODate(startDate) },
+    { groupId, startDate: toISODate(startDate) },
   );
   return s.amount > 0;
 }

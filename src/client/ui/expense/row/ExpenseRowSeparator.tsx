@@ -1,8 +1,8 @@
-import moment from 'moment';
+import { Dayjs } from 'dayjs';
 import * as React from 'react';
 
 import { UserExpense } from 'shared/expense';
-import { toMoment } from 'shared/time';
+import { toDayjs } from 'shared/time';
 
 import { WeekHeaderRow } from './WeekHeaderRow';
 
@@ -29,20 +29,20 @@ function weeksToShow(prev: UserExpense | null, next: UserExpense | null): string
 
     if (!prev) {
       // This is the first item in the list, so render weeks from the beginning of the month
-      return weeksBetween(toMoment(next.date).startOf('month'), next.date, true);
+      return weeksBetween(toDayjs(next.date).startOf('month'), next.date, true);
     }
   }
 
-  return weeksBetween(prev.date, next ? next.date : toMoment(prev.date).endOf('month'), false);
+  return weeksBetween(prev.date, next ? next.date : toDayjs(prev.date).endOf('month'), false);
 }
 
-const toWeek = (m: moment.Moment) => {
+const toWeek = (m: Dayjs) => {
   return m.format('WW');
 };
 
-function weeksBetween(a: string | moment.Moment, b: string | moment.Moment, includeFirst: boolean) {
+function weeksBetween(a: string | Dayjs, b: string | Dayjs, includeFirst: boolean) {
   const weeks: string[] = [];
-  let weekStart = toMoment(a).startOf('week');
+  let weekStart = toDayjs(a).startOf('week');
   if (includeFirst) {
     weeks.push(toWeek(weekStart));
   }

@@ -1,13 +1,13 @@
 import { Request, Response } from 'express';
 
-import { toMoment } from 'shared/time';
+import { toDayjs } from 'shared/time';
 import { TokenNotPresentError } from 'shared/types';
 
 const httpDateHeaderPattern = 'ddd, DD MMM YYYY HH:mm:ss';
 function setNoCacheHeaders(res: Response): Response {
   res.set('Cache-Control', 'private, no-cache, no-store, must-revalidate, max-age=0');
   res.set('Pragma', 'no-cache');
-  const time = toMoment().utc().format(httpDateHeaderPattern) + ' GMT';
+  const time = toDayjs().utc().format(httpDateHeaderPattern) + ' GMT';
   res.set('Date', time);
   res.set('Expires', time);
   return res;

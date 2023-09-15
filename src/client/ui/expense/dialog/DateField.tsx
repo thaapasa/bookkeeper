@@ -1,17 +1,17 @@
 import { DatePicker } from '@mui/x-date-pickers';
-import { Moment } from 'moment';
+import { Dayjs } from 'dayjs';
 import * as React from 'react';
 
 interface DateFieldProps {
-  value: Moment;
-  onChange: (date: Moment) => void;
+  value: Dayjs;
+  onChange: (date: Dayjs) => void;
 }
 
 export const datePickerFormat = 'DD.MM.YYYY';
 
 export const DateField: React.FC<DateFieldProps> = ({ value, onChange }) => {
   const changeHandler = React.useCallback(
-    (date: Moment | null) => {
+    (date: Dayjs | null) => {
       if (date?.isValid()) {
         onChange(date);
       }

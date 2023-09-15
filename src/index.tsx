@@ -4,7 +4,7 @@
 
 import { ThemeProvider } from '@mui/material/styles';
 import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayJs';
 import type {} from '@mui/x-date-pickers/themeAugmentation';
 import * as React from 'react';
 import ReactDOM from 'react-dom/client';
@@ -18,7 +18,7 @@ const container = document.getElementById('root');
 assertDefined(container);
 ReactDOM.createRoot(container).render(
   <ThemeProvider theme={muiTheme}>
-    <LocalizationProvider dateAdapter={AdapterMoment}>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
       <App />
     </LocalizationProvider>
   </ThemeProvider>,

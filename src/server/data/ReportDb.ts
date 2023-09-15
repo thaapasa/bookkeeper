@@ -1,7 +1,7 @@
 import { ITask } from 'pg-promise';
 
 import { ExpenseQuery, ExpenseReport, ReportDef, SubscriptionSearchCriteria } from 'shared/expense';
-import { MomentInterval, toISODate, toMoment } from 'shared/time';
+import { MomentInterval, toDayjs, toISODate } from 'shared/time';
 import { ApiMessage, ObjectId } from 'shared/types';
 import { Money } from 'shared/util';
 
@@ -86,7 +86,7 @@ async function calculateExpenseReports(
   const { clause, params } = await getExpenseSearchQuery(tx, userId, groupId, {
     // Do not include recurring subscriptions as they are tracked separately
     includeRecurring: false,
-    startDate: toMoment().subtract(range.amount, range.unit).format(),
+    startDate: toDayjs().subtract(range.amount, range.unit).format(),
     ...report.query,
     ...(criteria.onlyOwn ? { userId } : undefined),
     ...(criteria.type ? { type: criteria.type } : undefined),
@@ -106,9 +106,9 @@ async function calculateExpenseReports(
 }
 
 function fillInReportData(rowData: ExpenseReportFromDb, def: ReportDef): ExpenseReport {
-  const firstDate = toMoment(rowData.firstDate);
-  const lastDate = toMoment(rowData.lastDate);
-  const totalDays = toMoment().diff(firstDate, 'days');
+  const firstDate = toDayjs(rowData.firstDate);
+  const lastDate = toDayjs(rowData.lastDate);
+  const totalDays = toDayjs().diff(firstDate, 'days');
   const sum = Money.from(rowData.sum);
   const perYear = sum.multiply(365.25).divide(totalDays);
   return {

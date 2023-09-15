@@ -1,4 +1,4 @@
-import { Moment } from 'moment';
+import { Dayjs } from 'dayjs';
 import { ITask } from 'pg-promise';
 
 import { ExpenseCollection, ExpenseStatus, UserExpense } from 'shared/expense';
@@ -32,8 +32,8 @@ async function getBetween(
   tx: ITask<any>,
   groupId: number,
   userId: number,
-  startDate: Moment | string,
-  endDate: Moment | string,
+  startDate: Dayjs | string,
+  endDate: Dayjs | string,
 ) {
   logger.debug(
     `Querying for expenses between ${time.iso(startDate)} and ${time.iso(

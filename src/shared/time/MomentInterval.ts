@@ -1,7 +1,7 @@
-import { unitOfTime } from 'moment';
+import { ManipulateType } from 'dayjs';
 import { z } from 'zod';
 
-type MomentUnit = unitOfTime.Base;
+type MomentUnit = ManipulateType;
 const unitValues = ['year', 'years', 'month', 'months', 'week', 'weeks', 'day', 'days'] satisfies [
   MomentUnit,
   ...MomentUnit[],

@@ -8,7 +8,7 @@ import {
   styled,
 } from '@mui/material';
 import * as B from 'baconjs';
-import { Moment } from 'moment';
+import { Dayjs } from 'dayjs';
 import * as React from 'react';
 
 import {
@@ -19,7 +19,7 @@ import {
   ExpenseType,
   UserExpenseWithDetails,
 } from 'shared/expense';
-import { toISODate, toMoment } from 'shared/time';
+import { toDayjs, toISODate } from 'shared/time';
 import { Category, CategoryMap, Group, Source, User } from 'shared/types';
 import { identity, Money, omit, sanitizeMoneyInput, valuesToArray } from 'shared/util';
 import { CategoryDataSource, isSubcategoryOf } from 'client/data/Categories';
@@ -112,7 +112,7 @@ export interface ExpenseDialogProps<D> {
   categoryMap: CategoryMap;
   saveAction: ExpenseSaveAction | null;
   onClose: (e: D | null) => void;
-  onExpensesUpdated: (date: Moment) => void;
+  onExpensesUpdated: (date: Dayjs) => void;
   group: Group;
   user: User;
   users: User[];
@@ -183,7 +183,7 @@ export class ExpenseDialog extends React.Component<
       receiver: values.receiver || (e ? e.receiver : ''),
       sum: values.sum ? values.sum : e ? e.sum.toString() : '',
       userId: e ? e.userId : this.props.user.id,
-      date: toMoment(values.date || e?.date),
+      date: toDayjs(values.date || e?.date),
       benefit:
         values.benefit ||
         (e
@@ -317,7 +317,7 @@ export class ExpenseDialog extends React.Component<
         this.props.original,
       );
       if (r) {
-        this.props.onExpensesUpdated(toMoment(expense.date));
+        this.props.onExpensesUpdated(toDayjs(expense.date));
         this.props.onClose(expense);
       }
     } finally {
@@ -325,7 +325,7 @@ export class ExpenseDialog extends React.Component<
     }
   };
 
-  private setToday = () => this.inputStreams.date.push(toMoment());
+  private setToday = () => this.inputStreams.date.push(toDayjs());
 
   private selectCategory = (id: number) => {
     const m = this.props.categoryMap;

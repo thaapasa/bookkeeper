@@ -1,6 +1,6 @@
 import { IconButton, styled, TextField } from '@mui/material';
 
-import { toMoment, TypedDateRange } from 'shared/time';
+import { toDayjs, TypedDateRange } from 'shared/time';
 
 export type RangeType = TypedDateRange['type'];
 export type RangeTypeOrNone = RangeType | 'none';
@@ -23,7 +23,7 @@ export function isValidMonth(month: string | number): boolean {
 }
 
 export function toMonthRange(year: string | number, month: string | number): TypedDateRange {
-  const m = toMoment(`${year}-${month}`, 'YYYY-M');
+  const m = toDayjs(`${year}-${month}`, 'YYYY-M');
   return {
     type: 'month',
     start: m.startOf('month').toDate(),
@@ -32,7 +32,7 @@ export function toMonthRange(year: string | number, month: string | number): Typ
 }
 
 export function parseMonthRange(monthInput: string): TypedDateRange {
-  const m = toMoment(monthInput, 'YYYY-M');
+  const m = toDayjs(monthInput, 'YYYY-M');
   return {
     type: 'month',
     start: m.startOf('month').toDate(),
@@ -41,7 +41,7 @@ export function parseMonthRange(monthInput: string): TypedDateRange {
 }
 
 export function toYearRange(year: string | number): TypedDateRange {
-  const m = toMoment(year, 'YYYY');
+  const m = toDayjs(year, 'YYYY');
   return {
     type: 'year',
     start: m.startOf('year').toDate(),

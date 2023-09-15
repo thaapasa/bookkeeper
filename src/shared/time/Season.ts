@@ -1,4 +1,4 @@
-import moment, { Moment } from 'moment';
+import dayjs, { Dayjs } from 'dayjs';
 import { z } from 'zod';
 
 import { ISODate, ISOMonth } from './Time';
@@ -14,8 +14,8 @@ export const SeasonRegExp = /^[0-9]{4}-(Spring|Summer|Autumn|[0-9]{4}-Winter)$/;
 export const Season = z.string().regex(SeasonRegExp);
 export type Season = z.infer<typeof Season>;
 
-export function toSeason(m: Moment | ISODate | ISOMonth): Season {
-  const asStr = moment.isMoment(m) ? m.format('YYYY-MM') : m;
+export function toSeason(m: Dayjs | ISODate | ISOMonth): Season {
+  const asStr = dayjs.isDayjs(m) ? m.format('YYYY-MM') : m;
   const year = Number(asStr.substring(0, 4));
   // One-based month
   const month = Number(asStr.substring(5, 7));

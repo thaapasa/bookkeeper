@@ -1,4 +1,4 @@
-import { dateRangeToMomentRange, getYearsInRange, MomentRange, toMoment } from 'shared/time';
+import { dateRangeToMomentRange, getYearsInRange, MomentRange, toDayjs } from 'shared/time';
 import { Category, CategoryStatistics, CategoryStatisticsData, ObjectId } from 'shared/types';
 import { Money, recordFromPairs, typedKeys } from 'shared/util';
 import { getFullCategoryName } from 'client/data/Categories';
@@ -88,7 +88,7 @@ function createEstimationsForYear(
   range: MomentRange,
   separateEstimate: boolean,
 ): ChartColumn<'year', number> {
-  const lastYear = toMoment(data.range.endDate).year();
+  const lastYear = toDayjs(data.range.endDate).year();
   const keys = typedKeys(data.statistics);
 
   if (year !== lastYear) {

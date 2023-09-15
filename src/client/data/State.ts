@@ -1,8 +1,8 @@
 import * as B from 'baconjs';
-import { Moment } from 'moment';
+import { Dayjs } from 'dayjs';
 
 import { ExpenseInEditor, ExpenseSplit } from 'shared/expense';
-import { DateLike, monthRange, toMoment } from 'shared/time';
+import { DateLike, monthRange, toDayjs } from 'shared/time';
 import { noop } from 'shared/util';
 
 import { Size } from '../ui/Types';
@@ -50,10 +50,10 @@ export function createExpense(event?: React.MouseEvent<any>): Promise<ExpenseInE
 export const expenseDialogE = expenseDialogBus;
 export const expenseSplitE = expenseSplitBus;
 
-const needUpdateBus = new B.Bus<Moment>();
+const needUpdateBus = new B.Bus<Dayjs>();
 
 export function updateExpenses(date: DateLike) {
-  needUpdateBus.push(toMoment(date));
+  needUpdateBus.push(toDayjs(date));
   return true;
 }
 

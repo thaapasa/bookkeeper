@@ -1,8 +1,9 @@
-import moment, { Moment, MomentInput } from 'moment';
+import dayjs, { Dayjs } from 'dayjs';
 import { z } from 'zod';
 
 import { IntString } from '../types/Primitives';
-import { toMoment } from './Moment';
+import { leftPad } from '../util/Util';
+import { DayjsInput, toDayjs } from './Dayjs';
 
 export const ISODateRegExp = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
 export const ISODatePattern = 'YYYY-MM-DD';
@@ -27,10 +28,10 @@ export type YearMonth = z.infer<typeof YearMonth>;
 
 export const displayDatePattern = 'D.M.YYYY';
 
-export type DateLike = Date | Moment | string;
+export type DateLike = Date | Dayjs | string;
 
-export function month(year: number, mon: number): Moment {
-  return moment({ year, month: mon - 1, day: 1 });
+export function month(year: number, mon: number): Dayjs {
+  return dayjs(`${leftPad(year, 4, '0')}-${leftPad(mon, 2, '0')}-01`, ISODatePattern);
 }
 
 export function monthToYear(month: ISOMonth | ISODate): number {
@@ -41,30 +42,30 @@ export function toDate(d: DateLike): Date {
   if (d instanceof Date) {
     return d;
   }
-  return toMoment(d).toDate();
+  return toDayjs(d).toDate();
 }
 
-export function toISODate(m?: MomentInput): ISODate {
-  return toMoment(m).format(ISODatePattern);
+export function toISODate(m?: DayjsInput): ISODate {
+  return toDayjs(m).format(ISODatePattern);
 }
-export function fromISODate(str: any): Moment {
-  return moment(str, ISODatePattern);
+export function fromISODate(str: any): Dayjs {
+  return toDayjs(str, ISODatePattern);
 }
 
 export function readableDate(date?: DateLike, long?: boolean): string {
-  return date ? toMoment(date).format(long ? 'dd D.M.' : 'D.M.') : '-';
+  return date ? toDayjs(date).format(long ? 'dd D.M.' : 'D.M.') : '-';
 }
 
 export function readableDateWithYear(date?: DateLike, long?: boolean): string {
-  return date ? toMoment(date).format(long ? 'dd D.M.YYYY' : 'D.M.YYYY') : '-';
+  return date ? toDayjs(date).format(long ? 'dd D.M.YYYY' : 'D.M.YYYY') : '-';
 }
 
 export function iso(m: any): string {
-  return moment(m).format('YYYY-MM-DDTHH:mm:ssZ');
+  return toDayjs(m).format('YYYY-MM-DDTHH:mm:ssZ');
 }
 
 export function toYearName(x: DateLike) {
-  const m = toMoment(x);
+  const m = toDayjs(x);
   return '' + m.get('year');
 }
 

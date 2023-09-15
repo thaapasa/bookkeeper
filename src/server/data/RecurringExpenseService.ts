@@ -1,9 +1,14 @@
-import { Moment } from 'moment';
+import { Dayjs } from 'dayjs';
 
 import { RecurrencePeriod } from 'shared/expense';
 import { fromISODate } from 'shared/time';
 
-export function calculateNextRecurrence(from: string | Moment, period: RecurrencePeriod): Moment {
+export function calculateNextRecurrence(from: string | Dayjs, period: RecurrencePeriod): Dayjs {
   const date = fromISODate(from);
-  return date.add(period.amount, period.unit);
+  if (period.unit === 'quarters') {
+    // Convert quarters to months
+    return date.add(period.amount * 3, 'months');
+  } else {
+    return date.add(period.amount, period.unit);
+  }
 }

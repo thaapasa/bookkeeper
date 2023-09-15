@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { ExpenseSplit, UserExpenseWithDetails } from 'shared/expense';
-import { toMoment } from 'shared/time';
+import { toDayjs } from 'shared/time';
 import { MakeOptional } from 'shared/types';
 import { IdProvider } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
@@ -69,7 +69,7 @@ export function useExpenseSplit(
       const finalized = finalizeSplits(original.type, splits, sourceMap);
       await apiConnect.splitExpense(original.id, finalized);
       onClose(finalized);
-      onExpensesUpdated(toMoment(original.date));
+      onExpensesUpdated(toDayjs(original.date));
     }
   };
 
