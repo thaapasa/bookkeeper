@@ -39,7 +39,7 @@ jobs:
           bun seed
 
       - name: Lint
-        run: bun lint-all
+        run: bun lint
 
       - name: Build client
         run: bun build-client
