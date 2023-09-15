@@ -6,6 +6,8 @@ import * as path from 'path';
 import { createApi } from './api/Api';
 import { config } from './Config';
 import { logger } from './Logger';
+import { logError } from './notifications/ErrorLogger';
+import { slackNotifier } from './notifications/SlackNotifier';
 
 const curDir = process.cwd();
 const app = express();
@@ -21,10 +23,12 @@ app.get(/\/p\/.*/, (_, res) => res.sendFile(path.join(curDir + '/public/index.ht
 
 try {
   app.listen(config.port, () => {
-    logger.info(
-      config,
-      `Kukkaro server ${config.version} (revision ${config.revision}) started in port ${config.port}, env ${config.environment}`,
-    );
+    logger.info(config, `Server configuration`);
+    void slackNotifier
+      .sendNotification(
+        `Kukkaro ${config.version} (rev ${config.revision}) started in ${config.host}:${config.port}, env ${config.environment}`,
+      )
+      .catch(logError);
   });
 } catch (er) {
   logger.error(er, 'Error in server:');

@@ -9,11 +9,7 @@ function authHeader(token: string): Record<string, string> {
 }
 
 export function createTestClient(opts: { baseUrl?: string; logger?: Logger }) {
-  const client = new FetchClient(
-    fetch as any,
-    opts.baseUrl ?? 'http://localhost:3100',
-    opts.logger,
-  );
+  const client = new FetchClient(fetch, opts.baseUrl ?? 'http://localhost:3100', opts.logger);
 
   const get = <T>(token: string, path: string, query?: Record<string, any>) =>
     client.get<T>(path, query, authHeader(token));

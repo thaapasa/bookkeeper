@@ -1,9 +1,12 @@
+import type nodeFetch from 'node-fetch';
 import { Logger } from 'pino';
 
 import { isDefined } from '../types/Common';
 import { AuthenticationError, BkError } from '../types/Errors';
+import { ContentTypes } from './ContentTypes';
 
-export type FetchType = (input: RequestInfo, init?: FixedRequestInit) => Promise<Response>;
+export type FetchType = typeof nodeFetch | Window['fetch'];
+type ResponseType = Awaited<ReturnType<FetchType>>;
 
 function encodeComponent(x: any) {
   if (!isDefined(x)) {
@@ -65,7 +68,7 @@ export class FetchClient {
       this.logger?.debug(`${method} ${queryPath} -> ${res.status}`);
       switch (res.status) {
         case 200:
-          return (await res.json()) as T;
+          return await this.readResponse<T>(res);
         case 401:
         case 403:
           throw new AuthenticationError('Unauthorized: ' + res.status, await res.json());
@@ -84,7 +87,6 @@ export class FetchClient {
       if (e instanceof BkError || e instanceof AuthenticationError) {
         throw e;
       }
-      this.logger?.error(e, 'Error in fetch client');
       const data = { ...e };
       throw new BkError(
         'code' in data ? data.code : 'ERROR',
@@ -95,8 +97,24 @@ export class FetchClient {
     }
   }
 
+  private async readResponse<T>(res: ResponseType): Promise<T> {
+    const type = res.headers.get('content-type');
+
+    switch (type) {
+      case ContentTypes.html:
+      case ContentTypes.text:
+        return (await res.text()) as T;
+
+      case ContentTypes.json:
+        return (await res.json()) as T;
+
+      default:
+        return (await res.text()) as T;
+    }
+  }
+
   public static contentTypeJson: Record<string, string> = {
-    'Content-Type': 'application/json',
+    'Content-Type': ContentTypes.json,
   };
 
   public get<T>(
