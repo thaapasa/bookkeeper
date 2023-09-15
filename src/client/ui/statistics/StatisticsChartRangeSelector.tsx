@@ -1,4 +1,5 @@
 import { FormLabel, styled } from '@mui/material';
+import dayjs from 'dayjs';
 import * as React from 'react';
 
 import { DateRange, MonthPeriod, NowPeriod, periodsToDateRange, YearPeriod } from 'shared/time';
@@ -15,7 +16,7 @@ export const StatisticsChartRangeSelector: React.FC<{
 }> = ({ onChange }) => {
   const [start, setStart] = useLocalStorage<ChartPeriod>('statistics.chart.period.start', {
     type: 'year',
-    year: new Date().getFullYear() - 5,
+    year: dayjs().year() - 5,
   });
   const [end, setEnd] = useLocalStorage<ChartPeriod>('statistics.chart.period.end', {
     type: 'now',
