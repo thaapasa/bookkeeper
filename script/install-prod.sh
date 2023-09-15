@@ -22,12 +22,8 @@ echo "Backing up database"
 
 bun clean || exit -1
 
-echo "Extracting server..."
-
-mkdir -p build-server || exit -1
-cd build-server
-tar xzvf ../deploy/server-$REV.tar.gz || exit -1
-cd ..
+echo "Building server..."
+bun build-server
 
 echo "Extracting client..."
 mkdir -p dist || exit -1

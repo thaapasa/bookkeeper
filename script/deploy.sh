@@ -11,7 +11,7 @@ script/build-prod.sh
 echo "Copying files to production (rev $REV)..."
 
 ssh deployer@$HOST "mkdir -p bookkeeper/deploy" || exit -1
-scp deploy/client-$REV.tar.gz deploy/server-$REV.tar.gz deployer@$HOST:~/bookkeeper/deploy || exit -1
+scp deploy/client-$REV.tar.gz deployer@$HOST:~/bookkeeper/deploy || exit -1
 
 echo "Deploying on server..."
 
