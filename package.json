@@ -1,6 +1,6 @@
 {
   "name": "bookkeeper",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "main": "src/server/BookkeeperServer.ts",
   "private": true,
   "scripts": {

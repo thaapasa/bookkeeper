@@ -11,5 +11,9 @@ export default defineConfig({
       '/api': 'http://localhost:3100',
     },
   },
-  build: { target: 'es2020', chunkSizeWarningLimit: 2048 },
+  build: {
+    target: 'es2020',
+    chunkSizeWarningLimit: 2048,
+    sourcemap: true,
+  },
 });
