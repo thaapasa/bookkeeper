@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { toMoment } from './Moment';
+import { dayJsForDate, toDayjs } from './Dayjs';
 import { Month, toISODate, Year } from './Time';
 import { DateRange } from './TimeRange';
 
@@ -40,7 +40,7 @@ export function periodToYearAndMonth(p: Period): [Year, Month] {
     case 'year':
       return [p.year, 1];
     default: {
-      const m = toMoment();
+      const m = toDayjs();
       return [m.year(), m.month() + 1];
     }
   }
@@ -57,9 +57,9 @@ function toDateAtStart(p: Period) {
     case 'all':
       return pastDate;
     case 'year':
-      return toISODate(toMoment(p.year, 'YYYY').startOf('year'));
+      return toISODate(dayJsForDate(p.year, 1, 1).startOf('year'));
     case 'month':
-      return toISODate(toMoment(`${p.year}-${p.month}`, 'YYYY-MM').startOf('month'));
+      return toISODate(dayJsForDate(p.year, p.month, 1).startOf('month'));
     default:
       return toISODate();
   }
@@ -68,9 +68,9 @@ function toDateAtStart(p: Period) {
 function toDateAtEnd(p: Period) {
   switch (p.type) {
     case 'year':
-      return toISODate(toMoment(p.year, 'YYYY').endOf('year'));
+      return toISODate(dayJsForDate(p.year, 1, 1).endOf('year'));
     case 'month':
-      return toISODate(toMoment(`${p.year}-${p.month}`, 'YYYY-MM').endOf('month'));
+      return toISODate(dayJsForDate(p.year, p.month, 1).endOf('month'));
     default:
       return toISODate();
   }

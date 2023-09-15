@@ -1,4 +1,4 @@
-import { DateLike, toMoment } from 'shared/time';
+import { DateLike, toDayjs } from 'shared/time';
 
 export const shortcutsPage = '/p/linkit';
 export const expensePagePath = '/p/kulut';
@@ -16,27 +16,27 @@ export function expenseMonthPathPattern(variable: string) {
   return expensePagePath + '/m/:' + variable;
 }
 export function expensesForMonthPath(date: DateLike) {
-  return expensePagePath + '/m/' + toMoment(date).format(monthPattern);
+  return expensePagePath + '/m/' + toDayjs(date).format(monthPattern);
 }
 
 export function categoryViewYearPattern(variable: string) {
   return categoryPagePath + '/y/:' + variable;
 }
 export function categoriesForYear(date: DateLike) {
-  return categoryPagePath + '/y/' + toMoment(date).format(yearPattern);
+  return categoryPagePath + '/y/' + toDayjs(date).format(yearPattern);
 }
 
 export function categoryViewMonthPattern(variable: string) {
   return categoryPagePath + '/m/:' + variable;
 }
 export function categoriesForMonth(date: DateLike) {
-  return categoryPagePath + '/m/' + toMoment(date).format(monthPattern);
+  return categoryPagePath + '/m/' + toDayjs(date).format(monthPattern);
 }
 
 export function monthSuffix(date: DateLike) {
-  return '/m/' + toMoment(date).format(monthPattern);
+  return '/m/' + toDayjs(date).format(monthPattern);
 }
 
 export function yearSuffix(date: DateLike) {
-  return '/y/' + toMoment(date).format(yearPattern);
+  return '/y/' + toDayjs(date).format(yearPattern);
 }

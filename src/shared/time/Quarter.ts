@@ -1,8 +1,8 @@
-import moment, { Moment } from 'moment';
+import dayjs, { Dayjs } from 'dayjs';
 import { z } from 'zod';
 
 import { numberRange } from '../util/Arrays';
-import { toMoment } from './Moment';
+import { toDayjs } from './Dayjs';
 import { ISODate, ISOMonth } from './Time';
 import { DateRange, getYearsInRange } from './TimeRange';
 
@@ -14,8 +14,8 @@ export const QuarterRegExp = /^[0-9]{4}-Q[1-4]$/;
 export const Quarter = z.string().regex(QuarterRegExp);
 export type Quarter = z.infer<typeof Quarter>;
 
-export function toQuarter(m: Moment | ISODate | ISOMonth): Quarter {
-  const asStr = moment.isMoment(m) ? m.format('YYYY-MM') : m;
+export function toQuarter(m: Dayjs | ISODate | ISOMonth): Quarter {
+  const asStr = dayjs.isDayjs(m) ? m.format('YYYY-MM') : m;
   const year = asStr.substring(0, 4);
   // Zero-based month
   const month = Number(asStr.substring(5, 7)) - 1;
@@ -30,8 +30,8 @@ export function getQuartersInRange(range: DateRange): Quarter[] {
   return years
     .map(y =>
       numberRange(
-        y === startYear ? Math.floor(toMoment(range.startDate).month() / 3) + 1 : 1,
-        y === endYear ? Math.floor(toMoment(range.endDate).month() / 3) + 1 : 4,
+        y === startYear ? Math.floor(toDayjs(range.startDate).month() / 3) + 1 : 1,
+        y === endYear ? Math.floor(toDayjs(range.endDate).month() / 3) + 1 : 4,
       ).map(q => `${y}-Q${q}`),
     )
     .flat(1);

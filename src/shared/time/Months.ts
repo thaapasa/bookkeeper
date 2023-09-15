@@ -1,4 +1,4 @@
-import { toMoment } from './Moment';
+import { toDayjs } from './Dayjs';
 import { DateLike } from './Time';
 
 const months = [
@@ -24,18 +24,18 @@ export function getFinnishMonthName(monthNumber: number | string | DateLike): st
   if (typeof monthNumber === 'string' && /^[0-9]*$/.exec(monthNumber)) {
     return months[parseInt(monthNumber, 10)];
   }
-  const i = toMoment(monthNumber).get('month') + 1;
+  const i = toDayjs(monthNumber).get('month') + 1;
   return months[i];
 }
 
 export function toMonthName(x: DateLike) {
-  const m = toMoment(x);
+  const m = toDayjs(x);
   return getFinnishMonthName(m.get('month') + 1) + ' ' + m.get('year');
 }
 
 export function isSameMonth(a: DateLike, b: DateLike) {
-  const am = toMoment(a);
-  const bm = toMoment(b);
+  const am = toDayjs(a);
+  const bm = toDayjs(b);
   if (am.get('year') !== bm.get('year')) {
     return false;
   }

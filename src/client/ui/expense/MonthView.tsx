@@ -1,9 +1,9 @@
-import { Moment } from 'moment';
+import { Dayjs } from 'dayjs';
 import * as React from 'react';
 import { useNavigate } from 'react-router';
 
 import { UserExpense } from 'shared/expense';
-import { ISODate, ISODatePattern, isSameMonth, monthRange, toISODate, toMoment } from 'shared/time';
+import { ISODate, ISODatePattern, isSameMonth, monthRange, toDayjs, toISODate } from 'shared/time';
 import apiConnect from 'client/data/ApiConnect';
 import { navigationBus, needUpdateE } from 'client/data/State';
 import { logger } from 'client/Logger';
@@ -65,7 +65,7 @@ export const MonthView: React.FC<MonthViewProps> = ({ date }) => {
   const navigate = useNavigate();
   React.useEffect(
     () =>
-      needUpdateE.onValue((newDate: Moment) => {
+      needUpdateE.onValue((newDate: Dayjs) => {
         logger.info('Expenses updated, refreshing for date %s', toISODate(newDate));
         if (isSameMonth(newDate, date)) {
           logger.info('Reloading expenses for this month');
@@ -96,7 +96,7 @@ export const MonthView: React.FC<MonthViewProps> = ({ date }) => {
 };
 
 async function loadExpensesForDate(date: ISODate) {
-  const m = toMoment(date, ISODatePattern);
+  const m = toDayjs(date, ISODatePattern);
   navigationBus.push({
     dateRange: monthRange(m),
     pathPrefix: expensePagePath,

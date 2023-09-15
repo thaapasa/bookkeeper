@@ -2,7 +2,7 @@ import { IconButton, styled } from '@mui/material';
 import * as React from 'react';
 import { useNavigate } from 'react-router';
 
-import { toDateRangeName, toMoment } from 'shared/time';
+import { toDateRangeName, toDayjs } from 'shared/time';
 import { navigationP } from 'client/data/State';
 import { NavigationConfig } from 'client/data/StateTypes';
 import { logger } from 'client/Logger';
@@ -23,8 +23,8 @@ const DateRangeNavigatorImpl: React.FC<React.PropsWithChildren<DateRangeNavigato
   const navigateOffset = (offset: number) => {
     const rangeSuffix =
       dateRange.type === 'month'
-        ? monthSuffix(toMoment(dateRange.start).clone().add(offset, 'months'))
-        : yearSuffix(toMoment(dateRange.start).clone().add(offset, 'year'));
+        ? monthSuffix(toDayjs(dateRange.start).clone().add(offset, 'months'))
+        : yearSuffix(toDayjs(dateRange.start).clone().add(offset, 'year'));
     const link = pathPrefix + rangeSuffix;
     logger.debug('Navigating to %s', link);
     navigate(link);

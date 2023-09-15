@@ -3,7 +3,7 @@ import * as B from 'baconjs';
 import * as React from 'react';
 
 import { UserExpense } from 'shared/expense';
-import { toMoment } from 'shared/time';
+import { toDayjs } from 'shared/time';
 import { Category } from 'shared/types';
 import { groupBy, Money, noop, typedKeys } from 'shared/util';
 import { userDataE, UserDataProps } from 'client/data/Categories';
@@ -36,7 +36,7 @@ const ResultsViewImpl: React.FC<ResultsProps> = ({ results, ...rest }) => {
 const ResultsContents: React.FC<ResultsProps> = ({ results, ...rest }) => {
   const resultsByYears: Record<string, UserExpense[]> | undefined =
     results && results.length > 0
-      ? groupBy(e => String(toMoment(e.date).year()), results)
+      ? groupBy(e => String(toDayjs(e.date).year()), results)
       : undefined;
 
   if (!resultsByYears) {

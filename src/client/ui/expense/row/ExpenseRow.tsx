@@ -7,7 +7,7 @@ import {
   UserExpense,
   UserExpenseWithDetails,
 } from 'shared/expense';
-import { readableDate, toDate, toISODate, toMoment } from 'shared/time';
+import { readableDate, toDate, toDayjs, toISODate } from 'shared/time';
 import { Category, CategoryMap, isDefined, Source, User } from 'shared/types';
 import { equal, Money, notEqual } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
@@ -113,7 +113,7 @@ export class ExpenseRowImpl extends React.Component<ExpenseRowProps, ExpenseRowS
   };
 
   private editDate = async () => {
-    const date = await UserPrompts.selectDate('Valitse päivä', toMoment(this.props.expense.date));
+    const date = await UserPrompts.selectDate('Valitse päivä', toDayjs(this.props.expense.date));
     if (!date) return;
     await executeOperation(() => this.updateExpense({ date: toISODate(date) }), {
       success: `Muutettu kirjauksen ${this.props.expense.title} päiväksi ${readableDate(date)}`,
@@ -196,8 +196,7 @@ export class ExpenseRowImpl extends React.Component<ExpenseRowProps, ExpenseRowS
     } else if (expense.type === 'income') {
       style.background = colors.income;
     }
-    const firstDay =
-      !this.props.prev || !toMoment(expense.date).isSame(this.props.prev.date, 'day');
+    const firstDay = !this.props.prev || !toDayjs(expense.date).isSame(this.props.prev.date, 'day');
     return (
       <>
         <Row className={firstDay && this.props.dateBorder ? 'first-day' : ''}>
@@ -330,7 +329,7 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
 );
 
 function weekDay(date: string, prev?: UserExpense | null) {
-  const m = toMoment(date);
+  const m = toDayjs(date);
   return !prev || !m.isSame(prev.date, 'day') ? m.format('dd') : null;
 }
 

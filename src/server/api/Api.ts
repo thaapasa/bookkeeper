@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import { toMoment } from 'shared/time';
+import { toDayjs } from 'shared/time';
 import { ApiStatus, DbStatus, User } from 'shared/types';
 import { getAllUsers, getUserById } from 'server/data/UserDb';
 import { logger } from 'server/Logger';
@@ -39,7 +39,7 @@ export function createApi() {
     Requests.unauthorizedRequest(
       async (): Promise<ApiStatus> => ({
         status: 'OK',
-        timestamp: toMoment().format(),
+        timestamp: toDayjs().format(),
         version: config.version,
         revision: config.revision,
         commitId: config.commitId,

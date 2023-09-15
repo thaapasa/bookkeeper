@@ -1,5 +1,5 @@
 import * as B from 'baconjs';
-import { Moment } from 'moment';
+import { Dayjs } from 'dayjs';
 
 import { TextEditorComponent } from '../component/TextEditVariants';
 import { DateSelectDialogComponent } from './DateSelectDialogContents';
@@ -70,7 +70,7 @@ export const UserPrompts = {
    * Returns a promise that will be resolved to the text that was entered; or undefined if the dialog
    * was cancelled.
    */
-  selectDate: (title: string, initialDate?: Moment): Promise<Moment | undefined> =>
+  selectDate: (title: string, initialDate?: Dayjs): Promise<Dayjs | undefined> =>
     promptUser({
       type: 'date',
       title,
