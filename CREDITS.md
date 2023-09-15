@@ -10,7 +10,7 @@ from [Flaticon](https://www.flaticon.com/), and it is licensed by
 
 ## Login page background
 
-![Background image](./public/img/money-bg.jpg)
+![Background image](./public/img/money-bg.webp)
 
 Photo by [Chris Lawton](https://unsplash.com/photos/LarvHiXifpA?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText) on [Unsplash](https://unsplash.com/).
 

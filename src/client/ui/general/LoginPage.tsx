@@ -107,7 +107,7 @@ const Page = styled('div')`
   flex-direction: row;
   align-items: flex-start;
   justify-content: center;
-  background: url(${publicUrl}/img/money-bg.jpg);
+  background: url(${publicUrl}/img/money-webp.jpg);
   background-color: #d6d6d6;
   background-size: cover;
   background-repeat: no-repeat;
