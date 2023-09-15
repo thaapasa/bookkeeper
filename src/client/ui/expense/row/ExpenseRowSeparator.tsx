@@ -37,7 +37,7 @@ function weeksToShow(prev: UserExpense | null, next: UserExpense | null): string
 }
 
 const toWeek = (m: Dayjs) => {
-  return m.format('WW');
+  return String(m.isoWeek());
 };
 
 function weeksBetween(a: string | Dayjs, b: string | Dayjs, includeFirst: boolean) {
