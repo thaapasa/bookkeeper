@@ -90,7 +90,7 @@ export class FetchClient {
       const data = { ...e };
       throw new BkError(
         'code' in data ? data.code : 'ERROR',
-        'cause' in data ? data.cause : e.message,
+        'cause' in data ? data.cause : e,
         'status' in data ? data.status : 500,
         data,
       );

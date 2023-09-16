@@ -48,12 +48,9 @@ jobs:
         run: bun build-server
 
       - name: Start server
-        run: |
-           ./script/start-server.sh
-           sleep 1
+        run: ./script/start-server.sh
 
       - name: Run tests
-        id: run-tests
         run: bun test
 
       - name: Dump server logs if tests failed

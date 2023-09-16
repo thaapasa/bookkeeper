@@ -32,7 +32,7 @@ export class BkError extends Error {
   public status: number;
   public data: any;
   constructor(code: string, cause: any, status: number, data?: any) {
-    super(String(cause));
+    super(typeof cause === 'object' && cause && 'message' in cause ? cause.message : String(cause));
     this.code = code;
     this.cause = cause;
     this.status = status;
