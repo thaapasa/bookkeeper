@@ -90,7 +90,7 @@ export class FetchClient {
       const data = { ...e };
       throw new BkError(
         'code' in data ? data.code : 'ERROR',
-        'cause' in data ? data.cause : e.message,
+        'cause' in data ? data.cause : e,
         'status' in data ? data.status : 500,
         data,
       );
@@ -98,9 +98,10 @@ export class FetchClient {
   }
 
   private async readResponse<T>(res: ResponseType): Promise<T> {
-    const type = res.headers.get('content-type');
+    const type = res.headers.get('content-type') ?? '';
+    const [simpleType] = type.split(';');
 
-    switch (type) {
+    switch (simpleType) {
       case ContentTypes.html:
       case ContentTypes.text:
         return (await res.text()) as T;
