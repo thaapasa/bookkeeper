@@ -84,7 +84,6 @@ export class FetchClient {
         }
       }
     } catch (e: any) {
-      this.logger?.warn(e, 'Error from fetch');
       if (e instanceof BkError || e instanceof AuthenticationError) {
         throw e;
       }
