@@ -52,14 +52,11 @@ jobs:
 
       - name: Run tests
         id: run-tests
-        continue-on-error: true
         run: bun test
 
       - name: Tests failed, dump server logs (See previous step for test logs)
-        if: steps.run-tests.outcome != 'success'
+        if: failure()
         run: |
           echo "Tests failed, dumping server logs"
           cat log/server.log | bun pino-pretty
-
-      - name: Stop server
-        run: ./script/stop-server.sh
+          exit 1
