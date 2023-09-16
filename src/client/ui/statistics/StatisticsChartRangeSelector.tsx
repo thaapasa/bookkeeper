@@ -12,6 +12,7 @@ type ChartPeriod = NowPeriod | YearPeriod | MonthPeriod;
 const AllowedPeriods: ChartPeriod['type'][] = ['now', 'year', 'month'];
 
 export const StatisticsChartRangeSelector: React.FC<{
+  /** Selected range is inclusive on both ends */
   onChange: (type: DateRange) => void;
 }> = ({ onChange }) => {
   const [start, setStart] = useLocalStorage<ChartPeriod>('statistics.chart.period.start', {

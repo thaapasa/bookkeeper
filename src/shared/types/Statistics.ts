@@ -13,6 +13,7 @@ export type CategorySelection = z.infer<typeof CategorySelection>;
 export const StatisticsSearchType = z.object({
   categoryIds: z.array(CategorySelection),
   onlyOwn: z.boolean().optional(),
+  /** Both start and end dates are included in search */
   range: DateRange.optional(),
 });
 export type StatisticsSearchType = z.infer<typeof StatisticsSearchType>;

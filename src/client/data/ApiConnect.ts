@@ -291,13 +291,13 @@ export class ApiConnect {
 
   public loadStatistics = (
     categoryIds: CategorySelection[],
-    startDate: ISODate,
-    endDate: ISODate,
+    startDateInclusive: ISODate,
+    endDateInclusive: ISODate,
     onlyOwn: boolean,
   ): Promise<CategoryStatistics> => {
     const body: StatisticsSearchType = {
       categoryIds,
-      range: { startDate, endDate },
+      range: { startDate: startDateInclusive, endDate: endDateInclusive },
       onlyOwn,
     };
     return this.post(uri`/api/statistics/category`, body);

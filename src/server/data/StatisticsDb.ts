@@ -13,7 +13,8 @@ import { logger } from 'server/Logger';
 async function loadCategoryStatisticsData(
   tx: ITask<any>,
   groupId: ObjectId,
-  range: DateRange,
+  /** Both start and end dates are included in search */
+  rangeInclusive: DateRange,
   categoryIds: number[],
   userId: ObjectId | undefined,
 ): Promise<CategoryStatisticsData[]> {
@@ -28,7 +29,7 @@ async function loadCategoryStatisticsData(
           user_id, group_id, category_id, date, SUBSTRING(date::TEXT, 0, 8) AS month
         FROM expenses
         WHERE group_id = $/groupId/
-          AND date > $/start/
+          AND date >= $/start/
           AND date <= $/end/
           AND template = false
           AND category_id IN ($/categoryIds:csv/)
@@ -39,8 +40,8 @@ async function loadCategoryStatisticsData(
       ORDER BY month, category_id`,
     {
       groupId,
-      start: range.startDate,
-      end: range.endDate,
+      start: rangeInclusive.startDate,
+      end: rangeInclusive.endDate,
       categoryIds,
       userId,
     },
@@ -51,7 +52,8 @@ async function loadCategoryStatisticsData(
 async function loadCategoryStatisticsDataGroupedByParent(
   tx: ITask<any>,
   groupId: ObjectId,
-  range: DateRange,
+  /** Both start and end dates are included in search */
+  rangeInclusive: DateRange,
   categoryIds: number[],
   userId: ObjectId | undefined,
 ): Promise<CategoryStatisticsData[]> {
@@ -69,7 +71,7 @@ async function loadCategoryStatisticsDataGroupedByParent(
         FROM expenses e
         LEFT JOIN categories c ON (c.id = e.category_id)
         WHERE e.group_id = $/groupId/
-          AND e.date > $/start/
+          AND e.date >= $/start/
           AND e.date <= $/end/
           AND e.template = false
           AND (e.category_id IN ($/categoryIds:csv/) OR c.parent_id IN ($/categoryIds:csv/))
@@ -80,8 +82,8 @@ async function loadCategoryStatisticsDataGroupedByParent(
       ORDER BY month, parent_id`,
     {
       groupId,
-      start: range.startDate,
-      end: range.endDate,
+      start: rangeInclusive.startDate,
+      end: rangeInclusive.endDate,
       categoryIds,
       userId,
     },
@@ -94,26 +96,29 @@ export async function getCategoryStatistics(
   groupId: ObjectId,
   userId: ObjectId,
   categoryIds: CategorySelection[],
-  range: DateRange,
+  /** Both start and end dates are included in search */
+  rangeInclusive: DateRange,
   onlyOwn: boolean,
 ): Promise<CategoryStatistics> {
   if (categoryIds.length < 1) {
-    return { categoryIds, statistics: {}, range };
+    return { categoryIds, statistics: {}, range: rangeInclusive };
   }
-  logger.debug(`Querying for statistics between ${range.startDate} - ${range.endDate}`);
+  logger.debug(
+    `Querying for statistics between ${rangeInclusive.startDate} - ${rangeInclusive.endDate}`,
+  );
   const [groped, alone] = partition(i => i.grouped === true, categoryIds);
   const [stAlone, stGrouped] = await Promise.all([
     loadCategoryStatisticsData(
       tx,
       groupId,
-      range,
+      rangeInclusive,
       alone.map(c => c.id),
       onlyOwn ? userId : undefined,
     ),
     loadCategoryStatisticsDataGroupedByParent(
       tx,
       groupId,
-      range,
+      rangeInclusive,
       groped.map(c => c.id),
       onlyOwn ? userId : undefined,
     ),
@@ -124,6 +129,6 @@ export async function getCategoryStatistics(
       ...groupBy(s => String(s.categoryId), stAlone),
       ...groupBy(s => String(s.categoryId), stGrouped),
     },
-    range,
+    range: rangeInclusive,
   };
 }

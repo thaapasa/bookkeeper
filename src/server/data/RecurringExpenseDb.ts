@@ -405,7 +405,7 @@ function deleteDivisionForRecurrence(
       WHERE expense_id IN (
         SELECT id FROM expenses
         WHERE recurring_expense_id=$/recurringExpenseId/::INTEGER
-          AND (template=true OR $/afterDate/::DATE IS NULL OR date >= $/afterDate/::DATE)
+          AND (template=true OR $/afterDate/ IS NULL OR date >= $/afterDate/)
       )`,
     { recurringExpenseId, afterDate },
   );
@@ -421,7 +421,7 @@ async function getRecurringExpenseIds(
       `SELECT id
         FROM expenses
         WHERE recurring_expense_id=$/recurringExpenseId/
-          AND (template=true OR $/afterDate/::DATE IS NULL OR date >= $/afterDate/::DATE)`,
+          AND (template=true OR $/afterDate/ IS NULL OR date >= $/afterDate/)`,
       { recurringExpenseId, afterDate },
     )
   ).map(e => e.id);
@@ -483,7 +483,7 @@ async function updateRecurringExpense(
         type=$/type/::expense_type, confirmed=$/confirmed/::BOOLEAN,
         source_id=$/sourceId/::INTEGER, category_id=$/categoryId/::INTEGER
       WHERE recurring_expense_id=$/recurringExpenseId/
-        AND (template = true OR $/afterDate/::DATE IS NULL OR date >= $/afterDate/::DATE)`,
+        AND (template = true OR $/afterDate/ IS NULL OR date >= $/afterDate/)`,
     {
       ...expense,
       recurringExpenseId: original.recurringExpenseId,
