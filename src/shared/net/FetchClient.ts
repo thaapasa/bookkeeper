@@ -88,18 +88,6 @@ export class FetchClient {
       }
     }
   }
-  catch(e: any) {
-    if (e instanceof BkError || e instanceof AuthenticationError) {
-      throw e;
-    }
-    const data = { ...e };
-    throw new BkError(
-      'code' in data ? data.code : 'ERROR',
-      'cause' in data ? data.cause : e,
-      'status' in data ? data.status : 500,
-      data,
-    );
-  }
 
   private async readResponse<T>(res: ResponseType): Promise<T> {
     const type = res.headers.get('content-type') ?? '';
