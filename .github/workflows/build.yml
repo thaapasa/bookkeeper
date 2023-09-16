@@ -54,7 +54,7 @@ jobs:
         id: run-tests
         run: bun test
 
-      - name: Tests failed, dump server logs (See previous step for test logs)
+      - name: Dump server logs if tests failed
         if: failure()
         run: |
           echo "Tests failed, dumping server logs"
