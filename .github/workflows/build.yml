@@ -48,7 +48,9 @@ jobs:
         run: bun build-server
 
       - name: Start server
-        run: ./script/start-server.sh
+        run: |
+           ./script/start-server.sh
+           sleep 1
 
       - name: Run tests
         id: run-tests
@@ -59,4 +61,3 @@ jobs:
         run: |
           echo "Tests failed, dumping server logs"
           cat log/server.log | bun pino-pretty
-          exit 1
