@@ -56,45 +56,49 @@ export class FetchClient {
       headers?: Record<string, string>;
     },
   ): Promise<T> {
+    const queryPath = this.toQuery(path, query);
+    this.logger?.debug(body, `${method} ${queryPath} with body`);
+    const options = {
+      method,
+      body: body ? JSON.stringify(body) : undefined,
+      headers,
+    };
+    let res: ResponseType;
     try {
-      const queryPath = this.toQuery(path, query);
-      this.logger?.debug(body, `${method} ${queryPath} with body`);
-      const options = {
-        method,
-        body: body ? JSON.stringify(body) : undefined,
-        headers,
-      };
-      const res = await this.fetch(queryPath, options);
-      this.logger?.debug(`${method} ${queryPath} -> ${res.status}`);
-      switch (res.status) {
-        case 200:
-          return await this.readResponse<T>(res);
-        case 401:
-        case 403:
-          throw new AuthenticationError('Unauthorized: ' + res.status, await res.json());
-        default: {
-          const data = await res.json();
-          this.logger?.warn(data, 'Error received from API');
-          throw new BkError(
-            'code' in data ? data.code : 'ERROR',
-            `Error ${res.status} from ${method} ${path}`,
-            res.status,
-            data,
-          );
-        }
-      }
-    } catch (e: any) {
-      if (e instanceof BkError || e instanceof AuthenticationError) {
-        throw e;
-      }
-      const data = { ...e };
-      throw new BkError(
-        'code' in data ? data.code : 'ERROR',
-        'cause' in data ? data.cause : e,
-        'status' in data ? data.status : 500,
-        data,
-      );
+      res = await this.fetch(queryPath, options);
+    } catch (e) {
+      throw new BkError(`NETWORK_ERROR`, e, 0);
     }
+    this.logger?.debug(`${method} ${queryPath} -> ${res.status}`);
+    switch (res.status) {
+      case 200:
+        return await this.readResponse<T>(res);
+      case 401:
+      case 403:
+        throw new AuthenticationError('Unauthorized: ' + res.status, await res.json());
+      default: {
+        const data = await res.json();
+        this.logger?.warn(data, 'Error received from API');
+        throw new BkError(
+          'code' in data ? data.code : 'ERROR',
+          `Error ${res.status} from ${method} ${path}`,
+          res.status,
+          data,
+        );
+      }
+    }
+  }
+  catch(e: any) {
+    if (e instanceof BkError || e instanceof AuthenticationError) {
+      throw e;
+    }
+    const data = { ...e };
+    throw new BkError(
+      'code' in data ? data.code : 'ERROR',
+      'cause' in data ? data.cause : e,
+      'status' in data ? data.status : 500,
+      data,
+    );
   }
 
   private async readResponse<T>(res: ResponseType): Promise<T> {
