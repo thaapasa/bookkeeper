@@ -1,4 +1,4 @@
-name: Test bookkeper
+name: Test Bookkeper
 
 on: [workflow_dispatch, push]
 
@@ -63,4 +63,3 @@ jobs:
 
       - name: Stop server
         run: ./script/stop-server.sh
-    
