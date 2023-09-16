@@ -98,9 +98,10 @@ export class FetchClient {
   }
 
   private async readResponse<T>(res: ResponseType): Promise<T> {
-    const type = res.headers.get('content-type');
+    const type = res.headers.get('content-type') ?? '';
+    const [simpleType] = type.split(';');
 
-    switch (type) {
+    switch (simpleType) {
       case ContentTypes.html:
       case ContentTypes.text:
         return (await res.text()) as T;
