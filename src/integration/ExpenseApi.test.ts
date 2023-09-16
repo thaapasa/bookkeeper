@@ -40,7 +40,7 @@ describe('expense', () => {
     const id = checkCreateStatus(res);
     const e = await session.get(`/api/expense/${id}`);
     expect(e).toMatchObject({
-      title: 'Karkkia ja porkkanaa!',
+      title: 'Karkkia ja porkkanaa',
       date: '2018-01-22',
       sum: '10.51',
       description: null,
