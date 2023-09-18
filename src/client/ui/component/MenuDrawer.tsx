@@ -52,7 +52,7 @@ export const MenuDrawer: React.FC<MenuDrawerProps> = ({
     <Drawer open={open} anchor="left" onClose={onClose}>
       <GroupName>{group.name}</GroupName>
       <ItemArea>
-        <UserInfo onClick={() => navigate(profilePagePath)}>
+        <UserInfo onClick={() => onSelect(profilePagePath)}>
           <UserAvatar user={user} size={40} />
           <UserName>
             {user.firstName} {user.lastName}
