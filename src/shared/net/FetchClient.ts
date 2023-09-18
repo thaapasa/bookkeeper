@@ -72,6 +72,7 @@ export class FetchClient {
     this.logger?.debug(`${method} ${queryPath} -> ${res.status}`);
     switch (res.status) {
       case 200:
+      case 204:
         return await this.readResponse<T>(res);
       case 401:
       case 403:
@@ -90,6 +91,10 @@ export class FetchClient {
   }
 
   private async readResponse<T>(res: ResponseType): Promise<T> {
+    if (res.status === 204) {
+      // Server indicated NO CONTENT, don't try to parse it
+      return undefined as T;
+    }
     const type = res.headers.get('content-type') ?? '';
     const [simpleType] = type.split(';');
 

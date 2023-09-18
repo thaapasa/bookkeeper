@@ -140,4 +140,8 @@ export const PageContentContainer = styled('div')`
   &.padded {
     padding: 24px;
   }
+
+  &.center {
+    align-items: center;
+  }
 `;

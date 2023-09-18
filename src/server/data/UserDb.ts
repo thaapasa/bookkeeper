@@ -1,6 +1,6 @@
 import { ITask } from 'pg-promise';
 
-import { AuthenticationError, Group, NotFoundError, User } from 'shared/types';
+import { AuthenticationError, Email, Group, NotFoundError, ObjectId, User } from 'shared/types';
 
 export type RawUserData = Record<string, any>;
 
@@ -32,7 +32,7 @@ export async function getAllUsers(tx: ITask<any>, groupId: number): Promise<User
 
 export async function getUserById(tx: ITask<any>, groupId: number, userId: number): Promise<User> {
   const user = await tx.oneOrNone<RawUserData>(
-    `${select}
+    /*sql*/ `${select}
       WHERE id=$/userId/::INTEGER AND
         (SELECT COUNT(*) FROM group_users WHERE user_id=u.id AND group_id=COALESCE($/groupId/, u.default_group_id)) > 0`,
     { userId, groupId },
@@ -75,4 +75,31 @@ export async function getUserByCredentials(
     throw new AuthenticationError('INVALID_CREDENTIALS', 'Invalid username or password');
   }
   return user;
+}
+
+export async function getUserByEmail(
+  tx: ITask<any>,
+  email: Email,
+): Promise<RawUserData | undefined> {
+  const user = await tx.oneOrNone<RawUserData>(
+    /*sql*/ `${select}
+    WHERE email=$/email/`,
+    { email },
+  );
+  return user ?? undefined;
+}
+
+export async function updateUserDataById(
+  tx: ITask<any>,
+  userId: ObjectId,
+  firstName: string,
+  lastName: string,
+  email: Email,
+): Promise<void> {
+  await tx.none(
+    `UPDATE users
+      SET first_name=$/firstName/, last_name=$/lastName/, email=$/email/
+      WHERE id=$/userId/`,
+    { userId, firstName, lastName, email },
+  );
 }

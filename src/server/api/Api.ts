@@ -11,6 +11,7 @@ import { config } from '../Config';
 import { getDbStatus } from '../data/admin/Admin';
 import { createCategoryApi } from './CategoryApi';
 import { createExpenseApi } from './ExpenseApi';
+import { createProfileApi } from './ProfileApi';
 import { createReceiverApi } from './ReceiverApi';
 import { createReportApi } from './ReportApi';
 import { createSessionApi } from './SessionApi';
@@ -25,6 +26,7 @@ export function createApi() {
 
   // Attach subrouters
   api.use('/session', createSessionApi());
+  api.use('/profile', createProfileApi());
   api.use('/category', createCategoryApi());
   api.use('/expense', createExpenseApi());
   api.use('/subscription', createSubscriptionApi());

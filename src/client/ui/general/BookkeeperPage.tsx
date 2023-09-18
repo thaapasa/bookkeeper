@@ -12,6 +12,7 @@ import {
   expensePagePath,
   infoPagePath,
   newExpensePath,
+  profilePagePath,
   searchPagePath,
   shortcutsPage,
   statisticsPage,
@@ -32,6 +33,7 @@ import { NewExpenseView } from '../expense/NewExpenseView';
 import { RoutedMonthView } from '../expense/RoutedMonthView';
 import { ExpenseSplitDialog } from '../expense/split/ExpenseSplitDialog';
 import { InfoView } from '../info/InfoView';
+import { ProfileView } from '../profile/ProfileView';
 import { SearchView } from '../search/SearchView';
 import { StatisticsView } from '../statistics/StatisticsView';
 import {
@@ -122,6 +124,7 @@ export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
               <Route path={`${searchPagePath}/y/:year`} element={<SearchView />} />
               <Route path={searchPagePath} element={<SearchView />} />
               <Route path={statisticsPage} element={<StatisticsView />} />
+              <Route path={profilePagePath} element={<ProfileView />} />
               <Route path={infoPagePath} element={<InfoView />} />
               <Route path={toolsPagePath} element={<ToolsView />} />
               <Route path="/" element={<FrontpageView />} />
@@ -173,12 +176,3 @@ const MainContent = styled('div')`
     width: ${mainContentMaxWidth}px;
   }
 `;
-
-/** This disables LastPass icon on text fields */
-/*
-const GlobalStyle = createGlobalStyle`
-  div[id^='__lpform_'] {
-    display: none;
-  }
-`;
-*/

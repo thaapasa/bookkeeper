@@ -31,6 +31,7 @@ import {
   Source,
   SourcePatch,
   StatisticsSearchType,
+  UserDataUpdate,
 } from 'shared/types';
 import { filterDefinedProps, Money } from 'shared/util';
 import { logger } from 'client/Logger';
@@ -313,6 +314,9 @@ export class ApiConnect {
     };
     return this.post<ReportDef>(uri`/api/report`, body);
   };
+
+  public updateUserData = (userData: UserDataUpdate): Promise<void> =>
+    this.put(uri`/api/profile/userData`, userData);
 
   public deleteReport = (reportId: ObjectId) => this.del<ApiMessage>(uri`/api/report/${reportId}`);
 
