@@ -4,6 +4,12 @@ pushd . >/dev/null
 cd `dirname $0`/..
 
 HOST=kukkaro.pomeranssi.fi
+BRANCH=`git branch --show-current`
+
+if [ "$BRANCH" != "master" ] ; then
+  echo "Only deploy from the master branch!"
+  exit 1
+fi
 
 export REV=`git rev-parse HEAD | cut -c 1-8`
 script/build-prod.sh
