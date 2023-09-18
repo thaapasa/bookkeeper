@@ -6,6 +6,7 @@ import { Group, User } from 'shared/types';
 import { config } from 'client/Config';
 import { logout, validSessionE } from 'client/data/Login';
 import { reloadApp } from 'client/util/ClientUtil';
+import { profilePagePath } from 'client/util/Links';
 
 import { colorScheme } from '../Colors';
 import { RenderIcon } from '../icons/Icons';
@@ -51,7 +52,7 @@ export const MenuDrawer: React.FC<MenuDrawerProps> = ({
     <Drawer open={open} anchor="left" onClose={onClose}>
       <GroupName>{group.name}</GroupName>
       <ItemArea>
-        <UserInfo>
+        <UserInfo onClick={() => navigate(profilePagePath)}>
           <UserAvatar user={user} size={40} />
           <UserName>
             {user.firstName} {user.lastName}
@@ -107,6 +108,7 @@ const UserInfo = styled('div')`
   justify-content: flex-start;
   display: flex;
   border-bottom: 1px solid ${colorScheme.gray.standard};
+  cursor: pointer;
 `;
 
 const UserName = styled('span')`
