@@ -3,7 +3,7 @@ import { ITask } from 'pg-promise';
 import { z } from 'zod';
 
 import { timeout } from 'shared/time';
-import { InvalidGroupError, SessionBasicInfo, validateOr } from 'shared/types';
+import { InvalidGroupError, isDefined, SessionBasicInfo, validateOr } from 'shared/types';
 import { MaybePromise, optNumber } from 'shared/util';
 import { getSessionByToken } from 'server/data/SessionDb';
 import { logger } from 'server/Logger';
@@ -23,8 +23,9 @@ function processUnauthorizedRequest<T>(
       }
       logger.info('%s %s', req.method, req.originalUrl);
       const r = await handler(req, res);
+      const status = isDefined(r) ? 200 : 204;
       // Handler succeeded: output response
-      ServerUtil.setNoCacheHeaders(res).json(r);
+      ServerUtil.setNoCacheHeaders(res).status(status).json(r);
     } catch (e) {
       // Handler failed: pass error to error handler
       next(e);
