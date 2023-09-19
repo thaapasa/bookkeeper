@@ -5,34 +5,31 @@ import { z } from 'zod';
 import { timeout } from 'shared/time';
 import { InvalidGroupError, isDefined, SessionBasicInfo, validateOr } from 'shared/types';
 import { MaybePromise, optNumber } from 'shared/util';
+import { config } from 'server/Config';
 import { getSessionByToken } from 'server/data/SessionDb';
 import { logger } from 'server/Logger';
-import { newLocalContext } from 'server/logging/RequestLogging';
 
 import { db } from '../data/Db';
 import { ServerUtil } from './ServerUtil';
 
-const requestDelayMs = process.env.DELAY ? parseInt(process.env.DELAY, 10) : undefined;
-
 function processUnauthorizedRequest<T>(
   handler: (req: Request, res: Response) => MaybePromise<T>,
 ): RequestHandler {
-  return async (req: Request, res: Response, next: NextFunction): Promise<void> =>
-    newLocalContext(async () => {
-      try {
-        if (requestDelayMs) {
-          await timeout(requestDelayMs);
-        }
-        logger.info('%s %s', req.method, req.originalUrl);
-        const r = await handler(req, res);
-        const status = isDefined(r) ? 200 : 204;
-        // Handler succeeded: output response
-        ServerUtil.setNoCacheHeaders(res).status(status).json(r);
-      } catch (e) {
-        // Handler failed: pass error to error handler
-        next(e);
+  return async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      if (config.delayRequestsMs) {
+        await timeout(config.delayRequestsMs);
       }
-    });
+      logger.info('%s %s', req.method, req.originalUrl);
+      const r = await handler(req, res);
+      const status = isDefined(r) ? 200 : 204;
+      // Handler succeeded: output response
+      ServerUtil.setNoCacheHeaders(res).status(status).json(r);
+    } catch (e) {
+      // Handler failed: pass error to error handler
+      next(e);
+    }
+  };
 }
 
 function processUnauthorizedTxRequest<T>(
@@ -45,16 +42,14 @@ function processRequest<T>(
   handler: (session: SessionBasicInfo, req: Request, res: Response) => MaybePromise<T>,
   groupRequired?: boolean,
 ): RequestHandler {
-  return processUnauthorizedRequest(async (req, res) =>
-    newLocalContext(async () => {
-      const token = ServerUtil.getToken(req);
-      const session = await db.tx(tx => getSessionByToken(tx, token, optNumber(req.query.groupId)));
-      if (groupRequired && !session.group.id) {
-        throw new InvalidGroupError();
-      }
-      return await handler(session, req, res);
-    }),
-  );
+  return processUnauthorizedRequest(async (req, res) => {
+    const token = ServerUtil.getToken(req);
+    const session = await db.tx(tx => getSessionByToken(tx, token, optNumber(req.query.groupId)));
+    if (groupRequired && !session.group.id) {
+      throw new InvalidGroupError();
+    }
+    return await handler(session, req, res);
+  });
 }
 
 function processTxRequest<T>(

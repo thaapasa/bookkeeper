@@ -10,21 +10,24 @@ function isUserError(status: number) {
 }
 
 export function createErrorHandler() {
-  return (err: any, req: express.Request, res: express.Response, _: express.NextFunction) => {
-    const status = typeof err.status === 'number' ? err.status : 500;
+  return (err: any, req: express.Request, res: express.Response, _: express.NextFunction) =>
+    processError(err, req, res);
+}
 
-    const shouldShowError = logUserErrors || !isUserError(status);
-    logger.error(
-      shouldShowError ? err : { error: err.message },
-      `Error processing ${req.method} ${req.path} -> ${status}`,
-    );
-    const data: ErrorInfo = {
-      ...(config.showErrorCause ? err : undefined),
-      type: 'error',
-      code: err.code ? err.code : 'INTERNAL_ERROR',
-    };
-    res.status(status).json(data);
+export function processError(err: any, req: express.Request, res: express.Response) {
+  const status = typeof err.status === 'number' ? err.status : 500;
+
+  const shouldShowError = logUserErrors || !isUserError(status);
+  logger.error(
+    shouldShowError ? err : { error: err.message },
+    `Error processing ${req.method} ${req.path} -> ${status}`,
+  );
+  const data: ErrorInfo = {
+    ...(config.showErrorCause ? err : undefined),
+    type: 'error',
+    code: err.code ? err.code : 'INTERNAL_ERROR',
   };
+  res.status(status).json(data);
 }
 
 interface ErrorInfo {

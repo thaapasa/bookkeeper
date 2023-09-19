@@ -24,6 +24,9 @@ class Config {
   public webhookUrl: string | undefined = process.env.SLACK_WEBHOOK_URL;
 
   public logRequestId: boolean = process.env.LOG_REQUEST_ID !== 'false';
+  public delayRequestsMs: number | undefined = process.env.DELAY
+    ? parseInt(process.env.DELAY, 10)
+    : undefined;
 }
 
 export const config = new Config();

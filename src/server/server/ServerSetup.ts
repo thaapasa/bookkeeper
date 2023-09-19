@@ -4,6 +4,7 @@ import nocache from 'nocache';
 import * as path from 'path';
 
 import { createApi } from 'server/api/Api';
+import { traceLogMiddleware } from 'server/logging/TraceIdProvider';
 
 const curDir = process.cwd();
 
@@ -14,6 +15,7 @@ export function setupServer() {
   app.use(bodyParser.json());
   app.use(nocache());
 
+  app.use(traceLogMiddleware());
   app.use('/api', createApi());
 
   app.get(/\/p\/.*/, (_, res) => res.sendFile(path.join(curDir + '/public/index.html')));

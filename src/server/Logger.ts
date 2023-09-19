@@ -1,7 +1,7 @@
 import pino from 'pino';
 
 import { config } from './Config';
-import { instrumentLogger } from './logging/RequestLogging';
+import { instrumentLogger } from './logging/TraceIdProvider';
 
 function debugLogger() {
   return pino({ level: config.logLevel });

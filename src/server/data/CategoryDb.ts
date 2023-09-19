@@ -86,16 +86,16 @@ async function insert(tx: ITask<any>, groupId: number, data: CategoryInput): Pro
 export async function getCategoryById(
   tx: ITask<any>,
   groupId: number,
-  id: number,
+  categoryId: number,
 ): Promise<Category> {
   const cat = await tx.oneOrNone<Category>(
     `SELECT id, parent_id as "parentId", name
       FROM categories
-      WHERE id=$/id/::INTEGER AND group_id=$/groupId/::INTEGER`,
-    { id, groupId },
+      WHERE id=$/categoryId/ AND group_id=$/groupId/`,
+    { categoryId, groupId },
   );
   if (!cat) {
-    throw new NotFoundError('CATEGORY_NOT_FOUND', 'category');
+    throw new NotFoundError('CATEGORY_NOT_FOUND_1', 'category', categoryId);
   }
   return cat as Category;
 }
@@ -122,14 +122,21 @@ export async function createCategory(
 export async function deleteCategory(
   tx: ITask<any>,
   groupId: number,
-  id: number,
+  categoryId: number,
 ): Promise<ApiMessage> {
-  await tx.none(
+  const category = await getCategoryById(tx, groupId, categoryId);
+  if (!category) {
+    throw new NotFoundError('CATEGORY_NOT_FOUND', 'category', categoryId);
+  }
+
+  await tx.one(
     `DELETE FROM categories
-      WHERE id=$/id/::INTEGER AND group_id=$/groupId/::INTEGER`,
-    { id, groupId },
+      WHERE id=$/categoryId/ AND group_id=$/groupId/
+      RETURNING id`,
+    { categoryId, groupId },
   );
-  return { status: 'OK', message: 'Category deleted', categoryId: id };
+  logger.info(category, `Deleted category`);
+  return { status: 'OK', message: 'Category deleted', categoryId };
 }
 
 export async function updateCategory(
@@ -140,8 +147,9 @@ export async function updateCategory(
 ) {
   const original = await getCategoryById(tx, groupId, categoryId);
   if (!original) {
-    throw new NotFoundError('CATEGORY_NOT_FOUND', 'category');
+    throw new NotFoundError('CATEGORY_NOT_FOUND', 'category', categoryId);
   }
+  logger.info({ data }, `Updating category ${categoryId}`);
   await tx.none(
     `UPDATE categories
       SET parent_id=$/parentId/::INTEGER, name=$/name/
