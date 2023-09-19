@@ -20,11 +20,12 @@ function processUnauthorizedRequest<T>(
       if (config.delayRequestsMs) {
         await timeout(config.delayRequestsMs);
       }
-      logger.info('%s %s', req.method, req.originalUrl);
+      logger.info(`${req.method} ${req.originalUrl}`);
       const r = await handler(req, res);
       const status = isDefined(r) ? 200 : 204;
       // Handler succeeded: output response
       ServerUtil.setNoCacheHeaders(res).status(status).json(r);
+      logger.debug(`${req.method} ${req.originalUrl} → HTTP ${status}`);
     } catch (e) {
       // Handler failed: pass error to error handler
       next(e);

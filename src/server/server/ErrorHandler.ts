@@ -21,7 +21,7 @@ export function processError(err: any, req: express.Request, res: express.Respon
   const shouldShowError = logUserErrors || !isUserError(status);
   logger.error(
     shouldShowError ? err : { error: err.message },
-    `Error processing ${req.method} ${req.path} -> ${status}`,
+    `${req.method} ${req.originalUrl} -> HTTP ${status}`,
   );
   const data: ErrorInfo = {
     ...(config.showErrorCause ? err : undefined),

@@ -10,7 +10,7 @@ module.exports = {
       parts.push(colorizer.greyMessage(`[${log.traceId}]`))
     }
     parts.push(log.msg)
-    if (log.timeMs) {
+    if (log.timeMs !== undefined) {
       parts.push(colorizer.greyMessage(`(+${log.timeMs}ms)`))
     }
     return parts.join(" ")
