@@ -110,7 +110,7 @@ export async function updateUserDataById(
     {
       userId,
       firstName: userData.firstName,
-      lastName: userData.firstName,
+      lastName: userData.lastName,
       username: userData.username,
       email: userData.email,
     },
