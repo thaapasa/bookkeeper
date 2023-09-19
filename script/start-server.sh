@@ -40,4 +40,4 @@ echo
 sleep 0.33
 
 echo "Server started, startup logs:"
-cat log/server.log | bun pino-pretty
+cat log/server.log | bun pino-pretty --config .pino-prettyrc.js

@@ -59,7 +59,7 @@ jobs:
         if: failure()
         run: |
           echo "Tests failed, dumping server logs"
-          cat log/server.log | bun pino-pretty
+          cat log/server.log | bun pino-pretty --config .pino-prettyrc.js
 
       - name: Report build status to Slack
         if: failure()

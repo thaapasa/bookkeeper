@@ -7,15 +7,23 @@ import { config } from 'server/Config';
 
 export const traceIdStorage = new AsyncLocalStorage();
 
-export function getCurrentTraceId() {
-  const s = traceIdStorage.getStore() as string | undefined;
+interface TraceState {
+  startTime: number;
+  traceId: string;
+}
+
+export function getCurrentTraceState() {
+  const s = traceIdStorage.getStore() as TraceState | undefined;
   return s ?? undefined;
 }
 
 export async function initTraceContext<T>(func: () => T | Promise<T>): Promise<T> {
   // Initialize new local context
-  const traceId = nextRequestId();
-  return await traceIdStorage.run(traceId, func);
+  const state: TraceState = {
+    traceId: nextRequestId(),
+    startTime: new Date().getTime(),
+  };
+  return await traceIdStorage.run(state, func);
 }
 
 export function traceLogMiddleware() {
@@ -48,16 +56,18 @@ export function instrumentLogger(logger: Logger): Logger {
 function transformLogFn(logger: Logger, method: LogMethod) {
   const orgImpl = logger[method];
   logger[method] = (...args: any[]) => {
-    const traceId = getCurrentTraceId();
-    if (traceId) {
+    const state = getCurrentTraceState();
+    if (state) {
+      const timeFromStart = new Date().getTime() - state.startTime;
       // Only change arguments when the requestId is defined
       if (typeof args[0] === 'object' && args[0] && args[0].traceId === undefined) {
         // First argument is the logging object; so add request id to it
-        args[0].traceId = traceId;
+        args[0].traceId = state.traceId;
+        args[0].timeMs = timeFromStart;
       } else if (typeof args[0] === 'string') {
         // First argument is the log format string, so add a new logging object
         // with the request id
-        args.unshift({ traceId });
+        args.unshift({ traceId: state.traceId, timeMs: timeFromStart });
       }
     }
     // Call original method
