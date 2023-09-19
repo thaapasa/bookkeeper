@@ -17,5 +17,6 @@ export function setupServer() {
   app.use('/api', createApi());
 
   app.get(/\/p\/.*/, (_, res) => res.sendFile(path.join(curDir + '/public/index.html')));
+
   return app;
 }

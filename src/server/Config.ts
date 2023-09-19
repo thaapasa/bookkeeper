@@ -22,6 +22,8 @@ class Config {
   public dbUrl = process.env.DB_URL || 'postgresql://postgres:postgres@localhost/postgres';
   public dbSSL: boolean = process.env.DB_SSL === 'true';
   public webhookUrl: string | undefined = process.env.SLACK_WEBHOOK_URL;
+
+  public logRequestId: boolean = process.env.LOG_REQUEST_ID !== 'false';
 }
 
 export const config = new Config();

@@ -1,6 +1,7 @@
 import pino from 'pino';
 
 import { config } from './Config';
+import { instrumentLogger } from './logging/RequestLogging';
 
 function debugLogger() {
   return pino({ level: config.logLevel });
@@ -14,4 +15,6 @@ function prodLogger() {
   return pino(transport);
 }
 
-export const logger = config.environment === 'development' ? debugLogger() : prodLogger();
+export const logger = instrumentLogger(
+  config.environment === 'development' ? debugLogger() : prodLogger(),
+);

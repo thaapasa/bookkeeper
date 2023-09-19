@@ -4,6 +4,7 @@ export * from './IdProvider';
 export * from './Money';
 export * from './Objects';
 export * from './Promise';
+export * from './RequestId';
 export * from './Strings';
 export * from './Symbols';
 export * from './Util';
