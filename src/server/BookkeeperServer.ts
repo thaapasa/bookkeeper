@@ -3,6 +3,7 @@ import { Server } from 'http';
 import { config } from './Config';
 import { shutdownDb } from './data/Db';
 import { logger } from './Logger';
+import { fixDbTraceLeak } from './logging/TraceIdProvider';
 import { logError } from './notifications/ErrorLogger';
 import { slackNotifier } from './notifications/SlackNotifier';
 import { setupServer } from './server/ServerSetup';
@@ -38,6 +39,7 @@ async function shutdownServer() {
 }
 
 try {
+  void fixDbTraceLeak();
   runningServer = app.listen(config.port, () => {
     process.on('SIGTERM', shutdownServer);
 
