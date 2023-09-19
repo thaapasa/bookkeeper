@@ -1,6 +1,14 @@
 import { ITask } from 'pg-promise';
 
-import { AuthenticationError, Email, Group, NotFoundError, ObjectId, User } from 'shared/types';
+import {
+  AuthenticationError,
+  Email,
+  Group,
+  NotFoundError,
+  ObjectId,
+  User,
+  UserDataUpdate,
+} from 'shared/types';
 
 export type RawUserData = Record<string, any>;
 
@@ -92,14 +100,19 @@ export async function getUserByEmail(
 export async function updateUserDataById(
   tx: ITask<any>,
   userId: ObjectId,
-  firstName: string,
-  lastName: string,
-  email: Email,
+  userData: UserDataUpdate,
 ): Promise<void> {
   await tx.none(
     `UPDATE users
-      SET first_name=$/firstName/, last_name=$/lastName/, email=$/email/
+      SET first_name=$/firstName/, last_name=$/lastName/,
+        username=$/username/, email=$/email/
       WHERE id=$/userId/`,
-    { userId, firstName, lastName, email },
+    {
+      userId,
+      firstName: userData.firstName,
+      lastName: userData.firstName,
+      username: userData.username,
+      email: userData.email,
+    },
   );
 }

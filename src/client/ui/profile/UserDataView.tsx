@@ -13,7 +13,7 @@ import { TextEdit } from '../component/TextEdit';
 import { Text } from '../design/Text';
 import { ProfileItem } from './ProfileItem';
 
-type UpdateUserData = 'setFirstName' | 'setLastName' | 'setEmail';
+type UpdateUserData = 'setFirstName' | 'setLastName' | 'setEmail' | 'setUsername';
 type UserDataAction =
   | {
       type: UpdateUserData;
@@ -28,6 +28,7 @@ function userDataReducer(state: UserDataUpdate, action: UserDataAction): UserDat
         firstName: action.data?.firstName ?? '',
         lastName: action.data?.lastName ?? '',
         email: action.data?.email ?? '',
+        username: action.data?.username ?? '',
       };
     case 'setFirstName':
       return { ...state, firstName: action.value };
@@ -35,6 +36,8 @@ function userDataReducer(state: UserDataUpdate, action: UserDataAction): UserDat
       return { ...state, lastName: action.value };
     case 'setEmail':
       return { ...state, email: action.value };
+    case 'setUsername':
+      return { ...state, username: action.value };
     default:
       logger.warn(action, 'Unrecognized action');
       return state;
@@ -48,11 +51,12 @@ export const UserDataView: React.FC<{ session: Session }> = ({ session }) => {
   const [saveOperation, setSaving] = React.useState<AsyncData<any>>(UninitializedData);
 
   const emailValid = isEmail(state.email);
-  const dataValid = state.firstName && state.lastName && emailValid;
+  const dataValid = state.firstName && state.lastName && state.username && emailValid;
   const changed =
     state.firstName !== user.firstName ||
     state.lastName !== user.lastName ||
-    state.email !== user.email;
+    state.email !== user.email ||
+    state.username !== user.username;
 
   const isSaving = saveOperation.type === 'loading';
 
@@ -81,6 +85,8 @@ export const UserDataView: React.FC<{ session: Session }> = ({ session }) => {
         <TextEdit
           onChange={value => dispatch({ type: 'setFirstName', value })}
           value={state.firstName}
+          autoCapitalize="off"
+          autoCorrect="off"
           placeholder="Selma"
           onSubmitEdit={save}
           width="120px"
@@ -90,6 +96,8 @@ export const UserDataView: React.FC<{ session: Session }> = ({ session }) => {
         <TextEdit
           onChange={value => dispatch({ type: 'setLastName', value })}
           value={state.lastName}
+          autoCapitalize="off"
+          autoCorrect="off"
           placeholder="Säästäjä"
           onSubmitEdit={save}
           width="200px"
@@ -101,10 +109,27 @@ export const UserDataView: React.FC<{ session: Session }> = ({ session }) => {
         <TextEdit
           onChange={value => dispatch({ type: 'setEmail', value })}
           value={state.email}
+          autoCapitalize="off"
+          autoCorrect="off"
           placeholder="selma.saastaja@example.com"
           onSubmitEdit={save}
           width="280px"
           error={!emailValid}
+          disabled={isSaving}
+        />
+      </ProfileItem>
+      <ProfileItem title="Käyttäjätunnus">
+        <TextEdit
+          name="username"
+          onChange={value => dispatch({ type: 'setUsername', value })}
+          value={state.username}
+          autoComplete="username"
+          autoCapitalize="off"
+          autoCorrect="off"
+          placeholder="selma"
+          onSubmitEdit={save}
+          width="280px"
+          error={!state.username}
           disabled={isSaving}
         />
       </ProfileItem>

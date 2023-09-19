@@ -7,6 +7,7 @@ export const UserDataUpdate = z.object({
   firstName: z.string().trim().nonempty(),
   lastName: z.string().trim().nonempty(),
   email: Email,
+  username: z.string().trim().nonempty(),
 });
 export type UserDataUpdate = z.infer<typeof UserDataUpdate>;
 
@@ -15,5 +16,6 @@ export function toUserData(user: User): UserDataUpdate {
     firstName: user.firstName,
     lastName: user.lastName,
     email: user.email,
+    username: user.username,
   };
 }

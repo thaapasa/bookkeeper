@@ -20,5 +20,5 @@ export async function updateUserData(
     }
   }
   logger.info({ from: toUserData(user), to: userData }, `Updating user data for user ${userId}`);
-  await updateUserDataById(tx, userId, userData.firstName, userData.lastName, userData.email);
+  await updateUserDataById(tx, userId, userData);
 }
