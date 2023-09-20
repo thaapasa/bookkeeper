@@ -1,6 +1,6 @@
 import { ITask } from 'pg-promise';
 
-import { AuthenticationError, Email, Group, NotFoundError, ObjectId, User } from 'shared/types';
+import { Email, Group, NotFoundError, ObjectId, User } from 'shared/types';
 import { UserDataUpdate } from 'shared/userData';
 
 export type RawUserData = Record<string, any>;
@@ -59,7 +59,7 @@ export async function getUserByCredentials(
   username: string,
   password: string,
   groupId?: number,
-): Promise<RawUserData> {
+): Promise<RawUserData | undefined> {
   const user = await tx.oneOrNone<RawUserData>(
     `SELECT u.id,
         username, email, first_name as "firstName", last_name as "lastName",
@@ -72,10 +72,7 @@ export async function getUserByCredentials(
       WHERE username=$/username/ AND password=ENCODE(DIGEST($/password/, 'sha1'), 'hex')`,
     { username, password, groupId },
   );
-  if (!user) {
-    throw new AuthenticationError('INVALID_CREDENTIALS', 'Invalid username or password');
-  }
-  return user;
+  return user ?? undefined;
 }
 
 export async function getUserByEmail(

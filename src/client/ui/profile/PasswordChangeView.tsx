@@ -59,7 +59,10 @@ export const PasswordChangeView: React.FC<{ session: Session }> = ({}) => {
       return;
     }
     executeOperation(() => changeUserPassword(toPasswordUpdate(state)), {
-      postProcess: () => notify('Salasana vaihdettu!'),
+      postProcess: () => {
+        notify('Salasana vaihdettu!');
+        state.reset();
+      },
       trackProgress: state.setSaving,
     });
   };

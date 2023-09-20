@@ -106,6 +106,9 @@ export async function loginUserWithCredentials(
 ): Promise<Session> {
   logger.info('Login for %s', username);
   const user = await getUserByCredentials(tx, username, password, groupId);
+  if (!user) {
+    throw new AuthenticationError('INVALID_CREDENTIALS', 'Invalid username or password');
+  }
   const tokens = await createSession(tx, user);
   const sessionInfo = createSessionInfo(tokens, user);
   return appendInfoToSession(tx, sessionInfo);

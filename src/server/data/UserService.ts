@@ -1,6 +1,6 @@
 import { ITask } from 'pg-promise';
 
-import { AuthenticationError, BkError, ObjectId } from 'shared/types';
+import { BkError, InvalidInputError, ObjectId } from 'shared/types';
 import { PasswordUpdate, toUserData, UserDataUpdate } from 'shared/userData';
 import { logger } from 'server/Logger';
 
@@ -38,8 +38,8 @@ export async function changeUserPassword(
 ) {
   const user = await getUserById(tx, groupId, userId);
   const userByPw = await getUserByCredentials(tx, user.username, passwordUpdate.currentPassword);
-  if (user.id !== userByPw.id) {
-    throw new AuthenticationError('USER_MISMATCH', 'User does not match user from session');
+  if (!userByPw || user.id !== userByPw.id) {
+    throw new InvalidInputError('INVALID_CURRENT_PASSWORD', 'Current password is invalid');
   }
 
   logger.info(`Updating password for user ${userId}`);
