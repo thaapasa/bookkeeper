@@ -2,7 +2,8 @@ import { Button, CircularProgress } from '@mui/material';
 import React from 'react';
 import { create } from 'zustand';
 
-import { isEmail, Session, UserDataUpdate } from 'shared/types';
+import { isEmail, Session } from 'shared/types';
+import { UserDataUpdate } from 'shared/userData';
 import apiConnect from 'client/data/ApiConnect';
 import { AsyncData, UninitializedData } from 'client/data/AsyncData';
 import { updateSession } from 'client/data/Login';

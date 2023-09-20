@@ -1,7 +1,8 @@
 import { z } from 'zod';
 
-import { Email } from './Email';
-import { User } from './Session';
+import { Email } from '../types/Email';
+import { User } from '../types/Session';
+import { Password } from './Password';
 
 export const UserDataUpdate = z.object({
   firstName: z.string().trim().nonempty(),
@@ -19,3 +20,9 @@ export function toUserData(user: User): UserDataUpdate {
     username: user.username,
   };
 }
+
+export const PasswordUpdate = z.object({
+  currentPassword: z.string().trim().nonempty(),
+  newPassword: Password,
+});
+export type PasswordUpdate = z.infer<typeof PasswordUpdate>;

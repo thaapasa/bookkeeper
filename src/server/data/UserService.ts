@@ -1,6 +1,7 @@
 import { ITask } from 'pg-promise';
 
-import { BkError, ObjectId, toUserData, UserDataUpdate } from 'shared/types';
+import { BkError, ObjectId } from 'shared/types';
+import { toUserData, UserDataUpdate } from 'shared/userData';
 import { logger } from 'server/Logger';
 
 import { getUserByEmail, getUserById, updateUserDataById } from './UserDb';

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import { UserDataUpdate } from 'shared/types';
+import { UserDataUpdate } from 'shared/userData';
 import { updateUserData } from 'server/data/UserService';
 import { createValidatingRouter } from 'server/server/ValidatingRouter';
 

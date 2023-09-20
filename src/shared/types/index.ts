@@ -9,5 +9,4 @@ export * from './Primitives';
 export * from './Session';
 export * from './Source';
 export * from './Statistics';
-export * from './UserData';
 export * from './Validation';
