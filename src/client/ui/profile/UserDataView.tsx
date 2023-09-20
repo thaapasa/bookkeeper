@@ -39,6 +39,15 @@ export const useUserDataState = create<UserDataState>(set => ({
   setSaving: saving => set({ saving }),
 }));
 
+function toUserDataUpdate(state: UserDataState): UserDataUpdate {
+  return {
+    firstName: state.firstName,
+    lastName: state.lastName,
+    username: state.username,
+    email: state.email,
+  };
+}
+
 export const UserDataView: React.FC<{ session: Session }> = ({ session }) => {
   const user = session.user;
 
@@ -65,7 +74,7 @@ export const UserDataView: React.FC<{ session: Session }> = ({ session }) => {
       logger.debug('Skipping submit, no changes or invalid data');
       return;
     }
-    executeOperation(() => saveUserData(state), {
+    executeOperation(() => saveUserData(toUserDataUpdate(state)), {
       postProcess: () => notify('Profiilitiedot tallennettu!'),
       trackProgress: state.setSaving,
     });

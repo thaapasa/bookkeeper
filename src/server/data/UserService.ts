@@ -1,10 +1,10 @@
 import { ITask } from 'pg-promise';
 
-import { BkError, ObjectId } from 'shared/types';
-import { toUserData, UserDataUpdate } from 'shared/userData';
+import { AuthenticationError, BkError, ObjectId } from 'shared/types';
+import { PasswordUpdate, toUserData, UserDataUpdate } from 'shared/userData';
 import { logger } from 'server/Logger';
 
-import { getUserByEmail, getUserById, updateUserDataById } from './UserDb';
+import { getUserByCredentials, getUserByEmail, getUserById, updateUserDataById } from './UserDb';
 
 export async function updateUserData(
   tx: ITask<any>,
@@ -22,4 +22,19 @@ export async function updateUserData(
   }
   logger.info({ from: toUserData(user), to: userData }, `Updating user data for user ${userId}`);
   await updateUserDataById(tx, userId, userData);
+}
+
+export async function changeUserPassword(
+  tx: ITask<any>,
+  groupId: ObjectId,
+  userId: ObjectId,
+  passwordUpdate: PasswordUpdate,
+) {
+  const user = await getUserById(tx, groupId, userId);
+  const userByPw = await getUserByCredentials(tx, user.username, passwordUpdate.currentPassword);
+  if (user.id !== userByPw.id) {
+    throw new AuthenticationError('USER_MISMATCH', 'User does not match user from session');
+  }
+
+  logger.info(`Updating password for user ${userId}`);
 }

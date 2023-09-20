@@ -1,7 +1,7 @@
 import { Router } from 'express';
 
-import { UserDataUpdate } from 'shared/userData';
-import { updateUserData } from 'server/data/UserService';
+import { PasswordUpdate, UserDataUpdate } from 'shared/userData';
+import { changeUserPassword, updateUserData } from 'server/data/UserService';
 import { createValidatingRouter } from 'server/server/ValidatingRouter';
 
 /**
@@ -14,6 +14,11 @@ export function createProfileApi() {
   // PUT /api/profile/userData
   api.putTx('/userData', { body: UserDataUpdate }, (tx, session, { body }) =>
     updateUserData(tx, session.group.id, session.user.id, body),
+  );
+
+  // PUT /api/profile/password
+  api.putTx('/password', { body: PasswordUpdate }, (tx, session, { body }) =>
+    changeUserPassword(tx, session.group.id, session.user.id, body),
   );
 
   return api.router;
