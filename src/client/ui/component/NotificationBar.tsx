@@ -5,6 +5,7 @@ import * as React from 'react';
 import { Action, AnyObject, Timeout, toReadableErrorMessage } from 'shared/types';
 import { notificationE } from 'client/data/State';
 import { Notification } from 'client/data/StateTypes';
+import { logger } from 'client/Logger';
 import { unsubscribeAll } from 'client/util/ClientUtil';
 
 const msgInterval = 5000;
@@ -51,6 +52,11 @@ export class NotificationBar extends React.Component<AnyObject, NotificationBarC
   }
 
   private showMessage = (notification: Notification) => {
+    if (notification.severity === 'error') {
+      logger.error(notification.cause ?? {}, notification.message);
+    } else if (notification.severity === 'warning') {
+      logger.warn(notification.cause ?? {}, notification.message);
+    }
     this.queue.push(notification);
     if (!this.timer || notification.immediate) {
       this.scheduleNext();
