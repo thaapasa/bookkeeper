@@ -3,12 +3,14 @@ import { ITask } from 'pg-promise';
 import { Email, Group, NotFoundError, ObjectId, User } from 'shared/types';
 import { UserDataUpdate } from 'shared/userData';
 
+import { determineUserImage } from './UserImage';
+
 export type RawUserData = Record<string, any>;
 
 export function dbRowToUser(user: RawUserData): User {
   return {
     ...(user as User),
-    image: user.image ? `img/users/${user.image}` : undefined,
+    image: determineUserImage(user.image, user.email),
   };
 }
 
