@@ -16,7 +16,7 @@ export function ToolIcon(props: {
   title: string;
   style?: React.CSSProperties;
   className?: string;
-  onClick: () => void;
+  onClick?: () => void;
 }) {
   const { icon, ...rest } = props;
   return (

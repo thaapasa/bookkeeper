@@ -132,7 +132,7 @@ export const PasswordChangeView: React.FC = () => {
               disabled={!changed}
               onClick={() => state.reset()}
             >
-              Palauta
+              Tyhjennä
             </Button>
           </ProfileItem>
         </Grid>

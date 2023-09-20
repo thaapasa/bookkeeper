@@ -30,6 +30,7 @@ import RepeatIcon from '@mui/icons-material/Repeat';
 import SearchIcon from '@mui/icons-material/Search';
 import SubscriptionsIcon from '@mui/icons-material/Subscriptions';
 import TodayIcon from '@mui/icons-material/Today';
+import UploadIcon from '@mui/icons-material/Upload';
 import HiddenIcon from '@mui/icons-material/VisibilityOffOutlined';
 import VisibleIcon from '@mui/icons-material/VisibilityOutlined';
 import WbSunnyIcon from '@mui/icons-material/WbSunny';
@@ -71,6 +72,7 @@ export const Icons = {
   Today: TodayIcon,
   Tools: ConstructionIcon,
   Transfer: RedoIcon,
+  Upload: UploadIcon,
   Visible: VisibleIcon,
 };
 
