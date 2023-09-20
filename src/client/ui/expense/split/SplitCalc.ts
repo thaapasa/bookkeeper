@@ -3,7 +3,7 @@ import { isDefined, Source } from 'shared/types';
 import { Money, MoneyLike, requireDefined } from 'shared/util';
 
 import { calculateDivision } from '../dialog/ExpenseDialogData';
-import { ExpenseSplitInEditor } from './ExpenseSplit.hooks';
+import type { ExpenseSplitInEditor } from './ExpenseSplit.hooks';
 
 /**
  * Calculates the cost of the first split so that the split rows add up

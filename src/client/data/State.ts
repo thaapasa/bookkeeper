@@ -7,7 +7,7 @@ import { noop } from 'shared/util';
 
 import { Size } from '../ui/Types';
 import { expensePagePath } from '../util/Links';
-import { ExpenseDialogObject, NavigationConfig, Notification } from './StateTypes';
+import type { ExpenseDialogObject, NavigationConfig, Notification } from './StateTypes';
 
 const notificationBus = new B.Bus<Notification>();
 export const notificationE = notificationBus;

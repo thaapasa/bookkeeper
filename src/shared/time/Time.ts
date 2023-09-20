@@ -1,8 +1,18 @@
-import { Dayjs } from 'dayjs';
+import 'dayjs/locale/fi';
+
+import dayjs, { Dayjs } from 'dayjs';
+import dayOfYear from 'dayjs/plugin/dayOfYear';
+import isLeapYear from 'dayjs/plugin/isLeapYear';
+import isoWeek from 'dayjs/plugin/isoWeek';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import utc from 'dayjs/plugin/utc';
 import { z } from 'zod';
 
 import { IntString } from '../types/Primitives';
-import { dayJsForDate, DayjsInput, toDayjs } from './Dayjs';
+import { leftPad } from '../util/Util';
+
+export type DayjsInput = dayjs.ConfigType;
 
 export const ISODateRegExp = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
 export const ISODatePattern = 'YYYY-MM-DD';
@@ -28,13 +38,36 @@ export type YearMonth = z.infer<typeof YearMonth>;
 export const displayDatePattern = 'D.M.YYYY';
 
 export type DateLike = Date | Dayjs | string;
+export const fiLocale = 'fi';
 
-export function month(year: number, mon: number): Dayjs {
-  return dayJsForDate(year, mon, 1);
+dayjs.extend(isLeapYear);
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
+dayjs.extend(dayOfYear);
+dayjs.extend(utc);
+dayjs.extend(isoWeek);
+
+// Setup Finnish locale globally
+dayjs.locale(fiLocale);
+
+dayjs();
+
+export function toDayjs(d?: DayjsInput, pattern?: string): Dayjs {
+  if (dayjs.isDayjs(d)) {
+    return d;
+  }
+  return dayjs(d, pattern);
 }
 
-export function monthToYear(month: ISOMonth | ISODate): number {
-  return Number(month.substring(0, 4));
+export function dayJsForDate(
+  year: number | string,
+  month: number | string,
+  day: number | string,
+): Dayjs {
+  return dayjs(
+    `${leftPad(year, 4, '0')}-${leftPad(month, 2, '0')}-${leftPad(day, 2, '0')}`,
+    ISODatePattern,
+  );
 }
 
 export function toDate(d: DateLike): Date {
@@ -84,4 +117,12 @@ export function compareDates(first?: DateLike, second?: DateLike): number {
     return 1;
   }
   return 0;
+}
+
+export function month(year: number, mon: number): Dayjs {
+  return dayJsForDate(year, mon, 1);
+}
+
+export function monthToYear(month: ISOMonth | ISODate): number {
+  return Number(month.substring(0, 4));
 }

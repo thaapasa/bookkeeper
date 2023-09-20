@@ -2,8 +2,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import { z } from 'zod';
 
 import { numberRange } from '../util/Arrays';
-import { toDayjs } from './Dayjs';
-import { ISODate, ISOMonth } from './Time';
+import { ISODate, ISOMonth, toDayjs } from './Time';
 import { DateRange, getYearsInRange } from './TimeRange';
 
 export const QuarterRegExp = /^[0-9]{4}-Q[1-4]$/;

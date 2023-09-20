@@ -2,7 +2,7 @@ import express from 'express';
 
 import { config } from 'server/Config';
 import { logger } from 'server/Logger';
-import { fixDbTraceLeak } from 'server/logging/TraceIdProvider';
+import { fixDbTraceLeak } from 'server/logging/TraceIdFix';
 
 const logUserErrors = false;
 

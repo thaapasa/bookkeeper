@@ -1,5 +1,4 @@
-import { toDayjs } from './Dayjs';
-import { DateLike } from './Time';
+import { DateLike, toDayjs } from './Time';
 
 const months = [
   '',

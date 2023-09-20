@@ -1,4 +1,3 @@
-export * from './Dayjs';
 export * from './MomentInterval';
 export * from './Months';
 export * from './Period';

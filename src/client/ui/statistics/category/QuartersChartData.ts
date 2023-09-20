@@ -3,10 +3,10 @@ import { Category, CategoryStatistics, ObjectId } from 'shared/types';
 import { Money, typedKeys } from 'shared/util';
 import { getFullCategoryName } from 'client/data/Categories';
 import { getChartColor } from 'client/ui/chart/ChartColors';
-import { ChartColumn, ChartData } from 'client/ui/chart/ChartTypes';
+import type { ChartColumn, ChartData } from 'client/ui/chart/ChartTypes';
 import { fillMissingForNumericKeys } from 'client/ui/chart/ChartUtils';
 
-import { ChartConfiguration } from './ChartTypes';
+import type { ChartConfiguration } from './ChartTypes';
 
 function categoryStatisticsToQuartersData(
   data: CategoryStatistics,

@@ -3,7 +3,7 @@ import { Server } from 'http';
 import { config } from './Config';
 import { shutdownDb } from './data/Db';
 import { logger } from './Logger';
-import { fixDbTraceLeak } from './logging/TraceIdProvider';
+import { fixDbTraceLeak } from './logging/TraceIdFix';
 import { logError } from './notifications/ErrorLogger';
 import { slackNotifier } from './notifications/SlackNotifier';
 import { setupServer } from './server/ServerSetup';

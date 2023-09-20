@@ -22,7 +22,7 @@ import { formatMoney, formatMoneyThin, useThinFormat } from 'client/ui/chart/For
 
 import { EmptyChart } from '../EmptyChart';
 import { Months } from '../types';
-import { CategoryGraphProps } from './CategoryStatisticsChart';
+import type { CategoryGraphProps } from './CategoryStatisticsChart';
 import { getChartMargins } from './Common';
 
 const useLines = true;
