@@ -10,6 +10,13 @@ export const Title = styled(Typography)`
   margin-bottom: 16px;
 `;
 
+export const Subtitle = styled(Typography)`
+  border-bottom: 1px solid ${colorScheme.gray.light};
+  font: 18pt Oswald;
+  font-weight: 300;
+  margin-bottom: 8px;
+`;
+
 export const Text = styled(Typography)`
   font-size: 11pt;
 `;

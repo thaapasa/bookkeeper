@@ -9,6 +9,7 @@ import { connect } from '../component/BaconConnect';
 import { Title } from '../design/Text';
 import { PageContentContainer } from '../Styles';
 import { RequireProperty } from '../utils/RequireProperty';
+import { PasswordChangeView } from './PasswordChangeView';
 import { UserDataView } from './UserDataView';
 
 export const ProfileViewImpl = RequireProperty('session', ({ session }: { session: Session }) => {
@@ -19,6 +20,7 @@ export const ProfileViewImpl = RequireProperty('session', ({ session }: { sessio
           <Title>Profiilitiedot</Title>
         </Grid>
         <UserDataView session={session} />
+        <PasswordChangeView session={session} />
       </Grid>
     </PageContentContainer>
   );

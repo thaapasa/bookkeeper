@@ -1,7 +1,9 @@
 import { Button, CircularProgress } from '@mui/material';
 import React from 'react';
+import { create } from 'zustand';
 
-import { isEmail, Session, toUserData, User, UserDataUpdate } from 'shared/types';
+import { isEmail, Session } from 'shared/types';
+import { UserDataUpdate } from 'shared/userData';
 import apiConnect from 'client/data/ApiConnect';
 import { AsyncData, UninitializedData } from 'client/data/AsyncData';
 import { updateSession } from 'client/data/Login';
@@ -13,42 +15,43 @@ import { TextEdit } from '../component/TextEdit';
 import { Text } from '../design/Text';
 import { ProfileItem } from './ProfileItem';
 
-type UpdateUserData = 'setFirstName' | 'setLastName' | 'setEmail' | 'setUsername';
-type UserDataAction =
-  | {
-      type: UpdateUserData;
-      value: string;
-    }
-  | { type: 'reset'; data?: User };
+export type UserDataState = UserDataUpdate & {
+  setFirstName: (firstName: string) => void;
+  setLastName: (lastName: string) => void;
+  setEmail: (email: string) => void;
+  setUsername: (username: string) => void;
+  reset: (data?: UserDataUpdate) => void;
+  saving: AsyncData<void>;
+  setSaving: (savingState: AsyncData<void>) => void;
+};
 
-function userDataReducer(state: UserDataUpdate, action: UserDataAction): UserDataUpdate {
-  switch (action.type) {
-    case 'reset':
-      return {
-        firstName: action.data?.firstName ?? '',
-        lastName: action.data?.lastName ?? '',
-        email: action.data?.email ?? '',
-        username: action.data?.username ?? '',
-      };
-    case 'setFirstName':
-      return { ...state, firstName: action.value };
-    case 'setLastName':
-      return { ...state, lastName: action.value };
-    case 'setEmail':
-      return { ...state, email: action.value };
-    case 'setUsername':
-      return { ...state, username: action.value };
-    default:
-      logger.warn(action, 'Unrecognized action');
-      return state;
-  }
+export const useUserDataState = create<UserDataState>(set => ({
+  firstName: '',
+  lastName: '',
+  email: '',
+  username: '',
+  saving: UninitializedData,
+  setFirstName: firstName => set({ firstName }),
+  setLastName: lastName => set({ lastName }),
+  setEmail: email => set({ email }),
+  setUsername: username => set({ username }),
+  reset: userData => set(userData ?? {}),
+  setSaving: saving => set({ saving }),
+}));
+
+function toUserDataUpdate(state: UserDataState): UserDataUpdate {
+  return {
+    firstName: state.firstName,
+    lastName: state.lastName,
+    username: state.username,
+    email: state.email,
+  };
 }
 
 export const UserDataView: React.FC<{ session: Session }> = ({ session }) => {
   const user = session.user;
 
-  const [state, dispatch] = React.useReducer(userDataReducer, toUserData(session.user));
-  const [saveOperation, setSaving] = React.useState<AsyncData<any>>(UninitializedData);
+  const state = useUserDataState();
 
   const emailValid = isEmail(state.email);
   const dataValid = state.firstName && state.lastName && state.username && emailValid;
@@ -58,11 +61,12 @@ export const UserDataView: React.FC<{ session: Session }> = ({ session }) => {
     state.email !== user.email ||
     state.username !== user.username;
 
-  const isSaving = saveOperation.type === 'loading';
+  const isSaving = state.saving.type === 'loading';
 
   // Update data when session changes (upon reload)
   React.useEffect(() => {
-    dispatch({ type: 'reset', data: session.user });
+    state.reset(session.user);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session]);
 
   const save = () => {
@@ -70,9 +74,9 @@ export const UserDataView: React.FC<{ session: Session }> = ({ session }) => {
       logger.debug('Skipping submit, no changes or invalid data');
       return;
     }
-    executeOperation(() => saveUserData(state), {
+    executeOperation(() => saveUserData(toUserDataUpdate(state)), {
       postProcess: () => notify('Profiilitiedot tallennettu!'),
-      trackProgress: setSaving,
+      trackProgress: state.setSaving,
     });
   };
 
@@ -83,7 +87,7 @@ export const UserDataView: React.FC<{ session: Session }> = ({ session }) => {
       </ProfileItem>
       <ProfileItem title="Nimi">
         <TextEdit
-          onChange={value => dispatch({ type: 'setFirstName', value })}
+          onChange={state.setFirstName}
           value={state.firstName}
           autoCapitalize="off"
           autoCorrect="off"
@@ -94,7 +98,7 @@ export const UserDataView: React.FC<{ session: Session }> = ({ session }) => {
           disabled={isSaving}
         />
         <TextEdit
-          onChange={value => dispatch({ type: 'setLastName', value })}
+          onChange={state.setLastName}
           value={state.lastName}
           autoCapitalize="off"
           autoCorrect="off"
@@ -107,7 +111,7 @@ export const UserDataView: React.FC<{ session: Session }> = ({ session }) => {
       </ProfileItem>
       <ProfileItem title="Sähköposti">
         <TextEdit
-          onChange={value => dispatch({ type: 'setEmail', value })}
+          onChange={state.setEmail}
           value={state.email}
           autoCapitalize="off"
           autoCorrect="off"
@@ -121,7 +125,7 @@ export const UserDataView: React.FC<{ session: Session }> = ({ session }) => {
       <ProfileItem title="Käyttäjätunnus">
         <TextEdit
           name="username"
-          onChange={value => dispatch({ type: 'setUsername', value })}
+          onChange={state.setUsername}
           value={state.username}
           autoComplete="username"
           autoCapitalize="off"
@@ -147,7 +151,7 @@ export const UserDataView: React.FC<{ session: Session }> = ({ session }) => {
           color="secondary"
           variant="contained"
           disabled={!changed}
-          onClick={() => dispatch({ type: 'reset', data: session.user })}
+          onClick={() => state.reset(session.user)}
         >
           Palauta
         </Button>
