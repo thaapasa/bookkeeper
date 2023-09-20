@@ -4,7 +4,13 @@ import { AuthenticationError, BkError, ObjectId } from 'shared/types';
 import { PasswordUpdate, toUserData, UserDataUpdate } from 'shared/userData';
 import { logger } from 'server/Logger';
 
-import { getUserByCredentials, getUserByEmail, getUserById, updateUserDataById } from './UserDb';
+import {
+  getUserByCredentials,
+  getUserByEmail,
+  getUserById,
+  updateUserDataById,
+  updateUserPasswordById,
+} from './UserDb';
 
 export async function updateUserData(
   tx: ITask<any>,
@@ -37,4 +43,5 @@ export async function changeUserPassword(
   }
 
   logger.info(`Updating password for user ${userId}`);
+  await updateUserPasswordById(tx, userId, passwordUpdate.newPassword);
 }

@@ -109,3 +109,16 @@ export async function updateUserDataById(
     },
   );
 }
+
+export async function updateUserPasswordById(
+  tx: ITask<any>,
+  userId: ObjectId,
+  password: string,
+): Promise<void> {
+  await tx.none(
+    `UPDATE users
+      SET password=encode(digest($/password/, 'sha1'), 'hex')
+      WHERE id=$/userId/`,
+    { userId, password },
+  );
+}
