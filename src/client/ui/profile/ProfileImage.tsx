@@ -4,5 +4,5 @@ export function imageUrlForWidth(imageUrl: string | undefined, width: number) {
 }
 
 export function isOwnImage(imageUrl: string | undefined): boolean {
-  return !!imageUrl && imageUrl.startsWith('/');
+  return !!imageUrl && !imageUrl.startsWith('http:') && !imageUrl.startsWith('https:');
 }

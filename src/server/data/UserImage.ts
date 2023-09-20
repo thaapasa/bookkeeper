@@ -2,7 +2,7 @@ import crypto from 'crypto';
 
 export function determineUserImage(imagePath?: string, email?: string): string | undefined {
   if (imagePath) {
-    return imagePath;
+    return `img/users/${imagePath}`;
   }
   if (email) {
     return getGravatarUrl(email);
