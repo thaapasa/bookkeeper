@@ -2,7 +2,6 @@ import { Button, CircularProgress, Grid } from '@mui/material';
 import React from 'react';
 import { create } from 'zustand';
 
-import { Session } from 'shared/types';
 import { isPassword, PasswordUpdate } from 'shared/userData';
 import apiConnect from 'client/data/ApiConnect';
 import { AsyncData, UninitializedData } from 'client/data/AsyncData';
@@ -41,7 +40,7 @@ function toPasswordUpdate(state: PasswordState): PasswordUpdate {
   return { currentPassword: state.currentPassword, newPassword: state.newPassword };
 }
 
-export const PasswordChangeView: React.FC<{ session: Session }> = ({}) => {
+export const PasswordChangeView: React.FC = () => {
   const state = usePasswordState();
 
   const newPasswordValid = isPassword(state.newPassword);
@@ -72,62 +71,72 @@ export const PasswordChangeView: React.FC<{ session: Session }> = ({}) => {
       <Grid item xs={12}>
         <Subtitle>Vaihda salasana</Subtitle>
       </Grid>
-      <ProfileItem title="Nykyinen salasana">
-        <TextEdit
-          onChange={state.setCurrent}
-          value={state.currentPassword}
-          type="password"
-          name="current-password"
-          autoCapitalize="off"
-          autoCorrect="current-password"
-          width="280px"
-        />
-      </ProfileItem>
-      <ProfileItem title="Uusi salasana">
-        <TextEdit
-          onChange={state.setNew}
-          value={state.newPassword}
-          type="password"
-          name="new-password"
-          autoCapitalize="off"
-          autoCorrect="new-password"
-          width="280px"
-          error={newHasError}
-          helperText={newHasError ? 'Salasana ei ole tarpeeksi hyvä' : undefined}
-        />
-      </ProfileItem>
-      <ProfileItem title="Toista salasana">
-        <TextEdit
-          onChange={state.setNewRepeat}
-          value={state.repeatPassword}
-          type="password"
-          name="new-password"
-          autoCapitalize="off"
-          autoCorrect="repeat-password"
-          width="280px"
-          error={repeatHasError}
-          helperText={repeatHasError ? 'Salasanat eivät täsmää' : undefined}
-        />
-      </ProfileItem>
-      <ProfileItem>
-        <Button
-          color="primary"
-          disabled={!dataValid || isSaving}
-          variant="contained"
-          onClick={save}
-          endIcon={isSaving ? <CircularProgress size="12pt" /> : null}
-        >
-          Vaihda salasana
-        </Button>
-        <Button
-          color="secondary"
-          variant="contained"
-          disabled={!changed}
-          onClick={() => state.reset()}
-        >
-          Palauta
-        </Button>
-      </ProfileItem>
+      <form id="change-password" onSubmit={save}>
+        <Grid container columnSpacing={2} rowSpacing={2} padding={2}>
+          <ProfileItem title="Nykyinen salasana">
+            <TextEdit
+              onChange={state.setCurrent}
+              value={state.currentPassword}
+              type="password"
+              name="current-password"
+              autoCapitalize="off"
+              autoComplete="on"
+              autoCorrect="current-password"
+              width="280px"
+              onSubmitEdit={save}
+            />
+          </ProfileItem>
+          <ProfileItem title="Uusi salasana">
+            <TextEdit
+              onChange={state.setNew}
+              value={state.newPassword}
+              type="password"
+              name="new-password"
+              autoCapitalize="off"
+              autoComplete="off"
+              autoCorrect="new-password"
+              width="280px"
+              error={newHasError}
+              onSubmitEdit={save}
+              helperText={newHasError ? 'Salasana ei ole tarpeeksi hyvä' : undefined}
+            />
+          </ProfileItem>
+          <ProfileItem title="Toista salasana">
+            <TextEdit
+              onChange={state.setNewRepeat}
+              value={state.repeatPassword}
+              type="password"
+              name="new-password"
+              autoCapitalize="off"
+              autoComplete="off"
+              autoCorrect="repeat-password"
+              width="280px"
+              error={repeatHasError}
+              onSubmitEdit={save}
+              helperText={repeatHasError ? 'Salasanat eivät täsmää' : undefined}
+            />
+          </ProfileItem>
+          <ProfileItem>
+            <Button
+              color="primary"
+              disabled={!dataValid || isSaving}
+              variant="contained"
+              onClick={save}
+              endIcon={isSaving ? <CircularProgress size="12pt" /> : null}
+            >
+              Vaihda salasana
+            </Button>
+            <Button
+              color="secondary"
+              variant="contained"
+              disabled={!changed}
+              onClick={() => state.reset()}
+            >
+              Palauta
+            </Button>
+          </ProfileItem>
+        </Grid>
+      </form>
     </>
   );
 };

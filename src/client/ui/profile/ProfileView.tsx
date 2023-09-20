@@ -20,7 +20,7 @@ export const ProfileViewImpl = RequireProperty('session', ({ session }: { sessio
           <Title>Profiilitiedot</Title>
         </Grid>
         <UserDataView session={session} />
-        <PasswordChangeView session={session} />
+        <PasswordChangeView />
       </Grid>
     </PageContentContainer>
   );
