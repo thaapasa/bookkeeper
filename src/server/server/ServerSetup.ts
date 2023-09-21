@@ -13,6 +13,7 @@ export function setupServer() {
   app.use(express.static('public'));
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());
+  app.use(bodyParser.raw({ limit: '10MB' }));
   app.use(nocache());
 
   app.use(traceLogMiddleware());

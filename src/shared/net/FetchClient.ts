@@ -48,7 +48,7 @@ export class FetchClient {
       method,
       query,
       body,
-      headers,
+      headers: incomingHeaders,
     }: {
       method: string;
       query?: Record<string, any>;
@@ -58,9 +58,11 @@ export class FetchClient {
   ): Promise<T> {
     const queryPath = this.toQuery(path, query);
     this.logger?.debug(body, `${method} ${queryPath} with body`);
+    const { headers, contentType } = this.prepareHeaders(incomingHeaders);
+    this.logger?.info({ headers, contentType, body }, path);
     const options = {
       method,
-      body: body ? JSON.stringify(body) : undefined,
+      body: body ? (contentType === ContentTypes.json ? JSON.stringify(body) : body) : undefined,
       headers,
     };
     let res: ResponseType;
@@ -88,6 +90,16 @@ export class FetchClient {
         );
       }
     }
+  }
+
+  private prepareHeaders(headers: Record<string, string> = {}) {
+    const { 'Content-Type': CType, 'content-type': ctype, ...hdrs } = headers ?? {};
+    const fullContentType = (CType ?? ctype) || undefined;
+    const [contentType] = (fullContentType ?? '').split(';');
+    if (fullContentType) {
+      hdrs['Content-Type'] = fullContentType;
+    }
+    return { headers: hdrs, contentType: contentType || undefined };
   }
 
   private async readResponse<T>(res: ResponseType): Promise<T> {

@@ -27,6 +27,8 @@ class Config {
   public delayRequestsMs: number | undefined = process.env.DELAY
     ? parseInt(process.env.DELAY, 10)
     : undefined;
+
+  public fileUploadPath: string = process.env.UPLOAD_PATH || './uploads';
 }
 
 export const config = new Config();

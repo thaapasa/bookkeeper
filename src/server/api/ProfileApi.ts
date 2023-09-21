@@ -2,6 +2,7 @@ import { Router } from 'express';
 
 import { PasswordUpdate, UserDataUpdate } from 'shared/userData';
 import { changeUserPassword, updateUserData } from 'server/data/UserService';
+import { logger } from 'server/Logger';
 import { createValidatingRouter } from 'server/server/ValidatingRouter';
 
 /**
@@ -20,6 +21,13 @@ export function createProfileApi() {
   api.putTx('/password', { body: PasswordUpdate }, (tx, session, { body }) =>
     changeUserPassword(tx, session.group.id, session.user.id, body),
   );
+
+  api.postTx('/image/:filename', {}, async (_tx, session, { params }, req) => {
+    logger.info('Image upload');
+    await Bun.write(`uploads/${params.filename}`, req.body);
+    logger.info('Image written');
+    return { status: 'OK' };
+  });
 
   return api.router;
 }

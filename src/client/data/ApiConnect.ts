@@ -143,12 +143,17 @@ export class ApiConnect {
     );
   }
 
-  private post<T>(path: string, body?: any, query?: Record<string, string>): Promise<T> {
+  private post<T>(
+    path: string,
+    body?: any,
+    query?: Record<string, string>,
+    headers?: Record<string, string>,
+  ): Promise<T> {
     return this.req<T>(path, {
       method: 'POST',
       body,
       query,
-      headers: { ...FetchClient.contentTypeJson },
+      headers: { ...FetchClient.contentTypeJson, ...headers },
     });
   }
 
@@ -320,6 +325,12 @@ export class ApiConnect {
 
   public changeUserPassword = (update: PasswordUpdate): Promise<void> =>
     this.put(uri`/api/profile/password`, update);
+
+  public uploadProfileImage = (file: any, filename: string): Promise<void> => {
+    return this.post(uri`/api/profile/image/${filename}`, file, undefined, {
+      'Content-Type': 'application/octet-stream',
+    });
+  };
 
   public deleteReport = (reportId: ObjectId) => this.del<ApiMessage>(uri`/api/report/${reportId}`);
 

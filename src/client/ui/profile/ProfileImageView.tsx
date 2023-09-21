@@ -3,6 +3,7 @@ import { Grid, IconButton } from '@mui/material';
 import React from 'react';
 
 import { Session } from 'shared/types';
+import apiConnect from 'client/data/ApiConnect';
 
 import { colorScheme } from '../Colors';
 import { UploadImageButton } from '../component/UploadFileButton';
@@ -23,7 +24,7 @@ export const ProfileImageView: React.FC<{ session: Session }> = ({ session }) =>
         <ProfileImage image={user.image}>
           <IconPlacement>
             <UploadImageButton
-              onSelect={async () => {}}
+              onSelect={apiConnect.uploadProfileImage}
               style={{ backgroundColor: colorScheme.gray.standard + 'dd' }}
             >
               <RenderIcon icon="Upload" color="info" />

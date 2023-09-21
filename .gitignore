@@ -11,6 +11,8 @@
 tsconfig.tsbuildinfo
 nohup.out
 
+uploads
+
 *.log
 .idea
 *.iml
