@@ -4,7 +4,8 @@
   "main": "src/server/BookkeeperServer.ts",
   "private": true,
   "scripts": {
-    "postinstall": "bun run update-revisions",
+    "postinstall": "bun run install-sharp && bun run update-revisions",
+    "install-sharp": "cd node_modules/sharp && bun install",
     "create-dev-db": "docker run -e POSTGRES_PASSWORD=postgres -p 15488:5432 --name bookkeeper-db -d postgres:14.3",
     "ui": "bun run update-revision client && vite",
     "server": "bun run update-revision server && bun run migrate && bun run --watch src/server/BookkeeperServer.ts | bun pretty-log",
@@ -62,6 +63,7 @@
     "react-router": "6.16.0",
     "react-router-dom": "6.16.0",
     "recharts": "2.8.0",
+    "sharp": "0.32.6",
     "zod": "3.22.2",
     "zustand": "4.4.1"
   },

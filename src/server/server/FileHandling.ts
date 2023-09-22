@@ -5,6 +5,7 @@ import { ITask } from 'pg-promise';
 import { promisify } from 'sys';
 
 import { SessionBasicInfo } from 'shared/types';
+import { AssetDirectories } from 'server/assets/Assets';
 import { config } from 'server/Config';
 import { logger } from 'server/Logger';
 import { getRandomFilename } from 'server/util/Random';
@@ -12,11 +13,6 @@ import { getRandomFilename } from 'server/util/Random';
 import { HandlerParams } from './RequestHandling';
 
 const mkdirAsync = promisify(mkdir);
-
-export const AssetDirectories = {
-  profileImage: path.join(config.assetPath, 'img/profile'),
-  shortcutImage: path.join(config.assetPath, 'img/shortcut'),
-};
 
 export interface FileUploadResult {
   originalFilename?: string;

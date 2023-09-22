@@ -2,6 +2,7 @@ import { ITask } from 'pg-promise';
 
 import { BkError, InvalidInputError, ObjectId } from 'shared/types';
 import { PasswordUpdate, toUserData, UserDataUpdate } from 'shared/userData';
+import { createProfileImages } from 'server/assets/ImageService';
 import { logger } from 'server/Logger';
 import { FileUploadResult } from 'server/server/FileHandling';
 
@@ -54,4 +55,5 @@ export async function uploadProfileImage(
   image: FileUploadResult,
 ) {
   logger.info(image, `Updating profile image for user ${userId}`);
+  await createProfileImages(image);
 }
