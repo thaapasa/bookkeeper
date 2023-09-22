@@ -30,12 +30,12 @@ export function createProfileApi() {
   api.postTx(
     '/image/:filename',
     {},
-    processFileUpload('filename', async (tx, session, file) =>
+    processFileUpload('filename', (tx, session, file) =>
       uploadProfileImage(tx, session.group.id, session.user.id, file),
     ),
   );
 
-  api.deleteTx('/image', {}, async (tx, session) =>
+  api.deleteTx('/image', {}, (tx, session) =>
     deleteProfileImage(tx, session.group.id, session.user.id),
   );
 
