@@ -12,7 +12,7 @@ import { UploadImageButton } from '../component/UploadFileButton';
 import { Subtitle } from '../design/Text';
 import { RenderIcon } from '../icons/Icons';
 
-const size = 140;
+const size = 128;
 
 function isOwnImage(imageUrl: string | undefined): boolean {
   return !!imageUrl && !imageUrl.startsWith('http:') && !imageUrl.startsWith('https:');
