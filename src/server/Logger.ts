@@ -10,9 +10,9 @@ function debugLogger() {
 function prodLogger() {
   const transport = pino.transport({
     target: 'pino/file',
-    options: { destination: 'log/server.log', append: false, level: config.logLevel },
+    options: { destination: 'log/server.log', append: false },
   });
-  return pino(transport);
+  return pino({ level: config.logLevel }, transport);
 }
 
 export const logger = instrumentLogger(
