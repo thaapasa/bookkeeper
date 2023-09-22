@@ -3,6 +3,7 @@ import { ITask } from 'pg-promise';
 import { BkError, InvalidInputError, ObjectId } from 'shared/types';
 import { PasswordUpdate, toUserData, UserDataUpdate } from 'shared/userData';
 import { logger } from 'server/Logger';
+import { FileUploadResult } from 'server/server/FileHandling';
 
 import {
   getUserByCredentials,
@@ -44,4 +45,13 @@ export async function changeUserPassword(
 
   logger.info(`Updating password for user ${userId}`);
   await updateUserPasswordById(tx, userId, passwordUpdate.newPassword);
+}
+
+export async function uploadProfileImage(
+  tx: ITask<any>,
+  groupId: ObjectId,
+  userId: ObjectId,
+  image: FileUploadResult,
+) {
+  logger.info(image, `Updating profile image for user ${userId}`);
 }

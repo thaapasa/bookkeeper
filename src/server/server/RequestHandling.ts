@@ -75,7 +75,7 @@ type ValidatorSpec<R, P, Q, B> = {
   response?: z.ZodType<R, any, any>;
 };
 
-type HandlerParams<P, Q, B> = {
+export type HandlerParams<P, Q, B> = {
   params: P;
   query: Q;
   body: B;

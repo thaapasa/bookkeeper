@@ -1,9 +1,22 @@
-import { Request } from 'express';
+import { Request, Response } from 'express';
+import { mkdir } from 'fs';
 import path from 'path';
+import { ITask } from 'pg-promise';
+import { promisify } from 'sys';
 
+import { SessionBasicInfo } from 'shared/types';
 import { config } from 'server/Config';
 import { logger } from 'server/Logger';
 import { getRandomFilename } from 'server/util/Random';
+
+import { HandlerParams } from './RequestHandling';
+
+const mkdirAsync = promisify(mkdir);
+
+export const AssetDirectories = {
+  profileImage: path.join(config.assetPath, 'img/profile'),
+  shortcutImage: path.join(config.assetPath, 'img/shortcut'),
+};
 
 export interface FileUploadResult {
   originalFilename?: string;
@@ -33,4 +46,37 @@ export async function storeUploadedFile(
     filepath,
     sizeInBytes,
   };
+}
+
+/**
+ * @param paramName name of the path parameter in which the original file name is passed
+ * @param handler the handler that is called once the uploaded file has been written to a temp file
+ */
+export function processFileUpload<Return, N extends string, P extends { [k in N]: string }, Q>(
+  paramName: N,
+  handler: (
+    tx: ITask<any>,
+    session: SessionBasicInfo,
+    file: FileUploadResult,
+    params: HandlerParams<P, Q, unknown>,
+  ) => Promise<Return>,
+) {
+  return async (
+    tx: ITask<any>,
+    session: SessionBasicInfo,
+    data: HandlerParams<P, Q, unknown>,
+    req: Request,
+    _res: Response,
+  ): Promise<Return> => {
+    const res = await storeUploadedFile(req, data.params[paramName]);
+    return handler(tx, session, res, data);
+  };
+}
+
+export async function setupFileDirectories() {
+  logger.debug(`Creating asset file directories`);
+  for (const dir of Object.values(AssetDirectories)) {
+    logger.debug(`Creating ${dir}`);
+    await mkdirAsync(dir, { recursive: true });
+  }
 }
