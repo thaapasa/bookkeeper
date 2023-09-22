@@ -2,10 +2,10 @@
   "name": "bookkeeper",
   "version": "0.7.3",
   "main": "src/server/BookkeeperServer.ts",
+  "description": "Kukkaro - a web tool for tracking your income and expenses.",
   "private": true,
   "scripts": {
-    "postinstall": "bun run install-sharp && bun run update-revisions",
-    "install-sharp": "cd node_modules/sharp && npm install",
+    "postinstall": "bun run update-revisions",
     "create-dev-db": "docker run -e POSTGRES_PASSWORD=postgres -p 15488:5432 --name bookkeeper-db -d postgres:14.3",
     "ui": "bun run update-revision client && vite",
     "server": "bun run update-revision server && bun run migrate && bun run --watch src/server/BookkeeperServer.ts | bun pretty-log",
@@ -100,7 +100,9 @@
     "nth-check": "2.1.1",
     "react": "18.2.0"
   },
-  "description": "Kukkaro - a web tool for tracking your income and expenses.",
+  "trustedDependencies": [
+    "sharp"
+  ],
   "browserslist": {
     "production": [">0.2%", "not dead", "not op_mini all"],
     "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
