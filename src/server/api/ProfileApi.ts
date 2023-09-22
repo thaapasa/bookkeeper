@@ -31,11 +31,13 @@ export function createProfileApi() {
     '/image/:filename',
     {},
     processFileUpload('filename', async (tx, session, file) =>
-      uploadProfileImage(tx, session.user.id, file),
+      uploadProfileImage(tx, session.group.id, session.user.id, file),
     ),
   );
 
-  api.deleteTx('/image', {}, async (tx, session) => deleteProfileImage(tx, session.user.id));
+  api.deleteTx('/image', {}, async (tx, session) =>
+    deleteProfileImage(tx, session.group.id, session.user.id),
+  );
 
   return api.router;
 }

@@ -5,7 +5,6 @@ import * as React from 'react';
 import { User } from 'shared/types';
 import { userMapE } from 'client/data/Login';
 
-import { imageUrlForWidth } from '../profile/ProfileImage';
 import { connect } from './BaconConnect';
 
 interface CommonAvatarProps {
@@ -41,7 +40,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({ user, style, size, class
         ...(size ? { width: size, height: size } : undefined),
       }}
       className={className}
-      src={imageUrlForWidth(user.image || undefined, 32)}
+      src={user.image}
       onClick={event => onClick?.(user.id, event)}
     >
       {user.image ? undefined : user.firstName.charAt(0)}

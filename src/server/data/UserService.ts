@@ -2,7 +2,7 @@ import { ITask } from 'pg-promise';
 
 import { BkError, InvalidInputError, ObjectId } from 'shared/types';
 import { PasswordUpdate, toUserData, UserDataUpdate } from 'shared/userData';
-import { createProfileImages } from 'server/assets/ProfileImage';
+import { createProfileImages, getProfileImagePaths } from 'server/assets/ProfileImage';
 import { logger } from 'server/Logger';
 import { FileUploadResult, safeDeleteFile } from 'server/server/FileHandling';
 
@@ -52,6 +52,7 @@ export async function changeUserPassword(
 
 export async function uploadProfileImage(
   tx: ITask<any>,
+  groupId: ObjectId,
   userId: ObjectId,
   image: FileUploadResult,
 ) {
@@ -59,7 +60,7 @@ export async function uploadProfileImage(
     logger.info(image, `Updating profile image for user ${userId}`);
     const filename = await createProfileImages(image);
     // Clear existing profile image
-    await deleteProfileImage(tx, userId);
+    await deleteProfileImage(tx, groupId, userId);
     await updateProfileImageById(tx, userId, filename);
     logger.info(`Profile image updated`);
   } finally {
@@ -68,8 +69,16 @@ export async function uploadProfileImage(
   }
 }
 
-export async function deleteProfileImage(tx: ITask<any>, userId: ObjectId) {
+export async function deleteProfileImage(tx: ITask<any>, groupId: ObjectId, userId: ObjectId) {
+  const user = await getUserById(tx, groupId, userId);
+  if (!user.image) {
+    logger.info(`No profile image for user, skipping delete`);
+    return;
+  }
   logger.info(`Deleting profile image for user ${userId}`);
+  const paths = getProfileImagePaths(user.image);
+  await safeDeleteFile(paths.pathSmall, true);
+  await safeDeleteFile(paths.pathLarge, true);
   await clearProfileImageById(tx, userId);
   logger.info(`Profile image deleted`);
 }

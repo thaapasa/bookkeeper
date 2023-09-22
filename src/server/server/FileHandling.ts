@@ -32,14 +32,14 @@ export function withoutExt(file: string): string {
   return ext ? file.substring(0, file.length - ext.length) : file;
 }
 
-export async function safeDeleteFile(filepath: string) {
+export async function safeDeleteFile(filepath: string, logInfo?: boolean) {
   try {
     const f = Bun.file(filepath);
     if (!(await f.exists())) {
       logger.debug(`File ${filepath} does not exist, skipping delete`);
       return;
     }
-    logger.debug(`Deleting file ${filepath}`);
+    (logInfo ? logger.info : logger.debug)(`Deleting file ${filepath}`);
     await unlinkAsync(filepath);
   } catch (e) {
     logger.warn(e, `Could not delete file ${filepath}`);
