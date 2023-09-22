@@ -11,6 +11,10 @@
 tsconfig.tsbuildinfo
 nohup.out
 
+# Upload file directories
+/uploads
+/assets
+
 *.log
 .idea
 *.iml
@@ -27,4 +31,5 @@ content
 .env
 deploy
 
+# Prod DB dump file
 prod.dump

@@ -27,6 +27,7 @@ const TypeMap = {
   expenseId: ObjectIdString,
   reportId: ObjectIdString,
   recurringExpenseId: ObjectIdString,
+  filename: z.string().trim().nonempty(),
 };
 type TypeMap = typeof TypeMap;
 type KnownParamNames = keyof typeof TypeMap;

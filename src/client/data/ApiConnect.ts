@@ -143,12 +143,17 @@ export class ApiConnect {
     );
   }
 
-  private post<T>(path: string, body?: any, query?: Record<string, string>): Promise<T> {
+  private post<T>(
+    path: string,
+    body?: any,
+    query?: Record<string, string>,
+    headers?: Record<string, string>,
+  ): Promise<T> {
     return this.req<T>(path, {
       method: 'POST',
       body,
       query,
-      headers: { ...FetchClient.contentTypeJson },
+      headers: { ...FetchClient.contentTypeJson, ...headers },
     });
   }
 
@@ -307,6 +312,22 @@ export class ApiConnect {
   public patchSource = (sourceId: ObjectId, data: SourcePatch) =>
     this.patch<Source>(uri`/api/source/${sourceId}`, data);
 
+  public updateUserData = (userData: UserDataUpdate): Promise<void> =>
+    this.put(uri`/api/profile/userData`, userData);
+
+  public changeUserPassword = (update: PasswordUpdate): Promise<void> =>
+    this.put(uri`/api/profile/password`, update);
+
+  public uploadProfileImage = (file: any, filename: string): Promise<void> => {
+    return this.post(uri`/api/profile/image/${filename}`, file, undefined, {
+      'Content-Type': 'application/octet-stream',
+    });
+  };
+
+  public deleteProfileImage = (): Promise<void> => {
+    return this.del(uri`/api/profile/image`);
+  };
+
   public createReport = (title: string, query: ExpenseQuery) => {
     const body: ReportCreationData = {
       title,
@@ -314,12 +335,6 @@ export class ApiConnect {
     };
     return this.post<ReportDef>(uri`/api/report`, body);
   };
-
-  public updateUserData = (userData: UserDataUpdate): Promise<void> =>
-    this.put(uri`/api/profile/userData`, userData);
-
-  public changeUserPassword = (update: PasswordUpdate): Promise<void> =>
-    this.put(uri`/api/profile/password`, update);
 
   public deleteReport = (reportId: ObjectId) => this.del<ApiMessage>(uri`/api/report/${reportId}`);
 

@@ -3,6 +3,9 @@ import { Grid, IconButton } from '@mui/material';
 import React from 'react';
 
 import { Session } from 'shared/types';
+import apiConnect from 'client/data/ApiConnect';
+import { updateSession } from 'client/data/Login';
+import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { colorScheme } from '../Colors';
 import { UploadImageButton } from '../component/UploadFileButton';
@@ -23,12 +26,16 @@ export const ProfileImageView: React.FC<{ session: Session }> = ({ session }) =>
         <ProfileImage image={user.image}>
           <IconPlacement>
             <UploadImageButton
-              onSelect={async () => {}}
+              onSelect={uploadImage}
               style={{ backgroundColor: colorScheme.gray.standard + 'dd' }}
             >
               <RenderIcon icon="Upload" color="info" />
             </UploadImageButton>
-            <IconButton size="medium" style={{ backgroundColor: colorScheme.gray.standard + 'dd' }}>
+            <IconButton
+              onClick={deleteImage}
+              size="medium"
+              style={{ backgroundColor: colorScheme.gray.standard + 'dd' }}
+            >
               <RenderIcon icon="Delete" color="warning" />
             </IconButton>
           </IconPlacement>
@@ -37,6 +44,20 @@ export const ProfileImageView: React.FC<{ session: Session }> = ({ session }) =>
     </>
   );
 };
+
+async function uploadImage(file: any, filename: string) {
+  await executeOperation(() => apiConnect.uploadProfileImage(file, filename), {
+    postProcess: updateSession,
+    success: 'Profiilikuva ladattu',
+  });
+}
+
+async function deleteImage() {
+  await executeOperation(() => apiConnect.deleteProfileImage(), {
+    postProcess: updateSession,
+    success: 'Profiilikuva poistettu',
+  });
+}
 
 const ProfileImage: React.FC<React.PropsWithChildren<{ image?: string }>> = ({
   image,
