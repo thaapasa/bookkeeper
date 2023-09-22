@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { mkdir } from 'fs';
+import { mkdir, unlink } from 'fs';
 import path from 'path';
 import { ITask } from 'pg-promise';
 import { promisify } from 'sys';
@@ -13,6 +13,7 @@ import { getRandomFilename } from 'server/util/Random';
 import { HandlerParams } from './RequestHandling';
 
 const mkdirAsync = promisify(mkdir);
+const unlinkAsync = promisify(unlink);
 
 export interface FileUploadResult {
   originalFilename?: string;
@@ -29,6 +30,20 @@ export function getNewFilename(ext?: string): string {
 export function withoutExt(file: string): string {
   const ext = path.extname(file);
   return ext ? file.substring(0, file.length - ext.length) : file;
+}
+
+export async function safeDeleteFile(filepath: string) {
+  try {
+    const f = Bun.file(filepath);
+    if (!(await f.exists())) {
+      logger.debug(`File ${filepath} does not exist, skipping delete`);
+      return;
+    }
+    logger.debug(`Deleting file ${filepath}`);
+    await unlinkAsync(filepath);
+  } catch (e) {
+    logger.warn(e, `Could not delete file ${filepath}`);
+  }
 }
 
 export async function storeUploadedFile(

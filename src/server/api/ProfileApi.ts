@@ -1,8 +1,12 @@
 import { Router } from 'express';
 
 import { PasswordUpdate, UserDataUpdate } from 'shared/userData';
-import { changeUserPassword, updateUserData, uploadProfileImage } from 'server/data/UserService';
-import { logger } from 'server/Logger';
+import {
+  changeUserPassword,
+  deleteProfileImage,
+  updateUserData,
+  uploadProfileImage,
+} from 'server/data/UserService';
 import { processFileUpload } from 'server/server/FileHandling';
 import { createValidatingRouter } from 'server/server/ValidatingRouter';
 
@@ -27,14 +31,11 @@ export function createProfileApi() {
     '/image/:filename',
     {},
     processFileUpload('filename', async (tx, session, file) =>
-      uploadProfileImage(tx, session.group.id, session.user.id, file),
+      uploadProfileImage(tx, session.user.id, file),
     ),
   );
 
-  api.delete('/image', {}, async (_tx, _session) => {
-    logger.info('Delete profile image');
-    return { status: 'OK' };
-  });
+  api.deleteTx('/image', {}, async (tx, session) => deleteProfileImage(tx, session.user.id));
 
   return api.router;
 }

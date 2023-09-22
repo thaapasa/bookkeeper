@@ -18,7 +18,14 @@ export function setupServer() {
   app.use(traceLogMiddleware());
   app.use('/api', createApi());
 
-  app.get(/\/p\/.*/, (_, res) => res.sendFile(path.join(config.curDir + '/public/index.html')));
+  if (config.environment !== 'production') {
+    // Serve assets for dev
+    app.get('/assets/:path', (req, res) =>
+      res.sendFile(path.join(config.curDir + '/assets', req.params.path)),
+    );
+    // Serve the index file when reloading page from a /p/xxx subpath
+    app.get(/\/p\/.*/, (_, res) => res.sendFile(path.join(config.curDir + '/public/index.html')));
+  }
 
   return app;
 }
