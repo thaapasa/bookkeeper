@@ -4,7 +4,7 @@ import sharp from 'sharp';
 
 import { FileUploadResult, safeDeleteFile, withoutExt } from 'server/server/FileHandling';
 
-import { AssetDirectories } from './Assets';
+import { AssetDirectories } from './Content';
 import { FileWriteResult, writeImageToFile } from './ImageService';
 
 const ProfileImageSizeSmall = 128;
@@ -25,7 +25,7 @@ export function profileImagePath(
   variant: 'small' | 'large',
 ): string | undefined {
   if (imagePath) {
-    return `assets/img/profile/${imagePath}`;
+    return `content/profile/${imagePath}`;
   }
   if (email) {
     const size = variant === 'large' ? ProfileImageSizeLarge : ProfileImageSizeSmall;

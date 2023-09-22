@@ -2,7 +2,7 @@ import { ITask } from 'pg-promise';
 
 import { Email, Group, NotFoundError, ObjectId, User } from 'shared/types';
 import { UserDataUpdate } from 'shared/userData';
-import { getProfileImagePaths, profileImagePath } from 'server/assets/ProfileImage';
+import { getProfileImagePaths, profileImagePath } from 'server/content/ProfileImage';
 
 export type RawUserData = Record<string, any>;
 

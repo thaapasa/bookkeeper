@@ -13,7 +13,7 @@ nohup.out
 
 # Upload file directories
 /uploads
-/assets
+/content
 
 *.log
 .idea
@@ -25,7 +25,6 @@ dist
 /src/server/config-production.js
 /src/server/revision.[jt]s
 /src/client/revision.[jt]s
-content
 /build
 /build-server
 .env

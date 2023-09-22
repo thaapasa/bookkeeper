@@ -5,8 +5,8 @@ import { ITask } from 'pg-promise';
 import { promisify } from 'sys';
 
 import { SessionBasicInfo } from 'shared/types';
-import { AssetDirectories } from 'server/assets/Assets';
 import { config } from 'server/Config';
+import { AssetDirectories } from 'server/content/Content';
 import { logger } from 'server/Logger';
 import { getRandomFilename } from 'server/util/Random';
 

@@ -2,7 +2,7 @@ import { ITask } from 'pg-promise';
 
 import { BkError, InvalidInputError, ObjectId } from 'shared/types';
 import { PasswordUpdate, toUserData, UserDataUpdate } from 'shared/userData';
-import { createProfileImages, getProfileImagePaths } from 'server/assets/ProfileImage';
+import { createProfileImages, getProfileImagePaths } from 'server/content/ProfileImage';
 import { logger } from 'server/Logger';
 import { FileUploadResult, safeDeleteFile } from 'server/server/FileHandling';
 

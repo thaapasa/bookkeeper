@@ -34,7 +34,7 @@ class Config {
 
   public curDir = curDir;
   public fileUploadPath: string = path.join(curDir, process.env.UPLOAD_PATH || './uploads');
-  public assetPath: string = path.join(curDir, process.env.ASSET_PATH || './assets');
+  public contentPath: string = path.join(curDir, process.env.CONTENT_PATH || './content');
 }
 
 export const config = new Config();

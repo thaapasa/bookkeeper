@@ -10,8 +10,6 @@ import { slackNotifier } from 'server/notifications/SlackNotifier';
 import { setupFileDirectories } from './FileHandling';
 import { setupServer } from './ServerSetup';
 
-const app = setupServer();
-
 let runningServer: Server | undefined = undefined;
 
 function closeRunningServer() {
@@ -41,6 +39,7 @@ async function shutdownServer() {
 }
 
 export async function startServer() {
+  const app = setupServer();
   try {
     await fixDbTraceLeak();
     await setupFileDirectories();
