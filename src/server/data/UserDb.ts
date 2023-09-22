@@ -2,15 +2,16 @@ import { ITask } from 'pg-promise';
 
 import { Email, Group, NotFoundError, ObjectId, User } from 'shared/types';
 import { UserDataUpdate } from 'shared/userData';
-
-import { determineUserImage } from './UserImage';
+import { getProfileImagePaths, profileImagePath } from 'server/assets/ProfileImage';
 
 export type RawUserData = Record<string, any>;
 
 export function dbRowToUser(user: RawUserData): User {
+  const imagePaths = user.image ? getProfileImagePaths(user.image) : undefined;
   return {
     ...(user as User),
-    image: determineUserImage(user.image, user.email),
+    image: profileImagePath(imagePaths?.imageSmall, user.email, 'small'),
+    imageLarge: profileImagePath(imagePaths?.imageLarge, user.email, 'large'),
   };
 }
 
@@ -120,4 +121,16 @@ export async function updateUserPasswordById(
       WHERE id=$/userId/`,
     { userId, password },
   );
+}
+
+export async function updateProfileImageById(
+  tx: ITask<any>,
+  userId: ObjectId,
+  filename: string,
+): Promise<void> {
+  await tx.none(`UPDATE users SET image=$/filename/ WHERE id=$/userId/`, { userId, filename });
+}
+
+export async function clearProfileImageById(tx: ITask<any>, userId: ObjectId): Promise<void> {
+  await tx.none(`UPDATE users SET image=NULL WHERE id=$/userId/`, { userId });
 }

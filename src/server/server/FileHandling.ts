@@ -1,10 +1,11 @@
 import { Request, Response } from 'express';
-import { mkdir } from 'fs';
+import { mkdir, unlink } from 'fs';
 import path from 'path';
 import { ITask } from 'pg-promise';
 import { promisify } from 'sys';
 
 import { SessionBasicInfo } from 'shared/types';
+import { AssetDirectories } from 'server/assets/Assets';
 import { config } from 'server/Config';
 import { logger } from 'server/Logger';
 import { getRandomFilename } from 'server/util/Random';
@@ -12,11 +13,7 @@ import { getRandomFilename } from 'server/util/Random';
 import { HandlerParams } from './RequestHandling';
 
 const mkdirAsync = promisify(mkdir);
-
-export const AssetDirectories = {
-  profileImage: path.join(config.assetPath, 'img/profile'),
-  shortcutImage: path.join(config.assetPath, 'img/shortcut'),
-};
+const unlinkAsync = promisify(unlink);
 
 export interface FileUploadResult {
   originalFilename?: string;
@@ -28,6 +25,25 @@ export interface FileUploadResult {
 export function getNewFilename(ext?: string): string {
   const base = getRandomFilename(24);
   return ext ? `${base}${ext}` : base;
+}
+
+export function withoutExt(file: string): string {
+  const ext = path.extname(file);
+  return ext ? file.substring(0, file.length - ext.length) : file;
+}
+
+export async function safeDeleteFile(filepath: string, logInfo?: boolean) {
+  try {
+    const f = Bun.file(filepath);
+    if (!(await f.exists())) {
+      logger.debug(`File ${filepath} does not exist, skipping delete`);
+      return;
+    }
+    (logInfo ? logger.info : logger.debug)(`Deleting file ${filepath}`);
+    await unlinkAsync(filepath);
+  } catch (e) {
+    logger.warn(e, `Could not delete file ${filepath}`);
+  }
 }
 
 export async function storeUploadedFile(

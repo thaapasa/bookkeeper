@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -euo pipefail
+
+
 pushd . >/dev/null
 cd `dirname $0`/..
 
@@ -10,8 +13,7 @@ if [ "$PORT" = "" ]; then
   exit 0
 fi
 
-PIDS=`ps -ef | grep BookkeeperServer | grep -v grep | awk '{print $2;}'`
-
+PIDS=`ps -ef | grep BookkeeperServer | grep -v grep | awk '{print $2;}'` || true
 
 if [ "$PIDS" != "" ]; then
   echo "Server already running!"
@@ -34,7 +36,7 @@ echo
 popd >/dev/null
 
 echo "Waiting for server to start"
-./script/wait-for-it.sh localhost:$PORT
+./script/wait-for-it.sh localhost:$PORT -t 10
 echo
 
 sleep 0.33

@@ -40,6 +40,7 @@ export interface User extends DbObject {
   firstName: string;
   lastName: string;
   image?: string;
+  imageLarge?: string;
   defaultGroupId?: number | null;
   expenseShortcuts: ExpenseShortcut[];
 }

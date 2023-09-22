@@ -11,9 +11,12 @@ import { colorScheme } from '../Colors';
 import { UploadImageButton } from '../component/UploadFileButton';
 import { Subtitle } from '../design/Text';
 import { RenderIcon } from '../icons/Icons';
-import { imageUrlForWidth, isOwnImage } from './ProfileImage';
 
-const size = 140;
+const size = 128;
+
+function isOwnImage(imageUrl: string | undefined): boolean {
+  return !!imageUrl && !imageUrl.startsWith('http:') && !imageUrl.startsWith('https:');
+}
 
 export const ProfileImageView: React.FC<{ session: Session }> = ({ session }) => {
   const user = session.user;
@@ -23,7 +26,7 @@ export const ProfileImageView: React.FC<{ session: Session }> = ({ session }) =>
         <Subtitle>Profiilikuva</Subtitle>
       </Grid>
       <Grid item xs={12}>
-        <ProfileImage image={user.image}>
+        <ProfileImage image={user.imageLarge}>
           <IconPlacement>
             <UploadImageButton
               onSelect={uploadImage}
@@ -66,9 +69,7 @@ const ProfileImage: React.FC<React.PropsWithChildren<{ image?: string }>> = ({
   const ownImage = isOwnImage(image);
   return (
     <ImgContainer>
-      {image ? (
-        <Img src={imageUrlForWidth(image, size)} className={ownImage ? 'own' : 'gravatar'} />
-      ) : null}
+      {image ? <Img src={image} className={ownImage ? 'own' : 'gravatar'} /> : null}
       {!ownImage ? <ImageInfo className="info">Gravatar</ImageInfo> : null}
       {children}
     </ImgContainer>
