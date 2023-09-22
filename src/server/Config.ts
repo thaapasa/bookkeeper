@@ -3,9 +3,13 @@ import { hostname } from 'os';
 dotenv.config();
 
 const env = process.env.NODE_ENV || 'development';
+
+import path from 'path';
+
 import revision from './revision';
 const port = process.env.SERVER_PORT;
 
+const curDir = process.cwd();
 class Config {
   public environment = env;
 
@@ -28,7 +32,9 @@ class Config {
     ? parseInt(process.env.DELAY, 10)
     : undefined;
 
-  public fileUploadPath: string = process.env.UPLOAD_PATH || './uploads';
+  public curDir = curDir;
+  public fileUploadPath: string = path.join(curDir, process.env.UPLOAD_PATH || './uploads');
+  public assetPath: string = path.join(curDir, process.env.ASSET_PATH || './assets');
 }
 
 export const config = new Config();

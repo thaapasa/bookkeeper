@@ -3,6 +3,7 @@ import { Router } from 'express';
 import { PasswordUpdate, UserDataUpdate } from 'shared/userData';
 import { changeUserPassword, updateUserData } from 'server/data/UserService';
 import { logger } from 'server/Logger';
+import { storeUploadedFile } from 'server/server/FileHandling';
 import { createValidatingRouter } from 'server/server/ValidatingRouter';
 
 /**
@@ -24,8 +25,8 @@ export function createProfileApi() {
 
   api.postTx('/image/:filename', {}, async (_tx, _session, { params }, req) => {
     logger.info('Upload profile image');
-    await Bun.write(`uploads/${params.filename}`, req.body);
-    logger.info('Profile image written');
+    const res = await storeUploadedFile(req, params.filename);
+    logger.info(res, 'Profile image written');
     return { status: 'OK' };
   });
 
