@@ -62,7 +62,7 @@ jobs:
           cat log/server.log | bun pretty-log
 
       - name: Report build status to Slack
-        if: failure()
+        if: ${{ failure() && github.ref_name == 'master' }}
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
