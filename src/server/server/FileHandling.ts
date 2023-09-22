@@ -3,7 +3,7 @@ import path from 'path';
 
 import { config } from 'server/Config';
 import { logger } from 'server/Logger';
-import { getRandomFilename } from 'server/util/random';
+import { getRandomFilename } from 'server/util/Random';
 
 export interface FileUploadResult {
   originalFilename?: string;
