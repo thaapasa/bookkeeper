@@ -22,10 +22,15 @@ export function createProfileApi() {
     changeUserPassword(tx, session.group.id, session.user.id, body),
   );
 
-  api.postTx('/image/:filename', {}, async (_tx, session, { params }, req) => {
-    logger.info('Image upload');
+  api.postTx('/image/:filename', {}, async (_tx, _session, { params }, req) => {
+    logger.info('Upload profile image');
     await Bun.write(`uploads/${params.filename}`, req.body);
-    logger.info('Image written');
+    logger.info('Profile image written');
+    return { status: 'OK' };
+  });
+
+  api.delete('/image', {}, async (_tx, _session) => {
+    logger.info('Delete profile image');
     return { status: 'OK' };
   });
 

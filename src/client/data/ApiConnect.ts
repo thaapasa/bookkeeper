@@ -312,14 +312,6 @@ export class ApiConnect {
   public patchSource = (sourceId: ObjectId, data: SourcePatch) =>
     this.patch<Source>(uri`/api/source/${sourceId}`, data);
 
-  public createReport = (title: string, query: ExpenseQuery) => {
-    const body: ReportCreationData = {
-      title,
-      query: filterDefinedProps(query),
-    };
-    return this.post<ReportDef>(uri`/api/report`, body);
-  };
-
   public updateUserData = (userData: UserDataUpdate): Promise<void> =>
     this.put(uri`/api/profile/userData`, userData);
 
@@ -330,6 +322,18 @@ export class ApiConnect {
     return this.post(uri`/api/profile/image/${filename}`, file, undefined, {
       'Content-Type': 'application/octet-stream',
     });
+  };
+
+  public deleteProfileImage = (): Promise<void> => {
+    return this.del(uri`/api/profile/image`);
+  };
+
+  public createReport = (title: string, query: ExpenseQuery) => {
+    const body: ReportCreationData = {
+      title,
+      query: filterDefinedProps(query),
+    };
+    return this.post<ReportDef>(uri`/api/report`, body);
   };
 
   public deleteReport = (reportId: ObjectId) => this.del<ApiMessage>(uri`/api/report/${reportId}`);
