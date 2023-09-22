@@ -7,6 +7,7 @@ async function bundle() {
     outdir: './build-server',
     target: 'bun',
     sourcemap: 'external',
+    external: ['sharp'],
   });
 
   for (const output of build.outputs) {
