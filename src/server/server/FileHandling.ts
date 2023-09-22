@@ -26,6 +26,11 @@ export function getNewFilename(ext?: string): string {
   return ext ? `${base}${ext}` : base;
 }
 
+export function withoutExt(file: string): string {
+  const ext = path.extname(file);
+  return ext ? file.substring(0, file.length - ext.length) : file;
+}
+
 export async function storeUploadedFile(
   req: Request,
   originalFilename?: string,

@@ -2,13 +2,13 @@ import path from 'path';
 import sharp from 'sharp';
 
 import { logger } from 'server/Logger';
-import { FileUploadResult } from 'server/server/FileHandling';
+import { FileUploadResult, withoutExt } from 'server/server/FileHandling';
 
 import { AssetDirectories } from './Assets';
 
 export async function createProfileImages(image: FileUploadResult) {
-  const imageSmall = path.basename(image.filename) + '.webp';
-  const imageLarge = path.basename(imageSmall) + '-large.webp';
+  const imageSmall = withoutExt(image.filename) + '.webp';
+  const imageLarge = withoutExt(image.filename) + '-large.webp';
   await writeImage(
     sharp(image.filepath)
       .trim()
