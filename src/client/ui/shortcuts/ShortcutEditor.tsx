@@ -3,8 +3,12 @@ import * as B from 'baconjs';
 import * as React from 'react';
 import { create } from 'zustand';
 
+import { ExpenseShortcutData, ExpenseShortcutPayload } from 'shared/expense';
 import { ExpenseShortcut, ObjectId } from 'shared/types';
+import { requireDefined } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
+import { updateSession } from 'client/data/Login';
+import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { AsyncDataDialogContent } from '../component/AsyncDataDialog';
 import { connectDialog } from '../component/DialogConnector';
@@ -33,27 +37,51 @@ const ShortcutDialogImpl: React.FC<{ shortcutId: ObjectId; onClose: () => void }
 export type ShortcutState = {
   title: string;
   background: string;
-  expense: string;
+  expenseStr: string;
   setTitle: (title: string) => void;
   setBackground: (background: string) => void;
   setExpense: (expense: string) => void;
   reset: (shortcut: ExpenseShortcut) => void;
+  inputValid: () => boolean;
+  toPayload: () => ExpenseShortcutPayload;
 };
 
-export const useShortcutState = create<ShortcutState>(set => ({
+export const useShortcutState = create<ShortcutState>((set, get) => ({
   title: '',
   background: '',
-  expense: '',
+  expenseStr: '',
   setTitle: title => set({ title }),
   setBackground: background => set({ background }),
-  setExpense: expense => set({ expense }),
+  setExpense: expenseStr => set({ expenseStr }),
   reset: shortcut =>
     set({
       title: shortcut.title,
       background: shortcut.background ?? '',
-      expense: JSON.stringify(shortcut.expense ?? {}, null, 2),
+      expenseStr: JSON.stringify(shortcut.expense ?? {}, null, 2),
     }),
+  inputValid: () => {
+    const s = get();
+    return !!s.title && parseExpense(s.expenseStr) !== undefined;
+  },
+  toPayload: () => {
+    const s = get();
+    return {
+      title: s.title,
+      background: s.background || undefined,
+      expense: requireDefined(parseExpense(s.expenseStr), 'parsed expense data'),
+    };
+  },
 }));
+
+function parseExpense(expenseStr: string): ExpenseShortcutData | undefined {
+  try {
+    const d = JSON.parse(expenseStr);
+    const parsed = ExpenseShortcutData.parse(d);
+    return parsed;
+  } catch (e) {
+    return undefined;
+  }
+}
 
 const ShortcutEditView: React.FC<{ data: ExpenseShortcut; onClose: () => void }> = ({
   data,
@@ -84,7 +112,7 @@ const ShortcutEditView: React.FC<{ data: ExpenseShortcut; onClose: () => void }>
             <Subtitle>Linkin data</Subtitle>
           </Grid>
           <Grid item xs={12}>
-            <TextEdit value={state.expense} onChange={state.setExpense} multiline fullWidth />
+            <TextEdit value={state.expenseStr} onChange={state.setExpense} multiline fullWidth />
           </Grid>
           <Grid item xs="auto">
             <Button color="inherit" onClick={onClose}>
@@ -92,7 +120,12 @@ const ShortcutEditView: React.FC<{ data: ExpenseShortcut; onClose: () => void }>
             </Button>
           </Grid>
           <Grid item xs="auto">
-            <Button color="primary" variant="contained">
+            <Button
+              color="primary"
+              variant="contained"
+              disabled={!state.inputValid()}
+              onClick={() => saveShortcut(data.id, state.toPayload())}
+            >
               Tallenna
             </Button>
           </Grid>
@@ -106,4 +139,11 @@ export const ShortcutEditor = connectDialog(shortcutBus, ShortcutDialogImpl);
 
 function getShortcut(shortcutId: ObjectId): Promise<ExpenseShortcut> {
   return apiConnect.getShortcut(shortcutId);
+}
+
+function saveShortcut(shortcutId: ObjectId, data: ExpenseShortcutPayload): Promise<void> {
+  return executeOperation(() => apiConnect.updateShortcut(shortcutId, data), {
+    postProcess: updateSession,
+    success: 'Linkki päivitetty!',
+  });
 }

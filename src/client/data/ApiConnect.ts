@@ -2,6 +2,7 @@ import {
   ExpenseCollection,
   ExpenseData,
   ExpenseQuery,
+  ExpenseShortcutPayload,
   ExpenseSplit,
   ExpenseStatus,
   RecurrencePeriod,
@@ -315,6 +316,9 @@ export class ApiConnect {
 
   public getShortcut = (shortcutId: ObjectId): Promise<ExpenseShortcut> =>
     this.get(uri`/api/profile/shortcut/${shortcutId}`);
+
+  public updateShortcut = (shortcutId: ObjectId, data: ExpenseShortcutPayload): Promise<void> =>
+    this.put(uri`/api/profile/shortcut/${shortcutId}`, data);
 
   public updateUserData = (userData: UserDataUpdate): Promise<void> =>
     this.put(uri`/api/profile/userData`, userData);
