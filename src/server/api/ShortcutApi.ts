@@ -1,7 +1,8 @@
 import { Router } from 'express';
 
 import { ExpenseShortcutPayload } from 'shared/expense';
-import { deleteShortcutById, getShortcutById, updateShortcutData } from 'server/data/ShortcutDb';
+import { getShortcutById } from 'server/data/ShortcutDb';
+import { deleteShortcut, updateShortcutData } from 'server/data/ShortcutService';
 import { createValidatingRouter } from 'server/server/ValidatingRouter';
 
 /**
@@ -23,7 +24,7 @@ export function createShortcutApi() {
 
   // DELETE /api/profile/shortcut/:id
   api.deleteTx('/:id', {}, (tx, session, { params }) =>
-    deleteShortcutById(tx, session.group.id, session.user.id, params.id),
+    deleteShortcut(tx, session.group.id, session.user.id, params.id),
   );
 
   return api.router;
