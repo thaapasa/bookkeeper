@@ -6,6 +6,8 @@ exports.up = knex =>
   knex.raw(`--sql
     CREATE TABLE IF NOT EXISTS shortcuts (
       id SERIAL PRIMARY KEY,
+      created TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+      updated TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
       group_id INTEGER REFERENCES groups(id),
       user_id INTEGER REFERENCES users(id),
       title TEXT NOT NULL,

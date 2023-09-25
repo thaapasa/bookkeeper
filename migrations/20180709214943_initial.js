@@ -3,7 +3,7 @@
 /* eslint-disable no-undef */
 
 exports.up = knex =>
-  knex.raw(`
+  knex.raw(/*sql*/ `
   CREATE EXTENSION pgcrypto;
 
   CREATE TYPE recurring_period AS ENUM ('monthly', 'yearly');
@@ -68,7 +68,6 @@ exports.up = knex =>
 
   DROP INDEX IF EXISTS group_users_user_id;
   CREATE INDEX group_users_user_id ON group_users (user_id);
-
 
   CREATE TABLE IF NOT EXISTS source_users (
     source_id INTEGER REFERENCES sources (id) NOT NULL,

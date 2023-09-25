@@ -44,7 +44,10 @@ export async function updateShortcutById(
 ): Promise<void> {
   await tx.none(
     `UPDATE shortcuts
-      SET title=$/title/, background=$/background/, expense=$/expense/
+      SET title=$/title/,
+        background=$/background/,
+        expense=$/expense/,
+        updated=NOW()
       WHERE id=$/shortcutId/`,
     {
       shortcutId,
