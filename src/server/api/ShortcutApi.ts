@@ -1,6 +1,7 @@
 import { Router } from 'express';
 
-import { getShortcutById } from 'server/data/ShortcutDb';
+import { ExpenseShortcutPayload } from 'shared/expense';
+import { getShortcutById, updateShortcutData } from 'server/data/ShortcutDb';
 import { createValidatingRouter } from 'server/server/ValidatingRouter';
 
 /**
@@ -13,6 +14,11 @@ export function createShortcutApi() {
   // GET /api/profile/shortcut/:id
   api.getTx('/:id', {}, (tx, session, { params }) =>
     getShortcutById(tx, session.group.id, session.user.id, params.id),
+  );
+
+  // PUT /api/profile/shortcut/:id
+  api.putTx('/:id', { body: ExpenseShortcutPayload }, (tx, session, { params, body }) =>
+    updateShortcutData(tx, session.group.id, session.user.id, params.id, body),
   );
 
   return api.router;

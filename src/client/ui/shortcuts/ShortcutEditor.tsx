@@ -124,7 +124,7 @@ const ShortcutEditView: React.FC<{ data: ExpenseShortcut; onClose: () => void }>
               color="primary"
               variant="contained"
               disabled={!state.inputValid()}
-              onClick={() => saveShortcut(data.id, state.toPayload())}
+              onClick={() => saveShortcut(data.id, state.toPayload(), onClose)}
             >
               Tallenna
             </Button>
@@ -141,9 +141,14 @@ function getShortcut(shortcutId: ObjectId): Promise<ExpenseShortcut> {
   return apiConnect.getShortcut(shortcutId);
 }
 
-function saveShortcut(shortcutId: ObjectId, data: ExpenseShortcutPayload): Promise<void> {
-  return executeOperation(() => apiConnect.updateShortcut(shortcutId, data), {
+async function saveShortcut(
+  shortcutId: ObjectId,
+  data: ExpenseShortcutPayload,
+  onClose: () => void,
+): Promise<void> {
+  await executeOperation(() => apiConnect.updateShortcut(shortcutId, data), {
     postProcess: updateSession,
     success: 'Linkki päivitetty!',
   });
+  onClose();
 }

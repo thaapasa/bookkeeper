@@ -1,5 +1,6 @@
 import { ITask } from 'pg-promise';
 
+import { ExpenseShortcutPayload } from 'shared/expense';
 import { ExpenseShortcut, NotFoundError, ObjectId } from 'shared/types';
 
 const SHORTCUT_FIELDS = /*sql */ `id, title, icon, background, expense`;
@@ -33,6 +34,28 @@ export async function getShortcutById(
   if (!shortcut) {
     throw new NotFoundError('SHORTCUT_NOT_FOUND', 'shortcut', shortcutId);
   }
+  return rowToShortcut(shortcut);
+}
+
+export async function updateShortcutData(
+  tx: ITask<any>,
+  groupId: ObjectId,
+  userId: ObjectId,
+  shortcutId: ObjectId,
+  data: ExpenseShortcutPayload,
+): Promise<ExpenseShortcut> {
+  const shortcut = await getShortcutById(tx, groupId, userId, shortcutId);
+  await tx.none(
+    `UPDATE shortcuts
+      SET title=$/title/, background=$/background/, expense=$/expense/
+      WHERE id=$/shortcutId/`,
+    {
+      shortcutId,
+      title: data.title,
+      background: data.background,
+      expense: data.expense,
+    },
+  );
   return rowToShortcut(shortcut);
 }
 
