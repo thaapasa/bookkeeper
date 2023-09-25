@@ -4,16 +4,15 @@ import * as React from 'react';
 import { ExpenseShortcut } from 'shared/types';
 import { spaced } from 'shared/util';
 import { validSessionE } from 'client/data/Login';
-import { createExpense } from 'client/data/State';
+import { createNewExpense } from 'client/data/State';
 
 import { secondaryColors } from '../Colors';
 import { connect } from '../component/BaconConnect';
-import { Row } from '../component/Row';
 import { useToggle } from '../hooks/useToggle';
 import { AddExpenseIcon } from '../icons/AddExpenseIcon';
 import { Icons } from '../icons/Icons';
 import { Flex } from '../Styles';
-import { LinkWithTitle } from './ShortcutLink';
+import { ShortcutLink, ShortcutLinkProps } from './ShortcutLink';
 
 const FullList: React.FC<{
   shortcuts: ExpenseShortcut[];
@@ -22,34 +21,33 @@ const FullList: React.FC<{
   const [editMode, toggleEdit] = useToggle(false);
   return (
     <LinksArea className={spaced`${'with-titles'} ${className}`}>
-      <TitledRow>
-        <Row className="clickable" onClick={createExpense}>
-          <AddExpenseIcon />
-          <Title>Uusi kirjaus</Title>
-        </Row>
+      <ShortcutRow title="Uusi kirjaus" icon={<AddExpenseIcon />}>
         <Flex minWidth="32px" />
         <IconButton onClick={toggleEdit}>
-          <Icons.EditNote />
+          {editMode ? <Icons.Clear /> : <Icons.EditNote />}
         </IconButton>
-      </TitledRow>
+      </ShortcutRow>
       {shortcuts.map((l, i) => (
-        <LinkWithTitle key={`titlelink-${i}`} {...l} />
+        <ShortcutRow key={`titlelink-${i}`} {...l} expense={l} />
       ))}
-      {editMode ? (
-        <TitledRow>
-          <Row className="clickable" onClick={createExpense}>
-            <AddExpenseIcon />
-            <Title>Lisää linkki</Title>
-          </Row>
-        </TitledRow>
-      ) : null}
+      {editMode ? <ShortcutRow title="Lisää linkki" icon={<AddExpenseIcon />} /> : null}
     </LinksArea>
   );
 };
 
-export const ShortcutsView = connect(
-  validSessionE.map(s => ({ shortcuts: s.user.expenseShortcuts || [] })),
-)(FullList);
+const ShortcutRow: React.FC<React.PropsWithChildren<ShortcutLinkProps>> = ({
+  expense,
+  onClick,
+  title,
+  children,
+  ...props
+}) => (
+  <TitledRow onClick={onClick ?? (expense ? () => createNewExpense(expense) : undefined)}>
+    <ShortcutLink {...props} title={title} />
+    <Title>{title}</Title>
+    {children}
+  </TitledRow>
+);
 
 const TitledRow = styled('div')`
   display: flex;
@@ -64,6 +62,10 @@ const Title = styled('div')`
   margin-left: 8px;
   color: ${secondaryColors.dark};
 `;
+
+export const ShortcutsView = connect(
+  validSessionE.map(s => ({ shortcuts: s.user.expenseShortcuts || [] })),
+)(FullList);
 
 const LinksArea = styled('div')`
   display: flex;

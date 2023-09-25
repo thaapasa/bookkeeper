@@ -6,8 +6,8 @@ import { validSessionE } from 'client/data/Login';
 
 import { navigationBar } from '../Colors';
 import { connect } from '../component/BaconConnect';
-import { AddExpenseIcon } from '../icons/AddExpenseIcon';
-import { LinkIcon } from './ShortcutLink';
+import { AddExpenseNavButton } from '../icons/AddExpenseIcon';
+import { ShortcutLink } from './ShortcutLink';
 
 const DropdownImpl: React.FC<{
   shortcuts: ExpenseShortcut[];
@@ -21,9 +21,9 @@ const DropdownImpl: React.FC<{
       className={shortcuts.length > 0 ? 'enabled' : 'disabled'}
     >
       <LinksArea className={className}>
-        <AddExpenseIcon />
+        <AddExpenseNavButton />
         {shortcuts.map((l, i) => (
-          <LinkIcon key={`link-${i}`} {...l} />
+          <ShortcutLink key={`link-${i}`} {...l} />
         ))}
       </LinksArea>
     </LinksContainer>

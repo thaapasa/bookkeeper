@@ -6,44 +6,37 @@ import { createNewExpense } from 'client/data/State';
 
 import { secondaryColors } from '../Colors';
 
-export const LinkIcon: React.FC<ExpenseShortcut & { noClick?: boolean }> = props => (
+export interface ShortcutLinkProps {
+  background?: string;
+  onClick?: () => void;
+  expense?: ExpenseShortcut;
+  title: string;
+  icon?: string | React.ReactNode;
+}
+
+export const ShortcutLink: React.FC<ShortcutLinkProps> = ({
+  onClick,
+  background,
+  expense,
+  icon,
+  title,
+}) => (
   <LinkIconArea
-    onClick={!props.noClick ? () => createNewExpense(props.values) : undefined}
-    style={{ background: props.background }}
+    onClick={onClick ?? (expense ? () => createNewExpense(expense) : undefined)}
+    style={{ background }}
   >
-    {props.icon ? (
-      <LinkImage src={props.icon} title={props.title} />
+    {typeof icon === 'string' ? (
+      <LinkImage src={icon} title={title} />
     ) : (
-      props.title.substring(0, 1).toUpperCase()
+      icon ?? title.substring(0, 1).toUpperCase()
     )}
   </LinkIconArea>
-);
-
-export const LinkWithTitle: React.FC<ExpenseShortcut> = props => (
-  <TitledRow onClick={() => createNewExpense(props.values)}>
-    <LinkIcon {...props} noClick />
-    <Title>{props.title}</Title>
-  </TitledRow>
 );
 
 const LinkImage = styled('img')`
   width: 32px;
   height: 32px;
   border-radius: 16px;
-`;
-
-const TitledRow = styled('div')`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  align-self: stretch;
-`;
-
-const Title = styled('div')`
-  font-size: 14px;
-  margin-left: 8px;
-  color: ${secondaryColors.dark};
 `;
 
 const LinkIconArea = styled('div')`
