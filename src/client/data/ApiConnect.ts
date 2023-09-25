@@ -26,6 +26,7 @@ import {
   CategorySelection,
   CategoryStatistics,
   DbStatus,
+  ExpenseShortcut,
   ObjectId,
   Session,
   Source,
@@ -311,6 +312,9 @@ export class ApiConnect {
 
   public patchSource = (sourceId: ObjectId, data: SourcePatch) =>
     this.patch<Source>(uri`/api/source/${sourceId}`, data);
+
+  public getShortcut = (shortcutId: ObjectId): Promise<ExpenseShortcut> =>
+    this.get(uri`/api/profile/shortcut/${shortcutId}`);
 
   public updateUserData = (userData: UserDataUpdate): Promise<void> =>
     this.put(uri`/api/profile/userData`, userData);

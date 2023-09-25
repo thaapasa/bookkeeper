@@ -13,7 +13,7 @@ import { useToggle } from '../hooks/useToggle';
 import { AddExpenseIcon } from '../icons/AddExpenseIcon';
 import { Icons } from '../icons/Icons';
 import { Flex } from '../Styles';
-import { editShortcut, ShortcutDialog } from './ShortcutDialog';
+import { editShortcut, ShortcutEditor } from './ShortcutEditor';
 import { ShortcutLink, ShortcutLinkProps } from './ShortcutLink';
 
 const FullList: React.FC<{
@@ -45,7 +45,7 @@ const FullList: React.FC<{
           <ShortcutRow title="Lisää linkki" icon={<AddExpenseIcon />} onClick={noop} />
         ) : null}
       </LinksArea>
-      <ShortcutDialog />
+      <ShortcutEditor />
     </>
   );
 };
