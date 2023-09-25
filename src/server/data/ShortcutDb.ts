@@ -39,8 +39,8 @@ export async function getShortcutById(
 function rowToShortcut(rowdata: ExpenseShortcut) {
   return {
     ...rowdata,
-    icon: rowdata.icon ?? undefined,
-    background: rowdata.icon ?? undefined,
+    icon: rowdata.icon || undefined,
+    background: rowdata.background || undefined,
     expense: rowdata.expense ?? {},
   };
 }
