@@ -320,6 +320,9 @@ export class ApiConnect {
   public updateShortcut = (shortcutId: ObjectId, data: ExpenseShortcutPayload): Promise<void> =>
     this.put(uri`/api/profile/shortcut/${shortcutId}`, data);
 
+  public deleteShortcut = (shortcutId: ObjectId): Promise<void> =>
+    this.del(uri`/api/profile/shortcut/${shortcutId}`);
+
   public updateUserData = (userData: UserDataUpdate): Promise<void> =>
     this.put(uri`/api/profile/userData`, userData);
 

@@ -26,7 +26,7 @@ const ShortcutDialogImpl: React.FC<{ shortcutId: ObjectId; onClose: () => void }
   shortcutId,
   onClose,
 }) => {
-  const data = useAsyncData(getShortcut, true, shortcutId);
+  const data = useAsyncData(apiConnect.getShortcut, true, shortcutId);
   return (
     <Dialog fullWidth={true} open={true} onClose={onClose}>
       <AsyncDataDialogContent data={data} renderer={ShortcutEditView} onClose={onClose} />
@@ -136,10 +136,6 @@ const ShortcutEditView: React.FC<{ data: ExpenseShortcut; onClose: () => void }>
 };
 
 export const ShortcutEditor = connectDialog(shortcutBus, ShortcutDialogImpl);
-
-function getShortcut(shortcutId: ObjectId): Promise<ExpenseShortcut> {
-  return apiConnect.getShortcut(shortcutId);
-}
 
 async function saveShortcut(
   shortcutId: ObjectId,

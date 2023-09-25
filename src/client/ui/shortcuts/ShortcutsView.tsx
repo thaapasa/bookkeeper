@@ -1,10 +1,12 @@
 import { IconButton, styled } from '@mui/material';
 import * as React from 'react';
 
-import { ExpenseShortcut } from 'shared/types';
+import { ExpenseShortcut, ObjectId } from 'shared/types';
 import { noop, spaced } from 'shared/util';
-import { validSessionE } from 'client/data/Login';
+import apiConnect from 'client/data/ApiConnect';
+import { updateSession, validSessionE } from 'client/data/Login';
 import { createNewExpense } from 'client/data/State';
+import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { secondaryColors } from '../Colors';
 import { connect } from '../component/BaconConnect';
@@ -39,6 +41,7 @@ const FullList: React.FC<{
             key={`titlelink-${l.id}`}
             {...l}
             onEdit={editMode ? () => editShortcut(l.id) : undefined}
+            onDelete={editMode ? () => deleteShortcut(l.id) : undefined}
           />
         ))}
         {editMode ? (
@@ -51,8 +54,8 @@ const FullList: React.FC<{
 };
 
 const ShortcutRow: React.FC<
-  React.PropsWithChildren<ShortcutLinkProps & { onEdit?: () => void }>
-> = ({ expense, onClick, onEdit, title, children, ...props }) => (
+  React.PropsWithChildren<ShortcutLinkProps & { onEdit?: () => void; onDelete?: () => void }>
+> = ({ expense, onClick, onEdit, onDelete, title, children, ...props }) => (
   <TitledRow>
     <Row
       onClick={onClick ?? (expense ? () => createNewExpense(expense) : undefined)}
@@ -62,19 +65,30 @@ const ShortcutRow: React.FC<
       <Title>{title}</Title>
     </Row>
     {children}
-    {onEdit ? (
+    {onEdit || onDelete ? (
       <>
         <Flex minWidth="32px" />
-        <IconButton size="small" onClick={onEdit}>
-          <Icons.Edit fontSize="small" />
-        </IconButton>
-        <IconButton size="small" onClick={onEdit} style={{ marginRight: '4px' }}>
-          <Icons.Delete fontSize="small" color="warning" />
-        </IconButton>
+        {onEdit ? (
+          <IconButton size="small" onClick={onEdit}>
+            <Icons.Edit fontSize="small" />
+          </IconButton>
+        ) : null}
+        {onDelete ? (
+          <IconButton size="small" onClick={onDelete} style={{ marginRight: '4px' }}>
+            <Icons.Delete fontSize="small" color="warning" />
+          </IconButton>
+        ) : null}
       </>
     ) : null}
   </TitledRow>
 );
+
+function deleteShortcut(shortcutId: ObjectId) {
+  return executeOperation(() => apiConnect.deleteShortcut(shortcutId), {
+    postProcess: updateSession,
+    success: 'Linkki poistettu!',
+  });
+}
 
 const TitledRow = styled('div')`
   display: flex;

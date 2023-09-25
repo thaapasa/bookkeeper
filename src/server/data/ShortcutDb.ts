@@ -43,8 +43,8 @@ export async function updateShortcutData(
   userId: ObjectId,
   shortcutId: ObjectId,
   data: ExpenseShortcutPayload,
-): Promise<ExpenseShortcut> {
-  const shortcut = await getShortcutById(tx, groupId, userId, shortcutId);
+): Promise<void> {
+  await getShortcutById(tx, groupId, userId, shortcutId);
   await tx.none(
     `UPDATE shortcuts
       SET title=$/title/, background=$/background/, expense=$/expense/
@@ -56,7 +56,16 @@ export async function updateShortcutData(
       expense: data.expense,
     },
   );
-  return rowToShortcut(shortcut);
+}
+
+export async function deleteShortcutById(
+  tx: ITask<any>,
+  groupId: ObjectId,
+  userId: ObjectId,
+  shortcutId: ObjectId,
+): Promise<void> {
+  await getShortcutById(tx, groupId, userId, shortcutId);
+  await tx.none(`DELETE FROM shortcuts WHERE id=$/shortcutId/`, { shortcutId });
 }
 
 function rowToShortcut(rowdata: ExpenseShortcut) {
