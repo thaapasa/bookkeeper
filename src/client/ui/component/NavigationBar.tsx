@@ -4,9 +4,9 @@ import { Link, useMatch } from 'react-router-dom';
 
 import { gray, navigationBar } from '../Colors';
 import { Icon, RenderIcon } from '../icons/Icons';
+import { ShortcutsDropdown } from '../shortcuts/ShortcutsDropdown';
 import { Size } from '../Types';
 import { DateRangeNavigator } from './DateRangeNavigator';
-import { ExpenseShortcutsView } from './ExpenseShortcutsView';
 
 export interface AppLink {
   label: string;
@@ -38,7 +38,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({ links, windowSize 
       <DateRangeNavigator />
     </ToolbarGroup>
     <PadGroup />
-    <ExpenseShortcutsView />
+    <ShortcutsDropdown />
   </Bar>
 );
 

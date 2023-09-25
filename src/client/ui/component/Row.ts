@@ -1,4 +1,4 @@
-import { styled } from '@mui/material';
+import { styled } from '@mui/system';
 
 import { colorScheme } from '../Colors';
 import { FlexRow } from './BasicElements';
@@ -10,6 +10,10 @@ export const Row = styled(FlexRow)`
   min-height: ${rowHeight}px;
   align-items: center;
   flex-wrap: nowrap;
+
+  &.clickable {
+    cursor: pointer;
+  }
 `;
 
 export const HeaderRow = styled(Row)`

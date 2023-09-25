@@ -34,7 +34,7 @@ import { RoutedMonthView } from '../expense/RoutedMonthView';
 import { ExpenseSplitDialog } from '../expense/split/ExpenseSplitDialog';
 import { InfoView } from '../info/InfoView';
 import { ProfileView } from '../profile/ProfileView';
-import { SearchView } from '../search/SearchView';
+import { SearchPage } from '../search/SearchPage';
 import { StatisticsView } from '../statistics/StatisticsView';
 import {
   getScreenSizeClassName,
@@ -42,11 +42,11 @@ import {
   mainContentMargin,
   mainContentMaxWidth,
 } from '../Styles';
-import { SubscriptionsView } from '../subscriptions/SubscriptionsView';
+import { SubscriptionsPage } from '../subscriptions/SubscriptionsPage';
 import { ToolsView } from '../tools/ToolsView';
 import { Size } from '../Types';
 import { PathNotFoundError } from './ErrorView';
-import { ShortcutsView } from './ShortcutsView';
+import { ShortcutsPage } from './ShortcutsPage';
 
 interface PageProps {
   session: Session;
@@ -117,12 +117,12 @@ export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
               <Route path={expensePagePath} element={<RoutedMonthView />} />
               <Route path={categoryViewYearPattern('year')} element={<RoutedCategoryView />} />
               <Route path={categoryViewMonthPattern('month')} element={<RoutedCategoryView />} />
-              <Route path={shortcutsPage} element={<ShortcutsView />} />
-              <Route path={subscriptionsPagePath} element={<SubscriptionsView />} />
+              <Route path={shortcutsPage} element={<ShortcutsPage />} />
+              <Route path={subscriptionsPagePath} element={<SubscriptionsPage />} />
               <Route path={categoryPagePath} element={<RoutedCategoryView />} />
-              <Route path={`${searchPagePath}/m/:month`} element={<SearchView />} />
-              <Route path={`${searchPagePath}/y/:year`} element={<SearchView />} />
-              <Route path={searchPagePath} element={<SearchView />} />
+              <Route path={`${searchPagePath}/m/:month`} element={<SearchPage />} />
+              <Route path={`${searchPagePath}/y/:year`} element={<SearchPage />} />
+              <Route path={searchPagePath} element={<SearchPage />} />
               <Route path={statisticsPage} element={<StatisticsView />} />
               <Route path={profilePagePath} element={<ProfileView />} />
               <Route path={infoPagePath} element={<InfoView />} />

@@ -1,4 +1,5 @@
-import { css, styled } from '@mui/material';
+import { css } from '@mui/material';
+import { styled } from '@mui/system';
 
 import { primaryColors } from './Colors';
 import { Size } from './Types';
@@ -119,6 +120,7 @@ export const VCenterRow = styled('div')`
 
 export const Flex = styled('div')`
   flex: 1;
+  ${({ minWidth }: { minWidth?: string }) => (minWidth ? `min-width: ${minWidth};` : '')}
 `;
 
 export const Pre = styled('div')`

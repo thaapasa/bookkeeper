@@ -15,6 +15,7 @@ import ConstructionIcon from '@mui/icons-material/Construction';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DonutSmallIcon from '@mui/icons-material/DonutSmall';
 import EditIcon from '@mui/icons-material/Edit';
+import EditNoteIcon from '@mui/icons-material/EditNote';
 import EuroIcon from '@mui/icons-material/Euro';
 import EventRepeatIcon from '@mui/icons-material/EventRepeat';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
@@ -51,6 +52,7 @@ export const Icons = {
   Copy: FileCopyIcon,
   Delete: DeleteIcon,
   Edit: EditIcon,
+  EditNote: EditNoteIcon,
   ExpandLess: ExpandLessIcon,
   ExpandMore: ExpandMoreIcon,
   Expense: PaymentIcon,
