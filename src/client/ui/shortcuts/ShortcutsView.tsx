@@ -33,12 +33,7 @@ const FullList: React.FC<{
         </IconButton>
       </ShortcutRow>
       {shortcuts.map((l, i) => (
-        <ShortcutRow
-          key={`titlelink-${i}`}
-          {...l}
-          expense={l}
-          onEdit={editMode ? noop : undefined}
-        />
+        <ShortcutRow key={`titlelink-${i}`} {...l} onEdit={editMode ? noop : undefined} />
       ))}
       {editMode ? (
         <ShortcutRow title="Lisää linkki" icon={<AddExpenseIcon />} onClick={noop} />
@@ -87,9 +82,9 @@ const Title = styled('div')`
   color: ${secondaryColors.dark};
 `;
 
-export const ShortcutsView = connect(
-  validSessionE.map(s => ({ shortcuts: s.user.expenseShortcuts || [] })),
-)(FullList);
+export const ShortcutsView = connect(validSessionE.map(s => ({ shortcuts: s.shortcuts || [] })))(
+  FullList,
+);
 
 const LinksArea = styled('div')`
   display: flex;

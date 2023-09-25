@@ -1,7 +1,7 @@
 import { styled } from '@mui/material';
 import * as React from 'react';
 
-import { ExpenseShortcut } from 'shared/types';
+import { ExpenseInEditor } from 'shared/expense';
 import { createNewExpense } from 'client/data/State';
 
 import { secondaryColors } from '../Colors';
@@ -9,7 +9,7 @@ import { secondaryColors } from '../Colors';
 export interface ShortcutLinkProps {
   background?: string;
   onClick?: () => void;
-  expense?: ExpenseShortcut;
+  expense?: Partial<ExpenseInEditor>;
   title: string;
   icon?: string | React.ReactNode;
 }
@@ -53,4 +53,5 @@ const LinkIconArea = styled('div')`
   text-decoration: none;
   color: ${secondaryColors.text};
   font-weight: bold;
+  cursor: pointer;
 `;

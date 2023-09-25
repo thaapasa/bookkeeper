@@ -31,7 +31,7 @@ const DropdownImpl: React.FC<{
 };
 
 export const ShortcutsDropdown = connect(
-  validSessionE.map(s => ({ shortcuts: s.user.expenseShortcuts || [] })),
+  validSessionE.map(s => ({ shortcuts: s.shortcuts || [] })),
 )(DropdownImpl);
 
 const LinksContainer = styled('div')(

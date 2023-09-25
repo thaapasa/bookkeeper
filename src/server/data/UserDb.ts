@@ -17,13 +17,12 @@ export function dbRowToUser(user: RawUserData): User {
 
 const select = `--sql
 SELECT
-  id, username, email, first_name as "firstName", last_name as "lastName", image,
-  expense_shortcuts as "expenseShortcuts"
+  id, username, email, first_name as "firstName", last_name as "lastName", image
 FROM users u`;
 
 export async function getAllUsers(tx: ITask<any>, groupId: number): Promise<User[]> {
   const users = await tx.manyOrNone<RawUserData>(
-    `${select}
+    /*sql*/ `${select}
       WHERE
         (SELECT COUNT(*) FROM group_users WHERE user_id=u.id AND group_id=$/groupId/::INTEGER) > 0`,
     { groupId },
@@ -37,8 +36,10 @@ export async function getAllUsers(tx: ITask<any>, groupId: number): Promise<User
 export async function getUserById(tx: ITask<any>, groupId: number, userId: number): Promise<User> {
   const user = await tx.oneOrNone<RawUserData>(
     /*sql*/ `${select}
-      WHERE id=$/userId/::INTEGER AND
-        (SELECT COUNT(*) FROM group_users WHERE user_id=u.id AND group_id=COALESCE($/groupId/, u.default_group_id)) > 0`,
+      WHERE id=$/userId/ AND
+        (SELECT COUNT(*) FROM group_users
+          WHERE user_id=u.id AND group_id=COALESCE($/groupId/, u.default_group_id)
+        ) > 0`,
     { userId, groupId },
   );
   if (!user) {
@@ -67,7 +68,6 @@ export async function getUserByCredentials(
     `SELECT u.id,
         username, email, first_name as "firstName", last_name as "lastName",
         default_group_id as "defaultGroupId", image, g.id as "groupId", g.name as "groupName",
-        u.expense_shortcuts as "expenseShortcuts",
         go.default_source_id as "defaultSourceId"
       FROM users u
         LEFT JOIN group_users go ON (go.user_id = u.id AND go.group_id = COALESCE($/groupId/, u.default_group_id))
