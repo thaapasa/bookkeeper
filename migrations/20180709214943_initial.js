@@ -1,5 +1,7 @@
 'use strict';
 
+/* eslint-disable no-undef */
+
 exports.up = knex =>
   knex.raw(`
   CREATE EXTENSION pgcrypto;

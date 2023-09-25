@@ -1,5 +1,7 @@
 'use strict';
 
+/* eslint-disable no-undef */
+
 exports.up = knex =>
   knex.raw(`
   ALTER TABLE users ADD COLUMN expense_shortcuts JSON;

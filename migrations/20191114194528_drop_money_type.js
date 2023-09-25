@@ -1,5 +1,7 @@
 'use strict';
 
+/* eslint-disable no-undef */
+
 exports.up = knex =>
   knex.raw(`
   ALTER TABLE expenses ALTER COLUMN sum TYPE DECIMAL(10, 2);

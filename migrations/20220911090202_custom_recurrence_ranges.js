@@ -1,5 +1,7 @@
 'use strict';
 
+/* eslint-disable no-undef */
+
 exports.up = knex =>
   knex.raw(`
     ALTER TYPE recurring_period RENAME VALUE 'monthly' TO 'months';

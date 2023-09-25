@@ -1,5 +1,7 @@
 'use strict';
 
+/* eslint-disable no-undef */
+
 exports.up = knex =>
   knex.raw(`--sql
     CREATE TABLE IF NOT EXISTS reports (
