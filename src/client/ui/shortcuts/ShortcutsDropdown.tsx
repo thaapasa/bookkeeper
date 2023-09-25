@@ -22,8 +22,8 @@ const DropdownImpl: React.FC<{
     >
       <LinksArea className={className}>
         <AddExpenseNavButton />
-        {shortcuts.map((l, i) => (
-          <ShortcutLink key={`link-${i}`} {...l} />
+        {shortcuts.map(l => (
+          <ShortcutLink key={`link-${l.id}`} {...l} />
         ))}
       </LinksArea>
     </LinksContainer>

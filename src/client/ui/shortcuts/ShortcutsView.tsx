@@ -13,6 +13,7 @@ import { useToggle } from '../hooks/useToggle';
 import { AddExpenseIcon } from '../icons/AddExpenseIcon';
 import { Icons } from '../icons/Icons';
 import { Flex } from '../Styles';
+import { editShortcut, ShortcutDialog } from './ShortcutDialog';
 import { ShortcutLink, ShortcutLinkProps } from './ShortcutLink';
 
 const FullList: React.FC<{
@@ -21,24 +22,31 @@ const FullList: React.FC<{
 }> = ({ className, shortcuts }) => {
   const [editMode, toggleEdit] = useToggle(false);
   return (
-    <LinksArea className={spaced`${'with-titles'} ${className}`}>
-      <ShortcutRow
-        title="Uusi kirjaus"
-        icon={<AddExpenseIcon />}
-        onClick={() => createNewExpense({})}
-      >
-        <Flex minWidth="32px" />
-        <IconButton onClick={toggleEdit}>
-          {editMode ? <Icons.Clear /> : <Icons.EditNote />}
-        </IconButton>
-      </ShortcutRow>
-      {shortcuts.map((l, i) => (
-        <ShortcutRow key={`titlelink-${i}`} {...l} onEdit={editMode ? noop : undefined} />
-      ))}
-      {editMode ? (
-        <ShortcutRow title="Lisää linkki" icon={<AddExpenseIcon />} onClick={noop} />
-      ) : null}
-    </LinksArea>
+    <>
+      <LinksArea className={spaced`${'with-titles'} ${className}`}>
+        <ShortcutRow
+          title="Uusi kirjaus"
+          icon={<AddExpenseIcon />}
+          onClick={() => createNewExpense({})}
+        >
+          <Flex minWidth="32px" />
+          <IconButton onClick={toggleEdit}>
+            {editMode ? <Icons.Clear /> : <Icons.EditNote />}
+          </IconButton>
+        </ShortcutRow>
+        {shortcuts.map(l => (
+          <ShortcutRow
+            key={`titlelink-${l.id}`}
+            {...l}
+            onEdit={editMode ? () => editShortcut(l.id) : undefined}
+          />
+        ))}
+        {editMode ? (
+          <ShortcutRow title="Lisää linkki" icon={<AddExpenseIcon />} onClick={noop} />
+        ) : null}
+      </LinksArea>
+      <ShortcutDialog />
+    </>
   );
 };
 
