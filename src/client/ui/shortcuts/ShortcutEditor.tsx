@@ -142,7 +142,7 @@ const ShortcutEditView: React.FC<{
                 value={state.margin}
                 onChange={state.setMargin}
                 width="40px"
-                label="Tyhjää"
+                label="Reuna"
               />
               <UploadImageButton
                 onSelect={(file, filename) =>
