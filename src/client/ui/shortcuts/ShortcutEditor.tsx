@@ -187,6 +187,7 @@ async function saveShortcut(
   await executeOperation(() => apiConnect.updateShortcut(shortcutId, data), {
     postProcess: updateSession,
     success: 'Linkki päivitetty',
+    throw: true,
   });
   onClose();
 }

@@ -3,6 +3,7 @@ import { Router } from 'express';
 import { ExpenseShortcutPayload } from 'shared/expense';
 import { getShortcutById, sortShortcutDownById, sortShortcutUpById } from 'server/data/ShortcutDb';
 import {
+  createShortcut,
   deleteShortcut,
   deleteShortcutIcon,
   updateShortcutData,
@@ -17,6 +18,11 @@ import { createValidatingRouter } from 'server/server/ValidatingRouter';
  */
 export function createShortcutApi() {
   const api = createValidatingRouter(Router());
+
+  // POST /api/profile/shortcut
+  api.postTx('/', { body: ExpenseShortcutPayload }, (tx, session, { body }) =>
+    createShortcut(tx, session.group.id, session.user.id, body),
+  );
 
   // GET /api/profile/shortcut/:id
   api.getTx('/:id', {}, (tx, session, { params }) =>

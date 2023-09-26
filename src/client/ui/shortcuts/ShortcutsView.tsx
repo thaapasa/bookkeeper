@@ -1,11 +1,12 @@
 import { IconButton, styled } from '@mui/material';
 import * as React from 'react';
 
+import { ExpenseShortcutPayload } from 'shared/expense';
 import { ExpenseShortcut, ObjectId } from 'shared/types';
 import { noop, spaced } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { updateSession, validSessionE } from 'client/data/Login';
-import { createNewExpense } from 'client/data/State';
+import { createNewExpense, requestNewExpense } from 'client/data/State';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { secondaryColors } from '../Colors';
@@ -28,7 +29,7 @@ const FullList: React.FC<{
       <LinksArea className={spaced`${'with-titles'} ${className}`}>
         <ShortcutRow
           title="Uusi kirjaus"
-          icon={<AddExpenseIcon />}
+          icon={<AddExpenseIcon onClick={noop} />}
           onClick={() => createNewExpense({})}
         >
           <Flex minWidth="32px" />
@@ -40,7 +41,11 @@ const FullList: React.FC<{
           <ShortcutRow key={`titlelink-${l.id}`} allowEdit={editMode} {...l} />
         ))}
         {editMode ? (
-          <ShortcutRow title="Lisää linkki" icon={<AddExpenseIcon />} onClick={noop} />
+          <ShortcutRow
+            title="Lisää linkki"
+            icon={<AddExpenseIcon onClick={noop} />}
+            onClick={createNewShortcut}
+          />
         ) : null}
       </LinksArea>
       <ShortcutEditor />
@@ -79,6 +84,32 @@ const ShortcutRow: React.FC<
     ) : null}
   </TitledRow>
 );
+
+async function createNewShortcut(): Promise<void> {
+  const example = await requestNewExpense(async () => true, 'Uusi linkki');
+  if (!example) {
+    return;
+  }
+  const payload: ExpenseShortcutPayload = {
+    title: example.title,
+    expense: {
+      title: example.title,
+      benefit: example.benefit,
+      categoryId: example.categoryId,
+      subcategoryId: example.subcategoryId,
+      confirmed: example.confirmed,
+      receiver: example.receiver,
+      sourceId: example.sourceId,
+      type: example.type,
+      sum: example.sum || undefined,
+      description: example.description || undefined,
+    },
+  };
+  await executeOperation(() => apiConnect.createShortcut(payload), {
+    postProcess: updateSession,
+    success: 'Linkki luotu',
+  });
+}
 
 function deleteShortcut(shortcutId: ObjectId) {
   return executeOperation(() => apiConnect.deleteShortcut(shortcutId), {

@@ -5,23 +5,19 @@ import { createExpense } from '../../data/State';
 import { secondaryColors } from '../Colors';
 import { Icons } from './Icons';
 
-export function AddExpenseIcon() {
-  return (
-    <AddExpenseIconContainer>
-      <BlackContent />
-      <PlusIcon onClick={createExpense} />
-    </AddExpenseIconContainer>
-  );
-}
+export const AddExpenseIcon: React.FC<{ onClick?: () => void }> = ({ onClick }) => (
+  <AddExpenseIconContainer>
+    <BlackContent />
+    <PlusIcon onClick={onClick ?? createExpense} />
+  </AddExpenseIconContainer>
+);
 
-export function AddExpenseNavButton() {
-  return (
-    <AddExpenseIconContainer className="navigation">
-      <BlackContent />
-      <PlusIcon onClick={createExpense} className="navigation" />
-    </AddExpenseIconContainer>
-  );
-}
+export const AddExpenseNavButton: React.FC<{ onClick?: () => void }> = ({ onClick }) => (
+  <AddExpenseIconContainer className="navigation">
+    <BlackContent />
+    <PlusIcon onClick={onClick ?? createExpense} className="navigation" />
+  </AddExpenseIconContainer>
+);
 
 const PlusIcon = styled(Icons.PlusCircle)`
   position: absolute;

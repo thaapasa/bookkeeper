@@ -314,6 +314,9 @@ export class ApiConnect {
   public patchSource = (sourceId: ObjectId, data: SourcePatch) =>
     this.patch<Source>(uri`/api/source/${sourceId}`, data);
 
+  public createShortcut = (data: ExpenseShortcutPayload): Promise<void> =>
+    this.post(uri`/api/profile/shortcut`, data);
+
   public getShortcut = (shortcutId: ObjectId): Promise<ExpenseShortcut> =>
     this.get(uri`/api/profile/shortcut/${shortcutId}`);
 

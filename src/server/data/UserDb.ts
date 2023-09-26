@@ -15,7 +15,7 @@ export function dbRowToUser(user: RawUserData): User {
   };
 }
 
-const select = `--sql
+const select = /*sql*/ `
 SELECT
   id, username, email, first_name as "firstName", last_name as "lastName", image
 FROM users u`;
@@ -43,7 +43,7 @@ export async function getUserById(tx: ITask<any>, groupId: number, userId: numbe
     { userId, groupId },
   );
   if (!user) {
-    throw new NotFoundError('USER_NOT_FOUND', 'user');
+    throw new NotFoundError('USER_NOT_FOUND', 'user', userId);
   }
   return dbRowToUser(user);
 }

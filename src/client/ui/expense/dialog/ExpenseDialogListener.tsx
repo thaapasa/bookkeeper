@@ -24,6 +24,7 @@ interface ExpenseDialogListenerState<D> {
   expenseCounter: number;
   saveAction: ExpenseSaveAction | null;
   values: Partial<D>;
+  title?: string;
 }
 
 let expenseCounter = 1;
@@ -58,6 +59,7 @@ export function createExpenseDialogListener<D>(
       expenseCounter: 0,
       values: {},
       saveAction: null,
+      title: undefined,
     };
 
     componentDidMount() {
@@ -86,6 +88,7 @@ export function createExpenseDialogListener<D>(
           expenseCounter,
           values: data.values || {},
           saveAction: data.saveAction ?? null,
+          title: data.title,
         });
       } else {
         logger.info('Create new expense');
@@ -96,6 +99,7 @@ export function createExpenseDialogListener<D>(
           expenseCounter,
           values: data.values || {},
           saveAction: data.saveAction ?? null,
+          title: data.title,
         });
       }
     };
@@ -118,6 +122,7 @@ export function createExpenseDialogListener<D>(
           saveAction={this.state.saveAction}
           onClose={this.closeDialog}
           values={this.state.values}
+          title={this.state.title}
         />
       ) : null;
     }

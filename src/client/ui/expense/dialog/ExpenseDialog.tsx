@@ -119,6 +119,7 @@ export interface ExpenseDialogProps<D> {
   expenseCounter: number;
   windowSize: Size;
   values: Partial<D>;
+  title?: string;
 }
 
 interface ExpenseDialogState extends ExpenseInEditor {
@@ -375,7 +376,9 @@ export class ExpenseDialog extends React.Component<
   public render() {
     return (
       <Dialog open={true} onClose={this.dismiss} scroll="paper" fullScreen={this.isMobile}>
-        <DialogTitle>{this.props.createNew ? 'Uusi kirjaus' : 'Muokkaa kirjausta'}</DialogTitle>
+        <DialogTitle>
+          {this.props.title ?? (this.props.createNew ? 'Uusi kirjaus' : 'Muokkaa kirjausta')}
+        </DialogTitle>
         <ExpenseDialogContent dividers={true} onClick={this.closeEditors}>
           <Form onSubmit={this.requestSave} onKeyUp={this.handleKeyPress}>
             <Row className="row sum parent">

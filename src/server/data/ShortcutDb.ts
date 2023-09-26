@@ -38,6 +38,23 @@ export async function getShortcutById(
   return rowToShortcut(shortcut);
 }
 
+export async function insertNewShortcut(
+  tx: ITask<any>,
+  groupId: ObjectId,
+  userId: ObjectId,
+  data: ExpenseShortcutPayload,
+): Promise<ExpenseShortcut> {
+  const row = await tx.one(
+    `INSERT INTO shortcuts (group_id, user_id, sort_order, title, background, expense)
+     VALUES ($/groupId/, $/userId/,
+       (SELECT MAX(sort_order) FROM shortcuts s2 WHERE s2.user_id = $/userId/ AND s2.group_id = $/groupId/) + 1,
+       $/title/, $/background/, $/expense/)
+     RETURNING ${SHORTCUT_FIELDS}`,
+    { groupId, userId, title: data.title, background: data.background, expense: data.expense },
+  );
+  return rowToShortcut(row);
+}
+
 export async function updateShortcutById(
   tx: ITask<any>,
   shortcutId: ObjectId,

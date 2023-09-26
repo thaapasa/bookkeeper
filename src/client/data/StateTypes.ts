@@ -15,6 +15,7 @@ export interface ExpenseDialogObject<D> {
   resolve: (e: D | null) => void;
   values?: Partial<D>;
   saveAction?: ExpenseSaveAction;
+  title?: string;
 }
 
 export interface NavigationConfig {

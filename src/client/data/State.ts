@@ -4,6 +4,7 @@ import { Dayjs } from 'dayjs';
 import { ExpenseInEditor, ExpenseSplit } from 'shared/expense';
 import { DateLike, monthRange, toDayjs } from 'shared/time';
 import { noop } from 'shared/util';
+import { ExpenseSaveAction } from 'client/ui/expense/dialog/ExpenseSaveAction';
 
 import { Size } from '../ui/Types';
 import { expensePagePath } from '../util/Links';
@@ -38,12 +39,22 @@ export function splitExpense(expenseId: number): Promise<ExpenseSplit[] | null> 
   });
 }
 
-export function createExpense(event?: React.MouseEvent<any>): Promise<ExpenseInEditor | null> {
+/**
+ * Fire up the expense editor, and save the resulting expense to DB
+ */
+export async function createExpense(event?: React.MouseEvent<any>): Promise<void> {
   if (event) {
     event.stopPropagation();
   }
+  await requestNewExpense();
+}
+
+export function requestNewExpense(
+  saveAction?: ExpenseSaveAction,
+  title?: string,
+): Promise<ExpenseInEditor | null> {
   return new Promise<ExpenseInEditor | null>(resolve => {
-    expenseDialogBus.push({ expenseId: null, resolve });
+    expenseDialogBus.push({ expenseId: null, resolve, saveAction, title });
   });
 }
 
