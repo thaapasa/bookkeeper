@@ -62,6 +62,25 @@ export async function deleteShortcutById(tx: ITask<any>, shortcutId: ObjectId): 
   await tx.none(`DELETE FROM shortcuts WHERE id=$/shortcutId/`, { shortcutId });
 }
 
+export async function reorderUserShortcuts(
+  tx: ITask<any>,
+  groupId: ObjectId,
+  userId: ObjectId,
+): Promise<void> {
+  await tx.none(
+    `UPDATE shortcuts
+      SET sort_order = data.num
+      FROM (
+        SELECT id, ROW_NUMBER() OVER () AS num
+          FROM shortcuts
+          WHERE user_id=$/userId/ AND group_id=$/groupId/
+          ORDER BY sort_order
+        ) AS data
+      WHERE shortcuts.id = data.id`,
+    { userId, groupId },
+  );
+}
+
 function rowToShortcut(rowdata: ExpenseShortcut) {
   return {
     ...rowdata,
