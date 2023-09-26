@@ -1,6 +1,8 @@
 import { Router } from 'express';
+import { z } from 'zod';
 
 import { ExpenseShortcutPayload } from 'shared/expense';
+import { IntString } from 'shared/types';
 import { getShortcutById, sortShortcutDownById, sortShortcutUpById } from 'server/data/ShortcutDb';
 import {
   createShortcut,
@@ -49,12 +51,14 @@ export function createShortcutApi() {
     sortShortcutDownById(tx, session.group.id, session.user.id, params.id),
   );
 
+  const MarginQuery = z.object({ margin: IntString.refine(n => n >= 0).optional() });
+
   // POST /api/profile/shortcut/:shortcutId/icon/:filename
   api.postTx(
-    '/:id/icon/:filename/margin/:margin',
-    {},
-    processFileUpload('filename', (tx, session, file, { params }) =>
-      uploadShortcutIcon(tx, session.group.id, session.user.id, params.id, file, params.margin),
+    '/:id/icon/:filename',
+    { query: MarginQuery },
+    processFileUpload('filename', (tx, session, file, { params, query }) =>
+      uploadShortcutIcon(tx, session.group.id, session.user.id, params.id, file, query.margin ?? 0),
     ),
   );
 

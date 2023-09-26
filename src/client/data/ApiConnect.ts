@@ -333,9 +333,9 @@ export class ApiConnect {
     margin: number,
   ): Promise<ExpenseShortcut> =>
     this.post<ExpenseShortcut>(
-      uri`/api/profile/shortcut/${shortcutId}/icon/${filename}/margin/${margin}`,
+      uri`/api/profile/shortcut/${shortcutId}/icon/${filename}`,
       file,
-      undefined,
+      { margin: String(margin) },
       { 'Content-Type': ContentTypes.octetStream },
     );
 
