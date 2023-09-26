@@ -83,6 +83,17 @@ export async function reorderUserShortcuts(
   );
 }
 
+export async function clearProfileImageById(tx: ITask<any>, shortcutId: ObjectId) {
+  await tx.none(`UPDATE shortcuts SET icon=NULL WHERE id=$/shortcutId/`, { shortcutId });
+}
+
+export async function setProfileImageById(tx: ITask<any>, shortcutId: ObjectId, filename: string) {
+  await tx.none(`UPDATE shortcuts SET icon=$/filename/ WHERE id=$/shortcutId/`, {
+    shortcutId,
+    filename,
+  });
+}
+
 export async function sortShortcutUpById(
   tx: ITask<any>,
   groupId: ObjectId,
@@ -148,7 +159,7 @@ async function switchSortOrder(
 function rowToShortcut(rowdata: ExpenseShortcut): ExpenseShortcut {
   return {
     ...rowdata,
-    icon: rowdata.icon || undefined,
+    icon: rowdata.icon ? `content/shortcut/${rowdata.icon}` : undefined,
     background: rowdata.background || undefined,
     expense: rowdata.expense ?? {},
   };

@@ -1,4 +1,5 @@
-import { Button, Dialog, DialogContent, DialogTitle, Grid } from '@mui/material';
+import { Button, Dialog, DialogContent, DialogTitle, Grid, IconButton } from '@mui/material';
+import { styled } from '@mui/system';
 import * as B from 'baconjs';
 import * as React from 'react';
 import { create } from 'zustand';
@@ -12,9 +13,13 @@ import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { AsyncDataDialogContent } from '../component/AsyncDataDialog';
 import { connectDialog } from '../component/DialogConnector';
+import { Row } from '../component/Row';
 import { TextEdit } from '../component/TextEdit';
+import { UploadImageButton } from '../component/UploadFileButton';
 import { Subtitle } from '../design/Text';
 import { useAsyncData } from '../hooks/useAsyncData';
+import { Icons } from '../icons/Icons';
+import { ShortcutLink } from './ShortcutLink';
 
 const shortcutBus = new B.Bus<{ shortcutId: ObjectId }>();
 
@@ -108,6 +113,23 @@ const ShortcutEditView: React.FC<{ data: ExpenseShortcut; onClose: () => void }>
           <Grid item xs={8}>
             <TextEdit value={state.background} onChange={state.setBackground} />
           </Grid>
+          <Grid item xs={4}>
+            Linkin kuva
+          </Grid>
+          <Grid item xs={8}>
+            <Row>
+              <ShortcutIcon title={state.title} icon={data.icon} background={state.background} />
+              <UploadImageButton
+                onSelect={(file, filename) => uploadShortcutIcon(data.id, file, filename)}
+                title="Lataa kuva"
+              >
+                <Icons.Upload />
+              </UploadImageButton>
+              <IconButton onClick={() => removeIcon(data.id)} title="Poista kuva">
+                <Icons.Delete />
+              </IconButton>
+            </Row>
+          </Grid>
           <Grid item xs={12}>
             <Subtitle>Linkin data</Subtitle>
           </Grid>
@@ -135,6 +157,11 @@ const ShortcutEditView: React.FC<{ data: ExpenseShortcut; onClose: () => void }>
   );
 };
 
+const ShortcutIcon = styled(ShortcutLink)`
+  margin: 0;
+  margin-right: 4px;
+`;
+
 export const ShortcutEditor = connectDialog(shortcutBus, ShortcutDialogImpl);
 
 async function saveShortcut(
@@ -144,7 +171,25 @@ async function saveShortcut(
 ): Promise<void> {
   await executeOperation(() => apiConnect.updateShortcut(shortcutId, data), {
     postProcess: updateSession,
-    success: 'Linkki päivitetty!',
+    success: 'Linkki päivitetty',
   });
   onClose();
+}
+
+async function uploadShortcutIcon(
+  shortcutId: ObjectId,
+  file: File,
+  filename: string,
+): Promise<void> {
+  await executeOperation(() => apiConnect.uploadShortcutIcon(shortcutId, file, filename), {
+    postProcess: updateSession,
+    success: 'Ikoni päivitetty',
+  });
+}
+
+async function removeIcon(shortcutId: ObjectId): Promise<void> {
+  await executeOperation(() => apiConnect.removeShortcutIcon(shortcutId), {
+    postProcess: updateSession,
+    success: 'Ikoni poistettu',
+  });
 }

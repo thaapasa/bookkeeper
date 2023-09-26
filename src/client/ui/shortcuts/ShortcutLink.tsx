@@ -14,6 +14,7 @@ export interface ShortcutLinkProps {
   expense?: Partial<ExpenseInEditor>;
   title: string;
   icon?: string | React.ReactNode;
+  className?: string;
 }
 
 export const ShortcutLink: React.FC<ShortcutLinkProps> = ({
@@ -22,10 +23,12 @@ export const ShortcutLink: React.FC<ShortcutLinkProps> = ({
   expense,
   icon,
   title,
+  className,
 }) => (
   <LinkIconArea
     onClick={onClick ?? (expense ? () => createNewExpense(expense) : undefined)}
     style={{ background }}
+    className={className}
   >
     {typeof icon === 'string' ? (
       <LinkImage src={icon} title={title} />
@@ -44,14 +47,12 @@ const LinkImage = styled('img')`
 const LinkIconArea = styled('div')`
   width: 34px;
   height: 34px;
-  margin: 0 4px;
+  margin: 8px 4px 4px 4px;
   background-color: ${secondaryColors.standard};
   border-radius: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 8px;
-  margin-bottom: 4px;
   text-decoration: none;
   color: ${secondaryColors.text};
   font-weight: bold;

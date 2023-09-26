@@ -31,6 +31,7 @@ export function createProfileApi() {
     changeUserPassword(tx, session.group.id, session.user.id, body),
   );
 
+  // POST /api/profile/image/:filename
   api.postTx(
     '/image/:filename',
     {},
@@ -39,6 +40,7 @@ export function createProfileApi() {
     ),
   );
 
+  // DELETE /api/profile/image
   api.deleteTx('/image', {}, (tx, session) =>
     deleteProfileImage(tx, session.group.id, session.user.id),
   );
