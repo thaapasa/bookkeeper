@@ -37,12 +37,7 @@ const FullList: React.FC<{
           </IconButton>
         </ShortcutRow>
         {shortcuts.map(l => (
-          <ShortcutRow
-            key={`titlelink-${l.id}`}
-            {...l}
-            onEdit={editMode ? () => editShortcut(l.id) : undefined}
-            onDelete={editMode ? () => deleteShortcut(l.id) : undefined}
-          />
+          <ShortcutRow key={`titlelink-${l.id}`} allowEdit={editMode} {...l} />
         ))}
         {editMode ? (
           <ShortcutRow title="Lisää linkki" icon={<AddExpenseIcon />} onClick={noop} />
@@ -54,8 +49,8 @@ const FullList: React.FC<{
 };
 
 const ShortcutRow: React.FC<
-  React.PropsWithChildren<ShortcutLinkProps & { onEdit?: () => void; onDelete?: () => void }>
-> = ({ expense, onClick, onEdit, onDelete, title, children, ...props }) => (
+  React.PropsWithChildren<ShortcutLinkProps & { allowEdit?: boolean }>
+> = ({ id, expense, onClick, allowEdit, title, children, ...props }) => (
   <TitledRow>
     <Row
       onClick={onClick ?? (expense ? () => createNewExpense(expense) : undefined)}
@@ -65,19 +60,21 @@ const ShortcutRow: React.FC<
       <Title>{title}</Title>
     </Row>
     {children}
-    {onEdit || onDelete ? (
+    {allowEdit && id ? (
       <>
         <Flex minWidth="32px" />
-        {onEdit ? (
-          <IconButton size="small" onClick={onEdit}>
-            <Icons.Edit fontSize="small" />
-          </IconButton>
-        ) : null}
-        {onDelete ? (
-          <IconButton size="small" onClick={onDelete} style={{ marginRight: '4px' }}>
-            <Icons.Delete fontSize="small" color="warning" />
-          </IconButton>
-        ) : null}
+        <IconButton size="small" onClick={() => sortShortcutUp(id)}>
+          <Icons.SortUp fontSize="small" />
+        </IconButton>
+        <IconButton size="small" onClick={() => sortShortcutDown(id)}>
+          <Icons.SortDown fontSize="small" />
+        </IconButton>
+        <IconButton size="small" onClick={() => editShortcut(id)}>
+          <Icons.Edit fontSize="small" />
+        </IconButton>
+        <IconButton size="small" onClick={() => deleteShortcut(id)} style={{ marginRight: '4px' }}>
+          <Icons.Delete fontSize="small" color="warning" />
+        </IconButton>
       </>
     ) : null}
   </TitledRow>
@@ -89,6 +86,15 @@ function deleteShortcut(shortcutId: ObjectId) {
     success: 'Linkki poistettu!',
   });
 }
+
+const sortShortcutUp = (shortcutId: ObjectId) =>
+  executeOperation(() => apiConnect.shortShortcutUp(shortcutId), {
+    postProcess: updateSession,
+  });
+const sortShortcutDown = (shortcutId: ObjectId) =>
+  executeOperation(() => apiConnect.shortShortcutDown(shortcutId), {
+    postProcess: updateSession,
+  });
 
 const TitledRow = styled('div')`
   display: flex;

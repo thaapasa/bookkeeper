@@ -2,11 +2,13 @@ import { styled } from '@mui/material';
 import * as React from 'react';
 
 import { ExpenseInEditor } from 'shared/expense';
+import { ObjectId } from 'shared/types';
 import { createNewExpense } from 'client/data/State';
 
 import { secondaryColors } from '../Colors';
 
 export interface ShortcutLinkProps {
+  id?: ObjectId;
   background?: string;
   onClick?: () => void;
   expense?: Partial<ExpenseInEditor>;

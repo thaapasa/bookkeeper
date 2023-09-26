@@ -34,6 +34,7 @@ export interface ExpenseShortcut {
   icon?: string;
   expense: Partial<ExpenseInEditor>;
   background?: string;
+  sortOrder: number;
 }
 
 export interface User extends DbObject {

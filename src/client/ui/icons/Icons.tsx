@@ -22,6 +22,8 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import InfoIcon from '@mui/icons-material/Info';
+import SortDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
+import SortUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
 import MenuIcon from '@mui/icons-material/Menu';
 import PaymentIcon from '@mui/icons-material/Payment';
 import PieChartIcon from '@mui/icons-material/PieChart';
@@ -68,6 +70,8 @@ export const Icons = {
   Repeat: RepeatIcon,
   Search: SearchIcon,
   Shortcut: AppShortcutIcon,
+  SortDown: SortDownIcon,
+  SortUp: SortUpIcon,
   Split: DonutSmallIcon,
   Subscriptions: SubscriptionsIcon,
   Sun: WbSunnyIcon,
