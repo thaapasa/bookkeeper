@@ -18,6 +18,7 @@ import { TextEdit } from '../component/TextEdit';
 import { UploadImageButton } from '../component/UploadFileButton';
 import { Subtitle } from '../design/Text';
 import { useAsyncData } from '../hooks/useAsyncData';
+import { useForceReload } from '../hooks/useForceReload';
 import { Icons } from '../icons/Icons';
 import { Flex } from '../Styles';
 import { ShortcutLink } from './ShortcutLink';
@@ -32,13 +33,23 @@ const ShortcutDialogImpl: React.FC<{ shortcutId: ObjectId; onClose: () => void }
   shortcutId,
   onClose,
 }) => {
-  const data = useAsyncData(apiConnect.getShortcut, true, shortcutId);
+  const { counter, forceReload } = useForceReload();
+  const data = useAsyncData(getShortcut, true, shortcutId, counter);
   return (
     <Dialog fullWidth={true} open={true} onClose={onClose}>
-      <AsyncDataDialogContent data={data} renderer={ShortcutEditView} onClose={onClose} />
+      <AsyncDataDialogContent
+        data={data}
+        renderer={ShortcutEditView}
+        onClose={onClose}
+        reloadData={forceReload}
+      />
     </Dialog>
   );
 };
+
+function getShortcut(shortcutId: ObjectId, _counter: number) {
+  return apiConnect.getShortcut(shortcutId);
+}
 
 export type ShortcutState = {
   title: string;
@@ -94,13 +105,14 @@ function parseExpense(expenseStr: string): ExpenseShortcutData | undefined {
   }
 }
 
-const ShortcutEditView: React.FC<{ data: ExpenseShortcut; onClose: () => void }> = ({
-  data,
-  onClose,
-}) => {
+const ShortcutEditView: React.FC<{
+  data: ExpenseShortcut;
+  onClose: () => void;
+  reloadData: () => void;
+}> = ({ data, onClose, reloadData }) => {
   const state = useShortcutState();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  React.useEffect(() => state.reset(data), [data]);
+  React.useEffect(() => state.reset(data), [data.id]);
 
   return (
     <>
@@ -134,7 +146,7 @@ const ShortcutEditView: React.FC<{ data: ExpenseShortcut; onClose: () => void }>
               />
               <UploadImageButton
                 onSelect={(file, filename) =>
-                  uploadShortcutIcon(data.id, file, filename, state.margin)
+                  uploadShortcutIcon(data.id, file, filename, state.margin).then(reloadData)
                 }
                 title="Lataa kuva"
               >
@@ -197,12 +209,13 @@ async function uploadShortcutIcon(
   file: File,
   filename: string,
   margin: string,
-): Promise<void> {
-  await executeOperation(
+): Promise<ExpenseShortcut> {
+  return await executeOperation(
     () => apiConnect.uploadShortcutIcon(shortcutId, file, filename, Number(margin)),
     {
       postProcess: updateSession,
       success: 'Ikoni päivitetty',
+      throw: true,
     },
   );
 }

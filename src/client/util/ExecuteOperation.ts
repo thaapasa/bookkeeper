@@ -15,6 +15,14 @@ type ExecutionOptions<T> = {
 
 export async function executeOperation<T>(
   f: (() => Promise<T>) | Promise<T>,
+  options: ExecutionOptions<T> & { throw: true },
+): Promise<T>;
+export async function executeOperation<T>(
+  f: (() => Promise<T>) | Promise<T>,
+  options?: ExecutionOptions<T>,
+): Promise<T | undefined>;
+export async function executeOperation<T>(
+  f: (() => Promise<T>) | Promise<T>,
   options: ExecutionOptions<T> = {},
 ) {
   try {

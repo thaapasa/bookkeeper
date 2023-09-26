@@ -124,7 +124,7 @@ export default class CategoryDialog extends React.Component<
       children: [],
     };
     logger.info({ data }, 'Save category data');
-    return executeOperation(
+    const result = await executeOperation(
       () =>
         createNew
           ? apiConnect.storeCategory(data).then(c => c.categoryId || 0)
@@ -134,6 +134,7 @@ export default class CategoryDialog extends React.Component<
         postProcess: this.closeDialog,
       },
     );
+    return result;
   }
 
   private cancel = () => {

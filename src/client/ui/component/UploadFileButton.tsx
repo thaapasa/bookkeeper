@@ -3,7 +3,7 @@ import { IconButton } from '@mui/material';
 import * as React from 'react';
 
 interface UploadImageButtonProps {
-  onSelect: (file: File, filename: string) => Promise<void>;
+  onSelect: (file: File, filename: string) => Promise<any>;
   style?: React.CSSProperties;
   title?: string;
   className?: string;

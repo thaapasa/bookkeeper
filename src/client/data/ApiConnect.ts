@@ -331,8 +331,8 @@ export class ApiConnect {
     file: File,
     filename: string,
     margin: number,
-  ): Promise<void> =>
-    this.post(
+  ): Promise<ExpenseShortcut> =>
+    this.post<ExpenseShortcut>(
       uri`/api/profile/shortcut/${shortcutId}/icon/${filename}/margin/${margin}`,
       file,
       undefined,
