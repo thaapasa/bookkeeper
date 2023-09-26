@@ -2,7 +2,7 @@ import { ITask } from 'pg-promise';
 
 import { BkError, InvalidInputError, ObjectId } from 'shared/types';
 import { PasswordUpdate, toUserData, UserDataUpdate } from 'shared/userData';
-import { createProfileImages, getProfileImagePaths } from 'server/content/ProfileImage';
+import { profileImageHandler } from 'server/content/ProfileImage';
 import { logger } from 'server/Logger';
 import { FileUploadResult, safeDeleteFile } from 'server/server/FileHandling';
 
@@ -58,7 +58,7 @@ export async function uploadProfileImage(
 ) {
   try {
     logger.info(image, `Updating profile image for user ${userId}`);
-    const filename = await createProfileImages(image);
+    const filename = await profileImageHandler.saveImages(image);
     // Clear existing profile image
     await deleteProfileImage(tx, groupId, userId);
     await updateProfileImageById(tx, userId, filename);
@@ -76,9 +76,7 @@ export async function deleteProfileImage(tx: ITask<any>, groupId: ObjectId, user
     return;
   }
   logger.info(`Deleting profile image for user ${userId}`);
-  const paths = getProfileImagePaths(user.image);
-  await safeDeleteFile(paths.pathSmall, true);
-  await safeDeleteFile(paths.pathLarge, true);
+  await profileImageHandler.deleteImages(user.image);
   await clearProfileImageById(tx, userId);
   logger.info(`Profile image deleted`);
 }

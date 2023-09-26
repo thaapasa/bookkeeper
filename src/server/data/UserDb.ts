@@ -2,16 +2,15 @@ import { ITask } from 'pg-promise';
 
 import { Email, Group, NotFoundError, ObjectId, User } from 'shared/types';
 import { UserDataUpdate } from 'shared/userData';
-import { getProfileImagePaths, profileImagePath } from 'server/content/ProfileImage';
+import { profileImagePath } from 'server/content/ProfileImage';
 
 export type RawUserData = Record<string, any>;
 
 export function dbRowToUser(user: RawUserData): User {
-  const imagePaths = user.image ? getProfileImagePaths(user.image) : undefined;
   return {
     ...(user as User),
-    image: profileImagePath(imagePaths?.imageSmall, user.email, 'small'),
-    imageLarge: profileImagePath(imagePaths?.imageLarge, user.email, 'large'),
+    image: profileImagePath(user.image, user.email, 'small'),
+    imageLarge: profileImagePath(user.image, user.email, 'large'),
   };
 }
 
