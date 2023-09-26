@@ -2,11 +2,18 @@ import crypto from 'crypto';
 import { ITask } from 'pg-promise';
 import { promisify } from 'util';
 
-import { ApiMessage, AuthenticationError, Session, SessionBasicInfo } from 'shared/types';
+import {
+  ApiMessage,
+  AuthenticationError,
+  ExpenseShortcut,
+  Session,
+  SessionBasicInfo,
+} from 'shared/types';
 import { logger } from 'server/Logger';
 
 import { config } from '../Config';
 import { getAllCategories } from './CategoryDb';
+import { getShortcutsForUser } from './ShortcutDb';
 import { getAllSources } from './SourceDb';
 import {
   dbRowToUser,
@@ -20,11 +27,12 @@ const randomBytes = promisify(crypto.randomBytes);
 
 const tokenSelect = `--sql
 SELECT
-  s.token, s.refresh_token as "refreshToken", s.user_id as id, s.login_time as "loginTime",
-  u.username, u.email, u.first_name as "firstName", u.last_name as "lastName", u.image,
-  u.default_group_id as "defaultGroupId", u.expense_shortcuts as "expenseShortcuts",
-  g.id AS "groupId", g.name as "groupName",
-  go.default_source_id as "defaultSourceId"
+  s.token, s.refresh_token AS "refreshToken", s.user_id AS id, s.login_time AS "loginTime",
+  u.username, u.email, u.first_name AS "firstName", u.last_name AS "lastName", u.image,
+  u.default_group_id AS "defaultGroupId",
+  g.id AS "groupId", g.name AS "groupName",
+  go.default_source_id AS "defaultSourceId"
+  
 FROM sessions s
   INNER JOIN users u ON (s.user_id = u.id)
   LEFT JOIN group_users go ON (go.user_id = u.id AND go.group_id = COALESCE($/groupId/, u.default_group_id))
@@ -61,6 +69,7 @@ async function createSession(tx: ITask<any>, user: RawUserData): Promise<string[
 function createSessionInfo(
   [token, refreshToken]: string[],
   userData: RawUserData,
+  shortcuts: ExpenseShortcut[],
   loginTime?: Date,
 ): SessionBasicInfo {
   return {
@@ -74,7 +83,6 @@ function createSessionInfo(
       lastName: userData.lastName,
       image: userData.image,
       defaultGroupId: userData.defaultGroupId,
-      expenseShortcuts: userData.expenseShortcuts,
     }),
     group: {
       id: userData.groupId,
@@ -82,6 +90,7 @@ function createSessionInfo(
       defaultSourceId: userData.defaultSourceId,
     },
     loginTime,
+    shortcuts,
   };
 }
 
@@ -110,7 +119,8 @@ export async function loginUserWithCredentials(
     throw new AuthenticationError('INVALID_CREDENTIALS', 'Invalid username or password');
   }
   const tokens = await createSession(tx, user);
-  const sessionInfo = createSessionInfo(tokens, user);
+  const shortcuts = await getShortcutsForUser(tx, groupId || user.defaultGroupId, user.id);
+  const sessionInfo = createSessionInfo(tokens, user, shortcuts);
   return appendInfoToSession(tx, sessionInfo);
 }
 
@@ -139,7 +149,8 @@ export async function refreshSessionWithRefreshToken(
   logger.info('Refreshing session with %s', refreshToken);
   const user = await getUserInfoByRefreshToken(tx, refreshToken, groupId);
   const tokens = await createSession(tx, user);
-  const sessionInfo = createSessionInfo(tokens, user);
+  const shortcuts = await getShortcutsForUser(tx, groupId ?? user.defaultGroupId, user.id);
+  const sessionInfo = createSessionInfo(tokens, user, shortcuts);
   return appendInfoToSession(tx, sessionInfo);
 }
 
@@ -178,11 +189,17 @@ export async function getSessionByToken(
   if (!userData) {
     throw new AuthenticationError('INVALID_TOKEN', 'Access token is invalid', token);
   }
+  const shortcuts = await getShortcutsForUser(tx, groupId ?? userData.defaultGroupId, userData.id);
   await tx.none(
     `UPDATE sessions
         SET expiry_time=NOW() + $/sessionTimeout/::INTERVAL
         WHERE token=$/token/`,
     { token, sessionTimeout: config.sessionTimeout },
   );
-  return createSessionInfo([userData.token, userData.refreshToken], userData, userData.loginTime);
+  return createSessionInfo(
+    [userData.token, userData.refreshToken],
+    userData,
+    shortcuts,
+    userData.loginTime,
+  );
 }

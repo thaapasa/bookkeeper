@@ -15,12 +15,15 @@ import ConstructionIcon from '@mui/icons-material/Construction';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DonutSmallIcon from '@mui/icons-material/DonutSmall';
 import EditIcon from '@mui/icons-material/Edit';
+import EditNoteIcon from '@mui/icons-material/EditNote';
 import EuroIcon from '@mui/icons-material/Euro';
 import EventRepeatIcon from '@mui/icons-material/EventRepeat';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import InfoIcon from '@mui/icons-material/Info';
+import SortDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
+import SortUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
 import MenuIcon from '@mui/icons-material/Menu';
 import PaymentIcon from '@mui/icons-material/Payment';
 import PieChartIcon from '@mui/icons-material/PieChart';
@@ -51,6 +54,7 @@ export const Icons = {
   Copy: FileCopyIcon,
   Delete: DeleteIcon,
   Edit: EditIcon,
+  EditNote: EditNoteIcon,
   ExpandLess: ExpandLessIcon,
   ExpandMore: ExpandMoreIcon,
   Expense: PaymentIcon,
@@ -66,6 +70,8 @@ export const Icons = {
   Repeat: RepeatIcon,
   Search: SearchIcon,
   Shortcut: AppShortcutIcon,
+  SortDown: SortDownIcon,
+  SortUp: SortUpIcon,
   Split: DonutSmallIcon,
   Subscriptions: SubscriptionsIcon,
   Sun: WbSunnyIcon,

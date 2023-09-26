@@ -2,6 +2,7 @@ import {
   ExpenseCollection,
   ExpenseData,
   ExpenseQuery,
+  ExpenseShortcutPayload,
   ExpenseSplit,
   ExpenseStatus,
   RecurrencePeriod,
@@ -14,7 +15,7 @@ import {
   UserExpense,
   UserExpenseWithDetails,
 } from 'shared/expense';
-import { FetchClient, uri } from 'shared/net';
+import { ContentTypes, FetchClient, uri } from 'shared/net';
 import { ISODate, timeoutImmediate, toISODate } from 'shared/time';
 import {
   ApiMessage,
@@ -26,6 +27,7 @@ import {
   CategorySelection,
   CategoryStatistics,
   DbStatus,
+  ExpenseShortcut,
   ObjectId,
   Session,
   Source,
@@ -312,21 +314,41 @@ export class ApiConnect {
   public patchSource = (sourceId: ObjectId, data: SourcePatch) =>
     this.patch<Source>(uri`/api/source/${sourceId}`, data);
 
+  public getShortcut = (shortcutId: ObjectId): Promise<ExpenseShortcut> =>
+    this.get(uri`/api/profile/shortcut/${shortcutId}`);
+
+  public updateShortcut = (shortcutId: ObjectId, data: ExpenseShortcutPayload): Promise<void> =>
+    this.put(uri`/api/profile/shortcut/${shortcutId}`, data);
+
+  public deleteShortcut = (shortcutId: ObjectId): Promise<void> =>
+    this.del(uri`/api/profile/shortcut/${shortcutId}`);
+
+  public uploadShortcutIcon = (shortcutId: ObjectId, file: File, filename: string): Promise<void> =>
+    this.post(uri`/api/profile/shortcut/${shortcutId}/icon/${filename}`, file, undefined, {
+      'Content-Type': ContentTypes.octetStream,
+    });
+
+  public removeShortcutIcon = (shortcutId: ObjectId): Promise<void> =>
+    this.del(uri`/api/profile/shortcut/${shortcutId}/icon`);
+
+  public shortShortcutUp = (shortcutId: ObjectId): Promise<void> =>
+    this.post(uri`/api/profile/shortcut/${shortcutId}/sort/up`);
+
+  public shortShortcutDown = (shortcutId: ObjectId): Promise<void> =>
+    this.post(uri`/api/profile/shortcut/${shortcutId}/sort/down`);
+
   public updateUserData = (userData: UserDataUpdate): Promise<void> =>
     this.put(uri`/api/profile/userData`, userData);
 
   public changeUserPassword = (update: PasswordUpdate): Promise<void> =>
     this.put(uri`/api/profile/password`, update);
 
-  public uploadProfileImage = (file: any, filename: string): Promise<void> => {
-    return this.post(uri`/api/profile/image/${filename}`, file, undefined, {
-      'Content-Type': 'application/octet-stream',
+  public uploadProfileImage = (file: File, filename: string): Promise<void> =>
+    this.post(uri`/api/profile/image/${filename}`, file, undefined, {
+      'Content-Type': ContentTypes.octetStream,
     });
-  };
 
-  public deleteProfileImage = (): Promise<void> => {
-    return this.del(uri`/api/profile/image`);
-  };
+  public deleteProfileImage = (): Promise<void> => this.del(uri`/api/profile/image`);
 
   public createReport = (title: string, query: ExpenseQuery) => {
     const body: ReportCreationData = {

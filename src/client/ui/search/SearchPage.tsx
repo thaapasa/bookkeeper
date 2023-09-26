@@ -114,7 +114,7 @@ const SearchViewImpl: React.FC<SearchViewProps> = ({ userData, session, category
   );
 };
 
-export const SearchView = connect(
+export const SearchPage = connect(
   B.combineTemplate({
     session: validSessionE,
     userData: userDataE,

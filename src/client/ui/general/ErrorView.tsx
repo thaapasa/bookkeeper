@@ -2,11 +2,10 @@ import * as React from 'react';
 
 import { NoteView } from './NoteView';
 
-export const ErrorView: React.FC<React.PropsWithChildren<{ title: string }>> = ({
-  title,
-  children,
-}) => (
-  <NoteView title={title} type="warning">
+export const ErrorView: React.FC<
+  React.PropsWithChildren<{ title: string; className?: string }>
+> = ({ className, title, children }) => (
+  <NoteView title={title} type="warning" className={className}>
     {children}
   </NoteView>
 );

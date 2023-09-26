@@ -5,6 +5,8 @@ import * as React from 'react';
 interface UploadImageButtonProps {
   onSelect: (file: File, filename: string) => Promise<void>;
   style?: React.CSSProperties;
+  title?: string;
+  className?: string;
 }
 
 interface WithDatatransfer {
@@ -17,6 +19,8 @@ export const UploadImageButton: React.FC<React.PropsWithChildren<UploadImageButt
   onSelect,
   children,
   style,
+  title,
+  className,
 }) => {
   const ref = React.useRef<HTMLInputElement | null>(null);
 
@@ -34,7 +38,12 @@ export const UploadImageButton: React.FC<React.PropsWithChildren<UploadImageButt
 
   return (
     <>
-      <IconButton onClick={() => ref.current?.click()} style={style}>
+      <IconButton
+        onClick={() => ref.current?.click()}
+        style={style}
+        title={title}
+        className={className}
+      >
         {children}
       </IconButton>
       <FileInput type="file" id="upload-file" onChange={selectFile} ref={ref} />

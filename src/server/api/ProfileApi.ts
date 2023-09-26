@@ -10,12 +10,16 @@ import {
 import { processFileUpload } from 'server/server/FileHandling';
 import { createValidatingRouter } from 'server/server/ValidatingRouter';
 
+import { createShortcutApi } from './ShortcutApi';
+
 /**
  * Creates profile API router.
  * Assumed attach path: `/api/profile`
  */
 export function createProfileApi() {
   const api = createValidatingRouter(Router());
+
+  api.router.use('/shortcut', createShortcutApi());
 
   // PUT /api/profile/userData
   api.putTx('/userData', { body: UserDataUpdate }, (tx, session, { body }) =>
@@ -27,6 +31,7 @@ export function createProfileApi() {
     changeUserPassword(tx, session.group.id, session.user.id, body),
   );
 
+  // POST /api/profile/image/:filename
   api.postTx(
     '/image/:filename',
     {},
@@ -35,6 +40,7 @@ export function createProfileApi() {
     ),
   );
 
+  // DELETE /api/profile/image
   api.deleteTx('/image', {}, (tx, session) =>
     deleteProfileImage(tx, session.group.id, session.user.id),
   );

@@ -1,13 +1,13 @@
 import { styled } from '@mui/material';
 import * as React from 'react';
 
-import { ExpenseShortcutsList } from '../component/ExpenseShortcutsView';
+import { ShortcutsView } from '../shortcuts/ShortcutsView';
 import { PageContentContainer } from '../Styles';
 
-export const ShortcutsView: React.FC = () => (
+export const ShortcutsPage: React.FC = () => (
   <PageContentContainer>
     <LinksContainer>
-      <ShortcutsList showTitles={true} />
+      <ShortcutsView />
     </LinksContainer>
   </PageContentContainer>
 );
@@ -17,8 +17,4 @@ const LinksContainer = styled('div')`
   align-items: center;
   justify-content: center;
   padding-top: 24px;
-`;
-
-const ShortcutsList = styled(ExpenseShortcutsList)`
-  transform: scale(1.35) translateY(30px);
 `;

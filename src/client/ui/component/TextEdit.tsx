@@ -21,6 +21,7 @@ export const TextEdit: React.FC<TextEditProps> = ({ onChange, width, onSubmitEdi
     },
     [onSubmitEdit],
   );
+
   return (
     <StyledField
       variant="standard"

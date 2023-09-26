@@ -6,7 +6,7 @@ import { validSessionE } from 'client/data/Login';
 
 import * as colors from '../Colors';
 import { useToggle } from '../hooks/useToggle';
-import { AddExpenseIcon } from '../icons/AddExpenseIcon';
+import { AddExpenseNavButton } from '../icons/AddExpenseIcon';
 import { Icons } from '../icons/Icons';
 import { isMobileSize } from '../Styles';
 import { Size } from '../Types';
@@ -52,7 +52,7 @@ const TopBarImpl: React.FC<TopBarProps> = ({ windowSize, group, links }) => {
           {isMobile ? (
             <>
               <DateRangeNavigator />
-              <AddExpenseIcon />
+              <AddExpenseNavButton />
             </>
           ) : null}
         </TopToolBar>

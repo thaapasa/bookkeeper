@@ -60,7 +60,7 @@ const SubscriptionsViewImpl: React.FC<{
   );
 };
 
-export const SubscriptionsView = connect(combineTemplate({ categories: categoryMapE }))(
+export const SubscriptionsPage = connect(combineTemplate({ categories: categoryMapE }))(
   SubscriptionsViewImpl,
 );
 
