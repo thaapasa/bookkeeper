@@ -45,10 +45,10 @@ export function createShortcutApi() {
 
   // POST /api/profile/shortcut/:shortcutId/icon/:filename
   api.postTx(
-    '/:id/icon/:filename',
+    '/:id/icon/:filename/margin/:margin',
     {},
     processFileUpload('filename', (tx, session, file, { params }) =>
-      uploadShortcutIcon(tx, session.group.id, session.user.id, params.id, file),
+      uploadShortcutIcon(tx, session.group.id, session.user.id, params.id, file, params.margin),
     ),
   );
 

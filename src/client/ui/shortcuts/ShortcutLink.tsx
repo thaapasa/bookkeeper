@@ -45,11 +45,11 @@ const LinkImage = styled('img')`
 `;
 
 const LinkIconArea = styled('div')`
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   margin: 8px 4px 4px 4px;
   background-color: ${secondaryColors.standard};
-  border-radius: 18px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;

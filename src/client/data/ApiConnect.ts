@@ -323,10 +323,18 @@ export class ApiConnect {
   public deleteShortcut = (shortcutId: ObjectId): Promise<void> =>
     this.del(uri`/api/profile/shortcut/${shortcutId}`);
 
-  public uploadShortcutIcon = (shortcutId: ObjectId, file: File, filename: string): Promise<void> =>
-    this.post(uri`/api/profile/shortcut/${shortcutId}/icon/${filename}`, file, undefined, {
-      'Content-Type': ContentTypes.octetStream,
-    });
+  public uploadShortcutIcon = (
+    shortcutId: ObjectId,
+    file: File,
+    filename: string,
+    margin: number,
+  ): Promise<void> =>
+    this.post(
+      uri`/api/profile/shortcut/${shortcutId}/icon/${filename}/margin/${margin}`,
+      file,
+      undefined,
+      { 'Content-Type': ContentTypes.octetStream },
+    );
 
   public removeShortcutIcon = (shortcutId: ObjectId): Promise<void> =>
     this.del(uri`/api/profile/shortcut/${shortcutId}/icon`);

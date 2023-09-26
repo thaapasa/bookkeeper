@@ -19,6 +19,7 @@ import { UploadImageButton } from '../component/UploadFileButton';
 import { Subtitle } from '../design/Text';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { Icons } from '../icons/Icons';
+import { Flex } from '../Styles';
 import { ShortcutLink } from './ShortcutLink';
 
 const shortcutBus = new B.Bus<{ shortcutId: ObjectId }>();
@@ -49,20 +50,25 @@ export type ShortcutState = {
   reset: (shortcut: ExpenseShortcut) => void;
   inputValid: () => boolean;
   toPayload: () => ExpenseShortcutPayload;
+  margin: string;
+  setMargin: (margin: string) => void;
 };
 
 export const useShortcutState = create<ShortcutState>((set, get) => ({
   title: '',
   background: '',
   expenseStr: '',
+  margin: '0',
   setTitle: title => set({ title }),
   setBackground: background => set({ background }),
   setExpense: expenseStr => set({ expenseStr }),
+  setMargin: margin => set({ margin }),
   reset: shortcut =>
     set({
       title: shortcut.title,
       background: shortcut.background ?? '',
       expenseStr: JSON.stringify(shortcut.expense ?? {}, null, 2),
+      margin: '0',
     }),
   inputValid: () => {
     const s = get();
@@ -105,13 +111,13 @@ const ShortcutEditView: React.FC<{ data: ExpenseShortcut; onClose: () => void }>
             Nimi
           </Grid>
           <Grid item xs={8}>
-            <TextEdit value={state.title} onChange={state.setTitle} />
+            <TextEdit value={state.title} onChange={state.setTitle} fullWidth />
           </Grid>
           <Grid item xs={4}>
             Taustaväri
           </Grid>
           <Grid item xs={8}>
-            <TextEdit value={state.background} onChange={state.setBackground} />
+            <TextEdit value={state.background} onChange={state.setBackground} width="80px" />
           </Grid>
           <Grid item xs={4}>
             Linkin kuva
@@ -119,8 +125,17 @@ const ShortcutEditView: React.FC<{ data: ExpenseShortcut; onClose: () => void }>
           <Grid item xs={8}>
             <Row>
               <ShortcutIcon title={state.title} icon={data.icon} background={state.background} />
+              <Flex />
+              <TextEdit
+                value={state.margin}
+                onChange={state.setMargin}
+                width="40px"
+                label="Tyhjää"
+              />
               <UploadImageButton
-                onSelect={(file, filename) => uploadShortcutIcon(data.id, file, filename)}
+                onSelect={(file, filename) =>
+                  uploadShortcutIcon(data.id, file, filename, state.margin)
+                }
                 title="Lataa kuva"
               >
                 <Icons.Upload />
@@ -180,11 +195,15 @@ async function uploadShortcutIcon(
   shortcutId: ObjectId,
   file: File,
   filename: string,
+  margin: string,
 ): Promise<void> {
-  await executeOperation(() => apiConnect.uploadShortcutIcon(shortcutId, file, filename), {
-    postProcess: updateSession,
-    success: 'Ikoni päivitetty',
-  });
+  await executeOperation(
+    () => apiConnect.uploadShortcutIcon(shortcutId, file, filename, Number(margin)),
+    {
+      postProcess: updateSession,
+      success: 'Ikoni päivitetty',
+    },
+  );
 }
 
 async function removeIcon(shortcutId: ObjectId): Promise<void> {

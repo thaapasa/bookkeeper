@@ -13,7 +13,7 @@ const DropdownImpl: React.FC<{
   shortcuts: ExpenseShortcut[];
   className?: string;
 }> = ({ shortcuts, className }) => {
-  const height = 40 + (34 + 12) * shortcuts.length;
+  const height = 40 + (32 + 12) * shortcuts.length;
 
   return (
     <LinksContainer
@@ -40,7 +40,7 @@ const LinksContainer = styled('div')(
   z-index: 1;
   top: 28px;
   right: 32px;
-  padding: 0 8px 8px 8px;
+  padding: 0 4px 4px 4px;
   border-radius: 22px;
 
   overflow: hidden;

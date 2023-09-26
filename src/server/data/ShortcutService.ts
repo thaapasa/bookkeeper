@@ -45,11 +45,12 @@ export async function uploadShortcutIcon(
   userId: ObjectId,
   shortcutId: ObjectId,
   image: FileUploadResult,
+  margin: number,
 ) {
   try {
     await getShortcutById(tx, groupId, userId, shortcutId);
     logger.info(image, `Updating shortcut icon for user ${userId}, shortcut ${shortcutId}`);
-    const file = await createShortcutIcons(image);
+    const file = await createShortcutIcons(image, margin);
     await setProfileImageById(tx, shortcutId, file);
   } finally {
     // Clear uploaded image

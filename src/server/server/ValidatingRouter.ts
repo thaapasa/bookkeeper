@@ -2,7 +2,7 @@ import { Request, RequestHandler, Response, Router } from 'express';
 import { ITask } from 'pg-promise';
 import { z } from 'zod';
 
-import { isDefined, ObjectIdString, SessionBasicInfo } from 'shared/types';
+import { IntString, isDefined, ObjectIdString, SessionBasicInfo } from 'shared/types';
 import { MaybePromise, recordFromPairs } from 'shared/util';
 
 import { Requests } from './RequestHandling';
@@ -28,6 +28,7 @@ const TypeMap = {
   reportId: ObjectIdString,
   recurringExpenseId: ObjectIdString,
   filename: z.string().trim().nonempty(),
+  margin: IntString.refine(n => n >= 0),
 };
 type TypeMap = typeof TypeMap;
 type KnownParamNames = keyof typeof TypeMap;
