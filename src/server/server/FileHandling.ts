@@ -32,6 +32,10 @@ export function withoutExt(file: string): string {
   return ext ? file.substring(0, file.length - ext.length) : file;
 }
 
+export function replaceExt(file: string, extension: string): string {
+  return withoutExt(file) + extension;
+}
+
 export async function safeDeleteFile(filepath: string, logInfo?: boolean) {
   try {
     const f = Bun.file(filepath);

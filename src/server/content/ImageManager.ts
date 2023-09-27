@@ -2,6 +2,7 @@ import path, { extname } from 'path';
 import sharp from 'sharp';
 
 import { assertDefined, typedKeys } from 'shared/util';
+import { logger } from 'server/Logger';
 import { FileUploadResult, safeDeleteFile, withoutExt } from 'server/server/FileHandling';
 
 import { FileWriteResult, writeImageToFile } from './ImageService';
@@ -33,6 +34,10 @@ export interface ImageManagerOptions {
 
 type StringKey<V> = keyof V & string;
 
+interface SaveImageOptions {
+  margin?: number;
+}
+
 export class ImageManager<V extends Record<string, ImageSpecData>> {
   constructor(
     private options: ImageManagerOptions,
@@ -43,9 +48,13 @@ export class ImageManager<V extends Record<string, ImageSpecData>> {
     return typedKeys(this.variantInfos) as StringKey<V>[];
   }
 
-  getVariant = <K extends StringKey<V>>(variant: K, name: string): ImageSpec<K> => {
+  getVariant = <K extends StringKey<V>>(
+    variant: K,
+    name: string,
+    replaceExt?: string,
+  ): ImageSpec<K> => {
     const base = stripFilename(name);
-    const ext = path.extname(name);
+    const ext = replaceExt ?? path.extname(name);
     return this.toVariant(variant, base, ext);
   };
 
@@ -55,11 +64,11 @@ export class ImageManager<V extends Record<string, ImageSpecData>> {
     return this.variants.map(k => this.toVariant(String(k), base, ext));
   };
 
-  async saveImages(file: FileUploadResult) {
+  async saveImages(file: FileUploadResult, options: SaveImageOptions = {}) {
     const writtenFiles: FileWriteResult[] = [];
     try {
       for (const v of this.variants) {
-        writtenFiles.push(await this.saveImage(v, file));
+        writtenFiles.push(await this.saveImage(v, file, options));
       }
       const first = writtenFiles[0];
       assertDefined(first);
@@ -80,18 +89,27 @@ export class ImageManager<V extends Record<string, ImageSpecData>> {
   private async saveImage<K extends StringKey<V>>(
     variant: K,
     file: FileUploadResult,
+    { margin }: SaveImageOptions = {},
   ): Promise<FileWriteResult> {
-    const info = this.getVariant(variant, file.filename);
+    const info = this.getVariant(variant, file.filename, '.webp');
+    let imgTransform = sharp(file.filepath).trim().resize({
+      width: info.width,
+      height: info.height,
+      fit: 'contain',
+      background: 'transparent',
+    });
+    if (margin) {
+      logger.debug(`Adding ${margin}px margin to image`);
+      imgTransform = imgTransform.extend({
+        top: margin,
+        bottom: margin,
+        left: margin,
+        right: margin,
+        background: 'transparent',
+      });
+    }
     return await writeImageToFile(
-      sharp(file.filepath)
-        .trim()
-        .resize({
-          width: info.width,
-          height: info.height,
-          fit: 'contain',
-          background: 'transparent',
-        })
-        .webp(),
+      imgTransform.webp(),
       info.filepath,
       info.description ?? info.variant,
     );

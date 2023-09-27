@@ -100,11 +100,11 @@ export async function reorderUserShortcuts(
   );
 }
 
-export async function clearProfileImageById(tx: ITask<any>, shortcutId: ObjectId) {
+export async function clearShortcutIconById(tx: ITask<any>, shortcutId: ObjectId) {
   await tx.none(`UPDATE shortcuts SET icon=NULL WHERE id=$/shortcutId/`, { shortcutId });
 }
 
-export async function setProfileImageById(tx: ITask<any>, shortcutId: ObjectId, filename: string) {
+export async function setShortcutIconById(tx: ITask<any>, shortcutId: ObjectId, filename: string) {
   await tx.none(`UPDATE shortcuts SET icon=$/filename/ WHERE id=$/shortcutId/`, {
     shortcutId,
     filename,

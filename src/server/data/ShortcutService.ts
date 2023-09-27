@@ -1,20 +1,18 @@
-import path, { basename } from 'path';
 import { ITask } from 'pg-promise';
 
 import { ExpenseShortcutPayload } from 'shared/expense';
 import { BkError, isDefined, ObjectId } from 'shared/types';
-import { AssetDirectories } from 'server/content/Content';
-import { createShortcutIcons } from 'server/content/ShortcutImage';
+import { shortcutImageHandler } from 'server/content/ShortcutImage';
 import { logger } from 'server/Logger';
 import { FileUploadResult, safeDeleteFile } from 'server/server/FileHandling';
 
 import { getCategoryById } from './CategoryDb';
 import {
-  clearProfileImageById,
+  clearShortcutIconById,
   deleteShortcutById,
   getShortcutById,
   insertNewShortcut,
-  setProfileImageById,
+  setShortcutIconById,
   updateShortcutById,
 } from './ShortcutDb';
 import { getSourceById } from './SourceDb';
@@ -110,8 +108,9 @@ export async function uploadShortcutIcon(
   try {
     await getShortcutById(tx, groupId, userId, shortcutId);
     logger.info(image, `Updating shortcut icon for user ${userId}, shortcut ${shortcutId}`);
-    const file = await createShortcutIcons(image, margin);
-    await setProfileImageById(tx, shortcutId, file);
+    const file = await shortcutImageHandler.saveImages(image, { margin });
+    await deleteShortcutIcon(tx, groupId, userId, shortcutId);
+    await setShortcutIconById(tx, shortcutId, file);
     return getShortcutById(tx, groupId, userId, shortcutId);
   } finally {
     // Clear uploaded image
@@ -127,10 +126,10 @@ export async function deleteShortcutIcon(
 ): Promise<void> {
   const shortcut = await getShortcutById(tx, groupId, userId, shortcutId);
   if (!shortcut.icon) {
-    logger.info(`No image for shortcut ${shortcutId}, skipping delete...`);
+    logger.info(`No icon for shortcut ${shortcutId}, skipping delete...`);
     return;
   }
-  await safeDeleteFile(path.join(AssetDirectories.shortcutImage, basename(shortcut.icon)));
-  await clearProfileImageById(tx, shortcutId);
-  logger.info(`Deleted shortcut ${shortcutId} image`);
+  await shortcutImageHandler.deleteImages(shortcut.icon);
+  await clearShortcutIconById(tx, shortcutId);
+  logger.info(`Deleted shortcut ${shortcutId} icon`);
 }
