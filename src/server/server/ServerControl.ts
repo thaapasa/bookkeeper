@@ -5,8 +5,10 @@ import { shutdownDb } from 'server/data/Db';
 import { logger } from 'server/Logger';
 import { fixDbTraceLeak } from 'server/logging/TraceIdFix';
 import { logError } from 'server/notifications/ErrorLogger';
+import { SlackFormatter } from 'server/notifications/SlackFormatter';
 import { slackNotifier } from 'server/notifications/SlackNotifier';
 
+import revision from '../revision.json';
 import { setupFileDirectories } from './FileHandling';
 import { setupServer } from './ServerSetup';
 
@@ -48,9 +50,14 @@ export async function startServer() {
 
       logger.info(config, `Server configuration`);
       void slackNotifier
-        .sendNotification(
-          `Kukkaro ${config.version} (rev ${config.revision}) started in ${config.host}:${config.port}, env ${config.environment}`,
-        )
+        .sendMessage([
+          {
+            text: `Kukkaro ${config.version} (rev ${config.revision}) started in ${config.host}:${config.port}, env ${config.environment}`,
+          },
+          ...(revision.commits
+            ? [{ text: SlackFormatter.asTitledList('Commits:', revision.commits) }]
+            : []),
+        ])
         .catch(logError);
     });
   } catch (er) {

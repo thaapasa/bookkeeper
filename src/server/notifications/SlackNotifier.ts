@@ -4,7 +4,13 @@ import { FetchClient } from 'shared/net';
 import { config } from 'server/Config';
 import { logger } from 'server/Logger';
 
+import { SlackMessageData } from './SlackTypes';
+
 const log = logger.child({ category: 'slack' });
+
+interface TextBlock {
+  text: string;
+}
 
 export class SlackNotifier {
   private client?: FetchClient;
@@ -14,7 +20,18 @@ export class SlackNotifier {
 
   async sendNotification(text: string) {
     log.info(`${this.prefix} ${text}`);
-    await this.client?.post('', { text });
+    await this.sendData({ text });
+  }
+
+  async sendMessage(blocks: TextBlock[]) {
+    log.info(`${this.prefix} ${blocks[0]?.text}`);
+    await this.sendData({
+      blocks: blocks.map(b => ({ type: 'section', text: { type: 'mrkdwn', text: b.text } })),
+    });
+  }
+
+  private async sendData(data: SlackMessageData) {
+    await this.client?.post('', data);
   }
 
   get prefix() {
