@@ -9,8 +9,14 @@ const ProfileImageSizeLarge = 512;
 export const profileImageHandler = new ImageManager(
   { directory: AssetDirectories.profileImage, webPath: 'content/profile' },
   {
-    small: { width: 128, height: 128 },
-    large: { width: 512, height: 512, suffix: 'large' },
+    small: { width: 128, height: 128, scale: 4, description: 'small profile image' },
+    large: {
+      width: 512,
+      height: 512,
+      scale: 4,
+      suffix: 'large',
+      description: 'large profile image',
+    },
   },
 );
 

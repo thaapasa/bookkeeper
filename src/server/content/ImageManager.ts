@@ -8,9 +8,15 @@ import { FileUploadResult, safeDeleteFile, withoutExt } from 'server/server/File
 import { FileWriteResult, writeImageToFile } from './ImageService';
 
 export interface ImageSpecData {
+  /** Real width of the image‚ in pixels */
   width: number;
+  /** Real height of the image, in pixels */
   height: number;
+  /** Intended scale when showing (e.g. 1 = normal, 4 = scale down to 1/4 of size for high-DPI devices)  */
+  scale?: number;
+  /** Suffix to append to this image variant */
   suffix?: string;
+  /** Description of this variant */
   description?: string;
 }
 
@@ -23,6 +29,7 @@ export interface ImageSpec<K extends string> extends ImageSpecData {
   filepath: string;
   /** Web path under which the image can be shown */
   webPath: string;
+  scale: number;
 }
 
 export interface ImageManagerOptions {
@@ -99,12 +106,13 @@ export class ImageManager<V extends Record<string, ImageSpecData>> {
       background: 'transparent',
     });
     if (margin) {
-      logger.debug(`Adding ${margin}px margin to image`);
+      const marginPx = margin * info.scale;
+      logger.debug(`Adding ${marginPx}px margin to image`);
       imgTransform = imgTransform.extend({
-        top: margin,
-        bottom: margin,
-        left: margin,
-        right: margin,
+        top: marginPx,
+        bottom: marginPx,
+        left: marginPx,
+        right: marginPx,
         background: 'transparent',
       });
     }
@@ -124,6 +132,7 @@ export class ImageManager<V extends Record<string, ImageSpecData>> {
     const filename = `${basename}${v.suffix ? '-' + v.suffix : ''}${ext}`;
     return {
       ...v,
+      scale: v.scale ?? 1,
       variant,
       filename,
       filepath: path.join(this.options.directory, filename),
