@@ -26,6 +26,6 @@
     "noImplicitAny": true,
     "noUnusedLocals": true
   },
-  "include": ["src"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.json"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

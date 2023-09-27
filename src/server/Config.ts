@@ -6,7 +6,7 @@ const env = process.env.NODE_ENV || 'development';
 
 import path from 'path';
 
-import revision from './revision';
+import revision from './revision.json';
 const port = process.env.SERVER_PORT;
 
 const curDir = process.cwd();
@@ -16,6 +16,7 @@ class Config {
   public version = revision.version;
   public commitId = revision.commitId;
   public revision = revision.commitId.substring(0, 8);
+  public commitMessage = revision.message;
 
   public host = hostname();
   public port = port ? parseInt(port, 10) : 3100;

@@ -1,4 +1,4 @@
-import revision from './revision';
+import revision from './revision.json';
 
 export const config = {
   ...revision,

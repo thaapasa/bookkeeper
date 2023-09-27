@@ -25,6 +25,8 @@ dist
 /src/server/config-production.js
 /src/server/revision.[jt]s
 /src/client/revision.[jt]s
+/src/server/revision.json
+/src/client/revision.json
 /build
 /build-server
 .env
