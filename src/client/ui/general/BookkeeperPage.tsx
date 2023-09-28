@@ -18,6 +18,7 @@ import {
   statisticsPage,
   subscriptionsPagePath,
   toolsPagePath,
+  trackingPagePath,
 } from 'client/util/Links';
 
 import { RoutedCategoryView } from '../category/RoutedCategoryView';
@@ -44,6 +45,7 @@ import {
 } from '../Styles';
 import { SubscriptionsPage } from '../subscriptions/SubscriptionsPage';
 import { ToolsView } from '../tools/ToolsView';
+import { TrackingPage } from '../tracking/TrackingPage';
 import { Size } from '../Types';
 import { PathNotFoundError } from './ErrorView';
 import { ShortcutsPage } from './ShortcutsPage';
@@ -86,6 +88,7 @@ const appLinks: AppLink[] = [
   },
   { label: 'Haku', path: searchPagePath, showInHeader: true, icon: 'Search' },
   { label: 'Tiedot', path: infoPagePath, showInHeader: false, icon: 'Info' },
+  { label: 'Seuranta', path: trackingPagePath, showInHeader: false, icon: 'Chart' },
   {
     label: 'Työkalut',
     path: toolsPagePath,
@@ -126,6 +129,7 @@ export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
               <Route path={statisticsPage} element={<StatisticsView />} />
               <Route path={profilePagePath} element={<ProfileView />} />
               <Route path={infoPagePath} element={<InfoView />} />
+              <Route path={trackingPagePath} element={<TrackingPage />} />
               <Route path={toolsPagePath} element={<ToolsView />} />
               <Route path="/" element={<FrontpageView />} />
               <Route element={<PathNotFoundError />} />

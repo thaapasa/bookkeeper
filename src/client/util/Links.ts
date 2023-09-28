@@ -10,6 +10,7 @@ export const searchPagePath = '/p/haku';
 export const infoPagePath = '/p/info';
 export const toolsPagePath = '/p/työkalut';
 export const profilePagePath = '/p/profiili';
+export const trackingPagePath = '/p/seuranta';
 
 export const yearPattern = 'YYYY';
 export const monthPattern = 'YYYY-MM';
