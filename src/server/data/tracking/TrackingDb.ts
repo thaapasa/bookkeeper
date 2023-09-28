@@ -21,6 +21,19 @@ export async function insertTrackingSubject(
   return toTrackingSubject(c);
 }
 
+export async function getTrackingSubjectsForUser(
+  tx: ITask<any>,
+  groupId: ObjectId,
+  userId: ObjectId,
+) {
+  const rows = await tx.manyOrNone(
+    `SELECT ${TRACKING_FIELDS} FROM tracking_subjects
+      WHERE group_id=$/groupId/ AND user_id=$/userId/`,
+    { groupId, userId },
+  );
+  return rows.map(toTrackingSubject);
+}
+
 function toTrackingSubject(row: any): TrackingSubject {
   return {
     id: row.id,
