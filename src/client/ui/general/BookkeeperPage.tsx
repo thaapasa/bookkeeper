@@ -84,7 +84,7 @@ const appLinks: AppLink[] = [
     label: 'Tilastot',
     path: statisticsPage,
     showInHeader: true,
-    icon: 'Chart',
+    icon: 'BarChart',
   },
   { label: 'Haku', path: searchPagePath, showInHeader: true, icon: 'Search' },
   { label: 'Tiedot', path: infoPagePath, showInHeader: false, icon: 'Info' },
