@@ -5,6 +5,7 @@ import React from 'react';
 import { Title } from '../design/Text';
 import { Icons } from '../icons/Icons';
 import { PageContentContainer } from '../Styles';
+import { newTrackingSubject, TrackingEditor } from './TrackingEditor';
 
 export const TrackingPage: React.FC = () => {
   return (
@@ -13,12 +14,13 @@ export const TrackingPage: React.FC = () => {
         <RGrid item xs={12}>
           <Title>Seuranta</Title>
           <ToolArea>
-            <IconButton title="Uusi seuranta">
+            <IconButton title="Uusi seuranta" onClick={newTrackingSubject}>
               <Icons.AddChart />
             </IconButton>
           </ToolArea>
         </RGrid>
       </Grid>
+      <TrackingEditor />
     </PageContentContainer>
   );
 };

@@ -33,6 +33,7 @@ import {
   Source,
   SourcePatch,
   StatisticsSearchType,
+  TrackingSubject,
 } from 'shared/types';
 import { PasswordUpdate, UserDataUpdate } from 'shared/userData';
 import { filterDefinedProps, Money } from 'shared/util';
@@ -347,6 +348,9 @@ export class ApiConnect {
 
   public shortShortcutDown = (shortcutId: ObjectId): Promise<void> =>
     this.post(uri`/api/profile/shortcut/${shortcutId}/sort/down`);
+
+  public getTrackingSubject = (trackingId: ObjectId): Promise<TrackingSubject> =>
+    this.get(uri`/api/tracking/${trackingId}`);
 
   public updateUserData = (userData: UserDataUpdate): Promise<void> =>
     this.put(uri`/api/profile/userData`, userData);
