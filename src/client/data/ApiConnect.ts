@@ -34,6 +34,7 @@ import {
   SourcePatch,
   StatisticsSearchType,
   TrackingSubject,
+  TrackingSubjectData,
 } from 'shared/types';
 import { PasswordUpdate, UserDataUpdate } from 'shared/userData';
 import { filterDefinedProps, Money } from 'shared/util';
@@ -351,6 +352,9 @@ export class ApiConnect {
 
   public getTrackingSubject = (trackingId: ObjectId): Promise<TrackingSubject> =>
     this.get(uri`/api/tracking/${trackingId}`);
+
+  public createTrackingSubject = (payload: TrackingSubjectData): Promise<TrackingSubject> =>
+    this.post(uri`/api/tracking`, payload);
 
   public updateUserData = (userData: UserDataUpdate): Promise<void> =>
     this.put(uri`/api/profile/userData`, userData);

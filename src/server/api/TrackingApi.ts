@@ -9,11 +9,11 @@ import { createValidatingRouter } from 'server/server/ValidatingRouter';
  * Creates tracking API router.
  * Assumed attach path: `/api/tracking`
  */
-export function createProfileApi() {
+export function createTrackingApi() {
   const api = createValidatingRouter(Router());
 
-  // PUT /api/tracking
-  api.putTx('/', { body: TrackingSubjectData }, (tx, session, { body }) =>
+  // POST /api/tracking
+  api.postTx('/', { body: TrackingSubjectData }, (tx, session, { body }) =>
     createTrackingSubject(tx, session.group.id, session.user.id, body),
   );
 

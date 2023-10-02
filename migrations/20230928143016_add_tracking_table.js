@@ -20,5 +20,5 @@ exports.up = knex =>
 
 exports.down = knex =>
   knex.raw(/*sql*/ `
-    DROP TABLE IF EXISTS tracking;
+    DROP TABLE IF EXISTS tracked_subjects;
   `);

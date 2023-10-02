@@ -18,6 +18,7 @@ import { createSessionApi } from './SessionApi';
 import { createSourceApi } from './SourceApi';
 import { createStatisticsApi } from './StatisticsApi';
 import { createSubscriptionApi } from './SubscriptionApi';
+import { createTrackingApi } from './TrackingApi';
 
 export function createApi() {
   logger.info('Registering API');
@@ -34,6 +35,7 @@ export function createApi() {
   api.use('/source', createSourceApi());
   api.use('/receiver', createReceiverApi());
   api.use('/report', createReportApi());
+  api.use('/tracking', createTrackingApi());
 
   // GET /api/status
   api.get(

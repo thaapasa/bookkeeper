@@ -2,10 +2,10 @@ import { z } from 'zod';
 
 import { ObjectId } from './Id';
 
-export const TrackingInfo = z.object({
+export const TrackingData = z.object({
   categories: z.array(ObjectId).optional(),
 });
-export type TrackingInfo = z.infer<typeof TrackingInfo>;
+export type TrackingData = z.infer<typeof TrackingData>;
 
 export const TrackingSubjectData = z.object({
   title: z.string(),
@@ -14,7 +14,7 @@ export type TrackingSubjectData = z.infer<typeof TrackingSubjectData>;
 
 export const TrackingSubject = TrackingSubjectData.extend({
   id: ObjectId,
-  trackingInfo: TrackingInfo,
+  trackingData: TrackingData,
   image: z.string().nonempty().optional(),
 });
 export type TrackingSubject = z.infer<typeof TrackingSubject>;

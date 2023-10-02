@@ -3,7 +3,6 @@ import * as B from 'baconjs';
 import * as React from 'react';
 
 import { ObjectId, TrackingSubject } from 'shared/types';
-import { noop } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 
 import { AsyncDataDialogContent } from '../component/AsyncDataDialog';
@@ -11,6 +10,7 @@ import { connectDialog } from '../component/DialogConnector';
 import { TextEdit } from '../component/TextEdit';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useForceReload } from '../hooks/useForceReload';
+import { useTrackingState } from './TrackingEditorState';
 
 const trackingBus = new B.Bus<{ trackingId: ObjectId | null }>();
 
@@ -53,6 +53,9 @@ const TrackingEditView: React.FC<{
   reloadData: () => void;
 }> = ({ data, onClose }) => {
   const createNew = data === null;
+  const state = useTrackingState();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  React.useEffect(() => void state.reset(data), [data?.id]);
   return (
     <>
       <DialogTitle>{createNew ? 'Uusi seuranta' : 'Muokkaa seurantaa'}</DialogTitle>
@@ -62,7 +65,7 @@ const TrackingEditView: React.FC<{
             Nimi
           </Grid>
           <Grid item xs={8}>
-            <TextEdit value="" onChange={noop} fullWidth />
+            <TextEdit value={state.title} onChange={state.setTitle} fullWidth />
           </Grid>
 
           <Grid item xs="auto">
@@ -71,7 +74,12 @@ const TrackingEditView: React.FC<{
             </Button>
           </Grid>
           <Grid item xs="auto">
-            <Button color="primary" variant="contained" onClick={noop}>
+            <Button
+              color="primary"
+              variant="contained"
+              disabled={!state.inputValid()}
+              onClick={() => state.saveTracking(onClose)}
+            >
               Tallenna
             </Button>
           </Grid>
