@@ -2,13 +2,8 @@ import crypto from 'crypto';
 import { ITask } from 'pg-promise';
 import { promisify } from 'util';
 
-import {
-  ApiMessage,
-  AuthenticationError,
-  ExpenseShortcut,
-  Session,
-  SessionBasicInfo,
-} from 'shared/types';
+import { ExpenseShortcut } from 'shared/expense';
+import { ApiMessage, AuthenticationError, Session, SessionBasicInfo } from 'shared/types';
 import { logger } from 'server/Logger';
 
 import { config } from '../Config';

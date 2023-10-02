@@ -2,11 +2,9 @@ import { Button, Dialog, DialogContent, DialogTitle, Grid, IconButton } from '@m
 import { styled } from '@mui/system';
 import * as B from 'baconjs';
 import * as React from 'react';
-import { create } from 'zustand';
 
-import { ExpenseShortcutData, ExpenseShortcutPayload } from 'shared/expense';
-import { ExpenseShortcut, ObjectId } from 'shared/types';
-import { requireDefined } from 'shared/util';
+import { ExpenseShortcut, ExpenseShortcutPayload } from 'shared/expense';
+import { ObjectId } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
 import { updateSession } from 'client/data/Login';
 import { executeOperation } from 'client/util/ExecuteOperation';
@@ -21,6 +19,7 @@ import { useAsyncData } from '../hooks/useAsyncData';
 import { useForceReload } from '../hooks/useForceReload';
 import { Icons } from '../icons/Icons';
 import { Flex } from '../Styles';
+import { useShortcutState } from './ShortcutEditorState';
 import { ShortcutLink } from './ShortcutLink';
 
 const shortcutBus = new B.Bus<{ shortcutId: ObjectId }>();
@@ -49,60 +48,6 @@ const ShortcutDialogImpl: React.FC<{ shortcutId: ObjectId; onClose: () => void }
 
 function getShortcut(shortcutId: ObjectId, _counter: number) {
   return apiConnect.getShortcut(shortcutId);
-}
-
-export type ShortcutState = {
-  title: string;
-  background: string;
-  expenseStr: string;
-  setTitle: (title: string) => void;
-  setBackground: (background: string) => void;
-  setExpense: (expense: string) => void;
-  reset: (shortcut: ExpenseShortcut) => void;
-  inputValid: () => boolean;
-  toPayload: () => ExpenseShortcutPayload;
-  margin: string;
-  setMargin: (margin: string) => void;
-};
-
-export const useShortcutState = create<ShortcutState>((set, get) => ({
-  title: '',
-  background: '',
-  expenseStr: '',
-  margin: '0',
-  setTitle: title => set({ title }),
-  setBackground: background => set({ background }),
-  setExpense: expenseStr => set({ expenseStr }),
-  setMargin: margin => set({ margin }),
-  reset: shortcut =>
-    set({
-      title: shortcut.title,
-      background: shortcut.background ?? '',
-      expenseStr: JSON.stringify(shortcut.expense ?? {}, null, 2),
-      margin: '0',
-    }),
-  inputValid: () => {
-    const s = get();
-    return !!s.title && parseExpense(s.expenseStr) !== undefined;
-  },
-  toPayload: () => {
-    const s = get();
-    return {
-      title: s.title,
-      background: s.background || undefined,
-      expense: requireDefined(parseExpense(s.expenseStr), 'parsed expense data'),
-    };
-  },
-}));
-
-function parseExpense(expenseStr: string): ExpenseShortcutData | undefined {
-  try {
-    const d = JSON.parse(expenseStr);
-    const parsed = ExpenseShortcutData.parse(d);
-    return parsed;
-  } catch (e) {
-    return undefined;
-  }
 }
 
 const ShortcutEditView: React.FC<{

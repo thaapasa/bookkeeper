@@ -1,7 +1,7 @@
 import { styled } from '@mui/material';
 import * as React from 'react';
 
-import { ExpenseInEditor } from 'shared/expense';
+import { ExpenseShortcutData, shortcutToExpenseInEditor } from 'shared/expense';
 import { ObjectId } from 'shared/types';
 import { createNewExpense } from 'client/data/State';
 
@@ -11,7 +11,7 @@ export interface ShortcutLinkProps {
   id?: ObjectId;
   background?: string;
   onClick?: () => void;
-  expense?: Partial<ExpenseInEditor>;
+  expense?: Partial<ExpenseShortcutData>;
   title: string;
   icon?: string | React.ReactNode;
   className?: string;
@@ -26,7 +26,9 @@ export const ShortcutLink: React.FC<ShortcutLinkProps> = ({
   className,
 }) => (
   <LinkIconArea
-    onClick={onClick ?? (expense ? () => createNewExpense(expense) : undefined)}
+    onClick={
+      onClick ?? (expense ? () => createNewExpense(shortcutToExpenseInEditor(expense)) : undefined)
+    }
     style={{ background }}
     className={className}
   >

@@ -1,7 +1,7 @@
 import { ITask } from 'pg-promise';
 
-import { ExpenseShortcutPayload } from 'shared/expense';
-import { ExpenseShortcut, NotFoundError, ObjectId } from 'shared/types';
+import { ExpenseShortcut, ExpenseShortcutPayload } from 'shared/expense';
+import { NotFoundError, ObjectId } from 'shared/types';
 
 const SHORTCUT_FIELDS = /*sql */ `id, title, icon, background, expense, sort_order AS "sortOrder"`;
 

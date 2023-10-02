@@ -1,9 +1,9 @@
 import { z } from 'zod';
 
-import { ISODate } from '../time/Time';
+import { ISODate, toDayjs } from '../time/Time';
 import { ObjectId } from '../types/Id';
-import { MoneyLike } from '../util/Money';
-import { BaseExpenseData } from './Expense';
+import { Money, MoneyLike } from '../util/Money';
+import { BaseExpenseData, ExpenseInEditor } from './Expense';
 
 export const ExpenseShortcutData = BaseExpenseData.extend({
   title: z.string(),
@@ -22,6 +22,7 @@ export interface ExpenseShortcut {
   icon?: string;
   expense: ExpenseShortcutData;
   background?: string;
+  sortOrder: number;
 }
 
 export const ExpenseShortcutPayload = z.object({
@@ -30,3 +31,11 @@ export const ExpenseShortcutPayload = z.object({
   expense: ExpenseShortcutData,
 });
 export type ExpenseShortcutPayload = z.infer<typeof ExpenseShortcutPayload>;
+
+export function shortcutToExpenseInEditor(expense: ExpenseShortcutData): Partial<ExpenseInEditor> {
+  return {
+    ...expense,
+    sum: expense.sum ? Money.from(expense.sum).toString() : undefined,
+    date: expense.date ? toDayjs(expense.date) : undefined,
+  };
+}

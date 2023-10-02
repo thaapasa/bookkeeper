@@ -1,8 +1,8 @@
 import { IconButton, styled } from '@mui/material';
 import * as React from 'react';
 
-import { ExpenseShortcutPayload } from 'shared/expense';
-import { ExpenseShortcut, ObjectId } from 'shared/types';
+import { ExpenseShortcut, ExpenseShortcutPayload, shortcutToExpenseInEditor } from 'shared/expense';
+import { ObjectId } from 'shared/types';
 import { noop, spaced } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { updateSession, validSessionE } from 'client/data/Login';
@@ -58,7 +58,10 @@ const ShortcutRow: React.FC<
 > = ({ id, expense, onClick, allowEdit, title, children, ...props }) => (
   <TitledRow>
     <Row
-      onClick={onClick ?? (expense ? () => createNewExpense(expense) : undefined)}
+      onClick={
+        onClick ??
+        (expense ? () => createNewExpense(shortcutToExpenseInEditor(expense)) : undefined)
+      }
       className={onClick || expense ? 'clickable' : undefined}
     >
       <ShortcutLink {...props} title={title} />

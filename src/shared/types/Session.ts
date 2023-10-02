@@ -1,7 +1,6 @@
-import { ExpenseInEditor } from '../expense/Expense';
+import { ExpenseShortcut } from '../expense/Shortcut';
 import { MoneyLike } from '../util/Money';
 import { DbObject } from './Common';
-import { ObjectId } from './Id';
 import { Source } from './Source';
 
 export interface Group extends DbObject {
@@ -26,15 +25,6 @@ export interface CategoryAndTotals extends Category {
   totalExpenses?: MoneyLike;
   totalIncome?: MoneyLike;
   children: CategoryAndTotals[];
-}
-
-export interface ExpenseShortcut {
-  id: ObjectId;
-  title: string;
-  icon?: string;
-  expense: Partial<ExpenseInEditor>;
-  background?: string;
-  sortOrder: number;
 }
 
 export interface User extends DbObject {

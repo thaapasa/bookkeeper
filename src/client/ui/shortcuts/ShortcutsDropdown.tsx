@@ -1,7 +1,7 @@
 import { styled } from '@mui/material';
 import * as React from 'react';
 
-import { ExpenseShortcut } from 'shared/types';
+import { ExpenseShortcut } from 'shared/expense';
 import { validSessionE } from 'client/data/Login';
 
 import { navigationBar } from '../Colors';
