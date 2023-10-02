@@ -3,11 +3,9 @@ import { styled } from '@mui/system';
 import * as B from 'baconjs';
 import * as React from 'react';
 
-import { ExpenseShortcut, ExpenseShortcutPayload } from 'shared/expense';
+import { ExpenseShortcut } from 'shared/expense';
 import { ObjectId } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
-import { updateSession } from 'client/data/Login';
-import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { AsyncDataDialogContent } from '../component/AsyncDataDialog';
 import { connectDialog } from '../component/DialogConnector';
@@ -91,13 +89,13 @@ const ShortcutEditView: React.FC<{
               />
               <UploadImageButton
                 onSelect={(file, filename) =>
-                  uploadShortcutIcon(data.id, file, filename, state.margin).then(reloadData)
+                  state.uploadShortcutIcon(file, filename).then(reloadData)
                 }
                 title="Lataa kuva"
               >
                 <Icons.Upload />
               </UploadImageButton>
-              <IconButton onClick={() => removeIcon(data.id)} title="Poista kuva">
+              <IconButton onClick={state.removeIcon} title="Poista kuva">
                 <Icons.Delete />
               </IconButton>
             </Row>
@@ -118,7 +116,7 @@ const ShortcutEditView: React.FC<{
               color="primary"
               variant="contained"
               disabled={!state.inputValid()}
-              onClick={() => saveShortcut(data.id, state.toPayload(), onClose)}
+              onClick={() => state.saveShortcut(onClose)}
             >
               Tallenna
             </Button>
@@ -135,39 +133,3 @@ const ShortcutIcon = styled(ShortcutLink)`
 `;
 
 export const ShortcutEditor = connectDialog(shortcutBus, ShortcutDialogImpl);
-
-async function saveShortcut(
-  shortcutId: ObjectId,
-  data: ExpenseShortcutPayload,
-  onClose: () => void,
-): Promise<void> {
-  await executeOperation(() => apiConnect.updateShortcut(shortcutId, data), {
-    postProcess: updateSession,
-    success: 'Linkki päivitetty',
-    throw: true,
-  });
-  onClose();
-}
-
-async function uploadShortcutIcon(
-  shortcutId: ObjectId,
-  file: File,
-  filename: string,
-  margin: string,
-): Promise<ExpenseShortcut> {
-  return await executeOperation(
-    () => apiConnect.uploadShortcutIcon(shortcutId, file, filename, Number(margin)),
-    {
-      postProcess: updateSession,
-      success: 'Ikoni päivitetty',
-      throw: true,
-    },
-  );
-}
-
-async function removeIcon(shortcutId: ObjectId): Promise<void> {
-  await executeOperation(() => apiConnect.removeShortcutIcon(shortcutId), {
-    postProcess: updateSession,
-    success: 'Ikoni poistettu',
-  });
-}
