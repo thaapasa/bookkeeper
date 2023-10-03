@@ -350,11 +350,21 @@ export class ApiConnect {
   public shortShortcutDown = (shortcutId: ObjectId): Promise<void> =>
     this.post(uri`/api/profile/shortcut/${shortcutId}/sort/down`);
 
+  public getTrackingSubjects = (): Promise<TrackingSubject[]> => this.get(uri`/api/tracking/list`);
+
   public getTrackingSubject = (trackingId: ObjectId): Promise<TrackingSubject> =>
     this.get(uri`/api/tracking/${trackingId}`);
 
   public createTrackingSubject = (payload: TrackingSubjectData): Promise<TrackingSubject> =>
     this.post(uri`/api/tracking`, payload);
+
+  public updateTrackingSubject = (
+    subjectId: ObjectId,
+    payload: TrackingSubjectData,
+  ): Promise<TrackingSubject> => this.put(uri`/api/tracking/${subjectId}`, payload);
+
+  public deleteTrackingSubject = (subjectId: ObjectId): Promise<void> =>
+    this.del(uri`/api/tracking/${subjectId}`);
 
   public updateUserData = (userData: UserDataUpdate): Promise<void> =>
     this.put(uri`/api/profile/userData`, userData);

@@ -8,12 +8,12 @@ exports.up = knex =>
       id SERIAL PRIMARY KEY,
       created TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
       updated TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-      group_id INTEGER REFERENCES groups(id),
-      user_id INTEGER REFERENCES users(id),
-      sort_order INTEGER DEFAULT 0,
+      group_id INTEGER NOT NULL REFERENCES groups(id),
+      user_id INTEGER NOT NULL REFERENCES users(id),
+      sort_order INTEGER NOT NULL DEFAULT 0,
       title TEXT NOT NULL,
       image TEXT,
-      tracking_data JSONB
+      tracking_data JSONB NOT NULL DEFAULT '{}'
     );
 
   `);

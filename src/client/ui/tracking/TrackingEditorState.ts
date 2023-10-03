@@ -11,7 +11,7 @@ export type TrackingState = {
   setTitle: (title: string) => void;
   reset: (tracking: TrackingSubject | null) => void;
   inputValid: () => boolean;
-  saveTracking(onClose: () => void): Promise<void>;
+  saveTracking(...callbacks: (() => void)[]): Promise<void>;
 };
 
 export const useTrackingState = create<TrackingState>((set, get) => ({
@@ -27,7 +27,7 @@ export const useTrackingState = create<TrackingState>((set, get) => ({
     const s = get();
     return !!s.title;
   },
-  saveTracking: async onClose => {
+  saveTracking: async (...callbacks) => {
     const s = get();
     const id = s.id;
     if (!s.inputValid()) {
@@ -36,11 +36,17 @@ export const useTrackingState = create<TrackingState>((set, get) => ({
     const payload: TrackingSubjectData = {
       title: s.title,
     };
-    await executeOperation(() => apiConnect.createTrackingSubject(payload), {
-      postProcess: updateSession,
-      success: id ? 'Seuranta päivitetty' : 'Seuranta luotu',
-      throw: true,
-    });
-    onClose();
+    await executeOperation(
+      () =>
+        id
+          ? apiConnect.updateTrackingSubject(id, payload)
+          : apiConnect.createTrackingSubject(payload),
+      {
+        postProcess: updateSession,
+        success: id ? 'Seuranta päivitetty' : 'Seuranta luotu',
+        throw: true,
+      },
+    );
+    callbacks.forEach(c => c());
   },
 }));

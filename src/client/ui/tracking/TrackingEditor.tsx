@@ -12,7 +12,11 @@ import { useAsyncData } from '../hooks/useAsyncData';
 import { useForceReload } from '../hooks/useForceReload';
 import { useTrackingState } from './TrackingEditorState';
 
-const trackingBus = new B.Bus<{ trackingId: ObjectId | null }>();
+interface TrackingBusPayload {
+  trackingId: ObjectId | null;
+}
+
+const trackingBus = new B.Bus<TrackingBusPayload>();
 
 export function editTrackingSubject(trackingId: ObjectId) {
   trackingBus.push({ trackingId });
@@ -22,10 +26,11 @@ export function newTrackingSubject() {
   trackingBus.push({ trackingId: null });
 }
 
-const TrackingDialogImpl: React.FC<{ trackingId: ObjectId | null; onClose: () => void }> = ({
-  trackingId,
-  onClose,
-}) => {
+const TrackingDialogImpl: React.FC<{
+  trackingId: ObjectId | null;
+  onClose: () => void;
+  reloadAll: () => void;
+}> = ({ trackingId, onClose, reloadAll }) => {
   const { counter, forceReload } = useForceReload();
   const data = useAsyncData(getTrackingSubject, true, trackingId, counter);
   return (
@@ -35,6 +40,7 @@ const TrackingDialogImpl: React.FC<{ trackingId: ObjectId | null; onClose: () =>
         renderer={TrackingEditView}
         onClose={onClose}
         reloadData={forceReload}
+        reloadAll={reloadAll}
       />
     </Dialog>
   );
@@ -51,7 +57,8 @@ const TrackingEditView: React.FC<{
   data: TrackingSubject | null;
   onClose: () => void;
   reloadData: () => void;
-}> = ({ data, onClose }) => {
+  reloadAll: () => void;
+}> = ({ data, onClose, reloadAll }) => {
   const createNew = data === null;
   const state = useTrackingState();
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -78,7 +85,7 @@ const TrackingEditView: React.FC<{
               color="primary"
               variant="contained"
               disabled={!state.inputValid()}
-              onClick={() => state.saveTracking(onClose)}
+              onClick={() => state.saveTracking(onClose, reloadAll)}
             >
               Tallenna
             </Button>
@@ -89,4 +96,7 @@ const TrackingEditView: React.FC<{
   );
 };
 
-export const TrackingEditor = connectDialog(trackingBus, TrackingDialogImpl);
+export const TrackingEditor = connectDialog<TrackingBusPayload, { reloadAll: () => void }>(
+  trackingBus,
+  TrackingDialogImpl,
+);
