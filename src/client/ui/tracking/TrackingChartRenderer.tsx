@@ -2,7 +2,6 @@ import * as React from 'react';
 import { CartesianGrid, Line, LineChart, Tooltip, XAxis } from 'recharts';
 
 import { TrackingStatistics } from 'shared/types';
-import { logger } from 'client/Logger';
 import { formatMoney } from 'client/ui/chart/Format';
 
 import { Size } from '../Types';
@@ -16,7 +15,6 @@ interface TrackingChartProps {
 }
 
 export const TrackingChartRenderer: React.FC<TrackingChartProps> = ({ data, size }) => {
-  logger.info({ stats: data.statistics }, `tracking data`);
   return (
     <LineChart width={size.width} height={168} data={data.statistics} margin={Margins}>
       <CartesianGrid strokeDasharray="3 3" />
