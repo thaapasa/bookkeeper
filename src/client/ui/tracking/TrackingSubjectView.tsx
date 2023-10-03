@@ -1,3 +1,4 @@
+import styled from '@emotion/styled';
 import { Grid, IconButton } from '@mui/material';
 import React from 'react';
 
@@ -36,6 +37,12 @@ export const TrackingSubjectView: React.FC<{ subject: TrackingSubject; onReload:
           <Icons.Delete fontSize="small" />
         </IconButton>
       </Grid>
+      <Grid xs={4} item>
+        {subject.image ? <TrackingImage src={subject.image} /> : null}
+      </Grid>
+      <Grid xs={8} item>
+        Graafi tähän
+      </Grid>
     </Grid>
   );
 };
@@ -47,3 +54,8 @@ async function deleteSubject(subject: TrackingSubject, onReload: () => void) {
     postProcess: onReload,
   });
 }
+
+const TrackingImage = styled('img')`
+  width: 168px;
+  height: 168px;
+`;
