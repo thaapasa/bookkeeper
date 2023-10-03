@@ -1,6 +1,12 @@
 import { ITask } from 'pg-promise';
 
-import { NotFoundError, ObjectId, TrackingSubject, TrackingSubjectData } from 'shared/types';
+import {
+  NotFoundError,
+  ObjectId,
+  TrackingSubject,
+  TrackingSubjectData,
+  TrackingSubjectWithData,
+} from 'shared/types';
 import { trackingImageHandler } from 'server/content/TrackingImage';
 import { logger } from 'server/Logger';
 import { FileUploadResult, safeDeleteFile } from 'server/server/FileHandling';
@@ -9,10 +15,12 @@ import {
   clearTrackingImageById,
   deleteTrackingSubjectById,
   getTrackingSubjectById,
+  getTrackingSubjectsForUser,
   insertTrackingSubject,
   setTrackingImageById,
   updateTrackingSubjectById,
 } from './TrackingDb';
+import { getTrackingStatistics } from './TrackingStatisticsDb';
 
 export async function getTrackingSubject(
   tx: ITask<any>,
@@ -35,6 +43,20 @@ export async function createTrackingSubject(
 ) {
   const created = await insertTrackingSubject(tx, groupId, userId, input);
   logger.info({ input, created }, `Created new tracking subject for user ${userId}`);
+}
+
+export async function getTrackingSubjectsWithData(
+  tx: ITask<any>,
+  groupId: ObjectId,
+  userId: ObjectId,
+): Promise<TrackingSubjectWithData[]> {
+  const subjects = await getTrackingSubjectsForUser(tx, groupId, userId);
+  return Promise.all(
+    subjects.map(async s => ({
+      ...s,
+      data: await getTrackingStatistics(tx, groupId, userId, s.trackingData),
+    })),
+  );
 }
 
 export async function updateTrackingSubject(

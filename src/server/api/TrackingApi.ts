@@ -1,12 +1,12 @@
 import { Router } from 'express';
 
 import { TrackingSubjectData } from 'shared/types';
-import { getTrackingSubjectsForUser } from 'server/data/tracking/TrackingDb';
 import {
   createTrackingSubject,
   deleteTrackingImage,
   deleteTrackingSubject,
   getTrackingSubject,
+  getTrackingSubjectsWithData,
   updateTrackingSubject,
   uploadTrackingImage,
 } from 'server/data/tracking/TrackingService';
@@ -27,7 +27,7 @@ export function createTrackingApi() {
 
   // GET /api/tracking/list
   api.getTx('/list', {}, (tx, session, {}) =>
-    getTrackingSubjectsForUser(tx, session.group.id, session.user.id),
+    getTrackingSubjectsWithData(tx, session.group.id, session.user.id),
   );
 
   // GET /api/tracking/:id
