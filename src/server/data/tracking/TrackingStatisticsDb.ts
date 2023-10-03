@@ -1,7 +1,7 @@
 import { ITask } from 'pg-promise';
 
 import { DateRange, getMonthsInRange, ISOMonth, toDayjs, toISODate } from 'shared/time';
-import { GroupStatistics, ObjectId, TrackingData, TrackingStatistics } from 'shared/types';
+import { ObjectId, TrackingData, TrackingStatistics } from 'shared/types';
 import { Money, MoneyLike } from 'shared/util';
 
 const TRACKING_RAW_QUERY = `SELECT e.category_id, e.sum, e.user_id, c.parent_id,
@@ -24,7 +24,7 @@ export async function getTrackingStatistics(
   };
   const cats = data.categories;
   if (!cats?.length) {
-    return { groups: [], range, statistics: {} };
+    return { groups: [], range, statistics: [] };
   }
   return simpleCategoryStatistics(tx, groupId, cats, range);
 }
@@ -50,30 +50,29 @@ async function simpleCategoryStatistics(
       GROUP BY category_id, parent_id, month`,
     { groupId, categoryIds, startDate: range.startDate, endDate: range.endDate },
   );
+  const months = getMonthsInRange(range);
+
   return {
-    groups: [],
+    groups: categoryIds.map(c => ({ key: `c${c}`, label: `cat-${c}` })),
     range,
-    statistics: Object.fromEntries(
-      categoryIds.map(c => [String(c), combineCategory(c, rows, range)]),
-    ),
+    statistics: months.map(month => ({ month, ...valuesByCategoryIds(rows, month, categoryIds) })),
   };
 }
 
-function combineCategory(
-  categoryId: ObjectId,
+function valuesByCategoryIds(
   rows: StatisticsRow[],
-  range: DateRange,
-): GroupStatistics[] {
-  const matching = rows.filter(r => r.categoryId === categoryId || r.parentId === categoryId);
-  const months = getMonthsInRange(range);
-  return months.map(month => ({
-    month,
-    key: String(categoryId),
-    value: matching
-      .filter(m => m.month === month)
-      .reduce(addMoney, Money.from(0))
-      .toString(),
-  }));
+  month: ISOMonth,
+  categoryIds: ObjectId[],
+): Record<`c${number}`, number> {
+  const res: Record<`c${number}`, number> = {};
+  categoryIds.forEach(
+    c =>
+      (res[`c${c}`] = rows
+        .filter(r => r.month === month && (r.categoryId === c || r.parentId === c))
+        .reduce(addMoney, Money.from(0))
+        .valueOf()),
+  );
+  return res;
 }
 
 const addMoney = (m: Money, src: { sum: MoneyLike }) => m.plus(src.sum);

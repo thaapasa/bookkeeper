@@ -2,24 +2,25 @@ import styled from '@emotion/styled';
 import { Grid, IconButton } from '@mui/material';
 import React from 'react';
 
-import { TrackingSubject } from 'shared/types';
+import { TrackingSubject, TrackingSubjectWithData } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { Icons } from '../icons/Icons';
+import { TrackingChart } from './TrackingChartRenderer';
 import { editTrackingSubject } from './TrackingEditor';
 
-export const TrackingSubjectsList: React.FC<{ data: TrackingSubject[]; onReload: () => void }> = ({
-  data,
-  onReload,
-}) => {
+export const TrackingSubjectsList: React.FC<{
+  data: TrackingSubjectWithData[];
+  onReload: () => void;
+}> = ({ data, onReload }) => {
   return data.map(d => <TrackingSubjectView subject={d} key={d.id} onReload={onReload} />);
 };
 
-export const TrackingSubjectView: React.FC<{ subject: TrackingSubject; onReload: () => void }> = ({
-  subject,
-  onReload,
-}) => {
+export const TrackingSubjectView: React.FC<{
+  subject: TrackingSubjectWithData;
+  onReload: () => void;
+}> = ({ subject, onReload }) => {
   return (
     <Grid item xs={12} md={6} container>
       <Grid xs={9} item>
@@ -41,7 +42,7 @@ export const TrackingSubjectView: React.FC<{ subject: TrackingSubject; onReload:
         {subject.image ? <TrackingImage src={subject.image} /> : null}
       </Grid>
       <Grid xs={8} item>
-        Graafi tähän
+        <TrackingChart data={subject.data} />
       </Grid>
     </Grid>
   );
