@@ -23,6 +23,7 @@ import EventRepeatIcon from '@mui/icons-material/EventRepeat';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
+import ImageIcon from '@mui/icons-material/Image';
 import InfoIcon from '@mui/icons-material/Info';
 import SortDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
 import SortUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
@@ -63,6 +64,7 @@ export const Icons = {
   ExpandMore: ExpandMoreIcon,
   Expense: PaymentIcon,
   Hidden: HiddenIcon,
+  Image: ImageIcon,
   Income: AttachMoneyIcon,
   Info: InfoIcon,
   Menu: MenuIcon,

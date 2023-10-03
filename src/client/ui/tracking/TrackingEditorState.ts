@@ -8,10 +8,12 @@ import { executeOperation } from 'client/util/ExecuteOperation';
 export type TrackingState = {
   title: string;
   id: ObjectId | null;
-  setTitle: (title: string) => void;
-  reset: (tracking: TrackingSubject | null) => void;
-  inputValid: () => boolean;
+  setTitle(title: string): void;
+  reset(tracking: TrackingSubject | null): void;
+  inputValid(): boolean;
   saveTracking(...callbacks: (() => void)[]): Promise<void>;
+  uploadImage(file: File, filename: string): Promise<void>;
+  removeImage(): Promise<void>;
 };
 
 export const useTrackingState = create<TrackingState>((set, get) => ({
@@ -48,5 +50,15 @@ export const useTrackingState = create<TrackingState>((set, get) => ({
       },
     );
     callbacks.forEach(c => c());
+  },
+  uploadImage: async (file, filename) => {
+    const id = get().id;
+    if (!id) return;
+    await executeOperation(() => apiConnect.uploadTrackingImage(id, file, filename));
+  },
+  removeImage: async () => {
+    const id = get().id;
+    if (!id) return;
+    await executeOperation(() => apiConnect.deleteTrackingImage(id));
   },
 }));

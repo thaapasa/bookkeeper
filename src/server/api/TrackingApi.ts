@@ -4,10 +4,13 @@ import { TrackingSubjectData } from 'shared/types';
 import { getTrackingSubjectsForUser } from 'server/data/tracking/TrackingDb';
 import {
   createTrackingSubject,
+  deleteTrackingImage,
   deleteTrackingSubject,
   getTrackingSubject,
   updateTrackingSubject,
+  uploadTrackingImage,
 } from 'server/data/tracking/TrackingService';
+import { processFileUpload } from 'server/server/FileHandling';
 import { createValidatingRouter } from 'server/server/ValidatingRouter';
 
 /**
@@ -40,6 +43,20 @@ export function createTrackingApi() {
   // DELETE /api/tracking/:id
   api.deleteTx('/:id', {}, (tx, session, { params }) =>
     deleteTrackingSubject(tx, session.group.id, session.user.id, params.id),
+  );
+
+  // POST /api/tracking/:id/image/:filename
+  api.postTx(
+    '/:id/image/:filename',
+    {},
+    processFileUpload('filename', (tx, session, file, { params }) =>
+      uploadTrackingImage(tx, session.group.id, session.user.id, params.id, file),
+    ),
+  );
+
+  // DELETE /api/tracking/:id/image
+  api.deleteTx('/:id/image', {}, (tx, session, { params }) =>
+    deleteTrackingImage(tx, session.group.id, session.user.id, params.id),
   );
 
   return api.router;

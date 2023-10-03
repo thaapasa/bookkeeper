@@ -1,6 +1,7 @@
 import { ITask } from 'pg-promise';
 
 import { ObjectId, TrackingSubject, TrackingSubjectData } from 'shared/types';
+import { trackingImageHandler } from 'server/content/TrackingImage';
 
 const TRACKING_FIELDS = /*sql*/ `id, title, created, updated, image, tracking_data`;
 
@@ -75,11 +76,33 @@ export async function deleteTrackingSubjectById(
   );
 }
 
+export async function setTrackingImageById(
+  tx: ITask<any>,
+  subjectId: ObjectId,
+  image: string,
+): Promise<void> {
+  await tx.none(
+    `UPDATE tracked_subjects
+      SET image=$/image/
+      WHERE id=$/subjectId/`,
+    { subjectId, image },
+  );
+}
+
+export async function clearTrackingImageById(tx: ITask<any>, subjectId: ObjectId): Promise<void> {
+  await tx.none(
+    `UPDATE tracked_subjects
+      SET image=NULL
+      WHERE id=$/subjectId/`,
+    { subjectId },
+  );
+}
+
 function toTrackingSubject(row: any): TrackingSubject {
   return {
     id: row.id,
     title: row.title,
     trackingData: row.tracking_data ?? {},
-    image: row.image ?? undefined,
+    image: row.image ? trackingImageHandler.getVariant('image', row.image).webPath : undefined,
   };
 }

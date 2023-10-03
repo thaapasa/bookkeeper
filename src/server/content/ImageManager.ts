@@ -43,6 +43,7 @@ type StringKey<V> = keyof V & string;
 
 interface SaveImageOptions {
   margin?: number;
+  fit?: keyof sharp.FitEnum;
 }
 
 export class ImageManager<V extends Record<string, ImageSpecData>> {
@@ -96,15 +97,17 @@ export class ImageManager<V extends Record<string, ImageSpecData>> {
   private async saveImage<K extends StringKey<V>>(
     variant: K,
     file: FileUploadResult,
-    { margin }: SaveImageOptions = {},
+    { margin, fit }: SaveImageOptions = {},
   ): Promise<FileWriteResult> {
     const info = this.getVariant(variant, file.filename, '.webp');
-    let imgTransform = sharp(file.filepath).trim().resize({
-      width: info.width,
-      height: info.height,
-      fit: 'contain',
-      background: 'transparent',
-    });
+    let imgTransform = sharp(file.filepath)
+      .trim()
+      .resize({
+        width: info.width,
+        height: info.height,
+        fit: fit ?? 'contain',
+        background: 'transparent',
+      });
     if (margin) {
       const marginPx = margin * info.scale;
       logger.debug(`Adding ${marginPx}px margin to image`);

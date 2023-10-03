@@ -1,4 +1,5 @@
-import { Button, Dialog, DialogContent, DialogTitle, Grid } from '@mui/material';
+import styled from '@emotion/styled';
+import { Button, Dialog, DialogContent, DialogTitle, Grid, IconButton } from '@mui/material';
 import * as B from 'baconjs';
 import * as React from 'react';
 
@@ -7,9 +8,14 @@ import apiConnect from 'client/data/ApiConnect';
 
 import { AsyncDataDialogContent } from '../component/AsyncDataDialog';
 import { connectDialog } from '../component/DialogConnector';
+import { Row } from '../component/Row';
 import { TextEdit } from '../component/TextEdit';
+import { UploadImageButton } from '../component/UploadFileButton';
+import { checkersBackground } from '../design/Background';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useForceReload } from '../hooks/useForceReload';
+import { Icons } from '../icons/Icons';
+import { Flex } from '../Styles';
 import { useTrackingState } from './TrackingEditorState';
 
 interface TrackingBusPayload {
@@ -58,7 +64,7 @@ const TrackingEditView: React.FC<{
   onClose: () => void;
   reloadData: () => void;
   reloadAll: () => void;
-}> = ({ data, onClose, reloadAll }) => {
+}> = ({ data, onClose, reloadAll, reloadData }) => {
   const createNew = data === null;
   const state = useTrackingState();
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -73,6 +79,26 @@ const TrackingEditView: React.FC<{
           </Grid>
           <Grid item xs={8}>
             <TextEdit value={state.title} onChange={state.setTitle} fullWidth />
+          </Grid>
+          <Grid item xs={4}>
+            Kuva
+          </Grid>
+          <Grid item xs={8}>
+            <Row>
+              <ImageArea>
+                {data?.image ? <TrackingImg src={data?.image} /> : <Icons.Image fontSize="large" />}
+              </ImageArea>
+              <Flex />
+              <UploadImageButton
+                onSelect={(file, filename) => state.uploadImage(file, filename).then(reloadData)}
+                title="Lataa kuva"
+              >
+                <Icons.Upload />
+              </UploadImageButton>
+              <IconButton onClick={() => state.removeImage().then(reloadData)} title="Poista kuva">
+                <Icons.Delete />
+              </IconButton>
+            </Row>
           </Grid>
 
           <Grid item xs="auto">
@@ -100,3 +126,18 @@ export const TrackingEditor = connectDialog<TrackingBusPayload, { reloadAll: () 
   trackingBus,
   TrackingDialogImpl,
 );
+
+const ImageArea = styled('div')`
+  width: 128px;
+  height: 128px;
+  position: relative;
+  ${checkersBackground({ size: 8, color: '#eee' })}
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const TrackingImg = styled('img')`
+  width: 128px;
+  height: 128px;
+`;

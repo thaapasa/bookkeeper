@@ -366,6 +366,14 @@ export class ApiConnect {
   public deleteTrackingSubject = (subjectId: ObjectId): Promise<void> =>
     this.del(uri`/api/tracking/${subjectId}`);
 
+  public uploadTrackingImage = (subjectId: ObjectId, file: File, filename: string): Promise<void> =>
+    this.post(uri`/api/tracking/${subjectId}/image/${filename}`, file, undefined, {
+      'Content-Type': ContentTypes.octetStream,
+    });
+
+  public deleteTrackingImage = (subjectId: ObjectId): Promise<void> =>
+    this.del(uri`/api/tracking/${subjectId}/image`);
+
   public updateUserData = (userData: UserDataUpdate): Promise<void> =>
     this.put(uri`/api/profile/userData`, userData);
 
