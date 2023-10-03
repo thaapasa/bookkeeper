@@ -10,7 +10,8 @@ const CategorySelectorImpl: React.FC<{
   categorySource: CategoryDataSource[];
   categoryMap: Record<ObjectId, Category>;
   addCategories: (cat: CategorySelection | CategorySelection[]) => void;
-}> = ({ categorySource, addCategories, categoryMap }) => (
+  allowSelectAll?: boolean;
+}> = ({ categorySource, addCategories, categoryMap, allowSelectAll }) => (
   <FormControl fullWidth>
     <InputLabel>Kategoria</InputLabel>
     <Select
@@ -19,6 +20,9 @@ const CategorySelectorImpl: React.FC<{
       onChange={e => {
         const catId = Number(e.target.value);
         if (catId === 0) {
+          if (allowSelectAll === false) {
+            return;
+          }
           // Add all parent categories
           const mainCats = Object.values(categoryMap).filter(c => c.parentId === null);
           addCategories(mainCats.map(c => ({ id: c.id, grouped: true })));
@@ -29,9 +33,11 @@ const CategorySelectorImpl: React.FC<{
         addCategories({ id: cat.id, grouped: cat.parentId === null });
       }}
     >
-      <MenuItem key={0} value={0}>
-        Kaikki pääkategoriat
-      </MenuItem>
+      {allowSelectAll ? (
+        <MenuItem key={0} value={0}>
+          Kaikki pääkategoriat
+        </MenuItem>
+      ) : null}
       {categorySource.map(c => (
         <MenuItem key={c.value} value={c.value}>
           {c.text}

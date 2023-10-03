@@ -86,9 +86,9 @@ const appLinks: AppLink[] = [
     showInHeader: true,
     icon: 'BarChart',
   },
+  { label: 'Seuranta', path: trackingPagePath, showInHeader: true, icon: 'Chart' },
   { label: 'Haku', path: searchPagePath, showInHeader: true, icon: 'Search' },
   { label: 'Tiedot', path: infoPagePath, showInHeader: false, icon: 'Info' },
-  { label: 'Seuranta', path: trackingPagePath, showInHeader: false, icon: 'Chart' },
   {
     label: 'Työkalut',
     path: toolsPagePath,

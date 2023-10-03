@@ -40,12 +40,12 @@ export async function insertTrackingSubject(
   data: TrackingSubjectData,
 ): Promise<TrackingSubject> {
   const c = await tx.one(
-    `INSERT INTO tracked_subjects (group_id, user_id, sort_order, title)
+    `INSERT INTO tracked_subjects (group_id, user_id, sort_order, title, tracking_data)
       VALUES ($/groupId/, $/userId/,
         COALESCE((SELECT MAX(sort_order) FROM tracked_subjects t2 WHERE t2.user_id = $/userId/ AND t2.group_id = $/groupId/) + 1, 0),
-        $/title/)
+        $/title/, $/trackingData/)
       RETURNING ${TRACKING_FIELDS}`,
-    { groupId, userId, title: data.title },
+    { groupId, userId, title: data.title, trackingData: data.trackingData },
   );
   return toTrackingSubject(c);
 }
@@ -57,10 +57,10 @@ export async function updateTrackingSubjectById(
 ): Promise<TrackingSubject> {
   const c = await tx.one(
     `UPDATE tracked_subjects
-      SET title=$/title/
+      SET title=$/title/, tracking_data=$/trackingData/
       WHERE id=$/subjectId/
       RETURNING ${TRACKING_FIELDS}`,
-    { subjectId, title: data.title },
+    { subjectId, title: data.title, trackingData: data.trackingData },
   );
   return toTrackingSubject(c);
 }

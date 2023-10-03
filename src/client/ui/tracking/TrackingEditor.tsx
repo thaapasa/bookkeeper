@@ -3,15 +3,18 @@ import { Button, Dialog, DialogContent, DialogTitle, Grid, IconButton } from '@m
 import * as B from 'baconjs';
 import * as React from 'react';
 
-import { ObjectId, TrackingSubject } from 'shared/types';
+import { CategoryMap, ObjectId, TrackingSubject } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
+import { categoryMapE } from 'client/data/Categories';
 
 import { AsyncDataDialogContent } from '../component/AsyncDataDialog';
+import { connect } from '../component/BaconConnect';
 import { connectDialog } from '../component/DialogConnector';
 import { Row } from '../component/Row';
 import { TextEdit } from '../component/TextEdit';
 import { UploadImageButton } from '../component/UploadFileButton';
 import { checkersBackground } from '../design/Background';
+import { Subtitle } from '../design/Text';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useForceReload } from '../hooks/useForceReload';
 import { Icons } from '../icons/Icons';
@@ -43,7 +46,7 @@ const TrackingDialogImpl: React.FC<{
     <Dialog fullWidth={true} open={true} onClose={onClose}>
       <AsyncDataDialogContent
         data={data}
-        renderer={TrackingEditView}
+        renderer={ConnectedEditView}
         onClose={onClose}
         reloadData={forceReload}
         reloadAll={reloadAll}
@@ -64,7 +67,8 @@ const TrackingEditView: React.FC<{
   onClose: () => void;
   reloadData: () => void;
   reloadAll: () => void;
-}> = ({ data, onClose, reloadAll, reloadData }) => {
+  categoryMap: CategoryMap;
+}> = ({ data, onClose, reloadAll, reloadData, categoryMap }) => {
   const createNew = data === null;
   const state = useTrackingState();
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -90,17 +94,30 @@ const TrackingEditView: React.FC<{
               </ImageArea>
               <Flex />
               <UploadImageButton
-                onSelect={(file, filename) => state.uploadImage(file, filename).then(reloadData)}
+                onSelect={(file, filename) =>
+                  state.uploadImage(file, filename, reloadData, reloadAll)
+                }
                 title="Lataa kuva"
               >
                 <Icons.Upload />
               </UploadImageButton>
-              <IconButton onClick={() => state.removeImage().then(reloadData)} title="Poista kuva">
+              <IconButton
+                onClick={() => state.removeImage(reloadData, reloadAll)}
+                title="Poista kuva"
+              >
                 <Icons.Delete />
               </IconButton>
             </Row>
           </Grid>
-
+          <Grid xs={12} item>
+            <Subtitle className="small">Kategoriat</Subtitle>
+            {state.categories.map(c => (
+              <CategorySelection id={c} key={c} categoryMap={categoryMap} />
+            ))}
+            <IconButton title="Lisää kategoria" size="small" onClick={state.addCategory}>
+              <Icons.Add fontSize="small" />
+            </IconButton>
+          </Grid>
           <Grid item xs="auto">
             <Button color="inherit" onClick={onClose}>
               Peruuta
@@ -120,6 +137,18 @@ const TrackingEditView: React.FC<{
       </DialogContent>
     </>
   );
+};
+
+const ConnectedEditView = connect(B.combineTemplate({ categoryMap: categoryMapE }))(
+  TrackingEditView,
+);
+
+const CategorySelection: React.FC<{ id: ObjectId; categoryMap: CategoryMap }> = ({
+  id,
+  categoryMap,
+}) => {
+  const cat = categoryMap[id];
+  return <Row>{cat.name}</Row>;
 };
 
 export const TrackingEditor = connectDialog<TrackingBusPayload, { reloadAll: () => void }>(
