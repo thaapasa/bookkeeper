@@ -6,6 +6,9 @@ import { TrackingSubject, TrackingSubjectWithData } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
+import { colorScheme } from '../Colors';
+import { FlexRow } from '../component/BasicElements';
+import { Subtitle } from '../design/Text';
 import { Icons } from '../icons/Icons';
 import { TrackingChart } from './TrackingChartRenderer';
 import { editTrackingSubject } from './TrackingEditor';
@@ -22,28 +25,30 @@ export const TrackingSubjectView: React.FC<{
   onReload: () => void;
 }> = ({ subject, onReload }) => {
   return (
-    <Grid item xs={12} md={6} container>
-      <Grid xs={9} item>
-        {subject.title}
-      </Grid>
-      <Grid xs={3} item>
-        <IconButton
-          size="small"
-          title="Muokkaa seurantaa"
-          onClick={() => editTrackingSubject(subject.id)}
-        >
-          <Icons.Edit fontSize="small" />
-        </IconButton>
-        <IconButton size="small" color="warning" onClick={() => deleteSubject(subject, onReload)}>
-          <Icons.Delete fontSize="small" />
-        </IconButton>
-      </Grid>
-      <Grid xs={4} item>
+    <Grid item xs={12} md={6}>
+      <TrackingCard>
         {subject.image ? <TrackingImage src={subject.image} /> : null}
-      </Grid>
-      <Grid xs={8} item>
         <TrackingChart data={subject.data} />
-      </Grid>
+        <TitleArea>
+          <TitleText>{subject.title}</TitleText>
+          <ToolsArea>
+            <IconButton
+              size="small"
+              title="Muokkaa seurantaa"
+              onClick={() => editTrackingSubject(subject.id)}
+            >
+              <Icons.Edit fontSize="small" />
+            </IconButton>
+            <IconButton
+              size="small"
+              color="warning"
+              onClick={() => deleteSubject(subject, onReload)}
+            >
+              <Icons.Delete fontSize="small" />
+            </IconButton>
+          </ToolsArea>
+        </TitleArea>
+      </TrackingCard>
     </Grid>
   );
 };
@@ -59,4 +64,38 @@ async function deleteSubject(subject: TrackingSubject, onReload: () => void) {
 const TrackingImage = styled('img')`
   width: 168px;
   height: 168px;
+`;
+
+const TitleText = styled(Subtitle)`
+  padding-left: 12px;
+  padding-top: 2px;
+  font-size: 14pt;
+  font-weight: bold;
+  border: none;
+`;
+
+const TrackingCard = styled(FlexRow)`
+  width: 100%;
+  position: relative;
+  border-radius: 8px;
+  background-color: ${colorScheme.primary.standard};
+  overflow: hidden;
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
+`;
+
+const TitleArea = styled('div')`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 32px;
+  background-color: #ffffffcc;
+  z-index: 1;
+`;
+
+const ToolsArea = styled('div')`
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 2;
 `;

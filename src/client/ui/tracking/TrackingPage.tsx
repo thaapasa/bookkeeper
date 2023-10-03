@@ -18,8 +18,8 @@ export const TrackingPage: React.FC = () => {
   const trackedSubjects = useAsyncData(loadSubjects, true, counter);
   return (
     <PageContentContainer className="center">
-      <Grid container columnSpacing={2} rowSpacing={2} padding={2}>
-        <RGrid item xs={12}>
+      <Grid container columnSpacing={2} rowSpacing={2} width="calc(100% - 32px)">
+        <RGrid item xs={12} marginTop={2}>
           <Title>Seuranta</Title>
           <ToolArea>
             <IconButton title="Uusi seuranta" onClick={newTrackingSubject}>
