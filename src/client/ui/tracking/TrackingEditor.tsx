@@ -5,7 +5,7 @@ import * as React from 'react';
 
 import { CategoryMap, ObjectId, TrackingSubject } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
-import { categoryMapE } from 'client/data/Categories';
+import { categoryMapE, getFullCategoryName } from 'client/data/Categories';
 
 import { AsyncDataDialogContent } from '../component/AsyncDataDialog';
 import { connect } from '../component/BaconConnect';
@@ -109,35 +109,45 @@ const TrackingEditView: React.FC<{
               </IconButton>
             </Row>
           </Grid>
-          <Grid xs={12} item>
+          <Grid xs={12} item sx={{ position: 'relative' }}>
+            <ToolIconArea>
+              <IconButton title="Lisää kategoria" size="small" onClick={state.addCategory}>
+                <Icons.Add fontSize="small" />
+              </IconButton>
+            </ToolIconArea>
             <Subtitle className="small">Kategoriat</Subtitle>
             {state.categories.map(c => (
               <CategorySelection id={c} key={c} categoryMap={categoryMap} />
             ))}
-            <IconButton title="Lisää kategoria" size="small" onClick={state.addCategory}>
-              <Icons.Add fontSize="small" />
-            </IconButton>
           </Grid>
-          <Grid item xs="auto">
-            <Button color="inherit" onClick={onClose}>
-              Peruuta
-            </Button>
-          </Grid>
-          <Grid item xs="auto">
-            <Button
-              color="primary"
-              variant="contained"
-              disabled={!state.inputValid()}
-              onClick={() => state.saveTracking(onClose, reloadAll)}
-            >
-              Tallenna
-            </Button>
+          <Grid item xs={12}>
+            <Row>
+              <Flex />
+              <Button color="inherit" onClick={onClose}>
+                Peruuta
+              </Button>
+              <Button
+                sx={{ marginLeft: 2 }}
+                color="primary"
+                variant="contained"
+                disabled={!state.inputValid()}
+                onClick={() => state.saveTracking(onClose, reloadAll)}
+              >
+                Tallenna
+              </Button>
+            </Row>
           </Grid>
         </Grid>
       </DialogContent>
     </>
   );
 };
+
+const ToolIconArea = styled('div')`
+  position: absolute;
+  right: 0;
+  top: 8px;
+`;
 
 const ConnectedEditView = connect(B.combineTemplate({ categoryMap: categoryMapE }))(
   TrackingEditView,
@@ -147,8 +157,21 @@ const CategorySelection: React.FC<{ id: ObjectId; categoryMap: CategoryMap }> = 
   id,
   categoryMap,
 }) => {
-  const cat = categoryMap[id];
-  return <Row>{cat.name}</Row>;
+  const state = useTrackingState();
+  return (
+    <Row>
+      {getFullCategoryName(id, categoryMap)}
+      <Flex />
+      <IconButton
+        title="Poista seurannasta"
+        color="warning"
+        size="small"
+        onClick={() => state.removeCategory(id)}
+      >
+        <Icons.Delete fontSize="small" />
+      </IconButton>
+    </Row>
+  );
 };
 
 export const TrackingEditor = connectDialog<TrackingBusPayload, { reloadAll: () => void }>(

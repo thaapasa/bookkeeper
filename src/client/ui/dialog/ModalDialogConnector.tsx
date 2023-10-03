@@ -23,5 +23,5 @@ export const ModalDialogConnector: React.FC = () => {
   if (!dialog) return null;
 
   logger.debug(`Rendering modal dialog of type ${dialog.type}: ${dialog.title}`);
-  return <ModalDialog {...dialog} resolve={resolve} />;
+  return <ModalDialog {...dialog} resolve={resolve} fullWidth />;
 };

@@ -19,6 +19,7 @@ export type TrackingState = {
   uploadImage(file: File, filename: string, ...callbacks: (() => void)[]): Promise<void>;
   removeImage(...callbacks: (() => void)[]): Promise<void>;
   addCategory(): Promise<void>;
+  removeCategory(categoryId: ObjectId): void;
 };
 
 export const useTrackingState = create<TrackingState>((set, get) => ({
@@ -86,5 +87,8 @@ export const useTrackingState = create<TrackingState>((set, get) => ({
       logger.info(`Adding category ${category} to tracked subject`);
       set({ categories: [...cats, category] });
     }
+  },
+  removeCategory: (categoryId: ObjectId) => {
+    set({ categories: get().categories.filter(c => c !== categoryId) });
   },
 }));

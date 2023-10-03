@@ -1,11 +1,11 @@
-import { Dialog, DialogTitle } from '@mui/material';
+import { Dialog, DialogProps, DialogTitle } from '@mui/material';
 import * as React from 'react';
 
 import { KeyCodes } from 'client/util/Io';
 
 import { DialogConfig, DialogData } from './Dialog';
 
-type ModalDialogProps<T, D extends DialogData> = DialogConfig<T, D>;
+type ModalDialogProps<T, D extends DialogData> = DialogConfig<T, D> & Omit<DialogProps, 'open'>;
 
 export const ModalDialog: React.FC<ModalDialogProps<any, any>> = <T, D extends DialogData>({
   title,
@@ -13,6 +13,7 @@ export const ModalDialog: React.FC<ModalDialogProps<any, any>> = <T, D extends D
   resolve,
   enterResolution,
   rendererProps,
+  ...dialogProps
 }: ModalDialogProps<T, D>) => {
   const handleKeyPress = React.useCallback(
     (event: React.KeyboardEvent<any>) => {
@@ -34,7 +35,13 @@ export const ModalDialog: React.FC<ModalDialogProps<any, any>> = <T, D extends D
   const onCancel = React.useCallback(() => resolve(undefined), [resolve]);
 
   return (
-    <Dialog title={title} open={true} onClose={() => onCancel} onKeyUp={handleKeyPress}>
+    <Dialog
+      title={title}
+      open={true}
+      onClose={() => onCancel}
+      onKeyUp={handleKeyPress}
+      {...dialogProps}
+    >
       <DialogTitle>{title}</DialogTitle>
       <ContentRenderer
         onSelect={resolve}
