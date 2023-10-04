@@ -7,43 +7,31 @@ import {
   CategoryInput,
   InvalidInputError,
   NotFoundError,
+  ObjectId,
 } from 'shared/types';
 import { Money, partition, toMap } from 'shared/util';
 import { logger } from 'server/Logger';
 
-function createCategoryObject<T extends Category>(categories: T[]): T[] {
-  const [parents, subs] = partition(i => i.parentId === null, categories);
-  parents.forEach(p => (p.children = []));
-  const parentMap = toMap(parents, 'id');
-  subs.forEach(s => parentMap['' + s.parentId].children.push(s));
-  return parents;
-}
+const CATEGORY_FIELDS = /*sql*/ `c.id, c.parent_id AS "parentId", c.name, p.name AS "parentName"`;
 
-function sumChildTotalsToParent(categoryTable: CategoryAndTotals[]): CategoryAndTotals[] {
-  categoryTable.forEach(c => {
-    if (c.parentId === null) {
-      let expenseSum = Money.from(c.expenses);
-      let incomeSum = Money.from(c.income);
-      c.children.forEach(ch => {
-        expenseSum = expenseSum.plus(ch.expenses);
-        incomeSum = incomeSum.plus(ch.income);
-      });
-      c.totalExpenses = expenseSum.toString();
-      c.totalIncome = incomeSum.toString();
-    }
-  });
-  return categoryTable;
+interface CategoryRow {
+  id: ObjectId;
+  parentId: ObjectId | null;
+  name: string;
+  parentName: string | null;
 }
 
 export async function getAllCategories(tx: ITask<any>, groupId: number): Promise<Category[]> {
-  const cats = await tx.manyOrNone<Category>(
-    `SELECT id, parent_id AS "parentId", name FROM categories
-      WHERE group_id=$/groupId/::INTEGER
-      ORDER BY (CASE WHEN parent_id IS NULL THEN 1 ELSE 0 END) DESC, parent_id ASC, name
-      `,
+  const cats = await tx.manyOrNone<CategoryRow>(
+    `SELECT ${CATEGORY_FIELDS}
+      FROM categories c
+      LEFT JOIN categories p ON (p.id = c.parent_id)
+      WHERE c.group_id=$/groupId/
+      ORDER BY (CASE WHEN c.parent_id IS NULL THEN 1 ELSE 0 END) DESC, 
+        c.parent_id ASC, c.name ASC`,
     { groupId },
   );
-  return createCategoryObject(cats);
+  return createCategoryObject(cats.map(rowToCategory));
 }
 
 export interface CategoryQueryInput {
@@ -88,16 +76,35 @@ export async function getCategoryById(
   groupId: number,
   categoryId: number,
 ): Promise<Category> {
-  const cat = await tx.oneOrNone<Category>(
-    `SELECT id, parent_id as "parentId", name
-      FROM categories
-      WHERE id=$/categoryId/ AND group_id=$/groupId/`,
+  const cat = await tx.oneOrNone<CategoryRow>(
+    `SELECT ${CATEGORY_FIELDS}
+      FROM categories c
+      LEFT JOIN categories p ON (p.id = c.parent_id)
+      WHERE c.id=$/categoryId/ AND c.group_id=$/groupId/`,
     { categoryId, groupId },
   );
   if (!cat) {
     throw new NotFoundError('CATEGORY_NOT_FOUND_1', 'category', categoryId);
   }
-  return cat as Category;
+  return rowToCategory(cat);
+}
+
+export async function getCategoriesById(
+  tx: ITask<any>,
+  groupId: number,
+  ...categoryIds: number[]
+): Promise<Category[]> {
+  if (!categoryIds.length) {
+    return [];
+  }
+  const cats = await tx.manyOrNone<CategoryRow>(
+    `SELECT ${CATEGORY_FIELDS}
+      FROM categories c
+      LEFT JOIN categories p ON (p.id = c.parent_id)
+      WHERE c.id IN ($/categoryIds:csv/) AND c.group_id=$/groupId/`,
+    { categoryIds, groupId },
+  );
+  return cats.map(rowToCategory);
 }
 
 export async function createCategory(
@@ -184,4 +191,36 @@ export async function expandSubCategories(
     { ids: inputCategoryIds, groupId },
   );
   return cats.map(c => c.id);
+}
+
+function createCategoryObject<T extends Category>(categories: T[]): T[] {
+  const [parents, subs] = partition(i => i.parentId === null, categories);
+  parents.forEach(p => (p.children = []));
+  const parentMap = toMap(parents, 'id');
+  subs.forEach(s => (parentMap['' + s.parentId].children ??= []).push(s));
+  return parents;
+}
+
+function rowToCategory(c: CategoryRow): Category {
+  return {
+    ...c,
+    parentName: c.parentName ?? undefined,
+    fullName: c.parentName ? `${c.parentName} - ${c.name}` : c.name,
+  };
+}
+
+function sumChildTotalsToParent(categoryTable: CategoryAndTotals[]): CategoryAndTotals[] {
+  categoryTable.forEach(c => {
+    if (c.parentId === null) {
+      let expenseSum = Money.from(c.expenses);
+      let incomeSum = Money.from(c.income);
+      c.children.forEach(ch => {
+        expenseSum = expenseSum.plus(ch.expenses);
+        incomeSum = incomeSum.plus(ch.income);
+      });
+      c.totalExpenses = expenseSum.toString();
+      c.totalIncome = incomeSum.toString();
+    }
+  });
+  return categoryTable;
 }

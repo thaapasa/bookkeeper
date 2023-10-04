@@ -4,6 +4,8 @@ import { DateRange, getMonthsInRange, ISOMonth, toDayjs, toISODate } from 'share
 import { ObjectId, TrackingData, TrackingStatistics } from 'shared/types';
 import { Money, MoneyLike } from 'shared/util';
 
+import { getCategoriesById } from '../CategoryDb';
+
 const TRACKING_RAW_QUERY = `SELECT e.category_id, e.sum, e.user_id, c.parent_id,
     SUBSTRING(e.date::TEXT, 0, 8) AS month
   FROM expenses e
@@ -51,9 +53,10 @@ async function simpleCategoryStatistics(
     { groupId, categoryIds, startDate: range.startDate, endDate: range.endDate },
   );
   const months = getMonthsInRange(range);
-
+  const cats = await getCategoriesById(tx, groupId, ...categoryIds);
+  const catMap = Object.fromEntries(cats.map(c => [c.id, c]));
   return {
-    groups: categoryIds.map(c => ({ key: `c${c}`, label: `cat-${c}` })),
+    groups: categoryIds.map(c => ({ key: `c${c}`, label: catMap[c].fullName ?? String(c) })),
     range,
     statistics: months.map(month => ({ month, ...valuesByCategoryIds(rows, month, categoryIds) })),
   };
