@@ -82,6 +82,23 @@ export async function deleteTrackingSubject(
   logger.info(`Deleted tracking subject ${subjectId} from user ${userId}`);
 }
 
+export async function changeTrackingSubjectColor(
+  tx: ITask<any>,
+  groupId: ObjectId,
+  userId: ObjectId,
+  subjectId: ObjectId,
+) {
+  const subject = await getTrackingSubject(tx, groupId, userId, subjectId);
+  await updateTrackingSubjectById(tx, subjectId, {
+    ...subject,
+    trackingData: {
+      ...subject.trackingData,
+      colorOffset: (subject.trackingData?.colorOffset ?? 0) + 1,
+    },
+  });
+  logger.info(`Deleted tracking subject ${subjectId} from user ${userId}`);
+}
+
 export async function uploadTrackingImage(
   tx: ITask<any>,
   groupId: ObjectId,

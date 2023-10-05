@@ -2,6 +2,7 @@ import { Router } from 'express';
 
 import { TrackingSubjectData } from 'shared/types';
 import {
+  changeTrackingSubjectColor,
   createTrackingSubject,
   deleteTrackingImage,
   deleteTrackingSubject,
@@ -43,6 +44,11 @@ export function createTrackingApi() {
   // DELETE /api/tracking/:id
   api.deleteTx('/:id', {}, (tx, session, { params }) =>
     deleteTrackingSubject(tx, session.group.id, session.user.id, params.id),
+  );
+
+  // POST /api/tracking/:id/color
+  api.postTx('/:id/color', {}, (tx, session, { params }) =>
+    changeTrackingSubjectColor(tx, session.group.id, session.user.id, params.id),
   );
 
   // POST /api/tracking/:id/image/:filename

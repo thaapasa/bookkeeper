@@ -365,6 +365,9 @@ export class ApiConnect {
     payload: TrackingSubjectData,
   ): Promise<TrackingSubject> => this.put(uri`/api/tracking/${subjectId}`, payload);
 
+  public changeTrackingColors = (subjectId: ObjectId): Promise<void> =>
+    this.post(uri`/api/tracking/${subjectId}/color`);
+
   public deleteTrackingSubject = (subjectId: ObjectId): Promise<void> =>
     this.del(uri`/api/tracking/${subjectId}`);
 

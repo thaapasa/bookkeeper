@@ -28,6 +28,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import SortDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
 import SortUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
 import MenuIcon from '@mui/icons-material/Menu';
+import PaletteIcon from '@mui/icons-material/Palette';
 import PaymentIcon from '@mui/icons-material/Payment';
 import PieChartIcon from '@mui/icons-material/PieChart';
 import RedoIcon from '@mui/icons-material/Redo';
@@ -69,6 +70,7 @@ export const Icons = {
   Info: InfoIcon,
   Menu: MenuIcon,
   Money: EuroIcon,
+  Palette: PaletteIcon,
   PieChart: PieChartIcon,
   PlusCircle: AddCircleIcon,
   Recurring: AutoRenewIcon,

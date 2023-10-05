@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 import { Grid, IconButton } from '@mui/material';
 import React from 'react';
 
-import { TrackingSubject, TrackingSubjectWithData } from 'shared/types';
+import { ObjectId, TrackingSubject, TrackingSubjectWithData } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
@@ -28,10 +28,17 @@ export const TrackingSubjectView: React.FC<{
     <Grid item xs={12} md={6}>
       <TrackingCard>
         {subject.image ? <TrackingImage src={subject.image} /> : null}
-        <TrackingChart data={subject.data} />
+        <TrackingChart data={subject.data} trackingData={subject.trackingData} />
         <TitleArea>
           <TitleText>{subject.title}</TitleText>
           <ToolsArea>
+            <IconButton
+              size="small"
+              title="Vaihda värejä"
+              onClick={() => changeTrackingColors(subject.id, onReload)}
+            >
+              <Icons.Palette fontSize="small" />
+            </IconButton>
             <IconButton
               size="small"
               title="Muokkaa seurantaa"
@@ -57,6 +64,12 @@ async function deleteSubject(subject: TrackingSubject, onReload: () => void) {
   await executeOperation(() => apiConnect.deleteTrackingSubject(subject.id), {
     confirm: `Haluatko varmasti poistaa seurannan '${subject.title}'?`,
     success: 'Seuranta poistettu!',
+    postProcess: onReload,
+  });
+}
+
+async function changeTrackingColors(subjectId: ObjectId, onReload: () => void) {
+  await executeOperation(() => apiConnect.changeTrackingColors(subjectId), {
     postProcess: onReload,
   });
 }

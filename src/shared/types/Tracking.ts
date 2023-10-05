@@ -6,6 +6,7 @@ import { ObjectId } from './Id';
 
 export const TrackingData = z.object({
   categories: z.array(ObjectId).optional(),
+  colorOffset: z.number().int().optional(),
 });
 export type TrackingData = z.infer<typeof TrackingData>;
 

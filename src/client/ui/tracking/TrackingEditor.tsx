@@ -85,6 +85,17 @@ const TrackingEditView: React.FC<{
             <TextEdit value={state.title} onChange={state.setTitle} fullWidth />
           </Grid>
           <Grid item xs={4}>
+            Värivaihtohto
+          </Grid>
+          <Grid item xs={8}>
+            <TextEdit
+              type="number"
+              value={state.colorOffset}
+              onChange={state.setColorOffset}
+              width="40px"
+            />
+          </Grid>
+          <Grid item xs={4}>
             Kuva
           </Grid>
           <Grid item xs={8}>

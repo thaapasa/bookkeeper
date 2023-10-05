@@ -12,8 +12,10 @@ export type TrackingState = {
   title: string;
   id: ObjectId | null;
   categories: number[];
-  setTitle(title: string): void;
+  colorOffset: string;
   reset(tracking: TrackingSubject | null): void;
+  setTitle(title: string): void;
+  setColorOffset(colorOffset: string): void;
   inputValid(): boolean;
   saveTracking(...callbacks: (() => void)[]): Promise<void>;
   uploadImage(file: File, filename: string, ...callbacks: (() => void)[]): Promise<void>;
@@ -26,13 +28,16 @@ export const useTrackingState = create<TrackingState>((set, get) => ({
   title: '',
   id: null,
   categories: [],
+  colorOffset: '0',
   setTitle: title => set({ title }),
   reset: tracking =>
     set({
       id: tracking?.id ?? null,
       title: tracking?.title ?? '',
       categories: tracking?.trackingData.categories ?? [],
+      colorOffset: String(tracking?.trackingData.colorOffset ?? 0),
     }),
+  setColorOffset: colorOffset => set({ colorOffset }),
   inputValid: () => {
     const s = get();
     return !!s.title;
@@ -47,6 +52,7 @@ export const useTrackingState = create<TrackingState>((set, get) => ({
       title: s.title,
       trackingData: {
         categories: s.categories.length ? s.categories : undefined,
+        colorOffset: Number(s.colorOffset),
       },
     };
     await executeOperation(
