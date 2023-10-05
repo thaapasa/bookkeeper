@@ -27,6 +27,7 @@ const canonicalUnits: Record<MomentIntervalUnit, MomentIntervalUnit> = {
   days: 'day',
 };
 
-export function isSameInterval(a: MomentInterval, b: MomentInterval) {
+export function isSameInterval(a?: MomentInterval, b?: MomentInterval) {
+  if (!a || !b) return false;
   return canonicalUnits[a.unit] === canonicalUnits[b.unit] && a.amount === b.amount;
 }

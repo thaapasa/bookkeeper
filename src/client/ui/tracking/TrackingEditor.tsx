@@ -1,5 +1,14 @@
 import styled from '@emotion/styled';
-import { Button, Dialog, DialogContent, DialogTitle, Grid, IconButton } from '@mui/material';
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Grid,
+  IconButton,
+  MenuItem,
+  Select,
+} from '@mui/material';
 import * as B from 'baconjs';
 import * as React from 'react';
 
@@ -78,27 +87,27 @@ const TrackingEditView: React.FC<{
       <DialogTitle>{createNew ? 'Uusi seuranta' : 'Muokkaa seurantaa'}</DialogTitle>
       <DialogContent>
         <Grid container rowSpacing={1} justifyContent="space-between">
-          <Grid item xs={4}>
-            Nimi
-          </Grid>
-          <Grid item xs={8}>
+          <SelectionRow title="Nimi">
             <TextEdit value={state.title} onChange={state.setTitle} fullWidth />
-          </Grid>
-          <Grid item xs={4}>
-            Värivaihtohto
-          </Grid>
-          <Grid item xs={8}>
+          </SelectionRow>
+          <SelectionRow title="Värivaihtoehto">
             <TextEdit
               type="number"
               value={state.colorOffset}
               onChange={state.setColorOffset}
               width="40px"
             />
-          </Grid>
-          <Grid item xs={4}>
-            Kuva
-          </Grid>
-          <Grid item xs={8}>
+          </SelectionRow>
+          <SelectionRow title="Seurantaväli">
+            <Select value={state.range} onChange={e => state.setRange(e.target.value)} fullWidth>
+              {state.getRangeOptions().map(o => (
+                <MenuItem key={o.key} value={o.key}>
+                  {o.title}
+                </MenuItem>
+              ))}
+            </Select>
+          </SelectionRow>
+          <SelectionRow title="Kuva">
             <Row>
               <ImageArea>
                 {data?.image ? <TrackingImg src={data?.image} /> : <Icons.Image fontSize="large" />}
@@ -119,7 +128,7 @@ const TrackingEditView: React.FC<{
                 <Icons.Delete />
               </IconButton>
             </Row>
-          </Grid>
+          </SelectionRow>
           <Grid xs={12} item sx={{ position: 'relative' }}>
             <ToolIconArea>
               <IconButton title="Lisää kategoria" size="small" onClick={state.addCategory}>
@@ -153,6 +162,20 @@ const TrackingEditView: React.FC<{
     </>
   );
 };
+
+const SelectionRow: React.FC<React.PropsWithChildren<{ title: string }>> = ({
+  title,
+  children,
+}) => (
+  <>
+    <Grid item xs={4}>
+      {title}
+    </Grid>
+    <Grid item xs={8}>
+      {children}
+    </Grid>
+  </>
+);
 
 const ToolIconArea = styled('div')`
   position: absolute;

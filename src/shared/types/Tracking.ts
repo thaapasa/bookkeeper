@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { MomentInterval } from '../time/MomentInterval';
 import { ISOMonth } from '../time/Time';
 import { DateRange } from '../time/TimeRange';
 import { ObjectId } from './Id';
@@ -7,6 +8,7 @@ import { ObjectId } from './Id';
 export const TrackingData = z.object({
   categories: z.array(ObjectId).optional(),
   colorOffset: z.number().int().optional(),
+  range: MomentInterval.optional(),
 });
 export type TrackingData = z.infer<typeof TrackingData>;
 

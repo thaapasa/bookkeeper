@@ -19,16 +19,22 @@ export async function getTrackingStatistics(
   userId: ObjectId,
   data: TrackingData,
 ): Promise<TrackingStatistics> {
-  const monthEnd = toDayjs().endOf('month');
-  const range: DateRange = {
-    startDate: toISODate(monthEnd.subtract(1, 'years').startOf('month')),
-    endDate: toISODate(monthEnd),
-  };
+  const range = getRange(data);
   const cats = data.categories;
   if (!cats?.length) {
     return { groups: [], range, statistics: [] };
   }
   return simpleCategoryStatistics(tx, groupId, cats, range);
+}
+
+function getRange(data: TrackingData): DateRange {
+  const monthEnd = toDayjs().endOf('month');
+  return {
+    startDate: toISODate(
+      monthEnd.subtract(data.range?.amount ?? 3, data.range?.unit ?? 'years').startOf('month'),
+    ),
+    endDate: toISODate(monthEnd),
+  };
 }
 
 interface StatisticsRow {
