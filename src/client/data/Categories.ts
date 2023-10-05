@@ -25,7 +25,7 @@ function catToDataSource(arr: Category[], categoryMap: CategoryMap): CategoryDat
     ? unnest(
         arr.map(c =>
           [{ value: c.id, text: getFullCategoryName(c.id, categoryMap) }].concat(
-            catToDataSource(c.children, categoryMap),
+            catToDataSource(c.children ?? [], categoryMap),
           ),
         ),
       )

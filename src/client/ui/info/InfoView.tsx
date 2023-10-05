@@ -57,7 +57,7 @@ const CategoriesView: React.FC<{ categories: Category[] }> = ({ categories }) =>
       {Object.values(categories).map(cat => (
         <ItemWithId key={cat.id} id={cat.id}>
           {cat.name}
-          {cat.children.length > 0 ? (
+          {cat.children?.length ? (
             <SubValue>
               {cat.children.map(c => (
                 <ItemWithId key={c.id} id={c.id}>

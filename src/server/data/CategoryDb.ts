@@ -151,7 +151,7 @@ export async function updateCategory(
   groupId: number,
   categoryId: number,
   data: CategoryInput,
-) {
+): Promise<Category> {
   const original = await getCategoryById(tx, groupId, categoryId);
   if (!original) {
     throw new NotFoundError('CATEGORY_NOT_FOUND', 'category', categoryId);
@@ -168,12 +168,7 @@ export async function updateCategory(
       groupId,
     },
   );
-  return {
-    id: categoryId,
-    parentId: data.parentId || null,
-    name: data.name,
-    children: [],
-  };
+  return getCategoryById(tx, groupId, categoryId);
 }
 
 export async function expandSubCategories(

@@ -90,7 +90,7 @@ const CategoryView: React.FC<CategoryViewProps> = ({
       createCategory={createCategory}
       editCategory={editCategory}
     />
-    {category.children.map(ch => (
+    {category.children?.map(ch => (
       <CategoryRow
         key={ch.id}
         {...props}
@@ -99,6 +99,6 @@ const CategoryView: React.FC<CategoryViewProps> = ({
         createCategory={createCategory}
         editCategory={editCategory}
       />
-    ))}
+    )) ?? null}
   </>
 );

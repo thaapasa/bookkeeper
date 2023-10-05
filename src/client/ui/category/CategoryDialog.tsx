@@ -21,7 +21,13 @@ import { executeOperation } from 'client/util/ExecuteOperation';
 import { TextEdit } from '../component/TextEdit';
 
 const defaultCategory: Category[] = [
-  { id: 0, name: '[Ei yläkategoriaa]', children: [], parentId: null },
+  {
+    id: 0,
+    name: '[Ei yläkategoriaa]',
+    children: [],
+    parentId: null,
+    fullName: '[Ei yläkategoriaa]',
+  },
 ];
 
 interface CategoryDialogProps {
