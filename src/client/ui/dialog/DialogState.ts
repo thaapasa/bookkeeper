@@ -1,7 +1,10 @@
 import * as B from 'baconjs';
 import { Dayjs } from 'dayjs';
 
+import { ObjectId } from 'shared/types';
+
 import { TextEditorComponent } from '../component/TextEditVariants';
+import { CategoryPromptDialogContents } from './CategoryPromptDialogContents';
 import { DateSelectDialogComponent } from './DateSelectDialogContents';
 import { DialogConfig, DialogData, DialogSelectOption } from './Dialog';
 import { OptionSelectDialogContents } from './OptionSelectDialogContents';
@@ -76,5 +79,17 @@ export const UserPrompts = {
       title,
       rendererProps: { initialDate },
       contentRenderer: DateSelectDialogComponent,
+    }),
+
+  /**
+   * Ask the user to select a category.
+   * Returns a promise that will be resolved to the category that was selected.
+   */
+  promptCategory: (title: string, description: string): Promise<ObjectId | undefined> =>
+    promptUser({
+      type: 'category',
+      title,
+      rendererProps: { description },
+      contentRenderer: CategoryPromptDialogContents,
     }),
 };

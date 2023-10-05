@@ -21,12 +21,21 @@ export type TextPromptDialogData = {
   editorType?: TextEditorComponent;
 };
 
+export type CategoryPromptDialogData = {
+  type: 'category';
+  description: string;
+};
+
 export type DateSelectDialogData = {
   type: 'date';
   initialDate?: Dayjs;
 };
 
-export type DialogData = OptionSelectDialogData<any> | TextPromptDialogData | DateSelectDialogData;
+export type DialogData =
+  | OptionSelectDialogData<any>
+  | TextPromptDialogData
+  | DateSelectDialogData
+  | CategoryPromptDialogData;
 
 export interface DialogContentRendererProps<T> {
   onSelect: (value: T) => void;

@@ -15,6 +15,10 @@ export const Subtitle = styled(Typography)`
   font: 18pt Oswald;
   font-weight: 300;
   margin-bottom: 8px;
+
+  &.small {
+    font-size: 16pt;
+  }
 `;
 
 export const Text = styled(Typography)`

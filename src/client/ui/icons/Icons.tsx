@@ -1,9 +1,11 @@
 import AddIcon from '@mui/icons-material/Add';
+import AddChartIcon from '@mui/icons-material/Addchart';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import AppShortcutIcon from '@mui/icons-material/AppShortcut';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import AutoGraphIcon from '@mui/icons-material/AutoGraph';
 import AutoRenewIcon from '@mui/icons-material/Autorenew';
+import BarChartIcon from '@mui/icons-material/BarChart';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -21,10 +23,12 @@ import EventRepeatIcon from '@mui/icons-material/EventRepeat';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
+import ImageIcon from '@mui/icons-material/Image';
 import InfoIcon from '@mui/icons-material/Info';
 import SortDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
 import SortUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
 import MenuIcon from '@mui/icons-material/Menu';
+import PaletteIcon from '@mui/icons-material/Palette';
 import PaymentIcon from '@mui/icons-material/Payment';
 import PieChartIcon from '@mui/icons-material/PieChart';
 import RedoIcon from '@mui/icons-material/Redo';
@@ -42,6 +46,8 @@ import React from 'react';
 
 export const Icons = {
   Add: AddIcon,
+  AddChart: AddChartIcon,
+  BarChart: BarChartIcon,
   Calendar: CalendarMonthIcon,
   CalendarEmpty: CalendarTodayIcon,
   CalendarRepeat: EventRepeatIcon,
@@ -59,10 +65,12 @@ export const Icons = {
   ExpandMore: ExpandMoreIcon,
   Expense: PaymentIcon,
   Hidden: HiddenIcon,
+  Image: ImageIcon,
   Income: AttachMoneyIcon,
   Info: InfoIcon,
   Menu: MenuIcon,
   Money: EuroIcon,
+  Palette: PaletteIcon,
   PieChart: PieChartIcon,
   PlusCircle: AddCircleIcon,
   Recurring: AutoRenewIcon,

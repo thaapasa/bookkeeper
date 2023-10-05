@@ -1,3 +1,4 @@
+import styled from '@emotion/styled';
 import React from 'react';
 
 import { useDebounced } from '../hooks/useDebounced';
@@ -17,10 +18,14 @@ export function MeasureSize<T>(component: React.ComponentType<T & { size: Size }
 
     const Component = component as any;
     return (
-      <div ref={containerRef} className={className}>
+      <MeasureDiv ref={containerRef} className={className}>
         {size ? <Component size={debouncedSize ?? size} {...props} /> : null}
-      </div>
+      </MeasureDiv>
     );
   };
   return MeasuredComponent;
 }
+
+const MeasureDiv = styled('div')`
+  width: 100%;
+`;

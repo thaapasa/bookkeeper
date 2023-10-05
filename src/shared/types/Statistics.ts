@@ -26,6 +26,9 @@ export const CategoryStatisticsData = z.object({
 export type CategoryStatisticsData = z.infer<typeof CategoryStatisticsData>;
 
 export const CategoryStatistics = StatisticsSearchType.extend({
+  /**
+   * Category statistics data, keyed by the category id (as string)
+   */
   statistics: z.record(z.string(), z.array(CategoryStatisticsData)),
   range: DateRange,
 });

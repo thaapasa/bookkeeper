@@ -8,7 +8,7 @@ async function getExpenseTypeStatus(tx: ITask<any>, groupId: number): Promise<Ty
   const rows = await tx.manyOrNone<TypeStatus>(
     `SELECT COUNT(*) as count, SUM(sum) AS sum, type
         FROM expenses
-        WHERE group_id=$/groupId/
+        WHERE group_id=$/groupId/ AND template=FALSE
         GROUP BY type`,
     { groupId },
   );

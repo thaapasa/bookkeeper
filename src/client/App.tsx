@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { AnyObject, Session } from 'shared/types';
+import { Session } from 'shared/types';
 import { logger } from 'client/Logger';
 
 import { checkLoginState, sessionP } from './data/Login';
@@ -11,7 +11,7 @@ import { LoginPage } from './ui/general/LoginPage';
 import { useAsyncData } from './ui/hooks/useAsyncData';
 import { useWindowSize } from './ui/hooks/useWindowSize';
 
-export const App: React.FC<AnyObject> = () => {
+export const App: React.FC = () => {
   const [session, setSession] = React.useState<Session | undefined>(undefined);
 
   const windowSize = useWindowSize();

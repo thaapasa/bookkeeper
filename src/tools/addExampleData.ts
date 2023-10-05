@@ -15,7 +15,10 @@ const client = createTestClient({ logger });
 async function addExampleData() {
   logger.info('Adding example data to database');
   const session = await client.getSession('sale', 'salasana');
-  const allCategories = [...session.categories, ...unnest(session.categories.map(c => c.children))];
+  const allCategories = [
+    ...session.categories,
+    ...unnest(session.categories.map(c => c.children ?? [])),
+  ];
   const foodC = allCategories.find(c => c.name === 'Ruokakauppa')!;
   const detbC = allCategories.find(c => c.name === 'Lainanhoito')!;
   const saleS = session.sources.find(s => s.name.includes('Sale'))!;

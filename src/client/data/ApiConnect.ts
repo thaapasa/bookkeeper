@@ -33,6 +33,9 @@ import {
   Source,
   SourcePatch,
   StatisticsSearchType,
+  TrackingSubject,
+  TrackingSubjectData,
+  TrackingSubjectWithData,
 } from 'shared/types';
 import { PasswordUpdate, UserDataUpdate } from 'shared/userData';
 import { filterDefinedProps, Money } from 'shared/util';
@@ -347,6 +350,34 @@ export class ApiConnect {
 
   public shortShortcutDown = (shortcutId: ObjectId): Promise<void> =>
     this.post(uri`/api/profile/shortcut/${shortcutId}/sort/down`);
+
+  public getTrackingSubjects = (): Promise<TrackingSubjectWithData[]> =>
+    this.get(uri`/api/tracking/list`);
+
+  public getTrackingSubject = (trackingId: ObjectId): Promise<TrackingSubject> =>
+    this.get(uri`/api/tracking/${trackingId}`);
+
+  public createTrackingSubject = (payload: TrackingSubjectData): Promise<TrackingSubject> =>
+    this.post(uri`/api/tracking`, payload);
+
+  public updateTrackingSubject = (
+    subjectId: ObjectId,
+    payload: TrackingSubjectData,
+  ): Promise<TrackingSubject> => this.put(uri`/api/tracking/${subjectId}`, payload);
+
+  public changeTrackingColors = (subjectId: ObjectId): Promise<void> =>
+    this.post(uri`/api/tracking/${subjectId}/color`);
+
+  public deleteTrackingSubject = (subjectId: ObjectId): Promise<void> =>
+    this.del(uri`/api/tracking/${subjectId}`);
+
+  public uploadTrackingImage = (subjectId: ObjectId, file: File, filename: string): Promise<void> =>
+    this.post(uri`/api/tracking/${subjectId}/image/${filename}`, file, undefined, {
+      'Content-Type': ContentTypes.octetStream,
+    });
+
+  public deleteTrackingImage = (subjectId: ObjectId): Promise<void> =>
+    this.del(uri`/api/tracking/${subjectId}/image`);
 
   public updateUserData = (userData: UserDataUpdate): Promise<void> =>
     this.put(uri`/api/profile/userData`, userData);
