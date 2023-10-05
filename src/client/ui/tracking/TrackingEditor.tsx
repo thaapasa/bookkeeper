@@ -12,7 +12,7 @@ import {
 import * as B from 'baconjs';
 import * as React from 'react';
 
-import { CategoryMap, ObjectId, TrackingSubject } from 'shared/types';
+import { CategoryMap, ObjectId, TrackingFrequency, TrackingSubject } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
 import { categoryMapE, getFullCategoryName } from 'client/data/Categories';
 
@@ -71,6 +71,11 @@ function getTrackingSubject(
   return shortcutId ? apiConnect.getTrackingSubject(shortcutId) : Promise.resolve(null);
 }
 
+const FrequencyLabels: Record<TrackingFrequency, string> = {
+  month: 'Kuukausi',
+  year: 'Vuosi',
+};
+
 const TrackingEditView: React.FC<{
   data: TrackingSubject | null;
   onClose: () => void;
@@ -103,6 +108,19 @@ const TrackingEditView: React.FC<{
               {state.getRangeOptions().map(o => (
                 <MenuItem key={o.key} value={o.key}>
                   {o.title}
+                </MenuItem>
+              ))}
+            </Select>
+          </SelectionRow>
+          <SelectionRow title="Seurannan tiheys">
+            <Select
+              value={state.frequency}
+              onChange={e => state.setFrequency(e.target.value)}
+              fullWidth
+            >
+              {TrackingFrequency.options.map(o => (
+                <MenuItem key={o} value={o}>
+                  {FrequencyLabels[o] ?? o}
                 </MenuItem>
               ))}
             </Select>

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 import { isSameInterval, MomentInterval } from 'shared/time';
-import { ObjectId, TrackingSubject, TrackingSubjectData } from 'shared/types';
+import { ObjectId, TrackingFrequency, TrackingSubject, TrackingSubjectData } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
 import { updateSession } from 'client/data/Login';
 import { logger } from 'client/Logger';
@@ -17,6 +17,8 @@ interface RangeOption {
 
 const DefaultRange = 'y3';
 
+const DefaultTrackingFrequency = 'month' as const;
+
 const RangeOptions: RangeOption[] = [
   { title: '1 vuosi', interval: { amount: 1, unit: 'year' }, key: 'y1' },
   { title: '3 vuotta', interval: { amount: 3, unit: 'years' }, key: 'y3' },
@@ -31,11 +33,13 @@ export type TrackingState = {
   categories: number[];
   colorOffset: string;
   range: string;
+  frequency: TrackingFrequency;
   reset(tracking: TrackingSubject | null): void;
   setTitle(title: string): void;
   getRangeOptions(): RangeOption[];
   setColorOffset(colorOffset: string): void;
   setRange(range: string): void;
+  setFrequency(frequency: string): void;
   inputValid(): boolean;
   saveTracking(...callbacks: (() => void)[]): Promise<void>;
   uploadImage(file: File, filename: string, ...callbacks: (() => void)[]): Promise<void>;
@@ -50,6 +54,7 @@ export const useTrackingState = create<TrackingState>((set, get) => ({
   categories: [],
   colorOffset: '0',
   range: DefaultRange,
+  frequency: DefaultTrackingFrequency,
   setTitle: title => set({ title }),
   reset: tracking =>
     set({
@@ -58,8 +63,15 @@ export const useTrackingState = create<TrackingState>((set, get) => ({
       range:
         RangeOptions.find(o => isSameInterval(o.interval, tracking?.trackingData.range))?.key ??
         DefaultRange,
+      frequency: tracking?.trackingData.frequency ?? DefaultTrackingFrequency,
       categories: tracking?.trackingData.categories ?? [],
       colorOffset: String(tracking?.trackingData.colorOffset ?? 0),
+    }),
+  setFrequency: freq =>
+    set({
+      frequency: TrackingFrequency.options.includes(freq as any)
+        ? (freq as any)
+        : DefaultTrackingFrequency,
     }),
   getRangeOptions: () => RangeOptions,
   setColorOffset: colorOffset => set({ colorOffset }),
@@ -80,6 +92,7 @@ export const useTrackingState = create<TrackingState>((set, get) => ({
         categories: s.categories.length ? s.categories : undefined,
         colorOffset: Number(s.colorOffset),
         range: RangeOptions.find(r => r.key === s.range)?.interval,
+        frequency: s.frequency,
       },
     };
     await executeOperation(

@@ -1,14 +1,17 @@
 import { z } from 'zod';
 
 import { MomentInterval } from '../time/MomentInterval';
-import { ISOMonth } from '../time/Time';
 import { DateRange } from '../time/TimeRange';
 import { ObjectId } from './Id';
+
+export const TrackingFrequency = z.enum(['month', 'year']);
+export type TrackingFrequency = z.infer<typeof TrackingFrequency>;
 
 export const TrackingData = z.object({
   categories: z.array(ObjectId).optional(),
   colorOffset: z.number().int().optional(),
   range: MomentInterval.optional(),
+  frequency: TrackingFrequency.optional(),
 });
 export type TrackingData = z.infer<typeof TrackingData>;
 
@@ -30,7 +33,7 @@ export interface GroupingInfo {
   label: string;
 }
 
-export type StatisticsData = { month: ISOMonth } & { [k in GroupingKey]: number };
+export type StatisticsData = { timeSlot: string } & { [k in GroupingKey]: number };
 
 export interface TrackingStatistics {
   groups: GroupingInfo[];

@@ -24,7 +24,7 @@ export const TrackingChartRenderer: React.FC<TrackingChartProps> = ({
   return (
     <LineChart width={size.width} height={168} data={data.statistics} margin={Margins}>
       <CartesianGrid strokeDasharray="3 3" />
-      <XAxis hide dataKey="month" />
+      <XAxis hide dataKey="timeSlot" />
       <Tooltip formatter={formatMoney} />
       {data.groups.map((v, i) => (
         <Line
