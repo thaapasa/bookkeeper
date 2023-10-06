@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { CartesianGrid, Line, LineChart, Tooltip, XAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, Line, LineChart, Tooltip, XAxis } from 'recharts';
 
 import { TrackingData, TrackingStatistics } from 'shared/types';
 import { formatMoney } from 'client/ui/chart/Format';
@@ -16,7 +16,15 @@ interface TrackingChartProps {
   size: Size;
 }
 
-export const TrackingChartRenderer: React.FC<TrackingChartProps> = ({
+export const TrackingChartRenderer: React.FC<TrackingChartProps> = props => {
+  return props.trackingData.chartType === 'bar' ? (
+    <TrackingBarChartRenderer {...props} />
+  ) : (
+    <TrackingLineChartRenderer {...props} />
+  );
+};
+
+export const TrackingLineChartRenderer: React.FC<TrackingChartProps> = ({
   data,
   size,
   trackingData,
@@ -39,4 +47,26 @@ export const TrackingChartRenderer: React.FC<TrackingChartProps> = ({
   );
 };
 
+export const TrackingBarChartRenderer: React.FC<TrackingChartProps> = ({
+  data,
+  size,
+  trackingData,
+}) => {
+  return (
+    <BarChart width={size.width} height={168} data={data.statistics} margin={Margins}>
+      <CartesianGrid strokeDasharray="3 3" />
+      <XAxis hide dataKey="timeSlot" />
+      <Tooltip formatter={formatMoney} />
+      {data.groups.map((v, i) => (
+        <Bar
+          type="monotone"
+          key={v.key}
+          dataKey={v.key}
+          fill={getChartColor(i + (trackingData.colorOffset ?? 0), 0)}
+          name={v.label ?? v.key}
+        />
+      ))}
+    </BarChart>
+  );
+};
 export const TrackingChart = MeasureSize(TrackingChartRenderer);

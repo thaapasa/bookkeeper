@@ -1,7 +1,13 @@
 import { create } from 'zustand';
 
 import { isSameInterval, MomentInterval } from 'shared/time';
-import { ObjectId, TrackingFrequency, TrackingSubject, TrackingSubjectData } from 'shared/types';
+import {
+  ObjectId,
+  TrackingChartType,
+  TrackingFrequency,
+  TrackingSubject,
+  TrackingSubjectData,
+} from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
 import { updateSession } from 'client/data/Login';
 import { logger } from 'client/Logger';
@@ -34,12 +40,14 @@ export type TrackingState = {
   colorOffset: string;
   range: string;
   frequency: TrackingFrequency;
+  chartType: TrackingChartType;
   reset(tracking: TrackingSubject | null): void;
   setTitle(title: string): void;
   getRangeOptions(): RangeOption[];
   setColorOffset(colorOffset: string): void;
   setRange(range: string): void;
   setFrequency(frequency: string): void;
+  setChartType(chartType: string): void;
   inputValid(): boolean;
   saveTracking(...callbacks: (() => void)[]): Promise<void>;
   uploadImage(file: File, filename: string, ...callbacks: (() => void)[]): Promise<void>;
@@ -55,6 +63,7 @@ export const useTrackingState = create<TrackingState>((set, get) => ({
   colorOffset: '0',
   range: DefaultRange,
   frequency: DefaultTrackingFrequency,
+  chartType: 'line',
   setTitle: title => set({ title }),
   reset: tracking =>
     set({
@@ -66,7 +75,9 @@ export const useTrackingState = create<TrackingState>((set, get) => ({
       frequency: tracking?.trackingData.frequency ?? DefaultTrackingFrequency,
       categories: tracking?.trackingData.categories ?? [],
       colorOffset: String(tracking?.trackingData.colorOffset ?? 0),
+      chartType: tracking?.trackingData.chartType ?? 'line',
     }),
+  setChartType: type => set({ chartType: type === 'bar' ? 'bar' : 'line' }),
   setFrequency: freq =>
     set({
       frequency: TrackingFrequency.options.includes(freq as any)
@@ -93,6 +104,7 @@ export const useTrackingState = create<TrackingState>((set, get) => ({
         colorOffset: Number(s.colorOffset),
         range: RangeOptions.find(r => r.key === s.range)?.interval,
         frequency: s.frequency,
+        chartType: s.chartType,
       },
     };
     await executeOperation(

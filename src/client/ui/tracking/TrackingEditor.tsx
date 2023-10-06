@@ -125,6 +125,16 @@ const TrackingEditView: React.FC<{
               ))}
             </Select>
           </SelectionRow>
+          <SelectionRow title="Graafin tyyppi">
+            <Select
+              value={state.chartType}
+              onChange={e => state.setChartType(e.target.value)}
+              fullWidth
+            >
+              <MenuItem value="line">Viiva</MenuItem>
+              <MenuItem value="bar">Palkki</MenuItem>
+            </Select>
+          </SelectionRow>
           <SelectionRow title="Kuva">
             <Row>
               <ImageArea>

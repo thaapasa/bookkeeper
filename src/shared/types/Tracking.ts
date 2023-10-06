@@ -7,12 +7,18 @@ import { ObjectId } from './Id';
 export const TrackingFrequency = z.enum(['month', 'year']);
 export type TrackingFrequency = z.infer<typeof TrackingFrequency>;
 
-export const TrackingData = z.object({
-  categories: z.array(ObjectId).optional(),
-  colorOffset: z.number().int().optional(),
-  range: MomentInterval.optional(),
-  frequency: TrackingFrequency.optional(),
-});
+export const TrackingChartType = z.enum(['line', 'bar']);
+export type TrackingChartType = z.infer<typeof TrackingChartType>;
+
+export const TrackingData = z
+  .object({
+    categories: z.array(ObjectId),
+    colorOffset: z.number().int(),
+    range: MomentInterval,
+    frequency: TrackingFrequency,
+    chartType: TrackingChartType,
+  })
+  .partial();
 export type TrackingData = z.infer<typeof TrackingData>;
 
 export const TrackingSubjectData = z.object({
