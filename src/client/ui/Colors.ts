@@ -1,5 +1,5 @@
 import { amber, grey, lime, teal } from '@mui/material/colors';
-import { createTheme, SimplePaletteColorOptions, styled } from '@mui/material/styles';
+import { SimplePaletteColorOptions, styled } from '@mui/material/styles';
 
 import { Money, MoneyLike } from 'shared/util';
 
@@ -51,14 +51,14 @@ export const colorScheme: ColorScheme = {
   white: '#ffffff',
 };
 
-const primaryPalette: SimplePaletteColorOptions = {
+export const primaryPalette: SimplePaletteColorOptions = {
   light: colorScheme.primary.light,
   dark: colorScheme.primary.dark,
   main: colorScheme.primary.standard,
   contrastText: colorScheme.primary.text,
 };
 
-const secondaryPalette: SimplePaletteColorOptions = {
+export const secondaryPalette: SimplePaletteColorOptions = {
   light: colorScheme.secondary.light,
   dark: colorScheme.secondary.dark,
   main: colorScheme.secondary.standard,
@@ -113,13 +113,6 @@ export function classNameForMoney(m?: MoneyLike): 'positive' | 'negative' | 'uni
   const b = Money.from(m);
   return b ? (b.gt(0) ? 'positive' : b.lt(0) ? 'negative' : 'unimportant') : 'unimportant';
 }
-
-export const muiTheme = createTheme({
-  palette: {
-    primary: secondaryPalette,
-    secondary: primaryPalette,
-  },
-});
 
 // This is here only so that we use styled in this file. We must reference styled here or
 // else watch recompile fails with a warning "module not found" (looks like a bug)
