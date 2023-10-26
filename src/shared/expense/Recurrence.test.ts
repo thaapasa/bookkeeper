@@ -13,7 +13,7 @@ function r(amount: number, unit: RecurrenceUnit): RecurrencePeriod {
 }
 
 describe('recurrence', () => {
-  it.each<[MoneyLike, RecurrencePeriod, MoneyLike]>([
+  it.each<[MoneyLike, RecurrencePeriod, string]>([
     ['100', r(1, 'months'), '100.00'],
     ['100', r(2, 'months'), '50.00'],
     ['100', r(3, 'months'), '33.33'],
@@ -30,7 +30,7 @@ describe('recurrence', () => {
     expect(recurrencePerMonth(sum, period).toString()).toBe(amount);
   });
 
-  it.each<[MoneyLike, RecurrencePeriod, MoneyLike]>([
+  it.each<[MoneyLike, RecurrencePeriod, string]>([
     ['100', r(1, 'months'), '1200.00'],
     ['100', r(2, 'months'), '600.00'],
     ['100', r(3, 'months'), '400.00'],

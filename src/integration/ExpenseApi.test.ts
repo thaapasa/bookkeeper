@@ -164,7 +164,7 @@ describe('expense', () => {
     expect(s.expenses.find(e => e.id === hit.expenseId)).toMatchObject({
       title: 'Osuu',
     });
-    expect(s.expenses.find(e => e.id === noHit.expenseId)).toEqual(undefined);
+    expect(s.expenses.find(e => e.id === noHit.expenseId)).toBeUndefined();
   });
 
   it('should calculate start/month/end balances correctly', async () => {

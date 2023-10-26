@@ -76,7 +76,7 @@ describe('recurring expenses', () => {
     checkMonthStatus(await fetchMonthStatus(session, month), monthBenefit2.benefit);
 
     const e2 = await session.get<Expense>(`/api/expense/${expenseId}`);
-    expect(e2.recurringExpenseId).toEqual(s.recurringExpenseId);
+    expect(e2.recurringExpenseId).toEqual(s.recurringExpenseId ?? null);
   });
 
   it('T92 - creates 1/month', async () => {
