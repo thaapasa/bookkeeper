@@ -1,6 +1,6 @@
 {
   "name": "bookkeeper",
-  "version": "0.7.3",
+  "version": "0.7.4",
   "main": "src/server/BookkeeperServer.ts",
   "description": "Kukkaro - a web tool for tracking your income and expenses.",
   "private": true,
