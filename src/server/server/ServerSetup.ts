@@ -19,9 +19,20 @@ export function setupServer() {
   app.use('/api', createApi());
 
   // Serve assets for dev
-  app.get(/\/content\/.*/, (req, res) => res.sendFile(path.join(config.contentPath, req.path)));
+  app.get(/\/content\/.*/, (req, res, next) =>
+    serveFile(path.join(config.contentPath, req.path), res).catch(next),
+  );
   // Serve the index file when reloading page from a /p/xxx subpath
   app.get(/\/p\/.*/, (_, res) => res.sendFile(path.join(config.curDir + '/public/index.html')));
 
   return app;
+}
+
+async function serveFile(filepath: string, res: express.Response) {
+  const f = Bun.file(filepath);
+  if (await f.exists()) {
+    res.sendFile(filepath);
+  } else {
+    res.status(404).send();
+  }
 }
