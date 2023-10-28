@@ -47,7 +47,7 @@ const LinksContainer = styled('div')(
   transition:
     max-height 0.33s ease-in-out,
     background-color 0.33s ease-in-out;
-  max-height: 32px;
+  max-height: 40px;
 
   &.enabled:hover {
     max-height: ${props.maxHeight};
