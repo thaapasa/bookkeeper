@@ -44,23 +44,8 @@ export const MonthView: React.FC<MonthViewProps> = ({ date }) => {
   const expenseResponse = data.type === 'loaded' ? data.value : undefined;
   const loadedExpenseArray = expenseResponse?.expenses;
 
-  const [localExpenses, setExpenses] = React.useState<UserExpense[] | undefined>(undefined);
-
-  // React hack to auto-update local state to localExpenses array
-  // whenever loaded data changed, but also to be able to read
-  // it right away. We can set it directly as it's our internal state.
-  let expenses = localExpenses;
-  if (data.type === 'loaded') {
-    if (localExpenses !== loadedExpenseArray) {
-      setExpenses(loadedExpenseArray);
-      expenses = loadedExpenseArray;
-    }
-  } else {
-    if (localExpenses !== undefined) {
-      setExpenses(undefined);
-      expenses = undefined;
-    }
-  }
+  const [expenses, setExpenses] = React.useState<UserExpense[] | undefined>(undefined);
+  React.useEffect(() => setExpenses(loadedExpenseArray), [loadedExpenseArray]);
 
   const navigate = useNavigate();
   React.useEffect(
