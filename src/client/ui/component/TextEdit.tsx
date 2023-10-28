@@ -4,11 +4,19 @@ import * as React from 'react';
 export type TextEditProps = Omit<TextFieldProps, 'onChange'> & {
   onChange: (s: string) => void;
   onSubmitEdit?: () => void;
+  onCancelEdit?: () => void;
   width?: string;
 };
 
 type TextEditorType = HTMLTextAreaElement | HTMLInputElement;
-export const TextEdit: React.FC<TextEditProps> = ({ onChange, width, onSubmitEdit, ...props }) => {
+export const TextEdit: React.FC<TextEditProps> = ({
+  onChange,
+  width,
+  onSubmitEdit,
+  onCancelEdit,
+  onKeyUp,
+  ...props
+}) => {
   const onChangeHandler = React.useCallback(
     (e: React.ChangeEvent<TextEditorType>) => onChange(e.target.value),
     [onChange],
@@ -17,9 +25,11 @@ export const TextEdit: React.FC<TextEditProps> = ({ onChange, width, onSubmitEdi
     (e: React.KeyboardEvent<HTMLDivElement>) => {
       if (e.key === 'Enter') {
         onSubmitEdit?.();
+      } else if (e.key === 'Escape') {
+        onCancelEdit?.();
       }
     },
-    [onSubmitEdit],
+    [onSubmitEdit, onCancelEdit],
   );
 
   return (
@@ -28,7 +38,7 @@ export const TextEdit: React.FC<TextEditProps> = ({ onChange, width, onSubmitEdi
       {...props}
       width={width}
       onChange={onChangeHandler}
-      onKeyUp={keyHandler}
+      onKeyUp={onKeyUp ?? keyHandler}
     />
   );
 };
