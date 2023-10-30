@@ -17,6 +17,7 @@ export const TrackingData = z
     range: MomentInterval,
     frequency: TrackingFrequency,
     chartType: TrackingChartType,
+    separateByUser: z.boolean(),
   })
   .partial();
 export type TrackingData = z.infer<typeof TrackingData>;
@@ -33,7 +34,7 @@ export const TrackingSubject = TrackingSubjectData.extend({
 });
 export type TrackingSubject = z.infer<typeof TrackingSubject>;
 
-type GroupingKey = `c${number}`;
+type GroupingKey = `c${number}-${number}`;
 export interface GroupingInfo {
   key: GroupingKey;
   label: string;

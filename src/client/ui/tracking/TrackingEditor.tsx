@@ -1,9 +1,11 @@
 import styled from '@emotion/styled';
 import {
   Button,
+  Checkbox,
   Dialog,
   DialogContent,
   DialogTitle,
+  FormControlLabel,
   Grid,
   IconButton,
   MenuItem,
@@ -134,6 +136,17 @@ const TrackingEditView: React.FC<{
               <MenuItem value="line">Viiva</MenuItem>
               <MenuItem value="bar">Palkki</MenuItem>
             </Select>
+          </SelectionRow>
+          <SelectionRow title="Valinnat">
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={state.separateByUser}
+                  onChange={() => state.setSeparateByUser(!state.separateByUser)}
+                />
+              }
+              label="Käyttäjät erikseen"
+            />
           </SelectionRow>
           <SelectionRow title="Kuva">
             <Row>

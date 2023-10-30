@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 
+import { intRange } from 'shared/math';
 import { isSameInterval, MomentInterval } from 'shared/time';
 import {
   ObjectId,
@@ -25,13 +26,11 @@ const DefaultRange = 'y3';
 
 const DefaultTrackingFrequency = 'month' as const;
 
-const RangeOptions: RangeOption[] = [
-  { title: '1 vuosi', interval: { amount: 1, unit: 'year' }, key: 'y1' },
-  { title: '3 vuotta', interval: { amount: 3, unit: 'years' }, key: 'y3' },
-  { title: '5 vuotta', interval: { amount: 5, unit: 'years' }, key: 'y5' },
-  { title: '7 vuotta', interval: { amount: 7, unit: 'years' }, key: 'y7' },
-  { title: '10 vuotta', interval: { amount: 10, unit: 'years' }, key: 'y10' },
-];
+const RangeOptions: RangeOption[] = intRange(1, 10).map(i => ({
+  title: `${i} ${i === 1 ? 'vuosi' : 'vuotta'}`,
+  interval: { amount: i, unit: 'year' },
+  key: `y${i}`,
+}));
 
 export type TrackingState = {
   title: string;
@@ -41,6 +40,7 @@ export type TrackingState = {
   range: string;
   frequency: TrackingFrequency;
   chartType: TrackingChartType;
+  separateByUser: boolean;
   reset(tracking: TrackingSubject | null): void;
   setTitle(title: string): void;
   getRangeOptions(): RangeOption[];
@@ -54,6 +54,7 @@ export type TrackingState = {
   removeImage(...callbacks: (() => void)[]): Promise<void>;
   addCategory(): Promise<void>;
   removeCategory(categoryId: ObjectId): void;
+  setSeparateByUser(byUser: boolean): void;
 };
 
 export const useTrackingState = create<TrackingState>((set, get) => ({
@@ -64,6 +65,7 @@ export const useTrackingState = create<TrackingState>((set, get) => ({
   range: DefaultRange,
   frequency: DefaultTrackingFrequency,
   chartType: 'line',
+  separateByUser: false,
   setTitle: title => set({ title }),
   reset: tracking =>
     set({
@@ -76,6 +78,7 @@ export const useTrackingState = create<TrackingState>((set, get) => ({
       categories: tracking?.trackingData.categories ?? [],
       colorOffset: String(tracking?.trackingData.colorOffset ?? 0),
       chartType: tracking?.trackingData.chartType ?? 'line',
+      separateByUser: tracking?.trackingData.separateByUser ?? false,
     }),
   setChartType: type => set({ chartType: type === 'bar' ? 'bar' : 'line' }),
   setFrequency: freq =>
@@ -87,6 +90,7 @@ export const useTrackingState = create<TrackingState>((set, get) => ({
   getRangeOptions: () => RangeOptions,
   setColorOffset: colorOffset => set({ colorOffset }),
   setRange: range => set({ range }),
+  setSeparateByUser: separateByUser => set({ separateByUser }),
   inputValid: () => {
     const s = get();
     return !!s.title;
@@ -105,6 +109,7 @@ export const useTrackingState = create<TrackingState>((set, get) => ({
         range: RangeOptions.find(r => r.key === s.range)?.interval,
         frequency: s.frequency,
         chartType: s.chartType,
+        separateByUser: s.separateByUser,
       },
     };
     await executeOperation(
