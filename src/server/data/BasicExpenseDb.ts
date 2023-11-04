@@ -10,7 +10,7 @@ import {
   ExpenseStatus,
   UserExpense,
 } from 'shared/expense';
-import { DateLike, toDayjs, toISODate } from 'shared/time';
+import { DateLike, toISODate } from 'shared/time';
 import { ApiMessage, NotFoundError, ObjectId } from 'shared/types';
 import { Money, MoneyLike } from 'shared/util';
 import { logger } from 'server/Logger';
@@ -77,7 +77,7 @@ export function dbRowToExpense(e: UserExpense): UserExpense {
   if (!e) {
     throw new NotFoundError('EXPENSE_NOT_FOUND', 'expense');
   }
-  e.date = toDayjs(e.date).format('YYYY-MM-DD');
+  e.date = toISODate(e.date);
   e.userBalance = Money.from(e.userValue).negate().toString();
   return e;
 }

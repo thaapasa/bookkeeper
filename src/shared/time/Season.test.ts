@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'bun:test';
 
 import { getSeasonsInRange, Season, toSeason } from './Season';
+import { ISODate } from './Time';
 
 describe('Season', () => {
   it.each([['2016-Spring'], ['2016-Summer'], ['2016-Autumn'], ['2016-2017-Winter']])(
@@ -17,7 +18,7 @@ describe('Season', () => {
     },
   );
 
-  it.each([
+  it.each<[ISODate, Season]>([
     ['2017-01-01', '2016-2017-Winter'],
     ['2017-01-15', '2016-2017-Winter'],
     ['2017-03-31', '2017-Spring'],

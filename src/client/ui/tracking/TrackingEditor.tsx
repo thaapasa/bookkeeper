@@ -75,6 +75,7 @@ function getTrackingSubject(
 
 const FrequencyLabels: Record<TrackingFrequency, string> = {
   month: 'Kuukausi',
+  quarter: 'Kvartaali',
   year: 'Vuosi',
 };
 

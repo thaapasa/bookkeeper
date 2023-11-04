@@ -86,7 +86,7 @@ async function calculateExpenseReports(
   const { clause, params } = await getExpenseSearchQuery(tx, userId, groupId, {
     // Do not include recurring subscriptions as they are tracked separately
     includeRecurring: false,
-    startDate: toDayjs().subtract(range.amount, range.unit).format(),
+    startDate: toISODate(toDayjs().subtract(range.amount, range.unit)),
     ...report.query,
     ...(criteria.onlyOwn ? { userId } : undefined),
     ...(criteria.type ? { type: criteria.type } : undefined),

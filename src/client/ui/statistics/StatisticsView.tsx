@@ -94,8 +94,8 @@ export const StatisticsViewImpl: React.FC<{
     apiConnect.loadStatistics,
     cats.length > 0 && isDefined(range),
     cats,
-    range?.startDate ?? '',
-    range?.endDate ?? '',
+    range?.startDate ?? '2000-01-01',
+    range?.endDate ?? '2000-01-01',
     onlyOwn,
   );
   const data: AsyncData<CategoryStatistics> = cats.length > 0 ? statistics : UninitializedData;

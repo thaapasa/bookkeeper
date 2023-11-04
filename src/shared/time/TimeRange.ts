@@ -51,7 +51,7 @@ export function getMonthsInRange(range: DateRange): ISOMonth[] {
       numberRange(
         y === startYear ? toDayjs(range.startDate).month() + 1 : 1,
         y === endYear ? toDayjs(range.endDate).month() + 1 : 12,
-      ).map(m => `${y}-${leftPad(m, 2, '0')}`),
+      ).map(m => `${y}-${leftPad(m, 2, '0')}` as ISOMonth),
     )
     .flat(1);
 }

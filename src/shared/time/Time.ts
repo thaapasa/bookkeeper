@@ -6,6 +6,7 @@ import isLeapYear from 'dayjs/plugin/isLeapYear';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import quarterOfYear from 'dayjs/plugin/quarterOfYear';
 import utc from 'dayjs/plugin/utc';
 import { z } from 'zod';
 
@@ -16,13 +17,24 @@ export type DayjsInput = dayjs.ConfigType;
 
 export const ISODateRegExp = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
 export const ISODatePattern = 'YYYY-MM-DD';
-export const ISODate = z.string().regex(ISODateRegExp);
+export const ISODate = z.custom<`${number}-${number}-${number}`>(
+  val => typeof val === 'string' && ISODateRegExp.test(val),
+);
 export type ISODate = z.infer<typeof ISODate>;
 
 export const ISOMonthRegExp = /^[0-9]{4}-[0-9]{2}$/;
 export const ISOMonthPattern = 'YYYY-MM';
-export const ISOMonth = z.string().regex(ISOMonthRegExp);
+export const ISOMonth = z.custom<`${number}-${number}`>(
+  val => typeof val === 'string' && ISOMonthRegExp.test(val),
+);
 export type ISOMonth = z.infer<typeof ISOMonth>;
+
+export const ISOYearRegExp = /^[0-9]{4}$/;
+export const ISOYearPatter = 'YYYY';
+export const ISOYear = z.custom<`${number}`>(
+  val => typeof val === 'string' && ISOYearRegExp.test(val),
+);
+export type ISOYear = z.infer<typeof ISOYear>;
 
 export const Year = z.number().int().min(1500).max(3000);
 export type Year = z.infer<typeof Year>;
@@ -44,6 +56,7 @@ dayjs.extend(isLeapYear);
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
 dayjs.extend(dayOfYear);
+dayjs.extend(quarterOfYear);
 dayjs.extend(utc);
 dayjs.extend(isoWeek);
 
@@ -78,8 +91,9 @@ export function toDate(d: DateLike): Date {
 }
 
 export function toISODate(m?: DayjsInput): ISODate {
-  return toDayjs(m).format(ISODatePattern);
+  return toDayjs(m).format(ISODatePattern) as ISODate;
 }
+
 export function fromISODate(str: any): Dayjs {
   return toDayjs(str, ISODatePattern);
 }

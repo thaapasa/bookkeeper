@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useParams } from 'react-router';
 
 import { ExpenseQuery, UserExpense } from 'shared/expense';
-import { toDateRange } from 'shared/time';
+import { ISOMonth, toDateRange } from 'shared/time';
 import { Category, isDefined, Session } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
 import { AsyncData, UninitializedData } from 'client/data/AsyncData';
@@ -103,7 +103,7 @@ const SearchViewImpl: React.FC<SearchViewProps> = ({ userData, session, category
         isSearching={results.type === 'loading'}
         user={session.user}
         year={year}
-        month={month}
+        month={month as ISOMonth | undefined}
       />
       <ResultsView
         results={results.type === 'loaded' ? results.value : []}

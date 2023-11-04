@@ -217,9 +217,9 @@ export async function createRecurringFromExpense(
   };
 }
 
-function getDatesUpTo(recurrence: Recurrence, date: Dayjs): string[] {
+function getDatesUpTo(recurrence: Recurrence, date: Dayjs): ISODate[] {
   let generating = toDayjs(recurrence.nextMissing);
-  const dates: string[] = [];
+  const dates: ISODate[] = [];
   while (generating.isBefore(date)) {
     dates.push(toISODate(generating));
     generating = calculateNextRecurrence(generating, recurrence.period);
@@ -230,7 +230,7 @@ function getDatesUpTo(recurrence: Recurrence, date: Dayjs): string[] {
 function createMissingRecurrenceForDate(
   tx: ITask<any>,
   e: [Expense, ExpenseDivisionItem[]],
-  date: string,
+  date: ISODate,
 ): Promise<number> {
   const [exp, division] = e;
   const expense = { ...exp, template: false, date };

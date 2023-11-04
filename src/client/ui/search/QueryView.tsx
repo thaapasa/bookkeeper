@@ -3,7 +3,7 @@ import * as React from 'react';
 
 import { ExpenseQuery } from 'shared/expense';
 import { parseQueryString } from 'shared/net';
-import { toDayjs, toISODate, TypedDateRange } from 'shared/time';
+import { ISOMonth, toDayjs, toISODate, TypedDateRange } from 'shared/time';
 import { Category, CategoryMap, ObjectId, User } from 'shared/types';
 import { CategoryDataSource, getFullCategoryName } from 'client/data/Categories';
 import { eventValue } from 'client/util/ClientUtil';
@@ -20,7 +20,7 @@ interface QueryViewProps {
   isSearching: boolean;
   user: User;
   year?: string;
-  month?: string;
+  month?: ISOMonth;
 }
 
 interface QueryViewState {

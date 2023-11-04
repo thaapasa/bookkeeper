@@ -4,7 +4,7 @@ import { MomentInterval } from '../time/MomentInterval';
 import { DateRange } from '../time/TimeRange';
 import { ObjectId } from './Id';
 
-export const TrackingFrequency = z.enum(['month', 'year']);
+export const TrackingFrequency = z.enum(['month', 'quarter', 'year']);
 export type TrackingFrequency = z.infer<typeof TrackingFrequency>;
 
 export const TrackingChartType = z.enum(['line', 'bar']);
@@ -34,6 +34,10 @@ export const TrackingSubject = TrackingSubjectData.extend({
 });
 export type TrackingSubject = z.infer<typeof TrackingSubject>;
 
+/**
+ * Grouping key for categories. Format is
+ * `c[categoryId]-[userId]`, with `userId = 0` when data is not grouped by users.
+ */
 type GroupingKey = `c${number}-${number}`;
 export interface GroupingInfo {
   key: GroupingKey;
