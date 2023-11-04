@@ -1,10 +1,11 @@
 import { Request, Response } from 'express';
 import { mkdir, unlink } from 'fs';
+import multipart from 'parse-multipart-data';
 import path from 'path';
 import { ITask } from 'pg-promise';
 import { promisify } from 'sys';
 
-import { SessionBasicInfo } from 'shared/types';
+import { BkError, SessionBasicInfo } from 'shared/types';
 import { config } from 'server/Config';
 import { AssetDirectories } from 'server/content/Content';
 import { logger } from 'server/Logger';
@@ -51,14 +52,14 @@ export async function safeDeleteFile(filepath: string, logInfo?: boolean) {
 }
 
 export async function storeUploadedFile(
-  req: Request,
+  data: Buffer,
   originalFilename?: string,
 ): Promise<FileUploadResult> {
   const ext = originalFilename ? path.extname(originalFilename) : '';
   const filename = getNewFilename(ext);
   const filepath = path.join(config.fileUploadPath, filename);
   logger.debug(`Saving uploaded file to ${filepath}`);
-  const sizeInBytes = await Bun.write(filepath, req.body);
+  const sizeInBytes = await Bun.write(filepath, data);
   logger.debug(`Uploaded file ${filepath} saved, ${sizeInBytes} bytes written`);
   return {
     originalFilename,
@@ -69,11 +70,9 @@ export async function storeUploadedFile(
 }
 
 /**
- * @param paramName name of the path parameter in which the original file name is passed
  * @param handler the handler that is called once the uploaded file has been written to a temp file
  */
-export function processFileUpload<Return, N extends string, P extends { [k in N]: string }, Q>(
-  paramName: N,
+export function processFileUpload<Return, P, Q>(
   handler: (
     tx: ITask<any>,
     session: SessionBasicInfo,
@@ -88,7 +87,15 @@ export function processFileUpload<Return, N extends string, P extends { [k in N]
     req: Request,
     _res: Response,
   ): Promise<Return> => {
-    const res = await storeUploadedFile(req, data.params[paramName]);
+    const boundary = multipart.getBoundary(req.header('content-type') ?? '');
+    const parts = multipart.parse(req.body, boundary);
+
+    const filePart = parts.find(p => p.filename);
+    if (!filePart) {
+      throw new BkError('FILE_MISSING', 'No file in upload data!', 400);
+    }
+
+    const res = await storeUploadedFile(filePart.data, filePart.filename);
     return handler(tx, session, res, data);
   };
 }

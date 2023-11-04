@@ -53,11 +53,11 @@ export function createShortcutApi() {
 
   const MarginQuery = z.object({ margin: IntString.refine(n => n >= 0).optional() });
 
-  // POST /api/profile/shortcut/:shortcutId/icon/:filename
+  // POST /api/profile/shortcut/:shortcutId/icon
   api.postTx(
-    '/:id/icon/:filename',
+    '/:id/icon',
     { query: MarginQuery },
-    processFileUpload('filename', (tx, session, file, { params, query }) =>
+    processFileUpload((tx, session, file, { params, query }) =>
       uploadShortcutIcon(tx, session.group.id, session.user.id, params.id, file, query.margin ?? 0),
     ),
   );

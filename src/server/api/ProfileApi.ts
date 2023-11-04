@@ -31,11 +31,11 @@ export function createProfileApi() {
     changeUserPassword(tx, session.group.id, session.user.id, body),
   );
 
-  // POST /api/profile/image/:filename
+  // POST /api/profile/image
   api.postTx(
-    '/image/:filename',
+    '/image',
     {},
-    processFileUpload('filename', (tx, session, file) =>
+    processFileUpload((tx, session, file) =>
       uploadProfileImage(tx, session.group.id, session.user.id, file),
     ),
   );

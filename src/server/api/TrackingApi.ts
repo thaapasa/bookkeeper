@@ -51,11 +51,11 @@ export function createTrackingApi() {
     changeTrackingSubjectColor(tx, session.group.id, session.user.id, params.id),
   );
 
-  // POST /api/tracking/:id/image/:filename
+  // POST /api/tracking/:id/image
   api.postTx(
-    '/:id/image/:filename',
+    '/:id/image',
     {},
-    processFileUpload('filename', (tx, session, file, { params }) =>
+    processFileUpload((tx, session, file, { params }) =>
       uploadTrackingImage(tx, session.group.id, session.user.id, params.id, file),
     ),
   );

@@ -12,7 +12,8 @@ export function setupServer() {
   app.use(express.static('public'));
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());
-  app.use(bodyParser.raw({ limit: '10MB' }));
+  app.use(bodyParser.raw({ limit: '10MB', type: 'multipart/form-data' }));
+  app.use(bodyParser.raw({}));
   app.use(nocache());
 
   // Serve assets for dev

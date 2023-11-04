@@ -16,7 +16,7 @@ import {
   UserExpense,
   UserExpenseWithDetails,
 } from 'shared/expense';
-import { ContentTypes, FetchClient, uri } from 'shared/net';
+import { FetchClient, uri } from 'shared/net';
 import { ISODate, timeoutImmediate, toISODate } from 'shared/time';
 import {
   ApiMessage,
@@ -334,13 +334,16 @@ export class ApiConnect {
     file: File,
     filename: string,
     margin: number,
-  ): Promise<ExpenseShortcut> =>
-    this.post<ExpenseShortcut>(
-      uri`/api/profile/shortcut/${shortcutId}/icon/${filename}`,
-      file,
+  ): Promise<ExpenseShortcut> => {
+    const form = new FormData();
+    form.append(filename, file);
+    return this.post<ExpenseShortcut>(
+      uri`/api/profile/shortcut/${shortcutId}/icon`,
+      form,
       { margin: String(margin) },
-      { 'Content-Type': ContentTypes.octetStream },
+      { 'Content-Type': '' },
     );
+  };
 
   public removeShortcutIcon = (shortcutId: ObjectId): Promise<void> =>
     this.del(uri`/api/profile/shortcut/${shortcutId}/icon`);
@@ -371,10 +374,17 @@ export class ApiConnect {
   public deleteTrackingSubject = (subjectId: ObjectId): Promise<void> =>
     this.del(uri`/api/tracking/${subjectId}`);
 
-  public uploadTrackingImage = (subjectId: ObjectId, file: File, filename: string): Promise<void> =>
-    this.post(uri`/api/tracking/${subjectId}/image/${filename}`, file, undefined, {
-      'Content-Type': ContentTypes.octetStream,
+  public uploadTrackingImage = (
+    subjectId: ObjectId,
+    file: File,
+    filename: string,
+  ): Promise<void> => {
+    const form = new FormData();
+    form.append(filename, file);
+    return this.post(uri`/api/tracking/${subjectId}/image`, form, undefined, {
+      'Content-Type': '',
     });
+  };
 
   public deleteTrackingImage = (subjectId: ObjectId): Promise<void> =>
     this.del(uri`/api/tracking/${subjectId}/image`);
@@ -385,10 +395,13 @@ export class ApiConnect {
   public changeUserPassword = (update: PasswordUpdate): Promise<void> =>
     this.put(uri`/api/profile/password`, update);
 
-  public uploadProfileImage = (file: File, filename: string): Promise<void> =>
-    this.post(uri`/api/profile/image/${filename}`, file, undefined, {
-      'Content-Type': ContentTypes.octetStream,
+  public uploadProfileImage = (file: File, filename: string): Promise<void> => {
+    const form = new FormData();
+    form.append(filename, file);
+    return this.post(uri`/api/profile/image`, form, undefined, {
+      'Content-Type': '',
     });
+  };
 
   public deleteProfileImage = (): Promise<void> => this.del(uri`/api/profile/image`);
 
