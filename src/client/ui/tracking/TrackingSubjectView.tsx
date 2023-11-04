@@ -7,7 +7,7 @@ import apiConnect from 'client/data/ApiConnect';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { colorScheme } from '../Colors';
-import { FlexRow } from '../component/BasicElements';
+import { FlexColumn, FlexRow } from '../component/BasicElements';
 import { Subtitle } from '../design/Text';
 import { Icons } from '../icons/Icons';
 import { TrackingChart } from './TrackingChartRenderer';
@@ -27,11 +27,9 @@ export const TrackingSubjectView: React.FC<{
   return (
     <Grid item xs={12} md={6}>
       <TrackingCard>
-        {subject.image ? <TrackingImage src={subject.image} /> : null}
-        <TrackingChart data={subject.data} trackingData={subject.trackingData} />
-        <TitleArea>
+        <TitleArea className="title-area">
           <TitleText>{subject.title}</TitleText>
-          <ToolsArea>
+          <ToolsArea className="tools-area">
             <IconButton
               size="small"
               title="Vaihda värejä"
@@ -55,6 +53,14 @@ export const TrackingSubjectView: React.FC<{
             </IconButton>
           </ToolsArea>
         </TitleArea>
+        <TrackingArea className="tracking-area">
+          {subject.image ? <TrackingImage src={subject.image} /> : null}
+          <TrackingChart
+            data={subject.data}
+            trackingData={subject.trackingData}
+            className="tracking-chart"
+          />
+        </TrackingArea>
       </TrackingCard>
     </Grid>
   );
@@ -87,7 +93,7 @@ const TitleText = styled(Subtitle)`
   border: none;
 `;
 
-const TrackingCard = styled(FlexRow)`
+const TrackingCard = styled(FlexColumn)`
   width: 100%;
   position: relative;
   border-radius: 8px;
@@ -96,13 +102,13 @@ const TrackingCard = styled(FlexRow)`
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
 `;
 
+const TrackingArea = styled(FlexRow)`
+  flex: 1;
+`;
+
 const TitleArea = styled('div')`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
   height: 32px;
-  background-color: #ffffffcc;
+  background-color: ${colorScheme.primary.light}aa;
   z-index: 1;
 `;
 

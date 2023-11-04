@@ -1,3 +1,4 @@
+import styled from '@emotion/styled';
 import * as React from 'react';
 import { Bar, BarChart, CartesianGrid, Line, LineChart, Tooltip, XAxis } from 'recharts';
 
@@ -8,7 +9,7 @@ import { getChartColor } from '../chart/ChartColors';
 import { Size } from '../Types';
 import { MeasureSize } from '../utils/MeasureSize';
 
-const Margins = { left: 4, top: 32, right: 4, bottom: 4 };
+const Margins = { left: 4, top: 4, right: 4, bottom: 4 };
 
 interface TrackingChartProps {
   data: TrackingStatistics;
@@ -17,10 +18,14 @@ interface TrackingChartProps {
 }
 
 export const TrackingChartRenderer: React.FC<TrackingChartProps> = props => {
-  return props.trackingData.chartType === 'bar' ? (
-    <TrackingBarChartRenderer {...props} />
-  ) : (
-    <TrackingLineChartRenderer {...props} />
+  return (
+    <ChartContainer>
+      {props.trackingData.chartType === 'bar' ? (
+        <TrackingBarChartRenderer {...props} />
+      ) : (
+        <TrackingLineChartRenderer {...props} />
+      )}
+    </ChartContainer>
   );
 };
 
@@ -69,4 +74,9 @@ export const TrackingBarChartRenderer: React.FC<TrackingChartProps> = ({
     </BarChart>
   );
 };
-export const TrackingChart = MeasureSize(TrackingChartRenderer);
+
+const ChartContainer = styled('div')`
+  position: absolute;
+`;
+
+export const TrackingChart = MeasureSize(TrackingChartRenderer, 168);
