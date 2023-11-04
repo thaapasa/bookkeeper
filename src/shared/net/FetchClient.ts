@@ -18,6 +18,15 @@ function encodeComponent(x: any) {
   }
 }
 
+export type RequestMethod = 'GET' | 'HEAD' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+
+export interface RequestSpec {
+  query?: Record<string, any>;
+  body?: any;
+  headers?: Record<string, string>;
+  contentType?: string;
+}
+
 export class FetchClient {
   private fetch: FetchType;
   private baseUrl: string;
@@ -44,17 +53,8 @@ export class FetchClient {
 
   async req<T>(
     path: string,
-    {
-      method,
-      query,
-      body,
-      headers: incomingHeaders,
-    }: {
-      method: string;
-      query?: Record<string, any>;
-      body?: any;
-      headers?: Record<string, string>;
-    },
+    method: RequestMethod,
+    { query, body, headers: incomingHeaders }: RequestSpec = {},
   ): Promise<T> {
     const queryPath = this.toQuery(path, query);
     this.logger?.debug(body, `${method} ${queryPath} with body`);
@@ -127,48 +127,9 @@ export class FetchClient {
     'Content-Type': ContentTypes.json,
   };
 
-  public get<T>(
-    path: string,
-    query?: Record<string, any>,
-    headers?: Record<string, string>,
-  ): Promise<T> {
-    return this.req(path, { method: 'GET', query, headers });
-  }
-
-  public put<T>(
-    path: string,
-    body?: any,
-    query?: Record<string, any>,
-    headers?: Record<string, string>,
-  ): Promise<T> {
-    return this.req(path, {
-      method: 'PUT',
-      body,
-      query,
-      headers: { ...FetchClient.contentTypeJson, ...headers } as Record<string, string>,
-    });
-  }
-
-  public post<T>(
-    path: string,
-    body?: any,
-    query?: Record<string, any>,
-    headers?: Record<string, string>,
-  ): Promise<T> {
-    return this.req(path, {
-      method: 'POST',
-      body,
-      query,
-      headers: { ...FetchClient.contentTypeJson, ...headers } as Record<string, string>,
-    });
-  }
-
-  public del<T>(
-    path: string,
-    data?: any,
-    query?: Record<string, any>,
-    headers?: Record<string, string>,
-  ): Promise<T> {
-    return this.req(path, { method: 'DELETE', query, headers, body: data });
-  }
+  public get = <T>(path: string, spec?: RequestSpec) => this.req<T>(path, 'GET', spec);
+  public put = <T>(path: string, spec?: RequestSpec) => this.req<T>(path, 'PUT', spec);
+  public post = <T>(path: string, spec?: RequestSpec) => this.req<T>(path, 'POST', spec);
+  public patch = <T>(path: string, spec?: RequestSpec) => this.req<T>(path, 'PATCH', spec);
+  public delete = <T>(path: string, spec?: RequestSpec) => this.req<T>(path, 'DELETE', spec);
 }
