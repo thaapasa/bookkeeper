@@ -31,10 +31,14 @@ else
   pg_dump -x -O -Ft "$PROD_DB_URL" >$DUMP || exit -1
 fi
 
+echo "localhost:$PORT:*:*:postgres" >.pgpass
+chmod 0600 .pgpass
+export PGPASSFILE=.pgpass
+
 echo "Clearing local database"
-dropdb -h localhost -p ${PORT} -U postgres postgres || echo Could not clear local db
+dropdb -h localhost -p ${PORT} --no-password -U postgres postgres || echo Could not clear local db
 echo "Creating new empty database"
-createdb -h localhost -p ${PORT} -U postgres postgres || exit -1
+createdb -h localhost -p ${PORT} --no-password -U postgres postgres || exit -1
 
 echo "Restoring prod DB dump"
 pg_restore --role=postgres --no-owner -d "$DB_URL" --no-acl <$DUMP
