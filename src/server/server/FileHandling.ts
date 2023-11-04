@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { mkdir, unlink } from 'fs';
+import { writeFile } from 'fs/promises';
 import multipart from 'parse-multipart-data';
 import path from 'path';
 import { ITask } from 'pg-promise';
@@ -53,13 +54,20 @@ export async function safeDeleteFile(filepath: string, logInfo?: boolean) {
 
 export async function storeUploadedFile(
   data: Buffer,
+  expectedSizeInBytes: number,
   originalFilename?: string,
 ): Promise<FileUploadResult> {
   const ext = originalFilename ? path.extname(originalFilename) : '';
   const filename = getNewFilename(ext);
   const filepath = path.join(config.fileUploadPath, filename);
-  logger.debug(`Saving uploaded file to ${filepath}`);
-  const sizeInBytes = await Bun.write(filepath, data);
+  let sizeInBytes = expectedSizeInBytes;
+  if (config.useNodeFileAPI) {
+    logger.debug(`Saving uploaded file to ${filepath} using Node API`);
+    await writeFile(filepath, data);
+  } else {
+    logger.debug(`Saving uploaded file to ${filepath} using Bun API`);
+    sizeInBytes = await Bun.write(filepath, data);
+  }
   logger.debug(`Uploaded file ${filepath} saved, ${sizeInBytes} bytes written`);
   return {
     originalFilename,
@@ -97,7 +105,7 @@ export function processFileUpload<Return, P, Q>(
 
     logger.info(`Received uploaded image ${filePart.filename} of size ${filePart.data.length}`);
 
-    const res = await storeUploadedFile(filePart.data, filePart.filename);
+    const res = await storeUploadedFile(filePart.data, filePart.data.length, filePart.filename);
     return handler(tx, session, res, data);
   };
 }

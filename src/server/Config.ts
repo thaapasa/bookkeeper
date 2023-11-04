@@ -36,6 +36,7 @@ class Config {
   public curDir = curDir;
   public fileUploadPath: string = path.join(curDir, process.env.UPLOAD_PATH || './uploads');
   public contentPath: string = path.join(curDir, process.env.CONTENT_PATH || './content');
+  public useNodeFileAPI: boolean = process.env.USE_NODE_FILE_API === 'true';
 }
 
 export const config = new Config();
