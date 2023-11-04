@@ -95,6 +95,8 @@ export function processFileUpload<Return, P, Q>(
       throw new BkError('FILE_MISSING', 'No file in upload data!', 400);
     }
 
+    logger.info(`Received uploaded image ${filePart.filename} of size ${filePart.data.length}`);
+
     const res = await storeUploadedFile(filePart.data, filePart.filename);
     return handler(tx, session, res, data);
   };
