@@ -15,15 +15,15 @@ export function setupServer() {
   app.use(bodyParser.raw({ limit: '10MB' }));
   app.use(nocache());
 
-  app.use(traceLogMiddleware());
-  app.use('/api', createApi());
-
   // Serve assets for dev
   app.get(/\/content\/.*/, (req, res, next) =>
     serveFile(path.join(config.contentPath, req.path), res).catch(next),
   );
   // Serve the index file when reloading page from a /p/xxx subpath
   app.get(/\/p\/.*/, (_, res) => res.sendFile(path.join(config.curDir + '/public/index.html')));
+
+  app.use(traceLogMiddleware());
+  app.use('/api', createApi());
 
   return app;
 }
