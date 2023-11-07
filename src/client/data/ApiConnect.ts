@@ -302,7 +302,7 @@ export class ApiConnect {
       uri`/api/profile/shortcut/${shortcutId}/icon`,
       filename,
       file,
-      { query: { margin: margin } },
+      { query: { margin } },
     );
   };
 
