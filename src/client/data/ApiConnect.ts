@@ -158,7 +158,7 @@ export class ApiConnect {
 
   public async getExpensesForMonth(year: number, month: number): Promise<ExpenseCollection> {
     const collection = await this.get<ExpenseCollection>('/api/expense/month', {
-      body: {
+      query: {
         year: year.toString(),
         month: month.toString(),
       },
@@ -223,8 +223,9 @@ export class ApiConnect {
     expense: ExpenseData,
     target: RecurringExpenseTarget,
   ): Promise<ApiMessage> {
-    return this.put<ApiMessage>(uri`/api/expense/recurring/${id}?target=${target}`, {
+    return this.put<ApiMessage>(uri`/api/expense/recurring/${id}`, {
       body: expense,
+      query: { target },
     });
   }
 
@@ -232,11 +233,11 @@ export class ApiConnect {
     id: number | string,
     target: RecurringExpenseTarget,
   ): Promise<ApiMessage> {
-    return this.delete<ApiMessage>(uri`/api/expense/recurring/${id}?target=${target}`);
+    return this.delete<ApiMessage>(uri`/api/expense/recurring/${id}`, { query: { target } });
   }
 
   public queryReceivers(receiver: string): Promise<string[]> {
-    return this.get<string[]>('/api/receiver/query', { body: { receiver } });
+    return this.get<string[]>('/api/receiver/query', { query: { receiver } });
   }
 
   public renameReceiver(oldName: string, newName: string): Promise<ApiMessage> {
@@ -253,7 +254,7 @@ export class ApiConnect {
 
   public getCategoryTotals = (startDate: Date, endDate: Date): Promise<CategoryAndTotals[]> =>
     this.get<CategoryAndTotals[]>('/api/category/totals', {
-      body: {
+      query: {
         startDate: toISODate(startDate),
         endDate: toISODate(endDate),
       },

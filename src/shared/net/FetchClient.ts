@@ -24,7 +24,12 @@ export interface RequestSpec {
   query?: Record<string, any>;
   body?: any;
   headers?: Record<string, string>;
-  contentType?: string;
+  /**
+   * Explicitly sets the Content-Type header for the request;
+   * or pass `null` to bypass Content-Type calculation and let native fetch
+   * pick proper content type.
+   */
+  contentType?: string | null;
 }
 
 export class FetchClient {
@@ -51,20 +56,16 @@ export class FetchClient {
       : fullPath;
   }
 
-  async req<T>(
-    path: string,
-    method: RequestMethod,
-    { query, body, headers: incomingHeaders }: RequestSpec = {},
-  ): Promise<T> {
-    const queryPath = this.toQuery(path, query);
-    this.logger?.debug(body, `${method} ${queryPath} with body`);
-    const { headers, contentType } = this.prepareHeaders(incomingHeaders);
-    this.logger?.info({ headers, contentType, body }, path);
-    const options = {
-      method,
-      body: body ? (contentType === ContentTypes.json ? JSON.stringify(body) : body) : undefined,
-      headers,
+  async req<T>(path: string, method: RequestMethod, spec: RequestSpec = {}): Promise<T> {
+    const queryPath = this.toQuery(path, spec.query);
+    const { body, contentType } = determineContent(spec);
+    this.logger?.info(`${method} ${queryPath}`);
+    const headers = {
+      ...(contentType ? { 'Content-Type': contentType } : undefined),
+      ...spec.headers,
     };
+    const options = { method, body, headers };
+    this.logger?.debug(options, path);
     let res: ResponseType;
     try {
       res = await this.fetch(queryPath, options);
@@ -90,16 +91,6 @@ export class FetchClient {
         );
       }
     }
-  }
-
-  private prepareHeaders(headers: Record<string, string> = {}) {
-    const { 'Content-Type': CType, 'content-type': ctype, ...hdrs } = headers ?? {};
-    const fullContentType = (CType ?? ctype) || undefined;
-    const [contentType] = (fullContentType ?? '').split(';');
-    if (fullContentType) {
-      hdrs['Content-Type'] = fullContentType;
-    }
-    return { headers: hdrs, contentType: contentType || undefined };
   }
 
   private async readResponse<T>(res: ResponseType): Promise<T> {
@@ -132,4 +123,33 @@ export class FetchClient {
   public post = <T>(path: string, spec?: RequestSpec) => this.req<T>(path, 'POST', spec);
   public patch = <T>(path: string, spec?: RequestSpec) => this.req<T>(path, 'PATCH', spec);
   public delete = <T>(path: string, spec?: RequestSpec) => this.req<T>(path, 'DELETE', spec);
+}
+
+const JSONableContentTypes = ['object', 'string', 'number', 'boolean'];
+function determineContent(spec: RequestSpec): { body: any; contentType?: string } {
+  if (!spec.body) {
+    return { body: undefined, contentType: spec.contentType ?? ContentTypes.json };
+  }
+  if (spec.contentType !== undefined) {
+    // Predefined content type, so use that
+    const ctype = plainCType(spec.contentType ?? '');
+    return {
+      body: ctype === ContentTypes.json ? JSON.stringify(spec.body) : spec.body,
+      contentType: spec.contentType ?? undefined,
+    };
+  }
+  if (spec.body instanceof FormData) {
+    // Native fetch can pick the correct content type
+    return { body: spec.body };
+  }
+  if (JSONableContentTypes.includes(typeof spec.body) && isDefined(spec.body)) {
+    // Convert to JSON
+    return { body: JSON.stringify(spec.body), contentType: ContentTypes.json };
+  }
+  // Let fetch pick the content type automatically
+  return { body: spec.body };
+}
+
+function plainCType(contentType: string = '') {
+  return contentType.toLowerCase().split(';')[0];
 }
