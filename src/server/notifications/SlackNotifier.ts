@@ -31,7 +31,7 @@ export class SlackNotifier {
   }
 
   private async sendData(data: SlackMessageData) {
-    await this.client?.post('', data);
+    await this.client?.post('', { body: data });
   }
 
   get prefix() {

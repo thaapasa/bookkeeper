@@ -12,16 +12,16 @@ export function createTestClient(opts: { baseUrl?: string; logger?: Logger }) {
   const client = new FetchClient(fetch, opts.baseUrl ?? 'http://localhost:3100', opts.logger);
 
   const get = <T>(token: string, path: string, query?: Record<string, any>) =>
-    client.get<T>(path, query, authHeader(token));
+    client.get<T>(path, { query, headers: authHeader(token) });
 
   const put = <T>(token: string, path: string, data: any) =>
-    client.put<T>(path, data, undefined, authHeader(token));
+    client.put<T>(path, { body: data, headers: authHeader(token) });
 
   const post = <T>(token: string, path: string, data: any) =>
-    client.post<T>(path, data, undefined, authHeader(token));
+    client.post<T>(path, { body: data, headers: authHeader(token) });
 
   const del = <T>(token: string, path: string, query?: Record<string, any>) =>
-    client.del<T>(path, undefined, query, authHeader(token));
+    client.delete<T>(path, { query, headers: authHeader(token) });
 
   const decorateSession = (s: Session): SessionWithControl => ({
     ...s,
@@ -33,7 +33,7 @@ export function createTestClient(opts: { baseUrl?: string; logger?: Logger }) {
   });
 
   const login = (username: string, password: string) =>
-    client.post<Session>('/api/session', { username, password });
+    client.post<Session>('/api/session', { body: { username, password } });
 
   const refresh = (refreshToken: string) => put<Session>(refreshToken, '/api/session/refresh', {});
 

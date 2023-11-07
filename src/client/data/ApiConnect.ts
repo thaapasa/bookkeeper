@@ -16,7 +16,7 @@ import {
   UserExpense,
   UserExpenseWithDetails,
 } from 'shared/expense';
-import { FetchClient, uri } from 'shared/net';
+import { FetchClient, RequestMethod, RequestSpec, uri } from 'shared/net';
 import { ISODate, timeoutImmediate, toISODate } from 'shared/time';
 import {
   ApiMessage,
@@ -77,6 +77,10 @@ function mapExpenseObject(e: ExpenseCollection): ExpenseCollection {
   return e;
 }
 
+interface ApiRequestSpec extends RequestSpec {
+  allowRefreshAndRetry?: boolean;
+}
+
 export class ApiConnect {
   private currentToken: string | null = null;
 
@@ -91,28 +95,19 @@ export class ApiConnect {
     return this.authHeaderForToken(this.currentToken);
   }
 
-  private async req<T>(
-    path: string,
-    details: {
-      method: string;
-      query?: Record<string, any>;
-      headers?: Record<string, string>;
-      body?: any;
-    },
-    allowRefreshAndRetry = true,
-  ): Promise<T> {
+  private async req<T>(path: string, method: RequestMethod, spec: ApiRequestSpec = {}): Promise<T> {
     try {
-      return await client.req(path, {
-        ...details,
-        headers: { ...details.headers, ...this.authHeader() },
+      return await client.req(path, method, {
+        ...spec,
+        headers: { ...this.authHeader(), ...spec.headers },
       });
     } catch (e) {
-      if (e && e instanceof AuthenticationError && allowRefreshAndRetry) {
+      if (e && e instanceof AuthenticationError && spec.allowRefreshAndRetry) {
         logger.warn(e, 'Authentication error from API, trying to refresh session');
         if (await checkLoginState()) {
           logger.info('Session refreshed, retrying request');
           await timeoutImmediate();
-          return this.req<T>(path, details, false);
+          return this.req<T>(path, method, { ...spec, allowRefreshAndRetry: false });
         }
       }
       throw e;
@@ -121,80 +116,40 @@ export class ApiConnect {
 
   protected authHeaderForToken = (token: string) => ({ Authorization: `Bearer ${token || ''}` });
 
-  private get<T>(
+  private get = <T>(path: string, spec?: ApiRequestSpec) => this.req<T>(path, 'GET', spec);
+  private put = <T>(path: string, spec?: ApiRequestSpec) => this.req<T>(path, 'PUT', spec);
+  private post = <T>(path: string, spec?: ApiRequestSpec) => this.req<T>(path, 'POST', spec);
+  private patch = <T>(path: string, spec?: ApiRequestSpec) => this.req<T>(path, 'PATCH', spec);
+  private delete = <T>(path: string, spec?: ApiRequestSpec) => this.req<T>(path, 'DELETE', spec);
+
+  private uploadImage<T>(
     path: string,
-    query?: Record<string, any>,
-    allowRefreshAndRetry?: boolean,
+    filename: string,
+    file: File,
+    spec?: Omit<RequestSpec, 'body'>,
   ): Promise<T> {
-    return this.req<T>(path, { method: 'GET', query }, allowRefreshAndRetry);
-  }
-
-  private put<T>(
-    path: string,
-    body?: any,
-    query?: Record<string, string>,
-    allowRefreshAndRetry?: boolean,
-    headers?: Record<string, string>,
-  ): Promise<T> {
-    return this.req<T>(
-      path,
-      {
-        method: 'PUT',
-        body,
-        query,
-        headers: { ...FetchClient.contentTypeJson, ...headers },
-      },
-      allowRefreshAndRetry,
-    );
-  }
-
-  private post<T>(
-    path: string,
-    body?: any,
-    query?: Record<string, string>,
-    headers?: Record<string, string>,
-  ): Promise<T> {
-    return this.req<T>(path, {
-      method: 'POST',
-      body,
-      query,
-      headers: { ...FetchClient.contentTypeJson, ...headers },
-    });
-  }
-
-  private patch<T>(path: string, body?: any, query?: Record<string, string>): Promise<T> {
-    return this.req<T>(path, {
-      method: 'PATCH',
-      body,
-      query,
-      headers: { ...FetchClient.contentTypeJson },
-    });
-  }
-
-  private del<T>(path: string, body?: any, query?: Record<string, string>): Promise<T> {
-    return this.req<T>(path, { method: 'DELETE', body, query });
+    const form = new FormData();
+    form.append(filename, file);
+    return this.req(path, 'POST', { ...spec, body: form });
   }
 
   public login(username: string, password: string): Promise<Session> {
-    return client.post<Session>('/api/session', { username, password });
+    return client.post<Session>('/api/session', { body: { username, password } });
   }
 
   public logout(): Promise<ApiMessage> {
-    return this.del<ApiMessage>('/api/session');
+    return this.delete<ApiMessage>('/api/session');
   }
 
   public getSession(): Promise<Session> {
-    return this.get<Session>('/api/session', undefined, false);
+    return this.get<Session>('/api/session', { allowRefreshAndRetry: false });
   }
 
   public refreshSession(token: string): Promise<Session> {
-    return this.put<Session>(
-      '/api/session/refresh',
-      undefined,
-      undefined,
-      false,
-      this.authHeaderForToken(token),
-    );
+    return this.put<Session>('/api/session/refresh', {
+      allowRefreshAndRetry: false,
+      headers: this.authHeaderForToken(token),
+    });
   }
 
   public getApiStatus(): Promise<ApiStatus> {
@@ -203,15 +158,17 @@ export class ApiConnect {
 
   public async getExpensesForMonth(year: number, month: number): Promise<ExpenseCollection> {
     const collection = await this.get<ExpenseCollection>('/api/expense/month', {
-      year: year.toString(),
-      month: month.toString(),
+      query: {
+        year: year.toString(),
+        month: month.toString(),
+      },
     });
     return mapExpenseObject(collection);
   }
 
   public async searchExpenses(query: ExpenseQuery): Promise<UserExpense[]> {
     const body: ExpenseQuery = filterDefinedProps(query);
-    const expenses = await this.post<UserExpense[]>('/api/expense/search', body);
+    const expenses = await this.post<UserExpense[]>('/api/expense/search', { body });
     return expenses.map(mapExpense);
   }
 
@@ -222,7 +179,7 @@ export class ApiConnect {
   public async searchSubscriptions(
     criteria: SubscriptionSearchCriteria,
   ): Promise<SubscriptionResult> {
-    return this.post(uri`/api/subscription/search`, criteria);
+    return this.post(uri`/api/subscription/search`, { body: criteria });
   }
 
   public getSubscription = async (id: ObjectId): Promise<RecurringExpenseDetails | undefined> =>
@@ -231,32 +188,33 @@ export class ApiConnect {
   public updateSubscriptionTemplate = async (
     id: ObjectId,
     expense: ExpenseData,
-  ): Promise<ApiMessage> => this.put<ApiMessage>(uri`/api/subscription/template/${id}`, expense);
+  ): Promise<ApiMessage> =>
+    this.put<ApiMessage>(uri`/api/subscription/template/${id}`, { body: expense });
 
   public deleteSubscription = async (id: ObjectId): Promise<RecurringExpenseDetails | undefined> =>
-    this.del(uri`/api/subscription/${id}`);
+    this.delete(uri`/api/subscription/${id}`);
 
   public storeExpense(expense: ExpenseData): Promise<ApiMessage> {
-    return this.post<ApiMessage>('/api/expense', expense);
+    return this.post<ApiMessage>('/api/expense', { body: expense });
   }
 
   public splitExpense(id: number | string, splits: ExpenseSplit[]): Promise<ApiMessage> {
     return this.post<ApiMessage>(uri`/api/expense/${id}/split`, {
-      splits: splits.map(s => ({ ...s, sum: Money.from(s.sum).toString() })),
+      body: { splits: splits.map(s => ({ ...s, sum: Money.from(s.sum).toString() })) },
     });
   }
 
   public updateExpense(id: number | string, expense: ExpenseData): Promise<ApiMessage> {
-    return this.put<ApiMessage>(uri`/api/expense/${id}`, expense);
+    return this.put<ApiMessage>(uri`/api/expense/${id}`, { body: expense });
   }
 
   public deleteExpense(id: number | string): Promise<ApiMessage> {
-    return this.del<ApiMessage>(uri`/api/expense/${id}`);
+    return this.delete<ApiMessage>(uri`/api/expense/${id}`);
   }
 
   public createRecurring(id: number | string, period: RecurrencePeriod): Promise<ApiMessage> {
     return this.post<ApiMessage>(uri`/api/expense/recurring/${id}`, {
-      period,
+      body: { period },
     });
   }
 
@@ -265,22 +223,25 @@ export class ApiConnect {
     expense: ExpenseData,
     target: RecurringExpenseTarget,
   ): Promise<ApiMessage> {
-    return this.put<ApiMessage>(uri`/api/expense/recurring/${id}?target=${target}`, expense);
+    return this.put<ApiMessage>(uri`/api/expense/recurring/${id}`, {
+      body: expense,
+      query: { target },
+    });
   }
 
   public deleteRecurringById(
     id: number | string,
     target: RecurringExpenseTarget,
   ): Promise<ApiMessage> {
-    return this.del<ApiMessage>(uri`/api/expense/recurring/${id}?target=${target}`);
+    return this.delete<ApiMessage>(uri`/api/expense/recurring/${id}`, { query: { target } });
   }
 
   public queryReceivers(receiver: string): Promise<string[]> {
-    return this.get<string[]>('/api/receiver/query', { receiver });
+    return this.get<string[]>('/api/receiver/query', { query: { receiver } });
   }
 
   public renameReceiver(oldName: string, newName: string): Promise<ApiMessage> {
-    return this.put<ApiMessage>('/api/receiver/rename', { oldName, newName });
+    return this.put<ApiMessage>('/api/receiver/rename', { body: { oldName, newName } });
   }
 
   public getCategoryList(): Promise<Category[]> {
@@ -288,17 +249,19 @@ export class ApiConnect {
   }
 
   public storeCategory(category: CategoryData): Promise<ApiMessage> {
-    return this.post<ApiMessage>('/api/category', category);
+    return this.post<ApiMessage>('/api/category', { body: category });
   }
 
   public getCategoryTotals = (startDate: Date, endDate: Date): Promise<CategoryAndTotals[]> =>
     this.get<CategoryAndTotals[]>('/api/category/totals', {
-      startDate: toISODate(startDate),
-      endDate: toISODate(endDate),
+      query: {
+        startDate: toISODate(startDate),
+        endDate: toISODate(endDate),
+      },
     });
 
   public updateCategory = (id: number | string, category: CategoryData): Promise<Category> =>
-    this.put(uri`/api/category/${id}`, category);
+    this.put(uri`/api/category/${id}`, { body: category });
 
   public loadStatistics = (
     categoryIds: CategorySelection[],
@@ -311,23 +274,23 @@ export class ApiConnect {
       range: { startDate: startDateInclusive, endDate: endDateInclusive },
       onlyOwn,
     };
-    return this.post(uri`/api/statistics/category`, body);
+    return this.post(uri`/api/statistics/category`, { body });
   };
 
   public patchSource = (sourceId: ObjectId, data: SourcePatch) =>
-    this.patch<Source>(uri`/api/source/${sourceId}`, data);
+    this.patch<Source>(uri`/api/source/${sourceId}`, { body: data });
 
   public createShortcut = (data: ExpenseShortcutPayload): Promise<void> =>
-    this.post(uri`/api/profile/shortcut`, data);
+    this.post(uri`/api/profile/shortcut`, { body: data });
 
   public getShortcut = (shortcutId: ObjectId): Promise<ExpenseShortcut> =>
     this.get(uri`/api/profile/shortcut/${shortcutId}`);
 
   public updateShortcut = (shortcutId: ObjectId, data: ExpenseShortcutPayload): Promise<void> =>
-    this.put(uri`/api/profile/shortcut/${shortcutId}`, data);
+    this.put(uri`/api/profile/shortcut/${shortcutId}`, { body: data });
 
   public deleteShortcut = (shortcutId: ObjectId): Promise<void> =>
-    this.del(uri`/api/profile/shortcut/${shortcutId}`);
+    this.delete(uri`/api/profile/shortcut/${shortcutId}`);
 
   public uploadShortcutIcon = (
     shortcutId: ObjectId,
@@ -335,18 +298,16 @@ export class ApiConnect {
     filename: string,
     margin: number,
   ): Promise<ExpenseShortcut> => {
-    const form = new FormData();
-    form.append(filename, file);
-    return this.post<ExpenseShortcut>(
+    return this.uploadImage<ExpenseShortcut>(
       uri`/api/profile/shortcut/${shortcutId}/icon`,
-      form,
-      { margin: String(margin) },
-      { 'Content-Type': '' },
+      filename,
+      file,
+      { query: { margin } },
     );
   };
 
   public removeShortcutIcon = (shortcutId: ObjectId): Promise<void> =>
-    this.del(uri`/api/profile/shortcut/${shortcutId}/icon`);
+    this.delete(uri`/api/profile/shortcut/${shortcutId}/icon`);
 
   public shortShortcutUp = (shortcutId: ObjectId): Promise<void> =>
     this.post(uri`/api/profile/shortcut/${shortcutId}/sort/up`);
@@ -361,49 +322,41 @@ export class ApiConnect {
     this.get(uri`/api/tracking/${trackingId}`);
 
   public createTrackingSubject = (payload: TrackingSubjectData): Promise<TrackingSubject> =>
-    this.post(uri`/api/tracking`, payload);
+    this.post(uri`/api/tracking`, { body: payload });
 
   public updateTrackingSubject = (
     subjectId: ObjectId,
     payload: TrackingSubjectData,
-  ): Promise<TrackingSubject> => this.put(uri`/api/tracking/${subjectId}`, payload);
+  ): Promise<TrackingSubject> => this.put(uri`/api/tracking/${subjectId}`, { body: payload });
 
   public changeTrackingColors = (subjectId: ObjectId): Promise<void> =>
     this.post(uri`/api/tracking/${subjectId}/color`);
 
   public deleteTrackingSubject = (subjectId: ObjectId): Promise<void> =>
-    this.del(uri`/api/tracking/${subjectId}`);
+    this.delete(uri`/api/tracking/${subjectId}`);
 
   public uploadTrackingImage = (
     subjectId: ObjectId,
     file: File,
     filename: string,
   ): Promise<void> => {
-    const form = new FormData();
-    form.append(filename, file);
-    return this.post(uri`/api/tracking/${subjectId}/image`, form, undefined, {
-      'Content-Type': '',
-    });
+    return this.uploadImage(uri`/api/tracking/${subjectId}/image`, filename, file);
   };
 
   public deleteTrackingImage = (subjectId: ObjectId): Promise<void> =>
-    this.del(uri`/api/tracking/${subjectId}/image`);
+    this.delete(uri`/api/tracking/${subjectId}/image`);
 
   public updateUserData = (userData: UserDataUpdate): Promise<void> =>
-    this.put(uri`/api/profile/userData`, userData);
+    this.put(uri`/api/profile/userData`, { body: userData });
 
   public changeUserPassword = (update: PasswordUpdate): Promise<void> =>
-    this.put(uri`/api/profile/password`, update);
+    this.put(uri`/api/profile/password`, { body: update });
 
   public uploadProfileImage = (file: File, filename: string): Promise<void> => {
-    const form = new FormData();
-    form.append(filename, file);
-    return this.post(uri`/api/profile/image`, form, undefined, {
-      'Content-Type': '',
-    });
+    return this.uploadImage(uri`/api/profile/image`, filename, file);
   };
 
-  public deleteProfileImage = (): Promise<void> => this.del(uri`/api/profile/image`);
+  public deleteProfileImage = (): Promise<void> => this.delete(uri`/api/profile/image`);
 
   public createReport = (title: string, query: ExpenseQuery) => {
     const body: ReportCreationData = {
@@ -413,7 +366,8 @@ export class ApiConnect {
     return this.post<ReportDef>(uri`/api/report`, body);
   };
 
-  public deleteReport = (reportId: ObjectId) => this.del<ApiMessage>(uri`/api/report/${reportId}`);
+  public deleteReport = (reportId: ObjectId) =>
+    this.delete<ApiMessage>(uri`/api/report/${reportId}`);
 
   public getDbStatus = () => this.get<DbStatus>('/api/admin/status');
 }
