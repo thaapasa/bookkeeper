@@ -80,7 +80,7 @@ export const useTrackingState = create<TrackingState>((set, get) => ({
       chartType: tracking?.trackingData.chartType ?? 'line',
       separateByUser: tracking?.trackingData.separateByUser ?? false,
     }),
-  setChartType: type => set({ chartType: type === 'bar' ? 'bar' : 'line' }),
+  setChartType: type => set({ chartType: type as TrackingChartType }),
   setFrequency: freq =>
     set({
       frequency: TrackingFrequency.options.includes(freq as any)

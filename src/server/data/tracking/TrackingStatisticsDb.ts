@@ -12,7 +12,18 @@ import {
   toDayjs,
   toISODate,
 } from 'shared/time';
-import { ObjectId, TrackingData, TrackingFrequency, TrackingStatistics } from 'shared/types';
+import {
+  BaseChartType,
+  Category,
+  CategoryMap,
+  GroupingInfo,
+  isDefined,
+  ObjectId,
+  TrackingChartType,
+  TrackingData,
+  TrackingFrequency,
+  TrackingStatistics,
+} from 'shared/types';
 import { assertUnreachable, Money, MoneyLike } from 'shared/util';
 
 import { getCategoriesById } from '../CategoryDb';
@@ -60,18 +71,35 @@ export async function getTrackingStatistics(
   const userIds = users?.map(u => u.id);
   return {
     groups: users
-      ? users
-          .map(u =>
-            catIds.map(c => ({
-              key: `c${c}-${u.id}` as const,
-              label: `${catMap[c].name ?? String(c)} (${u.firstName})`,
-            })),
-          )
-          .flat(1)
-      : catIds.map(c => ({ key: `c${c}-0`, label: catMap[c].name ?? String(c) })),
+      ? users.map(u => catIds.map(c => toGroupingInfo(catMap, c, data.chartType, u.id))).flat(1)
+      : catIds.map(c => toGroupingInfo(catMap, c, data.chartType)),
     range,
     statistics: slots.map(timeSlot => groupedValues(rows, timeSlot, catIds, userIds)),
   };
+}
+
+function toGroupingInfo(
+  catMap: CategoryMap,
+  catId: ObjectId,
+  chartType?: TrackingChartType,
+  userId?: ObjectId,
+): GroupingInfo {
+  const cat = catMap[catId];
+  return {
+    key: `c${catId}-${userId ?? 0}`,
+    label: cat?.name ?? String(catId),
+    chartType: groupChartType(chartType, cat),
+  };
+}
+
+function groupChartType(
+  requestedType: TrackingChartType | undefined,
+  category: Category | undefined,
+): BaseChartType {
+  if (requestedType === 'combined') {
+    return isDefined(category?.parentId) ? 'bar' : 'line';
+  }
+  return requestedType ?? 'line';
 }
 
 function getFreq(data: TrackingData): TrackingFrequency {

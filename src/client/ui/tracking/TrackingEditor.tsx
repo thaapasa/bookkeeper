@@ -136,6 +136,7 @@ const TrackingEditView: React.FC<{
             >
               <MenuItem value="line">Viiva</MenuItem>
               <MenuItem value="bar">Palkki</MenuItem>
+              <MenuItem value="combined">Yhdistetty</MenuItem>
             </Select>
           </SelectionRow>
           <SelectionRow title="Valinnat">

@@ -1,5 +1,6 @@
-import { BkError, isDefined } from '../types';
-import { arrayContains } from '../util';
+import { isDefined } from '../types/Common';
+import { BkError } from '../types/Errors';
+import { arrayContains } from '../util/Arrays';
 
 export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
