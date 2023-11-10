@@ -41,6 +41,7 @@ export type TrackingState = {
   frequency: TrackingFrequency;
   chartType: TrackingChartType;
   separateByUser: boolean;
+  includeUserTotals: boolean;
   reset(tracking: TrackingSubject | null): void;
   setTitle(title: string): void;
   getRangeOptions(): RangeOption[];
@@ -55,6 +56,7 @@ export type TrackingState = {
   addCategory(): Promise<void>;
   removeCategory(categoryId: ObjectId): void;
   setSeparateByUser(byUser: boolean): void;
+  setIncludeUserTotals(includeTotals: boolean): void;
 };
 
 export const useTrackingState = create<TrackingState>((set, get) => ({
@@ -66,6 +68,7 @@ export const useTrackingState = create<TrackingState>((set, get) => ({
   frequency: DefaultTrackingFrequency,
   chartType: 'line',
   separateByUser: false,
+  includeUserTotals: false,
   setTitle: title => set({ title }),
   reset: tracking =>
     set({
@@ -79,6 +82,7 @@ export const useTrackingState = create<TrackingState>((set, get) => ({
       colorOffset: String(tracking?.trackingData.colorOffset ?? 0),
       chartType: tracking?.trackingData.chartType ?? 'line',
       separateByUser: tracking?.trackingData.separateByUser ?? false,
+      includeUserTotals: tracking?.trackingData.includeUserTotals ?? false,
     }),
   setChartType: type => set({ chartType: type as TrackingChartType }),
   setFrequency: freq =>
@@ -91,6 +95,7 @@ export const useTrackingState = create<TrackingState>((set, get) => ({
   setColorOffset: colorOffset => set({ colorOffset }),
   setRange: range => set({ range }),
   setSeparateByUser: separateByUser => set({ separateByUser }),
+  setIncludeUserTotals: includeUserTotals => set({ includeUserTotals }),
   inputValid: () => {
     const s = get();
     return !!s.title;
@@ -110,6 +115,7 @@ export const useTrackingState = create<TrackingState>((set, get) => ({
         frequency: s.frequency,
         chartType: s.chartType,
         separateByUser: s.separateByUser,
+        includeUserTotals: s.includeUserTotals,
       },
     };
     await executeOperation(

@@ -149,6 +149,16 @@ const TrackingEditView: React.FC<{
               }
               label="Käyttäjät erikseen"
             />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={state.includeUserTotals}
+                  disabled={!state.separateByUser}
+                  onChange={() => state.setIncludeUserTotals(!state.includeUserTotals)}
+                />
+              }
+              label="Myös yhteensä"
+            />
           </SelectionRow>
           <SelectionRow title="Kuva">
             <Row>

@@ -23,6 +23,7 @@ import {
   TrackingData,
   TrackingFrequency,
   TrackingStatistics,
+  User,
 } from 'shared/types';
 import { assertUnreachable, Money, MoneyLike } from 'shared/util';
 
@@ -70,24 +71,44 @@ export async function getTrackingStatistics(
   const users = data.separateByUser ? await getAllUsers(tx, groupId) : undefined;
   const userIds = users?.map(u => u.id);
   return {
-    groups: users
-      ? users.map(u => catIds.map(c => toGroupingInfo(catMap, c, data.chartType, u.id))).flat(1)
-      : catIds.map(c => toGroupingInfo(catMap, c, data.chartType)),
+    groups: toGroups(users, catMap, catIds, data),
     range,
-    statistics: slots.map(timeSlot => groupedValues(rows, timeSlot, catIds, userIds)),
+    statistics: slots.map(timeSlot =>
+      groupedValues(rows, timeSlot, catIds, userIds, data.includeUserTotals),
+    ),
   };
+}
+
+function toGroups(
+  users: User[] | undefined,
+  catMap: CategoryMap,
+  catIds: ObjectId[],
+  data: TrackingData,
+): GroupingInfo[] {
+  return catIds
+    .map<GroupingInfo[]>(c => {
+      if (!users) return [toGroupingInfo(catMap, c, data.chartType)];
+      const cats = users.map(u => toGroupingInfo(catMap, c, data.chartType, u));
+      if (data.includeUserTotals) {
+        cats.push(toGroupingInfo(catMap, c, 'line'));
+      }
+      return cats;
+    })
+    .flat(1);
 }
 
 function toGroupingInfo(
   catMap: CategoryMap,
   catId: ObjectId,
   chartType?: TrackingChartType,
-  userId?: ObjectId,
+  user?: User,
 ): GroupingInfo {
   const cat = catMap[catId];
+  const catName = cat?.name ?? String(catId);
+  const label = user ? `${catName} (${user.firstName})` : catName;
   return {
-    key: `c${catId}-${userId ?? 0}`,
-    label: cat?.name ?? String(catId),
+    key: `c${catId}-${user?.id ?? 0}`,
+    label,
     chartType: groupChartType(chartType, cat),
   };
 }
@@ -181,14 +202,19 @@ function groupedValues(
   timeSlot: TimeSlot,
   categoryIds: ObjectId[],
   userIds?: ObjectId[],
+  includeUserTotals?: boolean,
 ): Record<`c${number}-${number}`, number> & { timeSlot: string } {
   if (!userIds) {
     return { timeSlot, ...valuesByCategoryIds(rows, timeSlot, categoryIds) };
   }
-  return userIds.reduce(
+  let records = userIds.reduce(
     (p, u) => ({ ...p, ...valuesByCategoryIds(rows, timeSlot, categoryIds, u) }),
     { timeSlot },
   );
+  if (includeUserTotals) {
+    records = { ...records, ...valuesByCategoryIds(rows, timeSlot, categoryIds) };
+  }
+  return records;
 }
 
 function valuesByCategoryIds(

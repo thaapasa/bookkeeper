@@ -22,6 +22,7 @@ export const TrackingData = z
     frequency: TrackingFrequency,
     chartType: TrackingChartType,
     separateByUser: z.boolean(),
+    includeUserTotals: z.boolean(),
   })
   .partial();
 export type TrackingData = z.infer<typeof TrackingData>;
