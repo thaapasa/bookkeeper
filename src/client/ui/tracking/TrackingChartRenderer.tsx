@@ -66,7 +66,7 @@ export const TrackingBarChartRenderer: React.FC<TrackingChartProps> = ({
           type="monotone"
           key={v.key}
           dataKey={v.key}
-          fill={getChartColor(i + (trackingData.colorOffset ?? 0), 0)}
+          fill={getChartColor(i + (trackingData.colorOffset ?? 0), 2)}
           name={v.label ?? v.key}
         />
       ))}
@@ -100,7 +100,7 @@ export const TrackingCombinedRenderer: React.FC<TrackingChartProps> = ({
           type="monotone"
           key={v.key}
           dataKey={v.key}
-          fill={getChartColor(i + (trackingData.colorOffset ?? 0) + lines.length, 0)}
+          fill={getChartColor(i + (trackingData.colorOffset ?? 0) + lines.length, 1)}
           name={v.label ?? v.key}
         />
       ))}
