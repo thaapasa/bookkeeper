@@ -5,14 +5,14 @@ import { clamp } from 'shared/math';
 export const ChartColors = [
   colors.teal,
   colors.lightBlue,
-  colors.lime,
-  colors.red,
   colors.indigo,
-  colors.purple,
+  colors.blueGrey,
   colors.green,
+  colors.red,
+  colors.purple,
   colors.pink,
   colors.amber,
-  colors.blueGrey,
+  colors.lime,
 ];
 
 type ColorType = typeof colors.indigo;

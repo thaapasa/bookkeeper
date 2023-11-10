@@ -2,12 +2,16 @@ import { z } from 'zod';
 
 import { MomentInterval } from '../time/MomentInterval';
 import { DateRange } from '../time/TimeRange';
+import { typedKeys } from '../util/Objects';
 import { ObjectId } from './Id';
 
 export const TrackingFrequency = z.enum(['month', 'quarter', 'year']);
 export type TrackingFrequency = z.infer<typeof TrackingFrequency>;
 
-export const TrackingChartType = z.enum(['line', 'bar']);
+export const BaseChartType = z.enum(['line', 'bar']);
+export type BaseChartType = z.infer<typeof BaseChartType>;
+
+export const TrackingChartType = z.enum(['combined', ...typedKeys(BaseChartType.enum)]);
 export type TrackingChartType = z.infer<typeof TrackingChartType>;
 
 export const TrackingData = z
@@ -18,6 +22,7 @@ export const TrackingData = z
     frequency: TrackingFrequency,
     chartType: TrackingChartType,
     separateByUser: z.boolean(),
+    includeUserTotals: z.boolean(),
   })
   .partial();
 export type TrackingData = z.infer<typeof TrackingData>;
@@ -42,6 +47,7 @@ type GroupingKey = `c${number}-${number}`;
 export interface GroupingInfo {
   key: GroupingKey;
   label: string;
+  chartType: BaseChartType;
 }
 
 export type StatisticsData = { timeSlot: string } & { [k in GroupingKey]: number };

@@ -136,6 +136,7 @@ const TrackingEditView: React.FC<{
             >
               <MenuItem value="line">Viiva</MenuItem>
               <MenuItem value="bar">Palkki</MenuItem>
+              <MenuItem value="combined">Yhdistetty</MenuItem>
             </Select>
           </SelectionRow>
           <SelectionRow title="Valinnat">
@@ -147,6 +148,16 @@ const TrackingEditView: React.FC<{
                 />
               }
               label="Käyttäjät erikseen"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={state.includeUserTotals}
+                  disabled={!state.separateByUser}
+                  onChange={() => state.setIncludeUserTotals(!state.includeUserTotals)}
+                />
+              }
+              label="Myös yhteensä"
             />
           </SelectionRow>
           <SelectionRow title="Kuva">
