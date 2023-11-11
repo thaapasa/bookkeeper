@@ -3,16 +3,20 @@ import { colors } from '@mui/material';
 import { clamp } from 'shared/math';
 
 export const ChartColors = [
-  colors.teal,
+  colors.blue,
   colors.lightBlue,
-  colors.indigo,
-  colors.blueGrey,
+  colors.cyan,
+  colors.teal,
   colors.green,
-  colors.red,
-  colors.purple,
-  colors.pink,
-  colors.amber,
+  colors.lightGreen,
   colors.lime,
+  colors.amber,
+  colors.orange,
+  colors.deepOrange,
+  colors.pink,
+  colors.purple,
+  colors.deepPurple,
+  colors.indigo,
 ];
 
 type ColorType = typeof colors.indigo;
