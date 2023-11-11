@@ -1,13 +1,14 @@
 import * as B from 'baconjs';
 import * as React from 'react';
-import { Route, Routes, useNavigate } from 'react-router-dom';
+import { Route, Routes, useNavigate, useParams } from 'react-router-dom';
 
+import { shortcutToExpenseInEditor } from 'shared/expense';
+import { Session } from 'shared/types';
 import { categoryDataSourceP, categoryMapE } from 'client/data/Categories';
 import { sourceMapE, validSessionE } from 'client/data/Login';
 import { updateExpenses } from 'client/data/State';
 import { connect } from 'client/ui/component/BaconConnect';
 import { useWindowSize } from 'client/ui/hooks/useWindowSize';
-import { Size } from 'client/ui/Types';
 import { newExpenseSuffix } from 'client/util/Links';
 
 import { ExpenseDialog } from './ExpenseDialog';
@@ -25,8 +26,9 @@ const ConnectedExpenseDialog = connect(
   }),
 )(ExpenseDialog);
 
-export const NewExpenseDialogPage: React.FC<{ windowSize: Size }> = ({ windowSize }) => {
+const NewExpenseDialogPage: React.FC = () => {
   const navigate = useNavigate();
+  const windowSize = useWindowSize();
   return (
     <ConnectedExpenseDialog
       createNew
@@ -42,11 +44,40 @@ export const NewExpenseDialogPage: React.FC<{ windowSize: Size }> = ({ windowSiz
   );
 };
 
-export const NewExpenseDialogRoutes: React.FC = () => {
+const NewExpenseFromShortcutDialogPage: React.FC<{ session: Session }> = ({ session }) => {
+  const navigate = useNavigate();
   const windowSize = useWindowSize();
+  const { shortcutId } = useParams<'shortcutId'>();
+  const id = Number(shortcutId);
+  const shortcut = session.shortcuts.find(s => s.id === id);
+  React.useEffect(() => {
+    if (!shortcut) {
+      navigate(-1);
+    }
+  }, [shortcut, navigate]);
+  const values = shortcut ? shortcutToExpenseInEditor(shortcut.expense) : {};
   return (
-    <Routes>
-      <Route path={newExpenseSuffix} element={<NewExpenseDialogPage windowSize={windowSize} />} />
-    </Routes>
+    <ConnectedExpenseDialog
+      createNew
+      values={values}
+      onClose={() => navigate(-1)}
+      original={null}
+      saveAction={null}
+      windowSize={windowSize}
+      title="Uusi kirjaus"
+      onExpensesUpdated={updateExpenses}
+      expenseCounter={1}
+    />
   );
 };
+
+const ConnectedShortcutDialogPage = connect(B.combineTemplate({ session: validSessionE }))(
+  NewExpenseFromShortcutDialogPage,
+);
+
+export const NewExpenseDialogRoutes: React.FC = () => (
+  <Routes>
+    <Route path={newExpenseSuffix + '/:shortcutId'} element={<ConnectedShortcutDialogPage />} />
+    <Route path={newExpenseSuffix} element={<NewExpenseDialogPage />} />
+  </Routes>
+);

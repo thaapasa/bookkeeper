@@ -3,9 +3,10 @@ import * as React from 'react';
 import { NavigateFunction, useNavigate } from 'react-router';
 
 import { createExpense } from 'client/data/State';
-import { expensePagePath, newExpenseSuffix, shortcutsPagePath } from 'client/util/Links';
+import { newExpenseSuffix } from 'client/util/Links';
 
 import { secondaryColors } from '../Colors';
+import { pageSupportsRoutedExpenseDialog } from '../expense/NewExpenseInfo';
 import { Icons } from './Icons';
 
 export const AddExpenseIcon: React.FC<{ onClick?: () => void }> = ({ onClick }) => (
@@ -21,21 +22,16 @@ export const AddExpenseNavButton: React.FC<{ onClick?: () => void }> = ({ onClic
     <AddExpenseIconContainer className="navigation">
       <BlackContent />
       <PlusIcon
-        onClick={onClick ?? (() => navigateToNewExpense(navigate))}
+        onClick={onClick ?? (() => openNewExpenseDialog(navigate))}
         className="navigation"
       />
     </AddExpenseIconContainer>
   );
 };
 
-function navigateToNewExpense(navigate: NavigateFunction) {
+function openNewExpenseDialog(navigate: NavigateFunction) {
   const path = window.location.pathname;
-  if (
-    path.includes(expensePagePath) ||
-    path.includes(shortcutsPagePath) ||
-    path === '/' ||
-    path === '/p'
-  ) {
+  if (pageSupportsRoutedExpenseDialog(path)) {
     if (!path.includes(newExpenseSuffix)) {
       navigate(path.startsWith('/p') ? path + newExpenseSuffix : '/p' + newExpenseSuffix);
     }

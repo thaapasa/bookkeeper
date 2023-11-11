@@ -1,13 +1,16 @@
 import { IconButton, styled } from '@mui/material';
 import * as React from 'react';
+import { NavigateFunction, useNavigate } from 'react-router';
 
-import { ExpenseShortcut, ExpenseShortcutPayload, shortcutToExpenseInEditor } from 'shared/expense';
+import { ExpenseShortcut, ExpenseShortcutPayload } from 'shared/expense';
+import { uri } from 'shared/net';
 import { ObjectId } from 'shared/types';
 import { noop, spaced } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { updateSession, validSessionE } from 'client/data/Login';
 import { createNewExpense, requestNewExpense } from 'client/data/State';
 import { executeOperation } from 'client/util/ExecuteOperation';
+import { newExpenseSuffix } from 'client/util/Links';
 
 import { secondaryColors } from '../Colors';
 import { connect } from '../component/BaconConnect';
@@ -55,38 +58,50 @@ const FullList: React.FC<{
 
 const ShortcutRow: React.FC<
   React.PropsWithChildren<ShortcutLinkProps & { allowEdit?: boolean }>
-> = ({ id, expense, onClick, allowEdit, title, children, ...props }) => (
-  <TitledRow>
-    <Row
-      onClick={
-        onClick ??
-        (expense ? () => createNewExpense(shortcutToExpenseInEditor(expense)) : undefined)
-      }
-      className={onClick || expense ? 'clickable' : undefined}
-    >
-      <ShortcutLink {...props} title={title} />
-      <Title>{title}</Title>
-    </Row>
-    {children}
-    {allowEdit && id ? (
-      <>
-        <Flex minWidth="32px" />
-        <IconButton size="small" onClick={() => sortShortcutUp(id)}>
-          <Icons.SortUp fontSize="small" />
-        </IconButton>
-        <IconButton size="small" onClick={() => sortShortcutDown(id)}>
-          <Icons.SortDown fontSize="small" />
-        </IconButton>
-        <IconButton size="small" onClick={() => editShortcut(id)}>
-          <Icons.Edit fontSize="small" />
-        </IconButton>
-        <IconButton size="small" onClick={() => deleteShortcut(id)} style={{ marginRight: '4px' }}>
-          <Icons.Delete fontSize="small" color="warning" />
-        </IconButton>
-      </>
-    ) : null}
-  </TitledRow>
-);
+> = ({ id, expense, onClick, allowEdit, title, children, ...props }) => {
+  const navigate = useNavigate();
+  return (
+    <TitledRow>
+      <Row
+        onClick={onClick ?? (id ? () => openNewExpenseFromShortcutDialog(navigate, id) : undefined)}
+        className={onClick || expense ? 'clickable' : undefined}
+      >
+        <ShortcutLink {...props} title={title} />
+        <Title>{title}</Title>
+      </Row>
+      {children}
+      {allowEdit && id ? (
+        <>
+          <Flex minWidth="32px" />
+          <IconButton size="small" onClick={() => sortShortcutUp(id)}>
+            <Icons.SortUp fontSize="small" />
+          </IconButton>
+          <IconButton size="small" onClick={() => sortShortcutDown(id)}>
+            <Icons.SortDown fontSize="small" />
+          </IconButton>
+          <IconButton size="small" onClick={() => editShortcut(id)}>
+            <Icons.Edit fontSize="small" />
+          </IconButton>
+          <IconButton
+            size="small"
+            onClick={() => deleteShortcut(id)}
+            style={{ marginRight: '4px' }}
+          >
+            <Icons.Delete fontSize="small" color="warning" />
+          </IconButton>
+        </>
+      ) : null}
+    </TitledRow>
+  );
+};
+
+function openNewExpenseFromShortcutDialog(navigate: NavigateFunction, id: ObjectId) {
+  const path = window.location.pathname;
+  if (!path.includes(newExpenseSuffix)) {
+    const base = path.startsWith('/p') ? path + newExpenseSuffix : '/p' + newExpenseSuffix;
+    navigate(base + uri`/${id}`);
+  }
+}
 
 async function createNewShortcut(): Promise<void> {
   const example = await requestNewExpense(async () => true, 'Uusi linkki');
