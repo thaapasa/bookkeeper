@@ -1,6 +1,6 @@
 import { DateLike, toDayjs } from 'shared/time';
 
-export const shortcutsPage = '/p/linkit';
+export const shortcutsPagePath = '/p/linkit';
 export const expensePagePath = '/p/kulut';
 export const categoryPagePath = '/p/kategoriat';
 export const subscriptionsPagePath = '/p/tilaukset';
@@ -11,6 +11,7 @@ export const toolsPagePath = '/p/työkalut';
 export const profilePagePath = '/p/profiili';
 export const passwordPagePath = '/p/profiili/salasana';
 export const trackingPagePath = '/p/seuranta';
+export const newExpenseSuffix = '/uusi-kirjaus';
 
 export const yearPattern = 'YYYY';
 export const monthPattern = 'YYYY-MM';

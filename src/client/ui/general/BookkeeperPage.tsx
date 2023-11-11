@@ -13,7 +13,7 @@ import {
   infoPagePath,
   profilePagePath,
   searchPagePath,
-  shortcutsPage,
+  shortcutsPagePath,
   statisticsPage,
   subscriptionsPagePath,
   toolsPagePath,
@@ -56,7 +56,7 @@ interface PageProps {
 const appLinks: AppLink[] = [
   {
     label: 'Linkit',
-    path: shortcutsPage,
+    path: shortcutsPagePath,
     showInHeader: false,
     icon: 'Shortcut',
   },
@@ -113,11 +113,11 @@ export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
           {isMobileDevice ? null : <NavigationBar links={appLinks} windowSize={windowSize} />}
           <MainContent className={'main-content ' + className}>
             <Routes>
-              <Route path={expenseMonthPathPattern('date')} element={<RoutedMonthView />} />
-              <Route path={expensePagePath} element={<RoutedMonthView />} />
+              <Route path={expenseMonthPathPattern('date') + '/*'} element={<RoutedMonthView />} />
+              <Route path={expensePagePath + '/*'} element={<RoutedMonthView />} />
               <Route path={categoryViewYearPattern('year')} element={<RoutedCategoryView />} />
               <Route path={categoryViewMonthPattern('month')} element={<RoutedCategoryView />} />
-              <Route path={shortcutsPage} element={<ShortcutsPage />} />
+              <Route path={shortcutsPagePath + '/*'} element={<ShortcutsPage />} />
               <Route path={subscriptionsPagePath} element={<SubscriptionsPage />} />
               <Route path={categoryPagePath} element={<RoutedCategoryView />} />
               <Route path={`${searchPagePath}/m/:month`} element={<SearchPage />} />
@@ -128,6 +128,7 @@ export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
               <Route path={infoPagePath} element={<InfoView />} />
               <Route path={trackingPagePath} element={<TrackingPage />} />
               <Route path={toolsPagePath} element={<ToolsView />} />
+              <Route path={'/p/*'} element={<FrontpageView />} />
               <Route path="/" element={<FrontpageView />} />
               <Route element={<PathNotFoundError />} />
             </Routes>

@@ -1,23 +1,48 @@
 import { styled } from '@mui/material';
 import * as React from 'react';
+import { NavigateFunction, useNavigate } from 'react-router';
 
-import { createExpense } from '../../data/State';
+import { createExpense } from 'client/data/State';
+import { expensePagePath, newExpenseSuffix, shortcutsPagePath } from 'client/util/Links';
+
 import { secondaryColors } from '../Colors';
 import { Icons } from './Icons';
 
 export const AddExpenseIcon: React.FC<{ onClick?: () => void }> = ({ onClick }) => (
   <AddExpenseIconContainer>
     <BlackContent />
-    <PlusIcon onClick={onClick ?? createExpense} />
+    <PlusIcon onClick={onClick} />
   </AddExpenseIconContainer>
 );
 
-export const AddExpenseNavButton: React.FC<{ onClick?: () => void }> = ({ onClick }) => (
-  <AddExpenseIconContainer className="navigation">
-    <BlackContent />
-    <PlusIcon onClick={onClick ?? createExpense} className="navigation" />
-  </AddExpenseIconContainer>
-);
+export const AddExpenseNavButton: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
+  const navigate = useNavigate();
+  return (
+    <AddExpenseIconContainer className="navigation">
+      <BlackContent />
+      <PlusIcon
+        onClick={onClick ?? (() => navigateToNewExpense(navigate))}
+        className="navigation"
+      />
+    </AddExpenseIconContainer>
+  );
+};
+
+function navigateToNewExpense(navigate: NavigateFunction) {
+  const path = window.location.pathname;
+  if (
+    path.includes(expensePagePath) ||
+    path.includes(shortcutsPagePath) ||
+    path === '/' ||
+    path === '/p'
+  ) {
+    if (!path.includes(newExpenseSuffix)) {
+      navigate(path.startsWith('/p') ? path + newExpenseSuffix : '/p' + newExpenseSuffix);
+    }
+  } else {
+    createExpense();
+  }
+}
 
 const PlusIcon = styled(Icons.PlusCircle)`
   position: absolute;
