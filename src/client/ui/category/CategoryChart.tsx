@@ -21,8 +21,8 @@ interface CategoryChartProps {
 
 const CategoryChartImpl: React.FC<CategoryChartProps> = ({ chartData, size, className }) => {
   const thin = useThinFormat(size);
-  const expenseColor = 0;
-  const incomeColor = 1;
+  const expenseColor = 10;
+  const incomeColor = 0;
   return (
     <BarChart
       width={size.width}
