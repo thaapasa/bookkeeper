@@ -4,19 +4,20 @@ import React from 'react';
 
 import { Text } from '../design/Text';
 
-export const ProfileItem: React.FC<React.PropsWithChildren<{ title?: string }>> = ({
-  title,
-  children,
-}) => (
+export const ProfileItem: React.FC<
+  React.PropsWithChildren<{ title?: string; labelFor?: string }>
+> = ({ title, children, labelFor }) => (
   <>
     <Grid item xs={3} alignSelf="center">
-      <Text>{title}</Text>
+      <Label htmlFor={labelFor}>{title}</Label>
     </Grid>
     <DataItemGrid item xs={9} alignSelf="center">
       {children}
     </DataItemGrid>
   </>
 );
+
+const Label = Text.withComponent('label');
 
 const DataItemGrid = styled(Grid)`
   & > div,

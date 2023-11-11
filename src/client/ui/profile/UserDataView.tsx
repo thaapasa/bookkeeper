@@ -91,7 +91,7 @@ export const UserDataView: React.FC<{ session: Session }> = ({ session }) => {
             <TextEdit
               onChange={state.setFirstName}
               value={state.firstName}
-              autoCapitalize="off"
+              autoCapitalize="none"
               autoCorrect="off"
               placeholder="Selma"
               onSubmitEdit={save}
@@ -102,7 +102,7 @@ export const UserDataView: React.FC<{ session: Session }> = ({ session }) => {
             <TextEdit
               onChange={state.setLastName}
               value={state.lastName}
-              autoCapitalize="off"
+              autoCapitalize="none"
               autoCorrect="off"
               placeholder="Säästäjä"
               onSubmitEdit={save}
@@ -115,7 +115,7 @@ export const UserDataView: React.FC<{ session: Session }> = ({ session }) => {
             <TextEdit
               onChange={state.setEmail}
               value={state.email}
-              autoCapitalize="off"
+              autoCapitalize="none"
               autoCorrect="off"
               placeholder="selma.saastaja@example.com"
               onSubmitEdit={save}
@@ -130,7 +130,7 @@ export const UserDataView: React.FC<{ session: Session }> = ({ session }) => {
               onChange={state.setUsername}
               value={state.username}
               autoComplete="username"
-              autoCapitalize="off"
+              autoCapitalize="none"
               autoCorrect="off"
               placeholder="selma"
               onSubmitEdit={save}

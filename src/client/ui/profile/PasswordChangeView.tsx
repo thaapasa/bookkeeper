@@ -1,7 +1,9 @@
 import { Button, CircularProgress, Grid } from '@mui/material';
 import React from 'react';
+import { Route, Routes, useNavigate } from 'react-router-dom';
 import { create } from 'zustand';
 
+import { Session } from 'shared/types';
 import { isPassword, PasswordUpdate } from 'shared/userData';
 import apiConnect from 'client/data/ApiConnect';
 import { AsyncData, UninitializedData } from 'client/data/AsyncData';
@@ -9,6 +11,7 @@ import { updateSession } from 'client/data/Login';
 import { notify } from 'client/data/State';
 import { logger } from 'client/Logger';
 import { executeOperation } from 'client/util/ExecuteOperation';
+import { passwordPagePath, profilePagePath } from 'client/util/Links';
 
 import { TextEdit } from '../component/TextEdit';
 import { Subtitle } from '../design/Text';
@@ -40,8 +43,9 @@ function toPasswordUpdate(state: PasswordState): PasswordUpdate {
   return { currentPassword: state.currentPassword, newPassword: state.newPassword };
 }
 
-export const PasswordChangeView: React.FC = () => {
+export const PasswordChangeView: React.FC<{ session: Session }> = ({ session }) => {
   const state = usePasswordState();
+  const navigate = useNavigate();
 
   const newPasswordValid = isPassword(state.newPassword);
   const passwordsMatch = state.newPassword === state.repeatPassword;
@@ -61,6 +65,7 @@ export const PasswordChangeView: React.FC = () => {
       postProcess: () => {
         notify('Salasana vaihdettu!');
         state.reset();
+        navigate(profilePagePath);
       },
       trackProgress: state.setSaving,
     });
@@ -68,48 +73,50 @@ export const PasswordChangeView: React.FC = () => {
 
   return (
     <>
-      <Grid item xs={12}>
-        <Subtitle>Vaihda salasana</Subtitle>
-      </Grid>
       <form id="change-password" onSubmit={save}>
         <Grid container columnSpacing={2} rowSpacing={2} padding={2}>
-          <ProfileItem title="Nykyinen salasana">
+          {/** Included for password managers */}
+          <input type="hidden" name="username" value={session.user.username} />
+          <ProfileItem title="Nykyinen salasana" labelFor="current-password">
             <TextEdit
+              id="current-password"
               onChange={state.setCurrent}
               value={state.currentPassword}
               type="password"
               name="current-password"
-              autoCapitalize="off"
-              autoComplete="on"
-              autoCorrect="current-password"
+              autoCapitalize="none"
+              autoComplete="current-password"
+              autoCorrect="off"
               width="280px"
               onSubmitEdit={save}
             />
           </ProfileItem>
-          <ProfileItem title="Uusi salasana">
+          <ProfileItem title="Uusi salasana" labelFor="new-password">
             <TextEdit
+              id="new-password"
               onChange={state.setNew}
               value={state.newPassword}
               type="password"
               name="new-password"
-              autoCapitalize="off"
-              autoComplete="off"
-              autoCorrect="new-password"
+              autoCapitalize="none"
+              autoComplete="new-password"
+              autoCorrect="off"
               width="280px"
               error={newHasError}
               onSubmitEdit={save}
               helperText={newHasError ? 'Salasana ei ole tarpeeksi hyvä' : undefined}
             />
           </ProfileItem>
-          <ProfileItem title="Toista salasana">
+          <ProfileItem title="Toista salasana" labelFor="confirm-password">
             <TextEdit
+              id="confirm-password"
               onChange={state.setNewRepeat}
               value={state.repeatPassword}
               type="password"
-              name="new-password"
-              autoCapitalize="off"
-              autoComplete="off"
-              autoCorrect="repeat-password"
+              name="confirm-password"
+              autoCapitalize="none"
+              autoComplete="new-password"
+              autoCorrect="off"
               width="280px"
               error={repeatHasError}
               onSubmitEdit={save}
@@ -126,17 +133,42 @@ export const PasswordChangeView: React.FC = () => {
             >
               Vaihda salasana
             </Button>
-            <Button
-              color="secondary"
-              variant="contained"
-              disabled={!changed}
-              onClick={() => state.reset()}
-            >
-              Tyhjennä
+            <Button color="secondary" variant="contained" onClick={() => navigate(-1)}>
+              Peruuta
             </Button>
           </ProfileItem>
         </Grid>
       </form>
+    </>
+  );
+};
+
+export const PasswordView: React.FC<{ session: Session }> = ({ session }) => {
+  const navigate = useNavigate();
+  return (
+    <>
+      <Grid item xs={12}>
+        <Subtitle>Salasana</Subtitle>
+      </Grid>
+      <Routes>
+        <Route path="/salasana" element={<PasswordChangeView session={session} />}></Route>
+        <Route
+          path="/*"
+          element={
+            <>
+              <ProfileItem title="Vaihda salasana">
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => navigate(passwordPagePath)}
+                >
+                  Vaihda
+                </Button>
+              </ProfileItem>
+            </>
+          }
+        ></Route>
+      </Routes>
     </>
   );
 };

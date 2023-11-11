@@ -127,7 +127,7 @@ export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
               <Route path={`${searchPagePath}/y/:year`} element={<SearchPage />} />
               <Route path={searchPagePath} element={<SearchPage />} />
               <Route path={statisticsPage} element={<StatisticsView />} />
-              <Route path={profilePagePath} element={<ProfileView />} />
+              <Route path={profilePagePath + '/*'} element={<ProfileView />} />
               <Route path={infoPagePath} element={<InfoView />} />
               <Route path={trackingPagePath} element={<TrackingPage />} />
               <Route path={toolsPagePath} element={<ToolsView />} />

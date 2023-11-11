@@ -43,7 +43,7 @@ export const SumField: React.FC<{
         onChange={onChange}
         type="text"
         autoFocus
-        autoComplete="false"
+        autoComplete="off"
       />
       <Icons.Add onClick={addToSum} />
     </SumArea>

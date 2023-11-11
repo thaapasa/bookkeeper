@@ -45,7 +45,7 @@ export const LoginPage: React.FC = () => {
             label="Käyttäjätunnus"
             value={username}
             onChange={setUsername}
-            autoCapitalize="off"
+            autoCapitalize="none"
             autoComplete="username"
             autoCorrect="off"
             autoFocus={true}
@@ -54,7 +54,7 @@ export const LoginPage: React.FC = () => {
             placeholder="Salasana"
             label="Salasana"
             type="password"
-            autoCapitalize="off"
+            autoCapitalize="none"
             autoComplete="current-password"
             autoCorrect="off"
             value={password}
