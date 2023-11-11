@@ -11,7 +11,6 @@ import {
   expenseMonthPathPattern,
   expensePagePath,
   infoPagePath,
-  newExpensePath,
   profilePagePath,
   searchPagePath,
   shortcutsPage,
@@ -30,7 +29,6 @@ import { ModalDialogConnector } from '../dialog/ModalDialogConnector';
 import { ExpenseDialog } from '../expense/dialog/ExpenseDialog';
 import { createExpenseDialogListener } from '../expense/dialog/ExpenseDialogListener';
 import { FrontpageView } from '../expense/FrontpageView';
-import { NewExpenseView } from '../expense/NewExpenseView';
 import { RoutedMonthView } from '../expense/RoutedMonthView';
 import { ExpenseSplitDialog } from '../expense/split/ExpenseSplitDialog';
 import { InfoView } from '../info/InfoView';
@@ -115,7 +113,6 @@ export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
           {isMobileDevice ? null : <NavigationBar links={appLinks} windowSize={windowSize} />}
           <MainContent className={'main-content ' + className}>
             <Routes>
-              <Route path={newExpensePath} element={<NewExpenseView />} />
               <Route path={expenseMonthPathPattern('date')} element={<RoutedMonthView />} />
               <Route path={expensePagePath} element={<RoutedMonthView />} />
               <Route path={categoryViewYearPattern('year')} element={<RoutedCategoryView />} />
