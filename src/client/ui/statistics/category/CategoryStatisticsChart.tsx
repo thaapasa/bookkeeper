@@ -2,6 +2,7 @@ import { Checkbox, FormControlLabel, FormGroup } from '@mui/material';
 import * as React from 'react';
 
 import { CategoryMap, CategoryStatistics } from 'shared/types';
+import { FlexColumn } from 'client/ui/component/BasicElements';
 import { useLocalStorage } from 'client/ui/hooks/useLocalStorage';
 import { Size } from 'client/ui/Types';
 import { MeasureSize } from 'client/ui/utils/MeasureSize';
@@ -39,7 +40,7 @@ const StatisticsGraphImpl: React.FC<BaseCategoryGraphProps & { type: StatisticsC
   );
 
   return (
-    <>
+    <FlexColumn>
       <GraphSelector
         type={type}
         estimated={estimated}
@@ -74,7 +75,7 @@ const StatisticsGraphImpl: React.FC<BaseCategoryGraphProps & { type: StatisticsC
           />
         </FormGroup>
       ) : null}
-    </>
+    </FlexColumn>
   );
 };
 
