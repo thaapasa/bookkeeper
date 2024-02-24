@@ -18,6 +18,9 @@ export const ExpenseGrouping = ExpenseGroupingData.extend({
 });
 export type ExpenseGrouping = z.infer<typeof ExpenseGrouping>;
 
+export const ExpenseGroupingRef = ExpenseGrouping.pick({ id: true, title: true, image: true });
+export type ExpenseGroupingRef = z.infer<typeof ExpenseGroupingRef>;
+
 export const ExpenseGroupingWithExpenses = ExpenseGrouping.extend({
   expenses: z.array(UserExpense),
 });

@@ -12,7 +12,6 @@ exports.up = knex =>
       title TEXT NOT NULL,
       start_date DATE,
       end_date DATE,
-      sort_order INTEGER NOT NULL DEFAULT 0,
       image TEXT
     );
 
@@ -22,10 +21,13 @@ exports.up = knex =>
       expense_grouping_id INTEGER REFERENCES expense_groupings(id) ON DELETE CASCADE,
       category_id INTEGER REFERENCES categories(id) ON DELETE CASCADE
     );
+
+    ALTER TABLE expenses ADD COLUMN grouping_id INTEGER REFERENCES expense_groupings(id) ON DELETE SET NULL;
   `);
 
 exports.down = knex =>
   knex.raw(/*sql*/ `
+    ALTER TABLE expenses DROP COLUMN grouping_id;
     DROP TABLE expense_grouping_categories;
     DROP TABLE expense_groupings;
   `);

@@ -20,7 +20,7 @@ import {
   UserExpenseWithDetails,
 } from 'shared/expense';
 import { toDayjs, toISODate } from 'shared/time';
-import { Category, CategoryMap, Group, Source, User } from 'shared/types';
+import { Category, CategoryMap, ExpenseGrouping, Group, Source, User } from 'shared/types';
 import { identity, Money, omit, sanitizeMoneyInput, valuesToArray } from 'shared/util';
 import { CategoryDataSource, isSubcategoryOf } from 'client/data/Categories';
 import { logger } from 'client/Logger';
@@ -39,6 +39,7 @@ import { DateField } from './DateField';
 import {
   DescriptionField,
   ExpenseDialogContent,
+  GroupingSelector,
   SourceSelector,
   SumField,
   TypeSelector,
@@ -80,6 +81,7 @@ const fields: ReadonlyArray<keyof ExpenseInEditor> = [
   'confirmed',
   'type',
   'userId',
+  'groupingId',
 ];
 
 const parsers: Record<string, (v: string) => any> = {
@@ -110,6 +112,7 @@ export interface ExpenseDialogProps<D> {
   sourceMap: Record<string, Source>;
   categorySource: CategoryDataSource[];
   categoryMap: CategoryMap;
+  groupings: ExpenseGrouping[];
   saveAction: ExpenseSaveAction | null;
   onClose: (e: D | null) => void;
   onExpensesUpdated: (date: Dayjs) => void;
@@ -194,6 +197,7 @@ export class ExpenseDialog extends React.Component<
       confirmed: values.confirmed !== undefined ? values.confirmed : e ? e.confirmed : true,
       type: values.type || (e ? e.type : 'expense'),
       subcategories: [],
+      groupingId: e?.groupingId ?? null,
       errors: {},
       valid: false,
       showOwnerSelect: false,
@@ -309,6 +313,7 @@ export class ExpenseDialog extends React.Component<
       division,
       date: toISODate(expense.date),
       categoryId: expense.subcategoryId ? expense.subcategoryId : expense.categoryId,
+      groupingId: expense.groupingId ?? undefined,
     };
 
     this.saveLock.push(true);
@@ -492,6 +497,15 @@ export class ExpenseDialog extends React.Component<
                 value={this.state.description}
                 onChange={v => this.inputStreams.description.push(v)}
                 errorText={this.state.errors.description}
+              />
+            </Row>
+            <Row className="row select grouping-id">
+              <GroupingSelector
+                value={this.state.groupingId}
+                groupings={this.props.groupings}
+                style={{ flexGrow: 1 }}
+                title="Ryhmittely"
+                onChange={v => this.inputStreams.groupingId.push(v)}
               />
             </Row>
           </Form>

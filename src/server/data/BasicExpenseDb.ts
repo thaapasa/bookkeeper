@@ -28,13 +28,14 @@ SELECT
   MIN(id) AS id, MIN(date) AS date, MIN(receiver) AS receiver, MIN(type) AS type, MIN(sum) AS sum,
   MIN(title) AS title, MIN(description) AS description, BOOL_AND(confirmed) AS confirmed, MIN(source_id) AS "sourceId",
   MIN(user_id) AS "userId", MIN(created_by_id) AS "createdById", MIN(group_id) AS "groupId", MIN(category_id) AS "categoryId",
+  MIN(grouping_id) AS "groupingId",
   MIN(created) AS created, MIN(recurring_expense_id) AS "recurringExpenseId",
   SUM(cost) AS "userCost", SUM(benefit) AS "userBenefit", SUM(income) AS "userIncome", SUM(split) AS "userSplit",
   SUM(transferor) AS "userTransferor", SUM(transferee) AS "userTransferee",
   SUM(cost + benefit + income + split + transferor + transferee) AS "userValue"
 FROM (
   SELECT
-    e.id, e.date::DATE, e.receiver, e.type, e.sum, e.title, e.description, e.confirmed,
+    e.id, e.date::DATE, e.receiver, e.type, e.sum, e.title, e.description, e.confirmed, e.grouping_id,
     e.source_id, e.user_id, e.created_by_id, e.group_id, e.category_id, e.created, e.recurring_expense_id,
     (CASE WHEN d.type = 'cost' THEN d.sum ELSE '0.00'::NUMERIC END) AS cost,
     (CASE WHEN d.type = 'benefit' THEN d.sum ELSE '0.00'::NUMERIC END) AS benefit,
@@ -79,6 +80,7 @@ export function dbRowToExpense(e: UserExpense): UserExpense {
   }
   e.date = toISODate(e.date);
   e.userBalance = Money.from(e.userValue).negate().toString();
+  e.groupingId = e.groupingId ?? undefined;
   return e;
 }
 
@@ -224,11 +226,11 @@ export async function createNewExpense(
     await tx.one<{ id: number }>(
       `INSERT INTO expenses (
           created_by_id, user_id, group_id, date, created, type,
-          receiver, sum, title, description, confirmed,
+          receiver, sum, title, description, confirmed, grouping_id,
           source_id, category_id, template, recurring_expense_id)
         VALUES (
           $/userId/::INTEGER, $/expenseOwnerId/::INTEGER, $/groupId/::INTEGER, $/date/::DATE, NOW(), $/type/::expense_type,
-          $/receiver/, $/sum/, $/title/, $/description/, $/confirmed/::BOOLEAN,
+          $/receiver/, $/sum/, $/title/, $/description/, $/confirmed/::BOOLEAN, $/groupingId/,
           $/sourceId/::INTEGER, $/categoryId/::INTEGER, $/template/::BOOLEAN, $/recurringExpenseId/)
         RETURNING id`,
       {
@@ -238,6 +240,7 @@ export async function createNewExpense(
         sum: expense.sum.toString(),
         template: expense.template || false,
         recurringExpenseId: expense.recurringExpenseId || null,
+        groupingId: expense.groupingId,
       },
     )
   ).id;
@@ -262,12 +265,13 @@ export async function updateExpense(
   await deleteDivision(tx, original.id);
   await tx.none(
     `UPDATE expenses
-      SET date=$/date/::DATE, receiver=$/receiver/, sum=$/sum/, title=$/title/,
+      SET date=$/date/::DATE, receiver=$/receiver/, sum=$/sum/, title=$/title/, grouping_id=$/groupingId/,
         description=$/description/, type=$/type/::expense_type, confirmed=$/confirmed/::BOOLEAN,
         source_id=$/sourceId/::INTEGER, category_id=$/categoryId/::INTEGER, user_id=$/userId/::INTEGER
       WHERE id=$/id/`,
     {
       ...expense,
+      groupingId: expense.groupingId,
       id: original.id,
       sum: expense.sum.toString(),
       sourceId: source.id,

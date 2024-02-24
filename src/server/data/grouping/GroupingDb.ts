@@ -2,7 +2,13 @@ import { ITask } from 'pg-promise';
 
 import { UserExpense } from 'shared/expense';
 import { toISODate } from 'shared/time';
-import { ExpenseGrouping, ExpenseGroupingData, isDefined, ObjectId } from 'shared/types';
+import {
+  ExpenseGrouping,
+  ExpenseGroupingData,
+  ExpenseGroupingRef,
+  isDefined,
+  ObjectId,
+} from 'shared/types';
 import { groupingImageHandler } from 'server/content/GroupingImage';
 
 import { dbRowToExpense, expenseSelectClause } from '../BasicExpenseDb';
@@ -23,7 +29,7 @@ export async function getExpenseGroupingsForUser(
       LEFT JOIN expense_grouping_categories egc ON (eg.id = egc.expense_grouping_id)
       WHERE eg.group_id=$/groupId/
       GROUP BY eg.id
-      ORDER BY eg.sort_order
+      ORDER BY eg.start_date, eg.title
     `,
     { groupId },
   );
@@ -41,11 +47,27 @@ export async function getExpenseGroupingById(
       LEFT JOIN expense_grouping_categories egc ON (eg.id = egc.expense_grouping_id)
       WHERE eg.id=$/groupingId/ AND group_id=$/groupId/
       GROUP BY eg.id
-      ORDER BY eg.sort_order
+      ORDER BY eg.start_date, eg.title
     `,
     { groupingId, groupId },
   );
   return row ? toExpenseGrouping(row) : undefined;
+}
+
+export async function getAllGroupingRefs(
+  tx: ITask<any>,
+  groupId: ObjectId,
+): Promise<ExpenseGroupingRef[]> {
+  const rows = await tx.manyOrNone(
+    `SELECT eg.id, eg.title, eg.image
+      FROM expense_groupings eg
+      WHERE eg.group_id=$/groupId/
+      GROUP BY eg.id
+      ORDER BY eg.start_date, eg.title
+    `,
+    { groupId },
+  );
+  return rows.map(toExpenseGroupingRef);
 }
 
 export async function insertExpenseGrouping(
@@ -111,9 +133,13 @@ export async function getExpensesForGrouping(
       LEFT JOIN expense_groupings eg ON (eg.id = egc.expense_grouping_id)
       WHERE e.group_id=$/groupId/
       AND (
-        egc.expense_grouping_id = $/groupingId/
-        AND (eg.start_date IS NULL OR eg.start_date <= e.date)
-        AND (eg.end_date IS NULL OR eg.end_date >= e.date)
+        (
+          e.grouping_id IS NULL
+          AND egc.expense_grouping_id = $/groupingId/
+          AND (eg.start_date IS NULL OR eg.start_date <= e.date)
+          AND (eg.end_date IS NULL OR eg.end_date >= e.date)
+        )
+        OR (e.grouping_id = $/groupingId/)
       )
     `),
     { userId, groupId, groupingId },
@@ -161,6 +187,14 @@ function toExpenseGrouping(row: any): ExpenseGrouping {
     categories: (row.categories ?? []).filter(isDefined),
     startDate: row.startDate ? toISODate(row.startDate) : undefined,
     endDate: row.endDate ? toISODate(row.endDate) : undefined,
+    image: row.image ? groupingImageHandler.getVariant('image', row.image).webPath : undefined,
+  };
+}
+
+function toExpenseGroupingRef(row: any): ExpenseGroupingRef {
+  return {
+    id: row.id,
+    title: row.title,
     image: row.image ? groupingImageHandler.getVariant('image', row.image).webPath : undefined,
   };
 }

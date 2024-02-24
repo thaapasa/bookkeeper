@@ -42,6 +42,7 @@ export function createExpenseDialogListener<D>(
       sourceMap: sourceMapE,
       categorySource: categoryDataSourceP,
       categoryMap: categoryMapE,
+      groupings: validSessionE.map(s => s.groupings),
       users: validSessionE.map(s => s.users),
     }),
   )(Dialog);
