@@ -4,6 +4,7 @@ export * from './Common';
 export * from './DbStatus';
 export * from './Email';
 export * from './Errors';
+export * from './Grouping';
 export * from './Id';
 export * from './Primitives';
 export * from './Session';

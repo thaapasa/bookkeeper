@@ -28,6 +28,8 @@ import {
   CategorySelection,
   CategoryStatistics,
   DbStatus,
+  ExpenseGrouping,
+  ExpenseGroupingData,
   ObjectId,
   Session,
   Source,
@@ -280,6 +282,8 @@ export class ApiConnect {
   public patchSource = (sourceId: ObjectId, data: SourcePatch) =>
     this.patch<Source>(uri`/api/source/${sourceId}`, { body: data });
 
+  // Shortcuts
+
   public createShortcut = (data: ExpenseShortcutPayload): Promise<void> =>
     this.post(uri`/api/profile/shortcut`, { body: data });
 
@@ -315,6 +319,8 @@ export class ApiConnect {
   public shortShortcutDown = (shortcutId: ObjectId): Promise<void> =>
     this.post(uri`/api/profile/shortcut/${shortcutId}/sort/down`);
 
+  // Tracking subjects
+
   public getTrackingSubjects = (): Promise<TrackingSubjectWithData[]> =>
     this.get(uri`/api/tracking/list`);
 
@@ -346,6 +352,35 @@ export class ApiConnect {
   public deleteTrackingImage = (subjectId: ObjectId): Promise<void> =>
     this.delete(uri`/api/tracking/${subjectId}/image`);
 
+  // Expense groupings
+
+  public getExpenseGrouping = (groupingId: ObjectId): Promise<ExpenseGrouping> =>
+    this.get(uri`/api/grouping/${groupingId}`);
+
+  public createExpenseGrouping = (payload: ExpenseGroupingData): Promise<ExpenseGrouping> =>
+    this.post(uri`/api/grouping`, { body: payload });
+
+  public updateExpenseGrouping = (
+    groupingId: ObjectId,
+    payload: ExpenseGroupingData,
+  ): Promise<ExpenseGrouping> => this.put(uri`/api/grouping/${groupingId}`, { body: payload });
+
+  public deleteExpenseGrouping = (groupingId: ObjectId): Promise<void> =>
+    this.delete(uri`/api/grouping/${groupingId}`);
+
+  public uploadGroupingImage = (
+    groupingId: ObjectId,
+    file: File,
+    filename: string,
+  ): Promise<void> => {
+    return this.uploadImage(uri`/api/grouping/${groupingId}/image`, filename, file);
+  };
+
+  public deleteGroupingImage = (groupingId: ObjectId): Promise<void> =>
+    this.delete(uri`/api/grouping/${groupingId}/image`);
+
+  // User data
+
   public updateUserData = (userData: UserDataUpdate): Promise<void> =>
     this.put(uri`/api/profile/userData`, { body: userData });
 
@@ -357,6 +392,8 @@ export class ApiConnect {
   };
 
   public deleteProfileImage = (): Promise<void> => this.delete(uri`/api/profile/image`);
+
+  // Reports
 
   public createReport = (title: string, query: ExpenseQuery) => {
     const body: ReportCreationData = {
