@@ -1,4 +1,4 @@
-import { Button, styled, Toolbar } from '@mui/material';
+import { Button, ButtonProps, styled, Toolbar } from '@mui/material';
 import * as React from 'react';
 import { Link, useMatch } from 'react-router-dom';
 
@@ -77,19 +77,21 @@ const PlainLink = styled(Link)`
   text-decoration: none;
 `;
 
-export const LinkButton: React.FC<{
-  label: string;
-  to: string;
-  icon?: Icon;
-}> = ({ label, to, icon }) => {
+export const LinkButton: React.FC<
+  {
+    label: string;
+    to: string;
+    icon?: Icon;
+  } & Pick<ButtonProps, 'variant' | 'color'>
+> = ({ label, to, icon, variant, color }) => {
   const match = useMatch(to);
   return (
     <PlainLink to={to}>
       <StyledButton
-        variant="text"
+        variant={variant ?? 'text'}
         disableElevation
-        color={match ? 'primary' : 'inherit'}
-        style={match ? undefined : { color: gray.veryDark }}
+        color={color ?? (match ? 'primary' : 'inherit')}
+        style={color ? undefined : match ? undefined : { color: gray.veryDark }}
         startIcon={<RenderIcon icon={icon} />}
       >
         {label}

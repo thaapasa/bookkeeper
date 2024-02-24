@@ -34,8 +34,8 @@ SELECT
   SUM(cost + benefit + income + split + transferor + transferee) AS "userValue"
 FROM (
   SELECT
-    id, date::DATE, receiver, e.type, e.sum, title, description, confirmed,
-    source_id, e.user_id, created_by_id, group_id, category_id, created, recurring_expense_id,
+    e.id, e.date::DATE, e.receiver, e.type, e.sum, e.title, e.description, e.confirmed,
+    e.source_id, e.user_id, e.created_by_id, e.group_id, e.category_id, e.created, e.recurring_expense_id,
     (CASE WHEN d.type = 'cost' THEN d.sum ELSE '0.00'::NUMERIC END) AS cost,
     (CASE WHEN d.type = 'benefit' THEN d.sum ELSE '0.00'::NUMERIC END) AS benefit,
     (CASE WHEN d.type = 'income' THEN d.sum ELSE '0.00'::NUMERIC END) AS income,

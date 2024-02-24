@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { UserExpense } from '../expense/Expense';
 import { ObjectId } from './Id';
 
 export const ExpenseGroupingData = z.object({
@@ -13,3 +14,8 @@ export const ExpenseGrouping = ExpenseGroupingData.extend({
   image: z.string().nonempty().optional(),
 });
 export type ExpenseGrouping = z.infer<typeof ExpenseGrouping>;
+
+export const ExpenseGroupingWithExpenses = ExpenseGrouping.extend({
+  expenses: z.array(UserExpense),
+});
+export type ExpenseGroupingWithExpenses = z.infer<typeof ExpenseGroupingWithExpenses>;

@@ -2,12 +2,15 @@ import styled from '@emotion/styled';
 import { Grid, IconButton } from '@mui/material';
 import React from 'react';
 
+import { uri } from 'shared/net';
 import { ExpenseGrouping } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
 import { executeOperation } from 'client/util/ExecuteOperation';
+import { groupingsPagePath } from 'client/util/Links';
 
 import { colorScheme } from '../Colors';
 import { FlexColumn, FlexRow } from '../component/BasicElements';
+import { LinkButton } from '../component/NavigationBar';
 import { Subtitle } from '../design/Text';
 import { Icons } from '../icons/Icons';
 import { editExpenseGrouping } from './GroupingEditor';
@@ -47,7 +50,15 @@ export const ExpenseGroupingView: React.FC<{
         </TitleArea>
         <GroupingTotalsArea className="grouping-totals-area">
           {grouping.image ? <GroupingImage src={grouping.image} /> : null}
-          Ryhmittelyn summa ja piechart tms.
+          <FlexColumn>
+            Ryhmittelyn summa ja piechart tms.
+            <LinkButton
+              label="Kirjaukset"
+              to={groupingsPagePath + uri`/${grouping.id}`}
+              variant="contained"
+              color="primary"
+            />
+          </FlexColumn>
         </GroupingTotalsArea>
       </GroupingCard>
     </Grid>

@@ -1,6 +1,12 @@
 import { ITask } from 'pg-promise';
 
-import { ExpenseGrouping, ExpenseGroupingData, NotFoundError, ObjectId } from 'shared/types';
+import {
+  ExpenseGrouping,
+  ExpenseGroupingData,
+  ExpenseGroupingWithExpenses,
+  NotFoundError,
+  ObjectId,
+} from 'shared/types';
 import { groupingImageHandler } from 'server/content/GroupingImage';
 import { logger } from 'server/Logger';
 import { FileUploadResult, safeDeleteFile } from 'server/server/FileHandling';
@@ -9,6 +15,7 @@ import {
   clearGroupingImageById,
   deleteExpenseGroupingById,
   getExpenseGroupingById,
+  getExpensesForGrouping,
   insertExpenseGrouping,
   setGroupingImageById,
   updateExpenseGroupingById,
@@ -17,7 +24,6 @@ import {
 export async function getExpenseGrouping(
   tx: ITask<any>,
   groupId: ObjectId,
-  userId: ObjectId,
   groupingId: ObjectId,
 ): Promise<ExpenseGrouping> {
   const grouping = await getExpenseGroupingById(tx, groupId, groupingId);
@@ -44,7 +50,7 @@ export async function updateExpenseGrouping(
   groupingId: ObjectId,
   input: ExpenseGroupingData,
 ) {
-  await getExpenseGrouping(tx, groupId, userId, groupingId);
+  await getExpenseGrouping(tx, groupId, groupingId);
   const updated = await updateExpenseGroupingById(tx, groupingId, input);
   logger.info({ input, updated }, `Updated expense grouping ${groupingId} for user ${userId}`);
 }
@@ -55,7 +61,7 @@ export async function deleteExpenseGrouping(
   userId: ObjectId,
   groupingId: ObjectId,
 ) {
-  const grouping = await getExpenseGrouping(tx, groupId, userId, groupingId);
+  const grouping = await getExpenseGrouping(tx, groupId, groupingId);
   await deleteExpenseGroupingById(tx, groupingId);
   if (grouping.image) {
     await groupingImageHandler.deleteImages(grouping.image);
@@ -71,7 +77,7 @@ export async function uploadExpenseGroupingImage(
   image: FileUploadResult,
 ) {
   try {
-    await getExpenseGrouping(tx, groupId, userId, groupingId);
+    await getExpenseGrouping(tx, groupId, groupingId);
     logger.info(
       image,
       `Updating expense grouping image for user ${userId}, grouping ${groupingId}`,
@@ -79,7 +85,7 @@ export async function uploadExpenseGroupingImage(
     const file = await groupingImageHandler.saveImages(image, { fit: 'cover' });
     await deleteExpenseGroupingImage(tx, groupId, userId, groupingId);
     await setGroupingImageById(tx, groupingId, file);
-    return getExpenseGrouping(tx, groupId, userId, groupingId);
+    return getExpenseGrouping(tx, groupId, groupingId);
   } finally {
     // Clear uploaded image
     await safeDeleteFile(image.filepath);
@@ -92,7 +98,7 @@ export async function deleteExpenseGroupingImage(
   userId: ObjectId,
   groupingId: ObjectId,
 ): Promise<void> {
-  const grouping = await getExpenseGrouping(tx, groupId, userId, groupingId);
+  const grouping = await getExpenseGrouping(tx, groupId, groupingId);
   if (!grouping.image) {
     logger.info(`No image for expense grouping ${groupingId}, skipping delete...`);
     return;
@@ -100,4 +106,15 @@ export async function deleteExpenseGroupingImage(
   await groupingImageHandler.deleteImages(grouping.image);
   await clearGroupingImageById(tx, groupingId);
   logger.info(`Deleted expense grouping ${groupingId} image`);
+}
+
+export async function getGroupingWithExpenses(
+  tx: ITask<any>,
+  groupId: ObjectId,
+  userId: ObjectId,
+  groupingId: ObjectId,
+): Promise<ExpenseGroupingWithExpenses> {
+  const grouping = await getExpenseGrouping(tx, groupId, groupingId);
+  const expenses = await getExpensesForGrouping(tx, groupId, userId, groupingId);
+  return { ...grouping, expenses };
 }

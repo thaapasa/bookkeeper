@@ -7,6 +7,7 @@ import {
   deleteExpenseGrouping,
   deleteExpenseGroupingImage,
   getExpenseGrouping,
+  getGroupingWithExpenses,
   updateExpenseGrouping,
   uploadExpenseGroupingImage,
 } from 'server/data/grouping/GroupingService';
@@ -30,7 +31,12 @@ export function createGroupingApi() {
 
   // GET /api/grouping/:id
   api.getTx('/:id', {}, (tx, session, { params }) =>
-    getExpenseGrouping(tx, session.group.id, session.user.id, params.id),
+    getExpenseGrouping(tx, session.group.id, params.id),
+  );
+
+  // GET /api/grouping/:id/expenses
+  api.getTx('/:id/expenses', {}, (tx, session, { params }) =>
+    getGroupingWithExpenses(tx, session.group.id, session.user.id, params.id),
   );
 
   // PUT /api/grouping/:id

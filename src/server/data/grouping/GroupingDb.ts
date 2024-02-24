@@ -1,8 +1,10 @@
 import { ITask } from 'pg-promise';
 
+import { UserExpense } from 'shared/expense';
 import { ExpenseGrouping, ExpenseGroupingData, isDefined, ObjectId } from 'shared/types';
 import { groupingImageHandler } from 'server/content/GroupingImage';
 
+import { dbRowToExpense, expenseSelectClause } from '../BasicExpenseDb';
 import { dbMain } from '../Db';
 
 const GROUPING_FIELDS = /*sql*/ `eg.id, eg.title, eg.created, eg.updated, eg.image, ARRAY_AGG(egc.category_id) AS categories`;
@@ -90,6 +92,25 @@ export async function updateExpenseGroupingById(
       ),
     );
   }
+}
+
+export async function getExpensesForGrouping(
+  tx: ITask<any>,
+  groupId: ObjectId,
+  userId: ObjectId,
+  groupingId: ObjectId,
+): Promise<UserExpense[]> {
+  const rows = await tx.manyOrNone(
+    expenseSelectClause(/*sql*/ `
+      LEFT JOIN categories cat ON (cat.id = e.category_id)
+      LEFT JOIN expense_grouping_categories egc1 ON (egc1.category_id = cat.id)
+      LEFT JOIN expense_grouping_categories egc2 ON (egc2.category_id = cat.parent_id)
+      WHERE e.group_id=$/groupId/
+      AND (egc1.expense_grouping_id = $/groupingId/ OR egc2.expense_grouping_id = $/groupingId/)
+    `),
+    { userId, groupId, groupingId },
+  );
+  return rows.map(dbRowToExpense);
 }
 
 export async function deleteExpenseGroupingById(

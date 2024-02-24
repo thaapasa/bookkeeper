@@ -32,6 +32,7 @@ import { createExpenseDialogListener } from '../expense/dialog/ExpenseDialogList
 import { FrontpageView } from '../expense/FrontpageView';
 import { RoutedMonthView } from '../expense/RoutedMonthView';
 import { ExpenseSplitDialog } from '../expense/split/ExpenseSplitDialog';
+import { GroupingExpensesPage } from '../grouping/GroupingExpensesPage';
 import { GroupingPage } from '../grouping/GroupingPage';
 import { InfoView } from '../info/InfoView';
 import { ProfileView } from '../profile/ProfileView';
@@ -131,6 +132,7 @@ export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
               <Route path={infoPagePath} element={<InfoView />} />
               <Route path={trackingPagePath} element={<TrackingPage />} />
               <Route path={groupingsPagePath} element={<GroupingPage />} />
+              <Route path={`${groupingsPagePath}/:groupingId`} element={<GroupingExpensesPage />} />
               <Route path={toolsPagePath} element={<ToolsView />} />
               <Route path={'/p/*'} element={<FrontpageView />} />
               <Route path="/" element={<FrontpageView />} />

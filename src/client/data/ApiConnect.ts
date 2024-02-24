@@ -30,6 +30,7 @@ import {
   DbStatus,
   ExpenseGrouping,
   ExpenseGroupingData,
+  ExpenseGroupingWithExpenses,
   ObjectId,
   Session,
   Source,
@@ -358,6 +359,10 @@ export class ApiConnect {
 
   public getExpenseGrouping = (groupingId: ObjectId): Promise<ExpenseGrouping> =>
     this.get(uri`/api/grouping/${groupingId}`);
+
+  public getExpenseGroupingWithExpenses = (
+    groupingId: ObjectId,
+  ): Promise<ExpenseGroupingWithExpenses> => this.get(uri`/api/grouping/${groupingId}/expenses`);
 
   public createExpenseGrouping = (payload: ExpenseGroupingData): Promise<ExpenseGrouping> =>
     this.post(uri`/api/grouping`, { body: payload });
