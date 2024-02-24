@@ -11,7 +11,7 @@ import { DateRangeNavigator } from './DateRangeNavigator';
 export interface AppLink {
   label: string;
   path: string;
-  showInHeader: boolean;
+  showInHeader: boolean | number;
   icon?: Icon;
 }
 
@@ -24,7 +24,11 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({ links, windowSize 
   <Bar>
     <LinkGroup>
       {links
-        ?.filter(l => l.showInHeader)
+        ?.filter(
+          l =>
+            l.showInHeader === true ||
+            (typeof l.showInHeader === 'number' && windowSize.width > l.showInHeader),
+        )
         .map(l => (
           <LinkButton
             key={l.label}

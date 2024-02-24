@@ -11,6 +11,7 @@ export const toolsPagePath = '/p/työkalut';
 export const profilePagePath = '/p/profiili';
 export const passwordPagePath = '/p/profiili/salasana';
 export const trackingPagePath = '/p/seuranta';
+export const groupingsPagePath = '/p/ryhmittelyt';
 export const newExpenseSuffix = '/uusi-kirjaus';
 
 export const yearPattern = 'YYYY';
