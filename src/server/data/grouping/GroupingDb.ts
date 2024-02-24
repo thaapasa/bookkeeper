@@ -1,13 +1,17 @@
 import { ITask } from 'pg-promise';
 
 import { UserExpense } from 'shared/expense';
+import { toISODate } from 'shared/time';
 import { ExpenseGrouping, ExpenseGroupingData, isDefined, ObjectId } from 'shared/types';
 import { groupingImageHandler } from 'server/content/GroupingImage';
 
 import { dbRowToExpense, expenseSelectClause } from '../BasicExpenseDb';
 import { dbMain } from '../Db';
 
-const GROUPING_FIELDS = /*sql*/ `eg.id, eg.title, eg.created, eg.updated, eg.image, ARRAY_AGG(egc.category_id) AS categories`;
+const GROUPING_FIELDS = /*sql*/ `eg.id, eg.title,
+  eg.start_date AS "startDate", eg.end_date AS "endDate",
+  eg.created, eg.updated, eg.image,
+  ARRAY_AGG(egc.category_id) AS categories`;
 
 export async function getExpenseGroupingsForUser(
   tx: ITask<any>,
@@ -51,10 +55,10 @@ export async function insertExpenseGrouping(
 ): Promise<ObjectId> {
   const row = await tx.one(
     `INSERT INTO expense_groupings
-      (group_id, title)
-      VALUES ($/groupId/, $/title/)
+      (group_id, title, start_date, end_date)
+      VALUES ($/groupId/, $/title/, $/startDate/, $/endDate/)
       RETURNING id`,
-    { groupId, title: data.title },
+    { groupId, title: data.title, startDate: data.startDate, endDate: data.endDate },
   );
   const id = row.id;
   if (data.categories.length > 0) {
@@ -76,9 +80,9 @@ export async function updateExpenseGroupingById(
 ): Promise<void> {
   await tx.none(
     `UPDATE expense_groupings
-      SET title=$/title/
+      SET title=$/title/, start_date=$/startDate/, end_date=$/endDate/, updated=NOW()
       WHERE id=$/groupingId/`,
-    { groupingId, title: data.title },
+    { groupingId, title: data.title, startDate: data.startDate, endDate: data.endDate },
   );
   await tx.none(`DELETE FROM expense_grouping_categories WHERE expense_grouping_id=$/groupingId/`, {
     groupingId,
@@ -103,10 +107,14 @@ export async function getExpensesForGrouping(
   const rows = await tx.manyOrNone(
     expenseSelectClause(/*sql*/ `
       LEFT JOIN categories cat ON (cat.id = e.category_id)
-      LEFT JOIN expense_grouping_categories egc1 ON (egc1.category_id = cat.id)
-      LEFT JOIN expense_grouping_categories egc2 ON (egc2.category_id = cat.parent_id)
+      LEFT JOIN expense_grouping_categories egc ON (egc.category_id = cat.id OR egc.category_id = cat.parent_id)
+      LEFT JOIN expense_groupings eg ON (eg.id = egc.expense_grouping_id)
       WHERE e.group_id=$/groupId/
-      AND (egc1.expense_grouping_id = $/groupingId/ OR egc2.expense_grouping_id = $/groupingId/)
+      AND (
+        egc.expense_grouping_id = $/groupingId/
+        AND (eg.start_date IS NULL OR eg.start_date <= e.date)
+        AND (eg.end_date IS NULL OR eg.end_date >= e.date)
+      )
     `),
     { userId, groupId, groupingId },
   );
@@ -151,6 +159,8 @@ function toExpenseGrouping(row: any): ExpenseGrouping {
     id: row.id,
     title: row.title,
     categories: (row.categories ?? []).filter(isDefined),
+    startDate: row.startDate ? toISODate(row.startDate) : undefined,
+    endDate: row.endDate ? toISODate(row.endDate) : undefined,
     image: row.image ? groupingImageHandler.getVariant('image', row.image).webPath : undefined,
   };
 }

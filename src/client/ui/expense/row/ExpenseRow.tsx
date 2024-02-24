@@ -177,7 +177,10 @@ export class ExpenseRowImpl extends React.Component<ExpenseRowProps, ExpenseRowS
 
   private modifyExpense = async () => {
     const e = await apiConnect.getExpense(this.props.expense.id);
-    await editExpense(e.id);
+    const modified = await editExpense(e.id);
+    if (modified) {
+      updateExpenses(toDate(modified.date));
+    }
   };
 
   public render() {

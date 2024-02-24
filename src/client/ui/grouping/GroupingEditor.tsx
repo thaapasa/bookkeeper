@@ -10,6 +10,7 @@ import { categoryMapE, getFullCategoryName } from 'client/data/Categories';
 import { AsyncDataDialogContent } from '../component/AsyncDataDialog';
 import { connect } from '../component/BaconConnect';
 import { connectDialog } from '../component/DialogConnector';
+import { OptionalDatePicker } from '../component/OptionalDatePicker';
 import { Row } from '../component/Row';
 import { TextEdit } from '../component/TextEdit';
 import { UploadImageButton } from '../component/UploadFileButton';
@@ -75,11 +76,17 @@ const GroupingEditView: React.FC<{
   React.useEffect(() => void state.reset(data), [data?.id]);
   return (
     <>
-      <DialogTitle>{createNew ? 'Uusi seuranta' : 'Muokkaa seurantaa'}</DialogTitle>
+      <DialogTitle>{createNew ? 'Uusi ryhmittely' : 'Muokkaa ryhmittelyä'}</DialogTitle>
       <DialogContent>
         <Grid container rowSpacing={1} justifyContent="space-between">
           <SelectionRow title="Nimi">
             <TextEdit value={state.title} onChange={state.setTitle} fullWidth />
+          </SelectionRow>
+          <SelectionRow title="Alkupäivä">
+            <OptionalDatePicker value={state.startDate} onChange={state.setStartDate} />
+          </SelectionRow>
+          <SelectionRow title="Loppupäivå">
+            <OptionalDatePicker value={state.endDate} onChange={state.setEndDate} />
           </SelectionRow>
           <SelectionRow title="Kuva">
             <Row>

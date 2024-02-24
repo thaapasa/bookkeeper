@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 
+import { ISODate } from 'shared/time';
 import { ExpenseGrouping, ExpenseGroupingData, ObjectId } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
 import { updateSession } from 'client/data/Login';
@@ -12,8 +13,12 @@ export type GroupingState = {
   title: string;
   id: ObjectId | null;
   categories: number[];
+  startDate: ISODate | null;
+  endDate: ISODate | null;
   reset(grouping: ExpenseGrouping | null): void;
   setTitle(title: string): void;
+  setStartDate(date: ISODate | null): void;
+  setEndDate(date: ISODate | null): void;
   inputValid(): boolean;
   saveGrouping(...callbacks: (() => void)[]): Promise<void>;
   uploadImage(file: File, filename: string, ...callbacks: (() => void)[]): Promise<void>;
@@ -25,13 +30,19 @@ export type GroupingState = {
 export const useGroupingState = create<GroupingState>((set, get) => ({
   title: '',
   id: null,
+  startDate: null,
+  endDate: null,
   categories: [],
   setTitle: title => set({ title }),
+  setStartDate: startDate => set({ startDate }),
+  setEndDate: endDate => set({ endDate }),
   reset: grouping =>
     set({
       id: grouping?.id ?? null,
       title: grouping?.title ?? '',
       categories: grouping?.categories ?? [],
+      startDate: grouping?.startDate || null,
+      endDate: grouping?.endDate || null,
     }),
   inputValid: () => {
     const s = get();
@@ -46,6 +57,8 @@ export const useGroupingState = create<GroupingState>((set, get) => ({
     const payload: ExpenseGroupingData = {
       title: s.title,
       categories: s.categories.length ? s.categories : [],
+      startDate: s.startDate ?? undefined,
+      endDate: s.endDate ?? undefined,
     };
     await executeOperation(
       () =>

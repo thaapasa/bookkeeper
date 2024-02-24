@@ -17,7 +17,7 @@ export type ExpenseSaveAction = (
  */
 export const defaultExpenseSaveAction: ExpenseSaveAction = async (expense, original) => {
   const createNew = !original;
-  logger.info(expense, createNew ? 'Create new expense' : 'save expense');
+  logger.info(expense, createNew ? 'Create new expense' : 'Save expense');
 
   const name = expense.title;
   const res = await executeOperation(

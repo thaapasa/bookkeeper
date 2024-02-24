@@ -9,8 +9,10 @@ exports.up = knex =>
       created TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
       updated TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
       group_id INTEGER NOT NULL REFERENCES groups(id),
-      sort_order INTEGER NOT NULL DEFAULT 0,
       title TEXT NOT NULL,
+      start_date DATE,
+      end_date DATE,
+      sort_order INTEGER NOT NULL DEFAULT 0,
       image TEXT
     );
 
