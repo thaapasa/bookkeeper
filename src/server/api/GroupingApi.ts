@@ -26,9 +26,7 @@ export function createGroupingApi() {
   );
 
   // GET /api/grouping/list
-  api.getTx('/list', {}, (tx, session, {}) =>
-    getExpenseGroupingsForUser(tx, session.group.id, session.user.id),
-  );
+  api.getTx('/list', {}, (tx, session, {}) => getExpenseGroupingsForUser(tx, session.group.id));
 
   // GET /api/grouping/:id
   api.getTx('/:id', {}, (tx, session, { params }) =>

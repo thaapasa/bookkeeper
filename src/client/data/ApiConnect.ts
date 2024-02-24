@@ -354,6 +354,8 @@ export class ApiConnect {
 
   // Expense groupings
 
+  public getExpenseGroupings = (): Promise<ExpenseGrouping[]> => this.get(uri`/api/grouping/list`);
+
   public getExpenseGrouping = (groupingId: ObjectId): Promise<ExpenseGrouping> =>
     this.get(uri`/api/grouping/${groupingId}`);
 
