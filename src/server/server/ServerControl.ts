@@ -17,12 +17,11 @@ let runningServer: Server | undefined = undefined;
 function closeRunningServer() {
   const s = runningServer;
   if (!s) return Promise.resolve();
-  return new Promise(
-    (resolve, reject) =>
-      s?.close(err => {
-        if (err) reject(err);
-        else resolve(err);
-      }),
+  return new Promise((resolve, reject) =>
+    s?.close(err => {
+      if (err) reject(err);
+      else resolve(err);
+    }),
   );
 }
 

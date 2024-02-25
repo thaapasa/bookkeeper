@@ -191,8 +191,8 @@ export class ExpenseRowImpl extends React.Component<ExpenseRowProps, ExpenseRowS
       background: !expense.confirmed
         ? colors.unconfirmedStripes
         : expense.type === 'income'
-        ? colors.income
-        : undefined,
+          ? colors.income
+          : undefined,
     };
     if (!expense.confirmed) {
       style.background = colors.unconfirmedStripes;

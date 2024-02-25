@@ -40,7 +40,9 @@ type LogMethod = (typeof LogMethods)[number];
  * Instruments the Pino logger to automatically grab the request id from
  * the AsyncLocalStorage and add it to the log output.
  */
-export function instrumentLogger(logger: Logger): Logger {
+export function instrumentLogger<CustomLevels extends string = never>(
+  logger: Logger<CustomLevels>,
+): Logger<CustomLevels> {
   if (!config.logRequestId) {
     return logger;
   }
@@ -48,7 +50,7 @@ export function instrumentLogger(logger: Logger): Logger {
   LogMethods.forEach(m => transformLogFn(logger, m));
 
   // Auto-instrument all child loggers
-  const orgChild = logger.child;
+  const orgChild = logger.child<any>;
   logger.child = (bindings, options) => {
     const childLogger = orgChild.call(logger, bindings, options);
     return instrumentLogger(childLogger) as any;
@@ -56,7 +58,10 @@ export function instrumentLogger(logger: Logger): Logger {
   return logger;
 }
 
-function transformLogFn(logger: Logger, method: LogMethod) {
+function transformLogFn<CustomLevels extends string = never>(
+  logger: Logger<CustomLevels>,
+  method: LogMethod,
+) {
   const orgImpl = logger[method];
   logger[method] = (...args: any[]) => {
     const state = getCurrentTraceState();

@@ -43,10 +43,10 @@ type ValidatorSpec<R, Q, B> = {
 type PathToParams<Path extends string> = Path extends `${infer Start}/${infer Rest}`
   ? PathToParams<Start> & PathToParams<Rest>
   : Path extends `:${infer Param}`
-  ? {
-      [k in Param]: k extends keyof KnownTypes ? KnownTypes[k] : unknown;
-    }
-  : unknown;
+    ? {
+        [k in Param]: k extends keyof KnownTypes ? KnownTypes[k] : unknown;
+      }
+    : unknown;
 
 type HandlerParams<Path extends string, Q, B> = {
   params: PathToParams<Path>;

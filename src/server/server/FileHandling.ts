@@ -4,7 +4,7 @@ import { writeFile } from 'fs/promises';
 import multipart from 'parse-multipart-data';
 import path from 'path';
 import { ITask } from 'pg-promise';
-import { promisify } from 'sys';
+import { promisify } from 'util';
 
 import { BkError, SessionBasicInfo } from 'shared/types';
 import { config } from 'server/Config';

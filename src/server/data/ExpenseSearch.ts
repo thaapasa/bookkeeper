@@ -16,8 +16,8 @@ export async function getExpenseSearchQuery(
   const type = Array.isArray(query.type)
     ? query.type
     : isDefined(query.type)
-    ? [query.type]
-    : undefined;
+      ? [query.type]
+      : undefined;
   const inputCategoryIds =
     typeof query.categoryId === 'number' ? [query.categoryId] : query.categoryId || [];
   const categoryIds =
