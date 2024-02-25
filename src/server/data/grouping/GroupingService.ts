@@ -14,6 +14,7 @@ import { FileUploadResult, safeDeleteFile } from 'server/server/FileHandling';
 import {
   clearGroupingImageById,
   deleteExpenseGroupingById,
+  getCategoryTotalsForGrouping,
   getExpenseGroupingById,
   getExpensesForGrouping,
   insertExpenseGrouping,
@@ -116,5 +117,6 @@ export async function getGroupingWithExpenses(
 ): Promise<ExpenseGroupingWithExpenses> {
   const grouping = await getExpenseGrouping(tx, groupId, groupingId);
   const expenses = await getExpensesForGrouping(tx, groupId, userId, groupingId);
-  return { ...grouping, expenses };
+  const categoryTotals = await getCategoryTotalsForGrouping(tx, groupId, groupingId);
+  return { ...grouping, expenses, categoryTotals };
 }

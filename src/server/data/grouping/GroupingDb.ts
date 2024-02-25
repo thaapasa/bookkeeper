@@ -4,6 +4,7 @@ import { UserExpense } from 'shared/expense';
 import { toISODate } from 'shared/time';
 import {
   ExpenseGrouping,
+  ExpenseGroupingCategoryTotal,
   ExpenseGroupingData,
   ExpenseGroupingRef,
   isDefined,
@@ -32,6 +33,22 @@ const EXPENSE_SUM_SUBSELECT = /*sql*/ `
       AND (data."startDate" IS NULL OR e.date >= data."startDate")
       AND (data."endDate" IS NULL OR e.date <= data."endDate")
     )
+`;
+
+const EXPENSE_JOIN_TO_GROUPING = /*sql*/ `
+  LEFT JOIN categories cat ON (cat.id = e.category_id)
+  LEFT JOIN expense_grouping_categories egc ON (egc.category_id = cat.id OR egc.category_id = cat.parent_id)
+  LEFT JOIN expense_groupings eg ON (eg.id = egc.expense_grouping_id)
+  WHERE e.group_id=$/groupId/
+  AND (
+    (
+      e.grouping_id IS NULL
+      AND egc.expense_grouping_id = $/groupingId/
+      AND (eg.start_date IS NULL OR eg.start_date <= e.date)
+      AND (eg.end_date IS NULL OR eg.end_date >= e.date)
+    )
+    OR (e.grouping_id = $/groupingId/)
+  )
 `;
 
 export async function getExpenseGroupingsForUser(
@@ -145,25 +162,28 @@ export async function getExpensesForGrouping(
   userId: ObjectId,
   groupingId: ObjectId,
 ): Promise<UserExpense[]> {
-  const rows = await tx.manyOrNone(
-    expenseSelectClause(/*sql*/ `
-      LEFT JOIN categories cat ON (cat.id = e.category_id)
-      LEFT JOIN expense_grouping_categories egc ON (egc.category_id = cat.id OR egc.category_id = cat.parent_id)
-      LEFT JOIN expense_groupings eg ON (eg.id = egc.expense_grouping_id)
-      WHERE e.group_id=$/groupId/
-      AND (
-        (
-          e.grouping_id IS NULL
-          AND egc.expense_grouping_id = $/groupingId/
-          AND (eg.start_date IS NULL OR eg.start_date <= e.date)
-          AND (eg.end_date IS NULL OR eg.end_date >= e.date)
-        )
-        OR (e.grouping_id = $/groupingId/)
-      )
-    `),
-    { userId, groupId, groupingId },
-  );
+  const rows = await tx.manyOrNone(expenseSelectClause(EXPENSE_JOIN_TO_GROUPING), {
+    userId,
+    groupId,
+    groupingId,
+  });
   return rows.map(dbRowToExpense);
+}
+
+export async function getCategoryTotalsForGrouping(
+  tx: ITask<any>,
+  groupId: ObjectId,
+  groupingId: ObjectId,
+): Promise<ExpenseGroupingCategoryTotal[]> {
+  const rows = await tx.manyOrNone(
+    `SELECT SUM(CASE e.type WHEN 'expense' THEN sum WHEN 'income' THEN -sum ELSE 0 END), e.category_id, cat.name
+      FROM expenses e
+      ${EXPENSE_JOIN_TO_GROUPING}
+      GROUP BY e.category_id, cat.name;
+    `,
+    { groupId, groupingId },
+  );
+  return rows.map(toExpenseGroupingCategoryTotal);
 }
 
 export async function deleteExpenseGroupingById(
@@ -216,5 +236,13 @@ function toExpenseGroupingRef(row: any): ExpenseGroupingRef {
     id: row.id,
     title: row.title,
     image: row.image ? groupingImageHandler.getVariant('image', row.image).webPath : undefined,
+  };
+}
+
+function toExpenseGroupingCategoryTotal(row: any): ExpenseGroupingCategoryTotal {
+  return {
+    categoryId: row.category_id,
+    title: row.name,
+    sum: row.sum ?? '0',
   };
 }

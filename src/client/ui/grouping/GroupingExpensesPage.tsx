@@ -18,6 +18,7 @@ import { useAsyncData } from '../hooks/useAsyncData';
 import { useForceReload } from '../hooks/useForceReload';
 import { TotalsView } from '../search/TotalsView';
 import { PageContentContainer } from '../Styles';
+import { GroupingCategoryChart } from './GroupingCategoryChart';
 
 export const GroupingExpensesPage: React.FC = () => {
   const { counter, forceReload } = useForceReload();
@@ -43,8 +44,9 @@ const GroupingExpensesRenderer: React.FC<{
   userData: UserDataProps;
   reloadExpenses: () => void;
 }> = ({ data, userData, reloadExpenses }) => (
-  <div>
+  <CenterArea>
     <TitleRow>{data.title}</TitleRow>
+    <GroupingCategoryChart totals={data.categoryTotals} />
     <ExpenseTableLayout className="padding">
       <tbody>
         {data.expenses?.map(expense => (
@@ -59,8 +61,14 @@ const GroupingExpensesRenderer: React.FC<{
       </tbody>
     </ExpenseTableLayout>
     <TotalsView results={data.expenses} />
-  </div>
+  </CenterArea>
 );
+
+const CenterArea = styled('div')`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
 
 const TitleRow = styled(Subtitle)`
   width: 100%;

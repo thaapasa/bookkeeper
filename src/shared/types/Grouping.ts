@@ -20,10 +20,18 @@ export const ExpenseGrouping = ExpenseGroupingData.extend({
 });
 export type ExpenseGrouping = z.infer<typeof ExpenseGrouping>;
 
+export const ExpenseGroupingCategoryTotal = z.object({
+  categoryId: ObjectId,
+  title: z.string(),
+  sum: MoneyLike,
+});
+export type ExpenseGroupingCategoryTotal = z.infer<typeof ExpenseGroupingCategoryTotal>;
+
 export const ExpenseGroupingRef = ExpenseGrouping.pick({ id: true, title: true, image: true });
 export type ExpenseGroupingRef = z.infer<typeof ExpenseGroupingRef>;
 
 export const ExpenseGroupingWithExpenses = ExpenseGrouping.extend({
   expenses: z.array(UserExpense),
+  categoryTotals: z.array(ExpenseGroupingCategoryTotal),
 });
 export type ExpenseGroupingWithExpenses = z.infer<typeof ExpenseGroupingWithExpenses>;
