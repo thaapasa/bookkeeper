@@ -96,6 +96,7 @@ const GroupingCard = styled(FlexColumn)`
   border-radius: 8px;
   background-color: ${colorScheme.primary.standard};
   overflow: hidden;
+  height: 200px;
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
 `;
 

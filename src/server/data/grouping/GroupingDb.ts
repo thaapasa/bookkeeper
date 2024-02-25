@@ -14,13 +14,15 @@ import { groupingImageHandler } from 'server/content/GroupingImage';
 import { dbRowToExpense, expenseSelectClause } from '../BasicExpenseDb';
 import { dbMain } from '../Db';
 
+const GROUPING_ORDER = /*sql*/ `eg.start_date DESC, eg.title`;
+
 const GROUPING_FIELDS = /*sql*/ `eg.id, eg.title,
   eg.start_date AS "startDate", eg.end_date AS "endDate",
   eg.created, eg.updated, eg.image,
   ARRAY_AGG(egc.category_id) AS categories`;
 
 const EXPENSE_SUM_SUBSELECT = /*sql*/ `
-  SELECT SUM(sum)
+  SELECT SUM(CASE e.type WHEN 'expense' THEN sum WHEN 'income' THEN -sum ELSE 0 END)
     FROM expenses e
     LEFT JOIN categories cat ON (cat.id = e.category_id)
     WHERE e.grouping_id = data.id
@@ -43,7 +45,7 @@ export async function getExpenseGroupingsForUser(
         LEFT JOIN expense_grouping_categories egc ON (eg.id = egc.expense_grouping_id)
         WHERE eg.group_id=$/groupId/
         GROUP BY eg.id
-        ORDER BY eg.start_date, eg.title
+        ORDER BY ${GROUPING_ORDER}
     ) data
     `,
     { groupId },
@@ -63,7 +65,7 @@ export async function getExpenseGroupingById(
         LEFT JOIN expense_grouping_categories egc ON (eg.id = egc.expense_grouping_id)
         WHERE eg.id=$/groupingId/ AND group_id=$/groupId/
         GROUP BY eg.id
-        ORDER BY eg.start_date, eg.title
+        ORDER BY ${GROUPING_ORDER}
     ) data
     `,
     { groupingId, groupId },
@@ -80,7 +82,7 @@ export async function getAllGroupingRefs(
       FROM expense_groupings eg
       WHERE eg.group_id=$/groupId/
       GROUP BY eg.id
-      ORDER BY eg.start_date, eg.title
+      ORDER BY ${GROUPING_ORDER}
     `,
     { groupId },
   );

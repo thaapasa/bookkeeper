@@ -96,6 +96,7 @@ const TitleText = styled(Subtitle)`
 const TrackingCard = styled(FlexColumn)`
   width: 100%;
   position: relative;
+  height: 200px;
   border-radius: 8px;
   background-color: ${colorScheme.primary.standard};
   overflow: hidden;
