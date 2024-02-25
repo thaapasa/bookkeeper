@@ -3,6 +3,7 @@ import { Grid, IconButton } from '@mui/material';
 import React from 'react';
 
 import { uri } from 'shared/net';
+import { readableDateWithYear } from 'shared/time';
 import { ExpenseGrouping } from 'shared/types';
 import { Money } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
@@ -53,7 +54,10 @@ export const ExpenseGroupingView: React.FC<{
         <GroupingTotalsArea className="grouping-totals-area">
           {grouping.image ? <GroupingImage src={grouping.image} /> : null}
           <GroupingInfo>
-            <Sum>{Money.from(grouping.totalSum).format()}</Sum>
+            <InfoTextArea>
+              <Sum>{Money.from(grouping.totalSum).format()}</Sum>
+              <GroupingDates grouping={grouping} />
+            </InfoTextArea>
             <ButtonRow>
               <LinkButton
                 label="Kirjaukset"
@@ -66,6 +70,22 @@ export const ExpenseGroupingView: React.FC<{
         </GroupingTotalsArea>
       </GroupingCard>
     </Grid>
+  );
+};
+
+const GroupingDates: React.FC<{ grouping: ExpenseGrouping }> = ({ grouping }) => {
+  if (!grouping.startDate && !grouping.endDate) return null;
+  if (!grouping.endDate) {
+    return <DatesText>{readableDateWithYear(grouping.startDate, true)} →</DatesText>;
+  }
+  if (!grouping.startDate) {
+    return <DatesText>→ {readableDateWithYear(grouping.endDate, true)}</DatesText>;
+  }
+  return (
+    <DatesText>
+      {readableDateWithYear(grouping.startDate, true)} -{' '}
+      {readableDateWithYear(grouping.endDate, true)}
+    </DatesText>
   );
 };
 
@@ -104,15 +124,22 @@ const GroupingTotalsArea = styled(FlexRow)`
   flex: 1;
 `;
 
-const Sum = styled(Flex)`
-  ${TitleCss};
+const InfoTextArea = styled(Flex)`
   display: inline-flex;
+  flex-direction: column;
   flex: 1;
   align-self: stretch;
   align-items: center;
   justify-content: center;
   padding: 16px;
 `;
+
+const Sum = styled('div')`
+  ${TitleCss};
+  color: ${colorScheme.secondary.dark};
+`;
+
+const DatesText = styled('div')``;
 
 const GroupingInfo = styled(FlexColumn)`
   flex: 1;

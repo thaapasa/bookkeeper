@@ -14,7 +14,7 @@ import { groupingImageHandler } from 'server/content/GroupingImage';
 import { dbRowToExpense, expenseSelectClause } from '../BasicExpenseDb';
 import { dbMain } from '../Db';
 
-const GROUPING_ORDER = /*sql*/ `eg.start_date DESC, eg.title`;
+const GROUPING_ORDER = /*sql*/ `eg.start_date DESC NULLS LAST, eg.title`;
 
 const GROUPING_FIELDS = /*sql*/ `eg.id, eg.title,
   eg.start_date AS "startDate", eg.end_date AS "endDate",
