@@ -8,6 +8,7 @@ import { logger } from 'server/Logger';
 
 import { config } from '../Config';
 import { getAllCategories } from './CategoryDb';
+import { getAllGroupingRefs } from './grouping/GroupingDb';
 import { getShortcutsForUser } from './ShortcutDb';
 import { getAllSources } from './SourceDb';
 import {
@@ -93,13 +94,14 @@ export async function appendInfoToSession(
   tx: ITask<any>,
   session: SessionBasicInfo,
 ): Promise<Session> {
-  const [groups, sources, categories, users] = await Promise.all([
+  const [groups, sources, categories, users, groupings] = await Promise.all([
     getGroupsForUser(tx, session.user.id),
     getAllSources(tx, session.group.id),
     getAllCategories(tx, session.group.id),
     getAllUsers(tx, session.group.id),
+    getAllGroupingRefs(tx, session.group.id),
   ]);
-  return { ...session, groups, sources, categories, users };
+  return { ...session, groups, sources, categories, users, groupings };
 }
 
 export async function loginUserWithCredentials(

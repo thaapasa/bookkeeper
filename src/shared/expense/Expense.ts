@@ -72,6 +72,7 @@ export const ExpenseData = BaseExpenseData.extend({
   date: ISODate,
   sum: MoneyLike,
   division: ExpenseDivision.optional(),
+  groupingId: ObjectId.optional(),
 });
 export type ExpenseData = z.infer<typeof ExpenseData>;
 
@@ -112,6 +113,7 @@ export interface ExpenseInEditor extends BaseExpenseData {
   date: Dayjs;
   benefit: number[];
   description: string;
+  groupingId: number | null;
 }
 
 export interface UserExpenseWithDetails extends UserExpense {

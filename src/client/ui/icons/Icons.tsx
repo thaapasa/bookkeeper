@@ -13,6 +13,7 @@ import CategoryIcon from '@mui/icons-material/Category';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ClearIcon from '@mui/icons-material/Clear';
+import CollectionsBookmarkIcon from '@mui/icons-material/CollectionsBookmark';
 import ConstructionIcon from '@mui/icons-material/Construction';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DonutSmallIcon from '@mui/icons-material/DonutSmall';
@@ -64,6 +65,7 @@ export const Icons = {
   ExpandLess: ExpandLessIcon,
   ExpandMore: ExpandMoreIcon,
   Expense: PaymentIcon,
+  Grouping: CollectionsBookmarkIcon,
   Hidden: HiddenIcon,
   Image: ImageIcon,
   Income: AttachMoneyIcon,

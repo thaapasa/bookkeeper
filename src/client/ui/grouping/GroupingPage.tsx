@@ -10,36 +10,36 @@ import { useAsyncData } from '../hooks/useAsyncData';
 import { useForceReload } from '../hooks/useForceReload';
 import { Icons } from '../icons/Icons';
 import { PageContentContainer } from '../Styles';
-import { newTrackingSubject, TrackingEditor } from './TrackingEditor';
-import { TrackingSubjectsList } from './TrackingSubjectView';
+import { ExpenseGroupingsList } from './ExpenseGroupingsView';
+import { GroupingEditor, newExpenseGrouping } from './GroupingEditor';
 
-export const TrackingPage: React.FC = () => {
+export const GroupingPage: React.FC = () => {
   const { counter, forceReload } = useForceReload();
-  const trackedSubjects = useAsyncData(loadSubjects, true, counter);
+  const expenseGroupings = useAsyncData(loadGroupings, true, counter);
   return (
     <PageContentContainer className="center">
-      <Grid container columnSpacing={2} rowSpacing={2} width="calc(100% - 32px)" paddingBottom={4}>
+      <Grid container columnSpacing={2} rowSpacing={2} width="calc(100% - 32px)">
         <RGrid item xs={12} marginTop={2}>
-          <Title>Seuranta</Title>
+          <Title>Ryhmittelyt</Title>
           <ToolArea>
-            <IconButton title="Uusi seuranta" onClick={newTrackingSubject}>
+            <IconButton title="Uusi ryhmittely" onClick={newExpenseGrouping}>
               <Icons.AddChart />
             </IconButton>
           </ToolArea>
         </RGrid>
         <AsyncDataView
-          data={trackedSubjects}
-          renderer={TrackingSubjectsList}
+          data={expenseGroupings}
+          renderer={ExpenseGroupingsList}
           onReload={forceReload}
         />
       </Grid>
-      <TrackingEditor reloadAll={forceReload} />
+      <GroupingEditor reloadAll={forceReload} />
     </PageContentContainer>
   );
 };
 
-function loadSubjects(_counter: number) {
-  return apiConnect.getTrackingSubjects();
+function loadGroupings(_counter: number) {
+  return apiConnect.getExpenseGroupings();
 }
 
 const RGrid = styled(Grid)`

@@ -42,6 +42,7 @@ export async function createExpense(
       sourceId: source.id,
       categoryId: cat.id,
       sum: expense.sum,
+      groupingId: expense.groupingId,
     },
     division,
   );

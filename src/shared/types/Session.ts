@@ -1,6 +1,7 @@
 import { ExpenseShortcut } from '../expense/Shortcut';
 import { MoneyLike } from '../util/Money';
 import { DbObject } from './Common';
+import { ExpenseGroupingRef } from './Grouping';
 import { Source } from './Source';
 
 export interface Group extends DbObject {
@@ -53,4 +54,5 @@ export interface Session extends SessionBasicInfo {
   sources: Source[];
   categories: Category[];
   users: User[];
+  groupings: ExpenseGroupingRef[];
 }

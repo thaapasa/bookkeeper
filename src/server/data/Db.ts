@@ -12,9 +12,10 @@ if (logSql) {
   logger.info('Logging all SQL queries');
 }
 
-export const db = pgp({
+export const dbMain = pgp({
   query: logSql ? q => sqlLogger.info(q.query) : undefined,
-})(config.dbUrl);
+});
+export const db = dbMain(config.dbUrl);
 
 export async function shutdownDb() {
   await db.$pool.end();

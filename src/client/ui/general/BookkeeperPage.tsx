@@ -10,6 +10,7 @@ import {
   categoryViewYearPattern,
   expenseMonthPathPattern,
   expensePagePath,
+  groupingsPagePath,
   infoPagePath,
   profilePagePath,
   searchPagePath,
@@ -31,6 +32,8 @@ import { createExpenseDialogListener } from '../expense/dialog/ExpenseDialogList
 import { FrontpageView } from '../expense/FrontpageView';
 import { RoutedMonthView } from '../expense/RoutedMonthView';
 import { ExpenseSplitDialog } from '../expense/split/ExpenseSplitDialog';
+import { GroupingExpensesPage } from '../grouping/GroupingExpensesPage';
+import { GroupingPage } from '../grouping/GroupingPage';
 import { InfoView } from '../info/InfoView';
 import { ProfileView } from '../profile/ProfileView';
 import { SearchPage } from '../search/SearchPage';
@@ -81,10 +84,11 @@ const appLinks: AppLink[] = [
   {
     label: 'Tilastot',
     path: statisticsPage,
-    showInHeader: true,
+    showInHeader: 1050,
     icon: 'BarChart',
   },
   { label: 'Seuranta', path: trackingPagePath, showInHeader: true, icon: 'Chart' },
+  { label: 'Ryhmittelyt', path: groupingsPagePath, showInHeader: 1200, icon: 'Grouping' },
   { label: 'Haku', path: searchPagePath, showInHeader: true, icon: 'Search' },
   { label: 'Tiedot', path: infoPagePath, showInHeader: false, icon: 'Info' },
   {
@@ -127,6 +131,8 @@ export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
               <Route path={profilePagePath + '/*'} element={<ProfileView />} />
               <Route path={infoPagePath} element={<InfoView />} />
               <Route path={trackingPagePath} element={<TrackingPage />} />
+              <Route path={groupingsPagePath} element={<GroupingPage />} />
+              <Route path={`${groupingsPagePath}/:groupingId`} element={<GroupingExpensesPage />} />
               <Route path={toolsPagePath} element={<ToolsView />} />
               <Route path={'/p/*'} element={<FrontpageView />} />
               <Route path="/" element={<FrontpageView />} />
