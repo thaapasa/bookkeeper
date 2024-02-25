@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import { UserExpense } from '../expense/Expense';
 import { ISODate } from '../time/Time';
+import { MoneyLike } from '../util/Money';
 import { ObjectId } from './Id';
 
 export const ExpenseGroupingData = z.object({
@@ -15,6 +16,7 @@ export type ExpenseGroupingData = z.infer<typeof ExpenseGroupingData>;
 export const ExpenseGrouping = ExpenseGroupingData.extend({
   id: ObjectId,
   image: z.string().min(5).optional(),
+  totalSum: MoneyLike,
 });
 export type ExpenseGrouping = z.infer<typeof ExpenseGrouping>;
 

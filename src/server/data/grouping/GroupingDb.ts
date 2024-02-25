@@ -19,17 +19,32 @@ const GROUPING_FIELDS = /*sql*/ `eg.id, eg.title,
   eg.created, eg.updated, eg.image,
   ARRAY_AGG(egc.category_id) AS categories`;
 
+const EXPENSE_SUM_SUBSELECT = /*sql*/ `
+  SELECT SUM(sum)
+    FROM expenses e
+    LEFT JOIN categories cat ON (cat.id = e.category_id)
+    WHERE e.grouping_id = data.id
+    OR (
+      e.grouping_id IS NULL
+      AND (cat.id = ANY(data.categories) OR cat.parent_id = ANY(data.categories))
+      AND (data."startDate" IS NULL OR e.date >= data."startDate")
+      AND (data."endDate" IS NULL OR e.date <= data."endDate")
+    )
+`;
+
 export async function getExpenseGroupingsForUser(
   tx: ITask<any>,
   groupId: ObjectId,
 ): Promise<ExpenseGrouping[]> {
   const rows = await tx.manyOrNone(
-    `SELECT ${GROUPING_FIELDS}
-      FROM expense_groupings eg
-      LEFT JOIN expense_grouping_categories egc ON (eg.id = egc.expense_grouping_id)
-      WHERE eg.group_id=$/groupId/
-      GROUP BY eg.id
-      ORDER BY eg.start_date, eg.title
+    `SELECT data.*, (${EXPENSE_SUM_SUBSELECT}) AS "totalSum" FROM (
+      SELECT ${GROUPING_FIELDS}
+        FROM expense_groupings eg
+        LEFT JOIN expense_grouping_categories egc ON (eg.id = egc.expense_grouping_id)
+        WHERE eg.group_id=$/groupId/
+        GROUP BY eg.id
+        ORDER BY eg.start_date, eg.title
+    ) data
     `,
     { groupId },
   );
@@ -42,12 +57,14 @@ export async function getExpenseGroupingById(
   groupingId: ObjectId,
 ): Promise<ExpenseGrouping | undefined> {
   const row = await tx.oneOrNone(
-    `SELECT ${GROUPING_FIELDS}
-      FROM expense_groupings eg
-      LEFT JOIN expense_grouping_categories egc ON (eg.id = egc.expense_grouping_id)
-      WHERE eg.id=$/groupingId/ AND group_id=$/groupId/
-      GROUP BY eg.id
-      ORDER BY eg.start_date, eg.title
+    `SELECT data.*, (${EXPENSE_SUM_SUBSELECT}) AS "totalSum" FROM (
+      SELECT ${GROUPING_FIELDS}
+        FROM expense_groupings eg
+        LEFT JOIN expense_grouping_categories egc ON (eg.id = egc.expense_grouping_id)
+        WHERE eg.id=$/groupingId/ AND group_id=$/groupId/
+        GROUP BY eg.id
+        ORDER BY eg.start_date, eg.title
+    ) data
     `,
     { groupingId, groupId },
   );
@@ -187,6 +204,7 @@ function toExpenseGrouping(row: any): ExpenseGrouping {
     categories: (row.categories ?? []).filter(isDefined),
     startDate: row.startDate ? toISODate(row.startDate) : undefined,
     endDate: row.endDate ? toISODate(row.endDate) : undefined,
+    totalSum: row.totalSum ?? '0',
     image: row.image ? groupingImageHandler.getVariant('image', row.image).webPath : undefined,
   };
 }

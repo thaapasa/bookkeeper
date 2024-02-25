@@ -85,7 +85,7 @@ const GroupingEditView: React.FC<{
           <SelectionRow title="Alkupäivä">
             <OptionalDatePicker value={state.startDate} onChange={state.setStartDate} />
           </SelectionRow>
-          <SelectionRow title="Loppupäivå">
+          <SelectionRow title="Loppupäivä">
             <OptionalDatePicker value={state.endDate} onChange={state.setEndDate} />
           </SelectionRow>
           <SelectionRow title="Kuva">

@@ -1,7 +1,12 @@
 import styled from '@emotion/styled';
-import { Typography } from '@mui/material';
+import { css, Typography } from '@mui/material';
 
 import { colorScheme } from '../Colors';
+
+export const TitleCss = css`
+  font: 26pt Oswald;
+  font-weight: 300;
+`;
 
 export const Title = styled(Typography)`
   border-bottom: 1px solid ${colorScheme.gray.standard};

@@ -4,6 +4,7 @@ import React from 'react';
 
 import { uri } from 'shared/net';
 import { ExpenseGrouping } from 'shared/types';
+import { Money } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { executeOperation } from 'client/util/ExecuteOperation';
 import { groupingsPagePath } from 'client/util/Links';
@@ -11,8 +12,9 @@ import { groupingsPagePath } from 'client/util/Links';
 import { colorScheme } from '../Colors';
 import { FlexColumn, FlexRow } from '../component/BasicElements';
 import { LinkButton } from '../component/NavigationBar';
-import { Subtitle } from '../design/Text';
+import { Subtitle, TitleCss } from '../design/Text';
 import { Icons } from '../icons/Icons';
+import { Flex } from '../Styles';
 import { editExpenseGrouping } from './GroupingEditor';
 
 export const ExpenseGroupingsList: React.FC<{
@@ -50,15 +52,17 @@ export const ExpenseGroupingView: React.FC<{
         </TitleArea>
         <GroupingTotalsArea className="grouping-totals-area">
           {grouping.image ? <GroupingImage src={grouping.image} /> : null}
-          <FlexColumn>
-            Ryhmittelyn summa ja piechart tms.
-            <LinkButton
-              label="Kirjaukset"
-              to={groupingsPagePath + uri`/${grouping.id}`}
-              variant="contained"
-              color="primary"
-            />
-          </FlexColumn>
+          <GroupingInfo>
+            <Sum>{Money.from(grouping.totalSum).format()}</Sum>
+            <ButtonRow>
+              <LinkButton
+                label="Kirjaukset"
+                to={groupingsPagePath + uri`/${grouping.id}`}
+                variant="contained"
+                color="primary"
+              />
+            </ButtonRow>
+          </GroupingInfo>
         </GroupingTotalsArea>
       </GroupingCard>
     </Grid>
@@ -97,6 +101,29 @@ const GroupingCard = styled(FlexColumn)`
 
 const GroupingTotalsArea = styled(FlexRow)`
   flex: 1;
+`;
+
+const Sum = styled(Flex)`
+  ${TitleCss};
+  display: inline-flex;
+  flex: 1;
+  align-self: stretch;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+`;
+
+const GroupingInfo = styled(FlexColumn)`
+  flex: 1;
+  justify-content: space-between;
+  align-items: flex-start;
+`;
+
+const ButtonRow = styled(FlexRow)`
+  width: 100%;
+  padding: 16px;
+  justify-content: flex-end;
+  align-items: flex-end;
 `;
 
 const TitleArea = styled('div')`
