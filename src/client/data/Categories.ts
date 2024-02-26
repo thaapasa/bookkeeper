@@ -1,6 +1,6 @@
 import * as B from 'baconjs';
 
-import { Category, CategoryMap, Source, User } from 'shared/types';
+import { Category, CategoryMap, ExpenseGroupingMap, Source, User } from 'shared/types';
 import { unnest } from 'shared/util';
 import { sourceMapE, userMapE, validSessionE } from 'client/data/Login';
 
@@ -55,6 +55,9 @@ export const categoryDataSourceP: B.Property<CategoryDataSource[]> = B.combineWi
   validSessionE,
   categoryMapE,
 );
+export const expenseGroupingMapE: B.EventStream<ExpenseGroupingMap> = validSessionE.map(s =>
+  Object.fromEntries(s.groupings.map(s => [String(s.id), s])),
+);
 
 export function isSubcategoryOf(
   subId: number,
@@ -69,10 +72,12 @@ export interface UserDataProps {
   sourceMap: Record<string, Source>;
   userMap: Record<string, User>;
   categoryMap: CategoryMap;
+  groupingMap: ExpenseGroupingMap;
 }
 
-export const userDataE = B.combineTemplate({
+export const userDataE: B.Property<UserDataProps> = B.combineTemplate({
   userMap: userMapE,
   sourceMap: sourceMapE,
   categoryMap: categoryMapE,
+  groupingMap: expenseGroupingMapE,
 });

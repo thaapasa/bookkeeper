@@ -101,7 +101,7 @@ const LegendTable = styled('table')`
   }
   & tr.total {
     font-weight: bold;
-    td:first-child {
+    td:first-of-type {
       color: ${colorScheme.secondary.dark};
     }
   }

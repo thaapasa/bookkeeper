@@ -9,7 +9,7 @@ import { Icons } from '../icons/Icons';
 import { media } from '../Styles';
 import { ExpenseTotals, money } from './ExpenseHelper';
 import { ExpenseFilterFunction, ExpenseFilters } from './row/ExpenseFilters';
-import { UnconfirmedIcon } from './row/ExpenseTableLayout';
+import { IconToolArea, UnconfirmedIcon } from './row/ExpenseTableLayout';
 
 interface StatusProps {
   unconfirmedBefore: boolean;
@@ -76,10 +76,12 @@ export class MonthlyStatus extends React.Component<StatusProps, MonthlyStatusSta
           expanded={expanded}
         >
           {hasUnconfirmed ? (
-            <UnconfirmedIcon
-              title="Sisältää alustavia kirjauksia"
-              onClick={() => this.props.addFilter(ExpenseFilters.unconfirmed, 'Alustavat')}
-            />
+            <IconToolArea>
+              <UnconfirmedIcon
+                title="Sisältää alustavia kirjauksia"
+                onClick={() => this.props.addFilter(ExpenseFilters.unconfirmed, 'Alustavat')}
+              />
+            </IconToolArea>
           ) : null}
         </StatusBlock>
         <ToolArea>

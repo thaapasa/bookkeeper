@@ -21,6 +21,7 @@ export interface Category extends DbObject, CategoryData {
 }
 
 export type CategoryMap = Record<string, Category>;
+export type ExpenseGroupingMap = Record<string, ExpenseGroupingRef>;
 
 export interface CategoryAndTotals extends Category {
   expenses: MoneyLike;

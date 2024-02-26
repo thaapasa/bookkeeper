@@ -8,7 +8,7 @@ import {
   UserExpenseWithDetails,
 } from 'shared/expense';
 import { readableDate, toDate, toDayjs, toISODate } from 'shared/time';
-import { Category, CategoryMap, isDefined, Source, User } from 'shared/types';
+import { Category, CategoryMap, ExpenseGroupingMap, isDefined, Source, User } from 'shared/types';
 import { equal, Money, notEqual } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { getFullCategoryName, UserDataProps } from 'client/data/Categories';
@@ -34,6 +34,8 @@ import {
   BalanceColumn,
   CategoryColumn,
   DateColumn,
+  GroupedExpenseIcon,
+  IconToolArea,
   NameColumn,
   ReceiverColumn,
   RecurringExpenseIcon,
@@ -59,6 +61,7 @@ interface ExpenseRowProps extends CommonExpenseRowProps {
   source: Source;
   fullCategoryName: string;
   categoryMap: CategoryMap;
+  groupingMap: ExpenseGroupingMap;
   userMap: Record<string, User>;
   dateBorder?: boolean;
 }
@@ -224,11 +227,25 @@ export class ExpenseRowImpl extends React.Component<ExpenseRowProps, ExpenseRowS
             />
           </AvatarColumn>
           <NameColumn>
-            {this.props.expense.confirmed ? null : (
-              <UnconfirmedIcon
-                onClick={() => this.props.addFilter(ExpenseFilters.unconfirmed, 'Alustavat')}
-              />
-            )}
+            <IconToolArea>
+              {this.props.expense.confirmed ? null : (
+                <UnconfirmedIcon
+                  onClick={() => this.props.addFilter(ExpenseFilters.unconfirmed, 'Alustavat')}
+                />
+              )}
+              {this.props.expense.groupingId ? (
+                <GroupedExpenseIcon
+                  onClick={() =>
+                    this.props.addFilter(
+                      e => e.groupingId === this.props.expense.groupingId,
+                      this.props.groupingMap[this.props.expense.groupingId!]?.title ?? 'Ryhmitelty',
+                    )
+                  }
+                  title={this.props.groupingMap[this.props.expense.groupingId]?.title}
+                  image={this.props.groupingMap[this.props.expense.groupingId]?.image}
+                />
+              ) : null}
+            </IconToolArea>
             <ActivatableTextField
               fullWidth
               value={expense.title}
@@ -327,6 +344,7 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
     userMap={props.userData.userMap}
     user={props.userData.userMap[props.expense.userId]}
     source={props.userData.sourceMap[props.expense.sourceId]}
+    groupingMap={props.userData.groupingMap}
     fullCategoryName={getFullCategoryName(props.expense.categoryId, props.userData.categoryMap)}
   />
 );

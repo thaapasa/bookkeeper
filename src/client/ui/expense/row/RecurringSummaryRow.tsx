@@ -11,6 +11,7 @@ import { isMobileSize, media } from 'client/ui/Styles';
 import { ExpenseFilterFunction, ExpenseFilters } from './ExpenseFilters';
 import {
   AllColumns,
+  IconToolArea,
   RecurringExpenseIcon,
   Row,
   rowHeight,
@@ -48,10 +49,12 @@ export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
           <RecurringExpenseIcon />
           <Name>
             {hasUnconfirmed ? (
-              <UnconfirmedIcon
-                title="Sisältää alustavia kirjauksia"
-                onClick={() => addFilter(ExpenseFilters.unconfirmed, 'Alustavat')}
-              />
+              <IconToolArea>
+                <UnconfirmedIcon
+                  title="Sisältää alustavia kirjauksia"
+                  onClick={() => addFilter(ExpenseFilters.unconfirmed, 'Alustavat')}
+                />
+              </IconToolArea>
             ) : null}
             <Emph>Toistuvat </Emph> ({recurring.length} kpl)
           </Name>
