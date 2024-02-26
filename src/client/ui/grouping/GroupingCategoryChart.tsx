@@ -1,6 +1,7 @@
+import styled from '@emotion/styled';
 import * as B from 'baconjs';
 import * as React from 'react';
-import { Cell, Legend, Pie, PieChart, Tooltip } from 'recharts';
+import { Cell, Pie, PieChart, Tooltip } from 'recharts';
 
 import { CategoryMap, ExpenseGroupingCategoryTotal, isDefined, ObjectId } from 'shared/types';
 import { Money, MoneyLike } from 'shared/util';
@@ -8,11 +9,21 @@ import { categoryMapE, getFullCategoryName } from 'client/data/Categories';
 
 import { getChartColor } from '../chart/ChartColors';
 import { formatMoney } from '../chart/Format';
+import { colorScheme } from '../Colors';
 import { connect } from '../component/BaconConnect';
+import { Row } from '../component/Row';
+import { Flex } from '../Styles';
 
 interface GroupingCategoryChartProps {
   categoryMap: CategoryMap;
   totals: ExpenseGroupingCategoryTotal[];
+}
+
+interface Data {
+  name: string;
+  categoryId: number;
+  value: MoneyLike;
+  color: string;
 }
 
 const GroupingCategoryChartImpl: React.FC<GroupingCategoryChartProps> = ({
@@ -20,10 +31,12 @@ const GroupingCategoryChartImpl: React.FC<GroupingCategoryChartProps> = ({
   categoryMap,
 }) => {
   const data: Data[] = React.useMemo(() => {
+    const colors = createColorScheme(totals, categoryMap);
     const d = totals.map<Data>(t => ({
       name: getFullCategoryName(t.categoryId, categoryMap),
       categoryId: t.categoryId,
       value: Money.from(t.sum).valueOf(),
+      color: colors[t.categoryId],
     }));
     d.sort((a, b) => {
       const ca = categoryMap[a.categoryId];
@@ -43,25 +56,56 @@ const GroupingCategoryChartImpl: React.FC<GroupingCategoryChartProps> = ({
     return d;
   }, [totals, categoryMap]);
   if (totals.length < 1) return null;
-  const colors = createColorScheme(totals, categoryMap);
   return (
-    <PieChart width={450} height={168}>
-      <Pie data={data} cy="50%" cx="50%" outerRadius={80} dataKey="value">
-        {data.map((entry, index) => (
-          <Cell key={`cell-${index}`} fill={colors[entry.categoryId]} />
-        ))}
-      </Pie>
-      <Legend layout="vertical" align="right" />
-      <Tooltip formatter={formatMoney} />
-    </PieChart>
+    <Row>
+      <Flex />
+      <PieChart width={168} height={168}>
+        <Pie data={data} cy="50%" cx="50%" outerRadius={80} dataKey="value">
+          {data.map((entry, index) => (
+            <Cell key={`cell-${index}`} fill={entry.color} />
+          ))}
+        </Pie>
+        <Tooltip formatter={formatMoney} />
+      </PieChart>
+      <CategoryTotalsTable data={data} />
+      <Flex />
+    </Row>
   );
 };
 
-interface Data {
-  name: string;
-  categoryId: number;
-  value: MoneyLike;
-}
+const CategoryTotalsTable: React.FC<{ data: Data[] }> = ({ data }) => {
+  const total = data.reduce((p, n) => p.plus(n.value), Money.from(0));
+  return (
+    <LegendTable>
+      <tbody>
+        {data.map((d, i) => (
+          <tr key={i}>
+            <td style={{ color: d.color }}>{d.name}</td>
+            <td>{Money.from(d.value).format()}</td>
+          </tr>
+        ))}
+        <tr className="total">
+          <td>Yhteensä</td>
+          <td>{total.format()}</td>
+        </tr>
+      </tbody>
+    </LegendTable>
+  );
+};
+
+const LegendTable = styled('table')`
+  margin-left: 16px;
+  & td:last-child {
+    text-align: right;
+    padding-left: 32px;
+  }
+  & tr.total {
+    font-weight: bold;
+    td:first-child {
+      color: ${colorScheme.secondary.dark};
+    }
+  }
+`;
 
 function createColorScheme(
   totals: ExpenseGroupingCategoryTotal[],

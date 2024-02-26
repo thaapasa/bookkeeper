@@ -37,16 +37,15 @@ const EXPENSE_SUM_SUBSELECT = /*sql*/ `
 
 const EXPENSE_JOIN_TO_GROUPING = /*sql*/ `
   LEFT JOIN categories cat ON (cat.id = e.category_id)
-  LEFT JOIN expense_grouping_categories egc ON (egc.category_id = cat.id OR egc.category_id = cat.parent_id)
-  LEFT JOIN expense_groupings eg ON (eg.id = egc.expense_grouping_id)
+  LEFT JOIN expense_groupings eg ON (
+    eg.id = $/groupingId/
+    AND eg.id IN (SELECT expense_grouping_id FROM expense_grouping_categories egc WHERE egc.category_id IN (cat.id, cat.parent_id)
+    AND (eg.start_date IS NULL OR eg.start_date <= e.date)
+    AND (eg.end_date IS NULL OR eg.end_date >= e.date)
+  ))
   WHERE e.group_id=$/groupId/
   AND (
-    (
-      e.grouping_id IS NULL
-      AND egc.expense_grouping_id = $/groupingId/
-      AND (eg.start_date IS NULL OR eg.start_date <= e.date)
-      AND (eg.end_date IS NULL OR eg.end_date >= e.date)
-    )
+    (e.grouping_id IS NULL AND eg.id = $/groupingId/)
     OR (e.grouping_id = $/groupingId/)
   )
 `;
