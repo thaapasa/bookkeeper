@@ -9,6 +9,7 @@ import {
 
 import { ErrorView } from '../general/ErrorView';
 import { NoteView } from '../general/NoteView';
+import { Pre } from '../Styles';
 
 export type AsyncDataViewProps<T, C extends { data: T }> = {
   data: AsyncData<T>;
@@ -68,5 +69,8 @@ const LoadingRenderer: React.FC<{ data: AsyncDataLoading }> = () => (
 );
 
 const ErrorRenderer: React.FC<{ data: AsyncDataError }> = ({ data }) => (
-  <ErrorView title="Virhe tietojen latauksessa">{data.error.message}</ErrorView>
+  <ErrorView title="Virhe tietojen latauksessa">
+    <p>{data.error.message}</p>
+    {'data' in data.error ? <Pre>{JSON.stringify(data.error.data, null, 2)}</Pre> : undefined}
+  </ErrorView>
 );

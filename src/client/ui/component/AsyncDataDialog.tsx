@@ -4,6 +4,7 @@ import * as React from 'react';
 
 import { AsyncDataError, AsyncDataLoading } from 'client/data/AsyncData';
 
+import { Pre } from '../Styles';
 import { AsyncDataView, AsyncDataViewProps } from './AsyncDataView';
 
 export const AsyncDataDialogContent = <T, C extends { data: T }>({
@@ -33,7 +34,10 @@ const LoadingRenderer: React.FC<{ data: AsyncDataLoading }> = () => (
 const ErrorRenderer: React.FC<{ data: AsyncDataError }> = ({ data }) => (
   <DialogContent>
     <DialogTitle color="primary">Virhe tietojen latauksessa</DialogTitle>
-    <DialogContent>{data.error.message}</DialogContent>
+    <DialogContent>
+      <p>{data.error.message}</p>
+      {'data' in data.error ? <Pre>{JSON.stringify(data.error.data, null, 2)}</Pre> : undefined}
+    </DialogContent>
   </DialogContent>
 );
 

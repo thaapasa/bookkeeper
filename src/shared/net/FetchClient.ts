@@ -79,7 +79,11 @@ export class FetchClient {
         return await this.readResponse<T>(res);
       case 401:
       case 403:
-        throw new AuthenticationError('Unauthorized: ' + res.status, await res.json());
+        throw new AuthenticationError(
+          'UNAUTHORIZED',
+          'Unauthorized: ' + res.status,
+          await res.json(),
+        );
       default: {
         const data = await res.json();
         this.logger?.warn(data, 'Error received from API');
