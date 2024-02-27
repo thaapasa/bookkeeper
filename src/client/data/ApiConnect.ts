@@ -84,18 +84,27 @@ interface ApiRequestSpec extends RequestSpec {
   allowRefreshAndRetry?: boolean;
 }
 
-export class ApiConnect {
-  private currentToken: string | null = null;
+const TokenKey = 'bookkeeper.token';
 
+export class ApiConnect {
   public setToken(token: string | null) {
-    this.currentToken = token;
+    if (token) {
+      window.localStorage.setItem(TokenKey, token);
+    } else {
+      window.localStorage.removeItem(TokenKey);
+    }
+  }
+
+  private getCurrentToken(): string | null {
+    return window.localStorage.getItem(TokenKey);
   }
 
   private authHeader(): Record<string, string> {
-    if (!this.currentToken) {
+    const token = this.getCurrentToken();
+    if (!token) {
       return {};
     }
-    return this.authHeaderForToken(this.currentToken);
+    return this.authHeaderForToken(token);
   }
 
   private async req<T>(path: string, method: RequestMethod, spec: ApiRequestSpec = {}): Promise<T> {
