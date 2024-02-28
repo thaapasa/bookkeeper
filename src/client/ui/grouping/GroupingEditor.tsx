@@ -9,6 +9,7 @@ import { categoryMapE, getFullCategoryName } from 'client/data/Categories';
 
 import { AsyncDataDialogContent } from '../component/AsyncDataDialog';
 import { connect } from '../component/BaconConnect';
+import { ColorPicker } from '../component/ColorPicker';
 import { connectDialog } from '../component/DialogConnector';
 import { OptionalDatePicker } from '../component/OptionalDatePicker';
 import { Row } from '../component/Row';
@@ -87,6 +88,9 @@ const GroupingEditView: React.FC<{
           </SelectionRow>
           <SelectionRow title="Loppupäivä">
             <OptionalDatePicker value={state.endDate} onChange={state.setEndDate} />
+          </SelectionRow>
+          <SelectionRow title="Väri">
+            <ColorPicker value={state.color} onChange={state.setColor} />
           </SelectionRow>
           <SelectionRow title="Kuva">
             <Row>

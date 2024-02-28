@@ -19,7 +19,7 @@ const GROUPING_ORDER = /*sql*/ `eg.start_date DESC NULLS LAST, eg.title`;
 
 const GROUPING_FIELDS = /*sql*/ `eg.id, eg.title,
   eg.start_date AS "startDate", eg.end_date AS "endDate",
-  eg.created, eg.updated, eg.image,
+  eg.created, eg.updated, eg.image, eg.color,
   ARRAY_AGG(egc.category_id) AS categories`;
 
 const EXPENSE_SUM_SUBSELECT = /*sql*/ `
@@ -94,7 +94,7 @@ export async function getAllGroupingRefs(
   groupId: ObjectId,
 ): Promise<ExpenseGroupingRef[]> {
   const rows = await tx.manyOrNone(
-    `SELECT eg.id, eg.title, eg.image
+    `SELECT eg.id, eg.title, eg.image, eg.color
       FROM expense_groupings eg
       WHERE eg.group_id=$/groupId/
       GROUP BY eg.id
@@ -112,10 +112,16 @@ export async function insertExpenseGrouping(
 ): Promise<ObjectId> {
   const row = await tx.one(
     `INSERT INTO expense_groupings
-      (group_id, title, start_date, end_date)
-      VALUES ($/groupId/, $/title/, $/startDate/, $/endDate/)
+      (group_id, title, start_date, end_date, color)
+      VALUES ($/groupId/, $/title/, $/startDate/, $/endDate/, $/color/)
       RETURNING id`,
-    { groupId, title: data.title, startDate: data.startDate, endDate: data.endDate },
+    {
+      groupId,
+      title: data.title,
+      startDate: data.startDate,
+      endDate: data.endDate,
+      color: data.color,
+    },
   );
   const id = row.id;
   if (data.categories.length > 0) {
@@ -137,9 +143,15 @@ export async function updateExpenseGroupingById(
 ): Promise<void> {
   await tx.none(
     `UPDATE expense_groupings
-      SET title=$/title/, start_date=$/startDate/, end_date=$/endDate/, updated=NOW()
+      SET title=$/title/, start_date=$/startDate/, end_date=$/endDate/, color=$/color/, updated=NOW()
       WHERE id=$/groupingId/`,
-    { groupingId, title: data.title, startDate: data.startDate, endDate: data.endDate },
+    {
+      groupingId,
+      title: data.title,
+      startDate: data.startDate,
+      endDate: data.endDate,
+      color: data.color,
+    },
   );
   await tx.none(`DELETE FROM expense_grouping_categories WHERE expense_grouping_id=$/groupingId/`, {
     groupingId,
@@ -222,6 +234,7 @@ function toExpenseGrouping(row: any): ExpenseGrouping {
   return {
     id: row.id,
     title: row.title,
+    color: row.color,
     categories: (row.categories ?? []).filter(isDefined),
     startDate: row.startDate ? toISODate(row.startDate) : undefined,
     endDate: row.endDate ? toISODate(row.endDate) : undefined,
@@ -234,6 +247,7 @@ function toExpenseGroupingRef(row: any): ExpenseGroupingRef {
   return {
     id: row.id,
     title: row.title,
+    color: row.color,
     image: row.image ? groupingImageHandler.getVariant('image', row.image).webPath : undefined,
   };
 }

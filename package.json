@@ -26,7 +26,7 @@
     "ps-server": "ps -ef | grep BookkeeperServer | grep -v grep | awk '{ print $2; }'",
     "migrate": "knex migrate:latest",
     "migrate-make": "knex migrate:make",
-    "migrate-rollback": "knex migrate:rollback",
+    "rollback": "knex migrate:rollback",
     "seed": "knex seed:run",
     "example-data": "bun run src/tools/addExampleData.ts",
     "find-cyclic": "bunx madge --extensions ts,tsx --circular ."

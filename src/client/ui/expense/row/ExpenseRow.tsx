@@ -19,6 +19,7 @@ import { ActivatableTextField } from 'client/ui/component/ActivatableTextField';
 import { ExpanderIcon } from 'client/ui/component/ExpanderIcon';
 import { UserAvatar } from 'client/ui/component/UserAvatar';
 import { UserPrompts } from 'client/ui/dialog/DialogState';
+import { GroupedExpenseIcon } from 'client/ui/grouping/GroupedExpenseIcon';
 import { ExpenseTypeIcon } from 'client/ui/icons/ExpenseType';
 import { ToolIcon } from 'client/ui/icons/ToolIcon';
 import { Flex, media, VCenterRow } from 'client/ui/Styles';
@@ -34,7 +35,6 @@ import {
   BalanceColumn,
   CategoryColumn,
   DateColumn,
-  GroupedExpenseIcon,
   IconToolArea,
   NameColumn,
   ReceiverColumn,
@@ -203,6 +203,7 @@ export class ExpenseRowImpl extends React.Component<ExpenseRowProps, ExpenseRowS
       style.background = colors.income;
     }
     const firstDay = !this.props.prev || !toDayjs(expense.date).isSame(this.props.prev.date, 'day');
+    const grouping = this.props.groupingMap[this.props.expense?.groupingId ?? 0];
     return (
       <>
         <Row className={firstDay && this.props.dateBorder ? 'first-day' : ''}>
@@ -233,16 +234,12 @@ export class ExpenseRowImpl extends React.Component<ExpenseRowProps, ExpenseRowS
                   onClick={() => this.props.addFilter(ExpenseFilters.unconfirmed, 'Alustavat')}
                 />
               )}
-              {this.props.expense.groupingId ? (
+              {grouping ? (
                 <GroupedExpenseIcon
+                  grouping={grouping}
                   onClick={() =>
-                    this.props.addFilter(
-                      e => e.groupingId === this.props.expense.groupingId,
-                      this.props.groupingMap[this.props.expense.groupingId!]?.title ?? 'Ryhmitelty',
-                    )
+                    this.props.addFilter(e => e.groupingId === grouping.id, grouping.title)
                   }
-                  title={this.props.groupingMap[this.props.expense.groupingId]?.title}
-                  image={this.props.groupingMap[this.props.expense.groupingId]?.image}
                 />
               ) : null}
             </IconToolArea>

@@ -1,10 +1,9 @@
-import { CircularProgress, colors, styled } from '@mui/material';
+import { CircularProgress, styled } from '@mui/material';
 import * as React from 'react';
 
 import { windowSizeP } from 'client/data/State';
 import { colorScheme, primaryColors } from 'client/ui/Colors';
 import { connect } from 'client/ui/component/BaconConnect';
-import { Bookmark } from 'client/ui/icons/Bookmark';
 import { Icons } from 'client/ui/icons/Icons';
 import { QuestionBookmark } from 'client/ui/icons/QuestionBookmark';
 import { getScreenSizeClassName, media, ScreenSizeClassName } from 'client/ui/Styles';
@@ -241,37 +240,10 @@ export const UnconfirmedIcon: React.FC<UnconfimedIconProps> = ({ size, title, on
   </IconContainer>
 );
 
-type GroupedExpenseIconProps = {
-  size?: number;
-  title: string;
-  onClick?: () => void;
-  image?: string;
-};
-export const GroupedExpenseIcon: React.FC<GroupedExpenseIconProps> = ({ size, title, onClick }) => (
-  <IconContainer title={title} onClick={onClick}>
-    <Bookmark size={size || 24} title={title} color={colors.blue[300]} />
-    {title ? <GroupedExpenseIconText>{title[0]}</GroupedExpenseIconText> : null}
-  </IconContainer>
-);
-
 const IconContainer = styled('div')`
   cursor: pointer;
   position: relative;
   display: inline-block;
-`;
-
-const GroupedExpenseIconText = styled('div')`
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 6px;
-  display: inline-flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  color: ${colorScheme.primary.light};
 `;
 
 const RecurringExpenseSeparatorItem = styled(AllColumns)`

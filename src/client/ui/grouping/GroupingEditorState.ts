@@ -1,3 +1,4 @@
+import { colors } from '@mui/material';
 import { create } from 'zustand';
 
 import { ISODate } from 'shared/time';
@@ -13,12 +14,14 @@ export type GroupingState = {
   title: string;
   id: ObjectId | null;
   categories: number[];
+  color: string;
   startDate: ISODate | null;
   endDate: ISODate | null;
   reset(grouping: ExpenseGrouping | null): void;
   setTitle(title: string): void;
   setStartDate(date: ISODate | null): void;
   setEndDate(date: ISODate | null): void;
+  setColor(color: string): void;
   inputValid(): boolean;
   saveGrouping(...callbacks: (() => void)[]): Promise<void>;
   uploadImage(file: File, filename: string, ...callbacks: (() => void)[]): Promise<void>;
@@ -32,14 +35,17 @@ export const useGroupingState = create<GroupingState>((set, get) => ({
   id: null,
   startDate: null,
   endDate: null,
+  color: colors.green[400],
   categories: [],
   setTitle: title => set({ title }),
+  setColor: color => set({ color }),
   setStartDate: startDate => set({ startDate }),
   setEndDate: endDate => set({ endDate }),
   reset: grouping =>
     set({
       id: grouping?.id ?? null,
       title: grouping?.title ?? '',
+      color: grouping?.color ?? '',
       categories: grouping?.categories ?? [],
       startDate: grouping?.startDate || null,
       endDate: grouping?.endDate || null,
@@ -56,6 +62,7 @@ export const useGroupingState = create<GroupingState>((set, get) => ({
     }
     const payload: ExpenseGroupingData = {
       title: s.title,
+      color: s.color,
       categories: s.categories.length ? s.categories : [],
       startDate: s.startDate ?? undefined,
       endDate: s.endDate ?? undefined,

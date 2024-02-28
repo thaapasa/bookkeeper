@@ -16,6 +16,7 @@ import { LinkButton } from '../component/NavigationBar';
 import { Subtitle, TitleCss } from '../design/Text';
 import { Icons } from '../icons/Icons';
 import { Flex } from '../Styles';
+import { GroupedExpenseIcon } from './GroupedExpenseIcon';
 import { editExpenseGrouping } from './GroupingEditor';
 
 export const ExpenseGroupingsList: React.FC<{
@@ -52,6 +53,7 @@ export const ExpenseGroupingView: React.FC<{
           </ToolsArea>
         </TitleArea>
         <GroupingTotalsArea className="grouping-totals-area">
+          <PositionedIcon grouping={grouping} size={24} />
           {grouping.image ? <GroupingImage src={grouping.image} /> : null}
           <GroupingInfo>
             <InfoTextArea>
@@ -97,6 +99,11 @@ async function deleteExpenseGrouping(grouping: ExpenseGrouping, onReload: () => 
   });
 }
 
+const PositionedIcon = styled(GroupedExpenseIcon)`
+  position: absolute;
+  left: 8px;
+`;
+
 const GroupingImage = styled('img')`
   width: 168px;
   height: 168px;
@@ -121,6 +128,7 @@ const GroupingCard = styled(FlexColumn)`
 `;
 
 const GroupingTotalsArea = styled(FlexRow)`
+  position: relative;
   flex: 1;
 `;
 

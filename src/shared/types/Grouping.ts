@@ -7,6 +7,7 @@ import { ObjectId } from './Id';
 
 export const ExpenseGroupingData = z.object({
   title: z.string(),
+  color: z.string(),
   startDate: ISODate.optional(),
   endDate: ISODate.optional(),
   categories: z.array(ObjectId),
@@ -27,7 +28,12 @@ export const ExpenseGroupingCategoryTotal = z.object({
 });
 export type ExpenseGroupingCategoryTotal = z.infer<typeof ExpenseGroupingCategoryTotal>;
 
-export const ExpenseGroupingRef = ExpenseGrouping.pick({ id: true, title: true, image: true });
+export const ExpenseGroupingRef = ExpenseGrouping.pick({
+  id: true,
+  title: true,
+  image: true,
+  color: true,
+});
 export type ExpenseGroupingRef = z.infer<typeof ExpenseGroupingRef>;
 
 export const ExpenseGroupingWithExpenses = ExpenseGrouping.extend({
