@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { Grid, IconButton } from '@mui/material';
+import { Chip, Grid, IconButton } from '@mui/material';
 import React from 'react';
 
 import { uri } from 'shared/net';
@@ -18,16 +18,31 @@ import { Icons } from '../icons/Icons';
 import { Flex } from '../Styles';
 import { GroupedExpenseIcon } from './GroupedExpenseIcon';
 import { editExpenseGrouping } from './GroupingEditor';
+import { ExpenseGroupingsTagFilters, useFilterTags } from './useFilterTags';
 
 export const ExpenseGroupingsList: React.FC<{
   data: ExpenseGrouping[];
+  tags: string[];
   onReload: () => void;
-}> = ({ data, onReload }) => {
-  return data.map(d => <ExpenseGroupingView grouping={d} key={d.id} onReload={onReload} />);
+}> = ({ data, tags, onReload }) => {
+  const filters = useFilterTags();
+  const filtered =
+    !tags || tags.length < 1 ? data : data.filter(d => d.tags.some(t => tags.includes(t)));
+  return (
+    <>
+      <Grid item xs={12} md={12} justifyContent="flex-end" container>
+        <ExpenseGroupingsTagFilters allTags={tags} {...filters} />
+      </Grid>
+      {filtered.map(d => (
+        <ExpenseGroupingView grouping={d} key={d.id} onReload={onReload} tags={filters.tags} />
+      ))}
+    </>
+  );
 };
 
 export const ExpenseGroupingView: React.FC<{
   grouping: ExpenseGrouping;
+  tags: string[];
   onReload: () => void;
 }> = ({ grouping, onReload }) => {
   return (
@@ -57,6 +72,13 @@ export const ExpenseGroupingView: React.FC<{
           {grouping.image ? <GroupingImage src={grouping.image} /> : null}
           <GroupingInfo>
             <InfoTextArea>
+              {grouping.tags ? (
+                <TagsList>
+                  {grouping.tags.map(t => (
+                    <TagChip label={t} key={t} variant="filled" size="small" />
+                  ))}
+                </TagsList>
+              ) : null}
               <Sum>{Money.from(grouping.totalSum).format()}</Sum>
               <GroupingDates grouping={grouping} />
             </InfoTextArea>
@@ -99,6 +121,16 @@ async function deleteExpenseGrouping(grouping: ExpenseGrouping, onReload: () => 
   });
 }
 
+const TagsList = styled('div')`
+  position: absolute;
+  right: 8px;
+  top: 8px;
+`;
+
+const TagChip = styled(Chip)`
+  margin-left: 4px;
+`;
+
 const PositionedIcon = styled(GroupedExpenseIcon)`
   position: absolute;
   left: 8px;
@@ -139,7 +171,7 @@ const InfoTextArea = styled(Flex)`
   align-self: stretch;
   align-items: center;
   justify-content: center;
-  padding: 16px;
+  padding: 24px 16px 0 16px;
 `;
 
 const Sum = styled('div')`

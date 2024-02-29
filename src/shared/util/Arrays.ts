@@ -32,6 +32,10 @@ export function indices(num: number): number[] {
   return Array.from(new Array(num), (_, i) => i);
 }
 
+export function uniq<T>(array: T[]): T[] {
+  return [...new Set(array)];
+}
+
 export function pickRandomItem<T>(arr: T[]): T {
   if (arr.length < 1) {
     throw new BkError('No items in array', 'empty array', 500);

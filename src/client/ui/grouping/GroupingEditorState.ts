@@ -15,6 +15,7 @@ export type GroupingState = {
   id: ObjectId | null;
   categories: number[];
   color: string;
+  tags: string[];
   startDate: ISODate | null;
   endDate: ISODate | null;
   reset(grouping: ExpenseGrouping | null): void;
@@ -22,6 +23,8 @@ export type GroupingState = {
   setStartDate(date: ISODate | null): void;
   setEndDate(date: ISODate | null): void;
   setColor(color: string): void;
+  addTag(tag: string): void;
+  removeTag(tag: string): void;
   inputValid(): boolean;
   saveGrouping(...callbacks: (() => void)[]): Promise<void>;
   uploadImage(file: File, filename: string, ...callbacks: (() => void)[]): Promise<void>;
@@ -37,15 +40,24 @@ export const useGroupingState = create<GroupingState>((set, get) => ({
   endDate: null,
   color: colors.green[400],
   categories: [],
+  tags: [],
   setTitle: title => set({ title }),
   setColor: color => set({ color }),
   setStartDate: startDate => set({ startDate }),
   setEndDate: endDate => set({ endDate }),
+  addTag: tag => {
+    const trimmed = tag?.trim();
+    if (trimmed) {
+      set({ tags: [...new Set([...get().tags, tag])] });
+    }
+  },
+  removeTag: tag => set({ tags: get().tags.filter(t => t !== tag) }),
   reset: grouping =>
     set({
       id: grouping?.id ?? null,
       title: grouping?.title ?? '',
       color: grouping?.color ?? '',
+      tags: [...(grouping?.tags ?? [])],
       categories: grouping?.categories ?? [],
       startDate: grouping?.startDate || null,
       endDate: grouping?.endDate || null,
@@ -63,6 +75,7 @@ export const useGroupingState = create<GroupingState>((set, get) => ({
     const payload: ExpenseGroupingData = {
       title: s.title,
       color: s.color,
+      tags: s.tags,
       categories: s.categories.length ? s.categories : [],
       startDate: s.startDate ?? undefined,
       endDate: s.endDate ?? undefined,

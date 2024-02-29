@@ -19,7 +19,7 @@ const GROUPING_ORDER = /*sql*/ `eg.start_date DESC NULLS LAST, eg.title`;
 
 const GROUPING_FIELDS = /*sql*/ `eg.id, eg.title,
   eg.start_date AS "startDate", eg.end_date AS "endDate",
-  eg.created, eg.updated, eg.image, eg.color,
+  eg.created, eg.updated, eg.image, eg.color, eg.tags,
   ARRAY_AGG(egc.category_id) AS categories`;
 
 const EXPENSE_SUM_SUBSELECT = /*sql*/ `
@@ -69,6 +69,21 @@ export async function getExpenseGroupingsForUser(
   return rows.map(toExpenseGrouping);
 }
 
+export async function getExpenseGroupingsTags(
+  tx: ITask<any>,
+  groupId: ObjectId,
+): Promise<string[]> {
+  const rows = await tx.manyOrNone(
+    `SELECT DISTINCT UNNEST(tags) AS tag
+      FROM expense_groupings
+      WHERE group_id = $/groupId/
+      ORDER BY tag
+    `,
+    { groupId },
+  );
+  return rows.map(r => r.tag);
+}
+
 export async function getExpenseGroupingById(
   tx: ITask<any>,
   groupId: ObjectId,
@@ -94,7 +109,7 @@ export async function getAllGroupingRefs(
   groupId: ObjectId,
 ): Promise<ExpenseGroupingRef[]> {
   const rows = await tx.manyOrNone(
-    `SELECT eg.id, eg.title, eg.image, eg.color
+    `SELECT eg.id, eg.title, eg.image, eg.color, eg.tags
       FROM expense_groupings eg
       WHERE eg.group_id=$/groupId/
       GROUP BY eg.id
@@ -112,15 +127,16 @@ export async function insertExpenseGrouping(
 ): Promise<ObjectId> {
   const row = await tx.one(
     `INSERT INTO expense_groupings
-      (group_id, title, start_date, end_date, color)
-      VALUES ($/groupId/, $/title/, $/startDate/, $/endDate/, $/color/)
+      (group_id, title, start_date, end_date, color, tags)
+      VALUES ($/groupId/, $/title/, $/startDate/, $/endDate/, $/color/, $/tags/::TEXT[])
       RETURNING id`,
     {
       groupId,
       title: data.title,
       startDate: data.startDate,
       endDate: data.endDate,
-      color: data.color,
+      color: data.color ?? '',
+      tags: data.tags ?? [],
     },
   );
   const id = row.id;
@@ -143,14 +159,15 @@ export async function updateExpenseGroupingById(
 ): Promise<void> {
   await tx.none(
     `UPDATE expense_groupings
-      SET title=$/title/, start_date=$/startDate/, end_date=$/endDate/, color=$/color/, updated=NOW()
+      SET title=$/title/, start_date=$/startDate/, end_date=$/endDate/, color=$/color/, tags=$/tags/, updated=NOW()
       WHERE id=$/groupingId/`,
     {
       groupingId,
       title: data.title,
       startDate: data.startDate,
       endDate: data.endDate,
-      color: data.color,
+      color: data.color ?? '',
+      tags: data.tags ?? [],
     },
   );
   await tx.none(`DELETE FROM expense_grouping_categories WHERE expense_grouping_id=$/groupingId/`, {
@@ -235,6 +252,7 @@ function toExpenseGrouping(row: any): ExpenseGrouping {
     id: row.id,
     title: row.title,
     color: row.color,
+    tags: row.tags,
     categories: (row.categories ?? []).filter(isDefined),
     startDate: row.startDate ? toISODate(row.startDate) : undefined,
     endDate: row.endDate ? toISODate(row.endDate) : undefined,
@@ -248,6 +266,7 @@ function toExpenseGroupingRef(row: any): ExpenseGroupingRef {
     id: row.id,
     title: row.title,
     color: row.color,
+    tags: row.tags,
     image: row.image ? groupingImageHandler.getVariant('image', row.image).webPath : undefined,
   };
 }

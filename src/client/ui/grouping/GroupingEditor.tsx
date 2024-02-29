@@ -13,6 +13,7 @@ import { ColorPicker } from '../component/ColorPicker';
 import { connectDialog } from '../component/DialogConnector';
 import { OptionalDatePicker } from '../component/OptionalDatePicker';
 import { Row } from '../component/Row';
+import { TagsPicker } from '../component/TagsPicker';
 import { TextEdit } from '../component/TextEdit';
 import { UploadImageButton } from '../component/UploadFileButton';
 import { checkersBackground } from '../design/Background';
@@ -73,6 +74,7 @@ const GroupingEditView: React.FC<{
 }> = ({ data, onClose, reloadAll, reloadData, categoryMap }) => {
   const createNew = data === null;
   const state = useGroupingState();
+  const tags = useAsyncData(apiConnect.getExpenseGroupingTags, true);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   React.useEffect(() => void state.reset(data), [data?.id]);
   return (
@@ -91,6 +93,14 @@ const GroupingEditView: React.FC<{
           </SelectionRow>
           <SelectionRow title="Väri">
             <ColorPicker value={state.color} onChange={state.setColor} />
+          </SelectionRow>
+          <SelectionRow title="Tagit">
+            <TagsPicker
+              value={state.tags}
+              onAdd={state.addTag}
+              onRemove={state.removeTag}
+              presetValues={tags.type === 'loaded' ? tags.value : []}
+            />
           </SelectionRow>
           <SelectionRow title="Kuva">
             <Row>

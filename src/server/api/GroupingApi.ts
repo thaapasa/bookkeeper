@@ -1,7 +1,10 @@
 import { Router } from 'express';
 
 import { ExpenseGroupingData } from 'shared/types';
-import { getExpenseGroupingsForUser } from 'server/data/grouping/GroupingDb';
+import {
+  getExpenseGroupingsForUser,
+  getExpenseGroupingsTags,
+} from 'server/data/grouping/GroupingDb';
 import {
   createExpenseGrouping,
   deleteExpenseGrouping,
@@ -25,6 +28,9 @@ export function createGroupingApi() {
   api.postTx('/', { body: ExpenseGroupingData }, (tx, session, { body }) =>
     createExpenseGrouping(tx, session.group.id, session.user.id, body),
   );
+
+  // GET /api/grouping/tags
+  api.getTx('/tags', {}, (tx, session, {}) => getExpenseGroupingsTags(tx, session.group.id));
 
   // GET /api/grouping/list
   api.getTx('/list', {}, (tx, session, {}) => getExpenseGroupingsForUser(tx, session.group.id));

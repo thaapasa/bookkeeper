@@ -16,6 +16,7 @@ import { GroupingEditor, newExpenseGrouping } from './GroupingEditor';
 export const GroupingPage: React.FC = () => {
   const { counter, forceReload } = useForceReload();
   const expenseGroupings = useAsyncData(loadGroupings, true, counter);
+  const tags = useAsyncData(loadTags, true, counter);
   return (
     <PageContentContainer className="center">
       <Grid container columnSpacing={2} rowSpacing={2} width="calc(100% - 32px)">
@@ -31,6 +32,7 @@ export const GroupingPage: React.FC = () => {
           data={expenseGroupings}
           renderer={ExpenseGroupingsList}
           onReload={forceReload}
+          tags={tags.type === 'loaded' ? tags.value : []}
         />
       </Grid>
       <GroupingEditor reloadAll={forceReload} />
@@ -40,6 +42,10 @@ export const GroupingPage: React.FC = () => {
 
 function loadGroupings(_counter: number) {
   return apiConnect.getExpenseGroupings();
+}
+
+function loadTags(_counter: number) {
+  return apiConnect.getExpenseGroupingTags();
 }
 
 const RGrid = styled(Grid)`

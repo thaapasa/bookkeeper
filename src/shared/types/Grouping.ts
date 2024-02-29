@@ -8,6 +8,7 @@ import { ObjectId } from './Id';
 export const ExpenseGroupingData = z.object({
   title: z.string(),
   color: z.string(),
+  tags: z.array(z.string()),
   startDate: ISODate.optional(),
   endDate: ISODate.optional(),
   categories: z.array(ObjectId),
@@ -33,6 +34,7 @@ export const ExpenseGroupingRef = ExpenseGrouping.pick({
   title: true,
   image: true,
   color: true,
+  tags: true,
 });
 export type ExpenseGroupingRef = z.infer<typeof ExpenseGroupingRef>;
 

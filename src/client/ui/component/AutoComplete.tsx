@@ -1,13 +1,18 @@
+import styled from '@emotion/styled';
 import {
   Autocomplete,
   AutocompleteChangeReason,
   AutocompleteInputChangeReason,
+  IconButton,
+  InputAdornment,
   TextField,
 } from '@mui/material';
 import React from 'react';
 
 import { spaced } from 'shared/util';
 import { logger } from 'client/Logger';
+
+import { Icons } from '../icons/Icons';
 
 export interface AutoCompleteProps<T> {
   id?: string;
@@ -26,6 +31,7 @@ export interface AutoCompleteProps<T> {
   errorText?: string;
   autoHideErrorText?: boolean;
   onKeyUp?: (event: React.KeyboardEvent<any>) => void;
+  onAdd?: () => void;
   className?: string;
   inputClassName?: string;
 }
@@ -49,6 +55,7 @@ export const AutoComplete: React.FC<AutoCompleteProps<any>> = ({
   autoHideErrorText,
   className,
   inputClassName,
+  onAdd,
 }) => {
   const onChangeHandler = React.useCallback(
     (_event: React.SyntheticEvent, value: string | null, reason: AutocompleteChangeReason) => {
@@ -76,10 +83,12 @@ export const AutoComplete: React.FC<AutoCompleteProps<any>> = ({
   );
 
   const defaultErrorText = autoHideErrorText ? null : ' ';
+  const hasAdornments = !!onAdd;
 
   return (
-    <Autocomplete
+    <StyledAutocomplete
       id={id}
+      className={className + (hasAdornments ? ' adorned' : '')}
       inputValue={value}
       renderInput={params => (
         <TextField
@@ -94,6 +103,16 @@ export const AutoComplete: React.FC<AutoCompleteProps<any>> = ({
           className={spaced`autocomplete-input ${inputClassName}`}
           onKeyUp={onKeyUp}
           style={inputStyle}
+          InputProps={{
+            ...params.InputProps,
+            endAdornment: hasAdornments ? (
+              <InputAdornment position="end">
+                <IconButton onClick={onAdd}>
+                  <Icons.Add />
+                </IconButton>
+              </InputAdornment>
+            ) : undefined,
+          }}
         />
       )}
       fullWidth={fullWidth}
@@ -102,7 +121,12 @@ export const AutoComplete: React.FC<AutoCompleteProps<any>> = ({
       onInputChange={onInputChangeHandler}
       getOptionLabel={getSuggestionValue}
       style={style}
-      className={className}
     />
   );
 };
+
+const StyledAutocomplete = styled(Autocomplete)`
+  &.adorned .MuiAutocomplete-inputRoot {
+    padding-right: 0 !important;
+  }
+` as typeof Autocomplete;
