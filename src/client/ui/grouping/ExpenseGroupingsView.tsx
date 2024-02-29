@@ -5,7 +5,7 @@ import React from 'react';
 import { uri } from 'shared/net';
 import { readableDateWithYear } from 'shared/time';
 import { ExpenseGrouping } from 'shared/types';
-import { Money } from 'shared/util';
+import { hasMatchingElements, Money } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { executeOperation } from 'client/util/ExecuteOperation';
 import { groupingsPagePath } from 'client/util/Links';
@@ -22,16 +22,17 @@ import { ExpenseGroupingsTagFilters, useFilterTags } from './useFilterTags';
 
 export const ExpenseGroupingsList: React.FC<{
   data: ExpenseGrouping[];
-  tags: string[];
+  allTags: string[];
   onReload: () => void;
-}> = ({ data, tags, onReload }) => {
+}> = ({ data, allTags, onReload }) => {
   const filters = useFilterTags();
+  const selectedTags = filters.tags ?? [];
   const filtered =
-    !tags || tags.length < 1 ? data : data.filter(d => d.tags.some(t => tags.includes(t)));
+    selectedTags.length < 1 ? data : data.filter(d => hasMatchingElements(d.tags, selectedTags));
   return (
     <>
       <Grid item xs={12} md={12} justifyContent="flex-end" container>
-        <ExpenseGroupingsTagFilters allTags={tags} {...filters} />
+        <ExpenseGroupingsTagFilters allTags={allTags} {...filters} />
       </Grid>
       {filtered.map(d => (
         <ExpenseGroupingView grouping={d} key={d.id} onReload={onReload} tags={filters.tags} />

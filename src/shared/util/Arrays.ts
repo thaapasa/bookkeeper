@@ -36,6 +36,10 @@ export function uniq<T>(array: T[]): T[] {
   return [...new Set(array)];
 }
 
+export function hasMatchingElements<T>(a1: T[], a2: T[]): boolean {
+  return a1.some(a => a2.includes(a));
+}
+
 export function pickRandomItem<T>(arr: T[]): T {
   if (arr.length < 1) {
     throw new BkError('No items in array', 'empty array', 500);

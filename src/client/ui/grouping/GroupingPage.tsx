@@ -32,7 +32,7 @@ export const GroupingPage: React.FC = () => {
           data={expenseGroupings}
           renderer={ExpenseGroupingsList}
           onReload={forceReload}
-          tags={tags.type === 'loaded' ? tags.value : []}
+          allTags={tags.type === 'loaded' ? tags.value : []}
         />
       </Grid>
       <GroupingEditor reloadAll={forceReload} />
