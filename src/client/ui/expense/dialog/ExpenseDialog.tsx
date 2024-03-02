@@ -21,7 +21,14 @@ import {
 } from 'shared/expense';
 import { toDayjs, toISODate } from 'shared/time';
 import { Category, CategoryMap, ExpenseGrouping, Group, Source, User } from 'shared/types';
-import { identity, Money, omit, sanitizeMoneyInput, valuesToArray } from 'shared/util';
+import {
+  identity,
+  MaybePromise,
+  Money,
+  omit,
+  sanitizeMoneyInput,
+  valuesToArray,
+} from 'shared/util';
 import { CategoryDataSource, isSubcategoryOf } from 'client/data/Categories';
 import { logger } from 'client/Logger';
 import { gray } from 'client/ui/Colors';
@@ -114,7 +121,7 @@ export interface ExpenseDialogProps<D> {
   categoryMap: CategoryMap;
   groupings: ExpenseGrouping[];
   saveAction: ExpenseSaveAction | null;
-  onClose: (e: D | null) => void;
+  onClose: (e: D | null) => MaybePromise<void>;
   onExpensesUpdated: (date: Dayjs) => void;
   group: Group;
   user: User;
@@ -283,7 +290,7 @@ export class ExpenseDialog extends React.Component<
     values: Partial<ExpenseInEditor>,
   ) {
     const newState = this.getDefaultState(expense, values);
-    logger.info('Start editing %s', newState);
+    logger.info(newState, 'Start editing');
     fields.map(k => this.inputStreams[k].push(newState[k]));
   }
 
@@ -322,9 +329,12 @@ export class ExpenseDialog extends React.Component<
         data,
         this.props.original,
       );
+      logger.info(`Saved expense: ${r}`);
       if (r) {
+        // Close dialog first (this may navigate away from the current page)
+        await this.props.onClose(expense);
+        // Notify that expenses have updated: this may cause another navigation to happen
         this.props.onExpensesUpdated(toDayjs(expense.date));
-        this.props.onClose(expense);
       }
     } finally {
       this.saveLock.push(false);
@@ -355,6 +365,7 @@ export class ExpenseDialog extends React.Component<
     if (code === KeyCodes.escape) {
       return this.dismiss();
     }
+    return;
   };
 
   private dismiss = () => {

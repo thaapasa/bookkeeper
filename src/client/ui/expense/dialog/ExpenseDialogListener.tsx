@@ -109,7 +109,6 @@ export function createExpenseDialogListener<D>(
       logger.info('Closing dialog');
       this.state.resolve(e);
       this.setState({ open: false, original: null });
-      return false;
     };
 
     render() {

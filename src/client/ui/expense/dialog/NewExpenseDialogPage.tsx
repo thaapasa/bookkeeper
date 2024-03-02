@@ -7,8 +7,10 @@ import { Session } from 'shared/types';
 import { categoryDataSourceP, categoryMapE } from 'client/data/Categories';
 import { sourceMapE, validSessionE } from 'client/data/Login';
 import { updateExpenses } from 'client/data/State';
+import { logger } from 'client/Logger';
 import { connect } from 'client/ui/component/BaconConnect';
 import { useWindowSize } from 'client/ui/hooks/useWindowSize';
+import { navigateAndWait } from 'client/ui/utils/Navigation';
 import { newExpenseSuffix } from 'client/util/Links';
 
 import { ExpenseDialog } from './ExpenseDialog';
@@ -34,7 +36,10 @@ const NewExpenseDialogPage: React.FC = () => {
     <ConnectedExpenseDialog
       createNew
       values={{}}
-      onClose={() => navigate(-1)}
+      onClose={async () => {
+        logger.info('Closing new expense dialog, navigating back');
+        await navigateAndWait(() => navigate(-1));
+      }}
       original={null}
       saveAction={null}
       windowSize={windowSize}
@@ -53,15 +58,20 @@ const NewExpenseFromShortcutDialogPage: React.FC<{ session: Session }> = ({ sess
   const shortcut = session.shortcuts.find(s => s.id === id);
   React.useEffect(() => {
     if (!shortcut) {
+      logger.warn(`Shortcut ${id} not found, backing out`);
       navigate(-1);
     }
-  }, [shortcut, navigate]);
+  }, [shortcut, navigate, id]);
   const values = shortcut ? shortcutToExpenseInEditor(shortcut.expense) : {};
+  logger.info(values, 'Opening expense editor');
   return (
     <ConnectedExpenseDialog
       createNew
       values={values}
-      onClose={() => navigate(-1)}
+      onClose={async () => {
+        logger.info('Closing new expense from shortcut dialog, navigating back');
+        await navigateAndWait(() => navigate(-1));
+      }}
       original={null}
       saveAction={null}
       windowSize={windowSize}
