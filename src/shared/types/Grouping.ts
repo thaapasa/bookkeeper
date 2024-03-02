@@ -9,6 +9,8 @@ export const ExpenseGroupingData = z.object({
   title: z.string(),
   color: z.string(),
   tags: z.array(z.string()),
+  private: z.boolean(),
+  onlyOwn: z.boolean(),
   startDate: ISODate.optional(),
   endDate: ISODate.optional(),
   categories: z.array(ObjectId),
@@ -35,6 +37,8 @@ export const ExpenseGroupingRef = ExpenseGrouping.pick({
   image: true,
   color: true,
   tags: true,
+  private: true,
+  onlyOwn: true,
 });
 export type ExpenseGroupingRef = z.infer<typeof ExpenseGroupingRef>;
 

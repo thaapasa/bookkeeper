@@ -1,5 +1,14 @@
 import styled from '@emotion/styled';
-import { Button, Dialog, DialogContent, DialogTitle, Grid, IconButton } from '@mui/material';
+import {
+  Button,
+  Checkbox,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  FormControlLabel,
+  Grid,
+  IconButton,
+} from '@mui/material';
 import * as B from 'baconjs';
 import * as React from 'react';
 
@@ -84,6 +93,26 @@ const GroupingEditView: React.FC<{
         <Grid container rowSpacing={1} justifyContent="space-between">
           <SelectionRow title="Nimi">
             <TextEdit value={state.title} onChange={state.setTitle} fullWidth />
+          </SelectionRow>
+          <SelectionRow title="Valinnat">
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={state.private}
+                  onChange={e => state.setPrivate(e.target.checked)}
+                />
+              }
+              label="Yksityinen"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={state.onlyOwn}
+                  onChange={e => state.setOnlyOwn(e.target.checked)}
+                />
+              }
+              label="Vain omat kirjaukset"
+            />
           </SelectionRow>
           <SelectionRow title="Alkupäivä">
             <OptionalDatePicker value={state.startDate} onChange={state.setStartDate} />

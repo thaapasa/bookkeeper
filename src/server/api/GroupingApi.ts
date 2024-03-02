@@ -33,11 +33,13 @@ export function createGroupingApi() {
   api.getTx('/tags', {}, (tx, session, {}) => getExpenseGroupingsTags(tx, session.group.id));
 
   // GET /api/grouping/list
-  api.getTx('/list', {}, (tx, session, {}) => getExpenseGroupingsForUser(tx, session.group.id));
+  api.getTx('/list', {}, (tx, session, {}) =>
+    getExpenseGroupingsForUser(tx, session.group.id, session.user.id),
+  );
 
   // GET /api/grouping/:id
   api.getTx('/:id', {}, (tx, session, { params }) =>
-    getExpenseGrouping(tx, session.group.id, params.id),
+    getExpenseGrouping(tx, session.group.id, session.user.id, params.id),
   );
 
   // GET /api/grouping/:id/expenses

@@ -19,7 +19,7 @@ const GROUPING_ORDER = /*sql*/ `eg.start_date DESC NULLS LAST, eg.title`;
 
 const GROUPING_FIELDS = /*sql*/ `eg.id, eg.title,
   eg.start_date AS "startDate", eg.end_date AS "endDate",
-  eg.created, eg.updated, eg.image, eg.color, eg.tags,
+  eg.created, eg.updated, eg.image, eg.color, eg.tags, eg.private, eg.only_own as "onlyOwn",
   ARRAY_AGG(egc.category_id) AS categories`;
 
 const EXPENSE_SUM_SUBSELECT = /*sql*/ `
@@ -32,6 +32,7 @@ const EXPENSE_SUM_SUBSELECT = /*sql*/ `
       AND (cat.id = ANY(data.categories) OR cat.parent_id = ANY(data.categories))
       AND (data."startDate" IS NULL OR e.date >= data."startDate")
       AND (data."endDate" IS NULL OR e.date <= data."endDate")
+      AND (data."onlyOwn" IS FALSE OR e.user_id = $/userId/)
     )
 `;
 
@@ -42,6 +43,7 @@ const EXPENSE_JOIN_TO_GROUPING = /*sql*/ `
     AND eg.id IN (SELECT expense_grouping_id FROM expense_grouping_categories egc WHERE egc.category_id IN (cat.id, cat.parent_id)
     AND (eg.start_date IS NULL OR eg.start_date <= e.date)
     AND (eg.end_date IS NULL OR eg.end_date >= e.date)
+    AND (eg.only_own IS FALSE or e.user_id=$/userId/)
   ))
   WHERE e.group_id=$/groupId/
   AND (
@@ -53,18 +55,19 @@ const EXPENSE_JOIN_TO_GROUPING = /*sql*/ `
 export async function getExpenseGroupingsForUser(
   tx: ITask<any>,
   groupId: ObjectId,
+  userId: ObjectId,
 ): Promise<ExpenseGrouping[]> {
   const rows = await tx.manyOrNone(
     `SELECT data.*, (${EXPENSE_SUM_SUBSELECT}) AS "totalSum" FROM (
       SELECT ${GROUPING_FIELDS}
         FROM expense_groupings eg
         LEFT JOIN expense_grouping_categories egc ON (eg.id = egc.expense_grouping_id)
-        WHERE eg.group_id=$/groupId/
+        WHERE eg.group_id=$/groupId/ AND (eg.private IS FALSE OR eg.user_id = $/userId/)
         GROUP BY eg.id
         ORDER BY ${GROUPING_ORDER}
     ) data
     `,
-    { groupId },
+    { groupId, userId },
   );
   return rows.map(toExpenseGrouping);
 }
@@ -87,6 +90,7 @@ export async function getExpenseGroupingsTags(
 export async function getExpenseGroupingById(
   tx: ITask<any>,
   groupId: ObjectId,
+  userId: ObjectId,
   groupingId: ObjectId,
 ): Promise<ExpenseGrouping | undefined> {
   const row = await tx.oneOrNone(
@@ -94,12 +98,12 @@ export async function getExpenseGroupingById(
       SELECT ${GROUPING_FIELDS}
         FROM expense_groupings eg
         LEFT JOIN expense_grouping_categories egc ON (eg.id = egc.expense_grouping_id)
-        WHERE eg.id=$/groupingId/ AND group_id=$/groupId/
+        WHERE eg.id=$/groupingId/ AND group_id=$/groupId/ AND (eg.private IS FALSE OR eg.user_id = $/userId/)
         GROUP BY eg.id
         ORDER BY ${GROUPING_ORDER}
     ) data
     `,
-    { groupingId, groupId },
+    { groupingId, groupId, userId },
   );
   return row ? toExpenseGrouping(row) : undefined;
 }
@@ -109,7 +113,7 @@ export async function getAllGroupingRefs(
   groupId: ObjectId,
 ): Promise<ExpenseGroupingRef[]> {
   const rows = await tx.manyOrNone(
-    `SELECT eg.id, eg.title, eg.image, eg.color, eg.tags
+    `SELECT eg.id, eg.title, eg.image, eg.color, eg.tags, eg.private, eg.only_own AS "onlyOwn"
       FROM expense_groupings eg
       WHERE eg.group_id=$/groupId/
       GROUP BY eg.id
@@ -123,20 +127,24 @@ export async function getAllGroupingRefs(
 export async function insertExpenseGrouping(
   tx: ITask<any>,
   groupId: ObjectId,
+  userId: ObjectId,
   data: ExpenseGroupingData,
 ): Promise<ObjectId> {
   const row = await tx.one(
     `INSERT INTO expense_groupings
-      (group_id, title, start_date, end_date, color, tags)
-      VALUES ($/groupId/, $/title/, $/startDate/, $/endDate/, $/color/, $/tags/::TEXT[])
+      (group_id, user_id, title, start_date, end_date, color, tags, private, only_own)
+      VALUES ($/groupId/, $/userId/, $/title/, $/startDate/, $/endDate/, $/color/, $/tags/::TEXT[], $/private/, $/onlyOwn/)
       RETURNING id`,
     {
       groupId,
+      userId,
       title: data.title,
       startDate: data.startDate,
       endDate: data.endDate,
       color: data.color ?? '',
       tags: data.tags ?? [],
+      private: data.private,
+      onlyOwn: data.onlyOwn,
     },
   );
   const id = row.id;
@@ -159,7 +167,8 @@ export async function updateExpenseGroupingById(
 ): Promise<void> {
   await tx.none(
     `UPDATE expense_groupings
-      SET title=$/title/, start_date=$/startDate/, end_date=$/endDate/, color=$/color/, tags=$/tags/, updated=NOW()
+      SET title=$/title/, start_date=$/startDate/, end_date=$/endDate/, color=$/color/,
+        tags=$/tags/, private=$/private/, only_own=$/onlyOwn/, updated=NOW()
       WHERE id=$/groupingId/`,
     {
       groupingId,
@@ -168,6 +177,8 @@ export async function updateExpenseGroupingById(
       endDate: data.endDate,
       color: data.color ?? '',
       tags: data.tags ?? [],
+      private: data.private,
+      onlyOwn: data.onlyOwn,
     },
   );
   await tx.none(`DELETE FROM expense_grouping_categories WHERE expense_grouping_id=$/groupingId/`, {
@@ -201,6 +212,7 @@ export async function getExpensesForGrouping(
 export async function getCategoryTotalsForGrouping(
   tx: ITask<any>,
   groupId: ObjectId,
+  userId: ObjectId,
   groupingId: ObjectId,
 ): Promise<ExpenseGroupingCategoryTotal[]> {
   const rows = await tx.manyOrNone(
@@ -209,7 +221,7 @@ export async function getCategoryTotalsForGrouping(
       ${EXPENSE_JOIN_TO_GROUPING}
       GROUP BY e.category_id, cat.name;
     `,
-    { groupId, groupingId },
+    { groupId, userId, groupingId },
   );
   return rows.map(toExpenseGroupingCategoryTotal);
 }
@@ -253,6 +265,8 @@ function toExpenseGrouping(row: any): ExpenseGrouping {
     title: row.title,
     color: row.color,
     tags: row.tags,
+    private: row.private,
+    onlyOwn: row.onlyOwn,
     categories: (row.categories ?? []).filter(isDefined),
     startDate: row.startDate ? toISODate(row.startDate) : undefined,
     endDate: row.endDate ? toISODate(row.endDate) : undefined,
@@ -268,6 +282,8 @@ function toExpenseGroupingRef(row: any): ExpenseGroupingRef {
     color: row.color,
     tags: row.tags,
     image: row.image ? groupingImageHandler.getVariant('image', row.image).webPath : undefined,
+    private: row.private,
+    onlyOwn: row.onlyOwn,
   };
 }
 

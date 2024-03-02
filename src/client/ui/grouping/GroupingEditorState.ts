@@ -18,8 +18,12 @@ export type GroupingState = {
   tags: string[];
   startDate: ISODate | null;
   endDate: ISODate | null;
+  private: boolean;
+  onlyOwn: boolean;
   reset(grouping: ExpenseGrouping | null): void;
   setTitle(title: string): void;
+  setPrivate(isPrivate: boolean): void;
+  setOnlyOwn(onlyOwn: boolean): void;
   setStartDate(date: ISODate | null): void;
   setEndDate(date: ISODate | null): void;
   setColor(color: string): void;
@@ -40,11 +44,15 @@ export const useGroupingState = create<GroupingState>((set, get) => ({
   endDate: null,
   color: colors.green[400],
   categories: [],
+  private: false,
+  onlyOwn: false,
   tags: [],
   setTitle: title => set({ title }),
   setColor: color => set({ color }),
   setStartDate: startDate => set({ startDate }),
   setEndDate: endDate => set({ endDate }),
+  setPrivate: isPrivate => set({ private: isPrivate }),
+  setOnlyOwn: onlyOwn => set({ onlyOwn }),
   addTag: tag => {
     const trimmed = tag?.trim();
     if (trimmed) {
@@ -57,6 +65,8 @@ export const useGroupingState = create<GroupingState>((set, get) => ({
       id: grouping?.id ?? null,
       title: grouping?.title ?? '',
       color: grouping?.color ?? '',
+      private: grouping?.private ?? false,
+      onlyOwn: grouping?.onlyOwn ?? false,
       tags: [...(grouping?.tags ?? [])],
       categories: grouping?.categories ?? [],
       startDate: grouping?.startDate || null,
@@ -76,6 +86,8 @@ export const useGroupingState = create<GroupingState>((set, get) => ({
       title: s.title,
       color: s.color,
       tags: s.tags,
+      private: s.private,
+      onlyOwn: s.onlyOwn,
       categories: s.categories.length ? s.categories : [],
       startDate: s.startDate ?? undefined,
       endDate: s.endDate ?? undefined,
