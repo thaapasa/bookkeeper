@@ -39,13 +39,13 @@ import { DateField } from './DateField';
 import {
   DescriptionField,
   ExpenseDialogContent,
-  GroupingSelector,
   SourceSelector,
   SumField,
   TypeSelector,
 } from './ExpenseDialogComponents';
 import { calculateDivision } from './ExpenseDialogData';
 import { defaultExpenseSaveAction, ExpenseSaveAction } from './ExpenseSaveAction';
+import { GroupingSelector } from './GroupingSelector';
 import { ReceiverField } from './ReceiverField';
 import { TitleField } from './TitleField';
 

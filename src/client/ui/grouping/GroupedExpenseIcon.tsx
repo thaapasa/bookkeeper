@@ -13,6 +13,7 @@ type GroupedExpenseIconProps = {
   onClick?: () => void;
   className?: string;
 };
+
 export const GroupedExpenseIcon: React.FC<GroupedExpenseIconProps> = ({
   size,
   grouping,
@@ -42,4 +43,5 @@ const GroupedExpenseIconText = styled('div')`
   justify-content: center;
   font-weight: bold;
   color: ${colorScheme.primary.light};
+  font-size: 10pt;
 `;

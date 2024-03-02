@@ -10,7 +10,7 @@ import {
 import * as React from 'react';
 
 import { ExpenseType, expenseTypes, getExpenseTypeLabel } from 'shared/expense';
-import { ExpenseGroupingRef, Source } from 'shared/types';
+import { Source } from 'shared/types';
 import { Money, sanitizeMoneyInput } from 'shared/util';
 import { TextEdit } from 'client/ui/component/TextEdit';
 import { ExpenseTypeIcon } from 'client/ui/icons/ExpenseType';
@@ -73,37 +73,6 @@ export const SourceSelector: React.FC<{
         {sources.map(s => (
           <MenuItem key={s.id} value={s.id}>
             {s.name}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
-  );
-};
-
-export const GroupingSelector: React.FC<{
-  value: number | null;
-  onChange: (id: number | null) => void;
-  groupings: ExpenseGroupingRef[];
-  style?: React.CSSProperties;
-  title: string;
-}> = ({ title, value, style, onChange, groupings }) => {
-  const id = 'expense-dialog-grouping';
-  return (
-    <FormControl fullWidth={true} variant="standard">
-      <InputLabel htmlFor={id} shrink={true}>
-        {title}
-      </InputLabel>
-      <Select
-        labelId={id}
-        value={value ?? 0}
-        style={style}
-        label={title}
-        onChange={e => onChange(e.target.value ? Number(e.target.value) : null)}
-      >
-        <MenuItem value={0}>Oletus</MenuItem>
-        {groupings.map(s => (
-          <MenuItem key={s.id} value={s.id}>
-            {s.title}
           </MenuItem>
         ))}
       </Select>
