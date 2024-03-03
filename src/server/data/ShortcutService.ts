@@ -108,7 +108,7 @@ export async function uploadShortcutIcon(
   try {
     await getShortcutById(tx, groupId, userId, shortcutId);
     logger.info(image, `Updating shortcut icon for user ${userId}, shortcut ${shortcutId}`);
-    const file = await shortcutImageHandler.saveImages(image, { margin });
+    const file = await shortcutImageHandler.saveImages(image, { margin, trim: true });
     await deleteShortcutIcon(tx, groupId, userId, shortcutId);
     await setShortcutIconById(tx, shortcutId, file);
     return getShortcutById(tx, groupId, userId, shortcutId);
