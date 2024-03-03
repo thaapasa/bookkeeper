@@ -42,7 +42,7 @@ async function getBetween(
   );
   const expenses = await tx.manyOrNone<UserExpense>(
     expenseSelectClause(
-      `WHERE group_id=$/groupId/ AND template=false
+      `WHERE e.group_id=$/groupId/ AND template=false
         AND date >= $/startDate/::DATE AND date < $/endDate/::DATE`,
     ),
     {

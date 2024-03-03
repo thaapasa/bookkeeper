@@ -204,6 +204,9 @@ export class ExpenseRowImpl extends React.Component<ExpenseRowProps, ExpenseRowS
     }
     const firstDay = !this.props.prev || !toDayjs(expense.date).isSame(this.props.prev.date, 'day');
     const grouping = this.props.groupingMap[this.props.expense?.groupingId ?? 0];
+    const autoGroupings = (this.props.expense?.autoGroupingIds ?? [])
+      .map(g => this.props.groupingMap[g])
+      .filter(isDefined);
     return (
       <>
         <Row className={firstDay && this.props.dateBorder ? 'first-day' : ''}>
@@ -241,6 +244,15 @@ export class ExpenseRowImpl extends React.Component<ExpenseRowProps, ExpenseRowS
                     this.props.addFilter(e => e.groupingId === grouping.id, grouping.title)
                   }
                 />
+              ) : autoGroupings ? (
+                autoGroupings.map(a => (
+                  <GroupedExpenseIcon
+                    key={a.id}
+                    grouping={a}
+                    implicit={true}
+                    onClick={() => this.props.addFilter(e => e.groupingId === a.id, a.title)}
+                  />
+                ))
               ) : null}
             </IconToolArea>
             <ActivatableTextField

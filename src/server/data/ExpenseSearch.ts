@@ -27,7 +27,7 @@ export async function getExpenseSearchQuery(
 
   return {
     clause: expenseSelectClause(`--sql
-      WHERE group_id=$/groupId/
+      WHERE e.group_id=$/groupId/
       AND template=false
       AND ($/startDate/ IS NULL OR date::DATE >= $/startDate/::DATE)
       AND ($/endDate/ IS NULL OR date::DATE <= $/endDate/::DATE)
@@ -39,7 +39,7 @@ export async function getExpenseSearchQuery(
       ${query.receiver ? `AND (receiver ILIKE '%$/receiver:value/%')` : ''}
       AND (
         $/search/ = ''
-        OR title ILIKE '%$/search:value/%'
+        OR e.title ILIKE '%$/search:value/%'
         OR receiver ILIKE '%$/search:value/%'
       )`),
     params: {

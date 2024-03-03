@@ -11,7 +11,7 @@ import {
   UserExpense,
 } from 'shared/expense';
 import { DateLike, toISODate } from 'shared/time';
-import { ApiMessage, NotFoundError, ObjectId } from 'shared/types';
+import { ApiMessage, isDefined, NotFoundError, ObjectId } from 'shared/types';
 import { Money, MoneyLike } from 'shared/util';
 import { logger } from 'server/Logger';
 
@@ -27,15 +27,15 @@ export function expenseSelectClause(
 SELECT
   MIN(id) AS id, MIN(date) AS date, MIN(receiver) AS receiver, MIN(type) AS type, MIN(sum) AS sum,
   MIN(title) AS title, MIN(description) AS description, BOOL_AND(confirmed) AS confirmed, MIN(source_id) AS "sourceId",
-  MIN(user_id) AS "userId", MIN(created_by_id) AS "createdById", MIN(group_id) AS "groupId", MIN(category_id) AS "categoryId",
-  MIN(grouping_id) AS "groupingId",
+  MIN(user_id) AS "userId", MIN(created_by_id) AS "createdById", MIN(breakdown.group_id) AS "groupId", MIN(category_id) AS "categoryId",
+  MIN(grouping_id) AS "groupingId", ARRAY_AGG(DISTINCT auto_grouping_id) AS "autoGroupingIds",
   MIN(created) AS created, MIN(recurring_expense_id) AS "recurringExpenseId",
   SUM(cost) AS "userCost", SUM(benefit) AS "userBenefit", SUM(income) AS "userIncome", SUM(split) AS "userSplit",
   SUM(transferor) AS "userTransferor", SUM(transferee) AS "userTransferee",
   SUM(cost + benefit + income + split + transferor + transferee) AS "userValue"
 FROM (
   SELECT
-    e.id, e.date::DATE, e.receiver, e.type, e.sum, e.title, e.description, e.confirmed, e.grouping_id,
+    e.id, e.date::DATE, e.receiver, e.type, e.sum, e.title, e.description, e.confirmed, e.grouping_id, eg.id AS "auto_grouping_id",
     e.source_id, e.user_id, e.created_by_id, e.group_id, e.category_id, e.created, e.recurring_expense_id,
     (CASE WHEN d.type = 'cost' THEN d.sum ELSE '0.00'::NUMERIC END) AS cost,
     (CASE WHEN d.type = 'benefit' THEN d.sum ELSE '0.00'::NUMERIC END) AS benefit,
@@ -45,6 +45,16 @@ FROM (
     (CASE WHEN d.type = 'transferee' THEN d.sum ELSE '0.00'::NUMERIC END) AS transferee
   FROM expenses e
   LEFT JOIN expense_division d ON (d.expense_id = e.id AND d.user_id = $/userId/)
+  LEFT JOIN categories cat ON (cat.id = e.category_id)
+  LEFT JOIN expense_groupings eg ON ((eg.id = e.grouping_id) OR (
+    eg.group_id = e.group_id
+    AND eg.id IN (
+      SELECT expense_grouping_id FROM expense_grouping_categories egc WHERE egc.category_id IN (cat.id, cat.parent_id)
+        AND (eg.start_date IS NULL OR eg.start_date <= e.date)
+        AND (eg.end_date IS NULL OR eg.end_date >= e.date)
+        AND (eg.only_own IS FALSE or e.user_id=$/userId/)
+    ))
+  )
   ${where}
 ) breakdown
 GROUP BY id
@@ -70,7 +80,7 @@ FROM (
     (CASE WHEN d.type = 'transferee' THEN d.sum ELSE '0.00'::NUMERIC END) AS transferee
   FROM expenses e
   LEFT JOIN expense_division d ON (d.expense_id = e.id AND d.user_id = $/userId/::INTEGER)
-  WHERE group_id=$/groupId/::INTEGER AND template=false AND date >= $/startDate/::DATE AND date < $/endDate/::DATE
+  WHERE e.group_id=$/groupId/::INTEGER AND template=false AND date >= $/startDate/::DATE AND date < $/endDate/::DATE
 ) breakdown
 `;
 
@@ -78,6 +88,7 @@ export function dbRowToExpense(e: UserExpense): UserExpense {
   if (!e) {
     throw new NotFoundError('EXPENSE_NOT_FOUND', 'expense');
   }
+  e.autoGroupingIds = (e.autoGroupingIds ?? []).filter(isDefined);
   e.date = toISODate(e.date);
   e.userBalance = Money.from(e.userValue).negate().toString();
   e.groupingId = e.groupingId ?? undefined;
@@ -90,7 +101,7 @@ export async function getAllExpenses(
   userId: number,
 ): Promise<Expense[]> {
   const expenses = await tx.map(
-    expenseSelectClause(`WHERE group_id=$/groupId/`),
+    expenseSelectClause(`WHERE e.group_id=$/groupId/`),
     { userId, groupId },
     dbRowToExpense,
   );
@@ -133,7 +144,7 @@ export async function getExpenseById(
   expenseId: number,
 ): Promise<UserExpense> {
   const expense = await tx.map(
-    expenseSelectClause(`WHERE id=$/expenseId/ AND group_id=$/groupId/`),
+    expenseSelectClause(`WHERE e.id=$/expenseId/ AND e.group_id=$/groupId/`),
     { userId, expenseId, groupId },
     dbRowToExpense,
   );
@@ -326,7 +337,7 @@ async function getRecurrenceOccurence(
 ): Promise<Expense | undefined> {
   const expense = await tx.map(
     expenseSelectClause(
-      `WHERE recurring_expense_id=$/recurringExpenseId/ AND group_id=$/groupId/`,
+      `WHERE recurring_expense_id=$/recurringExpenseId/ AND e.group_id=$/groupId/`,
       `ORDER BY date ${first ? 'ASC' : 'DESC'} LIMIT 1`,
     ),
     { recurringExpenseId, userId, groupId },

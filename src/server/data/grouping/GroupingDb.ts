@@ -37,14 +37,6 @@ const EXPENSE_SUM_SUBSELECT = /*sql*/ `
 `;
 
 const EXPENSE_JOIN_TO_GROUPING = /*sql*/ `
-  LEFT JOIN categories cat ON (cat.id = e.category_id)
-  LEFT JOIN expense_groupings eg ON (
-    eg.id = $/groupingId/
-    AND eg.id IN (SELECT expense_grouping_id FROM expense_grouping_categories egc WHERE egc.category_id IN (cat.id, cat.parent_id)
-    AND (eg.start_date IS NULL OR eg.start_date <= e.date)
-    AND (eg.end_date IS NULL OR eg.end_date >= e.date)
-    AND (eg.only_own IS FALSE or e.user_id=$/userId/)
-  ))
   WHERE e.group_id=$/groupId/
   AND (
     (e.grouping_id IS NULL AND eg.id = $/groupingId/)
@@ -218,6 +210,16 @@ export async function getCategoryTotalsForGrouping(
   const rows = await tx.manyOrNone(
     `SELECT SUM(CASE e.type WHEN 'expense' THEN sum WHEN 'income' THEN -sum ELSE 0 END), e.category_id, cat.name
       FROM expenses e
+      LEFT JOIN categories cat ON (cat.id = e.category_id)
+      LEFT JOIN expense_groupings eg ON ((eg.id = e.grouping_id) OR (
+        eg.group_id = e.group_id
+        AND eg.id IN (
+          SELECT expense_grouping_id FROM expense_grouping_categories egc WHERE egc.category_id IN (cat.id, cat.parent_id)
+            AND (eg.start_date IS NULL OR eg.start_date <= e.date)
+            AND (eg.end_date IS NULL OR eg.end_date >= e.date)
+            AND (eg.only_own IS FALSE or e.user_id=$/userId/)
+        ))
+      )
       ${EXPENSE_JOIN_TO_GROUPING}
       GROUP BY e.category_id, cat.name;
     `,

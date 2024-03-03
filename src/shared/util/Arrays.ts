@@ -1,4 +1,4 @@
-import { AnyObject } from '../types/Common';
+import { AnyObject, isDefined } from '../types/Common';
 import { BkError } from '../types/Errors';
 import { getRandomInt } from './Util';
 
@@ -67,8 +67,8 @@ export function unnest<T>(arr: T[][]): T[] {
   return res;
 }
 
-export function toArray<T>(t: T | T[]): T[] {
-  return Array.isArray(t) ? t : [t];
+export function toArray<T>(t: T | T[] | undefined | null): T[] {
+  return isDefined(t) ? (Array.isArray(t) ? t : [t]) : [];
 }
 
 /** Assume input: Array of [name, value] fields */

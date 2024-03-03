@@ -96,6 +96,7 @@ export interface ExpenseInputWithDefaults extends ExpenseInput {
 }
 
 export const UserExpense = Expense.extend({
+  autoGroupingIds: z.array(ObjectId),
   userBalance: MoneyLike,
   userBenefit: MoneyLike,
   userCost: MoneyLike,

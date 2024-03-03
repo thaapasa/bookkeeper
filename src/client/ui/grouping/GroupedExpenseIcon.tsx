@@ -12,6 +12,7 @@ type GroupedExpenseIconProps = {
   grouping: ExpenseGroupingRef;
   onClick?: () => void;
   className?: string;
+  implicit?: boolean;
 };
 
 export const GroupedExpenseIcon: React.FC<GroupedExpenseIconProps> = ({
@@ -19,13 +20,18 @@ export const GroupedExpenseIcon: React.FC<GroupedExpenseIconProps> = ({
   grouping,
   onClick,
   className,
+  implicit,
 }) => {
   const color = grouping.color ?? colors.blue[300];
   const luminance = getLuminanceSafe(color);
 
   return (
-    <IconContainer title={grouping.title} onClick={onClick} className={className}>
-      <Bookmark size={size || 24} title={grouping.title} color={color} />
+    <IconContainer
+      title={grouping.title}
+      onClick={onClick}
+      className={className + (implicit ? ' implicit' : '')}
+    >
+      <Bookmark size={size || 24} title={grouping.title} color={color} outline={implicit} />
       {grouping.title ? (
         <GroupedExpenseIconText color={luminance > 0.4 ? 'black' : 'white'}>
           {grouping.title[0]}
@@ -39,6 +45,10 @@ const IconContainer = styled('div')`
   cursor: pointer;
   position: relative;
   display: inline-block;
+
+  &.implicit {
+    //  opacity: 0.5;
+  }
 `;
 
 const GroupedExpenseIconText = styled('div')`
