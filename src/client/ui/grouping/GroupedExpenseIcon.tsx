@@ -1,10 +1,9 @@
 import styled from '@emotion/styled';
-import { colors } from '@mui/material';
+import { colors, getLuminance } from '@mui/material';
 import * as React from 'react';
 
 import { ExpenseGroupingRef } from 'shared/types';
 
-import { colorScheme } from '../Colors';
 import { Bookmark } from '../icons/Bookmark';
 
 type GroupedExpenseIconProps = {
@@ -19,12 +18,21 @@ export const GroupedExpenseIcon: React.FC<GroupedExpenseIconProps> = ({
   grouping,
   onClick,
   className,
-}) => (
-  <IconContainer title={grouping.title} onClick={onClick} className={className}>
-    <Bookmark size={size || 24} title={grouping.title} color={grouping.color ?? colors.blue[300]} />
-    {grouping.title ? <GroupedExpenseIconText>{grouping.title[0]}</GroupedExpenseIconText> : null}
-  </IconContainer>
-);
+}) => {
+  const color = grouping.color ?? colors.blue[300];
+  const luminance = getLuminance(color);
+
+  return (
+    <IconContainer title={grouping.title} onClick={onClick} className={className}>
+      <Bookmark size={size || 24} title={grouping.title} color={color} />
+      {grouping.title ? (
+        <GroupedExpenseIconText color={luminance > 0.4 ? 'black' : 'white'}>
+          {grouping.title[0]}
+        </GroupedExpenseIconText>
+      ) : null}
+    </IconContainer>
+  );
+};
 
 const IconContainer = styled('div')`
   cursor: pointer;
@@ -42,6 +50,6 @@ const GroupedExpenseIconText = styled('div')`
   align-items: center;
   justify-content: center;
   font-weight: bold;
-  color: ${colorScheme.primary.light};
+  ${({ color }: { color: string }) => `color: ${color};`}
   font-size: 10pt;
 `;
