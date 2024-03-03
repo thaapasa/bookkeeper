@@ -1,5 +1,5 @@
 import { amber, grey, lime, teal } from '@mui/material/colors';
-import { SimplePaletteColorOptions, styled } from '@mui/material/styles';
+import { getLuminance, SimplePaletteColorOptions, styled } from '@mui/material/styles';
 
 import { Money, MoneyLike } from 'shared/util';
 
@@ -119,3 +119,11 @@ export function classNameForMoney(m?: MoneyLike): 'positive' | 'negative' | 'uni
 export const unused = styled('div')`
   width: 100%;
 `;
+
+export function getLuminanceSafe(color: string): number {
+  try {
+    return getLuminance(color);
+  } catch (e) {
+    return 0;
+  }
+}

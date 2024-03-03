@@ -1,9 +1,10 @@
 import styled from '@emotion/styled';
-import { colors, getLuminance } from '@mui/material';
+import { colors } from '@mui/material';
 import * as React from 'react';
 
 import { ExpenseGroupingRef } from 'shared/types';
 
+import { getLuminanceSafe } from '../Colors';
 import { Bookmark } from '../icons/Bookmark';
 
 type GroupedExpenseIconProps = {
@@ -20,7 +21,7 @@ export const GroupedExpenseIcon: React.FC<GroupedExpenseIconProps> = ({
   className,
 }) => {
   const color = grouping.color ?? colors.blue[300];
-  const luminance = getLuminance(color);
+  const luminance = getLuminanceSafe(color);
 
   return (
     <IconContainer title={grouping.title} onClick={onClick} className={className}>
