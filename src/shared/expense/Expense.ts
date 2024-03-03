@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { ISODate } from '../time/Time';
 import { DbObject, ShortString } from '../types/Common';
 import { ObjectId } from '../types/Id';
-import { MoneyLike } from '../util/Money';
+import { Money, MoneyLike } from '../util/Money';
 
 export const ExpenseType = z.enum(['expense', 'income', 'transfer']);
 export type ExpenseType = z.infer<typeof ExpenseType>;
@@ -167,3 +167,17 @@ export const ExpenseQuery = z
   .partial();
 
 export type ExpenseQuery = z.infer<typeof ExpenseQuery>;
+
+export type ExpenseTotals<M extends MoneyLike = MoneyLike> = Record<ExpenseType, M> & { total: M };
+
+export function calculateTotals(expenses: Expense[]): ExpenseTotals<Money> {
+  const result: ExpenseTotals<Money> = {
+    income: Money.from(0),
+    expense: Money.from(0),
+    transfer: Money.from(0),
+    total: Money.from(0),
+  };
+  expenses.forEach(e => (result[e.type] = result[e.type].plus(e.sum)));
+  result.total = result.expense.minus(result.income);
+  return result;
+}

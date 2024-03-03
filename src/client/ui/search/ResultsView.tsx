@@ -2,10 +2,10 @@ import { styled } from '@mui/material';
 import * as B from 'baconjs';
 import * as React from 'react';
 
-import { UserExpense } from 'shared/expense';
+import { calculateTotals, UserExpense } from 'shared/expense';
 import { toDayjs } from 'shared/time';
 import { Category } from 'shared/types';
-import { groupBy, Money, noop, typedKeys } from 'shared/util';
+import { groupBy, noop, typedKeys } from 'shared/util';
 import { userDataE, UserDataProps } from 'client/data/Categories';
 
 import { gray, secondaryColors } from '../Colors';
@@ -79,27 +79,25 @@ const ExpenseList: React.FC<ResultsProps> = ({ results, onUpdate, onSelectCatego
 export const ResultsView = connect(B.combineTemplate({ userData: userDataE }))(ResultsViewImpl);
 
 function YearHeader({ year, expenses }: { year: string; expenses: UserExpense[] }) {
-  const sum = expenses.reduce((p, c) => p.plus(c.sum), Money.from(0));
-  const income = expenses
-    .filter(r => r.type === 'income')
-    .reduce((p, c) => p.plus(c.sum), Money.from(0));
-  const cost = expenses
-    .filter(r => r.type === 'expense')
-    .reduce((p, c) => p.plus(c.sum), Money.from(0));
+  const totals = calculateTotals(expenses);
   return (
     <YearHeaderRow>
       <HeaderText>Vuosi {year}</HeaderText>
       <SumColumn>
         <SumLabel>Yhteensä</SumLabel>
-        <SumValue>{sum.format()}</SumValue>
+        <SumValue>{totals.total.format()}</SumValue>
       </SumColumn>
       <SumColumn>
         <SumLabel>Tulot</SumLabel>
-        <SumValue>{income.format()}</SumValue>
+        <SumValue>{totals.income.format()}</SumValue>
       </SumColumn>
       <SumColumn>
         <SumLabel>Menot</SumLabel>
-        <SumValue>{cost.format()}</SumValue>
+        <SumValue>{totals.expense.format()}</SumValue>
+      </SumColumn>
+      <SumColumn>
+        <SumLabel>Siirrot</SumLabel>
+        <SumValue>{totals.transfer.format()}</SumValue>
       </SumColumn>
     </YearHeaderRow>
   );

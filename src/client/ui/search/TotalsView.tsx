@@ -1,8 +1,7 @@
 import { styled } from '@mui/material';
 import * as React from 'react';
 
-import { UserExpense } from 'shared/expense';
-import { Money } from 'shared/util';
+import { calculateTotals, UserExpense } from 'shared/expense';
 
 import { gray, secondaryColors } from '../Colors';
 import { mainContentMaxWidth, media } from '../Styles';
@@ -11,29 +10,9 @@ interface TotalsViewProps {
   results: UserExpense[];
 }
 
-function getExpenseSum(e: UserExpense): Money {
-  switch (e.type) {
-    case 'expense':
-      return Money.from(e.sum);
-    case 'income':
-      return Money.from(e.sum).negate();
-    default:
-      return Money.zero;
-  }
-}
-
 export class TotalsView extends React.Component<TotalsViewProps> {
   render() {
-    const sum = this.props.results.reduce((p, c) => p.plus(getExpenseSum(c)), Money.from(0));
-    const income = this.props.results
-      .filter(r => r.type === 'income')
-      .reduce((p, c) => p.plus(c.sum), Money.from(0));
-    const cost = this.props.results
-      .filter(r => r.type === 'expense')
-      .reduce((p, c) => p.plus(c.sum), Money.from(0));
-    const transfer = this.props.results
-      .filter(r => r.type === 'transfer')
-      .reduce((p, c) => p.plus(c.sum), Money.from(0));
+    const totals = calculateTotals(this.props.results);
     return (
       <>
         <TotalsPadding />
@@ -41,19 +20,19 @@ export class TotalsView extends React.Component<TotalsViewProps> {
           <TotalsArea>
             <Total>
               <Label>Yhteensä</Label>
-              {sum.format()}
+              {totals.total.format()}
             </Total>
             <Total>
               <Label>Tulot</Label>
-              {income.format()}
+              {totals.income.format()}
             </Total>
             <Total>
               <Label>Menot</Label>
-              {cost.format()}
+              {totals.expense.format()}
             </Total>
             <Total>
               <Label>Siirrot</Label>
-              {transfer.format()}
+              {totals.transfer.format()}
             </Total>
           </TotalsArea>
         </TotalsPositioner>
