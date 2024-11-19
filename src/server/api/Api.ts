@@ -47,6 +47,7 @@ export function createApi() {
         status: 'OK',
         timestamp: toDayjs().format(),
         version: config.version,
+        runtimeVersion: config.bunVersion,
         revision: config.revision,
         commitId: config.commitId,
         environment: config.environment,

@@ -13,6 +13,7 @@ import { InfoItem, ItemWithId, Label, Value } from './InfoLayoutElements';
 interface VersionInfo {
   version: string;
   revision: string;
+  runtimeVersion: string;
 }
 
 export const VersionInfoView = () => {
@@ -20,7 +21,11 @@ export const VersionInfoView = () => {
   React.useMemo(async () => {
     const status = await apiConnect.getApiStatus();
     logger.info(status, `API status`);
-    setServerVersion({ version: status.version, revision: status.revision });
+    setServerVersion({
+      version: status.version,
+      revision: status.revision,
+      runtimeVersion: status.runtimeVersion,
+    });
   }, [setServerVersion]);
   const doReload = React.useCallback(() => reloadApp(infoPagePath), []);
 
@@ -33,7 +38,8 @@ export const VersionInfoView = () => {
         </ItemWithId>
         {serverVersion ? (
           <ItemWithId id="Palvelin">
-            {serverVersion.version} ({serverVersion.revision})
+            {serverVersion.version} ({serverVersion.revision}, runtime{' '}
+            {serverVersion.runtimeVersion})
           </ItemWithId>
         ) : null}
         <ItemWithId id="Päivitä">

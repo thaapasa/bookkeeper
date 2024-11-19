@@ -17,6 +17,7 @@ class Config {
   public commitId = revision.commitId;
   public revision = revision.commitId.substring(0, 8);
   public commitMessage = revision.message;
+  public bunVersion = Bun.version;
 
   public host = hostname();
   public port = port ? parseInt(port, 10) : 3100;

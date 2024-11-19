@@ -6,6 +6,7 @@ export type ApiStatus = Readonly<{
   status: string;
   timestamp: string;
   version: string;
+  runtimeVersion: string;
   commitId: string;
   revision: string;
   environment: string;
