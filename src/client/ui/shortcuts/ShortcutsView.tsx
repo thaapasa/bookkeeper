@@ -1,4 +1,5 @@
 import { IconButton, styled } from '@mui/material';
+import * as B from 'baconjs';
 import * as React from 'react';
 import { NavigateFunction, useNavigate } from 'react-router';
 
@@ -8,7 +9,7 @@ import { ObjectId } from 'shared/types';
 import { noop, spaced } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { updateSession, validSessionE } from 'client/data/Login';
-import { createNewExpense, requestNewExpense } from 'client/data/State';
+import { createNewExpense, navigationP, requestNewExpense } from 'client/data/State';
 import { executeOperation } from 'client/util/ExecuteOperation';
 import { newExpenseSuffix } from 'client/util/Links';
 
@@ -22,6 +23,9 @@ import { Flex } from '../Styles';
 import { editShortcut, ShortcutEditor } from './ShortcutEditor';
 import { ShortcutLink, ShortcutLinkProps } from './ShortcutLink';
 
+/**
+ * This is the list of shortcut links, shown in it's own page. This allows creating new shortcuts and editing the existing ones.
+ */
 const FullList: React.FC<{
   shortcuts: ExpenseShortcut[];
   className?: string;
@@ -159,9 +163,14 @@ const Title = styled('div')`
   color: ${secondaryColors.dark};
 `;
 
-export const ShortcutsView = connect(validSessionE.map(s => ({ shortcuts: s.shortcuts || [] })))(
-  FullList,
-);
+export const ShortcutsView = connect(
+  B.combineTemplate({ session: validSessionE, navigation: navigationP }).map(
+    ({ session, navigation }) => ({
+      shortcuts: session.shortcuts || [],
+      dateRange: navigation.dateRange,
+    }),
+  ),
+)(FullList);
 
 const LinksArea = styled('div')`
   display: flex;

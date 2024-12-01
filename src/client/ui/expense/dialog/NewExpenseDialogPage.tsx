@@ -3,12 +3,14 @@ import * as React from 'react';
 import { Route, Routes, useNavigate, useParams } from 'react-router-dom';
 
 import { shortcutToExpenseInEditor } from 'shared/expense';
+import { toDayjs } from 'shared/time';
 import { Session } from 'shared/types';
 import { categoryDataSourceP, categoryMapE } from 'client/data/Categories';
 import { sourceMapE, validSessionE } from 'client/data/Login';
 import { updateExpenses } from 'client/data/State';
 import { logger } from 'client/Logger';
 import { connect } from 'client/ui/component/BaconConnect';
+import { useQueryParams } from 'client/ui/hooks/useQueryParams';
 import { useWindowSize } from 'client/ui/hooks/useWindowSize';
 import { navigateAndWait } from 'client/ui/utils/Navigation';
 import { newExpenseSuffix } from 'client/util/Links';
@@ -32,10 +34,12 @@ const ConnectedExpenseDialog = connect(
 const NewExpenseDialogPage: React.FC = () => {
   const navigate = useNavigate();
   const windowSize = useWindowSize();
+  const params = useQueryParams();
+  const date = params.date ? toDayjs(params.date) : undefined;
   return (
     <ConnectedExpenseDialog
       createNew
-      values={{}}
+      values={{ date }}
       onClose={async () => {
         logger.info('Closing new expense dialog, navigating back');
         await navigateAndWait(() => navigate(-1));

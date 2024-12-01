@@ -42,19 +42,17 @@ export function splitExpense(expenseId: number): Promise<ExpenseSplit[] | null> 
 /**
  * Fire up the expense editor, and save the resulting expense to DB
  */
-export async function createExpense(event?: React.MouseEvent<any>): Promise<void> {
-  if (event) {
-    event.stopPropagation();
-  }
-  await requestNewExpense();
+export async function createExpense(reference?: Partial<ExpenseInEditor>): Promise<void> {
+  await requestNewExpense(undefined, undefined, reference);
 }
 
 export function requestNewExpense(
   saveAction?: ExpenseSaveAction,
   title?: string,
+  reference?: Partial<ExpenseInEditor>,
 ): Promise<ExpenseInEditor | null> {
   return new Promise<ExpenseInEditor | null>(resolve => {
-    expenseDialogBus.push({ expenseId: null, resolve, saveAction, title });
+    expenseDialogBus.push({ ...reference, expenseId: null, resolve, saveAction, title });
   });
 }
 

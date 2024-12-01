@@ -2,10 +2,13 @@ import { styled } from '@mui/material';
 import * as React from 'react';
 import { NavigateFunction, useNavigate } from 'react-router';
 
-import { createExpense } from 'client/data/State';
+import { uri } from 'shared/net';
+import { toDayjs, toISODate, TypedDateRange } from 'shared/time';
+import { createExpense, navigationP } from 'client/data/State';
 import { newExpenseSuffix } from 'client/util/Links';
 
 import { secondaryColors } from '../Colors';
+import { connect } from '../component/BaconConnect';
 import { pageSupportsRoutedExpenseDialog } from '../expense/NewExpenseInfo';
 import { Icons } from './Icons';
 
@@ -16,27 +19,42 @@ export const AddExpenseIcon: React.FC<{ onClick?: () => void }> = ({ onClick }) 
   </AddExpenseIconContainer>
 );
 
-export const AddExpenseNavButton: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
+const AddExpenseNavButtonImpl: React.FC<{ onClick?: () => void; dateRange: TypedDateRange }> = ({
+  onClick,
+  dateRange,
+}) => {
   const navigate = useNavigate();
   return (
     <AddExpenseIconContainer className="navigation">
       <BlackContent />
       <PlusIcon
-        onClick={onClick ?? (() => openNewExpenseDialog(navigate))}
+        onClick={onClick ?? (() => openNewExpenseDialog(navigate, dateRange.start))}
         className="navigation"
       />
     </AddExpenseIconContainer>
   );
 };
 
-function openNewExpenseDialog(navigate: NavigateFunction) {
+export const AddExpenseNavButton = connect(navigationP.map(n => ({ dateRange: n.dateRange })))(
+  AddExpenseNavButtonImpl,
+);
+
+function openNewExpenseDialog(navigate: NavigateFunction, shownDay: Date) {
   const path = window.location.pathname;
+  const refDay = toDayjs(shownDay);
+  // Defined date if shown day is in another month. For same month, leave the date out
+  const date = refDay.isSame(new Date(), 'month') ? undefined : refDay;
   if (pageSupportsRoutedExpenseDialog(path)) {
     if (!path.includes(newExpenseSuffix)) {
-      navigate(path.startsWith('/p') ? path + newExpenseSuffix : '/p' + newExpenseSuffix);
+      const dateSuffix = date ? uri`?date=${toISODate(date)}` : '';
+      navigate(
+        path.startsWith('/p')
+          ? path + newExpenseSuffix + dateSuffix
+          : '/p' + newExpenseSuffix + dateSuffix,
+      );
     }
   } else {
-    createExpense();
+    createExpense({ date });
   }
 }
 
