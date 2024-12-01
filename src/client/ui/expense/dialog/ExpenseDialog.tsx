@@ -5,6 +5,7 @@ import {
   DialogActions,
   DialogTitle,
   FormControlLabel,
+  IconButton,
   styled,
 } from '@mui/material';
 import * as B from 'baconjs';
@@ -57,6 +58,9 @@ import { ReceiverField } from './ReceiverField';
 import { TitleField } from './TitleField';
 
 type CategoryInfo = Pick<Category, 'name' | 'id'>;
+
+/** For user testing: prevent dialog escape, and only allow dialog to be closed with explicit close button clicks. */
+const AllowDialogEscape = false;
 
 function errorIf(condition: boolean, error: string): string | undefined {
   return condition ? error : undefined;
@@ -362,7 +366,7 @@ export class ExpenseDialog extends React.Component<
 
   private handleKeyPress = (event: React.KeyboardEvent<any>) => {
     const code = event.keyCode;
-    if (code === KeyCodes.escape) {
+    if (code === KeyCodes.escape && AllowDialogEscape) {
       return this.dismiss();
     }
     return;
@@ -391,9 +395,26 @@ export class ExpenseDialog extends React.Component<
 
   public render() {
     return (
-      <Dialog open={true} onClose={this.dismiss} scroll="paper" fullScreen={this.isMobile}>
+      <Dialog
+        open={true}
+        onClose={AllowDialogEscape ? this.dismiss : undefined}
+        scroll="paper"
+        fullScreen={this.isMobile}
+      >
         <DialogTitle>
           {this.props.title ?? (this.props.createNew ? 'Uusi kirjaus' : 'Muokkaa kirjausta')}
+          <IconButton
+            aria-label="close"
+            onClick={this.dismiss}
+            sx={theme => ({
+              position: 'absolute',
+              right: 8,
+              top: 8,
+              color: theme.palette.grey[500],
+            })}
+          >
+            <Icons.Clear />
+          </IconButton>
         </DialogTitle>
         <ExpenseDialogContent dividers={true} onClick={this.closeEditors}>
           <Form onSubmit={this.requestSave} onKeyUp={this.handleKeyPress}>

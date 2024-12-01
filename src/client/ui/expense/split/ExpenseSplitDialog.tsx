@@ -11,6 +11,9 @@ import { SplitButtons } from './SplitButtons';
 import { SplitHeader } from './SplitHeader';
 import { SplitRow } from './SplitRow';
 
+/** For user testing: prevent dialog escape, and only allow dialog to be closed with explicit close button clicks. */
+const AllowDialogEscape = false;
+
 export const ExpenseSplitDialog: React.FC<ExpenseDialogProps<ExpenseSplit[]>> = ({
   original,
   onClose,
@@ -31,8 +34,15 @@ export const ExpenseSplitDialog: React.FC<ExpenseDialogProps<ExpenseSplit[]>> = 
     return null;
   }
 
+  const dismiss = () => onClose(null);
+
   return (
-    <Dialog open={true} onClose={() => onClose(null)} scroll="paper" fullScreen={isMobile}>
+    <Dialog
+      open={true}
+      onClose={AllowDialogEscape ? dismiss : undefined}
+      scroll="paper"
+      fullScreen={isMobile}
+    >
       <SplitHeader expense={original} />
       <ExpenseDialogContent dividers={true}>
         <Grid container alignItems="center" spacing={2}>
