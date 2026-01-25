@@ -10,8 +10,6 @@ const logger = pino();
 
 const client = createTestClient({ logger });
 
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-
 async function addExampleData() {
   logger.info('Adding example data to database');
   const session = await client.getSession('sale', 'salasana');

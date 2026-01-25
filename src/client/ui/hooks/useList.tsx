@@ -17,43 +17,43 @@ export function useLocalStorageList<T>(
   cmp: (a: T, b: T) => boolean = DefaultCompare,
   checkEntity?: (t: T) => boolean,
 ) {
-  const [initialLs, setListS] = useLocalStorage(key, initial, codec, l =>
-    checkEntity ? l?.filter(checkEntity) : l,
+  const [list, setList] = useLocalStorage(key, initial ?? [], codec, l =>
+    checkEntity ? (l?.filter(checkEntity) ?? []) : (l ?? []),
   );
-  const list = React.useRef<T[]>(initialLs ?? []);
-
-  React.useEffect(() => setListS(list.current), [setListS]);
 
   const addItems = React.useCallback(
     (items: T | T[]) => {
-      list.current = [
-        ...list.current,
-        ...toArray(items).filter(i => !list.current.find(i2 => cmp(i, i2))),
-      ];
-      setListS(list.current);
+      setList(currentList => [
+        ...currentList,
+        ...toArray(items).filter(i => !currentList.find(i2 => cmp(i, i2))),
+      ]);
     },
-    [setListS, cmp],
+    [setList, cmp],
   );
+
   const removeItem = React.useCallback(
     (t: T | T[]) => {
       const tAr = toArray(t);
-      list.current = list.current.filter(l => !tAr.find(l2 => cmp(l, l2)));
-      setListS(list.current);
+      setList(currentList => currentList.filter(l => !tAr.find(l2 => cmp(l, l2))));
     },
-    [setListS, cmp],
+    [setList, cmp],
   );
+
   const clear = React.useCallback(() => {
-    list.current = [];
-    setListS(list.current);
-  }, [setListS]);
+    setList([]);
+  }, [setList]);
 
   const toggleItem = React.useCallback(
     (t: T) => {
-      if (list.current.includes(t)) removeItem(t);
-      else addItems(t);
+      setList(currentList => {
+        if (currentList.find(l => cmp(l, t))) {
+          return currentList.filter(l => !cmp(l, t));
+        }
+        return [...currentList, t];
+      });
     },
-    [removeItem, addItems],
+    [setList, cmp],
   );
 
-  return { list: list.current, addItems, removeItem, toggleItem, clear };
+  return { list, addItems, removeItem, toggleItem, clear };
 }

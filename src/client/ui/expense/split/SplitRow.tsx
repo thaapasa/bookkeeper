@@ -34,24 +34,20 @@ export const SplitRow: React.FC<SplitRowProps> = props => {
     <SplitEditor {...props} close={toggleEdit} />
   ) : (
     <>
-      <Grid item xs={3}>
-        {split.title}
-      </Grid>{' '}
-      <Grid item xs={4}>
+      <Grid size={3}>{split.title}</Grid>{' '}
+      <Grid size={4}>
         {split.categoryId
           ? getFullCategoryName(split.categoryId, categoryMap)
           : 'Valitse kategoria'}{' '}
       </Grid>
-      <RGrid item xs={2}>
+      <RGrid size={2}>
         {split.sourceId ? <SourceIcon source={sourceMap[split.sourceId]} /> : null}
         <FootNote>
           <UserSelector selected={split.benefit} />
         </FootNote>
       </RGrid>
-      <Grid item xs={2}>
-        {Money.from(split.sum).format()}
-      </Grid>
-      <Grid item container xs={1} justifyContent="flex-end">
+      <Grid size={2}>{Money.from(split.sum).format()}</Grid>
+      <Grid container size={1} justifyContent="flex-end">
         <ToolIconButton onClick={toggleEdit}>
           <Icons.Edit />
         </ToolIconButton>
@@ -112,7 +108,7 @@ const SplitEditor: React.FC<SplitRowProps & { close: () => void }> = ({
 
   return (
     <>
-      <Grid item xs={5}>
+      <Grid size={5}>
         <TitleField
           id="split-title"
           value={title}
@@ -121,13 +117,11 @@ const SplitEditor: React.FC<SplitRowProps & { close: () => void }> = ({
           dataSource={categorySource}
         />
       </Grid>
-      <Grid item xs={4}>
-        {catId ? getFullCategoryName(catId, categoryMap) : 'Valitse kategoria'}
-      </Grid>
-      <Grid item xs={2}>
+      <Grid size={4}>{catId ? getFullCategoryName(catId, categoryMap) : 'Valitse kategoria'}</Grid>
+      <Grid size={2}>
         {editSum ? <SumField value={sum} onChange={setSum} /> : Money.from(sum).format()}
       </Grid>
-      <Grid item xs={1} container justifyContent="flex-end">
+      <Grid size={1} container justifyContent="flex-end">
         <ToolIconButton onClick={save} disabled={!allValid}>
           <Save />
         </ToolIconButton>
@@ -137,7 +131,7 @@ const SplitEditor: React.FC<SplitRowProps & { close: () => void }> = ({
           </ToolIconButton>
         ) : null}
       </Grid>
-      <Grid item xs={7}>
+      <Grid size={7}>
         <SourceSelector
           sources={sources}
           value={sourceId ?? 0}
@@ -145,7 +139,7 @@ const SplitEditor: React.FC<SplitRowProps & { close: () => void }> = ({
           title="Lähde"
         />
       </Grid>
-      <Grid item xs={5}>
+      <Grid size={5}>
         <UserSelector selected={benefit} onChange={setBenefit} />
       </Grid>
     </>

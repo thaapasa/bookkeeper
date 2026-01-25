@@ -49,7 +49,7 @@ export const ExpenseSplitDialog: React.FC<ExpenseDialogProps<ExpenseSplit[]>> = 
           {splits.map((s, i) => (
             <React.Fragment key={s.key}>
               {i !== 0 ? (
-                <Grid item xs={12}>
+                <Grid size={12}>
                   <Divider flexItem />
                 </Grid>
               ) : null}

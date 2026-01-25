@@ -11,13 +11,14 @@ globs:
 
 ## Technology Stack
 
-- **Framework**: React 18 (functional components only)
-- **UI Library**: Material UI (MUI) 5
+- **Framework**: React 19 (functional components only)
+- **UI Library**: Material UI (MUI) 7
 - **Styling**: Emotion CSS-in-JS via MUI's styled API
-- **State Management**: Zustand, Bacon.js for reactive streams
-- **Routing**: React Router 6
-- **Build Tool**: Vite
+- **State Management**: Zustand 5, Bacon.js for reactive streams
+- **Routing**: React Router 7
+- **Build Tool**: Vite 7
 - **Date Handling**: Day.js
+- **Validation**: Zod 4
 
 ## Project Structure
 

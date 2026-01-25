@@ -169,7 +169,7 @@ export async function cleanup(session: SessionWithControl) {
   try {
     await deleteCreated(session);
     await session.logout();
-  } catch (e) {
+  } catch {
     // Ignore
   }
 }

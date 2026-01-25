@@ -12,10 +12,10 @@ export const ToolButton: React.FC<{
   buttonText: string;
 }> = ({ title, action, buttonText }) => (
   <>
-    <Grid item xs={4} alignSelf="center">
+    <Grid size={4} alignSelf="center">
       <Text>{title}</Text>
     </Grid>
-    <Grid item xs={8} alignSelf="center">
+    <Grid size={8} alignSelf="center">
       <ActionButton onClick={action} variant="contained" color="primary">
         {buttonText}
       </ActionButton>

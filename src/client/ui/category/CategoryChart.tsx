@@ -49,7 +49,7 @@ const CategoryChartImpl: React.FC<CategoryChartProps> = ({ chartData, size, clas
         orientation="right"
         style={{ fill: getChartColor(incomeColor, 0) }}
       />
-      <Tooltip formatter={formatMoney} />
+      <Tooltip formatter={v => formatMoney(typeof v === 'number' ? v : 0)} />
       <Legend />
       <Bar
         dataKey="categoryExpense"

@@ -20,7 +20,7 @@ export const GroupingPage: React.FC = () => {
   return (
     <PageContentContainer className="center">
       <Grid container columnSpacing={2} rowSpacing={2} width="calc(100% - 32px)" paddingBottom={4}>
-        <RGrid item xs={12} marginTop={2}>
+        <RGrid size={12} marginTop={2}>
           <Title>Ryhmittelyt</Title>
           <ToolArea>
             <IconButton title="Uusi ryhmittely" onClick={newExpenseGrouping}>

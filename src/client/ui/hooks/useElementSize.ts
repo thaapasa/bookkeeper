@@ -6,8 +6,8 @@ import { Size } from '../Types';
  * Keeps track of the given element size in the DOM, updating it if the window
  * size is changed.
  */
-export function useElementSize(ref: React.RefObject<HTMLElement>): Size | null {
-  const [size, setSize] = React.useState<Size | null>(ref.current?.getBoundingClientRect() ?? null);
+export function useElementSize(ref: React.RefObject<HTMLElement | null>): Size | null {
+  const [size, setSize] = React.useState<Size | null>(null);
 
   // TODO: See if this pattern could be used instead of the effect below
   // Updating size during rendering is a valid pattern:

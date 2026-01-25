@@ -4,7 +4,7 @@ import { Cell, Legend, Pie, PieChart, Tooltip } from 'recharts';
 import { isDefined, ObjectId } from 'shared/types';
 
 import { getChartColor } from '../chart/ChartColors';
-import { formatMoney } from '../chart/Format';
+import { formatMoney, formatMoneyForChart } from '../chart/Format';
 import { Size } from '../Types';
 import { MeasureSize } from '../utils/MeasureSize';
 
@@ -29,7 +29,7 @@ const TotalsChartImpl: React.FC<{
       cx="50%"
       cy="50%"
       outerRadius={110}
-      label={d => formatMoney(d.sum)}
+      label={d => formatMoney((d.payload as TotalsData)?.sum ?? 0)}
       onClick={data => onSelectCategory(data.categoryId)}
     >
       {data.map((d, i) => (
@@ -41,7 +41,7 @@ const TotalsChartImpl: React.FC<{
         />
       ))}
     </Pie>
-    <Tooltip formatter={formatMoney} />
+    <Tooltip formatter={formatMoneyForChart} />
     <Legend layout="vertical" align="right" />
   </PieChart>
 );

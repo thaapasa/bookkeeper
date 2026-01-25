@@ -123,7 +123,7 @@ export const unused = styled('div')`
 export function getLuminanceSafe(color: string): number {
   try {
     return getLuminance(color);
-  } catch (e) {
+  } catch {
     return 0;
   }
 }

@@ -8,10 +8,10 @@ export const ProfileItem: React.FC<
   React.PropsWithChildren<{ title?: string; labelFor?: string }>
 > = ({ title, children, labelFor }) => (
   <>
-    <Grid item xs={3} alignSelf="center">
+    <Grid size={3} alignSelf="center">
       <Label htmlFor={labelFor}>{title}</Label>
     </Grid>
-    <DataItemGrid item xs={9} alignSelf="center">
+    <DataItemGrid size={9} alignSelf="center">
       {children}
     </DataItemGrid>
   </>

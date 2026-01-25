@@ -40,7 +40,7 @@ export const ShortcutLink: React.FC<ShortcutLinkProps> = ({
       {typeof icon === 'string' ? (
         <LinkImage src={icon} title={title} />
       ) : (
-        icon ?? title.substring(0, 1).toUpperCase()
+        (icon ?? title.substring(0, 1).toUpperCase())
       )}
     </LinkIconArea>
   );

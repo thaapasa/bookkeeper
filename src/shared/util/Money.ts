@@ -81,7 +81,7 @@ export class Money {
     if (value === null || value === undefined) return;
     try {
       return Money.from(value);
-    } catch (e) {
+    } catch {
       return;
     }
   }

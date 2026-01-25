@@ -15,7 +15,7 @@ export function expectArrayMatching<E extends object, A extends object>(
   for (const exp of expected) {
     try {
       expectSome(actual.map(a => () => expect(a).toMatchObject(exp)));
-    } catch (e) {
+    } catch {
       fail(
         `Expected ${printValue(actual)} to contain value matching ${printValue(
           exp,

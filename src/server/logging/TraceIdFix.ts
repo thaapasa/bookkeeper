@@ -35,7 +35,7 @@ export async function fixDbTraceLeak() {
           );
         }),
     );
-  } catch (e) {
+  } catch {
     // Ignore
   }
 }

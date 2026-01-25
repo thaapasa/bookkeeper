@@ -3,7 +3,7 @@ import { fail } from '../Assert';
 export async function expectThrow<T>(p: () => Promise<T>) {
   try {
     await p();
-  } catch (e) {
+  } catch {
     // OK, an error was thrown
     return;
   }

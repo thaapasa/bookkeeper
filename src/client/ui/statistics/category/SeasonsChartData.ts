@@ -55,7 +55,7 @@ const SeasonConfig: ChartConfiguration<'season'> = {
   convertData: categoryStatisticsToSeasonsData,
   dataKey: 'season',
   tickFormatter: formatSeason,
-  labelFormatter: formatSeason,
+  labelFormatter: label => formatSeason(String(label) as Season),
 };
 
 export function createSeasonsChartConfiguration(): ChartConfiguration<'season'> {

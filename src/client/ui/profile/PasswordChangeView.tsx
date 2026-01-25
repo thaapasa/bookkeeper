@@ -147,7 +147,7 @@ export const PasswordView: React.FC<{ session: Session }> = ({ session }) => {
   const navigate = useNavigate();
   return (
     <>
-      <Grid item xs={12}>
+      <Grid size={12}>
         <Subtitle>Salasana</Subtitle>
       </Grid>
       <Routes>

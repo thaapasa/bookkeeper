@@ -31,7 +31,7 @@ export const ExpenseGroupingsList: React.FC<{
     selectedTags.length < 1 ? data : data.filter(d => hasMatchingElements(d.tags, selectedTags));
   return (
     <>
-      <Grid item xs={12} md={12} justifyContent="flex-end" container>
+      <Grid size={12} justifyContent="flex-end" container>
         <ExpenseGroupingsTagFilters allTags={allTags} {...filters} />
       </Grid>
       {filtered.map(d => (
@@ -47,7 +47,7 @@ export const ExpenseGroupingView: React.FC<{
   onReload: () => void;
 }> = ({ grouping, onReload }) => {
   return (
-    <Grid item xs={12} md={6}>
+    <Grid size={{ xs: 12, md: 6 }}>
       <GroupingCard>
         <TitleArea className="title-area">
           <TitleText>{grouping.title}</TitleText>

@@ -16,16 +16,15 @@ export function useLocalStorage<T>(
   const [value, setValue] = React.useState<T>(() => readStored(key, initialValue, codec, init));
 
   const storeItem = React.useCallback(
-    (v: T) => {
-      if (typeof v === 'function') {
-        throw new Error(`Cannot store function to localStorage; got ${v.name}`);
-      }
-
-      logger.debug(v, 'Storing %s', key);
-      localStorage.setItem(key, JSON.stringify(v));
-      setValue(v);
+    (v: T | ((prev: T) => T)) => {
+      setValue(prev => {
+        const newValue = typeof v === 'function' ? (v as (prev: T) => T)(prev) : v;
+        logger.debug({ value: newValue }, 'Storing %s', key);
+        localStorage.setItem(key, JSON.stringify(newValue));
+        return newValue;
+      });
     },
-    [setValue, key],
+    [key],
   );
 
   return [value, storeItem] as const;
@@ -43,7 +42,7 @@ function readStored<T>(key: string, defaultValue: T, codec?: z.ZodType<T>, init?
       return init ? init(p) : p;
     }
     return init ? init(json) : json;
-  } catch (e) {
+  } catch {
     return defaultValue;
   }
 }

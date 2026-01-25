@@ -15,7 +15,7 @@ import { ToolButton } from './ToolButton';
 export const ToolsView: React.FC = () => (
   <PageContentContainer className="center">
     <Grid container rowSpacing={2} padding={2} maxWidth={800}>
-      <Grid item xs={12}>
+      <Grid size={12}>
         <Title>Työkalut</Title>
       </Grid>
       <ToolButton title="Vaihda kohteiden nimi" buttonText="Vaihda" action={changeReceiverName} />

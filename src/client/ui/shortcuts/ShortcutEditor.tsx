@@ -62,22 +62,16 @@ const ShortcutEditView: React.FC<{
       <DialogTitle>Muokkaa linkkiä</DialogTitle>
       <DialogContent>
         <Grid container rowSpacing={1} justifyContent="space-between">
-          <Grid item xs={4}>
-            Nimi
-          </Grid>
-          <Grid item xs={8}>
+          <Grid size={4}>Nimi</Grid>
+          <Grid size={8}>
             <TextEdit value={state.title} onChange={state.setTitle} fullWidth />
           </Grid>
-          <Grid item xs={4}>
-            Taustaväri
-          </Grid>
-          <Grid item xs={8}>
+          <Grid size={4}>Taustaväri</Grid>
+          <Grid size={8}>
             <TextEdit value={state.background} onChange={state.setBackground} width="80px" />
           </Grid>
-          <Grid item xs={4}>
-            Linkin kuva
-          </Grid>
-          <Grid item xs={8}>
+          <Grid size={4}>Linkin kuva</Grid>
+          <Grid size={8}>
             <Row>
               <ShortcutIcon title={state.title} icon={data.icon} background={state.background} />
               <Flex />
@@ -100,18 +94,18 @@ const ShortcutEditView: React.FC<{
               </IconButton>
             </Row>
           </Grid>
-          <Grid item xs={12}>
+          <Grid size={12}>
             <Subtitle>Linkin data</Subtitle>
           </Grid>
-          <Grid item xs={12}>
+          <Grid size={12}>
             <TextEdit value={state.expenseStr} onChange={state.setExpense} multiline fullWidth />
           </Grid>
-          <Grid item xs="auto">
+          <Grid size="auto">
             <Button color="inherit" onClick={onClose}>
               Peruuta
             </Button>
           </Grid>
-          <Grid item xs="auto">
+          <Grid size="auto">
             <Button
               color="primary"
               variant="contained"

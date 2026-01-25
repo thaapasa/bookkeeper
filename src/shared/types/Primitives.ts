@@ -8,7 +8,7 @@ export const IntString = z
     try {
       const n = Number(s);
       return !isNaN(n) && Math.round(n) === n;
-    } catch (e) {
+    } catch {
       return false;
     }
   })

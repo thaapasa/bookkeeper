@@ -153,7 +153,7 @@ const GroupingEditView: React.FC<{
               </IconButton>
             </Row>
           </SelectionRow>
-          <Grid xs={12} item sx={{ position: 'relative' }}>
+          <Grid size={12} sx={{ position: 'relative' }}>
             <ToolIconArea>
               <IconButton title="Lisää kategoria" size="small" onClick={state.addCategory}>
                 <Icons.Add fontSize="small" />
@@ -164,7 +164,7 @@ const GroupingEditView: React.FC<{
               <CategorySelection id={c} key={c} categoryMap={categoryMap} />
             ))}
           </Grid>
-          <Grid item xs={12}>
+          <Grid size={12}>
             <Row>
               <Flex />
               <Button color="inherit" onClick={onClose}>
@@ -192,12 +192,8 @@ const SelectionRow: React.FC<React.PropsWithChildren<{ title: string }>> = ({
   children,
 }) => (
   <>
-    <Grid item xs={4}>
-      {title}
-    </Grid>
-    <Grid item xs={8}>
-      {children}
-    </Grid>
+    <Grid size={4}>{title}</Grid>
+    <Grid size={8}>{children}</Grid>
   </>
 );
 

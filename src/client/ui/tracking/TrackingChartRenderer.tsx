@@ -14,7 +14,7 @@ import {
 
 import { TrackingChartType, TrackingData, TrackingStatistics } from 'shared/types';
 import { partition } from 'shared/util';
-import { formatMoney } from 'client/ui/chart/Format';
+import { formatMoneyForChart } from 'client/ui/chart/Format';
 
 import { getChartColor } from '../chart/ChartColors';
 import { Size } from '../Types';
@@ -37,7 +37,7 @@ export const TrackingLineChartRenderer: React.FC<TrackingChartProps> = ({
     <LineChart width={size.width} height={168} data={data.statistics} margin={Margins}>
       <CartesianGrid strokeDasharray="3 3" />
       <XAxis hide dataKey="timeSlot" />
-      <Tooltip formatter={formatMoney} />
+      <Tooltip formatter={formatMoneyForChart} />
       {data.groups.map((v, i) => (
         <Line
           type="monotone"
@@ -60,7 +60,7 @@ export const TrackingBarChartRenderer: React.FC<TrackingChartProps> = ({
     <BarChart width={size.width} height={168} data={data.statistics} margin={Margins}>
       <CartesianGrid strokeDasharray="3 3" />
       <XAxis hide dataKey="timeSlot" />
-      <Tooltip formatter={formatMoney} />
+      <Tooltip formatter={formatMoneyForChart} />
       {data.groups.map((v, i) => (
         <Bar
           type="monotone"
@@ -84,7 +84,7 @@ export const TrackingCombinedRenderer: React.FC<TrackingChartProps> = ({
     <ComposedChart width={size.width} height={168} data={data.statistics} margin={Margins}>
       <CartesianGrid strokeDasharray="3 3" />
       <XAxis hide dataKey="timeSlot" />
-      <Tooltip formatter={formatMoney} />
+      <Tooltip formatter={formatMoneyForChart} />
       {lines.map((v, i) => (
         <Area
           type="monotone"
