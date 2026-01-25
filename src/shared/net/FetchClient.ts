@@ -1,11 +1,10 @@
-import type nodeFetch from 'node-fetch';
 import { Logger } from 'pino';
 
 import { isDefined } from '../types/Common';
 import { AuthenticationError, BkError } from '../types/Errors';
 import { ContentTypes } from './ContentTypes';
 
-export type FetchType = typeof nodeFetch | Window['fetch'];
+export type FetchType = typeof fetch;
 type ResponseType = Awaited<ReturnType<FetchType>>;
 
 function encodeComponent(x: any) {
