@@ -44,7 +44,7 @@ const MonthConfig: ChartConfiguration<'month'> = {
   convertData: categoryStatisticsToMonthlyData,
   dataKey: 'month',
   tickFormatter: formatMonth,
-  labelFormatter: formatMonth,
+  labelFormatter: label => formatMonth(String(label) as ISOMonth),
 };
 
 export function createMonthChartConfiguration(): ChartConfiguration<'month'> {

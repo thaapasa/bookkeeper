@@ -104,7 +104,7 @@ export const StatisticsViewImpl: React.FC<{
   return (
     <PageContentContainer>
       <Grid container columnSpacing={2} rowSpacing={1} padding="16px">
-        <Grid item md={5} sm={8}>
+        <Grid size={{ sm: 8, md: 5 }}>
           <CategorySelector addCategories={addCats} />
           <FormGroup row>
             <FormControlLabel
@@ -117,14 +117,14 @@ export const StatisticsViewImpl: React.FC<{
             />
           </FormGroup>
         </Grid>
-        <Grid item md={2} sm={4}>
+        <Grid size={{ sm: 4, md: 2 }}>
           <StatisticsChartTypeSelector selected={type} onChange={setType} row={isMobile} />
         </Grid>
-        <Grid item md={5} sm={12}>
+        <Grid size={{ sm: 12, md: 5 }}>
           <StatisticsChartRangeSelector onChange={setRange} />
         </Grid>
         {cats.length > 0 ? (
-          <Grid item xs={12}>
+          <Grid size={12}>
             <IconButton color="primary" onClick={clearCats}>
               <ClearIcon />
             </IconButton>
@@ -136,7 +136,7 @@ export const StatisticsViewImpl: React.FC<{
             />
           </Grid>
         ) : null}
-        <Grid item xs={12}>
+        <Grid size={12}>
           <AsyncDataView
             data={data}
             renderer={CategoryStatisticsChart}

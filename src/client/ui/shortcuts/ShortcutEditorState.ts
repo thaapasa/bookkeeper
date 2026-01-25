@@ -95,7 +95,7 @@ function parseExpense(expenseStr: string): ExpenseShortcutData | undefined {
     const d = JSON.parse(expenseStr);
     const parsed = ExpenseShortcutData.parse(d);
     return parsed;
-  } catch (e) {
+  } catch {
     return undefined;
   }
 }

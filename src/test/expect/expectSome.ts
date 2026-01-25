@@ -8,7 +8,7 @@ export function expectSome(tests: TestFun[]) {
       test();
       // One test passed!
       return;
-    } catch (e) {
+    } catch {
       // Ok, it's okay that some fail
     }
   }

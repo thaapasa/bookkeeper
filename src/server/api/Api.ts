@@ -66,7 +66,7 @@ export function createApi() {
     '/user/:id',
     Requests.txRequest(
       (tx, session, req): Promise<User> =>
-        getUserById(tx, session.group.id, parseInt(req.params.id, 10)),
+        getUserById(tx, session.group.id, parseInt(String(req.params.id), 10)),
       true,
     ),
   );
@@ -78,7 +78,7 @@ export function createApi() {
   );
 
   // Return 404 for non-matched /api paths
-  api.all('/*', (req, res) => {
+  api.all('/{*path}', (req, res) => {
     logger.warn(`Request ${req.method} ${req.path} not mapped -> 404`);
     res.status(404).json({
       error: `${req.method} /api${req.path} not mapped`,

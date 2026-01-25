@@ -1,5 +1,3 @@
-import fetch from 'node-fetch';
-
 import { FetchClient } from 'shared/net';
 import { config } from 'server/Config';
 import { logger } from 'server/Logger';

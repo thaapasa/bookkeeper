@@ -22,10 +22,10 @@ export const ProfileImageView: React.FC<{ session: Session }> = ({ session }) =>
   const user = session.user;
   return (
     <>
-      <Grid item xs={12}>
+      <Grid size={12}>
         <Subtitle>Profiilikuva</Subtitle>
       </Grid>
-      <Grid item xs={12}>
+      <Grid size={12}>
         <ProfileImage image={user.imageLarge}>
           <IconPlacement>
             <UploadImageButton

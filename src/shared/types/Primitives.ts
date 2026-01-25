@@ -8,7 +8,7 @@ export const IntString = z
     try {
       const n = Number(s);
       return !isNaN(n) && Math.round(n) === n;
-    } catch (e) {
+    } catch {
       return false;
     }
   })
@@ -23,10 +23,8 @@ export const IntArrayString = z
 
 export const IntOrString = z.number().int().or(IntString);
 
-export const JSONString = <Output>(
-  codec: z.ZodType<Output, any, any>,
-): z.ZodType<Output, any, string> =>
+export const JSONString = <Output>(codec: z.ZodType<Output>): z.ZodType<Output, string> =>
   z
     .string()
     .transform(s => JSON.parse(s))
-    .transform(s => codec.parse(s));
+    .transform(s => codec.parse(s)) as z.ZodType<Output, string>;

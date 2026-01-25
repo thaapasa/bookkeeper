@@ -47,7 +47,7 @@ const QuarterConfig: ChartConfiguration<'quarter'> = {
   convertData: categoryStatisticsToQuartersData,
   dataKey: 'quarter',
   tickFormatter: formatQuarter,
-  labelFormatter: formatQuarter,
+  labelFormatter: label => formatQuarter(String(label) as Quarter),
 };
 
 export function createQuartersChartConfiguration(): ChartConfiguration<'quarter'> {

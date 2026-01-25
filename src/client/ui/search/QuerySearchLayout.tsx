@@ -66,7 +66,7 @@ const QuerySearchLayoutImpl: React.FC<QuerySearchLayoutProps> = ({
   session,
 }) => (
   <Grid container padding="16px" rowGap="16px">
-    <Grid item md={7} xs={12} sm={12}>
+    <Grid size={{ xs: 12, sm: 12, md: 7 }}>
       <FlexRow>
         <ClearIconArea>
           <IconButton size="small" onClick={onClear}>
@@ -94,10 +94,10 @@ const QuerySearchLayoutImpl: React.FC<QuerySearchLayoutProps> = ({
       <br />
       {dateRange ? `Haetaan ajalta ${toDateRangeName(dateRange)}` : 'Ei aikaehtoja'}
     </Grid>
-    <Grid item md={3} sm={7} xs={12}>
+    <Grid size={{ xs: 12, sm: 7, md: 3 }}>
       <DateRangeSelector dateRange={dateRange} onSelectRange={onSelectRange} />
     </Grid>
-    <Grid item md={2} sm={5} xs={12}>
+    <Grid size={{ xs: 12, sm: 5, md: 2 }}>
       <Row>
         <CheckLabel
           control={
@@ -123,7 +123,7 @@ const QuerySearchLayoutImpl: React.FC<QuerySearchLayoutProps> = ({
       />
       <Button onClick={onSaveAsReport}>Tee raportti</Button>
     </Grid>
-    <Grid item xs={12}>
+    <Grid size={12}>
       <SelectedSuggestionsView suggestions={selectedSuggestions} onRemove={removeSuggestion} />
     </Grid>
   </Grid>

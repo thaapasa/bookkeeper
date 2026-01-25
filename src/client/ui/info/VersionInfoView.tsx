@@ -18,15 +18,18 @@ interface VersionInfo {
 
 export const VersionInfoView = () => {
   const [serverVersion, setServerVersion] = React.useState<VersionInfo | null>(null);
-  React.useMemo(async () => {
-    const status = await apiConnect.getApiStatus();
-    logger.info(status, `API status`);
-    setServerVersion({
-      version: status.version,
-      revision: status.revision,
-      runtimeVersion: status.runtimeVersion,
-    });
-  }, [setServerVersion]);
+  React.useEffect(() => {
+    const loadVersion = async () => {
+      const status = await apiConnect.getApiStatus();
+      logger.info(status, `API status`);
+      setServerVersion({
+        version: status.version,
+        revision: status.revision,
+        runtimeVersion: status.runtimeVersion,
+      });
+    };
+    loadVersion();
+  }, []);
   const doReload = React.useCallback(() => reloadApp(infoPagePath), []);
 
   return (

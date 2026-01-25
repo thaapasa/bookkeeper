@@ -10,8 +10,6 @@ import { Money } from 'shared/util';
 import { expectThrow } from 'shared/util/test';
 import { logger } from 'server/Logger';
 
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-
 function checkValueAndBalance(status: ExpenseStatus, _i: any, _name: string) {
   expect(status.value).toEqual(
     Money.from(status.cost).plus(status.benefit).plus(status.income).plus(status.split).toString(),

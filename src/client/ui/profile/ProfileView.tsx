@@ -17,7 +17,7 @@ export const ProfileViewImpl = RequireProperty('session', ({ session }: { sessio
   return (
     <PageContentContainer className="center">
       <Grid container columnSpacing={2} rowSpacing={2} padding={2} maxWidth={800}>
-        <Grid item xs={12}>
+        <Grid size={12}>
           <Title>Profiilitiedot</Title>
         </Grid>
         <UserDataView session={session} />

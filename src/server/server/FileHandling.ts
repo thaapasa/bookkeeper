@@ -63,10 +63,10 @@ export async function storeUploadedFile(
   let sizeInBytes = expectedSizeInBytes;
   if (config.useNodeFileAPI) {
     logger.debug(`Saving uploaded file to ${filepath} using Node API`);
-    await writeFile(filepath, data);
+    await writeFile(filepath, new Uint8Array(data));
   } else {
     logger.debug(`Saving uploaded file to ${filepath} using Bun API`);
-    sizeInBytes = await Bun.write(filepath, data);
+    sizeInBytes = await Bun.write(filepath, new Uint8Array(data));
   }
   logger.debug(`Uploaded file ${filepath} saved, ${sizeInBytes} bytes written`);
   return {

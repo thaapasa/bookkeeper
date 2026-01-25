@@ -60,7 +60,9 @@ export const MenuDrawer: React.FC<MenuDrawerProps> = ({
         </UserInfo>
       </ItemArea>
       <ItemArea>
-        {links?.map(l => <MenuLink key={l.label} {...l} onSelect={onSelect} />)}
+        {links?.map(l => (
+          <MenuLink key={l.label} {...l} onSelect={onSelect} />
+        ))}
         <MenuLink
           label="Päivitä"
           showInHeader={false}

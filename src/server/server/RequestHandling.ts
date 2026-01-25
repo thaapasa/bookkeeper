@@ -69,10 +69,10 @@ function processTxRequest<T>(
 }
 
 type ValidatorSpec<R, P, Q, B> = {
-  params?: z.ZodType<P, any, any>;
-  query?: z.ZodType<Q, any, any>;
-  body?: z.ZodType<B, any, any>;
-  response?: z.ZodType<R, any, any>;
+  params?: z.ZodType<P>;
+  query?: z.ZodType<Q>;
+  body?: z.ZodType<B>;
+  response?: z.ZodType<R>;
 };
 
 export type HandlerParams<P, Q, B> = {

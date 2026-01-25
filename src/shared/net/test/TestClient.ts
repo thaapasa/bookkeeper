@@ -1,4 +1,3 @@
-import fetch from 'node-fetch';
 import { Logger } from 'pino';
 
 import { Session } from '../../types/Session';

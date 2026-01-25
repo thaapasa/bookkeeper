@@ -65,7 +65,7 @@ const GroupingCategoryChartImpl: React.FC<GroupingCategoryChartProps> = ({
             <Cell key={`cell-${index}`} fill={entry.color} />
           ))}
         </Pie>
-        <Tooltip formatter={formatMoney} />
+        <Tooltip formatter={v => formatMoney(typeof v === 'number' ? v : 0)} />
       </PieChart>
       <CategoryTotalsTable data={data} />
       <Flex />

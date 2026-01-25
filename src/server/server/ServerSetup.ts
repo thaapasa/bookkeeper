@@ -1,4 +1,3 @@
-import * as bodyParser from 'body-parser';
 import express from 'express';
 import nocache from 'nocache';
 import * as path from 'path';
@@ -10,10 +9,11 @@ import { traceLogMiddleware } from 'server/logging/TraceIdProvider';
 export function setupServer() {
   const app = express();
   app.use(express.static('public'));
-  app.use(bodyParser.urlencoded({ extended: false }));
-  app.use(bodyParser.json());
-  app.use(bodyParser.raw({ limit: '10MB', type: 'multipart/form-data' }));
-  app.use(bodyParser.raw({}));
+  // Express 5 has built-in body parsing
+  app.use(express.urlencoded({ extended: false }));
+  app.use(express.json());
+  app.use(express.raw({ limit: '10MB', type: 'multipart/form-data' }));
+  app.use(express.raw({}));
   app.use(nocache());
 
   // Serve assets for dev

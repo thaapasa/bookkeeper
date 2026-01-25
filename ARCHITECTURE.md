@@ -20,10 +20,10 @@ This document provides an overview of the codebase architecture, directory struc
 
 ### Frontend
 
-- **React 18** - UI framework (functional components with hooks)
-- **Material UI (MUI) 5** - Component library and styling
+- **React 19** - UI framework (functional components with hooks)
+- **Material UI (MUI) 7** - Component library and styling
 - **Emotion** - CSS-in-JS styling (via MUI's styled API)
-- **React Router 6** - Client-side routing
+- **React Router 7** - Client-side routing
 - **Zustand** - State management
 - **Bacon.js** - Reactive programming for data streams
 - **Recharts** - Charts and data visualization

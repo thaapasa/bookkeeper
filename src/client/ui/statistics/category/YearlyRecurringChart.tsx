@@ -18,7 +18,12 @@ import { getFullCategoryName } from 'client/data/Categories';
 import { getChartColor } from 'client/ui/chart/ChartColors';
 import { calculateChartHeight } from 'client/ui/chart/ChartSize';
 import { ChartColumn, ChartData } from 'client/ui/chart/ChartTypes';
-import { formatMoney, formatMoneyThin, useThinFormat } from 'client/ui/chart/Format';
+import {
+  formatMoney,
+  formatMoneyForChart,
+  formatMoneyThin,
+  useThinFormat,
+} from 'client/ui/chart/Format';
 
 import { EmptyChart } from '../EmptyChart';
 import { Months } from '../types';
@@ -50,7 +55,7 @@ export const YearlyRecurringCategoryChart: React.FC<CategoryGraphProps> = ({
       <CartesianGrid strokeDasharray="3 3" />
       <XAxis dataKey="month" />
       <YAxis tickFormatter={thin ? formatMoneyThin : formatMoney} width={thin ? 32 : undefined} />
-      {keys.length <= 12 ? <Tooltip formatter={formatMoney} /> : null}
+      {keys.length <= 12 ? <Tooltip formatter={formatMoneyForChart} /> : null}
       <Legend />
       {keys.map(v =>
         useLines ? (

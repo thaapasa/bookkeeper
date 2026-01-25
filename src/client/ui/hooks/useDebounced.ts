@@ -1,7 +1,5 @@
 import React from 'react';
 
-type TimeoutHandle = ReturnType<typeof setTimeout>;
-
 const DefaultDebounceTimeMs = 300;
 
 /**
@@ -9,18 +7,19 @@ const DefaultDebounceTimeMs = 300;
  */
 export function useDebounced<T>(t: T, timeoutMs = DefaultDebounceTimeMs) {
   const [value, setValue] = React.useState<T | undefined>(undefined);
-  const ref = React.useRef<TimeoutHandle | undefined>(undefined);
 
-  // Clear existing timeout (incoming new value)
-  if (ref.current) {
-    clearTimeout(ref.current);
-    ref.current = undefined;
-  }
+  React.useEffect(() => {
+    // If values are the same, no need to debounce
+    if (value === t) {
+      return;
+    }
 
-  if (value !== t) {
-    // Update value after timeout
-    ref.current = setTimeout(() => setValue(t), timeoutMs);
-  }
+    // Set a timeout to update the value
+    const timeout = setTimeout(() => setValue(t), timeoutMs);
+
+    // Cleanup: clear the timeout on unmount or when dependencies change
+    return () => clearTimeout(timeout);
+  }, [t, timeoutMs, value]);
 
   return value;
 }

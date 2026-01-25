@@ -57,7 +57,7 @@ export const SubscriptionCriteriaSelector: React.FC<{
 
   return (
     <Grid container width="100%" paddingLeft={2} paddingRight={2}>
-      <Grid item xs={12} md={4}>
+      <Grid size={{ xs: 12, md: 4 }}>
         <FormGroup row>
           <FormControlLabel
             control={
@@ -71,7 +71,7 @@ export const SubscriptionCriteriaSelector: React.FC<{
           />
         </FormGroup>
       </Grid>
-      <Grid item xs={12} md={4}>
+      <Grid size={{ xs: 12, md: 4 }}>
         <FormGroup row sx={{ justifyContent: 'center' }}>
           {rangeOptions.map(r => (
             <FormControlLabel
@@ -87,7 +87,7 @@ export const SubscriptionCriteriaSelector: React.FC<{
           ))}
         </FormGroup>
       </Grid>
-      <Grid item xs={12} md={4}>
+      <Grid size={{ xs: 12, md: 4 }}>
         <FormGroup row sx={{ justifyContent: 'right' }}>
           <FormControlLabel
             control={<Checkbox checked={expenses} onChange={() => setExpenses(!expenses)} />}

@@ -12,7 +12,12 @@ import {
 } from 'recharts';
 
 import { calculateChartHeight } from 'client/ui/chart/ChartSize';
-import { formatMoney, formatMoneyThin, useThinFormat } from 'client/ui/chart/Format';
+import {
+  formatMoney,
+  formatMoneyForChart,
+  formatMoneyThin,
+  useThinFormat,
+} from 'client/ui/chart/Format';
 
 import { EmptyChart } from '../EmptyChart';
 import { CategoryGraphProps } from './CategoryStatisticsChart';
@@ -52,7 +57,7 @@ export const CategoryChartRenderer: React.FC<CategoryChartProps<any>> = <T exten
       <CartesianGrid strokeDasharray="3 3" />
       <XAxis dataKey={dataKey} tickFormatter={tickFormatter} />
       <YAxis tickFormatter={thin ? formatMoneyThin : formatMoney} width={thin ? 32 : undefined} />
-      <Tooltip formatter={formatMoney} labelFormatter={labelFormatter} />
+      <Tooltip formatter={formatMoneyForChart} labelFormatter={labelFormatter} />
       <Legend />
       {keys.map(v =>
         stacked ? (
@@ -63,7 +68,7 @@ export const CategoryChartRenderer: React.FC<CategoryChartProps<any>> = <T exten
             strokeDasharray={v.estimate ? '3 3' : undefined}
             stroke={v.color}
             fill={`${v.color}77`}
-            stackId={stackMainCats ? categoryMap[v.dataId].parentId ?? v.dataId : 1}
+            stackId={stackMainCats ? (categoryMap[v.dataId].parentId ?? v.dataId) : 1}
             name={v.name ?? v.key}
           />
         ) : (

@@ -5,17 +5,20 @@ import * as React from 'react';
  * unless the dependencies change. React.memo() may arbitrarily re-create the memoized object.
  */
 export function usePersistentMemo<T>(value: () => T, deps: any[]): T {
-  const valueRef = React.useRef<T | null>(null);
-  const depsRef = React.useRef<any[] | null>(null);
+  const [state, setState] = React.useState<{ value: T; deps: any[] }>(() => ({
+    value: value(),
+    deps,
+  }));
 
-  if (!valueRef.current) {
-    valueRef.current = value();
-    depsRef.current = deps;
-  } else if (!areHookInputsEqual(deps, depsRef.current)) {
-    valueRef.current = value();
-    depsRef.current = deps;
+  // Check if deps have changed
+  if (!areHookInputsEqual(deps, state.deps)) {
+    // Update state synchronously during render (valid React pattern)
+    const newValue = value();
+    setState({ value: newValue, deps });
+    return newValue;
   }
-  return valueRef.current;
+
+  return state.value;
 }
 
 // Copied from React code

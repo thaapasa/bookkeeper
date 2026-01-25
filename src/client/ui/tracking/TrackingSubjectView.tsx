@@ -25,7 +25,7 @@ export const TrackingSubjectView: React.FC<{
   onReload: () => void;
 }> = ({ subject, onReload }) => {
   return (
-    <Grid item xs={12} md={6}>
+    <Grid size={{ xs: 12, md: 6 }}>
       <TrackingCard>
         <TitleArea className="title-area">
           <TitleText>{subject.title}</TitleText>

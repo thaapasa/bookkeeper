@@ -15,7 +15,7 @@ export function expectArrayContaining<T>(
   for (const exp of expected) {
     try {
       expectSome(actual.map(a => () => expect(a).toEqual(exp)));
-    } catch (e) {
+    } catch {
       fail(`Expected ${printValue(actual)} to contain ${printValue(exp)}, but could not find it`);
     }
   }
