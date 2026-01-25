@@ -66,7 +66,7 @@ export function createExpenseApi() {
   );
 
   const ExpenseSplitBody = z.object({
-    splits: z.array(ExpenseSplit).nonempty(),
+    splits: z.array(ExpenseSplit).min(1),
   });
   // POST /api/expense/[expenseId]/split
   api.postTx(

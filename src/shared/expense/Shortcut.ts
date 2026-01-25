@@ -26,7 +26,7 @@ export interface ExpenseShortcut {
 }
 
 export const ExpenseShortcutPayload = z.object({
-  title: z.string().trim().nonempty(),
+  title: z.string().trim().min(1),
   background: z.string().trim().optional(),
   expense: ExpenseShortcutData,
 });

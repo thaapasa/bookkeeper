@@ -27,7 +27,7 @@ const TypeMap = {
   expenseId: ObjectIdString,
   reportId: ObjectIdString,
   recurringExpenseId: ObjectIdString,
-  filename: z.string().trim().nonempty(),
+  filename: z.string().trim().min(1),
   margin: IntString.refine(n => n >= 0),
 };
 type TypeMap = typeof TypeMap;
@@ -35,9 +35,9 @@ type KnownParamNames = keyof typeof TypeMap;
 type KnownTypes = { [k in KnownParamNames]: z.infer<TypeMap[k]> };
 
 type ValidatorSpec<R, Q, B> = {
-  query?: z.ZodType<Q, any, any>;
-  body?: z.ZodType<B, any, any>;
-  response?: z.ZodType<R, any, any>;
+  query?: z.ZodType<Q>;
+  body?: z.ZodType<B>;
+  response?: z.ZodType<R>;
 };
 
 type PathToParams<Path extends string> = Path extends `${infer Start}/${infer Rest}`
@@ -118,7 +118,7 @@ export function createValidatingRouter(router: Router): WrappedRouter {
   };
 }
 
-type ParamValidator<Path extends string> = z.ZodType<PathToParams<Path>, any, any>;
+type ParamValidator<Path extends string> = z.ZodType<PathToParams<Path>>;
 
 function addParamType<Path extends string, Return, Q, B>(
   path: Path,

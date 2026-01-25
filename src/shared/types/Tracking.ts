@@ -35,7 +35,7 @@ export type TrackingSubjectData = z.infer<typeof TrackingSubjectData>;
 
 export const TrackingSubject = TrackingSubjectData.extend({
   id: ObjectId,
-  image: z.string().nonempty().optional(),
+  image: z.string().min(1).optional(),
 });
 export type TrackingSubject = z.infer<typeof TrackingSubject>;
 
