@@ -178,7 +178,7 @@ const StyledContainer = styled('div')`
 
 - **Bacon.js** for reactive data streams (legacy pattern, still used)
 - **Zustand** for simpler state management (preferred for new code)
-- **Custom hooks** for async data loading (`useAsyncData`, `useDeferredData`)
+- **Custom hooks** for async data loading (`useAsyncData`)
 
 ### API Client
 

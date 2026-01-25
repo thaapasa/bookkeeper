@@ -93,11 +93,12 @@ Start development build by running `bun ui`.
 - `stop-server`: Kills the running server instance (in case the port has not been released)
 - `migrate`: Run migrations (this is automatically run on dev-server startup)
 - `migrate-make migration-name`: Create a new migration file
-- `migrate-rollback`: Rollback latest migration
+- `rollback`: Rollback latest migration
 
 ### Testing
 
-- Unit tests: run `bun test` while the dev server is running
+- Run `bun test` to execute tests (uses Bun's built-in test runner)
+- Integration tests require the dev server to be running
 
 ### Linting
 

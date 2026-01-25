@@ -264,25 +264,32 @@ import { logger } from 'client/Logger';
 
 ## Dialog Pattern
 
-Use the dialog components in `src/client/ui/dialog/`:
+Use the `UserPrompts` helper from `src/client/ui/dialog/DialogState.ts`:
 
 ```typescript
-import { ConfirmationDialog } from '../dialog/ConfirmationDialog';
+import { UserPrompts } from './dialog/DialogState';
 
-const [showConfirm, setShowConfirm] = React.useState(false);
+const handleDelete = async () => {
+  const confirmed = await UserPrompts.confirm(
+    'Confirm Delete',
+    'Are you sure you want to delete this item?'
+  );
+  if (confirmed) {
+    // Perform delete action
+  }
+};
 
-return (
-  <>
-    <Button onClick={() => setShowConfirm(true)}>Delete</Button>
-    <ConfirmationDialog
-      open={showConfirm}
-      title="Confirm Delete"
-      message="Are you sure you want to delete this item?"
-      onConfirm={handleDelete}
-      onCancel={() => setShowConfirm(false)}
-    />
-  </>
-);
+// For text input dialogs:
+const handleRename = async () => {
+  const newName = await UserPrompts.promptText(
+    'Rename Item',
+    'Enter new name:',
+    currentName
+  );
+  if (newName) {
+    // Use the new name
+  }
+};
 ```
 
 ## Table and List Patterns
