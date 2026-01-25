@@ -1,5 +1,31 @@
 # Kukkaro (bookkeeper)
 
+A personal expense tracking web application for managing income, expenses, and transfers between users in a shared household. Built with TypeScript, React, and PostgreSQL.
+
+## Quick Start
+
+```bash
+# Install dependencies
+bun install
+
+# Start dev database (Docker)
+bun create-dev-db
+
+# Create .env file (see Settings section below)
+
+# Run database migrations
+bun migrate
+
+# Add example data (optional)
+bun seed
+
+# Start server (in one terminal)
+bun server
+
+# Start client dev server (in another terminal)
+bun ui
+```
+
 ## Development
 
 ### Settings
@@ -46,7 +72,7 @@ DEBUG=bookkeeper*
 Setup database schema by running `bun migrate`.
 Add example data by running `bun seed`.
 
-Start server by running `bun watch-server`.
+Start server by running `bun server`.
 
 The `DEBUG` switch (in `.env` or supplied as an environment variable) controls logging output.
 
@@ -72,6 +98,15 @@ Start development build by running `bun ui`.
 ### Testing
 
 - Unit tests: run `bun test` while the dev server is running
+
+### Linting
+
+- Run `bun lint` to check for lint errors
+- Run `bun format` to auto-fix formatting issues
+
+## Architecture
+
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for detailed information about the codebase structure, libraries used, and coding conventions.
 
 ## Images
 
