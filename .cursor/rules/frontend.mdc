@@ -9,6 +9,12 @@ globs:
 
 # Frontend Development Rules
 
+## Related Documentation
+
+- [Architecture](../docs/ARCHITECTURE.md) - Full technology stack, directory structure, and patterns
+- [Frontend Improvements](../docs/FRONTEND_IMPROVEMENTS.md) - Known issues and planned improvements
+- [README](../README.md) - Quick start and domain concepts
+
 ## Technology Stack
 
 - **Framework**: React 19 (functional components only)

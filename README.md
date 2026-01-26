@@ -105,9 +105,28 @@ Start development build by running `bun ui`.
 - Run `bun lint` to check for lint errors
 - Run `bun format` to auto-fix formatting issues
 
-## Architecture
+## Documentation
 
-See [ARCHITECTURE.md](./ARCHITECTURE.md) for detailed information about the codebase structure, libraries used, and coding conventions.
+This project includes comprehensive documentation for both developers and AI agents:
+
+### Technical Documentation
+
+- [Architecture](./docs/ARCHITECTURE.md) - Detailed codebase structure, technology stack, and coding patterns
+- [Backend Improvements](./docs/BACKEND_IMPROVEMENTS.md) - Planned backend improvements and tech debt
+- [Frontend Improvements](./docs/FRONTEND_IMPROVEMENTS.md) - Planned frontend improvements and tech debt
+
+### AI Agent Rules (Cursor)
+
+These files provide context for AI-assisted coding:
+
+- [Backend Rules](./.cursor/rules/backend.mdc) - Server-side development conventions
+- [Frontend Rules](./.cursor/rules/frontend.mdc) - React/UI development conventions
+- [Code Improvement](./.cursor/rules/code-improvement.mdc) - Code review and best practices persona
+- [Documentation Rules](./.cursor/rules/documentation.mdc) - Documentation standards and review guidelines
+
+### Quick References
+
+- [Credits](./CREDITS.md) - Attribution for icons and images
 
 ## Images
 

@@ -9,6 +9,12 @@ globs:
 
 # Backend Development Rules
 
+## Related Documentation
+
+- [Architecture](../docs/ARCHITECTURE.md) - Full technology stack and patterns
+- [Backend Improvements](../docs/BACKEND_IMPROVEMENTS.md) - Planned improvements and known tech debt
+- [README](../README.md) - Quick start and domain concepts
+
 ## Technology Stack
 
 - **Runtime**: Bun (TypeScript/JavaScript runtime)

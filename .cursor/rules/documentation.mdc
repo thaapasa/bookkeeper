@@ -2,7 +2,7 @@
 description: Documentation guardian - ensures docs stay in sync with code
 globs:
   - "*.md"
-  - ARCHITECTURE.md
+  - docs/*.md
   - README.md
   - CREDITS.md
   - .cursor/rules/*.mdc
@@ -42,9 +42,9 @@ For each documentation claim, verify against the actual implementation:
 
 Ensure proper cross-references:
 
-- `README.md` should link to `ARCHITECTURE.md` for detailed technical info
-- `ARCHITECTURE.md` should reference relevant source directories
-- Agent rules (`.mdc` files) should be consistent with `ARCHITECTURE.md`
+- `README.md` should link to `docs/ARCHITECTURE.md` for detailed technical info
+- `docs/ARCHITECTURE.md` should reference relevant source directories
+- Agent rules (`.mdc` files) should be consistent with `docs/ARCHITECTURE.md`
 - Any "see also" references should point to valid files
 
 ## Decision Framework: Doc Bug vs Code Bug
@@ -101,7 +101,7 @@ Which is correct, or should I investigate further?
 Use relative links for internal references:
 
 ```markdown
-See [Architecture](./ARCHITECTURE.md) for details.
+See [Architecture](./docs/ARCHITECTURE.md) for details.
 See the [backend rules](./.cursor/rules/backend.mdc) for API patterns.
 ```
 
@@ -126,13 +126,24 @@ These files should be mutually consistent:
 | File | Contains |
 |------|----------|
 | `README.md` | Quick start, commands, domain concepts |
-| `ARCHITECTURE.md` | Technical deep-dive, patterns, structure |
+| `docs/ARCHITECTURE.md` | Technical deep-dive, patterns, structure |
+| `docs/BACKEND_IMPROVEMENTS.md` | Planned backend improvements and tech debt |
+| `docs/FRONTEND_IMPROVEMENTS.md` | Planned frontend improvements and tech debt |
 | `.cursor/rules/backend.mdc` | Backend coding conventions |
 | `.cursor/rules/frontend.mdc` | Frontend coding conventions |
+| `.cursor/rules/code-improvement.mdc` | Code review and best practices |
 | `package.json` | Actual available scripts |
 | `tsconfig.json` | Import path configuration |
 
 When updating one, check if others need corresponding updates.
+
+## Related Documentation
+
+- [README](../README.md) - Project overview and quick start
+- [Architecture](../docs/ARCHITECTURE.md) - Detailed technical documentation
+- [Backend Improvements](../docs/BACKEND_IMPROVEMENTS.md) - Planned backend improvements
+- [Frontend Improvements](../docs/FRONTEND_IMPROVEMENTS.md) - Planned frontend improvements
+- [Credits](../CREDITS.md) - Attribution for assets
 
 ## Tone and Style
 
