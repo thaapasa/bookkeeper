@@ -4,27 +4,7 @@ This document captures suggestions for improving the frontend codebase, identifi
 
 ## High Priority
 
-### 1. Security: Logging Sensitive Token
-
-**Location**: `src/client/data/Login.ts` line 46
-
-**Problem**: Logs the actual refresh token value to console/logs.
-
-```typescript
-logger.info(`Not logged in but refresh token exists in localStorage: ${token}`);
-```
-
-**Impact**: Tokens in logs can be captured, exposing authentication credentials.
-
-**Solution**:
-
-```typescript
-logger.info('Not logged in but refresh token exists in localStorage');
-```
-
----
-
-### 2. Memory Leak in `useAsyncData`
+### 1. Memory Leak in `useAsyncData`
 
 **Location**: `src/client/ui/hooks/useAsyncData.ts` lines 11-16
 
@@ -55,7 +35,7 @@ React.useEffect(() => {
 
 ---
 
-### 3. Missing Cleanup in Bacon.js Subscriptions
+### 2. Missing Cleanup in Bacon.js Subscriptions
 
 **Locations**:
 - `src/client/ui/component/DialogConnector.tsx` line 12
@@ -79,7 +59,7 @@ React.useEffect(() => {
 
 ---
 
-### 4. Object Mutation in `mapExpense`
+### 3. Object Mutation in `mapExpense`
 
 **Location**: `src/client/data/ApiConnect.ts` lines 51-60
 
@@ -113,7 +93,7 @@ function mapExpense<T extends UserExpense>(e: T): T {
 
 ---
 
-### 5. Missing Error Handling in `saveExpense`
+### 4. Missing Error Handling in `saveExpense`
 
 **Location**: `src/client/ui/expense/dialog/ExpenseDialog.tsx` lines 314-346
 
@@ -135,7 +115,7 @@ try {
 
 ---
 
-### 6. Generic Components Losing Type Safety
+### 5. Generic Components Losing Type Safety
 
 **Locations**:
 - `src/client/ui/component/ActionButton.tsx` line 11
@@ -164,7 +144,7 @@ export const ActionButton = <T,>({
 
 ## Medium Priority
 
-### 7. Unsafe Type Assertion in `Login.ts`
+### 6. Unsafe Type Assertion in `Login.ts`
 
 **Location**: `src/client/data/Login.ts` line 13
 
@@ -184,7 +164,7 @@ export const validSessionE: B.EventStream<Session> = sessionP
 
 ---
 
-### 8. `any` Types in Error Handling
+### 7. `any` Types in Error Handling
 
 **Locations**:
 - `src/client/data/AsyncData.ts` line 17: `error: any`
@@ -202,7 +182,7 @@ export interface AsyncDataError {
 
 ---
 
-### 9. `any` Types in Hooks
+### 8. `any` Types in Hooks
 
 **Locations**:
 - `src/client/ui/hooks/useList.tsx` line 8
@@ -220,7 +200,7 @@ export function useOnUnmount(f: () => void, deps?: DependencyList): void {
 
 ---
 
-### 10. Swallowed Error in `useLocalStorage`
+### 9. Swallowed Error in `useLocalStorage`
 
 **Location**: `src/client/ui/hooks/useLocalStorage.ts` lines 45-46
 
@@ -237,7 +217,7 @@ export function useOnUnmount(f: () => void, deps?: DependencyList): void {
 
 ---
 
-### 11. Missing ResizeObserver in `useElementSize`
+### 10. Missing ResizeObserver in `useElementSize`
 
 **Location**: `src/client/ui/hooks/useElementSize.ts` lines 27-34
 
@@ -247,7 +227,7 @@ export function useOnUnmount(f: () => void, deps?: DependencyList): void {
 
 ---
 
-### 12. Non-Reactive `useQueryParams`
+### 11. Non-Reactive `useQueryParams`
 
 **Location**: `src/client/ui/hooks/useQueryParams.ts` lines 3-13
 
@@ -257,7 +237,7 @@ export function useOnUnmount(f: () => void, deps?: DependencyList): void {
 
 ---
 
-### 13. Accessibility Issues
+### 12. Accessibility Issues
 
 **Locations**:
 - `src/client/ui/component/ActivatableTextField.tsx` lines 86-89: Missing keyboard support
@@ -267,7 +247,7 @@ export function useOnUnmount(f: () => void, deps?: DependencyList): void {
 
 ---
 
-### 14. Deprecated `keyCode` API
+### 13. Deprecated `keyCode` API
 
 **Locations**:
 - `src/client/ui/component/DateRangeNavigator.tsx` lines 33-41
@@ -287,7 +267,7 @@ if (event.key === 'Enter') { ... }
 
 ---
 
-### 15. `window.prompt` Usage
+### 14. `window.prompt` Usage
 
 **Location**: `src/client/ui/expense/dialog/ExpenseDialogComponents.tsx` lines 25-31
 
@@ -297,7 +277,7 @@ if (event.key === 'Enter') { ... }
 
 ---
 
-### 16. Class Component Could Be Functional
+### 15. Class Component Could Be Functional
 
 **Location**: `src/client/ui/component/NotificationBar.tsx` lines 34-89
 
@@ -307,7 +287,7 @@ if (event.key === 'Enter') { ... }
 
 ## Low Priority
 
-### 17. Wrong File Extensions
+### 16. Wrong File Extensions
 
 **Locations**: Multiple hook files use `.tsx` extension without JSX:
 - `useForceReload.tsx`, `useList.tsx`, `useObjectMemo.tsx`, `useOnUnmount.tsx`, `usePersistentMemo.tsx`, `useWhenMounted.tsx`
@@ -316,7 +296,7 @@ if (event.key === 'Enter') { ... }
 
 ---
 
-### 18. Typo in Component Name
+### 17. Typo in Component Name
 
 **Location**: `src/client/ui/component/AsyncDataView.tsx` line 57
 
@@ -324,7 +304,7 @@ if (event.key === 'Enter') { ... }
 
 ---
 
-### 19. Redundant Code in `ExpenseRow`
+### 18. Redundant Code in `ExpenseRow`
 
 **Location**: `src/client/ui/expense/row/ExpenseRow.tsx` lines 193-204
 
@@ -332,7 +312,7 @@ if (event.key === 'Enter') { ... }
 
 ---
 
-### 20. Unnecessary Dependencies in useEffect
+### 19. Unnecessary Dependencies in useEffect
 
 **Locations**: Multiple hooks include `setX` (useState setters) in dependency arrays.
 
@@ -340,7 +320,7 @@ if (event.key === 'Enter') { ... }
 
 ---
 
-### 21. Duplicate Constants
+### 20. Duplicate Constants
 
 **Locations**:
 - `src/client/ui/expense/dialog/ExpenseDialog.tsx` line 63
@@ -352,16 +332,35 @@ if (event.key === 'Enter') { ... }
 
 ---
 
+### 21. Token Logged to Console
+
+**Location**: `src/client/data/Login.ts` line 46
+
+**Problem**: Logs the refresh token value to browser console.
+
+```typescript
+logger.info(`Not logged in but refresh token exists in localStorage: ${token}`);
+```
+
+**Note**: Not a security issue since browser console is only visible to the token owner, but good practice not to log credentials.
+
+**Solution**:
+
+```typescript
+logger.info('Not logged in but refresh token exists in localStorage');
+```
+
+---
+
 ## Implementation Order Recommendation
 
-1. **Security fix** (1) - Remove token from logs
-2. **Memory leaks** (2-3) - Prevent React warnings and leaks
-3. **Object mutation** (4) - Prevent subtle bugs
-4. **Error handling** (5) - Users need feedback
-5. **Type safety** (6-9) - Gradual improvement
-6. **Accessibility** (13) - Important for inclusivity
-7. **Deprecated APIs** (14) - Prevent future breakage
-8. **Other items** - As time permits
+1. **Memory leaks** (1-2) - Prevent React warnings and leaks
+2. **Object mutation** (3) - Prevent subtle bugs
+3. **Error handling** (4) - Users need feedback
+4. **Type safety** (5-8) - Gradual improvement
+5. **Accessibility** (12) - Important for inclusivity
+6. **Deprecated APIs** (13) - Prevent future breakage
+7. **Other items** - As time permits
 
 ---
 
