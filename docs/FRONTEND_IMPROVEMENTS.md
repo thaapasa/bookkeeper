@@ -2,117 +2,9 @@
 
 This document captures suggestions for improving the frontend codebase, identified during a code review on January 2026.
 
-## Critical Priority
-
-### 1. Stale Closure Bug in `useToggle`
-
-**Location**: `src/client/ui/hooks/useToggle.ts` line 5
-
-**Problem**: The toggle callback captures `status` in its closure. Rapid calls use the same stale value.
-
-```typescript
-// Current (buggy)
-const toggle = React.useCallback(() => setStatus(!status), [status, setStatus]);
-```
-
-**Impact**: Double-clicking or rapid toggles only toggle once instead of twice.
-
-**Solution**:
-
-```typescript
-const toggle = React.useCallback(() => setStatus(s => !s), []);
-```
-
----
-
-### 2. Stale Closure Bug in `useForceReload`
-
-**Location**: `src/client/ui/hooks/useForceReload.tsx` lines 4-5
-
-**Problem**: Same stale closure issue as `useToggle`.
-
-```typescript
-// Current (buggy)
-const forceReload = React.useCallback(() => setCounter(counter + 1), [setCounter, counter]);
-```
-
-**Solution**:
-
-```typescript
-const forceReload = React.useCallback(() => setCounter(c => c + 1), []);
-```
-
----
-
-### 3. Side Effect During Render in `useWhenChanged`
-
-**Location**: `src/client/ui/hooks/useWhenChanged.ts` lines 16-18
-
-**Problem**: The callback is invoked during the render phase, violating React's rules.
-
-```typescript
-// Current (violates React rules)
-if (prevValue !== value) {
-  callback?.(value, prevValue);  // Side effect in render!
-  return value;
-}
-```
-
-**Impact**: Bugs in Concurrent Mode, breaks Strict Mode double-render detection.
-
-**Solution**:
-
-```typescript
-export function useWhenChanged<T>(
-  value: T,
-  callback?: (newValue: T, oldValue: T | undefined) => void,
-): T | undefined {
-  const prevValue = usePrevious(value);
-  const changed = prevValue !== value;
-
-  React.useEffect(() => {
-    if (changed && callback) {
-      callback(value, prevValue);
-    }
-  }, [changed, value, prevValue, callback]);
-
-  return changed ? value : undefined;
-}
-```
-
----
-
-### 4. State Mutation in `ExpenseTable.removeFilter`
-
-**Location**: `src/client/ui/expense/ExpenseTable.tsx` lines 56-61
-
-**Problem**: Directly mutates state array with `splice()`.
-
-```typescript
-// Current (mutates state)
-this.setState(s => {
-  s.filters.splice(index, 1);
-  return s;
-});
-```
-
-**Impact**: React may not detect the change, causing missed re-renders.
-
-**Solution**:
-
-```typescript
-private removeFilter = (index: number) => {
-  this.setState(s => ({
-    filters: s.filters.filter((_, i) => i !== index),
-  }));
-};
-```
-
----
-
 ## High Priority
 
-### 5. Security: Logging Sensitive Token
+### 1. Security: Logging Sensitive Token
 
 **Location**: `src/client/data/Login.ts` line 46
 
@@ -132,7 +24,7 @@ logger.info('Not logged in but refresh token exists in localStorage');
 
 ---
 
-### 6. Memory Leak in `useAsyncData`
+### 2. Memory Leak in `useAsyncData`
 
 **Location**: `src/client/ui/hooks/useAsyncData.ts` lines 11-16
 
@@ -163,7 +55,7 @@ React.useEffect(() => {
 
 ---
 
-### 7. Missing Cleanup in Bacon.js Subscriptions
+### 3. Missing Cleanup in Bacon.js Subscriptions
 
 **Locations**:
 - `src/client/ui/component/DialogConnector.tsx` line 12
@@ -187,7 +79,7 @@ React.useEffect(() => {
 
 ---
 
-### 8. Object Mutation in `mapExpense`
+### 4. Object Mutation in `mapExpense`
 
 **Location**: `src/client/data/ApiConnect.ts` lines 51-60
 
@@ -221,7 +113,7 @@ function mapExpense<T extends UserExpense>(e: T): T {
 
 ---
 
-### 9. Missing Error Handling in `saveExpense`
+### 5. Missing Error Handling in `saveExpense`
 
 **Location**: `src/client/ui/expense/dialog/ExpenseDialog.tsx` lines 314-346
 
@@ -243,7 +135,7 @@ try {
 
 ---
 
-### 10. Generic Components Losing Type Safety
+### 6. Generic Components Losing Type Safety
 
 **Locations**:
 - `src/client/ui/component/ActionButton.tsx` line 11
@@ -272,7 +164,7 @@ export const ActionButton = <T,>({
 
 ## Medium Priority
 
-### 11. Unsafe Type Assertion in `Login.ts`
+### 7. Unsafe Type Assertion in `Login.ts`
 
 **Location**: `src/client/data/Login.ts` line 13
 
@@ -292,7 +184,7 @@ export const validSessionE: B.EventStream<Session> = sessionP
 
 ---
 
-### 12. `any` Types in Error Handling
+### 8. `any` Types in Error Handling
 
 **Locations**:
 - `src/client/data/AsyncData.ts` line 17: `error: any`
@@ -310,7 +202,7 @@ export interface AsyncDataError {
 
 ---
 
-### 13. `any` Types in Hooks
+### 9. `any` Types in Hooks
 
 **Locations**:
 - `src/client/ui/hooks/useList.tsx` line 8
@@ -328,7 +220,7 @@ export function useOnUnmount(f: () => void, deps?: DependencyList): void {
 
 ---
 
-### 14. Swallowed Error in `useLocalStorage`
+### 10. Swallowed Error in `useLocalStorage`
 
 **Location**: `src/client/ui/hooks/useLocalStorage.ts` lines 45-46
 
@@ -345,7 +237,7 @@ export function useOnUnmount(f: () => void, deps?: DependencyList): void {
 
 ---
 
-### 15. Missing ResizeObserver in `useElementSize`
+### 11. Missing ResizeObserver in `useElementSize`
 
 **Location**: `src/client/ui/hooks/useElementSize.ts` lines 27-34
 
@@ -355,7 +247,7 @@ export function useOnUnmount(f: () => void, deps?: DependencyList): void {
 
 ---
 
-### 16. Non-Reactive `useQueryParams`
+### 12. Non-Reactive `useQueryParams`
 
 **Location**: `src/client/ui/hooks/useQueryParams.ts` lines 3-13
 
@@ -365,7 +257,7 @@ export function useOnUnmount(f: () => void, deps?: DependencyList): void {
 
 ---
 
-### 17. Accessibility Issues
+### 13. Accessibility Issues
 
 **Locations**:
 - `src/client/ui/component/ActivatableTextField.tsx` lines 86-89: Missing keyboard support
@@ -375,7 +267,7 @@ export function useOnUnmount(f: () => void, deps?: DependencyList): void {
 
 ---
 
-### 18. Deprecated `keyCode` API
+### 14. Deprecated `keyCode` API
 
 **Locations**:
 - `src/client/ui/component/DateRangeNavigator.tsx` lines 33-41
@@ -395,7 +287,7 @@ if (event.key === 'Enter') { ... }
 
 ---
 
-### 19. `window.prompt` Usage
+### 15. `window.prompt` Usage
 
 **Location**: `src/client/ui/expense/dialog/ExpenseDialogComponents.tsx` lines 25-31
 
@@ -405,7 +297,7 @@ if (event.key === 'Enter') { ... }
 
 ---
 
-### 20. Class Component Could Be Functional
+### 16. Class Component Could Be Functional
 
 **Location**: `src/client/ui/component/NotificationBar.tsx` lines 34-89
 
@@ -415,7 +307,7 @@ if (event.key === 'Enter') { ... }
 
 ## Low Priority
 
-### 21. Wrong File Extensions
+### 17. Wrong File Extensions
 
 **Locations**: Multiple hook files use `.tsx` extension without JSX:
 - `useForceReload.tsx`, `useList.tsx`, `useObjectMemo.tsx`, `useOnUnmount.tsx`, `usePersistentMemo.tsx`, `useWhenMounted.tsx`
@@ -424,7 +316,7 @@ if (event.key === 'Enter') { ... }
 
 ---
 
-### 22. Typo in Component Name
+### 18. Typo in Component Name
 
 **Location**: `src/client/ui/component/AsyncDataView.tsx` line 57
 
@@ -432,7 +324,7 @@ if (event.key === 'Enter') { ... }
 
 ---
 
-### 23. Redundant Code in `ExpenseRow`
+### 19. Redundant Code in `ExpenseRow`
 
 **Location**: `src/client/ui/expense/row/ExpenseRow.tsx` lines 193-204
 
@@ -440,7 +332,7 @@ if (event.key === 'Enter') { ... }
 
 ---
 
-### 24. Unnecessary Dependencies in useEffect
+### 20. Unnecessary Dependencies in useEffect
 
 **Locations**: Multiple hooks include `setX` (useState setters) in dependency arrays.
 
@@ -448,7 +340,7 @@ if (event.key === 'Enter') { ... }
 
 ---
 
-### 25. Duplicate Constants
+### 21. Duplicate Constants
 
 **Locations**:
 - `src/client/ui/expense/dialog/ExpenseDialog.tsx` line 63
@@ -462,13 +354,13 @@ if (event.key === 'Enter') { ... }
 
 ## Implementation Order Recommendation
 
-1. **Critical fixes** (1-4) - Fix immediately, can cause bugs
-2. **Security fix** (5) - Remove token from logs
-3. **Memory leaks** (6-7) - Prevent React warnings and leaks
-4. **Error handling** (9) - Users need feedback
-5. **Type safety** (10-13) - Gradual improvement
-6. **Accessibility** (17) - Important for inclusivity
-7. **Deprecated APIs** (18) - Prevent future breakage
+1. **Security fix** (1) - Remove token from logs
+2. **Memory leaks** (2-3) - Prevent React warnings and leaks
+3. **Object mutation** (4) - Prevent subtle bugs
+4. **Error handling** (5) - Users need feedback
+5. **Type safety** (6-9) - Gradual improvement
+6. **Accessibility** (13) - Important for inclusivity
+7. **Deprecated APIs** (14) - Prevent future breakage
 8. **Other items** - As time permits
 
 ---

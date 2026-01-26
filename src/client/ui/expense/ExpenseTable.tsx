@@ -54,10 +54,9 @@ class ExpenseTable extends React.Component<ExpenseTableProps, ExpenseTableState>
   };
 
   private removeFilter = (index: number) => {
-    this.setState(s => {
-      s.filters.splice(index, 1);
-      return s;
-    });
+    this.setState(s => ({
+      filters: s.filters.filter((_, i) => i !== index),
+    }));
   };
 
   private getFilteredExpenses = (): UserExpense[] => {
