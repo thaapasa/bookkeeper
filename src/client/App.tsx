@@ -16,8 +16,11 @@ export const App: React.FC = () => {
   const [session, setSession] = React.useState<Session | undefined>(undefined);
 
   const windowSize = useWindowSize();
-  // Keep global window state bus updated
-  windowSizeBus.push(windowSize);
+
+  // Keep global window state bus updated (must be in useEffect to avoid setState during render)
+  React.useEffect(() => {
+    windowSizeBus.push(windowSize);
+  }, [windowSize]);
 
   const state = useAsyncData(checkLoginState, true);
 
