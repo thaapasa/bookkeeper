@@ -180,26 +180,9 @@ export function undefinedToError<E extends BkError>(
 
 ---
 
-### 10. Config Class Pattern
-
-**Location**: `src/server/Config.ts`
-
-**Problem**: Using a class with only public fields that's instantiated once is unusual.
-
-**Solution**: Consider using a plain const object:
-```typescript
-export const config = {
-  environment: env,
-  version: revision.version,
-  // ...
-} as const satisfies ConfigType;
-```
-
----
-
 ## Tech Debt
 
-### 11. Bun AsyncLocalStorage Bug Workaround
+### 10. Bun AsyncLocalStorage Bug Workaround
 
 **Location**: `src/server/logging/TraceIdFix.ts`
 
