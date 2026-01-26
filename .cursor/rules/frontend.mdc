@@ -245,14 +245,14 @@ Use Luxon for date manipulation:
 
 ```typescript
 import { DateTime } from 'luxon';
-import { toISODate, toDayjs, ISODate } from 'shared/time';
+import { toISODate, toDateTime, ISODate } from 'shared/time';
 
 const today = DateTime.now();
 const formatted = toISODate(today); // "2024-01-15"
 const nextMonth = today.plus({ months: 1 });
 
-// Use the toDayjs helper to convert various date inputs to DateTime
-const date = toDayjs('2024-01-15'); // Returns DateTime
+// Use the toDateTime helper to convert various date inputs to DateTime
+const date = toDateTime('2024-01-15'); // Returns DateTime
 
 // Common operations
 date.startOf('month');

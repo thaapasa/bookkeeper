@@ -3,7 +3,7 @@ import * as React from 'react';
 
 import { ExpenseQuery } from 'shared/expense';
 import { parseQueryString } from 'shared/net';
-import { ISOMonth, toDayjs, toISODate, TypedDateRange } from 'shared/time';
+import { ISOMonth, toDateTime, toISODate, TypedDateRange } from 'shared/time';
 import { Category, CategoryMap, ObjectId, User } from 'shared/types';
 import { CategoryDataSource, getFullCategoryName } from 'client/data/Categories';
 import { eventValue } from 'client/util/ClientUtil';
@@ -35,7 +35,7 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
   public state: QueryViewState = {
     input: '',
     selectedSuggestions: [],
-    dateRange: toYearRange(toDayjs().year),
+    dateRange: toYearRange(toDateTime().year),
     unconfirmed: false,
   };
   private inputBus = new B.Bus<string>();

@@ -17,7 +17,7 @@ import {
   SubscriptionSearchCriteria,
   UserExpense,
 } from 'shared/expense';
-import { DateLike, ISODate, toDate, toDayjs, toISODate } from 'shared/time';
+import { DateLike, ISODate, toDate, toDateTime, toISODate } from 'shared/time';
 import {
   ApiMessage,
   DbObject,
@@ -218,7 +218,7 @@ export async function createRecurringFromExpense(
 }
 
 function getDatesUpTo(recurrence: Recurrence, date: DateTime): ISODate[] {
-  let generating = toDayjs(recurrence.nextMissing);
+  let generating = toDateTime(recurrence.nextMissing);
   const dates: ISODate[] = [];
   while (generating < date) {
     dates.push(toISODate(generating));
@@ -252,8 +252,8 @@ async function createMissingRecurrences(
       unit: recurrenceDb.periodUnit,
     },
   };
-  const until = recurrence.occursUntil ? toDayjs(recurrence.occursUntil) : null;
-  const maxDate = until && until < date ? until : toDayjs(date);
+  const until = recurrence.occursUntil ? toDateTime(recurrence.occursUntil) : null;
+  const maxDate = until && until < date ? until : toDateTime(date);
   const dates = getDatesUpTo(recurrence, maxDate);
   if (dates.length < 1) {
     return;
@@ -388,7 +388,7 @@ export async function deleteRecurringExpenseById(
   recurringExpenseId: ObjectId,
 ): Promise<ApiMessage> {
   const recurring = await getRecurringExpenseInfo(tx, groupId, recurringExpenseId);
-  const now = toDate(toDayjs());
+  const now = toDate(toDateTime());
   logger.info(`Deleting recurring ${recurring.id} at ${now}`);
 
   await terminateRecurrenceAt(tx, recurringExpenseId, now);

@@ -4,7 +4,7 @@ import * as React from 'react';
 import { NavigateFunction, useNavigate } from 'react-router';
 
 import { uri } from 'shared/net';
-import { toDayjs, toISODate, TypedDateRange } from 'shared/time';
+import { toDateTime, toISODate, TypedDateRange } from 'shared/time';
 import { createExpense, navigationP } from 'client/data/State';
 import { newExpenseSuffix } from 'client/util/Links';
 
@@ -42,7 +42,7 @@ export const AddExpenseNavButton = connect(navigationP.map(n => ({ dateRange: n.
 
 function openNewExpenseDialog(navigate: NavigateFunction, shownDay: Date) {
   const path = window.location.pathname;
-  const refDay = toDayjs(shownDay);
+  const refDay = toDateTime(shownDay);
   // Defined date if shown day is in another month. For same month, leave the date out
   const date = refDay.hasSame(DateTime.now(), 'month') ? undefined : refDay;
   if (pageSupportsRoutedExpenseDialog(path)) {

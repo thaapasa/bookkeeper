@@ -1,6 +1,6 @@
 import { IconButton, styled, TextField } from '@mui/material';
 
-import { dayJsForDate, ISOMonth, toDayjs, TypedDateRange } from 'shared/time';
+import { dayJsForDate, ISOMonth, toDateTime, TypedDateRange } from 'shared/time';
 
 export type RangeType = TypedDateRange['type'];
 export type RangeTypeOrNone = RangeType | 'none';
@@ -32,7 +32,7 @@ export function toMonthRange(year: string | number, month: string | number): Typ
 }
 
 export function parseMonthRange(monthInput: ISOMonth): TypedDateRange {
-  const m = toDayjs(monthInput + '-01');
+  const m = toDateTime(monthInput + '-01');
   return {
     type: 'month',
     start: m.startOf('month').toJSDate(),

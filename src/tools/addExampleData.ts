@@ -2,7 +2,7 @@ import pino from 'pino';
 
 import { ExpenseData } from 'shared/expense';
 import { createTestClient, SessionWithControl } from 'shared/net/test';
-import { toDayjs, toISODate } from 'shared/time';
+import { toDateTime, toISODate } from 'shared/time';
 import { ApiMessage } from 'shared/types';
 import { unnest } from 'shared/util';
 
@@ -48,7 +48,7 @@ async function addExampleData() {
       receiver: 'Danske Bank',
       sum: '1570',
       sourceId: commonS.id,
-      date: toISODate(toDayjs().minus({ years: 2 })),
+      date: toISODate(toDateTime().minus({ years: 2 })),
     },
     session,
   );

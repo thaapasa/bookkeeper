@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useNavigate } from 'react-router';
 
 import { UserExpense } from 'shared/expense';
-import { ISODate, isSameMonth, monthRange, toDayjs, toISODate } from 'shared/time';
+import { ISODate, isSameMonth, monthRange, toDateTime, toISODate } from 'shared/time';
 import apiConnect from 'client/data/ApiConnect';
 import { navigationBus, needUpdateE } from 'client/data/State';
 import { logger } from 'client/Logger';
@@ -81,7 +81,7 @@ export const MonthView: React.FC<MonthViewProps> = ({ date }) => {
 };
 
 async function loadExpensesForDate(date: ISODate) {
-  const m = toDayjs(date);
+  const m = toDateTime(date);
   navigationBus.push({
     dateRange: monthRange(m),
     pathPrefix: expensePagePath,

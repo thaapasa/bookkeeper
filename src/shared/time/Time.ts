@@ -46,7 +46,7 @@ export const fiLocale = 'fi';
 // Setup Finnish locale globally
 Settings.defaultLocale = fiLocale;
 
-export function toDayjs(d?: DateTimeInput, _pattern?: string): DateTime {
+export function toDateTime(d?: DateTimeInput, _pattern?: string): DateTime {
   if (DateTime.isDateTime(d)) {
     return d;
   }
@@ -79,11 +79,11 @@ export function toDate(d: DateLike): Date {
   if (d instanceof Date) {
     return d;
   }
-  return toDayjs(d).toJSDate();
+  return toDateTime(d).toJSDate();
 }
 
 export function toISODate(m?: DateTimeInput): ISODate {
-  return toDayjs(m).toFormat(ISODatePattern) as ISODate;
+  return toDateTime(m).toFormat(ISODatePattern) as ISODate;
 }
 
 export function fromISODate(str: any): DateTime {
@@ -91,19 +91,19 @@ export function fromISODate(str: any): DateTime {
 }
 
 export function readableDate(date?: DateLike, long?: boolean): string {
-  return date ? toDayjs(date).toFormat(long ? 'ccc d.M.' : 'd.M.') : '-';
+  return date ? toDateTime(date).toFormat(long ? 'ccc d.M.' : 'd.M.') : '-';
 }
 
 export function readableDateWithYear(date?: DateLike, long?: boolean): string {
-  return date ? toDayjs(date).toFormat(long ? 'ccc d.M.yyyy' : 'd.M.yyyy') : '-';
+  return date ? toDateTime(date).toFormat(long ? 'ccc d.M.yyyy' : 'd.M.yyyy') : '-';
 }
 
 export function iso(m: any): string {
-  return toDayjs(m).toISO() ?? '';
+  return toDateTime(m).toISO() ?? '';
 }
 
 export function toYearName(x: DateLike) {
-  const m = toDayjs(x);
+  const m = toDateTime(x);
   return '' + m.year;
 }
 

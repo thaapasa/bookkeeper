@@ -3,7 +3,7 @@ import * as B from 'baconjs';
 import * as React from 'react';
 
 import { ExpenseDivision, RecurrencePeriod, UserExpense } from 'shared/expense';
-import { ISODatePattern, toDate, toDayjs } from 'shared/time';
+import { ISODatePattern, toDate, toDateTime } from 'shared/time';
 import { CategoryMap, Source } from 'shared/types';
 import { Money } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
@@ -72,7 +72,7 @@ const ExpenseInfoToolsImpl: React.FC<RecurrenceInfoProps> = ({
     const cat = props.categoryMap[e.categoryId];
     const subcategoryId = (cat.parentId && e.categoryId) || undefined;
     const categoryId = (subcategoryId ? cat.parentId : e.categoryId) || undefined;
-    const date = toDayjs(e.date, ISODatePattern);
+    const date = toDateTime(e.date, ISODatePattern);
     logger.info({ expense: e, division }, 'Copying expense');
     createNewExpense({
       title: e.title,

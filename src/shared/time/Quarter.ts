@@ -2,7 +2,7 @@ import { DateTime } from 'luxon';
 import { z } from 'zod';
 
 import { numberRange } from '../util/Arrays';
-import { ISODate, ISOMonth, toDayjs } from './Time';
+import { ISODate, ISOMonth, toDateTime } from './Time';
 import { DateRange, getYearsInRange } from './TimeRange';
 
 export const QuarterRegExp = /^[0-9]{4}-Q[1-4]$/;
@@ -32,8 +32,8 @@ export function getQuartersInRange(range: DateRange): Quarter[] {
     .map(y =>
       numberRange(
         // Luxon months are 1-based, subtract 1 for zero-based quarter calculation
-        y === startYear ? Math.floor((toDayjs(range.startDate).month - 1) / 3) + 1 : 1,
-        y === endYear ? Math.floor((toDayjs(range.endDate).month - 1) / 3) + 1 : 4,
+        y === startYear ? Math.floor((toDateTime(range.startDate).month - 1) / 3) + 1 : 1,
+        y === endYear ? Math.floor((toDateTime(range.endDate).month - 1) / 3) + 1 : 4,
       ).map(q => `${y}-Q${q}` as const),
     )
     .flat(1);

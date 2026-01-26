@@ -12,7 +12,7 @@ import {
   ISODate,
   ISOMonth,
   monthToYear,
-  toDayjs,
+  toDateTime,
   toYearName,
   Year,
 } from './Time';
@@ -49,8 +49,8 @@ export function getMonthsInRange(range: DateRange): ISOMonth[] {
   return years
     .map(y =>
       numberRange(
-        y === startYear ? toDayjs(range.startDate).month : 1,
-        y === endYear ? toDayjs(range.endDate).month : 12,
+        y === startYear ? toDateTime(range.startDate).month : 1,
+        y === endYear ? toDateTime(range.endDate).month : 12,
       ).map(m => `${y}-${leftPad(m, 2, '0')}` as ISOMonth),
     )
     .flat(1);
@@ -58,8 +58,8 @@ export function getMonthsInRange(range: DateRange): ISOMonth[] {
 
 export function dateRangeToMomentRange(r: DateRange) {
   return {
-    startTime: toDayjs(r.startDate).startOf('day'),
-    endTime: toDayjs(r.endDate).endOf('day'),
+    startTime: toDateTime(r.startDate).startOf('day'),
+    endTime: toDateTime(r.endDate).endOf('day'),
   };
 }
 
@@ -71,9 +71,9 @@ export function toDateRangeName(x: TypedDateRange): string {
       return toYearName(x.start);
     case 'custom':
       return (
-        toDayjs(x.start).toFormat(displayDatePattern) +
+        toDateTime(x.start).toFormat(displayDatePattern) +
         ' - ' +
-        toDayjs(x.end).toFormat(displayDatePattern)
+        toDateTime(x.end).toFormat(displayDatePattern)
       );
     default:
       return '?';
@@ -81,24 +81,24 @@ export function toDateRangeName(x: TypedDateRange): string {
 }
 
 export function yearRange(date: DateLike): TypedDateRange {
-  const m = fromYearValue(date) || toDayjs(date);
+  const m = fromYearValue(date) || toDateTime(date);
   const start = m.startOf('year').toJSDate();
   const end = m.endOf('year').toJSDate();
   return { start, end, type: 'year' };
 }
 
 export function monthRange(date: DateLike): TypedDateRange {
-  const m = toDayjs(date);
+  const m = toDateTime(date);
   const start = m.startOf('month').toJSDate();
   const end = m.endOf('month').toJSDate();
   return { start, end, type: 'month' };
 }
 
 export function toDateRange(start: DateLike, end: DateLike): TypedDateRange {
-  const s = toDayjs(start);
-  if (s.hasSame(toDayjs(end), 'month')) return monthRange(s);
-  if (s.hasSame(toDayjs(end), 'year')) return yearRange(s);
-  return { type: 'custom', start: s.toJSDate(), end: toDayjs(end).toJSDate() };
+  const s = toDateTime(start);
+  if (s.hasSame(toDateTime(end), 'month')) return monthRange(s);
+  if (s.hasSame(toDateTime(end), 'year')) return yearRange(s);
+  return { type: 'custom', start: s.toJSDate(), end: toDateTime(end).toJSDate() };
 }
 
 const yearRE = /[0-9]{4}/;

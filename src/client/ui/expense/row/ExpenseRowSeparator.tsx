@@ -2,7 +2,7 @@ import { DateTime } from 'luxon';
 import * as React from 'react';
 
 import { UserExpense } from 'shared/expense';
-import { toDayjs } from 'shared/time';
+import { toDateTime } from 'shared/time';
 
 import { WeekHeaderRow } from './WeekHeaderRow';
 
@@ -29,11 +29,11 @@ function weeksToShow(prev: UserExpense | null, next: UserExpense | null): string
 
     if (!prev) {
       // This is the first item in the list, so render weeks from the beginning of the month
-      return weeksBetween(toDayjs(next.date).startOf('month'), next.date, true);
+      return weeksBetween(toDateTime(next.date).startOf('month'), next.date, true);
     }
   }
 
-  return weeksBetween(prev.date, next ? next.date : toDayjs(prev.date).endOf('month'), false);
+  return weeksBetween(prev.date, next ? next.date : toDateTime(prev.date).endOf('month'), false);
 }
 
 const toWeek = (m: DateTime) => {
@@ -42,11 +42,11 @@ const toWeek = (m: DateTime) => {
 
 function weeksBetween(a: string | DateTime, b: string | DateTime, includeFirst: boolean) {
   const weeks: string[] = [];
-  let weekStart = toDayjs(a).startOf('week');
+  let weekStart = toDateTime(a).startOf('week');
   if (includeFirst) {
     weeks.push(toWeek(weekStart));
   }
-  const bDateTime = toDayjs(b);
+  const bDateTime = toDateTime(b);
   do {
     weekStart = weekStart.plus({ weeks: 1 });
     if (weekStart <= bDateTime) {

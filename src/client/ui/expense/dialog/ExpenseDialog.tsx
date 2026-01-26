@@ -20,7 +20,7 @@ import {
   ExpenseType,
   UserExpenseWithDetails,
 } from 'shared/expense';
-import { toDayjs, toISODate } from 'shared/time';
+import { toDateTime, toISODate } from 'shared/time';
 import { Category, CategoryMap, ExpenseGrouping, Group, Source, User } from 'shared/types';
 import {
   identity,
@@ -198,7 +198,7 @@ export class ExpenseDialog extends React.Component<
       receiver: values.receiver || (e ? e.receiver : ''),
       sum: values.sum ? values.sum : e ? e.sum.toString() : '',
       userId: e ? e.userId : this.props.user.id,
-      date: toDayjs(values.date || e?.date),
+      date: toDateTime(values.date || e?.date),
       benefit:
         values.benefit ||
         (e
@@ -338,14 +338,14 @@ export class ExpenseDialog extends React.Component<
         // Close dialog first (this may navigate away from the current page)
         await this.props.onClose(expense);
         // Notify that expenses have updated: this may cause another navigation to happen
-        this.props.onExpensesUpdated(toDayjs(expense.date));
+        this.props.onExpensesUpdated(toDateTime(expense.date));
       }
     } finally {
       this.saveLock.push(false);
     }
   };
 
-  private setToday = () => this.inputStreams.date.push(toDayjs());
+  private setToday = () => this.inputStreams.date.push(toDateTime());
 
   private selectCategory = (id: number) => {
     const m = this.props.categoryMap;
