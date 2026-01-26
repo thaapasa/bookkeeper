@@ -1,4 +1,4 @@
-import { Dayjs } from 'dayjs';
+import { DateTime } from 'luxon';
 import { ITask } from 'pg-promise';
 
 import {
@@ -175,7 +175,7 @@ export async function createRecurringFromExpense(
   logger.info(
     `Create recurring expense with a period of ${recurrence.period.amount} ${recurrence.period.unit} from ${expenseId}`,
   );
-  let nextMissing: Dayjs | undefined;
+  let nextMissing: DateTime | undefined;
   const templateId = await copyExpense(tx, groupId, userId, expenseId, e => {
     const [expense, division] = e;
     if (expense.recurringExpenseId && expense.recurringExpenseId > 0) {
@@ -217,10 +217,10 @@ export async function createRecurringFromExpense(
   };
 }
 
-function getDatesUpTo(recurrence: Recurrence, date: Dayjs): ISODate[] {
+function getDatesUpTo(recurrence: Recurrence, date: DateTime): ISODate[] {
   let generating = toDayjs(recurrence.nextMissing);
   const dates: ISODate[] = [];
-  while (generating.isBefore(date)) {
+  while (generating < date) {
     dates.push(toISODate(generating));
     generating = calculateNextRecurrence(generating, recurrence.period);
   }
@@ -242,7 +242,7 @@ async function createMissingRecurrences(
   tx: ITask<any>,
   groupId: number,
   userId: number,
-  date: Dayjs,
+  date: DateTime,
   recurrenceDb: RecurrenceInDb,
 ) {
   const recurrence: Recurrence = {
@@ -253,7 +253,7 @@ async function createMissingRecurrences(
     },
   };
   const until = recurrence.occursUntil ? toDayjs(recurrence.occursUntil) : null;
-  const maxDate = until?.isBefore(date) ? until : toDayjs(date);
+  const maxDate = until && until < date ? until : toDayjs(date);
   const dates = getDatesUpTo(recurrence, maxDate);
   if (dates.length < 1) {
     return;
@@ -297,7 +297,7 @@ export async function createMissingRecurringExpenses(
   tx: ITask<any>,
   groupId: number,
   userId: number,
-  date: Dayjs,
+  date: DateTime,
 ): Promise<void> {
   logger.debug('Checking for missing expenses');
   const list = await tx.map<RecurrenceInDb>(

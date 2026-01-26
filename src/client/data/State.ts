@@ -1,5 +1,5 @@
 import * as B from 'baconjs';
-import { Dayjs } from 'dayjs';
+import { DateTime } from 'luxon';
 
 import { ExpenseInEditor, ExpenseSplit } from 'shared/expense';
 import { DateLike, monthRange, toDayjs } from 'shared/time';
@@ -59,7 +59,7 @@ export function requestNewExpense(
 export const expenseDialogE = expenseDialogBus;
 export const expenseSplitE = expenseSplitBus;
 
-const needUpdateBus = new B.Bus<Dayjs>();
+const needUpdateBus = new B.Bus<DateTime>();
 
 export function updateExpenses(date: DateLike) {
   needUpdateBus.push(toDayjs(date));

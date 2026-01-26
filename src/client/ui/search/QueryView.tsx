@@ -35,7 +35,7 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
   public state: QueryViewState = {
     input: '',
     selectedSuggestions: [],
-    dateRange: toYearRange(toDayjs().year()),
+    dateRange: toYearRange(toDayjs().year),
     unconfirmed: false,
   };
   private inputBus = new B.Bus<string>();

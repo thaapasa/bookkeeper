@@ -88,7 +88,7 @@ function createEstimationsForYear(
   range: MomentRange,
   separateEstimate: boolean,
 ): ChartColumn<'year', number> {
-  const lastYear = toDayjs(data.range.endDate).year();
+  const lastYear = toDayjs(data.range.endDate).year;
   const keys = typedKeys(data.statistics);
 
   if (year !== lastYear) {

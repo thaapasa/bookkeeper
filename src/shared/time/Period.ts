@@ -40,7 +40,7 @@ export function periodToYearAndMonth(p: Period): [Year, Month] {
       return [p.year, 1];
     default: {
       const m = toDayjs();
-      return [m.year(), m.month() + 1];
+      return [m.year, m.month];
     }
   }
 }

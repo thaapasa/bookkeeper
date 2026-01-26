@@ -145,8 +145,8 @@ describe('expense', () => {
       month: 1,
     });
     s.expenses.forEach(e => {
-      expect(toDayjs(e.date).isBefore(nextMonth)).toEqual(true);
-      expect(toDayjs(e.date).isSameOrAfter(monthStart)).toEqual(true);
+      expect(toDayjs(e.date) < nextMonth).toEqual(true);
+      expect(toDayjs(e.date) >= monthStart).toEqual(true);
     });
   });
 

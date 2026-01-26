@@ -1,14 +1,17 @@
-import { Dayjs } from 'dayjs';
+import { DateTime } from 'luxon';
 
 import { RecurrencePeriod } from 'shared/expense';
 import { fromISODate } from 'shared/time';
 
-export function calculateNextRecurrence(from: string | Dayjs, period: RecurrencePeriod): Dayjs {
+export function calculateNextRecurrence(
+  from: string | DateTime,
+  period: RecurrencePeriod,
+): DateTime {
   const date = fromISODate(from);
   if (period.unit === 'quarters') {
     // Convert quarters to months
-    return date.add(period.amount * 3, 'months');
+    return date.plus({ months: period.amount * 3 });
   } else {
-    return date.add(period.amount, period.unit);
+    return date.plus({ [period.unit]: period.amount });
   }
 }

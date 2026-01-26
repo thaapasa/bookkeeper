@@ -1,4 +1,6 @@
-import { Dayjs } from 'dayjs';
+import { DateTime } from 'luxon';
+
+type DateTimeInput = DateTime | string;
 import { ITask } from 'pg-promise';
 
 import { ExpenseCollection, ExpenseStatus, UserExpense } from 'shared/expense';
@@ -32,8 +34,8 @@ async function getBetween(
   tx: ITask<any>,
   groupId: number,
   userId: number,
-  startDate: Dayjs | string,
-  endDate: Dayjs | string,
+  startDate: DateTimeInput,
+  endDate: DateTimeInput,
 ) {
   logger.debug(
     `Querying for expenses between ${time.iso(startDate)} and ${time.iso(
@@ -74,7 +76,7 @@ export async function getExpensesByMonth(
   month: number,
 ): Promise<ExpenseCollection> {
   const startDate = time.month(year, month);
-  const endDate = startDate.clone().add(1, 'months');
+  const endDate = startDate.plus({ months: 1 });
   await createMissingRecurringExpenses(tx, groupId, userId, endDate);
   const [expenses, startStatus, monthStatus, unconfirmedBefore] = await Promise.all([
     getBetween(tx, groupId, userId, startDate, endDate),

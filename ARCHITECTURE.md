@@ -27,7 +27,7 @@ This document provides an overview of the codebase architecture, directory struc
 - **Zustand** - State management
 - **Bacon.js** - Reactive programming for data streams
 - **Recharts** - Charts and data visualization
-- **Day.js** - Date manipulation
+- **Luxon** - Date/time manipulation
 
 ### Shared Libraries
 

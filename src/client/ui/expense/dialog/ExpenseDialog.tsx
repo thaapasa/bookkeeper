@@ -9,7 +9,7 @@ import {
   styled,
 } from '@mui/material';
 import * as B from 'baconjs';
-import { Dayjs } from 'dayjs';
+import { DateTime } from 'luxon';
 import * as React from 'react';
 
 import {
@@ -126,7 +126,7 @@ export interface ExpenseDialogProps<D> {
   groupings: ExpenseGrouping[];
   saveAction: ExpenseSaveAction | null;
   onClose: (e: D | null) => MaybePromise<void>;
-  onExpensesUpdated: (date: Dayjs) => void;
+  onExpensesUpdated: (date: DateTime) => void;
   group: Group;
   user: User;
   users: User[];

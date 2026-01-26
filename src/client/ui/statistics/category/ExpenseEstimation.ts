@@ -21,16 +21,16 @@ export function estimateMissingYearlyExpenses(
   const lastData = chartData[chartData.length - 1];
   const currentSum = lastData[categoryId];
 
-  const yearEnd = range.endTime.clone().endOf('year');
-  const daysInYear = yearEnd.dayOfYear();
-  const dayAtEnd = range.endTime.dayOfYear();
+  const yearEnd = range.endTime.endOf('year');
+  const daysInYear = yearEnd.ordinal;
+  const dayAtEnd = range.endTime.ordinal;
   const yearPercentage = dayAtEnd / daysInYear;
   const remainingPercentage = 1 - yearPercentage;
 
   const estimateByThisYear = currentSum / yearPercentage;
 
   logger.info(
-    `Estimating ${yearEnd.year()} for ${categoryId}, at ${(yearPercentage * 100).toFixed(
+    `Estimating ${yearEnd.year} for ${categoryId}, at ${(yearPercentage * 100).toFixed(
       2,
     )} % (${dayAtEnd}/${daysInYear}) with ${formatMoney(currentSum)} -> ${formatMoney(
       estimateByThisYear,
@@ -61,7 +61,7 @@ function estimateFromMontlyDistribution(
   range: MomentRange,
   categoryData: CategoryStatisticsData[],
 ) {
-  const lastYear = range.endTime.year() - 1;
+  const lastYear = range.endTime.year - 1;
   // Calculate estimation based on last year's monthly distribution
   const months = groupBy(
     d => Number(d.month.substring(5, 7)),
@@ -73,13 +73,13 @@ function estimateFromMontlyDistribution(
   const percentages = toPercentageDistribution(sumDistribution);
   logger.info(`Estimating based on last year distribution ${sumDistribution}: ${percentages}`);
 
-  // Zero based months here
-  const ongoingMonth = range.endTime.month();
-  const monthsLeft = numberRange(ongoingMonth + 1, 11);
-  const percentagesFromMonthsLeft = monthsLeft.map(m => percentages[m]).reduce(sum, 0);
+  // Luxon months are 1-based, so subtract 1 for zero-based array index
+  const ongoingMonth = range.endTime.month;
+  const monthsLeft = numberRange(ongoingMonth + 1, 12);
+  const percentagesFromMonthsLeft = monthsLeft.map(m => percentages[m - 1]).reduce(sum, 0);
 
-  const ongoingMonthPercentage = percentages[ongoingMonth];
-  const positionInMonth = range.endTime.date() / range.endTime.daysInMonth();
+  const ongoingMonthPercentage = percentages[ongoingMonth - 1];
+  const positionInMonth = range.endTime.day / (range.endTime.daysInMonth ?? 30);
 
   const remainingPercentage =
     percentagesFromMonthsLeft + (1 - positionInMonth) * ongoingMonthPercentage;

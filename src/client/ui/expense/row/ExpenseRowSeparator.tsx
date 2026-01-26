@@ -1,4 +1,4 @@
-import { Dayjs } from 'dayjs';
+import { DateTime } from 'luxon';
 import * as React from 'react';
 
 import { UserExpense } from 'shared/expense';
@@ -36,21 +36,22 @@ function weeksToShow(prev: UserExpense | null, next: UserExpense | null): string
   return weeksBetween(prev.date, next ? next.date : toDayjs(prev.date).endOf('month'), false);
 }
 
-const toWeek = (m: Dayjs) => {
-  return String(m.isoWeek());
+const toWeek = (m: DateTime) => {
+  return String(m.weekNumber);
 };
 
-function weeksBetween(a: string | Dayjs, b: string | Dayjs, includeFirst: boolean) {
+function weeksBetween(a: string | DateTime, b: string | DateTime, includeFirst: boolean) {
   const weeks: string[] = [];
   let weekStart = toDayjs(a).startOf('week');
   if (includeFirst) {
     weeks.push(toWeek(weekStart));
   }
+  const bDateTime = toDayjs(b);
   do {
-    weekStart = weekStart.add(1, 'week');
-    if (weekStart.isSameOrBefore(b)) {
+    weekStart = weekStart.plus({ weeks: 1 });
+    if (weekStart <= bDateTime) {
       weeks.push(toWeek(weekStart));
     }
-  } while (weekStart.isSameOrBefore(b));
+  } while (weekStart <= bDateTime);
   return weeks;
 }

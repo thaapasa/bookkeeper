@@ -10,7 +10,7 @@ type MonthRouteParams = 'date';
 
 export const RoutedMonthView: React.FC = () => {
   const { date } = useParams<MonthRouteParams>();
-  const jsDate = date ? toDayjs(date + '-01').toDate() : new Date();
+  const jsDate = date ? toDayjs(date + '-01').toJSDate() : new Date();
   return (
     <>
       <MonthView date={jsDate} />

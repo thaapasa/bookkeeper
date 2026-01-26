@@ -23,8 +23,8 @@ const DateRangeNavigatorImpl: React.FC<React.PropsWithChildren<DateRangeNavigato
   const navigateOffset = (offset: number) => {
     const rangeSuffix =
       dateRange.type === 'month'
-        ? monthSuffix(toDayjs(dateRange.start).clone().add(offset, 'months'))
-        : yearSuffix(toDayjs(dateRange.start).clone().add(offset, 'year'));
+        ? monthSuffix(toDayjs(dateRange.start).plus({ months: offset }))
+        : yearSuffix(toDayjs(dateRange.start).plus({ years: offset }));
     const link = pathPrefix + rangeSuffix;
     logger.debug('Navigating to %s', link);
     navigate(link);

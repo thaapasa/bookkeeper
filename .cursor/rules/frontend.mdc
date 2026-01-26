@@ -17,7 +17,7 @@ globs:
 - **State Management**: Zustand 5, Bacon.js for reactive streams
 - **Routing**: React Router 7
 - **Build Tool**: Vite 7
-- **Date Handling**: Day.js
+- **Date Handling**: Luxon
 - **Validation**: Zod 4
 
 ## Project Structure
@@ -241,15 +241,27 @@ if (amount.isZero()) {
 
 ## Date Handling
 
-Use Day.js for date manipulation:
+Use Luxon for date manipulation:
 
 ```typescript
-import dayjs from 'dayjs';
-import { toISODate, ISODate } from 'shared/time';
+import { DateTime } from 'luxon';
+import { toISODate, toDayjs, ISODate } from 'shared/time';
 
-const today = dayjs();
+const today = DateTime.now();
 const formatted = toISODate(today); // "2024-01-15"
-const nextMonth = today.add(1, 'month');
+const nextMonth = today.plus({ months: 1 });
+
+// Use the toDayjs helper to convert various date inputs to DateTime
+const date = toDayjs('2024-01-15'); // Returns DateTime
+
+// Common operations
+date.startOf('month');
+date.endOf('year');
+date.hasSame(otherDate, 'month');
+date.toFormat('d.M.yyyy'); // "15.1.2024"
+date.year; // 2024
+date.month; // 1 (1-based, unlike Day.js which was 0-based)
+date.weekNumber; // ISO week number
 ```
 
 ## Import Paths

@@ -202,7 +202,8 @@ export class ExpenseRowImpl extends React.Component<ExpenseRowProps, ExpenseRowS
     } else if (expense.type === 'income') {
       style.background = colors.income;
     }
-    const firstDay = !this.props.prev || !toDayjs(expense.date).isSame(this.props.prev.date, 'day');
+    const firstDay =
+      !this.props.prev || !toDayjs(expense.date).hasSame(toDayjs(this.props.prev.date), 'day');
     const grouping = this.props.groupingMap[this.props.expense?.groupingId ?? 0];
     const autoGroupings = (this.props.expense?.autoGroupingIds ?? [])
       .map(g => this.props.groupingMap[g])
@@ -360,7 +361,7 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
 
 function weekDay(date: string, prev?: UserExpense | null) {
   const m = toDayjs(date);
-  return !prev || !m.isSame(prev.date, 'day') ? m.format('dd') : null;
+  return !prev || !m.hasSame(toDayjs(prev.date), 'day') ? m.toFormat('ccc') : null;
 }
 
 const DateContainer = styled('div')`

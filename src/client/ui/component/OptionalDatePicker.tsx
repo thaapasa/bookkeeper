@@ -1,6 +1,6 @@
 import { Checkbox } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
-import dayjs from 'dayjs';
+import { DateTime } from 'luxon';
 import React from 'react';
 
 import { ISODate, toISODate } from 'shared/time';
@@ -20,7 +20,11 @@ export const OptionalDatePicker: React.FC<OptionalDatePickerProps> = ({ value, o
   return (
     <Row>
       <Checkbox checked={hasDate} onChange={() => onChange(hasDate ? null : today)} />
-      <DatePicker disabled={!hasDate} value={dayjs(value)} onChange={v => onChange(toISODate(v))} />
+      <DatePicker
+        disabled={!hasDate}
+        value={value ? DateTime.fromISO(value) : null}
+        onChange={v => onChange(v ? toISODate(v) : null)}
+      />
     </Row>
   );
 };

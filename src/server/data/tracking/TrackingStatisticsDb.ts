@@ -128,7 +128,7 @@ function getFreq(data: TrackingData): TrackingFrequency {
 }
 
 function getRange(data: TrackingData): DateRange {
-  const past = toDayjs().subtract(data.range?.amount ?? 3, data.range?.unit ?? 'years');
+  const past = toDayjs().minus({ [data.range?.unit ?? 'years']: data.range?.amount ?? 3 });
   const freq = getFreq(data);
   return {
     startDate: toISODate(past.startOf(freq)),

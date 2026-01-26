@@ -35,9 +35,7 @@ const ResultsViewImpl: React.FC<ResultsProps> = ({ results, ...rest }) => {
 
 const ResultsContents: React.FC<ResultsProps> = ({ results, ...rest }) => {
   const resultsByYears: Record<string, UserExpense[]> | undefined =
-    results && results.length > 0
-      ? groupBy(e => String(toDayjs(e.date).year()), results)
-      : undefined;
+    results && results.length > 0 ? groupBy(e => String(toDayjs(e.date).year), results) : undefined;
 
   if (!resultsByYears) {
     return <Info>Ei tuloksia, tarkista hakuehdot</Info>;

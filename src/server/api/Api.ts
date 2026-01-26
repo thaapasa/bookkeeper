@@ -45,7 +45,7 @@ export function createApi() {
     Requests.unauthorizedRequest(
       async (): Promise<ApiStatus> => ({
         status: 'OK',
-        timestamp: toDayjs().format(),
+        timestamp: toDayjs().toISO() ?? '',
         version: config.version,
         runtimeVersion: config.bunVersion,
         revision: config.revision,

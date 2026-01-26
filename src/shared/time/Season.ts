@@ -1,4 +1,4 @@
-import dayjs, { Dayjs } from 'dayjs';
+import { DateTime } from 'luxon';
 import { z } from 'zod';
 
 import { ISODate, ISOMonth } from './Time';
@@ -14,10 +14,10 @@ export const SeasonRegExp = /^[0-9]{4}-(Spring|Summer|Autumn|[0-9]{4}-Winter)$/;
 export const Season = z.string().regex(SeasonRegExp);
 export type Season = z.infer<typeof Season>;
 
-export function toSeason(m: Dayjs | ISODate | ISOMonth): Season {
-  const asStr = dayjs.isDayjs(m) ? m.format('YYYY-MM') : m;
+export function toSeason(m: DateTime | ISODate | ISOMonth): Season {
+  const asStr = DateTime.isDateTime(m) ? m.toFormat('yyyy-MM') : m;
   const year = Number(asStr.substring(0, 4));
-  // One-based month
+  // Luxon months are 1-based
   const month = Number(asStr.substring(5, 7));
   switch (month) {
     case 1:

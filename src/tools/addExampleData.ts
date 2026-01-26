@@ -48,7 +48,7 @@ async function addExampleData() {
       receiver: 'Danske Bank',
       sum: '1570',
       sourceId: commonS.id,
-      date: toISODate(toDayjs().subtract(2, 'year')),
+      date: toISODate(toDayjs().minus({ years: 2 })),
     },
     session,
   );
