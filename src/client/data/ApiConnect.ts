@@ -414,12 +414,12 @@ export class ApiConnect {
 
   // Reports
 
-  public createReport = (title: string, query: ExpenseQuery) => {
+  public createReport = (title: string, query: ExpenseQuery): Promise<ReportDef> => {
     const body: ReportCreationData = {
       title,
       query: filterDefinedProps(query),
     };
-    return this.post<ReportDef>(uri`/api/report`, body);
+    return this.post<ReportDef>(uri`/api/report`, { body });
   };
 
   public deleteReport = (reportId: ObjectId) =>

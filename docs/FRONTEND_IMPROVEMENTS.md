@@ -4,37 +4,7 @@ This document captures suggestions for improving the frontend codebase, identifi
 
 ## Critical Priority
 
-### 1. Bug: Incorrect API Call Structure in `createReport`
-
-**Location**: `src/client/data/ApiConnect.ts` line 421
-
-**Problem**: The `createReport` method passes the body directly instead of wrapping it in `{ body }`, inconsistent with all other POST methods.
-
-```typescript
-// Current (broken)
-return this.post<ReportDef>(uri`/api/report`, body);
-
-// All other methods use
-return this.post<SomeType>(url, { body: data });
-```
-
-**Impact**: The `createReport` endpoint likely fails or sends malformed data.
-
-**Solution**:
-
-```typescript
-public createReport = (title: string, query: ExpenseQuery): Promise<ReportDef> => {
-  const body: ReportCreationData = {
-    title,
-    query: filterDefinedProps(query),
-  };
-  return this.post<ReportDef>(uri`/api/report`, { body });
-};
-```
-
----
-
-### 2. Stale Closure Bug in `useToggle`
+### 1. Stale Closure Bug in `useToggle`
 
 **Location**: `src/client/ui/hooks/useToggle.ts` line 5
 
@@ -55,7 +25,7 @@ const toggle = React.useCallback(() => setStatus(s => !s), []);
 
 ---
 
-### 3. Stale Closure Bug in `useForceReload`
+### 2. Stale Closure Bug in `useForceReload`
 
 **Location**: `src/client/ui/hooks/useForceReload.tsx` lines 4-5
 
@@ -74,7 +44,7 @@ const forceReload = React.useCallback(() => setCounter(c => c + 1), []);
 
 ---
 
-### 4. Side Effect During Render in `useWhenChanged`
+### 3. Side Effect During Render in `useWhenChanged`
 
 **Location**: `src/client/ui/hooks/useWhenChanged.ts` lines 16-18
 
@@ -112,7 +82,7 @@ export function useWhenChanged<T>(
 
 ---
 
-### 5. State Mutation in `ExpenseTable.removeFilter`
+### 4. State Mutation in `ExpenseTable.removeFilter`
 
 **Location**: `src/client/ui/expense/ExpenseTable.tsx` lines 56-61
 
@@ -142,7 +112,7 @@ private removeFilter = (index: number) => {
 
 ## High Priority
 
-### 6. Security: Logging Sensitive Token
+### 5. Security: Logging Sensitive Token
 
 **Location**: `src/client/data/Login.ts` line 46
 
@@ -162,7 +132,7 @@ logger.info('Not logged in but refresh token exists in localStorage');
 
 ---
 
-### 7. Memory Leak in `useAsyncData`
+### 6. Memory Leak in `useAsyncData`
 
 **Location**: `src/client/ui/hooks/useAsyncData.ts` lines 11-16
 
@@ -193,7 +163,7 @@ React.useEffect(() => {
 
 ---
 
-### 8. Missing Cleanup in Bacon.js Subscriptions
+### 7. Missing Cleanup in Bacon.js Subscriptions
 
 **Locations**:
 - `src/client/ui/component/DialogConnector.tsx` line 12
@@ -217,7 +187,7 @@ React.useEffect(() => {
 
 ---
 
-### 9. Object Mutation in `mapExpense`
+### 8. Object Mutation in `mapExpense`
 
 **Location**: `src/client/data/ApiConnect.ts` lines 51-60
 
@@ -251,7 +221,7 @@ function mapExpense<T extends UserExpense>(e: T): T {
 
 ---
 
-### 10. Missing Error Handling in `saveExpense`
+### 9. Missing Error Handling in `saveExpense`
 
 **Location**: `src/client/ui/expense/dialog/ExpenseDialog.tsx` lines 314-346
 
@@ -273,7 +243,7 @@ try {
 
 ---
 
-### 11. Generic Components Losing Type Safety
+### 10. Generic Components Losing Type Safety
 
 **Locations**:
 - `src/client/ui/component/ActionButton.tsx` line 11
@@ -302,7 +272,7 @@ export const ActionButton = <T,>({
 
 ## Medium Priority
 
-### 12. Unsafe Type Assertion in `Login.ts`
+### 11. Unsafe Type Assertion in `Login.ts`
 
 **Location**: `src/client/data/Login.ts` line 13
 
@@ -322,7 +292,7 @@ export const validSessionE: B.EventStream<Session> = sessionP
 
 ---
 
-### 13. `any` Types in Error Handling
+### 12. `any` Types in Error Handling
 
 **Locations**:
 - `src/client/data/AsyncData.ts` line 17: `error: any`
@@ -340,7 +310,7 @@ export interface AsyncDataError {
 
 ---
 
-### 14. `any` Types in Hooks
+### 13. `any` Types in Hooks
 
 **Locations**:
 - `src/client/ui/hooks/useList.tsx` line 8
@@ -358,7 +328,7 @@ export function useOnUnmount(f: () => void, deps?: DependencyList): void {
 
 ---
 
-### 15. Swallowed Error in `useLocalStorage`
+### 14. Swallowed Error in `useLocalStorage`
 
 **Location**: `src/client/ui/hooks/useLocalStorage.ts` lines 45-46
 
@@ -375,7 +345,7 @@ export function useOnUnmount(f: () => void, deps?: DependencyList): void {
 
 ---
 
-### 16. Missing ResizeObserver in `useElementSize`
+### 15. Missing ResizeObserver in `useElementSize`
 
 **Location**: `src/client/ui/hooks/useElementSize.ts` lines 27-34
 
@@ -385,7 +355,7 @@ export function useOnUnmount(f: () => void, deps?: DependencyList): void {
 
 ---
 
-### 17. Non-Reactive `useQueryParams`
+### 16. Non-Reactive `useQueryParams`
 
 **Location**: `src/client/ui/hooks/useQueryParams.ts` lines 3-13
 
@@ -395,7 +365,7 @@ export function useOnUnmount(f: () => void, deps?: DependencyList): void {
 
 ---
 
-### 18. Accessibility Issues
+### 17. Accessibility Issues
 
 **Locations**:
 - `src/client/ui/component/ActivatableTextField.tsx` lines 86-89: Missing keyboard support
@@ -405,7 +375,7 @@ export function useOnUnmount(f: () => void, deps?: DependencyList): void {
 
 ---
 
-### 19. Deprecated `keyCode` API
+### 18. Deprecated `keyCode` API
 
 **Locations**:
 - `src/client/ui/component/DateRangeNavigator.tsx` lines 33-41
@@ -425,7 +395,7 @@ if (event.key === 'Enter') { ... }
 
 ---
 
-### 20. `window.prompt` Usage
+### 19. `window.prompt` Usage
 
 **Location**: `src/client/ui/expense/dialog/ExpenseDialogComponents.tsx` lines 25-31
 
@@ -435,7 +405,7 @@ if (event.key === 'Enter') { ... }
 
 ---
 
-### 21. Class Component Could Be Functional
+### 20. Class Component Could Be Functional
 
 **Location**: `src/client/ui/component/NotificationBar.tsx` lines 34-89
 
@@ -445,7 +415,7 @@ if (event.key === 'Enter') { ... }
 
 ## Low Priority
 
-### 22. Wrong File Extensions
+### 21. Wrong File Extensions
 
 **Locations**: Multiple hook files use `.tsx` extension without JSX:
 - `useForceReload.tsx`, `useList.tsx`, `useObjectMemo.tsx`, `useOnUnmount.tsx`, `usePersistentMemo.tsx`, `useWhenMounted.tsx`
@@ -454,7 +424,7 @@ if (event.key === 'Enter') { ... }
 
 ---
 
-### 23. Typo in Component Name
+### 22. Typo in Component Name
 
 **Location**: `src/client/ui/component/AsyncDataView.tsx` line 57
 
@@ -462,7 +432,7 @@ if (event.key === 'Enter') { ... }
 
 ---
 
-### 24. Redundant Code in `ExpenseRow`
+### 23. Redundant Code in `ExpenseRow`
 
 **Location**: `src/client/ui/expense/row/ExpenseRow.tsx` lines 193-204
 
@@ -470,7 +440,7 @@ if (event.key === 'Enter') { ... }
 
 ---
 
-### 25. Unnecessary Dependencies in useEffect
+### 24. Unnecessary Dependencies in useEffect
 
 **Locations**: Multiple hooks include `setX` (useState setters) in dependency arrays.
 
@@ -478,7 +448,7 @@ if (event.key === 'Enter') { ... }
 
 ---
 
-### 26. Duplicate Constants
+### 25. Duplicate Constants
 
 **Locations**:
 - `src/client/ui/expense/dialog/ExpenseDialog.tsx` line 63
@@ -492,13 +462,13 @@ if (event.key === 'Enter') { ... }
 
 ## Implementation Order Recommendation
 
-1. **Critical fixes** (1-5) - Fix immediately, can cause bugs
-2. **Security fix** (6) - Remove token from logs
-3. **Memory leaks** (7-8) - Prevent React warnings and leaks
-4. **Error handling** (10) - Users need feedback
-5. **Type safety** (11-14) - Gradual improvement
-6. **Accessibility** (18) - Important for inclusivity
-7. **Deprecated APIs** (19) - Prevent future breakage
+1. **Critical fixes** (1-4) - Fix immediately, can cause bugs
+2. **Security fix** (5) - Remove token from logs
+3. **Memory leaks** (6-7) - Prevent React warnings and leaks
+4. **Error handling** (9) - Users need feedback
+5. **Type safety** (10-13) - Gradual improvement
+6. **Accessibility** (17) - Important for inclusivity
+7. **Deprecated APIs** (18) - Prevent future breakage
 8. **Other items** - As time permits
 
 ---
