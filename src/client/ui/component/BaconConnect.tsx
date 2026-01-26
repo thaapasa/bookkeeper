@@ -1,8 +1,6 @@
 import * as B from 'baconjs';
 import * as React from 'react';
 
-import { Omit } from 'shared/util';
-
 // InferableComponentEnhancerWithProps taken from react-redux 5.0.8
 type InferableComponentEnhancerWithProps<InjectedProps, NeedsProps> = <P extends InjectedProps>(
   component: React.ComponentType<P>,

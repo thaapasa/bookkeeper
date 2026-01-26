@@ -95,17 +95,7 @@ This requires modifying `ValidatingRouter.ts`.
 
 ---
 
-### 6. Redundant TypeScript `Omit` Definition
-
-**Location**: `src/shared/util/Objects.ts` line 5
-
-**Problem**: Custom `Omit` type is defined, but this has been built into TypeScript since version 3.5.
-
-**Solution**: Remove the custom definition and use the built-in `Omit`.
-
----
-
-### 7. Catch-All `ApiMessage` Type
+### 6. Catch-All `ApiMessage` Type
 
 **Location**: `src/shared/types/Api.ts`
 
@@ -140,7 +130,7 @@ export const DeleteCategoryResponse = ApiMessage.extend({
 
 ## Low Priority
 
-### 8. Manual Parameter Parsing in Legacy Endpoints
+### 7. Manual Parameter Parsing in Legacy Endpoints
 
 **Location**: `src/server/api/Api.ts` lines 59-72
 
@@ -157,7 +147,7 @@ Requests.txRequest(
 
 ---
 
-### 9. Hard-coded Parameter Type Map
+### 8. Hard-coded Parameter Type Map
 
 **Location**: `src/server/server/ValidatingRouter.ts` lines 22-32
 
@@ -167,7 +157,7 @@ Requests.txRequest(
 
 ---
 
-### 10. Loosely Typed Error Factory Functions
+### 9. Loosely Typed Error Factory Functions
 
 **Location**: `src/shared/types/Errors.ts` lines 4-22
 
@@ -190,7 +180,7 @@ export function undefinedToError<E extends BkError>(
 
 ---
 
-### 11. Config Class Pattern
+### 10. Config Class Pattern
 
 **Location**: `src/server/Config.ts`
 
@@ -209,7 +199,7 @@ export const config = {
 
 ## Tech Debt
 
-### 12. Bun AsyncLocalStorage Bug Workaround
+### 11. Bun AsyncLocalStorage Bug Workaround
 
 **Location**: `src/server/logging/TraceIdFix.ts`
 
