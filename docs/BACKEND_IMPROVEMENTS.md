@@ -60,22 +60,7 @@ const parent = await getCategoryById(tx, groupId, data.parentId);
 
 ## Medium Priority
 
-### 4. Obsolete `Object.setPrototypeOf` Boilerplate
-
-**Location**: `src/shared/types/Errors.ts`, `src/shared/types/Validation.ts`
-
-**Problem**: Every custom error class includes:
-```typescript
-Object.setPrototypeOf(this, SomeError.prototype);
-```
-
-This was a workaround for TypeScript compiling to ES5. Since the project runs on Bun (modern ES6+ runtime), this is unnecessary.
-
-**Solution**: Remove all `Object.setPrototypeOf` calls from error classes (8 occurrences total).
-
----
-
-### 5. `ITask<any>` Loses Type Safety
+### 4. `ITask<any>` Loses Type Safety
 
 **Location**: All database files in `src/server/data/`
 
@@ -92,7 +77,7 @@ export async function getAllCategories(tx: DbTask, groupId: number): Promise<Cat
 
 ---
 
-### 6. Magic Boolean Fourth Parameter
+### 5. Magic Boolean Fourth Parameter
 
 **Location**: All API files using `createValidatingRouter`
 
@@ -110,7 +95,7 @@ This requires modifying `ValidatingRouter.ts`.
 
 ---
 
-### 7. Redundant TypeScript `Omit` Definition
+### 6. Redundant TypeScript `Omit` Definition
 
 **Location**: `src/shared/util/Objects.ts` line 5
 
@@ -120,7 +105,7 @@ This requires modifying `ValidatingRouter.ts`.
 
 ---
 
-### 8. Catch-All `ApiMessage` Type
+### 7. Catch-All `ApiMessage` Type
 
 **Location**: `src/shared/types/Api.ts`
 
@@ -155,7 +140,7 @@ export const DeleteCategoryResponse = ApiMessage.extend({
 
 ## Low Priority
 
-### 9. Manual Parameter Parsing in Legacy Endpoints
+### 8. Manual Parameter Parsing in Legacy Endpoints
 
 **Location**: `src/server/api/Api.ts` lines 59-72
 
@@ -172,7 +157,7 @@ Requests.txRequest(
 
 ---
 
-### 10. Hard-coded Parameter Type Map
+### 9. Hard-coded Parameter Type Map
 
 **Location**: `src/server/server/ValidatingRouter.ts` lines 22-32
 
@@ -182,7 +167,7 @@ Requests.txRequest(
 
 ---
 
-### 11. Loosely Typed Error Factory Functions
+### 10. Loosely Typed Error Factory Functions
 
 **Location**: `src/shared/types/Errors.ts` lines 4-22
 
@@ -205,7 +190,7 @@ export function undefinedToError<E extends BkError>(
 
 ---
 
-### 12. Config Class Pattern
+### 11. Config Class Pattern
 
 **Location**: `src/server/Config.ts`
 
@@ -224,7 +209,7 @@ export const config = {
 
 ## Tech Debt
 
-### 13. Bun AsyncLocalStorage Bug Workaround
+### 12. Bun AsyncLocalStorage Bug Workaround
 
 **Location**: `src/server/logging/TraceIdFix.ts`
 
@@ -242,11 +227,10 @@ export const config = {
 
 1. **Double transaction wrapping** - Biggest performance win
 2. **Remove dead code** - Quick cleanup
-3. **Remove `Object.setPrototypeOf`** - Quick cleanup
-4. **Add response schemas** - Gradual, can do per-endpoint
-5. **Improve `ApiMessage` typing** - Can do alongside #4
-6. **Fix `ITask<any>`** - Search and replace
-7. **Other items** - As time permits
+3. **Add response schemas** - Gradual, can do per-endpoint
+4. **Improve `ApiMessage` typing** - Can do alongside #3
+5. **Fix `ITask<any>`** - Search and replace
+6. **Other items** - As time permits
 
 ---
 

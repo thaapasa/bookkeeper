@@ -31,6 +31,5 @@ export class DataValidationError extends BkError {
       data,
       error: error.format(),
     });
-    Object.setPrototypeOf(this, DataValidationError.prototype);
   }
 }
