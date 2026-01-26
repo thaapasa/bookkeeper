@@ -20,6 +20,13 @@ export const sourceMapE: B.EventStream<Record<string, Source>> = validSessionE.m
 
 const refreshTokenKey = 'refreshToken';
 
+/**
+ * Holds the in-flight session refresh promise to deduplicate concurrent refresh requests.
+ * Multiple 401 responses arriving simultaneously will share this single refresh attempt
+ * rather than each triggering their own refresh.
+ */
+let refreshPromise: Promise<boolean> | null = null;
+
 export function getTitle(group?: Group): string {
   const groupName = group ? group.name : undefined;
   const title = groupName ? `Kukkaro - ${groupName}` : 'Kukkaro';
@@ -70,10 +77,28 @@ loginBus.onValue(session => {
   sessionBus.push(session);
 });
 
+/**
+ * Checks login state and refreshes session if needed.
+ * Deduplicates concurrent calls - if a refresh is already in progress,
+ * subsequent calls will share the same promise.
+ */
 export async function checkLoginState(): Promise<boolean> {
-  const session = await getLoginFromLocalStorage();
-  loginBus.push(session);
-  return session != null;
+  if (refreshPromise) {
+    logger.info('Session refresh already in progress, waiting for it');
+    return refreshPromise;
+  }
+
+  refreshPromise = (async () => {
+    try {
+      const session = await getLoginFromLocalStorage();
+      loginBus.push(session);
+      return session != null;
+    } finally {
+      refreshPromise = null;
+    }
+  })();
+
+  return refreshPromise;
 }
 
 export async function login(username: string, password: string): Promise<void> {

@@ -108,18 +108,19 @@ export class ApiConnect {
   }
 
   private async req<T>(path: string, method: RequestMethod, spec: ApiRequestSpec = {}): Promise<T> {
+    const { allowRefreshAndRetry = true, ...restSpec } = spec;
     try {
       return await client.req(path, method, {
-        ...spec,
-        headers: { ...this.authHeader(), ...spec.headers },
+        ...restSpec,
+        headers: { ...this.authHeader(), ...restSpec.headers },
       });
     } catch (e) {
-      if (e && e instanceof AuthenticationError && spec.allowRefreshAndRetry) {
+      if (e && e instanceof AuthenticationError && allowRefreshAndRetry) {
         logger.warn(e, 'Authentication error from API, trying to refresh session');
         if (await checkLoginState()) {
           logger.info('Session refreshed, retrying request');
           await timeoutImmediate();
-          return this.req<T>(path, method, { ...spec, allowRefreshAndRetry: false });
+          return this.req<T>(path, method, { ...restSpec, allowRefreshAndRetry: false });
         }
       }
       throw e;
@@ -150,7 +151,7 @@ export class ApiConnect {
   }
 
   public logout(): Promise<ApiMessage> {
-    return this.delete<ApiMessage>('/api/session');
+    return this.delete<ApiMessage>('/api/session', { allowRefreshAndRetry: false });
   }
 
   public getSession(): Promise<Session> {
