@@ -9,6 +9,7 @@ import { BookkeeperPage } from './ui/general/BookkeeperPage';
 import { ErrorView } from './ui/general/ErrorView';
 import { LoginPage } from './ui/general/LoginPage';
 import { useAsyncData } from './ui/hooks/useAsyncData';
+import { useSessionRefreshOnFocus } from './ui/hooks/useSessionRefreshOnFocus';
 import { useWindowSize } from './ui/hooks/useWindowSize';
 
 export const App: React.FC = () => {
@@ -19,6 +20,9 @@ export const App: React.FC = () => {
   windowSizeBus.push(windowSize);
 
   const state = useAsyncData(checkLoginState, true);
+
+  // Refresh session when app returns from background (PWA/mobile app support)
+  useSessionRefreshOnFocus(checkLoginState);
 
   React.useEffect(() => {
     // Logging here so it's only printed once

@@ -84,7 +84,7 @@ interface ApiRequestSpec extends RequestSpec {
   allowRefreshAndRetry?: boolean;
 }
 
-const TokenKey = 'bookkeeper.token';
+export const TokenKey = 'bookkeeper.token';
 
 export class ApiConnect {
   public setToken(token: string | null) {

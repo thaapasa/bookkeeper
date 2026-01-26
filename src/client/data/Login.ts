@@ -4,7 +4,7 @@ import { Group, Session, Source, User } from 'shared/types';
 import { toMap } from 'shared/util';
 import { logger } from 'client/Logger';
 
-import apiConnect from './ApiConnect';
+import apiConnect, { TokenKey } from './ApiConnect';
 
 const loginBus = new B.Bus<Session | null>();
 const sessionBus = new B.Bus<Session | null>();
@@ -44,16 +44,31 @@ function clearLoginData(clearRefreshToken: boolean) {
 }
 
 async function getLoginFromLocalStorage(): Promise<Session | null> {
-  const token = localStorage.getItem(refreshTokenKey);
-  if (!token) {
-    logger.info('No token present, not logged in');
+  const token = localStorage.getItem(TokenKey);
+  if (token) {
+    apiConnect.setToken(token);
+    try {
+      const session = await apiConnect.getSession();
+      if (session) {
+        logger.info('Current token is still valid, using it...');
+        return session;
+      }
+    } catch (e) {
+      logger.info(e, 'Existing token is not valid');
+    }
+  }
+
+  // Try to use refresh token
+  const refreshToken = localStorage.getItem(refreshTokenKey);
+  if (!refreshToken) {
+    logger.info('No refresh token present, not logged in');
     apiConnect.setToken(null);
     return null;
   }
-  logger.info(`Not logged in but refresh token exists in localStorage: ${token}`);
+  logger.info(`Not logged in but refresh token exists in localStorage: ${refreshToken}`);
   try {
     apiConnect.setToken(null);
-    return await apiConnect.refreshSession(token);
+    return await apiConnect.refreshSession(refreshToken);
   } catch (e) {
     logger.warn(e, 'Token refresh failed');
     apiConnect.setToken(null);
