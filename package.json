@@ -14,7 +14,7 @@
     "build-server": "NODE_ENV=production bun run src/build-server.ts",
     "update-revision": "bash script/update-revision.sh",
     "update-revisions": "bun run update-revision server && bun run update-revision client",
-    "pretty-log": "bun pino-pretty --config .pino-prettyrc.js",
+    "pretty-log": "bun --bun pino-pretty --config .pino-prettyrc.js",
     "lint": "bun lint-eslint && bun lint-tsc",
     "lint-eslint": "eslint src",
     "lint-tsc": "tsc --noEmit",
@@ -92,9 +92,6 @@
   "trustedDependencies": [
     "sharp"
   ],
-  "overrides": {
-    "strip-json-comments": "^4.0.0"
-  },
   "browserslist": {
     "production": [">0.2%", "not dead", "not op_mini all"],
     "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
