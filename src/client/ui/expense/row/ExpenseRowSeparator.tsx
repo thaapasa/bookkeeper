@@ -1,8 +1,8 @@
-import { Dayjs } from 'dayjs';
+import { DateTime } from 'luxon';
 import * as React from 'react';
 
 import { UserExpense } from 'shared/expense';
-import { toDayjs } from 'shared/time';
+import { toDateTime } from 'shared/time';
 
 import { WeekHeaderRow } from './WeekHeaderRow';
 
@@ -29,28 +29,29 @@ function weeksToShow(prev: UserExpense | null, next: UserExpense | null): string
 
     if (!prev) {
       // This is the first item in the list, so render weeks from the beginning of the month
-      return weeksBetween(toDayjs(next.date).startOf('month'), next.date, true);
+      return weeksBetween(toDateTime(next.date).startOf('month'), next.date, true);
     }
   }
 
-  return weeksBetween(prev.date, next ? next.date : toDayjs(prev.date).endOf('month'), false);
+  return weeksBetween(prev.date, next ? next.date : toDateTime(prev.date).endOf('month'), false);
 }
 
-const toWeek = (m: Dayjs) => {
-  return String(m.isoWeek());
+const toWeek = (m: DateTime) => {
+  return String(m.weekNumber);
 };
 
-function weeksBetween(a: string | Dayjs, b: string | Dayjs, includeFirst: boolean) {
+function weeksBetween(a: string | DateTime, b: string | DateTime, includeFirst: boolean) {
   const weeks: string[] = [];
-  let weekStart = toDayjs(a).startOf('week');
+  let weekStart = toDateTime(a).startOf('week');
   if (includeFirst) {
     weeks.push(toWeek(weekStart));
   }
+  const bDateTime = toDateTime(b);
   do {
-    weekStart = weekStart.add(1, 'week');
-    if (weekStart.isSameOrBefore(b)) {
+    weekStart = weekStart.plus({ weeks: 1 });
+    if (weekStart <= bDateTime) {
       weeks.push(toWeek(weekStart));
     }
-  } while (weekStart.isSameOrBefore(b));
+  } while (weekStart <= bDateTime);
   return weeks;
 }

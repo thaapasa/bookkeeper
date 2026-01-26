@@ -1,5 +1,5 @@
 import * as B from 'baconjs';
-import { Dayjs } from 'dayjs';
+import { DateTime } from 'luxon';
 import * as React from 'react';
 
 import { UserExpenseWithDetails } from 'shared/expense';
@@ -72,7 +72,7 @@ export function createExpenseDialogListener<D>(
       this.unsub = [];
     }
 
-    onExpensesUpdated = (date: Dayjs) => {
+    onExpensesUpdated = (date: DateTime) => {
       updateExpenses(date);
     };
 

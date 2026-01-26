@@ -1,4 +1,4 @@
-import { Dayjs } from 'dayjs';
+import { DateTime } from 'luxon';
 import React from 'react';
 
 import { TextEditorComponent } from '../component/TextEditVariants';
@@ -28,7 +28,7 @@ export type CategoryPromptDialogData = {
 
 export type DateSelectDialogData = {
   type: 'date';
-  initialDate?: Dayjs;
+  initialDate?: DateTime;
 };
 
 export type DialogData =

@@ -6,11 +6,10 @@ import './client/Init';
 
 import { fiFI as coreFiFI } from '@mui/material/locale';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
 import { fiFI } from '@mui/x-date-pickers/locales';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import type {} from '@mui/x-date-pickers/themeAugmentation';
-import dayjs from 'dayjs';
 import * as React from 'react';
 import ReactDOM from 'react-dom/client';
 
@@ -34,7 +33,7 @@ const container = document.getElementById('root');
 assertDefined(container);
 ReactDOM.createRoot(container).render(
   <ThemeProvider theme={muiTheme}>
-    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="fi" dateLibInstance={dayjs}>
+    <LocalizationProvider dateAdapter={AdapterLuxon} adapterLocale="fi">
       <App />
     </LocalizationProvider>
   </ThemeProvider>,

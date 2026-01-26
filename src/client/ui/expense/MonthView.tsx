@@ -1,9 +1,9 @@
-import { Dayjs } from 'dayjs';
+import { DateTime } from 'luxon';
 import * as React from 'react';
 import { useNavigate } from 'react-router';
 
 import { UserExpense } from 'shared/expense';
-import { ISODate, ISODatePattern, isSameMonth, monthRange, toDayjs, toISODate } from 'shared/time';
+import { ISODate, isSameMonth, monthRange, toDateTime, toISODate } from 'shared/time';
 import apiConnect from 'client/data/ApiConnect';
 import { navigationBus, needUpdateE } from 'client/data/State';
 import { logger } from 'client/Logger';
@@ -50,7 +50,7 @@ export const MonthView: React.FC<MonthViewProps> = ({ date }) => {
   const navigate = useNavigate();
   React.useEffect(
     () =>
-      needUpdateE.onValue((newDate: Dayjs) => {
+      needUpdateE.onValue((newDate: DateTime) => {
         logger.info('Expenses updated, refreshing for date %s', toISODate(newDate));
         if (isSameMonth(newDate, date)) {
           logger.info('Reloading expenses for this month');
@@ -81,12 +81,13 @@ export const MonthView: React.FC<MonthViewProps> = ({ date }) => {
 };
 
 async function loadExpensesForDate(date: ISODate) {
-  const m = toDayjs(date, ISODatePattern);
+  const m = toDateTime(date);
   navigationBus.push({
     dateRange: monthRange(m),
     pathPrefix: expensePagePath,
   });
-  const expenses = await apiConnect.getExpensesForMonth(m.get('year'), m.get('month') + 1);
+  // Luxon months are 1-based, so no need to add 1
+  const expenses = await apiConnect.getExpensesForMonth(m.year, m.month);
   logger.info(expenses, 'Expenses for %s', date);
   return expenses;
 }

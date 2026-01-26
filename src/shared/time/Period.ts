@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { dayJsForDate, Month, toDayjs, toISODate, Year } from './Time';
+import { dayJsForDate, Month, toDateTime, toISODate, Year } from './Time';
 import { DateRange } from './TimeRange';
 
 export const YearPeriod = z.object({
@@ -39,8 +39,8 @@ export function periodToYearAndMonth(p: Period): [Year, Month] {
     case 'year':
       return [p.year, 1];
     default: {
-      const m = toDayjs();
-      return [m.year(), m.month() + 1];
+      const m = toDateTime();
+      return [m.year, m.month];
     }
   }
 }

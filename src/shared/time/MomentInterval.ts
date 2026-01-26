@@ -1,10 +1,9 @@
-import { ManipulateType } from 'dayjs';
+import { DurationUnit } from 'luxon';
 import { z } from 'zod';
 
-type MomentUnit = ManipulateType;
 const unitValues = ['year', 'years', 'month', 'months', 'week', 'weeks', 'day', 'days'] satisfies [
-  MomentUnit,
-  ...MomentUnit[],
+  DurationUnit,
+  ...DurationUnit[],
 ];
 
 export const MomentIntervalUnit = z.enum(unitValues);

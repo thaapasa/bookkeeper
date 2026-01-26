@@ -1,4 +1,6 @@
-import { Dayjs } from 'dayjs';
+import { DateTime } from 'luxon';
+
+export type { DateTime };
 import { z } from 'zod';
 
 import { ISODate } from '../time/Time';
@@ -111,7 +113,7 @@ export type UserExpense = z.infer<typeof UserExpense>;
 export interface ExpenseInEditor extends BaseExpenseData {
   subcategoryId: number;
   sum: string;
-  date: Dayjs;
+  date: DateTime;
   benefit: number[];
   description: string;
   groupingId: number | null;

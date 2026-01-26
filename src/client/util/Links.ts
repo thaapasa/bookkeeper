@@ -1,4 +1,4 @@
-import { DateLike, toDayjs } from 'shared/time';
+import { DateLike, toDateTime } from 'shared/time';
 
 export const shortcutsPagePath = '/p/linkit';
 export const expensePagePath = '/p/kulut';
@@ -14,33 +14,33 @@ export const trackingPagePath = '/p/seuranta';
 export const groupingsPagePath = '/p/ryhmittelyt';
 export const newExpenseSuffix = '/uusi-kirjaus';
 
-export const yearPattern = 'YYYY';
-export const monthPattern = 'YYYY-MM';
+export const yearPattern = 'yyyy';
+export const monthPattern = 'yyyy-MM';
 export function expenseMonthPathPattern(variable: string) {
   return expensePagePath + '/m/:' + variable;
 }
 export function expensesForMonthPath(date: DateLike) {
-  return expensePagePath + '/m/' + toDayjs(date).format(monthPattern);
+  return expensePagePath + '/m/' + toDateTime(date).toFormat(monthPattern);
 }
 
 export function categoryViewYearPattern(variable: string) {
   return categoryPagePath + '/y/:' + variable;
 }
 export function categoriesForYear(date: DateLike) {
-  return categoryPagePath + '/y/' + toDayjs(date).format(yearPattern);
+  return categoryPagePath + '/y/' + toDateTime(date).toFormat(yearPattern);
 }
 
 export function categoryViewMonthPattern(variable: string) {
   return categoryPagePath + '/m/:' + variable;
 }
 export function categoriesForMonth(date: DateLike) {
-  return categoryPagePath + '/m/' + toDayjs(date).format(monthPattern);
+  return categoryPagePath + '/m/' + toDateTime(date).toFormat(monthPattern);
 }
 
 export function monthSuffix(date: DateLike) {
-  return '/m/' + toDayjs(date).format(monthPattern);
+  return '/m/' + toDateTime(date).toFormat(monthPattern);
 }
 
 export function yearSuffix(date: DateLike) {
-  return '/y/' + toDayjs(date).format(yearPattern);
+  return '/y/' + toDateTime(date).toFormat(yearPattern);
 }

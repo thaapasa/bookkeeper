@@ -4,7 +4,7 @@ import { expectArrayContaining } from 'test/expect/expectArrayContaining';
 import { Expense, ExpenseCollection, ExpenseStatus } from 'shared/expense';
 import { checkCreateStatus, cleanup, division, findUserId, newExpense } from 'shared/expense/test';
 import { createTestClient, SessionWithControl } from 'shared/net/test';
-import { ISODatePattern, toDayjs } from 'shared/time';
+import { ISODatePattern, toDateTime } from 'shared/time';
 import { ApiMessage } from 'shared/types';
 import { Money } from 'shared/util';
 import { expectThrow } from 'shared/util/test';
@@ -138,15 +138,15 @@ describe('expense', () => {
   });
 
   it('should return expenses for correct month', async () => {
-    const monthStart = toDayjs('2017-01-01', ISODatePattern);
-    const nextMonth = toDayjs('2017-02-01', ISODatePattern);
+    const monthStart = toDateTime('2017-01-01', ISODatePattern);
+    const nextMonth = toDateTime('2017-02-01', ISODatePattern);
     const s = await session.get<ExpenseCollection>('/api/expense/month', {
       year: 2017,
       month: 1,
     });
     s.expenses.forEach(e => {
-      expect(toDayjs(e.date).isBefore(nextMonth)).toEqual(true);
-      expect(toDayjs(e.date).isSameOrAfter(monthStart)).toEqual(true);
+      expect(toDateTime(e.date) < nextMonth).toEqual(true);
+      expect(toDateTime(e.date) >= monthStart).toEqual(true);
     });
   });
 

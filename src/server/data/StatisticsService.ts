@@ -1,14 +1,16 @@
-import { DateRange, toDayjs, toISODate } from 'shared/time';
+import { DateRange, toDateTime, toISODate } from 'shared/time';
 
 export function getRangeForQueries(range: DateRange | undefined): DateRange {
   if (!range)
     return {
-      startDate: toISODate(toDayjs().subtract(5, 'years').startOf('year')),
-      endDate: toISODate(toDayjs()),
+      startDate: toISODate(toDateTime().minus({ years: 5 }).startOf('year')),
+      endDate: toISODate(toDateTime()),
     };
-  const now = toDayjs();
+  const now = toDateTime();
+  const startDateTime = toDateTime(range.startDate);
+  const endDateTime = toDateTime(range.endDate);
   return {
-    startDate: now.isBefore(range.startDate, 'day') ? toISODate(now) : range.startDate,
-    endDate: now.isBefore(range.endDate, 'day') ? toISODate(now) : range.endDate,
+    startDate: now < startDateTime ? toISODate(now) : range.startDate,
+    endDate: now < endDateTime ? toISODate(now) : range.endDate,
   };
 }

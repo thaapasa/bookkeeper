@@ -1,12 +1,12 @@
 import { Button, DialogActions, DialogContent } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
-import { Dayjs } from 'dayjs';
+import { DateTime } from 'luxon';
 import * as React from 'react';
 
 import { datePickerFormat } from '../expense/dialog/DateField';
 import { DateSelectDialogData, DialogContentRendererProps } from './Dialog';
 
-type TextPromptDialogProps = DialogContentRendererProps<Dayjs> & DateSelectDialogData;
+type TextPromptDialogProps = DialogContentRendererProps<DateTime> & DateSelectDialogData;
 
 export const DateSelectDialogComponent: React.FC<TextPromptDialogProps> = ({
   onSelect,
@@ -14,10 +14,10 @@ export const DateSelectDialogComponent: React.FC<TextPromptDialogProps> = ({
   handleKeyPress,
   onCancel,
 }) => {
-  const [date, setDate] = React.useState<Dayjs | undefined>(initialDate);
+  const [date, setDate] = React.useState<DateTime | undefined>(initialDate);
 
-  const changeHandler = (edited: Dayjs | null) => {
-    const date = edited?.isValid() ? edited : undefined;
+  const changeHandler = (edited: DateTime | null) => {
+    const date = edited?.isValid ? edited : undefined;
     if (date) {
       setDate(date);
     }

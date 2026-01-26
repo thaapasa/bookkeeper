@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Route, Routes, useNavigate, useParams } from 'react-router-dom';
 
 import { shortcutToExpenseInEditor } from 'shared/expense';
-import { toDayjs } from 'shared/time';
+import { toDateTime } from 'shared/time';
 import { Session } from 'shared/types';
 import { categoryDataSourceP, categoryMapE } from 'client/data/Categories';
 import { sourceMapE, validSessionE } from 'client/data/Login';
@@ -35,7 +35,7 @@ const NewExpenseDialogPage: React.FC = () => {
   const navigate = useNavigate();
   const windowSize = useWindowSize();
   const params = useQueryParams();
-  const date = params.date ? toDayjs(params.date) : undefined;
+  const date = params.date ? toDateTime(params.date) : undefined;
   return (
     <ConnectedExpenseDialog
       createNew

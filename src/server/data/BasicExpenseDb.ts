@@ -1,4 +1,6 @@
-import { Dayjs } from 'dayjs';
+import { DateTime } from 'luxon';
+
+type DateTimeInput = DateTime | string;
 import { ITask } from 'pg-promise';
 
 import {
@@ -112,8 +114,8 @@ export async function countTotalBetween(
   tx: ITask<any>,
   groupId: number,
   userId: number,
-  startDate: string | Dayjs,
-  endDateExclusive: string | Dayjs,
+  startDate: DateTimeInput,
+  endDateExclusive: DateTimeInput,
 ): Promise<ExpenseStatus> {
   return await tx.one<ExpenseStatus>(countTotalSelect, {
     userId,

@@ -1,4 +1,4 @@
-import { Dayjs } from 'dayjs';
+import { DateTime } from 'luxon';
 import { z } from 'zod';
 
 import { numberRange } from '../util/Arrays';
@@ -12,7 +12,7 @@ import {
   ISODate,
   ISOMonth,
   monthToYear,
-  toDayjs,
+  toDateTime,
   toYearName,
   Year,
 } from './Time';
@@ -33,8 +33,8 @@ export interface TypedDateRange extends UIDateRange {
 }
 
 export interface MomentRange {
-  startTime: Dayjs;
-  endTime: Dayjs;
+  startTime: DateTime;
+  endTime: DateTime;
 }
 
 export function getYearsInRange(range: DateRange): Year[] {
@@ -49,8 +49,8 @@ export function getMonthsInRange(range: DateRange): ISOMonth[] {
   return years
     .map(y =>
       numberRange(
-        y === startYear ? toDayjs(range.startDate).month() + 1 : 1,
-        y === endYear ? toDayjs(range.endDate).month() + 1 : 12,
+        y === startYear ? toDateTime(range.startDate).month : 1,
+        y === endYear ? toDateTime(range.endDate).month : 12,
       ).map(m => `${y}-${leftPad(m, 2, '0')}` as ISOMonth),
     )
     .flat(1);
@@ -58,8 +58,8 @@ export function getMonthsInRange(range: DateRange): ISOMonth[] {
 
 export function dateRangeToMomentRange(r: DateRange) {
   return {
-    startTime: toDayjs(r.startDate).startOf('day'),
-    endTime: toDayjs(r.endDate).endOf('day'),
+    startTime: toDateTime(r.startDate).startOf('day'),
+    endTime: toDateTime(r.endDate).endOf('day'),
   };
 }
 
@@ -71,9 +71,9 @@ export function toDateRangeName(x: TypedDateRange): string {
       return toYearName(x.start);
     case 'custom':
       return (
-        toDayjs(x.start).format(displayDatePattern) +
+        toDateTime(x.start).toFormat(displayDatePattern) +
         ' - ' +
-        toDayjs(x.end).format(displayDatePattern)
+        toDateTime(x.end).toFormat(displayDatePattern)
       );
     default:
       return '?';
@@ -81,29 +81,29 @@ export function toDateRangeName(x: TypedDateRange): string {
 }
 
 export function yearRange(date: DateLike): TypedDateRange {
-  const m = fromYearValue(date) || toDayjs(date);
-  const start = m.clone().startOf('year').toDate();
-  const end = m.endOf('year').toDate();
+  const m = fromYearValue(date) || toDateTime(date);
+  const start = m.startOf('year').toJSDate();
+  const end = m.endOf('year').toJSDate();
   return { start, end, type: 'year' };
 }
 
 export function monthRange(date: DateLike): TypedDateRange {
-  const m = toDayjs(date);
-  const start = m.clone().startOf('month').toDate();
-  const end = m.endOf('month').toDate();
+  const m = toDateTime(date);
+  const start = m.startOf('month').toJSDate();
+  const end = m.endOf('month').toJSDate();
   return { start, end, type: 'month' };
 }
 
 export function toDateRange(start: DateLike, end: DateLike): TypedDateRange {
-  const s = toDayjs(start);
-  if (s.isSame(end, 'month')) return monthRange(s);
-  if (s.isSame(end, 'year')) return yearRange(s);
-  return { type: 'custom', start: s.toDate(), end: toDayjs(end).toDate() };
+  const s = toDateTime(start);
+  if (s.hasSame(toDateTime(end), 'month')) return monthRange(s);
+  if (s.hasSame(toDateTime(end), 'year')) return yearRange(s);
+  return { type: 'custom', start: s.toJSDate(), end: toDateTime(end).toJSDate() };
 }
 
 const yearRE = /[0-9]{4}/;
 
-function fromYearValue(y: DateLike): Dayjs | undefined {
+function fromYearValue(y: DateLike): DateTime | undefined {
   if (typeof y === 'number' || (typeof y === 'string' && yearRE.test(y))) {
     const year = typeof y === 'number' ? y : parseInt(y, 10);
     return dayJsForDate(year, 1, 1);

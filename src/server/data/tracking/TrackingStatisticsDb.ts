@@ -9,7 +9,7 @@ import {
   ISOYear,
   monthToQuarter,
   Quarter,
-  toDayjs,
+  toDateTime,
   toISODate,
 } from 'shared/time';
 import {
@@ -128,11 +128,11 @@ function getFreq(data: TrackingData): TrackingFrequency {
 }
 
 function getRange(data: TrackingData): DateRange {
-  const past = toDayjs().subtract(data.range?.amount ?? 3, data.range?.unit ?? 'years');
+  const past = toDateTime().minus({ [data.range?.unit ?? 'years']: data.range?.amount ?? 3 });
   const freq = getFreq(data);
   return {
     startDate: toISODate(past.startOf(freq)),
-    endDate: toISODate(toDayjs().endOf(freq)),
+    endDate: toISODate(toDateTime().endOf(freq)),
   };
 }
 

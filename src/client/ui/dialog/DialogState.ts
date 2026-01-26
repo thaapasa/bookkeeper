@@ -1,5 +1,5 @@
 import * as B from 'baconjs';
-import { Dayjs } from 'dayjs';
+import { DateTime } from 'luxon';
 
 import { ObjectId } from 'shared/types';
 
@@ -73,7 +73,7 @@ export const UserPrompts = {
    * Returns a promise that will be resolved to the text that was entered; or undefined if the dialog
    * was cancelled.
    */
-  selectDate: (title: string, initialDate?: Dayjs): Promise<Dayjs | undefined> =>
+  selectDate: (title: string, initialDate?: DateTime): Promise<DateTime | undefined> =>
     promptUser({
       type: 'date',
       title,
