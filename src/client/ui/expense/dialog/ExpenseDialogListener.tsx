@@ -5,8 +5,8 @@ import * as React from 'react';
 import { UserExpenseWithDetails } from 'shared/expense';
 import { noop } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
-import { categoryDataSourceP, categoryMapE } from 'client/data/Categories';
-import { sourceMapE, validSessionE } from 'client/data/Login';
+import { categoryDataSourceP, categoryMapP } from 'client/data/Categories';
+import { sourceMapP, validSessionP } from 'client/data/Login';
 import { updateExpenses } from 'client/data/State';
 import { ExpenseDialogObject } from 'client/data/StateTypes';
 import { logger } from 'client/Logger';
@@ -35,15 +35,15 @@ export function createExpenseDialogListener<D>(
 ) {
   const ConnectedDialog = connect(
     B.combineTemplate({
-      sources: validSessionE.map(s => s.sources),
-      categories: validSessionE.map(s => s.categories),
-      user: validSessionE.map(s => s.user),
-      group: validSessionE.map(s => s.group),
-      sourceMap: sourceMapE,
+      sources: validSessionP.map(s => s.sources),
+      categories: validSessionP.map(s => s.categories),
+      user: validSessionP.map(s => s.user),
+      group: validSessionP.map(s => s.group),
+      sourceMap: sourceMapP,
       categorySource: categoryDataSourceP,
-      categoryMap: categoryMapE,
-      groupings: validSessionE.map(s => s.groupings),
-      users: validSessionE.map(s => s.users),
+      categoryMap: categoryMapP,
+      groupings: validSessionP.map(s => s.groupings),
+      users: validSessionP.map(s => s.users),
     }),
   )(Dialog);
 

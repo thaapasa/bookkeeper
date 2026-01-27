@@ -16,7 +16,7 @@ import * as React from 'react';
 
 import { CategoryMap, ObjectId, TrackingFrequency, TrackingSubject } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
-import { categoryMapE, getFullCategoryName } from 'client/data/Categories';
+import { categoryMapP, getFullCategoryName } from 'client/data/Categories';
 
 import { AsyncDataDialogContent } from '../component/AsyncDataDialog';
 import { connect } from '../component/BaconConnect';
@@ -232,7 +232,7 @@ const ToolIconArea = styled('div')`
   top: 8px;
 `;
 
-const ConnectedEditView = connect(B.combineTemplate({ categoryMap: categoryMapE }))(
+const ConnectedEditView = connect(B.combineTemplate({ categoryMap: categoryMapP }))(
   TrackingEditView,
 );
 

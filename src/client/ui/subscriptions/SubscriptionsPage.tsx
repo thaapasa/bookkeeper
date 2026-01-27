@@ -7,7 +7,7 @@ import { SubscriptionResult, SubscriptionSearchCriteria } from 'shared/expense';
 import { Category, CategoryMap, ObjectId } from 'shared/types';
 import { Money, MoneyLike } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
-import { categoryMapE } from 'client/data/Categories';
+import { categoryMapP } from 'client/data/Categories';
 import { needUpdateE } from 'client/data/State';
 
 import { AsyncDataView } from '../component/AsyncDataView';
@@ -60,7 +60,7 @@ const SubscriptionsViewImpl: React.FC<{
   );
 };
 
-export const SubscriptionsPage = connect(combineTemplate({ categories: categoryMapE }))(
+export const SubscriptionsPage = connect(combineTemplate({ categories: categoryMapP }))(
   SubscriptionsViewImpl,
 );
 

@@ -2,7 +2,7 @@ import * as B from 'baconjs';
 
 import { Category, CategoryMap, ExpenseGroupingMap, Source, User } from 'shared/types';
 import { unnest } from 'shared/util';
-import { sourceMapE, userMapE, validSessionE } from 'client/data/Login';
+import { sourceMapP, userMapP, validSessionP } from 'client/data/Login';
 
 export interface CategoryDataSource {
   value: number;
@@ -47,15 +47,15 @@ function toCategoryMap(arr: Category[]): CategoryMap {
   return map;
 }
 
-export const categoryMapE: B.EventStream<CategoryMap> = validSessionE.map(s =>
+export const categoryMapP: B.Property<CategoryMap> = validSessionP.map(s =>
   toCategoryMap(s.categories),
 );
 export const categoryDataSourceP: B.Property<CategoryDataSource[]> = B.combineWith(
   (s, map) => catToDataSource(s.categories, map),
-  validSessionE,
-  categoryMapE,
+  validSessionP,
+  categoryMapP,
 );
-export const expenseGroupingMapE: B.EventStream<ExpenseGroupingMap> = validSessionE.map(s =>
+export const expenseGroupingMapP: B.Property<ExpenseGroupingMap> = validSessionP.map(s =>
   Object.fromEntries(s.groupings.map(s => [String(s.id), s])),
 );
 
@@ -75,9 +75,9 @@ export interface UserDataProps {
   groupingMap: ExpenseGroupingMap;
 }
 
-export const userDataE: B.Property<UserDataProps> = B.combineTemplate({
-  userMap: userMapE,
-  sourceMap: sourceMapE,
-  categoryMap: categoryMapE,
-  groupingMap: expenseGroupingMapE,
+export const userDataP: B.Property<UserDataProps> = B.combineTemplate({
+  userMap: userMapP,
+  sourceMap: sourceMapP,
+  categoryMap: categoryMapP,
+  groupingMap: expenseGroupingMapP,
 });

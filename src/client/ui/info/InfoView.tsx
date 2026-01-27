@@ -3,8 +3,8 @@ import * as React from 'react';
 
 import { Category, ObjectId, Session, Source, User } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
-import { userDataE, UserDataProps } from 'client/data/Categories';
-import { updateSession, validSessionE } from 'client/data/Login';
+import { userDataP, UserDataProps } from 'client/data/Categories';
+import { updateSession, validSessionP } from 'client/data/Login';
 
 import { ActivatableTextField } from '../component/ActivatableTextField';
 import { connect } from '../component/BaconConnect';
@@ -98,6 +98,6 @@ async function renameSource(sourceId: ObjectId, name: string) {
   }
 }
 
-export const InfoView = connect(B.combineTemplate({ session: validSessionE, userData: userDataE }))(
+export const InfoView = connect(B.combineTemplate({ session: validSessionP, userData: userDataP }))(
   InfoViewImpl,
 );

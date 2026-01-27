@@ -8,7 +8,7 @@ import { uri } from 'shared/net';
 import { ObjectId } from 'shared/types';
 import { noop, spaced } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
-import { updateSession, validSessionE } from 'client/data/Login';
+import { updateSession, validSessionP } from 'client/data/Login';
 import { createNewExpense, navigationP, requestNewExpense } from 'client/data/State';
 import { executeOperation } from 'client/util/ExecuteOperation';
 import { newExpenseSuffix } from 'client/util/Links';
@@ -164,7 +164,7 @@ const Title = styled('div')`
 `;
 
 export const ShortcutsView = connect(
-  B.combineTemplate({ session: validSessionE, navigation: navigationP }).map(
+  B.combineTemplate({ session: validSessionP, navigation: navigationP }).map(
     ({ session, navigation }) => ({
       shortcuts: session.shortcuts || [],
       dateRange: navigation.dateRange,

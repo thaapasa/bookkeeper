@@ -10,13 +10,11 @@ const loginBus = new B.Bus<Session | null>();
 const sessionBus = new B.Bus<Session | null>();
 
 export const sessionP = sessionBus.toProperty(null);
-export const validSessionE: B.EventStream<Session> = sessionP
-  .changes()
-  .filter((s): s is Session => s !== null);
-export const userMapE: B.EventStream<Record<string, User>> = validSessionE.map(s =>
+export const validSessionP: B.Property<Session> = sessionP.filter((s): s is Session => s !== null);
+export const userMapP: B.Property<Record<string, User>> = validSessionP.map(s =>
   toMap(s.users, 'id'),
 );
-export const sourceMapE: B.EventStream<Record<string, Source>> = validSessionE.map(s =>
+export const sourceMapP: B.Property<Record<string, Source>> = validSessionP.map(s =>
   toMap(s.sources, 'id'),
 );
 

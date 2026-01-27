@@ -7,8 +7,8 @@ import { ISODatePattern, toDate, toDateTime } from 'shared/time';
 import { CategoryMap, Source } from 'shared/types';
 import { Money } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
-import { categoryMapE } from 'client/data/Categories';
-import { sourceMapE } from 'client/data/Login';
+import { categoryMapP } from 'client/data/Categories';
+import { sourceMapP } from 'client/data/Login';
 import { createNewExpense, splitExpense, updateExpenses } from 'client/data/State';
 import { logger } from 'client/Logger';
 import * as colors from 'client/ui/Colors';
@@ -134,7 +134,7 @@ const MobileTools = styled('div')`
 `;
 
 export const ExpenseInfoTools = connect(
-  B.combineTemplate({ categoryMap: categoryMapE, sourceMap: sourceMapE }),
+  B.combineTemplate({ categoryMap: categoryMapP, sourceMap: sourceMapP }),
 )(ExpenseInfoToolsImpl);
 
 export const ToolIconButton = styled(IconButton)`

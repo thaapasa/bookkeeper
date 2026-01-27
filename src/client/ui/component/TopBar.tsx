@@ -2,7 +2,7 @@ import { AppBar, IconButton, styled, Toolbar, Typography } from '@mui/material';
 import * as React from 'react';
 
 import { Group, User } from 'shared/types';
-import { validSessionE } from 'client/data/Login';
+import { validSessionP } from 'client/data/Login';
 
 import * as colors from '../Colors';
 import { useToggle } from '../hooks/useToggle';
@@ -85,6 +85,6 @@ const Title = styled(Typography)`
   margin-left: 8px;
 `;
 
-export const TopBar = connect(validSessionE.map(s => ({ user: s.user, group: s.group })))(
+export const TopBar = connect(validSessionP.map(s => ({ user: s.user, group: s.group })))(
   TopBarImpl,
 );

@@ -6,7 +6,7 @@ import { useParams } from 'react-router';
 import { ExpenseGroupingWithExpenses } from 'shared/types';
 import { noop } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
-import { userDataE, UserDataProps } from 'client/data/Categories';
+import { userDataP, UserDataProps } from 'client/data/Categories';
 import { needUpdateE } from 'client/data/State';
 
 import { AsyncDataView } from '../component/AsyncDataView';
@@ -76,6 +76,6 @@ const TitleRow = styled(Subtitle)`
   text-align: center;
 `;
 
-const ConnectedGroupingExpensesRenderer = connect(B.combineTemplate({ userData: userDataE }))(
+const ConnectedGroupingExpensesRenderer = connect(B.combineTemplate({ userData: userDataP }))(
   GroupingExpensesRenderer,
 );

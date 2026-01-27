@@ -13,7 +13,7 @@ import * as React from 'react';
 import { toDateRangeName, TypedDateRange } from 'shared/time';
 import { isDefined, ObjectId, Session } from 'shared/types';
 import { CategoryDataSource } from 'client/data/Categories';
-import { validSessionE } from 'client/data/Login';
+import { validSessionP } from 'client/data/Login';
 
 import { gray } from '../Colors';
 import { connect } from '../component/BaconConnect';
@@ -131,7 +131,7 @@ const QuerySearchLayoutImpl: React.FC<QuerySearchLayoutProps> = ({
 
 export const QuerySearchLayout = connect(
   B.combineTemplate({
-    session: validSessionE,
+    session: validSessionP,
   }),
 )(QuerySearchLayoutImpl);
 

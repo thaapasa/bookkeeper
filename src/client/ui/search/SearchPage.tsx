@@ -10,10 +10,10 @@ import { AsyncData, UninitializedData } from 'client/data/AsyncData';
 import {
   CategoryDataSource,
   categoryDataSourceP,
-  userDataE,
+  userDataP,
   UserDataProps,
 } from 'client/data/Categories';
-import { validSessionE } from 'client/data/Login';
+import { validSessionP } from 'client/data/Login';
 import { navigationBus, needUpdateE } from 'client/data/State';
 import { logger } from 'client/Logger';
 import { searchPagePath } from 'client/util/Links';
@@ -116,8 +116,8 @@ const SearchViewImpl: React.FC<SearchViewProps> = ({ userData, session, category
 
 export const SearchPage = connect(
   B.combineTemplate({
-    session: validSessionE,
-    userData: userDataE,
+    session: validSessionP,
+    userData: userDataP,
     categorySource: categoryDataSourceP,
   }),
 )(SearchViewImpl);

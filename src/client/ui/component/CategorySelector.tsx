@@ -3,7 +3,7 @@ import * as B from 'baconjs';
 import * as React from 'react';
 
 import { Category, CategorySelection, ObjectId } from 'shared/types';
-import { CategoryDataSource, categoryDataSourceP, categoryMapE } from 'client/data/Categories';
+import { CategoryDataSource, categoryDataSourceP, categoryMapP } from 'client/data/Categories';
 import { connect } from 'client/ui/component/BaconConnect';
 
 const CategorySelectorImpl: React.FC<{
@@ -50,6 +50,6 @@ const CategorySelectorImpl: React.FC<{
 export const CategorySelector = connect(
   B.combineTemplate({
     categorySource: categoryDataSourceP,
-    categoryMap: categoryMapE,
+    categoryMap: categoryMapP,
   }),
 )(CategorySelectorImpl);

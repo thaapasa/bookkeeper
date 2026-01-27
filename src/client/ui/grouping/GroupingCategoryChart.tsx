@@ -5,7 +5,7 @@ import { Cell, Pie, PieChart, Tooltip } from 'recharts';
 
 import { CategoryMap, ExpenseGroupingCategoryTotal, isDefined, ObjectId } from 'shared/types';
 import { Money, MoneyLike } from 'shared/util';
-import { categoryMapE, getFullCategoryName } from 'client/data/Categories';
+import { categoryMapP, getFullCategoryName } from 'client/data/Categories';
 
 import { getChartColor } from '../chart/ChartColors';
 import { formatMoney } from '../chart/Format';
@@ -137,6 +137,6 @@ function createColorScheme(
   return colors;
 }
 
-export const GroupingCategoryChart = connect(B.combineTemplate({ categoryMap: categoryMapE }))(
+export const GroupingCategoryChart = connect(B.combineTemplate({ categoryMap: categoryMapP }))(
   GroupingCategoryChartImpl,
 );

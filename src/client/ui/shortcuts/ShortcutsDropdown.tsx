@@ -2,7 +2,7 @@ import { styled } from '@mui/material';
 import * as React from 'react';
 
 import { ExpenseShortcut } from 'shared/expense';
-import { validSessionE } from 'client/data/Login';
+import { validSessionP } from 'client/data/Login';
 
 import { navigationBar } from '../Colors';
 import { connect } from '../component/BaconConnect';
@@ -31,7 +31,7 @@ const DropdownImpl: React.FC<{
 };
 
 export const ShortcutsDropdown = connect(
-  validSessionE.map(s => ({ shortcuts: s.shortcuts || [] })),
+  validSessionP.map(s => ({ shortcuts: s.shortcuts || [] })),
 )(DropdownImpl);
 
 const LinksContainer = styled('div')(

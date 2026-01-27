@@ -2,7 +2,7 @@ import { styled } from '@mui/material';
 import * as React from 'react';
 
 import { ObjectId, User } from 'shared/types';
-import { validSessionE } from 'client/data/Login';
+import { validSessionP } from 'client/data/Login';
 
 import { connect } from './BaconConnect';
 import UserAvatar from './UserAvatar';
@@ -66,4 +66,4 @@ export const UserSelector: React.FC<UserSelectorProps> = ({
   );
 };
 
-export default connect(validSessionE.map(s => ({ users: s.users })))(UserSelector);
+export default connect(validSessionP.map(s => ({ users: s.users })))(UserSelector);

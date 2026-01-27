@@ -3,7 +3,7 @@ import * as React from 'react';
 
 import { Expense, ExpenseStatus, UserExpense } from 'shared/expense';
 import { Money, partition } from 'shared/util';
-import { userDataE, UserDataProps } from 'client/data/Categories';
+import { userDataP, UserDataProps } from 'client/data/Categories';
 
 import { colorScheme } from '../Colors';
 import { connect } from '../component/BaconConnect';
@@ -165,7 +165,7 @@ class ExpenseTable extends React.Component<ExpenseTableProps, ExpenseTableState>
   }
 }
 
-export default connect(userDataE.map(userData => ({ userData })))(ExpenseTable);
+export default connect(userDataP.map(userData => ({ userData })))(ExpenseTable);
 
 const ExpenseItem: React.FC<
   {

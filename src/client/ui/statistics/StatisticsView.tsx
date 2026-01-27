@@ -8,7 +8,7 @@ import { DateRange } from 'shared/time';
 import { CategoryMap, CategorySelection, CategoryStatistics, isDefined } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
 import { AsyncData, UninitializedData } from 'client/data/AsyncData';
-import { categoryMapE } from 'client/data/Categories';
+import { categoryMapP } from 'client/data/Categories';
 import { windowSizeP } from 'client/data/State';
 
 import { AsyncDataView } from '../component/AsyncDataView';
@@ -152,5 +152,5 @@ export const StatisticsViewImpl: React.FC<{
 };
 
 export const StatisticsView = connect(
-  B.combineTemplate({ categoryMap: categoryMapE, size: windowSizeP }),
+  B.combineTemplate({ categoryMap: categoryMapP, size: windowSizeP }),
 )(StatisticsViewImpl);

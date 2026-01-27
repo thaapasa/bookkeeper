@@ -3,7 +3,7 @@ import { cyan } from '@mui/material/colors';
 import * as React from 'react';
 
 import { User } from 'shared/types';
-import { userMapE } from 'client/data/Login';
+import { userMapP } from 'client/data/Login';
 
 import { connect } from './BaconConnect';
 
@@ -61,4 +61,4 @@ export const UserIdAvatar: React.FC<React.PropsWithChildren<UserIdAvatarProps>> 
   return user ? <UserAvatar {...props} user={user} /> : null;
 };
 
-export default connect(userMapE.map(userMap => ({ userMap })))(UserIdAvatar);
+export default connect(userMapP.map(userMap => ({ userMap })))(UserIdAvatar);

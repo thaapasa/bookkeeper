@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router';
 
 import { Group, User } from 'shared/types';
 import { config } from 'client/Config';
-import { logout, validSessionE } from 'client/data/Login';
+import { logout, validSessionP } from 'client/data/Login';
 import { reloadApp } from 'client/util/ClientUtil';
 import { profilePagePath } from 'client/util/Links';
 
@@ -129,4 +129,4 @@ const MenuInfo = styled('div')`
   padding: 2px 16px 8px 16px;
 `;
 
-export default connect(validSessionE.map(s => ({ user: s.user, group: s.group })))(MenuDrawer);
+export default connect(validSessionP.map(s => ({ user: s.user, group: s.group })))(MenuDrawer);

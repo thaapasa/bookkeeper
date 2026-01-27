@@ -6,7 +6,7 @@ import { calculateTotals, UserExpense } from 'shared/expense';
 import { toDateTime } from 'shared/time';
 import { Category } from 'shared/types';
 import { groupBy, noop, typedKeys } from 'shared/util';
-import { userDataE, UserDataProps } from 'client/data/Categories';
+import { userDataP, UserDataProps } from 'client/data/Categories';
 
 import { gray, secondaryColors } from '../Colors';
 import { connect } from '../component/BaconConnect';
@@ -76,7 +76,7 @@ const ExpenseList: React.FC<ResultsProps> = ({ results, onUpdate, onSelectCatego
   </ExpenseTableLayout>
 );
 
-export const ResultsView = connect(B.combineTemplate({ userData: userDataE }))(ResultsViewImpl);
+export const ResultsView = connect(B.combineTemplate({ userData: userDataP }))(ResultsViewImpl);
 
 function YearHeader({ year, expenses }: { year: string; expenses: UserExpense[] }) {
   const totals = calculateTotals(expenses);

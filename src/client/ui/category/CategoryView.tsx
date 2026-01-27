@@ -6,8 +6,8 @@ import { TypedDateRange } from 'shared/time';
 import { Category, CategoryAndTotals } from 'shared/types';
 import { Money } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
-import { userDataE, UserDataProps } from 'client/data/Categories';
-import { updateSession, validSessionE } from 'client/data/Login';
+import { userDataP, UserDataProps } from 'client/data/Categories';
+import { updateSession, validSessionP } from 'client/data/Login';
 import { navigationBus, needUpdateE } from 'client/data/State';
 import { categoryPagePath } from 'client/util/Links';
 
@@ -89,8 +89,8 @@ function formCategoryChartData(
 
 export default connect(
   B.combineTemplate({
-    categories: validSessionE.map(s => s.categories),
-    userData: userDataE,
+    categories: validSessionP.map(s => s.categories),
+    userData: userDataP,
   }),
 )(CategoryView);
 
