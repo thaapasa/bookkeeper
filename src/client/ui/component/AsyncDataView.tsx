@@ -34,7 +34,7 @@ export const AsyncDataView = <T, C extends { data: T }>({
   const Renderer = renderer as any;
   switch (data.type) {
     case 'uninitialized': {
-      const UninitializedView = uninitializedContent ?? UnitializedRenderer;
+      const UninitializedView = uninitializedContent ?? UninitializedRenderer;
       return hideUninitialized ? null : (
         <UninitializedView data={data} message={uninitializedText} />
       );
@@ -54,7 +54,7 @@ export const AsyncDataView = <T, C extends { data: T }>({
   }
 };
 
-const UnitializedRenderer: React.FC<{ data: AsyncDataUninitialized; message?: string }> = ({
+const UninitializedRenderer: React.FC<{ data: AsyncDataUninitialized; message?: string }> = ({
   message,
 }) => (
   <NoteView title="Ei tietoja" className="nomargin">
@@ -68,9 +68,17 @@ const LoadingRenderer: React.FC<{ data: AsyncDataLoading }> = () => (
   </NoteView>
 );
 
-const ErrorRenderer: React.FC<{ data: AsyncDataError }> = ({ data }) => (
-  <ErrorView title="Virhe tietojen latauksessa">
-    <p>{data.error.message}</p>
-    {'data' in data.error ? <Pre>{JSON.stringify(data.error.data, null, 2)}</Pre> : undefined}
-  </ErrorView>
-);
+const ErrorRenderer: React.FC<{ data: AsyncDataError }> = ({ data }) => {
+  const error = data.error;
+  const message = error instanceof Error ? error.message : String(error);
+  const errorData =
+    error && typeof error === 'object' && 'data' in error
+      ? (error as { data: unknown }).data
+      : null;
+  return (
+    <ErrorView title="Virhe tietojen latauksessa">
+      <p>{message}</p>
+      {errorData ? <Pre>{JSON.stringify(errorData, null, 2)}</Pre> : undefined}
+    </ErrorView>
+  );
+};

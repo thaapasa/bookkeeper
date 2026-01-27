@@ -36,7 +36,7 @@ export interface AutoCompleteProps<T> {
   inputClassName?: string;
 }
 
-export const AutoComplete: React.FC<AutoCompleteProps<any>> = ({
+export const AutoComplete = <T,>({
   id,
   value,
   suggestions,
@@ -56,13 +56,15 @@ export const AutoComplete: React.FC<AutoCompleteProps<any>> = ({
   className,
   inputClassName,
   onAdd,
-}) => {
+}: AutoCompleteProps<T>): React.ReactElement => {
   const onChangeHandler = React.useCallback(
-    (_event: React.SyntheticEvent, value: string | null, reason: AutocompleteChangeReason) => {
+    (_event: React.SyntheticEvent, value: T | null, reason: AutocompleteChangeReason) => {
       switch (reason) {
         case 'selectOption':
-          logger.info(`Selected suggestion: %s`, value);
-          onSelectSuggestion(value);
+          if (value !== null) {
+            logger.info({ value }, 'Selected suggestion');
+            onSelectSuggestion(value);
+          }
           return;
       }
     },

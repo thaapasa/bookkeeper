@@ -22,7 +22,7 @@ export function useWindowSize(): Size {
     };
     window.addEventListener('resize', listener);
     return () => window.removeEventListener('resize', listener);
-  }, [setSize]);
+  }, []);
 
   return size;
 }

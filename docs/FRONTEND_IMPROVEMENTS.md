@@ -2,98 +2,9 @@
 
 This document captures suggestions for improving the frontend codebase, identified during a code review on January 2026.
 
-## High Priority
-
-### 1. Missing Error Handling in `saveExpense`
-
-**Location**: `src/client/ui/expense/dialog/ExpenseDialog.tsx` lines 314-346
-
-**Problem**: The `try` block has no `catch` clause; errors are silently swallowed.
-
-**Solution**:
-
-```typescript
-try {
-  const r = await (this.props.saveAction ?? defaultExpenseSaveAction)(data, this.props.original);
-  // ... success handling
-} catch (error) {
-  logger.error(error, 'Failed to save expense');
-  notifyError('Kirjauksen tallennus epäonnistui', error);
-} finally {
-  this.saveLock.push(false);
-}
-```
-
----
-
-### 2. Generic Components Losing Type Safety
-
-**Locations**:
-- `src/client/ui/component/ActionButton.tsx` line 11
-- `src/client/ui/component/AutoComplete.tsx` line 39
-
-**Problem**: Components declared with `React.FC<Props<any>>` defeat generic type inference.
-
-```typescript
-// Current (loses type safety)
-export const ActionButton: React.FC<ActionButtonProps<any>> = <T,>({ ... }) => { ... };
-```
-
-**Solution**:
-
-```typescript
-export const ActionButton = <T,>({
-  onClick,
-  children,
-  ...props
-}: ActionButtonProps<T>): React.ReactElement => {
-  // ...
-};
-```
-
----
-
 ## Medium Priority
 
-### 3. Unsafe Type Assertion in `Login.ts`
-
-**Location**: `src/client/data/Login.ts` line 13
-
-**Problem**: Using `as any` to silence TypeScript.
-
-```typescript
-export const validSessionE: B.EventStream<Session> = sessionP.filter(s => s !== null) as any;
-```
-
-**Solution**:
-
-```typescript
-export const validSessionE: B.EventStream<Session> = sessionP
-  .filter((s): s is Session => s !== null)
-  .map(s => s);
-```
-
----
-
-### 4. `any` Types in Error Handling
-
-**Locations**:
-- `src/client/data/AsyncData.ts` line 17: `error: any`
-- `src/client/data/StateTypes.ts` line 8: `cause?: any`
-- `src/client/data/State.ts` line 20: `cause: any`
-
-**Solution**: Replace `any` with `unknown`:
-
-```typescript
-export interface AsyncDataError {
-  type: 'error';
-  error: unknown;
-}
-```
-
----
-
-### 5. `any` Types in Hooks
+### 1. `any` Types in Hooks
 
 **Locations**:
 - `src/client/ui/hooks/useList.tsx` line 8
@@ -111,24 +22,7 @@ export function useOnUnmount(f: () => void, deps?: DependencyList): void {
 
 ---
 
-### 6. Swallowed Error in `useLocalStorage`
-
-**Location**: `src/client/ui/hooks/useLocalStorage.ts` lines 45-46
-
-**Problem**: Empty catch block silently swallows errors.
-
-**Solution**:
-
-```typescript
-} catch (error) {
-  logger.warn({ error, key }, 'Failed to read from localStorage, using default');
-  return defaultValue;
-}
-```
-
----
-
-### 7. Missing ResizeObserver in `useElementSize`
+### 2. Missing ResizeObserver in `useElementSize`
 
 **Location**: `src/client/ui/hooks/useElementSize.ts` lines 27-34
 
@@ -138,7 +32,7 @@ export function useOnUnmount(f: () => void, deps?: DependencyList): void {
 
 ---
 
-### 8. Non-Reactive `useQueryParams`
+### 3. Non-Reactive `useQueryParams`
 
 **Location**: `src/client/ui/hooks/useQueryParams.ts` lines 3-13
 
@@ -148,7 +42,7 @@ export function useOnUnmount(f: () => void, deps?: DependencyList): void {
 
 ---
 
-### 9. Accessibility Issues
+### 4. Accessibility Issues
 
 **Locations**:
 - `src/client/ui/component/ActivatableTextField.tsx` lines 86-89: Missing keyboard support
@@ -158,7 +52,7 @@ export function useOnUnmount(f: () => void, deps?: DependencyList): void {
 
 ---
 
-### 10. Deprecated `keyCode` API
+### 5. Deprecated `keyCode` API
 
 **Locations**:
 - `src/client/ui/component/DateRangeNavigator.tsx` lines 33-41
@@ -178,7 +72,7 @@ if (event.key === 'Enter') { ... }
 
 ---
 
-### 11. `window.prompt` Usage
+### 6. `window.prompt` Usage
 
 **Location**: `src/client/ui/expense/dialog/ExpenseDialogComponents.tsx` lines 25-31
 
@@ -188,7 +82,7 @@ if (event.key === 'Enter') { ... }
 
 ---
 
-### 12. Class Component Could Be Functional
+### 7. Class Component Could Be Functional
 
 **Location**: `src/client/ui/component/NotificationBar.tsx` lines 34-89
 
@@ -198,7 +92,7 @@ if (event.key === 'Enter') { ... }
 
 ## Low Priority
 
-### 13. Wrong File Extensions
+### 8. Wrong File Extensions
 
 **Locations**: Multiple hook files use `.tsx` extension without JSX:
 - `useForceReload.tsx`, `useList.tsx`, `useObjectMemo.tsx`, `useOnUnmount.tsx`, `usePersistentMemo.tsx`, `useWhenMounted.tsx`
@@ -207,15 +101,7 @@ if (event.key === 'Enter') { ... }
 
 ---
 
-### 14. Typo in Component Name
-
-**Location**: `src/client/ui/component/AsyncDataView.tsx` line 57
-
-**Problem**: `UnitializedRenderer` should be `UninitializedRenderer`.
-
----
-
-### 15. Redundant Code in `ExpenseRow`
+### 9. Redundant Code in `ExpenseRow`
 
 **Location**: `src/client/ui/expense/row/ExpenseRow.tsx` lines 193-204
 
@@ -223,15 +109,7 @@ if (event.key === 'Enter') { ... }
 
 ---
 
-### 16. Unnecessary Dependencies in useEffect
-
-**Locations**: Multiple hooks include `setX` (useState setters) in dependency arrays.
-
-**Note**: While not incorrect, it adds noise since setters are guaranteed stable.
-
----
-
-### 17. Duplicate Constants
+### 10. Duplicate Constants
 
 **Locations**:
 - `src/client/ui/expense/dialog/ExpenseDialog.tsx` line 63
@@ -243,7 +121,7 @@ if (event.key === 'Enter') { ... }
 
 ---
 
-### 18. Token Logged to Console
+### 11. Token Logged to Console
 
 **Location**: `src/client/data/Login.ts` line 46
 
@@ -265,11 +143,10 @@ logger.info('Not logged in but refresh token exists in localStorage');
 
 ## Implementation Order Recommendation
 
-1. **Error handling** (1) - Users need feedback
-2. **Type safety** (2-5) - Gradual improvement
-3. **Accessibility** (9) - Important for inclusivity
-4. **Deprecated APIs** (10) - Prevent future breakage
-5. **Other items** - As time permits
+1. **Type safety** (1) - Replace `any` with proper types
+2. **Accessibility** (4) - Important for inclusivity
+3. **Deprecated APIs** (5) - Prevent future breakage
+4. **Other items** - As time permits
 
 ---
 

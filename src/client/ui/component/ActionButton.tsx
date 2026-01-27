@@ -8,11 +8,11 @@ type ActionButtonProps<T> = Omit<React.PropsWithChildren<ButtonProps>, 'onClick'
   onClick: () => MaybePromise<T>;
 };
 
-export const ActionButton: React.FC<ActionButtonProps<any>> = <T,>({
+export const ActionButton = <T,>({
   onClick,
   children,
   ...props
-}: ActionButtonProps<T>) => {
+}: ActionButtonProps<T>): React.ReactElement => {
   const [data, setData] = React.useState<AsyncData<T>>({
     type: 'uninitialized',
   });

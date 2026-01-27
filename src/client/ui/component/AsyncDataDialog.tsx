@@ -31,15 +31,23 @@ const LoadingRenderer: React.FC<{ data: AsyncDataLoading }> = () => (
   </DialogContent>
 );
 
-const ErrorRenderer: React.FC<{ data: AsyncDataError }> = ({ data }) => (
-  <DialogContent>
-    <DialogTitle color="primary">Virhe tietojen latauksessa</DialogTitle>
+const ErrorRenderer: React.FC<{ data: AsyncDataError }> = ({ data }) => {
+  const error = data.error;
+  const message = error instanceof Error ? error.message : String(error);
+  const errorData =
+    error && typeof error === 'object' && 'data' in error
+      ? (error as { data: unknown }).data
+      : null;
+  return (
     <DialogContent>
-      <p>{data.error.message}</p>
-      {'data' in data.error ? <Pre>{JSON.stringify(data.error.data, null, 2)}</Pre> : undefined}
+      <DialogTitle color="primary">Virhe tietojen latauksessa</DialogTitle>
+      <DialogContent>
+        <p>{message}</p>
+        {errorData ? <Pre>{JSON.stringify(errorData, null, 2)}</Pre> : undefined}
+      </DialogContent>
     </DialogContent>
-  </DialogContent>
-);
+  );
+};
 
 const LoaderArea = styled('div')`
   display: flex;

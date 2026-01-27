@@ -42,7 +42,8 @@ function readStored<T>(key: string, defaultValue: T, codec?: z.ZodType<T>, init?
       return init ? init(p) : p;
     }
     return init ? init(json) : json;
-  } catch {
+  } catch (error) {
+    logger.warn({ error, key }, 'Failed to read from localStorage, using default');
     return defaultValue;
   }
 }

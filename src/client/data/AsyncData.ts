@@ -13,7 +13,7 @@ export interface AsyncDataLoaded<T> {
 
 export interface AsyncDataError {
   type: 'error';
-  error: any;
+  error: unknown;
 }
 
 export type AsyncData<T> =

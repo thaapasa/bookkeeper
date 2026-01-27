@@ -5,7 +5,7 @@ import { ExpenseSaveAction } from 'client/ui/expense/dialog/ExpenseSaveAction';
 
 export interface Notification {
   message: string;
-  cause?: any;
+  cause?: unknown;
   severity?: AlertColor;
   immediate?: boolean;
 }

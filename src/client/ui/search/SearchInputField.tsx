@@ -79,6 +79,6 @@ function getCategorySuggestions(
   return categorySource.filter(filter).map(c => ({ type: 'category', id: c.value, name: c.text }));
 }
 
-const StyledComplete = styled(AutoComplete)`
+const StyledComplete = styled(AutoComplete<SearchSuggestion>)`
   margin-top: 6px;
 `;

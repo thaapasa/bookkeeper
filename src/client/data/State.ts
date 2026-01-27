@@ -17,7 +17,7 @@ export function notify(message: string, params?: Partial<Notification>): void {
   notificationBus.push({ message, ...params });
 }
 
-export function notifyError(message: string, cause: any, params?: Partial<Notification>) {
+export function notifyError(message: string, cause: unknown, params?: Partial<Notification>) {
   notificationBus.push({ message, cause, severity: 'warning', ...params });
 }
 

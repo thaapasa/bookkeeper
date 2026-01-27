@@ -31,6 +31,7 @@ import {
   valuesToArray,
 } from 'shared/util';
 import { CategoryDataSource, isSubcategoryOf } from 'client/data/Categories';
+import { notifyError } from 'client/data/State';
 import { logger } from 'client/Logger';
 import { gray } from 'client/ui/Colors';
 import UserAvatar from 'client/ui/component/UserAvatar';
@@ -340,6 +341,9 @@ export class ExpenseDialog extends React.Component<
         // Notify that expenses have updated: this may cause another navigation to happen
         this.props.onExpensesUpdated(toDateTime(expense.date));
       }
+    } catch (error) {
+      logger.error(error, 'Failed to save expense');
+      notifyError('Kirjauksen tallennus epäonnistui', error);
     } finally {
       this.saveLock.push(false);
     }

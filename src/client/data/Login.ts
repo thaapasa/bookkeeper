@@ -10,7 +10,9 @@ const loginBus = new B.Bus<Session | null>();
 const sessionBus = new B.Bus<Session | null>();
 
 export const sessionP = sessionBus.toProperty(null);
-export const validSessionE: B.EventStream<Session> = sessionP.filter(s => s !== null) as any;
+export const validSessionE: B.EventStream<Session> = sessionP
+  .changes()
+  .filter((s): s is Session => s !== null);
 export const userMapE: B.EventStream<Record<string, User>> = validSessionE.map(s =>
   toMap(s.users, 'id'),
 );

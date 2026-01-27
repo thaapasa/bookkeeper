@@ -368,6 +368,22 @@ logger.error(error, 'Operation failed');
 - Utilities: camelCase (e.g., `ClientUtil.ts`)
 - Constants/Types: PascalCase (e.g., `Colors.ts`, `Types.ts`)
 
+## Type Checking
+
+After making changes to frontend code, always verify there are no TypeScript errors by running:
+
+```bash
+bun lint-tsc
+```
+
+This runs `tsc --noEmit` to check for type errors without emitting output. Fix any errors before committing.
+
+Common type issues to watch for:
+- Using `any` instead of proper types (prefer `unknown` for error handling)
+- Generic components losing type safety when using `React.FC<Props<any>>`
+- Bacon.js Property vs EventStream type mismatches
+- Handling `unknown` error types (use `instanceof Error` checks)
+
 ## Adding New Features
 
 1. Create component files in the appropriate `ui/` subdirectory
@@ -375,3 +391,4 @@ logger.error(error, 'Operation failed');
 3. Add API methods to `client/data/ApiConnect.ts` if needed
 4. Create custom hooks in `ui/hooks/` for reusable logic
 5. Export components appropriately (named exports preferred)
+6. Run `bun lint-tsc` to verify no type errors were introduced
