@@ -2,7 +2,6 @@ import express from 'express';
 
 import { config } from 'server/Config';
 import { logger } from 'server/Logger';
-import { fixDbTraceLeak } from 'server/logging/TraceIdFix';
 
 const logUserErrors = false;
 
@@ -29,9 +28,6 @@ export function processError(err: any, req: express.Request, res: express.Respon
     code: err.code ? err.code : 'INTERNAL_ERROR',
   };
   res.status(status).json(data);
-
-  // This call is here to reset the trace id leaking to the global state
-  void fixDbTraceLeak();
 }
 
 interface ErrorInfo {

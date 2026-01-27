@@ -7,8 +7,6 @@ import { config } from 'server/Config';
 
 export const traceIdStorage = new AsyncLocalStorage();
 
-export const INIT_TRACEID = 'INIT-TRACE';
-
 interface TraceState {
   startTime: number;
   traceId: string;
@@ -16,8 +14,7 @@ interface TraceState {
 
 export function getCurrentTraceState() {
   const s = traceIdStorage.getStore() as TraceState | undefined;
-  // Check for magic value (see `fixDbTraceLeak()` in `TraceIdFix.ts`)
-  return s && s.traceId && s.traceId !== INIT_TRACEID ? s : undefined;
+  return s && s.traceId ? s : undefined;
 }
 
 export async function initTraceContext<T>(func: () => T | Promise<T>): Promise<T> {

@@ -166,22 +166,6 @@ export function undefinedToError<E extends BkError>(
 
 ---
 
-## Tech Debt
-
-### 9. Bun AsyncLocalStorage Bug Workaround
-
-**Location**: `src/server/logging/TraceIdFix.ts`
-
-**Problem**: The `fixDbTraceLeak()` function is a hack to work around a Bun bug with AsyncLocalStorage leaking state on transaction rollback.
-
-**Action**: 
-- Track this as tech debt
-- Add a link to a Bun GitHub issue in the comment
-- Remove when Bun fixes the issue
-- Periodically check if the bug has been fixed in newer Bun versions
-
----
-
 ## Implementation Order Recommendation
 
 1. **Remove dead code** - Quick cleanup
