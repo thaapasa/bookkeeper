@@ -21,10 +21,10 @@ export const config = {
 
   host: hostname(),
   port: port ? parseInt(port, 10) : 3100,
-  refreshTokenTimeout: process.env.REFRESH_TOKEN_TIMEOUT || '2 weeks',
+  refreshTokenTimeout: process.env.REFRESH_TOKEN_TIMEOUT || '1 month',
   logLevel: process.env.LOG_LEVEL || 'info',
   showErrorCause: process.env.SHOW_ERROR_CAUSE === 'true',
-  sessionTimeout: process.env.SESSION_TIMEOUT || '20 minutes',
+  sessionTimeout: process.env.SESSION_TIMEOUT || '30 minutes',
   dbUrl: process.env.DB_URL || 'postgresql://postgres:postgres@localhost/postgres',
   dbSSL: process.env.DB_SSL === 'true',
   webhookUrl: process.env.SLACK_WEBHOOK_URL as string | undefined,

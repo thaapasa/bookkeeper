@@ -187,12 +187,6 @@ export async function getSessionByToken(
     throw new AuthenticationError('INVALID_TOKEN', 'Access token is invalid', token);
   }
   const shortcuts = await getShortcutsForUser(tx, groupId ?? userData.defaultGroupId, userData.id);
-  await tx.none(
-    `UPDATE sessions
-        SET expiry_time=NOW() + $/sessionTimeout/::INTERVAL
-        WHERE token=$/token/`,
-    { token, sessionTimeout: config.sessionTimeout },
-  );
   return createSessionInfo(
     [userData.token, userData.refreshToken],
     userData,
