@@ -9,11 +9,22 @@ export function useAsyncData<T, P extends any[]>(
 ): AsyncData<T> {
   const [data, setData] = React.useState<AsyncData<T>>(UninitializedData);
   React.useEffect(() => {
-    if (valid) {
-      dataSource(...params)
-        .then(value => setData({ type: 'loaded', value }))
-        .catch(error => setData({ type: 'error', error }));
-    }
+    if (!valid) return;
+
+    let cancelled = false;
+    setData({ type: 'loading' });
+
+    dataSource(...params)
+      .then(value => {
+        if (!cancelled) setData({ type: 'loaded', value });
+      })
+      .catch(error => {
+        if (!cancelled) setData({ type: 'error', error });
+      });
+
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [valid, dataSource, ...params]);
   return data;
@@ -25,15 +36,36 @@ export function useDeferredData<T, P extends any[]>(
   ...params: P
 ) {
   const [data, setData] = React.useState<AsyncData<T>>(UninitializedData);
+  const cancelRef = React.useRef<(() => void) | undefined>(undefined);
+
   const loadData = React.useCallback(() => {
-    if (valid) {
-      setData({ type: 'loading' });
-      dataSource(...params)
-        .then(value => setData({ type: 'loaded', value }))
-        .catch(error => setData({ type: 'error', error }));
-    }
+    if (!valid) return;
+
+    // Cancel any previous in-flight request
+    cancelRef.current?.();
+
+    let cancelled = false;
+    cancelRef.current = () => {
+      cancelled = true;
+    };
+
+    setData({ type: 'loading' });
+    dataSource(...params)
+      .then(value => {
+        if (!cancelled) setData({ type: 'loaded', value });
+      })
+      .catch(error => {
+        if (!cancelled) setData({ type: 'error', error });
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [valid, dataSource, setData, ...params]);
+  }, [valid, dataSource, ...params]);
+
+  // Cleanup on unmount
+  React.useEffect(() => {
+    return () => {
+      cancelRef.current?.();
+    };
+  }, []);
 
   return {
     data,

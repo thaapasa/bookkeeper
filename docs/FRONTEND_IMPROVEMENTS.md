@@ -4,96 +4,7 @@ This document captures suggestions for improving the frontend codebase, identifi
 
 ## High Priority
 
-### 1. Memory Leak in `useAsyncData`
-
-**Location**: `src/client/ui/hooks/useAsyncData.ts` lines 11-16
-
-**Problem**: No cancellation mechanism for in-flight requests when component unmounts or dependencies change.
-
-**Solution**:
-
-```typescript
-React.useEffect(() => {
-  if (!valid) return;
-  
-  let cancelled = false;
-  setData({ type: 'loading' });
-  
-  dataSource(...params)
-    .then(value => {
-      if (!cancelled) setData({ type: 'loaded', value });
-    })
-    .catch(error => {
-      if (!cancelled) setData({ type: 'error', error });
-    });
-  
-  return () => {
-    cancelled = true;
-  };
-}, [valid, dataSource, ...params]);
-```
-
----
-
-### 2. Missing Cleanup in Bacon.js Subscriptions
-
-**Locations**:
-- `src/client/ui/component/DialogConnector.tsx` line 12
-- `src/client/ui/component/BaconConnect.tsx` line 21
-
-**Problem**: `bus.onValue()` returns an unsubscribe function that isn't being called on cleanup.
-
-```typescript
-// Current (leaks subscription)
-React.useEffect(() => bus.onValue(setState), []);
-```
-
-**Solution**:
-
-```typescript
-React.useEffect(() => {
-  const unsubscribe = bus.onValue(setState);
-  return unsubscribe;
-}, [bus]);
-```
-
----
-
-### 3. Object Mutation in `mapExpense`
-
-**Location**: `src/client/data/ApiConnect.ts` lines 51-60
-
-**Problem**: Mutates input objects directly, violating immutability principles.
-
-```typescript
-// Current (mutates input)
-function mapExpense<T extends UserExpense>(e: T): T {
-  e.userBenefit = Money.from(e.userBenefit, 0);
-  // ... more mutations
-  return e;
-}
-```
-
-**Solution**:
-
-```typescript
-function mapExpense<T extends UserExpense>(e: T): T {
-  return {
-    ...e,
-    userBenefit: Money.from(e.userBenefit, 0),
-    userCost: Money.from(e.userCost, 0),
-    userBalance: Money.from(e.userBalance, 0),
-    userIncome: Money.from(e.userIncome, 0),
-    userSplit: Money.from(e.userSplit, 0),
-    userTransferor: Money.from(e.userTransferor, 0),
-    userTransferee: Money.from(e.userTransferee, 0),
-  };
-}
-```
-
----
-
-### 4. Missing Error Handling in `saveExpense`
+### 1. Missing Error Handling in `saveExpense`
 
 **Location**: `src/client/ui/expense/dialog/ExpenseDialog.tsx` lines 314-346
 
@@ -115,7 +26,7 @@ try {
 
 ---
 
-### 5. Generic Components Losing Type Safety
+### 2. Generic Components Losing Type Safety
 
 **Locations**:
 - `src/client/ui/component/ActionButton.tsx` line 11
@@ -144,7 +55,7 @@ export const ActionButton = <T,>({
 
 ## Medium Priority
 
-### 6. Unsafe Type Assertion in `Login.ts`
+### 3. Unsafe Type Assertion in `Login.ts`
 
 **Location**: `src/client/data/Login.ts` line 13
 
@@ -164,7 +75,7 @@ export const validSessionE: B.EventStream<Session> = sessionP
 
 ---
 
-### 7. `any` Types in Error Handling
+### 4. `any` Types in Error Handling
 
 **Locations**:
 - `src/client/data/AsyncData.ts` line 17: `error: any`
@@ -182,7 +93,7 @@ export interface AsyncDataError {
 
 ---
 
-### 8. `any` Types in Hooks
+### 5. `any` Types in Hooks
 
 **Locations**:
 - `src/client/ui/hooks/useList.tsx` line 8
@@ -200,7 +111,7 @@ export function useOnUnmount(f: () => void, deps?: DependencyList): void {
 
 ---
 
-### 9. Swallowed Error in `useLocalStorage`
+### 6. Swallowed Error in `useLocalStorage`
 
 **Location**: `src/client/ui/hooks/useLocalStorage.ts` lines 45-46
 
@@ -217,7 +128,7 @@ export function useOnUnmount(f: () => void, deps?: DependencyList): void {
 
 ---
 
-### 10. Missing ResizeObserver in `useElementSize`
+### 7. Missing ResizeObserver in `useElementSize`
 
 **Location**: `src/client/ui/hooks/useElementSize.ts` lines 27-34
 
@@ -227,7 +138,7 @@ export function useOnUnmount(f: () => void, deps?: DependencyList): void {
 
 ---
 
-### 11. Non-Reactive `useQueryParams`
+### 8. Non-Reactive `useQueryParams`
 
 **Location**: `src/client/ui/hooks/useQueryParams.ts` lines 3-13
 
@@ -237,7 +148,7 @@ export function useOnUnmount(f: () => void, deps?: DependencyList): void {
 
 ---
 
-### 12. Accessibility Issues
+### 9. Accessibility Issues
 
 **Locations**:
 - `src/client/ui/component/ActivatableTextField.tsx` lines 86-89: Missing keyboard support
@@ -247,7 +158,7 @@ export function useOnUnmount(f: () => void, deps?: DependencyList): void {
 
 ---
 
-### 13. Deprecated `keyCode` API
+### 10. Deprecated `keyCode` API
 
 **Locations**:
 - `src/client/ui/component/DateRangeNavigator.tsx` lines 33-41
@@ -267,7 +178,7 @@ if (event.key === 'Enter') { ... }
 
 ---
 
-### 14. `window.prompt` Usage
+### 11. `window.prompt` Usage
 
 **Location**: `src/client/ui/expense/dialog/ExpenseDialogComponents.tsx` lines 25-31
 
@@ -277,7 +188,7 @@ if (event.key === 'Enter') { ... }
 
 ---
 
-### 15. Class Component Could Be Functional
+### 12. Class Component Could Be Functional
 
 **Location**: `src/client/ui/component/NotificationBar.tsx` lines 34-89
 
@@ -287,7 +198,7 @@ if (event.key === 'Enter') { ... }
 
 ## Low Priority
 
-### 16. Wrong File Extensions
+### 13. Wrong File Extensions
 
 **Locations**: Multiple hook files use `.tsx` extension without JSX:
 - `useForceReload.tsx`, `useList.tsx`, `useObjectMemo.tsx`, `useOnUnmount.tsx`, `usePersistentMemo.tsx`, `useWhenMounted.tsx`
@@ -296,7 +207,7 @@ if (event.key === 'Enter') { ... }
 
 ---
 
-### 17. Typo in Component Name
+### 14. Typo in Component Name
 
 **Location**: `src/client/ui/component/AsyncDataView.tsx` line 57
 
@@ -304,7 +215,7 @@ if (event.key === 'Enter') { ... }
 
 ---
 
-### 18. Redundant Code in `ExpenseRow`
+### 15. Redundant Code in `ExpenseRow`
 
 **Location**: `src/client/ui/expense/row/ExpenseRow.tsx` lines 193-204
 
@@ -312,7 +223,7 @@ if (event.key === 'Enter') { ... }
 
 ---
 
-### 19. Unnecessary Dependencies in useEffect
+### 16. Unnecessary Dependencies in useEffect
 
 **Locations**: Multiple hooks include `setX` (useState setters) in dependency arrays.
 
@@ -320,7 +231,7 @@ if (event.key === 'Enter') { ... }
 
 ---
 
-### 20. Duplicate Constants
+### 17. Duplicate Constants
 
 **Locations**:
 - `src/client/ui/expense/dialog/ExpenseDialog.tsx` line 63
@@ -332,7 +243,7 @@ if (event.key === 'Enter') { ... }
 
 ---
 
-### 21. Token Logged to Console
+### 18. Token Logged to Console
 
 **Location**: `src/client/data/Login.ts` line 46
 
@@ -354,13 +265,11 @@ logger.info('Not logged in but refresh token exists in localStorage');
 
 ## Implementation Order Recommendation
 
-1. **Memory leaks** (1-2) - Prevent React warnings and leaks
-2. **Object mutation** (3) - Prevent subtle bugs
-3. **Error handling** (4) - Users need feedback
-4. **Type safety** (5-8) - Gradual improvement
-5. **Accessibility** (12) - Important for inclusivity
-6. **Deprecated APIs** (13) - Prevent future breakage
-7. **Other items** - As time permits
+1. **Error handling** (1) - Users need feedback
+2. **Type safety** (2-5) - Gradual improvement
+3. **Accessibility** (9) - Important for inclusivity
+4. **Deprecated APIs** (10) - Prevent future breakage
+5. **Other items** - As time permits
 
 ---
 

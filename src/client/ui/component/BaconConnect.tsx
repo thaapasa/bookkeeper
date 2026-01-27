@@ -16,7 +16,7 @@ export function connect<BaconProps, NeedsProps>(
       React.PropsWithChildren<Omit<P, keyof BaconProps> & NeedsProps>
     > = ({ children, ...props }) => {
       const [state, setState] = React.useState<{ data: BaconProps } | undefined>();
-      React.useEffect(() => source.onValue(data => setState({ data })), [setState]);
+      React.useEffect(() => source.onValue(data => setState({ data })), []);
 
       const Component = component as any;
       return state ? (

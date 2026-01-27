@@ -49,14 +49,16 @@ import { checkLoginState } from './Login';
 const client = new FetchClient(fetch.bind(window), '', logger);
 
 function mapExpense<T extends UserExpense | UserExpenseWithDetails>(e: T): T {
-  e.userBenefit = Money.from(e.userBenefit, 0);
-  e.userCost = Money.from(e.userCost, 0);
-  e.userBalance = Money.from(e.userBalance, 0);
-  e.userIncome = Money.from(e.userIncome, 0);
-  e.userSplit = Money.from(e.userSplit, 0);
-  e.userTransferor = Money.from(e.userTransferor, 0);
-  e.userTransferee = Money.from(e.userTransferee, 0);
-  return e;
+  return {
+    ...e,
+    userBenefit: Money.from(e.userBenefit, 0),
+    userCost: Money.from(e.userCost, 0),
+    userBalance: Money.from(e.userBalance, 0),
+    userIncome: Money.from(e.userIncome, 0),
+    userSplit: Money.from(e.userSplit, 0),
+    userTransferor: Money.from(e.userTransferor, 0),
+    userTransferee: Money.from(e.userTransferee, 0),
+  };
 }
 
 function mapStatus(s: ExpenseStatus): ExpenseStatus {
