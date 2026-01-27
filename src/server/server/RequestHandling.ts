@@ -62,10 +62,16 @@ function processTxRequest<T>(
   ) => MaybePromise<T>,
   groupRequired?: boolean,
 ): RequestHandler {
-  return processRequest(
-    (session, req, res) => db.tx(tx => handler(tx, session, req, res)),
-    groupRequired,
-  );
+  return processUnauthorizedRequest(async (req, res) => {
+    const token = ServerUtil.getToken(req);
+    return await db.tx(async tx => {
+      const session = await getSessionByToken(tx, token, optNumber(req.query.groupId));
+      if (groupRequired && !session.group.id) {
+        throw new InvalidGroupError();
+      }
+      return await handler(tx, session, req, res);
+    });
+  });
 }
 
 type ValidatorSpec<R, P, Q, B> = {
@@ -112,7 +118,21 @@ function processValidatedTxRequest<Return, P, Q, B>(
   ) => MaybePromise<Return>,
   groupRequired?: boolean,
 ): RequestHandler {
-  return processValidatedRequest(spec, (...p) => db.tx(tx => handler(tx, ...p)), groupRequired);
+  return processUnauthorizedRequest(async (req, res) => {
+    const token = ServerUtil.getToken(req);
+    const ctx = `${req.method} ${req.originalUrl}`;
+    const params = validateOr(req.params, spec.params, {} as P, `${ctx} params`);
+    const body = validateOr(req.body, spec.body, {} as B, `${ctx} body`);
+    const query = validateOr(req.query, spec.query, {} as Q, `${ctx} query`);
+    return await db.tx(async tx => {
+      const session = await getSessionByToken(tx, token, optNumber(req.query.groupId));
+      if (groupRequired && !session.group.id) {
+        throw new InvalidGroupError();
+      }
+      const response = await handler(tx, session, { params, query, body }, req, res);
+      return validateOr(response, spec.response, response, `${ctx} return value`);
+    });
+  });
 }
 
 export const Requests = {

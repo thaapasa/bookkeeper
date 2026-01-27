@@ -4,21 +4,7 @@ This document captures suggestions for improving the backend codebase, identifie
 
 ## High Priority
 
-### 1. Double Transaction Wrapping (Performance Issue)
-
-**Location**: `src/server/server/RequestHandling.ts`
-
-**Problem**: Authenticated requests open two separate transactions per request:
-1. Line 48: Opens a transaction to fetch the session
-2. Line 66: Opens another transaction for the actual handler
-
-**Impact**: Every authenticated request with a transaction handler opens two DB transactions sequentially, adding unnecessary round-trip latency.
-
-**Solution**: Refactor to use a single transaction that both fetches the session and executes the handler. The `processTxRequest` function should pass its transaction to `getSessionByToken` instead of the session lookup creating its own.
-
----
-
-### 2. Missing Response Validation (Consistency Issue)
+### 1. Missing Response Validation (Consistency Issue)
 
 **Location**: Various API files in `src/server/api/`
 
@@ -37,7 +23,7 @@ api.postTx('/', { body: CategoryInput, response: ApiMessage }, ...);
 
 ---
 
-### 3. Dead Code in Category Operations
+### 2. Dead Code in Category Operations
 
 **Location**: `src/server/data/CategoryDb.ts`
 
@@ -60,7 +46,7 @@ const parent = await getCategoryById(tx, groupId, data.parentId);
 
 ## Medium Priority
 
-### 4. `ITask<any>` Loses Type Safety
+### 3. `ITask<any>` Loses Type Safety
 
 **Location**: All database files in `src/server/data/`
 
@@ -77,7 +63,7 @@ export async function getAllCategories(tx: DbTask, groupId: number): Promise<Cat
 
 ---
 
-### 5. Magic Boolean Fourth Parameter
+### 4. Magic Boolean Fourth Parameter
 
 **Location**: All API files using `createValidatingRouter`
 
@@ -95,7 +81,7 @@ This requires modifying `ValidatingRouter.ts`.
 
 ---
 
-### 6. Catch-All `ApiMessage` Type
+### 5. Catch-All `ApiMessage` Type
 
 **Location**: `src/shared/types/Api.ts`
 
@@ -130,7 +116,7 @@ export const DeleteCategoryResponse = ApiMessage.extend({
 
 ## Low Priority
 
-### 7. Manual Parameter Parsing in Legacy Endpoints
+### 6. Manual Parameter Parsing in Legacy Endpoints
 
 **Location**: `src/server/api/Api.ts` lines 59-72
 
@@ -147,7 +133,7 @@ Requests.txRequest(
 
 ---
 
-### 8. Hard-coded Parameter Type Map
+### 7. Hard-coded Parameter Type Map
 
 **Location**: `src/server/server/ValidatingRouter.ts` lines 22-32
 
@@ -157,7 +143,7 @@ Requests.txRequest(
 
 ---
 
-### 9. Loosely Typed Error Factory Functions
+### 8. Loosely Typed Error Factory Functions
 
 **Location**: `src/shared/types/Errors.ts` lines 4-22
 
@@ -182,7 +168,7 @@ export function undefinedToError<E extends BkError>(
 
 ## Tech Debt
 
-### 10. Bun AsyncLocalStorage Bug Workaround
+### 9. Bun AsyncLocalStorage Bug Workaround
 
 **Location**: `src/server/logging/TraceIdFix.ts`
 
@@ -198,12 +184,11 @@ export function undefinedToError<E extends BkError>(
 
 ## Implementation Order Recommendation
 
-1. **Double transaction wrapping** - Biggest performance win
-2. **Remove dead code** - Quick cleanup
-3. **Add response schemas** - Gradual, can do per-endpoint
-4. **Improve `ApiMessage` typing** - Can do alongside #3
-5. **Fix `ITask<any>`** - Search and replace
-6. **Other items** - As time permits
+1. **Remove dead code** - Quick cleanup
+2. **Add response schemas** - Gradual, can do per-endpoint
+3. **Improve `ApiMessage` typing** - Can do alongside #2
+4. **Fix `ITask<any>`** - Search and replace
+5. **Other items** - As time permits
 
 ---
 
