@@ -58,10 +58,23 @@ function redact(value: string | undefined): string | undefined {
   return value.substring(0, 4) + '***' + value.substring(value.length - 4);
 }
 
+function redactUrl(url: string | undefined): string | undefined {
+  if (!url) return url;
+  try {
+    const parsed = new URL(url);
+    if (parsed.password) {
+      parsed.password = '***';
+    }
+    return parsed.toString();
+  } catch {
+    return redact(url);
+  }
+}
+
 export function redactedConfig() {
   return {
     ...config,
-    dbUrl: redact(config.dbUrl),
+    dbUrl: redactUrl(config.dbUrl),
     webhookUrl: redact(config.webhookUrl),
     loki: {
       host: config.loki.host,
