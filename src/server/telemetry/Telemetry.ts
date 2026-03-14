@@ -14,14 +14,11 @@ import * as dotenv from 'dotenv';
 // Load env vars early so OTel config is available
 dotenv.config();
 
-import { OTLPLogExporter } from '@opentelemetry/exporter-logs-otlp-http';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { ExpressInstrumentation } from '@opentelemetry/instrumentation-express';
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
 import { PgInstrumentation } from '@opentelemetry/instrumentation-pg';
-import { PinoInstrumentation } from '@opentelemetry/instrumentation-pino';
 import { resourceFromAttributes } from '@opentelemetry/resources';
-import { BatchLogRecordProcessor } from '@opentelemetry/sdk-logs';
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import {
   ATTR_SERVICE_NAME,
@@ -44,12 +41,10 @@ export function initTelemetry(): void {
   sdk = new NodeSDK({
     resource,
     traceExporter: new OTLPTraceExporter(),
-    logRecordProcessors: [new BatchLogRecordProcessor(new OTLPLogExporter())],
     instrumentations: [
       new HttpInstrumentation(),
       new ExpressInstrumentation(),
       new PgInstrumentation(),
-      new PinoInstrumentation(),
     ],
   });
 

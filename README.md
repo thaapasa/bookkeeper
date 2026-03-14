@@ -79,6 +79,11 @@ OTEL_EXPORTER_OTLP_ENDPOINT=https://otlp-gateway-prod-eu-west-2.grafana.net/otlp
 OTEL_EXPORTER_OTLP_HEADERS=Authorization=Basic%20<base64>
 OTEL_SERVICE_NAME=bookkeeper
 OTEL_ENVIRONMENT=development
+
+# Log shipping to Grafana Loki (find these under your Grafana Cloud Loki data source settings)
+GRAFANA_LOKI_HOST=https://logs-prod-eu-west-2.grafana.net
+GRAFANA_LOKI_USERNAME=123456
+GRAFANA_LOKI_PASSWORD=glc_eyJ...
 ```
 
 When these are omitted, the server runs without any telemetry overhead.

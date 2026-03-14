@@ -43,4 +43,11 @@ export const config = {
     environment: process.env.OTEL_ENVIRONMENT || env,
     serviceName: process.env.OTEL_SERVICE_NAME || 'bookkeeper',
   },
+
+  // Grafana Loki log shipping (optional — logs only go to local target when not set)
+  loki: {
+    host: process.env.GRAFANA_LOKI_HOST as string | undefined,
+    username: process.env.GRAFANA_LOKI_USERNAME as string | undefined,
+    password: process.env.GRAFANA_LOKI_PASSWORD as string | undefined,
+  },
 };
