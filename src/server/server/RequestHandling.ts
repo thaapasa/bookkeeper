@@ -8,6 +8,7 @@ import { MaybePromise, optNumber } from 'shared/util';
 import { config } from 'server/Config';
 import { getSessionByToken } from 'server/data/SessionDb';
 import { logger } from 'server/Logger';
+import { setOtelRouteInfo } from 'server/telemetry/OtelRoute';
 
 import { db } from '../data/Db';
 import { ServerUtil } from './ServerUtil';
@@ -21,6 +22,7 @@ function processUnauthorizedRequest<T>(
         await timeout(config.delayRequestsMs);
       }
       logger.info(`${req.method} ${req.originalUrl}`);
+      setOtelRouteInfo(req);
       const r = await handler(req, res);
       const status = isDefined(r) ? 200 : 204;
       // Handler succeeded: output response
