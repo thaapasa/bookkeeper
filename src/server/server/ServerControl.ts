@@ -1,6 +1,6 @@
 import { Server } from 'http';
 
-import { config } from 'server/Config';
+import { config, redactedConfig } from 'server/Config';
 import { shutdownDb } from 'server/data/Db';
 import { logger } from 'server/Logger';
 import { logError } from 'server/notifications/ErrorLogger';
@@ -48,7 +48,7 @@ export async function startServer() {
     runningServer = app.listen(config.port, () => {
       process.on('SIGTERM', shutdownServer);
 
-      logger.info(config, `Server configuration`);
+      logger.info(redactedConfig(), `Server configuration`);
       void slackNotifier
         .sendMessage([
           {

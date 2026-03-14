@@ -51,3 +51,22 @@ export const config = {
     password: process.env.GRAFANA_LOKI_PASSWORD as string | undefined,
   },
 };
+
+function redact(value: string | undefined): string | undefined {
+  if (!value) return value;
+  if (value.length <= 8) return '***';
+  return value.substring(0, 4) + '***' + value.substring(value.length - 4);
+}
+
+export function redactedConfig() {
+  return {
+    ...config,
+    dbUrl: redact(config.dbUrl),
+    webhookUrl: redact(config.webhookUrl),
+    loki: {
+      host: config.loki.host,
+      username: config.loki.username,
+      password: redact(config.loki.password),
+    },
+  };
+}
