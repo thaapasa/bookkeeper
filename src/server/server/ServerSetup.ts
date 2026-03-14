@@ -5,6 +5,7 @@ import * as path from 'path';
 import { createApi } from 'server/api/Api';
 import { config } from 'server/Config';
 import { traceLogMiddleware } from 'server/logging/TraceIdProvider';
+import { setOtelRouteInfo } from 'server/telemetry/OtelRoute';
 
 export function setupServer() {
   const app = express();
@@ -17,11 +18,15 @@ export function setupServer() {
   app.use(nocache());
 
   // Serve assets for dev
-  app.get(/\/content\/.*/, (req, res, next) =>
-    serveFile(path.join(config.contentPath, req.path), res).catch(next),
-  );
+  app.get(/\/content\/.*/, (req, res, next) => {
+    setOtelRouteInfo(req, '/content/:path');
+    return serveFile(path.join(config.contentPath, req.path), res).catch(next);
+  });
   // Serve the index file when reloading page from a /p/xxx subpath
-  app.get(/\/p\/.*/, (_, res) => res.sendFile(path.join(config.curDir + '/public/index.html')));
+  app.get(/\/p\/.*/, (req, res) => {
+    setOtelRouteInfo(req, '/p/:path');
+    res.sendFile(path.join(config.curDir + '/public/index.html'));
+  });
 
   app.use(traceLogMiddleware());
   app.use('/api', createApi());
