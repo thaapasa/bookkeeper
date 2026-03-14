@@ -36,4 +36,11 @@ export const config = {
   fileUploadPath: path.join(curDir, process.env.UPLOAD_PATH || './uploads'),
   contentPath: path.join(curDir, process.env.CONTENT_PATH || './content'),
   useNodeFileAPI: process.env.USE_NODE_FILE_API === 'true',
+
+  // OpenTelemetry (optional — telemetry disabled when endpoint is not set)
+  otel: {
+    endpoint: process.env.OTEL_EXPORTER_OTLP_ENDPOINT as string | undefined,
+    environment: process.env.OTEL_ENVIRONMENT || env,
+    serviceName: process.env.OTEL_SERVICE_NAME || 'bookkeeper',
+  },
 };

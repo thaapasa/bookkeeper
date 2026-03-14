@@ -6,6 +6,7 @@ import { logger } from 'server/Logger';
 import { logError } from 'server/notifications/ErrorLogger';
 import { SlackFormatter } from 'server/notifications/SlackFormatter';
 import { slackNotifier } from 'server/notifications/SlackNotifier';
+import { shutdownTelemetry } from 'server/telemetry/Telemetry';
 
 import revision from '../revision.json';
 import { setupFileDirectories } from './FileHandling';
@@ -31,6 +32,8 @@ async function shutdownServer() {
 
   await closeRunningServer().catch(logError);
   logger.info('Server has shut down');
+  await shutdownTelemetry().catch(logError);
+  logger.info('Telemetry flushed');
   await shutdownDb().catch(logError);
   logger.info('DB connection closed');
 

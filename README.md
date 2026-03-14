@@ -69,6 +69,20 @@ DB_SSL=false
 DEBUG=bookkeeper*
 ```
 
+#### Monitoring (optional)
+
+To send traces and logs to [Grafana Cloud](https://grafana.com/products/cloud/),
+add the following to `.env` (values from the Grafana Cloud OTLP setup page):
+
+```ini
+OTEL_EXPORTER_OTLP_ENDPOINT=https://otlp-gateway-prod-eu-west-2.grafana.net/otlp
+OTEL_EXPORTER_OTLP_HEADERS=Authorization=Basic%20<base64>
+OTEL_SERVICE_NAME=bookkeeper
+OTEL_ENVIRONMENT=development
+```
+
+When these are omitted, the server runs without any telemetry overhead.
+
 Setup database schema by running `bun migrate`.
 Add example data by running `bun seed`.
 
