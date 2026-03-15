@@ -15,6 +15,7 @@ bun lint-tsc             # TypeScript type check only
 bun format               # Auto-fix lint/formatting issues
 bun migrate              # Run database migrations
 bun migrate-make <name>  # Create a new migration
+bun dump-schema          # Dump DB schema to docs/SCHEMA.sql
 ```
 
 ## Architecture
@@ -50,6 +51,8 @@ api.getTx(
 - DB functions go in `src/server/data/*Db.ts` or `*Service.ts`
 
 ### Backend: Database Operations
+
+The full database schema is documented in [`docs/SCHEMA.sql`](../docs/SCHEMA.sql). Refer to it for table structures, indexes, and constraints.
 
 All DB functions take `tx: ITask<any>` as first parameter. Use pg-promise parameterized queries:
 

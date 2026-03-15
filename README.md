@@ -47,6 +47,9 @@ Install deps with [bun](https://bun.sh/).
 
 ### Database
 
+The full database schema is documented in [`docs/SCHEMA.sql`](docs/SCHEMA.sql).
+You can regenerate it with `bun dump-schema`.
+
 If you want to use a docker DB, start postgres DB with `bun create-dev-db`.
 
 Note for Windows: if server gives error `role "Username" does not exist`, 
@@ -113,6 +116,7 @@ Start development build by running `bun ui`.
 - `migrate`: Run migrations (this is automatically run on dev-server startup)
 - `migrate-make migration-name`: Create a new migration file
 - `rollback`: Rollback latest migration
+- `dump-schema`: Dump current DB schema to `docs/SCHEMA.sql`
 
 ### Testing
 

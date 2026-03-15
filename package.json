@@ -26,6 +26,7 @@
     "ps-server": "ps -ef | grep BookkeeperServer | grep -v grep | awk '{ print $2; }'",
     "migrate": "knex migrate:latest",
     "migrate-make": "knex migrate:make",
+    "dump-schema": "pg_dump --schema-only --no-owner --no-privileges --no-comments $(grep '^DB_URL=' .env | cut -d= -f2-) | grep -v '^\\\\restrict\\|^\\\\unrestrict' > docs/SCHEMA.sql",
     "rollback": "knex migrate:rollback",
     "seed": "knex seed:run",
     "example-data": "bun run src/tools/addExampleData.ts",
