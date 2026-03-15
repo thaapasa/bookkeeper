@@ -14,6 +14,9 @@ if (logSql) {
 
 export const dbMain = pgp({
   query: logSql ? q => sqlLogger.info(q.query) : undefined,
+  // Disable JIT for all connections — on small databases JIT compilation
+  // overhead far exceeds any execution benefit
+  connect: c => c.client.query('SET jit = off'),
 });
 export const db = dbMain(config.dbUrl);
 
