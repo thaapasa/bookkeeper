@@ -1,7 +1,7 @@
 import { ITask } from 'pg-promise';
 
 import { BkError, InvalidInputError, ObjectId } from 'shared/types';
-import { PasswordUpdate, toUserData, UserDataUpdate } from 'shared/userData';
+import { PasswordUpdate, UserDataUpdate } from 'shared/userData';
 import { profileImageHandler } from 'server/content/ProfileImage';
 import { logger } from 'server/Logger';
 import { FileUploadResult, safeDeleteFile } from 'server/server/FileHandling';
@@ -30,7 +30,7 @@ export async function updateUserData(
       throw new BkError('EMAIL_IN_USE', 'Email is already in use', 400);
     }
   }
-  logger.info({ from: toUserData(user), to: userData }, `Updating user data for user ${userId}`);
+  logger.info({ userId }, 'Updating user data');
   await updateUserDataById(tx, userId, userData);
 }
 

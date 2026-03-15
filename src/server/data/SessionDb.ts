@@ -45,7 +45,7 @@ async function purgeExpiredSessions(tx: ITask<any>) {
 
 async function createSession(tx: ITask<any>, user: RawUserData): Promise<string[]> {
   const tokens = await Promise.all([createToken(), createToken()]);
-  logger.info(`User ${user.email} logged in with token ${tokens[0]}`);
+  logger.info({ userId: user.id }, 'User logged in');
   await tx.none(
     `INSERT INTO sessions (token, refresh_token, user_id, login_time, expiry_time)
       VALUES
@@ -110,7 +110,7 @@ export async function loginUserWithCredentials(
   password: string,
   groupId?: number,
 ): Promise<Session> {
-  logger.info('Login for %s', username);
+  logger.info('Login attempt for %s', username);
   const user = await getUserByCredentials(tx, username, password, groupId);
   if (!user) {
     throw new AuthenticationError('INVALID_CREDENTIALS', 'Invalid username or password');
@@ -132,7 +132,7 @@ async function getUserInfoByRefreshToken(
     { token, groupId },
   );
   if (!userData) {
-    throw new AuthenticationError('INVALID_TOKEN', 'Refresh token is invalid', token);
+    throw new AuthenticationError('INVALID_TOKEN', 'Refresh token is invalid');
   }
   await tx.none(`DELETE FROM sessions WHERE refresh_token=$/token/ OR token=$/token/`, { token });
   return userData;
@@ -143,7 +143,7 @@ export async function refreshSessionWithRefreshToken(
   refreshToken: string,
   groupId?: number,
 ): Promise<Session> {
-  logger.info('Refreshing session with %s', refreshToken);
+  logger.info('Refreshing session');
   const user = await getUserInfoByRefreshToken(tx, refreshToken, groupId);
   const tokens = await createSession(tx, user);
   const shortcuts = await getShortcutsForUser(tx, groupId ?? user.defaultGroupId, user.id);
@@ -155,7 +155,7 @@ export async function logoutSession(
   tx: ITask<any>,
   session: SessionBasicInfo,
 ): Promise<ApiMessage> {
-  logger.info('Logout for %s', session.token);
+  logger.info({ userId: session.user.id }, 'Logout');
   if (!session.token) {
     throw new AuthenticationError('INVALID_TOKEN', 'Session token is missing');
   }
@@ -184,7 +184,7 @@ export async function getSessionByToken(
     { token, groupId },
   );
   if (!userData) {
-    throw new AuthenticationError('INVALID_TOKEN', 'Access token is invalid', token);
+    throw new AuthenticationError('INVALID_TOKEN', 'Access token is invalid');
   }
   const shortcuts = await getShortcutsForUser(tx, groupId ?? userData.defaultGroupId, userData.id);
   return createSessionInfo(
