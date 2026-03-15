@@ -1,3 +1,4 @@
+import { trace } from '@opentelemetry/api';
 import { NextFunction, Request, Response } from 'express';
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { Logger } from 'pino';
@@ -12,15 +13,27 @@ interface TraceState {
   traceId: string;
 }
 
+function getOtelTraceId(): string | undefined {
+  try {
+    const span = trace.getActiveSpan?.();
+    const ctx = span?.spanContext?.();
+    if (ctx?.traceId && ctx.traceId !== '00000000000000000000000000000000') {
+      return ctx.traceId;
+    }
+  } catch {
+    // OTel not available
+  }
+  return undefined;
+}
+
 export function getCurrentTraceState() {
   const s = traceIdStorage.getStore() as TraceState | undefined;
   return s && s.traceId ? s : undefined;
 }
 
 export async function initTraceContext<T>(func: () => T | Promise<T>): Promise<T> {
-  // Initialize new local context
   const state: TraceState = {
-    traceId: nextRequestId(),
+    traceId: getOtelTraceId() || nextRequestId(),
     startTime: new Date().getTime(),
   };
   return await traceIdStorage.run(state, func);
