@@ -21,6 +21,43 @@ import { getCategoryById } from './CategoryDb';
 import { determineDivision } from './ExpenseDivision';
 import { getSourceById } from './SourceDb';
 
+/**
+ * Correlated subquery that computes the array of matching grouping IDs for an expense.
+ * Replaces the previous LEFT JOIN to expense_groupings which caused a cross-join.
+ */
+const AUTO_GROUPING_IDS_SUBQUERY = /*sql*/ `(
+  SELECT ARRAY_AGG(eg.id) FROM expense_groupings eg
+  WHERE eg.id = e.grouping_id
+  OR (
+    eg.group_id = e.group_id
+    AND eg.id IN (
+      SELECT egc.expense_grouping_id FROM expense_grouping_categories egc
+      WHERE egc.category_id IN (e.category_id, (SELECT parent_id FROM categories WHERE id = e.category_id))
+        AND (eg.start_date IS NULL OR eg.start_date <= e.date)
+        AND (eg.end_date IS NULL OR eg.end_date >= e.date)
+        AND (eg.only_own IS FALSE OR e.user_id = $/userId/)
+    )
+  )
+)`;
+
+/**
+ * EXISTS condition that checks if an expense matches a specific grouping,
+ * either by direct assignment or by auto-grouping via category.
+ */
+export const EXPENSE_MATCHES_GROUPING = /*sql*/ `(
+  e.grouping_id = $/groupingId/
+  OR (e.grouping_id IS NULL AND EXISTS (
+    SELECT 1 FROM expense_groupings eg
+    JOIN expense_grouping_categories egc ON egc.expense_grouping_id = eg.id
+    WHERE eg.id = $/groupingId/
+      AND eg.group_id = e.group_id
+      AND egc.category_id IN (e.category_id, (SELECT parent_id FROM categories WHERE id = e.category_id))
+      AND (eg.start_date IS NULL OR eg.start_date <= e.date)
+      AND (eg.end_date IS NULL OR eg.end_date >= e.date)
+      AND (eg.only_own IS FALSE OR e.user_id = $/userId/)
+  ))
+)`;
+
 export function expenseSelectClause(
   where: string,
   orderBy = 'ORDER BY date ASC, title ASC, id',
@@ -30,14 +67,15 @@ SELECT
   MIN(id) AS id, MIN(date) AS date, MIN(receiver) AS receiver, MIN(type) AS type, MIN(sum) AS sum,
   MIN(title) AS title, MIN(description) AS description, BOOL_AND(confirmed) AS confirmed, MIN(source_id) AS "sourceId",
   MIN(user_id) AS "userId", MIN(created_by_id) AS "createdById", MIN(breakdown.group_id) AS "groupId", MIN(category_id) AS "categoryId",
-  MIN(grouping_id) AS "groupingId", ARRAY_AGG(DISTINCT auto_grouping_id) AS "autoGroupingIds",
+  MIN(grouping_id) AS "groupingId", MIN(auto_grouping_ids) AS "autoGroupingIds",
   MIN(created) AS created, MIN(recurring_expense_id) AS "recurringExpenseId",
   SUM(cost) AS "userCost", SUM(benefit) AS "userBenefit", SUM(income) AS "userIncome", SUM(split) AS "userSplit",
   SUM(transferor) AS "userTransferor", SUM(transferee) AS "userTransferee",
   SUM(cost + benefit + income + split + transferor + transferee) AS "userValue"
 FROM (
   SELECT
-    e.id, e.date::DATE, e.receiver, e.type, e.sum, e.title, e.description, e.confirmed, e.grouping_id, eg.id AS "auto_grouping_id",
+    e.id, e.date::DATE, e.receiver, e.type, e.sum, e.title, e.description, e.confirmed, e.grouping_id,
+    ${AUTO_GROUPING_IDS_SUBQUERY} AS auto_grouping_ids,
     e.source_id, e.user_id, e.created_by_id, e.group_id, e.category_id, e.created, e.recurring_expense_id,
     (CASE WHEN d.type = 'cost' THEN d.sum ELSE '0.00'::NUMERIC END) AS cost,
     (CASE WHEN d.type = 'benefit' THEN d.sum ELSE '0.00'::NUMERIC END) AS benefit,
@@ -47,16 +85,6 @@ FROM (
     (CASE WHEN d.type = 'transferee' THEN d.sum ELSE '0.00'::NUMERIC END) AS transferee
   FROM expenses e
   LEFT JOIN expense_division d ON (d.expense_id = e.id AND d.user_id = $/userId/)
-  LEFT JOIN categories cat ON (cat.id = e.category_id)
-  LEFT JOIN expense_groupings eg ON ((eg.id = e.grouping_id) OR (
-    eg.group_id = e.group_id
-    AND eg.id IN (
-      SELECT expense_grouping_id FROM expense_grouping_categories egc WHERE egc.category_id IN (cat.id, cat.parent_id)
-        AND (eg.start_date IS NULL OR eg.start_date <= e.date)
-        AND (eg.end_date IS NULL OR eg.end_date >= e.date)
-        AND (eg.only_own IS FALSE or e.user_id=$/userId/)
-    ))
-  )
   ${where}
 ) breakdown
 GROUP BY id
