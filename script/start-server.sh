@@ -30,7 +30,7 @@ fi
 mkdir -p log
 
 echo "Starting server (port $PORT)"
-NODE_ENV=production nohup bun --preload ./src/server/telemetry/preload-telemetry.ts run build-server/BookkeeperServer.js >log/start-server.log &
+NODE_ENV=production nohup bun run build-server/BookkeeperServer.js >log/start-server.log &
 echo
 
 popd >/dev/null
