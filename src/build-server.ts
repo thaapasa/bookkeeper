@@ -7,7 +7,21 @@ async function bundle() {
     outdir: './build-server',
     target: 'bun',
     sourcemap: 'external',
-    external: ['sharp'],
+    external: [
+      'sharp',
+      // OTel + pg must remain as runtime require() calls so that
+      // auto-instrumentation can monkey-patch pg for SQL spans
+      'pg',
+      'pg-promise',
+      '@opentelemetry/api',
+      '@opentelemetry/sdk-node',
+      '@opentelemetry/exporter-trace-otlp-http',
+      '@opentelemetry/instrumentation-express',
+      '@opentelemetry/instrumentation-http',
+      '@opentelemetry/instrumentation-pg',
+      '@opentelemetry/resources',
+      '@opentelemetry/semantic-conventions',
+    ],
   });
 
   for (const output of build.outputs) {
