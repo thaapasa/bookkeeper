@@ -16,48 +16,54 @@ if (logSql) {
 const tracer = trace.getTracer('bookkeeper-db');
 
 /**
- * Map from pg-promise event context to the OTel span for that query.
- * Entries are added in the `query` event and removed in `receive`/`error`.
+ * Map from pg Client instance to the OTel span for the in-flight query.
+ *
+ * pg-promise's getContext() creates a new wrapper object for each event
+ * (query, receive, error), so we can't use it as a WeakMap key. However,
+ * the `client` field points to the same pg Client instance across events
+ * for a given query. Within a task/transaction queries are sequential on
+ * one connection; outside a task each query gets its own pooled connection.
+ * So `client` uniquely identifies the in-flight query.
  */
-const activeSpans = new WeakMap<IEventContext, Span>();
+const activeSpans = new WeakMap<object, Span>();
 
 function onQuery(e: IEventContext) {
+  const queryText = typeof e.query === 'string' ? e.query : e.query?.text;
+
   if (logSql) {
-    sqlLogger.info(e.query);
+    sqlLogger.info(queryText);
   }
 
-  const parentSpan = trace.getActiveSpan();
-  if (!parentSpan) {
+  if (!trace.getActiveSpan() || !e.client) {
     return;
   }
 
-  const queryText = typeof e.query === 'string' ? e.query : e.query?.text;
-  const spanName = getSpanName(queryText);
-
-  const span = tracer.startSpan(spanName, {
+  const span = tracer.startSpan(getSpanName(queryText), {
     attributes: {
       'db.system': 'postgresql',
       'db.statement': queryText ?? undefined,
     },
   });
-  activeSpans.set(e, span);
+  activeSpans.set(e.client, span);
 }
 
 function onReceive(e: { data: any[]; ctx: IEventContext }) {
-  const span = activeSpans.get(e.ctx);
+  const client = e.ctx?.client;
+  const span = client ? activeSpans.get(client) : undefined;
   if (span) {
     span.setAttribute('db.row_count', e.data?.length ?? 0);
     span.end();
-    activeSpans.delete(e.ctx);
+    activeSpans.delete(client);
   }
 }
 
 function onError(err: unknown, e: IEventContext) {
-  const span = activeSpans.get(e);
+  const client = e?.client;
+  const span = client ? activeSpans.get(client) : undefined;
   if (span) {
     span.setStatus({ code: SpanStatusCode.ERROR, message: String(err) });
     span.end();
-    activeSpans.delete(e);
+    activeSpans.delete(client);
   }
 }
 

@@ -4,16 +4,16 @@ set -euo pipefail
 
 
 pushd . >/dev/null
-cd `dirname $0`/..
+cd "$(dirname "$0")"/..
 
-PORT=`grep SERVER_PORT .env | sed -e 's/[^=]*=//'`
+PORT=$(grep SERVER_PORT .env | sed -e 's/[^=]*=//')
 
 if [ "$PORT" = "" ]; then
   echo "Server port not configured"
   exit 0
 fi
 
-PIDS=`ps -ef | grep BookkeeperServer | grep -v grep | awk '{print $2;}'` || true
+PIDS=$(ps -ef | grep BookkeeperServer | grep -v grep | awk '{print $2;}') || true
 
 if [ "$PIDS" != "" ]; then
   echo "Server already running!"
@@ -21,10 +21,10 @@ if [ "$PIDS" != "" ]; then
 fi
 
 if [ -f "log/server.log" ] ; then
-  DATE=`date +"%Y-%m-%dT%H%M%S"`
+  DATE=$(date +"%Y-%m-%dT%H%M%S")
   NEW_NAME="log/server-before-${DATE}.log"
   echo "Log file exists, renaming to $NEW_NAME"
-  mv log/server.log $NEW_NAME
+  mv log/server.log "$NEW_NAME"
 fi
 
 mkdir -p log
@@ -36,10 +36,10 @@ echo
 popd >/dev/null
 
 echo "Waiting for server to start"
-./script/wait-for-it.sh localhost:$PORT -t 10
+./script/wait-for-it.sh localhost:"$PORT" -t 10
 echo
 
 sleep 0.33
 
 echo "Server started, startup logs:"
-cat log/server.log | bun pretty-log
+bun pretty-log < log/server.log

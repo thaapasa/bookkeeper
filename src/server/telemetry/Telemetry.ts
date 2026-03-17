@@ -5,9 +5,10 @@
  * BEFORE any other server imports so that auto-instrumentations can
  * patch http and express modules.
  *
- * Note: PgInstrumentation is NOT used here because Bun's bundler/module
- * system prevents auto-instrumentation from patching pg. SQL spans are
- * instead created manually in Db.ts via pg-promise event hooks.
+ * SQL spans are created manually in Db.ts via pg-promise event hooks
+ * rather than using PgInstrumentation, because Bun's bundler hoists
+ * external imports above initTelemetry() in production builds, so pg
+ * is already loaded before the SDK can monkey-patch it.
  *
  * When OTEL_EXPORTER_OTLP_ENDPOINT is not set, this is a complete no-op.
  * The exporters auto-read OTEL_EXPORTER_OTLP_ENDPOINT and
