@@ -1,4 +1,3 @@
-import { Save } from '@mui/icons-material';
 import { Grid, styled } from '@mui/material';
 import * as React from 'react';
 
@@ -123,7 +122,7 @@ const SplitEditor: React.FC<SplitRowProps & { close: () => void }> = ({
       </Grid>
       <Grid size={1} container justifyContent="flex-end">
         <ToolIconButton onClick={save} disabled={!allValid}>
-          <Save />
+          <Icons.Save />
         </ToolIconButton>
         {editSum ? (
           <ToolIconButton onClick={() => removeSplit(splitIndex)}>

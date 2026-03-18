@@ -1,9 +1,10 @@
-import AllInclusiveIcon from '@mui/icons-material/AllInclusive';
 import { Chip, styled } from '@mui/material';
 import * as React from 'react';
 
 import { Category, CategorySelection, ObjectId } from 'shared/types';
 import { getFullCategoryName } from 'client/data/Categories';
+
+import { Icons } from '../icons/Icons';
 
 interface CategoryListProps {
   selected: CategorySelection[];
@@ -33,7 +34,7 @@ const CategoryChip: React.FC<
       label={getFullCategoryName(category.id, categoryMap)}
       onDelete={() => onDelete(cat)}
       variant={isParent ? 'filled' : 'outlined'}
-      avatar={isParent && cat.grouped ? <AllInclusiveIcon /> : undefined}
+      avatar={isParent && cat.grouped ? <Icons.AllInclusive /> : undefined}
       onClick={() => onExpand(cat)}
     />
   );

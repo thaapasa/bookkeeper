@@ -3,7 +3,10 @@
  */
 
 import './client/Init';
+import '@mantine/core/styles.css';
+import '@mantine/dates/styles.css';
 
+import { MantineProvider } from '@mantine/core';
 import { fiFI as coreFiFI } from '@mui/material/locale';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
@@ -15,6 +18,7 @@ import ReactDOM from 'react-dom/client';
 
 import { assertDefined } from 'shared/util';
 import { primaryPalette, secondaryPalette } from 'client/ui/Colors';
+import { mantineTheme } from 'client/ui/theme/mantineTheme';
 
 import { App } from './client/App';
 
@@ -32,9 +36,11 @@ export const muiTheme = createTheme(
 const container = document.getElementById('root');
 assertDefined(container);
 ReactDOM.createRoot(container).render(
-  <ThemeProvider theme={muiTheme}>
-    <LocalizationProvider dateAdapter={AdapterLuxon} adapterLocale="fi">
-      <App />
-    </LocalizationProvider>
-  </ThemeProvider>,
+  <MantineProvider theme={mantineTheme}>
+    <ThemeProvider theme={muiTheme}>
+      <LocalizationProvider dateAdapter={AdapterLuxon} adapterLocale="fi">
+        <App />
+      </LocalizationProvider>
+    </ThemeProvider>
+  </MantineProvider>,
 );

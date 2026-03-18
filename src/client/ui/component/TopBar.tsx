@@ -32,7 +32,6 @@ const styles: Record<string, React.CSSProperties> = {
   },
   iconStyle: {
     color: colors.colorScheme.primary.text,
-    padding: 12,
   },
 };
 

@@ -1,10 +1,10 @@
-import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import { styled } from '@mui/material';
 import * as React from 'react';
 
 import { logger } from 'client/Logger';
 import { KeyCodes } from 'client/util/Io';
 
+import { Icons } from '../icons/Icons';
 import { AutoCompleteProps } from './AutoComplete';
 import { TextEdit, TextEditProps } from './TextEdit';
 import { TextEditorComponent } from './TextEditVariants';
@@ -81,7 +81,7 @@ export const ActivatableTextField: React.FC<ActivatableTextFieldProps<any>> = <
         onChange={setValue}
         onKeyUp={handleKeyPress}
       />
-      <CancelOutlinedIcon color="action" onClick={cancel} fontSize="small" />
+      <Icons.CancelOutlined color="action" onClick={cancel} fontSize="small" />
     </EditorContainer>
   ) : (
     <ValueContainer className={className} style={viewStyle} onClick={activate}>

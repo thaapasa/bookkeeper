@@ -1,4 +1,3 @@
-import ClearIcon from '@mui/icons-material/Clear';
 import { Checkbox, FormControlLabel, FormGroup, Grid, IconButton } from '@mui/material';
 import * as B from 'baconjs';
 import React from 'react';
@@ -18,6 +17,7 @@ import { CategorySelector } from '../component/CategorySelector';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useLocalStorageList } from '../hooks/useList';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import { Icons } from '../icons/Icons';
 import { isMobileSize, PageContentContainer } from '../Styles';
 import { Size } from '../Types';
 import { CategoryStatisticsChart } from './category/CategoryStatisticsChart';
@@ -126,7 +126,7 @@ export const StatisticsViewImpl: React.FC<{
         {cats.length > 0 ? (
           <Grid size={12}>
             <IconButton color="primary" onClick={clearCats}>
-              <ClearIcon />
+              <Icons.Clear />
             </IconButton>
             <CategoryChipList
               selected={cats}
