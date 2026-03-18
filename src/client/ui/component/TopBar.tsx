@@ -1,89 +1,135 @@
-import { AppBar, IconButton, styled, Toolbar, Typography } from '@mui/material';
+import styled from '@emotion/styled';
+import { ActionIcon, Button } from '@mantine/core';
 import * as React from 'react';
-
-import { Group, User } from 'shared/types';
-import { validSessionP } from 'client/data/Login';
+import { Link, useMatch } from 'react-router-dom';
 
 import * as colors from '../Colors';
+import { gray } from '../Colors';
 import { useToggle } from '../hooks/useToggle';
 import { AddExpenseNavButton } from '../icons/AddExpenseIcon';
-import { Icons } from '../icons/Icons';
+import { Icon, Icons, RenderIcon } from '../icons/Icons';
+import { ShortcutsDropdown } from '../shortcuts/ShortcutsDropdown';
 import { isMobileSize } from '../Styles';
 import { Size } from '../Types';
-import { connect } from './BaconConnect';
 import { DateRangeNavigator } from './DateRangeNavigator';
 import MenuDrawer from './MenuDrawer';
-import { AppLink } from './NavigationBar';
+
+export interface AppLink {
+  label: string;
+  path: string;
+  showInHeader: boolean | number;
+  icon?: Icon;
+}
 
 interface TopBarProps {
-  user: User;
-  group: Group;
   links?: AppLink[];
   windowSize: Size;
 }
 
-const styles: Record<string, React.CSSProperties> = {
-  topBar: {
-    backgroundColor: colors.colorScheme.primary.dark,
-    justifyContent: 'center',
-  },
-  titleStyle: {
-    color: colors.colorScheme.primary.text,
-  },
-  iconStyle: {
-    color: colors.colorScheme.primary.text,
-  },
-};
-
-const TopBarImpl: React.FC<TopBarProps> = ({ windowSize, group, links }) => {
+const TopBarImpl: React.FC<TopBarProps> = ({ links, windowSize }) => {
   const [menuOpen, toggleMenu, setMenu] = useToggle();
   const isMobile = isMobileSize(windowSize);
-  const title = isMobile ? undefined : group.name;
 
   return (
     <>
-      <TopAppBar color="secondary" position="static">
-        <TopToolBar className={`top-tool-bar ${isMobile ? 'mobile' : 'normal'}`}>
-          <IconButton edge="start" aria-label="menu" size="small" onClick={toggleMenu}>
-            <Icons.Menu style={styles.iconStyle} />
-          </IconButton>
-          {title ? <Title variant="h6">{title}</Title> : null}
-          {isMobile ? (
-            <>
+      <Bar>
+        <ActionIcon
+          variant="subtle"
+          aria-label="menu"
+          size="lg"
+          onClick={toggleMenu}
+          color={colors.colorScheme.primary.text}
+        >
+          <Icons.Menu />
+        </ActionIcon>
+        {isMobile ? (
+          <>
+            <MobileDateArea>
               <DateRangeNavigator />
-              <AddExpenseNavButton />
-            </>
-          ) : null}
-        </TopToolBar>
-      </TopAppBar>
+            </MobileDateArea>
+            <AddExpenseNavButton />
+          </>
+        ) : (
+          <>
+            <LinkGroup>
+              {links
+                ?.filter(
+                  l =>
+                    l.showInHeader === true ||
+                    (typeof l.showInHeader === 'number' && windowSize.width > l.showInHeader),
+                )
+                .map(l => (
+                  <LinkButton
+                    key={l.label}
+                    label={l.label}
+                    to={l.path}
+                    icon={windowSize.width > 920 ? l.icon : undefined}
+                  />
+                ))}
+            </LinkGroup>
+            <DateRangeNavigator />
+            <PadGroup />
+            <ShortcutsDropdown />
+          </>
+        )}
+      </Bar>
       <MenuDrawer open={menuOpen} onRequestChange={setMenu} links={links} />
     </>
   );
 };
 
-const height = '56px';
+export const TopBar = TopBarImpl;
 
-const TopAppBar = styled(AppBar)`
+const Bar = styled.div`
   background-color: ${colors.colorScheme.primary.dark};
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 4px 8px;
+  position: relative;
 `;
 
-const TopToolBar = styled(Toolbar)`
-  height: ${height};
+const MobileDateArea = styled.div`
+  flex: 1;
   display: flex;
-  flex: 1 !important;
-  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+`;
+
+const LinkGroup = styled.div`
+  flex: 1;
+  display: flex;
+  gap: 8px;
   justify-content: flex-start;
   align-items: center;
-
-  &.mobile {
-    justify-content: space-between;
-  }
-`;
-
-const Title = styled(Typography)`
   margin-left: 8px;
 `;
 
-export const TopBar = connect(validSessionP.map(s => ({ user: s.user, group: s.group })))(
-  TopBarImpl,
-);
+const PadGroup = styled.div`
+  width: 80px;
+`;
+
+const PlainLink = styled(Link)`
+  text-decoration: none;
+`;
+
+export const LinkButton: React.FC<{
+  label: string;
+  to: string;
+  icon?: Icon;
+}> = ({ label, to, icon }) => {
+  const match = useMatch(to);
+  return (
+    <PlainLink to={to}>
+      <Button
+        variant="subtle"
+        size="compact-sm"
+        color={match ? 'accent' : 'dark'}
+        leftSection={icon ? <RenderIcon icon={icon} /> : undefined}
+        style={match ? undefined : { color: gray.veryDark }}
+      >
+        {label}
+      </Button>
+    </PlainLink>
+  );
+};

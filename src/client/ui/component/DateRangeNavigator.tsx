@@ -1,4 +1,5 @@
-import { IconButton, styled } from '@mui/material';
+import styled from '@emotion/styled';
+import { ActionIcon } from '@mantine/core';
 import * as React from 'react';
 import { useNavigate } from 'react-router';
 
@@ -45,21 +46,21 @@ const DateRangeNavigatorImpl: React.FC<React.PropsWithChildren<DateRangeNavigato
   return (
     <NavigationContainer onKeyUp={handleKeyPress} tabIndex={0}>
       <div>
-        <StyledIconButton onClick={() => navigateOffset(-1)} title="Edellinen">
+        <ActionIcon variant="subtle" onClick={() => navigateOffset(-1)} title="Edellinen" size="sm">
           <Icons.ChevronLeft color="primary" />
-        </StyledIconButton>
+        </ActionIcon>
       </div>
       <TitleArea>{toDateRangeName(dateRange)}</TitleArea>
       <div>
-        <StyledIconButton onClick={() => navigateOffset(1)} title="Seuraava">
+        <ActionIcon variant="subtle" onClick={() => navigateOffset(1)} title="Seuraava" size="sm">
           <Icons.ChevronRight color="primary" />
-        </StyledIconButton>
+        </ActionIcon>
       </div>
     </NavigationContainer>
   );
 };
 
-const NavigationContainer = styled('div')`
+const NavigationContainer = styled.div`
   height: 48px !important;
   display: flex;
   flex-direction: row;
@@ -67,11 +68,7 @@ const NavigationContainer = styled('div')`
   justify-content: center;
 `;
 
-const StyledIconButton = styled(IconButton)`
-  padding: 0px;
-`;
-
-const TitleArea = styled('div')`
+const TitleArea = styled.div`
   text-align: center;
   width: 140px;
   font-size: 12pt;

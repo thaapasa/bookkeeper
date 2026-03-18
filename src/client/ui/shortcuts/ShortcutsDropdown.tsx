@@ -1,4 +1,4 @@
-import { styled } from '@mui/material';
+import styled from '@emotion/styled';
 import * as React from 'react';
 
 import { ExpenseShortcut } from 'shared/expense';
@@ -34,8 +34,7 @@ export const ShortcutsDropdown = connect(
   validSessionP.map(s => ({ shortcuts: s.shortcuts || [] })),
 )(DropdownImpl);
 
-const LinksContainer = styled('div')(
-  (props: { maxHeight: string }) => `
+const LinksContainer = styled.div<{ maxHeight: string }>`
   position: absolute;
   z-index: 1;
   top: 28px;
@@ -50,13 +49,12 @@ const LinksContainer = styled('div')(
   max-height: 40px;
 
   &.enabled:hover {
-    max-height: ${props.maxHeight};
+    max-height: ${props => props.maxHeight};
     background-color: ${navigationBar};
   }
-`,
-);
+`;
 
-const LinksArea = styled('div')`
+const LinksArea = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;

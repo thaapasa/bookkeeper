@@ -1,4 +1,4 @@
-import { styled } from '@mui/material';
+import styled from '@emotion/styled';
 import * as React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
@@ -23,9 +23,8 @@ import {
 
 import { RoutedCategoryView } from '../category/RoutedCategoryView';
 import { colorScheme } from '../Colors';
-import { AppLink, NavigationBar } from '../component/NavigationBar';
 import { NotificationBar } from '../component/NotificationBar';
-import { TopBar } from '../component/TopBar';
+import { AppLink, TopBar } from '../component/TopBar';
 import { ModalDialogConnector } from '../dialog/ModalDialogConnector';
 import { ExpenseDialog } from '../expense/dialog/ExpenseDialog';
 import { createExpenseDialogListener } from '../expense/dialog/ExpenseDialogListener';
@@ -38,12 +37,7 @@ import { InfoView } from '../info/InfoView';
 import { ProfileView } from '../profile/ProfileView';
 import { SearchPage } from '../search/SearchPage';
 import { StatisticsView } from '../statistics/StatisticsView';
-import {
-  getScreenSizeClassName,
-  isMobileSize,
-  mainContentMargin,
-  mainContentMaxWidth,
-} from '../Styles';
+import { getScreenSizeClassName, mainContentMargin, mainContentMaxWidth } from '../Styles';
 import { SubscriptionsPage } from '../subscriptions/SubscriptionsPage';
 import { ToolsView } from '../tools/ToolsView';
 import { TrackingPage } from '../tracking/TrackingPage';
@@ -104,7 +98,6 @@ const ExpenseDialogBinder = createExpenseDialogListener(ExpenseDialog, expenseDi
 const ExpenseSplitBinder = createExpenseDialogListener(ExpenseSplitDialog, expenseSplitE);
 
 export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
-  const isMobileDevice = isMobileSize(windowSize);
   const className = getScreenSizeClassName(windowSize);
   return (
     <Page className="bookkeeper-page">
@@ -114,7 +107,6 @@ export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
       <Router>
         <ContentContainer>
           <TopBar links={appLinks} windowSize={windowSize} />
-          {isMobileDevice ? null : <NavigationBar links={appLinks} windowSize={windowSize} />}
           <MainContent className={'main-content ' + className}>
             <Routes>
               <Route path={expenseMonthPathPattern('date') + '/*'} element={<RoutedMonthView />} />
@@ -146,17 +138,13 @@ export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
   );
 };
 
-const Page = styled('div')`
+const Page = styled.div`
   width: 100%;
   height: 100%;
   background-color: ${colorScheme.gray.light};
-
-  .MuiFormControlLabel-label {
-    font-size: 15px;
-  }
 `;
 
-const ContentContainer = styled('div')`
+const ContentContainer = styled.div`
   height: 100%;
   width: 100%;
   display: flex;
@@ -164,7 +152,7 @@ const ContentContainer = styled('div')`
   justify-content: flex-start;
 `;
 
-const MainContent = styled('div')`
+const MainContent = styled.div`
   flex: 1;
   margin: ${mainContentMargin}px;
   margin-top: 40px;

@@ -12,7 +12,7 @@ import { groupingsPagePath } from 'client/util/Links';
 
 import { colorScheme } from '../Colors';
 import { FlexColumn, FlexRow } from '../component/BasicElements';
-import { LinkButton } from '../component/NavigationBar';
+import { LinkButton } from '../component/TopBar';
 import { Subtitle, TitleCss } from '../design/Text';
 import { Icons } from '../icons/Icons';
 import { Flex } from '../Styles';
@@ -84,12 +84,7 @@ export const ExpenseGroupingView: React.FC<{
               <GroupingDates grouping={grouping} />
             </InfoTextArea>
             <ButtonRow>
-              <LinkButton
-                label="Kirjaukset"
-                to={groupingsPagePath + uri`/${grouping.id}`}
-                variant="contained"
-                color="primary"
-              />
+              <LinkButton label="Kirjaukset" to={groupingsPagePath + uri`/${grouping.id}`} />
             </ButtonRow>
           </GroupingInfo>
         </GroupingTotalsArea>
