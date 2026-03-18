@@ -36,10 +36,8 @@ export const SumField: React.FC<{
         placeholder="0.00"
         label="Summa"
         name="sum"
-        InputLabelProps={{ shrink: true }}
         value={value}
-        helperText={errorText || ' '}
-        error={Boolean(errorText)}
+        error={errorText || undefined}
         onChange={onChange}
         type="text"
         autoFocus
@@ -107,13 +105,9 @@ export const DescriptionField: React.FC<{
   onChange: (s: string) => void;
 }> = ({ value, errorText, onChange }) => (
   <TextEdit
-    multiline={true}
     placeholder="Tarkempi selite"
     label="Selite"
-    InputLabelProps={{ shrink: true }}
-    fullWidth={true}
-    helperText={errorText}
-    error={Boolean(errorText)}
+    error={errorText || undefined}
     value={value}
     onChange={onChange}
   />

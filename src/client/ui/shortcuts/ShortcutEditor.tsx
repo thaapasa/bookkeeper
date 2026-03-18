@@ -64,7 +64,7 @@ const ShortcutEditView: React.FC<{
         <Grid container rowSpacing={1} justifyContent="space-between">
           <Grid size={4}>Nimi</Grid>
           <Grid size={8}>
-            <TextEdit value={state.title} onChange={state.setTitle} fullWidth />
+            <TextEdit value={state.title} onChange={state.setTitle} />
           </Grid>
           <Grid size={4}>Taustaväri</Grid>
           <Grid size={8}>
@@ -98,7 +98,7 @@ const ShortcutEditView: React.FC<{
             <Subtitle>Linkin data</Subtitle>
           </Grid>
           <Grid size={12}>
-            <TextEdit value={state.expenseStr} onChange={state.setExpense} multiline fullWidth />
+            <TextEdit value={state.expenseStr} onChange={state.setExpense} />
           </Grid>
           <Grid size="auto">
             <Button color="inherit" onClick={onClose}>

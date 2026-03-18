@@ -1,16 +1,16 @@
-import { styled } from '@mui/material';
+import styled from '@emotion/styled';
 import * as React from 'react';
 
 import { primaryColors, secondaryColors } from '../Colors';
 
-export const ItemView = styled('div')`
+export const ItemView = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
   margin: 4px 0;
 `;
 
-export const IdView = styled('div')`
+export const IdView = styled.div`
   padding: 4px 8px;
   background-color: ${secondaryColors.light};
   color: ${secondaryColors.text};
@@ -18,7 +18,7 @@ export const IdView = styled('div')`
   border-radius: 8px;
 `;
 
-export const InfoItem = styled('div')`
+export const InfoItem = styled.div`
   display: flex;
   flex-direction: row;
   margin: 12px 0;
@@ -29,12 +29,12 @@ export const InfoItem = styled('div')`
   }
 `;
 
-export const Label = styled('div')`
+export const Label = styled.div`
   width: 150px;
   margin: 8px 0;
 `;
 
-export const Value = styled('div')`
+export const Value = styled.div`
   flex-direction: column;
 `;
 
@@ -43,7 +43,7 @@ export const SubValue = styled(Value)`
   display: flex;
 `;
 
-export const ItemWithId = (props: { id: string | number; children: any }) => (
+export const ItemWithId: React.FC<{ id: string | number; children: any }> = props => (
   <ItemView>
     <IdView>{props.id}</IdView>
     {props.children}

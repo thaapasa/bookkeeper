@@ -102,9 +102,8 @@ export const PasswordChangeView: React.FC<{ session: Session }> = ({ session }) 
               autoComplete="new-password"
               autoCorrect="off"
               width="280px"
-              error={newHasError}
+              error={newHasError ? 'Salasana ei ole tarpeeksi hyvä' : undefined}
               onSubmitEdit={save}
-              helperText={newHasError ? 'Salasana ei ole tarpeeksi hyvä' : undefined}
             />
           </ProfileItem>
           <ProfileItem title="Toista salasana" labelFor="confirm-password">
@@ -118,9 +117,8 @@ export const PasswordChangeView: React.FC<{ session: Session }> = ({ session }) 
               autoComplete="new-password"
               autoCorrect="off"
               width="280px"
-              error={repeatHasError}
+              error={repeatHasError ? 'Salasanat eivät täsmää' : undefined}
               onSubmitEdit={save}
-              helperText={repeatHasError ? 'Salasanat eivät täsmää' : undefined}
             />
           </ProfileItem>
           <ProfileItem>

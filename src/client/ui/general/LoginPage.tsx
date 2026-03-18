@@ -1,4 +1,5 @@
-import { Button, Card, styled } from '@mui/material';
+import styled from '@emotion/styled';
+import { Button } from '@mantine/core';
 import * as React from 'react';
 
 import { pickRandomItem } from 'shared/util';
@@ -43,6 +44,7 @@ export const LoginPage: React.FC = () => {
           <EditField
             placeholder="Käyttäjätunnus"
             label="Käyttäjätunnus"
+            name="username"
             value={username}
             onChange={setUsername}
             autoCapitalize="none"
@@ -53,6 +55,7 @@ export const LoginPage: React.FC = () => {
           <EditField
             placeholder="Salasana"
             label="Salasana"
+            name="password"
             type="password"
             autoCapitalize="none"
             autoComplete="current-password"
@@ -60,9 +63,9 @@ export const LoginPage: React.FC = () => {
             value={password}
             onChange={setPassword}
           />
-          <LoginButton type="submit" color="primary" variant="contained">
+          <Button type="submit" fullWidth mt="xl">
             Kirjaudu
-          </LoginButton>
+          </Button>
           {statusMessage !== null ? <ErrorText>{statusMessage}</ErrorText> : ''}
         </Form>
       </LoginPaper>
@@ -70,49 +73,45 @@ export const LoginPage: React.FC = () => {
   );
 };
 
-const LoginPaper = styled(Card)`
-  display: inline-block;
+const LoginPaper = styled.div`
   margin: 15vh 32px 32px 32px;
-  padding: 36px;
+  padding: 32px;
+  border-radius: 8px;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   z-index: 1;
 `;
 
-const Form = styled('form')`
+const Form = styled.form`
   display: inline-flex;
   flex-direction: column;
   justify-content: flex-start;
-  align-items: center;
-  width: 248px;
+  align-items: stretch;
+  width: 280px;
 `;
 
 const EditField = styled(TextEdit)`
-  margin: 8px;
+  margin-top: 8px;
 `;
 
-const Title = styled('title')`
-  display: inline-block;
-  height: 24px;
+const Title = styled.div`
+  text-align: center;
   margin-bottom: 3vh;
   font-size: 14pt;
 `;
 
-const ErrorText = styled('div')`
+const ErrorText = styled.div`
   margin-top: 3vh;
   color: ${colorScheme.secondary.dark};
   text-align: center;
 `;
 
-const LoginButton = styled(Button)`
-  display: inline-block;
-  margin-top: 5vh;
-`;
-
-const Page = styled('div')`
+const Page = styled.div<{ bgImage: string }>`
   display: flex;
   flex-direction: row;
   align-items: flex-start;
   justify-content: center;
-  background: url(${publicUrl}/img/${(props: { bgImage: string }) => props.bgImage});
+  background: url(${publicUrl}/img/${props => props.bgImage});
   background-color: #d6d6d6;
   background-size: cover;
   background-repeat: no-repeat;

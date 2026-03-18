@@ -96,7 +96,7 @@ const TrackingEditView: React.FC<{
       <DialogContent>
         <Grid container rowSpacing={1} justifyContent="space-between">
           <SelectionRow title="Nimi">
-            <TextEdit value={state.title} onChange={state.setTitle} fullWidth />
+            <TextEdit value={state.title} onChange={state.setTitle} />
           </SelectionRow>
           <SelectionRow title="Värivaihtoehto">
             <TextEdit

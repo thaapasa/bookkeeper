@@ -171,9 +171,6 @@ export default class CategoryDialog extends React.Component<
                 label="Nimi"
                 key="name"
                 placeholder="Nimi"
-                variant="outlined"
-                InputLabelProps={{ shrink: true }}
-                fullWidth={true}
                 value={this.state.name}
                 onChange={this.updateName}
               />
