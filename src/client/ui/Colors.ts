@@ -1,7 +1,10 @@
-import { amber, grey, lime, teal } from '@mui/material/colors';
-import { getLuminance, SimplePaletteColorOptions, styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 
 import { Money, MoneyLike } from 'shared/util';
+
+import { getResolvedColors } from './theme/palettes';
+
+const resolved = getResolvedColors();
 
 interface ColorDef {
   standard: string;
@@ -19,72 +22,69 @@ interface ColorScheme {
 }
 
 export const gray = {
-  standard: '#e1e2e1',
-  light: '#f5f5f6',
-  dark: '#919192',
-  veryDark: '#555555',
-  text: '#000000',
+  standard: resolved.gray.standard,
+  light: resolved.gray.light,
+  dark: resolved.gray.dark,
+  veryDark: resolved.gray.veryDark,
+  text: resolved.gray.text,
 };
 
-const lightBrown: ColorDef = {
-  standard: '#efebe9',
-  light: '#ffffff',
-  dark: '#bdb9b7',
-  text: '#000000',
+export const primaryColors: ColorDef = {
+  standard: resolved.primary.standard,
+  light: resolved.primary.light,
+  dark: resolved.primary.dark,
+  text: resolved.primary.text,
 };
 
-const orangeRed: ColorDef = {
-  standard: '#ff8a65',
-  light: '#ffbb93',
-  dark: '#c75b39',
-  text: '#000000',
+export const secondaryColors: ColorDef = {
+  standard: resolved.accentColors.standard,
+  light: resolved.accentColors.light,
+  dark: resolved.accentColors.dark,
+  text: resolved.accentColors.text,
 };
-
-export const primaryColors = lightBrown;
-export const secondaryColors = orangeRed;
 
 export const colorScheme: ColorScheme = {
   primary: primaryColors,
   secondary: secondaryColors,
   gray,
-  text: '#000000',
-  white: '#ffffff',
+  text: resolved.text,
+  white: resolved.surface,
 };
 
-export const primaryPalette: SimplePaletteColorOptions = {
+// MUI palette exports (kept for MUI compatibility during migration)
+export const primaryPalette = {
   light: colorScheme.primary.light,
   dark: colorScheme.primary.dark,
   main: colorScheme.primary.standard,
   contrastText: colorScheme.primary.text,
 };
 
-export const secondaryPalette: SimplePaletteColorOptions = {
+export const secondaryPalette = {
   light: colorScheme.secondary.light,
   dark: colorScheme.secondary.dark,
   main: colorScheme.secondary.standard,
   contrastText: colorScheme.secondary.text,
 };
 
-export const navigation = colorScheme.secondary.standard;
-export const white = colorScheme.primary.light;
-export const navigationBar = '#e3dfdd';
+export const navigation = resolved.accentColors.standard;
+export const white = resolved.surface;
+export const navigationBar = resolved.navBar;
 
-// action is used in expense table category links
-export const action = colorScheme.secondary.dark;
+export const action = resolved.accentColors.dark;
 
-export const positive = colorScheme.primary.text;
-export const negative = colorScheme.secondary.dark;
-export const unimportant = colorScheme.gray.dark;
-export const header = colorScheme.gray.dark;
+export const positive = resolved.positive;
+export const negative = resolved.negative;
+export const unimportant = resolved.unimportant;
+export const header = resolved.gray.dark;
 
-export const topItem = teal[500];
-export const subItem = grey[500];
+export const topItem = resolved.topItem;
+export const subItem = resolved.subItem;
 
-export const tool = colorScheme.gray.veryDark;
-export const unconfirmed = amber[50];
+export const tool = resolved.gray.veryDark;
+export const unconfirmed = resolved.unconfirmed;
 
-export const highlightBg = orangeRed.light;
-export const highlightFg = orangeRed.dark;
+export const highlightBg = resolved.highlightBg;
+export const highlightFg = resolved.highlightFg;
 
 export function diagonalStripes(
   color1: string,
@@ -96,7 +96,7 @@ export function diagonalStripes(
 }
 
 export const unconfirmedStripes = diagonalStripes(unconfirmed, white, '0.5em', '1em');
-export const income = lime[100];
+export const income = resolved.income;
 
 export function forMoney(m?: MoneyLike): string {
   if (!m) {
@@ -122,7 +122,12 @@ export const unused = styled('div')`
 
 export function getLuminanceSafe(color: string): number {
   try {
-    return getLuminance(color);
+    // Simple relative luminance approximation
+    const hex = color.replace('#', '');
+    const r = parseInt(hex.substring(0, 2), 16) / 255;
+    const g = parseInt(hex.substring(2, 4), 16) / 255;
+    const b = parseInt(hex.substring(4, 6), 16) / 255;
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
   } catch {
     return 0;
   }
