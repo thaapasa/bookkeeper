@@ -1,4 +1,4 @@
-import { styled } from '@mui/material';
+import styled from '@emotion/styled';
 import * as React from 'react';
 
 import { NewExpenseDialogRoutes } from '../expense/dialog/NewExpenseDialogPage';
@@ -16,7 +16,7 @@ export const ShortcutsPage: React.FC = () => (
   </>
 );
 
-const LinksContainer = styled('div')`
+const LinksContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;

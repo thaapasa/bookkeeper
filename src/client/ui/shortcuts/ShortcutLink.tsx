@@ -1,4 +1,4 @@
-import { styled } from '@mui/material';
+import styled from '@emotion/styled';
 import * as React from 'react';
 import { NavigateFunction, useNavigate } from 'react-router';
 
@@ -64,13 +64,13 @@ function openNewExpenseFromShortcutDialog(
   }
 }
 
-const LinkImage = styled('img')`
+const LinkImage = styled.img`
   width: 32px;
   height: 32px;
   border-radius: 16px;
 `;
 
-const LinkIconArea = styled('div')`
+const LinkIconArea = styled.div`
   width: 32px;
   height: 32px;
   margin: 8px 4px 4px 4px;

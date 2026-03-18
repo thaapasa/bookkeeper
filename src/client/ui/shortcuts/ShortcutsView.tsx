@@ -1,4 +1,5 @@
-import { IconButton, styled } from '@mui/material';
+import styled from '@emotion/styled';
+import { ActionIcon } from '@mantine/core';
 import * as B from 'baconjs';
 import * as React from 'react';
 import { NavigateFunction, useNavigate } from 'react-router';
@@ -40,9 +41,9 @@ const FullList: React.FC<{
           onClick={() => createNewExpense({})}
         >
           <Flex minWidth="32px" />
-          <IconButton onClick={toggleEdit}>
+          <ActionIcon variant="subtle" onClick={toggleEdit}>
             {editMode ? <Icons.Clear /> : <Icons.EditNote />}
-          </IconButton>
+          </ActionIcon>
         </ShortcutRow>
         {shortcuts.map(l => (
           <ShortcutRow key={`titlelink-${l.id}`} allowEdit={editMode} {...l} />
@@ -77,22 +78,24 @@ const ShortcutRow: React.FC<
       {allowEdit && id ? (
         <>
           <Flex minWidth="32px" />
-          <IconButton size="small" onClick={() => sortShortcutUp(id)}>
+          <ActionIcon variant="subtle" size="sm" onClick={() => sortShortcutUp(id)}>
             <Icons.SortUp fontSize="small" />
-          </IconButton>
-          <IconButton size="small" onClick={() => sortShortcutDown(id)}>
+          </ActionIcon>
+          <ActionIcon variant="subtle" size="sm" onClick={() => sortShortcutDown(id)}>
             <Icons.SortDown fontSize="small" />
-          </IconButton>
-          <IconButton size="small" onClick={() => editShortcut(id)}>
+          </ActionIcon>
+          <ActionIcon variant="subtle" size="sm" onClick={() => editShortcut(id)}>
             <Icons.Edit fontSize="small" />
-          </IconButton>
-          <IconButton
-            size="small"
+          </ActionIcon>
+          <ActionIcon
+            variant="subtle"
+            size="sm"
+            color="red"
             onClick={() => deleteShortcut(id)}
             style={{ marginRight: '4px' }}
           >
-            <Icons.Delete fontSize="small" color="warning" />
-          </IconButton>
+            <Icons.Delete fontSize="small" />
+          </ActionIcon>
         </>
       ) : null}
     </TitledRow>
@@ -149,7 +152,7 @@ const sortShortcutDown = (shortcutId: ObjectId) =>
     postProcess: updateSession,
   });
 
-const TitledRow = styled('div')`
+const TitledRow = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -157,7 +160,7 @@ const TitledRow = styled('div')`
   align-self: stretch;
 `;
 
-const Title = styled('div')`
+const Title = styled.div`
   font-size: 14px;
   margin-left: 8px;
   color: ${secondaryColors.dark};
@@ -172,7 +175,7 @@ export const ShortcutsView = connect(
   ),
 )(FullList);
 
-const LinksArea = styled('div')`
+const LinksArea = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;

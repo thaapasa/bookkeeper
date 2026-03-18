@@ -1,4 +1,4 @@
-import { Grid } from '@mui/material';
+import styled from '@emotion/styled';
 import * as B from 'baconjs';
 import React from 'react';
 
@@ -16,16 +16,28 @@ import { UserDataView } from './UserDataView';
 export const ProfileViewImpl = RequireProperty('session', ({ session }: { session: Session }) => {
   return (
     <PageContentContainer className="center">
-      <Grid container columnSpacing={2} rowSpacing={2} padding={2} maxWidth={800}>
-        <Grid size={12}>
+      <FormGrid>
+        <FullWidth>
           <Title>Profiilitiedot</Title>
-        </Grid>
+        </FullWidth>
         <UserDataView session={session} />
         <PasswordView session={session} />
         <ProfileImageView session={session} />
-      </Grid>
+      </FormGrid>
     </PageContentContainer>
   );
 });
+
+const FormGrid = styled.div`
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 16px;
+  padding: 16px;
+  max-width: 800px;
+`;
+
+const FullWidth = styled.div`
+  grid-column: 1 / -1;
+`;
 
 export const ProfileView = connect(B.combineTemplate({ session: sessionP }))(ProfileViewImpl);

@@ -1,4 +1,4 @@
-import { Grid } from '@mui/material';
+import styled from '@emotion/styled';
 import * as React from 'react';
 
 import apiConnect from 'client/data/ApiConnect';
@@ -14,15 +14,27 @@ import { ToolButton } from './ToolButton';
 
 export const ToolsView: React.FC = () => (
   <PageContentContainer className="center">
-    <Grid container rowSpacing={2} padding={2} maxWidth={800}>
-      <Grid size={12}>
+    <ToolsGrid>
+      <FullWidth>
         <Title>Työkalut</Title>
-      </Grid>
+      </FullWidth>
       <ToolButton title="Vaihda kohteiden nimi" buttonText="Vaihda" action={changeReceiverName} />
       <DbStatusView />
-    </Grid>
+    </ToolsGrid>
   </PageContentContainer>
 );
+
+const ToolsGrid = styled.div`
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 16px;
+  padding: 16px;
+  max-width: 800px;
+`;
+
+const FullWidth = styled.div`
+  grid-column: 1 / -1;
+`;
 
 async function changeReceiverName() {
   const oldName = await UserPrompts.promptText(
