@@ -150,7 +150,7 @@ const classic: AppPalette = {
   negative: '#c75b39',
   income: '#dce775',
   unconfirmed: '#fff8e1',
-  fontFamily: 'Roboto, sans-serif',
+  fontFamily: "'Inter', sans-serif",
 };
 
 // ---------------------------------------------------------------------------
@@ -187,7 +187,7 @@ const ocean: AppPalette = {
   negative: '#c42b2b',
   income: '#7ad49e',
   unconfirmed: '#f5edca',
-  fontFamily: "'Inter', 'Roboto', sans-serif",
+  fontFamily: "'Inter', sans-serif",
 };
 
 // ---------------------------------------------------------------------------
@@ -224,7 +224,7 @@ const forest: AppPalette = {
   negative: '#b91c1c',
   income: '#a3d9a3',
   unconfirmed: '#fef3c7',
-  fontFamily: "'Roboto', sans-serif",
+  fontFamily: "'Inter', sans-serif",
 };
 
 // ---------------------------------------------------------------------------
@@ -261,7 +261,7 @@ const sunset: AppPalette = {
   negative: '#b91c1c',
   income: '#d4e89c',
   unconfirmed: '#fef3c7',
-  fontFamily: "'Roboto', sans-serif",
+  fontFamily: "'Inter', sans-serif",
 };
 
 // ---------------------------------------------------------------------------

@@ -146,7 +146,8 @@ const TitleText = styled(Subtitle)`
   padding-left: 12px;
   padding-top: 2px;
   font-size: 14pt;
-  font-weight: bold;
+  font-weight: 400;
+  color: #000000;
   border: none;
 `;
 
