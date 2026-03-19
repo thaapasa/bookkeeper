@@ -98,7 +98,6 @@ const TrackingImage = styled.img`
 const TitleText = styled(Subtitle)`
   padding-left: 12px;
   padding-top: 2px;
-  font-size: var(--mantine-font-size-lg);
   font-weight: bold;
   border: none;
 `;

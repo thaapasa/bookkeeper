@@ -97,7 +97,6 @@ const EditField = styled(TextEdit)`
 const Title = styled.div`
   text-align: center;
   margin-bottom: 3vh;
-  font-size: var(--mantine-font-size-lg);
 `;
 
 const ErrorText = styled.div`

@@ -117,7 +117,6 @@ const UserSection = styled.div`
 
 const UserName = styled.span`
   margin-left: ${px}px;
-  font-size: var(--mantine-font-size-lg);
 `;
 
 const Section = styled.div`
@@ -130,7 +129,7 @@ const MenuItemRow = styled.div`
   padding: 10px ${px}px;
   cursor: pointer;
   border-radius: 4px;
-  font-size: var(--mantine-font-size-md);
+  font-size: var(--mantine-font-size-sm);
 
   &:hover {
     background-color: ${colorScheme.gray.light};

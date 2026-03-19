@@ -30,12 +30,12 @@ const HeaderRow = styled.div`
 `;
 
 const SumText = styled.div`
-  font-size: var(--mantine-font-size-xl);
+  font-size: var(--mantine-font-size-lg);
   font-weight: 500;
   padding-left: 16px;
 `;
 
 const SubText = styled.div`
   color: rgba(0, 0, 0, 0.6);
-  font-size: var(--mantine-font-size-md);
+  font-size: var(--mantine-font-size-sm);
 `;

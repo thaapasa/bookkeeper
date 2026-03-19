@@ -34,7 +34,6 @@ interface RecurrenceInfoProps {
 const styles = {
   toolIcon: {
     color: colors.tool,
-    fontSize: 'var(--mantine-font-size-lg)',
   },
 };
 

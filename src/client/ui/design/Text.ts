@@ -32,6 +32,4 @@ export const Subtitle = styled.div`
   }
 `;
 
-export const Text = styled.div`
-  font-size: var(--mantine-font-size-sm);
-`;
+export const Text = styled.div``;

@@ -157,7 +157,7 @@ const StatusContainer = styled.div`
   height: 64px;
   display: flex;
   justify-content: flex-end;
-  font-size: var(--mantine-font-size-md);
+  font-size: var(--mantine-font-size-sm);
   border-top: 1px solid ${colors.colorScheme.gray.standard};
   border-collapse: collapse;
   margin: 0 16px;
@@ -183,7 +183,7 @@ const CalculationHeader = styled.div`
   color: ${colors.colorScheme.secondary.dark};
   font-weight: 600;
   margin: 8px 0;
-  font-size: var(--mantine-font-size-md);
+  font-size: var(--mantine-font-size-sm);
 `;
 
 function CalculationRow({

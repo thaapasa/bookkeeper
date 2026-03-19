@@ -4,20 +4,13 @@ import type { AppPalette } from './palettes';
 import { getActivePalette } from './palettes';
 
 /**
- * Font size scale (used via var(--mantine-font-size-xx) in styled components):
+ * Uses Mantine's default font size scale:
  *   xs  = 0.75rem  (12px) — small labels, version info, badges
- *   sm  = 0.8125rem (13px) — compact text, table cells
- *   md  = 0.875rem (14px) — standard UI text, menu items
- *   lg  = 1rem     (16px) — emphasized text, section headers
- *   xl  = 1.125rem (18px) — subtitles, large text
+ *   sm  = 0.875rem (14px) — compact/dense text, table cells
+ *   md  = 1rem     (16px) — default body text (global default)
+ *   lg  = 1.125rem (18px) — emphasized text, large titles
+ *   xl  = 1.25rem  (20px) — extra large text
  */
-const fontSizes = {
-  xs: '0.75rem',
-  sm: '0.8125rem',
-  md: '0.875rem',
-  lg: '1rem',
-  xl: '1.125rem',
-};
 
 /** Heading styles (Oswald font) */
 const headings = {
@@ -42,7 +35,6 @@ function buildMantineTheme(palette: AppPalette) {
     primaryColor: 'accent',
     colors: { neutral, accent },
     fontFamily: palette.fontFamily,
-    fontSizes,
     headings,
     defaultRadius: 'sm',
   });
