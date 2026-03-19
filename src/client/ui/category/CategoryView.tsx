@@ -1,4 +1,4 @@
-import { styled } from '@mui/material';
+import styled from '@emotion/styled';
 import * as B from 'baconjs';
 import * as React from 'react';
 

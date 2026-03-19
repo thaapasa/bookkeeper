@@ -1,4 +1,4 @@
-import { colors } from '@mui/material';
+import colors from 'client/ui/design/materialColors';
 
 import { clamp } from 'shared/math';
 

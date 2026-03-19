@@ -1,4 +1,5 @@
-import { IconButton, styled } from '@mui/material';
+import styled from '@emotion/styled';
+import { ActionIcon, type ActionIconProps } from '@mantine/core';
 import * as B from 'baconjs';
 import * as React from 'react';
 
@@ -114,7 +115,7 @@ const ExpenseInfoToolsImpl: React.FC<RecurrenceInfoProps> = ({
   );
 };
 
-const ToolContainer = styled('div')`
+const ToolContainer = styled.div`
   position: absolute;
   right: 0;
   top: 0;
@@ -122,7 +123,7 @@ const ToolContainer = styled('div')`
   flex-direction: row;
 `;
 
-const MobileTools = styled('div')`
+const MobileTools = styled.div`
   display: none;
   ${media.mobile`
     display: flex;
@@ -137,9 +138,14 @@ export const ExpenseInfoTools = connect(
   B.combineTemplate({ categoryMap: categoryMapP, sourceMap: sourceMapP }),
 )(ExpenseInfoToolsImpl);
 
-export const ToolIconButton = styled(IconButton)`
-  margin: 0px;
-  padding: 0px;
-  width: 36px;
-  height: 36px;
-`;
+export const ToolIconButton: React.FC<
+  ActionIconProps & React.ButtonHTMLAttributes<HTMLButtonElement> & React.PropsWithChildren
+> = ({ children, ...props }) => (
+  <ActionIcon
+    variant="subtle"
+    {...props}
+    style={{ margin: 0, padding: 0, width: 36, height: 36, ...props.style as Record<string, unknown> }}
+  >
+    {children}
+  </ActionIcon>
+);

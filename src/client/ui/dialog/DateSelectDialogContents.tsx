@@ -1,4 +1,5 @@
-import { Button, DialogActions, DialogContent } from '@mui/material';
+import { DialogActions, DialogContent } from '@mui/material';
+import { Button } from '@mantine/core';
 import { DatePicker } from '@mui/x-date-pickers';
 import { DateTime } from 'luxon';
 import * as React from 'react';
@@ -28,12 +29,11 @@ export const DateSelectDialogComponent: React.FC<TextPromptDialogProps> = ({
         <DatePicker format={datePickerFormat} value={date} onChange={changeHandler} />
       </DialogContent>
       <DialogActions>
-        <Button color="primary" variant="text" onKeyUp={handleKeyPress} onClick={onCancel}>
+        <Button variant="subtle" onKeyUp={handleKeyPress} onClick={onCancel}>
           Peruuta
         </Button>
         <Button
-          color="primary"
-          variant="contained"
+          variant="filled"
           onKeyUp={handleKeyPress}
           disabled={!date}
           onClick={() => (date ? onSelect(date) : undefined)}

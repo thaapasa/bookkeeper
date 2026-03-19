@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { IconButton } from '@mui/material';
+import { ActionIcon } from '@mantine/core';
 import * as React from 'react';
 
 interface UploadImageButtonProps {
@@ -38,14 +38,14 @@ export const UploadImageButton: React.FC<React.PropsWithChildren<UploadImageButt
 
   return (
     <>
-      <IconButton
+      <ActionIcon variant="subtle"
         onClick={() => ref.current?.click()}
         style={style}
         title={title}
         className={className}
       >
         {children}
-      </IconButton>
+      </ActionIcon>
       <FileInput type="file" id="upload-file" onChange={selectFile} ref={ref} />
     </>
   );

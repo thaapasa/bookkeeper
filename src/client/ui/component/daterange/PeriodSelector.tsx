@@ -1,4 +1,5 @@
-import { Button, styled } from '@mui/material';
+import styled from '@emotion/styled';
+import { Button } from '@mantine/core';
 import * as React from 'react';
 
 import { AllPeriods, Period, periodToYearAndMonth, PeriodType } from 'shared/time';
@@ -104,25 +105,32 @@ const Container = styled(FlexColumn)`
   white-space: nowrap;
 `;
 
-const Panel = styled('div')`
+const Panel = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
   margin-top: 4px;
 `;
 
-const Tab = styled('div')``;
+const Tab = styled.div``;
 
-const TabButton = styled(Button)(
-  (props: { selected: boolean }) => `
-  text-transform: none;
-  padding: 4px 6px;
-  ${
-    props.selected
-      ? `border: 1px dotted ${colorScheme.secondary.light};
-         background-color: ${colorScheme.secondary.light}77;
-         color: ${colorScheme.secondary.text}`
-      : ''
-  };
-  `,
+const TabButton: React.FC<
+  React.PropsWithChildren<{ selected: boolean; onClick: () => void }>
+> = ({ selected, onClick, children }) => (
+  <Button
+    variant="subtle"
+    onClick={onClick}
+    style={{
+      padding: '4px 6px',
+      ...(selected
+        ? {
+            border: `1px dotted ${colorScheme.secondary.light}`,
+            backgroundColor: `${colorScheme.secondary.light}77`,
+            color: colorScheme.secondary.text,
+          }
+        : {}),
+    }}
+  >
+    {children}
+  </Button>
 );

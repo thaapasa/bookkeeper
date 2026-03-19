@@ -1,4 +1,5 @@
-import { Chip, styled } from '@mui/material';
+import styled from '@emotion/styled';
+import { Pill } from '@mantine/core';
 import * as React from 'react';
 
 import { secondaryColors } from '../Colors';
@@ -14,18 +15,20 @@ export const SelectedSuggestionsView: React.FC<{
   return (
     <>
       {suggestions.map(c => (
-        <Suggestion
+        <SuggestionPill
           key={c.id}
-          label={getSearchSuggestionValue(c)}
-          onDelete={() => onRemove(c)}
           className={c.type}
-        />
+          withRemoveButton
+          onRemove={() => onRemove(c)}
+        >
+          {getSearchSuggestionValue(c)}
+        </SuggestionPill>
       ))}
     </>
   );
 };
 
-const Suggestion = styled(Chip)`
+const SuggestionPill = styled(Pill)`
   margin: 0 4px;
   &:first-of-type {
     margin-left: 0;
@@ -36,4 +39,4 @@ const Suggestion = styled(Chip)`
   &.receiver {
     background-color: ${secondaryColors.light};
   }
-`;
+` as any;

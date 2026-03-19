@@ -1,4 +1,6 @@
-import { Button, DialogActions, DialogContent, styled } from '@mui/material';
+import styled from '@emotion/styled';
+import { DialogActions, DialogContent } from '@mui/material';
+import { Button } from '@mantine/core';
 import * as React from 'react';
 
 import { CategorySelection, ObjectId } from 'shared/types';
@@ -26,7 +28,7 @@ export const CategoryPromptDialogContents: React.FC<CategoryPromptDialogProps> =
         <CategorySelector addCategories={selectCat} />
       </DialogContent>
       <DialogActions>
-        <Button color="primary" variant="text" onKeyUp={handleKeyPress} onClick={() => onCancel()}>
+        <Button variant="subtle" onKeyUp={handleKeyPress} onClick={() => onCancel()}>
           Peruuta
         </Button>
       </DialogActions>
@@ -34,6 +36,6 @@ export const CategoryPromptDialogContents: React.FC<CategoryPromptDialogProps> =
   );
 };
 
-const Description = styled('div')`
+const Description = styled.div`
   margin-bottom: 8px;
 `;

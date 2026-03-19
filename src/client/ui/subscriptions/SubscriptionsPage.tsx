@@ -1,4 +1,5 @@
-import { Checkbox, FormControlLabel, styled } from '@mui/material';
+import styled from '@emotion/styled';
+import { Checkbox } from '@mantine/core';
 import { combineTemplate } from 'baconjs';
 import * as React from 'react';
 import { z } from 'zod';
@@ -94,10 +95,7 @@ const SubscriptionsRenderer: React.FC<{
           colorIndex={selectedIndex >= 0 ? selectedIndex : undefined}
         />
         <ChartTools>
-          <FormControlLabel
-            control={<Checkbox checked={perMonth} onChange={() => setPerMonth(!perMonth)} />}
-            label="Kulut per kk"
-          />
+          <Checkbox checked={perMonth} onChange={() => setPerMonth(!perMonth)} label="Kulut per kk" />
         </ChartTools>
       </ChartArea>
       {selectedGroup ? (
@@ -220,11 +218,11 @@ const CategorySubscriptions: React.FC<{
   </>
 );
 
-const ChartArea = styled('div')`
+const ChartArea = styled.div`
   position: relative;
 `;
 
-const ChartTools = styled('div')`
+const ChartTools = styled.div`
   position: absolute;
   left: 16px;
   top: 16px;

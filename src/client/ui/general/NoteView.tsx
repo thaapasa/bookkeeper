@@ -1,4 +1,4 @@
-import { styled } from '@mui/system';
+import styled from '@emotion/styled';
 import * as React from 'react';
 
 import { spaced } from 'shared/util';

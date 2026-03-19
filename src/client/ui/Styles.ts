@@ -1,5 +1,5 @@
-import { css } from '@mui/material';
-import { styled } from '@mui/system';
+import { css } from '@emotion/react';
+import styled from '@emotion/styled';
 
 import { primaryColors } from './Colors';
 import { Size } from './Types';
@@ -108,7 +108,7 @@ export const media = {
   `,
 };
 
-export const VCenterRow = styled('div')`
+export const VCenterRow = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -118,17 +118,17 @@ export const VCenterRow = styled('div')`
   }
 `;
 
-export const Flex = styled('div')`
+export const Flex = styled.div`
   flex: 1;
   ${({ minWidth }: { minWidth?: string }) => (minWidth ? `min-width: ${minWidth};` : '')}
 `;
 
-export const Pre = styled('div')`
+export const Pre = styled.div`
   font-family: monospace;
   white-space: pre;
 `;
 
-export const PageContentContainer = styled('div')`
+export const PageContentContainer = styled.div`
   position: relative;
   font-size: 13px;
   display: flex;

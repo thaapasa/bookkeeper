@@ -1,4 +1,5 @@
-import { Checkbox, FormControlLabel, FormGroup } from '@mui/material';
+import styled from '@emotion/styled';
+import { Checkbox } from '@mantine/core';
 import * as React from 'react';
 
 import { CategoryMap, CategoryStatistics } from 'shared/types';
@@ -49,35 +50,34 @@ const StatisticsGraphImpl: React.FC<BaseCategoryGraphProps & { type: StatisticsC
         {...props}
       />
       {type !== 'recurring' && props.stacked ? (
-        <FormGroup row>
+        <CheckboxRow>
           {type === 'years' ? (
-            <FormControlLabel
-              control={<Checkbox checked={estimated} onChange={() => setEstimated(!estimated)} />}
-              label="Sisällytä arvio"
-            />
+            <Checkbox checked={estimated} onChange={() => setEstimated(!estimated)} label="Sisällytä arvio" />
           ) : null}
           {type === 'years' ? (
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={separateEstimate}
-                  onChange={() => setSeparateEstimate(!separateEstimate)}
-                />
-              }
+            <Checkbox
+              checked={separateEstimate}
+              onChange={() => setSeparateEstimate(!separateEstimate)}
               label="Arvio erillään"
             />
           ) : null}
-          <FormControlLabel
-            control={
-              <Checkbox checked={stackMainCats} onChange={() => setStackMainCats(!stackMainCats)} />
-            }
+          <Checkbox
+            checked={stackMainCats}
+            onChange={() => setStackMainCats(!stackMainCats)}
             label="Alueet pääkategorioittain"
           />
-        </FormGroup>
+        </CheckboxRow>
       ) : null}
     </FlexColumn>
   );
 };
+
+const CheckboxRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  flex-wrap: wrap;
+`;
 
 const GraphSelector: React.FC<CategoryGraphProps & { type: StatisticsChartType }> = ({
   type,

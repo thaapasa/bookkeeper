@@ -1,4 +1,4 @@
-import { styled } from '@mui/material/styles';
+import styled from '@emotion/styled';
 
 import { Money, MoneyLike } from 'shared/util';
 
@@ -116,7 +116,7 @@ export function classNameForMoney(m?: MoneyLike): 'positive' | 'negative' | 'uni
 
 // This is here only so that we use styled in this file. We must reference styled here or
 // else watch recompile fails with a warning "module not found" (looks like a bug)
-export const unused = styled('div')`
+export const unused = styled.div`
   width: 100%;
 `;
 

@@ -1,4 +1,5 @@
-import { Button, Dialog, DialogContent, DialogTitle, Grid, IconButton } from '@mui/material';
+import { Button, Dialog, DialogContent, DialogTitle, Grid } from '@mui/material';
+import { ActionIcon } from '@mantine/core';
 import { styled } from '@mui/system';
 import * as B from 'baconjs';
 import * as React from 'react';
@@ -89,9 +90,9 @@ const ShortcutEditView: React.FC<{
               >
                 <Icons.Upload />
               </UploadImageButton>
-              <IconButton onClick={state.removeIcon} title="Poista kuva">
+              <ActionIcon variant="subtle" onClick={state.removeIcon} title="Poista kuva">
                 <Icons.Delete />
-              </IconButton>
+              </ActionIcon>
             </Row>
           </Grid>
           <Grid size={12}>
@@ -107,7 +108,7 @@ const ShortcutEditView: React.FC<{
           </Grid>
           <Grid size="auto">
             <Button
-              color="primary"
+             
               variant="contained"
               disabled={!state.inputValid()}
               onClick={() => state.saveShortcut(onClose)}

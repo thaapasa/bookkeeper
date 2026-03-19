@@ -1,4 +1,4 @@
-import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { Select } from '@mantine/core';
 import * as B from 'baconjs';
 import * as React from 'react';
 
@@ -11,19 +11,26 @@ const CategorySelectorImpl: React.FC<{
   categoryMap: Record<ObjectId, Category>;
   addCategories: (cat: CategorySelection | CategorySelection[]) => void;
   allowSelectAll?: boolean;
-}> = ({ categorySource, addCategories, categoryMap, allowSelectAll }) => (
-  <FormControl fullWidth>
-    <InputLabel>Kategoria</InputLabel>
+}> = ({ categorySource, addCategories, categoryMap, allowSelectAll }) => {
+  const data = React.useMemo(() => {
+    const items = categorySource.map(c => ({ value: String(c.value), label: c.text }));
+    if (allowSelectAll) {
+      items.unshift({ value: '0', label: 'Kaikki pääkategoriat' });
+    }
+    return items;
+  }, [categorySource, allowSelectAll]);
+
+  return (
     <Select
       label="Kategoria"
-      value={''}
-      onChange={e => {
-        const catId = Number(e.target.value);
+      value={null}
+      placeholder="Valitse kategoria"
+      data={data}
+      onChange={val => {
+        if (!val) return;
+        const catId = Number(val);
         if (catId === 0) {
-          if (allowSelectAll === false) {
-            return;
-          }
-          // Add all parent categories
+          if (allowSelectAll === false) return;
           const mainCats = Object.values(categoryMap).filter(c => c.parentId === null);
           addCategories(mainCats.map(c => ({ id: c.id, grouped: true })));
           return;
@@ -32,20 +39,11 @@ const CategorySelectorImpl: React.FC<{
         if (!cat) return;
         addCategories({ id: cat.id, grouped: cat.parentId === null });
       }}
-    >
-      {allowSelectAll ? (
-        <MenuItem key={0} value={0}>
-          Kaikki pääkategoriat
-        </MenuItem>
-      ) : null}
-      {categorySource.map(c => (
-        <MenuItem key={c.value} value={c.value}>
-          {c.text}
-        </MenuItem>
-      ))}
-    </Select>
-  </FormControl>
-);
+      searchable
+      clearable
+    />
+  );
+};
 
 export const CategorySelector = connect(
   B.combineTemplate({

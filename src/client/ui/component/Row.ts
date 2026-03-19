@@ -1,4 +1,4 @@
-import { styled } from '@mui/system';
+import styled from '@emotion/styled';
 
 import { colorScheme } from '../Colors';
 import { FlexRow } from './BasicElements';

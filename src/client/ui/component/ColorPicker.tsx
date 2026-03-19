@@ -1,5 +1,6 @@
 import styled from '@emotion/styled';
-import { colors, IconButton } from '@mui/material';
+import { ActionIcon } from '@mantine/core';
+import colors from 'client/ui/design/materialColors';
 import * as React from 'react';
 
 import { typedKeys } from 'shared/util';
@@ -32,18 +33,18 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ value, onChange }) => 
       {open ? (
         <FlexRow className="vcenter">
           <FlexColumn>
-            <IconButton
-              size="small"
+            <ActionIcon variant="subtle"
+              size="sm"
               onClick={() => setPalette(palette > 0 ? palette - 1 : palette)}
             >
               <Icons.SortUp fontSize="small" />
-            </IconButton>
-            <IconButton
-              size="small"
+            </ActionIcon>
+            <ActionIcon variant="subtle"
+              size="sm"
               onClick={() => setPalette(palette < colorPalette.length - 1 ? palette + 1 : palette)}
             >
               <Icons.SortDown fontSize="small" />
-            </IconButton>
+            </ActionIcon>
           </FlexColumn>
           <ColorOptions>
             {allColors.map(c => {
@@ -57,7 +58,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ value, onChange }) => 
   );
 };
 
-const ColorBall = styled('div')`
+const ColorBall = styled.div`
   display: inline-flex;
   border: 1px solid ${colorScheme.gray.standard};
   border-radius: 50%;
@@ -74,7 +75,7 @@ const ColorBall = styled('div')`
   `};
 `;
 
-const ColorOptions = styled('div')`
+const ColorOptions = styled.div`
   display: inline-grid;
   flex: 1;
   grid-template-columns: repeat(auto-fill, 28px);

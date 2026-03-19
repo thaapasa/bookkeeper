@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { Grid, IconButton } from '@mui/material';
+import { ActionIcon } from '@mantine/core';
 import React from 'react';
 
 import apiConnect from 'client/data/ApiConnect';
@@ -18,21 +18,21 @@ export const TrackingPage: React.FC = () => {
   const trackedSubjects = useAsyncData(loadSubjects, true, counter);
   return (
     <PageContentContainer className="center">
-      <Grid container columnSpacing={2} rowSpacing={2} width="calc(100% - 32px)" paddingBottom={4}>
-        <RGrid size={12} marginTop={2}>
+      <PageGrid>
+        <TitleRow>
           <Title>Seuranta</Title>
           <ToolArea>
-            <IconButton title="Uusi seuranta" onClick={newTrackingSubject}>
+            <ActionIcon variant="subtle" title="Uusi seuranta" onClick={newTrackingSubject}>
               <Icons.AddChart />
-            </IconButton>
+            </ActionIcon>
           </ToolArea>
-        </RGrid>
+        </TitleRow>
         <AsyncDataView
           data={trackedSubjects}
           renderer={TrackingSubjectsList}
           onReload={forceReload}
         />
-      </Grid>
+      </PageGrid>
       <TrackingEditor reloadAll={forceReload} />
     </PageContentContainer>
   );
@@ -42,11 +42,20 @@ function loadSubjects(_counter: number) {
   return apiConnect.getTrackingSubjects();
 }
 
-const RGrid = styled(Grid)`
-  position: relative;
+const PageGrid = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: calc(100% - 32px);
+  padding-bottom: 32px;
 `;
 
-const ToolArea = styled('div')`
+const TitleRow = styled.div`
+  position: relative;
+  margin-top: 16px;
+`;
+
+const ToolArea = styled.div`
   position: absolute;
   right: 0;
   bottom: 16px;

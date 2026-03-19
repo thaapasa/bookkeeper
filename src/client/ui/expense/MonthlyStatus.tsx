@@ -1,4 +1,4 @@
-import { styled } from '@mui/material';
+import styled from '@emotion/styled';
 import * as React from 'react';
 
 import { ExpenseStatus } from 'shared/expense';
@@ -131,29 +131,29 @@ function StatusBlock({
   );
 }
 
-const ToolArea = styled('div')`
+const ToolArea = styled.div`
   padding: 4px;
 `;
 
-const CalculationRowContainer = styled('div')`
+const CalculationRowContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
   height: 30px;
 `;
 
-const CalculationTitle = styled('div')`
+const CalculationTitle = styled.div`
   display: inline-block;
   width: 75px;
 `;
 
-const CalculationSum = styled('div')`
+const CalculationSum = styled.div`
   display: inline-block;
   width: 80px;
   text-align: right;
 `;
 
-const StatusContainer = styled('div')`
+const StatusContainer = styled.div`
   height: 64px;
   display: flex;
   justify-content: flex-end;
@@ -169,7 +169,7 @@ const StatusContainer = styled('div')`
   `}
 `;
 
-const MonthlyCalculation = styled('div')`
+const MonthlyCalculation = styled.div`
   position: relative;
   padding: 0 16px;
   ${media.mobilePortrait`
@@ -179,7 +179,7 @@ const MonthlyCalculation = styled('div')`
   `}
 `;
 
-const CalculationHeader = styled('div')`
+const CalculationHeader = styled.div`
   color: ${colors.colorScheme.secondary.dark};
   font-weight: 600;
   margin: 8px 0;

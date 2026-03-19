@@ -1,4 +1,4 @@
-import { styled } from '@mui/material';
+import styled from '@emotion/styled';
 import * as B from 'baconjs';
 import * as React from 'react';
 
@@ -103,18 +103,18 @@ function YearHeader({ year, expenses }: { year: string; expenses: UserExpense[] 
   );
 }
 
-const ResultsArea = styled('div')`
+const ResultsArea = styled.div`
   ${media.web`
     overflow-y: scroll;
   `}
 `;
 
-const Header = styled('div')`
+const Header = styled.div`
   color: ${secondaryColors.dark};
   margin: 8px 24px;
 `;
 
-const YearHeaderRow = styled('div')`
+const YearHeaderRow = styled.div`
   padding: 16px 24px;
   background-color: ${gray.light};
   width: 100%;
@@ -123,28 +123,28 @@ const YearHeaderRow = styled('div')`
   box-sizing: border-box;
 `;
 
-const HeaderText = styled('div')`
+const HeaderText = styled.div`
   color: ${secondaryColors.dark};
   font-size: 16px;
   flex: 1;
 `;
 
-const SumColumn = styled('div')`
+const SumColumn = styled.div`
   display: flex;
   flex-direction: row;
   margin-left: 16px;
 `;
 
-const SumLabel = styled('span')`
+const SumLabel = styled.span`
   font-weight: bold;
   color: ${secondaryColors.dark};
 `;
 
-const SumValue = styled('div')`
+const SumValue = styled.div`
   margin-left: 8px;
   color: ${secondaryColors.text};
 `;
 
-const Info = styled('div')`
+const Info = styled.div`
   margin: 8px 24px;
 `;

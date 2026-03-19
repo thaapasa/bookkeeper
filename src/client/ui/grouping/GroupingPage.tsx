@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { Grid, IconButton } from '@mui/material';
+import { ActionIcon } from '@mantine/core';
 import React from 'react';
 
 import apiConnect from 'client/data/ApiConnect';
@@ -19,22 +19,22 @@ export const GroupingPage: React.FC = () => {
   const tags = useAsyncData(loadTags, true, counter);
   return (
     <PageContentContainer className="center">
-      <Grid container columnSpacing={2} rowSpacing={2} width="calc(100% - 32px)" paddingBottom={4}>
-        <RGrid size={12} marginTop={2}>
+      <PageGrid>
+        <TitleRow>
           <Title>Ryhmittelyt</Title>
           <ToolArea>
-            <IconButton title="Uusi ryhmittely" onClick={newExpenseGrouping}>
+            <ActionIcon variant="subtle" title="Uusi ryhmittely" onClick={newExpenseGrouping}>
               <Icons.AddChart />
-            </IconButton>
+            </ActionIcon>
           </ToolArea>
-        </RGrid>
+        </TitleRow>
         <AsyncDataView
           data={expenseGroupings}
           renderer={ExpenseGroupingsList}
           onReload={forceReload}
           allTags={tags.type === 'loaded' ? tags.value : []}
         />
-      </Grid>
+      </PageGrid>
       <GroupingEditor reloadAll={forceReload} />
     </PageContentContainer>
   );
@@ -48,11 +48,20 @@ function loadTags(_counter: number) {
   return apiConnect.getExpenseGroupingTags();
 }
 
-const RGrid = styled(Grid)`
-  position: relative;
+const PageGrid = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: calc(100% - 32px);
+  padding-bottom: 32px;
 `;
 
-const ToolArea = styled('div')`
+const TitleRow = styled.div`
+  position: relative;
+  margin-top: 16px;
+`;
+
+const ToolArea = styled.div`
   position: absolute;
   right: 0;
   bottom: 16px;

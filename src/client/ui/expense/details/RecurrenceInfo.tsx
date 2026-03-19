@@ -1,4 +1,4 @@
-import { styled } from '@mui/material';
+import styled from '@emotion/styled';
 import * as React from 'react';
 
 import { UserExpense } from 'shared/expense';
@@ -13,7 +13,7 @@ export const RecurrenceInfo: React.FC<RecurrenceInfoProps> = ({ expense }) =>
     <RecurrenceInfoContainer>Tämä on toistuva tapahtuma</RecurrenceInfoContainer>
   ) : null;
 
-const RecurrenceInfoContainer = styled('div')`
+const RecurrenceInfoContainer = styled.div`
   width: 100%;
   padding: 12px 16px;
   background-color: ${colors.colorScheme.gray.light};

@@ -1,4 +1,4 @@
-import { styled } from '@mui/material';
+import styled from '@emotion/styled';
 import * as React from 'react';
 
 import { calculateTotals, UserExpense } from 'shared/expense';
@@ -43,11 +43,11 @@ export class TotalsView extends React.Component<TotalsViewProps> {
 
 const totalAreaSize = 48;
 
-const TotalsPadding = styled('div')`
+const TotalsPadding = styled.div`
   height: ${totalAreaSize + 16}px;
 `;
 
-const TotalsPositioner = styled('div')`
+const TotalsPositioner = styled.div`
   position: fixed;
   z-index: 1;
   left: 32px;
@@ -71,7 +71,7 @@ const TotalsPositioner = styled('div')`
   `}
 `;
 
-const TotalsArea = styled('div')`
+const TotalsArea = styled.div`
   height: ${totalAreaSize}px;
   background-color: white;
   border-top: 1px solid ${gray.standard};
@@ -87,12 +87,12 @@ const TotalsArea = styled('div')`
   `}
 `;
 
-const Label = styled('span')`
+const Label = styled.span`
   margin-right: 12px;
   color: ${secondaryColors.dark};
   font-weight: bold;
 `;
 
-const Total = styled('div')`
+const Total = styled.div`
   margin-left: 32px;
 `;

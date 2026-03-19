@@ -1,4 +1,5 @@
-import { FormControl, FormHelperText, InputLabel, MenuItem, Select, styled } from '@mui/material';
+import styled from '@emotion/styled';
+import { FormControl, FormHelperText, InputLabel, MenuItem, Select } from '@mui/material';
 import * as React from 'react';
 
 import { ObjectId } from 'shared/types';
@@ -56,7 +57,7 @@ export const CategorySelector: React.FC<{
   </Row>
 );
 
-const Row = styled('div')`
+const Row = styled.div`
   display: flex;
   flex-direction: row;
   flex: 1;

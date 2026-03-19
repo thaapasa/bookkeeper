@@ -1,4 +1,4 @@
-import { styled } from '@mui/material';
+import styled from '@emotion/styled';
 import { DateTime } from 'luxon';
 import * as React from 'react';
 import { NavigateFunction, useNavigate } from 'react-router';
@@ -75,7 +75,7 @@ const PlusIcon = styled(Icons.PlusCircle)`
   }
 `;
 
-const AddExpenseIconContainer = styled('div')`
+const AddExpenseIconContainer = styled.div`
   position: relative;
 
   width: 32px;
@@ -89,7 +89,7 @@ const AddExpenseIconContainer = styled('div')`
   cursor: pointer;
 `;
 
-const BlackContent = styled('div')`
+const BlackContent = styled.div`
   position: absolute;
   top: 5px;
   right: 5px;

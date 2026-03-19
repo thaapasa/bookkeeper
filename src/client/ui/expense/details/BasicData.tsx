@@ -1,4 +1,4 @@
-import { styled } from '@mui/material';
+import styled from '@emotion/styled';
 import * as React from 'react';
 
 import { UserExpense } from 'shared/expense';
@@ -26,7 +26,7 @@ const DetailRow: React.FC<{ name: string; value: string }> = ({ name, value }) =
   </DetailRowContainer>
 );
 
-const SmallDeviceContainer = styled('div')`
+const SmallDeviceContainer = styled.div`
   display: none;
   padding: 8px 16px;
 
@@ -35,11 +35,11 @@ const SmallDeviceContainer = styled('div')`
   `}
 `;
 
-const DetailRowContainer = styled('div')`
+const DetailRowContainer = styled.div`
   padding: 4px 0;
 `;
 
-const DetailLabel = styled('div')`
+const DetailLabel = styled.div`
   display: inline-block;
   width: 80px;
 `;

@@ -1,4 +1,4 @@
-import { colors } from '@mui/material';
+import { green } from 'client/ui/design/materialColors';
 import { create } from 'zustand';
 
 import { ISODate } from 'shared/time';
@@ -42,7 +42,7 @@ export const useGroupingState = create<GroupingState>((set, get) => ({
   id: null,
   startDate: null,
   endDate: null,
-  color: colors.green[400],
+  color: green[400],
   categories: [],
   private: false,
   onlyOwn: false,

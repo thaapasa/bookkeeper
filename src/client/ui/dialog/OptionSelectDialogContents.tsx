@@ -1,4 +1,6 @@
-import { Button, DialogActions, DialogContent, styled } from '@mui/material';
+import styled from '@emotion/styled';
+import { DialogActions, DialogContent } from '@mui/material';
+import { Button } from '@mantine/core';
 import * as React from 'react';
 
 import { DialogContentRendererProps, OptionSelectDialogData } from './Dialog';
@@ -18,14 +20,13 @@ export const OptionSelectDialogContents: React.FC<OptionSelectDialogProps<any>> 
     <>
       <DialogContent onKeyUp={handleKeyPress}>{description}</DialogContent>
       <Actions>
-        <Button color="primary" variant="text" onKeyUp={handleKeyPress} onClick={onCancel}>
+        <Button variant="subtle" onKeyUp={handleKeyPress} onClick={onCancel}>
           Peruuta
         </Button>
         {options.map(o => (
           <Button
             key={o.value}
-            color="primary"
-            variant="contained"
+            variant="filled"
             onKeyUp={handleKeyPress}
             onClick={() => onSelect(o.value)}
           >

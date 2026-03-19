@@ -1,4 +1,5 @@
-import { Avatar, Chip, styled } from '@mui/material';
+import styled from '@emotion/styled';
+import { Avatar, Pill } from '@mantine/core';
 import * as React from 'react';
 
 import { colorScheme } from 'client/ui/Colors';
@@ -35,7 +36,7 @@ export class ExpenseFilterRow extends React.Component<ExpenseFilterRowProps> {
 
 const chipStyle: React.CSSProperties = {
   margin: '0.3em',
-  padding: 0,
+  padding: '4px 8px',
   backgroundColor: colorScheme.primary.standard,
   color: colorScheme.secondary.dark,
 };
@@ -51,12 +52,14 @@ class ExpenseFilterItem extends React.Component<{
   public render() {
     const f = this.props.filter;
     return (
-      <Chip
+      <Pill
         style={chipStyle}
-        onDelete={this.onRemove}
-        label={f.name}
-        avatar={f.avatar ? <Avatar src={f.avatar} /> : undefined}
-      />
+        withRemoveButton
+        onRemove={this.onRemove}
+      >
+        {f.avatar ? <Avatar src={f.avatar} size="xs" /> : null}
+        {f.name}
+      </Pill>
     );
   }
 }

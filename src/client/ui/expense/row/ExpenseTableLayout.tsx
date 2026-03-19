@@ -1,4 +1,5 @@
-import { CircularProgress, styled } from '@mui/material';
+import styled from '@emotion/styled';
+import { Loader } from '@mantine/core';
 import * as React from 'react';
 
 import { windowSizeP } from 'client/data/State';
@@ -51,7 +52,7 @@ export function getVisibleColumns(windowSize: Size) {
   return maxColumnsForSize[size];
 }
 
-export const ExpenseTableLayout = styled('table')`
+export const ExpenseTableLayout = styled.table`
   width: 100%;
   background-color: ${tableBgColor};
   border-spacing: 0;
@@ -190,7 +191,7 @@ const AllColumnsComponent: React.FC<
 
 export const AllColumns = connect(windowSizeP.map(size => ({ size })))(AllColumnsComponent);
 
-const Corner = styled('div')`
+const Corner = styled.div`
   position: absolute;
   top: 0;
   left: 0;
@@ -218,7 +219,7 @@ export const RecurringExpenseIcon: React.FC = () => (
   </Corner>
 );
 
-export const IconToolArea = styled('div')`
+export const IconToolArea = styled.div`
   position: absolute;
   top: 0;
   right: 16px;
@@ -240,7 +241,7 @@ export const UnconfirmedIcon: React.FC<UnconfimedIconProps> = ({ size, title, on
   </IconContainer>
 );
 
-const IconContainer = styled('div')`
+const IconContainer = styled.div`
   cursor: pointer;
   position: relative;
   display: inline-block;
@@ -257,35 +258,20 @@ export const RecurringExpenseSeparator: React.FC = () => (
   </Row>
 );
 
-const Progress = styled(CircularProgress)`
-  &.row {
-    left: 16px;
-    top: 0;
-    width: 30px;
-    height: 30px;
-  }
-  &.primary {
-    left: -30px;
-    top: -30px;
-    width: 60px;
-    height: 60px;
-  }
-`;
-
 export const LoadingIndicator: React.FC<{ forRow?: boolean }> = props => {
   const className = props.forRow ? 'row' : 'primary';
   return (
     <Row>
       <AllColumns {...props}>
         <RefreshIndicatorContainer className={className}>
-          <Progress className={className} />
+          <Loader size={props.forRow ? 30 : 60} />
         </RefreshIndicatorContainer>
       </AllColumns>
     </Row>
   );
 };
 
-const RefreshIndicatorContainer = styled('div')`
+const RefreshIndicatorContainer = styled.div`
   &.primary {
     position: absolute;
     left: 50%;

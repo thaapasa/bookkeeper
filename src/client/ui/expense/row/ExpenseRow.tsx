@@ -1,4 +1,4 @@
-import { styled } from '@mui/material';
+import styled from '@emotion/styled';
 import * as React from 'react';
 
 import {
@@ -365,19 +365,19 @@ function weekDay(date: string, prev?: UserExpense | null) {
   return !prev || !m.hasSame(toDateTime(prev.date), 'day') ? m.toFormat('ccc') : null;
 }
 
-const DateContainer = styled('div')`
+const DateContainer = styled.div`
   position: relative;
   z-index: 1;
 `;
 
-const OptionalIcons = styled('div')`
+const OptionalIcons = styled.div`
   display: inline-block;
   ${media.mobile`
     display: none;
   `}
 `;
 
-const WeekDay = styled('span')`
+const WeekDay = styled.span`
   padding-right: 4px;
   font-weight: bold;
   ${media.mobile`
