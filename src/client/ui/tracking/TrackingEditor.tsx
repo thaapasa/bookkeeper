@@ -1,6 +1,5 @@
 import styled from '@emotion/styled';
-import { ActionIcon, Button, Checkbox, Select as MantineSelect } from '@mantine/core';
-import { Dialog, DialogContent, DialogTitle } from '@mui/material';
+import { ActionIcon, Button, Checkbox, Modal, Select as MantineSelect } from '@mantine/core';
 import * as B from 'baconjs';
 import * as React from 'react';
 
@@ -44,7 +43,7 @@ const TrackingDialogImpl: React.FC<{
   const { counter, forceReload } = useForceReload();
   const data = useAsyncData(getTrackingSubject, true, trackingId, counter);
   return (
-    <Dialog fullWidth={true} open={true} onClose={onClose}>
+    <Modal opened={true} onClose={onClose} size="lg" title="">
       <AsyncDataDialogContent
         data={data}
         renderer={ConnectedEditView}
@@ -52,7 +51,7 @@ const TrackingDialogImpl: React.FC<{
         reloadData={forceReload}
         reloadAll={reloadAll}
       />
-    </Dialog>
+    </Modal>
   );
 };
 
@@ -82,8 +81,8 @@ const TrackingEditView: React.FC<{
   React.useEffect(() => void state.reset(data), [data?.id]);
   return (
     <>
-      <DialogTitle>{createNew ? 'Uusi seuranta' : 'Muokkaa seurantaa'}</DialogTitle>
-      <DialogContent>
+      <h3 style={{ margin: '0 0 16px' }}>{createNew ? 'Uusi seuranta' : 'Muokkaa seurantaa'}</h3>
+      <div>
         <EditorGrid>
           <SelectionRow title="Nimi">
             <TextEdit value={state.title} onChange={state.setTitle} />
@@ -185,7 +184,7 @@ const TrackingEditView: React.FC<{
             </Row>
           </div>
         </EditorGrid>
-      </DialogContent>
+      </div>
     </>
   );
 };

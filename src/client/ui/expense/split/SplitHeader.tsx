@@ -1,5 +1,4 @@
 import styled from '@emotion/styled';
-import { DialogTitle } from '@mui/material';
 import * as React from 'react';
 
 import { UserExpense } from 'shared/expense';
@@ -7,7 +6,7 @@ import { Money } from 'shared/util';
 
 export const SplitHeader: React.FC<{ expense: UserExpense }> = ({ expense }) => {
   return (
-    <DialogTitle>
+    <Header>
       <HeaderRow>
         <div>
           <h5 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 500 }}>{expense.title}</h5>
@@ -15,9 +14,13 @@ export const SplitHeader: React.FC<{ expense: UserExpense }> = ({ expense }) => 
         <SumText>{Money.from(expense.sum).format()}</SumText>
       </HeaderRow>
       <SubText>Pilko kirjaus osiin</SubText>
-    </DialogTitle>
+    </Header>
   );
 };
+
+const Header = styled.div`
+  padding-bottom: 16px;
+`;
 
 const HeaderRow = styled.div`
   display: flex;

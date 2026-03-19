@@ -1,5 +1,4 @@
 import styled from '@emotion/styled';
-import { DialogActions, DialogContent } from '@mui/material';
 import { Button } from '@mantine/core';
 import * as React from 'react';
 
@@ -20,22 +19,29 @@ export const TextPromptDialogContents: React.FC<TextPromptDialogProps> = ({
   const Editor = (editorType ?? TextEdit) as any;
   return (
     <>
-      <DialogContent onKeyUp={handleKeyPress}>
+      <div onKeyUp={handleKeyPress}>
         <Description>{description}</Description>
         <Editor value={text} onChange={setText} width="400px" />
-      </DialogContent>
-      <DialogActions>
+      </div>
+      <Actions>
         <Button variant="subtle" onKeyUp={handleKeyPress} onClick={() => onCancel()}>
           Peruuta
         </Button>
         <Button variant="filled" onKeyUp={handleKeyPress} onClick={() => onSelect(text)}>
           OK
         </Button>
-      </DialogActions>
+      </Actions>
     </>
   );
 };
 
 const Description = styled.div`
   margin-bottom: 8px;
+`;
+
+const Actions = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 16px;
 `;

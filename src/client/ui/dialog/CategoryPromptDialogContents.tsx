@@ -1,5 +1,4 @@
 import styled from '@emotion/styled';
-import { DialogActions, DialogContent } from '@mui/material';
 import { Button } from '@mantine/core';
 import * as React from 'react';
 
@@ -23,19 +22,25 @@ export const CategoryPromptDialogContents: React.FC<CategoryPromptDialogProps> =
   };
   return (
     <>
-      <DialogContent onKeyUp={handleKeyPress}>
+      <div onKeyUp={handleKeyPress}>
         <Description>{description}</Description>
         <CategorySelector addCategories={selectCat} />
-      </DialogContent>
-      <DialogActions>
+      </div>
+      <Actions>
         <Button variant="subtle" onKeyUp={handleKeyPress} onClick={() => onCancel()}>
           Peruuta
         </Button>
-      </DialogActions>
+      </Actions>
     </>
   );
 };
 
 const Description = styled.div`
   margin-bottom: 8px;
+`;
+
+const Actions = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 16px;
 `;

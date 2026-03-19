@@ -1,12 +1,5 @@
-import {
-  DialogContent,
-  FormControl,
-  IconButton,
-  InputLabel,
-  MenuItem,
-  Select,
-  styled,
-} from '@mui/material';
+import styled from '@emotion/styled';
+import { ActionIcon, Select } from '@mantine/core';
 import * as React from 'react';
 
 import { ExpenseType, expenseTypes, getExpenseTypeLabel } from 'shared/expense';
@@ -55,26 +48,15 @@ export const SourceSelector: React.FC<{
   style?: React.CSSProperties;
   title: string;
 }> = ({ title, value, style, onChange, sources }) => {
-  const id = 'expense-dialog-source';
   return (
-    <FormControl fullWidth={true} variant="standard">
-      <InputLabel htmlFor={id} shrink={true}>
-        {title}
-      </InputLabel>
+    <div style={{ width: '100%', ...style }}>
       <Select
-        labelId={id}
-        value={value}
-        style={style}
         label={title}
-        onChange={e => onChange(Number(e.target.value))}
-      >
-        {sources.map(s => (
-          <MenuItem key={s.id} value={s.id}>
-            {s.name}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
+        value={String(value)}
+        onChange={v => onChange(Number(v ?? 0))}
+        data={sources.map(s => ({ value: String(s.id), label: s.name }))}
+      />
+    </div>
   );
 };
 
@@ -91,9 +73,9 @@ export const TypeSelector: React.FC<{
 
   return (
     <VCenterRow>
-      <IconButton onClick={toggle}>
+      <ActionIcon variant="subtle" onClick={toggle}>
         <ExpenseTypeIcon type={value} size={24} />
-      </IconButton>
+      </ActionIcon>
       {getExpenseTypeLabel(value)}
     </VCenterRow>
   );
@@ -113,13 +95,15 @@ export const DescriptionField: React.FC<{
   />
 );
 
-const SumArea = styled('div')`
+const SumArea = styled.div`
   display: inline-flex;
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
 `;
 
-export const ExpenseDialogContent = styled(DialogContent)`
-  overflow-y: scroll !important;
+export const ExpenseDialogContent = styled.div<{ dividers?: boolean }>`
+  overflow-y: auto;
+  padding: 16px 24px;
+  ${p => (p.dividers ? 'border-top: 1px solid rgba(0, 0, 0, 0.12); border-bottom: 1px solid rgba(0, 0, 0, 0.12);' : '')}
 `;

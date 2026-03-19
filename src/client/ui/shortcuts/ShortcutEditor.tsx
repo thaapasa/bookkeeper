@@ -1,6 +1,5 @@
 import styled from '@emotion/styled';
-import { ActionIcon, Button } from '@mantine/core';
-import { Dialog, DialogContent, DialogTitle } from '@mui/material';
+import { ActionIcon, Button, Modal } from '@mantine/core';
 import * as B from 'baconjs';
 import * as React from 'react';
 
@@ -34,14 +33,14 @@ const ShortcutDialogImpl: React.FC<{ shortcutId: ObjectId; onClose: () => void }
   const { counter, forceReload } = useForceReload();
   const data = useAsyncData(getShortcut, true, shortcutId, counter);
   return (
-    <Dialog fullWidth={true} open={true} onClose={onClose}>
+    <Modal opened={true} onClose={onClose} size="lg" title="">
       <AsyncDataDialogContent
         data={data}
         renderer={ShortcutEditView}
         onClose={onClose}
         reloadData={forceReload}
       />
-    </Dialog>
+    </Modal>
   );
 };
 
@@ -60,8 +59,8 @@ const ShortcutEditView: React.FC<{
 
   return (
     <>
-      <DialogTitle>Muokkaa linkkiä</DialogTitle>
-      <DialogContent>
+      <h3 style={{ margin: '0 0 16px' }}>Muokkaa linkkiä</h3>
+      <div>
         <EditorGrid>
           <div>Nimi</div>
           <div>
@@ -116,7 +115,7 @@ const ShortcutEditView: React.FC<{
             </Button>
           </div>
         </EditorGrid>
-      </DialogContent>
+      </div>
     </>
   );
 };
