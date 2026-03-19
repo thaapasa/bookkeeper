@@ -71,7 +71,7 @@ const NavigationContainer = styled.div`
 const TitleArea = styled.div`
   text-align: center;
   width: 140px;
-  font-size: 12pt;
+  font-size: var(--mantine-font-size-lg);
   color: ${colors.colorScheme.primary.text};
 `;
 

@@ -16,7 +16,7 @@ const WeekData = styled(AllColumns)`
   color: ${colorScheme.secondary.dark};
   height: inherit;
   font-weight: bold;
-  font-size: 11pt;
+  font-size: var(--mantine-font-size-sm);
   font-style: italic;
   background-color: ${colorScheme.gray.light};
 `;

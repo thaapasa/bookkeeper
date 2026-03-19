@@ -62,5 +62,5 @@ const GroupedExpenseIconText = styled('div')`
   justify-content: center;
   font-weight: bold;
   ${({ color }: { color: string }) => `color: ${color};`}
-  font-size: 10pt;
+  font-size: var(--mantine-font-size-xs);
 `;

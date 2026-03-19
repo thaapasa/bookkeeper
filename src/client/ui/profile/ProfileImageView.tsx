@@ -110,7 +110,7 @@ const Img = styled.img`
 
 const ImageInfo = styled.div`
   position: absolute;
-  font-size: 14pt;
+  font-size: var(--mantine-font-size-lg);
   z-index: 1;
 `;
 

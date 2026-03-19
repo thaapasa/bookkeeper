@@ -151,7 +151,7 @@ const GroupingImage = styled.img`
 const TitleText = styled(Subtitle)`
   padding-left: 12px;
   padding-top: 2px;
-  font-size: 14pt;
+  font-size: var(--mantine-font-size-lg);
   font-weight: 400;
   color: #000000;
   border: none;

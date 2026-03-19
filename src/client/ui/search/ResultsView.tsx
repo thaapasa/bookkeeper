@@ -125,7 +125,7 @@ const YearHeaderRow = styled.div`
 
 const HeaderText = styled.div`
   color: ${secondaryColors.dark};
-  font-size: 16px;
+  font-size: var(--mantine-font-size-lg);
   flex: 1;
 `;
 

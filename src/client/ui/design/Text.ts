@@ -4,28 +4,34 @@ import styled from '@emotion/styled';
 import { colorScheme } from '../Colors';
 
 export const TitleCss = css`
-  font: 26pt Oswald;
-  font-weight: 300;
+  font-family: var(--mantine-font-family-headings);
+  font-size: var(--mantine-h1-font-size);
+  font-weight: var(--mantine-h1-font-weight);
+  line-height: var(--mantine-h1-line-height);
 `;
 
 export const Title = styled.div`
   border-bottom: 1px solid ${colorScheme.gray.standard};
-  font: 26pt Oswald;
-  font-weight: 300;
+  font-family: var(--mantine-font-family-headings);
+  font-size: var(--mantine-h1-font-size);
+  font-weight: var(--mantine-h1-font-weight);
+  line-height: var(--mantine-h1-line-height);
   margin-bottom: 16px;
 `;
 
 export const Subtitle = styled.div`
   border-bottom: 1px solid ${colorScheme.gray.light};
-  font: 18pt Oswald;
-  font-weight: 300;
+  font-family: var(--mantine-font-family-headings);
+  font-size: var(--mantine-h2-font-size);
+  font-weight: var(--mantine-h2-font-weight);
+  line-height: var(--mantine-h2-line-height);
   margin-bottom: 8px;
 
   &.small {
-    font-size: 16pt;
+    font-size: var(--mantine-h3-font-size);
   }
 `;
 
 export const Text = styled.div`
-  font-size: 11pt;
+  font-size: var(--mantine-font-size-sm);
 `;

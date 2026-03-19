@@ -161,7 +161,7 @@ const TitledRow = styled.div`
 `;
 
 const Title = styled.div`
-  font-size: 14px;
+  font-size: var(--mantine-font-size-md);
   margin-left: 8px;
   color: ${secondaryColors.dark};
 `;

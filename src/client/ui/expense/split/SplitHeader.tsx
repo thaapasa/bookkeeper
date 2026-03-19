@@ -9,7 +9,7 @@ export const SplitHeader: React.FC<{ expense: UserExpense }> = ({ expense }) => 
     <Header>
       <HeaderRow>
         <div>
-          <h5 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 500 }}>{expense.title}</h5>
+          <h5 style={{ margin: 0, fontWeight: 500 }}>{expense.title}</h5>
         </div>
         <SumText>{Money.from(expense.sum).format()}</SumText>
       </HeaderRow>
@@ -30,12 +30,12 @@ const HeaderRow = styled.div`
 `;
 
 const SumText = styled.div`
-  font-size: 1.1rem;
+  font-size: var(--mantine-font-size-xl);
   font-weight: 500;
   padding-left: 16px;
 `;
 
 const SubText = styled.div`
   color: rgba(0, 0, 0, 0.6);
-  font-size: 0.875rem;
+  font-size: var(--mantine-font-size-md);
 `;

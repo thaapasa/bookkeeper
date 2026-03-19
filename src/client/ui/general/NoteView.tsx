@@ -54,7 +54,7 @@ const Container = styled('div')`
 
 const Title = styled('div')`
   padding: 8px 16px;
-  font-size: 18px;
+  font-size: var(--mantine-font-size-xl);
   border-top-left-radius: 4px;
   border-top-right-radius: 4px;
 

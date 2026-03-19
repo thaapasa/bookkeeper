@@ -117,7 +117,7 @@ const UserSection = styled.div`
 
 const UserName = styled.span`
   margin-left: ${px}px;
-  font-size: 16px;
+  font-size: var(--mantine-font-size-lg);
 `;
 
 const Section = styled.div`
@@ -130,7 +130,7 @@ const MenuItemRow = styled.div`
   padding: 10px ${px}px;
   cursor: pointer;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: var(--mantine-font-size-md);
 
   &:hover {
     background-color: ${colorScheme.gray.light};
@@ -147,7 +147,7 @@ const Divider = styled.div`
 `;
 
 const VersionInfo = styled.div`
-  font-size: 9pt;
+  font-size: var(--mantine-font-size-xs);
   padding: 8px ${px + 8}px 16px;
   color: ${colorScheme.gray.dark};
 `;

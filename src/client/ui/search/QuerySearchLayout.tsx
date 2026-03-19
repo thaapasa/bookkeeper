@@ -95,7 +95,7 @@ const QuerySearchLayoutImpl: React.FC<QuerySearchLayoutProps> = ({
           checked={isDefined(userId)}
           onChange={() => onSetUserId(isDefined(userId) ? undefined : session.user.id)}
           label="Vain omat"
-          styles={{ label: { fontSize: 13 } }}
+          styles={{ label: { fontSize: 'var(--mantine-font-size-sm)' } }}
         />
         {isDefined(userId) ? (
           <UserSelector
@@ -110,7 +110,7 @@ const QuerySearchLayoutImpl: React.FC<QuerySearchLayoutProps> = ({
         checked={unconfirmed}
         onChange={e => onToggleUnconfirmed(e, e.currentTarget.checked)}
         label="Alustavat"
-        styles={{ label: { fontSize: 13 } }}
+        styles={{ label: { fontSize: 'var(--mantine-font-size-sm)' } }}
       />
       <Button variant="subtle" onClick={onSaveAsReport}>Tee raportti</Button>
     </div>

@@ -130,7 +130,7 @@ export const Pre = styled.div`
 
 export const PageContentContainer = styled.div`
   position: relative;
-  font-size: 13px;
+  font-size: var(--mantine-font-size-sm);
   display: flex;
   height: 100%;
   flex-direction: column;
