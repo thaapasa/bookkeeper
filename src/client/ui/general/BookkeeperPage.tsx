@@ -1,4 +1,6 @@
 import styled from '@emotion/styled';
+import { AppShell, Burger, Group } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 import * as React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
@@ -24,7 +26,7 @@ import {
 import { RoutedCategoryView } from '../category/RoutedCategoryView';
 import { colorScheme } from '../Colors';
 import { NotificationBar } from '../component/NotificationBar';
-import { AppLink, TopBar } from '../component/TopBar';
+import { AppLink, LinkButton } from '../component/TopBar';
 import { ModalDialogConnector } from '../dialog/ModalDialogConnector';
 import { ExpenseDialog } from '../expense/dialog/ExpenseDialog';
 import { createExpenseDialogListener } from '../expense/dialog/ExpenseDialogListener';
@@ -37,11 +39,15 @@ import { InfoView } from '../info/InfoView';
 import { ProfileView } from '../profile/ProfileView';
 import { SearchPage } from '../search/SearchPage';
 import { StatisticsView } from '../statistics/StatisticsView';
-import { getScreenSizeClassName, mainContentMargin, mainContentMaxWidth } from '../Styles';
+import { isMobileSize, mainContentMargin, mainContentMaxWidth, media } from '../Styles';
 import { SubscriptionsPage } from '../subscriptions/SubscriptionsPage';
 import { ToolsView } from '../tools/ToolsView';
 import { TrackingPage } from '../tracking/TrackingPage';
 import { Size } from '../Types';
+import { AddExpenseNavButton } from '../icons/AddExpenseIcon';
+import { DateRangeNavigator } from '../component/DateRangeNavigator';
+import MenuDrawer from '../component/MenuDrawer';
+import { ShortcutsDropdown } from '../shortcuts/ShortcutsDropdown';
 import { PathNotFoundError } from './ErrorView';
 import { ShortcutsPage } from './ShortcutsPage';
 
@@ -98,77 +104,116 @@ const ExpenseDialogBinder = createExpenseDialogListener(ExpenseDialog, expenseDi
 const ExpenseSplitBinder = createExpenseDialogListener(ExpenseSplitDialog, expenseSplitE);
 
 export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
-  const className = getScreenSizeClassName(windowSize);
+  const [menuOpen, { toggle: toggleMenu, close: closeMenu }] = useDisclosure(false);
+  const isMobile = isMobileSize(windowSize);
+
   return (
-    <Page className="bookkeeper-page">
+    <>
       <ExpenseDialogBinder windowSize={windowSize} />
       <ExpenseSplitBinder windowSize={windowSize} />
       <ModalDialogConnector />
       <Router>
-        <ContentContainer>
-          <TopBar links={appLinks} windowSize={windowSize} />
-          <MainContent className={'main-content ' + className}>
-            <Routes>
-              <Route path={expenseMonthPathPattern('date') + '/*'} element={<RoutedMonthView />} />
-              <Route path={expensePagePath + '/*'} element={<RoutedMonthView />} />
-              <Route path={categoryViewYearPattern('year')} element={<RoutedCategoryView />} />
-              <Route path={categoryViewMonthPattern('month')} element={<RoutedCategoryView />} />
-              <Route path={shortcutsPagePath + '/*'} element={<ShortcutsPage />} />
-              <Route path={subscriptionsPagePath} element={<SubscriptionsPage />} />
-              <Route path={categoryPagePath} element={<RoutedCategoryView />} />
-              <Route path={`${searchPagePath}/m/:month`} element={<SearchPage />} />
-              <Route path={`${searchPagePath}/y/:year`} element={<SearchPage />} />
-              <Route path={searchPagePath} element={<SearchPage />} />
-              <Route path={statisticsPage} element={<StatisticsView />} />
-              <Route path={profilePagePath + '/*'} element={<ProfileView />} />
-              <Route path={infoPagePath} element={<InfoView />} />
-              <Route path={trackingPagePath} element={<TrackingPage />} />
-              <Route path={groupingsPagePath} element={<GroupingPage />} />
-              <Route path={`${groupingsPagePath}/:groupingId`} element={<GroupingExpensesPage />} />
-              <Route path={toolsPagePath} element={<ToolsView />} />
-              <Route path={'/p/*'} element={<FrontpageView />} />
-              <Route path="/" element={<FrontpageView />} />
-              <Route element={<PathNotFoundError />} />
-            </Routes>
-          </MainContent>
-        </ContentContainer>
+        <AppShell header={{ height: 48 }} padding={0} bg={colorScheme.gray.light}>
+          <AppShell.Header bg={colorScheme.primary.dark}>
+            <Group h="100%" px="xs" gap="xs">
+              <Burger
+                opened={menuOpen}
+                onClick={toggleMenu}
+                color={colorScheme.primary.text}
+                size="sm"
+              />
+              {isMobile ? (
+                <>
+                  <Group flex={1} justify="center">
+                    <DateRangeNavigator />
+                  </Group>
+                  <AddExpenseNavButton />
+                </>
+              ) : (
+                <>
+                  <Group gap="xs" flex={1}>
+                    {appLinks
+                      .filter(
+                        l =>
+                          l.showInHeader === true ||
+                          (typeof l.showInHeader === 'number' &&
+                            windowSize.width > l.showInHeader),
+                      )
+                      .map(l => (
+                        <LinkButton
+                          key={l.label}
+                          label={l.label}
+                          to={l.path}
+                          icon={windowSize.width > 920 ? l.icon : undefined}
+                        />
+                      ))}
+                  </Group>
+                  <DateRangeNavigator />
+                  <ShortcutsDropdown />
+                </>
+              )}
+            </Group>
+          </AppShell.Header>
+
+          <AppShell.Main>
+            <MainContent>
+              <Routes>
+                <Route
+                  path={expenseMonthPathPattern('date') + '/*'}
+                  element={<RoutedMonthView />}
+                />
+                <Route path={expensePagePath + '/*'} element={<RoutedMonthView />} />
+                <Route path={categoryViewYearPattern('year')} element={<RoutedCategoryView />} />
+                <Route
+                  path={categoryViewMonthPattern('month')}
+                  element={<RoutedCategoryView />}
+                />
+                <Route path={shortcutsPagePath + '/*'} element={<ShortcutsPage />} />
+                <Route path={subscriptionsPagePath} element={<SubscriptionsPage />} />
+                <Route path={categoryPagePath} element={<RoutedCategoryView />} />
+                <Route path={`${searchPagePath}/m/:month`} element={<SearchPage />} />
+                <Route path={`${searchPagePath}/y/:year`} element={<SearchPage />} />
+                <Route path={searchPagePath} element={<SearchPage />} />
+                <Route path={statisticsPage} element={<StatisticsView />} />
+                <Route path={profilePagePath + '/*'} element={<ProfileView />} />
+                <Route path={infoPagePath} element={<InfoView />} />
+                <Route path={trackingPagePath} element={<TrackingPage />} />
+                <Route path={groupingsPagePath} element={<GroupingPage />} />
+                <Route
+                  path={`${groupingsPagePath}/:groupingId`}
+                  element={<GroupingExpensesPage />}
+                />
+                <Route path={toolsPagePath} element={<ToolsView />} />
+                <Route path={'/p/*'} element={<FrontpageView />} />
+                <Route path="/" element={<FrontpageView />} />
+                <Route element={<PathNotFoundError />} />
+              </Routes>
+            </MainContent>
+          </AppShell.Main>
+        </AppShell>
+        <MenuDrawer open={menuOpen} onRequestChange={open => (open ? undefined : closeMenu())} links={appLinks} />
       </Router>
       <NotificationBar />
-    </Page>
+    </>
   );
 };
 
-const Page = styled.div`
-  width: 100%;
-  height: 100%;
-  background-color: ${colorScheme.gray.light};
-`;
-
-const ContentContainer = styled.div`
-  height: 100%;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-`;
-
 const MainContent = styled.div`
-  flex: 1;
   margin: ${mainContentMargin}px;
-  margin-top: 40px;
+  margin-top: 24px;
   background-color: ${colorScheme.primary.light};
   box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.5);
   overflow: hidden;
+  min-height: calc(100vh - 48px - 48px);
 
-  &.mobile-portrait,
-  &.mobile-landscape {
+  ${media.mobile`
     margin: 0;
     box-shadow: none;
-  }
+  `}
 
-  &.large {
+  ${media.largeDevice`
     margin-left: auto;
     margin-right: auto;
     width: ${mainContentMaxWidth}px;
-  }
+  `}
 `;
