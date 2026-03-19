@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { Burger, Button, Group } from '@mantine/core';
+import { Burger, Button, Group, Text } from '@mantine/core';
 import * as React from 'react';
 import { Link, useMatch } from 'react-router-dom';
 
@@ -17,9 +17,8 @@ import {
 } from 'client/util/Links';
 
 import { colorScheme, gray } from '../Colors';
-import { AddExpenseNavButton } from '../icons/AddExpenseIcon';
 import { Icon, RenderIcon } from '../icons/Icons';
-import { ShortcutsDropdown } from '../shortcuts/ShortcutsDropdown';
+import { AddExpenseMenu } from '../shortcuts/ShortcutsDropdown';
 import { isMobileSize } from '../Styles';
 import { Size } from '../Types';
 import { DateRangeNavigator } from './DateRangeNavigator';
@@ -53,23 +52,18 @@ interface TopBarProps {
 export const TopBar: React.FC<TopBarProps> = ({ windowSize, menuOpen, onToggleMenu }) => {
   const isMobile = isMobileSize(windowSize);
   return (
-    <Group h="100%" px="xs" gap={0}>
-      <Burger
-        opened={menuOpen}
-        onClick={onToggleMenu}
-        color={colorScheme.primary.text}
-        size="sm"
-      />
+    <Group h="100%" px="md" gap={0}>
+      <Burger opened={menuOpen} onClick={onToggleMenu} color={colorScheme.primary.text} size="sm" />
       {isMobile ? (
         <>
-          <Group flex={1} justify="center">
+          <Group flex={1} justify="center" style={{ overflow: 'hidden' }}>
             <DateRangeNavigator />
           </Group>
-          <AddExpenseNavButton />
+          <AddExpenseMenu />
         </>
       ) : (
         <>
-          <Group gap={0} flex={1} h="100%">
+          <Group gap={0} flex={1} h="100%" ml="sm">
             {appLinks
               .filter(
                 l =>
@@ -81,7 +75,9 @@ export const TopBar: React.FC<TopBarProps> = ({ windowSize, menuOpen, onToggleMe
               ))}
           </Group>
           <DateRangeNavigator />
-          <ShortcutsDropdown />
+          <Group ml="md">
+            <AddExpenseMenu />
+          </Group>
         </>
       )}
     </Group>
@@ -93,8 +89,12 @@ const NavLink: React.FC<{ link: AppLink; showIcon: boolean }> = ({ link, showIco
   const active = !!useMatch(link.path);
   return (
     <HeaderLink to={link.path} $active={active}>
-      {showIcon && link.icon && <RenderIcon icon={link.icon} fontSize="small" />}
-      {link.label}
+      <Group gap="xs" wrap="nowrap" align="center">
+        {showIcon && link.icon && <RenderIcon icon={link.icon} fontSize="small" />}
+        <Text size="sm" fw={active ? 600 : 400} inherit={false}>
+          {link.label}
+        </Text>
+      </Group>
     </HeaderLink>
   );
 };
@@ -102,19 +102,18 @@ const NavLink: React.FC<{ link: AppLink; showIcon: boolean }> = ({ link, showIco
 const HeaderLink = styled(Link)<{ $active: boolean }>`
   display: flex;
   align-items: center;
-  gap: 6px;
   height: 100%;
-  padding: 0 var(--mantine-spacing-sm);
+  padding: 0 var(--mantine-spacing-md);
   text-decoration: none;
-  font-size: var(--mantine-font-size-sm);
-  font-weight: ${p => (p.$active ? 600 : 400)};
-  color: ${p => (p.$active ? '#fff' : 'rgba(255, 255, 255, 0.75)')};
-  border-bottom: 2px solid ${p => (p.$active ? colorScheme.secondary.standard : 'transparent')};
-  transition: background-color 150ms, color 150ms;
+  color: ${p => (p.$active ? colorScheme.primary.text : colorScheme.gray.veryDark)};
+  box-shadow: ${p => (p.$active ? `inset 0 -2px 0 ${colorScheme.secondary.standard}` : 'none')};
+  transition:
+    background-color 150ms,
+    color 150ms;
 
   &:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    color: #fff;
+    background-color: rgba(0, 0, 0, 0.08);
+    color: ${colorScheme.primary.text};
   }
 `;
 

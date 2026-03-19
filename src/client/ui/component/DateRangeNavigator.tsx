@@ -1,5 +1,4 @@
-import styled from '@emotion/styled';
-import { ActionIcon } from '@mantine/core';
+import { ActionIcon, Group, Text } from '@mantine/core';
 import * as React from 'react';
 import { useNavigate } from 'react-router';
 
@@ -10,7 +9,6 @@ import { logger } from 'client/Logger';
 import { KeyCodes } from 'client/util/Io';
 import { monthSuffix, yearSuffix } from 'client/util/Links';
 
-import * as colors from '../Colors';
 import { Icons } from '../icons/Icons';
 import { connect } from './BaconConnect';
 
@@ -44,34 +42,30 @@ const DateRangeNavigatorImpl: React.FC<React.PropsWithChildren<DateRangeNavigato
   };
 
   return (
-    <NavigationContainer onKeyUp={handleKeyPress} tabIndex={0}>
-      <div>
-        <ActionIcon variant="subtle" onClick={() => navigateOffset(-1)} title="Edellinen" size="sm">
-          <Icons.ChevronLeft color="primary" />
-        </ActionIcon>
-      </div>
-      <TitleArea>{toDateRangeName(dateRange)}</TitleArea>
-      <div>
-        <ActionIcon variant="subtle" onClick={() => navigateOffset(1)} title="Seuraava" size="sm">
-          <Icons.ChevronRight color="primary" />
-        </ActionIcon>
-      </div>
-    </NavigationContainer>
+    <Group gap={0} align="center" wrap="nowrap" onKeyUp={handleKeyPress} tabIndex={0}>
+      <ActionIcon
+        variant="subtle"
+        onClick={() => navigateOffset(-1)}
+        title="Edellinen"
+        size="md"
+        radius="xl"
+      >
+        <Icons.ChevronLeft color="primary" />
+      </ActionIcon>
+      <Text size="sm" w={140} ta="center">
+        {toDateRangeName(dateRange)}
+      </Text>
+      <ActionIcon
+        variant="subtle"
+        onClick={() => navigateOffset(1)}
+        title="Seuraava"
+        size="md"
+        radius="xl"
+      >
+        <Icons.ChevronRight color="primary" />
+      </ActionIcon>
+    </Group>
   );
 };
-
-const NavigationContainer = styled.div`
-  height: 48px !important;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-`;
-
-const TitleArea = styled.div`
-  text-align: center;
-  width: 140px;
-  color: ${colors.colorScheme.primary.text};
-`;
 
 export const DateRangeNavigator = connect(navigationP)(DateRangeNavigatorImpl);

@@ -15,7 +15,7 @@ import { Icons } from './Icons';
 
 export const AddExpenseIcon: React.FC<{ onClick?: () => void }> = ({ onClick }) => (
   <AddExpenseIconContainer>
-    <BlackContent />
+    <AccentBackground />
     <PlusIcon onClick={onClick} />
   </AddExpenseIconContainer>
 );
@@ -27,7 +27,7 @@ const AddExpenseNavButtonImpl: React.FC<{ onClick?: () => void; dateRange: Typed
   const navigate = useNavigate();
   return (
     <AddExpenseIconContainer className="navigation">
-      <BlackContent />
+      <AccentBackground />
       <PlusIcon
         onClick={onClick ?? (() => openNewExpenseDialog(navigate, dateRange.start))}
         className="navigation"
@@ -66,7 +66,7 @@ const PlusIcon = styled(Icons.PlusCircle)`
 
   width: 32px;
   height: 32px;
-  color: ${secondaryColors.standard};
+  color: white;
 
   &.navigation {
     width: 40px;
@@ -89,13 +89,13 @@ const AddExpenseIconContainer = styled.div`
   cursor: pointer;
 `;
 
-const BlackContent = styled.div`
+const AccentBackground = styled.div`
   position: absolute;
   top: 5px;
   right: 5px;
   bottom: 5px;
   left: 5px;
   border-radius: 100px;
-  background: black;
+  background: ${secondaryColors.standard};
   z-index: 0;
 `;

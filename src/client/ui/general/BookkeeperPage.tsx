@@ -25,6 +25,7 @@ import {
 
 import { RoutedCategoryView } from '../category/RoutedCategoryView';
 import { colorScheme } from '../Colors';
+import MenuDrawer from '../component/MenuDrawer';
 import { NotificationBar } from '../component/NotificationBar';
 import { appLinks, TopBar } from '../component/TopBar';
 import { ModalDialogConnector } from '../dialog/ModalDialogConnector';
@@ -44,7 +45,6 @@ import { SubscriptionsPage } from '../subscriptions/SubscriptionsPage';
 import { ToolsView } from '../tools/ToolsView';
 import { TrackingPage } from '../tracking/TrackingPage';
 import { Size } from '../Types';
-import MenuDrawer from '../component/MenuDrawer';
 import { PathNotFoundError } from './ErrorView';
 import { ShortcutsPage } from './ShortcutsPage';
 
@@ -66,7 +66,7 @@ export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
       <ExpenseSplitBinder windowSize={windowSize} />
       <ModalDialogConnector />
       <Router>
-        <AppShell header={{ height: 48 }} padding={0} bg={colorScheme.gray.light}>
+        <AppShell header={{ height: 56 }} padding={0} bg={colorScheme.gray.light}>
           <AppShell.Header bg={colorScheme.primary.dark}>
             <TopBar windowSize={windowSize} menuOpen={menuOpen} onToggleMenu={toggleMenu} />
           </AppShell.Header>
@@ -80,10 +80,7 @@ export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
                 />
                 <Route path={expensePagePath + '/*'} element={<RoutedMonthView />} />
                 <Route path={categoryViewYearPattern('year')} element={<RoutedCategoryView />} />
-                <Route
-                  path={categoryViewMonthPattern('month')}
-                  element={<RoutedCategoryView />}
-                />
+                <Route path={categoryViewMonthPattern('month')} element={<RoutedCategoryView />} />
                 <Route path={shortcutsPagePath + '/*'} element={<ShortcutsPage />} />
                 <Route path={subscriptionsPagePath} element={<SubscriptionsPage />} />
                 <Route path={categoryPagePath} element={<RoutedCategoryView />} />

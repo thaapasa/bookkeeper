@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { Drawer } from '@mantine/core';
+import { Drawer, Text } from '@mantine/core';
 import * as React from 'react';
 import { useNavigate } from 'react-router';
 
@@ -97,12 +97,18 @@ export const MenuDrawer: React.FC<MenuDrawerProps> = ({
 
 const px = 16;
 
-const Header = styled.div`
-  padding: ${px}px ${px + 8}px;
-  background-color: ${colorScheme.primary.standard};
-  font-weight: bold;
-  color: ${colorScheme.secondary.dark};
-`;
+const Header: React.FC<React.PropsWithChildren> = ({ children }) => (
+  <Text
+    bg={colorScheme.primary.standard}
+    size="md"
+    fw="bold"
+    h={56}
+    px="md"
+    style={{ display: 'flex', alignItems: 'center' }}
+  >
+    {children}
+  </Text>
+);
 
 const UserSection = styled.div`
   display: flex;
