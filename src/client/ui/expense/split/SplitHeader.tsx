@@ -1,4 +1,5 @@
-import { DialogTitle, Grid, Typography } from '@mui/material';
+import styled from '@emotion/styled';
+import { DialogTitle } from '@mui/material';
 import * as React from 'react';
 
 import { UserExpense } from 'shared/expense';
@@ -7,21 +8,31 @@ import { Money } from 'shared/util';
 export const SplitHeader: React.FC<{ expense: UserExpense }> = ({ expense }) => {
   return (
     <DialogTitle>
-      <Grid container alignItems="flex-end" justifyContent="space-between" width="100%">
-        <Grid size={8}>
-          <Typography variant="h5" component="div">
-            {expense.title}
-          </Typography>
-        </Grid>
-        <Grid size="grow" container justifyContent="flex-end">
-          <Typography variant="h6" component="div" paddingLeft="16px">
-            {Money.from(expense.sum).format()}
-          </Typography>
-        </Grid>
-      </Grid>
-      <Typography color="text.secondary" variant="body2">
-        Pilko kirjaus osiin
-      </Typography>
+      <HeaderRow>
+        <div>
+          <h5 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 500 }}>{expense.title}</h5>
+        </div>
+        <SumText>{Money.from(expense.sum).format()}</SumText>
+      </HeaderRow>
+      <SubText>Pilko kirjaus osiin</SubText>
     </DialogTitle>
   );
 };
+
+const HeaderRow = styled.div`
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  width: 100%;
+`;
+
+const SumText = styled.div`
+  font-size: 1.1rem;
+  font-weight: 500;
+  padding-left: 16px;
+`;
+
+const SubText = styled.div`
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 0.875rem;
+`;

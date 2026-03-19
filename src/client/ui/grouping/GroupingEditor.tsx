@@ -1,14 +1,6 @@
 import styled from '@emotion/styled';
-import {
-  Button,
-  Checkbox,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  FormControlLabel,
-  Grid,
-  IconButton,
-} from '@mui/material';
+import { ActionIcon, Button, Checkbox } from '@mantine/core';
+import { Dialog, DialogContent, DialogTitle } from '@mui/material';
 import * as B from 'baconjs';
 import * as React from 'react';
 
@@ -90,27 +82,19 @@ const GroupingEditView: React.FC<{
     <>
       <DialogTitle>{createNew ? 'Uusi ryhmittely' : 'Muokkaa ryhmittelyä'}</DialogTitle>
       <DialogContent>
-        <Grid container rowSpacing={1} justifyContent="space-between">
+        <EditorGrid>
           <SelectionRow title="Nimi">
             <TextEdit value={state.title} onChange={state.setTitle} />
           </SelectionRow>
           <SelectionRow title="Valinnat">
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={state.private}
-                  onChange={e => state.setPrivate(e.target.checked)}
-                />
-              }
+            <Checkbox
+              checked={state.private}
+              onChange={e => state.setPrivate(e.currentTarget.checked)}
               label="Yksityinen"
             />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={state.onlyOwn}
-                  onChange={e => state.setOnlyOwn(e.target.checked)}
-                />
-              }
+            <Checkbox
+              checked={state.onlyOwn}
+              onChange={e => state.setOnlyOwn(e.currentTarget.checked)}
               label="Vain omat kirjaukset"
             />
           </SelectionRow>
@@ -145,43 +129,43 @@ const GroupingEditView: React.FC<{
               >
                 <Icons.Upload />
               </UploadImageButton>
-              <IconButton
+              <ActionIcon
+                variant="subtle"
                 onClick={() => state.removeImage(reloadData, reloadAll)}
                 title="Poista kuva"
               >
                 <Icons.Delete />
-              </IconButton>
+              </ActionIcon>
             </Row>
           </SelectionRow>
-          <Grid size={12} sx={{ position: 'relative' }}>
+          <div style={{ gridColumn: '1 / -1', position: 'relative' }}>
             <ToolIconArea>
-              <IconButton title="Lisää kategoria" size="small" onClick={state.addCategory}>
+              <ActionIcon variant="subtle" title="Lisää kategoria" size="sm" onClick={state.addCategory}>
                 <Icons.Add fontSize="small" />
-              </IconButton>
+              </ActionIcon>
             </ToolIconArea>
             <Subtitle className="small">Kategoriat</Subtitle>
             {state.categories.map(c => (
               <CategorySelection id={c} key={c} categoryMap={categoryMap} />
             ))}
-          </Grid>
-          <Grid size={12}>
+          </div>
+          <div style={{ gridColumn: '1 / -1' }}>
             <Row>
               <Flex />
-              <Button color="inherit" onClick={onClose}>
+              <Button variant="subtle" onClick={onClose}>
                 Peruuta
               </Button>
               <Button
-                sx={{ marginLeft: 2 }}
-                color="primary"
-                variant="contained"
+                style={{ marginLeft: 16 }}
+                variant="filled"
                 disabled={!state.inputValid()}
                 onClick={() => state.saveGrouping(onClose, reloadAll)}
               >
                 Tallenna
               </Button>
             </Row>
-          </Grid>
-        </Grid>
+          </div>
+        </EditorGrid>
       </DialogContent>
     </>
   );
@@ -192,12 +176,19 @@ const SelectionRow: React.FC<React.PropsWithChildren<{ title: string }>> = ({
   children,
 }) => (
   <>
-    <Grid size={4}>{title}</Grid>
-    <Grid size={8}>{children}</Grid>
+    <div>{title}</div>
+    <div>{children}</div>
   </>
 );
 
-const ToolIconArea = styled('div')`
+const EditorGrid = styled.div`
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px;
+  align-items: center;
+`;
+
+const ToolIconArea = styled.div`
   position: absolute;
   right: 0;
   top: 8px;
@@ -216,14 +207,14 @@ const CategorySelection: React.FC<{ id: ObjectId; categoryMap: CategoryMap }> = 
     <Row>
       {getFullCategoryName(id, categoryMap)}
       <Flex />
-      <IconButton
+      <ActionIcon
+        variant="subtle"
         title="Poista seurannasta"
-        color="warning"
-        size="small"
+        size="sm"
         onClick={() => state.removeCategory(id)}
       >
         <Icons.Delete fontSize="small" />
-      </IconButton>
+      </ActionIcon>
     </Row>
   );
 };
@@ -233,7 +224,7 @@ export const GroupingEditor = connectDialog<GroupingBusPayload, { reloadAll: () 
   GroupingDialogImpl,
 );
 
-const ImageArea = styled('div')`
+const ImageArea = styled.div`
   width: 128px;
   height: 128px;
   position: relative;
@@ -243,7 +234,7 @@ const ImageArea = styled('div')`
   align-items: center;
 `;
 
-const GroupingImg = styled('img')`
+const GroupingImg = styled.img`
   width: 128px;
   height: 128px;
 `;

@@ -1,12 +1,5 @@
-import {
-  Button,
-  Checkbox,
-  CircularProgress,
-  FormControlLabel,
-  Grid,
-  IconButton,
-  styled,
-} from '@mui/material';
+import styled from '@emotion/styled';
+import { ActionIcon, Button, Checkbox, Loader } from '@mantine/core';
 import * as B from 'baconjs';
 import * as React from 'react';
 
@@ -22,6 +15,7 @@ import { DateRangeSelector } from '../component/daterange/DateRangeSelector';
 import { Row } from '../component/Row';
 import UserSelector from '../component/UserSelector';
 import { Icons } from '../icons/Icons';
+import { media } from '../Styles';
 import { SearchInputField } from './SearchInputField';
 import { SearchSuggestion } from './SearchSuggestions';
 import { SelectedSuggestionsView } from './SelectedSuggestionsView';
@@ -65,13 +59,13 @@ const QuerySearchLayoutImpl: React.FC<QuerySearchLayoutProps> = ({
   onSaveAsReport,
   session,
 }) => (
-  <Grid container padding="16px" rowGap="16px">
-    <Grid size={{ xs: 12, sm: 12, md: 7 }}>
+  <SearchGrid>
+    <div>
       <FlexRow>
         <ClearIconArea>
-          <IconButton size="small" onClick={onClear}>
+          <ActionIcon variant="subtle" size="sm" onClick={onClear}>
             <Icons.Delete />
-          </IconButton>
+          </ActionIcon>
         </ClearIconArea>
         <SearchInputField
           value={input}
@@ -81,32 +75,27 @@ const QuerySearchLayoutImpl: React.FC<QuerySearchLayoutProps> = ({
           categorySource={categorySource}
         />
         <SearchButtonArea>
-          <IconButton size="small" onClick={startSearch}>
+          <ActionIcon variant="subtle" size="sm" onClick={startSearch}>
             <Icons.Search color="primary" />
-          </IconButton>
+          </ActionIcon>
         </SearchButtonArea>
         <ProgressArea>
-          {isSearching ? (
-            <CircularProgress size={38} variant="indeterminate" disableShrink />
-          ) : null}
+          {isSearching ? <Loader size={38} /> : null}
         </ProgressArea>
       </FlexRow>
       <br />
       {dateRange ? `Haetaan ajalta ${toDateRangeName(dateRange)}` : 'Ei aikaehtoja'}
-    </Grid>
-    <Grid size={{ xs: 12, sm: 7, md: 3 }}>
+    </div>
+    <div>
       <DateRangeSelector dateRange={dateRange} onSelectRange={onSelectRange} />
-    </Grid>
-    <Grid size={{ xs: 12, sm: 5, md: 2 }}>
+    </div>
+    <div>
       <Row>
-        <CheckLabel
-          control={
-            <Checkbox
-              checked={isDefined(userId)}
-              onChange={() => onSetUserId(isDefined(userId) ? undefined : session.user.id)}
-            />
-          }
+        <Checkbox
+          checked={isDefined(userId)}
+          onChange={() => onSetUserId(isDefined(userId) ? undefined : session.user.id)}
           label="Vain omat"
+          styles={{ label: { fontSize: 13 } }}
         />
         {isDefined(userId) ? (
           <UserSelector
@@ -117,16 +106,18 @@ const QuerySearchLayoutImpl: React.FC<QuerySearchLayoutProps> = ({
           />
         ) : null}
       </Row>
-      <CheckLabel
-        control={<Checkbox checked={unconfirmed} onChange={onToggleUnconfirmed} />}
+      <Checkbox
+        checked={unconfirmed}
+        onChange={e => onToggleUnconfirmed(e, e.currentTarget.checked)}
         label="Alustavat"
+        styles={{ label: { fontSize: 13 } }}
       />
-      <Button onClick={onSaveAsReport}>Tee raportti</Button>
-    </Grid>
-    <Grid size={12}>
+      <Button variant="subtle" onClick={onSaveAsReport}>Tee raportti</Button>
+    </div>
+    <div style={{ gridColumn: '1 / -1' }}>
       <SelectedSuggestionsView suggestions={selectedSuggestions} onRemove={removeSuggestion} />
-    </Grid>
-  </Grid>
+    </div>
+  </SearchGrid>
 );
 
 export const QuerySearchLayout = connect(
@@ -135,7 +126,15 @@ export const QuerySearchLayout = connect(
   }),
 )(QuerySearchLayoutImpl);
 
-const SearchToolArea = styled('div')`
+const SearchGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  padding: 16px;
+  gap: 16px;
+  ${media.web`grid-template-columns: 7fr 3fr 2fr;`}
+`;
+
+const SearchToolArea = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -162,17 +161,11 @@ const SearchButtonArea = styled(SearchToolArea)`
   border-top-left-radius: 0;
 `;
 
-const ProgressArea = styled('div')`
+const ProgressArea = styled.div`
   width: 64px;
   height: 48px;
   margin-right: 8px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
-`;
-
-const CheckLabel = styled(FormControlLabel)`
-  & span {
-    font-size: 13px;
-  }
 `;
