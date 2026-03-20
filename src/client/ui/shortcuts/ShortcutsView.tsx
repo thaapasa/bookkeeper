@@ -161,9 +161,9 @@ const TitledRow = styled.div`
 `;
 
 const Title = styled.div`
-  font-size: var(--mantine-font-size-sm);
   margin-left: 8px;
   color: ${primary[7]};
+  font-size: var(--mantine-font-size-sm);
 `;
 
 export const ShortcutsView = connect(

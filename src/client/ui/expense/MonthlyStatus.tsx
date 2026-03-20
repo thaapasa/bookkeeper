@@ -181,9 +181,9 @@ const MonthlyCalculation = styled.div`
 
 const CalculationHeader = styled.div`
   color: ${primary[7]};
+  font-size: var(--mantine-font-size-sm);
   font-weight: 600;
   margin: 8px 0;
-  font-size: var(--mantine-font-size-sm);
 `;
 
 function CalculationRow({
@@ -196,7 +196,7 @@ function CalculationRow({
   drawTopBorder?: boolean;
 }) {
   const rowStyle = {
-    borderTop: drawTopBorder ? '1px solid rgb(224, 224, 224)' : 'none',
+    borderTop: drawTopBorder ? '1px solid var(--mantine-color-default-border)' : 'none',
   };
   return (
     <CalculationRowContainer style={rowStyle}>

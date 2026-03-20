@@ -30,9 +30,10 @@ const SourceImage = styled.img`
 
 export const TextButton = styled.button`
   border: 0;
-  font-size: var(--mantine-font-size-xs);
   outline: none;
   background: none;
+  font-size: var(--mantine-font-size-xs);
+  cursor: pointer;
   &:hover {
     text-decoration: underline;
   }

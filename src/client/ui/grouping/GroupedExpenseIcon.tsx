@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { DEFAULT_THEME } from '@mantine/core';
+import { DEFAULT_THEME, Text } from '@mantine/core';
 import * as React from 'react';
 
 import { ExpenseGroupingRef } from 'shared/types';
@@ -36,7 +36,7 @@ export const GroupedExpenseIcon: React.FC<GroupedExpenseIconProps> = ({
       <Bookmark size={size || 24} title={grouping.title} color={color} outline={implicit} />
       {grouping.title ? (
         <GroupedExpenseIconText color={luminance > 0.4 ? 'black' : 'white'}>
-          {grouping.title[0]}
+          <Text span fz="xs" fw={700}>{grouping.title[0]}</Text>
         </GroupedExpenseIconText>
       ) : null}
     </IconContainer>
@@ -62,7 +62,5 @@ const GroupedExpenseIconText = styled('div')`
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
   ${({ color }: { color: string }) => `color: ${color};`}
-  font-size: var(--mantine-font-size-xs);
 `;

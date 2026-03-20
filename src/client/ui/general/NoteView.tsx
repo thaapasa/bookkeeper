@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+
 import * as React from 'react';
 
 import { spaced } from 'shared/util';
@@ -52,7 +53,7 @@ const Container = styled('div')`
   }
 `;
 
-const Title = styled('div')`
+const Title = styled.div`
   padding: 8px 16px;
   font-size: var(--mantine-font-size-lg);
   border-top-left-radius: var(--mantine-radius-sm);

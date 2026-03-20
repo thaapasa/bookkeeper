@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { Drawer, SegmentedControl, Text, useMantineColorScheme } from '@mantine/core';
+import { Divider, Drawer, SegmentedControl, Text, useMantineColorScheme } from '@mantine/core';
 import * as React from 'react';
 import { useNavigate } from 'react-router';
 
@@ -74,7 +74,7 @@ export const MenuDrawer: React.FC<MenuDrawerProps> = ({
         </UserName>
       </UserSection>
 
-      <Divider />
+      <Divider mx={px} />
 
       <Section>
         {links?.map(l => (
@@ -89,7 +89,7 @@ export const MenuDrawer: React.FC<MenuDrawerProps> = ({
         />
       </Section>
 
-      <Divider />
+      <Divider mx={px} />
 
       <ThemeSection>
         <Icons.Palette fontSize="small" />
@@ -102,7 +102,7 @@ export const MenuDrawer: React.FC<MenuDrawerProps> = ({
         />
       </ThemeSection>
 
-      <Divider />
+      <Divider mx={px} />
 
       <Section>
         <MenuItemRow onClick={logout}>Kirjaudu ulos</MenuItemRow>
@@ -172,11 +172,6 @@ const MenuItemRow = styled.div`
 
 const MenuIcon = styled(RenderIcon)`
   margin-right: 12px;
-`;
-
-const Divider = styled.div`
-  border-bottom: 1px solid ${neutral[3]};
-  margin: 0 ${px}px;
 `;
 
 const VersionInfo = styled.div`

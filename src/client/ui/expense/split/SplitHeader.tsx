@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { Text } from '@mantine/core';
 import * as React from 'react';
 
 import { UserExpense } from 'shared/expense';
@@ -11,9 +12,13 @@ export const SplitHeader: React.FC<{ expense: UserExpense }> = ({ expense }) => 
         <div>
           <h5 style={{ margin: 0, fontWeight: 500 }}>{expense.title}</h5>
         </div>
-        <SumText>{Money.from(expense.sum).format()}</SumText>
+        <Text fz="lg" fw={500} pl="md">
+          {Money.from(expense.sum).format()}
+        </Text>
       </HeaderRow>
-      <SubText>Pilko kirjaus osiin</SubText>
+      <Text fz="sm" c="dimmed">
+        Pilko kirjaus osiin
+      </Text>
     </Header>
   );
 };
@@ -27,15 +32,4 @@ const HeaderRow = styled.div`
   align-items: flex-end;
   justify-content: space-between;
   width: 100%;
-`;
-
-const SumText = styled.div`
-  font-size: var(--mantine-font-size-lg);
-  font-weight: 500;
-  padding-left: 16px;
-`;
-
-const SubText = styled.div`
-  color: var(--mantine-color-dimmed);
-  font-size: var(--mantine-font-size-sm);
 `;

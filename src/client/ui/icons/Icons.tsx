@@ -119,9 +119,9 @@ const colorMap: Record<MuiIconColor, string> = {
   primary: primary[5],
   secondary: neutral[4],
   action: 'var(--mantine-color-dimmed)',
-  info: '#0288d1',
-  warning: '#ed6c02',
-  error: '#d32f2f',
+  info: 'var(--mantine-color-blue-6)',
+  warning: 'var(--mantine-color-orange-6)',
+  error: 'var(--mantine-color-red-6)',
   inherit: 'inherit',
 };
 
