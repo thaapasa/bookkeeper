@@ -111,4 +111,4 @@ export const media = {
 };
 
 // Styled components moved to GlobalStyles.ts
-export { Flex, PageContentContainer, Pre, VCenterRow } from './GlobalStyles';
+export { Flex, Pre, VCenterRow } from './GlobalStyles';

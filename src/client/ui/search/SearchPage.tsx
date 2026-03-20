@@ -1,3 +1,4 @@
+import { ScrollArea } from '@mantine/core';
 import * as B from 'baconjs';
 import * as React from 'react';
 import { useParams } from 'react-router';
@@ -21,7 +22,6 @@ import { searchPagePath } from 'client/util/Links';
 import { connect } from '../component/BaconConnect';
 import { usePersistentMemo } from '../hooks/usePersistentMemo';
 import { useWhenMounted } from '../hooks/useWhenMounted';
-import { PageContentContainer } from '../GlobalStyles';
 import { QueryView } from './QueryView';
 import { ResultsView } from './ResultsView';
 
@@ -94,7 +94,7 @@ const SearchViewImpl: React.FC<SearchViewProps> = ({ userData, session, category
   React.useEffect(() => needUpdateE.onValue(onRepeatSearch), [onRepeatSearch]);
 
   return (
-    <PageContentContainer>
+    <ScrollArea h="100%" type="auto" bg="neutral.1">
       <QueryView
         ref={queryRef}
         categoryMap={userData.categoryMap}
@@ -110,7 +110,7 @@ const SearchViewImpl: React.FC<SearchViewProps> = ({ userData, session, category
         onUpdate={onRepeatSearch}
         onSelectCategory={onAddCategoryToSearch}
       />
-    </PageContentContainer>
+    </ScrollArea>
   );
 };
 

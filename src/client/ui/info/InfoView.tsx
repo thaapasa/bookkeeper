@@ -1,3 +1,4 @@
+import { Box, ScrollArea } from '@mantine/core';
 import * as B from 'baconjs';
 import * as React from 'react';
 
@@ -8,7 +9,6 @@ import { updateSession, validSessionP } from 'client/data/Login';
 
 import { ActivatableTextField } from '../component/ActivatableTextField';
 import { connect } from '../component/BaconConnect';
-import { PageContentContainer } from '../GlobalStyles';
 import { InfoItem, ItemWithId, Label, SubValue, Value } from './InfoLayoutElements';
 import { VersionInfoView } from './VersionInfoView';
 
@@ -16,12 +16,14 @@ const InfoViewImpl: React.FC<{ userData: UserDataProps; session: Session }> = ({
   userData,
   session,
 }) => (
-  <PageContentContainer className="padded">
-    <VersionInfoView />
-    <UsersView user={session.user} userMap={userData.userMap} />
-    <SourcesView sources={session.sources} />
-    <CategoriesView categories={session.categories} />
-  </PageContentContainer>
+  <ScrollArea h="100%" type="auto" bg="neutral.1">
+    <Box p="lg">
+      <VersionInfoView />
+      <UsersView user={session.user} userMap={userData.userMap} />
+      <SourcesView sources={session.sources} />
+      <CategoriesView categories={session.categories} />
+    </Box>
+  </ScrollArea>
 );
 
 const UsersView: React.FC<{

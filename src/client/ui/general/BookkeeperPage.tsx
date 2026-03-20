@@ -120,11 +120,12 @@ const MainContent = styled.div`
   background-color: var(--mantine-color-default);
   box-shadow: light-dark(0px 2px 4px 0px rgba(0, 0, 0, 0.5), 0px 2px 4px 0px rgba(0, 0, 0, 0.8));
   overflow: hidden;
-  min-height: calc(100vh - 48px - 48px);
+  height: calc(100vh - 56px - 24px - ${mainContentMargin}px);
 
   ${media.mobile`
     margin: 0;
     box-shadow: none;
+    height: calc(100vh - 56px);
   `}
 
   ${media.largeDevice`

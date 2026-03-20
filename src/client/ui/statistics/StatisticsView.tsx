@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { ActionIcon, Checkbox } from '@mantine/core';
+import { ActionIcon, Checkbox, ScrollArea } from '@mantine/core';
 import * as B from 'baconjs';
 import React from 'react';
 import { z } from 'zod';
@@ -19,7 +19,6 @@ import { useAsyncData } from '../hooks/useAsyncData';
 import { useLocalStorageList } from '../hooks/useList';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { Icons } from '../icons/Icons';
-import { PageContentContainer } from '../GlobalStyles';
 import { isMobileSize, media, Size } from '../Styles';
 import { CategoryStatisticsChart } from './category/CategoryStatisticsChart';
 import { StatisticsChartTypeSelector } from './ChartTypeSelector';
@@ -103,7 +102,7 @@ export const StatisticsViewImpl: React.FC<{
 
   const isMobile = isMobileSize(size);
   return (
-    <PageContentContainer>
+    <ScrollArea h="100%" type="auto" bg="neutral.1">
       <StatsGrid>
         <div>
           <CategorySelector addCategories={addCats} />
@@ -142,7 +141,7 @@ export const StatisticsViewImpl: React.FC<{
           />
         </FullWidth>
       </StatsGrid>
-    </PageContentContainer>
+    </ScrollArea>
   );
 };
 
