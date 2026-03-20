@@ -112,7 +112,7 @@ const HeaderLink = styled(Link)<{ $active: boolean }>`
     color 150ms;
 
   &:hover {
-    background-color: rgba(0, 0, 0, 0.08);
+    background-color: light-dark(rgba(0, 0, 0, 0.08), rgba(255, 255, 255, 0.08));
     color: ${text};
   }
 `;

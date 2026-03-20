@@ -152,7 +152,7 @@ const TitleText = styled(Subtitle)`
   padding-left: 12px;
   padding-top: 2px;
   font-weight: 400;
-  color: #000000;
+  color: var(--mantine-color-text);
   border: none;
 `;
 

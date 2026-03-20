@@ -118,7 +118,7 @@ type MuiIconColor = 'primary' | 'secondary' | 'action' | 'info' | 'warning' | 'i
 const colorMap: Record<MuiIconColor, string> = {
   primary: primary[5],
   secondary: neutral[4],
-  action: 'rgba(0, 0, 0, 0.54)',
+  action: 'var(--mantine-color-dimmed)',
   info: '#0288d1',
   warning: '#ed6c02',
   error: '#d32f2f',

@@ -77,7 +77,7 @@ const LoginPaper = styled.div`
   margin: 15vh 32px 32px 32px;
   padding: 32px;
   border-radius: 8px;
-  background: white;
+  background: var(--mantine-color-body);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   z-index: 1;
 `;
@@ -111,7 +111,7 @@ const Page = styled.div<{ bgImage: string }>`
   align-items: flex-start;
   justify-content: center;
   background: url(${publicUrl}/img/${props => props.bgImage});
-  background-color: #d6d6d6;
+  background-color: light-dark(#d6d6d6, #1a1a1a);
   background-size: cover;
   background-repeat: no-repeat;
   width: 100%;

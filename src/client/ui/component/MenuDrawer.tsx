@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { Drawer, Text } from '@mantine/core';
+import { Drawer, SegmentedControl, Text, useMantineColorScheme } from '@mantine/core';
 import * as React from 'react';
 import { useNavigate } from 'react-router';
 
@@ -9,8 +9,8 @@ import { logout, validSessionP } from 'client/data/Login';
 import { reloadApp } from 'client/util/ClientUtil';
 import { profilePagePath } from 'client/util/Links';
 
-import { neutral } from '../Colors';
-import { RenderIcon } from '../icons/Icons';
+import { neutral, primary } from '../Colors';
+import { Icons, RenderIcon } from '../icons/Icons';
 import { connect } from './BaconConnect';
 import { AppLink } from './TopBar';
 import { UserAvatar } from './UserAvatar';
@@ -35,6 +35,12 @@ const MenuLink: React.FC<AppLink & { onSelect: (path: string) => void }> = ({
   </MenuItemRow>
 );
 
+const colorSchemeOptions = [
+  { value: 'auto', label: 'Auto' },
+  { value: 'light', label: '☀️' },
+  { value: 'dark', label: '🌙' },
+];
+
 export const MenuDrawer: React.FC<MenuDrawerProps> = ({
   onRequestChange,
   open,
@@ -43,6 +49,7 @@ export const MenuDrawer: React.FC<MenuDrawerProps> = ({
   links,
 }) => {
   const navigate = useNavigate();
+  const { colorScheme, setColorScheme } = useMantineColorScheme();
   const onSelect = (path: string) => {
     navigate(path);
     onRequestChange(false);
@@ -84,6 +91,19 @@ export const MenuDrawer: React.FC<MenuDrawerProps> = ({
 
       <Divider />
 
+      <ThemeSection>
+        <Icons.Palette fontSize="small" />
+        <SegmentedControl
+          value={colorScheme}
+          onChange={v => setColorScheme(v as 'auto' | 'light' | 'dark')}
+          data={colorSchemeOptions}
+          size="xs"
+          style={{ flex: 1 }}
+        />
+      </ThemeSection>
+
+      <Divider />
+
       <Section>
         <MenuItemRow onClick={logout}>Kirjaudu ulos</MenuItemRow>
       </Section>
@@ -99,7 +119,8 @@ const px = 16;
 
 const Header: React.FC<React.PropsWithChildren> = ({ children }) => (
   <Text
-    bg={neutral[2]}
+    bg={primary[8]}
+    c="white"
     size="md"
     fw="bold"
     h={56}
@@ -127,6 +148,13 @@ const UserName = styled.span`
 
 const Section = styled.div`
   padding: 4px 8px;
+`;
+
+const ThemeSection = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px ${px}px;
 `;
 
 const MenuItemRow = styled.div`

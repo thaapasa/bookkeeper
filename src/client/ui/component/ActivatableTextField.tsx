@@ -99,7 +99,7 @@ const EditorContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  background-color: rgba(0, 0, 0, 0.04);
+  background-color: light-dark(rgba(0, 0, 0, 0.04), rgba(255, 255, 255, 0.06));
   border-radius: 4px;
   padding: 0 4px;
   & > div,

@@ -19,7 +19,7 @@ import { App } from './client/App';
 const container = document.getElementById('root');
 assertDefined(container);
 ReactDOM.createRoot(container).render(
-  <MantineProvider theme={mantineTheme}>
+  <MantineProvider theme={mantineTheme} defaultColorScheme="auto">
     <DatesProvider settings={{ locale: 'fi' }}>
       <App />
     </DatesProvider>

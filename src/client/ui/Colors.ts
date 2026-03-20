@@ -36,22 +36,23 @@ export const neutral = Object.fromEntries(
 
 // --- Semantic color tokens (CSS vars) ---
 
-export const surface = 'var(--mantine-color-white)';
+export const surface = 'var(--mantine-color-body)';
 export const text = 'var(--mantine-color-text)';
 
-// --- Semantic colors (static values for non-CSS-var contexts like SVG fill) ---
+// --- Semantic colors ---
+// Use light-dark() CSS function for colors that need different light/dark values.
 
-export const positive = c.dark[9];
-export const negative = c.red[7];
-export const unimportant = c.gray[5];
-export const income = c.teal[5];
-export const unconfirmed = c.yellow[1];
+export const positive = `light-dark(${c.dark[9]}, ${c.green[4]})`;
+export const negative = `light-dark(${c.red[7]}, ${c.red[4]})`;
+export const unimportant = 'var(--mantine-color-dimmed)';
+export const income = `light-dark(${c.teal[6]}, ${c.teal[4]})`;
+export const unconfirmed = `light-dark(${c.yellow[1]}, ${c.yellow[9]})`;
 
 export const action = primary[7];
 export const tool = neutral[7];
 export const navigation = primary[5];
 export const navigationBar = neutral[2];
-export const white = '#ffffff';
+export const white = 'var(--mantine-color-white)';
 export const header = neutral[5];
 
 export const topItem = primary[6];

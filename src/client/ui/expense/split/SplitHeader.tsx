@@ -36,6 +36,6 @@ const SumText = styled.div`
 `;
 
 const SubText = styled.div`
-  color: rgba(0, 0, 0, 0.6);
+  color: var(--mantine-color-dimmed);
   font-size: var(--mantine-font-size-sm);
 `;

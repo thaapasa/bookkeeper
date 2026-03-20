@@ -118,8 +118,8 @@ export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
 const MainContent = styled.div`
   margin: ${mainContentMargin}px;
   margin-top: 24px;
-  background-color: ${neutral[1]};
-  box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.5);
+  background-color: var(--mantine-color-default);
+  box-shadow: light-dark(0px 2px 4px 0px rgba(0, 0, 0, 0.5), 0px 2px 4px 0px rgba(0, 0, 0, 0.8));
   overflow: hidden;
   min-height: calc(100vh - 48px - 48px);
 

@@ -142,7 +142,7 @@ const SearchToolArea = styled.div`
   margin-top: 6px;
   width: 40px;
   height: 46px;
-  background-color: #f7f7f7;
+  background-color: ${neutral[1]};
   border: 1px solid ${neutral[3]};
   border-bottom: 1px solid ${neutral[5]};
   border-radius: 4px;
