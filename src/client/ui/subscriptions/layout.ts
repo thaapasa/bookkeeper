@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 
-import { colorScheme } from '../Colors';
+import { neutral, primary, text } from '../Colors';
 import { Row } from '../component/Row';
 import { media } from '../Styles';
 
@@ -8,18 +8,18 @@ export const RowElement = styled(Row)`
   column-gap: 4px;
   padding: 0 16px;
   &.root-category {
-    background-color: ${colorScheme.primary.dark};
-    color: ${colorScheme.primary.text};
+    background-color: ${neutral[4]};
+    color: ${text};
     font-weight: bold;
   }
   &.child-category {
-    background-color: ${colorScheme.primary.standard};
-    color: ${colorScheme.secondary.dark};
+    background-color: ${neutral[2]};
+    color: ${primary[7]};
   }
 
   &.inactive {
-    background: ${colorScheme.gray.light};
-    color: ${colorScheme.gray.veryDark};
+    background: ${neutral[1]};
+    color: ${neutral[7]};
   }
 `;
 

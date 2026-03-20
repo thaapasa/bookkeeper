@@ -1,7 +1,7 @@
 import { css } from '@emotion/react';
 import styled from '@emotion/styled';
 
-import { colorScheme } from '../Colors';
+import { neutral } from '../Colors';
 
 export const TitleCss = css`
   font-family: var(--mantine-font-family-headings);
@@ -11,7 +11,7 @@ export const TitleCss = css`
 `;
 
 export const Title = styled.div`
-  border-bottom: 1px solid ${colorScheme.gray.standard};
+  border-bottom: 1px solid ${neutral[3]};
   font-family: var(--mantine-font-family-headings);
   font-size: var(--mantine-h1-font-size);
   font-weight: var(--mantine-h1-font-weight);
@@ -20,7 +20,7 @@ export const Title = styled.div`
 `;
 
 export const Subtitle = styled.div`
-  border-bottom: 1px solid ${colorScheme.gray.light};
+  border-bottom: 1px solid ${neutral[1]};
   font-family: var(--mantine-font-family-headings);
   font-size: var(--mantine-h2-font-size);
   font-weight: var(--mantine-h2-font-weight);

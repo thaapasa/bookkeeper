@@ -9,7 +9,7 @@ import { categoryMapP, getFullCategoryName } from 'client/data/Categories';
 
 import { getChartColor } from '../chart/ChartColors';
 import { formatMoney } from '../chart/Format';
-import { colorScheme } from '../Colors';
+import { primary } from '../Colors';
 import { connect } from '../component/BaconConnect';
 import { Row } from '../component/Row';
 import { Flex } from '../Styles';
@@ -102,7 +102,7 @@ const LegendTable = styled('table')`
   & tr.total {
     font-weight: bold;
     td:first-of-type {
-      color: ${colorScheme.secondary.dark};
+      color: ${primary[7]};
     }
   }
 `;

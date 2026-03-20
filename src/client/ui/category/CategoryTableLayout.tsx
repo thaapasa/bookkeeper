@@ -3,19 +3,19 @@ import * as React from 'react';
 
 import { Category } from 'shared/types';
 
-import { colorScheme } from '../Colors';
+import { neutral, primary } from '../Colors';
 import { Row } from '../component/Row';
 import { AddCategoryButton } from './CategoryTools';
 
 export const RowElement = styled(Row)`
   &.category-header {
-    background-color: ${colorScheme.primary.light};
+    background-color: ${neutral[1]};
   }
   &.main-category {
-    background-color: ${colorScheme.primary.dark};
+    background-color: ${neutral[4]};
   }
   &.sub-category {
-    background-color: ${colorScheme.primary.standard};
+    background-color: ${neutral[2]};
   }
 `;
 
@@ -26,7 +26,7 @@ export const NameColumn = styled.div`
     font-weight: bold;
   }
   .sub-category & {
-    color: ${colorScheme.secondary.dark};
+    color: ${primary[7]};
   }
   .main-category & {
     font-weight: bold;
@@ -43,7 +43,7 @@ export const SumColumn = styled.div`
     font-weight: bold;
   }
   &.unimportant {
-    color: ${colorScheme.gray.dark};
+    color: ${neutral[5]};
     opacity: 0.5;
   }
 `;
@@ -69,7 +69,7 @@ export const CategoryHeader: React.FC<{ onAdd: (p?: Category) => void }> = ({ on
     <SumColumn className="header">Tulot</SumColumn>
     <SumColumn className="header">Kulut</SumColumn>
     <ToolColumn>
-      <AddCategoryButton onAdd={onAdd} color={colorScheme.gray.veryDark} icon="PlusCircle" />
+      <AddCategoryButton onAdd={onAdd} color={neutral[7]} icon="PlusCircle" />
     </ToolColumn>
   </RowElement>
 );

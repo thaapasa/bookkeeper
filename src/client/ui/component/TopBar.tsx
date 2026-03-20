@@ -16,7 +16,7 @@ import {
   trackingPagePath,
 } from 'client/util/Links';
 
-import { colorScheme, gray } from '../Colors';
+import { neutral, primary, text } from '../Colors';
 import { Icon, RenderIcon } from '../icons/Icons';
 import { AddExpenseMenu } from '../shortcuts/ShortcutsDropdown';
 import { isMobileSize } from '../Styles';
@@ -53,7 +53,7 @@ export const TopBar: React.FC<TopBarProps> = ({ windowSize, menuOpen, onToggleMe
   const isMobile = isMobileSize(windowSize);
   return (
     <Group h="100%" px="md" gap={0}>
-      <Burger opened={menuOpen} onClick={onToggleMenu} color={colorScheme.primary.text} size="sm" />
+      <Burger opened={menuOpen} onClick={onToggleMenu} color={text} size="sm" />
       {isMobile ? (
         <>
           <Group flex={1} justify="center" style={{ overflow: 'hidden' }}>
@@ -105,15 +105,15 @@ const HeaderLink = styled(Link)<{ $active: boolean }>`
   height: 100%;
   padding: 0 var(--mantine-spacing-md);
   text-decoration: none;
-  color: ${p => (p.$active ? colorScheme.primary.text : colorScheme.gray.veryDark)};
-  box-shadow: ${p => (p.$active ? `inset 0 -2px 0 ${colorScheme.secondary.standard}` : 'none')};
+  color: ${p => (p.$active ? text : neutral[7])};
+  box-shadow: ${p => (p.$active ? `inset 0 -2px 0 ${primary[5]}` : 'none')};
   transition:
     background-color 150ms,
     color 150ms;
 
   &:hover {
     background-color: rgba(0, 0, 0, 0.08);
-    color: ${colorScheme.primary.text};
+    color: ${text};
   }
 `;
 
@@ -131,7 +131,7 @@ export const LinkButton: React.FC<{
         size="compact-sm"
         color={match ? 'primary' : 'dark'}
         leftSection={icon ? <RenderIcon icon={icon} /> : undefined}
-        style={match ? undefined : { color: gray.veryDark }}
+        style={match ? undefined : { color: neutral[7] }}
       >
         {label}
       </Button>

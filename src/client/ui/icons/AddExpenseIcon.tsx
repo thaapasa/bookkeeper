@@ -8,7 +8,7 @@ import { toDateTime, toISODate, TypedDateRange } from 'shared/time';
 import { createExpense, navigationP } from 'client/data/State';
 import { newExpenseSuffix } from 'client/util/Links';
 
-import { secondaryColors } from '../Colors';
+import { primary } from '../Colors';
 import { connect } from '../component/BaconConnect';
 import { pageSupportsRoutedExpenseDialog } from '../expense/NewExpenseInfo';
 import { Icons } from './Icons';
@@ -96,6 +96,6 @@ const AccentBackground = styled.div`
   bottom: 5px;
   left: 5px;
   border-radius: 100px;
-  background: ${secondaryColors.standard};
+  background: ${primary[5]};
   z-index: 0;
 `;

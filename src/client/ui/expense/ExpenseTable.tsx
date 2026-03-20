@@ -5,7 +5,7 @@ import { Expense, ExpenseStatus, UserExpense } from 'shared/expense';
 import { Money, partition } from 'shared/util';
 import { userDataP, UserDataProps } from 'client/data/Categories';
 
-import { colorScheme } from '../Colors';
+import { neutral } from '../Colors';
 import { connect } from '../component/BaconConnect';
 import { ListDecorator } from '../component/ListDecorator';
 import { media, PageContentContainer } from '../Styles';
@@ -183,7 +183,7 @@ const ExpenseArea = styled.div`
   position: relative;
   white-space: nowrap;
   align-items: center;
-  background-color: ${colorScheme.primary.light};
+  background-color: ${neutral[1]};
   padding: 0 16px;
   display: flex;
   flex-direction: column;
@@ -196,7 +196,7 @@ const ExpenseArea = styled.div`
 const ExpenseFiller = styled.div`
   width: 100%;
   flex: 1;
-  background-color: ${colorScheme.gray.light};
+  background-color: ${neutral[1]};
 `;
 
 function expenseToKey(e: Expense) {

@@ -47,55 +47,6 @@ export const unimportant = c.gray[5];
 export const income = c.teal[5];
 export const unconfirmed = c.yellow[1];
 
-// --- Legacy compatibility layer ---
-// These re-export semantic names used by 50+ files.
-// Prefer primary[n] / neutral[n] / CSS vars in new code.
-
-interface ColorDef {
-  standard: string;
-  light: string;
-  dark: string;
-  text: string;
-}
-
-interface ColorScheme {
-  primary: ColorDef;
-  secondary: ColorDef;
-  gray: ColorDef & { veryDark: string };
-  text: string;
-  white: string;
-}
-
-export const gray = {
-  light: neutral[1],
-  standard: neutral[3],
-  dark: neutral[5],
-  veryDark: neutral[7],
-  text: text,
-};
-
-export const primaryColors: ColorDef = {
-  light: neutral[1],
-  standard: neutral[2],
-  dark: neutral[4],
-  text: text,
-};
-
-export const secondaryColors: ColorDef = {
-  light: primary[2],
-  standard: primary[5],
-  dark: primary[7],
-  text: primary[9],
-};
-
-export const colorScheme: ColorScheme = {
-  primary: primaryColors,
-  secondary: secondaryColors,
-  gray,
-  text: text,
-  white: surface,
-};
-
 export const action = primary[7];
 export const tool = neutral[7];
 export const navigation = primary[5];

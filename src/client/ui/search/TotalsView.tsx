@@ -3,7 +3,7 @@ import * as React from 'react';
 
 import { calculateTotals, UserExpense } from 'shared/expense';
 
-import { gray, secondaryColors } from '../Colors';
+import { neutral, primary } from '../Colors';
 import { mainContentMaxWidth, media } from '../Styles';
 
 interface TotalsViewProps {
@@ -74,7 +74,7 @@ const TotalsPositioner = styled.div`
 const TotalsArea = styled.div`
   height: ${totalAreaSize}px;
   background-color: white;
-  border-top: 1px solid ${gray.standard};
+  border-top: 1px solid ${neutral[3]};
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
@@ -89,7 +89,7 @@ const TotalsArea = styled.div`
 
 const Label = styled.span`
   margin-right: 12px;
-  color: ${secondaryColors.dark};
+  color: ${primary[7]};
   font-weight: bold;
 `;
 

@@ -1,14 +1,14 @@
 import * as React from 'react';
 
-import { colorScheme } from '../Colors';
+import { primary } from '../Colors';
 
 export const QuestionBookmark: React.FC<{ size: number; title: string; onClick?: () => void }> = ({
   size: height,
   title,
   onClick,
 }) => {
-  const color = colorScheme.secondary.light;
-  const questionColor = colorScheme.secondary.dark;
+  const color = primary[2];
+  const questionColor = primary[7];
   const width = (height * 14.0) / 18;
   return (
     <svg width={width + 'px'} height={height + 'px'} viewBox="0 0 14 18" onClick={onClick}>

@@ -3,15 +3,15 @@ import { Loader } from '@mantine/core';
 import * as React from 'react';
 
 import { windowSizeP } from 'client/data/State';
-import { colorScheme, primaryColors } from 'client/ui/Colors';
+import { neutral, primary } from 'client/ui/Colors';
 import { connect } from 'client/ui/component/BaconConnect';
 import { Icons } from 'client/ui/icons/Icons';
 import { QuestionBookmark } from 'client/ui/icons/QuestionBookmark';
 import { getScreenSizeClassName, media, ScreenSizeClassName } from 'client/ui/Styles';
 import { Size } from 'client/ui/Types';
 
-const tableBgColor = colorScheme.primary.light;
-const separatorColor = colorScheme.gray.standard;
+const tableBgColor = neutral[1];
+const separatorColor = neutral[3];
 
 const columns = [
   'date',
@@ -87,7 +87,7 @@ export const Row = styled('tr')`
   }
 
   &.first-day {
-    background: linear-gradient(${primaryColors.standard}cc 0%, ${tableBgColor} 20%);
+    background: linear-gradient(${neutral[2]}cc 0%, ${tableBgColor} 20%);
     & td {
       padding-top: 4px;
     }
@@ -104,10 +104,10 @@ const Column = styled('td')`
   text-overflow: ellipsis;
 
   &.gray {
-    background-color: ${colorScheme.gray.light};
+    background-color: ${neutral[1]};
   }
   &.dark {
-    background-color: ${colorScheme.secondary.dark};
+    background-color: ${primary[7]};
   }
 `;
 
@@ -167,7 +167,7 @@ const OptMoneyColumn = styled(WebColumn)`
 export const SumColumn = styled(MoneyColumn)`
   width: 100px;
   &.income {
-    background-color: ${colorScheme.primary.standard};
+    background-color: ${neutral[2]};
   }
 `;
 export const BalanceColumn = OptMoneyColumn;
@@ -198,7 +198,7 @@ const Corner = styled.div`
   width: 50px;
   height: 50px;
   padding-top: 18px;
-  background-color: ${colorScheme.gray.light};
+  background-color: ${neutral[1]};
   transform: rotate(45deg);
   top: -32px;
   left: -31px;
@@ -211,7 +211,7 @@ const Corner = styled.div`
 const recurringIconStyle = {
   width: 20,
   height: 20,
-  color: colorScheme.secondary.light,
+  color: primary[2],
 };
 export const RecurringExpenseIcon: React.FC = () => (
   <Corner title="Toistuva kirjaus">
@@ -248,7 +248,7 @@ const IconContainer = styled.div`
 `;
 
 const RecurringExpenseSeparatorItem = styled(AllColumns)`
-  background-color: ${colorScheme.gray.light};
+  background-color: ${neutral[1]};
   height: 24px;
 `;
 

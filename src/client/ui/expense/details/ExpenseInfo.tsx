@@ -3,7 +3,7 @@ import * as React from 'react';
 
 import { ExpenseDivisionItem, UserExpense } from 'shared/expense';
 import { Source, User } from 'shared/types';
-import { colorScheme } from 'client/ui/Colors';
+import { neutral } from 'client/ui/Colors';
 
 import { AllColumns, LoadingIndicator, Row } from '../row/ExpenseTableLayout';
 import { BasicData } from './BasicData';
@@ -49,11 +49,11 @@ export const ExpenseInfo: React.FC<ExpenseInfoProps> = ({
 const ExpenseInfoContainer = styled.div`
   position: relative;
   margin-left: 16px;
-  background-color: ${colorScheme.primary.light};
+  background-color: ${neutral[1]};
 `;
 
 const Description = styled.div`
-  background-color: ${colorScheme.gray.light};
+  background-color: ${neutral[1]};
   width: 100%;
   padding: 12px 16px;
 `;

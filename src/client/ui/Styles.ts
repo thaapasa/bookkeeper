@@ -1,7 +1,7 @@
 import { css } from '@emotion/react';
 import styled from '@emotion/styled';
 
-import { primaryColors } from './Colors';
+import { neutral } from './Colors';
 import { Size } from './Types';
 
 // See responsive UI specs at https://material.io/guidelines/layout/responsive-ui.html
@@ -134,7 +134,7 @@ export const PageContentContainer = styled.div`
   display: flex;
   height: 100%;
   flex-direction: column;
-  background-color: ${primaryColors.light};
+  background-color: ${neutral[1]};
   box-sizing: border-box;
   overflow-y: auto;
   overflow-x: hidden;

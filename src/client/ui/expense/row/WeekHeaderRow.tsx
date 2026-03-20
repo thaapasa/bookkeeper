@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import * as React from 'react';
 
-import { colorScheme } from 'client/ui/Colors';
+import { neutral, primary } from 'client/ui/Colors';
 
 import { AllColumns, Row } from './ExpenseTableLayout';
 
@@ -13,10 +13,10 @@ export const WeekHeaderRow: React.FC<{ week: string }> = ({ week }) => (
 
 const WeekData = styled(AllColumns)`
   padding: 16px 4px 8px 4px;
-  color: ${colorScheme.secondary.dark};
+  color: ${primary[7]};
   height: inherit;
   font-weight: bold;
   font-size: var(--mantine-font-size-xs);
   font-style: italic;
-  background-color: ${colorScheme.gray.light};
+  background-color: ${neutral[1]};
 `;

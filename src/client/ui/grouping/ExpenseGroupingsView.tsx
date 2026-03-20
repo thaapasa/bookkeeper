@@ -10,7 +10,7 @@ import apiConnect from 'client/data/ApiConnect';
 import { executeOperation } from 'client/util/ExecuteOperation';
 import { groupingsPagePath } from 'client/util/Links';
 
-import { colorScheme } from '../Colors';
+import { neutral, primary } from '../Colors';
 import { FlexColumn, FlexRow } from '../component/BasicElements';
 import { LinkButton } from '../component/TopBar';
 import { Subtitle, TitleCss } from '../design/Text';
@@ -160,7 +160,7 @@ const GroupingCard = styled(FlexColumn)`
   width: 100%;
   position: relative;
   border-radius: 8px;
-  background-color: ${colorScheme.primary.standard};
+  background-color: ${neutral[2]};
   overflow: hidden;
   height: 200px;
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
@@ -183,7 +183,7 @@ const InfoTextArea = styled(Flex)`
 
 const Sum = styled.div`
   ${TitleCss};
-  color: ${colorScheme.secondary.dark};
+  color: ${primary[7]};
 `;
 
 const DatesText = styled.div``;
@@ -203,7 +203,7 @@ const ButtonRow = styled(FlexRow)`
 
 const TitleArea = styled.div`
   height: 32px;
-  background-color: ${colorScheme.primary.light}aa;
+  background-color: ${neutral[1]}aa;
   z-index: 1;
 `;
 

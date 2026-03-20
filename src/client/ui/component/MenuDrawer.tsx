@@ -9,7 +9,7 @@ import { logout, validSessionP } from 'client/data/Login';
 import { reloadApp } from 'client/util/ClientUtil';
 import { profilePagePath } from 'client/util/Links';
 
-import { colorScheme } from '../Colors';
+import { neutral } from '../Colors';
 import { RenderIcon } from '../icons/Icons';
 import { connect } from './BaconConnect';
 import { AppLink } from './TopBar';
@@ -99,7 +99,7 @@ const px = 16;
 
 const Header: React.FC<React.PropsWithChildren> = ({ children }) => (
   <Text
-    bg={colorScheme.primary.standard}
+    bg={neutral[2]}
     size="md"
     fw="bold"
     h={56}
@@ -117,7 +117,7 @@ const UserSection = styled.div`
   cursor: pointer;
 
   &:hover {
-    background-color: ${colorScheme.gray.light};
+    background-color: ${neutral[1]};
   }
 `;
 
@@ -138,7 +138,7 @@ const MenuItemRow = styled.div`
   font-size: var(--mantine-font-size-sm);
 
   &:hover {
-    background-color: ${colorScheme.gray.light};
+    background-color: ${neutral[1]};
   }
 `;
 
@@ -147,14 +147,14 @@ const MenuIcon = styled(RenderIcon)`
 `;
 
 const Divider = styled.div`
-  border-bottom: 1px solid ${colorScheme.gray.standard};
+  border-bottom: 1px solid ${neutral[3]};
   margin: 0 ${px}px;
 `;
 
 const VersionInfo = styled.div`
   font-size: var(--mantine-font-size-xs);
   padding: 8px ${px + 8}px 16px;
-  color: ${colorScheme.gray.dark};
+  color: ${neutral[5]};
 `;
 
 export default connect(validSessionP.map(s => ({ user: s.user, group: s.group })))(MenuDrawer);

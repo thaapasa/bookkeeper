@@ -8,7 +8,7 @@ import { isDefined, ObjectId, Session } from 'shared/types';
 import { CategoryDataSource } from 'client/data/Categories';
 import { validSessionP } from 'client/data/Login';
 
-import { gray } from '../Colors';
+import { neutral } from '../Colors';
 import { connect } from '../component/BaconConnect';
 import { FlexRow } from '../component/BasicElements';
 import { DateRangeSelector } from '../component/daterange/DateRangeSelector';
@@ -143,8 +143,8 @@ const SearchToolArea = styled.div`
   width: 40px;
   height: 46px;
   background-color: #f7f7f7;
-  border: 1px solid ${gray.standard};
-  border-bottom: 1px solid ${gray.dark};
+  border: 1px solid ${neutral[3]};
+  border-bottom: 1px solid ${neutral[5]};
   border-radius: 4px;
 `;
 

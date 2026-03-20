@@ -7,7 +7,8 @@ import apiConnect from 'client/data/ApiConnect';
 import { updateSession } from 'client/data/Login';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
-import { colorScheme } from '../Colors';
+import { DEFAULT_THEME } from '@mantine/core';
+
 import { UploadImageButton } from '../component/UploadFileButton';
 import { Subtitle } from '../design/Text';
 import { RenderIcon } from '../icons/Icons';
@@ -30,7 +31,7 @@ export const ProfileImageView: React.FC<{ session: Session }> = ({ session }) =>
           <IconPlacement>
             <UploadImageButton
               onSelect={uploadImage}
-              style={{ backgroundColor: colorScheme.gray.standard + 'dd' }}
+              style={{ backgroundColor: DEFAULT_THEME.colors.gray[3] + 'dd' }}
             >
               <RenderIcon icon="Upload" color="info" />
             </UploadImageButton>
@@ -38,7 +39,7 @@ export const ProfileImageView: React.FC<{ session: Session }> = ({ session }) =>
               variant="subtle"
               onClick={deleteImage}
               size="lg"
-              style={{ backgroundColor: colorScheme.gray.standard + 'dd' }}
+              style={{ backgroundColor: DEFAULT_THEME.colors.gray[3] + 'dd' }}
             >
               <RenderIcon icon="Delete" color="warning" />
             </ActionIcon>

@@ -4,7 +4,7 @@ import * as React from 'react';
 import { ExpenseStatus } from 'shared/expense';
 import { Money, MoneyLike } from 'shared/util';
 
-import * as colors from '../Colors';
+import { neutral, primary } from '../Colors';
 import { Icons } from '../icons/Icons';
 import { media } from '../Styles';
 import { ExpenseTotals, money } from './ExpenseHelper';
@@ -44,7 +44,7 @@ export class MonthlyStatus extends React.Component<StatusProps, MonthlyStatusSta
     const filteredExpense = this.props.filteredTotals ? this.props.filteredTotals.totalExpense : 0;
     const filteredStyle = {
       display: !this.props.showFiltered ? 'none' : '',
-      backgroundColor: colors.colorScheme.gray.light,
+      backgroundColor: neutral[1],
     };
     const expanded = this.state.expanded;
     return (
@@ -158,7 +158,7 @@ const StatusContainer = styled.div`
   display: flex;
   justify-content: flex-end;
   font-size: var(--mantine-font-size-sm);
-  border-top: 1px solid ${colors.colorScheme.gray.standard};
+  border-top: 1px solid ${neutral[3]};
   border-collapse: collapse;
   margin: 0 16px;
   &.expanded {
@@ -180,7 +180,7 @@ const MonthlyCalculation = styled.div`
 `;
 
 const CalculationHeader = styled.div`
-  color: ${colors.colorScheme.secondary.dark};
+  color: ${primary[7]};
   font-weight: 600;
   margin: 8px 0;
   font-size: var(--mantine-font-size-sm);

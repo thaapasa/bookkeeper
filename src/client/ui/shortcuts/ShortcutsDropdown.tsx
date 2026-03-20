@@ -13,7 +13,7 @@ import { validSessionP } from 'client/data/Login';
 import { createExpense, createNewExpense, navigationP } from 'client/data/State';
 import { newExpenseSuffix } from 'client/util/Links';
 
-import { secondaryColors } from '../Colors';
+import { primary } from '../Colors';
 import { connect } from '../component/BaconConnect';
 import { pageSupportsRoutedExpenseDialog } from '../expense/NewExpenseInfo';
 import { Icons } from '../icons/Icons';
@@ -34,7 +34,7 @@ const AddExpenseMenuImpl: React.FC<AddExpenseMenuProps> = ({ shortcuts, dateRang
   return (
     <Menu shadow="md" width={220} position="bottom-end">
       <Menu.Target>
-        <ActionIcon variant="filled" color={secondaryColors.standard} radius="xl" size="md">
+        <ActionIcon variant="filled" color={primary[5]} radius="xl" size="md">
           <Icons.Add color="white" fontSize="small" />
         </ActionIcon>
       </Menu.Target>
@@ -42,7 +42,7 @@ const AddExpenseMenuImpl: React.FC<AddExpenseMenuProps> = ({ shortcuts, dateRang
       <Menu.Dropdown>
         <Menu.Item
           leftSection={
-            <ShortcutFallback style={{ background: secondaryColors.standard }}>
+            <ShortcutFallback style={{ background: primary[5] }}>
               <Icons.Add color="white" fontSize="small" />
             </ShortcutFallback>
           }
@@ -132,7 +132,7 @@ const ShortcutFallback = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: ${secondaryColors.standard};
+  background-color: ${primary[5]};
   color: white;
   font-size: var(--mantine-font-size-xs);
   font-weight: 600;

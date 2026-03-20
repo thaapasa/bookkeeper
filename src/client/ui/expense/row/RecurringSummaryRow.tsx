@@ -3,7 +3,7 @@ import * as React from 'react';
 
 import { UserExpense } from 'shared/expense';
 import { Minus, Money, Plus } from 'shared/util';
-import { colorScheme } from 'client/ui/Colors';
+import { primary } from 'client/ui/Colors';
 import { useWindowSize } from 'client/ui/hooks/useWindowSize';
 import { Icons } from 'client/ui/icons/Icons';
 import { isMobileSize, media } from 'client/ui/Styles';
@@ -89,7 +89,7 @@ export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
 };
 
 const Emph = styled.span`
-  color: ${colorScheme.secondary.dark};
+  color: ${primary[7]};
   font-weight: bold;
   padding-right: 4px;
 `;

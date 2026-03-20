@@ -24,7 +24,7 @@ import {
 } from 'client/util/Links';
 
 import { RoutedCategoryView } from '../category/RoutedCategoryView';
-import { colorScheme } from '../Colors';
+import { neutral } from '../Colors';
 import MenuDrawer from '../component/MenuDrawer';
 import { NotificationBar } from '../component/NotificationBar';
 import { appLinks, TopBar } from '../component/TopBar';
@@ -66,8 +66,8 @@ export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
       <ExpenseSplitBinder windowSize={windowSize} />
       <ModalDialogConnector />
       <Router>
-        <AppShell header={{ height: 56 }} padding={0} bg={colorScheme.gray.light}>
-          <AppShell.Header bg={colorScheme.primary.dark}>
+        <AppShell header={{ height: 56 }} padding={0} bg={neutral[1]}>
+          <AppShell.Header bg={neutral[4]}>
             <TopBar windowSize={windowSize} menuOpen={menuOpen} onToggleMenu={toggleMenu} />
           </AppShell.Header>
 
@@ -118,7 +118,7 @@ export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
 const MainContent = styled.div`
   margin: ${mainContentMargin}px;
   margin-top: 24px;
-  background-color: ${colorScheme.primary.light};
+  background-color: ${neutral[1]};
   box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.5);
   overflow: hidden;
   min-height: calc(100vh - 48px - 48px);

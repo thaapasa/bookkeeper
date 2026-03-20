@@ -5,7 +5,7 @@ import * as React from 'react';
 import { pickRandomItem } from 'shared/util';
 import { login } from 'client/data/Login';
 
-import { colorScheme } from '../Colors';
+import { primary } from '../Colors';
 import { TextEdit } from '../component/TextEdit';
 import { media } from '../Styles';
 
@@ -101,7 +101,7 @@ const Title = styled.div`
 
 const ErrorText = styled.div`
   margin-top: 3vh;
-  color: ${colorScheme.secondary.dark};
+  color: ${primary[7]};
   text-align: center;
 `;
 

@@ -25,7 +25,7 @@ import {
 import { CategoryDataSource, isSubcategoryOf } from 'client/data/Categories';
 import { notifyError } from 'client/data/State';
 import { logger } from 'client/Logger';
-import { gray } from 'client/ui/Colors';
+import { neutral } from 'client/ui/Colors';
 import UserAvatar from 'client/ui/component/UserAvatar';
 import UserSelector from 'client/ui/component/UserSelector';
 import { Icons } from 'client/ui/icons/Icons';
@@ -595,7 +595,7 @@ const OwnerSelectorArea = styled.div`
   border-radius: 4px;
   border-top-left-radius: 0px;
   border-bottom-left-radius: 0px;
-  background-color: ${gray.light};
+  background-color: ${neutral[1]};
   display: flex;
   flex-direction: row;
   box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);

@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 import { Pill } from '@mantine/core';
 import * as React from 'react';
 
-import { secondaryColors } from '../Colors';
+import { primary } from '../Colors';
 import { getSearchSuggestionValue, SearchSuggestion } from './SearchSuggestions';
 
 export const SelectedSuggestionsView: React.FC<{
@@ -37,6 +37,6 @@ const SuggestionPill = styled(Pill)`
     margin-right: 0;
   }
   &.receiver {
-    background-color: ${secondaryColors.light};
+    background-color: ${primary[2]};
   }
 ` as any;

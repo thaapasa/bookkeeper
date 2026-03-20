@@ -3,7 +3,7 @@ import { Button } from '@mantine/core';
 import * as React from 'react';
 
 import { AllPeriods, Period, periodToYearAndMonth, PeriodType } from 'shared/time';
-import { colorScheme } from 'client/ui/Colors';
+import { primary } from 'client/ui/Colors';
 
 import { FlexColumn } from '../BasicElements';
 import { MonthSelector } from './MonthSelector';
@@ -124,9 +124,9 @@ const TabButton: React.FC<
       padding: '4px 6px',
       ...(selected
         ? {
-            border: `1px dotted ${colorScheme.secondary.light}`,
-            backgroundColor: `${colorScheme.secondary.light}77`,
-            color: colorScheme.secondary.text,
+            border: `1px dotted ${primary[2]}`,
+            backgroundColor: `${primary[2]}77`,
+            color: primary[9],
           }
         : {}),
     }}

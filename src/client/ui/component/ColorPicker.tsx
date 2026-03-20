@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 import { ActionIcon, DEFAULT_THEME } from '@mantine/core';
 import * as React from 'react';
 
-import { colorScheme } from '../Colors';
+import { neutral } from '../Colors';
 import { useToggle } from '../hooks/useToggle';
 import { Icons } from '../icons/Icons';
 import { FlexColumn, FlexRow } from './BasicElements';
@@ -60,7 +60,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ value, onChange }) => 
 
 const ColorBall = styled.div`
   display: inline-flex;
-  border: 1px solid ${colorScheme.gray.standard};
+  border: 1px solid ${neutral[3]};
   border-radius: 50%;
   width: 24px;
   height: 24px;

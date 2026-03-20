@@ -8,7 +8,7 @@ import { ObjectId } from 'shared/types';
 import { createNewExpense } from 'client/data/State';
 import { newExpenseSuffix } from 'client/util/Links';
 
-import { secondaryColors } from '../Colors';
+import { primary } from '../Colors';
 import { pageSupportsRoutedExpenseDialog } from '../expense/NewExpenseInfo';
 
 export interface ShortcutLinkProps {
@@ -74,13 +74,13 @@ const LinkIconArea = styled.div`
   width: 32px;
   height: 32px;
   margin: 8px 4px 4px 4px;
-  background-color: ${secondaryColors.standard};
+  background-color: ${primary[5]};
   border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   text-decoration: none;
-  color: ${secondaryColors.text};
+  color: ${primary[9]};
   font-weight: bold;
   cursor: pointer;
 `;

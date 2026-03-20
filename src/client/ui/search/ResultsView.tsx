@@ -8,7 +8,7 @@ import { Category } from 'shared/types';
 import { groupBy, noop, typedKeys } from 'shared/util';
 import { userDataP, UserDataProps } from 'client/data/Categories';
 
-import { gray, secondaryColors } from '../Colors';
+import { neutral, primary } from '../Colors';
 import { connect } from '../component/BaconConnect';
 import { ExpenseRow } from '../expense/row/ExpenseRow';
 import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
@@ -110,13 +110,13 @@ const ResultsArea = styled.div`
 `;
 
 const Header = styled.div`
-  color: ${secondaryColors.dark};
+  color: ${primary[7]};
   margin: 8px 24px;
 `;
 
 const YearHeaderRow = styled.div`
   padding: 16px 24px;
-  background-color: ${gray.light};
+  background-color: ${neutral[1]};
   width: 100%;
   display: flex;
   flex-direction: row;
@@ -124,7 +124,7 @@ const YearHeaderRow = styled.div`
 `;
 
 const HeaderText = styled.div`
-  color: ${secondaryColors.dark};
+  color: ${primary[7]};
   flex: 1;
 `;
 
@@ -136,12 +136,12 @@ const SumColumn = styled.div`
 
 const SumLabel = styled.span`
   font-weight: bold;
-  color: ${secondaryColors.dark};
+  color: ${primary[7]};
 `;
 
 const SumValue = styled.div`
   margin-left: 8px;
-  color: ${secondaryColors.text};
+  color: ${primary[9]};
 `;
 
 const Info = styled.div`

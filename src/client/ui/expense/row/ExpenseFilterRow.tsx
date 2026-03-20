@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 import { Avatar, Pill } from '@mantine/core';
 import * as React from 'react';
 
-import { colorScheme } from 'client/ui/Colors';
+import { neutral, primary } from 'client/ui/Colors';
 
 import { ExpenseFilter } from './ExpenseFilters';
 import { AllColumns, Row } from './ExpenseTableLayout';
@@ -37,8 +37,8 @@ export class ExpenseFilterRow extends React.Component<ExpenseFilterRowProps> {
 const chipStyle: React.CSSProperties = {
   margin: '0.3em',
   padding: '4px 8px',
-  backgroundColor: colorScheme.primary.standard,
-  color: colorScheme.secondary.dark,
+  backgroundColor: neutral[2],
+  color: primary[7],
 };
 
 class ExpenseFilterItem extends React.Component<{

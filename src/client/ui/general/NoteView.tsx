@@ -3,7 +3,7 @@ import * as React from 'react';
 
 import { spaced } from 'shared/util';
 
-import { colorScheme } from '../Colors';
+import { neutral, primary, text } from '../Colors';
 
 export type NoteType = 'note' | 'warning';
 export type NoteViewProps = {
@@ -31,7 +31,7 @@ export const NoteView: React.FC<React.PropsWithChildren<NoteViewProps>> = ({
 );
 
 const Container = styled('div')`
-  background-color: ${colorScheme.primary.standard};
+  background-color: ${neutral[2]};
   border-radius: 4px;
   margin: 32px;
   width: auto;
@@ -59,12 +59,12 @@ const Title = styled('div')`
   border-top-right-radius: 4px;
 
   &.note {
-    color: ${colorScheme.primary.text};
-    background-color: ${colorScheme.primary.dark};
+    color: ${text};
+    background-color: ${neutral[4]};
   }
   &.warning {
-    color: ${colorScheme.gray.light};
-    background-color: ${colorScheme.secondary.dark};
+    color: ${neutral[1]};
+    background-color: ${primary[7]};
   }
 `;
 

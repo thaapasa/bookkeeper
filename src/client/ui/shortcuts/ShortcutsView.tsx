@@ -14,7 +14,7 @@ import { createNewExpense, navigationP, requestNewExpense } from 'client/data/St
 import { executeOperation } from 'client/util/ExecuteOperation';
 import { newExpenseSuffix } from 'client/util/Links';
 
-import { secondaryColors } from '../Colors';
+import { primary } from '../Colors';
 import { connect } from '../component/BaconConnect';
 import { Row } from '../component/Row';
 import { useToggle } from '../hooks/useToggle';
@@ -163,7 +163,7 @@ const TitledRow = styled.div`
 const Title = styled.div`
   font-size: var(--mantine-font-size-sm);
   margin-left: 8px;
-  color: ${secondaryColors.dark};
+  color: ${primary[7]};
 `;
 
 export const ShortcutsView = connect(

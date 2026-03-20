@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import * as React from 'react';
 
-import { primaryColors, secondaryColors } from '../Colors';
+import { neutral, primary } from '../Colors';
 
 export const ItemView = styled.div`
   display: flex;
@@ -12,8 +12,8 @@ export const ItemView = styled.div`
 
 export const IdView = styled.div`
   padding: 4px 8px;
-  background-color: ${secondaryColors.light};
-  color: ${secondaryColors.text};
+  background-color: ${primary[2]};
+  color: ${primary[9]};
   margin-right: 6px;
   border-radius: 8px;
 `;
@@ -23,7 +23,7 @@ export const InfoItem = styled.div`
   flex-direction: row;
   margin: 12px 0;
   padding-bottom: 12px;
-  border-bottom: 1px solid ${primaryColors.dark};
+  border-bottom: 1px solid ${neutral[4]};
   &:last-of-type {
     border: none;
   }

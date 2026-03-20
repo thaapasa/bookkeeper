@@ -6,7 +6,7 @@ import { ObjectId, TrackingSubject, TrackingSubjectWithData } from 'shared/types
 import apiConnect from 'client/data/ApiConnect';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
-import { colorScheme } from '../Colors';
+import { neutral } from '../Colors';
 import { FlexColumn, FlexRow } from '../component/BasicElements';
 import { Subtitle } from '../design/Text';
 import { Icons } from '../icons/Icons';
@@ -107,7 +107,7 @@ const TrackingCard = styled(FlexColumn)`
   position: relative;
   height: 200px;
   border-radius: 8px;
-  background-color: ${colorScheme.primary.standard};
+  background-color: ${neutral[2]};
   overflow: hidden;
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
 `;
@@ -118,7 +118,7 @@ const TrackingArea = styled(FlexRow)`
 
 const TitleArea = styled.div`
   height: 32px;
-  background-color: ${colorScheme.primary.light}aa;
+  background-color: ${neutral[1]}aa;
   z-index: 1;
 `;
 
