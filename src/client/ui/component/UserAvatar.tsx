@@ -23,7 +23,7 @@ const StyledAvatar = styled.div`
     filter: grayscale(100%) opacity(40%);
   }
   &.selected {
-    box-shadow: 0 0 4px 2px #748dac;
+    box-shadow: 0 0 4px 2px var(--mantine-color-primary-4);
   }
 `;
 

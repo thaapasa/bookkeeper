@@ -111,7 +111,7 @@ const Page = styled.div<{ bgImage: string }>`
   align-items: flex-start;
   justify-content: center;
   background: url(${publicUrl}/img/${props => props.bgImage});
-  background-color: light-dark(#d6d6d6, #1a1a1a);
+  background-color: light-dark(var(--mantine-color-gray-4), var(--mantine-color-dark-8));
   background-size: cover;
   background-repeat: no-repeat;
   width: 100%;

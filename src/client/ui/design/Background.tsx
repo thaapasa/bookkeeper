@@ -1,7 +1,7 @@
 import { css } from '@emotion/react';
 
 export const checkersBackground = ({
-  color = '#cccccc',
+  color = 'var(--mantine-color-neutral-3)',
   size = 8,
 }: {
   color?: string;

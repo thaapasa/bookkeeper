@@ -246,7 +246,7 @@ const ImageArea = styled.div`
   width: 128px;
   height: 128px;
   position: relative;
-  ${checkersBackground({ size: 8, color: '#eee' })}
+  ${checkersBackground({ size: 8 })}
   display: flex;
   justify-content: center;
   align-items: center;
