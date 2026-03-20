@@ -159,11 +159,11 @@ const TitleText = styled(Subtitle)`
 const GroupingCard = styled(FlexColumn)`
   width: 100%;
   position: relative;
-  border-radius: 8px;
+  border-radius: var(--mantine-radius-md);
   background-color: ${neutral[2]};
   overflow: hidden;
   height: 200px;
-  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--mantine-shadow-md);
 `;
 
 const GroupingTotalsArea = styled(FlexRow)`

@@ -122,13 +122,13 @@ function openNewExpenseFromShortcut(
 const ShortcutImage = styled.img`
   width: 24px;
   height: 24px;
-  border-radius: 12px;
+  border-radius: var(--mantine-radius-lg);
 `;
 
 const ShortcutFallback = styled.div`
   width: 24px;
   height: 24px;
-  border-radius: 12px;
+  border-radius: var(--mantine-radius-lg);
   display: flex;
   align-items: center;
   justify-content: center;

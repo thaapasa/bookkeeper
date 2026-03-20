@@ -145,7 +145,7 @@ const SearchToolArea = styled.div`
   background-color: ${neutral[1]};
   border: 1px solid ${neutral[3]};
   border-bottom: 1px solid ${neutral[5]};
-  border-radius: 4px;
+  border-radius: var(--mantine-radius-sm);
 `;
 
 const ClearIconArea = styled(SearchToolArea)`

@@ -15,7 +15,7 @@ export const IdView = styled.div`
   background-color: ${primary[2]};
   color: ${primary[9]};
   margin-right: 6px;
-  border-radius: 8px;
+  border-radius: var(--mantine-radius-md);
 `;
 
 export const InfoItem = styled.div`

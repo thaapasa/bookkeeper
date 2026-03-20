@@ -76,9 +76,9 @@ export const LoginPage: React.FC = () => {
 const LoginPaper = styled.div`
   margin: 15vh 32px 32px 32px;
   padding: 32px;
-  border-radius: 8px;
+  border-radius: var(--mantine-radius-md);
   background: var(--mantine-color-body);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--mantine-shadow-sm);
   z-index: 1;
 `;
 

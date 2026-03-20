@@ -32,7 +32,7 @@ export const NoteView: React.FC<React.PropsWithChildren<NoteViewProps>> = ({
 
 const Container = styled('div')`
   background-color: ${neutral[2]};
-  border-radius: 4px;
+  border-radius: var(--mantine-radius-sm);
   margin: 32px;
   width: auto;
   box-sizing: border-box;
@@ -55,8 +55,8 @@ const Container = styled('div')`
 const Title = styled('div')`
   padding: 8px 16px;
   font-size: var(--mantine-font-size-lg);
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
+  border-top-left-radius: var(--mantine-radius-sm);
+  border-top-right-radius: var(--mantine-radius-sm);
 
   &.note {
     color: ${text};

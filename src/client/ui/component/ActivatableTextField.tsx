@@ -100,7 +100,7 @@ const EditorContainer = styled.div`
   flex-direction: row;
   align-items: center;
   background-color: light-dark(rgba(0, 0, 0, 0.04), rgba(255, 255, 255, 0.06));
-  border-radius: 4px;
+  border-radius: var(--mantine-radius-sm);
   padding: 0 4px;
   & > div,
   & > svg {

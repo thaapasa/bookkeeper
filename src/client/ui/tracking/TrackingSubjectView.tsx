@@ -106,10 +106,10 @@ const TrackingCard = styled(FlexColumn)`
   width: 100%;
   position: relative;
   height: 200px;
-  border-radius: 8px;
+  border-radius: var(--mantine-radius-md);
   background-color: ${neutral[2]};
   overflow: hidden;
-  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--mantine-shadow-md);
 `;
 
 const TrackingArea = styled(FlexRow)`

@@ -67,7 +67,7 @@ function openNewExpenseFromShortcutDialog(
 const LinkImage = styled.img`
   width: 32px;
   height: 32px;
-  border-radius: 16px;
+  border-radius: var(--mantine-radius-xl);
 `;
 
 const LinkIconArea = styled.div`
@@ -75,7 +75,7 @@ const LinkIconArea = styled.div`
   height: 32px;
   margin: 8px 4px 4px 4px;
   background-color: ${primary[5]};
-  border-radius: 16px;
+  border-radius: var(--mantine-radius-xl);
   display: flex;
   align-items: center;
   justify-content: center;

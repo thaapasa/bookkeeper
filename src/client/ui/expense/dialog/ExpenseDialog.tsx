@@ -592,13 +592,13 @@ const OwnerSelectorArea = styled.div`
   top: 8px;
   left: -24px;
   padding: 12px 10px 12px 24px;
-  border-radius: 4px;
+  border-radius: var(--mantine-radius-sm);
   border-top-left-radius: 0px;
   border-bottom-left-radius: 0px;
   background-color: ${neutral[1]};
   display: flex;
   flex-direction: row;
-  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--mantine-shadow-xs);
   z-index: 1;
 
   & > div {

@@ -66,7 +66,7 @@ export const NumberInput = styled.input`
   margin: 0 2px;
   padding: 4px 8px;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--mantine-radius-sm);
   background: light-dark(rgba(0, 0, 0, 0.06), rgba(255, 255, 255, 0.06));
   font-size: inherit;
   text-align: center;
