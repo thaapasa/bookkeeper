@@ -1,13 +1,19 @@
 /**
- * Semantic color mapping for the app.
+ * Semantic color constants for the app.
  *
- * All colors are derived from Mantine's built-in DEFAULT_THEME color scales.
- * The Mantine theme (mantineTheme.ts) sets primaryColor: 'cyan'.
+ * All values reference Mantine CSS variables so they stay in sync with the theme.
+ * The Mantine theme (mantineTheme.ts) defines:
+ *   - `primary` → cyan (virtualColor alias)
+ *   - `neutral` → gray (virtualColor alias)
  *
- * This file provides a semantic layer so components use meaningful names
- * (colorScheme.primary.dark, positive, negative) rather than raw color indices.
+ * Usage in styled components:
+ *   background-color: ${colors.surface};
+ *   color: ${colors.primary[7]};
  *
- * To change the app's look, adjust the index mappings below.
+ * Usage in Mantine component props:
+ *   <Button color="primary">   (uses primaryColor from theme)
+ *
+ * To change the app's color scheme, edit mantineTheme.ts.
  */
 import { DEFAULT_THEME } from '@mantine/core';
 
@@ -15,7 +21,35 @@ import { Money, MoneyLike } from 'shared/util';
 
 const c = DEFAULT_THEME.colors;
 
-// --- Semantic color definitions ---
+// --- Mantine CSS variable helpers ---
+// Use these in Emotion styled templates for theme-synchronized colors.
+
+/** Primary accent color scale (cyan via virtualColor) */
+export const primary = Object.fromEntries(
+  Array.from({ length: 10 }, (_, i) => [i, `var(--mantine-color-primary-${i})`]),
+) as Record<number, string>;
+
+/** Neutral color scale (gray via virtualColor) */
+export const neutral = Object.fromEntries(
+  Array.from({ length: 10 }, (_, i) => [i, `var(--mantine-color-neutral-${i})`]),
+) as Record<number, string>;
+
+// --- Semantic color tokens (CSS vars) ---
+
+export const surface = 'var(--mantine-color-white)';
+export const text = 'var(--mantine-color-text)';
+
+// --- Semantic colors (static values for non-CSS-var contexts like SVG fill) ---
+
+export const positive = c.dark[9];
+export const negative = c.red[7];
+export const unimportant = c.gray[5];
+export const income = c.teal[5];
+export const unconfirmed = c.yellow[1];
+
+// --- Legacy compatibility layer ---
+// These re-export semantic names used by 50+ files.
+// Prefer primary[n] / neutral[n] / CSS vars in new code.
 
 interface ColorDef {
   standard: string;
@@ -33,55 +67,47 @@ interface ColorScheme {
 }
 
 export const gray = {
-  light: c.gray[1],
-  standard: c.gray[3],
-  dark: c.gray[5],
-  veryDark: c.gray[7],
-  text: c.dark[9],
+  light: neutral[1],
+  standard: neutral[3],
+  dark: neutral[5],
+  veryDark: neutral[7],
+  text: text,
 };
 
 export const primaryColors: ColorDef = {
-  light: c.gray[1],
-  standard: c.gray[2],
-  dark: c.gray[4],
-  text: c.dark[9],
+  light: neutral[1],
+  standard: neutral[2],
+  dark: neutral[4],
+  text: text,
 };
 
 export const secondaryColors: ColorDef = {
-  light: c.cyan[2],
-  standard: c.cyan[5],
-  dark: c.cyan[7],
-  text: c.cyan[9],
+  light: primary[2],
+  standard: primary[5],
+  dark: primary[7],
+  text: primary[9],
 };
 
 export const colorScheme: ColorScheme = {
   primary: primaryColors,
   secondary: secondaryColors,
   gray,
-  text: c.dark[9],
-  white: '#ffffff',
+  text: text,
+  white: surface,
 };
 
-// --- Semantic single colors ---
-
-export const positive = c.dark[9];
-export const negative = c.red[7];
-export const unimportant = c.gray[5];
-export const income = c.teal[5];
-export const unconfirmed = c.yellow[1];
-
-export const action = c.cyan[7];
-export const tool = c.gray[7];
-export const navigation = c.cyan[5];
-export const navigationBar = c.gray[2];
+export const action = primary[7];
+export const tool = neutral[7];
+export const navigation = primary[5];
+export const navigationBar = neutral[2];
 export const white = '#ffffff';
-export const header = c.gray[5];
+export const header = neutral[5];
 
-export const topItem = c.cyan[6];
-export const subItem = c.gray[5];
+export const topItem = primary[6];
+export const subItem = neutral[5];
 
-export const highlightBg = c.cyan[1];
-export const highlightFg = c.cyan[7];
+export const highlightBg = primary[1];
+export const highlightFg = primary[7];
 
 // --- Utility functions ---
 

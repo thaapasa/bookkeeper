@@ -129,7 +129,7 @@ export const LinkButton: React.FC<{
       <Button
         variant="subtle"
         size="compact-sm"
-        color={match ? 'accent' : 'dark'}
+        color={match ? 'primary' : 'dark'}
         leftSection={icon ? <RenderIcon icon={icon} /> : undefined}
         style={match ? undefined : { color: gray.veryDark }}
       >

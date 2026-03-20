@@ -1,19 +1,19 @@
-import { createTheme } from '@mantine/core';
+import { createTheme, virtualColor } from '@mantine/core';
 
 /**
- * Uses Mantine's default font size scale:
- *   xs  = 0.75rem  (12px) — small labels, version info, badges
- *   sm  = 0.875rem (14px) — compact/dense text, table cells
- *   md  = 1rem     (16px) — default body text (global default)
- *   lg  = 1.125rem (18px) — emphasized text, large titles
- *   xl  = 1.25rem  (20px) — extra large text
+ * Mantine theme configuration.
  *
- * Uses Mantine's built-in color palette (no custom color scales).
- * All colors referenced via theme: color="cyan", var(--mantine-color-cyan-5), etc.
- * Primary color: cyan. See Colors.ts for semantic color mapping.
+ * Uses Mantine's built-in color palette with semantic virtualColor aliases:
+ *   - `primary` → cyan (interactive elements, buttons, links, accent)
+ *   - `neutral` → gray (surfaces, borders, backgrounds)
+ *
+ * Components use: color="primary", var(--mantine-color-primary-5), etc.
+ * To change the app's accent color, just change the `light`/`dark` targets below.
+ *
+ * Font sizes follow Mantine defaults:
+ *   xs=12px, sm=14px, md=16px, lg=18px, xl=20px
  */
 
-/** Heading styles (Oswald font) */
 const headings = {
   fontFamily: "'Oswald', sans-serif",
   fontWeight: '300',
@@ -28,7 +28,11 @@ const headings = {
 };
 
 export const mantineTheme = createTheme({
-  primaryColor: 'cyan',
+  primaryColor: 'primary',
+  colors: {
+    primary: virtualColor({ name: 'primary', light: 'cyan', dark: 'cyan' }),
+    neutral: virtualColor({ name: 'neutral', light: 'gray', dark: 'gray' }),
+  },
   fontFamily: "'Inter', sans-serif",
   headings,
   defaultRadius: 'sm',
