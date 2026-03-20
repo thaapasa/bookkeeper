@@ -1,17 +1,17 @@
 import styled from '@emotion/styled';
+import { ScrollArea } from '@mantine/core';
 import * as React from 'react';
 
 import { NewExpenseDialogRoutes } from '../expense/dialog/NewExpenseDialogPage';
 import { ShortcutsView } from '../shortcuts/ShortcutsView';
-import { PageContentContainer } from '../GlobalStyles';
 
 export const ShortcutsPage: React.FC = () => (
   <>
-    <PageContentContainer>
+    <ScrollArea h="100%" type="auto">
       <LinksContainer>
         <ShortcutsView />
       </LinksContainer>
-    </PageContentContainer>
+    </ScrollArea>
     <NewExpenseDialogRoutes />
   </>
 );

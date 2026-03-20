@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { Flex, ScrollArea } from '@mantine/core';
 import * as B from 'baconjs';
 import React from 'react';
 
@@ -7,7 +8,6 @@ import { sessionP } from 'client/data/Login';
 
 import { connect } from '../component/BaconConnect';
 import { Title } from '../design/Text';
-import { PageContentContainer } from '../GlobalStyles';
 import { RequireProperty } from '../utils/RequireProperty';
 import { PasswordView } from './PasswordChangeView';
 import { ProfileImageView } from './ProfileImageView';
@@ -15,16 +15,18 @@ import { UserDataView } from './UserDataView';
 
 export const ProfileViewImpl = RequireProperty('session', ({ session }: { session: Session }) => {
   return (
-    <PageContentContainer className="center">
-      <FormGrid>
-        <FullWidth>
-          <Title>Profiilitiedot</Title>
-        </FullWidth>
-        <UserDataView session={session} />
-        <PasswordView session={session} />
-        <ProfileImageView session={session} />
-      </FormGrid>
-    </PageContentContainer>
+    <ScrollArea h="100%" type="auto">
+      <Flex direction="column" align="center">
+        <FormGrid>
+          <FullWidth>
+            <Title>Profiilitiedot</Title>
+          </FullWidth>
+          <UserDataView session={session} />
+          <PasswordView session={session} />
+          <ProfileImageView session={session} />
+        </FormGrid>
+      </Flex>
+    </ScrollArea>
   );
 });
 

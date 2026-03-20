@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { ActionIcon } from '@mantine/core';
+import { ActionIcon, Flex, ScrollArea } from '@mantine/core';
 import React from 'react';
 
 import apiConnect from 'client/data/ApiConnect';
@@ -9,7 +9,6 @@ import { Title } from '../design/Text';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useForceReload } from '../hooks/useForceReload';
 import { Icons } from '../icons/Icons';
-import { PageContentContainer } from '../GlobalStyles';
 import { newTrackingSubject, TrackingEditor } from './TrackingEditor';
 import { TrackingSubjectsList } from './TrackingSubjectView';
 
@@ -17,24 +16,26 @@ export const TrackingPage: React.FC = () => {
   const { counter, forceReload } = useForceReload();
   const trackedSubjects = useAsyncData(loadSubjects, true, counter);
   return (
-    <PageContentContainer className="center">
-      <PageGrid>
-        <TitleRow>
-          <Title>Seuranta</Title>
-          <ToolArea>
-            <ActionIcon variant="subtle" title="Uusi seuranta" onClick={newTrackingSubject}>
-              <Icons.AddChart />
-            </ActionIcon>
-          </ToolArea>
-        </TitleRow>
-        <AsyncDataView
-          data={trackedSubjects}
-          renderer={TrackingSubjectsList}
-          onReload={forceReload}
-        />
-      </PageGrid>
-      <TrackingEditor reloadAll={forceReload} />
-    </PageContentContainer>
+    <ScrollArea h="100%" type="auto">
+      <Flex direction="column" align="center">
+        <PageGrid>
+          <TitleRow>
+            <Title>Seuranta</Title>
+            <ToolArea>
+              <ActionIcon variant="subtle" title="Uusi seuranta" onClick={newTrackingSubject}>
+                <Icons.AddChart />
+              </ActionIcon>
+            </ToolArea>
+          </TitleRow>
+          <AsyncDataView
+            data={trackedSubjects}
+            renderer={TrackingSubjectsList}
+            onReload={forceReload}
+          />
+        </PageGrid>
+        <TrackingEditor reloadAll={forceReload} />
+      </Flex>
+    </ScrollArea>
   );
 };
 

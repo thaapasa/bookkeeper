@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { ActionIcon } from '@mantine/core';
+import { ActionIcon, Flex, ScrollArea } from '@mantine/core';
 import React from 'react';
 
 import apiConnect from 'client/data/ApiConnect';
@@ -9,7 +9,6 @@ import { Title } from '../design/Text';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useForceReload } from '../hooks/useForceReload';
 import { Icons } from '../icons/Icons';
-import { PageContentContainer } from '../GlobalStyles';
 import { ExpenseGroupingsList } from './ExpenseGroupingsView';
 import { GroupingEditor, newExpenseGrouping } from './GroupingEditor';
 
@@ -18,25 +17,27 @@ export const GroupingPage: React.FC = () => {
   const expenseGroupings = useAsyncData(loadGroupings, true, counter);
   const tags = useAsyncData(loadTags, true, counter);
   return (
-    <PageContentContainer className="center">
-      <PageGrid>
-        <TitleRow>
-          <Title>Ryhmittelyt</Title>
-          <ToolArea>
-            <ActionIcon variant="subtle" title="Uusi ryhmittely" onClick={newExpenseGrouping}>
-              <Icons.AddChart />
-            </ActionIcon>
-          </ToolArea>
-        </TitleRow>
-        <AsyncDataView
-          data={expenseGroupings}
-          renderer={ExpenseGroupingsList}
-          onReload={forceReload}
-          allTags={tags.type === 'loaded' ? tags.value : []}
-        />
-      </PageGrid>
-      <GroupingEditor reloadAll={forceReload} />
-    </PageContentContainer>
+    <ScrollArea h="100%" type="auto">
+      <Flex direction="column" align="center">
+        <PageGrid>
+          <TitleRow>
+            <Title>Ryhmittelyt</Title>
+            <ToolArea>
+              <ActionIcon variant="subtle" title="Uusi ryhmittely" onClick={newExpenseGrouping}>
+                <Icons.AddChart />
+              </ActionIcon>
+            </ToolArea>
+          </TitleRow>
+          <AsyncDataView
+            data={expenseGroupings}
+            renderer={ExpenseGroupingsList}
+            onReload={forceReload}
+            allTags={tags.type === 'loaded' ? tags.value : []}
+          />
+        </PageGrid>
+        <GroupingEditor reloadAll={forceReload} />
+      </Flex>
+    </ScrollArea>
   );
 };
 

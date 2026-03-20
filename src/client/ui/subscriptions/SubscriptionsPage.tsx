@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { Checkbox } from '@mantine/core';
+import { Checkbox, ScrollArea } from '@mantine/core';
 import { combineTemplate } from 'baconjs';
 import * as React from 'react';
 import { z } from 'zod';
@@ -16,7 +16,6 @@ import { connect } from '../component/BaconConnect';
 import { useDeferredData } from '../hooks/useAsyncData';
 import { useLocalStorageList } from '../hooks/useList';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { PageContentContainer } from '../GlobalStyles';
 import { SubscriptionCategoryHeader, ToggleCategoryVisibility } from './SubscriptionCategoryHeader';
 import { SubscriptionCriteriaSelector } from './SubscriptionCriteriaSelector';
 import { SubscriptionItemView } from './SubscriptionItemView';
@@ -54,10 +53,10 @@ const SubscriptionsViewImpl: React.FC<{
   // Reload whenever update bus is triggered
   React.useEffect(() => needUpdateE.onValue(loadData), [loadData]);
   return (
-    <PageContentContainer>
+    <ScrollArea h="100%" type="auto">
       <SubscriptionCriteriaSelector onChange={setCriteria} />
       <AsyncDataView data={data} renderer={SubscriptionsRenderer} />
-    </PageContentContainer>
+    </ScrollArea>
   );
 };
 

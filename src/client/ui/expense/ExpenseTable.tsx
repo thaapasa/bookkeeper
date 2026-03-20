@@ -1,14 +1,13 @@
 import styled from '@emotion/styled';
+import { Flex, ScrollArea } from '@mantine/core';
 import * as React from 'react';
 
 import { Expense, ExpenseStatus, UserExpense } from 'shared/expense';
 import { Money, partition } from 'shared/util';
 import { userDataP, UserDataProps } from 'client/data/Categories';
 
-import { neutral } from '../Colors';
 import { connect } from '../component/BaconConnect';
 import { ListDecorator } from '../component/ListDecorator';
-import { PageContentContainer } from '../GlobalStyles';
 import { media } from '../Styles';
 import { ExpenseTotals } from './ExpenseHelper';
 import { MonthlyStatus } from './MonthlyStatus';
@@ -142,17 +141,18 @@ class ExpenseTable extends React.Component<ExpenseTableProps, ExpenseTableState>
 
   public render() {
     return (
-      <PageContentContainer>
-        <ExpenseArea>
-          <ExpenseTableLayout className={this.props.loading ? 'loading' : ''}>
-            <thead>
-              <ExpenseHeader />
-              <ExpenseFilterRow filters={this.state.filters} onRemoveFilter={this.removeFilter} />
-            </thead>
-            <tbody>{this.renderExpenseRows()}</tbody>
-          </ExpenseTableLayout>
-          <ExpenseFiller />
-        </ExpenseArea>
+      <Flex direction="column" h="100%">
+        <ScrollArea flex={1} type="auto">
+          <ExpenseContent>
+            <ExpenseTableLayout className={this.props.loading ? 'loading' : ''}>
+              <thead>
+                <ExpenseHeader />
+                <ExpenseFilterRow filters={this.state.filters} onRemoveFilter={this.removeFilter} />
+              </thead>
+              <tbody>{this.renderExpenseRows()}</tbody>
+            </ExpenseTableLayout>
+          </ExpenseContent>
+        </ScrollArea>
         <MonthlyStatus
           {...this.props}
           unconfirmedDuring={this.props.expenses.find(e => !e.confirmed) !== undefined}
@@ -161,7 +161,7 @@ class ExpenseTable extends React.Component<ExpenseTableProps, ExpenseTableState>
           showFiltered={this.state.filters.length > 0}
           filteredTotals={this.calculateTotals(this.getFilteredExpenses())}
         />
-      </PageContentContainer>
+      </Flex>
     );
   }
 }
@@ -177,27 +177,12 @@ const ExpenseItem: React.FC<
   } & Omit<CommonExpenseRowProps, 'expense'>
 > = ({ item, ...props }) => <ExpenseRow expense={item} {...props} />;
 
-const ExpenseArea = styled.div`
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  position: relative;
-  white-space: nowrap;
-  align-items: center;
-  background-color: ${neutral[1]};
+const ExpenseContent = styled.div`
   padding: 0 16px;
-  display: flex;
-  flex-direction: column;
-
+  white-space: nowrap;
   ${media.mobile`
     padding: 0;
   `}
-`;
-
-const ExpenseFiller = styled.div`
-  width: 100%;
-  flex: 1;
-  background-color: ${neutral[1]};
 `;
 
 function expenseToKey(e: Expense) {

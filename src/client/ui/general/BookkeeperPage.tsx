@@ -1,5 +1,4 @@
-import styled from '@emotion/styled';
-import { AppShell } from '@mantine/core';
+import { AppShell, Container, Paper } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import * as React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
@@ -40,7 +39,7 @@ import { InfoView } from '../info/InfoView';
 import { ProfileView } from '../profile/ProfileView';
 import { SearchPage } from '../search/SearchPage';
 import { StatisticsView } from '../statistics/StatisticsView';
-import { mainContentMargin, mainContentMaxWidth, media, Size } from '../Styles';
+import { mainContentMaxWidth, Size } from '../Styles';
 import { SubscriptionsPage } from '../subscriptions/SubscriptionsPage';
 import { ToolsView } from '../tools/ToolsView';
 import { TrackingPage } from '../tracking/TrackingPage';
@@ -65,42 +64,56 @@ export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
       <ExpenseSplitBinder windowSize={windowSize} />
       <ModalDialogConnector />
       <Router>
-        <AppShell header={{ height: 56 }} padding={0} bg={neutral[1]}>
+        <AppShell header={{ height: 56 }} padding={{ base: 0, sm: 'md' }} bg={neutral[1]}>
           <AppShell.Header bg={neutral[4]}>
             <TopBar windowSize={windowSize} menuOpen={menuOpen} onToggleMenu={toggleMenu} />
           </AppShell.Header>
 
-          <AppShell.Main>
-            <MainContent>
-              <Routes>
-                <Route
-                  path={expenseMonthPathPattern('date') + '/*'}
-                  element={<RoutedMonthView />}
-                />
-                <Route path={expensePagePath + '/*'} element={<RoutedMonthView />} />
-                <Route path={categoryViewYearPattern('year')} element={<RoutedCategoryView />} />
-                <Route path={categoryViewMonthPattern('month')} element={<RoutedCategoryView />} />
-                <Route path={shortcutsPagePath + '/*'} element={<ShortcutsPage />} />
-                <Route path={subscriptionsPagePath} element={<SubscriptionsPage />} />
-                <Route path={categoryPagePath} element={<RoutedCategoryView />} />
-                <Route path={`${searchPagePath}/m/:month`} element={<SearchPage />} />
-                <Route path={`${searchPagePath}/y/:year`} element={<SearchPage />} />
-                <Route path={searchPagePath} element={<SearchPage />} />
-                <Route path={statisticsPage} element={<StatisticsView />} />
-                <Route path={profilePagePath + '/*'} element={<ProfileView />} />
-                <Route path={infoPagePath} element={<InfoView />} />
-                <Route path={trackingPagePath} element={<TrackingPage />} />
-                <Route path={groupingsPagePath} element={<GroupingPage />} />
-                <Route
-                  path={`${groupingsPagePath}/:groupingId`}
-                  element={<GroupingExpensesPage />}
-                />
-                <Route path={toolsPagePath} element={<ToolsView />} />
-                <Route path={'/p/*'} element={<FrontpageView />} />
-                <Route path="/" element={<FrontpageView />} />
-                <Route element={<PathNotFoundError />} />
-              </Routes>
-            </MainContent>
+          <AppShell.Main style={{ display: 'flex', flexDirection: 'column' }}>
+            <Container
+              size={mainContentMaxWidth}
+              p={0}
+              style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+            >
+              <Paper
+                shadow="md"
+                bg="var(--mantine-color-default)"
+                flex={1}
+                style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
+              >
+                <Routes>
+                  <Route
+                    path={expenseMonthPathPattern('date') + '/*'}
+                    element={<RoutedMonthView />}
+                  />
+                  <Route path={expensePagePath + '/*'} element={<RoutedMonthView />} />
+                  <Route path={categoryViewYearPattern('year')} element={<RoutedCategoryView />} />
+                  <Route
+                    path={categoryViewMonthPattern('month')}
+                    element={<RoutedCategoryView />}
+                  />
+                  <Route path={shortcutsPagePath + '/*'} element={<ShortcutsPage />} />
+                  <Route path={subscriptionsPagePath} element={<SubscriptionsPage />} />
+                  <Route path={categoryPagePath} element={<RoutedCategoryView />} />
+                  <Route path={`${searchPagePath}/m/:month`} element={<SearchPage />} />
+                  <Route path={`${searchPagePath}/y/:year`} element={<SearchPage />} />
+                  <Route path={searchPagePath} element={<SearchPage />} />
+                  <Route path={statisticsPage} element={<StatisticsView />} />
+                  <Route path={profilePagePath + '/*'} element={<ProfileView />} />
+                  <Route path={infoPagePath} element={<InfoView />} />
+                  <Route path={trackingPagePath} element={<TrackingPage />} />
+                  <Route path={groupingsPagePath} element={<GroupingPage />} />
+                  <Route
+                    path={`${groupingsPagePath}/:groupingId`}
+                    element={<GroupingExpensesPage />}
+                  />
+                  <Route path={toolsPagePath} element={<ToolsView />} />
+                  <Route path={'/p/*'} element={<FrontpageView />} />
+                  <Route path="/" element={<FrontpageView />} />
+                  <Route element={<PathNotFoundError />} />
+                </Routes>
+              </Paper>
+            </Container>
           </AppShell.Main>
         </AppShell>
         <MenuDrawer
@@ -113,23 +126,3 @@ export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
     </>
   );
 };
-
-const MainContent = styled.div`
-  margin: ${mainContentMargin}px;
-  margin-top: 24px;
-  background-color: var(--mantine-color-default);
-  box-shadow: light-dark(0px 2px 4px 0px rgba(0, 0, 0, 0.5), 0px 2px 4px 0px rgba(0, 0, 0, 0.8));
-  overflow: hidden;
-  min-height: calc(100vh - 48px - 48px);
-
-  ${media.mobile`
-    margin: 0;
-    box-shadow: none;
-  `}
-
-  ${media.largeDevice`
-    margin-left: auto;
-    margin-right: auto;
-    width: ${mainContentMaxWidth}px;
-  `}
-`;

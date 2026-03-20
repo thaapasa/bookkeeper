@@ -9,7 +9,6 @@ import { Icons } from 'client/ui/icons/Icons';
 import { QuestionBookmark } from 'client/ui/icons/QuestionBookmark';
 import { getScreenSizeClassName, media, ScreenSizeClassName, Size } from 'client/ui/Styles';
 
-const tableBgColor = neutral[1];
 const separatorColor = neutral[3];
 
 const columns = [
@@ -53,7 +52,6 @@ export function getVisibleColumns(windowSize: Size) {
 
 export const ExpenseTableLayout = styled.table`
   width: 100%;
-  background-color: ${tableBgColor};
   border-spacing: 0;
   table-layout: fixed;
   &.padding {
@@ -86,7 +84,7 @@ export const Row = styled('tr')`
   }
 
   &.first-day {
-    background: linear-gradient(${neutral[2]}cc 0%, ${tableBgColor} 20%);
+    background: linear-gradient(${neutral[2]}cc 0%, ${neutral[1]} 20%);
     & td {
       padding-top: 4px;
     }
