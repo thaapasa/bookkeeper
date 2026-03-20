@@ -1,10 +1,21 @@
-import styled from '@emotion/styled';
+/**
+ * Semantic color mapping for the app.
+ *
+ * All colors are derived from Mantine's built-in DEFAULT_THEME color scales.
+ * The Mantine theme (mantineTheme.ts) sets primaryColor: 'cyan'.
+ *
+ * This file provides a semantic layer so components use meaningful names
+ * (colorScheme.primary.dark, positive, negative) rather than raw color indices.
+ *
+ * To change the app's look, adjust the index mappings below.
+ */
+import { DEFAULT_THEME } from '@mantine/core';
 
 import { Money, MoneyLike } from 'shared/util';
 
-import { getResolvedColors } from './theme/palettes';
+const c = DEFAULT_THEME.colors;
 
-const resolved = getResolvedColors();
+// --- Semantic color definitions ---
 
 interface ColorDef {
   standard: string;
@@ -22,69 +33,57 @@ interface ColorScheme {
 }
 
 export const gray = {
-  standard: resolved.gray.standard,
-  light: resolved.gray.light,
-  dark: resolved.gray.dark,
-  veryDark: resolved.gray.veryDark,
-  text: resolved.gray.text,
+  light: c.gray[1],
+  standard: c.gray[3],
+  dark: c.gray[5],
+  veryDark: c.gray[7],
+  text: c.dark[9],
 };
 
 export const primaryColors: ColorDef = {
-  standard: resolved.primary.standard,
-  light: resolved.primary.light,
-  dark: resolved.primary.dark,
-  text: resolved.primary.text,
+  light: c.gray[1],
+  standard: c.gray[2],
+  dark: c.gray[4],
+  text: c.dark[9],
 };
 
 export const secondaryColors: ColorDef = {
-  standard: resolved.accentColors.standard,
-  light: resolved.accentColors.light,
-  dark: resolved.accentColors.dark,
-  text: resolved.accentColors.text,
+  light: c.cyan[2],
+  standard: c.cyan[5],
+  dark: c.cyan[7],
+  text: c.cyan[9],
 };
 
 export const colorScheme: ColorScheme = {
   primary: primaryColors,
   secondary: secondaryColors,
   gray,
-  text: resolved.text,
-  white: resolved.surface,
+  text: c.dark[9],
+  white: '#ffffff',
 };
 
-// MUI palette exports (kept for MUI compatibility during migration)
-export const primaryPalette = {
-  light: colorScheme.primary.light,
-  dark: colorScheme.primary.dark,
-  main: colorScheme.primary.standard,
-  contrastText: colorScheme.primary.text,
-};
+// --- Semantic single colors ---
 
-export const secondaryPalette = {
-  light: colorScheme.secondary.light,
-  dark: colorScheme.secondary.dark,
-  main: colorScheme.secondary.standard,
-  contrastText: colorScheme.secondary.text,
-};
+export const positive = c.dark[9];
+export const negative = c.red[7];
+export const unimportant = c.gray[5];
+export const income = c.teal[5];
+export const unconfirmed = c.yellow[1];
 
-export const navigation = resolved.accentColors.standard;
-export const white = resolved.surface;
-export const navigationBar = resolved.navBar;
+export const action = c.cyan[7];
+export const tool = c.gray[7];
+export const navigation = c.cyan[5];
+export const navigationBar = c.gray[2];
+export const white = '#ffffff';
+export const header = c.gray[5];
 
-export const action = resolved.accentColors.dark;
+export const topItem = c.cyan[6];
+export const subItem = c.gray[5];
 
-export const positive = resolved.positive;
-export const negative = resolved.negative;
-export const unimportant = resolved.unimportant;
-export const header = resolved.gray.dark;
+export const highlightBg = c.cyan[1];
+export const highlightFg = c.cyan[7];
 
-export const topItem = resolved.topItem;
-export const subItem = resolved.subItem;
-
-export const tool = resolved.gray.veryDark;
-export const unconfirmed = resolved.unconfirmed;
-
-export const highlightBg = resolved.highlightBg;
-export const highlightFg = resolved.highlightFg;
+// --- Utility functions ---
 
 export function diagonalStripes(
   color1: string,
@@ -96,7 +95,6 @@ export function diagonalStripes(
 }
 
 export const unconfirmedStripes = diagonalStripes(unconfirmed, white, '0.5em', '1em');
-export const income = resolved.income;
 
 export function forMoney(m?: MoneyLike): string {
   if (!m) {
@@ -114,15 +112,8 @@ export function classNameForMoney(m?: MoneyLike): 'positive' | 'negative' | 'uni
   return b ? (b.gt(0) ? 'positive' : b.lt(0) ? 'negative' : 'unimportant') : 'unimportant';
 }
 
-// This is here only so that we use styled in this file. We must reference styled here or
-// else watch recompile fails with a warning "module not found" (looks like a bug)
-export const unused = styled.div`
-  width: 100%;
-`;
-
 export function getLuminanceSafe(color: string): number {
   try {
-    // Simple relative luminance approximation
     const hex = color.replace('#', '');
     const r = parseInt(hex.substring(0, 2), 16) / 255;
     const g = parseInt(hex.substring(2, 4), 16) / 255;

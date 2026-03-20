@@ -1,7 +1,4 @@
-import { createTheme, type MantineColorsTuple } from '@mantine/core';
-
-import type { AppPalette } from './palettes';
-import { getActivePalette } from './palettes';
+import { createTheme } from '@mantine/core';
 
 /**
  * Uses Mantine's default font size scale:
@@ -10,6 +7,10 @@ import { getActivePalette } from './palettes';
  *   md  = 1rem     (16px) — default body text (global default)
  *   lg  = 1.125rem (18px) — emphasized text, large titles
  *   xl  = 1.25rem  (20px) — extra large text
+ *
+ * Uses Mantine's built-in color palette (no custom color scales).
+ * All colors referenced via theme: color="cyan", var(--mantine-color-cyan-5), etc.
+ * Primary color: cyan. See Colors.ts for semantic color mapping.
  */
 
 /** Heading styles (Oswald font) */
@@ -26,18 +27,9 @@ const headings = {
   },
 };
 
-/** Generate a Mantine theme from an app palette */
-function buildMantineTheme(palette: AppPalette) {
-  const neutral = [...palette.neutral] as unknown as MantineColorsTuple;
-  const accent = [...palette.accent] as unknown as MantineColorsTuple;
-
-  return createTheme({
-    primaryColor: 'accent',
-    colors: { neutral, accent },
-    fontFamily: palette.fontFamily,
-    headings,
-    defaultRadius: 'sm',
-  });
-}
-
-export const mantineTheme = buildMantineTheme(getActivePalette());
+export const mantineTheme = createTheme({
+  primaryColor: 'cyan',
+  fontFamily: "'Inter', sans-serif",
+  headings,
+  defaultRadius: 'sm',
+});

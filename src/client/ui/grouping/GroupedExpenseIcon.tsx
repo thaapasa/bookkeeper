@@ -1,11 +1,13 @@
 import styled from '@emotion/styled';
-import { blue } from 'client/ui/design/materialColors';
+import { DEFAULT_THEME } from '@mantine/core';
 import * as React from 'react';
 
 import { ExpenseGroupingRef } from 'shared/types';
 
 import { getLuminanceSafe } from '../Colors';
 import { Bookmark } from '../icons/Bookmark';
+
+const defaultGroupingColor = DEFAULT_THEME.colors.blue[3];
 
 type GroupedExpenseIconProps = {
   size?: number;
@@ -22,7 +24,7 @@ export const GroupedExpenseIcon: React.FC<GroupedExpenseIconProps> = ({
   className,
   implicit,
 }) => {
-  const color = grouping.color ?? blue[300];
+  const color = grouping.color ?? defaultGroupingColor;
   const luminance = getLuminanceSafe(color);
 
   return (
