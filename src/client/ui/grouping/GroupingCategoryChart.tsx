@@ -12,7 +12,7 @@ import { formatMoney } from '../chart/Format';
 import { primary } from '../Colors';
 import { connect } from '../component/BaconConnect';
 import { Row } from '../component/Row';
-import { Flex } from '../Styles';
+import { Flex } from '../GlobalStyles';
 
 interface GroupingCategoryChartProps {
   categoryMap: CategoryMap;

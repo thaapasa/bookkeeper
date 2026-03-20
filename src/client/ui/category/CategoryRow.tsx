@@ -7,7 +7,8 @@ import apiConnect from 'client/data/ApiConnect';
 import { UserDataProps } from 'client/data/Categories';
 import { needUpdateE } from 'client/data/State';
 
-import { classNameForMoney, neutral, primary } from '../Colors';
+import { neutral, primary } from '../Colors';
+import { classNameForMoney } from '../ColorUtils';
 import { ExpenseRow } from '../expense/row/ExpenseRow';
 import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
 import { useDeferredData } from '../hooks/useAsyncData';

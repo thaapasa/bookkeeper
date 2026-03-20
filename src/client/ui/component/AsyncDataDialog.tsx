@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import { AsyncDataError, AsyncDataLoading } from 'client/data/AsyncData';
 
-import { Pre } from '../Styles';
+import { Pre } from '../GlobalStyles';
 import { AsyncDataView, AsyncDataViewProps } from './AsyncDataView';
 
 export const AsyncDataDialogContent = <T, C extends { data: T }>({

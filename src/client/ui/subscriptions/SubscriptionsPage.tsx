@@ -16,7 +16,7 @@ import { connect } from '../component/BaconConnect';
 import { useDeferredData } from '../hooks/useAsyncData';
 import { useLocalStorageList } from '../hooks/useList';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { PageContentContainer } from '../Styles';
+import { PageContentContainer } from '../GlobalStyles';
 import { SubscriptionCategoryHeader, ToggleCategoryVisibility } from './SubscriptionCategoryHeader';
 import { SubscriptionCriteriaSelector } from './SubscriptionCriteriaSelector';
 import { SubscriptionItemView } from './SubscriptionItemView';

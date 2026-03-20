@@ -8,7 +8,7 @@ import { executeOperation } from 'client/util/ExecuteOperation';
 import { Title } from '../design/Text';
 import { UserPrompts } from '../dialog/DialogState';
 import { ReceiverField } from '../expense/dialog/ReceiverField';
-import { PageContentContainer } from '../Styles';
+import { PageContentContainer } from '../GlobalStyles';
 import { DbStatusView } from './DbStatusView';
 import { ToolButton } from './ToolButton';
 

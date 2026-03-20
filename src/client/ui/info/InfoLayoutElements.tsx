@@ -43,7 +43,7 @@ export const SubValue = styled(Value)`
   display: flex;
 `;
 
-export const ItemWithId: React.FC<{ id: string | number; children: any }> = props => (
+export const ItemWithId: React.FC<{ id: string | number; children: React.ReactNode }> = props => (
   <ItemView>
     <IdView>{props.id}</IdView>
     {props.children}

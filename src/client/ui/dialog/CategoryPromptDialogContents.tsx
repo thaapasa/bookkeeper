@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import { CategorySelection, ObjectId } from 'shared/types';
 
-import { CategorySelector } from '../component/CategorySelector';
+import { CategorySelector } from '../category/CategorySelector';
 import { CategoryPromptDialogData, DialogContentRendererProps } from './Dialog';
 
 type CategoryPromptDialogProps = DialogContentRendererProps<ObjectId> & CategoryPromptDialogData;

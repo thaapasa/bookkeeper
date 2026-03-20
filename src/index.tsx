@@ -2,7 +2,10 @@
  * This is Bookkeeper client (web app) index file
  */
 
-import './client/Init';
+import { Settings } from 'luxon';
+
+Settings.defaultLocale = 'fi';
+
 import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
 

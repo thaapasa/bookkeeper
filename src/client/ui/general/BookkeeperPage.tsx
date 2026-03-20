@@ -40,11 +40,10 @@ import { InfoView } from '../info/InfoView';
 import { ProfileView } from '../profile/ProfileView';
 import { SearchPage } from '../search/SearchPage';
 import { StatisticsView } from '../statistics/StatisticsView';
-import { mainContentMargin, mainContentMaxWidth, media } from '../Styles';
+import { mainContentMargin, mainContentMaxWidth, media, Size } from '../Styles';
 import { SubscriptionsPage } from '../subscriptions/SubscriptionsPage';
 import { ToolsView } from '../tools/ToolsView';
 import { TrackingPage } from '../tracking/TrackingPage';
-import { Size } from '../Types';
 import { PathNotFoundError } from './ErrorView';
 import { ShortcutsPage } from './ShortcutsPage';
 

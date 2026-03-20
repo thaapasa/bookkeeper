@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon';
 import React from 'react';
 
-import { TextEditorComponent } from '../component/TextEditVariants';
+import { TextEditorComponent } from './DialogState';
 
 export type DialogSelectOption<T> = {
   value: T;

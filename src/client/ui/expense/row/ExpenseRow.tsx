@@ -14,13 +14,8 @@ import apiConnect from 'client/data/ApiConnect';
 import { getFullCategoryName, UserDataProps } from 'client/data/Categories';
 import { editExpense, needUpdateE, notifyError, updateExpenses } from 'client/data/State';
 import { logger } from 'client/Logger';
-import {
-  action,
-  forMoney,
-  income as incomeColor,
-  primary,
-  unconfirmedStripes,
-} from 'client/ui/Colors';
+import { action, income as incomeColor, primary } from 'client/ui/Colors';
+import { forMoney, unconfirmedStripes } from 'client/ui/ColorUtils';
 import { ActivatableTextField } from 'client/ui/component/ActivatableTextField';
 import { ExpanderIcon } from 'client/ui/component/ExpanderIcon';
 import { UserAvatar } from 'client/ui/component/UserAvatar';
@@ -28,7 +23,8 @@ import { UserPrompts } from 'client/ui/dialog/DialogState';
 import { GroupedExpenseIcon } from 'client/ui/grouping/GroupedExpenseIcon';
 import { ExpenseTypeIcon } from 'client/ui/icons/ExpenseType';
 import { ToolIcon } from 'client/ui/icons/ToolIcon';
-import { Flex, media, VCenterRow } from 'client/ui/Styles';
+import { Flex, VCenterRow } from 'client/ui/GlobalStyles';
+import { media } from 'client/ui/Styles';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { ExpenseInfo } from '../details/ExpenseInfo';

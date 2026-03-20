@@ -3,7 +3,7 @@ import * as React from 'react';
 
 import { NewExpenseDialogRoutes } from '../expense/dialog/NewExpenseDialogPage';
 import { ShortcutsView } from '../shortcuts/ShortcutsView';
-import { PageContentContainer } from '../Styles';
+import { PageContentContainer } from '../GlobalStyles';
 
 export const ShortcutsPage: React.FC = () => (
   <>

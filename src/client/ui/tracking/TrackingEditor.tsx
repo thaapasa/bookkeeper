@@ -9,16 +9,16 @@ import { categoryMapP, getFullCategoryName } from 'client/data/Categories';
 
 import { AsyncDataDialogContent } from '../component/AsyncDataDialog';
 import { connect } from '../component/BaconConnect';
-import { connectDialog } from '../component/DialogConnector';
+import { connectDialog } from '../dialog/DialogConnector';
 import { Row } from '../component/Row';
 import { TextEdit } from '../component/TextEdit';
-import { UploadImageButton } from '../component/UploadFileButton';
+import { UploadImageButton } from '../component/UploadImageButton';
 import { checkersBackground } from '../design/Background';
 import { Subtitle } from '../design/Text';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useForceReload } from '../hooks/useForceReload';
 import { Icons } from '../icons/Icons';
-import { Flex } from '../Styles';
+import { Flex } from '../GlobalStyles';
 import { useTrackingState } from './TrackingEditorState';
 
 interface TrackingBusPayload {

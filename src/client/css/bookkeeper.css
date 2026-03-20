@@ -15,6 +15,3 @@ body {
     width: 100%;
 }
 
-[tabindex] {
-    outline: none !important;
-}

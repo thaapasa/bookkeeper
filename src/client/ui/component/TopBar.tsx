@@ -19,8 +19,7 @@ import {
 import { neutral, primary, text } from '../Colors';
 import { Icon, RenderIcon } from '../icons/Icons';
 import { AddExpenseMenu } from '../shortcuts/ShortcutsDropdown';
-import { isMobileSize } from '../Styles';
-import { Size } from '../Types';
+import { isMobileSize, Size } from '../Styles';
 import { DateRangeNavigator } from './DateRangeNavigator';
 
 export interface AppLink {

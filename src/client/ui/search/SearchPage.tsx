@@ -21,7 +21,7 @@ import { searchPagePath } from 'client/util/Links';
 import { connect } from '../component/BaconConnect';
 import { usePersistentMemo } from '../hooks/usePersistentMemo';
 import { useWhenMounted } from '../hooks/useWhenMounted';
-import { PageContentContainer } from '../Styles';
+import { PageContentContainer } from '../GlobalStyles';
 import { QueryView } from './QueryView';
 import { ResultsView } from './ResultsView';
 

@@ -5,7 +5,7 @@ import { toArray } from 'shared/util';
 
 import { useLocalStorage } from './useLocalStorage';
 
-const DefaultCompare = (a: any, b: any): boolean => a === b;
+const DefaultCompare = (a: unknown, b: unknown): boolean => a === b;
 
 /**
  * @return hook functions for managing the contents of a list

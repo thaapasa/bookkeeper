@@ -6,7 +6,7 @@ import { DateLike, monthRange, toDateTime } from 'shared/time';
 import { noop } from 'shared/util';
 import { ExpenseSaveAction } from 'client/ui/expense/dialog/ExpenseSaveAction';
 
-import { Size } from '../ui/Types';
+import { Size } from '../ui/Styles';
 import { expensePagePath } from '../util/Links';
 import type { ExpenseDialogObject, NavigationConfig, Notification } from './StateTypes';
 

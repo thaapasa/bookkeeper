@@ -13,7 +13,7 @@ import { categoryPagePath } from 'client/util/Links';
 
 import { connect } from '../component/BaconConnect';
 import { useDeferredData } from '../hooks/useAsyncData';
-import { PageContentContainer } from '../Styles';
+import { PageContentContainer } from '../GlobalStyles';
 import { CategoryChart, CategoryChartData } from './CategoryChart';
 import { CategoryTable } from './CategoryTable';
 

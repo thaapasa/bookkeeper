@@ -20,13 +20,13 @@ export const LoginPage: React.FC = () => {
 
   const bgImage = React.useMemo(() => pickRandomItem(backgroundImages), []);
 
-  const handleSubmit = async (event: React.FormEvent<any>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setStatusMessage(null);
     try {
       await login(username, password);
-    } catch (er: any) {
-      if (er && er.status === 401) {
+    } catch (er: unknown) {
+      if (er instanceof Object && 'status' in er && er.status === 401) {
         setStatusMessage(
           'Kirjautuminen epäonnistui. Ole hyvä ja tarkista käyttäjätunnuksesi ja salasanasi.',
         );

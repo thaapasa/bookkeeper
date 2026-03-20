@@ -8,7 +8,7 @@ import { updateSession, validSessionP } from 'client/data/Login';
 
 import { ActivatableTextField } from '../component/ActivatableTextField';
 import { connect } from '../component/BaconConnect';
-import { PageContentContainer } from '../Styles';
+import { PageContentContainer } from '../GlobalStyles';
 import { InfoItem, ItemWithId, Label, SubValue, Value } from './InfoLayoutElements';
 import { VersionInfoView } from './VersionInfoView';
 

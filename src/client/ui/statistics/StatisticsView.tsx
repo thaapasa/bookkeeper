@@ -13,14 +13,14 @@ import { windowSizeP } from 'client/data/State';
 
 import { AsyncDataView } from '../component/AsyncDataView';
 import { connect } from '../component/BaconConnect';
-import { CategoryChipList } from '../component/CategoryChipList';
-import { CategorySelector } from '../component/CategorySelector';
+import { CategoryChipList } from '../category/CategoryChipList';
+import { CategorySelector } from '../category/CategorySelector';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useLocalStorageList } from '../hooks/useList';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { Icons } from '../icons/Icons';
-import { isMobileSize, media, PageContentContainer } from '../Styles';
-import { Size } from '../Types';
+import { PageContentContainer } from '../GlobalStyles';
+import { isMobileSize, media, Size } from '../Styles';
 import { CategoryStatisticsChart } from './category/CategoryStatisticsChart';
 import { StatisticsChartTypeSelector } from './ChartTypeSelector';
 import { StatisticsChartRangeSelector } from './StatisticsChartRangeSelector';

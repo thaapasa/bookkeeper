@@ -5,11 +5,16 @@ import * as React from 'react';
 import { ObjectId } from 'shared/types';
 import { stopEventPropagation } from 'client/util/ClientUtil';
 
+interface CategoryOption {
+  id: ObjectId;
+  name: string;
+}
+
 export const CategorySelector: React.FC<{
   category: ObjectId;
   subcategory: ObjectId;
-  categories: any[];
-  subcategories: any[];
+  categories: CategoryOption[];
+  subcategories: CategoryOption[];
   onChangeCategory: (id: ObjectId) => void;
   onChangeSubcategory: (id: ObjectId) => void;
   errorText?: string;
@@ -23,7 +28,7 @@ export const CategorySelector: React.FC<{
         onChange={v => props.onChangeCategory(Number(v ?? 0))}
         data={[
           { value: '0', label: '-- Valitse --' },
-          ...props.categories.map((row: any) => ({ value: String(row.id), label: row.name })),
+          ...props.categories.map(row => ({ value: String(row.id), label: row.name })),
         ]}
         error={props.errorText || undefined}
       />
@@ -35,7 +40,7 @@ export const CategorySelector: React.FC<{
         onChange={v => props.onChangeSubcategory(Number(v ?? 0))}
         data={[
           { value: '0', label: '-- Valitse --' },
-          ...props.subcategories.map((row: any) => ({ value: String(row.id), label: row.name })),
+          ...props.subcategories.map(row => ({ value: String(row.id), label: row.name })),
         ]}
       />
     </SelectWrapper>

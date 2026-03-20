@@ -12,7 +12,7 @@ export function unsubscribeAll(arr: Unsubscriber[]): void {
   arr.splice(0, arr.length);
 }
 
-export function stopEventPropagation(event: any): void {
+export function stopEventPropagation(event: { stopPropagation?: () => void }): void {
   if (event?.stopPropagation) {
     event.stopPropagation();
   }

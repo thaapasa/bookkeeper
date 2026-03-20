@@ -33,7 +33,7 @@ interface QuerySearchLayoutProps {
   userId: ObjectId | undefined;
   onSetUserId: (userId: ObjectId | undefined) => void;
   unconfirmed: boolean;
-  onToggleUnconfirmed: (_event: any, checked: boolean) => void;
+  onToggleUnconfirmed: (_event: unknown, checked: boolean) => void;
   dateRange?: TypedDateRange;
   onSelectRange: (r?: TypedDateRange) => void;
   onSaveAsReport: () => void;

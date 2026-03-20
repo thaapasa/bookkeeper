@@ -7,8 +7,7 @@ import { neutral, primary } from 'client/ui/Colors';
 import { connect } from 'client/ui/component/BaconConnect';
 import { Icons } from 'client/ui/icons/Icons';
 import { QuestionBookmark } from 'client/ui/icons/QuestionBookmark';
-import { getScreenSizeClassName, media, ScreenSizeClassName } from 'client/ui/Styles';
-import { Size } from 'client/ui/Types';
+import { getScreenSizeClassName, media, ScreenSizeClassName, Size } from 'client/ui/Styles';
 
 const tableBgColor = neutral[1];
 const separatorColor = neutral[3];

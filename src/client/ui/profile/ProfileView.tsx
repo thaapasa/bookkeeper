@@ -7,7 +7,7 @@ import { sessionP } from 'client/data/Login';
 
 import { connect } from '../component/BaconConnect';
 import { Title } from '../design/Text';
-import { PageContentContainer } from '../Styles';
+import { PageContentContainer } from '../GlobalStyles';
 import { RequireProperty } from '../utils/RequireProperty';
 import { PasswordView } from './PasswordChangeView';
 import { ProfileImageView } from './ProfileImageView';

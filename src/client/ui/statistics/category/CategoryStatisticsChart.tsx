@@ -5,7 +5,7 @@ import * as React from 'react';
 import { CategoryMap, CategoryStatistics } from 'shared/types';
 import { FlexColumn } from 'client/ui/component/BasicElements';
 import { useLocalStorage } from 'client/ui/hooks/useLocalStorage';
-import { Size } from 'client/ui/Types';
+import { Size } from 'client/ui/Styles';
 import { MeasureSize } from 'client/ui/utils/MeasureSize';
 
 import { StatisticsChartType } from '../types';

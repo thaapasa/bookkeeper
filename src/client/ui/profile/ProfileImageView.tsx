@@ -9,7 +9,7 @@ import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { DEFAULT_THEME } from '@mantine/core';
 
-import { UploadImageButton } from '../component/UploadFileButton';
+import { UploadImageButton } from '../component/UploadImageButton';
 import { Subtitle } from '../design/Text';
 import { RenderIcon } from '../icons/Icons';
 
@@ -50,7 +50,7 @@ export const ProfileImageView: React.FC<{ session: Session }> = ({ session }) =>
   );
 };
 
-async function uploadImage(file: any, filename: string) {
+async function uploadImage(file: File, filename: string) {
   await executeOperation(() => apiConnect.uploadProfileImage(file, filename), {
     postProcess: updateSession,
     success: 'Profiilikuva ladattu',

@@ -69,8 +69,8 @@ const FilterArea = styled(AllColumns)`
   flex-grow: 1;
   align-items: center;
 
-  & > div {
-    display: inline-flex !important;
+  && > div {
+    display: inline-flex;
     vertical-align: middle;
   }
 `;

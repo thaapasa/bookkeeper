@@ -29,9 +29,8 @@ import { neutral } from 'client/ui/Colors';
 import UserAvatar from 'client/ui/component/UserAvatar';
 import UserSelector from 'client/ui/component/UserSelector';
 import { Icons } from 'client/ui/icons/Icons';
-import { isMobileSize } from 'client/ui/Styles';
-import { Size } from 'client/ui/Types';
-import { eventValue, stopEventPropagation, unsubscribeAll } from 'client/util/ClientUtil';
+import { isMobileSize, Size } from 'client/ui/Styles';
+import { eventValue, stopEventPropagation, Unsubscriber, unsubscribeAll } from 'client/util/ClientUtil';
 import { KeyCodes } from 'client/util/Io';
 
 import { DivisionInfo } from '../details/DivisionInfo';
@@ -88,11 +87,11 @@ const fields: ReadonlyArray<keyof ExpenseInEditor> = [
   'groupingId',
 ];
 
-const parsers: Record<string, (v: string) => any> = {
+const parsers: Record<string, (v: string) => string> = {
   sum: sanitizeMoneyInput,
 };
 
-const validators: Record<string, (v: string) => any> = {
+const validators: Record<string, (v: string) => string | undefined> = {
   title: v => errorIf(v.length < 1, 'Nimi puuttuu'),
   sourceId: v => errorIf(!v, 'Lähde puuttuu'),
   categoryId: v => errorIf(!v, 'Kategoria puuttuu'),
@@ -144,7 +143,7 @@ export class ExpenseDialog extends React.Component<
   private readonly saveLock: B.Bus<boolean> = new B.Bus<boolean>();
   private inputStreams: Record<string, B.Bus<any>> = {};
   private readonly submitStream: B.Bus<true> = new B.Bus<true>();
-  private unsub: any[] = [];
+  private unsub: Unsubscriber[] = [];
   public state = this.getDefaultState(null, {});
 
   get isMobile(): boolean {
@@ -298,7 +297,7 @@ export class ExpenseDialog extends React.Component<
     }
   }
 
-  private requestSave = (event: React.SyntheticEvent<any>) => {
+  private requestSave = (event: React.SyntheticEvent) => {
     this.submitStream.push(true);
     event.preventDefault();
     event.stopPropagation();
@@ -360,7 +359,7 @@ export class ExpenseDialog extends React.Component<
     this.inputStreams.subcategoryId.push(subcategoryId);
   };
 
-  private handleKeyPress = (event: React.KeyboardEvent<any>) => {
+  private handleKeyPress = (event: React.KeyboardEvent<HTMLElement>) => {
     const code = event.keyCode;
     if (code === KeyCodes.escape && AllowDialogEscape) {
       return this.dismiss();
@@ -376,13 +375,13 @@ export class ExpenseDialog extends React.Component<
     this.setState({ showOwnerSelect: false });
   };
 
-  private openOwnerSelector = (_userId: number, event: React.MouseEvent<any>) => {
+  private openOwnerSelector = (_userId: number, event: React.MouseEvent<HTMLElement>) => {
     this.setState({ showOwnerSelect: true });
     event.stopPropagation();
     return false;
   };
 
-  private setUserId = (userId: number, event: React.MouseEvent<any>) => {
+  private setUserId = (userId: number, event: React.MouseEvent<HTMLElement>) => {
     this.inputStreams.userId.push(userId);
     this.setState({ showOwnerSelect: false });
     event.stopPropagation();

@@ -20,7 +20,7 @@ import { Row } from '../component/Row';
 import { useToggle } from '../hooks/useToggle';
 import { AddExpenseIcon } from '../icons/AddExpenseIcon';
 import { Icons } from '../icons/Icons';
-import { Flex } from '../Styles';
+import { Flex } from '../GlobalStyles';
 import { editShortcut, ShortcutEditor } from './ShortcutEditor';
 import { ShortcutLink, ShortcutLinkProps } from './ShortcutLink';
 

@@ -9,7 +9,7 @@ import { Title } from '../design/Text';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useForceReload } from '../hooks/useForceReload';
 import { Icons } from '../icons/Icons';
-import { PageContentContainer } from '../Styles';
+import { PageContentContainer } from '../GlobalStyles';
 import { ExpenseGroupingsList } from './ExpenseGroupingsView';
 import { GroupingEditor, newExpenseGrouping } from './GroupingEditor';
 

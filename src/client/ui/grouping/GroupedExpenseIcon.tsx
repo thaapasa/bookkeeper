@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import { ExpenseGroupingRef } from 'shared/types';
 
-import { getLuminanceSafe } from '../Colors';
+import { getLuminanceSafe } from '../ColorUtils';
 import { Bookmark } from '../icons/Bookmark';
 
 const defaultGroupingColor = DEFAULT_THEME.colors.blue[3];

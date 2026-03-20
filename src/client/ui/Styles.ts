@@ -1,9 +1,10 @@
 import { css } from '@emotion/react';
-import styled from '@emotion/styled';
-import { Group } from '@mantine/core';
+import type { CSSInterpolation } from '@emotion/serialize';
 
-import { neutral } from './Colors';
-import { Size } from './Types';
+export interface Size {
+  width: number;
+  height: number;
+}
 
 // See responsive UI specs at https://material.io/guidelines/layout/responsive-ui.html
 export type ScreenSizeClassName = 'mobile-portrait' | 'mobile-landscape' | 'web' | 'large';
@@ -82,61 +83,32 @@ const mpmw = mobilePortraitMaxWidth;
 const mlmw = mobileLandscapeMaxWidth;
 
 export const media = {
-  mobilePortrait: (s: TemplateStringsArray, ...i: any[]) => css`
+  mobilePortrait: (s: TemplateStringsArray, ...i: CSSInterpolation[]) => css`
     @media screen and (max-width: ${mpmw - 1}px) {
       ${css(s, ...i)}
     }
   `,
-  mobileLandscape: (s: TemplateStringsArray, ...i: any[]) => css`
+  mobileLandscape: (s: TemplateStringsArray, ...i: CSSInterpolation[]) => css`
     @media screen and (min-width: ${mpmw}px) and (max-width: ${mlmw - 1}px) {
       ${css(s, ...i)}
     }
   `,
-  mobile: (s: TemplateStringsArray, ...i: any[]) => css`
+  mobile: (s: TemplateStringsArray, ...i: CSSInterpolation[]) => css`
     @media screen and (max-width: ${mlmw - 1}px) {
       ${css(s, ...i)}
     }
   `,
-  web: (s: TemplateStringsArray, ...i: any[]) => css`
+  web: (s: TemplateStringsArray, ...i: CSSInterpolation[]) => css`
     @media screen and (min-width: ${mpmw}px) {
       ${css(s, ...i)}
     }
   `,
-  largeDevice: (s: TemplateStringsArray, ...i: any[]) => css`
+  largeDevice: (s: TemplateStringsArray, ...i: CSSInterpolation[]) => css`
     @media screen and (min-width: ${largeDeviceMinWidth}px) {
       ${css(s, ...i)}
     }
   `,
 };
 
-/** @deprecated Use Mantine Group directly */
-export const VCenterRow = Group;
-
-export const Flex = styled.div`
-  flex: 1;
-  ${({ minWidth }: { minWidth?: string }) => (minWidth ? `min-width: ${minWidth};` : '')}
-`;
-
-export const Pre = styled.div`
-  font-family: monospace;
-  white-space: pre;
-`;
-
-export const PageContentContainer = styled.div`
-  position: relative;
-  display: flex;
-  height: 100%;
-  flex-direction: column;
-  background-color: ${neutral[1]};
-  box-sizing: border-box;
-  overflow-y: auto;
-  overflow-x: hidden;
-
-  &.padded {
-    padding: 24px;
-  }
-
-  &.center {
-    align-items: center;
-  }
-`;
+// Styled components moved to GlobalStyles.ts
+export { Flex, PageContentContainer, Pre, VCenterRow } from './GlobalStyles';

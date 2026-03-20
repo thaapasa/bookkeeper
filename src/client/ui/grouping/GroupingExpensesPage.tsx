@@ -17,7 +17,7 @@ import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useForceReload } from '../hooks/useForceReload';
 import { TotalsView } from '../search/TotalsView';
-import { PageContentContainer } from '../Styles';
+import { PageContentContainer } from '../GlobalStyles';
 import { GroupingCategoryChart } from './GroupingCategoryChart';
 
 export const GroupingExpensesPage: React.FC = () => {

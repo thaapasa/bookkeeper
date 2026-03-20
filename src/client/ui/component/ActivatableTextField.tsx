@@ -8,7 +8,7 @@ import { KeyCodes } from 'client/util/Io';
 import { Icons } from '../icons/Icons';
 import { AutoCompleteProps } from './AutoComplete';
 import { TextEdit, TextEditProps } from './TextEdit';
-import { TextEditorComponent } from './TextEditVariants';
+import { TextEditorComponent } from '../dialog/DialogState';
 
 type EditorType<T> = TextEditorComponent | React.ComponentType<AutoCompleteProps<T>>;
 

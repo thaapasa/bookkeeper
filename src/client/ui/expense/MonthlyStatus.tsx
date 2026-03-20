@@ -115,7 +115,7 @@ function StatusBlock({
   income: MoneyLike;
   expense: MoneyLike;
   className?: string;
-  children?: any;
+  children?: React.ReactNode;
 }) {
   const inc = Money.from(income);
   const exp = Money.from(expense).negate();

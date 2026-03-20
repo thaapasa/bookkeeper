@@ -2,7 +2,8 @@ import * as React from 'react';
 
 import { Icons } from 'client/ui/icons/Icons';
 
-import { nextMonth, NumberInput, prevMonth, StyledIconButton } from './Common';
+import { NumberInput, StyledIconButton } from './Common';
+import { nextMonth, prevMonth } from './dateRangeUtils';
 
 interface MonthSelectorProps {
   year: number;
