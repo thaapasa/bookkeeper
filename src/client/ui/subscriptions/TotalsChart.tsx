@@ -5,7 +5,7 @@ import { isDefined, ObjectId } from 'shared/types';
 
 import { getChartColor } from '../chart/ChartColors';
 import { formatMoney, formatMoneyForChart } from '../chart/Format';
-import { Size } from '../Types';
+import { Size } from '../Styles';
 import { MeasureSize } from '../utils/MeasureSize';
 
 export interface TotalsData {

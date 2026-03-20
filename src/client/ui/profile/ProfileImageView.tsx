@@ -1,14 +1,15 @@
 import styled from '@emotion/styled';
-import { Grid, IconButton } from '@mui/material';
-import React from 'react';
+import { ActionIcon } from '@mantine/core';
+import * as React from 'react';
 
 import { Session } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
 import { updateSession } from 'client/data/Login';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
-import { colorScheme } from '../Colors';
-import { UploadImageButton } from '../component/UploadFileButton';
+import { DEFAULT_THEME } from '@mantine/core';
+
+import { UploadImageButton } from '../component/UploadImageButton';
 import { Subtitle } from '../design/Text';
 import { RenderIcon } from '../icons/Icons';
 
@@ -22,33 +23,34 @@ export const ProfileImageView: React.FC<{ session: Session }> = ({ session }) =>
   const user = session.user;
   return (
     <>
-      <Grid size={12}>
+      <FullWidth>
         <Subtitle>Profiilikuva</Subtitle>
-      </Grid>
-      <Grid size={12}>
+      </FullWidth>
+      <FullWidth>
         <ProfileImage image={user.imageLarge}>
           <IconPlacement>
             <UploadImageButton
               onSelect={uploadImage}
-              style={{ backgroundColor: colorScheme.gray.standard + 'dd' }}
+              style={{ backgroundColor: DEFAULT_THEME.colors.gray[3] + 'dd' }}
             >
               <RenderIcon icon="Upload" color="info" />
             </UploadImageButton>
-            <IconButton
+            <ActionIcon
+              variant="subtle"
               onClick={deleteImage}
-              size="medium"
-              style={{ backgroundColor: colorScheme.gray.standard + 'dd' }}
+              size="lg"
+              style={{ backgroundColor: DEFAULT_THEME.colors.gray[3] + 'dd' }}
             >
               <RenderIcon icon="Delete" color="warning" />
-            </IconButton>
+            </ActionIcon>
           </IconPlacement>
         </ProfileImage>
-      </Grid>
+      </FullWidth>
     </>
   );
 };
 
-async function uploadImage(file: any, filename: string) {
+async function uploadImage(file: File, filename: string) {
   await executeOperation(() => apiConnect.uploadProfileImage(file, filename), {
     postProcess: updateSession,
     success: 'Profiilikuva ladattu',
@@ -76,7 +78,7 @@ const ProfileImage: React.FC<React.PropsWithChildren<{ image?: string }>> = ({
   );
 };
 
-const ImgContainer = styled('div')`
+const ImgContainer = styled.div`
   width: ${size}px;
   height: ${size}px;
   overflow: hidden;
@@ -93,13 +95,10 @@ const ImgContainer = styled('div')`
   }
 `;
 
-const Img = styled('img')`
+const Img = styled.img`
   width: ${size}px;
   height: ${size}px;
   border-radius: 50%;
-
-  &.own {
-  }
 
   &.gravatar {
     filter: grayscale(100%) opacity(40%);
@@ -110,13 +109,12 @@ const Img = styled('img')`
   }
 `;
 
-const ImageInfo = styled('div')`
+const ImageInfo = styled.div`
   position: absolute;
-  font-size: 14pt;
   z-index: 1;
 `;
 
-const IconPlacement = styled('div')`
+const IconPlacement = styled.div`
   position: absolute;
   right: 0;
   top: 0;
@@ -126,4 +124,8 @@ const IconPlacement = styled('div')`
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
+`;
+
+const FullWidth = styled.div`
+  grid-column: 1 / -1;
 `;

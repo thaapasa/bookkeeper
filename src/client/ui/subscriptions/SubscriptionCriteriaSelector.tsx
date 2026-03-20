@@ -1,4 +1,5 @@
-import { Checkbox, FormControlLabel, FormGroup, Grid, Radio } from '@mui/material';
+import styled from '@emotion/styled';
+import { Checkbox, Radio } from '@mantine/core';
 import * as React from 'react';
 import { z } from 'zod';
 
@@ -7,6 +8,7 @@ import { isSameInterval, MomentInterval } from 'shared/time';
 import { isDefined } from 'shared/types';
 
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import { media } from '../Styles';
 
 interface RangeOption {
   range: MomentInterval;
@@ -56,53 +58,42 @@ export const SubscriptionCriteriaSelector: React.FC<{
   );
 
   return (
-    <Grid container width="100%" paddingLeft={2} paddingRight={2}>
-      <Grid size={{ xs: 12, md: 4 }}>
-        <FormGroup row>
-          <FormControlLabel
-            control={
-              <Checkbox checked={includeEnded} onChange={() => setIncludeEnded(!includeEnded)} />
-            }
-            label="Myös loppuneet"
+    <CriteriaGrid>
+      <FilterGroup>
+        <Checkbox checked={includeEnded} onChange={() => setIncludeEnded(!includeEnded)} label="Myös loppuneet" />
+        <Checkbox checked={onlyOwn} onChange={() => setOnlyOwn(!onlyOwn)} label="Vain omat" />
+      </FilterGroup>
+      <FilterGroup style={{ justifyContent: 'center' }}>
+        {rangeOptions.map(r => (
+          <Radio
+            key={r.label}
+            checked={isSameInterval(r.range, range)}
+            onChange={() => setRange(r.range)}
+            label={r.label}
           />
-          <FormControlLabel
-            control={<Checkbox checked={onlyOwn} onChange={() => setOnlyOwn(!onlyOwn)} />}
-            label="Vain omat"
-          />
-        </FormGroup>
-      </Grid>
-      <Grid size={{ xs: 12, md: 4 }}>
-        <FormGroup row sx={{ justifyContent: 'center' }}>
-          {rangeOptions.map(r => (
-            <FormControlLabel
-              key={r.label}
-              control={
-                <Radio
-                  checked={isSameInterval(r.range, range)}
-                  onChange={() => setRange(r.range)}
-                />
-              }
-              label={r.label}
-            />
-          ))}
-        </FormGroup>
-      </Grid>
-      <Grid size={{ xs: 12, md: 4 }}>
-        <FormGroup row sx={{ justifyContent: 'right' }}>
-          <FormControlLabel
-            control={<Checkbox checked={expenses} onChange={() => setExpenses(!expenses)} />}
-            label="Menot"
-          />
-          <FormControlLabel
-            control={<Checkbox checked={incomes} onChange={() => setIncomes(!incomes)} />}
-            label="Tulot"
-          />
-          <FormControlLabel
-            control={<Checkbox checked={transfers} onChange={() => setTranfers(!transfers)} />}
-            label="Siirrot"
-          />
-        </FormGroup>
-      </Grid>
-    </Grid>
+        ))}
+      </FilterGroup>
+      <FilterGroup style={{ justifyContent: 'flex-end' }}>
+        <Checkbox checked={expenses} onChange={() => setExpenses(!expenses)} label="Menot" />
+        <Checkbox checked={incomes} onChange={() => setIncomes(!incomes)} label="Tulot" />
+        <Checkbox checked={transfers} onChange={() => setTranfers(!transfers)} label="Siirrot" />
+      </FilterGroup>
+    </CriteriaGrid>
   );
 };
+
+const CriteriaGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  width: 100%;
+  padding: 0 16px;
+  gap: 8px;
+  ${media.web`grid-template-columns: 1fr 1fr 1fr;`}
+`;
+
+const FilterGroup = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  flex-wrap: wrap;
+`;

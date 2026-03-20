@@ -1,4 +1,4 @@
-import { colors } from '@mui/material';
+import { DEFAULT_THEME } from '@mantine/core';
 import { create } from 'zustand';
 
 import { ISODate } from 'shared/time';
@@ -42,7 +42,7 @@ export const useGroupingState = create<GroupingState>((set, get) => ({
   id: null,
   startDate: null,
   endDate: null,
-  color: colors.green[400],
+  color: DEFAULT_THEME.colors.green[4],
   categories: [],
   private: false,
   onlyOwn: false,

@@ -1,4 +1,5 @@
-import { DialogTitle, Grid, Typography } from '@mui/material';
+import styled from '@emotion/styled';
+import { Text } from '@mantine/core';
 import * as React from 'react';
 
 import { UserExpense } from 'shared/expense';
@@ -6,22 +7,29 @@ import { Money } from 'shared/util';
 
 export const SplitHeader: React.FC<{ expense: UserExpense }> = ({ expense }) => {
   return (
-    <DialogTitle>
-      <Grid container alignItems="flex-end" justifyContent="space-between" width="100%">
-        <Grid size={8}>
-          <Typography variant="h5" component="div">
-            {expense.title}
-          </Typography>
-        </Grid>
-        <Grid size="grow" container justifyContent="flex-end">
-          <Typography variant="h6" component="div" paddingLeft="16px">
-            {Money.from(expense.sum).format()}
-          </Typography>
-        </Grid>
-      </Grid>
-      <Typography color="text.secondary" variant="body2">
+    <Header>
+      <HeaderRow>
+        <div>
+          <h5 style={{ margin: 0, fontWeight: 500 }}>{expense.title}</h5>
+        </div>
+        <Text fz="lg" fw={500} pl="md">
+          {Money.from(expense.sum).format()}
+        </Text>
+      </HeaderRow>
+      <Text fz="sm" c="dimmed">
         Pilko kirjaus osiin
-      </Typography>
-    </DialogTitle>
+      </Text>
+    </Header>
   );
 };
+
+const Header = styled.div`
+  padding-bottom: 16px;
+`;
+
+const HeaderRow = styled.div`
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  width: 100%;
+`;

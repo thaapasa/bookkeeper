@@ -1,10 +1,10 @@
-import { styled } from '@mui/material';
+import styled from '@emotion/styled';
 import * as React from 'react';
 
 import { ExpenseStatus } from 'shared/expense';
 import { Money, MoneyLike } from 'shared/util';
 
-import * as colors from '../Colors';
+import { neutral, primary } from '../Colors';
 import { Icons } from '../icons/Icons';
 import { media } from '../Styles';
 import { ExpenseTotals, money } from './ExpenseHelper';
@@ -44,7 +44,7 @@ export class MonthlyStatus extends React.Component<StatusProps, MonthlyStatusSta
     const filteredExpense = this.props.filteredTotals ? this.props.filteredTotals.totalExpense : 0;
     const filteredStyle = {
       display: !this.props.showFiltered ? 'none' : '',
-      backgroundColor: colors.colorScheme.gray.light,
+      backgroundColor: neutral[1],
     };
     const expanded = this.state.expanded;
     return (
@@ -115,7 +115,7 @@ function StatusBlock({
   income: MoneyLike;
   expense: MoneyLike;
   className?: string;
-  children?: any;
+  children?: React.ReactNode;
 }) {
   const inc = Money.from(income);
   const exp = Money.from(expense).negate();
@@ -131,34 +131,34 @@ function StatusBlock({
   );
 }
 
-const ToolArea = styled('div')`
+const ToolArea = styled.div`
   padding: 4px;
 `;
 
-const CalculationRowContainer = styled('div')`
+const CalculationRowContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
   height: 30px;
 `;
 
-const CalculationTitle = styled('div')`
+const CalculationTitle = styled.div`
   display: inline-block;
   width: 75px;
 `;
 
-const CalculationSum = styled('div')`
+const CalculationSum = styled.div`
   display: inline-block;
   width: 80px;
   text-align: right;
 `;
 
-const StatusContainer = styled('div')`
+const StatusContainer = styled.div`
   height: 64px;
   display: flex;
   justify-content: flex-end;
-  font-size: 14px;
-  border-top: 1px solid ${colors.colorScheme.gray.standard};
+  font-size: var(--mantine-font-size-sm);
+  border-top: 1px solid ${neutral[3]};
   border-collapse: collapse;
   margin: 0 16px;
   &.expanded {
@@ -169,7 +169,7 @@ const StatusContainer = styled('div')`
   `}
 `;
 
-const MonthlyCalculation = styled('div')`
+const MonthlyCalculation = styled.div`
   position: relative;
   padding: 0 16px;
   ${media.mobilePortrait`
@@ -179,11 +179,11 @@ const MonthlyCalculation = styled('div')`
   `}
 `;
 
-const CalculationHeader = styled('div')`
-  color: ${colors.colorScheme.secondary.dark};
+const CalculationHeader = styled.div`
+  color: ${primary[7]};
+  font-size: var(--mantine-font-size-sm);
   font-weight: 600;
   margin: 8px 0;
-  font-size: 14px;
 `;
 
 function CalculationRow({
@@ -196,7 +196,7 @@ function CalculationRow({
   drawTopBorder?: boolean;
 }) {
   const rowStyle = {
-    borderTop: drawTopBorder ? '1px solid rgb(224, 224, 224)' : 'none',
+    borderTop: drawTopBorder ? '1px solid var(--mantine-color-default-border)' : 'none',
   };
   return (
     <CalculationRowContainer style={rowStyle}>

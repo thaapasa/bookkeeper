@@ -1,9 +1,9 @@
-import { styled } from '@mui/material';
+import styled from '@emotion/styled';
 import * as React from 'react';
 
 import { UserExpense } from 'shared/expense';
 import { Minus, Money, Plus } from 'shared/util';
-import { colorScheme } from 'client/ui/Colors';
+import { primary } from 'client/ui/Colors';
 import { useWindowSize } from 'client/ui/hooks/useWindowSize';
 import { Icons } from 'client/ui/icons/Icons';
 import { isMobileSize, media } from 'client/ui/Styles';
@@ -88,13 +88,13 @@ export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
   );
 };
 
-const Emph = styled('span')`
-  color: ${colorScheme.secondary.dark};
+const Emph = styled.span`
+  color: ${primary[7]};
   font-weight: bold;
   padding-right: 4px;
 `;
 
-const Name = styled('div')`
+const Name = styled.div`
   padding: 0 0 0 16px;
   height: 100%;
   display: flex;
@@ -105,7 +105,7 @@ const Name = styled('div')`
   z-index: 1;
 `;
 
-const Item = styled('div')`
+const Item = styled.div`
   padding: 0 8px;
   ${media.mobile`
     &.optional {
@@ -114,7 +114,7 @@ const Item = styled('div')`
   `}
 `;
 
-const Sum = styled('span')`
+const Sum = styled.span`
   width: 73px;
   display: inline-block;
   text-align: right;
@@ -122,11 +122,11 @@ const Sum = styled('span')`
   vertical-align: bottom;
 `;
 
-const Tools = styled('div')`
+const Tools = styled.div`
   padding: 0 8px;
 `;
 
-const RowContainer = styled('div')`
+const RowContainer = styled.div`
   width: 100%;
   height: ${rowHeight}px;
   position: relative;

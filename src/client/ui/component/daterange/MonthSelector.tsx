@@ -2,7 +2,8 @@ import * as React from 'react';
 
 import { Icons } from 'client/ui/icons/Icons';
 
-import { nextMonth, NumberInput, prevMonth, StyledIconButton } from './Common';
+import { NumberInput, StyledIconButton } from './Common';
+import { nextMonth, prevMonth } from './dateRangeUtils';
 
 interface MonthSelectorProps {
   year: number;
@@ -12,11 +13,11 @@ interface MonthSelectorProps {
 
 export const MonthSelector: React.FC<MonthSelectorProps> = ({ year, month, onSelect }) => {
   const changeYear = React.useCallback(
-    (e: React.ChangeEvent<{ value: string }>) => onSelect(Number(e.target.value), month),
+    (e: React.ChangeEvent<HTMLInputElement>) => onSelect(Number(e.target.value), month),
     [onSelect, month],
   );
   const changeMonth = React.useCallback(
-    (e: React.ChangeEvent<{ value: string }>) => onSelect(year, Number(e.target.value)),
+    (e: React.ChangeEvent<HTMLInputElement>) => onSelect(year, Number(e.target.value)),
     [onSelect, year],
   );
 
@@ -26,19 +27,13 @@ export const MonthSelector: React.FC<MonthSelectorProps> = ({ year, month, onSel
         <Icons.ChevronLeft color="primary" />
       </StyledIconButton>
       <NumberInput
-        hiddenLabel
         className="year"
-        value={year}
-        variant="filled"
-        size="small"
+        value={String(year)}
         onChange={changeYear}
       />
       <NumberInput
-        hiddenLabel
         className="month"
-        value={month}
-        variant="filled"
-        size="small"
+        value={String(month)}
         onChange={changeMonth}
       />
       <StyledIconButton onClick={() => onSelect(...nextMonth(year, month))} title="Seuraava">

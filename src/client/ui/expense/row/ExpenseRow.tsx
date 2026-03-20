@@ -1,4 +1,4 @@
-import { styled } from '@mui/material';
+import styled from '@emotion/styled';
 import * as React from 'react';
 
 import {
@@ -14,7 +14,8 @@ import apiConnect from 'client/data/ApiConnect';
 import { getFullCategoryName, UserDataProps } from 'client/data/Categories';
 import { editExpense, needUpdateE, notifyError, updateExpenses } from 'client/data/State';
 import { logger } from 'client/Logger';
-import * as colors from 'client/ui/Colors';
+import { action, income as incomeColor, primary } from 'client/ui/Colors';
+import { forMoney, unconfirmedStripes } from 'client/ui/ColorUtils';
 import { ActivatableTextField } from 'client/ui/component/ActivatableTextField';
 import { ExpanderIcon } from 'client/ui/component/ExpanderIcon';
 import { UserAvatar } from 'client/ui/component/UserAvatar';
@@ -22,7 +23,8 @@ import { UserPrompts } from 'client/ui/dialog/DialogState';
 import { GroupedExpenseIcon } from 'client/ui/grouping/GroupedExpenseIcon';
 import { ExpenseTypeIcon } from 'client/ui/icons/ExpenseType';
 import { ToolIcon } from 'client/ui/icons/ToolIcon';
-import { Flex, media, VCenterRow } from 'client/ui/Styles';
+import { Flex, VCenterRow } from 'client/ui/GlobalStyles';
+import { media } from 'client/ui/Styles';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { ExpenseInfo } from '../details/ExpenseInfo';
@@ -93,7 +95,7 @@ export class ExpenseRowImpl extends React.Component<ExpenseRowProps, ExpenseRowS
       <TextButton
         key={cat.id}
         onClick={() => this.onClickCategory(cat)}
-        style={{ color: colors.action }}
+        style={{ color: action }}
       >
         {cat.name}
       </TextButton>
@@ -192,15 +194,15 @@ export class ExpenseRowImpl extends React.Component<ExpenseRowProps, ExpenseRowS
     // const className = 'bk-table-row expense-row expense-item ' + expense.type + (expense.confirmed ? '' : ' unconfirmed');
     const style = {
       background: !expense.confirmed
-        ? colors.unconfirmedStripes
+        ? unconfirmedStripes
         : expense.type === 'income'
-          ? colors.income
+          ? incomeColor
           : undefined,
     };
     if (!expense.confirmed) {
-      style.background = colors.unconfirmedStripes;
+      style.background = unconfirmedStripes;
     } else if (expense.type === 'income') {
-      style.background = colors.income;
+      style.background = incomeColor;
     }
     const firstDay =
       !this.props.prev ||
@@ -286,10 +288,10 @@ export class ExpenseRowImpl extends React.Component<ExpenseRowProps, ExpenseRowS
             />
           </SourceColumn>
           <SumColumn className={expense.type}>
-            <VCenterRow className="fill">
+            <VCenterRow justify="space-between">
               <ExpenseTypeIcon
                 type={expense.type}
-                color={colors.colorScheme.secondary.dark}
+                color={primary[7]}
                 size={20}
               />
               <Flex />
@@ -297,7 +299,7 @@ export class ExpenseRowImpl extends React.Component<ExpenseRowProps, ExpenseRowS
             </VCenterRow>
           </SumColumn>
           <BalanceColumn
-            style={{ color: colors.forMoney(expense.userBalance) }}
+            style={{ color: forMoney(expense.userBalance) }}
             onClick={() =>
               Money.zero.equals(expense.userBalance)
                 ? this.props.addFilter(ExpenseFilters.zeroBalance, `Balanssi ${equal} 0`)
@@ -365,19 +367,19 @@ function weekDay(date: string, prev?: UserExpense | null) {
   return !prev || !m.hasSame(toDateTime(prev.date), 'day') ? m.toFormat('ccc') : null;
 }
 
-const DateContainer = styled('div')`
+const DateContainer = styled.div`
   position: relative;
   z-index: 1;
 `;
 
-const OptionalIcons = styled('div')`
+const OptionalIcons = styled.div`
   display: inline-block;
   ${media.mobile`
     display: none;
   `}
 `;
 
-const WeekDay = styled('span')`
+const WeekDay = styled.span`
   padding-right: 4px;
   font-weight: bold;
   ${media.mobile`

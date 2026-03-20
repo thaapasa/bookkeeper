@@ -1,4 +1,4 @@
-import { styled } from '@mui/material';
+import styled from '@emotion/styled';
 import { DateTime } from 'luxon';
 import * as React from 'react';
 import { NavigateFunction, useNavigate } from 'react-router';
@@ -8,14 +8,14 @@ import { toDateTime, toISODate, TypedDateRange } from 'shared/time';
 import { createExpense, navigationP } from 'client/data/State';
 import { newExpenseSuffix } from 'client/util/Links';
 
-import { secondaryColors } from '../Colors';
+import { primary } from '../Colors';
 import { connect } from '../component/BaconConnect';
 import { pageSupportsRoutedExpenseDialog } from '../expense/NewExpenseInfo';
 import { Icons } from './Icons';
 
 export const AddExpenseIcon: React.FC<{ onClick?: () => void }> = ({ onClick }) => (
   <AddExpenseIconContainer>
-    <BlackContent />
+    <AccentBackground />
     <PlusIcon onClick={onClick} />
   </AddExpenseIconContainer>
 );
@@ -27,7 +27,7 @@ const AddExpenseNavButtonImpl: React.FC<{ onClick?: () => void; dateRange: Typed
   const navigate = useNavigate();
   return (
     <AddExpenseIconContainer className="navigation">
-      <BlackContent />
+      <AccentBackground />
       <PlusIcon
         onClick={onClick ?? (() => openNewExpenseDialog(navigate, dateRange.start))}
         className="navigation"
@@ -66,7 +66,7 @@ const PlusIcon = styled(Icons.PlusCircle)`
 
   width: 32px;
   height: 32px;
-  color: ${secondaryColors.standard};
+  color: white;
 
   &.navigation {
     width: 40px;
@@ -75,7 +75,7 @@ const PlusIcon = styled(Icons.PlusCircle)`
   }
 `;
 
-const AddExpenseIconContainer = styled('div')`
+const AddExpenseIconContainer = styled.div`
   position: relative;
 
   width: 32px;
@@ -89,13 +89,13 @@ const AddExpenseIconContainer = styled('div')`
   cursor: pointer;
 `;
 
-const BlackContent = styled('div')`
+const AccentBackground = styled.div`
   position: absolute;
   top: 5px;
   right: 5px;
   bottom: 5px;
   left: 5px;
   border-radius: 100px;
-  background: black;
+  background: ${primary[5]};
   z-index: 0;
 `;

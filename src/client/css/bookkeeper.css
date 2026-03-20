@@ -1,6 +1,6 @@
 html, body, #root {
     box-sizing: border-box;
-    font-family: Roboto, sans-serif;
+    font-family: 'Inter', sans-serif;
     margin: 0;
     padding: 0;
     width: 100%;
@@ -8,13 +8,10 @@ html, body, #root {
 }
 
 body {
-    background-color: #f5f5f6;
+    background-color: var(--mantine-color-body);
 }
 
 #root {
     width: 100%;
 }
 
-[tabindex] {
-    outline: none !important;
-}

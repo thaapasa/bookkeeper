@@ -1,4 +1,4 @@
-import { styled } from '@mui/material';
+import styled from '@emotion/styled';
 import * as React from 'react';
 
 import { ExpenseDivisionItem, ExpenseDivisionType, ExpenseType } from 'shared/expense';
@@ -93,7 +93,7 @@ const DivisionItem: React.FC<{ sum: MoneyLike }> = ({ sum }) => {
   return <DivisionColumn className={Money.sign(s)}>{s.format()}</DivisionColumn>;
 };
 
-const DivisionTable = styled('table')`
+const DivisionTable = styled.table`
   margin: 0 8px;
   padding: 0;
   border-collapse: collapse;
@@ -102,18 +102,18 @@ const DivisionTable = styled('table')`
   `}
 `;
 
-const DivisionRow = styled('tr')`
+const DivisionRow = styled.tr`
   padding: 0;
 `;
 
-const UserColumn = styled('td')`
+const UserColumn = styled.td`
   width: 32px;
   height: 32px;
   padding: 8px;
   padding-left: 24px;
 `;
 
-const DivisionColumn = styled('td')`
+const DivisionColumn = styled.td`
   width: 86px;
   text-align: right;
   &.positive {

@@ -1,4 +1,5 @@
-import { FormLabel, styled } from '@mui/material';
+import styled from '@emotion/styled';
+
 import { DateTime } from 'luxon';
 import * as React from 'react';
 
@@ -26,7 +27,7 @@ export const StatisticsChartRangeSelector: React.FC<{
   return (
     <Container>
       <FlexRow>
-        <FormLabel>Aikaväli</FormLabel>
+        <span>Aikaväli</span>
       </FlexRow>
       <FlexRow>
         <PeriodSelector period={start} onSelect={setStart} allowed={['year', 'month']} />

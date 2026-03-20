@@ -1,4 +1,5 @@
-import { Dialog, Divider, Grid } from '@mui/material';
+import styled from '@emotion/styled';
+import { Divider, Modal } from '@mantine/core';
 import * as React from 'react';
 
 import { ExpenseSplit } from 'shared/expense';
@@ -37,21 +38,22 @@ export const ExpenseSplitDialog: React.FC<ExpenseDialogProps<ExpenseSplit[]>> = 
   const dismiss = () => onClose(null);
 
   return (
-    <Dialog
-      open={true}
-      onClose={AllowDialogEscape ? dismiss : undefined}
-      scroll="paper"
+    <Modal
+      opened={true}
+      onClose={AllowDialogEscape ? dismiss : () => {}}
       fullScreen={isMobile}
+      size="lg"
+      title=""
     >
       <SplitHeader expense={original} />
       <ExpenseDialogContent dividers={true}>
-        <Grid container alignItems="center" spacing={2}>
+        <SplitGrid>
           {splits.map((s, i) => (
             <React.Fragment key={s.key}>
               {i !== 0 ? (
-                <Grid size={12}>
-                  <Divider flexItem />
-                </Grid>
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <Divider />
+                </div>
               ) : null}
               <SplitRow {...props} {...tools} split={s} splitIndex={i} editSum={i !== 0} />
             </React.Fragment>
@@ -61,8 +63,15 @@ export const ExpenseSplitDialog: React.FC<ExpenseDialogProps<ExpenseSplit[]>> = 
             onClose={() => onClose(null)}
             splitExpense={validSplits ? splitExpense : undefined}
           />
-        </Grid>
+        </SplitGrid>
       </ExpenseDialogContent>
-    </Dialog>
+    </Modal>
   );
 };
+
+const SplitGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 16px;
+  align-items: center;
+`;

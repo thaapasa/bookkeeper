@@ -7,7 +7,8 @@ import apiConnect from 'client/data/ApiConnect';
 import { UserDataProps } from 'client/data/Categories';
 import { needUpdateE } from 'client/data/State';
 
-import * as colors from '../Colors';
+import { neutral, primary } from '../Colors';
+import { classNameForMoney } from '../ColorUtils';
 import { ExpenseRow } from '../expense/row/ExpenseRow';
 import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
 import { useDeferredData } from '../hooks/useAsyncData';
@@ -41,15 +42,15 @@ export const CategoryRow: React.FC<CategoryRowProps> = props => {
   const income = totals ? (header ? totals.totalIncome : totals.income) : Money.zero;
   const expense = totals ? (header ? totals.totalExpenses : totals.expenses) : Money.zero;
   const toolColor = header
-    ? colors.colorScheme.gray.veryDark
-    : colors.colorScheme.secondary.standard;
+    ? neutral[7]
+    : primary[5];
 
   return (
     <>
       <RowElement className={clsName}>
         <NameColumn>{title || category.name}</NameColumn>
-        <SumColumn className={colors.classNameForMoney(income)}>{formatMoney(income)}</SumColumn>
-        <SumColumn className={colors.classNameForMoney(expense)}>{formatMoney(expense)}</SumColumn>
+        <SumColumn className={classNameForMoney(income)}>{formatMoney(income)}</SumColumn>
+        <SumColumn className={classNameForMoney(expense)}>{formatMoney(expense)}</SumColumn>
         {header ? (
           <ToolColumn>
             <AddCategoryButton parent={category} color={toolColor} onAdd={createCategory} />

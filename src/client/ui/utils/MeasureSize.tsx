@@ -3,7 +3,7 @@ import React from 'react';
 
 import { useDebounced } from '../hooks/useDebounced';
 import { useElementSize } from '../hooks/useElementSize';
-import { Size } from '../Types';
+import { Size } from '../Styles';
 
 export function MeasureSize<T>(
   component: React.ComponentType<T & { size: Size }>,

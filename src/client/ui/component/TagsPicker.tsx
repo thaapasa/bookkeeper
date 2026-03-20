@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { Chip } from '@mui/material';
+import { Pill } from '@mantine/core';
 import * as React from 'react';
 
 import { identity, noop } from 'shared/util';
@@ -20,7 +20,9 @@ export const TagsPicker: React.FC<TagsPickerProps> = ({ value, presetValues, onA
     <FlexColumn>
       <TagGrid className="vcenter">
         {value.map(v => (
-          <TagChip key={v} onDelete={() => onRemove(v)} label={v} variant="filled" />
+          <StyledPill key={v} withRemoveButton onRemove={() => onRemove(v)}>
+            {v}
+          </StyledPill>
         ))}
       </TagGrid>
       <AutoComplete
@@ -45,11 +47,11 @@ export const TagsPicker: React.FC<TagsPickerProps> = ({ value, presetValues, onA
   );
 };
 
-const TagChip = styled(Chip)`
+const StyledPill = styled(Pill)`
   margin-right: 8px;
   margin-bottom: 8px;
-`;
+` as any;
 
-const TagGrid = styled('div')`
+const TagGrid = styled.div`
   display: inline-block;
 `;

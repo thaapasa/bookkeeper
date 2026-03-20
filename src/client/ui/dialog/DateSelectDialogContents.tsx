@@ -1,9 +1,9 @@
-import { Button, DialogActions, DialogContent } from '@mui/material';
-import { DatePicker } from '@mui/x-date-pickers';
+import styled from '@emotion/styled';
+import { Button } from '@mantine/core';
+import { DatePicker } from '@mantine/dates';
 import { DateTime } from 'luxon';
 import * as React from 'react';
 
-import { datePickerFormat } from '../expense/dialog/DateField';
 import { DateSelectDialogData, DialogContentRendererProps } from './Dialog';
 
 type TextPromptDialogProps = DialogContentRendererProps<DateTime> & DateSelectDialogData;
@@ -16,31 +16,37 @@ export const DateSelectDialogComponent: React.FC<TextPromptDialogProps> = ({
 }) => {
   const [date, setDate] = React.useState<DateTime | undefined>(initialDate);
 
-  const changeHandler = (edited: DateTime | null) => {
-    const date = edited?.isValid ? edited : undefined;
-    if (date) {
-      setDate(date);
+  const changeHandler = (edited: string | null) => {
+    if (edited) {
+      const dt = DateTime.fromISO(edited);
+      if (dt.isValid) {
+        setDate(dt);
+      }
     }
   };
   return (
     <>
-      <DialogContent>
-        <DatePicker format={datePickerFormat} value={date} onChange={changeHandler} />
-      </DialogContent>
-      <DialogActions>
-        <Button color="primary" variant="text" onKeyUp={handleKeyPress} onClick={onCancel}>
+      <DatePicker value={date?.toISODate() ?? null} onChange={changeHandler} />
+      <Actions>
+        <Button variant="subtle" onKeyUp={handleKeyPress} onClick={onCancel}>
           Peruuta
         </Button>
         <Button
-          color="primary"
-          variant="contained"
+          variant="filled"
           onKeyUp={handleKeyPress}
           disabled={!date}
           onClick={() => (date ? onSelect(date) : undefined)}
         >
           Valitse
         </Button>
-      </DialogActions>
+      </Actions>
     </>
   );
 };
+
+const Actions = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 16px;
+`;

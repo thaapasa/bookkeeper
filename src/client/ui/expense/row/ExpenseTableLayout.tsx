@@ -1,16 +1,16 @@
-import { CircularProgress, styled } from '@mui/material';
+import styled from '@emotion/styled';
+import { Loader } from '@mantine/core';
 import * as React from 'react';
 
 import { windowSizeP } from 'client/data/State';
-import { colorScheme, primaryColors } from 'client/ui/Colors';
+import { neutral, primary } from 'client/ui/Colors';
 import { connect } from 'client/ui/component/BaconConnect';
 import { Icons } from 'client/ui/icons/Icons';
 import { QuestionBookmark } from 'client/ui/icons/QuestionBookmark';
-import { getScreenSizeClassName, media, ScreenSizeClassName } from 'client/ui/Styles';
-import { Size } from 'client/ui/Types';
+import { getScreenSizeClassName, media, ScreenSizeClassName, Size } from 'client/ui/Styles';
 
-const tableBgColor = colorScheme.primary.light;
-const separatorColor = colorScheme.gray.standard;
+const tableBgColor = neutral[1];
+const separatorColor = neutral[3];
 
 const columns = [
   'date',
@@ -51,7 +51,7 @@ export function getVisibleColumns(windowSize: Size) {
   return maxColumnsForSize[size];
 }
 
-export const ExpenseTableLayout = styled('table')`
+export const ExpenseTableLayout = styled.table`
   width: 100%;
   background-color: ${tableBgColor};
   border-spacing: 0;
@@ -86,7 +86,7 @@ export const Row = styled('tr')`
   }
 
   &.first-day {
-    background: linear-gradient(${primaryColors.standard}cc 0%, ${tableBgColor} 20%);
+    background: linear-gradient(${neutral[2]}cc 0%, ${tableBgColor} 20%);
     & td {
       padding-top: 4px;
     }
@@ -103,10 +103,10 @@ const Column = styled('td')`
   text-overflow: ellipsis;
 
   &.gray {
-    background-color: ${colorScheme.gray.light};
+    background-color: ${neutral[1]};
   }
   &.dark {
-    background-color: ${colorScheme.secondary.dark};
+    background-color: ${primary[7]};
   }
 `;
 
@@ -166,7 +166,7 @@ const OptMoneyColumn = styled(WebColumn)`
 export const SumColumn = styled(MoneyColumn)`
   width: 100px;
   &.income {
-    background-color: ${colorScheme.primary.standard};
+    background-color: ${neutral[2]};
   }
 `;
 export const BalanceColumn = OptMoneyColumn;
@@ -190,14 +190,14 @@ const AllColumnsComponent: React.FC<
 
 export const AllColumns = connect(windowSizeP.map(size => ({ size })))(AllColumnsComponent);
 
-const Corner = styled('div')`
+const Corner = styled.div`
   position: absolute;
   top: 0;
   left: 0;
   width: 50px;
   height: 50px;
   padding-top: 18px;
-  background-color: ${colorScheme.gray.light};
+  background-color: ${neutral[1]};
   transform: rotate(45deg);
   top: -32px;
   left: -31px;
@@ -210,7 +210,7 @@ const Corner = styled('div')`
 const recurringIconStyle = {
   width: 20,
   height: 20,
-  color: colorScheme.secondary.light,
+  color: primary[2],
 };
 export const RecurringExpenseIcon: React.FC = () => (
   <Corner title="Toistuva kirjaus">
@@ -218,7 +218,7 @@ export const RecurringExpenseIcon: React.FC = () => (
   </Corner>
 );
 
-export const IconToolArea = styled('div')`
+export const IconToolArea = styled.div`
   position: absolute;
   top: 0;
   right: 16px;
@@ -240,14 +240,14 @@ export const UnconfirmedIcon: React.FC<UnconfimedIconProps> = ({ size, title, on
   </IconContainer>
 );
 
-const IconContainer = styled('div')`
+const IconContainer = styled.div`
   cursor: pointer;
   position: relative;
   display: inline-block;
 `;
 
 const RecurringExpenseSeparatorItem = styled(AllColumns)`
-  background-color: ${colorScheme.gray.light};
+  background-color: ${neutral[1]};
   height: 24px;
 `;
 
@@ -257,35 +257,20 @@ export const RecurringExpenseSeparator: React.FC = () => (
   </Row>
 );
 
-const Progress = styled(CircularProgress)`
-  &.row {
-    left: 16px;
-    top: 0;
-    width: 30px;
-    height: 30px;
-  }
-  &.primary {
-    left: -30px;
-    top: -30px;
-    width: 60px;
-    height: 60px;
-  }
-`;
-
 export const LoadingIndicator: React.FC<{ forRow?: boolean }> = props => {
   const className = props.forRow ? 'row' : 'primary';
   return (
     <Row>
       <AllColumns {...props}>
         <RefreshIndicatorContainer className={className}>
-          <Progress className={className} />
+          <Loader size={props.forRow ? 30 : 60} />
         </RefreshIndicatorContainer>
       </AllColumns>
     </Row>
   );
 };
 
-const RefreshIndicatorContainer = styled('div')`
+const RefreshIndicatorContainer = styled.div`
   &.primary {
     position: absolute;
     left: 50%;

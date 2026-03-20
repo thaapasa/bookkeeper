@@ -1,4 +1,5 @@
-import { Button, DialogActions, DialogContent, styled } from '@mui/material';
+import styled from '@emotion/styled';
+import { Button } from '@mantine/core';
 import * as React from 'react';
 
 import { TextEdit } from '../component/TextEdit';
@@ -18,27 +19,29 @@ export const TextPromptDialogContents: React.FC<TextPromptDialogProps> = ({
   const Editor = (editorType ?? TextEdit) as any;
   return (
     <>
-      <DialogContent onKeyUp={handleKeyPress}>
+      <div onKeyUp={handleKeyPress}>
         <Description>{description}</Description>
         <Editor value={text} onChange={setText} width="400px" />
-      </DialogContent>
-      <DialogActions>
-        <Button color="primary" variant="text" onKeyUp={handleKeyPress} onClick={() => onCancel()}>
+      </div>
+      <Actions>
+        <Button variant="subtle" onKeyUp={handleKeyPress} onClick={() => onCancel()}>
           Peruuta
         </Button>
-        <Button
-          color="primary"
-          variant="contained"
-          onKeyUp={handleKeyPress}
-          onClick={() => onSelect(text)}
-        >
+        <Button variant="filled" onKeyUp={handleKeyPress} onClick={() => onSelect(text)}>
           OK
         </Button>
-      </DialogActions>
+      </Actions>
     </>
   );
 };
 
-const Description = styled('div')`
+const Description = styled.div`
   margin-bottom: 8px;
+`;
+
+const Actions = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 16px;
 `;

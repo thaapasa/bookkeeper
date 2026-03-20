@@ -1,67 +1,139 @@
-import { styled } from '@mui/material';
+import styled from '@emotion/styled';
+import { ActionIcon, Menu } from '@mantine/core';
+import * as B from 'baconjs';
+import { DateTime } from 'luxon';
 import * as React from 'react';
+import { NavigateFunction, useNavigate } from 'react-router';
 
-import { ExpenseShortcut } from 'shared/expense';
+import { ExpenseShortcut, ExpenseShortcutData, shortcutToExpenseInEditor } from 'shared/expense';
+import { uri } from 'shared/net';
+import { toDateTime, toISODate, TypedDateRange } from 'shared/time';
+import { ObjectId } from 'shared/types';
 import { validSessionP } from 'client/data/Login';
+import { createExpense, createNewExpense, navigationP } from 'client/data/State';
+import { newExpenseSuffix } from 'client/util/Links';
 
-import { navigationBar } from '../Colors';
+import { primary } from '../Colors';
 import { connect } from '../component/BaconConnect';
-import { AddExpenseNavButton } from '../icons/AddExpenseIcon';
-import { ShortcutLink } from './ShortcutLink';
+import { pageSupportsRoutedExpenseDialog } from '../expense/NewExpenseInfo';
+import { Icons } from '../icons/Icons';
 
-const DropdownImpl: React.FC<{
+interface AddExpenseMenuProps {
   shortcuts: ExpenseShortcut[];
-  className?: string;
-}> = ({ shortcuts, className }) => {
-  const height = 40 + (32 + 12) * shortcuts.length;
+  dateRange: TypedDateRange;
+}
+
+const AddExpenseMenuImpl: React.FC<AddExpenseMenuProps> = ({ shortcuts, dateRange }) => {
+  const navigate = useNavigate();
+
+  const handleAddNew = () => openNewExpenseDialog(navigate, dateRange.start);
+  const handleShortcut = (id?: ObjectId, expense?: Partial<ExpenseShortcutData>) => {
+    openNewExpenseFromShortcut(navigate, id, expense);
+  };
 
   return (
-    <LinksContainer
-      maxHeight={`${height}px`}
-      className={shortcuts.length > 0 ? 'enabled' : 'disabled'}
-    >
-      <LinksArea className={className}>
-        <AddExpenseNavButton />
-        {shortcuts.map(l => (
-          <ShortcutLink key={`link-${l.id}`} {...l} />
+    <Menu shadow="md" width={220} position="bottom-end">
+      <Menu.Target>
+        <ActionIcon variant="filled" color={primary[5]} radius="xl" size="md">
+          <Icons.Add color="white" fontSize="small" />
+        </ActionIcon>
+      </Menu.Target>
+
+      <Menu.Dropdown>
+        <Menu.Item
+          leftSection={
+            <ShortcutFallback style={{ background: primary[5] }}>
+              <Icons.Add color="white" fontSize="small" />
+            </ShortcutFallback>
+          }
+          onClick={handleAddNew}
+          fw={600}
+        >
+          Uusi kirjaus
+        </Menu.Item>
+
+        {shortcuts.length > 0 && <Menu.Divider />}
+
+        {shortcuts.map(s => (
+          <Menu.Item
+            key={s.id}
+            leftSection={
+              s.icon ? (
+                <ShortcutImage src={s.icon} alt={s.title} />
+              ) : (
+                <ShortcutFallback style={{ background: s.background }}>
+                  {s.title.substring(0, 1).toUpperCase()}
+                </ShortcutFallback>
+              )
+            }
+            onClick={() => handleShortcut(s.id, s.expense)}
+          >
+            {s.title}
+          </Menu.Item>
         ))}
-      </LinksArea>
-    </LinksContainer>
+      </Menu.Dropdown>
+    </Menu>
   );
 };
 
-export const ShortcutsDropdown = connect(
-  validSessionP.map(s => ({ shortcuts: s.shortcuts || [] })),
-)(DropdownImpl);
+const addExpenseMenuP = B.combineTemplate({
+  shortcuts: validSessionP.map(s => s.shortcuts || []),
+  dateRange: navigationP.map(n => n.dateRange),
+});
 
-const LinksContainer = styled('div')(
-  (props: { maxHeight: string }) => `
-  position: absolute;
-  z-index: 1;
-  top: 28px;
-  right: 32px;
-  padding: 0 4px 4px 4px;
-  border-radius: 22px;
+export const AddExpenseMenu = connect(addExpenseMenuP)(AddExpenseMenuImpl);
 
-  overflow: hidden;
-  transition:
-    max-height 0.33s ease-in-out,
-    background-color 0.33s ease-in-out;
-  max-height: 40px;
-
-  &.enabled:hover {
-    max-height: ${props.maxHeight};
-    background-color: ${navigationBar};
+function openNewExpenseDialog(navigate: NavigateFunction, shownDay: Date) {
+  const path = window.location.pathname;
+  const refDay = toDateTime(shownDay);
+  const date = refDay.hasSame(DateTime.now(), 'month') ? undefined : refDay;
+  if (pageSupportsRoutedExpenseDialog(path)) {
+    if (!path.includes(newExpenseSuffix)) {
+      const dateSuffix = date ? uri`?date=${toISODate(date)}` : '';
+      navigate(
+        path.startsWith('/p')
+          ? path + newExpenseSuffix + dateSuffix
+          : '/p' + newExpenseSuffix + dateSuffix,
+      );
+    }
+  } else {
+    createExpense({ date });
   }
-`,
-);
+}
 
-const LinksArea = styled('div')`
+function openNewExpenseFromShortcut(
+  navigate: NavigateFunction,
+  id?: ObjectId,
+  expense?: Partial<ExpenseShortcutData>,
+) {
+  const path = window.location.pathname;
+  if (pageSupportsRoutedExpenseDialog(path) && id) {
+    if (!path.includes(newExpenseSuffix)) {
+      const base = path.startsWith('/p') ? path + newExpenseSuffix : '/p' + newExpenseSuffix;
+      navigate(base + uri`/${id}`);
+    }
+    return;
+  }
+  if (expense) {
+    createNewExpense(shortcutToExpenseInEditor(expense));
+  }
+}
+
+const ShortcutImage = styled.img`
+  width: 24px;
+  height: 24px;
+  border-radius: var(--mantine-radius-lg);
+`;
+
+const ShortcutFallback = styled.div`
+  width: 24px;
+  height: 24px;
+  border-radius: var(--mantine-radius-lg);
   display: flex;
-  flex-direction: column;
   align-items: center;
-
-  &.with-titles {
-    align-items: flex-start;
-  }
+  justify-content: center;
+  background-color: ${primary[5]};
+  color: white;
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 600;
 `;

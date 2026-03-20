@@ -1,31 +1,27 @@
 import styled from '@emotion/styled';
-import { Grid } from '@mui/material';
+import { Text } from '@mantine/core';
 import React from 'react';
-
-import { Text } from '../design/Text';
 
 export const ProfileItem: React.FC<
   React.PropsWithChildren<{ title?: string; labelFor?: string }>
 > = ({ title, children, labelFor }) => (
   <>
-    <Grid size={3} alignSelf="center">
-      <Label htmlFor={labelFor}>{title}</Label>
-    </Grid>
-    <DataItemGrid size={9} alignSelf="center">
-      {children}
-    </DataItemGrid>
+    <LabelCell>
+      <Text component="label" htmlFor={labelFor}>
+        {title}
+      </Text>
+    </LabelCell>
+    <DataCell>{children}</DataCell>
   </>
 );
 
-const Label = Text.withComponent('label');
+const LabelCell = styled.div`
+  display: flex;
+  align-items: center;
+`;
 
-const DataItemGrid = styled(Grid)`
-  & > div,
-  & > button {
-    margin-left: 16px;
-  }
-  & > div:first-of-type,
-  & > button:first-of-type {
-    margin-left: inherit !important;
-  }
+const DataCell = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 16px;
 `;

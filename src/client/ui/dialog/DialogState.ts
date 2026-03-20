@@ -1,14 +1,20 @@
 import * as B from 'baconjs';
 import { DateTime } from 'luxon';
+import React from 'react';
 
 import { ObjectId } from 'shared/types';
 
-import { TextEditorComponent } from '../component/TextEditVariants';
+import { TextEditProps } from '../component/TextEdit';
+import { ReceiverFieldProps } from '../expense/dialog/ReceiverField';
 import { CategoryPromptDialogContents } from './CategoryPromptDialogContents';
 import { DateSelectDialogComponent } from './DateSelectDialogContents';
 import { DialogConfig, DialogData, DialogSelectOption } from './Dialog';
 import { OptionSelectDialogContents } from './OptionSelectDialogContents';
 import { TextPromptDialogContents } from './TextPromptDialogContents';
+
+export type TextEditorComponent =
+  | React.ComponentType<TextEditProps>
+  | React.ComponentType<ReceiverFieldProps>;
 
 /* Push event to confirmationBus to show a confirmation dialog */
 const dialogActionBus = new B.Bus<DialogConfig<any, any>>();

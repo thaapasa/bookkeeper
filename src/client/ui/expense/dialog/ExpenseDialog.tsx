@@ -1,13 +1,5 @@
-import {
-  Button,
-  Checkbox,
-  Dialog,
-  DialogActions,
-  DialogTitle,
-  FormControlLabel,
-  IconButton,
-  styled,
-} from '@mui/material';
+import styled from '@emotion/styled';
+import { Button, Checkbox, Modal } from '@mantine/core';
 import * as B from 'baconjs';
 import { DateTime } from 'luxon';
 import * as React from 'react';
@@ -33,13 +25,12 @@ import {
 import { CategoryDataSource, isSubcategoryOf } from 'client/data/Categories';
 import { notifyError } from 'client/data/State';
 import { logger } from 'client/Logger';
-import { gray } from 'client/ui/Colors';
+import { neutral } from 'client/ui/Colors';
 import UserAvatar from 'client/ui/component/UserAvatar';
 import UserSelector from 'client/ui/component/UserSelector';
 import { Icons } from 'client/ui/icons/Icons';
-import { isMobileSize } from 'client/ui/Styles';
-import { Size } from 'client/ui/Types';
-import { eventValue, stopEventPropagation, unsubscribeAll } from 'client/util/ClientUtil';
+import { isMobileSize, Size } from 'client/ui/Styles';
+import { eventValue, stopEventPropagation, Unsubscriber, unsubscribeAll } from 'client/util/ClientUtil';
 import { KeyCodes } from 'client/util/Io';
 
 import { DivisionInfo } from '../details/DivisionInfo';
@@ -96,11 +87,11 @@ const fields: ReadonlyArray<keyof ExpenseInEditor> = [
   'groupingId',
 ];
 
-const parsers: Record<string, (v: string) => any> = {
+const parsers: Record<string, (v: string) => string> = {
   sum: sanitizeMoneyInput,
 };
 
-const validators: Record<string, (v: string) => any> = {
+const validators: Record<string, (v: string) => string | undefined> = {
   title: v => errorIf(v.length < 1, 'Nimi puuttuu'),
   sourceId: v => errorIf(!v, 'Lähde puuttuu'),
   categoryId: v => errorIf(!v, 'Kategoria puuttuu'),
@@ -152,7 +143,7 @@ export class ExpenseDialog extends React.Component<
   private readonly saveLock: B.Bus<boolean> = new B.Bus<boolean>();
   private inputStreams: Record<string, B.Bus<any>> = {};
   private readonly submitStream: B.Bus<true> = new B.Bus<true>();
-  private unsub: any[] = [];
+  private unsub: Unsubscriber[] = [];
   public state = this.getDefaultState(null, {});
 
   get isMobile(): boolean {
@@ -306,7 +297,7 @@ export class ExpenseDialog extends React.Component<
     }
   }
 
-  private requestSave = (event: React.SyntheticEvent<any>) => {
+  private requestSave = (event: React.SyntheticEvent) => {
     this.submitStream.push(true);
     event.preventDefault();
     event.stopPropagation();
@@ -368,7 +359,7 @@ export class ExpenseDialog extends React.Component<
     this.inputStreams.subcategoryId.push(subcategoryId);
   };
 
-  private handleKeyPress = (event: React.KeyboardEvent<any>) => {
+  private handleKeyPress = (event: React.KeyboardEvent<HTMLElement>) => {
     const code = event.keyCode;
     if (code === KeyCodes.escape && AllowDialogEscape) {
       return this.dismiss();
@@ -384,13 +375,13 @@ export class ExpenseDialog extends React.Component<
     this.setState({ showOwnerSelect: false });
   };
 
-  private openOwnerSelector = (_userId: number, event: React.MouseEvent<any>) => {
+  private openOwnerSelector = (_userId: number, event: React.MouseEvent<HTMLElement>) => {
     this.setState({ showOwnerSelect: true });
     event.stopPropagation();
     return false;
   };
 
-  private setUserId = (userId: number, event: React.MouseEvent<any>) => {
+  private setUserId = (userId: number, event: React.MouseEvent<HTMLElement>) => {
     this.inputStreams.userId.push(userId);
     this.setState({ showOwnerSelect: false });
     event.stopPropagation();
@@ -399,27 +390,16 @@ export class ExpenseDialog extends React.Component<
 
   public render() {
     return (
-      <Dialog
-        open={true}
-        onClose={AllowDialogEscape ? this.dismiss : undefined}
-        scroll="paper"
+      <Modal
+        opened={true}
+        onClose={AllowDialogEscape ? this.dismiss : () => {}}
+        title={this.props.title ?? (this.props.createNew ? 'Uusi kirjaus' : 'Muokkaa kirjausta')}
+        size="lg"
         fullScreen={this.isMobile}
+        styles={{
+          header: { position: 'relative' },
+        }}
       >
-        <DialogTitle>
-          {this.props.title ?? (this.props.createNew ? 'Uusi kirjaus' : 'Muokkaa kirjausta')}
-          <IconButton
-            aria-label="close"
-            onClick={this.dismiss}
-            sx={theme => ({
-              position: 'absolute',
-              right: 8,
-              top: 8,
-              color: theme.palette.grey[500],
-            })}
-          >
-            <Icons.Clear />
-          </IconButton>
-        </DialogTitle>
         <ExpenseDialogContent dividers={true} onClick={this.closeEditors}>
           <Form onSubmit={this.requestSave} onKeyUp={this.handleKeyPress}>
             <Row className="row sum parent">
@@ -449,13 +429,9 @@ export class ExpenseDialog extends React.Component<
                 />
               </SumArea>
               <ConfirmArea>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={!this.state.confirmed}
-                      onChange={e => this.inputStreams.confirmed.push(!e.target.checked)}
-                    />
-                  }
+                <Checkbox
+                  checked={!this.state.confirmed}
+                  onChange={e => this.inputStreams.confirmed.push(!e.currentTarget.checked)}
                   label="Alustava"
                 />
               </ConfirmArea>
@@ -518,14 +494,10 @@ export class ExpenseDialog extends React.Component<
             ) : null}
             <Row className="row input date">
               <DateField value={this.state.date} onChange={v => this.inputStreams.date.push(v)} />
-              <TodayButton
-                title="Tänään"
-                variant="contained"
-                color="secondary"
-                startIcon={<Icons.Today />}
-                onClick={this.setToday}
-              >
-                Tänään
+              <TodayButton>
+                <Button variant="filled" color="gray" onClick={this.setToday}>
+                  <Icons.Today /> Tänään
+                </Button>
               </TodayButton>
             </Row>
             <Row className="row input description">
@@ -547,25 +519,24 @@ export class ExpenseDialog extends React.Component<
           </Form>
         </ExpenseDialogContent>
         <DialogActions>
-          <Button key="cancel" variant="text" onClick={this.dismiss}>
+          <Button key="cancel" variant="subtle" onClick={this.dismiss}>
             Peruuta
           </Button>
           <Button
             key="save"
-            variant="contained"
-            color="primary"
+            variant="filled"
             disabled={!this.state.valid}
             onClick={this.requestSave}
           >
             Tallenna
           </Button>
         </DialogActions>
-      </Dialog>
+      </Modal>
     );
   }
 }
 
-const Form = styled('form')`
+const Form = styled.form`
   position: relative;
   display: flex;
   flex-direction: column;
@@ -573,7 +544,7 @@ const Form = styled('form')`
   justify-content: flex-start;
 `;
 
-const Row = styled('div')`
+const Row = styled.div`
   display: flex;
   width: 100%;
   box-sizing: border-box;
@@ -602,24 +573,31 @@ const Row = styled('div')`
   }
 `;
 
-const TodayButton = styled(Button)`
+const TodayButton = styled.div`
   margin-left: 16px;
   position: relative;
   top: 1px;
 `;
 
-const OwnerSelectorArea = styled('div')`
+const DialogActions = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 16px;
+`;
+
+const OwnerSelectorArea = styled.div`
   position: absolute;
   top: 8px;
   left: -24px;
   padding: 12px 10px 12px 24px;
-  border-radius: 4px;
+  border-radius: var(--mantine-radius-sm);
   border-top-left-radius: 0px;
   border-bottom-left-radius: 0px;
-  background-color: ${gray.light};
+  background-color: ${neutral[1]};
   display: flex;
   flex-direction: row;
-  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--mantine-shadow-xs);
   z-index: 1;
 
   & > div {
@@ -635,19 +613,19 @@ const OwnerSelectorArea = styled('div')`
   }
 `;
 
-const SumArea = styled('div')`
+const SumArea = styled.div`
   margin-left: 1em;
   display: inline-block;
   vertical-align: middle;
 `;
 
-const ConfirmArea = styled('div')`
+const ConfirmArea = styled.div`
   margin-left: 1em;
   display: inline-block;
   vertical-align: middle;
 `;
 
-const TypeArea = styled('div')`
+const TypeArea = styled.div`
   width: 92px;
   display: inline-block;
   vertical-align: middle;

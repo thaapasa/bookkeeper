@@ -1,4 +1,4 @@
-import { IconButton } from '@mui/material';
+import { ActionIcon } from '@mantine/core';
 import * as React from 'react';
 
 import { ObjectId } from 'shared/types';
@@ -21,9 +21,9 @@ export const SubscriptionCategoryHeader: React.FC<{
   <RowElement className={className}>
     <Label>
       {categoryId && toggleVisibility ? (
-        <IconButton onClick={() => toggleVisibility(categoryId)}>
+        <ActionIcon variant="subtle" onClick={() => toggleVisibility(categoryId)}>
           {visible ? <Icons.Visible /> : <Icons.Hidden />}
-        </IconButton>
+        </ActionIcon>
       ) : null}
       {title}
     </Label>

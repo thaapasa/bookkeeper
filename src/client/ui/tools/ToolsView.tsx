@@ -1,4 +1,5 @@
-import { Grid } from '@mui/material';
+import styled from '@emotion/styled';
+import { Flex, ScrollArea } from '@mantine/core';
 import * as React from 'react';
 
 import apiConnect from 'client/data/ApiConnect';
@@ -8,21 +9,34 @@ import { executeOperation } from 'client/util/ExecuteOperation';
 import { Title } from '../design/Text';
 import { UserPrompts } from '../dialog/DialogState';
 import { ReceiverField } from '../expense/dialog/ReceiverField';
-import { PageContentContainer } from '../Styles';
 import { DbStatusView } from './DbStatusView';
 import { ToolButton } from './ToolButton';
 
 export const ToolsView: React.FC = () => (
-  <PageContentContainer className="center">
-    <Grid container rowSpacing={2} padding={2} maxWidth={800}>
-      <Grid size={12}>
-        <Title>Työkalut</Title>
-      </Grid>
-      <ToolButton title="Vaihda kohteiden nimi" buttonText="Vaihda" action={changeReceiverName} />
-      <DbStatusView />
-    </Grid>
-  </PageContentContainer>
+  <ScrollArea h="100%" type="auto" bg="neutral.1">
+    <Flex direction="column" align="center">
+      <ToolsGrid>
+        <FullWidth>
+          <Title>Työkalut</Title>
+        </FullWidth>
+        <ToolButton title="Vaihda kohteiden nimi" buttonText="Vaihda" action={changeReceiverName} />
+        <DbStatusView />
+      </ToolsGrid>
+    </Flex>
+  </ScrollArea>
 );
+
+const ToolsGrid = styled.div`
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 16px;
+  padding: 16px;
+  max-width: 800px;
+`;
+
+const FullWidth = styled.div`
+  grid-column: 1 / -1;
+`;
 
 async function changeReceiverName() {
   const oldName = await UserPrompts.promptText(

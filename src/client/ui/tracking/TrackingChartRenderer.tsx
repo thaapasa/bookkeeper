@@ -17,7 +17,7 @@ import { partition } from 'shared/util';
 import { formatMoneyForChart } from 'client/ui/chart/Format';
 
 import { getChartColor } from '../chart/ChartColors';
-import { Size } from '../Types';
+import { Size } from '../Styles';
 import { MeasureSize } from '../utils/MeasureSize';
 
 const Margins = { left: 4, top: 4, right: 4, bottom: 4 };

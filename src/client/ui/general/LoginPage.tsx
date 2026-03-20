@@ -1,10 +1,11 @@
-import { Button, Card, styled } from '@mui/material';
+import styled from '@emotion/styled';
+import { Button } from '@mantine/core';
 import * as React from 'react';
 
 import { pickRandomItem } from 'shared/util';
 import { login } from 'client/data/Login';
 
-import { colorScheme } from '../Colors';
+import { primary } from '../Colors';
 import { TextEdit } from '../component/TextEdit';
 import { media } from '../Styles';
 
@@ -19,13 +20,13 @@ export const LoginPage: React.FC = () => {
 
   const bgImage = React.useMemo(() => pickRandomItem(backgroundImages), []);
 
-  const handleSubmit = async (event: React.FormEvent<any>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setStatusMessage(null);
     try {
       await login(username, password);
-    } catch (er: any) {
-      if (er && er.status === 401) {
+    } catch (er: unknown) {
+      if (er instanceof Object && 'status' in er && er.status === 401) {
         setStatusMessage(
           'Kirjautuminen epäonnistui. Ole hyvä ja tarkista käyttäjätunnuksesi ja salasanasi.',
         );
@@ -43,6 +44,7 @@ export const LoginPage: React.FC = () => {
           <EditField
             placeholder="Käyttäjätunnus"
             label="Käyttäjätunnus"
+            name="username"
             value={username}
             onChange={setUsername}
             autoCapitalize="none"
@@ -53,6 +55,7 @@ export const LoginPage: React.FC = () => {
           <EditField
             placeholder="Salasana"
             label="Salasana"
+            name="password"
             type="password"
             autoCapitalize="none"
             autoComplete="current-password"
@@ -60,9 +63,9 @@ export const LoginPage: React.FC = () => {
             value={password}
             onChange={setPassword}
           />
-          <LoginButton type="submit" color="primary" variant="contained">
+          <Button type="submit" fullWidth mt="xl">
             Kirjaudu
-          </LoginButton>
+          </Button>
           {statusMessage !== null ? <ErrorText>{statusMessage}</ErrorText> : ''}
         </Form>
       </LoginPaper>
@@ -70,50 +73,45 @@ export const LoginPage: React.FC = () => {
   );
 };
 
-const LoginPaper = styled(Card)`
-  display: inline-block;
+const LoginPaper = styled.div`
   margin: 15vh 32px 32px 32px;
-  padding: 36px;
+  padding: 32px;
+  border-radius: var(--mantine-radius-md);
+  background: var(--mantine-color-body);
+  box-shadow: var(--mantine-shadow-sm);
   z-index: 1;
 `;
 
-const Form = styled('form')`
+const Form = styled.form`
   display: inline-flex;
   flex-direction: column;
   justify-content: flex-start;
-  align-items: center;
-  width: 248px;
+  align-items: stretch;
+  width: 280px;
 `;
 
 const EditField = styled(TextEdit)`
-  margin: 8px;
+  margin-top: 8px;
 `;
 
-const Title = styled('title')`
-  display: inline-block;
-  height: 24px;
+const Title = styled.div`
+  text-align: center;
   margin-bottom: 3vh;
-  font-size: 14pt;
 `;
 
-const ErrorText = styled('div')`
+const ErrorText = styled.div`
   margin-top: 3vh;
-  color: ${colorScheme.secondary.dark};
+  color: ${primary[7]};
   text-align: center;
 `;
 
-const LoginButton = styled(Button)`
-  display: inline-block;
-  margin-top: 5vh;
-`;
-
-const Page = styled('div')`
+const Page = styled.div<{ bgImage: string }>`
   display: flex;
   flex-direction: row;
   align-items: flex-start;
   justify-content: center;
-  background: url(${publicUrl}/img/${(props: { bgImage: string }) => props.bgImage});
-  background-color: #d6d6d6;
+  background: url(${publicUrl}/img/${props => props.bgImage});
+  background-color: light-dark(var(--mantine-color-gray-4), var(--mantine-color-dark-8));
   background-size: cover;
   background-repeat: no-repeat;
   width: 100%;

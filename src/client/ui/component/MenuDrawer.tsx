@@ -1,4 +1,5 @@
-import { Drawer, MenuItem, styled } from '@mui/material';
+import styled from '@emotion/styled';
+import { Divider, Drawer, SegmentedControl, Text, useMantineColorScheme } from '@mantine/core';
 import * as React from 'react';
 import { useNavigate } from 'react-router';
 
@@ -8,10 +9,10 @@ import { logout, validSessionP } from 'client/data/Login';
 import { reloadApp } from 'client/util/ClientUtil';
 import { profilePagePath } from 'client/util/Links';
 
-import { colorScheme } from '../Colors';
-import { RenderIcon } from '../icons/Icons';
+import { neutral, primary } from '../Colors';
+import { Icons, RenderIcon } from '../icons/Icons';
 import { connect } from './BaconConnect';
-import { AppLink } from './NavigationBar';
+import { AppLink } from './TopBar';
 import { UserAvatar } from './UserAvatar';
 
 interface MenuDrawerProps {
@@ -28,11 +29,17 @@ const MenuLink: React.FC<AppLink & { onSelect: (path: string) => void }> = ({
   path,
   icon,
 }) => (
-  <MenuItem onClick={() => onSelect(path)}>
-    <PaddedIcon icon={icon} fontSize="small" color="action" />
+  <MenuItemRow onClick={() => onSelect(path)}>
+    <MenuIcon icon={icon} fontSize="small" color="action" />
     {label}
-  </MenuItem>
+  </MenuItemRow>
 );
+
+const colorSchemeOptions = [
+  { value: 'auto', label: 'Auto' },
+  { value: 'light', label: '☀️' },
+  { value: 'dark', label: '🌙' },
+];
 
 export const MenuDrawer: React.FC<MenuDrawerProps> = ({
   onRequestChange,
@@ -42,6 +49,7 @@ export const MenuDrawer: React.FC<MenuDrawerProps> = ({
   links,
 }) => {
   const navigate = useNavigate();
+  const { colorScheme, setColorScheme } = useMantineColorScheme();
   const onSelect = (path: string) => {
     navigate(path);
     onRequestChange(false);
@@ -49,17 +57,26 @@ export const MenuDrawer: React.FC<MenuDrawerProps> = ({
   const onClose = () => onRequestChange(false);
   const onReload = () => reloadApp();
   return (
-    <Drawer open={open} anchor="left" onClose={onClose}>
-      <GroupName>{group.name}</GroupName>
-      <ItemArea>
-        <UserInfo onClick={() => onSelect(profilePagePath)}>
-          <UserAvatar user={user} size={40} />
-          <UserName>
-            {user.firstName} {user.lastName}
-          </UserName>
-        </UserInfo>
-      </ItemArea>
-      <ItemArea>
+    <Drawer
+      opened={open}
+      onClose={onClose}
+      position="left"
+      size="xs"
+      withCloseButton={false}
+      styles={{ body: { padding: 0 } }}
+    >
+      <Header>{group.name}</Header>
+
+      <UserSection onClick={() => onSelect(profilePagePath)}>
+        <UserAvatar user={user} size={40} />
+        <UserName>
+          {user.firstName} {user.lastName}
+        </UserName>
+      </UserSection>
+
+      <Divider mx={px} />
+
+      <Section>
         {links?.map(l => (
           <MenuLink key={l.label} {...l} onSelect={onSelect} />
         ))}
@@ -70,63 +87,97 @@ export const MenuDrawer: React.FC<MenuDrawerProps> = ({
           onSelect={onReload}
           icon="Refresh"
         />
-      </ItemArea>
-      {links && links.length > 0 ? <Divider /> : null}
-      <ItemArea className="bottom">
-        <MenuInfo>
-          Kukkaro {config.version} ({config.revision})
-        </MenuInfo>
-        <MenuItem onClick={logout}>Kirjaudu ulos</MenuItem>
-      </ItemArea>
+      </Section>
+
+      <Divider mx={px} />
+
+      <ThemeSection>
+        <Icons.Palette fontSize="small" />
+        <SegmentedControl
+          value={colorScheme}
+          onChange={v => setColorScheme(v as 'auto' | 'light' | 'dark')}
+          data={colorSchemeOptions}
+          size="xs"
+          style={{ flex: 1 }}
+        />
+      </ThemeSection>
+
+      <Divider mx={px} />
+
+      <Section>
+        <MenuItemRow onClick={logout}>Kirjaudu ulos</MenuItemRow>
+      </Section>
+
+      <VersionInfo>
+        Kukkaro {config.version} ({config.revision})
+      </VersionInfo>
     </Drawer>
   );
 };
 
-const GroupName = styled('div')`
-  padding: 16px 24px;
-  background-color: ${colorScheme.primary.standard};
-  font-weight: bold;
-  color: ${colorScheme.secondary.dark};
-`;
+const px = 16;
 
-const PaddedIcon = styled(RenderIcon)`
-  margin-right: 8px;
-`;
+const Header: React.FC<React.PropsWithChildren> = ({ children }) => (
+  <Text
+    bg={primary[8]}
+    c="white"
+    size="md"
+    fw="bold"
+    h={56}
+    px="md"
+    style={{ display: 'flex', alignItems: 'center' }}
+  >
+    {children}
+  </Text>
+);
 
-const ItemArea = styled('div')`
-  margin: 4px 8px;
+const UserSection = styled.div`
+  display: flex;
+  align-items: center;
+  padding: ${px}px ${px + 8}px;
+  cursor: pointer;
 
-  &.bottom {
-    margin-bottom: 16px;
+  &:hover {
+    background-color: ${neutral[1]};
   }
 `;
 
-const UserInfo = styled('div')`
-  margin: 16px;
-  padding-bottom: 16px;
-  margin-bottom: 8px;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
+const UserName = styled.span`
+  margin-left: ${px}px;
+`;
+
+const Section = styled.div`
+  padding: 4px 8px;
+`;
+
+const ThemeSection = styled.div`
   display: flex;
-  border-bottom: 1px solid ${colorScheme.gray.standard};
+  align-items: center;
+  gap: 12px;
+  padding: 10px ${px}px;
+`;
+
+const MenuItemRow = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 10px ${px}px;
   cursor: pointer;
+  border-radius: var(--mantine-radius-sm);
+  font-size: var(--mantine-font-size-sm);
+
+  &:hover {
+    background-color: ${neutral[1]};
+  }
 `;
 
-const UserName = styled('span')`
-  padding-left: 16px;
-  font-size: 16px;
+const MenuIcon = styled(RenderIcon)`
+  margin-right: 12px;
 `;
 
-const Divider = styled('div')`
-  border-bottom: 1px solid ${colorScheme.gray.standard};
-  flex: 1;
-  margin: 8px 24px;
-`;
-
-const MenuInfo = styled('div')`
-  font-size: 9pt;
-  padding: 2px 16px 8px 16px;
+const VersionInfo = styled.div`
+  font-size: var(--mantine-font-size-xs);
+  padding: 8px ${px + 8}px 16px;
+  color: ${neutral[5]};
 `;
 
 export default connect(validSessionP.map(s => ({ user: s.user, group: s.group })))(MenuDrawer);

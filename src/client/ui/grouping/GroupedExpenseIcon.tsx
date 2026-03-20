@@ -1,11 +1,13 @@
 import styled from '@emotion/styled';
-import { colors } from '@mui/material';
+import { DEFAULT_THEME, Text } from '@mantine/core';
 import * as React from 'react';
 
 import { ExpenseGroupingRef } from 'shared/types';
 
-import { getLuminanceSafe } from '../Colors';
+import { getLuminanceSafe } from '../ColorUtils';
 import { Bookmark } from '../icons/Bookmark';
+
+const defaultGroupingColor = DEFAULT_THEME.colors.blue[3];
 
 type GroupedExpenseIconProps = {
   size?: number;
@@ -22,7 +24,7 @@ export const GroupedExpenseIcon: React.FC<GroupedExpenseIconProps> = ({
   className,
   implicit,
 }) => {
-  const color = grouping.color ?? colors.blue[300];
+  const color = grouping.color ?? defaultGroupingColor;
   const luminance = getLuminanceSafe(color);
 
   return (
@@ -34,7 +36,7 @@ export const GroupedExpenseIcon: React.FC<GroupedExpenseIconProps> = ({
       <Bookmark size={size || 24} title={grouping.title} color={color} outline={implicit} />
       {grouping.title ? (
         <GroupedExpenseIconText color={luminance > 0.4 ? 'black' : 'white'}>
-          {grouping.title[0]}
+          <Text span fz="xs" fw={700}>{grouping.title[0]}</Text>
         </GroupedExpenseIconText>
       ) : null}
     </IconContainer>
@@ -60,7 +62,5 @@ const GroupedExpenseIconText = styled('div')`
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
   ${({ color }: { color: string }) => `color: ${color};`}
-  font-size: 10pt;
 `;

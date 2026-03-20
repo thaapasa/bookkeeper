@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Size } from '../Types';
+import { Size } from '../Styles';
 
 /**
  * Keeps track of the given element size in the DOM, updating it if the window

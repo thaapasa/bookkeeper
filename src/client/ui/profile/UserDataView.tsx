@@ -1,4 +1,4 @@
-import { Button, CircularProgress, Grid } from '@mui/material';
+import { Button, Loader } from '@mantine/core';
 import React from 'react';
 import { create } from 'zustand';
 
@@ -85,81 +85,67 @@ export const UserDataView: React.FC<{ session: Session }> = ({ session }) => {
       <ProfileItem title="Käyttäjä-id">
         <Text>{user.id}</Text>
       </ProfileItem>
-      <form id="edit-user-data" onSubmit={save}>
-        <Grid container columnSpacing={2} rowSpacing={2} padding={2}>
-          <ProfileItem title="Nimi">
-            <TextEdit
-              onChange={state.setFirstName}
-              value={state.firstName}
-              autoCapitalize="none"
-              autoCorrect="off"
-              placeholder="Selma"
-              onSubmitEdit={save}
-              width="120px"
-              error={!state.firstName}
-              disabled={isSaving}
-            />
-            <TextEdit
-              onChange={state.setLastName}
-              value={state.lastName}
-              autoCapitalize="none"
-              autoCorrect="off"
-              placeholder="Säästäjä"
-              onSubmitEdit={save}
-              width="200px"
-              error={!state.lastName}
-              disabled={isSaving}
-            />
-          </ProfileItem>
-          <ProfileItem title="Sähköposti">
-            <TextEdit
-              onChange={state.setEmail}
-              value={state.email}
-              autoCapitalize="none"
-              autoCorrect="off"
-              placeholder="selma.saastaja@example.com"
-              onSubmitEdit={save}
-              width="280px"
-              error={!emailValid}
-              disabled={isSaving}
-            />
-          </ProfileItem>
-          <ProfileItem title="Käyttäjätunnus">
-            <TextEdit
-              name="username"
-              onChange={state.setUsername}
-              value={state.username}
-              autoComplete="username"
-              autoCapitalize="none"
-              autoCorrect="off"
-              placeholder="selma"
-              onSubmitEdit={save}
-              width="280px"
-              error={!state.username}
-              disabled={isSaving}
-            />
-          </ProfileItem>
-          <ProfileItem>
-            <Button
-              color="primary"
-              disabled={!dataValid || !changed || isSaving}
-              variant="contained"
-              onClick={save}
-              endIcon={isSaving ? <CircularProgress size="12pt" /> : null}
-            >
-              Tallenna
-            </Button>
-            <Button
-              color="secondary"
-              variant="contained"
-              disabled={!changed}
-              onClick={() => state.reset(session.user)}
-            >
-              Palauta
-            </Button>
-          </ProfileItem>
-        </Grid>
-      </form>
+      <ProfileItem title="Nimi">
+        <TextEdit
+          onChange={state.setFirstName}
+          value={state.firstName}
+          autoCapitalize="none"
+          autoCorrect="off"
+          placeholder="Selma"
+          onSubmitEdit={save}
+          width="120px"
+          error={!state.firstName}
+          disabled={isSaving}
+        />
+        <TextEdit
+          onChange={state.setLastName}
+          value={state.lastName}
+          autoCapitalize="none"
+          autoCorrect="off"
+          placeholder="Säästäjä"
+          onSubmitEdit={save}
+          width="200px"
+          error={!state.lastName}
+          disabled={isSaving}
+        />
+      </ProfileItem>
+      <ProfileItem title="Sähköposti">
+        <TextEdit
+          onChange={state.setEmail}
+          value={state.email}
+          autoCapitalize="none"
+          autoCorrect="off"
+          placeholder="selma.saastaja@example.com"
+          onSubmitEdit={save}
+          width="280px"
+          error={!emailValid}
+          disabled={isSaving}
+        />
+      </ProfileItem>
+      <ProfileItem title="Käyttäjätunnus">
+        <TextEdit
+          name="username"
+          onChange={state.setUsername}
+          value={state.username}
+          autoComplete="username"
+          autoCapitalize="none"
+          autoCorrect="off"
+          placeholder="selma"
+          onSubmitEdit={save}
+          width="280px"
+          error={!state.username}
+          disabled={isSaving}
+        />
+      </ProfileItem>
+      <ProfileItem>
+        <Button disabled={!dataValid || !changed || isSaving} onClick={save}>
+          {isSaving ? <Loader size="xs" /> : null}
+          Tallenna
+        </Button>
+        <Button variant="light" disabled={!changed} onClick={() => state.reset(session.user)}>
+          Palauta
+        </Button>
+      </ProfileItem>
     </>
   );
 };

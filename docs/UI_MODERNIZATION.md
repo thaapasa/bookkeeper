@@ -207,12 +207,6 @@ Replace `@mui/icons-material` (47 icons) with **Lucide React**:
 - 1,500+ icons, covers all 47 currently used
 - Tree-shakeable individual imports
 
-### Date Picker Replacement
-Replace `@mui/x-date-pickers` with one of:
-- **react-day-picker** — lightweight, accessible, Luxon-compatible
-- **Custom Radix Popover + calendar grid** — most control, more work
-- Native `<input type="date">` — simplest but limited styling
-
 ### Grid Replacement
 Replace MUI Grid (18 files) with:
 - CSS Grid (`display: grid`) — already natural with styled components
@@ -280,35 +274,58 @@ MUI's performance issues come from:
 
 ## Migration Strategy
 
-The migration is done incrementally. Mantine and MUI can coexist during transition.
+The migration is done **incrementally with review checkpoints**. Mantine and MUI coexist
+during the transition. MUI is only removed from `package.json` after ALL components have
+been migrated. Code cleanup (extracting components, improving file organization, simplifying
+styling) is encouraged alongside conversion work.
+
+**Decision: Mantine (Option D)** — confirmed March 2026.
 
 ### Phase 1: Foundation Setup
-- Install Mantine packages (`@mantine/core`, `@mantine/hooks`, `@mantine/dates`)
+- Install Mantine packages (`@mantine/core`, `@mantine/hooks`, `@mantine/dates`, `dayjs`)
 - Set up `MantineProvider` with custom theme matching current colors/fonts
-- Replace MUI icons with Tabler Icons (Mantine's default icon set) or Lucide React
-- Switch `styled` imports from `@mui/material` to `@emotion/styled` (decouple from MUI)
-- Replace MUI Grid (18 files) with CSS Grid/Flexbox
-- Import Mantine CSS in entry point
+- Create `src/client/ui/theme/mantineTheme.ts` mapping `Colors.ts` palette to Mantine theme
+- Replace MUI icons with Tabler Icons or Lucide React (update `Icons.tsx` abstraction)
+- Import Mantine CSS in entry point; keep MUI ThemeProvider alongside
+- **→ REVIEW: Verify app looks identical, no visual regressions**
 
-### Phase 2: Simple Components
-- Replace MUI Button → Mantine Button (28 files)
-- Replace MUI IconButton → Mantine ActionIcon (17 files)
-- Replace Typography → styled text or Mantine Text/Title
-- Replace Avatar, Chip, Alert, CircularProgress, Divider → Mantine equivalents
-- Replace AppBar/Toolbar → custom styled header (or Mantine AppShell)
-- Replace Drawer → Mantine Drawer
+### Phase 2: Convert Base Layout
+- Convert `TopBar.tsx` — replace MUI `AppBar`/`Toolbar`/`IconButton`/`Typography`
+- Convert `NavigationBar.tsx` — replace MUI `Toolbar`/`Button`
+- Convert `MenuDrawer.tsx` — replace MUI `Drawer`/`MenuItem`
+- Clean up `BookkeeperPage.tsx` shell — remove MUI `styled`, consider Mantine `AppShell`
+- Modernize `NotificationBar.tsx` — convert class → functional, consider Mantine Notifications
+- **→ REVIEW: Full layout converted and approved before continuing**
 
-### Phase 3: Interactive Components
-- Replace MUI Dialog → Mantine Modal (12 files)
-- Replace MUI Select/MenuItem → Mantine Select (2 files)
-- Replace MUI Checkbox/FormControlLabel → Mantine Checkbox (5 files)
-- Replace MUI TextField → Mantine TextInput (3 files)
-- Replace FormControl/InputLabel → Mantine Input.Wrapper
+### Phase 3: Pilot Simple Pages
+- Convert `LoginPage.tsx` — replace MUI `Button`/`Card`/`styled` with Mantine equivalents
+- Convert `InfoView.tsx` and `InfoLayoutElements.tsx`
+- **→ REVIEW: Simple page look & feel validated**
 
-### Phase 4: Complex Components & Cleanup
-- Replace MUI DatePicker → Mantine DatePicker from `@mantine/dates` (3 files)
-- Update Colors.ts: remove MUI color imports, use CSS variables or keep as constants
-- Remove all `@mui/*` packages from package.json
-- Remove `@emotion/react` and `@emotion/styled` if fully migrated (or keep for custom styling)
-- Clean up unused styles and imports
+### Phase 4: Remaining Simple Pages
+- Convert `ProfileView.tsx` and sub-components (replace MUI `Grid`)
+- Convert `ToolsView.tsx` and `ToolButton`/`DbStatusView`
+- Convert `ShortcutsPage.tsx`, `ShortcutsView`, `ShortcutsDropdown`
+- **→ REVIEW: All simple pages converted**
+
+### Phase 5: Shared Components
+- Replace MUI `Button` → Mantine `Button` across all remaining files (28 total)
+- Replace MUI `IconButton` → Mantine `ActionIcon` (17 files)
+- Convert form components: `TextField`, `Select`, `Checkbox`, `FormControl`
+- Convert display components: `Chip`, `Avatar`, `Alert`, `CircularProgress`, `Typography`
+- **→ REVIEW: All shared components converted**
+
+### Phase 6: Complex Components
+- Convert dialog system: MUI `Dialog` → Mantine `Modal` (12 files)
+- Convert `DatePicker`: `@mui/x-date-pickers` → `@mantine/dates` (3 files)
+- Migrate MUI `Grid` layouts (18 files) → Mantine `SimpleGrid`/CSS Grid
+- **→ REVIEW: All complex components converted**
+
+### Phase 7: Cleanup & MUI Removal
+- Decouple all remaining `styled()` imports from MUI → `@emotion/styled` (~55+ files)
+- Remove `@mui/*` packages from `package.json`
+- Remove MUI theme/provider from `src/index.tsx`
+- Update `Colors.ts` — replace MUI color imports with direct values
+- Clean up unused dependencies
 - Performance testing
+- **→ FINAL REVIEW**

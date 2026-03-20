@@ -11,7 +11,7 @@ import { updateExpenses } from 'client/data/State';
 import { ExpenseDialogObject } from 'client/data/StateTypes';
 import { logger } from 'client/Logger';
 import { connect } from 'client/ui/component/BaconConnect';
-import { Size } from 'client/ui/Types';
+import { Size } from 'client/ui/Styles';
 import { unsubscribeAll, Unsubscriber } from 'client/util/ClientUtil';
 
 import { ExpenseDialogProps } from './ExpenseDialog';

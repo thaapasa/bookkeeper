@@ -1,5 +1,5 @@
-import { Avatar, styled } from '@mui/material';
-import { cyan } from '@mui/material/colors';
+import styled from '@emotion/styled';
+import { Avatar as MantineAvatar } from '@mantine/core';
 import * as React from 'react';
 
 import { User } from 'shared/types';
@@ -18,32 +18,29 @@ interface UserAvatarProps extends CommonAvatarProps {
   user: User;
 }
 
-const StyledAvatar = styled(Avatar)`
-  background-color: ${cyan[500]};
-  color: ${cyan[900]};
-
+const StyledAvatar = styled.div`
   &.unselected {
     filter: grayscale(100%) opacity(40%);
   }
   &.selected {
-    -moz-box-shadow: 0 0 4px 2px #748dac;
-    -webkit-box-shadow: 0 0 4px 2px #748dac;
-    box-shadow: 0 0 4px 2px #748dac;
+    box-shadow: 0 0 4px 2px var(--mantine-color-primary-4);
   }
 `;
 
 export const UserAvatar: React.FC<UserAvatarProps> = ({ user, style, size, className, onClick }) =>
   user?.id ? (
     <StyledAvatar
-      style={{
-        ...style,
-        ...(size ? { width: size, height: size } : undefined),
-      }}
       className={className}
-      src={user.image}
+      style={style}
       onClick={event => onClick?.(user.id, event)}
     >
-      {user.image ? undefined : user.firstName.charAt(0)}
+      <MantineAvatar
+        src={user.image}
+        size={size ?? 'md'}
+        color="cyan"
+      >
+        {user.image ? undefined : user.firstName.charAt(0)}
+      </MantineAvatar>
     </StyledAvatar>
   ) : null;
 

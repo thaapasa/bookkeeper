@@ -1,5 +1,5 @@
-import { Button, Dialog, DialogContent, DialogTitle, Grid, IconButton } from '@mui/material';
-import { styled } from '@mui/system';
+import styled from '@emotion/styled';
+import { ActionIcon, Button, Modal } from '@mantine/core';
 import * as B from 'baconjs';
 import * as React from 'react';
 
@@ -8,15 +8,15 @@ import { ObjectId } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
 
 import { AsyncDataDialogContent } from '../component/AsyncDataDialog';
-import { connectDialog } from '../component/DialogConnector';
+import { connectDialog } from '../dialog/DialogConnector';
 import { Row } from '../component/Row';
 import { TextEdit } from '../component/TextEdit';
-import { UploadImageButton } from '../component/UploadFileButton';
+import { UploadImageButton } from '../component/UploadImageButton';
 import { Subtitle } from '../design/Text';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useForceReload } from '../hooks/useForceReload';
 import { Icons } from '../icons/Icons';
-import { Flex } from '../Styles';
+import { Flex } from '../GlobalStyles';
 import { useShortcutState } from './ShortcutEditorState';
 import { ShortcutLink } from './ShortcutLink';
 
@@ -33,14 +33,14 @@ const ShortcutDialogImpl: React.FC<{ shortcutId: ObjectId; onClose: () => void }
   const { counter, forceReload } = useForceReload();
   const data = useAsyncData(getShortcut, true, shortcutId, counter);
   return (
-    <Dialog fullWidth={true} open={true} onClose={onClose}>
+    <Modal opened={true} onClose={onClose} size="lg" title="">
       <AsyncDataDialogContent
         data={data}
         renderer={ShortcutEditView}
         onClose={onClose}
         reloadData={forceReload}
       />
-    </Dialog>
+    </Modal>
   );
 };
 
@@ -59,19 +59,19 @@ const ShortcutEditView: React.FC<{
 
   return (
     <>
-      <DialogTitle>Muokkaa linkkiä</DialogTitle>
-      <DialogContent>
-        <Grid container rowSpacing={1} justifyContent="space-between">
-          <Grid size={4}>Nimi</Grid>
-          <Grid size={8}>
-            <TextEdit value={state.title} onChange={state.setTitle} fullWidth />
-          </Grid>
-          <Grid size={4}>Taustaväri</Grid>
-          <Grid size={8}>
+      <h3 style={{ margin: '0 0 16px' }}>Muokkaa linkkiä</h3>
+      <div>
+        <EditorGrid>
+          <div>Nimi</div>
+          <div>
+            <TextEdit value={state.title} onChange={state.setTitle} />
+          </div>
+          <div>Taustaväri</div>
+          <div>
             <TextEdit value={state.background} onChange={state.setBackground} width="80px" />
-          </Grid>
-          <Grid size={4}>Linkin kuva</Grid>
-          <Grid size={8}>
+          </div>
+          <div>Linkin kuva</div>
+          <div>
             <Row>
               <ShortcutIcon title={state.title} icon={data.icon} background={state.background} />
               <Flex />
@@ -89,34 +89,33 @@ const ShortcutEditView: React.FC<{
               >
                 <Icons.Upload />
               </UploadImageButton>
-              <IconButton onClick={state.removeIcon} title="Poista kuva">
+              <ActionIcon variant="subtle" onClick={state.removeIcon} title="Poista kuva">
                 <Icons.Delete />
-              </IconButton>
+              </ActionIcon>
             </Row>
-          </Grid>
-          <Grid size={12}>
+          </div>
+          <div style={{ gridColumn: '1 / -1' }}>
             <Subtitle>Linkin data</Subtitle>
-          </Grid>
-          <Grid size={12}>
-            <TextEdit value={state.expenseStr} onChange={state.setExpense} multiline fullWidth />
-          </Grid>
-          <Grid size="auto">
-            <Button color="inherit" onClick={onClose}>
+          </div>
+          <div style={{ gridColumn: '1 / -1' }}>
+            <TextEdit value={state.expenseStr} onChange={state.setExpense} />
+          </div>
+          <div>
+            <Button variant="subtle" onClick={onClose}>
               Peruuta
             </Button>
-          </Grid>
-          <Grid size="auto">
+          </div>
+          <div style={{ textAlign: 'right' }}>
             <Button
-              color="primary"
-              variant="contained"
+              variant="filled"
               disabled={!state.inputValid()}
               onClick={() => state.saveShortcut(onClose)}
             >
               Tallenna
             </Button>
-          </Grid>
-        </Grid>
-      </DialogContent>
+          </div>
+        </EditorGrid>
+      </div>
     </>
   );
 };
@@ -124,6 +123,13 @@ const ShortcutEditView: React.FC<{
 const ShortcutIcon = styled(ShortcutLink)`
   margin: 0;
   margin-right: 4px;
+`;
+
+const EditorGrid = styled.div`
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px;
+  align-items: center;
 `;
 
 export const ShortcutEditor = connectDialog(shortcutBus, ShortcutDialogImpl);

@@ -1,39 +1,39 @@
-import { styled } from '@mui/material';
+import styled from '@emotion/styled';
 import * as React from 'react';
 
 import { Category } from 'shared/types';
 
-import { colorScheme } from '../Colors';
+import { neutral, primary } from '../Colors';
 import { Row } from '../component/Row';
 import { AddCategoryButton } from './CategoryTools';
 
 export const RowElement = styled(Row)`
   &.category-header {
-    background-color: ${colorScheme.primary.light};
+    background-color: ${neutral[1]};
   }
   &.main-category {
-    background-color: ${colorScheme.primary.dark};
+    background-color: ${neutral[4]};
   }
   &.sub-category {
-    background-color: ${colorScheme.primary.standard};
+    background-color: ${neutral[2]};
   }
 `;
 
-export const NameColumn = styled('div')`
+export const NameColumn = styled.div`
   flex: 1;
   padding-left: 16px;
   &.header {
     font-weight: bold;
   }
   .sub-category & {
-    color: ${colorScheme.secondary.dark};
+    color: ${primary[7]};
   }
   .main-category & {
     font-weight: bold;
   }
 `;
 
-export const SumColumn = styled('div')`
+export const SumColumn = styled.div`
   padding: 0;
   padding-right: 8px;
   white-space: nowrap;
@@ -43,12 +43,12 @@ export const SumColumn = styled('div')`
     font-weight: bold;
   }
   &.unimportant {
-    color: ${colorScheme.gray.dark};
+    color: ${neutral[5]};
     opacity: 0.5;
   }
 `;
 
-export const ToolColumn = styled('div')`
+export const ToolColumn = styled.div`
   padding-right: 12px;
   width: 70px;
   display: flex;
@@ -58,7 +58,7 @@ export const ToolColumn = styled('div')`
   white-space: nowrap;
 `;
 
-export const AllColumns = styled('div')`
+export const AllColumns = styled.div`
   flex: 1;
   padding: 0 16px;
 `;
@@ -69,7 +69,7 @@ export const CategoryHeader: React.FC<{ onAdd: (p?: Category) => void }> = ({ on
     <SumColumn className="header">Tulot</SumColumn>
     <SumColumn className="header">Kulut</SumColumn>
     <ToolColumn>
-      <AddCategoryButton onAdd={onAdd} color={colorScheme.gray.veryDark} icon="PlusCircle" />
+      <AddCategoryButton onAdd={onAdd} color={neutral[7]} icon="PlusCircle" />
     </ToolColumn>
   </RowElement>
 );

@@ -1,5 +1,5 @@
-import ClearIcon from '@mui/icons-material/Clear';
-import { Checkbox, FormControlLabel, FormGroup, Grid, IconButton } from '@mui/material';
+import styled from '@emotion/styled';
+import { ActionIcon, Checkbox, ScrollArea } from '@mantine/core';
 import * as B from 'baconjs';
 import React from 'react';
 import { z } from 'zod';
@@ -13,13 +13,13 @@ import { windowSizeP } from 'client/data/State';
 
 import { AsyncDataView } from '../component/AsyncDataView';
 import { connect } from '../component/BaconConnect';
-import { CategoryChipList } from '../component/CategoryChipList';
-import { CategorySelector } from '../component/CategorySelector';
+import { CategoryChipList } from '../category/CategoryChipList';
+import { CategorySelector } from '../category/CategorySelector';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useLocalStorageList } from '../hooks/useList';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { isMobileSize, PageContentContainer } from '../Styles';
-import { Size } from '../Types';
+import { Icons } from '../icons/Icons';
+import { isMobileSize, media, Size } from '../Styles';
 import { CategoryStatisticsChart } from './category/CategoryStatisticsChart';
 import { StatisticsChartTypeSelector } from './ChartTypeSelector';
 import { StatisticsChartRangeSelector } from './StatisticsChartRangeSelector';
@@ -102,41 +102,35 @@ export const StatisticsViewImpl: React.FC<{
 
   const isMobile = isMobileSize(size);
   return (
-    <PageContentContainer>
-      <Grid container columnSpacing={2} rowSpacing={1} padding="16px">
-        <Grid size={{ sm: 8, md: 5 }}>
+    <ScrollArea h="100%" type="auto" bg="neutral.1">
+      <StatsGrid>
+        <div>
           <CategorySelector addCategories={addCats} />
-          <FormGroup row>
-            <FormControlLabel
-              control={<Checkbox checked={stacked} onChange={() => setStacked(!stacked)} />}
-              label="Koosta alueet"
-            />
-            <FormControlLabel
-              control={<Checkbox checked={onlyOwn} onChange={() => setOnlyOwn(!onlyOwn)} />}
-              label="Vain omat kirjaukset"
-            />
-          </FormGroup>
-        </Grid>
-        <Grid size={{ sm: 4, md: 2 }}>
+          <CheckboxRow>
+            <Checkbox checked={stacked} onChange={() => setStacked(!stacked)} label="Koosta alueet" />
+            <Checkbox checked={onlyOwn} onChange={() => setOnlyOwn(!onlyOwn)} label="Vain omat kirjaukset" />
+          </CheckboxRow>
+        </div>
+        <div>
           <StatisticsChartTypeSelector selected={type} onChange={setType} row={isMobile} />
-        </Grid>
-        <Grid size={{ sm: 12, md: 5 }}>
+        </div>
+        <div>
           <StatisticsChartRangeSelector onChange={setRange} />
-        </Grid>
+        </div>
         {cats.length > 0 ? (
-          <Grid size={12}>
-            <IconButton color="primary" onClick={clearCats}>
-              <ClearIcon />
-            </IconButton>
+          <FullWidth>
+            <ActionIcon variant="subtle" onClick={clearCats}>
+              <Icons.Clear />
+            </ActionIcon>
             <CategoryChipList
               selected={cats}
               onDelete={removeCats}
               categoryMap={categoryMap}
               onExpand={expandCategory}
             />
-          </Grid>
+          </FullWidth>
         ) : null}
-        <Grid size={12}>
+        <FullWidth>
           <AsyncDataView
             data={data}
             renderer={CategoryStatisticsChart}
@@ -145,11 +139,30 @@ export const StatisticsViewImpl: React.FC<{
             uninitializedText="Valitse kategoria näyttääksesi tilastot"
             stacked={stacked}
           />
-        </Grid>
-      </Grid>
-    </PageContentContainer>
+        </FullWidth>
+      </StatsGrid>
+    </ScrollArea>
   );
 };
+
+const StatsGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px 16px;
+  padding: 16px;
+  ${media.web`grid-template-columns: 5fr 2fr 5fr;`}
+`;
+
+const FullWidth = styled.div`
+  grid-column: 1 / -1;
+`;
+
+const CheckboxRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  flex-wrap: wrap;
+`;
 
 export const StatisticsView = connect(
   B.combineTemplate({ categoryMap: categoryMapP, size: windowSizeP }),

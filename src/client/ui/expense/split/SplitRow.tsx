@@ -1,5 +1,4 @@
-import { Save } from '@mui/icons-material';
-import { Grid, styled } from '@mui/material';
+import styled from '@emotion/styled';
 import * as React from 'react';
 
 import { ExpenseSplit } from 'shared/expense';
@@ -33,21 +32,21 @@ export const SplitRow: React.FC<SplitRowProps> = props => {
   return edit ? (
     <SplitEditor {...props} close={toggleEdit} />
   ) : (
-    <>
-      <Grid size={3}>{split.title}</Grid>{' '}
-      <Grid size={4}>
+    <SplitGrid>
+      <div style={{ gridColumn: 'span 3' }}>{split.title}</div>
+      <div style={{ gridColumn: 'span 4' }}>
         {split.categoryId
           ? getFullCategoryName(split.categoryId, categoryMap)
-          : 'Valitse kategoria'}{' '}
-      </Grid>
-      <RGrid size={2}>
+          : 'Valitse kategoria'}
+      </div>
+      <RelDiv style={{ gridColumn: 'span 2' }}>
         {split.sourceId ? <SourceIcon source={sourceMap[split.sourceId]} /> : null}
         <FootNote>
           <UserSelector selected={split.benefit} />
         </FootNote>
-      </RGrid>
-      <Grid size={2}>{Money.from(split.sum).format()}</Grid>
-      <Grid container size={1} justifyContent="flex-end">
+      </RelDiv>
+      <div style={{ gridColumn: 'span 2' }}>{Money.from(split.sum).format()}</div>
+      <div style={{ gridColumn: 'span 1', display: 'flex', justifyContent: 'flex-end' }}>
         <ToolIconButton onClick={toggleEdit}>
           <Icons.Edit />
         </ToolIconButton>
@@ -56,8 +55,8 @@ export const SplitRow: React.FC<SplitRowProps> = props => {
             <Icons.Delete />
           </ToolIconButton>
         ) : null}
-      </Grid>
-    </>
+      </div>
+    </SplitGrid>
   );
 };
 
@@ -107,8 +106,8 @@ const SplitEditor: React.FC<SplitRowProps & { close: () => void }> = ({
   };
 
   return (
-    <>
-      <Grid size={5}>
+    <SplitGrid>
+      <div style={{ gridColumn: 'span 5' }}>
         <TitleField
           id="split-title"
           value={title}
@@ -116,41 +115,51 @@ const SplitEditor: React.FC<SplitRowProps & { close: () => void }> = ({
           onChange={setTitle}
           dataSource={categorySource}
         />
-      </Grid>
-      <Grid size={4}>{catId ? getFullCategoryName(catId, categoryMap) : 'Valitse kategoria'}</Grid>
-      <Grid size={2}>
+      </div>
+      <div style={{ gridColumn: 'span 4' }}>
+        {catId ? getFullCategoryName(catId, categoryMap) : 'Valitse kategoria'}
+      </div>
+      <div style={{ gridColumn: 'span 2' }}>
         {editSum ? <SumField value={sum} onChange={setSum} /> : Money.from(sum).format()}
-      </Grid>
-      <Grid size={1} container justifyContent="flex-end">
+      </div>
+      <div style={{ gridColumn: 'span 1', display: 'flex', justifyContent: 'flex-end' }}>
         <ToolIconButton onClick={save} disabled={!allValid}>
-          <Save />
+          <Icons.Save />
         </ToolIconButton>
         {editSum ? (
           <ToolIconButton onClick={() => removeSplit(splitIndex)}>
             <Icons.Delete />
           </ToolIconButton>
         ) : null}
-      </Grid>
-      <Grid size={7}>
+      </div>
+      <div style={{ gridColumn: 'span 7' }}>
         <SourceSelector
           sources={sources}
           value={sourceId ?? 0}
           onChange={setSourceId}
           title="Lähde"
         />
-      </Grid>
-      <Grid size={5}>
+      </div>
+      <div style={{ gridColumn: 'span 5' }}>
         <UserSelector selected={benefit} onChange={setBenefit} />
-      </Grid>
-    </>
+      </div>
+    </SplitGrid>
   );
 };
 
-const RGrid = styled(Grid)`
+const SplitGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+`;
+
+const RelDiv = styled.div`
   position: relative;
 `;
 
-const FootNote = styled('div')`
+const FootNote = styled.div`
   position: absolute;
   right: 0;
   bottom: 0;

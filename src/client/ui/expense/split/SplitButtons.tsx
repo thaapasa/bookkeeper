@@ -1,4 +1,5 @@
-import { Button, Grid } from '@mui/material';
+import styled from '@emotion/styled';
+import { Button } from '@mantine/core';
 import * as React from 'react';
 
 import { isDefined } from 'shared/types';
@@ -11,27 +12,32 @@ export const SplitButtons: React.FC<{
   onClose: () => void;
   splitExpense: (() => void) | undefined;
 }> = ({ addRow, onClose, splitExpense }) => (
-  <>
-    <Grid size={4} container justifyContent="flex-start">
-      <Button startIcon={<Icons.Add />} variant="contained" color="secondary" onClick={addRow}>
+  <ButtonGrid>
+    <div style={{ justifySelf: 'start' }}>
+      <Button leftSection={<Icons.Add />} variant="filled" color="gray" onClick={addRow}>
         Lisää rivi
       </Button>
-    </Grid>
-    <Grid size={4} container justifyContent="center">
-      <Button startIcon={<Icons.Cancel />} variant="outlined" onClick={onClose}>
+    </div>
+    <div style={{ justifySelf: 'center' }}>
+      <Button leftSection={<Icons.Cancel />} variant="outline" onClick={onClose}>
         Peruuta
       </Button>
-    </Grid>
-    <Grid size={4} container justifyContent="flex-end">
+    </div>
+    <div style={{ justifySelf: 'end' }}>
       <Button
-        startIcon={<Icons.Split />}
-        variant="contained"
-        color="primary"
+        leftSection={<Icons.Split />}
+        variant="filled"
         disabled={!isDefined(splitExpense)}
         onClick={splitExpense}
       >
         Pilko
       </Button>
-    </Grid>
-  </>
+    </div>
+  </ButtonGrid>
 );
+
+const ButtonGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  width: 100%;
+`;

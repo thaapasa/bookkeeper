@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { Flex, ScrollArea } from '@mantine/core';
 import * as B from 'baconjs';
 import React from 'react';
 import { useParams } from 'react-router';
@@ -17,7 +18,6 @@ import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useForceReload } from '../hooks/useForceReload';
 import { TotalsView } from '../search/TotalsView';
-import { PageContentContainer } from '../Styles';
 import { GroupingCategoryChart } from './GroupingCategoryChart';
 
 export const GroupingExpensesPage: React.FC = () => {
@@ -26,13 +26,15 @@ export const GroupingExpensesPage: React.FC = () => {
   const expenses = useAsyncData(loadExpenses, !!groupingId, Number(groupingId), counter);
   React.useEffect(() => needUpdateE.onValue(forceReload), [forceReload]);
   return (
-    <PageContentContainer className="center">
-      <AsyncDataView
-        data={expenses}
-        renderer={ConnectedGroupingExpensesRenderer}
-        reloadExpenses={forceReload}
-      />
-    </PageContentContainer>
+    <ScrollArea h="100%" type="auto" bg="neutral.1">
+      <Flex direction="column" align="center">
+        <AsyncDataView
+          data={expenses}
+          renderer={ConnectedGroupingExpensesRenderer}
+          reloadExpenses={forceReload}
+        />
+      </Flex>
+    </ScrollArea>
   );
 };
 

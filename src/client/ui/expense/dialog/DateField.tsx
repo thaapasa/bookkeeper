@@ -1,4 +1,4 @@
-import { DatePicker } from '@mui/x-date-pickers';
+import { DatePickerInput } from '@mantine/dates';
 import { DateTime } from 'luxon';
 import * as React from 'react';
 
@@ -7,23 +7,26 @@ interface DateFieldProps {
   onChange: (date: DateTime) => void;
 }
 
-export const datePickerFormat = 'dd.MM.yyyy';
+export const datePickerFormat = 'DD.MM.YYYY';
 
 export const DateField: React.FC<DateFieldProps> = ({ value, onChange }) => {
   const changeHandler = React.useCallback(
-    (date: DateTime | null) => {
-      if (date?.isValid) {
-        onChange(date);
+    (date: string | null) => {
+      if (date) {
+        const dt = DateTime.fromISO(date);
+        if (dt.isValid) {
+          onChange(dt);
+        }
       }
     },
     [onChange],
   );
 
   return (
-    <DatePicker
+    <DatePickerInput
       label="Päivämäärä"
-      format={datePickerFormat}
-      value={value}
+      valueFormat="DD.MM.YYYY"
+      value={value.toISODate()}
       onChange={changeHandler}
     />
   );
