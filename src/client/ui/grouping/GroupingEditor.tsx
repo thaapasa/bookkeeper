@@ -143,7 +143,7 @@ const GroupingEditView: React.FC<{
                 <Icons.Add fontSize="small" />
               </ActionIcon>
             </ToolIconArea>
-            <Subtitle className="small">Kategoriat</Subtitle>
+            <Subtitle order={3}>Kategoriat</Subtitle>
             {state.categories.map(c => (
               <CategorySelection id={c} key={c} categoryMap={categoryMap} />
             ))}

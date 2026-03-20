@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { ActionIcon, Select } from '@mantine/core';
+import { ActionIcon, Group, Select } from '@mantine/core';
 import * as React from 'react';
 
 import { ExpenseType, expenseTypes, getExpenseTypeLabel } from 'shared/expense';
@@ -8,7 +8,6 @@ import { Money, sanitizeMoneyInput } from 'shared/util';
 import { TextEdit } from 'client/ui/component/TextEdit';
 import { ExpenseTypeIcon } from 'client/ui/icons/ExpenseType';
 import { Icons } from 'client/ui/icons/Icons';
-import { VCenterRow } from 'client/ui/Styles';
 
 export const SumField: React.FC<{
   value: string;
@@ -72,12 +71,12 @@ export const TypeSelector: React.FC<{
   }, [onChange, value]);
 
   return (
-    <VCenterRow>
+    <Group>
       <ActionIcon variant="subtle" onClick={toggle}>
         <ExpenseTypeIcon type={value} size={24} />
       </ActionIcon>
       {getExpenseTypeLabel(value)}
-    </VCenterRow>
+    </Group>
   );
 };
 

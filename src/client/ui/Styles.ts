@@ -1,5 +1,6 @@
 import { css } from '@emotion/react';
 import styled from '@emotion/styled';
+import { Group } from '@mantine/core';
 
 import { neutral } from './Colors';
 import { Size } from './Types';
@@ -108,15 +109,8 @@ export const media = {
   `,
 };
 
-export const VCenterRow = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  &.fill {
-    justify-content: space-between;
-  }
-`;
+/** @deprecated Use Mantine Group directly */
+export const VCenterRow = Group;
 
 export const Flex = styled.div`
   flex: 1;
@@ -130,7 +124,6 @@ export const Pre = styled.div`
 
 export const PageContentContainer = styled.div`
   position: relative;
-  font-size: var(--mantine-font-size-sm);
   display: flex;
   height: 100%;
   flex-direction: column;

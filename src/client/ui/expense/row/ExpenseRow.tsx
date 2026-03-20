@@ -292,7 +292,7 @@ export class ExpenseRowImpl extends React.Component<ExpenseRowProps, ExpenseRowS
             />
           </SourceColumn>
           <SumColumn className={expense.type}>
-            <VCenterRow className="fill">
+            <VCenterRow justify="space-between">
               <ExpenseTypeIcon
                 type={expense.type}
                 color={primary[7]}

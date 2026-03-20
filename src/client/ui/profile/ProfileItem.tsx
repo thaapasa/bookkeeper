@@ -1,20 +1,19 @@
 import styled from '@emotion/styled';
+import { Text } from '@mantine/core';
 import React from 'react';
-
-import { Text } from '../design/Text';
 
 export const ProfileItem: React.FC<
   React.PropsWithChildren<{ title?: string; labelFor?: string }>
 > = ({ title, children, labelFor }) => (
   <>
     <LabelCell>
-      <Label htmlFor={labelFor}>{title}</Label>
+      <Text component="label" htmlFor={labelFor}>
+        {title}
+      </Text>
     </LabelCell>
     <DataCell>{children}</DataCell>
   </>
 );
-
-const Label = Text.withComponent('label');
 
 const LabelCell = styled.div`
   display: flex;
