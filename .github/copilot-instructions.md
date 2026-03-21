@@ -22,7 +22,7 @@ bun dump-schema          # Dump DB schema to docs/SCHEMA.sql
 
 Monorepo with shared types between client and server. All code is TypeScript, run with Bun.
 
-- `src/client/` — React 19 frontend (MUI 7, Emotion, Zustand, Bacon.js)
+- `src/client/` — React 19 frontend (Mantine 8, Zustand, Bacon.js legacy)
 - `src/server/` — Express backend (pg-promise, Pino logging)
 - `src/shared/` — Shared types, Zod schemas, and utilities
 - `src/integration/` — Integration tests (require running dev server)
@@ -65,22 +65,48 @@ const result = await tx.oneOrNone<MyType>(
 
 Query methods: `one()`, `oneOrNone()`, `many()`, `manyOrNone()`, `none()`, `map()`.
 
-### Frontend: Component Pattern
+### Frontend: UI Framework (Mantine 8)
 
-Functional components with MUI styled API. Styling uses Emotion tagged templates:
+**The codebase is being migrated from MUI/Emotion to Mantine 8.** Much of the existing
+UI code still uses the old stack (Emotion `styled`, MUI components, custom CSS). This
+old code is legacy — do NOT use it as an example for new code.
 
-```typescript
-export const MyComponent: React.FC<Props> = ({ title }) => {
-  return <Container>{title}</Container>;
-};
+#### Rules for new and modified UI code
 
-const Container = styled('div')`
-  padding: 16px;
-  ${media.mobile`padding: 8px;`}
-`;
-```
+1. **Use Mantine components** (`Text`, `Group`, `Stack`, `Box`, `ActionIcon`, `Button`,
+   `Paper`, `Container`, `ScrollArea`, `AppShell`, etc.) instead of raw HTML elements
+   or custom styled wrappers.
+2. **Use Mantine style props** (`p`, `m`, `fz`, `fw`, `c`, `bg`, `w`, `h`, etc.) for
+   simple styling. These go directly on Mantine components.
+3. **Use Mantine `style` prop** for one-off CSS properties not covered by style props.
+4. **Only use custom CSS (Emotion `styled` or CSS files) when clearly required** — for
+   example, complex pseudo-elements, the app's custom media-query breakpoints
+   (`media.mobile`, `media.mobilePortrait`), or CSS patterns like diagonal stripes that
+   have no Mantine equivalent.
+5. **Do NOT create new Emotion `styled` wrappers** for things Mantine handles natively
+   (padding, margins, colors, font sizes, flex layout, visibility, etc.).
+6. **Do NOT wrap Mantine components with `styled()`** — Emotion's `styled()` does not
+   forward Mantine's polymorphic props correctly. Use `styled.div` / `styled.span` if
+   you must use Emotion, or prefer Mantine's `style`/`styles` props.
+7. **Replace legacy patterns when touching a file.** If you're modifying a component that
+   uses `styled` for simple layout, convert those parts to Mantine as part of the change.
 
-Responsive helpers: `media.mobile` (<840px), `media.web` (≥600px), `media.largeDevice` (≥1400px).
+#### What "legacy code" looks like (don't copy these patterns)
+
+- `import styled from '@emotion/styled'` with simple layout wrappers
+- `import { Button, Box } from '@mui/material'` (MUI imports)
+- Custom `VCenterRow`, `Flex` from `GlobalStyles.ts` — use Mantine `Group` / `Flex`
+- `PageContentContainer` — deleted, use `ScrollArea`
+- Inline style objects for margins/padding — use Mantine style props
+
+#### Mantine reference
+
+- Theme: `src/client/ui/theme/mantineTheme.ts` — custom colors (`primary`, `neutral`,
+  `action`, `income`), dark mode via virtualColor
+- Layout: `BookkeeperPage.tsx` — `AppShell` + `Container` (no card wrapper)
+- Custom breakpoints: The app uses `media.mobile` (< 840px) and `media.mobilePortrait`
+  (< 600px) from `client/ui/Styles`. These do NOT match Mantine's built-in breakpoints,
+  so use Emotion `styled` + `media.*` for responsive hiding at these thresholds.
 
 ### Frontend: State & Data
 
@@ -126,7 +152,7 @@ throw new AuthenticationError('Session expired');
 Enforced by eslint-plugin-simple-import-sort:
 
 1. Side effects
-2. External packages (`@mui/material`, `react`, etc.)
+2. External packages (`@mantine/core`, `react`, etc.)
 3. Other absolute imports
 4. Internal aliases (`shared/`, `client/`, `server/`)
 5. Relative imports (`./`, `../`)
@@ -146,7 +172,7 @@ Client: Simple logger from `client/Logger`.
 2. Create DB functions in `src/server/data/`
 3. Add API endpoint in `src/server/api/`
 4. Add API client method in `src/client/data/ApiConnect.ts`
-5. Create UI components in `src/client/ui/<feature>/`
+5. Create UI components in `src/client/ui/<feature>/` (use Mantine components)
 6. Create migration if needed: `bun migrate-make <name>`
 7. Run `bun lint` to verify
 

@@ -23,7 +23,6 @@ import {
 } from 'client/util/Links';
 
 import { RoutedCategoryView } from '../category/RoutedCategoryView';
-
 import MenuDrawer from '../component/MenuDrawer';
 import { NotificationBar } from '../component/NotificationBar';
 import { appLinks, TopBar } from '../component/TopBar';
@@ -76,36 +75,34 @@ export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
               style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
             >
               <Routes>
-                  <Route
-                    path={expenseMonthPathPattern('date') + '/*'}
-                    element={<RoutedMonthView />}
-                  />
-                  <Route path={expensePagePath + '/*'} element={<RoutedMonthView />} />
-                  <Route path={categoryViewYearPattern('year')} element={<RoutedCategoryView />} />
-                  <Route
-                    path={categoryViewMonthPattern('month')}
-                    element={<RoutedCategoryView />}
-                  />
-                  <Route path={shortcutsPagePath + '/*'} element={<ShortcutsPage />} />
-                  <Route path={subscriptionsPagePath} element={<SubscriptionsPage />} />
-                  <Route path={categoryPagePath} element={<RoutedCategoryView />} />
-                  <Route path={`${searchPagePath}/m/:month`} element={<SearchPage />} />
-                  <Route path={`${searchPagePath}/y/:year`} element={<SearchPage />} />
-                  <Route path={searchPagePath} element={<SearchPage />} />
-                  <Route path={statisticsPage} element={<StatisticsView />} />
-                  <Route path={profilePagePath + '/*'} element={<ProfileView />} />
-                  <Route path={infoPagePath} element={<InfoView />} />
-                  <Route path={trackingPagePath} element={<TrackingPage />} />
-                  <Route path={groupingsPagePath} element={<GroupingPage />} />
-                  <Route
-                    path={`${groupingsPagePath}/:groupingId`}
-                    element={<GroupingExpensesPage />}
-                  />
-                  <Route path={toolsPagePath} element={<ToolsView />} />
-                  <Route path={'/p/*'} element={<FrontpageView />} />
-                  <Route path="/" element={<FrontpageView />} />
-                  <Route element={<PathNotFoundError />} />
-                </Routes>
+                <Route
+                  path={expenseMonthPathPattern('date') + '/*'}
+                  element={<RoutedMonthView />}
+                />
+                <Route path={expensePagePath + '/*'} element={<RoutedMonthView />} />
+                <Route path={categoryViewYearPattern('year')} element={<RoutedCategoryView />} />
+                <Route path={categoryViewMonthPattern('month')} element={<RoutedCategoryView />} />
+                <Route path={shortcutsPagePath + '/*'} element={<ShortcutsPage />} />
+                <Route path={subscriptionsPagePath} element={<SubscriptionsPage />} />
+                <Route path={categoryPagePath} element={<RoutedCategoryView />} />
+                <Route path={`${searchPagePath}/m/:month`} element={<SearchPage />} />
+                <Route path={`${searchPagePath}/y/:year`} element={<SearchPage />} />
+                <Route path={searchPagePath} element={<SearchPage />} />
+
+                <Route path={statisticsPage} element={<StatisticsView />} />
+                <Route path={profilePagePath + '/*'} element={<ProfileView />} />
+                <Route path={infoPagePath} element={<InfoView />} />
+                <Route path={trackingPagePath} element={<TrackingPage />} />
+                <Route path={groupingsPagePath} element={<GroupingPage />} />
+                <Route
+                  path={`${groupingsPagePath}/:groupingId`}
+                  element={<GroupingExpensesPage />}
+                />
+                <Route path={toolsPagePath} element={<ToolsView />} />
+                <Route path={'/p/*'} element={<FrontpageView />} />
+                <Route path="/" element={<FrontpageView />} />
+                <Route element={<PathNotFoundError />} />
+              </Routes>
             </Container>
           </AppShell.Main>
         </AppShell>
