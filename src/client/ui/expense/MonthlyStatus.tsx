@@ -158,8 +158,8 @@ const StatusContainer = styled.div`
   display: flex;
   justify-content: flex-end;
   font-size: var(--mantine-font-size-sm);
-  border-top: 1px solid ${neutral[3]};
-  border-collapse: collapse;
+  border-top: 1px solid var(--mantine-color-default-border);
+  background-color: var(--mantine-color-default-hover);
   margin: 0 16px;
   &.expanded {
     height: 150px;

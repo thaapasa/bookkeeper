@@ -1,4 +1,4 @@
-import { AppShell, Container, Paper } from '@mantine/core';
+import { AppShell, Container } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import * as React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
@@ -23,7 +23,7 @@ import {
 } from 'client/util/Links';
 
 import { RoutedCategoryView } from '../category/RoutedCategoryView';
-import { neutral } from '../Colors';
+
 import MenuDrawer from '../component/MenuDrawer';
 import { NotificationBar } from '../component/NotificationBar';
 import { appLinks, TopBar } from '../component/TopBar';
@@ -64,8 +64,8 @@ export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
       <ExpenseSplitBinder windowSize={windowSize} />
       <ModalDialogConnector />
       <Router>
-        <AppShell header={{ height: 56 }} padding={{ base: 0, sm: 'md' }} bg={neutral[1]}>
-          <AppShell.Header bg={neutral[4]}>
+        <AppShell header={{ height: 56 }} padding={{ base: 0, sm: 'md' }}>
+          <AppShell.Header>
             <TopBar windowSize={windowSize} menuOpen={menuOpen} onToggleMenu={toggleMenu} />
           </AppShell.Header>
 
@@ -75,13 +75,7 @@ export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
               p={0}
               style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
             >
-              <Paper
-                shadow="md"
-                bg="var(--mantine-color-default)"
-                flex={1}
-                style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
-              >
-                <Routes>
+              <Routes>
                   <Route
                     path={expenseMonthPathPattern('date') + '/*'}
                     element={<RoutedMonthView />}
@@ -112,7 +106,6 @@ export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
                   <Route path="/" element={<FrontpageView />} />
                   <Route element={<PathNotFoundError />} />
                 </Routes>
-              </Paper>
             </Container>
           </AppShell.Main>
         </AppShell>
