@@ -3,8 +3,6 @@ import * as React from 'react';
 
 import { Source } from 'shared/types';
 
-import { sourceWidth } from './ExpenseTableLayout';
-
 export const SourceIcon: React.FC<{
   source: Source;
   onClick?: () => void;
@@ -24,8 +22,8 @@ export const SourceIcon: React.FC<{
 };
 
 const SourceImage = styled.img`
-  max-width: ${sourceWidth}px;
-  max-height: 34px;
+  max-width: 40px;
+  max-height: 28px;
 `;
 
 export const TextButton = styled.button`
