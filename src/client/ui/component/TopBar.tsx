@@ -90,7 +90,7 @@ const NavLink: React.FC<{ link: AppLink; showIcon: boolean }> = ({ link, showIco
     <HeaderLink to={link.path} $active={active}>
       <Group gap="xs" wrap="nowrap" align="center">
         {showIcon && link.icon && <RenderIcon icon={link.icon} fontSize="small" />}
-        <Text size="sm" fw={active ? 600 : 400} inherit={false}>
+        <Text size="md" fw={active ? 600 : 400} inherit={false}>
           {link.label}
         </Text>
       </Group>

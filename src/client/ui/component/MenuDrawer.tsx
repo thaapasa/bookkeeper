@@ -163,7 +163,7 @@ const MenuItemRow = styled.div`
   padding: 10px ${px}px;
   cursor: pointer;
   border-radius: var(--mantine-radius-sm);
-  font-size: var(--mantine-font-size-sm);
+  font-size: var(--mantine-font-size-md);
 
   &:hover {
     background-color: ${neutral[1]};

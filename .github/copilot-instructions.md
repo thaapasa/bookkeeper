@@ -103,6 +103,8 @@ old code is legacy — do NOT use it as an example for new code.
 
 - Theme: `src/client/ui/theme/mantineTheme.ts` — custom colors (`primary`, `neutral`,
   `action`, `income`), dark mode via virtualColor
+- Font sizes: Smaller than Mantine defaults (xs=10, sm=12, md=14, lg=16, xl=18).
+  Use `md` for normal UI text, `sm` for dense data tables, `xs` for minor labels.
 - Layout: `BookkeeperPage.tsx` — `AppShell` + `Container` (no card wrapper)
 - Custom breakpoints: The app uses `media.mobile` (< 840px) and `media.mobilePortrait`
   (< 600px) from `client/ui/Styles`. These do NOT match Mantine's built-in breakpoints,

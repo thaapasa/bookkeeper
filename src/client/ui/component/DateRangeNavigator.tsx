@@ -52,7 +52,7 @@ const DateRangeNavigatorImpl: React.FC<React.PropsWithChildren<DateRangeNavigato
       >
         <Icons.ChevronLeft color="primary" />
       </ActionIcon>
-      <Text size="sm" w={140} ta="center">
+      <Text size="md" w={140} ta="center">
         {toDateRangeName(dateRange)}
       </Text>
       <ActionIcon
