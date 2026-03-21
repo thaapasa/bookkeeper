@@ -15,8 +15,8 @@ import { createTheme, DEFAULT_THEME, MantineColorsTuple, virtualColor } from '@m
  * Components use: color="primary", var(--mantine-color-primary-5), etc.
  * To change the app's accent color, just change the `light`/`dark` targets below.
  *
- * Font sizes follow Mantine defaults:
- *   xs=12px, sm=14px, md=16px, lg=18px, xl=20px
+ * Font sizes (smaller than Mantine defaults for compact UI):
+ *   xs=10px, sm=12px, md=14px, lg=16px, xl=18px
  */
 
 // Reverse the dark scale so low indices = dark (backgrounds) and high = light (text)
@@ -43,6 +43,13 @@ export const mantineTheme = createTheme({
     neutral: virtualColor({ name: 'neutral', light: 'gray', dark: 'darkReversed' }),
   },
   fontFamily: "'Inter', sans-serif",
+  fontSizes: {
+    xs: '0.625rem',
+    sm: '0.75rem',
+    md: '0.875rem',
+    lg: '1rem',
+    xl: '1.125rem',
+  },
   headings,
   defaultRadius: 'sm',
 });
