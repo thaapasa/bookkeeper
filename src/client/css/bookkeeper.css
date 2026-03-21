@@ -11,10 +11,10 @@ html, body {
 }
 
 /* Expense table: responsive column widths */
-.col-date { width: 60px; }
+.col-date { width: 72px; }
 .col-tools { width: 100px; white-space: nowrap; }
 @media (max-width: 839px) {
-    .col-date { width: 40px; }
+    .col-date { width: 48px; }
     .col-tools { width: 33px; overflow: hidden; }
 }
 

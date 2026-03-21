@@ -9,7 +9,7 @@ import { AllColumns, Row } from './ExpenseTableLayout';
 export const WeekHeaderRow: React.FC<{ week: string }> = ({ week }) => (
   <Row>
     <WeekData>
-      <Text span fz="xs" fw={700}>
+      <Text span fz="md" fw={700}>
         Viikko {week}
       </Text>
     </WeekData>

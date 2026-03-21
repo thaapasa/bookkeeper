@@ -97,7 +97,9 @@ export const DateColumn: React.FC<ColumnProps> = props => (
   <Table.Td ta="right" pos="relative" className={cx('col-date', props.className)} {...props} />
 );
 
-export const AvatarColumn: React.FC<ColumnProps> = props => <Table.Td px={8} pt={2} {...props} />;
+export const AvatarColumn: React.FC<ColumnProps> = props => (
+  <Table.Td px={8} pt={2} style={{ overflow: 'visible' }} {...props} />
+);
 
 export const NameColumn: React.FC<ColumnProps> = props => (
   <Table.Td pos="relative" pl={4} {...props} />

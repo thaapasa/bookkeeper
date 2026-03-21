@@ -9,11 +9,11 @@ export function ExpenseHeader() {
       <Table.Th ta="right" className="col-date">
         Pvm
       </Table.Th>
-      <Table.Th px={8} w={32} />
+      <Table.Th px={8} w={48} />
       <Table.Th pl={4}>Nimi</Table.Th>
       <Table.Th className="hide-on-mobile-portrait">Kohde</Table.Th>
       <Table.Th className="hide-on-mobile-portrait">Kategoria</Table.Th>
-      <Table.Th p={4} w={sourceWidth + 8} className="hide-on-mobile">
+      <Table.Th p={4} w={sourceWidth + 16} className="hide-on-mobile">
         Lähde
       </Table.Th>
       <Table.Th ta="right" pr={8} w={100}>
