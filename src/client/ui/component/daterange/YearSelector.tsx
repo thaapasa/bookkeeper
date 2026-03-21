@@ -20,11 +20,7 @@ export const YearSelector: React.FC<YearSelectorProps> = ({ year, onSelect }) =>
       <StyledIconButton onClick={() => onSelect(year - 1)} title="Edellinen">
         <Icons.ChevronLeft color="primary" />
       </StyledIconButton>
-      <NumberInput
-        className="year"
-        value={String(year)}
-        onChange={changeYear}
-      />
+      <NumberInput className="year" value={String(year)} onChange={changeYear} />
       <StyledIconButton onClick={() => onSelect(year + 1)} title="Seuraava">
         <Icons.ChevronRight color="primary" />
       </StyledIconButton>

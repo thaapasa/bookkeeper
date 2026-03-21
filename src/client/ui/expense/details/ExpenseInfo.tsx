@@ -1,9 +1,8 @@
-import styled from '@emotion/styled';
+import { Box } from '@mantine/core';
 import * as React from 'react';
 
 import { ExpenseDivisionItem, UserExpense } from 'shared/expense';
 import { Source, User } from 'shared/types';
-import { neutral } from 'client/ui/Colors';
 
 import { AllColumns, LoadingIndicator, Row } from '../row/ExpenseTableLayout';
 import { BasicData } from './BasicData';
@@ -33,27 +32,19 @@ export const ExpenseInfo: React.FC<ExpenseInfoProps> = ({
   }
   return (
     <Row>
-      <AllColumns className="dark">
-        <ExpenseInfoContainer className="expense-info-container">
+      <AllColumns style={{ backgroundColor: 'var(--mantine-color-primary-7)' }}>
+        <Box pos="relative" ml={16} bg="neutral.1">
           <BasicData expense={expense} {...props} />
           <RecurrenceInfo expense={expense} />
-          {expense.description ? <Description>{expense.description}</Description> : null}
+          {expense.description ? (
+            <Box bg="neutral.1" w="100%" p="12px 16px">
+              {expense.description}
+            </Box>
+          ) : null}
           <DivisionInfo division={division} expenseType={expense.type} />
           <ExpenseInfoTools division={division} expense={expense} {...props} />
-        </ExpenseInfoContainer>
+        </Box>
       </AllColumns>
     </Row>
   );
 };
-
-const ExpenseInfoContainer = styled.div`
-  position: relative;
-  margin-left: 16px;
-  background-color: ${neutral[1]};
-`;
-
-const Description = styled.div`
-  background-color: ${neutral[1]};
-  width: 100%;
-  padding: 12px 16px;
-`;

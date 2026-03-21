@@ -104,5 +104,8 @@ const SumArea = styled.div`
 export const ExpenseDialogContent = styled.div<{ dividers?: boolean }>`
   overflow-y: auto;
   padding: 16px 24px;
-  ${p => (p.dividers ? `border-top: 1px solid var(--mantine-color-default-border); border-bottom: 1px solid var(--mantine-color-default-border);` : '')}
+  ${p =>
+    p.dividers
+      ? `border-top: 1px solid var(--mantine-color-default-border); border-bottom: 1px solid var(--mantine-color-default-border);`
+      : ''}
 `;

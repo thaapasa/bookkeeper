@@ -60,7 +60,11 @@ export const SubscriptionCriteriaSelector: React.FC<{
   return (
     <CriteriaGrid>
       <FilterGroup>
-        <Checkbox checked={includeEnded} onChange={() => setIncludeEnded(!includeEnded)} label="Myös loppuneet" />
+        <Checkbox
+          checked={includeEnded}
+          onChange={() => setIncludeEnded(!includeEnded)}
+          label="Myös loppuneet"
+        />
         <Checkbox checked={onlyOwn} onChange={() => setOnlyOwn(!onlyOwn)} label="Vain omat" />
       </FilterGroup>
       <FilterGroup style={{ justifyContent: 'center' }}>

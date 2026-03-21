@@ -60,7 +60,7 @@ const ExpenseYear: React.FC<ResultsProps & { year: string }> = ({ results, year,
 );
 
 const ExpenseList: React.FC<ResultsProps> = ({ results, onUpdate, onSelectCategory, userData }) => (
-  <ExpenseTableLayout className="padding">
+  <ExpenseTableLayout padded>
     <tbody>
       {results.map(e => (
         <ExpenseRow

@@ -1,5 +1,4 @@
-import styled from '@emotion/styled';
-import { Flex, ScrollArea } from '@mantine/core';
+import { Box, Flex, ScrollArea } from '@mantine/core';
 import * as React from 'react';
 
 import { Expense, ExpenseStatus, UserExpense } from 'shared/expense';
@@ -8,7 +7,6 @@ import { userDataP, UserDataProps } from 'client/data/Categories';
 
 import { connect } from '../component/BaconConnect';
 import { ListDecorator } from '../component/ListDecorator';
-import { media } from '../Styles';
 import { ExpenseTotals } from './ExpenseHelper';
 import { MonthlyStatus } from './MonthlyStatus';
 import { ExpenseFilterRow } from './row/ExpenseFilterRow';
@@ -143,15 +141,15 @@ class ExpenseTable extends React.Component<ExpenseTableProps, ExpenseTableState>
     return (
       <Flex direction="column" h="100%">
         <ScrollArea flex={1} type="auto">
-          <ExpenseContent>
-            <ExpenseTableLayout className={this.props.loading ? 'loading' : ''}>
+          <Box px={{ base: 0, sm: 16 }} style={{ whiteSpace: 'nowrap' }}>
+            <ExpenseTableLayout loading={this.props.loading}>
               <thead>
                 <ExpenseHeader />
                 <ExpenseFilterRow filters={this.state.filters} onRemoveFilter={this.removeFilter} />
               </thead>
               <tbody>{this.renderExpenseRows()}</tbody>
             </ExpenseTableLayout>
-          </ExpenseContent>
+          </Box>
         </ScrollArea>
         <MonthlyStatus
           {...this.props}
@@ -176,14 +174,6 @@ const ExpenseItem: React.FC<
     dateBorder?: boolean;
   } & Omit<CommonExpenseRowProps, 'expense'>
 > = ({ item, ...props }) => <ExpenseRow expense={item} {...props} />;
-
-const ExpenseContent = styled.div`
-  padding: 0 16px;
-  white-space: nowrap;
-  ${media.mobile`
-    padding: 0;
-  `}
-`;
 
 function expenseToKey(e: Expense) {
   return String(e.id);

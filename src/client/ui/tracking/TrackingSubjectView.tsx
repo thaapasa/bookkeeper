@@ -20,7 +20,9 @@ export const TrackingSubjectsList: React.FC<{
 }> = ({ data, onReload }) => {
   return (
     <SubjectsGrid>
-      {data.map(d => <TrackingSubjectView subject={d} key={d.id} onReload={onReload} />)}
+      {data.map(d => (
+        <TrackingSubjectView subject={d} key={d.id} onReload={onReload} />
+      ))}
     </SubjectsGrid>
   );
 };
@@ -34,24 +36,23 @@ export const TrackingSubjectView: React.FC<{
       <TitleArea className="title-area">
         <TitleText>{subject.title}</TitleText>
         <ToolsArea className="tools-area">
-          <ActionIcon variant="subtle"
+          <ActionIcon
+            variant="subtle"
             size="sm"
             title="Vaihda värejä"
             onClick={() => changeTrackingColors(subject.id, onReload)}
           >
             <Icons.Palette fontSize="small" />
           </ActionIcon>
-          <ActionIcon variant="subtle"
+          <ActionIcon
+            variant="subtle"
             size="sm"
             title="Muokkaa seurantaa"
             onClick={() => editTrackingSubject(subject.id)}
           >
             <Icons.Edit fontSize="small" />
           </ActionIcon>
-          <ActionIcon variant="subtle"
-            size="sm"
-            onClick={() => deleteSubject(subject, onReload)}
-          >
+          <ActionIcon variant="subtle" size="sm" onClick={() => deleteSubject(subject, onReload)}>
             <Icons.Delete fontSize="small" />
           </ActionIcon>
         </ToolsArea>

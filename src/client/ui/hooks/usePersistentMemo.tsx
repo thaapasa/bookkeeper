@@ -22,7 +22,10 @@ export function usePersistentMemo<T>(value: () => T, deps: React.DependencyList)
 }
 
 // Copied from React code
-export function areHookInputsEqual(nextDeps: React.DependencyList, prevDeps: React.DependencyList | null) {
+export function areHookInputsEqual(
+  nextDeps: React.DependencyList,
+  prevDeps: React.DependencyList | null,
+) {
   if (prevDeps === null) {
     return false;
   }

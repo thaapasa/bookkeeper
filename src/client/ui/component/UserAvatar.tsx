@@ -29,16 +29,8 @@ const StyledAvatar = styled.div`
 
 export const UserAvatar: React.FC<UserAvatarProps> = ({ user, style, size, className, onClick }) =>
   user?.id ? (
-    <StyledAvatar
-      className={className}
-      style={style}
-      onClick={event => onClick?.(user.id, event)}
-    >
-      <MantineAvatar
-        src={user.image}
-        size={size ?? 'md'}
-        color="cyan"
-      >
+    <StyledAvatar className={className} style={style} onClick={event => onClick?.(user.id, event)}>
+      <MantineAvatar src={user.image} size={size ?? 'md'} color="cyan">
         {user.image ? undefined : user.firstName.charAt(0)}
       </MantineAvatar>
     </StyledAvatar>

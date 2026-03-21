@@ -34,7 +34,9 @@ export function ExpenseGroupingsTagFilters({
           <StyledBadge
             key={t}
             variant={active ? 'filled' : 'outline'}
-            rightSection={active ? <CloseButton size="xs" onClick={() => removeTag(t)} /> : undefined}
+            rightSection={
+              active ? <CloseButton size="xs" onClick={() => removeTag(t)} /> : undefined
+            }
             onClick={active ? undefined : () => addTag(t)}
             style={{ cursor: active ? undefined : 'pointer', marginLeft: 8 }}
           >

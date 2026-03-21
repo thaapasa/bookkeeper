@@ -49,7 +49,7 @@ const GroupingExpensesRenderer: React.FC<{
   <CenterArea>
     <TitleRow>{data.title}</TitleRow>
     <GroupingCategoryChart totals={data.categoryTotals} />
-    <ExpenseTableLayout className="padding">
+    <ExpenseTableLayout padded>
       <tbody>
         {data.expenses?.map(expense => (
           <ExpenseRow

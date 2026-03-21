@@ -1,4 +1,4 @@
-import { DEFAULT_THEME, createTheme, MantineColorsTuple, virtualColor } from '@mantine/core';
+import { createTheme, DEFAULT_THEME, MantineColorsTuple, virtualColor } from '@mantine/core';
 
 /**
  * Mantine theme configuration.

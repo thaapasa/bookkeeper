@@ -9,16 +9,16 @@ import { categoryMapP, getFullCategoryName } from 'client/data/Categories';
 
 import { AsyncDataDialogContent } from '../component/AsyncDataDialog';
 import { connect } from '../component/BaconConnect';
-import { connectDialog } from '../dialog/DialogConnector';
 import { Row } from '../component/Row';
 import { TextEdit } from '../component/TextEdit';
 import { UploadImageButton } from '../component/UploadImageButton';
 import { checkersBackground } from '../design/Background';
 import { Subtitle } from '../design/Text';
+import { connectDialog } from '../dialog/DialogConnector';
+import { Flex } from '../GlobalStyles';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useForceReload } from '../hooks/useForceReload';
 import { Icons } from '../icons/Icons';
-import { Flex } from '../GlobalStyles';
 import { useTrackingState } from './TrackingEditorState';
 
 interface TrackingBusPayload {
@@ -106,7 +106,10 @@ const TrackingEditView: React.FC<{
             <MantineSelect
               value={state.frequency}
               onChange={val => val && state.setFrequency(val)}
-              data={TrackingFrequency.options.map(o => ({ value: o, label: FrequencyLabels[o] ?? o }))}
+              data={TrackingFrequency.options.map(o => ({
+                value: o,
+                label: FrequencyLabels[o] ?? o,
+              }))}
             />
           </SelectionRow>
           <SelectionRow title="Graafin tyyppi">
@@ -158,7 +161,12 @@ const TrackingEditView: React.FC<{
           </SelectionRow>
           <div style={{ gridColumn: '1 / -1', position: 'relative' }}>
             <ToolIconArea>
-              <ActionIcon variant="subtle" title="Lisää kategoria" size="sm" onClick={state.addCategory}>
+              <ActionIcon
+                variant="subtle"
+                title="Lisää kategoria"
+                size="sm"
+                onClick={state.addCategory}
+              >
                 <Icons.Add fontSize="small" />
               </ActionIcon>
             </ToolIconArea>

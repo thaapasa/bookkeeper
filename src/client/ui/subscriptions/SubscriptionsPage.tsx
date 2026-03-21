@@ -94,7 +94,11 @@ const SubscriptionsRenderer: React.FC<{
           colorIndex={selectedIndex >= 0 ? selectedIndex : undefined}
         />
         <ChartTools>
-          <Checkbox checked={perMonth} onChange={() => setPerMonth(!perMonth)} label="Kulut per kk" />
+          <Checkbox
+            checked={perMonth}
+            onChange={() => setPerMonth(!perMonth)}
+            label="Kulut per kk"
+          />
         </ChartTools>
       </ChartArea>
       {selectedGroup ? (

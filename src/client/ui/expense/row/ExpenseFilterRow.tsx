@@ -52,11 +52,7 @@ class ExpenseFilterItem extends React.Component<{
   public render() {
     const f = this.props.filter;
     return (
-      <Pill
-        style={chipStyle}
-        withRemoveButton
-        onRemove={this.onRemove}
-      >
+      <Pill style={chipStyle} withRemoveButton onRemove={this.onRemove}>
         {f.avatar ? <Avatar src={f.avatar} size="xs" /> : null}
         {f.name}
       </Pill>

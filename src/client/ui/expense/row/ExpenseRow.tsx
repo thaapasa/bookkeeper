@@ -15,8 +15,8 @@ import apiConnect from 'client/data/ApiConnect';
 import { getFullCategoryName, UserDataProps } from 'client/data/Categories';
 import { editExpense, needUpdateE, notifyError, updateExpenses } from 'client/data/State';
 import { logger } from 'client/Logger';
-import { action, income as incomeColor, primary } from 'client/ui/Colors';
-import { forMoney, unconfirmedStripes } from 'client/ui/ColorUtils';
+import { action, primary } from 'client/ui/Colors';
+import { forMoney } from 'client/ui/ColorUtils';
 import { ActivatableTextField } from 'client/ui/component/ActivatableTextField';
 import { ExpanderIcon } from 'client/ui/component/ExpanderIcon';
 import { UserAvatar } from 'client/ui/component/UserAvatar';
@@ -92,11 +92,7 @@ export class ExpenseRowImpl extends React.Component<ExpenseRowProps, ExpenseRowS
   private categoryLink(id: number) {
     const cat = this.props.categoryMap[id];
     return (
-      <TextButton
-        key={cat.id}
-        onClick={() => this.onClickCategory(cat)}
-        style={{ color: action }}
-      >
+      <TextButton key={cat.id} onClick={() => this.onClickCategory(cat)} style={{ color: action }}>
         {cat.name}
       </TextButton>
     );
@@ -191,19 +187,6 @@ export class ExpenseRowImpl extends React.Component<ExpenseRowProps, ExpenseRowS
   public render() {
     const expense = this.props.expense;
     const source = this.props.source;
-    // const className = 'bk-table-row expense-row expense-item ' + expense.type + (expense.confirmed ? '' : ' unconfirmed');
-    const style = {
-      background: !expense.confirmed
-        ? unconfirmedStripes
-        : expense.type === 'income'
-          ? incomeColor
-          : undefined,
-    };
-    if (!expense.confirmed) {
-      style.background = unconfirmedStripes;
-    } else if (expense.type === 'income') {
-      style.background = incomeColor;
-    }
     const firstDay =
       !this.props.prev ||
       !toDateTime(expense.date).hasSame(toDateTime(this.props.prev.date), 'day');
@@ -287,13 +270,15 @@ export class ExpenseRowImpl extends React.Component<ExpenseRowProps, ExpenseRowS
               }
             />
           </SourceColumn>
-          <SumColumn className={expense.type}>
+          <SumColumn
+            style={
+              expense.type === 'income'
+                ? { backgroundColor: 'var(--mantine-color-neutral-2)' }
+                : undefined
+            }
+          >
             <Group justify="space-between" wrap="nowrap" gap={4}>
-              <ExpenseTypeIcon
-                type={expense.type}
-                color={primary[7]}
-                size={20}
-              />
+              <ExpenseTypeIcon type={expense.type} color={primary[7]} size={20} />
               <div>{Money.from(expense.sum).format()}</div>
             </Group>
           </SumColumn>

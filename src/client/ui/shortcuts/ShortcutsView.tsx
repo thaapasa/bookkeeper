@@ -17,10 +17,10 @@ import { newExpenseSuffix } from 'client/util/Links';
 import { primary } from '../Colors';
 import { connect } from '../component/BaconConnect';
 import { Row } from '../component/Row';
+import { Flex } from '../GlobalStyles';
 import { useToggle } from '../hooks/useToggle';
 import { AddExpenseIcon } from '../icons/AddExpenseIcon';
 import { Icons } from '../icons/Icons';
-import { Flex } from '../GlobalStyles';
 import { editShortcut, ShortcutEditor } from './ShortcutEditor';
 import { ShortcutLink, ShortcutLinkProps } from './ShortcutLink';
 

@@ -41,9 +41,7 @@ export const CategoryRow: React.FC<CategoryRowProps> = props => {
   const clsName = `${className ?? ''} ${header ? 'main-category' : 'sub-category'}`;
   const income = totals ? (header ? totals.totalIncome : totals.income) : Money.zero;
   const expense = totals ? (header ? totals.totalExpenses : totals.expenses) : Money.zero;
-  const toolColor = header
-    ? neutral[7]
-    : primary[5];
+  const toolColor = header ? neutral[7] : primary[5];
 
   return (
     <>
@@ -90,7 +88,7 @@ const CategoryRowExpenses: React.FC<{
     return <AllColumns>Ei kirjauksia</AllColumns>;
   }
   return (
-    <ExpenseTableLayout className="padding">
+    <ExpenseTableLayout padded>
       <tbody>
         {data.value.map(expense => (
           <ExpenseRow

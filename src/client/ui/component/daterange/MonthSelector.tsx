@@ -26,16 +26,8 @@ export const MonthSelector: React.FC<MonthSelectorProps> = ({ year, month, onSel
       <StyledIconButton onClick={() => onSelect(...prevMonth(year, month))} title="Edellinen">
         <Icons.ChevronLeft color="primary" />
       </StyledIconButton>
-      <NumberInput
-        className="year"
-        value={String(year)}
-        onChange={changeYear}
-      />
-      <NumberInput
-        className="month"
-        value={String(month)}
-        onChange={changeMonth}
-      />
+      <NumberInput className="year" value={String(year)} onChange={changeYear} />
+      <NumberInput className="month" value={String(month)} onChange={changeMonth} />
       <StyledIconButton onClick={() => onSelect(...nextMonth(year, month))} title="Seuraava">
         <Icons.ChevronRight color="primary" />
       </StyledIconButton>

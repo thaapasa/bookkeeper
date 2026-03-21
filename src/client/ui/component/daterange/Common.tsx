@@ -2,7 +2,12 @@ import styled from '@emotion/styled';
 import { ActionIcon, type ActionIconProps } from '@mantine/core';
 import React from 'react';
 
-export { type DateRangeSelectorProps, type RangeType, type RangeTypeOrNone, type SelectorProps } from './dateRangeTypes';
+export {
+  type DateRangeSelectorProps,
+  type RangeType,
+  type RangeTypeOrNone,
+  type SelectorProps,
+} from './dateRangeTypes';
 export {
   isValidMonth,
   isValidYear,
@@ -36,7 +41,11 @@ export const NumberInput = styled.input`
 export const StyledIconButton: React.FC<
   ActionIconProps & React.ButtonHTMLAttributes<HTMLButtonElement> & React.PropsWithChildren
 > = ({ children, ...props }) => (
-  <ActionIcon variant="subtle" {...props} style={{ padding: 0, margin: '0 4px', ...props.style as Record<string, unknown> }}>
+  <ActionIcon
+    variant="subtle"
+    {...props}
+    style={{ padding: 0, margin: '0 4px', ...(props.style as Record<string, unknown>) }}
+  >
     {children}
   </ActionIcon>
 );

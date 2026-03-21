@@ -143,7 +143,13 @@ export const ToolIconButton: React.FC<
   <ActionIcon
     variant="subtle"
     {...props}
-    style={{ margin: 0, padding: 0, width: 36, height: 36, ...props.style as Record<string, unknown> }}
+    style={{
+      margin: 0,
+      padding: 0,
+      width: 36,
+      height: 36,
+      ...(props.style as Record<string, unknown>),
+    }}
   >
     {children}
   </ActionIcon>

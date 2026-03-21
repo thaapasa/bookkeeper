@@ -79,9 +79,7 @@ const QuerySearchLayoutImpl: React.FC<QuerySearchLayoutProps> = ({
             <Icons.Search color="primary" />
           </ActionIcon>
         </SearchButtonArea>
-        <ProgressArea>
-          {isSearching ? <Loader size={38} /> : null}
-        </ProgressArea>
+        <ProgressArea>{isSearching ? <Loader size={38} /> : null}</ProgressArea>
       </FlexRow>
       <br />
       {dateRange ? `Haetaan ajalta ${toDateRangeName(dateRange)}` : 'Ei aikaehtoja'}
@@ -112,7 +110,9 @@ const QuerySearchLayoutImpl: React.FC<QuerySearchLayoutProps> = ({
         label="Alustavat"
         styles={{ label: { fontSize: 'var(--mantine-font-size-sm)' } }}
       />
-      <Button variant="subtle" onClick={onSaveAsReport}>Tee raportti</Button>
+      <Button variant="subtle" onClick={onSaveAsReport}>
+        Tee raportti
+      </Button>
     </div>
     <div style={{ gridColumn: '1 / -1' }}>
       <SelectedSuggestionsView suggestions={selectedSuggestions} onRemove={removeSuggestion} />

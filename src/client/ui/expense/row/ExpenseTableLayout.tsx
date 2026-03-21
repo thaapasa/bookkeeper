@@ -1,15 +1,15 @@
 import styled from '@emotion/styled';
-import { Loader } from '@mantine/core';
+import { Box, Center, Loader, Table } from '@mantine/core';
 import * as React from 'react';
 
 import { windowSizeP } from 'client/data/State';
-import { neutral, primary } from 'client/ui/Colors';
+import { primary } from 'client/ui/Colors';
 import { connect } from 'client/ui/component/BaconConnect';
 import { Icons } from 'client/ui/icons/Icons';
 import { QuestionBookmark } from 'client/ui/icons/QuestionBookmark';
-import { getScreenSizeClassName, media, ScreenSizeClassName, Size } from 'client/ui/Styles';
+import { getScreenSizeClassName, ScreenSizeClassName, Size } from 'client/ui/Styles';
 
-const separatorColor = neutral[3];
+/* Column visibility */
 
 const columns = [
   'date',
@@ -46,173 +46,127 @@ export const maxColumnsForSize = {
 };
 
 export function getVisibleColumns(windowSize: Size) {
-  const size = getScreenSizeClassName(windowSize);
-  return maxColumnsForSize[size];
+  return maxColumnsForSize[getScreenSizeClassName(windowSize)];
 }
 
-export const ExpenseTableLayout = styled.table`
-  width: 100%;
-  border-spacing: 0;
-  table-layout: fixed;
-  &.padding {
-    padding: 0 16px;
-  }
-
-  &.loading > tbody {
-    filter: opacity(40%);
-  }
-`;
-
-export const Row = styled('tr')`
-  padding: 0;
-  width: 100%;
-  &:first-of-type {
-    td,
-    th {
-      border-top: none;
-    }
-  }
-  &:last-of-type {
-    td,
-    th {
-      border-bottom: 1px solid ${separatorColor};
-    }
-  }
-  td {
-    border-top: 1px dotted ${separatorColor}77;
-    border-collapse: collapse;
-  }
-
-  &.first-day {
-    background: linear-gradient(${neutral[2]}cc 0%, ${neutral[1]} 20%);
-    & td {
-      padding-top: 4px;
-    }
-  }
-`;
+/* Constants */
 
 export const rowHeight = 40;
-
-const Column = styled('td')`
-  padding: 0;
-  text-align: left;
-  height: ${rowHeight}px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-
-  &.gray {
-    background-color: ${neutral[1]};
-  }
-  &.dark {
-    background-color: ${primary[7]};
-  }
-`;
-
-const WebColumn = styled(Column)`
-  ${media.mobile`
-    display: none;
-    width: 0;
-  `}
-`;
-
-const MobileLandscapeColumn = styled(Column)`
-  ${media.mobilePortrait`
-    display: none;
-    width: 0;
-  `}
-`;
-
-export const DateColumn = styled(Column)`
-  text-align: right;
-  width: 60px;
-  position: relative;
-
-  ${media.mobile`
-    width: 40px;
-  `}
-`;
-export const AvatarColumn = styled(Column)`
-  padding: 0 8px;
-  padding-top: 2px;
-  width: 32px;
-`;
-export const NameColumn = styled(Column)`
-  position: relative;
-  padding-left: 4px;
-`;
-export const ReceiverColumn = MobileLandscapeColumn;
-export const CategoryColumn = MobileLandscapeColumn;
-
 export const sourceWidth = 52;
-export const SourceColumn = styled(WebColumn)`
-  padding: 4px;
-  padding-bottom: 0;
-  width: ${sourceWidth + 8}px;
-`;
-const MoneyColumn = styled(Column)`
-  position: relative;
-  width: 80px;
-  text-align: right;
-  padding-right: 8px;
-`;
-const OptMoneyColumn = styled(WebColumn)`
-  position: relative;
-  width: 80px;
-  text-align: right;
-  padding-right: 8px;
-`;
-export const SumColumn = styled(MoneyColumn)`
-  width: 100px;
-  &.income {
-    background-color: ${neutral[2]};
-  }
-`;
-export const BalanceColumn = OptMoneyColumn;
-export const ToolColumn = styled(Column)`
-  width: 100px;
-  text-align: right;
-  white-space: nowrap;
-  ${media.mobile`
-    width: 33px;
-    overflow: hidden;
-  `}
-`;
 
-const AllColumnsComponent: React.FC<
-  React.PropsWithChildren<{ className?: string; size: Size }>
-> = ({ className, children, size }) => (
-  <Column colSpan={getVisibleColumns(size)} className={className}>
+/* Table — Mantine Table with fixed layout */
+
+export const ExpenseTableLayout: React.FC<
+  React.PropsWithChildren<{ loading?: boolean; padded?: boolean; className?: string }>
+> = ({ loading, padded, className, children }) => (
+  <Table
+    layout="fixed"
+    withRowBorders
+    horizontalSpacing={0}
+    className={className}
+    styles={{ td: { overflow: 'hidden', textOverflow: 'ellipsis' } }}
+    style={{
+      ...(loading ? { opacity: 0.4 } : undefined),
+      ...(padded ? { padding: '0 16px' } : undefined),
+    }}
+  >
     {children}
-  </Column>
+  </Table>
+);
+
+/* Row — uses Mantine Table.Tr; .first-day class is in bookkeeper.css */
+
+export const Row = Table.Tr;
+
+/* Column components — thin wrappers around Table.Td with Mantine style props.
+ * Widths are set by the header (ExpenseHeader.tsx).
+ * Responsive hiding uses CSS classes from bookkeeper.css. */
+
+interface ColumnProps {
+  children?: React.ReactNode;
+  className?: string;
+  style?: React.CSSProperties;
+  onClick?: () => void;
+  colSpan?: number;
+}
+
+const cx = (...classes: (string | undefined | null | false)[]) => classes.filter(Boolean).join(' ');
+
+export const DateColumn: React.FC<ColumnProps> = props => (
+  <Table.Td ta="right" pos="relative" className={cx('col-date', props.className)} {...props} />
+);
+
+export const AvatarColumn: React.FC<ColumnProps> = props => <Table.Td px={8} pt={2} {...props} />;
+
+export const NameColumn: React.FC<ColumnProps> = props => (
+  <Table.Td pos="relative" pl={4} {...props} />
+);
+
+export const ReceiverColumn: React.FC<ColumnProps> = ({ className, ...props }) => (
+  <Table.Td className={cx('hide-on-mobile-portrait', className)} {...props} />
+);
+
+export const CategoryColumn: React.FC<ColumnProps> = ({ className, ...props }) => (
+  <Table.Td className={cx('hide-on-mobile-portrait', className)} {...props} />
+);
+
+export const SourceColumn: React.FC<ColumnProps> = ({ className, ...props }) => (
+  <Table.Td p={4} className={cx('hide-on-mobile', className)} {...props} />
+);
+
+export const SumColumn: React.FC<ColumnProps> = props => (
+  <Table.Td ta="right" pr={8} pos="relative" {...props} />
+);
+
+export const BalanceColumn: React.FC<ColumnProps> = ({ className, ...props }) => (
+  <Table.Td
+    ta="right"
+    pr={8}
+    pos="relative"
+    className={cx('hide-on-mobile', className)}
+    {...props}
+  />
+);
+
+export const ToolColumn: React.FC<ColumnProps> = ({ className, ...props }) => (
+  <Table.Td ta="right" className={cx('col-tools', className)} {...props} />
+);
+
+/* AllColumns — spans all visible columns (uses BaconJS for responsive colspan) */
+
+interface AllColumnsProps {
+  className?: string;
+  style?: React.CSSProperties;
+  children?: React.ReactNode;
+  size: Size;
+}
+
+const AllColumnsComponent: React.FC<AllColumnsProps> = ({ size, ...props }) => (
+  <Table.Td colSpan={getVisibleColumns(size)} {...props} />
 );
 
 export const AllColumns = connect(windowSizeP.map(size => ({ size })))(AllColumnsComponent);
 
+/* Custom overlay components (genuinely need custom CSS) */
+
 const Corner = styled.div`
   position: absolute;
-  top: 0;
-  left: 0;
+  top: -32px;
+  left: -31px;
   width: 50px;
   height: 50px;
   padding-top: 18px;
-  background-color: ${neutral[1]};
+  background-color: var(--mantine-color-neutral-1);
   transform: rotate(45deg);
-  top: -32px;
-  left: -31px;
   z-index: 0;
   display: flex;
   align-items: flex-start;
   justify-content: flex-end;
 `;
 
-const recurringIconStyle = {
-  width: 20,
-  height: 20,
-  color: primary[2],
-};
 export const RecurringExpenseIcon: React.FC = () => (
   <Corner title="Toistuva kirjaus">
-    <Icons.Recurring style={recurringIconStyle} />
+    <Icons.Recurring style={{ width: 20, height: 20, color: primary[2] }} />
   </Corner>
 );
 
@@ -227,57 +181,42 @@ export const IconToolArea = styled.div`
   }
 `;
 
-type UnconfimedIconProps = {
-  size?: number;
-  title?: string;
-  onClick?: () => void;
-};
-export const UnconfirmedIcon: React.FC<UnconfimedIconProps> = ({ size, title, onClick }) => (
-  <IconContainer title={title} onClick={onClick}>
-    <QuestionBookmark size={size || 24} title={title ?? 'Alustava kirjaus'} />
-  </IconContainer>
-);
-
 const IconContainer = styled.div`
   cursor: pointer;
   position: relative;
   display: inline-block;
 `;
 
-const RecurringExpenseSeparatorItem = styled(AllColumns)`
-  background-color: ${neutral[1]};
-  height: 24px;
-`;
+export const UnconfirmedIcon: React.FC<{
+  size?: number;
+  title?: string;
+  onClick?: () => void;
+}> = ({ size, title, onClick }) => (
+  <IconContainer title={title} onClick={onClick}>
+    <QuestionBookmark size={size || 24} title={title ?? 'Alustava kirjaus'} />
+  </IconContainer>
+);
+
+/* Special rows */
 
 export const RecurringExpenseSeparator: React.FC = () => (
   <Row>
-    <RecurringExpenseSeparatorItem />
+    <AllColumns style={{ backgroundColor: 'var(--mantine-color-neutral-1)', height: 24 }} />
   </Row>
 );
 
-export const LoadingIndicator: React.FC<{ forRow?: boolean }> = props => {
-  const className = props.forRow ? 'row' : 'primary';
-  return (
-    <Row>
-      <AllColumns {...props}>
-        <RefreshIndicatorContainer className={className}>
-          <Loader size={props.forRow ? 30 : 60} />
-        </RefreshIndicatorContainer>
-      </AllColumns>
-    </Row>
-  );
-};
-
-const RefreshIndicatorContainer = styled.div`
-  &.primary {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-  }
-  &.row {
-    position: relative;
-    width: 100%;
-    text-align: center;
-    height: 30px;
-  }
-`;
+export const LoadingIndicator: React.FC<{ forRow?: boolean }> = ({ forRow }) => (
+  <Row>
+    <AllColumns>
+      {forRow ? (
+        <Center h={30}>
+          <Loader size={30} />
+        </Center>
+      ) : (
+        <Box pos="absolute" left="50%" top="50%">
+          <Loader size={60} />
+        </Box>
+      )}
+    </AllColumns>
+  </Row>
+);

@@ -47,7 +47,13 @@ export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
       <AllColumns>
         <Group h={rowHeight} w="100%" style={{ position: 'relative' }} wrap="nowrap">
           <RecurringExpenseIcon />
-          <Group flex={1} pl={16} h="100%" style={{ position: 'relative', zIndex: 1 }} wrap="nowrap">
+          <Group
+            flex={1}
+            pl={16}
+            h="100%"
+            style={{ position: 'relative', zIndex: 1 }}
+            wrap="nowrap"
+          >
             {hasUnconfirmed ? (
               <IconToolArea>
                 <UnconfirmedIcon
@@ -56,7 +62,10 @@ export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
                 />
               </IconToolArea>
             ) : null}
-            <Text component="span" c="primary.7" fw="bold" pr={4}>Toistuvat </Text> ({recurring.length} kpl)
+            <Text component="span" c="primary.7" fw="bold" pr={4}>
+              Toistuvat{' '}
+            </Text>{' '}
+            ({recurring.length} kpl)
           </Group>
           <Item>
             {isMobile ? null : 'Tulot: '}
@@ -73,7 +82,10 @@ export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
             </Text>
           </Item>
           <Item className="optional">
-            Balanssi: <Text component="span" ta="right" fw="bold" display="inline-block" w={73}>{balance.format()}</Text>
+            Balanssi:{' '}
+            <Text component="span" ta="right" fw="bold" display="inline-block" w={73}>
+              {balance.format()}
+            </Text>
           </Item>
           <Box px={8}>
             {isExpanded ? (

@@ -52,7 +52,11 @@ const StatisticsGraphImpl: React.FC<BaseCategoryGraphProps & { type: StatisticsC
       {type !== 'recurring' && props.stacked ? (
         <CheckboxRow>
           {type === 'years' ? (
-            <Checkbox checked={estimated} onChange={() => setEstimated(!estimated)} label="Sisällytä arvio" />
+            <Checkbox
+              checked={estimated}
+              onChange={() => setEstimated(!estimated)}
+              label="Sisällytä arvio"
+            />
           ) : null}
           {type === 'years' ? (
             <Checkbox

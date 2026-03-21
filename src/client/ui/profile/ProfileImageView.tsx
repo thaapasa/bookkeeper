@@ -1,13 +1,11 @@
 import styled from '@emotion/styled';
-import { ActionIcon } from '@mantine/core';
+import { ActionIcon, DEFAULT_THEME } from '@mantine/core';
 import * as React from 'react';
 
 import { Session } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
 import { updateSession } from 'client/data/Login';
 import { executeOperation } from 'client/util/ExecuteOperation';
-
-import { DEFAULT_THEME } from '@mantine/core';
 
 import { UploadImageButton } from '../component/UploadImageButton';
 import { Subtitle } from '../design/Text';

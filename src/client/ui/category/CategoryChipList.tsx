@@ -33,7 +33,15 @@ const CategoryChip: React.FC<
     <StyledBadge
       variant={isParent ? 'filled' : 'outline'}
       leftSection={isParent && cat.grouped ? <Icons.AllInclusive fontSize="small" /> : undefined}
-      rightSection={<CloseButton size="xs" onClick={(e: React.MouseEvent) => { e.stopPropagation(); onDelete(cat); }} />}
+      rightSection={
+        <CloseButton
+          size="xs"
+          onClick={(e: React.MouseEvent) => {
+            e.stopPropagation();
+            onDelete(cat);
+          }}
+        />
+      }
       onClick={() => onExpand(cat)}
       style={{ cursor: 'pointer' }}
     >

@@ -1,30 +1,28 @@
+import { Table } from '@mantine/core';
 import * as React from 'react';
 
-import {
-  AvatarColumn,
-  BalanceColumn,
-  CategoryColumn,
-  DateColumn,
-  NameColumn,
-  ReceiverColumn,
-  Row,
-  SourceColumn,
-  SumColumn,
-  ToolColumn,
-} from './ExpenseTableLayout';
+import { sourceWidth } from './ExpenseTableLayout';
 
 export function ExpenseHeader() {
   return (
-    <Row>
-      <DateColumn as="th">Pvm</DateColumn>
-      <AvatarColumn as="th" />
-      <NameColumn as="th">Nimi</NameColumn>
-      <ReceiverColumn as="th">Kohde</ReceiverColumn>
-      <CategoryColumn as="th">Kategoria</CategoryColumn>
-      <SourceColumn as="th">Lähde</SourceColumn>
-      <SumColumn as="th">Summa</SumColumn>
-      <BalanceColumn as="th">Balanssi</BalanceColumn>
-      <ToolColumn as="th" />
-    </Row>
+    <Table.Tr>
+      <Table.Th ta="right" className="col-date">
+        Pvm
+      </Table.Th>
+      <Table.Th px={8} w={32} />
+      <Table.Th pl={4}>Nimi</Table.Th>
+      <Table.Th className="hide-on-mobile-portrait">Kohde</Table.Th>
+      <Table.Th className="hide-on-mobile-portrait">Kategoria</Table.Th>
+      <Table.Th p={4} w={sourceWidth + 8} className="hide-on-mobile">
+        Lähde
+      </Table.Th>
+      <Table.Th ta="right" pr={8} w={100}>
+        Summa
+      </Table.Th>
+      <Table.Th ta="right" pr={8} w={80} className="hide-on-mobile">
+        Balanssi
+      </Table.Th>
+      <Table.Th ta="right" className="col-tools" />
+    </Table.Tr>
   );
 }

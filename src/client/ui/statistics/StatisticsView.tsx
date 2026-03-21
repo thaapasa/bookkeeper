@@ -11,10 +11,10 @@ import { AsyncData, UninitializedData } from 'client/data/AsyncData';
 import { categoryMapP } from 'client/data/Categories';
 import { windowSizeP } from 'client/data/State';
 
-import { AsyncDataView } from '../component/AsyncDataView';
-import { connect } from '../component/BaconConnect';
 import { CategoryChipList } from '../category/CategoryChipList';
 import { CategorySelector } from '../category/CategorySelector';
+import { AsyncDataView } from '../component/AsyncDataView';
+import { connect } from '../component/BaconConnect';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useLocalStorageList } from '../hooks/useList';
 import { useLocalStorage } from '../hooks/useLocalStorage';
@@ -107,8 +107,16 @@ export const StatisticsViewImpl: React.FC<{
         <div>
           <CategorySelector addCategories={addCats} />
           <CheckboxRow>
-            <Checkbox checked={stacked} onChange={() => setStacked(!stacked)} label="Koosta alueet" />
-            <Checkbox checked={onlyOwn} onChange={() => setOnlyOwn(!onlyOwn)} label="Vain omat kirjaukset" />
+            <Checkbox
+              checked={stacked}
+              onChange={() => setStacked(!stacked)}
+              label="Koosta alueet"
+            />
+            <Checkbox
+              checked={onlyOwn}
+              onChange={() => setOnlyOwn(!onlyOwn)}
+              label="Vain omat kirjaukset"
+            />
           </CheckboxRow>
         </div>
         <div>

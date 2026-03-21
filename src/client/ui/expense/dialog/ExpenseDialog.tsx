@@ -30,7 +30,12 @@ import UserAvatar from 'client/ui/component/UserAvatar';
 import UserSelector from 'client/ui/component/UserSelector';
 import { Icons } from 'client/ui/icons/Icons';
 import { isMobileSize, Size } from 'client/ui/Styles';
-import { eventValue, stopEventPropagation, Unsubscriber, unsubscribeAll } from 'client/util/ClientUtil';
+import {
+  eventValue,
+  stopEventPropagation,
+  unsubscribeAll,
+  Unsubscriber,
+} from 'client/util/ClientUtil';
 import { KeyCodes } from 'client/util/Io';
 
 import { DivisionInfo } from '../details/DivisionInfo';

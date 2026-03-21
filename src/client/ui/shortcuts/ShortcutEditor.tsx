@@ -8,15 +8,15 @@ import { ObjectId } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
 
 import { AsyncDataDialogContent } from '../component/AsyncDataDialog';
-import { connectDialog } from '../dialog/DialogConnector';
 import { Row } from '../component/Row';
 import { TextEdit } from '../component/TextEdit';
 import { UploadImageButton } from '../component/UploadImageButton';
 import { Subtitle } from '../design/Text';
+import { connectDialog } from '../dialog/DialogConnector';
+import { Flex } from '../GlobalStyles';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useForceReload } from '../hooks/useForceReload';
 import { Icons } from '../icons/Icons';
-import { Flex } from '../GlobalStyles';
 import { useShortcutState } from './ShortcutEditorState';
 import { ShortcutLink } from './ShortcutLink';
 

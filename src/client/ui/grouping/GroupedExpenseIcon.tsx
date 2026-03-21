@@ -36,7 +36,9 @@ export const GroupedExpenseIcon: React.FC<GroupedExpenseIconProps> = ({
       <Bookmark size={size || 24} title={grouping.title} color={color} outline={implicit} />
       {grouping.title ? (
         <GroupedExpenseIconText color={luminance > 0.4 ? 'black' : 'white'}>
-          <Text span fz="xs" fw={700}>{grouping.title[0]}</Text>
+          <Text span fz="xs" fw={700}>
+            {grouping.title[0]}
+          </Text>
         </GroupedExpenseIconText>
       ) : null}
     </IconContainer>

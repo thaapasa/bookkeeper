@@ -14,8 +14,19 @@ interface ColorPickerProps {
 }
 
 const colorNames = [
-  'gray', 'red', 'pink', 'grape', 'violet', 'indigo',
-  'blue', 'cyan', 'teal', 'green', 'lime', 'yellow', 'orange',
+  'gray',
+  'red',
+  'pink',
+  'grape',
+  'violet',
+  'indigo',
+  'blue',
+  'cyan',
+  'teal',
+  'green',
+  'lime',
+  'yellow',
+  'orange',
 ] as const;
 
 const shadeIndices = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
@@ -33,13 +44,15 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ value, onChange }) => 
       {open ? (
         <FlexRow className="vcenter">
           <FlexColumn>
-            <ActionIcon variant="subtle"
+            <ActionIcon
+              variant="subtle"
               size="sm"
               onClick={() => setShade(shade > 0 ? shade - 1 : shade)}
             >
               <Icons.SortUp fontSize="small" />
             </ActionIcon>
-            <ActionIcon variant="subtle"
+            <ActionIcon
+              variant="subtle"
               size="sm"
               onClick={() => setShade(shade < shadeIndices.length - 1 ? shade + 1 : shade)}
             >

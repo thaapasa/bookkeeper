@@ -5,10 +5,10 @@ import * as React from 'react';
 import { logger } from 'client/Logger';
 import { KeyCodes } from 'client/util/Io';
 
+import { TextEditorComponent } from '../dialog/DialogState';
 import { Icons } from '../icons/Icons';
 import { AutoCompleteProps } from './AutoComplete';
 import { TextEdit, TextEditProps } from './TextEdit';
-import { TextEditorComponent } from '../dialog/DialogState';
 
 type EditorType<T> = TextEditorComponent | React.ComponentType<AutoCompleteProps<T>>;
 

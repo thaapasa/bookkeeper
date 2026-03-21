@@ -14,8 +14,8 @@ import { neutral, primary } from '../Colors';
 import { FlexColumn, FlexRow } from '../component/BasicElements';
 import { LinkButton } from '../component/TopBar';
 import { Subtitle, TitleCss } from '../design/Text';
-import { Icons } from '../icons/Icons';
 import { Flex } from '../GlobalStyles';
+import { Icons } from '../icons/Icons';
 import { media } from '../Styles';
 import { GroupedExpenseIcon } from './GroupedExpenseIcon';
 import { editExpenseGrouping } from './GroupingEditor';
@@ -54,14 +54,16 @@ export const ExpenseGroupingView: React.FC<{
       <TitleArea className="title-area">
         <TitleText>{grouping.title}</TitleText>
         <ToolsArea className="tools-area">
-          <ActionIcon variant="subtle"
+          <ActionIcon
+            variant="subtle"
             size="sm"
             title="Muokkaa seurantaa"
             onClick={() => editExpenseGrouping(grouping.id)}
           >
             <Icons.Edit fontSize="small" />
           </ActionIcon>
-          <ActionIcon variant="subtle"
+          <ActionIcon
+            variant="subtle"
             size="sm"
             onClick={() => deleteExpenseGrouping(grouping, onReload)}
           >

@@ -1,3 +1,30 @@
 html, body {
     background-color: var(--mantine-color-body);
 }
+
+/* Responsive column hiding (custom app breakpoints, not Mantine's) */
+@media (max-width: 839px) {
+    .hide-on-mobile { display: none; width: 0; }
+}
+@media (max-width: 599px) {
+    .hide-on-mobile-portrait { display: none; width: 0; }
+}
+
+/* Expense table: responsive column widths */
+.col-date { width: 60px; }
+.col-tools { width: 100px; white-space: nowrap; }
+@media (max-width: 839px) {
+    .col-date { width: 40px; }
+    .col-tools { width: 33px; overflow: hidden; }
+}
+
+/* Expense table: day group separator */
+tr.first-day {
+    background: linear-gradient(
+        color-mix(in srgb, var(--mantine-color-neutral-2) 80%, transparent) 0%,
+        var(--mantine-color-neutral-1) 20%
+    );
+}
+tr.first-day > td {
+    padding-top: 4px;
+}

@@ -114,9 +114,11 @@ const Panel = styled.div`
 
 const Tab = styled.div``;
 
-const TabButton: React.FC<
-  React.PropsWithChildren<{ selected: boolean; onClick: () => void }>
-> = ({ selected, onClick, children }) => (
+const TabButton: React.FC<React.PropsWithChildren<{ selected: boolean; onClick: () => void }>> = ({
+  selected,
+  onClick,
+  children,
+}) => (
   <Button
     variant="subtle"
     onClick={onClick}

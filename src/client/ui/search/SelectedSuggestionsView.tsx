@@ -15,12 +15,7 @@ export const SelectedSuggestionsView: React.FC<{
   return (
     <>
       {suggestions.map(c => (
-        <SuggestionPill
-          key={c.id}
-          className={c.type}
-          withRemoveButton
-          onRemove={() => onRemove(c)}
-        >
+        <SuggestionPill key={c.id} className={c.type} withRemoveButton onRemove={() => onRemove(c)}>
           {getSearchSuggestionValue(c)}
         </SuggestionPill>
       ))}

@@ -10,7 +10,6 @@ import { categoryMapP, getFullCategoryName } from 'client/data/Categories';
 import { AsyncDataDialogContent } from '../component/AsyncDataDialog';
 import { connect } from '../component/BaconConnect';
 import { ColorPicker } from '../component/ColorPicker';
-import { connectDialog } from '../dialog/DialogConnector';
 import { OptionalDatePicker } from '../component/OptionalDatePicker';
 import { Row } from '../component/Row';
 import { TagsPicker } from '../component/TagsPicker';
@@ -18,10 +17,11 @@ import { TextEdit } from '../component/TextEdit';
 import { UploadImageButton } from '../component/UploadImageButton';
 import { checkersBackground } from '../design/Background';
 import { Subtitle } from '../design/Text';
+import { connectDialog } from '../dialog/DialogConnector';
+import { Flex } from '../GlobalStyles';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useForceReload } from '../hooks/useForceReload';
 import { Icons } from '../icons/Icons';
-import { Flex } from '../GlobalStyles';
 import { useGroupingState } from './GroupingEditorState';
 
 interface GroupingBusPayload {
@@ -79,7 +79,9 @@ const GroupingEditView: React.FC<{
   React.useEffect(() => void state.reset(data), [data?.id]);
   return (
     <>
-      <h3 style={{ margin: '0 0 16px' }}>{createNew ? 'Uusi ryhmittely' : 'Muokkaa ryhmittelyä'}</h3>
+      <h3 style={{ margin: '0 0 16px' }}>
+        {createNew ? 'Uusi ryhmittely' : 'Muokkaa ryhmittelyä'}
+      </h3>
       <div>
         <EditorGrid>
           <SelectionRow title="Nimi">
@@ -139,7 +141,12 @@ const GroupingEditView: React.FC<{
           </SelectionRow>
           <div style={{ gridColumn: '1 / -1', position: 'relative' }}>
             <ToolIconArea>
-              <ActionIcon variant="subtle" title="Lisää kategoria" size="sm" onClick={state.addCategory}>
+              <ActionIcon
+                variant="subtle"
+                title="Lisää kategoria"
+                size="sm"
+                onClick={state.addCategory}
+              >
                 <Icons.Add fontSize="small" />
               </ActionIcon>
             </ToolIconArea>
