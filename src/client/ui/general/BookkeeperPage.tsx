@@ -64,7 +64,7 @@ export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
       <ModalDialogConnector />
       <Router>
         <AppShell header={{ height: 56 }} padding={{ base: 0, sm: 'md' }}>
-          <AppShell.Header>
+          <AppShell.Header bg="var(--mantine-color-default-hover)">
             <TopBar windowSize={windowSize} menuOpen={menuOpen} onToggleMenu={toggleMenu} />
           </AppShell.Header>
 
