@@ -1,9 +1,9 @@
 import styled from '@emotion/styled';
+import { Box, Group, Text } from '@mantine/core';
 import * as React from 'react';
 
 import { UserExpense } from 'shared/expense';
 import { Minus, Money, Plus } from 'shared/util';
-import { primary } from 'client/ui/Colors';
 import { useWindowSize } from 'client/ui/hooks/useWindowSize';
 import { Icons } from 'client/ui/icons/Icons';
 import { isMobileSize, media } from 'client/ui/Styles';
@@ -45,9 +45,9 @@ export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
   return (
     <Row>
       <AllColumns>
-        <RowContainer>
+        <Group h={rowHeight} w="100%" style={{ position: 'relative' }} wrap="nowrap">
           <RecurringExpenseIcon />
-          <Name>
+          <Group flex={1} pl={16} h="100%" style={{ position: 'relative', zIndex: 1 }} wrap="nowrap">
             {hasUnconfirmed ? (
               <IconToolArea>
                 <UnconfirmedIcon
@@ -56,54 +56,37 @@ export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
                 />
               </IconToolArea>
             ) : null}
-            <Emph>Toistuvat </Emph> ({recurring.length} kpl)
-          </Name>
+            <Text component="span" c="primary.7" fw="bold" pr={4}>Toistuvat </Text> ({recurring.length} kpl)
+          </Group>
           <Item>
             {isMobile ? null : 'Tulot: '}
-            <Sum>
+            <Text component="span" ta="right" fw="bold" display="inline-block" w={73}>
               {isMobile ? `${Plus} ` : null}
               {income.format()}
-            </Sum>
+            </Text>
           </Item>
           <Item>
             {isMobile ? null : 'Menot: '}
-            <Sum>
+            <Text component="span" ta="right" fw="bold" display="inline-block" w={73}>
               {isMobile ? `${Minus} ` : null}
               {expense.format()}
-            </Sum>
+            </Text>
           </Item>
           <Item className="optional">
-            Balanssi: <Sum>{balance.format()}</Sum>
+            Balanssi: <Text component="span" ta="right" fw="bold" display="inline-block" w={73}>{balance.format()}</Text>
           </Item>
-          <Tools>
+          <Box px={8}>
             {isExpanded ? (
               <Icons.ExpandLess onClick={onToggle} />
             ) : (
               <Icons.ExpandMore onClick={onToggle} />
             )}
-          </Tools>
-        </RowContainer>
+          </Box>
+        </Group>
       </AllColumns>
     </Row>
   );
 };
-
-const Emph = styled.span`
-  color: ${primary[7]};
-  font-weight: bold;
-  padding-right: 4px;
-`;
-
-const Name = styled.div`
-  padding: 0 0 0 16px;
-  height: 100%;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  flex: 1;
-  position: relative;
-  z-index: 1;
-`;
 
 const Item = styled.div`
   padding: 0 8px;
@@ -112,25 +95,4 @@ const Item = styled.div`
       display: none;
     }
   `}
-`;
-
-const Sum = styled.span`
-  width: 73px;
-  display: inline-block;
-  text-align: right;
-  font-weight: bold;
-  vertical-align: bottom;
-`;
-
-const Tools = styled.div`
-  padding: 0 8px;
-`;
-
-const RowContainer = styled.div`
-  width: 100%;
-  height: ${rowHeight}px;
-  position: relative;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
 `;

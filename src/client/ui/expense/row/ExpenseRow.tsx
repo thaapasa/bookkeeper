@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { Group } from '@mantine/core';
 import * as React from 'react';
 
 import {
@@ -23,7 +24,6 @@ import { UserPrompts } from 'client/ui/dialog/DialogState';
 import { GroupedExpenseIcon } from 'client/ui/grouping/GroupedExpenseIcon';
 import { ExpenseTypeIcon } from 'client/ui/icons/ExpenseType';
 import { ToolIcon } from 'client/ui/icons/ToolIcon';
-import { Flex, VCenterRow } from 'client/ui/GlobalStyles';
 import { media } from 'client/ui/Styles';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
@@ -216,10 +216,10 @@ export class ExpenseRowImpl extends React.Component<ExpenseRowProps, ExpenseRowS
         <Row className={firstDay && this.props.dateBorder ? 'first-day' : ''}>
           <DateColumn onClick={this.editDate}>
             {expense.recurringExpenseId ? <RecurringExpenseIcon /> : null}
-            <DateContainer>
+            <div style={{ position: 'relative', zIndex: 1 }}>
               <WeekDay>{weekDay(expense.date, this.props.prev)}</WeekDay>
               {readableDate(expense.date)}
-            </DateContainer>
+            </div>
           </DateColumn>
           <AvatarColumn>
             <UserAvatar
@@ -288,15 +288,14 @@ export class ExpenseRowImpl extends React.Component<ExpenseRowProps, ExpenseRowS
             />
           </SourceColumn>
           <SumColumn className={expense.type}>
-            <VCenterRow justify="space-between">
+            <Group justify="space-between" wrap="nowrap" gap={4}>
               <ExpenseTypeIcon
                 type={expense.type}
                 color={primary[7]}
                 size={20}
               />
-              <Flex />
               <div>{Money.from(expense.sum).format()}</div>
-            </VCenterRow>
+            </Group>
           </SumColumn>
           <BalanceColumn
             style={{ color: forMoney(expense.userBalance) }}
@@ -366,11 +365,6 @@ function weekDay(date: string, prev?: UserExpense | null) {
   const m = toDateTime(date);
   return !prev || !m.hasSame(toDateTime(prev.date), 'day') ? m.toFormat('ccc') : null;
 }
-
-const DateContainer = styled.div`
-  position: relative;
-  z-index: 1;
-`;
 
 const OptionalIcons = styled.div`
   display: inline-block;
