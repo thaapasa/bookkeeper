@@ -63,6 +63,7 @@ export const ExpenseTableLayout: React.FC<
     layout="fixed"
     withRowBorders
     horizontalSpacing={0}
+    fz="sm"
     className={className}
     styles={{ td: { overflow: 'hidden', textOverflow: 'ellipsis' } }}
     style={{

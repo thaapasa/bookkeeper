@@ -32,7 +32,7 @@ export const TextButton = styled.button`
   border: 0;
   outline: none;
   background: none;
-  font-size: var(--mantine-font-size-xs);
+  font-size: inherit;
   cursor: pointer;
   &:hover {
     text-decoration: underline;
