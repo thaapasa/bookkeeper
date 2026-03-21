@@ -1,5 +1,15 @@
-import styled from '@emotion/styled';
-import { Divider, Drawer, SegmentedControl, Text, useMantineColorScheme } from '@mantine/core';
+import {
+  Box,
+  Button,
+  Divider,
+  Drawer,
+  Group as MantineGroup,
+  NavLink,
+  SegmentedControl,
+  Text,
+  UnstyledButton,
+  useMantineColorScheme,
+} from '@mantine/core';
 import * as React from 'react';
 import { useNavigate } from 'react-router';
 
@@ -9,7 +19,6 @@ import { logout, validSessionP } from 'client/data/Login';
 import { reloadApp } from 'client/util/ClientUtil';
 import { profilePagePath } from 'client/util/Links';
 
-import { neutral, primary } from '../Colors';
 import { Icons, RenderIcon } from '../icons/Icons';
 import { connect } from './BaconConnect';
 import { AppLink } from './TopBar';
@@ -22,18 +31,6 @@ interface MenuDrawerProps {
   group: Group;
   links?: AppLink[];
 }
-
-const MenuLink: React.FC<AppLink & { onSelect: (path: string) => void }> = ({
-  onSelect,
-  label,
-  path,
-  icon,
-}) => (
-  <MenuItemRow onClick={() => onSelect(path)}>
-    <MenuIcon icon={icon} fontSize="small" color="action" />
-    {label}
-  </MenuItemRow>
-);
 
 const colorSchemeOptions = [
   { value: 'auto', label: 'Auto' },
@@ -65,119 +62,69 @@ export const MenuDrawer: React.FC<MenuDrawerProps> = ({
       withCloseButton={false}
       styles={{ body: { padding: 0 } }}
     >
-      <Header>{group.name}</Header>
+      <Text
+        bg="primary.8"
+        c="white"
+        size="md"
+        fw="bold"
+        h={56}
+        px="md"
+        style={{ display: 'flex', alignItems: 'center' }}
+      >
+        {group.name}
+      </Text>
 
-      <UserSection onClick={() => onSelect(profilePagePath)}>
-        <UserAvatar user={user} size={40} />
-        <UserName>
-          {user.firstName} {user.lastName}
-        </UserName>
-      </UserSection>
+      <UnstyledButton w="100%" onClick={() => onSelect(profilePagePath)}>
+        <MantineGroup p="md" px={24} gap="md">
+          <UserAvatar user={user} size={40} />
+          <Text>{user.firstName} {user.lastName}</Text>
+        </MantineGroup>
+      </UnstyledButton>
 
-      <Divider mx={px} />
+      <Divider mx="md" />
 
-      <Section>
+      <Box p={4} px={8}>
         {links?.map(l => (
-          <MenuLink key={l.label} {...l} onSelect={onSelect} />
+          <NavLink
+            key={l.label}
+            label={l.label}
+            leftSection={l.icon ? <RenderIcon icon={l.icon} fontSize="small" color="action" /> : undefined}
+            onClick={() => onSelect(l.path)}
+          />
         ))}
-        <MenuLink
+        <NavLink
           label="Päivitä"
-          showInHeader={false}
-          path="/"
-          onSelect={onReload}
-          icon="Refresh"
+          leftSection={<RenderIcon icon="Refresh" fontSize="small" color="action" />}
+          onClick={onReload}
         />
-      </Section>
+      </Box>
 
-      <Divider mx={px} />
+      <Divider mx="md" />
 
-      <ThemeSection>
+      <MantineGroup p="10px 16px" gap={12}>
         <Icons.Palette fontSize="small" />
         <SegmentedControl
           value={colorScheme}
           onChange={v => setColorScheme(v as 'auto' | 'light' | 'dark')}
           data={colorSchemeOptions}
-          size="xs"
+          size="sm"
           style={{ flex: 1 }}
         />
-      </ThemeSection>
+      </MantineGroup>
 
-      <Divider mx={px} />
+      <Divider mx="md" />
 
-      <Section>
-        <MenuItemRow onClick={logout}>Kirjaudu ulos</MenuItemRow>
-      </Section>
+      <Box px="md" py={8}>
+        <Button variant="light" color="red" fullWidth onClick={logout} leftSection={<Icons.Logout fontSize="small" />}>
+          Kirjaudu ulos
+        </Button>
+      </Box>
 
-      <VersionInfo>
+      <Text fz="sm" c="dimmed" px={24} py={8}>
         Kukkaro {config.version} ({config.revision})
-      </VersionInfo>
+      </Text>
     </Drawer>
   );
 };
-
-const px = 16;
-
-const Header: React.FC<React.PropsWithChildren> = ({ children }) => (
-  <Text
-    bg={primary[8]}
-    c="white"
-    size="md"
-    fw="bold"
-    h={56}
-    px="md"
-    style={{ display: 'flex', alignItems: 'center' }}
-  >
-    {children}
-  </Text>
-);
-
-const UserSection = styled.div`
-  display: flex;
-  align-items: center;
-  padding: ${px}px ${px + 8}px;
-  cursor: pointer;
-
-  &:hover {
-    background-color: ${neutral[1]};
-  }
-`;
-
-const UserName = styled.span`
-  margin-left: ${px}px;
-`;
-
-const Section = styled.div`
-  padding: 4px 8px;
-`;
-
-const ThemeSection = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px ${px}px;
-`;
-
-const MenuItemRow = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 10px ${px}px;
-  cursor: pointer;
-  border-radius: var(--mantine-radius-sm);
-  font-size: var(--mantine-font-size-md);
-
-  &:hover {
-    background-color: ${neutral[1]};
-  }
-`;
-
-const MenuIcon = styled(RenderIcon)`
-  margin-right: 12px;
-`;
-
-const VersionInfo = styled.div`
-  font-size: var(--mantine-font-size-xs);
-  padding: 8px ${px + 8}px 16px;
-  color: ${neutral[5]};
-`;
 
 export default connect(validSessionP.map(s => ({ user: s.user, group: s.group })))(MenuDrawer);

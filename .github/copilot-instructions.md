@@ -109,6 +109,9 @@ old code is legacy — do NOT use it as an example for new code.
 - Custom breakpoints: The app uses `media.mobile` (< 840px) and `media.mobilePortrait`
   (< 600px) from `client/ui/Styles`. These do NOT match Mantine's built-in breakpoints,
   so use Emotion `styled` + `media.*` for responsive hiding at these thresholds.
+- Icons: Lucide React (`lucide-react`). Wrapped in `src/client/ui/icons/Icons.tsx` with
+  a name→component map (`LucideIcons`). Use `<Icons.Name />` or `<RenderIcon icon="Name" />`
+  to render. Add new icons by importing from `lucide-react` and adding to the map.
 
 ### Frontend: State & Data
 
