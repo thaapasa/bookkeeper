@@ -6,7 +6,7 @@ import { UserExpense } from 'shared/expense';
 import { Minus, Money, Plus } from 'shared/util';
 import { useWindowSize } from 'client/ui/hooks/useWindowSize';
 import { Icons } from 'client/ui/icons/Icons';
-import { isMobileSize, media } from 'client/ui/Styles';
+import { isMobileSize, media } from 'client/ui/layout/Styles.ts';
 
 import { ExpenseFilterFunction, ExpenseFilters } from './ExpenseFilters';
 import {
@@ -22,7 +22,7 @@ interface RecurringSummaryRowProps {
   recurring: UserExpense[];
   isExpanded: boolean;
   onToggle: () => void;
-  addFilter: (filter: ExpenseFilterFunction, name: string, avater?: string) => void;
+  addFilter: (filter: ExpenseFilterFunction, name: string, avatar?: string) => void;
 }
 
 export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
@@ -45,15 +45,9 @@ export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
   return (
     <Row>
       <AllColumns>
-        <Group h={rowHeight} w="100%" style={{ position: 'relative' }} wrap="nowrap">
+        <Group h={rowHeight} w="100%" wrap="nowrap" pl={12}>
           <RecurringExpenseIcon />
-          <Group
-            flex={1}
-            pl={16}
-            h="100%"
-            style={{ position: 'relative', zIndex: 1 }}
-            wrap="nowrap"
-          >
+          <Group flex={1} h="100%" wrap="nowrap">
             {hasUnconfirmed ? (
               <IconToolArea>
                 <UnconfirmedIcon

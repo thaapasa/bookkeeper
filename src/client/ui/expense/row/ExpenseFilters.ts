@@ -6,7 +6,6 @@ export type ExpenseFilterFunction = (expense: UserExpense) => boolean;
 export interface ExpenseFilter {
   filter: ExpenseFilterFunction;
   name: string;
-  avatar?: string;
 }
 
 export const ExpenseFilters = {

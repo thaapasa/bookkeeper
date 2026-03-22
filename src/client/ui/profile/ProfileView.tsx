@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { Flex, ScrollArea } from '@mantine/core';
+import { Flex } from '@mantine/core';
 import * as B from 'baconjs';
 import React from 'react';
 
@@ -15,18 +15,16 @@ import { UserDataView } from './UserDataView';
 
 export const ProfileViewImpl = RequireProperty('session', ({ session }: { session: Session }) => {
   return (
-    <ScrollArea h="100%" type="auto">
-      <Flex direction="column" align="center">
-        <FormGrid>
-          <FullWidth>
-            <Title>Profiilitiedot</Title>
-          </FullWidth>
-          <UserDataView session={session} />
-          <PasswordView session={session} />
-          <ProfileImageView session={session} />
-        </FormGrid>
-      </Flex>
-    </ScrollArea>
+    <Flex direction="column" align="center">
+      <FormGrid>
+        <FullWidth>
+          <Title>Profiilitiedot</Title>
+        </FullWidth>
+        <UserDataView session={session} />
+        <PasswordView session={session} />
+        <ProfileImageView session={session} />
+      </FormGrid>
+    </Flex>
   );
 });
 

@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { ActionIcon, Checkbox, ScrollArea } from '@mantine/core';
+import { ActionIcon, Checkbox } from '@mantine/core';
 import * as B from 'baconjs';
 import React from 'react';
 import { z } from 'zod';
@@ -19,7 +19,7 @@ import { useAsyncData } from '../hooks/useAsyncData';
 import { useLocalStorageList } from '../hooks/useList';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { Icons } from '../icons/Icons';
-import { isMobileSize, media, Size } from '../Styles';
+import { isMobileSize, media, Size } from '../layout/Styles.ts';
 import { CategoryStatisticsChart } from './category/CategoryStatisticsChart';
 import { StatisticsChartTypeSelector } from './ChartTypeSelector';
 import { StatisticsChartRangeSelector } from './StatisticsChartRangeSelector';
@@ -102,54 +102,48 @@ export const StatisticsViewImpl: React.FC<{
 
   const isMobile = isMobileSize(size);
   return (
-    <ScrollArea h="100%" type="auto">
-      <StatsGrid>
-        <div>
-          <CategorySelector addCategories={addCats} />
-          <CheckboxRow>
-            <Checkbox
-              checked={stacked}
-              onChange={() => setStacked(!stacked)}
-              label="Koosta alueet"
-            />
-            <Checkbox
-              checked={onlyOwn}
-              onChange={() => setOnlyOwn(!onlyOwn)}
-              label="Vain omat kirjaukset"
-            />
-          </CheckboxRow>
-        </div>
-        <div>
-          <StatisticsChartTypeSelector selected={type} onChange={setType} row={isMobile} />
-        </div>
-        <div>
-          <StatisticsChartRangeSelector onChange={setRange} />
-        </div>
-        {cats.length > 0 ? (
-          <FullWidth>
-            <ActionIcon variant="subtle" onClick={clearCats}>
-              <Icons.Clear />
-            </ActionIcon>
-            <CategoryChipList
-              selected={cats}
-              onDelete={removeCats}
-              categoryMap={categoryMap}
-              onExpand={expandCategory}
-            />
-          </FullWidth>
-        ) : null}
+    <StatsGrid>
+      <div>
+        <CategorySelector addCategories={addCats} />
+        <CheckboxRow>
+          <Checkbox checked={stacked} onChange={() => setStacked(!stacked)} label="Koosta alueet" />
+          <Checkbox
+            checked={onlyOwn}
+            onChange={() => setOnlyOwn(!onlyOwn)}
+            label="Vain omat kirjaukset"
+          />
+        </CheckboxRow>
+      </div>
+      <div>
+        <StatisticsChartTypeSelector selected={type} onChange={setType} row={isMobile} />
+      </div>
+      <div>
+        <StatisticsChartRangeSelector onChange={setRange} />
+      </div>
+      {cats.length > 0 ? (
         <FullWidth>
-          <AsyncDataView
-            data={data}
-            renderer={CategoryStatisticsChart}
-            type={type}
+          <ActionIcon variant="subtle" onClick={clearCats}>
+            <Icons.Clear />
+          </ActionIcon>
+          <CategoryChipList
+            selected={cats}
+            onDelete={removeCats}
             categoryMap={categoryMap}
-            uninitializedText="Valitse kategoria näyttääksesi tilastot"
-            stacked={stacked}
+            onExpand={expandCategory}
           />
         </FullWidth>
-      </StatsGrid>
-    </ScrollArea>
+      ) : null}
+      <FullWidth>
+        <AsyncDataView
+          data={data}
+          renderer={CategoryStatisticsChart}
+          type={type}
+          categoryMap={categoryMap}
+          uninitializedText="Valitse kategoria näyttääksesi tilastot"
+          stacked={stacked}
+        />
+      </FullWidth>
+    </StatsGrid>
   );
 };
 

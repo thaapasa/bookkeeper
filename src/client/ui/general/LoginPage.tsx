@@ -7,7 +7,7 @@ import { login } from 'client/data/Login';
 
 import { primary } from '../Colors';
 import { TextEdit } from '../component/TextEdit';
-import { media } from '../Styles';
+import { media } from '../layout/Styles.ts';
 
 const publicUrl = import.meta.env.PUBLIC_URL || '';
 

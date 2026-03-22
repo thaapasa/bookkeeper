@@ -8,7 +8,7 @@ import { isSameInterval, MomentInterval } from 'shared/time';
 import { isDefined } from 'shared/types';
 
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { media } from '../Styles';
+import { media } from '../layout/Styles.ts';
 
 interface RangeOption {
   range: MomentInterval;

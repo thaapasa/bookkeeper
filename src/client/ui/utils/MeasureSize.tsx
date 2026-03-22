@@ -3,7 +3,7 @@ import React from 'react';
 
 import { useDebounced } from '../hooks/useDebounced';
 import { useElementSize } from '../hooks/useElementSize';
-import { Size } from '../Styles';
+import { Size } from '../layout/Styles.ts';
 
 export function MeasureSize<T>(
   component: React.ComponentType<T & { size: Size }>,
@@ -26,7 +26,7 @@ export function MeasureSize<T>(
         </MeasureDiv>
       ),
       // eslint-disable-next-line
-      [Component, className, debounced, ...(Object.keys(props)), ...(Object.values(props))],
+      [Component, className, debounced, ...Object.keys(props), ...Object.values(props)],
     );
   };
   return MeasuredComponent;

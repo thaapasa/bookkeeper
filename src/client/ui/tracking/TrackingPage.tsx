@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { ActionIcon, Flex, ScrollArea } from '@mantine/core';
+import { ActionIcon, Flex } from '@mantine/core';
 import React from 'react';
 
 import apiConnect from 'client/data/ApiConnect';
@@ -16,26 +16,24 @@ export const TrackingPage: React.FC = () => {
   const { counter, forceReload } = useForceReload();
   const trackedSubjects = useAsyncData(loadSubjects, true, counter);
   return (
-    <ScrollArea h="100%" type="auto">
-      <Flex direction="column" align="center">
-        <PageGrid>
-          <TitleRow>
-            <Title>Seuranta</Title>
-            <ToolArea>
-              <ActionIcon variant="subtle" title="Uusi seuranta" onClick={newTrackingSubject}>
-                <Icons.AddChart />
-              </ActionIcon>
-            </ToolArea>
-          </TitleRow>
-          <AsyncDataView
-            data={trackedSubjects}
-            renderer={TrackingSubjectsList}
-            onReload={forceReload}
-          />
-        </PageGrid>
-        <TrackingEditor reloadAll={forceReload} />
-      </Flex>
-    </ScrollArea>
+    <Flex direction="column" align="center">
+      <PageGrid>
+        <TitleRow>
+          <Title>Seuranta</Title>
+          <ToolArea>
+            <ActionIcon variant="subtle" title="Uusi seuranta" onClick={newTrackingSubject}>
+              <Icons.AddChart />
+            </ActionIcon>
+          </ToolArea>
+        </TitleRow>
+        <AsyncDataView
+          data={trackedSubjects}
+          renderer={TrackingSubjectsList}
+          onReload={forceReload}
+        />
+      </PageGrid>
+      <TrackingEditor reloadAll={forceReload} />
+    </Flex>
   );
 };
 

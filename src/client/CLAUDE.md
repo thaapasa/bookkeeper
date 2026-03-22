@@ -21,8 +21,14 @@ old code is legacy — do NOT use it as an example for new code.
 6. **Do NOT wrap Mantine components with `styled()`** — Emotion's `styled()` does not
    forward Mantine's polymorphic props correctly. Use `styled.div` / `styled.span` if
    you must use Emotion, or prefer Mantine's `style`/`styles` props.
-7. **Replace legacy patterns when touching a file.** If you're modifying a component that
-   uses `styled` for simple layout, convert those parts to Mantine as part of the change.
+7. **Proactively rewrite legacy components.** When working on any UI component, rewrite
+   it from scratch using Mantine if it uses old patterns (Emotion `styled` wrappers,
+   hardcoded pixel sizes, fixed heights, manual CSS hacks). Don't try to patch old code —
+   think about how you'd build it fresh with Mantine and do that instead. Convert class
+   components to functional components with hooks at the same time.
+8. **Use Mantine component props, not CSS overrides.** For example, use `withRowBorders`,
+   `withTableBorder`, `bg`, `gap` etc. instead of fighting component CSS with custom
+   selectors or CSS variable overrides.
 
 ## What "legacy code" looks like (don't copy these patterns)
 

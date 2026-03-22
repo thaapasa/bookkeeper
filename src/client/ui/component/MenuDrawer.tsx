@@ -20,8 +20,8 @@ import { reloadApp } from 'client/util/ClientUtil';
 import { profilePagePath } from 'client/util/Links';
 
 import { Icons, RenderIcon } from '../icons/Icons';
+import { AppLink } from '../layout/TopBar.tsx';
 import { connect } from './BaconConnect';
-import { AppLink } from './TopBar';
 import { UserAvatar } from './UserAvatar';
 
 interface MenuDrawerProps {
@@ -77,7 +77,9 @@ export const MenuDrawer: React.FC<MenuDrawerProps> = ({
       <UnstyledButton w="100%" onClick={() => onSelect(profilePagePath)}>
         <MantineGroup p="md" px={24} gap="md">
           <UserAvatar user={user} size={40} />
-          <Text>{user.firstName} {user.lastName}</Text>
+          <Text>
+            {user.firstName} {user.lastName}
+          </Text>
         </MantineGroup>
       </UnstyledButton>
 
@@ -88,7 +90,9 @@ export const MenuDrawer: React.FC<MenuDrawerProps> = ({
           <NavLink
             key={l.label}
             label={l.label}
-            leftSection={l.icon ? <RenderIcon icon={l.icon} fontSize="small" color="action" /> : undefined}
+            leftSection={
+              l.icon ? <RenderIcon icon={l.icon} fontSize="small" color="action" /> : undefined
+            }
             onClick={() => onSelect(l.path)}
           />
         ))}
@@ -115,7 +119,13 @@ export const MenuDrawer: React.FC<MenuDrawerProps> = ({
       <Divider mx="md" />
 
       <Box px="md" py={8}>
-        <Button variant="light" color="red" fullWidth onClick={logout} leftSection={<Icons.Logout fontSize="small" />}>
+        <Button
+          variant="light"
+          color="red"
+          fullWidth
+          onClick={logout}
+          leftSection={<Icons.Logout fontSize="small" />}
+        >
           Kirjaudu ulos
         </Button>
       </Box>

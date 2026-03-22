@@ -35,6 +35,20 @@ See `src/client/CLAUDE.md` and `.github/agents/frontend.agent.md` for frontend-s
 conventions (Mantine, styling, state). See `src/server/CLAUDE.md` and
 `.github/agents/backend.agent.md` for backend-specific patterns (routing, database).
 
+## Code Quality: Be Proactive
+
+When working on any task, **actively look for bad code** in the files you touch and nearby
+code. This includes but is not limited to:
+
+- Legacy patterns (Emotion `styled`, MUI imports, class components, Bacon.js streams)
+- Wrong idioms (floating-point money, raw SQL strings, unvalidated inputs, `any` types)
+- Code smells (copy-paste duplication, overly complex logic, dead code, misleading names)
+- Missing best practices (no error handling, no Zod validation, inconsistent patterns)
+
+**If a fix is within scope of the current task, just fix it.** If it seems out of scope,
+always ask whether to include the fix — don't silently skip it. The goal is to
+incrementally clean up the entire codebase, so no bad code should go unmentioned.
+
 ## Key Conventions
 
 ### Type Definitions

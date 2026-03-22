@@ -1,0 +1,9 @@
+.chip {
+  color: var(--mantine-color-primary-7);
+  max-width: 120px;
+}
+
+[data-mantine-color-scheme='dark'] .chip {
+  background-color: var(--mantine-color-neutral-4);
+}
+

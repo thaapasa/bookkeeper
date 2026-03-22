@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { Checkbox, ScrollArea } from '@mantine/core';
+import { Checkbox } from '@mantine/core';
 import { combineTemplate } from 'baconjs';
 import * as React from 'react';
 import { z } from 'zod';
@@ -53,10 +53,10 @@ const SubscriptionsViewImpl: React.FC<{
   // Reload whenever update bus is triggered
   React.useEffect(() => needUpdateE.onValue(loadData), [loadData]);
   return (
-    <ScrollArea h="100%" type="auto">
+    <>
       <SubscriptionCriteriaSelector onChange={setCriteria} />
       <AsyncDataView data={data} renderer={SubscriptionsRenderer} />
-    </ScrollArea>
+    </>
   );
 };
 

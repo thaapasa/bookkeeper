@@ -4,27 +4,22 @@ html, body {
 
 /* Responsive column hiding (custom app breakpoints, not Mantine's) */
 @media (max-width: 839px) {
-    .hide-on-mobile { display: none; width: 0; }
+    .hide-on-mobile { display: none !important;  }
 }
 @media (max-width: 599px) {
-    .hide-on-mobile-portrait { display: none; width: 0; }
+    .hide-on-mobile-portrait { display: none !important; }
 }
 
 /* Expense table: responsive column widths */
 .col-date { width: 72px; }
-.col-tools { width: 100px; white-space: nowrap; }
+.col-tools { width: 96px; white-space: nowrap; }
 @media (max-width: 839px) {
     .col-date { width: 48px; }
-    .col-tools { width: 33px; overflow: hidden; }
+    .col-tools { width: 36px; }
 }
 
-/* Expense table: day group separator */
-tr.first-day {
-    background: linear-gradient(
-        color-mix(in srgb, var(--mantine-color-neutral-2) 80%, transparent) 0%,
-        var(--mantine-color-neutral-1) 20%
-    );
-}
-tr.first-day > td {
-    padding-top: 4px;
+/* Expense table: icon tool area spacing */
+.icon-tool-area > svg,
+.icon-tool-area > div {
+    margin-left: 4px;
 }

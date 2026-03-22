@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { Flex, ScrollArea } from '@mantine/core';
+import { Flex } from '@mantine/core';
 import * as React from 'react';
 
 import apiConnect from 'client/data/ApiConnect';
@@ -13,17 +13,15 @@ import { DbStatusView } from './DbStatusView';
 import { ToolButton } from './ToolButton';
 
 export const ToolsView: React.FC = () => (
-  <ScrollArea h="100%" type="auto">
-    <Flex direction="column" align="center">
-      <ToolsGrid>
-        <FullWidth>
-          <Title>Työkalut</Title>
-        </FullWidth>
-        <ToolButton title="Vaihda kohteiden nimi" buttonText="Vaihda" action={changeReceiverName} />
-        <DbStatusView />
-      </ToolsGrid>
-    </Flex>
-  </ScrollArea>
+  <Flex direction="column" align="center">
+    <ToolsGrid>
+      <FullWidth>
+        <Title>Työkalut</Title>
+      </FullWidth>
+      <ToolButton title="Vaihda kohteiden nimi" buttonText="Vaihda" action={changeReceiverName} />
+      <DbStatusView />
+    </ToolsGrid>
+  </Flex>
 );
 
 const ToolsGrid = styled.div`

@@ -7,15 +7,16 @@ export function ToolIcon(props: {
   icon: Icon;
   color?: string | null;
   title: string;
+  size?: 'sm' | 'md' | 'lg';
   style?: React.CSSProperties;
   className?: string;
   onClick?: () => void;
 }) {
-  const { icon, className } = props;
+  const { icon, className, size = 'md' } = props;
   return (
     <ActionIcon
       variant="subtle"
-      size="sm"
+      size={size}
       title={props.title}
       onClick={props.onClick}
       className={className}

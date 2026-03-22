@@ -1,4 +1,4 @@
-import { Size } from 'client/ui/Styles';
+import { Size } from 'client/ui/layout/Styles.ts';
 
 const ChartMargins = { left: 16, top: 32, right: 16, bottom: 0 };
 const NarrowMargins = { left: 0, top: 16, right: 0, bottom: 0 };

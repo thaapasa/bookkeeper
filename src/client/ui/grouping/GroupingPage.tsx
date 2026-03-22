@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { ActionIcon, Flex, ScrollArea } from '@mantine/core';
+import { ActionIcon, Flex } from '@mantine/core';
 import React from 'react';
 
 import apiConnect from 'client/data/ApiConnect';
@@ -17,27 +17,25 @@ export const GroupingPage: React.FC = () => {
   const expenseGroupings = useAsyncData(loadGroupings, true, counter);
   const tags = useAsyncData(loadTags, true, counter);
   return (
-    <ScrollArea h="100%" type="auto">
-      <Flex direction="column" align="center">
-        <PageGrid>
-          <TitleRow>
-            <Title>Ryhmittelyt</Title>
-            <ToolArea>
-              <ActionIcon variant="subtle" title="Uusi ryhmittely" onClick={newExpenseGrouping}>
-                <Icons.AddChart />
-              </ActionIcon>
-            </ToolArea>
-          </TitleRow>
-          <AsyncDataView
-            data={expenseGroupings}
-            renderer={ExpenseGroupingsList}
-            onReload={forceReload}
-            allTags={tags.type === 'loaded' ? tags.value : []}
-          />
-        </PageGrid>
-        <GroupingEditor reloadAll={forceReload} />
-      </Flex>
-    </ScrollArea>
+    <Flex direction="column" align="center">
+      <PageGrid>
+        <TitleRow>
+          <Title>Ryhmittelyt</Title>
+          <ToolArea>
+            <ActionIcon variant="subtle" title="Uusi ryhmittely" onClick={newExpenseGrouping}>
+              <Icons.AddChart />
+            </ActionIcon>
+          </ToolArea>
+        </TitleRow>
+        <AsyncDataView
+          data={expenseGroupings}
+          renderer={ExpenseGroupingsList}
+          onReload={forceReload}
+          allTags={tags.type === 'loaded' ? tags.value : []}
+        />
+      </PageGrid>
+      <GroupingEditor reloadAll={forceReload} />
+    </Flex>
   );
 };
 

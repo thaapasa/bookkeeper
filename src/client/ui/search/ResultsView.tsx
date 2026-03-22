@@ -12,7 +12,7 @@ import { neutral, primary } from '../Colors';
 import { connect } from '../component/BaconConnect';
 import { ExpenseRow } from '../expense/row/ExpenseRow';
 import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
-import { media } from '../Styles';
+import { media } from '../layout/Styles.ts';
 import { TotalsView } from './TotalsView';
 
 interface ResultsProps {

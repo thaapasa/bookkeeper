@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 
 import { neutral, primary, text } from '../Colors';
 import { Row } from '../component/Row';
-import { media } from '../Styles';
+import { media } from '../layout/Styles.ts';
 
 export const RowElement = styled(Row)`
   column-gap: 4px;

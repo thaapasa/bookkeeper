@@ -8,6 +8,7 @@ import react from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import unusedImports from 'eslint-plugin-unused-imports';
+import globals from 'globals';
 
 export default [
   eslint.configs.recommended,
@@ -23,46 +24,11 @@ export default [
         },
       },
       globals: {
-        // Browser globals
-        console: 'readonly',
-        document: 'readonly',
-        window: 'readonly',
-        localStorage: 'readonly',
-        fetch: 'readonly',
-        FormData: 'readonly',
-        File: 'readonly',
-        FileList: 'readonly',
-        Blob: 'readonly',
-        URL: 'readonly',
-        setTimeout: 'readonly',
-        clearTimeout: 'readonly',
-        setInterval: 'readonly',
-        clearInterval: 'readonly',
-        ResizeObserver: 'readonly',
-        HTMLElement: 'readonly',
-        HTMLDivElement: 'readonly',
-        HTMLInputElement: 'readonly',
-        HTMLButtonElement: 'readonly',
-        HTMLTextAreaElement: 'readonly',
-        Element: 'readonly',
-        Event: 'readonly',
-        KeyboardEvent: 'readonly',
-        MouseEvent: 'readonly',
-        Node: 'readonly',
-        // Node.js globals
-        NodeJS: 'readonly',
-        process: 'readonly',
-        __dirname: 'readonly',
-        module: 'readonly',
-        require: 'readonly',
-        Buffer: 'readonly',
-        // Bun globals
+        ...globals.browser,
+        ...globals.node,
         Bun: 'readonly',
-        // Additional browser/node globals
-        Window: 'readonly',
         React: 'readonly',
-        setImmediate: 'readonly',
-        URLSearchParams: 'readonly',
+        NodeJS: 'readonly',
       },
     },
     plugins: {
@@ -134,14 +100,7 @@ export default [
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'commonjs',
-      globals: {
-        module: 'readonly',
-        require: 'readonly',
-        exports: 'readonly',
-        __dirname: 'readonly',
-        process: 'readonly',
-        console: 'readonly',
-      },
+      globals: globals.node,
     },
     rules: {
       'no-undef': 'off',

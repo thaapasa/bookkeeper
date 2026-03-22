@@ -75,7 +75,6 @@ export const MonthView: React.FC<MonthViewProps> = ({ date }) => {
       onUpdateExpense={(id, data) =>
         expenses ? setExpenses(expenses.map(e => (e.id === id ? data : e))) : undefined
       }
-      dateBorder={true}
     />
   );
 };

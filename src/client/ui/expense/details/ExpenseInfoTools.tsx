@@ -16,7 +16,7 @@ import * as colors from 'client/ui/Colors';
 import { connect } from 'client/ui/component/BaconConnect';
 import { UserPrompts } from 'client/ui/dialog/DialogState';
 import { Icons } from 'client/ui/icons/Icons';
-import { media } from 'client/ui/Styles';
+import { media } from 'client/ui/layout/Styles.ts';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { getBenefitorsForExpense } from '../dialog/ExpenseDialogData';

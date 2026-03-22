@@ -1,5 +1,4 @@
-import styled from '@emotion/styled';
-import { Burger, Button, Group, Text } from '@mantine/core';
+import { Box, Burger, Button, Group, Text } from '@mantine/core';
 import * as React from 'react';
 import { Link, useMatch } from 'react-router-dom';
 
@@ -14,13 +13,14 @@ import {
   subscriptionsPagePath,
   toolsPagePath,
   trackingPagePath,
-} from 'client/util/Links';
+} from 'client/util/Links.ts';
 
-import { neutral, primary, text } from '../Colors';
-import { Icon, RenderIcon } from '../icons/Icons';
-import { AddExpenseMenu } from '../shortcuts/ShortcutsDropdown';
-import { isMobileSize, Size } from '../Styles';
-import { DateRangeNavigator } from './DateRangeNavigator';
+import { neutral, primary, text } from '../Colors.ts';
+import { DateRangeNavigator } from '../component/DateRangeNavigator.tsx';
+import { Icon, RenderIcon } from '../icons/Icons.tsx';
+import { AddExpenseMenu } from '../shortcuts/ShortcutsDropdown.tsx';
+import { isMobileSize, Size } from './Styles.ts';
+import classes from './TopBar.module.css';
 
 export interface AppLink {
   label: string;
@@ -87,34 +87,29 @@ export const TopBar: React.FC<TopBarProps> = ({ windowSize, menuOpen, onToggleMe
 const NavLink: React.FC<{ link: AppLink; showIcon: boolean }> = ({ link, showIcon }) => {
   const active = !!useMatch(link.path);
   return (
-    <HeaderLink to={link.path} $active={active}>
+    <Box
+      renderRoot={props => <Link to={link.path} {...props} />}
+      display="flex"
+      h="100%"
+      px="md"
+      style={{
+        alignItems: 'center',
+        textDecoration: 'none',
+        color: active ? text : neutral[7],
+        boxShadow: active ? `inset 0 -2px 0 ${primary[5]}` : 'none',
+        transition: 'background-color 150ms, color 150ms',
+      }}
+      className={classes.headerLink}
+    >
       <Group gap="xs" wrap="nowrap" align="center">
         {showIcon && link.icon && <RenderIcon icon={link.icon} fontSize="small" />}
         <Text size="md" fw={active ? 600 : 400} inherit={false}>
           {link.label}
         </Text>
       </Group>
-    </HeaderLink>
+    </Box>
   );
 };
-
-const HeaderLink = styled(Link)<{ $active: boolean }>`
-  display: flex;
-  align-items: center;
-  height: 100%;
-  padding: 0 var(--mantine-spacing-md);
-  text-decoration: none;
-  color: ${p => (p.$active ? text : neutral[7])};
-  box-shadow: ${p => (p.$active ? `inset 0 -2px 0 ${primary[5]}` : 'none')};
-  transition:
-    background-color 150ms,
-    color 150ms;
-
-  &:hover {
-    background-color: light-dark(rgba(0, 0, 0, 0.08), rgba(255, 255, 255, 0.08));
-    color: ${text};
-  }
-`;
 
 /** Button-style link for use in content areas (not the header nav) */
 export const LinkButton: React.FC<{
@@ -124,7 +119,7 @@ export const LinkButton: React.FC<{
 }> = ({ label, to, icon }) => {
   const match = useMatch(to);
   return (
-    <PlainLink to={to}>
+    <Link to={to} style={{ textDecoration: 'none' }}>
       <Button
         variant="subtle"
         size="compact-sm"
@@ -134,10 +129,6 @@ export const LinkButton: React.FC<{
       >
         {label}
       </Button>
-    </PlainLink>
+    </Link>
   );
 };
-
-const PlainLink = styled(Link)`
-  text-decoration: none;
-`;

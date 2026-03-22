@@ -1,4 +1,4 @@
-import { Box, ScrollArea } from '@mantine/core';
+import { Box } from '@mantine/core';
 import * as B from 'baconjs';
 import * as React from 'react';
 
@@ -16,14 +16,12 @@ const InfoViewImpl: React.FC<{ userData: UserDataProps; session: Session }> = ({
   userData,
   session,
 }) => (
-  <ScrollArea h="100%" type="auto">
-    <Box p="lg">
-      <VersionInfoView />
-      <UsersView user={session.user} userMap={userData.userMap} />
-      <SourcesView sources={session.sources} />
-      <CategoriesView categories={session.categories} />
-    </Box>
-  </ScrollArea>
+  <Box p="lg">
+    <VersionInfoView />
+    <UsersView user={session.user} userMap={userData.userMap} />
+    <SourcesView sources={session.sources} />
+    <CategoriesView categories={session.categories} />
+  </Box>
 );
 
 const UsersView: React.FC<{

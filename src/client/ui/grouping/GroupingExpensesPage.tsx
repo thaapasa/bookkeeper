@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { Flex, ScrollArea } from '@mantine/core';
+import { Flex } from '@mantine/core';
 import * as B from 'baconjs';
 import React from 'react';
 import { useParams } from 'react-router';
@@ -26,15 +26,13 @@ export const GroupingExpensesPage: React.FC = () => {
   const expenses = useAsyncData(loadExpenses, !!groupingId, Number(groupingId), counter);
   React.useEffect(() => needUpdateE.onValue(forceReload), [forceReload]);
   return (
-    <ScrollArea h="100%" type="auto">
-      <Flex direction="column" align="center">
-        <AsyncDataView
-          data={expenses}
-          renderer={ConnectedGroupingExpensesRenderer}
-          reloadExpenses={forceReload}
-        />
-      </Flex>
-    </ScrollArea>
+    <Flex direction="column" align="center">
+      <AsyncDataView
+        data={expenses}
+        renderer={ConnectedGroupingExpensesRenderer}
+        reloadExpenses={forceReload}
+      />
+    </Flex>
   );
 };
 

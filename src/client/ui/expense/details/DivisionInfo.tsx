@@ -5,7 +5,7 @@ import { ExpenseDivisionItem, ExpenseDivisionType, ExpenseType } from 'shared/ex
 import { Money, MoneyLike } from 'shared/util';
 import * as colors from 'client/ui/Colors';
 import UserAvatar from 'client/ui/component/UserAvatar';
-import { media } from 'client/ui/Styles';
+import { media } from 'client/ui/layout/Styles.ts';
 
 interface DivisionInfoProps {
   division: ExpenseDivisionItem[];

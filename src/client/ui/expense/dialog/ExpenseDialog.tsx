@@ -29,7 +29,7 @@ import { neutral } from 'client/ui/Colors';
 import UserAvatar from 'client/ui/component/UserAvatar';
 import UserSelector from 'client/ui/component/UserSelector';
 import { Icons } from 'client/ui/icons/Icons';
-import { isMobileSize, Size } from 'client/ui/Styles';
+import { isMobileSize, Size } from 'client/ui/layout/Styles.ts';
 import {
   eventValue,
   stopEventPropagation,

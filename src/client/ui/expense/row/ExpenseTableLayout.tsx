@@ -1,13 +1,12 @@
-import styled from '@emotion/styled';
-import { Box, Center, Loader, Table } from '@mantine/core';
+import { Box, BoxProps, Center, Loader, Table } from '@mantine/core';
 import * as React from 'react';
 
+import { UserExpense } from 'shared/expense';
 import { windowSizeP } from 'client/data/State';
-import { primary } from 'client/ui/Colors';
 import { connect } from 'client/ui/component/BaconConnect';
 import { Icons } from 'client/ui/icons/Icons';
 import { QuestionBookmark } from 'client/ui/icons/QuestionBookmark';
-import { getScreenSizeClassName, ScreenSizeClassName, Size } from 'client/ui/Styles';
+import { getScreenSizeClassName, ScreenSizeClassName, Size } from 'client/ui/layout/Styles.ts';
 
 /* Column visibility */
 
@@ -54,6 +53,25 @@ export function getVisibleColumns(windowSize: Size) {
 export const rowHeight = 40;
 export const sourceWidth = 52;
 
+/* Day parity context — used for alternating row backgrounds by date group */
+
+export const DayParityContext = React.createContext<Record<number, number>>({});
+
+/** Compute a map of expense ID → 0 or 1 parity, toggling on each date change */
+export function computeDayParities(expenses: UserExpense[]): Record<number, number> {
+  const result: Record<number, number> = {};
+  let parity = 0;
+  let lastDate = '';
+  for (const e of expenses) {
+    if (e.date !== lastDate && lastDate !== '') {
+      parity = 1 - parity;
+    }
+    lastDate = e.date;
+    result[e.id] = parity;
+  }
+  return result;
+}
+
 /* Table — Mantine Table with fixed layout */
 
 export const ExpenseTableLayout: React.FC<
@@ -61,7 +79,8 @@ export const ExpenseTableLayout: React.FC<
 > = ({ loading, padded, className, children }) => (
   <Table
     layout="fixed"
-    withRowBorders
+    withRowBorders={false}
+    withTableBorder={false}
     horizontalSpacing={0}
     fz="sm"
     className={className}
@@ -75,7 +94,7 @@ export const ExpenseTableLayout: React.FC<
   </Table>
 );
 
-/* Row — uses Mantine Table.Tr; .first-day class is in bookkeeper.css */
+/* Row — uses Mantine Table.Tr */
 
 export const Row = Table.Tr;
 
@@ -150,54 +169,30 @@ const AllColumnsComponent: React.FC<AllColumnsProps> = ({ size, ...props }) => (
 
 export const AllColumns = connect(windowSizeP.map(size => ({ size })))(AllColumnsComponent);
 
-/* Custom overlay components (genuinely need custom CSS) */
-
-const Corner = styled.div`
-  position: absolute;
-  top: -32px;
-  left: -31px;
-  width: 50px;
-  height: 50px;
-  padding-top: 18px;
-  background-color: var(--mantine-color-neutral-1);
-  transform: rotate(45deg);
-  z-index: 0;
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-end;
-`;
+/* Recurring expense icon — simple inline indicator */
 
 export const RecurringExpenseIcon: React.FC = () => (
-  <Corner title="Toistuva kirjaus">
-    <Icons.Recurring style={{ width: 20, height: 20, color: primary[2] }} />
-  </Corner>
+  <Box display="inline-flex" title="Toistuva kirjaus">
+    <Icons.Recurring style={{ width: 16, height: 16, color: 'var(--mantine-color-primary-5)' }} />
+  </Box>
 );
 
-export const IconToolArea = styled.div`
-  position: absolute;
-  top: 0;
-  right: 16px;
-  height: 24px;
-  & > svg,
-  & > div {
-    margin-left: 4px;
-  }
-`;
+export const IconToolArea: React.FC<React.PropsWithChildren> = ({ children }) => (
+  <Box pos="absolute" top={0} right={16} h={24} className="icon-tool-area">
+    {children}
+  </Box>
+);
 
-const IconContainer = styled.div`
-  cursor: pointer;
-  position: relative;
-  display: inline-block;
-`;
-
-export const UnconfirmedIcon: React.FC<{
-  size?: number;
-  title?: string;
-  onClick?: () => void;
-}> = ({ size, title, onClick }) => (
-  <IconContainer title={title} onClick={onClick}>
+export const UnconfirmedIcon: React.FC<
+  {
+    size?: number;
+    title?: string;
+    onClick?: () => void;
+  } & BoxProps
+> = ({ size, title, onClick, style, ...props }) => (
+  <Box title={title} onClick={onClick} style={{ ...style, cursor: 'pointer' }} {...props}>
     <QuestionBookmark size={size || 24} title={title ?? 'Alustava kirjaus'} />
-  </IconContainer>
+  </Box>
 );
 
 /* Special rows */

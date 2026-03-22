@@ -10,7 +10,7 @@ import { neutral } from '../Colors';
 import { FlexColumn, FlexRow } from '../component/BasicElements';
 import { Subtitle } from '../design/Text';
 import { Icons } from '../icons/Icons';
-import { media } from '../Styles';
+import { media } from '../layout/Styles.ts';
 import { TrackingChart } from './TrackingChartRenderer';
 import { editTrackingSubject } from './TrackingEditor';
 

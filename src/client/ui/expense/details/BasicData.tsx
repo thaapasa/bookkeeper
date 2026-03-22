@@ -3,7 +3,7 @@ import * as React from 'react';
 
 import { UserExpense } from 'shared/expense';
 import { Source } from 'shared/types';
-import { media } from 'client/ui/Styles';
+import { media } from 'client/ui/layout/Styles.ts';
 
 interface BasicDataProps {
   expense: UserExpense;

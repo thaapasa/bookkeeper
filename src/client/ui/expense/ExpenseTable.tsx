@@ -1,4 +1,4 @@
-import { Box, Flex, ScrollArea } from '@mantine/core';
+import { Box, Table } from '@mantine/core';
 import * as React from 'react';
 
 import { Expense, ExpenseStatus, UserExpense } from 'shared/expense';
@@ -15,6 +15,8 @@ import { ExpenseHeader } from './row/ExpenseHeader';
 import { CommonExpenseRowProps, ExpenseRow } from './row/ExpenseRow';
 import { ExpenseRowSeparator } from './row/ExpenseRowSeparator';
 import {
+  computeDayParities,
+  DayParityContext,
   ExpenseTableLayout,
   LoadingIndicator,
   RecurringExpenseSeparator,
@@ -30,7 +32,6 @@ interface ExpenseTableProps {
   unconfirmedBefore: boolean;
   onUpdateExpense: (expenseId: number, expense: UserExpense) => void;
   userData: UserDataProps;
-  dateBorder?: boolean;
 }
 
 interface ExpenseTableState {
@@ -45,9 +46,9 @@ class ExpenseTable extends React.Component<ExpenseTableProps, ExpenseTableState>
     recurringExpanded: false,
   };
 
-  private addFilter = (filter: ExpenseFilterFunction, name: string, avatar?: string) => {
+  private addFilter = (filter: ExpenseFilterFunction, name: string) => {
     this.setState(s => ({
-      filters: s.filters.concat({ filter, name, avatar }),
+      filters: s.filters.concat({ filter, name }),
     }));
   };
 
@@ -115,42 +116,62 @@ class ExpenseTable extends React.Component<ExpenseTableProps, ExpenseTableState>
     const filtered = this.getFilteredExpenses();
     const [recurring, normal] = partition(e => !!e.recurringExpenseId, filtered);
     if (recurring.length < 1) {
-      return normal.map(this.renderExpense);
+      const dayParities = computeDayParities(normal);
+      return (
+        <DayParityContext.Provider value={dayParities}>
+          <ListDecorator
+            items={normal}
+            itemRenderer={ExpenseItem}
+            userData={this.props.userData}
+            addFilter={this.addFilter}
+            onUpdated={this.onUpdateExpense}
+            separator={ExpenseRowSeparator}
+            itemKey={expenseToKey}
+          />
+        </DayParityContext.Provider>
+      );
     } else if (normal.length < 1) {
       return this.renderRecurringExpenses(recurring);
     }
+    const dayParities = computeDayParities(normal);
     return (
       <>
         {this.renderRecurringExpenses(recurring)}
         <RecurringExpenseSeparator />
-        <ListDecorator
-          items={normal}
-          itemRenderer={ExpenseItem}
-          userData={this.props.userData}
-          addFilter={this.addFilter}
-          onUpdated={this.onUpdateExpense}
-          separator={ExpenseRowSeparator}
-          itemKey={expenseToKey}
-          dateBorder={this.props.dateBorder}
-        />
+        <DayParityContext.Provider value={dayParities}>
+          <ListDecorator
+            items={normal}
+            itemRenderer={ExpenseItem}
+            userData={this.props.userData}
+            addFilter={this.addFilter}
+            onUpdated={this.onUpdateExpense}
+            separator={ExpenseRowSeparator}
+            itemKey={expenseToKey}
+          />
+        </DayParityContext.Provider>
       </>
     );
   }
 
   public render() {
     return (
-      <Flex direction="column" h="100%">
-        <ScrollArea flex={1} type="auto">
-          <Box px={{ base: 0, sm: 16 }} style={{ whiteSpace: 'nowrap' }}>
-            <ExpenseTableLayout loading={this.props.loading}>
-              <thead>
-                <ExpenseHeader />
-                <ExpenseFilterRow filters={this.state.filters} onRemoveFilter={this.removeFilter} />
-              </thead>
-              <tbody>{this.renderExpenseRows()}</tbody>
-            </ExpenseTableLayout>
-          </Box>
-        </ScrollArea>
+      <Box style={{ display: 'flex', flexDirection: 'column', minHeight: 'calc(100vh - 56px)' }}>
+        <Box px={{ base: 0, sm: 16 }} style={{ whiteSpace: 'nowrap' }}>
+          <ExpenseTableLayout loading={this.props.loading}>
+            <Table.Thead>
+              <ExpenseHeader />
+              <ExpenseFilterRow filters={this.state.filters} onRemoveFilter={this.removeFilter} />
+            </Table.Thead>
+            <Table.Tbody>{this.renderExpenseRows()}</Table.Tbody>
+          </ExpenseTableLayout>
+        </Box>
+        <Box
+          flex={1}
+          mx={{ base: 0, sm: 16 }}
+          style={{
+            backgroundColor: 'light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-9))',
+          }}
+        />
         <MonthlyStatus
           {...this.props}
           unconfirmedDuring={this.props.expenses.find(e => !e.confirmed) !== undefined}
@@ -159,7 +180,7 @@ class ExpenseTable extends React.Component<ExpenseTableProps, ExpenseTableState>
           showFiltered={this.state.filters.length > 0}
           filteredTotals={this.calculateTotals(this.getFilteredExpenses())}
         />
-      </Flex>
+      </Box>
     );
   }
 }
@@ -171,7 +192,6 @@ const ExpenseItem: React.FC<
     item: UserExpense;
     userData: UserDataProps;
     prev: UserExpense | null;
-    dateBorder?: boolean;
   } & Omit<CommonExpenseRowProps, 'expense'>
 > = ({ item, ...props }) => <ExpenseRow expense={item} {...props} />;
 

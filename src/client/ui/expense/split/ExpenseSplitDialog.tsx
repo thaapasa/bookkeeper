@@ -3,7 +3,7 @@ import { Divider, Modal } from '@mantine/core';
 import * as React from 'react';
 
 import { ExpenseSplit } from 'shared/expense';
-import { isMobileSize } from 'client/ui/Styles';
+import { isMobileSize } from 'client/ui/layout/Styles.ts';
 
 import { ExpenseDialogProps } from '../dialog/ExpenseDialog';
 import { ExpenseDialogContent } from '../dialog/ExpenseDialogComponents';

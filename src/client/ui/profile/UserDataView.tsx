@@ -1,4 +1,4 @@
-import { Button, Loader } from '@mantine/core';
+import { Button, Loader, Text } from '@mantine/core';
 import React from 'react';
 import { create } from 'zustand';
 
@@ -12,7 +12,6 @@ import { logger } from 'client/Logger';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { TextEdit } from '../component/TextEdit';
-import { Text } from '../design/Text';
 import { ProfileItem } from './ProfileItem';
 
 export type UserDataState = UserDataUpdate & {

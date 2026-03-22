@@ -4,7 +4,7 @@ import { windowSizeP } from 'client/data/State';
 
 import { connect } from '../component/BaconConnect';
 import { ShortcutsPage } from '../general/ShortcutsPage';
-import { isMobileSize, Size } from '../Styles';
+import { isMobileSize, Size } from '../layout/Styles.ts';
 import { RoutedMonthView } from './RoutedMonthView';
 
 const FrontpageViewImpl: React.FC<{ size: Size }> = props =>

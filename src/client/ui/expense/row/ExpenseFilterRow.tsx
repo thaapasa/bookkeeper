@@ -1,9 +1,6 @@
-import styled from '@emotion/styled';
-import { Avatar, Pill } from '@mantine/core';
-import * as React from 'react';
+import { Group, Pill, Tooltip } from '@mantine/core';
 
-import { neutral, primary } from 'client/ui/Colors';
-
+import styles from './ExpenseFilterRow.module.css';
 import { ExpenseFilter } from './ExpenseFilters';
 import { AllColumns, Row } from './ExpenseTableLayout';
 
@@ -12,61 +9,41 @@ interface ExpenseFilterRowProps {
   onRemoveFilter: (index: number) => void;
 }
 
-export class ExpenseFilterRow extends React.Component<ExpenseFilterRowProps> {
-  public render() {
-    if (this.props.filters.length === 0) {
-      return null;
-    }
-    return (
-      <Row>
-        <FilterArea>
-          {this.props.filters.map((f, index) => (
+export function ExpenseFilterRow({ filters, onRemoveFilter }: ExpenseFilterRowProps) {
+  if (filters.length === 0) {
+    return null;
+  }
+
+  return (
+    <Row>
+      <AllColumns>
+        <Group w="100%" justify="center" gap="xs">
+          {filters.map((f, index) => (
             <ExpenseFilterItem
               filter={f}
               index={index}
               key={`filter-${index}`}
-              onRemove={this.props.onRemoveFilter}
+              onRemove={onRemoveFilter}
             />
           ))}
-        </FilterArea>
-      </Row>
-    );
-  }
+        </Group>
+      </AllColumns>
+    </Row>
+  );
 }
 
-const chipStyle: React.CSSProperties = {
-  margin: '0.3em',
-  padding: '4px 8px',
-  backgroundColor: neutral[2],
-  color: primary[7],
-};
-
-class ExpenseFilterItem extends React.Component<{
+interface ExpenseFilterItemProps {
   filter: ExpenseFilter;
   index: number;
   onRemove: (index: number) => void;
-}> {
-  private onRemove = () => {
-    this.props.onRemove(this.props.index);
-  };
-  public render() {
-    const f = this.props.filter;
-    return (
-      <Pill style={chipStyle} withRemoveButton onRemove={this.onRemove}>
-        {f.avatar ? <Avatar src={f.avatar} size="xs" /> : null}
-        {f.name}
-      </Pill>
-    );
-  }
 }
 
-const FilterArea = styled(AllColumns)`
-  text-align: center;
-  flex-grow: 1;
-  align-items: center;
-
-  && > div {
-    display: inline-flex;
-    vertical-align: middle;
-  }
-`;
+function ExpenseFilterItem({ filter, index, onRemove }: ExpenseFilterItemProps) {
+  return (
+    <Tooltip withArrow label={filter.name} position="bottom">
+      <Pill className={styles.chip} withRemoveButton size="sm" onRemove={() => onRemove(index)}>
+        {filter.name}
+      </Pill>
+    </Tooltip>
+  );
+}

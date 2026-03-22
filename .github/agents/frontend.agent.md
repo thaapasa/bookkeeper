@@ -29,6 +29,14 @@ old code is legacy — do NOT use it as an example for new code.
 7. **Replace legacy patterns when touching a file.** If you're modifying a component that
    uses `styled` for simple layout, convert those parts to Mantine as part of the change.
 
+## Code Quality: Be Proactive
+
+When working on any file, **actively look for bad code** in that file and nearby code.
+Legacy patterns (Emotion `styled` for simple layout, MUI imports, class components,
+Bacon.js streams), wrong idioms, code smells, and missing best practices should all be
+flagged. Fix issues that are in scope; for out-of-scope issues, always ask whether to
+include the fix. No bad code should go unmentioned.
+
 ## What "legacy code" looks like (don't copy these patterns)
 
 - `import styled from '@emotion/styled'` with simple layout wrappers

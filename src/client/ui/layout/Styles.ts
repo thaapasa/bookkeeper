@@ -13,8 +13,7 @@ export const mobilePortraitMaxWidth = 600;
 export const mobileLandscapeMaxWidth = 840;
 export const largeDeviceMinWidth = 1400;
 
-export const mainContentMargin = 32;
-export const mainContentMaxWidth = largeDeviceMinWidth - 2 * mainContentMargin;
+export const mainContentMaxWidth = largeDeviceMinWidth;
 
 export function isMobilePortraitSize(windowSize: Size) {
   return windowSize.width < mobilePortraitMaxWidth;
@@ -111,4 +110,4 @@ export const media = {
 };
 
 // Styled components moved to GlobalStyles.ts
-export { Flex, Pre, VCenterRow } from './GlobalStyles';
+export { Flex, Pre } from '../GlobalStyles.ts';

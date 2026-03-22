@@ -4,7 +4,7 @@ import * as React from 'react';
 import { calculateTotals, UserExpense } from 'shared/expense';
 
 import { neutral, primary } from '../Colors';
-import { mainContentMaxWidth, media } from '../Styles';
+import { mainContentMaxWidth, media } from '../layout/Styles.ts';
 
 interface TotalsViewProps {
   results: UserExpense[];

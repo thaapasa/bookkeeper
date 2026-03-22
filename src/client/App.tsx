@@ -5,12 +5,12 @@ import { logger } from 'client/Logger';
 
 import { checkLoginState, sessionP } from './data/Login';
 import { windowSizeBus } from './data/State';
-import { BookkeeperPage } from './ui/general/BookkeeperPage';
 import { ErrorView } from './ui/general/ErrorView';
 import { LoginPage } from './ui/general/LoginPage';
 import { useAsyncData } from './ui/hooks/useAsyncData';
 import { useSessionRefreshOnFocus } from './ui/hooks/useSessionRefreshOnFocus';
 import { useWindowSize } from './ui/hooks/useWindowSize';
+import { BookkeeperPage } from './ui/layout/BookkeeperPage.tsx';
 
 export const App: React.FC = () => {
   const [session, setSession] = React.useState<Session | undefined>(undefined);

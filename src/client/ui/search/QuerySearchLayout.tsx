@@ -15,7 +15,7 @@ import { DateRangeSelector } from '../component/daterange/DateRangeSelector';
 import { Row } from '../component/Row';
 import UserSelector from '../component/UserSelector';
 import { Icons } from '../icons/Icons';
-import { media } from '../Styles';
+import { media } from '../layout/Styles.ts';
 import { SearchInputField } from './SearchInputField';
 import { SearchSuggestion } from './SearchSuggestions';
 import { SelectedSuggestionsView } from './SelectedSuggestionsView';

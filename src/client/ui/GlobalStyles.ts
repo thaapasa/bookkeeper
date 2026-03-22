@@ -1,8 +1,4 @@
 import styled from '@emotion/styled';
-import { Group } from '@mantine/core';
-
-/** @deprecated Use Mantine Group directly */
-export const VCenterRow = Group;
 
 export const Flex = styled.div`
   flex: 1;

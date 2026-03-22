@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { ActionIcon, Badge } from '@mantine/core';
+import { ActionIcon, Badge, Title as MantineTitle } from '@mantine/core';
 import React from 'react';
 
 import { uri } from 'shared/net';
@@ -12,11 +12,11 @@ import { groupingsPagePath } from 'client/util/Links';
 
 import { neutral, primary } from '../Colors';
 import { FlexColumn, FlexRow } from '../component/BasicElements';
-import { LinkButton } from '../component/TopBar';
-import { Subtitle, TitleCss } from '../design/Text';
+import { Subtitle } from '../design/Text';
 import { Flex } from '../GlobalStyles';
 import { Icons } from '../icons/Icons';
-import { media } from '../Styles';
+import { media } from '../layout/Styles.ts';
+import { LinkButton } from '../layout/TopBar.tsx';
 import { GroupedExpenseIcon } from './GroupedExpenseIcon';
 import { editExpenseGrouping } from './GroupingEditor';
 import { ExpenseGroupingsTagFilters, useFilterTags } from './useFilterTags';
@@ -85,7 +85,9 @@ export const ExpenseGroupingView: React.FC<{
                 ))}
               </TagsList>
             ) : null}
-            <Sum>{Money.from(grouping.totalSum).format()}</Sum>
+            <MantineTitle order={1} c={primary[7]}>
+              {Money.from(grouping.totalSum).format()}
+            </MantineTitle>
             <GroupingDates grouping={grouping} />
           </InfoTextArea>
           <ButtonRow>
@@ -182,11 +184,6 @@ const InfoTextArea = styled(Flex)`
   align-items: center;
   justify-content: center;
   padding: 24px 16px 0 16px;
-`;
-
-const Sum = styled.div`
-  ${TitleCss};
-  color: ${primary[7]};
 `;
 
 const DatesText = styled.div``;

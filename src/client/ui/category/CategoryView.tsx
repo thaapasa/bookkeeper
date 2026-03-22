@@ -1,5 +1,4 @@
 import styled from '@emotion/styled';
-import { ScrollArea } from '@mantine/core';
 import * as B from 'baconjs';
 import * as React from 'react';
 
@@ -36,18 +35,16 @@ const CategoryView: React.FC<CategoryViewProps> = ({ range, categories, ...rest 
     return null;
   }
   return (
-    <ScrollArea h="100%" type="auto">
-      <div>
-        <StyledChart chartData={data.value.categoryChartData} />
-        <CategoryTable
-          {...rest}
-          categories={categories}
-          range={range}
-          onCategoriesChanged={updateSession}
-          categoryTotals={data.value.categoryTotals}
-        />
-      </div>
-    </ScrollArea>
+    <div>
+      <StyledChart chartData={data.value.categoryChartData} />
+      <CategoryTable
+        {...rest}
+        categories={categories}
+        range={range}
+        onCategoriesChanged={updateSession}
+        categoryTotals={data.value.categoryTotals}
+      />
+    </div>
   );
 };
 
