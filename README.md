@@ -138,14 +138,15 @@ This project includes comprehensive documentation for both developers and AI age
 - [Backend Improvements](./docs/BACKEND_IMPROVEMENTS.md) - Planned backend improvements and tech debt
 - [Frontend Improvements](./docs/FRONTEND_IMPROVEMENTS.md) - Planned frontend improvements and tech debt
 
-### AI Agent Rules (Cursor)
+### AI Agent Instructions
 
 These files provide context for AI-assisted coding:
 
-- [Backend Rules](./.cursor/rules/backend.mdc) - Server-side development conventions
-- [Frontend Rules](./.cursor/rules/frontend.mdc) - React/UI development conventions
-- [Code Improvement](./.cursor/rules/code-improvement.mdc) - Code review and best practices persona
-- [Documentation Rules](./.cursor/rules/documentation.mdc) - Documentation standards and review guidelines
+- [AGENTS.md](./AGENTS.md) / [CLAUDE.md](./CLAUDE.md) — Shared project conventions (symlinked)
+- [Frontend agent](./.github/agents/frontend.agent.md) — Mantine 8 / React UI conventions
+- [Backend agent](./.github/agents/backend.agent.md) — Express / pg-promise conventions
+- [Frontend CLAUDE.md](./src/client/CLAUDE.md) — Frontend conventions for Claude Code
+- [Backend CLAUDE.md](./src/server/CLAUDE.md) — Backend conventions for Claude Code
 
 ### Quick References
 
