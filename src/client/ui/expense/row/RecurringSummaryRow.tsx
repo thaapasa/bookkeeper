@@ -1,4 +1,3 @@
-import styled from '@emotion/styled';
 import { Box, Group, Text } from '@mantine/core';
 import * as React from 'react';
 
@@ -6,9 +5,9 @@ import { UserExpense } from 'shared/expense';
 import { Minus, Money, Plus } from 'shared/util';
 import { useWindowSize } from 'client/ui/hooks/useWindowSize';
 import { Icons } from 'client/ui/icons/Icons';
-import { isMobileSize, media } from 'client/ui/layout/Styles.ts';
+import { isMobileSize } from 'client/ui/layout/Styles.ts';
 
-import { ExpenseFilterFunction, ExpenseFilters } from './ExpenseFilters';
+import { AddFilterFn, ExpenseFilters } from './ExpenseFilters';
 import {
   AllColumns,
   IconToolArea,
@@ -17,12 +16,13 @@ import {
   rowHeight,
   UnconfirmedIcon,
 } from './ExpenseTableLayout';
+import styles from './RecurringSummaryRow.module.css';
 
 interface RecurringSummaryRowProps {
   recurring: UserExpense[];
   isExpanded: boolean;
   onToggle: () => void;
-  addFilter: (filter: ExpenseFilterFunction, name: string, avatar?: string) => void;
+  addFilter: AddFilterFn;
 }
 
 export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
@@ -61,26 +61,26 @@ export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
             </Text>{' '}
             ({recurring.length} kpl)
           </Group>
-          <Item>
+          <Box px={8}>
             {isMobile ? null : 'Tulot: '}
             <Text component="span" ta="right" fw="bold" display="inline-block" w={73}>
               {isMobile ? `${Plus} ` : null}
               {income.format()}
             </Text>
-          </Item>
-          <Item>
+          </Box>
+          <Box px={8}>
             {isMobile ? null : 'Menot: '}
             <Text component="span" ta="right" fw="bold" display="inline-block" w={73}>
               {isMobile ? `${Minus} ` : null}
               {expense.format()}
             </Text>
-          </Item>
-          <Item className="optional">
+          </Box>
+          <Box px={8} className={styles.hideOnMobile}>
             Balanssi:{' '}
             <Text component="span" ta="right" fw="bold" display="inline-block" w={73}>
               {balance.format()}
             </Text>
-          </Item>
+          </Box>
           <Box px={8}>
             {isExpanded ? (
               <Icons.ExpandLess onClick={onToggle} />
@@ -93,12 +93,3 @@ export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
     </Row>
   );
 };
-
-const Item = styled.div`
-  padding: 0 8px;
-  ${media.mobile`
-    &.optional {
-      display: none;
-    }
-  `}
-`;

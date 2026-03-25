@@ -1,0 +1,11 @@
+.weekDay {
+  padding-right: 4px;
+  font-weight: bold;
+}
+
+/* mobileLandscapeMaxWidth (840px) from Styles.ts */
+@media screen and (max-width: 839px) {
+  .weekDay {
+    display: none;
+  }
+}

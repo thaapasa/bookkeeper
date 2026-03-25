@@ -1,4 +1,3 @@
-import styled from '@emotion/styled';
 import { Box, Group } from '@mantine/core';
 import * as React from 'react';
 
@@ -24,13 +23,13 @@ import { UserPrompts } from 'client/ui/dialog/DialogState';
 import { GroupedExpenseIcon } from 'client/ui/grouping/GroupedExpenseIcon';
 import { ExpenseTypeIcon } from 'client/ui/icons/ExpenseType';
 import { ToolIcon } from 'client/ui/icons/ToolIcon';
-import { media } from 'client/ui/layout/Styles.ts';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { ExpenseInfo } from '../details/ExpenseInfo';
 import { ReceiverField } from '../dialog/ReceiverField';
 import { expenseName } from '../ExpenseHelper';
-import { ExpenseFilterFunction, ExpenseFilters } from './ExpenseFilters';
+import { AddFilterFn, ExpenseFilters } from './ExpenseFilters';
+import rowStyles from './ExpenseRow.module.css';
 import { SourceIcon, TextButton } from './ExpenseRowComponents';
 import {
   AvatarColumn,
@@ -56,7 +55,7 @@ export interface CommonExpenseRowProps {
   prev?: UserExpense | null;
   onUpdated: (expense: UserExpense) => void;
   selectCategory?: (category: Category) => void;
-  addFilter: (filter: ExpenseFilterFunction, name: string) => void;
+  addFilter: AddFilterFn;
 }
 
 interface ExpenseRowImplProps extends CommonExpenseRowProps {
@@ -182,7 +181,7 @@ const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
       <Row bg={parity === 1 ? 'neutral.1' : undefined}>
         <DateColumn onClick={editDate}>
           {expense.recurringExpenseId ? <RecurringExpenseIcon /> : null}
-          <WeekDay>{weekDay(expense.date, prev)}</WeekDay>
+          <span className={rowStyles.weekDay}>{weekDay(expense.date, prev)}</span>
           {readableDate(expense.date)}
         </DateColumn>
         <AvatarColumn>
@@ -304,11 +303,3 @@ function weekDay(date: string, prev?: UserExpense | null) {
   const m = toDateTime(date);
   return !prev || !m.hasSame(toDateTime(prev.date), 'day') ? m.toFormat('ccc') : null;
 }
-
-const WeekDay = styled.span`
-  padding-right: 4px;
-  font-weight: bold;
-  ${media.mobile`
-    display: none;
-  `}
-`;

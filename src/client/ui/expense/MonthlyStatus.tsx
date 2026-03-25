@@ -7,7 +7,7 @@ import { Money, MoneyLike } from 'shared/util';
 import { Icons } from '../icons/Icons';
 import { ExpenseTotals, money } from './ExpenseHelper';
 import styles from './MonthlyStatus.module.css';
-import { ExpenseFilterFunction, ExpenseFilters } from './row/ExpenseFilters';
+import { AddFilterFn, ExpenseFilters } from './row/ExpenseFilters';
 import { UnconfirmedIcon } from './row/ExpenseTableLayout';
 
 interface StatusProps {
@@ -19,7 +19,7 @@ interface StatusProps {
   totals: ExpenseTotals | null;
   showFiltered: boolean;
   filteredTotals: ExpenseTotals | null;
-  addFilter: (filter: ExpenseFilterFunction, name: string, avatar?: string) => void;
+  addFilter: AddFilterFn;
 }
 
 export const MonthlyStatus: React.FC<StatusProps> = props => {
