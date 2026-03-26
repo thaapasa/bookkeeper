@@ -32,8 +32,12 @@ export const ExpenseInfo: React.FC<ExpenseInfoProps> = ({
   }
   return (
     <Row>
-      <AllColumns style={{ backgroundColor: 'var(--mantine-color-primary-7)' }}>
-        <Box pos="relative" ml={16} bg="neutral.1">
+      <AllColumns
+        style={{
+          backgroundColor: 'light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-9))',
+        }}
+      >
+        <Box pos="relative" ml={16}>
           <BasicData expense={expense} {...props} />
           <RecurrenceInfo expense={expense} />
           {expense.description ? (

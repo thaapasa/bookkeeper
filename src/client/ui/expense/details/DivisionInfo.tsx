@@ -109,8 +109,7 @@ const DivisionRow = styled.tr`
 const UserColumn = styled.td`
   width: 32px;
   height: 32px;
-  padding: 8px;
-  padding-left: 24px;
+  padding: 8px 8px 8px 24px;
 `;
 
 const DivisionColumn = styled.td`

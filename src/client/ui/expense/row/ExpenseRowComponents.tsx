@@ -10,7 +10,12 @@ export const SourceIcon: React.FC<{
   onClick?: () => void;
 }> = ({ source, onClick }) => {
   const content = source.image ? (
-    <img src={source.image} title={source.name} style={{ maxWidth: 40, maxHeight: 28 }} />
+    <img
+      src={source.image}
+      title={source.name}
+      style={{ maxWidth: 40, maxHeight: 28 }}
+      alt={source.name}
+    />
   ) : source.abbreviation ? (
     source.abbreviation
   ) : (
