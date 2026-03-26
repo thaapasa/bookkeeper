@@ -31,7 +31,6 @@ dist
 /build-server
 .env
 deploy
-.claude
 
 # Prod DB dump file
 prod.dump
