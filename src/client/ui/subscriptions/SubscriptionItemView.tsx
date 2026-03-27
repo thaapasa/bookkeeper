@@ -1,3 +1,4 @@
+import { useDisclosure } from '@mantine/hooks';
 import * as React from 'react';
 
 import { ExpenseReport, RecurrencePeriod, RecurringExpense } from 'shared/expense';
@@ -8,7 +9,6 @@ import { updateExpenses } from 'client/data/State';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { ExpanderIcon } from '../component/ExpanderIcon';
-import { useToggle } from '../hooks/useToggle';
 import { ToolIcon } from '../icons/ToolIcon';
 import { Dates, Label, Period, RowElement, Sum, Tools } from './layout';
 import { SubscriptionDetails } from './SubscriptionDetails';
@@ -28,7 +28,7 @@ const RecurringExpenseItem: React.FC<{
   item: RecurringExpense;
   className?: string;
 }> = ({ item, className }) => {
-  const [open, toggle] = useToggle(false);
+  const [open, { toggle }] = useDisclosure(false);
   return (
     <>
       <RowElement className={`${className} ${item.occursUntil ? 'inactive' : undefined}`}>

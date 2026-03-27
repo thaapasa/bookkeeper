@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { useDisclosure } from '@mantine/hooks';
 import * as React from 'react';
 
 import { ExpenseSplit } from 'shared/expense';
@@ -6,7 +7,6 @@ import { isDefined } from 'shared/types';
 import { Money } from 'shared/util';
 import { getFullCategoryName } from 'client/data/Categories';
 import UserSelector from 'client/ui/component/UserSelector';
-import { useToggle } from 'client/ui/hooks/useToggle';
 import { Icons } from 'client/ui/icons/Icons';
 
 import { ToolIconButton } from '../details/ExpenseInfoTools';
@@ -28,7 +28,7 @@ type SplitRowProps = {
 
 export const SplitRow: React.FC<SplitRowProps> = props => {
   const { split, categoryMap, editSum, removeSplit, splitIndex, sourceMap } = props;
-  const [edit, toggleEdit] = useToggle(!split.title);
+  const [edit, { toggle: toggleEdit }] = useDisclosure(!split.title);
   return edit ? (
     <SplitEditor {...props} close={toggleEdit} />
   ) : (

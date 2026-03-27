@@ -1,9 +1,9 @@
 import styled from '@emotion/styled';
 import { ActionIcon, DEFAULT_THEME } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 import * as React from 'react';
 
 import { neutral } from '../Colors';
-import { useToggle } from '../hooks/useToggle';
 import { Icons } from '../icons/Icons';
 import { FlexColumn, FlexRow } from './BasicElements';
 import { TextEdit } from './TextEdit';
@@ -33,7 +33,7 @@ const shadeIndices = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
 const defaultShadeIdx = 4;
 
 export const ColorPicker: React.FC<ColorPickerProps> = ({ value, onChange }) => {
-  const [open, toggle] = useToggle();
+  const [open, { toggle }] = useDisclosure();
   const [shade, setShade] = React.useState<number>(defaultShadeIdx);
   return (
     <>

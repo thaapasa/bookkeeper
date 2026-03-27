@@ -1,3 +1,4 @@
+import { useDisclosure } from '@mantine/hooks';
 import * as React from 'react';
 
 import { toISODate, UIDateRange } from 'shared/time';
@@ -12,7 +13,6 @@ import { classNameForMoney } from '../ColorUtils';
 import { ExpenseRow } from '../expense/row/ExpenseRow';
 import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
 import { useDeferredData } from '../hooks/useAsyncData';
-import { useToggle } from '../hooks/useToggle';
 import { AllColumns, NameColumn, RowElement, SumColumn, ToolColumn } from './CategoryTableLayout';
 import { AddCategoryButton, EditCategoryButton, ToggleButton } from './CategoryTools';
 
@@ -35,7 +35,7 @@ function formatMoney(m?: MoneyLike): string {
 export const CategoryRow: React.FC<CategoryRowProps> = props => {
   const { category, header, categoryTotals, className, title, createCategory, editCategory } =
     props;
-  const [open, toggleOpen] = useToggle();
+  const [open, { toggle: toggleOpen }] = useDisclosure();
 
   const totals = categoryTotals['' + category.id];
   const clsName = `${className ?? ''} ${header ? 'main-category' : 'sub-category'}`;
