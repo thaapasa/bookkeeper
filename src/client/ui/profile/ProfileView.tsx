@@ -1,5 +1,4 @@
-import styled from '@emotion/styled';
-import { Flex } from '@mantine/core';
+import { Box, Flex } from '@mantine/core';
 import * as B from 'baconjs';
 import React from 'react';
 
@@ -16,28 +15,24 @@ import { UserDataView } from './UserDataView';
 export const ProfileViewImpl = RequireProperty('session', ({ session }: { session: Session }) => {
   return (
     <Flex direction="column" align="center">
-      <FormGrid>
-        <FullWidth>
+      <Box
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'auto 1fr',
+          gap: 16,
+        }}
+        p="md"
+        maw={800}
+      >
+        <Box style={{ gridColumn: '1 / -1' }}>
           <Title>Profiilitiedot</Title>
-        </FullWidth>
+        </Box>
         <UserDataView session={session} />
         <PasswordView session={session} />
         <ProfileImageView session={session} />
-      </FormGrid>
+      </Box>
     </Flex>
   );
 });
-
-const FormGrid = styled.div`
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 16px;
-  padding: 16px;
-  max-width: 800px;
-`;
-
-const FullWidth = styled.div`
-  grid-column: 1 / -1;
-`;
 
 export const ProfileView = connect(B.combineTemplate({ session: sessionP }))(ProfileViewImpl);

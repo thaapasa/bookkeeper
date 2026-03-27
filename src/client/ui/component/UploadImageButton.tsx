@@ -1,4 +1,3 @@
-import styled from '@emotion/styled';
 import { ActionIcon } from '@mantine/core';
 import * as React from 'react';
 
@@ -47,11 +46,7 @@ export const UploadImageButton: React.FC<React.PropsWithChildren<UploadImageButt
       >
         {children}
       </ActionIcon>
-      <FileInput type="file" id="upload-file" onChange={selectFile} ref={ref} />
+      <input type="file" id="upload-file" onChange={selectFile} ref={ref} style={{ display: 'none' }} />
     </>
   );
 };
-
-const FileInput = styled('input')`
-  display: none;
-`;

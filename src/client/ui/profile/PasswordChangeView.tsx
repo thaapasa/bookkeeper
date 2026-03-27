@@ -1,5 +1,4 @@
-import styled from '@emotion/styled';
-import { Button, Loader } from '@mantine/core';
+import { Box, Button, Loader } from '@mantine/core';
 import React from 'react';
 import { Route, Routes, useNavigate } from 'react-router-dom';
 import { create } from 'zustand';
@@ -139,9 +138,9 @@ export const PasswordView: React.FC<{ session: Session }> = ({ session }) => {
   const navigate = useNavigate();
   return (
     <>
-      <FullWidth>
+      <Box style={{ gridColumn: '1 / -1' }}>
         <Subtitle>Salasana</Subtitle>
-      </FullWidth>
+      </Box>
       <Routes>
         <Route path="/salasana" element={<PasswordChangeView session={session} />}></Route>
         <Route
@@ -163,7 +162,3 @@ async function changeUserPassword(data: PasswordUpdate) {
   await updateSession();
   logger.info(`Data saved!`);
 }
-
-const FullWidth = styled.div`
-  grid-column: 1 / -1;
-`;
