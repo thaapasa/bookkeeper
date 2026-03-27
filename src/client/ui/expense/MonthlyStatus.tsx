@@ -4,6 +4,7 @@ import * as React from 'react';
 import { ExpenseStatus } from 'shared/expense';
 import { Money, MoneyLike } from 'shared/util';
 
+import { SectionLabel } from '../design/Text';
 import { Icons } from '../icons/Icons';
 import { ExpenseTotals, money } from './ExpenseHelper';
 import styles from './MonthlyStatus.module.css';
@@ -113,9 +114,9 @@ function StatusBlock({
   const sum = inc.plus(exp);
   return (
     <Stack gap={2} bg={bg} style={{ ...style, position: 'relative' }} {...props}>
-      <Text fz="sm" fw={600} c="primary.7" pt={6} pb={2}>
+      <SectionLabel pt={6} pb={2}>
         {title}
-      </Text>
+      </SectionLabel>
       {expanded && <CalculationRow title={incomeTitle} sum={inc} />}
       {expanded && <CalculationRow title={expenseTitle} sum={exp} />}
       <CalculationRow title="Yhteensä" sum={sum} drawTopBorder={expanded} />

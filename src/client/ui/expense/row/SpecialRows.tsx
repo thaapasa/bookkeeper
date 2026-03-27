@@ -1,4 +1,4 @@
-import { Box, Center, Loader, Table } from '@mantine/core';
+import { Box, Center, Loader, Table, TableTdProps } from '@mantine/core';
 import * as React from 'react';
 
 import { windowSizeP } from 'client/data/State';
@@ -10,12 +10,9 @@ import { getVisibleColumns } from './columns';
 
 /* AllColumns — spans all visible columns (uses BaconJS for responsive colspan) */
 
-interface AllColumnsProps {
-  className?: string;
-  style?: React.CSSProperties;
-  children?: React.ReactNode;
+type AllColumnsProps = {
   size: Size;
-}
+} & TableTdProps;
 
 const AllColumnsComponent: React.FC<AllColumnsProps> = ({ size, ...props }) => (
   <Table.Td colSpan={getVisibleColumns(size)} {...props} />

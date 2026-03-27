@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { Box, Text } from '@mantine/core';
 import * as React from 'react';
 
 import { UserExpense } from 'shared/expense';
@@ -20,10 +21,12 @@ export const BasicData: React.FC<BasicDataProps> = ({ expense, fullCategoryName,
 );
 
 const DetailRow: React.FC<{ name: string; value: string }> = ({ name, value }) => (
-  <DetailRowContainer>
-    <DetailLabel>{name + ':'}</DetailLabel>
+  <Box py={4}>
+    <Text component="span" display="inline-block" w={80}>
+      {name + ':'}
+    </Text>
     {value}
-  </DetailRowContainer>
+  </Box>
 );
 
 const SmallDeviceContainer = styled.div`
@@ -33,13 +36,4 @@ const SmallDeviceContainer = styled.div`
   ${media.mobilePortrait`
     display: block;
   `}
-`;
-
-const DetailRowContainer = styled.div`
-  padding: 4px 0;
-`;
-
-const DetailLabel = styled.div`
-  display: inline-block;
-  width: 80px;
 `;

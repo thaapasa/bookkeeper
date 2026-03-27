@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { ActionIcon } from '@mantine/core';
+import { ActionIcon, Text } from '@mantine/core';
 import * as B from 'baconjs';
 import * as React from 'react';
 import { NavigateFunction, useNavigate } from 'react-router';
@@ -14,7 +14,6 @@ import { createNewExpense, navigationP, requestNewExpense } from 'client/data/St
 import { executeOperation } from 'client/util/ExecuteOperation';
 import { newExpenseSuffix } from 'client/util/Links';
 
-import { primary } from '../Colors';
 import { connect } from '../component/BaconConnect';
 import { Row } from '../component/Row';
 import { Flex } from '../GlobalStyles';
@@ -72,7 +71,9 @@ const ShortcutRow: React.FC<
         className={onClick || expense ? 'clickable' : undefined}
       >
         <ShortcutLink {...props} title={title} />
-        <Title>{title}</Title>
+        <Text c="primary.7" fz="sm" ml={8}>
+          {title}
+        </Text>
       </Row>
       {children}
       {allowEdit && id ? (
@@ -158,12 +159,6 @@ const TitledRow = styled.div`
   align-items: center;
   justify-content: flex-start;
   align-self: stretch;
-`;
-
-const Title = styled.div`
-  margin-left: 8px;
-  color: ${primary[7]};
-  font-size: var(--mantine-font-size-sm);
 `;
 
 export const ShortcutsView = connect(

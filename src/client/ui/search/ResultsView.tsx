@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { Group, Text } from '@mantine/core';
 import * as B from 'baconjs';
 import * as React from 'react';
 
@@ -8,8 +9,8 @@ import { Category } from 'shared/types';
 import { groupBy, noop, typedKeys } from 'shared/util';
 import { userDataP, UserDataProps } from 'client/data/Categories';
 
-import { neutral, primary } from '../Colors';
 import { connect } from '../component/BaconConnect';
+import { SectionLabel } from '../design/Text';
 import { ExpenseRow } from '../expense/row/ExpenseRow';
 import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
 import { media } from '../layout/Styles.ts';
@@ -26,7 +27,9 @@ const ResultsViewImpl: React.FC<ResultsProps> = ({ results, ...rest }) => {
   const hasResults = results && results.length > 0;
   return (
     <ResultsArea>
-      <Header>Hakutulokset</Header>
+      <Text c="primary.7" m="8px 24px">
+        Hakutulokset
+      </Text>
       <ResultsContents results={results} {...rest} />
       {hasResults ? <TotalsView results={results} /> : null}
     </ResultsArea>
@@ -40,7 +43,7 @@ const ResultsContents: React.FC<ResultsProps> = ({ results, ...rest }) => {
       : undefined;
 
   if (!resultsByYears) {
-    return <Info>Ei tuloksia, tarkista hakuehdot</Info>;
+    return <Text m="8px 24px">Ei tuloksia, tarkista hakuehdot</Text>;
   }
   const years = typedKeys(resultsByYears);
   return (
@@ -81,25 +84,35 @@ export const ResultsView = connect(B.combineTemplate({ userData: userDataP }))(R
 function YearHeader({ year, expenses }: { year: string; expenses: UserExpense[] }) {
   const totals = calculateTotals(expenses);
   return (
-    <YearHeaderRow>
-      <HeaderText>Vuosi {year}</HeaderText>
-      <SumColumn>
-        <SumLabel>Yhteensä</SumLabel>
-        <SumValue>{totals.total.format()}</SumValue>
-      </SumColumn>
-      <SumColumn>
-        <SumLabel>Tulot</SumLabel>
-        <SumValue>{totals.income.format()}</SumValue>
-      </SumColumn>
-      <SumColumn>
-        <SumLabel>Menot</SumLabel>
-        <SumValue>{totals.expense.format()}</SumValue>
-      </SumColumn>
-      <SumColumn>
-        <SumLabel>Siirrot</SumLabel>
-        <SumValue>{totals.transfer.format()}</SumValue>
-      </SumColumn>
-    </YearHeaderRow>
+    <Group bg="neutral.1" p="16px 24px" w="100%" wrap="nowrap" style={{ boxSizing: 'border-box' }}>
+      <Text c="primary.7" flex={1}>
+        Vuosi {year}
+      </Text>
+      <Group gap={0} ml={16} wrap="nowrap">
+        <SectionLabel component="span">Yhteensä</SectionLabel>
+        <Text component="span" c="primary.9" ml={8}>
+          {totals.total.format()}
+        </Text>
+      </Group>
+      <Group gap={0} ml={16} wrap="nowrap">
+        <SectionLabel component="span">Tulot</SectionLabel>
+        <Text component="span" c="primary.9" ml={8}>
+          {totals.income.format()}
+        </Text>
+      </Group>
+      <Group gap={0} ml={16} wrap="nowrap">
+        <SectionLabel component="span">Menot</SectionLabel>
+        <Text component="span" c="primary.9" ml={8}>
+          {totals.expense.format()}
+        </Text>
+      </Group>
+      <Group gap={0} ml={16} wrap="nowrap">
+        <SectionLabel component="span">Siirrot</SectionLabel>
+        <Text component="span" c="primary.9" ml={8}>
+          {totals.transfer.format()}
+        </Text>
+      </Group>
+    </Group>
   );
 }
 
@@ -107,43 +120,4 @@ const ResultsArea = styled.div`
   ${media.web`
     overflow-y: scroll;
   `}
-`;
-
-const Header = styled.div`
-  color: ${primary[7]};
-  margin: 8px 24px;
-`;
-
-const YearHeaderRow = styled.div`
-  padding: 16px 24px;
-  background-color: ${neutral[1]};
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  box-sizing: border-box;
-`;
-
-const HeaderText = styled.div`
-  color: ${primary[7]};
-  flex: 1;
-`;
-
-const SumColumn = styled.div`
-  display: flex;
-  flex-direction: row;
-  margin-left: 16px;
-`;
-
-const SumLabel = styled.span`
-  font-weight: bold;
-  color: ${primary[7]};
-`;
-
-const SumValue = styled.div`
-  margin-left: 8px;
-  color: ${primary[9]};
-`;
-
-const Info = styled.div`
-  margin: 8px 24px;
 `;

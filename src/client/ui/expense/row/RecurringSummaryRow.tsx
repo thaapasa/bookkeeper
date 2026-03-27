@@ -1,8 +1,9 @@
-import { Box, Group, Text } from '@mantine/core';
+import { Box, Group } from '@mantine/core';
 import * as React from 'react';
 
 import { UserExpense } from 'shared/expense';
 import { Minus, Money, Plus } from 'shared/util';
+import { DataValue, SectionLabel } from 'client/ui/design/Text';
 import { useWindowSize } from 'client/ui/hooks/useWindowSize';
 import { Icons } from 'client/ui/icons/Icons';
 import { isMobileSize } from 'client/ui/layout/Styles.ts';
@@ -56,30 +57,27 @@ export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
                 />
               </IconToolArea>
             ) : null}
-            <Text component="span" c="primary.7" fw="bold" pr={4}>
+            <SectionLabel component="span" pr={4}>
               Toistuvat{' '}
-            </Text>{' '}
+            </SectionLabel>{' '}
             ({recurring.length} kpl)
           </Group>
           <Box px={8}>
             {isMobile ? null : 'Tulot: '}
-            <Text component="span" ta="right" fw="bold" display="inline-block" w={73}>
+            <DataValue w={73}>
               {isMobile ? `${Plus} ` : null}
               {income.format()}
-            </Text>
+            </DataValue>
           </Box>
           <Box px={8}>
             {isMobile ? null : 'Menot: '}
-            <Text component="span" ta="right" fw="bold" display="inline-block" w={73}>
+            <DataValue w={73}>
               {isMobile ? `${Minus} ` : null}
               {expense.format()}
-            </Text>
+            </DataValue>
           </Box>
           <Box px={8} className={styles.hideOnMobile}>
-            Balanssi:{' '}
-            <Text component="span" ta="right" fw="bold" display="inline-block" w={73}>
-              {balance.format()}
-            </Text>
+            Balanssi: <DataValue w={73}>{balance.format()}</DataValue>
           </Box>
           <Box px={8}>
             {isExpanded ? (

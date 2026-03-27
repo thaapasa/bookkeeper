@@ -6,15 +6,8 @@ import { AllColumns } from './SpecialRows';
 
 export const WeekHeaderRow: React.FC<{ week: string }> = ({ week }) => (
   <Row>
-    <AllColumns
-      style={{
-        padding: '16px 4px 8px 4px',
-        fontStyle: 'italic',
-        backgroundColor: 'var(--mantine-color-neutral-1)',
-        color: 'var(--mantine-color-primary-7)',
-      }}
-    >
-      <Text span fz="md" fw={700}>
+    <AllColumns bg="neutral.1" c="primary.7">
+      <Text fz="md" fw={700} px="md" fs="italic">
         Viikko {week}
       </Text>
     </AllColumns>

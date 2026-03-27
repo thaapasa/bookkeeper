@@ -13,7 +13,7 @@ import { Row } from '../component/Row';
 import { TextEdit } from '../component/TextEdit';
 import { UploadImageButton } from '../component/UploadImageButton';
 import { checkersBackground } from '../design/Background';
-import { Subtitle } from '../design/Text';
+import { DialogHeading, Subtitle } from '../design/Text';
 import { connectDialog } from '../dialog/DialogConnector';
 import { Flex } from '../GlobalStyles';
 import { useAsyncData } from '../hooks/useAsyncData';
@@ -81,7 +81,7 @@ const TrackingEditView: React.FC<{
   React.useEffect(() => void state.reset(data), [data?.id]);
   return (
     <>
-      <h3 style={{ margin: '0 0 16px' }}>{createNew ? 'Uusi seuranta' : 'Muokkaa seurantaa'}</h3>
+      <DialogHeading>{createNew ? 'Uusi seuranta' : 'Muokkaa seurantaa'}</DialogHeading>
       <div>
         <EditorGrid>
           <SelectionRow title="Nimi">

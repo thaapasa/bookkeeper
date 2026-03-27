@@ -16,7 +16,7 @@ import { TagsPicker } from '../component/TagsPicker';
 import { TextEdit } from '../component/TextEdit';
 import { UploadImageButton } from '../component/UploadImageButton';
 import { checkersBackground } from '../design/Background';
-import { Subtitle } from '../design/Text';
+import { DialogHeading, Subtitle } from '../design/Text';
 import { connectDialog } from '../dialog/DialogConnector';
 import { Flex } from '../GlobalStyles';
 import { useAsyncData } from '../hooks/useAsyncData';
@@ -79,9 +79,7 @@ const GroupingEditView: React.FC<{
   React.useEffect(() => void state.reset(data), [data?.id]);
   return (
     <>
-      <h3 style={{ margin: '0 0 16px' }}>
-        {createNew ? 'Uusi ryhmittely' : 'Muokkaa ryhmittelyä'}
-      </h3>
+      <DialogHeading>{createNew ? 'Uusi ryhmittely' : 'Muokkaa ryhmittelyä'}</DialogHeading>
       <div>
         <EditorGrid>
           <SelectionRow title="Nimi">

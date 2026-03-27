@@ -19,6 +19,7 @@ import { logout, validSessionP } from 'client/data/Login';
 import { reloadApp } from 'client/util/ClientUtil';
 import { profilePagePath } from 'client/util/Links';
 
+import { Caption } from '../design/Text';
 import { Icons, RenderIcon } from '../icons/Icons';
 import { AppLink } from '../layout/TopBar.tsx';
 import { connect } from './BaconConnect';
@@ -130,9 +131,9 @@ export const MenuDrawer: React.FC<MenuDrawerProps> = ({
         </Button>
       </Box>
 
-      <Text fz="sm" c="dimmed" px={24} py={8}>
+      <Caption px={24} py={8}>
         Kukkaro {config.version} ({config.revision})
-      </Text>
+      </Caption>
     </Drawer>
   );
 };

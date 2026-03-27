@@ -3,43 +3,50 @@ import * as React from 'react';
 
 import { calculateTotals, UserExpense } from 'shared/expense';
 
-import { neutral, primary } from '../Colors';
+import { neutral } from '../Colors';
+import { SectionLabel } from '../design/Text';
 import { mainContentMaxWidth, media } from '../layout/Styles.ts';
 
 interface TotalsViewProps {
   results: UserExpense[];
 }
 
-export class TotalsView extends React.Component<TotalsViewProps> {
-  render() {
-    const totals = calculateTotals(this.props.results);
-    return (
-      <>
-        <TotalsPadding />
-        <TotalsPositioner>
-          <TotalsArea>
-            <Total>
-              <Label>Yhteensä</Label>
-              {totals.total.format()}
-            </Total>
-            <Total>
-              <Label>Tulot</Label>
-              {totals.income.format()}
-            </Total>
-            <Total>
-              <Label>Menot</Label>
-              {totals.expense.format()}
-            </Total>
-            <Total>
-              <Label>Siirrot</Label>
-              {totals.transfer.format()}
-            </Total>
-          </TotalsArea>
-        </TotalsPositioner>
-      </>
-    );
-  }
-}
+export const TotalsView: React.FC<TotalsViewProps> = ({ results }) => {
+  const totals = calculateTotals(results);
+  return (
+    <>
+      <TotalsPadding />
+      <TotalsPositioner>
+        <TotalsArea>
+          <Total>
+            <SectionLabel component="span" mr={12}>
+              Yhteensä
+            </SectionLabel>
+            {totals.total.format()}
+          </Total>
+          <Total>
+            <SectionLabel component="span" mr={12}>
+              Tulot
+            </SectionLabel>
+            {totals.income.format()}
+          </Total>
+          <Total>
+            <SectionLabel component="span" mr={12}>
+              Menot
+            </SectionLabel>
+            {totals.expense.format()}
+          </Total>
+          <Total>
+            <SectionLabel component="span" mr={12}>
+              Siirrot
+            </SectionLabel>
+            {totals.transfer.format()}
+          </Total>
+        </TotalsArea>
+      </TotalsPositioner>
+    </>
+  );
+};
 
 const totalAreaSize = 48;
 
@@ -85,12 +92,6 @@ const TotalsArea = styled.div`
     flex: none;
     width: ${mainContentMaxWidth}px;
   `}
-`;
-
-const Label = styled.span`
-  margin-right: 12px;
-  color: ${primary[7]};
-  font-weight: bold;
 `;
 
 const Total = styled.div`
