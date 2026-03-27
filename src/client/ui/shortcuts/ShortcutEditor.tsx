@@ -1,5 +1,4 @@
-import styled from '@emotion/styled';
-import { ActionIcon, Button, Modal } from '@mantine/core';
+import { ActionIcon, Box, Button, Group, Modal } from '@mantine/core';
 import * as B from 'baconjs';
 import * as React from 'react';
 
@@ -8,12 +7,10 @@ import { ObjectId } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
 
 import { AsyncDataDialogContent } from '../component/AsyncDataDialog';
-import { Row } from '../component/Row';
 import { TextEdit } from '../component/TextEdit';
 import { UploadImageButton } from '../component/UploadImageButton';
 import { DialogHeading, Subtitle } from '../design/Text';
 import { connectDialog } from '../dialog/DialogConnector';
-import { Flex } from '../GlobalStyles';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useForceReload } from '../hooks/useForceReload';
 import { Icons } from '../icons/Icons';
@@ -60,76 +57,65 @@ const ShortcutEditView: React.FC<{
   return (
     <>
       <DialogHeading>Muokkaa linkkiä</DialogHeading>
-      <div>
-        <EditorGrid>
-          <div>Nimi</div>
-          <div>
-            <TextEdit value={state.title} onChange={state.setTitle} />
-          </div>
-          <div>Taustaväri</div>
-          <div>
-            <TextEdit value={state.background} onChange={state.setBackground} width="80px" />
-          </div>
-          <div>Linkin kuva</div>
-          <div>
-            <Row>
-              <ShortcutIcon title={state.title} icon={data.icon} background={state.background} />
-              <Flex />
-              <TextEdit
-                value={state.margin}
-                onChange={state.setMargin}
-                width="40px"
-                label="Reuna"
-              />
-              <UploadImageButton
-                onSelect={(file, filename) =>
-                  state.uploadShortcutIcon(file, filename).then(reloadData)
-                }
-                title="Lataa kuva"
-              >
-                <Icons.Upload />
-              </UploadImageButton>
-              <ActionIcon variant="subtle" onClick={state.removeIcon} title="Poista kuva">
-                <Icons.Delete />
-              </ActionIcon>
-            </Row>
-          </div>
-          <div style={{ gridColumn: '1 / -1' }}>
-            <Subtitle>Linkin data</Subtitle>
-          </div>
-          <div style={{ gridColumn: '1 / -1' }}>
-            <TextEdit value={state.expenseStr} onChange={state.setExpense} />
-          </div>
-          <div>
-            <Button variant="subtle" onClick={onClose}>
-              Peruuta
-            </Button>
-          </div>
-          <div style={{ textAlign: 'right' }}>
-            <Button
-              variant="filled"
-              disabled={!state.inputValid()}
-              onClick={() => state.saveShortcut(onClose)}
-            >
-              Tallenna
-            </Button>
-          </div>
-        </EditorGrid>
-      </div>
+      <Box
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'auto 1fr',
+          gap: 8,
+          alignItems: 'center',
+        }}
+      >
+        <Box>Nimi</Box>
+        <Box>
+          <TextEdit value={state.title} onChange={state.setTitle} />
+        </Box>
+        <Box>Taustaväri</Box>
+        <Box>
+          <TextEdit value={state.background} onChange={state.setBackground} width="80px" />
+        </Box>
+        <Box>Linkin kuva</Box>
+        <Group gap="xs" wrap="nowrap">
+          <ShortcutLink
+            title={state.title}
+            icon={data.icon}
+            background={state.background}
+            style={{ margin: 0, marginRight: 4 }}
+          />
+          <Box style={{ flex: 1 }} />
+          <TextEdit value={state.margin} onChange={state.setMargin} width="40px" label="Reuna" />
+          <UploadImageButton
+            onSelect={(file, filename) => state.uploadShortcutIcon(file, filename).then(reloadData)}
+            title="Lataa kuva"
+          >
+            <Icons.Upload />
+          </UploadImageButton>
+          <ActionIcon variant="subtle" onClick={state.removeIcon} title="Poista kuva">
+            <Icons.Delete />
+          </ActionIcon>
+        </Group>
+        <Box style={{ gridColumn: '1 / -1' }}>
+          <Subtitle>Linkin data</Subtitle>
+        </Box>
+        <Box style={{ gridColumn: '1 / -1' }}>
+          <TextEdit value={state.expenseStr} onChange={state.setExpense} />
+        </Box>
+        <Box>
+          <Button variant="subtle" onClick={onClose}>
+            Peruuta
+          </Button>
+        </Box>
+        <Box style={{ textAlign: 'right' }}>
+          <Button
+            variant="filled"
+            disabled={!state.inputValid()}
+            onClick={() => state.saveShortcut(onClose)}
+          >
+            Tallenna
+          </Button>
+        </Box>
+      </Box>
     </>
   );
 };
-
-const ShortcutIcon = styled(ShortcutLink)`
-  margin: 0;
-  margin-right: 4px;
-`;
-
-const EditorGrid = styled.div`
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 8px;
-  align-items: center;
-`;
 
 export const ShortcutEditor = connectDialog(shortcutBus, ShortcutDialogImpl);

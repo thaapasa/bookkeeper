@@ -1,4 +1,4 @@
-import styled from '@emotion/styled';
+import { Box } from '@mantine/core';
 import * as React from 'react';
 
 import { NewExpenseDialogRoutes } from '../expense/dialog/NewExpenseDialogPage';
@@ -6,16 +6,9 @@ import { ShortcutsView } from '../shortcuts/ShortcutsView';
 
 export const ShortcutsPage: React.FC = () => (
   <>
-    <LinksContainer>
+    <Box p="md" maw={600} mx="auto">
       <ShortcutsView />
-    </LinksContainer>
+    </Box>
     <NewExpenseDialogRoutes />
   </>
 );
-
-const LinksContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding-top: 24px;
-`;

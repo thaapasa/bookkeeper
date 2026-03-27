@@ -1,4 +1,4 @@
-import styled from '@emotion/styled';
+import { Avatar } from '@mantine/core';
 import * as React from 'react';
 import { NavigateFunction, useNavigate } from 'react-router';
 
@@ -8,7 +8,6 @@ import { ObjectId } from 'shared/types';
 import { createNewExpense } from 'client/data/State';
 import { newExpenseSuffix } from 'client/util/Links';
 
-import { primary } from '../Colors';
 import { pageSupportsRoutedExpenseDialog } from '../expense/NewExpenseInfo';
 
 export interface ShortcutLinkProps {
@@ -18,7 +17,7 @@ export interface ShortcutLinkProps {
   expense?: Partial<ExpenseShortcutData>;
   title: string;
   icon?: string | React.ReactNode;
-  className?: string;
+  style?: React.CSSProperties;
 }
 
 export const ShortcutLink: React.FC<ShortcutLinkProps> = ({
@@ -28,21 +27,23 @@ export const ShortcutLink: React.FC<ShortcutLinkProps> = ({
   expense,
   icon,
   title,
-  className,
+  style,
 }) => {
   const navigate = useNavigate();
   return (
-    <LinkIconArea
+    <Avatar
+      radius="xl"
+      size={32}
+      src={typeof icon === 'string' ? icon : null}
+      alt={typeof icon === 'string' ? title : undefined}
+      bg={background ?? 'primary.5'}
+      c="primary.9"
+      fw="bold"
+      style={{ cursor: 'pointer', margin: '8px 4px 4px 4px', ...style }}
       onClick={onClick ?? (() => openNewExpenseFromShortcutDialog(navigate, id, expense))}
-      style={{ background }}
-      className={className}
     >
-      {typeof icon === 'string' ? (
-        <LinkImage src={icon} title={title} />
-      ) : (
-        (icon ?? title.substring(0, 1).toUpperCase())
-      )}
-    </LinkIconArea>
+      {typeof icon === 'string' ? null : (icon ?? title.substring(0, 1).toUpperCase())}
+    </Avatar>
   );
 };
 
@@ -63,24 +64,3 @@ function openNewExpenseFromShortcutDialog(
     createNewExpense(shortcutToExpenseInEditor(expense));
   }
 }
-
-const LinkImage = styled.img`
-  width: 32px;
-  height: 32px;
-  border-radius: var(--mantine-radius-xl);
-`;
-
-const LinkIconArea = styled.div`
-  width: 32px;
-  height: 32px;
-  margin: 8px 4px 4px 4px;
-  background-color: ${primary[5]};
-  border-radius: var(--mantine-radius-xl);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  color: ${primary[9]};
-  font-weight: bold;
-  cursor: pointer;
-`;
