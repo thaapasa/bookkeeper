@@ -11,7 +11,6 @@ import { updateExpenses } from 'client/data/State';
 import { ExpenseDialogObject } from 'client/data/StateTypes';
 import { logger } from 'client/Logger';
 import { connect } from 'client/ui/component/BaconConnect';
-import { Size } from 'client/ui/layout/Styles.ts';
 import { unsubscribeAll, Unsubscriber } from 'client/util/ClientUtil';
 
 import { ExpenseDialogProps } from './ExpenseDialog';
@@ -48,7 +47,7 @@ export function createExpenseDialogListener<D>(
   )(Dialog);
 
   return class ExpenseDialogListener extends React.Component<
-    { windowSize: Size },
+    { isMobile: boolean },
     ExpenseDialogListenerState<D>
   > {
     unsub: Unsubscriber[] = [];
@@ -115,7 +114,7 @@ export function createExpenseDialogListener<D>(
       return this.state.open ? (
         <ConnectedDialog
           {...this.state}
-          windowSize={this.props.windowSize}
+          isMobile={this.props.isMobile}
           expenseCounter={this.state.expenseCounter}
           onExpensesUpdated={this.onExpensesUpdated}
           createNew={!this.state.original}

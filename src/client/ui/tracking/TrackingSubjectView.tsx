@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { ActionIcon } from '@mantine/core';
+import { ActionIcon, SimpleGrid } from '@mantine/core';
 import React from 'react';
 
 import { ObjectId, TrackingSubject, TrackingSubjectWithData } from 'shared/types';
@@ -10,7 +10,6 @@ import { neutral } from '../Colors';
 import { FlexColumn, FlexRow } from '../component/BasicElements';
 import { Subtitle } from '../design/Text';
 import { Icons } from '../icons/Icons';
-import { media } from '../layout/Styles.ts';
 import { TrackingChart } from './TrackingChartRenderer';
 import { editTrackingSubject } from './TrackingEditor';
 
@@ -19,11 +18,11 @@ export const TrackingSubjectsList: React.FC<{
   onReload: () => void;
 }> = ({ data, onReload }) => {
   return (
-    <SubjectsGrid>
+    <SimpleGrid cols={{ base: 1, sm: 2 }} spacing={16} w="100%">
       {data.map(d => (
         <TrackingSubjectView subject={d} key={d.id} onReload={onReload} />
       ))}
-    </SubjectsGrid>
+    </SimpleGrid>
   );
 };
 
@@ -82,14 +81,6 @@ async function changeTrackingColors(subjectId: ObjectId, onReload: () => void) {
     postProcess: onReload,
   });
 }
-
-const SubjectsGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-  width: 100%;
-  ${media.web`grid-template-columns: 1fr 1fr;`}
-`;
 
 const TrackingImage = styled.img`
   width: 168px;

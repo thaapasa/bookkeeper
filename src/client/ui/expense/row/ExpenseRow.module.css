@@ -3,9 +3,19 @@
   font-weight: bold;
 }
 
-/* mobileLandscapeMaxWidth (840px) from Styles.ts */
-@media screen and (max-width: 839px) {
-  .weekDay {
-    display: none;
-  }
+.colDate {
+  width: 72px;
+}
+.colTools {
+  width: 96px;
+  white-space: nowrap;
+}
+.iconToolArea > svg,
+.iconToolArea > div {
+  margin-left: 4px;
+}
+
+@media (max-width: 48em) {
+  .colDate { width: 48px; }
+  .colTools { width: 36px; }
 }

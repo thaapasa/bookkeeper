@@ -4,6 +4,8 @@ import * as React from 'react';
 import { Icons } from 'client/ui/icons/Icons';
 import { QuestionBookmark } from 'client/ui/icons/QuestionBookmark';
 
+import classes from './ExpenseRow.module.css';
+
 export const RecurringExpenseIcon: React.FC = () => (
   <Box display="inline-flex" title="Toistuva kirjaus">
     <Icons.Recurring style={{ width: 16, height: 16, color: 'var(--mantine-color-primary-5)' }} />
@@ -11,7 +13,7 @@ export const RecurringExpenseIcon: React.FC = () => (
 );
 
 export const IconToolArea: React.FC<React.PropsWithChildren> = ({ children }) => (
-  <Box pos="absolute" top={0} right={16} h={24} className="icon-tool-area">
+  <Box pos="absolute" top={0} right={16} h={24} className={classes.iconToolArea}>
     {children}
   </Box>
 );

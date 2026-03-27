@@ -38,8 +38,8 @@ export const MonthlyStatus: React.FC<StatusProps> = props => {
       align="flex-start"
       wrap="nowrap"
       fz="sm"
-      px={{ base: 'xs', sm: 16 }}
-      mx={{ base: 0, sm: 16 }}
+      px={{ base: 'xs', sm: 'md' }}
+      mx={{ base: 0, sm: 'md' }}
       className={styles.footer}
     >
       <Group gap="xl">
@@ -60,7 +60,7 @@ export const MonthlyStatus: React.FC<StatusProps> = props => {
           income={income}
           expense={expense}
           expanded={expanded}
-          className={props.showFiltered ? 'hide-on-mobile-portrait' : undefined}
+          visibleFrom={props.showFiltered ? 'xs' : undefined}
         />
         <StatusBlock
           title="Saatavat/velat"

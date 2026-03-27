@@ -1,24 +1,24 @@
 import { Box, Center, Loader, Table, TableTdProps } from '@mantine/core';
 import * as React from 'react';
 
-import { windowSizeP } from 'client/data/State';
-import { connect } from 'client/ui/component/BaconConnect';
-import { Size } from 'client/ui/layout/Styles.ts';
+import { useIsMobile, useIsMobilePortrait } from 'client/ui/hooks/useBreakpoints';
 
 import { Row } from './ColumnComponents';
-import { getVisibleColumns } from './columns';
 
-/* AllColumns — spans all visible columns (uses BaconJS for responsive colspan) */
+/* AllColumns — spans all visible columns */
 
-type AllColumnsProps = {
-  size: Size;
-} & TableTdProps;
+function useColumnCount(): number {
+  const isMobile = useIsMobile();
+  const isMobilePortrait = useIsMobilePortrait();
+  if (isMobilePortrait) return 5;
+  if (isMobile) return 7;
+  return 9;
+}
 
-const AllColumnsComponent: React.FC<AllColumnsProps> = ({ size, ...props }) => (
-  <Table.Td colSpan={getVisibleColumns(size)} {...props} />
-);
-
-export const AllColumns = connect(windowSizeP.map(size => ({ size })))(AllColumnsComponent);
+export const AllColumns: React.FC<TableTdProps> = props => {
+  const colSpan = useColumnCount();
+  return <Table.Td colSpan={colSpan} {...props} />;
+};
 
 /* Special rows */
 

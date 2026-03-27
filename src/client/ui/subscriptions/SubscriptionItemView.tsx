@@ -34,13 +34,13 @@ const RecurringExpenseItem: React.FC<{
       <RowElement className={`${className} ${item.occursUntil ? 'inactive' : undefined}`}>
         <Label>{item.title}</Label>
         <Label>{item.receiver}</Label>
-        <Dates className="optional">
+        <Dates visibleFrom="sm">
           {readableDateWithYear(item.firstOccurence)}
           {item.occursUntil ? ` - ${readableDateWithYear(item.occursUntil)}` : ''}
         </Dates>
-        <Sum className="wide">{Money.from(item.sum).format()}</Sum>
+        <Sum>{Money.from(item.sum).format()}</Sum>
         <Period>/ {getPeriodText(item.period)}</Period>
-        <Sum className="optional">{Money.from(item.recurrencePerMonth).format()} / kk</Sum>
+        <Sum visibleFrom="sm">{Money.from(item.recurrencePerMonth).format()} / kk</Sum>
         <Sum>{Money.from(item.recurrencePerYear).format()} / v</Sum>
         <Tools>
           <ExpanderIcon title="Lisätiedot" open={open} onToggle={toggle} />
@@ -64,10 +64,10 @@ const ReportItem: React.FC<{
           {item.count !== 1 ? 'a' : ''} välillä {readableDateWithYear(item.firstDate)} -{' '}
           {readableDateWithYear(item.lastDate)}
         </Label>
-        <Sum className="wide">{Money.from(item.sum).format()}</Sum>
-        <Sum className="wide">{Money.from(item.avgSum).format()}</Sum>
+        <Sum>{Money.from(item.sum).format()}</Sum>
+        <Sum>{Money.from(item.avgSum).format()}</Sum>
         <Period>/ kpl</Period>
-        <Sum className="optional">{Money.from(item.recurrencePerMonth).format()} / kk</Sum>
+        <Sum visibleFrom="sm">{Money.from(item.recurrencePerMonth).format()} / kk</Sum>
         <Sum>{Money.from(item.recurrencePerYear).format()} / v</Sum>
         <Tools>
           <ToolIcon title="Poista" onClick={() => deleteReport(item)} icon="Delete" />

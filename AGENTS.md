@@ -101,6 +101,11 @@ Use Luxon `DateTime` throughout. Helpers in `shared/time/`.
 Server: Pino logger with context object first — `logger.info({ expenseId }, 'Created')`.
 Client: Simple logger from `client/Logger`.
 
+### After Making Changes
+
+Always run `bun format` after making code changes to auto-fix import ordering and
+formatting. Then run `bun lint` to verify everything passes.
+
 ### Adding a New Feature
 
 1. Define Zod schemas/types in `src/shared/`
@@ -109,7 +114,7 @@ Client: Simple logger from `client/Logger`.
 4. Add API client method in `src/client/data/ApiConnect.ts`
 5. Create UI components in `src/client/ui/<feature>/` (use Mantine components)
 6. Create migration if needed: `bun migrate-make <name>`
-7. Run `bun lint` to verify
+7. Run `bun format && bun lint` to verify
 
 ### Domain Model
 

@@ -29,7 +29,6 @@ import { neutral } from 'client/ui/Colors';
 import UserAvatar from 'client/ui/component/UserAvatar';
 import UserSelector from 'client/ui/component/UserSelector';
 import { Icons } from 'client/ui/icons/Icons';
-import { isMobileSize, Size } from 'client/ui/layout/Styles.ts';
 import {
   eventValue,
   stopEventPropagation,
@@ -128,7 +127,7 @@ export interface ExpenseDialogProps<D> {
   user: User;
   users: User[];
   expenseCounter: number;
-  windowSize: Size;
+  isMobile: boolean;
   values: Partial<D>;
   title?: string;
 }
@@ -152,7 +151,7 @@ export class ExpenseDialog extends React.Component<
   public state = this.getDefaultState(null, {});
 
   get isMobile(): boolean {
-    return isMobileSize(this.props.windowSize);
+    return this.props.isMobile;
   }
 
   get sourceTitle(): string {

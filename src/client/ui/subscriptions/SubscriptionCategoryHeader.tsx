@@ -29,7 +29,7 @@ export const SubscriptionCategoryHeader: React.FC<{
     </Label>
     {totals ? (
       <>
-        <Sum className="optional">{Money.from(totals.recurrencePerMonth).format()} / kk</Sum>
+        <Sum visibleFrom="sm">{Money.from(totals.recurrencePerMonth).format()} / kk</Sum>
         <Sum>{Money.from(totals.recurrencePerYear).format()} / v</Sum>
         <Tools />
       </>

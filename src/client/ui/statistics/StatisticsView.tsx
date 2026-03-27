@@ -1,5 +1,4 @@
-import styled from '@emotion/styled';
-import { ActionIcon, Checkbox } from '@mantine/core';
+import { ActionIcon, Checkbox, Grid, Group } from '@mantine/core';
 import * as B from 'baconjs';
 import React from 'react';
 import { z } from 'zod';
@@ -9,17 +8,16 @@ import { CategoryMap, CategorySelection, CategoryStatistics, isDefined } from 's
 import apiConnect from 'client/data/ApiConnect';
 import { AsyncData, UninitializedData } from 'client/data/AsyncData';
 import { categoryMapP } from 'client/data/Categories';
-import { windowSizeP } from 'client/data/State';
 
 import { CategoryChipList } from '../category/CategoryChipList';
 import { CategorySelector } from '../category/CategorySelector';
 import { AsyncDataView } from '../component/AsyncDataView';
 import { connect } from '../component/BaconConnect';
 import { useAsyncData } from '../hooks/useAsyncData';
+import { useIsMobile } from '../hooks/useBreakpoints';
 import { useLocalStorageList } from '../hooks/useList';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { Icons } from '../icons/Icons';
-import { isMobileSize, media, Size } from '../layout/Styles.ts';
 import { CategoryStatisticsChart } from './category/CategoryStatisticsChart';
 import { StatisticsChartTypeSelector } from './ChartTypeSelector';
 import { StatisticsChartRangeSelector } from './StatisticsChartRangeSelector';
@@ -31,8 +29,7 @@ function cmpCat(a: CategorySelection, b: CategorySelection) {
 
 export const StatisticsViewImpl: React.FC<{
   categoryMap: CategoryMap;
-  size: Size;
-}> = ({ categoryMap, size }) => {
+}> = ({ categoryMap }) => {
   const {
     list: cats,
     addItems: addCats,
@@ -100,28 +97,28 @@ export const StatisticsViewImpl: React.FC<{
   );
   const data: AsyncData<CategoryStatistics> = cats.length > 0 ? statistics : UninitializedData;
 
-  const isMobile = isMobileSize(size);
+  const isMobile = useIsMobile();
   return (
-    <StatsGrid>
-      <div>
+    <Grid p={16} gutter={16}>
+      <Grid.Col span={{ base: 12, sm: 5 }}>
         <CategorySelector addCategories={addCats} />
-        <CheckboxRow>
+        <Group gap={16} wrap="wrap">
           <Checkbox checked={stacked} onChange={() => setStacked(!stacked)} label="Koosta alueet" />
           <Checkbox
             checked={onlyOwn}
             onChange={() => setOnlyOwn(!onlyOwn)}
             label="Vain omat kirjaukset"
           />
-        </CheckboxRow>
-      </div>
-      <div>
+        </Group>
+      </Grid.Col>
+      <Grid.Col span={{ base: 12, sm: 2 }}>
         <StatisticsChartTypeSelector selected={type} onChange={setType} row={isMobile} />
-      </div>
-      <div>
+      </Grid.Col>
+      <Grid.Col span={{ base: 12, sm: 5 }}>
         <StatisticsChartRangeSelector onChange={setRange} />
-      </div>
+      </Grid.Col>
       {cats.length > 0 ? (
-        <FullWidth>
+        <Grid.Col span={12}>
           <ActionIcon variant="subtle" onClick={clearCats}>
             <Icons.Clear />
           </ActionIcon>
@@ -131,9 +128,9 @@ export const StatisticsViewImpl: React.FC<{
             categoryMap={categoryMap}
             onExpand={expandCategory}
           />
-        </FullWidth>
+        </Grid.Col>
       ) : null}
-      <FullWidth>
+      <Grid.Col span={12}>
         <AsyncDataView
           data={data}
           renderer={CategoryStatisticsChart}
@@ -142,30 +139,11 @@ export const StatisticsViewImpl: React.FC<{
           uninitializedText="Valitse kategoria näyttääksesi tilastot"
           stacked={stacked}
         />
-      </FullWidth>
-    </StatsGrid>
+      </Grid.Col>
+    </Grid>
   );
 };
 
-const StatsGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 8px 16px;
-  padding: 16px;
-  ${media.web`grid-template-columns: 5fr 2fr 5fr;`}
-`;
-
-const FullWidth = styled.div`
-  grid-column: 1 / -1;
-`;
-
-const CheckboxRow = styled.div`
-  display: flex;
-  flex-direction: row;
-  gap: 16px;
-  flex-wrap: wrap;
-`;
-
-export const StatisticsView = connect(
-  B.combineTemplate({ categoryMap: categoryMapP, size: windowSizeP }),
-)(StatisticsViewImpl);
+export const StatisticsView = connect(B.combineTemplate({ categoryMap: categoryMapP }))(
+  StatisticsViewImpl,
+);

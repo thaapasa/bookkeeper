@@ -7,7 +7,6 @@ import { login } from 'client/data/Login';
 
 import { primary } from '../Colors';
 import { TextEdit } from '../component/TextEdit';
-import { media } from '../layout/Styles.ts';
 
 const publicUrl = import.meta.env.PUBLIC_URL || '';
 
@@ -115,10 +114,10 @@ const Page = styled.div<{ bgImage: string }>`
   background-size: cover;
   background-repeat: no-repeat;
   width: 100%;
-  height: 100%;
+  min-height: 100vh;
 
-  ${media.mobilePortrait`
+  @media screen and (max-width: var(--mantine-breakpoint-xs)) {
     background-size: 1024px;
     background-position: center top;
-  `}
+  }
 `;

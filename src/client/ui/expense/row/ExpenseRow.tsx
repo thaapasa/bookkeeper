@@ -181,7 +181,9 @@ const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
       <Row bg={parity === 1 ? 'neutral.1' : undefined}>
         <DateColumn onClick={editDate}>
           {expense.recurringExpenseId ? <RecurringExpenseIcon /> : null}
-          <span className={rowStyles.weekDay}>{weekDay(expense.date, prev)}</span>
+          <Box component="span" visibleFrom="sm" className={rowStyles.weekDay}>
+            {weekDay(expense.date, prev)}
+          </Box>
           {readableDate(expense.date)}
         </DateColumn>
         <AvatarColumn>
@@ -263,7 +265,7 @@ const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
               open={isDefined(details)}
               onToggle={() => toggleDetails()}
             />
-            <Box className="hide-on-mobile" display="flex">
+            <Box visibleFrom="sm" display="flex">
               <ToolIcon title="Muokkaa" onClick={modifyExpense} icon="Edit" />
               <ToolIcon title="Poista" onClick={deleteExpense} icon="Delete" />
             </Box>

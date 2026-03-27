@@ -1,5 +1,4 @@
-import styled from '@emotion/styled';
-import { ActionIcon, type ActionIconProps } from '@mantine/core';
+import { ActionIcon, type ActionIconProps, Box } from '@mantine/core';
 import * as B from 'baconjs';
 import * as React from 'react';
 
@@ -16,7 +15,6 @@ import * as colors from 'client/ui/Colors';
 import { connect } from 'client/ui/component/BaconConnect';
 import { UserPrompts } from 'client/ui/dialog/DialogState';
 import { Icons } from 'client/ui/icons/Icons';
-import { media } from 'client/ui/layout/Styles.ts';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { getBenefitorsForExpense } from '../dialog/ExpenseDialogData';
@@ -90,7 +88,7 @@ const ExpenseInfoToolsImpl: React.FC<RecurrenceInfoProps> = ({
   };
 
   return (
-    <ToolContainer>
+    <Box style={{ position: 'absolute', right: 0, top: 0, display: 'flex', flexDirection: 'row' }}>
       <ToolIconButton title="Pilko" onClick={() => splitExpense(expense.id)}>
         <Icons.Split style={styles.toolIcon} />
       </ToolIconButton>
@@ -102,36 +100,26 @@ const ExpenseInfoToolsImpl: React.FC<RecurrenceInfoProps> = ({
           <Icons.Repeat style={styles.toolIcon} />
         </ToolIconButton>
       )}
-      <MobileTools>
+      <Box
+        hiddenFrom="sm"
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          position: 'absolute',
+          right: 0,
+          top: 40,
+        }}
+      >
         <ToolIconButton title="Muokkaa" onClick={() => onModify(expense)}>
           <Icons.Edit style={styles.toolIcon} />
         </ToolIconButton>
         <ToolIconButton title="Poista" onClick={() => onDelete(expense)}>
           <Icons.Delete style={styles.toolIcon} />
         </ToolIconButton>
-      </MobileTools>
-    </ToolContainer>
+      </Box>
+    </Box>
   );
 };
-
-const ToolContainer = styled.div`
-  position: absolute;
-  right: 0;
-  top: 0;
-  display: flex;
-  flex-direction: row;
-`;
-
-const MobileTools = styled.div`
-  display: none;
-  ${media.mobile`
-    display: flex;
-    flex-direction: row;
-    position: absolute;
-    right: 0;
-    top: 40px;
-  `}
-`;
 
 export const ExpenseInfoTools = connect(
   B.combineTemplate({ categoryMap: categoryMapP, sourceMap: sourceMapP }),

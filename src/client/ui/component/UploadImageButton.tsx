@@ -46,7 +46,13 @@ export const UploadImageButton: React.FC<React.PropsWithChildren<UploadImageButt
       >
         {children}
       </ActionIcon>
-      <input type="file" id="upload-file" onChange={selectFile} ref={ref} style={{ display: 'none' }} />
+      <input
+        type="file"
+        id="upload-file"
+        onChange={selectFile}
+        ref={ref}
+        style={{ display: 'none' }}
+      />
     </>
   );
 };

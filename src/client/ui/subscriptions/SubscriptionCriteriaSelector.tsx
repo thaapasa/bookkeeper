@@ -1,5 +1,4 @@
-import styled from '@emotion/styled';
-import { Checkbox, Radio } from '@mantine/core';
+import { Checkbox, Group, Radio, SimpleGrid } from '@mantine/core';
 import * as React from 'react';
 import { z } from 'zod';
 
@@ -8,7 +7,6 @@ import { isSameInterval, MomentInterval } from 'shared/time';
 import { isDefined } from 'shared/types';
 
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { media } from '../layout/Styles.ts';
 
 interface RangeOption {
   range: MomentInterval;
@@ -58,16 +56,16 @@ export const SubscriptionCriteriaSelector: React.FC<{
   );
 
   return (
-    <CriteriaGrid>
-      <FilterGroup>
+    <SimpleGrid cols={{ base: 1, sm: 3 }} spacing={8} w="100%" px={16}>
+      <Group gap={8} wrap="wrap">
         <Checkbox
           checked={includeEnded}
           onChange={() => setIncludeEnded(!includeEnded)}
           label="Myös loppuneet"
         />
         <Checkbox checked={onlyOwn} onChange={() => setOnlyOwn(!onlyOwn)} label="Vain omat" />
-      </FilterGroup>
-      <FilterGroup style={{ justifyContent: 'center' }}>
+      </Group>
+      <Group gap={8} wrap="wrap" justify="center">
         {rangeOptions.map(r => (
           <Radio
             key={r.label}
@@ -76,28 +74,12 @@ export const SubscriptionCriteriaSelector: React.FC<{
             label={r.label}
           />
         ))}
-      </FilterGroup>
-      <FilterGroup style={{ justifyContent: 'flex-end' }}>
+      </Group>
+      <Group gap={8} wrap="wrap" justify="flex-end">
         <Checkbox checked={expenses} onChange={() => setExpenses(!expenses)} label="Menot" />
         <Checkbox checked={incomes} onChange={() => setIncomes(!incomes)} label="Tulot" />
         <Checkbox checked={transfers} onChange={() => setTranfers(!transfers)} label="Siirrot" />
-      </FilterGroup>
-    </CriteriaGrid>
+      </Group>
+    </SimpleGrid>
   );
 };
-
-const CriteriaGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr;
-  width: 100%;
-  padding: 0 16px;
-  gap: 8px;
-  ${media.web`grid-template-columns: 1fr 1fr 1fr;`}
-`;
-
-const FilterGroup = styled.div`
-  display: flex;
-  flex-direction: row;
-  gap: 8px;
-  flex-wrap: wrap;
-`;

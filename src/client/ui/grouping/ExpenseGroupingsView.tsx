@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { ActionIcon, Badge, Title as MantineTitle } from '@mantine/core';
+import { ActionIcon, Badge, Group, SimpleGrid, Title as MantineTitle } from '@mantine/core';
 import React from 'react';
 
 import { uri } from 'shared/net';
@@ -15,7 +15,6 @@ import { FlexColumn, FlexRow } from '../component/BasicElements';
 import { Subtitle } from '../design/Text';
 import { Flex } from '../GlobalStyles';
 import { Icons } from '../icons/Icons';
-import { media } from '../layout/Styles.ts';
 import { LinkButton } from '../layout/TopBar.tsx';
 import { GroupedExpenseIcon } from './GroupedExpenseIcon';
 import { editExpenseGrouping } from './GroupingEditor';
@@ -32,14 +31,14 @@ export const ExpenseGroupingsList: React.FC<{
     selectedTags.length < 1 ? data : data.filter(d => hasMatchingElements(d.tags, selectedTags));
   return (
     <>
-      <TagFilterRow>
+      <Group justify="flex-end" w="100%">
         <ExpenseGroupingsTagFilters allTags={allTags} {...filters} />
-      </TagFilterRow>
-      <GroupingsGrid>
+      </Group>
+      <SimpleGrid cols={{ base: 1, sm: 2 }} spacing={16} w="100%">
         {filtered.map(d => (
           <ExpenseGroupingView grouping={d} key={d.id} onReload={onReload} tags={filters.tags} />
         ))}
-      </GroupingsGrid>
+      </SimpleGrid>
     </>
   );
 };
@@ -122,20 +121,6 @@ async function deleteExpenseGrouping(grouping: ExpenseGrouping, onReload: () => 
     postProcess: onReload,
   });
 }
-
-const TagFilterRow = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: flex-end;
-`;
-
-const GroupingsGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-  width: 100%;
-  ${media.web`grid-template-columns: 1fr 1fr;`}
-`;
 
 const TagsList = styled.div`
   position: absolute;

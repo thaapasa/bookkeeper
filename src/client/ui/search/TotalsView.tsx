@@ -5,7 +5,7 @@ import { calculateTotals, UserExpense } from 'shared/expense';
 
 import { neutral } from '../Colors';
 import { SectionLabel } from '../design/Text';
-import { mainContentMaxWidth, media } from '../layout/Styles.ts';
+import { mainContentMaxWidth } from '../layout/Styles.ts';
 
 interface TotalsViewProps {
   results: UserExpense[];
@@ -67,15 +67,15 @@ const TotalsPositioner = styled.div`
   justify-content: flex-start;
   align-items: center;
 
-  ${media.mobile`
+  @media screen and (max-width: 52.4375em) {
     left: 0;
     right: 0;
     bottom: 0;
-  `}
+  }
 
-  ${media.largeDevice`
+  @media screen and (min-width: 87.5em) {
     justify-content: center;
-  `}
+  }
 `;
 
 const TotalsArea = styled.div`
@@ -88,10 +88,10 @@ const TotalsArea = styled.div`
   align-items: center;
   flex: 1;
 
-  ${media.largeDevice`
+  @media screen and (min-width: 87.5em) {
     flex: none;
     width: ${mainContentMaxWidth}px;
-  `}
+  }
 `;
 
 const Total = styled.div`

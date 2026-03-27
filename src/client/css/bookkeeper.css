@@ -1,25 +1,3 @@
 html, body {
     background-color: var(--mantine-color-body);
 }
-
-/* Responsive column hiding (custom app breakpoints, not Mantine's) */
-@media (max-width: 839px) {
-    .hide-on-mobile { display: none !important;  }
-}
-@media (max-width: 599px) {
-    .hide-on-mobile-portrait { display: none !important; }
-}
-
-/* Expense table: responsive column widths */
-.col-date { width: 72px; }
-.col-tools { width: 96px; white-space: nowrap; }
-@media (max-width: 839px) {
-    .col-date { width: 48px; }
-    .col-tools { width: 36px; }
-}
-
-/* Expense table: icon tool area spacing */
-.icon-tool-area > svg,
-.icon-tool-area > div {
-    margin-left: 4px;
-}

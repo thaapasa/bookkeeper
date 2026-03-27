@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { ActionIcon, Button, Checkbox, Loader } from '@mantine/core';
+import { ActionIcon, Button, Checkbox, Grid, Loader } from '@mantine/core';
 import * as B from 'baconjs';
 import * as React from 'react';
 
@@ -15,7 +15,6 @@ import { DateRangeSelector } from '../component/daterange/DateRangeSelector';
 import { Row } from '../component/Row';
 import UserSelector from '../component/UserSelector';
 import { Icons } from '../icons/Icons';
-import { media } from '../layout/Styles.ts';
 import { SearchInputField } from './SearchInputField';
 import { SearchSuggestion } from './SearchSuggestions';
 import { SelectedSuggestionsView } from './SelectedSuggestionsView';
@@ -59,8 +58,8 @@ const QuerySearchLayoutImpl: React.FC<QuerySearchLayoutProps> = ({
   onSaveAsReport,
   session,
 }) => (
-  <SearchGrid>
-    <div>
+  <Grid p={16} gutter={16}>
+    <Grid.Col span={{ base: 12, sm: 7 }}>
       <FlexRow>
         <ClearIconArea>
           <ActionIcon variant="subtle" size="sm" onClick={onClear}>
@@ -83,11 +82,11 @@ const QuerySearchLayoutImpl: React.FC<QuerySearchLayoutProps> = ({
       </FlexRow>
       <br />
       {dateRange ? `Haetaan ajalta ${toDateRangeName(dateRange)}` : 'Ei aikaehtoja'}
-    </div>
-    <div>
+    </Grid.Col>
+    <Grid.Col span={{ base: 12, sm: 3 }}>
       <DateRangeSelector dateRange={dateRange} onSelectRange={onSelectRange} />
-    </div>
-    <div>
+    </Grid.Col>
+    <Grid.Col span={{ base: 12, sm: 2 }}>
       <Row>
         <Checkbox
           checked={isDefined(userId)}
@@ -113,11 +112,11 @@ const QuerySearchLayoutImpl: React.FC<QuerySearchLayoutProps> = ({
       <Button variant="subtle" onClick={onSaveAsReport}>
         Tee raportti
       </Button>
-    </div>
-    <div style={{ gridColumn: '1 / -1' }}>
+    </Grid.Col>
+    <Grid.Col span={12}>
       <SelectedSuggestionsView suggestions={selectedSuggestions} onRemove={removeSuggestion} />
-    </div>
-  </SearchGrid>
+    </Grid.Col>
+  </Grid>
 );
 
 export const QuerySearchLayout = connect(
@@ -125,14 +124,6 @@ export const QuerySearchLayout = connect(
     session: validSessionP,
   }),
 )(QuerySearchLayoutImpl);
-
-const SearchGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr;
-  padding: 16px;
-  gap: 16px;
-  ${media.web`grid-template-columns: 7fr 3fr 2fr;`}
-`;
 
 const SearchToolArea = styled.div`
   display: flex;

@@ -10,8 +10,8 @@ import { sourceMapP, validSessionP } from 'client/data/Login';
 import { updateExpenses } from 'client/data/State';
 import { logger } from 'client/Logger';
 import { connect } from 'client/ui/component/BaconConnect';
+import { useIsMobile } from 'client/ui/hooks/useBreakpoints';
 import { useQueryParams } from 'client/ui/hooks/useQueryParams';
-import { useWindowSize } from 'client/ui/hooks/useWindowSize';
 import { navigateAndWait } from 'client/ui/utils/Navigation';
 import { newExpenseSuffix } from 'client/util/Links';
 
@@ -33,7 +33,7 @@ const ConnectedExpenseDialog = connect(
 
 const NewExpenseDialogPage: React.FC = () => {
   const navigate = useNavigate();
-  const windowSize = useWindowSize();
+  const isMobile = useIsMobile();
   const params = useQueryParams();
   const date = params.date ? toDateTime(params.date) : undefined;
   return (
@@ -46,7 +46,7 @@ const NewExpenseDialogPage: React.FC = () => {
       }}
       original={null}
       saveAction={null}
-      windowSize={windowSize}
+      isMobile={isMobile}
       title="Uusi kirjaus"
       onExpensesUpdated={updateExpenses}
       expenseCounter={1}
@@ -56,7 +56,7 @@ const NewExpenseDialogPage: React.FC = () => {
 
 const NewExpenseFromShortcutDialogPage: React.FC<{ session: Session }> = ({ session }) => {
   const navigate = useNavigate();
-  const windowSize = useWindowSize();
+  const isMobile = useIsMobile();
   const { shortcutId } = useParams<'shortcutId'>();
   const id = Number(shortcutId);
   const shortcut = session.shortcuts.find(s => s.id === id);
@@ -78,7 +78,7 @@ const NewExpenseFromShortcutDialogPage: React.FC<{ session: Session }> = ({ sess
       }}
       original={null}
       saveAction={null}
-      windowSize={windowSize}
+      isMobile={isMobile}
       title="Uusi kirjaus"
       onExpensesUpdated={updateExpenses}
       expenseCounter={1}

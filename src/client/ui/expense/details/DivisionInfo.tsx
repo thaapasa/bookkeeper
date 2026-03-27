@@ -1,11 +1,10 @@
-import styled from '@emotion/styled';
+import { Table } from '@mantine/core';
 import * as React from 'react';
 
 import { ExpenseDivisionItem, ExpenseDivisionType, ExpenseType } from 'shared/expense';
 import { Money, MoneyLike } from 'shared/util';
-import * as colors from 'client/ui/Colors';
+import { negative, positive, unimportant } from 'client/ui/Colors';
 import UserAvatar from 'client/ui/component/UserAvatar';
-import { media } from 'client/ui/layout/Styles.ts';
 
 interface DivisionInfoProps {
   division: ExpenseDivisionItem[];
@@ -37,6 +36,12 @@ const ColumnLabels: Record<ExpenseDivisionType, string> = {
   transferee: 'Saatu',
 };
 
+const signColor: Record<string, string> = {
+  positive,
+  negative,
+  zero: unimportant,
+};
+
 export const DivisionInfo: React.FC<DivisionInfoProps> = ({ division, expenseType }) => {
   const users: Record<string, Record<ExpenseDivisionType, MoneyLike>> = {};
   division.forEach(d => {
@@ -45,31 +50,41 @@ export const DivisionInfo: React.FC<DivisionInfoProps> = ({ division, expenseTyp
 
   const cols = ColumnData[expenseType];
   return (
-    <DivisionTable>
-      <thead>
+    <Table
+      mx="xs"
+      p={0}
+      withRowBorders={false}
+      withTableBorder={false}
+      style={{ maxWidth: 'fit-content' }}
+    >
+      <Table.Thead>
         <UserHeaderRow cols={cols} />
-      </thead>
-      <tbody>
+      </Table.Thead>
+      <Table.Tbody>
         {Object.keys(users).map(userId => (
           <DivisionUser userId={userId} cols={cols} userDivision={users[userId]} key={userId} />
         ))}
-      </tbody>
-    </DivisionTable>
+      </Table.Tbody>
+    </Table>
   );
 };
 
 const UserHeaderRow: React.FC<{
   cols: ShownColumns;
 }> = ({ cols }) => (
-  <DivisionRow>
-    <UserColumn as="th">Jako:</UserColumn>
+  <Table.Tr>
+    <Table.Th w={32} style={{ padding: '8px 8px 8px 24px' }}>
+      Jako:
+    </Table.Th>
     {cols.map(c => (
-      <DivisionColumn as="th" key={c}>
+      <Table.Th w={86} ta="right" key={c}>
         {ColumnLabels[c]}
-      </DivisionColumn>
+      </Table.Th>
     ))}
-    <DivisionColumn as="th">Balanssi</DivisionColumn>
-  </DivisionRow>
+    <Table.Th w={86} ta="right" pr="lg">
+      Balanssi
+    </Table.Th>
+  </Table.Tr>
 );
 
 const DivisionUser: React.FC<{
@@ -77,54 +92,27 @@ const DivisionUser: React.FC<{
   cols: ShownColumns;
   userDivision: Record<ExpenseDivisionType, MoneyLike>;
 }> = ({ userId, cols, userDivision }) => (
-  <DivisionRow key={userId}>
-    <UserColumn>
+  <Table.Tr key={userId}>
+    <Table.Td w={32} style={{ padding: '8px 8px 8px 24px' }}>
       <UserAvatar userId={parseInt(userId, 10)} size={32} />
-    </UserColumn>
+    </Table.Td>
     {cols.map(c => (
       <DivisionItem key={c} sum={userDivision[c]} />
     ))}
-    <DivisionItem sum={getBalance(userDivision)} />
-  </DivisionRow>
+    <DivisionItem sum={getBalance(userDivision)} isLast />
+  </Table.Tr>
 );
 
-const DivisionItem: React.FC<{ sum: MoneyLike }> = ({ sum }) => {
+const DivisionItem: React.FC<{ sum: MoneyLike; isLast?: boolean }> = ({ sum, isLast }) => {
   const s = Money.orZero(sum);
-  return <DivisionColumn className={Money.sign(s)}>{s.format()}</DivisionColumn>;
+  return (
+    <Table.Td
+      w={86}
+      ta="right"
+      pr={isLast ? 'lg' : undefined}
+      style={{ color: signColor[Money.sign(s)] }}
+    >
+      {s.format()}
+    </Table.Td>
+  );
 };
-
-const DivisionTable = styled.table`
-  margin: 0 8px;
-  padding: 0;
-  border-collapse: collapse;
-  ${media.mobilePortrait`
-    width: calc(100% - 20px);
-  `}
-`;
-
-const DivisionRow = styled.tr`
-  padding: 0;
-`;
-
-const UserColumn = styled.td`
-  width: 32px;
-  height: 32px;
-  padding: 8px 8px 8px 24px;
-`;
-
-const DivisionColumn = styled.td`
-  width: 86px;
-  text-align: right;
-  &.positive {
-    color: ${colors.positive};
-  }
-  &.negative {
-    color: ${colors.negative};
-  }
-  &.zero {
-    color: ${colors.unimportant};
-  }
-  &:last-of-type {
-    padding-right: 24px;
-  }
-`;

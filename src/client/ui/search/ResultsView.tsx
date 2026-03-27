@@ -13,7 +13,6 @@ import { connect } from '../component/BaconConnect';
 import { SectionLabel } from '../design/Text';
 import { ExpenseRow } from '../expense/row/ExpenseRow';
 import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
-import { media } from '../layout/Styles.ts';
 import { TotalsView } from './TotalsView';
 
 interface ResultsProps {
@@ -117,7 +116,7 @@ function YearHeader({ year, expenses }: { year: string; expenses: UserExpense[] 
 }
 
 const ResultsArea = styled.div`
-  ${media.web`
+  @media screen and (min-width: 37.5em) {
     overflow-y: scroll;
-  `}
+  }
 `;

@@ -4,9 +4,8 @@ import * as React from 'react';
 import { UserExpense } from 'shared/expense';
 import { Minus, Money, Plus } from 'shared/util';
 import { DataValue, SectionLabel } from 'client/ui/design/Text';
-import { useWindowSize } from 'client/ui/hooks/useWindowSize';
+import { useIsMobile } from 'client/ui/hooks/useBreakpoints';
 import { Icons } from 'client/ui/icons/Icons';
-import { isMobileSize } from 'client/ui/layout/Styles.ts';
 
 import { AddFilterFn, ExpenseFilters } from './ExpenseFilters';
 import {
@@ -17,7 +16,6 @@ import {
   rowHeight,
   UnconfirmedIcon,
 } from './ExpenseTableLayout';
-import styles from './RecurringSummaryRow.module.css';
 
 interface RecurringSummaryRowProps {
   recurring: UserExpense[];
@@ -42,7 +40,7 @@ export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
     .reduce(Money.plus, Money.zero);
   const balance = recurring.map(s => Money.from(s.userBalance)).reduce(Money.plus, Money.zero);
   const hasUnconfirmed = recurring.some(r => !r.confirmed);
-  const isMobile = isMobileSize(useWindowSize());
+  const isMobile = useIsMobile();
   return (
     <Row>
       <AllColumns>
@@ -76,7 +74,7 @@ export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
               {expense.format()}
             </DataValue>
           </Box>
-          <Box px={8} className={styles.hideOnMobile}>
+          <Box px={8} visibleFrom="sm">
             Balanssi: <DataValue w={73}>{balance.format()}</DataValue>
           </Box>
           <Box px={8}>

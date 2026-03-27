@@ -1,4 +1,4 @@
-import { Box, Burger, Button, Group, Text } from '@mantine/core';
+import { Box, Burger, Button, Group, type MantineSize, Text } from '@mantine/core';
 import * as React from 'react';
 import { Link, useMatch } from 'react-router-dom';
 
@@ -17,39 +17,43 @@ import {
 
 import { neutral, primary, text } from '../Colors.ts';
 import { DateRangeNavigator } from '../component/DateRangeNavigator.tsx';
+import { useIsMobile } from '../hooks/useBreakpoints.ts';
 import { Icon, RenderIcon } from '../icons/Icons.tsx';
 import { AddExpenseMenu } from '../shortcuts/ShortcutsDropdown.tsx';
-import { isMobileSize, Size } from './Styles.ts';
 import classes from './TopBar.module.css';
 
 export interface AppLink {
   label: string;
   path: string;
-  showInHeader: boolean | number;
+  /** Mantine breakpoint from which this link is visible in the header, or false to hide */
+  showInHeader: MantineSize | false;
   icon?: Icon;
 }
 
 export const appLinks: AppLink[] = [
   { label: 'Linkit', path: shortcutsPagePath, showInHeader: false, icon: 'Shortcut' },
-  { label: 'Kulut', path: expensePagePath, showInHeader: true, icon: 'Money' },
-  { label: 'Kategoriat', path: categoryPagePath, showInHeader: true, icon: 'Category' },
-  { label: 'Tilaukset', path: subscriptionsPagePath, showInHeader: true, icon: 'Subscriptions' },
-  { label: 'Tilastot', path: statisticsPage, showInHeader: 1050, icon: 'BarChart' },
-  { label: 'Seuranta', path: trackingPagePath, showInHeader: true, icon: 'Chart' },
-  { label: 'Ryhmittelyt', path: groupingsPagePath, showInHeader: 1200, icon: 'Grouping' },
-  { label: 'Haku', path: searchPagePath, showInHeader: true, icon: 'Search' },
+  { label: 'Kulut', path: expensePagePath, showInHeader: 'sm', icon: 'Money' },
+  { label: 'Kategoriat', path: categoryPagePath, showInHeader: 'sm', icon: 'Category' },
+  { label: 'Tilaukset', path: subscriptionsPagePath, showInHeader: 'sm', icon: 'Subscriptions' },
+  { label: 'Tilastot', path: statisticsPage, showInHeader: 'md', icon: 'BarChart' },
+  { label: 'Seuranta', path: trackingPagePath, showInHeader: 'sm', icon: 'Chart' },
+  { label: 'Ryhmittelyt', path: groupingsPagePath, showInHeader: 'lg', icon: 'Grouping' },
+  { label: 'Haku', path: searchPagePath, showInHeader: 'sm', icon: 'Search' },
   { label: 'Tiedot', path: infoPagePath, showInHeader: false, icon: 'Info' },
   { label: 'Työkalut', path: toolsPagePath, showInHeader: false, icon: 'Tools' },
 ];
 
+const headerLinks = appLinks.filter(
+  (l): l is AppLink & { showInHeader: MantineSize } => l.showInHeader !== false,
+);
+
 interface TopBarProps {
-  windowSize: Size;
   menuOpen: boolean;
   onToggleMenu: () => void;
 }
 
-export const TopBar: React.FC<TopBarProps> = ({ windowSize, menuOpen, onToggleMenu }) => {
-  const isMobile = isMobileSize(windowSize);
+export const TopBar: React.FC<TopBarProps> = ({ menuOpen, onToggleMenu }) => {
+  const isMobile = useIsMobile();
   return (
     <Group h="100%" px="md" gap={0}>
       <Burger opened={menuOpen} onClick={onToggleMenu} color={text} size="sm" />
@@ -63,15 +67,9 @@ export const TopBar: React.FC<TopBarProps> = ({ windowSize, menuOpen, onToggleMe
       ) : (
         <>
           <Group gap={0} flex={1} h="100%" ml="sm">
-            {appLinks
-              .filter(
-                l =>
-                  l.showInHeader === true ||
-                  (typeof l.showInHeader === 'number' && windowSize.width > l.showInHeader),
-              )
-              .map(l => (
-                <NavLink key={l.label} link={l} showIcon={windowSize.width > 920} />
-              ))}
+            {headerLinks.map(l => (
+              <HeaderNavLink key={l.label} link={l} />
+            ))}
           </Group>
           <DateRangeNavigator />
           <Group ml="md">
@@ -84,11 +82,12 @@ export const TopBar: React.FC<TopBarProps> = ({ windowSize, menuOpen, onToggleMe
 };
 
 /** Header nav link — text-based with active bottom-border indicator */
-const NavLink: React.FC<{ link: AppLink; showIcon: boolean }> = ({ link, showIcon }) => {
+const HeaderNavLink: React.FC<{ link: AppLink & { showInHeader: MantineSize } }> = ({ link }) => {
   const active = !!useMatch(link.path);
   return (
     <Box
       renderRoot={props => <Link to={link.path} {...props} />}
+      visibleFrom={link.showInHeader}
       display="flex"
       h="100%"
       px="md"
@@ -102,7 +101,11 @@ const NavLink: React.FC<{ link: AppLink; showIcon: boolean }> = ({ link, showIco
       className={classes.headerLink}
     >
       <Group gap="xs" wrap="nowrap" align="center">
-        {showIcon && link.icon && <RenderIcon icon={link.icon} fontSize="small" />}
+        {link.icon && (
+          <Box component="span" visibleFrom="md" display="inline-flex">
+            <RenderIcon icon={link.icon} fontSize="small" />
+          </Box>
+        )}
         <Text size="md" fw={active ? 600 : 400} inherit={false}>
           {link.label}
         </Text>

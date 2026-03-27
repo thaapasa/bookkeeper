@@ -12,31 +12,32 @@ import { ModalDialogConnector } from '../dialog/ModalDialogConnector.tsx';
 import { ExpenseDialog } from '../expense/dialog/ExpenseDialog.tsx';
 import { createExpenseDialogListener } from '../expense/dialog/ExpenseDialogListener.tsx';
 import { ExpenseSplitDialog } from '../expense/split/ExpenseSplitDialog.tsx';
+import { useIsMobile } from '../hooks/useBreakpoints';
 import { AppRouter } from './AppRouter.tsx';
-import { mainContentMaxWidth, Size } from './Styles.ts';
+import { mainContentMaxWidth } from './Styles.ts';
 import { appLinks, TopBar } from './TopBar.tsx';
 
 interface PageProps {
   session: Session;
-  windowSize: Size;
 }
 
 const ExpenseDialogBinder = createExpenseDialogListener(ExpenseDialog, expenseDialogE);
 
 const ExpenseSplitBinder = createExpenseDialogListener(ExpenseSplitDialog, expenseSplitE);
 
-export const BookkeeperPage: React.FC<PageProps> = ({ windowSize }) => {
+export const BookkeeperPage: React.FC<PageProps> = () => {
+  const isMobile = useIsMobile();
   const [menuOpen, { toggle: toggleMenu, close: closeMenu }] = useDisclosure(false);
 
   return (
     <>
-      <ExpenseDialogBinder windowSize={windowSize} />
-      <ExpenseSplitBinder windowSize={windowSize} />
+      <ExpenseDialogBinder isMobile={isMobile} />
+      <ExpenseSplitBinder isMobile={isMobile} />
       <ModalDialogConnector />
       <Router>
         <AppShell header={{ height: 56 }} padding={0} withBorder={false}>
           <AppShell.Header bg="var(--mantine-color-default-hover)">
-            <TopBar windowSize={windowSize} menuOpen={menuOpen} onToggleMenu={toggleMenu} />
+            <TopBar menuOpen={menuOpen} onToggleMenu={toggleMenu} />
           </AppShell.Header>
 
           <AppShell.Main

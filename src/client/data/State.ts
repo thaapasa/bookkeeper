@@ -6,7 +6,6 @@ import { DateLike, monthRange, toDateTime } from 'shared/time';
 import { noop } from 'shared/util';
 import { ExpenseSaveAction } from 'client/ui/expense/dialog/ExpenseSaveAction';
 
-import { Size } from '../ui/layout/Styles.ts';
 import { expensePagePath } from '../util/Links';
 import type { ExpenseDialogObject, NavigationConfig, Notification } from './StateTypes';
 
@@ -78,11 +77,7 @@ export const navigationP = navigationBus.toProperty({
   dateRange: monthRange(new Date()),
 });
 
-export const windowSizeBus = new B.Bus<Size>();
-export const windowSizeP = windowSizeBus.toProperty();
-
 // Start listening to buses to not miss any updates
-windowSizeP.onValue(noop);
 navigationP.onValue(noop);
 
 /* Export state to window globals for debugging */
@@ -94,7 +89,5 @@ if (import.meta.env.NODE_ENV === 'development') {
     expenseDialogE,
     needUpdateBus,
     needUpdateE,
-    windowSizeBus,
-    windowSizeP,
   };
 }

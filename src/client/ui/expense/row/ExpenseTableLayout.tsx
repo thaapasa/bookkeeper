@@ -21,7 +21,7 @@ export const ExpenseTableLayout: React.FC<
     styles={{ td: { overflow: 'hidden', textOverflow: 'ellipsis' } }}
     style={{
       ...(loading ? { opacity: 0.4 } : undefined),
-      ...(padded ? { padding: '0 16px' } : undefined),
+      ...(padded ? { padding: '0 var(--mantine-spacing-md)' } : undefined),
     }}
   >
     {children}
@@ -42,13 +42,7 @@ export {
   SumColumn,
   ToolColumn,
 } from './ColumnComponents';
-export {
-  columnSizes,
-  getVisibleColumns,
-  maxColumnsForSize,
-  rowHeight,
-  sourceWidth,
-} from './columns';
+export { rowHeight, sourceWidth } from './columns';
 export { computeDayParities, DayParityContext } from './DayParity';
 export { AllColumns, LoadingIndicator, RecurringExpenseSeparator } from './SpecialRows';
 export { IconToolArea, RecurringExpenseIcon, UnconfirmedIcon } from './TableIcons';

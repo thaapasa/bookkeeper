@@ -10,12 +10,14 @@ old code is legacy — do NOT use it as an example for new code.
    `Paper`, `Container`, `ScrollArea`, `AppShell`, `Table`, `NavLink`, etc.) instead of
    raw HTML elements or custom styled wrappers.
 2. **Use Mantine style props** (`p`, `m`, `fz`, `fw`, `c`, `bg`, `w`, `h`, etc.) for
-   simple styling. These go directly on Mantine components.
+   simple styling. These go directly on Mantine components. **Use Mantine size tokens**
+   (`"xs"`, `"sm"`, `"md"`, `"lg"`, `"xl"`) instead of raw pixel values for spacing,
+   padding, margins, and gaps — e.g. `p="sm"` not `p={8}`, `gap="md"` not `gap={16}`.
+   Pick the size token closest to the original value.
 3. **Use Mantine `style` prop** for one-off CSS properties not covered by style props.
 4. **Only use custom CSS (Emotion `styled` or CSS files) when clearly required** — for
-   example, complex pseudo-elements, the app's custom media-query breakpoints
-   (`media.mobile`, `media.mobilePortrait`), or CSS patterns like diagonal stripes that
-   have no Mantine equivalent.
+   example, complex pseudo-elements or CSS patterns like diagonal stripes that have no
+   Mantine equivalent.
 5. **Do NOT create new Emotion `styled` wrappers** for things Mantine handles natively
    (padding, margins, colors, font sizes, flex layout, visibility, etc.).
 6. **Do NOT wrap Mantine components with `styled()`** — Emotion's `styled()` does not
@@ -45,9 +47,12 @@ old code is legacy — do NOT use it as an example for new code.
 - **Font sizes**: Smaller than Mantine defaults (xs=10, sm=12, md=14, lg=16, xl=18).
   Use `md` for normal UI text, `sm` for dense data tables, `xs` for minor labels.
 - **Layout**: `BookkeeperPage.tsx` — `AppShell` + `Container` (no card wrapper)
-- **Custom breakpoints**: The app uses `media.mobile` (< 840px) and `media.mobilePortrait`
-  (< 600px) from `client/ui/Styles`. These do NOT match Mantine's built-in breakpoints,
-  so use Emotion `styled` + `media.*` for responsive hiding at these thresholds.
+- **Breakpoints**: Uses Mantine defaults (xs=576, sm=768, md=992, lg=1200, xl=1408).
+  `sm` is the primary mobile/desktop boundary, `xs` is portrait phone. Use `visibleFrom`/
+  `hiddenFrom` props for responsive visibility, `useIsMobile()` / `useIsMobilePortrait()`
+  hooks from `client/ui/hooks/useBreakpoints` for conditional rendering.
+- **Spacing**: Mantine default spacing scale (xs=10, sm=12, md=16, lg=20, xl=32).
+  Always prefer size tokens over raw pixels.
 - **Icons**: Lucide React (`lucide-react`). Wrapped in `src/client/ui/icons/Icons.tsx`
   with a name→component map (`LucideIcons`). Use `<Icons.Name />` or
   `<RenderIcon icon="Name" />`. Add new icons by importing from `lucide-react` and
