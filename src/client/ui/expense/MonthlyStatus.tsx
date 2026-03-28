@@ -9,7 +9,7 @@ import { Icons } from '../icons/Icons';
 import { ExpenseTotals, money } from './ExpenseHelper';
 import styles from './MonthlyStatus.module.css';
 import { AddFilterFn, ExpenseFilters } from './row/ExpenseFilters';
-import { UnconfirmedIcon } from './row/ExpenseTableLayout';
+import { UnconfirmedIcon } from './row/TableIcons.tsx';
 
 interface StatusProps {
   unconfirmedBefore: boolean;

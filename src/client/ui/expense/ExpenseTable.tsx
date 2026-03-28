@@ -10,19 +10,15 @@ import { ListDecorator } from '../component/ListDecorator';
 import { ExpenseTotals } from './ExpenseHelper';
 import styles from './ExpenseTable.module.css';
 import { MonthlyStatus } from './MonthlyStatus';
+import { computeDayParities, DayParityContext } from './row/DayParity.ts';
 import { ExpenseFilterRow } from './row/ExpenseFilterRow';
 import { AddFilterFn, ExpenseFilter, ExpenseFilterFunction } from './row/ExpenseFilters';
 import { ExpenseHeader } from './row/ExpenseHeader';
 import { CommonExpenseRowProps, ExpenseRow } from './row/ExpenseRow';
 import { ExpenseRowSeparator } from './row/ExpenseRowSeparator';
-import {
-  computeDayParities,
-  DayParityContext,
-  ExpenseTableLayout,
-  LoadingIndicator,
-  RecurringExpenseSeparator,
-} from './row/ExpenseTableLayout';
+import { ExpenseTableLayout } from './row/ExpenseTableLayout';
 import { RecurringSummaryRow } from './row/RecurringSummaryRow';
+import { LoadingIndicator, RecurringExpenseSeparator } from './row/SpecialRows.tsx';
 
 interface ExpenseTableProps {
   expenses: UserExpense[];

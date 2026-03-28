@@ -1,4 +1,4 @@
-import { Box, Group } from '@mantine/core';
+import { Group, Table, Text } from '@mantine/core';
 import * as React from 'react';
 
 import {
@@ -25,28 +25,20 @@ import { ExpenseTypeIcon } from 'client/ui/icons/ExpenseType';
 import { ToolIcon } from 'client/ui/icons/ToolIcon';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
+import { useIsMobile } from '../../hooks/useBreakpoints.ts';
 import { ExpenseInfo } from '../details/ExpenseInfo';
 import { ReceiverField } from '../dialog/ReceiverField';
 import { expenseName } from '../ExpenseHelper';
-import { AddFilterFn, ExpenseFilters } from './ExpenseFilters';
-import rowStyles from './ExpenseRow.module.css';
-import { SourceIcon, TextButton } from './ExpenseRowComponents';
 import {
-  AvatarColumn,
-  BalanceColumn,
-  CategoryColumn,
-  DateColumn,
-  DayParityContext,
-  IconToolArea,
-  NameColumn,
-  ReceiverColumn,
-  RecurringExpenseIcon,
-  Row,
-  SourceColumn,
-  SumColumn,
-  ToolColumn,
-  UnconfirmedIcon,
-} from './ExpenseTableLayout';
+  BalanceVisibleFrom,
+  CategoryVisibleFrom,
+  ReceiverVisibleFrom,
+  SourceVisibleFrom,
+} from './Breakpoints';
+import { DayParityContext } from './DayParity';
+import { AddFilterFn, ExpenseFilters } from './ExpenseFilters';
+import { SourceIcon, TextButton } from './ExpenseRowComponents';
+import { IconToolArea, RecurringExpenseIcon, UnconfirmedIcon } from './TableIcons';
 
 const emptyDivision: ExpenseDivisionItem[] = [];
 
@@ -70,6 +62,8 @@ interface ExpenseRowImplProps extends CommonExpenseRowProps {
 const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
   const { expense, prev, user, source, categoryMap, groupingMap, userMap, addFilter, onUpdated } =
     props;
+
+  const isMobile = useIsMobile();
 
   const [details, setDetails] = React.useState<UserExpenseWithDetails | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
@@ -178,22 +172,25 @@ const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
 
   return (
     <>
-      <Row bg={parity === 1 ? 'neutral.1' : undefined}>
-        <DateColumn onClick={editDate}>
+      <Table.Tr bg={parity === 1 ? 'neutral.1' : undefined}>
+        {/* Date */}
+        <Table.Td ta="right" pos="relative" px="xs" onClick={editDate}>
           {expense.recurringExpenseId ? <RecurringExpenseIcon /> : null}
-          <Box component="span" visibleFrom="sm" className={rowStyles.weekDay}>
+          <Text span visibleFrom="sm" pr={6} fw="bold">
             {weekDay(expense.date, prev)}
-          </Box>
+          </Text>
           {readableDate(expense.date)}
-        </DateColumn>
-        <AvatarColumn>
+        </Table.Td>
+        {/* Avatar */}
+        <Table.Td>
           <UserAvatar
             user={userMap[expense.userId]}
             size={32}
             onClick={() => addFilter(e => e.userId === expense.userId, user.firstName)}
           />
-        </AvatarColumn>
-        <NameColumn>
+        </Table.Td>
+        {/* Name */}
+        <Table.Td pos="relative">
           <IconToolArea>
             {expense.confirmed ? null : (
               <UnconfirmedIcon onClick={() => addFilter(ExpenseFilters.unconfirmed, 'Alustavat')} />
@@ -220,35 +217,39 @@ const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
             viewStyle={{ display: 'inline-block', verticalAlign: 'middle' }}
             onChange={v => updateExpense({ title: v })}
           />
-        </NameColumn>
-        <ReceiverColumn>
+        </Table.Td>
+        {/* Receiver */}
+        <Table.Td visibleFrom={ReceiverVisibleFrom}>
           <ActivatableTextField
             fullWidth
             value={expense.receiver}
             editorType={ReceiverField}
             onChange={v => updateExpense({ receiver: v })}
           />
-        </ReceiverColumn>
-        <CategoryColumn>{fullCategoryLink(expense.categoryId)}</CategoryColumn>
-        <SourceColumn>
+        </Table.Td>
+        {/* Category */}
+        <Table.Td visibleFrom={CategoryVisibleFrom}>
+          {fullCategoryLink(expense.categoryId)}
+        </Table.Td>
+        {/* Source */}
+        <Table.Td visibleFrom={SourceVisibleFrom}>
           <SourceIcon
             source={source}
             onClick={() => addFilter(e => e.sourceId === source.id, source.name)}
           />
-        </SourceColumn>
-        <SumColumn
-          style={
-            expense.type === 'income'
-              ? { backgroundColor: 'var(--mantine-color-neutral-2)' }
-              : undefined
-          }
-        >
+        </Table.Td>
+        {/* Sum */}
+        <Table.Td ta="right" pos="relative" bg={expense.type === 'income' ? 'dark.4' : undefined}>
           <Group justify="space-between" wrap="nowrap" gap={4}>
             <ExpenseTypeIcon type={expense.type} color={primary[7]} size={20} />
-            <div>{Money.from(expense.sum).format()}</div>
+            {Money.from(expense.sum).format()}
           </Group>
-        </SumColumn>
-        <BalanceColumn
+        </Table.Td>
+        {/* Balance */}
+        <Table.Td
+          ta="right"
+          pos="relative"
+          visibleFrom={BalanceVisibleFrom}
           style={{ color: forMoney(expense.userBalance) }}
           onClick={() =>
             Money.zero.equals(expense.userBalance)
@@ -257,25 +258,25 @@ const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
           }
         >
           {Money.from(expense.userBalance).format()}
-        </BalanceColumn>
-        <ToolColumn>
-          <Group gap={0} wrap="nowrap" justify="flex-end">
+        </Table.Td>
+        {/* Tools */}
+        <Table.Td ta="right">
+          <Group gap="xs" wrap="nowrap" justify="flex-end">
             <ExpanderIcon
+              size={isMobile ? 'lg' : 'sm'}
               title="Tiedot"
               open={isDefined(details)}
               onToggle={() => toggleDetails()}
             />
-            <Box visibleFrom="sm" display="flex">
-              <ToolIcon title="Muokkaa" onClick={modifyExpense} icon="Edit" />
-              <ToolIcon title="Poista" onClick={deleteExpense} icon="Delete" />
-            </Box>
+            <ToolIcon title="Muokkaa" onClick={modifyExpense} icon="Edit" visibleFrom="sm" />
+            <ToolIcon title="Poista" onClick={deleteExpense} icon="Delete" visibleFrom="sm" />
           </Group>
-        </ToolColumn>
-      </Row>
+        </Table.Td>
+      </Table.Tr>
       {isLoading || details ? (
         <ExpenseInfo
-          loading={isLoading}
           key={'expense-division-' + expense.id}
+          loading={isLoading}
           expense={expense}
           onDelete={deleteExpense}
           onModify={modifyExpense}

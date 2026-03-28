@@ -1,10 +1,12 @@
-import { Box } from '@mantine/core';
+import { Box, Table } from '@mantine/core';
 import * as React from 'react';
 
 import { ExpenseDivisionItem, UserExpense } from 'shared/expense';
 import { Source, User } from 'shared/types';
 
-import { AllColumns, LoadingIndicator, Row } from '../row/ExpenseTableLayout';
+import { useIsMobile, useIsMobilePortrait } from '../../hooks/useBreakpoints.ts';
+import { AllColumns } from '../row/Breakpoints.tsx';
+import { LoadingIndicator } from '../row/SpecialRows.tsx';
 import { BasicData } from './BasicData';
 import { DivisionInfo } from './DivisionInfo';
 import { ExpenseInfoTools } from './ExpenseInfoTools';
@@ -27,28 +29,28 @@ export const ExpenseInfo: React.FC<ExpenseInfoProps> = ({
   division,
   ...props
 }) => {
+  const isSm = useIsMobilePortrait();
+  const isXs = useIsMobile();
+  const divisionMl = isXs ? 46 : isSm ? 80 : 82;
   if (loading) {
     return <LoadingIndicator forRow={true} />;
   }
   return (
-    <Row>
+    <Table.Tr>
       <AllColumns
-        style={{
-          backgroundColor: 'light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-9))',
-        }}
+        bg="light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-9))"
+        pos="relative"
       >
-        <Box pos="relative" ml={16}>
-          <BasicData expense={expense} {...props} />
-          <RecurrenceInfo expense={expense} />
-          {expense.description ? (
-            <Box bg="neutral.1" w="100%" p="12px 16px">
-              {expense.description}
-            </Box>
-          ) : null}
-          <DivisionInfo division={division} expenseType={expense.type} />
-          <ExpenseInfoTools division={division} expense={expense} {...props} />
-        </Box>
+        <BasicData expense={expense} {...props} />
+        <RecurrenceInfo expense={expense} />
+        {expense.description ? (
+          <Box bg="neutral.1" w="100%" p="12px 16px">
+            {expense.description}
+          </Box>
+        ) : null}
+        <DivisionInfo division={division} expenseType={expense.type} ml={divisionMl} />
+        <ExpenseInfoTools division={division} expense={expense} {...props} />
       </AllColumns>
-    </Row>
+    </Table.Tr>
   );
 };

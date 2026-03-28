@@ -167,7 +167,6 @@ function createIconComponent(LucideComponent: LucideIcon): React.FC<IconProps> {
   return IconWrapper;
 }
 
-/** Icons map with MUI-compatible wrapper components */
 export const Icons: Record<Icon, React.FC<IconProps>> = Object.fromEntries(
   Object.entries(LucideIcons).map(([name, component]) => [name, createIconComponent(component)]),
 ) as Record<Icon, React.FC<IconProps>>;

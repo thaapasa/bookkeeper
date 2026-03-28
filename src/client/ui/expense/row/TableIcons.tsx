@@ -1,10 +1,8 @@
-import { Box, BoxProps } from '@mantine/core';
+import { Box, BoxProps, Group } from '@mantine/core';
 import * as React from 'react';
 
 import { Icons } from 'client/ui/icons/Icons';
 import { QuestionBookmark } from 'client/ui/icons/QuestionBookmark';
-
-import classes from './ExpenseRow.module.css';
 
 export const RecurringExpenseIcon: React.FC = () => (
   <Box display="inline-flex" title="Toistuva kirjaus">
@@ -13,9 +11,9 @@ export const RecurringExpenseIcon: React.FC = () => (
 );
 
 export const IconToolArea: React.FC<React.PropsWithChildren> = ({ children }) => (
-  <Box pos="absolute" top={0} right={16} h={24} className={classes.iconToolArea}>
+  <Group pos="absolute" gap="xs" top={0} right={0}>
     {children}
-  </Box>
+  </Group>
 );
 
 export const UnconfirmedIcon: React.FC<

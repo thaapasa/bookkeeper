@@ -1,4 +1,4 @@
-import { ActionIcon, type ActionIconProps, Box } from '@mantine/core';
+import { ActionIcon, type ActionIconProps, Box, Group } from '@mantine/core';
 import * as B from 'baconjs';
 import * as React from 'react';
 
@@ -88,7 +88,7 @@ const ExpenseInfoToolsImpl: React.FC<RecurrenceInfoProps> = ({
   };
 
   return (
-    <Box style={{ position: 'absolute', right: 0, top: 0, display: 'flex', flexDirection: 'row' }}>
+    <Group pos="absolute" right={8} top={8} gap={0}>
       <ToolIconButton title="Pilko" onClick={() => splitExpense(expense.id)}>
         <Icons.Split style={styles.toolIcon} />
       </ToolIconButton>
@@ -117,7 +117,7 @@ const ExpenseInfoToolsImpl: React.FC<RecurrenceInfoProps> = ({
           <Icons.Delete style={styles.toolIcon} />
         </ToolIconButton>
       </Box>
-    </Box>
+    </Group>
   );
 };
 

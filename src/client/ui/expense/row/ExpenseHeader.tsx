@@ -1,29 +1,35 @@
 import { Table } from '@mantine/core';
 import * as React from 'react';
 
-import classes from './ExpenseRow.module.css';
-import { sourceWidth } from './ExpenseTableLayout';
+import { useIsMobile } from '../../hooks/useBreakpoints';
+import {
+  BalanceVisibleFrom,
+  CategoryVisibleFrom,
+  ReceiverVisibleFrom,
+  SourceVisibleFrom,
+} from './Breakpoints';
 
 export function ExpenseHeader() {
+  const isMobile = useIsMobile();
   return (
     <Table.Tr>
-      <Table.Th ta="right" className={classes.colDate}>
+      <Table.Th w={isMobile ? 56 : 92} px="sm">
         Pvm
       </Table.Th>
-      <Table.Th px="xs" w={48} />
-      <Table.Th pl={4}>Nimi</Table.Th>
-      <Table.Th visibleFrom="xs">Kohde</Table.Th>
-      <Table.Th visibleFrom="xs">Kategoria</Table.Th>
-      <Table.Th p={4} w={sourceWidth + 16} visibleFrom="sm">
+      <Table.Th w={50} />
+      <Table.Th>Nimi</Table.Th>
+      <Table.Th visibleFrom={ReceiverVisibleFrom}>Kohde</Table.Th>
+      <Table.Th visibleFrom={CategoryVisibleFrom}>Kategoria</Table.Th>
+      <Table.Th w={66} visibleFrom={SourceVisibleFrom}>
         Lähde
       </Table.Th>
-      <Table.Th ta="right" pr="xs" w={100}>
+      <Table.Th ta="right" w={120}>
         Summa
       </Table.Th>
-      <Table.Th ta="right" pr="xs" w={80} visibleFrom="sm">
+      <Table.Th ta="right" w={100} visibleFrom={BalanceVisibleFrom}>
         Balanssi
       </Table.Th>
-      <Table.Th ta="right" className={classes.colTools} />
+      <Table.Th ta="right" w={isMobile ? 44 : 130} />
     </Table.Tr>
   );
 }

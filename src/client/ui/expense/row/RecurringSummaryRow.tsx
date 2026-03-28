@@ -1,4 +1,4 @@
-import { Box, Group } from '@mantine/core';
+import { Box, Group, Table } from '@mantine/core';
 import * as React from 'react';
 
 import { UserExpense } from 'shared/expense';
@@ -7,15 +7,9 @@ import { DataValue, SectionLabel } from 'client/ui/design/Text';
 import { useIsMobile } from 'client/ui/hooks/useBreakpoints';
 import { Icons } from 'client/ui/icons/Icons';
 
+import { AllColumns } from './Breakpoints';
 import { AddFilterFn, ExpenseFilters } from './ExpenseFilters';
-import {
-  AllColumns,
-  IconToolArea,
-  RecurringExpenseIcon,
-  Row,
-  rowHeight,
-  UnconfirmedIcon,
-} from './ExpenseTableLayout';
+import { IconToolArea, RecurringExpenseIcon, UnconfirmedIcon } from './TableIcons';
 
 interface RecurringSummaryRowProps {
   recurring: UserExpense[];
@@ -42,9 +36,9 @@ export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
   const hasUnconfirmed = recurring.some(r => !r.confirmed);
   const isMobile = useIsMobile();
   return (
-    <Row>
+    <Table.Tr>
       <AllColumns>
-        <Group h={rowHeight} w="100%" wrap="nowrap" pl={12}>
+        <Group w="100%" wrap="nowrap">
           <RecurringExpenseIcon />
           <Group flex={1} h="100%" wrap="nowrap">
             {hasUnconfirmed ? (
@@ -86,6 +80,6 @@ export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
           </Box>
         </Group>
       </AllColumns>
-    </Row>
+    </Table.Tr>
   );
 };

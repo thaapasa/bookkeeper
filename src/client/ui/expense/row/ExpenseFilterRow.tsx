@@ -1,8 +1,8 @@
-import { Group, Pill, Tooltip } from '@mantine/core';
+import { Group, Pill, Table, Tooltip } from '@mantine/core';
 
+import { AllColumns } from './Breakpoints';
 import styles from './ExpenseFilterRow.module.css';
 import { ExpenseFilter } from './ExpenseFilters';
-import { AllColumns, Row } from './ExpenseTableLayout';
 
 interface ExpenseFilterRowProps {
   filters: ExpenseFilter[];
@@ -15,7 +15,7 @@ export function ExpenseFilterRow({ filters, onRemoveFilter }: ExpenseFilterRowPr
   }
 
   return (
-    <Row>
+    <Table.Tr>
       <AllColumns>
         <Group w="100%" justify="center" gap="xs">
           {filters.map((f, index) => (
@@ -28,7 +28,7 @@ export function ExpenseFilterRow({ filters, onRemoveFilter }: ExpenseFilterRowPr
           ))}
         </Group>
       </AllColumns>
-    </Row>
+    </Table.Tr>
   );
 }
 

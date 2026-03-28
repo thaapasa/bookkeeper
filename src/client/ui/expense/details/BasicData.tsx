@@ -11,7 +11,7 @@ interface BasicDataProps {
 }
 
 export const BasicData: React.FC<BasicDataProps> = ({ expense, fullCategoryName, source }) => (
-  <Box hiddenFrom="xs" px="md" py="xs">
+  <Box hiddenFrom="md" px="md" py="xs">
     <DetailRow name="Kohde" value={expense.receiver} />
     <DetailRow name="Kategoria" value={fullCategoryName} />
     <DetailRow name="Lähde" value={source.name} />
@@ -20,7 +20,7 @@ export const BasicData: React.FC<BasicDataProps> = ({ expense, fullCategoryName,
 
 const DetailRow: React.FC<{ name: string; value: string }> = ({ name, value }) => (
   <Box py={4}>
-    <Text component="span" display="inline-block" w={80}>
+    <Text display="inline-block" w={88} fz="sm">
       {name + ':'}
     </Text>
     {value}

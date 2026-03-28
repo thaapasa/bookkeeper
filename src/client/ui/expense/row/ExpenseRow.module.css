@@ -1,21 +1,7 @@
-.weekDay {
-  padding-right: 4px;
-  font-weight: bold;
+.expenseTable {
+  td, th {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
-.colDate {
-  width: 72px;
-}
-.colTools {
-  width: 96px;
-  white-space: nowrap;
-}
-.iconToolArea > svg,
-.iconToolArea > div {
-  margin-left: 4px;
-}
-
-@media (max-width: 48em) {
-  .colDate { width: 48px; }
-  .colTools { width: 36px; }
-}

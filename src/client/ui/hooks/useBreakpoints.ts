@@ -20,3 +20,8 @@ export function useIsMobile() {
 export function useIsMobilePortrait() {
   return !useMediaQuery('(min-width: 36em)');
 }
+
+/** True when viewport is below the `md` breakpoint (< 992px) */
+export function useIsTablet() {
+  return !useMediaQuery('(min-width: 62em)');
+}
