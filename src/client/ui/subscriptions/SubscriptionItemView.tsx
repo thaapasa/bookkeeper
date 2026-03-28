@@ -1,3 +1,4 @@
+import { useDisclosure } from '@mantine/hooks';
 import * as React from 'react';
 
 import { ExpenseReport, RecurrencePeriod, RecurringExpense } from 'shared/expense';
@@ -8,7 +9,6 @@ import { updateExpenses } from 'client/data/State';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { ExpanderIcon } from '../component/ExpanderIcon';
-import { useToggle } from '../hooks/useToggle';
 import { ToolIcon } from '../icons/ToolIcon';
 import { Dates, Label, Period, RowElement, Sum, Tools } from './layout';
 import { SubscriptionDetails } from './SubscriptionDetails';
@@ -28,19 +28,19 @@ const RecurringExpenseItem: React.FC<{
   item: RecurringExpense;
   className?: string;
 }> = ({ item, className }) => {
-  const [open, toggle] = useToggle(false);
+  const [open, { toggle }] = useDisclosure(false);
   return (
     <>
       <RowElement className={`${className} ${item.occursUntil ? 'inactive' : undefined}`}>
         <Label>{item.title}</Label>
         <Label>{item.receiver}</Label>
-        <Dates className="optional">
+        <Dates visibleFrom="sm">
           {readableDateWithYear(item.firstOccurence)}
           {item.occursUntil ? ` - ${readableDateWithYear(item.occursUntil)}` : ''}
         </Dates>
-        <Sum className="wide">{Money.from(item.sum).format()}</Sum>
+        <Sum>{Money.from(item.sum).format()}</Sum>
         <Period>/ {getPeriodText(item.period)}</Period>
-        <Sum className="optional">{Money.from(item.recurrencePerMonth).format()} / kk</Sum>
+        <Sum visibleFrom="sm">{Money.from(item.recurrencePerMonth).format()} / kk</Sum>
         <Sum>{Money.from(item.recurrencePerYear).format()} / v</Sum>
         <Tools>
           <ExpanderIcon title="Lisätiedot" open={open} onToggle={toggle} />
@@ -64,10 +64,10 @@ const ReportItem: React.FC<{
           {item.count !== 1 ? 'a' : ''} välillä {readableDateWithYear(item.firstDate)} -{' '}
           {readableDateWithYear(item.lastDate)}
         </Label>
-        <Sum className="wide">{Money.from(item.sum).format()}</Sum>
-        <Sum className="wide">{Money.from(item.avgSum).format()}</Sum>
+        <Sum>{Money.from(item.sum).format()}</Sum>
+        <Sum>{Money.from(item.avgSum).format()}</Sum>
         <Period>/ kpl</Period>
-        <Sum className="optional">{Money.from(item.recurrencePerMonth).format()} / kk</Sum>
+        <Sum visibleFrom="sm">{Money.from(item.recurrencePerMonth).format()} / kk</Sum>
         <Sum>{Money.from(item.recurrencePerYear).format()} / v</Sum>
         <Tools>
           <ToolIcon title="Poista" onClick={() => deleteReport(item)} icon="Delete" />

@@ -1,10 +1,10 @@
-import { Grid } from '@mui/material';
+import styled from '@emotion/styled';
+import { Text } from '@mantine/core';
 import * as React from 'react';
 
 import { MaybePromise } from 'shared/util';
 
 import { ActionButton } from '../component/ActionButton';
-import { Text } from '../design/Text';
 
 export const ToolButton: React.FC<{
   title: string;
@@ -12,13 +12,18 @@ export const ToolButton: React.FC<{
   buttonText: string;
 }> = ({ title, action, buttonText }) => (
   <>
-    <Grid size={4} alignSelf="center">
+    <LabelCell>
       <Text>{title}</Text>
-    </Grid>
-    <Grid size={8} alignSelf="center">
+    </LabelCell>
+    <div>
       <ActionButton onClick={action} variant="contained" color="primary">
         {buttonText}
       </ActionButton>
-    </Grid>
+    </div>
   </>
 );
+
+const LabelCell = styled.div`
+  display: flex;
+  align-items: center;
+`;

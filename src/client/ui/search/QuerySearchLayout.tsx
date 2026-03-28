@@ -1,12 +1,5 @@
-import {
-  Button,
-  Checkbox,
-  CircularProgress,
-  FormControlLabel,
-  Grid,
-  IconButton,
-  styled,
-} from '@mui/material';
+import styled from '@emotion/styled';
+import { ActionIcon, Button, Checkbox, Grid, Loader } from '@mantine/core';
 import * as B from 'baconjs';
 import * as React from 'react';
 
@@ -15,7 +8,7 @@ import { isDefined, ObjectId, Session } from 'shared/types';
 import { CategoryDataSource } from 'client/data/Categories';
 import { validSessionP } from 'client/data/Login';
 
-import { gray } from '../Colors';
+import { neutral } from '../Colors';
 import { connect } from '../component/BaconConnect';
 import { FlexRow } from '../component/BasicElements';
 import { DateRangeSelector } from '../component/daterange/DateRangeSelector';
@@ -39,7 +32,7 @@ interface QuerySearchLayoutProps {
   userId: ObjectId | undefined;
   onSetUserId: (userId: ObjectId | undefined) => void;
   unconfirmed: boolean;
-  onToggleUnconfirmed: (_event: any, checked: boolean) => void;
+  onToggleUnconfirmed: (_event: unknown, checked: boolean) => void;
   dateRange?: TypedDateRange;
   onSelectRange: (r?: TypedDateRange) => void;
   onSaveAsReport: () => void;
@@ -65,13 +58,13 @@ const QuerySearchLayoutImpl: React.FC<QuerySearchLayoutProps> = ({
   onSaveAsReport,
   session,
 }) => (
-  <Grid container padding="16px" rowGap="16px">
-    <Grid size={{ xs: 12, sm: 12, md: 7 }}>
+  <Grid p={16} gutter={16}>
+    <Grid.Col span={{ base: 12, sm: 7 }}>
       <FlexRow>
         <ClearIconArea>
-          <IconButton size="small" onClick={onClear}>
+          <ActionIcon variant="subtle" size="sm" onClick={onClear}>
             <Icons.Delete />
-          </IconButton>
+          </ActionIcon>
         </ClearIconArea>
         <SearchInputField
           value={input}
@@ -81,32 +74,25 @@ const QuerySearchLayoutImpl: React.FC<QuerySearchLayoutProps> = ({
           categorySource={categorySource}
         />
         <SearchButtonArea>
-          <IconButton size="small" onClick={startSearch}>
+          <ActionIcon variant="subtle" size="sm" onClick={startSearch}>
             <Icons.Search color="primary" />
-          </IconButton>
+          </ActionIcon>
         </SearchButtonArea>
-        <ProgressArea>
-          {isSearching ? (
-            <CircularProgress size={38} variant="indeterminate" disableShrink />
-          ) : null}
-        </ProgressArea>
+        <ProgressArea>{isSearching ? <Loader size={38} /> : null}</ProgressArea>
       </FlexRow>
       <br />
       {dateRange ? `Haetaan ajalta ${toDateRangeName(dateRange)}` : 'Ei aikaehtoja'}
-    </Grid>
-    <Grid size={{ xs: 12, sm: 7, md: 3 }}>
+    </Grid.Col>
+    <Grid.Col span={{ base: 12, sm: 3 }}>
       <DateRangeSelector dateRange={dateRange} onSelectRange={onSelectRange} />
-    </Grid>
-    <Grid size={{ xs: 12, sm: 5, md: 2 }}>
+    </Grid.Col>
+    <Grid.Col span={{ base: 12, sm: 2 }}>
       <Row>
-        <CheckLabel
-          control={
-            <Checkbox
-              checked={isDefined(userId)}
-              onChange={() => onSetUserId(isDefined(userId) ? undefined : session.user.id)}
-            />
-          }
+        <Checkbox
+          checked={isDefined(userId)}
+          onChange={() => onSetUserId(isDefined(userId) ? undefined : session.user.id)}
           label="Vain omat"
+          styles={{ label: { fontSize: 'var(--mantine-font-size-sm)' } }}
         />
         {isDefined(userId) ? (
           <UserSelector
@@ -117,15 +103,19 @@ const QuerySearchLayoutImpl: React.FC<QuerySearchLayoutProps> = ({
           />
         ) : null}
       </Row>
-      <CheckLabel
-        control={<Checkbox checked={unconfirmed} onChange={onToggleUnconfirmed} />}
+      <Checkbox
+        checked={unconfirmed}
+        onChange={e => onToggleUnconfirmed(e, e.currentTarget.checked)}
         label="Alustavat"
+        styles={{ label: { fontSize: 'var(--mantine-font-size-sm)' } }}
       />
-      <Button onClick={onSaveAsReport}>Tee raportti</Button>
-    </Grid>
-    <Grid size={12}>
+      <Button variant="subtle" onClick={onSaveAsReport}>
+        Tee raportti
+      </Button>
+    </Grid.Col>
+    <Grid.Col span={12}>
       <SelectedSuggestionsView suggestions={selectedSuggestions} onRemove={removeSuggestion} />
-    </Grid>
+    </Grid.Col>
   </Grid>
 );
 
@@ -135,7 +125,7 @@ export const QuerySearchLayout = connect(
   }),
 )(QuerySearchLayoutImpl);
 
-const SearchToolArea = styled('div')`
+const SearchToolArea = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -143,10 +133,10 @@ const SearchToolArea = styled('div')`
   margin-top: 6px;
   width: 40px;
   height: 46px;
-  background-color: #f7f7f7;
-  border: 1px solid ${gray.standard};
-  border-bottom: 1px solid ${gray.dark};
-  border-radius: 4px;
+  background-color: ${neutral[1]};
+  border: 1px solid ${neutral[3]};
+  border-bottom: 1px solid ${neutral[5]};
+  border-radius: var(--mantine-radius-sm);
 `;
 
 const ClearIconArea = styled(SearchToolArea)`
@@ -162,17 +152,11 @@ const SearchButtonArea = styled(SearchToolArea)`
   border-top-left-radius: 0;
 `;
 
-const ProgressArea = styled('div')`
+const ProgressArea = styled.div`
   width: 64px;
   height: 48px;
   margin-right: 8px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
-`;
-
-const CheckLabel = styled(FormControlLabel)`
-  & span {
-    font-size: 13px;
-  }
 `;

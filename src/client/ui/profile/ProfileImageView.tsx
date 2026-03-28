@@ -1,18 +1,13 @@
-import styled from '@emotion/styled';
-import { Grid, IconButton } from '@mui/material';
-import React from 'react';
+import { Avatar, Box, Button, Group, Stack, Text } from '@mantine/core';
+import * as React from 'react';
 
 import { Session } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
 import { updateSession } from 'client/data/Login';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
-import { colorScheme } from '../Colors';
-import { UploadImageButton } from '../component/UploadFileButton';
 import { Subtitle } from '../design/Text';
-import { RenderIcon } from '../icons/Icons';
-
-const size = 128;
+import { Icons } from '../icons/Icons';
 
 function isOwnImage(imageUrl: string | undefined): boolean {
   return !!imageUrl && !imageUrl.startsWith('http:') && !imageUrl.startsWith('https:');
@@ -20,35 +15,81 @@ function isOwnImage(imageUrl: string | undefined): boolean {
 
 export const ProfileImageView: React.FC<{ session: Session }> = ({ session }) => {
   const user = session.user;
+  const ownImage = isOwnImage(user.imageLarge);
+  const fileRef = React.useRef<HTMLInputElement | null>(null);
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    await uploadImage(file, file.name);
+    if (fileRef.current) fileRef.current.value = '';
+  };
+
   return (
     <>
-      <Grid size={12}>
+      <Box style={{ gridColumn: '1 / -1' }}>
         <Subtitle>Profiilikuva</Subtitle>
-      </Grid>
-      <Grid size={12}>
-        <ProfileImage image={user.imageLarge}>
-          <IconPlacement>
-            <UploadImageButton
-              onSelect={uploadImage}
-              style={{ backgroundColor: colorScheme.gray.standard + 'dd' }}
+      </Box>
+      <Box style={{ gridColumn: '1 / -1' }}>
+        <Group gap="lg" align="center">
+          <Box style={{ position: 'relative' }}>
+            <Avatar
+              src={user.imageLarge}
+              size={128}
+              radius="50%"
+              style={ownImage ? undefined : { filter: 'grayscale(100%) opacity(40%)' }}
+            />
+            {!ownImage ? (
+              <Text
+                fz="xs"
+                fw={700}
+                c="var(--mantine-color-text)"
+                style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                }}
+              >
+                Gravatar
+              </Text>
+            ) : null}
+          </Box>
+          <Stack gap="xs">
+            <Button
+              variant="light"
+              size="compact-sm"
+              leftSection={<Icons.Upload size={16} />}
+              onClick={() => fileRef.current?.click()}
             >
-              <RenderIcon icon="Upload" color="info" />
-            </UploadImageButton>
-            <IconButton
-              onClick={deleteImage}
-              size="medium"
-              style={{ backgroundColor: colorScheme.gray.standard + 'dd' }}
-            >
-              <RenderIcon icon="Delete" color="warning" />
-            </IconButton>
-          </IconPlacement>
-        </ProfileImage>
-      </Grid>
+              Lataa kuva
+            </Button>
+            {ownImage ? (
+              <Button
+                variant="subtle"
+                color="red"
+                size="compact-sm"
+                leftSection={<Icons.Delete size={16} />}
+                onClick={deleteImage}
+              >
+                Poista
+              </Button>
+            ) : null}
+          </Stack>
+          <input
+            type="file"
+            ref={fileRef}
+            onChange={handleFileSelect}
+            style={{ display: 'none' }}
+            accept="image/*"
+          />
+        </Group>
+      </Box>
     </>
   );
 };
 
-async function uploadImage(file: any, filename: string) {
+async function uploadImage(file: File, filename: string) {
   await executeOperation(() => apiConnect.uploadProfileImage(file, filename), {
     postProcess: updateSession,
     success: 'Profiilikuva ladattu',
@@ -61,69 +102,3 @@ async function deleteImage() {
     success: 'Profiilikuva poistettu',
   });
 }
-
-const ProfileImage: React.FC<React.PropsWithChildren<{ image?: string }>> = ({
-  image,
-  children,
-}) => {
-  const ownImage = isOwnImage(image);
-  return (
-    <ImgContainer>
-      {image ? <Img src={image} className={ownImage ? 'own' : 'gravatar'} /> : null}
-      {!ownImage ? <ImageInfo className="info">Gravatar</ImageInfo> : null}
-      {children}
-    </ImgContainer>
-  );
-};
-
-const ImgContainer = styled('div')`
-  width: ${size}px;
-  height: ${size}px;
-  overflow: hidden;
-  position: relative;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-
-  &:hover {
-    & > div.info {
-      display: none;
-    }
-  }
-`;
-
-const Img = styled('img')`
-  width: ${size}px;
-  height: ${size}px;
-  border-radius: 50%;
-
-  &.own {
-  }
-
-  &.gravatar {
-    filter: grayscale(100%) opacity(40%);
-
-    &:hover {
-      filter: none;
-    }
-  }
-`;
-
-const ImageInfo = styled('div')`
-  position: absolute;
-  font-size: 14pt;
-  z-index: 1;
-`;
-
-const IconPlacement = styled('div')`
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-`;

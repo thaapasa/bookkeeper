@@ -6,8 +6,8 @@ import { logger } from 'client/Logger';
 
 import { AsyncDataView } from '../component/AsyncDataView';
 import { NoteView } from '../general/NoteView';
+import { Pre } from '../GlobalStyles';
 import { useDeferredData } from '../hooks/useAsyncData';
-import { Pre } from '../Styles';
 import { ToolButton } from './ToolButton';
 
 export const DbStatusView: React.FC = () => {

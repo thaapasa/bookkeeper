@@ -1,13 +1,14 @@
-import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
-import { styled } from '@mui/material';
+import styled from '@emotion/styled';
+import { ActionIcon } from '@mantine/core';
 import * as React from 'react';
 
 import { logger } from 'client/Logger';
 import { KeyCodes } from 'client/util/Io';
 
+import { TextEditorComponent } from '../dialog/DialogState';
+import { Icons } from '../icons/Icons';
 import { AutoCompleteProps } from './AutoComplete';
 import { TextEdit, TextEditProps } from './TextEdit';
-import { TextEditorComponent } from './TextEditVariants';
 
 type EditorType<T> = TextEditorComponent | React.ComponentType<AutoCompleteProps<T>>;
 
@@ -75,13 +76,17 @@ export const ActivatableTextField: React.FC<ActivatableTextFieldProps<any>> = <
     <EditorContainer>
       <Type
         autoFocus={true}
+        variant="unstyled"
+        styles={{ input: { fontSize: 'inherit' } }}
         {...rest}
         className={className}
         value={value}
         onChange={setValue}
         onKeyUp={handleKeyPress}
       />
-      <CancelOutlinedIcon color="action" onClick={cancel} fontSize="small" />
+      <ActionIcon variant="subtle" size="sm" color="gray" onClick={cancel}>
+        <Icons.CancelOutlined fontSize="medium" />
+      </ActionIcon>
     </EditorContainer>
   ) : (
     <ValueContainer className={className} style={viewStyle} onClick={activate}>
@@ -90,16 +95,19 @@ export const ActivatableTextField: React.FC<ActivatableTextFieldProps<any>> = <
   );
 };
 
-const EditorContainer = styled('div')`
+const EditorContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+  background-color: light-dark(rgba(0, 0, 0, 0.04), rgba(255, 255, 255, 0.06));
+  border-radius: var(--mantine-radius-sm);
+  padding: 0 4px;
   & > div,
   & > svg {
     padding-right: 8px;
   }
 `;
 
-const ValueContainer = styled('div')`
+const ValueContainer = styled.div`
   cursor: pointer;
 `;

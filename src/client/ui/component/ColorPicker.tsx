@@ -1,11 +1,9 @@
 import styled from '@emotion/styled';
-import { colors, IconButton } from '@mui/material';
+import { ActionIcon, DEFAULT_THEME } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 import * as React from 'react';
 
-import { typedKeys } from 'shared/util';
-
-import { colorScheme } from '../Colors';
-import { useToggle } from '../hooks/useToggle';
+import { neutral } from '../Colors';
 import { Icons } from '../icons/Icons';
 import { FlexColumn, FlexRow } from './BasicElements';
 import { TextEdit } from './TextEdit';
@@ -15,14 +13,28 @@ interface ColorPickerProps {
   onChange: (color: string) => void;
 }
 
-const allColors = typedKeys(colors);
-const colorPalette = typedKeys(colors.amber);
+const colorNames = [
+  'gray',
+  'red',
+  'pink',
+  'grape',
+  'violet',
+  'indigo',
+  'blue',
+  'cyan',
+  'teal',
+  'green',
+  'lime',
+  'yellow',
+  'orange',
+] as const;
 
-const defaultPaletteIdx = 4;
+const shadeIndices = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
+const defaultShadeIdx = 4;
 
 export const ColorPicker: React.FC<ColorPickerProps> = ({ value, onChange }) => {
-  const [open, toggle] = useToggle();
-  const [palette, setPalette] = React.useState<number>(defaultPaletteIdx);
+  const [open, { toggle }] = useDisclosure();
+  const [shade, setShade] = React.useState<number>(defaultShadeIdx);
   return (
     <>
       <FlexRow className="vcenter">
@@ -32,23 +44,25 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ value, onChange }) => 
       {open ? (
         <FlexRow className="vcenter">
           <FlexColumn>
-            <IconButton
-              size="small"
-              onClick={() => setPalette(palette > 0 ? palette - 1 : palette)}
+            <ActionIcon
+              variant="subtle"
+              size="sm"
+              onClick={() => setShade(shade > 0 ? shade - 1 : shade)}
             >
               <Icons.SortUp fontSize="small" />
-            </IconButton>
-            <IconButton
-              size="small"
-              onClick={() => setPalette(palette < colorPalette.length - 1 ? palette + 1 : palette)}
+            </ActionIcon>
+            <ActionIcon
+              variant="subtle"
+              size="sm"
+              onClick={() => setShade(shade < shadeIndices.length - 1 ? shade + 1 : shade)}
             >
               <Icons.SortDown fontSize="small" />
-            </IconButton>
+            </ActionIcon>
           </FlexColumn>
           <ColorOptions>
-            {allColors.map(c => {
-              const col = (colors as any)[c][colorPalette[palette]];
-              return <ColorBall color={col} key={c} onClick={() => onChange(col)} />;
+            {colorNames.map(name => {
+              const col = DEFAULT_THEME.colors[name][shadeIndices[shade]];
+              return <ColorBall color={col} key={name} onClick={() => onChange(col)} />;
             })}
           </ColorOptions>
         </FlexRow>
@@ -57,9 +71,9 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ value, onChange }) => 
   );
 };
 
-const ColorBall = styled('div')`
+const ColorBall = styled.div`
   display: inline-flex;
-  border: 1px solid ${colorScheme.gray.standard};
+  border: 1px solid ${neutral[3]};
   border-radius: 50%;
   width: 24px;
   height: 24px;
@@ -74,7 +88,7 @@ const ColorBall = styled('div')`
   `};
 `;
 
-const ColorOptions = styled('div')`
+const ColorOptions = styled.div`
   display: inline-grid;
   flex: 1;
   grid-template-columns: repeat(auto-fill, 28px);

@@ -21,7 +21,6 @@ import { searchPagePath } from 'client/util/Links';
 import { connect } from '../component/BaconConnect';
 import { usePersistentMemo } from '../hooks/usePersistentMemo';
 import { useWhenMounted } from '../hooks/useWhenMounted';
-import { PageContentContainer } from '../Styles';
 import { QueryView } from './QueryView';
 import { ResultsView } from './ResultsView';
 
@@ -94,7 +93,7 @@ const SearchViewImpl: React.FC<SearchViewProps> = ({ userData, session, category
   React.useEffect(() => needUpdateE.onValue(onRepeatSearch), [onRepeatSearch]);
 
   return (
-    <PageContentContainer>
+    <>
       <QueryView
         ref={queryRef}
         categoryMap={userData.categoryMap}
@@ -110,7 +109,7 @@ const SearchViewImpl: React.FC<SearchViewProps> = ({ userData, session, category
         onUpdate={onRepeatSearch}
         onSelectCategory={onAddCategoryToSearch}
       />
-    </PageContentContainer>
+    </>
   );
 };
 

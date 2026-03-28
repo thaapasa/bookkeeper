@@ -1,28 +1,21 @@
-import { styled } from '@mui/material';
+import { Box, Group, Table } from '@mantine/core';
 import * as React from 'react';
 
 import { UserExpense } from 'shared/expense';
 import { Minus, Money, Plus } from 'shared/util';
-import { colorScheme } from 'client/ui/Colors';
-import { useWindowSize } from 'client/ui/hooks/useWindowSize';
+import { DataValue, SectionLabel } from 'client/ui/design/Text';
+import { useIsMobile } from 'client/ui/hooks/useBreakpoints';
 import { Icons } from 'client/ui/icons/Icons';
-import { isMobileSize, media } from 'client/ui/Styles';
 
-import { ExpenseFilterFunction, ExpenseFilters } from './ExpenseFilters';
-import {
-  AllColumns,
-  IconToolArea,
-  RecurringExpenseIcon,
-  Row,
-  rowHeight,
-  UnconfirmedIcon,
-} from './ExpenseTableLayout';
+import { AllColumns } from './Breakpoints';
+import { AddFilterFn, ExpenseFilters } from './ExpenseFilters';
+import { IconToolArea, RecurringExpenseIcon, UnconfirmedIcon } from './TableIcons';
 
 interface RecurringSummaryRowProps {
   recurring: UserExpense[];
   isExpanded: boolean;
   onToggle: () => void;
-  addFilter: (filter: ExpenseFilterFunction, name: string, avater?: string) => void;
+  addFilter: AddFilterFn;
 }
 
 export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
@@ -41,13 +34,13 @@ export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
     .reduce(Money.plus, Money.zero);
   const balance = recurring.map(s => Money.from(s.userBalance)).reduce(Money.plus, Money.zero);
   const hasUnconfirmed = recurring.some(r => !r.confirmed);
-  const isMobile = isMobileSize(useWindowSize());
+  const isMobile = useIsMobile();
   return (
-    <Row>
+    <Table.Tr>
       <AllColumns>
-        <RowContainer>
+        <Group w="100%" wrap="nowrap">
           <RecurringExpenseIcon />
-          <Name>
+          <Group flex={1} h="100%" wrap="nowrap">
             {hasUnconfirmed ? (
               <IconToolArea>
                 <UnconfirmedIcon
@@ -56,81 +49,37 @@ export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
                 />
               </IconToolArea>
             ) : null}
-            <Emph>Toistuvat </Emph> ({recurring.length} kpl)
-          </Name>
-          <Item>
+            <SectionLabel component="span" pr={4}>
+              Toistuvat{' '}
+            </SectionLabel>{' '}
+            ({recurring.length} kpl)
+          </Group>
+          <Box px={8}>
             {isMobile ? null : 'Tulot: '}
-            <Sum>
+            <DataValue w={73}>
               {isMobile ? `${Plus} ` : null}
               {income.format()}
-            </Sum>
-          </Item>
-          <Item>
+            </DataValue>
+          </Box>
+          <Box px={8}>
             {isMobile ? null : 'Menot: '}
-            <Sum>
+            <DataValue w={73}>
               {isMobile ? `${Minus} ` : null}
               {expense.format()}
-            </Sum>
-          </Item>
-          <Item className="optional">
-            Balanssi: <Sum>{balance.format()}</Sum>
-          </Item>
-          <Tools>
+            </DataValue>
+          </Box>
+          <Box px={8} visibleFrom="sm">
+            Balanssi: <DataValue w={73}>{balance.format()}</DataValue>
+          </Box>
+          <Box px={8}>
             {isExpanded ? (
               <Icons.ExpandLess onClick={onToggle} />
             ) : (
               <Icons.ExpandMore onClick={onToggle} />
             )}
-          </Tools>
-        </RowContainer>
+          </Box>
+        </Group>
       </AllColumns>
-    </Row>
+    </Table.Tr>
   );
 };
-
-const Emph = styled('span')`
-  color: ${colorScheme.secondary.dark};
-  font-weight: bold;
-  padding-right: 4px;
-`;
-
-const Name = styled('div')`
-  padding: 0 0 0 16px;
-  height: 100%;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  flex: 1;
-  position: relative;
-  z-index: 1;
-`;
-
-const Item = styled('div')`
-  padding: 0 8px;
-  ${media.mobile`
-    &.optional {
-      display: none;
-    }
-  `}
-`;
-
-const Sum = styled('span')`
-  width: 73px;
-  display: inline-block;
-  text-align: right;
-  font-weight: bold;
-  vertical-align: bottom;
-`;
-
-const Tools = styled('div')`
-  padding: 0 8px;
-`;
-
-const RowContainer = styled('div')`
-  width: 100%;
-  height: ${rowHeight}px;
-  position: relative;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-`;

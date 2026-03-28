@@ -1,129 +1,60 @@
-import { amber, grey, lime, teal } from '@mui/material/colors';
-import { getLuminance, SimplePaletteColorOptions, styled } from '@mui/material/styles';
+/**
+ * Semantic color constants for the app.
+ *
+ * All values reference Mantine CSS variables so they stay in sync with the theme.
+ * The Mantine theme (mantineTheme.ts) defines:
+ *   - `primary` → cyan (virtualColor alias)
+ *   - `neutral` → gray (virtualColor alias)
+ *
+ * Usage in styled components:
+ *   background-color: ${colors.surface};
+ *   color: ${colors.primary[7]};
+ *
+ * Usage in Mantine component props:
+ *   <Button color="primary">   (uses primaryColor from theme)
+ *
+ * To change the app's color scheme, edit mantineTheme.ts.
+ */
+import { DEFAULT_THEME } from '@mantine/core';
 
-import { Money, MoneyLike } from 'shared/util';
+const c = DEFAULT_THEME.colors;
 
-interface ColorDef {
-  standard: string;
-  light: string;
-  dark: string;
-  text: string;
-}
+// --- Mantine CSS variable helpers ---
+// Use these in Emotion styled templates for theme-synchronized colors.
 
-interface ColorScheme {
-  primary: ColorDef;
-  secondary: ColorDef;
-  gray: ColorDef & { veryDark: string };
-  text: string;
-  white: string;
-}
+/** Primary accent color scale (cyan via virtualColor) */
+export const primary = Object.fromEntries(
+  Array.from({ length: 10 }, (_, i) => [i, `var(--mantine-color-primary-${i})`]),
+) as Record<number, string>;
 
-export const gray = {
-  standard: '#e1e2e1',
-  light: '#f5f5f6',
-  dark: '#919192',
-  veryDark: '#555555',
-  text: '#000000',
-};
+/** Neutral color scale (gray via virtualColor) */
+export const neutral = Object.fromEntries(
+  Array.from({ length: 10 }, (_, i) => [i, `var(--mantine-color-neutral-${i})`]),
+) as Record<number, string>;
 
-const lightBrown: ColorDef = {
-  standard: '#efebe9',
-  light: '#ffffff',
-  dark: '#bdb9b7',
-  text: '#000000',
-};
+// --- Semantic color tokens (CSS vars) ---
 
-const orangeRed: ColorDef = {
-  standard: '#ff8a65',
-  light: '#ffbb93',
-  dark: '#c75b39',
-  text: '#000000',
-};
+export const surface = 'var(--mantine-color-body)';
+export const text = 'var(--mantine-color-text)';
 
-export const primaryColors = lightBrown;
-export const secondaryColors = orangeRed;
+// --- Semantic colors ---
+// Use light-dark() CSS function for colors that need different light/dark values.
 
-export const colorScheme: ColorScheme = {
-  primary: primaryColors,
-  secondary: secondaryColors,
-  gray,
-  text: '#000000',
-  white: '#ffffff',
-};
+export const positive = `light-dark(${c.dark[9]}, ${c.green[4]})`;
+export const negative = `light-dark(${c.red[7]}, ${c.red[4]})`;
+export const unimportant = 'var(--mantine-color-dimmed)';
+export const income = `light-dark(${c.teal[6]}, ${c.teal[4]})`;
+export const unconfirmed = `light-dark(${c.yellow[1]}, ${c.yellow[9]})`;
 
-export const primaryPalette: SimplePaletteColorOptions = {
-  light: colorScheme.primary.light,
-  dark: colorScheme.primary.dark,
-  main: colorScheme.primary.standard,
-  contrastText: colorScheme.primary.text,
-};
+export const action = primary[7];
+export const tool = neutral[7];
+export const navigation = primary[5];
+export const navigationBar = neutral[2];
+export const white = 'var(--mantine-color-white)';
+export const header = neutral[5];
 
-export const secondaryPalette: SimplePaletteColorOptions = {
-  light: colorScheme.secondary.light,
-  dark: colorScheme.secondary.dark,
-  main: colorScheme.secondary.standard,
-  contrastText: colorScheme.secondary.text,
-};
+export const topItem = primary[6];
+export const subItem = neutral[5];
 
-export const navigation = colorScheme.secondary.standard;
-export const white = colorScheme.primary.light;
-export const navigationBar = '#e3dfdd';
-
-// action is used in expense table category links
-export const action = colorScheme.secondary.dark;
-
-export const positive = colorScheme.primary.text;
-export const negative = colorScheme.secondary.dark;
-export const unimportant = colorScheme.gray.dark;
-export const header = colorScheme.gray.dark;
-
-export const topItem = teal[500];
-export const subItem = grey[500];
-
-export const tool = colorScheme.gray.veryDark;
-export const unconfirmed = amber[50];
-
-export const highlightBg = orangeRed.light;
-export const highlightFg = orangeRed.dark;
-
-export function diagonalStripes(
-  color1: string,
-  color2: string,
-  width1: string,
-  width2: string,
-): string {
-  return `repeating-linear-gradient(45deg, ${color1}, ${color1} ${width1}, ${color2} ${width1}, ${color2} ${width2})`;
-}
-
-export const unconfirmedStripes = diagonalStripes(unconfirmed, white, '0.5em', '1em');
-export const income = lime[100];
-
-export function forMoney(m?: MoneyLike): string {
-  if (!m) {
-    return unimportant;
-  }
-  const b = Money.from(m);
-  return b ? (b.gt(0) ? positive : b.lt(0) ? negative : unimportant) : unimportant;
-}
-
-export function classNameForMoney(m?: MoneyLike): 'positive' | 'negative' | 'unimportant' {
-  if (!m) {
-    return 'unimportant';
-  }
-  const b = Money.from(m);
-  return b ? (b.gt(0) ? 'positive' : b.lt(0) ? 'negative' : 'unimportant') : 'unimportant';
-}
-
-// This is here only so that we use styled in this file. We must reference styled here or
-// else watch recompile fails with a warning "module not found" (looks like a bug)
-export const unused = styled('div')`
-  width: 100%;
-`;
-
-export function getLuminanceSafe(color: string): number {
-  try {
-    return getLuminance(color);
-  } catch {
-    return 0;
-  }
-}
+export const highlightBg = primary[1];
+export const highlightFg = primary[7];

@@ -9,7 +9,7 @@ import {
 
 import { ErrorView } from '../general/ErrorView';
 import { NoteView } from '../general/NoteView';
-import { Pre } from '../Styles';
+import { Pre } from '../GlobalStyles';
 
 export type AsyncDataViewProps<T, C extends { data: T }> = {
   data: AsyncData<T>;

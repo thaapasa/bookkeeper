@@ -1,16 +1,5 @@
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
-  styled,
-} from '@mui/material';
+import styled from '@emotion/styled';
+import { Button, Modal, Select } from '@mantine/core';
 import * as React from 'react';
 
 import { Category } from 'shared/types';
@@ -46,14 +35,14 @@ interface CategoryDialogState {
   valid: boolean;
 }
 
-const Form = styled('form')`
+const Form = styled.form`
   position: relative;
   z-index: 1;
 `;
 
-const DialogControl = styled(FormControl)`
+const DialogControl = styled.div`
   width: 100%;
-  margin: 8px 0 !important;
+  margin: 8px 0;
   box-sizing: border-box;
 `;
 
@@ -151,65 +140,53 @@ export default class CategoryDialog extends React.Component<
     this.setState({ name, valid: (name && name.length > 0) || false });
   };
 
-  private changeCategory = (e: SelectChangeEvent<number>, _child: React.ReactNode) => {
-    this.setState({ parentId: Number(e.target.value) });
+  private changeCategory = (value: string | null) => {
+    this.setState({ parentId: Number(value ?? 0) });
   };
 
   public render() {
     return (
-      <Dialog
-        className="category-dialog"
-        fullWidth={true}
-        open={this.state.open}
+      <Modal
+        opened={this.state.open}
         onClose={this.cancel}
+        title={this.state.createNew ? 'Uusi kategoria' : 'Muokkaa kategoriaa'}
+        size="lg"
       >
-        <DialogTitle>{this.state.createNew ? 'Uusi kategoria' : 'Muokkaa kategoriaa'}</DialogTitle>
-        <DialogContent>
-          <Form onSubmit={this.requestSave}>
-            <DialogControl>
-              <TextEdit
-                label="Nimi"
-                key="name"
-                placeholder="Nimi"
-                variant="outlined"
-                InputLabelProps={{ shrink: true }}
-                fullWidth={true}
-                value={this.state.name}
-                onChange={this.updateName}
-              />
-            </DialogControl>
-            <DialogControl>
-              <InputLabel htmlFor="category-dialog-parentId">Yläkategoria</InputLabel>
-              <Select
-                labelId="category-dialog-parentId"
-                label="Yläkategoria"
-                value={this.state.parentId}
-                fullWidth={true}
-                onChange={this.changeCategory}
-              >
-                {this.categories.map(c => (
-                  <MenuItem key={c.id} value={c.id}>
-                    {c.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </DialogControl>
-          </Form>
-        </DialogContent>
-        <DialogActions>
-          <Button variant="text" onClick={this.cancel}>
+        <Form onSubmit={this.requestSave}>
+          <DialogControl>
+            <TextEdit
+              label="Nimi"
+              key="name"
+              placeholder="Nimi"
+              value={this.state.name}
+              onChange={this.updateName}
+            />
+          </DialogControl>
+          <DialogControl>
+            <Select
+              label="Yläkategoria"
+              value={String(this.state.parentId)}
+              onChange={this.changeCategory}
+              data={this.categories.map(c => ({ value: String(c.id), label: c.name }))}
+            />
+          </DialogControl>
+        </Form>
+        <Actions>
+          <Button variant="subtle" onClick={this.cancel}>
             Peruuta
           </Button>
-          <Button
-            variant="text"
-            color="primary"
-            disabled={!this.state.valid}
-            onClick={this.requestSave}
-          >
+          <Button variant="filled" disabled={!this.state.valid} onClick={this.requestSave}>
             Tallenna
           </Button>
-        </DialogActions>
-      </Dialog>
+        </Actions>
+      </Modal>
     );
   }
 }
+
+const Actions = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 16px;
+`;

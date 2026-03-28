@@ -11,7 +11,7 @@ interface YearSelectorProps {
 
 export const YearSelector: React.FC<YearSelectorProps> = ({ year, onSelect }) => {
   const changeYear = React.useCallback(
-    (e: React.ChangeEvent<{ value: string }>) => onSelect(Number(e.target.value)),
+    (e: React.ChangeEvent<HTMLInputElement>) => onSelect(Number(e.target.value)),
     [onSelect],
   );
 
@@ -20,14 +20,7 @@ export const YearSelector: React.FC<YearSelectorProps> = ({ year, onSelect }) =>
       <StyledIconButton onClick={() => onSelect(year - 1)} title="Edellinen">
         <Icons.ChevronLeft color="primary" />
       </StyledIconButton>
-      <NumberInput
-        hiddenLabel
-        className="year"
-        value={year}
-        variant="filled"
-        size="small"
-        onChange={changeYear}
-      />
+      <NumberInput className="year" value={String(year)} onChange={changeYear} />
       <StyledIconButton onClick={() => onSelect(year + 1)} title="Seuraava">
         <Icons.ChevronRight color="primary" />
       </StyledIconButton>

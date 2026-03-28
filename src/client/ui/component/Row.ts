@@ -1,6 +1,6 @@
-import { styled } from '@mui/system';
+import styled from '@emotion/styled';
 
-import { colorScheme } from '../Colors';
+import { neutral } from '../Colors';
 import { FlexRow } from './BasicElements';
 
 export const rowHeight = 40;
@@ -17,5 +17,5 @@ export const Row = styled(FlexRow)`
 `;
 
 export const HeaderRow = styled(Row)`
-  background-color: ${colorScheme.gray.light};
+  background-color: ${neutral[1]};
 `;

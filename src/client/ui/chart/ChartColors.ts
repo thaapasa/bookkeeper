@@ -1,31 +1,34 @@
-import { colors } from '@mui/material';
+import { DEFAULT_THEME } from '@mantine/core';
 
 import { clamp } from 'shared/math';
 
-export const ChartColors = [
-  colors.blue,
-  colors.lightBlue,
-  colors.cyan,
-  colors.teal,
-  colors.green,
-  colors.lightGreen,
-  colors.lime,
-  colors.amber,
-  colors.orange,
-  colors.deepOrange,
-  colors.pink,
-  colors.purple,
-  colors.deepPurple,
-  colors.indigo,
-];
+/**
+ * Chart color palette using Mantine's built-in color scales.
+ * Colors ordered to maximize contrast between adjacent entries
+ * (warm↔cool alternation) so 2-3 item charts are always distinct.
+ */
+const chartColorNames = [
+  'blue',
+  'orange',
+  'teal',
+  'red',
+  'indigo',
+  'lime',
+  'pink',
+  'green',
+  'violet',
+  'yellow',
+  'cyan',
+  'grape',
+] as const;
 
-type ColorType = typeof colors.indigo;
-type ColorLighness = keyof ColorType;
+/** Map offset (0=darkest, 5=lightest) to Mantine shade index */
+const shadeMap = [7, 5, 4, 3, 2, 1] as const;
 
-const LightnessOffsets: ColorLighness[] = [700, 500, 400, 300, 200, 100];
+const c = DEFAULT_THEME.colors;
 
 export function getChartColor(index: number, offset: number): string {
-  return ChartColors[index % ChartColors.length][
-    LightnessOffsets[clamp(offset, 0, LightnessOffsets.length - 1)]
-  ];
+  const name = chartColorNames[index % chartColorNames.length];
+  const shade = shadeMap[clamp(offset, 0, shadeMap.length - 1)];
+  return c[name][shade];
 }

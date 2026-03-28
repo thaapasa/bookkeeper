@@ -1,6 +1,5 @@
-import { Checkbox } from '@mui/material';
-import { DatePicker } from '@mui/x-date-pickers';
-import { DateTime } from 'luxon';
+import { Checkbox } from '@mantine/core';
+import { DatePickerInput } from '@mantine/dates';
 import React from 'react';
 
 import { ISODate, toISODate } from 'shared/time';
@@ -20,10 +19,11 @@ export const OptionalDatePicker: React.FC<OptionalDatePickerProps> = ({ value, o
   return (
     <Row>
       <Checkbox checked={hasDate} onChange={() => onChange(hasDate ? null : today)} />
-      <DatePicker
+      <DatePickerInput
         disabled={!hasDate}
-        value={value ? DateTime.fromISO(value) : null}
-        onChange={v => onChange(v ? toISODate(v) : null)}
+        valueFormat="DD.MM.YYYY"
+        value={value ? value : null}
+        onChange={v => onChange(v ? (v as ISODate) : null)}
       />
     </Row>
   );

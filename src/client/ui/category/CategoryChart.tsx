@@ -3,7 +3,7 @@ import { Bar, BarChart, CartesianGrid, Legend, Tooltip, XAxis, YAxis } from 'rec
 
 import { getChartColor } from '../chart/ChartColors';
 import { formatMoney, formatMoneyThin, useThinFormat } from '../chart/Format';
-import { Size } from '../Types';
+import { Size } from '../layout/Styles.ts';
 import { MeasureSize } from '../utils/MeasureSize';
 
 export interface CategoryChartData {

@@ -1,16 +1,5 @@
 import styled from '@emotion/styled';
-import {
-  Button,
-  Checkbox,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  FormControlLabel,
-  Grid,
-  IconButton,
-  MenuItem,
-  Select,
-} from '@mui/material';
+import { ActionIcon, Button, Checkbox, Modal, Select as MantineSelect } from '@mantine/core';
 import * as B from 'baconjs';
 import * as React from 'react';
 
@@ -20,16 +9,16 @@ import { categoryMapP, getFullCategoryName } from 'client/data/Categories';
 
 import { AsyncDataDialogContent } from '../component/AsyncDataDialog';
 import { connect } from '../component/BaconConnect';
-import { connectDialog } from '../component/DialogConnector';
 import { Row } from '../component/Row';
 import { TextEdit } from '../component/TextEdit';
-import { UploadImageButton } from '../component/UploadFileButton';
+import { UploadImageButton } from '../component/UploadImageButton';
 import { checkersBackground } from '../design/Background';
-import { Subtitle } from '../design/Text';
+import { DialogHeading, Subtitle } from '../design/Text';
+import { connectDialog } from '../dialog/DialogConnector';
+import { Flex } from '../GlobalStyles';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useForceReload } from '../hooks/useForceReload';
 import { Icons } from '../icons/Icons';
-import { Flex } from '../Styles';
 import { useTrackingState } from './TrackingEditorState';
 
 interface TrackingBusPayload {
@@ -54,7 +43,7 @@ const TrackingDialogImpl: React.FC<{
   const { counter, forceReload } = useForceReload();
   const data = useAsyncData(getTrackingSubject, true, trackingId, counter);
   return (
-    <Dialog fullWidth={true} open={true} onClose={onClose}>
+    <Modal opened={true} onClose={onClose} size="lg" title="">
       <AsyncDataDialogContent
         data={data}
         renderer={ConnectedEditView}
@@ -62,7 +51,7 @@ const TrackingDialogImpl: React.FC<{
         reloadData={forceReload}
         reloadAll={reloadAll}
       />
-    </Dialog>
+    </Modal>
   );
 };
 
@@ -92,11 +81,11 @@ const TrackingEditView: React.FC<{
   React.useEffect(() => void state.reset(data), [data?.id]);
   return (
     <>
-      <DialogTitle>{createNew ? 'Uusi seuranta' : 'Muokkaa seurantaa'}</DialogTitle>
-      <DialogContent>
-        <Grid container rowSpacing={1} justifyContent="space-between">
+      <DialogHeading>{createNew ? 'Uusi seuranta' : 'Muokkaa seurantaa'}</DialogHeading>
+      <div>
+        <EditorGrid>
           <SelectionRow title="Nimi">
-            <TextEdit value={state.title} onChange={state.setTitle} fullWidth />
+            <TextEdit value={state.title} onChange={state.setTitle} />
           </SelectionRow>
           <SelectionRow title="Värivaihtoehto">
             <TextEdit
@@ -107,56 +96,43 @@ const TrackingEditView: React.FC<{
             />
           </SelectionRow>
           <SelectionRow title="Seurantaväli">
-            <Select value={state.range} onChange={e => state.setRange(e.target.value)} fullWidth>
-              {state.getRangeOptions().map(o => (
-                <MenuItem key={o.key} value={o.key}>
-                  {o.title}
-                </MenuItem>
-              ))}
-            </Select>
+            <MantineSelect
+              value={state.range}
+              onChange={val => val && state.setRange(val)}
+              data={state.getRangeOptions().map(o => ({ value: o.key, label: o.title }))}
+            />
           </SelectionRow>
           <SelectionRow title="Seurannan tiheys">
-            <Select
+            <MantineSelect
               value={state.frequency}
-              onChange={e => state.setFrequency(e.target.value)}
-              fullWidth
-            >
-              {TrackingFrequency.options.map(o => (
-                <MenuItem key={o} value={o}>
-                  {FrequencyLabels[o] ?? o}
-                </MenuItem>
-              ))}
-            </Select>
+              onChange={val => val && state.setFrequency(val)}
+              data={TrackingFrequency.options.map(o => ({
+                value: o,
+                label: FrequencyLabels[o] ?? o,
+              }))}
+            />
           </SelectionRow>
           <SelectionRow title="Graafin tyyppi">
-            <Select
+            <MantineSelect
               value={state.chartType}
-              onChange={e => state.setChartType(e.target.value)}
-              fullWidth
-            >
-              <MenuItem value="line">Viiva</MenuItem>
-              <MenuItem value="bar">Palkki</MenuItem>
-              <MenuItem value="combined">Yhdistetty</MenuItem>
-            </Select>
+              onChange={val => val && state.setChartType(val)}
+              data={[
+                { value: 'line', label: 'Viiva' },
+                { value: 'bar', label: 'Palkki' },
+                { value: 'combined', label: 'Yhdistetty' },
+              ]}
+            />
           </SelectionRow>
           <SelectionRow title="Valinnat">
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={state.separateByUser}
-                  onChange={() => state.setSeparateByUser(!state.separateByUser)}
-                />
-              }
+            <Checkbox
+              checked={state.separateByUser}
+              onChange={() => state.setSeparateByUser(!state.separateByUser)}
               label="Käyttäjät erikseen"
             />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={state.includeUserTotals}
-                  disabled={!state.separateByUser}
-                  onChange={() => state.setIncludeUserTotals(!state.includeUserTotals)}
-                />
-              }
+            <Checkbox
+              checked={state.includeUserTotals}
+              disabled={!state.separateByUser}
+              onChange={() => state.setIncludeUserTotals(!state.includeUserTotals)}
               label="Myös yhteensä"
             />
           </SelectionRow>
@@ -174,44 +150,49 @@ const TrackingEditView: React.FC<{
               >
                 <Icons.Upload />
               </UploadImageButton>
-              <IconButton
+              <ActionIcon
+                variant="subtle"
                 onClick={() => state.removeImage(reloadData, reloadAll)}
                 title="Poista kuva"
               >
                 <Icons.Delete />
-              </IconButton>
+              </ActionIcon>
             </Row>
           </SelectionRow>
-          <Grid size={12} sx={{ position: 'relative' }}>
+          <div style={{ gridColumn: '1 / -1', position: 'relative' }}>
             <ToolIconArea>
-              <IconButton title="Lisää kategoria" size="small" onClick={state.addCategory}>
+              <ActionIcon
+                variant="subtle"
+                title="Lisää kategoria"
+                size="sm"
+                onClick={state.addCategory}
+              >
                 <Icons.Add fontSize="small" />
-              </IconButton>
+              </ActionIcon>
             </ToolIconArea>
-            <Subtitle className="small">Kategoriat</Subtitle>
+            <Subtitle order={3}>Kategoriat</Subtitle>
             {state.categories.map(c => (
               <CategorySelection id={c} key={c} categoryMap={categoryMap} />
             ))}
-          </Grid>
-          <Grid size={12}>
+          </div>
+          <div style={{ gridColumn: '1 / -1' }}>
             <Row>
               <Flex />
-              <Button color="inherit" onClick={onClose}>
+              <Button variant="subtle" onClick={onClose}>
                 Peruuta
               </Button>
               <Button
-                sx={{ marginLeft: 2 }}
-                color="primary"
-                variant="contained"
+                style={{ marginLeft: 16 }}
+                variant="filled"
                 disabled={!state.inputValid()}
                 onClick={() => state.saveTracking(onClose, reloadAll)}
               >
                 Tallenna
               </Button>
             </Row>
-          </Grid>
-        </Grid>
-      </DialogContent>
+          </div>
+        </EditorGrid>
+      </div>
     </>
   );
 };
@@ -221,12 +202,19 @@ const SelectionRow: React.FC<React.PropsWithChildren<{ title: string }>> = ({
   children,
 }) => (
   <>
-    <Grid size={4}>{title}</Grid>
-    <Grid size={8}>{children}</Grid>
+    <div>{title}</div>
+    <div>{children}</div>
   </>
 );
 
-const ToolIconArea = styled('div')`
+const EditorGrid = styled.div`
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px;
+  align-items: center;
+`;
+
+const ToolIconArea = styled.div`
   position: absolute;
   right: 0;
   top: 8px;
@@ -245,14 +233,14 @@ const CategorySelection: React.FC<{ id: ObjectId; categoryMap: CategoryMap }> = 
     <Row>
       {getFullCategoryName(id, categoryMap)}
       <Flex />
-      <IconButton
+      <ActionIcon
+        variant="subtle"
         title="Poista seurannasta"
-        color="warning"
-        size="small"
+        size="sm"
         onClick={() => state.removeCategory(id)}
       >
         <Icons.Delete fontSize="small" />
-      </IconButton>
+      </ActionIcon>
     </Row>
   );
 };
@@ -262,17 +250,17 @@ export const TrackingEditor = connectDialog<TrackingBusPayload, { reloadAll: () 
   TrackingDialogImpl,
 );
 
-const ImageArea = styled('div')`
+const ImageArea = styled.div`
   width: 128px;
   height: 128px;
   position: relative;
-  ${checkersBackground({ size: 8, color: '#eee' })}
+  ${checkersBackground({ size: 8 })}
   display: flex;
   justify-content: center;
   align-items: center;
 `;
 
-const TrackingImg = styled('img')`
+const TrackingImg = styled.img`
   width: 128px;
   height: 128px;
 `;

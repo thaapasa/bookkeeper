@@ -1,8 +1,7 @@
-import { styled } from '@mui/material';
+import { Text } from '@mantine/core';
 import * as React from 'react';
 
 import { UserExpense } from 'shared/expense';
-import * as colors from 'client/ui/Colors';
 
 interface RecurrenceInfoProps {
   expense: UserExpense;
@@ -10,12 +9,7 @@ interface RecurrenceInfoProps {
 
 export const RecurrenceInfo: React.FC<RecurrenceInfoProps> = ({ expense }) =>
   expense.recurringExpenseId ? (
-    <RecurrenceInfoContainer>Tämä on toistuva tapahtuma</RecurrenceInfoContainer>
+    <Text bg="neutral.1" w="100%" p="12px 16px" fs="italic">
+      Tämä on toistuva tapahtuma
+    </Text>
   ) : null;
-
-const RecurrenceInfoContainer = styled('div')`
-  width: 100%;
-  padding: 12px 16px;
-  background-color: ${colors.colorScheme.gray.light};
-  font-style: italic;
-`;

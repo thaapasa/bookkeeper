@@ -1,4 +1,4 @@
-import { styled } from '@mui/material';
+import styled from '@emotion/styled';
 import * as React from 'react';
 
 import { ObjectId, User } from 'shared/types';
@@ -7,7 +7,7 @@ import { validSessionP } from 'client/data/Login';
 import { connect } from './BaconConnect';
 import UserAvatar from './UserAvatar';
 
-const Container = styled('div')`
+const Container = styled.div`
   display: inline-flex;
   flex-direction: row;
 `;

@@ -1,0 +1,7 @@
+.expenseTable {
+  td, th {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+

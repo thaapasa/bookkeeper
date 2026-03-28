@@ -1,0 +1,7 @@
+.textButton {
+  color: inherit;
+}
+
+.textButton:hover {
+  text-decoration: underline;
+}

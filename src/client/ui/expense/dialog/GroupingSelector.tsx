@@ -1,5 +1,4 @@
 import styled from '@emotion/styled';
-import { FormControl, InputLabel } from '@mui/material';
 import * as React from 'react';
 
 import { ExpenseGroupingRef } from 'shared/types';
@@ -25,25 +24,20 @@ export const GroupingSelector: React.FC<{
           <GroupedExpenseIcon grouping={selectedGrouping} />
         </IconPosition>
       ) : null}
-      <FormControl fullWidth={true} variant="standard">
-        <InputLabel htmlFor={id} shrink={true}>
-          {title}
-        </InputLabel>
-        <AutoComplete
-          id={id}
-          value={text}
-          style={style}
-          label={title}
-          suggestions={options}
-          getSuggestionValue={g => g.title}
-          onChange={setText}
-          onUpdateSuggestions={noop}
-          onSelectSuggestion={g => {
-            onChange(g.id || null);
-            setText(g.title);
-          }}
-        />
-      </FormControl>
+      <AutoComplete
+        id={id}
+        value={text}
+        style={style}
+        label={title}
+        suggestions={options}
+        getSuggestionValue={g => g.title}
+        onChange={setText}
+        onUpdateSuggestions={noop}
+        onSelectSuggestion={g => {
+          onChange(g.id || null);
+          setText(g.title);
+        }}
+      />
     </Container>
   );
 };

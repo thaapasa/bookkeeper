@@ -1,5 +1,4 @@
-import ClearIcon from '@mui/icons-material/Clear';
-import { Checkbox, FormControlLabel, FormGroup, Grid, IconButton } from '@mui/material';
+import { ActionIcon, Checkbox, Grid, Group } from '@mantine/core';
 import * as B from 'baconjs';
 import React from 'react';
 import { z } from 'zod';
@@ -9,17 +8,16 @@ import { CategoryMap, CategorySelection, CategoryStatistics, isDefined } from 's
 import apiConnect from 'client/data/ApiConnect';
 import { AsyncData, UninitializedData } from 'client/data/AsyncData';
 import { categoryMapP } from 'client/data/Categories';
-import { windowSizeP } from 'client/data/State';
 
+import { CategoryChipList } from '../category/CategoryChipList';
+import { CategorySelector } from '../category/CategorySelector';
 import { AsyncDataView } from '../component/AsyncDataView';
 import { connect } from '../component/BaconConnect';
-import { CategoryChipList } from '../component/CategoryChipList';
-import { CategorySelector } from '../component/CategorySelector';
 import { useAsyncData } from '../hooks/useAsyncData';
+import { useIsMobile } from '../hooks/useBreakpoints';
 import { useLocalStorageList } from '../hooks/useList';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { isMobileSize, PageContentContainer } from '../Styles';
-import { Size } from '../Types';
+import { Icons } from '../icons/Icons';
 import { CategoryStatisticsChart } from './category/CategoryStatisticsChart';
 import { StatisticsChartTypeSelector } from './ChartTypeSelector';
 import { StatisticsChartRangeSelector } from './StatisticsChartRangeSelector';
@@ -31,8 +29,7 @@ function cmpCat(a: CategorySelection, b: CategorySelection) {
 
 export const StatisticsViewImpl: React.FC<{
   categoryMap: CategoryMap;
-  size: Size;
-}> = ({ categoryMap, size }) => {
+}> = ({ categoryMap }) => {
   const {
     list: cats,
     addItems: addCats,
@@ -100,57 +97,53 @@ export const StatisticsViewImpl: React.FC<{
   );
   const data: AsyncData<CategoryStatistics> = cats.length > 0 ? statistics : UninitializedData;
 
-  const isMobile = isMobileSize(size);
+  const isMobile = useIsMobile();
   return (
-    <PageContentContainer>
-      <Grid container columnSpacing={2} rowSpacing={1} padding="16px">
-        <Grid size={{ sm: 8, md: 5 }}>
-          <CategorySelector addCategories={addCats} />
-          <FormGroup row>
-            <FormControlLabel
-              control={<Checkbox checked={stacked} onChange={() => setStacked(!stacked)} />}
-              label="Koosta alueet"
-            />
-            <FormControlLabel
-              control={<Checkbox checked={onlyOwn} onChange={() => setOnlyOwn(!onlyOwn)} />}
-              label="Vain omat kirjaukset"
-            />
-          </FormGroup>
-        </Grid>
-        <Grid size={{ sm: 4, md: 2 }}>
-          <StatisticsChartTypeSelector selected={type} onChange={setType} row={isMobile} />
-        </Grid>
-        <Grid size={{ sm: 12, md: 5 }}>
-          <StatisticsChartRangeSelector onChange={setRange} />
-        </Grid>
-        {cats.length > 0 ? (
-          <Grid size={12}>
-            <IconButton color="primary" onClick={clearCats}>
-              <ClearIcon />
-            </IconButton>
-            <CategoryChipList
-              selected={cats}
-              onDelete={removeCats}
-              categoryMap={categoryMap}
-              onExpand={expandCategory}
-            />
-          </Grid>
-        ) : null}
-        <Grid size={12}>
-          <AsyncDataView
-            data={data}
-            renderer={CategoryStatisticsChart}
-            type={type}
-            categoryMap={categoryMap}
-            uninitializedText="Valitse kategoria näyttääksesi tilastot"
-            stacked={stacked}
+    <Grid p={16} gutter={16}>
+      <Grid.Col span={{ base: 12, sm: 5 }}>
+        <CategorySelector addCategories={addCats} />
+        <Group gap={16} wrap="wrap">
+          <Checkbox checked={stacked} onChange={() => setStacked(!stacked)} label="Koosta alueet" />
+          <Checkbox
+            checked={onlyOwn}
+            onChange={() => setOnlyOwn(!onlyOwn)}
+            label="Vain omat kirjaukset"
           />
-        </Grid>
-      </Grid>
-    </PageContentContainer>
+        </Group>
+      </Grid.Col>
+      <Grid.Col span={{ base: 12, sm: 2 }}>
+        <StatisticsChartTypeSelector selected={type} onChange={setType} row={isMobile} />
+      </Grid.Col>
+      <Grid.Col span={{ base: 12, sm: 5 }}>
+        <StatisticsChartRangeSelector onChange={setRange} />
+      </Grid.Col>
+      {cats.length > 0 ? (
+        <Grid.Col span={12}>
+          <ActionIcon variant="subtle" onClick={clearCats}>
+            <Icons.Clear />
+          </ActionIcon>
+          <CategoryChipList
+            selected={cats}
+            onDelete={removeCats}
+            categoryMap={categoryMap}
+            onExpand={expandCategory}
+          />
+        </Grid.Col>
+      ) : null}
+      <Grid.Col span={12}>
+        <AsyncDataView
+          data={data}
+          renderer={CategoryStatisticsChart}
+          type={type}
+          categoryMap={categoryMap}
+          uninitializedText="Valitse kategoria näyttääksesi tilastot"
+          stacked={stacked}
+        />
+      </Grid.Col>
+    </Grid>
   );
 };
 
-export const StatisticsView = connect(
-  B.combineTemplate({ categoryMap: categoryMapP, size: windowSizeP }),
-)(StatisticsViewImpl);
+export const StatisticsView = connect(B.combineTemplate({ categoryMap: categoryMapP }))(
+  StatisticsViewImpl,
+);

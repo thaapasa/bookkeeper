@@ -1,16 +1,21 @@
-import { styled } from '@mui/material';
+import { UnstyledButton } from '@mantine/core';
 import * as React from 'react';
 
 import { Source } from 'shared/types';
 
-import { sourceWidth } from './ExpenseTableLayout';
+import styles from './ExpenseRowComponents.module.css';
 
 export const SourceIcon: React.FC<{
   source: Source;
   onClick?: () => void;
 }> = ({ source, onClick }) => {
   const content = source.image ? (
-    <SourceImage src={source.image} title={source.name} />
+    <img
+      src={source.image}
+      title={source.name}
+      style={{ maxWidth: 40, maxHeight: 28 }}
+      alt={source.name}
+    />
   ) : source.abbreviation ? (
     source.abbreviation
   ) : (
@@ -23,17 +28,10 @@ export const SourceIcon: React.FC<{
   );
 };
 
-const SourceImage = styled('img')`
-  max-width: ${sourceWidth}px;
-  max-height: 34px;
-`;
-
-export const TextButton = styled('button')`
-  border: 0;
-  font-size: 13px;
-  outline: none;
-  background: none;
-  &:hover {
-    text-decoration: underline;
-  }
-`;
+export const TextButton: React.FC<
+  React.PropsWithChildren<{ onClick?: () => void; style?: React.CSSProperties }>
+> = ({ children, onClick, style }) => (
+  <UnstyledButton fz="inherit" className={styles.textButton} onClick={onClick} style={style}>
+    {children}
+  </UnstyledButton>
+);

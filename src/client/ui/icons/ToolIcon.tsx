@@ -1,34 +1,23 @@
+import { ActionIcon, ActionIconProps } from '@mantine/core';
 import * as React from 'react';
 
 import { Icon, RenderIcon } from './Icons';
 
-const styles = {
-  tool: {
-    padding: '9px 4px',
-    width: '22px',
-    height: '22px',
-  },
-};
-
-export function ToolIcon(props: {
-  icon: Icon;
-  color?: string | null;
+export function ToolIcon({
+  icon,
+  className,
+  size = 'md',
+  title,
+  onClick,
+  ...props
+}: {
+  onClick?: React.MouseEventHandler;
   title: string;
-  style?: React.CSSProperties;
-  className?: string;
-  onClick?: () => void;
-}) {
-  const { icon, ...rest } = props;
+  icon: Icon;
+} & ActionIconProps) {
   return (
-    <RenderIcon
-      icon={icon}
-      {...rest}
-      color="action"
-      style={{
-        ...styles.tool,
-        ...props.style,
-        color: props.color || undefined,
-      }}
-    />
+    <ActionIcon variant="subtle" size={size} title={title} onClick={onClick} {...props}>
+      <RenderIcon icon={icon} color={props.color || 'action'} style={{ width: 18, height: 18 }} />
+    </ActionIcon>
   );
 }

@@ -1,4 +1,4 @@
-import { styled } from '@mui/material';
+import styled from '@emotion/styled';
 import * as B from 'baconjs';
 import * as React from 'react';
 
@@ -13,7 +13,6 @@ import { categoryPagePath } from 'client/util/Links';
 
 import { connect } from '../component/BaconConnect';
 import { useDeferredData } from '../hooks/useAsyncData';
-import { PageContentContainer } from '../Styles';
 import { CategoryChart, CategoryChartData } from './CategoryChart';
 import { CategoryTable } from './CategoryTable';
 
@@ -36,18 +35,16 @@ const CategoryView: React.FC<CategoryViewProps> = ({ range, categories, ...rest 
     return null;
   }
   return (
-    <PageContentContainer>
-      <div>
-        <StyledChart chartData={data.value.categoryChartData} />
-        <CategoryTable
-          {...rest}
-          categories={categories}
-          range={range}
-          onCategoriesChanged={updateSession}
-          categoryTotals={data.value.categoryTotals}
-        />
-      </div>
-    </PageContentContainer>
+    <div>
+      <StyledChart chartData={data.value.categoryChartData} />
+      <CategoryTable
+        {...rest}
+        categories={categories}
+        range={range}
+        onCategoriesChanged={updateSession}
+        categoryTotals={data.value.categoryTotals}
+      />
+    </div>
   );
 };
 

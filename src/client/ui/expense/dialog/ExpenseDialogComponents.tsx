@@ -1,12 +1,5 @@
-import {
-  DialogContent,
-  FormControl,
-  IconButton,
-  InputLabel,
-  MenuItem,
-  Select,
-  styled,
-} from '@mui/material';
+import styled from '@emotion/styled';
+import { ActionIcon, Group, Select } from '@mantine/core';
 import * as React from 'react';
 
 import { ExpenseType, expenseTypes, getExpenseTypeLabel } from 'shared/expense';
@@ -15,7 +8,6 @@ import { Money, sanitizeMoneyInput } from 'shared/util';
 import { TextEdit } from 'client/ui/component/TextEdit';
 import { ExpenseTypeIcon } from 'client/ui/icons/ExpenseType';
 import { Icons } from 'client/ui/icons/Icons';
-import { VCenterRow } from 'client/ui/Styles';
 
 export const SumField: React.FC<{
   value: string;
@@ -36,10 +28,8 @@ export const SumField: React.FC<{
         placeholder="0.00"
         label="Summa"
         name="sum"
-        InputLabelProps={{ shrink: true }}
         value={value}
-        helperText={errorText || ' '}
-        error={Boolean(errorText)}
+        error={errorText || undefined}
         onChange={onChange}
         type="text"
         autoFocus
@@ -57,26 +47,15 @@ export const SourceSelector: React.FC<{
   style?: React.CSSProperties;
   title: string;
 }> = ({ title, value, style, onChange, sources }) => {
-  const id = 'expense-dialog-source';
   return (
-    <FormControl fullWidth={true} variant="standard">
-      <InputLabel htmlFor={id} shrink={true}>
-        {title}
-      </InputLabel>
+    <div style={{ width: '100%', ...style }}>
       <Select
-        labelId={id}
-        value={value}
-        style={style}
         label={title}
-        onChange={e => onChange(Number(e.target.value))}
-      >
-        {sources.map(s => (
-          <MenuItem key={s.id} value={s.id}>
-            {s.name}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
+        value={String(value)}
+        onChange={v => onChange(Number(v ?? 0))}
+        data={sources.map(s => ({ value: String(s.id), label: s.name }))}
+      />
+    </div>
   );
 };
 
@@ -92,12 +71,12 @@ export const TypeSelector: React.FC<{
   }, [onChange, value]);
 
   return (
-    <VCenterRow>
-      <IconButton onClick={toggle}>
+    <Group>
+      <ActionIcon variant="subtle" onClick={toggle}>
         <ExpenseTypeIcon type={value} size={24} />
-      </IconButton>
+      </ActionIcon>
       {getExpenseTypeLabel(value)}
-    </VCenterRow>
+    </Group>
   );
 };
 
@@ -107,25 +86,26 @@ export const DescriptionField: React.FC<{
   onChange: (s: string) => void;
 }> = ({ value, errorText, onChange }) => (
   <TextEdit
-    multiline={true}
     placeholder="Tarkempi selite"
     label="Selite"
-    InputLabelProps={{ shrink: true }}
-    fullWidth={true}
-    helperText={errorText}
-    error={Boolean(errorText)}
+    error={errorText || undefined}
     value={value}
     onChange={onChange}
   />
 );
 
-const SumArea = styled('div')`
+const SumArea = styled.div`
   display: inline-flex;
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
 `;
 
-export const ExpenseDialogContent = styled(DialogContent)`
-  overflow-y: scroll !important;
+export const ExpenseDialogContent = styled.div<{ dividers?: boolean }>`
+  overflow-y: auto;
+  padding: 16px 24px;
+  ${p =>
+    p.dividers
+      ? `border-top: 1px solid var(--mantine-color-default-border); border-bottom: 1px solid var(--mantine-color-default-border);`
+      : ''}
 `;

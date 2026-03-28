@@ -1,3 +1,4 @@
+import { Box } from '@mantine/core';
 import * as React from 'react';
 
 import { RecurringExpenseDetails } from 'shared/expense';
@@ -38,7 +39,7 @@ const SubscriptionDetailsRenderer: React.FC<{
           ? ` Tilaus on päättynyt ${readableDateWithYear(exp.occursUntil)}.`
           : ` Seuraava kirjaus ${readableDateWithYear(exp.nextMissing)}.`}
       </Label>
-      <Tools className="large">
+      <Tools large>
         {active ? (
           <Row>
             <ToolIcon
@@ -46,12 +47,13 @@ const SubscriptionDetailsRenderer: React.FC<{
               onClick={() => modifySubscription(exp.templateExpenseId)}
               icon="Edit"
             />
-            <ToolIcon
-              className="optional"
-              title="Poista"
-              onClick={() => terminateSubscription(exp.id, exp.title)}
-              icon="Delete"
-            />
+            <Box visibleFrom="sm" style={{ display: 'inline-flex' }}>
+              <ToolIcon
+                title="Poista"
+                onClick={() => terminateSubscription(exp.id, exp.title)}
+                icon="Delete"
+              />
+            </Box>
           </Row>
         ) : null}
       </Tools>

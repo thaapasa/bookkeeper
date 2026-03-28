@@ -8,7 +8,7 @@ import { Category, CategoryMap, ObjectId, User } from 'shared/types';
 import { CategoryDataSource, getFullCategoryName } from 'client/data/Categories';
 import { eventValue } from 'client/util/ClientUtil';
 
-import { parseMonthRange, toYearRange } from '../component/daterange/Common';
+import { parseMonthRange, toYearRange } from '../component/daterange/dateRangeUtils';
 import { requestSaveReport } from '../reports/ReportUtils';
 import { QuerySearchLayout } from './QuerySearchLayout';
 import { isReceiverSuggestion, isSameSuggestion, SearchSuggestion } from './SearchSuggestions';
@@ -52,7 +52,7 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
     this.dateRangeBus.onValue(dateRange => this.setState({ dateRange }));
     this.userIdBus.onValue(userId => this.setState({ userId }));
     this.unconfirmedBus.onValue(unconfirmed => this.setState({ unconfirmed }));
-    const searchTriggers = B.mergeAll<any>(
+    const searchTriggers = B.mergeAll<unknown>(
       this.executeSearchBus,
       this.receiverBus,
       this.dateRangeBus,
@@ -181,7 +181,7 @@ export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
 
   private onSetUserId = (userId: ObjectId | undefined) => this.userIdBus.push(userId);
 
-  private onToggleUnconfirmed = (_event: any, checked: boolean) =>
+  private onToggleUnconfirmed = (_event: unknown, checked: boolean) =>
     this.unconfirmedBus.push(checked);
 
   private onChange = (e: string | React.ChangeEvent<{ value: string }>) =>

@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { Flex } from '@mantine/core';
 import * as B from 'baconjs';
 import React from 'react';
 import { useParams } from 'react-router';
@@ -17,7 +18,6 @@ import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useForceReload } from '../hooks/useForceReload';
 import { TotalsView } from '../search/TotalsView';
-import { PageContentContainer } from '../Styles';
 import { GroupingCategoryChart } from './GroupingCategoryChart';
 
 export const GroupingExpensesPage: React.FC = () => {
@@ -26,13 +26,13 @@ export const GroupingExpensesPage: React.FC = () => {
   const expenses = useAsyncData(loadExpenses, !!groupingId, Number(groupingId), counter);
   React.useEffect(() => needUpdateE.onValue(forceReload), [forceReload]);
   return (
-    <PageContentContainer className="center">
+    <Flex direction="column" align="center">
       <AsyncDataView
         data={expenses}
         renderer={ConnectedGroupingExpensesRenderer}
         reloadExpenses={forceReload}
       />
-    </PageContentContainer>
+    </Flex>
   );
 };
 
@@ -47,7 +47,7 @@ const GroupingExpensesRenderer: React.FC<{
   <CenterArea>
     <TitleRow>{data.title}</TitleRow>
     <GroupingCategoryChart totals={data.categoryTotals} />
-    <ExpenseTableLayout className="padding">
+    <ExpenseTableLayout padded>
       <tbody>
         {data.expenses?.map(expense => (
           <ExpenseRow

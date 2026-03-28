@@ -1,4 +1,4 @@
-import { AlertColor } from '@mui/material';
+type AlertColor = 'success' | 'info' | 'warning' | 'error';
 
 import { TypedDateRange } from 'shared/time';
 import { ExpenseSaveAction } from 'client/ui/expense/dialog/ExpenseSaveAction';

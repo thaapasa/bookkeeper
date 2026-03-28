@@ -1,9 +1,9 @@
-import { styled } from '@mui/system';
+import styled from '@emotion/styled';
 import * as React from 'react';
 
 import { spaced } from 'shared/util';
 
-import { colorScheme } from '../Colors';
+import { neutral, primary, text } from '../Colors';
 
 export type NoteType = 'note' | 'warning';
 export type NoteViewProps = {
@@ -31,8 +31,8 @@ export const NoteView: React.FC<React.PropsWithChildren<NoteViewProps>> = ({
 );
 
 const Container = styled('div')`
-  background-color: ${colorScheme.primary.standard};
-  border-radius: 4px;
+  background-color: ${neutral[2]};
+  border-radius: var(--mantine-radius-sm);
   margin: 32px;
   width: auto;
   box-sizing: border-box;
@@ -52,19 +52,19 @@ const Container = styled('div')`
   }
 `;
 
-const Title = styled('div')`
+const Title = styled.div`
   padding: 8px 16px;
-  font-size: 18px;
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
+  font-size: var(--mantine-font-size-lg);
+  border-top-left-radius: var(--mantine-radius-sm);
+  border-top-right-radius: var(--mantine-radius-sm);
 
   &.note {
-    color: ${colorScheme.primary.text};
-    background-color: ${colorScheme.primary.dark};
+    color: ${text};
+    background-color: ${neutral[4]};
   }
   &.warning {
-    color: ${colorScheme.gray.light};
-    background-color: ${colorScheme.secondary.dark};
+    color: ${neutral[1]};
+    background-color: ${primary[7]};
   }
 `;
 

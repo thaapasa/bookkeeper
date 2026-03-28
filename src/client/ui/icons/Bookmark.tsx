@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { colorScheme } from '../Colors';
+import { neutral } from '../Colors';
 
 export const Bookmark: React.FC<{
   size: number;
@@ -10,7 +10,7 @@ export const Bookmark: React.FC<{
   outline?: boolean;
 }> = ({ size: height, title, onClick, color, outline }) => {
   const width = (height * 14.0) / 18;
-  const col = color ?? colorScheme.primary.dark;
+  const col = color ?? neutral[4];
   return (
     <svg width={width + 'px'} height={height + 'px'} viewBox="0 0 14.5 18" onClick={onClick}>
       <title>{title}</title>

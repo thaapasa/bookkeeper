@@ -1,4 +1,5 @@
-import { Checkbox, FormControlLabel, styled } from '@mui/material';
+import styled from '@emotion/styled';
+import { Checkbox } from '@mantine/core';
 import { combineTemplate } from 'baconjs';
 import * as React from 'react';
 import { z } from 'zod';
@@ -15,7 +16,6 @@ import { connect } from '../component/BaconConnect';
 import { useDeferredData } from '../hooks/useAsyncData';
 import { useLocalStorageList } from '../hooks/useList';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { PageContentContainer } from '../Styles';
 import { SubscriptionCategoryHeader, ToggleCategoryVisibility } from './SubscriptionCategoryHeader';
 import { SubscriptionCriteriaSelector } from './SubscriptionCriteriaSelector';
 import { SubscriptionItemView } from './SubscriptionItemView';
@@ -53,10 +53,10 @@ const SubscriptionsViewImpl: React.FC<{
   // Reload whenever update bus is triggered
   React.useEffect(() => needUpdateE.onValue(loadData), [loadData]);
   return (
-    <PageContentContainer>
+    <>
       <SubscriptionCriteriaSelector onChange={setCriteria} />
       <AsyncDataView data={data} renderer={SubscriptionsRenderer} />
-    </PageContentContainer>
+    </>
   );
 };
 
@@ -94,8 +94,9 @@ const SubscriptionsRenderer: React.FC<{
           colorIndex={selectedIndex >= 0 ? selectedIndex : undefined}
         />
         <ChartTools>
-          <FormControlLabel
-            control={<Checkbox checked={perMonth} onChange={() => setPerMonth(!perMonth)} />}
+          <Checkbox
+            checked={perMonth}
+            onChange={() => setPerMonth(!perMonth)}
             label="Kulut per kk"
           />
         </ChartTools>
@@ -220,11 +221,11 @@ const CategorySubscriptions: React.FC<{
   </>
 );
 
-const ChartArea = styled('div')`
+const ChartArea = styled.div`
   position: relative;
 `;
 
-const ChartTools = styled('div')`
+const ChartTools = styled.div`
   position: absolute;
   left: 16px;
   top: 16px;

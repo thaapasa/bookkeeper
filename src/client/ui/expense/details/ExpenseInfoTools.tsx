@@ -1,4 +1,4 @@
-import { IconButton, styled } from '@mui/material';
+import { ActionIcon, type ActionIconProps, Box, Group } from '@mantine/core';
 import * as B from 'baconjs';
 import * as React from 'react';
 
@@ -15,7 +15,6 @@ import * as colors from 'client/ui/Colors';
 import { connect } from 'client/ui/component/BaconConnect';
 import { UserPrompts } from 'client/ui/dialog/DialogState';
 import { Icons } from 'client/ui/icons/Icons';
-import { media } from 'client/ui/Styles';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { getBenefitorsForExpense } from '../dialog/ExpenseDialogData';
@@ -33,7 +32,6 @@ interface RecurrenceInfoProps {
 const styles = {
   toolIcon: {
     color: colors.tool,
-    fontSize: '15pt',
   },
 };
 
@@ -90,7 +88,7 @@ const ExpenseInfoToolsImpl: React.FC<RecurrenceInfoProps> = ({
   };
 
   return (
-    <ToolContainer>
+    <Group pos="absolute" right={8} top={8} gap={0}>
       <ToolIconButton title="Pilko" onClick={() => splitExpense(expense.id)}>
         <Icons.Split style={styles.toolIcon} />
       </ToolIconButton>
@@ -102,44 +100,45 @@ const ExpenseInfoToolsImpl: React.FC<RecurrenceInfoProps> = ({
           <Icons.Repeat style={styles.toolIcon} />
         </ToolIconButton>
       )}
-      <MobileTools>
+      <Box
+        hiddenFrom="sm"
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          position: 'absolute',
+          right: 0,
+          top: 40,
+        }}
+      >
         <ToolIconButton title="Muokkaa" onClick={() => onModify(expense)}>
           <Icons.Edit style={styles.toolIcon} />
         </ToolIconButton>
         <ToolIconButton title="Poista" onClick={() => onDelete(expense)}>
           <Icons.Delete style={styles.toolIcon} />
         </ToolIconButton>
-      </MobileTools>
-    </ToolContainer>
+      </Box>
+    </Group>
   );
 };
-
-const ToolContainer = styled('div')`
-  position: absolute;
-  right: 0;
-  top: 0;
-  display: flex;
-  flex-direction: row;
-`;
-
-const MobileTools = styled('div')`
-  display: none;
-  ${media.mobile`
-    display: flex;
-    flex-direction: row;
-    position: absolute;
-    right: 0;
-    top: 40px;
-  `}
-`;
 
 export const ExpenseInfoTools = connect(
   B.combineTemplate({ categoryMap: categoryMapP, sourceMap: sourceMapP }),
 )(ExpenseInfoToolsImpl);
 
-export const ToolIconButton = styled(IconButton)`
-  margin: 0px;
-  padding: 0px;
-  width: 36px;
-  height: 36px;
-`;
+export const ToolIconButton: React.FC<
+  ActionIconProps & React.ButtonHTMLAttributes<HTMLButtonElement> & React.PropsWithChildren
+> = ({ children, ...props }) => (
+  <ActionIcon
+    variant="subtle"
+    {...props}
+    style={{
+      margin: 0,
+      padding: 0,
+      width: 36,
+      height: 36,
+      ...(props.style as Record<string, unknown>),
+    }}
+  >
+    {children}
+  </ActionIcon>
+);

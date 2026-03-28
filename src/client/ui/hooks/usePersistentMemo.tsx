@@ -4,8 +4,8 @@ import * as React from 'react';
  * Functions in the same way as React.memo() but is guaranteed to keep the persisted value
  * unless the dependencies change. React.memo() may arbitrarily re-create the memoized object.
  */
-export function usePersistentMemo<T>(value: () => T, deps: any[]): T {
-  const [state, setState] = React.useState<{ value: T; deps: any[] }>(() => ({
+export function usePersistentMemo<T>(value: () => T, deps: React.DependencyList): T {
+  const [state, setState] = React.useState<{ value: T; deps: React.DependencyList }>(() => ({
     value: value(),
     deps,
   }));
@@ -22,7 +22,10 @@ export function usePersistentMemo<T>(value: () => T, deps: any[]): T {
 }
 
 // Copied from React code
-export function areHookInputsEqual(nextDeps: any[], prevDeps: any[] | null) {
+export function areHookInputsEqual(
+  nextDeps: React.DependencyList,
+  prevDeps: React.DependencyList | null,
+) {
   if (prevDeps === null) {
     return false;
   }
@@ -39,7 +42,7 @@ export function areHookInputsEqual(nextDeps: any[], prevDeps: any[] | null) {
  * inlined Object.is polyfill to avoid requiring consumers ship their own
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is
  */
-function is(x: any, y: any) {
+function is(x: unknown, y: unknown) {
   // biome-ignore lint/suspicious/noSelfCompare: Checking for NaN
-  return (x === y && (x !== 0 || 1 / x === 1 / y)) || (x !== x && y !== y);
+  return (x === y && (x !== 0 || 1 / (x as number) === 1 / (y as number))) || (x !== x && y !== y);
 }
