@@ -1,12 +1,14 @@
-import { Box, BoxProps, Group } from '@mantine/core';
+import { Box, BoxProps, Group, Tooltip } from '@mantine/core';
 import * as React from 'react';
 
+import { BookmarkIcon } from 'client/ui/component/BookmarkIcon.tsx';
 import { Icons } from 'client/ui/icons/Icons';
-import { QuestionBookmark } from 'client/ui/icons/QuestionBookmark';
 
-export const RecurringExpenseIcon: React.FC = () => (
-  <Box display="inline-flex" title="Toistuva kirjaus">
-    <Icons.Recurring style={{ width: 16, height: 16, color: 'var(--mantine-color-primary-5)' }} />
+export const RecurringExpenseIcon: React.FC<BoxProps> = props => (
+  <Box display="inline-flex" {...props}>
+    <Tooltip label="Toistuva kirjaus">
+      <Icons.Recurring size={16} color="var(--mantine-color-primary-5)" />
+    </Tooltip>
   </Box>
 );
 
@@ -22,8 +24,13 @@ export const UnconfirmedIcon: React.FC<
     title?: string;
     onClick?: () => void;
   } & BoxProps
-> = ({ size, title, onClick, style, ...props }) => (
-  <Box title={title} onClick={onClick} style={{ ...style, cursor: 'pointer' }} {...props}>
-    <QuestionBookmark size={size || 24} title={title ?? 'Alustava kirjaus'} />
-  </Box>
+> = ({ title, onClick, style, fz, ...props }) => (
+  <BookmarkIcon
+    onClick={onClick}
+    color="var(--mantine-color-primary-5)"
+    symbol="?"
+    tooltip={title ?? 'Alustava kirjaus'}
+    fz={fz || 'sm'}
+    {...props}
+  />
 );

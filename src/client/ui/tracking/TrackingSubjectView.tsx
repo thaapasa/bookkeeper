@@ -36,7 +36,6 @@ export const TrackingSubjectView: React.FC<{
         <TitleText>{subject.title}</TitleText>
         <ToolsArea className="tools-area">
           <ActionIcon
-            variant="subtle"
             size="sm"
             title="Vaihda värejä"
             onClick={() => changeTrackingColors(subject.id, onReload)}
@@ -44,14 +43,13 @@ export const TrackingSubjectView: React.FC<{
             <Icons.Palette fontSize="small" />
           </ActionIcon>
           <ActionIcon
-            variant="subtle"
             size="sm"
             title="Muokkaa seurantaa"
             onClick={() => editTrackingSubject(subject.id)}
           >
             <Icons.Edit fontSize="small" />
           </ActionIcon>
-          <ActionIcon variant="subtle" size="sm" onClick={() => deleteSubject(subject, onReload)}>
+          <ActionIcon size="sm" onClick={() => deleteSubject(subject, onReload)}>
             <Icons.Delete fontSize="small" />
           </ActionIcon>
         </ToolsArea>

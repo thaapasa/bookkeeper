@@ -1,4 +1,4 @@
-import { ActionIcon, type ActionIconProps, Box, Group } from '@mantine/core';
+import { ActionIcon, Group } from '@mantine/core';
 import * as B from 'baconjs';
 import * as React from 'react';
 
@@ -11,7 +11,6 @@ import { categoryMapP } from 'client/data/Categories';
 import { sourceMapP } from 'client/data/Login';
 import { createNewExpense, splitExpense, updateExpenses } from 'client/data/State';
 import { logger } from 'client/Logger';
-import * as colors from 'client/ui/Colors';
 import { connect } from 'client/ui/component/BaconConnect';
 import { UserPrompts } from 'client/ui/dialog/DialogState';
 import { Icons } from 'client/ui/icons/Icons';
@@ -28,12 +27,6 @@ interface RecurrenceInfoProps {
   categoryMap: CategoryMap;
   sourceMap: Record<string, Source>;
 }
-
-const styles = {
-  toolIcon: {
-    color: colors.tool,
-  },
-};
 
 const ExpenseInfoToolsImpl: React.FC<RecurrenceInfoProps> = ({
   expense,
@@ -88,35 +81,24 @@ const ExpenseInfoToolsImpl: React.FC<RecurrenceInfoProps> = ({
   };
 
   return (
-    <Group pos="absolute" right={8} top={8} gap={0}>
-      <ToolIconButton title="Pilko" onClick={() => splitExpense(expense.id)}>
-        <Icons.Split style={styles.toolIcon} />
-      </ToolIconButton>
-      <ToolIconButton title="Kopioi" onClick={onCopy}>
-        <Icons.Copy style={styles.toolIcon} />
-      </ToolIconButton>
+    <Group pos="absolute" right={8} top={8} gap="xs">
+      <ActionIcon title="Pilko" onClick={() => splitExpense(expense.id)}>
+        <Icons.Split />
+      </ActionIcon>
+      <ActionIcon title="Kopioi" onClick={onCopy}>
+        <Icons.Copy />
+      </ActionIcon>
       {expense.recurringExpenseId ? null : (
-        <ToolIconButton title="Muuta toistuvaksi" onClick={createRecurring}>
-          <Icons.Repeat style={styles.toolIcon} />
-        </ToolIconButton>
+        <ActionIcon title="Muuta toistuvaksi" onClick={createRecurring}>
+          <Icons.Repeat />
+        </ActionIcon>
       )}
-      <Box
-        hiddenFrom="sm"
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          position: 'absolute',
-          right: 0,
-          top: 40,
-        }}
-      >
-        <ToolIconButton title="Muokkaa" onClick={() => onModify(expense)}>
-          <Icons.Edit style={styles.toolIcon} />
-        </ToolIconButton>
-        <ToolIconButton title="Poista" onClick={() => onDelete(expense)}>
-          <Icons.Delete style={styles.toolIcon} />
-        </ToolIconButton>
-      </Box>
+      <ActionIcon title="Muokkaa" hiddenFrom="sm" onClick={() => onModify(expense)}>
+        <Icons.Edit />
+      </ActionIcon>
+      <ActionIcon title="Poista" hiddenFrom="sm" onClick={() => onDelete(expense)}>
+        <Icons.Delete />
+      </ActionIcon>
     </Group>
   );
 };
@@ -124,21 +106,3 @@ const ExpenseInfoToolsImpl: React.FC<RecurrenceInfoProps> = ({
 export const ExpenseInfoTools = connect(
   B.combineTemplate({ categoryMap: categoryMapP, sourceMap: sourceMapP }),
 )(ExpenseInfoToolsImpl);
-
-export const ToolIconButton: React.FC<
-  ActionIconProps & React.ButtonHTMLAttributes<HTMLButtonElement> & React.PropsWithChildren
-> = ({ children, ...props }) => (
-  <ActionIcon
-    variant="subtle"
-    {...props}
-    style={{
-      margin: 0,
-      padding: 0,
-      width: 36,
-      height: 36,
-      ...(props.style as Record<string, unknown>),
-    }}
-  >
-    {children}
-  </ActionIcon>
-);

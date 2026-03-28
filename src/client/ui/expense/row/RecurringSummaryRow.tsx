@@ -1,4 +1,4 @@
-import { Box, Group, Table } from '@mantine/core';
+import { ActionIcon, Box, Group, Table } from '@mantine/core';
 import * as React from 'react';
 
 import { UserExpense } from 'shared/expense';
@@ -9,7 +9,7 @@ import { Icons } from 'client/ui/icons/Icons';
 
 import { AllColumns } from './Breakpoints';
 import { AddFilterFn, ExpenseFilters } from './ExpenseFilters';
-import { IconToolArea, RecurringExpenseIcon, UnconfirmedIcon } from './TableIcons';
+import { RecurringExpenseIcon, UnconfirmedIcon } from './TableIcons';
 
 interface RecurringSummaryRowProps {
   recurring: UserExpense[];
@@ -42,12 +42,10 @@ export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
           <RecurringExpenseIcon />
           <Group flex={1} h="100%" wrap="nowrap">
             {hasUnconfirmed ? (
-              <IconToolArea>
-                <UnconfirmedIcon
-                  title="Sisältää alustavia kirjauksia"
-                  onClick={() => addFilter(ExpenseFilters.unconfirmed, 'Alustavat')}
-                />
-              </IconToolArea>
+              <UnconfirmedIcon
+                title="Sisältää alustavia kirjauksia"
+                onClick={() => addFilter(ExpenseFilters.unconfirmed, 'Alustavat')}
+              />
             ) : null}
             <SectionLabel component="span" pr={4}>
               Toistuvat{' '}
@@ -71,13 +69,9 @@ export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
           <Box px={8} visibleFrom="sm">
             Balanssi: <DataValue w={73}>{balance.format()}</DataValue>
           </Box>
-          <Box px={8}>
-            {isExpanded ? (
-              <Icons.ExpandLess onClick={onToggle} />
-            ) : (
-              <Icons.ExpandMore onClick={onToggle} />
-            )}
-          </Box>
+          <ActionIcon onClick={onToggle}>
+            {isExpanded ? <Icons.ExpandLess /> : <Icons.ExpandMore />}
+          </ActionIcon>
         </Group>
       </AllColumns>
     </Table.Tr>

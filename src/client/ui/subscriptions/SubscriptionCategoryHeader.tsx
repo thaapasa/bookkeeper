@@ -21,7 +21,7 @@ export const SubscriptionCategoryHeader: React.FC<{
   <RowElement className={className}>
     <Label>
       {categoryId && toggleVisibility ? (
-        <ActionIcon variant="subtle" onClick={() => toggleVisibility(categoryId)}>
+        <ActionIcon onClick={() => toggleVisibility(categoryId)}>
           {visible ? <Icons.Visible /> : <Icons.Hidden />}
         </ActionIcon>
       ) : null}

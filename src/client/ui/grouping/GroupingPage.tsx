@@ -22,7 +22,7 @@ export const GroupingPage: React.FC = () => {
         <TitleRow>
           <Title>Ryhmittelyt</Title>
           <ToolArea>
-            <ActionIcon variant="subtle" title="Uusi ryhmittely" onClick={newExpenseGrouping}>
+            <ActionIcon title="Uusi ryhmittely" onClick={newExpenseGrouping}>
               <Icons.AddChart />
             </ActionIcon>
           </ToolArea>

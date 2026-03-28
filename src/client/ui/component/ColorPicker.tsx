@@ -44,15 +44,10 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ value, onChange }) => 
       {open ? (
         <FlexRow className="vcenter">
           <FlexColumn>
-            <ActionIcon
-              variant="subtle"
-              size="sm"
-              onClick={() => setShade(shade > 0 ? shade - 1 : shade)}
-            >
+            <ActionIcon size="sm" onClick={() => setShade(shade > 0 ? shade - 1 : shade)}>
               <Icons.SortUp fontSize="small" />
             </ActionIcon>
             <ActionIcon
-              variant="subtle"
               size="sm"
               onClick={() => setShade(shade < shadeIndices.length - 1 ? shade + 1 : shade)}
             >

@@ -1,3 +1,4 @@
+import { ActionIcon } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import * as React from 'react';
 
@@ -9,7 +10,7 @@ import { updateExpenses } from 'client/data/State';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { ExpanderIcon } from '../component/ExpanderIcon';
-import { ToolIcon } from '../icons/ToolIcon';
+import { Icons } from '../icons/Icons.tsx';
 import { Dates, Label, Period, RowElement, Sum, Tools } from './layout';
 import { SubscriptionDetails } from './SubscriptionDetails';
 import { SubscriptionItem } from './types';
@@ -70,7 +71,9 @@ const ReportItem: React.FC<{
         <Sum visibleFrom="sm">{Money.from(item.recurrencePerMonth).format()} / kk</Sum>
         <Sum>{Money.from(item.recurrencePerYear).format()} / v</Sum>
         <Tools>
-          <ToolIcon title="Poista" onClick={() => deleteReport(item)} icon="Delete" />
+          <ActionIcon title="Poista" onClick={() => deleteReport(item)}>
+            <Icons.Delete />
+          </ActionIcon>
         </Tools>
       </RowElement>
     </>

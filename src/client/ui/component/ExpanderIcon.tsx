@@ -1,7 +1,7 @@
-import { ActionIconProps } from '@mantine/core';
+import { ActionIcon, ActionIconProps } from '@mantine/core';
 import * as React from 'react';
 
-import { ToolIcon } from '../icons/ToolIcon';
+import { Icons } from '../icons/Icons';
 
 export const ExpanderIcon: React.FC<
   {
@@ -10,10 +10,7 @@ export const ExpanderIcon: React.FC<
     onToggle: (state: boolean) => void;
   } & ActionIconProps
 > = ({ title, open, onToggle, ...props }) => (
-  <ToolIcon
-    title={title}
-    onClick={() => onToggle(!open)}
-    icon={open ? 'ExpandLess' : 'ExpandMore'}
-    {...props}
-  />
+  <ActionIcon title={title} onClick={() => onToggle(!open)} {...props}>
+    {open ? <Icons.ExpandLess /> : <Icons.ExpandMore />}
+  </ActionIcon>
 );

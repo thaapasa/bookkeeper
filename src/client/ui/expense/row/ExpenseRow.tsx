@@ -1,4 +1,4 @@
-import { Group, Table, Text } from '@mantine/core';
+import { ActionIcon, Group, Table, Text } from '@mantine/core';
 import * as React from 'react';
 
 import {
@@ -22,10 +22,9 @@ import { UserAvatar } from 'client/ui/component/UserAvatar';
 import { UserPrompts } from 'client/ui/dialog/DialogState';
 import { GroupedExpenseIcon } from 'client/ui/grouping/GroupedExpenseIcon';
 import { ExpenseTypeIcon } from 'client/ui/icons/ExpenseType';
-import { ToolIcon } from 'client/ui/icons/ToolIcon';
+import { Icons } from 'client/ui/icons/Icons.tsx';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
-import { useIsMobile } from '../../hooks/useBreakpoints.ts';
 import { ExpenseInfo } from '../details/ExpenseInfo';
 import { ReceiverField } from '../dialog/ReceiverField';
 import { expenseName } from '../ExpenseHelper';
@@ -62,8 +61,6 @@ interface ExpenseRowImplProps extends CommonExpenseRowProps {
 const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
   const { expense, prev, user, source, categoryMap, groupingMap, userMap, addFilter, onUpdated } =
     props;
-
-  const isMobile = useIsMobile();
 
   const [details, setDetails] = React.useState<UserExpenseWithDetails | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
@@ -205,7 +202,6 @@ const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
                 <GroupedExpenseIcon
                   key={a.id}
                   grouping={a}
-                  implicit={true}
                   onClick={() => addFilter(e => e.groupingId === a.id, a.title)}
                 />
               ))
@@ -239,7 +235,7 @@ const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
           />
         </Table.Td>
         {/* Sum */}
-        <Table.Td ta="right" pos="relative" bg={expense.type === 'income' ? 'dark.4' : undefined}>
+        <Table.Td ta="right" pos="relative">
           <Group justify="space-between" wrap="nowrap" gap={4}>
             <ExpenseTypeIcon type={expense.type} color={primary[7]} size={20} />
             {Money.from(expense.sum).format()}
@@ -263,13 +259,16 @@ const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
         <Table.Td ta="right">
           <Group gap="xs" wrap="nowrap" justify="flex-end">
             <ExpanderIcon
-              size={isMobile ? 'lg' : 'sm'}
               title="Tiedot"
               open={isDefined(details)}
               onToggle={() => toggleDetails()}
             />
-            <ToolIcon title="Muokkaa" onClick={modifyExpense} icon="Edit" visibleFrom="sm" />
-            <ToolIcon title="Poista" onClick={deleteExpense} icon="Delete" visibleFrom="sm" />
+            <ActionIcon title="Muokkaa" onClick={modifyExpense} visibleFrom="sm">
+              <Icons.Edit />
+            </ActionIcon>
+            <ActionIcon title="Poista" onClick={deleteExpense} visibleFrom="sm">
+              <Icons.Delete />
+            </ActionIcon>
           </Group>
         </Table.Td>
       </Table.Tr>

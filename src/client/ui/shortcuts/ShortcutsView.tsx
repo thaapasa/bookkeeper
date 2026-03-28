@@ -53,31 +53,20 @@ const FullList: React.FC<{
               </Group>
             </UnstyledButton>
             <Group gap={4} wrap="nowrap">
-              <ActionIcon
-                variant="subtle"
-                size="sm"
-                disabled={i === 0}
-                onClick={() => sortShortcutUp(s.id)}
-              >
+              <ActionIcon size="sm" disabled={i === 0} onClick={() => sortShortcutUp(s.id)}>
                 <Icons.SortUp fontSize="small" />
               </ActionIcon>
               <ActionIcon
-                variant="subtle"
                 size="sm"
                 disabled={i === shortcuts.length - 1}
                 onClick={() => sortShortcutDown(s.id)}
               >
                 <Icons.SortDown fontSize="small" />
               </ActionIcon>
-              <ActionIcon variant="subtle" size="sm" onClick={() => editShortcut(s.id)}>
+              <ActionIcon size="sm" onClick={() => editShortcut(s.id)}>
                 <Icons.Edit fontSize="small" />
               </ActionIcon>
-              <ActionIcon
-                variant="subtle"
-                size="sm"
-                color="red"
-                onClick={() => deleteShortcut(s.id)}
-              >
+              <ActionIcon size="sm" color="red" onClick={() => deleteShortcut(s.id)}>
                 <Icons.Delete fontSize="small" />
               </ActionIcon>
             </Group>

@@ -62,7 +62,7 @@ const QuerySearchLayoutImpl: React.FC<QuerySearchLayoutProps> = ({
     <Grid.Col span={{ base: 12, sm: 7 }}>
       <FlexRow>
         <ClearIconArea>
-          <ActionIcon variant="subtle" size="sm" onClick={onClear}>
+          <ActionIcon size="sm" onClick={onClear}>
             <Icons.Delete />
           </ActionIcon>
         </ClearIconArea>
@@ -74,7 +74,7 @@ const QuerySearchLayoutImpl: React.FC<QuerySearchLayoutProps> = ({
           categorySource={categorySource}
         />
         <SearchButtonArea>
-          <ActionIcon variant="subtle" size="sm" onClick={startSearch}>
+          <ActionIcon size="sm" onClick={startSearch}>
             <Icons.Search color="primary" />
           </ActionIcon>
         </SearchButtonArea>

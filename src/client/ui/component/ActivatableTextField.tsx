@@ -84,7 +84,7 @@ export const ActivatableTextField: React.FC<ActivatableTextFieldProps<any>> = <
         onChange={setValue}
         onKeyUp={handleKeyPress}
       />
-      <ActionIcon variant="subtle" size="sm" color="gray" onClick={cancel}>
+      <ActionIcon size="sm" color="gray" onClick={cancel}>
         <Icons.CancelOutlined fontSize="medium" />
       </ActionIcon>
     </EditorContainer>

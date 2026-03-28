@@ -21,7 +21,7 @@ export const TrackingPage: React.FC = () => {
         <TitleRow>
           <Title>Seuranta</Title>
           <ToolArea>
-            <ActionIcon variant="subtle" title="Uusi seuranta" onClick={newTrackingSubject}>
+            <ActionIcon title="Uusi seuranta" onClick={newTrackingSubject}>
               <Icons.AddChart />
             </ActionIcon>
           </ToolArea>

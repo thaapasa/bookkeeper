@@ -1,4 +1,4 @@
-import { Box } from '@mantine/core';
+import { ActionIcon, Box } from '@mantine/core';
 import * as React from 'react';
 
 import { RecurringExpenseDetails } from 'shared/expense';
@@ -12,7 +12,7 @@ import { executeOperation } from 'client/util/ExecuteOperation';
 import { AsyncDataView } from '../component/AsyncDataView';
 import { Row } from '../component/Row';
 import { useDeferredData } from '../hooks/useAsyncData';
-import { ToolIcon } from '../icons/ToolIcon';
+import { Icons } from '../icons/Icons';
 import { Label, RowElement, Tools } from './layout';
 
 export const SubscriptionDetails: React.FC<{ recurringExpenseId: number }> = ({
@@ -42,17 +42,13 @@ const SubscriptionDetailsRenderer: React.FC<{
       <Tools large>
         {active ? (
           <Row>
-            <ToolIcon
-              title="Muokkaa"
-              onClick={() => modifySubscription(exp.templateExpenseId)}
-              icon="Edit"
-            />
+            <ActionIcon title="Muokkaa" onClick={() => modifySubscription(exp.templateExpenseId)}>
+              <Icons.Edit />
+            </ActionIcon>
             <Box visibleFrom="sm" style={{ display: 'inline-flex' }}>
-              <ToolIcon
-                title="Poista"
-                onClick={() => terminateSubscription(exp.id, exp.title)}
-                icon="Delete"
-              />
+              <ActionIcon title="Poista" onClick={() => terminateSubscription(exp.id, exp.title)}>
+                <Icons.Delete />
+              </ActionIcon>
             </Box>
           </Row>
         ) : null}

@@ -60,4 +60,9 @@ export const mantineTheme = createTheme({
   },
   headings,
   defaultRadius: 'sm',
+  components: {
+    ActionIcon: {
+      defaultProps: { variant: 'subtle' },
+    },
+  },
 });

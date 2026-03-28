@@ -73,14 +73,15 @@ export const MonthlyStatus: React.FC<StatusProps> = props => {
           {hasUnconfirmed && (
             <UnconfirmedIcon
               title="Sisältää alustavia kirjauksia"
-              className={styles.unconfirmedIcon}
-              style={{}}
+              pos="absolute"
+              top={0}
+              right={0}
               onClick={() => props.addFilter(ExpenseFilters.unconfirmed, 'Alustavat')}
             />
           )}
         </StatusBlock>
       </Group>
-      <ActionIcon variant="subtle" size="md" onClick={() => setExpanded(e => !e)} mt={2}>
+      <ActionIcon size="md" onClick={() => setExpanded(e => !e)} mt={2}>
         {expanded ? <Icons.ExpandMore /> : <Icons.ExpandLess />}
       </ActionIcon>
     </Group>

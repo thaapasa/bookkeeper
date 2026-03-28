@@ -5,9 +5,3 @@
   z-index: 1;
   background-color: light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-6));
 }
-
-.unconfirmedIcon {
-  position: absolute;
-  right: 0;
-  top: 0;
-}

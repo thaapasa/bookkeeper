@@ -43,25 +43,13 @@ const DateRangeNavigatorImpl: React.FC<React.PropsWithChildren<DateRangeNavigato
 
   return (
     <Group gap={0} align="center" wrap="nowrap" onKeyUp={handleKeyPress} tabIndex={0}>
-      <ActionIcon
-        variant="subtle"
-        onClick={() => navigateOffset(-1)}
-        title="Edellinen"
-        size="md"
-        radius="xl"
-      >
+      <ActionIcon onClick={() => navigateOffset(-1)} title="Edellinen" size="md" radius="xl">
         <Icons.ChevronLeft color="primary" />
       </ActionIcon>
       <Text size="md" w={140} ta="center">
         {toDateRangeName(dateRange)}
       </Text>
-      <ActionIcon
-        variant="subtle"
-        onClick={() => navigateOffset(1)}
-        title="Seuraava"
-        size="md"
-        radius="xl"
-      >
+      <ActionIcon onClick={() => navigateOffset(1)} title="Seuraava" size="md" radius="xl">
         <Icons.ChevronRight color="primary" />
       </ActionIcon>
     </Group>

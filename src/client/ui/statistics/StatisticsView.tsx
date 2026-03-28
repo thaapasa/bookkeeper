@@ -119,7 +119,7 @@ export const StatisticsViewImpl: React.FC<{
       </Grid.Col>
       {cats.length > 0 ? (
         <Grid.Col span={12}>
-          <ActionIcon variant="subtle" onClick={clearCats}>
+          <ActionIcon onClick={clearCats}>
             <Icons.Clear />
           </ActionIcon>
           <CategoryChipList

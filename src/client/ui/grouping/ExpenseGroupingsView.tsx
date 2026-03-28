@@ -54,18 +54,13 @@ export const ExpenseGroupingView: React.FC<{
         <TitleText>{grouping.title}</TitleText>
         <ToolsArea className="tools-area">
           <ActionIcon
-            variant="subtle"
             size="sm"
             title="Muokkaa seurantaa"
             onClick={() => editExpenseGrouping(grouping.id)}
           >
             <Icons.Edit fontSize="small" />
           </ActionIcon>
-          <ActionIcon
-            variant="subtle"
-            size="sm"
-            onClick={() => deleteExpenseGrouping(grouping, onReload)}
-          >
+          <ActionIcon size="sm" onClick={() => deleteExpenseGrouping(grouping, onReload)}>
             <Icons.Delete fontSize="small" />
           </ActionIcon>
         </ToolsArea>

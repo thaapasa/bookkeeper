@@ -2,6 +2,7 @@ import {
   ArrowDownFromLine,
   ArrowUpFromLine,
   BarChart3,
+  Bookmark,
   CalendarClock,
   CalendarDays,
   CalendarRange,
@@ -15,10 +16,12 @@ import {
   CirclePlus,
   CircleX,
   Copy,
+  CreditCard,
   Euro,
   Eye,
   EyeOff,
   Hammer,
+  HandCoins,
   Image,
   Infinity as InfinityIcon,
   Info,
@@ -41,7 +44,6 @@ import {
   Tags,
   Trash2,
   Upload,
-  Wallet,
   X,
   XCircle,
 } from 'lucide-react';
@@ -72,11 +74,12 @@ export const LucideIcons = {
   EditNote: PencilLine,
   ExpandLess: ChevronUp,
   ExpandMore: ChevronDown,
-  Expense: Wallet,
+  Expense: CreditCard,
   Grouping: LayoutGrid,
   Hidden: EyeOff,
+  Bookmark: Bookmark,
   Image: Image,
-  Income: Euro,
+  Income: HandCoins,
   Info: Info,
   Logout: LogOut,
   Menu: Menu,
@@ -103,6 +106,7 @@ export const LucideIcons = {
 };
 
 export type Icon = keyof typeof LucideIcons;
+export type IconComponent = (typeof LucideIcons)[Icon];
 
 /** MUI fontSize compatibility */
 type MuiFontSize = 'small' | 'medium' | 'large' | 'inherit';

@@ -129,7 +129,6 @@ const GroupingEditView: React.FC<{
                 <Icons.Upload />
               </UploadImageButton>
               <ActionIcon
-                variant="subtle"
                 onClick={() => state.removeImage(reloadData, reloadAll)}
                 title="Poista kuva"
               >
@@ -139,12 +138,7 @@ const GroupingEditView: React.FC<{
           </SelectionRow>
           <div style={{ gridColumn: '1 / -1', position: 'relative' }}>
             <ToolIconArea>
-              <ActionIcon
-                variant="subtle"
-                title="Lisää kategoria"
-                size="sm"
-                onClick={state.addCategory}
-              >
+              <ActionIcon title="Lisää kategoria" size="sm" onClick={state.addCategory}>
                 <Icons.Add fontSize="small" />
               </ActionIcon>
             </ToolIconArea>
@@ -211,12 +205,7 @@ const CategorySelection: React.FC<{ id: ObjectId; categoryMap: CategoryMap }> = 
     <Row>
       {getFullCategoryName(id, categoryMap)}
       <Flex />
-      <ActionIcon
-        variant="subtle"
-        title="Poista seurannasta"
-        size="sm"
-        onClick={() => state.removeCategory(id)}
-      >
+      <ActionIcon title="Poista seurannasta" size="sm" onClick={() => state.removeCategory(id)}>
         <Icons.Delete fontSize="small" />
       </ActionIcon>
     </Row>

@@ -89,7 +89,7 @@ const ShortcutEditView: React.FC<{
           >
             <Icons.Upload />
           </UploadImageButton>
-          <ActionIcon variant="subtle" onClick={state.removeIcon} title="Poista kuva">
+          <ActionIcon onClick={state.removeIcon} title="Poista kuva">
             <Icons.Delete />
           </ActionIcon>
         </Group>

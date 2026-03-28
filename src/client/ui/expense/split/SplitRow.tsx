@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { ActionIcon } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import * as React from 'react';
 
@@ -9,7 +10,6 @@ import { getFullCategoryName } from 'client/data/Categories';
 import UserSelector from 'client/ui/component/UserSelector';
 import { Icons } from 'client/ui/icons/Icons';
 
-import { ToolIconButton } from '../details/ExpenseInfoTools';
 import { ExpenseDialogProps } from '../dialog/ExpenseDialog';
 import { SourceSelector, SumField } from '../dialog/ExpenseDialogComponents';
 import { TitleField } from '../dialog/TitleField';
@@ -47,13 +47,13 @@ export const SplitRow: React.FC<SplitRowProps> = props => {
       </RelDiv>
       <div style={{ gridColumn: 'span 2' }}>{Money.from(split.sum).format()}</div>
       <div style={{ gridColumn: 'span 1', display: 'flex', justifyContent: 'flex-end' }}>
-        <ToolIconButton onClick={toggleEdit}>
+        <ActionIcon onClick={toggleEdit}>
           <Icons.Edit />
-        </ToolIconButton>
+        </ActionIcon>
         {editSum ? (
-          <ToolIconButton onClick={() => removeSplit(splitIndex)}>
+          <ActionIcon onClick={() => removeSplit(splitIndex)}>
             <Icons.Delete />
-          </ToolIconButton>
+          </ActionIcon>
         ) : null}
       </div>
     </SplitGrid>
@@ -123,13 +123,13 @@ const SplitEditor: React.FC<SplitRowProps & { close: () => void }> = ({
         {editSum ? <SumField value={sum} onChange={setSum} /> : Money.from(sum).format()}
       </div>
       <div style={{ gridColumn: 'span 1', display: 'flex', justifyContent: 'flex-end' }}>
-        <ToolIconButton onClick={save} disabled={!allValid}>
+        <ActionIcon onClick={save} disabled={!allValid}>
           <Icons.Save />
-        </ToolIconButton>
+        </ActionIcon>
         {editSum ? (
-          <ToolIconButton onClick={() => removeSplit(splitIndex)}>
+          <ActionIcon onClick={() => removeSplit(splitIndex)}>
             <Icons.Delete />
-          </ToolIconButton>
+          </ActionIcon>
         ) : null}
       </div>
       <div style={{ gridColumn: 'span 7' }}>

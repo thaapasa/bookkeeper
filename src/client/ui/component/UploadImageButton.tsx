@@ -38,7 +38,6 @@ export const UploadImageButton: React.FC<React.PropsWithChildren<UploadImageButt
   return (
     <>
       <ActionIcon
-        variant="subtle"
         onClick={() => ref.current?.click()}
         style={style}
         title={title}

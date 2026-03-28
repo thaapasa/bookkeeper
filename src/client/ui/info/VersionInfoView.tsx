@@ -46,7 +46,7 @@ export const VersionInfoView = () => {
           </ItemWithId>
         ) : null}
         <ItemWithId id="Päivitä">
-          <ActionIcon variant="subtle" size="sm" onClick={doReload}>
+          <ActionIcon size="sm" onClick={doReload}>
             <Icons.Refresh />
           </ActionIcon>
         </ItemWithId>

@@ -91,7 +91,7 @@ export const AutoComplete = <T,>({
         onKeyUp={onKeyUp}
         rightSection={
           onAdd ? (
-            <ActionIcon variant="subtle" onClick={onAdd} size="sm">
+            <ActionIcon onClick={onAdd} size="sm">
               <Icons.Add />
             </ActionIcon>
           ) : undefined

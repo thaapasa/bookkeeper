@@ -42,7 +42,6 @@ export const StyledIconButton: React.FC<
   ActionIconProps & React.ButtonHTMLAttributes<HTMLButtonElement> & React.PropsWithChildren
 > = ({ children, ...props }) => (
   <ActionIcon
-    variant="subtle"
     {...props}
     style={{ padding: 0, margin: '0 4px', ...(props.style as Record<string, unknown>) }}
   >
