@@ -36,6 +36,11 @@ Systematically find and convert all instances of the outdated pattern described 
 6. **Verify**: After all changes, run `bun lint` to catch type errors and lint issues.
    Fix any issues introduced by the refactoring.
 
+## Frontend Refactoring
+
+For frontend/UI refactoring, prefer the `/refactor-frontend` skill which reads the
+full coding conventions from `src/client/coding-conventions.md`.
+
 ## Common Refactoring Targets
 
 These are known legacy patterns in this codebase:

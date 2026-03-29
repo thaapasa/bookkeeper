@@ -31,9 +31,17 @@ Monorepo with shared types between client and server. All code is TypeScript, ru
 
 Import aliases: `shared/*`, `client/*`, `server/*` resolve from `src/`.
 
-See `src/client/CLAUDE.md` and `.github/agents/frontend.agent.md` for frontend-specific
-conventions (Mantine, styling, state). See `src/server/CLAUDE.md` and
-`.github/agents/backend.agent.md` for backend-specific patterns (routing, database).
+## Frontend Conventions
+
+Read `src/client/coding-conventions.md` for the full frontend coding conventions.
+That file is the single source of truth for how UI code should be written.
+
+See also `src/client/CLAUDE.md` and `.github/agents/frontend.agent.md`.
+
+## Backend Conventions
+
+See `src/server/CLAUDE.md` and `.github/agents/backend.agent.md` for backend-specific
+patterns (routing, database).
 
 ## Code Quality: Be Proactive
 

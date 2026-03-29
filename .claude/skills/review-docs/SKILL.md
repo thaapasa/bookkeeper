@@ -6,7 +6,7 @@ paths:
   - docs/**
   - .claude/**
   - .github/**
-  - .cursor/**
+  - src/client/coding-conventions.md
 ---
 
 # Documentation Review
@@ -21,6 +21,7 @@ Check each of these files:
 - `README.md`
 - `CLAUDE.md`
 - `src/client/CLAUDE.md`
+- `src/client/coding-conventions.md`
 - `src/server/CLAUDE.md`
 - `docs/ARCHITECTURE.md` (if exists)
 - `docs/FRONTEND_IMPROVEMENTS.md` (if exists)
@@ -28,7 +29,6 @@ Check each of these files:
 - `.github/agents/frontend.agent.md`
 - `.github/agents/backend.agent.md`
 - `.github/copilot-instructions.md`
-- `.cursor/rules/*.mdc`
 - `.claude/rules/*.md`
 
 ## For Each File, Verify
