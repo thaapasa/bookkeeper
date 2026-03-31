@@ -1,43 +1,31 @@
-import * as B from 'baconjs';
 import * as React from 'react';
 import { Route, Routes, useNavigate, useParams } from 'react-router-dom';
 
 import { shortcutToExpenseInEditor } from 'shared/expense';
 import { toDateTime } from 'shared/time';
-import { Session } from 'shared/types';
-import { categoryDataSourceP, categoryMapP } from 'client/data/Categories';
-import { sourceMapP, validSessionP } from 'client/data/Login';
+import { validSessionP } from 'client/data/Login';
 import { updateExpenses } from 'client/data/State';
 import { logger } from 'client/Logger';
-import { connect } from 'client/ui/component/BaconConnect';
+import { useBaconState } from 'client/ui/hooks/useBaconState';
 import { useIsMobile } from 'client/ui/hooks/useBreakpoints';
 import { useQueryParams } from 'client/ui/hooks/useQueryParams';
 import { navigateAndWait } from 'client/ui/utils/Navigation';
 import { newExpenseSuffix } from 'client/util/Links';
 
 import { ExpenseDialog } from './ExpenseDialog';
-
-const ConnectedExpenseDialog = connect(
-  B.combineTemplate({
-    sources: validSessionP.map(s => s.sources),
-    categories: validSessionP.map(s => s.categories),
-    user: validSessionP.map(s => s.user),
-    group: validSessionP.map(s => s.group),
-    sourceMap: sourceMapP,
-    categorySource: categoryDataSourceP,
-    categoryMap: categoryMapP,
-    groupings: validSessionP.map(s => s.groupings),
-    users: validSessionP.map(s => s.users),
-  }),
-)(ExpenseDialog);
+import { expenseDialogDataP } from './ExpenseDialogSessionData';
 
 const NewExpenseDialogPage: React.FC = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const params = useQueryParams();
   const date = params.date ? toDateTime(params.date) : undefined;
+  const data = useBaconState(expenseDialogDataP);
+  if (!data) return null;
+
   return (
-    <ConnectedExpenseDialog
+    <ExpenseDialog
+      {...data}
       createNew
       values={{ date }}
       onClose={async () => {
@@ -54,22 +42,30 @@ const NewExpenseDialogPage: React.FC = () => {
   );
 };
 
-const NewExpenseFromShortcutDialogPage: React.FC<{ session: Session }> = ({ session }) => {
+const NewExpenseFromShortcutDialogPage: React.FC = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { shortcutId } = useParams<'shortcutId'>();
   const id = Number(shortcutId);
-  const shortcut = session.shortcuts.find(s => s.id === id);
+  const data = useBaconState(expenseDialogDataP);
+  const session = useBaconState(validSessionP);
+
   React.useEffect(() => {
-    if (!shortcut) {
+    if (session && !session.shortcuts.find(s => s.id === id)) {
       logger.warn(`Shortcut ${id} not found, backing out`);
       navigate(-1);
     }
-  }, [shortcut, navigate, id]);
+  }, [session, navigate, id]);
+
+  if (!data || !session) return null;
+
+  const shortcut = session.shortcuts.find(s => s.id === id);
   const values = shortcut ? shortcutToExpenseInEditor(shortcut.expense) : {};
   logger.info(values, 'Opening expense editor');
+
   return (
-    <ConnectedExpenseDialog
+    <ExpenseDialog
+      {...data}
       createNew
       values={values}
       onClose={async () => {
@@ -86,13 +82,12 @@ const NewExpenseFromShortcutDialogPage: React.FC<{ session: Session }> = ({ sess
   );
 };
 
-const ConnectedShortcutDialogPage = connect(B.combineTemplate({ session: validSessionP }))(
-  NewExpenseFromShortcutDialogPage,
-);
-
 export const NewExpenseDialogRoutes: React.FC = () => (
   <Routes>
-    <Route path={newExpenseSuffix + '/:shortcutId'} element={<ConnectedShortcutDialogPage />} />
+    <Route
+      path={newExpenseSuffix + '/:shortcutId'}
+      element={<NewExpenseFromShortcutDialogPage />}
+    />
     <Route path={newExpenseSuffix} element={<NewExpenseDialogPage />} />
   </Routes>
 );

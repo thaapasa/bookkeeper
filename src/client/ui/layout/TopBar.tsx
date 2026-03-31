@@ -13,13 +13,13 @@ import {
   subscriptionsPagePath,
   toolsPagePath,
   trackingPagePath,
-} from 'client/util/Links.ts';
+} from 'client/util/Links';
 
-import { neutral, primary, text } from '../Colors.ts';
-import { DateRangeNavigator } from '../component/DateRangeNavigator.tsx';
-import { useIsMobile } from '../hooks/useBreakpoints.ts';
-import { Icon, RenderIcon } from '../icons/Icons.tsx';
-import { AddExpenseMenu } from '../shortcuts/ShortcutsDropdown.tsx';
+import { neutral, primary, text } from '../Colors';
+import { DateRangeNavigator } from '../component/DateRangeNavigator';
+import { useIsMobile } from '../hooks/useBreakpoints';
+import { Icon, RenderIcon } from '../icons/Icons';
+import { AddExpenseMenu } from '../shortcuts/ShortcutsDropdown';
 import classes from './TopBar.module.css';
 
 export interface AppLink {

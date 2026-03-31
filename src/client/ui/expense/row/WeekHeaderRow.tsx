@@ -1,7 +1,7 @@
 import { Table, Text } from '@mantine/core';
 import * as React from 'react';
 
-import { AllColumns } from './Breakpoints.tsx';
+import { AllColumns } from './ExpenseTableColumns';
 
 export const WeekHeaderRow: React.FC<{ week: string }> = ({ week }) => (
   <Table.Tr>

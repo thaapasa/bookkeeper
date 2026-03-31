@@ -1,19 +1,23 @@
-import styled from '@emotion/styled';
-import { ActionIcon, Group, Select } from '@mantine/core';
+import { ActionIcon, Box, BoxProps, Group, Select } from '@mantine/core';
 import * as React from 'react';
 
 import { ExpenseType, expenseTypes, getExpenseTypeLabel } from 'shared/expense';
 import { Source } from 'shared/types';
 import { Money, sanitizeMoneyInput } from 'shared/util';
-import { TextEdit } from 'client/ui/component/TextEdit';
+import { TextEdit, TextEditProps } from 'client/ui/component/TextEdit';
 import { ExpenseTypeIcon } from 'client/ui/icons/ExpenseType';
 import { Icons } from 'client/ui/icons/Icons';
+import { classNames } from 'client/ui/utils/classNames';
 
-export const SumField: React.FC<{
-  value: string;
-  errorText?: string;
-  onChange: (s: string) => void;
-}> = ({ value, onChange, errorText }) => {
+import styles from './ExpenseDialog.module.css';
+
+export const SumField: React.FC<
+  {
+    value: string;
+    errorText?: string;
+    onChange: (s: string) => void;
+  } & TextEditProps
+> = ({ value, onChange, errorText, ...props }) => {
   const addToSum = () => {
     const sum = window.prompt('Syötä summaan lisättävä määrä:');
     if (sum) {
@@ -23,41 +27,38 @@ export const SumField: React.FC<{
     }
   };
   return (
-    <SumArea>
-      <TextEdit
-        placeholder="0.00"
-        label="Summa"
-        name="sum"
-        value={value}
-        error={errorText || undefined}
-        onChange={onChange}
-        type="text"
-        autoFocus
-        autoComplete="off"
-      />
-      <Icons.Add onClick={addToSum} />
-    </SumArea>
+    <TextEdit
+      placeholder="0.00"
+      label="Summa"
+      name="sum"
+      value={value}
+      error={errorText || undefined}
+      onChange={onChange}
+      type="text"
+      autoFocus
+      autoComplete="off"
+      rightSection={<Icons.Add onClick={addToSum} />}
+      {...props}
+    />
   );
 };
 
-export const SourceSelector: React.FC<{
-  value: number;
-  onChange: (id: number) => void;
-  sources: Source[];
-  style?: React.CSSProperties;
-  title: string;
-}> = ({ title, value, style, onChange, sources }) => {
-  return (
-    <div style={{ width: '100%', ...style }}>
-      <Select
-        label={title}
-        value={String(value)}
-        onChange={v => onChange(Number(v ?? 0))}
-        data={sources.map(s => ({ value: String(s.id), label: s.name }))}
-      />
-    </div>
-  );
-};
+export const SourceSelector: React.FC<
+  {
+    value: number;
+    onChange: (id: number) => void;
+    sources: Source[];
+    title: string;
+  } & Omit<BoxProps, 'onChange'>
+> = ({ title, value, onChange, sources, ...boxProps }) => (
+  <Select
+    label={title}
+    value={String(value)}
+    onChange={v => onChange(Number(v ?? 0))}
+    data={sources.map(s => ({ value: String(s.id), label: s.name }))}
+    {...boxProps}
+  />
+);
 
 export const TypeSelector: React.FC<{
   value: ExpenseType;
@@ -71,7 +72,7 @@ export const TypeSelector: React.FC<{
   }, [onChange, value]);
 
   return (
-    <Group>
+    <Group w={100} gap="xs">
       <ActionIcon onClick={toggle}>
         <ExpenseTypeIcon type={value} size={24} />
       </ActionIcon>
@@ -94,18 +95,17 @@ export const DescriptionField: React.FC<{
   />
 );
 
-const SumArea = styled.div`
-  display: inline-flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-`;
-
-export const ExpenseDialogContent = styled.div<{ dividers?: boolean }>`
-  overflow-y: auto;
-  padding: 16px 24px;
-  ${p =>
-    p.dividers
-      ? `border-top: 1px solid var(--mantine-color-default-border); border-bottom: 1px solid var(--mantine-color-default-border);`
-      : ''}
-`;
+export const ExpenseDialogContent: React.FC<
+  React.PropsWithChildren<{ dividers?: boolean } & BoxProps & React.ComponentPropsWithoutRef<'div'>>
+> = ({ dividers, className, children, ...props }) => (
+  <Box
+    className={classNames(
+      styles.dialogContent,
+      dividers ? styles.dialogContentDividers : undefined,
+      className,
+    )}
+    {...props}
+  >
+    {children}
+  </Box>
+);

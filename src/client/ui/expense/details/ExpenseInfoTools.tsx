@@ -1,39 +1,43 @@
-import { ActionIcon, Group } from '@mantine/core';
+import { ActionIcon, Group, GroupProps } from '@mantine/core';
 import * as B from 'baconjs';
 import * as React from 'react';
 
 import { ExpenseDivision, RecurrencePeriod, UserExpense } from 'shared/expense';
 import { ISODatePattern, toDate, toDateTime } from 'shared/time';
-import { CategoryMap, Source } from 'shared/types';
 import { Money } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { categoryMapP } from 'client/data/Categories';
 import { sourceMapP } from 'client/data/Login';
 import { createNewExpense, splitExpense, updateExpenses } from 'client/data/State';
 import { logger } from 'client/Logger';
-import { connect } from 'client/ui/component/BaconConnect';
 import { UserPrompts } from 'client/ui/dialog/DialogState';
+import { useBaconState } from 'client/ui/hooks/useBaconState';
 import { Icons } from 'client/ui/icons/Icons';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { getBenefitorsForExpense } from '../dialog/ExpenseDialogData';
 import { expenseName } from '../ExpenseHelper';
 
-interface RecurrenceInfoProps {
+const sessionDataP = B.combineTemplate({ categoryMap: categoryMapP, sourceMap: sourceMapP });
+
+type ExpenseInfoToolsProps = {
   expense: UserExpense;
   division: ExpenseDivision;
   onModify: (e: UserExpense) => void;
   onDelete: (e: UserExpense) => void;
-  categoryMap: CategoryMap;
-  sourceMap: Record<string, Source>;
-}
+} & GroupProps;
 
-const ExpenseInfoToolsImpl: React.FC<RecurrenceInfoProps> = ({
+export const ExpenseInfoTools: React.FC<ExpenseInfoToolsProps> = ({
   expense,
+  division,
   onModify,
   onDelete,
   ...props
 }) => {
+  const sessionData = useBaconState(sessionDataP);
+  if (!sessionData) return null;
+  const { categoryMap, sourceMap } = sessionData;
+
   const createRecurring = async () => {
     const period = await UserPrompts.select<RecurrencePeriod>(
       'Muuta toistuvaksi',
@@ -59,8 +63,7 @@ const ExpenseInfoToolsImpl: React.FC<RecurrenceInfoProps> = ({
 
   const onCopy = () => {
     const e = expense;
-    const division = props.division;
-    const cat = props.categoryMap[e.categoryId];
+    const cat = categoryMap[e.categoryId];
     const subcategoryId = (cat.parentId && e.categoryId) || undefined;
     const categoryId = (subcategoryId ? cat.parentId : e.categoryId) || undefined;
     const date = toDateTime(e.date, ISODatePattern);
@@ -72,7 +75,7 @@ const ExpenseInfoToolsImpl: React.FC<RecurrenceInfoProps> = ({
       type: e.type,
       description: e.description || undefined,
       date,
-      benefit: getBenefitorsForExpense(e, division, props.sourceMap),
+      benefit: getBenefitorsForExpense(e, division, sourceMap),
       categoryId,
       subcategoryId,
       sourceId: e.sourceId,
@@ -81,7 +84,7 @@ const ExpenseInfoToolsImpl: React.FC<RecurrenceInfoProps> = ({
   };
 
   return (
-    <Group pos="absolute" right={8} top={8} gap="xs">
+    <Group gap="xs" {...props}>
       <ActionIcon title="Pilko" onClick={() => splitExpense(expense.id)}>
         <Icons.Split />
       </ActionIcon>
@@ -102,7 +105,3 @@ const ExpenseInfoToolsImpl: React.FC<RecurrenceInfoProps> = ({
     </Group>
   );
 };
-
-export const ExpenseInfoTools = connect(
-  B.combineTemplate({ categoryMap: categoryMapP, sourceMap: sourceMapP }),
-)(ExpenseInfoToolsImpl);

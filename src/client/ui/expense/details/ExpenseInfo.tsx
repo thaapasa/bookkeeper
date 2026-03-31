@@ -2,13 +2,13 @@ import { Box, Table } from '@mantine/core';
 import * as React from 'react';
 
 import { ExpenseDivisionItem, UserExpense } from 'shared/expense';
-import { Source, User } from 'shared/types';
+import { Source } from 'shared/types';
 
-import { useIsMobile, useIsMobilePortrait } from '../../hooks/useBreakpoints.ts';
-import { AllColumns } from '../row/Breakpoints.tsx';
-import { LoadingIndicator } from '../row/SpecialRows.tsx';
+import { AllColumns } from '../row/ExpenseTableColumns';
+import { LoadingIndicator } from '../row/SpecialRows';
 import { BasicData } from './BasicData';
 import { DivisionInfo } from './DivisionInfo';
+import styles from './ExpenseInfo.module.css';
 import { ExpenseInfoTools } from './ExpenseInfoTools';
 import { RecurrenceInfo } from './RecurrenceInfo';
 
@@ -18,7 +18,6 @@ interface ExpenseInfoProps {
   expense: UserExpense;
   onModify: (e: UserExpense) => void;
   onDelete: (e: UserExpense) => void;
-  user: User;
   source: Source;
   fullCategoryName: string;
 }
@@ -27,29 +26,48 @@ export const ExpenseInfo: React.FC<ExpenseInfoProps> = ({
   loading,
   expense,
   division,
-  ...props
+  onModify,
+  onDelete,
+  source,
+  fullCategoryName,
 }) => {
-  const isSm = useIsMobilePortrait();
-  const isXs = useIsMobile();
-  const divisionMl = isXs ? 46 : isSm ? 80 : 82;
   if (loading) {
     return <LoadingIndicator forRow={true} />;
   }
   return (
     <Table.Tr>
-      <AllColumns
-        bg="light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-9))"
-        pos="relative"
-      >
-        <BasicData expense={expense} {...props} />
-        <RecurrenceInfo expense={expense} />
+      <AllColumns className={styles.detailsBg} pos="relative" p={0}>
+        <RecurrenceInfo expense={expense} m={0} h={50} />
+        <BasicData
+          hiddenFrom="md"
+          px="md"
+          pt="xs"
+          mb="sm"
+          expense={expense}
+          source={source}
+          fullCategoryName={fullCategoryName}
+        />
         {expense.description ? (
-          <Box bg="neutral.1" w="100%" p="12px 16px">
+          <Box bg="neutral.1" w="100%" px="md" py="sm">
             {expense.description}
           </Box>
         ) : null}
-        <DivisionInfo division={division} expenseType={expense.type} ml={divisionMl} />
-        <ExpenseInfoTools division={division} expense={expense} {...props} />
+        <DivisionInfo
+          division={division}
+          expenseType={expense.type}
+          ml={{ base: 56, sm: 92 }}
+          mb="xs"
+        />
+        <ExpenseInfoTools
+          division={division}
+          expense={expense}
+          onModify={onModify}
+          onDelete={onDelete}
+          pos="absolute"
+          right={0}
+          top={0}
+          p="sm"
+        />
       </AllColumns>
     </Table.Tr>
   );

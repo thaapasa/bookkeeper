@@ -1,5 +1,4 @@
-import styled from '@emotion/styled';
-import { Divider, Modal } from '@mantine/core';
+import { Divider, Modal, Stack } from '@mantine/core';
 import * as React from 'react';
 
 import { ExpenseSplit } from 'shared/expense';
@@ -10,9 +9,6 @@ import { useExpenseSplit } from './ExpenseSplit.hooks';
 import { SplitButtons } from './SplitButtons';
 import { SplitHeader } from './SplitHeader';
 import { SplitRow } from './SplitRow';
-
-/** For user testing: prevent dialog escape, and only allow dialog to be closed with explicit close button clicks. */
-const AllowDialogEscape = false;
 
 export const ExpenseSplitDialog: React.FC<ExpenseDialogProps<ExpenseSplit[]>> = ({
   original,
@@ -37,21 +33,18 @@ export const ExpenseSplitDialog: React.FC<ExpenseDialogProps<ExpenseSplit[]>> = 
   return (
     <Modal
       opened={true}
-      onClose={AllowDialogEscape ? dismiss : () => {}}
+      onClose={dismiss}
+      closeOnEscape={false}
       fullScreen={isMobile}
       size="lg"
       title=""
     >
       <SplitHeader expense={original} />
-      <ExpenseDialogContent dividers={true}>
-        <SplitGrid>
+      <ExpenseDialogContent dividers={true} pb="md" pt="sm">
+        <Stack gap="md">
           {splits.map((s, i) => (
             <React.Fragment key={s.key}>
-              {i !== 0 ? (
-                <div style={{ gridColumn: '1 / -1' }}>
-                  <Divider />
-                </div>
-              ) : null}
+              {i !== 0 ? <Divider /> : null}
               <SplitRow {...props} {...tools} split={s} splitIndex={i} editSum={i !== 0} />
             </React.Fragment>
           ))}
@@ -60,15 +53,8 @@ export const ExpenseSplitDialog: React.FC<ExpenseDialogProps<ExpenseSplit[]>> = 
             onClose={() => onClose(null)}
             splitExpense={validSplits ? splitExpense : undefined}
           />
-        </SplitGrid>
+        </Stack>
       </ExpenseDialogContent>
     </Modal>
   );
 };
-
-const SplitGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 16px;
-  align-items: center;
-`;

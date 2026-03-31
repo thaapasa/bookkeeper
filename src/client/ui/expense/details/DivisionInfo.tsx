@@ -3,8 +3,7 @@ import * as React from 'react';
 
 import { ExpenseDivisionItem, ExpenseDivisionType, ExpenseType } from 'shared/expense';
 import { Money, MoneyLike } from 'shared/util';
-import { negative, positive, unimportant } from 'client/ui/Colors';
-import UserAvatar from 'client/ui/component/UserAvatar';
+import { UserIdAvatar } from 'client/ui/component/UserAvatar';
 
 type DivisionInfoProps = {
   division: ExpenseDivisionItem[];
@@ -12,13 +11,6 @@ type DivisionInfoProps = {
 } & TableProps;
 
 const divisionTypes = ['cost', 'benefit', 'income', 'split', 'transferor', 'transferee'];
-
-function getBalance(data: Record<string, MoneyLike>) {
-  return divisionTypes
-    .map(t => Money.orZero(data[t]))
-    .reduce((a, b) => a.plus(b), Money.zero)
-    .negate();
-}
 
 type ShownColumns = ExpenseDivisionType[];
 const ColumnData: Record<ExpenseType, ShownColumns> = {
@@ -36,10 +28,10 @@ const ColumnLabels: Record<ExpenseDivisionType, string> = {
   transferee: 'Saatu',
 };
 
-const signColor: Record<string, string> = {
-  positive,
-  negative,
-  zero: unimportant,
+const signColor: Record<string, string | undefined> = {
+  positive: undefined,
+  negative: 'red',
+  zero: 'dimmed',
 };
 
 export const DivisionInfo: React.FC<DivisionInfoProps> = ({ division, expenseType, ...props }) => {
@@ -86,7 +78,7 @@ const DivisionUser: React.FC<{
 }> = ({ userId, cols, userDivision }) => (
   <Table.Tr>
     <Table.Td w={32}>
-      <UserAvatar userId={parseInt(userId, 10)} size={32} />
+      <UserIdAvatar userId={parseInt(userId, 10)} size={32} />
     </Table.Td>
     {cols.map(c => (
       <DivisionItem key={c} sum={userDivision[c]} />
@@ -103,3 +95,10 @@ const DivisionItem: React.FC<{ sum: MoneyLike; isLast?: boolean }> = ({ sum, isL
     </Table.Td>
   );
 };
+
+function getBalance(data: Record<string, MoneyLike>) {
+  return divisionTypes
+    .map(t => Money.orZero(data[t]))
+    .reduce((a, b) => a.plus(b), Money.zero)
+    .negate();
+}

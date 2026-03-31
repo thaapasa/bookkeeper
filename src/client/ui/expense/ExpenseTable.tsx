@@ -10,7 +10,7 @@ import { ListDecorator } from '../component/ListDecorator';
 import { ExpenseTotals } from './ExpenseHelper';
 import styles from './ExpenseTable.module.css';
 import { MonthlyStatus } from './MonthlyStatus';
-import { computeDayParities, DayParityContext } from './row/DayParity.ts';
+import { computeDayParities, DayParityContext } from './row/DayParity';
 import { ExpenseFilterRow } from './row/ExpenseFilterRow';
 import { AddFilterFn, ExpenseFilter, ExpenseFilterFunction } from './row/ExpenseFilters';
 import { ExpenseHeader } from './row/ExpenseHeader';
@@ -18,7 +18,7 @@ import { CommonExpenseRowProps, ExpenseRow } from './row/ExpenseRow';
 import { ExpenseRowSeparator } from './row/ExpenseRowSeparator';
 import { ExpenseTableLayout } from './row/ExpenseTableLayout';
 import { RecurringSummaryRow } from './row/RecurringSummaryRow';
-import { LoadingIndicator, RecurringExpenseSeparator } from './row/SpecialRows.tsx';
+import { LoadingIndicator, RecurringExpenseSeparator } from './row/SpecialRows';
 
 interface ExpenseTableProps {
   expenses: UserExpense[];
@@ -148,7 +148,7 @@ const ExpenseTableView: React.FC<ExpenseTableProps> = props => {
 
   return (
     <Box className={styles.container}>
-      <Box px={{ base: 0, sm: 16 }} style={{ whiteSpace: 'nowrap' }}>
+      <Box px={{ base: 0, sm: 'md' }} style={{ whiteSpace: 'nowrap' }}>
         <ExpenseTableLayout loading={loading}>
           <Table.Thead>
             <ExpenseHeader />
@@ -157,7 +157,7 @@ const ExpenseTableView: React.FC<ExpenseTableProps> = props => {
           <Table.Tbody>{renderExpenseRows()}</Table.Tbody>
         </ExpenseTableLayout>
       </Box>
-      <Box flex={1} mx={{ base: 0, sm: 16 }} className={styles.spacer} />
+      <Box flex={1} mx={{ base: 0, sm: 'md' }} className={styles.spacer} />
       <MonthlyStatus
         {...props}
         unconfirmedDuring={expenses.some(e => !e.confirmed)}

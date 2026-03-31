@@ -1,8 +1,7 @@
 import { Group, Pill, Table, Tooltip } from '@mantine/core';
 
-import { AllColumns } from './Breakpoints';
-import styles from './ExpenseFilterRow.module.css';
 import { ExpenseFilter } from './ExpenseFilters';
+import { AllColumns } from './ExpenseTableColumns';
 
 interface ExpenseFilterRowProps {
   filters: ExpenseFilter[];
@@ -41,7 +40,14 @@ interface ExpenseFilterItemProps {
 function ExpenseFilterItem({ filter, index, onRemove }: ExpenseFilterItemProps) {
   return (
     <Tooltip withArrow label={filter.name} position="bottom">
-      <Pill className={styles.chip} withRemoveButton size="sm" onRemove={() => onRemove(index)}>
+      <Pill
+        bg="light-dark(var(--mantine-color-neutral-2), var(--mantine-color-neutral-4))"
+        c="primary-7"
+        maw={120}
+        withRemoveButton
+        size="sm"
+        onRemove={() => onRemove(index)}
+      >
         {filter.name}
       </Pill>
     </Tooltip>

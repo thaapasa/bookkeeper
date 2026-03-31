@@ -1,5 +1,4 @@
-import styled from '@emotion/styled';
-import { ActionIcon } from '@mantine/core';
+import { ActionIcon, Box, Group } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import * as React from 'react';
 
@@ -7,7 +6,7 @@ import { ExpenseSplit } from 'shared/expense';
 import { isDefined } from 'shared/types';
 import { Money } from 'shared/util';
 import { getFullCategoryName } from 'client/data/Categories';
-import UserSelector from 'client/ui/component/UserSelector';
+import { UserSelector } from 'client/ui/component/UserSelector';
 import { Icons } from 'client/ui/icons/Icons';
 
 import { ExpenseDialogProps } from '../dialog/ExpenseDialog';
@@ -15,6 +14,7 @@ import { SourceSelector, SumField } from '../dialog/ExpenseDialogComponents';
 import { TitleField } from '../dialog/TitleField';
 import { SourceIcon } from '../row/ExpenseRowComponents';
 import { ExpenseSplitInEditor, SplitTools } from './ExpenseSplit.hooks';
+import styles from './SplitRow.module.css';
 
 type SplitRowProps = {
   split: ExpenseSplitInEditor;
@@ -32,21 +32,20 @@ export const SplitRow: React.FC<SplitRowProps> = props => {
   return edit ? (
     <SplitEditor {...props} close={toggleEdit} />
   ) : (
-    <SplitGrid>
-      <div style={{ gridColumn: 'span 3' }}>{split.title}</div>
-      <div style={{ gridColumn: 'span 4' }}>
+    <Group className={styles.splitRowGrid}>
+      <Box>
+        {split.title}
+        <br />
         {split.categoryId
           ? getFullCategoryName(split.categoryId, categoryMap)
           : 'Valitse kategoria'}
-      </div>
-      <RelDiv style={{ gridColumn: 'span 2' }}>
-        {split.sourceId ? <SourceIcon source={sourceMap[split.sourceId]} /> : null}
-        <FootNote>
-          <UserSelector selected={split.benefit} />
-        </FootNote>
-      </RelDiv>
-      <div style={{ gridColumn: 'span 2' }}>{Money.from(split.sum).format()}</div>
-      <div style={{ gridColumn: 'span 1', display: 'flex', justifyContent: 'flex-end' }}>
+      </Box>
+      <Group pos="relative" align="center">
+        {split.sourceId ? <SourceIcon source={sourceMap[split.sourceId]} pt={5} /> : null}
+        <UserSelector size={24} selected={split.benefit} />
+      </Group>
+      <Group justify="flex-end">{Money.from(split.sum).format()}</Group>
+      <Group justify="flex-end" gap="xs">
         <ActionIcon onClick={toggleEdit}>
           <Icons.Edit />
         </ActionIcon>
@@ -55,8 +54,8 @@ export const SplitRow: React.FC<SplitRowProps> = props => {
             <Icons.Delete />
           </ActionIcon>
         ) : null}
-      </div>
-    </SplitGrid>
+      </Group>
+    </Group>
   );
 };
 
@@ -106,8 +105,8 @@ const SplitEditor: React.FC<SplitRowProps & { close: () => void }> = ({
   };
 
   return (
-    <SplitGrid>
-      <div style={{ gridColumn: 'span 5' }}>
+    <Box className={styles.splitEditorGrid}>
+      <Box className="name">
         <TitleField
           id="split-title"
           value={title}
@@ -115,14 +114,24 @@ const SplitEditor: React.FC<SplitRowProps & { close: () => void }> = ({
           onChange={setTitle}
           dataSource={categorySource}
         />
-      </div>
-      <div style={{ gridColumn: 'span 4' }}>
+      </Box>
+      <Box className="cat" pt={20}>
         {catId ? getFullCategoryName(catId, categoryMap) : 'Valitse kategoria'}
-      </div>
-      <div style={{ gridColumn: 'span 2' }}>
+      </Box>
+      <Group className="source" wrap="nowrap" w="100%">
+        <SourceSelector
+          sources={sources}
+          value={sourceId ?? 0}
+          onChange={setSourceId}
+          title="Lähde"
+          flex={1}
+        />
+        <UserSelector size={30} selected={benefit} onChange={setBenefit} pt={20} />
+      </Group>
+      <Box className="sum">
         {editSum ? <SumField value={sum} onChange={setSum} /> : Money.from(sum).format()}
-      </div>
-      <div style={{ gridColumn: 'span 1', display: 'flex', justifyContent: 'flex-end' }}>
+      </Box>
+      <Group className="actions" pt={20} gap="xs">
         <ActionIcon onClick={save} disabled={!allValid}>
           <Icons.Save />
         </ActionIcon>
@@ -131,38 +140,7 @@ const SplitEditor: React.FC<SplitRowProps & { close: () => void }> = ({
             <Icons.Delete />
           </ActionIcon>
         ) : null}
-      </div>
-      <div style={{ gridColumn: 'span 7' }}>
-        <SourceSelector
-          sources={sources}
-          value={sourceId ?? 0}
-          onChange={setSourceId}
-          title="Lähde"
-        />
-      </div>
-      <div style={{ gridColumn: 'span 5' }}>
-        <UserSelector selected={benefit} onChange={setBenefit} />
-      </div>
-    </SplitGrid>
+      </Group>
+    </Box>
   );
 };
-
-const SplitGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 8px;
-  align-items: center;
-  width: 100%;
-`;
-
-const RelDiv = styled.div`
-  position: relative;
-`;
-
-const FootNote = styled.div`
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  transform: scale(60%);
-  transform-origin: bottom right;
-`;

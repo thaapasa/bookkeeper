@@ -1,4 +1,4 @@
-import { ActionIcon, Box, Group, Table } from '@mantine/core';
+import { ActionIcon, Group, GroupProps, Table, Text } from '@mantine/core';
 import * as React from 'react';
 
 import { UserExpense } from 'shared/expense';
@@ -7,8 +7,8 @@ import { DataValue, SectionLabel } from 'client/ui/design/Text';
 import { useIsMobile } from 'client/ui/hooks/useBreakpoints';
 import { Icons } from 'client/ui/icons/Icons';
 
-import { AllColumns } from './Breakpoints';
 import { AddFilterFn, ExpenseFilters } from './ExpenseFilters';
+import { AllColumns } from './ExpenseTableColumns';
 import { RecurringExpenseIcon, UnconfirmedIcon } from './TableIcons';
 
 interface RecurringSummaryRowProps {
@@ -38,37 +38,22 @@ export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
   return (
     <Table.Tr>
       <AllColumns>
-        <Group w="100%" wrap="nowrap">
-          <RecurringExpenseIcon />
+        <Group w="100%" wrap="nowrap" gap="lg">
           <Group flex={1} h="100%" wrap="nowrap">
+            <RecurringExpenseIcon />
+            <SectionLabel component="span">Toistuvat</SectionLabel>
+            <Text size="sm">({recurring.length} kpl)</Text>
             {hasUnconfirmed ? (
               <UnconfirmedIcon
                 title="Sisältää alustavia kirjauksia"
                 onClick={() => addFilter(ExpenseFilters.unconfirmed, 'Alustavat')}
+                ml="xl"
               />
             ) : null}
-            <SectionLabel component="span" pr={4}>
-              Toistuvat{' '}
-            </SectionLabel>{' '}
-            ({recurring.length} kpl)
           </Group>
-          <Box px={8}>
-            {isMobile ? null : 'Tulot: '}
-            <DataValue w={73}>
-              {isMobile ? `${Plus} ` : null}
-              {income.format()}
-            </DataValue>
-          </Box>
-          <Box px={8}>
-            {isMobile ? null : 'Menot: '}
-            <DataValue w={73}>
-              {isMobile ? `${Minus} ` : null}
-              {expense.format()}
-            </DataValue>
-          </Box>
-          <Box px={8} visibleFrom="sm">
-            Balanssi: <DataValue w={73}>{balance.format()}</DataValue>
-          </Box>
+          <TotalItem label="Tulot:" sign={Plus} sum={income} isMobile={isMobile} />
+          <TotalItem label="Menot:" sign={Minus} sum={expense} isMobile={isMobile} />
+          <TotalItem visibleFrom="sm" label="Balanssi:" sum={balance} isMobile={isMobile} />
           <ActionIcon onClick={onToggle}>
             {isExpanded ? <Icons.ExpandLess /> : <Icons.ExpandMore />}
           </ActionIcon>
@@ -77,3 +62,21 @@ export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
     </Table.Tr>
   );
 };
+
+function TotalItem({
+  label,
+  sum,
+  isMobile,
+  sign,
+  ...props
+}: { label: string; sum: Money; isMobile: boolean; sign?: string } & GroupProps) {
+  return (
+    <Group {...props} justify="space-between">
+      {isMobile ? null : <Text size="sm">{label}</Text>}
+      <DataValue size="sm">
+        {isMobile && sign ? `${sign} ` : null}
+        {sum.format()}
+      </DataValue>
+    </Group>
+  );
+}

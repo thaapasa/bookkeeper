@@ -3,21 +3,14 @@ import * as React from 'react';
 
 import { identity } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
-import { AutoComplete } from 'client/ui/component/AutoComplete';
+import { AutoComplete, AutoCompletePassthroughProps } from 'client/ui/component/AutoComplete';
 import { usePersistentMemo } from 'client/ui/hooks/usePersistentMemo';
 
-export interface ReceiverFieldProps {
-  id: string;
+export type ReceiverFieldProps = {
   value: string;
   title?: string;
-  fullWidth?: boolean;
-  placeholder?: string;
-  errorText?: string;
-  autoFocus?: boolean;
   onChange: (event: string) => void;
-  onBlur?: () => void;
-  onKeyUp?: (event: React.KeyboardEvent<any>) => void;
-}
+} & AutoCompletePassthroughProps;
 
 export const ReceiverField: React.FC<React.PropsWithChildren<ReceiverFieldProps>> = ({
   onChange,
@@ -54,8 +47,6 @@ export const ReceiverField: React.FC<React.PropsWithChildren<ReceiverFieldProps>
     [searchStream],
   );
 
-  const selectReceiver = onChange;
-
   return (
     <AutoComplete
       value={value}
@@ -63,22 +54,10 @@ export const ReceiverField: React.FC<React.PropsWithChildren<ReceiverFieldProps>
       label={title}
       suggestions={receivers}
       onUpdateSuggestions={updateReceivers}
-      onSelectSuggestion={selectReceiver}
+      onSelectSuggestion={onChange}
       getSuggestionValue={identity}
       autoHideErrorText={true}
       {...props}
     />
   );
 };
-
-export class PlainReceiverField extends React.Component<
-  React.PropsWithChildren<ReceiverFieldProps>
-> {
-  public render() {
-    return (
-      <ReceiverField {...this.props} value={this.props.value || ''}>
-        {this.props.children}
-      </ReceiverField>
-    );
-  }
-}

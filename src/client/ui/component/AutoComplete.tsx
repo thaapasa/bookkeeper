@@ -1,49 +1,51 @@
-import styled from '@emotion/styled';
-import { ActionIcon, Autocomplete as MantineAutocomplete } from '@mantine/core';
+import {
+  ActionIcon,
+  Autocomplete as MantineAutocomplete,
+  AutocompleteProps as MantineAutocompleteProps,
+  BoxProps,
+  MantineStyleProp,
+} from '@mantine/core';
 import React from 'react';
 
 import { logger } from 'client/Logger';
 
 import { Icons } from '../icons/Icons';
 
-export interface AutoCompleteProps<T> {
+export type AutoCompletePassthroughProps = {
   id?: string;
   value: string;
+  fullWidth?: boolean;
+  placeholder?: string;
+  autoFocus?: boolean;
+  label?: string;
+  errorText?: string;
+  onKeyUp?: (event: React.KeyboardEvent<any>) => void;
+  onAdd?: () => void;
+  className?: string;
+  inputClassName?: string;
+} & BoxProps &
+  Pick<MantineAutocompleteProps, 'leftSection' | 'rightSection'>;
+
+export type AutoCompleteProps<T> = {
   onChange: (value: string) => void;
   suggestions: T[];
   onUpdateSuggestions: (input: string) => void;
   onSelectSuggestion: (suggestion: T) => void;
   getSuggestionValue: (suggestion: T) => string;
-  fullWidth?: boolean;
-  placeholder?: string;
-  autoFocus?: boolean;
-  style?: React.CSSProperties;
-  inputStyle?: React.CSSProperties;
-  label?: string;
-  errorText?: string;
+  inputStyle?: MantineStyleProp;
   autoHideErrorText?: boolean;
-  onKeyUp?: (event: React.KeyboardEvent<any>) => void;
-  onAdd?: () => void;
-  className?: string;
-  inputClassName?: string;
-}
+} & AutoCompletePassthroughProps;
 
 export const AutoComplete = <T,>({
   id,
-  value,
   suggestions,
   onSelectSuggestion,
   onChange,
   onUpdateSuggestions,
   getSuggestionValue,
-  style,
-  autoFocus,
-  placeholder,
-  label,
-  onKeyUp,
   errorText,
-  className,
   onAdd,
+  ...props
 }: AutoCompleteProps<T>): React.ReactElement => {
   const suggestionMap = React.useMemo(() => {
     const map = new Map<string, T>();
@@ -76,31 +78,22 @@ export const AutoComplete = <T,>({
   );
 
   return (
-    <Container className={className} style={style}>
-      <MantineAutocomplete
-        id={id}
-        value={value}
-        onChange={handleChange}
-        onOptionSubmit={handleOptionSubmit}
-        data={data}
-        label={label}
-        placeholder={placeholder}
-        error={errorText || undefined}
-        autoFocus={autoFocus}
-        spellCheck={false}
-        onKeyUp={onKeyUp}
-        rightSection={
-          onAdd ? (
-            <ActionIcon onClick={onAdd} size="sm">
-              <Icons.Add />
-            </ActionIcon>
-          ) : undefined
-        }
-      />
-    </Container>
+    <MantineAutocomplete
+      id={id}
+      w="100%"
+      onChange={handleChange}
+      onOptionSubmit={handleOptionSubmit}
+      data={data}
+      error={errorText || undefined}
+      spellCheck={false}
+      rightSection={
+        onAdd ? (
+          <ActionIcon onClick={onAdd} size="sm">
+            <Icons.Add />
+          </ActionIcon>
+        ) : undefined
+      }
+      {...props}
+    />
   );
 };
-
-const Container = styled.div`
-  width: 100%;
-`;

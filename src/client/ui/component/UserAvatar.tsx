@@ -4,8 +4,8 @@ import * as React from 'react';
 import { ObjectId, User } from 'shared/types';
 import { userMapP } from 'client/data/Login';
 
+import { useBaconState } from '../hooks/useBaconState.ts';
 import { classNames } from '../utils/classNames.ts';
-import { connect } from './BaconConnect';
 import styles from './UserAvatar.module.css';
 
 interface UserAvatarProps extends AvatarProps {
@@ -17,6 +17,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   user,
   size,
   className,
+  variant,
   onClick,
   ...props
 }) => {
@@ -24,7 +25,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   return (
     <MantineAvatar
       {...props}
-      className={classNames(styles.avatar, className)}
+      className={classNames(styles.avatar, variant ?? 'default', className)}
       src={user.image}
       onClick={event => onClick?.(user.id, event)}
       size={size ?? 'md'}
@@ -35,19 +36,17 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   );
 };
 
-interface UserIdAvatarProps extends AvatarProps {
+interface UserIdAvatarProps extends Omit<AvatarProps, 'variant'> {
   userId: number;
-  userMap: Record<string, User>;
+  variant?: 'default' | 'selected' | 'dimmed';
   onClick?: (userId: ObjectId, e: React.MouseEvent<HTMLElement>) => void;
 }
 
-const UserIdAvatar: React.FC<React.PropsWithChildren<UserIdAvatarProps>> = ({
-  userMap,
+export const UserIdAvatar: React.FC<React.PropsWithChildren<UserIdAvatarProps>> = ({
   userId,
   ...props
 }) => {
-  const user = userMap[userId];
+  const userMap = useBaconState(userMapP);
+  const user = userMap?.[userId];
   return user ? <UserAvatar {...props} user={user} /> : null;
 };
-
-export default connect(userMapP.map(userMap => ({ userMap })))(UserIdAvatar);

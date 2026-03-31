@@ -13,7 +13,7 @@ import { connect } from '../component/BaconConnect';
 import { FlexRow } from '../component/BasicElements';
 import { DateRangeSelector } from '../component/daterange/DateRangeSelector';
 import { Row } from '../component/Row';
-import UserSelector from '../component/UserSelector';
+import { UserSelector } from '../component/UserSelector';
 import { Icons } from '../icons/Icons';
 import { SearchInputField } from './SearchInputField';
 import { SearchSuggestion } from './SearchSuggestions';

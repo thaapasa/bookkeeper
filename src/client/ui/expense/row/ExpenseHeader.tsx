@@ -7,7 +7,7 @@ import {
   CategoryVisibleFrom,
   ReceiverVisibleFrom,
   SourceVisibleFrom,
-} from './Breakpoints';
+} from './ExpenseTableColumns';
 
 export function ExpenseHeader() {
   const isMobile = useIsMobile();

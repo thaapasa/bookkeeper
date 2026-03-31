@@ -20,10 +20,8 @@ export const ExpenseTableLayout: React.FC<
       verticalSpacing={isMobile ? 'md' : 'sm'}
       fz="sm"
       className={cx(tableClasses.expenseTable, className)}
-      style={{
-        ...(loading ? { opacity: 0.4 } : undefined),
-        ...(padded ? { padding: '0 var(--mantine-spacing-md)' } : undefined),
-      }}
+      opacity={loading ? 0.4 : undefined}
+      px={padded ? 'md' : undefined}
     >
       {children}
     </Table>

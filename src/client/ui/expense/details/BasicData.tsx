@@ -1,21 +1,26 @@
-import { Box, Text } from '@mantine/core';
+import { Box, Stack, StackProps, Text } from '@mantine/core';
 import * as React from 'react';
 
 import { UserExpense } from 'shared/expense';
 import { Source } from 'shared/types';
 
-interface BasicDataProps {
+type BasicDataProps = {
   expense: UserExpense;
   source: Source;
   fullCategoryName: string;
-}
+} & StackProps;
 
-export const BasicData: React.FC<BasicDataProps> = ({ expense, fullCategoryName, source }) => (
-  <Box hiddenFrom="md" px="md" py="xs">
+export const BasicData: React.FC<BasicDataProps> = ({
+  expense,
+  fullCategoryName,
+  source,
+  ...props
+}) => (
+  <Stack gap={0} {...props}>
     <DetailRow name="Kohde" value={expense.receiver} />
     <DetailRow name="Kategoria" value={fullCategoryName} />
     <DetailRow name="Lähde" value={source.name} />
-  </Box>
+  </Stack>
 );
 
 const DetailRow: React.FC<{ name: string; value: string }> = ({ name, value }) => (

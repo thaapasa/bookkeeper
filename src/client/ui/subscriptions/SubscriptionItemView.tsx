@@ -10,7 +10,7 @@ import { updateExpenses } from 'client/data/State';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { ExpanderIcon } from '../component/ExpanderIcon';
-import { Icons } from '../icons/Icons.tsx';
+import { Icons } from '../icons/Icons';
 import { Dates, Label, Period, RowElement, Sum, Tools } from './layout';
 import { SubscriptionDetails } from './SubscriptionDetails';
 import { SubscriptionItem } from './types';

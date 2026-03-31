@@ -14,7 +14,6 @@ import apiConnect from 'client/data/ApiConnect';
 import { getFullCategoryName, UserDataProps } from 'client/data/Categories';
 import { editExpense, needUpdateE, notifyError, updateExpenses } from 'client/data/State';
 import { logger } from 'client/Logger';
-import { action, primary } from 'client/ui/Colors';
 import { forMoney } from 'client/ui/ColorUtils';
 import { ActivatableTextField } from 'client/ui/component/ActivatableTextField';
 import { ExpanderIcon } from 'client/ui/component/ExpanderIcon';
@@ -22,22 +21,23 @@ import { UserAvatar } from 'client/ui/component/UserAvatar';
 import { UserPrompts } from 'client/ui/dialog/DialogState';
 import { GroupedExpenseIcon } from 'client/ui/grouping/GroupedExpenseIcon';
 import { ExpenseTypeIcon } from 'client/ui/icons/ExpenseType';
-import { Icons } from 'client/ui/icons/Icons.tsx';
+import { Icons } from 'client/ui/icons/Icons';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { ExpenseInfo } from '../details/ExpenseInfo';
 import { ReceiverField } from '../dialog/ReceiverField';
 import { expenseName } from '../ExpenseHelper';
+import { DayParityContext } from './DayParity';
+import { AddFilterFn, ExpenseFilters } from './ExpenseFilters';
+import styles from './ExpenseRow.module.css';
+import { SourceIcon, TextButton } from './ExpenseRowComponents';
 import {
   BalanceVisibleFrom,
   CategoryVisibleFrom,
   ReceiverVisibleFrom,
   SourceVisibleFrom,
-} from './Breakpoints';
-import { DayParityContext } from './DayParity';
-import { AddFilterFn, ExpenseFilters } from './ExpenseFilters';
-import { SourceIcon, TextButton } from './ExpenseRowComponents';
-import { IconToolArea, RecurringExpenseIcon, UnconfirmedIcon } from './TableIcons';
+} from './ExpenseTableColumns';
+import { RecurringExpenseIcon, UnconfirmedIcon } from './TableIcons';
 
 const emptyDivision: ExpenseDivisionItem[] = [];
 
@@ -77,7 +77,7 @@ const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
   const categoryLink = (id: number) => {
     const cat = categoryMap[id];
     return (
-      <TextButton key={cat.id} onClick={() => onClickCategory(cat)} style={{ color: action }}>
+      <TextButton key={cat.id} onClick={() => onClickCategory(cat)} c="primary.7">
         {cat.name}
       </TextButton>
     );
@@ -172,8 +172,10 @@ const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
       <Table.Tr bg={parity === 1 ? 'neutral.1' : undefined}>
         {/* Date */}
         <Table.Td ta="right" pos="relative" px="xs" onClick={editDate}>
-          {expense.recurringExpenseId ? <RecurringExpenseIcon /> : null}
-          <Text span visibleFrom="sm" pr={6} fw="bold">
+          {expense.recurringExpenseId ? (
+            <RecurringExpenseIcon className={styles.recurringIcon} />
+          ) : null}
+          <Text span visibleFrom="sm" pr="xs" fw="bold">
             {weekDay(expense.date, prev)}
           </Text>
           {readableDate(expense.date)}
@@ -188,7 +190,7 @@ const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
         </Table.Td>
         {/* Name */}
         <Table.Td pos="relative">
-          <IconToolArea>
+          <Group pos="absolute" gap="xs" top={0} right={0}>
             {expense.confirmed ? null : (
               <UnconfirmedIcon onClick={() => addFilter(ExpenseFilters.unconfirmed, 'Alustavat')} />
             )}
@@ -206,7 +208,7 @@ const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
                 />
               ))
             ) : null}
-          </IconToolArea>
+          </Group>
           <ActivatableTextField
             fullWidth
             value={expense.title}
@@ -236,8 +238,8 @@ const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
         </Table.Td>
         {/* Sum */}
         <Table.Td ta="right" pos="relative">
-          <Group justify="space-between" wrap="nowrap" gap={4}>
-            <ExpenseTypeIcon type={expense.type} color={primary[7]} size={20} />
+          <Group justify="space-between" wrap="nowrap" gap="xs">
+            <ExpenseTypeIcon type={expense.type} color="var(--mantine-color-primary-7)" size={20} />
             {Money.from(expense.sum).format()}
           </Group>
         </Table.Td>
@@ -246,7 +248,7 @@ const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
           ta="right"
           pos="relative"
           visibleFrom={BalanceVisibleFrom}
-          style={{ color: forMoney(expense.userBalance) }}
+          c={forMoney(expense.userBalance)}
           onClick={() =>
             Money.zero.equals(expense.userBalance)
               ? addFilter(ExpenseFilters.zeroBalance, `Balanssi ${equal} 0`)
@@ -280,7 +282,6 @@ const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
           onDelete={deleteExpense}
           onModify={modifyExpense}
           division={details ? details.division : emptyDivision}
-          user={user}
           source={source}
           fullCategoryName={props.fullCategoryName}
         />

@@ -1,4 +1,4 @@
-import { ActionIcon, Box, Group, Stack, StackProps, Text } from '@mantine/core';
+import { ActionIcon, Group, Stack, StackProps, Text } from '@mantine/core';
 import * as React from 'react';
 
 import { ExpenseStatus } from 'shared/expense';
@@ -9,7 +9,7 @@ import { Icons } from '../icons/Icons';
 import { ExpenseTotals, money } from './ExpenseHelper';
 import styles from './MonthlyStatus.module.css';
 import { AddFilterFn, ExpenseFilters } from './row/ExpenseFilters';
-import { UnconfirmedIcon } from './row/TableIcons.tsx';
+import { UnconfirmedIcon } from './row/TableIcons';
 
 interface StatusProps {
   unconfirmedBefore: boolean;
@@ -114,14 +114,11 @@ function StatusBlock({
   const exp = Money.from(expense).negate();
   const sum = inc.plus(exp);
   return (
-    <Stack gap={2} bg={bg} style={{ ...style, position: 'relative' }} {...props}>
-      <SectionLabel pt={6} pb={2}>
-        {title}
-      </SectionLabel>
+    <Stack gap={2} bg={bg} pos="relative" pb="xs" style={style} {...props}>
+      <SectionLabel pt="xs">{title}</SectionLabel>
       {expanded && <CalculationRow title={incomeTitle} sum={inc} />}
       {expanded && <CalculationRow title={expenseTitle} sum={exp} />}
       <CalculationRow title="Yhteensä" sum={sum} drawTopBorder={expanded} />
-      <Box pb={4} />
       {children}
     </Stack>
   );
@@ -137,14 +134,7 @@ function CalculationRow({
   drawTopBorder?: boolean;
 }) {
   return (
-    <Group
-      gap="xs"
-      wrap="nowrap"
-      py={4}
-      style={
-        drawTopBorder ? { borderTop: '1px solid var(--mantine-color-default-border)' } : undefined
-      }
-    >
+    <Group gap="xs" wrap="nowrap" py="xs" className={drawTopBorder ? styles.topBorder : undefined}>
       <Text fz="sm" w={60}>
         {title}
       </Text>

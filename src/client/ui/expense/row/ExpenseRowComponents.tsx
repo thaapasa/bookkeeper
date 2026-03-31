@@ -1,14 +1,16 @@
-import { UnstyledButton } from '@mantine/core';
+import { UnstyledButton, UnstyledButtonProps } from '@mantine/core';
 import * as React from 'react';
 
 import { Source } from 'shared/types';
 
 import styles from './ExpenseRowComponents.module.css';
 
-export const SourceIcon: React.FC<{
-  source: Source;
-  onClick?: () => void;
-}> = ({ source, onClick }) => {
+export const SourceIcon: React.FC<
+  {
+    source: Source;
+    onClick?: () => void;
+  } & TextButtonProps
+> = ({ source, onClick, ...props }) => {
   const content = source.image ? (
     <img
       src={source.image}
@@ -22,16 +24,20 @@ export const SourceIcon: React.FC<{
     source.name
   );
   return (
-    <TextButton key={source.id} onClick={onClick}>
+    <TextButton key={source.id} onClick={onClick} {...props}>
       {content}
     </TextButton>
   );
 };
 
-export const TextButton: React.FC<
-  React.PropsWithChildren<{ onClick?: () => void; style?: React.CSSProperties }>
-> = ({ children, onClick, style }) => (
-  <UnstyledButton fz="inherit" className={styles.textButton} onClick={onClick} style={style}>
+type TextButtonProps = { onClick?: () => void } & UnstyledButtonProps;
+
+export const TextButton: React.FC<React.PropsWithChildren<TextButtonProps>> = ({
+  children,
+  onClick,
+  ...props
+}) => (
+  <UnstyledButton fz="inherit" className={styles.textButton} onClick={onClick} {...props}>
     {children}
   </UnstyledButton>
 );
