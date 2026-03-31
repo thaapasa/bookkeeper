@@ -26,23 +26,45 @@ Use Mantine components over raw HTML or custom wrappers:
 - Structure: `Paper`, `Container`, `ScrollArea`, `AppShell`, `Table`
 - Navigation: `NavLink`, `Tabs`
 
-Always use functional components with `React.FC<Props>`:
+Always use functional components with `React.FC<Props>`. Use named exports (not default
+exports) for all components and hooks.
+
+### Exposing style props to callers
+
+Custom components should manage their own internal layout but let callers control
+external positioning (margins, flex, padding, alignment). Do this by intersecting your
+props with the appropriate Mantine props type and spreading the rest onto the root
+element:
 
 ```tsx
-import { Group, Text, Button } from '@mantine/core';
+import { Group, GroupProps, Text, Button } from '@mantine/core';
 
-interface MyComponentProps {
+type MyComponentProps = {
   title: string;
   onAction: () => void;
-}
+} & GroupProps;
 
-export const MyComponent: React.FC<MyComponentProps> = ({ title, onAction }) => (
-  <Group gap="sm" p="md">
+export const MyComponent: React.FC<MyComponentProps> = ({ title, onAction, ...props }) => (
+  <Group gap="sm" p="md" {...props}>
     <Text fw={600} fz="lg">{title}</Text>
     <Button onClick={onAction}>Action</Button>
   </Group>
 );
+
+// Caller controls positioning:
+<MyComponent title="Hello" onAction={fn} flex={1} ml="md" pt="xs" />
 ```
+
+Use `Omit` when your own props conflict with the Mantine type:
+
+```tsx
+type SelectorProps = {
+  onChange: (id: number) => void;  // conflicts with BoxProps.onChange
+} & Omit<BoxProps, 'onChange'>;
+```
+
+This pattern replaces the old approach of accepting `style?: React.CSSProperties` — never
+accept a raw `style` prop just for caller positioning.
 
 ## Styling Priority
 
@@ -203,13 +225,42 @@ import { Icons } from 'client/ui/icons/Icons';
 
 To add a new icon: import from `lucide-react`, add to `LucideIcons` map in `Icons.tsx`.
 
+For buttons with icons, use Mantine's `leftSection` prop (not inline children):
+
+```tsx
+// Do this
+<Button leftSection={<Icons.Add />}>Lisää</Button>
+
+// Not this
+<Button><Icons.Add /> Lisää</Button>
+```
+
 ## State and Data
 
 - **API calls**: `apiConnect` singleton from `client/data/ApiConnect.ts`
 - **Async loading**: `useAsyncData(loader, enabled, ...deps)` hook
 - **State**: Zustand stores (preferred for new code)
-- **Legacy state**: Bacon.js streams via `connect()` HOC — migrate to Zustand when touching
+- **Bacon.js state**: Use `useBaconState(observable)` hook from `client/ui/hooks/useBaconState`
+  to subscribe to a Bacon.js observable and get the latest value in a functional component.
+  When refactoring legacy code, replace `connect()` HOC + default export with
+  `useBaconState` + named export.
 - **Dialogs**: `UserPrompts.confirm()`, `UserPrompts.promptText()`, `UserPrompts.select()`
+
+```tsx
+// Before (legacy — do not use):
+const MyComponent: React.FC<{ users: User[] }> = ({ users }) => { ... };
+export default connect(validSessionP.map(s => ({ users: s.users })))(MyComponent);
+
+// After:
+import { useBaconState } from 'client/ui/hooks/useBaconState';
+
+export const MyComponent: React.FC = () => {
+  const session = useBaconState(validSessionP);
+  if (!session) return null;
+  const { users } = session;
+  ...
+};
+```
 
 ## Design Components
 
@@ -246,6 +297,20 @@ Import order is enforced by eslint-plugin-simple-import-sort:
 3. Internal aliases (`shared/`, `client/`, `server/`)
 4. Relative imports (`./`, `../`)
 
+## Exports
+
+Use **named exports** for all components, hooks, and utilities. Do not use default exports.
+
+```tsx
+// Do this
+export const MyComponent: React.FC<Props> = ...
+export const UserSelector: React.FC<Props> = ...
+
+// Not this
+export default connect(...)(MyComponent);
+export default MyComponent;
+```
+
 ## Legacy Patterns (Do NOT Use)
 
 These patterns exist in the codebase but must not be copied or extended:
@@ -255,6 +320,8 @@ These patterns exist in the codebase but must not be copied or extended:
 - `VCenterRow`, `Flex` from `GlobalStyles.ts` — use Mantine `Group` / `Flex`
 - `PageContentContainer` — use `ScrollArea`
 - Class components — convert to functional
+- `connect()` HOC with default export — use `useBaconState` hook with named export
+- `style?: React.CSSProperties` for caller positioning — use Mantine props intersection
 - Inline `style={{}}` for margins/padding — use Mantine style props
 - Raw pixel values for spacing — use size tokens
 - `media.mobile` / `media.mobilePortrait` custom breakpoints — use Mantine breakpoints
