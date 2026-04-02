@@ -11,28 +11,26 @@ import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { ExpanderIcon } from '../component/ExpanderIcon';
 import { Icons } from '../icons/Icons';
-import { Dates, Label, Period, RowElement, Sum, Tools } from './layout';
 import { SubscriptionDetails } from './SubscriptionDetails';
+import { Dates, Label, Period, SubscriptionRow, Sum, Tools } from './SubscriptionLayout';
 import { SubscriptionItem } from './types';
 
 export const SubscriptionItemView: React.FC<{
   item: SubscriptionItem;
-  className?: string;
-}> = ({ item, ...props }) =>
-  item.type === 'recurring' ? (
-    <RecurringExpenseItem item={item} {...props} />
-  ) : (
-    <ReportItem item={item} {...props} />
-  );
+}> = ({ item }) =>
+  item.type === 'recurring' ? <RecurringExpenseItem item={item} /> : <ReportItem item={item} />;
 
 const RecurringExpenseItem: React.FC<{
   item: RecurringExpense;
-  className?: string;
-}> = ({ item, className }) => {
+}> = ({ item }) => {
   const [open, { toggle }] = useDisclosure(false);
+  const inactive = !!item.occursUntil;
   return (
     <>
-      <RowElement className={`${className} ${item.occursUntil ? 'inactive' : undefined}`}>
+      <SubscriptionRow
+        bg={inactive ? 'neutral.1' : undefined}
+        c={inactive ? 'neutral.7' : undefined}
+      >
         <Label>{item.title}</Label>
         <Label>{item.receiver}</Label>
         <Dates visibleFrom="sm">
@@ -46,7 +44,7 @@ const RecurringExpenseItem: React.FC<{
         <Tools>
           <ExpanderIcon title="Lisätiedot" open={open} onToggle={toggle} />
         </Tools>
-      </RowElement>
+      </SubscriptionRow>
       {open ? <SubscriptionDetails recurringExpenseId={item.id} /> : null}
     </>
   );
@@ -54,31 +52,26 @@ const RecurringExpenseItem: React.FC<{
 
 const ReportItem: React.FC<{
   item: ExpenseReport;
-  className?: string;
-}> = ({ item, className }) => {
-  return (
-    <>
-      <RowElement className={`${className}`}>
-        <Label>Toteutuma: {item.title}</Label>
-        <Label>
-          {item.count} tapahtuma
-          {item.count !== 1 ? 'a' : ''} välillä {readableDateWithYear(item.firstDate)} -{' '}
-          {readableDateWithYear(item.lastDate)}
-        </Label>
-        <Sum>{Money.from(item.sum).format()}</Sum>
-        <Sum>{Money.from(item.avgSum).format()}</Sum>
-        <Period>/ kpl</Period>
-        <Sum visibleFrom="sm">{Money.from(item.recurrencePerMonth).format()} / kk</Sum>
-        <Sum>{Money.from(item.recurrencePerYear).format()} / v</Sum>
-        <Tools>
-          <ActionIcon title="Poista" onClick={() => deleteReport(item)}>
-            <Icons.Delete />
-          </ActionIcon>
-        </Tools>
-      </RowElement>
-    </>
-  );
-};
+}> = ({ item }) => (
+  <SubscriptionRow>
+    <Label>Toteutuma: {item.title}</Label>
+    <Label>
+      {item.count} tapahtuma
+      {item.count !== 1 ? 'a' : ''} välillä {readableDateWithYear(item.firstDate)} -{' '}
+      {readableDateWithYear(item.lastDate)}
+    </Label>
+    <Sum>{Money.from(item.sum).format()}</Sum>
+    <Sum>{Money.from(item.avgSum).format()}</Sum>
+    <Period>/ kpl</Period>
+    <Sum visibleFrom="sm">{Money.from(item.recurrencePerMonth).format()} / kk</Sum>
+    <Sum>{Money.from(item.recurrencePerYear).format()} / v</Sum>
+    <Tools>
+      <ActionIcon title="Poista" onClick={() => deleteReport(item)}>
+        <Icons.Delete />
+      </ActionIcon>
+    </Tools>
+  </SubscriptionRow>
+);
 
 function getPeriodText({ unit, amount }: RecurrencePeriod) {
   switch (unit) {

@@ -56,8 +56,8 @@ export const SubscriptionCriteriaSelector: React.FC<{
   );
 
   return (
-    <SimpleGrid cols={{ base: 1, sm: 3 }} spacing={8} w="100%" px={16}>
-      <Group gap={8} wrap="wrap">
+    <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="xs" w="100%" px="md">
+      <Group gap="xs" wrap="wrap">
         <Checkbox
           checked={includeEnded}
           onChange={() => setIncludeEnded(!includeEnded)}
@@ -65,7 +65,7 @@ export const SubscriptionCriteriaSelector: React.FC<{
         />
         <Checkbox checked={onlyOwn} onChange={() => setOnlyOwn(!onlyOwn)} label="Vain omat" />
       </Group>
-      <Group gap={8} wrap="wrap" justify="center">
+      <Group gap="xs" wrap="wrap" justify="center">
         {rangeOptions.map(r => (
           <Radio
             key={r.label}
@@ -75,7 +75,7 @@ export const SubscriptionCriteriaSelector: React.FC<{
           />
         ))}
       </Group>
-      <Group gap={8} wrap="wrap" justify="flex-end">
+      <Group gap="xs" wrap="wrap" justify="flex-end">
         <Checkbox checked={expenses} onChange={() => setExpenses(!expenses)} label="Menot" />
         <Checkbox checked={incomes} onChange={() => setIncomes(!incomes)} label="Tulot" />
         <Checkbox checked={transfers} onChange={() => setTranfers(!transfers)} label="Siirrot" />

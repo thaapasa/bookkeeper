@@ -1,31 +1,12 @@
-import styled from '@emotion/styled';
-import { Box, type BoxProps } from '@mantine/core';
+import { Box, type BoxProps, Group, type GroupProps } from '@mantine/core';
 import * as React from 'react';
 
-import { neutral, primary, text } from '../Colors';
-import { Row } from '../component/Row';
-
-export const RowElement = styled(Row)`
-  column-gap: 4px;
-  padding: 0 16px;
-  &.root-category {
-    background-color: ${neutral[4]};
-    color: ${text};
-    font-weight: bold;
-  }
-  &.child-category {
-    background-color: ${neutral[2]};
-    color: ${primary[7]};
-  }
-
-  &.inactive {
-    background: ${neutral[1]};
-    color: ${neutral[7]};
-  }
-`;
+export const SubscriptionRow: React.FC<React.PropsWithChildren<GroupProps>> = props => (
+  <Group gap={4} px="md" wrap="nowrap" align="center" mih={40} w="100%" {...props} />
+);
 
 export const Label: React.FC<React.PropsWithChildren<BoxProps>> = props => (
-  <Box style={{ flex: 1 }} {...props} />
+  <Box flex={1} {...props} />
 );
 
 export const Dates: React.FC<React.PropsWithChildren<BoxProps>> = props => (

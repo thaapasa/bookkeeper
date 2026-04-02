@@ -29,7 +29,7 @@ import { InfoView } from '../info/InfoView.tsx';
 import { ProfileView } from '../profile/ProfileView.tsx';
 import { SearchPage } from '../search/SearchPage.tsx';
 import { StatisticsView } from '../statistics/StatisticsView.tsx';
-import { SubscriptionsPage } from '../subscriptions/SubscriptionsPage.tsx';
+import { SubscriptionsPage } from '../subscriptions/SubscriptionsPage';
 import { ToolsView } from '../tools/ToolsView.tsx';
 import { TrackingPage } from '../tracking/TrackingPage.tsx';
 

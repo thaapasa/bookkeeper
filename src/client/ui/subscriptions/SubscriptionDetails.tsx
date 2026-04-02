@@ -1,19 +1,18 @@
-import { ActionIcon, Box } from '@mantine/core';
+import { ActionIcon, Group } from '@mantine/core';
 import * as React from 'react';
 
 import { RecurringExpenseDetails } from 'shared/expense';
 import { readableDateWithYear, toDate, toDateTime } from 'shared/time';
 import { ObjectId } from 'shared/types';
-import { Money, spaced } from 'shared/util';
+import { Money } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { editExpense, needUpdateE, updateExpenses } from 'client/data/State';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { AsyncDataView } from '../component/AsyncDataView';
-import { Row } from '../component/Row';
 import { useDeferredData } from '../hooks/useAsyncData';
 import { Icons } from '../icons/Icons';
-import { Label, RowElement, Tools } from './layout';
+import { Label, SubscriptionRow, Tools } from './SubscriptionLayout';
 
 export const SubscriptionDetails: React.FC<{ recurringExpenseId: number }> = ({
   recurringExpenseId,
@@ -26,13 +25,12 @@ export const SubscriptionDetails: React.FC<{ recurringExpenseId: number }> = ({
 
 const SubscriptionDetailsRenderer: React.FC<{
   data: RecurringExpenseDetails;
-  className?: string;
-}> = ({ data, className }) => {
+}> = ({ data }) => {
   const exp = data.recurringExpense;
   const active = !exp.occursUntil;
 
   return (
-    <RowElement className={spaced`${className} ${!active && 'inactive'}`}>
+    <SubscriptionRow bg={!active ? 'neutral.1' : undefined} c={!active ? 'neutral.7' : undefined}>
       <Label>
         {getLabel(data)}.
         {exp.occursUntil
@@ -41,19 +39,21 @@ const SubscriptionDetailsRenderer: React.FC<{
       </Label>
       <Tools large>
         {active ? (
-          <Row>
+          <Group gap={2} wrap="nowrap">
             <ActionIcon title="Muokkaa" onClick={() => modifySubscription(exp.templateExpenseId)}>
               <Icons.Edit />
             </ActionIcon>
-            <Box visibleFrom="sm" style={{ display: 'inline-flex' }}>
-              <ActionIcon title="Poista" onClick={() => terminateSubscription(exp.id, exp.title)}>
-                <Icons.Delete />
-              </ActionIcon>
-            </Box>
-          </Row>
+            <ActionIcon
+              title="Poista"
+              visibleFrom="sm"
+              onClick={() => terminateSubscription(exp.id, exp.title)}
+            >
+              <Icons.Delete />
+            </ActionIcon>
+          </Group>
         ) : null}
       </Tools>
-    </RowElement>
+    </SubscriptionRow>
   );
 };
 
