@@ -1,8 +1,6 @@
-import styled from '@emotion/styled';
-import { Pill } from '@mantine/core';
+import { Group, Pill } from '@mantine/core';
 import * as React from 'react';
 
-import { primary } from '../Colors';
 import { getSearchSuggestionValue, SearchSuggestion } from './SearchSuggestions';
 
 export const SelectedSuggestionsView: React.FC<{
@@ -13,25 +11,17 @@ export const SelectedSuggestionsView: React.FC<{
     return null;
   }
   return (
-    <>
+    <Group gap="xs">
       {suggestions.map(c => (
-        <SuggestionPill key={c.id} className={c.type} withRemoveButton onRemove={() => onRemove(c)}>
+        <Pill
+          key={c.id}
+          bg={c.type === 'receiver' ? 'primary.2' : undefined}
+          withRemoveButton
+          onRemove={() => onRemove(c)}
+        >
           {getSearchSuggestionValue(c)}
-        </SuggestionPill>
+        </Pill>
       ))}
-    </>
+    </Group>
   );
 };
-
-const SuggestionPill = styled(Pill)`
-  margin: 0 4px;
-  &:first-of-type {
-    margin-left: 0;
-  }
-  &:last-of-type {
-    margin-right: 0;
-  }
-  &.receiver {
-    background-color: ${primary[2]};
-  }
-` as any;

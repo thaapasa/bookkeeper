@@ -1,4 +1,3 @@
-import styled from '@emotion/styled';
 import * as React from 'react';
 
 import { IdProvider } from 'shared/util';
@@ -51,7 +50,8 @@ export const SearchInputField: React.FC<SearchInputProps> = ({
   );
 
   return (
-    <StyledComplete
+    <AutoComplete<SearchSuggestion>
+      mt="xs"
       label="Hakuehdot"
       value={value}
       onChange={onChange}
@@ -78,7 +78,3 @@ function getCategorySuggestions(
   const filter = (c: CategoryDataSource) => c.text.toLowerCase().includes(lowerInput);
   return categorySource.filter(filter).map(c => ({ type: 'category', id: c.value, name: c.text }));
 }
-
-const StyledComplete = styled(AutoComplete<SearchSuggestion>)`
-  margin-top: 6px;
-`;

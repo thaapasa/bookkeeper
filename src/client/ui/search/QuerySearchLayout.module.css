@@ -1,0 +1,36 @@
+.searchToolArea {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 6px;
+  width: 40px;
+  height: 46px;
+  background-color: var(--mantine-color-neutral-1);
+  border: 1px solid var(--mantine-color-neutral-3);
+  border-bottom: 1px solid var(--mantine-color-neutral-5);
+  border-radius: var(--mantine-radius-sm);
+}
+
+.clearIcon {
+  composes: searchToolArea;
+  border-right: none;
+  border-bottom-right-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.searchButton {
+  composes: searchToolArea;
+  width: 50px;
+  border-left: none;
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
+}
+
+.progressArea {
+  width: 64px;
+  height: 48px;
+  margin-right: var(--mantine-spacing-xs);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}

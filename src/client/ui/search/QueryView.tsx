@@ -4,11 +4,12 @@ import * as React from 'react';
 import { ExpenseQuery } from 'shared/expense';
 import { parseQueryString } from 'shared/net';
 import { ISOMonth, toDateTime, toISODate, TypedDateRange } from 'shared/time';
-import { Category, CategoryMap, ObjectId, User } from 'shared/types';
+import { Category, CategoryMap, ObjectId } from 'shared/types';
 import { CategoryDataSource, getFullCategoryName } from 'client/data/Categories';
 import { eventValue } from 'client/util/ClientUtil';
 
 import { parseMonthRange, toYearRange } from '../component/daterange/dateRangeUtils';
+import { usePersistentMemo } from '../hooks/usePersistentMemo';
 import { requestSaveReport } from '../reports/ReportUtils';
 import { QuerySearchLayout } from './QuerySearchLayout';
 import { isReceiverSuggestion, isSameSuggestion, SearchSuggestion } from './SearchSuggestions';
@@ -18,178 +19,181 @@ interface QueryViewProps {
   categoryMap: CategoryMap;
   onSearch: (query: ExpenseQuery) => void;
   isSearching: boolean;
-  user: User;
   year?: string;
   month?: ISOMonth;
 }
 
-interface QueryViewState {
-  input: string;
-  dateRange?: TypedDateRange;
-  selectedSuggestions: SearchSuggestion[];
-  userId?: ObjectId;
-  unconfirmed: boolean;
+export interface QueryViewHandle {
+  addCategory: (category: Category) => void;
 }
 
-export class QueryView extends React.Component<QueryViewProps, QueryViewState> {
-  public state: QueryViewState = {
-    input: '',
-    selectedSuggestions: [],
-    dateRange: toYearRange(toDateTime().year),
-    unconfirmed: false,
-  };
-  private inputBus = new B.Bus<string>();
-  private dateRangeBus = new B.Bus<TypedDateRange | undefined>();
-  private categoriesBus = new B.Bus<number[]>();
-  private receiverBus = new B.Bus<string | undefined>();
-  private executeSearchBus = new B.Bus<void>();
-  private userIdBus = new B.Bus<ObjectId | undefined>();
-  private unconfirmedBus = new B.Bus<boolean>();
-  private saveReportBus = new B.Bus<void>();
-
-  componentDidMount() {
-    this.inputBus.onValue(input => this.setState({ input }));
-    this.dateRangeBus.onValue(dateRange => this.setState({ dateRange }));
-    this.userIdBus.onValue(userId => this.setState({ userId }));
-    this.unconfirmedBus.onValue(unconfirmed => this.setState({ unconfirmed }));
-    const searchTriggers = B.mergeAll<unknown>(
-      this.executeSearchBus,
-      this.receiverBus,
-      this.dateRangeBus,
-      this.categoriesBus,
-      this.userIdBus,
-      this.unconfirmedBus,
+export const QueryView = React.forwardRef<QueryViewHandle, QueryViewProps>(
+  ({ categorySource, categoryMap, onSearch, isSearching, year, month }, ref) => {
+    const [input, setInput] = React.useState('');
+    const [dateRange, setDateRange] = React.useState<TypedDateRange | undefined>(
+      toYearRange(toDateTime().year),
     );
-    const searchData = B.combineTemplate({
-      search: this.inputBus.toProperty(''),
-      receiver: this.receiverBus.toProperty(undefined),
-      dateRange: this.dateRangeBus.toProperty(undefined),
-      categoryId: this.categoriesBus.toProperty([]),
-      userId: this.userIdBus.toProperty(undefined),
-      unconfirmed: this.unconfirmedBus.toProperty(false),
-    }).map(v => ({
-      search: v.search || undefined,
-      receiver: v.receiver || undefined,
-      startDate: v.dateRange && toISODate(v.dateRange.start),
-      endDate: v.dateRange && toISODate(v.dateRange.end),
-      categoryId: v.categoryId,
-      userId: v.userId,
-      confirmed: v.unconfirmed ? false : undefined,
-      includeSubCategories: true,
-    }));
+    const [selectedSuggestions, setSelectedSuggestions] = React.useState<SearchSuggestion[]>([]);
+    const [userId, setUserId] = React.useState<ObjectId | undefined>(undefined);
+    const [unconfirmed, setUnconfirmed] = React.useState(false);
 
-    searchData.sampledBy(searchTriggers).onValue(this.doSearch);
-    searchData.sampledBy(this.saveReportBus).onValue(requestSaveReport);
+    const inputBus = usePersistentMemo(() => new B.Bus<string>(), []);
+    const dateRangeBus = usePersistentMemo(() => new B.Bus<TypedDateRange | undefined>(), []);
+    const categoriesBus = usePersistentMemo(() => new B.Bus<number[]>(), []);
+    const receiverBus = usePersistentMemo(() => new B.Bus<string | undefined>(), []);
+    const executeSearchBus = usePersistentMemo(() => new B.Bus<void>(), []);
+    const userIdBus = usePersistentMemo(() => new B.Bus<ObjectId | undefined>(), []);
+    const unconfirmedBus = usePersistentMemo(() => new B.Bus<boolean>(), []);
+    const saveReportBus = usePersistentMemo(() => new B.Bus<void>(), []);
 
-    const params = parseQueryString(document.location.search);
-    if (params?.hae) {
-      this.inputBus.push(params.hae);
-    }
-    if (params?.kaikki) {
-      setImmediate(() => this.selectDateRange(undefined));
-    } else {
-      if (this.props.month) {
-        const r = parseMonthRange(this.props.month);
-        setImmediate(() => this.selectDateRange(r));
+    // Keep a ref to selectedSuggestions for pushSelections callback
+    const suggestionsRef = React.useRef(selectedSuggestions);
+    suggestionsRef.current = selectedSuggestions;
+
+    const pushSelections = React.useCallback(() => {
+      categoriesBus.push(suggestionsRef.current.filter(s => s.type === 'category').map(c => c.id));
+      const receiver = suggestionsRef.current.find(isReceiverSuggestion);
+      receiverBus.push(receiver ? receiver.receiver : undefined);
+    }, [categoriesBus, receiverBus]);
+
+    const selectSuggestion = React.useCallback(
+      (suggestion: SearchSuggestion) => {
+        setSelectedSuggestions(prev => {
+          const next = [
+            ...(suggestion.type === 'receiver' ? prev.filter(s => s.type !== 'receiver') : prev),
+            suggestion,
+          ];
+          // Update ref immediately so pushSelections sees the new value
+          suggestionsRef.current = next;
+          return next;
+        });
+        pushSelections();
+        inputBus.push('');
+      },
+      [pushSelections, inputBus],
+    );
+
+    const removeSuggestion = React.useCallback(
+      (suggestion: SearchSuggestion) => {
+        setSelectedSuggestions(prev => {
+          const next = prev.filter(c => !isSameSuggestion(c, suggestion));
+          suggestionsRef.current = next;
+          return next;
+        });
+        pushSelections();
+      },
+      [pushSelections],
+    );
+
+    const addCategory = React.useCallback(
+      (category: Category) => {
+        selectSuggestion({
+          type: 'category',
+          id: category.id,
+          name: getFullCategoryName(category.id, categoryMap),
+        });
+      },
+      [selectSuggestion, categoryMap],
+    );
+
+    React.useImperativeHandle(ref, () => ({ addCategory }), [addCategory]);
+
+    // Set up Bacon.js reactive search pipeline
+    React.useEffect(() => {
+      const unsubs = [
+        inputBus.onValue(setInput),
+        dateRangeBus.onValue(setDateRange),
+        userIdBus.onValue(setUserId),
+        unconfirmedBus.onValue(setUnconfirmed),
+      ];
+
+      const searchTriggers = B.mergeAll<unknown>(
+        executeSearchBus,
+        receiverBus,
+        dateRangeBus,
+        categoriesBus,
+        userIdBus,
+        unconfirmedBus,
+      );
+      const searchData = B.combineTemplate({
+        search: inputBus.toProperty(''),
+        receiver: receiverBus.toProperty(undefined),
+        dateRange: dateRangeBus.toProperty(undefined),
+        categoryId: categoriesBus.toProperty([]),
+        userId: userIdBus.toProperty(undefined),
+        unconfirmed: unconfirmedBus.toProperty(false),
+      }).map(v => ({
+        search: v.search || undefined,
+        receiver: v.receiver || undefined,
+        startDate: v.dateRange && toISODate(v.dateRange.start),
+        endDate: v.dateRange && toISODate(v.dateRange.end),
+        categoryId: v.categoryId,
+        userId: v.userId,
+        confirmed: v.unconfirmed ? false : undefined,
+        includeSubCategories: true,
+      }));
+
+      unsubs.push(searchData.sampledBy(searchTriggers).onValue(onSearch));
+      unsubs.push(searchData.sampledBy(saveReportBus).onValue(requestSaveReport));
+
+      const params = parseQueryString(document.location.search);
+      if (params?.hae) {
+        inputBus.push(params.hae);
       }
-      if (this.props.year) {
-        const r = toYearRange(this.props.year);
-        setImmediate(() => this.selectDateRange(r));
+      if (params?.kaikki) {
+        setImmediate(() => dateRangeBus.push(undefined));
+      } else {
+        if (month) {
+          const r = parseMonthRange(month);
+          setImmediate(() => dateRangeBus.push(r));
+        }
+        if (year) {
+          const r = toYearRange(year);
+          setImmediate(() => dateRangeBus.push(r));
+        }
       }
-    }
-  }
 
-  componentDidUpdate(prevProps: QueryViewProps) {
-    if (this.props.month && prevProps.month !== this.props.month) {
-      this.selectDateRange(parseMonthRange(this.props.month));
-    }
-    if (this.props.year && prevProps.year !== this.props.year) {
-      this.selectDateRange(toYearRange(this.props.year));
-    }
-  }
+      return () => unsubs.forEach(u => u());
+      // Only run on mount
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
-  addCategory = (category: Category) => {
-    this.selectSuggestion({
-      type: 'category',
-      id: category.id,
-      name: getFullCategoryName(category.id, this.props.categoryMap),
-    });
-  };
+    // Handle month/year prop changes
+    React.useEffect(() => {
+      if (month) {
+        dateRangeBus.push(parseMonthRange(month));
+      }
+    }, [month, dateRangeBus]);
 
-  render() {
+    React.useEffect(() => {
+      if (year) {
+        dateRangeBus.push(toYearRange(year));
+      }
+    }, [year, dateRangeBus]);
+
     return (
       <QuerySearchLayout
-        onClear={this.onClear}
-        input={this.state.input}
-        onChange={this.onChange}
-        selectSuggestion={this.selectSuggestion}
-        startSearch={this.startSearch}
-        categorySource={this.props.categorySource}
-        isSearching={this.props.isSearching}
-        userId={this.state.userId}
-        onSetUserId={this.onSetUserId}
-        unconfirmed={this.state.unconfirmed}
-        onToggleUnconfirmed={this.onToggleUnconfirmed}
-        selectedSuggestions={this.state.selectedSuggestions}
-        removeSuggestion={this.removeSelection}
-        dateRange={this.state.dateRange}
-        onSelectRange={this.selectDateRange}
-        onSaveAsReport={this.saveReport}
+        onClear={() => inputBus.push('')}
+        input={input}
+        onChange={(e: string | React.ChangeEvent<{ value: string }>) =>
+          inputBus.push(eventValue(e))
+        }
+        selectSuggestion={selectSuggestion}
+        startSearch={() => executeSearchBus.push()}
+        categorySource={categorySource}
+        isSearching={isSearching}
+        userId={userId}
+        onSetUserId={(id: ObjectId | undefined) => userIdBus.push(id)}
+        unconfirmed={unconfirmed}
+        onToggleUnconfirmed={(_event: unknown, checked: boolean) => unconfirmedBus.push(checked)}
+        selectedSuggestions={selectedSuggestions}
+        removeSuggestion={removeSuggestion}
+        dateRange={dateRange}
+        onSelectRange={(r?: TypedDateRange) => dateRangeBus.push(r)}
+        onSaveAsReport={() => saveReportBus.push()}
       />
     );
-  }
+  },
+);
 
-  private startSearch = () => this.executeSearchBus.push();
-
-  private doSearch = (query: ExpenseQuery) => {
-    this.props.onSearch(query);
-  };
-
-  private saveReport = () => this.saveReportBus.push();
-
-  private selectSuggestion = (suggestion: SearchSuggestion) => {
-    this.setState(
-      s => ({
-        selectedSuggestions: [
-          ...(suggestion.type === 'receiver'
-            ? s.selectedSuggestions.filter(s => s.type !== 'receiver')
-            : s.selectedSuggestions),
-          suggestion,
-        ],
-      }),
-      this.pushSelections,
-    );
-    this.inputBus.push('');
-  };
-
-  private removeSelection = (suggestion: SearchSuggestion) => {
-    this.setState(
-      s => ({
-        selectedSuggestions: s.selectedSuggestions.filter(c => !isSameSuggestion(c, suggestion)),
-      }),
-      this.pushSelections,
-    );
-  };
-
-  private pushSelections = () => {
-    this.categoriesBus.push(
-      this.state.selectedSuggestions.filter(s => s.type === 'category').map(c => c.id),
-    );
-    const receiver = this.state.selectedSuggestions.find(isReceiverSuggestion);
-    this.receiverBus.push(receiver ? receiver.receiver : undefined);
-  };
-
-  private onSetUserId = (userId: ObjectId | undefined) => this.userIdBus.push(userId);
-
-  private onToggleUnconfirmed = (_event: unknown, checked: boolean) =>
-    this.unconfirmedBus.push(checked);
-
-  private onChange = (e: string | React.ChangeEvent<{ value: string }>) =>
-    this.inputBus.push(eventValue(e));
-
-  private onClear = () => {
-    this.inputBus.push('');
-  };
-
-  private selectDateRange = (dateRange?: TypedDateRange) => this.dateRangeBus.push(dateRange);
-}
+QueryView.displayName = 'QueryView';
