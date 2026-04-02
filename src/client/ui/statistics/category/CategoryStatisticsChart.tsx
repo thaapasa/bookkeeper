@@ -1,11 +1,9 @@
-import styled from '@emotion/styled';
-import { Checkbox } from '@mantine/core';
+import { Checkbox, Group, Stack } from '@mantine/core';
 import * as React from 'react';
 
 import { CategoryMap, CategoryStatistics } from 'shared/types';
-import { FlexColumn } from 'client/ui/component/BasicElements';
 import { useLocalStorage } from 'client/ui/hooks/useLocalStorage';
-import { Size } from 'client/ui/layout/Styles.ts';
+import { Size } from 'client/ui/layout/Styles';
 import { MeasureSize } from 'client/ui/utils/MeasureSize';
 
 import { StatisticsChartType } from '../types';
@@ -41,7 +39,7 @@ const StatisticsGraphImpl: React.FC<BaseCategoryGraphProps & { type: StatisticsC
   );
 
   return (
-    <FlexColumn>
+    <Stack>
       <GraphSelector
         type={type}
         estimated={estimated}
@@ -50,7 +48,7 @@ const StatisticsGraphImpl: React.FC<BaseCategoryGraphProps & { type: StatisticsC
         {...props}
       />
       {type !== 'recurring' && props.stacked ? (
-        <CheckboxRow>
+        <Group gap="md" wrap="wrap">
           {type === 'years' ? (
             <Checkbox
               checked={estimated}
@@ -70,18 +68,11 @@ const StatisticsGraphImpl: React.FC<BaseCategoryGraphProps & { type: StatisticsC
             onChange={() => setStackMainCats(!stackMainCats)}
             label="Alueet pääkategorioittain"
           />
-        </CheckboxRow>
+        </Group>
       ) : null}
-    </FlexColumn>
+    </Stack>
   );
 };
-
-const CheckboxRow = styled.div`
-  display: flex;
-  flex-direction: row;
-  gap: 16px;
-  flex-wrap: wrap;
-`;
 
 const GraphSelector: React.FC<CategoryGraphProps & { type: StatisticsChartType }> = ({
   type,

@@ -1,19 +1,18 @@
 import { ActionIcon, Checkbox, Grid, Group } from '@mantine/core';
-import * as B from 'baconjs';
 import React from 'react';
 import { z } from 'zod';
 
 import { DateRange } from 'shared/time';
-import { CategoryMap, CategorySelection, CategoryStatistics, isDefined } from 'shared/types';
+import { CategorySelection, isDefined } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
-import { AsyncData, UninitializedData } from 'client/data/AsyncData';
+import { UninitializedData } from 'client/data/AsyncData';
 import { categoryMapP } from 'client/data/Categories';
 
 import { CategoryChipList } from '../category/CategoryChipList';
 import { CategorySelector } from '../category/CategorySelector';
 import { AsyncDataView } from '../component/AsyncDataView';
-import { connect } from '../component/BaconConnect';
 import { useAsyncData } from '../hooks/useAsyncData';
+import { useBaconState } from '../hooks/useBaconState';
 import { useIsMobile } from '../hooks/useBreakpoints';
 import { useLocalStorageList } from '../hooks/useList';
 import { useLocalStorage } from '../hooks/useLocalStorage';
@@ -27,9 +26,9 @@ function cmpCat(a: CategorySelection, b: CategorySelection) {
   return a.id === b.id;
 }
 
-export const StatisticsViewImpl: React.FC<{
-  categoryMap: CategoryMap;
-}> = ({ categoryMap }) => {
+export const StatisticsView: React.FC = () => {
+  const categoryMap = useBaconState(categoryMapP);
+
   const {
     list: cats,
     addItems: addCats,
@@ -40,7 +39,7 @@ export const StatisticsViewImpl: React.FC<{
     [],
     z.array(CategorySelection),
     cmpCat,
-    c => !!categoryMap[c.id],
+    c => !!categoryMap?.[c.id],
   );
 
   const [range, setRange] = React.useState<DateRange | undefined>(undefined);
@@ -52,6 +51,7 @@ export const StatisticsViewImpl: React.FC<{
   const [onlyOwn, setOnlyOwn] = useLocalStorage('statistics.chart.onlyOwn', false, z.boolean());
 
   const expandCategory = (cat: CategorySelection) => {
+    if (!categoryMap) return;
     const category = categoryMap[cat.id];
     if (!category) return;
 
@@ -95,14 +95,17 @@ export const StatisticsViewImpl: React.FC<{
     range?.endDate ?? '2000-01-01',
     onlyOwn,
   );
-  const data: AsyncData<CategoryStatistics> = cats.length > 0 ? statistics : UninitializedData;
+  const data = cats.length > 0 ? statistics : UninitializedData;
 
   const isMobile = useIsMobile();
+
+  if (!categoryMap) return null;
+
   return (
-    <Grid p={16} gutter={16}>
+    <Grid p="md" gutter="md">
       <Grid.Col span={{ base: 12, sm: 5 }}>
         <CategorySelector addCategories={addCats} />
-        <Group gap={16} wrap="wrap">
+        <Group gap="md" wrap="wrap">
           <Checkbox checked={stacked} onChange={() => setStacked(!stacked)} label="Koosta alueet" />
           <Checkbox
             checked={onlyOwn}
@@ -143,7 +146,3 @@ export const StatisticsViewImpl: React.FC<{
     </Grid>
   );
 };
-
-export const StatisticsView = connect(B.combineTemplate({ categoryMap: categoryMapP }))(
-  StatisticsViewImpl,
-);

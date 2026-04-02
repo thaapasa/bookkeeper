@@ -28,7 +28,7 @@ import { GroupingPage } from '../grouping/GroupingPage.tsx';
 import { InfoView } from '../info/InfoView.tsx';
 import { ProfileView } from '../profile/ProfileView.tsx';
 import { SearchPage } from '../search/SearchPage.tsx';
-import { StatisticsView } from '../statistics/StatisticsView.tsx';
+import { StatisticsView } from '../statistics/StatisticsView';
 import { SubscriptionsPage } from '../subscriptions/SubscriptionsPage';
 import { ToolsView } from '../tools/ToolsView.tsx';
 import { TrackingPage } from '../tracking/TrackingPage.tsx';
