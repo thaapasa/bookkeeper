@@ -1,5 +1,4 @@
-import styled from '@emotion/styled';
-import { ActionIcon, Flex } from '@mantine/core';
+import { ActionIcon, Box, Flex, Stack } from '@mantine/core';
 import React from 'react';
 
 import apiConnect from 'client/data/ApiConnect';
@@ -18,22 +17,22 @@ export const GroupingPage: React.FC = () => {
   const tags = useAsyncData(loadTags, true, counter);
   return (
     <Flex direction="column" align="center">
-      <PageGrid>
-        <TitleRow>
+      <Stack gap="md" w="100%" px="md" pb="xl">
+        <Box pos="relative" mt="md">
           <Title>Ryhmittelyt</Title>
-          <ToolArea>
+          <Box pos="absolute" right={0} bottom="md">
             <ActionIcon title="Uusi ryhmittely" onClick={newExpenseGrouping}>
               <Icons.AddChart />
             </ActionIcon>
-          </ToolArea>
-        </TitleRow>
+          </Box>
+        </Box>
         <AsyncDataView
           data={expenseGroupings}
           renderer={ExpenseGroupingsList}
           onReload={forceReload}
           allTags={tags.type === 'loaded' ? tags.value : []}
         />
-      </PageGrid>
+      </Stack>
       <GroupingEditor reloadAll={forceReload} />
     </Flex>
   );
@@ -46,22 +45,3 @@ function loadGroupings(_counter: number) {
 function loadTags(_counter: number) {
   return apiConnect.getExpenseGroupingTags();
 }
-
-const PageGrid = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  width: calc(100% - 32px);
-  padding-bottom: 32px;
-`;
-
-const TitleRow = styled.div`
-  position: relative;
-  margin-top: 16px;
-`;
-
-const ToolArea = styled.div`
-  position: absolute;
-  right: 0;
-  bottom: 16px;
-`;

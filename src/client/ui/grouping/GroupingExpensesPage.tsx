@@ -1,21 +1,19 @@
-import styled from '@emotion/styled';
-import { Flex } from '@mantine/core';
-import * as B from 'baconjs';
+import { Flex, Stack, Table } from '@mantine/core';
 import React from 'react';
 import { useParams } from 'react-router';
 
 import { ExpenseGroupingWithExpenses } from 'shared/types';
 import { noop } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
-import { userDataP, UserDataProps } from 'client/data/Categories';
+import { userDataP } from 'client/data/Categories';
 import { needUpdateE } from 'client/data/State';
 
 import { AsyncDataView } from '../component/AsyncDataView';
-import { connect } from '../component/BaconConnect';
 import { Subtitle } from '../design/Text';
 import { ExpenseRow } from '../expense/row/ExpenseRow';
 import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
 import { useAsyncData } from '../hooks/useAsyncData';
+import { useBaconState } from '../hooks/useBaconState';
 import { useForceReload } from '../hooks/useForceReload';
 import { TotalsView } from '../search/TotalsView';
 import { GroupingCategoryChart } from './GroupingCategoryChart';
@@ -29,7 +27,7 @@ export const GroupingExpensesPage: React.FC = () => {
     <Flex direction="column" align="center">
       <AsyncDataView
         data={expenses}
-        renderer={ConnectedGroupingExpensesRenderer}
+        renderer={GroupingExpensesRenderer}
         reloadExpenses={forceReload}
       />
     </Flex>
@@ -41,41 +39,30 @@ const loadExpenses = (groupingId: number, _counter: number) =>
 
 const GroupingExpensesRenderer: React.FC<{
   data: ExpenseGroupingWithExpenses;
-  userData: UserDataProps;
   reloadExpenses: () => void;
-}> = ({ data, userData, reloadExpenses }) => (
-  <CenterArea>
-    <TitleRow>{data.title}</TitleRow>
-    <GroupingCategoryChart totals={data.categoryTotals} />
-    <ExpenseTableLayout padded>
-      <tbody>
-        {data.expenses?.map(expense => (
-          <ExpenseRow
-            expense={expense}
-            userData={userData}
-            key={'expense-row-' + expense.id}
-            addFilter={noop}
-            onUpdated={reloadExpenses}
-          />
-        ))}
-      </tbody>
-    </ExpenseTableLayout>
-    <TotalsView results={data.expenses} />
-  </CenterArea>
-);
-
-const CenterArea = styled('div')`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-`;
-
-const TitleRow = styled(Subtitle)`
-  width: 100%;
-  padding: 8px;
-  text-align: center;
-`;
-
-const ConnectedGroupingExpensesRenderer = connect(B.combineTemplate({ userData: userDataP }))(
-  GroupingExpensesRenderer,
-);
+}> = ({ data, reloadExpenses }) => {
+  const userData = useBaconState(userDataP);
+  if (!userData) return null;
+  return (
+    <Stack align="center">
+      <Subtitle w="100%" p="xs" ta="center">
+        {data.title}
+      </Subtitle>
+      <GroupingCategoryChart totals={data.categoryTotals} />
+      <ExpenseTableLayout padded>
+        <Table.Tbody>
+          {data.expenses?.map(expense => (
+            <ExpenseRow
+              expense={expense}
+              userData={userData}
+              key={'expense-row-' + expense.id}
+              addFilter={noop}
+              onUpdated={reloadExpenses}
+            />
+          ))}
+        </Table.Tbody>
+      </ExpenseTableLayout>
+      <TotalsView results={data.expenses} />
+    </Stack>
+  );
+};

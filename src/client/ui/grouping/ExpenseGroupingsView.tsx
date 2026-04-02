@@ -1,5 +1,14 @@
-import styled from '@emotion/styled';
-import { ActionIcon, Badge, Group, SimpleGrid, Title as MantineTitle } from '@mantine/core';
+import {
+  ActionIcon,
+  Badge,
+  Box,
+  Group,
+  Paper,
+  SimpleGrid,
+  Stack,
+  Text,
+  Title as MantineTitle,
+} from '@mantine/core';
 import React from 'react';
 
 import { uri } from 'shared/net';
@@ -10,12 +19,9 @@ import apiConnect from 'client/data/ApiConnect';
 import { executeOperation } from 'client/util/ExecuteOperation';
 import { groupingsPagePath } from 'client/util/Links';
 
-import { neutral, primary } from '../Colors';
-import { FlexColumn, FlexRow } from '../component/BasicElements';
 import { Subtitle } from '../design/Text';
-import { Flex } from '../GlobalStyles';
 import { Icons } from '../icons/Icons';
-import { LinkButton } from '../layout/TopBar.tsx';
+import { LinkButton } from '../layout/TopBar';
 import { GroupedExpenseIcon } from './GroupedExpenseIcon';
 import { editExpenseGrouping } from './GroupingEditor';
 import { ExpenseGroupingsTagFilters, useFilterTags } from './useFilterTags';
@@ -34,7 +40,7 @@ export const ExpenseGroupingsList: React.FC<{
       <Group justify="flex-end" w="100%">
         <ExpenseGroupingsTagFilters allTags={allTags} {...filters} />
       </Group>
-      <SimpleGrid cols={{ base: 1, sm: 2 }} spacing={16} w="100%">
+      <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md" w="100%">
         {filtered.map(d => (
           <ExpenseGroupingView grouping={d} key={d.id} onReload={onReload} tags={filters.tags} />
         ))}
@@ -49,10 +55,27 @@ export const ExpenseGroupingView: React.FC<{
   onReload: () => void;
 }> = ({ grouping, onReload }) => {
   return (
-    <GroupingCard>
-      <TitleArea className="title-area">
-        <TitleText>{grouping.title}</TitleText>
-        <ToolsArea className="tools-area">
+    <Paper
+      w="100%"
+      pos="relative"
+      h={200}
+      bg="neutral.2"
+      shadow="md"
+      radius="md"
+      style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
+    >
+      <Box h={32} pos="relative" bg="neutral.1" style={{ zIndex: 1 }}>
+        <Subtitle
+          order={3}
+          pl="sm"
+          pt={2}
+          fw={400}
+          c="var(--mantine-color-text)"
+          style={{ border: 'none' }}
+        >
+          {grouping.title}
+        </Subtitle>
+        <Group pos="absolute" right={0} top={0} gap={2} style={{ zIndex: 2 }}>
           <ActionIcon
             size="sm"
             title="Muokkaa seurantaa"
@@ -63,49 +86,63 @@ export const ExpenseGroupingView: React.FC<{
           <ActionIcon size="sm" onClick={() => deleteExpenseGrouping(grouping, onReload)}>
             <Icons.Delete fontSize="small" />
           </ActionIcon>
-        </ToolsArea>
-      </TitleArea>
-      <GroupingTotalsArea className="grouping-totals-area">
-        <PositionedIcon grouping={grouping} size={24} />
-        {grouping.image ? <GroupingImage src={grouping.image} /> : null}
-        <GroupingInfo>
-          <InfoTextArea>
+        </Group>
+      </Box>
+      <Group flex={1} wrap="nowrap" pos="relative">
+        <GroupedExpenseIcon
+          grouping={grouping}
+          size={24}
+          style={{ position: 'absolute', left: 8 }}
+        />
+        {grouping.image ? (
+          <img src={grouping.image} alt="" style={{ width: 168, height: 168 }} />
+        ) : null}
+        <Stack flex={1} justify="space-between" align="flex-start" h="100%">
+          <Stack
+            flex={1}
+            align="center"
+            justify="center"
+            style={{ alignSelf: 'stretch' }}
+            px="md"
+            pt="lg"
+            pos="relative"
+          >
             {grouping.tags ? (
-              <TagsList>
+              <Group pos="absolute" right="xs" top="xs" gap={4}>
                 {grouping.tags.map(t => (
-                  <Badge key={t} size="sm" variant="filled" style={{ marginLeft: 4 }}>
+                  <Badge key={t} size="sm" variant="filled">
                     {t}
                   </Badge>
                 ))}
-              </TagsList>
+              </Group>
             ) : null}
-            <MantineTitle order={1} c={primary[7]}>
+            <MantineTitle order={1} c="primary.7">
               {Money.from(grouping.totalSum).format()}
             </MantineTitle>
             <GroupingDates grouping={grouping} />
-          </InfoTextArea>
-          <ButtonRow>
+          </Stack>
+          <Group w="100%" p="md" justify="flex-end" align="flex-end">
             <LinkButton label="Kirjaukset" to={groupingsPagePath + uri`/${grouping.id}`} />
-          </ButtonRow>
-        </GroupingInfo>
-      </GroupingTotalsArea>
-    </GroupingCard>
+          </Group>
+        </Stack>
+      </Group>
+    </Paper>
   );
 };
 
 const GroupingDates: React.FC<{ grouping: ExpenseGrouping }> = ({ grouping }) => {
   if (!grouping.startDate && !grouping.endDate) return null;
   if (!grouping.endDate) {
-    return <DatesText>{readableDateWithYear(grouping.startDate, true)} →</DatesText>;
+    return <Text>{readableDateWithYear(grouping.startDate, true)} →</Text>;
   }
   if (!grouping.startDate) {
-    return <DatesText>→ {readableDateWithYear(grouping.endDate, true)}</DatesText>;
+    return <Text>→ {readableDateWithYear(grouping.endDate, true)}</Text>;
   }
   return (
-    <DatesText>
+    <Text>
       {readableDateWithYear(grouping.startDate, true)} -{' '}
       {readableDateWithYear(grouping.endDate, true)}
-    </DatesText>
+    </Text>
   );
 };
 
@@ -116,80 +153,3 @@ async function deleteExpenseGrouping(grouping: ExpenseGrouping, onReload: () => 
     postProcess: onReload,
   });
 }
-
-const TagsList = styled.div`
-  position: absolute;
-  right: 8px;
-  top: 8px;
-`;
-
-const PositionedIcon = styled(GroupedExpenseIcon)`
-  position: absolute;
-  left: 8px;
-`;
-
-const GroupingImage = styled.img`
-  width: 168px;
-  height: 168px;
-`;
-
-const TitleText = styled(Subtitle)`
-  padding-left: 12px;
-  padding-top: 2px;
-  font-weight: 400;
-  color: var(--mantine-color-text);
-  border: none;
-`;
-
-const GroupingCard = styled(FlexColumn)`
-  width: 100%;
-  position: relative;
-  border-radius: var(--mantine-radius-md);
-  background-color: ${neutral[2]};
-  overflow: hidden;
-  height: 200px;
-  box-shadow: var(--mantine-shadow-md);
-`;
-
-const GroupingTotalsArea = styled(FlexRow)`
-  position: relative;
-  flex: 1;
-`;
-
-const InfoTextArea = styled(Flex)`
-  display: inline-flex;
-  flex-direction: column;
-  flex: 1;
-  align-self: stretch;
-  align-items: center;
-  justify-content: center;
-  padding: 24px 16px 0 16px;
-`;
-
-const DatesText = styled.div``;
-
-const GroupingInfo = styled(FlexColumn)`
-  flex: 1;
-  justify-content: space-between;
-  align-items: flex-start;
-`;
-
-const ButtonRow = styled(FlexRow)`
-  width: 100%;
-  padding: 16px;
-  justify-content: flex-end;
-  align-items: flex-end;
-`;
-
-const TitleArea = styled.div`
-  height: 32px;
-  background-color: ${neutral[1]}aa;
-  z-index: 1;
-`;
-
-const ToolsArea = styled.div`
-  position: absolute;
-  right: 0;
-  top: 0;
-  z-index: 2;
-`;

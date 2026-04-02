@@ -1,5 +1,4 @@
-import styled from '@emotion/styled';
-import { ActionIcon, Button, Checkbox, Modal } from '@mantine/core';
+import { ActionIcon, Box, Button, Checkbox, Group, Modal } from '@mantine/core';
 import * as B from 'baconjs';
 import * as React from 'react';
 
@@ -8,20 +7,18 @@ import apiConnect from 'client/data/ApiConnect';
 import { categoryMapP, getFullCategoryName } from 'client/data/Categories';
 
 import { AsyncDataDialogContent } from '../component/AsyncDataDialog';
-import { connect } from '../component/BaconConnect';
 import { ColorPicker } from '../component/ColorPicker';
 import { OptionalDatePicker } from '../component/OptionalDatePicker';
-import { Row } from '../component/Row';
 import { TagsPicker } from '../component/TagsPicker';
 import { TextEdit } from '../component/TextEdit';
 import { UploadImageButton } from '../component/UploadImageButton';
-import { checkersBackground } from '../design/Background';
 import { DialogHeading, Subtitle } from '../design/Text';
 import { connectDialog } from '../dialog/DialogConnector';
-import { Flex } from '../GlobalStyles';
 import { useAsyncData } from '../hooks/useAsyncData';
+import { useBaconState } from '../hooks/useBaconState';
 import { useForceReload } from '../hooks/useForceReload';
 import { Icons } from '../icons/Icons';
+import styles from './GroupingEditor.module.css';
 import { useGroupingState } from './GroupingEditorState';
 
 interface GroupingBusPayload {
@@ -49,7 +46,7 @@ const GroupingDialogImpl: React.FC<{
     <Modal opened={true} onClose={onClose} size="lg" title="">
       <AsyncDataDialogContent
         data={data}
-        renderer={ConnectedEditView}
+        renderer={GroupingEditView}
         onClose={onClose}
         reloadData={forceReload}
         reloadAll={reloadAll}
@@ -70,101 +67,112 @@ const GroupingEditView: React.FC<{
   onClose: () => void;
   reloadData: () => void;
   reloadAll: () => void;
-  categoryMap: CategoryMap;
-}> = ({ data, onClose, reloadAll, reloadData, categoryMap }) => {
+}> = ({ data, onClose, reloadAll, reloadData }) => {
+  const categoryMap = useBaconState(categoryMapP);
   const createNew = data === null;
   const state = useGroupingState();
   const tags = useAsyncData(apiConnect.getExpenseGroupingTags, true);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   React.useEffect(() => void state.reset(data), [data?.id]);
+
+  if (!categoryMap) return null;
+
   return (
     <>
       <DialogHeading>{createNew ? 'Uusi ryhmittely' : 'Muokkaa ryhmittelyä'}</DialogHeading>
-      <div>
-        <EditorGrid>
-          <SelectionRow title="Nimi">
-            <TextEdit value={state.title} onChange={state.setTitle} />
-          </SelectionRow>
-          <SelectionRow title="Valinnat">
-            <Checkbox
-              checked={state.private}
-              onChange={e => state.setPrivate(e.currentTarget.checked)}
-              label="Yksityinen"
-            />
-            <Checkbox
-              checked={state.onlyOwn}
-              onChange={e => state.setOnlyOwn(e.currentTarget.checked)}
-              label="Vain omat kirjaukset"
-            />
-          </SelectionRow>
-          <SelectionRow title="Alkupäivä">
-            <OptionalDatePicker value={state.startDate} onChange={state.setStartDate} />
-          </SelectionRow>
-          <SelectionRow title="Loppupäivä">
-            <OptionalDatePicker value={state.endDate} onChange={state.setEndDate} />
-          </SelectionRow>
-          <SelectionRow title="Väri">
-            <ColorPicker value={state.color} onChange={state.setColor} />
-          </SelectionRow>
-          <SelectionRow title="Tagit">
-            <TagsPicker
-              value={state.tags}
-              onAdd={state.addTag}
-              onRemove={state.removeTag}
-              presetValues={tags.type === 'loaded' ? tags.value : []}
-            />
-          </SelectionRow>
-          <SelectionRow title="Kuva">
-            <Row>
-              <ImageArea>
-                {data?.image ? <GroupingImg src={data?.image} /> : <Icons.Image fontSize="large" />}
-              </ImageArea>
-              <Flex />
-              <UploadImageButton
-                onSelect={(file, filename) =>
-                  state.uploadImage(file, filename, reloadData, reloadAll)
-                }
-                title="Lataa kuva"
-              >
-                <Icons.Upload />
-              </UploadImageButton>
-              <ActionIcon
-                onClick={() => state.removeImage(reloadData, reloadAll)}
-                title="Poista kuva"
-              >
-                <Icons.Delete />
-              </ActionIcon>
-            </Row>
-          </SelectionRow>
-          <div style={{ gridColumn: '1 / -1', position: 'relative' }}>
-            <ToolIconArea>
-              <ActionIcon title="Lisää kategoria" size="sm" onClick={state.addCategory}>
-                <Icons.Add fontSize="small" />
-              </ActionIcon>
-            </ToolIconArea>
-            <Subtitle order={3}>Kategoriat</Subtitle>
-            {state.categories.map(c => (
-              <CategorySelection id={c} key={c} categoryMap={categoryMap} />
-            ))}
-          </div>
-          <div style={{ gridColumn: '1 / -1' }}>
-            <Row>
-              <Flex />
-              <Button variant="subtle" onClick={onClose}>
-                Peruuta
-              </Button>
-              <Button
-                style={{ marginLeft: 16 }}
-                variant="filled"
-                disabled={!state.inputValid()}
-                onClick={() => state.saveGrouping(onClose, reloadAll)}
-              >
-                Tallenna
-              </Button>
-            </Row>
-          </div>
-        </EditorGrid>
-      </div>
+      <Box
+        display="grid"
+        style={{
+          gridTemplateColumns: 'auto 1fr',
+          gap: 'var(--mantine-spacing-xs)',
+          alignItems: 'center',
+        }}
+      >
+        <SelectionRow title="Nimi">
+          <TextEdit value={state.title} onChange={state.setTitle} />
+        </SelectionRow>
+        <SelectionRow title="Valinnat">
+          <Checkbox
+            checked={state.private}
+            onChange={e => state.setPrivate(e.currentTarget.checked)}
+            label="Yksityinen"
+          />
+          <Checkbox
+            checked={state.onlyOwn}
+            onChange={e => state.setOnlyOwn(e.currentTarget.checked)}
+            label="Vain omat kirjaukset"
+          />
+        </SelectionRow>
+        <SelectionRow title="Alkupäivä">
+          <OptionalDatePicker value={state.startDate} onChange={state.setStartDate} />
+        </SelectionRow>
+        <SelectionRow title="Loppupäivä">
+          <OptionalDatePicker value={state.endDate} onChange={state.setEndDate} />
+        </SelectionRow>
+        <SelectionRow title="Väri">
+          <ColorPicker value={state.color} onChange={state.setColor} />
+        </SelectionRow>
+        <SelectionRow title="Tagit">
+          <TagsPicker
+            value={state.tags}
+            onAdd={state.addTag}
+            onRemove={state.removeTag}
+            presetValues={tags.type === 'loaded' ? tags.value : []}
+          />
+        </SelectionRow>
+        <SelectionRow title="Kuva">
+          <Group wrap="nowrap">
+            <Box className={styles.imageArea}>
+              {data?.image ? (
+                <img src={data.image} alt="" style={{ width: 128, height: 128 }} />
+              ) : (
+                <Icons.Image fontSize="large" />
+              )}
+            </Box>
+            <Box flex={1} />
+            <UploadImageButton
+              onSelect={(file, filename) =>
+                state.uploadImage(file, filename, reloadData, reloadAll)
+              }
+              title="Lataa kuva"
+            >
+              <Icons.Upload />
+            </UploadImageButton>
+            <ActionIcon
+              onClick={() => state.removeImage(reloadData, reloadAll)}
+              title="Poista kuva"
+            >
+              <Icons.Delete />
+            </ActionIcon>
+          </Group>
+        </SelectionRow>
+        <Box style={{ gridColumn: '1 / -1' }} pos="relative">
+          <Box pos="absolute" right={0} top="xs">
+            <ActionIcon title="Lisää kategoria" size="sm" onClick={state.addCategory}>
+              <Icons.Add fontSize="small" />
+            </ActionIcon>
+          </Box>
+          <Subtitle order={3}>Kategoriat</Subtitle>
+          {state.categories.map(c => (
+            <CategorySelectionRow id={c} key={c} categoryMap={categoryMap} />
+          ))}
+        </Box>
+        <Box style={{ gridColumn: '1 / -1' }}>
+          <Group justify="flex-end">
+            <Button variant="subtle" onClick={onClose}>
+              Peruuta
+            </Button>
+            <Button
+              ml="md"
+              variant="filled"
+              disabled={!state.inputValid()}
+              onClick={() => state.saveGrouping(onClose, reloadAll)}
+            >
+              Tallenna
+            </Button>
+          </Group>
+        </Box>
+      </Box>
     </>
   );
 };
@@ -174,41 +182,24 @@ const SelectionRow: React.FC<React.PropsWithChildren<{ title: string }>> = ({
   children,
 }) => (
   <>
-    <div>{title}</div>
-    <div>{children}</div>
+    <Box>{title}</Box>
+    <Box>{children}</Box>
   </>
 );
 
-const EditorGrid = styled.div`
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 8px;
-  align-items: center;
-`;
-
-const ToolIconArea = styled.div`
-  position: absolute;
-  right: 0;
-  top: 8px;
-`;
-
-const ConnectedEditView = connect(B.combineTemplate({ categoryMap: categoryMapP }))(
-  GroupingEditView,
-);
-
-const CategorySelection: React.FC<{ id: ObjectId; categoryMap: CategoryMap }> = ({
+const CategorySelectionRow: React.FC<{ id: ObjectId; categoryMap: CategoryMap }> = ({
   id,
   categoryMap,
 }) => {
   const state = useGroupingState();
   return (
-    <Row>
+    <Group>
       {getFullCategoryName(id, categoryMap)}
-      <Flex />
+      <Box flex={1} />
       <ActionIcon title="Poista seurannasta" size="sm" onClick={() => state.removeCategory(id)}>
         <Icons.Delete fontSize="small" />
       </ActionIcon>
-    </Row>
+    </Group>
   );
 };
 
@@ -216,18 +207,3 @@ export const GroupingEditor = connectDialog<GroupingBusPayload, { reloadAll: () 
   groupingBus,
   GroupingDialogImpl,
 );
-
-const ImageArea = styled.div`
-  width: 128px;
-  height: 128px;
-  position: relative;
-  ${checkersBackground({ size: 8 })}
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
-const GroupingImg = styled.img`
-  width: 128px;
-  height: 128px;
-`;

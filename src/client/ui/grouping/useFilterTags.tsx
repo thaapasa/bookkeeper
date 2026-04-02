@@ -1,4 +1,3 @@
-import styled from '@emotion/styled';
 import { Badge, CloseButton } from '@mantine/core';
 import React from 'react';
 
@@ -31,21 +30,20 @@ export function ExpenseGroupingsTagFilters({
       {joinedTags.map(t => {
         const active = selected.has(t);
         return (
-          <StyledBadge
+          <Badge
             key={t}
             variant={active ? 'filled' : 'outline'}
             rightSection={
               active ? <CloseButton size="xs" onClick={() => removeTag(t)} /> : undefined
             }
             onClick={active ? undefined : () => addTag(t)}
-            style={{ cursor: active ? undefined : 'pointer', marginLeft: 8 }}
+            ml="xs"
+            style={active ? undefined : { cursor: 'pointer' }}
           >
             {t}
-          </StyledBadge>
+          </Badge>
         );
       })}
     </>
   );
 }
-
-const StyledBadge = styled(Badge)`` as any;
