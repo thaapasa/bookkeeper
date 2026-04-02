@@ -1,5 +1,4 @@
-import styled from '@emotion/styled';
-import { ActionIcon, Flex } from '@mantine/core';
+import { ActionIcon, Box, Flex, Stack } from '@mantine/core';
 import React from 'react';
 
 import apiConnect from 'client/data/ApiConnect';
@@ -17,21 +16,21 @@ export const TrackingPage: React.FC = () => {
   const trackedSubjects = useAsyncData(loadSubjects, true, counter);
   return (
     <Flex direction="column" align="center">
-      <PageGrid>
-        <TitleRow>
+      <Stack gap="md" w="100%" px="md" pb="xl">
+        <Box pos="relative" mt="md">
           <Title>Seuranta</Title>
-          <ToolArea>
+          <Box pos="absolute" right={0} bottom="md">
             <ActionIcon title="Uusi seuranta" onClick={newTrackingSubject}>
               <Icons.AddChart />
             </ActionIcon>
-          </ToolArea>
-        </TitleRow>
+          </Box>
+        </Box>
         <AsyncDataView
           data={trackedSubjects}
           renderer={TrackingSubjectsList}
           onReload={forceReload}
         />
-      </PageGrid>
+      </Stack>
       <TrackingEditor reloadAll={forceReload} />
     </Flex>
   );
@@ -40,22 +39,3 @@ export const TrackingPage: React.FC = () => {
 function loadSubjects(_counter: number) {
   return apiConnect.getTrackingSubjects();
 }
-
-const PageGrid = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  width: calc(100% - 32px);
-  padding-bottom: 32px;
-`;
-
-const TitleRow = styled.div`
-  position: relative;
-  margin-top: 16px;
-`;
-
-const ToolArea = styled.div`
-  position: absolute;
-  right: 0;
-  bottom: 16px;
-`;

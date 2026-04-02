@@ -31,7 +31,7 @@ import { SearchPage } from '../search/SearchPage.tsx';
 import { StatisticsView } from '../statistics/StatisticsView';
 import { SubscriptionsPage } from '../subscriptions/SubscriptionsPage';
 import { ToolsView } from '../tools/ToolsView.tsx';
-import { TrackingPage } from '../tracking/TrackingPage.tsx';
+import { TrackingPage } from '../tracking/TrackingPage';
 
 export function AppRouter() {
   return (

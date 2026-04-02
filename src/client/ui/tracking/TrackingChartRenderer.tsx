@@ -1,4 +1,4 @@
-import styled from '@emotion/styled';
+import { Box } from '@mantine/core';
 import * as React from 'react';
 import {
   Area,
@@ -17,7 +17,7 @@ import { partition } from 'shared/util';
 import { formatMoneyForChart } from 'client/ui/chart/Format';
 
 import { getChartColor } from '../chart/ChartColors';
-import { Size } from '../layout/Styles.ts';
+import { Size } from '../layout/Styles';
 import { MeasureSize } from '../utils/MeasureSize';
 
 const Margins = { left: 4, top: 4, right: 4, bottom: 4 };
@@ -118,14 +118,10 @@ export const TrackingChartRenderer: React.FC<TrackingChartProps> = props => {
   const Renderer =
     ChartTypeRenderers[props.trackingData.chartType ?? 'line'] ?? TrackingBarChartRenderer;
   return (
-    <ChartContainer>
+    <Box pos="absolute">
       <Renderer {...props} />
-    </ChartContainer>
+    </Box>
   );
 };
-
-const ChartContainer = styled('div')`
-  position: absolute;
-`;
 
 export const TrackingChart = MeasureSize(TrackingChartRenderer, 168);

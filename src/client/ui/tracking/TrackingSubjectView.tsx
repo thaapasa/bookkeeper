@@ -1,13 +1,10 @@
-import styled from '@emotion/styled';
-import { ActionIcon, SimpleGrid } from '@mantine/core';
+import { ActionIcon, Box, Group, Paper, SimpleGrid } from '@mantine/core';
 import React from 'react';
 
 import { ObjectId, TrackingSubject, TrackingSubjectWithData } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
-import { neutral } from '../Colors';
-import { FlexColumn, FlexRow } from '../component/BasicElements';
 import { Subtitle } from '../design/Text';
 import { Icons } from '../icons/Icons';
 import { TrackingChart } from './TrackingChartRenderer';
@@ -18,7 +15,7 @@ export const TrackingSubjectsList: React.FC<{
   onReload: () => void;
 }> = ({ data, onReload }) => {
   return (
-    <SimpleGrid cols={{ base: 1, sm: 2 }} spacing={16} w="100%">
+    <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md" w="100%">
       {data.map(d => (
         <TrackingSubjectView subject={d} key={d.id} onReload={onReload} />
       ))}
@@ -31,10 +28,20 @@ export const TrackingSubjectView: React.FC<{
   onReload: () => void;
 }> = ({ subject, onReload }) => {
   return (
-    <TrackingCard>
-      <TitleArea className="title-area">
-        <TitleText>{subject.title}</TitleText>
-        <ToolsArea className="tools-area">
+    <Paper
+      w="100%"
+      pos="relative"
+      h={200}
+      bg="neutral.2"
+      shadow="md"
+      radius="md"
+      style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
+    >
+      <Box h={32} pos="relative" bg="neutral.1" style={{ zIndex: 1 }}>
+        <Subtitle order={3} pl="sm" pt={2} fw={700} style={{ border: 'none' }}>
+          {subject.title}
+        </Subtitle>
+        <Group pos="absolute" right={0} top={0} gap={2} style={{ zIndex: 2 }}>
           <ActionIcon
             size="sm"
             title="Vaihda värejä"
@@ -52,17 +59,19 @@ export const TrackingSubjectView: React.FC<{
           <ActionIcon size="sm" onClick={() => deleteSubject(subject, onReload)}>
             <Icons.Delete fontSize="small" />
           </ActionIcon>
-        </ToolsArea>
-      </TitleArea>
-      <TrackingArea className="tracking-area">
-        {subject.image ? <TrackingImage src={subject.image} /> : null}
+        </Group>
+      </Box>
+      <Group flex={1} wrap="nowrap" pos="relative">
+        {subject.image ? (
+          <img src={subject.image} alt="" style={{ width: 168, height: 168 }} />
+        ) : null}
         <TrackingChart
           data={subject.data}
           trackingData={subject.trackingData}
           className="tracking-chart"
         />
-      </TrackingArea>
-    </TrackingCard>
+      </Group>
+    </Paper>
   );
 };
 
@@ -79,42 +88,3 @@ async function changeTrackingColors(subjectId: ObjectId, onReload: () => void) {
     postProcess: onReload,
   });
 }
-
-const TrackingImage = styled.img`
-  width: 168px;
-  height: 168px;
-`;
-
-const TitleText = styled(Subtitle)`
-  padding-left: 12px;
-  padding-top: 2px;
-  font-weight: bold;
-  border: none;
-`;
-
-const TrackingCard = styled(FlexColumn)`
-  width: 100%;
-  position: relative;
-  height: 200px;
-  border-radius: var(--mantine-radius-md);
-  background-color: ${neutral[2]};
-  overflow: hidden;
-  box-shadow: var(--mantine-shadow-md);
-`;
-
-const TrackingArea = styled(FlexRow)`
-  flex: 1;
-`;
-
-const TitleArea = styled.div`
-  height: 32px;
-  background-color: ${neutral[1]}aa;
-  z-index: 1;
-`;
-
-const ToolsArea = styled.div`
-  position: absolute;
-  right: 0;
-  top: 0;
-  z-index: 2;
-`;
