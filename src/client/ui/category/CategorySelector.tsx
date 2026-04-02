@@ -1,24 +1,28 @@
 import { Select } from '@mantine/core';
-import * as B from 'baconjs';
 import * as React from 'react';
 
-import { Category, CategorySelection, ObjectId } from 'shared/types';
-import { CategoryDataSource, categoryDataSourceP, categoryMapP } from 'client/data/Categories';
-import { connect } from 'client/ui/component/BaconConnect';
+import { Category, CategorySelection } from 'shared/types';
+import { categoryDataSourceP, categoryMapP } from 'client/data/Categories';
 
-const CategorySelectorImpl: React.FC<{
-  categorySource: CategoryDataSource[];
-  categoryMap: Record<ObjectId, Category>;
+import { useBaconState } from '../hooks/useBaconState';
+
+export const CategorySelector: React.FC<{
   addCategories: (cat: CategorySelection | CategorySelection[]) => void;
   allowSelectAll?: boolean;
-}> = ({ categorySource, addCategories, categoryMap, allowSelectAll }) => {
+}> = ({ addCategories, allowSelectAll }) => {
+  const categorySource = useBaconState(categoryDataSourceP);
+  const categoryMap = useBaconState(categoryMapP);
+
   const data = React.useMemo(() => {
+    if (!categorySource) return [];
     const items = categorySource.map(c => ({ value: String(c.value), label: c.text }));
     if (allowSelectAll) {
       items.unshift({ value: '0', label: 'Kaikki pääkategoriat' });
     }
     return items;
   }, [categorySource, allowSelectAll]);
+
+  if (!categorySource || !categoryMap) return null;
 
   return (
     <Select
@@ -31,7 +35,7 @@ const CategorySelectorImpl: React.FC<{
         const catId = Number(val);
         if (catId === 0) {
           if (allowSelectAll === false) return;
-          const mainCats = Object.values(categoryMap).filter(c => c.parentId === null);
+          const mainCats = Object.values(categoryMap).filter((c: Category) => c.parentId === null);
           addCategories(mainCats.map(c => ({ id: c.id, grouped: true })));
           return;
         }
@@ -44,10 +48,3 @@ const CategorySelectorImpl: React.FC<{
     />
   );
 };
-
-export const CategorySelector = connect(
-  B.combineTemplate({
-    categorySource: categoryDataSourceP,
-    categoryMap: categoryMapP,
-  }),
-)(CategorySelectorImpl);

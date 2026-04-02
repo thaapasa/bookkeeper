@@ -11,10 +11,10 @@ export const AddCategoryButton: React.FC<{
   color?: string;
   icon?: Icon;
 }> = ({ onAdd, parent, color, icon }) => {
-  const Icon = Icons[icon ?? 'Add'];
+  const I = Icons[icon ?? 'Add'];
   return (
-    <ActionIcon title="Lisää" onClick={() => onAdd(parent)}>
-      <Icon color={color} />
+    <ActionIcon title="Lisää" color={color} onClick={() => onAdd(parent)}>
+      <I />
     </ActionIcon>
   );
 };
@@ -24,8 +24,8 @@ export const EditCategoryButton: React.FC<{
   category: Category;
   color?: string;
 }> = ({ onEdit, category, color }) => (
-  <ActionIcon title="Muokkaa" onClick={() => onEdit(category)}>
-    <Icons.Edit color={color} />
+  <ActionIcon title="Muokkaa" color={color} onClick={() => onEdit(category)}>
+    <Icons.Edit />
   </ActionIcon>
 );
 
@@ -34,7 +34,7 @@ export const ToggleButton: React.FC<{
   onToggle: () => void;
   color?: string;
 }> = ({ state, onToggle, color }) => (
-  <ActionIcon title={state ? 'Sulje' : 'Avaa'} onClick={onToggle}>
-    {state ? <Icons.ExpandLess color={color} /> : <Icons.ExpandMore color={color} />}
+  <ActionIcon title={state ? 'Sulje' : 'Avaa'} color={color} onClick={onToggle}>
+    {state ? <Icons.ExpandLess /> : <Icons.ExpandMore />}
   </ActionIcon>
 );

@@ -1,5 +1,4 @@
-import styled from '@emotion/styled';
-import { Badge, CloseButton } from '@mantine/core';
+import { Badge, CloseButton, Group } from '@mantine/core';
 import * as React from 'react';
 
 import { Category, CategorySelection, ObjectId } from 'shared/types';
@@ -15,11 +14,11 @@ interface CategoryListProps {
 }
 
 export const CategoryChipList: React.FC<CategoryListProps> = ({ selected, ...props }) => (
-  <>
+  <Group gap="xs">
     {selected.map(cat => (
       <CategoryChip {...props} key={cat.id} cat={cat} />
     ))}
-  </>
+  </Group>
 );
 
 const CategoryChip: React.FC<
@@ -30,7 +29,7 @@ const CategoryChip: React.FC<
   const category = categoryMap[cat.id];
   const isParent = category.parentId === null;
   return (
-    <StyledBadge
+    <Badge
       variant={isParent ? 'filled' : 'outline'}
       leftSection={isParent && cat.grouped ? <Icons.AllInclusive fontSize="small" /> : undefined}
       rightSection={
@@ -46,13 +45,6 @@ const CategoryChip: React.FC<
       style={{ cursor: 'pointer' }}
     >
       {getFullCategoryName(category.id, categoryMap)}
-    </StyledBadge>
+    </Badge>
   );
 };
-
-const StyledBadge = styled(Badge)`
-  margin-left: 8px;
-  &:first-of-type {
-    margin-left: 0px;
-  }
-` as any;

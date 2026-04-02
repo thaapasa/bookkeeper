@@ -3,7 +3,7 @@ import { useParams } from 'react-router';
 
 import { monthRange, TypedDateRange, yearRange } from 'shared/time';
 
-import CategoryView from './CategoryView';
+import { CategoryView } from './CategoryView';
 
 type CategoryRouteParams = 'year' | 'month';
 
