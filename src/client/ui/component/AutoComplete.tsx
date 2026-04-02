@@ -45,6 +45,11 @@ export const AutoComplete = <T,>({
   getSuggestionValue,
   errorText,
   onAdd,
+  // Destructure custom props so they don't get spread to the DOM
+  fullWidth: _fullWidth,
+  inputClassName: _inputClassName,
+  autoHideErrorText: _autoHideErrorText,
+  inputStyle: _inputStyle,
   ...props
 }: AutoCompleteProps<T>): React.ReactElement => {
   const suggestionMap = React.useMemo(() => {
