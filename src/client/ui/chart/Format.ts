@@ -1,6 +1,6 @@
 import { Money } from 'shared/util';
 
-import { Size } from '../layout/Styles.ts';
+import { Size } from '../layout/Styles';
 
 export const formatMoneyThin = (v: number) => (v > 1000 ? `${Math.round(v / 1000)}K` : `${v}`);
 

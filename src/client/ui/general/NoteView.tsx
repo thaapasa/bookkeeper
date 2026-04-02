@@ -1,73 +1,40 @@
-import styled from '@emotion/styled';
+import { Box, BoxProps } from '@mantine/core';
 import * as React from 'react';
 
 import { spaced } from 'shared/util';
 
-import { neutral, primary, text } from '../Colors';
+import styles from './NoteView.module.css';
 
 export type NoteType = 'note' | 'warning';
 export type NoteViewProps = {
   title?: string;
   type?: NoteType;
-  className?: string;
   fullWidth?: boolean;
   compact?: boolean;
-};
+  noMargin?: boolean;
+} & BoxProps;
 
 export const NoteView: React.FC<React.PropsWithChildren<NoteViewProps>> = ({
   type,
   title,
   children,
-  className,
   compact,
   fullWidth,
+  noMargin,
+  className,
+  ...props
 }) => (
-  <Container
-    className={spaced`${className} ${compact ? 'compact' : ''} ${fullWidth ? 'fullWidth' : ''}`}
+  <Box
+    className={spaced`${className} ${styles.container} ${compact ? styles.compact : ''} ${fullWidth ? styles.fullWidth : ''} ${noMargin ? styles.noMargin : ''}`}
+    {...props}
   >
-    {title ? <Title className={type ?? 'note'}>{title}</Title> : null}
-    <Message>{children}</Message>
-  </Container>
+    {title ? (
+      <Box
+        className={spaced`${styles.titleBase} ${type === 'warning' ? styles.warningTitle : styles.noteTitle}`}
+      >
+        {title}
+      </Box>
+    ) : null}
+    <Box p="md">{children}</Box>
+  </Box>
 );
-
-const Container = styled('div')`
-  background-color: ${neutral[2]};
-  border-radius: var(--mantine-radius-sm);
-  margin: 32px;
-  width: auto;
-  box-sizing: border-box;
-
-  &.nomargin {
-    margin: 0;
-  }
-
-  &.compact {
-    margin: 8px 16px;
-  }
-
-  &.fullWidth {
-    display: flex;
-    flex-direction: column;
-    align-self: stretch;
-  }
-`;
-
-const Title = styled.div`
-  padding: 8px 16px;
-  font-size: var(--mantine-font-size-lg);
-  border-top-left-radius: var(--mantine-radius-sm);
-  border-top-right-radius: var(--mantine-radius-sm);
-
-  &.note {
-    color: ${text};
-    background-color: ${neutral[4]};
-  }
-  &.warning {
-    color: ${neutral[1]};
-    background-color: ${primary[7]};
-  }
-`;
-
-const Message = styled('div')`
-  padding: 16px;
-`;

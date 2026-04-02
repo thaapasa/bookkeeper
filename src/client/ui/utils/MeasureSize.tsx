@@ -1,9 +1,8 @@
-import styled from '@emotion/styled';
 import React from 'react';
 
 import { useDebounced } from '../hooks/useDebounced';
 import { useElementSize } from '../hooks/useElementSize';
-import { Size } from '../layout/Styles.ts';
+import { Size } from '../layout/Styles';
 
 export function MeasureSize<T>(
   component: React.ComponentType<T & { size: Size }>,
@@ -21,9 +20,9 @@ export function MeasureSize<T>(
     const Component = component as any;
     return React.useMemo(
       () => (
-        <MeasureDiv ref={containerRef} className={className} height={height}>
+        <div ref={containerRef} className={className} style={{ display: 'flex', flex: 1, height }}>
           {size ? <Component size={debounced} {...props} /> : null}
-        </MeasureDiv>
+        </div>
       ),
       // eslint-disable-next-line
       [Component, className, debounced, ...Object.keys(props), ...Object.values(props)],
@@ -31,9 +30,3 @@ export function MeasureSize<T>(
   };
   return MeasuredComponent;
 }
-
-const MeasureDiv = styled('div')`
-  display: flex;
-  flex: 1;
-  ${(props: { height?: string | number }) => (props.height ? `height: ${props.height}` : '')}
-`;

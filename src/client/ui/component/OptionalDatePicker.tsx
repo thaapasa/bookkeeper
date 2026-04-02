@@ -1,11 +1,9 @@
-import { Checkbox } from '@mantine/core';
+import { Checkbox, Group } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
 import React from 'react';
 
 import { ISODate, toISODate } from 'shared/time';
 import { isDefined } from 'shared/types';
-
-import { Row } from './Row';
 
 interface OptionalDatePickerProps {
   value: ISODate | null;
@@ -17,7 +15,7 @@ export const OptionalDatePicker: React.FC<OptionalDatePickerProps> = ({ value, o
   const hasDate = isDefined(value);
 
   return (
-    <Row>
+    <Group align="center" wrap="nowrap">
       <Checkbox checked={hasDate} onChange={() => onChange(hasDate ? null : today)} />
       <DatePickerInput
         disabled={!hasDate}
@@ -25,6 +23,6 @@ export const OptionalDatePicker: React.FC<OptionalDatePickerProps> = ({ value, o
         value={value ? value : null}
         onChange={v => onChange(v ? (v as ISODate) : null)}
       />
-    </Row>
+    </Group>
   );
 };

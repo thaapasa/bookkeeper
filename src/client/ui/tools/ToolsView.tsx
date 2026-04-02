@@ -1,5 +1,4 @@
-import styled from '@emotion/styled';
-import { Flex } from '@mantine/core';
+import { Box, Flex } from '@mantine/core';
 import * as React from 'react';
 
 import apiConnect from 'client/data/ApiConnect';
@@ -11,30 +10,19 @@ import { UserPrompts } from '../dialog/DialogState';
 import { ReceiverField } from '../expense/dialog/ReceiverField';
 import { DbStatusView } from './DbStatusView';
 import { ToolButton } from './ToolButton';
+import styles from './ToolsView.module.css';
 
 export const ToolsView: React.FC = () => (
   <Flex direction="column" align="center">
-    <ToolsGrid>
-      <FullWidth>
+    <Box className={styles.grid}>
+      <Box style={{ gridColumn: '1 / -1' }}>
         <Title>Työkalut</Title>
-      </FullWidth>
+      </Box>
       <ToolButton title="Vaihda kohteiden nimi" buttonText="Vaihda" action={changeReceiverName} />
       <DbStatusView />
-    </ToolsGrid>
+    </Box>
   </Flex>
 );
-
-const ToolsGrid = styled.div`
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 16px;
-  padding: 16px;
-  max-width: 800px;
-`;
-
-const FullWidth = styled.div`
-  grid-column: 1 / -1;
-`;
 
 async function changeReceiverName() {
   const oldName = await UserPrompts.promptText(

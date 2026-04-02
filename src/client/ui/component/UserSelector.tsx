@@ -4,7 +4,7 @@ import * as React from 'react';
 import { ObjectId } from 'shared/types';
 import { validSessionP } from 'client/data/Login';
 
-import { useBaconState } from '../hooks/useBaconState.ts';
+import { useBaconState } from '../hooks/useBaconState';
 import { UserIdAvatar } from './UserAvatar';
 
 type UserSelectorProps = {

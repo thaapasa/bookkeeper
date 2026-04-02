@@ -20,17 +20,20 @@ import { reloadApp } from 'client/util/ClientUtil';
 import { profilePagePath } from 'client/util/Links';
 
 import { Caption } from '../design/Text';
+import { useBaconState } from '../hooks/useBaconState';
 import { Icons, RenderIcon } from '../icons/Icons';
-import { AppLink } from '../layout/TopBar.tsx';
-import { connect } from './BaconConnect';
+import { AppLink } from '../layout/TopBar';
 import { UserAvatar } from './UserAvatar';
 
 interface MenuDrawerProps {
   open: boolean;
   onRequestChange: (open: boolean) => void;
+  links?: AppLink[];
+}
+
+interface MenuDrawerViewProps extends MenuDrawerProps {
   user: User;
   group: Group;
-  links?: AppLink[];
 }
 
 const colorSchemeOptions = [
@@ -39,7 +42,7 @@ const colorSchemeOptions = [
   { value: 'dark', label: '🌙' },
 ];
 
-export const MenuDrawer: React.FC<MenuDrawerProps> = ({
+const MenuDrawerView: React.FC<MenuDrawerViewProps> = ({
   onRequestChange,
   open,
   group,
@@ -138,4 +141,8 @@ export const MenuDrawer: React.FC<MenuDrawerProps> = ({
   );
 };
 
-export default connect(validSessionP.map(s => ({ user: s.user, group: s.group })))(MenuDrawer);
+export const MenuDrawer: React.FC<MenuDrawerProps> = props => {
+  const session = useBaconState(validSessionP);
+  if (!session) return null;
+  return <MenuDrawerView {...props} user={session.user} group={session.group} />;
+};

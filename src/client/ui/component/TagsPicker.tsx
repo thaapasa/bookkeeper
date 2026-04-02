@@ -1,11 +1,9 @@
-import styled from '@emotion/styled';
-import { Pill } from '@mantine/core';
+import { Box, Pill, Stack } from '@mantine/core';
 import * as React from 'react';
 
 import { identity, noop } from 'shared/util';
 
 import { AutoComplete } from './AutoComplete';
-import { FlexColumn } from './BasicElements';
 
 interface TagsPickerProps {
   value: string[];
@@ -17,14 +15,14 @@ interface TagsPickerProps {
 export const TagsPicker: React.FC<TagsPickerProps> = ({ value, presetValues, onAdd, onRemove }) => {
   const [tag, setTag] = React.useState('');
   return (
-    <FlexColumn>
-      <TagGrid className="vcenter">
+    <Stack>
+      <Box display="inline-block">
         {value.map(v => (
-          <StyledPill key={v} withRemoveButton onRemove={() => onRemove(v)}>
+          <Pill key={v} withRemoveButton onRemove={() => onRemove(v)} mr="xs" mb="xs">
             {v}
-          </StyledPill>
+          </Pill>
         ))}
-      </TagGrid>
+      </Box>
       <AutoComplete
         suggestions={presetValues}
         onSelectSuggestion={s => onAdd(s)}
@@ -43,15 +41,6 @@ export const TagsPicker: React.FC<TagsPickerProps> = ({ value, presetValues, onA
           setTag('');
         }}
       />
-    </FlexColumn>
+    </Stack>
   );
 };
-
-const StyledPill = styled(Pill)`
-  margin-right: 8px;
-  margin-bottom: 8px;
-` as any;
-
-const TagGrid = styled.div`
-  display: inline-block;
-`;

@@ -8,6 +8,3 @@ export interface Size {
  * Used by BookkeeperPage Container and TotalsView positioning.
  */
 export const mainContentMaxWidth = 1400;
-
-// Styled components moved to GlobalStyles.ts
-export { Flex, Pre } from '../GlobalStyles.ts';

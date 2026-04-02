@@ -1,5 +1,4 @@
-import styled from '@emotion/styled';
-import { Button } from '@mantine/core';
+import { Box, Button, Group } from '@mantine/core';
 import * as React from 'react';
 
 import { TextEdit } from '../component/TextEdit';
@@ -20,28 +19,17 @@ export const TextPromptDialogContents: React.FC<TextPromptDialogProps> = ({
   return (
     <>
       <div onKeyUp={handleKeyPress}>
-        <Description>{description}</Description>
+        <Box mb="xs">{description}</Box>
         <Editor value={text} onChange={setText} width="400px" />
       </div>
-      <Actions>
+      <Group justify="flex-end" gap="xs" pt="md">
         <Button variant="subtle" onKeyUp={handleKeyPress} onClick={() => onCancel()}>
           Peruuta
         </Button>
         <Button variant="filled" onKeyUp={handleKeyPress} onClick={() => onSelect(text)}>
           OK
         </Button>
-      </Actions>
+      </Group>
     </>
   );
 };
-
-const Description = styled.div`
-  margin-bottom: 8px;
-`;
-
-const Actions = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  padding-top: 16px;
-`;

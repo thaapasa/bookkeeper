@@ -1,6 +1,7 @@
-import styled from '@emotion/styled';
 import { ActionIcon, type ActionIconProps } from '@mantine/core';
 import React from 'react';
+
+import styles from './Common.module.css';
 
 export {
   type DateRangeSelectorProps,
@@ -18,25 +19,15 @@ export {
   toYearRange,
 } from './dateRangeUtils';
 
-export const NumberInput = styled.input`
-  width: 64px;
-  &.month {
-    width: 42px;
-  }
-  margin: 0 2px;
-  padding: 4px 8px;
-  border: none;
-  border-radius: var(--mantine-radius-sm);
-  background: light-dark(rgba(0, 0, 0, 0.06), rgba(255, 255, 255, 0.06));
-  font-size: inherit;
-  text-align: center;
-  &:first-of-type {
-    margin-left: 0;
-  }
-  &:last-of-type {
-    margin-right: 0;
-  }
-`;
+export const NumberInput: React.FC<React.InputHTMLAttributes<HTMLInputElement>> = ({
+  className,
+  ...props
+}) => (
+  <input
+    {...props}
+    className={`${styles.numberInput}${className === 'month' ? ` ${styles.month}` : ''}`}
+  />
+);
 
 export const StyledIconButton: React.FC<
   ActionIconProps & React.ButtonHTMLAttributes<HTMLButtonElement> & React.PropsWithChildren

@@ -1,0 +1,37 @@
+.container {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+}
+
+.container.navigation {
+  width: 40px;
+  height: 40px;
+}
+
+.background {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  bottom: 5px;
+  left: 5px;
+  border-radius: 100px;
+  background: var(--mantine-color-primary-5);
+  z-index: 0;
+}
+
+.icon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 32px;
+  height: 32px;
+  color: white;
+}
+
+.icon.navigation {
+  width: 40px;
+  height: 40px;
+  z-index: 1;
+}

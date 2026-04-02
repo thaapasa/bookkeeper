@@ -1,4 +1,3 @@
-import styled from '@emotion/styled';
 import { ActionIcon } from '@mantine/core';
 import * as React from 'react';
 
@@ -7,6 +6,7 @@ import { KeyCodes } from 'client/util/Io';
 
 import { TextEditorComponent } from '../dialog/DialogState';
 import { Icons } from '../icons/Icons';
+import styles from './ActivatableTextField.module.css';
 import { AutoCompleteProps } from './AutoComplete';
 import { TextEdit, TextEditProps } from './TextEdit';
 
@@ -73,7 +73,7 @@ export const ActivatableTextField: React.FC<ActivatableTextFieldProps<any>> = <
   const Type = (editorType ?? TextEdit) as any;
 
   return edit ? (
-    <EditorContainer>
+    <div className={styles.editorContainer}>
       <Type
         autoFocus={true}
         variant="unstyled"
@@ -87,27 +87,14 @@ export const ActivatableTextField: React.FC<ActivatableTextFieldProps<any>> = <
       <ActionIcon size="sm" color="gray" onClick={cancel}>
         <Icons.CancelOutlined fontSize="medium" />
       </ActionIcon>
-    </EditorContainer>
+    </div>
   ) : (
-    <ValueContainer className={className} style={viewStyle} onClick={activate}>
+    <div
+      className={`${styles.valueContainer} ${className ?? ''}`}
+      style={viewStyle}
+      onClick={activate}
+    >
       {value}
-    </ValueContainer>
+    </div>
   );
 };
-
-const EditorContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  background-color: light-dark(rgba(0, 0, 0, 0.04), rgba(255, 255, 255, 0.06));
-  border-radius: var(--mantine-radius-sm);
-  padding: 0 4px;
-  & > div,
-  & > svg {
-    padding-right: 8px;
-  }
-`;
-
-const ValueContainer = styled.div`
-  cursor: pointer;
-`;

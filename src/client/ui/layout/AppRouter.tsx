@@ -18,19 +18,19 @@ import {
   trackingPagePath,
 } from 'client/util/Links';
 
-import { RoutedCategoryView } from '../category/RoutedCategoryView.tsx';
-import { FrontpageView } from '../expense/FrontpageView.tsx';
-import { RoutedMonthView } from '../expense/RoutedMonthView.tsx';
-import { PathNotFoundError } from '../general/ErrorView.tsx';
-import { ShortcutsPage } from '../general/ShortcutsPage.tsx';
+import { RoutedCategoryView } from '../category/RoutedCategoryView';
+import { FrontpageView } from '../expense/FrontpageView';
+import { RoutedMonthView } from '../expense/RoutedMonthView';
+import { PathNotFoundError } from '../general/ErrorView';
+import { ShortcutsPage } from '../general/ShortcutsPage';
 import { GroupingExpensesPage } from '../grouping/GroupingExpensesPage';
 import { GroupingPage } from '../grouping/GroupingPage';
-import { InfoView } from '../info/InfoView.tsx';
-import { ProfileView } from '../profile/ProfileView.tsx';
+import { InfoView } from '../info/InfoView';
+import { ProfileView } from '../profile/ProfileView';
 import { SearchPage } from '../search/SearchPage';
 import { StatisticsView } from '../statistics/StatisticsView';
 import { SubscriptionsPage } from '../subscriptions/SubscriptionsPage';
-import { ToolsView } from '../tools/ToolsView.tsx';
+import { ToolsView } from '../tools/ToolsView';
 import { TrackingPage } from '../tracking/TrackingPage';
 
 export function AppRouter() {

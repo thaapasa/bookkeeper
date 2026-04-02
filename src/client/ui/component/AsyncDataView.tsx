@@ -9,7 +9,6 @@ import {
 
 import { ErrorView } from '../general/ErrorView';
 import { NoteView } from '../general/NoteView';
-import { Pre } from '../GlobalStyles';
 
 export type AsyncDataViewProps<T, C extends { data: T }> = {
   data: AsyncData<T>;
@@ -57,13 +56,13 @@ export const AsyncDataView = <T, C extends { data: T }>({
 const UninitializedRenderer: React.FC<{ data: AsyncDataUninitialized; message?: string }> = ({
   message,
 }) => (
-  <NoteView title="Ei tietoja" className="nomargin">
+  <NoteView title="Ei tietoja" noMargin>
     {message ?? 'Tietoja ei ole alustettu'}
   </NoteView>
 );
 
 const LoadingRenderer: React.FC<{ data: AsyncDataLoading }> = () => (
-  <NoteView title="Odota" className="nomargin">
+  <NoteView title="Odota" noMargin>
     Ladataan...
   </NoteView>
 );
@@ -78,7 +77,11 @@ const ErrorRenderer: React.FC<{ data: AsyncDataError }> = ({ data }) => {
   return (
     <ErrorView title="Virhe tietojen latauksessa">
       <p>{message}</p>
-      {errorData ? <Pre>{JSON.stringify(errorData, null, 2)}</Pre> : undefined}
+      {errorData ? (
+        <pre style={{ fontFamily: 'monospace', whiteSpace: 'pre' }}>
+          {JSON.stringify(errorData, null, 2)}
+        </pre>
+      ) : undefined}
     </ErrorView>
   );
 };

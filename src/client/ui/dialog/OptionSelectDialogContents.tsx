@@ -1,5 +1,4 @@
-import styled from '@emotion/styled';
-import { Button } from '@mantine/core';
+import { Button, Group } from '@mantine/core';
 import * as React from 'react';
 
 import { DialogContentRendererProps, OptionSelectDialogData } from './Dialog';
@@ -18,7 +17,7 @@ export const OptionSelectDialogContents: React.FC<OptionSelectDialogProps<any>> 
   return (
     <>
       <div onKeyUp={handleKeyPress}>{description}</div>
-      <Actions>
+      <Group justify="flex-end" gap="xs" pt="md" wrap="wrap">
         <Button variant="subtle" onKeyUp={handleKeyPress} onClick={onCancel}>
           Peruuta
         </Button>
@@ -32,15 +31,7 @@ export const OptionSelectDialogContents: React.FC<OptionSelectDialogProps<any>> 
             {o.label}
           </Button>
         ))}
-      </Actions>
+      </Group>
     </>
   );
 };
-
-const Actions = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  padding-top: 16px;
-  flex-wrap: wrap;
-`;

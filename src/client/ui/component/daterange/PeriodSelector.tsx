@@ -1,12 +1,10 @@
-import styled from '@emotion/styled';
-import { Button } from '@mantine/core';
+import { Button, Stack } from '@mantine/core';
 import * as React from 'react';
 
 import { AllPeriods, Period, periodToYearAndMonth, PeriodType } from 'shared/time';
-import { primary } from 'client/ui/Colors';
 
-import { FlexColumn } from '../BasicElements';
 import { MonthSelector } from './MonthSelector';
+import styles from './PeriodSelector.module.css';
 import { YearSelector } from './YearSelector';
 
 export interface PeriodSelectorProps<P extends Period> {
@@ -41,27 +39,33 @@ export const PeriodSelector: React.FC<PeriodSelectorProps<any>> = <P extends Per
   );
 
   return (
-    <Container>
-      <FlexColumn>
-        <Tab>
+    <div className={styles.container}>
+      <Stack gap={0}>
+        <div>
           {validPeriods.map(v => (
-            <TabButton key={v} onClick={() => changeType(v)} selected={type === v}>
+            <Button
+              key={v}
+              variant="subtle"
+              onClick={() => changeType(v)}
+              className={type === v ? styles.tabButtonSelected : undefined}
+              style={{ padding: '4px 6px' }}
+            >
               {PeriodTitles[v]}
-            </TabButton>
+            </Button>
           ))}
-        </Tab>
-      </FlexColumn>
+        </div>
+      </Stack>
       {type === 'year' ? (
-        <TabPanel type="year">
+        <div className={styles.panel}>
           <YearSelector year={year} onSelect={setYear} />
-        </TabPanel>
+        </div>
       ) : null}
       {type === 'month' ? (
-        <TabPanel type="month">
+        <div className={styles.panel}>
           <MonthSelector year={year} month={month} onSelect={setYearMonth} />
-        </TabPanel>
+        </div>
       ) : null}
-    </Container>
+    </div>
   );
 };
 
@@ -82,57 +86,3 @@ const PeriodTitles: Record<PeriodType, string> = {
   year: 'Vuosi',
   month: 'Kuu',
 };
-
-interface TabPanelProps {
-  type: PeriodType;
-  className?: string;
-}
-
-const TabPanel: React.FC<React.PropsWithChildren<TabPanelProps>> = ({
-  children,
-  type,
-  className,
-  ...other
-}) => (
-  <Panel className={className} {...other}>
-    {children}
-  </Panel>
-);
-
-const Container = styled(FlexColumn)`
-  display: flex;
-  min-width: 188px;
-  white-space: nowrap;
-`;
-
-const Panel = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  margin-top: 4px;
-`;
-
-const Tab = styled.div``;
-
-const TabButton: React.FC<React.PropsWithChildren<{ selected: boolean; onClick: () => void }>> = ({
-  selected,
-  onClick,
-  children,
-}) => (
-  <Button
-    variant="subtle"
-    onClick={onClick}
-    style={{
-      padding: '4px 6px',
-      ...(selected
-        ? {
-            border: `1px dotted ${primary[2]}`,
-            backgroundColor: `${primary[2]}77`,
-            color: primary[9],
-          }
-        : {}),
-    }}
-  >
-    {children}
-  </Button>
-);

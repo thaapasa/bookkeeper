@@ -1,5 +1,4 @@
-import styled from '@emotion/styled';
-import { Button } from '@mantine/core';
+import { Box, Button, Group } from '@mantine/core';
 import * as React from 'react';
 
 import { CategorySelection, ObjectId } from 'shared/types';
@@ -23,24 +22,14 @@ export const CategoryPromptDialogContents: React.FC<CategoryPromptDialogProps> =
   return (
     <>
       <div onKeyUp={handleKeyPress}>
-        <Description>{description}</Description>
+        <Box mb="xs">{description}</Box>
         <CategorySelector addCategories={selectCat} />
       </div>
-      <Actions>
+      <Group justify="flex-end" pt="md">
         <Button variant="subtle" onKeyUp={handleKeyPress} onClick={() => onCancel()}>
           Peruuta
         </Button>
-      </Actions>
+      </Group>
     </>
   );
 };
-
-const Description = styled.div`
-  margin-bottom: 8px;
-`;
-
-const Actions = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  padding-top: 16px;
-`;

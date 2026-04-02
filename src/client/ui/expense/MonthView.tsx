@@ -11,7 +11,7 @@ import { expensePagePath, expensesForMonthPath } from 'client/util/Links';
 
 import { useDeferredData } from '../hooks/useAsyncData';
 import { zeroStatus } from './ExpenseHelper';
-import ExpenseTable from './ExpenseTable';
+import { ExpenseTable } from './ExpenseTable';
 
 interface MonthViewProps {
   date: Date;

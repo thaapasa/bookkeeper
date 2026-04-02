@@ -15,7 +15,6 @@ import {
   trackingPagePath,
 } from 'client/util/Links';
 
-import { neutral, primary, text } from '../Colors';
 import { DateRangeNavigator } from '../component/DateRangeNavigator';
 import { useIsMobile } from '../hooks/useBreakpoints';
 import { Icon, RenderIcon } from '../icons/Icons';
@@ -56,7 +55,12 @@ export const TopBar: React.FC<TopBarProps> = ({ menuOpen, onToggleMenu }) => {
   const isMobile = useIsMobile();
   return (
     <Group h="100%" px="md" gap={0}>
-      <Burger opened={menuOpen} onClick={onToggleMenu} color={text} size="sm" />
+      <Burger
+        opened={menuOpen}
+        onClick={onToggleMenu}
+        color="var(--mantine-color-text)"
+        size="sm"
+      />
       {isMobile ? (
         <>
           <Group flex={1} justify="center" style={{ overflow: 'hidden' }}>
@@ -94,8 +98,8 @@ const HeaderNavLink: React.FC<{ link: AppLink & { showInHeader: MantineSize } }>
       style={{
         alignItems: 'center',
         textDecoration: 'none',
-        color: active ? text : neutral[7],
-        boxShadow: active ? `inset 0 -2px 0 ${primary[5]}` : 'none',
+        color: active ? 'var(--mantine-color-text)' : 'var(--mantine-color-neutral-7)',
+        boxShadow: active ? 'inset 0 -2px 0 var(--mantine-color-primary-5)' : 'none',
         transition: 'background-color 150ms, color 150ms',
       }}
       className={classes.headerLink}
@@ -128,7 +132,7 @@ export const LinkButton: React.FC<{
         size="compact-sm"
         color={match ? 'primary' : 'dark'}
         leftSection={icon ? <RenderIcon icon={icon} /> : undefined}
-        style={match ? undefined : { color: neutral[7] }}
+        style={match ? undefined : { color: 'var(--mantine-color-neutral-7)' }}
       >
         {label}
       </Button>

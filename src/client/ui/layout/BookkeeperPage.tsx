@@ -4,18 +4,18 @@ import * as React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 
 import { Session } from 'shared/types';
-import { expenseDialogE, expenseSplitE } from 'client/data/State.ts';
+import { expenseDialogE, expenseSplitE } from 'client/data/State';
 
-import MenuDrawer from '../component/MenuDrawer.tsx';
-import { NotificationBar } from '../component/NotificationBar.tsx';
-import { ModalDialogConnector } from '../dialog/ModalDialogConnector.tsx';
-import { ExpenseDialog } from '../expense/dialog/ExpenseDialog.tsx';
-import { createExpenseDialogListener } from '../expense/dialog/ExpenseDialogListener.tsx';
-import { ExpenseSplitDialog } from '../expense/split/ExpenseSplitDialog.tsx';
+import { MenuDrawer } from '../component/MenuDrawer';
+import { NotificationBar } from '../component/NotificationBar';
+import { ModalDialogConnector } from '../dialog/ModalDialogConnector';
+import { ExpenseDialog } from '../expense/dialog/ExpenseDialog';
+import { createExpenseDialogListener } from '../expense/dialog/ExpenseDialogListener';
+import { ExpenseSplitDialog } from '../expense/split/ExpenseSplitDialog';
 import { useIsMobile } from '../hooks/useBreakpoints';
-import { AppRouter } from './AppRouter.tsx';
-import { mainContentMaxWidth } from './Styles.ts';
-import { appLinks, TopBar } from './TopBar.tsx';
+import { AppRouter } from './AppRouter';
+import { mainContentMaxWidth } from './Styles';
+import { appLinks, TopBar } from './TopBar';
 
 interface PageProps {
   session: Session;

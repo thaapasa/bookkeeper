@@ -3,7 +3,7 @@ import * as React from 'react';
 
 import { ExpenseGroupingRef } from 'shared/types';
 
-import { BookmarkIcon, BookmarkIconProps } from '../component/BookmarkIcon.tsx';
+import { BookmarkIcon, BookmarkIconProps } from '../component/BookmarkIcon';
 
 const defaultGroupingColor = DEFAULT_THEME.colors.blue[3];
 

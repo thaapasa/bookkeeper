@@ -7,8 +7,6 @@ import {
 } from '@mantine/core';
 import React, { forwardRef } from 'react';
 
-import { neutral } from '../Colors';
-
 type ElementProps = React.PropsWithChildren<TextProps>;
 
 export const Title: React.FC<TitleProps> = ({ order = 1, ...props }) => (
@@ -16,7 +14,7 @@ export const Title: React.FC<TitleProps> = ({ order = 1, ...props }) => (
     order={order}
     mb="md"
     pb={4}
-    style={{ borderBottom: `1px solid ${neutral[3]}` }}
+    style={{ borderBottom: '1px solid var(--mantine-color-neutral-3)' }}
     {...props}
   />
 );
@@ -26,7 +24,7 @@ export const Subtitle: React.FC<TitleProps> = ({ order = 2, ...props }) => (
     order={order}
     mb="xs"
     pb={2}
-    style={{ borderBottom: `1px solid ${neutral[1]}` }}
+    style={{ borderBottom: '1px solid var(--mantine-color-neutral-1)' }}
     {...props}
   />
 );

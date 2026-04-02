@@ -1,6 +1,10 @@
 import { Money, MoneyLike } from 'shared/util';
 
-import { negative, positive, unconfirmed, unimportant, white } from './Colors';
+const positive = 'light-dark(var(--mantine-color-dark-9), var(--mantine-color-green-4))';
+const negative = 'light-dark(var(--mantine-color-red-7), var(--mantine-color-red-4))';
+const unimportant = 'var(--mantine-color-dimmed)';
+const unconfirmed = 'light-dark(var(--mantine-color-yellow-1), var(--mantine-color-yellow-9))';
+const white = 'var(--mantine-color-white)';
 
 export function diagonalStripes(
   color1: string,

@@ -1,12 +1,11 @@
-import styled from '@emotion/styled';
-import { Button } from '@mantine/core';
+import { Box, Button, Paper, Text } from '@mantine/core';
 import * as React from 'react';
 
 import { pickRandomItem } from 'shared/util';
 import { login } from 'client/data/Login';
 
-import { primary } from '../Colors';
 import { TextEdit } from '../component/TextEdit';
+import styles from './LoginPage.module.css';
 
 const publicUrl = import.meta.env.PUBLIC_URL || '';
 
@@ -36,11 +35,19 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <Page bgImage={bgImage}>
-      <LoginPaper>
-        <Form onSubmit={handleSubmit}>
-          <Title>Kirjaudu sisään</Title>
-          <EditField
+    <Box className={styles.page} style={{ backgroundImage: `url(${publicUrl}/img/${bgImage})` }}>
+      <Paper shadow="sm" radius="md" p="xl" mt="15vh" mx="xl" style={{ zIndex: 1 }}>
+        <Box
+          component="form"
+          onSubmit={handleSubmit}
+          display="inline-flex"
+          style={{ flexDirection: 'column', alignItems: 'stretch' }}
+          w={280}
+        >
+          <Text ta="center" mb="3vh">
+            Kirjaudu sisään
+          </Text>
+          <TextEdit
             placeholder="Käyttäjätunnus"
             label="Käyttäjätunnus"
             name="username"
@@ -50,8 +57,9 @@ export const LoginPage: React.FC = () => {
             autoComplete="username"
             autoCorrect="off"
             autoFocus={true}
+            mt="xs"
           />
-          <EditField
+          <TextEdit
             placeholder="Salasana"
             label="Salasana"
             name="password"
@@ -61,63 +69,18 @@ export const LoginPage: React.FC = () => {
             autoCorrect="off"
             value={password}
             onChange={setPassword}
+            mt="xs"
           />
           <Button type="submit" fullWidth mt="xl">
             Kirjaudu
           </Button>
-          {statusMessage !== null ? <ErrorText>{statusMessage}</ErrorText> : ''}
-        </Form>
-      </LoginPaper>
-    </Page>
+          {statusMessage !== null ? (
+            <Text c="primary.7" ta="center" mt="3vh">
+              {statusMessage}
+            </Text>
+          ) : null}
+        </Box>
+      </Paper>
+    </Box>
   );
 };
-
-const LoginPaper = styled.div`
-  margin: 15vh 32px 32px 32px;
-  padding: 32px;
-  border-radius: var(--mantine-radius-md);
-  background: var(--mantine-color-body);
-  box-shadow: var(--mantine-shadow-sm);
-  z-index: 1;
-`;
-
-const Form = styled.form`
-  display: inline-flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: stretch;
-  width: 280px;
-`;
-
-const EditField = styled(TextEdit)`
-  margin-top: 8px;
-`;
-
-const Title = styled.div`
-  text-align: center;
-  margin-bottom: 3vh;
-`;
-
-const ErrorText = styled.div`
-  margin-top: 3vh;
-  color: ${primary[7]};
-  text-align: center;
-`;
-
-const Page = styled.div<{ bgImage: string }>`
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: center;
-  background: url(${publicUrl}/img/${props => props.bgImage});
-  background-color: light-dark(var(--mantine-color-gray-4), var(--mantine-color-dark-8));
-  background-size: cover;
-  background-repeat: no-repeat;
-  width: 100%;
-  min-height: 100vh;
-
-  @media screen and (max-width: var(--mantine-breakpoint-xs)) {
-    background-size: 1024px;
-    background-position: center top;
-  }
-`;

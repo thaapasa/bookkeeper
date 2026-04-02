@@ -4,8 +4,8 @@ import * as React from 'react';
 import { ObjectId, User } from 'shared/types';
 import { userMapP } from 'client/data/Login';
 
-import { useBaconState } from '../hooks/useBaconState.ts';
-import { classNames } from '../utils/classNames.ts';
+import { useBaconState } from '../hooks/useBaconState';
+import { classNames } from '../utils/classNames';
 import styles from './UserAvatar.module.css';
 
 interface UserAvatarProps extends AvatarProps {

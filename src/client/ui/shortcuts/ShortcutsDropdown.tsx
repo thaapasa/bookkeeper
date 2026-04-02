@@ -1,30 +1,32 @@
-import styled from '@emotion/styled';
-import { ActionIcon, Menu } from '@mantine/core';
+import { ActionIcon, Avatar, Box, Menu } from '@mantine/core';
 import * as B from 'baconjs';
 import { DateTime } from 'luxon';
 import * as React from 'react';
 import { NavigateFunction, useNavigate } from 'react-router';
 
-import { ExpenseShortcut, ExpenseShortcutData, shortcutToExpenseInEditor } from 'shared/expense';
+import { ExpenseShortcutData, shortcutToExpenseInEditor } from 'shared/expense';
 import { uri } from 'shared/net';
-import { toDateTime, toISODate, TypedDateRange } from 'shared/time';
+import { toDateTime, toISODate } from 'shared/time';
 import { ObjectId } from 'shared/types';
 import { validSessionP } from 'client/data/Login';
 import { createExpense, createNewExpense, navigationP } from 'client/data/State';
 import { newExpenseSuffix } from 'client/util/Links';
 
-import { primary } from '../Colors';
-import { connect } from '../component/BaconConnect';
 import { pageSupportsRoutedExpenseDialog } from '../expense/NewExpenseInfo';
+import { useBaconState } from '../hooks/useBaconState';
 import { Icons } from '../icons/Icons';
 
-interface AddExpenseMenuProps {
-  shortcuts: ExpenseShortcut[];
-  dateRange: TypedDateRange;
-}
+const addExpenseMenuP = B.combineTemplate({
+  shortcuts: validSessionP.map(s => s.shortcuts || []),
+  dateRange: navigationP.map(n => n.dateRange),
+});
 
-const AddExpenseMenuImpl: React.FC<AddExpenseMenuProps> = ({ shortcuts, dateRange }) => {
+export const AddExpenseMenu: React.FC = () => {
+  const data = useBaconState(addExpenseMenuP);
   const navigate = useNavigate();
+  if (!data) return null;
+
+  const { shortcuts, dateRange } = data;
 
   const handleAddNew = () => openNewExpenseDialog(navigate, dateRange.start);
   const handleShortcut = (id?: ObjectId, expense?: Partial<ExpenseShortcutData>) => {
@@ -34,7 +36,7 @@ const AddExpenseMenuImpl: React.FC<AddExpenseMenuProps> = ({ shortcuts, dateRang
   return (
     <Menu shadow="md" width={220} position="bottom-end">
       <Menu.Target>
-        <ActionIcon variant="filled" color={primary[5]} radius="xl" size="md">
+        <ActionIcon variant="filled" color="primary.5" radius="xl" size="md">
           <Icons.Add color="white" fontSize="small" />
         </ActionIcon>
       </Menu.Target>
@@ -42,9 +44,9 @@ const AddExpenseMenuImpl: React.FC<AddExpenseMenuProps> = ({ shortcuts, dateRang
       <Menu.Dropdown>
         <Menu.Item
           leftSection={
-            <ShortcutFallback style={{ background: primary[5] }}>
+            <Avatar radius="lg" size={24} bg="primary.5" c="white">
               <Icons.Add color="white" fontSize="small" />
-            </ShortcutFallback>
+            </Avatar>
           }
           onClick={handleAddNew}
           fw={600}
@@ -59,11 +61,18 @@ const AddExpenseMenuImpl: React.FC<AddExpenseMenuProps> = ({ shortcuts, dateRang
             key={s.id}
             leftSection={
               s.icon ? (
-                <ShortcutImage src={s.icon} alt={s.title} />
+                <Box
+                  component="img"
+                  src={s.icon}
+                  alt={s.title}
+                  w={24}
+                  h={24}
+                  style={{ borderRadius: 'var(--mantine-radius-lg)' }}
+                />
               ) : (
-                <ShortcutFallback style={{ background: s.background }}>
+                <Avatar radius="lg" size={24} bg={s.background} c="white" fw={600} fz="xs">
                   {s.title.substring(0, 1).toUpperCase()}
-                </ShortcutFallback>
+                </Avatar>
               )
             }
             onClick={() => handleShortcut(s.id, s.expense)}
@@ -75,13 +84,6 @@ const AddExpenseMenuImpl: React.FC<AddExpenseMenuProps> = ({ shortcuts, dateRang
     </Menu>
   );
 };
-
-const addExpenseMenuP = B.combineTemplate({
-  shortcuts: validSessionP.map(s => s.shortcuts || []),
-  dateRange: navigationP.map(n => n.dateRange),
-});
-
-export const AddExpenseMenu = connect(addExpenseMenuP)(AddExpenseMenuImpl);
 
 function openNewExpenseDialog(navigate: NavigateFunction, shownDay: Date) {
   const path = window.location.pathname;
@@ -118,22 +120,3 @@ function openNewExpenseFromShortcut(
     createNewExpense(shortcutToExpenseInEditor(expense));
   }
 }
-
-const ShortcutImage = styled.img`
-  width: 24px;
-  height: 24px;
-  border-radius: var(--mantine-radius-lg);
-`;
-
-const ShortcutFallback = styled.div`
-  width: 24px;
-  height: 24px;
-  border-radius: var(--mantine-radius-lg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: ${primary[5]};
-  color: white;
-  font-size: var(--mantine-font-size-xs);
-  font-weight: 600;
-`;

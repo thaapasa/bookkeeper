@@ -1,10 +1,8 @@
-import styled from '@emotion/styled';
-import { Loader } from '@mantine/core';
+import { Box, Loader, Text, Title } from '@mantine/core';
 import * as React from 'react';
 
 import { AsyncDataError, AsyncDataLoading } from 'client/data/AsyncData';
 
-import { Pre } from '../GlobalStyles';
 import { AsyncDataView, AsyncDataViewProps } from './AsyncDataView';
 
 export const AsyncDataDialogContent = <T, C extends { data: T }>({
@@ -24,9 +22,9 @@ export const AsyncDataDialogContent = <T, C extends { data: T }>({
 );
 
 const LoadingRenderer: React.FC<{ data: AsyncDataLoading }> = () => (
-  <LoaderArea>
+  <Box display="flex" style={{ alignItems: 'center', justifyContent: 'center' }} p="xl">
     <Loader size={64} />
-  </LoaderArea>
+  </Box>
 );
 
 const ErrorRenderer: React.FC<{ data: AsyncDataError }> = ({ data }) => {
@@ -38,20 +36,15 @@ const ErrorRenderer: React.FC<{ data: AsyncDataError }> = ({ data }) => {
       : null;
   return (
     <div>
-      <ErrorTitle>Virhe tietojen latauksessa</ErrorTitle>
-      <p>{message}</p>
-      {errorData ? <Pre>{JSON.stringify(errorData, null, 2)}</Pre> : undefined}
+      <Title order={3} mb="xs">
+        Virhe tietojen latauksessa
+      </Title>
+      <Text>{message}</Text>
+      {errorData ? (
+        <pre style={{ fontFamily: 'monospace', whiteSpace: 'pre' }}>
+          {JSON.stringify(errorData, null, 2)}
+        </pre>
+      ) : undefined}
     </div>
   );
 };
-
-const LoaderArea = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 32px;
-`;
-
-const ErrorTitle = styled.h3`
-  margin: 0 0 8px;
-`;

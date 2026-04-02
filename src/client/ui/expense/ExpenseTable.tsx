@@ -5,8 +5,8 @@ import { Expense, ExpenseStatus, UserExpense } from 'shared/expense';
 import { Money, partition } from 'shared/util';
 import { userDataP, UserDataProps } from 'client/data/Categories';
 
-import { connect } from '../component/BaconConnect';
 import { ListDecorator } from '../component/ListDecorator';
+import { useBaconState } from '../hooks/useBaconState';
 import { ExpenseTotals } from './ExpenseHelper';
 import styles from './ExpenseTable.module.css';
 import { MonthlyStatus } from './MonthlyStatus';
@@ -28,6 +28,9 @@ interface ExpenseTableProps {
   monthStatus: ExpenseStatus;
   unconfirmedBefore: boolean;
   onUpdateExpense: (expenseId: number, expense: UserExpense) => void;
+}
+
+interface ExpenseTableInternalProps extends ExpenseTableProps {
   userData: UserDataProps;
 }
 
@@ -56,7 +59,7 @@ function calculateTotals(expenses: Expense[]): ExpenseTotals | null {
   return { totalIncome: income, totalExpense: expense };
 }
 
-const ExpenseTableView: React.FC<ExpenseTableProps> = props => {
+const ExpenseTableView: React.FC<ExpenseTableInternalProps> = props => {
   const { expenses, loading, userData, onUpdateExpense } = props;
   const [filters, setFilters] = React.useState<ExpenseFilter[]>([]);
   const [recurringExpanded, setRecurringExpanded] = React.useState(false);
@@ -170,4 +173,8 @@ const ExpenseTableView: React.FC<ExpenseTableProps> = props => {
   );
 };
 
-export default connect(userDataP.map(userData => ({ userData })))(ExpenseTableView);
+export const ExpenseTable: React.FC<ExpenseTableProps> = props => {
+  const userData = useBaconState(userDataP);
+  if (!userData) return null;
+  return <ExpenseTableView {...props} userData={userData} />;
+};

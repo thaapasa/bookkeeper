@@ -1,5 +1,4 @@
-import styled from '@emotion/styled';
-import { Button } from '@mantine/core';
+import { Button, Group } from '@mantine/core';
 import { DatePicker } from '@mantine/dates';
 import { DateTime } from 'luxon';
 import * as React from 'react';
@@ -27,7 +26,7 @@ export const DateSelectDialogComponent: React.FC<TextPromptDialogProps> = ({
   return (
     <>
       <DatePicker value={date?.toISODate() ?? null} onChange={changeHandler} />
-      <Actions>
+      <Group justify="flex-end" gap="xs" pt="md">
         <Button variant="subtle" onKeyUp={handleKeyPress} onClick={onCancel}>
           Peruuta
         </Button>
@@ -39,14 +38,7 @@ export const DateSelectDialogComponent: React.FC<TextPromptDialogProps> = ({
         >
           Valitse
         </Button>
-      </Actions>
+      </Group>
     </>
   );
 };
-
-const Actions = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  padding-top: 16px;
-`;

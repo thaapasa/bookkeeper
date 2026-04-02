@@ -1,11 +1,9 @@
-import styled from '@emotion/styled';
-import { ActionIcon, DEFAULT_THEME } from '@mantine/core';
+import { ActionIcon, DEFAULT_THEME, Group, Stack } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import * as React from 'react';
 
-import { neutral } from '../Colors';
 import { Icons } from '../icons/Icons';
-import { FlexColumn, FlexRow } from './BasicElements';
+import styles from './ColorPicker.module.css';
 import { TextEdit } from './TextEdit';
 
 interface ColorPickerProps {
@@ -37,13 +35,18 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ value, onChange }) => 
   const [shade, setShade] = React.useState<number>(defaultShadeIdx);
   return (
     <>
-      <FlexRow className="vcenter">
-        <ColorBall color={value} onClick={toggle} title={value} className="example" />
+      <Group align="center" gap="xs">
+        <div
+          className={`${styles.colorBall} ${styles.colorBallExample}`}
+          style={{ backgroundColor: value }}
+          onClick={toggle}
+          title={value}
+        />
         {open ? <TextEdit value={value} onChange={onChange} /> : value}
-      </FlexRow>
+      </Group>
       {open ? (
-        <FlexRow className="vcenter">
-          <FlexColumn>
+        <Group align="center" gap="xs">
+          <Stack gap={0}>
             <ActionIcon size="sm" onClick={() => setShade(shade > 0 ? shade - 1 : shade)}>
               <Icons.SortUp fontSize="small" />
             </ActionIcon>
@@ -53,41 +56,22 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ value, onChange }) => 
             >
               <Icons.SortDown fontSize="small" />
             </ActionIcon>
-          </FlexColumn>
-          <ColorOptions>
+          </Stack>
+          <div className={styles.colorOptions}>
             {colorNames.map(name => {
               const col = DEFAULT_THEME.colors[name][shadeIndices[shade]];
-              return <ColorBall color={col} key={name} onClick={() => onChange(col)} />;
+              return (
+                <div
+                  className={styles.colorBall}
+                  style={{ backgroundColor: col }}
+                  key={name}
+                  onClick={() => onChange(col)}
+                />
+              );
             })}
-          </ColorOptions>
-        </FlexRow>
+          </div>
+        </Group>
       ) : null}
     </>
   );
 };
-
-const ColorBall = styled.div`
-  display: inline-flex;
-  border: 1px solid ${neutral[3]};
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-
-  &.example {
-    width: 32px;
-    height: 32px;
-    margin-right: 8px;
-  }
-  ${({ color }: { color: string }) => `
-    background-color: ${color};
-  `};
-`;
-
-const ColorOptions = styled.div`
-  display: inline-grid;
-  flex: 1;
-  grid-template-columns: repeat(auto-fill, 28px);
-  row-gap: 4px;
-  column-gap: 4px;
-  margin: 16px 0;
-`;

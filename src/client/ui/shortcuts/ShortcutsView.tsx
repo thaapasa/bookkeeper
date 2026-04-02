@@ -3,7 +3,7 @@ import * as B from 'baconjs';
 import * as React from 'react';
 import { NavigateFunction, useNavigate } from 'react-router';
 
-import { ExpenseShortcut, ExpenseShortcutPayload } from 'shared/expense';
+import { ExpenseShortcutPayload } from 'shared/expense';
 import { uri } from 'shared/net';
 import { ObjectId } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
@@ -12,19 +12,26 @@ import { createNewExpense, navigationP, requestNewExpense } from 'client/data/St
 import { executeOperation } from 'client/util/ExecuteOperation';
 import { newExpenseSuffix } from 'client/util/Links';
 
-import { connect } from '../component/BaconConnect';
+import { useBaconState } from '../hooks/useBaconState';
 import { Icons } from '../icons/Icons';
 import { editShortcut, ShortcutEditor } from './ShortcutEditor';
 import { ShortcutLink } from './ShortcutLink';
 
-/**
- * Management view for shortcut links.
- * Shows an ordered list with always-visible edit/reorder/delete controls.
- */
-const FullList: React.FC<{
-  shortcuts: ExpenseShortcut[];
-}> = ({ shortcuts }) => {
+const shortcutsViewP = B.combineTemplate({
+  session: validSessionP,
+  navigation: navigationP,
+}).map(({ session, navigation }) => ({
+  shortcuts: session.shortcuts || [],
+  dateRange: navigation.dateRange,
+}));
+
+export const ShortcutsView: React.FC = () => {
+  const data = useBaconState(shortcutsViewP);
   const navigate = useNavigate();
+  if (!data) return null;
+
+  const { shortcuts } = data;
+
   return (
     <>
       <Stack gap={0}>
@@ -145,12 +152,3 @@ const sortShortcutDown = (shortcutId: ObjectId) =>
   executeOperation(() => apiConnect.shortShortcutDown(shortcutId), {
     postProcess: updateSession,
   });
-
-export const ShortcutsView = connect(
-  B.combineTemplate({ session: validSessionP, navigation: navigationP }).map(
-    ({ session, navigation }) => ({
-      shortcuts: session.shortcuts || [],
-      dateRange: navigation.dateRange,
-    }),
-  ),
-)(FullList);

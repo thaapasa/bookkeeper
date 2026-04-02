@@ -1,44 +1,39 @@
-import styled from '@emotion/styled';
 import { DateTime } from 'luxon';
 import * as React from 'react';
 import { NavigateFunction, useNavigate } from 'react-router';
 
 import { uri } from 'shared/net';
-import { toDateTime, toISODate, TypedDateRange } from 'shared/time';
+import { toDateTime, toISODate } from 'shared/time';
 import { createExpense, navigationP } from 'client/data/State';
 import { newExpenseSuffix } from 'client/util/Links';
 
-import { primary } from '../Colors';
-import { connect } from '../component/BaconConnect';
 import { pageSupportsRoutedExpenseDialog } from '../expense/NewExpenseInfo';
+import { useBaconState } from '../hooks/useBaconState';
+import styles from './AddExpenseIcon.module.css';
 import { Icons } from './Icons';
 
 export const AddExpenseIcon: React.FC<{ onClick?: () => void }> = ({ onClick }) => (
-  <AddExpenseIconContainer>
-    <AccentBackground />
-    <PlusIcon onClick={onClick} />
-  </AddExpenseIconContainer>
+  <div className={styles.container}>
+    <div className={styles.background} />
+    <Icons.PlusCircle onClick={onClick} className={styles.icon} />
+  </div>
 );
 
-const AddExpenseNavButtonImpl: React.FC<{ onClick?: () => void; dateRange: TypedDateRange }> = ({
-  onClick,
-  dateRange,
-}) => {
+export const AddExpenseNavButton: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
+  const navigation = useBaconState(navigationP);
   const navigate = useNavigate();
+  if (!navigation) return null;
+  const { dateRange } = navigation;
   return (
-    <AddExpenseIconContainer className="navigation">
-      <AccentBackground />
-      <PlusIcon
+    <div className={`${styles.container} ${styles.navigation}`}>
+      <div className={styles.background} />
+      <Icons.PlusCircle
         onClick={onClick ?? (() => openNewExpenseDialog(navigate, dateRange.start))}
-        className="navigation"
+        className={`${styles.icon} ${styles.navigation}`}
       />
-    </AddExpenseIconContainer>
+    </div>
   );
 };
-
-export const AddExpenseNavButton = connect(navigationP.map(n => ({ dateRange: n.dateRange })))(
-  AddExpenseNavButtonImpl,
-);
 
 function openNewExpenseDialog(navigate: NavigateFunction, shownDay: Date) {
   const path = window.location.pathname;
@@ -58,44 +53,3 @@ function openNewExpenseDialog(navigate: NavigateFunction, shownDay: Date) {
     createExpense({ date });
   }
 }
-
-const PlusIcon = styled(Icons.PlusCircle)`
-  position: absolute;
-  top: 0;
-  left: 0;
-
-  width: 32px;
-  height: 32px;
-  color: white;
-
-  &.navigation {
-    width: 40px;
-    height: 40px;
-    z-index: 1;
-  }
-`;
-
-const AddExpenseIconContainer = styled.div`
-  position: relative;
-
-  width: 32px;
-  height: 32px;
-
-  &.navigation {
-    width: 40px;
-    height: 40px;
-  }
-
-  cursor: pointer;
-`;
-
-const AccentBackground = styled.div`
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  bottom: 5px;
-  left: 5px;
-  border-radius: 100px;
-  background: ${primary[5]};
-  z-index: 0;
-`;

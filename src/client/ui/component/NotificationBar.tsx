@@ -1,5 +1,4 @@
-import styled from '@emotion/styled';
-import { Notification } from '@mantine/core';
+import { Box, Notification } from '@mantine/core';
 import { AlertCircle, AlertTriangle, CheckCircle, Info } from 'lucide-react';
 import * as React from 'react';
 
@@ -78,7 +77,12 @@ export const NotificationBar: React.FC = () => {
   const severity = notification.severity ?? 'success';
 
   return (
-    <SnackbarContainer>
+    <Box
+      pos="fixed"
+      bottom="lg"
+      left="50%"
+      style={{ transform: 'translateX(-50%)', zIndex: 1400, minWidth: 300, maxWidth: 560 }}
+    >
       <Notification
         icon={severityIcon[severity]}
         color={severityColor[severity]}
@@ -87,16 +91,6 @@ export const NotificationBar: React.FC = () => {
       >
         {message}
       </Notification>
-    </SnackbarContainer>
+    </Box>
   );
 };
-
-const SnackbarContainer = styled.div`
-  position: fixed;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1400;
-  min-width: 300px;
-  max-width: 560px;
-`;

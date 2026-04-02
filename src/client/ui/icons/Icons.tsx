@@ -49,8 +49,6 @@ import {
 } from 'lucide-react';
 import React from 'react';
 
-import { neutral, primary } from '../Colors';
-
 /** Map of icon names to Lucide components */
 export const LucideIcons = {
   Add: Plus,
@@ -122,8 +120,8 @@ const fontSizeMap: Record<MuiFontSize, number> = {
 type MuiIconColor = 'primary' | 'secondary' | 'action' | 'info' | 'warning' | 'inherit' | 'error';
 
 const colorMap: Record<MuiIconColor, string> = {
-  primary: primary[5],
-  secondary: neutral[4],
+  primary: 'var(--mantine-color-primary-5)',
+  secondary: 'var(--mantine-color-neutral-4)',
   action: 'var(--mantine-color-dimmed)',
   info: 'var(--mantine-color-blue-6)',
   warning: 'var(--mantine-color-orange-6)',

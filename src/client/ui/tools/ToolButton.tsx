@@ -1,5 +1,4 @@
-import styled from '@emotion/styled';
-import { Text } from '@mantine/core';
+import { Box, Text } from '@mantine/core';
 import * as React from 'react';
 
 import { MaybePromise } from 'shared/util';
@@ -12,9 +11,9 @@ export const ToolButton: React.FC<{
   buttonText: string;
 }> = ({ title, action, buttonText }) => (
   <>
-    <LabelCell>
+    <Box display="flex" style={{ alignItems: 'center' }}>
       <Text>{title}</Text>
-    </LabelCell>
+    </Box>
     <div>
       <ActionButton onClick={action} variant="contained" color="primary">
         {buttonText}
@@ -22,8 +21,3 @@ export const ToolButton: React.FC<{
     </div>
   </>
 );
-
-const LabelCell = styled.div`
-  display: flex;
-  align-items: center;
-`;
