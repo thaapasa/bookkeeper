@@ -1,4 +1,4 @@
-import { ActionIcon, Checkbox, Grid, Group } from '@mantine/core';
+import { ActionIcon, Checkbox, Grid, Group, Stack } from '@mantine/core';
 import React from 'react';
 import { z } from 'zod';
 
@@ -101,34 +101,42 @@ export const StatisticsView: React.FC = () => {
 
   return (
     <Grid p="md" gutter="md">
-      <Grid.Col span={{ base: 12, sm: 5 }}>
-        <CategorySelector addCategories={addCats} />
-        <Group gap="md" wrap="wrap">
-          <Checkbox checked={stacked} onChange={() => setStacked(!stacked)} label="Koosta alueet" />
-          <Checkbox
-            checked={onlyOwn}
-            onChange={() => setOnlyOwn(!onlyOwn)}
-            label="Vain omat kirjaukset"
-          />
-        </Group>
+      <Grid.Col span={{ base: 12, sm: 6 }}>
+        <Stack gap="xs">
+          <CategorySelector addCategories={addCats} />
+          <Group gap="md" wrap="wrap">
+            <Checkbox
+              checked={stacked}
+              onChange={() => setStacked(!stacked)}
+              label="Koosta alueet"
+            />
+            <Checkbox
+              checked={onlyOwn}
+              onChange={() => setOnlyOwn(!onlyOwn)}
+              label="Vain omat kirjaukset"
+            />
+          </Group>
+        </Stack>
       </Grid.Col>
-      <Grid.Col span={{ base: 12, sm: 2 }}>
-        <StatisticsChartTypeSelector selected={type} onChange={setType} row={isMobile} />
-      </Grid.Col>
-      <Grid.Col span={{ base: 12, sm: 5 }}>
+      <Grid.Col span={{ base: 12, sm: 6 }}>
         <StatisticsChartRangeSelector onChange={setRange} />
+      </Grid.Col>
+      <Grid.Col span={{ base: 12, sm: 12 }}>
+        <StatisticsChartTypeSelector selected={type} onChange={setType} row={isMobile} />
       </Grid.Col>
       {cats.length > 0 ? (
         <Grid.Col span={12}>
-          <ActionIcon onClick={clearCats}>
-            <Icons.Clear />
-          </ActionIcon>
-          <CategoryChipList
-            selected={cats}
-            onDelete={removeCats}
-            categoryMap={categoryMap}
-            onExpand={expandCategory}
-          />
+          <Group gap="xs">
+            <ActionIcon onClick={clearCats}>
+              <Icons.Clear />
+            </ActionIcon>
+            <CategoryChipList
+              selected={cats}
+              onDelete={removeCats}
+              categoryMap={categoryMap}
+              onExpand={expandCategory}
+            />
+          </Group>
         </Grid.Col>
       ) : null}
       <Grid.Col span={12}>

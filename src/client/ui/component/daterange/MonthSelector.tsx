@@ -1,8 +1,9 @@
+import { Group } from '@mantine/core';
 import * as React from 'react';
 
 import { Icons } from 'client/ui/icons/Icons';
 
-import { NumberInput, StyledIconButton } from './Common';
+import { CompactInputText, StyledIconButton } from './Common';
 import { nextMonth, prevMonth } from './dateRangeUtils';
 
 interface MonthSelectorProps {
@@ -22,15 +23,17 @@ export const MonthSelector: React.FC<MonthSelectorProps> = ({ year, month, onSel
   );
 
   return (
-    <>
+    <Group gap={0}>
       <StyledIconButton onClick={() => onSelect(...prevMonth(year, month))} title="Edellinen">
         <Icons.ChevronLeft color="primary" />
       </StyledIconButton>
-      <NumberInput className="year" value={String(year)} onChange={changeYear} />
-      <NumberInput className="month" value={String(month)} onChange={changeMonth} />
+      <Group gap={4}>
+        <CompactInputText type="number" value={String(year)} onChange={changeYear} w={50} />
+        <CompactInputText type="number" value={String(month)} onChange={changeMonth} w={34} />
+      </Group>
       <StyledIconButton onClick={() => onSelect(...nextMonth(year, month))} title="Seuraava">
         <Icons.ChevronRight color="primary" />
       </StyledIconButton>
-    </>
+    </Group>
   );
 };

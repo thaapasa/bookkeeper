@@ -1,8 +1,9 @@
+import { Group } from '@mantine/core';
 import * as React from 'react';
 
 import { Icons } from 'client/ui/icons/Icons';
 
-import { NumberInput, StyledIconButton } from './Common';
+import { CompactInputText, StyledIconButton } from './Common';
 
 interface YearSelectorProps {
   year: number;
@@ -16,14 +17,14 @@ export const YearSelector: React.FC<YearSelectorProps> = ({ year, onSelect }) =>
   );
 
   return (
-    <>
+    <Group gap={0} w="fit-content">
       <StyledIconButton onClick={() => onSelect(year - 1)} title="Edellinen">
         <Icons.ChevronLeft color="primary" />
       </StyledIconButton>
-      <NumberInput className="year" value={String(year)} onChange={changeYear} />
+      <CompactInputText type="number" value={String(year)} onChange={changeYear} w={50} />
       <StyledIconButton onClick={() => onSelect(year + 1)} title="Seuraava">
         <Icons.ChevronRight color="primary" />
       </StyledIconButton>
-    </>
+    </Group>
   );
 };

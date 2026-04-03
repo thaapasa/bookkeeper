@@ -1,7 +1,5 @@
-import { ActionIcon, type ActionIconProps } from '@mantine/core';
+import { ActionIcon, type ActionIconProps, TextInput, TextInputProps } from '@mantine/core';
 import React from 'react';
-
-import styles from './Common.module.css';
 
 export {
   type DateRangeSelectorProps,
@@ -19,13 +17,13 @@ export {
   toYearRange,
 } from './dateRangeUtils';
 
-export const NumberInput: React.FC<React.InputHTMLAttributes<HTMLInputElement>> = ({
-  className,
-  ...props
-}) => (
-  <input
+export const CompactInputText: React.FC<TextInputProps> = ({ className, ...props }) => (
+  <TextInput
+    variant="unstyled"
+    styles={{ input: { height: 24, minHeight: 24, paddingInline: 8 } }}
+    bg="var(--mantine-color-default-hover)"
+    style={{ borderRadius: 4 }}
     {...props}
-    className={`${styles.numberInput}${className === 'month' ? ` ${styles.month}` : ''}`}
   />
 );
 

@@ -1,22 +1,22 @@
-import { Button, Stack } from '@mantine/core';
+import { Button, Stack, StackProps } from '@mantine/core';
 import * as React from 'react';
 
 import { AllPeriods, Period, periodToYearAndMonth, PeriodType } from 'shared/time';
 
 import { MonthSelector } from './MonthSelector';
-import styles from './PeriodSelector.module.css';
 import { YearSelector } from './YearSelector';
 
-export interface PeriodSelectorProps<P extends Period> {
+export type PeriodSelectorProps<P extends Period> = {
   period: P;
   onSelect: (period: P) => void;
   allowed?: P['type'][];
-}
+} & Omit<StackProps, 'onSelect'>;
 
 export const PeriodSelector: React.FC<PeriodSelectorProps<any>> = <P extends Period>({
   period,
   onSelect,
   allowed,
+  ...props
 }: PeriodSelectorProps<P>) => {
   const validPeriods: P['type'][] = allowed ?? AllPeriods;
 
@@ -39,33 +39,24 @@ export const PeriodSelector: React.FC<PeriodSelectorProps<any>> = <P extends Per
   );
 
   return (
-    <div className={styles.container}>
-      <Stack gap={0}>
-        <div>
-          {validPeriods.map(v => (
-            <Button
-              key={v}
-              variant="subtle"
-              onClick={() => changeType(v)}
-              className={type === v ? styles.tabButtonSelected : undefined}
-              style={{ padding: '4px 6px' }}
-            >
-              {PeriodTitles[v]}
-            </Button>
-          ))}
-        </div>
-      </Stack>
-      {type === 'year' ? (
-        <div className={styles.panel}>
-          <YearSelector year={year} onSelect={setYear} />
-        </div>
-      ) : null}
+    <Stack gap="xs" w="fit-content" {...props}>
+      <Button.Group>
+        {validPeriods.map(v => (
+          <Button
+            size="compact-sm"
+            key={v}
+            onClick={() => changeType(v)}
+            variant={type === v ? 'primary' : 'default'}
+          >
+            {PeriodTitles[v]}
+          </Button>
+        ))}
+      </Button.Group>
+      {type === 'year' ? <YearSelector year={year} onSelect={setYear} /> : null}
       {type === 'month' ? (
-        <div className={styles.panel}>
-          <MonthSelector year={year} month={month} onSelect={setYearMonth} />
-        </div>
+        <MonthSelector year={year} month={month} onSelect={setYearMonth} />
       ) : null}
-    </div>
+    </Stack>
   );
 };
 

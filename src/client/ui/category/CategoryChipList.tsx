@@ -1,4 +1,4 @@
-import { Badge, CloseButton, Group } from '@mantine/core';
+import { Badge, CloseButton } from '@mantine/core';
 import * as React from 'react';
 
 import { Category, CategorySelection, ObjectId } from 'shared/types';
@@ -14,11 +14,11 @@ interface CategoryListProps {
 }
 
 export const CategoryChipList: React.FC<CategoryListProps> = ({ selected, ...props }) => (
-  <Group gap="xs">
+  <>
     {selected.map(cat => (
       <CategoryChip {...props} key={cat.id} cat={cat} />
     ))}
-  </Group>
+  </>
 );
 
 const CategoryChip: React.FC<
@@ -31,7 +31,7 @@ const CategoryChip: React.FC<
   return (
     <Badge
       variant={isParent ? 'filled' : 'outline'}
-      leftSection={isParent && cat.grouped ? <Icons.AllInclusive fontSize="small" /> : undefined}
+      leftSection={isParent && cat.grouped ? <Icons.AllInclusive size="medium" /> : undefined}
       rightSection={
         <CloseButton
           size="xs"

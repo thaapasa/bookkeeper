@@ -23,12 +23,12 @@ export const StatisticsChartRangeSelector: React.FC<{
   });
   React.useEffect(() => onChange(periodsToDateRange(start, end)), [onChange, start, end]);
   return (
-    <Stack flex={1} style={{ whiteSpace: 'nowrap', minWidth: 188 }}>
+    <Stack gap={2} py={4}>
       <Group>
-        <Text>Aikaväli</Text>
+        <Text size="sm">Aikaväli</Text>
       </Group>
-      <Group>
-        <PeriodSelector period={start} onSelect={setStart} allowed={['year', 'month']} />
+      <Group align="flex-start">
+        <PeriodSelector period={start} onSelect={setStart} allowed={['year', 'month']} miw={160} />
         <PeriodSelector period={end} onSelect={setEnd} allowed={AllowedPeriods} />
       </Group>
     </Stack>
