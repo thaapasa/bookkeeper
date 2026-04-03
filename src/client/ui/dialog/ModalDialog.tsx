@@ -1,8 +1,6 @@
 import { Modal } from '@mantine/core';
 import * as React from 'react';
 
-import { KeyCodes } from 'client/util/Io';
-
 import { DialogConfig, DialogData } from './Dialog';
 
 type ModalDialogProps<T, D extends DialogData> = DialogConfig<T, D> & {
@@ -18,15 +16,13 @@ export const ModalDialog: React.FC<ModalDialogProps<any, any>> = <T, D extends D
 }: ModalDialogProps<T, D>) => {
   const handleKeyPress = React.useCallback(
     (event: React.KeyboardEvent<any>) => {
-      const code = event.keyCode;
-      if (code === KeyCodes.enter) {
+      if (event.key === 'Enter') {
         if (enterResolution) {
           resolve(enterResolution);
         }
-      } else if (code === KeyCodes.escape) {
+      } else if (event.key === 'Escape') {
         resolve(undefined);
       }
-      return;
     },
     [resolve, enterResolution],
   );

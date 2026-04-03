@@ -2,7 +2,6 @@ import { ActionIcon } from '@mantine/core';
 import * as React from 'react';
 
 import { logger } from 'client/Logger';
-import { KeyCodes } from 'client/util/Io';
 
 import { TextEditorComponent } from '../dialog/DialogState';
 import { Icons } from '../icons/Icons';
@@ -53,11 +52,10 @@ export const ActivatableTextField: React.FC<ActivatableTextFieldProps<any>> = <
   };
 
   const handleKeyPress = (event: React.KeyboardEvent) => {
-    const code = event.keyCode;
-    if (code === KeyCodes.enter) {
+    if (event.key === 'Enter') {
       commit(value);
       return false;
-    } else if (code === KeyCodes.escape) {
+    } else if (event.key === 'Escape') {
       cancel();
       return false;
     }

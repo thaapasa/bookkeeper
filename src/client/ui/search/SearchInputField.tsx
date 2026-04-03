@@ -2,7 +2,6 @@ import * as React from 'react';
 
 import { IdProvider } from 'shared/util';
 import { CategoryDataSource } from 'client/data/Categories';
-import { KeyCodes } from 'client/util/Io';
 
 import { AutoComplete } from '../component/AutoComplete';
 import {
@@ -32,7 +31,7 @@ export const SearchInputField: React.FC<SearchInputProps> = ({
   const [suggestions, setSuggestions] = React.useState<SearchSuggestion[]>([]);
   const onInputKeyUp = React.useCallback(
     (event: React.KeyboardEvent<any>) => {
-      if (event.keyCode === KeyCodes.enter) {
+      if (event.key === 'Enter') {
         startSearch();
       }
     },
