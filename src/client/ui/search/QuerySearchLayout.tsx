@@ -8,7 +8,7 @@ import { validSessionP } from 'client/data/Login';
 
 import { DateRangeSelector } from '../component/daterange/DateRangeSelector';
 import { UserSelector } from '../component/UserSelector';
-import { useBaconState } from '../hooks/useBaconState';
+import { useBaconProperty } from '../hooks/useBaconState';
 import { Icons } from '../icons/Icons';
 import styles from './QuerySearchLayout.module.css';
 import { SearchInputField } from './SearchInputField';
@@ -52,8 +52,7 @@ export const QuerySearchLayout: React.FC<QuerySearchLayoutProps> = ({
   onSelectRange,
   onSaveAsReport,
 }) => {
-  const session = useBaconState(validSessionP);
-  if (!session) return null;
+  const session = useBaconProperty(validSessionP);
   return (
     <Grid p="md" gutter="md">
       <Grid.Col span={{ base: 12, sm: 7 }}>

@@ -2,9 +2,11 @@ import { Divider, Modal, Stack } from '@mantine/core';
 import * as React from 'react';
 
 import { ExpenseSplit } from 'shared/expense';
+import { useBaconProperty } from 'client/ui/hooks/useBaconState';
 
 import { ExpenseDialogProps } from '../dialog/ExpenseDialog';
 import { ExpenseDialogContent } from '../dialog/ExpenseDialogComponents';
+import { expenseDialogDataP } from '../dialog/ExpenseDialogSessionData';
 import { useExpenseSplit } from './ExpenseSplit.hooks';
 import { SplitButtons } from './SplitButtons';
 import { SplitHeader } from './SplitHeader';
@@ -15,11 +17,12 @@ export const ExpenseSplitDialog: React.FC<ExpenseDialogProps<ExpenseSplit[]>> = 
   onClose,
   onExpensesUpdated,
   isMobile,
-  ...props
 }) => {
+  const data = useBaconProperty(expenseDialogDataP);
+
   const { addRow, splits, validSplits, splitExpense, ...tools } = useExpenseSplit(
     original,
-    props.sourceMap,
+    data.sourceMap,
     onClose,
     onExpensesUpdated,
   );
@@ -45,7 +48,16 @@ export const ExpenseSplitDialog: React.FC<ExpenseDialogProps<ExpenseSplit[]>> = 
           {splits.map((s, i) => (
             <React.Fragment key={s.key}>
               {i !== 0 ? <Divider /> : null}
-              <SplitRow {...props} {...tools} split={s} splitIndex={i} editSum={i !== 0} />
+              <SplitRow
+                categoryMap={data.categoryMap}
+                categorySource={data.categorySource}
+                sourceMap={data.sourceMap}
+                sources={data.sources}
+                {...tools}
+                split={s}
+                splitIndex={i}
+                editSum={i !== 0}
+              />
             </React.Fragment>
           ))}
           <SplitButtons

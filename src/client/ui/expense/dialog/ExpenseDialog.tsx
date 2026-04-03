@@ -3,14 +3,13 @@ import { DateTime } from 'luxon';
 import * as React from 'react';
 
 import { ExpenseInEditor, UserExpenseWithDetails } from 'shared/expense';
-import { CategoryMap, ExpenseGroupingRef, Group as GroupType, Source, User } from 'shared/types';
 import { MaybePromise } from 'shared/util';
-import { CategoryDataSource } from 'client/data/Categories';
 import { stopEventPropagation } from 'client/util/ClientUtil';
 
 import { CategorySelector } from '../../component/CategorySelector';
 import { UserIdAvatar } from '../../component/UserAvatar';
 import { UserSelector } from '../../component/UserSelector';
+import { useBaconProperty } from '../../hooks/useBaconState';
 import { Icons } from '../../icons/Icons';
 import { DivisionInfo } from '../details/DivisionInfo';
 import { DateField } from './DateField';
@@ -21,6 +20,7 @@ import {
   SumField,
   TypeSelector,
 } from './ExpenseDialogComponents';
+import { ExpenseDialogData, expenseDialogDataP } from './ExpenseDialogSessionData';
 import { ExpenseSaveAction } from './ExpenseSaveAction';
 import { GroupingSelector } from './GroupingSelector';
 import { ReceiverField } from './ReceiverField';
@@ -30,26 +30,22 @@ import { useExpenseDialog } from './useExpenseDialog';
 export interface ExpenseDialogProps<D> {
   createNew: boolean;
   original: UserExpenseWithDetails | null;
-  sources: Source[];
-  sourceMap: Record<string, Source>;
-  categorySource: CategoryDataSource[];
-  categoryMap: CategoryMap;
-  groupings: ExpenseGroupingRef[];
   saveAction: ExpenseSaveAction | null;
   onClose: (e: D | null) => MaybePromise<void>;
   onExpensesUpdated: (date: DateTime) => void;
-  group: GroupType;
-  user: User;
-  users: User[];
   expenseCounter: number;
   isMobile: boolean;
   values: Partial<D>;
   title?: string;
 }
 
+export type FullExpenseDialogProps<D> = ExpenseDialogProps<D> & ExpenseDialogData;
+
 const inputAreaHeight = 60;
 
-export const ExpenseDialog: React.FC<ExpenseDialogProps<ExpenseInEditor>> = props => {
+export const ExpenseDialog: React.FC<ExpenseDialogProps<ExpenseInEditor>> = outerProps => {
+  const data = useBaconProperty(expenseDialogDataP);
+  const props = { ...outerProps, ...data };
   const {
     state,
     setField,

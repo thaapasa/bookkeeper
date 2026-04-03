@@ -16,7 +16,7 @@ import { logger } from 'client/Logger';
 import { usePersistentMemo } from 'client/ui/hooks/usePersistentMemo';
 import { unsubscribeAll, Unsubscriber } from 'client/util/ClientUtil';
 
-import { ExpenseDialogProps } from './ExpenseDialog';
+import type { FullExpenseDialogProps } from './ExpenseDialog';
 import { calculateDivision } from './ExpenseDialogData';
 import { defaultExpenseSaveAction } from './ExpenseSaveAction';
 
@@ -80,7 +80,7 @@ export interface ExpenseDialogState extends ExpenseInEditor {
 }
 
 function getDefaultState(
-  props: ExpenseDialogProps<ExpenseInEditor>,
+  props: FullExpenseDialogProps<ExpenseInEditor>,
   original: UserExpenseWithDetails | null,
   values: Partial<ExpenseInEditor>,
 ): ExpenseDialogState {
@@ -113,7 +113,7 @@ function getDefaultState(
   };
 }
 
-export function useExpenseDialog(props: ExpenseDialogProps<ExpenseInEditor>) {
+export function useExpenseDialog(props: FullExpenseDialogProps<ExpenseInEditor>) {
   const { original, values, expenseCounter, sourceMap, categoryMap, onClose, onExpensesUpdated } =
     props;
 

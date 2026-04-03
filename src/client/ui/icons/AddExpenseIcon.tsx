@@ -8,7 +8,7 @@ import { createExpense, navigationP } from 'client/data/State';
 import { newExpenseSuffix } from 'client/util/Links';
 
 import { pageSupportsRoutedExpenseDialog } from '../expense/NewExpenseInfo';
-import { useBaconState } from '../hooks/useBaconState';
+import { useBaconProperty } from '../hooks/useBaconState';
 import styles from './AddExpenseIcon.module.css';
 import { Icons } from './Icons';
 
@@ -20,10 +20,8 @@ export const AddExpenseIcon: React.FC<{ onClick?: () => void }> = ({ onClick }) 
 );
 
 export const AddExpenseNavButton: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
-  const navigation = useBaconState(navigationP);
+  const { dateRange } = useBaconProperty(navigationP);
   const navigate = useNavigate();
-  if (!navigation) return null;
-  const { dateRange } = navigation;
   return (
     <div className={`${styles.container} ${styles.navigation}`}>
       <div className={styles.background} />

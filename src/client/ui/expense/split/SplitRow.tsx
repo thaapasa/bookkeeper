@@ -2,15 +2,14 @@ import { ActionIcon, Box, Group } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import * as React from 'react';
 
-import { ExpenseSplit } from 'shared/expense';
 import { isDefined } from 'shared/types';
 import { Money } from 'shared/util';
 import { getFullCategoryName } from 'client/data/Categories';
 import { UserSelector } from 'client/ui/component/UserSelector';
 import { Icons } from 'client/ui/icons/Icons';
 
-import { ExpenseDialogProps } from '../dialog/ExpenseDialog';
 import { SourceSelector, SumField } from '../dialog/ExpenseDialogComponents';
+import { ExpenseDialogData } from '../dialog/ExpenseDialogSessionData';
 import { TitleField } from '../dialog/TitleField';
 import { SourceIcon } from '../row/ExpenseRowComponents';
 import { ExpenseSplitInEditor, SplitTools } from './ExpenseSplit.hooks';
@@ -20,10 +19,7 @@ type SplitRowProps = {
   split: ExpenseSplitInEditor;
   editSum: boolean;
   splitIndex: number;
-} & Pick<
-  ExpenseDialogProps<ExpenseSplit[]>,
-  'categoryMap' | 'categorySource' | 'sourceMap' | 'sources'
-> &
+} & Pick<ExpenseDialogData, 'categoryMap' | 'categorySource' | 'sourceMap' | 'sources'> &
   Pick<SplitTools, 'saveSplit' | 'removeSplit'>;
 
 export const SplitRow: React.FC<SplitRowProps> = props => {

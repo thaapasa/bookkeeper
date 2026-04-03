@@ -20,7 +20,7 @@ import { reloadApp } from 'client/util/ClientUtil';
 import { profilePagePath } from 'client/util/Links';
 
 import { Caption } from '../design/Text';
-import { useBaconState } from '../hooks/useBaconState';
+import { useBaconProperty } from '../hooks/useBaconState';
 import { Icons, RenderIcon } from '../icons/Icons';
 import { AppLink } from '../layout/TopBar';
 import { UserAvatar } from './UserAvatar';
@@ -142,7 +142,6 @@ const MenuDrawerView: React.FC<MenuDrawerViewProps> = ({
 };
 
 export const MenuDrawer: React.FC<MenuDrawerProps> = props => {
-  const session = useBaconState(validSessionP);
-  if (!session) return null;
+  const session = useBaconProperty(validSessionP);
   return <MenuDrawerView {...props} user={session.user} group={session.group} />;
 };

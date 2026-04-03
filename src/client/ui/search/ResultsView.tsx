@@ -10,7 +10,7 @@ import { userDataP, UserDataProps } from 'client/data/Categories';
 import { SectionLabel } from '../design/Text';
 import { ExpenseRow } from '../expense/row/ExpenseRow';
 import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
-import { useBaconState } from '../hooks/useBaconState';
+import { useBaconProperty } from '../hooks/useBaconState';
 import styles from './ResultsView.module.css';
 import { TotalsView } from './TotalsView';
 
@@ -21,8 +21,7 @@ interface ResultsViewOwnProps {
 }
 
 export const ResultsView: React.FC<ResultsViewOwnProps> = ({ results, ...rest }) => {
-  const userData = useBaconState(userDataP);
-  if (!userData) return null;
+  const userData = useBaconProperty(userDataP);
   const hasResults = results && results.length > 0;
   return (
     <div className={styles.resultsArea}>

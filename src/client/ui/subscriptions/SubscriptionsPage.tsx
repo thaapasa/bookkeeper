@@ -11,7 +11,7 @@ import { needUpdateE } from 'client/data/State';
 
 import { AsyncDataView } from '../component/AsyncDataView';
 import { useDeferredData } from '../hooks/useAsyncData';
-import { useBaconState } from '../hooks/useBaconState';
+import { useBaconProperty } from '../hooks/useBaconState';
 import { useLocalStorageList } from '../hooks/useList';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { SubscriptionCategoryHeader, ToggleCategoryVisibility } from './SubscriptionCategoryHeader';
@@ -36,19 +36,17 @@ const loadExpenses = async (
   );
 
 export const SubscriptionsPage: React.FC = () => {
-  const categories = useBaconState(categoryMapP);
+  const categories = useBaconProperty(categoryMapP);
   const [criteria, setCriteria] = React.useState<SubscriptionSearchCriteria | undefined>(undefined);
 
   const { data, loadData } = useDeferredData(
     loadExpenses,
-    criteria !== undefined && !!categories,
+    criteria !== undefined,
     criteria,
-    categories ?? {},
+    categories,
   );
   React.useEffect(loadData, [loadData, criteria, categories]);
   React.useEffect(() => needUpdateE.onValue(loadData), [loadData]);
-
-  if (!categories) return null;
 
   return (
     <>

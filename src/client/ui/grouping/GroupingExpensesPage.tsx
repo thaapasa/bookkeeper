@@ -13,7 +13,7 @@ import { Subtitle } from '../design/Text';
 import { ExpenseRow } from '../expense/row/ExpenseRow';
 import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
 import { useAsyncData } from '../hooks/useAsyncData';
-import { useBaconState } from '../hooks/useBaconState';
+import { useBaconProperty } from '../hooks/useBaconState';
 import { useForceReload } from '../hooks/useForceReload';
 import { TotalsView } from '../search/TotalsView';
 import { GroupingCategoryChart } from './GroupingCategoryChart';
@@ -41,8 +41,7 @@ const GroupingExpensesRenderer: React.FC<{
   data: ExpenseGroupingWithExpenses;
   reloadExpenses: () => void;
 }> = ({ data, reloadExpenses }) => {
-  const userData = useBaconState(userDataP);
-  if (!userData) return null;
+  const userData = useBaconProperty(userDataP);
   return (
     <Stack align="center">
       <Subtitle w="100%" p="xs" ta="center">

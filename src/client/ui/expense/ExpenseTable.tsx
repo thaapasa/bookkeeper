@@ -6,7 +6,7 @@ import { Money, partition } from 'shared/util';
 import { userDataP, UserDataProps } from 'client/data/Categories';
 
 import { ListDecorator } from '../component/ListDecorator';
-import { useBaconState } from '../hooks/useBaconState';
+import { useBaconProperty } from '../hooks/useBaconState';
 import { ExpenseTotals } from './ExpenseHelper';
 import styles from './ExpenseTable.module.css';
 import { MonthlyStatus } from './MonthlyStatus';
@@ -174,7 +174,6 @@ const ExpenseTableView: React.FC<ExpenseTableInternalProps> = props => {
 };
 
 export const ExpenseTable: React.FC<ExpenseTableProps> = props => {
-  const userData = useBaconState(userDataP);
-  if (!userData) return null;
+  const userData = useBaconProperty(userDataP);
   return <ExpenseTableView {...props} userData={userData} />;
 };

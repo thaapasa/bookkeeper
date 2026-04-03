@@ -12,7 +12,7 @@ import { CategoryChipList } from '../category/CategoryChipList';
 import { CategorySelector } from '../category/CategorySelector';
 import { AsyncDataView } from '../component/AsyncDataView';
 import { useAsyncData } from '../hooks/useAsyncData';
-import { useBaconState } from '../hooks/useBaconState';
+import { useBaconProperty } from '../hooks/useBaconState';
 import { useIsMobile } from '../hooks/useBreakpoints';
 import { useLocalStorageList } from '../hooks/useList';
 import { useLocalStorage } from '../hooks/useLocalStorage';
@@ -27,7 +27,7 @@ function cmpCat(a: CategorySelection, b: CategorySelection) {
 }
 
 export const StatisticsView: React.FC = () => {
-  const categoryMap = useBaconState(categoryMapP);
+  const categoryMap = useBaconProperty(categoryMapP);
 
   const {
     list: cats,
@@ -39,7 +39,7 @@ export const StatisticsView: React.FC = () => {
     [],
     z.array(CategorySelection),
     cmpCat,
-    c => !!categoryMap?.[c.id],
+    c => !!categoryMap[c.id],
   );
 
   const [range, setRange] = React.useState<DateRange | undefined>(undefined);
@@ -98,8 +98,6 @@ export const StatisticsView: React.FC = () => {
   const data = cats.length > 0 ? statistics : UninitializedData;
 
   const isMobile = useIsMobile();
-
-  if (!categoryMap) return null;
 
   return (
     <Grid p="md" gutter="md">

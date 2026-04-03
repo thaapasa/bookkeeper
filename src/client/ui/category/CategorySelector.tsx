@@ -4,25 +4,22 @@ import * as React from 'react';
 import { Category, CategorySelection } from 'shared/types';
 import { categoryDataSourceP, categoryMapP } from 'client/data/Categories';
 
-import { useBaconState } from '../hooks/useBaconState';
+import { useBaconProperty } from '../hooks/useBaconState';
 
 export const CategorySelector: React.FC<{
   addCategories: (cat: CategorySelection | CategorySelection[]) => void;
   allowSelectAll?: boolean;
 }> = ({ addCategories, allowSelectAll }) => {
-  const categorySource = useBaconState(categoryDataSourceP);
-  const categoryMap = useBaconState(categoryMapP);
+  const categorySource = useBaconProperty(categoryDataSourceP);
+  const categoryMap = useBaconProperty(categoryMapP);
 
   const data = React.useMemo(() => {
-    if (!categorySource) return [];
     const items = categorySource.map(c => ({ value: String(c.value), label: c.text }));
     if (allowSelectAll) {
       items.unshift({ value: '0', label: 'Kaikki pääkategoriat' });
     }
     return items;
   }, [categorySource, allowSelectAll]);
-
-  if (!categorySource || !categoryMap) return null;
 
   return (
     <Select

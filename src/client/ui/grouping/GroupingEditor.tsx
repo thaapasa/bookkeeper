@@ -15,7 +15,7 @@ import { UploadImageButton } from '../component/UploadImageButton';
 import { DialogHeading, Subtitle } from '../design/Text';
 import { connectDialog } from '../dialog/DialogConnector';
 import { useAsyncData } from '../hooks/useAsyncData';
-import { useBaconState } from '../hooks/useBaconState';
+import { useBaconProperty } from '../hooks/useBaconState';
 import { useForceReload } from '../hooks/useForceReload';
 import { Icons } from '../icons/Icons';
 import styles from './GroupingEditor.module.css';
@@ -68,14 +68,12 @@ const GroupingEditView: React.FC<{
   reloadData: () => void;
   reloadAll: () => void;
 }> = ({ data, onClose, reloadAll, reloadData }) => {
-  const categoryMap = useBaconState(categoryMapP);
+  const categoryMap = useBaconProperty(categoryMapP);
   const createNew = data === null;
   const state = useGroupingState();
   const tags = useAsyncData(apiConnect.getExpenseGroupingTags, true);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   React.useEffect(() => void state.reset(data), [data?.id]);
-
-  if (!categoryMap) return null;
 
   return (
     <>

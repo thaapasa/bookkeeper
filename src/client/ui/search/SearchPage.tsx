@@ -12,7 +12,7 @@ import { navigationBus, needUpdateE } from 'client/data/State';
 import { logger } from 'client/Logger';
 import { searchPagePath } from 'client/util/Links';
 
-import { useBaconState } from '../hooks/useBaconState';
+import { useBaconProperty } from '../hooks/useBaconState';
 import { usePersistentMemo } from '../hooks/usePersistentMemo';
 import { useWhenMounted } from '../hooks/useWhenMounted';
 import { QueryView, QueryViewHandle } from './QueryView';
@@ -28,10 +28,8 @@ function isEmptyQuery(q: ExpenseQuery) {
 }
 
 export const SearchPage: React.FC = () => {
-  const userData = useBaconState(userDataP);
-  const categorySource = useBaconState(categoryDataSourceP);
-
-  if (!userData || !categorySource) return null;
+  const userData = useBaconProperty(userDataP);
+  const categorySource = useBaconProperty(categoryDataSourceP);
 
   return <SearchViewImpl userData={userData} categorySource={categorySource} />;
 };

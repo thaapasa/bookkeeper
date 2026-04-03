@@ -12,7 +12,7 @@ import { createNewExpense, navigationP, requestNewExpense } from 'client/data/St
 import { executeOperation } from 'client/util/ExecuteOperation';
 import { newExpenseSuffix } from 'client/util/Links';
 
-import { useBaconState } from '../hooks/useBaconState';
+import { useBaconProperty } from '../hooks/useBaconState';
 import { Icons } from '../icons/Icons';
 import { editShortcut, ShortcutEditor } from './ShortcutEditor';
 import { ShortcutLink } from './ShortcutLink';
@@ -26,11 +26,8 @@ const shortcutsViewP = B.combineTemplate({
 }));
 
 export const ShortcutsView: React.FC = () => {
-  const data = useBaconState(shortcutsViewP);
+  const { shortcuts } = useBaconProperty(shortcutsViewP);
   const navigate = useNavigate();
-  if (!data) return null;
-
-  const { shortcuts } = data;
 
   return (
     <>

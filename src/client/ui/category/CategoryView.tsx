@@ -11,7 +11,7 @@ import { navigationBus, needUpdateE } from 'client/data/State';
 import { categoryPagePath } from 'client/util/Links';
 
 import { useDeferredData } from '../hooks/useAsyncData';
-import { useBaconState } from '../hooks/useBaconState';
+import { useBaconProperty } from '../hooks/useBaconState';
 import { CategoryChart, CategoryChartData } from './CategoryChart';
 import { CategoryTable } from './CategoryTable';
 
@@ -20,17 +20,16 @@ interface CategoryViewProps {
 }
 
 export const CategoryView: React.FC<CategoryViewProps> = ({ range }) => {
-  const session = useBaconState(validSessionP);
-  const userData = useBaconState(userDataP);
+  const session = useBaconProperty(validSessionP);
+  const userData = useBaconProperty(userDataP);
 
-  const categories = session?.categories;
+  const { categories } = session;
 
   const { data, loadData } = useDeferredData(loadCategories, true, categories, range);
 
   React.useEffect(() => loadData(), [loadData]);
   React.useEffect(() => needUpdateE.onValue(loadData), [loadData]);
 
-  if (!session || !userData || !categories) return null;
   if (data.type !== 'loaded') return null;
 
   return (
@@ -63,8 +62,7 @@ async function getCategoryTotals(
   return totalsMap;
 }
 
-async function loadCategories(categories: Category[] | undefined, range: TypedDateRange) {
-  if (!categories) return { categoryTotals: {}, categoryChartData: [] };
+async function loadCategories(categories: Category[], range: TypedDateRange) {
   navigationBus.push({
     pathPrefix: categoryPagePath,
     dateRange: range,

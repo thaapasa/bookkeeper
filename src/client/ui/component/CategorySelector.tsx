@@ -4,7 +4,7 @@ import * as React from 'react';
 import { ObjectId } from 'shared/types';
 import { categoryDataSourceP, categoryMapP } from 'client/data/Categories';
 
-import { useBaconState } from '../hooks/useBaconState';
+import { useBaconProperty } from '../hooks/useBaconState';
 
 type CategorySelectorProps = {
   value: ObjectId;
@@ -18,18 +18,15 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
   mainOnly,
   ...props
 }) => {
-  const categorySource = useBaconState(categoryDataSourceP);
-  const categoryMap = useBaconState(categoryMapP);
+  const categorySource = useBaconProperty(categoryDataSourceP);
+  const categoryMap = useBaconProperty(categoryMapP);
 
   const data = React.useMemo(() => {
-    if (!categorySource || !categoryMap) return [];
     const items = mainOnly
       ? categorySource.filter(c => categoryMap[c.value]?.parentId === null)
       : categorySource;
     return items.map(c => ({ value: String(c.value), label: c.text }));
   }, [categorySource, categoryMap, mainOnly]);
-
-  if (!categorySource || !categoryMap) return null;
 
   return (
     <Select

@@ -8,10 +8,8 @@ import apiConnect from 'client/data/ApiConnect';
 import { updateExpenses } from 'client/data/State';
 import { ExpenseDialogObject } from 'client/data/StateTypes';
 import { logger } from 'client/Logger';
-import { useBaconState } from 'client/ui/hooks/useBaconState';
 
 import { ExpenseDialogProps } from './ExpenseDialog';
-import { expenseDialogDataP } from './ExpenseDialogSessionData';
 import { ExpenseSaveAction } from './ExpenseSaveAction';
 
 interface ExpenseDialogListenerState<D> {
@@ -31,8 +29,6 @@ export function createExpenseDialogListener<D>(
   bus: B.EventStream<ExpenseDialogObject<D>>,
 ) {
   const ExpenseDialogListener: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
-    const data = useBaconState(expenseDialogDataP);
-
     const [state, setState] = React.useState<ExpenseDialogListenerState<D>>({
       open: false,
       original: null,
@@ -90,14 +86,13 @@ export function createExpenseDialogListener<D>(
       updateExpenses(date);
     }, []);
 
-    if (!state.open || !data) {
+    if (!state.open) {
       return null;
     }
 
     return (
       <Dialog
         {...state}
-        {...data}
         isMobile={isMobile}
         expenseCounter={state.expenseCounter}
         onExpensesUpdated={onExpensesUpdated}

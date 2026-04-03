@@ -240,10 +240,13 @@ For buttons with icons, use Mantine's `leftSection` prop (not inline children):
 - **API calls**: `apiConnect` singleton from `client/data/ApiConnect.ts`
 - **Async loading**: `useAsyncData(loader, enabled, ...deps)` hook
 - **State**: Zustand stores (preferred for new code)
-- **Bacon.js state**: Use `useBaconState(observable)` hook from `client/ui/hooks/useBaconState`
-  to subscribe to a Bacon.js observable and get the latest value in a functional component.
+- **Bacon.js Properties**: Use `useBaconProperty(property)` hook from `client/ui/hooks/useBaconState`
+  to subscribe to a Bacon.js Property and get the latest value in a functional component.
+  Properties always have a current value, so the hook never returns undefined.
   When refactoring legacy code, replace `connect()` HOC + default export with
-  `useBaconState` + named export.
+  `useBaconProperty` + named export.
+- **Bacon.js EventStreams**: Use `useBaconState(observable)` for EventStreams that may not
+  have an initial value (returns `T | undefined`). This is rarely needed.
 - **Dialogs**: `UserPrompts.confirm()`, `UserPrompts.promptText()`, `UserPrompts.select()`
 
 ```tsx
@@ -252,12 +255,10 @@ const MyComponent: React.FC<{ users: User[] }> = ({ users }) => { ... };
 export default connect(validSessionP.map(s => ({ users: s.users })))(MyComponent);
 
 // After:
-import { useBaconState } from 'client/ui/hooks/useBaconState';
+import { useBaconProperty } from 'client/ui/hooks/useBaconState';
 
 export const MyComponent: React.FC = () => {
-  const session = useBaconState(validSessionP);
-  if (!session) return null;
-  const { users } = session;
+  const { users } = useBaconProperty(validSessionP);
   ...
 };
 ```
@@ -320,7 +321,7 @@ These patterns exist in the codebase but must not be copied or extended:
 - `VCenterRow`, `Flex` from `GlobalStyles.ts` — use Mantine `Group` / `Flex`
 - `PageContentContainer` — use `ScrollArea`
 - Class components — convert to functional
-- `connect()` HOC with default export — use `useBaconState` hook with named export
+- `connect()` HOC with default export — use `useBaconProperty` hook with named export
 - `style?: React.CSSProperties` for caller positioning — use Mantine props intersection
 - Inline `style={{}}` for margins/padding — use Mantine style props
 - Raw pixel values for spacing — use size tokens

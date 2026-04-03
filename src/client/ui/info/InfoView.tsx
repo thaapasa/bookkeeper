@@ -7,14 +7,13 @@ import { userDataP } from 'client/data/Categories';
 import { updateSession, validSessionP } from 'client/data/Login';
 
 import { ActivatableTextField } from '../component/ActivatableTextField';
-import { useBaconState } from '../hooks/useBaconState';
+import { useBaconProperty } from '../hooks/useBaconState';
 import { InfoItem, ItemWithId, Label, SubValue, Value } from './InfoLayoutElements';
 import { VersionInfoView } from './VersionInfoView';
 
 export const InfoView: React.FC = () => {
-  const session = useBaconState(validSessionP);
-  const userData = useBaconState(userDataP);
-  if (!session || !userData) return null;
+  const session = useBaconProperty(validSessionP);
+  const userData = useBaconProperty(userDataP);
 
   return (
     <Box p="lg">

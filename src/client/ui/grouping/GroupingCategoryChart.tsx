@@ -8,7 +8,7 @@ import { categoryMapP, getFullCategoryName } from 'client/data/Categories';
 
 import { getChartColor } from '../chart/ChartColors';
 import { formatMoney } from '../chart/Format';
-import { useBaconState } from '../hooks/useBaconState';
+import { useBaconProperty } from '../hooks/useBaconState';
 import styles from './GroupingCategoryChart.module.css';
 
 interface Data {
@@ -21,8 +21,7 @@ interface Data {
 export const GroupingCategoryChart: React.FC<{
   totals: ExpenseGroupingCategoryTotal[];
 }> = ({ totals }) => {
-  const categoryMap = useBaconState(categoryMapP);
-  if (!categoryMap) return null;
+  const categoryMap = useBaconProperty(categoryMapP);
   return <GroupingCategoryChartImpl totals={totals} categoryMap={categoryMap} />;
 };
 

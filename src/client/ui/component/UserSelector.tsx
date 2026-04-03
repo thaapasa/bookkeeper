@@ -4,7 +4,7 @@ import * as React from 'react';
 import { ObjectId } from 'shared/types';
 import { validSessionP } from 'client/data/Login';
 
-import { useBaconState } from '../hooks/useBaconState';
+import { useBaconProperty } from '../hooks/useBaconState';
 import { UserIdAvatar } from './UserAvatar';
 
 type UserSelectorProps = {
@@ -23,11 +23,7 @@ export const UserSelector: React.FC<UserSelectorProps> = ({
   size,
   ...props
 }) => {
-  const data = useBaconState(UserSelectorState);
-  if (!data) {
-    return null;
-  }
-  const { users } = data;
+  const { users } = useBaconProperty(UserSelectorState);
 
   const switchSelection = (id: ObjectId) => {
     if (singleSelection) {

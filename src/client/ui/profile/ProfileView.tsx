@@ -4,13 +4,13 @@ import React from 'react';
 import { sessionP } from 'client/data/Login';
 
 import { Title } from '../design/Text';
-import { useBaconState } from '../hooks/useBaconState';
+import { useBaconProperty } from '../hooks/useBaconState';
 import { PasswordView } from './PasswordChangeView';
 import { ProfileImageView } from './ProfileImageView';
 import { UserDataView } from './UserDataView';
 
 export const ProfileView: React.FC = () => {
-  const session = useBaconState(sessionP);
+  const session = useBaconProperty(sessionP);
   if (!session) return null;
 
   return (

@@ -10,7 +10,7 @@ import { sourceMapP } from 'client/data/Login';
 import { createNewExpense, splitExpense, updateExpenses } from 'client/data/State';
 import { logger } from 'client/Logger';
 import { UserPrompts } from 'client/ui/dialog/DialogState';
-import { useBaconState } from 'client/ui/hooks/useBaconState';
+import { useBaconProperty } from 'client/ui/hooks/useBaconState';
 import { Icons } from 'client/ui/icons/Icons';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
@@ -33,9 +33,7 @@ export const ExpenseInfoTools: React.FC<ExpenseInfoToolsProps> = ({
   onDelete,
   ...props
 }) => {
-  const sessionData = useBaconState(sessionDataP);
-  if (!sessionData) return null;
-  const { sourceMap } = sessionData;
+  const { sourceMap } = useBaconProperty(sessionDataP);
 
   const createRecurring = async () => {
     const period = await UserPrompts.select<RecurrencePeriod>(

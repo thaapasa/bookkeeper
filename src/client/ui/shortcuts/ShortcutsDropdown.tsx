@@ -13,7 +13,7 @@ import { createExpense, createNewExpense, navigationP } from 'client/data/State'
 import { newExpenseSuffix } from 'client/util/Links';
 
 import { pageSupportsRoutedExpenseDialog } from '../expense/NewExpenseInfo';
-import { useBaconState } from '../hooks/useBaconState';
+import { useBaconProperty } from '../hooks/useBaconState';
 import { Icons } from '../icons/Icons';
 
 const addExpenseMenuP = B.combineTemplate({
@@ -22,11 +22,8 @@ const addExpenseMenuP = B.combineTemplate({
 });
 
 export const AddExpenseMenu: React.FC = () => {
-  const data = useBaconState(addExpenseMenuP);
+  const { shortcuts, dateRange } = useBaconProperty(addExpenseMenuP);
   const navigate = useNavigate();
-  if (!data) return null;
-
-  const { shortcuts, dateRange } = data;
 
   const handleAddNew = () => openNewExpenseDialog(navigate, dateRange.start);
   const handleShortcut = (id?: ObjectId, expense?: Partial<ExpenseShortcutData>) => {
