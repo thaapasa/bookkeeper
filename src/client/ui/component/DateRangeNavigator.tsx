@@ -4,21 +4,16 @@ import { useNavigate } from 'react-router';
 
 import { toDateRangeName, toDateTime } from 'shared/time';
 import { navigationP } from 'client/data/State';
-import { NavigationConfig } from 'client/data/StateTypes';
 import { logger } from 'client/Logger';
-import { KeyCodes } from 'client/util/Io';
 import { monthSuffix, yearSuffix } from 'client/util/Links';
 
+import { useBaconProperty } from '../hooks/useBaconState';
 import { Icons } from '../icons/Icons';
-import { connect } from './BaconConnect';
 
-export type DateRangeNavigatorProps = NavigationConfig;
-
-const DateRangeNavigatorImpl: React.FC<React.PropsWithChildren<DateRangeNavigatorProps>> = ({
-  dateRange,
-  pathPrefix,
-}) => {
+export const DateRangeNavigator: React.FC = () => {
+  const { dateRange, pathPrefix } = useBaconProperty(navigationP);
   const navigate = useNavigate();
+
   const navigateOffset = (offset: number) => {
     const rangeSuffix =
       dateRange.type === 'month'
@@ -29,20 +24,8 @@ const DateRangeNavigatorImpl: React.FC<React.PropsWithChildren<DateRangeNavigato
     navigate(link);
   };
 
-  const handleKeyPress = (event: React.KeyboardEvent<any>) => {
-    switch (event.keyCode) {
-      case KeyCodes.right:
-        navigateOffset(1);
-        return false;
-      case KeyCodes.left:
-        navigateOffset(-1);
-        return false;
-    }
-    return;
-  };
-
   return (
-    <Group gap={0} align="center" wrap="nowrap" onKeyUp={handleKeyPress} tabIndex={0}>
+    <Group gap={0} align="center" wrap="nowrap" tabIndex={0}>
       <ActionIcon onClick={() => navigateOffset(-1)} title="Edellinen" size="md" radius="xl">
         <Icons.ChevronLeft color="primary" />
       </ActionIcon>
@@ -55,5 +38,3 @@ const DateRangeNavigatorImpl: React.FC<React.PropsWithChildren<DateRangeNavigato
     </Group>
   );
 };
-
-export const DateRangeNavigator = connect(navigationP)(DateRangeNavigatorImpl);
