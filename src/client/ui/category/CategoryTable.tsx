@@ -66,7 +66,6 @@ export const CategoryTable: React.FC<CategoryTableProps> = ({
         opened={dialogOpen}
         onClose={() => setDialogOpen(false)}
         onSaved={onDialogSaved}
-        categories={categories}
         editingCategory={editingCategory}
         parentCategory={parentCategory}
       />

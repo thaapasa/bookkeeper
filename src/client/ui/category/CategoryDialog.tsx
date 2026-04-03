@@ -1,4 +1,4 @@
-import { Box, Button, Group, Modal, Select } from '@mantine/core';
+import { Box, Button, Group, Modal } from '@mantine/core';
 import * as React from 'react';
 
 import { Category } from 'shared/types';
@@ -6,21 +6,13 @@ import apiConnect from 'client/data/ApiConnect';
 import { logger } from 'client/Logger';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
+import { CategorySelector } from '../component/CategorySelector';
 import { TextEdit } from '../component/TextEdit';
-
-const noParentOption: Category = {
-  id: 0,
-  name: '[Ei yläkategoriaa]',
-  children: [],
-  parentId: null,
-  fullName: '[Ei yläkategoriaa]',
-};
 
 interface CategoryDialogProps {
   opened: boolean;
   onClose: () => void;
   onSaved: (id: number) => void;
-  categories: Category[];
   editingCategory: Category | null;
   parentCategory: Category | null;
 }
@@ -29,7 +21,6 @@ export const CategoryDialog: React.FC<CategoryDialogProps> = ({
   opened,
   onClose,
   onSaved,
-  categories,
   editingCategory,
   parentCategory,
 }) => {
@@ -50,8 +41,6 @@ export const CategoryDialog: React.FC<CategoryDialogProps> = ({
       }
     }
   }, [opened, editingCategory, parentCategory]);
-
-  const allCategories = React.useMemo(() => [noParentOption, ...categories], [categories]);
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,11 +73,12 @@ export const CategoryDialog: React.FC<CategoryDialogProps> = ({
     >
       <Box component="form" pos="relative" style={{ zIndex: 1 }} onSubmit={save}>
         <TextEdit label="Nimi" placeholder="Nimi" value={name} onChange={setName} />
-        <Select
+        <CategorySelector
+          value={parentId}
+          onChange={setParentId}
+          mainOnly
           label="Yläkategoria"
-          value={String(parentId)}
-          onChange={val => setParentId(Number(val ?? 0))}
-          data={allCategories.map(c => ({ value: String(c.id), label: c.name }))}
+          clearable
           mt="xs"
         />
       </Box>

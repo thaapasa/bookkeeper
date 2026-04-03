@@ -3,23 +3,16 @@ import { DateTime } from 'luxon';
 import * as React from 'react';
 
 import { ExpenseInEditor, UserExpenseWithDetails } from 'shared/expense';
-import {
-  Category,
-  CategoryMap,
-  ExpenseGroupingRef,
-  Group as GroupType,
-  Source,
-  User,
-} from 'shared/types';
+import { CategoryMap, ExpenseGroupingRef, Group as GroupType, Source, User } from 'shared/types';
 import { MaybePromise } from 'shared/util';
 import { CategoryDataSource } from 'client/data/Categories';
 import { stopEventPropagation } from 'client/util/ClientUtil';
 
+import { CategorySelector } from '../../component/CategorySelector';
 import { UserIdAvatar } from '../../component/UserAvatar';
 import { UserSelector } from '../../component/UserSelector';
 import { Icons } from '../../icons/Icons';
 import { DivisionInfo } from '../details/DivisionInfo';
-import { CategorySelector } from './CategorySelector';
 import { DateField } from './DateField';
 import {
   DescriptionField,
@@ -38,7 +31,6 @@ export interface ExpenseDialogProps<D> {
   createNew: boolean;
   original: UserExpenseWithDetails | null;
   sources: Source[];
-  categories: Category[];
   sourceMap: Record<string, Source>;
   categorySource: CategoryDataSource[];
   categoryMap: CategoryMap;
@@ -142,15 +134,9 @@ export const ExpenseDialog: React.FC<ExpenseDialogProps<ExpenseInEditor>> = prop
 
           {/* Category */}
           <CategorySelector
-            h={inputAreaHeight}
-            align="flex-start"
-            category={state.categoryId}
-            categories={props.categories}
-            onChangeCategory={v => setField('categoryId', v)}
-            errorText={state.errors.categoryId}
-            subcategory={state.subcategoryId}
-            subcategories={state.subcategories}
-            onChangeSubcategory={v => setField('subcategoryId', v)}
+            value={state.categoryId}
+            onChange={v => setField('categoryId', v)}
+            error={state.errors.categoryId}
           />
 
           {/* Source + benefitors */}

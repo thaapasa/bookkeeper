@@ -10,9 +10,7 @@ import {
   UserExpenseWithDetails,
 } from 'shared/expense';
 import { toDateTime, toISODate } from 'shared/time';
-import { Category, CategoryMap } from 'shared/types';
-import { identity, Money, omit, sanitizeMoneyInput, valuesToArray } from 'shared/util';
-import { isSubcategoryOf } from 'client/data/Categories';
+import { identity, Money, sanitizeMoneyInput, valuesToArray } from 'shared/util';
 import { notifyError } from 'client/data/State';
 import { logger } from 'client/Logger';
 import { usePersistentMemo } from 'client/ui/hooks/usePersistentMemo';
@@ -22,13 +20,10 @@ import { ExpenseDialogProps } from './ExpenseDialog';
 import { calculateDivision } from './ExpenseDialogData';
 import { defaultExpenseSaveAction } from './ExpenseSaveAction';
 
-type CategoryInfo = Pick<Category, 'name' | 'id'>;
-
 const fields: ReadonlyArray<keyof ExpenseInEditor> = [
   'title',
   'sourceId',
   'categoryId',
-  'subcategoryId',
   'receiver',
   'sum',
   'userId',
@@ -78,19 +73,10 @@ export const ReceiverTitles: Record<ExpenseType, string> = {
 };
 
 export interface ExpenseDialogState extends ExpenseInEditor {
-  subcategories: CategoryInfo[];
   errors: Record<string, string | undefined>;
   valid: boolean;
   showOwnerSelect: boolean;
   division: ExpenseDivision | null;
-}
-
-function findParentCategory(categoryId: number, categoryMap: CategoryMap): number | undefined {
-  let current = categoryMap[categoryId];
-  while (current?.parentId && current.parentId > 0) {
-    current = categoryMap[current.parentId];
-  }
-  return current ? current.id : undefined;
 }
 
 function getDefaultState(
@@ -106,9 +92,7 @@ function getDefaultState(
   return {
     title: values.title ? values.title : e ? e.title : '',
     sourceId: values.sourceId || (e ? e.sourceId : defaultSourceId) || 0,
-    categoryId:
-      values.categoryId || (e && findParentCategory(e.categoryId, props.categoryMap)) || 0,
-    subcategoryId: values.subcategoryId || (e ? e.categoryId : 0),
+    categoryId: values.categoryId || (e ? e.categoryId : 0),
     receiver: values.receiver || (e ? e.receiver : ''),
     sum: values.sum ? values.sum : e ? e.sum.toString() : '',
     userId: e ? e.userId : props.user.id,
@@ -121,7 +105,6 @@ function getDefaultState(
     description: values.description || e?.description || '',
     confirmed: values.confirmed !== undefined ? values.confirmed : e ? e.confirmed : true,
     type: values.type || (e ? e.type : 'expense'),
-    subcategories: [],
     groupingId: e?.groupingId ?? null,
     errors: {},
     valid: false,
@@ -163,10 +146,17 @@ export function useExpenseDialog(props: ExpenseDialogProps<ExpenseInEditor>) {
         sourceMap[expense.sourceId],
       );
       const data: ExpenseData = {
-        ...omit(['subcategoryId', 'benefit'], expense),
-        division,
+        userId: expense.userId,
+        categoryId: expense.categoryId,
+        sourceId: expense.sourceId,
+        type: expense.type,
+        confirmed: expense.confirmed,
+        title: expense.title,
+        receiver: expense.receiver,
+        description: expense.description,
         date: toISODate(expense.date),
-        categoryId: expense.subcategoryId ? expense.subcategoryId : expense.categoryId,
+        sum: expense.sum,
+        division,
         groupingId: expense.groupingId ?? undefined,
       };
 
@@ -207,19 +197,6 @@ export function useExpenseDialog(props: ExpenseDialogProps<ExpenseInEditor>) {
         validity[k] = isValid;
       } else {
         validity[k] = B.constant(true);
-      }
-    });
-
-    streamValues.categoryId.onValue(id => {
-      setState(s => ({
-        ...s,
-        subcategories: categoryMap[id]?.children || [],
-      }));
-    });
-
-    B.combineAsArray(streamValues.categoryId, streamValues.subcategoryId).onValue(([id, subId]) => {
-      if (subId > 0 && !isSubcategoryOf(subId, id, categoryMap)) {
-        inputStreams.subcategoryId.push(0);
       }
     });
 
@@ -301,17 +278,11 @@ export function useExpenseDialog(props: ExpenseDialogProps<ExpenseInEditor>) {
 
   const selectCategory = React.useCallback(
     (id: number) => {
-      const m = categoryMap;
-      const name = m[id].name;
-      const parentId = m[id].parentId;
-      if (parentId) {
-        inputStreams.categoryId.push(parentId);
-        inputStreams.subcategoryId.push(id);
-      } else {
+      const cat = categoryMap[id];
+      if (cat) {
         inputStreams.categoryId.push(id);
-        inputStreams.subcategoryId.push(0);
+        inputStreams.title.push(cat.name);
       }
-      inputStreams.title.push(name);
     },
     [categoryMap, inputStreams],
   );

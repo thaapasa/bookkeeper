@@ -122,7 +122,6 @@ async function createNewShortcut(): Promise<void> {
       title: example.title,
       benefit: example.benefit,
       categoryId: example.categoryId,
-      subcategoryId: example.subcategoryId,
       confirmed: example.confirmed,
       receiver: example.receiver,
       sourceId: example.sourceId,

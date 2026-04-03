@@ -6,7 +6,6 @@ import { ExpenseDivision, RecurrencePeriod, UserExpense } from 'shared/expense';
 import { ISODatePattern, toDate, toDateTime } from 'shared/time';
 import { Money } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
-import { categoryMapP } from 'client/data/Categories';
 import { sourceMapP } from 'client/data/Login';
 import { createNewExpense, splitExpense, updateExpenses } from 'client/data/State';
 import { logger } from 'client/Logger';
@@ -18,7 +17,7 @@ import { executeOperation } from 'client/util/ExecuteOperation';
 import { getBenefitorsForExpense } from '../dialog/ExpenseDialogData';
 import { expenseName } from '../ExpenseHelper';
 
-const sessionDataP = B.combineTemplate({ categoryMap: categoryMapP, sourceMap: sourceMapP });
+const sessionDataP = B.combineTemplate({ sourceMap: sourceMapP });
 
 type ExpenseInfoToolsProps = {
   expense: UserExpense;
@@ -36,7 +35,7 @@ export const ExpenseInfoTools: React.FC<ExpenseInfoToolsProps> = ({
 }) => {
   const sessionData = useBaconState(sessionDataP);
   if (!sessionData) return null;
-  const { categoryMap, sourceMap } = sessionData;
+  const { sourceMap } = sessionData;
 
   const createRecurring = async () => {
     const period = await UserPrompts.select<RecurrencePeriod>(
@@ -63,9 +62,6 @@ export const ExpenseInfoTools: React.FC<ExpenseInfoToolsProps> = ({
 
   const onCopy = () => {
     const e = expense;
-    const cat = categoryMap[e.categoryId];
-    const subcategoryId = (cat.parentId && e.categoryId) || undefined;
-    const categoryId = (subcategoryId ? cat.parentId : e.categoryId) || undefined;
     const date = toDateTime(e.date, ISODatePattern);
     logger.info({ expense: e, division }, 'Copying expense');
     createNewExpense({
@@ -76,8 +72,7 @@ export const ExpenseInfoTools: React.FC<ExpenseInfoToolsProps> = ({
       description: e.description || undefined,
       date,
       benefit: getBenefitorsForExpense(e, division, sourceMap),
-      categoryId,
-      subcategoryId,
+      categoryId: e.categoryId,
       sourceId: e.sourceId,
       confirmed: e.confirmed,
     });

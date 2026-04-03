@@ -55,27 +55,8 @@ async function validateShortcutData(
     if (isDefined(data.expense.sourceId)) {
       await getSourceById(tx, groupId, data.expense.sourceId);
     }
-    const cat = data.expense.categoryId
-      ? await getCategoryById(tx, groupId, data.expense.categoryId)
-      : undefined;
-    const subCat = data.expense.subcategoryId
-      ? await getCategoryById(tx, groupId, data.expense.subcategoryId)
-      : undefined;
-    if (subCat && !cat) {
-      throw new BkError('INVALID_CATEGORY', `Cannot set only subcategory`, 400);
-    }
-    if (cat && isDefined(cat.parentId)) {
-      throw new BkError('INVALID_CATEGORY', `Category ${cat.id} is not a main category`, 400);
-    }
-    if (subCat && !isDefined(subCat.parentId)) {
-      throw new BkError('INVALID_CATEGORY', `Category ${subCat.id} is not a subcategory`, 400);
-    }
-    if (cat && subCat && subCat.parentId !== cat.id) {
-      throw new BkError(
-        'INVALID_CATEGORY',
-        `Category ${subCat.id} is not a subcategory of ${cat.id}`,
-        400,
-      );
+    if (data.expense.categoryId) {
+      await getCategoryById(tx, groupId, data.expense.categoryId);
     }
   } catch (e) {
     if (e instanceof BkError && e.status === 404) {
