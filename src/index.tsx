@@ -15,14 +15,18 @@ import * as React from 'react';
 import ReactDOM from 'react-dom/client';
 
 import { assertDefined } from 'shared/util';
-import { mantineTheme } from 'client/ui/theme/mantineTheme';
+import { cssVariablesResolver, mantineTheme } from 'client/ui/theme/mantineTheme';
 
 import { App } from './client/App';
 
 const container = document.getElementById('root');
 assertDefined(container);
 ReactDOM.createRoot(container).render(
-  <MantineProvider theme={mantineTheme} defaultColorScheme="auto">
+  <MantineProvider
+    theme={mantineTheme}
+    defaultColorScheme="auto"
+    cssVariablesResolver={cssVariablesResolver}
+  >
     <DatesProvider settings={{ locale: 'fi' }}>
       <App />
     </DatesProvider>

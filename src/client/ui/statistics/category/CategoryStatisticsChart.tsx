@@ -1,10 +1,9 @@
 import { Checkbox, Group, Stack } from '@mantine/core';
+import { useElementSize } from '@mantine/hooks';
 import * as React from 'react';
 
 import { CategoryMap, CategoryStatistics } from 'shared/types';
 import { useLocalStorage } from 'client/ui/hooks/useLocalStorage';
-import { Size } from 'client/ui/layout/Styles';
-import { MeasureSize } from 'client/ui/utils/MeasureSize';
 
 import { StatisticsChartType } from '../types';
 import { CategoryChartRenderer } from './CategoryChartRenderer';
@@ -15,7 +14,7 @@ interface BaseCategoryGraphProps {
   data: CategoryStatistics;
   stacked: boolean;
   categoryMap: CategoryMap;
-  size: Size;
+  size: { width: number; height: number };
 }
 
 export type CategoryGraphProps = BaseCategoryGraphProps & {
@@ -24,7 +23,7 @@ export type CategoryGraphProps = BaseCategoryGraphProps & {
   stackMainCats: boolean;
 };
 
-const StatisticsGraphImpl: React.FC<BaseCategoryGraphProps & { type: StatisticsChartType }> = ({
+const StatisticsGraphContent: React.FC<BaseCategoryGraphProps & { type: StatisticsChartType }> = ({
   type,
   ...props
 }) => {
@@ -85,4 +84,13 @@ const GraphSelector: React.FC<CategoryGraphProps & { type: StatisticsChartType }
   return config ? <CategoryChartRenderer {...config} {...props} /> : null;
 };
 
-export const CategoryStatisticsChart = MeasureSize(StatisticsGraphImpl);
+export const CategoryStatisticsChart: React.FC<
+  Omit<BaseCategoryGraphProps, 'size'> & { type: StatisticsChartType }
+> = props => {
+  const { ref, width, height } = useElementSize();
+  return (
+    <div ref={ref} style={{ display: 'flex', flex: 1, minWidth: 0 }}>
+      {width > 0 ? <StatisticsGraphContent size={{ width, height }} {...props} /> : null}
+    </div>
+  );
+};

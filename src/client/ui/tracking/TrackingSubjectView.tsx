@@ -65,11 +65,7 @@ export const TrackingSubjectView: React.FC<{
         {subject.image ? (
           <img src={subject.image} alt="" style={{ width: 168, height: 168 }} />
         ) : null}
-        <TrackingChart
-          data={subject.data}
-          trackingData={subject.trackingData}
-          className="tracking-chart"
-        />
+        <TrackingChart data={subject.data} trackingData={subject.trackingData} />
       </Group>
     </Paper>
   );

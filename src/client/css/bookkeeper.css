@@ -1,3 +1,10 @@
 html, body {
     background-color: var(--mantine-color-body);
 }
+
+/* NavLink hardcodes gray-0 for hover; use the app-wide default-hover instead */
+@media (hover: hover) {
+    [data-mantine-color-scheme='light'] .mantine-NavLink-root:hover {
+        background-color: var(--mantine-color-default-hover);
+    }
+}

@@ -1,4 +1,10 @@
-import { createTheme, DEFAULT_THEME, MantineColorsTuple, virtualColor } from '@mantine/core';
+import {
+  createTheme,
+  CSSVariablesResolver,
+  DEFAULT_THEME,
+  MantineColorsTuple,
+  virtualColor,
+} from '@mantine/core';
 
 /**
  * Mantine theme configuration.
@@ -65,4 +71,11 @@ export const mantineTheme = createTheme({
       defaultProps: { variant: 'subtle' },
     },
   },
+});
+
+/** Override default hover to be slightly more visible in light mode (gray.2 instead of gray.0) */
+export const cssVariablesResolver: CSSVariablesResolver = () => ({
+  variables: {},
+  light: { '--mantine-color-default-hover': DEFAULT_THEME.colors.gray[2] },
+  dark: {},
 });

@@ -1,4 +1,5 @@
 import { Box } from '@mantine/core';
+import { useElementSize } from '@mantine/hooks';
 import * as React from 'react';
 import {
   Area,
@@ -17,15 +18,13 @@ import { partition } from 'shared/util';
 import { formatMoneyForChart } from 'client/ui/chart/Format';
 
 import { getChartColor } from '../chart/ChartColors';
-import { Size } from '../layout/Styles';
-import { MeasureSize } from '../utils/MeasureSize';
 
 const Margins = { left: 4, top: 4, right: 4, bottom: 4 };
 
 interface TrackingChartProps {
   data: TrackingStatistics;
   trackingData: TrackingData;
-  size: Size;
+  size: { width: number; height: number };
 }
 
 export const TrackingLineChartRenderer: React.FC<TrackingChartProps> = ({
@@ -114,7 +113,7 @@ const ChartTypeRenderers: Record<TrackingChartType, React.FC<TrackingChartProps>
   combined: TrackingCombinedRenderer,
 };
 
-export const TrackingChartRenderer: React.FC<TrackingChartProps> = props => {
+const TrackingChartRenderer: React.FC<TrackingChartProps> = props => {
   const Renderer =
     ChartTypeRenderers[props.trackingData.chartType ?? 'line'] ?? TrackingBarChartRenderer;
   return (
@@ -124,4 +123,11 @@ export const TrackingChartRenderer: React.FC<TrackingChartProps> = props => {
   );
 };
 
-export const TrackingChart = MeasureSize(TrackingChartRenderer, 168);
+export const TrackingChart: React.FC<Omit<TrackingChartProps, 'size'>> = props => {
+  const { ref, width } = useElementSize();
+  return (
+    <div ref={ref} style={{ display: 'flex', flex: 1, height: 168, minWidth: 0 }}>
+      {width > 0 ? <TrackingChartRenderer size={{ width, height: 168 }} {...props} /> : null}
+    </div>
+  );
+};

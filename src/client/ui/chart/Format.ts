@@ -1,7 +1,5 @@
 import { Money } from 'shared/util';
 
-import { Size } from '../layout/Styles';
-
 export const formatMoneyThin = (v: number) => (v > 1000 ? `${Math.round(v / 1000)}K` : `${v}`);
 
 export const formatMoney = (v: number | string) => {
@@ -16,6 +14,6 @@ export const formatMoney = (v: number | string) => {
 export const formatMoneyForChart = (v: number | string | undefined) =>
   formatMoney(typeof v === 'number' || typeof v === 'string' ? v : 0);
 
-export function useThinFormat(size: Size) {
+export function useThinFormat(size: { width: number }) {
   return size.width < 550;
 }
