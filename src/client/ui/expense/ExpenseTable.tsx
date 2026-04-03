@@ -13,7 +13,6 @@ import { MonthlyStatus } from './MonthlyStatus';
 import { computeDayParities, DayParityContext } from './row/DayParity';
 import { ExpenseFilterRow } from './row/ExpenseFilterRow';
 import { AddFilterFn, ExpenseFilter, ExpenseFilterFunction } from './row/ExpenseFilters';
-import { ExpenseHeader } from './row/ExpenseHeader';
 import { CommonExpenseRowProps, ExpenseRow } from './row/ExpenseRow';
 import { ExpenseRowSeparator } from './row/ExpenseRowSeparator';
 import { ExpenseTableLayout } from './row/ExpenseTableLayout';
@@ -152,11 +151,10 @@ const ExpenseTableView: React.FC<ExpenseTableInternalProps> = props => {
   return (
     <Box className={styles.container}>
       <Box px={{ base: 0, sm: 'md' }} style={{ whiteSpace: 'nowrap' }}>
-        <ExpenseTableLayout loading={loading}>
-          <Table.Thead>
-            <ExpenseHeader />
-            <ExpenseFilterRow filters={filters} onRemoveFilter={removeFilter} />
-          </Table.Thead>
+        <ExpenseTableLayout
+          loading={loading}
+          header={<ExpenseFilterRow filters={filters} onRemoveFilter={removeFilter} />}
+        >
           <Table.Tbody>{renderExpenseRows()}</Table.Tbody>
         </ExpenseTableLayout>
       </Box>

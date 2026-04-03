@@ -7,7 +7,7 @@ import { Money, MoneyLike } from 'shared/util';
 import { categoryMapP, getFullCategoryName } from 'client/data/Categories';
 
 import { getChartColor } from '../chart/ChartColors';
-import { formatMoney } from '../chart/Format';
+import { chartTooltipStyle, formatMoney } from '../chart/Format';
 import { useBaconProperty } from '../hooks/useBaconState';
 import styles from './GroupingCategoryChart.module.css';
 
@@ -63,7 +63,10 @@ const GroupingCategoryChartImpl: React.FC<{
             <Cell key={`cell-${index}`} fill={entry.color} />
           ))}
         </Pie>
-        <Tooltip formatter={v => formatMoney(typeof v === 'number' ? v : 0)} />
+        <Tooltip
+          formatter={v => formatMoney(typeof v === 'number' ? v : 0)}
+          contentStyle={chartTooltipStyle}
+        />
       </PieChart>
       <CategoryTotalsTable data={data} />
     </Group>

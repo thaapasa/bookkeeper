@@ -5,7 +5,7 @@ import { Cell, Legend, Pie, PieChart, Tooltip } from 'recharts';
 import { isDefined, ObjectId } from 'shared/types';
 
 import { getChartColor } from '../chart/ChartColors';
-import { formatMoney, formatMoneyForChart } from '../chart/Format';
+import { chartTooltipStyle, formatMoney, formatMoneyForChart } from '../chart/Format';
 
 export interface TotalsData {
   name: string;
@@ -45,7 +45,7 @@ export const TotalsChart: React.FC<{
               />
             ))}
           </Pie>
-          <Tooltip formatter={formatMoneyForChart} />
+          <Tooltip formatter={formatMoneyForChart} contentStyle={chartTooltipStyle} />
           <Legend layout="vertical" align="right" />
         </PieChart>
       ) : null}

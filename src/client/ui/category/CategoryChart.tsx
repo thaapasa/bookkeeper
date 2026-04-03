@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Bar, BarChart, CartesianGrid, Legend, Tooltip, XAxis, YAxis } from 'recharts';
 
 import { getChartColor } from '../chart/ChartColors';
-import { formatMoney, formatMoneyThin, useThinFormat } from '../chart/Format';
+import { chartTooltipStyle, formatMoney, formatMoneyThin, useThinFormat } from '../chart/Format';
 
 export interface CategoryChartData {
   categoryId: number;
@@ -53,6 +53,7 @@ const CategoryChartContent: React.FC<{
       <Tooltip
         formatter={v => formatMoney(typeof v === 'number' ? v : 0)}
         cursor={{ fill: 'var(--mantine-color-default-hover)' }}
+        contentStyle={chartTooltipStyle}
       />
       <Legend />
       <Bar

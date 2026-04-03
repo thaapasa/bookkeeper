@@ -1,8 +1,7 @@
-import { Box, BoxProps } from '@mantine/core';
+import { Box, BoxProps, Group, Stack, Text } from '@mantine/core';
 import * as React from 'react';
 
-import { spaced } from 'shared/util';
-
+import { classNames } from '../utils/classNames.ts';
 import styles from './NoteView.module.css';
 
 export type NoteType = 'note' | 'warning';
@@ -24,17 +23,34 @@ export const NoteView: React.FC<React.PropsWithChildren<NoteViewProps>> = ({
   className,
   ...props
 }) => (
-  <Box
-    className={spaced`${className} ${styles.container} ${compact ? styles.compact : ''} ${fullWidth ? styles.fullWidth : ''} ${noMargin ? styles.noMargin : ''}`}
+  <Stack
+    className={classNames(className, styles.container, fullWidth ? styles.fullWidth : undefined)}
+    bg="neutral.2"
     {...props}
   >
     {title ? (
-      <Box
-        className={spaced`${styles.titleBase} ${type === 'warning' ? styles.warningTitle : styles.noteTitle}`}
+      <Group
+        className={styles.titleBase}
+        py="xs"
+        px="md"
+        my={noMargin ? 0 : compact ? 'xs' : 'xl'}
+        mx={noMargin ? 0 : compact ? 'md' : 'xl'}
+        {...NoteColors[type ?? 'note']}
       >
-        {title}
-      </Box>
+        <Text fw={500}>{title}</Text>
+      </Group>
     ) : null}
     <Box p="md">{children}</Box>
-  </Box>
+  </Stack>
 );
+
+const NoteColors: Record<NoteType, Pick<BoxProps, 'c' | 'bg'>> = {
+  note: {
+    c: 'text',
+    bg: 'neutral.4',
+  },
+  warning: {
+    c: 'neutral.1',
+    bg: 'primary.7',
+  },
+};

@@ -85,7 +85,7 @@ const SubscriptionsRenderer: React.FC<{
           onSelectCategory={setCatId}
           colorIndex={selectedIndex >= 0 ? selectedIndex : undefined}
         />
-        <Box pos="absolute" left="md" top="md">
+        <Box pos="absolute" left="var(--mantine-spacing-md)" top="var(--mantine-spacing-md)">
           <Checkbox
             checked={perMonth}
             onChange={() => setPerMonth(!perMonth)}

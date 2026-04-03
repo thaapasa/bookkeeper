@@ -2,6 +2,12 @@ html, body {
     background-color: var(--mantine-color-body);
 }
 
+/* Remove browser focus outline from recharts pie/bar segments */
+.recharts-sector:focus,
+.recharts-rectangle:focus {
+    outline: none;
+}
+
 /* NavLink hardcodes gray-0 for hover; use the app-wide default-hover instead */
 @media (hover: hover) {
     [data-mantine-color-scheme='light'] .mantine-NavLink-root:hover {
