@@ -27,9 +27,15 @@ export type AutoCompletePassthroughProps = {
   Pick<MantineAutocompleteProps, 'leftSection' | 'rightSection'>;
 
 export type AutoCompleteProps<T> = {
+  /** Called when the user types. NOT called when a suggestion is selected. */
   onChange: (value: string) => void;
   suggestions: T[];
   onUpdateSuggestions: (input: string) => void;
+  /**
+   * Called when the user selects a suggestion. onChange is suppressed for this
+   * interaction — the caller is responsible for updating the input value if desired
+   * (e.g., by calling onChange manually with a transformed value).
+   */
   onSelectSuggestion: (suggestion: T) => void;
   getSuggestionValue: (suggestion: T) => string;
   inputStyle?: MantineStyleProp;
@@ -63,8 +69,19 @@ export const AutoComplete = <T,>({
     [suggestions, getSuggestionValue],
   );
 
+  // Mantine's Autocomplete fires onOptionSubmit synchronously, then onChange with the
+  // raw suggestion text in the same interaction cycle. We suppress that follow-up
+  // onChange so callers get a clean separation: onSelectSuggestion for selection,
+  // onChange for typing only. The caller can update the input value from within
+  // onSelectSuggestion if needed.
+  const optionSubmittedRef = React.useRef(false);
+
   const handleChange = React.useCallback(
     (val: string) => {
+      if (optionSubmittedRef.current) {
+        optionSubmittedRef.current = false;
+        return;
+      }
       onChange(val);
       onUpdateSuggestions(val);
     },
@@ -73,6 +90,7 @@ export const AutoComplete = <T,>({
 
   const handleOptionSubmit = React.useCallback(
     (val: string) => {
+      optionSubmittedRef.current = true;
       const suggestion = suggestionMap.get(val);
       if (suggestion) {
         logger.info({ value: val }, 'Selected suggestion');

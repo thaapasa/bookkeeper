@@ -4,13 +4,13 @@ import * as React from 'react';
 
 import { ExpenseInEditor, UserExpenseWithDetails } from 'shared/expense';
 import { MaybePromise } from 'shared/util';
+import { CategorySelector } from 'client/ui/component/CategorySelector';
+import { UserIdAvatar } from 'client/ui/component/UserAvatar';
+import { UserSelector } from 'client/ui/component/UserSelector';
+import { useBaconProperty } from 'client/ui/hooks/useBaconState';
+import { Icons } from 'client/ui/icons/Icons';
 import { stopEventPropagation } from 'client/util/ClientUtil';
 
-import { CategorySelector } from '../../component/CategorySelector';
-import { UserIdAvatar } from '../../component/UserAvatar';
-import { UserSelector } from '../../component/UserSelector';
-import { useBaconProperty } from '../../hooks/useBaconState';
-import { Icons } from '../../icons/Icons';
 import { DivisionInfo } from '../details/DivisionInfo';
 import { DateField } from './DateField';
 import {
@@ -109,7 +109,6 @@ export const ExpenseDialog: React.FC<ExpenseDialogProps<ExpenseInEditor>> = oute
               id="expense-dialog-title"
               value={state.title}
               onSelect={selectCategory}
-              dataSource={props.categorySource}
               errorText={state.errors.title}
               onChange={v => setField('title', v)}
             />

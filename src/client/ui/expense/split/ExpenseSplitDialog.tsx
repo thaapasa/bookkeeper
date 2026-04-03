@@ -50,7 +50,6 @@ export const ExpenseSplitDialog: React.FC<ExpenseDialogProps<ExpenseSplit[]>> = 
               {i !== 0 ? <Divider /> : null}
               <SplitRow
                 categoryMap={data.categoryMap}
-                categorySource={data.categorySource}
                 sourceMap={data.sourceMap}
                 sources={data.sources}
                 {...tools}

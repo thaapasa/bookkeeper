@@ -5,6 +5,7 @@ import * as React from 'react';
 import { isDefined } from 'shared/types';
 import { Money } from 'shared/util';
 import { getFullCategoryName } from 'client/data/Categories';
+import { CategorySelector } from 'client/ui/component/CategorySelector';
 import { UserSelector } from 'client/ui/component/UserSelector';
 import { Icons } from 'client/ui/icons/Icons';
 
@@ -19,7 +20,7 @@ type SplitRowProps = {
   split: ExpenseSplitInEditor;
   editSum: boolean;
   splitIndex: number;
-} & Pick<ExpenseDialogData, 'categoryMap' | 'categorySource' | 'sourceMap' | 'sources'> &
+} & Pick<ExpenseDialogData, 'categoryMap' | 'sourceMap' | 'sources'> &
   Pick<SplitTools, 'saveSplit' | 'removeSplit'>;
 
 export const SplitRow: React.FC<SplitRowProps> = props => {
@@ -57,8 +58,6 @@ export const SplitRow: React.FC<SplitRowProps> = props => {
 
 const SplitEditor: React.FC<SplitRowProps & { close: () => void }> = ({
   split,
-  categorySource,
-  categoryMap,
   splitIndex,
   saveSplit,
   editSum,
@@ -69,10 +68,6 @@ const SplitEditor: React.FC<SplitRowProps & { close: () => void }> = ({
   const [title, setTitle] = React.useState(split.title ?? '');
   const [sum, setSum] = React.useState(Money.from(split?.sum ?? '0').toString());
   const [catId, setCatId] = React.useState<number | undefined>(split.categoryId);
-  const selectCategory = (catId: number) => {
-    setTitle(categorySource.find(s => s.value === catId)?.text ?? '');
-    setCatId(catId);
-  };
   const [sourceId, setSourceId] = React.useState(split.sourceId ?? sources[0]?.id ?? 0);
   const [benefit, setBenefit] = React.useState<number[]>(split.benefit);
 
@@ -103,16 +98,10 @@ const SplitEditor: React.FC<SplitRowProps & { close: () => void }> = ({
   return (
     <Box className={styles.splitEditorGrid}>
       <Box className="name">
-        <TitleField
-          id="split-title"
-          value={title}
-          onSelect={selectCategory}
-          onChange={setTitle}
-          dataSource={categorySource}
-        />
+        <TitleField id="split-title" value={title} onChange={setTitle} onSelect={setCatId} />
       </Box>
-      <Box className="cat" pt={20}>
-        {catId ? getFullCategoryName(catId, categoryMap) : 'Valitse kategoria'}
+      <Box className="cat">
+        <CategorySelector value={catId ?? 0} onChange={setCatId} label="" />
       </Box>
       <Group className="source" wrap="nowrap" w="100%">
         <SourceSelector

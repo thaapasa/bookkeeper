@@ -1,32 +1,27 @@
 import * as React from 'react';
 
 import { filterMapCaseInsensitive, last } from 'shared/util';
-import { CategoryDataSource } from 'client/data/Categories';
+import { CategoryDataSource, categoryDataSourceP } from 'client/data/Categories';
 import { AutoComplete } from 'client/ui/component/AutoComplete';
+import { useBaconProperty } from 'client/ui/hooks/useBaconState';
 
 interface TitleFieldProps {
   id: string;
   value: string;
   errorText?: string;
-  dataSource: CategoryDataSource[];
   onChange: (s: string) => void;
-  onSelect: (s: number) => void;
+  onSelect?: (s: number) => void;
 }
 
-export const TitleField: React.FC<TitleFieldProps> = ({
-  value,
-  errorText,
-  dataSource,
-  onChange,
-  onSelect,
-}) => {
+export const TitleField: React.FC<TitleFieldProps> = ({ value, errorText, onChange, onSelect }) => {
+  const dataSource = useBaconProperty(categoryDataSourceP);
   const [suggestions, setSuggestions] = React.useState<CategoryDataSource[]>([]);
 
   const selectCategory = React.useCallback(
     (c: CategoryDataSource) => {
       if (c) {
-        onSelect(c.value);
-        onChange(last((c.text || '').split('-')).trim());
+        onSelect?.(c.value);
+        onChange(last((c.text || '').split(' - ')));
       }
     },
     [onSelect, onChange],

@@ -1,7 +1,7 @@
 import * as B from 'baconjs';
 
 import { CategoryMap, ExpenseGroupingRef, Group, Source, User } from 'shared/types';
-import { CategoryDataSource, categoryDataSourceP, categoryMapP } from 'client/data/Categories';
+import { categoryMapP } from 'client/data/Categories';
 import { sourceMapP, validSessionP } from 'client/data/Login';
 
 export interface ExpenseDialogData {
@@ -9,7 +9,6 @@ export interface ExpenseDialogData {
   user: User;
   group: Group;
   sourceMap: Record<string, Source>;
-  categorySource: CategoryDataSource[];
   categoryMap: CategoryMap;
   groupings: ExpenseGroupingRef[];
   users: User[];
@@ -21,7 +20,6 @@ export const expenseDialogDataP: B.Property<ExpenseDialogData> = B.combineTempla
   user: validSessionP.map(s => s.user),
   group: validSessionP.map(s => s.group),
   sourceMap: sourceMapP,
-  categorySource: categoryDataSourceP,
   categoryMap: categoryMapP,
   groupings: validSessionP.map(s => s.groupings),
   users: validSessionP.map(s => s.users),
