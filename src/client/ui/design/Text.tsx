@@ -3,28 +3,30 @@ import {
   Text,
   TextProps,
   Title as MantineTitle,
-  TitleProps,
+  TitleProps as MantineTitleProps,
 } from '@mantine/core';
 import React, { forwardRef } from 'react';
 
 type ElementProps = React.PropsWithChildren<TextProps>;
 
-export const Title: React.FC<TitleProps> = ({ order = 1, ...props }) => (
+export type TitleProps = MantineTitleProps & { noBorder?: boolean };
+
+export const Title: React.FC<TitleProps> = ({ order = 1, noBorder, ...props }) => (
   <MantineTitle
     order={order}
-    mb="md"
-    pb={4}
-    style={{ borderBottom: '1px solid var(--mantine-color-neutral-3)' }}
+    mb={noBorder ? undefined : 'md'}
+    pb={noBorder ? undefined : 4}
+    style={noBorder ? undefined : { borderBottom: '1px solid var(--mantine-color-neutral-3)' }}
     {...props}
   />
 );
 
-export const Subtitle: React.FC<TitleProps> = ({ order = 2, ...props }) => (
+export const Subtitle: React.FC<TitleProps> = ({ order = 2, noBorder, ...props }) => (
   <MantineTitle
     order={order}
-    mb="xs"
-    pb={2}
-    style={{ borderBottom: '1px solid var(--mantine-color-neutral-1)' }}
+    mb={noBorder ? undefined : 'xs'}
+    pb={noBorder ? undefined : 2}
+    style={noBorder ? undefined : { borderBottom: '1px solid var(--mantine-color-neutral-1)' }}
     {...props}
   />
 );

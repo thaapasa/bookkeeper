@@ -1,4 +1,4 @@
-import { ActionIcon, Box, Group, Paper, SimpleGrid } from '@mantine/core';
+import { ActionIcon, Card, Group, SimpleGrid } from '@mantine/core';
 import React from 'react';
 
 import { ObjectId, TrackingSubject, TrackingSubjectWithData } from 'shared/types';
@@ -28,20 +28,12 @@ export const TrackingSubjectView: React.FC<{
   onReload: () => void;
 }> = ({ subject, onReload }) => {
   return (
-    <Paper
-      w="100%"
-      pos="relative"
-      h={200}
-      bg="neutral.2"
-      shadow="md"
-      radius="md"
-      style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
-    >
-      <Box h={32} pos="relative" bg="neutral.1" style={{ zIndex: 1 }}>
-        <Subtitle order={3} pl="sm" pt={2} fw={700} style={{ border: 'none' }}>
+    <Card w="100%" pos="relative" h={200} bg="neutral.3" shadow="md" radius="md" m={0} p={0}>
+      <Group pos="relative" bg="neutral.0" align="center" justify="space-between">
+        <Subtitle noBorder order={4} px="sm" fw={700} py={6}>
           {subject.title}
         </Subtitle>
-        <Group pos="absolute" right={0} top={0} gap={2} style={{ zIndex: 2 }}>
+        <Group gap="xs" px="sm">
           <ActionIcon
             size="sm"
             title="Vaihda värejä"
@@ -60,14 +52,14 @@ export const TrackingSubjectView: React.FC<{
             <Icons.Delete fontSize="small" />
           </ActionIcon>
         </Group>
-      </Box>
-      <Group flex={1} wrap="nowrap" pos="relative">
+      </Group>
+      <Group wrap="nowrap" pos="relative">
         {subject.image ? (
           <img src={subject.image} alt="" style={{ width: 168, height: 168 }} />
         ) : null}
         <TrackingChart data={subject.data} trackingData={subject.trackingData} />
       </Group>
-    </Paper>
+    </Card>
   );
 };
 

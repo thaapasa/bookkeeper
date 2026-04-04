@@ -1,4 +1,4 @@
-import { ActionIcon, Box, Flex, Stack } from '@mantine/core';
+import { ActionIcon, Box, Stack } from '@mantine/core';
 import React from 'react';
 
 import apiConnect from 'client/data/ApiConnect';
@@ -15,11 +15,11 @@ export const TrackingPage: React.FC = () => {
   const { counter, forceReload } = useForceReload();
   const trackedSubjects = useAsyncData(loadSubjects, true, counter);
   return (
-    <Flex direction="column" align="center">
+    <>
       <Stack gap="md" w="100%" px="md" pb="xl">
         <Box pos="relative" mt="md">
           <Title>Seuranta</Title>
-          <Box pos="absolute" right={0} bottom="md">
+          <Box pos="absolute" right={0} bottom="var(--mantine-spacing-lg)">
             <ActionIcon title="Uusi seuranta" onClick={newTrackingSubject}>
               <Icons.AddChart />
             </ActionIcon>
@@ -32,7 +32,7 @@ export const TrackingPage: React.FC = () => {
         />
       </Stack>
       <TrackingEditor reloadAll={forceReload} />
-    </Flex>
+    </>
   );
 };
 

@@ -6,6 +6,7 @@ import {
   Group,
   Modal,
   Select as MantineSelect,
+  Stack,
 } from '@mantine/core';
 import * as B from 'baconjs';
 import * as React from 'react';
@@ -92,7 +93,7 @@ const TrackingEditView: React.FC<{
         display="grid"
         style={{
           gridTemplateColumns: 'auto 1fr',
-          gap: 'var(--mantine-spacing-xs)',
+          gap: 'var(--mantine-spacing-sm)',
           alignItems: 'center',
         }}
       >
@@ -136,17 +137,19 @@ const TrackingEditView: React.FC<{
           />
         </SelectionRow>
         <SelectionRow title="Valinnat">
-          <Checkbox
-            checked={state.separateByUser}
-            onChange={() => state.setSeparateByUser(!state.separateByUser)}
-            label="Käyttäjät erikseen"
-          />
-          <Checkbox
-            checked={state.includeUserTotals}
-            disabled={!state.separateByUser}
-            onChange={() => state.setIncludeUserTotals(!state.includeUserTotals)}
-            label="Myös yhteensä"
-          />
+          <Stack gap="xs">
+            <Checkbox
+              checked={state.separateByUser}
+              onChange={() => state.setSeparateByUser(!state.separateByUser)}
+              label="Käyttäjät erikseen"
+            />
+            <Checkbox
+              checked={state.includeUserTotals}
+              disabled={!state.separateByUser}
+              onChange={() => state.setIncludeUserTotals(!state.includeUserTotals)}
+              label="Myös yhteensä"
+            />
+          </Stack>
         </SelectionRow>
         <SelectionRow title="Kuva">
           <Group wrap="nowrap">
