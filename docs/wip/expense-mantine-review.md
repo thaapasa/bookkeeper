@@ -3,11 +3,11 @@
 Code review of `src/client/ui/expense/` — findings for migrating remaining legacy
 patterns to idiomatic Mantine 8. Reviewed 2026-03-28.
 
-## 1. Emotion `styled` still used where Mantine suffices
+## 1. Legacy `styled` wrappers still used where Mantine suffices
 
 ### ExpenseDialog.tsx (HIGH — class component + 7 styled wrappers)
 
-The biggest single legacy item. Class component with Bacon.js form streams and 7 Emotion
+The biggest single legacy item. Class component with Bacon.js form streams and 7
 styled wrappers:
 
 - `Form` — flex column → `Stack` or `<form>` with Mantine style props
@@ -112,8 +112,8 @@ raw pixels — acceptable for fixed-layout tables but could be named constants.
 
 | Priority | Issue | Files |
 |----------|-------|-------|
-| High | ExpenseDialog: class component + Emotion wrappers | `ExpenseDialog.tsx` |
-| High | Emotion styled wrappers for trivial layout | `CategorySelector`, `GroupingSelector`, `ExpenseDialogComponents`, `SplitRow`, `SplitButtons`, `ExpenseSplitDialog` |
+| High | ExpenseDialog: class component + styled wrappers | `ExpenseDialog.tsx` |
+| High | Styled wrappers for trivial layout | `CategorySelector`, `GroupingSelector`, `ExpenseDialogComponents`, `SplitRow`, `SplitButtons`, `ExpenseSplitDialog` |
 | Medium | Raw pixel values where Mantine tokens work | `ExpenseTable`, `RecurringSummaryRow`, `ExpenseInfo`, `RecurrenceInfo`, `SpecialRows` |
 | Medium | Inline style where Mantine props exist | `ExpenseRow`, `ExpenseTableLayout`, `SpecialRows`, `SourceSelector` |
 | Medium | Misleading file/type names | `Breakpoints.tsx`, `TableIcons.tsx`, `SpecialRows.tsx`, `RecurrenceInfoProps` |

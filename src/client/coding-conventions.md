@@ -316,7 +316,6 @@ export default MyComponent;
 
 These patterns exist in the codebase but must not be copied or extended:
 
-- `import styled from '@emotion/styled'` for simple layout wrappers
 - `import { ... } from '@mui/material'` (MUI components)
 - `VCenterRow`, `Flex` from `GlobalStyles.ts` — use Mantine `Group` / `Flex`
 - `PageContentContainer` — use `ScrollArea`

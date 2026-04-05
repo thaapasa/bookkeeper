@@ -11,9 +11,8 @@ It is the single source of truth for frontend coding conventions.
 ## Code Quality: Be Proactive
 
 When working on any file, **actively look for bad code** in that file and nearby code.
-Legacy patterns (Emotion `styled` for simple layout, MUI imports, class components,
-Bacon.js streams, raw pixel spacing), wrong idioms, code smells, and missing best
-practices should all be flagged. Fix issues that are in scope; for out-of-scope issues,
+Legacy patterns (MUI imports, class components, Bacon.js streams, raw pixel spacing),
+wrong idioms, code smells, and missing best practices should all be flagged. Fix issues that are in scope; for out-of-scope issues,
 always ask whether to include the fix. No bad code should go unmentioned.
 
 ## Key Principle

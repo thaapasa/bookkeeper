@@ -1,7 +1,7 @@
 ---
 name: refactor
 description: Refactor outdated patterns in the codebase based on user input
-argument-hint: <pattern to refactor, e.g. "Emotion styled to Mantine" or "class components to functional">
+argument-hint: <pattern to refactor, e.g. "class components to functional" or "MUI to Mantine">
 disable-model-invocation: true
 ---
 
@@ -45,8 +45,6 @@ full coding conventions from `src/client/coding-conventions.md`.
 
 These are known legacy patterns in this codebase:
 
-- **Emotion `styled` to Mantine**: Replace `styled.div`/`styled('div')` wrappers with
-  Mantine components + style props. Don't wrap Mantine components with `styled()`.
 - **MUI to Mantine**: Replace `@mui/material` imports with `@mantine/core` equivalents.
 - **Class to functional components**: Convert `React.Component` classes to functional
   components with hooks.

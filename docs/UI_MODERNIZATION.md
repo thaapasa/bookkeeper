@@ -4,7 +4,7 @@
 
 ### MUI Integration Depth
 - **142 TSX components** total, **99 files (49%)** import MUI
-- **235 `styled()` instances** (mix of `@mui/material` and `@emotion/styled`)
+- **235 `styled()` instances** (mix of `@mui/material` and `@emotion/styled`) — now removed
 - **47 MUI icons** (centralized in `Icons.tsx`)
 - **No MUI ThemeProvider** — custom color system in `Colors.ts`
 - **Custom responsive breakpoints** in `Styles.ts` (not MUI's)
@@ -31,8 +31,8 @@
 | Alert                              | 2             | Easy — styled div                 |
 
 ### Styling Architecture (what we're keeping/changing)
-- **Emotion** is used directly in ~20 files (`@emotion/styled`)
-- **MUI's styled** (wraps Emotion) used in ~55+ files
+- ~~**Emotion** is used directly in ~20 files (`@emotion/styled`)~~ — fully removed
+- ~~**MUI's styled** (wraps Emotion) used in ~55+ files~~ — fully removed
 - **Custom media query helpers** (`media.mobile`, `media.web`) — independent of MUI
 - **Custom color system** (`Colors.ts`) — portable, not theme-dependent
 - **1 global CSS file** (`bookkeeper.css`) — minimal reset
@@ -258,16 +258,15 @@ Key customization tools:
 
 Your current color scheme (warm browns, orange-red accents, teal/lime highlights) maps directly to a Mantine theme. The result looks like *your app*, not "a Mantine app."
 
-### Hybrid styling approach
-- **Mantine components** for interactive primitives (Button, Modal, Select, Checkbox, DatePicker)
-- **Keep `styled()` with Emotion** for custom layouts, expense rows, containers
-- Mantine and Emotion coexist — Mantine uses CSS Modules, not Emotion
-- Gradually migrate custom `styled()` to CSS Modules if desired (or keep — it works fine)
+### Styling approach
+- **Mantine components** with style props for all UI
+- **CSS modules** for complex CSS (hover, pseudo-elements, animations)
+- Emotion has been fully removed from the codebase
 
 ### Why the sluggishness goes away
 MUI's performance issues come from:
 1. **Heavy component trees** — each MUI Button renders ~5-7 DOM nodes; Mantine renders 1-2
-2. **Runtime style injection** — MUI uses Emotion at runtime for theme resolution; Mantine uses static CSS
+2. **Runtime style injection** — MUI uses runtime CSS-in-JS for theme resolution; Mantine uses static CSS
 3. **Theme context overhead** — MUI reads theme context on every render; Mantine uses CSS variables
 
 ---
@@ -321,11 +320,11 @@ styling) is encouraged alongside conversion work.
 - Migrate MUI `Grid` layouts (18 files) → Mantine `SimpleGrid`/CSS Grid
 - **→ REVIEW: All complex components converted**
 
-### Phase 7: Cleanup & MUI Removal
-- Decouple all remaining `styled()` imports from MUI → `@emotion/styled` (~55+ files)
-- Remove `@mui/*` packages from `package.json`
-- Remove MUI theme/provider from `src/index.tsx`
-- Update `Colors.ts` — replace MUI color imports with direct values
+### Phase 7: Cleanup & MUI Removal ✅
+- ~~Decouple all remaining `styled()` imports from MUI → `@emotion/styled`~~ — done
+- ~~Remove `@mui/*` packages from `package.json`~~ — done
+- ~~Remove MUI theme/provider from `src/index.tsx`~~ — done
+- ~~Remove `@emotion/*` packages~~ — done (fully removed)
 - Clean up unused dependencies
 - Performance testing
 - **→ FINAL REVIEW**

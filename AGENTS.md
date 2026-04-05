@@ -48,7 +48,7 @@ patterns (routing, database).
 When working on any task, **actively look for bad code** in the files you touch and nearby
 code. This includes but is not limited to:
 
-- Legacy patterns (Emotion `styled`, MUI imports, class components, Bacon.js streams)
+- Legacy patterns (MUI imports, class components, Bacon.js streams)
 - Wrong idioms (floating-point money, raw SQL strings, unvalidated inputs, `any` types)
 - Code smells (copy-paste duplication, overly complex logic, dead code, misleading names)
 - Missing best practices (no error handling, no Zod validation, inconsistent patterns)

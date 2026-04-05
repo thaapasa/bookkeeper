@@ -23,9 +23,8 @@ Any design work on the UI will be performed after the refactoring.
 
 Apply all of these:
 
-1. **Replace Emotion styled wrappers** with Mantine components + style props.
-   Simple layout wrappers (`styled.div` with flex, padding, margins, position) become
-   `Box`, `Group`, `Stack`, `Flex` with Mantine props.
+1. **Replace raw HTML and custom wrappers** with Mantine components + style props.
+   Simple layout wrappers become `Box`, `Group`, `Stack`, `Flex` with Mantine props.
 2. **Replace raw pixel values** with Mantine size tokens for spacing, padding, margins,
    gaps (`p="md"` not `p={16}`, `gap="sm"` not `gap={12}`).
 3. **Replace inline style={{}}** with Mantine style props where possible
@@ -39,13 +38,13 @@ Apply all of these:
 7. **Remove unused imports and dead code** — don't leave commented-out code or
    backwards-compat shims.
 8. **Fix file/type naming** if names are misleading or generic.
-9. **Move CSS to CSS modules** when `style` prop or Emotion is used for hover states,
+9. **Move CSS to CSS modules** when `style` prop is used for hover states,
    pseudo-elements, or complex selectors.
 10. **Remove .tsx/.ts extensions** from import paths.
 
 ## CSS styling
 
-Do not use Emotion. Prefer:
+Prefer:
 
 - Mantine style props (simplest)
 - Mantine `style` prop (one-off CSS)

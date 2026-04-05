@@ -40,8 +40,6 @@
   "license": "ISC",
   "homepage": "https://kukkaro.pomeranssi.fi",
   "dependencies": {
-    "@emotion/react": "11.14.0",
-    "@emotion/styled": "11.14.1",
     "@mantine/core": "^8.3.18",
     "@mantine/dates": "^8.3.18",
     "@mantine/hooks": "^8.3.18",
