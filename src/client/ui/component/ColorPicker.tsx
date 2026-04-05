@@ -1,4 +1,4 @@
-import { ActionIcon, DEFAULT_THEME, Group, Stack } from '@mantine/core';
+import { ActionIcon, Box, DEFAULT_THEME, Group, Stack } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import * as React from 'react';
 
@@ -36,7 +36,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ value, onChange }) => 
   return (
     <>
       <Group align="center" gap="xs">
-        <div
+        <Box
           className={`${styles.colorBall} ${styles.colorBallExample}`}
           style={{ backgroundColor: value }}
           onClick={toggle}
@@ -57,11 +57,11 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ value, onChange }) => 
               <Icons.SortDown fontSize="small" />
             </ActionIcon>
           </Stack>
-          <div className={styles.colorOptions}>
+          <Box className={styles.colorOptions}>
             {colorNames.map(name => {
               const col = DEFAULT_THEME.colors[name][shadeIndices[shade]];
               return (
-                <div
+                <Box
                   className={styles.colorBall}
                   style={{ backgroundColor: col }}
                   key={name}
@@ -69,7 +69,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ value, onChange }) => 
                 />
               );
             })}
-          </div>
+          </Box>
         </Group>
       ) : null}
     </>

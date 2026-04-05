@@ -1,3 +1,4 @@
+import { Code } from '@mantine/core';
 import * as React from 'react';
 
 import { DbStatus } from 'shared/types';
@@ -21,9 +22,7 @@ export const DbStatusView: React.FC = () => {
 
 const RawDataView: React.FC<{ data: DbStatus }> = ({ data }) => (
   <NoteView title="Tietokannan tila">
-    <pre style={{ fontFamily: 'monospace', whiteSpace: 'pre' }}>
-      {JSON.stringify(data, null, 2)}
-    </pre>
+    <Code block>{JSON.stringify(data, null, 2)}</Code>
   </NoteView>
 );
 

@@ -32,7 +32,7 @@ export const ProfileImageView: React.FC<{ session: Session }> = ({ session }) =>
       </Box>
       <Box style={{ gridColumn: '1 / -1' }}>
         <Group gap="lg" align="center">
-          <Box style={{ position: 'relative' }}>
+          <Box pos="relative">
             <Avatar
               src={user.imageLarge}
               size={128}

@@ -1,4 +1,4 @@
-import { Checkbox, Group, Stack } from '@mantine/core';
+import { Box, Checkbox, Group, Stack } from '@mantine/core';
 import { useElementSize } from '@mantine/hooks';
 import * as React from 'react';
 
@@ -89,8 +89,8 @@ export const CategoryStatisticsChart: React.FC<
 > = props => {
   const { ref, width, height } = useElementSize();
   return (
-    <div ref={ref} style={{ display: 'flex', flex: 1, minWidth: 0 }}>
+    <Box ref={ref} display="flex" flex={1} style={{ minWidth: 0 }}>
       {width > 0 ? <StatisticsGraphContent size={{ width, height }} {...props} /> : null}
-    </div>
+    </Box>
   );
 };

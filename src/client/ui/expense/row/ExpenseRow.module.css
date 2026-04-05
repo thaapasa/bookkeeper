@@ -11,5 +11,5 @@
   left: 0;
   background-color: light-dark(var(--mantine-color-neutral-1), var(--mantine-color-neutral-4));
   padding: 3px 4px 4px 3px;
-  border-bottom-right-radius: 10px;
+  border-bottom-right-radius: var(--mantine-radius-sm);
 }

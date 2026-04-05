@@ -30,10 +30,7 @@ export const CompactInputText: React.FC<TextInputProps> = ({ className, ...props
 export const StyledIconButton: React.FC<
   ActionIconProps & React.ButtonHTMLAttributes<HTMLButtonElement> & React.PropsWithChildren
 > = ({ children, ...props }) => (
-  <ActionIcon
-    {...props}
-    style={{ padding: 0, margin: '0 4px', ...(props.style as Record<string, unknown>) }}
-  >
+  <ActionIcon {...props} p={0} mx={4}>
     {children}
   </ActionIcon>
 );

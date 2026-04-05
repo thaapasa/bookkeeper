@@ -58,10 +58,10 @@ const ShortcutEditView: React.FC<{
     <>
       <DialogHeading>Muokkaa linkkiä</DialogHeading>
       <Box
+        display="grid"
         style={{
-          display: 'grid',
           gridTemplateColumns: 'auto 1fr',
-          gap: 8,
+          gap: 'var(--mantine-spacing-xs)',
           alignItems: 'center',
         }}
       >
@@ -81,7 +81,7 @@ const ShortcutEditView: React.FC<{
             background={state.background}
             style={{ margin: 0, marginRight: 4 }}
           />
-          <Box style={{ flex: 1 }} />
+          <Box flex={1} />
           <TextEdit value={state.margin} onChange={state.setMargin} width="40px" label="Reuna" />
           <UploadImageButton
             onSelect={(file, filename) => state.uploadShortcutIcon(file, filename).then(reloadData)}
@@ -99,12 +99,13 @@ const ShortcutEditView: React.FC<{
         <Box style={{ gridColumn: '1 / -1' }}>
           <TextEdit value={state.expenseStr} onChange={state.setExpense} />
         </Box>
+
         <Box>
           <Button variant="subtle" onClick={onClose}>
             Peruuta
           </Button>
         </Box>
-        <Box style={{ textAlign: 'right' }}>
+        <Box ta="right">
           <Button
             variant="filled"
             disabled={!state.inputValid()}

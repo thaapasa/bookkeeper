@@ -141,6 +141,7 @@ export const PasswordView: React.FC<{ session: Session }> = ({ session }) => {
       <Box style={{ gridColumn: '1 / -1' }}>
         <Subtitle>Salasana</Subtitle>
       </Box>
+
       <Routes>
         <Route path="/salasana" element={<PasswordChangeView session={session} />}></Route>
         <Route

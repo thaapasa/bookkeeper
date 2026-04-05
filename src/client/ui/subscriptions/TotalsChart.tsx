@@ -1,3 +1,4 @@
+import { Box } from '@mantine/core';
 import { useElementSize } from '@mantine/hooks';
 import * as React from 'react';
 import { Cell, Legend, Pie, PieChart, Tooltip } from 'recharts';
@@ -21,7 +22,7 @@ export const TotalsChart: React.FC<{
 }> = ({ data, onSelectCategory, colorIndex }) => {
   const { ref, width } = useElementSize();
   return (
-    <div ref={ref} style={{ display: 'flex', flex: 1, minWidth: 0 }}>
+    <Box ref={ref} display="flex" flex={1} style={{ minWidth: 0 }}>
       {width > 0 ? (
         <PieChart width={width} height={300}>
           <Pie
@@ -49,6 +50,6 @@ export const TotalsChart: React.FC<{
           <Legend layout="vertical" align="right" />
         </PieChart>
       ) : null}
-    </div>
+    </Box>
   );
 };

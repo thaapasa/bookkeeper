@@ -1,3 +1,4 @@
+import { Box } from '@mantine/core';
 import { useElementSize } from '@mantine/hooks';
 import * as React from 'react';
 import { Bar, BarChart, CartesianGrid, Legend, Tooltip, XAxis, YAxis } from 'recharts';
@@ -17,9 +18,9 @@ export const CategoryChart: React.FC<{
 }> = ({ chartData }) => {
   const { ref, width, height } = useElementSize();
   return (
-    <div ref={ref} style={{ display: 'flex', flex: 1, minWidth: 0 }}>
+    <Box ref={ref} display="flex" flex={1} style={{ minWidth: 0 }}>
       {width > 0 ? <CategoryChartContent chartData={chartData} size={{ width, height }} /> : null}
-    </div>
+    </Box>
   );
 };
 

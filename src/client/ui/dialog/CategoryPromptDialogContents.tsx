@@ -21,10 +21,10 @@ export const CategoryPromptDialogContents: React.FC<CategoryPromptDialogProps> =
   };
   return (
     <>
-      <div onKeyUp={handleKeyPress}>
+      <Box onKeyUp={handleKeyPress}>
         <Box mb="xs">{description}</Box>
         <CategorySelector addCategories={selectCat} />
-      </div>
+      </Box>
       <Group justify="flex-end" pt="md">
         <Button variant="subtle" onKeyUp={handleKeyPress} onClick={() => onCancel()}>
           Peruuta

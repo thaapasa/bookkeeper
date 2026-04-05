@@ -1,4 +1,4 @@
-import { Box, Loader, Text, Title } from '@mantine/core';
+import { Box, Code, Flex, Loader, Text, Title } from '@mantine/core';
 import * as React from 'react';
 
 import { AsyncDataError, AsyncDataLoading } from 'client/data/AsyncData';
@@ -22,9 +22,9 @@ export const AsyncDataDialogContent = <T, C extends { data: T }>({
 );
 
 const LoadingRenderer: React.FC<{ data: AsyncDataLoading }> = () => (
-  <Box display="flex" style={{ alignItems: 'center', justifyContent: 'center' }} p="xl">
+  <Flex align="center" justify="center" p="xl">
     <Loader size={64} />
-  </Box>
+  </Flex>
 );
 
 const ErrorRenderer: React.FC<{ data: AsyncDataError }> = ({ data }) => {
@@ -35,16 +35,12 @@ const ErrorRenderer: React.FC<{ data: AsyncDataError }> = ({ data }) => {
       ? (error as { data: unknown }).data
       : null;
   return (
-    <div>
+    <Box>
       <Title order={3} mb="xs">
         Virhe tietojen latauksessa
       </Title>
       <Text>{message}</Text>
-      {errorData ? (
-        <pre style={{ fontFamily: 'monospace', whiteSpace: 'pre' }}>
-          {JSON.stringify(errorData, null, 2)}
-        </pre>
-      ) : undefined}
-    </div>
+      {errorData ? <Code block>{JSON.stringify(errorData, null, 2)}</Code> : undefined}
+    </Box>
   );
 };

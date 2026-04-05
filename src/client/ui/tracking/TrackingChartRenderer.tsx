@@ -126,8 +126,8 @@ const TrackingChartRenderer: React.FC<TrackingChartProps> = props => {
 export const TrackingChart: React.FC<Omit<TrackingChartProps, 'size'>> = props => {
   const { ref, width } = useElementSize();
   return (
-    <div ref={ref} style={{ display: 'flex', flex: 1, height: 168, minWidth: 0 }}>
+    <Box ref={ref} display="flex" flex={1} h={168} style={{ minWidth: 0 }}>
       {width > 0 ? <TrackingChartRenderer size={{ width, height: 168 }} {...props} /> : null}
-    </div>
+    </Box>
   );
 };

@@ -144,7 +144,7 @@ const GroupingEditView: React.FC<{
             </ActionIcon>
           </Group>
         </SelectionRow>
-        <Box style={{ gridColumn: '1 / -1' }} pos="relative">
+        <Box pos="relative" style={{ gridColumn: '1 / -1' }}>
           <Box pos="absolute" right={0} top="xs">
             <ActionIcon title="Lisää kategoria" size="sm" onClick={state.addCategory}>
               <Icons.Add fontSize="small" />

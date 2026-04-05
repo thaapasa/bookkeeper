@@ -16,10 +16,10 @@ export const ProfileView: React.FC = () => {
   return (
     <Flex direction="column" align="center">
       <Box
+        display="grid"
         style={{
-          display: 'grid',
           gridTemplateColumns: 'auto 1fr',
-          gap: 16,
+          gap: 'var(--mantine-spacing-md)',
         }}
         p="md"
         maw={800}
@@ -27,6 +27,7 @@ export const ProfileView: React.FC = () => {
         <Box style={{ gridColumn: '1 / -1' }}>
           <Title>Profiilitiedot</Title>
         </Box>
+
         <UserDataView session={session} />
         <PasswordView session={session} />
         <ProfileImageView session={session} />

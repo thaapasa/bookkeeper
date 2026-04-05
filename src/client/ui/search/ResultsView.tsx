@@ -1,4 +1,4 @@
-import { Group, Table, Text } from '@mantine/core';
+import { Box, Group, Table, Text } from '@mantine/core';
 import * as React from 'react';
 
 import { calculateTotals, UserExpense } from 'shared/expense';
@@ -24,13 +24,13 @@ export const ResultsView: React.FC<ResultsViewOwnProps> = ({ results, ...rest })
   const userData = useBaconProperty(userDataP);
   const hasResults = results && results.length > 0;
   return (
-    <div className={styles.resultsArea}>
+    <Box className={styles.resultsArea}>
       <Text c="primary.7" mx="lg" my="xs">
         Hakutulokset
       </Text>
       <ResultsContents results={results} userData={userData} {...rest} />
       {hasResults ? <TotalsView results={results} /> : null}
-    </div>
+    </Box>
   );
 };
 

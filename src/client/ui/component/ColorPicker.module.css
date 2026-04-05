@@ -10,14 +10,14 @@
 .colorBallExample {
   width: 32px;
   height: 32px;
-  margin-right: 8px;
+  margin-right: var(--mantine-spacing-xs);
 }
 
 .colorOptions {
   display: inline-grid;
   flex: 1;
   grid-template-columns: repeat(auto-fill, 28px);
-  row-gap: 4px;
-  column-gap: 4px;
-  margin: 16px 0;
+  row-gap: var(--mantine-spacing-xs);
+  column-gap: var(--mantine-spacing-xs);
+  margin: var(--mantine-spacing-md) 0;
 }

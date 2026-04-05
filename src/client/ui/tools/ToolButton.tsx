@@ -14,10 +14,10 @@ export const ToolButton: React.FC<{
     <Box display="flex" style={{ alignItems: 'center' }}>
       <Text>{title}</Text>
     </Box>
-    <div>
+    <Box>
       <ActionButton onClick={action} variant="contained" color="primary">
         {buttonText}
       </ActionButton>
-    </div>
+    </Box>
   </>
 );

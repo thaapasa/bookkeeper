@@ -1,4 +1,4 @@
-import { ActionIcon } from '@mantine/core';
+import { ActionIcon, Box } from '@mantine/core';
 import * as React from 'react';
 
 import { logger } from 'client/Logger';
@@ -71,7 +71,7 @@ export const ActivatableTextField: React.FC<ActivatableTextFieldProps<any>> = <
   const Type = (editorType ?? TextEdit) as any;
 
   return edit ? (
-    <div className={styles.editorContainer}>
+    <Box className={styles.editorContainer}>
       <Type
         autoFocus={true}
         variant="unstyled"
@@ -85,14 +85,14 @@ export const ActivatableTextField: React.FC<ActivatableTextFieldProps<any>> = <
       <ActionIcon size="sm" color="gray" onClick={cancel}>
         <Icons.CancelOutlined fontSize="medium" />
       </ActionIcon>
-    </div>
+    </Box>
   ) : (
-    <div
+    <Box
       className={`${styles.valueContainer} ${className ?? ''}`}
       style={viewStyle}
       onClick={activate}
     >
       {value}
-    </div>
+    </Box>
   );
 };

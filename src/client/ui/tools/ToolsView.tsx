@@ -18,6 +18,7 @@ export const ToolsView: React.FC = () => (
       <Box style={{ gridColumn: '1 / -1' }}>
         <Title>Työkalut</Title>
       </Box>
+
       <ToolButton title="Vaihda kohteiden nimi" buttonText="Vaihda" action={changeReceiverName} />
       <DbStatusView />
     </Box>

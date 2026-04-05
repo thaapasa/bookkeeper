@@ -18,10 +18,10 @@ export const TextPromptDialogContents: React.FC<TextPromptDialogProps> = ({
   const Editor = (editorType ?? TextEdit) as any;
   return (
     <>
-      <div onKeyUp={handleKeyPress}>
+      <Box onKeyUp={handleKeyPress}>
         <Box mb="xs">{description}</Box>
         <Editor value={text} onChange={setText} width="400px" />
-      </div>
+      </Box>
       <Group justify="flex-end" gap="xs" pt="md">
         <Button variant="subtle" onKeyUp={handleKeyPress} onClick={() => onCancel()}>
           Peruuta

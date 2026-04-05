@@ -1,3 +1,4 @@
+import { Code } from '@mantine/core';
 import * as React from 'react';
 
 import {
@@ -77,11 +78,7 @@ const ErrorRenderer: React.FC<{ data: AsyncDataError }> = ({ data }) => {
   return (
     <ErrorView title="Virhe tietojen latauksessa">
       <p>{message}</p>
-      {errorData ? (
-        <pre style={{ fontFamily: 'monospace', whiteSpace: 'pre' }}>
-          {JSON.stringify(errorData, null, 2)}
-        </pre>
-      ) : undefined}
+      {errorData ? <Code block>{JSON.stringify(errorData, null, 2)}</Code> : undefined}
     </ErrorView>
   );
 };
