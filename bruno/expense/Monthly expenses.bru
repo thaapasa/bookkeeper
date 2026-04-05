@@ -1,0 +1,21 @@
+meta {
+  name: Monthly expenses
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{SERVER_URL}}/api/expense/month?year=2026&month=2
+  body: none
+  auth: inherit
+}
+
+params:query {
+  year: 2026
+  month: 2
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

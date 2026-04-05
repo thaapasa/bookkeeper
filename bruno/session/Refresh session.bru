@@ -1,0 +1,27 @@
+meta {
+  name: Refresh session
+  type: http
+  seq: 2
+}
+
+put {
+  url: {{SERVER_URL}}/api/session/refresh
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{REFRESH_TOKEN}}
+}
+
+script:post-response {
+  const body = res.getBody();
+  bru.setEnvVar("TOKEN", body.token);
+  bru.setEnvVar("REFRESH_TOKEN", body.refreshToken);
+  
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

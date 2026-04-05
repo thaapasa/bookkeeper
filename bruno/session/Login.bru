@@ -1,0 +1,30 @@
+meta {
+  name: Login
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{SERVER_URL}}/api/session
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "username": "{{USERNAME}}",
+    "password": "{{PASSWORD}}"
+  }
+}
+
+script:post-response {
+  const body = res.getBody();
+  bru.setEnvVar("TOKEN", body.token);
+  bru.setEnvVar("REFRESH_TOKEN", body.refreshToken);
+  
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
