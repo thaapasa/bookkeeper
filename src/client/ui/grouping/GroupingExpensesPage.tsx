@@ -1,4 +1,4 @@
-import { Flex, Stack, Table } from '@mantine/core';
+import { Box, Flex, Stack, Table } from '@mantine/core';
 import React from 'react';
 import { useParams } from 'react-router';
 
@@ -43,25 +43,28 @@ const GroupingExpensesRenderer: React.FC<{
 }> = ({ data, reloadExpenses }) => {
   const userData = useBaconProperty(userDataP);
   return (
-    <Stack align="center">
-      <Subtitle w="100%" p="xs" ta="center">
-        {data.title}
-      </Subtitle>
-      <GroupingCategoryChart totals={data.categoryTotals} />
-      <ExpenseTableLayout padded>
-        <Table.Tbody>
-          {data.expenses?.map(expense => (
-            <ExpenseRow
-              expense={expense}
-              userData={userData}
-              key={'expense-row-' + expense.id}
-              addFilter={noop}
-              onUpdated={reloadExpenses}
-            />
-          ))}
-        </Table.Tbody>
-      </ExpenseTableLayout>
+    <Flex direction="column" w="100%" mih="calc(100vh - 56px)">
+      <Stack align="center">
+        <Subtitle w="100%" p="xs" ta="center">
+          {data.title}
+        </Subtitle>
+        <GroupingCategoryChart totals={data.categoryTotals} />
+        <ExpenseTableLayout padded>
+          <Table.Tbody>
+            {data.expenses?.map(expense => (
+              <ExpenseRow
+                expense={expense}
+                userData={userData}
+                key={'expense-row-' + expense.id}
+                addFilter={noop}
+                onUpdated={reloadExpenses}
+              />
+            ))}
+          </Table.Tbody>
+        </ExpenseTableLayout>
+      </Stack>
+      <Box flex={1} />
       <TotalsView results={data.expenses} />
-    </Stack>
+    </Flex>
   );
 };

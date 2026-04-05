@@ -1,52 +1,7 @@
-.padding {
-  height: 64px;
-}
-
-.positioner {
-  position: fixed;
+.footer {
+  border-top: 1px solid var(--mantine-color-default-border);
+  position: sticky;
+  bottom: 0;
   z-index: 1;
-  left: var(--mantine-spacing-xl);
-  right: var(--mantine-spacing-xl);
-  bottom: var(--mantine-spacing-xl);
-  height: 48px;
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: center;
-}
-
-@media screen and (max-width: 52.4375em) {
-  .positioner {
-    left: 0;
-    right: 0;
-    bottom: 0;
-  }
-}
-
-@media screen and (min-width: 87.5em) {
-  .positioner {
-    justify-content: center;
-  }
-}
-
-.totalsArea {
-  height: 48px;
-  background-color: white;
-  border-top: 1px solid var(--mantine-color-neutral-3);
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: center;
-  flex: 1;
-}
-
-@media screen and (min-width: 87.5em) {
-  .totalsArea {
-    flex: none;
-    width: 1400px;
-  }
-}
-
-.total {
-  margin-left: var(--mantine-spacing-xl);
+  background-color: light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-6));
 }

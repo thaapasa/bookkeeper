@@ -1,3 +1,4 @@
+import { Group, Text } from '@mantine/core';
 import * as React from 'react';
 
 import { calculateTotals, UserExpense } from 'shared/expense';
@@ -12,36 +13,23 @@ interface TotalsViewProps {
 export const TotalsView: React.FC<TotalsViewProps> = ({ results }) => {
   const totals = calculateTotals(results);
   return (
-    <>
-      <div className={styles.padding} />
-      <div className={styles.positioner}>
-        <div className={styles.totalsArea}>
-          <div className={styles.total}>
-            <SectionLabel component="span" mr="sm">
-              Yhteensä
-            </SectionLabel>
-            {totals.total.format()}
-          </div>
-          <div className={styles.total}>
-            <SectionLabel component="span" mr="sm">
-              Tulot
-            </SectionLabel>
-            {totals.income.format()}
-          </div>
-          <div className={styles.total}>
-            <SectionLabel component="span" mr="sm">
-              Menot
-            </SectionLabel>
-            {totals.expense.format()}
-          </div>
-          <div className={styles.total}>
-            <SectionLabel component="span" mr="sm">
-              Siirrot
-            </SectionLabel>
-            {totals.transfer.format()}
-          </div>
-        </div>
-      </div>
-    </>
+    <Group gap="xl" px={{ base: 'xs', sm: 'md' }} py="xs" fz="sm" className={styles.footer}>
+      <Group gap="xs" wrap="nowrap">
+        <SectionLabel component="span">Yhteensä</SectionLabel>
+        <Text fz="sm">{totals.total.format()}</Text>
+      </Group>
+      <Group gap="xs" wrap="nowrap">
+        <SectionLabel component="span">Tulot</SectionLabel>
+        <Text fz="sm">{totals.income.format()}</Text>
+      </Group>
+      <Group gap="xs" wrap="nowrap">
+        <SectionLabel component="span">Menot</SectionLabel>
+        <Text fz="sm">{totals.expense.format()}</Text>
+      </Group>
+      <Group gap="xs" wrap="nowrap">
+        <SectionLabel component="span">Siirrot</SectionLabel>
+        <Text fz="sm">{totals.transfer.format()}</Text>
+      </Group>
+    </Group>
   );
 };
