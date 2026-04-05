@@ -123,27 +123,9 @@ Requests.txRequest(
 
 ---
 
-### 8. Loosely Typed Error Factory Functions
+### ~~8. Loosely Typed Error Factory Functions~~ ✅ Done
 
-**Location**: `src/shared/types/Errors.ts` lines 4-22
-
-**Problem**: `undefinedToError` and `emptyToError` use `any` types extensively.
-
-**Solution**: Add proper generics:
-
-```typescript
-export function undefinedToError<E extends BkError>(
-  ErrorClass: new (...args: any[]) => E,
-  ...args: ConstructorParameters<typeof ErrorClass>
-) {
-  return <T>(value: T | undefined): T => {
-    if (value === undefined) {
-      throw new ErrorClass(...args);
-    }
-    return value;
-  };
-}
-```
+Deleted `undefinedToError` and `emptyToError` — they were unused dead code.
 
 ---
 
