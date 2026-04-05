@@ -98,6 +98,7 @@
     "vite": "8.0.3"
   },
   "trustedDependencies": [
+    "protobufjs",
     "sharp"
   ],
   "browserslist": {
