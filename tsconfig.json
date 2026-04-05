@@ -1,14 +1,13 @@
 {
   "compilerOptions": {
     "module": "ESNext",
-    "target": "ES6",
-    "moduleResolution": "node",
+    "target": "ES2020",
+    "moduleResolution": "bundler",
     "moduleDetection": "force",
     "allowImportingTsExtensions": true,
     "noEmit": true,
     "composite": true,
     "strict": true,
-    "downlevelIteration": true,
     "skipLibCheck": true,
     "jsx": "preserve",
     "allowSyntheticDefaultImports": true,
@@ -18,7 +17,12 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "baseUrl": "./src",
+    "paths": {
+      "shared/*": ["./src/shared/*"],
+      "client/*": ["./src/client/*"],
+      "server/*": ["./src/server/*"],
+      "test/*": ["./src/test/*"]
+    },
     "sourceMap": true,
     "rootDir": "src",
     "noImplicitReturns": true,
