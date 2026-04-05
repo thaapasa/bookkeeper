@@ -1,5 +1,5 @@
 import { Box, Notification } from '@mantine/core';
-import { AlertCircle, AlertTriangle, CheckCircle, Info } from 'lucide-react';
+import { CircleAlert, CircleCheckBig, Info, TriangleAlert } from 'lucide-react';
 import * as React from 'react';
 
 import { toReadableErrorMessage } from 'shared/types';
@@ -10,9 +10,9 @@ import { logger } from 'client/Logger';
 const msgInterval = 5000;
 
 const severityIcon = {
-  success: <CheckCircle size={18} />,
-  error: <AlertCircle size={18} />,
-  warning: <AlertTriangle size={18} />,
+  success: <CircleCheckBig size={18} />,
+  error: <CircleAlert size={18} />,
+  warning: <TriangleAlert size={18} />,
   info: <Info size={18} />,
 };
 

@@ -1,11 +1,11 @@
 import {
   ArrowDownFromLine,
   ArrowUpFromLine,
-  BarChart3,
   Bookmark,
   CalendarClock,
   CalendarDays,
   CalendarRange,
+  ChartColumn,
   ChartLine,
   ChartPie,
   Check,
@@ -45,21 +45,20 @@ import {
   Trash2,
   Upload,
   X,
-  XCircle,
 } from 'lucide-react';
 import React from 'react';
 
 /** Map of icon names to Lucide components */
 export const LucideIcons = {
   Add: Plus,
-  AddChart: BarChart3,
+  AddChart: ChartColumn,
   AllInclusive: InfinityIcon,
-  BarChart: BarChart3,
+  BarChart: ChartColumn,
   Calendar: CalendarDays,
   CalendarEmpty: CalendarRange,
   CalendarRepeat: CalendarClock,
   Cancel: CircleX,
-  CancelOutlined: XCircle,
+  CancelOutlined: CircleX,
   Category: Tags,
   Chart: ChartLine,
   Check: Check,

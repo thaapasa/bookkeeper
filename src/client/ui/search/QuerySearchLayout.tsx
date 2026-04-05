@@ -53,7 +53,7 @@ export const QuerySearchLayout: React.FC<QuerySearchLayoutProps> = ({
 }) => {
   const session = useBaconProperty(validSessionP);
   return (
-    <Grid p="md" gutter="md">
+    <Grid p="md" gap="md">
       <Grid.Col span={{ base: 12, sm: 7 }}>
         <Group wrap="nowrap">
           <SearchInputField

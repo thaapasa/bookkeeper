@@ -100,7 +100,7 @@ export const StatisticsView: React.FC = () => {
   const isMobile = useIsMobile();
 
   return (
-    <Grid p="md" gutter="md">
+    <Grid p="md" gap="md">
       <Grid.Col span={{ base: 12, sm: 6 }}>
         <Stack gap="xs">
           <CategorySelector addCategories={addCats} />
