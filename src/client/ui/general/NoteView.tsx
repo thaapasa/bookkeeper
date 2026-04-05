@@ -1,73 +1,56 @@
-import { styled } from '@mui/system';
+import { Box, BoxProps, Group, Stack, Text } from '@mantine/core';
 import * as React from 'react';
 
-import { spaced } from 'shared/util';
-
-import { colorScheme } from '../Colors';
+import { classNames } from '../utils/classNames.ts';
+import styles from './NoteView.module.css';
 
 export type NoteType = 'note' | 'warning';
 export type NoteViewProps = {
   title?: string;
   type?: NoteType;
-  className?: string;
   fullWidth?: boolean;
   compact?: boolean;
-};
+  noMargin?: boolean;
+} & BoxProps;
 
 export const NoteView: React.FC<React.PropsWithChildren<NoteViewProps>> = ({
   type,
   title,
   children,
-  className,
   compact,
   fullWidth,
+  noMargin,
+  className,
+  ...props
 }) => (
-  <Container
-    className={spaced`${className} ${compact ? 'compact' : ''} ${fullWidth ? 'fullWidth' : ''}`}
+  <Stack
+    className={classNames(className, styles.container, fullWidth ? styles.fullWidth : undefined)}
+    bg="neutral.2"
+    {...props}
   >
-    {title ? <Title className={type ?? 'note'}>{title}</Title> : null}
-    <Message>{children}</Message>
-  </Container>
+    {title ? (
+      <Group
+        className={styles.titleBase}
+        py="xs"
+        px="md"
+        my={noMargin ? 0 : compact ? 'xs' : 'xl'}
+        mx={noMargin ? 0 : compact ? 'md' : 'xl'}
+        {...NoteColors[type ?? 'note']}
+      >
+        <Text fw={500}>{title}</Text>
+      </Group>
+    ) : null}
+    <Box p="md">{children}</Box>
+  </Stack>
 );
 
-const Container = styled('div')`
-  background-color: ${colorScheme.primary.standard};
-  border-radius: 4px;
-  margin: 32px;
-  width: auto;
-  box-sizing: border-box;
-
-  &.nomargin {
-    margin: 0;
-  }
-
-  &.compact {
-    margin: 8px 16px;
-  }
-
-  &.fullWidth {
-    display: flex;
-    flex-direction: column;
-    align-self: stretch;
-  }
-`;
-
-const Title = styled('div')`
-  padding: 8px 16px;
-  font-size: 18px;
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
-
-  &.note {
-    color: ${colorScheme.primary.text};
-    background-color: ${colorScheme.primary.dark};
-  }
-  &.warning {
-    color: ${colorScheme.gray.light};
-    background-color: ${colorScheme.secondary.dark};
-  }
-`;
-
-const Message = styled('div')`
-  padding: 16px;
-`;
+const NoteColors: Record<NoteType, Pick<BoxProps, 'c' | 'bg'>> = {
+  note: {
+    c: 'text',
+    bg: 'neutral.4',
+  },
+  warning: {
+    c: 'neutral.1',
+    bg: 'primary.7',
+  },
+};

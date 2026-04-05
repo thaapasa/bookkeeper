@@ -1,4 +1,4 @@
-import { IconButton } from '@mui/material';
+import { ActionIcon } from '@mantine/core';
 import * as React from 'react';
 
 import { config } from 'client/Config';
@@ -46,9 +46,9 @@ export const VersionInfoView = () => {
           </ItemWithId>
         ) : null}
         <ItemWithId id="Päivitä">
-          <IconButton size="small" color="primary" onClick={doReload}>
+          <ActionIcon size="sm" onClick={doReload}>
             <Icons.Refresh />
-          </IconButton>
+          </ActionIcon>
         </ItemWithId>
       </Value>
     </InfoItem>

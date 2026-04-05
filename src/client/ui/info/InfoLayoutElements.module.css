@@ -1,0 +1,11 @@
+.infoItem {
+  display: flex;
+  flex-direction: row;
+  margin: var(--mantine-spacing-sm) 0;
+  padding-bottom: var(--mantine-spacing-sm);
+  border-bottom: 1px solid var(--mantine-color-neutral-4);
+}
+
+.infoItem:last-of-type {
+  border: none;
+}

@@ -1,4 +1,4 @@
-import { Checkbox, FormControlLabel, FormGroup, Grid, Radio } from '@mui/material';
+import { Checkbox, Group, Radio, SimpleGrid } from '@mantine/core';
 import * as React from 'react';
 import { z } from 'zod';
 
@@ -56,53 +56,30 @@ export const SubscriptionCriteriaSelector: React.FC<{
   );
 
   return (
-    <Grid container width="100%" paddingLeft={2} paddingRight={2}>
-      <Grid size={{ xs: 12, md: 4 }}>
-        <FormGroup row>
-          <FormControlLabel
-            control={
-              <Checkbox checked={includeEnded} onChange={() => setIncludeEnded(!includeEnded)} />
-            }
-            label="Myös loppuneet"
+    <SimpleGrid cols={{ base: 2, sm: 3 }} spacing="xs" w="100%" px="md" py="sm">
+      <Group gap="sm" wrap="wrap">
+        <Checkbox
+          checked={includeEnded}
+          onChange={() => setIncludeEnded(!includeEnded)}
+          label="Myös loppuneet"
+        />
+        <Checkbox checked={onlyOwn} onChange={() => setOnlyOwn(!onlyOwn)} label="Vain omat" />
+      </Group>
+      <Group gap="sm" wrap="wrap" justify="center">
+        {rangeOptions.map(r => (
+          <Radio
+            key={r.label}
+            checked={isSameInterval(r.range, range)}
+            onChange={() => setRange(r.range)}
+            label={r.label}
           />
-          <FormControlLabel
-            control={<Checkbox checked={onlyOwn} onChange={() => setOnlyOwn(!onlyOwn)} />}
-            label="Vain omat"
-          />
-        </FormGroup>
-      </Grid>
-      <Grid size={{ xs: 12, md: 4 }}>
-        <FormGroup row sx={{ justifyContent: 'center' }}>
-          {rangeOptions.map(r => (
-            <FormControlLabel
-              key={r.label}
-              control={
-                <Radio
-                  checked={isSameInterval(r.range, range)}
-                  onChange={() => setRange(r.range)}
-                />
-              }
-              label={r.label}
-            />
-          ))}
-        </FormGroup>
-      </Grid>
-      <Grid size={{ xs: 12, md: 4 }}>
-        <FormGroup row sx={{ justifyContent: 'right' }}>
-          <FormControlLabel
-            control={<Checkbox checked={expenses} onChange={() => setExpenses(!expenses)} />}
-            label="Menot"
-          />
-          <FormControlLabel
-            control={<Checkbox checked={incomes} onChange={() => setIncomes(!incomes)} />}
-            label="Tulot"
-          />
-          <FormControlLabel
-            control={<Checkbox checked={transfers} onChange={() => setTranfers(!transfers)} />}
-            label="Siirrot"
-          />
-        </FormGroup>
-      </Grid>
-    </Grid>
+        ))}
+      </Group>
+      <Group gap="sm" wrap="wrap" justify="flex-end">
+        <Checkbox checked={expenses} onChange={() => setExpenses(!expenses)} label="Menot" />
+        <Checkbox checked={incomes} onChange={() => setIncomes(!incomes)} label="Tulot" />
+        <Checkbox checked={transfers} onChange={() => setTranfers(!transfers)} label="Siirrot" />
+      </Group>
+    </SimpleGrid>
   );
 };

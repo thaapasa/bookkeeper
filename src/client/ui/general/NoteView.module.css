@@ -1,0 +1,16 @@
+.container {
+  border-radius: var(--mantine-radius-sm);
+  width: auto;
+  box-sizing: border-box;
+}
+
+.fullWidth {
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+}
+
+.titleBase {
+  border-top-left-radius: var(--mantine-radius-sm);
+  border-top-right-radius: var(--mantine-radius-sm);
+}

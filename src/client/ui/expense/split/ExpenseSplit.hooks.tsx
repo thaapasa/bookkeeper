@@ -7,8 +7,9 @@ import { IdProvider } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { logger } from 'client/Logger';
 
-import { ExpenseDialogProps } from '../dialog/ExpenseDialog';
+import type { ExpenseDialogProps } from '../dialog/ExpenseDialog';
 import { getBenefitorsForExpense } from '../dialog/ExpenseDialogData';
+import type { ExpenseDialogData } from '../dialog/ExpenseDialogSessionData';
 import { calculateSplits, finalizeSplits, isSplitComplete } from './SplitCalc';
 
 export type ExpenseSplitInEditor = Omit<
@@ -21,7 +22,7 @@ export type ExpenseSplitInEditor = Omit<
 
 const KeyProvider = new IdProvider();
 
-type SourceMap = ExpenseDialogProps<any>['sourceMap'];
+type SourceMap = ExpenseDialogData['sourceMap'];
 
 export function useExpenseSplit(
   original: UserExpenseWithDetails | null,

@@ -1,4 +1,4 @@
-import { Grid } from '@mui/material';
+import { Box, Flex } from '@mantine/core';
 import * as React from 'react';
 
 import apiConnect from 'client/data/ApiConnect';
@@ -8,20 +8,21 @@ import { executeOperation } from 'client/util/ExecuteOperation';
 import { Title } from '../design/Text';
 import { UserPrompts } from '../dialog/DialogState';
 import { ReceiverField } from '../expense/dialog/ReceiverField';
-import { PageContentContainer } from '../Styles';
 import { DbStatusView } from './DbStatusView';
 import { ToolButton } from './ToolButton';
+import styles from './ToolsView.module.css';
 
 export const ToolsView: React.FC = () => (
-  <PageContentContainer className="center">
-    <Grid container rowSpacing={2} padding={2} maxWidth={800}>
-      <Grid size={12}>
+  <Flex direction="column" align="center">
+    <Box className={styles.grid}>
+      <Box style={{ gridColumn: '1 / -1' }}>
         <Title>Työkalut</Title>
-      </Grid>
+      </Box>
+
       <ToolButton title="Vaihda kohteiden nimi" buttonText="Vaihda" action={changeReceiverName} />
       <DbStatusView />
-    </Grid>
-  </PageContentContainer>
+    </Box>
+  </Flex>
 );
 
 async function changeReceiverName() {

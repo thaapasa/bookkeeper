@@ -111,7 +111,6 @@ export const UserExpense = Expense.extend({
 export type UserExpense = z.infer<typeof UserExpense>;
 
 export interface ExpenseInEditor extends BaseExpenseData {
-  subcategoryId: number;
   sum: string;
   date: DateTime;
   benefit: number[];

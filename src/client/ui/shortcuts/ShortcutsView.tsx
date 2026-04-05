@@ -1,101 +1,102 @@
-import { IconButton, styled } from '@mui/material';
+import { ActionIcon, Button, Group, Stack, Text, UnstyledButton } from '@mantine/core';
 import * as B from 'baconjs';
 import * as React from 'react';
 import { NavigateFunction, useNavigate } from 'react-router';
 
-import { ExpenseShortcut, ExpenseShortcutPayload } from 'shared/expense';
+import { ExpenseShortcutPayload } from 'shared/expense';
 import { uri } from 'shared/net';
 import { ObjectId } from 'shared/types';
-import { noop, spaced } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { updateSession, validSessionP } from 'client/data/Login';
 import { createNewExpense, navigationP, requestNewExpense } from 'client/data/State';
 import { executeOperation } from 'client/util/ExecuteOperation';
 import { newExpenseSuffix } from 'client/util/Links';
 
-import { secondaryColors } from '../Colors';
-import { connect } from '../component/BaconConnect';
-import { Row } from '../component/Row';
-import { useToggle } from '../hooks/useToggle';
-import { AddExpenseIcon } from '../icons/AddExpenseIcon';
+import { useBaconProperty } from '../hooks/useBaconState';
 import { Icons } from '../icons/Icons';
-import { Flex } from '../Styles';
 import { editShortcut, ShortcutEditor } from './ShortcutEditor';
-import { ShortcutLink, ShortcutLinkProps } from './ShortcutLink';
+import { ShortcutLink } from './ShortcutLink';
 
-/**
- * This is the list of shortcut links, shown in it's own page. This allows creating new shortcuts and editing the existing ones.
- */
-const FullList: React.FC<{
-  shortcuts: ExpenseShortcut[];
-  className?: string;
-}> = ({ className, shortcuts }) => {
-  const [editMode, toggleEdit] = useToggle(false);
+const shortcutsViewP = B.combineTemplate({
+  session: validSessionP,
+  navigation: navigationP,
+}).map(({ session, navigation }) => ({
+  shortcuts: session.shortcuts || [],
+  dateRange: navigation.dateRange,
+}));
+
+export const ShortcutsView: React.FC = () => {
+  const { shortcuts } = useBaconProperty(shortcutsViewP);
+  const navigate = useNavigate();
+
   return (
     <>
-      <LinksArea className={spaced`${'with-titles'} ${className}`}>
-        <ShortcutRow
-          title="Uusi kirjaus"
-          icon={<AddExpenseIcon onClick={noop} />}
+      <Stack gap={0}>
+        {shortcuts.map((s, i) => (
+          <Group
+            key={s.id}
+            gap="xs"
+            wrap="nowrap"
+            py="xs"
+            style={{ borderBottom: 'var(--mantine-border)', alignItems: 'center' }}
+          >
+            <UnstyledButton
+              onClick={() => openNewExpenseFromShortcutDialog(navigate, s.id)}
+              style={{ flex: 1, minWidth: 0 }}
+            >
+              <Group gap="md" wrap="nowrap">
+                <ShortcutLink
+                  title={s.title}
+                  icon={s.icon}
+                  background={s.background}
+                  style={{ margin: 0, flexShrink: 0 }}
+                />
+                <Text fz="sm" c="primary.7" truncate>
+                  {s.title}
+                </Text>
+              </Group>
+            </UnstyledButton>
+            <Group gap={4} wrap="nowrap">
+              <ActionIcon size="sm" disabled={i === 0} onClick={() => sortShortcutUp(s.id)}>
+                <Icons.SortUp fontSize="small" />
+              </ActionIcon>
+              <ActionIcon
+                size="sm"
+                disabled={i === shortcuts.length - 1}
+                onClick={() => sortShortcutDown(s.id)}
+              >
+                <Icons.SortDown fontSize="small" />
+              </ActionIcon>
+              <ActionIcon size="sm" onClick={() => editShortcut(s.id)}>
+                <Icons.Edit fontSize="small" />
+              </ActionIcon>
+              <ActionIcon size="sm" color="red" onClick={() => deleteShortcut(s.id)}>
+                <Icons.Delete fontSize="small" />
+              </ActionIcon>
+            </Group>
+          </Group>
+        ))}
+      </Stack>
+      <Group mt="md" gap="sm">
+        <Button
+          variant="light"
+          size="sm"
+          leftSection={<Icons.Add size={16} />}
+          onClick={createNewShortcut}
+        >
+          Lisää linkki
+        </Button>
+        <Button
+          variant="subtle"
+          size="sm"
+          leftSection={<Icons.PlusCircle size={16} />}
           onClick={() => createNewExpense({})}
         >
-          <Flex minWidth="32px" />
-          <IconButton onClick={toggleEdit}>
-            {editMode ? <Icons.Clear /> : <Icons.EditNote />}
-          </IconButton>
-        </ShortcutRow>
-        {shortcuts.map(l => (
-          <ShortcutRow key={`titlelink-${l.id}`} allowEdit={editMode} {...l} />
-        ))}
-        {editMode ? (
-          <ShortcutRow
-            title="Lisää linkki"
-            icon={<AddExpenseIcon onClick={noop} />}
-            onClick={createNewShortcut}
-          />
-        ) : null}
-      </LinksArea>
+          Uusi kirjaus
+        </Button>
+      </Group>
       <ShortcutEditor />
     </>
-  );
-};
-
-const ShortcutRow: React.FC<
-  React.PropsWithChildren<ShortcutLinkProps & { allowEdit?: boolean }>
-> = ({ id, expense, onClick, allowEdit, title, children, ...props }) => {
-  const navigate = useNavigate();
-  return (
-    <TitledRow>
-      <Row
-        onClick={onClick ?? (id ? () => openNewExpenseFromShortcutDialog(navigate, id) : undefined)}
-        className={onClick || expense ? 'clickable' : undefined}
-      >
-        <ShortcutLink {...props} title={title} />
-        <Title>{title}</Title>
-      </Row>
-      {children}
-      {allowEdit && id ? (
-        <>
-          <Flex minWidth="32px" />
-          <IconButton size="small" onClick={() => sortShortcutUp(id)}>
-            <Icons.SortUp fontSize="small" />
-          </IconButton>
-          <IconButton size="small" onClick={() => sortShortcutDown(id)}>
-            <Icons.SortDown fontSize="small" />
-          </IconButton>
-          <IconButton size="small" onClick={() => editShortcut(id)}>
-            <Icons.Edit fontSize="small" />
-          </IconButton>
-          <IconButton
-            size="small"
-            onClick={() => deleteShortcut(id)}
-            style={{ marginRight: '4px' }}
-          >
-            <Icons.Delete fontSize="small" color="warning" />
-          </IconButton>
-        </>
-      ) : null}
-    </TitledRow>
   );
 };
 
@@ -118,7 +119,6 @@ async function createNewShortcut(): Promise<void> {
       title: example.title,
       benefit: example.benefit,
       categoryId: example.categoryId,
-      subcategoryId: example.subcategoryId,
       confirmed: example.confirmed,
       receiver: example.receiver,
       sourceId: example.sourceId,
@@ -148,36 +148,3 @@ const sortShortcutDown = (shortcutId: ObjectId) =>
   executeOperation(() => apiConnect.shortShortcutDown(shortcutId), {
     postProcess: updateSession,
   });
-
-const TitledRow = styled('div')`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  align-self: stretch;
-`;
-
-const Title = styled('div')`
-  font-size: 14px;
-  margin-left: 8px;
-  color: ${secondaryColors.dark};
-`;
-
-export const ShortcutsView = connect(
-  B.combineTemplate({ session: validSessionP, navigation: navigationP }).map(
-    ({ session, navigation }) => ({
-      shortcuts: session.shortcuts || [],
-      dateRange: navigation.dateRange,
-    }),
-  ),
-)(FullList);
-
-const LinksArea = styled('div')`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  &.with-titles {
-    align-items: flex-start;
-  }
-`;

@@ -1,27 +1,23 @@
-import {
-  DialogContent,
-  FormControl,
-  IconButton,
-  InputLabel,
-  MenuItem,
-  Select,
-  styled,
-} from '@mui/material';
+import { ActionIcon, Box, BoxProps, Group, Select } from '@mantine/core';
 import * as React from 'react';
 
 import { ExpenseType, expenseTypes, getExpenseTypeLabel } from 'shared/expense';
 import { Source } from 'shared/types';
 import { Money, sanitizeMoneyInput } from 'shared/util';
-import { TextEdit } from 'client/ui/component/TextEdit';
+import { TextEdit, TextEditProps } from 'client/ui/component/TextEdit';
 import { ExpenseTypeIcon } from 'client/ui/icons/ExpenseType';
 import { Icons } from 'client/ui/icons/Icons';
-import { VCenterRow } from 'client/ui/Styles';
+import { classNames } from 'client/ui/utils/classNames';
 
-export const SumField: React.FC<{
-  value: string;
-  errorText?: string;
-  onChange: (s: string) => void;
-}> = ({ value, onChange, errorText }) => {
+import styles from './ExpenseDialog.module.css';
+
+export const SumField: React.FC<
+  {
+    value: string;
+    errorText?: string;
+    onChange: (s: string) => void;
+  } & TextEditProps
+> = ({ value, onChange, errorText, ...props }) => {
   const addToSum = () => {
     const sum = window.prompt('Syötä summaan lisättävä määrä:');
     if (sum) {
@@ -31,54 +27,38 @@ export const SumField: React.FC<{
     }
   };
   return (
-    <SumArea>
-      <TextEdit
-        placeholder="0.00"
-        label="Summa"
-        name="sum"
-        InputLabelProps={{ shrink: true }}
-        value={value}
-        helperText={errorText || ' '}
-        error={Boolean(errorText)}
-        onChange={onChange}
-        type="text"
-        autoFocus
-        autoComplete="off"
-      />
-      <Icons.Add onClick={addToSum} />
-    </SumArea>
+    <TextEdit
+      placeholder="0.00"
+      label="Summa"
+      name="sum"
+      value={value}
+      error={errorText || undefined}
+      onChange={onChange}
+      type="text"
+      autoFocus
+      autoComplete="off"
+      rightSection={<Icons.Add onClick={addToSum} />}
+      {...props}
+    />
   );
 };
 
-export const SourceSelector: React.FC<{
-  value: number;
-  onChange: (id: number) => void;
-  sources: Source[];
-  style?: React.CSSProperties;
-  title: string;
-}> = ({ title, value, style, onChange, sources }) => {
-  const id = 'expense-dialog-source';
-  return (
-    <FormControl fullWidth={true} variant="standard">
-      <InputLabel htmlFor={id} shrink={true}>
-        {title}
-      </InputLabel>
-      <Select
-        labelId={id}
-        value={value}
-        style={style}
-        label={title}
-        onChange={e => onChange(Number(e.target.value))}
-      >
-        {sources.map(s => (
-          <MenuItem key={s.id} value={s.id}>
-            {s.name}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
-  );
-};
+export const SourceSelector: React.FC<
+  {
+    value: number;
+    onChange: (id: number) => void;
+    sources: Source[];
+    title: string;
+  } & Omit<BoxProps, 'onChange'>
+> = ({ title, value, onChange, sources, ...boxProps }) => (
+  <Select
+    label={title}
+    value={String(value)}
+    onChange={v => onChange(Number(v ?? 0))}
+    data={sources.map(s => ({ value: String(s.id), label: s.name }))}
+    {...boxProps}
+  />
+);
 
 export const TypeSelector: React.FC<{
   value: ExpenseType;
@@ -92,12 +72,12 @@ export const TypeSelector: React.FC<{
   }, [onChange, value]);
 
   return (
-    <VCenterRow>
-      <IconButton onClick={toggle}>
+    <Group w={100} gap="xs">
+      <ActionIcon onClick={toggle}>
         <ExpenseTypeIcon type={value} size={24} />
-      </IconButton>
+      </ActionIcon>
       {getExpenseTypeLabel(value)}
-    </VCenterRow>
+    </Group>
   );
 };
 
@@ -107,25 +87,25 @@ export const DescriptionField: React.FC<{
   onChange: (s: string) => void;
 }> = ({ value, errorText, onChange }) => (
   <TextEdit
-    multiline={true}
     placeholder="Tarkempi selite"
     label="Selite"
-    InputLabelProps={{ shrink: true }}
-    fullWidth={true}
-    helperText={errorText}
-    error={Boolean(errorText)}
+    error={errorText || undefined}
     value={value}
     onChange={onChange}
   />
 );
 
-const SumArea = styled('div')`
-  display: inline-flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-`;
-
-export const ExpenseDialogContent = styled(DialogContent)`
-  overflow-y: scroll !important;
-`;
+export const ExpenseDialogContent: React.FC<
+  React.PropsWithChildren<{ dividers?: boolean } & BoxProps & React.ComponentPropsWithoutRef<'div'>>
+> = ({ dividers, className, children, ...props }) => (
+  <Box
+    className={classNames(
+      styles.dialogContent,
+      dividers ? styles.dialogContentDividers : undefined,
+      className,
+    )}
+    {...props}
+  >
+    {children}
+  </Box>
+);

@@ -1,7 +1,6 @@
-import { Chip, styled } from '@mui/material';
+import { Group, Pill } from '@mantine/core';
 import * as React from 'react';
 
-import { secondaryColors } from '../Colors';
 import { getSearchSuggestionValue, SearchSuggestion } from './SearchSuggestions';
 
 export const SelectedSuggestionsView: React.FC<{
@@ -12,28 +11,17 @@ export const SelectedSuggestionsView: React.FC<{
     return null;
   }
   return (
-    <>
+    <Group gap="xs">
       {suggestions.map(c => (
-        <Suggestion
+        <Pill
           key={c.id}
-          label={getSearchSuggestionValue(c)}
-          onDelete={() => onRemove(c)}
-          className={c.type}
-        />
+          bg={c.type === 'receiver' ? 'primary.2' : undefined}
+          withRemoveButton
+          onRemove={() => onRemove(c)}
+        >
+          {getSearchSuggestionValue(c)}
+        </Pill>
       ))}
-    </>
+    </Group>
   );
 };
-
-const Suggestion = styled(Chip)`
-  margin: 0 4px;
-  &:first-of-type {
-    margin-left: 0;
-  }
-  &:last-of-type {
-    margin-right: 0;
-  }
-  &.receiver {
-    background-color: ${secondaryColors.light};
-  }
-`;

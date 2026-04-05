@@ -1,0 +1,23 @@
+.colorBall {
+  display: inline-flex;
+  border: 1px solid var(--mantine-color-neutral-3);
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.colorBallExample {
+  width: 32px;
+  height: 32px;
+  margin-right: var(--mantine-spacing-xs);
+}
+
+.colorOptions {
+  display: inline-grid;
+  flex: 1;
+  grid-template-columns: repeat(auto-fill, 28px);
+  row-gap: var(--mantine-spacing-xs);
+  column-gap: var(--mantine-spacing-xs);
+  margin: var(--mantine-spacing-md) 0;
+}

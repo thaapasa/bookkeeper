@@ -21,8 +21,7 @@ This document provides an overview of the codebase architecture, directory struc
 ### Frontend
 
 - **React 19** - UI framework (functional components with hooks)
-- **Material UI (MUI) 7** - Component library and styling
-- **Emotion** - CSS-in-JS styling (via MUI's styled API)
+- **Mantine 8** - Component library and styling (CSS modules)
 - **React Router 7** - Client-side routing
 - **Zustand** - State management
 - **Bacon.js** - Reactive programming for data streams
@@ -139,7 +138,7 @@ export async function getExpenseById(
 
 React components use **functional components with hooks**:
 
-```typescript
+```tsx
 // In src/client/ui/*.tsx
 export const MyComponent: React.FC<Props> = ({ prop1, prop2 }) => {
   const [state, setState] = React.useState<Type>(initial);
@@ -149,29 +148,23 @@ export const MyComponent: React.FC<Props> = ({ prop1, prop2 }) => {
   }, [dependencies]);
   
   return (
-    <StyledContainer>
+    <Stack gap="md" p="md">
       {/* JSX */}
-    </StyledContainer>
+    </Stack>
   );
 };
 ```
 
 ### Styling
 
-Uses **MUI's styled API** with Emotion:
+Uses **Mantine style props** and **CSS modules**:
 
-```typescript
-import { styled } from '@mui/material';
-
-const StyledContainer = styled('div')`
-  display: flex;
-  flex-direction: column;
-  padding: 16px;
-  
-  ${media.mobile`
-    padding: 8px;
-  `}
-`;
+```tsx
+<Stack gap="md" p="md">
+  <Group justify="space-between" px={{ base: 'xs', sm: 'md' }}>
+    <Text fz="sm" c="primary.7">Label</Text>
+  </Group>
+</Stack>
 ```
 
 ### State Management

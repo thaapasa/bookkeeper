@@ -1,23 +1,22 @@
-import { Button, styled } from '@mui/material';
+import { Button, Stack, StackProps } from '@mantine/core';
 import * as React from 'react';
 
 import { AllPeriods, Period, periodToYearAndMonth, PeriodType } from 'shared/time';
-import { colorScheme } from 'client/ui/Colors';
 
-import { FlexColumn } from '../BasicElements';
 import { MonthSelector } from './MonthSelector';
 import { YearSelector } from './YearSelector';
 
-export interface PeriodSelectorProps<P extends Period> {
+export type PeriodSelectorProps<P extends Period> = {
   period: P;
   onSelect: (period: P) => void;
   allowed?: P['type'][];
-}
+} & Omit<StackProps, 'onSelect'>;
 
 export const PeriodSelector: React.FC<PeriodSelectorProps<any>> = <P extends Period>({
   period,
   onSelect,
   allowed,
+  ...props
 }: PeriodSelectorProps<P>) => {
   const validPeriods: P['type'][] = allowed ?? AllPeriods;
 
@@ -40,27 +39,24 @@ export const PeriodSelector: React.FC<PeriodSelectorProps<any>> = <P extends Per
   );
 
   return (
-    <Container>
-      <FlexColumn>
-        <Tab>
-          {validPeriods.map(v => (
-            <TabButton key={v} onClick={() => changeType(v)} selected={type === v}>
-              {PeriodTitles[v]}
-            </TabButton>
-          ))}
-        </Tab>
-      </FlexColumn>
-      {type === 'year' ? (
-        <TabPanel type="year">
-          <YearSelector year={year} onSelect={setYear} />
-        </TabPanel>
-      ) : null}
+    <Stack gap="xs" w="fit-content" {...props}>
+      <Button.Group>
+        {validPeriods.map(v => (
+          <Button
+            size="compact-sm"
+            key={v}
+            onClick={() => changeType(v)}
+            variant={type === v ? 'primary' : 'default'}
+          >
+            {PeriodTitles[v]}
+          </Button>
+        ))}
+      </Button.Group>
+      {type === 'year' ? <YearSelector year={year} onSelect={setYear} /> : null}
       {type === 'month' ? (
-        <TabPanel type="month">
-          <MonthSelector year={year} month={month} onSelect={setYearMonth} />
-        </TabPanel>
+        <MonthSelector year={year} month={month} onSelect={setYearMonth} />
       ) : null}
-    </Container>
+    </Stack>
   );
 };
 
@@ -81,48 +77,3 @@ const PeriodTitles: Record<PeriodType, string> = {
   year: 'Vuosi',
   month: 'Kuu',
 };
-
-interface TabPanelProps {
-  type: PeriodType;
-  className?: string;
-}
-
-const TabPanel: React.FC<React.PropsWithChildren<TabPanelProps>> = ({
-  children,
-  type,
-  className,
-  ...other
-}) => (
-  <Panel className={className} {...other}>
-    {children}
-  </Panel>
-);
-
-const Container = styled(FlexColumn)`
-  display: flex;
-  min-width: 188px;
-  white-space: nowrap;
-`;
-
-const Panel = styled('div')`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  margin-top: 4px;
-`;
-
-const Tab = styled('div')``;
-
-const TabButton = styled(Button)(
-  (props: { selected: boolean }) => `
-  text-transform: none;
-  padding: 4px 6px;
-  ${
-    props.selected
-      ? `border: 1px dotted ${colorScheme.secondary.light};
-         background-color: ${colorScheme.secondary.light}77;
-         color: ${colorScheme.secondary.text}`
-      : ''
-  };
-  `,
-);

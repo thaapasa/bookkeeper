@@ -1,10 +1,9 @@
-import { FormLabel, styled } from '@mui/material';
+import { Group, Stack, Text } from '@mantine/core';
 import { DateTime } from 'luxon';
 import * as React from 'react';
 
 import { DateRange, MonthPeriod, NowPeriod, periodsToDateRange, YearPeriod } from 'shared/time';
 
-import { FlexColumn, FlexRow } from '../component/BasicElements';
 import { PeriodSelector } from '../component/daterange/PeriodSelector';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 
@@ -24,19 +23,14 @@ export const StatisticsChartRangeSelector: React.FC<{
   });
   React.useEffect(() => onChange(periodsToDateRange(start, end)), [onChange, start, end]);
   return (
-    <Container>
-      <FlexRow>
-        <FormLabel>Aikaväli</FormLabel>
-      </FlexRow>
-      <FlexRow>
-        <PeriodSelector period={start} onSelect={setStart} allowed={['year', 'month']} />
+    <Stack gap={2} py={4}>
+      <Group>
+        <Text size="sm">Aikaväli</Text>
+      </Group>
+      <Group align="flex-start">
+        <PeriodSelector period={start} onSelect={setStart} allowed={['year', 'month']} miw={160} />
         <PeriodSelector period={end} onSelect={setEnd} allowed={AllowedPeriods} />
-      </FlexRow>
-    </Container>
+      </Group>
+    </Stack>
   );
 };
-
-const Container = styled(FlexColumn)`
-  flex: 1;
-  justify-content: space-around;
-`;

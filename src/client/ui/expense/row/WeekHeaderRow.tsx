@@ -1,22 +1,14 @@
-import { styled } from '@mui/material';
+import { Table, Text } from '@mantine/core';
 import * as React from 'react';
 
-import { colorScheme } from 'client/ui/Colors';
-
-import { AllColumns, Row } from './ExpenseTableLayout';
+import { AllColumns } from './ExpenseTableColumns';
 
 export const WeekHeaderRow: React.FC<{ week: string }> = ({ week }) => (
-  <Row>
-    <WeekData>Viikko {week}</WeekData>
-  </Row>
+  <Table.Tr>
+    <AllColumns bg="neutral.1" c="primary.7">
+      <Text fz="md" fw={700} px="md" fs="italic">
+        Viikko {week}
+      </Text>
+    </AllColumns>
+  </Table.Tr>
 );
-
-const WeekData = styled(AllColumns)`
-  padding: 16px 4px 8px 4px;
-  color: ${colorScheme.secondary.dark};
-  height: inherit;
-  font-weight: bold;
-  font-size: 11pt;
-  font-style: italic;
-  background-color: ${colorScheme.gray.light};
-`;

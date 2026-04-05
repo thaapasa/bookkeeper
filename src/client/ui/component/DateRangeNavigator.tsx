@@ -1,25 +1,19 @@
-import { IconButton, styled } from '@mui/material';
+import { ActionIcon, Group, Text } from '@mantine/core';
 import * as React from 'react';
 import { useNavigate } from 'react-router';
 
 import { toDateRangeName, toDateTime } from 'shared/time';
 import { navigationP } from 'client/data/State';
-import { NavigationConfig } from 'client/data/StateTypes';
 import { logger } from 'client/Logger';
-import { KeyCodes } from 'client/util/Io';
 import { monthSuffix, yearSuffix } from 'client/util/Links';
 
-import * as colors from '../Colors';
+import { useBaconProperty } from '../hooks/useBaconState';
 import { Icons } from '../icons/Icons';
-import { connect } from './BaconConnect';
 
-export type DateRangeNavigatorProps = NavigationConfig;
-
-const DateRangeNavigatorImpl: React.FC<React.PropsWithChildren<DateRangeNavigatorProps>> = ({
-  dateRange,
-  pathPrefix,
-}) => {
+export const DateRangeNavigator: React.FC = () => {
+  const { dateRange, pathPrefix } = useBaconProperty(navigationP);
   const navigate = useNavigate();
+
   const navigateOffset = (offset: number) => {
     const rangeSuffix =
       dateRange.type === 'month'
@@ -30,52 +24,17 @@ const DateRangeNavigatorImpl: React.FC<React.PropsWithChildren<DateRangeNavigato
     navigate(link);
   };
 
-  const handleKeyPress = (event: React.KeyboardEvent<any>) => {
-    switch (event.keyCode) {
-      case KeyCodes.right:
-        navigateOffset(1);
-        return false;
-      case KeyCodes.left:
-        navigateOffset(-1);
-        return false;
-    }
-    return;
-  };
-
   return (
-    <NavigationContainer onKeyUp={handleKeyPress} tabIndex={0}>
-      <div>
-        <StyledIconButton onClick={() => navigateOffset(-1)} title="Edellinen">
-          <Icons.ChevronLeft color="primary" />
-        </StyledIconButton>
-      </div>
-      <TitleArea>{toDateRangeName(dateRange)}</TitleArea>
-      <div>
-        <StyledIconButton onClick={() => navigateOffset(1)} title="Seuraava">
-          <Icons.ChevronRight color="primary" />
-        </StyledIconButton>
-      </div>
-    </NavigationContainer>
+    <Group gap={0} align="center" wrap="nowrap" tabIndex={0}>
+      <ActionIcon onClick={() => navigateOffset(-1)} title="Edellinen" size="md" radius="xl">
+        <Icons.ChevronLeft color="primary" />
+      </ActionIcon>
+      <Text size="md" w={140} ta="center">
+        {toDateRangeName(dateRange)}
+      </Text>
+      <ActionIcon onClick={() => navigateOffset(1)} title="Seuraava" size="md" radius="xl">
+        <Icons.ChevronRight color="primary" />
+      </ActionIcon>
+    </Group>
   );
 };
-
-const NavigationContainer = styled('div')`
-  height: 48px !important;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-`;
-
-const StyledIconButton = styled(IconButton)`
-  padding: 0px;
-`;
-
-const TitleArea = styled('div')`
-  text-align: center;
-  width: 140px;
-  font-size: 12pt;
-  color: ${colors.colorScheme.primary.text};
-`;
-
-export const DateRangeNavigator = connect(navigationP)(DateRangeNavigatorImpl);

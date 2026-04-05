@@ -1,11 +1,11 @@
-import { IconButton } from '@mui/material';
+import { ActionIcon } from '@mantine/core';
 import * as React from 'react';
 
 import { ObjectId } from 'shared/types';
 import { Money } from 'shared/util';
 
 import { Icons } from '../icons/Icons';
-import { Label, RowElement, Sum, Tools } from './layout';
+import { Label, SubscriptionRow, Sum, Tools } from './SubscriptionLayout';
 import { RecurrenceTotals } from './types';
 
 export type ToggleCategoryVisibility = (categoryId: ObjectId) => void;
@@ -13,26 +13,30 @@ export type ToggleCategoryVisibility = (categoryId: ObjectId) => void;
 export const SubscriptionCategoryHeader: React.FC<{
   title: string;
   totals?: RecurrenceTotals;
-  className?: string;
+  isRoot?: boolean;
   visible?: boolean;
   categoryId?: ObjectId;
   toggleVisibility?: ToggleCategoryVisibility;
-}> = ({ title, totals, className, visible = true, toggleVisibility, categoryId }) => (
-  <RowElement className={className}>
+}> = ({ title, totals, isRoot, visible = true, toggleVisibility, categoryId }) => (
+  <SubscriptionRow
+    bg={isRoot ? 'neutral.4' : 'neutral.2'}
+    fw={isRoot ? 700 : undefined}
+    c={isRoot ? undefined : 'primary.7'}
+  >
     <Label>
       {categoryId && toggleVisibility ? (
-        <IconButton onClick={() => toggleVisibility(categoryId)}>
+        <ActionIcon onClick={() => toggleVisibility(categoryId)}>
           {visible ? <Icons.Visible /> : <Icons.Hidden />}
-        </IconButton>
+        </ActionIcon>
       ) : null}
       {title}
     </Label>
     {totals ? (
       <>
-        <Sum className="optional">{Money.from(totals.recurrencePerMonth).format()} / kk</Sum>
+        <Sum visibleFrom="sm">{Money.from(totals.recurrencePerMonth).format()} / kk</Sum>
         <Sum>{Money.from(totals.recurrencePerYear).format()} / v</Sum>
         <Tools />
       </>
     ) : null}
-  </RowElement>
+  </SubscriptionRow>
 );

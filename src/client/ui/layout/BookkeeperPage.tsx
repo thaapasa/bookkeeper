@@ -1,0 +1,67 @@
+import { AppShell, Container, ScrollArea } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
+import * as React from 'react';
+import { BrowserRouter as Router } from 'react-router-dom';
+
+import { Session } from 'shared/types';
+import { expenseDialogE, expenseSplitE } from 'client/data/State';
+
+import { MenuDrawer } from '../component/MenuDrawer';
+import { NotificationBar } from '../component/NotificationBar';
+import { ModalDialogConnector } from '../dialog/ModalDialogConnector';
+import { ExpenseDialog } from '../expense/dialog/ExpenseDialog';
+import { createExpenseDialogListener } from '../expense/dialog/ExpenseDialogListener';
+import { ExpenseSplitDialog } from '../expense/split/ExpenseSplitDialog';
+import { useIsMobile } from '../hooks/useBreakpoints';
+import { AppRouter } from './AppRouter';
+import { mainContentMaxWidth } from './Styles';
+import { appLinks, TopBar } from './TopBar';
+
+interface PageProps {
+  session: Session;
+}
+
+const ExpenseDialogBinder = createExpenseDialogListener(ExpenseDialog, expenseDialogE);
+
+const ExpenseSplitBinder = createExpenseDialogListener(ExpenseSplitDialog, expenseSplitE);
+
+export const BookkeeperPage: React.FC<PageProps> = () => {
+  const isMobile = useIsMobile();
+  const [menuOpen, { toggle: toggleMenu, close: closeMenu }] = useDisclosure(false);
+
+  return (
+    <>
+      <ExpenseDialogBinder isMobile={isMobile} />
+      <ExpenseSplitBinder isMobile={isMobile} />
+      <ModalDialogConnector />
+      <Router>
+        <AppShell header={{ height: 56 }} padding={0} withBorder={false}>
+          <AppShell.Header bg="var(--mantine-color-default-hover)">
+            <TopBar menuOpen={menuOpen} onToggleMenu={toggleMenu} />
+          </AppShell.Header>
+
+          <AppShell.Main
+            style={{
+              height: '100vh',
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden',
+            }}
+          >
+            <ScrollArea flex={1} type="scroll" offsetScrollbars={false}>
+              <Container size={mainContentMaxWidth} p={0}>
+                <AppRouter />
+              </Container>
+            </ScrollArea>
+          </AppShell.Main>
+        </AppShell>
+        <MenuDrawer
+          open={menuOpen}
+          onRequestChange={open => (open ? undefined : closeMenu())}
+          links={appLinks}
+        />
+      </Router>
+      <NotificationBar />
+    </>
+  );
+};

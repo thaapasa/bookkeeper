@@ -1,11 +1,9 @@
-import { Checkbox, FormControlLabel, FormGroup } from '@mui/material';
+import { Box, Checkbox, Group, Stack } from '@mantine/core';
+import { useElementSize } from '@mantine/hooks';
 import * as React from 'react';
 
 import { CategoryMap, CategoryStatistics } from 'shared/types';
-import { FlexColumn } from 'client/ui/component/BasicElements';
 import { useLocalStorage } from 'client/ui/hooks/useLocalStorage';
-import { Size } from 'client/ui/Types';
-import { MeasureSize } from 'client/ui/utils/MeasureSize';
 
 import { StatisticsChartType } from '../types';
 import { CategoryChartRenderer } from './CategoryChartRenderer';
@@ -16,7 +14,7 @@ interface BaseCategoryGraphProps {
   data: CategoryStatistics;
   stacked: boolean;
   categoryMap: CategoryMap;
-  size: Size;
+  size: { width: number; height: number };
 }
 
 export type CategoryGraphProps = BaseCategoryGraphProps & {
@@ -25,7 +23,7 @@ export type CategoryGraphProps = BaseCategoryGraphProps & {
   stackMainCats: boolean;
 };
 
-const StatisticsGraphImpl: React.FC<BaseCategoryGraphProps & { type: StatisticsChartType }> = ({
+const StatisticsGraphContent: React.FC<BaseCategoryGraphProps & { type: StatisticsChartType }> = ({
   type,
   ...props
 }) => {
@@ -40,7 +38,7 @@ const StatisticsGraphImpl: React.FC<BaseCategoryGraphProps & { type: StatisticsC
   );
 
   return (
-    <FlexColumn>
+    <Stack>
       <GraphSelector
         type={type}
         estimated={estimated}
@@ -49,33 +47,29 @@ const StatisticsGraphImpl: React.FC<BaseCategoryGraphProps & { type: StatisticsC
         {...props}
       />
       {type !== 'recurring' && props.stacked ? (
-        <FormGroup row>
+        <Group gap="md" wrap="wrap">
           {type === 'years' ? (
-            <FormControlLabel
-              control={<Checkbox checked={estimated} onChange={() => setEstimated(!estimated)} />}
+            <Checkbox
+              checked={estimated}
+              onChange={() => setEstimated(!estimated)}
               label="Sisällytä arvio"
             />
           ) : null}
           {type === 'years' ? (
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={separateEstimate}
-                  onChange={() => setSeparateEstimate(!separateEstimate)}
-                />
-              }
+            <Checkbox
+              checked={separateEstimate}
+              onChange={() => setSeparateEstimate(!separateEstimate)}
               label="Arvio erillään"
             />
           ) : null}
-          <FormControlLabel
-            control={
-              <Checkbox checked={stackMainCats} onChange={() => setStackMainCats(!stackMainCats)} />
-            }
+          <Checkbox
+            checked={stackMainCats}
+            onChange={() => setStackMainCats(!stackMainCats)}
             label="Alueet pääkategorioittain"
           />
-        </FormGroup>
+        </Group>
       ) : null}
-    </FlexColumn>
+    </Stack>
   );
 };
 
@@ -90,4 +84,13 @@ const GraphSelector: React.FC<CategoryGraphProps & { type: StatisticsChartType }
   return config ? <CategoryChartRenderer {...config} {...props} /> : null;
 };
 
-export const CategoryStatisticsChart = MeasureSize(StatisticsGraphImpl);
+export const CategoryStatisticsChart: React.FC<
+  Omit<BaseCategoryGraphProps, 'size'> & { type: StatisticsChartType }
+> = props => {
+  const { ref, width, height } = useElementSize();
+  return (
+    <Box ref={ref} display="flex" flex={1} style={{ minWidth: 0 }}>
+      {width > 0 ? <StatisticsGraphContent size={{ width, height }} {...props} /> : null}
+    </Box>
+  );
+};

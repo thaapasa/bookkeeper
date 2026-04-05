@@ -1,6 +1,6 @@
-import { Money } from 'shared/util';
+import type { CSSProperties } from 'react';
 
-import { Size } from '../Types';
+import { Money } from 'shared/util';
 
 export const formatMoneyThin = (v: number) => (v > 1000 ? `${Math.round(v / 1000)}K` : `${v}`);
 
@@ -16,6 +16,12 @@ export const formatMoney = (v: number | string) => {
 export const formatMoneyForChart = (v: number | string | undefined) =>
   formatMoney(typeof v === 'number' || typeof v === 'string' ? v : 0);
 
-export function useThinFormat(size: Size) {
+export function useThinFormat(size: { width: number }) {
   return size.width < 550;
 }
+
+/** Recharts tooltip style that adapts to the current Mantine color scheme. */
+export const chartTooltipStyle: CSSProperties = {
+  backgroundColor: 'var(--mantine-color-body)',
+  borderColor: 'var(--mantine-color-default-border)',
+};

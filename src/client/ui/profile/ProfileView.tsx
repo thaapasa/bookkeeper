@@ -1,31 +1,37 @@
-import { Grid } from '@mui/material';
-import * as B from 'baconjs';
+import { Box, Flex } from '@mantine/core';
 import React from 'react';
 
-import { Session } from 'shared/types';
 import { sessionP } from 'client/data/Login';
 
-import { connect } from '../component/BaconConnect';
 import { Title } from '../design/Text';
-import { PageContentContainer } from '../Styles';
-import { RequireProperty } from '../utils/RequireProperty';
+import { useBaconProperty } from '../hooks/useBaconState';
 import { PasswordView } from './PasswordChangeView';
 import { ProfileImageView } from './ProfileImageView';
 import { UserDataView } from './UserDataView';
 
-export const ProfileViewImpl = RequireProperty('session', ({ session }: { session: Session }) => {
+export const ProfileView: React.FC = () => {
+  const session = useBaconProperty(sessionP);
+  if (!session) return null;
+
   return (
-    <PageContentContainer className="center">
-      <Grid container columnSpacing={2} rowSpacing={2} padding={2} maxWidth={800}>
-        <Grid size={12}>
+    <Flex direction="column" align="center">
+      <Box
+        display="grid"
+        style={{
+          gridTemplateColumns: 'auto 1fr',
+          gap: 'var(--mantine-spacing-md)',
+        }}
+        p="md"
+        maw={800}
+      >
+        <Box style={{ gridColumn: '1 / -1' }}>
           <Title>Profiilitiedot</Title>
-        </Grid>
+        </Box>
+
         <UserDataView session={session} />
         <PasswordView session={session} />
         <ProfileImageView session={session} />
-      </Grid>
-    </PageContentContainer>
+      </Box>
+    </Flex>
   );
-});
-
-export const ProfileView = connect(B.combineTemplate({ session: sessionP }))(ProfileViewImpl);
+};

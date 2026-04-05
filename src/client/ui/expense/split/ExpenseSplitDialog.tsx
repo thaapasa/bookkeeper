@@ -1,31 +1,28 @@
-import { Dialog, Divider, Grid } from '@mui/material';
+import { Divider, Modal, Stack } from '@mantine/core';
 import * as React from 'react';
 
 import { ExpenseSplit } from 'shared/expense';
-import { isMobileSize } from 'client/ui/Styles';
+import { useBaconProperty } from 'client/ui/hooks/useBaconState';
 
 import { ExpenseDialogProps } from '../dialog/ExpenseDialog';
 import { ExpenseDialogContent } from '../dialog/ExpenseDialogComponents';
+import { expenseDialogDataP } from '../dialog/ExpenseDialogSessionData';
 import { useExpenseSplit } from './ExpenseSplit.hooks';
 import { SplitButtons } from './SplitButtons';
 import { SplitHeader } from './SplitHeader';
 import { SplitRow } from './SplitRow';
 
-/** For user testing: prevent dialog escape, and only allow dialog to be closed with explicit close button clicks. */
-const AllowDialogEscape = false;
-
 export const ExpenseSplitDialog: React.FC<ExpenseDialogProps<ExpenseSplit[]>> = ({
   original,
   onClose,
   onExpensesUpdated,
-  windowSize,
-  ...props
+  isMobile,
 }) => {
-  const isMobile = isMobileSize(windowSize);
+  const data = useBaconProperty(expenseDialogDataP);
 
   const { addRow, splits, validSplits, splitExpense, ...tools } = useExpenseSplit(
     original,
-    props.sourceMap,
+    data.sourceMap,
     onClose,
     onExpensesUpdated,
   );
@@ -37,23 +34,29 @@ export const ExpenseSplitDialog: React.FC<ExpenseDialogProps<ExpenseSplit[]>> = 
   const dismiss = () => onClose(null);
 
   return (
-    <Dialog
-      open={true}
-      onClose={AllowDialogEscape ? dismiss : undefined}
-      scroll="paper"
+    <Modal
+      opened={true}
+      onClose={dismiss}
+      closeOnEscape={false}
       fullScreen={isMobile}
+      size="lg"
+      title=""
     >
       <SplitHeader expense={original} />
-      <ExpenseDialogContent dividers={true}>
-        <Grid container alignItems="center" spacing={2}>
+      <ExpenseDialogContent dividers={true} pb="md" pt="sm">
+        <Stack gap="md">
           {splits.map((s, i) => (
             <React.Fragment key={s.key}>
-              {i !== 0 ? (
-                <Grid size={12}>
-                  <Divider flexItem />
-                </Grid>
-              ) : null}
-              <SplitRow {...props} {...tools} split={s} splitIndex={i} editSum={i !== 0} />
+              {i !== 0 ? <Divider /> : null}
+              <SplitRow
+                categoryMap={data.categoryMap}
+                sourceMap={data.sourceMap}
+                sources={data.sources}
+                {...tools}
+                split={s}
+                splitIndex={i}
+                editSum={i !== 0}
+              />
             </React.Fragment>
           ))}
           <SplitButtons
@@ -61,8 +64,8 @@ export const ExpenseSplitDialog: React.FC<ExpenseDialogProps<ExpenseSplit[]>> = 
             onClose={() => onClose(null)}
             splitExpense={validSplits ? splitExpense : undefined}
           />
-        </Grid>
+        </Stack>
       </ExpenseDialogContent>
-    </Dialog>
+    </Modal>
   );
 };

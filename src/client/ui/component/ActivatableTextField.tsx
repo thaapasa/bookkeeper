@@ -1,13 +1,13 @@
-import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
-import { styled } from '@mui/material';
+import { ActionIcon, Box } from '@mantine/core';
 import * as React from 'react';
 
 import { logger } from 'client/Logger';
-import { KeyCodes } from 'client/util/Io';
 
+import { TextEditorComponent } from '../dialog/DialogState';
+import { Icons } from '../icons/Icons';
+import styles from './ActivatableTextField.module.css';
 import { AutoCompleteProps } from './AutoComplete';
 import { TextEdit, TextEditProps } from './TextEdit';
-import { TextEditorComponent } from './TextEditVariants';
 
 type EditorType<T> = TextEditorComponent | React.ComponentType<AutoCompleteProps<T>>;
 
@@ -52,11 +52,10 @@ export const ActivatableTextField: React.FC<ActivatableTextFieldProps<any>> = <
   };
 
   const handleKeyPress = (event: React.KeyboardEvent) => {
-    const code = event.keyCode;
-    if (code === KeyCodes.enter) {
+    if (event.key === 'Enter') {
       commit(value);
       return false;
-    } else if (code === KeyCodes.escape) {
+    } else if (event.key === 'Escape') {
       cancel();
       return false;
     }
@@ -72,34 +71,28 @@ export const ActivatableTextField: React.FC<ActivatableTextFieldProps<any>> = <
   const Type = (editorType ?? TextEdit) as any;
 
   return edit ? (
-    <EditorContainer>
+    <Box className={styles.editorContainer}>
       <Type
         autoFocus={true}
+        variant="unstyled"
+        styles={{ input: { fontSize: 'inherit' } }}
         {...rest}
         className={className}
         value={value}
         onChange={setValue}
         onKeyUp={handleKeyPress}
       />
-      <CancelOutlinedIcon color="action" onClick={cancel} fontSize="small" />
-    </EditorContainer>
+      <ActionIcon size="sm" color="gray" onClick={cancel}>
+        <Icons.CancelOutlined fontSize="medium" />
+      </ActionIcon>
+    </Box>
   ) : (
-    <ValueContainer className={className} style={viewStyle} onClick={activate}>
+    <Box
+      className={`${styles.valueContainer} ${className ?? ''}`}
+      style={viewStyle}
+      onClick={activate}
+    >
       {value}
-    </ValueContainer>
+    </Box>
   );
 };
-
-const EditorContainer = styled('div')`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  & > div,
-  & > svg {
-    padding-right: 8px;
-  }
-`;
-
-const ValueContainer = styled('div')`
-  cursor: pointer;
-`;

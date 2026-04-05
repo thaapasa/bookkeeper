@@ -1,10 +1,13 @@
-import { Button, ButtonProps } from '@mui/material';
+import { Button, type ButtonProps } from '@mantine/core';
 import * as React from 'react';
 
 import { isPromise, MaybePromise } from 'shared/util';
 import { AsyncData } from 'client/data/AsyncData';
 
-type ActionButtonProps<T> = Omit<React.PropsWithChildren<ButtonProps>, 'onClick'> & {
+type ActionButtonProps<T> = Omit<
+  React.PropsWithChildren<ButtonProps & React.ComponentPropsWithoutRef<'button'>>,
+  'onClick'
+> & {
   onClick: () => MaybePromise<T>;
 };
 

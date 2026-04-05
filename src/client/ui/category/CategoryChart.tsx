@@ -1,10 +1,10 @@
+import { Box } from '@mantine/core';
+import { useElementSize } from '@mantine/hooks';
 import * as React from 'react';
 import { Bar, BarChart, CartesianGrid, Legend, Tooltip, XAxis, YAxis } from 'recharts';
 
 import { getChartColor } from '../chart/ChartColors';
-import { formatMoney, formatMoneyThin, useThinFormat } from '../chart/Format';
-import { Size } from '../Types';
-import { MeasureSize } from '../utils/MeasureSize';
+import { chartTooltipStyle, formatMoney, formatMoneyThin, useThinFormat } from '../chart/Format';
 
 export interface CategoryChartData {
   categoryId: number;
@@ -13,24 +13,26 @@ export interface CategoryChartData {
   categoryIncome: number;
 }
 
-interface CategoryChartProps {
+export const CategoryChart: React.FC<{
   chartData: CategoryChartData[] | undefined;
-  size: Size;
-  className?: string;
-}
+}> = ({ chartData }) => {
+  const { ref, width, height } = useElementSize();
+  return (
+    <Box ref={ref} display="flex" flex={1} style={{ minWidth: 0 }}>
+      {width > 0 ? <CategoryChartContent chartData={chartData} size={{ width, height }} /> : null}
+    </Box>
+  );
+};
 
-const CategoryChartImpl: React.FC<CategoryChartProps> = ({ chartData, size, className }) => {
+const CategoryChartContent: React.FC<{
+  chartData: CategoryChartData[] | undefined;
+  size: { width: number; height: number };
+}> = ({ chartData, size }) => {
   const thin = useThinFormat(size);
   const expenseColor = 10;
   const incomeColor = 0;
   return (
-    <BarChart
-      width={size.width}
-      height={size.height}
-      data={chartData}
-      margin={ChartMargins}
-      className={className}
-    >
+    <BarChart width={size.width} height={size.height} data={chartData} margin={ChartMargins}>
       <CartesianGrid strokeDasharray="3 3" />
       <XAxis dataKey="categoryName" />
       <YAxis
@@ -49,7 +51,11 @@ const CategoryChartImpl: React.FC<CategoryChartProps> = ({ chartData, size, clas
         orientation="right"
         style={{ fill: getChartColor(incomeColor, 0) }}
       />
-      <Tooltip formatter={v => formatMoney(typeof v === 'number' ? v : 0)} />
+      <Tooltip
+        formatter={v => formatMoney(typeof v === 'number' ? v : 0)}
+        cursor={{ fill: 'var(--mantine-color-default-hover)' }}
+        contentStyle={chartTooltipStyle}
+      />
       <Legend />
       <Bar
         dataKey="categoryExpense"
@@ -68,5 +74,3 @@ const CategoryChartImpl: React.FC<CategoryChartProps> = ({ chartData, size, clas
 };
 
 const ChartMargins = { left: 24, top: 32, right: 24, bottom: 0 };
-
-export const CategoryChart = MeasureSize(CategoryChartImpl);

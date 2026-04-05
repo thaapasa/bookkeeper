@@ -1,11 +1,9 @@
-import styled from '@emotion/styled';
-import { Chip } from '@mui/material';
+import { Box, Pill, Stack } from '@mantine/core';
 import * as React from 'react';
 
 import { identity, noop } from 'shared/util';
 
 import { AutoComplete } from './AutoComplete';
-import { FlexColumn } from './BasicElements';
 
 interface TagsPickerProps {
   value: string[];
@@ -17,12 +15,14 @@ interface TagsPickerProps {
 export const TagsPicker: React.FC<TagsPickerProps> = ({ value, presetValues, onAdd, onRemove }) => {
   const [tag, setTag] = React.useState('');
   return (
-    <FlexColumn>
-      <TagGrid className="vcenter">
+    <Stack>
+      <Box display="inline-block">
         {value.map(v => (
-          <TagChip key={v} onDelete={() => onRemove(v)} label={v} variant="filled" />
+          <Pill key={v} withRemoveButton onRemove={() => onRemove(v)} mr="xs" mb="xs">
+            {v}
+          </Pill>
         ))}
-      </TagGrid>
+      </Box>
       <AutoComplete
         suggestions={presetValues}
         onSelectSuggestion={s => onAdd(s)}
@@ -41,15 +41,6 @@ export const TagsPicker: React.FC<TagsPickerProps> = ({ value, presetValues, onA
           setTag('');
         }}
       />
-    </FlexColumn>
+    </Stack>
   );
 };
-
-const TagChip = styled(Chip)`
-  margin-right: 8px;
-  margin-bottom: 8px;
-`;
-
-const TagGrid = styled('div')`
-  display: inline-block;
-`;

@@ -1,53 +1,50 @@
-import { styled } from '@mui/material';
-import * as B from 'baconjs';
+import { Box } from '@mantine/core';
 import * as React from 'react';
 
 import { TypedDateRange } from 'shared/time';
 import { Category, CategoryAndTotals } from 'shared/types';
 import { Money } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
-import { userDataP, UserDataProps } from 'client/data/Categories';
+import { userDataP } from 'client/data/Categories';
 import { updateSession, validSessionP } from 'client/data/Login';
 import { navigationBus, needUpdateE } from 'client/data/State';
 import { categoryPagePath } from 'client/util/Links';
 
-import { connect } from '../component/BaconConnect';
 import { useDeferredData } from '../hooks/useAsyncData';
-import { PageContentContainer } from '../Styles';
+import { useBaconProperty } from '../hooks/useBaconState';
 import { CategoryChart, CategoryChartData } from './CategoryChart';
 import { CategoryTable } from './CategoryTable';
 
 interface CategoryViewProps {
-  categories: Category[];
   range: TypedDateRange;
-  userData: UserDataProps;
 }
 
-const CategoryView: React.FC<CategoryViewProps> = ({ range, categories, ...rest }) => {
+export const CategoryView: React.FC<CategoryViewProps> = ({ range }) => {
+  const session = useBaconProperty(validSessionP);
+  const userData = useBaconProperty(userDataP);
+
+  const { categories } = session;
+
   const { data, loadData } = useDeferredData(loadCategories, true, categories, range);
 
-  // Load data when range / categories change
   React.useEffect(() => loadData(), [loadData]);
-
-  // Load data when needUpdate is signalled
   React.useEffect(() => needUpdateE.onValue(loadData), [loadData]);
 
-  if (data.type !== 'loaded') {
-    return null;
-  }
+  if (data.type !== 'loaded') return null;
+
   return (
-    <PageContentContainer>
-      <div>
-        <StyledChart chartData={data.value.categoryChartData} />
-        <CategoryTable
-          {...rest}
-          categories={categories}
-          range={range}
-          onCategoriesChanged={updateSession}
-          categoryTotals={data.value.categoryTotals}
-        />
-      </div>
-    </PageContentContainer>
+    <Box>
+      <Box h={320} display="flex">
+        <CategoryChart chartData={data.value.categoryChartData} />
+      </Box>
+      <CategoryTable
+        categories={categories}
+        range={range}
+        onCategoriesChanged={updateSession}
+        categoryTotals={data.value.categoryTotals}
+        userData={userData}
+      />
+    </Box>
   );
 };
 
@@ -86,14 +83,3 @@ function formCategoryChartData(
     categoryIncome: Money.toValue(categoryTotals[c.id]?.totalIncome ?? 0),
   }));
 }
-
-export default connect(
-  B.combineTemplate({
-    categories: validSessionP.map(s => s.categories),
-    userData: userDataP,
-  }),
-)(CategoryView);
-
-const StyledChart = styled(CategoryChart)`
-  height: 320px;
-`;

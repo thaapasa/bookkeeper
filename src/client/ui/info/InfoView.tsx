@@ -1,28 +1,29 @@
-import * as B from 'baconjs';
+import { Box } from '@mantine/core';
 import * as React from 'react';
 
-import { Category, ObjectId, Session, Source, User } from 'shared/types';
+import { Category, ObjectId, Source, User } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
-import { userDataP, UserDataProps } from 'client/data/Categories';
+import { userDataP } from 'client/data/Categories';
 import { updateSession, validSessionP } from 'client/data/Login';
 
 import { ActivatableTextField } from '../component/ActivatableTextField';
-import { connect } from '../component/BaconConnect';
-import { PageContentContainer } from '../Styles';
+import { useBaconProperty } from '../hooks/useBaconState';
 import { InfoItem, ItemWithId, Label, SubValue, Value } from './InfoLayoutElements';
 import { VersionInfoView } from './VersionInfoView';
 
-const InfoViewImpl: React.FC<{ userData: UserDataProps; session: Session }> = ({
-  userData,
-  session,
-}) => (
-  <PageContentContainer className="padded">
-    <VersionInfoView />
-    <UsersView user={session.user} userMap={userData.userMap} />
-    <SourcesView sources={session.sources} />
-    <CategoriesView categories={session.categories} />
-  </PageContentContainer>
-);
+export const InfoView: React.FC = () => {
+  const session = useBaconProperty(validSessionP);
+  const userData = useBaconProperty(userDataP);
+
+  return (
+    <Box p="lg">
+      <VersionInfoView />
+      <UsersView user={session.user} userMap={userData.userMap} />
+      <SourcesView sources={session.sources} />
+      <CategoriesView categories={session.categories} />
+    </Box>
+  );
+};
 
 const UsersView: React.FC<{
   user: User;
@@ -97,7 +98,3 @@ async function renameSource(sourceId: ObjectId, name: string) {
     await updateSession();
   }
 }
-
-export const InfoView = connect(B.combineTemplate({ session: validSessionP, userData: userDataP }))(
-  InfoViewImpl,
-);

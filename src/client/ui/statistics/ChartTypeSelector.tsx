@@ -1,4 +1,4 @@
-import { IconButton, Tooltip } from '@mui/material';
+import { ActionIcon, Tooltip } from '@mantine/core';
 import * as React from 'react';
 
 import { Icon, RenderIcon } from '../icons/Icons';
@@ -24,10 +24,10 @@ export const StatisticsChartTypeSelector: React.FC<{
 }> = ({ selected, onChange }) => (
   <>
     {StatisticsChartType.options.map(type => (
-      <Tooltip key={type} title={TypeInfo[type].title} arrow>
-        <IconButton onClick={() => onChange(type)}>
+      <Tooltip key={type} label={TypeInfo[type].title}>
+        <ActionIcon onClick={() => onChange(type)}>
           <RenderIcon icon={TypeInfo[type].icon} color={selected === type ? 'primary' : 'action'} />
-        </IconButton>
+        </ActionIcon>
       </Tooltip>
     ))}
   </>

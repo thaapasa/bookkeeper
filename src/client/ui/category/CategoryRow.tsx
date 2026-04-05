@@ -1,3 +1,5 @@
+import { Group, Table } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 import * as React from 'react';
 
 import { toISODate, UIDateRange } from 'shared/time';
@@ -7,12 +9,10 @@ import apiConnect from 'client/data/ApiConnect';
 import { UserDataProps } from 'client/data/Categories';
 import { needUpdateE } from 'client/data/State';
 
-import * as colors from '../Colors';
 import { ExpenseRow } from '../expense/row/ExpenseRow';
 import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
 import { useDeferredData } from '../hooks/useAsyncData';
-import { useToggle } from '../hooks/useToggle';
-import { AllColumns, NameColumn, RowElement, SumColumn, ToolColumn } from './CategoryTableLayout';
+import { AllColumns } from './CategoryTableLayout';
 import { AddCategoryButton, EditCategoryButton, ToggleButton } from './CategoryTools';
 
 interface CategoryRowProps {
@@ -24,55 +24,74 @@ interface CategoryRowProps {
   categoryTotals: Record<string, CategoryAndTotals>;
   range: UIDateRange;
   userData: UserDataProps;
-  className?: string;
 }
 
 function formatMoney(m?: MoneyLike): string {
   return m ? Money.from(m).format() : '-';
 }
 
+function isUnimportant(m?: MoneyLike): boolean {
+  if (!m) return true;
+  const b = Money.from(m);
+  return b.equals(0);
+}
+
 export const CategoryRow: React.FC<CategoryRowProps> = props => {
-  const { category, header, categoryTotals, className, title, createCategory, editCategory } =
-    props;
-  const [open, toggleOpen] = useToggle();
+  const { category, header, categoryTotals, title, createCategory, editCategory } = props;
+  const [open, { toggle: toggleOpen }] = useDisclosure();
 
   const totals = categoryTotals['' + category.id];
-  const clsName = `${className ?? ''} ${header ? 'main-category' : 'sub-category'}`;
   const income = totals ? (header ? totals.totalIncome : totals.income) : Money.zero;
   const expense = totals ? (header ? totals.totalExpenses : totals.expenses) : Money.zero;
-  const toolColor = header
-    ? colors.colorScheme.gray.veryDark
-    : colors.colorScheme.secondary.standard;
 
   return (
     <>
-      <RowElement className={clsName}>
-        <NameColumn>{title || category.name}</NameColumn>
-        <SumColumn className={colors.classNameForMoney(income)}>{formatMoney(income)}</SumColumn>
-        <SumColumn className={colors.classNameForMoney(expense)}>{formatMoney(expense)}</SumColumn>
-        {header ? (
-          <ToolColumn>
-            <AddCategoryButton parent={category} color={toolColor} onAdd={createCategory} />
-          </ToolColumn>
-        ) : (
-          <ToolColumn>
-            <EditCategoryButton category={category} color={toolColor} onEdit={editCategory} />
-            <ToggleButton color={toolColor} onToggle={toggleOpen} state={open} />
-          </ToolColumn>
-        )}
-      </RowElement>
+      <Table.Tr bg={header ? 'neutral.4' : 'neutral.2'}>
+        <Table.Td pl="md" fw={header ? 700 : undefined} c={!header ? 'primary.7' : undefined}>
+          {title || category.name}
+        </Table.Td>
+        <Table.Td
+          ta="right"
+          w={75}
+          style={{ whiteSpace: 'nowrap' }}
+          c={isUnimportant(income) ? 'dimmed' : undefined}
+          opacity={isUnimportant(income) ? 0.5 : undefined}
+        >
+          {formatMoney(income)}
+        </Table.Td>
+        <Table.Td
+          ta="right"
+          w={75}
+          style={{ whiteSpace: 'nowrap' }}
+          c={isUnimportant(expense) ? 'dimmed' : undefined}
+          opacity={isUnimportant(expense) ? 0.5 : undefined}
+        >
+          {formatMoney(expense)}
+        </Table.Td>
+        <Table.Td w={70}>
+          {header ? (
+            <Group gap={2} justify="flex-end" wrap="nowrap">
+              <AddCategoryButton parent={category} color="neutral.7" onAdd={createCategory} />
+            </Group>
+          ) : (
+            <Group gap={2} justify="flex-end" wrap="nowrap">
+              <EditCategoryButton category={category} color="primary.5" onEdit={editCategory} />
+              <ToggleButton color="primary.5" onToggle={toggleOpen} state={open} />
+            </Group>
+          )}
+        </Table.Td>
+      </Table.Tr>
       {open ? (
-        <RowElement>
-          <CategoryRowExpenses {...props} />
-        </RowElement>
+        <Table.Tr>
+          <AllColumns px="md">
+            <CategoryRowExpenses {...props} />
+          </AllColumns>
+        </Table.Tr>
       ) : null}
     </>
   );
 };
 
-/**
- * Renders the category expense list when opening the category expander
- */
 const CategoryRowExpenses: React.FC<{
   range: UIDateRange;
   category: Category;
@@ -83,14 +102,14 @@ const CategoryRowExpenses: React.FC<{
   React.useEffect(() => needUpdateE.onValue(loadData), [loadData]);
 
   if (data.type !== 'loaded') {
-    return <AllColumns>Ladataan...</AllColumns>;
+    return <>Ladataan...</>;
   }
   if (!data.value || data.value.length < 1) {
-    return <AllColumns>Ei kirjauksia</AllColumns>;
+    return <>Ei kirjauksia</>;
   }
   return (
-    <ExpenseTableLayout className="padding">
-      <tbody>
+    <ExpenseTableLayout padded>
+      <Table.Tbody>
         {data.value.map(expense => (
           <ExpenseRow
             expense={expense}
@@ -100,7 +119,7 @@ const CategoryRowExpenses: React.FC<{
             onUpdated={loadData}
           />
         ))}
-      </tbody>
+      </Table.Tbody>
     </ExpenseTableLayout>
   );
 };

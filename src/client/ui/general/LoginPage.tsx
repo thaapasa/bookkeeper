@@ -1,12 +1,11 @@
-import { Button, Card, styled } from '@mui/material';
+import { Box, Button, Paper, Text } from '@mantine/core';
 import * as React from 'react';
 
 import { pickRandomItem } from 'shared/util';
 import { login } from 'client/data/Login';
 
-import { colorScheme } from '../Colors';
 import { TextEdit } from '../component/TextEdit';
-import { media } from '../Styles';
+import styles from './LoginPage.module.css';
 
 const publicUrl = import.meta.env.PUBLIC_URL || '';
 
@@ -19,13 +18,13 @@ export const LoginPage: React.FC = () => {
 
   const bgImage = React.useMemo(() => pickRandomItem(backgroundImages), []);
 
-  const handleSubmit = async (event: React.FormEvent<any>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setStatusMessage(null);
     try {
       await login(username, password);
-    } catch (er: any) {
-      if (er && er.status === 401) {
+    } catch (er: unknown) {
+      if (er instanceof Object && 'status' in er && er.status === 401) {
         setStatusMessage(
           'Kirjautuminen epäonnistui. Ole hyvä ja tarkista käyttäjätunnuksesi ja salasanasi.',
         );
@@ -36,91 +35,52 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <Page bgImage={bgImage}>
-      <LoginPaper>
-        <Form onSubmit={handleSubmit}>
-          <Title>Kirjaudu sisään</Title>
-          <EditField
+    <Box className={styles.page} style={{ backgroundImage: `url(${publicUrl}/img/${bgImage})` }}>
+      <Paper shadow="sm" radius="md" p="xl" mt="15vh" mx="xl" style={{ zIndex: 1 }}>
+        <Box
+          component="form"
+          onSubmit={handleSubmit}
+          display="inline-flex"
+          style={{ flexDirection: 'column', alignItems: 'stretch' }}
+          w={280}
+        >
+          <Text ta="center" mb="3vh">
+            Kirjaudu sisään
+          </Text>
+          <TextEdit
             placeholder="Käyttäjätunnus"
             label="Käyttäjätunnus"
+            name="username"
             value={username}
             onChange={setUsername}
             autoCapitalize="none"
             autoComplete="username"
             autoCorrect="off"
             autoFocus={true}
+            mt="xs"
           />
-          <EditField
+          <TextEdit
             placeholder="Salasana"
             label="Salasana"
+            name="password"
             type="password"
             autoCapitalize="none"
             autoComplete="current-password"
             autoCorrect="off"
             value={password}
             onChange={setPassword}
+            mt="xs"
           />
-          <LoginButton type="submit" color="primary" variant="contained">
+          <Button type="submit" fullWidth mt="xl">
             Kirjaudu
-          </LoginButton>
-          {statusMessage !== null ? <ErrorText>{statusMessage}</ErrorText> : ''}
-        </Form>
-      </LoginPaper>
-    </Page>
+          </Button>
+          {statusMessage !== null ? (
+            <Text c="primary.7" ta="center" mt="3vh">
+              {statusMessage}
+            </Text>
+          ) : null}
+        </Box>
+      </Paper>
+    </Box>
   );
 };
-
-const LoginPaper = styled(Card)`
-  display: inline-block;
-  margin: 15vh 32px 32px 32px;
-  padding: 36px;
-  z-index: 1;
-`;
-
-const Form = styled('form')`
-  display: inline-flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  width: 248px;
-`;
-
-const EditField = styled(TextEdit)`
-  margin: 8px;
-`;
-
-const Title = styled('title')`
-  display: inline-block;
-  height: 24px;
-  margin-bottom: 3vh;
-  font-size: 14pt;
-`;
-
-const ErrorText = styled('div')`
-  margin-top: 3vh;
-  color: ${colorScheme.secondary.dark};
-  text-align: center;
-`;
-
-const LoginButton = styled(Button)`
-  display: inline-block;
-  margin-top: 5vh;
-`;
-
-const Page = styled('div')`
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: center;
-  background: url(${publicUrl}/img/${(props: { bgImage: string }) => props.bgImage});
-  background-color: #d6d6d6;
-  background-size: cover;
-  background-repeat: no-repeat;
-  width: 100%;
-  height: 100%;
-
-  ${media.mobilePortrait`
-    background-size: 1024px;
-    background-position: center top;
-  `}
-`;

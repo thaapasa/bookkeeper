@@ -1,89 +1,96 @@
-import { Alert } from '@mui/material';
-import Snackbar from '@mui/material/Snackbar';
+import { Box, Notification } from '@mantine/core';
+import { AlertCircle, AlertTriangle, CheckCircle, Info } from 'lucide-react';
 import * as React from 'react';
 
-import { Action, AnyObject, Timeout, toReadableErrorMessage } from 'shared/types';
+import { toReadableErrorMessage } from 'shared/types';
 import { notificationE } from 'client/data/State';
-import { Notification } from 'client/data/StateTypes';
+import { Notification as AppNotification } from 'client/data/StateTypes';
 import { logger } from 'client/Logger';
-import { unsubscribeAll } from 'client/util/ClientUtil';
 
 const msgInterval = 5000;
 
-interface NotificationBarProps {
-  notification: Notification;
-  onClose: Action;
-}
+const severityIcon = {
+  success: <CheckCircle size={18} />,
+  error: <AlertCircle size={18} />,
+  warning: <AlertTriangle size={18} />,
+  info: <Info size={18} />,
+};
 
-const NotificationBarView: React.FC<NotificationBarProps> = ({ notification, onClose }) => {
+const severityColor = {
+  success: 'green',
+  error: 'red',
+  warning: 'yellow',
+  info: 'blue',
+};
+
+export const NotificationBar: React.FC = () => {
+  const [notification, setNotification] = React.useState<AppNotification | null>(null);
+  const timerRef = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const queueRef = React.useRef<AppNotification[]>([]);
+
+  const scheduleNext = () => {
+    timerRef.current = undefined;
+    if (queueRef.current.length > 0) {
+      const next = queueRef.current.shift()!;
+      setNotification(next);
+      timerRef.current = setTimeout(scheduleNext, msgInterval);
+    } else {
+      setNotification(null);
+    }
+  };
+
+  const dismiss = () => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+    scheduleNext();
+  };
+
+  // Subscribe once on mount — scheduleNext uses only refs and setState
+  React.useEffect(() => {
+    const unsub = notificationE.onValue((n: AppNotification) => {
+      if (n.severity === 'error') {
+        logger.error(n.cause ?? {}, n.message);
+      } else if (n.severity === 'warning') {
+        logger.warn(n.cause ?? {}, n.message);
+      }
+      queueRef.current.push(n);
+      if (!timerRef.current || n.immediate) {
+        scheduleNext();
+      }
+    });
+    return () => {
+      unsub();
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (!notification) return null;
+
   const message = notification.cause
     ? notification.message + ', syy: ' + toReadableErrorMessage(notification.cause)
     : notification.message;
 
+  const severity = notification.severity ?? 'success';
+
   return (
-    <Snackbar open={true} onClose={onClose}>
-      <Alert severity={notification.severity ?? 'success'}>{message}</Alert>
-    </Snackbar>
+    <Box
+      pos="fixed"
+      bottom="lg"
+      left="50%"
+      style={{ transform: 'translateX(-50%)', zIndex: 1400, minWidth: 300, maxWidth: 560 }}
+    >
+      <Notification
+        icon={severityIcon[severity]}
+        color={severityColor[severity]}
+        onClose={dismiss}
+        withCloseButton
+      >
+        {message}
+      </Notification>
+    </Box>
   );
 };
-
-interface NotificationBarConnectorState {
-  notification: Notification | null;
-}
-
-export class NotificationBar extends React.Component<AnyObject, NotificationBarConnectorState> {
-  private timer: Timeout | undefined;
-  private queue: Notification[] = [];
-  private unsub: Action[] = [];
-  public state: NotificationBarConnectorState = {
-    notification: null,
-  };
-
-  public componentDidMount() {
-    this.unsub.push(notificationE.onValue(this.showMessage));
-  }
-
-  public componentWillUnmount() {
-    if (this.timer) {
-      clearTimeout(this.timer);
-    }
-    this.timer = undefined;
-    unsubscribeAll(this.unsub);
-  }
-
-  private showMessage = (notification: Notification) => {
-    if (notification.severity === 'error') {
-      logger.error(notification.cause ?? {}, notification.message);
-    } else if (notification.severity === 'warning') {
-      logger.warn(notification.cause ?? {}, notification.message);
-    }
-    this.queue.push(notification);
-    if (!this.timer || notification.immediate) {
-      this.scheduleNext();
-    }
-  };
-
-  private scheduleNext = () => {
-    this.timer = undefined;
-    if (this.queue.length > 0) {
-      const next = this.queue.shift();
-      this.setState({ notification: next || null });
-      this.timer = setTimeout(this.scheduleNext, msgInterval);
-    } else {
-      this.setState({ notification: null });
-    }
-  };
-
-  private dismissCurrent = () => {
-    if (this.timer) {
-      clearTimeout(this.timer);
-    }
-    this.scheduleNext();
-  };
-
-  public render() {
-    return this.state.notification ? (
-      <NotificationBarView notification={this.state.notification} onClose={this.dismissCurrent} />
-    ) : null;
-  }
-}

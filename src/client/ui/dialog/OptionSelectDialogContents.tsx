@@ -1,4 +1,4 @@
-import { Button, DialogActions, DialogContent, styled } from '@mui/material';
+import { Box, Button, Group } from '@mantine/core';
 import * as React from 'react';
 
 import { DialogContentRendererProps, OptionSelectDialogData } from './Dialog';
@@ -16,32 +16,22 @@ export const OptionSelectDialogContents: React.FC<OptionSelectDialogProps<any>> 
 }: OptionSelectDialogProps<T>) => {
   return (
     <>
-      <DialogContent onKeyUp={handleKeyPress}>{description}</DialogContent>
-      <Actions>
-        <Button color="primary" variant="text" onKeyUp={handleKeyPress} onClick={onCancel}>
+      <Box onKeyUp={handleKeyPress}>{description}</Box>
+      <Group justify="flex-end" gap="xs" pt="md" wrap="wrap">
+        <Button variant="subtle" onKeyUp={handleKeyPress} onClick={onCancel}>
           Peruuta
         </Button>
         {options.map(o => (
           <Button
             key={o.value}
-            color="primary"
-            variant="contained"
+            variant="filled"
             onKeyUp={handleKeyPress}
             onClick={() => onSelect(o.value)}
           >
             {o.label}
           </Button>
         ))}
-      </Actions>
+      </Group>
     </>
   );
 };
-
-const Actions = styled(DialogActions)`
-  display: block;
-  text-align: right;
-
-  & > button {
-    margin: 4px 0;
-  }
-`;

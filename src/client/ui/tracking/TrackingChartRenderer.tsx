@@ -1,4 +1,5 @@
-import styled from '@emotion/styled';
+import { Box } from '@mantine/core';
+import { useElementSize } from '@mantine/hooks';
 import * as React from 'react';
 import {
   Area,
@@ -14,18 +15,16 @@ import {
 
 import { TrackingChartType, TrackingData, TrackingStatistics } from 'shared/types';
 import { partition } from 'shared/util';
-import { formatMoneyForChart } from 'client/ui/chart/Format';
+import { chartTooltipStyle, formatMoneyForChart } from 'client/ui/chart/Format';
 
 import { getChartColor } from '../chart/ChartColors';
-import { Size } from '../Types';
-import { MeasureSize } from '../utils/MeasureSize';
 
 const Margins = { left: 4, top: 4, right: 4, bottom: 4 };
 
 interface TrackingChartProps {
   data: TrackingStatistics;
   trackingData: TrackingData;
-  size: Size;
+  size: { width: number; height: number };
 }
 
 export const TrackingLineChartRenderer: React.FC<TrackingChartProps> = ({
@@ -37,7 +36,7 @@ export const TrackingLineChartRenderer: React.FC<TrackingChartProps> = ({
     <LineChart width={size.width} height={168} data={data.statistics} margin={Margins}>
       <CartesianGrid strokeDasharray="3 3" />
       <XAxis hide dataKey="timeSlot" />
-      <Tooltip formatter={formatMoneyForChart} />
+      <Tooltip formatter={formatMoneyForChart} contentStyle={chartTooltipStyle} />
       {data.groups.map((v, i) => (
         <Line
           type="monotone"
@@ -60,7 +59,7 @@ export const TrackingBarChartRenderer: React.FC<TrackingChartProps> = ({
     <BarChart width={size.width} height={168} data={data.statistics} margin={Margins}>
       <CartesianGrid strokeDasharray="3 3" />
       <XAxis hide dataKey="timeSlot" />
-      <Tooltip formatter={formatMoneyForChart} />
+      <Tooltip formatter={formatMoneyForChart} contentStyle={chartTooltipStyle} />
       {data.groups.map((v, i) => (
         <Bar
           type="monotone"
@@ -84,7 +83,7 @@ export const TrackingCombinedRenderer: React.FC<TrackingChartProps> = ({
     <ComposedChart width={size.width} height={168} data={data.statistics} margin={Margins}>
       <CartesianGrid strokeDasharray="3 3" />
       <XAxis hide dataKey="timeSlot" />
-      <Tooltip formatter={formatMoneyForChart} />
+      <Tooltip formatter={formatMoneyForChart} contentStyle={chartTooltipStyle} />
       {lines.map((v, i) => (
         <Area
           type="monotone"
@@ -114,18 +113,21 @@ const ChartTypeRenderers: Record<TrackingChartType, React.FC<TrackingChartProps>
   combined: TrackingCombinedRenderer,
 };
 
-export const TrackingChartRenderer: React.FC<TrackingChartProps> = props => {
+const TrackingChartRenderer: React.FC<TrackingChartProps> = props => {
   const Renderer =
     ChartTypeRenderers[props.trackingData.chartType ?? 'line'] ?? TrackingBarChartRenderer;
   return (
-    <ChartContainer>
+    <Box pos="absolute">
       <Renderer {...props} />
-    </ChartContainer>
+    </Box>
   );
 };
 
-const ChartContainer = styled('div')`
-  position: absolute;
-`;
-
-export const TrackingChart = MeasureSize(TrackingChartRenderer, 168);
+export const TrackingChart: React.FC<Omit<TrackingChartProps, 'size'>> = props => {
+  const { ref, width } = useElementSize();
+  return (
+    <Box ref={ref} display="flex" flex={1} h={168} style={{ minWidth: 0 }}>
+      {width > 0 ? <TrackingChartRenderer size={{ width, height: 168 }} {...props} /> : null}
+    </Box>
+  );
+};

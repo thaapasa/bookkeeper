@@ -1,39 +1,30 @@
-import { styled } from '@mui/material';
+import { Group, GroupProps } from '@mantine/core';
 import * as React from 'react';
 
-import { ObjectId, User } from 'shared/types';
+import { ObjectId } from 'shared/types';
 import { validSessionP } from 'client/data/Login';
 
-import { connect } from './BaconConnect';
-import UserAvatar from './UserAvatar';
+import { useBaconProperty } from '../hooks/useBaconState';
+import { UserIdAvatar } from './UserAvatar';
 
-const Container = styled('div')`
-  display: inline-flex;
-  flex-direction: row;
-`;
-
-const StyledUserAvatar = styled(UserAvatar)`
-  margin: 0.2em;
-  vertical-align: top;
-`;
-
-interface UserSelectorProps {
+type UserSelectorProps = {
   selected: ObjectId[];
   onChange?: (x: ObjectId[]) => void;
-  style?: React.CSSProperties;
-  users: User[];
   singleSelection?: boolean;
   size?: number;
-}
+} & Omit<GroupProps, 'size' | 'onChange'>;
+
+const UserSelectorState = validSessionP.map(s => ({ users: s.users }));
 
 export const UserSelector: React.FC<UserSelectorProps> = ({
   onChange,
   selected,
-  style,
-  users,
   singleSelection,
   size,
+  ...props
 }) => {
+  const { users } = useBaconProperty(UserSelectorState);
+
   const switchSelection = (id: ObjectId) => {
     if (singleSelection) {
       onChange?.([id]);
@@ -50,20 +41,18 @@ export const UserSelector: React.FC<UserSelectorProps> = ({
   };
 
   return (
-    <Container style={style}>
+    <Group gap="xs" {...props}>
       {users.map(u => (
-        <StyledUserAvatar
+        <UserIdAvatar
           key={u.id}
           userId={u.id}
-          className={selected.includes(u.id) ? 'selected' : 'unselected'}
+          variant={selected.includes(u.id) ? 'selected' : 'dimmed'}
           onClick={() => switchSelection(u.id)}
           size={size}
         >
           {u.firstName.charAt(0)}
-        </StyledUserAvatar>
+        </UserIdAvatar>
       ))}
-    </Container>
+    </Group>
   );
 };
-
-export default connect(validSessionP.map(s => ({ users: s.users })))(UserSelector);

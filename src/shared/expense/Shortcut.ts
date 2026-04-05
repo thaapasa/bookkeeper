@@ -7,7 +7,6 @@ import { BaseExpenseData, ExpenseInEditor } from './Expense';
 
 export const ExpenseShortcutData = BaseExpenseData.extend({
   title: z.string(),
-  subcategoryId: z.number(),
   sum: MoneyLike,
   date: ISODate,
   benefit: z.array(z.number()),

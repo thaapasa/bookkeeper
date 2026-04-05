@@ -1,10 +1,8 @@
-import { CircularProgress, DialogContent, DialogTitle } from '@mui/material';
-import { styled } from '@mui/system';
+import { Box, Code, Flex, Loader, Text, Title } from '@mantine/core';
 import * as React from 'react';
 
 import { AsyncDataError, AsyncDataLoading } from 'client/data/AsyncData';
 
-import { Pre } from '../Styles';
 import { AsyncDataView, AsyncDataViewProps } from './AsyncDataView';
 
 export const AsyncDataDialogContent = <T, C extends { data: T }>({
@@ -24,11 +22,9 @@ export const AsyncDataDialogContent = <T, C extends { data: T }>({
 );
 
 const LoadingRenderer: React.FC<{ data: AsyncDataLoading }> = () => (
-  <DialogContent>
-    <LoaderArea>
-      <CircularProgress size={64} />
-    </LoaderArea>
-  </DialogContent>
+  <Flex align="center" justify="center" p="xl">
+    <Loader size={64} />
+  </Flex>
 );
 
 const ErrorRenderer: React.FC<{ data: AsyncDataError }> = ({ data }) => {
@@ -39,18 +35,12 @@ const ErrorRenderer: React.FC<{ data: AsyncDataError }> = ({ data }) => {
       ? (error as { data: unknown }).data
       : null;
   return (
-    <DialogContent>
-      <DialogTitle color="primary">Virhe tietojen latauksessa</DialogTitle>
-      <DialogContent>
-        <p>{message}</p>
-        {errorData ? <Pre>{JSON.stringify(errorData, null, 2)}</Pre> : undefined}
-      </DialogContent>
-    </DialogContent>
+    <Box>
+      <Title order={3} mb="xs">
+        Virhe tietojen latauksessa
+      </Title>
+      <Text>{message}</Text>
+      {errorData ? <Code block>{JSON.stringify(errorData, null, 2)}</Code> : undefined}
+    </Box>
   );
 };
-
-const LoaderArea = styled('div')`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;

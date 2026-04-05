@@ -1,39 +1,43 @@
-import { styled } from '@mui/material';
+import { UnstyledButton, UnstyledButtonProps } from '@mantine/core';
 import * as React from 'react';
 
 import { Source } from 'shared/types';
 
-import { sourceWidth } from './ExpenseTableLayout';
+import styles from './ExpenseRowComponents.module.css';
 
-export const SourceIcon: React.FC<{
-  source: Source;
-  onClick?: () => void;
-}> = ({ source, onClick }) => {
+export const SourceIcon: React.FC<
+  {
+    source: Source;
+    onClick?: () => void;
+  } & TextButtonProps
+> = ({ source, onClick, ...props }) => {
   const content = source.image ? (
-    <SourceImage src={source.image} title={source.name} />
+    <img
+      src={source.image}
+      title={source.name}
+      style={{ maxWidth: 40, maxHeight: 28 }}
+      alt={source.name}
+    />
   ) : source.abbreviation ? (
     source.abbreviation
   ) : (
     source.name
   );
   return (
-    <TextButton key={source.id} onClick={onClick}>
+    <TextButton key={source.id} onClick={onClick} {...props}>
       {content}
     </TextButton>
   );
 };
 
-const SourceImage = styled('img')`
-  max-width: ${sourceWidth}px;
-  max-height: 34px;
-`;
+type TextButtonProps = { onClick?: () => void } & UnstyledButtonProps;
 
-export const TextButton = styled('button')`
-  border: 0;
-  font-size: 13px;
-  outline: none;
-  background: none;
-  &:hover {
-    text-decoration: underline;
-  }
-`;
+export const TextButton: React.FC<React.PropsWithChildren<TextButtonProps>> = ({
+  children,
+  onClick,
+  ...props
+}) => (
+  <UnstyledButton fz="inherit" className={styles.textButton} onClick={onClick} {...props}>
+    {children}
+  </UnstyledButton>
+);

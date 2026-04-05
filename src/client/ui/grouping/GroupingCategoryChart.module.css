@@ -1,0 +1,16 @@
+.legendTable {
+  margin-left: var(--mantine-spacing-md);
+}
+
+.legendTable td:last-child {
+  text-align: right;
+  padding-left: var(--mantine-spacing-xl);
+}
+
+.legendTable tr.total {
+  font-weight: bold;
+}
+
+.legendTable tr.total td:first-of-type {
+  color: var(--mantine-color-primary-7);
+}

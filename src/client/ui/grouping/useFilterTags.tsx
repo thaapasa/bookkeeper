@@ -1,5 +1,4 @@
-import styled from '@emotion/styled';
-import { Chip } from '@mui/material';
+import { Badge, CloseButton } from '@mantine/core';
 import React from 'react';
 
 import { uniq } from 'shared/util';
@@ -31,19 +30,20 @@ export function ExpenseGroupingsTagFilters({
       {joinedTags.map(t => {
         const active = selected.has(t);
         return (
-          <FilterChip
-            label={t}
-            onDelete={active ? () => removeTag(t) : undefined}
+          <Badge
             key={t}
+            variant={active ? 'filled' : 'outline'}
+            rightSection={
+              active ? <CloseButton size="xs" onClick={() => removeTag(t)} /> : undefined
+            }
             onClick={active ? undefined : () => addTag(t)}
-            color={active ? 'info' : 'secondary'}
-          />
+            ml="xs"
+            style={active ? undefined : { cursor: 'pointer' }}
+          >
+            {t}
+          </Badge>
         );
       })}
     </>
   );
 }
-
-const FilterChip = styled(Chip)`
-  margin-left: 8px;
-`;

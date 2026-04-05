@@ -1,11 +1,9 @@
-import { styled } from '@mui/material';
 import * as React from 'react';
 
 import { IdProvider } from 'shared/util';
 import { CategoryDataSource } from 'client/data/Categories';
-import { KeyCodes } from 'client/util/Io';
 
-import { AutoComplete } from '../component/AutoComplete';
+import { AutoComplete, AutoCompletePassthroughProps } from '../component/AutoComplete';
 import {
   CategorySuggestion,
   getSearchSuggestionValue,
@@ -19,7 +17,7 @@ type SearchInputProps = {
   selectSuggestion: (s: SearchSuggestion) => void;
   startSearch: () => void;
   categorySource: CategoryDataSource[];
-};
+} & AutoCompletePassthroughProps;
 
 const receiverId = new IdProvider();
 
@@ -29,11 +27,12 @@ export const SearchInputField: React.FC<SearchInputProps> = ({
   selectSuggestion,
   startSearch,
   categorySource,
+  ...props
 }) => {
   const [suggestions, setSuggestions] = React.useState<SearchSuggestion[]>([]);
   const onInputKeyUp = React.useCallback(
     (event: React.KeyboardEvent<any>) => {
-      if (event.keyCode === KeyCodes.enter) {
+      if (event.key === 'Enter') {
         startSearch();
       }
     },
@@ -51,7 +50,8 @@ export const SearchInputField: React.FC<SearchInputProps> = ({
   );
 
   return (
-    <StyledComplete
+    <AutoComplete<SearchSuggestion>
+      mt="xs"
       label="Hakuehdot"
       value={value}
       onChange={onChange}
@@ -63,6 +63,7 @@ export const SearchInputField: React.FC<SearchInputProps> = ({
       inputClassName="pad-left"
       autoHideErrorText={true}
       onKeyUp={onInputKeyUp}
+      {...props}
     />
   );
 };
@@ -78,7 +79,3 @@ function getCategorySuggestions(
   const filter = (c: CategoryDataSource) => c.text.toLowerCase().includes(lowerInput);
   return categorySource.filter(filter).map(c => ({ type: 'category', id: c.value, name: c.text }));
 }
-
-const StyledComplete = styled(AutoComplete<SearchSuggestion>)`
-  margin-top: 6px;
-`;

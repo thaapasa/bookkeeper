@@ -1,5 +1,4 @@
-import { Checkbox, FormControlLabel, styled } from '@mui/material';
-import { combineTemplate } from 'baconjs';
+import { Box, Checkbox } from '@mantine/core';
 import * as React from 'react';
 import { z } from 'zod';
 
@@ -11,11 +10,10 @@ import { categoryMapP } from 'client/data/Categories';
 import { needUpdateE } from 'client/data/State';
 
 import { AsyncDataView } from '../component/AsyncDataView';
-import { connect } from '../component/BaconConnect';
 import { useDeferredData } from '../hooks/useAsyncData';
+import { useBaconProperty } from '../hooks/useBaconState';
 import { useLocalStorageList } from '../hooks/useList';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { PageContentContainer } from '../Styles';
 import { SubscriptionCategoryHeader, ToggleCategoryVisibility } from './SubscriptionCategoryHeader';
 import { SubscriptionCriteriaSelector } from './SubscriptionCriteriaSelector';
 import { SubscriptionItemView } from './SubscriptionItemView';
@@ -37,9 +35,8 @@ const loadExpenses = async (
     categories,
   );
 
-const SubscriptionsViewImpl: React.FC<{
-  categories: CategoryMap;
-}> = ({ categories }) => {
+export const SubscriptionsPage: React.FC = () => {
+  const categories = useBaconProperty(categoryMapP);
   const [criteria, setCriteria] = React.useState<SubscriptionSearchCriteria | undefined>(undefined);
 
   const { data, loadData } = useDeferredData(
@@ -48,21 +45,16 @@ const SubscriptionsViewImpl: React.FC<{
     criteria,
     categories,
   );
-  // Load data automatically
   React.useEffect(loadData, [loadData, criteria, categories]);
-  // Reload whenever update bus is triggered
   React.useEffect(() => needUpdateE.onValue(loadData), [loadData]);
+
   return (
-    <PageContentContainer>
+    <>
       <SubscriptionCriteriaSelector onChange={setCriteria} />
       <AsyncDataView data={data} renderer={SubscriptionsRenderer} />
-    </PageContentContainer>
+    </>
   );
 };
-
-export const SubscriptionsPage = connect(combineTemplate({ categories: categoryMapP }))(
-  SubscriptionsViewImpl,
-);
 
 const SubscriptionsRenderer: React.FC<{
   data: SubscriptionsData;
@@ -85,21 +77,22 @@ const SubscriptionsRenderer: React.FC<{
         totals={
           hasFiltered ? sumRecurrenceTotals(filteredGroups.map(g => g.allTotals)) : data.totals
         }
-        className="root-category"
+        isRoot
       />
-      <ChartArea>
+      <Box pos="relative">
         <TotalsChart
           data={pieData}
           onSelectCategory={setCatId}
           colorIndex={selectedIndex >= 0 ? selectedIndex : undefined}
         />
-        <ChartTools>
-          <FormControlLabel
-            control={<Checkbox checked={perMonth} onChange={() => setPerMonth(!perMonth)} />}
+        <Box pos="absolute" left="var(--mantine-spacing-md)" top="var(--mantine-spacing-md)">
+          <Checkbox
+            checked={perMonth}
+            onChange={() => setPerMonth(!perMonth)}
             label="Kulut per kk"
           />
-        </ChartTools>
-      </ChartArea>
+        </Box>
+      </Box>
       {selectedGroup ? (
         <GroupView
           group={selectedGroup}
@@ -173,7 +166,7 @@ const GroupView: React.FC<{
       <SubscriptionCategoryHeader
         title={root.name}
         totals={allTotals}
-        className="root-category"
+        isRoot
         categoryId={root.id}
         visible={visible}
         toggleVisibility={toggleVisibility}
@@ -209,23 +202,9 @@ const CategorySubscriptions: React.FC<{
   totals?: RecurrenceTotals;
 }> = ({ category, items, totals, title }) => (
   <>
-    <SubscriptionCategoryHeader
-      title={title ?? category.name}
-      totals={totals}
-      className="child-category"
-    />
+    <SubscriptionCategoryHeader title={title ?? category.name} totals={totals} />
     {items.map(item => (
       <SubscriptionItemView key={item.id} item={item} />
     ))}
   </>
 );
-
-const ChartArea = styled('div')`
-  position: relative;
-`;
-
-const ChartTools = styled('div')`
-  position: absolute;
-  left: 16px;
-  top: 16px;
-`;

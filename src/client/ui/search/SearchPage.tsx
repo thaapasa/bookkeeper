@@ -4,32 +4,19 @@ import { useParams } from 'react-router';
 
 import { ExpenseQuery, UserExpense } from 'shared/expense';
 import { ISOMonth, toDateRange } from 'shared/time';
-import { Category, isDefined, Session } from 'shared/types';
+import { Category, isDefined } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
 import { AsyncData, UninitializedData } from 'client/data/AsyncData';
-import {
-  CategoryDataSource,
-  categoryDataSourceP,
-  userDataP,
-  UserDataProps,
-} from 'client/data/Categories';
-import { validSessionP } from 'client/data/Login';
+import { categoryDataSourceP, userDataP } from 'client/data/Categories';
 import { navigationBus, needUpdateE } from 'client/data/State';
 import { logger } from 'client/Logger';
 import { searchPagePath } from 'client/util/Links';
 
-import { connect } from '../component/BaconConnect';
+import { useBaconProperty } from '../hooks/useBaconState';
 import { usePersistentMemo } from '../hooks/usePersistentMemo';
 import { useWhenMounted } from '../hooks/useWhenMounted';
-import { PageContentContainer } from '../Styles';
-import { QueryView } from './QueryView';
+import { QueryView, QueryViewHandle } from './QueryView';
 import { ResultsView } from './ResultsView';
-
-interface SearchViewProps {
-  userData: UserDataProps;
-  session: Session;
-  categorySource: CategoryDataSource[];
-}
 
 type SearchViewParams = 'year' | 'month';
 
@@ -40,7 +27,17 @@ function isEmptyQuery(q: ExpenseQuery) {
   return !q.search && !hasCategory && !q.receiver && !isDefined(q.confirmed);
 }
 
-const SearchViewImpl: React.FC<SearchViewProps> = ({ userData, session, categorySource }) => {
+export const SearchPage: React.FC = () => {
+  const userData = useBaconProperty(userDataP);
+  const categorySource = useBaconProperty(categoryDataSourceP);
+
+  return <SearchViewImpl userData={userData} categorySource={categorySource} />;
+};
+
+const SearchViewImpl: React.FC<{
+  userData: { categoryMap: Record<number, any> };
+  categorySource: any[];
+}> = ({ userData, categorySource }) => {
   const [results, setResults] = React.useState<AsyncData<UserExpense[]>>(UninitializedData);
   const { year, month } = useParams<SearchViewParams>();
 
@@ -49,10 +46,6 @@ const SearchViewImpl: React.FC<SearchViewProps> = ({ userData, session, category
 
   logger.info({ year, month }, 'Params');
 
-  // We can't use React.useEffect() here because it is run too late
-  // (after initial render, and after the query view submits the query).
-  // Thus, use this custom hook instead. It will run the setup code during the first
-  // render (and unsubscribe when this component unmounts).
   useWhenMounted(() => {
     const resultsE = searchBus
       .sampledBy(B.mergeAll<any>(searchBus, repeatSearchBus))
@@ -84,7 +77,7 @@ const SearchViewImpl: React.FC<SearchViewProps> = ({ userData, session, category
     repeatSearchBus.push(true);
   }, [repeatSearchBus]);
 
-  const queryRef = React.useRef<QueryView>(null);
+  const queryRef = React.useRef<QueryViewHandle>(null);
 
   const onAddCategoryToSearch = React.useCallback(
     (cat: Category) => queryRef.current?.addCategory(cat),
@@ -94,14 +87,13 @@ const SearchViewImpl: React.FC<SearchViewProps> = ({ userData, session, category
   React.useEffect(() => needUpdateE.onValue(onRepeatSearch), [onRepeatSearch]);
 
   return (
-    <PageContentContainer>
+    <>
       <QueryView
         ref={queryRef}
         categoryMap={userData.categoryMap}
         categorySource={categorySource}
         onSearch={onSearch}
         isSearching={results.type === 'loading'}
-        user={session.user}
         year={year}
         month={month as ISOMonth | undefined}
       />
@@ -110,14 +102,6 @@ const SearchViewImpl: React.FC<SearchViewProps> = ({ userData, session, category
         onUpdate={onRepeatSearch}
         onSelectCategory={onAddCategoryToSearch}
       />
-    </PageContentContainer>
+    </>
   );
 };
-
-export const SearchPage = connect(
-  B.combineTemplate({
-    session: validSessionP,
-    userData: userDataP,
-    categorySource: categoryDataSourceP,
-  }),
-)(SearchViewImpl);

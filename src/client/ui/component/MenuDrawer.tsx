@@ -1,4 +1,15 @@
-import { Drawer, MenuItem, styled } from '@mui/material';
+import {
+  Box,
+  Button,
+  Divider,
+  Drawer,
+  Group as MantineGroup,
+  NavLink,
+  SegmentedControl,
+  Text,
+  UnstyledButton,
+  useMantineColorScheme,
+} from '@mantine/core';
 import * as React from 'react';
 import { useNavigate } from 'react-router';
 
@@ -8,33 +19,30 @@ import { logout, validSessionP } from 'client/data/Login';
 import { reloadApp } from 'client/util/ClientUtil';
 import { profilePagePath } from 'client/util/Links';
 
-import { colorScheme } from '../Colors';
-import { RenderIcon } from '../icons/Icons';
-import { connect } from './BaconConnect';
-import { AppLink } from './NavigationBar';
+import { Caption } from '../design/Text';
+import { useBaconProperty } from '../hooks/useBaconState';
+import { Icons, RenderIcon } from '../icons/Icons';
+import { AppLink } from '../layout/TopBar';
 import { UserAvatar } from './UserAvatar';
 
 interface MenuDrawerProps {
   open: boolean;
   onRequestChange: (open: boolean) => void;
-  user: User;
-  group: Group;
   links?: AppLink[];
 }
 
-const MenuLink: React.FC<AppLink & { onSelect: (path: string) => void }> = ({
-  onSelect,
-  label,
-  path,
-  icon,
-}) => (
-  <MenuItem onClick={() => onSelect(path)}>
-    <PaddedIcon icon={icon} fontSize="small" color="action" />
-    {label}
-  </MenuItem>
-);
+interface MenuDrawerViewProps extends MenuDrawerProps {
+  user: User;
+  group: Group;
+}
 
-export const MenuDrawer: React.FC<MenuDrawerProps> = ({
+const colorSchemeOptions = [
+  { value: 'auto', label: 'Auto' },
+  { value: 'light', label: '☀️' },
+  { value: 'dark', label: '🌙' },
+];
+
+const MenuDrawerView: React.FC<MenuDrawerViewProps> = ({
   onRequestChange,
   open,
   group,
@@ -42,6 +50,7 @@ export const MenuDrawer: React.FC<MenuDrawerProps> = ({
   links,
 }) => {
   const navigate = useNavigate();
+  const { colorScheme, setColorScheme } = useMantineColorScheme();
   const onSelect = (path: string) => {
     navigate(path);
     onRequestChange(false);
@@ -49,84 +58,90 @@ export const MenuDrawer: React.FC<MenuDrawerProps> = ({
   const onClose = () => onRequestChange(false);
   const onReload = () => reloadApp();
   return (
-    <Drawer open={open} anchor="left" onClose={onClose}>
-      <GroupName>{group.name}</GroupName>
-      <ItemArea>
-        <UserInfo onClick={() => onSelect(profilePagePath)}>
+    <Drawer
+      opened={open}
+      onClose={onClose}
+      position="left"
+      size="xs"
+      withCloseButton={false}
+      styles={{ body: { padding: 0 } }}
+    >
+      <Text
+        bg="primary.8"
+        c="white"
+        size="md"
+        fw="bold"
+        h={56}
+        px="md"
+        style={{ display: 'flex', alignItems: 'center' }}
+      >
+        {group.name}
+      </Text>
+
+      <UnstyledButton w="100%" onClick={() => onSelect(profilePagePath)}>
+        <MantineGroup p="md" px={24} gap="md">
           <UserAvatar user={user} size={40} />
-          <UserName>
+          <Text>
             {user.firstName} {user.lastName}
-          </UserName>
-        </UserInfo>
-      </ItemArea>
-      <ItemArea>
+          </Text>
+        </MantineGroup>
+      </UnstyledButton>
+
+      <Divider mx="md" />
+
+      <Box p={4} px={8}>
         {links?.map(l => (
-          <MenuLink key={l.label} {...l} onSelect={onSelect} />
+          <NavLink
+            key={l.label}
+            label={l.label}
+            leftSection={
+              l.icon ? <RenderIcon icon={l.icon} fontSize="small" color="action" /> : undefined
+            }
+            onClick={() => onSelect(l.path)}
+          />
         ))}
-        <MenuLink
+        <NavLink
           label="Päivitä"
-          showInHeader={false}
-          path="/"
-          onSelect={onReload}
-          icon="Refresh"
+          leftSection={<RenderIcon icon="Refresh" fontSize="small" color="action" />}
+          onClick={onReload}
         />
-      </ItemArea>
-      {links && links.length > 0 ? <Divider /> : null}
-      <ItemArea className="bottom">
-        <MenuInfo>
-          Kukkaro {config.version} ({config.revision})
-        </MenuInfo>
-        <MenuItem onClick={logout}>Kirjaudu ulos</MenuItem>
-      </ItemArea>
+      </Box>
+
+      <Divider mx="md" />
+
+      <MantineGroup p="10px 16px" gap={12}>
+        <Icons.Palette fontSize="small" />
+        <SegmentedControl
+          value={colorScheme}
+          onChange={v => setColorScheme(v as 'auto' | 'light' | 'dark')}
+          data={colorSchemeOptions}
+          size="sm"
+          style={{ flex: 1 }}
+        />
+      </MantineGroup>
+
+      <Divider mx="md" />
+
+      <Box px="md" py={8}>
+        <Button
+          variant="light"
+          color="red"
+          fullWidth
+          onClick={logout}
+          leftSection={<Icons.Logout fontSize="small" />}
+        >
+          Kirjaudu ulos
+        </Button>
+      </Box>
+
+      <Caption px={24} py={8}>
+        Kukkaro {config.version} ({config.revision})
+      </Caption>
     </Drawer>
   );
 };
 
-const GroupName = styled('div')`
-  padding: 16px 24px;
-  background-color: ${colorScheme.primary.standard};
-  font-weight: bold;
-  color: ${colorScheme.secondary.dark};
-`;
-
-const PaddedIcon = styled(RenderIcon)`
-  margin-right: 8px;
-`;
-
-const ItemArea = styled('div')`
-  margin: 4px 8px;
-
-  &.bottom {
-    margin-bottom: 16px;
-  }
-`;
-
-const UserInfo = styled('div')`
-  margin: 16px;
-  padding-bottom: 16px;
-  margin-bottom: 8px;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  display: flex;
-  border-bottom: 1px solid ${colorScheme.gray.standard};
-  cursor: pointer;
-`;
-
-const UserName = styled('span')`
-  padding-left: 16px;
-  font-size: 16px;
-`;
-
-const Divider = styled('div')`
-  border-bottom: 1px solid ${colorScheme.gray.standard};
-  flex: 1;
-  margin: 8px 24px;
-`;
-
-const MenuInfo = styled('div')`
-  font-size: 9pt;
-  padding: 2px 16px 8px 16px;
-`;
-
-export default connect(validSessionP.map(s => ({ user: s.user, group: s.group })))(MenuDrawer);
+export const MenuDrawer: React.FC<MenuDrawerProps> = props => {
+  const session = useBaconProperty(validSessionP);
+  return <MenuDrawerView {...props} user={session.user} group={session.group} />;
+};

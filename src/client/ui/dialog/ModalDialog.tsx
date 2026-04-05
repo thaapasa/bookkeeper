@@ -1,11 +1,11 @@
-import { Dialog, DialogProps, DialogTitle } from '@mui/material';
+import { Modal } from '@mantine/core';
 import * as React from 'react';
-
-import { KeyCodes } from 'client/util/Io';
 
 import { DialogConfig, DialogData } from './Dialog';
 
-type ModalDialogProps<T, D extends DialogData> = DialogConfig<T, D> & Omit<DialogProps, 'open'>;
+type ModalDialogProps<T, D extends DialogData> = DialogConfig<T, D> & {
+  fullWidth?: boolean;
+};
 
 export const ModalDialog: React.FC<ModalDialogProps<any, any>> = <T, D extends DialogData>({
   title,
@@ -13,19 +13,16 @@ export const ModalDialog: React.FC<ModalDialogProps<any, any>> = <T, D extends D
   resolve,
   enterResolution,
   rendererProps,
-  ...dialogProps
 }: ModalDialogProps<T, D>) => {
   const handleKeyPress = React.useCallback(
     (event: React.KeyboardEvent<any>) => {
-      const code = event.keyCode;
-      if (code === KeyCodes.enter) {
+      if (event.key === 'Enter') {
         if (enterResolution) {
           resolve(enterResolution);
         }
-      } else if (code === KeyCodes.escape) {
+      } else if (event.key === 'Escape') {
         resolve(undefined);
       }
-      return;
     },
     [resolve, enterResolution],
   );
@@ -35,20 +32,13 @@ export const ModalDialog: React.FC<ModalDialogProps<any, any>> = <T, D extends D
   const onCancel = React.useCallback(() => resolve(undefined), [resolve]);
 
   return (
-    <Dialog
-      title={title}
-      open={true}
-      onClose={() => onCancel}
-      onKeyUp={handleKeyPress}
-      {...dialogProps}
-    >
-      <DialogTitle>{title}</DialogTitle>
+    <Modal opened={true} onClose={onCancel} title={title} onKeyUp={handleKeyPress} size="lg">
       <ContentRenderer
         onSelect={resolve}
         onCancel={onCancel}
         handleKeyPress={handleKeyPress}
         {...rendererProps}
       />
-    </Dialog>
+    </Modal>
   );
 };

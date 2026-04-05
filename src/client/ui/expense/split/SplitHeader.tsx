@@ -1,27 +1,19 @@
-import { DialogTitle, Grid, Typography } from '@mui/material';
+import { Box, Group, Text } from '@mantine/core';
 import * as React from 'react';
 
 import { UserExpense } from 'shared/expense';
 import { Money } from 'shared/util';
 
-export const SplitHeader: React.FC<{ expense: UserExpense }> = ({ expense }) => {
-  return (
-    <DialogTitle>
-      <Grid container alignItems="flex-end" justifyContent="space-between" width="100%">
-        <Grid size={8}>
-          <Typography variant="h5" component="div">
-            {expense.title}
-          </Typography>
-        </Grid>
-        <Grid size="grow" container justifyContent="flex-end">
-          <Typography variant="h6" component="div" paddingLeft="16px">
-            {Money.from(expense.sum).format()}
-          </Typography>
-        </Grid>
-      </Grid>
-      <Typography color="text.secondary" variant="body2">
-        Pilko kirjaus osiin
-      </Typography>
-    </DialogTitle>
-  );
-};
+import { Caption } from '../../design/Text';
+
+export const SplitHeader: React.FC<{ expense: UserExpense }> = ({ expense }) => (
+  <Box pb="md">
+    <Group justify="space-between" align="flex-end" w="100%">
+      <Text fw={500}>{expense.title}</Text>
+      <Text fz="lg" fw={500} pl="md">
+        {Money.from(expense.sum).format()}
+      </Text>
+    </Group>
+    <Caption>Pilko kirjaus osiin</Caption>
+  </Box>
+);

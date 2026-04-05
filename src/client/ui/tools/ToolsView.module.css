@@ -1,0 +1,7 @@
+.grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--mantine-spacing-md);
+  padding: var(--mantine-spacing-md);
+  max-width: 800px;
+}

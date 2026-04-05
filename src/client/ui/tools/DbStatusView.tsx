@@ -1,3 +1,4 @@
+import { Code } from '@mantine/core';
 import * as React from 'react';
 
 import { DbStatus } from 'shared/types';
@@ -7,7 +8,6 @@ import { logger } from 'client/Logger';
 import { AsyncDataView } from '../component/AsyncDataView';
 import { NoteView } from '../general/NoteView';
 import { useDeferredData } from '../hooks/useAsyncData';
-import { Pre } from '../Styles';
 import { ToolButton } from './ToolButton';
 
 export const DbStatusView: React.FC = () => {
@@ -22,7 +22,7 @@ export const DbStatusView: React.FC = () => {
 
 const RawDataView: React.FC<{ data: DbStatus }> = ({ data }) => (
   <NoteView title="Tietokannan tila">
-    <Pre>{JSON.stringify(data, null, 2)}</Pre>
+    <Code block>{JSON.stringify(data, null, 2)}</Code>
   </NoteView>
 );
 

@@ -1,5 +1,4 @@
-import { styled } from '@mui/material';
-import * as B from 'baconjs';
+import { Box, Group, Table, Text } from '@mantine/core';
 import * as React from 'react';
 
 import { calculateTotals, UserExpense } from 'shared/expense';
@@ -8,30 +7,36 @@ import { Category } from 'shared/types';
 import { groupBy, noop, typedKeys } from 'shared/util';
 import { userDataP, UserDataProps } from 'client/data/Categories';
 
-import { gray, secondaryColors } from '../Colors';
-import { connect } from '../component/BaconConnect';
+import { SectionLabel } from '../design/Text';
 import { ExpenseRow } from '../expense/row/ExpenseRow';
 import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
-import { media } from '../Styles';
+import { useBaconProperty } from '../hooks/useBaconState';
+import styles from './ResultsView.module.css';
 import { TotalsView } from './TotalsView';
 
-interface ResultsProps {
+interface ResultsViewOwnProps {
   results: UserExpense[];
   onUpdate: () => void;
   onSelectCategory: (cat: Category) => void;
-  userData: UserDataProps;
 }
 
-const ResultsViewImpl: React.FC<ResultsProps> = ({ results, ...rest }) => {
+export const ResultsView: React.FC<ResultsViewOwnProps> = ({ results, ...rest }) => {
+  const userData = useBaconProperty(userDataP);
   const hasResults = results && results.length > 0;
   return (
-    <ResultsArea>
-      <Header>Hakutulokset</Header>
-      <ResultsContents results={results} {...rest} />
+    <Box className={styles.resultsArea}>
+      <Text c="primary.7" mx="lg" my="xs">
+        Hakutulokset
+      </Text>
+      <ResultsContents results={results} userData={userData} {...rest} />
       {hasResults ? <TotalsView results={results} /> : null}
-    </ResultsArea>
+    </Box>
   );
 };
+
+interface ResultsProps extends ResultsViewOwnProps {
+  userData: UserDataProps;
+}
 
 const ResultsContents: React.FC<ResultsProps> = ({ results, ...rest }) => {
   const resultsByYears: Record<string, UserExpense[]> | undefined =
@@ -40,7 +45,11 @@ const ResultsContents: React.FC<ResultsProps> = ({ results, ...rest }) => {
       : undefined;
 
   if (!resultsByYears) {
-    return <Info>Ei tuloksia, tarkista hakuehdot</Info>;
+    return (
+      <Text mx="lg" my="xs">
+        Ei tuloksia, tarkista hakuehdot
+      </Text>
+    );
   }
   const years = typedKeys(resultsByYears);
   return (
@@ -60,8 +69,8 @@ const ExpenseYear: React.FC<ResultsProps & { year: string }> = ({ results, year,
 );
 
 const ExpenseList: React.FC<ResultsProps> = ({ results, onUpdate, onSelectCategory, userData }) => (
-  <ExpenseTableLayout className="padding">
-    <tbody>
+  <ExpenseTableLayout padded>
+    <Table.Tbody>
       {results.map(e => (
         <ExpenseRow
           key={e.id}
@@ -72,79 +81,48 @@ const ExpenseList: React.FC<ResultsProps> = ({ results, onUpdate, onSelectCatego
           userData={userData}
         />
       ))}
-    </tbody>
+    </Table.Tbody>
   </ExpenseTableLayout>
 );
-
-export const ResultsView = connect(B.combineTemplate({ userData: userDataP }))(ResultsViewImpl);
 
 function YearHeader({ year, expenses }: { year: string; expenses: UserExpense[] }) {
   const totals = calculateTotals(expenses);
   return (
-    <YearHeaderRow>
-      <HeaderText>Vuosi {year}</HeaderText>
-      <SumColumn>
-        <SumLabel>Yhteensä</SumLabel>
-        <SumValue>{totals.total.format()}</SumValue>
-      </SumColumn>
-      <SumColumn>
-        <SumLabel>Tulot</SumLabel>
-        <SumValue>{totals.income.format()}</SumValue>
-      </SumColumn>
-      <SumColumn>
-        <SumLabel>Menot</SumLabel>
-        <SumValue>{totals.expense.format()}</SumValue>
-      </SumColumn>
-      <SumColumn>
-        <SumLabel>Siirrot</SumLabel>
-        <SumValue>{totals.transfer.format()}</SumValue>
-      </SumColumn>
-    </YearHeaderRow>
+    <Group
+      bg="neutral.1"
+      px="lg"
+      py="md"
+      w="100%"
+      wrap="nowrap"
+      style={{ boxSizing: 'border-box' }}
+    >
+      <Text c="primary.7" flex={1}>
+        Vuosi {year}
+      </Text>
+      <Group gap={0} ml="md" wrap="nowrap">
+        <SectionLabel component="span">Yhteensä</SectionLabel>
+        <Text component="span" c="primary.9" ml="xs">
+          {totals.total.format()}
+        </Text>
+      </Group>
+      <Group gap={0} ml="md" wrap="nowrap">
+        <SectionLabel component="span">Tulot</SectionLabel>
+        <Text component="span" c="primary.9" ml="xs">
+          {totals.income.format()}
+        </Text>
+      </Group>
+      <Group gap={0} ml="md" wrap="nowrap">
+        <SectionLabel component="span">Menot</SectionLabel>
+        <Text component="span" c="primary.9" ml="xs">
+          {totals.expense.format()}
+        </Text>
+      </Group>
+      <Group gap={0} ml="md" wrap="nowrap">
+        <SectionLabel component="span">Siirrot</SectionLabel>
+        <Text component="span" c="primary.9" ml="xs">
+          {totals.transfer.format()}
+        </Text>
+      </Group>
+    </Group>
   );
 }
-
-const ResultsArea = styled('div')`
-  ${media.web`
-    overflow-y: scroll;
-  `}
-`;
-
-const Header = styled('div')`
-  color: ${secondaryColors.dark};
-  margin: 8px 24px;
-`;
-
-const YearHeaderRow = styled('div')`
-  padding: 16px 24px;
-  background-color: ${gray.light};
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  box-sizing: border-box;
-`;
-
-const HeaderText = styled('div')`
-  color: ${secondaryColors.dark};
-  font-size: 16px;
-  flex: 1;
-`;
-
-const SumColumn = styled('div')`
-  display: flex;
-  flex-direction: row;
-  margin-left: 16px;
-`;
-
-const SumLabel = styled('span')`
-  font-weight: bold;
-  color: ${secondaryColors.dark};
-`;
-
-const SumValue = styled('div')`
-  margin-left: 8px;
-  color: ${secondaryColors.text};
-`;
-
-const Info = styled('div')`
-  margin: 8px 24px;
-`;

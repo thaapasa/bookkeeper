@@ -1,134 +1,122 @@
-import styled from '@emotion/styled';
 import {
-  Autocomplete,
-  AutocompleteChangeReason,
-  AutocompleteInputChangeReason,
-  IconButton,
-  InputAdornment,
-  TextField,
-} from '@mui/material';
+  ActionIcon,
+  Autocomplete as MantineAutocomplete,
+  AutocompleteProps as MantineAutocompleteProps,
+  BoxProps,
+  MantineStyleProp,
+} from '@mantine/core';
 import React from 'react';
 
-import { spaced } from 'shared/util';
 import { logger } from 'client/Logger';
 
 import { Icons } from '../icons/Icons';
 
-export interface AutoCompleteProps<T> {
+export type AutoCompletePassthroughProps = {
   id?: string;
   value: string;
-  onChange: (value: string) => void;
-  suggestions: T[];
-  onUpdateSuggestions: (input: string) => void;
-  onSelectSuggestion: (suggestion: T) => void;
-  getSuggestionValue: (suggestion: T) => string;
   fullWidth?: boolean;
   placeholder?: string;
   autoFocus?: boolean;
-  style?: React.CSSProperties;
-  inputStyle?: React.CSSProperties;
   label?: string;
   errorText?: string;
-  autoHideErrorText?: boolean;
   onKeyUp?: (event: React.KeyboardEvent<any>) => void;
   onAdd?: () => void;
   className?: string;
   inputClassName?: string;
-}
+} & BoxProps &
+  Pick<MantineAutocompleteProps, 'leftSection' | 'rightSection'>;
+
+export type AutoCompleteProps<T> = {
+  /** Called when the user types. NOT called when a suggestion is selected. */
+  onChange: (value: string) => void;
+  suggestions: T[];
+  onUpdateSuggestions: (input: string) => void;
+  /**
+   * Called when the user selects a suggestion. onChange is suppressed for this
+   * interaction — the caller is responsible for updating the input value if desired
+   * (e.g., by calling onChange manually with a transformed value).
+   */
+  onSelectSuggestion: (suggestion: T) => void;
+  getSuggestionValue: (suggestion: T) => string;
+  inputStyle?: MantineStyleProp;
+  autoHideErrorText?: boolean;
+} & AutoCompletePassthroughProps;
 
 export const AutoComplete = <T,>({
   id,
-  value,
   suggestions,
   onSelectSuggestion,
   onChange,
   onUpdateSuggestions,
   getSuggestionValue,
-  fullWidth,
-  style,
-  inputStyle,
-  autoFocus,
-  placeholder,
-  label,
-  onKeyUp,
   errorText,
-  autoHideErrorText,
-  className,
-  inputClassName,
   onAdd,
+  // Destructure custom props so they don't get spread to the DOM
+  fullWidth: _fullWidth,
+  inputClassName: _inputClassName,
+  autoHideErrorText: _autoHideErrorText,
+  inputStyle: _inputStyle,
+  ...props
 }: AutoCompleteProps<T>): React.ReactElement => {
-  const onChangeHandler = React.useCallback(
-    (_event: React.SyntheticEvent, value: T | null, reason: AutocompleteChangeReason) => {
-      switch (reason) {
-        case 'selectOption':
-          if (value !== null) {
-            logger.info({ value }, 'Selected suggestion');
-            onSelectSuggestion(value);
-          }
-          return;
-      }
-    },
-    [onSelectSuggestion],
+  const suggestionMap = React.useMemo(() => {
+    const map = new Map<string, T>();
+    suggestions.forEach(s => map.set(getSuggestionValue(s), s));
+    return map;
+  }, [suggestions, getSuggestionValue]);
+
+  const data = React.useMemo(
+    () => suggestions.map(s => getSuggestionValue(s)),
+    [suggestions, getSuggestionValue],
   );
 
-  const onInputChangeHandler = React.useCallback(
-    (_event: React.SyntheticEvent, value: string, reason: AutocompleteInputChangeReason) => {
-      switch (reason) {
-        case 'input':
-          logger.info(`Input from textfield: ${value}`);
-          onChange(value);
-          onUpdateSuggestions(value);
-          return;
+  // Mantine's Autocomplete fires onOptionSubmit synchronously, then onChange with the
+  // raw suggestion text in the same interaction cycle. We suppress that follow-up
+  // onChange so callers get a clean separation: onSelectSuggestion for selection,
+  // onChange for typing only. The caller can update the input value from within
+  // onSelectSuggestion if needed.
+  const optionSubmittedRef = React.useRef(false);
+
+  const handleChange = React.useCallback(
+    (val: string) => {
+      if (optionSubmittedRef.current) {
+        optionSubmittedRef.current = false;
+        return;
       }
+      onChange(val);
+      onUpdateSuggestions(val);
     },
     [onChange, onUpdateSuggestions],
   );
 
-  const defaultErrorText = autoHideErrorText ? null : ' ';
-  const hasAdornments = !!onAdd;
+  const handleOptionSubmit = React.useCallback(
+    (val: string) => {
+      optionSubmittedRef.current = true;
+      const suggestion = suggestionMap.get(val);
+      if (suggestion) {
+        logger.info({ value: val }, 'Selected suggestion');
+        onSelectSuggestion(suggestion);
+      }
+    },
+    [suggestionMap, onSelectSuggestion],
+  );
 
   return (
-    <StyledAutocomplete
+    <MantineAutocomplete
       id={id}
-      className={className + (hasAdornments ? ' adorned' : '')}
-      inputValue={value}
-      renderInput={params => (
-        <TextField
-          {...params}
-          variant="standard"
-          spellCheck={false}
-          autoFocus={autoFocus}
-          label={label}
-          placeholder={placeholder}
-          error={Boolean(errorText)}
-          helperText={errorText || defaultErrorText}
-          className={spaced`${'autocomplete-input'} ${inputClassName}`}
-          onKeyUp={onKeyUp}
-          style={inputStyle}
-          InputProps={{
-            ...params.InputProps,
-            endAdornment: hasAdornments ? (
-              <InputAdornment position="end">
-                <IconButton onClick={onAdd}>
-                  <Icons.Add />
-                </IconButton>
-              </InputAdornment>
-            ) : undefined,
-          }}
-        />
-      )}
-      fullWidth={fullWidth}
-      options={suggestions}
-      onChange={onChangeHandler}
-      onInputChange={onInputChangeHandler}
-      getOptionLabel={getSuggestionValue}
-      style={style}
+      w="100%"
+      onChange={handleChange}
+      onOptionSubmit={handleOptionSubmit}
+      data={data}
+      error={errorText || undefined}
+      spellCheck={false}
+      rightSection={
+        onAdd ? (
+          <ActionIcon onClick={onAdd} size="sm">
+            <Icons.Add />
+          </ActionIcon>
+        ) : undefined
+      }
+      {...props}
     />
   );
 };
-
-const StyledAutocomplete = styled(Autocomplete)`
-  &.adorned .MuiAutocomplete-inputRoot {
-    padding-right: 0 !important;
-  }
-` as typeof Autocomplete;

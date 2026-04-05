@@ -1,0 +1,19 @@
+.imageArea {
+  width: 128px;
+  height: 128px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-image:
+    linear-gradient(45deg, var(--mantine-color-neutral-3) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--mantine-color-neutral-3) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--mantine-color-neutral-3) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--mantine-color-neutral-3) 75%);
+  background-size: 16px 16px;
+  background-position:
+    0 0,
+    0 8px,
+    8px -8px,
+    -8px 0px;
+}

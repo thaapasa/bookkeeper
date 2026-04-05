@@ -11,7 +11,7 @@ import { expensePagePath, expensesForMonthPath } from 'client/util/Links';
 
 import { useDeferredData } from '../hooks/useAsyncData';
 import { zeroStatus } from './ExpenseHelper';
-import ExpenseTable from './ExpenseTable';
+import { ExpenseTable } from './ExpenseTable';
 
 interface MonthViewProps {
   date: Date;
@@ -75,7 +75,6 @@ export const MonthView: React.FC<MonthViewProps> = ({ date }) => {
       onUpdateExpense={(id, data) =>
         expenses ? setExpenses(expenses.map(e => (e.id === id ? data : e))) : undefined
       }
-      dateBorder={true}
     />
   );
 };

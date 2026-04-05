@@ -1,31 +1,17 @@
-import styled from '@emotion/styled';
-import { Grid } from '@mui/material';
+import { Group, Text } from '@mantine/core';
 import React from 'react';
-
-import { Text } from '../design/Text';
 
 export const ProfileItem: React.FC<
   React.PropsWithChildren<{ title?: string; labelFor?: string }>
 > = ({ title, children, labelFor }) => (
   <>
-    <Grid size={3} alignSelf="center">
-      <Label htmlFor={labelFor}>{title}</Label>
-    </Grid>
-    <DataItemGrid size={9} alignSelf="center">
+    <Group align="center">
+      <Text component="label" htmlFor={labelFor}>
+        {title}
+      </Text>
+    </Group>
+    <Group align="center" gap="md">
       {children}
-    </DataItemGrid>
+    </Group>
   </>
 );
-
-const Label = Text.withComponent('label');
-
-const DataItemGrid = styled(Grid)`
-  & > div,
-  & > button {
-    margin-left: 16px;
-  }
-  & > div:first-of-type,
-  & > button:first-of-type {
-    margin-left: inherit !important;
-  }
-`;

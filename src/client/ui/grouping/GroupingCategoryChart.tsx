@@ -1,5 +1,4 @@
-import styled from '@emotion/styled';
-import * as B from 'baconjs';
+import { Group } from '@mantine/core';
 import * as React from 'react';
 import { Cell, Pie, PieChart, Tooltip } from 'recharts';
 
@@ -8,16 +7,9 @@ import { Money, MoneyLike } from 'shared/util';
 import { categoryMapP, getFullCategoryName } from 'client/data/Categories';
 
 import { getChartColor } from '../chart/ChartColors';
-import { formatMoney } from '../chart/Format';
-import { colorScheme } from '../Colors';
-import { connect } from '../component/BaconConnect';
-import { Row } from '../component/Row';
-import { Flex } from '../Styles';
-
-interface GroupingCategoryChartProps {
-  categoryMap: CategoryMap;
-  totals: ExpenseGroupingCategoryTotal[];
-}
+import { chartTooltipStyle, formatMoney } from '../chart/Format';
+import { useBaconProperty } from '../hooks/useBaconState';
+import styles from './GroupingCategoryChart.module.css';
 
 interface Data {
   name: string;
@@ -26,10 +18,17 @@ interface Data {
   color: string;
 }
 
-const GroupingCategoryChartImpl: React.FC<GroupingCategoryChartProps> = ({
-  totals,
-  categoryMap,
-}) => {
+export const GroupingCategoryChart: React.FC<{
+  totals: ExpenseGroupingCategoryTotal[];
+}> = ({ totals }) => {
+  const categoryMap = useBaconProperty(categoryMapP);
+  return <GroupingCategoryChartImpl totals={totals} categoryMap={categoryMap} />;
+};
+
+const GroupingCategoryChartImpl: React.FC<{
+  categoryMap: CategoryMap;
+  totals: ExpenseGroupingCategoryTotal[];
+}> = ({ totals, categoryMap }) => {
   const data: Data[] = React.useMemo(() => {
     const colors = createColorScheme(totals, categoryMap);
     const d = totals.map<Data>(t => ({
@@ -57,26 +56,27 @@ const GroupingCategoryChartImpl: React.FC<GroupingCategoryChartProps> = ({
   }, [totals, categoryMap]);
   if (totals.length < 1) return null;
   return (
-    <Row>
-      <Flex />
+    <Group justify="center">
       <PieChart width={168} height={168}>
         <Pie data={data} cy="50%" cx="50%" outerRadius={80} dataKey="value">
           {data.map((entry, index) => (
             <Cell key={`cell-${index}`} fill={entry.color} />
           ))}
         </Pie>
-        <Tooltip formatter={v => formatMoney(typeof v === 'number' ? v : 0)} />
+        <Tooltip
+          formatter={v => formatMoney(typeof v === 'number' ? v : 0)}
+          contentStyle={chartTooltipStyle}
+        />
       </PieChart>
       <CategoryTotalsTable data={data} />
-      <Flex />
-    </Row>
+    </Group>
   );
 };
 
 const CategoryTotalsTable: React.FC<{ data: Data[] }> = ({ data }) => {
   const total = data.reduce((p, n) => p.plus(n.value), Money.from(0));
   return (
-    <LegendTable>
+    <table className={styles.legendTable}>
       <tbody>
         {data.map((d, i) => (
           <tr key={i}>
@@ -89,23 +89,9 @@ const CategoryTotalsTable: React.FC<{ data: Data[] }> = ({ data }) => {
           <td>{total.format()}</td>
         </tr>
       </tbody>
-    </LegendTable>
+    </table>
   );
 };
-
-const LegendTable = styled('table')`
-  margin-left: 16px;
-  & td:last-child {
-    text-align: right;
-    padding-left: 32px;
-  }
-  & tr.total {
-    font-weight: bold;
-    td:first-of-type {
-      color: ${colorScheme.secondary.dark};
-    }
-  }
-`;
 
 function createColorScheme(
   totals: ExpenseGroupingCategoryTotal[],
@@ -131,12 +117,7 @@ function createColorScheme(
       colors[t.categoryId] = getChartColor(pIdx, parentCounters[parentId]);
     });
   } else {
-    // Only one main category
     totals.forEach((t, i) => (colors[t.categoryId] = getChartColor(i, 0)));
   }
   return colors;
 }
-
-export const GroupingCategoryChart = connect(B.combineTemplate({ categoryMap: categoryMapP }))(
-  GroupingCategoryChartImpl,
-);

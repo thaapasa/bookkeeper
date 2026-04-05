@@ -1,5 +1,4 @@
-import { Button, Dialog, DialogContent, DialogTitle, Grid, IconButton } from '@mui/material';
-import { styled } from '@mui/system';
+import { ActionIcon, Box, Button, Group, Modal } from '@mantine/core';
 import * as B from 'baconjs';
 import * as React from 'react';
 
@@ -8,15 +7,13 @@ import { ObjectId } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
 
 import { AsyncDataDialogContent } from '../component/AsyncDataDialog';
-import { connectDialog } from '../component/DialogConnector';
-import { Row } from '../component/Row';
 import { TextEdit } from '../component/TextEdit';
-import { UploadImageButton } from '../component/UploadFileButton';
-import { Subtitle } from '../design/Text';
+import { UploadImageButton } from '../component/UploadImageButton';
+import { DialogHeading, Subtitle } from '../design/Text';
+import { connectDialog } from '../dialog/DialogConnector';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useForceReload } from '../hooks/useForceReload';
 import { Icons } from '../icons/Icons';
-import { Flex } from '../Styles';
 import { useShortcutState } from './ShortcutEditorState';
 import { ShortcutLink } from './ShortcutLink';
 
@@ -33,14 +30,14 @@ const ShortcutDialogImpl: React.FC<{ shortcutId: ObjectId; onClose: () => void }
   const { counter, forceReload } = useForceReload();
   const data = useAsyncData(getShortcut, true, shortcutId, counter);
   return (
-    <Dialog fullWidth={true} open={true} onClose={onClose}>
+    <Modal opened={true} onClose={onClose} size="lg" title="">
       <AsyncDataDialogContent
         data={data}
         renderer={ShortcutEditView}
         onClose={onClose}
         reloadData={forceReload}
       />
-    </Dialog>
+    </Modal>
   );
 };
 
@@ -59,71 +56,67 @@ const ShortcutEditView: React.FC<{
 
   return (
     <>
-      <DialogTitle>Muokkaa linkkiä</DialogTitle>
-      <DialogContent>
-        <Grid container rowSpacing={1} justifyContent="space-between">
-          <Grid size={4}>Nimi</Grid>
-          <Grid size={8}>
-            <TextEdit value={state.title} onChange={state.setTitle} fullWidth />
-          </Grid>
-          <Grid size={4}>Taustaväri</Grid>
-          <Grid size={8}>
-            <TextEdit value={state.background} onChange={state.setBackground} width="80px" />
-          </Grid>
-          <Grid size={4}>Linkin kuva</Grid>
-          <Grid size={8}>
-            <Row>
-              <ShortcutIcon title={state.title} icon={data.icon} background={state.background} />
-              <Flex />
-              <TextEdit
-                value={state.margin}
-                onChange={state.setMargin}
-                width="40px"
-                label="Reuna"
-              />
-              <UploadImageButton
-                onSelect={(file, filename) =>
-                  state.uploadShortcutIcon(file, filename).then(reloadData)
-                }
-                title="Lataa kuva"
-              >
-                <Icons.Upload />
-              </UploadImageButton>
-              <IconButton onClick={state.removeIcon} title="Poista kuva">
-                <Icons.Delete />
-              </IconButton>
-            </Row>
-          </Grid>
-          <Grid size={12}>
-            <Subtitle>Linkin data</Subtitle>
-          </Grid>
-          <Grid size={12}>
-            <TextEdit value={state.expenseStr} onChange={state.setExpense} multiline fullWidth />
-          </Grid>
-          <Grid size="auto">
-            <Button color="inherit" onClick={onClose}>
-              Peruuta
-            </Button>
-          </Grid>
-          <Grid size="auto">
-            <Button
-              color="primary"
-              variant="contained"
-              disabled={!state.inputValid()}
-              onClick={() => state.saveShortcut(onClose)}
-            >
-              Tallenna
-            </Button>
-          </Grid>
-        </Grid>
-      </DialogContent>
+      <DialogHeading>Muokkaa linkkiä</DialogHeading>
+      <Box
+        display="grid"
+        style={{
+          gridTemplateColumns: 'auto 1fr',
+          gap: 'var(--mantine-spacing-xs)',
+          alignItems: 'center',
+        }}
+      >
+        <Box>Nimi</Box>
+        <Box>
+          <TextEdit value={state.title} onChange={state.setTitle} />
+        </Box>
+        <Box>Taustaväri</Box>
+        <Box>
+          <TextEdit value={state.background} onChange={state.setBackground} width="80px" />
+        </Box>
+        <Box>Linkin kuva</Box>
+        <Group gap="xs" wrap="nowrap">
+          <ShortcutLink
+            title={state.title}
+            icon={data.icon}
+            background={state.background}
+            style={{ margin: 0, marginRight: 4 }}
+          />
+          <Box flex={1} />
+          <TextEdit value={state.margin} onChange={state.setMargin} width="40px" label="Reuna" />
+          <UploadImageButton
+            onSelect={(file, filename) => state.uploadShortcutIcon(file, filename).then(reloadData)}
+            title="Lataa kuva"
+          >
+            <Icons.Upload />
+          </UploadImageButton>
+          <ActionIcon onClick={state.removeIcon} title="Poista kuva">
+            <Icons.Delete />
+          </ActionIcon>
+        </Group>
+        <Box style={{ gridColumn: '1 / -1' }}>
+          <Subtitle>Linkin data</Subtitle>
+        </Box>
+        <Box style={{ gridColumn: '1 / -1' }}>
+          <TextEdit value={state.expenseStr} onChange={state.setExpense} />
+        </Box>
+
+        <Box>
+          <Button variant="subtle" onClick={onClose}>
+            Peruuta
+          </Button>
+        </Box>
+        <Box ta="right">
+          <Button
+            variant="filled"
+            disabled={!state.inputValid()}
+            onClick={() => state.saveShortcut(onClose)}
+          >
+            Tallenna
+          </Button>
+        </Box>
+      </Box>
     </>
   );
 };
-
-const ShortcutIcon = styled(ShortcutLink)`
-  margin: 0;
-  margin-right: 4px;
-`;
 
 export const ShortcutEditor = connectDialog(shortcutBus, ShortcutDialogImpl);

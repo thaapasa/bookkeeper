@@ -1,9 +1,9 @@
-import { Button, DialogActions, DialogContent, styled } from '@mui/material';
+import { Box, Button, Group } from '@mantine/core';
 import * as React from 'react';
 
 import { CategorySelection, ObjectId } from 'shared/types';
 
-import { CategorySelector } from '../component/CategorySelector';
+import { CategorySelector } from '../category/CategorySelector';
 import { CategoryPromptDialogData, DialogContentRendererProps } from './Dialog';
 
 type CategoryPromptDialogProps = DialogContentRendererProps<ObjectId> & CategoryPromptDialogData;
@@ -21,19 +21,15 @@ export const CategoryPromptDialogContents: React.FC<CategoryPromptDialogProps> =
   };
   return (
     <>
-      <DialogContent onKeyUp={handleKeyPress}>
-        <Description>{description}</Description>
+      <Box onKeyUp={handleKeyPress}>
+        <Box mb="xs">{description}</Box>
         <CategorySelector addCategories={selectCat} />
-      </DialogContent>
-      <DialogActions>
-        <Button color="primary" variant="text" onKeyUp={handleKeyPress} onClick={() => onCancel()}>
+      </Box>
+      <Group justify="flex-end" pt="md">
+        <Button variant="subtle" onKeyUp={handleKeyPress} onClick={() => onCancel()}>
           Peruuta
         </Button>
-      </DialogActions>
+      </Group>
     </>
   );
 };
-
-const Description = styled('div')`
-  margin-bottom: 8px;
-`;
