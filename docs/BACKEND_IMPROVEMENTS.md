@@ -81,21 +81,9 @@ export const DeleteCategoryResponse = ApiMessage.extend({
 
 ## Low Priority
 
-### 6. Manual Parameter Parsing in Legacy Endpoints
+### ~~6. Manual Parameter Parsing in Legacy Endpoints~~ ✅ Done
 
-**Location**: `src/server/api/Api.ts` lines 59-72
-
-**Problem**: Some endpoints manually parse parameters instead of using `createValidatingRouter`:
-
-```typescript
-Requests.txRequest(
-  (tx, session, req): Promise<User> =>
-    getUserById(tx, session.group.id, parseInt(String(req.params.id), 10)),
-  true,
-);
-```
-
-**Solution**: Migrate these endpoints to use `createValidatingRouter` for consistency.
+Migrated `/user/list`, `/user/:id`, and `/admin/status` endpoints in `Api.ts` to use `createValidatingRouter` with automatic parameter parsing.
 
 ---
 

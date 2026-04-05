@@ -6,6 +6,7 @@ import { getAllUsers, getUserById } from 'server/data/UserDb';
 import { logger } from 'server/Logger';
 import { createErrorHandler } from 'server/server/ErrorHandler';
 import { Requests } from 'server/server/RequestHandling';
+import { createValidatingRouter } from 'server/server/ValidatingRouter';
 
 import { config } from '../Config';
 import { getDbStatus } from '../data/admin/Admin';
@@ -24,7 +25,8 @@ import { createTrackingApi } from './TrackingApi';
 export function createApi() {
   logger.info('Registering API');
 
-  const api = Router();
+  const vApi = createValidatingRouter(Router());
+  const api = vApi.router;
 
   // Attach subrouters
   api.use('/session', createSessionApi());
@@ -56,25 +58,24 @@ export function createApi() {
   );
 
   // GET /api/user/list
-  api.get(
+  vApi.getTx(
     '/user/list',
-    Requests.txRequest((tx, session): Promise<User[]> => getAllUsers(tx, session.group.id), true),
+    { groupRequired: true },
+    (tx, session): Promise<User[]> => getAllUsers(tx, session.group.id),
   );
 
   // GET /api/user/[userid]
-  api.get(
+  vApi.getTx(
     '/user/:id',
-    Requests.txRequest(
-      (tx, session, req): Promise<User> =>
-        getUserById(tx, session.group.id, parseInt(String(req.params.id), 10)),
-      true,
-    ),
+    { groupRequired: true },
+    (tx, session, { params }): Promise<User> => getUserById(tx, session.group.id, params.id),
   );
 
   // GET /api/admin/status
-  api.get(
+  vApi.getTx(
     '/admin/status',
-    Requests.txRequest<DbStatus>((tx, session) => getDbStatus(tx, session.group.id), true),
+    { groupRequired: true },
+    (tx, session): Promise<DbStatus> => getDbStatus(tx, session.group.id),
   );
 
   // Return 404 for non-matched /api paths
