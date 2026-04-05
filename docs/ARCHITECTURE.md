@@ -113,7 +113,7 @@ Database operations use **pg-promise** with transaction support:
 ```typescript
 // In src/server/data/*.ts
 export async function getExpenseById(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: number,
   userId: number,
   expenseId: number,
@@ -130,7 +130,7 @@ export async function getExpenseById(
 }
 ```
 
-- All DB functions receive a transaction object (`tx: ITask<any>`)
+- All DB functions receive a transaction object (`tx: DbTask` from `server/data/Db`)
 - Use parameterized queries with `$/paramName/` syntax
 - Map functions transform DB rows to typed objects
 

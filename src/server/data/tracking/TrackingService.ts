@@ -1,5 +1,3 @@
-import { ITask } from 'pg-promise';
-
 import {
   NotFoundError,
   ObjectId,
@@ -8,6 +6,7 @@ import {
   TrackingSubjectWithData,
 } from 'shared/types';
 import { trackingImageHandler } from 'server/content/TrackingImage';
+import { DbTask } from 'server/data/Db.ts';
 import { logger } from 'server/Logger';
 import { FileUploadResult, safeDeleteFile } from 'server/server/FileHandling';
 
@@ -23,7 +22,7 @@ import {
 import { getTrackingStatistics } from './TrackingStatisticsDb';
 
 export async function getTrackingSubject(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   subjectId: ObjectId,
@@ -36,7 +35,7 @@ export async function getTrackingSubject(
 }
 
 export async function createTrackingSubject(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   input: TrackingSubjectData,
@@ -46,7 +45,7 @@ export async function createTrackingSubject(
 }
 
 export async function getTrackingSubjectsWithData(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
 ): Promise<TrackingSubjectWithData[]> {
@@ -60,7 +59,7 @@ export async function getTrackingSubjectsWithData(
 }
 
 export async function updateTrackingSubject(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   subjectId: ObjectId,
@@ -72,7 +71,7 @@ export async function updateTrackingSubject(
 }
 
 export async function deleteTrackingSubject(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   subjectId: ObjectId,
@@ -83,7 +82,7 @@ export async function deleteTrackingSubject(
 }
 
 export async function changeTrackingSubjectColor(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   subjectId: ObjectId,
@@ -100,7 +99,7 @@ export async function changeTrackingSubjectColor(
 }
 
 export async function uploadTrackingImage(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   subjectId: ObjectId,
@@ -120,7 +119,7 @@ export async function uploadTrackingImage(
 }
 
 export async function deleteTrackingImage(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   subjectId: ObjectId,

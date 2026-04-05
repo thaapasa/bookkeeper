@@ -1,8 +1,7 @@
-import { ITask } from 'pg-promise';
-
 import { BkError, InvalidInputError, ObjectId } from 'shared/types';
 import { PasswordUpdate, UserDataUpdate } from 'shared/userData';
 import { profileImageHandler } from 'server/content/ProfileImage';
+import { DbTask } from 'server/data/Db.ts';
 import { logger } from 'server/Logger';
 import { FileUploadResult, safeDeleteFile } from 'server/server/FileHandling';
 
@@ -17,7 +16,7 @@ import {
 } from './UserDb';
 
 export async function updateUserData(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   userData: UserDataUpdate,
@@ -35,7 +34,7 @@ export async function updateUserData(
 }
 
 export async function changeUserPassword(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   passwordUpdate: PasswordUpdate,
@@ -51,7 +50,7 @@ export async function changeUserPassword(
 }
 
 export async function uploadProfileImage(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   image: FileUploadResult,
@@ -69,7 +68,7 @@ export async function uploadProfileImage(
   }
 }
 
-export async function deleteProfileImage(tx: ITask<any>, groupId: ObjectId, userId: ObjectId) {
+export async function deleteProfileImage(tx: DbTask, groupId: ObjectId, userId: ObjectId) {
   const user = await getUserById(tx, groupId, userId);
   if (!user.image) {
     logger.info(`No profile image for user, skipping delete`);

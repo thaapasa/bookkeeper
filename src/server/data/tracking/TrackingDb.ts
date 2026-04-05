@@ -1,15 +1,10 @@
-import { ITask } from 'pg-promise';
-
 import { ObjectId, TrackingSubject, TrackingSubjectData } from 'shared/types';
 import { trackingImageHandler } from 'server/content/TrackingImage';
+import { DbTask } from 'server/data/Db.ts';
 
 const TRACKING_FIELDS = /*sql*/ `id, title, created, updated, image, tracking_data`;
 
-export async function getTrackingSubjectsForUser(
-  tx: ITask<any>,
-  groupId: ObjectId,
-  userId: ObjectId,
-) {
+export async function getTrackingSubjectsForUser(tx: DbTask, groupId: ObjectId, userId: ObjectId) {
   const rows = await tx.manyOrNone(
     `SELECT ${TRACKING_FIELDS} FROM tracked_subjects
       WHERE group_id=$/groupId/ AND user_id=$/userId/
@@ -20,7 +15,7 @@ export async function getTrackingSubjectsForUser(
 }
 
 export async function getTrackingSubjectById(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   subjectId: ObjectId,
@@ -34,7 +29,7 @@ export async function getTrackingSubjectById(
 }
 
 export async function insertTrackingSubject(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   data: TrackingSubjectData,
@@ -51,7 +46,7 @@ export async function insertTrackingSubject(
 }
 
 export async function updateTrackingSubjectById(
-  tx: ITask<any>,
+  tx: DbTask,
   subjectId: ObjectId,
   data: TrackingSubjectData,
 ): Promise<TrackingSubject> {
@@ -65,10 +60,7 @@ export async function updateTrackingSubjectById(
   return toTrackingSubject(c);
 }
 
-export async function deleteTrackingSubjectById(
-  tx: ITask<any>,
-  subjectId: ObjectId,
-): Promise<void> {
+export async function deleteTrackingSubjectById(tx: DbTask, subjectId: ObjectId): Promise<void> {
   await tx.none(
     `DELETE FROM tracked_subjects
       WHERE id=$/subjectId/`,
@@ -77,7 +69,7 @@ export async function deleteTrackingSubjectById(
 }
 
 export async function setTrackingImageById(
-  tx: ITask<any>,
+  tx: DbTask,
   subjectId: ObjectId,
   image: string,
 ): Promise<void> {
@@ -89,7 +81,7 @@ export async function setTrackingImageById(
   );
 }
 
-export async function clearTrackingImageById(tx: ITask<any>, subjectId: ObjectId): Promise<void> {
+export async function clearTrackingImageById(tx: DbTask, subjectId: ObjectId): Promise<void> {
   await tx.none(
     `UPDATE tracked_subjects
       SET image=NULL

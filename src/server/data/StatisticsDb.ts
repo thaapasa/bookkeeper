@@ -1,5 +1,3 @@
-import { ITask } from 'pg-promise';
-
 import { DateRange } from 'shared/time';
 import {
   CategorySelection,
@@ -8,10 +6,11 @@ import {
   ObjectId,
 } from 'shared/types';
 import { groupBy, partition } from 'shared/util';
+import { DbTask } from 'server/data/Db.ts';
 import { logger } from 'server/Logger';
 
 async function loadCategoryStatisticsData(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   /** Both start and end dates are included in search */
   rangeInclusive: DateRange,
@@ -50,7 +49,7 @@ async function loadCategoryStatisticsData(
 }
 
 async function loadCategoryStatisticsDataGroupedByParent(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   /** Both start and end dates are included in search */
   rangeInclusive: DateRange,
@@ -92,7 +91,7 @@ async function loadCategoryStatisticsDataGroupedByParent(
 }
 
 export async function getCategoryStatistics(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   categoryIds: CategorySelection[],

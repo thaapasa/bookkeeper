@@ -24,46 +24,17 @@ api.postTx('/', { body: CategoryInput, response: ApiMessage }, ...);
 
 ---
 
-### 2. Dead Code in Category Operations
+### ~~2. Dead Code in Category Operations~~ ✅ Done
 
-**Location**: `src/server/data/CategoryDb.ts`
-
-**Problem**: In `createCategory` (lines 118-122) and `deleteCategory` (lines 134-137), there are unreachable null checks after calling `getCategoryById`, which already throws `NotFoundError` if not found.
-
-**Solution**: Remove the redundant null checks:
-
-```typescript
-// Before
-const parent = await getCategoryById(tx, groupId, data.parentId);
-if (!parent) {
-  // This is never true
-  throw new NotFoundError('CATEGORY_NOT_FOUND', 'category');
-}
-
-// After
-const parent = await getCategoryById(tx, groupId, data.parentId);
-// getCategoryById throws if not found, so we can proceed directly
-```
+Removed unreachable null checks after `getCategoryById` in `createCategory`, `deleteCategory`, and `updateCategory`.
 
 ---
 
 ## Medium Priority
 
-### 3. `ITask<any>` Loses Type Safety
+### ~~3. `ITask<any>` Loses Type Safety~~ ✅ Done
 
-**Location**: All database files in `src/server/data/`
-
-**Problem**: All 150+ usages of `ITask<any>` defeat TypeScript's type checking.
-
-**Solution**: Define a typed database context:
-
-```typescript
-// In src/server/data/Db.ts
-export type DbTask = ITask<{}>;
-
-// Then use throughout
-export async function getAllCategories(tx: DbTask, groupId: number): Promise<Category[]>;
-```
+Defined `DbTask = ITask<object>` in `src/server/data/Db.ts` and replaced all `ITask<any>` usages.
 
 ---
 

@@ -1,7 +1,6 @@
-import { ITask } from 'pg-promise';
-
 import { Expense, ExpenseDivisionItem, ExpenseInput } from 'shared/expense';
 import { ApiMessage, ObjectId } from 'shared/types';
+import { DbTask } from 'server/data/Db.ts';
 import { logger } from 'server/Logger';
 
 import {
@@ -17,7 +16,7 @@ import { getSourceById } from './SourceDb';
 import { getUserById } from './UserDb';
 
 export async function createExpense(
-  tx: ITask<any>,
+  tx: DbTask,
   userId: number,
   groupId: number,
   expenseInput: ExpenseInput,
@@ -51,7 +50,7 @@ export async function createExpense(
 }
 
 export async function updateExpenseById(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: number,
   userId: number,
   expenseId: number,
@@ -63,7 +62,7 @@ export async function updateExpenseById(
 }
 
 export async function copyExpense(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: number,
   userId: number,
   expenseId: number,
@@ -75,7 +74,7 @@ export async function copyExpense(
 }
 
 export const getExpenseAndDivisionData = (
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: number,
   userId: number,
   expenseId: number,
@@ -83,7 +82,7 @@ export const getExpenseAndDivisionData = (
   Promise.all([getExpenseById(tx, groupId, userId, expenseId), getExpenseDivision(tx, expenseId)]);
 
 export async function getExpenseWithDivision(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   expenseId: ObjectId,

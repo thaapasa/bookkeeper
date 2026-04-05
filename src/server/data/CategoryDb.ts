@@ -1,5 +1,3 @@
-import { ITask } from 'pg-promise';
-
 import {
   ApiMessage,
   Category,
@@ -10,6 +8,7 @@ import {
   ObjectId,
 } from 'shared/types';
 import { Money, partition, toMap } from 'shared/util';
+import { DbTask } from 'server/data/Db.ts';
 import { logger } from 'server/Logger';
 
 const CATEGORY_FIELDS = /*sql*/ `c.id, c.parent_id AS "parentId", c.name, p.name AS "parentName"`;
@@ -21,7 +20,7 @@ interface CategoryRow {
   parentName: string | null;
 }
 
-export async function getAllCategories(tx: ITask<any>, groupId: number): Promise<Category[]> {
+export async function getAllCategories(tx: DbTask, groupId: number): Promise<Category[]> {
   const cats = await tx.manyOrNone<CategoryRow>(
     `SELECT ${CATEGORY_FIELDS}
       FROM categories c
@@ -40,7 +39,7 @@ export interface CategoryQueryInput {
 }
 
 export async function getCategoryTotals(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: number,
   params: CategoryQueryInput,
 ): Promise<CategoryAndTotals[]> {
@@ -59,7 +58,7 @@ export async function getCategoryTotals(
   const categories = createCategoryObject(cats as CategoryAndTotals[]);
   return sumChildTotalsToParent(categories);
 }
-async function insert(tx: ITask<any>, groupId: number, data: CategoryInput): Promise<number> {
+async function insert(tx: DbTask, groupId: number, data: CategoryInput): Promise<number> {
   logger.debug(data, 'Creating new category');
   return (
     await tx.one<{ id: number }>(
@@ -72,7 +71,7 @@ async function insert(tx: ITask<any>, groupId: number, data: CategoryInput): Pro
 }
 
 export async function getCategoryById(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: number,
   categoryId: number,
 ): Promise<Category> {
@@ -90,7 +89,7 @@ export async function getCategoryById(
 }
 
 export async function getCategoriesById(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: number,
   ...categoryIds: number[]
 ): Promise<Category[]> {
@@ -108,7 +107,7 @@ export async function getCategoriesById(
 }
 
 export async function createCategory(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: number,
   data: CategoryInput,
 ): Promise<number> {
@@ -117,9 +116,6 @@ export async function createCategory(
   }
   const parent = await getCategoryById(tx, groupId, data.parentId);
   logger.debug(parent, 'Parent is');
-  if (!parent) {
-    throw new NotFoundError('CATEGORY_NOT_FOUND', 'category');
-  }
   if (parent.parentId !== null && parent.parentId > 0) {
     throw new InvalidInputError('INVALID_PARENT', 'Sub-category cannot be parent');
   }
@@ -127,15 +123,11 @@ export async function createCategory(
 }
 
 export async function deleteCategory(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: number,
   categoryId: number,
 ): Promise<ApiMessage> {
   const category = await getCategoryById(tx, groupId, categoryId);
-  if (!category) {
-    throw new NotFoundError('CATEGORY_NOT_FOUND', 'category', categoryId);
-  }
-
   await tx.one(
     `DELETE FROM categories
       WHERE id=$/categoryId/ AND group_id=$/groupId/
@@ -147,15 +139,12 @@ export async function deleteCategory(
 }
 
 export async function updateCategory(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: number,
   categoryId: number,
   data: CategoryInput,
 ): Promise<Category> {
-  const original = await getCategoryById(tx, groupId, categoryId);
-  if (!original) {
-    throw new NotFoundError('CATEGORY_NOT_FOUND', 'category', categoryId);
-  }
+  await getCategoryById(tx, groupId, categoryId);
   logger.info({ data }, `Updating category ${categoryId}`);
   await tx.none(
     `UPDATE categories
@@ -171,11 +160,7 @@ export async function updateCategory(
   return getCategoryById(tx, groupId, categoryId);
 }
 
-export async function expandSubCategories(
-  tx: ITask<any>,
-  groupId: number,
-  inputCategoryIds: number[],
-) {
+export async function expandSubCategories(tx: DbTask, groupId: number, inputCategoryIds: number[]) {
   if (inputCategoryIds.length < 1) {
     return [];
   }

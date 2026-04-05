@@ -1,7 +1,6 @@
 import { DateTime } from 'luxon';
 
 type DateTimeInput = DateTime | string;
-import { ITask } from 'pg-promise';
 
 import {
   Expense,
@@ -15,6 +14,7 @@ import {
 import { DateLike, toISODate } from 'shared/time';
 import { ApiMessage, isDefined, NotFoundError, ObjectId } from 'shared/types';
 import { Money, MoneyLike } from 'shared/util';
+import { DbTask } from 'server/data/Db.ts';
 import { logger } from 'server/Logger';
 
 import { getCategoryById } from './CategoryDb';
@@ -126,7 +126,7 @@ export function dbRowToExpense(e: UserExpense): UserExpense {
 }
 
 export async function getAllExpenses(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: number,
   userId: number,
 ): Promise<Expense[]> {
@@ -139,7 +139,7 @@ export async function getAllExpenses(
 }
 
 export async function countTotalBetween(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: number,
   userId: number,
   startDate: DateTimeInput,
@@ -154,7 +154,7 @@ export async function countTotalBetween(
 }
 
 export async function hasUnconfirmedBefore(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: number,
   startDate: DateLike,
 ): Promise<boolean> {
@@ -168,7 +168,7 @@ export async function hasUnconfirmedBefore(
 }
 
 export async function getExpenseById(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: number,
   userId: number,
   expenseId: number,
@@ -185,7 +185,7 @@ export async function getExpenseById(
 }
 
 export async function deleteExpenseById(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: number,
   expenseId: number,
 ): Promise<ApiMessage> {
@@ -197,7 +197,7 @@ export async function deleteExpenseById(
 }
 
 export const storeExpenseDivision = (
-  tx: ITask<any>,
+  tx: DbTask,
   expenseId: number,
   userId: number,
   type: ExpenseDivisionType,
@@ -211,7 +211,7 @@ export const storeExpenseDivision = (
     { expenseId, userId, type, sum: Money.toString(sum) },
   );
 
-const deleteDivision = (tx: ITask<any>, expenseId: number): Promise<null> =>
+const deleteDivision = (tx: DbTask, expenseId: number): Promise<null> =>
   tx.none(
     `DELETE FROM expense_division
       WHERE expense_id=$/expenseId/::INTEGER`,
@@ -219,7 +219,7 @@ const deleteDivision = (tx: ITask<any>, expenseId: number): Promise<null> =>
   );
 
 export async function getExpenseDivision(
-  tx: ITask<any>,
+  tx: DbTask,
   expenseId: number,
 ): Promise<ExpenseDivisionItem[]> {
   const items = await tx.manyOrNone<ExpenseDivisionItem>(
@@ -232,7 +232,7 @@ export async function getExpenseDivision(
   return items;
 }
 
-async function createDivision(tx: ITask<any>, expenseId: number, division: ExpenseDivisionItem[]) {
+async function createDivision(tx: DbTask, expenseId: number, division: ExpenseDivisionItem[]) {
   await Promise.all(
     division.map(d => storeExpenseDivision(tx, expenseId, d.userId, d.type, d.sum)),
   );
@@ -258,7 +258,7 @@ export type ExpenseInsert = Omit<
 };
 
 export async function createNewExpense(
-  tx: ITask<any>,
+  tx: DbTask,
   userId: number,
   expense: ExpenseInsert,
   division: ExpenseDivisionItem[],
@@ -290,7 +290,7 @@ export async function createNewExpense(
 }
 
 export async function updateExpense(
-  tx: ITask<any>,
+  tx: DbTask,
   original: Expense,
   expenseInput: ExpenseInput,
   defaultSourceId: number,
@@ -329,7 +329,7 @@ interface ReceiverInfo {
 }
 
 export function queryReceivers(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: number,
   receiver: string,
 ): Promise<ReceiverInfo[]> {
@@ -343,7 +343,7 @@ export function queryReceivers(
 }
 
 export async function renameReceiver(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: number,
   oldName: string,
   newName: string,
@@ -359,7 +359,7 @@ export async function renameReceiver(
 }
 
 async function getRecurrenceOccurence(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   recurringExpenseId: ObjectId,
@@ -377,14 +377,14 @@ async function getRecurrenceOccurence(
 }
 
 export const getFirstRecurrence = (
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   recurringExpenseId: ObjectId,
 ) => getRecurrenceOccurence(tx, groupId, userId, recurringExpenseId, true);
 
 export const getLastRecurrence = (
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   recurringExpenseId: ObjectId,

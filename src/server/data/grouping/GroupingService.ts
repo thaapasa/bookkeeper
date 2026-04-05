@@ -1,5 +1,3 @@
-import { ITask } from 'pg-promise';
-
 import {
   ExpenseGrouping,
   ExpenseGroupingData,
@@ -8,6 +6,7 @@ import {
   ObjectId,
 } from 'shared/types';
 import { groupingImageHandler } from 'server/content/GroupingImage';
+import { DbTask } from 'server/data/Db.ts';
 import { logger } from 'server/Logger';
 import { FileUploadResult, safeDeleteFile } from 'server/server/FileHandling';
 
@@ -23,7 +22,7 @@ import {
 } from './GroupingDb';
 
 export async function getExpenseGrouping(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   groupingId: ObjectId,
@@ -36,7 +35,7 @@ export async function getExpenseGrouping(
 }
 
 export async function createExpenseGrouping(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   input: ExpenseGroupingData,
@@ -46,7 +45,7 @@ export async function createExpenseGrouping(
 }
 
 export async function updateExpenseGrouping(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   groupingId: ObjectId,
@@ -58,7 +57,7 @@ export async function updateExpenseGrouping(
 }
 
 export async function deleteExpenseGrouping(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   groupingId: ObjectId,
@@ -72,7 +71,7 @@ export async function deleteExpenseGrouping(
 }
 
 export async function uploadExpenseGroupingImage(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   groupingId: ObjectId,
@@ -95,7 +94,7 @@ export async function uploadExpenseGroupingImage(
 }
 
 export async function deleteExpenseGroupingImage(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   groupingId: ObjectId,
@@ -111,7 +110,7 @@ export async function deleteExpenseGroupingImage(
 }
 
 export async function getGroupingWithExpenses(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   groupingId: ObjectId,

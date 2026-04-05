@@ -1,8 +1,7 @@
-import { ITask } from 'pg-promise';
-
 import { Expense, ExpenseSplit } from 'shared/expense';
 import { BkError } from 'shared/types';
 import { Money } from 'shared/util';
+import { DbTask } from 'server/data/Db.ts';
 import { logger } from 'server/Logger';
 
 import { deleteExpenseById, getExpenseById } from './BasicExpenseDb';
@@ -10,7 +9,7 @@ import { createExpense } from './BasicExpenseService';
 import { toBaseExpense } from './ExpenseUtils';
 
 export async function splitExpense(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: number,
   userId: number,
   expenseId: number,
@@ -27,7 +26,7 @@ export async function splitExpense(
   };
 }
 
-async function createSplit(tx: ITask<any>, expense: Expense, split: ExpenseSplit) {
+async function createSplit(tx: DbTask, expense: Expense, split: ExpenseSplit) {
   const splitted = { ...expense, ...split };
   logger.debug(splitted, `Creating new expense`);
   await createExpense(tx, expense.userId, expense.groupId, splitted, expense.groupId);

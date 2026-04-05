@@ -1,9 +1,9 @@
 import { Request, RequestHandler, Response, Router } from 'express';
-import { ITask } from 'pg-promise';
 import { z } from 'zod';
 
 import { IntString, isDefined, ObjectIdString, SessionBasicInfo } from 'shared/types';
 import { MaybePromise, recordFromPairs } from 'shared/util';
+import { DbTask } from 'server/data/Db.ts';
 
 import { Requests } from './RequestHandling';
 
@@ -70,7 +70,7 @@ type ValidatedTxRequest = <Return, Path extends string, Q, B>(
   path: Path,
   spec: ValidatorSpec<Return, Q, B>,
   handler: (
-    tx: ITask<any>,
+    tx: DbTask,
     session: SessionBasicInfo,
     data: HandlerParams<Path, Q, B>,
     req: Request,

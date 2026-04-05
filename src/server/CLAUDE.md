@@ -33,8 +33,8 @@ whether to include the fix. No bad code should go unmentioned.
 The full database schema is documented in `docs/SCHEMA.sql`. Refer to it for table
 structures, indexes, and constraints.
 
-All DB functions take `tx: ITask<any>` as first parameter. Use pg-promise parameterized
-queries:
+All DB functions take `tx: DbTask` (from `server/data/Db`) as first parameter. Use
+pg-promise parameterized queries:
 
 ```typescript
 const result = await tx.oneOrNone<MyType>(

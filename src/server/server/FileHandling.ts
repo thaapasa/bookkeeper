@@ -3,12 +3,12 @@ import { mkdir, unlink } from 'fs';
 import { writeFile } from 'fs/promises';
 import multipart from 'parse-multipart-data';
 import path from 'path';
-import { ITask } from 'pg-promise';
 import { promisify } from 'util';
 
 import { BkError, SessionBasicInfo } from 'shared/types';
 import { config } from 'server/Config';
 import { AssetDirectories } from 'server/content/Content';
+import { DbTask } from 'server/data/Db.ts';
 import { logger } from 'server/Logger';
 import { getRandomFilename } from 'server/util/Random';
 
@@ -82,14 +82,14 @@ export async function storeUploadedFile(
  */
 export function processFileUpload<Return, P, Q>(
   handler: (
-    tx: ITask<any>,
+    tx: DbTask,
     session: SessionBasicInfo,
     file: FileUploadResult,
     params: HandlerParams<P, Q, unknown>,
   ) => Promise<Return>,
 ) {
   return async (
-    tx: ITask<any>,
+    tx: DbTask,
     session: SessionBasicInfo,
     data: HandlerParams<P, Q, unknown>,
     req: Request,

@@ -1,6 +1,5 @@
-import { ITask } from 'pg-promise';
-
 import { NotFoundError, ObjectId, Source, SourcePatch } from 'shared/types';
+import { DbTask } from 'server/data/Db.ts';
 
 function getImage(img: string | undefined): string | undefined {
   return img ? `img/sources/${img}` : undefined;
@@ -39,18 +38,14 @@ SELECT
 FROM sources s
 LEFT JOIN source_users so ON (so.source_id = s.id)`;
 
-export async function getAllSources(tx: ITask<any>, groupId: number): Promise<Source[]> {
+export async function getAllSources(tx: DbTask, groupId: number): Promise<Source[]> {
   const s = await tx.manyOrNone<SourceData>(`${select} WHERE group_id = $/groupId/::INTEGER`, {
     groupId,
   });
   return createGroupObject(s);
 }
 
-export async function getSourceById(
-  tx: ITask<any>,
-  groupId: ObjectId,
-  id: ObjectId,
-): Promise<Source> {
+export async function getSourceById(tx: DbTask, groupId: ObjectId, id: ObjectId): Promise<Source> {
   const s = await tx.manyOrNone<SourceData>(
     `${select} WHERE id=$/id/::INTEGER AND group_id=$/groupId/::INTEGER`,
     {
@@ -65,7 +60,7 @@ export async function getSourceById(
 }
 
 export async function updateSource(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   id: ObjectId,
   data: SourcePatch,

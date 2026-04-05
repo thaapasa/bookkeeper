@@ -1,9 +1,11 @@
 import { Span, SpanStatusCode, trace } from '@opentelemetry/api';
-import pgp, { IEventContext } from 'pg-promise';
+import pgp, { IEventContext, ITask } from 'pg-promise';
 
 import { logger } from 'server/Logger';
 
 import { config } from '../Config';
+
+export type DbTask = ITask<object>;
 
 const logSql = process.env.LOG_SQL === 'true';
 

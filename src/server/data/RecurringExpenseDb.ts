@@ -1,5 +1,4 @@
 import { DateTime } from 'luxon';
-import { ITask } from 'pg-promise';
 
 import {
   Expense,
@@ -27,6 +26,7 @@ import {
   ObjectId,
 } from 'shared/types';
 import { assertDefined, camelCaseObject, Money, toArray, unnest } from 'shared/util';
+import { DbTask } from 'server/data/Db.ts';
 import { logger } from 'server/Logger';
 
 import {
@@ -49,7 +49,7 @@ const RecurringExpenseSelect = `SELECT *, re.id AS "recurringExpenseId" FROM rec
   LEFT JOIN expenses e ON (e.id = re.template_expense_id)`;
 
 export async function searchRecurringExpenses(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   criteria: SubscriptionSearchCriteria = {},
@@ -69,7 +69,7 @@ export async function searchRecurringExpenses(
 }
 
 async function getRecurringExpenseInfo(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   recurringExpenseId: ObjectId,
 ): Promise<RecurringExpense> {
@@ -88,7 +88,7 @@ async function getRecurringExpenseInfo(
 }
 
 export async function getRecurringExpenseTemplate(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   recurringExpenseId: ObjectId,
@@ -98,7 +98,7 @@ export async function getRecurringExpenseTemplate(
 }
 
 export async function updateRecurringExpenseTemplate(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   expenseId: ObjectId,
@@ -119,7 +119,7 @@ export async function updateRecurringExpenseTemplate(
 }
 
 export async function getRecurringExpenseDetails(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   recurringExpenseId: ObjectId,
@@ -166,7 +166,7 @@ function mapRecurringExpense(row: any): RecurringExpense {
 }
 
 export async function createRecurringFromExpense(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   expenseId: ObjectId,
@@ -228,7 +228,7 @@ function getDatesUpTo(recurrence: Recurrence, date: DateTime): ISODate[] {
 }
 
 function createMissingRecurrenceForDate(
-  tx: ITask<any>,
+  tx: DbTask,
   e: [Expense, ExpenseDivisionItem[]],
   date: ISODate,
 ): Promise<number> {
@@ -239,7 +239,7 @@ function createMissingRecurrenceForDate(
 }
 
 async function createMissingRecurrences(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: number,
   userId: number,
   date: DateTime,
@@ -294,7 +294,7 @@ interface RecurrenceInDb extends DbObject, Omit<RecurringExpenseInput, 'period'>
  * Populates all missing recurring expenses for this group, up to the given date
  */
 export async function createMissingRecurringExpenses(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: number,
   userId: number,
   date: DateTime,
@@ -311,7 +311,7 @@ export async function createMissingRecurringExpenses(
 }
 
 async function deleteRecurrenceAndExpenses(
-  tx: ITask<any>,
+  tx: DbTask,
   recurringExpenseId: number,
 ): Promise<ApiMessage> {
   const [expenseCount] = await Promise.all([
@@ -328,7 +328,7 @@ async function deleteRecurrenceAndExpenses(
   };
 }
 
-async function terminateRecurrenceAt(tx: ITask<any>, recurringExpenseId: number, date: DateLike) {
+async function terminateRecurrenceAt(tx: DbTask, recurringExpenseId: number, date: DateLike) {
   await tx.none(
     `UPDATE recurring_expenses
         SET occurs_until=$/date/::date
@@ -338,7 +338,7 @@ async function terminateRecurrenceAt(tx: ITask<any>, recurringExpenseId: number,
 }
 
 async function deleteRecurrenceAfter(
-  tx: ITask<any>,
+  tx: DbTask,
   expenseId: number,
   afterDate: DateLike,
   recurringExpenseId: number,
@@ -358,7 +358,7 @@ async function deleteRecurrenceAfter(
 }
 
 export async function deleteRecurringByExpenseId(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   expenseId: ObjectId,
@@ -383,7 +383,7 @@ export async function deleteRecurringByExpenseId(
 }
 
 export async function deleteRecurringExpenseById(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   recurringExpenseId: ObjectId,
 ): Promise<ApiMessage> {
@@ -396,7 +396,7 @@ export async function deleteRecurringExpenseById(
 }
 
 function deleteDivisionForRecurrence(
-  tx: ITask<any>,
+  tx: DbTask,
   recurringExpenseId: number,
   afterDate: DateLike | null,
 ): Promise<null> {
@@ -412,7 +412,7 @@ function deleteDivisionForRecurrence(
 }
 
 async function getRecurringExpenseIds(
-  tx: ITask<any>,
+  tx: DbTask,
   recurringExpenseId: number,
   afterDate: DateLike | null,
 ): Promise<number[]> {
@@ -428,7 +428,7 @@ async function getRecurringExpenseIds(
 }
 
 async function createDivisionForRecurrence(
-  tx: ITask<any>,
+  tx: DbTask,
   recurringExpenseId: number,
   division: ExpenseDivisionItem[],
   afterDate: DateLike | null,
@@ -445,7 +445,7 @@ async function createDivisionForRecurrence(
 }
 
 async function updateRecurringExpense(
-  tx: ITask<any>,
+  tx: DbTask,
   target: RecurringExpenseTarget,
   original: Expense,
   expenseInput: ExpenseInput,
@@ -504,7 +504,7 @@ async function updateRecurringExpense(
 }
 
 export async function updateRecurringExpenseByExpenseId(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: number,
   userId: number,
   expenseId: number,

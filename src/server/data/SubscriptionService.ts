@@ -1,13 +1,12 @@
-import { ITask } from 'pg-promise';
-
 import { SubscriptionResult, SubscriptionSearchCriteria } from 'shared/expense';
 import { ObjectId } from 'shared/types';
+import { DbTask } from 'server/data/Db.ts';
 
 import { searchRecurringExpenses } from './RecurringExpenseDb';
 import { searchReports } from './ReportDb';
 
 export async function searchSubscriptions(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   criteria: SubscriptionSearchCriteria,

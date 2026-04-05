@@ -1,8 +1,7 @@
-import { ITask } from 'pg-promise';
-
 import { ExpenseShortcutPayload } from 'shared/expense';
 import { BkError, isDefined, ObjectId } from 'shared/types';
 import { shortcutImageHandler } from 'server/content/ShortcutImage';
+import { DbTask } from 'server/data/Db.ts';
 import { logger } from 'server/Logger';
 import { FileUploadResult, safeDeleteFile } from 'server/server/FileHandling';
 
@@ -19,7 +18,7 @@ import { getSourceById } from './SourceDb';
 import { getUserById } from './UserDb';
 
 export async function createShortcut(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   data: ExpenseShortcutPayload,
@@ -30,7 +29,7 @@ export async function createShortcut(
 }
 
 export async function updateShortcutData(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   shortcutId: ObjectId,
@@ -42,11 +41,7 @@ export async function updateShortcutData(
   logger.info(data, `Updated shortcut`);
 }
 
-async function validateShortcutData(
-  tx: ITask<any>,
-  groupId: ObjectId,
-  data: ExpenseShortcutPayload,
-) {
+async function validateShortcutData(tx: DbTask, groupId: ObjectId, data: ExpenseShortcutPayload) {
   try {
     for (const benefitUserId of data.expense.benefit ?? []) {
       // Verify user exists
@@ -68,7 +63,7 @@ async function validateShortcutData(
 }
 
 export async function deleteShortcut(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   shortcutId: ObjectId,
@@ -79,7 +74,7 @@ export async function deleteShortcut(
 }
 
 export async function uploadShortcutIcon(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   shortcutId: ObjectId,
@@ -100,7 +95,7 @@ export async function uploadShortcutIcon(
 }
 
 export async function deleteShortcutIcon(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   shortcutId: ObjectId,

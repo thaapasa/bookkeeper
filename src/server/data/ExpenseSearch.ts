@@ -1,14 +1,13 @@
-import { ITask } from 'pg-promise';
-
 import { ExpenseQuery, UserExpense } from 'shared/expense';
 import { isDefined } from 'shared/types';
+import { DbTask } from 'server/data/Db.ts';
 import { logger } from 'server/Logger';
 
 import { dbRowToExpense, expenseSelectClause } from './BasicExpenseDb';
 import { expandSubCategories } from './CategoryDb';
 
 export async function getExpenseSearchQuery(
-  tx: ITask<any>,
+  tx: DbTask,
   userId: number,
   groupId: number,
   query: ExpenseQuery,
@@ -58,7 +57,7 @@ export async function getExpenseSearchQuery(
 }
 
 export async function searchExpenses(
-  tx: ITask<any>,
+  tx: DbTask,
   userId: number,
   groupId: number,
   query: ExpenseQuery,

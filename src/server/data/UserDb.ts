@@ -1,8 +1,7 @@
-import { ITask } from 'pg-promise';
-
 import { Email, Group, NotFoundError, ObjectId, User } from 'shared/types';
 import { UserDataUpdate } from 'shared/userData';
 import { profileImagePath } from 'server/content/ProfileImage';
+import { DbTask } from 'server/data/Db.ts';
 
 export type RawUserData = Record<string, any>;
 
@@ -19,7 +18,7 @@ SELECT
   id, username, email, first_name as "firstName", last_name as "lastName", image
 FROM users u`;
 
-export async function getAllUsers(tx: ITask<any>, groupId: number): Promise<User[]> {
+export async function getAllUsers(tx: DbTask, groupId: number): Promise<User[]> {
   const users = await tx.manyOrNone<RawUserData>(
     /*sql*/ `${select}
       WHERE
@@ -32,7 +31,7 @@ export async function getAllUsers(tx: ITask<any>, groupId: number): Promise<User
   return users.map(dbRowToUser);
 }
 
-export async function getUserById(tx: ITask<any>, groupId: number, userId: number): Promise<User> {
+export async function getUserById(tx: DbTask, groupId: number, userId: number): Promise<User> {
   const user = await tx.oneOrNone<RawUserData>(
     /*sql*/ `${select}
       WHERE id=$/userId/ AND
@@ -47,7 +46,7 @@ export async function getUserById(tx: ITask<any>, groupId: number, userId: numbe
   return dbRowToUser(user);
 }
 
-export async function getGroupsForUser(tx: ITask<any>, userId: number): Promise<Group[]> {
+export async function getGroupsForUser(tx: DbTask, userId: number): Promise<Group[]> {
   const groups = await tx.manyOrNone<Group>(
     `SELECT id, name
       FROM groups
@@ -58,7 +57,7 @@ export async function getGroupsForUser(tx: ITask<any>, userId: number): Promise<
 }
 
 export async function getUserByCredentials(
-  tx: ITask<any>,
+  tx: DbTask,
   username: string,
   password: string,
   groupId?: number,
@@ -77,10 +76,7 @@ export async function getUserByCredentials(
   return user ?? undefined;
 }
 
-export async function getUserByEmail(
-  tx: ITask<any>,
-  email: Email,
-): Promise<RawUserData | undefined> {
+export async function getUserByEmail(tx: DbTask, email: Email): Promise<RawUserData | undefined> {
   const user = await tx.oneOrNone<RawUserData>(
     /*sql*/ `${select}
     WHERE email=$/email/`,
@@ -90,7 +86,7 @@ export async function getUserByEmail(
 }
 
 export async function updateUserDataById(
-  tx: ITask<any>,
+  tx: DbTask,
   userId: ObjectId,
   userData: UserDataUpdate,
 ): Promise<void> {
@@ -110,7 +106,7 @@ export async function updateUserDataById(
 }
 
 export async function updateUserPasswordById(
-  tx: ITask<any>,
+  tx: DbTask,
   userId: ObjectId,
   password: string,
 ): Promise<void> {
@@ -123,13 +119,13 @@ export async function updateUserPasswordById(
 }
 
 export async function updateProfileImageById(
-  tx: ITask<any>,
+  tx: DbTask,
   userId: ObjectId,
   filename: string,
 ): Promise<void> {
   await tx.none(`UPDATE users SET image=$/filename/ WHERE id=$/userId/`, { userId, filename });
 }
 
-export async function clearProfileImageById(tx: ITask<any>, userId: ObjectId): Promise<void> {
+export async function clearProfileImageById(tx: DbTask, userId: ObjectId): Promise<void> {
   await tx.none(`UPDATE users SET image=NULL WHERE id=$/userId/`, { userId });
 }

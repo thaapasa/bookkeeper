@@ -1,11 +1,11 @@
 import { DateTime } from 'luxon';
 
 type DateTimeInput = DateTime | string;
-import { ITask } from 'pg-promise';
 
 import { ExpenseCollection, ExpenseStatus, UserExpense } from 'shared/expense';
 import * as time from 'shared/time';
 import { mapValues, Money } from 'shared/util';
+import { DbTask } from 'server/data/Db.ts';
 import { logger } from 'server/Logger';
 
 import {
@@ -31,7 +31,7 @@ function calculateBalance(o: ExpenseStatus): ExpenseStatus {
 }
 
 async function getBetween(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: number,
   userId: number,
   startDate: DateTimeInput,
@@ -69,7 +69,7 @@ const zeroStatus: ExpenseStatus = {
 };
 
 export async function getExpensesByMonth(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: number,
   userId: number,
   year: number,

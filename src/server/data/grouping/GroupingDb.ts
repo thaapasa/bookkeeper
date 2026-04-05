@@ -1,5 +1,3 @@
-import { ITask } from 'pg-promise';
-
 import { UserExpense } from 'shared/expense';
 import { toISODate } from 'shared/time';
 import {
@@ -13,7 +11,7 @@ import {
 import { groupingImageHandler } from 'server/content/GroupingImage';
 
 import { dbRowToExpense, EXPENSE_MATCHES_GROUPING, expenseSelectClause } from '../BasicExpenseDb';
-import { dbMain } from '../Db';
+import { dbMain, DbTask } from '../Db';
 
 const GROUPING_ORDER = /*sql*/ `eg.start_date DESC NULLS LAST, eg.title`;
 
@@ -45,7 +43,7 @@ const EXPENSE_JOIN_TO_GROUPING = /*sql*/ `
 `;
 
 export async function getExpenseGroupingsForUser(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
 ): Promise<ExpenseGrouping[]> {
@@ -64,10 +62,7 @@ export async function getExpenseGroupingsForUser(
   return rows.map(toExpenseGrouping);
 }
 
-export async function getExpenseGroupingsTags(
-  tx: ITask<any>,
-  groupId: ObjectId,
-): Promise<string[]> {
+export async function getExpenseGroupingsTags(tx: DbTask, groupId: ObjectId): Promise<string[]> {
   const rows = await tx.manyOrNone(
     `SELECT DISTINCT UNNEST(tags) AS tag
       FROM expense_groupings
@@ -80,7 +75,7 @@ export async function getExpenseGroupingsTags(
 }
 
 export async function getExpenseGroupingById(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   groupingId: ObjectId,
@@ -101,7 +96,7 @@ export async function getExpenseGroupingById(
 }
 
 export async function getAllGroupingRefs(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
 ): Promise<ExpenseGroupingRef[]> {
   const rows = await tx.manyOrNone(
@@ -117,7 +112,7 @@ export async function getAllGroupingRefs(
 }
 
 export async function insertExpenseGrouping(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   data: ExpenseGroupingData,
@@ -153,7 +148,7 @@ export async function insertExpenseGrouping(
 }
 
 export async function updateExpenseGroupingById(
-  tx: ITask<any>,
+  tx: DbTask,
   groupingId: ObjectId,
   data: ExpenseGroupingData,
 ): Promise<void> {
@@ -188,7 +183,7 @@ export async function updateExpenseGroupingById(
 }
 
 export async function getExpensesForGrouping(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   groupingId: ObjectId,
@@ -202,7 +197,7 @@ export async function getExpensesForGrouping(
 }
 
 export async function getCategoryTotalsForGrouping(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   groupingId: ObjectId,
@@ -221,10 +216,7 @@ export async function getCategoryTotalsForGrouping(
   return rows.map(toExpenseGroupingCategoryTotal);
 }
 
-export async function deleteExpenseGroupingById(
-  tx: ITask<any>,
-  groupingId: ObjectId,
-): Promise<void> {
+export async function deleteExpenseGroupingById(tx: DbTask, groupingId: ObjectId): Promise<void> {
   await tx.none(
     `DELETE FROM expense_groupings
       WHERE id=$/groupingId/`,
@@ -233,7 +225,7 @@ export async function deleteExpenseGroupingById(
 }
 
 export async function setGroupingImageById(
-  tx: ITask<any>,
+  tx: DbTask,
   groupingId: ObjectId,
   image: string,
 ): Promise<void> {
@@ -245,7 +237,7 @@ export async function setGroupingImageById(
   );
 }
 
-export async function clearGroupingImageById(tx: ITask<any>, groupingId: ObjectId): Promise<void> {
+export async function clearGroupingImageById(tx: DbTask, groupingId: ObjectId): Promise<void> {
   await tx.none(
     `UPDATE expense_groupings
       SET image=NULL

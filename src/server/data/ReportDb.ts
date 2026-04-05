@@ -1,15 +1,14 @@
-import { ITask } from 'pg-promise';
-
 import { ExpenseQuery, ExpenseReport, ReportDef, SubscriptionSearchCriteria } from 'shared/expense';
 import { MomentInterval, toDateTime, toISODate } from 'shared/time';
 import { ApiMessage, ObjectId } from 'shared/types';
 import { Money } from 'shared/util';
+import { DbTask } from 'server/data/Db.ts';
 
 import { getExpenseSearchQuery } from './ExpenseSearch';
 
 const ReportSelectFields = `id, group_id AS "groupId", user_id AS "userId", title, query`;
 
-export async function getAllReports(tx: ITask<any>, groupId: ObjectId): Promise<ReportDef[]> {
+export async function getAllReports(tx: DbTask, groupId: ObjectId): Promise<ReportDef[]> {
   const s = await tx.manyOrNone<ReportDef>(
     `SELECT ${ReportSelectFields}
        FROM reports
@@ -20,7 +19,7 @@ export async function getAllReports(tx: ITask<any>, groupId: ObjectId): Promise<
 }
 
 export async function createReport(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   title: string,
@@ -37,7 +36,7 @@ export async function createReport(
 }
 
 export async function deleteReport(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   reportId: ObjectId,
 ): Promise<ApiMessage> {
@@ -55,7 +54,7 @@ export async function deleteReport(
 }
 
 export async function searchReports(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   criteria: SubscriptionSearchCriteria,
@@ -76,7 +75,7 @@ type ExpenseReportFromDb = Pick<
 const defaultSearchRanage: MomentInterval = { amount: 5, unit: 'years' };
 
 async function calculateExpenseReports(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   report: ReportDef,

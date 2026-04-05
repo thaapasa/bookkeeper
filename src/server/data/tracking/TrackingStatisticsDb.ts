@@ -1,5 +1,3 @@
-import { ITask } from 'pg-promise';
-
 import {
   DateRange,
   getMonthsInRange,
@@ -26,6 +24,7 @@ import {
   User,
 } from 'shared/types';
 import { assertUnreachable, Money, MoneyLike } from 'shared/util';
+import { DbTask } from 'server/data/Db.ts';
 
 import { getCategoriesById } from '../CategoryDb';
 import { getAllUsers } from '../UserDb';
@@ -44,7 +43,7 @@ const RangeCreators = {
 } satisfies Record<TrackingFrequency, (range: DateRange) => TimeSlot[]>;
 
 export async function getTrackingStatistics(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   data: TrackingData,
@@ -154,7 +153,7 @@ interface StatisticsRow {
 }
 
 async function getCategoryStatisticsRows(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   categoryIds: ObjectId[],
   range: DateRange,

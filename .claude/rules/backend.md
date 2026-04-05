@@ -33,8 +33,8 @@ api.getTx(
 
 Schema reference: `docs/SCHEMA.sql`
 
-All DB functions take `tx: ITask<any>` as first parameter. Use pg-promise parameterized
-queries with `$/paramName/` syntax:
+All DB functions take `tx: DbTask` (from `server/data/Db`) as first parameter. Use
+pg-promise parameterized queries with `$/paramName/` syntax:
 
 ```typescript
 const result = await tx.oneOrNone<MyType>(

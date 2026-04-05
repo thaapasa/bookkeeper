@@ -1,12 +1,11 @@
-import { ITask } from 'pg-promise';
-
 import { ExpenseShortcut, ExpenseShortcutPayload } from 'shared/expense';
 import { NotFoundError, ObjectId } from 'shared/types';
+import { DbTask } from 'server/data/Db.ts';
 
 const SHORTCUT_FIELDS = /*sql */ `id, title, icon, background, expense, sort_order AS "sortOrder"`;
 
 export async function getShortcutsForUser(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
 ): Promise<ExpenseShortcut[]> {
@@ -21,7 +20,7 @@ export async function getShortcutsForUser(
 }
 
 export async function getShortcutById(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   shortcutId: ObjectId,
@@ -39,7 +38,7 @@ export async function getShortcutById(
 }
 
 export async function insertNewShortcut(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   data: ExpenseShortcutPayload,
@@ -56,7 +55,7 @@ export async function insertNewShortcut(
 }
 
 export async function updateShortcutById(
-  tx: ITask<any>,
+  tx: DbTask,
   shortcutId: ObjectId,
   data: ExpenseShortcutPayload,
 ): Promise<void> {
@@ -76,12 +75,12 @@ export async function updateShortcutById(
   );
 }
 
-export async function deleteShortcutById(tx: ITask<any>, shortcutId: ObjectId): Promise<void> {
+export async function deleteShortcutById(tx: DbTask, shortcutId: ObjectId): Promise<void> {
   await tx.none(`DELETE FROM shortcuts WHERE id=$/shortcutId/`, { shortcutId });
 }
 
 export async function reorderUserShortcuts(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
 ): Promise<void> {
@@ -100,11 +99,11 @@ export async function reorderUserShortcuts(
   );
 }
 
-export async function clearShortcutIconById(tx: ITask<any>, shortcutId: ObjectId) {
+export async function clearShortcutIconById(tx: DbTask, shortcutId: ObjectId) {
   await tx.none(`UPDATE shortcuts SET icon=NULL WHERE id=$/shortcutId/`, { shortcutId });
 }
 
-export async function setShortcutIconById(tx: ITask<any>, shortcutId: ObjectId, filename: string) {
+export async function setShortcutIconById(tx: DbTask, shortcutId: ObjectId, filename: string) {
   await tx.none(`UPDATE shortcuts SET icon=$/filename/ WHERE id=$/shortcutId/`, {
     shortcutId,
     filename,
@@ -112,7 +111,7 @@ export async function setShortcutIconById(tx: ITask<any>, shortcutId: ObjectId, 
 }
 
 export async function sortShortcutUpById(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   shortcutId: ObjectId,
@@ -134,7 +133,7 @@ export async function sortShortcutUpById(
 }
 
 export async function sortShortcutDownById(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   shortcutId: ObjectId,
@@ -156,7 +155,7 @@ export async function sortShortcutDownById(
 }
 
 async function switchSortOrder(
-  tx: ITask<any>,
+  tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   shortcut1: ExpenseShortcut,

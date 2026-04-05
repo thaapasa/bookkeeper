@@ -1,9 +1,9 @@
 import crypto from 'crypto';
-import { ITask } from 'pg-promise';
 import { promisify } from 'util';
 
 import { ExpenseShortcut } from 'shared/expense';
 import { ApiMessage, AuthenticationError, Session, SessionBasicInfo } from 'shared/types';
+import { DbTask } from 'server/data/Db.ts';
 import { logger } from 'server/Logger';
 
 import { config } from '../Config';
@@ -39,11 +39,11 @@ async function createToken(): Promise<string> {
   return buf.toString('hex');
 }
 
-async function purgeExpiredSessions(tx: ITask<any>) {
+async function purgeExpiredSessions(tx: DbTask) {
   await tx.none('DELETE FROM sessions WHERE expiry_time <= NOW()');
 }
 
-async function createSession(tx: ITask<any>, user: RawUserData): Promise<string[]> {
+async function createSession(tx: DbTask, user: RawUserData): Promise<string[]> {
   const tokens = await Promise.all([createToken(), createToken()]);
   logger.info({ userId: user.id }, 'User logged in');
   await tx.none(
@@ -90,10 +90,7 @@ function createSessionInfo(
   };
 }
 
-export async function appendInfoToSession(
-  tx: ITask<any>,
-  session: SessionBasicInfo,
-): Promise<Session> {
+export async function appendInfoToSession(tx: DbTask, session: SessionBasicInfo): Promise<Session> {
   const [groups, sources, categories, users, groupings] = await Promise.all([
     getGroupsForUser(tx, session.user.id),
     getAllSources(tx, session.group.id),
@@ -105,7 +102,7 @@ export async function appendInfoToSession(
 }
 
 export async function loginUserWithCredentials(
-  tx: ITask<any>,
+  tx: DbTask,
   username: string,
   password: string,
   groupId?: number,
@@ -122,7 +119,7 @@ export async function loginUserWithCredentials(
 }
 
 async function getUserInfoByRefreshToken(
-  tx: ITask<any>,
+  tx: DbTask,
   token: string,
   groupId?: number,
 ): Promise<RawUserData> {
@@ -139,7 +136,7 @@ async function getUserInfoByRefreshToken(
 }
 
 export async function refreshSessionWithRefreshToken(
-  tx: ITask<any>,
+  tx: DbTask,
   refreshToken: string,
   groupId?: number,
 ): Promise<Session> {
@@ -151,10 +148,7 @@ export async function refreshSessionWithRefreshToken(
   return appendInfoToSession(tx, sessionInfo);
 }
 
-export async function logoutSession(
-  tx: ITask<any>,
-  session: SessionBasicInfo,
-): Promise<ApiMessage> {
+export async function logoutSession(tx: DbTask, session: SessionBasicInfo): Promise<ApiMessage> {
   logger.info({ userId: session.user.id }, 'Logout');
   if (!session.token) {
     throw new AuthenticationError('INVALID_TOKEN', 'Session token is missing');
@@ -173,7 +167,7 @@ export async function logoutSession(
 }
 
 export async function getSessionByToken(
-  tx: ITask<any>,
+  tx: DbTask,
   token: string,
   groupId?: number,
 ): Promise<SessionBasicInfo> {

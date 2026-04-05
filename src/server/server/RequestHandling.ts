@@ -1,5 +1,4 @@
 import { NextFunction, Request, RequestHandler, Response } from 'express';
-import { ITask } from 'pg-promise';
 import { z } from 'zod';
 
 import { timeout } from 'shared/time';
@@ -10,7 +9,7 @@ import { getSessionByToken } from 'server/data/SessionDb';
 import { logger } from 'server/Logger';
 import { setOtelRouteInfo } from 'server/telemetry/OtelRoute';
 
-import { db } from '../data/Db';
+import { db, DbTask } from '../data/Db';
 import { ServerUtil } from './ServerUtil';
 
 function processUnauthorizedRequest<T>(
@@ -36,7 +35,7 @@ function processUnauthorizedRequest<T>(
 }
 
 function processUnauthorizedTxRequest<T>(
-  handler: (tx: ITask<any>, req: Request, res: Response) => MaybePromise<T>,
+  handler: (tx: DbTask, req: Request, res: Response) => MaybePromise<T>,
 ): RequestHandler {
   return processUnauthorizedRequest((req, res) => db.tx(tx => handler(tx, req, res)));
 }
@@ -56,12 +55,7 @@ function processRequest<T>(
 }
 
 function processTxRequest<T>(
-  handler: (
-    tx: ITask<any>,
-    session: SessionBasicInfo,
-    req: Request,
-    res: Response,
-  ) => MaybePromise<T>,
+  handler: (tx: DbTask, session: SessionBasicInfo, req: Request, res: Response) => MaybePromise<T>,
   groupRequired?: boolean,
 ): RequestHandler {
   return processUnauthorizedRequest(async (req, res) => {
@@ -112,7 +106,7 @@ function processValidatedRequest<Return, P, Q, B>(
 function processValidatedTxRequest<Return, P, Q, B>(
   spec: ValidatorSpec<Return, P, Q, B>,
   handler: (
-    tx: ITask<any>,
+    tx: DbTask,
     session: SessionBasicInfo,
     data: HandlerParams<P, Q, B>,
     req: Request,
