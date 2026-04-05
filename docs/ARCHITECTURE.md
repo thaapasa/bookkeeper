@@ -138,7 +138,7 @@ export async function getExpenseById(
 
 React components use **functional components with hooks**:
 
-```typescript
+```tsx
 // In src/client/ui/*.tsx
 export const MyComponent: React.FC<Props> = ({ prop1, prop2 }) => {
   const [state, setState] = React.useState<Type>(initial);
@@ -148,9 +148,9 @@ export const MyComponent: React.FC<Props> = ({ prop1, prop2 }) => {
   }, [dependencies]);
   
   return (
-    <StyledContainer>
+    <Stack gap="md" p="md">
       {/* JSX */}
-    </StyledContainer>
+    </Stack>
   );
 };
 ```

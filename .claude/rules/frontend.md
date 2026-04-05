@@ -16,5 +16,4 @@ Key rules:
 - Use Mantine size tokens (`"xs"`, `"sm"`, `"md"`, `"lg"`, `"xl"`) not raw pixels
 - Use CSS modules for complex CSS (hover, pseudo-elements, animations)
 - Rewrite legacy code from scratch with Mantine when touching files
-- Convert class components to functional components
 - Run `bun format && bun lint` after changes

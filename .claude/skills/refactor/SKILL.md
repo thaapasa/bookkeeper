@@ -1,7 +1,7 @@
 ---
 name: refactor
 description: Refactor outdated patterns in the codebase based on user input
-argument-hint: <pattern to refactor, e.g. "class components to functional" or "MUI to Mantine">
+argument-hint: <pattern to refactor, e.g. "Bacon.js to Zustand" or "any types to proper types">
 disable-model-invocation: true
 ---
 
@@ -45,9 +45,6 @@ full coding conventions from `src/client/coding-conventions.md`.
 
 These are known legacy patterns in this codebase:
 
-- **MUI to Mantine**: Replace `@mui/material` imports with `@mantine/core` equivalents.
-- **Class to functional components**: Convert `React.Component` classes to functional
-  components with hooks.
 - **Bacon.js to Zustand**: Replace reactive stream patterns with Zustand stores.
 - **`any` types**: Replace `any` with proper TypeScript types.
 - **Raw SQL strings**: Ensure all queries use `$/param/` parameterization.

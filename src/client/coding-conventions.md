@@ -312,19 +312,14 @@ export default connect(...)(MyComponent);
 export default MyComponent;
 ```
 
-## Legacy Patterns (Do NOT Use)
+## Patterns to Avoid
 
-These patterns exist in the codebase but must not be copied or extended:
+Do not introduce these patterns in new code:
 
-- `import { ... } from '@mui/material'` (MUI components)
-- `VCenterRow`, `Flex` from `GlobalStyles.ts` — use Mantine `Group` / `Flex`
-- `PageContentContainer` — use `ScrollArea`
-- Class components — convert to functional
-- `connect()` HOC with default export — use `useBaconProperty` hook with named export
 - `style?: React.CSSProperties` for caller positioning — use Mantine props intersection
 - Inline `style={{}}` for margins/padding — use Mantine style props
 - Raw pixel values for spacing — use size tokens
-- `media.mobile` / `media.mobilePortrait` custom breakpoints — use Mantine breakpoints
+- Raw `<div>`/`<span>` for layout — use Mantine `Box`, `Group`, `Stack`, `Flex`
 
 ## After Making Changes
 

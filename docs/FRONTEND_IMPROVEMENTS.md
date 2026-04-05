@@ -52,23 +52,9 @@ export function useOnUnmount(f: () => void, deps?: DependencyList): void {
 
 ---
 
-### 5. Deprecated `keyCode` API
+### ~~5. Deprecated `keyCode` API~~ ✅ Fixed
 
-**Locations**:
-- `src/client/ui/component/DateRangeNavigator.tsx` lines 33-41
-- `src/client/ui/component/ActivatableTextField.tsx` lines 54-63
-
-**Problem**: `keyCode` is deprecated; should use `event.key`.
-
-**Solution**:
-
-```typescript
-// Before
-if (event.keyCode === KeyCodes.enter) { ... }
-
-// After
-if (event.key === 'Enter') { ... }
-```
+All `keyCode` usage has been replaced with `event.key`.
 
 ---
 
@@ -82,11 +68,9 @@ if (event.key === 'Enter') { ... }
 
 ---
 
-### 7. Class Component Could Be Functional
+### ~~7. Class Component Could Be Functional~~ ✅ Fixed
 
-**Location**: `src/client/ui/component/NotificationBar.tsx` lines 34-89
-
-**Problem**: Class component with complex state management could be more readable as a functional component with hooks.
+All class components have been converted to functional components.
 
 ---
 
