@@ -3,14 +3,24 @@ import * as React from 'react';
 
 import { ExpenseType, expenseTypes, getExpenseTypeLabel } from 'shared/expense';
 import { Source } from 'shared/types';
-import { Money, sanitizeMoneyInput } from 'shared/util';
+import { evaluateMoneyExpression } from 'shared/util';
 import { TextEdit, TextEditProps } from 'client/ui/component/TextEdit';
 import { ExpenseTypeIcon } from 'client/ui/icons/ExpenseType';
-import { Icons } from 'client/ui/icons/Icons';
 import { classNames } from 'client/ui/utils/classNames';
 
 import styles from './ExpenseDialog.module.css';
 
+/**
+ * Money input field that supports inline arithmetic expressions.
+ *
+ * Users can type expressions like `124.42 - 23.42 + 3.33` or `(50 + 30) * 2`.
+ * Supports `+`, `-`, `*`, `/` with standard operator precedence and parentheses.
+ * Commas are accepted as decimal separators.
+ *
+ * While typing, the raw expression is shown in the field but `onChange` receives
+ * the evaluated result, so the parent form can update calculations immediately.
+ * On Enter or blur, the display is condensed to the evaluated result.
+ */
 export const SumField: React.FC<
   {
     value: string;
@@ -18,26 +28,63 @@ export const SumField: React.FC<
     onChange: (s: string) => void;
   } & TextEditProps
 > = ({ value, onChange, errorText, ...props }) => {
-  const addToSum = () => {
-    const sum = window.prompt('Syötä summaan lisättävä määrä:');
-    if (sum) {
-      onChange(
-        new Money(sanitizeMoneyInput(value || '0')).plus(sanitizeMoneyInput(sum)).toString(),
-      );
+  // Local display value holds the raw expression while typing;
+  // the parent receives the evaluated result via onChange on every keystroke.
+  const [displayValue, setDisplayValue] = React.useState(value);
+  const isLocalChange = React.useRef(false);
+
+  // Sync display value when parent updates externally (not from our own onChange)
+  React.useEffect(() => {
+    if (!isLocalChange.current) {
+      setDisplayValue(value);
     }
-  };
+    isLocalChange.current = false;
+  }, [value]);
+
+  const evaluated = evaluateMoneyExpression(displayValue);
+
+  const handleChange = React.useCallback(
+    (raw: string) => {
+      setDisplayValue(raw);
+      isLocalChange.current = true;
+      const result = evaluateMoneyExpression(raw);
+      onChange(result ?? raw);
+    },
+    [onChange],
+  );
+
+  // On blur or Enter, condense the display to the evaluated result
+  const condense = React.useCallback(() => {
+    if (evaluated !== undefined) {
+      setDisplayValue(evaluated);
+      return true;
+    }
+    return false;
+  }, [evaluated]);
+
+  const handleKeyDown = React.useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' && condense()) {
+        e.preventDefault();
+      }
+    },
+    [condense],
+  );
+
   return (
     <TextEdit
       placeholder="0.00"
       label="Summa"
       name="sum"
-      value={value}
+      value={displayValue}
       error={errorText || undefined}
-      onChange={onChange}
+      onChange={handleChange}
+      onBlur={condense}
+      onKeyDown={handleKeyDown}
+      rightSection="€"
       type="text"
       autoFocus
       autoComplete="off"
-      rightSection={<Icons.Add onClick={addToSum} />}
       {...props}
     />
   );

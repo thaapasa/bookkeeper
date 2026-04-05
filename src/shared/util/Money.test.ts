@@ -1,8 +1,9 @@
 import { Big } from 'big.js';
 import { describe, expect, it } from 'bun:test';
 
-import { validate } from '../types/Validation';
-import { Money, MoneyLike } from './Money';
+import { validate } from 'shared/types';
+
+import { evaluateMoneyExpression, Money, MoneyLike } from './Money';
 
 describe('Money', () => {
   it('should be created from valid strings', () => {
@@ -54,4 +55,59 @@ describe('Money', () => {
       new Error('Data format is invalid at tests'),
     ),
   );
+});
+
+describe('evaluateMoneyExpression', () => {
+  it('evaluates addition', () => {
+    expect(evaluateMoneyExpression('10 + 20')).toEqual('30.00');
+  });
+
+  it('evaluates subtraction', () => {
+    expect(evaluateMoneyExpression('124.42 - 23.42 + 3.33')).toEqual('104.33');
+  });
+
+  it('evaluates multiplication and division', () => {
+    expect(evaluateMoneyExpression('10 * 3')).toEqual('30.00');
+    expect(evaluateMoneyExpression('10 / 4')).toEqual('2.50');
+  });
+
+  it('respects operator precedence', () => {
+    expect(evaluateMoneyExpression('10 + 2 * 3')).toEqual('16.00');
+    expect(evaluateMoneyExpression('10 - 6 / 2')).toEqual('7.00');
+  });
+
+  it('handles commas as decimal separators', () => {
+    expect(evaluateMoneyExpression('10,50 + 2,30')).toEqual('12.80');
+  });
+
+  it('handles negative first number', () => {
+    expect(evaluateMoneyExpression('-5 + 10')).toEqual('5.00');
+  });
+
+  it('returns undefined for plain numbers', () => {
+    expect(evaluateMoneyExpression('42.50')).toBeUndefined();
+    expect(evaluateMoneyExpression('0')).toBeUndefined();
+  });
+
+  it('handles parentheses', () => {
+    expect(evaluateMoneyExpression('(10 + 5) * 2')).toEqual('30.00');
+    expect(evaluateMoneyExpression('100 - (30 + 20)')).toEqual('50.00');
+  });
+
+  it('handles nested parentheses', () => {
+    expect(evaluateMoneyExpression('((10 + 5) * 2) + 1')).toEqual('31.00');
+    expect(evaluateMoneyExpression('10 * (2 + (3 - 1))')).toEqual('40.00');
+  });
+
+  it('handles negative number after open paren', () => {
+    expect(evaluateMoneyExpression('(-5 + 10)')).toEqual('5.00');
+  });
+
+  it('returns undefined for invalid input', () => {
+    expect(evaluateMoneyExpression('abc')).toBeUndefined();
+    expect(evaluateMoneyExpression('')).toBeUndefined();
+    expect(evaluateMoneyExpression('10 +')).toBeUndefined();
+    expect(evaluateMoneyExpression('(10 + 5')).toBeUndefined();
+    expect(evaluateMoneyExpression('10 + 5)')).toBeUndefined();
+  });
 });

@@ -204,7 +204,118 @@ export class Money {
 }
 
 export function sanitizeMoneyInput(v: string): string {
-  return v?.replace(/,/, '.').replace(/ +/g, '') ?? '';
+  return v?.replace(/,/g, '.').replace(/ +/g, '') ?? '';
+}
+
+/**
+ * Evaluate a simple arithmetic expression (e.g. "124.42 - 23.42 + 3.33")
+ * using Money (Big.js) for precision. Supports +, -, *, / with standard
+ * operator precedence. Returns the result as a Money string, or undefined
+ * if the input is not a valid expression (e.g. a plain number or invalid syntax).
+ */
+export function evaluateMoneyExpression(input: string): string | undefined {
+  const sanitized = sanitizeMoneyInput(input);
+  // Tokenize into numbers and operators
+  const tokens = tokenize(sanitized);
+  if (!tokens || tokens.length < 3) return undefined;
+  // Must contain at least one operator
+  if (!tokens.some(t => t.type === 'op')) return undefined;
+  try {
+    const result = parseExpression(tokens, 0);
+    if (result.pos !== tokens.length) return undefined;
+    return result.value.toString();
+  } catch {
+    return undefined;
+  }
+}
+
+type Token =
+  | { type: 'num'; value: string }
+  | { type: 'op'; value: string }
+  | { type: 'paren'; value: '(' | ')' };
+
+function tokenize(input: string): Token[] | undefined {
+  const tokens: Token[] = [];
+  let i = 0;
+  while (i < input.length) {
+    if (input[i] === ' ') {
+      i++;
+      continue;
+    }
+    // Parentheses
+    if (input[i] === '(' || input[i] === ')') {
+      tokens.push({ type: 'paren', value: input[i] as '(' | ')' });
+      i++;
+      continue;
+    }
+    // Number (with optional leading minus for first token, after operator, or after '(')
+    const prev = tokens[tokens.length - 1];
+    if (
+      /[0-9.]/.test(input[i]) ||
+      (input[i] === '-' &&
+        (tokens.length === 0 ||
+          prev.type === 'op' ||
+          (prev.type === 'paren' && prev.value === '(')))
+    ) {
+      let num = '';
+      if (input[i] === '-') {
+        num = '-';
+        i++;
+      }
+      while (i < input.length && /[0-9.]/.test(input[i])) {
+        num += input[i++];
+      }
+      if (num === '-' || num === '' || num === '.') return undefined;
+      tokens.push({ type: 'num', value: num });
+    } else if ('+-*/'.includes(input[i])) {
+      tokens.push({ type: 'op', value: input[i] });
+      i++;
+    } else {
+      return undefined;
+    }
+  }
+  return tokens;
+}
+
+// Recursive descent parser: expr = term (('+' | '-') term)*
+function parseExpression(tokens: Token[], pos: number): { value: Money; pos: number } {
+  let { value, pos: p } = parseTerm(tokens, pos);
+  while (p < tokens.length && tokens[p].type === 'op' && '+-'.includes(tokens[p].value)) {
+    const op = tokens[p].value;
+    p++;
+    const right = parseTerm(tokens, p);
+    value = op === '+' ? value.plus(right.value) : value.minus(right.value);
+    p = right.pos;
+  }
+  return { value, pos: p };
+}
+
+// term = factor (('*' | '/') factor)*
+function parseTerm(tokens: Token[], pos: number): { value: Money; pos: number } {
+  let { value, pos: p } = parseFactor(tokens, pos);
+  while (p < tokens.length && tokens[p].type === 'op' && '*/'.includes(tokens[p].value)) {
+    const op = tokens[p].value;
+    p++;
+    const right = parseFactor(tokens, p);
+    value = op === '*' ? value.multiply(right.value) : value.divide(right.value);
+    p = right.pos;
+  }
+  return { value, pos: p };
+}
+
+function parseFactor(tokens: Token[], pos: number): { value: Money; pos: number } {
+  const token = tokens[pos];
+  if (!token) throw new Error('Expected number or (');
+  if (token.type === 'paren' && token.value === '(') {
+    const result = parseExpression(tokens, pos + 1);
+    const closing = tokens[result.pos];
+    if (!closing || closing.type !== 'paren' || closing.value !== ')') {
+      throw new Error('Expected )');
+    }
+    return { value: result.value, pos: result.pos + 1 };
+  }
+  if (token.type !== 'num') throw new Error('Expected number');
+  return { value: new Money(token.value), pos: pos + 1 };
 }
 
 export const MoneyV = z

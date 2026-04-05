@@ -34,13 +34,10 @@ All `keyCode` usage has been replaced with `event.key`.
 
 ---
 
-### 6. `window.prompt` Usage
+### ~~6. `window.prompt` Usage~~ ✅ Fixed
 
-**Location**: `src/client/ui/expense/dialog/ExpenseDialogComponents.tsx` line 22
-
-**Problem**: Using native `window.prompt` instead of the app's dialog system.
-
-**Solution**: Use `UserPrompts.promptText` for consistent UI.
+Replaced `window.prompt` + plus icon with inline arithmetic expression evaluation.
+The sum field now accepts expressions like `124.42 - 23.42 + 3.33` and evaluates on blur.
 
 ---
 
