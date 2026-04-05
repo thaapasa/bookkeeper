@@ -2,14 +2,15 @@ import {
   ActionIcon,
   Badge,
   Box,
+  Card,
   Group,
-  Paper,
   SimpleGrid,
   Stack,
   Text,
   Title as MantineTitle,
 } from '@mantine/core';
 import React from 'react';
+import { useNavigate } from 'react-router';
 
 import { uri } from 'shared/net';
 import { readableDateWithYear } from 'shared/time';
@@ -21,7 +22,6 @@ import { groupingsPagePath } from 'client/util/Links';
 
 import { Subtitle } from '../design/Text';
 import { Icons } from '../icons/Icons';
-import { LinkButton } from '../layout/TopBar';
 import { GroupedExpenseIcon } from './GroupedExpenseIcon';
 import { editExpenseGrouping } from './GroupingEditor';
 import { ExpenseGroupingsTagFilters, useFilterTags } from './useFilterTags';
@@ -54,28 +54,15 @@ export const ExpenseGroupingView: React.FC<{
   tags: string[];
   onReload: () => void;
 }> = ({ grouping, onReload }) => {
+  const expensesPath = groupingsPagePath + uri`/${grouping.id}`;
+  const navigate = useNavigate();
   return (
-    <Paper
-      w="100%"
-      pos="relative"
-      h={200}
-      bg="neutral.2"
-      shadow="md"
-      radius="md"
-      style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
-    >
-      <Box h={32} pos="relative" bg="neutral.1" style={{ zIndex: 1 }}>
-        <Subtitle
-          order={3}
-          pl="sm"
-          pt={2}
-          fw={400}
-          c="var(--mantine-color-text)"
-          style={{ border: 'none' }}
-        >
+    <Card w="100%" pos="relative" h={200} bg="neutral.3" shadow="md" radius="md" p={0} m={0}>
+      <Group bg="neutral.0" justify="space-between" align="center">
+        <Subtitle noBorder order={3} px="sm" fw={700} py={6}>
           {grouping.title}
         </Subtitle>
-        <Group pos="absolute" right={0} top={0} gap={2} style={{ zIndex: 2 }}>
+        <Group gap="xs" px="md">
           <ActionIcon
             size="sm"
             title="Muokkaa seurantaa"
@@ -87,13 +74,17 @@ export const ExpenseGroupingView: React.FC<{
             <Icons.Delete fontSize="small" />
           </ActionIcon>
         </Group>
-      </Box>
-      <Group flex={1} wrap="nowrap" pos="relative">
-        <GroupedExpenseIcon
-          grouping={grouping}
-          size={24}
-          style={{ position: 'absolute', left: 8 }}
-        />
+      </Group>
+      <Group
+        flex={1}
+        wrap="nowrap"
+        pos="relative"
+        onClick={() => navigate(expensesPath)}
+        style={{ cursor: 'pointer' }}
+      >
+        <Box pos="absolute" left={4} top={8} bg="">
+          <GroupedExpenseIcon grouping={grouping} size={24} />
+        </Box>
         {grouping.image ? (
           <img src={grouping.image} alt="" style={{ width: 168, height: 168 }} />
         ) : null}
@@ -108,7 +99,12 @@ export const ExpenseGroupingView: React.FC<{
             pos="relative"
           >
             {grouping.tags ? (
-              <Group pos="absolute" right="xs" top="xs" gap={4}>
+              <Group
+                pos="absolute"
+                right="var(--mantine-spacing-xs)"
+                top="var(--mantine-spacing-xs)"
+                gap="xs"
+              >
                 {grouping.tags.map(t => (
                   <Badge key={t} size="sm" variant="filled">
                     {t}
@@ -121,12 +117,9 @@ export const ExpenseGroupingView: React.FC<{
             </MantineTitle>
             <GroupingDates grouping={grouping} />
           </Stack>
-          <Group w="100%" p="md" justify="flex-end" align="flex-end">
-            <LinkButton label="Kirjaukset" to={groupingsPagePath + uri`/${grouping.id}`} />
-          </Group>
         </Stack>
       </Group>
-    </Paper>
+    </Card>
   );
 };
 

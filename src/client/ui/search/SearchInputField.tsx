@@ -3,7 +3,7 @@ import * as React from 'react';
 import { IdProvider } from 'shared/util';
 import { CategoryDataSource } from 'client/data/Categories';
 
-import { AutoComplete } from '../component/AutoComplete';
+import { AutoComplete, AutoCompletePassthroughProps } from '../component/AutoComplete';
 import {
   CategorySuggestion,
   getSearchSuggestionValue,
@@ -17,7 +17,7 @@ type SearchInputProps = {
   selectSuggestion: (s: SearchSuggestion) => void;
   startSearch: () => void;
   categorySource: CategoryDataSource[];
-};
+} & AutoCompletePassthroughProps;
 
 const receiverId = new IdProvider();
 
@@ -27,6 +27,7 @@ export const SearchInputField: React.FC<SearchInputProps> = ({
   selectSuggestion,
   startSearch,
   categorySource,
+  ...props
 }) => {
   const [suggestions, setSuggestions] = React.useState<SearchSuggestion[]>([]);
   const onInputKeyUp = React.useCallback(
@@ -62,6 +63,7 @@ export const SearchInputField: React.FC<SearchInputProps> = ({
       inputClassName="pad-left"
       autoHideErrorText={true}
       onKeyUp={onInputKeyUp}
+      {...props}
     />
   );
 };

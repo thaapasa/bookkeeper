@@ -20,7 +20,7 @@ export const GroupingPage: React.FC = () => {
       <Stack gap="md" w="100%" px="md" pb="xl">
         <Box pos="relative" mt="md">
           <Title>Ryhmittelyt</Title>
-          <Box pos="absolute" right={0} bottom="md">
+          <Box pos="absolute" right={0} bottom="var(--mantine-spacing-lg)">
             <ActionIcon title="Uusi ryhmittely" onClick={newExpenseGrouping}>
               <Icons.AddChart />
             </ActionIcon>
