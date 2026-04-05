@@ -2,6 +2,7 @@ import { ActionIcon, Box } from '@mantine/core';
 import * as React from 'react';
 
 import { logger } from 'client/Logger';
+import { classNames } from 'client/ui/utils/classNames.ts';
 
 import { TextEditorComponent } from '../dialog/DialogState';
 import { Icons } from '../icons/Icons';
@@ -47,6 +48,7 @@ export const ActivatableTextField: React.FC<ActivatableTextFieldProps<any>> = <
 
   const cancel = () => {
     logger.info('Cancelling');
+    setValue(valueFromProps);
     onCancel?.();
     setEdit(false);
   };
@@ -80,7 +82,7 @@ export const ActivatableTextField: React.FC<ActivatableTextFieldProps<any>> = <
         className={className}
         value={value}
         onChange={setValue}
-        onKeyUp={handleKeyPress}
+        onKeyDown={handleKeyPress}
       />
       <ActionIcon size="sm" color="gray" onClick={cancel}>
         <Icons.CancelOutlined fontSize="medium" />
@@ -88,9 +90,17 @@ export const ActivatableTextField: React.FC<ActivatableTextFieldProps<any>> = <
     </Box>
   ) : (
     <Box
-      className={`${styles.valueContainer} ${className ?? ''}`}
+      className={classNames(styles.valueContainer, className)}
       style={viewStyle}
+      role="button"
+      tabIndex={0}
       onClick={activate}
+      onKeyDown={e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          activate();
+        }
+      }}
     >
       {value}
     </Box>

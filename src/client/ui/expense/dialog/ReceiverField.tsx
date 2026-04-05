@@ -4,7 +4,7 @@ import * as React from 'react';
 import { identity } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { AutoComplete, AutoCompletePassthroughProps } from 'client/ui/component/AutoComplete';
-import { usePersistentMemo } from 'client/ui/hooks/usePersistentMemo';
+import { usePersistentMemo } from 'client/ui/hooks/usePersistentMemo.ts';
 
 export type ReceiverFieldProps = {
   value: string;

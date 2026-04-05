@@ -8,7 +8,7 @@ import { ErrorView } from './ui/general/ErrorView';
 import { LoginPage } from './ui/general/LoginPage';
 import { useAsyncData } from './ui/hooks/useAsyncData';
 import { useSessionRefreshOnFocus } from './ui/hooks/useSessionRefreshOnFocus';
-import { BookkeeperPage } from './ui/layout/BookkeeperPage.tsx';
+import { BookkeeperPage } from './ui/layout/BookkeeperPage';
 
 export const App: React.FC = () => {
   const [session, setSession] = React.useState<Session | undefined>(undefined);

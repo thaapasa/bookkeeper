@@ -1,7 +1,7 @@
 import { Box, BoxProps, Group, Stack, Text } from '@mantine/core';
 import * as React from 'react';
 
-import { classNames } from '../utils/classNames.ts';
+import { classNames } from '../utils/classNames';
 import styles from './NoteView.module.css';
 
 export type NoteType = 'note' | 'warning';

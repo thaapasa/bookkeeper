@@ -22,7 +22,7 @@ import { DialogHeading, Subtitle } from '../design/Text';
 import { connectDialog } from '../dialog/DialogConnector';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useBaconProperty } from '../hooks/useBaconState';
-import { useForceReload } from '../hooks/useForceReload';
+import { useForceReload } from '../hooks/useForceReload.ts';
 import { Icons } from '../icons/Icons';
 import styles from './TrackingEditor.module.css';
 import { useTrackingState } from './TrackingEditorState';

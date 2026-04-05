@@ -14,7 +14,7 @@ import { ExpenseRow } from '../expense/row/ExpenseRow';
 import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useBaconProperty } from '../hooks/useBaconState';
-import { useForceReload } from '../hooks/useForceReload';
+import { useForceReload } from '../hooks/useForceReload.ts';
 import { TotalsView } from '../search/TotalsView';
 import { GroupingCategoryChart } from './GroupingCategoryChart';
 

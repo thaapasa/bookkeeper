@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Route, Routes, useNavigate, useParams } from 'react-router-dom';
+import { Route, Routes, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { shortcutToExpenseInEditor } from 'shared/expense';
 import { toDateTime } from 'shared/time';
@@ -8,7 +8,6 @@ import { updateExpenses } from 'client/data/State';
 import { logger } from 'client/Logger';
 import { useBaconProperty } from 'client/ui/hooks/useBaconState';
 import { useIsMobile } from 'client/ui/hooks/useBreakpoints';
-import { useQueryParams } from 'client/ui/hooks/useQueryParams';
 import { navigateAndWait } from 'client/ui/utils/Navigation';
 import { newExpenseSuffix } from 'client/util/Links';
 
@@ -17,8 +16,9 @@ import { ExpenseDialog } from './ExpenseDialog';
 const NewExpenseDialogPage: React.FC = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const params = useQueryParams();
-  const date = params.date ? toDateTime(params.date) : undefined;
+  const [searchParams] = useSearchParams();
+  const dateParam = searchParams.get('date');
+  const date = dateParam ? toDateTime(dateParam) : undefined;
 
   return (
     <ExpenseDialog

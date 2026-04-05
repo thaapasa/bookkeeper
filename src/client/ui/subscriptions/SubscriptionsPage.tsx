@@ -12,7 +12,7 @@ import { needUpdateE } from 'client/data/State';
 import { AsyncDataView } from '../component/AsyncDataView';
 import { useDeferredData } from '../hooks/useAsyncData';
 import { useBaconProperty } from '../hooks/useBaconState';
-import { useLocalStorageList } from '../hooks/useList';
+import { useLocalStorageList } from '../hooks/useList.ts';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { SubscriptionCategoryHeader, ToggleCategoryVisibility } from './SubscriptionCategoryHeader';
 import { SubscriptionCriteriaSelector } from './SubscriptionCriteriaSelector';

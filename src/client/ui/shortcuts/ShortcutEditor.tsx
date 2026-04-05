@@ -12,7 +12,7 @@ import { UploadImageButton } from '../component/UploadImageButton';
 import { DialogHeading, Subtitle } from '../design/Text';
 import { connectDialog } from '../dialog/DialogConnector';
 import { useAsyncData } from '../hooks/useAsyncData';
-import { useForceReload } from '../hooks/useForceReload';
+import { useForceReload } from '../hooks/useForceReload.ts';
 import { Icons } from '../icons/Icons';
 import { useShortcutState } from './ShortcutEditorState';
 import { ShortcutLink } from './ShortcutLink';

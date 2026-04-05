@@ -9,7 +9,7 @@ import { CategoryDataSource, getFullCategoryName } from 'client/data/Categories'
 import { eventValue } from 'client/util/ClientUtil';
 
 import { parseMonthRange, toYearRange } from '../component/daterange/dateRangeUtils';
-import { usePersistentMemo } from '../hooks/usePersistentMemo';
+import { usePersistentMemo } from '../hooks/usePersistentMemo.ts';
 import { requestSaveReport } from '../reports/ReportUtils';
 import { QuerySearchLayout } from './QuerySearchLayout';
 import { isReceiverSuggestion, isSameSuggestion, SearchSuggestion } from './SearchSuggestions';

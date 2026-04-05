@@ -110,12 +110,12 @@ raw pixels — acceptable for fixed-layout tables but could be named constants.
 
 ## Priority
 
-| Priority | Issue | Files |
-|----------|-------|-------|
-| High | ExpenseDialog: class component + styled wrappers | `ExpenseDialog.tsx` |
-| High | Styled wrappers for trivial layout | `CategorySelector`, `GroupingSelector`, `ExpenseDialogComponents`, `SplitRow`, `SplitButtons`, `ExpenseSplitDialog` |
-| Medium | Raw pixel values where Mantine tokens work | `ExpenseTable`, `RecurringSummaryRow`, `ExpenseInfo`, `RecurrenceInfo`, `SpecialRows` |
-| Medium | Inline style where Mantine props exist | `ExpenseRow`, `ExpenseTableLayout`, `SpecialRows`, `SourceSelector` |
-| Medium | Misleading file/type names | `Breakpoints.tsx`, `TableIcons.tsx`, `SpecialRows.tsx`, `RecurrenceInfoProps` |
-| Low | .tsx extensions in imports | Several files |
-| Low | Colors.ts imports → Mantine color refs | `ExpenseRow`, `DivisionInfo` |
+| Priority | Issue                                            | Files                                                                                                               |
+|----------|--------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
+| High     | ExpenseDialog: class component + styled wrappers | `ExpenseDialog.tsx`                                                                                                 |
+| High     | Styled wrappers for trivial layout               | `CategorySelector`, `GroupingSelector`, `ExpenseDialogComponents`, `SplitRow`, `SplitButtons`, `ExpenseSplitDialog` |
+| Medium   | Raw pixel values where Mantine tokens work       | `ExpenseTable`, `RecurringSummaryRow`, `ExpenseInfo`, `RecurrenceInfo`, `SpecialRows`                               |
+| Medium   | Inline style where Mantine props exist           | `ExpenseRow`, `ExpenseTableLayout`, `SpecialRows`, `SourceSelector`                                                 |
+| Medium   | Misleading file/type names                       | `Breakpoints.tsx`, `TableIcons.tsx`, `SpecialRows.tsx`, `RecurrenceInfoProps`                                       |
+| Low      | .tsx extensions in imports                       | Several files                                                                                                       |
+| Low      | Colors.ts imports → Mantine color refs           | `ExpenseRow`, `DivisionInfo`                                                                                        |

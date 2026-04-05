@@ -2,6 +2,8 @@ import { ActionIcon, Box, DEFAULT_THEME, Group, Stack } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import * as React from 'react';
 
+import { classNames } from 'client/ui/utils/classNames.ts';
+
 import { Icons } from '../icons/Icons';
 import styles from './ColorPicker.module.css';
 import { TextEdit } from './TextEdit';
@@ -37,9 +39,18 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ value, onChange }) => 
     <>
       <Group align="center" gap="xs">
         <Box
-          className={`${styles.colorBall} ${styles.colorBallExample}`}
+          className={classNames(styles.colorBall, styles.colorBallExample)}
           style={{ backgroundColor: value }}
+          role="button"
+          tabIndex={0}
+          aria-label={`Värin valinta: ${value}`}
           onClick={toggle}
+          onKeyDown={e => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              toggle();
+            }
+          }}
           title={value}
         />
         {open ? <TextEdit value={value} onChange={onChange} /> : value}
@@ -65,7 +76,16 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ value, onChange }) => 
                   className={styles.colorBall}
                   style={{ backgroundColor: col }}
                   key={name}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`${name} ${shadeIndices[shade]}`}
                   onClick={() => onChange(col)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      onChange(col);
+                    }
+                  }}
                 />
               );
             })}

@@ -20,6 +20,7 @@ export type AutoCompletePassthroughProps = {
   label?: string;
   errorText?: string;
   onKeyUp?: (event: React.KeyboardEvent<any>) => void;
+  onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
   onAdd?: () => void;
   className?: string;
   inputClassName?: string;
@@ -56,6 +57,7 @@ export const AutoComplete = <T,>({
   inputClassName: _inputClassName,
   autoHideErrorText: _autoHideErrorText,
   inputStyle: _inputStyle,
+  onKeyDown,
   ...props
 }: AutoCompleteProps<T>): React.ReactElement => {
   const suggestionMap = React.useMemo(() => {
@@ -100,12 +102,35 @@ export const AutoComplete = <T,>({
     [suggestionMap, onSelectSuggestion],
   );
 
+  // Track dropdown open state so we can suppress Enter when the user is
+  // selecting from the dropdown (otherwise it propagates to parent handlers
+  // like ActivatableTextField's commit before Mantine processes the selection).
+  const dropdownOpenRef = React.useRef(false);
+
+  const handleKeyDown = React.useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter' && dropdownOpenRef.current) {
+        // Dropdown is open: Enter is for selecting a suggestion.
+        // Stop DOM propagation AND skip the onKeyDown prop callback,
+        // because the prop (e.g. ActivatableTextField's commit handler)
+        // would fire before Mantine processes the selection.
+        e.stopPropagation();
+      } else {
+        onKeyDown?.(e);
+      }
+    },
+    [onKeyDown],
+  );
+
   return (
     <MantineAutocomplete
       id={id}
       w="100%"
       onChange={handleChange}
       onOptionSubmit={handleOptionSubmit}
+      onKeyDown={handleKeyDown}
+      onDropdownOpen={() => (dropdownOpenRef.current = true)}
+      onDropdownClose={() => (dropdownOpenRef.current = false)}
       data={data}
       error={errorText || undefined}
       spellCheck={false}

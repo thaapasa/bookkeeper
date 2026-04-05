@@ -1,54 +1,30 @@
 # Frontend Code Improvements Plan
 
-This document captures suggestions for improving the frontend codebase, identified during a code review on January 2026.
+This document captures suggestions for improving the frontend codebase, identified during a code review on January 2026. Status last updated April 2026.
 
 ## Medium Priority
 
-### 1. `any` Types in Hooks
+### ~~1. `any` Types in Hooks~~ ✅ Fixed
 
-**Locations**:
-- `src/client/ui/hooks/useList.tsx` line 8
-- `src/client/ui/hooks/useOnUnmount.tsx` line 8
-- `src/client/ui/hooks/usePersistentMemo.tsx` lines 7, 25, 42
-- `src/client/ui/hooks/useWhenMounted.tsx` line 11
-
-**Solution**: Use proper types like `DependencyList` for dependency arrays:
-
-```typescript
-import type { DependencyList } from 'react';
-
-export function useOnUnmount(f: () => void, deps?: DependencyList): void {
-```
+All hooks now use proper types (`DependencyList`, generics, `unknown`).
 
 ---
 
-### 2. Missing ResizeObserver in `useElementSize`
+### ~~2. Missing ResizeObserver in `useElementSize`~~ ✅ Removed
 
-**Location**: `src/client/ui/hooks/useElementSize.ts` lines 27-34
-
-**Problem**: Only responds to window resize, not element-specific size changes.
-
-**Solution**: Use `ResizeObserver` instead of window resize listener.
+The `useElementSize` hook has been removed from the codebase.
 
 ---
 
-### 3. Non-Reactive `useQueryParams`
+### ~~3. Non-Reactive `useQueryParams`~~ ✅ Fixed
 
-**Location**: `src/client/ui/hooks/useQueryParams.ts` lines 3-13
-
-**Problem**: Reads `window.location.search` during render but doesn't subscribe to URL changes.
-
-**Solution**: Add `popstate` event listener to react to browser navigation.
+Custom `useQueryParams` hook removed and replaced with React Router's `useSearchParams`.
 
 ---
 
-### 4. Accessibility Issues
+### ~~4. Accessibility Issues~~ ✅ Fixed
 
-**Locations**:
-- `src/client/ui/component/ActivatableTextField.tsx` lines 86-89: Missing keyboard support
-- `src/client/ui/component/ColorPicker.tsx` line 51: No accessible names for color buttons
-
-**Solution**: Add `role="button"`, `tabIndex={0}`, `aria-label`, and keyboard event handlers.
+Added `role="button"`, `tabIndex={0}`, `aria-label`, and keyboard event handlers to ActivatableTextField view mode and ColorPicker buttons.
 
 ---
 
@@ -60,7 +36,7 @@ All `keyCode` usage has been replaced with `event.key`.
 
 ### 6. `window.prompt` Usage
 
-**Location**: `src/client/ui/expense/dialog/ExpenseDialogComponents.tsx` lines 25-31
+**Location**: `src/client/ui/expense/dialog/ExpenseDialogComponents.tsx` line 22
 
 **Problem**: Using native `window.prompt` instead of the app's dialog system.
 
@@ -76,61 +52,34 @@ All class components have been converted to functional components.
 
 ## Low Priority
 
-### 8. Wrong File Extensions
+### ~~8. Wrong File Extensions~~ ✅ Fixed
 
-**Locations**: Multiple hook files use `.tsx` extension without JSX:
-- `useForceReload.tsx`, `useList.tsx`, `useObjectMemo.tsx`, `useOnUnmount.tsx`, `usePersistentMemo.tsx`, `useWhenMounted.tsx`
-
-**Solution**: Rename to `.ts` extension.
+All hook files renamed from `.tsx` to `.ts`.
 
 ---
 
-### 9. Redundant Code in `ExpenseRow`
+### ~~9. Redundant Code in `ExpenseRow`~~ ✅ Fixed
 
-**Location**: `src/client/ui/expense/row/ExpenseRow.tsx` lines 193-204
-
-**Problem**: Style calculation is done twice (ternary + if/else).
+The redundant style calculation has been cleaned up.
 
 ---
 
-### 10. Duplicate Constants
+### ~~10. Duplicate Constants~~ ✅ Fixed (OBE)
 
-**Locations**:
-- `src/client/ui/expense/dialog/ExpenseDialog.tsx` line 63
-- `src/client/ui/expense/split/ExpenseSplitDialog.tsx` line 14
-
-**Problem**: `AllowDialogEscape = false` defined in two files.
-
-**Solution**: Extract to shared configuration file.
+The `AllowDialogEscape` constant no longer exists. Both dialog files now use Mantine's `closeOnEscape={false}` prop directly.
 
 ---
 
-### 11. Token Logged to Console
+### ~~11. Token Logged to Console~~ ✅ Fixed
 
-**Location**: `src/client/data/Login.ts` line 46
-
-**Problem**: Logs the refresh token value to browser console.
-
-```typescript
-logger.info(`Not logged in but refresh token exists in localStorage: ${token}`);
-```
-
-**Note**: Not a security issue since browser console is only visible to the token owner, but good practice not to log credentials.
-
-**Solution**:
-
-```typescript
-logger.info('Not logged in but refresh token exists in localStorage');
-```
+Token is now truncated to first 4 characters in the log message.
 
 ---
 
 ## Implementation Order Recommendation
 
-1. **Type safety** (1) - Replace `any` with proper types
-2. **Accessibility** (4) - Important for inclusivity
-3. **Deprecated APIs** (5) - Prevent future breakage
-4. **Other items** - As time permits
+1. **Accessibility** (4) - Important for inclusivity
+2. **Other items** - As time permits
 
 ---
 
@@ -184,6 +133,6 @@ return <Child onClick={handleClick} />;
 ## Notes
 
 - The codebase has good separation of concerns and consistent patterns overall
+- All components are now functional (no class components remain)
 - The Bacon.js reactive streams work well but require careful cleanup
-- Consider gradual migration of remaining class components to functional
 - The `createValidatingRouter` pattern on the backend is well-designed; similar validation patterns could benefit the frontend

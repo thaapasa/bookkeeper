@@ -13,8 +13,8 @@ import { logger } from 'client/Logger';
 import { searchPagePath } from 'client/util/Links';
 
 import { useBaconProperty } from '../hooks/useBaconState';
-import { usePersistentMemo } from '../hooks/usePersistentMemo';
-import { useWhenMounted } from '../hooks/useWhenMounted';
+import { usePersistentMemo } from '../hooks/usePersistentMemo.ts';
+import { useWhenMounted } from '../hooks/useWhenMounted.ts';
 import { QueryView, QueryViewHandle } from './QueryView';
 import { ResultsView } from './ResultsView';
 

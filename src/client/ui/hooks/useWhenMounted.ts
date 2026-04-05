@@ -2,8 +2,8 @@ import type { DependencyList } from 'react';
 
 import { Unsubscriber } from 'client/util/ClientUtil';
 
-import { useOnUnmount } from './useOnUnmount';
-import { usePersistentMemo } from './usePersistentMemo';
+import { useOnUnmount } from './useOnUnmount.ts';
+import { usePersistentMemo } from './usePersistentMemo.ts';
 
 /**
  * Runs the given setup code once when the parent is mounted

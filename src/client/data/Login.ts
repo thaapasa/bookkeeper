@@ -65,7 +65,9 @@ async function getLoginFromLocalStorage(): Promise<Session | null> {
     apiConnect.setToken(null);
     return null;
   }
-  logger.info(`Not logged in but refresh token exists in localStorage: ${refreshToken}`);
+  logger.info(
+    `Not logged in but refresh token exists in localStorage: ${refreshToken.slice(0, 4)}...`,
+  );
   try {
     apiConnect.setToken(null);
     return await apiConnect.refreshSession(refreshToken);

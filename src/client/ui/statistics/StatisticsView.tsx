@@ -14,7 +14,7 @@ import { AsyncDataView } from '../component/AsyncDataView';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useBaconProperty } from '../hooks/useBaconState';
 import { useIsMobile } from '../hooks/useBreakpoints';
-import { useLocalStorageList } from '../hooks/useList';
+import { useLocalStorageList } from '../hooks/useList.ts';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { Icons } from '../icons/Icons';
 import { CategoryStatisticsChart } from './category/CategoryStatisticsChart';

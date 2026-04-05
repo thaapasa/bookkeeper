@@ -6,7 +6,7 @@ import apiConnect from 'client/data/ApiConnect';
 import { AsyncDataView } from '../component/AsyncDataView';
 import { Title } from '../design/Text';
 import { useAsyncData } from '../hooks/useAsyncData';
-import { useForceReload } from '../hooks/useForceReload';
+import { useForceReload } from '../hooks/useForceReload.ts';
 import { Icons } from '../icons/Icons';
 import { newTrackingSubject, TrackingEditor } from './TrackingEditor';
 import { TrackingSubjectsList } from './TrackingSubjectView';

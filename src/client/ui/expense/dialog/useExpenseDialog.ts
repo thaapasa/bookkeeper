@@ -13,7 +13,7 @@ import { toDateTime, toISODate } from 'shared/time';
 import { identity, Money, sanitizeMoneyInput, valuesToArray } from 'shared/util';
 import { notifyError } from 'client/data/State';
 import { logger } from 'client/Logger';
-import { usePersistentMemo } from 'client/ui/hooks/usePersistentMemo';
+import { usePersistentMemo } from 'client/ui/hooks/usePersistentMemo.ts';
 import { unsubscribeAll, Unsubscriber } from 'client/util/ClientUtil';
 
 import type { FullExpenseDialogProps } from './ExpenseDialog';
