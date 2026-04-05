@@ -9,11 +9,12 @@ This document captures suggestions for improving the backend codebase, identifie
 **Location**: Various API files in `src/server/api/`
 
 **Problem**: Some endpoints validate responses with a schema, others don't:
+
 ```typescript
 // No response validation
 api.getTx('/list', {}, (tx, session) => getAllCategories(tx, session.group.id), true);
 
-// Has response validation  
+// Has response validation
 api.postTx('/', { body: CategoryInput, response: ApiMessage }, ...);
 ```
 
@@ -30,10 +31,12 @@ api.postTx('/', { body: CategoryInput, response: ApiMessage }, ...);
 **Problem**: In `createCategory` (lines 118-122) and `deleteCategory` (lines 134-137), there are unreachable null checks after calling `getCategoryById`, which already throws `NotFoundError` if not found.
 
 **Solution**: Remove the redundant null checks:
+
 ```typescript
 // Before
 const parent = await getCategoryById(tx, groupId, data.parentId);
-if (!parent) {  // This is never true
+if (!parent) {
+  // This is never true
   throw new NotFoundError('CATEGORY_NOT_FOUND', 'category');
 }
 
@@ -53,12 +56,13 @@ const parent = await getCategoryById(tx, groupId, data.parentId);
 **Problem**: All 150+ usages of `ITask<any>` defeat TypeScript's type checking.
 
 **Solution**: Define a typed database context:
+
 ```typescript
 // In src/server/data/Db.ts
 export type DbTask = ITask<{}>;
 
 // Then use throughout
-export async function getAllCategories(tx: DbTask, groupId: number): Promise<Category[]>
+export async function getAllCategories(tx: DbTask, groupId: number): Promise<Category[]>;
 ```
 
 ---
@@ -68,11 +72,13 @@ export async function getAllCategories(tx: DbTask, groupId: number): Promise<Cat
 **Location**: All API files using `createValidatingRouter`
 
 **Problem**: The `true` at the end of handler registrations means "group required" but isn't self-documenting:
+
 ```typescript
 api.deleteTx('/:categoryId', { response: ApiMessage }, handler, true);
 ```
 
 **Solution**: Change the API to accept an options object:
+
 ```typescript
 api.deleteTx('/:categoryId', { response: ApiMessage, groupRequired: true }, handler);
 ```
@@ -86,6 +92,7 @@ This requires modifying `ValidatingRouter.ts`.
 **Location**: `src/shared/types/Api.ts`
 
 **Problem**: Single type with many optional fields used for all mutation responses:
+
 ```typescript
 export const ApiMessage = z.object({
   status: z.string(),
@@ -102,6 +109,7 @@ export const ApiMessage = z.object({
 **Impact**: Can't tell at the type level what a specific endpoint returns.
 
 **Solution**: Define specific response types per operation:
+
 ```typescript
 export const CreateExpenseResponse = ApiMessage.extend({
   expenseId: ObjectId,
@@ -121,12 +129,13 @@ export const DeleteCategoryResponse = ApiMessage.extend({
 **Location**: `src/server/api/Api.ts` lines 59-72
 
 **Problem**: Some endpoints manually parse parameters instead of using `createValidatingRouter`:
+
 ```typescript
 Requests.txRequest(
   (tx, session, req): Promise<User> =>
     getUserById(tx, session.group.id, parseInt(String(req.params.id), 10)),
   true,
-)
+);
 ```
 
 **Solution**: Migrate these endpoints to use `createValidatingRouter` for consistency.
@@ -150,6 +159,7 @@ Requests.txRequest(
 **Problem**: `undefinedToError` and `emptyToError` use `any` types extensively.
 
 **Solution**: Add proper generics:
+
 ```typescript
 export function undefinedToError<E extends BkError>(
   ErrorClass: new (...args: any[]) => E,

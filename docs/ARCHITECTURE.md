@@ -142,11 +142,11 @@ React components use **functional components with hooks**:
 // In src/client/ui/*.tsx
 export const MyComponent: React.FC<Props> = ({ prop1, prop2 }) => {
   const [state, setState] = React.useState<Type>(initial);
-  
+
   React.useEffect(() => {
     // Side effects
   }, [dependencies]);
-  
+
   return (
     <Stack gap="md" p="md">
       {/* JSX */}
@@ -162,7 +162,9 @@ Uses **Mantine style props** and **CSS modules**:
 ```tsx
 <Stack gap="md" p="md">
   <Group justify="space-between" px={{ base: 'xs', sm: 'md' }}>
-    <Text fz="sm" c="primary.7">Label</Text>
+    <Text fz="sm" c="primary.7">
+      Label
+    </Text>
   </Group>
 </Stack>
 ```
