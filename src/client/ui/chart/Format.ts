@@ -12,9 +12,10 @@ export const formatMoney = (v: number | string) => {
   }
 };
 
-/** Formatter for Recharts tooltips that handles undefined values */
-export const formatMoneyForChart = (v: number | string | undefined) =>
-  formatMoney(typeof v === 'number' || typeof v === 'string' ? v : 0);
+/** Formatter for Recharts tooltips that handles undefined and array values */
+export const formatMoneyForChart = (
+  v: number | string | readonly (string | number)[] | undefined,
+) => formatMoney(typeof v === 'number' || typeof v === 'string' ? v : 0);
 
 export function useThinFormat(size: { width: number }) {
   return size.width < 550;

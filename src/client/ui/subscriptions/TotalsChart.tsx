@@ -33,7 +33,7 @@ export const TotalsChart: React.FC<{
             cy="50%"
             outerRadius={110}
             label={d => formatMoney((d.payload as TotalsData)?.sum ?? 0)}
-            onClick={data => onSelectCategory(data.categoryId)}
+            onClick={data => onSelectCategory((data as unknown as TotalsData).categoryId)}
           >
             {data.map((d, i) => (
               <Cell
