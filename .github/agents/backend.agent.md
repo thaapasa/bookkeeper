@@ -14,9 +14,8 @@ const api = createValidatingRouter(Router());
 
 api.getTx(
   '/path/:id',
-  { query: QuerySchema, response: ResponseSchema },
+  { query: QuerySchema, response: ResponseSchema, groupRequired: true },
   (tx, session, { params, query }) => dbFunction(tx, session.group.id, params.id),
-  true, // groupRequired
 );
 ```
 

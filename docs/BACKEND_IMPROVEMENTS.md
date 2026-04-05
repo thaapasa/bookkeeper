@@ -38,23 +38,9 @@ Defined `DbTask = ITask<object>` in `src/server/data/Db.ts` and replaced all `IT
 
 ---
 
-### 4. Magic Boolean Fourth Parameter
+### ~~4. Magic Boolean Fourth Parameter~~ ✅ Done
 
-**Location**: All API files using `createValidatingRouter`
-
-**Problem**: The `true` at the end of handler registrations means "group required" but isn't self-documenting:
-
-```typescript
-api.deleteTx('/:categoryId', { response: ApiMessage }, handler, true);
-```
-
-**Solution**: Change the API to accept an options object:
-
-```typescript
-api.deleteTx('/:categoryId', { response: ApiMessage, groupRequired: true }, handler);
-```
-
-This requires modifying `ValidatingRouter.ts`.
+Moved `groupRequired` into the spec object. All API endpoints now use `{ groupRequired: true }` instead of a trailing boolean.
 
 ---
 

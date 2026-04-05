@@ -16,16 +16,15 @@ const api = createValidatingRouter(Router());
 
 api.getTx(
   '/path/:id',
-  { query: QuerySchema, response: ResponseSchema },
+  { query: QuerySchema, response: ResponseSchema, groupRequired: true },
   (tx, session, { params, query }) => dbFunction(tx, session.group.id, params.id),
-  true, // groupRequired
 );
 ```
 
 - `getTx`/`postTx`/`putTx`/`deleteTx` — run handler in a database transaction
 - `get`/`post`/`put`/`delete` — for non-database operations
 - Always specify Zod schemas for `query`, `body`, and `response`
-- Set `groupRequired` to `true` for endpoints needing group context
+- Set `groupRequired: true` in the spec for endpoints needing group context
 - API handlers: `src/server/api/*Api.ts`
 - DB functions: `src/server/data/*Db.ts` or `*Service.ts`
 

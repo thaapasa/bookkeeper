@@ -36,10 +36,9 @@ export function createExpenseApi() {
   // GET /api/expense/month
   api.getTx(
     '/month',
-    { query: YearMonth, response: ExpenseCollection },
+    { query: YearMonth, response: ExpenseCollection, groupRequired: true },
     (tx, session, { query }) =>
       getExpensesByMonth(tx, session.group.id, session.user.id, query.year, query.month),
-    true,
   );
 
   // GET /api/expense/search?[ExpenseSearch]
@@ -53,7 +52,7 @@ export function createExpenseApi() {
   // Create new expense
   api.postTx(
     '/',
-    { body: ExpenseInput, response: ApiMessage },
+    { body: ExpenseInput, response: ApiMessage, groupRequired: true },
     (tx, session, { body }) =>
       createExpense(
         tx,
@@ -62,7 +61,6 @@ export function createExpenseApi() {
         body,
         session.group.defaultSourceId ?? 0,
       ),
-    true,
   );
 
   const ExpenseSplitBody = z.object({
@@ -71,17 +69,16 @@ export function createExpenseApi() {
   // POST /api/expense/[expenseId]/split
   api.postTx(
     '/:expenseId/split',
-    { body: ExpenseSplitBody },
+    { body: ExpenseSplitBody, groupRequired: true },
     (tx, session, { params, body }) =>
       splitExpense(tx, session.group.id, session.user.id, params.expenseId, body.splits),
-    true,
   );
 
   // PUT /api/expense/[expenseId]
   // Update expense
   api.putTx(
     '/:expenseId',
-    { body: ExpenseInput },
+    { body: ExpenseInput, groupRequired: true },
     (tx, session, { params, body }) =>
       updateExpenseById(
         tx,
@@ -91,24 +88,16 @@ export function createExpenseApi() {
         body,
         session.group.defaultSourceId || 0,
       ),
-    true,
   );
 
   // GET /api/expense/[expenseId]
-  api.getTx(
-    '/:expenseId',
-    {},
-    (tx, session, { params }) =>
-      getExpenseWithDivision(tx, session.group.id, session.user.id, params.expenseId),
-    true,
+  api.getTx('/:expenseId', { groupRequired: true }, (tx, session, { params }) =>
+    getExpenseWithDivision(tx, session.group.id, session.user.id, params.expenseId),
   );
 
   // DELETE /api/expense/[expenseId]
-  api.deleteTx(
-    '/:expenseId',
-    {},
-    (tx, session, { params }) => deleteExpenseById(tx, session.group.id, params.expenseId),
-    true,
+  api.deleteTx('/:expenseId', { groupRequired: true }, (tx, session, { params }) =>
+    deleteExpenseById(tx, session.group.id, params.expenseId),
   );
 
   return api.router;

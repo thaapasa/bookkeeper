@@ -14,18 +14,16 @@ export function createSourceApi() {
   // GET /api/source/list
   api.getTx(
     '/list',
-    {},
+    { groupRequired: true },
     (tx, session): Promise<Source[]> => getAllSources(tx, session.group.id),
-    true,
   );
 
   // GET /api/source/:id
   api.getTx(
     '/:sourceId',
-    {},
+    { groupRequired: true },
     (tx, session, { params }): Promise<Source> =>
       getSourceById(tx, session.group.id, params.sourceId),
-    true,
   );
 
   api.patchTx('/:sourceId', { body: SourcePatch }, (tx, session, { params, body }) =>

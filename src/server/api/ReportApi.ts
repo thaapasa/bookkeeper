@@ -14,25 +14,20 @@ export function createReportApi() {
 
   // GET /api/report/all
   // Get all reports
-  api.postTx('/all', {}, (tx, session, {}) => getAllReports(tx, session.group.id), true);
+  api.postTx('/all', { groupRequired: true }, (tx, session, {}) =>
+    getAllReports(tx, session.group.id),
+  );
 
   // POST /api/report
   // Create new report
-  api.postTx(
-    '/',
-    { body: ReportCreationData },
-    (tx, session, { body }) =>
-      createReport(tx, session.group.id, session.user.id, body.title, body.query),
-    true,
+  api.postTx('/', { body: ReportCreationData, groupRequired: true }, (tx, session, { body }) =>
+    createReport(tx, session.group.id, session.user.id, body.title, body.query),
   );
 
   // DELETE /api/report
   // Delete report
-  api.deleteTx(
-    '/:reportId',
-    {},
-    (tx, session, { params }) => deleteReport(tx, session.group.id, params.reportId),
-    true,
+  api.deleteTx('/:reportId', { groupRequired: true }, (tx, session, { params }) =>
+    deleteReport(tx, session.group.id, params.reportId),
   );
 
   return api.router;

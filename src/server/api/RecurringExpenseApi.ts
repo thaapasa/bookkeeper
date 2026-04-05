@@ -28,16 +28,15 @@ export function createRecurringExpenseApi() {
   // Create a new recurring expense from the selected expense
   api.postTx(
     '/:expenseId',
-    { body: RecurringExpenseInput },
+    { body: RecurringExpenseInput, groupRequired: true },
     (tx, session, { body, params }) =>
       createRecurringFromExpense(tx, session.group.id, session.user.id, params.expenseId, body),
-    true,
   );
 
   // DELETE /api/expense/recurring/[expenseId]
   api.deleteTx(
     '/:expenseId',
-    { query: RecurringExpenseTargetSchema },
+    { query: RecurringExpenseTargetSchema, groupRequired: true },
     (tx, session, { query, params }) =>
       deleteRecurringByExpenseId(
         tx,
@@ -46,7 +45,6 @@ export function createRecurringExpenseApi() {
         params.expenseId,
         query.target,
       ),
-    true,
   );
 
   // PUT /api/expense/recurring/[expenseId]
@@ -56,6 +54,7 @@ export function createRecurringExpenseApi() {
     {
       query: RecurringExpenseTargetSchema,
       body: ExpenseInput,
+      groupRequired: true,
     },
     (tx, session, { query, params, body }) =>
       updateRecurringExpenseByExpenseId(
@@ -67,7 +66,6 @@ export function createRecurringExpenseApi() {
         body,
         session.group.defaultSourceId || 0,
       ),
-    true,
   );
 
   return api.router;

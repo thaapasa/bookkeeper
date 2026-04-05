@@ -15,7 +15,7 @@ export function createStatisticsApi() {
   // POST /api/statistics/category
   api.postTx(
     '/category',
-    { body: StatisticsSearchType },
+    { body: StatisticsSearchType, groupRequired: true },
     async (tx, session, { body }) =>
       getCategoryStatistics(
         tx,
@@ -25,7 +25,6 @@ export function createStatisticsApi() {
         getRangeForQueries(body.range),
         body.onlyOwn === true,
       ),
-    true,
   );
 
   return api.router;

@@ -75,6 +75,7 @@ type ValidatorSpec<R, P, Q, B> = {
   query?: z.ZodType<Q>;
   body?: z.ZodType<B>;
   response?: z.ZodType<R>;
+  groupRequired?: boolean;
 };
 
 export type HandlerParams<P, Q, B> = {
@@ -91,7 +92,6 @@ function processValidatedRequest<Return, P, Q, B>(
     req: Request,
     res: Response,
   ) => MaybePromise<Return>,
-  groupRequired?: boolean,
 ): RequestHandler {
   return processRequest(async (session, req, res) => {
     const ctx = `${req.method} ${req.originalUrl}`;
@@ -100,7 +100,7 @@ function processValidatedRequest<Return, P, Q, B>(
     const query = validateOr(req.query, spec.query, {} as Q, `${ctx} query`);
     const response = await handler(session, { params, query, body }, req, res);
     return validateOr(response, spec.response, response, `${ctx} return value`);
-  }, groupRequired);
+  }, spec.groupRequired);
 }
 
 function processValidatedTxRequest<Return, P, Q, B>(
@@ -112,7 +112,6 @@ function processValidatedTxRequest<Return, P, Q, B>(
     req: Request,
     res: Response,
   ) => MaybePromise<Return>,
-  groupRequired?: boolean,
 ): RequestHandler {
   return processUnauthorizedRequest(async (req, res) => {
     const token = ServerUtil.getToken(req);
@@ -122,7 +121,7 @@ function processValidatedTxRequest<Return, P, Q, B>(
     const query = validateOr(req.query, spec.query, {} as Q, `${ctx} query`);
     return await db.tx(async tx => {
       const session = await getSessionByToken(tx, token, optNumber(req.query.groupId));
-      if (groupRequired && !session.group.id) {
+      if (spec.groupRequired && !session.group.id) {
         throw new InvalidGroupError();
       }
       const response = await handler(tx, session, { params, query, body }, req, res);

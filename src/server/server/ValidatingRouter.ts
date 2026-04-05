@@ -38,6 +38,7 @@ type ValidatorSpec<R, Q, B> = {
   query?: z.ZodType<Q>;
   body?: z.ZodType<B>;
   response?: z.ZodType<R>;
+  groupRequired?: boolean;
 };
 
 type PathToParams<Path extends string> = Path extends `${infer Start}/${infer Rest}`
@@ -63,7 +64,6 @@ type ValidatedRequest = <Return, Path extends string, Q, B>(
     req: Request,
     res: Response,
   ) => MaybePromise<Return>,
-  groupRequired?: boolean,
 ) => RequestHandler;
 
 type ValidatedTxRequest = <Return, Path extends string, Q, B>(
@@ -76,7 +76,6 @@ type ValidatedTxRequest = <Return, Path extends string, Q, B>(
     req: Request,
     res: Response,
   ) => MaybePromise<Return>,
-  groupRequired?: boolean,
 ) => RequestHandler;
 
 type TxRouteMethods = {
@@ -92,22 +91,16 @@ export function createValidatingRouter(router: Router): WrappedRouter {
   const txFuns = recordFromPairs(
     RouteMethods.map<[`${RouteMethod}Tx`, ValidatedTxRequest]>(m => [
       `${m}Tx`,
-      (path, spec, handler, groupRequired) =>
-        router[m](
-          path,
-          Requests.validatedTxRequest(addParamType(path, spec), handler, groupRequired),
-        ),
+      (path, spec, handler) =>
+        router[m](path, Requests.validatedTxRequest(addParamType(path, spec), handler)),
     ]),
   );
 
   const funs = recordFromPairs(
     RouteMethods.map<[RouteMethod, ValidatedRequest]>(m => [
       m,
-      (path, spec, handler, groupRequired) =>
-        router[m](
-          path,
-          Requests.validatedRequest(addParamType(path, spec), handler, groupRequired),
-        ),
+      (path, spec, handler) =>
+        router[m](path, Requests.validatedRequest(addParamType(path, spec), handler)),
     ]),
   );
 
