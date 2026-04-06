@@ -44,38 +44,12 @@ Moved `groupRequired` into the spec object. All API endpoints now use `{ groupRe
 
 ---
 
-### 5. Catch-All `ApiMessage` Type
+### ~~5. Catch-All `ApiMessage` Type~~ ✅ Done
 
-**Location**: `src/shared/types/Api.ts`
-
-**Problem**: Single type with many optional fields used for all mutation responses:
-
-```typescript
-export const ApiMessage = z.object({
-  status: z.string(),
-  message: z.string(),
-  userId: ObjectId.optional(),
-  expenseId: ObjectId.optional(),
-  templateExpenseId: ObjectId.optional(),
-  recurringExpenseId: ObjectId.optional(),
-  categoryId: ObjectId.optional(),
-  count: z.number().int().optional(),
-});
-```
-
-**Impact**: Can't tell at the type level what a specific endpoint returns.
-
-**Solution**: Define specific response types per operation:
-
-```typescript
-export const CreateExpenseResponse = ApiMessage.extend({
-  expenseId: ObjectId,
-});
-
-export const DeleteCategoryResponse = ApiMessage.extend({
-  categoryId: ObjectId,
-});
-```
+Slimmed `ApiMessage` to just `status` + `message`. Created specific response types:
+`ExpenseIdResponse`, `CategoryIdResponse`, `UserIdResponse`, `CountResponse`,
+`RecurringExpenseCreatedResponse`. Updated server DB functions, API response schemas,
+client API methods, and test helpers to use the specific types.
 
 ---
 

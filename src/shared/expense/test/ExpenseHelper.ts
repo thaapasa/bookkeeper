@@ -12,6 +12,8 @@ import { YearMonth } from '../../time';
 import {
   ApiMessage,
   CategoryData,
+  CategoryIdResponse,
+  ExpenseIdResponse,
   isApiMessageWithExpenseId,
   isApiMessageWithRecurringExpenseId,
   isDbObject,
@@ -86,7 +88,7 @@ export const division = {
 export async function newExpense(
   session: SessionWithControl,
   expense?: Partial<Expense>,
-): Promise<ApiMessage> {
+): Promise<ExpenseIdResponse> {
   const data = {
     userId: session.user.id,
     date: '2018-01-22',
@@ -98,7 +100,7 @@ export async function newExpense(
     categoryId: findCategoryId('Ruoka', session),
     ...expense,
   };
-  return captureId(await session.post<ApiMessage>('/api/expense', data));
+  return captureId(await session.post<ExpenseIdResponse>('/api/expense', data));
 }
 
 export async function fetchMonthStatus(session: SessionWithControl, month: YearMonth) {
@@ -125,11 +127,9 @@ export async function splitExpense(
 export async function newCategory(
   session: SessionWithControl,
   data: CategoryData,
-): Promise<ApiMessage> {
-  const d = await session.post<ApiMessage>('/api/category', data);
-  if (d.categoryId) {
-    createdCategories.push(d.categoryId);
-  }
+): Promise<CategoryIdResponse> {
+  const d = await session.post<CategoryIdResponse>('/api/category', data);
+  createdCategories.push(d.categoryId);
   return d;
 }
 
@@ -156,12 +156,9 @@ export async function deleteCreated(session: SessionWithControl): Promise<boolea
   }
 }
 
-export function checkCreateStatus(s: ApiMessage): number {
+export function checkCreateStatus(s: ExpenseIdResponse): number {
   expect(s.status).toEqual('OK');
   expect(s.expenseId).toBeGreaterThan(0);
-  if (!s.expenseId) {
-    throw new Error('not-reached');
-  }
   return s.expenseId;
 }
 

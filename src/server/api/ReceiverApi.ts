@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 
-import { ApiMessage } from 'shared/types';
+import { CountResponse } from 'shared/types';
 import { queryReceivers, renameReceiver } from 'server/data/BasicExpenseDb';
 import { createValidatingRouter } from 'server/server/ValidatingRouter';
 
@@ -30,7 +30,7 @@ export function createReceiverApi() {
   // PUT /api/receiver/rename
   api.putTx(
     '/rename',
-    { body: RenameRequest, response: ApiMessage, groupRequired: true },
+    { body: RenameRequest, response: CountResponse, groupRequired: true },
     async (tx, session, { body }) => {
       const count = await renameReceiver(tx, session.group.id, body.oldName, body.newName);
       return { status: 'OK', message: `${count} expenses updated`, count };

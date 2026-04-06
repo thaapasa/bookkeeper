@@ -20,10 +20,12 @@ import { DateLike, ISODate, toDate, toDateTime, toISODate } from 'shared/time';
 import {
   ApiMessage,
   DbObject,
+  ExpenseIdResponse,
   InvalidExpense,
   InvalidInputError,
   NotFoundError,
   ObjectId,
+  RecurringExpenseCreatedResponse,
 } from 'shared/types';
 import { assertDefined, camelCaseObject, Money, toArray, unnest } from 'shared/util';
 import { DbTask } from 'server/data/Db.ts';
@@ -104,7 +106,7 @@ export async function updateRecurringExpenseTemplate(
   expenseId: ObjectId,
   data: ExpenseInput,
   defaultSourceId: ObjectId,
-): Promise<ApiMessage> {
+): Promise<ExpenseIdResponse> {
   const expense = await getExpenseById(tx, groupId, userId, expenseId);
   assertDefined(expense.recurringExpenseId);
   const recurringExpense = await getRecurringExpenseInfo(tx, groupId, expense.recurringExpenseId);
@@ -171,7 +173,7 @@ export async function createRecurringFromExpense(
   userId: ObjectId,
   expenseId: ObjectId,
   recurrence: RecurringExpenseInput,
-): Promise<ApiMessage> {
+): Promise<RecurringExpenseCreatedResponse> {
   logger.info(
     `Create recurring expense with a period of ${recurrence.period.amount} ${recurrence.period.unit} from ${expenseId}`,
   );
@@ -495,12 +497,14 @@ async function updateRecurringExpense(
   );
   await deleteDivisionForRecurrence(tx, original.recurringExpenseId, afterDate);
   await createDivisionForRecurrence(tx, original.recurringExpenseId, division, afterDate);
-  return {
+  // Extra fields (expenseId, recurringExpenseId) pass through to clients using type guards
+  const result = {
     status: 'OK',
     message: 'Recurring expenses updated',
     expenseId: original.id,
     recurringExpenseId: original.recurringExpenseId,
   };
+  return result;
 }
 
 export async function updateRecurringExpenseByExpenseId(

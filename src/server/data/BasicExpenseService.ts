@@ -1,5 +1,5 @@
 import { Expense, ExpenseDivisionItem, ExpenseInput } from 'shared/expense';
-import { ApiMessage, ObjectId } from 'shared/types';
+import { ExpenseIdResponse, ObjectId } from 'shared/types';
 import { DbTask } from 'server/data/Db.ts';
 import { logger } from 'server/Logger';
 
@@ -21,7 +21,7 @@ export async function createExpense(
   groupId: number,
   expenseInput: ExpenseInput,
   defaultSourceId: number,
-): Promise<ApiMessage> {
+): Promise<ExpenseIdResponse> {
   const expense = setExpenseDataDefaults(expenseInput);
   const sourceId = expense.sourceId || defaultSourceId;
   const [cat, user, source] = await Promise.all([

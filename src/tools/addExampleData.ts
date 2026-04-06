@@ -3,7 +3,7 @@ import pino from 'pino';
 import { ExpenseData } from 'shared/expense';
 import { createTestClient, SessionWithControl } from 'shared/net/test';
 import { toDateTime, toISODate } from 'shared/time';
-import { ApiMessage } from 'shared/types';
+import { ExpenseIdResponse } from 'shared/types';
 import { unnest } from 'shared/util';
 
 const logger = pino();
@@ -37,7 +37,7 @@ async function addExampleData() {
 
   async function addExpense(expense: Partial<ExpenseData>, session: SessionWithControl) {
     const data = { ...defaultExpense, ...expense };
-    return session.post<ApiMessage>('/api/expense', data);
+    return session.post<ExpenseIdResponse>('/api/expense', data);
   }
 
   await addExpense({}, session);

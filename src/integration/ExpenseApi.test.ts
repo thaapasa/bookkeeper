@@ -5,7 +5,7 @@ import { Expense, ExpenseCollection, ExpenseStatus } from 'shared/expense';
 import { checkCreateStatus, cleanup, division, findUserId, newExpense } from 'shared/expense/test';
 import { createTestClient, SessionWithControl } from 'shared/net/test';
 import { ISODatePattern, toDateTime } from 'shared/time';
-import { ApiMessage } from 'shared/types';
+import { ExpenseIdResponse } from 'shared/types';
 import { Money } from 'shared/util';
 import { expectThrow } from 'shared/util/test';
 import { logger } from 'server/Logger';
@@ -117,7 +117,7 @@ describe('expense', () => {
       ],
     });
     const org = await session.get<Expense>(`/api/expense/${res.expenseId}`);
-    const s = await session.put<ApiMessage>(`/api/expense/${org.id}`, org);
+    const s = await session.put<ExpenseIdResponse>(`/api/expense/${org.id}`, org);
     expect(s.status).toEqual('OK');
     expect(s.expenseId).toEqual(org.id);
     const e = await session.get<Expense>(`/api/expense/${org.id}`);

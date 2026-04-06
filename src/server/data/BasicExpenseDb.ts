@@ -12,7 +12,7 @@ import {
   UserExpense,
 } from 'shared/expense';
 import { DateLike, toISODate } from 'shared/time';
-import { ApiMessage, isDefined, NotFoundError, ObjectId } from 'shared/types';
+import { ExpenseIdResponse, isDefined, NotFoundError, ObjectId } from 'shared/types';
 import { Money, MoneyLike } from 'shared/util';
 import { DbTask } from 'server/data/Db.ts';
 import { logger } from 'server/Logger';
@@ -188,7 +188,7 @@ export async function deleteExpenseById(
   tx: DbTask,
   groupId: number,
   expenseId: number,
-): Promise<ApiMessage> {
+): Promise<ExpenseIdResponse> {
   await tx.none(`DELETE FROM expenses WHERE id=$/expenseId/ AND group_id=$/groupId/`, {
     expenseId,
     groupId,
@@ -294,7 +294,7 @@ export async function updateExpense(
   original: Expense,
   expenseInput: ExpenseInput,
   defaultSourceId: number,
-): Promise<ApiMessage> {
+): Promise<ExpenseIdResponse> {
   const expense = setExpenseDataDefaults(expenseInput);
   logger.debug({ original, expense }, 'Updating expense');
   const sourceId = expense.sourceId || defaultSourceId;

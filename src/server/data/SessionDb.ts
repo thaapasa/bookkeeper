@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import { promisify } from 'util';
 
 import { ExpenseShortcut } from 'shared/expense';
-import { ApiMessage, AuthenticationError, Session, SessionBasicInfo } from 'shared/types';
+import { AuthenticationError, Session, SessionBasicInfo, UserIdResponse } from 'shared/types';
 import { DbTask } from 'server/data/Db.ts';
 import { logger } from 'server/Logger';
 
@@ -148,7 +148,10 @@ export async function refreshSessionWithRefreshToken(
   return appendInfoToSession(tx, sessionInfo);
 }
 
-export async function logoutSession(tx: DbTask, session: SessionBasicInfo): Promise<ApiMessage> {
+export async function logoutSession(
+  tx: DbTask,
+  session: SessionBasicInfo,
+): Promise<UserIdResponse> {
   logger.info({ userId: session.user.id }, 'Logout');
   if (!session.token) {
     throw new AuthenticationError('INVALID_TOKEN', 'Session token is missing');

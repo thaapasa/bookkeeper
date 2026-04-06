@@ -1,7 +1,7 @@
 import { Router } from 'express';
 
 import { DateRange } from 'shared/time';
-import { ApiMessage, Category, CategoryAndTotals, CategoryInput } from 'shared/types';
+import { Category, CategoryAndTotals, CategoryIdResponse, CategoryInput } from 'shared/types';
 import { createValidatingRouter } from 'server/server/ValidatingRouter';
 
 import {
@@ -30,7 +30,7 @@ export function createCategoryApi() {
   // Create new category
   api.postTx(
     '/',
-    { body: CategoryInput, response: ApiMessage, groupRequired: true },
+    { body: CategoryInput, response: CategoryIdResponse, groupRequired: true },
     async (tx, session, { body }) => {
       const id = await createCategory(tx, session.group.id, body);
       return { status: 'OK', message: 'Category created', categoryId: id };
@@ -68,7 +68,7 @@ export function createCategoryApi() {
   // Delete category
   api.deleteTx(
     '/:categoryId',
-    { response: ApiMessage, groupRequired: true },
+    { response: CategoryIdResponse, groupRequired: true },
     (tx, session, { params }) => deleteCategory(tx, session.group.id, params.categoryId),
   );
 

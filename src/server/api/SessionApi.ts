@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import { ApiMessage, Group, Session } from 'shared/types';
+import { Group, Session, UserIdResponse } from 'shared/types';
 import { optNumber } from 'shared/util';
 import {
   appendInfoToSession,
@@ -52,7 +52,7 @@ export function createSessionApi() {
   api.get('/bare', {}, session => session);
 
   // DELETE /api/session
-  api.deleteTx('/', {}, (tx, session): Promise<ApiMessage> => logoutSession(tx, session));
+  api.deleteTx('/', {}, (tx, session): Promise<UserIdResponse> => logoutSession(tx, session));
 
   // GET /api/session/groups
   api.getTx(

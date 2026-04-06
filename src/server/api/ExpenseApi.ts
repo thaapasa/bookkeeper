@@ -9,7 +9,7 @@ import {
   UserExpense,
 } from 'shared/expense';
 import { YearMonth } from 'shared/time';
-import { ApiMessage } from 'shared/types';
+import { ExpenseIdResponse } from 'shared/types';
 import { deleteExpenseById } from 'server/data/BasicExpenseDb';
 import {
   createExpense,
@@ -52,7 +52,7 @@ export function createExpenseApi() {
   // Create new expense
   api.postTx(
     '/',
-    { body: ExpenseInput, response: ApiMessage, groupRequired: true },
+    { body: ExpenseInput, response: ExpenseIdResponse, groupRequired: true },
     (tx, session, { body }) =>
       createExpense(
         tx,

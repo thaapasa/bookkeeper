@@ -1,7 +1,7 @@
 import {
-  ApiMessage,
   Category,
   CategoryAndTotals,
+  CategoryIdResponse,
   CategoryInput,
   InvalidInputError,
   NotFoundError,
@@ -126,7 +126,7 @@ export async function deleteCategory(
   tx: DbTask,
   groupId: number,
   categoryId: number,
-): Promise<ApiMessage> {
+): Promise<CategoryIdResponse> {
   const category = await getCategoryById(tx, groupId, categoryId);
   await tx.one(
     `DELETE FROM categories

@@ -25,12 +25,15 @@ import {
   Category,
   CategoryAndTotals,
   CategoryData,
+  CategoryIdResponse,
   CategorySelection,
   CategoryStatistics,
+  CountResponse,
   DbStatus,
   ExpenseGrouping,
   ExpenseGroupingData,
   ExpenseGroupingWithExpenses,
+  ExpenseIdResponse,
   ObjectId,
   Session,
   Source,
@@ -39,6 +42,7 @@ import {
   TrackingSubject,
   TrackingSubjectData,
   TrackingSubjectWithData,
+  UserIdResponse,
 } from 'shared/types';
 import { PasswordUpdate, UserDataUpdate } from 'shared/userData';
 import { filterDefinedProps, Money } from 'shared/util';
@@ -152,8 +156,8 @@ export class ApiConnect {
     return client.post<Session>('/api/session', { body: { username, password } });
   }
 
-  public logout(): Promise<ApiMessage> {
-    return this.delete<ApiMessage>('/api/session', { allowRefreshAndRetry: false });
+  public logout(): Promise<UserIdResponse> {
+    return this.delete<UserIdResponse>('/api/session', { allowRefreshAndRetry: false });
   }
 
   public getSession(): Promise<Session> {
@@ -203,14 +207,14 @@ export class ApiConnect {
   public updateSubscriptionTemplate = async (
     id: ObjectId,
     expense: ExpenseData,
-  ): Promise<ApiMessage> =>
-    this.put<ApiMessage>(uri`/api/subscription/template/${id}`, { body: expense });
+  ): Promise<ExpenseIdResponse> =>
+    this.put<ExpenseIdResponse>(uri`/api/subscription/template/${id}`, { body: expense });
 
   public deleteSubscription = async (id: ObjectId): Promise<RecurringExpenseDetails | undefined> =>
     this.delete(uri`/api/subscription/${id}`);
 
-  public storeExpense(expense: ExpenseData): Promise<ApiMessage> {
-    return this.post<ApiMessage>('/api/expense', { body: expense });
+  public storeExpense(expense: ExpenseData): Promise<ExpenseIdResponse> {
+    return this.post<ExpenseIdResponse>('/api/expense', { body: expense });
   }
 
   public splitExpense(id: number | string, splits: ExpenseSplit[]): Promise<ApiMessage> {
@@ -219,12 +223,12 @@ export class ApiConnect {
     });
   }
 
-  public updateExpense(id: number | string, expense: ExpenseData): Promise<ApiMessage> {
-    return this.put<ApiMessage>(uri`/api/expense/${id}`, { body: expense });
+  public updateExpense(id: number | string, expense: ExpenseData): Promise<ExpenseIdResponse> {
+    return this.put<ExpenseIdResponse>(uri`/api/expense/${id}`, { body: expense });
   }
 
-  public deleteExpense(id: number | string): Promise<ApiMessage> {
-    return this.delete<ApiMessage>(uri`/api/expense/${id}`);
+  public deleteExpense(id: number | string): Promise<ExpenseIdResponse> {
+    return this.delete<ExpenseIdResponse>(uri`/api/expense/${id}`);
   }
 
   public createRecurring(id: number | string, period: RecurrencePeriod): Promise<ApiMessage> {
@@ -255,16 +259,16 @@ export class ApiConnect {
     return this.get<string[]>('/api/receiver/query', { query: { receiver } });
   }
 
-  public renameReceiver(oldName: string, newName: string): Promise<ApiMessage> {
-    return this.put<ApiMessage>('/api/receiver/rename', { body: { oldName, newName } });
+  public renameReceiver(oldName: string, newName: string): Promise<CountResponse> {
+    return this.put<CountResponse>('/api/receiver/rename', { body: { oldName, newName } });
   }
 
   public getCategoryList(): Promise<Category[]> {
     return this.get<Category[]>('/api/category/list');
   }
 
-  public storeCategory(category: CategoryData): Promise<ApiMessage> {
-    return this.post<ApiMessage>('/api/category', { body: category });
+  public storeCategory(category: CategoryData): Promise<CategoryIdResponse> {
+    return this.post<CategoryIdResponse>('/api/category', { body: category });
   }
 
   public getCategoryTotals = (startDate: Date, endDate: Date): Promise<CategoryAndTotals[]> =>

@@ -12,7 +12,7 @@ import {
 import { uri } from 'shared/net';
 import { createTestClient, SessionWithControl } from 'shared/net/test';
 import { ISODate, toISODate, YearMonth } from 'shared/time';
-import { ApiMessage } from 'shared/types';
+import { RecurringExpenseCreatedResponse } from 'shared/types';
 import { Money } from 'shared/util';
 import { calculateNextRecurrence } from 'server/data/RecurringExpenseService';
 import { logger } from 'server/Logger';
@@ -67,9 +67,12 @@ describe('recurring expenses', () => {
       Money.from(status1.benefit).plus('75').toString(),
       ex => expect(ex.find(i => i.id === expenseId)).toBeTruthy,
     );
-    const s = await session.post<ApiMessage>(`/api/expense/recurring/${expenseId}`, {
-      period: { amount: 1, unit: 'months' },
-    });
+    const s = await session.post<RecurringExpenseCreatedResponse>(
+      `/api/expense/recurring/${expenseId}`,
+      {
+        period: { amount: 1, unit: 'months' },
+      },
+    );
     expect(s.recurringExpenseId).toBeGreaterThan(0);
     expect(s.templateExpenseId).toBeGreaterThan(0);
     captureId(s);
@@ -88,9 +91,12 @@ describe('recurring expenses', () => {
         title: 'Pan-galactic gargleblaster',
       }),
     );
-    const s = await session.post<ApiMessage>(`/api/expense/recurring/${expenseId}`, {
-      period: { amount: 1, unit: 'months' },
-    });
+    const s = await session.post<RecurringExpenseCreatedResponse>(
+      `/api/expense/recurring/${expenseId}`,
+      {
+        period: { amount: 1, unit: 'months' },
+      },
+    );
     expect(s.recurringExpenseId).toBeGreaterThan(0);
     expect(s.templateExpenseId).toBeGreaterThan(0);
     captureId(s);
