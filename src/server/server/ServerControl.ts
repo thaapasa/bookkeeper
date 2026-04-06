@@ -20,7 +20,7 @@ function closeRunningServer() {
   return new Promise((resolve, reject) =>
     s?.close(err => {
       if (err) reject(err);
-      else resolve(err);
+      else resolve(undefined);
     }),
   );
 }
