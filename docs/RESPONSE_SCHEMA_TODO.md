@@ -1,5 +1,7 @@
 # Response Schema TODO
 
+Tracking issue: https://github.com/thaapasa/bookkeeper/issues/88
+
 API endpoints should specify `response:` Zod schemas in their `ValidatorSpec` for runtime
 response validation. Many endpoints already have this, but the ones listed below still
 don't. Each section explains what's blocking the addition.
