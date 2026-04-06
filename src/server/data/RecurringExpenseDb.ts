@@ -316,17 +316,15 @@ async function deleteRecurrenceAndExpenses(
   tx: DbTask,
   recurringExpenseId: number,
 ): Promise<ApiMessage> {
-  const [expenseCount] = await Promise.all([
-    tx.none(`DELETE FROM expenses WHERE recurring_expense_id=$/recurringExpenseId/`, {
-      recurringExpenseId,
-    }),
-    tx.none(`DELETE FROM recurring_expenses WHERE id=$/recurringExpenseId/`, {
-      recurringExpenseId,
-    }),
-  ]);
+  await tx.none(`DELETE FROM expenses WHERE recurring_expense_id=$/recurringExpenseId/`, {
+    recurringExpenseId,
+  });
+  await tx.none(`DELETE FROM recurring_expenses WHERE id=$/recurringExpenseId/`, {
+    recurringExpenseId,
+  });
   return {
     status: 'OK',
-    message: `All ${expenseCount} expense(s) belonging to recurrence ${recurringExpenseId} have been deleted`,
+    message: `Recurrence ${recurringExpenseId} and its expenses have been deleted`,
   };
 }
 
@@ -345,17 +343,15 @@ async function deleteRecurrenceAfter(
   afterDate: DateLike,
   recurringExpenseId: number,
 ): Promise<ApiMessage> {
-  const [expenseCount] = await Promise.all([
-    tx.none(
-      `DELETE FROM expenses
+  await tx.none(
+    `DELETE FROM expenses
         WHERE recurring_expense_id=$/recurringExpenseId/ AND (id=$/expenseId/ OR date > $/afterDate/::date)`,
-      { recurringExpenseId, expenseId, afterDate },
-    ),
-    terminateRecurrenceAt(tx, recurringExpenseId, afterDate),
-  ]);
+    { recurringExpenseId, expenseId, afterDate },
+  );
+  await terminateRecurrenceAt(tx, recurringExpenseId, afterDate);
   return {
     status: 'OK',
-    message: `${expenseCount} expense(s) on or after ${afterDate} belonging to recurrence ${recurringExpenseId} have been deleted`,
+    message: `Expenses after ${afterDate} for recurrence ${recurringExpenseId} have been deleted`,
   };
 }
 
