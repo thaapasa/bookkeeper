@@ -1,6 +1,7 @@
 import { Router } from 'express';
+import { z } from 'zod';
 
-import { ExpenseGroupingData } from 'shared/types';
+import { ExpenseGrouping, ExpenseGroupingData, ExpenseGroupingWithExpenses } from 'shared/types';
 import {
   getExpenseGroupingsForUser,
   getExpenseGroupingsTags,
@@ -30,20 +31,22 @@ export function createGroupingApi() {
   );
 
   // GET /api/grouping/tags
-  api.getTx('/tags', {}, (tx, session, {}) => getExpenseGroupingsTags(tx, session.group.id));
+  api.getTx('/tags', { response: z.array(z.string()) }, (tx, session, {}) =>
+    getExpenseGroupingsTags(tx, session.group.id),
+  );
 
   // GET /api/grouping/list
-  api.getTx('/list', {}, (tx, session, {}) =>
+  api.getTx('/list', { response: z.array(ExpenseGrouping) }, (tx, session, {}) =>
     getExpenseGroupingsForUser(tx, session.group.id, session.user.id),
   );
 
   // GET /api/grouping/:id
-  api.getTx('/:id', {}, (tx, session, { params }) =>
+  api.getTx('/:id', { response: ExpenseGrouping }, (tx, session, { params }) =>
     getExpenseGrouping(tx, session.group.id, session.user.id, params.id),
   );
 
   // GET /api/grouping/:id/expenses
-  api.getTx('/:id/expenses', {}, (tx, session, { params }) =>
+  api.getTx('/:id/expenses', { response: ExpenseGroupingWithExpenses }, (tx, session, { params }) =>
     getGroupingWithExpenses(tx, session.group.id, session.user.id, params.id),
   );
 

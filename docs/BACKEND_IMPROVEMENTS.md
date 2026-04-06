@@ -4,23 +4,14 @@ This document captures suggestions for improving the backend codebase, identifie
 
 ## High Priority
 
-### 1. Missing Response Validation (Consistency Issue)
+### 1. Missing Response Validation (Consistency Issue) — Phase 1 ✅ Done
 
-**Location**: Various API files in `src/server/api/`
+Added `response:` Zod schemas to ~23 endpoints across 8 API files (ExpenseApi, SourceApi,
+GroupingApi, StatisticsApi, ReportApi, ReceiverApi, SubscriptionApi, RecurringExpenseApi).
 
-**Problem**: Some endpoints validate responses with a schema, others don't:
-
-```typescript
-// No response validation
-api.getTx('/list', {}, (tx, session) => getAllCategories(tx, session.group.id), true);
-
-// Has response validation
-api.postTx('/', { body: CategoryInput, response: ApiMessage }, ...);
-```
-
-**Impact**: Inconsistent runtime safety and type inference.
-
-**Solution**: Always specify response schemas for all endpoints.
+Remaining work tracked in [`docs/RESPONSE_SCHEMA_TODO.md`](RESPONSE_SCHEMA_TODO.md):
+~33 endpoints still need schemas (most require converting TS interfaces to Zod schemas
+or modifying void-returning DB functions).
 
 ---
 

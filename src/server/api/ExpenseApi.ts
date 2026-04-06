@@ -9,7 +9,7 @@ import {
   UserExpense,
 } from 'shared/expense';
 import { YearMonth } from 'shared/time';
-import { ExpenseIdResponse } from 'shared/types';
+import { ApiMessage, ExpenseIdResponse } from 'shared/types';
 import { deleteExpenseById } from 'server/data/BasicExpenseDb';
 import {
   createExpense,
@@ -69,7 +69,7 @@ export function createExpenseApi() {
   // POST /api/expense/[expenseId]/split
   api.postTx(
     '/:expenseId/split',
-    { body: ExpenseSplitBody, groupRequired: true },
+    { body: ExpenseSplitBody, response: ApiMessage, groupRequired: true },
     (tx, session, { params, body }) =>
       splitExpense(tx, session.group.id, session.user.id, params.expenseId, body.splits),
   );
@@ -78,7 +78,7 @@ export function createExpenseApi() {
   // Update expense
   api.putTx(
     '/:expenseId',
-    { body: ExpenseInput, groupRequired: true },
+    { body: ExpenseInput, response: ExpenseIdResponse, groupRequired: true },
     (tx, session, { params, body }) =>
       updateExpenseById(
         tx,
@@ -96,8 +96,10 @@ export function createExpenseApi() {
   );
 
   // DELETE /api/expense/[expenseId]
-  api.deleteTx('/:expenseId', { groupRequired: true }, (tx, session, { params }) =>
-    deleteExpenseById(tx, session.group.id, params.expenseId),
+  api.deleteTx(
+    '/:expenseId',
+    { response: ExpenseIdResponse, groupRequired: true },
+    (tx, session, { params }) => deleteExpenseById(tx, session.group.id, params.expenseId),
   );
 
   return api.router;

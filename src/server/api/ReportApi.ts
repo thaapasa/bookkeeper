@@ -1,6 +1,8 @@
 import { Router } from 'express';
+import { z } from 'zod';
 
-import { ReportCreationData } from 'shared/expense';
+import { ReportCreationData, ReportDef } from 'shared/expense';
+import { ApiMessage } from 'shared/types';
 import { createReport, deleteReport, getAllReports } from 'server/data/ReportDb';
 import { createValidatingRouter } from 'server/server/ValidatingRouter';
 
@@ -14,20 +16,25 @@ export function createReportApi() {
 
   // GET /api/report/all
   // Get all reports
-  api.postTx('/all', { groupRequired: true }, (tx, session, {}) =>
+  api.postTx('/all', { response: z.array(ReportDef), groupRequired: true }, (tx, session, {}) =>
     getAllReports(tx, session.group.id),
   );
 
   // POST /api/report
   // Create new report
-  api.postTx('/', { body: ReportCreationData, groupRequired: true }, (tx, session, { body }) =>
-    createReport(tx, session.group.id, session.user.id, body.title, body.query),
+  api.postTx(
+    '/',
+    { body: ReportCreationData, response: ReportDef, groupRequired: true },
+    (tx, session, { body }) =>
+      createReport(tx, session.group.id, session.user.id, body.title, body.query),
   );
 
   // DELETE /api/report
   // Delete report
-  api.deleteTx('/:reportId', { groupRequired: true }, (tx, session, { params }) =>
-    deleteReport(tx, session.group.id, params.reportId),
+  api.deleteTx(
+    '/:reportId',
+    { response: ApiMessage, groupRequired: true },
+    (tx, session, { params }) => deleteReport(tx, session.group.id, params.reportId),
   );
 
   return api.router;

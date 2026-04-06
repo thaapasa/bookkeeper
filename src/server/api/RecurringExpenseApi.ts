@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 
 import { ExpenseInput, RecurringExpenseInput, RecurringExpenseTarget } from 'shared/expense';
+import { ApiMessage, RecurringExpenseCreatedResponse } from 'shared/types';
 import {
   createRecurringFromExpense,
   deleteRecurringByExpenseId,
@@ -28,7 +29,7 @@ export function createRecurringExpenseApi() {
   // Create a new recurring expense from the selected expense
   api.postTx(
     '/:expenseId',
-    { body: RecurringExpenseInput, groupRequired: true },
+    { body: RecurringExpenseInput, response: RecurringExpenseCreatedResponse, groupRequired: true },
     (tx, session, { body, params }) =>
       createRecurringFromExpense(tx, session.group.id, session.user.id, params.expenseId, body),
   );
@@ -36,7 +37,7 @@ export function createRecurringExpenseApi() {
   // DELETE /api/expense/recurring/[expenseId]
   api.deleteTx(
     '/:expenseId',
-    { query: RecurringExpenseTargetSchema, groupRequired: true },
+    { query: RecurringExpenseTargetSchema, response: ApiMessage, groupRequired: true },
     (tx, session, { query, params }) =>
       deleteRecurringByExpenseId(
         tx,
@@ -54,6 +55,7 @@ export function createRecurringExpenseApi() {
     {
       query: RecurringExpenseTargetSchema,
       body: ExpenseInput,
+      response: ApiMessage,
       groupRequired: true,
     },
     (tx, session, { query, params, body }) =>
