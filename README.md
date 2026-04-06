@@ -135,7 +135,6 @@ This project includes comprehensive documentation for both developers and AI age
 ### Technical Documentation
 
 - [Architecture](./docs/ARCHITECTURE.md) - Detailed codebase structure, technology stack, and coding patterns
-- [Backend Improvements](./docs/BACKEND_IMPROVEMENTS.md) - Planned backend improvements and tech debt
 - [Frontend Improvements](./docs/FRONTEND_IMPROVEMENTS.md) - Planned frontend improvements and tech debt
 
 ### AI Agent Instructions

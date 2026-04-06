@@ -19,6 +19,9 @@ export const RouteMethods = [
 ] as const;
 export type RouteMethod = (typeof RouteMethods)[number];
 
+// Add new route parameter names here for automatic Zod parsing.
+// Unknown params fall through to `unknown` in the handler's type, so missing
+// entries don't break anything — they just lose automatic validation.
 const TypeMap = {
   id: ObjectIdString,
   userId: ObjectIdString,
