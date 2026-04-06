@@ -35,7 +35,8 @@ whether to include the fix. No bad code should go unmentioned.
 ## Database Operations
 
 The full database schema is documented in [`docs/SCHEMA.sql`](../../docs/SCHEMA.sql).
-Refer to it for table structures, indexes, and constraints.
+Refer to it for table structures, indexes, and constraints. If a local DB is available,
+you can also inspect the live schema via `psql "$DB_URL"` (connection string is in `.env`).
 
 All DB functions take `tx: DbTask` (from `server/data/Db`) as first parameter. Use
 pg-promise parameterized queries:
