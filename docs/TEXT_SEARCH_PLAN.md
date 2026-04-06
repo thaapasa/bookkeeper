@@ -1,5 +1,7 @@
 # Text Search Improvement Plan
 
+Tracking issue: https://github.com/thaapasa/bookkeeper/issues/8
+
 Improve expense text search by using PostgreSQL's `pg_trgm` extension for efficient
 trigram-based ILIKE queries across title, description, and receiver fields.
 
