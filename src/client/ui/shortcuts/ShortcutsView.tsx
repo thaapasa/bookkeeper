@@ -49,7 +49,8 @@ export const ShortcutsView: React.FC = () => {
                   title={s.title}
                   icon={s.icon}
                   background={s.background}
-                  style={{ margin: 0, flexShrink: 0 }}
+                  m={0}
+                  style={{ flexShrink: 0 }}
                 />
                 <Text fz="sm" c="primary.7" truncate>
                   {s.title}

@@ -1,3 +1,10 @@
+.formGrid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--mantine-spacing-xs);
+  align-items: center;
+}
+
 .imageArea {
   width: 128px;
   height: 128px;

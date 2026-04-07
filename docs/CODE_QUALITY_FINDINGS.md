@@ -62,20 +62,6 @@ response schema work tracked in thaapasa/bookkeeper#88.
 - `ExpenseShortcut` — `src/shared/expense/Shortcut.ts`
 - `TrackingSubjectWithData`, `TrackingStatistics` — `src/shared/types/Tracking.ts`
 
-## Frontend inline styles
-
-Components using `style={{}}` for layout instead of Mantine style props:
-
-- `src/client/ui/layout/BookkeeperPage.tsx:44-49` — height, flex, overflow
-- `src/client/ui/layout/TopBar.tsx:98-104` — alignment, colors, transitions
-- `src/client/ui/grouping/GroupingEditor.tsx:83-87` — grid layout
-- `src/client/ui/shortcuts/ShortcutLink.tsx:42` — raw pixel margins
-- `src/client/ui/general/LoginPage.tsx:44` — flexDirection
-- `src/client/ui/tools/ToolButton.tsx:14` — alignItems
-
-Components exposing `style?: React.CSSProperties` props where Mantine props would be
-more idiomatic: `ActivatableTextField.tsx`, `UploadImageButton.tsx`, `ShortcutLink.tsx`.
-
 ## Bacon.js legacy
 
 38 `.onValue()` call sites in the frontend. Known legacy pattern, not urgent, but worth

@@ -1,4 +1,4 @@
-import { Box, Burger, Button, Group, type MantineSize, Text } from '@mantine/core';
+import { Box, Burger, Button, Flex, Group, type MantineSize, Text } from '@mantine/core';
 import * as React from 'react';
 import { Link, useMatch } from 'react-router-dom';
 
@@ -89,20 +89,14 @@ export const TopBar: React.FC<TopBarProps> = ({ menuOpen, onToggleMenu }) => {
 const HeaderNavLink: React.FC<{ link: AppLink & { showInHeader: MantineSize } }> = ({ link }) => {
   const active = !!useMatch(link.path);
   return (
-    <Box
+    <Flex
       renderRoot={props => <Link to={link.path} {...props} />}
       visibleFrom={link.showInHeader}
-      display="flex"
+      align="center"
       h="100%"
       px="md"
-      style={{
-        alignItems: 'center',
-        textDecoration: 'none',
-        color: active ? 'var(--mantine-color-text)' : 'var(--mantine-color-neutral-7)',
-        boxShadow: active ? 'inset 0 -2px 0 var(--mantine-color-primary-5)' : 'none',
-        transition: 'background-color 150ms, color 150ms',
-      }}
-      className={classes.headerLink}
+      c={active ? 'var(--mantine-color-text)' : 'neutral.7'}
+      className={active ? classes.headerLinkActive : classes.headerLink}
     >
       <Group gap="xs" wrap="nowrap" align="center">
         {link.icon && (
@@ -114,7 +108,7 @@ const HeaderNavLink: React.FC<{ link: AppLink & { showInHeader: MantineSize } }>
           {link.label}
         </Text>
       </Group>
-    </Box>
+    </Flex>
   );
 };
 

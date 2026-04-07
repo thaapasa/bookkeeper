@@ -1,4 +1,4 @@
-import { Box, Button, Paper, Text } from '@mantine/core';
+import { Box, Button, Paper, Stack, Text } from '@mantine/core';
 import * as React from 'react';
 
 import { pickRandomItem } from 'shared/util';
@@ -18,7 +18,7 @@ export const LoginPage: React.FC = () => {
 
   const bgImage = React.useMemo(() => pickRandomItem(backgroundImages), []);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setStatusMessage(null);
     try {
@@ -37,13 +37,7 @@ export const LoginPage: React.FC = () => {
   return (
     <Box className={styles.page} style={{ backgroundImage: `url(${publicUrl}/img/${bgImage})` }}>
       <Paper shadow="sm" radius="md" p="xl" mt="15vh" mx="xl" style={{ zIndex: 1 }}>
-        <Box
-          component="form"
-          onSubmit={handleSubmit}
-          display="inline-flex"
-          style={{ flexDirection: 'column', alignItems: 'stretch' }}
-          w={280}
-        >
+        <Stack component="form" onSubmit={handleSubmit} gap={0} w={280}>
           <Text ta="center" mb="3vh">
             Kirjaudu sisään
           </Text>
@@ -79,7 +73,7 @@ export const LoginPage: React.FC = () => {
               {statusMessage}
             </Text>
           ) : null}
-        </Box>
+        </Stack>
       </Paper>
     </Box>
   );

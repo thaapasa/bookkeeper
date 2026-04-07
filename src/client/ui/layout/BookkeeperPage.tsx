@@ -41,12 +41,9 @@ export const BookkeeperPage: React.FC<PageProps> = () => {
           </AppShell.Header>
 
           <AppShell.Main
-            style={{
-              height: '100vh',
-              display: 'flex',
-              flexDirection: 'column',
-              overflow: 'hidden',
-            }}
+            h="100vh"
+            display="flex"
+            style={{ flexDirection: 'column', overflow: 'hidden' }}
           >
             <ScrollArea flex={1} type="scroll" offsetScrollbars={false}>
               <Container size={mainContentMaxWidth} p={0}>

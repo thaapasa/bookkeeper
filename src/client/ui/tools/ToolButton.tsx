@@ -1,4 +1,4 @@
-import { Box, Text } from '@mantine/core';
+import { Group, Text } from '@mantine/core';
 import * as React from 'react';
 
 import { MaybePromise } from 'shared/util';
@@ -7,17 +7,15 @@ import { ActionButton } from '../component/ActionButton';
 
 export const ToolButton: React.FC<{
   title: string;
-  action: () => MaybePromise<any>;
+  action: () => MaybePromise<unknown>;
   buttonText: string;
 }> = ({ title, action, buttonText }) => (
   <>
-    <Box display="flex" style={{ alignItems: 'center' }}>
+    <Group>
       <Text>{title}</Text>
-    </Box>
-    <Box>
-      <ActionButton onClick={action} variant="contained" color="primary">
-        {buttonText}
-      </ActionButton>
-    </Box>
+    </Group>
+    <ActionButton onClick={action} variant="contained" color="primary">
+      {buttonText}
+    </ActionButton>
   </>
 );

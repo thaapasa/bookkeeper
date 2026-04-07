@@ -1,4 +1,4 @@
-import { Avatar } from '@mantine/core';
+import { Avatar, type AvatarProps } from '@mantine/core';
 import * as React from 'react';
 import { NavigateFunction, useNavigate } from 'react-router';
 
@@ -10,15 +10,14 @@ import { newExpenseSuffix } from 'client/util/Links';
 
 import { pageSupportsRoutedExpenseDialog } from '../expense/NewExpenseInfo';
 
-export interface ShortcutLinkProps {
+export type ShortcutLinkProps = {
   id?: ObjectId;
   background?: string;
   onClick?: () => void;
   expense?: Partial<ExpenseShortcutData>;
   title: string;
   icon?: string | React.ReactNode;
-  style?: React.CSSProperties;
-}
+} & Omit<AvatarProps, 'onClick'>;
 
 export const ShortcutLink: React.FC<ShortcutLinkProps> = ({
   id,
@@ -27,7 +26,7 @@ export const ShortcutLink: React.FC<ShortcutLinkProps> = ({
   expense,
   icon,
   title,
-  style,
+  ...props
 }) => {
   const navigate = useNavigate();
   return (
@@ -39,8 +38,11 @@ export const ShortcutLink: React.FC<ShortcutLinkProps> = ({
       bg={background ?? 'primary.5'}
       c="primary.9"
       fw="bold"
-      style={{ cursor: 'pointer', margin: '8px 4px 4px 4px', ...style }}
+      mt="xs"
+      mx={4}
+      style={{ cursor: 'pointer' }}
       onClick={onClick ?? (() => openNewExpenseFromShortcutDialog(navigate, id, expense))}
+      {...props}
     >
       {typeof icon === 'string' ? null : (icon ?? title.substring(0, 1).toUpperCase())}
     </Avatar>

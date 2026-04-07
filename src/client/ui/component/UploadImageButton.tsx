@@ -2,8 +2,7 @@ import { ActionIcon } from '@mantine/core';
 import * as React from 'react';
 
 interface UploadImageButtonProps {
-  onSelect: (file: File, filename: string) => Promise<any>;
-  style?: React.CSSProperties;
+  onSelect: (file: File, filename: string) => Promise<unknown>;
   title?: string;
   className?: string;
 }
@@ -17,7 +16,6 @@ interface WithDatatransfer {
 export const UploadImageButton: React.FC<React.PropsWithChildren<UploadImageButtonProps>> = ({
   onSelect,
   children,
-  style,
   title,
   className,
 }) => {
@@ -37,12 +35,7 @@ export const UploadImageButton: React.FC<React.PropsWithChildren<UploadImageButt
 
   return (
     <>
-      <ActionIcon
-        onClick={() => ref.current?.click()}
-        style={style}
-        title={title}
-        className={className}
-      >
+      <ActionIcon onClick={() => ref.current?.click()} title={title} className={className}>
         {children}
       </ActionIcon>
       <input

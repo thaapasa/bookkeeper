@@ -18,7 +18,14 @@ export const TagsPicker: React.FC<TagsPickerProps> = ({ value, presetValues, onA
     <Stack>
       <Box display="inline-block">
         {value.map(v => (
-          <Pill key={v} withRemoveButton onRemove={() => onRemove(v)} mr="xs" mb="xs">
+          <Pill
+            key={v}
+            withRemoveButton
+            onRemove={() => onRemove(v)}
+            mr="xs"
+            mb="xs"
+            bg="light-dark(var(--mantine-color-neutral-2), var(--mantine-color-neutral-4))"
+          >
             {v}
           </Pill>
         ))}

@@ -1,4 +1,4 @@
-import { ActionIcon, Box, Button, Checkbox, Group, Modal } from '@mantine/core';
+import { ActionIcon, Box, Button, Checkbox, Group, Modal, Stack } from '@mantine/core';
 import * as B from 'baconjs';
 import * as React from 'react';
 
@@ -78,28 +78,23 @@ const GroupingEditView: React.FC<{
   return (
     <>
       <DialogHeading>{createNew ? 'Uusi ryhmittely' : 'Muokkaa ryhmittelyä'}</DialogHeading>
-      <Box
-        display="grid"
-        style={{
-          gridTemplateColumns: 'auto 1fr',
-          gap: 'var(--mantine-spacing-xs)',
-          alignItems: 'center',
-        }}
-      >
+      <Box className={styles.formGrid}>
         <SelectionRow title="Nimi">
           <TextEdit value={state.title} onChange={state.setTitle} />
         </SelectionRow>
         <SelectionRow title="Valinnat">
-          <Checkbox
-            checked={state.private}
-            onChange={e => state.setPrivate(e.currentTarget.checked)}
-            label="Yksityinen"
-          />
-          <Checkbox
-            checked={state.onlyOwn}
-            onChange={e => state.setOnlyOwn(e.currentTarget.checked)}
-            label="Vain omat kirjaukset"
-          />
+          <Stack gap="xs">
+            <Checkbox
+              checked={state.private}
+              onChange={e => state.setPrivate(e.currentTarget.checked)}
+              label="Yksityinen"
+            />
+            <Checkbox
+              checked={state.onlyOwn}
+              onChange={e => state.setOnlyOwn(e.currentTarget.checked)}
+              label="Vain omat kirjaukset"
+            />
+          </Stack>
         </SelectionRow>
         <SelectionRow title="Alkupäivä">
           <OptionalDatePicker value={state.startDate} onChange={state.setStartDate} />

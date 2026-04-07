@@ -79,7 +79,8 @@ const ShortcutEditView: React.FC<{
             title={state.title}
             icon={data.icon}
             background={state.background}
-            style={{ margin: 0, marginRight: 4 }}
+            m={0}
+            mr={4}
           />
           <Box flex={1} />
           <TextEdit value={state.margin} onChange={state.setMargin} width="40px" label="Reuna" />
