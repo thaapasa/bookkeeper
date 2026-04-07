@@ -1,13 +1,13 @@
 import { DateTime } from 'luxon';
 
 import { RecurrencePeriod } from 'shared/expense';
-import { fromISODate } from 'shared/time';
+import { toDateTime } from 'shared/time';
 
 export function calculateNextRecurrence(
   from: string | DateTime,
   period: RecurrencePeriod,
 ): DateTime {
-  const date = fromISODate(from);
+  const date = toDateTime(from);
   if (period.unit === 'quarters') {
     // Convert quarters to months
     return date.plus({ months: period.amount * 3 });

@@ -2,17 +2,22 @@ import { joinStr } from '../util/Strings';
 import { ucFirst } from '../util/Util';
 
 const colonSpaced = joinStr(': ');
-export function toReadableErrorMessage(e: any) {
-  return colonSpaced`${e?.message}: ${e?.data?.cause}`;
+export function toReadableErrorMessage(e: unknown) {
+  const err = e as { message?: string; data?: { cause?: string } } | undefined;
+  return colonSpaced`${err?.message}: ${err?.data?.cause}`;
 }
 
 export class BkError extends Error {
   public code: string;
-  public cause: any;
+  public cause: unknown;
   public status: number;
-  public data: any;
-  constructor(code: string, cause: any, status: number, data?: any) {
-    super(typeof cause === 'object' && cause && 'message' in cause ? cause.message : String(cause));
+  public data: unknown;
+  constructor(code: string, cause: unknown, status: number, data?: unknown) {
+    super(
+      typeof cause === 'object' && cause && 'message' in cause
+        ? String((cause as { message: unknown }).message)
+        : String(cause),
+    );
     this.code = code;
     this.cause = cause;
     this.status = status;
@@ -33,7 +38,7 @@ export class InvalidExpense extends BkError {
 }
 
 export class AuthenticationError extends BkError {
-  constructor(code: string, cause: any, data?: any) {
+  constructor(code: string, cause: unknown, data?: unknown) {
     super(code, cause, 401, data);
   }
 }

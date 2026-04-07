@@ -86,7 +86,7 @@ export function toISODate(m?: DateTimeInput): ISODate {
   return toDateTime(m).toFormat(ISODatePattern) as ISODate;
 }
 
-export function fromISODate(str: any): DateTime {
+export function fromISODate(str: string): DateTime {
   return DateTime.fromISO(str);
 }
 
@@ -98,7 +98,7 @@ export function readableDateWithYear(date?: DateLike, long?: boolean): string {
   return date ? toDateTime(date).toFormat(long ? 'ccc d.M.yyyy' : 'd.M.yyyy') : '-';
 }
 
-export function iso(m: any): string {
+export function iso(m: DateTimeInput): string {
   return toDateTime(m).toISO() ?? '';
 }
 

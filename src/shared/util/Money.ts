@@ -56,11 +56,11 @@ export class Money {
     this.value = Money.toBig(value);
   }
 
-  public static isMoney(value: any): value is Money {
+  public static isMoney(value: unknown): value is Money {
     return value instanceof Money && Money.isBig(value.value);
   }
 
-  public static isBig(value: any): value is Big {
+  public static isBig(value: unknown): value is Big {
     return value instanceof Big && typeof value.eq === 'function';
   }
 
@@ -145,7 +145,7 @@ export class Money {
     return this.format();
   }
 
-  public plus(o: any): Money {
+  public plus(o: MoneyLike): Money {
     return new Money(this.value.plus(Money.toBig(o)));
   }
 
@@ -153,7 +153,7 @@ export class Money {
     return Money.from(a).plus(b);
   }
 
-  public minus(o: any): Money {
+  public minus(o: MoneyLike): Money {
     return new Money(this.value.minus(Money.toBig(o)));
   }
 

@@ -37,14 +37,26 @@ export const RecurringExpenseCreatedResponse = ApiMessage.extend({
 });
 export type RecurringExpenseCreatedResponse = z.infer<typeof RecurringExpenseCreatedResponse>;
 
-export function isApiMessage(e: any): e is ApiMessage {
-  return typeof e === 'object' && e && e.status && e.message;
+export function isApiMessage(e: unknown): e is ApiMessage {
+  const o = e as Record<string, unknown> | null;
+  return typeof e === 'object' && o !== null && !!o.status && !!o.message;
 }
 
-export function isApiMessageWithExpenseId(e: any): e is ExpenseIdResponse {
-  return typeof e === 'object' && e && e.status && e.message && e.expenseId;
+export function isApiMessageWithExpenseId(e: unknown): e is ExpenseIdResponse {
+  const o = e as Record<string, unknown> | null;
+  return typeof e === 'object' && o !== null && !!o.status && !!o.message && !!o.expenseId;
 }
 
-export function isApiMessageWithRecurringExpenseId(e: any): e is RecurringExpenseCreatedResponse {
-  return typeof e === 'object' && e.status && e.message && e.recurringExpenseId && e.expenseId;
+export function isApiMessageWithRecurringExpenseId(
+  e: unknown,
+): e is RecurringExpenseCreatedResponse {
+  const o = e as Record<string, unknown> | null;
+  return (
+    typeof e === 'object' &&
+    o !== null &&
+    !!o.status &&
+    !!o.message &&
+    !!o.recurringExpenseId &&
+    !!o.expenseId
+  );
 }

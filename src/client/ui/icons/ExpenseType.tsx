@@ -4,7 +4,11 @@ import { ExpenseType } from 'shared/expense';
 
 import { Icons } from './Icons';
 
-export function ExpenseTypeIcon(props: { type: ExpenseType; size?: number; color?: string }): any {
+export function ExpenseTypeIcon(props: {
+  type: ExpenseType;
+  size?: number;
+  color?: string;
+}): React.ReactNode {
   const style = { width: props.size, height: props.size, color: props.color };
   switch (props.type) {
     case 'expense':

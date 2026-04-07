@@ -2,9 +2,9 @@
 
 Issues identified during a codebase scan in April 2026. Organized by priority.
 
-## `any` types (~58 instances)
+## `any` types (~35 remaining)
 
-The most systematic issue across the codebase.
+Reduced from ~58 after fixing shared types, error handling, and simple frontend cases.
 
 ### Backend row mappers
 
@@ -15,11 +15,6 @@ DB row mapper functions use `row: any` instead of typed interfaces:
 - `src/server/data/grouping/GroupingDb.ts:249,265,277` — `toExpenseGrouping`, `toExpenseGroupingRef`, `toExpenseGroupingCategoryTotal`
 - `src/server/data/UserDb.ts:6` — `RawUserData = Record<string, any>` used in session handling
 
-### Error handling
-
-- `src/server/server/ErrorHandler.ts:13,17,36-37` — error params and interface fields
-- `src/server/notifications/ErrorLogger.ts:3` — `logError(err: any)`
-
 ### Logger instrumentation
 
 - `src/server/logging/TraceIdProvider.ts:63,66,76,92` — Pino logger wrapping uses `any` casts
@@ -28,20 +23,33 @@ DB row mapper functions use `row: any` instead of typed interfaces:
 
 - `src/server/server/ValidatingRouter.ts:132,138` — `as any` casts in `createParamType`
 
-### Shared code
+### Shared utilities
 
-- `src/shared/types/Api.ts:40,44,48` — type guard functions
-- `src/shared/types/Errors.ts:5,11,13,14,36` — error cause/data
-- `src/shared/util/Money.ts:59,63,148,156` — `isMoney()`, `isBig()`, math operations
-- `src/shared/time/Time.ts:89,101` — `fromISODate()`, `iso()` accept `any`
-- `src/shared/util/Util.ts:3,9,75` — string/number utilities
+Structural `as any` casts in generic object/array helpers:
+
+- `src/shared/util/Objects.ts:9,18,21,29,57,65` — `as any` in `pick`, `omit`, `mapObject`, `recordFromPairs`
+- `src/shared/util/Arrays.ts:91,95,115,126,127` — `valuesToArray`, `arrayContains`, `groupBy`, `typedFilter`
+- `src/shared/util/Util.ts:31` — `camelCaseObject` internal casts
+- `src/shared/util/Strings.ts:19` — template tag `...keys: any[]`
+- `src/shared/util/Assert.ts:9` — `fail(message, cause?: any)`
+- `src/shared/util/Promise.ts:3` — `isPromise(t: any)` type guard
+
+### Shared types
+
+- `src/shared/expense/Splitter.ts:27,50` — `as any` casts in division mapping
+- `src/shared/types/Common.ts:10` — `isDbObject(e: any)` type guard
+- `src/shared/types/Validation.ts:29` — constructor `data: any` param
+- `src/shared/net/FetchClient.ts:10,23,24,47,132` — HTTP client types
+- `src/shared/net/UrlUtils.ts:22` — `uri` template tag
 
 ### Frontend
 
-- `src/client/ui/icons/ExpenseType.tsx:7` — return type `any`, should be `React.ReactNode`
-- `src/client/ui/search/SearchPage.tsx:38-39` — `Record<number, any>`, `any[]`
-- `src/client/ui/component/ActivatableTextField.tsx:73` — `as any` cast
-- `src/client/ui/expense/dialog/useExpenseDialog.ts:185,207,260` — Bacon.js stream types
+- `src/client/ui/expense/dialog/useExpenseDialog.ts:126,128,185,207,260` — Bacon.js stream types
+- `src/client/ui/component/ActivatableTextField.tsx:16,27,28,73` — generic component type casts
+- `src/client/ui/dialog/` — generic dialog system types (`Dialog.ts`, `ModalDialog.tsx`, etc.)
+- `src/client/ui/component/` — `AsyncDataView.tsx`, `AsyncDataDialog.tsx`, `ListDecorator.tsx` component casts
+- `src/client/ui/search/SearchPage.tsx:51` — `B.mergeAll<any>` (Bacon.js)
+- `src/client/ui/statistics/category/` — chart config casts
 
 ## Plain interfaces missing Zod schemas
 

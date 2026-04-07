@@ -10,22 +10,23 @@ function isUserError(status: number) {
 }
 
 export function createErrorHandler() {
-  return (err: any, req: express.Request, res: express.Response, _: express.NextFunction) =>
+  return (err: unknown, req: express.Request, res: express.Response, _: express.NextFunction) =>
     processError(err, req, res);
 }
 
-export function processError(err: any, req: express.Request, res: express.Response) {
-  const status = typeof err.status === 'number' ? err.status : 500;
+export function processError(err: unknown, req: express.Request, res: express.Response) {
+  const e = err as Record<string, unknown> | undefined;
+  const status = typeof e?.status === 'number' ? e.status : 500;
 
   const shouldShowError = logUserErrors || !isUserError(status);
   logger.error(
-    shouldShowError ? err : { error: err.message },
+    shouldShowError ? err : { error: e?.message },
     `${req.method} ${req.originalUrl} -> HTTP ${status}`,
   );
   const data: ErrorInfo = {
-    ...(config.showErrorCause ? err : undefined),
+    ...(config.showErrorCause ? (e as unknown as ErrorInfo) : undefined),
     type: 'error',
-    code: err.code ? err.code : 'INTERNAL_ERROR',
+    code: typeof e?.code === 'string' ? e.code : 'INTERNAL_ERROR',
   };
   res.status(status).json(data);
 }
@@ -33,6 +34,6 @@ export function processError(err: any, req: express.Request, res: express.Respon
 interface ErrorInfo {
   type: 'error';
   code: string;
-  cause?: any;
-  info?: any;
+  cause?: unknown;
+  info?: unknown;
 }

@@ -122,16 +122,6 @@ export interface UserExpenseWithDetails extends UserExpense {
   division: ExpenseDivision;
 }
 
-export function isExpense(e: any): e is Expense {
-  return (
-    e &&
-    typeof e === 'object' &&
-    typeof e.id === 'number' &&
-    typeof e.categoryId === 'number' &&
-    typeof e.title === 'string'
-  );
-}
-
 export const ExpenseStatus = z.object({
   balance: MoneyLike,
   benefit: MoneyLike,

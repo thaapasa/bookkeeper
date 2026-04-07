@@ -4,10 +4,10 @@ import { useParams } from 'react-router';
 
 import { ExpenseQuery, UserExpense } from 'shared/expense';
 import { ISOMonth, toDateRange } from 'shared/time';
-import { Category, isDefined } from 'shared/types';
+import { Category, CategoryMap, isDefined } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
 import { AsyncData, UninitializedData } from 'client/data/AsyncData';
-import { categoryDataSourceP, userDataP } from 'client/data/Categories';
+import { CategoryDataSource, categoryDataSourceP, userDataP } from 'client/data/Categories';
 import { navigationBus, needUpdateE } from 'client/data/State';
 import { logger } from 'client/Logger';
 import { searchPagePath } from 'client/util/Links';
@@ -35,8 +35,8 @@ export const SearchPage: React.FC = () => {
 };
 
 const SearchViewImpl: React.FC<{
-  userData: { categoryMap: Record<number, any> };
-  categorySource: any[];
+  userData: { categoryMap: CategoryMap };
+  categorySource: CategoryDataSource[];
 }> = ({ userData, categorySource }) => {
   const [results, setResults] = React.useState<AsyncData<UserExpense[]>>(UninitializedData);
   const { year, month } = useParams<SearchViewParams>();

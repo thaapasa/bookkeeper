@@ -7,8 +7,8 @@ export const DbObject = z.object({
 });
 export type DbObject = z.infer<typeof DbObject>;
 
-export function isDbObject(e: any): e is DbObject {
-  return isDefined(e) && typeof e === 'object' && typeof e.id === 'number';
+export function isDbObject(e: unknown): e is DbObject {
+  return typeof e === 'object' && isDefined(e) && 'id' in e && typeof e.id === 'number';
 }
 
 export function isDefined<T>(x: T | undefined | null): x is T {
@@ -16,8 +16,6 @@ export function isDefined<T>(x: T | undefined | null): x is T {
 }
 
 export type Action = () => void;
-
-export type Timeout = ReturnType<typeof setTimeout>;
 
 export type MakeOptional<O, K extends keyof O> = Omit<O, K> & Partial<Pick<O, K>>;
 

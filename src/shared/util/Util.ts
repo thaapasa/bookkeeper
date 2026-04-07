@@ -1,12 +1,12 @@
 import { AnyObject } from '../types/Common';
 
-export function ucFirst(str: any): string {
+export function ucFirst(str: unknown): string {
   return typeof str === 'string' && str.length > 0
     ? str.charAt(0).toUpperCase() + str.substring(1)
     : '';
 }
 
-export function underscoreToCamelCase(str: any): string {
+export function underscoreToCamelCase(str: unknown): string {
   if (typeof str === 'number') {
     return str.toString();
   }
@@ -72,7 +72,7 @@ export function getRandomInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min)) + min;
 }
 
-export function optNumber(x: any): number | undefined {
+export function optNumber(x: unknown): number | undefined {
   return x === null || x === undefined ? undefined : Number(x);
 }
 
