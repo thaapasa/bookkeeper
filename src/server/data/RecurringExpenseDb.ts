@@ -155,7 +155,7 @@ function mapRecurringExpense(row: any): RecurringExpense {
     type: 'recurring',
     templateExpenseId: row.template_expense_id,
     title: row.title,
-    receiver: row.receiver,
+    receiver: row.receiver ?? undefined,
     sum,
     categoryId: row.category_id,
     period,

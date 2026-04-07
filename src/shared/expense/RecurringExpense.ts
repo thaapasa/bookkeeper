@@ -20,7 +20,7 @@ export const RecurringExpense = RecurringExpenseInput.extend({
   templateExpenseId: ObjectId,
   type: z.literal('recurring'),
   title: z.string(),
-  receiver: z.string(),
+  receiver: z.string().optional(),
   sum: MoneyLike,
   categoryId: ObjectId,
   firstOccurence: ISODate,
