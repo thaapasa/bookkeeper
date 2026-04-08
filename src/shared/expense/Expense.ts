@@ -1,6 +1,3 @@
-import { DateTime } from 'luxon';
-
-export type { DateTime };
 import { z } from 'zod';
 
 import { ISODate, ISOTimestamp } from '../time/Time';
@@ -112,7 +109,7 @@ export type UserExpense = z.infer<typeof UserExpense>;
 
 export interface ExpenseInEditor extends BaseExpenseData {
   sum: string;
-  date: DateTime;
+  date: ISODate;
   benefit: number[];
   description: string;
   groupingId: number | null;

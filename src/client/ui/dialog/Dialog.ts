@@ -1,5 +1,6 @@
-import { DateTime } from 'luxon';
 import React from 'react';
+
+import { ISODate } from 'shared/time';
 
 import { TextEditorComponent } from './DialogState';
 
@@ -28,7 +29,7 @@ export type CategoryPromptDialogData = {
 
 export type DateSelectDialogData = {
   type: 'date';
-  initialDate?: DateTime;
+  initialDate?: ISODate;
 };
 
 export type DialogData =

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { ISODate, toDateTime } from '../time/Time';
+import { ISODate } from '../time/Time';
 import { ObjectId } from '../types/Id';
 import { Money, MoneyLike } from '../util/Money';
 import { BaseExpenseData, ExpenseInEditor } from './Expense';
@@ -35,6 +35,6 @@ export function shortcutToExpenseInEditor(expense: ExpenseShortcutData): Partial
   return {
     ...expense,
     sum: expense.sum ? Money.from(expense.sum).toString() : undefined,
-    date: expense.date ? toDateTime(expense.date) : undefined,
+    date: expense.date,
   };
 }

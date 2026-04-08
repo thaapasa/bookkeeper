@@ -9,7 +9,7 @@ import {
   ExpenseType,
   UserExpenseWithDetails,
 } from 'shared/expense';
-import { toDateTime, toISODate } from 'shared/time';
+import { toISODate } from 'shared/time';
 import { identity, Money, sanitizeMoneyInput, valuesToArray } from 'shared/util';
 import { notifyError } from 'client/data/State';
 import { logger } from 'client/Logger';
@@ -96,7 +96,7 @@ function getDefaultState(
     receiver: values.receiver || (e ? e.receiver : ''),
     sum: values.sum ? values.sum : e ? e.sum.toString() : '',
     userId: e ? e.userId : props.user.id,
-    date: toDateTime(values.date || e?.date),
+    date: toISODate(values.date || e?.date),
     benefit:
       values.benefit ||
       (e
@@ -154,7 +154,7 @@ export function useExpenseDialog(props: FullExpenseDialogProps<ExpenseInEditor>)
         title: expense.title,
         receiver: expense.receiver,
         description: expense.description,
-        date: toISODate(expense.date),
+        date: expense.date,
         sum: expense.sum,
         division,
         groupingId: expense.groupingId ?? undefined,
@@ -166,7 +166,7 @@ export function useExpenseDialog(props: FullExpenseDialogProps<ExpenseInEditor>)
         logger.info(`Saved expense: ${r}`);
         if (r) {
           await onClose(expense);
-          onExpensesUpdated(toDateTime(expense.date));
+          onExpensesUpdated(expense.date);
         }
       } catch (error) {
         logger.error(error, 'Failed to save expense');
@@ -274,7 +274,7 @@ export function useExpenseDialog(props: FullExpenseDialogProps<ExpenseInEditor>)
 
   const dismiss = React.useCallback(() => onClose(null), [onClose]);
 
-  const setToday = React.useCallback(() => inputStreams.date.push(toDateTime()), [inputStreams]);
+  const setToday = React.useCallback(() => inputStreams.date.push(toISODate()), [inputStreams]);
 
   const selectCategory = React.useCallback(
     (id: number) => {

@@ -7,7 +7,7 @@ import {
   UserExpense,
   UserExpenseWithDetails,
 } from 'shared/expense';
-import { readableDate, toDateTime, toISODate } from 'shared/time';
+import { readableDate, toDateTime } from 'shared/time';
 import { Category, CategoryMap, ExpenseGroupingMap, isDefined, Source, User } from 'shared/types';
 import { equal, Money, notEqual } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
@@ -97,9 +97,9 @@ const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
   };
 
   const editDate = async () => {
-    const date = await UserPrompts.selectDate('Valitse päivä', toDateTime(expense.date));
+    const date = await UserPrompts.selectDate('Valitse päivä', expense.date);
     if (!date) return;
-    await executeOperation(() => updateExpense({ date: toISODate(date) }), {
+    await executeOperation(() => updateExpense({ date }), {
       success: `Muutettu kirjauksen ${expense.title} päiväksi ${readableDate(date)}`,
       postProcess: () => needUpdateE.push(date),
     });

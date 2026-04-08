@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Route, Routes, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { shortcutToExpenseInEditor } from 'shared/expense';
-import { toDateTime } from 'shared/time';
+import { ISODate, toISODate } from 'shared/time';
 import { validSessionP } from 'client/data/Login';
 import { updateExpenses } from 'client/data/State';
 import { logger } from 'client/Logger';
@@ -18,7 +18,7 @@ const NewExpenseDialogPage: React.FC = () => {
   const isMobile = useIsMobile();
   const [searchParams] = useSearchParams();
   const dateParam = searchParams.get('date');
-  const date = dateParam ? toDateTime(dateParam) : undefined;
+  const date: ISODate | undefined = dateParam ? toISODate(dateParam) : undefined;
 
   return (
     <ExpenseDialog

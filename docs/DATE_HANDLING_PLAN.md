@@ -277,25 +277,11 @@ retains a runtime `instanceof Date` check for pg-promise boundary safety.
 
 Completed: replaced `new Date().getTime()` with `Date.now()` in TraceIdProvider.
 
-### Phase 5: Replace remaining `DateTime` with `ISODate` in client types
+### Phase 5: Replace remaining `DateTime` with `ISODate` in client types — DONE
 
-Several client-side types and callbacks use `DateTime` for values that represent calendar
-dates, not instants. These should use `ISODate` instead.
-
-1. **`ExpenseInEditor.date`** — `src/shared/expense/Expense.ts:115`
-   `date: DateTime` → `date: ISODate`. The stored `Expense.date` is already `ISODate`;
-   the editor state should match.
-
-2. **Expense update bus and callback chain:**
-   - `src/client/data/State.ts:61` — `needUpdateBus = new B.Bus<DateTime>()` → `Bus<ISODate>`
-   - `src/client/data/State.ts:63` — `updateExpenses(date: DateLike)` — push `toISODate(date)` instead of `toDateTime(date)`
-   - `src/client/ui/expense/dialog/ExpenseDialog.tsx:35` — `onExpensesUpdated: (date: DateTime) => void` → `(date: ISODate) => void`
-   - `src/client/ui/expense/dialog/ExpenseDialogListener.tsx:85` — same callback wrapper
-
-3. **Date picker dialog types:**
-   - `src/client/ui/dialog/Dialog.ts:31` — `initialDate?: DateTime` → `initialDate?: ISODate`
-   - `src/client/ui/dialog/DialogState.ts:82` — `selectDate(title, initialDate?: DateTime): Promise<DateTime | undefined>` → `ISODate` for both param and return
-   - `src/client/ui/dialog/DateSelectDialogContents.tsx:8` — type parameter `DateTime` → `ISODate`
-
-4. **Date field component:**
-   - `src/client/ui/expense/dialog/DateField.tsx:6-7` — `value: DateTime; onChange: (date: DateTime) => void` → `ISODate` for both
+Completed: changed all client-side types that represent calendar dates from `DateTime`
+to `ISODate`. This includes `ExpenseInEditor.date`, the `needUpdateBus` event bus,
+`onExpensesUpdated` callbacks, date picker dialog types (`DateSelectDialogData`,
+`DialogState.selectDate`), and the `DateField` component props. Also simplified
+`shortcutToExpenseInEditor` and removed unnecessary `toDateTime`/`toISODate` conversions
+throughout the expense dialog, split, and copy flows.

@@ -85,10 +85,10 @@ export const AddExpenseMenu: React.FC = () => {
 function openNewExpenseDialog(navigate: NavigateFunction, shownDay: DateLike) {
   const path = window.location.pathname;
   const refDay = toDateTime(shownDay);
-  const date = refDay.hasSame(DateTime.now(), 'month') ? undefined : refDay;
+  const date = refDay.hasSame(DateTime.now(), 'month') ? undefined : toISODate(refDay);
   if (pageSupportsRoutedExpenseDialog(path)) {
     if (!path.includes(newExpenseSuffix)) {
-      const dateSuffix = date ? uri`?date=${toISODate(date)}` : '';
+      const dateSuffix = date ? uri`?date=${date}` : '';
       navigate(
         path.startsWith('/p')
           ? path + newExpenseSuffix + dateSuffix

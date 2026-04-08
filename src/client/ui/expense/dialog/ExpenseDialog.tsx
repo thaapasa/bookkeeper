@@ -1,8 +1,8 @@
 import { Button, Checkbox, Group, Menu, Modal, Stack } from '@mantine/core';
-import { DateTime } from 'luxon';
 import * as React from 'react';
 
 import { ExpenseInEditor, UserExpenseWithDetails } from 'shared/expense';
+import { ISODate } from 'shared/time';
 import { MaybePromise } from 'shared/util';
 import { CategorySelector } from 'client/ui/component/CategorySelector';
 import { UserIdAvatar } from 'client/ui/component/UserAvatar';
@@ -32,7 +32,7 @@ export interface ExpenseDialogProps<D> {
   original: UserExpenseWithDetails | null;
   saveAction: ExpenseSaveAction | null;
   onClose: (e: D | null) => MaybePromise<void>;
-  onExpensesUpdated: (date: DateTime) => void;
+  onExpensesUpdated: (date: ISODate) => void;
   expenseCounter: number;
   isMobile: boolean;
   values: Partial<D>;

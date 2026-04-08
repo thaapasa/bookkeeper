@@ -1,7 +1,7 @@
 import * as B from 'baconjs';
-import { DateTime } from 'luxon';
 import React from 'react';
 
+import { ISODate } from 'shared/time';
 import { ObjectId } from 'shared/types';
 
 import { TextEditProps } from '../component/TextEdit';
@@ -79,7 +79,7 @@ export const UserPrompts = {
    * Returns a promise that will be resolved to the text that was entered; or undefined if the dialog
    * was cancelled.
    */
-  selectDate: (title: string, initialDate?: DateTime): Promise<DateTime | undefined> =>
+  selectDate: (title: string, initialDate?: ISODate): Promise<ISODate | undefined> =>
     promptUser({
       type: 'date',
       title,

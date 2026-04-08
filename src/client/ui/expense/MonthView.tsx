@@ -1,4 +1,3 @@
-import { DateTime } from 'luxon';
 import * as React from 'react';
 import { useNavigate } from 'react-router';
 
@@ -50,8 +49,8 @@ export const MonthView: React.FC<MonthViewProps> = ({ date }) => {
   const navigate = useNavigate();
   React.useEffect(
     () =>
-      needUpdateE.onValue((newDate: DateTime) => {
-        logger.info('Expenses updated, refreshing for date %s', toISODate(newDate));
+      needUpdateE.onValue(newDate => {
+        logger.info('Expenses updated, refreshing for date %s', newDate);
         if (isSameMonth(newDate, date)) {
           logger.info('Reloading expenses for this month');
           loadData();
