@@ -386,11 +386,11 @@ export async function deleteRecurringExpenseById(
   recurringExpenseId: ObjectId,
 ): Promise<ApiMessage> {
   const recurring = await getRecurringExpenseInfo(tx, groupId, recurringExpenseId);
-  const now = DateTime.now();
-  logger.info(`Deleting recurring ${recurring.id} at ${now.toISODate()}`);
+  const now = toISODate();
+  logger.info(`Deleting recurring ${recurring.id} at ${now}`);
 
   await terminateRecurrenceAt(tx, recurringExpenseId, now);
-  return { status: 'OK', message: `Recurrence cleared at ${now.toISODate()}` };
+  return { status: 'OK', message: `Recurrence cleared at ${now}` };
 }
 
 function deleteDivisionForRecurrence(

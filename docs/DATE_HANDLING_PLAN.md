@@ -308,28 +308,30 @@ throughout the expense dialog, split, and copy flows.
 
 ### Remaining cleanups
 
-4. **`RecurringExpenseDb.ts:389`** — `DateTime.now()` is passed through
-   `terminateRecurrenceAt` directly into a pg-promise query parameter (`$/date/::date`).
-   pg-promise doesn't natively understand Luxon DateTime objects — it falls back to
-   `JSON.stringify`, which calls `DateTime.toJSON()` and produces an ISO string that
-   PostgreSQL's `::date` cast handles. This works but is fragile and inconsistent with
-   the rest of the codebase where `ISODate` strings are passed to SQL.
-   **Fix:** Use `toISODate()` instead of `DateTime.now()`.
+4. ~~`RecurringExpenseDb.ts`~~ — DONE. Changed `DateTime.now()` to `toISODate()`.
 
-5. ~~`SubscriptionDetails.tsx`, `SubscriptionItemView.tsx`~~ — DONE. Changed
-   `updateExpenses(DateTime.now())` → `updateExpenses(toISODate())`. Also tightened
-   `updateExpenses` signature from `DateLike` to `ISODate`.
+5. ~~`RoutedCategoryView.tsx`~~ — DONE. Changed `yearRange(DateTime.now())` to
+   `yearRange(toISODate())`.
 
-6. ~~`SearchPage.tsx`~~ — DONE. Changed `DateTime.now()` fallback to `toISODate()`.
+### Phase 6: Leverage pg type parsers to remove manual conversions
 
-7. ~~`ApiConnect.getCategoryTotals`~~ — DONE. Changed params from `DateLike` to `ISODate`.
+Custom pg type parsers were added in `Db.ts` (DATE→string, TIMESTAMPTZ→string,
+TIMESTAMP→error). This makes several manual conversion steps redundant:
 
-8. ~~`ShortcutsDropdown.openNewExpenseDialog`~~ — DONE. Changed param from `DateLike`
-   to `ISODate`.
+1. **TIMESTAMPTZ parser → produce `ISOTimestamp`** — The parser currently returns the
+   raw pg format string (`2026-03-31 12:00:00+02`), which is not ISO 8601. It should
+   parse with `DateTime.fromSQL()` and output `.toISO()` so that TIMESTAMPTZ columns
+   arrive as proper `ISOTimestamp` values. This is the key change that enables items 2-3.
 
-### Risks to watch for
+2. **Remove `toISOTimestamp(e.created)` from `dbRowToExpense()`** in `BasicExpenseDb.ts`
+   — Once the TIMESTAMPTZ parser produces `ISOTimestamp`, `created` arrives correctly
+   from pg and the manual conversion is redundant.
 
-- **pg-promise boundary**: New queries returning DATE/TIMESTAMP columns must convert to
-  `ISODate`/`ISOTimestamp` at the server boundary (like `dbRowToExpense` and
-  `createSessionInfo` do). The runtime `instanceof Date` check in `toDateTime()` serves
-  as a safety net, but explicit conversion is preferred.
+3. **Clean up `SessionDb.ts`** — `loginTime` parameter is typed as `Date` with a comment
+   about pg-promise returning Date objects and a cast chain
+   `loginTime as unknown as string`. With the type parsers, it arrives as a string. The
+   param type, comment, and cast can all be simplified.
+
+4. **Remove `instanceof Date` check from `toDateTime()`** in `Time.ts` — pg no longer
+   returns `Date` objects, so this branch is dead code. The comment explaining it can be
+   removed too.

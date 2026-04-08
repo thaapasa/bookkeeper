@@ -1,8 +1,7 @@
-import { DateTime } from 'luxon';
 import React from 'react';
 import { useParams } from 'react-router';
 
-import { monthRange, TypedDateRange, yearRange } from 'shared/time';
+import { monthRange, toISODate, TypedDateRange, yearRange } from 'shared/time';
 
 import { CategoryView } from './CategoryView';
 
@@ -20,6 +19,6 @@ function getDates(year?: string, month?: string): TypedDateRange {
   } else if (month) {
     return monthRange(month);
   } else {
-    return yearRange(DateTime.now());
+    return yearRange(toISODate());
   }
 }
