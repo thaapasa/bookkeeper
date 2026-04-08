@@ -257,35 +257,11 @@ support direct comparison via `.toMillis()` or `<`/`>` operators.
 
 ## Fix Plan (ordered by priority)
 
-### Phase 1: API boundary correctness (F1, F2, F10)
+### Phase 1: API boundary correctness (F1, F2, F10) — DONE
 
-These are the most important fixes — the shared types currently lie about what crosses
-the wire.
-
-1. **Create `ISOTimestamp` branded type** in `src/shared/time/Time.ts`, following the
-   same pattern as `ISODate`/`ISOMonth`/`ISOYear`:
-   ```typescript
-   export const ISOTimestampRegExp = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
-   export const ISOTimestamp = z.custom<`${number}-${number}-${number}T${string}`>(
-     val => typeof val === 'string' && ISOTimestampRegExp.test(val),
-   );
-   export type ISOTimestamp = z.infer<typeof ISOTimestamp>;
-   ```
-
-2. **Fix `Expense.created`** (F1):
-   - Change `created: z.date()` → `created: ISOTimestamp` in `Expense` schema
-   - In `dbRowToExpense` (BasicExpenseDb.ts), convert the pg-promise Date to ISO string:
-     `e.created = e.created instanceof Date ? e.created.toISOString() : e.created`
-   - Update any client code that uses `expense.created` as a `Date` to use it as
-     an `ISOTimestamp`
-
-3. **Fix `SessionBasicInfo.loginTime`** (F2):
-   - Change `loginTime?: Date` → `loginTime?: ISOTimestamp`
-   - In `SessionDb.ts`, convert the Date to ISO string when building `SessionBasicInfo`
-   - Check client usage of `loginTime`
-
-4. **Fix `ApiStatus.timestamp`** (F10):
-   - Change `timestamp: string` → `timestamp: ISOTimestamp`
+Completed: created `ISOTimestamp` branded Zod type with timezone-requiring regex
+(`Z` or `±hh:mm`), `toISOTimestamp()` helper, and updated all three API-boundary types:
+`Expense.created`, `SessionBasicInfo.loginTime`, `ApiStatus.timestamp`.
 
 ### Phase 2: Eliminate JS Date from shared and client types (F3, F4, F5, F11)
 

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import { toDateTime } from 'shared/time';
+import { toISOTimestamp } from 'shared/time';
 import { ApiStatus, DbStatus, User } from 'shared/types';
 import { getAllUsers, getUserById } from 'server/data/UserDb';
 import { logger } from 'server/Logger';
@@ -47,7 +47,7 @@ export function createApi() {
     Requests.unauthorizedRequest(
       async (): Promise<ApiStatus> => ({
         status: 'OK',
-        timestamp: toDateTime().toISO() ?? '',
+        timestamp: toISOTimestamp(),
         version: config.version,
         runtimeVersion: config.bunVersion,
         revision: config.revision,

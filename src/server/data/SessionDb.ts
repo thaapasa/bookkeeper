@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import { promisify } from 'util';
 
 import { ExpenseShortcut } from 'shared/expense';
+import { toISOTimestamp } from 'shared/time';
 import { AuthenticationError, Session, SessionBasicInfo, UserIdResponse } from 'shared/types';
 import { DbTask } from 'server/data/Db.ts';
 import { logger } from 'server/Logger';
@@ -66,7 +67,7 @@ function createSessionInfo(
   [token, refreshToken]: string[],
   userData: RawUserData,
   shortcuts: ExpenseShortcut[],
-  loginTime?: Date,
+  loginTime?: Date | string,
 ): SessionBasicInfo {
   return {
     token,
@@ -85,7 +86,7 @@ function createSessionInfo(
       name: userData.groupName,
       defaultSourceId: userData.defaultSourceId,
     },
-    loginTime,
+    loginTime: loginTime ? toISOTimestamp(loginTime) : undefined,
     shortcuts,
   };
 }

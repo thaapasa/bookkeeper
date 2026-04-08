@@ -27,6 +27,13 @@ export const ISOYear = z.custom<`${number}`>(
 );
 export type ISOYear = z.infer<typeof ISOYear>;
 
+export const ISOTimestampRegExp =
+  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/;
+export const ISOTimestamp = z.custom<`${number}-${number}-${number}T${string}`>(
+  val => typeof val === 'string' && ISOTimestampRegExp.test(val),
+);
+export type ISOTimestamp = z.infer<typeof ISOTimestamp>;
+
 export const Year = z.number().int().min(1500).max(3000);
 export type Year = z.infer<typeof Year>;
 export const Month = z.number().int().min(1).max(12);
@@ -84,6 +91,10 @@ export function toDate(d: DateLike): Date {
 
 export function toISODate(m?: DateTimeInput): ISODate {
   return toDateTime(m).toFormat(ISODatePattern) as ISODate;
+}
+
+export function toISOTimestamp(d?: DateTimeInput): ISOTimestamp {
+  return (toDateTime(d).toISO() ?? '') as ISOTimestamp;
 }
 
 export function fromISODate(str: string): DateTime {

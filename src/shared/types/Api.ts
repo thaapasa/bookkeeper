@@ -1,10 +1,11 @@
 import { z } from 'zod';
 
+import type { ISOTimestamp } from '../time/Time';
 import { ObjectId } from './Id';
 
 export type ApiStatus = Readonly<{
   status: string;
-  timestamp: string;
+  timestamp: ISOTimestamp;
   version: string;
   runtimeVersion: string;
   commitId: string;

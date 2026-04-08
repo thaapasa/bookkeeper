@@ -11,7 +11,7 @@ import {
   ExpenseStatus,
   UserExpense,
 } from 'shared/expense';
-import { DateLike, toISODate } from 'shared/time';
+import { DateLike, toISODate, toISOTimestamp } from 'shared/time';
 import { ExpenseIdResponse, isDefined, NotFoundError, ObjectId } from 'shared/types';
 import { Money, MoneyLike } from 'shared/util';
 import { DbTask } from 'server/data/Db.ts';
@@ -120,6 +120,7 @@ export function dbRowToExpense(e: UserExpense): UserExpense {
   }
   e.autoGroupingIds = (e.autoGroupingIds ?? []).filter(isDefined);
   e.date = toISODate(e.date);
+  e.created = toISOTimestamp(e.created);
   e.userBalance = Money.from(e.userValue).negate().toString();
   e.groupingId = e.groupingId ?? undefined;
   return e;
