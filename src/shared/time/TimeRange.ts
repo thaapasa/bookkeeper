@@ -24,8 +24,8 @@ export const DateRange = z.object({
 export type DateRange = z.infer<typeof DateRange>;
 
 export interface UIDateRange {
-  start: Date;
-  end: Date;
+  start: DateTime;
+  end: DateTime;
 }
 
 export interface TypedDateRange extends UIDateRange {
@@ -70,11 +70,7 @@ export function toDateRangeName(x: TypedDateRange): string {
     case 'year':
       return toYearName(x.start);
     case 'custom':
-      return (
-        toDateTime(x.start).toFormat(displayDatePattern) +
-        ' - ' +
-        toDateTime(x.end).toFormat(displayDatePattern)
-      );
+      return x.start.toFormat(displayDatePattern) + ' - ' + x.end.toFormat(displayDatePattern);
     default:
       return '?';
   }
@@ -82,23 +78,19 @@ export function toDateRangeName(x: TypedDateRange): string {
 
 export function yearRange(date: DateLike): TypedDateRange {
   const m = fromYearValue(date) || toDateTime(date);
-  const start = m.startOf('year').toJSDate();
-  const end = m.endOf('year').toJSDate();
-  return { start, end, type: 'year' };
+  return { start: m.startOf('year'), end: m.endOf('year'), type: 'year' };
 }
 
 export function monthRange(date: DateLike): TypedDateRange {
   const m = toDateTime(date);
-  const start = m.startOf('month').toJSDate();
-  const end = m.endOf('month').toJSDate();
-  return { start, end, type: 'month' };
+  return { start: m.startOf('month'), end: m.endOf('month'), type: 'month' };
 }
 
 export function toDateRange(start: DateLike, end: DateLike): TypedDateRange {
   const s = toDateTime(start);
   if (s.hasSame(toDateTime(end), 'month')) return monthRange(s);
   if (s.hasSame(toDateTime(end), 'year')) return yearRange(s);
-  return { type: 'custom', start: s.toJSDate(), end: toDateTime(end).toJSDate() };
+  return { type: 'custom', start: s, end: toDateTime(end) };
 }
 
 const yearRE = /[0-9]{4}/;

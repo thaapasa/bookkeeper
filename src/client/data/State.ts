@@ -74,7 +74,7 @@ export const needUpdateE = needUpdateBus;
 export const navigationBus = new B.Bus<NavigationConfig>();
 export const navigationP = navigationBus.toProperty({
   pathPrefix: expensePagePath,
-  dateRange: monthRange(new Date()),
+  dateRange: monthRange(DateTime.now()),
 });
 
 // Start listening to buses to not miss any updates

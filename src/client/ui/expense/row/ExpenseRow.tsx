@@ -7,7 +7,7 @@ import {
   UserExpense,
   UserExpenseWithDetails,
 } from 'shared/expense';
-import { readableDate, toDate, toDateTime, toISODate } from 'shared/time';
+import { readableDate, toDateTime, toISODate } from 'shared/time';
 import { Category, CategoryMap, ExpenseGroupingMap, isDefined, Source, User } from 'shared/types';
 import { equal, Money, notEqual } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
@@ -132,7 +132,7 @@ const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
       confirmTitle: 'Poista kirjaus',
       confirm: `Haluatko varmasti poistaa kirjauksen ${name}?`,
       success: `Poistettu kirjaus ${name}`,
-      postProcess: () => updateExpenses(toDate(expense.date)),
+      postProcess: () => updateExpenses(expense.date),
     });
   };
 
@@ -150,7 +150,7 @@ const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
     if (!target) return;
     await executeOperation(() => apiConnect.deleteRecurringById(expense.id, target), {
       success: `Poistettu kirjaus ${name}`,
-      postProcess: () => updateExpenses(toDate(expense.date)),
+      postProcess: () => updateExpenses(expense.date),
     });
   };
 
@@ -158,7 +158,7 @@ const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
     const e = await apiConnect.getExpense(expense.id);
     const modified = await editExpense(e.id);
     if (modified) {
-      updateExpenses(toDate(modified.date));
+      updateExpenses(modified.date);
     }
   };
 

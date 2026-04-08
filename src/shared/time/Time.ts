@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { IntString } from '../types/Primitives';
 import { leftPad } from '../util/Util';
 
-export type DateTimeInput = DateTime | Date | string | null | undefined;
+export type DateTimeInput = DateTime | string | null | undefined;
 
 export const ISODateRegExp = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
 export const ISODatePattern = 'yyyy-MM-dd';
@@ -47,7 +47,7 @@ export type YearMonth = z.infer<typeof YearMonth>;
 
 export const displayDatePattern = 'd.M.yyyy';
 
-export type DateLike = Date | DateTime | string;
+export type DateLike = DateTime | string;
 export const fiLocale = 'fi';
 
 // Setup Finnish locale globally
@@ -57,8 +57,10 @@ export function toDateTime(d?: DateTimeInput, _pattern?: string): DateTime {
   if (DateTime.isDateTime(d)) {
     return d;
   }
-  if (d instanceof Date) {
-    return DateTime.fromJSDate(d);
+  // pg-promise returns DATE/TIMESTAMP columns as JS Date objects at runtime,
+  // even though the types don't include Date. Handle them here as a safety net.
+  if ((d as unknown) instanceof Date) {
+    return DateTime.fromJSDate(d as unknown as Date);
   }
   if (typeof d === 'string') {
     // Try ISO format first
@@ -80,13 +82,6 @@ export function dayJsForDate(
   return DateTime.fromISO(
     `${leftPad(year, 4, '0')}-${leftPad(month, 2, '0')}-${leftPad(day, 2, '0')}`,
   );
-}
-
-export function toDate(d: DateLike): Date {
-  if (d instanceof Date) {
-    return d;
-  }
-  return toDateTime(d).toJSDate();
 }
 
 export function toISODate(m?: DateTimeInput): ISODate {
@@ -125,8 +120,8 @@ export function compareDates(first?: DateLike, second?: DateLike): number {
   if (!second) {
     return 1;
   }
-  const a = toDate(first).getTime();
-  const b = toDate(second).getTime();
+  const a = toDateTime(first).toMillis();
+  const b = toDateTime(second).toMillis();
   if (a < b) {
     return -1;
   }

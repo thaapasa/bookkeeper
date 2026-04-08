@@ -1,9 +1,10 @@
 import { ActionIcon } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import { DateTime } from 'luxon';
 import * as React from 'react';
 
 import { ExpenseReport, RecurrencePeriod, RecurringExpense } from 'shared/expense';
-import { readableDateWithYear, toDate, toDateTime } from 'shared/time';
+import { readableDateWithYear } from 'shared/time';
 import { Money } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { updateExpenses } from 'client/data/State';
@@ -99,6 +100,6 @@ async function deleteReport(item: ExpenseReport) {
     confirm: `Haluatko poistaa raportin ${item.title}? Huom! Tämä poistaa kaikki raportin tuottamat rivit`,
     progress: 'Poistetaan raporttia...',
     success: 'Raportti poistettu!',
-    postProcess: () => updateExpenses(toDate(toDateTime())),
+    postProcess: () => updateExpenses(DateTime.now()),
   });
 }

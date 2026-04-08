@@ -2,7 +2,7 @@ import { ActionIcon, Group, Text } from '@mantine/core';
 import * as React from 'react';
 import { useNavigate } from 'react-router';
 
-import { toDateRangeName, toDateTime } from 'shared/time';
+import { toDateRangeName } from 'shared/time';
 import { navigationP } from 'client/data/State';
 import { logger } from 'client/Logger';
 import { monthSuffix, yearSuffix } from 'client/util/Links';
@@ -17,8 +17,8 @@ export const DateRangeNavigator: React.FC = () => {
   const navigateOffset = (offset: number) => {
     const rangeSuffix =
       dateRange.type === 'month'
-        ? monthSuffix(toDateTime(dateRange.start).plus({ months: offset }))
-        : yearSuffix(toDateTime(dateRange.start).plus({ years: offset }));
+        ? monthSuffix(dateRange.start.plus({ months: offset }))
+        : yearSuffix(dateRange.start.plus({ years: offset }));
     const link = pathPrefix + rangeSuffix;
     logger.debug('Navigating to %s', link);
     navigate(link);

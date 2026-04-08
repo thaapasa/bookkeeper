@@ -67,7 +67,8 @@ function createSessionInfo(
   [token, refreshToken]: string[],
   userData: RawUserData,
   shortcuts: ExpenseShortcut[],
-  loginTime?: Date | string,
+  // pg-promise returns login_time as a JS Date object
+  loginTime?: Date,
 ): SessionBasicInfo {
   return {
     token,
@@ -86,7 +87,7 @@ function createSessionInfo(
       name: userData.groupName,
       defaultSourceId: userData.defaultSourceId,
     },
-    loginTime: loginTime ? toISOTimestamp(loginTime) : undefined,
+    loginTime: loginTime ? toISOTimestamp(loginTime as unknown as string) : undefined,
     shortcuts,
   };
 }

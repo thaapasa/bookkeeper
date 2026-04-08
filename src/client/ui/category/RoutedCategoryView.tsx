@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon';
 import React from 'react';
 import { useParams } from 'react-router';
 
@@ -19,6 +20,6 @@ function getDates(year?: string, month?: string): TypedDateRange {
   } else if (month) {
     return monthRange(month);
   } else {
-    return yearRange(new Date());
+    return yearRange(DateTime.now());
   }
 }

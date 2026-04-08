@@ -263,23 +263,15 @@ Completed: created `ISOTimestamp` branded Zod type with timezone-requiring regex
 (`Z` or `±hh:mm`), `toISOTimestamp()` helper, and updated all three API-boundary types:
 `Expense.created`, `SessionBasicInfo.loginTime`, `ApiStatus.timestamp`.
 
-### Phase 2: Eliminate JS Date from shared and client types (F3, F4, F5, F11)
+### Phase 2 + 3: Eliminate JS Date from types and client code — DONE
 
-4. **Convert `UIDateRange` / `TypedDateRange`** to use `DateTime` (or `ISODate`) instead
-   of `Date`. Remove all `.toJSDate()` calls in `yearRange`, `monthRange`, `toDateRange`,
-   and in `dateRangeUtils.ts`. Consider moving these UI-only types to `src/client/`.
-5. **Remove `Date` from `DateTimeInput` and `DateLike`** (F4), remove the
-   `instanceof Date` branch from `toDateTime()`
-6. **Remove `toDate()` entirely** (F5) — no longer needed
+Completed: converted `UIDateRange`/`TypedDateRange` to use `DateTime`, removed `Date`
+from `DateTimeInput`/`DateLike` types, removed `toDate()`, rewrote `compareDates` to
+use `toMillis()`. Also fixed all client consumers: `MonthView` prop → `ISOMonth`,
+`ShortcutsDropdown` param → `DateTime`, `ApiConnect.getCategoryTotals` → `DateLike`,
+replaced `new Date()` with `DateTime.now()`. Note: `toDateTime()` retains a runtime
+`instanceof Date` check for pg-promise boundary safety.
 
-### Phase 3: Client Date cleanup (F6, F7, F8, F12)
-
-7. **Change `MonthView` props** to `date: ISOMonth` or `DateTime` (F6)
-8. **Update `ShortcutsDropdown`** parameter type accordingly (F7)
-9. **Replace `new Date()` with `DateTime.now()`** in client initialization code (F8)
-10. **Change `ApiConnect.getCategoryTotals`** parameters to `DateTime` or `DateLike` (F12)
-
-### Phase 4: Minor cleanups (F9, F13)
+### Phase 4: Minor cleanups (F9)
 
 11. **Replace `new Date().getTime()`** with `Date.now()` in TraceIdProvider (F9)
-12. **Rewrite `compareDates`** to use `toDateTime().toMillis()` (F13)

@@ -3,7 +3,7 @@ import * as B from 'baconjs';
 import * as React from 'react';
 
 import { ExpenseDivision, RecurrencePeriod, UserExpense } from 'shared/expense';
-import { ISODatePattern, toDate, toDateTime } from 'shared/time';
+import { ISODatePattern, toDateTime } from 'shared/time';
 import { Money } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { sourceMapP } from 'client/data/Login';
@@ -53,7 +53,7 @@ export const ExpenseInfoTools: React.FC<ExpenseInfoToolsProps> = ({
     if (period) {
       await executeOperation(() => apiConnect.createRecurring(expense.id, period), {
         success: 'Kirjaus muutettu toistuvaksi',
-        postProcess: () => updateExpenses(toDate(expense.date)),
+        postProcess: () => updateExpenses(expense.date),
       });
     }
   };

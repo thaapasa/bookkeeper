@@ -1,4 +1,5 @@
 import * as B from 'baconjs';
+import { DateTime } from 'luxon';
 import * as React from 'react';
 import { useParams } from 'react-router';
 
@@ -65,7 +66,7 @@ const SearchViewImpl: React.FC<{
       setResults({ type: 'loading' });
       navigationBus.push({
         pathPrefix: searchPagePath,
-        dateRange: toDateRange(query.startDate ?? new Date(), query.endDate ?? new Date()),
+        dateRange: toDateRange(query.startDate ?? DateTime.now(), query.endDate ?? DateTime.now()),
       });
       searchBus.push(query);
     },

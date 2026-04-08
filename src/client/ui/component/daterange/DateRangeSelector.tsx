@@ -19,12 +19,12 @@ const DateRangeSelectorImpl: React.FC<DateRangeSelectorProps> = ({ onSelectRange
 function rangeToPeriod(range: TypedDateRange | undefined): RangePeriod {
   switch (range?.type) {
     case 'year':
-      return { type: 'year', year: range.start.getFullYear() };
+      return { type: 'year', year: range.start.year };
     case 'month':
       return {
         type: 'month',
-        year: range.start.getFullYear(),
-        month: range.start.getMonth() + 1,
+        year: range.start.year,
+        month: range.start.month,
       };
     default:
       return { type: 'all' };
