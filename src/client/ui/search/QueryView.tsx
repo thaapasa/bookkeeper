@@ -3,7 +3,7 @@ import * as React from 'react';
 
 import { ExpenseQuery } from 'shared/expense';
 import { parseQueryString } from 'shared/net';
-import { ISOMonth, toDateTime, toISODate, TypedDateRange } from 'shared/time';
+import { ISOMonth, toDateTime, TypedDateRange } from 'shared/time';
 import { Category, CategoryMap, ObjectId } from 'shared/types';
 import { CategoryDataSource, getFullCategoryName } from 'client/data/Categories';
 import { eventValue } from 'client/util/ClientUtil';
@@ -125,8 +125,8 @@ export const QueryView = React.forwardRef<QueryViewHandle, QueryViewProps>(
       }).map(v => ({
         search: v.search || undefined,
         receiver: v.receiver || undefined,
-        startDate: v.dateRange && toISODate(v.dateRange.start),
-        endDate: v.dateRange && toISODate(v.dateRange.end),
+        startDate: v.dateRange?.start,
+        endDate: v.dateRange?.end,
         categoryId: v.categoryId,
         userId: v.userId,
         confirmed: v.unconfirmed ? false : undefined,

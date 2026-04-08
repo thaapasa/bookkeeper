@@ -13,6 +13,7 @@ import {
   ISOMonth,
   monthToYear,
   toDateTime,
+  toISODate,
   toYearName,
   Year,
 } from './Time';
@@ -24,8 +25,8 @@ export const DateRange = z.object({
 export type DateRange = z.infer<typeof DateRange>;
 
 export interface UIDateRange {
-  start: DateTime;
-  end: DateTime;
+  start: ISODate;
+  end: ISODate;
 }
 
 export interface TypedDateRange extends UIDateRange {
@@ -70,7 +71,11 @@ export function toDateRangeName(x: TypedDateRange): string {
     case 'year':
       return toYearName(x.start);
     case 'custom':
-      return x.start.toFormat(displayDatePattern) + ' - ' + x.end.toFormat(displayDatePattern);
+      return (
+        toDateTime(x.start).toFormat(displayDatePattern) +
+        ' - ' +
+        toDateTime(x.end).toFormat(displayDatePattern)
+      );
     default:
       return '?';
   }
@@ -78,19 +83,27 @@ export function toDateRangeName(x: TypedDateRange): string {
 
 export function yearRange(date: DateLike): TypedDateRange {
   const m = fromYearValue(date) || toDateTime(date);
-  return { start: m.startOf('year'), end: m.endOf('year'), type: 'year' };
+  return {
+    start: toISODate(m.startOf('year')),
+    end: toISODate(m.endOf('year')),
+    type: 'year',
+  };
 }
 
 export function monthRange(date: DateLike): TypedDateRange {
   const m = toDateTime(date);
-  return { start: m.startOf('month'), end: m.endOf('month'), type: 'month' };
+  return {
+    start: toISODate(m.startOf('month')),
+    end: toISODate(m.endOf('month')),
+    type: 'month',
+  };
 }
 
 export function toDateRange(start: DateLike, end: DateLike): TypedDateRange {
   const s = toDateTime(start);
   if (s.hasSame(toDateTime(end), 'month')) return monthRange(s);
   if (s.hasSame(toDateTime(end), 'year')) return yearRange(s);
-  return { type: 'custom', start: s, end: toDateTime(end) };
+  return { type: 'custom', start: toISODate(s), end: toISODate(end) };
 }
 
 const yearRE = /[0-9]{4}/;

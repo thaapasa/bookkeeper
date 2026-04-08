@@ -265,13 +265,37 @@ Completed: created `ISOTimestamp` branded Zod type with timezone-requiring regex
 
 ### Phase 2 + 3: Eliminate JS Date from types and client code — DONE
 
-Completed: converted `UIDateRange`/`TypedDateRange` to use `DateTime`, removed `Date`
-from `DateTimeInput`/`DateLike` types, removed `toDate()`, rewrote `compareDates` to
-use `toMillis()`. Also fixed all client consumers: `MonthView` prop → `ISOMonth`,
-`ShortcutsDropdown` param → `DateTime`, `ApiConnect.getCategoryTotals` → `DateLike`,
-replaced `new Date()` with `DateTime.now()`. Note: `toDateTime()` retains a runtime
-`instanceof Date` check for pg-promise boundary safety.
+Completed: converted `UIDateRange`/`TypedDateRange` to use `ISODate` strings (plain
+calendar dates, not `DateTime` instants), removed `Date` from `DateTimeInput`/`DateLike`
+types, removed `toDate()`, rewrote `compareDates` to use `toMillis()`. Also fixed all
+client consumers: `MonthView` prop → `ISOMonth`, `ShortcutsDropdown` param → `DateLike`,
+`ApiConnect.getCategoryTotals` → `DateLike`, replaced `new Date()` with `DateTime.now()`,
+simplified redundant `toISODate()` calls on already-`ISODate` values. Note: `toDateTime()`
+retains a runtime `instanceof Date` check for pg-promise boundary safety.
 
-### Phase 4: Minor cleanups (F9)
+### Phase 4: Minor cleanups (F9) — DONE
 
-11. **Replace `new Date().getTime()`** with `Date.now()` in TraceIdProvider (F9)
+Completed: replaced `new Date().getTime()` with `Date.now()` in TraceIdProvider.
+
+### Phase 5: Replace remaining `DateTime` with `ISODate` in client types
+
+Several client-side types and callbacks use `DateTime` for values that represent calendar
+dates, not instants. These should use `ISODate` instead.
+
+1. **`ExpenseInEditor.date`** — `src/shared/expense/Expense.ts:115`
+   `date: DateTime` → `date: ISODate`. The stored `Expense.date` is already `ISODate`;
+   the editor state should match.
+
+2. **Expense update bus and callback chain:**
+   - `src/client/data/State.ts:61` — `needUpdateBus = new B.Bus<DateTime>()` → `Bus<ISODate>`
+   - `src/client/data/State.ts:63` — `updateExpenses(date: DateLike)` — push `toISODate(date)` instead of `toDateTime(date)`
+   - `src/client/ui/expense/dialog/ExpenseDialog.tsx:35` — `onExpensesUpdated: (date: DateTime) => void` → `(date: ISODate) => void`
+   - `src/client/ui/expense/dialog/ExpenseDialogListener.tsx:85` — same callback wrapper
+
+3. **Date picker dialog types:**
+   - `src/client/ui/dialog/Dialog.ts:31` — `initialDate?: DateTime` → `initialDate?: ISODate`
+   - `src/client/ui/dialog/DialogState.ts:82` — `selectDate(title, initialDate?: DateTime): Promise<DateTime | undefined>` → `ISODate` for both param and return
+   - `src/client/ui/dialog/DateSelectDialogContents.tsx:8` — type parameter `DateTime` → `ISODate`
+
+4. **Date field component:**
+   - `src/client/ui/expense/dialog/DateField.tsx:6-7` — `value: DateTime; onChange: (date: DateTime) => void` → `ISODate` for both

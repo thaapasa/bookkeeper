@@ -34,7 +34,7 @@ export function getCurrentTraceState() {
 export async function initTraceContext<T>(func: () => T | Promise<T>): Promise<T> {
   const state: TraceState = {
     traceId: getOtelTraceId() || nextRequestId(),
-    startTime: new Date().getTime(),
+    startTime: Date.now(),
   };
   return await traceIdStorage.run(state, func);
 }
@@ -76,7 +76,7 @@ function transformLogFn<CustomLevels extends string = never>(
   logger[method] = (...args: any[]) => {
     const state = getCurrentTraceState();
     if (state) {
-      const timeFromStart = new Date().getTime() - state.startTime;
+      const timeFromStart = Date.now() - state.startTime;
       // Only change arguments when the requestId is defined
       if (typeof args[0] === 'object' && args[0] && args[0].traceId === undefined) {
         // First argument is the logging object; so add request id to it

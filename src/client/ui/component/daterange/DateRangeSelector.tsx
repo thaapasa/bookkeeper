@@ -1,6 +1,13 @@
 import * as React from 'react';
 
-import { AllPeriod, compareDates, MonthPeriod, TypedDateRange, YearPeriod } from 'shared/time';
+import {
+  AllPeriod,
+  compareDates,
+  MonthPeriod,
+  toDateTime,
+  TypedDateRange,
+  YearPeriod,
+} from 'shared/time';
 
 import { type DateRangeSelectorProps } from './dateRangeTypes';
 import { toMonthRange, toYearRange } from './dateRangeUtils';
@@ -18,14 +25,14 @@ const DateRangeSelectorImpl: React.FC<DateRangeSelectorProps> = ({ onSelectRange
 
 function rangeToPeriod(range: TypedDateRange | undefined): RangePeriod {
   switch (range?.type) {
-    case 'year':
-      return { type: 'year', year: range.start.year };
-    case 'month':
-      return {
-        type: 'month',
-        year: range.start.year,
-        month: range.start.month,
-      };
+    case 'year': {
+      const s = toDateTime(range.start);
+      return { type: 'year', year: s.year };
+    }
+    case 'month': {
+      const s = toDateTime(range.start);
+      return { type: 'month', year: s.year, month: s.month };
+    }
     default:
       return { type: 'all' };
   }
