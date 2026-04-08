@@ -285,3 +285,51 @@ to `ISODate`. This includes `ExpenseInEditor.date`, the `needUpdateBus` event bu
 `DialogState.selectDate`), and the `DateField` component props. Also simplified
 `shortcutToExpenseInEditor` and removed unnecessary `toDateTime`/`toISODate` conversions
 throughout the expense dialog, split, and copy flows.
+
+---
+
+## Follow-up items
+
+### Hardening
+
+1. **`DateSelectDialogContents.tsx`** — `toISODate(edited)` is called without validating
+   the input from Mantine's `DatePicker`. If the picker ever returns something unexpected,
+   `toISODate` silently produces today's date (since `toDateTime` falls through to
+   `DateTime.now()` on invalid input). Low risk since Mantine controls the value, but
+   consider adding validation.
+
+2. **`SessionDb.ts`** — The cast chain `loginTime as unknown as string` is necessary
+   for pg-promise's runtime `Date` objects. Consider extracting a small helper like
+   `pgDateToTimestamp(d: Date): ISOTimestamp` if this pattern appears in more places.
+
+3. **`RoutedMonthView.tsx`** — The URL param is cast to `ISOMonth` without validation.
+   If someone navigates to `/m/garbage`, it passes through unchecked. Not a regression
+   (URL params were never validated), but worth adding Zod validation in a follow-up.
+
+### Remaining cleanups
+
+4. **`RecurringExpenseDb.ts:389`** — `DateTime.now()` is passed through
+   `terminateRecurrenceAt` directly into a pg-promise query parameter (`$/date/::date`).
+   pg-promise doesn't natively understand Luxon DateTime objects — it falls back to
+   `JSON.stringify`, which calls `DateTime.toJSON()` and produces an ISO string that
+   PostgreSQL's `::date` cast handles. This works but is fragile and inconsistent with
+   the rest of the codebase where `ISODate` strings are passed to SQL.
+   **Fix:** Use `toISODate()` instead of `DateTime.now()`.
+
+5. ~~`SubscriptionDetails.tsx`, `SubscriptionItemView.tsx`~~ — DONE. Changed
+   `updateExpenses(DateTime.now())` → `updateExpenses(toISODate())`. Also tightened
+   `updateExpenses` signature from `DateLike` to `ISODate`.
+
+6. ~~`SearchPage.tsx`~~ — DONE. Changed `DateTime.now()` fallback to `toISODate()`.
+
+7. ~~`ApiConnect.getCategoryTotals`~~ — DONE. Changed params from `DateLike` to `ISODate`.
+
+8. ~~`ShortcutsDropdown.openNewExpenseDialog`~~ — DONE. Changed param from `DateLike`
+   to `ISODate`.
+
+### Risks to watch for
+
+- **pg-promise boundary**: New queries returning DATE/TIMESTAMP columns must convert to
+  `ISODate`/`ISOTimestamp` at the server boundary (like `dbRowToExpense` and
+  `createSessionInfo` do). The runtime `instanceof Date` check in `toDateTime()` serves
+  as a safety net, but explicit conversion is preferred.

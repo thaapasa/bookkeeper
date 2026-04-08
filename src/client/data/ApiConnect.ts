@@ -17,7 +17,7 @@ import {
   UserExpenseWithDetails,
 } from 'shared/expense';
 import { FetchClient, RequestMethod, RequestSpec, uri } from 'shared/net';
-import { DateLike, ISODate, timeoutImmediate, toISODate } from 'shared/time';
+import { ISODate, timeoutImmediate } from 'shared/time';
 import {
   ApiMessage,
   ApiStatus,
@@ -271,15 +271,9 @@ export class ApiConnect {
     return this.post<CategoryIdResponse>('/api/category', { body: category });
   }
 
-  public getCategoryTotals = (
-    startDate: DateLike,
-    endDate: DateLike,
-  ): Promise<CategoryAndTotals[]> =>
+  public getCategoryTotals = (startDate: ISODate, endDate: ISODate): Promise<CategoryAndTotals[]> =>
     this.get<CategoryAndTotals[]>('/api/category/totals', {
-      query: {
-        startDate: toISODate(startDate),
-        endDate: toISODate(endDate),
-      },
+      query: { startDate, endDate },
     });
 
   public updateCategory = (id: number | string, category: CategoryData): Promise<Category> =>

@@ -1,10 +1,9 @@
 import * as B from 'baconjs';
-import { DateTime } from 'luxon';
 import * as React from 'react';
 import { useParams } from 'react-router';
 
 import { ExpenseQuery, UserExpense } from 'shared/expense';
-import { ISOMonth, toDateRange } from 'shared/time';
+import { ISOMonth, toDateRange, toISODate } from 'shared/time';
 import { Category, CategoryMap, isDefined } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
 import { AsyncData, UninitializedData } from 'client/data/AsyncData';
@@ -66,7 +65,7 @@ const SearchViewImpl: React.FC<{
       setResults({ type: 'loading' });
       navigationBus.push({
         pathPrefix: searchPagePath,
-        dateRange: toDateRange(query.startDate ?? DateTime.now(), query.endDate ?? DateTime.now()),
+        dateRange: toDateRange(query.startDate ?? toISODate(), query.endDate ?? toISODate()),
       });
       searchBus.push(query);
     },

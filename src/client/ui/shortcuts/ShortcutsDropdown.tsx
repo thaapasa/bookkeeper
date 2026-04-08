@@ -6,7 +6,7 @@ import { NavigateFunction, useNavigate } from 'react-router';
 
 import { ExpenseShortcutData, shortcutToExpenseInEditor } from 'shared/expense';
 import { uri } from 'shared/net';
-import { DateLike, toDateTime, toISODate } from 'shared/time';
+import { ISODate, toDateTime } from 'shared/time';
 import { ObjectId } from 'shared/types';
 import { validSessionP } from 'client/data/Login';
 import { createExpense, createNewExpense, navigationP } from 'client/data/State';
@@ -82,10 +82,10 @@ export const AddExpenseMenu: React.FC = () => {
   );
 };
 
-function openNewExpenseDialog(navigate: NavigateFunction, shownDay: DateLike) {
+function openNewExpenseDialog(navigate: NavigateFunction, shownDay: ISODate) {
   const path = window.location.pathname;
   const refDay = toDateTime(shownDay);
-  const date = refDay.hasSame(DateTime.now(), 'month') ? undefined : toISODate(refDay);
+  const date = refDay.hasSame(DateTime.now(), 'month') ? undefined : shownDay;
   if (pageSupportsRoutedExpenseDialog(path)) {
     if (!path.includes(newExpenseSuffix)) {
       const dateSuffix = date ? uri`?date=${date}` : '';

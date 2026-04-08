@@ -1,9 +1,8 @@
 import { ActionIcon, Group } from '@mantine/core';
-import { DateTime } from 'luxon';
 import * as React from 'react';
 
 import { RecurringExpenseDetails } from 'shared/expense';
-import { readableDateWithYear } from 'shared/time';
+import { readableDateWithYear, toISODate } from 'shared/time';
 import { ObjectId } from 'shared/types';
 import { Money } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
@@ -79,7 +78,7 @@ async function terminateSubscription(recurringExpenseId: ObjectId, title: string
     confirm: `Haluatko lopettaa tilauksen ${title}?`,
     progress: 'Lopetetaan tilausta...',
     success: 'Tilaus lopetettu!',
-    postProcess: () => updateExpenses(DateTime.now()),
+    postProcess: () => updateExpenses(toISODate()),
   });
 }
 

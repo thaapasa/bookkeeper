@@ -1,7 +1,7 @@
 import * as B from 'baconjs';
 
 import { ExpenseInEditor, ExpenseSplit } from 'shared/expense';
-import { DateLike, ISODate, monthRange, toISODate } from 'shared/time';
+import { ISODate, monthRange, toISODate } from 'shared/time';
 import { noop } from 'shared/util';
 import { ExpenseSaveAction } from 'client/ui/expense/dialog/ExpenseSaveAction';
 
@@ -59,8 +59,8 @@ export const expenseSplitE = expenseSplitBus;
 
 const needUpdateBus = new B.Bus<ISODate>();
 
-export function updateExpenses(date: DateLike) {
-  needUpdateBus.push(toISODate(date));
+export function updateExpenses(date: ISODate) {
+  needUpdateBus.push(date);
   return true;
 }
 
