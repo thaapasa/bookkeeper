@@ -5,67 +5,16 @@ globs:
   - migrations/**/*.js
 ---
 
-# Backend conventions
+# Backend Conventions
 
-## Validated Router Pattern
+Read `src/server/coding-conventions.md` for the full coding conventions. You must read
+this file before writing any new code or when refactoring old code.
 
-All API endpoints use `createValidatingRouter` with Zod schemas and automatic transactions:
+Key rules:
 
-```typescript
-const api = createValidatingRouter(Router());
-
-api.getTx(
-  '/path/:id',
-  { query: QuerySchema, response: ResponseSchema, groupRequired: true },
-  (tx, session, { params, query }) => dbFunction(tx, session.group.id, params.id),
-);
-```
-
-- `getTx`/`postTx`/`putTx`/`deleteTx` — run handler in a database transaction
-- `get`/`post`/`put`/`delete` — for non-database operations
-- Always specify Zod schemas for `query`, `body`, and `response`
-- Set `groupRequired: true` in the spec for endpoints needing group context
-- API handlers: `src/server/api/*Api.ts`
-- DB functions: `src/server/data/*Db.ts` or `*Service.ts`
-
-## Database Operations
-
-Schema reference: `docs/SCHEMA.sql`. If a local DB is available, you can also inspect
-the live schema via `psql "$DB_URL"` (connection string is in `.env`).
-
-All DB functions take `tx: DbTask` (from `server/data/Db`) as first parameter. Use
-pg-promise parameterized queries with `$/paramName/` syntax:
-
-```typescript
-const result = await tx.oneOrNone<MyType>(
-  `SELECT * FROM my_table WHERE id = $/id/ AND group_id = $/groupId/`,
-  { id, groupId },
-);
-```
-
-Query methods: `one()`, `oneOrNone()`, `many()`, `manyOrNone()`, `none()`, `map()`.
-
-## Error Handling
-
-Use typed errors from `shared/types/Errors`:
-
-```typescript
-throw new NotFoundError('ITEM_NOT_FOUND', 'item');
-throw new InvalidInputError('Invalid data');
-throw new AuthenticationError('Session expired');
-```
-
-## Logging
-
-Pino logger with context object first:
-
-```typescript
-logger.info({ expenseId, userId }, 'Expense created');
-logger.error(error, 'Operation failed');
-```
-
-## File Naming
-
-- API handlers: `*Api.ts`
-- Database operations: `*Db.ts` or `*Service.ts`
-- Types and schemas: Named by domain in `src/shared/`
+- Use `createValidatingRouter` with Zod schemas for all API endpoints
+- Use pg-promise parameterized queries (`$/param/` syntax), never string interpolation
+- Use typed errors from `shared/types/Errors`
+- Use Pino logger with context object first
+- Use branded date string types (`ISODate`, `ISOTimestamp`), never raw DateTime objects
+- Run `bun format && bun lint` after changes

@@ -7,11 +7,11 @@ legacy code, rewrite from scratch following these rules rather than patching old
 ## Technology Stack
 
 - **Framework**: React 19 (functional components only, no class components)
-- **UI Library**: Mantine 8
+- **UI Library**: Mantine 9
 - **Styling**: Mantine style props + CSS modules for complex cases
 - **State**: Zustand (preferred), Bacon.js (legacy)
 - **Routing**: React Router 7
-- **Build**: Vite 7
+- **Build**: Vite 8
 - **Dates**: Luxon
 - **Validation**: Zod
 - **Icons**: Lucide React via `src/client/ui/icons/Icons.tsx`

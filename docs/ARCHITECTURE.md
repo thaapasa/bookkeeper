@@ -21,7 +21,7 @@ This document provides an overview of the codebase architecture, directory struc
 ### Frontend
 
 - **React 19** - UI framework (functional components with hooks)
-- **Mantine 8** - Component library and styling (CSS modules)
+- **Mantine 9** - Component library and styling (CSS modules)
 - **React Router 7** - Client-side routing
 - **Zustand** - State management
 - **Bacon.js** - Reactive programming for data streams

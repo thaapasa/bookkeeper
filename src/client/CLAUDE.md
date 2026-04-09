@@ -1,4 +1,4 @@
-# Frontend: Mantine 8 UI
+# Frontend: Mantine 9 UI
 
 Read `src/client/coding-conventions.md` before writing or modifying any UI code.
 It is the single source of truth for frontend coding conventions.

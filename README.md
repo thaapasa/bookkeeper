@@ -135,17 +135,14 @@ This project includes comprehensive documentation for both developers and AI age
 ### Technical Documentation
 
 - [Architecture](./docs/ARCHITECTURE.md) - Detailed codebase structure, technology stack, and coding patterns
-- [Frontend Improvements](./docs/FRONTEND_IMPROVEMENTS.md) - Planned frontend improvements and tech debt
 
 ### AI Agent Instructions
 
 These files provide context for AI-assisted coding:
 
-- [AGENTS.md](./AGENTS.md) / [CLAUDE.md](./CLAUDE.md) — Shared project conventions (symlinked)
-- [Frontend agent](./.github/agents/frontend.agent.md) — Mantine 8 / React UI conventions
-- [Backend agent](./.github/agents/backend.agent.md) — Express / pg-promise conventions
-- [Frontend CLAUDE.md](./src/client/CLAUDE.md) — Frontend conventions for Claude Code
-- [Backend CLAUDE.md](./src/server/CLAUDE.md) — Backend conventions for Claude Code
+- [CLAUDE.md](./CLAUDE.md) — Project conventions
+- [Frontend conventions](./src/client/coding-conventions.md) — Mantine 9 / React UI conventions
+- [Backend conventions](./src/server/coding-conventions.md) — Express / pg-promise conventions
 
 ### Quick References
 

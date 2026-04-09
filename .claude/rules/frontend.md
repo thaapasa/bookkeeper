@@ -1,5 +1,5 @@
 ---
-description: Frontend coding conventions for the Mantine 8 React UI
+description: Frontend coding conventions for the Mantine 9 React UI
 globs:
   - src/client/**/*.ts
   - src/client/**/*.tsx

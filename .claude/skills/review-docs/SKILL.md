@@ -23,12 +23,11 @@ Check each of these files:
 - `src/client/CLAUDE.md`
 - `src/client/coding-conventions.md`
 - `src/server/CLAUDE.md`
+- `src/server/coding-conventions.md`
 - `docs/ARCHITECTURE.md` (if exists)
 - `docs/FRONTEND_IMPROVEMENTS.md` (if exists)
 - `docs/BACKEND_IMPROVEMENTS.md` (if exists)
-- `.github/agents/frontend.agent.md`
-- `.github/agents/backend.agent.md`
-- `.github/copilot-instructions.md`
+- `.claude/agents/review.md`
 - `.claude/rules/*.md`
 
 ## For Each File, Verify
@@ -52,9 +51,11 @@ should agree on:
 
 ## Output
 
-For each issue found, report:
+Number each finding sequentially so the user can reference them (e.g. "fix 2 and 5,
+leave 3 as-is"). Format:
 
 ```
+#1
 [FILE] path/to/file.md
 [LINE] approximate location
 [ISSUE] what's wrong
