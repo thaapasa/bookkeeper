@@ -1,4 +1,4 @@
-import { dayJsForDate, ISOMonth, toDateTime, toISODate, TypedDateRange } from 'shared/time';
+import { dateTimeFromParts, ISOMonth, toDateTime, toISODate, TypedDateRange } from 'shared/time';
 
 export function isValidYear(year: string | number): boolean {
   const y = Number(year);
@@ -11,7 +11,7 @@ export function isValidMonth(month: string | number): boolean {
 }
 
 export function toMonthRange(year: string | number, month: string | number): TypedDateRange {
-  const m = dayJsForDate(year, month, 1);
+  const m = dateTimeFromParts(year, month, 1);
   return {
     type: 'month',
     start: toISODate(m.startOf('month')),
@@ -29,7 +29,7 @@ export function parseMonthRange(monthInput: ISOMonth): TypedDateRange {
 }
 
 export function toYearRange(year: string | number): TypedDateRange {
-  const m = dayJsForDate(year, 1, 1);
+  const m = dateTimeFromParts(year, 1, 1);
   return {
     type: 'year',
     start: toISODate(m.startOf('year')),

@@ -11,7 +11,12 @@ import {
   YAxis,
 } from 'recharts';
 
-import { dateRangeToMomentRange, dayJsForDate, getYearsInRange, MomentRange } from 'shared/time';
+import {
+  dateRangeToMomentRange,
+  dateTimeFromParts,
+  getYearsInRange,
+  MomentRange,
+} from 'shared/time';
 import { Category, CategoryStatistics, ObjectId } from 'shared/types';
 import { leftPad, Money, numberRange, typedKeys } from 'shared/util';
 import { getFullCategoryName } from 'client/data/Categories';
@@ -113,7 +118,7 @@ function findEntriesForMonth(
   } as any;
   for (const key of keys) {
     for (const year of years) {
-      if (range.endTime > dayJsForDate(year, month, 1)) {
+      if (range.endTime > dateTimeFromParts(year, month, 1)) {
         monthData[`${key}-${year}`] = Money.from(
           data.statistics[key].find(p => p.month === `${year}-${leftPad(month + 1, 2, '0')}`)
             ?.sum ?? '0',

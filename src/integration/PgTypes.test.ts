@@ -1,6 +1,6 @@
 import { afterAll, describe, expect, it } from 'bun:test';
 
-import { ISODateRegExp } from 'shared/time';
+import { ISODateRegExp, ISOTimestampRegExp } from 'shared/time';
 
 import { db } from '../server/data/Db';
 
@@ -14,12 +14,13 @@ describe('pg type parsers', () => {
     expect(ISODateRegExp.test(result.d as string)).toBe(true);
   });
 
-  it('should return TIMESTAMPTZ columns as strings, not Date objects', async () => {
+  it('should return TIMESTAMPTZ columns as ISOTimestamp strings', async () => {
     const result = await db.one<{ ts: unknown }>(
       `SELECT '2026-03-31 12:00:00+02'::TIMESTAMPTZ AS ts`,
     );
     expect(typeof result.ts).toBe('string');
     expect(result.ts).not.toBeInstanceOf(Date);
+    expect(ISOTimestampRegExp.test(result.ts as string)).toBe(true);
   });
 
   it('should reject TIMESTAMP without timezone', async () => {
@@ -38,7 +39,7 @@ describe('pg type parsers', () => {
     });
   });
 
-  it('should round-trip TIMESTAMPTZ through a temp table', async () => {
+  it('should round-trip TIMESTAMPTZ through a temp table as ISOTimestamp', async () => {
     await db.tx(async tx => {
       await tx.none(`CREATE TEMP TABLE _test_timestamps (ts TIMESTAMPTZ NOT NULL) ON COMMIT DROP`);
       await tx.none(`INSERT INTO _test_timestamps (ts) VALUES ($/ts/)`, {
@@ -47,6 +48,7 @@ describe('pg type parsers', () => {
       const row = await tx.one<{ ts: unknown }>(`SELECT ts FROM _test_timestamps`);
       expect(typeof row.ts).toBe('string');
       expect(row.ts).not.toBeInstanceOf(Date);
+      expect(ISOTimestampRegExp.test(row.ts as string)).toBe(true);
     });
   });
 
@@ -60,13 +62,14 @@ describe('pg type parsers', () => {
     }
   });
 
-  it('should preserve expense created as string when reading from expenses table', async () => {
+  it('should return expense created as ISOTimestamp from expenses table', async () => {
     const row = await db.oneOrNone<{ created: unknown }>(
       `SELECT created FROM expenses WHERE template = false LIMIT 1`,
     );
     if (row) {
       expect(typeof row.created).toBe('string');
       expect(row.created).not.toBeInstanceOf(Date);
+      expect(ISOTimestampRegExp.test(row.created as string)).toBe(true);
     }
   });
 });

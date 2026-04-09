@@ -1,7 +1,14 @@
 import React from 'react';
 import { useParams } from 'react-router';
 
-import { monthRange, toISODate, TypedDateRange, yearRange } from 'shared/time';
+import {
+  ISOMonthRegExp,
+  ISOYearRegExp,
+  monthRange,
+  toISODate,
+  TypedDateRange,
+  yearRange,
+} from 'shared/time';
 
 import { CategoryView } from './CategoryView';
 
@@ -13,10 +20,11 @@ export const RoutedCategoryView: React.FC = () => {
   return <CategoryView range={range} />;
 };
 
+// Validate URL params; fall back to current year on invalid input
 function getDates(year?: string, month?: string): TypedDateRange {
-  if (year) {
+  if (year && ISOYearRegExp.test(year)) {
     return yearRange(year);
-  } else if (month) {
+  } else if (month && ISOMonthRegExp.test(month)) {
     return monthRange(month);
   } else {
     return yearRange(toISODate());

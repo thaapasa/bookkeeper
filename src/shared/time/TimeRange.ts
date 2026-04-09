@@ -7,7 +7,7 @@ import { toMonthName } from './Months';
 import {
   compareDates,
   DateLike,
-  dayJsForDate,
+  dateTimeFromParts,
   displayDatePattern,
   ISODate,
   ISOMonth,
@@ -111,7 +111,7 @@ const yearRE = /[0-9]{4}/;
 function fromYearValue(y: DateLike): DateTime | undefined {
   if (typeof y === 'number' || (typeof y === 'string' && yearRE.test(y))) {
     const year = typeof y === 'number' ? y : parseInt(y, 10);
-    return dayJsForDate(year, 1, 1);
+    return dateTimeFromParts(year, 1, 1);
   }
   return;
 }

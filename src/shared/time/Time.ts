@@ -57,8 +57,8 @@ export function toDateTime(d?: DateTimeInput, _pattern?: string): DateTime {
   if (DateTime.isDateTime(d)) {
     return d;
   }
-  // pg-promise returns DATE/TIMESTAMP columns as JS Date objects at runtime,
-  // even though the types don't include Date. Handle them here as a safety net.
+  // Runtime safety: accept JS Date even though types don't include it,
+  // since third-party libraries (e.g. Mantine) may return Date objects.
   if ((d as unknown) instanceof Date) {
     return DateTime.fromJSDate(d as unknown as Date);
   }
@@ -74,7 +74,7 @@ export function toDateTime(d?: DateTimeInput, _pattern?: string): DateTime {
   return DateTime.now();
 }
 
-export function dayJsForDate(
+export function dateTimeFromParts(
   year: number | string,
   month: number | string,
   day: number | string,
@@ -132,7 +132,7 @@ export function compareDates(first?: DateLike, second?: DateLike): number {
 }
 
 export function month(year: number, mon: number): DateTime {
-  return dayJsForDate(year, mon, 1);
+  return dateTimeFromParts(year, mon, 1);
 }
 
 export function monthToYear(month: ISOMonth | ISODate): number {

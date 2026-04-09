@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import { promisify } from 'util';
 
 import { ExpenseShortcut } from 'shared/expense';
-import { toISOTimestamp } from 'shared/time';
+import { ISOTimestamp } from 'shared/time';
 import { AuthenticationError, Session, SessionBasicInfo, UserIdResponse } from 'shared/types';
 import { DbTask } from 'server/data/Db.ts';
 import { logger } from 'server/Logger';
@@ -67,8 +67,7 @@ function createSessionInfo(
   [token, refreshToken]: string[],
   userData: RawUserData,
   shortcuts: ExpenseShortcut[],
-  // pg-promise returns login_time as a JS Date object
-  loginTime?: Date,
+  loginTime?: ISOTimestamp,
 ): SessionBasicInfo {
   return {
     token,
@@ -87,7 +86,7 @@ function createSessionInfo(
       name: userData.groupName,
       defaultSourceId: userData.defaultSourceId,
     },
-    loginTime: loginTime ? toISOTimestamp(loginTime as unknown as string) : undefined,
+    loginTime,
     shortcuts,
   };
 }

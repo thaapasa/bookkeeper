@@ -1,4 +1,5 @@
 import { Span, SpanStatusCode, trace } from '@opentelemetry/api';
+import { DateTime } from 'luxon';
 import type { IEventContext, ITask } from 'pg-promise';
 import pgPromise from 'pg-promise';
 
@@ -26,8 +27,9 @@ pgTypes.setTypeParser(PG_TIMESTAMP, (val: string) => {
   );
 });
 
-// TIMESTAMPTZ → keep as string for now (will be converted to ISOTimestamp in a follow-up)
-pgTypes.setTypeParser(PG_TIMESTAMPTZ, (val: string) => val);
+// TIMESTAMPTZ → parse to ISO 8601 with timezone (ISOTimestamp format)
+// pg returns format like "2026-03-31 12:00:00+02", convert to "2026-03-31T12:00:00.000+02:00"
+pgTypes.setTypeParser(PG_TIMESTAMPTZ, (val: string) => DateTime.fromSQL(val).toISO());
 
 export type DbTask = ITask<object>;
 

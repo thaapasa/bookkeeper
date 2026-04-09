@@ -83,6 +83,7 @@ be safe to use on both sides. Since Mantine date pickers accept ISO strings dire
 there is no reason to use JS `Date` here at all.
 
 **Fix:** Either:
+
 - **Option A:** Convert `UIDateRange` / `TypedDateRange` to use `DateTime` (or `ISODate`
   strings) instead of `Date`. Remove all `.toJSDate()` calls in the functions that
   produce them (`yearRange`, `monthRange`, `toDateRange`).
@@ -107,7 +108,7 @@ functions convert **from** Date, they don't produce or require it.
 
 **Fix:** After F3 eliminates all JS `Date` usage, remove `Date` from both types.
 `DateTimeInput` becomes `DateTime | string | null | undefined`, `DateLike` becomes
-`DateTime | string`. Update `toDateTime` to remove the `instanceof Date` branch.
+`DateTime | string`.
 
 ---
 
@@ -166,6 +167,7 @@ Receives a JS Date and immediately converts to DateTime. Downstream of F6.
 ### F8. `new Date()` used for "current date" initialization in client
 
 **Files:**
+
 - `src/client/data/State.ts:77` — `monthRange(new Date())`
 - `src/client/ui/expense/RoutedMonthView.tsx:13` — `new Date()` fallback
 - `src/client/ui/category/RoutedCategoryView.tsx:22` — `yearRange(new Date())`
@@ -270,8 +272,7 @@ calendar dates, not `DateTime` instants), removed `Date` from `DateTimeInput`/`D
 types, removed `toDate()`, rewrote `compareDates` to use `toMillis()`. Also fixed all
 client consumers: `MonthView` prop → `ISOMonth`, `ShortcutsDropdown` param → `DateLike`,
 `ApiConnect.getCategoryTotals` → `DateLike`, replaced `new Date()` with `DateTime.now()`,
-simplified redundant `toISODate()` calls on already-`ISODate` values. Note: `toDateTime()`
-retains a runtime `instanceof Date` check for pg-promise boundary safety.
+simplified redundant `toISODate()` calls on already-`ISODate` values.
 
 ### Phase 4: Minor cleanups (F9) — DONE
 
@@ -292,19 +293,16 @@ throughout the expense dialog, split, and copy flows.
 
 ### Hardening
 
-1. **`DateSelectDialogContents.tsx`** — `toISODate(edited)` is called without validating
-   the input from Mantine's `DatePicker`. If the picker ever returns something unexpected,
-   `toISODate` silently produces today's date (since `toDateTime` falls through to
-   `DateTime.now()` on invalid input). Low risk since Mantine controls the value, but
-   consider adding validation.
+1. ~~**`DateSelectDialogContents.tsx`**~~ — Mitigated. `toDateTime()` retains a runtime
+   `instanceof Date` check so that if Mantine's DatePicker returns a JS `Date`, it is
+   converted correctly via `DateTime.fromJSDate()`.
 
-2. **`SessionDb.ts`** — The cast chain `loginTime as unknown as string` is necessary
-   for pg-promise's runtime `Date` objects. Consider extracting a small helper like
-   `pgDateToTimestamp(d: Date): ISOTimestamp` if this pattern appears in more places.
+2. ~~**`SessionDb.ts`**~~ — DONE (Phase 6). The cast chain was removed; `loginTime`
+   now arrives as `ISOTimestamp` from the pg type parser.
 
-3. **`RoutedMonthView.tsx`** — The URL param is cast to `ISOMonth` without validation.
-   If someone navigates to `/m/garbage`, it passes through unchecked. Not a regression
-   (URL params were never validated), but worth adding Zod validation in a follow-up.
+3. ~~**`RoutedMonthView.tsx`**~~ — DONE. URL param is now validated against
+   `ISOMonthRegExp`; invalid input falls back to the current month. Also hardened
+   `RoutedCategoryView.tsx` similarly (year/month params validated against regexps).
 
 ### Remaining cleanups
 
@@ -313,25 +311,25 @@ throughout the expense dialog, split, and copy flows.
 5. ~~`RoutedCategoryView.tsx`~~ — DONE. Changed `yearRange(DateTime.now())` to
    `yearRange(toISODate())`.
 
-### Phase 6: Leverage pg type parsers to remove manual conversions
+### Phase 6: Leverage pg type parsers to remove manual conversions — DONE
 
-Custom pg type parsers were added in `Db.ts` (DATE→string, TIMESTAMPTZ→string,
-TIMESTAMP→error). This makes several manual conversion steps redundant:
+Custom pg type parsers in `Db.ts` now handle all type conversions at the database
+boundary. TIMESTAMPTZ parser produces proper ISOTimestamp via `DateTime.fromSQL().toISO()`.
 
-1. **TIMESTAMPTZ parser → produce `ISOTimestamp`** — The parser currently returns the
-   raw pg format string (`2026-03-31 12:00:00+02`), which is not ISO 8601. It should
-   parse with `DateTime.fromSQL()` and output `.toISO()` so that TIMESTAMPTZ columns
-   arrive as proper `ISOTimestamp` values. This is the key change that enables items 2-3.
+1. ~~**TIMESTAMPTZ parser → produce `ISOTimestamp`**~~ — DONE. Parser now converts
+   pg format (`2026-03-31 12:00:00+02`) to ISO 8601 (`2026-03-31T12:00:00.000+02:00`).
 
-2. **Remove `toISOTimestamp(e.created)` from `dbRowToExpense()`** in `BasicExpenseDb.ts`
-   — Once the TIMESTAMPTZ parser produces `ISOTimestamp`, `created` arrives correctly
-   from pg and the manual conversion is redundant.
+2. ~~**Remove `toISOTimestamp(e.created)` from `dbRowToExpense()`**~~ — DONE. Removed
+   manual conversion in `BasicExpenseDb.ts`; `created` arrives as ISOTimestamp from pg.
+   Also cleaned up unused `DateTime` import and local `DateTimeInput` type alias.
 
-3. **Clean up `SessionDb.ts`** — `loginTime` parameter is typed as `Date` with a comment
-   about pg-promise returning Date objects and a cast chain
-   `loginTime as unknown as string`. With the type parsers, it arrives as a string. The
-   param type, comment, and cast can all be simplified.
+3. ~~**Clean up `SessionDb.ts`**~~ — DONE. Changed `loginTime` parameter from `Date`
+   to `ISOTimestamp`, removed the `as unknown as string` cast chain and the comment
+   about pg-promise returning Date objects.
 
-4. **Remove `instanceof Date` check from `toDateTime()`** in `Time.ts` — pg no longer
-   returns `Date` objects, so this branch is dead code. The comment explaining it can be
-   removed too.
+4. ~~**Remove `instanceof Date` check from `toDateTime()`**~~ — DONE. Removed the
+   dead code branch and its explanatory comment from `Time.ts`.
+
+5. **Renamed `dayJsForDate` → `dateTimeFromParts`** in `Time.ts` — the function was
+   a leftover from the pre-Luxon dayjs era. Updated all call sites in `TimeRange.ts`,
+   `Period.ts`, `dateRangeUtils.ts`, and `YearlyRecurringChart.tsx`.
