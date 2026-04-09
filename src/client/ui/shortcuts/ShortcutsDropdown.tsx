@@ -6,7 +6,7 @@ import { NavigateFunction, useNavigate } from 'react-router';
 
 import { ExpenseShortcutData, shortcutToExpenseInEditor } from 'shared/expense';
 import { uri } from 'shared/net';
-import { toDateTime, toISODate } from 'shared/time';
+import { ISODate, toDateTime } from 'shared/time';
 import { ObjectId } from 'shared/types';
 import { validSessionP } from 'client/data/Login';
 import { createExpense, createNewExpense, navigationP } from 'client/data/State';
@@ -27,7 +27,7 @@ export const AddExpenseMenu: React.FC = () => {
 
   const handleAddNew = () => openNewExpenseDialog(navigate, dateRange.start);
   const handleShortcut = (id?: ObjectId, expense?: Partial<ExpenseShortcutData>) => {
-    openNewExpenseFromShortcut(navigate, id, expense);
+    openNewExpenseFromShortcut(navigate, dateRange.start, id, expense);
   };
 
   return (
@@ -82,13 +82,13 @@ export const AddExpenseMenu: React.FC = () => {
   );
 };
 
-function openNewExpenseDialog(navigate: NavigateFunction, shownDay: Date) {
+function openNewExpenseDialog(navigate: NavigateFunction, shownDay: ISODate) {
   const path = window.location.pathname;
   const refDay = toDateTime(shownDay);
-  const date = refDay.hasSame(DateTime.now(), 'month') ? undefined : refDay;
+  const date = refDay.hasSame(DateTime.now(), 'month') ? undefined : shownDay;
   if (pageSupportsRoutedExpenseDialog(path)) {
     if (!path.includes(newExpenseSuffix)) {
-      const dateSuffix = date ? uri`?date=${toISODate(date)}` : '';
+      const dateSuffix = date ? uri`?date=${date}` : '';
       navigate(
         path.startsWith('/p')
           ? path + newExpenseSuffix + dateSuffix
@@ -102,18 +102,26 @@ function openNewExpenseDialog(navigate: NavigateFunction, shownDay: Date) {
 
 function openNewExpenseFromShortcut(
   navigate: NavigateFunction,
+  shownDay: ISODate,
   id?: ObjectId,
   expense?: Partial<ExpenseShortcutData>,
 ) {
   const path = window.location.pathname;
+  const refDay = toDateTime(shownDay);
+  const date = refDay.hasSame(DateTime.now(), 'month') ? undefined : shownDay;
   if (pageSupportsRoutedExpenseDialog(path) && id) {
     if (!path.includes(newExpenseSuffix)) {
+      const dateSuffix = date ? uri`?date=${date}` : '';
       const base = path.startsWith('/p') ? path + newExpenseSuffix : '/p' + newExpenseSuffix;
-      navigate(base + uri`/${id}`);
+      navigate(base + uri`/${id}` + dateSuffix);
     }
     return;
   }
   if (expense) {
-    createNewExpense(shortcutToExpenseInEditor(expense));
+    const values = shortcutToExpenseInEditor(expense);
+    if (date) {
+      values.date = date;
+    }
+    createNewExpense(values);
   }
 }

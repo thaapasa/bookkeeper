@@ -1,9 +1,5 @@
-import { DateTime } from 'luxon';
-
-type DateTimeInput = DateTime | string;
-
 import { ExpenseCollection, ExpenseStatus, UserExpense } from 'shared/expense';
-import * as time from 'shared/time';
+import { dateTimeFromParts, DateTimeInput, toISODate, toISOTimestamp } from 'shared/time';
 import { mapValues, Money } from 'shared/util';
 import { DbTask } from 'server/data/Db.ts';
 import { logger } from 'server/Logger';
@@ -38,7 +34,7 @@ async function getBetween(
   endDate: DateTimeInput,
 ) {
   logger.debug(
-    `Querying for expenses between ${time.iso(startDate)} and ${time.iso(
+    `Querying for expenses between ${toISOTimestamp(startDate)} and ${toISOTimestamp(
       endDate,
     )} for group ${groupId}`,
   );
@@ -50,8 +46,8 @@ async function getBetween(
     {
       userId,
       groupId,
-      startDate: time.toISODate(startDate),
-      endDate: time.toISODate(endDate),
+      startDate: toISODate(startDate),
+      endDate: toISODate(endDate),
     },
   );
   return expenses.map(dbRowToExpense);
@@ -75,7 +71,7 @@ export async function getExpensesByMonth(
   year: number,
   month: number,
 ): Promise<ExpenseCollection> {
-  const startDate = time.month(year, month);
+  const startDate = dateTimeFromParts(year, month, 1);
   const endDate = startDate.plus({ months: 1 });
   await createMissingRecurringExpenses(tx, groupId, userId, endDate);
   const [expenses, startStatus, monthStatus, unconfirmedBefore] = await Promise.all([

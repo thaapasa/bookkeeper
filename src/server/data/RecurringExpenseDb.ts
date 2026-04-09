@@ -16,7 +16,7 @@ import {
   SubscriptionSearchCriteria,
   UserExpense,
 } from 'shared/expense';
-import { DateLike, ISODate, toDate, toDateTime, toISODate } from 'shared/time';
+import { DateLike, ISODate, toDateTime, toISODate } from 'shared/time';
 import {
   ApiMessage,
   DbObject,
@@ -386,7 +386,7 @@ export async function deleteRecurringExpenseById(
   recurringExpenseId: ObjectId,
 ): Promise<ApiMessage> {
   const recurring = await getRecurringExpenseInfo(tx, groupId, recurringExpenseId);
-  const now = toDate(toDateTime());
+  const now = toISODate();
   logger.info(`Deleting recurring ${recurring.id} at ${now}`);
 
   await terminateRecurrenceAt(tx, recurringExpenseId, now);

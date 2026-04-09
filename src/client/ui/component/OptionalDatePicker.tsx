@@ -21,7 +21,7 @@ export const OptionalDatePicker: React.FC<OptionalDatePickerProps> = ({ value, o
         disabled={!hasDate}
         valueFormat="DD.MM.YYYY"
         value={value ? value : null}
-        onChange={v => onChange(v ? (v as ISODate) : null)}
+        onChange={v => onChange(v ? toISODate(v) : null)}
       />
     </Group>
   );

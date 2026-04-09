@@ -3,13 +3,13 @@ import * as React from 'react';
 import { z } from 'zod';
 
 import { SubscriptionSearchCriteria } from 'shared/expense';
-import { isSameInterval, MomentInterval } from 'shared/time';
+import { isSameInterval, RecurrenceInterval } from 'shared/time';
 import { isDefined } from 'shared/types';
 
 import { useLocalStorage } from '../hooks/useLocalStorage';
 
 interface RangeOption {
-  range: MomentInterval;
+  range: RecurrenceInterval;
   label: string;
 }
 
@@ -35,10 +35,10 @@ export const SubscriptionCriteriaSelector: React.FC<{
     false,
     z.boolean(),
   );
-  const [range, setRange] = useLocalStorage<MomentInterval>(
+  const [range, setRange] = useLocalStorage<RecurrenceInterval>(
     'subscriptions.range',
     { amount: 5, unit: 'years' },
-    MomentInterval,
+    RecurrenceInterval,
   );
   React.useEffect(
     () =>

@@ -15,10 +15,11 @@ export const DateRangeNavigator: React.FC = () => {
   const navigate = useNavigate();
 
   const navigateOffset = (offset: number) => {
+    const start = toDateTime(dateRange.start);
     const rangeSuffix =
       dateRange.type === 'month'
-        ? monthSuffix(toDateTime(dateRange.start).plus({ months: offset }))
-        : yearSuffix(toDateTime(dateRange.start).plus({ years: offset }));
+        ? monthSuffix(start.plus({ months: offset }))
+        : yearSuffix(start.plus({ years: offset }));
     const link = pathPrefix + rangeSuffix;
     logger.debug('Navigating to %s', link);
     navigate(link);

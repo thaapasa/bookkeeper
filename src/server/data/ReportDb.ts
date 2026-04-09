@@ -1,5 +1,5 @@
 import { ExpenseQuery, ExpenseReport, ReportDef, SubscriptionSearchCriteria } from 'shared/expense';
-import { MomentInterval, toDateTime, toISODate } from 'shared/time';
+import { RecurrenceInterval, toDateTime, toISODate } from 'shared/time';
 import { ApiMessage, ObjectId } from 'shared/types';
 import { Money } from 'shared/util';
 import { DbTask } from 'server/data/Db.ts';
@@ -72,7 +72,7 @@ type ExpenseReportFromDb = Pick<
   'categoryId' | 'sum' | 'firstDate' | 'lastDate' | 'minExpenseTitle' | 'maxExpenseTitle' | 'count'
 >;
 
-const defaultSearchRanage: MomentInterval = { amount: 5, unit: 'years' };
+const defaultSearchRanage: RecurrenceInterval = { amount: 5, unit: 'years' };
 
 async function calculateExpenseReports(
   tx: DbTask,

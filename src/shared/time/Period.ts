@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { dayJsForDate, Month, toDateTime, toISODate, Year } from './Time';
+import { dateTimeFromParts, ISODate, Month, toDateTime, toISODate, Year } from './Time';
 import { DateRange } from './TimeRange';
 
 export const YearPeriod = z.object({
@@ -49,27 +49,27 @@ export function periodsToDateRange(start: Period, end: Period): DateRange {
   return { startDate: toDateAtStart(start), endDate: toDateAtEnd(end) };
 }
 
-const pastDate = '2000-01-01';
+const pastDate: ISODate = '2000-01-01' as ISODate;
 
-function toDateAtStart(p: Period) {
+function toDateAtStart(p: Period): ISODate {
   switch (p.type) {
     case 'all':
       return pastDate;
     case 'year':
-      return toISODate(dayJsForDate(p.year, 1, 1).startOf('year'));
+      return toISODate(dateTimeFromParts(p.year, 1, 1).startOf('year'));
     case 'month':
-      return toISODate(dayJsForDate(p.year, p.month, 1).startOf('month'));
+      return toISODate(dateTimeFromParts(p.year, p.month, 1).startOf('month'));
     default:
       return toISODate();
   }
 }
 
-function toDateAtEnd(p: Period) {
+function toDateAtEnd(p: Period): ISODate {
   switch (p.type) {
     case 'year':
-      return toISODate(dayJsForDate(p.year, 1, 1).endOf('year'));
+      return toISODate(dateTimeFromParts(p.year, 1, 1).endOf('year'));
     case 'month':
-      return toISODate(dayJsForDate(p.year, p.month, 1).endOf('month'));
+      return toISODate(dateTimeFromParts(p.year, p.month, 1).endOf('month'));
     default:
       return toISODate();
   }

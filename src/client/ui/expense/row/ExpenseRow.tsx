@@ -7,7 +7,7 @@ import {
   UserExpense,
   UserExpenseWithDetails,
 } from 'shared/expense';
-import { readableDate, toDate, toDateTime, toISODate } from 'shared/time';
+import { readableDate, toDateTime } from 'shared/time';
 import { Category, CategoryMap, ExpenseGroupingMap, isDefined, Source, User } from 'shared/types';
 import { equal, Money, notEqual } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
@@ -97,9 +97,9 @@ const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
   };
 
   const editDate = async () => {
-    const date = await UserPrompts.selectDate('Valitse päivä', toDateTime(expense.date));
+    const date = await UserPrompts.selectDate('Valitse päivä', expense.date);
     if (!date) return;
-    await executeOperation(() => updateExpense({ date: toISODate(date) }), {
+    await executeOperation(() => updateExpense({ date }), {
       success: `Muutettu kirjauksen ${expense.title} päiväksi ${readableDate(date)}`,
       postProcess: () => needUpdateE.push(date),
     });
@@ -132,7 +132,7 @@ const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
       confirmTitle: 'Poista kirjaus',
       confirm: `Haluatko varmasti poistaa kirjauksen ${name}?`,
       success: `Poistettu kirjaus ${name}`,
-      postProcess: () => updateExpenses(toDate(expense.date)),
+      postProcess: () => updateExpenses(expense.date),
     });
   };
 
@@ -150,7 +150,7 @@ const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
     if (!target) return;
     await executeOperation(() => apiConnect.deleteRecurringById(expense.id, target), {
       success: `Poistettu kirjaus ${name}`,
-      postProcess: () => updateExpenses(toDate(expense.date)),
+      postProcess: () => updateExpenses(expense.date),
     });
   };
 
@@ -158,7 +158,7 @@ const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
     const e = await apiConnect.getExpense(expense.id);
     const modified = await editExpense(e.id);
     if (modified) {
-      updateExpenses(toDate(modified.date));
+      updateExpenses(modified.date);
     }
   };
 

@@ -7,12 +7,14 @@ import { toMonthName } from './Months';
 import {
   compareDates,
   DateLike,
-  dayJsForDate,
+  dateTimeFromParts,
   displayDatePattern,
   ISODate,
   ISOMonth,
+  ISOYearRegExp,
   monthToYear,
   toDateTime,
+  toISODate,
   toYearName,
   Year,
 } from './Time';
@@ -24,15 +26,15 @@ export const DateRange = z.object({
 export type DateRange = z.infer<typeof DateRange>;
 
 export interface UIDateRange {
-  start: Date;
-  end: Date;
+  start: ISODate;
+  end: ISODate;
 }
 
 export interface TypedDateRange extends UIDateRange {
   type: 'year' | 'month' | 'custom';
 }
 
-export interface MomentRange {
+export interface DateTimeRange {
   startTime: DateTime;
   endTime: DateTime;
 }
@@ -56,7 +58,7 @@ export function getMonthsInRange(range: DateRange): ISOMonth[] {
     .flat(1);
 }
 
-export function dateRangeToMomentRange(r: DateRange) {
+export function dateRangeToDateTimeRange(r: DateRange) {
   return {
     startTime: toDateTime(r.startDate).startOf('day'),
     endTime: toDateTime(r.endDate).endOf('day'),
@@ -82,31 +84,32 @@ export function toDateRangeName(x: TypedDateRange): string {
 
 export function yearRange(date: DateLike): TypedDateRange {
   const m = fromYearValue(date) || toDateTime(date);
-  const start = m.startOf('year').toJSDate();
-  const end = m.endOf('year').toJSDate();
-  return { start, end, type: 'year' };
+  return {
+    start: toISODate(m.startOf('year')),
+    end: toISODate(m.endOf('year')),
+    type: 'year',
+  };
 }
 
 export function monthRange(date: DateLike): TypedDateRange {
   const m = toDateTime(date);
-  const start = m.startOf('month').toJSDate();
-  const end = m.endOf('month').toJSDate();
-  return { start, end, type: 'month' };
+  return {
+    start: toISODate(m.startOf('month')),
+    end: toISODate(m.endOf('month')),
+    type: 'month',
+  };
 }
 
 export function toDateRange(start: DateLike, end: DateLike): TypedDateRange {
   const s = toDateTime(start);
   if (s.hasSame(toDateTime(end), 'month')) return monthRange(s);
   if (s.hasSame(toDateTime(end), 'year')) return yearRange(s);
-  return { type: 'custom', start: s.toJSDate(), end: toDateTime(end).toJSDate() };
+  return { type: 'custom', start: toISODate(s), end: toISODate(end) };
 }
 
-const yearRE = /[0-9]{4}/;
-
 function fromYearValue(y: DateLike): DateTime | undefined {
-  if (typeof y === 'number' || (typeof y === 'string' && yearRE.test(y))) {
-    const year = typeof y === 'number' ? y : parseInt(y, 10);
-    return dayJsForDate(year, 1, 1);
+  if (typeof y === 'string' && ISOYearRegExp.test(y)) {
+    return dateTimeFromParts(parseInt(y, 10), 1, 1);
   }
   return;
 }

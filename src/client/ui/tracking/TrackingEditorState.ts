@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 import { intRange } from 'shared/math';
-import { isSameInterval, MomentInterval } from 'shared/time';
+import { isSameInterval, RecurrenceInterval } from 'shared/time';
 import {
   ObjectId,
   TrackingChartType,
@@ -18,7 +18,7 @@ import { UserPrompts } from '../dialog/DialogState';
 
 interface RangeOption {
   title: string;
-  interval: MomentInterval;
+  interval: RecurrenceInterval;
   key: string;
 }
 

@@ -4,7 +4,7 @@ import { expectArrayContaining } from 'test/expect/expectArrayContaining';
 import { Expense, ExpenseCollection, ExpenseStatus } from 'shared/expense';
 import { checkCreateStatus, cleanup, division, findUserId, newExpense } from 'shared/expense/test';
 import { createTestClient, SessionWithControl } from 'shared/net/test';
-import { ISODatePattern, toDateTime } from 'shared/time';
+import { toDateTime } from 'shared/time';
 import { ExpenseIdResponse } from 'shared/types';
 import { Money } from 'shared/util';
 import { expectThrow } from 'shared/util/test';
@@ -138,8 +138,8 @@ describe('expense', () => {
   });
 
   it('should return expenses for correct month', async () => {
-    const monthStart = toDateTime('2017-01-01', ISODatePattern);
-    const nextMonth = toDateTime('2017-02-01', ISODatePattern);
+    const monthStart = toDateTime('2017-01-01');
+    const nextMonth = toDateTime('2017-02-01');
     const s = await session.get<ExpenseCollection>('/api/expense/month', {
       year: 2017,
       month: 1,

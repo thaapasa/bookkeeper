@@ -1,5 +1,5 @@
 import { sum, toPercentageDistribution } from 'shared/math';
-import { MomentRange } from 'shared/time';
+import { DateTimeRange } from 'shared/time';
 import { CategoryStatistics, CategoryStatisticsData } from 'shared/types';
 import { assertTrue, groupBy, Money, numberRange } from 'shared/util';
 import { logger } from 'client/Logger';
@@ -16,7 +16,7 @@ export function estimateMissingYearlyExpenses(
   categoryId: number,
   data: CategoryStatistics,
   chartData: ChartColumn<'year', number>[],
-  range: MomentRange,
+  range: DateTimeRange,
 ) {
   const lastData = chartData[chartData.length - 1];
   const currentSum = lastData[categoryId];
@@ -58,7 +58,7 @@ export function estimateMissingYearlyExpenses(
 
 function estimateFromMontlyDistribution(
   currentSum: number,
-  range: MomentRange,
+  range: DateTimeRange,
   categoryData: CategoryStatisticsData[],
 ) {
   const lastYear = range.endTime.year - 1;

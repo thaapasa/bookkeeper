@@ -1,9 +1,35 @@
 import { Span, SpanStatusCode, trace } from '@opentelemetry/api';
-import pgp, { IEventContext, ITask } from 'pg-promise';
+import { DateTime } from 'luxon';
+import type { IEventContext, ITask } from 'pg-promise';
+import pgPromise from 'pg-promise';
 
 import { logger } from 'server/Logger';
 
 import { config } from '../Config';
+
+// Configure pg type parsers before creating the pg-promise instance.
+// pg-promise re-exports the underlying pg driver, so we instantiate once
+// just to access pg.types, then create the real instance with init options below.
+const pgTypes = pgPromise().pg.types;
+
+// PostgreSQL type OIDs
+const PG_DATE = 1082;
+const PG_TIMESTAMP = 1114;
+const PG_TIMESTAMPTZ = 1184;
+
+// DATE → return as ISODate string (already "2026-03-31")
+pgTypes.setTypeParser(PG_DATE, (val: string) => val);
+
+// TIMESTAMP (without timezone) → reject; all timestamps should have timezone info
+pgTypes.setTypeParser(PG_TIMESTAMP, (val: string) => {
+  throw new Error(
+    `Received TIMESTAMP without timezone from PostgreSQL: "${val}". Use TIMESTAMPTZ instead.`,
+  );
+});
+
+// TIMESTAMPTZ → parse to ISO 8601 with timezone (ISOTimestamp format)
+// pg returns format like "2026-03-31 12:00:00+02", convert to "2026-03-31T12:00:00.000+02:00"
+pgTypes.setTypeParser(PG_TIMESTAMPTZ, (val: string) => DateTime.fromSQL(val).toISO());
 
 export type DbTask = ITask<object>;
 
@@ -84,7 +110,7 @@ function getSpanName(query?: string): string {
   }
 }
 
-export const dbMain = pgp({
+export const dbMain = pgPromise({
   query: onQuery,
   receive: onReceive,
   error: onError,

@@ -1,7 +1,3 @@
-import { DateTime } from 'luxon';
-
-type DateTimeInput = DateTime | string;
-
 import {
   Expense,
   ExpenseDivisionItem,
@@ -11,7 +7,7 @@ import {
   ExpenseStatus,
   UserExpense,
 } from 'shared/expense';
-import { DateLike, toISODate } from 'shared/time';
+import { DateLike, DateTimeInput, toISODate } from 'shared/time';
 import { ExpenseIdResponse, isDefined, NotFoundError, ObjectId } from 'shared/types';
 import { Money, MoneyLike } from 'shared/util';
 import { DbTask } from 'server/data/Db.ts';

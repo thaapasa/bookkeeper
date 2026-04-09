@@ -2,7 +2,7 @@ import { Group, Table } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import * as React from 'react';
 
-import { toISODate, UIDateRange } from 'shared/time';
+import { UIDateRange } from 'shared/time';
 import { Category, CategoryAndTotals, ObjectId } from 'shared/types';
 import { Money, MoneyLike, noop } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
@@ -126,8 +126,8 @@ const CategoryRowExpenses: React.FC<{
 
 function searchExpenses(range: UIDateRange, categoryId: ObjectId) {
   return apiConnect.searchExpenses({
-    startDate: toISODate(range.start),
-    endDate: toISODate(range.end),
+    startDate: range.start,
+    endDate: range.end,
     categoryId,
     includeSubCategories: false,
   });

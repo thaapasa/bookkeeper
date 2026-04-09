@@ -1,9 +1,8 @@
-import { DateTime } from 'luxon';
 import * as React from 'react';
 import { useNavigate } from 'react-router';
 
 import { UserExpense } from 'shared/expense';
-import { ISODate, isSameMonth, monthRange, toDateTime, toISODate } from 'shared/time';
+import { ISODate, ISOMonth, isSameMonth, monthRange, toDateTime, toISODate } from 'shared/time';
 import apiConnect from 'client/data/ApiConnect';
 import { navigationBus, needUpdateE } from 'client/data/State';
 import { logger } from 'client/Logger';
@@ -14,7 +13,7 @@ import { zeroStatus } from './ExpenseHelper';
 import { ExpenseTable } from './ExpenseTable';
 
 interface MonthViewProps {
-  date: Date;
+  date: ISOMonth;
 }
 
 const zeroStatuses = {
@@ -50,8 +49,8 @@ export const MonthView: React.FC<MonthViewProps> = ({ date }) => {
   const navigate = useNavigate();
   React.useEffect(
     () =>
-      needUpdateE.onValue((newDate: DateTime) => {
-        logger.info('Expenses updated, refreshing for date %s', toISODate(newDate));
+      needUpdateE.onValue(newDate => {
+        logger.info('Expenses updated, refreshing for date %s', newDate);
         if (isSameMonth(newDate, date)) {
           logger.info('Reloading expenses for this month');
           loadData();

@@ -1,4 +1,5 @@
 import { ExpenseShortcut } from '../expense/Shortcut';
+import { ISOTimestamp } from '../time/Time';
 import { MoneyLike } from '../util/Money';
 import { DbObject } from './Common';
 import { ExpenseGroupingRef } from './Grouping';
@@ -47,7 +48,7 @@ export interface SessionBasicInfo {
   group: Group;
   refreshToken: string;
   shortcuts: ExpenseShortcut[];
-  loginTime?: Date;
+  loginTime?: ISOTimestamp;
 }
 
 export interface Session extends SessionBasicInfo {

@@ -1,8 +1,8 @@
 import * as B from 'baconjs';
-import { DateTime } from 'luxon';
 import * as React from 'react';
 
 import { UserExpenseWithDetails } from 'shared/expense';
+import { ISODate } from 'shared/time';
 import { noop } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { updateExpenses } from 'client/data/State';
@@ -82,7 +82,7 @@ export function createExpenseDialogListener<D>(
       setState(s => ({ ...s, open: false, original: null }));
     }, []);
 
-    const onExpensesUpdated = React.useCallback((date: DateTime) => {
+    const onExpensesUpdated = React.useCallback((date: ISODate) => {
       updateExpenses(date);
     }, []);
 

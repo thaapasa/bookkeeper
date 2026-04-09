@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { MomentInterval } from '../time/MomentInterval';
+import { RecurrenceInterval } from '../time/RecurrenceInterval';
 import { DateRange } from '../time/TimeRange';
 import { typedKeys } from '../util/Objects';
 import { ObjectId } from './Id';
@@ -18,7 +18,7 @@ export const TrackingData = z
   .object({
     categories: z.array(ObjectId),
     colorOffset: z.number().int(),
-    range: MomentInterval,
+    range: RecurrenceInterval,
     frequency: TrackingFrequency,
     chartType: TrackingChartType,
     separateByUser: z.boolean(),

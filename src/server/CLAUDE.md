@@ -44,3 +44,32 @@ const result = await tx.oneOrNone<MyType>(
 ```
 
 Query methods: `one()`, `oneOrNone()`, `many()`, `manyOrNone()`, `none()`, `map()`.
+
+## Date and Time Handling (DB ↔ Server)
+
+Custom pg type parsers in `Db.ts` convert date/time values at the database boundary:
+
+**Output (DB → JS):**
+
+- `DATE` → `ISODate` string (pass-through, e.g. `"2026-04-09"`)
+- `TIMESTAMPTZ` → `ISOTimestamp` string (via `DateTime.fromSQL().toISO()`)
+- `TIMESTAMP` (without tz) → **throws** (schema must use `TIMESTAMPTZ`)
+
+**Input (JS → DB):**
+
+- For `DATE` columns: pass `toISODate(value)` — always a string, never a DateTime object
+- For `TIMESTAMPTZ` columns: use `NOW()` in SQL when possible; if passing a value, use
+  `toISOTimestamp(value)` to produce an ISO 8601 string
+- **Never pass a Luxon `DateTime` directly** as a query parameter — always convert to a
+  string first with `toISODate()` or `toISOTimestamp()`
+
+```typescript
+// Correct — explicit string conversion
+await tx.one(query, { startDate: toISODate(startDate) });
+
+// Correct — server-side timestamp
+`INSERT INTO expenses (..., created) VALUES (..., NOW())`
+
+// Wrong — raw DateTime object
+await tx.one(query, { startDate: someDateTime });
+```

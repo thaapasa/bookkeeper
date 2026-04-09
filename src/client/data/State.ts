@@ -1,8 +1,7 @@
 import * as B from 'baconjs';
-import { DateTime } from 'luxon';
 
 import { ExpenseInEditor, ExpenseSplit } from 'shared/expense';
-import { DateLike, monthRange, toDateTime } from 'shared/time';
+import { ISODate, monthRange, toISODate } from 'shared/time';
 import { noop } from 'shared/util';
 import { ExpenseSaveAction } from 'client/ui/expense/dialog/ExpenseSaveAction';
 
@@ -58,10 +57,10 @@ export function requestNewExpense(
 export const expenseDialogE = expenseDialogBus;
 export const expenseSplitE = expenseSplitBus;
 
-const needUpdateBus = new B.Bus<DateTime>();
+const needUpdateBus = new B.Bus<ISODate>();
 
-export function updateExpenses(date: DateLike) {
-  needUpdateBus.push(toDateTime(date));
+export function updateExpenses(date: ISODate) {
+  needUpdateBus.push(date);
   return true;
 }
 
@@ -74,7 +73,7 @@ export const needUpdateE = needUpdateBus;
 export const navigationBus = new B.Bus<NavigationConfig>();
 export const navigationP = navigationBus.toProperty({
   pathPrefix: expensePagePath,
-  dateRange: monthRange(new Date()),
+  dateRange: monthRange(toISODate()),
 });
 
 // Start listening to buses to not miss any updates

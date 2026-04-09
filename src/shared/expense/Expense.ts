@@ -1,9 +1,6 @@
-import { DateTime } from 'luxon';
-
-export type { DateTime };
 import { z } from 'zod';
 
-import { ISODate } from '../time/Time';
+import { ISODate, ISOTimestamp } from '../time/Time';
 import { DbObject, ShortString } from '../types/Common';
 import { ObjectId } from '../types/Id';
 import { Money, MoneyLike } from '../util/Money';
@@ -80,7 +77,7 @@ export type ExpenseData = z.infer<typeof ExpenseData>;
 
 export const Expense = DbObject.merge(ExpenseData).extend({
   groupId: ObjectId,
-  created: z.date(),
+  created: ISOTimestamp,
   createdById: z.number(),
   recurringExpenseId: ObjectId.or(z.null()),
 });
@@ -112,7 +109,7 @@ export type UserExpense = z.infer<typeof UserExpense>;
 
 export interface ExpenseInEditor extends BaseExpenseData {
   sum: string;
-  date: DateTime;
+  date: ISODate;
   benefit: number[];
   description: string;
   groupingId: number | null;

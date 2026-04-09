@@ -4,8 +4,6 @@ import { z } from 'zod';
 import { IntString } from '../types/Primitives';
 import { leftPad } from '../util/Util';
 
-export type DateTimeInput = DateTime | Date | string | null | undefined;
-
 export const ISODateRegExp = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
 export const ISODatePattern = 'yyyy-MM-dd';
 export const ISODate = z.custom<`${number}-${number}-${number}`>(
@@ -21,11 +19,18 @@ export const ISOMonth = z.custom<`${number}-${number}`>(
 export type ISOMonth = z.infer<typeof ISOMonth>;
 
 export const ISOYearRegExp = /^[0-9]{4}$/;
-export const ISOYearPatter = 'yyyy';
+export const ISOYearPattern = 'yyyy';
 export const ISOYear = z.custom<`${number}`>(
   val => typeof val === 'string' && ISOYearRegExp.test(val),
 );
 export type ISOYear = z.infer<typeof ISOYear>;
+
+export const ISOTimestampRegExp =
+  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/;
+export const ISOTimestamp = z.custom<`${number}-${number}-${number}T${string}`>(
+  val => typeof val === 'string' && ISOTimestampRegExp.test(val),
+);
+export type ISOTimestamp = z.infer<typeof ISOTimestamp>;
 
 export const Year = z.number().int().min(1500).max(3000);
 export type Year = z.infer<typeof Year>;
@@ -40,18 +45,22 @@ export type YearMonth = z.infer<typeof YearMonth>;
 
 export const displayDatePattern = 'd.M.yyyy';
 
-export type DateLike = Date | DateTime | string;
+export type DateLike = DateTime | string;
+export type DateTimeInput = DateLike | null | undefined;
+
 export const fiLocale = 'fi';
 
 // Setup Finnish locale globally
 Settings.defaultLocale = fiLocale;
 
-export function toDateTime(d?: DateTimeInput, _pattern?: string): DateTime {
+export function toDateTime(d?: DateTimeInput): DateTime {
   if (DateTime.isDateTime(d)) {
     return d;
   }
-  if (d instanceof Date) {
-    return DateTime.fromJSDate(d);
+  // Runtime safety: accept JS Date even though types don't include it,
+  // since third-party libraries (e.g. Mantine) may return Date objects.
+  if ((d as unknown) instanceof Date) {
+    return DateTime.fromJSDate(d as unknown as Date);
   }
   if (typeof d === 'string') {
     // Try ISO format first
@@ -65,7 +74,7 @@ export function toDateTime(d?: DateTimeInput, _pattern?: string): DateTime {
   return DateTime.now();
 }
 
-export function dayJsForDate(
+export function dateTimeFromParts(
   year: number | string,
   month: number | string,
   day: number | string,
@@ -75,19 +84,12 @@ export function dayJsForDate(
   );
 }
 
-export function toDate(d: DateLike): Date {
-  if (d instanceof Date) {
-    return d;
-  }
-  return toDateTime(d).toJSDate();
-}
-
 export function toISODate(m?: DateTimeInput): ISODate {
   return toDateTime(m).toFormat(ISODatePattern) as ISODate;
 }
 
-export function fromISODate(str: string): DateTime {
-  return DateTime.fromISO(str);
+export function toISOTimestamp(d?: DateTimeInput): ISOTimestamp {
+  return (toDateTime(d).toISO() ?? '') as ISOTimestamp;
 }
 
 export function readableDate(date?: DateLike, long?: boolean): string {
@@ -96,10 +98,6 @@ export function readableDate(date?: DateLike, long?: boolean): string {
 
 export function readableDateWithYear(date?: DateLike, long?: boolean): string {
   return date ? toDateTime(date).toFormat(long ? 'ccc d.M.yyyy' : 'd.M.yyyy') : '-';
-}
-
-export function iso(m: DateTimeInput): string {
-  return toDateTime(m).toISO() ?? '';
 }
 
 export function toYearName(x: DateLike) {
@@ -114,8 +112,8 @@ export function compareDates(first?: DateLike, second?: DateLike): number {
   if (!second) {
     return 1;
   }
-  const a = toDate(first).getTime();
-  const b = toDate(second).getTime();
+  const a = toDateTime(first).toMillis();
+  const b = toDateTime(second).toMillis();
   if (a < b) {
     return -1;
   }
@@ -123,10 +121,6 @@ export function compareDates(first?: DateLike, second?: DateLike): number {
     return 1;
   }
   return 0;
-}
-
-export function month(year: number, mon: number): DateTime {
-  return dayJsForDate(year, mon, 1);
 }
 
 export function monthToYear(month: ISOMonth | ISODate): number {

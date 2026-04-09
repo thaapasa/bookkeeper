@@ -11,7 +11,12 @@ import {
   YAxis,
 } from 'recharts';
 
-import { dateRangeToMomentRange, dayJsForDate, getYearsInRange, MomentRange } from 'shared/time';
+import {
+  dateRangeToDateTimeRange,
+  dateTimeFromParts,
+  DateTimeRange,
+  getYearsInRange,
+} from 'shared/time';
 import { Category, CategoryStatistics, ObjectId } from 'shared/types';
 import { leftPad, Money, numberRange, typedKeys } from 'shared/util';
 import { getFullCategoryName } from 'client/data/Categories';
@@ -82,7 +87,7 @@ function categoryStatisticsToYearlyRecurring(
   categoryMap: Record<ObjectId, Category>,
 ): ChartData<'month', string> {
   const keys = typedKeys(data.statistics);
-  const range = dateRangeToMomentRange(data.range);
+  const range = dateRangeToDateTimeRange(data.range);
   const years = getYearsInRange(data.range);
 
   const chartData = numberRange(0, 11).map(m => findEntriesForMonth(data, m, keys, range, years));
@@ -105,7 +110,7 @@ function findEntriesForMonth(
   data: CategoryStatistics,
   month: number,
   keys: string[],
-  range: MomentRange,
+  range: DateTimeRange,
   years: number[],
 ): ChartColumn<'month', string> {
   const monthData: ChartColumn<'month', string> = {
@@ -113,7 +118,7 @@ function findEntriesForMonth(
   } as any;
   for (const key of keys) {
     for (const year of years) {
-      if (range.endTime > dayJsForDate(year, month, 1)) {
+      if (range.endTime > dateTimeFromParts(year, month, 1)) {
         monthData[`${key}-${year}`] = Money.from(
           data.statistics[key].find(p => p.month === `${year}-${leftPad(month + 1, 2, '0')}`)
             ?.sum ?? '0',
