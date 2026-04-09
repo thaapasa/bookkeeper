@@ -11,6 +11,7 @@ import {
   displayDatePattern,
   ISODate,
   ISOMonth,
+  ISOYearRegExp,
   monthToYear,
   toDateTime,
   toISODate,
@@ -33,7 +34,7 @@ export interface TypedDateRange extends UIDateRange {
   type: 'year' | 'month' | 'custom';
 }
 
-export interface MomentRange {
+export interface DateTimeRange {
   startTime: DateTime;
   endTime: DateTime;
 }
@@ -57,7 +58,7 @@ export function getMonthsInRange(range: DateRange): ISOMonth[] {
     .flat(1);
 }
 
-export function dateRangeToMomentRange(r: DateRange) {
+export function dateRangeToDateTimeRange(r: DateRange) {
   return {
     startTime: toDateTime(r.startDate).startOf('day'),
     endTime: toDateTime(r.endDate).endOf('day'),
@@ -106,12 +107,9 @@ export function toDateRange(start: DateLike, end: DateLike): TypedDateRange {
   return { type: 'custom', start: toISODate(s), end: toISODate(end) };
 }
 
-const yearRE = /[0-9]{4}/;
-
 function fromYearValue(y: DateLike): DateTime | undefined {
-  if (typeof y === 'number' || (typeof y === 'string' && yearRE.test(y))) {
-    const year = typeof y === 'number' ? y : parseInt(y, 10);
-    return dateTimeFromParts(year, 1, 1);
+  if (typeof y === 'string' && ISOYearRegExp.test(y)) {
+    return dateTimeFromParts(parseInt(y, 10), 1, 1);
   }
   return;
 }

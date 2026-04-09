@@ -6,27 +6,27 @@ const unitValues = ['year', 'years', 'month', 'months', 'week', 'weeks', 'day', 
   ...DurationUnit[],
 ];
 
-export const MomentIntervalUnit = z.enum(unitValues);
-export type MomentIntervalUnit = z.infer<typeof MomentIntervalUnit>;
+export const RecurrenceIntervalUnit = z.enum(unitValues);
+export type RecurrenceIntervalUnit = z.infer<typeof RecurrenceIntervalUnit>;
 
-export const MomentInterval = z.object({
+export const RecurrenceInterval = z.object({
   amount: z.number(),
-  unit: MomentIntervalUnit,
+  unit: RecurrenceIntervalUnit,
 });
-export type MomentInterval = z.infer<typeof MomentInterval>;
+export type RecurrenceInterval = z.infer<typeof RecurrenceInterval>;
 
-const canonicalUnits: Record<MomentIntervalUnit, MomentIntervalUnit> = {
+const canonicalUnits: Record<RecurrenceIntervalUnit, RecurrenceIntervalUnit> = {
   year: 'year',
   years: 'year',
   month: 'month',
-  months: 'months',
+  months: 'month',
   week: 'week',
   weeks: 'week',
   day: 'day',
   days: 'day',
 };
 
-export function isSameInterval(a?: MomentInterval, b?: MomentInterval) {
+export function isSameInterval(a?: RecurrenceInterval, b?: RecurrenceInterval) {
   if (!a || !b) return false;
   return canonicalUnits[a.unit] === canonicalUnits[b.unit] && a.amount === b.amount;
 }

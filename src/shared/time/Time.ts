@@ -4,8 +4,6 @@ import { z } from 'zod';
 import { IntString } from '../types/Primitives';
 import { leftPad } from '../util/Util';
 
-export type DateTimeInput = DateTime | string | null | undefined;
-
 export const ISODateRegExp = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
 export const ISODatePattern = 'yyyy-MM-dd';
 export const ISODate = z.custom<`${number}-${number}-${number}`>(
@@ -21,7 +19,7 @@ export const ISOMonth = z.custom<`${number}-${number}`>(
 export type ISOMonth = z.infer<typeof ISOMonth>;
 
 export const ISOYearRegExp = /^[0-9]{4}$/;
-export const ISOYearPatter = 'yyyy';
+export const ISOYearPattern = 'yyyy';
 export const ISOYear = z.custom<`${number}`>(
   val => typeof val === 'string' && ISOYearRegExp.test(val),
 );
@@ -48,12 +46,14 @@ export type YearMonth = z.infer<typeof YearMonth>;
 export const displayDatePattern = 'd.M.yyyy';
 
 export type DateLike = DateTime | string;
+export type DateTimeInput = DateLike | null | undefined;
+
 export const fiLocale = 'fi';
 
 // Setup Finnish locale globally
 Settings.defaultLocale = fiLocale;
 
-export function toDateTime(d?: DateTimeInput, _pattern?: string): DateTime {
+export function toDateTime(d?: DateTimeInput): DateTime {
   if (DateTime.isDateTime(d)) {
     return d;
   }
@@ -92,20 +92,12 @@ export function toISOTimestamp(d?: DateTimeInput): ISOTimestamp {
   return (toDateTime(d).toISO() ?? '') as ISOTimestamp;
 }
 
-export function fromISODate(str: string): DateTime {
-  return DateTime.fromISO(str);
-}
-
 export function readableDate(date?: DateLike, long?: boolean): string {
   return date ? toDateTime(date).toFormat(long ? 'ccc d.M.' : 'd.M.') : '-';
 }
 
 export function readableDateWithYear(date?: DateLike, long?: boolean): string {
   return date ? toDateTime(date).toFormat(long ? 'ccc d.M.yyyy' : 'd.M.yyyy') : '-';
-}
-
-export function iso(m: DateTimeInput): string {
-  return toDateTime(m).toISO() ?? '';
 }
 
 export function toYearName(x: DateLike) {
@@ -129,10 +121,6 @@ export function compareDates(first?: DateLike, second?: DateLike): number {
     return 1;
   }
   return 0;
-}
-
-export function month(year: number, mon: number): DateTime {
-  return dateTimeFromParts(year, mon, 1);
 }
 
 export function monthToYear(month: ISOMonth | ISODate): number {

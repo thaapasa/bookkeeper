@@ -1,4 +1,4 @@
-import { dateRangeToMomentRange, getYearsInRange, MomentRange, toDateTime } from 'shared/time';
+import { dateRangeToDateTimeRange, DateTimeRange, getYearsInRange, toDateTime } from 'shared/time';
 import { Category, CategoryStatistics, CategoryStatisticsData, ObjectId } from 'shared/types';
 import { Money, recordFromPairs, typedKeys } from 'shared/util';
 import { getFullCategoryName } from 'client/data/Categories';
@@ -49,7 +49,7 @@ function categoryStatisticsToYearlyData(
   // If we are not estimating then we're done here
   if (!estimated) return result;
 
-  const range = dateRangeToMomentRange(data.range);
+  const range = dateRangeToDateTimeRange(data.range);
   // Map chart data to add estimates (either as separate lines or merged into the chart data)
   return mapChartData(
     result,
@@ -85,7 +85,7 @@ function createEstimationsForYear(
   chartData: ChartColumn<'year', number>[],
   data: CategoryStatistics,
   year: number,
-  range: MomentRange,
+  range: DateTimeRange,
   separateEstimate: boolean,
 ): ChartColumn<'year', number> {
   const lastYear = toDateTime(data.range.endDate).year;

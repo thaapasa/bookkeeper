@@ -12,10 +12,10 @@ import {
 } from 'recharts';
 
 import {
-  dateRangeToMomentRange,
+  dateRangeToDateTimeRange,
   dateTimeFromParts,
+  DateTimeRange,
   getYearsInRange,
-  MomentRange,
 } from 'shared/time';
 import { Category, CategoryStatistics, ObjectId } from 'shared/types';
 import { leftPad, Money, numberRange, typedKeys } from 'shared/util';
@@ -87,7 +87,7 @@ function categoryStatisticsToYearlyRecurring(
   categoryMap: Record<ObjectId, Category>,
 ): ChartData<'month', string> {
   const keys = typedKeys(data.statistics);
-  const range = dateRangeToMomentRange(data.range);
+  const range = dateRangeToDateTimeRange(data.range);
   const years = getYearsInRange(data.range);
 
   const chartData = numberRange(0, 11).map(m => findEntriesForMonth(data, m, keys, range, years));
@@ -110,7 +110,7 @@ function findEntriesForMonth(
   data: CategoryStatistics,
   month: number,
   keys: string[],
-  range: MomentRange,
+  range: DateTimeRange,
   years: number[],
 ): ChartColumn<'month', string> {
   const monthData: ChartColumn<'month', string> = {

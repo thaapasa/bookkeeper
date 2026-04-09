@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { dateTimeFromParts, Month, toDateTime, toISODate, Year } from './Time';
+import { dateTimeFromParts, ISODate, Month, toDateTime, toISODate, Year } from './Time';
 import { DateRange } from './TimeRange';
 
 export const YearPeriod = z.object({
@@ -49,9 +49,9 @@ export function periodsToDateRange(start: Period, end: Period): DateRange {
   return { startDate: toDateAtStart(start), endDate: toDateAtEnd(end) };
 }
 
-const pastDate = '2000-01-01';
+const pastDate: ISODate = '2000-01-01' as ISODate;
 
-function toDateAtStart(p: Period) {
+function toDateAtStart(p: Period): ISODate {
   switch (p.type) {
     case 'all':
       return pastDate;
@@ -64,7 +64,7 @@ function toDateAtStart(p: Period) {
   }
 }
 
-function toDateAtEnd(p: Period) {
+function toDateAtEnd(p: Period): ISODate {
   switch (p.type) {
     case 'year':
       return toISODate(dateTimeFromParts(p.year, 1, 1).endOf('year'));
