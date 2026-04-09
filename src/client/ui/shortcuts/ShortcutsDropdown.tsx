@@ -27,7 +27,7 @@ export const AddExpenseMenu: React.FC = () => {
 
   const handleAddNew = () => openNewExpenseDialog(navigate, dateRange.start);
   const handleShortcut = (id?: ObjectId, expense?: Partial<ExpenseShortcutData>) => {
-    openNewExpenseFromShortcut(navigate, id, expense);
+    openNewExpenseFromShortcut(navigate, dateRange.start, id, expense);
   };
 
   return (
@@ -102,18 +102,26 @@ function openNewExpenseDialog(navigate: NavigateFunction, shownDay: ISODate) {
 
 function openNewExpenseFromShortcut(
   navigate: NavigateFunction,
+  shownDay: ISODate,
   id?: ObjectId,
   expense?: Partial<ExpenseShortcutData>,
 ) {
   const path = window.location.pathname;
+  const refDay = toDateTime(shownDay);
+  const date = refDay.hasSame(DateTime.now(), 'month') ? undefined : shownDay;
   if (pageSupportsRoutedExpenseDialog(path) && id) {
     if (!path.includes(newExpenseSuffix)) {
+      const dateSuffix = date ? uri`?date=${date}` : '';
       const base = path.startsWith('/p') ? path + newExpenseSuffix : '/p' + newExpenseSuffix;
-      navigate(base + uri`/${id}`);
+      navigate(base + uri`/${id}` + dateSuffix);
     }
     return;
   }
   if (expense) {
-    createNewExpense(shortcutToExpenseInEditor(expense));
+    const values = shortcutToExpenseInEditor(expense);
+    if (date) {
+      values.date = date;
+    }
+    createNewExpense(values);
   }
 }

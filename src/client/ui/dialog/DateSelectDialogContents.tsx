@@ -23,7 +23,7 @@ export const DateSelectDialogComponent: React.FC<TextPromptDialogProps> = ({
   };
   return (
     <>
-      <DatePicker value={date ?? null} onChange={changeHandler} />
+      <DatePicker value={date ?? null} defaultDate={date ?? undefined} onChange={changeHandler} />
       <Group justify="flex-end" gap="xs" pt="md">
         <Button variant="subtle" onKeyUp={handleKeyPress} onClick={onCancel}>
           Peruuta

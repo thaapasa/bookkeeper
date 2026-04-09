@@ -41,6 +41,9 @@ const NewExpenseDialogPage: React.FC = () => {
 const NewExpenseFromShortcutDialogPage: React.FC = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const [searchParams] = useSearchParams();
+  const dateParam = searchParams.get('date');
+  const dateOverride: ISODate | undefined = dateParam ? toISODate(dateParam) : undefined;
   const { shortcutId } = useParams<'shortcutId'>();
   const id = Number(shortcutId);
   const session = useBaconProperty(validSessionP);
@@ -54,6 +57,10 @@ const NewExpenseFromShortcutDialogPage: React.FC = () => {
 
   const shortcut = session.shortcuts.find(s => s.id === id);
   const values = shortcut ? shortcutToExpenseInEditor(shortcut.expense) : {};
+  // URL date param overrides the shortcut's saved date
+  if (dateOverride) {
+    values.date = dateOverride;
+  }
   logger.info(values, 'Opening expense editor');
 
   return (
