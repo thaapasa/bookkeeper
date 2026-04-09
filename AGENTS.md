@@ -100,9 +100,23 @@ Enforced by eslint-plugin-simple-import-sort:
 4. Internal aliases (`shared/`, `client/`, `server/`)
 5. Relative imports (`./`, `../`)
 
-### Dates
+### Dates and Times
 
-Use Luxon `DateTime` throughout. Helpers in `shared/time/`.
+Use Luxon `DateTime` for date/time computation. **Never use JS `Date`** anywhere in the
+codebase (the only exception is `Date.now()` for performance timing).
+
+**Branded string types** cross all boundaries (API, DB, props):
+
+- `ISODate` — calendar dates (`"2026-04-09"`)
+- `ISOMonth` — year-month (`"2026-04"`)
+- `ISOTimestamp` — timestamps with timezone (`"2026-04-09T12:00:00.000+03:00"`)
+
+Never use `Date`, `DateTime`, or `z.date()` in types that cross API boundaries. Use
+branded string types with Zod string schemas.
+
+Conversion utilities live in `shared/time/`. Use `toISODate()` for calendar dates and
+`toISOTimestamp()` for timestamps. See `docs/archive/DATE_HANDLING.md` for historical
+context and antipatterns to avoid.
 
 ### Logging
 

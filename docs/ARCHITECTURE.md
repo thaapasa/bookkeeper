@@ -217,10 +217,33 @@ const total = sum.plus('25.00');
 const formatted = Money.toString(total); // "125.50"
 ```
 
+### Date and Time Handling
+
+No JS `Date` objects anywhere in the codebase. Dates and timestamps use **branded string
+types** at all boundaries (API, DB, component props):
+
+- `ISODate` — calendar dates (`"2026-04-09"`)
+- `ISOMonth` — year-month (`"2026-04"`)
+- `ISOTimestamp` — ISO 8601 with timezone (`"2026-04-09T12:00:00.000+03:00"`)
+
+**Luxon `DateTime`** is used for computation only — never stored, serialized, or passed
+across API boundaries.
+
+Custom pg type parsers in `Db.ts` convert at the database boundary so pg-promise never
+returns JS `Date` objects. `DATE` columns become `ISODate` strings, `TIMESTAMPTZ` columns
+become `ISOTimestamp` strings, and `TIMESTAMP` (without timezone) throws an error.
+
+When writing to the database, always pass explicit strings (`toISODate()`,
+`toISOTimestamp()`), never raw `DateTime` objects. Use `NOW()` in SQL for server-side
+timestamps.
+
+Utilities: `shared/time/` (conversion, parsing, formatting). See
+`docs/archive/DATE_HANDLING.md` for historical context and antipatterns.
+
 ## Database
 
 - **PostgreSQL** database
-- Schema defined in `config/schema.sql`
+- Schema defined in `docs/SCHEMA.sql`
 - Migrations in `migrations/` using Knex
 - Key tables: `expenses`, `expense_division`, `users`, `groups`, `categories`, `sources`
 

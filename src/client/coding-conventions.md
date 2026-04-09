@@ -312,6 +312,18 @@ export default connect(...)(MyComponent);
 export default MyComponent;
 ```
 
+## Dates and Times
+
+**No JS `Date` objects.** Use Luxon `DateTime` for computation, branded string types
+(`ISODate`, `ISOMonth`, `ISOTimestamp`) for data that flows through props or API calls.
+
+- Use `DateTime.now()` or `toISODate()` for "today" — never `new Date()`
+- Mantine date pickers accept ISO date strings directly — no conversion to `Date` needed
+- Validate URL date parameters against the type's regexp before casting to branded types
+  (e.g., `ISOMonth`). Fall back to a sensible default on invalid input.
+- Don't round-trip through `Date`: if a value starts as a string and consumers need a
+  string, keep it as a string
+
 ## Patterns to Avoid
 
 Do not introduce these patterns in new code:
