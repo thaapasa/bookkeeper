@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useParams } from 'react-router';
 
 import { ExpenseQuery, UserExpense } from 'shared/expense';
-import { ISOMonth, toDateRange, toISODate } from 'shared/time';
+import { ISOMonth, ISOMonthRegExp, toDateRange, toISODate } from 'shared/time';
 import { Category, CategoryMap, isDefined } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
 import { AsyncData, UninitializedData } from 'client/data/AsyncData';
@@ -95,7 +95,7 @@ const SearchViewImpl: React.FC<{
         onSearch={onSearch}
         isSearching={results.type === 'loading'}
         year={year}
-        month={month as ISOMonth | undefined}
+        month={month && ISOMonthRegExp.test(month) ? (month as ISOMonth) : undefined}
       />
       <ResultsView
         results={results.type === 'loaded' ? results.value : []}
