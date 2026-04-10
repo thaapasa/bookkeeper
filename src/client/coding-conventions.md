@@ -260,7 +260,7 @@ Reusable text components from `client/ui/design/Text`:
 ## File Naming
 
 - Components: PascalCase (`ExpenseTable.tsx`)
-- Hooks: camelCase with `use` prefix (`useAsyncData.ts`)
+- Hooks: camelCase with `use` prefix (`useBreakpoints.ts`)
 - CSS modules: same name as component (`ExpenseTable.module.css`)
 - Utilities: camelCase (`ClientUtil.ts`)
 

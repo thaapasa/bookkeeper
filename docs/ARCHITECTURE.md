@@ -24,7 +24,7 @@ This document provides an overview of the codebase architecture, directory struc
 - **Mantine 9** - Component library and styling (CSS modules)
 - **React Router 7** - Client-side routing
 - **Zustand** - State management
-- **Bacon.js** - Reactive programming for data streams
+- **TanStack Query** - Data fetching and caching
 - **Recharts** - Charts and data visualization
 - **Luxon** - Date/time manipulation
 
@@ -171,9 +171,9 @@ Uses **Mantine style props** and **CSS modules**:
 
 ### State Management
 
-- **Bacon.js** for reactive data streams (legacy pattern, still used)
-- **Zustand** for simpler state management (preferred for new code)
-- **Custom hooks** for async data loading (`useAsyncData`)
+- **TanStack Query** for server data fetching and caching
+- **Zustand** for client state management
+- **React state** for component-local logic
 
 ### API Client
 
