@@ -1,16 +1,15 @@
 import { Box, Flex } from '@mantine/core';
 import React from 'react';
 
-import { sessionP } from 'client/data/Login';
+import { useSession } from 'client/data/SessionStore';
 
 import { Title } from '../design/Text';
-import { useBaconProperty } from '../hooks/useBaconState';
 import { PasswordView } from './PasswordChangeView';
 import { ProfileImageView } from './ProfileImageView';
 import { UserDataView } from './UserDataView';
 
 export const ProfileView: React.FC = () => {
-  const session = useBaconProperty(sessionP);
+  const session = useSession();
   if (!session) return null;
 
   return (

@@ -6,14 +6,13 @@ import { useParams } from 'react-router';
 import { ExpenseGroupingWithExpenses } from 'shared/types';
 import { noop } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
-import { userDataP } from 'client/data/Categories';
 import { QueryKeys } from 'client/data/queryKeys';
+import { useUserData } from 'client/data/SessionStore';
 
 import { Subtitle } from '../design/Text';
 import { ExpenseRow } from '../expense/row/ExpenseRow';
 import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
 import { ErrorView } from '../general/ErrorView';
-import { useBaconProperty } from '../hooks/useBaconState';
 import { TotalsView } from '../search/TotalsView';
 import { GroupingCategoryChart } from './GroupingCategoryChart';
 
@@ -47,7 +46,7 @@ const GroupingExpensesRenderer: React.FC<{
   data: ExpenseGroupingWithExpenses;
   reloadExpenses: () => void;
 }> = ({ data, reloadExpenses }) => {
-  const userData = useBaconProperty(userDataP);
+  const userData = useUserData()!;
   return (
     <Flex direction="column" w="100%" mih="calc(100vh - 56px)">
       <Stack align="center">

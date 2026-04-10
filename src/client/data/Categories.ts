@@ -1,8 +1,5 @@
-import * as B from 'baconjs';
-
 import { Category, CategoryMap, ExpenseGroupingMap, Source, User } from 'shared/types';
 import { unnest } from 'shared/util';
-import { sourceMapP, userMapP, validSessionP } from 'client/data/Login';
 
 export interface CategoryDataSource {
   value: number;
@@ -20,7 +17,7 @@ export function getFullCategoryName(categoryId: number, categoryMap: CategoryMap
   return categoryString;
 }
 
-function catToDataSource(arr: Category[], categoryMap: CategoryMap): CategoryDataSource[] {
+export function catToDataSource(arr: Category[], categoryMap: CategoryMap): CategoryDataSource[] {
   return arr
     ? unnest(
         arr.map(c =>
@@ -41,23 +38,11 @@ function addToMap(arr: Category[], map: CategoryMap) {
   }
 }
 
-function toCategoryMap(arr: Category[]): CategoryMap {
+export function toCategoryMap(arr: Category[]): CategoryMap {
   const map: CategoryMap = {};
   addToMap(arr, map);
   return map;
 }
-
-export const categoryMapP: B.Property<CategoryMap> = validSessionP.map(s =>
-  toCategoryMap(s.categories),
-);
-export const categoryDataSourceP: B.Property<CategoryDataSource[]> = B.combineWith(
-  (s, map) => catToDataSource(s.categories, map),
-  validSessionP,
-  categoryMapP,
-);
-export const expenseGroupingMapP: B.Property<ExpenseGroupingMap> = validSessionP.map(s =>
-  Object.fromEntries(s.groupings.map(s => [String(s.id), s])),
-);
 
 export function isSubcategoryOf(
   subId: number,
@@ -74,10 +59,3 @@ export interface UserDataProps {
   categoryMap: CategoryMap;
   groupingMap: ExpenseGroupingMap;
 }
-
-export const userDataP: B.Property<UserDataProps> = B.combineTemplate({
-  userMap: userMapP,
-  sourceMap: sourceMapP,
-  categoryMap: categoryMapP,
-  groupingMap: expenseGroupingMapP,
-});

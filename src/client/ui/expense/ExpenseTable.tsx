@@ -3,10 +3,10 @@ import * as React from 'react';
 
 import { Expense, ExpenseStatus, UserExpense } from 'shared/expense';
 import { Money, partition } from 'shared/util';
-import { userDataP, UserDataProps } from 'client/data/Categories';
+import { UserDataProps } from 'client/data/Categories';
+import { useUserData } from 'client/data/SessionStore';
 
 import { ListDecorator } from '../component/ListDecorator';
-import { useBaconProperty } from '../hooks/useBaconState';
 import { ExpenseTotals } from './ExpenseHelper';
 import styles from './ExpenseTable.module.css';
 import { MonthlyStatus } from './MonthlyStatus';
@@ -172,6 +172,6 @@ const ExpenseTableView: React.FC<ExpenseTableInternalProps> = props => {
 };
 
 export const ExpenseTable: React.FC<ExpenseTableProps> = props => {
-  const userData = useBaconProperty(userDataP);
+  const userData = useUserData()!;
   return <ExpenseTableView {...props} userData={userData} />;
 };

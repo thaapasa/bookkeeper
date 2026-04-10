@@ -4,11 +4,11 @@ import { Cell, Pie, PieChart, Tooltip } from 'recharts';
 
 import { CategoryMap, ExpenseGroupingCategoryTotal, isDefined, ObjectId } from 'shared/types';
 import { Money, MoneyLike } from 'shared/util';
-import { categoryMapP, getFullCategoryName } from 'client/data/Categories';
+import { getFullCategoryName } from 'client/data/Categories';
+import { useCategoryMap } from 'client/data/SessionStore';
 
 import { getChartColor } from '../chart/ChartColors';
 import { chartTooltipStyle, formatMoney } from '../chart/Format';
-import { useBaconProperty } from '../hooks/useBaconState';
 import styles from './GroupingCategoryChart.module.css';
 
 interface Data {
@@ -21,7 +21,7 @@ interface Data {
 export const GroupingCategoryChart: React.FC<{
   totals: ExpenseGroupingCategoryTotal[];
 }> = ({ totals }) => {
-  const categoryMap = useBaconProperty(categoryMapP);
+  const categoryMap = useCategoryMap()!;
   return <GroupingCategoryChartImpl totals={totals} categoryMap={categoryMap} />;
 };
 

@@ -6,13 +6,12 @@ import { TypedDateRange } from 'shared/time';
 import { Category, CategoryAndTotals } from 'shared/types';
 import { Money } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
-import { userDataP } from 'client/data/Categories';
-import { updateSession, validSessionP } from 'client/data/Login';
+import { updateSession } from 'client/data/Login';
 import { QueryKeys } from 'client/data/queryKeys';
+import { useUserData, useValidSession } from 'client/data/SessionStore';
 import { navigationBus } from 'client/data/State';
 import { categoryPagePath } from 'client/util/Links';
 
-import { useBaconProperty } from '../hooks/useBaconState';
 import { CategoryChart, CategoryChartData } from './CategoryChart';
 import { CategoryTable } from './CategoryTable';
 
@@ -21,8 +20,8 @@ interface CategoryViewProps {
 }
 
 export const CategoryView: React.FC<CategoryViewProps> = ({ range }) => {
-  const session = useBaconProperty(validSessionP);
-  const userData = useBaconProperty(userDataP);
+  const session = useValidSession();
+  const userData = useUserData()!;
 
   const { categories } = session;
 

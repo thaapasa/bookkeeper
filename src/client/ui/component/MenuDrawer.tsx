@@ -15,12 +15,12 @@ import { useNavigate } from 'react-router';
 
 import { Group, User } from 'shared/types';
 import { config } from 'client/Config';
-import { logout, validSessionP } from 'client/data/Login';
+import { logout } from 'client/data/Login';
+import { useValidSession } from 'client/data/SessionStore';
 import { reloadApp } from 'client/util/ClientUtil';
 import { profilePagePath } from 'client/util/Links';
 
 import { Caption } from '../design/Text';
-import { useBaconProperty } from '../hooks/useBaconState';
 import { Icons, RenderIcon } from '../icons/Icons';
 import { AppLink } from '../layout/TopBar';
 import { UserAvatar } from './UserAvatar';
@@ -142,6 +142,6 @@ const MenuDrawerView: React.FC<MenuDrawerViewProps> = ({
 };
 
 export const MenuDrawer: React.FC<MenuDrawerProps> = props => {
-  const session = useBaconProperty(validSessionP);
+  const session = useValidSession();
   return <MenuDrawerView {...props} user={session.user} group={session.group} />;
 };

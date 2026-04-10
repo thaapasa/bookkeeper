@@ -7,11 +7,10 @@ import { SubscriptionSearchCriteria } from 'shared/expense';
 import { Category, ObjectId } from 'shared/types';
 import { Money, MoneyLike } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
-import { categoryMapP } from 'client/data/Categories';
 import { QueryKeys } from 'client/data/queryKeys';
+import { useCategoryMap } from 'client/data/SessionStore';
 
 import { ErrorView } from '../general/ErrorView';
-import { useBaconProperty } from '../hooks/useBaconState';
 import { useLocalStorageList } from '../hooks/useList.ts';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { SubscriptionCategoryHeader, ToggleCategoryVisibility } from './SubscriptionCategoryHeader';
@@ -22,7 +21,7 @@ import { TotalsChart, TotalsData } from './TotalsChart';
 import { RecurrenceTotals, SubscriptionGroup, SubscriptionItem, SubscriptionsData } from './types';
 
 export const SubscriptionsPage: React.FC = () => {
-  const categories = useBaconProperty(categoryMapP);
+  const categories = useCategoryMap()!;
   const [criteria, setCriteria] = React.useState<SubscriptionSearchCriteria | undefined>(undefined);
 
   const { data, isLoading, error } = useQuery({

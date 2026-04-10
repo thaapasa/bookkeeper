@@ -6,13 +6,13 @@ import { ExpenseQuery } from 'shared/expense';
 import { ISOMonth, ISOMonthRegExp, toDateRange, toISODate } from 'shared/time';
 import { Category, CategoryMap, isDefined } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
-import { CategoryDataSource, categoryDataSourceP, userDataP } from 'client/data/Categories';
+import { CategoryDataSource } from 'client/data/Categories';
 import { QueryKeys } from 'client/data/queryKeys';
+import { useCategoryDataSource, useUserData } from 'client/data/SessionStore';
 import { navigationBus } from 'client/data/State';
 import { logger } from 'client/Logger';
 import { searchPagePath } from 'client/util/Links';
 
-import { useBaconProperty } from '../hooks/useBaconState';
 import { QueryView, QueryViewHandle } from './QueryView';
 import { ResultsView } from './ResultsView';
 
@@ -26,8 +26,8 @@ function isEmptyQuery(q: ExpenseQuery) {
 }
 
 export const SearchPage: React.FC = () => {
-  const userData = useBaconProperty(userDataP);
-  const categorySource = useBaconProperty(categoryDataSourceP);
+  const userData = useUserData()!;
+  const categorySource = useCategoryDataSource()!;
 
   return <SearchViewImpl userData={userData} categorySource={categorySource} />;
 };

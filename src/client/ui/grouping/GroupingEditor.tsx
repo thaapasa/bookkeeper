@@ -15,8 +15,9 @@ import * as React from 'react';
 
 import { CategoryMap, ExpenseGrouping, ObjectId } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
-import { categoryMapP, getFullCategoryName } from 'client/data/Categories';
+import { getFullCategoryName } from 'client/data/Categories';
 import { QueryKeys } from 'client/data/queryKeys';
+import { useCategoryMap } from 'client/data/SessionStore';
 
 import { ColorPicker } from '../component/ColorPicker';
 import { OptionalDatePicker } from '../component/OptionalDatePicker';
@@ -26,7 +27,6 @@ import { UploadImageButton } from '../component/UploadImageButton';
 import { DialogHeading, Subtitle } from '../design/Text';
 import { connectDialog } from '../dialog/DialogConnector';
 import { ErrorView } from '../general/ErrorView';
-import { useBaconProperty } from '../hooks/useBaconState';
 import { Icons } from '../icons/Icons';
 import styles from './GroupingEditor.module.css';
 import { useGroupingState } from './GroupingEditorState';
@@ -92,7 +92,7 @@ const GroupingEditView: React.FC<{
   reloadData: () => void;
   reloadAll: () => void;
 }> = ({ data, onClose, reloadAll, reloadData }) => {
-  const categoryMap = useBaconProperty(categoryMapP);
+  const categoryMap = useCategoryMap()!;
   const createNew = data === null;
   const state = useGroupingState();
   const { data: tags } = useQuery({

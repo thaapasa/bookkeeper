@@ -4,10 +4,10 @@ import * as React from 'react';
 import { ExpenseInEditor, UserExpenseWithDetails } from 'shared/expense';
 import { ISODate } from 'shared/time';
 import { MaybePromise } from 'shared/util';
+import { useExpenseDialogData } from 'client/data/SessionStore';
 import { CategorySelector } from 'client/ui/component/CategorySelector';
 import { UserIdAvatar } from 'client/ui/component/UserAvatar';
 import { UserSelector } from 'client/ui/component/UserSelector';
-import { useBaconProperty } from 'client/ui/hooks/useBaconState';
 import { Icons } from 'client/ui/icons/Icons';
 import { stopEventPropagation } from 'client/util/ClientUtil';
 
@@ -20,7 +20,7 @@ import {
   SumField,
   TypeSelector,
 } from './ExpenseDialogComponents';
-import { ExpenseDialogData, expenseDialogDataP } from './ExpenseDialogSessionData';
+import { ExpenseDialogData } from './ExpenseDialogSessionData';
 import { ExpenseSaveAction } from './ExpenseSaveAction';
 import { GroupingSelector } from './GroupingSelector';
 import { ReceiverField } from './ReceiverField';
@@ -44,7 +44,7 @@ export type FullExpenseDialogProps<D> = ExpenseDialogProps<D> & ExpenseDialogDat
 const inputAreaHeight = 60;
 
 export const ExpenseDialog: React.FC<ExpenseDialogProps<ExpenseInEditor>> = outerProps => {
-  const data = useBaconProperty(expenseDialogDataP);
+  const data = useExpenseDialogData()!;
   const props = { ...outerProps, ...data };
   const {
     state,

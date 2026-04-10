@@ -6,14 +6,13 @@ import { z } from 'zod';
 import { DateRange } from 'shared/time';
 import { CategorySelection, isDefined } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
-import { categoryMapP } from 'client/data/Categories';
 import { QueryKeys } from 'client/data/queryKeys';
+import { useCategoryMap } from 'client/data/SessionStore';
 
 import { CategoryChipList } from '../category/CategoryChipList';
 import { CategorySelector } from '../category/CategorySelector';
 import { ErrorView } from '../general/ErrorView';
 import { NoteView } from '../general/NoteView';
-import { useBaconProperty } from '../hooks/useBaconState';
 import { useIsMobile } from '../hooks/useBreakpoints';
 import { useLocalStorageList } from '../hooks/useList.ts';
 import { useLocalStorage } from '../hooks/useLocalStorage';
@@ -28,7 +27,7 @@ function cmpCat(a: CategorySelection, b: CategorySelection) {
 }
 
 export const StatisticsView: React.FC = () => {
-  const categoryMap = useBaconProperty(categoryMapP);
+  const categoryMap = useCategoryMap()!;
 
   const {
     list: cats,

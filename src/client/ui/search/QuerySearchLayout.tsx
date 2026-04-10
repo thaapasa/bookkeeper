@@ -4,11 +4,10 @@ import * as React from 'react';
 import { toDateRangeName, TypedDateRange } from 'shared/time';
 import { isDefined, ObjectId } from 'shared/types';
 import { CategoryDataSource } from 'client/data/Categories';
-import { validSessionP } from 'client/data/Login';
+import { useValidSession } from 'client/data/SessionStore';
 
 import { DateRangeSelector } from '../component/daterange/DateRangeSelector';
 import { UserSelector } from '../component/UserSelector';
-import { useBaconProperty } from '../hooks/useBaconState';
 import { Icons } from '../icons/Icons';
 import { SearchInputField } from './SearchInputField';
 import { SearchSuggestion } from './SearchSuggestions';
@@ -51,7 +50,7 @@ export const QuerySearchLayout: React.FC<QuerySearchLayoutProps> = ({
   onSelectRange,
   onSaveAsReport,
 }) => {
-  const session = useBaconProperty(validSessionP);
+  const session = useValidSession();
   return (
     <Grid p="md" gap="md">
       <Grid.Col span={{ base: 12, sm: 7 }}>

@@ -3,17 +3,16 @@ import * as React from 'react';
 
 import { Category, ObjectId, Source, User } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
-import { userDataP } from 'client/data/Categories';
-import { updateSession, validSessionP } from 'client/data/Login';
+import { updateSession } from 'client/data/Login';
+import { useUserData, useValidSession } from 'client/data/SessionStore';
 
 import { ActivatableTextField } from '../component/ActivatableTextField';
-import { useBaconProperty } from '../hooks/useBaconState';
 import { InfoItem, ItemWithId, Label, SubValue, Value } from './InfoLayoutElements';
 import { VersionInfoView } from './VersionInfoView';
 
 export const InfoView: React.FC = () => {
-  const session = useBaconProperty(validSessionP);
-  const userData = useBaconProperty(userDataP);
+  const session = useValidSession();
+  const userData = useUserData()!;
 
   return (
     <Box p="lg">

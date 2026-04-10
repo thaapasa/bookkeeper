@@ -2,9 +2,8 @@ import { Avatar as MantineAvatar, AvatarProps } from '@mantine/core';
 import * as React from 'react';
 
 import { ObjectId, User } from 'shared/types';
-import { userMapP } from 'client/data/Login';
+import { useUserMap } from 'client/data/SessionStore';
 
-import { useBaconProperty } from '../hooks/useBaconState';
 import { classNames } from '../utils/classNames';
 import styles from './UserAvatar.module.css';
 
@@ -46,7 +45,7 @@ export const UserIdAvatar: React.FC<React.PropsWithChildren<UserIdAvatarProps>> 
   userId,
   ...props
 }) => {
-  const userMap = useBaconProperty(userMapP);
+  const userMap = useUserMap()!;
   const user = userMap[userId];
   return user ? <UserAvatar {...props} user={user} /> : null;
 };
