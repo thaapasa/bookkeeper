@@ -5,6 +5,8 @@ import { ISODate } from 'shared/time';
 import { ExpenseGrouping, ExpenseGroupingData, ObjectId } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
 import { updateSession } from 'client/data/Login';
+import { queryClient } from 'client/data/query';
+import { QueryKeys } from 'client/data/queryKeys';
 import { logger } from 'client/Logger';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
@@ -56,7 +58,7 @@ export const useGroupingState = create<GroupingState>((set, get) => ({
   addTag: tag => {
     const trimmed = tag?.trim();
     if (trimmed) {
-      set({ tags: [...new Set([...get().tags, tag])] });
+      set({ tags: [...new Set([...get().tags, trimmed])] });
     }
   },
   removeTag: tag => set({ tags: get().tags.filter(t => t !== tag) }),
@@ -98,7 +100,10 @@ export const useGroupingState = create<GroupingState>((set, get) => ({
           ? apiConnect.updateExpenseGrouping(id, payload)
           : apiConnect.createExpenseGrouping(payload),
       {
-        postProcess: updateSession,
+        postProcess: async () => {
+          queryClient.invalidateQueries({ queryKey: QueryKeys.groupings.all });
+          await updateSession();
+        },
         success: id ? 'Ryhmittely päivitetty' : 'Ryhmittely luotu',
         throw: true,
       },
@@ -108,13 +113,17 @@ export const useGroupingState = create<GroupingState>((set, get) => ({
   uploadImage: async (file, filename, ...callbacks) => {
     const id = get().id;
     if (!id) return;
-    await executeOperation(() => apiConnect.uploadGroupingImage(id, file, filename));
+    await executeOperation(() => apiConnect.uploadGroupingImage(id, file, filename), {
+      postProcess: () => queryClient.invalidateQueries({ queryKey: QueryKeys.groupings.all }),
+    });
     callbacks.forEach(c => c());
   },
   removeImage: async (...callbacks) => {
     const id = get().id;
     if (!id) return;
-    await executeOperation(() => apiConnect.deleteGroupingImage(id));
+    await executeOperation(() => apiConnect.deleteGroupingImage(id), {
+      postProcess: () => queryClient.invalidateQueries({ queryKey: QueryKeys.groupings.all }),
+    });
     callbacks.forEach(c => c());
   },
   addCategory: async () => {

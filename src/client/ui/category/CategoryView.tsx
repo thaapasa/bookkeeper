@@ -1,17 +1,17 @@
 import { Box } from '@mantine/core';
+import { useQuery } from '@tanstack/react-query';
 import * as React from 'react';
 
 import { TypedDateRange } from 'shared/time';
 import { Category, CategoryAndTotals } from 'shared/types';
 import { Money } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
-import { userDataP } from 'client/data/Categories';
-import { updateSession, validSessionP } from 'client/data/Login';
-import { navigationBus, needUpdateE } from 'client/data/State';
+import { updateSession } from 'client/data/Login';
+import { useNavigationStore } from 'client/data/NavigationStore';
+import { QueryKeys } from 'client/data/queryKeys';
+import { useUserData, useValidSession } from 'client/data/SessionStore';
 import { categoryPagePath } from 'client/util/Links';
 
-import { useDeferredData } from '../hooks/useAsyncData';
-import { useBaconProperty } from '../hooks/useBaconState';
 import { CategoryChart, CategoryChartData } from './CategoryChart';
 import { CategoryTable } from './CategoryTable';
 
@@ -20,28 +20,37 @@ interface CategoryViewProps {
 }
 
 export const CategoryView: React.FC<CategoryViewProps> = ({ range }) => {
-  const session = useBaconProperty(validSessionP);
-  const userData = useBaconProperty(userDataP);
+  const session = useValidSession();
+  const userData = useUserData()!;
 
   const { categories } = session;
 
-  const { data, loadData } = useDeferredData(loadCategories, true, categories, range);
+  React.useEffect(() => {
+    useNavigationStore.getState().setNavigation({ pathPrefix: categoryPagePath, dateRange: range });
+  }, [range]);
 
-  React.useEffect(() => loadData(), [loadData]);
-  React.useEffect(() => needUpdateE.onValue(loadData), [loadData]);
+  const { data: categoryTotals } = useQuery({
+    queryKey: QueryKeys.categories.totals(range.start, range.end),
+    queryFn: () => getCategoryTotals(range),
+  });
 
-  if (data.type !== 'loaded') return null;
+  const categoryChartData = React.useMemo(
+    () => (categoryTotals ? formCategoryChartData(categories, categoryTotals) : []),
+    [categories, categoryTotals],
+  );
+
+  if (!categoryTotals) return null;
 
   return (
     <Box>
       <Box h={320} display="flex">
-        <CategoryChart chartData={data.value.categoryChartData} />
+        <CategoryChart chartData={categoryChartData} />
       </Box>
       <CategoryTable
         categories={categories}
         range={range}
         onCategoriesChanged={updateSession}
-        categoryTotals={data.value.categoryTotals}
+        categoryTotals={categoryTotals}
         userData={userData}
       />
     </Box>
@@ -60,16 +69,6 @@ async function getCategoryTotals(
     }
   });
   return totalsMap;
-}
-
-async function loadCategories(categories: Category[], range: TypedDateRange) {
-  navigationBus.push({
-    pathPrefix: categoryPagePath,
-    dateRange: range,
-  });
-  const categoryTotals = await getCategoryTotals(range);
-  const categoryChartData = formCategoryChartData(categories, categoryTotals);
-  return { categoryTotals, categoryChartData };
 }
 
 function formCategoryChartData(

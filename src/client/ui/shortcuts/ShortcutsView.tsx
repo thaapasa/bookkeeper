@@ -1,5 +1,4 @@
 import { ActionIcon, Button, Group, Stack, Text, UnstyledButton } from '@mantine/core';
-import * as B from 'baconjs';
 import * as React from 'react';
 import { NavigateFunction, useNavigate } from 'react-router';
 
@@ -7,26 +6,19 @@ import { ExpenseShortcutPayload } from 'shared/expense';
 import { uri } from 'shared/net';
 import { ObjectId } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
-import { updateSession, validSessionP } from 'client/data/Login';
-import { createNewExpense, navigationP, requestNewExpense } from 'client/data/State';
+import { updateSession } from 'client/data/Login';
+import { useValidSession } from 'client/data/SessionStore';
+import { createNewExpense, requestNewExpense } from 'client/data/State';
 import { executeOperation } from 'client/util/ExecuteOperation';
 import { newExpenseSuffix } from 'client/util/Links';
 
-import { useBaconProperty } from '../hooks/useBaconState';
 import { Icons } from '../icons/Icons';
 import { editShortcut, ShortcutEditor } from './ShortcutEditor';
 import { ShortcutLink } from './ShortcutLink';
 
-const shortcutsViewP = B.combineTemplate({
-  session: validSessionP,
-  navigation: navigationP,
-}).map(({ session, navigation }) => ({
-  shortcuts: session.shortcuts || [],
-  dateRange: navigation.dateRange,
-}));
-
 export const ShortcutsView: React.FC = () => {
-  const { shortcuts } = useBaconProperty(shortcutsViewP);
+  const session = useValidSession();
+  const shortcuts = session.shortcuts || [];
   const navigate = useNavigate();
 
   return (

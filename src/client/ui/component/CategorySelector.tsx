@@ -2,9 +2,7 @@ import { Select, SelectProps } from '@mantine/core';
 import * as React from 'react';
 
 import { ObjectId } from 'shared/types';
-import { categoryDataSourceP, categoryMapP } from 'client/data/Categories';
-
-import { useBaconProperty } from '../hooks/useBaconState';
+import { useCategoryDataSource, useCategoryMap } from 'client/data/SessionStore';
 
 type CategorySelectorProps = {
   value: ObjectId;
@@ -18,8 +16,8 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
   mainOnly,
   ...props
 }) => {
-  const categorySource = useBaconProperty(categoryDataSourceP);
-  const categoryMap = useBaconProperty(categoryMapP);
+  const categorySource = useCategoryDataSource()!;
+  const categoryMap = useCategoryMap()!;
 
   const data = React.useMemo(() => {
     const items = mainOnly

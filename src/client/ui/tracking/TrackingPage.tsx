@@ -1,19 +1,26 @@
-import { ActionIcon, Box, Stack } from '@mantine/core';
+import { ActionIcon, Box, Loader, Stack } from '@mantine/core';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 
 import apiConnect from 'client/data/ApiConnect';
+import { QueryKeys } from 'client/data/queryKeys';
 
-import { AsyncDataView } from '../component/AsyncDataView';
 import { Title } from '../design/Text';
-import { useAsyncData } from '../hooks/useAsyncData';
-import { useForceReload } from '../hooks/useForceReload.ts';
+import { ErrorView } from '../general/ErrorView';
 import { Icons } from '../icons/Icons';
 import { newTrackingSubject, TrackingEditor } from './TrackingEditor';
 import { TrackingSubjectsList } from './TrackingSubjectView';
 
 export const TrackingPage: React.FC = () => {
-  const { counter, forceReload } = useForceReload();
-  const trackedSubjects = useAsyncData(loadSubjects, true, counter);
+  const queryClient = useQueryClient();
+  const { data, isLoading, error } = useQuery({
+    queryKey: QueryKeys.tracking.list,
+    queryFn: () => apiConnect.getTrackingSubjects(),
+  });
+  const invalidateTracking = React.useCallback(
+    () => queryClient.invalidateQueries({ queryKey: QueryKeys.tracking.all }),
+    [queryClient],
+  );
   return (
     <>
       <Stack gap="md" w="100%" px="md" pb="xl">
@@ -25,17 +32,15 @@ export const TrackingPage: React.FC = () => {
             </ActionIcon>
           </Box>
         </Box>
-        <AsyncDataView
-          data={trackedSubjects}
-          renderer={TrackingSubjectsList}
-          onReload={forceReload}
-        />
+        {isLoading ? (
+          <Loader />
+        ) : error ? (
+          <ErrorView title="Virhe tietojen latauksessa">{String(error)}</ErrorView>
+        ) : data ? (
+          <TrackingSubjectsList data={data} onReload={invalidateTracking} />
+        ) : null}
       </Stack>
-      <TrackingEditor reloadAll={forceReload} />
+      <TrackingEditor reloadAll={invalidateTracking} />
     </>
   );
 };
-
-function loadSubjects(_counter: number) {
-  return apiConnect.getTrackingSubjects();
-}

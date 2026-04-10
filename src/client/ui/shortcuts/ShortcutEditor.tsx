@@ -1,49 +1,60 @@
-import { ActionIcon, Box, Button, Group, Modal } from '@mantine/core';
-import * as B from 'baconjs';
+import { ActionIcon, Box, Button, Flex, Group, Loader, Modal } from '@mantine/core';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import * as React from 'react';
+import { create } from 'zustand';
 
 import { ExpenseShortcut } from 'shared/expense';
 import { ObjectId } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
+import { QueryKeys } from 'client/data/queryKeys';
 
-import { AsyncDataDialogContent } from '../component/AsyncDataDialog';
 import { TextEdit } from '../component/TextEdit';
 import { UploadImageButton } from '../component/UploadImageButton';
 import { DialogHeading, Subtitle } from '../design/Text';
-import { connectDialog } from '../dialog/DialogConnector';
-import { useAsyncData } from '../hooks/useAsyncData';
-import { useForceReload } from '../hooks/useForceReload.ts';
+import { ErrorView } from '../general/ErrorView';
 import { Icons } from '../icons/Icons';
 import { useShortcutState } from './ShortcutEditorState';
 import { ShortcutLink } from './ShortcutLink';
 
-const shortcutBus = new B.Bus<{ shortcutId: ObjectId }>();
+const useShortcutDialogStore = create<{
+  payload: { shortcutId: ObjectId } | null;
+  setPayload: (payload: { shortcutId: ObjectId } | null) => void;
+}>(set => ({
+  payload: null,
+  setPayload: payload => set({ payload }),
+}));
 
 export function editShortcut(shortcutId: ObjectId) {
-  shortcutBus.push({ shortcutId });
+  useShortcutDialogStore.getState().setPayload({ shortcutId });
 }
 
 const ShortcutDialogImpl: React.FC<{ shortcutId: ObjectId; onClose: () => void }> = ({
   shortcutId,
   onClose,
 }) => {
-  const { counter, forceReload } = useForceReload();
-  const data = useAsyncData(getShortcut, true, shortcutId, counter);
+  const queryClient = useQueryClient();
+  const { data, isLoading, error } = useQuery({
+    queryKey: QueryKeys.shortcuts.detail(shortcutId),
+    queryFn: () => apiConnect.getShortcut(shortcutId),
+  });
+  const reloadData = React.useCallback(
+    () => queryClient.invalidateQueries({ queryKey: QueryKeys.shortcuts.detail(shortcutId) }),
+    [queryClient, shortcutId],
+  );
   return (
     <Modal opened={true} onClose={onClose} size="lg" title="">
-      <AsyncDataDialogContent
-        data={data}
-        renderer={ShortcutEditView}
-        onClose={onClose}
-        reloadData={forceReload}
-      />
+      {isLoading ? (
+        <Flex align="center" justify="center" p="xl">
+          <Loader size={64} />
+        </Flex>
+      ) : error ? (
+        <ErrorView title="Virhe tietojen latauksessa">{String(error)}</ErrorView>
+      ) : data ? (
+        <ShortcutEditView data={data} onClose={onClose} reloadData={reloadData} />
+      ) : null}
     </Modal>
   );
 };
-
-function getShortcut(shortcutId: ObjectId, _counter: number) {
-  return apiConnect.getShortcut(shortcutId);
-}
 
 const ShortcutEditView: React.FC<{
   data: ExpenseShortcut;
@@ -120,4 +131,11 @@ const ShortcutEditView: React.FC<{
   );
 };
 
-export const ShortcutEditor = connectDialog(shortcutBus, ShortcutDialogImpl);
+export const ShortcutEditor: React.FC = () => {
+  const payload = useShortcutDialogStore(s => s.payload);
+  const onClose = React.useCallback(() => {
+    useShortcutDialogStore.getState().setPayload(null);
+  }, []);
+  if (!payload) return null;
+  return <ShortcutDialogImpl {...payload} onClose={onClose} />;
+};

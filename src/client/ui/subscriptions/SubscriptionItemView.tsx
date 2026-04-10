@@ -3,10 +3,10 @@ import { useDisclosure } from '@mantine/hooks';
 import * as React from 'react';
 
 import { ExpenseReport, RecurrencePeriod, RecurringExpense } from 'shared/expense';
-import { readableDateWithYear, toISODate } from 'shared/time';
+import { readableDateWithYear } from 'shared/time';
 import { Money } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
-import { updateExpenses } from 'client/data/State';
+import { invalidateSubscriptionData } from 'client/data/query';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { ExpanderIcon } from '../component/ExpanderIcon';
@@ -99,6 +99,6 @@ async function deleteReport(item: ExpenseReport) {
     confirm: `Haluatko poistaa raportin ${item.title}? Huom! Tämä poistaa kaikki raportin tuottamat rivit`,
     progress: 'Poistetaan raporttia...',
     success: 'Raportti poistettu!',
-    postProcess: () => updateExpenses(toISODate()),
+    postProcess: () => invalidateSubscriptionData(),
   });
 }

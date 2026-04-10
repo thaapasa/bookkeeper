@@ -1,17 +1,16 @@
-import { Box, Checkbox } from '@mantine/core';
+import { Box, Checkbox, Loader } from '@mantine/core';
+import { useQuery } from '@tanstack/react-query';
 import * as React from 'react';
 import { z } from 'zod';
 
-import { SubscriptionResult, SubscriptionSearchCriteria } from 'shared/expense';
-import { Category, CategoryMap, ObjectId } from 'shared/types';
+import { SubscriptionSearchCriteria } from 'shared/expense';
+import { Category, ObjectId } from 'shared/types';
 import { Money, MoneyLike } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
-import { categoryMapP } from 'client/data/Categories';
-import { needUpdateE } from 'client/data/State';
+import { QueryKeys } from 'client/data/queryKeys';
+import { useCategoryMap } from 'client/data/SessionStore';
 
-import { AsyncDataView } from '../component/AsyncDataView';
-import { useDeferredData } from '../hooks/useAsyncData';
-import { useBaconProperty } from '../hooks/useBaconState';
+import { ErrorView } from '../general/ErrorView';
 import { useLocalStorageList } from '../hooks/useList.ts';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { SubscriptionCategoryHeader, ToggleCategoryVisibility } from './SubscriptionCategoryHeader';
@@ -21,37 +20,27 @@ import { groupSubscriptions, sumRecurrenceTotals } from './SubscriptionsData';
 import { TotalsChart, TotalsData } from './TotalsChart';
 import { RecurrenceTotals, SubscriptionGroup, SubscriptionItem, SubscriptionsData } from './types';
 
-const emptyResponse: SubscriptionResult = {
-  recurringExpenses: [],
-  reports: [],
-};
-
-const loadExpenses = async (
-  criteria: SubscriptionSearchCriteria | undefined,
-  categories: CategoryMap,
-) =>
-  groupSubscriptions(
-    criteria ? await apiConnect.searchSubscriptions(criteria) : emptyResponse,
-    categories,
-  );
-
 export const SubscriptionsPage: React.FC = () => {
-  const categories = useBaconProperty(categoryMapP);
+  const categories = useCategoryMap()!;
   const [criteria, setCriteria] = React.useState<SubscriptionSearchCriteria | undefined>(undefined);
 
-  const { data, loadData } = useDeferredData(
-    loadExpenses,
-    criteria !== undefined,
-    criteria,
-    categories,
-  );
-  React.useEffect(loadData, [loadData, criteria, categories]);
-  React.useEffect(() => needUpdateE.onValue(loadData), [loadData]);
+  const { data, isLoading, error } = useQuery({
+    queryKey: QueryKeys.subscriptions.search(criteria!),
+    queryFn: () => apiConnect.searchSubscriptions(criteria!),
+    enabled: criteria !== undefined,
+    select: result => groupSubscriptions(result, categories),
+  });
 
   return (
     <>
       <SubscriptionCriteriaSelector onChange={setCriteria} />
-      <AsyncDataView data={data} renderer={SubscriptionsRenderer} />
+      {isLoading ? (
+        <Loader />
+      ) : error ? (
+        <ErrorView title="Virhe tietojen latauksessa">{String(error)}</ErrorView>
+      ) : data ? (
+        <SubscriptionsRenderer data={data} />
+      ) : null}
     </>
   );
 };

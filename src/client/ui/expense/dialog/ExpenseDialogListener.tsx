@@ -1,11 +1,12 @@
-import * as B from 'baconjs';
 import * as React from 'react';
+import { type StoreApi, type UseBoundStore } from 'zustand';
 
 import { UserExpenseWithDetails } from 'shared/expense';
 import { ISODate } from 'shared/time';
 import { noop } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
-import { updateExpenses } from 'client/data/State';
+import { navigateToExpenseDate } from 'client/data/NavigationStore';
+import { invalidateExpenseData } from 'client/data/query';
 import { ExpenseDialogObject } from 'client/data/StateTypes';
 import { logger } from 'client/Logger';
 
@@ -24,11 +25,17 @@ interface ExpenseDialogListenerState<D> {
 
 let expenseCounter = 1;
 
+interface RequestStore<D> {
+  request: ExpenseDialogObject<D> | null;
+  setRequest: (request: ExpenseDialogObject<D> | null) => void;
+}
+
 export function createExpenseDialogListener<D>(
   Dialog: React.ComponentType<ExpenseDialogProps<D>>,
-  bus: B.EventStream<ExpenseDialogObject<D>>,
+  useStore: UseBoundStore<StoreApi<RequestStore<D>>>,
 ) {
   const ExpenseDialogListener: React.FC<{ isMobile: boolean }> = ({ isMobile }) => {
+    const request = useStore(s => s.request);
     const [state, setState] = React.useState<ExpenseDialogListenerState<D>>({
       open: false,
       original: null,
@@ -39,13 +46,18 @@ export function createExpenseDialogListener<D>(
       title: undefined,
     });
 
+    // React to new requests from the store
     React.useEffect(() => {
-      const unsub = bus.onValue(async (data: ExpenseDialogObject<D>) => {
-        expenseCounter += 1;
-        if (data.expenseId) {
-          logger.info('Edit expense %s', data.expenseId);
-          setState(s => ({ ...s, open: false, original: null }));
-          const original = await apiConnect.getExpense(data.expenseId);
+      if (!request) return;
+      const data = request;
+      // Clear the store request immediately so future pushes are detected as new
+      useStore.getState().setRequest(null);
+
+      expenseCounter += 1;
+      if (data.expenseId) {
+        logger.info('Edit expense %s', data.expenseId);
+        setState(s => ({ ...s, open: false, original: null }));
+        apiConnect.getExpense(data.expenseId).then(original => {
           setState({
             open: true,
             original,
@@ -55,21 +67,20 @@ export function createExpenseDialogListener<D>(
             saveAction: data.saveAction ?? null,
             title: data.title,
           });
-        } else {
-          logger.info('Create new expense');
-          setState({
-            open: true,
-            original: null,
-            resolve: data.resolve,
-            expenseCounter,
-            values: data.values || {},
-            saveAction: data.saveAction ?? null,
-            title: data.title,
-          });
-        }
-      });
-      return unsub;
-    }, []);
+        });
+      } else {
+        logger.info('Create new expense');
+        setState({
+          open: true,
+          original: null,
+          resolve: data.resolve,
+          expenseCounter,
+          values: data.values || {},
+          saveAction: data.saveAction ?? null,
+          title: data.title,
+        });
+      }
+    }, [request]);
 
     const resolveRef = React.useRef(state.resolve);
     React.useEffect(() => {
@@ -83,7 +94,8 @@ export function createExpenseDialogListener<D>(
     }, []);
 
     const onExpensesUpdated = React.useCallback((date: ISODate) => {
-      updateExpenses(date);
+      invalidateExpenseData();
+      navigateToExpenseDate(date);
     }, []);
 
     if (!state.open) {

@@ -2,11 +2,10 @@ import { Divider, Modal, Stack } from '@mantine/core';
 import * as React from 'react';
 
 import { ExpenseSplit } from 'shared/expense';
-import { useBaconProperty } from 'client/ui/hooks/useBaconState';
+import { useExpenseDialogData } from 'client/data/SessionStore';
 
 import { ExpenseDialogProps } from '../dialog/ExpenseDialog';
 import { ExpenseDialogContent } from '../dialog/ExpenseDialogComponents';
-import { expenseDialogDataP } from '../dialog/ExpenseDialogSessionData';
 import { useExpenseSplit } from './ExpenseSplit.hooks';
 import { SplitButtons } from './SplitButtons';
 import { SplitHeader } from './SplitHeader';
@@ -18,7 +17,7 @@ export const ExpenseSplitDialog: React.FC<ExpenseDialogProps<ExpenseSplit[]>> = 
   onExpensesUpdated,
   isMobile,
 }) => {
-  const data = useBaconProperty(expenseDialogDataP);
+  const data = useExpenseDialogData()!;
 
   const { addRow, splits, validSplits, splitExpense, ...tools } = useExpenseSplit(
     original,

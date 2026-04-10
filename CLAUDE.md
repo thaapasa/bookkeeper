@@ -23,7 +23,7 @@ bun dump-schema          # Dump DB schema to docs/SCHEMA.sql
 
 Monorepo with shared types between client and server. All code is TypeScript, run with Bun.
 
-- `src/client/` — React 19 frontend (Mantine 9, Zustand, Bacon.js legacy)
+- `src/client/` — React 19 frontend (Mantine 9, Zustand, TanStack Query)
 - `src/server/` — Express backend (pg-promise, Pino logging)
 - `src/shared/` — Shared types, Zod schemas, and utilities
 - `src/integration/` — Integration tests (require running dev server)

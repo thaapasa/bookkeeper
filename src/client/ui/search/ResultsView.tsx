@@ -5,12 +5,12 @@ import { calculateTotals, UserExpense } from 'shared/expense';
 import { toDateTime } from 'shared/time';
 import { Category } from 'shared/types';
 import { groupBy, noop, typedKeys } from 'shared/util';
-import { userDataP, UserDataProps } from 'client/data/Categories';
+import { UserDataProps } from 'client/data/Categories';
+import { useUserData } from 'client/data/SessionStore';
 
 import { SectionLabel } from '../design/Text';
 import { ExpenseRow } from '../expense/row/ExpenseRow';
 import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
-import { useBaconProperty } from '../hooks/useBaconState';
 import styles from './ResultsView.module.css';
 import { TotalsView } from './TotalsView';
 
@@ -21,7 +21,7 @@ interface ResultsViewOwnProps {
 }
 
 export const ResultsView: React.FC<ResultsViewOwnProps> = ({ results, ...rest }) => {
-  const userData = useBaconProperty(userDataP);
+  const userData = useUserData()!;
   const hasResults = results && results.length > 0;
   return (
     <Box className={styles.resultsArea}>

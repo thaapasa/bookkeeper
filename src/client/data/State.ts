@@ -1,39 +1,22 @@
-import * as B from 'baconjs';
-
 import { ExpenseInEditor, ExpenseSplit } from 'shared/expense';
-import { ISODate, monthRange, toISODate } from 'shared/time';
 import { noop } from 'shared/util';
 import { ExpenseSaveAction } from 'client/ui/expense/dialog/ExpenseSaveAction';
 
-import { expensePagePath } from '../util/Links';
-import type { ExpenseDialogObject, NavigationConfig, Notification } from './StateTypes';
-
-const notificationBus = new B.Bus<Notification>();
-export const notificationE = notificationBus;
-
-export function notify(message: string, params?: Partial<Notification>): void {
-  notificationBus.push({ message, ...params });
-}
-
-export function notifyError(message: string, cause: unknown, params?: Partial<Notification>) {
-  notificationBus.push({ message, cause, severity: 'warning', ...params });
-}
-
-const expenseDialogBus = new B.Bus<ExpenseDialogObject<ExpenseInEditor>>();
-const expenseSplitBus = new B.Bus<ExpenseDialogObject<ExpenseSplit[]>>();
+import { useExpenseDialogRequestStore, useExpenseSplitRequestStore } from './ExpenseDialogStore';
+import type { ExpenseDialogObject } from './StateTypes';
 
 export function editExpense(
   expenseId: number,
   options?: Partial<ExpenseDialogObject<ExpenseInEditor>>,
 ): Promise<ExpenseInEditor | null> {
   return new Promise<ExpenseInEditor | null>(resolve => {
-    expenseDialogBus.push({ ...options, expenseId, resolve });
+    useExpenseDialogRequestStore.getState().setRequest({ ...options, expenseId, resolve });
   });
 }
 
 export function splitExpense(expenseId: number): Promise<ExpenseSplit[] | null> {
   return new Promise<ExpenseSplit[] | null>(resolve => {
-    expenseSplitBus.push({ expenseId, resolve });
+    useExpenseSplitRequestStore.getState().setRequest({ expenseId, resolve });
   });
 }
 
@@ -50,43 +33,12 @@ export function requestNewExpense(
   reference?: Partial<ExpenseInEditor>,
 ): Promise<ExpenseInEditor | null> {
   return new Promise<ExpenseInEditor | null>(resolve => {
-    expenseDialogBus.push({ ...reference, expenseId: null, resolve, saveAction, title });
+    useExpenseDialogRequestStore
+      .getState()
+      .setRequest({ ...reference, expenseId: null, resolve, saveAction, title });
   });
 }
 
-export const expenseDialogE = expenseDialogBus;
-export const expenseSplitE = expenseSplitBus;
-
-const needUpdateBus = new B.Bus<ISODate>();
-
-export function updateExpenses(date: ISODate) {
-  needUpdateBus.push(date);
-  return true;
-}
-
 export function createNewExpense(values: Partial<ExpenseInEditor>) {
-  expenseDialogE.push({ expenseId: null, resolve: noop, values });
-}
-
-export const needUpdateE = needUpdateBus;
-
-export const navigationBus = new B.Bus<NavigationConfig>();
-export const navigationP = navigationBus.toProperty({
-  pathPrefix: expensePagePath,
-  dateRange: monthRange(toISODate()),
-});
-
-// Start listening to buses to not miss any updates
-navigationP.onValue(noop);
-
-/* Export state to window globals for debugging */
-if (import.meta.env.NODE_ENV === 'development') {
-  (window as any).state = {
-    notificationBus,
-    notificationE,
-    expenseDialogBus,
-    expenseDialogE,
-    needUpdateBus,
-    needUpdateE,
-  };
+  useExpenseDialogRequestStore.getState().setRequest({ expenseId: null, resolve: noop, values });
 }

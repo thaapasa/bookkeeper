@@ -1,14 +1,15 @@
+import { useQuery } from '@tanstack/react-query';
 import * as React from 'react';
 import { useNavigate } from 'react-router';
 
 import { UserExpense } from 'shared/expense';
-import { ISODate, ISOMonth, isSameMonth, monthRange, toDateTime, toISODate } from 'shared/time';
+import { ISOMonth, isSameMonth, monthRange, toDateTime } from 'shared/time';
 import apiConnect from 'client/data/ApiConnect';
-import { navigationBus, needUpdateE } from 'client/data/State';
+import { useNavigationStore } from 'client/data/NavigationStore';
+import { QueryKeys } from 'client/data/queryKeys';
 import { logger } from 'client/Logger';
 import { expensePagePath, expensesForMonthPath } from 'client/util/Links';
 
-import { useDeferredData } from '../hooks/useAsyncData';
 import { zeroStatus } from './ExpenseHelper';
 import { ExpenseTable } from './ExpenseTable';
 
@@ -25,67 +26,62 @@ const zeroStatuses = {
 const noExpenses: UserExpense[] = [];
 
 export const MonthView: React.FC<MonthViewProps> = ({ date }) => {
-  const isoDate = toISODate(date);
-  const { data, loadData } = useDeferredData(loadExpensesForDate, true, isoDate);
-  React.useEffect(loadData, [loadData]);
+  // Side effect: update navigation state
+  React.useEffect(() => {
+    const m = toDateTime(date);
+    useNavigationStore
+      .getState()
+      .setNavigation({ dateRange: monthRange(m), pathPrefix: expensePagePath });
+  }, [date]);
+
+  const { data: expenseData, isLoading } = useQuery({
+    queryKey: QueryKeys.expenses.month(date),
+    queryFn: () => {
+      const m = toDateTime(date);
+      return apiConnect.getExpensesForMonth(m.year, m.month);
+    },
+  });
 
   const statuses = React.useMemo(
     () =>
-      data.type === 'loaded'
+      expenseData
         ? {
-            startStatus: data.value.startStatus,
-            endStatus: data.value.endStatus,
-            monthStatus: data.value.monthStatus,
+            startStatus: expenseData.startStatus,
+            endStatus: expenseData.endStatus,
+            monthStatus: expenseData.monthStatus,
           }
         : zeroStatuses,
-    [data],
+    [expenseData],
   );
-  const expenseResponse = data.type === 'loaded' ? data.value : undefined;
-  const loadedExpenseArray = expenseResponse?.expenses;
 
+  const loadedExpenseArray = expenseData?.expenses;
   const [expenses, setExpenses] = React.useState<UserExpense[] | undefined>(undefined);
   React.useEffect(() => setExpenses(loadedExpenseArray), [loadedExpenseArray]);
 
+  // Navigate to another month when an expense is saved with a different month's date.
   const navigate = useNavigate();
-  React.useEffect(
-    () =>
-      needUpdateE.onValue(newDate => {
-        logger.info('Expenses updated, refreshing for date %s', newDate);
-        if (isSameMonth(newDate, date)) {
-          logger.info('Reloading expenses for this month');
-          loadData();
-        } else {
-          const path = expensesForMonthPath(newDate);
-          logger.info('Navigating to %s', path);
-          navigate(path);
-        }
-      }),
-    [loadData, navigate, date],
-  );
+  const navTarget = useNavigationStore(s => s.expenseNavigationTarget);
+  const navSeq = useNavigationStore(s => s.expenseNavigationSeq);
+  React.useEffect(() => {
+    if (navTarget && !isSameMonth(navTarget, date)) {
+      const path = expensesForMonthPath(navTarget);
+      logger.info('Navigating to %s', path);
+      navigate(path);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navSeq]);
 
   return (
     <ExpenseTable
       expenses={expenses ?? noExpenses}
-      loading={data.type === 'loading'}
+      loading={isLoading}
       startStatus={statuses.startStatus}
       endStatus={statuses.endStatus}
       monthStatus={statuses.monthStatus}
-      unconfirmedBefore={expenseResponse?.unconfirmedBefore ?? false}
+      unconfirmedBefore={expenseData?.unconfirmedBefore ?? false}
       onUpdateExpense={(id, data) =>
         expenses ? setExpenses(expenses.map(e => (e.id === id ? data : e))) : undefined
       }
     />
   );
 };
-
-async function loadExpensesForDate(date: ISODate) {
-  const m = toDateTime(date);
-  navigationBus.push({
-    dateRange: monthRange(m),
-    pathPrefix: expensePagePath,
-  });
-  // Luxon months are 1-based, so no need to add 1
-  const expenses = await apiConnect.getExpensesForMonth(m.year, m.month);
-  logger.info(expenses, 'Expenses for %s', date);
-  return expenses;
-}

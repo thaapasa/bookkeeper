@@ -1,9 +1,9 @@
 import * as React from 'react';
 
 import { filterMapCaseInsensitive, last } from 'shared/util';
-import { CategoryDataSource, categoryDataSourceP } from 'client/data/Categories';
+import { CategoryDataSource } from 'client/data/Categories';
+import { useCategoryDataSource } from 'client/data/SessionStore';
 import { AutoComplete } from 'client/ui/component/AutoComplete';
-import { useBaconProperty } from 'client/ui/hooks/useBaconState';
 
 interface TitleFieldProps {
   id: string;
@@ -14,7 +14,7 @@ interface TitleFieldProps {
 }
 
 export const TitleField: React.FC<TitleFieldProps> = ({ value, errorText, onChange, onSelect }) => {
-  const dataSource = useBaconProperty(categoryDataSourceP);
+  const dataSource = useCategoryDataSource()!;
   const [suggestions, setSuggestions] = React.useState<CategoryDataSource[]>([]);
 
   const selectCategory = React.useCallback(

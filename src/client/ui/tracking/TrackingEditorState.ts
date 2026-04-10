@@ -11,6 +11,8 @@ import {
 } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
 import { updateSession } from 'client/data/Login';
+import { queryClient } from 'client/data/query';
+import { QueryKeys } from 'client/data/queryKeys';
 import { logger } from 'client/Logger';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
@@ -124,7 +126,10 @@ export const useTrackingState = create<TrackingState>((set, get) => ({
           ? apiConnect.updateTrackingSubject(id, payload)
           : apiConnect.createTrackingSubject(payload),
       {
-        postProcess: updateSession,
+        postProcess: async () => {
+          queryClient.invalidateQueries({ queryKey: QueryKeys.tracking.all });
+          await updateSession();
+        },
         success: id ? 'Seuranta päivitetty' : 'Seuranta luotu',
         throw: true,
       },
@@ -134,13 +139,17 @@ export const useTrackingState = create<TrackingState>((set, get) => ({
   uploadImage: async (file, filename, ...callbacks) => {
     const id = get().id;
     if (!id) return;
-    await executeOperation(() => apiConnect.uploadTrackingImage(id, file, filename));
+    await executeOperation(() => apiConnect.uploadTrackingImage(id, file, filename), {
+      postProcess: () => queryClient.invalidateQueries({ queryKey: QueryKeys.tracking.all }),
+    });
     callbacks.forEach(c => c());
   },
   removeImage: async (...callbacks) => {
     const id = get().id;
     if (!id) return;
-    await executeOperation(() => apiConnect.deleteTrackingImage(id));
+    await executeOperation(() => apiConnect.deleteTrackingImage(id), {
+      postProcess: () => queryClient.invalidateQueries({ queryKey: QueryKeys.tracking.all }),
+    });
     callbacks.forEach(c => c());
   },
   addCategory: async () => {

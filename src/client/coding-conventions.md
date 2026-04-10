@@ -9,7 +9,7 @@ legacy code, rewrite from scratch following these rules rather than patching old
 - **Framework**: React 19 (functional components only, no class components)
 - **UI Library**: Mantine 9
 - **Styling**: Mantine style props + CSS modules for complex cases
-- **State**: Zustand (preferred), Bacon.js (legacy)
+- **State**: Zustand, TanStack Query (data fetching)
 - **Routing**: React Router 7
 - **Build**: Vite 8
 - **Dates**: Luxon
@@ -238,30 +238,14 @@ For buttons with icons, use Mantine's `leftSection` prop (not inline children):
 ## State and Data
 
 - **API calls**: `apiConnect` singleton from `client/data/ApiConnect.ts`
-- **Async loading**: `useAsyncData(loader, enabled, ...deps)` hook
-- **State**: Zustand stores (preferred for new code)
-- **Bacon.js Properties**: Use `useBaconProperty(property)` hook from `client/ui/hooks/useBaconState`
-  to subscribe to a Bacon.js Property and get the latest value in a functional component.
-  Properties always have a current value, so the hook never returns undefined.
-  When refactoring legacy code, replace `connect()` HOC + default export with
-  `useBaconProperty` + named export.
-- **Bacon.js EventStreams**: Use `useBaconState(observable)` for EventStreams that may not
-  have an initial value (returns `T | undefined`). This is rarely needed.
+- **Data fetching**: TanStack Query (`useQuery`) with query keys from `client/data/queryKeys.ts`
+- **Session state**: Zustand store in `client/data/SessionStore.ts` with convenience hooks
+  (`useValidSession`, `useCategoryMap`, `useSourceMap`, `useUserData`, etc.)
+- **Navigation state**: Zustand store in `client/data/NavigationStore.ts`
+- **Notifications**: `notify()` / `notifyError()` from `client/data/NotificationStore.ts`
 - **Dialogs**: `UserPrompts.confirm()`, `UserPrompts.promptText()`, `UserPrompts.select()`
-
-```tsx
-// Before (legacy — do not use):
-const MyComponent: React.FC<{ users: User[] }> = ({ users }) => { ... };
-export default connect(validSessionP.map(s => ({ users: s.users })))(MyComponent);
-
-// After:
-import { useBaconProperty } from 'client/ui/hooks/useBaconState';
-
-export const MyComponent: React.FC = () => {
-  const { users } = useBaconProperty(validSessionP);
-  ...
-};
-```
+- **Mutation postProcess**: Use `invalidateExpenseData()` / `invalidateSubscriptionData()`
+  from `client/data/query.ts` to refresh data after mutations
 
 ## Design Components
 
@@ -276,7 +260,7 @@ Reusable text components from `client/ui/design/Text`:
 ## File Naming
 
 - Components: PascalCase (`ExpenseTable.tsx`)
-- Hooks: camelCase with `use` prefix (`useAsyncData.ts`)
+- Hooks: camelCase with `use` prefix (`useBreakpoints.ts`)
 - CSS modules: same name as component (`ExpenseTable.module.css`)
 - Utilities: camelCase (`ClientUtil.ts`)
 

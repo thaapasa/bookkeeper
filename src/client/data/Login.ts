@@ -1,22 +1,8 @@
-import * as B from 'baconjs';
-
-import { Group, Session, Source, User } from 'shared/types';
-import { toMap } from 'shared/util';
+import { Group, Session } from 'shared/types';
 import { logger } from 'client/Logger';
 
 import apiConnect, { TokenKey } from './ApiConnect';
-
-const loginBus = new B.Bus<Session | null>();
-const sessionBus = new B.Bus<Session | null>();
-
-export const sessionP = sessionBus.toProperty(null);
-export const validSessionP: B.Property<Session> = sessionP.filter((s): s is Session => s !== null);
-export const userMapP: B.Property<Record<string, User>> = validSessionP.map(s =>
-  toMap(s.users, 'id'),
-);
-export const sourceMapP: B.Property<Record<string, Source>> = validSessionP.map(s =>
-  toMap(s.sources, 'id'),
-);
+import { useSessionStore } from './SessionStore';
 
 const refreshTokenKey = 'refreshToken';
 
@@ -33,10 +19,27 @@ export function getTitle(group?: Group): string {
   return title;
 }
 
+/** Apply a session to the store and update side effects (token, title, localStorage). */
+function applySession(session: Session | null) {
+  const store = useSessionStore.getState();
+  if (!session) {
+    clearLoginData(false);
+    return;
+  }
+  if (session.refreshToken) {
+    localStorage.setItem(refreshTokenKey, session.refreshToken);
+  } else {
+    localStorage.removeItem(refreshTokenKey);
+  }
+  document.title = getTitle(session.group);
+  apiConnect.setToken(session.token);
+  store.setSession(session);
+}
+
 function clearLoginData(clearRefreshToken: boolean) {
   logger.info('Clearing login data');
   document.title = getTitle();
-  sessionBus.push(null);
+  useSessionStore.getState().setSession(null);
   apiConnect.setToken(null);
   if (clearRefreshToken) {
     localStorage.removeItem(refreshTokenKey);
@@ -78,22 +81,6 @@ async function getLoginFromLocalStorage(): Promise<Session | null> {
   }
 }
 
-loginBus.onValue(session => {
-  logger.info({ session }, 'Current session is');
-  if (!session) {
-    clearLoginData(false);
-    return;
-  }
-  if (session?.refreshToken) {
-    localStorage.setItem(refreshTokenKey, session.refreshToken);
-  } else {
-    localStorage.removeItem(refreshTokenKey);
-  }
-  document.title = getTitle(session.group);
-  apiConnect.setToken(session.token);
-  sessionBus.push(session);
-});
-
 /**
  * Checks login state and refreshes session if needed.
  * Deduplicates concurrent calls - if a refresh is already in progress,
@@ -105,11 +92,18 @@ export async function checkLoginState(): Promise<boolean> {
     return refreshPromise;
   }
 
+  const store = useSessionStore.getState();
+  store.setStatus('checking');
+
   refreshPromise = (async () => {
     try {
       const session = await getLoginFromLocalStorage();
-      loginBus.push(session);
+      applySession(session);
+      store.setStatus('ready');
       return session != null;
+    } catch {
+      store.setStatus('error');
+      return false;
     } finally {
       refreshPromise = null;
     }
@@ -122,7 +116,7 @@ export async function login(username: string, password: string): Promise<void> {
   logger.info(`Logging in as: ${username}`);
   try {
     const session = await apiConnect.login(username, password);
-    loginBus.push(session);
+    applySession(session);
     return;
   } catch (e) {
     logger.info(e, 'Error when logging in');
@@ -139,7 +133,7 @@ export async function updateSession(): Promise<boolean> {
       logger.info('Session not valid anymore, not updating');
       return false;
     }
-    loginBus.push(session);
+    applySession(session);
     logger.info('Session data updated');
     return true;
   } catch (e) {

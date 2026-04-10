@@ -2,7 +2,6 @@ import { Button, type ButtonProps } from '@mantine/core';
 import * as React from 'react';
 
 import { isPromise, MaybePromise } from 'shared/util';
-import { AsyncData } from 'client/data/AsyncData';
 
 type ActionButtonProps<T> = Omit<
   React.PropsWithChildren<ButtonProps & React.ComponentPropsWithoutRef<'button'>>,
@@ -16,23 +15,16 @@ export const ActionButton = <T,>({
   children,
   ...props
 }: ActionButtonProps<T>): React.ReactElement => {
-  const [data, setData] = React.useState<AsyncData<T>>({
-    type: 'uninitialized',
-  });
+  const [loading, setLoading] = React.useState(false);
   const clickHandler = () => {
-    if (data.type === 'loading') return;
-    setData({ type: 'loading' });
+    if (loading) return;
     const res = onClick();
-    if (!isPromise(res)) {
-      setData({ type: 'loaded', value: res });
-      return;
-    }
-    res
-      .then(value => setData({ type: 'loaded', value }))
-      .catch(error => setData({ type: 'error', error }));
+    if (!isPromise(res)) return;
+    setLoading(true);
+    res.finally(() => setLoading(false));
   };
   return (
-    <Button {...props} onClick={clickHandler} disabled={data.type === 'loading'}>
+    <Button {...props} onClick={clickHandler} disabled={loading}>
       {children}
     </Button>
   );

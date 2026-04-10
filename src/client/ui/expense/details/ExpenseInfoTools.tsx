@@ -1,22 +1,20 @@
 import { ActionIcon, Group, GroupProps } from '@mantine/core';
-import * as B from 'baconjs';
 import * as React from 'react';
 
 import { ExpenseDivision, RecurrencePeriod, UserExpense } from 'shared/expense';
 import { Money } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
-import { sourceMapP } from 'client/data/Login';
-import { createNewExpense, splitExpense, updateExpenses } from 'client/data/State';
+import { invalidateExpenseData, queryClient } from 'client/data/query';
+import { QueryKeys } from 'client/data/queryKeys';
+import { useSourceMap } from 'client/data/SessionStore';
+import { createNewExpense, splitExpense } from 'client/data/State';
 import { logger } from 'client/Logger';
 import { UserPrompts } from 'client/ui/dialog/DialogState';
-import { useBaconProperty } from 'client/ui/hooks/useBaconState';
 import { Icons } from 'client/ui/icons/Icons';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { getBenefitorsForExpense } from '../dialog/ExpenseDialogData';
 import { expenseName } from '../ExpenseHelper';
-
-const sessionDataP = B.combineTemplate({ sourceMap: sourceMapP });
 
 type ExpenseInfoToolsProps = {
   expense: UserExpense;
@@ -32,7 +30,7 @@ export const ExpenseInfoTools: React.FC<ExpenseInfoToolsProps> = ({
   onDelete,
   ...props
 }) => {
-  const { sourceMap } = useBaconProperty(sessionDataP);
+  const sourceMap = useSourceMap()!;
 
   const createRecurring = async () => {
     const period = await UserPrompts.select<RecurrencePeriod>(
@@ -52,7 +50,10 @@ export const ExpenseInfoTools: React.FC<ExpenseInfoToolsProps> = ({
     if (period) {
       await executeOperation(() => apiConnect.createRecurring(expense.id, period), {
         success: 'Kirjaus muutettu toistuvaksi',
-        postProcess: () => updateExpenses(expense.date),
+        postProcess: () => {
+          invalidateExpenseData();
+          queryClient.invalidateQueries({ queryKey: QueryKeys.subscriptions.all });
+        },
       });
     }
   };

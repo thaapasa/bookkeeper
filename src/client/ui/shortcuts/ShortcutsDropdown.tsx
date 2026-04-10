@@ -1,5 +1,4 @@
 import { ActionIcon, Avatar, Box, Menu } from '@mantine/core';
-import * as B from 'baconjs';
 import { DateTime } from 'luxon';
 import * as React from 'react';
 import { NavigateFunction, useNavigate } from 'react-router';
@@ -8,21 +7,18 @@ import { ExpenseShortcutData, shortcutToExpenseInEditor } from 'shared/expense';
 import { uri } from 'shared/net';
 import { ISODate, toDateTime } from 'shared/time';
 import { ObjectId } from 'shared/types';
-import { validSessionP } from 'client/data/Login';
-import { createExpense, createNewExpense, navigationP } from 'client/data/State';
+import { useNavigationStore } from 'client/data/NavigationStore';
+import { useValidSession } from 'client/data/SessionStore';
+import { createExpense, createNewExpense } from 'client/data/State';
 import { newExpenseSuffix } from 'client/util/Links';
 
 import { pageSupportsRoutedExpenseDialog } from '../expense/NewExpenseInfo';
-import { useBaconProperty } from '../hooks/useBaconState';
 import { Icons } from '../icons/Icons';
 
-const addExpenseMenuP = B.combineTemplate({
-  shortcuts: validSessionP.map(s => s.shortcuts || []),
-  dateRange: navigationP.map(n => n.dateRange),
-});
-
 export const AddExpenseMenu: React.FC = () => {
-  const { shortcuts, dateRange } = useBaconProperty(addExpenseMenuP);
+  const session = useValidSession();
+  const dateRange = useNavigationStore(s => s.dateRange);
+  const shortcuts = session.shortcuts || [];
   const navigate = useNavigate();
 
   const handleAddNew = () => openNewExpenseDialog(navigate, dateRange.start);

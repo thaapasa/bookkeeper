@@ -3,15 +3,15 @@ import * as React from 'react';
 import { useNavigate } from 'react-router';
 
 import { toDateRangeName, toDateTime } from 'shared/time';
-import { navigationP } from 'client/data/State';
+import { useNavigationStore } from 'client/data/NavigationStore';
 import { logger } from 'client/Logger';
 import { monthSuffix, yearSuffix } from 'client/util/Links';
 
-import { useBaconProperty } from '../hooks/useBaconState';
 import { Icons } from '../icons/Icons';
 
 export const DateRangeNavigator: React.FC = () => {
-  const { dateRange, pathPrefix } = useBaconProperty(navigationP);
+  const dateRange = useNavigationStore(s => s.dateRange);
+  const pathPrefix = useNavigationStore(s => s.pathPrefix);
   const navigate = useNavigate();
 
   const navigateOffset = (offset: number) => {

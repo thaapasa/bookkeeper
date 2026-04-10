@@ -12,7 +12,10 @@ import { Category, CategoryMap, ExpenseGroupingMap, isDefined, Source, User } fr
 import { equal, Money, notEqual } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { getFullCategoryName, UserDataProps } from 'client/data/Categories';
-import { editExpense, needUpdateE, notifyError, updateExpenses } from 'client/data/State';
+import { navigateToExpenseDate } from 'client/data/NavigationStore';
+import { notifyError } from 'client/data/NotificationStore';
+import { invalidateExpenseData, invalidateSubscriptionData } from 'client/data/query';
+import { editExpense } from 'client/data/State';
 import { logger } from 'client/Logger';
 import { forMoney } from 'client/ui/ColorUtils';
 import { ActivatableTextField } from 'client/ui/component/ActivatableTextField';
@@ -101,7 +104,10 @@ const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
     if (!date) return;
     await executeOperation(() => updateExpense({ date }), {
       success: `Muutettu kirjauksen ${expense.title} päiväksi ${readableDate(date)}`,
-      postProcess: () => needUpdateE.push(date),
+      postProcess: () => {
+        invalidateExpenseData();
+        navigateToExpenseDate(date);
+      },
     });
   };
 
@@ -132,7 +138,7 @@ const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
       confirmTitle: 'Poista kirjaus',
       confirm: `Haluatko varmasti poistaa kirjauksen ${name}?`,
       success: `Poistettu kirjaus ${name}`,
-      postProcess: () => updateExpenses(expense.date),
+      postProcess: () => invalidateExpenseData(),
     });
   };
 
@@ -150,7 +156,10 @@ const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
     if (!target) return;
     await executeOperation(() => apiConnect.deleteRecurringById(expense.id, target), {
       success: `Poistettu kirjaus ${name}`,
-      postProcess: () => updateExpenses(expense.date),
+      postProcess: () => {
+        invalidateExpenseData();
+        invalidateSubscriptionData();
+      },
     });
   };
 
@@ -158,7 +167,8 @@ const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
     const e = await apiConnect.getExpense(expense.id);
     const modified = await editExpense(e.id);
     if (modified) {
-      updateExpenses(modified.date);
+      invalidateExpenseData();
+      navigateToExpenseDate(modified.date);
     }
   };
 

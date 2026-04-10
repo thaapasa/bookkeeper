@@ -3,42 +3,49 @@ import {
   Box,
   Button,
   Checkbox,
+  Flex,
   Group,
+  Loader,
   Modal,
   Select as MantineSelect,
   Stack,
 } from '@mantine/core';
-import * as B from 'baconjs';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import * as React from 'react';
+import { create } from 'zustand';
 
 import { CategoryMap, ObjectId, TrackingFrequency, TrackingSubject } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
-import { categoryMapP, getFullCategoryName } from 'client/data/Categories';
+import { getFullCategoryName } from 'client/data/Categories';
+import { QueryKeys } from 'client/data/queryKeys';
+import { useCategoryMap } from 'client/data/SessionStore';
 
-import { AsyncDataDialogContent } from '../component/AsyncDataDialog';
 import { TextEdit } from '../component/TextEdit';
 import { UploadImageButton } from '../component/UploadImageButton';
 import { DialogHeading, Subtitle } from '../design/Text';
-import { connectDialog } from '../dialog/DialogConnector';
-import { useAsyncData } from '../hooks/useAsyncData';
-import { useBaconProperty } from '../hooks/useBaconState';
-import { useForceReload } from '../hooks/useForceReload.ts';
+import { ErrorView } from '../general/ErrorView';
 import { Icons } from '../icons/Icons';
 import styles from './TrackingEditor.module.css';
 import { useTrackingState } from './TrackingEditorState';
 
-interface TrackingBusPayload {
+interface TrackingDialogPayload {
   trackingId: ObjectId | null;
 }
 
-const trackingBus = new B.Bus<TrackingBusPayload>();
+const useTrackingDialogStore = create<{
+  payload: TrackingDialogPayload | null;
+  setPayload: (payload: TrackingDialogPayload | null) => void;
+}>(set => ({
+  payload: null,
+  setPayload: payload => set({ payload }),
+}));
 
 export function editTrackingSubject(trackingId: ObjectId) {
-  trackingBus.push({ trackingId });
+  useTrackingDialogStore.getState().setPayload({ trackingId });
 }
 
 export function newTrackingSubject() {
-  trackingBus.push({ trackingId: null });
+  useTrackingDialogStore.getState().setPayload({ trackingId: null });
 }
 
 const TrackingDialogImpl: React.FC<{
@@ -46,27 +53,40 @@ const TrackingDialogImpl: React.FC<{
   onClose: () => void;
   reloadAll: () => void;
 }> = ({ trackingId, onClose, reloadAll }) => {
-  const { counter, forceReload } = useForceReload();
-  const data = useAsyncData(getTrackingSubject, true, trackingId, counter);
+  const queryClient = useQueryClient();
+  const { data, isLoading, error } = useQuery({
+    queryKey: QueryKeys.tracking.detail(trackingId ?? 0),
+    queryFn: () => (trackingId ? apiConnect.getTrackingSubject(trackingId) : null),
+    enabled: trackingId !== null,
+  });
+  const reloadData = React.useCallback(
+    () =>
+      queryClient.invalidateQueries({
+        queryKey: QueryKeys.tracking.detail(trackingId ?? 0),
+      }),
+    [queryClient, trackingId],
+  );
+  const resolvedData = trackingId === null ? null : data;
+  const showContent = trackingId === null || (!isLoading && !error && data !== undefined);
   return (
     <Modal opened={true} onClose={onClose} size="lg" title="">
-      <AsyncDataDialogContent
-        data={data}
-        renderer={TrackingEditView}
-        onClose={onClose}
-        reloadData={forceReload}
-        reloadAll={reloadAll}
-      />
+      {isLoading && trackingId !== null ? (
+        <Flex align="center" justify="center" p="xl">
+          <Loader size={64} />
+        </Flex>
+      ) : error ? (
+        <ErrorView title="Virhe tietojen latauksessa">{String(error)}</ErrorView>
+      ) : showContent ? (
+        <TrackingEditView
+          data={resolvedData ?? null}
+          onClose={onClose}
+          reloadData={reloadData}
+          reloadAll={reloadAll}
+        />
+      ) : null}
     </Modal>
   );
 };
-
-function getTrackingSubject(
-  shortcutId: ObjectId | null,
-  _counter: number,
-): Promise<TrackingSubject | null> {
-  return shortcutId ? apiConnect.getTrackingSubject(shortcutId) : Promise.resolve(null);
-}
 
 const FrequencyLabels: Record<TrackingFrequency, string> = {
   month: 'Kuukausi',
@@ -80,7 +100,7 @@ const TrackingEditView: React.FC<{
   reloadData: () => void;
   reloadAll: () => void;
 }> = ({ data, onClose, reloadAll, reloadData }) => {
-  const categoryMap = useBaconProperty(categoryMapP);
+  const categoryMap = useCategoryMap()!;
   const createNew = data === null;
   const state = useTrackingState();
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -234,7 +254,11 @@ const CategorySelectionRow: React.FC<{ id: ObjectId; categoryMap: CategoryMap }>
   );
 };
 
-export const TrackingEditor = connectDialog<TrackingBusPayload, { reloadAll: () => void }>(
-  trackingBus,
-  TrackingDialogImpl,
-);
+export const TrackingEditor: React.FC<{ reloadAll: () => void }> = ({ reloadAll }) => {
+  const payload = useTrackingDialogStore(s => s.payload);
+  const onClose = React.useCallback(() => {
+    useTrackingDialogStore.getState().setPayload(null);
+  }, []);
+  if (!payload) return null;
+  return <TrackingDialogImpl {...payload} onClose={onClose} reloadAll={reloadAll} />;
+};

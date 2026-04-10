@@ -3,10 +3,10 @@ import { Route, Routes, useNavigate, useParams, useSearchParams } from 'react-ro
 
 import { shortcutToExpenseInEditor } from 'shared/expense';
 import { ISODate, toISODate } from 'shared/time';
-import { validSessionP } from 'client/data/Login';
-import { updateExpenses } from 'client/data/State';
+import { navigateToExpenseDate } from 'client/data/NavigationStore';
+import { invalidateExpenseData } from 'client/data/query';
+import { useValidSession } from 'client/data/SessionStore';
 import { logger } from 'client/Logger';
-import { useBaconProperty } from 'client/ui/hooks/useBaconState';
 import { useIsMobile } from 'client/ui/hooks/useBreakpoints';
 import { navigateAndWait } from 'client/ui/utils/Navigation';
 import { newExpenseSuffix } from 'client/util/Links';
@@ -32,7 +32,10 @@ const NewExpenseDialogPage: React.FC = () => {
       saveAction={null}
       isMobile={isMobile}
       title="Uusi kirjaus"
-      onExpensesUpdated={updateExpenses}
+      onExpensesUpdated={date => {
+        invalidateExpenseData();
+        navigateToExpenseDate(date);
+      }}
       expenseCounter={1}
     />
   );
@@ -46,7 +49,7 @@ const NewExpenseFromShortcutDialogPage: React.FC = () => {
   const dateOverride: ISODate | undefined = dateParam ? toISODate(dateParam) : undefined;
   const { shortcutId } = useParams<'shortcutId'>();
   const id = Number(shortcutId);
-  const session = useBaconProperty(validSessionP);
+  const session = useValidSession();
 
   React.useEffect(() => {
     if (!session.shortcuts.find(s => s.id === id)) {
@@ -75,7 +78,10 @@ const NewExpenseFromShortcutDialogPage: React.FC = () => {
       saveAction={null}
       isMobile={isMobile}
       title="Uusi kirjaus"
-      onExpensesUpdated={updateExpenses}
+      onExpensesUpdated={date => {
+        invalidateExpenseData();
+        navigateToExpenseDate(date);
+      }}
       expenseCounter={1}
     />
   );

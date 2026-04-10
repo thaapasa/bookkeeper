@@ -1,10 +1,8 @@
-import * as B from 'baconjs';
 import * as React from 'react';
 
 import { identity } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { AutoComplete, AutoCompletePassthroughProps } from 'client/ui/component/AutoComplete';
-import { usePersistentMemo } from 'client/ui/hooks/usePersistentMemo.ts';
 
 export type ReceiverFieldProps = {
   value: string;
@@ -18,33 +16,43 @@ export const ReceiverField: React.FC<React.PropsWithChildren<ReceiverFieldProps>
   value,
   ...props
 }) => {
-  const searchStream = usePersistentMemo(() => new B.Bus<string>(), []);
-
   const [receivers, setReceivers] = React.useState<string[]>([]);
+  const timerRef = React.useRef<ReturnType<typeof setTimeout>>(undefined);
+  const abortRef = React.useRef<AbortController>(undefined);
 
-  // Update upstream props when searching
-  React.useEffect(() => searchStream.onValue(onChange), [searchStream, onChange]);
-
-  // Load receivers when search input changes
-  React.useEffect(
-    () =>
-      searchStream
-        .filter(v => (v && v.length > 2) || false)
-        .debounceImmediate(500)
-        .flatMapLatest(v => B.fromPromise(apiConnect.queryReceivers(v)))
-        .onValue(setReceivers),
-    [searchStream, setReceivers],
-  );
-
-  // Clear receiver list when search string is too short
-  React.useEffect(
-    () => searchStream.filter(v => !v || v.length < 3).onValue(() => setReceivers([])),
-    [searchStream, setReceivers],
-  );
+  // Cleanup on unmount
+  React.useEffect(() => {
+    return () => {
+      clearTimeout(timerRef.current);
+      abortRef.current?.abort();
+    };
+  }, []);
 
   const updateReceivers = React.useCallback(
-    (search: string) => searchStream.push(search),
-    [searchStream],
+    (search: string) => {
+      onChange(search);
+      clearTimeout(timerRef.current);
+      abortRef.current?.abort();
+
+      if (!search || search.length < 3) {
+        setReceivers([]);
+        return;
+      }
+
+      timerRef.current = setTimeout(async () => {
+        const controller = new AbortController();
+        abortRef.current = controller;
+        try {
+          const results = await apiConnect.queryReceivers(search);
+          if (!controller.signal.aborted) {
+            setReceivers(results);
+          }
+        } catch {
+          // Swallow errors from aborted requests
+        }
+      }, 500);
+    },
+    [onChange],
   );
 
   return (

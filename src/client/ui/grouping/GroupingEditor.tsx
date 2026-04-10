@@ -1,38 +1,53 @@
-import { ActionIcon, Box, Button, Checkbox, Group, Modal, Stack } from '@mantine/core';
-import * as B from 'baconjs';
+import {
+  ActionIcon,
+  Box,
+  Button,
+  Checkbox,
+  Flex,
+  Group,
+  Loader,
+  Modal,
+  Stack,
+} from '@mantine/core';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import * as React from 'react';
+import { create } from 'zustand';
 
 import { CategoryMap, ExpenseGrouping, ObjectId } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
-import { categoryMapP, getFullCategoryName } from 'client/data/Categories';
+import { getFullCategoryName } from 'client/data/Categories';
+import { QueryKeys } from 'client/data/queryKeys';
+import { useCategoryMap } from 'client/data/SessionStore';
 
-import { AsyncDataDialogContent } from '../component/AsyncDataDialog';
 import { ColorPicker } from '../component/ColorPicker';
 import { OptionalDatePicker } from '../component/OptionalDatePicker';
 import { TagsPicker } from '../component/TagsPicker';
 import { TextEdit } from '../component/TextEdit';
 import { UploadImageButton } from '../component/UploadImageButton';
 import { DialogHeading, Subtitle } from '../design/Text';
-import { connectDialog } from '../dialog/DialogConnector';
-import { useAsyncData } from '../hooks/useAsyncData';
-import { useBaconProperty } from '../hooks/useBaconState';
-import { useForceReload } from '../hooks/useForceReload.ts';
+import { ErrorView } from '../general/ErrorView';
 import { Icons } from '../icons/Icons';
 import styles from './GroupingEditor.module.css';
 import { useGroupingState } from './GroupingEditorState';
 
-interface GroupingBusPayload {
+interface GroupingDialogPayload {
   groupingId: ObjectId | null;
 }
 
-const groupingBus = new B.Bus<GroupingBusPayload>();
+const useGroupingDialogStore = create<{
+  payload: GroupingDialogPayload | null;
+  setPayload: (payload: GroupingDialogPayload | null) => void;
+}>(set => ({
+  payload: null,
+  setPayload: payload => set({ payload }),
+}));
 
 export function editExpenseGrouping(groupingId: ObjectId) {
-  groupingBus.push({ groupingId });
+  useGroupingDialogStore.getState().setPayload({ groupingId });
 }
 
 export function newExpenseGrouping() {
-  groupingBus.push({ groupingId: null });
+  useGroupingDialogStore.getState().setPayload({ groupingId: null });
 }
 
 const GroupingDialogImpl: React.FC<{
@@ -40,27 +55,41 @@ const GroupingDialogImpl: React.FC<{
   onClose: () => void;
   reloadAll: () => void;
 }> = ({ groupingId, onClose, reloadAll }) => {
-  const { counter, forceReload } = useForceReload();
-  const data = useAsyncData(getExpenseGrouping, true, groupingId, counter);
+  const queryClient = useQueryClient();
+  const { data, isLoading, error } = useQuery({
+    queryKey: QueryKeys.groupings.detail(groupingId ?? 0),
+    queryFn: () => (groupingId ? apiConnect.getExpenseGrouping(groupingId) : null),
+    enabled: groupingId !== null,
+  });
+  const reloadData = React.useCallback(
+    () =>
+      queryClient.invalidateQueries({
+        queryKey: QueryKeys.groupings.detail(groupingId ?? 0),
+      }),
+    [queryClient, groupingId],
+  );
+  // For new grouping (groupingId === null), render the edit view with null data immediately
+  const resolvedData = groupingId === null ? null : data;
+  const showContent = groupingId === null || (!isLoading && !error && data !== undefined);
   return (
     <Modal opened={true} onClose={onClose} size="lg" title="">
-      <AsyncDataDialogContent
-        data={data}
-        renderer={GroupingEditView}
-        onClose={onClose}
-        reloadData={forceReload}
-        reloadAll={reloadAll}
-      />
+      {isLoading && groupingId !== null ? (
+        <Flex align="center" justify="center" p="xl">
+          <Loader size={64} />
+        </Flex>
+      ) : error ? (
+        <ErrorView title="Virhe tietojen latauksessa">{String(error)}</ErrorView>
+      ) : showContent ? (
+        <GroupingEditView
+          data={resolvedData ?? null}
+          onClose={onClose}
+          reloadData={reloadData}
+          reloadAll={reloadAll}
+        />
+      ) : null}
     </Modal>
   );
 };
-
-function getExpenseGrouping(
-  groupingId: ObjectId | null,
-  _counter: number,
-): Promise<ExpenseGrouping | null> {
-  return groupingId ? apiConnect.getExpenseGrouping(groupingId) : Promise.resolve(null);
-}
 
 const GroupingEditView: React.FC<{
   data: ExpenseGrouping | null;
@@ -68,10 +97,13 @@ const GroupingEditView: React.FC<{
   reloadData: () => void;
   reloadAll: () => void;
 }> = ({ data, onClose, reloadAll, reloadData }) => {
-  const categoryMap = useBaconProperty(categoryMapP);
+  const categoryMap = useCategoryMap()!;
   const createNew = data === null;
   const state = useGroupingState();
-  const tags = useAsyncData(apiConnect.getExpenseGroupingTags, true);
+  const { data: tags } = useQuery({
+    queryKey: QueryKeys.groupings.tags,
+    queryFn: () => apiConnect.getExpenseGroupingTags(),
+  });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   React.useEffect(() => void state.reset(data), [data?.id]);
 
@@ -110,7 +142,7 @@ const GroupingEditView: React.FC<{
             value={state.tags}
             onAdd={state.addTag}
             onRemove={state.removeTag}
-            presetValues={tags.type === 'loaded' ? tags.value : []}
+            presetValues={tags ?? []}
           />
         </SelectionRow>
         <SelectionRow title="Kuva">
@@ -196,7 +228,11 @@ const CategorySelectionRow: React.FC<{ id: ObjectId; categoryMap: CategoryMap }>
   );
 };
 
-export const GroupingEditor = connectDialog<GroupingBusPayload, { reloadAll: () => void }>(
-  groupingBus,
-  GroupingDialogImpl,
-);
+export const GroupingEditor: React.FC<{ reloadAll: () => void }> = ({ reloadAll }) => {
+  const payload = useGroupingDialogStore(s => s.payload);
+  const onClose = React.useCallback(() => {
+    useGroupingDialogStore.getState().setPayload(null);
+  }, []);
+  if (!payload) return null;
+  return <GroupingDialogImpl {...payload} onClose={onClose} reloadAll={reloadAll} />;
+};

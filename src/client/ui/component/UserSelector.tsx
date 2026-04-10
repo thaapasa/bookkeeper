@@ -2,9 +2,8 @@ import { Group, GroupProps } from '@mantine/core';
 import * as React from 'react';
 
 import { ObjectId } from 'shared/types';
-import { validSessionP } from 'client/data/Login';
+import { useValidSession } from 'client/data/SessionStore';
 
-import { useBaconProperty } from '../hooks/useBaconState';
 import { UserIdAvatar } from './UserAvatar';
 
 type UserSelectorProps = {
@@ -14,8 +13,6 @@ type UserSelectorProps = {
   size?: number;
 } & Omit<GroupProps, 'size' | 'onChange'>;
 
-const UserSelectorState = validSessionP.map(s => ({ users: s.users }));
-
 export const UserSelector: React.FC<UserSelectorProps> = ({
   onChange,
   selected,
@@ -23,7 +20,7 @@ export const UserSelector: React.FC<UserSelectorProps> = ({
   size,
   ...props
 }) => {
-  const { users } = useBaconProperty(UserSelectorState);
+  const { users } = useValidSession();
 
   const switchSelection = (id: ObjectId) => {
     if (singleSelection) {

@@ -3,6 +3,8 @@ import * as React from 'react';
 
 import { Category } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
+import { queryClient } from 'client/data/query';
+import { QueryKeys } from 'client/data/queryKeys';
 import { logger } from 'client/Logger';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
@@ -55,6 +57,7 @@ export const CategoryDialog: React.FC<CategoryDialogProps> = ({
       {
         success: `${isNew ? 'Tallennettu' : 'Päivitetty'} ${name}`,
         postProcess: (id: number | null) => {
+          queryClient.invalidateQueries({ queryKey: QueryKeys.categories.all });
           onClose();
           if (id != null) {
             onSaved(id);

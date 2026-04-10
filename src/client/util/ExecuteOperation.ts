@@ -1,6 +1,5 @@
 import { MaybePromise } from 'shared/util';
-import { AsyncData } from 'client/data/AsyncData';
-import { notify, notifyError } from 'client/data/State';
+import { notify, notifyError } from 'client/data/NotificationStore';
 import { UserPrompts } from 'client/ui/dialog/DialogState';
 
 type ExecutionOptions<T> = {
@@ -10,7 +9,7 @@ type ExecutionOptions<T> = {
   confirm?: string;
   confirmTitle?: string;
   postProcess?: (t: T) => MaybePromise<any>;
-  trackProgress?: (state: AsyncData<T>) => void;
+  trackProgress?: (loading: boolean) => void;
 };
 
 export async function executeOperation<T>(
@@ -36,7 +35,7 @@ export async function executeOperation<T>(
       notify(options.progress, { severity: 'info' });
     }
 
-    options.trackProgress?.({ type: 'loading' });
+    options.trackProgress?.(true);
 
     const res: T = await (typeof f === 'function' ? f() : f);
 
@@ -45,7 +44,7 @@ export async function executeOperation<T>(
       await options.postProcess(res);
     }
 
-    options.trackProgress?.({ type: 'loaded', value: res });
+    options.trackProgress?.(false);
 
     // Show success notification
     if (options.success) {
@@ -59,7 +58,7 @@ export async function executeOperation<T>(
     // Show error notification
     notifyError(`Hups! Joku meni vikaan`, e, { immediate: true });
 
-    options.trackProgress?.({ type: 'error', error: e });
+    options.trackProgress?.(false);
 
     if (options.throw) {
       throw e;
