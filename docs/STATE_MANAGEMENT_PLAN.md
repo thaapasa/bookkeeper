@@ -528,7 +528,7 @@ later if the navigation feel isn't fast enough with query caching alone.
 
 ## 4. Migration Plan
 
-### Phase 1: Add TanStack Query Infrastructure
+### Phase 1: Add TanStack Query Infrastructure ✅
 
 - Install `@tanstack/react-query` and `@tanstack/react-query-devtools`
 - Set up `QueryClientProvider` at the app root

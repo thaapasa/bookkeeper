@@ -11,10 +11,13 @@ import '@mantine/dates/styles.css';
 
 import { MantineProvider } from '@mantine/core';
 import { DatesProvider } from '@mantine/dates';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import * as React from 'react';
 import ReactDOM from 'react-dom/client';
 
 import { assertDefined } from 'shared/util';
+import { queryClient } from 'client/data/query';
 import { cssVariablesResolver, mantineTheme } from 'client/ui/theme/mantineTheme';
 
 import { App } from './client/App';
@@ -28,7 +31,10 @@ ReactDOM.createRoot(container).render(
     cssVariablesResolver={cssVariablesResolver}
   >
     <DatesProvider settings={{ locale: 'fi' }}>
-      <App />
+      <QueryClientProvider client={queryClient}>
+        <App />
+        <ReactQueryDevtools initialIsOpen={false} />
+      </QueryClientProvider>
     </DatesProvider>
   </MantineProvider>,
 );
