@@ -58,7 +58,7 @@ export const useGroupingState = create<GroupingState>((set, get) => ({
   addTag: tag => {
     const trimmed = tag?.trim();
     if (trimmed) {
-      set({ tags: [...new Set([...get().tags, tag])] });
+      set({ tags: [...new Set([...get().tags, trimmed])] });
     }
   },
   removeTag: tag => set({ tags: get().tags.filter(t => t !== tag) }),
