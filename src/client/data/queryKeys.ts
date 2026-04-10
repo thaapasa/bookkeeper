@@ -2,7 +2,7 @@ import { ExpenseQuery, SubscriptionSearchCriteria } from 'shared/expense';
 import { ISODate, ISOMonth } from 'shared/time';
 import { CategorySelection, ObjectId } from 'shared/types';
 
-export const queryKeys = {
+export const QueryKeys = {
   expenses: {
     all: ['expenses'] as const,
     month: (month: ISOMonth) => ['expenses', 'month', month] as const,

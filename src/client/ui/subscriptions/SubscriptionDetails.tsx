@@ -1,4 +1,5 @@
-import { ActionIcon, Group } from '@mantine/core';
+import { ActionIcon, Group, Loader } from '@mantine/core';
+import { useQuery } from '@tanstack/react-query';
 import * as React from 'react';
 
 import { RecurringExpenseDetails } from 'shared/expense';
@@ -6,21 +7,23 @@ import { readableDateWithYear, toISODate } from 'shared/time';
 import { ObjectId } from 'shared/types';
 import { Money } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
-import { editExpense, needUpdateE, updateExpenses } from 'client/data/State';
+import { QueryKeys } from 'client/data/queryKeys';
+import { editExpense, updateExpenses } from 'client/data/State';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
-import { AsyncDataView } from '../component/AsyncDataView';
-import { useDeferredData } from '../hooks/useAsyncData';
 import { Icons } from '../icons/Icons';
 import { Label, SubscriptionRow, Tools } from './SubscriptionLayout';
 
 export const SubscriptionDetails: React.FC<{ recurringExpenseId: number }> = ({
   recurringExpenseId,
 }) => {
-  const { data, loadData } = useDeferredData(apiConnect.getSubscription, true, recurringExpenseId);
-  React.useEffect(loadData, [loadData, recurringExpenseId]);
-  React.useEffect(() => needUpdateE.onValue(loadData), [loadData]);
-  return <AsyncDataView hideUninitialized data={data} renderer={SubscriptionDetailsRenderer} />;
+  const { data, isLoading } = useQuery({
+    queryKey: QueryKeys.subscriptions.detail(recurringExpenseId),
+    queryFn: () => apiConnect.getSubscription(recurringExpenseId),
+  });
+  if (isLoading) return <Loader size="sm" />;
+  if (!data) return null;
+  return <SubscriptionDetailsRenderer data={data} />;
 };
 
 const SubscriptionDetailsRenderer: React.FC<{

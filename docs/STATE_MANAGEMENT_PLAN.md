@@ -535,7 +535,7 @@ later if the navigation feel isn't fast enough with query caching alone.
 - Define query key conventions and a query key factory
 - Keep all existing patterns working — this phase adds, doesn't remove
 
-### Phase 2: Migrate Data Loading (Replace useAsyncData/useDeferredData)
+### Phase 2: Migrate Data Loading (Replace useAsyncData/useDeferredData) ✅
 
 Convert components one at a time from `useAsyncData`/`useDeferredData` to `useQuery`:
 

@@ -1,17 +1,18 @@
-import { ActionIcon, Checkbox, Grid, Group, Stack } from '@mantine/core';
+import { ActionIcon, Checkbox, Grid, Group, Loader, Stack } from '@mantine/core';
+import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 import { z } from 'zod';
 
 import { DateRange } from 'shared/time';
 import { CategorySelection, isDefined } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
-import { UninitializedData } from 'client/data/AsyncData';
 import { categoryMapP } from 'client/data/Categories';
+import { QueryKeys } from 'client/data/queryKeys';
 
 import { CategoryChipList } from '../category/CategoryChipList';
 import { CategorySelector } from '../category/CategorySelector';
-import { AsyncDataView } from '../component/AsyncDataView';
-import { useAsyncData } from '../hooks/useAsyncData';
+import { ErrorView } from '../general/ErrorView';
+import { NoteView } from '../general/NoteView';
 import { useBaconProperty } from '../hooks/useBaconState';
 import { useIsMobile } from '../hooks/useBreakpoints';
 import { useLocalStorageList } from '../hooks/useList.ts';
@@ -87,15 +88,23 @@ export const StatisticsView: React.FC = () => {
     addCats({ ...cat, grouped: true });
   };
 
-  const statistics = useAsyncData(
-    apiConnect.loadStatistics,
-    cats.length > 0 && isDefined(range),
-    cats,
-    range?.startDate ?? '2000-01-01',
-    range?.endDate ?? '2000-01-01',
-    onlyOwn,
-  );
-  const data = cats.length > 0 ? statistics : UninitializedData;
+  const enabled = cats.length > 0 && isDefined(range);
+  const { data, isLoading, error } = useQuery({
+    queryKey: QueryKeys.statistics.category({
+      categoryIds: cats,
+      startDate: range?.startDate ?? '2000-01-01',
+      endDate: range?.endDate ?? '2000-01-01',
+      onlyOwn,
+    }),
+    queryFn: () =>
+      apiConnect.loadStatistics(
+        cats,
+        range?.startDate ?? '2000-01-01',
+        range?.endDate ?? '2000-01-01',
+        onlyOwn,
+      ),
+    enabled,
+  });
 
   const isMobile = useIsMobile();
 
@@ -140,14 +149,22 @@ export const StatisticsView: React.FC = () => {
         </Grid.Col>
       ) : null}
       <Grid.Col span={12}>
-        <AsyncDataView
-          data={data}
-          renderer={CategoryStatisticsChart}
-          type={type}
-          categoryMap={categoryMap}
-          uninitializedText="Valitse kategoria näyttääksesi tilastot"
-          stacked={stacked}
-        />
+        {!enabled ? (
+          <NoteView title="Ei tietoja" noMargin>
+            Valitse kategoria näyttääksesi tilastot
+          </NoteView>
+        ) : isLoading ? (
+          <Loader />
+        ) : error ? (
+          <ErrorView title="Virhe tietojen latauksessa">{String(error)}</ErrorView>
+        ) : data ? (
+          <CategoryStatisticsChart
+            data={data}
+            type={type}
+            categoryMap={categoryMap}
+            stacked={stacked}
+          />
+        ) : null}
       </Grid.Col>
     </Grid>
   );

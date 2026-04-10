@@ -1,4 +1,5 @@
-import { Box, Flex, Stack, Table } from '@mantine/core';
+import { Box, Flex, Loader, Stack, Table } from '@mantine/core';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 import { useParams } from 'react-router';
 
@@ -6,36 +7,41 @@ import { ExpenseGroupingWithExpenses } from 'shared/types';
 import { noop } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { userDataP } from 'client/data/Categories';
-import { needUpdateE } from 'client/data/State';
+import { QueryKeys } from 'client/data/queryKeys';
 
-import { AsyncDataView } from '../component/AsyncDataView';
 import { Subtitle } from '../design/Text';
 import { ExpenseRow } from '../expense/row/ExpenseRow';
 import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
-import { useAsyncData } from '../hooks/useAsyncData';
+import { ErrorView } from '../general/ErrorView';
 import { useBaconProperty } from '../hooks/useBaconState';
-import { useForceReload } from '../hooks/useForceReload.ts';
 import { TotalsView } from '../search/TotalsView';
 import { GroupingCategoryChart } from './GroupingCategoryChart';
 
 export const GroupingExpensesPage: React.FC = () => {
-  const { counter, forceReload } = useForceReload();
+  const queryClient = useQueryClient();
   const { groupingId } = useParams<'groupingId'>();
-  const expenses = useAsyncData(loadExpenses, !!groupingId, Number(groupingId), counter);
-  React.useEffect(() => needUpdateE.onValue(forceReload), [forceReload]);
+  const numericId = Number(groupingId);
+  const { data, isLoading, error } = useQuery({
+    queryKey: QueryKeys.groupings.expenses(numericId),
+    queryFn: () => apiConnect.getExpenseGroupingWithExpenses(numericId),
+    enabled: !!groupingId,
+  });
+  const reloadExpenses = React.useCallback(
+    () => queryClient.invalidateQueries({ queryKey: QueryKeys.groupings.expenses(numericId) }),
+    [queryClient, numericId],
+  );
   return (
     <Flex direction="column" align="center">
-      <AsyncDataView
-        data={expenses}
-        renderer={GroupingExpensesRenderer}
-        reloadExpenses={forceReload}
-      />
+      {isLoading ? (
+        <Loader />
+      ) : error ? (
+        <ErrorView title="Virhe tietojen latauksessa">{String(error)}</ErrorView>
+      ) : data ? (
+        <GroupingExpensesRenderer data={data} reloadExpenses={reloadExpenses} />
+      ) : null}
     </Flex>
   );
 };
-
-const loadExpenses = (groupingId: number, _counter: number) =>
-  apiConnect.getExpenseGroupingWithExpenses(Number(groupingId));
 
 const GroupingExpensesRenderer: React.FC<{
   data: ExpenseGroupingWithExpenses;

@@ -1,17 +1,17 @@
 import { Group, Table } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import * as React from 'react';
 
 import { UIDateRange } from 'shared/time';
-import { Category, CategoryAndTotals, ObjectId } from 'shared/types';
+import { Category, CategoryAndTotals } from 'shared/types';
 import { Money, MoneyLike, noop } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { UserDataProps } from 'client/data/Categories';
-import { needUpdateE } from 'client/data/State';
+import { QueryKeys } from 'client/data/queryKeys';
 
 import { ExpenseRow } from '../expense/row/ExpenseRow';
 import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
-import { useDeferredData } from '../hooks/useAsyncData';
 import { AllColumns } from './CategoryTableLayout';
 import { AddCategoryButton, EditCategoryButton, ToggleButton } from './CategoryTools';
 
@@ -97,38 +97,44 @@ const CategoryRowExpenses: React.FC<{
   category: Category;
   userData: UserDataProps;
 }> = ({ range, category, userData }) => {
-  const { data, loadData } = useDeferredData(searchExpenses, true, range, category.id);
-  React.useEffect(loadData, [loadData]);
-  React.useEffect(() => needUpdateE.onValue(loadData), [loadData]);
+  const queryClient = useQueryClient();
+  const searchQuery = React.useMemo(
+    () => ({
+      startDate: range.start,
+      endDate: range.end,
+      categoryId: category.id,
+      includeSubCategories: false as const,
+    }),
+    [range.start, range.end, category.id],
+  );
+  const { data, isLoading } = useQuery({
+    queryKey: QueryKeys.search.results(searchQuery),
+    queryFn: () => apiConnect.searchExpenses(searchQuery),
+  });
+  const invalidate = React.useCallback(
+    () => queryClient.invalidateQueries({ queryKey: QueryKeys.search.results(searchQuery) }),
+    [queryClient, searchQuery],
+  );
 
-  if (data.type !== 'loaded') {
+  if (isLoading || !data) {
     return <>Ladataan...</>;
   }
-  if (!data.value || data.value.length < 1) {
+  if (data.length < 1) {
     return <>Ei kirjauksia</>;
   }
   return (
     <ExpenseTableLayout padded>
       <Table.Tbody>
-        {data.value.map(expense => (
+        {data.map(expense => (
           <ExpenseRow
             expense={expense}
             userData={userData}
             key={'expense-row-' + expense.id}
             addFilter={noop}
-            onUpdated={loadData}
+            onUpdated={() => invalidate()}
           />
         ))}
       </Table.Tbody>
     </ExpenseTableLayout>
   );
 };
-
-function searchExpenses(range: UIDateRange, categoryId: ObjectId) {
-  return apiConnect.searchExpenses({
-    startDate: range.start,
-    endDate: range.end,
-    categoryId,
-    includeSubCategories: false,
-  });
-}

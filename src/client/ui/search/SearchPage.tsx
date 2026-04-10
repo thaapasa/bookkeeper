@@ -1,20 +1,18 @@
-import * as B from 'baconjs';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import * as React from 'react';
 import { useParams } from 'react-router';
 
-import { ExpenseQuery, UserExpense } from 'shared/expense';
+import { ExpenseQuery } from 'shared/expense';
 import { ISOMonth, ISOMonthRegExp, toDateRange, toISODate } from 'shared/time';
 import { Category, CategoryMap, isDefined } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
-import { AsyncData, UninitializedData } from 'client/data/AsyncData';
 import { CategoryDataSource, categoryDataSourceP, userDataP } from 'client/data/Categories';
-import { navigationBus, needUpdateE } from 'client/data/State';
+import { QueryKeys } from 'client/data/queryKeys';
+import { navigationBus } from 'client/data/State';
 import { logger } from 'client/Logger';
 import { searchPagePath } from 'client/util/Links';
 
 import { useBaconProperty } from '../hooks/useBaconState';
-import { usePersistentMemo } from '../hooks/usePersistentMemo.ts';
-import { useWhenMounted } from '../hooks/useWhenMounted.ts';
 import { QueryView, QueryViewHandle } from './QueryView';
 import { ResultsView } from './ResultsView';
 
@@ -38,44 +36,41 @@ const SearchViewImpl: React.FC<{
   userData: { categoryMap: CategoryMap };
   categorySource: CategoryDataSource[];
 }> = ({ userData, categorySource }) => {
-  const [results, setResults] = React.useState<AsyncData<UserExpense[]>>(UninitializedData);
+  const queryClient = useQueryClient();
   const { year, month } = useParams<SearchViewParams>();
+  const [query, setQuery] = React.useState<ExpenseQuery | undefined>(undefined);
 
-  const searchBus = usePersistentMemo(() => new B.Bus<ExpenseQuery>(), []);
-  const repeatSearchBus = usePersistentMemo(() => new B.Bus<true>(), []);
+  const enabled = !!query && !isEmptyQuery(query);
 
-  logger.info({ year, month }, 'Params');
-
-  useWhenMounted(() => {
-    const resultsE = searchBus
-      .sampledBy(B.mergeAll<any>(searchBus, repeatSearchBus))
-      .flatMapLatest(query =>
-        isEmptyQuery(query) ? B.once([]) : B.fromPromise(apiConnect.searchExpenses(query)),
-      );
-    const unsubs = [
-      resultsE.onValue(value => setResults({ type: 'loaded', value })),
-      resultsE.onError(error => setResults({ type: 'error', error })),
-    ];
-    return () => unsubs.forEach(u => u());
-  }, [searchBus, repeatSearchBus, setResults]);
-
-  const onSearch = React.useCallback(
-    (query: ExpenseQuery) => {
-      logger.info(query, 'Searching for');
-      setResults({ type: 'loading' });
+  // Update navigation state when search is triggered
+  React.useEffect(() => {
+    if (query) {
       navigationBus.push({
         pathPrefix: searchPagePath,
         dateRange: toDateRange(query.startDate ?? toISODate(), query.endDate ?? toISODate()),
       });
-      searchBus.push(query);
+    }
+  }, [query]);
+
+  const { data, isFetching } = useQuery({
+    queryKey: QueryKeys.search.results(query!),
+    queryFn: () => apiConnect.searchExpenses(query!),
+    enabled,
+  });
+
+  const onSearch = React.useCallback(
+    (newQuery: ExpenseQuery) => {
+      logger.info(newQuery, 'Searching for');
+      setQuery(newQuery);
     },
-    [setResults, searchBus],
+    [setQuery],
   );
 
   const onRepeatSearch = React.useCallback(() => {
-    logger.debug('Repeating search');
-    repeatSearchBus.push(true);
-  }, [repeatSearchBus]);
+    if (query) {
+      queryClient.invalidateQueries({ queryKey: QueryKeys.search.results(query) });
+    }
+  }, [queryClient, query]);
 
   const queryRef = React.useRef<QueryViewHandle>(null);
 
@@ -84,8 +79,6 @@ const SearchViewImpl: React.FC<{
     [queryRef],
   );
 
-  React.useEffect(() => needUpdateE.onValue(onRepeatSearch), [onRepeatSearch]);
-
   return (
     <>
       <QueryView
@@ -93,12 +86,12 @@ const SearchViewImpl: React.FC<{
         categoryMap={userData.categoryMap}
         categorySource={categorySource}
         onSearch={onSearch}
-        isSearching={results.type === 'loading'}
+        isSearching={isFetching}
         year={year}
         month={month && ISOMonthRegExp.test(month) ? (month as ISOMonth) : undefined}
       />
       <ResultsView
-        results={results.type === 'loaded' ? results.value : []}
+        results={data ?? []}
         onUpdate={onRepeatSearch}
         onSelectCategory={onAddCategoryToSearch}
       />
