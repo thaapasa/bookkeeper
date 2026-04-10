@@ -5,8 +5,8 @@ import { UserExpenseWithDetails } from 'shared/expense';
 import { ISODate } from 'shared/time';
 import { noop } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
+import { navigateToExpenseDate } from 'client/data/NavigationStore';
 import { invalidateExpenseData } from 'client/data/query';
-import { navigateToExpenseDate } from 'client/data/State';
 import { ExpenseDialogObject } from 'client/data/StateTypes';
 import { logger } from 'client/Logger';
 

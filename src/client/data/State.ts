@@ -5,10 +5,6 @@ import { ExpenseSaveAction } from 'client/ui/expense/dialog/ExpenseSaveAction';
 import { useExpenseDialogRequestStore, useExpenseSplitRequestStore } from './ExpenseDialogStore';
 import type { ExpenseDialogObject } from './StateTypes';
 
-// Re-export for backward compatibility — callers don't need to update imports yet
-export { navigateToExpenseDate } from './NavigationStore';
-export { notify, notifyError } from './NotificationStore';
-
 export function editExpense(
   expenseId: number,
   options?: Partial<ExpenseDialogObject<ExpenseInEditor>>,

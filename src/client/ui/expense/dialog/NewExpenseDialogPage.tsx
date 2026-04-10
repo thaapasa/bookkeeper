@@ -3,9 +3,9 @@ import { Route, Routes, useNavigate, useParams, useSearchParams } from 'react-ro
 
 import { shortcutToExpenseInEditor } from 'shared/expense';
 import { ISODate, toISODate } from 'shared/time';
+import { navigateToExpenseDate } from 'client/data/NavigationStore';
 import { invalidateExpenseData } from 'client/data/query';
 import { useValidSession } from 'client/data/SessionStore';
-import { navigateToExpenseDate } from 'client/data/State';
 import { logger } from 'client/Logger';
 import { useIsMobile } from 'client/ui/hooks/useBreakpoints';
 import { navigateAndWait } from 'client/ui/utils/Navigation';

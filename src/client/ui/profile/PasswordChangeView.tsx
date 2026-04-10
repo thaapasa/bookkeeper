@@ -1,4 +1,4 @@
-import { Box, Button, Loader } from '@mantine/core';
+import { Box, Button, Group, Loader, Stack } from '@mantine/core';
 import React from 'react';
 import { Route, Routes, useNavigate } from 'react-router-dom';
 import { create } from 'zustand';
@@ -7,14 +7,13 @@ import { Session } from 'shared/types';
 import { isPassword, PasswordUpdate } from 'shared/userData';
 import apiConnect from 'client/data/ApiConnect';
 import { updateSession } from 'client/data/Login';
-import { notify } from 'client/data/State';
+import { notify } from 'client/data/NotificationStore';
 import { logger } from 'client/Logger';
 import { executeOperation } from 'client/util/ExecuteOperation';
 import { passwordPagePath, profilePagePath } from 'client/util/Links';
 
 import { TextEdit } from '../component/TextEdit';
 import { Subtitle } from '../design/Text';
-import { ProfileItem } from './ProfileItem';
 
 export type PasswordState = PasswordUpdate & {
   repeatPassword: string;
@@ -73,11 +72,12 @@ export const PasswordChangeView: React.FC<{ session: Session }> = ({ session }) 
   return (
     <>
       <form id="change-password" onSubmit={save}>
-        {/** Included for password managers */}
-        <input type="hidden" name="username" value={session.user.username} />
-        <ProfileItem title="Nykyinen salasana" labelFor="current-password">
+        <Stack>
+          {/** Included for password managers */}
+          <input type="hidden" name="username" value={session.user.username} />
           <TextEdit
             id="current-password"
+            label="Nykyinen salasana"
             onChange={state.setCurrent}
             value={state.currentPassword}
             type="password"
@@ -88,10 +88,9 @@ export const PasswordChangeView: React.FC<{ session: Session }> = ({ session }) 
             width="280px"
             onSubmitEdit={save}
           />
-        </ProfileItem>
-        <ProfileItem title="Uusi salasana" labelFor="new-password">
           <TextEdit
             id="new-password"
+            label="Uusi salasana"
             onChange={state.setNew}
             value={state.newPassword}
             type="password"
@@ -103,10 +102,9 @@ export const PasswordChangeView: React.FC<{ session: Session }> = ({ session }) 
             error={newHasError ? 'Salasana ei ole tarpeeksi hyvä' : undefined}
             onSubmitEdit={save}
           />
-        </ProfileItem>
-        <ProfileItem title="Toista salasana" labelFor="confirm-password">
           <TextEdit
             id="confirm-password"
+            label="Toista salasana"
             onChange={state.setNewRepeat}
             value={state.repeatPassword}
             type="password"
@@ -118,16 +116,16 @@ export const PasswordChangeView: React.FC<{ session: Session }> = ({ session }) 
             error={repeatHasError ? 'Salasanat eivät täsmää' : undefined}
             onSubmitEdit={save}
           />
-        </ProfileItem>
-        <ProfileItem>
-          <Button disabled={!dataValid || isSaving} onClick={save}>
-            {isSaving ? <Loader size="xs" /> : null}
-            Vaihda salasana
-          </Button>
-          <Button variant="light" onClick={() => navigate(-1)}>
-            Peruuta
-          </Button>
-        </ProfileItem>
+          <Group>
+            <Button disabled={!dataValid || isSaving} onClick={save}>
+              {isSaving ? <Loader size="xs" /> : null}
+              Vaihda salasana
+            </Button>
+            <Button variant="light" onClick={() => navigate(-1)}>
+              Peruuta
+            </Button>
+          </Group>
+        </Stack>
       </form>
     </>
   );
@@ -146,9 +144,9 @@ export const PasswordView: React.FC<{ session: Session }> = ({ session }) => {
         <Route
           path="/*"
           element={
-            <ProfileItem title="Vaihda salasana">
-              <Button onClick={() => navigate(passwordPagePath)}>Vaihda</Button>
-            </ProfileItem>
+            <Button onClick={() => navigate(passwordPagePath)} w={150}>
+              Vaihda salasana
+            </Button>
           }
         ></Route>
       </Routes>

@@ -1,5 +1,5 @@
 import { MaybePromise } from 'shared/util';
-import { notify, notifyError } from 'client/data/State';
+import { notify, notifyError } from 'client/data/NotificationStore';
 import { UserPrompts } from 'client/ui/dialog/DialogState';
 
 type ExecutionOptions<T> = {

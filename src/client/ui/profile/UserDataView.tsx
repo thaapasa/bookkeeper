@@ -1,4 +1,4 @@
-import { Button, Loader, Text } from '@mantine/core';
+import { Button, Group, Loader, Stack, Text } from '@mantine/core';
 import React from 'react';
 import { create } from 'zustand';
 
@@ -6,12 +6,11 @@ import { isEmail, Session } from 'shared/types';
 import { UserDataUpdate } from 'shared/userData';
 import apiConnect from 'client/data/ApiConnect';
 import { updateSession } from 'client/data/Login';
-import { notify } from 'client/data/State';
+import { notify } from 'client/data/NotificationStore';
 import { logger } from 'client/Logger';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { TextEdit } from '../component/TextEdit';
-import { ProfileItem } from './ProfileItem';
 
 export type UserDataState = UserDataUpdate & {
   setFirstName: (firstName: string) => void;
@@ -79,14 +78,15 @@ export const UserDataView: React.FC<{ session: Session }> = ({ session }) => {
   };
 
   return (
-    <>
-      <ProfileItem title="Käyttäjä-id">
-        <Text>{user.id}</Text>
-      </ProfileItem>
-      <ProfileItem title="Nimi">
+    <Stack>
+      <Group>
+        <Text>Käyttäjä-id: {user.id}</Text>
+      </Group>
+      <Group>
         <TextEdit
           onChange={state.setFirstName}
           value={state.firstName}
+          label="Etunimi"
           autoCapitalize="none"
           autoCorrect="off"
           placeholder="Selma"
@@ -98,6 +98,7 @@ export const UserDataView: React.FC<{ session: Session }> = ({ session }) => {
         <TextEdit
           onChange={state.setLastName}
           value={state.lastName}
+          label="Sukunimi"
           autoCapitalize="none"
           autoCorrect="off"
           placeholder="Säästäjä"
@@ -106,36 +107,34 @@ export const UserDataView: React.FC<{ session: Session }> = ({ session }) => {
           error={!state.lastName}
           disabled={isSaving}
         />
-      </ProfileItem>
-      <ProfileItem title="Sähköposti">
-        <TextEdit
-          onChange={state.setEmail}
-          value={state.email}
-          autoCapitalize="none"
-          autoCorrect="off"
-          placeholder="selma.saastaja@example.com"
-          onSubmitEdit={save}
-          width="280px"
-          error={!emailValid}
-          disabled={isSaving}
-        />
-      </ProfileItem>
-      <ProfileItem title="Käyttäjätunnus">
-        <TextEdit
-          name="username"
-          onChange={state.setUsername}
-          value={state.username}
-          autoComplete="username"
-          autoCapitalize="none"
-          autoCorrect="off"
-          placeholder="selma"
-          onSubmitEdit={save}
-          width="280px"
-          error={!state.username}
-          disabled={isSaving}
-        />
-      </ProfileItem>
-      <ProfileItem>
+      </Group>
+      <TextEdit
+        onChange={state.setEmail}
+        value={state.email}
+        label="Sähköposti"
+        autoCapitalize="none"
+        autoCorrect="off"
+        placeholder="selma.saastaja@example.com"
+        onSubmitEdit={save}
+        width="280px"
+        error={!emailValid}
+        disabled={isSaving}
+      />
+      <TextEdit
+        name="username"
+        onChange={state.setUsername}
+        label="Käyttäjätunnus"
+        value={state.username}
+        autoComplete="username"
+        autoCapitalize="none"
+        autoCorrect="off"
+        placeholder="selma"
+        onSubmitEdit={save}
+        width="280px"
+        error={!state.username}
+        disabled={isSaving}
+      />
+      <Group>
         <Button disabled={!dataValid || !changed || isSaving} onClick={save}>
           {isSaving ? <Loader size="xs" /> : null}
           Tallenna
@@ -143,8 +142,8 @@ export const UserDataView: React.FC<{ session: Session }> = ({ session }) => {
         <Button variant="light" disabled={!changed} onClick={() => state.reset(session.user)}>
           Palauta
         </Button>
-      </ProfileItem>
-    </>
+      </Group>
+    </Stack>
   );
 };
 

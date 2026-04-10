@@ -12,8 +12,10 @@ import { Category, CategoryMap, ExpenseGroupingMap, isDefined, Source, User } fr
 import { equal, Money, notEqual } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { getFullCategoryName, UserDataProps } from 'client/data/Categories';
+import { navigateToExpenseDate } from 'client/data/NavigationStore';
+import { notifyError } from 'client/data/NotificationStore';
 import { invalidateExpenseData, invalidateSubscriptionData } from 'client/data/query';
-import { editExpense, navigateToExpenseDate, notifyError } from 'client/data/State';
+import { editExpense } from 'client/data/State';
 import { logger } from 'client/Logger';
 import { forMoney } from 'client/ui/ColorUtils';
 import { ActivatableTextField } from 'client/ui/component/ActivatableTextField';

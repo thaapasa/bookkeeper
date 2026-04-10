@@ -10,7 +10,6 @@ import {
 } from 'client/data/ExpenseDialogStore';
 
 import { MenuDrawer } from '../component/MenuDrawer';
-import { NotificationBar } from '../component/NotificationBar';
 import { ModalDialogConnector } from '../dialog/ModalDialogConnector';
 import { ExpenseDialog } from '../expense/dialog/ExpenseDialog';
 import { createExpenseDialogListener } from '../expense/dialog/ExpenseDialogListener';
@@ -67,7 +66,6 @@ export const BookkeeperPage: React.FC<PageProps> = () => {
           links={appLinks}
         />
       </Router>
-      <NotificationBar />
     </>
   );
 };

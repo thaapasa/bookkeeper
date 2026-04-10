@@ -10,7 +10,7 @@ import {
 } from 'shared/expense';
 import { toISODate } from 'shared/time';
 import { Money, sanitizeMoneyInput } from 'shared/util';
-import { notifyError } from 'client/data/State';
+import { notifyError } from 'client/data/NotificationStore';
 import { logger } from 'client/Logger';
 
 import type { FullExpenseDialogProps } from './ExpenseDialog';
