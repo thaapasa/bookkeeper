@@ -5,7 +5,8 @@ import { UserExpenseWithDetails } from 'shared/expense';
 import { ISODate } from 'shared/time';
 import { noop } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
-import { updateExpenses } from 'client/data/State';
+import { invalidateExpenseData } from 'client/data/query';
+import { navigateToExpenseDate } from 'client/data/State';
 import { ExpenseDialogObject } from 'client/data/StateTypes';
 import { logger } from 'client/Logger';
 
@@ -83,7 +84,8 @@ export function createExpenseDialogListener<D>(
     }, []);
 
     const onExpensesUpdated = React.useCallback((date: ISODate) => {
-      updateExpenses(date);
+      invalidateExpenseData();
+      navigateToExpenseDate(date);
     }, []);
 
     if (!state.open) {

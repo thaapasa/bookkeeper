@@ -6,7 +6,7 @@ import { UserExpense } from 'shared/expense';
 import { ISOMonth, isSameMonth, monthRange, toDateTime } from 'shared/time';
 import apiConnect from 'client/data/ApiConnect';
 import { QueryKeys } from 'client/data/queryKeys';
-import { navigationBus, needUpdateE } from 'client/data/State';
+import { expenseNavigationE, navigationBus } from 'client/data/State';
 import { logger } from 'client/Logger';
 import { expensePagePath, expensesForMonthPath } from 'client/util/Links';
 
@@ -56,12 +56,11 @@ export const MonthView: React.FC<MonthViewProps> = ({ date }) => {
   const [expenses, setExpenses] = React.useState<UserExpense[] | undefined>(undefined);
   React.useEffect(() => setExpenses(loadedExpenseArray), [loadedExpenseArray]);
 
-  // Retain needUpdateE subscription only for cross-month navigation.
-  // Same-month reload is handled by the needUpdateE → query invalidation bridge.
+  // Navigate to another month when an expense is saved with a different month's date.
   const navigate = useNavigate();
   React.useEffect(
     () =>
-      needUpdateE.onValue(newDate => {
+      expenseNavigationE.onValue(newDate => {
         if (!isSameMonth(newDate, date)) {
           const path = expensesForMonthPath(newDate);
           logger.info('Navigating to %s', path);

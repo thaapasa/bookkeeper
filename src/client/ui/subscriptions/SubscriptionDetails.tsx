@@ -3,12 +3,13 @@ import { useQuery } from '@tanstack/react-query';
 import * as React from 'react';
 
 import { RecurringExpenseDetails } from 'shared/expense';
-import { readableDateWithYear, toISODate } from 'shared/time';
+import { readableDateWithYear } from 'shared/time';
 import { ObjectId } from 'shared/types';
 import { Money } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
+import { invalidateSubscriptionData, queryClient } from 'client/data/query';
 import { QueryKeys } from 'client/data/queryKeys';
-import { editExpense, updateExpenses } from 'client/data/State';
+import { editExpense } from 'client/data/State';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { Icons } from '../icons/Icons';
@@ -81,7 +82,7 @@ async function terminateSubscription(recurringExpenseId: ObjectId, title: string
     confirm: `Haluatko lopettaa tilauksen ${title}?`,
     progress: 'Lopetetaan tilausta...',
     success: 'Tilaus lopetettu!',
-    postProcess: () => updateExpenses(toISODate()),
+    postProcess: () => invalidateSubscriptionData(),
   });
 }
 
@@ -92,4 +93,5 @@ async function modifySubscription(expenseId: ObjectId) {
       return true;
     },
   });
+  queryClient.invalidateQueries({ queryKey: QueryKeys.subscriptions.all });
 }

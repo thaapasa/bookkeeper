@@ -1,7 +1,5 @@
 import { QueryClient } from '@tanstack/react-query';
 
-import { needUpdateE } from 'client/data/State';
-
 import { QueryKeys } from './queryKeys';
 
 export const queryClient = new QueryClient({
@@ -16,13 +14,15 @@ export const queryClient = new QueryClient({
   },
 });
 
-// Temporary bridge: needUpdateE → query invalidation
-// Ensures migrated components refetch when legacy mutations fire needUpdateE.
-// Remove in Phase 3 when all mutations use useMutation.
-needUpdateE.onValue(() => {
+/** Invalidate all expense-related queries (expenses, categories, search). */
+export function invalidateExpenseData() {
   queryClient.invalidateQueries({ queryKey: QueryKeys.expenses.all });
   queryClient.invalidateQueries({ queryKey: QueryKeys.categories.all });
-  queryClient.invalidateQueries({ queryKey: QueryKeys.subscriptions.all });
-  queryClient.invalidateQueries({ queryKey: QueryKeys.groupings.all });
   queryClient.invalidateQueries({ queryKey: QueryKeys.search.all });
-});
+}
+
+/** Invalidate subscription queries and related expense data. */
+export function invalidateSubscriptionData() {
+  queryClient.invalidateQueries({ queryKey: QueryKeys.subscriptions.all });
+  queryClient.invalidateQueries({ queryKey: QueryKeys.expenses.all });
+}

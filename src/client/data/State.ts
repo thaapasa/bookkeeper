@@ -57,18 +57,17 @@ export function requestNewExpense(
 export const expenseDialogE = expenseDialogBus;
 export const expenseSplitE = expenseSplitBus;
 
-const needUpdateBus = new B.Bus<ISODate>();
+const expenseNavigationBus = new B.Bus<ISODate>();
+export const expenseNavigationE = expenseNavigationBus;
 
-export function updateExpenses(date: ISODate) {
-  needUpdateBus.push(date);
-  return true;
+/** Push a date to trigger cross-month navigation in MonthView. */
+export function navigateToExpenseDate(date: ISODate) {
+  expenseNavigationBus.push(date);
 }
 
 export function createNewExpense(values: Partial<ExpenseInEditor>) {
   expenseDialogE.push({ expenseId: null, resolve: noop, values });
 }
-
-export const needUpdateE = needUpdateBus;
 
 export const navigationBus = new B.Bus<NavigationConfig>();
 export const navigationP = navigationBus.toProperty({
@@ -86,7 +85,5 @@ if (import.meta.env.NODE_ENV === 'development') {
     notificationE,
     expenseDialogBus,
     expenseDialogE,
-    needUpdateBus,
-    needUpdateE,
   };
 }

@@ -4,7 +4,8 @@ import { Route, Routes, useNavigate, useParams, useSearchParams } from 'react-ro
 import { shortcutToExpenseInEditor } from 'shared/expense';
 import { ISODate, toISODate } from 'shared/time';
 import { validSessionP } from 'client/data/Login';
-import { updateExpenses } from 'client/data/State';
+import { invalidateExpenseData } from 'client/data/query';
+import { navigateToExpenseDate } from 'client/data/State';
 import { logger } from 'client/Logger';
 import { useBaconProperty } from 'client/ui/hooks/useBaconState';
 import { useIsMobile } from 'client/ui/hooks/useBreakpoints';
@@ -32,7 +33,10 @@ const NewExpenseDialogPage: React.FC = () => {
       saveAction={null}
       isMobile={isMobile}
       title="Uusi kirjaus"
-      onExpensesUpdated={updateExpenses}
+      onExpensesUpdated={date => {
+        invalidateExpenseData();
+        navigateToExpenseDate(date);
+      }}
       expenseCounter={1}
     />
   );
@@ -75,7 +79,10 @@ const NewExpenseFromShortcutDialogPage: React.FC = () => {
       saveAction={null}
       isMobile={isMobile}
       title="Uusi kirjaus"
-      onExpensesUpdated={updateExpenses}
+      onExpensesUpdated={date => {
+        invalidateExpenseData();
+        navigateToExpenseDate(date);
+      }}
       expenseCounter={1}
     />
   );
