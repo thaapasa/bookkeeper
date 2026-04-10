@@ -6,7 +6,6 @@ import { create } from 'zustand';
 import { Session } from 'shared/types';
 import { isPassword, PasswordUpdate } from 'shared/userData';
 import apiConnect from 'client/data/ApiConnect';
-import { AsyncData, UninitializedData } from 'client/data/AsyncData';
 import { updateSession } from 'client/data/Login';
 import { notify } from 'client/data/State';
 import { logger } from 'client/Logger';
@@ -23,8 +22,8 @@ export type PasswordState = PasswordUpdate & {
   setNew: (password: string) => void;
   setNewRepeat: (password: string) => void;
   reset: () => void;
-  saving: AsyncData<void>;
-  setSaving: (savingState: AsyncData<void>) => void;
+  saving: boolean;
+  setSaving: (saving: boolean) => void;
 };
 
 export const usePasswordState = create<PasswordState>(set => ({
@@ -32,7 +31,7 @@ export const usePasswordState = create<PasswordState>(set => ({
   newPassword: '',
   repeatPassword: '',
   reset: () => set({ currentPassword: '', newPassword: '', repeatPassword: '' }),
-  saving: UninitializedData,
+  saving: false,
   setCurrent: currentPassword => set({ currentPassword }),
   setNew: newPassword => set({ newPassword }),
   setNewRepeat: repeatPassword => set({ repeatPassword }),
@@ -54,7 +53,7 @@ export const PasswordChangeView: React.FC<{ session: Session }> = ({ session }) 
   const repeatHasError = !!state.repeatPassword && !passwordsMatch;
   const changed = state.newPassword || state.currentPassword || state.repeatPassword;
 
-  const isSaving = state.saving.type === 'loading';
+  const isSaving = state.saving;
 
   const save = () => {
     if (!dataValid || !changed) {

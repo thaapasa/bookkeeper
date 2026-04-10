@@ -5,7 +5,6 @@ import { create } from 'zustand';
 import { isEmail, Session } from 'shared/types';
 import { UserDataUpdate } from 'shared/userData';
 import apiConnect from 'client/data/ApiConnect';
-import { AsyncData, UninitializedData } from 'client/data/AsyncData';
 import { updateSession } from 'client/data/Login';
 import { notify } from 'client/data/State';
 import { logger } from 'client/Logger';
@@ -20,8 +19,8 @@ export type UserDataState = UserDataUpdate & {
   setEmail: (email: string) => void;
   setUsername: (username: string) => void;
   reset: (data?: UserDataUpdate) => void;
-  saving: AsyncData<void>;
-  setSaving: (savingState: AsyncData<void>) => void;
+  saving: boolean;
+  setSaving: (saving: boolean) => void;
 };
 
 export const useUserDataState = create<UserDataState>(set => ({
@@ -29,7 +28,7 @@ export const useUserDataState = create<UserDataState>(set => ({
   lastName: '',
   email: '',
   username: '',
-  saving: UninitializedData,
+  saving: false,
   setFirstName: firstName => set({ firstName }),
   setLastName: lastName => set({ lastName }),
   setEmail: email => set({ email }),
@@ -60,7 +59,7 @@ export const UserDataView: React.FC<{ session: Session }> = ({ session }) => {
     state.email !== user.email ||
     state.username !== user.username;
 
-  const isSaving = state.saving.type === 'loading';
+  const isSaving = state.saving;
 
   // Update data when session changes (upon reload)
   React.useEffect(() => {
