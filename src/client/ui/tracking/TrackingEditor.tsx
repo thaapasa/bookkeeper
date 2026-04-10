@@ -11,8 +11,8 @@ import {
   Stack,
 } from '@mantine/core';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import * as B from 'baconjs';
 import * as React from 'react';
+import { create } from 'zustand';
 
 import { CategoryMap, ObjectId, TrackingFrequency, TrackingSubject } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
@@ -23,24 +23,29 @@ import { useCategoryMap } from 'client/data/SessionStore';
 import { TextEdit } from '../component/TextEdit';
 import { UploadImageButton } from '../component/UploadImageButton';
 import { DialogHeading, Subtitle } from '../design/Text';
-import { connectDialog } from '../dialog/DialogConnector';
 import { ErrorView } from '../general/ErrorView';
 import { Icons } from '../icons/Icons';
 import styles from './TrackingEditor.module.css';
 import { useTrackingState } from './TrackingEditorState';
 
-interface TrackingBusPayload {
+interface TrackingDialogPayload {
   trackingId: ObjectId | null;
 }
 
-const trackingBus = new B.Bus<TrackingBusPayload>();
+const useTrackingDialogStore = create<{
+  payload: TrackingDialogPayload | null;
+  setPayload: (payload: TrackingDialogPayload | null) => void;
+}>(set => ({
+  payload: null,
+  setPayload: payload => set({ payload }),
+}));
 
 export function editTrackingSubject(trackingId: ObjectId) {
-  trackingBus.push({ trackingId });
+  useTrackingDialogStore.getState().setPayload({ trackingId });
 }
 
 export function newTrackingSubject() {
-  trackingBus.push({ trackingId: null });
+  useTrackingDialogStore.getState().setPayload({ trackingId: null });
 }
 
 const TrackingDialogImpl: React.FC<{
@@ -249,7 +254,11 @@ const CategorySelectionRow: React.FC<{ id: ObjectId; categoryMap: CategoryMap }>
   );
 };
 
-export const TrackingEditor = connectDialog<TrackingBusPayload, { reloadAll: () => void }>(
-  trackingBus,
-  TrackingDialogImpl,
-);
+export const TrackingEditor: React.FC<{ reloadAll: () => void }> = ({ reloadAll }) => {
+  const payload = useTrackingDialogStore(s => s.payload);
+  const onClose = React.useCallback(() => {
+    useTrackingDialogStore.getState().setPayload(null);
+  }, []);
+  if (!payload) return null;
+  return <TrackingDialogImpl {...payload} onClose={onClose} reloadAll={reloadAll} />;
+};

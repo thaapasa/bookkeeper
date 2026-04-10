@@ -4,7 +4,10 @@ import * as React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 
 import { Session } from 'shared/types';
-import { expenseDialogE, expenseSplitE } from 'client/data/State';
+import {
+  useExpenseDialogRequestStore,
+  useExpenseSplitRequestStore,
+} from 'client/data/ExpenseDialogStore';
 
 import { MenuDrawer } from '../component/MenuDrawer';
 import { NotificationBar } from '../component/NotificationBar';
@@ -21,9 +24,15 @@ interface PageProps {
   session: Session;
 }
 
-const ExpenseDialogBinder = createExpenseDialogListener(ExpenseDialog, expenseDialogE);
+const ExpenseDialogBinder = createExpenseDialogListener(
+  ExpenseDialog,
+  useExpenseDialogRequestStore,
+);
 
-const ExpenseSplitBinder = createExpenseDialogListener(ExpenseSplitDialog, expenseSplitE);
+const ExpenseSplitBinder = createExpenseDialogListener(
+  ExpenseSplitDialog,
+  useExpenseSplitRequestStore,
+);
 
 export const BookkeeperPage: React.FC<PageProps> = () => {
   const isMobile = useIsMobile();

@@ -7,9 +7,9 @@ import { ISOMonth, ISOMonthRegExp, toDateRange, toISODate } from 'shared/time';
 import { Category, CategoryMap, isDefined } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
 import { CategoryDataSource } from 'client/data/Categories';
+import { useNavigationStore } from 'client/data/NavigationStore';
 import { QueryKeys } from 'client/data/queryKeys';
 import { useCategoryDataSource, useUserData } from 'client/data/SessionStore';
-import { navigationBus } from 'client/data/State';
 import { logger } from 'client/Logger';
 import { searchPagePath } from 'client/util/Links';
 
@@ -45,7 +45,7 @@ const SearchViewImpl: React.FC<{
   // Update navigation state when search is triggered
   React.useEffect(() => {
     if (query) {
-      navigationBus.push({
+      useNavigationStore.getState().setNavigation({
         pathPrefix: searchPagePath,
         dateRange: toDateRange(query.startDate ?? toISODate(), query.endDate ?? toISODate()),
       });

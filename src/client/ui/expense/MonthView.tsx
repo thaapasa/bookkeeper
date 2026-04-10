@@ -5,8 +5,8 @@ import { useNavigate } from 'react-router';
 import { UserExpense } from 'shared/expense';
 import { ISOMonth, isSameMonth, monthRange, toDateTime } from 'shared/time';
 import apiConnect from 'client/data/ApiConnect';
+import { useNavigationStore } from 'client/data/NavigationStore';
 import { QueryKeys } from 'client/data/queryKeys';
-import { expenseNavigationE, navigationBus } from 'client/data/State';
 import { logger } from 'client/Logger';
 import { expensePagePath, expensesForMonthPath } from 'client/util/Links';
 
@@ -29,7 +29,9 @@ export const MonthView: React.FC<MonthViewProps> = ({ date }) => {
   // Side effect: update navigation state
   React.useEffect(() => {
     const m = toDateTime(date);
-    navigationBus.push({ dateRange: monthRange(m), pathPrefix: expensePagePath });
+    useNavigationStore
+      .getState()
+      .setNavigation({ dateRange: monthRange(m), pathPrefix: expensePagePath });
   }, [date]);
 
   const { data: expenseData, isLoading } = useQuery({
@@ -58,17 +60,16 @@ export const MonthView: React.FC<MonthViewProps> = ({ date }) => {
 
   // Navigate to another month when an expense is saved with a different month's date.
   const navigate = useNavigate();
-  React.useEffect(
-    () =>
-      expenseNavigationE.onValue(newDate => {
-        if (!isSameMonth(newDate, date)) {
-          const path = expensesForMonthPath(newDate);
-          logger.info('Navigating to %s', path);
-          navigate(path);
-        }
-      }),
-    [navigate, date],
-  );
+  const navTarget = useNavigationStore(s => s.expenseNavigationTarget);
+  const navSeq = useNavigationStore(s => s.expenseNavigationSeq);
+  React.useEffect(() => {
+    if (navTarget && !isSameMonth(navTarget, date)) {
+      const path = expensesForMonthPath(navTarget);
+      logger.info('Navigating to %s', path);
+      navigate(path);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navSeq]);
 
   return (
     <ExpenseTable

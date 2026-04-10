@@ -1,5 +1,5 @@
-import * as B from 'baconjs';
 import React from 'react';
+import { create } from 'zustand';
 
 import { ISODate } from 'shared/time';
 import { ObjectId } from 'shared/types';
@@ -16,13 +16,19 @@ export type TextEditorComponent =
   | React.ComponentType<TextEditProps>
   | React.ComponentType<ReceiverFieldProps>;
 
-/* Push event to confirmationBus to show a confirmation dialog */
-const dialogActionBus = new B.Bus<DialogConfig<any, any>>();
-export const dialogActionE = dialogActionBus;
+interface DialogStoreState {
+  config: DialogConfig<any, any> | null;
+  setConfig: (config: DialogConfig<any, any> | null) => void;
+}
+
+export const useDialogStore = create<DialogStoreState>(set => ({
+  config: null,
+  setConfig: config => set({ config }),
+}));
 
 function promptUser<T, D extends DialogData>(config: Omit<DialogConfig<T, D>, 'resolve'>) {
   return new Promise<T | undefined>(resolve => {
-    dialogActionBus.push({ ...config, resolve });
+    useDialogStore.getState().setConfig({ ...config, resolve } as DialogConfig<any, any>);
   });
 }
 

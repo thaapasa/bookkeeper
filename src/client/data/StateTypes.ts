@@ -1,14 +1,4 @@
-type AlertColor = 'success' | 'info' | 'warning' | 'error';
-
-import { TypedDateRange } from 'shared/time';
 import { ExpenseSaveAction } from 'client/ui/expense/dialog/ExpenseSaveAction';
-
-export interface Notification {
-  message: string;
-  cause?: unknown;
-  severity?: AlertColor;
-  immediate?: boolean;
-}
 
 export interface ExpenseDialogObject<D> {
   expenseId: number | null;
@@ -16,9 +6,4 @@ export interface ExpenseDialogObject<D> {
   values?: Partial<D>;
   saveAction?: ExpenseSaveAction;
   title?: string;
-}
-
-export interface NavigationConfig {
-  pathPrefix: string;
-  dateRange: TypedDateRange;
 }

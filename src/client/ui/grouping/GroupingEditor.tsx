@@ -10,8 +10,8 @@ import {
   Stack,
 } from '@mantine/core';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import * as B from 'baconjs';
 import * as React from 'react';
+import { create } from 'zustand';
 
 import { CategoryMap, ExpenseGrouping, ObjectId } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
@@ -25,24 +25,29 @@ import { TagsPicker } from '../component/TagsPicker';
 import { TextEdit } from '../component/TextEdit';
 import { UploadImageButton } from '../component/UploadImageButton';
 import { DialogHeading, Subtitle } from '../design/Text';
-import { connectDialog } from '../dialog/DialogConnector';
 import { ErrorView } from '../general/ErrorView';
 import { Icons } from '../icons/Icons';
 import styles from './GroupingEditor.module.css';
 import { useGroupingState } from './GroupingEditorState';
 
-interface GroupingBusPayload {
+interface GroupingDialogPayload {
   groupingId: ObjectId | null;
 }
 
-const groupingBus = new B.Bus<GroupingBusPayload>();
+const useGroupingDialogStore = create<{
+  payload: GroupingDialogPayload | null;
+  setPayload: (payload: GroupingDialogPayload | null) => void;
+}>(set => ({
+  payload: null,
+  setPayload: payload => set({ payload }),
+}));
 
 export function editExpenseGrouping(groupingId: ObjectId) {
-  groupingBus.push({ groupingId });
+  useGroupingDialogStore.getState().setPayload({ groupingId });
 }
 
 export function newExpenseGrouping() {
-  groupingBus.push({ groupingId: null });
+  useGroupingDialogStore.getState().setPayload({ groupingId: null });
 }
 
 const GroupingDialogImpl: React.FC<{
@@ -223,7 +228,11 @@ const CategorySelectionRow: React.FC<{ id: ObjectId; categoryMap: CategoryMap }>
   );
 };
 
-export const GroupingEditor = connectDialog<GroupingBusPayload, { reloadAll: () => void }>(
-  groupingBus,
-  GroupingDialogImpl,
-);
+export const GroupingEditor: React.FC<{ reloadAll: () => void }> = ({ reloadAll }) => {
+  const payload = useGroupingDialogStore(s => s.payload);
+  const onClose = React.useCallback(() => {
+    useGroupingDialogStore.getState().setPayload(null);
+  }, []);
+  if (!payload) return null;
+  return <GroupingDialogImpl {...payload} onClose={onClose} reloadAll={reloadAll} />;
+};

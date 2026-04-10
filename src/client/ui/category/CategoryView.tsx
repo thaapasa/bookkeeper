@@ -7,9 +7,9 @@ import { Category, CategoryAndTotals } from 'shared/types';
 import { Money } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { updateSession } from 'client/data/Login';
+import { useNavigationStore } from 'client/data/NavigationStore';
 import { QueryKeys } from 'client/data/queryKeys';
 import { useUserData, useValidSession } from 'client/data/SessionStore';
-import { navigationBus } from 'client/data/State';
 import { categoryPagePath } from 'client/util/Links';
 
 import { CategoryChart, CategoryChartData } from './CategoryChart';
@@ -26,7 +26,7 @@ export const CategoryView: React.FC<CategoryViewProps> = ({ range }) => {
   const { categories } = session;
 
   React.useEffect(() => {
-    navigationBus.push({ pathPrefix: categoryPagePath, dateRange: range });
+    useNavigationStore.getState().setNavigation({ pathPrefix: categoryPagePath, dateRange: range });
   }, [range]);
 
   const { data: categoryTotals } = useQuery({

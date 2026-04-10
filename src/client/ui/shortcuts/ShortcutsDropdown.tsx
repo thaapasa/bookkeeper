@@ -7,17 +7,17 @@ import { ExpenseShortcutData, shortcutToExpenseInEditor } from 'shared/expense';
 import { uri } from 'shared/net';
 import { ISODate, toDateTime } from 'shared/time';
 import { ObjectId } from 'shared/types';
+import { useNavigationStore } from 'client/data/NavigationStore';
 import { useValidSession } from 'client/data/SessionStore';
-import { createExpense, createNewExpense, navigationP } from 'client/data/State';
+import { createExpense, createNewExpense } from 'client/data/State';
 import { newExpenseSuffix } from 'client/util/Links';
 
 import { pageSupportsRoutedExpenseDialog } from '../expense/NewExpenseInfo';
-import { useBaconProperty } from '../hooks/useBaconState';
 import { Icons } from '../icons/Icons';
 
 export const AddExpenseMenu: React.FC = () => {
   const session = useValidSession();
-  const { dateRange } = useBaconProperty(navigationP);
+  const dateRange = useNavigationStore(s => s.dateRange);
   const shortcuts = session.shortcuts || [];
   const navigate = useNavigate();
 

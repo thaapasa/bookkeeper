@@ -1,7 +1,7 @@
 import { ActionIcon, Box, Button, Flex, Group, Loader, Modal } from '@mantine/core';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import * as B from 'baconjs';
 import * as React from 'react';
+import { create } from 'zustand';
 
 import { ExpenseShortcut } from 'shared/expense';
 import { ObjectId } from 'shared/types';
@@ -11,16 +11,21 @@ import { QueryKeys } from 'client/data/queryKeys';
 import { TextEdit } from '../component/TextEdit';
 import { UploadImageButton } from '../component/UploadImageButton';
 import { DialogHeading, Subtitle } from '../design/Text';
-import { connectDialog } from '../dialog/DialogConnector';
 import { ErrorView } from '../general/ErrorView';
 import { Icons } from '../icons/Icons';
 import { useShortcutState } from './ShortcutEditorState';
 import { ShortcutLink } from './ShortcutLink';
 
-const shortcutBus = new B.Bus<{ shortcutId: ObjectId }>();
+const useShortcutDialogStore = create<{
+  payload: { shortcutId: ObjectId } | null;
+  setPayload: (payload: { shortcutId: ObjectId } | null) => void;
+}>(set => ({
+  payload: null,
+  setPayload: payload => set({ payload }),
+}));
 
 export function editShortcut(shortcutId: ObjectId) {
-  shortcutBus.push({ shortcutId });
+  useShortcutDialogStore.getState().setPayload({ shortcutId });
 }
 
 const ShortcutDialogImpl: React.FC<{ shortcutId: ObjectId; onClose: () => void }> = ({
@@ -126,4 +131,11 @@ const ShortcutEditView: React.FC<{
   );
 };
 
-export const ShortcutEditor = connectDialog(shortcutBus, ShortcutDialogImpl);
+export const ShortcutEditor: React.FC = () => {
+  const payload = useShortcutDialogStore(s => s.payload);
+  const onClose = React.useCallback(() => {
+    useShortcutDialogStore.getState().setPayload(null);
+  }, []);
+  if (!payload) return null;
+  return <ShortcutDialogImpl {...payload} onClose={onClose} />;
+};

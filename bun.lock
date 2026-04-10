@@ -17,7 +17,6 @@
         "@opentelemetry/semantic-conventions": "^1.40.0",
         "@tanstack/react-query": "^5.97.0",
         "@tanstack/react-query-devtools": "^5.97.0",
-        "baconjs": "3.0.23",
         "big.js": "7.0.1",
         "dayjs": "^1.11.20",
         "dotenv": "17.4.1",
@@ -474,8 +473,6 @@
     "atomic-sleep": ["atomic-sleep@1.0.0", "", {}, "sha512-kNOjDqAh7px0XWNI+4QbzoiR/nTkHAWNud2uvnJquD1/x5a7EQZMJT0AczqK0Qn67oY/TTQ1LbUKajZpp3I9tQ=="],
 
     "available-typed-arrays": ["available-typed-arrays@1.0.7", "", { "dependencies": { "possible-typed-array-names": "^1.0.0" } }, "sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ=="],
-
-    "baconjs": ["baconjs@3.0.23", "", {}, "sha512-Yzm9KTwEw9DhXuE47We0kwhBOkMa5BH2vrOQ8A/SGr8uAH3lDCbTSr0iU0G5irkRQDW/v+jDSMP77geV99U9dw=="],
 
     "balanced-match": ["balanced-match@1.0.2", "", {}, "sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw=="],
 

@@ -3,8 +3,7 @@ import { CircleAlert, CircleCheckBig, Info, TriangleAlert } from 'lucide-react';
 import * as React from 'react';
 
 import { toReadableErrorMessage } from 'shared/types';
-import { notificationE } from 'client/data/State';
-import { Notification as AppNotification } from 'client/data/StateTypes';
+import { AppNotification, useNotificationStore } from 'client/data/NotificationStore';
 import { logger } from 'client/Logger';
 
 const msgInterval = 5000;
@@ -24,49 +23,24 @@ const severityColor = {
 };
 
 export const NotificationBar: React.FC = () => {
-  const [notification, setNotification] = React.useState<AppNotification | null>(null);
+  const notification = useNotificationStore(s => s.current);
+  const dismiss = useNotificationStore(s => s.dismiss);
   const timerRef = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const queueRef = React.useRef<AppNotification[]>([]);
 
-  const scheduleNext = () => {
-    timerRef.current = undefined;
-    if (queueRef.current.length > 0) {
-      const next = queueRef.current.shift()!;
-      setNotification(next);
-      timerRef.current = setTimeout(scheduleNext, msgInterval);
-    } else {
-      setNotification(null);
-    }
-  };
-
-  const dismiss = () => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-    }
-    scheduleNext();
-  };
-
-  // Subscribe once on mount — scheduleNext uses only refs and setState
+  // Log warnings/errors when a new notification appears
   React.useEffect(() => {
-    const unsub = notificationE.onValue((n: AppNotification) => {
-      if (n.severity === 'error') {
-        logger.error(n.cause ?? {}, n.message);
-      } else if (n.severity === 'warning') {
-        logger.warn(n.cause ?? {}, n.message);
-      }
-      queueRef.current.push(n);
-      if (!timerRef.current || n.immediate) {
-        scheduleNext();
-      }
-    });
+    if (!notification) return;
+    logNotification(notification);
+  }, [notification]);
+
+  // Auto-dismiss after interval
+  React.useEffect(() => {
+    if (!notification) return;
+    timerRef.current = setTimeout(dismiss, msgInterval);
     return () => {
-      unsub();
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
+      if (timerRef.current) clearTimeout(timerRef.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [notification, dismiss]);
 
   if (!notification) return null;
 
@@ -94,3 +68,11 @@ export const NotificationBar: React.FC = () => {
     </Box>
   );
 };
+
+function logNotification(n: AppNotification) {
+  if (n.severity === 'error') {
+    logger.error(n.cause ?? {}, n.message);
+  } else if (n.severity === 'warning') {
+    logger.warn(n.cause ?? {}, n.message);
+  }
+}

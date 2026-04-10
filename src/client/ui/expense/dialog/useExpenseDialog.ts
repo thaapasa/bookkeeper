@@ -1,4 +1,3 @@
-import * as B from 'baconjs';
 import * as React from 'react';
 
 import type { ExpenseDivision } from 'shared/expense';
@@ -10,31 +9,13 @@ import {
   UserExpenseWithDetails,
 } from 'shared/expense';
 import { toISODate } from 'shared/time';
-import { identity, Money, sanitizeMoneyInput, valuesToArray } from 'shared/util';
+import { Money, sanitizeMoneyInput } from 'shared/util';
 import { notifyError } from 'client/data/State';
 import { logger } from 'client/Logger';
-import { usePersistentMemo } from 'client/ui/hooks/usePersistentMemo.ts';
-import { unsubscribeAll, Unsubscriber } from 'client/util/ClientUtil';
 
 import type { FullExpenseDialogProps } from './ExpenseDialog';
 import { calculateDivision } from './ExpenseDialogData';
 import { defaultExpenseSaveAction } from './ExpenseSaveAction';
-
-const fields: ReadonlyArray<keyof ExpenseInEditor> = [
-  'title',
-  'sourceId',
-  'categoryId',
-  'receiver',
-  'sum',
-  'userId',
-  'date',
-  'benefit',
-  'description',
-  'confirmed',
-  'type',
-  'userId',
-  'groupingId',
-];
 
 const parsers: Record<string, (v: string) => string> = {
   sum: sanitizeMoneyInput,
@@ -55,10 +36,6 @@ const validators: Record<string, (v: string) => string | undefined> = {
   benefit: v => errorIf(v.length < 1, 'Jonkun pitää hyötyä'),
   userId: v => errorIf(!v, 'Omistaja puuttuu'),
 };
-
-function allTrue(...args: boolean[]): boolean {
-  return args.reduce((a, b) => a && b, true);
-}
 
 export const SourceTitles: Record<ExpenseType, string> = {
   expense: 'Lähde',
@@ -83,7 +60,7 @@ function getDefaultState(
   props: FullExpenseDialogProps<ExpenseInEditor>,
   original: UserExpenseWithDetails | null,
   values: Partial<ExpenseInEditor>,
-): ExpenseDialogState {
+): ExpenseInEditor {
   const e = original;
   const defaultSourceId = props.group.defaultSourceId || undefined;
   const defaultSource = defaultSourceId ? props.sourceMap[defaultSourceId] : undefined;
@@ -106,40 +83,92 @@ function getDefaultState(
     confirmed: values.confirmed !== undefined ? values.confirmed : e ? e.confirmed : true,
     type: values.type || (e ? e.type : 'expense'),
     groupingId: e?.groupingId ?? null,
-    errors: {},
-    valid: false,
-    showOwnerSelect: false,
-    division: null,
   };
+}
+
+function validateField(key: string, value: unknown): string | undefined {
+  const validator = validators[key];
+  if (!validator) return undefined;
+  const strValue = String(value ?? '');
+  const parsed = parsers[key] ? parsers[key](strValue) : strValue;
+  return validator(parsed);
 }
 
 export function useExpenseDialog(props: FullExpenseDialogProps<ExpenseInEditor>) {
   const { original, values, expenseCounter, sourceMap, categoryMap, onClose, onExpensesUpdated } =
     props;
 
-  const [state, setState] = React.useState<ExpenseDialogState>(() =>
+  const [fields, setFields] = React.useState<ExpenseInEditor>(() =>
     getDefaultState(props, original, values),
   );
+  const [saveLocked, setSaveLocked] = React.useState(false);
+  const [showOwnerSelect, setShowOwnerSelect] = React.useState(false);
 
-  // Create stable stream instances
-  const inputStreams = usePersistentMemo(() => {
-    const streams: Record<string, B.Bus<any>> = {};
-    fields.forEach(k => {
-      streams[k] = new B.Bus<any>();
-    });
-    return streams;
-  }, []);
-  const submitStream = usePersistentMemo(() => new B.Bus<true>(), []);
-  const saveLock = usePersistentMemo(() => new B.Bus<boolean>(), []);
+  // Compute validation errors
+  const errors = React.useMemo(() => {
+    const result: Record<string, string | undefined> = {};
+    for (const key of Object.keys(validators)) {
+      result[key] = validateField(key, fields[key as keyof ExpenseInEditor]);
+    }
+    return result;
+  }, [fields]);
 
-  // Use ref for save callback so it always has current props
-  const saveRef = React.useRef<((expense: ExpenseInEditor) => Promise<void>) | undefined>(
-    undefined,
-  );
+  const valid = React.useMemo(() => Object.values(errors).every(e => e === undefined), [errors]);
+
+  // Compute division preview
+  const division = React.useMemo(() => {
+    if (!valid) return null;
+    try {
+      return calculateDivision(fields.type, fields.sum, fields.benefit, sourceMap[fields.sourceId]);
+    } catch {
+      return null;
+    }
+  }, [valid, fields.type, fields.sum, fields.benefit, fields.sourceId, sourceMap]);
+
+  // Auto-update benefit when sourceId changes
+  const prevSourceIdRef = React.useRef(fields.sourceId);
   React.useEffect(() => {
-    saveRef.current = async (expense: ExpenseInEditor) => {
+    if (fields.sourceId === prevSourceIdRef.current) return;
+    prevSourceIdRef.current = fields.sourceId;
+    const source = sourceMap[fields.sourceId];
+    if (source) {
+      setFields(f => ({ ...f, benefit: source.users.map(u => u.userId) }));
+    }
+  }, [fields.sourceId, sourceMap]);
+
+  // Reset state when expense counter changes (new dialog opened)
+  const counterRef = React.useRef(expenseCounter);
+  React.useEffect(() => {
+    if (counterRef.current !== expenseCounter) {
+      counterRef.current = expenseCounter;
+      const newState = getDefaultState(props, original, values);
+      logger.info(newState, 'Start editing');
+      setFields(newState);
+      prevSourceIdRef.current = newState.sourceId;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [expenseCounter]);
+
+  const setField = React.useCallback((field: string, value: unknown) => {
+    const parsed = parsers[field] ? parsers[field](String(value)) : value;
+    setFields(f => ({ ...f, [field]: parsed }));
+  }, []);
+
+  // Save handler - uses refs to always read the latest state
+  const fieldsRef = React.useRef(fields);
+  fieldsRef.current = fields;
+  const validRef = React.useRef(valid);
+  validRef.current = valid;
+
+  const requestSave = React.useCallback(
+    async (event: React.SyntheticEvent) => {
+      event.preventDefault();
+      event.stopPropagation();
+      if (!validRef.current || saveLocked) return;
+
+      const expense = fieldsRef.current;
       const sum = Money.from(expense.sum);
-      const division = calculateDivision(
+      const divisionData = calculateDivision(
         expense.type,
         sum,
         expense.benefit,
@@ -156,11 +185,11 @@ export function useExpenseDialog(props: FullExpenseDialogProps<ExpenseInEditor>)
         description: expense.description,
         date: expense.date,
         sum: expense.sum,
-        division,
+        division: divisionData,
         groupingId: expense.groupingId ?? undefined,
       };
 
-      saveLock.push(true);
+      setSaveLocked(true);
       try {
         const r = await (props.saveAction ?? defaultExpenseSaveAction)(data, original);
         logger.info(`Saved expense: ${r}`);
@@ -172,132 +201,37 @@ export function useExpenseDialog(props: FullExpenseDialogProps<ExpenseInEditor>)
         logger.error(error, 'Failed to save expense');
         notifyError('Kirjauksen tallennus epäonnistui', error);
       } finally {
-        saveLock.push(false);
+        setSaveLocked(false);
       }
-    };
-  });
-
-  // Set up Bacon.js stream pipelines (runs once on mount)
-  React.useEffect(() => {
-    const unsubs: Unsubscriber[] = [submitStream, saveLock];
-
-    const validity: Record<string, B.Property<boolean>> = {};
-    const streamValues: Record<keyof ExpenseInEditor, B.EventStream<any>> = {} as any;
-
-    fields.forEach(k => {
-      unsubs.push(inputStreams[k]);
-      inputStreams[k].onValue(v => setState(s => ({ ...s, [k]: v })));
-      const parsed = parsers[k] ? inputStreams[k].map(parsers[k]) : inputStreams[k].map(identity);
-      streamValues[k] = parsed;
-      const validator = validators[k];
-      if (validator) {
-        const error = parsed.map(v => validator(v));
-        error.onValue(e => setState(s => ({ ...s, errors: { ...s.errors, [k]: e } })));
-        const isValid = error.map(v => v === undefined).toProperty();
-        validity[k] = isValid;
-      } else {
-        validity[k] = B.constant(true);
-      }
-    });
-
-    streamValues.sourceId.onValue(v =>
-      inputStreams.benefit.push(sourceMap[v].users.map(u => u.userId)),
-    );
-
-    const allValid = B.combineWith(allTrue, valuesToArray(validity) as any);
-    allValid.onValue(valid => setState(s => ({ ...s, valid })));
-
-    const expense: B.Property<ExpenseInEditor> = B.combineTemplate(streamValues);
-    B.combineTemplate({ expense, allValid })
-      .map(({ allValid, expense }) =>
-        allValid
-          ? calculateDivision(
-              expense.type,
-              expense.sum,
-              expense.benefit,
-              sourceMap[expense.sourceId],
-            )
-          : null,
-      )
-      .onValue(division => setState(s => ({ ...s, division })));
-
-    B.combineWith(
-      (e, v, h) => ({ ...e, allValid: v && !h }),
-      expense,
-      allValid,
-      saveLock.toProperty(false),
-    )
-      .sampledBy(submitStream)
-      .filter(e => e.allValid)
-      .onValue(e => saveRef.current?.(e));
-
-    return () => unsubscribeAll(unsubs);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Push values to streams when expense changes (initial + counter updates)
-  const counterRef = React.useRef<number>(0);
-  React.useEffect(() => {
-    if (counterRef.current !== expenseCounter) {
-      counterRef.current = expenseCounter;
-      const newState = getDefaultState(props, original, values);
-      logger.info(newState, 'Start editing');
-      fields.forEach(k => inputStreams[k].push(newState[k]));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [expenseCounter]);
-
-  // Push initial values on mount
-  React.useEffect(() => {
-    const initState = getDefaultState(props, original, values);
-    logger.info(initState, 'Start editing');
-    fields.forEach(k => inputStreams[k].push(initState[k]));
-    counterRef.current = expenseCounter;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const setField = React.useCallback(
-    (field: string, value: any) => {
-      inputStreams[field].push(value);
     },
-    [inputStreams],
-  );
-
-  const requestSave = React.useCallback(
-    (event: React.SyntheticEvent) => {
-      submitStream.push(true);
-      event.preventDefault();
-      event.stopPropagation();
-    },
-    [submitStream],
+    [saveLocked, sourceMap, props.saveAction, original, onClose, onExpensesUpdated],
   );
 
   const dismiss = React.useCallback(() => onClose(null), [onClose]);
 
-  const setToday = React.useCallback(() => inputStreams.date.push(toISODate()), [inputStreams]);
+  const setToday = React.useCallback(() => setFields(f => ({ ...f, date: toISODate() })), []);
 
   const selectCategory = React.useCallback(
     (id: number) => {
       const cat = categoryMap[id];
       if (cat) {
-        inputStreams.categoryId.push(id);
-        inputStreams.title.push(cat.name);
+        setFields(f => ({ ...f, categoryId: id, title: cat.name }));
       }
     },
-    [categoryMap, inputStreams],
+    [categoryMap],
   );
 
-  const closeEditors = React.useCallback(
-    () => setState(s => ({ ...s, showOwnerSelect: false })),
-    [],
-  );
+  const closeEditors = React.useCallback(() => setShowOwnerSelect(false), []);
 
-  const setUserId = React.useCallback(
-    (userId: number) => {
-      inputStreams.userId.push(userId);
-    },
-    [inputStreams],
-  );
+  const setUserId = React.useCallback((userId: number) => setFields(f => ({ ...f, userId })), []);
+
+  const state: ExpenseDialogState = {
+    ...fields,
+    errors,
+    valid,
+    showOwnerSelect,
+    division,
+  };
 
   return {
     state,
@@ -308,7 +242,7 @@ export function useExpenseDialog(props: FullExpenseDialogProps<ExpenseInEditor>)
     selectCategory,
     closeEditors,
     setUserId,
-    sourceTitle: SourceTitles[state.type] ?? 'Lähde',
-    receiverTitle: ReceiverTitles[state.type] ?? 'Kohde',
+    sourceTitle: SourceTitles[fields.type] ?? 'Lähde',
+    receiverTitle: ReceiverTitles[fields.type] ?? 'Kohde',
   };
 }
