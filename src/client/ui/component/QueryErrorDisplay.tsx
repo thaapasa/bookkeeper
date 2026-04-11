@@ -1,4 +1,4 @@
-import { Button, Group, Stack } from '@mantine/core';
+import { Button, Stack, Text } from '@mantine/core';
 import * as React from 'react';
 
 import { ErrorView } from '../general/ErrorView';
@@ -13,12 +13,17 @@ export const QueryErrorDisplay: React.FC<QueryErrorDisplayProps> = ({
   error,
   resetErrorBoundary,
 }) => (
-  <Stack gap="md" p="md">
-    <ErrorView title="Virhe tietojen latauksessa">{String(error)}</ErrorView>
-    <Group>
-      <Button leftSection={<Icons.Refresh />} onClick={resetErrorBoundary} variant="light">
+  <ErrorView title="Virhe tietojen latauksessa" m="lg">
+    <Stack>
+      <Text>{String(error)}</Text>
+      <Button
+        leftSection={<Icons.Refresh />}
+        onClick={resetErrorBoundary}
+        variant="light"
+        w="fit-content"
+      >
         Yritä uudelleen
       </Button>
-    </Group>
-  </Stack>
+    </Stack>
+  </ErrorView>
 );

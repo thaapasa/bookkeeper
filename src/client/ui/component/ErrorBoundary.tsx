@@ -7,6 +7,8 @@ export type ErrorBoundaryFallbackProps = {
 
 type ErrorBoundaryProps = {
   fallbackRender: (props: ErrorBoundaryFallbackProps) => React.ReactNode;
+  /** When any value in this array changes, the error state is automatically cleared. */
+  resetKeys?: readonly unknown[];
   children: React.ReactNode;
 };
 
@@ -20,6 +22,17 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return { error };
+  }
+
+  componentDidUpdate(prevProps: ErrorBoundaryProps) {
+    if (
+      this.state.error &&
+      this.props.resetKeys &&
+      prevProps.resetKeys &&
+      this.props.resetKeys.some((key, i) => key !== prevProps.resetKeys![i])
+    ) {
+      this.setState({ error: null });
+    }
   }
 
   resetErrorBoundary = () => {

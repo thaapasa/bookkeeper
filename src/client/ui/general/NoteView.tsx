@@ -1,8 +1,5 @@
-import { Box, BoxProps, Group, Stack, Text } from '@mantine/core';
+import { Box, BoxProps, Card, CardProps, Group, Text } from '@mantine/core';
 import * as React from 'react';
-
-import { classNames } from '../utils/classNames';
-import styles from './NoteView.module.css';
 
 export type NoteType = 'note' | 'warning';
 export type NoteViewProps = {
@@ -11,37 +8,25 @@ export type NoteViewProps = {
   fullWidth?: boolean;
   compact?: boolean;
   noMargin?: boolean;
-} & BoxProps;
+} & CardProps;
 
 export const NoteView: React.FC<React.PropsWithChildren<NoteViewProps>> = ({
   type,
   title,
   children,
   compact,
-  fullWidth,
   noMargin,
   className,
   ...props
 }) => (
-  <Stack
-    className={classNames(className, styles.container, fullWidth ? styles.fullWidth : undefined)}
-    bg="neutral.2"
-    {...props}
-  >
+  <Card radius="sm" {...props} p={0}>
     {title ? (
-      <Group
-        className={styles.titleBase}
-        py="xs"
-        px="md"
-        my={noMargin ? 0 : compact ? 'xs' : 'xl'}
-        mx={noMargin ? 0 : compact ? 'md' : 'xl'}
-        {...NoteColors[type ?? 'note']}
-      >
+      <Group py="xs" px="md" {...NoteColors[type ?? 'note']}>
         <Text fw={500}>{title}</Text>
       </Group>
     ) : null}
     <Box p="md">{children}</Box>
-  </Stack>
+  </Card>
 );
 
 const NoteColors: Record<NoteType, Pick<BoxProps, 'c' | 'bg'>> = {
