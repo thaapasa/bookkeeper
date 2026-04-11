@@ -1,19 +1,18 @@
-import { ActionIcon, Box, Loader, Stack } from '@mantine/core';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { ActionIcon, Box, Stack } from '@mantine/core';
+import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import React from 'react';
 
 import apiConnect from 'client/data/ApiConnect';
 import { QueryKeys } from 'client/data/queryKeys';
 
 import { Title } from '../design/Text';
-import { ErrorView } from '../general/ErrorView';
 import { Icons } from '../icons/Icons';
 import { newTrackingSubject, TrackingEditor } from './TrackingEditor';
 import { TrackingSubjectsList } from './TrackingSubjectView';
 
 export const TrackingPage: React.FC = () => {
   const queryClient = useQueryClient();
-  const { data, isLoading, error } = useQuery({
+  const { data } = useSuspenseQuery({
     queryKey: QueryKeys.tracking.list,
     queryFn: () => apiConnect.getTrackingSubjects(),
   });
@@ -32,13 +31,7 @@ export const TrackingPage: React.FC = () => {
             </ActionIcon>
           </Box>
         </Box>
-        {isLoading ? (
-          <Loader />
-        ) : error ? (
-          <ErrorView title="Virhe tietojen latauksessa">{String(error)}</ErrorView>
-        ) : data ? (
-          <TrackingSubjectsList data={data} onReload={invalidateTracking} />
-        ) : null}
+        <TrackingSubjectsList data={data} onReload={invalidateTracking} />
       </Stack>
       <TrackingEditor reloadAll={invalidateTracking} />
     </>

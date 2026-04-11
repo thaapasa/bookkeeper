@@ -19,6 +19,7 @@ import {
 } from 'client/util/Links';
 
 import { RoutedCategoryView } from '../category/RoutedCategoryView';
+import { QueryBoundary } from '../component/QueryBoundary';
 import { FrontpageView } from '../expense/FrontpageView';
 import { RoutedMonthView } from '../expense/RoutedMonthView';
 import { PathNotFoundError } from '../general/ErrorView';
@@ -50,7 +51,14 @@ export function AppRouter() {
       <Route path={statisticsPage} element={<StatisticsView />} />
       <Route path={profilePagePath + '/*'} element={<ProfileView />} />
       <Route path={infoPagePath} element={<InfoView />} />
-      <Route path={trackingPagePath} element={<TrackingPage />} />
+      <Route
+        path={trackingPagePath}
+        element={
+          <QueryBoundary>
+            <TrackingPage />
+          </QueryBoundary>
+        }
+      />
       <Route path={groupingsPagePath} element={<GroupingPage />} />
       <Route path={`${groupingsPagePath}/:groupingId`} element={<GroupingExpensesPage />} />
       <Route path={toolsPagePath} element={<ToolsView />} />

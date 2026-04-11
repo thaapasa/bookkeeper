@@ -9,6 +9,7 @@ import {
   useExpenseSplitRequestStore,
 } from 'client/data/ExpenseDialogStore';
 
+import { IsFetchingBar } from '../component/IsFetchingBar';
 import { MenuDrawer } from '../component/MenuDrawer';
 import { ModalDialogConnector } from '../dialog/ModalDialogConnector';
 import { ExpenseDialog } from '../expense/dialog/ExpenseDialog';
@@ -53,6 +54,7 @@ export const BookkeeperPage: React.FC<PageProps> = () => {
             display="flex"
             style={{ flexDirection: 'column', overflow: 'hidden' }}
           >
+            <IsFetchingBar />
             <ScrollArea flex={1} type="scroll" offsetScrollbars={false}>
               <Container size={mainContentMaxWidth} p={0}>
                 <AppRouter />
