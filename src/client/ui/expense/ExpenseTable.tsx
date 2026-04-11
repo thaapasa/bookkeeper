@@ -17,11 +17,10 @@ import { CommonExpenseRowProps, ExpenseRow } from './row/ExpenseRow';
 import { ExpenseRowSeparator } from './row/ExpenseRowSeparator';
 import { ExpenseTableLayout } from './row/ExpenseTableLayout';
 import { RecurringSummaryRow } from './row/RecurringSummaryRow';
-import { LoadingIndicator, RecurringExpenseSeparator } from './row/SpecialRows';
+import { RecurringExpenseSeparator } from './row/SpecialRows';
 
 interface ExpenseTableProps {
   expenses: UserExpense[];
-  loading: boolean;
   startStatus: ExpenseStatus;
   endStatus: ExpenseStatus;
   monthStatus: ExpenseStatus;
@@ -59,7 +58,7 @@ function calculateTotals(expenses: Expense[]): ExpenseTotals | null {
 }
 
 const ExpenseTableView: React.FC<ExpenseTableInternalProps> = props => {
-  const { expenses, loading, userData, onUpdateExpense } = props;
+  const { expenses, userData, onUpdateExpense } = props;
   const [filters, setFilters] = React.useState<ExpenseFilter[]>([]);
   const [recurringExpanded, setRecurringExpanded] = React.useState(false);
 
@@ -106,9 +105,6 @@ const ExpenseTableView: React.FC<ExpenseTableInternalProps> = props => {
   );
 
   const renderExpenseRows = () => {
-    if (loading && expenses.length < 1) {
-      return <LoadingIndicator />;
-    }
     const [recurring, normal] = partition(e => !!e.recurringExpenseId, filteredExpenses);
     if (recurring.length < 1) {
       const dayParities = computeDayParities(normal);
@@ -152,7 +148,6 @@ const ExpenseTableView: React.FC<ExpenseTableInternalProps> = props => {
     <Box className={styles.container}>
       <Box px={{ base: 0, sm: 'md' }} style={{ whiteSpace: 'nowrap' }}>
         <ExpenseTableLayout
-          loading={loading}
           header={<ExpenseFilterRow filters={filters} onRemoveFilter={removeFilter} />}
         >
           <Table.Tbody>{renderExpenseRows()}</Table.Tbody>

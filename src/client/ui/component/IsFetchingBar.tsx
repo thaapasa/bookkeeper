@@ -1,4 +1,5 @@
 import { Box } from '@mantine/core';
+import { useDebouncedValue } from '@mantine/hooks';
 import { useIsFetching } from '@tanstack/react-query';
 import * as React from 'react';
 
@@ -6,6 +7,8 @@ import styles from './IsFetchingBar.module.css';
 
 export const IsFetchingBar: React.FC = () => {
   const isFetching = useIsFetching();
-  if (isFetching === 0) return null;
+  const [debouncedFetching] = useDebouncedValue(isFetching, 300);
+  const showBar = isFetching > 0 && debouncedFetching > 0;
+  if (!showBar) return null;
   return <Box className={styles.bar} />;
 };

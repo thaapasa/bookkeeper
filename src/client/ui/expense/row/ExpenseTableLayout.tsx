@@ -10,13 +10,12 @@ const cx = (...cs: (string | undefined | null | false)[]) => cs.filter(Boolean).
 
 export const ExpenseTableLayout: React.FC<
   React.PropsWithChildren<{
-    loading?: boolean;
     padded?: boolean;
     className?: string;
     /** Show the column header row. Can include extra header content (e.g. filter rows). */
     header?: boolean | React.ReactNode;
   }>
-> = ({ loading, padded, className, header, children }) => {
+> = ({ padded, className, header, children }) => {
   const isMobile = useIsMobile();
 
   return (
@@ -27,7 +26,6 @@ export const ExpenseTableLayout: React.FC<
       verticalSpacing={isMobile ? 'md' : 'sm'}
       fz="sm"
       className={cx(tableClasses.expenseTable, className)}
-      opacity={loading ? 0.4 : undefined}
       px={padded ? 'md' : undefined}
     >
       <Table.Thead style={header ? undefined : { visibility: 'collapse' }}>

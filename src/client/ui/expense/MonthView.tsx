@@ -74,7 +74,6 @@ export const MonthView: React.FC<MonthViewProps> = ({ date }) => {
   return (
     <ExpenseTable
       expenses={expenses ?? noExpenses}
-      loading={false}
       startStatus={statuses.startStatus}
       endStatus={statuses.endStatus}
       monthStatus={statuses.monthStatus}
