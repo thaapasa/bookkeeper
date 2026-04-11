@@ -1,5 +1,5 @@
-import { ActionIcon, Group, Loader } from '@mantine/core';
-import { useQuery } from '@tanstack/react-query';
+import { ActionIcon, Group } from '@mantine/core';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import * as React from 'react';
 
 import { RecurringExpenseDetails } from 'shared/expense';
@@ -18,11 +18,10 @@ import { Label, SubscriptionRow, Tools } from './SubscriptionLayout';
 export const SubscriptionDetails: React.FC<{ recurringExpenseId: number }> = ({
   recurringExpenseId,
 }) => {
-  const { data, isLoading } = useQuery({
+  const { data } = useSuspenseQuery({
     queryKey: QueryKeys.subscriptions.detail(recurringExpenseId),
     queryFn: () => apiConnect.getSubscription(recurringExpenseId),
   });
-  if (isLoading) return <Loader size="sm" />;
   if (!data) return null;
   return <SubscriptionDetailsRenderer data={data} />;
 };

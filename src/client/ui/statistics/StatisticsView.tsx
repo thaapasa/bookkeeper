@@ -1,17 +1,17 @@
-import { ActionIcon, Checkbox, Grid, Group, Loader, Stack } from '@mantine/core';
-import { useQuery } from '@tanstack/react-query';
+import { ActionIcon, Checkbox, Grid, Group, Stack } from '@mantine/core';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import React from 'react';
 import { z } from 'zod';
 
 import { DateRange } from 'shared/time';
-import { CategorySelection, isDefined } from 'shared/types';
+import { CategoryMap, CategorySelection, isDefined } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
 import { QueryKeys } from 'client/data/queryKeys';
 import { useCategoryMap } from 'client/data/SessionStore';
 
 import { CategoryChipList } from '../category/CategoryChipList';
 import { CategorySelector } from '../category/CategorySelector';
-import { ErrorView } from '../general/ErrorView';
+import { QueryBoundary } from '../component/QueryBoundary';
 import { NoteView } from '../general/NoteView';
 import { useIsMobile } from '../hooks/useBreakpoints';
 import { useLocalStorageList } from '../hooks/useList.ts';
@@ -88,22 +88,6 @@ export const StatisticsView: React.FC = () => {
   };
 
   const enabled = cats.length > 0 && isDefined(range);
-  const { data, isLoading, error } = useQuery({
-    queryKey: QueryKeys.statistics.category({
-      categoryIds: cats,
-      startDate: range?.startDate ?? '2000-01-01',
-      endDate: range?.endDate ?? '2000-01-01',
-      onlyOwn,
-    }),
-    queryFn: () =>
-      apiConnect.loadStatistics(
-        cats,
-        range?.startDate ?? '2000-01-01',
-        range?.endDate ?? '2000-01-01',
-        onlyOwn,
-      ),
-    enabled,
-  });
 
   const isMobile = useIsMobile();
 
@@ -148,23 +132,45 @@ export const StatisticsView: React.FC = () => {
         </Grid.Col>
       ) : null}
       <Grid.Col span={12}>
-        {!enabled ? (
+        {enabled ? (
+          <QueryBoundary>
+            <StatisticsChartLoader
+              cats={cats}
+              range={range!}
+              onlyOwn={onlyOwn}
+              type={type}
+              categoryMap={categoryMap}
+              stacked={stacked}
+            />
+          </QueryBoundary>
+        ) : (
           <NoteView title="Ei tietoja" noMargin>
             Valitse kategoria näyttääksesi tilastot
           </NoteView>
-        ) : isLoading ? (
-          <Loader />
-        ) : error ? (
-          <ErrorView title="Virhe tietojen latauksessa">{String(error)}</ErrorView>
-        ) : data ? (
-          <CategoryStatisticsChart
-            data={data}
-            type={type}
-            categoryMap={categoryMap}
-            stacked={stacked}
-          />
-        ) : null}
+        )}
       </Grid.Col>
     </Grid>
+  );
+};
+
+const StatisticsChartLoader: React.FC<{
+  cats: CategorySelection[];
+  range: DateRange;
+  onlyOwn: boolean;
+  type: StatisticsChartType;
+  categoryMap: CategoryMap;
+  stacked: boolean;
+}> = ({ cats, range, onlyOwn, type, categoryMap, stacked }) => {
+  const { data } = useSuspenseQuery({
+    queryKey: QueryKeys.statistics.category({
+      categoryIds: cats,
+      startDate: range.startDate,
+      endDate: range.endDate,
+      onlyOwn,
+    }),
+    queryFn: () => apiConnect.loadStatistics(cats, range.startDate, range.endDate, onlyOwn),
+  });
+  return (
+    <CategoryStatisticsChart data={data} type={type} categoryMap={categoryMap} stacked={stacked} />
   );
 };

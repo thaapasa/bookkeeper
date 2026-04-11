@@ -10,20 +10,21 @@ import {
   Select as MantineSelect,
   Stack,
 } from '@mantine/core';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import * as React from 'react';
 import { create } from 'zustand';
 
 import { CategoryMap, ObjectId, TrackingFrequency, TrackingSubject } from 'shared/types';
+import { noop } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { getFullCategoryName } from 'client/data/Categories';
 import { QueryKeys } from 'client/data/queryKeys';
 import { useCategoryMap } from 'client/data/SessionStore';
 
+import { QueryBoundary } from '../component/QueryBoundary';
 import { TextEdit } from '../component/TextEdit';
 import { UploadImageButton } from '../component/UploadImageButton';
 import { DialogHeading, Subtitle } from '../design/Text';
-import { ErrorView } from '../general/ErrorView';
 import { Icons } from '../icons/Icons';
 import styles from './TrackingEditor.module.css';
 import { useTrackingState } from './TrackingEditorState';
@@ -52,39 +53,52 @@ const TrackingDialogImpl: React.FC<{
   trackingId: ObjectId | null;
   onClose: () => void;
   reloadAll: () => void;
+}> = ({ trackingId, onClose, reloadAll }) => (
+  <Modal opened={true} onClose={onClose} size="lg" title="">
+    <QueryBoundary
+      fallback={
+        <Flex align="center" justify="center" p="xl">
+          <Loader size={64} />
+        </Flex>
+      }
+    >
+      <TrackingDialogContent trackingId={trackingId} onClose={onClose} reloadAll={reloadAll} />
+    </QueryBoundary>
+  </Modal>
+);
+
+const TrackingDialogContent: React.FC<{
+  trackingId: ObjectId | null;
+  onClose: () => void;
+  reloadAll: () => void;
+}> = ({ trackingId, onClose, reloadAll }) => {
+  if (trackingId === null) {
+    return (
+      <TrackingEditView data={null} onClose={onClose} reloadData={noop} reloadAll={reloadAll} />
+    );
+  }
+  return <TrackingEditLoader trackingId={trackingId} onClose={onClose} reloadAll={reloadAll} />;
+};
+
+const TrackingEditLoader: React.FC<{
+  trackingId: ObjectId;
+  onClose: () => void;
+  reloadAll: () => void;
 }> = ({ trackingId, onClose, reloadAll }) => {
   const queryClient = useQueryClient();
-  const { data, isLoading, error } = useQuery({
-    queryKey: QueryKeys.tracking.detail(trackingId ?? 0),
-    queryFn: () => (trackingId ? apiConnect.getTrackingSubject(trackingId) : null),
-    enabled: trackingId !== null,
+  const { data } = useSuspenseQuery({
+    queryKey: QueryKeys.tracking.detail(trackingId),
+    queryFn: () => apiConnect.getTrackingSubject(trackingId),
   });
   const reloadData = React.useCallback(
     () =>
       queryClient.invalidateQueries({
-        queryKey: QueryKeys.tracking.detail(trackingId ?? 0),
+        queryKey: QueryKeys.tracking.detail(trackingId),
       }),
     [queryClient, trackingId],
   );
-  const resolvedData = trackingId === null ? null : data;
-  const showContent = trackingId === null || (!isLoading && !error && data !== undefined);
   return (
-    <Modal opened={true} onClose={onClose} size="lg" title="">
-      {isLoading && trackingId !== null ? (
-        <Flex align="center" justify="center" p="xl">
-          <Loader size={64} />
-        </Flex>
-      ) : error ? (
-        <ErrorView title="Virhe tietojen latauksessa">{String(error)}</ErrorView>
-      ) : showContent ? (
-        <TrackingEditView
-          data={resolvedData ?? null}
-          onClose={onClose}
-          reloadData={reloadData}
-          reloadAll={reloadAll}
-        />
-      ) : null}
-    </Modal>
+    <TrackingEditView data={data} onClose={onClose} reloadData={reloadData} reloadAll={reloadAll} />
   );
 };
 

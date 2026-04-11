@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import * as React from 'react';
 import { useNavigate } from 'react-router';
 
@@ -34,7 +34,7 @@ export const MonthView: React.FC<MonthViewProps> = ({ date }) => {
       .setNavigation({ dateRange: monthRange(m), pathPrefix: expensePagePath });
   }, [date]);
 
-  const { data: expenseData, isLoading } = useQuery({
+  const { data: expenseData } = useSuspenseQuery({
     queryKey: QueryKeys.expenses.month(date),
     queryFn: () => {
       const m = toDateTime(date);
@@ -74,7 +74,7 @@ export const MonthView: React.FC<MonthViewProps> = ({ date }) => {
   return (
     <ExpenseTable
       expenses={expenses ?? noExpenses}
-      loading={isLoading}
+      loading={false}
       startStatus={statuses.startStatus}
       endStatus={statuses.endStatus}
       monthStatus={statuses.monthStatus}

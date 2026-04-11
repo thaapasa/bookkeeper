@@ -9,11 +9,12 @@ import {
   Modal,
   Stack,
 } from '@mantine/core';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import * as React from 'react';
 import { create } from 'zustand';
 
 import { CategoryMap, ExpenseGrouping, ObjectId } from 'shared/types';
+import { noop } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { getFullCategoryName } from 'client/data/Categories';
 import { QueryKeys } from 'client/data/queryKeys';
@@ -21,11 +22,11 @@ import { useCategoryMap } from 'client/data/SessionStore';
 
 import { ColorPicker } from '../component/ColorPicker';
 import { OptionalDatePicker } from '../component/OptionalDatePicker';
+import { QueryBoundary } from '../component/QueryBoundary';
 import { TagsPicker } from '../component/TagsPicker';
 import { TextEdit } from '../component/TextEdit';
 import { UploadImageButton } from '../component/UploadImageButton';
 import { DialogHeading, Subtitle } from '../design/Text';
-import { ErrorView } from '../general/ErrorView';
 import { Icons } from '../icons/Icons';
 import styles from './GroupingEditor.module.css';
 import { useGroupingState } from './GroupingEditorState';
@@ -54,40 +55,52 @@ const GroupingDialogImpl: React.FC<{
   groupingId: ObjectId | null;
   onClose: () => void;
   reloadAll: () => void;
+}> = ({ groupingId, onClose, reloadAll }) => (
+  <Modal opened={true} onClose={onClose} size="lg" title="">
+    <QueryBoundary
+      fallback={
+        <Flex align="center" justify="center" p="xl">
+          <Loader size={64} />
+        </Flex>
+      }
+    >
+      <GroupingDialogContent groupingId={groupingId} onClose={onClose} reloadAll={reloadAll} />
+    </QueryBoundary>
+  </Modal>
+);
+
+const GroupingDialogContent: React.FC<{
+  groupingId: ObjectId | null;
+  onClose: () => void;
+  reloadAll: () => void;
+}> = ({ groupingId, onClose, reloadAll }) => {
+  if (groupingId === null) {
+    return (
+      <GroupingEditView data={null} onClose={onClose} reloadData={noop} reloadAll={reloadAll} />
+    );
+  }
+  return <GroupingEditLoader groupingId={groupingId} onClose={onClose} reloadAll={reloadAll} />;
+};
+
+const GroupingEditLoader: React.FC<{
+  groupingId: ObjectId;
+  onClose: () => void;
+  reloadAll: () => void;
 }> = ({ groupingId, onClose, reloadAll }) => {
   const queryClient = useQueryClient();
-  const { data, isLoading, error } = useQuery({
-    queryKey: QueryKeys.groupings.detail(groupingId ?? 0),
-    queryFn: () => (groupingId ? apiConnect.getExpenseGrouping(groupingId) : null),
-    enabled: groupingId !== null,
+  const { data } = useSuspenseQuery({
+    queryKey: QueryKeys.groupings.detail(groupingId),
+    queryFn: () => apiConnect.getExpenseGrouping(groupingId),
   });
   const reloadData = React.useCallback(
     () =>
       queryClient.invalidateQueries({
-        queryKey: QueryKeys.groupings.detail(groupingId ?? 0),
+        queryKey: QueryKeys.groupings.detail(groupingId),
       }),
     [queryClient, groupingId],
   );
-  // For new grouping (groupingId === null), render the edit view with null data immediately
-  const resolvedData = groupingId === null ? null : data;
-  const showContent = groupingId === null || (!isLoading && !error && data !== undefined);
   return (
-    <Modal opened={true} onClose={onClose} size="lg" title="">
-      {isLoading && groupingId !== null ? (
-        <Flex align="center" justify="center" p="xl">
-          <Loader size={64} />
-        </Flex>
-      ) : error ? (
-        <ErrorView title="Virhe tietojen latauksessa">{String(error)}</ErrorView>
-      ) : showContent ? (
-        <GroupingEditView
-          data={resolvedData ?? null}
-          onClose={onClose}
-          reloadData={reloadData}
-          reloadAll={reloadAll}
-        />
-      ) : null}
-    </Modal>
+    <GroupingEditView data={data} onClose={onClose} reloadData={reloadData} reloadAll={reloadAll} />
   );
 };
 
@@ -100,7 +113,7 @@ const GroupingEditView: React.FC<{
   const categoryMap = useCategoryMap()!;
   const createNew = data === null;
   const state = useGroupingState();
-  const { data: tags } = useQuery({
+  const { data: tags } = useSuspenseQuery({
     queryKey: QueryKeys.groupings.tags,
     queryFn: () => apiConnect.getExpenseGroupingTags(),
   });
@@ -142,7 +155,7 @@ const GroupingEditView: React.FC<{
             value={state.tags}
             onAdd={state.addTag}
             onRemove={state.removeTag}
-            presetValues={tags ?? []}
+            presetValues={tags}
           />
         </SelectionRow>
         <SelectionRow title="Kuva">

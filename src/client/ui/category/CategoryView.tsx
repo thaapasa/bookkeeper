@@ -1,5 +1,5 @@
 import { Box } from '@mantine/core';
-import { useQuery } from '@tanstack/react-query';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import * as React from 'react';
 
 import { TypedDateRange } from 'shared/time';
@@ -29,7 +29,7 @@ export const CategoryView: React.FC<CategoryViewProps> = ({ range }) => {
     useNavigationStore.getState().setNavigation({ pathPrefix: categoryPagePath, dateRange: range });
   }, [range]);
 
-  const { data: categoryTotals } = useQuery({
+  const { data: categoryTotals } = useSuspenseQuery({
     queryKey: QueryKeys.categories.totals(range.start, range.end),
     queryFn: () => getCategoryTotals(range),
   });
@@ -38,8 +38,6 @@ export const CategoryView: React.FC<CategoryViewProps> = ({ range }) => {
     () => (categoryTotals ? formCategoryChartData(categories, categoryTotals) : []),
     [categories, categoryTotals],
   );
-
-  if (!categoryTotals) return null;
 
   return (
     <Box>

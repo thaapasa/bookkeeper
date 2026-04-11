@@ -34,33 +34,30 @@ import { SubscriptionsPage } from '../subscriptions/SubscriptionsPage';
 import { ToolsView } from '../tools/ToolsView';
 import { TrackingPage } from '../tracking/TrackingPage';
 
+function qb(children: React.ReactNode) {
+  return <QueryBoundary>{children}</QueryBoundary>;
+}
+
 export function AppRouter() {
   return (
     <Routes>
-      <Route path={expenseMonthPathPattern('date') + '/*'} element={<RoutedMonthView />} />
-      <Route path={expensePagePath + '/*'} element={<RoutedMonthView />} />
-      <Route path={categoryViewYearPattern('year')} element={<RoutedCategoryView />} />
-      <Route path={categoryViewMonthPattern('month')} element={<RoutedCategoryView />} />
+      <Route path={expenseMonthPathPattern('date') + '/*'} element={qb(<RoutedMonthView />)} />
+      <Route path={expensePagePath + '/*'} element={qb(<RoutedMonthView />)} />
+      <Route path={categoryViewYearPattern('year')} element={qb(<RoutedCategoryView />)} />
+      <Route path={categoryViewMonthPattern('month')} element={qb(<RoutedCategoryView />)} />
       <Route path={shortcutsPagePath + '/*'} element={<ShortcutsPage />} />
-      <Route path={subscriptionsPagePath} element={<SubscriptionsPage />} />
-      <Route path={categoryPagePath} element={<RoutedCategoryView />} />
-      <Route path={`${searchPagePath}/m/:month`} element={<SearchPage />} />
-      <Route path={`${searchPagePath}/y/:year`} element={<SearchPage />} />
-      <Route path={searchPagePath} element={<SearchPage />} />
+      <Route path={subscriptionsPagePath} element={qb(<SubscriptionsPage />)} />
+      <Route path={categoryPagePath} element={qb(<RoutedCategoryView />)} />
+      <Route path={`${searchPagePath}/m/:month`} element={qb(<SearchPage />)} />
+      <Route path={`${searchPagePath}/y/:year`} element={qb(<SearchPage />)} />
+      <Route path={searchPagePath} element={qb(<SearchPage />)} />
 
-      <Route path={statisticsPage} element={<StatisticsView />} />
+      <Route path={statisticsPage} element={qb(<StatisticsView />)} />
       <Route path={profilePagePath + '/*'} element={<ProfileView />} />
       <Route path={infoPagePath} element={<InfoView />} />
-      <Route
-        path={trackingPagePath}
-        element={
-          <QueryBoundary>
-            <TrackingPage />
-          </QueryBoundary>
-        }
-      />
-      <Route path={groupingsPagePath} element={<GroupingPage />} />
-      <Route path={`${groupingsPagePath}/:groupingId`} element={<GroupingExpensesPage />} />
+      <Route path={trackingPagePath} element={qb(<TrackingPage />)} />
+      <Route path={groupingsPagePath} element={qb(<GroupingPage />)} />
+      <Route path={`${groupingsPagePath}/:groupingId`} element={qb(<GroupingExpensesPage />)} />
       <Route path={toolsPagePath} element={<ToolsView />} />
       <Route path={'/p/*'} element={<FrontpageView />} />
       <Route path="/" element={<FrontpageView />} />
