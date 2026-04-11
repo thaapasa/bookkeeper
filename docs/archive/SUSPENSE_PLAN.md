@@ -1,6 +1,11 @@
 # Suspense + Error Boundary Migration Plan
 
-Tracking issue: [thaapasa/bookkeeper#94](https://github.com/thaapasa/bookkeeper/issues/94)
+> **Status: COMPLETED** — April 2026. All data-loading pages migrated to
+> `useSuspenseQuery` with `QueryBoundary` wrappers. SearchPage and DbStatusView
+> intentionally kept on `useQuery`. This document is retained as a historical
+> decision record.
+>
+> Tracking issue: [thaapasa/bookkeeper#94](https://github.com/thaapasa/bookkeeper/issues/94)
 
 ## Goal
 
