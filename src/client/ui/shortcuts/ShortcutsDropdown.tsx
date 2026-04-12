@@ -1,4 +1,4 @@
-import { ActionIcon, Avatar, Box, Menu } from '@mantine/core';
+import { ActionIcon, Avatar, Box, Menu, ThemeIcon } from '@mantine/core';
 import { DateTime } from 'luxon';
 import * as React from 'react';
 import { NavigateFunction, useNavigate } from 'react-router';
@@ -37,9 +37,9 @@ export const AddExpenseMenu: React.FC = () => {
       <Menu.Dropdown>
         <Menu.Item
           leftSection={
-            <Avatar radius="lg" size={24} bg="primary.5" c="white">
+            <ThemeIcon radius="lg" size={24} color="primary.5">
               <Icons.Add color="white" fontSize="small" />
-            </Avatar>
+            </ThemeIcon>
           }
           onClick={handleAddNew}
           fw={600}
