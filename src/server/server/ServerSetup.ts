@@ -28,10 +28,14 @@ export function setupServer() {
   app.use(express.raw({ limit: '10MB', type: 'multipart/form-data' }));
   app.use(express.raw({}));
 
-  // Serve user-uploaded content (images etc.)
-  app.get(/\/content\/.*/, nocache(), (req, res, next) => {
+  // Serve user-uploaded content (images etc.) — filenames are random 24-char IDs
+  // generated on upload, so files at a given path never change. Cache forever on hit;
+  // 404s are left uncached so a later upload to the same path is visible.
+  app.get(/\/content\/.*/, (req, res, next) => {
     setOtelRouteInfo(req, '/content/:path');
-    return serveFile(path.join(config.contentPath, req.path), res).catch(next);
+    return serveFile(path.join(config.contentPath, req.path), res, {
+      cacheControl: 'public, max-age=31536000, immutable',
+    }).catch(next);
   });
 
   // SPA entry point and reloads of /p/xxx subpaths — always fresh.
@@ -49,9 +53,16 @@ export function setupServer() {
   return app;
 }
 
-async function serveFile(filepath: string, res: express.Response) {
+async function serveFile(
+  filepath: string,
+  res: express.Response,
+  opts: { cacheControl?: string } = {},
+) {
   const f = Bun.file(filepath);
   if (await f.exists()) {
+    if (opts.cacheControl) {
+      res.set('Cache-Control', opts.cacheControl);
+    }
     res.sendFile(filepath);
   } else {
     res.status(404).send();
