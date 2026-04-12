@@ -106,22 +106,20 @@ export async function getCategoryStatistics(
     `Querying for statistics between ${rangeInclusive.startDate} - ${rangeInclusive.endDate}`,
   );
   const [groped, alone] = partition(i => i.grouped === true, categoryIds);
-  const [stAlone, stGrouped] = await Promise.all([
-    loadCategoryStatisticsData(
-      tx,
-      groupId,
-      rangeInclusive,
-      alone.map(c => c.id),
-      onlyOwn ? userId : undefined,
-    ),
-    loadCategoryStatisticsDataGroupedByParent(
-      tx,
-      groupId,
-      rangeInclusive,
-      groped.map(c => c.id),
-      onlyOwn ? userId : undefined,
-    ),
-  ]);
+  const stAlone = await loadCategoryStatisticsData(
+    tx,
+    groupId,
+    rangeInclusive,
+    alone.map(c => c.id),
+    onlyOwn ? userId : undefined,
+  );
+  const stGrouped = await loadCategoryStatisticsDataGroupedByParent(
+    tx,
+    groupId,
+    rangeInclusive,
+    groped.map(c => c.id),
+    onlyOwn ? userId : undefined,
+  );
   return {
     categoryIds,
     statistics: {

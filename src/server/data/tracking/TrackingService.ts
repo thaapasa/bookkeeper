@@ -50,12 +50,14 @@ export async function getTrackingSubjectsWithData(
   userId: ObjectId,
 ): Promise<TrackingSubjectWithData[]> {
   const subjects = await getTrackingSubjectsForUser(tx, groupId, userId);
-  return Promise.all(
-    subjects.map(async s => ({
+  const result: TrackingSubjectWithData[] = [];
+  for (const s of subjects) {
+    result.push({
       ...s,
       data: await getTrackingStatistics(tx, groupId, userId, s.trackingData),
-    })),
-  );
+    });
+  }
+  return result;
 }
 
 export async function updateTrackingSubject(

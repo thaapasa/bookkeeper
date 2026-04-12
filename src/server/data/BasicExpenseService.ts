@@ -24,11 +24,9 @@ export async function createExpense(
 ): Promise<ExpenseIdResponse> {
   const expense = setExpenseDataDefaults(expenseInput);
   const sourceId = expense.sourceId || defaultSourceId;
-  const [cat, user, source] = await Promise.all([
-    getCategoryById(tx, groupId, expense.categoryId),
-    getUserById(tx, groupId, expense.userId),
-    getSourceById(tx, groupId, sourceId),
-  ]);
+  const cat = await getCategoryById(tx, groupId, expense.categoryId);
+  const user = await getUserById(tx, groupId, expense.userId);
+  const source = await getSourceById(tx, groupId, sourceId);
 
   const division = determineDivision(expense, source);
   const id = await createNewExpense(
@@ -73,13 +71,16 @@ export async function copyExpense(
   return createNewExpense(tx, userId, expense, division);
 }
 
-export const getExpenseAndDivisionData = (
+export async function getExpenseAndDivisionData(
   tx: DbTask,
   groupId: number,
   userId: number,
   expenseId: number,
-): Promise<[Expense, ExpenseDivisionItem[]]> =>
-  Promise.all([getExpenseById(tx, groupId, userId, expenseId), getExpenseDivision(tx, expenseId)]);
+): Promise<[Expense, ExpenseDivisionItem[]]> {
+  const expense = await getExpenseById(tx, groupId, userId, expenseId);
+  const division = await getExpenseDivision(tx, expenseId);
+  return [expense, division];
+}
 
 export async function getExpenseWithDivision(
   tx: DbTask,
@@ -87,9 +88,7 @@ export async function getExpenseWithDivision(
   userId: ObjectId,
   expenseId: ObjectId,
 ): Promise<Expense & { division: ExpenseDivisionItem[] }> {
-  const [expense, division] = await Promise.all([
-    getExpenseById(tx, groupId, userId, expenseId),
-    getExpenseDivision(tx, expenseId),
-  ]);
+  const expense = await getExpenseById(tx, groupId, userId, expenseId);
+  const division = await getExpenseDivision(tx, expenseId);
   return { ...expense, division };
 }

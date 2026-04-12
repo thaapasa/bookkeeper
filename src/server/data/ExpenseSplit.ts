@@ -18,7 +18,9 @@ export async function splitExpense(
   const expense = toBaseExpense(await getExpenseById(tx, groupId, userId, expenseId));
   await checkSplits(splits, expense);
   logger.debug({ expense, splits }, 'Splitting expense');
-  await Promise.all(splits.map(s => createSplit(tx, expense, s)));
+  for (const s of splits) {
+    await createSplit(tx, expense, s);
+  }
   await deleteExpenseById(tx, groupId, expenseId);
   return {
     status: 'OK',

@@ -92,13 +92,11 @@ function createSessionInfo(
 }
 
 export async function appendInfoToSession(tx: DbTask, session: SessionBasicInfo): Promise<Session> {
-  const [groups, sources, categories, users, groupings] = await Promise.all([
-    getGroupsForUser(tx, session.user.id),
-    getAllSources(tx, session.group.id),
-    getAllCategories(tx, session.group.id),
-    getAllUsers(tx, session.group.id),
-    getAllGroupingRefs(tx, session.group.id),
-  ]);
+  const groups = await getGroupsForUser(tx, session.user.id);
+  const sources = await getAllSources(tx, session.group.id);
+  const categories = await getAllCategories(tx, session.group.id);
+  const users = await getAllUsers(tx, session.group.id);
+  const groupings = await getAllGroupingRefs(tx, session.group.id);
   return { ...session, groups, sources, categories, users, groupings };
 }
 

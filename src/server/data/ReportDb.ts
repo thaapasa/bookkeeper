@@ -60,11 +60,11 @@ export async function searchReports(
   criteria: SubscriptionSearchCriteria,
 ): Promise<ExpenseReport[]> {
   const reports = await getAllReports(tx, groupId);
-
-  const reportData = await Promise.all(
-    reports.map(r => calculateExpenseReports(tx, groupId, userId, r, criteria)),
-  );
-  return reportData.flat();
+  const reportData: ExpenseReport[] = [];
+  for (const r of reports) {
+    reportData.push(...(await calculateExpenseReports(tx, groupId, userId, r, criteria)));
+  }
+  return reportData;
 }
 
 type ExpenseReportFromDb = Pick<

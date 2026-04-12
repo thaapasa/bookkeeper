@@ -27,7 +27,7 @@ import {
   ObjectId,
   RecurringExpenseCreatedResponse,
 } from 'shared/types';
-import { assertDefined, camelCaseObject, Money, toArray, unnest } from 'shared/util';
+import { assertDefined, camelCaseObject, Money, toArray } from 'shared/util';
 import { DbTask } from 'server/data/Db.ts';
 import { logger } from 'server/Logger';
 
@@ -131,10 +131,8 @@ export async function getRecurringExpenseDetails(
     `SELECT COUNT(*) AS "count", SUM(sum) AS "sum" FROM expenses WHERE recurring_expense_id=$/recurringExpenseId/`,
     { recurringExpenseId },
   );
-  const [firstOccurence, lastOccurence] = await Promise.all([
-    getFirstRecurrence(tx, groupId, userId, recurringExpenseId),
-    getLastRecurrence(tx, groupId, userId, recurringExpenseId),
-  ]);
+  const firstOccurence = await getFirstRecurrence(tx, groupId, userId, recurringExpenseId);
+  const lastOccurence = await getLastRecurrence(tx, groupId, userId, recurringExpenseId);
   return {
     recurringExpense,
     totalExpenses: totals.count,
@@ -432,13 +430,11 @@ async function createDivisionForRecurrence(
   afterDate: DateLike | null,
 ): Promise<number> {
   const ids = await getRecurringExpenseIds(tx, recurringExpenseId, afterDate);
-  await Promise.all(
-    unnest(
-      ids.map(expenseId =>
-        division.map(d => storeExpenseDivision(tx, expenseId, d.userId, d.type, d.sum)),
-      ),
-    ),
-  );
+  for (const expenseId of ids) {
+    for (const d of division) {
+      await storeExpenseDivision(tx, expenseId, d.userId, d.type, d.sum);
+    }
+  }
   return recurringExpenseId;
 }
 
@@ -455,10 +451,8 @@ async function updateRecurringExpense(
   const expense = setExpenseDataDefaults(expenseInput);
   logger.debug({ original, expense }, `Updating recurring expense`);
   const sourceId = expense.sourceId || defaultSourceId;
-  const [cat, source] = await Promise.all([
-    getCategoryById(tx, original.groupId, expense.categoryId),
-    getSourceById(tx, original.groupId, sourceId),
-  ]);
+  const cat = await getCategoryById(tx, original.groupId, expense.categoryId);
+  const source = await getSourceById(tx, original.groupId, sourceId);
   await tx.none(
     `UPDATE expenses
       SET date=$/date/::DATE, receiver=$/receiver/, sum=$/sum/, title=$/title/,

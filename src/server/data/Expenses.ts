@@ -74,12 +74,14 @@ export async function getExpensesByMonth(
   const startDate = dateTimeFromParts(year, month, 1);
   const endDate = startDate.plus({ months: 1 });
   await createMissingRecurringExpenses(tx, groupId, userId, endDate);
-  const [expenses, startStatus, monthStatus, unconfirmedBefore] = await Promise.all([
-    getBetween(tx, groupId, userId, startDate, endDate),
-    countTotalBetween(tx, groupId, userId, '2000-01', startDate).then(calculateBalance),
-    countTotalBetween(tx, groupId, userId, startDate, endDate).then(calculateBalance),
-    hasUnconfirmedBefore(tx, groupId, startDate),
-  ]);
+  const expenses = await getBetween(tx, groupId, userId, startDate, endDate);
+  const startStatus = calculateBalance(
+    await countTotalBetween(tx, groupId, userId, '2000-01', startDate),
+  );
+  const monthStatus = calculateBalance(
+    await countTotalBetween(tx, groupId, userId, startDate, endDate),
+  );
+  const unconfirmedBefore = await hasUnconfirmedBefore(tx, groupId, startDate);
   const endStatus = mapValues(
     k => Money.from(startStatus[k]).plus(monthStatus[k]).toString(),
     zeroStatus,

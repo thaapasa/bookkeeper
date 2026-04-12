@@ -229,9 +229,9 @@ export async function getExpenseDivision(
 }
 
 async function createDivision(tx: DbTask, expenseId: number, division: ExpenseDivisionItem[]) {
-  await Promise.all(
-    division.map(d => storeExpenseDivision(tx, expenseId, d.userId, d.type, d.sum)),
-  );
+  for (const d of division) {
+    await storeExpenseDivision(tx, expenseId, d.userId, d.type, d.sum);
+  }
   return expenseId;
 }
 
@@ -294,10 +294,8 @@ export async function updateExpense(
   const expense = setExpenseDataDefaults(expenseInput);
   logger.debug({ original, expense }, 'Updating expense');
   const sourceId = expense.sourceId || defaultSourceId;
-  const [cat, source] = await Promise.all([
-    getCategoryById(tx, original.groupId, expense.categoryId),
-    getSourceById(tx, original.groupId, sourceId),
-  ]);
+  const cat = await getCategoryById(tx, original.groupId, expense.categoryId);
+  const source = await getSourceById(tx, original.groupId, sourceId);
   const division = determineDivision(expense, source);
   await deleteDivision(tx, original.id);
   await tx.none(
