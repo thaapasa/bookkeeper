@@ -1,7 +1,12 @@
 # Docker-based production deployment
 
-**Status:** Planned
-**Tracking issue:** [#96 — Dockerize for prod deploy via GHCR](https://github.com/thaapasa/bookkeeper/issues/96)
+> **Status: COMPLETED** — April 2026. Image builds on a native `ubuntu-24.04-arm`
+> runner, pushes to `ghcr.io/thaapasa/bookkeeper`, and is pulled by docker-compose
+> on the Hetzner CAX11 VM. Legacy `script/start-server.sh` deploy path kept
+> working side-by-side. This document is retained as a historical decision record.
+>
+> Tracking issue: [thaapasa/bookkeeper#96](https://github.com/thaapasa/bookkeeper/issues/96)
+> Implementation PR: [thaapasa/bookkeeper#97](https://github.com/thaapasa/bookkeeper/pull/97)
 
 ## Context
 
@@ -186,3 +191,64 @@ services:
 7. **Prod host (side-by-side):** `docker compose pull && docker compose up -d` on a
    separate port/hostname while the legacy process keeps running on the current URL.
    Verify end-to-end against the container, then cut over Caddy once confident.
+
+## Deviations from the original plan
+
+These are the things that ended up different from the plan above.
+
+### ARM64-only build (Hetzner CAX11 target)
+
+Prod host is a single Hetzner CAX11 (Ampere Altra / ARM64), so the plan's "amd64
+only" note didn't apply. Switched the release job to `runs-on: ubuntu-24.04-arm`
+with `platforms: linux/arm64` on `build-push-action`. Native runner avoids qemu
+emulation (which breaks native modules like `sharp` and is ~3× slower). If a
+second host architecture is ever needed, swap back to a matrix or multi-arch
+build with qemu.
+
+### `/content/*` uploads cached immutably
+
+The plan kept `nocache()` on `/content/*`. That was overly cautious — uploaded
+files are named via `getRandomFilename(24)` on upload (see
+`server/server/FileHandling.ts`), so each path is effectively content-unique
+and never changes. Switched to `Cache-Control: public, max-age=31536000,
+immutable` on 200 responses, with the header set inside the `serveFile`
+exists-branch so 404s aren't cached.
+
+### Local dev DB via docker-compose
+
+Replaced the manual `create-dev-db` docker-run script with
+`docker-compose.dev.yml` (`bun dev-db` / `bun dev-db-stop`) and bumped Postgres
+to 18 across dev and CI to match prod. Important: Postgres 18+ images require
+the volume to be mounted at `/var/lib/postgresql` (not `.../data`), because
+they now store the cluster under a major-version subdir for
+`pg_upgrade --link` compatibility.
+
+## Follow-ups (not addressed in this PR)
+
+### Image size
+
+Final image is **665 MB uncompressed** — bigger than the plan's "target < 500 MB"
+(layer breakdown, as of `0.9.2`):
+
+| Layer | Size |
+|---|---|
+| `node_modules` | 451 MB |
+| bun binary | 100 MB |
+| Debian base | 100 MB |
+| `dist/` (SPA) | 8.7 MB |
+| `build-server/` (bundled server) | 4.9 MB |
+
+Two optimization levers if this becomes an issue:
+
+1. **Swap runtime base to `oven/bun:1.3.12-slim`** (or distroless) — should cut
+   50–80 MB off the Debian layer. Easy win if a slim arm64 tag exists.
+2. **Trim runtime `node_modules` to actual externals.** `bun install
+   --production` installs every `dependency` even though most get bundled
+   into `build-server/`. The real runtime externals from `src/build-server.ts`
+   are only `pg`, `pg-promise`, `sharp`, `@opentelemetry/*`, and `knex`.
+   Installing just those would shrink `node_modules` from 451 MB to roughly
+   100–150 MB, but requires keeping the install list in sync with the
+   externals list manually. Higher payoff, higher maintenance cost.
+
+Not a blocker for single-VM deploy; revisit if pull times or registry storage
+become a concern.
