@@ -35,6 +35,7 @@ export const config = {
   curDir,
   fileUploadPath: path.join(curDir, process.env.UPLOAD_PATH || './uploads'),
   contentPath: path.join(curDir, process.env.CONTENT_PATH || './content'),
+  staticPath: path.join(curDir, process.env.STATIC_PATH || './public'),
   useNodeFileAPI: process.env.USE_NODE_FILE_API === 'true',
 
   // OpenTelemetry (optional — telemetry disabled when endpoint is not set)
