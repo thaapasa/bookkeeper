@@ -1,4 +1,4 @@
-import { Loader } from '@mantine/core';
+import { Center, Loader } from '@mantine/core';
 import * as React from 'react';
 import { useLocation } from 'react-router';
 
@@ -24,7 +24,17 @@ export const QueryBoundary: React.FC<QueryBoundaryProps> = ({
         errorFallback ?? <QueryErrorDisplay error={error} resetErrorBoundary={resetErrorBoundary} />
       }
     >
-      <React.Suspense fallback={fallback ?? <Loader />}>{children}</React.Suspense>
+      <React.Suspense
+        fallback={
+          fallback ?? (
+            <Center pt="xl">
+              <Loader />
+            </Center>
+          )
+        }
+      >
+        {children}
+      </React.Suspense>
     </ErrorBoundary>
   );
 };
