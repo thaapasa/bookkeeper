@@ -21,28 +21,17 @@ function lokiTransportTarget(): pino.TransportTargetOptions | undefined {
 function createLogger() {
   const lokiTarget = lokiTransportTarget();
 
-  if (config.environment === 'development') {
-    if (!lokiTarget) {
-      return pino({ level: config.logLevel });
-    }
-    // Dev: stdout (default) + Loki
-    const transport = pino.transport({
-      targets: [
-        { target: 'pino/file', options: { destination: 1 }, level: config.logLevel },
-        lokiTarget,
-      ],
-    });
-    return pino({ level: config.logLevel }, transport);
+  if (!lokiTarget) {
+    return pino({ level: config.logLevel });
   }
 
-  // Production: file + optionally Loki
-  const targets: pino.TransportTargetOptions[] = [
-    { target: 'pino/file', options: { destination: 'log/server.log', append: false } },
-  ];
-  if (lokiTarget) {
-    targets.push(lokiTarget);
-  }
-  const transport = pino.transport({ targets });
+  // stdout + Loki
+  const transport = pino.transport({
+    targets: [
+      { target: 'pino/file', options: { destination: 1 }, level: config.logLevel },
+      lokiTarget,
+    ],
+  });
   return pino({ level: config.logLevel }, transport);
 }
 

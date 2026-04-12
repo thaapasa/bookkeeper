@@ -30,7 +30,7 @@ fi
 mkdir -p log
 
 echo "Starting server (port $PORT)"
-NODE_ENV=production nohup bun run build-server/BookkeeperServer.js >log/start-server.log &
+NODE_ENV=production nohup bun run build-server/BookkeeperServer.js >log/server.log 2>&1 &
 echo
 
 popd >/dev/null
