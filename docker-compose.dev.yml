@@ -1,0 +1,25 @@
+# Local development database. Matches the credentials in .env.ci and the
+# DB_URL that dev .env files are expected to point at (port 15488).
+# Start with: bun dev-db   (wraps `docker compose -f docker-compose.dev.yml up -d`)
+
+services:
+  db:
+    image: postgres:18
+    container_name: bookkeeper-dev-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "15488:5432"
+    volumes:
+      - bookkeeper-dev-db:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  bookkeeper-dev-db:
