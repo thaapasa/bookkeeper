@@ -1,4 +1,4 @@
-import { ActionIcon } from '@mantine/core';
+import { ActionIcon, Loader } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import * as React from 'react';
 
@@ -10,6 +10,7 @@ import { invalidateSubscriptionData } from 'client/data/query';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { ExpanderIcon } from '../component/ExpanderIcon';
+import { QueryBoundary } from '../component/QueryBoundary';
 import { Icons } from '../icons/Icons';
 import { SubscriptionDetails } from './SubscriptionDetails';
 import { Dates, Label, Period, SubscriptionRow, Sum, Tools } from './SubscriptionLayout';
@@ -45,7 +46,11 @@ const RecurringExpenseItem: React.FC<{
           <ExpanderIcon title="Lisätiedot" open={open} onToggle={toggle} />
         </Tools>
       </SubscriptionRow>
-      {open ? <SubscriptionDetails recurringExpenseId={item.id} /> : null}
+      {open ? (
+        <QueryBoundary fallback={<Loader size="sm" />}>
+          <SubscriptionDetails recurringExpenseId={item.id} />
+        </QueryBoundary>
+      ) : null}
     </>
   );
 };

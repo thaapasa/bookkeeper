@@ -1,6 +1,6 @@
 import { Group, Table } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import * as React from 'react';
 
 import { UIDateRange } from 'shared/time';
@@ -10,6 +10,7 @@ import apiConnect from 'client/data/ApiConnect';
 import { UserDataProps } from 'client/data/Categories';
 import { QueryKeys } from 'client/data/queryKeys';
 
+import { QueryBoundary } from '../component/QueryBoundary';
 import { ExpenseRow } from '../expense/row/ExpenseRow';
 import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
 import { AllColumns } from './CategoryTableLayout';
@@ -84,7 +85,9 @@ export const CategoryRow: React.FC<CategoryRowProps> = props => {
       {open ? (
         <Table.Tr>
           <AllColumns px="md">
-            <CategoryRowExpenses {...props} />
+            <QueryBoundary fallback={<>Ladataan...</>}>
+              <CategoryRowExpenses {...props} />
+            </QueryBoundary>
           </AllColumns>
         </Table.Tr>
       ) : null}
@@ -107,7 +110,7 @@ const CategoryRowExpenses: React.FC<{
     }),
     [range.start, range.end, category.id],
   );
-  const { data, isLoading } = useQuery({
+  const { data } = useSuspenseQuery({
     queryKey: QueryKeys.search.results(searchQuery),
     queryFn: () => apiConnect.searchExpenses(searchQuery),
   });
@@ -116,9 +119,6 @@ const CategoryRowExpenses: React.FC<{
     [queryClient, searchQuery],
   );
 
-  if (isLoading || !data) {
-    return <>Ladataan...</>;
-  }
   if (data.length < 1) {
     return <>Ei kirjauksia</>;
   }

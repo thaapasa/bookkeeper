@@ -1,29 +1,21 @@
-import { useQuery } from '@tanstack/react-query';
+import { Center, Loader } from '@mantine/core';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import * as React from 'react';
 import { useNavigate } from 'react-router';
 
-import { UserExpense } from 'shared/expense';
 import { ISOMonth, isSameMonth, monthRange, toDateTime } from 'shared/time';
 import apiConnect from 'client/data/ApiConnect';
 import { useNavigationStore } from 'client/data/NavigationStore';
+import { updateExpenseInMonthCache } from 'client/data/query';
 import { QueryKeys } from 'client/data/queryKeys';
 import { logger } from 'client/Logger';
 import { expensePagePath, expensesForMonthPath } from 'client/util/Links';
 
-import { zeroStatus } from './ExpenseHelper';
 import { ExpenseTable } from './ExpenseTable';
 
 interface MonthViewProps {
   date: ISOMonth;
 }
-
-const zeroStatuses = {
-  startStatus: zeroStatus,
-  endStatus: zeroStatus,
-  monthStatus: zeroStatus,
-};
-
-const noExpenses: UserExpense[] = [];
 
 export const MonthView: React.FC<MonthViewProps> = ({ date }) => {
   // Side effect: update navigation state
@@ -34,29 +26,14 @@ export const MonthView: React.FC<MonthViewProps> = ({ date }) => {
       .setNavigation({ dateRange: monthRange(m), pathPrefix: expensePagePath });
   }, [date]);
 
-  const { data: expenseData, isLoading } = useQuery({
+  const { data: expenseData } = useQuery({
     queryKey: QueryKeys.expenses.month(date),
     queryFn: () => {
       const m = toDateTime(date);
       return apiConnect.getExpensesForMonth(m.year, m.month);
     },
+    placeholderData: keepPreviousData,
   });
-
-  const statuses = React.useMemo(
-    () =>
-      expenseData
-        ? {
-            startStatus: expenseData.startStatus,
-            endStatus: expenseData.endStatus,
-            monthStatus: expenseData.monthStatus,
-          }
-        : zeroStatuses,
-    [expenseData],
-  );
-
-  const loadedExpenseArray = expenseData?.expenses;
-  const [expenses, setExpenses] = React.useState<UserExpense[] | undefined>(undefined);
-  React.useEffect(() => setExpenses(loadedExpenseArray), [loadedExpenseArray]);
 
   // Navigate to another month when an expense is saved with a different month's date.
   const navigate = useNavigate();
@@ -71,17 +48,22 @@ export const MonthView: React.FC<MonthViewProps> = ({ date }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navSeq]);
 
+  if (!expenseData) {
+    return (
+      <Center pt="xl">
+        <Loader />
+      </Center>
+    );
+  }
+
   return (
     <ExpenseTable
-      expenses={expenses ?? noExpenses}
-      loading={isLoading}
-      startStatus={statuses.startStatus}
-      endStatus={statuses.endStatus}
-      monthStatus={statuses.monthStatus}
-      unconfirmedBefore={expenseData?.unconfirmedBefore ?? false}
-      onUpdateExpense={(id, data) =>
-        expenses ? setExpenses(expenses.map(e => (e.id === id ? data : e))) : undefined
-      }
+      expenses={expenseData.expenses}
+      startStatus={expenseData.startStatus}
+      endStatus={expenseData.endStatus}
+      monthStatus={expenseData.monthStatus}
+      unconfirmedBefore={expenseData.unconfirmedBefore}
+      onUpdateExpense={(id, updated) => updateExpenseInMonthCache(date, id, updated)}
     />
   );
 };

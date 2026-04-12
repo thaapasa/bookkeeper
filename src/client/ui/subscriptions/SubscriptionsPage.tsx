@@ -1,5 +1,5 @@
-import { Box, Checkbox, Loader } from '@mantine/core';
-import { useQuery } from '@tanstack/react-query';
+import { Box, Checkbox } from '@mantine/core';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import * as React from 'react';
 import { z } from 'zod';
 
@@ -10,7 +10,7 @@ import apiConnect from 'client/data/ApiConnect';
 import { QueryKeys } from 'client/data/queryKeys';
 import { useCategoryMap } from 'client/data/SessionStore';
 
-import { ErrorView } from '../general/ErrorView';
+import { QueryBoundary } from '../component/QueryBoundary';
 import { useLocalStorageList } from '../hooks/useList.ts';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { SubscriptionCategoryHeader, ToggleCategoryVisibility } from './SubscriptionCategoryHeader';
@@ -21,28 +21,28 @@ import { TotalsChart, TotalsData } from './TotalsChart';
 import { RecurrenceTotals, SubscriptionGroup, SubscriptionItem, SubscriptionsData } from './types';
 
 export const SubscriptionsPage: React.FC = () => {
-  const categories = useCategoryMap()!;
   const [criteria, setCriteria] = React.useState<SubscriptionSearchCriteria | undefined>(undefined);
-
-  const { data, isLoading, error } = useQuery({
-    queryKey: QueryKeys.subscriptions.search(criteria!),
-    queryFn: () => apiConnect.searchSubscriptions(criteria!),
-    enabled: criteria !== undefined,
-    select: result => groupSubscriptions(result, categories),
-  });
 
   return (
     <>
       <SubscriptionCriteriaSelector onChange={setCriteria} />
-      {isLoading ? (
-        <Loader />
-      ) : error ? (
-        <ErrorView title="Virhe tietojen latauksessa">{String(error)}</ErrorView>
-      ) : data ? (
-        <SubscriptionsRenderer data={data} />
+      {criteria !== undefined ? (
+        <QueryBoundary>
+          <SubscriptionsResults criteria={criteria} />
+        </QueryBoundary>
       ) : null}
     </>
   );
+};
+
+const SubscriptionsResults: React.FC<{ criteria: SubscriptionSearchCriteria }> = ({ criteria }) => {
+  const categories = useCategoryMap()!;
+  const { data } = useSuspenseQuery({
+    queryKey: QueryKeys.subscriptions.search(criteria),
+    queryFn: () => apiConnect.searchSubscriptions(criteria),
+    select: result => groupSubscriptions(result, categories),
+  });
+  return <SubscriptionsRenderer data={data} />;
 };
 
 const SubscriptionsRenderer: React.FC<{

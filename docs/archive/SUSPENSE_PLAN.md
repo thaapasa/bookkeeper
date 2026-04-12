@@ -1,6 +1,11 @@
 # Suspense + Error Boundary Migration Plan
 
-Tracking issue: [thaapasa/bookkeeper#94](https://github.com/thaapasa/bookkeeper/issues/94)
+> **Status: COMPLETED** — April 2026. All data-loading pages migrated to
+> `useSuspenseQuery` with `QueryBoundary` wrappers. SearchPage and DbStatusView
+> intentionally kept on `useQuery`. This document is retained as a historical
+> decision record.
+>
+> Tracking issue: [thaapasa/bookkeeper#94](https://github.com/thaapasa/bookkeeper/issues/94)
 
 ## Goal
 
@@ -123,6 +128,39 @@ Start with a simple page (e.g. SubscriptionsPage) and work toward complex ones
 - Add page-specific skeleton components where generic ones look bad
 - Consider per-section boundaries for pages with multiple independent queries
 - Tune `staleTime` per query if some data should suspend less often
+
+## Completion Status
+
+All three steps are complete.
+
+### What was migrated
+
+All data-loading pages use `useSuspenseQuery` with `QueryBoundary` wrappers at the
+route level in `AppRouter.tsx`:
+
+- **MonthView** — expense list for a month
+- **CategoryView** / **CategoryRow** — category totals and per-category expense lists
+- **SubscriptionsPage** / **SubscriptionDetails** — recurring expense management
+- **StatisticsView** — chart data loaded in a nested `QueryBoundary`
+- **TrackingPage** — balance tracking
+- **GroupingPage** / **GroupingExpensesPage** — expense grouping
+- **ShortcutEditor** — keyboard shortcut dialog
+- **GroupingEditor** / **TrackingEditor** — edit dialogs with conditional create/edit
+
+Infrastructure:
+
+- **ErrorBoundary** — minimal class component in `client/ui/component/`
+- **QueryBoundary** — composes ErrorBoundary + Suspense
+- **QueryErrorDisplay** — Finnish-language error fallback with retry button
+- **IsFetchingBar** — global progress bar with 300ms debounce to prevent flicker
+
+### What was kept as `useQuery`
+
+- **SearchPage** — needs `isFetching` for the search input spinner and `enabled` to
+  skip queries when no search term is entered. These patterns are incompatible with
+  `useSuspenseQuery`.
+- **DbStatusView** — uses `enabled: false` with manual `refetch()` for on-demand
+  database status checks. This imperative pattern doesn't fit Suspense.
 
 ## Stale-While-Revalidate Behavior
 

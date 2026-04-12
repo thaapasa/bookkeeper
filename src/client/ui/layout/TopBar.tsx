@@ -1,7 +1,8 @@
-import { Box, Burger, Button, Flex, Group, type MantineSize, Text } from '@mantine/core';
+import { Box, Burger, Group, GroupProps, type MantineSize, Text } from '@mantine/core';
 import * as React from 'react';
 import { Link, useMatch } from 'react-router-dom';
 
+import { classNames } from 'client/ui/utils/classNames';
 import {
   categoryPagePath,
   expensePagePath,
@@ -86,50 +87,33 @@ export const TopBar: React.FC<TopBarProps> = ({ menuOpen, onToggleMenu }) => {
 };
 
 /** Header nav link — text-based with active bottom-border indicator */
-const HeaderNavLink: React.FC<{ link: AppLink & { showInHeader: MantineSize } }> = ({ link }) => {
+const HeaderNavLink: React.FC<{ link: AppLink & { showInHeader: MantineSize } } & GroupProps> = ({
+  link,
+  className,
+  ...props
+}) => {
   const active = !!useMatch(link.path);
   return (
-    <Flex
+    <Group
       renderRoot={props => <Link to={link.path} {...props} />}
       visibleFrom={link.showInHeader}
       align="center"
       h="100%"
       px="md"
+      gap="xs"
+      wrap="nowrap"
       c={active ? 'var(--mantine-color-text)' : 'neutral.7'}
-      className={active ? classes.headerLinkActive : classes.headerLink}
+      className={classNames(active ? classes.headerLinkActive : classes.headerLink, className)}
+      {...props}
     >
-      <Group gap="xs" wrap="nowrap" align="center">
-        {link.icon && (
-          <Box component="span" visibleFrom="md" display="inline-flex">
-            <RenderIcon icon={link.icon} fontSize="small" />
-          </Box>
-        )}
-        <Text size="md" fw={active ? 600 : 400} inherit={false}>
-          {link.label}
-        </Text>
-      </Group>
-    </Flex>
-  );
-};
-
-/** Button-style link for use in content areas (not the header nav) */
-export const LinkButton: React.FC<{
-  label: string;
-  to: string;
-  icon?: Icon;
-}> = ({ label, to, icon }) => {
-  const match = useMatch(to);
-  return (
-    <Link to={to} style={{ textDecoration: 'none' }}>
-      <Button
-        variant="subtle"
-        size="compact-sm"
-        color={match ? 'primary' : 'dark'}
-        leftSection={icon ? <RenderIcon icon={icon} /> : undefined}
-        style={match ? undefined : { color: 'var(--mantine-color-neutral-7)' }}
-      >
-        {label}
-      </Button>
-    </Link>
+      {link.icon && (
+        <Box component="span" visibleFrom="md" display="inline-flex">
+          <RenderIcon icon={link.icon} fontSize="small" />
+        </Box>
+      )}
+      <Text size="md" fw={400} inherit={false}>
+        {link.label}
+      </Text>
+    </Group>
   );
 };

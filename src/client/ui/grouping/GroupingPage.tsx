@@ -1,27 +1,22 @@
-import { ActionIcon, Box, Flex, Loader, Stack } from '@mantine/core';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { ActionIcon, Box, Flex, Stack } from '@mantine/core';
+import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import React from 'react';
 
 import apiConnect from 'client/data/ApiConnect';
 import { QueryKeys } from 'client/data/queryKeys';
 
 import { Title } from '../design/Text';
-import { ErrorView } from '../general/ErrorView';
 import { Icons } from '../icons/Icons';
 import { ExpenseGroupingsList } from './ExpenseGroupingsView';
 import { GroupingEditor, newExpenseGrouping } from './GroupingEditor';
 
 export const GroupingPage: React.FC = () => {
   const queryClient = useQueryClient();
-  const {
-    data: groupings,
-    isLoading,
-    error,
-  } = useQuery({
+  const { data: groupings } = useSuspenseQuery({
     queryKey: QueryKeys.groupings.list,
     queryFn: () => apiConnect.getExpenseGroupings(),
   });
-  const { data: tags } = useQuery({
+  const { data: tags } = useSuspenseQuery({
     queryKey: QueryKeys.groupings.tags,
     queryFn: () => apiConnect.getExpenseGroupingTags(),
   });
@@ -40,17 +35,11 @@ export const GroupingPage: React.FC = () => {
             </ActionIcon>
           </Box>
         </Box>
-        {isLoading ? (
-          <Loader />
-        ) : error ? (
-          <ErrorView title="Virhe tietojen latauksessa">{String(error)}</ErrorView>
-        ) : groupings ? (
-          <ExpenseGroupingsList
-            data={groupings}
-            onReload={invalidateGroupings}
-            allTags={tags ?? []}
-          />
-        ) : null}
+        <ExpenseGroupingsList
+          data={groupings}
+          onReload={invalidateGroupings}
+          allTags={tags ?? []}
+        />
       </Stack>
       <GroupingEditor reloadAll={invalidateGroupings} />
     </Flex>

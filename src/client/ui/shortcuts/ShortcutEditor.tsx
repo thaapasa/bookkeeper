@@ -1,5 +1,5 @@
 import { ActionIcon, Box, Button, Flex, Group, Loader, Modal } from '@mantine/core';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import * as React from 'react';
 import { create } from 'zustand';
 
@@ -8,10 +8,10 @@ import { ObjectId } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
 import { QueryKeys } from 'client/data/queryKeys';
 
+import { QueryBoundary } from '../component/QueryBoundary';
 import { TextEdit } from '../component/TextEdit';
 import { UploadImageButton } from '../component/UploadImageButton';
 import { DialogHeading, Subtitle } from '../design/Text';
-import { ErrorView } from '../general/ErrorView';
 import { Icons } from '../icons/Icons';
 import { useShortcutState } from './ShortcutEditorState';
 import { ShortcutLink } from './ShortcutLink';
@@ -31,9 +31,26 @@ export function editShortcut(shortcutId: ObjectId) {
 const ShortcutDialogImpl: React.FC<{ shortcutId: ObjectId; onClose: () => void }> = ({
   shortcutId,
   onClose,
+}) => (
+  <Modal opened={true} onClose={onClose} size="lg" title="">
+    <QueryBoundary
+      fallback={
+        <Flex align="center" justify="center" p="xl">
+          <Loader size={64} />
+        </Flex>
+      }
+    >
+      <ShortcutDialogContent shortcutId={shortcutId} onClose={onClose} />
+    </QueryBoundary>
+  </Modal>
+);
+
+const ShortcutDialogContent: React.FC<{ shortcutId: ObjectId; onClose: () => void }> = ({
+  shortcutId,
+  onClose,
 }) => {
   const queryClient = useQueryClient();
-  const { data, isLoading, error } = useQuery({
+  const { data } = useSuspenseQuery({
     queryKey: QueryKeys.shortcuts.detail(shortcutId),
     queryFn: () => apiConnect.getShortcut(shortcutId),
   });
@@ -41,19 +58,7 @@ const ShortcutDialogImpl: React.FC<{ shortcutId: ObjectId; onClose: () => void }
     () => queryClient.invalidateQueries({ queryKey: QueryKeys.shortcuts.detail(shortcutId) }),
     [queryClient, shortcutId],
   );
-  return (
-    <Modal opened={true} onClose={onClose} size="lg" title="">
-      {isLoading ? (
-        <Flex align="center" justify="center" p="xl">
-          <Loader size={64} />
-        </Flex>
-      ) : error ? (
-        <ErrorView title="Virhe tietojen latauksessa">{String(error)}</ErrorView>
-      ) : data ? (
-        <ShortcutEditView data={data} onClose={onClose} reloadData={reloadData} />
-      ) : null}
-    </Modal>
-  );
+  return <ShortcutEditView data={data} onClose={onClose} reloadData={reloadData} />;
 };
 
 const ShortcutEditView: React.FC<{
