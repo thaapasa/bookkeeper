@@ -29,20 +29,28 @@ COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile --production --ignore-scripts \
  && cd node_modules/sharp && bun install
 
-# Stage 3: runtime image.
+# Stage 3: runtime image. Runs as the pre-created `bun` user (UID 1000) so
+# bind-mounted volumes end up owned by a real non-root user on the host.
 FROM oven/bun:1.3.12-slim AS runtime
 WORKDIR /app
+RUN chown bun:bun /app
 
 ENV NODE_ENV=production \
     SERVER_PORT=3000 \
     STATIC_PATH=dist
 
-COPY --from=prod-deps /app/node_modules ./node_modules
-COPY --from=builder /app/build-server ./build-server
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/migrations ./migrations
-COPY --from=builder /app/knexfile.js ./knexfile.js
-COPY --from=builder /app/package.json ./package.json
+COPY --from=prod-deps --chown=bun:bun /app/node_modules ./node_modules
+COPY --from=builder  --chown=bun:bun /app/build-server ./build-server
+COPY --from=builder  --chown=bun:bun /app/dist ./dist
+COPY --from=builder  --chown=bun:bun /app/migrations ./migrations
+COPY --from=builder  --chown=bun:bun /app/knexfile.js ./knexfile.js
+COPY --from=builder  --chown=bun:bun /app/package.json ./package.json
+
+# Fallback dirs for dev / single-container runs where no bind mounts exist.
+# In production these are shadowed by host bind mounts.
+RUN mkdir -p uploads content && chown bun:bun uploads content
+
+USER bun
 
 EXPOSE 3000
 
