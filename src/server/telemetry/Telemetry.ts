@@ -24,10 +24,15 @@ import { ExpressInstrumentation } from '@opentelemetry/instrumentation-express';
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
 import { resourceFromAttributes } from '@opentelemetry/resources';
 import { NodeSDK } from '@opentelemetry/sdk-node';
+import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
 import {
   ATTR_SERVICE_NAME,
   SEMRESATTRS_DEPLOYMENT_ENVIRONMENT,
 } from '@opentelemetry/semantic-conventions';
+
+// Fail fast when Grafana is slow or unreachable so the exporter cannot stall
+// the request path at startup (SDK defaults are 10s exporter / 30s BSP export).
+const EXPORT_TIMEOUT_MS = 3000;
 
 let sdk: NodeSDK | undefined;
 
@@ -42,9 +47,14 @@ export function initTelemetry(): void {
     [SEMRESATTRS_DEPLOYMENT_ENVIRONMENT]: process.env.OTEL_ENVIRONMENT || 'development',
   });
 
+  const spanProcessor = new BatchSpanProcessor(
+    new OTLPTraceExporter({ timeoutMillis: EXPORT_TIMEOUT_MS }),
+    { exportTimeoutMillis: EXPORT_TIMEOUT_MS },
+  );
+
   sdk = new NodeSDK({
     resource,
-    traceExporter: new OTLPTraceExporter(),
+    spanProcessors: [spanProcessor],
     instrumentations: [new HttpInstrumentation(), new ExpressInstrumentation()],
   });
 

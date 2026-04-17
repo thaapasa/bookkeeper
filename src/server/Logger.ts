@@ -14,6 +14,10 @@ function lokiTransportTarget(): pino.TransportTargetOptions | undefined {
       host: loki.host,
       basicAuth: { username: loki.username, password: loki.password },
       labels: { app: config.otel.serviceName, environment: config.otel.environment },
+      // Fail fast when Loki is slow/unreachable so the transport worker cannot
+      // backpressure pino's thread-stream and stall the main event loop.
+      timeout: 3000,
+      silenceErrors: true,
     },
   };
 }
