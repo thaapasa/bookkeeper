@@ -5,7 +5,7 @@
 
 cd `dirname $0`/..
 
-scp deployer@pomeranssi.fi:~/bookkeeper/content/content/profile/* content/content/profile/
-scp deployer@pomeranssi.fi:~/bookkeeper/content/content/shortcut/* content/content/shortcut/
-scp deployer@pomeranssi.fi:~/bookkeeper/content/content/tracking/* content/content/tracking/
-scp deployer@pomeranssi.fi:~/bookkeeper/content/content/grouping/* content/content/grouping/
+scp deployer@pomeranssi.fi:/home/deployer/data/bookkeeper/content/profile/* content/profile/
+scp deployer@pomeranssi.fi:/home/deployer/data/bookkeeper/content/shortcut/* content/shortcut/
+scp deployer@pomeranssi.fi:/home/deployer/data/bookkeeper/content/tracking/* content/tracking/
+scp deployer@pomeranssi.fi:/home/deployer/data/bookkeeper/content/grouping/* content/grouping/

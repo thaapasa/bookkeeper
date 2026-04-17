@@ -33,7 +33,8 @@ export function setupServer() {
   // 404s are left uncached so a later upload to the same path is visible.
   app.get(/\/content\/.*/, (req, res, next) => {
     setOtelRouteInfo(req, '/content/:path');
-    return serveFile(path.join(config.contentPath, req.path), res, {
+    const relative = req.path.replace(/^\/content\//, '');
+    return serveFile(path.join(config.contentPath, relative), res, {
       cacheControl: 'public, max-age=31536000, immutable',
     }).catch(next);
   });
