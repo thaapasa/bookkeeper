@@ -110,9 +110,7 @@ Start development build by running `bun ui`.
 - `ui`: Start client builder for development (runs `vite`)
 - `build-server`: Build production version of server under `build-server/`
 - `build-client`: Build production bundle of web app under `build/`
-- `start-server`: Runs production server
-- `ps-server`: Shows the process number of the active server
-- `stop-server`: Kills the running server instance (in case the port has not been released)
+- `start-server`: Runs the built server (used by CI integration tests)
 - `migrate`: Run migrations (this is automatically run on dev-server startup)
 - `migrate-make migration-name`: Create a new migration file
 - `rollback`: Rollback latest migration
