@@ -191,6 +191,30 @@ To deploy a new version, bump `package.json`, run the release workflow, then on
 the host run `docker compose pull && docker compose up -d`. Migrations run on
 the new container's startup.
 
+### Current production deployment
+
+Reference for the live `kukkaro.pomeranssi.fi` instance:
+
+- **Host:** Hetzner CAX11 (ARM, 2 vCPU, 4 GB RAM, 40 GB disk, 20 TB egress)
+- **OS:** Debian 13
+- **Runtime:** docker-compose on the VM
+- **Reverse proxy:** `caddy:2-alpine` fronting the app, with a site block:
+
+  ```caddy
+  kukkaro.pomeranssi.fi {
+      encode gzip zstd
+      reverse_proxy bookkeeper:3000
+  }
+  ```
+
+- **App image:** `ghcr.io/thaapasa/bookkeeper:<version>` (ARM build from the
+  release workflow)
+- **Database:** `postgres:18-alpine` as a sibling compose service; data lives
+  in a named Docker volume (not a bind-mount)
+- **Bind mounts** (host → container):
+  - `/home/deployer/data/bookkeeper/uploads` → `/app/uploads`
+  - `/home/deployer/data/bookkeeper/content` → `/app/content`
+
 ## Documentation
 
 This project includes comprehensive documentation for both developers and AI agents:
