@@ -47,7 +47,7 @@ export const CategoryRow: React.FC<CategoryRowProps> = props => {
 
   return (
     <>
-      <Table.Tr bg={header ? 'neutral.4' : 'neutral.2'}>
+      <Table.Tr bg={header ? 'surface.4' : 'surface.2'}>
         <Table.Td pl="md" fw={header ? 700 : undefined} c={!header ? 'primary.7' : undefined}>
           {title || category.name}
         </Table.Td>

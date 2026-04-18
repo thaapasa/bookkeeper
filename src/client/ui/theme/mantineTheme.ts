@@ -12,11 +12,20 @@ import {
  * Uses Mantine's built-in color palette with semantic virtualColor aliases:
  *   - `primary` → cyan (interactive elements, buttons, links, accent)
  *   - `neutral` → gray in light mode, reversed dark scale in dark mode
+ *   - `surface` → warm beige chrome tones (app shell, cards, sticky footers)
  *
  * The dark scale is reversed so that index semantics match:
  *   neutral[0-2] = subtle backgrounds (light greys / dark surfaces)
  *   neutral[3-5] = borders, dividers
  *   neutral[7-9] = text, strong contrast
+ *
+ * `surface` follows the same index semantics, with non-monotonic backgrounds
+ * so the "floating card" effect holds in both modes:
+ *   surface[0] = card / elevated container background
+ *   surface[1] = subtle contrast (sticky footer, alternating rows)
+ *   surface[2] = body background (sits behind the card)
+ *   surface[3-4] = soft borders
+ *   surface[7-9] = warm text tones
  *
  * Components use: color="primary", var(--mantine-color-primary-5), etc.
  * To change the app's accent color, just change the `light`/`dark` targets below.
@@ -27,6 +36,32 @@ import {
 
 // Reverse the dark scale so low indices = dark (backgrounds) and high = light (text)
 const darkReversed = [...DEFAULT_THEME.colors.dark].reverse() as unknown as MantineColorsTuple;
+
+const surfaceLight: MantineColorsTuple = [
+  '#faf7ef',
+  '#f3efe2',
+  '#ece5d2',
+  '#dcd2b9',
+  '#c7b896',
+  '#a89872',
+  '#8a7b58',
+  '#6e6343',
+  '#524a31',
+  '#3a3321',
+];
+
+const surfaceDark: MantineColorsTuple = [
+  '#38322a',
+  '#2f2a23',
+  '#22201c',
+  '#4b4238',
+  '#5c5347',
+  '#766a56',
+  '#968a72',
+  '#b5a98d',
+  '#d0c5a8',
+  '#ebdfc2',
+];
 
 const headings = {
   fontFamily: "'Oswald', sans-serif",
@@ -47,6 +82,9 @@ export const mantineTheme = createTheme({
     primary: virtualColor({ name: 'primary', light: 'cyan', dark: 'cyan' }),
     darkReversed,
     neutral: virtualColor({ name: 'neutral', light: 'gray', dark: 'darkReversed' }),
+    surfaceLight,
+    surfaceDark,
+    surface: virtualColor({ name: 'surface', light: 'surfaceLight', dark: 'surfaceDark' }),
   },
   fontFamily: "'Inter', sans-serif",
   fontSizes: {

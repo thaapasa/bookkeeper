@@ -1,4 +1,4 @@
-import { AppShell, Container, ScrollArea } from '@mantine/core';
+import { AppShell, Box, Container, ScrollArea } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import * as React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
@@ -17,6 +17,7 @@ import { createExpenseDialogListener } from '../expense/dialog/ExpenseDialogList
 import { ExpenseSplitDialog } from '../expense/split/ExpenseSplitDialog';
 import { useIsMobile } from '../hooks/useBreakpoints';
 import { AppRouter } from './AppRouter';
+import classes from './BookkeeperPage.module.css';
 import { mainContentMaxWidth } from './Styles';
 import { appLinks, TopBar } from './TopBar';
 
@@ -45,7 +46,7 @@ export const BookkeeperPage: React.FC<PageProps> = () => {
       <ModalDialogConnector />
       <Router>
         <AppShell header={{ height: 56 }} padding={0} withBorder={false}>
-          <AppShell.Header bg="var(--mantine-color-default-hover)">
+          <AppShell.Header bg="transparent" className={classes.header}>
             <TopBar menuOpen={menuOpen} onToggleMenu={toggleMenu} />
           </AppShell.Header>
 
@@ -55,11 +56,13 @@ export const BookkeeperPage: React.FC<PageProps> = () => {
             style={{ flexDirection: 'column', overflow: 'hidden' }}
           >
             <IsFetchingBar />
-            <ScrollArea flex={1} type="scroll" offsetScrollbars={false}>
-              <Container size={mainContentMaxWidth} p={0}>
-                <AppRouter />
-              </Container>
-            </ScrollArea>
+            <Container size={mainContentMaxWidth} p={0} className={classes.cardWrap}>
+              <Box className={classes.surface}>
+                <ScrollArea flex={1} type="scroll" offsetScrollbars={false}>
+                  <AppRouter />
+                </ScrollArea>
+              </Box>
+            </Container>
           </AppShell.Main>
         </AppShell>
         <MenuDrawer

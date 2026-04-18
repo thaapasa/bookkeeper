@@ -1,4 +1,4 @@
-import { Box, Burger, Group, GroupProps, type MantineSize, Text } from '@mantine/core';
+import { Box, Burger, Container, Group, GroupProps, type MantineSize, Text } from '@mantine/core';
 import * as React from 'react';
 import { Link, useMatch } from 'react-router-dom';
 
@@ -20,6 +20,7 @@ import { DateRangeNavigator } from '../component/DateRangeNavigator';
 import { useIsMobile } from '../hooks/useBreakpoints';
 import { Icon, RenderIcon } from '../icons/Icons';
 import { AddExpenseMenu } from '../shortcuts/ShortcutsDropdown';
+import { mainContentMaxWidth } from './Styles';
 import classes from './TopBar.module.css';
 
 export interface AppLink {
@@ -55,34 +56,36 @@ interface TopBarProps {
 export const TopBar: React.FC<TopBarProps> = ({ menuOpen, onToggleMenu }) => {
   const isMobile = useIsMobile();
   return (
-    <Group h="100%" px="md" gap={0}>
-      <Burger
-        opened={menuOpen}
-        onClick={onToggleMenu}
-        color="var(--mantine-color-text)"
-        size="sm"
-      />
-      {isMobile ? (
-        <>
-          <Group flex={1} justify="center" style={{ overflow: 'hidden' }}>
-            <DateRangeNavigator />
-          </Group>
-          <AddExpenseMenu />
-        </>
-      ) : (
-        <>
-          <Group gap={0} flex={1} h="100%" ml="sm">
-            {headerLinks.map(l => (
-              <HeaderNavLink key={l.label} link={l} />
-            ))}
-          </Group>
-          <DateRangeNavigator />
-          <Group ml="md">
+    <Container size={mainContentMaxWidth} h="100%" p={0}>
+      <Group h="100%" px="md" gap={0}>
+        <Burger
+          opened={menuOpen}
+          onClick={onToggleMenu}
+          color="var(--mantine-color-text)"
+          size="sm"
+        />
+        {isMobile ? (
+          <>
+            <Group flex={1} justify="center" style={{ overflow: 'hidden' }}>
+              <DateRangeNavigator />
+            </Group>
             <AddExpenseMenu />
-          </Group>
-        </>
-      )}
-    </Group>
+          </>
+        ) : (
+          <>
+            <Group gap={0} flex={1} h="100%" ml="sm">
+              {headerLinks.map(l => (
+                <HeaderNavLink key={l.label} link={l} />
+              ))}
+            </Group>
+            <DateRangeNavigator />
+            <Group ml="md">
+              <AddExpenseMenu />
+            </Group>
+          </>
+        )}
+      </Group>
+    </Container>
   );
 };
 

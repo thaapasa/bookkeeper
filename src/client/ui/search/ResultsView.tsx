@@ -89,7 +89,7 @@ function YearHeader({ year, expenses }: { year: string; expenses: UserExpense[] 
   const totals = calculateTotals(expenses);
   return (
     <Group
-      bg="neutral.1"
+      bg="surface.1"
       px="lg"
       py="md"
       w="100%"

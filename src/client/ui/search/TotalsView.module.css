@@ -3,5 +3,5 @@
   position: sticky;
   bottom: 0;
   z-index: 1;
-  background-color: light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-6));
+  background-color: var(--mantine-color-surface-1);
 }

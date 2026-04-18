@@ -33,7 +33,7 @@ const SubscriptionDetailsRenderer: React.FC<{
   const active = !exp.occursUntil;
 
   return (
-    <SubscriptionRow bg={!active ? 'neutral.1' : undefined} c={!active ? 'neutral.7' : undefined}>
+    <SubscriptionRow bg={!active ? 'surface.1' : undefined} c={!active ? 'neutral.7' : undefined}>
       <Label>
         {getLabel(data)}.
         {exp.occursUntil

@@ -48,7 +48,7 @@ export const ExpenseInfo: React.FC<ExpenseInfoProps> = ({
           fullCategoryName={fullCategoryName}
         />
         {expense.description ? (
-          <Box bg="neutral.1" w="100%" px="md" py="sm">
+          <Box bg="surface.1" w="100%" px="md" py="sm">
             {expense.description}
           </Box>
         ) : null}

@@ -19,7 +19,7 @@ export const SubscriptionCategoryHeader: React.FC<{
   toggleVisibility?: ToggleCategoryVisibility;
 }> = ({ title, totals, isRoot, visible = true, toggleVisibility, categoryId }) => (
   <SubscriptionRow
-    bg={isRoot ? 'neutral.4' : 'neutral.2'}
+    bg={isRoot ? 'surface.4' : 'surface.2'}
     fw={isRoot ? 700 : undefined}
     c={isRoot ? undefined : 'primary.7'}
   >
