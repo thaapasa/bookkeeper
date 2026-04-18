@@ -38,29 +38,29 @@ import {
 const darkReversed = [...DEFAULT_THEME.colors.dark].reverse() as unknown as MantineColorsTuple;
 
 const surfaceLight: MantineColorsTuple = [
-  '#faf7ef',
-  '#f3efe2',
-  '#ece5d2',
-  '#dcd2b9',
-  '#c7b896',
-  '#a89872',
-  '#8a7b58',
-  '#6e6343',
-  '#524a31',
-  '#3a3321',
+  '#fdfcf8',
+  '#f6f3ec',
+  '#eeebe1',
+  '#e0dccf',
+  '#c7c2af',
+  '#a6a089',
+  '#858069',
+  '#65614e',
+  '#4a4639',
+  '#322f27',
 ];
 
 const surfaceDark: MantineColorsTuple = [
-  '#38322a',
-  '#2f2a23',
-  '#22201c',
-  '#4b4238',
-  '#5c5347',
-  '#766a56',
-  '#968a72',
-  '#b5a98d',
-  '#d0c5a8',
-  '#ebdfc2',
+  '#32302b',
+  '#282724',
+  '#1c1b18',
+  '#44423c',
+  '#55534b',
+  '#6e6c61',
+  '#8a8779',
+  '#a8a494',
+  '#c6c1ae',
+  '#e0dbc7',
 ];
 
 const headings = {
