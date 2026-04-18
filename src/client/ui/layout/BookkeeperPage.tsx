@@ -56,7 +56,7 @@ export const BookkeeperPage: React.FC<PageProps> = () => {
             style={{ flexDirection: 'column', overflow: 'hidden' }}
           >
             <IsFetchingBar />
-            <Container size={mainContentMaxWidth} p={0} className={classes.cardWrap}>
+            <Container size={mainContentMaxWidth} w="100%" p={0} className={classes.cardWrap}>
               <Box className={classes.surface}>
                 <ScrollArea flex={1} type="scroll" offsetScrollbars={false}>
                   <AppRouter />
