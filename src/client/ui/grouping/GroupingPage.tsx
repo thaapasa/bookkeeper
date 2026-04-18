@@ -1,4 +1,4 @@
-import { ActionIcon, Box, Flex, Stack } from '@mantine/core';
+import { ActionIcon, Box, Stack } from '@mantine/core';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import React from 'react';
 
@@ -25,8 +25,8 @@ export const GroupingPage: React.FC = () => {
     [queryClient],
   );
   return (
-    <Flex direction="column" align="center">
-      <Stack gap="md" w="100%" px="md" pb="xl">
+    <>
+      <Stack gap="md" w="100%" px={{ base: 'md', sm: 'lg' }} pb="xl">
         <Box pos="relative" mt="md">
           <Title>Ryhmittelyt</Title>
           <Box pos="absolute" right={0} bottom="var(--mantine-spacing-lg)">
@@ -42,6 +42,6 @@ export const GroupingPage: React.FC = () => {
         />
       </Stack>
       <GroupingEditor reloadAll={invalidateGroupings} />
-    </Flex>
+    </>
   );
 };

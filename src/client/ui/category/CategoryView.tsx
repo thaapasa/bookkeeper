@@ -40,7 +40,7 @@ export const CategoryView: React.FC<CategoryViewProps> = ({ range }) => {
   );
 
   return (
-    <Box>
+    <Box px={{ base: 0, sm: 'md' }}>
       <Box h={320} display="flex">
         <CategoryChart chartData={categoryChartData} />
       </Box>

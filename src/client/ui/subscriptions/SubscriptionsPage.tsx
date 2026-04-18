@@ -24,14 +24,14 @@ export const SubscriptionsPage: React.FC = () => {
   const [criteria, setCriteria] = React.useState<SubscriptionSearchCriteria | undefined>(undefined);
 
   return (
-    <>
+    <Box px={{ base: 0, sm: 'md' }} pb="md">
       <SubscriptionCriteriaSelector onChange={setCriteria} />
       {criteria !== undefined ? (
         <QueryBoundary>
           <SubscriptionsResults criteria={criteria} />
         </QueryBoundary>
       ) : null}
-    </>
+    </Box>
   );
 };
 
