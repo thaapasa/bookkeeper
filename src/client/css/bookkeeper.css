@@ -3,7 +3,7 @@
 @layer mantine;
 
 html, body {
-    background-color: var(--mantine-color-body);
+    background-color: var(--mantine-color-surface-2);
 }
 
 /* Remove browser focus outline from recharts pie/bar segments */

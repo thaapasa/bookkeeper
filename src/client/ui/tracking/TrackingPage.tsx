@@ -22,7 +22,7 @@ export const TrackingPage: React.FC = () => {
   );
   return (
     <>
-      <Stack gap="md" w="100%" px="md" pb="xl">
+      <Stack gap="md" w="100%" px={{ base: 'md', sm: 'lg' }} pb="xl">
         <Box pos="relative" mt="md">
           <Title>Seuranta</Title>
           <Box pos="absolute" right={0} bottom="var(--mantine-spacing-lg)">

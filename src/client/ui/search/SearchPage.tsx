@@ -1,3 +1,4 @@
+import { Box } from '@mantine/core';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import * as React from 'react';
 import { useParams } from 'react-router';
@@ -80,7 +81,7 @@ const SearchViewImpl: React.FC<{
   );
 
   return (
-    <>
+    <Box px={{ base: 0, sm: 'md' }}>
       <QueryView
         ref={queryRef}
         categoryMap={userData.categoryMap}
@@ -95,6 +96,6 @@ const SearchViewImpl: React.FC<{
         onUpdate={onRepeatSearch}
         onSelectCategory={onAddCategoryToSearch}
       />
-    </>
+    </Box>
   );
 };

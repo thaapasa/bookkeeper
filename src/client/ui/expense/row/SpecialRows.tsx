@@ -7,7 +7,7 @@ import { AllColumns } from './ExpenseTableColumns';
 
 export const RecurringExpenseSeparator: React.FC = () => (
   <Table.Tr>
-    <AllColumns py={0} bg="neutral.1" h={24} />
+    <AllColumns py={0} bg="surface.1" h={24} />
   </Table.Tr>
 );
 

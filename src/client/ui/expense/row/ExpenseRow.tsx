@@ -179,7 +179,7 @@ const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
 
   return (
     <>
-      <Table.Tr bg={parity === 1 ? 'neutral.1' : undefined}>
+      <Table.Tr className={parity === 1 ? styles.alternateRow : undefined}>
         {/* Date */}
         <Table.Td ta="right" pos="relative" px="xs" onClick={editDate}>
           {expense.recurringExpenseId ? (

@@ -16,7 +16,7 @@ export const AllColumns: React.FC<React.PropsWithChildren<TableTdProps>> = props
 );
 
 export const CategoryHeader: React.FC<{ onAdd: (p?: Category) => void }> = ({ onAdd }) => (
-  <Table.Tr bg="neutral.1">
+  <Table.Tr bg="surface.1">
     <Table.Th fw={700} pl="md">
       Nimi
     </Table.Th>

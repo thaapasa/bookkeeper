@@ -1,0 +1,38 @@
+.header {
+  border-bottom: 1px solid var(--mantine-color-surface-3);
+}
+
+.cardWrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.surface {
+  background-color: var(--mantine-color-surface-0);
+  border: 1px solid var(--mantine-color-surface-3);
+  border-top: none;
+  border-radius: 0 0 var(--mantine-radius-lg) var(--mantine-radius-lg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  margin: 0 var(--mantine-spacing-md) var(--mantine-spacing-md);
+  overflow: clip;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Keep the scrollbar above sticky-footer bleed pseudos (which sit at z-index: 1). */
+.surface :global(.mantine-ScrollArea-scrollbar) {
+  z-index: 2;
+}
+
+@media (max-width: 47.99em) {
+  .surface {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    margin: 0;
+  }
+}

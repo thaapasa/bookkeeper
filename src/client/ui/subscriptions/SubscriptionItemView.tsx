@@ -29,7 +29,7 @@ const RecurringExpenseItem: React.FC<{
   return (
     <>
       <SubscriptionRow
-        bg={inactive ? 'neutral.1' : undefined}
+        bg={inactive ? 'surface.1' : undefined}
         c={inactive ? 'neutral.7' : undefined}
       >
         <Label>{item.title}</Label>

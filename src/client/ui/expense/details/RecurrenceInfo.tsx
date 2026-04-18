@@ -9,7 +9,7 @@ type RecurrenceInfoProps = {
 
 export const RecurrenceInfo: React.FC<RecurrenceInfoProps> = ({ expense, ...props }) =>
   expense.recurringExpenseId ? (
-    <Group bg="neutral.1" w="100%" px="md" py="sm" align="center" {...props}>
+    <Group bg="surface.1" w="100%" px="md" py="sm" align="center" {...props}>
       <Text fs="italic">Tämä on toistuva tapahtuma</Text>
     </Group>
   ) : null;

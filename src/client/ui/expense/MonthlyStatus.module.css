@@ -3,7 +3,29 @@
   position: sticky;
   bottom: 0;
   z-index: 1;
-  background-color: light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-6));
+  background-color: var(--mantine-color-surface-1);
+}
+
+/* Horizontal bleed of the footer bg into the card margins on each side of
+   the sticky footer. Only visible at sm+, where the footer has mx='md' inset. */
+.footer::before,
+.footer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: var(--mantine-spacing-md);
+  pointer-events: none;
+}
+
+.footer::before {
+  right: 100%;
+  background: linear-gradient(to left, var(--mantine-color-surface-1), transparent 75%);
+}
+
+.footer::after {
+  left: 100%;
+  background: linear-gradient(to right, var(--mantine-color-surface-1), transparent 75%);
 }
 
 .topBorder {
