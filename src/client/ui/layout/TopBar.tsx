@@ -63,6 +63,7 @@ export const TopBar: React.FC<TopBarProps> = ({ menuOpen, onToggleMenu }) => {
           onClick={onToggleMenu}
           color="var(--mantine-color-text)"
           size="sm"
+          lineSize={2}
         />
         {isMobile ? (
           <>

@@ -23,6 +23,11 @@
   min-height: 0;
 }
 
+/* Keep the scrollbar above sticky-footer bleed pseudos (which sit at z-index: 1). */
+.surface :global(.mantine-ScrollArea-scrollbar) {
+  z-index: 2;
+}
+
 @media (max-width: 47.99em) {
   .surface {
     border: none;
