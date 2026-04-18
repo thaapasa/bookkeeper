@@ -101,7 +101,7 @@ const SplitEditor: React.FC<SplitRowProps & { close: () => void }> = ({
         <TitleField id="split-title" value={title} onChange={setTitle} onSelect={setCatId} />
       </Box>
       <Box className="cat">
-        <CategorySelector value={catId ?? 0} onChange={setCatId} label="" />
+        <CategorySelector value={catId ?? 0} onChange={setCatId} label="Kategoria" />
       </Box>
       <Group className="source" wrap="nowrap" w="100%">
         <SourceSelector
