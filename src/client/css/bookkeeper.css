@@ -1,3 +1,7 @@
+/* Pin Mantine as a lower-precedence layer so unlayered app CSS
+   (this file + all *.module.css) always wins. */
+@layer mantine;
+
 html, body {
     background-color: var(--mantine-color-body);
 }
