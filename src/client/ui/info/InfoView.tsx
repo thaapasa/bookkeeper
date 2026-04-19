@@ -1,13 +1,14 @@
-import { Box } from '@mantine/core';
+import { Stack } from '@mantine/core';
 import * as React from 'react';
 
-import { Category, ObjectId, Source, User } from 'shared/types';
+import { ObjectId, Source, User } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
 import { updateSession } from 'client/data/Login';
 import { useUserData, useValidSession } from 'client/data/SessionStore';
 
 import { ActivatableTextField } from '../component/ActivatableTextField';
-import { InfoItem, ItemWithId, Label, SubValue, Value } from './InfoLayoutElements';
+import { PageLayout } from '../layout/PageLayout';
+import { InfoItem, ItemWithId, Label, Value } from './InfoLayoutElements';
 import { VersionInfoView } from './VersionInfoView';
 
 export const InfoView: React.FC = () => {
@@ -15,12 +16,13 @@ export const InfoView: React.FC = () => {
   const userData = useUserData()!;
 
   return (
-    <Box p="lg">
-      <VersionInfoView />
-      <UsersView user={session.user} userMap={userData.userMap} />
-      <SourcesView sources={session.sources} />
-      <CategoriesView categories={session.categories} />
-    </Box>
+    <PageLayout>
+      <Stack px={{ base: 'md', sm: 0 }}>
+        <VersionInfoView />
+        <UsersView user={session.user} userMap={userData.userMap} />
+        <SourcesView sources={session.sources} />
+      </Stack>
+    </PageLayout>
   );
 };
 
@@ -48,28 +50,6 @@ const UsersView: React.FC<{
       </Value>
     </InfoItem>
   </>
-);
-
-const CategoriesView: React.FC<{ categories: Category[] }> = ({ categories }) => (
-  <InfoItem>
-    <Label>Kategoriat</Label>
-    <Value>
-      {Object.values(categories).map(cat => (
-        <ItemWithId key={cat.id} id={cat.id}>
-          {cat.name}
-          {cat.children?.length ? (
-            <SubValue>
-              {cat.children.map(c => (
-                <ItemWithId key={c.id} id={c.id}>
-                  {c.name}
-                </ItemWithId>
-              ))}
-            </SubValue>
-          ) : null}
-        </ItemWithId>
-      ))}
-    </Value>
-  </InfoItem>
 );
 
 const SourcesView: React.FC<{ sources: Source[] }> = ({ sources }) => {

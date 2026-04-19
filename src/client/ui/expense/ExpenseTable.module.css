@@ -1,9 +1,0 @@
-.container {
-  display: flex;
-  flex-direction: column;
-  min-height: calc(100vh - 56px);
-}
-
-.spacer {
-  background-color: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-9));
-}

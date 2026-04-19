@@ -12,6 +12,7 @@ import { QueryKeys } from 'client/data/queryKeys';
 import { useUserData, useValidSession } from 'client/data/SessionStore';
 import { categoryPagePath } from 'client/util/Links';
 
+import { PageLayout } from '../layout/PageLayout';
 import { CategoryChart, CategoryChartData } from './CategoryChart';
 import { CategoryTable } from './CategoryTable';
 
@@ -40,8 +41,8 @@ export const CategoryView: React.FC<CategoryViewProps> = ({ range }) => {
   );
 
   return (
-    <Box px={{ base: 0, sm: 'md' }}>
-      <Box h={320} display="flex">
+    <PageLayout>
+      <Box h={320} display="flex" px={{ base: 'md', sm: 0 }} mb="md">
         <CategoryChart chartData={categoryChartData} />
       </Box>
       <CategoryTable
@@ -51,7 +52,7 @@ export const CategoryView: React.FC<CategoryViewProps> = ({ range }) => {
         categoryTotals={categoryTotals}
         userData={userData}
       />
-    </Box>
+    </PageLayout>
   );
 };
 

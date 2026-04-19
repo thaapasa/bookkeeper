@@ -4,7 +4,6 @@ import * as React from 'react';
 import { calculateTotals, UserExpense } from 'shared/expense';
 
 import { SectionLabel } from '../design/Text';
-import styles from './TotalsView.module.css';
 
 interface TotalsViewProps {
   results: UserExpense[];
@@ -13,7 +12,7 @@ interface TotalsViewProps {
 export const TotalsView: React.FC<TotalsViewProps> = ({ results }) => {
   const totals = calculateTotals(results);
   return (
-    <Group gap="xl" px={{ base: 'xs', sm: 'md' }} py="xs" fz="sm" className={styles.footer}>
+    <Group gap="xl" px={{ base: 'xs', sm: 'md' }} py="xs" fz="sm">
       <Group gap="xs" wrap="nowrap">
         <SectionLabel component="span">Yhteensä</SectionLabel>
         <Text fz="sm">{totals.total.format()}</Text>

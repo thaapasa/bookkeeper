@@ -7,6 +7,7 @@ import { QueryKeys } from 'client/data/queryKeys';
 
 import { Title } from '../design/Text';
 import { Icons } from '../icons/Icons';
+import { PageLayout } from '../layout/PageLayout';
 import { ExpenseGroupingsList } from './ExpenseGroupingsView';
 import { GroupingEditor, newExpenseGrouping } from './GroupingEditor';
 
@@ -26,21 +27,23 @@ export const GroupingPage: React.FC = () => {
   );
   return (
     <>
-      <Stack gap="md" w="100%" px={{ base: 'md', sm: 'lg' }} pb="xl">
-        <Box pos="relative" mt="md">
-          <Title>Ryhmittelyt</Title>
-          <Box pos="absolute" right={0} bottom="var(--mantine-spacing-lg)">
-            <ActionIcon title="Uusi ryhmittely" onClick={newExpenseGrouping}>
-              <Icons.AddChart />
-            </ActionIcon>
+      <PageLayout>
+        <Stack gap="md" w="100%" py="md" px={{ base: 'md', sm: 0 }}>
+          <Box pos="relative">
+            <Title>Ryhmittelyt</Title>
+            <Box pos="absolute" right={0} bottom="var(--mantine-spacing-lg)">
+              <ActionIcon title="Uusi ryhmittely" onClick={newExpenseGrouping}>
+                <Icons.AddChart />
+              </ActionIcon>
+            </Box>
           </Box>
-        </Box>
-        <ExpenseGroupingsList
-          data={groupings}
-          onReload={invalidateGroupings}
-          allTags={tags ?? []}
-        />
-      </Stack>
+          <ExpenseGroupingsList
+            data={groupings}
+            onReload={invalidateGroupings}
+            allTags={tags ?? []}
+          />
+        </Stack>
+      </PageLayout>
       <GroupingEditor reloadAll={invalidateGroupings} />
     </>
   );

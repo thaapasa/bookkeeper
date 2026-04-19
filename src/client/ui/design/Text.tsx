@@ -14,9 +14,16 @@ export type TitleProps = MantineTitleProps & { noBorder?: boolean };
 export const Title: React.FC<TitleProps> = ({ order = 1, noBorder, ...props }) => (
   <MantineTitle
     order={order}
-    mb={noBorder ? undefined : 'md'}
+    mb={noBorder ? undefined : 'xs'}
     pb={noBorder ? undefined : 4}
-    style={noBorder ? undefined : { borderBottom: '1px solid var(--mantine-color-neutral-3)' }}
+    style={
+      noBorder
+        ? undefined
+        : {
+            borderBottom:
+              '1px solid light-dark(var(--mantine-color-neutral-3), var(--mantine-color-neutral-7))',
+          }
+    }
     {...props}
   />
 );

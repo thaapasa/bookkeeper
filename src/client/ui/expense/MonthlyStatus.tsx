@@ -41,8 +41,6 @@ export const MonthlyStatus: React.FC<StatusProps> = props => {
       wrap="nowrap"
       fz="sm"
       px={{ base: 'xs', sm: 'md' }}
-      mx={{ base: 0, sm: 'md' }}
-      className={styles.footer}
     >
       <Group gap={isMobile ? 'md' : 'xl'}>
         {props.showFiltered && (

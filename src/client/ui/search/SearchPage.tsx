@@ -1,4 +1,3 @@
-import { Box } from '@mantine/core';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import * as React from 'react';
 import { useParams } from 'react-router';
@@ -14,8 +13,10 @@ import { useCategoryDataSource, useUserData } from 'client/data/SessionStore';
 import { logger } from 'client/Logger';
 import { searchPagePath } from 'client/util/Links';
 
+import { PageLayout } from '../layout/PageLayout';
 import { QueryView, QueryViewHandle } from './QueryView';
 import { ResultsView } from './ResultsView';
+import { TotalsView } from './TotalsView';
 
 type SearchViewParams = 'year' | 'month';
 
@@ -80,8 +81,11 @@ const SearchViewImpl: React.FC<{
     [queryRef],
   );
 
+  const results = data ?? [];
+  const hasResults = results.length > 0;
+
   return (
-    <Box px={{ base: 0, sm: 'md' }}>
+    <PageLayout footer={hasResults ? <TotalsView results={results} /> : undefined}>
       <QueryView
         ref={queryRef}
         categoryMap={userData.categoryMap}
@@ -92,10 +96,10 @@ const SearchViewImpl: React.FC<{
         month={month && ISOMonthRegExp.test(month) ? (month as ISOMonth) : undefined}
       />
       <ResultsView
-        results={data ?? []}
+        results={results}
         onUpdate={onRepeatSearch}
         onSelectCategory={onAddCategoryToSearch}
       />
-    </Box>
+    </PageLayout>
   );
 };

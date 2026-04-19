@@ -17,6 +17,7 @@ import { useIsMobile } from '../hooks/useBreakpoints';
 import { useLocalStorageList } from '../hooks/useList.ts';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { Icons } from '../icons/Icons';
+import { PageLayout } from '../layout/PageLayout';
 import { CategoryStatisticsChart } from './category/CategoryStatisticsChart';
 import { StatisticsChartTypeSelector } from './ChartTypeSelector';
 import { StatisticsChartRangeSelector } from './StatisticsChartRangeSelector';
@@ -92,64 +93,66 @@ export const StatisticsView: React.FC = () => {
   const isMobile = useIsMobile();
 
   return (
-    <Grid py="md" gap="md" px={{ base: 'md', sm: 'lg' }}>
-      <Grid.Col span={{ base: 12, sm: 6 }}>
-        <Stack gap="xs">
-          <CategorySelector addCategories={addCats} />
-          <Group gap="md" wrap="wrap">
-            <Checkbox
-              checked={stacked}
-              onChange={() => setStacked(!stacked)}
-              label="Koosta alueet"
-            />
-            <Checkbox
-              checked={onlyOwn}
-              onChange={() => setOnlyOwn(!onlyOwn)}
-              label="Vain omat kirjaukset"
-            />
-          </Group>
-        </Stack>
-      </Grid.Col>
-      <Grid.Col span={{ base: 12, sm: 6 }}>
-        <StatisticsChartRangeSelector onChange={setRange} />
-      </Grid.Col>
-      <Grid.Col span={{ base: 12, sm: 12 }}>
-        <StatisticsChartTypeSelector selected={type} onChange={setType} row={isMobile} />
-      </Grid.Col>
-      {cats.length > 0 ? (
-        <Grid.Col span={12}>
-          <Group gap="xs">
-            <ActionIcon onClick={clearCats}>
-              <Icons.Clear />
-            </ActionIcon>
-            <CategoryChipList
-              selected={cats}
-              onDelete={removeCats}
-              categoryMap={categoryMap}
-              onExpand={expandCategory}
-            />
-          </Group>
+    <PageLayout>
+      <Grid py="md" gap="md" px={{ base: 'md', sm: 0 }}>
+        <Grid.Col span={{ base: 12, sm: 6 }}>
+          <Stack gap="xs">
+            <CategorySelector addCategories={addCats} />
+            <Group gap="md" wrap="wrap">
+              <Checkbox
+                checked={stacked}
+                onChange={() => setStacked(!stacked)}
+                label="Koosta alueet"
+              />
+              <Checkbox
+                checked={onlyOwn}
+                onChange={() => setOnlyOwn(!onlyOwn)}
+                label="Vain omat kirjaukset"
+              />
+            </Group>
+          </Stack>
         </Grid.Col>
-      ) : null}
-      <Grid.Col span={12}>
-        {enabled ? (
-          <QueryBoundary>
-            <StatisticsChartLoader
-              cats={cats}
-              range={range!}
-              onlyOwn={onlyOwn}
-              type={type}
-              categoryMap={categoryMap}
-              stacked={stacked}
-            />
-          </QueryBoundary>
-        ) : (
-          <NoteView title="Ei tietoja" noMargin>
-            Valitse kategoria näyttääksesi tilastot
-          </NoteView>
-        )}
-      </Grid.Col>
-    </Grid>
+        <Grid.Col span={{ base: 12, sm: 6 }}>
+          <StatisticsChartRangeSelector onChange={setRange} />
+        </Grid.Col>
+        <Grid.Col span={{ base: 12, sm: 12 }}>
+          <StatisticsChartTypeSelector selected={type} onChange={setType} row={isMobile} />
+        </Grid.Col>
+        {cats.length > 0 ? (
+          <Grid.Col span={12}>
+            <Group gap="xs">
+              <ActionIcon onClick={clearCats}>
+                <Icons.Clear />
+              </ActionIcon>
+              <CategoryChipList
+                selected={cats}
+                onDelete={removeCats}
+                categoryMap={categoryMap}
+                onExpand={expandCategory}
+              />
+            </Group>
+          </Grid.Col>
+        ) : null}
+        <Grid.Col span={12}>
+          {enabled ? (
+            <QueryBoundary>
+              <StatisticsChartLoader
+                cats={cats}
+                range={range!}
+                onlyOwn={onlyOwn}
+                type={type}
+                categoryMap={categoryMap}
+                stacked={stacked}
+              />
+            </QueryBoundary>
+          ) : (
+            <NoteView title="Ei tietoja" noMargin>
+              Valitse kategoria näyttääksesi tilastot
+            </NoteView>
+          )}
+        </Grid.Col>
+      </Grid>
+    </PageLayout>
   );
 };
 

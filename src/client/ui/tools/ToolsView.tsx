@@ -10,21 +10,24 @@ import { executeOperation } from 'client/util/ExecuteOperation';
 import { Title } from '../design/Text';
 import { UserPrompts } from '../dialog/DialogState';
 import { ReceiverField } from '../expense/dialog/ReceiverField';
+import { PageLayout } from '../layout/PageLayout';
 import { DbStatusView } from './DbStatusView';
 import { ToolButton } from './ToolButton';
 import styles from './ToolsView.module.css';
 
 export const ToolsView: React.FC = () => (
-  <Flex direction="column" align="center">
-    <Box className={styles.grid}>
-      <Box style={{ gridColumn: '1 / -1' }}>
-        <Title>Työkalut</Title>
-      </Box>
+  <PageLayout>
+    <Flex direction="column" align="center">
+      <Box className={styles.grid}>
+        <Box style={{ gridColumn: '1 / -1' }}>
+          <Title>Työkalut</Title>
+        </Box>
 
-      <ToolButton title="Vaihda kohteiden nimi" buttonText="Vaihda" action={changeReceiverName} />
-      <DbStatusView />
-    </Box>
-  </Flex>
+        <ToolButton title="Vaihda kohteiden nimi" buttonText="Vaihda" action={changeReceiverName} />
+        <DbStatusView />
+      </Box>
+    </Flex>
+  </PageLayout>
 );
 
 async function changeReceiverName() {

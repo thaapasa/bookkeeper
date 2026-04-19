@@ -1,6 +1,7 @@
 import { CardProps } from '@mantine/core';
 import * as React from 'react';
 
+import { PageLayout } from '../layout/PageLayout';
 import { NoteView } from './NoteView';
 
 export const ErrorView: React.FC<
@@ -12,7 +13,9 @@ export const ErrorView: React.FC<
 );
 
 export const PathNotFoundError: React.FC = () => (
-  <ErrorView title="Hups">
-    Tämä polku ei johda mihinkään. Palaa tästä <a href="/">etusivulle</a>!
-  </ErrorView>
+  <PageLayout>
+    <ErrorView title="Hups">
+      Tämä polku ei johda mihinkään. Palaa tästä <a href="/">etusivulle</a>!
+    </ErrorView>
+  </PageLayout>
 );

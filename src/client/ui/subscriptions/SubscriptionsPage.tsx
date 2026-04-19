@@ -13,25 +13,28 @@ import { useCategoryMap } from 'client/data/SessionStore';
 import { QueryBoundary } from '../component/QueryBoundary';
 import { useLocalStorageList } from '../hooks/useList.ts';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import { PageLayout } from '../layout/PageLayout';
 import { SubscriptionCategoryHeader, ToggleCategoryVisibility } from './SubscriptionCategoryHeader';
 import { SubscriptionCriteriaSelector } from './SubscriptionCriteriaSelector';
 import { SubscriptionItemView } from './SubscriptionItemView';
 import { groupSubscriptions, sumRecurrenceTotals } from './SubscriptionsData';
 import { TotalsChart, TotalsData } from './TotalsChart';
-import { RecurrenceTotals, SubscriptionGroup, SubscriptionItem, SubscriptionsData } from './types';
+import { RecurrenceTotals, SubscriptionGroup, SubscriptionItem } from './types';
 
 export const SubscriptionsPage: React.FC = () => {
   const [criteria, setCriteria] = React.useState<SubscriptionSearchCriteria | undefined>(undefined);
 
   return (
-    <Box px={{ base: 0, sm: 'md' }} pb="md">
-      <SubscriptionCriteriaSelector onChange={setCriteria} />
-      {criteria !== undefined ? (
-        <QueryBoundary>
-          <SubscriptionsResults criteria={criteria} />
-        </QueryBoundary>
-      ) : null}
-    </Box>
+    <PageLayout>
+      <Box pb="md">
+        <SubscriptionCriteriaSelector onChange={setCriteria} />
+        {criteria !== undefined ? (
+          <QueryBoundary>
+            <SubscriptionsResults criteria={criteria} />
+          </QueryBoundary>
+        ) : null}
+      </Box>
+    </PageLayout>
   );
 };
 
@@ -42,12 +45,6 @@ const SubscriptionsResults: React.FC<{ criteria: SubscriptionSearchCriteria }> =
     queryFn: () => apiConnect.searchSubscriptions(criteria),
     select: result => groupSubscriptions(result, categories),
   });
-  return <SubscriptionsRenderer data={data} />;
-};
-
-const SubscriptionsRenderer: React.FC<{
-  data: SubscriptionsData;
-}> = ({ data }) => {
   const [catId, setCatId] = React.useState<ObjectId | undefined>(undefined);
   const hidden = useLocalStorageList<number>('subscription.filter.hiddenCategories', []);
 
@@ -68,7 +65,7 @@ const SubscriptionsRenderer: React.FC<{
         }
         isRoot
       />
-      <Box pos="relative">
+      <Box pos="relative" px={{ base: 'md', sm: 0 }} mb="md">
         <TotalsChart
           data={pieData}
           onSelectCategory={setCatId}

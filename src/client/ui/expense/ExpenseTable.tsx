@@ -7,8 +7,8 @@ import { UserDataProps } from 'client/data/Categories';
 import { useUserData } from 'client/data/SessionStore';
 
 import { ListDecorator } from '../component/ListDecorator';
+import { PageLayout } from '../layout/PageLayout';
 import { ExpenseTotals } from './ExpenseHelper';
-import styles from './ExpenseTable.module.css';
 import { MonthlyStatus } from './MonthlyStatus';
 import { computeDayParities, DayParityContext } from './row/DayParity';
 import { ExpenseFilterRow } from './row/ExpenseFilterRow';
@@ -146,23 +146,25 @@ export const ExpenseTable: React.FC<ExpenseTableProps> = ({
   };
 
   return (
-    <Box className={styles.container}>
-      <Box px={{ base: 0, sm: 'md' }} style={{ whiteSpace: 'nowrap' }}>
+    <PageLayout
+      footer={
+        <MonthlyStatus
+          {...props}
+          unconfirmedDuring={expenses.some(e => !e.confirmed)}
+          addFilter={addFilter}
+          totals={totals}
+          showFiltered={filters.length > 0}
+          filteredTotals={filteredTotals}
+        />
+      }
+    >
+      <Box style={{ whiteSpace: 'nowrap' }}>
         <ExpenseTableLayout
           header={<ExpenseFilterRow filters={filters} onRemoveFilter={removeFilter} />}
         >
           <Table.Tbody>{renderExpenseRows()}</Table.Tbody>
         </ExpenseTableLayout>
       </Box>
-      <Box flex={1} mx={{ base: 0, sm: 'md' }} className={styles.spacer} />
-      <MonthlyStatus
-        {...props}
-        unconfirmedDuring={expenses.some(e => !e.confirmed)}
-        addFilter={addFilter}
-        totals={totals}
-        showFiltered={filters.length > 0}
-        filteredTotals={filteredTotals}
-      />
-    </Box>
+    </PageLayout>
   );
 };

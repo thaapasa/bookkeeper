@@ -1,4 +1,4 @@
-import { Box, Flex, Stack, Table } from '@mantine/core';
+import { Stack, Table } from '@mantine/core';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import React from 'react';
 import { useParams } from 'react-router';
@@ -12,6 +12,7 @@ import { useUserData } from 'client/data/SessionStore';
 import { Subtitle } from '../design/Text';
 import { ExpenseRow } from '../expense/row/ExpenseRow';
 import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
+import { PageLayout } from '../layout/PageLayout';
 import { TotalsView } from '../search/TotalsView';
 import { GroupingCategoryChart } from './GroupingCategoryChart';
 
@@ -27,11 +28,7 @@ export const GroupingExpensesPage: React.FC = () => {
     () => queryClient.invalidateQueries({ queryKey: QueryKeys.groupings.expenses(numericId) }),
     [queryClient, numericId],
   );
-  return (
-    <Flex direction="column" align="center">
-      <GroupingExpensesRenderer data={data} reloadExpenses={reloadExpenses} />
-    </Flex>
-  );
+  return <GroupingExpensesRenderer data={data} reloadExpenses={reloadExpenses} />;
 };
 
 const GroupingExpensesRenderer: React.FC<{
@@ -40,7 +37,7 @@ const GroupingExpensesRenderer: React.FC<{
 }> = ({ data, reloadExpenses }) => {
   const userData = useUserData()!;
   return (
-    <Flex direction="column" w="100%" mih="calc(100vh - 56px)">
+    <PageLayout footer={<TotalsView results={data.expenses} />}>
       <Stack align="center">
         <Subtitle w="100%" p="xs" ta="center">
           {data.title}
@@ -60,8 +57,6 @@ const GroupingExpensesRenderer: React.FC<{
           </Table.Tbody>
         </ExpenseTableLayout>
       </Stack>
-      <Box flex={1} />
-      <TotalsView results={data.expenses} />
-    </Flex>
+    </PageLayout>
   );
 };

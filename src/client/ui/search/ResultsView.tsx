@@ -11,7 +11,6 @@ import { useUserData } from 'client/data/SessionStore';
 import { SectionLabel } from '../design/Text';
 import { ExpenseRow } from '../expense/row/ExpenseRow';
 import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
-import { TotalsView } from './TotalsView';
 
 interface ResultsViewOwnProps {
   results: UserExpense[];
@@ -21,14 +20,12 @@ interface ResultsViewOwnProps {
 
 export const ResultsView: React.FC<ResultsViewOwnProps> = ({ results, ...rest }) => {
   const userData = useUserData()!;
-  const hasResults = results && results.length > 0;
   return (
     <Stack>
       <Text c="primary.7" mx="lg" my="xs">
         Hakutulokset
       </Text>
       <ResultsContents results={results} userData={userData} {...rest} />
-      {hasResults ? <TotalsView results={results} /> : null}
     </Stack>
   );
 };
