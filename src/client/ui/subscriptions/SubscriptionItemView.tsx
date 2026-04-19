@@ -1,4 +1,4 @@
-import { ActionIcon, Loader } from '@mantine/core';
+import { ActionIcon, Group, Loader } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import * as React from 'react';
 
@@ -47,7 +47,13 @@ const RecurringExpenseItem: React.FC<{
         </Tools>
       </SubscriptionRow>
       {open ? (
-        <QueryBoundary fallback={<Loader size="sm" />}>
+        <QueryBoundary
+          fallback={
+            <Group px="md" py="xs">
+              Ladataan ... <Loader size="xs" />
+            </Group>
+          }
+        >
           <SubscriptionDetails recurringExpenseId={item.id} />
         </QueryBoundary>
       ) : null}

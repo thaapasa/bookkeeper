@@ -88,7 +88,7 @@ export const CategoryRow: React.FC<CategoryRowProps> = props => {
             <QueryBoundary
               fallback={
                 <Group p="md">
-                  Ladataan... <Loader size={18} />
+                  Ladataan... <Loader size="sm" />
                 </Group>
               }
             >

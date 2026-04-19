@@ -28,9 +28,9 @@ export const TrackingSubjectView: React.FC<{
   onReload: () => void;
 }> = ({ subject, onReload }) => {
   return (
-    <Card w="100%" pos="relative" h={200} bg="surface.3" shadow="md" radius="md" m={0} p={0}>
-      <Group pos="relative" bg="surface.0" align="center" justify="space-between">
-        <Subtitle noBorder order={4} px="sm" fw={700} py={6}>
+    <Card w="100%" pos="relative" h={200} bg="surface.1" shadow="md" radius="md" m={0} p={0}>
+      <Group pos="relative" bg="surface.2" align="center" justify="space-between">
+        <Subtitle noBorder order={4} px="md" fw={700} py="sm">
           {subject.title}
         </Subtitle>
         <Group gap="xs" px="sm">

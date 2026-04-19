@@ -57,9 +57,9 @@ export const ExpenseGroupingView: React.FC<{
   const expensesPath = groupingsPagePath + uri`/${grouping.id}`;
   const navigate = useNavigate();
   return (
-    <Card w="100%" pos="relative" h={200} bg="surface.3" shadow="md" radius="md" p={0} m={0}>
-      <Group bg="surface.0" justify="space-between" align="center">
-        <Subtitle noBorder order={3} px="sm" fw={700} py={6}>
+    <Card w="100%" pos="relative" h={200} bg="surface.1" shadow="md" radius="md" p={0} m={0}>
+      <Group bg="surface.2" justify="space-between" align="center">
+        <Subtitle noBorder order={3} px="md" py="sm" fw={700}>
           {grouping.title}
         </Subtitle>
         <Group gap="xs" px="md">
