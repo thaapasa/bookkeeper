@@ -12,7 +12,7 @@ export const CategoryTableLayout: React.FC<React.PropsWithChildren> = ({ childre
 );
 
 export const AllColumns: React.FC<React.PropsWithChildren<TableTdProps>> = props => (
-  <Table.Td colSpan={4} {...props} />
+  <Table.Td colSpan={4} p={0} m={0} {...props} />
 );
 
 export const CategoryHeader: React.FC<{ onAdd: (p?: Category) => void }> = ({ onAdd }) => (
@@ -20,10 +20,10 @@ export const CategoryHeader: React.FC<{ onAdd: (p?: Category) => void }> = ({ on
     <Table.Th fw={700} pl="md">
       Nimi
     </Table.Th>
-    <Table.Th fw={700} ta="right" w={75}>
+    <Table.Th fw={700} ta="right" w={100}>
       Tulot
     </Table.Th>
-    <Table.Th fw={700} ta="right" w={75}>
+    <Table.Th fw={700} ta="right" w={100}>
       Kulut
     </Table.Th>
     <Table.Th w={70} ta="right" pr="sm">

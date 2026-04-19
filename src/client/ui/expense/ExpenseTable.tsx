@@ -28,10 +28,6 @@ interface ExpenseTableProps {
   onUpdateExpense: (expenseId: number, expense: UserExpense) => void;
 }
 
-interface ExpenseTableInternalProps extends ExpenseTableProps {
-  userData: UserDataProps;
-}
-
 const ExpenseItem: React.FC<
   {
     item: UserExpense;
@@ -57,8 +53,13 @@ function calculateTotals(expenses: Expense[]): ExpenseTotals | null {
   return { totalIncome: income, totalExpense: expense };
 }
 
-const ExpenseTableView: React.FC<ExpenseTableInternalProps> = props => {
-  const { expenses, userData, onUpdateExpense } = props;
+export const ExpenseTable: React.FC<ExpenseTableProps> = ({
+  expenses,
+  onUpdateExpense,
+  ...props
+}) => {
+  const userData = useUserData()!;
+
   const [filters, setFilters] = React.useState<ExpenseFilter[]>([]);
   const [recurringExpanded, setRecurringExpanded] = React.useState(false);
 
@@ -164,9 +165,4 @@ const ExpenseTableView: React.FC<ExpenseTableInternalProps> = props => {
       />
     </Box>
   );
-};
-
-export const ExpenseTable: React.FC<ExpenseTableProps> = props => {
-  const userData = useUserData()!;
-  return <ExpenseTableView {...props} userData={userData} />;
 };

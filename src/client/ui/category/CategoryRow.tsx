@@ -1,4 +1,4 @@
-import { Group, Table } from '@mantine/core';
+import { Group, Loader, Table } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import * as React from 'react';
@@ -84,8 +84,14 @@ export const CategoryRow: React.FC<CategoryRowProps> = props => {
       </Table.Tr>
       {open ? (
         <Table.Tr>
-          <AllColumns px="md">
-            <QueryBoundary fallback={<>Ladataan...</>}>
+          <AllColumns>
+            <QueryBoundary
+              fallback={
+                <Group p="md">
+                  Ladataan... <Loader size={18} />
+                </Group>
+              }
+            >
               <CategoryRowExpenses {...props} />
             </QueryBoundary>
           </AllColumns>
@@ -120,10 +126,10 @@ const CategoryRowExpenses: React.FC<{
   );
 
   if (data.length < 1) {
-    return <>Ei kirjauksia</>;
+    return <Group p="md">Ei kirjauksia</Group>;
   }
   return (
-    <ExpenseTableLayout padded>
+    <ExpenseTableLayout>
       <Table.Tbody>
         {data.map(expense => (
           <ExpenseRow
