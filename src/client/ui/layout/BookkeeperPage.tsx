@@ -51,7 +51,7 @@ export const BookkeeperPage: React.FC<PageProps> = () => {
           </AppShell.Header>
 
           <AppShell.Main
-            h="100vh"
+            h="100dvh"
             display="flex"
             style={{ flexDirection: 'column', overflow: 'hidden' }}
           >
