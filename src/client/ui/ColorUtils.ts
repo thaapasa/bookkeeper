@@ -1,10 +1,31 @@
+import { ExpenseType } from 'shared/expense';
 import { Money, MoneyLike } from 'shared/util';
 
 const positive = 'light-dark(var(--mantine-color-dark-9), var(--mantine-color-green-4))';
 const negative = 'light-dark(var(--mantine-color-red-7), var(--mantine-color-red-4))';
 const unimportant = 'var(--mantine-color-dimmed)';
+const income = 'light-dark(var(--mantine-color-green-7), var(--mantine-color-green-4))';
+const transfer = 'light-dark(var(--mantine-color-gray-6), var(--mantine-color-dark-2))';
 const unconfirmed = 'light-dark(var(--mantine-color-yellow-1), var(--mantine-color-yellow-9))';
 const white = 'var(--mantine-color-white)';
+
+export interface SumStyle {
+  c?: string;
+  fw?: number;
+  fs?: string;
+  prefix: string;
+}
+
+export function sumStyleForType(type: ExpenseType): SumStyle {
+  switch (type) {
+    case 'income':
+      return { c: income, fw: 700, prefix: '+ ' };
+    case 'transfer':
+      return { c: transfer, prefix: '' };
+    default:
+      return { prefix: '' };
+  }
+}
 
 export function diagonalStripes(
   color1: string,

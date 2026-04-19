@@ -66,7 +66,8 @@ export const ExpenseInfo: React.FC<ExpenseInfoProps> = ({
           pos="absolute"
           right={0}
           top={0}
-          p="sm"
+          px="sm"
+          py={8}
         />
       </AllColumns>
     </Table.Tr>

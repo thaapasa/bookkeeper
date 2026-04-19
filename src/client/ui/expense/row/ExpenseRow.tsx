@@ -17,13 +17,12 @@ import { notifyError } from 'client/data/NotificationStore';
 import { invalidateExpenseData, invalidateSubscriptionData } from 'client/data/query';
 import { editExpense } from 'client/data/State';
 import { logger } from 'client/Logger';
-import { forMoney } from 'client/ui/ColorUtils';
+import { forMoney, sumStyleForType } from 'client/ui/ColorUtils';
 import { ActivatableTextField } from 'client/ui/component/ActivatableTextField';
 import { ExpanderIcon } from 'client/ui/component/ExpanderIcon';
 import { UserAvatar } from 'client/ui/component/UserAvatar';
 import { UserPrompts } from 'client/ui/dialog/DialogState';
 import { GroupedExpenseIcon } from 'client/ui/grouping/GroupedExpenseIcon';
-import { ExpenseTypeIcon } from 'client/ui/icons/ExpenseType';
 import { Icons } from 'client/ui/icons/Icons';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
@@ -173,6 +172,7 @@ const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
   };
 
   const parity = dayParities[expense.id] ?? 0;
+  const sumStyle = sumStyleForType(expense.type);
 
   const grouping = groupingMap[expense?.groupingId ?? 0];
   const autoGroupings = (expense?.autoGroupingIds ?? []).map(g => groupingMap[g]).filter(isDefined);
@@ -226,6 +226,11 @@ const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
             onChange={v => updateExpense({ title: v })}
           />
         </Table.Td>
+        {/* Sum */}
+        <Table.Td ta="right" pos="relative" c={sumStyle.c} fw={sumStyle.fw} fs={sumStyle.fs}>
+          {sumStyle.prefix}
+          {Money.from(expense.sum).format()}
+        </Table.Td>
         {/* Receiver */}
         <Table.Td visibleFrom={ReceiverVisibleFrom}>
           <ActivatableTextField
@@ -245,13 +250,6 @@ const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
             source={source}
             onClick={() => addFilter(e => e.sourceId === source.id, source.name)}
           />
-        </Table.Td>
-        {/* Sum */}
-        <Table.Td ta="right" pos="relative">
-          <Group justify="space-between" wrap="nowrap" gap="xs">
-            <ExpenseTypeIcon type={expense.type} color="var(--mantine-color-primary-7)" size={20} />
-            {Money.from(expense.sum).format()}
-          </Group>
         </Table.Td>
         {/* Balance */}
         <Table.Td
