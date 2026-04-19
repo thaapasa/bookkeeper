@@ -39,7 +39,7 @@ export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
     <Table.Tr>
       <AllColumns>
         <Group w="100%" wrap="nowrap" gap="lg">
-          <Group flex={1} h="100%" wrap="nowrap">
+          <Group flex={1} h="100%" wrap="nowrap" gap="sm" px="sm">
             <RecurringExpenseIcon />
             <SectionLabel component="span">Toistuvat</SectionLabel>
             <Text size="sm">({recurring.length} kpl)</Text>
@@ -51,9 +51,13 @@ export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
               />
             ) : null}
           </Group>
-          <TotalItem label="Tulot:" sign={Plus} sum={income} isMobile={isMobile} />
-          <TotalItem label="Menot:" sign={Minus} sum={expense} isMobile={isMobile} />
-          <TotalItem visibleFrom="sm" label="Balanssi:" sum={balance} isMobile={isMobile} />
+          {!isMobile ? (
+            <Group>
+              <TotalItem label="Tulot:" sign={Plus} sum={income} />
+              <TotalItem label="Menot:" sign={Minus} sum={expense} />
+              <TotalItem label="Balanssi:" sum={balance} />
+            </Group>
+          ) : null}
           <ActionIcon onClick={onToggle}>
             {isExpanded ? <Icons.ExpandLess /> : <Icons.ExpandMore />}
           </ActionIcon>
@@ -66,17 +70,13 @@ export const RecurringSummaryRow: React.FC<RecurringSummaryRowProps> = ({
 function TotalItem({
   label,
   sum,
-  isMobile,
   sign,
   ...props
-}: { label: string; sum: Money; isMobile: boolean; sign?: string } & GroupProps) {
+}: { label: string; sum: Money; sign?: string } & GroupProps) {
   return (
     <Group {...props} justify="space-between">
-      {isMobile ? null : <Text size="sm">{label}</Text>}
-      <DataValue size="sm">
-        {isMobile && sign ? `${sign} ` : null}
-        {sum.format()}
-      </DataValue>
+      <Text size="sm">{label}</Text>
+      <DataValue size="sm">{sum.format()}</DataValue>
     </Group>
   );
 }

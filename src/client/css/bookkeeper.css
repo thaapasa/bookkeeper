@@ -9,6 +9,15 @@ html, body {
     touch-action: pan-x pan-y;
 }
 
+/* Scale up the whole UI on mobile (below Mantine's sm breakpoint = 768px).
+   Mantine sizes everything in rem, so bumping root font-size proportionally
+   enlarges fonts, spacing, padding, and control sizes across the app. */
+@media (max-width: 48em) {
+    html {
+        font-size: 18px;
+    }
+}
+
 /* Remove browser focus outline from recharts pie/bar segments */
 .recharts-sector:focus,
 .recharts-rectangle:focus {

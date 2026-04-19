@@ -1,8 +1,6 @@
 import { Table } from '@mantine/core';
 import * as React from 'react';
 
-import { useIsMobile } from 'client/ui/hooks/useBreakpoints';
-
 import { ExpenseHeader } from './ExpenseHeader';
 import tableClasses from './ExpenseRow.module.css';
 
@@ -16,14 +14,12 @@ export const ExpenseTableLayout: React.FC<
     header?: boolean | React.ReactNode;
   }>
 > = ({ padded, className, header, children }) => {
-  const isMobile = useIsMobile();
-
   return (
     <Table
       layout="fixed"
       withRowBorders={false}
       withTableBorder={false}
-      verticalSpacing={isMobile ? 'md' : 'sm'}
+      verticalSpacing="sm"
       fz="sm"
       className={cx(tableClasses.expenseTable, className)}
       px={padded ? 'md' : undefined}

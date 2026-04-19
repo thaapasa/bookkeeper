@@ -3,6 +3,7 @@ import * as React from 'react';
 
 import { ExpenseStatus } from 'shared/expense';
 import { Money, MoneyLike } from 'shared/util';
+import { useIsMobile } from 'client/ui/hooks/useBreakpoints';
 
 import { SectionLabel } from '../design/Text';
 import { Icons } from '../icons/Icons';
@@ -25,6 +26,7 @@ interface StatusProps {
 
 export const MonthlyStatus: React.FC<StatusProps> = props => {
   const [expanded, setExpanded] = React.useState(false);
+  const isMobile = useIsMobile();
 
   const hasUnconfirmed = props.unconfirmedBefore || props.unconfirmedDuring;
   const income = props.totals ? props.totals.totalIncome : 0;
@@ -42,7 +44,7 @@ export const MonthlyStatus: React.FC<StatusProps> = props => {
       mx={{ base: 0, sm: 'md' }}
       className={styles.footer}
     >
-      <Group gap="xl">
+      <Group gap={isMobile ? 'md' : 'xl'}>
         {props.showFiltered && (
           <StatusBlock
             title="Suodatetut"
