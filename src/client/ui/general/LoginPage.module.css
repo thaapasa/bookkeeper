@@ -12,7 +12,7 @@
 
 @media screen and (max-width: 576px) {
   .page {
-    background-size: 1024px;
+    background-size: 150vh;
     background-position: center top;
   }
 }
