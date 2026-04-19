@@ -4,6 +4,9 @@
 
 html, body {
     background-color: var(--mantine-color-surface-2);
+    /* iOS Safari ignores user-scalable=no in the viewport meta; touch-action
+       blocks pinch-zoom (and double-tap zoom) at the CSS level too. */
+    touch-action: pan-x pan-y;
 }
 
 /* Remove browser focus outline from recharts pie/bar segments */
