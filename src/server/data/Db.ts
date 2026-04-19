@@ -13,9 +13,15 @@ import { config } from '../Config';
 const pgTypes = pgPromise().pg.types;
 
 // PostgreSQL type OIDs
+const PG_BIGINT = 20;
 const PG_DATE = 1082;
 const PG_TIMESTAMP = 1114;
 const PG_TIMESTAMPTZ = 1184;
+
+// BIGINT → number. pg returns bigint as string by default to preserve precision
+// beyond Number.MAX_SAFE_INTEGER. Safe here: all schema IDs are int4, so bigint
+// only appears in aggregate results like COUNT(*), and this DB is small.
+pgTypes.setTypeParser(PG_BIGINT, (val: string) => Number(val));
 
 // DATE → return as ISODate string (already "2026-03-31")
 pgTypes.setTypeParser(PG_DATE, (val: string) => val);

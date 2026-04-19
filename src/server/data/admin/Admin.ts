@@ -4,14 +4,13 @@ import { DbTask } from 'server/data/Db.ts';
 import { getInvalidDivision } from './InvalidDivisionQuery';
 
 async function getExpenseTypeStatus(tx: DbTask, groupId: number): Promise<TypeStatus[]> {
-  const rows = await tx.manyOrNone<TypeStatus>(
+  return await tx.manyOrNone<TypeStatus>(
     `SELECT COUNT(*) as count, SUM(sum) AS sum, type
         FROM expenses
         WHERE group_id=$/groupId/ AND template=FALSE
         GROUP BY type`,
     { groupId },
   );
-  return rows.map(s => ({ ...s, count: Number(s.count) }));
 }
 
 async function getInvalidZeroSumRows(tx: DbTask, groupId: number): Promise<ZeroSumData[]> {

@@ -112,7 +112,6 @@ function fillInReportData(rowData: ExpenseReportFromDb, def: ReportDef): Expense
   const perYear = sum.multiply(365.25).divide(totalDays);
   return {
     ...rowData,
-    count: Number(rowData.count),
     sum: sum.toString(),
     avgSum: sum.divide(rowData.count).toString(),
     firstDate: toISODate(firstDate),

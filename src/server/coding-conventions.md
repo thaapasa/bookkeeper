@@ -50,15 +50,21 @@ const result = await tx.oneOrNone<MyType>(
 
 Query methods: `one()`, `oneOrNone()`, `many()`, `manyOrNone()`, `none()`, `map()`.
 
-## Date and Time Handling (DB <-> Server)
+## Type Handling (DB <-> Server)
 
-Custom pg type parsers in `Db.ts` convert date/time values at the database boundary:
+Custom pg type parsers in `Db.ts` convert values at the database boundary.
 
 **Output (DB -> JS):**
 
 - `DATE` -> `ISODate` string (pass-through, e.g. `"2026-04-09"`)
 - `TIMESTAMPTZ` -> `ISOTimestamp` string (via `DateTime.fromSQL().toISO()`)
 - `TIMESTAMP` (without tz) -> **throws** (schema must use `TIMESTAMPTZ`)
+- `BIGINT` -> `number` (via `Number(val)`). Applied because all schema IDs are
+  `integer` (int4), so bigint only appears in aggregate results like `COUNT(*)`.
+  Response schemas can use `z.number()` directly for counts.
+- `NUMERIC` is **left as string** on purpose — money columns are `numeric(10,2)`
+  and `Money.from(stringValue)` preserves precision via Big.js. Do not add a
+  parser for OID 1700.
 
 **Input (JS -> DB):**
 
