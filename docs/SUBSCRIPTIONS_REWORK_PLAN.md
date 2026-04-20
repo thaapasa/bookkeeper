@@ -1,7 +1,8 @@
 # Subscriptions Rework — Design Notes
 
 **Status**: exploratory, not yet decided. See `docs/SUBSCRIPTIONS.md` for the current
-implementation.
+implementation. Tracking issue:
+[#98](https://github.com/thaapasa/bookkeeper/issues/98).
 
 ## Intent of the Tilaukset page
 
