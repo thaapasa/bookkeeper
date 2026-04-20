@@ -1,6 +1,8 @@
 # Code Quality Findings
 
 Issues identified during a codebase scan in April 2026. Organized by priority.
+Line numbers may have drifted since — treat this as a backlog of categories to
+re-audit, not a precise source-of-truth.
 
 ## `any` types (~35 remaining)
 
@@ -44,11 +46,11 @@ Structural `as any` casts in generic object/array helpers:
 
 ### Frontend
 
-- `src/client/ui/expense/dialog/useExpenseDialog.ts:126,128,185,207,260` — Bacon.js stream types
-- `src/client/ui/component/ActivatableTextField.tsx:16,27,28,73` — generic component type casts
+- `src/client/ui/expense/dialog/useExpenseDialog.ts` — remaining `any` casts after
+  the Bacon.js → Zustand/React migration
+- `src/client/ui/component/ActivatableTextField.tsx` — generic component type casts
 - `src/client/ui/dialog/` — generic dialog system types (`Dialog.ts`, `ModalDialog.tsx`, etc.)
-- `src/client/ui/component/` — `AsyncDataView.tsx`, `AsyncDataDialog.tsx`, `ListDecorator.tsx` component casts
-- `src/client/ui/search/SearchPage.tsx:51` — `B.mergeAll<any>` (Bacon.js)
+- `src/client/ui/component/ListDecorator.tsx` — component casts
 - `src/client/ui/statistics/category/` — chart config casts
 
 ## Plain interfaces missing Zod schemas
@@ -61,11 +63,6 @@ response schema work tracked in thaapasa/bookkeeper#88.
 - `DbStatus`, `TypeStatus`, `ZeroSumData`, `InvalidDivision` — `src/shared/types/DbStatus.ts`
 - `ExpenseShortcut` — `src/shared/expense/Shortcut.ts`
 - `TrackingSubjectWithData`, `TrackingStatistics` — `src/shared/types/Tracking.ts`
-
-## Bacon.js legacy
-
-38 `.onValue()` call sites in the frontend. Known legacy pattern, not urgent, but worth
-noting for future modernization.
 
 ## Process exit TODO
 

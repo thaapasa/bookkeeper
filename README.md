@@ -8,8 +8,8 @@ A personal expense tracking web application for managing income, expenses, and t
 # Install dependencies
 bun install
 
-# Start dev database (Docker)
-bun create-dev-db
+# Start dev database (Docker, see docker-compose.dev.yml)
+bun dev-db
 
 # Create .env file (see Settings section below)
 
@@ -50,7 +50,9 @@ Install deps with [bun](https://bun.sh/).
 The full database schema is documented in [`docs/SCHEMA.sql`](docs/SCHEMA.sql).
 You can regenerate it with `bun dump-schema`.
 
-If you want to use a docker DB, start postgres DB with `bun create-dev-db`.
+If you want to use a docker DB, start postgres DB with `bun dev-db`
+(stop it with `bun dev-db-stop`). The compose file lives at
+`docker-compose.dev.yml`.
 
 Note for Windows: if server gives error `role "Username" does not exist`, 
 log in to database (for example, with DBeaver), and create the missing role.
@@ -59,8 +61,8 @@ log in to database (for example, with DBeaver), and create the missing role.
 
 Create file `.env` with the following contents (adjust as required):
 
-Local dev DB is running on port `15488` by default (if installed via Docker
-with `bun create-dev-db`).
+Local dev DB is running on port `15488` by default (if started via Docker
+with `bun dev-db`).
 
 ```ini
 SERVER_PORT=3100
@@ -69,8 +71,13 @@ SHOW_ERROR_CAUSE=true
 SESSION_TIMEOUT=20 minutes
 DB_URL=postgresql://postgres:postgres@localhost:15488/postgres
 DB_SSL=false
-DEBUG=bookkeeper*
 ```
+
+Useful optional switches:
+
+- `LOG_LEVEL` — Pino log level (`trace`/`debug`/`info`/`warn`/`error`); defaults to `info`.
+- `LOG_SQL=true` — log every SQL statement executed by pg-promise.
+- `DELAY=500` — artificially delay each request by N ms (useful for testing loading UX).
 
 #### Monitoring (optional)
 
@@ -95,8 +102,6 @@ Setup database schema by running `bun migrate`.
 Add example data by running `bun seed`.
 
 Start server by running `bun server`.
-
-The `DEBUG` switch (in `.env` or supplied as an environment variable) controls logging output.
 
 ### Client web app
 
@@ -221,7 +226,12 @@ This project includes comprehensive documentation for both developers and AI age
 
 ### Technical Documentation
 
-- [Architecture](./docs/ARCHITECTURE.md) - Detailed codebase structure, technology stack, and coding patterns
+- [Architecture](./docs/ARCHITECTURE.md) — Codebase structure, technology stack, and coding patterns
+- [Archived plans / ADRs](./docs/archive/) — Historical decision records (date handling,
+  state management migration, Suspense migration, UI modernization, Docker deployment)
+- Active backlog: [CODE_QUALITY_FINDINGS.md](./docs/CODE_QUALITY_FINDINGS.md),
+  [RESPONSE_SCHEMA_TODO.md](./docs/RESPONSE_SCHEMA_TODO.md),
+  [TEXT_SEARCH_PLAN.md](./docs/TEXT_SEARCH_PLAN.md)
 
 ### AI Agent Instructions
 
@@ -233,11 +243,7 @@ These files provide context for AI-assisted coding:
 
 ### Quick References
 
-- [Credits](./CREDITS.md) - Attribution for icons and images
-
-## Images
-
-- Source image (bank card): 52 x 34 px = 208 x 136 px @4x
+- [Credits](./CREDITS.md) — Attribution for icons and images
 
 ## Sum / balance calculation
 

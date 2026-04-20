@@ -40,48 +40,63 @@ src/
 ├── client/           # Frontend React application
 │   ├── App.tsx       # Root application component
 │   ├── Config.ts     # Client configuration
-│   ├── data/         # State management, API connection, login handling
+│   ├── Logger.ts     # Browser logger
+│   ├── css/          # App-level CSS (mobile rem bump, layer ordering)
+│   ├── data/         # Zustand stores, TanStack Query setup, API client
 │   ├── ui/           # React components organized by feature
-│   │   ├── category/     # Category management
-│   │   ├── component/    # Shared UI components
-│   │   ├── dialog/       # Modal dialogs
-│   │   ├── expense/      # Expense CRUD and display
-│   │   ├── general/      # Layout and page components
-│   │   ├── grouping/     # Expense groupings
-│   │   ├── hooks/        # Custom React hooks
-│   │   ├── icons/        # Custom icon components
-│   │   ├── profile/      # User profile management
-│   │   ├── search/       # Expense search
-│   │   ├── shortcuts/    # Quick expense shortcuts
-│   │   ├── statistics/   # Charts and statistics
+│   │   ├── category/      # Category management
+│   │   ├── chart/         # Recharts wrappers
+│   │   ├── component/     # Shared UI components (boundaries, inputs, icons)
+│   │   ├── design/        # Shared text primitives (Title, Subtitle, ...)
+│   │   ├── dialog/        # Modal dialog infrastructure
+│   │   ├── expense/       # Expense CRUD and display
+│   │   ├── general/       # Standalone pages (Login, ShortcutsPage, ErrorView)
+│   │   ├── grouping/      # Expense groupings
+│   │   ├── hooks/         # Custom React hooks
+│   │   ├── icons/         # Lucide icon map and ExpenseType icons
+│   │   ├── info/          # App info / about views
+│   │   ├── layout/        # AppShell, PageLayout, TopBar, AppRouter
+│   │   ├── profile/       # User profile management
+│   │   ├── reports/       # Saved reports
+│   │   ├── search/        # Expense search
+│   │   ├── shortcuts/     # Quick expense shortcuts
+│   │   ├── statistics/    # Charts and statistics
 │   │   ├── subscriptions/ # Recurring expense management
-│   │   └── tracking/     # Value tracking
-│   └── util/         # Client-side utilities
+│   │   ├── theme/         # Mantine theme
+│   │   ├── tools/         # Admin tools (DB status, tooling buttons)
+│   │   ├── tracking/      # Value tracking
+│   │   └── utils/         # UI-layer helpers (classNames, Navigation, ...)
+│   └── util/         # Non-UI client utilities (ApiConnect helpers, Links)
 │
 ├── server/           # Backend Express server
 │   ├── BookkeeperServer.ts  # Entry point
+│   ├── Config.ts     # Environment/config loader
+│   ├── Logger.ts     # Pino logger (server-side)
 │   ├── api/          # REST API route handlers
-│   ├── content/      # Static content serving
-│   ├── data/         # Database operations
-│   ├── server/       # Server setup and middleware
-│   ├── logging/      # Request tracing
-│   └── notifications/ # Slack notifications
+│   ├── content/      # Static content (uploads, generated webp variants)
+│   ├── data/         # Database operations (pg-promise queries + services)
+│   ├── logging/      # Trace ID / request tracing
+│   ├── notifications/ # Slack notifications
+│   ├── server/       # Express setup, middleware, ValidatingRouter
+│   ├── telemetry/    # OpenTelemetry setup and OTLP routing
+│   └── util/         # Server-side utilities
 │
 ├── shared/           # Code shared between client and server
 │   ├── expense/      # Expense types and utilities
 │   ├── math/         # Number and percentage utilities
 │   ├── net/          # HTTP client and URL utilities
-│   ├── time/         # Date/time utilities
+│   ├── time/         # Branded ISODate/ISOTimestamp types and conversions
 │   ├── types/        # Common TypeScript types and Zod schemas
 │   ├── userData/     # User data types
 │   └── util/         # General utilities (Money, Arrays, etc.)
 │
-├── integration/      # Integration tests
+├── integration/      # Integration tests (require running dev server)
 ├── test/             # Test utilities
 └── tools/            # Development tools and scripts
 
-config/               # Database schema and example queries
-migrations/           # Knex migration files
+config/               # Legacy SQL snippets (schema, example data, queries)
+docs/                 # Documentation (ARCHITECTURE.md, SCHEMA.sql, archived plans)
+migrations/           # Knex migration files (raw SQL in knex.raw())
 ```
 
 ## Key Architectural Patterns
@@ -94,17 +109,18 @@ The server uses a **validated router pattern** with Zod schemas:
 // In src/server/api/*.ts
 api.getTx(
   '/month',
-  { query: YearMonth, response: ExpenseCollection },
+  { query: YearMonth, response: ExpenseCollection, groupRequired: true },
   (tx, session, { query }) =>
     getExpensesByMonth(tx, session.group.id, session.user.id, query.year, query.month),
-  true,
 );
 ```
 
-- `getTx`, `postTx`, `putTx`, `deleteTx` - Methods that run within a database transaction
-- Request/response validation via Zod schemas
-- Session is automatically extracted and validated
-- Path parameters are type-safe based on the route pattern
+- `getTx`, `postTx`, `putTx`, `deleteTx` — methods that run within a database transaction.
+- `get`, `post`, `put`, `delete` — for non-database operations.
+- Request/response validation via Zod schemas (`query`, `body`, `response`).
+- Session is automatically extracted and validated; set `groupRequired: true` in the
+  spec when the handler needs group context.
+- Path parameters are type-safe based on the route pattern.
 
 ### Database Layer
 
@@ -171,9 +187,15 @@ Uses **Mantine style props** and **CSS modules**:
 
 ### State Management
 
-- **TanStack Query** for server data fetching and caching
-- **Zustand** for client state management
-- **React state** for component-local logic
+- **TanStack Query** for server data fetching and caching. Data-loading pages use
+  `useSuspenseQuery` wrapped in a `QueryBoundary` (from
+  `src/client/ui/component/QueryBoundary.tsx`) so components only render the happy
+  path — loading, error, and background refetch indication are handled by the
+  boundary and `IsFetchingBar`. `useQuery` is still used for ad-hoc fetches that
+  must not suspend (e.g. `SearchPage`).
+- **Zustand** for client state management (session, navigation, notifications,
+  expense dialog state).
+- **React state** for component-local logic.
 
 ### API Client
 

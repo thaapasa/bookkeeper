@@ -171,13 +171,17 @@ style={{ color: 'var(--mantine-color-primary-7)' }}
 style={{ borderColor: 'var(--mantine-color-default-border)' }}
 ```
 
-Custom theme colors: `primary` (cyan), `neutral` (gray), `action`, `income`.
+Custom theme colors (defined in `mantineTheme.ts`):
 
-For light/dark mode, use CSS `light-dark()` function in CSS modules or Mantine's
-`darkHidden`/`lightHidden` props for visibility.
+- `primary` — cyan accent for interactive elements (buttons, links, highlights).
+- `neutral` — grey in light mode, reversed dark scale in dark mode so index
+  semantics stay consistent (low = background, high = text).
+- `surface` — warm beige chrome tones used for the app shell, floating card,
+  sticky footer, and alternating rows.
 
-Avoid importing from `client/ui/Colors.ts` for values that can be expressed as Mantine
-color references. Use `c="primary.7"` instead of `style={{ color: primary[7] }}`.
+For light/dark mode, use CSS `light-dark()` in CSS modules, or Mantine's
+`darkHidden`/`lightHidden` props for visibility toggles. Prefer Mantine color
+references (`c="primary.7"`, `bg="surface.0"`) over raw hex values.
 
 ## Breakpoints
 
@@ -206,11 +210,19 @@ const isPortrait = useIsMobilePortrait(); // < xs (576px)
 const isTablet = useIsTablet();         // < md (992px)
 ```
 
-## Theme
+## Theme and Layout
 
-- **Definition**: `src/client/ui/theme/mantineTheme.ts`
-- **Layout**: `BookkeeperPage.tsx` uses `AppShell` + `Container`
-- **Default ActionIcon variant**: `subtle` (set in theme, don't add `variant="subtle"`)
+- **Theme definition**: `src/client/ui/theme/mantineTheme.ts`
+- **App shell**: `src/client/ui/layout/BookkeeperPage.tsx` — `AppShell` + `Container`,
+  provides the floating-card surface, top bar, and menu drawer.
+- **Page shell**: `src/client/ui/layout/PageLayout.tsx` — shared flex-column wrapper
+  with collapsing horizontal padding (0 on mobile, `md` on `sm+`) and an optional
+  sticky footer. Every routed page should wrap its content in `PageLayout` rather
+  than re-implementing scroll/footer layout.
+- **Mobile scaling**: root font-size is bumped to 18px below the `sm` breakpoint
+  (see `src/client/css/bookkeeper.css`); because Mantine sizes in `rem`, fonts,
+  spacing, padding, and control sizes all scale together on mobile.
+- **Default ActionIcon variant**: `subtle` (set in theme, don't add `variant="subtle"`).
 
 ## Icons
 
@@ -238,12 +250,20 @@ For buttons with icons, use Mantine's `leftSection` prop (not inline children):
 ## State and Data
 
 - **API calls**: `apiConnect` singleton from `client/data/ApiConnect.ts`
-- **Data fetching**: TanStack Query (`useQuery`) with query keys from `client/data/queryKeys.ts`
+- **Data fetching**: TanStack Query — prefer `useSuspenseQuery` wrapped in a
+  `QueryBoundary` (from `client/ui/component/QueryBoundary.tsx`) so components
+  only handle the happy path; loading and errors are handled by the boundary and
+  `IsFetchingBar`. Use plain `useQuery` only for ad-hoc fetches that must not
+  suspend (e.g. `SearchPage`, `DbStatusView`). Query keys live in
+  `client/data/queryKeys.ts`.
 - **Session state**: Zustand store in `client/data/SessionStore.ts` with convenience hooks
   (`useValidSession`, `useCategoryMap`, `useSourceMap`, `useUserData`, etc.)
 - **Navigation state**: Zustand store in `client/data/NavigationStore.ts`
 - **Notifications**: `notify()` / `notifyError()` from `client/data/NotificationStore.ts`
-- **Dialogs**: `UserPrompts.confirm()`, `UserPrompts.promptText()`, `UserPrompts.select()`
+  (backed by `@mantine/notifications`)
+- **Dialogs**: `UserPrompts.confirm()`, `UserPrompts.promptText()`, `UserPrompts.select()`,
+  `UserPrompts.selectDate()`, `UserPrompts.promptCategory()` from
+  `client/ui/dialog/DialogState.ts`
 - **Mutation postProcess**: Use `invalidateExpenseData()` / `invalidateSubscriptionData()`
   from `client/data/query.ts` to refresh data after mutations
 
@@ -251,8 +271,9 @@ For buttons with icons, use Mantine's `leftSection` prop (not inline children):
 
 Reusable text components from `client/ui/design/Text`:
 
-- `Title` — Page title with bottom border
-- `Subtitle` — Section heading
+- `Title` — Page title with bottom border (pass `noBorder` to drop the border)
+- `Subtitle` — Section heading with subtle bottom border
+- `DialogHeading` — Heading for modals/dialogs (h3 by default)
 - `SectionLabel` — Accent-colored label (`fz="sm"`, `c="primary.7"`)
 - `DataValue` — Bold right-aligned inline value
 - `Caption` — Small dimmed secondary text

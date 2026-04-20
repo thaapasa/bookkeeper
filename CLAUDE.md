@@ -49,7 +49,8 @@ See also `src/server/CLAUDE.md`.
 When working on any task, **actively look for bad code** in the files you touch and nearby
 code. This includes but is not limited to:
 
-- Legacy patterns (inline styles for layout, raw pixel spacing, Bacon.js streams)
+- Legacy patterns (inline styles for layout, raw pixel spacing, per-component
+  loading/error state where Suspense + `QueryBoundary` should be used, class components)
 - Wrong idioms (floating-point money, raw SQL strings, unvalidated inputs, `any` types)
 - Code smells (copy-paste duplication, overly complex logic, dead code, misleading names)
 - Missing best practices (no error handling, no Zod validation, inconsistent patterns)
