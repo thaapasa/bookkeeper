@@ -1,4 +1,4 @@
-import { Group } from '@mantine/core';
+import { Group, GroupProps } from '@mantine/core';
 import * as React from 'react';
 import { Cell, Pie, PieChart, Tooltip } from 'recharts';
 
@@ -18,17 +18,12 @@ interface Data {
   color: string;
 }
 
-export const GroupingCategoryChart: React.FC<{
-  totals: ExpenseGroupingCategoryTotal[];
-}> = ({ totals }) => {
+export const GroupingCategoryChart: React.FC<
+  {
+    totals: ExpenseGroupingCategoryTotal[];
+  } & GroupProps
+> = ({ totals, ...props }) => {
   const categoryMap = useCategoryMap()!;
-  return <GroupingCategoryChartImpl totals={totals} categoryMap={categoryMap} />;
-};
-
-const GroupingCategoryChartImpl: React.FC<{
-  categoryMap: CategoryMap;
-  totals: ExpenseGroupingCategoryTotal[];
-}> = ({ totals, categoryMap }) => {
   const data: Data[] = React.useMemo(() => {
     const colors = createColorScheme(totals, categoryMap);
     const d = totals.map<Data>(t => ({
@@ -56,7 +51,7 @@ const GroupingCategoryChartImpl: React.FC<{
   }, [totals, categoryMap]);
   if (totals.length < 1) return null;
   return (
-    <Group justify="center">
+    <Group justify="center" {...props}>
       <PieChart width={168} height={168}>
         <Pie data={data} cy="50%" cx="50%" outerRadius={80} dataKey="value">
           {data.map((entry, index) => (

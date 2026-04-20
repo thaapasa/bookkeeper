@@ -28,6 +28,13 @@
   z-index: 2;
 }
 
+/* Radix wraps viewport content in a display:table div that sizes to content,
+   which breaks % heights inside. Force it to fill the viewport so PageLayout's
+   min-height: 100% and sticky footer spacer work against actual viewport height. */
+.surface :global(.mantine-ScrollArea-viewport > div:first-child) {
+  min-height: 100%;
+}
+
 @media (max-width: 47.99em) {
   .surface {
     border: none;

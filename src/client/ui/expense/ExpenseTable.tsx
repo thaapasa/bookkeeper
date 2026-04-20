@@ -1,4 +1,4 @@
-import { Box, Table } from '@mantine/core';
+import { Table } from '@mantine/core';
 import * as React from 'react';
 
 import { Expense, ExpenseStatus, UserExpense } from 'shared/expense';
@@ -147,6 +147,7 @@ export const ExpenseTable: React.FC<ExpenseTableProps> = ({
 
   return (
     <PageLayout
+      fullWidth
       footer={
         <MonthlyStatus
           {...props}
@@ -158,13 +159,11 @@ export const ExpenseTable: React.FC<ExpenseTableProps> = ({
         />
       }
     >
-      <Box style={{ whiteSpace: 'nowrap' }}>
-        <ExpenseTableLayout
-          header={<ExpenseFilterRow filters={filters} onRemoveFilter={removeFilter} />}
-        >
-          <Table.Tbody>{renderExpenseRows()}</Table.Tbody>
-        </ExpenseTableLayout>
-      </Box>
+      <ExpenseTableLayout
+        header={<ExpenseFilterRow filters={filters} onRemoveFilter={removeFilter} />}
+      >
+        <Table.Tbody>{renderExpenseRows()}</Table.Tbody>
+      </ExpenseTableLayout>
     </PageLayout>
   );
 };

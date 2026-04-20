@@ -1,4 +1,4 @@
-import { Stack, Table } from '@mantine/core';
+import { Table } from '@mantine/core';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import React from 'react';
 import { useParams } from 'react-router';
@@ -8,8 +8,8 @@ import { noop } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { QueryKeys } from 'client/data/queryKeys';
 import { useUserData } from 'client/data/SessionStore';
+import { PageTitle } from 'client/ui/design/PageTitle';
 
-import { Subtitle } from '../design/Text';
 import { ExpenseRow } from '../expense/row/ExpenseRow';
 import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
 import { PageLayout } from '../layout/PageLayout';
@@ -37,26 +37,22 @@ const GroupingExpensesRenderer: React.FC<{
 }> = ({ data, reloadExpenses }) => {
   const userData = useUserData()!;
   return (
-    <PageLayout footer={<TotalsView results={data.expenses} />}>
-      <Stack align="center">
-        <Subtitle w="100%" p="xs" ta="center">
-          {data.title}
-        </Subtitle>
-        <GroupingCategoryChart totals={data.categoryTotals} />
-        <ExpenseTableLayout padded>
-          <Table.Tbody>
-            {data.expenses?.map(expense => (
-              <ExpenseRow
-                expense={expense}
-                userData={userData}
-                key={'expense-row-' + expense.id}
-                addFilter={noop}
-                onUpdated={reloadExpenses}
-              />
-            ))}
-          </Table.Tbody>
-        </ExpenseTableLayout>
-      </Stack>
+    <PageLayout fullWidth footer={<TotalsView results={data.expenses} />}>
+      <PageTitle padded>{data.title}</PageTitle>
+      <GroupingCategoryChart totals={data.categoryTotals} mb="md" />
+      <ExpenseTableLayout padded>
+        <Table.Tbody>
+          {data.expenses?.map(expense => (
+            <ExpenseRow
+              expense={expense}
+              userData={userData}
+              key={'expense-row-' + expense.id}
+              addFilter={noop}
+              onUpdated={reloadExpenses}
+            />
+          ))}
+        </Table.Tbody>
+      </ExpenseTableLayout>
     </PageLayout>
   );
 };

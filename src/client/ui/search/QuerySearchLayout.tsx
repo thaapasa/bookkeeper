@@ -1,4 +1,4 @@
-import { ActionIcon, Button, Checkbox, Grid, Group, Loader, Stack } from '@mantine/core';
+import { ActionIcon, BoxProps, Button, Checkbox, Grid, Group, Loader, Stack } from '@mantine/core';
 import * as React from 'react';
 
 import { toDateRangeName, TypedDateRange } from 'shared/time';
@@ -13,7 +13,7 @@ import { SearchInputField } from './SearchInputField';
 import { SearchSuggestion } from './SearchSuggestions';
 import { SelectedSuggestionsView } from './SelectedSuggestionsView';
 
-interface QuerySearchLayoutProps {
+interface QuerySearchLayoutProps extends BoxProps {
   onClear: () => void;
   input: string;
   onChange: (s: string) => void;
@@ -49,10 +49,11 @@ export const QuerySearchLayout: React.FC<QuerySearchLayoutProps> = ({
   dateRange,
   onSelectRange,
   onSaveAsReport,
+  ...props
 }) => {
   const session = useValidSession();
   return (
-    <Grid p="md" gap="md">
+    <Grid gap="md" {...props}>
       <Grid.Col span={{ base: 12, sm: 7 }}>
         <Group wrap="nowrap">
           <SearchInputField

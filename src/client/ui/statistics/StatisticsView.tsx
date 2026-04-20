@@ -8,6 +8,7 @@ import { CategoryMap, CategorySelection, isDefined } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
 import { QueryKeys } from 'client/data/queryKeys';
 import { useCategoryMap } from 'client/data/SessionStore';
+import { PageTitle } from 'client/ui/design/PageTitle';
 
 import { CategoryChipList } from '../category/CategoryChipList';
 import { CategorySelector } from '../category/CategorySelector';
@@ -94,6 +95,7 @@ export const StatisticsView: React.FC = () => {
 
   return (
     <PageLayout>
+      <PageTitle>Tilastot</PageTitle>
       <Grid py="md" gap="md" px={{ base: 'md', sm: 0 }}>
         <Grid.Col span={{ base: 12, sm: 6 }}>
           <Stack gap="xs">

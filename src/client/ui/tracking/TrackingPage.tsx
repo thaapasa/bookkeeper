@@ -1,11 +1,11 @@
-import { ActionIcon, Box, Stack } from '@mantine/core';
+import { ActionIcon, Stack } from '@mantine/core';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import React from 'react';
 
 import apiConnect from 'client/data/ApiConnect';
 import { QueryKeys } from 'client/data/queryKeys';
 
-import { Title } from '../design/Text';
+import { PageTitle } from '../design/PageTitle';
 import { Icons } from '../icons/Icons';
 import { PageLayout } from '../layout/PageLayout';
 import { newTrackingSubject, TrackingEditor } from './TrackingEditor';
@@ -24,15 +24,16 @@ export const TrackingPage: React.FC = () => {
   return (
     <>
       <PageLayout>
-        <Stack gap="md" w="100%" py="md" px={{ base: 'md', sm: 0 }}>
-          <Box pos="relative">
-            <Title>Seuranta</Title>
-            <Box pos="absolute" right={0} bottom="var(--mantine-spacing-lg)">
+        <Stack gap="md" w="100%" pb="md">
+          <PageTitle
+            tools={
               <ActionIcon title="Uusi seuranta" onClick={newTrackingSubject}>
                 <Icons.AddChart />
               </ActionIcon>
-            </Box>
-          </Box>
+            }
+          >
+            Seuranta
+          </PageTitle>
           <TrackingSubjectsList data={data} onReload={invalidateTracking} />
         </Stack>
       </PageLayout>

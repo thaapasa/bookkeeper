@@ -1,4 +1,4 @@
-import { Box, Button, Group, Loader, Stack } from '@mantine/core';
+import { Button, Group, Loader, Stack, StackProps } from '@mantine/core';
 import React from 'react';
 import { Route, Routes, useNavigate } from 'react-router-dom';
 import { create } from 'zustand';
@@ -131,13 +131,14 @@ export const PasswordChangeView: React.FC<{ session: Session }> = ({ session }) 
   );
 };
 
-export const PasswordView: React.FC<{ session: Session }> = ({ session }) => {
+export const PasswordView: React.FC<{ session: Session } & StackProps> = ({
+  session,
+  ...props
+}) => {
   const navigate = useNavigate();
   return (
-    <>
-      <Box style={{ gridColumn: '1 / -1' }}>
-        <Subtitle>Salasana</Subtitle>
-      </Box>
+    <Stack {...props}>
+      <Subtitle>Salasana</Subtitle>
 
       <Routes>
         <Route path="/salasana" element={<PasswordChangeView session={session} />}></Route>
@@ -150,7 +151,7 @@ export const PasswordView: React.FC<{ session: Session }> = ({ session }) => {
           }
         ></Route>
       </Routes>
-    </>
+    </Stack>
   );
 };
 

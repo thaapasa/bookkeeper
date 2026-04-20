@@ -1,4 +1,6 @@
 .expenseTable {
+  white-space: nowrap;
+
   td, th {
     overflow: hidden;
     text-overflow: ellipsis;

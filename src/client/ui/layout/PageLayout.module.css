@@ -1,7 +1,7 @@
 .container {
   display: flex;
   flex-direction: column;
-  min-height: calc(100dvh - 56px);
+  min-height: 100%;
 }
 
 .spacer {

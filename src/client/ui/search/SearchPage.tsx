@@ -4,15 +4,15 @@ import { useParams } from 'react-router';
 
 import { ExpenseQuery } from 'shared/expense';
 import { ISOMonth, ISOMonthRegExp, toDateRange, toISODate } from 'shared/time';
-import { Category, CategoryMap, isDefined } from 'shared/types';
+import { Category, isDefined } from 'shared/types';
 import apiConnect from 'client/data/ApiConnect';
-import { CategoryDataSource } from 'client/data/Categories';
 import { useNavigationStore } from 'client/data/NavigationStore';
 import { QueryKeys } from 'client/data/queryKeys';
 import { useCategoryDataSource, useUserData } from 'client/data/SessionStore';
 import { logger } from 'client/Logger';
 import { searchPagePath } from 'client/util/Links';
 
+import { PageTitle } from '../design/PageTitle';
 import { PageLayout } from '../layout/PageLayout';
 import { QueryView, QueryViewHandle } from './QueryView';
 import { ResultsView } from './ResultsView';
@@ -30,14 +30,6 @@ function isEmptyQuery(q: ExpenseQuery) {
 export const SearchPage: React.FC = () => {
   const userData = useUserData()!;
   const categorySource = useCategoryDataSource()!;
-
-  return <SearchViewImpl userData={userData} categorySource={categorySource} />;
-};
-
-const SearchViewImpl: React.FC<{
-  userData: { categoryMap: CategoryMap };
-  categorySource: CategoryDataSource[];
-}> = ({ userData, categorySource }) => {
   const queryClient = useQueryClient();
   const { year, month } = useParams<SearchViewParams>();
   const [query, setQuery] = React.useState<ExpenseQuery | undefined>(undefined);
@@ -70,7 +62,7 @@ const SearchViewImpl: React.FC<{
 
   const onRepeatSearch = React.useCallback(() => {
     if (query) {
-      queryClient.invalidateQueries({ queryKey: QueryKeys.search.results(query) });
+      void queryClient.invalidateQueries({ queryKey: QueryKeys.search.results(query) });
     }
   }, [queryClient, query]);
 
@@ -85,7 +77,8 @@ const SearchViewImpl: React.FC<{
   const hasResults = results.length > 0;
 
   return (
-    <PageLayout footer={hasResults ? <TotalsView results={results} /> : undefined}>
+    <PageLayout fullWidth footer={hasResults ? <TotalsView results={results} /> : undefined}>
+      <PageTitle padded>Haku</PageTitle>
       <QueryView
         ref={queryRef}
         categoryMap={userData.categoryMap}
@@ -94,6 +87,7 @@ const SearchViewImpl: React.FC<{
         isSearching={isFetching}
         year={year}
         month={month && ISOMonthRegExp.test(month) ? (month as ISOMonth) : undefined}
+        px={{ base: 'md', sm: 0 }}
       />
       <ResultsView
         results={results}

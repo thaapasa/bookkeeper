@@ -1,4 +1,4 @@
-import { Box, Flex } from '@mantine/core';
+import { Stack } from '@mantine/core';
 import * as React from 'react';
 
 import apiConnect from 'client/data/ApiConnect';
@@ -7,26 +7,21 @@ import { QueryKeys } from 'client/data/queryKeys';
 import { logger } from 'client/Logger';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
-import { Title } from '../design/Text';
+import { PageTitle } from '../design/PageTitle';
 import { UserPrompts } from '../dialog/DialogState';
 import { ReceiverField } from '../expense/dialog/ReceiverField';
 import { PageLayout } from '../layout/PageLayout';
 import { DbStatusView } from './DbStatusView';
 import { ToolButton } from './ToolButton';
-import styles from './ToolsView.module.css';
 
 export const ToolsView: React.FC = () => (
   <PageLayout>
-    <Flex direction="column" align="center">
-      <Box className={styles.grid}>
-        <Box style={{ gridColumn: '1 / -1' }}>
-          <Title>Työkalut</Title>
-        </Box>
+    <Stack maw={300} mx="auto">
+      <PageTitle>Työkalut</PageTitle>
 
-        <ToolButton title="Vaihda kohteiden nimi" buttonText="Vaihda" action={changeReceiverName} />
-        <DbStatusView />
-      </Box>
-    </Flex>
+      <ToolButton title="Vaihda kohteiden nimi" buttonText="Vaihda" action={changeReceiverName} />
+      <DbStatusView />
+    </Stack>
   </PageLayout>
 );
 

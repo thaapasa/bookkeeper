@@ -9,6 +9,7 @@ import { Money, MoneyLike } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { QueryKeys } from 'client/data/queryKeys';
 import { useCategoryMap } from 'client/data/SessionStore';
+import { PageTitle } from 'client/ui/design/PageTitle';
 
 import { QueryBoundary } from '../component/QueryBoundary';
 import { useLocalStorageList } from '../hooks/useList.ts';
@@ -25,15 +26,14 @@ export const SubscriptionsPage: React.FC = () => {
   const [criteria, setCriteria] = React.useState<SubscriptionSearchCriteria | undefined>(undefined);
 
   return (
-    <PageLayout>
-      <Box pb="md">
-        <SubscriptionCriteriaSelector onChange={setCriteria} />
-        {criteria !== undefined ? (
-          <QueryBoundary>
-            <SubscriptionsResults criteria={criteria} />
-          </QueryBoundary>
-        ) : null}
-      </Box>
+    <PageLayout fullWidth pb="md">
+      <PageTitle padded>Tilaukset</PageTitle>
+      <SubscriptionCriteriaSelector onChange={setCriteria} />
+      {criteria !== undefined ? (
+        <QueryBoundary>
+          <SubscriptionsResults criteria={criteria} />
+        </QueryBoundary>
+      ) : null}
     </PageLayout>
   );
 };

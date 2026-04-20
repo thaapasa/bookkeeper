@@ -12,7 +12,7 @@ interface TotalsViewProps {
 export const TotalsView: React.FC<TotalsViewProps> = ({ results }) => {
   const totals = calculateTotals(results);
   return (
-    <Group gap="xl" px={{ base: 'xs', sm: 'md' }} py="xs" fz="sm">
+    <Group gap="xl" px={{ base: 'xs', sm: 'md' }} py="md" fz="sm">
       <Group gap="xs" wrap="nowrap">
         <SectionLabel component="span">Yhteensä</SectionLabel>
         <Text fz="sm">{totals.total.format()}</Text>

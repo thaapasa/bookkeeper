@@ -35,13 +35,7 @@ export const MonthlyStatus: React.FC<StatusProps> = props => {
   const filteredExpense = props.filteredTotals ? props.filteredTotals.totalExpense : 0;
 
   return (
-    <Group
-      justify="flex-end"
-      align="flex-start"
-      wrap="nowrap"
-      fz="sm"
-      px={{ base: 'xs', sm: 'md' }}
-    >
+    <Group justify="flex-end" align="flex-start" wrap="nowrap" fz="sm" px="xs">
       <Group gap={isMobile ? 'md' : 'xl'}>
         {props.showFiltered && (
           <StatusBlock

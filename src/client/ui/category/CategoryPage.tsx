@@ -10,17 +10,18 @@ import { updateSession } from 'client/data/Login';
 import { useNavigationStore } from 'client/data/NavigationStore';
 import { QueryKeys } from 'client/data/queryKeys';
 import { useUserData, useValidSession } from 'client/data/SessionStore';
+import { PageTitle } from 'client/ui/design/PageTitle';
 import { categoryPagePath } from 'client/util/Links';
 
 import { PageLayout } from '../layout/PageLayout';
 import { CategoryChart, CategoryChartData } from './CategoryChart';
 import { CategoryTable } from './CategoryTable';
 
-interface CategoryViewProps {
+interface CategoryPageProps {
   range: TypedDateRange;
 }
 
-export const CategoryView: React.FC<CategoryViewProps> = ({ range }) => {
+export const CategoryPage: React.FC<CategoryPageProps> = ({ range }) => {
   const session = useValidSession();
   const userData = useUserData()!;
 
@@ -41,7 +42,8 @@ export const CategoryView: React.FC<CategoryViewProps> = ({ range }) => {
   );
 
   return (
-    <PageLayout>
+    <PageLayout fullWidth>
+      <PageTitle padded>Kategoriat</PageTitle>
       <Box h={320} display="flex" px={{ base: 'md', sm: 0 }} mb="md">
         <CategoryChart chartData={categoryChartData} />
       </Box>

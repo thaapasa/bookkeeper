@@ -10,14 +10,14 @@ import {
   yearRange,
 } from 'shared/time';
 
-import { CategoryView } from './CategoryView';
+import { CategoryPage } from './CategoryPage';
 
 type CategoryRouteParams = 'year' | 'month';
 
-export const RoutedCategoryView: React.FC = () => {
+export const RoutedCategoryPage: React.FC = () => {
   const { year, month } = useParams<CategoryRouteParams>();
   const range = React.useMemo(() => getDates(year, month), [year, month]);
-  return <CategoryView range={range} />;
+  return <CategoryPage range={range} />;
 };
 
 // Validate URL params; fall back to current year on invalid input

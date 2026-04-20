@@ -1,3 +1,4 @@
+import { BoxProps } from '@mantine/core';
 import * as React from 'react';
 
 import { ExpenseQuery } from 'shared/expense';
@@ -11,7 +12,7 @@ import { requestSaveReport } from '../reports/ReportUtils';
 import { QuerySearchLayout } from './QuerySearchLayout';
 import { isReceiverSuggestion, isSameSuggestion, SearchSuggestion } from './SearchSuggestions';
 
-interface QueryViewProps {
+interface QueryViewProps extends BoxProps {
   categorySource: CategoryDataSource[];
   categoryMap: CategoryMap;
   onSearch: (query: ExpenseQuery) => void;
@@ -25,7 +26,7 @@ export interface QueryViewHandle {
 }
 
 export const QueryView = React.forwardRef<QueryViewHandle, QueryViewProps>(
-  ({ categorySource, categoryMap, onSearch, isSearching, year, month }, ref) => {
+  ({ categorySource, categoryMap, onSearch, isSearching, year, month, ...props }, ref) => {
     const [input, setInput] = React.useState('');
     const [dateRange, setDateRange] = React.useState<TypedDateRange | undefined>(
       toYearRange(toDateTime().year),
@@ -163,6 +164,7 @@ export const QueryView = React.forwardRef<QueryViewHandle, QueryViewProps>(
         dateRange={dateRange}
         onSelectRange={setDateRange}
         onSaveAsReport={saveAsReport}
+        {...props}
       />
     );
   },

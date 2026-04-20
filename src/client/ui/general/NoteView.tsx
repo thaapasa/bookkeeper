@@ -25,7 +25,9 @@ export const NoteView: React.FC<React.PropsWithChildren<NoteViewProps>> = ({
         <Text fw={500}>{title}</Text>
       </Group>
     ) : null}
-    <Box p="md">{children}</Box>
+    <Box p="md" bg="neutral.2">
+      {children}
+    </Box>
   </Card>
 );
 

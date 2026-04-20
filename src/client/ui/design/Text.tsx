@@ -9,31 +9,14 @@ import React, { forwardRef } from 'react';
 
 type ElementProps = React.PropsWithChildren<TextProps>;
 
-export type TitleProps = MantineTitleProps & { noBorder?: boolean };
+export type HeadingProps = MantineTitleProps & { noBorder?: boolean };
 
-export const Title: React.FC<TitleProps> = ({ order = 1, noBorder, ...props }) => (
-  <MantineTitle
-    order={order}
-    mb={noBorder ? undefined : 'xs'}
-    pb={noBorder ? undefined : 4}
-    style={
-      noBorder
-        ? undefined
-        : {
-            borderBottom:
-              '1px solid light-dark(var(--mantine-color-neutral-3), var(--mantine-color-neutral-7))',
-          }
-    }
-    {...props}
-  />
-);
-
-export const Subtitle: React.FC<TitleProps> = ({ order = 2, noBorder, ...props }) => (
+export const Subtitle: React.FC<HeadingProps> = ({ order = 2, noBorder, ...props }) => (
   <MantineTitle
     order={order}
     mb={noBorder ? undefined : 'xs'}
     pb={noBorder ? undefined : 2}
-    style={noBorder ? undefined : { borderBottom: '1px solid var(--mantine-color-neutral-1)' }}
+    style={noBorder ? undefined : { borderBottom: '1px solid var(--mantine-color-neutral-5)' }}
     {...props}
   />
 );
@@ -53,7 +36,7 @@ export const DataValue = createPolymorphicComponent<'p', ElementProps>(
 );
 
 /** Heading for modal dialog content (replaces raw h3 tags) */
-export const DialogHeading: React.FC<TitleProps> = ({ order = 3, ...props }) => (
+export const DialogHeading: React.FC<HeadingProps> = ({ order = 3, ...props }) => (
   <MantineTitle order={order} mb="md" fw={500} {...props} />
 );
 

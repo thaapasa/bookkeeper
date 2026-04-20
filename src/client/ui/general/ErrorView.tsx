@@ -13,7 +13,7 @@ export const ErrorView: React.FC<
 );
 
 export const PathNotFoundError: React.FC = () => (
-  <PageLayout>
+  <PageLayout py="md">
     <ErrorView title="Hups">
       Tämä polku ei johda mihinkään. Palaa tästä <a href="/">etusivulle</a>!
     </ErrorView>

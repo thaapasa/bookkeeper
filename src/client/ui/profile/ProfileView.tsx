@@ -1,9 +1,9 @@
-import { Box, Flex } from '@mantine/core';
+import { Stack } from '@mantine/core';
 import React from 'react';
 
 import { useSession } from 'client/data/SessionStore';
 
-import { Title } from '../design/Text';
+import { PageTitle } from '../design/PageTitle';
 import { PageLayout } from '../layout/PageLayout';
 import { PasswordView } from './PasswordChangeView';
 import { ProfileImageView } from './ProfileImageView';
@@ -15,25 +15,13 @@ export const ProfileView: React.FC = () => {
 
   return (
     <PageLayout>
-      <Flex direction="column" align="center">
-        <Box
-          display="grid"
-          style={{
-            gridTemplateColumns: 'auto 1fr',
-            gap: 'var(--mantine-spacing-md)',
-          }}
-          p="md"
-          maw={800}
-        >
-          <Box style={{ gridColumn: '1 / -1' }}>
-            <Title>Profiilitiedot</Title>
-          </Box>
+      <Stack p="md" maw={500} mx="auto">
+        <PageTitle>Profiilitiedot</PageTitle>
 
-          <UserDataView session={session} />
-          <PasswordView session={session} />
-          <ProfileImageView session={session} />
-        </Box>
-      </Flex>
+        <UserDataView session={session} />
+        <PasswordView session={session} my="xl" />
+        <ProfileImageView session={session} />
+      </Stack>
     </PageLayout>
   );
 };

@@ -13,11 +13,11 @@ import { expensePagePath, expensesForMonthPath } from 'client/util/Links';
 
 import { ExpenseTable } from './ExpenseTable';
 
-interface MonthViewProps {
+interface MonthlyExpensesPageProps {
   date: ISOMonth;
 }
 
-export const MonthView: React.FC<MonthViewProps> = ({ date }) => {
+export const MonthlyExpensesPage: React.FC<MonthlyExpensesPageProps> = ({ date }) => {
   // Side effect: update navigation state
   React.useEffect(() => {
     const m = toDateTime(date);

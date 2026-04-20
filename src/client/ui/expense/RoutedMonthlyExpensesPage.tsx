@@ -5,7 +5,7 @@ import { useParams } from 'react-router-dom';
 import { ISOMonth, ISOMonthRegExp } from 'shared/time';
 
 import { NewExpenseDialogRoutes } from './dialog/NewExpenseDialogPage';
-import { MonthView } from './MonthView';
+import { MonthlyExpensesPage } from './MonthlyExpensesPage';
 
 type MonthRouteParams = 'date';
 
@@ -22,12 +22,12 @@ function parseMonth(date?: string): ISOMonth {
   return currentMonth();
 }
 
-export const RoutedMonthView: React.FC = () => {
+export const RoutedMonthlyExpensesPage: React.FC = () => {
   const { date } = useParams<MonthRouteParams>();
   const month = parseMonth(date);
   return (
     <>
-      <MonthView date={month} />
+      <MonthlyExpensesPage date={month} />
       <NewExpenseDialogRoutes />
     </>
   );
