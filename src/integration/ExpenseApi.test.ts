@@ -2,13 +2,21 @@ import { afterEach, beforeEach, describe, expect, it } from 'bun:test';
 import { expectArrayContaining } from 'test/expect/expectArrayContaining';
 
 import { Expense, ExpenseCollection, ExpenseStatus } from 'shared/expense';
-import { checkCreateStatus, cleanup, division, findUserId, newExpense } from 'shared/expense/test';
+import {
+  checkCreateStatus,
+  division,
+  findUserId,
+  logoutSession,
+  newExpense,
+} from 'shared/expense/test';
 import { createTestClient, SessionWithControl } from 'shared/net/test';
 import { toDateTime } from 'shared/time';
 import { ExpenseIdResponse } from 'shared/types';
 import { Money } from 'shared/util';
 import { expectThrow } from 'shared/util/test';
 import { logger } from 'server/Logger';
+
+import { captureTestState, cleanupTestDataSince, TestState } from './TestCleanup';
 
 function checkValueAndBalance(status: ExpenseStatus, _i: any, _name: string) {
   expect(status.value).toEqual(
@@ -19,6 +27,7 @@ function checkValueAndBalance(status: ExpenseStatus, _i: any, _name: string) {
 
 describe('expense', () => {
   let session: SessionWithControl;
+  let state: TestState;
   let u1id: number;
   let u2id: number;
   const client = createTestClient({ logger });
@@ -27,10 +36,12 @@ describe('expense', () => {
     session = await client.getSession('sale', 'salasana');
     u1id = findUserId('jenni', session);
     u2id = findUserId('sale', session);
+    state = await captureTestState();
   });
 
   afterEach(async () => {
-    await cleanup(session);
+    await cleanupTestDataSince(session.group.id, state);
+    await logoutSession(session);
   });
 
   it('should insert new expense', async () => {

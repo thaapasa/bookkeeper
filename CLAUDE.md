@@ -9,7 +9,9 @@ transfers between users with split/division tracking. Finnish-language UI.
 bun install              # Install dependencies
 bun server               # Start backend dev server (port 3100, auto-runs migrations)
 bun ui                   # Start frontend dev server (port 3000, proxies /api to 3100)
-bun test                 # Run all tests (Bun's built-in test runner)
+bun test                 # Run all tests (unit + integration)
+bun test-unit            # Run only unit tests (src/shared/**)
+bun test-integration     # Run only integration tests (require running dev server)
 bun test src/shared/util/Money.test.ts  # Run a single test file
 bun lint                 # ESLint + TypeScript type check
 bun lint-tsc             # TypeScript type check only

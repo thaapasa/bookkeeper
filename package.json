@@ -19,6 +19,8 @@
     "lint": "bun lint-eslint && bun lint-tsc",
     "lint-eslint": "eslint src",
     "lint-tsc": "tsc --noEmit",
+    "test-unit": "bun test src/shared",
+    "test-integration": "bun test src/integration",
     "format": "eslint --fix src",
     "clean": "rm -rf build/ dist/ build-server/",
     "start-server": "./script/start-server.sh",

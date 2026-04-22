@@ -3,10 +3,9 @@ import { expectArrayContaining } from 'test/expect/expectArrayContaining';
 
 import { Expense, ExpenseCollection, RecurrencePeriod } from 'shared/expense';
 import {
-  captureId,
   checkCreateStatus,
-  cleanup,
   fetchMonthStatus,
+  logoutSession,
   newExpense,
 } from 'shared/expense/test';
 import { uri } from 'shared/net';
@@ -18,18 +17,22 @@ import { calculateNextRecurrence } from 'server/data/RecurringExpenseService';
 import { logger } from 'server/Logger';
 
 import { checkMonthStatus } from './MonthStatus';
+import { captureTestState, cleanupTestDataSince, TestState } from './TestCleanup';
 
 const month: YearMonth = { year: 2017, month: 1 };
 
 describe('recurring expenses', () => {
   let session: SessionWithControl;
+  let state: TestState;
   const client = createTestClient({ logger });
 
   beforeEach(async () => {
     session = await client.getSession('sale', 'salasana');
+    state = await captureTestState();
   });
   afterEach(async () => {
-    await cleanup(session);
+    await cleanupTestDataSince(session.group.id, state);
+    await logoutSession(session);
   });
 
   it.each<[ISODate, RecurrencePeriod, ISODate]>([
@@ -75,7 +78,6 @@ describe('recurring expenses', () => {
     );
     expect(s.recurringExpenseId).toBeGreaterThan(0);
     expect(s.templateExpenseId).toBeGreaterThan(0);
-    captureId(s);
     checkMonthStatus(await fetchMonthStatus(session, month), monthBenefit2.benefit);
 
     const e2 = await session.get<Expense>(`/api/expense/${expenseId}`);
@@ -99,7 +101,6 @@ describe('recurring expenses', () => {
     );
     expect(s.recurringExpenseId).toBeGreaterThan(0);
     expect(s.templateExpenseId).toBeGreaterThan(0);
-    captureId(s);
 
     await session.get<ExpenseCollection>('/api/expense/month', {
       year: 2017,

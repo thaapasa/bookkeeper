@@ -3,9 +3,9 @@ import { expectArrayMatching } from 'test/expect/expectArrayMatching';
 
 import { ExpenseSplit, UserExpenseWithDetails } from 'shared/expense';
 import {
-  cleanup,
   fetchExpense,
   fetchMonthStatus,
+  logoutSession,
   newExpense,
   splitExpense,
 } from 'shared/expense/test';
@@ -15,17 +15,20 @@ import { Money } from 'shared/util';
 import { logger } from 'server/Logger';
 
 import { checkMonthStatus } from './MonthStatus';
+import { captureTestState, cleanupTestDataSince, TestState } from './TestCleanup';
 
 const month: YearMonth = { year: 2017, month: 1 };
 
 describe('splitting expenses', () => {
   let session: SessionWithControl;
+  let state: TestState;
   let expense: UserExpenseWithDetails;
 
   const client = createTestClient({ logger });
 
   beforeEach(async () => {
     session = await client.getSession('sale', 'salasana');
+    state = await captureTestState();
     const m = await newExpense(session, {
       sum: '100.00',
       confirmed: false,
@@ -35,7 +38,8 @@ describe('splitting expenses', () => {
     expense = await fetchExpense(session, m.expenseId ?? 0);
   });
   afterEach(async () => {
-    await cleanup(session);
+    await cleanupTestDataSince(session.group.id, state);
+    await logoutSession(session);
   });
 
   it('should not allow invalid split data', async () => {

@@ -14,17 +14,10 @@ import {
   CategoryData,
   CategoryIdResponse,
   ExpenseIdResponse,
-  isApiMessageWithExpenseId,
-  isApiMessageWithRecurringExpenseId,
-  isDbObject,
   Session,
 } from '../../types';
 import { Money, MoneyLike } from '../../util/Money';
 import { ExpenseSplit } from '../ExpenseSplit';
-
-let createdIds: number[] = [];
-let createdRecurrences: number[] = [];
-const createdCategories: number[] = [];
 
 export function findSourceId(name: string, session: Session): number {
   const user = session.sources.find(u => u.name === name);
@@ -48,23 +41,6 @@ export function findUserId(name: string, session: Session): number {
     throw new Error('User not found');
   }
   return user.id;
-}
-
-export function captureId<T>(e: T): T {
-  if (isDbObject(e)) {
-    if ((e as any).recurringExpenseId) {
-      createdRecurrences.push(e.id);
-    } else {
-      createdIds.push(e.id);
-    }
-  } else if (isApiMessageWithRecurringExpenseId(e)) {
-    createdRecurrences.push(e.expenseId);
-  } else if (isApiMessageWithExpenseId(e)) {
-    createdIds.push(e.expenseId);
-  } else if (typeof e === 'number') {
-    createdIds.push(e);
-  }
-  return e;
 }
 
 export const division = {
@@ -100,7 +76,7 @@ export async function newExpense(
     categoryId: findCategoryId('Ruoka', session),
     ...expense,
   };
-  return captureId(await session.post<ExpenseIdResponse>('/api/expense', data));
+  return session.post<ExpenseIdResponse>('/api/expense', data);
 }
 
 export async function fetchMonthStatus(session: SessionWithControl, month: YearMonth) {
@@ -128,32 +104,7 @@ export async function newCategory(
   session: SessionWithControl,
   data: CategoryData,
 ): Promise<CategoryIdResponse> {
-  const d = await session.post<CategoryIdResponse>('/api/category', data);
-  createdCategories.push(d.categoryId);
-  return d;
-}
-
-export async function deleteCreated(session: SessionWithControl): Promise<boolean> {
-  if (!session) {
-    return false;
-  }
-  try {
-    for (const id of createdRecurrences) {
-      await session.del(uri`/api/expense/recurring/${id}?target=all`);
-    }
-    for (const id of createdIds) {
-      await session.del(uri`/api/expense/${id}`);
-    }
-    const revCats = createdCategories.reverse();
-    for (const id of revCats) {
-      await session.del(uri`/api/category/${id}`);
-    }
-    return true;
-  } finally {
-    // Clear captured ids array
-    createdIds = [];
-    createdRecurrences = [];
-  }
+  return await session.post<CategoryIdResponse>('/api/category', data);
 }
 
 export function checkCreateStatus(s: ExpenseIdResponse): number {
@@ -162,9 +113,8 @@ export function checkCreateStatus(s: ExpenseIdResponse): number {
   return s.expenseId;
 }
 
-export async function cleanup(session: SessionWithControl) {
+export async function logoutSession(session: SessionWithControl) {
   try {
-    await deleteCreated(session);
     await session.logout();
   } catch {
     // Ignore
