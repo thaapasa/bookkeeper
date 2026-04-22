@@ -1,12 +1,10 @@
-import { afterAll, describe, expect, it } from 'bun:test';
+import { describe, expect, it } from 'bun:test';
 
 import { ISODateRegExp, ISOTimestampRegExp } from 'shared/time';
 
 import { db } from '../server/data/Db';
 
 describe('pg type parsers', () => {
-  afterAll(() => db.$pool.end());
-
   it('should return DATE columns as ISODate strings', async () => {
     const result = await db.one<{ d: unknown }>(`SELECT '2026-03-31'::DATE AS d`);
     expect(typeof result.d).toBe('string');
