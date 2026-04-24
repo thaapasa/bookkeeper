@@ -59,7 +59,7 @@ const UserHeaderRow: React.FC<{
   cols: ShownColumns;
 }> = ({ cols }) => (
   <Table.Tr>
-    <Table.Th w={80}>Jako:</Table.Th>
+    <Table.Th w={{ base: 60, xs: 80 }}>Jako:</Table.Th>
     {cols.map(c => (
       <Table.Th w={86} ta="right" key={c}>
         {ColumnLabels[c]}

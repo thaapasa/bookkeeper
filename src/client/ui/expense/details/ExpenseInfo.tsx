@@ -34,9 +34,18 @@ export const ExpenseInfo: React.FC<ExpenseInfoProps> = ({
   if (loading) {
     return <LoadingIndicator forRow={true} />;
   }
+
   return (
     <Table.Tr>
-      <AllColumns className={styles.detailsBg} pos="relative" p={0}>
+      <AllColumns
+        className={styles.detailsBg}
+        pos="relative"
+        // Reserve space for the absolutely-positioned ExpenseInfoTools on mobile,
+        // where BasicData is the first visible content and would otherwise overlap.
+        px={0}
+        pb={0}
+        pt={{ base: 28, sm: 0 }}
+      >
         <RecurrenceInfo expense={expense} m={0} h={50} />
         <BasicData
           hiddenFrom="md"
@@ -55,7 +64,7 @@ export const ExpenseInfo: React.FC<ExpenseInfoProps> = ({
         <DivisionInfo
           division={division}
           expenseType={expense.type}
-          ml={{ base: 56, sm: 92 }}
+          ml={{ base: 1, xs: 56, sm: 92 }}
           mb="xs"
         />
         <ExpenseInfoTools
