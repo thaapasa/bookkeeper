@@ -33,6 +33,7 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
       onChange={v => onChange(Number(v ?? 0))}
       data={data}
       searchable
+      allowDeselect={false}
       onFocus={e => (e.target as HTMLInputElement).select()}
       {...props}
     />

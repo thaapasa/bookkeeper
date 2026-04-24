@@ -103,6 +103,7 @@ export const SourceSelector: React.FC<
     value={String(value)}
     onChange={v => onChange(Number(v ?? 0))}
     data={sources.map(s => ({ value: String(s.id), label: s.name }))}
+    allowDeselect={false}
     {...boxProps}
   />
 );

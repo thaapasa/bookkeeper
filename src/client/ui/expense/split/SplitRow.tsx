@@ -74,8 +74,9 @@ const SplitEditor: React.FC<SplitRowProps & { close: () => void }> = ({
   const allValid =
     title !== '' &&
     (Money.parse(sum)?.gt(0) ?? false) &&
-    isDefined(sourceId) &&
+    sourceId > 0 &&
     isDefined(catId) &&
+    catId > 0 &&
     benefit.length > 0;
   const validSplit: ExpenseSplitInEditor | undefined = allValid
     ? {

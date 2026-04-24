@@ -36,7 +36,9 @@ export function isSplitComplete(split: ExpenseSplitInEditor): split is ExpenseSp
     split.title !== '' &&
     split.benefit.length > 0 &&
     isDefined(split.categoryId) &&
-    isDefined(split.sourceId)
+    split.categoryId > 0 &&
+    isDefined(split.sourceId) &&
+    split.sourceId > 0
   );
 }
 
