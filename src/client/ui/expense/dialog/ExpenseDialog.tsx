@@ -80,7 +80,7 @@ export const ExpenseDialog: React.FC<ExpenseDialogProps<ExpenseInEditor>> = oute
       fullScreen={props.isMobile}
     >
       <ExpenseDialogContent dividers={true} onClick={closeEditors} pb="md" pt="sm">
-        <Stack component="form" gap="md" onSubmit={requestSave}>
+        <Stack component="form" id="expense-dialog-form" gap="md" onSubmit={requestSave}>
           {/* Sum, type, owner */}
           <Group
             pos="relative"
@@ -171,7 +171,13 @@ export const ExpenseDialog: React.FC<ExpenseDialogProps<ExpenseInEditor>> = oute
           {/* Date */}
           <Group align="flex-end">
             <DateField value={state.date} onChange={v => setField('date', v)} w={100} />
-            <Button variant="filled" color="gray" leftSection={<Icons.Today />} onClick={setToday}>
+            <Button
+              type="button"
+              variant="filled"
+              color="gray"
+              leftSection={<Icons.Today />}
+              onClick={setToday}
+            >
               Tänään
             </Button>
           </Group>
@@ -193,10 +199,10 @@ export const ExpenseDialog: React.FC<ExpenseDialogProps<ExpenseInEditor>> = oute
         </Stack>
       </ExpenseDialogContent>
       <Group justify="flex-end" gap="sm" pt="md">
-        <Button variant="subtle" onClick={dismiss}>
+        <Button type="button" variant="subtle" onClick={dismiss}>
           Peruuta
         </Button>
-        <Button variant="filled" disabled={!state.valid} onClick={requestSave}>
+        <Button type="submit" form="expense-dialog-form" variant="filled" disabled={!state.valid}>
           Tallenna
         </Button>
       </Group>

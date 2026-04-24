@@ -121,7 +121,7 @@ export const TypeSelector: React.FC<{
 
   return (
     <Group w={100} gap="xs">
-      <ActionIcon onClick={toggle}>
+      <ActionIcon type="button" onClick={toggle}>
         <ExpenseTypeIcon type={value} size={24} />
       </ActionIcon>
       {getExpenseTypeLabel(value)}
