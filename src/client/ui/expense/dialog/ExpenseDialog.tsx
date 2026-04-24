@@ -59,6 +59,17 @@ export const ExpenseDialog: React.FC<ExpenseDialogProps<ExpenseInEditor>> = oute
     receiverTitle,
   } = useExpenseDialog(props);
 
+  const typeAndConfirm = (
+    <>
+      <TypeSelector value={state.type} onChange={v => setField('type', v)} />
+      <Checkbox
+        checked={!state.confirmed}
+        onChange={e => setField('confirmed', !e.currentTarget.checked)}
+        label="Alustava"
+        mx={4} // align checkbox square with the action icon below; picked by eye
+      />
+    </>
+  );
   return (
     <Modal
       opened={true}
@@ -71,7 +82,12 @@ export const ExpenseDialog: React.FC<ExpenseDialogProps<ExpenseInEditor>> = oute
       <ExpenseDialogContent dividers={true} onClick={closeEditors} pb="md" pt="sm">
         <Stack component="form" gap="md" onSubmit={requestSave}>
           {/* Sum, type, owner */}
-          <Group pos="relative" wrap="nowrap" align="flex-start" h={inputAreaHeight}>
+          <Group
+            pos="relative"
+            wrap="nowrap"
+            align="flex-start"
+            h={props.isMobile ? 68 : inputAreaHeight}
+          >
             <Menu shadow="md" position="bottom-end">
               <Menu.Target>
                 <UserIdAvatar mt={20} userId={state.userId} />
@@ -93,14 +109,15 @@ export const ExpenseDialog: React.FC<ExpenseDialogProps<ExpenseInEditor>> = oute
               errorText={state.errors.sum}
               onChange={v => setField('sum', v)}
             />
-            <Group ml="auto" wrap="nowrap" align="center" gap="sm" mt={26}>
-              <TypeSelector value={state.type} onChange={v => setField('type', v)} />
-              <Checkbox
-                checked={!state.confirmed}
-                onChange={e => setField('confirmed', !e.currentTarget.checked)}
-                label="Alustava"
-              />
-            </Group>
+            {props.isMobile ? (
+              <Stack ml="auto" align="flex-start" gap="xs">
+                {typeAndConfirm}
+              </Stack>
+            ) : (
+              <Group ml="auto" wrap="nowrap" align="center" gap="sm" mt={26}>
+                {typeAndConfirm}
+              </Group>
+            )}
           </Group>
 
           {/* Title */}
