@@ -83,7 +83,7 @@ export const SumField: React.FC<
       onKeyDown={handleKeyDown}
       rightSection="€"
       type="text"
-      autoFocus
+      data-autofocus
       autoComplete="off"
       {...props}
     />
