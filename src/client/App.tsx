@@ -15,15 +15,21 @@ export const App: React.FC = () => {
 
   React.useEffect(() => {
     logger.info('Initializing bookkeeper client');
-    checkLoginState();
+    void checkLoginState();
   }, []);
 
   // Refresh session when app returns from background (PWA/mobile app support)
   useSessionRefreshOnFocus(checkLoginState);
 
+  // Keep the app mounted during background refreshes so in-progress UI state
+  // (e.g. a half-filled expense dialog) survives a tab switch.
+  if (session) {
+    return <BookkeeperPage session={session} />;
+  }
+
   switch (status) {
     case 'ready':
-      return session ? <BookkeeperPage session={session} /> : <LoginPage />;
+      return <LoginPage />;
     case 'error':
       return (
         <ErrorView title="Hups">
