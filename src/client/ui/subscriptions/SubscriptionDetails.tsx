@@ -89,7 +89,7 @@ async function modifySubscription(expenseId: ObjectId) {
   await editExpense(expenseId, {
     saveAction: async data => {
       await apiConnect.updateSubscriptionTemplate(expenseId, data);
-      return true;
+      return expenseId;
     },
   });
   queryClient.invalidateQueries({ queryKey: QueryKeys.subscriptions.all });

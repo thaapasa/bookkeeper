@@ -102,7 +102,9 @@ function openNewExpenseFromShortcutDialog(navigate: NavigateFunction, id: Object
 }
 
 async function createNewShortcut(): Promise<void> {
-  const example = await requestNewExpense(async () => true, 'Uusi linkki');
+  // Returning 0 signals "dialog close without a real save" so the shortcut
+  // flow can reuse the editor UI without persisting an expense.
+  const example = await requestNewExpense(async () => 0, 'Uusi linkki');
   if (!example) {
     return;
   }

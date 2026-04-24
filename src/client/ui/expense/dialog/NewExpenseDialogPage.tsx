@@ -32,9 +32,9 @@ const NewExpenseDialogPage: React.FC = () => {
       saveAction={null}
       isMobile={isMobile}
       title="Uusi kirjaus"
-      onExpensesUpdated={date => {
+      onExpensesUpdated={(date, id) => {
         invalidateExpenseData();
-        navigateToExpenseDate(date);
+        navigateToExpenseDate(date, id);
       }}
       expenseCounter={1}
     />
@@ -78,9 +78,9 @@ const NewExpenseFromShortcutDialogPage: React.FC = () => {
       saveAction={null}
       isMobile={isMobile}
       title="Uusi kirjaus"
-      onExpensesUpdated={date => {
+      onExpensesUpdated={(date, id) => {
         invalidateExpenseData();
-        navigateToExpenseDate(date);
+        navigateToExpenseDate(date, id);
       }}
       expenseCounter={1}
     />

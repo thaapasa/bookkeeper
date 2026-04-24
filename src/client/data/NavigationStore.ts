@@ -15,28 +15,32 @@ interface NavigationState {
 
   /** Target date for cross-month expense navigation. */
   expenseNavigationTarget: ISODate | null;
+  /** Optional expense id to scroll to / highlight after navigation. */
+  expenseNavigationTargetId: number | null;
   /** Incremented on each navigation request so consumers can react via useEffect. */
   expenseNavigationSeq: number;
 
   setNavigation: (config: NavigationConfig) => void;
-  navigateToExpenseDate: (date: ISODate) => void;
+  navigateToExpenseDate: (date: ISODate, id?: number) => void;
 }
 
 export const useNavigationStore = create<NavigationState>(set => ({
   pathPrefix: expensePagePath,
   dateRange: monthRange(toISODate()),
   expenseNavigationTarget: null,
+  expenseNavigationTargetId: null,
   expenseNavigationSeq: 0,
 
   setNavigation: config => set({ pathPrefix: config.pathPrefix, dateRange: config.dateRange }),
-  navigateToExpenseDate: date =>
+  navigateToExpenseDate: (date, id) =>
     set(s => ({
       expenseNavigationTarget: date,
+      expenseNavigationTargetId: id && id > 0 ? id : null,
       expenseNavigationSeq: s.expenseNavigationSeq + 1,
     })),
 }));
 
 /** Push a date to trigger cross-month navigation in MonthView. */
-export function navigateToExpenseDate(date: ISODate) {
-  useNavigationStore.getState().navigateToExpenseDate(date);
+export function navigateToExpenseDate(date: ISODate, id?: number) {
+  useNavigationStore.getState().navigateToExpenseDate(date, id);
 }

@@ -5,12 +5,14 @@ import { UserPrompts } from 'client/ui/dialog/DialogState';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
 /**
- * This is the save action that is called when expense editor save button is pressed
+ * The save action that is called when expense editor save button is pressed.
+ * Resolves to the saved expense id on success (0 when the implementation does
+ * not persist to the server), or null when the user cancelled or the save failed.
  */
 export type ExpenseSaveAction = (
   expense: ExpenseData,
   original: UserExpenseWithDetails | null,
-) => Promise<boolean>;
+) => Promise<number | null>;
 
 /**
  * This is the default implementation of the expense save action
@@ -21,26 +23,26 @@ export const defaultExpenseSaveAction: ExpenseSaveAction = async (expense, origi
 
   const name = expense.title;
   const res = await executeOperation(
-    async () => {
+    async (): Promise<number | null> => {
       if (original) {
         if (original.recurringExpenseId) {
           if (!(await saveRecurring(original.id, expense))) {
             // User canceled, break out
-            return false;
+            return null;
           }
-        } else {
-          await apiConnect.updateExpense(original.id, expense);
+          return original.id;
         }
-      } else {
-        await apiConnect.storeExpense(expense);
+        const r = await apiConnect.updateExpense(original.id, expense);
+        return r.expenseId;
       }
-      return true;
+      const r = await apiConnect.storeExpense(expense);
+      return r.expenseId;
     },
     {
       success: `${createNew ? 'Tallennettu' : 'Päivitetty'} ${name}`,
     },
   );
-  return res ?? false;
+  return res ?? null;
 };
 
 async function saveRecurring(originalId: number, data: ExpenseData): Promise<boolean> {

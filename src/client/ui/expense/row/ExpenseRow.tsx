@@ -12,7 +12,7 @@ import { Category, CategoryMap, ExpenseGroupingMap, isDefined, Source, User } fr
 import { equal, Money, notEqual } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { getFullCategoryName, UserDataProps } from 'client/data/Categories';
-import { navigateToExpenseDate } from 'client/data/NavigationStore';
+import { navigateToExpenseDate, useNavigationStore } from 'client/data/NavigationStore';
 import { notifyError } from 'client/data/NotificationStore';
 import { invalidateExpenseData, invalidateSubscriptionData } from 'client/data/query';
 import { editExpense } from 'client/data/State';
@@ -24,6 +24,7 @@ import { UserAvatar } from 'client/ui/component/UserAvatar';
 import { UserPrompts } from 'client/ui/dialog/DialogState';
 import { GroupedExpenseIcon } from 'client/ui/grouping/GroupedExpenseIcon';
 import { Icons } from 'client/ui/icons/Icons';
+import { classNames } from 'client/ui/utils/classNames';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { ExpenseInfo } from '../details/ExpenseInfo';
@@ -68,6 +69,21 @@ const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
   const [isLoading, setIsLoading] = React.useState(false);
   const dayParities = React.useContext(DayParityContext);
 
+  // Play a one-shot highlight animation when this row is the navigation target.
+  // Tracking the seq prevents re-triggering on unrelated re-renders.
+  const navTargetId = useNavigationStore(s => s.expenseNavigationTargetId);
+  const navSeq = useNavigationStore(s => s.expenseNavigationSeq);
+  const [highlight, setHighlight] = React.useState(false);
+  const lastHandledSeqRef = React.useRef(0);
+  React.useEffect(() => {
+    if (navTargetId !== expense.id) return;
+    if (lastHandledSeqRef.current === navSeq) return;
+    lastHandledSeqRef.current = navSeq;
+    setHighlight(true);
+    const t = window.setTimeout(() => setHighlight(false), 1600);
+    return () => window.clearTimeout(t);
+  }, [navTargetId, navSeq, expense.id]);
+
   const onClickCategory = (cat: Category) => {
     props.selectCategory?.(cat);
     addFilter(
@@ -105,7 +121,7 @@ const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
       success: `Muutettu kirjauksen ${expense.title} päiväksi ${readableDate(date)}`,
       postProcess: () => {
         invalidateExpenseData();
-        navigateToExpenseDate(date);
+        navigateToExpenseDate(date, expense.id);
       },
     });
   };
@@ -164,11 +180,9 @@ const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
 
   const modifyExpense = async () => {
     const e = await apiConnect.getExpense(expense.id);
-    const modified = await editExpense(e.id);
-    if (modified) {
-      invalidateExpenseData();
-      navigateToExpenseDate(modified.date);
-    }
+    // The dialog's own save flow invalidates data and navigates to the saved
+    // expense, so we just wait for the user to finish editing.
+    await editExpense(e.id);
   };
 
   const parity = dayParities[expense.id] ?? 0;
@@ -179,7 +193,14 @@ const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
 
   return (
     <>
-      <Table.Tr className={parity === 1 ? styles.alternateRow : undefined}>
+      <Table.Tr
+        data-expense-id={expense.id}
+        data-expense-date={expense.date}
+        className={classNames(
+          parity === 1 ? styles.alternateRow : null,
+          highlight ? styles.highlightRow : null,
+        )}
+      >
         {/* Date */}
         <Table.Td ta="right" pos="relative" px="xs" onClick={editDate}>
           {expense.recurringExpenseId ? (

@@ -191,11 +191,11 @@ export function useExpenseDialog(props: FullExpenseDialogProps<ExpenseInEditor>)
 
       setSaveLocked(true);
       try {
-        const r = await (props.saveAction ?? defaultExpenseSaveAction)(data, original);
-        logger.info(`Saved expense: ${r}`);
-        if (r) {
+        const savedId = await (props.saveAction ?? defaultExpenseSaveAction)(data, original);
+        logger.info(`Saved expense: ${savedId}`);
+        if (savedId !== null) {
           await onClose(expense);
-          onExpensesUpdated(expense.date);
+          onExpensesUpdated(expense.date, savedId);
         }
       } catch (error) {
         logger.error(error, 'Failed to save expense');

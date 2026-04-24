@@ -32,7 +32,7 @@ export interface ExpenseDialogProps<D> {
   original: UserExpenseWithDetails | null;
   saveAction: ExpenseSaveAction | null;
   onClose: (e: D | null) => MaybePromise<void>;
-  onExpensesUpdated: (date: ISODate) => void;
+  onExpensesUpdated: (date: ISODate, id?: number) => void;
   expenseCounter: number;
   isMobile: boolean;
   values: Partial<D>;

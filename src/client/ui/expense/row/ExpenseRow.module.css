@@ -29,3 +29,19 @@
   padding: 3px 4px 4px 3px;
   border-bottom-right-radius: var(--mantine-radius-sm);
 }
+
+/* Three quick blinks followed by a fade; catches the eye after a save or
+   navigation. One-shot animation, so after ~1.6s the cells return to their
+   natural background. */
+.highlightRow > td {
+  animation: highlightPulse 1.6s ease-in-out;
+}
+
+@keyframes highlightPulse {
+  0%   { background-color: var(--mantine-primary-color-light); }
+  18%  { background-color: transparent; }
+  36%  { background-color: var(--mantine-primary-color-light); }
+  54%  { background-color: transparent; }
+  72%  { background-color: var(--mantine-primary-color-light); }
+  100% { background-color: transparent; }
+}

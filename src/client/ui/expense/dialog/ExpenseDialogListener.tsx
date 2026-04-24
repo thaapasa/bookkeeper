@@ -93,9 +93,9 @@ export function createExpenseDialogListener<D>(
       setState(s => ({ ...s, open: false, original: null }));
     }, []);
 
-    const onExpensesUpdated = React.useCallback((date: ISODate) => {
+    const onExpensesUpdated = React.useCallback((date: ISODate, id?: number) => {
       invalidateExpenseData();
-      navigateToExpenseDate(date);
+      navigateToExpenseDate(date, id);
     }, []);
 
     if (!state.open) {
