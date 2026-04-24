@@ -8,7 +8,7 @@ import {
   UserExpenseWithDetails,
 } from 'shared/expense';
 import { readableDate, toDateTime } from 'shared/time';
-import { Category, CategoryMap, ExpenseGroupingMap, isDefined, Source, User } from 'shared/types';
+import { Category, isDefined } from 'shared/types';
 import { equal, Money, notEqual } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { getFullCategoryName, UserDataProps } from 'client/data/Categories';
@@ -52,18 +52,12 @@ export interface CommonExpenseRowProps {
   addFilter: AddFilterFn;
 }
 
-interface ExpenseRowImplProps extends CommonExpenseRowProps {
-  user: User;
-  source: Source;
-  fullCategoryName: string;
-  categoryMap: CategoryMap;
-  groupingMap: ExpenseGroupingMap;
-  userMap: Record<string, User>;
-}
-
-const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
-  const { expense, prev, user, source, categoryMap, groupingMap, userMap, addFilter, onUpdated } =
-    props;
+export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataProps }> = props => {
+  const { expense, prev, userData, addFilter, onUpdated } = props;
+  const { categoryMap, userMap, sourceMap, groupingMap } = userData;
+  const user = userMap[expense.userId];
+  const source = sourceMap[expense.sourceId];
+  const fullCategoryName = getFullCategoryName(expense.categoryId, categoryMap);
 
   const [details, setDetails] = React.useState<UserExpenseWithDetails | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
@@ -312,24 +306,12 @@ const ExpenseRowImpl: React.FC<ExpenseRowImplProps> = props => {
           onModify={modifyExpense}
           division={details ? details.division : emptyDivision}
           source={source}
-          fullCategoryName={props.fullCategoryName}
+          fullCategoryName={fullCategoryName}
         />
       ) : null}
     </>
   );
 };
-
-export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataProps }> = props => (
-  <ExpenseRowImpl
-    {...props}
-    categoryMap={props.userData.categoryMap}
-    userMap={props.userData.userMap}
-    user={props.userData.userMap[props.expense.userId]}
-    source={props.userData.sourceMap[props.expense.sourceId]}
-    groupingMap={props.userData.groupingMap}
-    fullCategoryName={getFullCategoryName(props.expense.categoryId, props.userData.categoryMap)}
-  />
-);
 
 function weekDay(date: string, prev?: UserExpense | null) {
   const m = toDateTime(date);
