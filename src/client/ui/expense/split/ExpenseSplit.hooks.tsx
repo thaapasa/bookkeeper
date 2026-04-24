@@ -4,6 +4,7 @@ import { ExpenseSplit, UserExpenseWithDetails } from 'shared/expense';
 import { MakeOptional } from 'shared/types';
 import { IdProvider } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
+import { notifyError } from 'client/data/NotificationStore';
 import { logger } from 'client/Logger';
 
 import type { ExpenseDialogProps } from '../dialog/ExpenseDialog';
@@ -30,6 +31,7 @@ export function useExpenseSplit(
   onExpensesUpdated: ExpenseDialogProps<any>['onExpensesUpdated'],
 ) {
   const [splits, setSplits] = React.useState<ExpenseSplitInEditor[]>([]);
+  const [saveLocked, setSaveLocked] = React.useState(false);
 
   React.useEffect(() => {
     setSplits(initialSplit(original, sourceMap));
@@ -65,15 +67,22 @@ export function useExpenseSplit(
   const validSplits = splits.length > 1 && splits.every(isSplitComplete);
 
   const splitExpense = async () => {
-    if (original && validSplits) {
+    if (!original || !validSplits || saveLocked) return;
+    setSaveLocked(true);
+    try {
       const finalized = finalizeSplits(original.type, splits, sourceMap);
       await apiConnect.splitExpense(original.id, finalized);
       onClose(finalized);
       onExpensesUpdated(original.date);
+    } catch (error) {
+      logger.error(error, 'Failed to split expense');
+      notifyError('Kirjauksen pilkkominen epäonnistui', error);
+    } finally {
+      setSaveLocked(false);
     }
   };
 
-  return { addRow, saveSplit, removeSplit, splits, validSplits, splitExpense };
+  return { addRow, saveSplit, removeSplit, splits, validSplits, splitExpense, saveLocked };
 }
 
 export type SplitTools = ReturnType<typeof useExpenseSplit>;

@@ -19,7 +19,7 @@ export const ExpenseSplitDialog: React.FC<ExpenseDialogProps<ExpenseSplit[]>> = 
 }) => {
   const data = useExpenseDialogData()!;
 
-  const { addRow, splits, validSplits, splitExpense, ...tools } = useExpenseSplit(
+  const { addRow, splits, validSplits, splitExpense, saveLocked, ...tools } = useExpenseSplit(
     original,
     data.sourceMap,
     onClose,
@@ -62,6 +62,7 @@ export const ExpenseSplitDialog: React.FC<ExpenseDialogProps<ExpenseSplit[]>> = 
             addRow={addRow}
             onClose={() => onClose(null)}
             splitExpense={validSplits ? splitExpense : undefined}
+            saving={saveLocked}
           />
         </Stack>
       </ExpenseDialogContent>
