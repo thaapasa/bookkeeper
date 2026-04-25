@@ -10,8 +10,8 @@ import {
 } from 'shared/expense';
 import { toISODate } from 'shared/time';
 import { Money, sanitizeMoneyInput } from 'shared/util';
-import { notifyError } from 'client/data/NotificationStore';
 import { logger } from 'client/Logger';
+import { executeOperation } from 'client/util/ExecuteOperation';
 
 import type { FullExpenseDialogProps } from './ExpenseDialog';
 import { calculateDivision } from './ExpenseDialogData';
@@ -189,20 +189,17 @@ export function useExpenseDialog(props: FullExpenseDialogProps<ExpenseInEditor>)
         groupingId: expense.groupingId ?? undefined,
       };
 
-      setSaveLocked(true);
-      try {
-        const savedId = await (props.saveAction ?? defaultExpenseSaveAction)(data, original);
-        logger.info(`Saved expense: ${savedId}`);
-        if (savedId !== null) {
-          await onClose(expense);
-          onExpensesUpdated(expense.date, savedId);
-        }
-      } catch (error) {
-        logger.error(error, 'Failed to save expense');
-        notifyError('Kirjauksen tallennus epäonnistui', error);
-      } finally {
-        setSaveLocked(false);
-      }
+      await executeOperation(() => (props.saveAction ?? defaultExpenseSaveAction)(data, original), {
+        trackProgress: setSaveLocked,
+        errorMessage: 'Kirjauksen tallennus epäonnistui',
+        postProcess: async savedId => {
+          logger.info(`Saved expense: ${savedId}`);
+          if (savedId !== null) {
+            await onClose(expense);
+            onExpensesUpdated(expense.date, savedId);
+          }
+        },
+      });
     },
     [saveLocked, sourceMap, props.saveAction, original, onClose, onExpensesUpdated],
   );

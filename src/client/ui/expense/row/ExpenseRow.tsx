@@ -13,7 +13,6 @@ import { equal, Money, notEqual } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { getFullCategoryName, UserDataProps } from 'client/data/Categories';
 import { navigateToExpenseDate, useNavigationStore } from 'client/data/NavigationStore';
-import { notifyError } from 'client/data/NotificationStore';
 import { invalidateExpenseData, invalidateSubscriptionData } from 'client/data/query';
 import { editExpense } from 'client/data/State';
 import { logger } from 'client/Logger';
@@ -124,18 +123,13 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
     if (details) {
       setDetails(null);
       setIsLoading(false);
-    } else {
-      setIsLoading(true);
-      try {
-        const loaded = await apiConnect.getExpense(expense.id);
-        setDetails(loaded);
-        setIsLoading(false);
-      } catch (error) {
-        notifyError('Ei voitu ladata tietoja kirjaukselle', error);
-        setDetails(null);
-        setIsLoading(false);
-      }
+      return;
     }
+    await executeOperation(() => apiConnect.getExpense(expense.id), {
+      trackProgress: setIsLoading,
+      errorMessage: 'Ei voitu ladata tietoja kirjaukselle',
+      postProcess: setDetails,
+    });
   };
 
   const deleteExpense = async () => {

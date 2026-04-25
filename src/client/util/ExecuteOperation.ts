@@ -5,6 +5,7 @@ import { UserPrompts } from 'client/ui/dialog/DialogState';
 type ExecutionOptions<T> = {
   progress?: string;
   success?: string | ((v: T) => string);
+  errorMessage?: string;
   throw?: boolean;
   confirm?: string;
   confirmTitle?: string;
@@ -56,7 +57,7 @@ export async function executeOperation<T>(
     return res;
   } catch (e: any) {
     // Show error notification
-    notifyError(`Hups! Joku meni vikaan`, e, { immediate: true });
+    notifyError(options.errorMessage ?? `Hups! Joku meni vikaan`, e, { immediate: true });
 
     options.trackProgress?.(false);
 

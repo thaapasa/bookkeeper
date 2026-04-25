@@ -4,8 +4,8 @@ import { ExpenseSplit, UserExpenseWithDetails } from 'shared/expense';
 import { MakeOptional } from 'shared/types';
 import { IdProvider } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
-import { notifyError } from 'client/data/NotificationStore';
 import { logger } from 'client/Logger';
+import { executeOperation } from 'client/util/ExecuteOperation';
 
 import type { ExpenseDialogProps } from '../dialog/ExpenseDialog';
 import { getBenefitorsForExpense } from '../dialog/ExpenseDialogData';
@@ -68,18 +68,16 @@ export function useExpenseSplit(
 
   const splitExpense = async () => {
     if (!original || !validSplits || saveLocked) return;
-    setSaveLocked(true);
-    try {
-      const finalized = finalizeSplits(original.type, splits, sourceMap);
-      await apiConnect.splitExpense(original.id, finalized);
-      onClose(finalized);
-      onExpensesUpdated(original.date);
-    } catch (error) {
-      logger.error(error, 'Failed to split expense');
-      notifyError('Kirjauksen pilkkominen epäonnistui', error);
-    } finally {
-      setSaveLocked(false);
-    }
+    const finalized = finalizeSplits(original.type, splits, sourceMap);
+    await executeOperation(() => apiConnect.splitExpense(original.id, finalized), {
+      trackProgress: setSaveLocked,
+      success: 'Kirjaus pilkottu',
+      errorMessage: 'Kirjauksen pilkkominen epäonnistui',
+      postProcess: () => {
+        onClose(finalized);
+        onExpensesUpdated(original.date);
+      },
+    });
   };
 
   return { addRow, saveSplit, removeSplit, splits, validSplits, splitExpense, saveLocked };
