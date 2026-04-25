@@ -8,8 +8,6 @@ import {
   ExpenseQuery,
   Recurrence,
   RecurrencePeriod,
-  recurrencePerMonth,
-  recurrencePerYear,
   RecurrenceUnit,
   RecurringExpense,
   RecurringExpenseDetails,
@@ -18,7 +16,7 @@ import {
   SubscriptionSearchCriteria,
   UserExpense,
 } from 'shared/expense';
-import { DateLike, ISODate, toDateTime, toISODate } from 'shared/time';
+import { DateLike, ISODate, RecurrenceInterval, toDateTime, toISODate } from 'shared/time';
 import {
   ApiMessage,
   DbObject,
@@ -98,7 +96,11 @@ export function searchRecurringExpenses(
             ${type ? 'AND e.type IN ($/type:csv/)' : ''}`,
         { groupId, type, userId },
       );
-      return expenses.map(mapRecurringExpense);
+      const window = baselineWindow(criteria.range);
+      const baselines = await getRecurringBaselines(tx, groupId, window.startDate);
+      return expenses.map(row =>
+        mapRecurringExpense(row, baselines.get(row.recurringExpenseId), window.months),
+      );
     },
   );
 }
@@ -119,7 +121,63 @@ async function getRecurringExpenseInfo(
   if (!row) {
     throw new NotFoundError('RECURRING_EXPENSE_NOT_FOUND', `Recurring expense`, recurringExpenseId);
   }
-  return mapRecurringExpense(row);
+  const window = baselineWindow();
+  const baseline = (
+    await getRecurringBaselines(tx, groupId, window.startDate, recurringExpenseId)
+  ).get(recurringExpenseId);
+  return mapRecurringExpense(row, baseline, window.months);
+}
+
+const defaultBaselineRange: RecurrenceInterval = { amount: 5, unit: 'years' };
+
+interface BaselineWindow {
+  startDate: ISODate;
+  months: number;
+}
+
+interface BaselineData {
+  totalSum: string;
+  count: number;
+}
+
+function baselineWindow(range: RecurrenceInterval = defaultBaselineRange): BaselineWindow {
+  const now = toDateTime();
+  const startDate = now.minus({ [range.unit]: range.amount });
+  return { startDate: toISODate(startDate), months: now.diff(startDate, 'months').months };
+}
+
+async function getRecurringBaselines(
+  tx: DbTask,
+  groupId: ObjectId,
+  startDate: ISODate,
+  recurringExpenseId?: ObjectId,
+): Promise<Map<number, BaselineData>> {
+  const rows = await tx.manyOrNone<{ id: number; total: string; count: number }>(
+    `--sql
+      SELECT recurring_expense_id AS id,
+             SUM(sum) AS total,
+             COUNT(*) AS count
+        FROM expenses
+        WHERE group_id = $/groupId/
+          AND template = false
+          AND recurring_expense_id IS NOT NULL
+          ${recurringExpenseId ? 'AND recurring_expense_id = $/recurringExpenseId/' : ''}
+          AND date >= $/startDate/::DATE
+        GROUP BY recurring_expense_id`,
+    { groupId, startDate, recurringExpenseId },
+  );
+  return new Map(rows.map(r => [r.id, { totalSum: r.total, count: r.count }]));
+}
+
+function computeBaseline(
+  baseline: BaselineData | undefined,
+  months: number,
+): { perMonth: Money; perYear: Money } {
+  if (!baseline || months <= 0) {
+    return { perMonth: Money.from(0), perYear: Money.from(0) };
+  }
+  const perMonth = Money.from(baseline.totalSum).divide(months);
+  return { perMonth, perYear: perMonth.multiply(12) };
 }
 
 export async function getRecurringExpenseTemplate(
@@ -195,12 +253,17 @@ export function getRecurringExpenseDetails(
   );
 }
 
-function mapRecurringExpense(row: any): RecurringExpense {
+function mapRecurringExpense(
+  row: any,
+  baseline: BaselineData | undefined,
+  months: number,
+): RecurringExpense {
   const period: RecurrencePeriod = {
     unit: row.period_unit,
     amount: row.period_amount,
   };
   const sum = Money.from(row.sum).toString();
+  const { perMonth, perYear } = computeBaseline(baseline, months);
   return {
     id: row.recurringExpenseId,
     type: 'recurring',
@@ -213,8 +276,8 @@ function mapRecurringExpense(row: any): RecurringExpense {
     nextMissing: toISODate(row.next_missing),
     firstOccurence: toISODate(row.date),
     occursUntil: row.occurs_until ? toISODate(row.occurs_until) : undefined,
-    recurrencePerMonth: recurrencePerMonth(sum, period).toString(),
-    recurrencePerYear: recurrencePerYear(sum, period).toString(),
+    recurrencePerMonth: perMonth.toString(),
+    recurrencePerYear: perYear.toString(),
   };
 }
 
