@@ -1,9 +1,10 @@
-import { Box, Pill, Stack } from '@mantine/core';
+import { Box, Stack } from '@mantine/core';
 import * as React from 'react';
 
 import { identity, noop } from 'shared/util';
 
 import { AutoComplete } from './AutoComplete';
+import { Tag } from './Tag';
 
 interface TagsPickerProps {
   value: string[];
@@ -15,19 +16,12 @@ interface TagsPickerProps {
 export const TagsPicker: React.FC<TagsPickerProps> = ({ value, presetValues, onAdd, onRemove }) => {
   const [tag, setTag] = React.useState('');
   return (
-    <Stack>
+    <Stack gap={0}>
       <Box display="inline-block">
         {value.map(v => (
-          <Pill
-            key={v}
-            withRemoveButton
-            onRemove={() => onRemove(v)}
-            mr="xs"
-            mb="xs"
-            bg="light-dark(var(--mantine-color-neutral-2), var(--mantine-color-neutral-4))"
-          >
+          <Tag key={v} mr="xs" mb="xs" onRemove={() => onRemove(v)}>
             {v}
-          </Pill>
+          </Tag>
         ))}
       </Box>
       <AutoComplete

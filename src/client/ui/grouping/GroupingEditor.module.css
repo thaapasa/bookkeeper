@@ -2,7 +2,7 @@
   display: grid;
   grid-template-columns: auto 1fr;
   gap: var(--mantine-spacing-xs);
-  align-items: center;
+  align-items: flex-start;
 }
 
 .imageArea {

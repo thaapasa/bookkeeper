@@ -128,7 +128,7 @@ const GroupingEditView: React.FC<{
   React.useEffect(() => void state.reset(data), [data?.id]);
 
   return (
-    <>
+    <Stack>
       <DialogHeading>{createNew ? 'Uusi ryhmittely' : 'Muokkaa ryhmittelyä'}</DialogHeading>
       <Box className={styles.formGrid}>
         <SelectionRow title="Nimi">
@@ -218,7 +218,7 @@ const GroupingEditView: React.FC<{
           </Group>
         </Box>
       </Box>
-    </>
+    </Stack>
   );
 };
 

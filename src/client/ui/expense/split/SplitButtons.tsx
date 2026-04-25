@@ -18,7 +18,7 @@ export const SplitButtons: React.FC<
     <Button
       leftSection={<Icons.Add />}
       variant="filled"
-      color="gray"
+      color="neutral"
       onClick={addRow}
       disabled={saving}
     >

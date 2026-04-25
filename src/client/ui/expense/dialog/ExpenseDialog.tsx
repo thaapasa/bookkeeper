@@ -174,7 +174,7 @@ export const ExpenseDialog: React.FC<ExpenseDialogProps<ExpenseInEditor>> = oute
             <Button
               type="button"
               variant="filled"
-              color="gray"
+              color="neutral"
               leftSection={<Icons.Today />}
               onClick={setToday}
             >

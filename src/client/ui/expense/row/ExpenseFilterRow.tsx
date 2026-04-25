@@ -1,5 +1,6 @@
-import { Group, Pill, Table, Tooltip } from '@mantine/core';
+import { Group, Table, Tooltip } from '@mantine/core';
 
+import { Tag } from '../../component/Tag';
 import { ExpenseFilter } from './ExpenseFilters';
 import { AllColumns } from './ExpenseTableColumns';
 
@@ -40,16 +41,9 @@ interface ExpenseFilterItemProps {
 function ExpenseFilterItem({ filter, index, onRemove }: ExpenseFilterItemProps) {
   return (
     <Tooltip withArrow label={filter.name} position="bottom">
-      <Pill
-        bg="light-dark(var(--mantine-color-neutral-2), var(--mantine-color-neutral-4))"
-        c="primary-7"
-        maw={120}
-        withRemoveButton
-        size="sm"
-        onRemove={() => onRemove(index)}
-      >
+      <Tag size="xs" onRemove={() => onRemove(index)} maw={120}>
         {filter.name}
-      </Pill>
+      </Tag>
     </Tooltip>
   );
 }

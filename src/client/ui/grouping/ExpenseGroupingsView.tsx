@@ -1,6 +1,5 @@
 import {
   ActionIcon,
-  Badge,
   Box,
   Card,
   Group,
@@ -20,6 +19,7 @@ import apiConnect from 'client/data/ApiConnect';
 import { executeOperation } from 'client/util/ExecuteOperation';
 import { groupingsPagePath } from 'client/util/Links';
 
+import { Tag } from '../component/Tag';
 import { Subtitle } from '../design/Text';
 import { Icons } from '../icons/Icons';
 import { GroupedExpenseIcon } from './GroupedExpenseIcon';
@@ -106,9 +106,9 @@ export const ExpenseGroupingView: React.FC<{
                 gap="xs"
               >
                 {grouping.tags.map(t => (
-                  <Badge key={t} size="sm" variant="filled">
+                  <Tag key={t} size="xs" variant="primary">
                     {t}
-                  </Badge>
+                  </Tag>
                 ))}
               </Group>
             ) : null}

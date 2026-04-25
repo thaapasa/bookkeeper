@@ -2,7 +2,10 @@ import {
   createTheme,
   CSSVariablesResolver,
   DEFAULT_THEME,
+  defaultVariantColorsResolver,
   MantineColorsTuple,
+  parseThemeColor,
+  VariantColorsResolver,
   virtualColor,
 } from '@mantine/core';
 
@@ -76,8 +79,79 @@ const headings = {
   },
 };
 
+/**
+ * Override Mantine's variant resolution for `color="neutral"`.
+ *
+ * Mantine's index-based shade picker (`color[6]` for filled in light, `color[8]` in dark)
+ * doesn't fit a gray scale: gray[6] is too heavy against a near-white page, gray[0] (used
+ * by `light`) is invisible against it, and our reversed dark scale makes `darkReversed[8]`
+ * a *light* shade — white text on it has ~1.4:1 contrast, which is unreadable.
+ *
+ * For `color="neutral"` we substitute mode-aware values so filled/light/outline/subtle
+ * produce subtle chip surfaces that respect the page in both modes. Other colors fall
+ * through to Mantine's default resolver.
+ */
+const variantColorResolver: VariantColorsResolver = input => {
+  const defaults = defaultVariantColorsResolver(input);
+  const parsed = parseThemeColor({
+    color: input.color || input.theme.primaryColor,
+    theme: input.theme,
+  });
+  if (parsed.color !== 'neutral') return defaults;
+
+  // Dark-mode bg values are lifted above surface.1 (#282724) so chips stand off
+  // the expense-table row bg. gray-2/3 stays subtle against light-mode pages.
+  const subtleBg = 'light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-5))';
+  const subtleBgHover = 'light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4))';
+  const lightBg = 'light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-6))';
+  const lightBgHover = 'light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-5))';
+  const fg = 'light-dark(var(--mantine-color-gray-8), var(--mantine-color-gray-1))';
+  const dimFg = 'light-dark(var(--mantine-color-gray-7), var(--mantine-color-gray-3))';
+  const borderColor = 'light-dark(var(--mantine-color-gray-4), var(--mantine-color-dark-4))';
+
+  switch (input.variant) {
+    case 'filled':
+      return {
+        ...defaults,
+        background: subtleBg,
+        hover: subtleBgHover,
+        color: fg,
+        border: 'transparent',
+      };
+    case 'light':
+      return {
+        ...defaults,
+        background: lightBg,
+        hover: lightBgHover,
+        color: fg,
+        border: 'transparent',
+      };
+    case 'outline':
+      return {
+        ...defaults,
+        background: 'transparent',
+        hover: lightBg,
+        color: fg,
+        border: `1px solid ${borderColor}`,
+      };
+    case 'subtle':
+      // Bumped one shade above lightBg so the hover stands off white input
+      // backgrounds in light mode.
+      return {
+        ...defaults,
+        background: 'transparent',
+        hover: subtleBg,
+        color: dimFg,
+        border: 'transparent',
+      };
+    default:
+      return defaults;
+  }
+};
+
 export const mantineTheme = createTheme({
   primaryColor: 'primary',
+  variantColorResolver,
   colors: {
     primary: virtualColor({ name: 'primary', light: 'cyan', dark: 'cyan' }),
     darkReversed,

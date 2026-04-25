@@ -1,7 +1,8 @@
-import { Badge, CloseButton } from '@mantine/core';
 import React from 'react';
 
 import { uniq } from 'shared/util';
+
+import { Tag } from '../component/Tag';
 
 export function useFilterTags() {
   const [tags, setTags] = React.useState<string[]>([]);
@@ -30,18 +31,16 @@ export function ExpenseGroupingsTagFilters({
       {joinedTags.map(t => {
         const active = selected.has(t);
         return (
-          <Badge
+          <Tag
             key={t}
-            variant={active ? 'filled' : 'outline'}
-            rightSection={
-              active ? <CloseButton size="xs" onClick={() => removeTag(t)} /> : undefined
-            }
-            onClick={active ? undefined : () => addTag(t)}
             ml="xs"
-            style={active ? undefined : { cursor: 'pointer' }}
+            selectable
+            selected={active}
+            onSelect={() => addTag(t)}
+            onRemove={() => removeTag(t)}
           >
             {t}
-          </Badge>
+          </Tag>
         );
       })}
     </>

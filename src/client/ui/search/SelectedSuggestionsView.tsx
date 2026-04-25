@@ -1,6 +1,7 @@
-import { Group, Pill } from '@mantine/core';
+import { Group } from '@mantine/core';
 import * as React from 'react';
 
+import { Tag } from '../component/Tag';
 import { getSearchSuggestionValue, SearchSuggestion } from './SearchSuggestions';
 
 export const SelectedSuggestionsView: React.FC<{
@@ -13,14 +14,13 @@ export const SelectedSuggestionsView: React.FC<{
   return (
     <Group gap="xs">
       {suggestions.map(c => (
-        <Pill
+        <Tag
           key={c.id}
-          bg={c.type === 'receiver' ? 'primary.2' : undefined}
-          withRemoveButton
+          variant={c.type === 'receiver' ? 'primary' : 'default'}
           onRemove={() => onRemove(c)}
         >
           {getSearchSuggestionValue(c)}
-        </Pill>
+        </Tag>
       ))}
     </Group>
   );
