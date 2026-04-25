@@ -1,7 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it } from 'bun:test';
 import { expectArrayContaining } from 'test/expect/expectArrayContaining';
 
-import { Expense, ExpenseCollection, ExpenseStatus } from 'shared/expense';
+import {
+  Expense,
+  ExpenseCollection,
+  ExpenseQuery,
+  ExpenseStatus,
+  UserExpense,
+} from 'shared/expense';
 import {
   checkCreateStatus,
   division,
@@ -270,5 +276,40 @@ describe('expense', () => {
         Money.from(feb1.endStatus.value).plus('-250').plus('-370'),
       ),
     ).toBeTruthy();
+  });
+
+  describe('text search', () => {
+    const searchExpenses = (query: ExpenseQuery) =>
+      session.post<UserExpense[]>('/api/expense/search', query);
+
+    it('matches search term against title, receiver, and description', async () => {
+      const tag = `trgm-${Date.now()}`;
+      const [byTitle, byReceiver, byDescription, miss] = await Promise.all([
+        newExpense(session, { title: `Book ${tag}`, receiver: 'Akateeminen' }),
+        newExpense(session, { title: 'Lounas', receiver: `Cafe ${tag}` }),
+        newExpense(session, { title: 'Lounas', receiver: 'Bistro', description: `Note ${tag}` }),
+        newExpense(session, { title: 'Lounas', receiver: 'Bistro' }),
+      ]);
+
+      const results = await searchExpenses({ search: tag });
+      const ids = results.map(e => e.id);
+      expect(ids).toContain(byTitle.expenseId);
+      expect(ids).toContain(byReceiver.expenseId);
+      expect(ids).toContain(byDescription.expenseId);
+      expect(ids).not.toContain(miss.expenseId);
+    });
+
+    it('keeps the dedicated receiver filter narrowing the result set', async () => {
+      const tag = `recv-${Date.now()}`;
+      const [hit, otherReceiver] = await Promise.all([
+        newExpense(session, { title: `Token ${tag}`, receiver: `Tasted ${tag}` }),
+        newExpense(session, { title: `Token ${tag}`, receiver: 'Unrelated' }),
+      ]);
+
+      const results = await searchExpenses({ search: tag, receiver: `Tasted ${tag}` });
+      const ids = results.map(e => e.id);
+      expect(ids).toContain(hit.expenseId);
+      expect(ids).not.toContain(otherReceiver.expenseId);
+    });
   });
 });
