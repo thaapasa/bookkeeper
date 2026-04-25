@@ -11,6 +11,7 @@ import {
   getUserByCredentials,
   getUserByEmail,
   getUserById,
+  ProfileImageVariant,
   updateProfileImageById,
   updateUserDataById,
   updateUserPasswordById,
@@ -65,18 +66,19 @@ export function uploadProfileImage(
   tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
+  variant: ProfileImageVariant,
   image: FileUploadResult,
 ) {
   return withSpan(
-    'user.upload_profile_image',
-    { 'app.group_id': groupId, 'app.user_id': userId },
+    `user.upload_profile_image.${variant}`,
+    { 'app.group_id': groupId, 'app.user_id': userId, 'app.variant': variant },
     async () => {
       try {
-        logger.info(image, `Updating profile image for user ${userId}`);
+        logger.info(image, `Updating ${variant} profile image for user ${userId}`);
         const filename = await profileImageHandler.saveImages(image);
-        await deleteProfileImage(tx, groupId, userId);
-        await updateProfileImageById(tx, userId, filename);
-        logger.info(`Profile image updated`);
+        await deleteProfileImage(tx, groupId, userId, variant);
+        await updateProfileImageById(tx, userId, variant, filename);
+        logger.info(`Profile image (${variant}) updated`);
       } finally {
         await safeDeleteFile(image.filepath);
       }
@@ -84,20 +86,26 @@ export function uploadProfileImage(
   );
 }
 
-export function deleteProfileImage(tx: DbTask, groupId: ObjectId, userId: ObjectId) {
+export function deleteProfileImage(
+  tx: DbTask,
+  groupId: ObjectId,
+  userId: ObjectId,
+  variant: ProfileImageVariant,
+) {
   return withSpan(
-    'user.delete_profile_image',
-    { 'app.group_id': groupId, 'app.user_id': userId },
+    `user.delete_profile_image.${variant}`,
+    { 'app.group_id': groupId, 'app.user_id': userId, 'app.variant': variant },
     async () => {
       const user = await getUserById(tx, groupId, userId);
-      if (!user.image) {
-        logger.info(`No profile image for user, skipping delete`);
+      const existing = variant === 'dark' ? user.imageDark : user.image;
+      if (!existing) {
+        logger.info(`No ${variant} profile image for user, skipping delete`);
         return;
       }
-      logger.info(`Deleting profile image for user ${userId}`);
-      await profileImageHandler.deleteImages(user.image);
-      await clearProfileImageById(tx, userId);
-      logger.info(`Profile image deleted`);
+      logger.info(`Deleting ${variant} profile image for user ${userId}`);
+      await profileImageHandler.deleteImages(existing);
+      await clearProfileImageById(tx, userId, variant);
+      logger.info(`Profile image (${variant}) deleted`);
     },
   );
 }

@@ -10,12 +10,17 @@ export function dbRowToUser(user: RawUserData): User {
     ...(user as User),
     image: profileImagePath(user.image, user.email, 'small'),
     imageLarge: profileImagePath(user.image, user.email, 'large'),
+    // Pass undefined for email so the dark variant doesn't fall back to a
+    // separate Gravatar — the client falls back to the light image instead.
+    imageDark: profileImagePath(user.imageDark, undefined, 'small'),
+    imageDarkLarge: profileImagePath(user.imageDark, undefined, 'large'),
   };
 }
 
 const select = /*sql*/ `
 SELECT
-  id, username, email, first_name as "firstName", last_name as "lastName", image
+  id, username, email, first_name as "firstName", last_name as "lastName",
+  image, image_dark as "imageDark"
 FROM users u`;
 
 export async function getAllUsers(tx: DbTask, groupId: number): Promise<User[]> {
@@ -65,7 +70,8 @@ export async function getUserByCredentials(
   const user = await tx.oneOrNone<RawUserData>(
     `SELECT u.id,
         username, email, first_name as "firstName", last_name as "lastName",
-        default_group_id as "defaultGroupId", image, g.id as "groupId", g.name as "groupName",
+        default_group_id as "defaultGroupId", image, image_dark as "imageDark",
+        g.id as "groupId", g.name as "groupName",
         go.default_source_id as "defaultSourceId"
       FROM users u
         LEFT JOIN group_users go ON (go.user_id = u.id AND go.group_id = COALESCE($/groupId/, u.default_group_id))
@@ -118,14 +124,28 @@ export async function updateUserPasswordById(
   );
 }
 
+export type ProfileImageVariant = 'light' | 'dark';
+
+const variantColumn: Record<ProfileImageVariant, 'image' | 'image_dark'> = {
+  light: 'image',
+  dark: 'image_dark',
+};
+
 export async function updateProfileImageById(
   tx: DbTask,
   userId: ObjectId,
+  variant: ProfileImageVariant,
   filename: string,
 ): Promise<void> {
-  await tx.none(`UPDATE users SET image=$/filename/ WHERE id=$/userId/`, { userId, filename });
+  const column = variantColumn[variant];
+  await tx.none(`UPDATE users SET ${column}=$/filename/ WHERE id=$/userId/`, { userId, filename });
 }
 
-export async function clearProfileImageById(tx: DbTask, userId: ObjectId): Promise<void> {
-  await tx.none(`UPDATE users SET image=NULL WHERE id=$/userId/`, { userId });
+export async function clearProfileImageById(
+  tx: DbTask,
+  userId: ObjectId,
+  variant: ProfileImageVariant,
+): Promise<void> {
+  const column = variantColumn[variant];
+  await tx.none(`UPDATE users SET ${column}=NULL WHERE id=$/userId/`, { userId });
 }

@@ -26,11 +26,11 @@ const randomBytes = promisify(crypto.randomBytes);
 const tokenSelect = `--sql
 SELECT
   s.token, s.refresh_token AS "refreshToken", s.user_id AS id, s.login_time AS "loginTime",
-  u.username, u.email, u.first_name AS "firstName", u.last_name AS "lastName", u.image,
+  u.username, u.email, u.first_name AS "firstName", u.last_name AS "lastName",
+  u.image, u.image_dark AS "imageDark",
   u.default_group_id AS "defaultGroupId",
   g.id AS "groupId", g.name AS "groupName",
   go.default_source_id AS "defaultSourceId"
-  
 FROM sessions s
   INNER JOIN users u ON (s.user_id = u.id)
   LEFT JOIN group_users go ON (go.user_id = u.id AND go.group_id = COALESCE($/groupId/, u.default_group_id))
@@ -80,6 +80,7 @@ function createSessionInfo(
       firstName: userData.firstName,
       lastName: userData.lastName,
       image: userData.image,
+      imageDark: userData.imageDark,
       defaultGroupId: userData.defaultGroupId,
     }),
     group: {

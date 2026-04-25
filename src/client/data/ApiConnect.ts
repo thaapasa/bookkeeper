@@ -415,6 +415,12 @@ export class ApiConnect {
 
   public deleteProfileImage = (): Promise<void> => this.delete(uri`/api/profile/image`);
 
+  public uploadProfileImageDark = (file: File, filename: string): Promise<void> => {
+    return this.uploadImage(uri`/api/profile/image/dark`, filename, file);
+  };
+
+  public deleteProfileImageDark = (): Promise<void> => this.delete(uri`/api/profile/image/dark`);
+
   // Reports
 
   public createReport = (title: string, query: ExpenseQuery): Promise<ReportDef> => {

@@ -1,4 +1,4 @@
-import { Avatar as MantineAvatar, AvatarProps } from '@mantine/core';
+import { Avatar as MantineAvatar, AvatarProps, useComputedColorScheme } from '@mantine/core';
 import * as React from 'react';
 
 import { ObjectId, User } from 'shared/types';
@@ -12,6 +12,10 @@ interface UserAvatarProps extends AvatarProps {
   onClick?: (userId: ObjectId, e: React.MouseEvent<HTMLElement>) => void;
 }
 
+function pickAvatarSrc(user: User, scheme: 'light' | 'dark'): string | undefined {
+  return scheme === 'dark' ? (user.imageDark ?? user.image) : (user.image ?? user.imageDark);
+}
+
 export const UserAvatar: React.FC<UserAvatarProps> = ({
   user,
   size,
@@ -20,17 +24,19 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   onClick,
   ...props
 }) => {
+  const scheme = useComputedColorScheme('light');
   if (!user?.id) return null;
+  const src = pickAvatarSrc(user, scheme);
   return (
     <MantineAvatar
       {...props}
       className={classNames(styles.avatar, variant ?? 'default', className)}
-      src={user.image}
+      src={src}
       onClick={event => onClick?.(user.id, event)}
       size={size ?? 'md'}
       color="cyan"
     >
-      {user.image ? undefined : user.firstName.charAt(0)}
+      {src ? undefined : user.firstName.charAt(0)}
     </MantineAvatar>
   );
 };

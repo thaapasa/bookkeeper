@@ -39,6 +39,8 @@ export interface User extends DbObject {
   lastName: string;
   image?: string;
   imageLarge?: string;
+  imageDark?: string;
+  imageDarkLarge?: string;
   defaultGroupId?: number | null;
 }
 

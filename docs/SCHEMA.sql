@@ -3,12 +3,13 @@
 --
 
 
--- Dumped from database version 14.3 (Debian 14.3-1.pgdg110+1)
--- Dumped by pg_dump version 16.11
+-- Dumped from database version 18.3 (Debian 18.3-1.pgdg13+1)
+-- Dumped by pg_dump version 18.3
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
@@ -543,7 +544,8 @@ CREATE TABLE public.users (
     first_name character varying(128),
     last_name character varying(128),
     default_group_id integer,
-    image character varying(32) DEFAULT NULL::character varying
+    image character varying(32) DEFAULT NULL::character varying,
+    image_dark text
 );
 
 

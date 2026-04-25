@@ -36,13 +36,27 @@ export function createProfileApi() {
     '/image',
     {},
     processFileUpload((tx, session, file) =>
-      uploadProfileImage(tx, session.group.id, session.user.id, file),
+      uploadProfileImage(tx, session.group.id, session.user.id, 'light', file),
     ),
   );
 
   // DELETE /api/profile/image
   api.deleteTx('/image', {}, (tx, session) =>
-    deleteProfileImage(tx, session.group.id, session.user.id),
+    deleteProfileImage(tx, session.group.id, session.user.id, 'light'),
+  );
+
+  // POST /api/profile/image/dark
+  api.postTx(
+    '/image/dark',
+    {},
+    processFileUpload((tx, session, file) =>
+      uploadProfileImage(tx, session.group.id, session.user.id, 'dark', file),
+    ),
+  );
+
+  // DELETE /api/profile/image/dark
+  api.deleteTx('/image/dark', {}, (tx, session) =>
+    deleteProfileImage(tx, session.group.id, session.user.id, 'dark'),
   );
 
   return api.router;
