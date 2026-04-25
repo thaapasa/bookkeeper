@@ -2,8 +2,10 @@ import { DateTime } from 'luxon';
 
 import {
   Expense,
+  ExpenseDefaults,
   ExpenseDivisionItem,
   ExpenseInput,
+  ExpenseQuery,
   Recurrence,
   RecurrencePeriod,
   recurrencePerMonth,
@@ -50,6 +52,30 @@ import { getSourceById } from './SourceDb';
 
 const RecurringExpenseSelect = `SELECT *, re.id AS "recurringExpenseId" FROM recurring_expenses re
   LEFT JOIN expenses e ON (e.id = re.template_expense_id)`;
+
+export function filterFromExpense(expense: Expense): ExpenseQuery {
+  const filter: ExpenseQuery = { categoryId: expense.categoryId };
+  if (expense.receiver) filter.receiver = expense.receiver;
+  return filter;
+}
+
+export function defaultsFromExpense(
+  expense: Expense,
+  division: ExpenseDivisionItem[],
+): ExpenseDefaults {
+  return {
+    title: expense.title,
+    ...(expense.receiver ? { receiver: expense.receiver } : {}),
+    sum: Money.toString(expense.sum),
+    type: expense.type,
+    sourceId: expense.sourceId,
+    categoryId: expense.categoryId,
+    userId: expense.userId,
+    confirmed: expense.confirmed,
+    description: expense.description ?? null,
+    division: division.map(d => ({ ...d, sum: Money.toString(d.sum) })),
+  };
+}
 
 export function searchRecurringExpenses(
   tx: DbTask,
@@ -213,6 +239,8 @@ export function createRecurringFromExpense(
         `Create recurring expense with a period of ${recurrence.period.amount} ${recurrence.period.unit} from ${expenseId}`,
       );
       let nextMissing: DateTime | undefined;
+      let filter: ExpenseQuery | undefined;
+      let defaults: ExpenseDefaults | undefined;
       const templateId = await copyExpense(tx, groupId, userId, expenseId, e => {
         const [expense, division] = e;
         if (expense.recurringExpenseId && expense.recurringExpenseId > 0) {
@@ -222,12 +250,14 @@ export function createRecurringFromExpense(
           );
         }
         nextMissing = calculateNextRecurrence(expense.date, recurrence.period);
+        filter = filterFromExpense(expense);
+        defaults = defaultsFromExpense(expense, division);
         return [{ ...expense, template: true }, division];
       });
       const recurringExpenseId = (
         await tx.one<{ id: number }>(
-          `INSERT INTO recurring_expenses (template_expense_id, period_amount, period_unit, next_missing, group_id)
-              VALUES ($/templateId/, $/periodAmount/, $/periodUnit/, $/nextMissing/::DATE, $/groupId/)
+          `INSERT INTO recurring_expenses (template_expense_id, period_amount, period_unit, next_missing, group_id, filter, defaults)
+              VALUES ($/templateId/, $/periodAmount/, $/periodUnit/, $/nextMissing/::DATE, $/groupId/, $/filter/::JSONB, $/defaults/::JSONB)
               RETURNING id`,
           {
             templateId,
@@ -235,6 +265,8 @@ export function createRecurringFromExpense(
             periodUnit: recurrence.period.unit,
             nextMissing: toISODate(nextMissing),
             groupId,
+            filter,
+            defaults,
           },
         )
       ).id;

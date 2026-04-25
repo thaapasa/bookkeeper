@@ -1,7 +1,9 @@
 import { z } from 'zod';
 
 import { RecurrenceInterval } from '../time/RecurrenceInterval';
-import { ExpenseType } from './Expense';
+import { ObjectId } from '../types/Id';
+import { MoneyLike } from '../util/Money';
+import { ExpenseDivision, ExpenseType } from './Expense';
 import { RecurringExpense } from './RecurringExpense';
 import { ExpenseReport } from './Report';
 
@@ -18,3 +20,17 @@ export const SubscriptionResult = z.object({
   reports: z.array(ExpenseReport),
 });
 export type SubscriptionResult = z.infer<typeof SubscriptionResult>;
+
+export const ExpenseDefaults = z.object({
+  title: z.string(),
+  receiver: z.string().optional(),
+  sum: MoneyLike,
+  type: ExpenseType,
+  sourceId: ObjectId,
+  categoryId: ObjectId,
+  userId: ObjectId,
+  confirmed: z.boolean(),
+  description: z.string().or(z.null()),
+  division: ExpenseDivision.optional(),
+});
+export type ExpenseDefaults = z.infer<typeof ExpenseDefaults>;

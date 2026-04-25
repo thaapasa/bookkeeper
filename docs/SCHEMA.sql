@@ -352,7 +352,9 @@ CREATE TABLE public.recurring_expenses (
     period_unit public.recurring_period NOT NULL,
     occurs_until date,
     next_missing date,
-    period_amount smallint DEFAULT 1 NOT NULL
+    period_amount smallint DEFAULT 1 NOT NULL,
+    filter jsonb NOT NULL,
+    defaults jsonb NOT NULL
 );
 
 

@@ -37,6 +37,7 @@ export async function getExpenseSearchQuery(
       ${isDefined(query.confirmed) ? `AND confirmed = $/confirmed/` : ''}
       ${categoryIds.length > 0 ? `AND (category_id IN ($/categoryIds:csv/))` : ''}
       ${query.receiver ? `AND (receiver ILIKE '%$/receiver:value/%')` : ''}
+      ${query.title ? `AND (e.title ILIKE '%$/title:value/%')` : ''}
       AND (
         $/search/ = ''
         OR e.title ILIKE '%$/search:value/%'
@@ -51,6 +52,7 @@ export async function getExpenseSearchQuery(
       endDate: query.endDate,
       categoryIds,
       receiver: query.receiver,
+      title: query.title,
       search: query.search || '',
       confirmed: query.confirmed,
       type,

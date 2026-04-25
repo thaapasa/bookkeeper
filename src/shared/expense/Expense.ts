@@ -143,6 +143,7 @@ export type ExpenseCollection = z.infer<typeof ExpenseCollection>;
 export const ExpenseQuery = z
   .object({
     search: z.string(),
+    title: z.string(),
     receiver: z.string(),
     type: ExpenseType.or(z.array(ExpenseType)).optional(),
     categoryId: ObjectId.or(z.array(ObjectId)),
