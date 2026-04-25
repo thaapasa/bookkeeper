@@ -26,6 +26,13 @@ SET row_security = off;
 
 
 --
+-- Name: pg_trgm; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
+
+
+--
 -- Name: pgcrypto; Type: EXTENSION; Schema: -; Owner: -
 --
 
@@ -795,10 +802,31 @@ CREATE INDEX categories_group_id ON public.categories USING btree (group_id);
 
 
 --
+-- Name: expenses_description_trgm; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX expenses_description_trgm ON public.expenses USING gin (description public.gin_trgm_ops);
+
+
+--
 -- Name: expenses_group_date; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX expenses_group_date ON public.expenses USING btree (group_id, template, date);
+
+
+--
+-- Name: expenses_receiver_trgm; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX expenses_receiver_trgm ON public.expenses USING gin (receiver public.gin_trgm_ops);
+
+
+--
+-- Name: expenses_title_trgm; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX expenses_title_trgm ON public.expenses USING gin (title public.gin_trgm_ops);
 
 
 --

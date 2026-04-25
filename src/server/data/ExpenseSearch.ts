@@ -40,7 +40,8 @@ export async function getExpenseSearchQuery(
       AND (
         $/search/ = ''
         OR e.title ILIKE '%$/search:value/%'
-        OR receiver ILIKE '%$/search:value/%'
+        OR e.receiver ILIKE '%$/search:value/%'
+        OR e.description ILIKE '%$/search:value/%'
       )`),
     params: {
       userId,
