@@ -30,19 +30,21 @@ export const SplitRow: React.FC<SplitRowProps> = props => {
     <SplitEditor {...props} close={toggleEdit} />
   ) : (
     <Group className={styles.splitRowGrid}>
-      <Box>
+      <Box className="name">
         {split.title}
         <br />
         {split.categoryId
           ? getFullCategoryName(split.categoryId, categoryMap)
           : 'Valitse kategoria'}
       </Box>
-      <Group pos="relative" align="center">
+      <Group className="source" pos="relative" align="center">
         {split.sourceId ? <SourceIcon source={sourceMap[split.sourceId]} pt={5} /> : null}
         <UserSelector size={24} selected={split.benefit} />
       </Group>
-      <Group justify="flex-end">{Money.from(split.sum).format()}</Group>
-      <Group justify="flex-end" gap="xs">
+      <Group className="sum" justify="flex-end">
+        {Money.from(split.sum).format()}
+      </Group>
+      <Group className="actions" justify="flex-end" gap="xs">
         <ActionIcon onClick={toggleEdit}>
           <Icons.Edit />
         </ActionIcon>

@@ -1,15 +1,22 @@
 .splitRowGrid {
   display: grid;
-  grid-template-columns: 2fr 1fr 100px 100px;
+  grid-template:
+    "name source sum actions"     auto
+    / 2fr 1fr 100px 100px;
   gap: var(--mantine-spacing-xs);
   align-items: center;
   width: 100%;
+
+  & > :global(.name) { grid-area: name; }
+  & > :global(.source) { grid-area: source; }
+  & > :global(.sum) { grid-area: sum; }
+  & > :global(.actions) { grid-area: actions; }
 }
 
 .splitEditorGrid {
   display: grid;
   grid-template:
-    "name   cat   cat"     auto
+    "name   cat   cat    " auto
     "source sum   actions" auto
     / 1fr   120px auto;
   gap: var(--mantine-spacing-xs) var(--mantine-spacing-md);
@@ -19,9 +26,27 @@
   & > :global(.name) { grid-area: name; }
   & > :global(.cat) { grid-area: cat; }
   & > :global(.source) { grid-area: source; }
-  & > :global(.users) { grid-area: users; }
   & > :global(.sum) { grid-area: sum; }
   & > :global(.actions) { grid-area: actions; }
+}
+
+/* Below sm */
+@media (max-width: $mantine-breakpoint-sm) {
+  .splitEditorGrid {
+    grid-template:
+      "name   name   " auto
+      "cat    cat    " auto
+      "source source " auto
+      "sum    actions" auto
+      / 1fr 120px;
+  }
+
+  .splitRowGrid {
+    grid-template:
+      "name   sum    " auto
+      "source actions" auto
+      / 1fr 90px;
+  }
 }
 
 .footNote {
