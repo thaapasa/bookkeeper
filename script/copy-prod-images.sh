@@ -2,10 +2,15 @@
 
 # Usage:
 # script/copy-prod-images.sh
+#
+# Mirrors the prod image directories to local. Skips files already in sync
+# (size+mtime match) and removes local files that no longer exist in prod.
 
-cd `dirname $0`/..
+cd "$(dirname "$0")/.." || exit 1
 
-scp deployer@pomeranssi.fi:/home/deployer/data/bookkeeper/content/profile/* content/profile/
-scp deployer@pomeranssi.fi:/home/deployer/data/bookkeeper/content/shortcut/* content/shortcut/
-scp deployer@pomeranssi.fi:/home/deployer/data/bookkeeper/content/tracking/* content/tracking/
-scp deployer@pomeranssi.fi:/home/deployer/data/bookkeeper/content/grouping/* content/grouping/
+REMOTE=deployer@pomeranssi:/home/deployer/data/bookkeeper/content
+for dir in profile shortcut tracking grouping
+do
+  echo "Syncing $dir..."
+  rsync -av --delete "$REMOTE/$dir/" "content/$dir/" || exit 1
+done
