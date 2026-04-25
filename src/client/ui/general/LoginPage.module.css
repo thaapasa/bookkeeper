@@ -10,7 +10,7 @@
   min-height: 100vh;
 }
 
-@media screen and (max-width: 576px) {
+@media screen and (max-width: $mantine-breakpoint-xs) {
   .page {
     background-size: 150vh;
     background-position: center top;

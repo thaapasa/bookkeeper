@@ -20,7 +20,7 @@
    the sticky footer. Only at sm+, where the footer has mx='md' inset — below
    sm the footer is mx=0, so the ::after would push past the viewport and
    cause horizontal overflow. */
-@media (min-width: 48em) {
+@media (min-width: $mantine-breakpoint-sm) {
   .footer::before,
   .footer::after {
     content: '';

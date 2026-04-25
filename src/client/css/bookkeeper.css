@@ -12,7 +12,7 @@ html, body {
 /* Scale up the whole UI on mobile (below Mantine's sm breakpoint = 768px).
    Mantine sizes everything in rem, so bumping root font-size proportionally
    enlarges fonts, spacing, padding, and control sizes across the app. */
-@media (max-width: 48em) {
+@media (max-width: $mantine-breakpoint-sm) {
     html {
         font-size: 18px;
     }

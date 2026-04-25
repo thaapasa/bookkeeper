@@ -35,7 +35,8 @@
   min-height: 100%;
 }
 
-@media (max-width: 47.99em) {
+/* Below sm */
+@media (max-width: $mantine-breakpoint-sm) {
   .surface {
     border: none;
     border-radius: 0;
