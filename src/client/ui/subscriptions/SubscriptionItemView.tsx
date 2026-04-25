@@ -47,7 +47,7 @@ export const SubscriptionItemView: React.FC<{
                   color="red"
                   onClick={() => deleteSubscription(item)}
                 >
-                  {item.recurrence ? 'Lopeta tilaus' : 'Poista tilaus'}
+                  {isLopetaAction(item) ? 'Lopeta tilaus' : 'Poista tilaus'}
                 </Menu.Item>
               </Menu.Dropdown>
             </Menu>
@@ -167,12 +167,21 @@ function m(value: number, singular: string, plural: string) {
   return value === 1 ? singular : plural;
 }
 
+function isLopetaAction(item: Subscription): boolean {
+  // Recurring rows that haven't been ended yet get the soft "lopeta"
+  // path; anything else (already ended, or non-recurring) gets a real
+  // delete. Server-side dispatch in deleteRecurringExpenseById mirrors
+  // this so the click does what the label promises.
+  return !!item.recurrence && !item.occursUntil;
+}
+
 async function deleteSubscription(item: Subscription) {
-  const verb = item.recurrence ? 'lopettaa' : 'poistaa';
+  const lopeta = isLopetaAction(item);
+  const verb = lopeta ? 'lopettaa' : 'poistaa';
   await executeOperation(() => apiConnect.deleteSubscription(item.rowId), {
     confirm: `Haluatko ${verb} tilauksen ${item.title}?`,
     progress: 'Käsitellään...',
-    success: 'Valmis',
+    success: lopeta ? 'Tilaus lopetettu' : 'Tilaus poistettu',
     postProcess: () => invalidateSubscriptionData(),
   });
 }

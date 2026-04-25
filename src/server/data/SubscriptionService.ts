@@ -224,7 +224,7 @@ function rowPassesDisplay(
   sessionUserId: ObjectId,
   types: ExpenseType[] | null,
 ): boolean {
-  if (!criteria.includeEnded && row.occursUntil && row.occursUntil < toISODate()) return false;
+  if (!criteria.includeEnded && row.occursUntil && row.occursUntil <= toISODate()) return false;
   if (criteria.onlyOwn && row.userId !== sessionUserId) return false;
   // For recurring rows, the canonical type lives on `defaults`. For
   // report-style rows the type can be in the filter (or unset, in

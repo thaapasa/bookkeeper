@@ -432,6 +432,15 @@ export function deleteRecurringByExpenseId(
   );
 }
 
+/**
+ * "Lopeta" / "Poista" dispatch for the subscription card's overflow menu.
+ *
+ * Recurring rows that haven't yet been ended get a soft end — `occurs_until`
+ * set to today, history kept, no future generation. Anything else (an
+ * already-ended recurring row, or a non-recurring report-style row) is
+ * removed entirely; linked expenses keep their data but lose `subscription_id`
+ * so there is no dangling FK.
+ */
 export function deleteRecurringExpenseById(
   tx: DbTask,
   groupId: ObjectId,
@@ -442,11 +451,20 @@ export function deleteRecurringExpenseById(
     { 'app.group_id': groupId, 'app.subscription_id': subscriptionId },
     async () => {
       const row = await getSubscriptionRow(tx, groupId, subscriptionId);
-      const now = toISODate();
-      logger.info(`Deleting subscription ${row.id} at ${now}`);
-
-      await terminateRecurrenceAt(tx, subscriptionId, now);
-      return { status: 'OK', message: `Subscription cleared at ${now}` };
+      const isOngoingRecurring = !!row.period && !row.occursUntil;
+      if (isOngoingRecurring) {
+        const now = toISODate();
+        logger.info(`Ending subscription ${row.id} at ${now}`);
+        await terminateRecurrenceAt(tx, subscriptionId, now);
+        return { status: 'OK', message: `Subscription ended at ${now}` };
+      }
+      logger.info(`Removing subscription ${row.id}`);
+      await tx.none(
+        `UPDATE expenses SET subscription_id = NULL WHERE subscription_id = $/subscriptionId/`,
+        { subscriptionId },
+      );
+      await tx.none(`DELETE FROM subscriptions WHERE id = $/subscriptionId/`, { subscriptionId });
+      return { status: 'OK', message: `Subscription removed` };
     },
   );
 }
