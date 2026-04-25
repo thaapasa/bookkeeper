@@ -17,4 +17,6 @@ Key rules:
 - Use typed errors from `shared/types/Errors`
 - Use Pino logger with context object first
 - Use branded date string types (`ISODate`, `ISOTimestamp`), never raw DateTime objects
+- Wrap data-layer write operations and slow reads in OTel spans via
+  `withSpan` from `server/telemetry/Spans`
 - Run `bun format && bun lint` after changes

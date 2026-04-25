@@ -30,6 +30,7 @@ import {
 import { assertDefined, camelCaseObject, Money, toArray } from 'shared/util';
 import { DbTask } from 'server/data/Db.ts';
 import { logger } from 'server/Logger';
+import { withSpan } from 'server/telemetry/Spans';
 
 import {
   createNewExpense,
@@ -50,24 +51,30 @@ import { getSourceById } from './SourceDb';
 const RecurringExpenseSelect = `SELECT *, re.id AS "recurringExpenseId" FROM recurring_expenses re
   LEFT JOIN expenses e ON (e.id = re.template_expense_id)`;
 
-export async function searchRecurringExpenses(
+export function searchRecurringExpenses(
   tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   criteria: SubscriptionSearchCriteria = {},
 ): Promise<RecurringExpense[]> {
-  const type = criteria.type && toArray(criteria.type);
-  const expenses = await tx.manyOrNone(
-    `--sql
-    ${RecurringExpenseSelect}
-      WHERE re.group_id = $/groupId/
-        AND e.group_id = $/groupId/
-        ${criteria.includeEnded ? '' : `AND (occurs_until IS NULL OR occurs_until >= NOW())`}
-        ${criteria.onlyOwn ? `AND user_id = $/userId/` : ''}
-        ${type ? 'AND e.type IN ($/type:csv/)' : ''}`,
-    { groupId, type, userId },
+  return withSpan(
+    'recurring.search',
+    { 'app.group_id': groupId, 'app.user_id': userId },
+    async () => {
+      const type = criteria.type && toArray(criteria.type);
+      const expenses = await tx.manyOrNone(
+        `--sql
+        ${RecurringExpenseSelect}
+          WHERE re.group_id = $/groupId/
+            AND e.group_id = $/groupId/
+            ${criteria.includeEnded ? '' : `AND (occurs_until IS NULL OR occurs_until >= NOW())`}
+            ${criteria.onlyOwn ? `AND user_id = $/userId/` : ''}
+            ${type ? 'AND e.type IN ($/type:csv/)' : ''}`,
+        { groupId, type, userId },
+      );
+      return expenses.map(mapRecurringExpense);
+    },
   );
-  return expenses.map(mapRecurringExpense);
 }
 
 async function getRecurringExpenseInfo(
@@ -99,7 +106,7 @@ export async function getRecurringExpenseTemplate(
   return getExpenseById(tx, groupId, userId, recurringExpense.templateExpenseId);
 }
 
-export async function updateRecurringExpenseTemplate(
+export function updateRecurringExpenseTemplate(
   tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
@@ -107,39 +114,59 @@ export async function updateRecurringExpenseTemplate(
   data: ExpenseInput,
   defaultSourceId: ObjectId,
 ): Promise<ExpenseIdResponse> {
-  const expense = await getExpenseById(tx, groupId, userId, expenseId);
-  assertDefined(expense.recurringExpenseId);
-  const recurringExpense = await getRecurringExpenseInfo(tx, groupId, expense.recurringExpenseId);
-  return updateExpenseById(
-    tx,
-    groupId,
-    userId,
-    recurringExpense.templateExpenseId,
-    data,
-    defaultSourceId,
+  return withSpan(
+    'recurring.update_template',
+    { 'app.group_id': groupId, 'app.user_id': userId, 'app.expense_id': expenseId },
+    async () => {
+      const expense = await getExpenseById(tx, groupId, userId, expenseId);
+      assertDefined(expense.recurringExpenseId);
+      const recurringExpense = await getRecurringExpenseInfo(
+        tx,
+        groupId,
+        expense.recurringExpenseId,
+      );
+      return updateExpenseById(
+        tx,
+        groupId,
+        userId,
+        recurringExpense.templateExpenseId,
+        data,
+        defaultSourceId,
+      );
+    },
   );
 }
 
-export async function getRecurringExpenseDetails(
+export function getRecurringExpenseDetails(
   tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   recurringExpenseId: ObjectId,
 ): Promise<RecurringExpenseDetails> {
-  const recurringExpense = await getRecurringExpenseInfo(tx, groupId, recurringExpenseId);
-  const totals = await tx.one(
-    `SELECT COUNT(*) AS "count", SUM(sum) AS "sum" FROM expenses WHERE recurring_expense_id=$/recurringExpenseId/`,
-    { recurringExpenseId },
+  return withSpan(
+    'recurring.details',
+    {
+      'app.group_id': groupId,
+      'app.user_id': userId,
+      'app.recurring_expense_id': recurringExpenseId,
+    },
+    async () => {
+      const recurringExpense = await getRecurringExpenseInfo(tx, groupId, recurringExpenseId);
+      const totals = await tx.one(
+        `SELECT COUNT(*) AS "count", SUM(sum) AS "sum" FROM expenses WHERE recurring_expense_id=$/recurringExpenseId/`,
+        { recurringExpenseId },
+      );
+      const firstOccurence = await getFirstRecurrence(tx, groupId, userId, recurringExpenseId);
+      const lastOccurence = await getLastRecurrence(tx, groupId, userId, recurringExpenseId);
+      return {
+        recurringExpense,
+        totalExpenses: totals.count,
+        totalSum: totals.sum,
+        firstOccurence,
+        lastOccurence,
+      };
+    },
   );
-  const firstOccurence = await getFirstRecurrence(tx, groupId, userId, recurringExpenseId);
-  const lastOccurence = await getLastRecurrence(tx, groupId, userId, recurringExpenseId);
-  return {
-    recurringExpense,
-    totalExpenses: totals.count,
-    totalSum: totals.sum,
-    firstOccurence,
-    lastOccurence,
-  };
 }
 
 function mapRecurringExpense(row: any): RecurringExpense {
@@ -165,56 +192,68 @@ function mapRecurringExpense(row: any): RecurringExpense {
   };
 }
 
-export async function createRecurringFromExpense(
+export function createRecurringFromExpense(
   tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   expenseId: ObjectId,
   recurrence: RecurringExpenseInput,
 ): Promise<RecurringExpenseCreatedResponse> {
-  logger.info(
-    `Create recurring expense with a period of ${recurrence.period.amount} ${recurrence.period.unit} from ${expenseId}`,
-  );
-  let nextMissing: DateTime | undefined;
-  const templateId = await copyExpense(tx, groupId, userId, expenseId, e => {
-    const [expense, division] = e;
-    if (expense.recurringExpenseId && expense.recurringExpenseId > 0) {
-      throw new InvalidInputError(
-        'INVALID_INPUT',
-        `Expense ${expenseId} is already a recurring expense (${expense.recurringExpenseId})`,
+  return withSpan(
+    'recurring.create',
+    {
+      'app.group_id': groupId,
+      'app.user_id': userId,
+      'app.expense_id': expenseId,
+      'app.period_unit': recurrence.period.unit,
+      'app.period_amount': recurrence.period.amount,
+    },
+    async () => {
+      logger.info(
+        `Create recurring expense with a period of ${recurrence.period.amount} ${recurrence.period.unit} from ${expenseId}`,
       );
-    }
-    nextMissing = calculateNextRecurrence(expense.date, recurrence.period);
-    return [{ ...expense, template: true }, division];
-  });
-  const recurringExpenseId = (
-    await tx.one<{ id: number }>(
-      `INSERT INTO recurring_expenses (template_expense_id, period_amount, period_unit, next_missing, group_id)
-          VALUES ($/templateId/, $/periodAmount/, $/periodUnit/, $/nextMissing/::DATE, $/groupId/)
-          RETURNING id`,
-      {
-        templateId,
-        periodAmount: recurrence.period.amount,
-        periodUnit: recurrence.period.unit,
-        nextMissing: toISODate(nextMissing),
-        groupId,
-      },
-    )
-  ).id;
+      let nextMissing: DateTime | undefined;
+      const templateId = await copyExpense(tx, groupId, userId, expenseId, e => {
+        const [expense, division] = e;
+        if (expense.recurringExpenseId && expense.recurringExpenseId > 0) {
+          throw new InvalidInputError(
+            'INVALID_INPUT',
+            `Expense ${expenseId} is already a recurring expense (${expense.recurringExpenseId})`,
+          );
+        }
+        nextMissing = calculateNextRecurrence(expense.date, recurrence.period);
+        return [{ ...expense, template: true }, division];
+      });
+      const recurringExpenseId = (
+        await tx.one<{ id: number }>(
+          `INSERT INTO recurring_expenses (template_expense_id, period_amount, period_unit, next_missing, group_id)
+              VALUES ($/templateId/, $/periodAmount/, $/periodUnit/, $/nextMissing/::DATE, $/groupId/)
+              RETURNING id`,
+          {
+            templateId,
+            periodAmount: recurrence.period.amount,
+            periodUnit: recurrence.period.unit,
+            nextMissing: toISODate(nextMissing),
+            groupId,
+          },
+        )
+      ).id;
 
-  await tx.none(
-    `UPDATE expenses
-        SET recurring_expense_id=$/recurringExpenseId/
-        WHERE id IN ($/expenseId/, $/templateId/)`,
-    { recurringExpenseId, expenseId, templateId },
+      await tx.none(
+        `UPDATE expenses
+            SET recurring_expense_id=$/recurringExpenseId/
+            WHERE id IN ($/expenseId/, $/templateId/)`,
+        { recurringExpenseId, expenseId, templateId },
+      );
+      return {
+        status: 'OK',
+        message: 'Recurrence created',
+        expenseId,
+        templateExpenseId: templateId,
+        recurringExpenseId,
+      };
+    },
   );
-  return {
-    status: 'OK',
-    message: 'Recurrence created',
-    expenseId,
-    templateExpenseId: templateId,
-    recurringExpenseId,
-  };
 }
 
 function getDatesUpTo(recurrence: Recurrence, date: DateTime): ISODate[] {
@@ -293,21 +332,27 @@ interface RecurrenceInDb extends DbObject, Omit<RecurringExpenseInput, 'period'>
 /**
  * Populates all missing recurring expenses for this group, up to the given date
  */
-export async function createMissingRecurringExpenses(
+export function createMissingRecurringExpenses(
   tx: DbTask,
   groupId: number,
   userId: number,
   date: DateTime,
 ): Promise<void> {
-  logger.debug('Checking for missing expenses');
-  const list = await tx.map<RecurrenceInDb>(
-    `SELECT *
-        FROM recurring_expenses
-        WHERE group_id=$/groupId/ AND next_missing < $/nextMissing/::DATE`,
-    { groupId, nextMissing: date },
-    camelCaseObject,
+  return withSpan(
+    'recurring.create_missing',
+    { 'app.group_id': groupId, 'app.user_id': userId },
+    async () => {
+      logger.debug('Checking for missing expenses');
+      const list = await tx.map<RecurrenceInDb>(
+        `SELECT *
+            FROM recurring_expenses
+            WHERE group_id=$/groupId/ AND next_missing < $/nextMissing/::DATE`,
+        { groupId, nextMissing: date },
+        camelCaseObject,
+      );
+      await tx.batch(list.map(v => createMissingRecurrences(tx, groupId, userId, date, v)));
+    },
   );
-  await tx.batch(list.map(v => createMissingRecurrences(tx, groupId, userId, date, v)));
 }
 
 async function deleteRecurrenceAndExpenses(
@@ -353,42 +398,59 @@ async function deleteRecurrenceAfter(
   };
 }
 
-export async function deleteRecurringByExpenseId(
+export function deleteRecurringByExpenseId(
   tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   expenseId: ObjectId,
   target: RecurringExpenseTarget,
 ): Promise<ApiMessage> {
-  logger.info(`Deleting recurring via expense ${expenseId} - targeting ${target}`);
-  if (target === 'single') {
-    return deleteExpenseById(tx, groupId, expenseId);
-  }
-  const exp = await getExpenseById(tx, groupId, userId, expenseId);
-  if (!exp.recurringExpenseId) {
-    throw new InvalidExpense('Not a recurring expense');
-  }
-  switch (target) {
-    case 'all':
-      return deleteRecurrenceAndExpenses(tx, exp.recurringExpenseId);
-    case 'after':
-      return deleteRecurrenceAfter(tx, expenseId, exp.date, exp.recurringExpenseId);
-    default:
-      throw new InvalidExpense(`Invalid target ${target}`);
-  }
+  return withSpan(
+    'recurring.delete_by_expense',
+    {
+      'app.group_id': groupId,
+      'app.user_id': userId,
+      'app.expense_id': expenseId,
+      'app.target': target,
+    },
+    async () => {
+      logger.info(`Deleting recurring via expense ${expenseId} - targeting ${target}`);
+      if (target === 'single') {
+        return deleteExpenseById(tx, groupId, expenseId);
+      }
+      const exp = await getExpenseById(tx, groupId, userId, expenseId);
+      if (!exp.recurringExpenseId) {
+        throw new InvalidExpense('Not a recurring expense');
+      }
+      switch (target) {
+        case 'all':
+          return deleteRecurrenceAndExpenses(tx, exp.recurringExpenseId);
+        case 'after':
+          return deleteRecurrenceAfter(tx, expenseId, exp.date, exp.recurringExpenseId);
+        default:
+          throw new InvalidExpense(`Invalid target ${target}`);
+      }
+    },
+  );
 }
 
-export async function deleteRecurringExpenseById(
+export function deleteRecurringExpenseById(
   tx: DbTask,
   groupId: ObjectId,
   recurringExpenseId: ObjectId,
 ): Promise<ApiMessage> {
-  const recurring = await getRecurringExpenseInfo(tx, groupId, recurringExpenseId);
-  const now = toISODate();
-  logger.info(`Deleting recurring ${recurring.id} at ${now}`);
+  return withSpan(
+    'recurring.delete',
+    { 'app.group_id': groupId, 'app.recurring_expense_id': recurringExpenseId },
+    async () => {
+      const recurring = await getRecurringExpenseInfo(tx, groupId, recurringExpenseId);
+      const now = toISODate();
+      logger.info(`Deleting recurring ${recurring.id} at ${now}`);
 
-  await terminateRecurrenceAt(tx, recurringExpenseId, now);
-  return { status: 'OK', message: `Recurrence cleared at ${now}` };
+      await terminateRecurrenceAt(tx, recurringExpenseId, now);
+      return { status: 'OK', message: `Recurrence cleared at ${now}` };
+    },
+  );
 }
 
 function deleteDivisionForRecurrence(
@@ -497,7 +559,7 @@ async function updateRecurringExpense(
   return result;
 }
 
-export async function updateRecurringExpenseByExpenseId(
+export function updateRecurringExpenseByExpenseId(
   tx: DbTask,
   groupId: number,
   userId: number,
@@ -506,15 +568,26 @@ export async function updateRecurringExpenseByExpenseId(
   expense: ExpenseInput,
   defaultSourceId: number,
 ): Promise<ApiMessage> {
-  logger.info(`Updating recurring expense ${expenseId} - targeting ${target}`);
-  const org = await getExpenseById(tx, groupId, userId, expenseId);
-  if (!org.recurringExpenseId) {
-    throw new InvalidExpense(`${expenseId} is not a recurring expense`);
-  }
+  return withSpan(
+    'recurring.update',
+    {
+      'app.group_id': groupId,
+      'app.user_id': userId,
+      'app.expense_id': expenseId,
+      'app.target': target,
+    },
+    async () => {
+      logger.info(`Updating recurring expense ${expenseId} - targeting ${target}`);
+      const org = await getExpenseById(tx, groupId, userId, expenseId);
+      if (!org.recurringExpenseId) {
+        throw new InvalidExpense(`${expenseId} is not a recurring expense`);
+      }
 
-  if (target === 'single') {
-    return updateExpense(tx, org, expense, defaultSourceId);
-  } else {
-    return updateRecurringExpense(tx, target, org, expense, defaultSourceId);
-  }
+      if (target === 'single') {
+        return updateExpense(tx, org, expense, defaultSourceId);
+      } else {
+        return updateRecurringExpense(tx, target, org, expense, defaultSourceId);
+      }
+    },
+  );
 }

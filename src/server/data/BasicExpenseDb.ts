@@ -12,6 +12,7 @@ import { ExpenseIdResponse, isDefined, NotFoundError, ObjectId } from 'shared/ty
 import { Money, MoneyLike } from 'shared/util';
 import { DbTask } from 'server/data/Db.ts';
 import { logger } from 'server/Logger';
+import { withSpan } from 'server/telemetry/Spans';
 
 import { getCategoryById } from './CategoryDb';
 import { determineDivision } from './ExpenseDivision';
@@ -180,16 +181,22 @@ export async function getExpenseById(
   return expense[0];
 }
 
-export async function deleteExpenseById(
+export function deleteExpenseById(
   tx: DbTask,
   groupId: number,
   expenseId: number,
 ): Promise<ExpenseIdResponse> {
-  await tx.none(`DELETE FROM expenses WHERE id=$/expenseId/ AND group_id=$/groupId/`, {
-    expenseId,
-    groupId,
-  });
-  return { status: 'OK', message: 'Expense deleted', expenseId };
+  return withSpan(
+    'expense.delete',
+    { 'app.group_id': groupId, 'app.expense_id': expenseId },
+    async () => {
+      await tx.none(`DELETE FROM expenses WHERE id=$/expenseId/ AND group_id=$/groupId/`, {
+        expenseId,
+        groupId,
+      });
+      return { status: 'OK', message: 'Expense deleted', expenseId };
+    },
+  );
 }
 
 export const storeExpenseDivision = (

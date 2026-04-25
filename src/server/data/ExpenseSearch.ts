@@ -2,6 +2,7 @@ import { ExpenseQuery, UserExpense } from 'shared/expense';
 import { isDefined } from 'shared/types';
 import { DbTask } from 'server/data/Db.ts';
 import { logger } from 'server/Logger';
+import { withSpan } from 'server/telemetry/Spans';
 
 import { dbRowToExpense, expenseSelectClause } from './BasicExpenseDb';
 import { expandSubCategories } from './CategoryDb';
@@ -56,14 +57,20 @@ export async function getExpenseSearchQuery(
   };
 }
 
-export async function searchExpenses(
+export function searchExpenses(
   tx: DbTask,
   userId: number,
   groupId: number,
   query: ExpenseQuery,
 ): Promise<UserExpense[]> {
-  logger.debug(`Searching for ${JSON.stringify(query)}`);
-  const { clause, params } = await getExpenseSearchQuery(tx, userId, groupId, query);
-  const expenses = await tx.manyOrNone<UserExpense>(clause, params);
-  return expenses.map(dbRowToExpense);
+  return withSpan(
+    'expense.search',
+    { 'app.user_id': userId, 'app.group_id': groupId },
+    async () => {
+      logger.debug(`Searching for ${JSON.stringify(query)}`);
+      const { clause, params } = await getExpenseSearchQuery(tx, userId, groupId, query);
+      const expenses = await tx.manyOrNone<UserExpense>(clause, params);
+      return expenses.map(dbRowToExpense);
+    },
+  );
 }

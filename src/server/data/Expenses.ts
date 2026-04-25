@@ -3,6 +3,7 @@ import { dateTimeFromParts, DateTimeInput, toISODate, toISOTimestamp } from 'sha
 import { mapValues, Money } from 'shared/util';
 import { DbTask } from 'server/data/Db.ts';
 import { logger } from 'server/Logger';
+import { withSpan } from 'server/telemetry/Spans';
 
 import {
   countTotalBetween,
@@ -64,33 +65,44 @@ const zeroStatus: ExpenseStatus = {
   transferee: '0.00',
 };
 
-export async function getExpensesByMonth(
+export function getExpensesByMonth(
   tx: DbTask,
   groupId: number,
   userId: number,
   year: number,
   month: number,
 ): Promise<ExpenseCollection> {
-  const startDate = dateTimeFromParts(year, month, 1);
-  const endDate = startDate.plus({ months: 1 });
-  await createMissingRecurringExpenses(tx, groupId, userId, endDate);
-  const expenses = await getBetween(tx, groupId, userId, startDate, endDate);
-  const startStatus = calculateBalance(
-    await countTotalBetween(tx, groupId, userId, '2000-01', startDate),
+  return withSpan(
+    'expense.month',
+    {
+      'app.user_id': userId,
+      'app.group_id': groupId,
+      'app.year': year,
+      'app.month': month,
+    },
+    async () => {
+      const startDate = dateTimeFromParts(year, month, 1);
+      const endDate = startDate.plus({ months: 1 });
+      await createMissingRecurringExpenses(tx, groupId, userId, endDate);
+      const expenses = await getBetween(tx, groupId, userId, startDate, endDate);
+      const startStatus = calculateBalance(
+        await countTotalBetween(tx, groupId, userId, '2000-01', startDate),
+      );
+      const monthStatus = calculateBalance(
+        await countTotalBetween(tx, groupId, userId, startDate, endDate),
+      );
+      const unconfirmedBefore = await hasUnconfirmedBefore(tx, groupId, startDate);
+      const endStatus = mapValues(
+        k => Money.from(startStatus[k]).plus(monthStatus[k]).toString(),
+        zeroStatus,
+      );
+      return {
+        expenses,
+        startStatus,
+        monthStatus,
+        endStatus,
+        unconfirmedBefore,
+      };
+    },
   );
-  const monthStatus = calculateBalance(
-    await countTotalBetween(tx, groupId, userId, startDate, endDate),
-  );
-  const unconfirmedBefore = await hasUnconfirmedBefore(tx, groupId, startDate);
-  const endStatus = mapValues(
-    k => Money.from(startStatus[k]).plus(monthStatus[k]).toString(),
-    zeroStatus,
-  );
-  return {
-    expenses,
-    startStatus,
-    monthStatus,
-    endStatus,
-    unconfirmedBefore,
-  };
 }

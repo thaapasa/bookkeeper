@@ -3,6 +3,7 @@ import { RecurrenceInterval, toDateTime, toISODate } from 'shared/time';
 import { ApiMessage, ObjectId } from 'shared/types';
 import { Money } from 'shared/util';
 import { DbTask } from 'server/data/Db.ts';
+import { withSpan } from 'server/telemetry/Spans';
 
 import { getExpenseSearchQuery } from './ExpenseSearch';
 
@@ -18,53 +19,63 @@ export async function getAllReports(tx: DbTask, groupId: ObjectId): Promise<Repo
   return s;
 }
 
-export async function createReport(
+export function createReport(
   tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   title: string,
   query: ExpenseQuery,
 ): Promise<ReportDef> {
-  // Check that source id is correct
-  const row = await tx.one<ReportDef>(
-    `INSERT INTO reports (group_id, user_id, title, query)
-      VALUES ($/groupId/, $/userId/, $/title/, $/query/::JSONB)
-      RETURNING ${ReportSelectFields}`,
-    { groupId, userId, title, query },
+  return withSpan('report.create', { 'app.group_id': groupId, 'app.user_id': userId }, () =>
+    tx.one<ReportDef>(
+      `INSERT INTO reports (group_id, user_id, title, query)
+          VALUES ($/groupId/, $/userId/, $/title/, $/query/::JSONB)
+          RETURNING ${ReportSelectFields}`,
+      { groupId, userId, title, query },
+    ),
   );
-  return row;
 }
 
-export async function deleteReport(
+export function deleteReport(
   tx: DbTask,
   groupId: ObjectId,
   reportId: ObjectId,
 ): Promise<ApiMessage> {
-  const res = await tx.result(
-    `DELETE FROM reports WHERE (id = $/reportId/ AND group_id = $/groupId/)`,
-    {
-      reportId,
-      groupId,
+  return withSpan(
+    'report.delete',
+    { 'app.group_id': groupId, 'app.report_id': reportId },
+    async () => {
+      const res = await tx.result(
+        `DELETE FROM reports WHERE (id = $/reportId/ AND group_id = $/groupId/)`,
+        { reportId, groupId },
+      );
+      return {
+        status: 'OK',
+        message: res.rowCount === 1 ? 'Report deleted' : 'No reports found',
+      };
     },
   );
-  return {
-    status: 'OK',
-    message: res.rowCount === 1 ? 'Report deleted' : 'No reports found',
-  };
 }
 
-export async function searchReports(
+export function searchReports(
   tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   criteria: SubscriptionSearchCriteria,
 ): Promise<ExpenseReport[]> {
-  const reports = await getAllReports(tx, groupId);
-  const reportData: ExpenseReport[] = [];
-  for (const r of reports) {
-    reportData.push(...(await calculateExpenseReports(tx, groupId, userId, r, criteria)));
-  }
-  return reportData;
+  return withSpan('report.search', { 'app.group_id': groupId, 'app.user_id': userId }, async () => {
+    const reports = await getAllReports(tx, groupId);
+    const reportData: ExpenseReport[] = [];
+    for (const r of reports) {
+      const calculated = await withSpan(
+        'report.calculate',
+        { 'app.report_id': r.id, 'app.report_title': r.title },
+        () => calculateExpenseReports(tx, groupId, userId, r, criteria),
+      );
+      reportData.push(...calculated);
+    }
+    return reportData;
+  });
 }
 
 type ExpenseReportFromDb = Pick<

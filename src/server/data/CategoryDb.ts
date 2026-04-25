@@ -10,6 +10,7 @@ import {
 import { Money, partition, toMap } from 'shared/util';
 import { DbTask } from 'server/data/Db.ts';
 import { logger } from 'server/Logger';
+import { withSpan } from 'server/telemetry/Spans';
 
 const CATEGORY_FIELDS = /*sql*/ `c.id, c.parent_id AS "parentId", c.name, p.name AS "parentName"`;
 
@@ -38,25 +39,27 @@ export interface CategoryQueryInput {
   readonly endDate: string;
 }
 
-export async function getCategoryTotals(
+export function getCategoryTotals(
   tx: DbTask,
   groupId: number,
   params: CategoryQueryInput,
 ): Promise<CategoryAndTotals[]> {
-  const cats = await tx.manyOrNone<CategoryAndTotals>(
-    `SELECT categories.id, categories.parent_id as "parentId",
-        SUM(CASE WHEN type='expense' AND template=false AND date >= $/startDate/::DATE AND date <= $/endDate/::DATE THEN sum ELSE 0::NUMERIC END) AS expenses,
-        SUM(CASE WHEN type='income' AND template=false AND date >= $/startDate/::DATE AND date <= $/endDate/::DATE THEN sum ELSE 0::NUMERIC END) AS income
-      FROM categories
-      LEFT JOIN expenses ON categories.id = category_id
-      WHERE categories.group_id = $/groupId/
-        AND (expenses.id IS NULL OR expenses.group_id = $/groupId/::INTEGER)
-      GROUP BY categories.id, categories.parent_id
-      ORDER BY (CASE WHEN parent_id IS NULL THEN 1 ELSE 0 END) DESC, parent_id ASC, name`,
-    { groupId, startDate: params.startDate, endDate: params.endDate },
-  );
-  const categories = createCategoryObject(cats as CategoryAndTotals[]);
-  return sumChildTotalsToParent(categories);
+  return withSpan('category.totals', { 'app.group_id': groupId }, async () => {
+    const cats = await tx.manyOrNone<CategoryAndTotals>(
+      `SELECT categories.id, categories.parent_id as "parentId",
+          SUM(CASE WHEN type='expense' AND template=false AND date >= $/startDate/::DATE AND date <= $/endDate/::DATE THEN sum ELSE 0::NUMERIC END) AS expenses,
+          SUM(CASE WHEN type='income' AND template=false AND date >= $/startDate/::DATE AND date <= $/endDate/::DATE THEN sum ELSE 0::NUMERIC END) AS income
+        FROM categories
+        LEFT JOIN expenses ON categories.id = category_id
+        WHERE categories.group_id = $/groupId/
+          AND (expenses.id IS NULL OR expenses.group_id = $/groupId/::INTEGER)
+        GROUP BY categories.id, categories.parent_id
+        ORDER BY (CASE WHEN parent_id IS NULL THEN 1 ELSE 0 END) DESC, parent_id ASC, name`,
+      { groupId, startDate: params.startDate, endDate: params.endDate },
+    );
+    const categories = createCategoryObject(cats as CategoryAndTotals[]);
+    return sumChildTotalsToParent(categories);
+  });
 }
 async function insert(tx: DbTask, groupId: number, data: CategoryInput): Promise<number> {
   logger.debug(data, 'Creating new category');
@@ -106,58 +109,68 @@ export async function getCategoriesById(
   return cats.map(rowToCategory);
 }
 
-export async function createCategory(
-  tx: DbTask,
-  groupId: number,
-  data: CategoryInput,
-): Promise<number> {
-  if (!data.parentId) {
+export function createCategory(tx: DbTask, groupId: number, data: CategoryInput): Promise<number> {
+  return withSpan('category.create', { 'app.group_id': groupId }, async () => {
+    if (!data.parentId) {
+      return insert(tx, groupId, data);
+    }
+    const parent = await getCategoryById(tx, groupId, data.parentId);
+    logger.debug(parent, 'Parent is');
+    if (parent.parentId !== null && parent.parentId > 0) {
+      throw new InvalidInputError('INVALID_PARENT', 'Sub-category cannot be parent');
+    }
     return insert(tx, groupId, data);
-  }
-  const parent = await getCategoryById(tx, groupId, data.parentId);
-  logger.debug(parent, 'Parent is');
-  if (parent.parentId !== null && parent.parentId > 0) {
-    throw new InvalidInputError('INVALID_PARENT', 'Sub-category cannot be parent');
-  }
-  return insert(tx, groupId, data);
+  });
 }
 
-export async function deleteCategory(
+export function deleteCategory(
   tx: DbTask,
   groupId: number,
   categoryId: number,
 ): Promise<CategoryIdResponse> {
-  const category = await getCategoryById(tx, groupId, categoryId);
-  await tx.one(
-    `DELETE FROM categories
-      WHERE id=$/categoryId/ AND group_id=$/groupId/
-      RETURNING id`,
-    { categoryId, groupId },
+  return withSpan(
+    'category.delete',
+    { 'app.group_id': groupId, 'app.category_id': categoryId },
+    async () => {
+      const category = await getCategoryById(tx, groupId, categoryId);
+      await tx.one(
+        `DELETE FROM categories
+          WHERE id=$/categoryId/ AND group_id=$/groupId/
+          RETURNING id`,
+        { categoryId, groupId },
+      );
+      logger.info(category, `Deleted category`);
+      return { status: 'OK', message: 'Category deleted', categoryId };
+    },
   );
-  logger.info(category, `Deleted category`);
-  return { status: 'OK', message: 'Category deleted', categoryId };
 }
 
-export async function updateCategory(
+export function updateCategory(
   tx: DbTask,
   groupId: number,
   categoryId: number,
   data: CategoryInput,
 ): Promise<Category> {
-  await getCategoryById(tx, groupId, categoryId);
-  logger.info({ data }, `Updating category ${categoryId}`);
-  await tx.none(
-    `UPDATE categories
-      SET parent_id=$/parentId/::INTEGER, name=$/name/
-      WHERE id=$/categoryId/::INTEGER AND group_id=$/groupId/::INTEGER`,
-    {
-      parentId: data.parentId || null,
-      name: data.name,
-      categoryId,
-      groupId,
+  return withSpan(
+    'category.update',
+    { 'app.group_id': groupId, 'app.category_id': categoryId },
+    async () => {
+      await getCategoryById(tx, groupId, categoryId);
+      logger.info({ data }, `Updating category ${categoryId}`);
+      await tx.none(
+        `UPDATE categories
+          SET parent_id=$/parentId/::INTEGER, name=$/name/
+          WHERE id=$/categoryId/::INTEGER AND group_id=$/groupId/::INTEGER`,
+        {
+          parentId: data.parentId || null,
+          name: data.name,
+          categoryId,
+          groupId,
+        },
+      );
+      return getCategoryById(tx, groupId, categoryId);
     },
   );
-  return getCategoryById(tx, groupId, categoryId);
 }
 
 export async function expandSubCategories(tx: DbTask, groupId: number, inputCategoryIds: number[]) {

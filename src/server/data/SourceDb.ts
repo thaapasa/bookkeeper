@@ -1,5 +1,6 @@
 import { NotFoundError, ObjectId, Source, SourcePatch } from 'shared/types';
 import { DbTask } from 'server/data/Db.ts';
+import { withSpan } from 'server/telemetry/Spans';
 
 function getImage(img: string | undefined): string | undefined {
   return img ? `img/sources/${img}` : undefined;
@@ -59,19 +60,20 @@ export async function getSourceById(tx: DbTask, groupId: ObjectId, id: ObjectId)
   return createGroupObject(s)[0];
 }
 
-export async function updateSource(
+export function updateSource(
   tx: DbTask,
   groupId: ObjectId,
   id: ObjectId,
   data: SourcePatch,
 ): Promise<Source> {
-  // Check that source id is correct
-  const source = await getSourceById(tx, groupId, id);
-  await tx.none(
-    `UPDATE sources
-      SET name=$/name/
-      WHERE id=$/id/ AND group_id=$/groupId/`,
-    { id, groupId, name: data.name },
-  );
-  return { ...source, name: data.name };
+  return withSpan('source.update', { 'app.group_id': groupId, 'app.source_id': id }, async () => {
+    const source = await getSourceById(tx, groupId, id);
+    await tx.none(
+      `UPDATE sources
+          SET name=$/name/
+          WHERE id=$/id/ AND group_id=$/groupId/`,
+      { id, groupId, name: data.name },
+    );
+    return { ...source, name: data.name };
+  });
 }

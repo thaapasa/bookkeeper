@@ -104,6 +104,62 @@ logger.info({ expenseId, userId }, 'Expense created');
 logger.error(error, 'Operation failed');
 ```
 
+## Tracing (OpenTelemetry)
+
+Wrap every meaningful server-side operation in an OpenTelemetry span via
+`withSpan` from `server/telemetry/Spans`. SQL spans nest as children
+automatically (see `Db.ts`), so a request trace shows three layers:
+HTTP request → business operation → SQL.
+
+```typescript
+import { withSpan } from 'server/telemetry/Spans';
+
+export function deleteExpense(tx: DbTask, groupId: number, expenseId: number) {
+  return withSpan(
+    'expense.delete',
+    { 'app.group_id': groupId, 'app.expense_id': expenseId },
+    async () => {
+      await tx.none(`DELETE FROM expenses WHERE id=$/expenseId/`, { expenseId });
+      return { status: 'OK', expenseId };
+    },
+  );
+}
+```
+
+**When to add a span:**
+
+- All write operations (create / update / delete) on data layer functions.
+- Read operations that coordinate multiple queries or that may be slow
+  (reports, statistics, search, dashboard fetches).
+- Authentication-flow operations (login, session refresh).
+
+**When to skip:**
+
+- Trivial single-query reads (`getCategoryById`, `getAllSources`) — the SQL
+  span already covers them.
+- Pure computation helpers that don't touch the DB or external services.
+- Inner helpers called only from another already-spanned function, unless
+  splitting them up gives useful per-iteration timing (e.g. per-report,
+  per-tracking-subject).
+
+**Naming and attributes:**
+
+- Span name: `<domain>.<action>` in lowercase (`expense.split`,
+  `recurring.create_missing`, `report.calculate`).
+- Attributes use the `app.*` namespace: `app.group_id`, `app.user_id`, the
+  relevant entity id (`app.expense_id`, `app.report_id`, …), and any
+  selector that materially changes the work done (`app.target`,
+  `app.only_own`, counts).
+- Do not put PII (titles, receivers, sums, emails) in attributes.
+
+**Nested spans for slow / multi-item paths:**
+
+When a parent span loops over items and per-item timing is useful, wrap each
+iteration in its own child span — e.g. `report.search` runs a child
+`report.calculate` per report, `tracking.subjects_with_data` runs a child
+`tracking.statistics` per subject. This makes a single slow item visible in
+the trace without manual instrumentation.
+
 ## File Naming
 
 - API handlers: `src/server/api/*Api.ts`

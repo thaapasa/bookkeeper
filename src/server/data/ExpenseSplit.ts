@@ -3,29 +3,41 @@ import { BkError } from 'shared/types';
 import { Money } from 'shared/util';
 import { DbTask } from 'server/data/Db.ts';
 import { logger } from 'server/Logger';
+import { withSpan } from 'server/telemetry/Spans';
 
 import { deleteExpenseById, getExpenseById } from './BasicExpenseDb';
 import { createExpense } from './BasicExpenseService';
 import { toBaseExpense } from './ExpenseUtils';
 
-export async function splitExpense(
+export function splitExpense(
   tx: DbTask,
   groupId: number,
   userId: number,
   expenseId: number,
   splits: ExpenseSplit[],
 ) {
-  const expense = toBaseExpense(await getExpenseById(tx, groupId, userId, expenseId));
-  await checkSplits(splits, expense);
-  logger.debug({ expense, splits }, 'Splitting expense');
-  for (const s of splits) {
-    await createSplit(tx, expense, s);
-  }
-  await deleteExpenseById(tx, groupId, expenseId);
-  return {
-    status: 'OK',
-    message: `Splitted expense ${expenseId} into ${splits.length} parts`,
-  };
+  return withSpan(
+    'expense.split',
+    {
+      'app.user_id': userId,
+      'app.group_id': groupId,
+      'app.expense_id': expenseId,
+      'app.split_count': splits.length,
+    },
+    async () => {
+      const expense = toBaseExpense(await getExpenseById(tx, groupId, userId, expenseId));
+      await checkSplits(splits, expense);
+      logger.debug({ expense, splits }, 'Splitting expense');
+      for (const s of splits) {
+        await createSplit(tx, expense, s);
+      }
+      await deleteExpenseById(tx, groupId, expenseId);
+      return {
+        status: 'OK',
+        message: `Splitted expense ${expenseId} into ${splits.length} parts`,
+      };
+    },
+  );
 }
 
 async function createSplit(tx: DbTask, expense: Expense, split: ExpenseSplit) {

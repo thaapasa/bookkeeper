@@ -6,6 +6,7 @@ import { ISOTimestamp } from 'shared/time';
 import { AuthenticationError, Session, SessionBasicInfo, UserIdResponse } from 'shared/types';
 import { DbTask } from 'server/data/Db.ts';
 import { logger } from 'server/Logger';
+import { withSpan } from 'server/telemetry/Spans';
 
 import { config } from '../Config';
 import { getAllCategories } from './CategoryDb';
@@ -91,30 +92,38 @@ function createSessionInfo(
   };
 }
 
-export async function appendInfoToSession(tx: DbTask, session: SessionBasicInfo): Promise<Session> {
-  const groups = await getGroupsForUser(tx, session.user.id);
-  const sources = await getAllSources(tx, session.group.id);
-  const categories = await getAllCategories(tx, session.group.id);
-  const users = await getAllUsers(tx, session.group.id);
-  const groupings = await getAllGroupingRefs(tx, session.group.id);
-  return { ...session, groups, sources, categories, users, groupings };
+export function appendInfoToSession(tx: DbTask, session: SessionBasicInfo): Promise<Session> {
+  return withSpan(
+    'session.append_info',
+    { 'app.user_id': session.user.id, 'app.group_id': session.group.id },
+    async () => {
+      const groups = await getGroupsForUser(tx, session.user.id);
+      const sources = await getAllSources(tx, session.group.id);
+      const categories = await getAllCategories(tx, session.group.id);
+      const users = await getAllUsers(tx, session.group.id);
+      const groupings = await getAllGroupingRefs(tx, session.group.id);
+      return { ...session, groups, sources, categories, users, groupings };
+    },
+  );
 }
 
-export async function loginUserWithCredentials(
+export function loginUserWithCredentials(
   tx: DbTask,
   username: string,
   password: string,
   groupId?: number,
 ): Promise<Session> {
-  logger.info('Login attempt for %s', username);
-  const user = await getUserByCredentials(tx, username, password, groupId);
-  if (!user) {
-    throw new AuthenticationError('INVALID_CREDENTIALS', 'Invalid username or password');
-  }
-  const tokens = await createSession(tx, user);
-  const shortcuts = await getShortcutsForUser(tx, groupId || user.defaultGroupId, user.id);
-  const sessionInfo = createSessionInfo(tokens, user, shortcuts);
-  return appendInfoToSession(tx, sessionInfo);
+  return withSpan('session.login', {}, async () => {
+    logger.info('Login attempt for %s', username);
+    const user = await getUserByCredentials(tx, username, password, groupId);
+    if (!user) {
+      throw new AuthenticationError('INVALID_CREDENTIALS', 'Invalid username or password');
+    }
+    const tokens = await createSession(tx, user);
+    const shortcuts = await getShortcutsForUser(tx, groupId || user.defaultGroupId, user.id);
+    const sessionInfo = createSessionInfo(tokens, user, shortcuts);
+    return appendInfoToSession(tx, sessionInfo);
+  });
 }
 
 async function getUserInfoByRefreshToken(
@@ -134,38 +143,39 @@ async function getUserInfoByRefreshToken(
   return userData;
 }
 
-export async function refreshSessionWithRefreshToken(
+export function refreshSessionWithRefreshToken(
   tx: DbTask,
   refreshToken: string,
   groupId?: number,
 ): Promise<Session> {
-  logger.info('Refreshing session');
-  const user = await getUserInfoByRefreshToken(tx, refreshToken, groupId);
-  const tokens = await createSession(tx, user);
-  const shortcuts = await getShortcutsForUser(tx, groupId ?? user.defaultGroupId, user.id);
-  const sessionInfo = createSessionInfo(tokens, user, shortcuts);
-  return appendInfoToSession(tx, sessionInfo);
+  return withSpan('session.refresh', {}, async () => {
+    logger.info('Refreshing session');
+    const user = await getUserInfoByRefreshToken(tx, refreshToken, groupId);
+    const tokens = await createSession(tx, user);
+    const shortcuts = await getShortcutsForUser(tx, groupId ?? user.defaultGroupId, user.id);
+    const sessionInfo = createSessionInfo(tokens, user, shortcuts);
+    return appendInfoToSession(tx, sessionInfo);
+  });
 }
 
-export async function logoutSession(
-  tx: DbTask,
-  session: SessionBasicInfo,
-): Promise<UserIdResponse> {
-  logger.info({ userId: session.user.id }, 'Logout');
-  if (!session.token) {
-    throw new AuthenticationError('INVALID_TOKEN', 'Session token is missing');
-  }
-  await tx.none(
-    `DELETE FROM sessions
-      WHERE (token=$/token/ AND refresh_token IS NOT NULL)
-        OR (token=$/refreshToken/ AND refresh_token IS NULL)`,
-    { token: session.token, refreshToken: session.refreshToken },
-  );
-  return {
-    status: 'OK',
-    message: 'User has logged out',
-    userId: session.user.id,
-  };
+export function logoutSession(tx: DbTask, session: SessionBasicInfo): Promise<UserIdResponse> {
+  return withSpan('session.logout', { 'app.user_id': session.user.id }, async () => {
+    logger.info({ userId: session.user.id }, 'Logout');
+    if (!session.token) {
+      throw new AuthenticationError('INVALID_TOKEN', 'Session token is missing');
+    }
+    await tx.none(
+      `DELETE FROM sessions
+        WHERE (token=$/token/ AND refresh_token IS NOT NULL)
+          OR (token=$/refreshToken/ AND refresh_token IS NULL)`,
+      { token: session.token, refreshToken: session.refreshToken },
+    );
+    return {
+      status: 'OK',
+      message: 'User has logged out',
+      userId: session.user.id,
+    };
+  });
 }
 
 export async function getSessionByToken(

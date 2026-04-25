@@ -4,6 +4,7 @@ import { shortcutImageHandler } from 'server/content/ShortcutImage';
 import { DbTask } from 'server/data/Db.ts';
 import { logger } from 'server/Logger';
 import { FileUploadResult, safeDeleteFile } from 'server/server/FileHandling';
+import { withSpan } from 'server/telemetry/Spans';
 
 import { getCategoryById } from './CategoryDb';
 import {
@@ -17,28 +18,40 @@ import {
 import { getSourceById } from './SourceDb';
 import { getUserById } from './UserDb';
 
-export async function createShortcut(
+export function createShortcut(
   tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   data: ExpenseShortcutPayload,
 ): Promise<void> {
-  await validateShortcutData(tx, groupId, data);
-  await insertNewShortcut(tx, groupId, userId, data);
-  logger.info(data, `Created new shortcut`);
+  return withSpan(
+    'shortcut.create',
+    { 'app.group_id': groupId, 'app.user_id': userId },
+    async () => {
+      await validateShortcutData(tx, groupId, data);
+      await insertNewShortcut(tx, groupId, userId, data);
+      logger.info(data, `Created new shortcut`);
+    },
+  );
 }
 
-export async function updateShortcutData(
+export function updateShortcutData(
   tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   shortcutId: ObjectId,
   data: ExpenseShortcutPayload,
 ): Promise<void> {
-  await validateShortcutData(tx, groupId, data);
-  await getShortcutById(tx, groupId, userId, shortcutId);
-  await updateShortcutById(tx, shortcutId, data);
-  logger.info(data, `Updated shortcut`);
+  return withSpan(
+    'shortcut.update',
+    { 'app.group_id': groupId, 'app.user_id': userId, 'app.shortcut_id': shortcutId },
+    async () => {
+      await validateShortcutData(tx, groupId, data);
+      await getShortcutById(tx, groupId, userId, shortcutId);
+      await updateShortcutById(tx, shortcutId, data);
+      logger.info(data, `Updated shortcut`);
+    },
+  );
 }
 
 async function validateShortcutData(tx: DbTask, groupId: ObjectId, data: ExpenseShortcutPayload) {
@@ -62,18 +75,24 @@ async function validateShortcutData(tx: DbTask, groupId: ObjectId, data: Expense
   }
 }
 
-export async function deleteShortcut(
+export function deleteShortcut(
   tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   shortcutId: ObjectId,
 ): Promise<void> {
-  await getShortcutById(tx, groupId, userId, shortcutId);
-  await deleteShortcutById(tx, shortcutId);
-  logger.info(`Deleted shortcut ${shortcutId}`);
+  return withSpan(
+    'shortcut.delete',
+    { 'app.group_id': groupId, 'app.user_id': userId, 'app.shortcut_id': shortcutId },
+    async () => {
+      await getShortcutById(tx, groupId, userId, shortcutId);
+      await deleteShortcutById(tx, shortcutId);
+      logger.info(`Deleted shortcut ${shortcutId}`);
+    },
+  );
 }
 
-export async function uploadShortcutIcon(
+export function uploadShortcutIcon(
   tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
@@ -81,31 +100,42 @@ export async function uploadShortcutIcon(
   image: FileUploadResult,
   margin: number,
 ) {
-  try {
-    await getShortcutById(tx, groupId, userId, shortcutId);
-    logger.info(image, `Updating shortcut icon for user ${userId}, shortcut ${shortcutId}`);
-    const file = await shortcutImageHandler.saveImages(image, { margin, trim: true });
-    await deleteShortcutIcon(tx, groupId, userId, shortcutId);
-    await setShortcutIconById(tx, shortcutId, file);
-    return getShortcutById(tx, groupId, userId, shortcutId);
-  } finally {
-    // Clear uploaded image
-    await safeDeleteFile(image.filepath);
-  }
+  return withSpan(
+    'shortcut.upload_icon',
+    { 'app.group_id': groupId, 'app.user_id': userId, 'app.shortcut_id': shortcutId },
+    async () => {
+      try {
+        await getShortcutById(tx, groupId, userId, shortcutId);
+        logger.info(image, `Updating shortcut icon for user ${userId}, shortcut ${shortcutId}`);
+        const file = await shortcutImageHandler.saveImages(image, { margin, trim: true });
+        await deleteShortcutIcon(tx, groupId, userId, shortcutId);
+        await setShortcutIconById(tx, shortcutId, file);
+        return getShortcutById(tx, groupId, userId, shortcutId);
+      } finally {
+        await safeDeleteFile(image.filepath);
+      }
+    },
+  );
 }
 
-export async function deleteShortcutIcon(
+export function deleteShortcutIcon(
   tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
   shortcutId: ObjectId,
 ): Promise<void> {
-  const shortcut = await getShortcutById(tx, groupId, userId, shortcutId);
-  if (!shortcut.icon) {
-    logger.info(`No icon for shortcut ${shortcutId}, skipping delete...`);
-    return;
-  }
-  await shortcutImageHandler.deleteImages(shortcut.icon);
-  await clearShortcutIconById(tx, shortcutId);
-  logger.info(`Deleted shortcut ${shortcutId} icon`);
+  return withSpan(
+    'shortcut.delete_icon',
+    { 'app.group_id': groupId, 'app.user_id': userId, 'app.shortcut_id': shortcutId },
+    async () => {
+      const shortcut = await getShortcutById(tx, groupId, userId, shortcutId);
+      if (!shortcut.icon) {
+        logger.info(`No icon for shortcut ${shortcutId}, skipping delete...`);
+        return;
+      }
+      await shortcutImageHandler.deleteImages(shortcut.icon);
+      await clearShortcutIconById(tx, shortcutId);
+      logger.info(`Deleted shortcut ${shortcutId} icon`);
+    },
+  );
 }
