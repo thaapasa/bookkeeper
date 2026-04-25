@@ -2,9 +2,6 @@ import { z } from 'zod';
 
 import { ISODate } from '../time/Time';
 import { DbObject } from '../types/Common';
-import { ObjectId } from '../types/Id';
-import { MoneyLike } from '../util/Money';
-import { Expense } from './Expense';
 import { RecurrencePeriod } from './Recurrence';
 
 export const RecurringExpenseTarget = z.enum(['single', 'all', 'after']);
@@ -16,28 +13,10 @@ export const RecurringExpenseInput = z.object({
 });
 export type RecurringExpenseInput = z.infer<typeof RecurringExpenseInput>;
 
-export const RecurringExpense = RecurringExpenseInput.extend({
-  type: z.literal('recurring'),
-  title: z.string(),
-  receiver: z.string().optional(),
-  sum: MoneyLike,
-  categoryId: ObjectId,
-  firstOccurence: ISODate.optional(),
-  recurrencePerYear: MoneyLike,
-  recurrencePerMonth: MoneyLike,
-  nextMissing: ISODate,
-}).and(DbObject);
-export type RecurringExpense = z.infer<typeof RecurringExpense>;
-
+/**
+ * Internal "recurrence in DB" shape used by the auto-generation loop.
+ * Not part of any API surface.
+ */
 export interface Recurrence extends DbObject, RecurringExpenseInput {
   nextMissing: ISODate;
 }
-
-export const RecurringExpenseDetails = z.object({
-  recurringExpense: RecurringExpense,
-  firstOccurence: Expense.optional(),
-  lastOccurence: Expense.optional(),
-  totalExpenses: z.number(),
-  totalSum: MoneyLike,
-});
-export type RecurringExpenseDetails = z.infer<typeof RecurringExpenseDetails>;

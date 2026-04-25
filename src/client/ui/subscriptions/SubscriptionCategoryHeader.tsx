@@ -1,12 +1,16 @@
-import { ActionIcon } from '@mantine/core';
+import { ActionIcon, Box, type BoxProps } from '@mantine/core';
 import * as React from 'react';
 
 import { ObjectId } from 'shared/types';
 import { Money } from 'shared/util';
 
 import { Icons } from '../icons/Icons';
-import { Label, SubscriptionRow, Sum, Tools } from './SubscriptionLayout';
+import { SubscriptionRow, Sum, Tools } from './SubscriptionLayout';
 import { RecurrenceTotals } from './types';
+
+const HeaderLabel: React.FC<React.PropsWithChildren<BoxProps>> = props => (
+  <Box flex={1} {...props} />
+);
 
 export type ToggleCategoryVisibility = (categoryId: ObjectId) => void;
 
@@ -23,14 +27,14 @@ export const SubscriptionCategoryHeader: React.FC<{
     fw={isRoot ? 700 : undefined}
     c={isRoot ? undefined : 'primary.7'}
   >
-    <Label>
+    <HeaderLabel>
       {categoryId && toggleVisibility ? (
         <ActionIcon onClick={() => toggleVisibility(categoryId)}>
           {visible ? <Icons.Visible /> : <Icons.Hidden />}
         </ActionIcon>
       ) : null}
       {title}
-    </Label>
+    </HeaderLabel>
     {totals ? (
       <>
         <Sum visibleFrom="sm">{Money.from(totals.recurrencePerMonth).format()} / kk</Sum>

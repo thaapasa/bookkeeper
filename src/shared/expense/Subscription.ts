@@ -15,16 +15,6 @@ export const SubscriptionSearchCriteria = z.object({
 });
 export type SubscriptionSearchCriteria = z.infer<typeof SubscriptionSearchCriteria>;
 
-/**
- * The kind of subscription. While reports and recurring expenses live
- * in separate tables (steps 3-5 of the rework), `kind` is needed to
- * resolve `rowId` to the right table and to attach recurring-only UI
- * affordances (next-missing date, edit template). After step 6b the
- * tables merge and `kind` becomes a UI hint derived from `recurrence`.
- */
-export const SubscriptionKind = z.enum(['recurring', 'report']);
-export type SubscriptionKind = z.infer<typeof SubscriptionKind>;
-
 export const ExpenseDefaults = z.object({
   title: z.string(),
   receiver: z.string().optional(),
@@ -40,14 +30,22 @@ export const ExpenseDefaults = z.object({
 export type ExpenseDefaults = z.infer<typeof ExpenseDefaults>;
 
 /**
- * One subscription card. A recurring row produces exactly one card; a
- * report row produces one card per category that its assigned rows
- * span. `id` is unique across all cards in a result; `rowId` + `kind`
- * point at the underlying DB row for edit/delete operations.
+ * One subscription card. A subscription row with `recurrence` produces
+ * exactly one card; a non-recurring row (formerly a "report") produces
+ * one card per category that its assigned rows span — broad filters
+ * benefit from a per-category breakdown, recurring rows always live in
+ * one category by construction.
+ *
+ * `id` is unique across all cards in a result. `rowId` points at the
+ * underlying `subscriptions` row for edit/delete operations.
+ *
+ * `dominatedBy` is set when this card has zero matched rows because a
+ * higher-scoring (or older) subscription took everything its filter
+ * would otherwise match. The UI surfaces this so the user knows to
+ * delete the redundant row.
  */
 export const Subscription = z.object({
   id: z.string(),
-  kind: SubscriptionKind,
   rowId: ObjectId,
   title: z.string(),
   categoryId: ObjectId,
@@ -62,6 +60,12 @@ export const Subscription = z.object({
   lastDate: ISODate.optional(),
   recurrencePerMonth: MoneyLike,
   recurrencePerYear: MoneyLike,
+  dominatedBy: z
+    .object({
+      rowId: ObjectId,
+      title: z.string(),
+    })
+    .optional(),
 });
 export type Subscription = z.infer<typeof Subscription>;
 
@@ -74,8 +78,20 @@ export const QuerySummary = z.object({
 });
 export type QuerySummary = z.infer<typeof QuerySummary>;
 
+export const SubscriptionFromFilter = z.object({
+  title: z.string().trim().min(1),
+  filter: ExpenseQuery,
+});
+export type SubscriptionFromFilter = z.infer<typeof SubscriptionFromFilter>;
+
+export const SubscriptionCreatedResponse = z.object({
+  status: z.literal('OK'),
+  message: z.string(),
+  subscriptionId: ObjectId,
+});
+export type SubscriptionCreatedResponse = z.infer<typeof SubscriptionCreatedResponse>;
+
 export const SubscriptionMatchesQuery = z.object({
-  kind: SubscriptionKind,
   rowId: ObjectId,
   categoryId: ObjectId.optional(),
   limit: z.number().int().min(1).max(100).optional(),

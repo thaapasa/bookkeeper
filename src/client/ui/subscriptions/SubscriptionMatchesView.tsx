@@ -72,11 +72,11 @@ export const SubscriptionMatchesView: React.FC<{ subscription: Subscription }> =
 
 function matchesQueryFor(subscription: Subscription): SubscriptionMatchesQuery {
   return {
-    kind: subscription.kind,
     rowId: subscription.rowId,
-    // Reports fan out one card per category — narrow matches to that
-    // category so the expander only shows rows that belong to *this*
-    // card. Recurring cards always span a single category, so passing
+    // Non-recurring subscriptions fan out one card per category —
+    // narrow matches to that category so the expander only shows rows
+    // belonging to *this* card. Recurring cards always span a single
+    // category, so passing
     // it is harmless.
     categoryId: subscription.categoryId,
     limit: matchLimit,

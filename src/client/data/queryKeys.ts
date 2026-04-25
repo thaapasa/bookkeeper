@@ -16,7 +16,6 @@ export const QueryKeys = {
     all: ['subscriptions'] as const,
     search: (criteria: SubscriptionSearchCriteria) =>
       ['subscriptions', 'search', criteria] as const,
-    detail: (id: ObjectId) => ['subscriptions', 'detail', id] as const,
     matches: (query: SubscriptionMatchesQuery) => ['subscriptions', 'matches', query] as const,
   },
   tracking: {
@@ -47,9 +46,6 @@ export const QueryKeys = {
       endDate: ISODate;
       onlyOwn: boolean;
     }) => ['statistics', 'category', params] as const,
-  },
-  reports: {
-    all: ['reports'] as const,
   },
   sources: {
     all: ['sources'] as const,

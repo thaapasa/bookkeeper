@@ -1,4 +1,4 @@
-import { ActionIcon, Group, Loader } from '@mantine/core';
+import { ActionIcon, Group, Loader, Menu, Stack, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import * as React from 'react';
 
@@ -12,123 +12,146 @@ import { executeOperation } from 'client/util/ExecuteOperation';
 import { ExpanderIcon } from '../component/ExpanderIcon';
 import { QueryBoundary } from '../component/QueryBoundary';
 import { Icons } from '../icons/Icons';
-import { SubscriptionDetails } from './SubscriptionDetails';
-import { Dates, Label, Period, SubscriptionRow, Sum, Tools } from './SubscriptionLayout';
+import { NextDate, SubscriptionRow, Subtitle, Sum, Title, Tools } from './SubscriptionLayout';
 import { SubscriptionMatchesView } from './SubscriptionMatchesView';
 
-export const SubscriptionItemView: React.FC<{ item: Subscription }> = ({ item }) =>
-  item.kind === 'recurring' ? (
-    <RecurringSubscriptionItem item={item} />
-  ) : (
-    <ReportSubscriptionItem item={item} />
-  );
-
-const RecurringSubscriptionItem: React.FC<{ item: Subscription }> = ({ item }) => {
+export const SubscriptionItemView: React.FC<{ item: Subscription }> = ({ item }) => {
   const [open, { toggle }] = useDisclosure(false);
-  const inactive = !!item.occursUntil;
-  const templateSum = item.defaults?.sum;
+  const ended = !!item.occursUntil;
+  const subtitle = buildSubtitle(item);
+
   return (
     <>
-      <SubscriptionRow
-        bg={inactive ? 'surface.1' : undefined}
-        c={inactive ? 'neutral.7' : undefined}
-      >
-        <Label>{item.title}</Label>
-        <Label>{item.defaults?.receiver ?? ''}</Label>
-        <Dates visibleFrom="sm">
-          {item.firstDate ? readableDateWithYear(item.firstDate) : ''}
-          {item.occursUntil ? ` - ${readableDateWithYear(item.occursUntil)}` : ''}
-        </Dates>
-        <Sum>{templateSum !== undefined ? Money.from(templateSum).format() : ''}</Sum>
-        <Period>{item.recurrence ? `/ ${getPeriodText(item.recurrence)}` : ''}</Period>
-        <Sum visibleFrom="sm">{Money.from(item.recurrencePerMonth).format()} / kk</Sum>
+      <SubscriptionRow bg={ended ? 'surface.1' : undefined} c={ended ? 'neutral.7' : undefined}>
+        <Title>{item.title}</Title>
+        <Subtitle>{subtitle}</Subtitle>
+        <Sum>{Money.from(item.recurrencePerMonth).format()} / kk</Sum>
         <Sum>{Money.from(item.recurrencePerYear).format()} / v</Sum>
-        <Tools>
-          <ExpanderIcon title="Lisätiedot" open={open} onToggle={toggle} />
-        </Tools>
-      </SubscriptionRow>
-      {open ? (
-        <>
-          <QueryBoundary
-            fallback={
-              <Group px="md" py="xs">
-                Ladataan ... <Loader size="xs" />
-              </Group>
-            }
-          >
-            <SubscriptionDetails recurringExpenseId={item.rowId} />
-          </QueryBoundary>
-          <QueryBoundary
-            fallback={
-              <Group px="md" py="xs">
-                Ladataan kirjauksia ... <Loader size="xs" />
-              </Group>
-            }
-          >
-            <SubscriptionMatchesView subscription={item} />
-          </QueryBoundary>
-        </>
-      ) : null}
-    </>
-  );
-};
-
-const ReportSubscriptionItem: React.FC<{ item: Subscription }> = ({ item }) => {
-  const [open, { toggle }] = useDisclosure(false);
-  const avgSum =
-    item.matchedCount > 0 ? Money.from(item.matchedSum).divide(item.matchedCount).toString() : '0';
-  return (
-    <>
-      <SubscriptionRow>
-        <Label>Toteutuma: {item.title}</Label>
-        <Label>
-          {item.matchedCount > 0
-            ? `${item.matchedCount} tapahtuma${item.matchedCount !== 1 ? 'a' : ''} välillä ${readableDateWithYear(item.firstDate)} - ${readableDateWithYear(item.lastDate)}`
-            : 'Ei kirjauksia tarkasteluikkunassa'}
-        </Label>
-        <Sum>{Money.from(item.matchedSum).format()}</Sum>
-        <Sum>{Money.from(avgSum).format()}</Sum>
-        <Period>/ kpl</Period>
-        <Sum visibleFrom="sm">{Money.from(item.recurrencePerMonth).format()} / kk</Sum>
-        <Sum>{Money.from(item.recurrencePerYear).format()} / v</Sum>
+        <NextDate>{nextLine(item)}</NextDate>
         <Tools>
           <Group gap={2} wrap="nowrap" justify="flex-end">
             <ExpanderIcon title="Lisätiedot" open={open} onToggle={toggle} />
-            <ActionIcon title="Poista" onClick={() => deleteReport(item)}>
-              <Icons.Delete />
-            </ActionIcon>
+            <Menu shadow="md" width={200} position="bottom-end">
+              <Menu.Target>
+                <ActionIcon variant="subtle" aria-label="Toiminnot">
+                  <Icons.More />
+                </ActionIcon>
+              </Menu.Target>
+              <Menu.Dropdown>
+                <Menu.Item
+                  leftSection={<Icons.Delete size={16} />}
+                  color="red"
+                  onClick={() => deleteSubscription(item)}
+                >
+                  {item.recurrence ? 'Lopeta tilaus' : 'Poista tilaus'}
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
           </Group>
         </Tools>
       </SubscriptionRow>
-      {open ? (
-        <QueryBoundary
-          fallback={
-            <Group px="md" py="xs">
-              Ladataan kirjauksia ... <Loader size="xs" />
-            </Group>
-          }
-        >
-          <SubscriptionMatchesView subscription={item} />
-        </QueryBoundary>
-      ) : null}
+      {open ? <ExpandedDetails item={item} /> : null}
     </>
   );
 };
+
+const ExpandedDetails: React.FC<{ item: Subscription }> = ({ item }) => (
+  <Stack gap={4} px="md" py="xs" bg="surface.0">
+    <Text size="sm" c="neutral.7">
+      {summaryLine(item)}
+    </Text>
+    {item.recurrence ? (
+      <Text size="sm" c="neutral.7">
+        {item.occursUntil
+          ? `Tilaus on päättynyt ${readableDateWithYear(item.occursUntil)}.`
+          : item.nextMissing
+            ? `Seuraava kirjaus ${readableDateWithYear(item.nextMissing)}.`
+            : null}
+      </Text>
+    ) : null}
+    {item.dominatedBy ? (
+      <Text size="sm" c="orange.7">
+        Tämän tilauksen kirjaukset omistaa jokin tarkempi tai vanhempi tilaus:{' '}
+        <strong>{item.dominatedBy.title}</strong>. Tämä rivi näyttää tyhjältä — voit poistaa
+        ylimääräisen tilauksen.
+      </Text>
+    ) : null}
+    <QueryBoundary
+      fallback={
+        <Group py="xs">
+          Ladataan kirjauksia ... <Loader size="xs" />
+        </Group>
+      }
+    >
+      <SubscriptionMatchesView subscription={item} />
+    </QueryBoundary>
+  </Stack>
+);
+
+function buildSubtitle(item: Subscription): React.ReactNode {
+  if (item.dominatedBy) {
+    return (
+      <span>
+        Päällekkäinen tilauksen kanssa: <strong>{item.dominatedBy.title}</strong>
+      </span>
+    );
+  }
+  const parts: string[] = [];
+  const receiver = filterReceiver(item);
+  if (receiver) parts.push(receiver);
+  if (item.matchedCount > 0) {
+    const range =
+      item.firstDate && item.lastDate
+        ? `${readableDateWithYear(item.firstDate)} – ${readableDateWithYear(item.lastDate)}`
+        : '';
+    parts.push(`${item.matchedCount} kpl${range ? ` · ${range}` : ''}`);
+  } else if (!item.recurrence) {
+    parts.push('Ei kirjauksia tarkasteluikkunassa');
+  }
+  if (item.recurrence) {
+    parts.push(`Toistuu ${getPeriodText(item.recurrence)}`);
+  }
+  return parts.join(' · ');
+}
+
+function filterReceiver(item: Subscription): string {
+  return item.filter.receiver ?? item.filter.title ?? item.filter.search ?? '';
+}
+
+function summaryLine(item: Subscription): string {
+  if (item.matchedCount === 0) {
+    return 'Ei kirjauksia tarkasteluikkunassa.';
+  }
+  const range =
+    item.firstDate && item.lastDate
+      ? `${readableDateWithYear(item.firstDate)} – ${readableDateWithYear(item.lastDate)}`
+      : '';
+  return `${item.matchedCount} kirjausta${range ? ` ${range}` : ''}: yhteensä ${Money.from(
+    item.matchedSum,
+  ).format()}`;
+}
+
+function nextLine(item: Subscription): string {
+  if (!item.recurrence) return '';
+  if (item.occursUntil) return `Päättyi ${readableDateWithYear(item.occursUntil)}`;
+  if (item.nextMissing) return `Seur. ${readableDateWithYear(item.nextMissing)}`;
+  return '';
+}
 
 function getPeriodText({ unit, amount }: RecurrencePeriod) {
   switch (unit) {
     case 'years':
-      return m(amount, `v`, `${amount} v`);
+      return m(amount, '1 v välein', `${amount} v välein`);
     case 'months':
-      return m(amount, `kk`, `${amount} kk`);
+      return m(amount, 'kuukausittain', `${amount} kk välein`);
     case 'weeks':
-      return m(amount, `vko`, `${amount} viikkoa`);
+      return m(amount, 'viikoittain', `${amount} viikon välein`);
     case 'days':
-      return m(amount, `päivä`, `${amount} päivää`);
+      return m(amount, 'päivittäin', `${amount} päivän välein`);
     case 'quarters':
-      return m(amount, `kvartaali`, `${amount} kvartaalia`);
+      return m(amount, 'neljännesvuosittain', `${amount} kvartaalin välein`);
     default:
-      return m(amount, unit, `${amount} ${unit}`);
+      return `${amount} ${unit} välein`;
   }
 }
 
@@ -136,11 +159,12 @@ function m(value: number, singular: string, plural: string) {
   return value === 1 ? singular : plural;
 }
 
-async function deleteReport(item: Subscription) {
-  await executeOperation(() => apiConnect.deleteReport(item.rowId), {
-    confirm: `Haluatko poistaa raportin ${item.title}? Huom! Tämä poistaa kaikki raportin tuottamat rivit`,
-    progress: 'Poistetaan raporttia...',
-    success: 'Raportti poistettu!',
+async function deleteSubscription(item: Subscription) {
+  const verb = item.recurrence ? 'lopettaa' : 'poistaa';
+  await executeOperation(() => apiConnect.deleteSubscription(item.rowId), {
+    confirm: `Haluatko ${verb} tilauksen ${item.title}?`,
+    progress: 'Käsitellään...',
+    success: 'Valmis',
     postProcess: () => invalidateSubscriptionData(),
   });
 }

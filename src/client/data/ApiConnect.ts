@@ -8,10 +8,8 @@ import {
   ExpenseStatus,
   QuerySummary,
   RecurrencePeriod,
-  RecurringExpenseDetails,
   RecurringExpenseTarget,
-  ReportCreationData,
-  ReportDef,
+  SubscriptionCreatedResponse,
   SubscriptionMatches,
   SubscriptionMatchesQuery,
   SubscriptionResult,
@@ -204,11 +202,13 @@ export class ApiConnect {
     return this.post(uri`/api/subscription/search`, { body: criteria });
   }
 
-  public getSubscription = async (id: ObjectId): Promise<RecurringExpenseDetails | undefined> =>
-    this.get(uri`/api/subscription/${id}`);
+  public deleteSubscription = (id: ObjectId): Promise<ApiMessage> =>
+    this.delete<ApiMessage>(uri`/api/subscription/${id}`);
 
-  public deleteSubscription = async (id: ObjectId): Promise<RecurringExpenseDetails | undefined> =>
-    this.delete(uri`/api/subscription/${id}`);
+  public createSubscriptionFromFilter = (title: string, filter: ExpenseQuery) =>
+    this.post<SubscriptionCreatedResponse>(uri`/api/subscription/from-filter`, {
+      body: { title, filter: filterDefinedProps(filter) },
+    });
 
   public summarizeSubscriptionQuery = (query: ExpenseQuery): Promise<QuerySummary> =>
     this.post<QuerySummary>(uri`/api/subscription/query-summary`, { body: query });
@@ -423,28 +423,6 @@ export class ApiConnect {
   };
 
   public deleteProfileImageDark = (): Promise<void> => this.delete(uri`/api/profile/image/dark`);
-
-  // Reports
-
-  public createReport = (title: string, query: ExpenseQuery): Promise<ReportDef> => {
-    const body: ReportCreationData = {
-      title,
-      query: filterDefinedProps(query),
-    };
-    return this.post<ReportDef>(uri`/api/report`, { body });
-  };
-
-  public updateReport = (
-    reportId: ObjectId,
-    title: string,
-    query: ExpenseQuery,
-  ): Promise<ReportDef> => {
-    const body: ReportCreationData = { title, query: filterDefinedProps(query) };
-    return this.put<ReportDef>(uri`/api/report/${reportId}`, { body });
-  };
-
-  public deleteReport = (reportId: ObjectId) =>
-    this.delete<ApiMessage>(uri`/api/report/${reportId}`);
 
   public getDbStatus = () => this.get<DbStatus>('/api/admin/status');
 }

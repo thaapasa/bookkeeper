@@ -110,7 +110,7 @@ export const QuerySearchLayout: React.FC<QuerySearchLayoutProps> = ({
             styles={{ label: { fontSize: 'var(--mantine-font-size-sm)' } }}
           />
           <Button variant="subtle" onClick={onSaveAsReport} w="120">
-            Tee raportti
+            Tallenna tilaus
           </Button>
         </Stack>
       </Grid.Col>

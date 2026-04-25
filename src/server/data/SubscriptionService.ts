@@ -3,11 +3,8 @@ import {
   buildSubscriptionFilter,
   ExpenseQuery,
   ExpenseType,
-  filterKey,
-  FilterSource,
   MatchableExpense,
   QuerySummary,
-  ReportDef,
   scoreFilter,
   Subscription,
   SubscriptionFilter,
@@ -17,14 +14,13 @@ import {
   SubscriptionSearchCriteria,
 } from 'shared/expense';
 import { ISODate, RecurrenceInterval, toDateTime, toISODate } from 'shared/time';
-import { NotFoundError, ObjectId } from 'shared/types';
+import { ObjectId } from 'shared/types';
 import { Money } from 'shared/util';
 import { DbTask } from 'server/data/Db.ts';
 import { withSpan } from 'server/telemetry/Spans';
 
 import { expandSubCategories } from './CategoryDb';
-import { getRecurringRows, RecurringRow } from './RecurringExpenseDb';
-import { getAllReports } from './ReportDb';
+import { getSubscriptionRow, getSubscriptionRows, SubscriptionRow } from './RecurringExpenseDb';
 
 const defaultBaselineRange: RecurrenceInterval = { amount: 5, unit: 'years' };
 
@@ -46,34 +42,25 @@ export function searchSubscriptions(
       const window = baselineWindow(criteria.range);
       const types = toTypeArray(criteria.type);
 
-      const [recurringRows, reportDefs] = await Promise.all([
-        getRecurringRows(tx, groupId),
-        getAllReports(tx, groupId),
-      ]);
-
-      const filters = await buildAllFilters(tx, groupId, recurringRows, reportDefs);
+      const rows = await getSubscriptionRows(tx, groupId);
+      const filters = await buildAllFilters(tx, groupId, rows);
       const candidates = await fetchCandidateExpenses(tx, groupId, window.startDate, types);
       const wins = assignExpensesToSubscriptions(candidates, filters);
+      const expenseToOwner = invertWins(wins);
 
-      const recurringCards = recurringRows
-        .filter(r => recurringPassesDisplay(r, criteria, userId, types))
-        .map(r =>
-          buildRecurringSubscription(
-            r,
-            wins.get(filterKey({ source: 'recurring', id: r.id })) ?? [],
-            window,
-          ),
-        );
-
-      const reportCards = reportDefs.flatMap(r =>
-        buildReportSubscriptions(
-          r,
-          wins.get(filterKey({ source: 'report', id: r.id })) ?? [],
-          window,
-        ),
-      );
-
-      return [...recurringCards, ...reportCards];
+      const rowsById = new Map(rows.map(r => [r.id, r]));
+      const cards: Subscription[] = [];
+      for (const row of rows) {
+        if (!rowPassesDisplay(row, criteria, userId, types)) continue;
+        const ownedRows = wins.get(row.id) ?? [];
+        const dominator =
+          ownedRows.length === 0
+            ? findDominator(row, filters, candidates, expenseToOwner, rowsById)
+            : null;
+        const dominatedBy = dominator ? { rowId: dominator.id, title: dominator.title } : undefined;
+        cards.push(...buildCardsForRow(row, ownedRows, window, dominatedBy));
+      }
+      return cards;
     },
   );
 }
@@ -86,7 +73,7 @@ export function summarizeQuery(
 ): Promise<QuerySummary> {
   return withSpan('subscription.query_summary', { 'app.group_id': groupId }, async () => {
     const window = baselineWindow(range);
-    const filter = await buildOneFilter(tx, groupId, 'report', 0, query);
+    const filter = await buildOneFilter(tx, groupId, 0, query);
     const candidates = await fetchCandidateExpenses(tx, groupId, window.startDate, null);
     let count = 0;
     let sum = Money.from(0);
@@ -111,21 +98,19 @@ export function getSubscriptionMatches(
     {
       'app.group_id': groupId,
       'app.user_id': userId,
-      'app.subscription_kind': query.kind,
       'app.subscription_id': query.rowId,
     },
     async () => {
       const window = baselineWindow();
-      const [recurringRows, reportDefs] = await Promise.all([
-        getRecurringRows(tx, groupId),
-        getAllReports(tx, groupId),
-      ]);
-      const filters = await buildAllFilters(tx, groupId, recurringRows, reportDefs);
-      verifyTargetExists(query, recurringRows, reportDefs);
+      // Verify the row exists; throws NotFoundError otherwise.
+      await getSubscriptionRow(tx, groupId, query.rowId);
+
+      const rows = await getSubscriptionRows(tx, groupId);
+      const filters = await buildAllFilters(tx, groupId, rows);
       const candidates = await fetchCandidateExpenses(tx, groupId, window.startDate, null);
       const wins = assignExpensesToSubscriptions(candidates, filters);
-      const targetKey = filterKey({ source: query.kind, id: query.rowId });
-      let assigned = wins.get(targetKey) ?? [];
+
+      let assigned = wins.get(query.rowId) ?? [];
       if (query.categoryId !== undefined) {
         assigned = assigned.filter(e => e.categoryId === query.categoryId);
       }
@@ -147,20 +132,6 @@ export function getSubscriptionMatches(
   );
 }
 
-function verifyTargetExists(
-  query: SubscriptionMatchesQuery,
-  recurringRows: RecurringRow[],
-  reportDefs: ReportDef[],
-) {
-  const exists =
-    query.kind === 'recurring'
-      ? recurringRows.some(r => r.id === query.rowId)
-      : reportDefs.some(r => r.id === query.rowId);
-  if (!exists) {
-    throw new NotFoundError('SUBSCRIPTION_NOT_FOUND', `${query.kind} subscription`, query.rowId);
-  }
-}
-
 function toTypeArray(type: SubscriptionSearchCriteria['type']): ExpenseType[] | null {
   if (!type) return null;
   return Array.isArray(type) ? type : [type];
@@ -175,24 +146,19 @@ function baselineWindow(range: RecurrenceInterval = defaultBaselineRange): Basel
 async function buildAllFilters(
   tx: DbTask,
   groupId: ObjectId,
-  recurringRows: RecurringRow[],
-  reportDefs: ReportDef[],
+  rows: SubscriptionRow[],
 ): Promise<SubscriptionFilter[]> {
-  return Promise.all([
-    ...recurringRows.map(r => buildOneFilter(tx, groupId, 'recurring', r.id, r.filter)),
-    ...reportDefs.map(r => buildOneFilter(tx, groupId, 'report', r.id, r.query)),
-  ]);
+  return Promise.all(rows.map(r => buildOneFilter(tx, groupId, r.id, r.filter)));
 }
 
 async function buildOneFilter(
   tx: DbTask,
   groupId: ObjectId,
-  source: FilterSource,
   id: ObjectId,
   filter: ExpenseQuery,
 ): Promise<SubscriptionFilter> {
   const subtree = await expandSubtreeIds(tx, groupId, filter);
-  return buildSubscriptionFilter(source, id, filter, subtree);
+  return buildSubscriptionFilter(id, filter, subtree);
 }
 
 async function expandSubtreeIds(
@@ -252,69 +218,47 @@ async function fetchCandidateExpenses(
   }));
 }
 
-function recurringPassesDisplay(
-  row: RecurringRow,
+function rowPassesDisplay(
+  row: SubscriptionRow,
   criteria: SubscriptionSearchCriteria,
   sessionUserId: ObjectId,
   types: ExpenseType[] | null,
 ): boolean {
   if (!criteria.includeEnded && row.occursUntil && row.occursUntil < toISODate()) return false;
-  if (criteria.onlyOwn && row.templateUserId !== sessionUserId) return false;
-  if (types && !types.includes(row.type)) return false;
+  if (criteria.onlyOwn && row.userId !== sessionUserId) return false;
+  // For recurring rows, the canonical type lives on `defaults`. For
+  // report-style rows the type can be in the filter (or unset, in
+  // which case the row matches all types). The display filter narrows
+  // by the row's most authoritative type.
+  if (types && !typeMatchesDisplay(row, types)) return false;
   return true;
 }
 
-function buildRecurringSubscription(
-  row: RecurringRow,
-  matches: MatchableExpense[],
-  window: BaselineWindow,
-): Subscription {
-  const stats = aggregate(matches, window.months);
-  return {
-    id: `recurring-${row.id}`,
-    kind: 'recurring',
-    rowId: row.id,
-    title: row.title,
-    categoryId: row.categoryId,
-    filter: row.filter,
-    recurrence: row.period,
-    defaults: row.defaults,
-    nextMissing: row.nextMissing,
-    occursUntil: row.occursUntil ?? undefined,
-    matchedCount: stats.count,
-    matchedSum: stats.sum.toString(),
-    firstDate: stats.firstDate,
-    lastDate: stats.lastDate,
-    recurrencePerMonth: stats.perMonth.toString(),
-    recurrencePerYear: stats.perYear.toString(),
-  };
+function typeMatchesDisplay(row: SubscriptionRow, types: ExpenseType[]): boolean {
+  if (row.defaults) return types.includes(row.defaults.type);
+  if (row.filter.type) {
+    const filterTypes = Array.isArray(row.filter.type) ? row.filter.type : [row.filter.type];
+    return filterTypes.some(t => types.includes(t));
+  }
+  // No type constraint anywhere — the row is type-agnostic, keep it.
+  return true;
 }
 
-function buildReportSubscriptions(
-  def: ReportDef,
+function buildCardsForRow(
+  row: SubscriptionRow,
   matches: MatchableExpense[],
   window: BaselineWindow,
+  dominatedBy: { rowId: ObjectId; title: string } | undefined,
 ): Subscription[] {
+  // Recurring rows always live in a single category and become exactly one card.
+  if (row.period) {
+    return [buildCard(row, matches, row.categoryId, window, dominatedBy)];
+  }
+  // Report-style rows fan out by category — broad filters benefit from a
+  // per-category breakdown so the page chart can attribute totals.
   if (matches.length === 0) {
-    // Reports with no matches are still real subscriptions; show one
-    // card pinned at the filter's primary category so the user can see
-    // and edit the row even when its filter currently matches nothing.
-    const categoryId = primaryCategoryId(def.query);
-    if (categoryId === undefined) return [];
-    return [
-      {
-        id: `report-${def.id}-${categoryId}`,
-        kind: 'report',
-        rowId: def.id,
-        title: def.title,
-        categoryId,
-        filter: def.query,
-        matchedCount: 0,
-        matchedSum: '0',
-        recurrencePerMonth: '0',
-        recurrencePerYear: '0',
-      },
-    ];
+    if (row.categoryId === null) return [];
+    return [buildCard(row, [], row.categoryId, window, dominatedBy)];
   }
   const byCategory = new Map<number, MatchableExpense[]>();
   for (const m of matches) {
@@ -322,28 +266,43 @@ function buildReportSubscriptions(
     if (list) list.push(m);
     else byCategory.set(m.categoryId, [m]);
   }
-  return Array.from(byCategory.entries()).map(([categoryId, group]) => {
-    const stats = aggregate(group, window.months);
-    return {
-      id: `report-${def.id}-${categoryId}`,
-      kind: 'report',
-      rowId: def.id,
-      title: def.title,
-      categoryId,
-      filter: def.query,
-      matchedCount: stats.count,
-      matchedSum: stats.sum.toString(),
-      firstDate: stats.firstDate,
-      lastDate: stats.lastDate,
-      recurrencePerMonth: stats.perMonth.toString(),
-      recurrencePerYear: stats.perYear.toString(),
-    };
-  });
+  return Array.from(byCategory.entries()).map(([categoryId, group]) =>
+    buildCard(row, group, categoryId, window, undefined),
+  );
 }
 
-function primaryCategoryId(filter: ExpenseQuery): ObjectId | undefined {
-  if (filter.categoryId === undefined) return undefined;
-  return Array.isArray(filter.categoryId) ? filter.categoryId[0] : filter.categoryId;
+function buildCard(
+  row: SubscriptionRow,
+  matches: MatchableExpense[],
+  categoryId: ObjectId | null,
+  window: BaselineWindow,
+  dominatedBy: { rowId: ObjectId; title: string } | undefined,
+): Subscription {
+  const stats = aggregate(matches, window.months);
+  const cardCategoryId = categoryId ?? 0;
+  return {
+    id: cardId(row, categoryId),
+    rowId: row.id,
+    title: row.title,
+    categoryId: cardCategoryId,
+    filter: row.filter,
+    recurrence: row.period,
+    defaults: row.defaults,
+    nextMissing: row.nextMissing,
+    occursUntil: row.occursUntil,
+    matchedCount: stats.count,
+    matchedSum: stats.sum.toString(),
+    firstDate: stats.firstDate,
+    lastDate: stats.lastDate,
+    recurrencePerMonth: stats.perMonth.toString(),
+    recurrencePerYear: stats.perYear.toString(),
+    dominatedBy,
+  };
+}
+
+function cardId(row: SubscriptionRow, categoryId: ObjectId | null): string {
+  if (row.period) return `subscription-${row.id}`;
+  return `subscription-${row.id}-${categoryId ?? 'uncat'}`;
 }
 
 interface AggregatedStats {
@@ -381,4 +340,48 @@ function aggregate(matches: MatchableExpense[], months: number): AggregatedStats
     perMonth,
     perYear: perMonth.multiply(12),
   };
+}
+
+function invertWins(wins: Map<number, MatchableExpense[]>): Map<number, number> {
+  const out = new Map<number, number>();
+  for (const [filterId, expenses] of wins) {
+    for (const e of expenses) out.set(e.id, filterId);
+  }
+  return out;
+}
+
+/**
+ * For an "empty" subscription row (no rows assigned by dedup), find the
+ * subscription that dominates its filter — i.e. the one currently
+ * owning the rows this row's filter would otherwise have matched.
+ *
+ * Strategy: scan candidates that this row's filter accepts; the first
+ * such expense's owner (post-dedup) is the dominator. If multiple
+ * dominators are possible we'd pick the most common one, but in
+ * practice duplicates almost always all funnel into the same older
+ * subscription — first match is sufficient.
+ */
+interface SubscriptionRowLite {
+  id: ObjectId;
+  title: string;
+}
+
+function findDominator(
+  row: SubscriptionRow,
+  filters: readonly SubscriptionFilter[],
+  candidates: readonly MatchableExpense[],
+  expenseToOwner: Map<number, number>,
+  rowsById: Map<number, SubscriptionRow>,
+): SubscriptionRowLite | null {
+  const ownFilter = filters.find(f => f.id === row.id);
+  if (!ownFilter) return null;
+  for (const expense of candidates) {
+    if (scoreFilter(ownFilter, expense) === null) continue;
+    const ownerId = expenseToOwner.get(expense.id);
+    if (ownerId === undefined || ownerId === row.id) continue;
+    const owner = rowsById.get(ownerId);
+    if (!owner) continue;
+    return { id: owner.id, title: owner.title };
+  }
+  return null;
 }

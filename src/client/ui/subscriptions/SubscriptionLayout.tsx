@@ -5,16 +5,18 @@ export const SubscriptionRow: React.FC<React.PropsWithChildren<GroupProps>> = pr
   <Group gap={4} px="md" wrap="nowrap" align="center" mih={40} w="100%" {...props} />
 );
 
-export const Label: React.FC<React.PropsWithChildren<BoxProps>> = props => (
-  <Box flex={1} {...props} />
+export const Title: React.FC<React.PropsWithChildren<BoxProps>> = props => (
+  <Box flex="0 0 240px" style={{ overflow: 'hidden', textOverflow: 'ellipsis' }} {...props} />
 );
 
-export const Dates: React.FC<React.PropsWithChildren<BoxProps>> = props => (
-  <Box w={144} ta="right" {...props} />
-);
-
-export const Period: React.FC<React.PropsWithChildren<BoxProps>> = props => (
-  <Box w={32} style={{ whiteSpace: 'nowrap' }} {...props} />
+export const Subtitle: React.FC<React.PropsWithChildren<BoxProps>> = props => (
+  <Box
+    flex={1}
+    c="neutral.7"
+    fz="sm"
+    style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+    {...props}
+  />
 );
 
 export const Sum: React.FC<React.PropsWithChildren<BoxProps>> = props => (
@@ -24,6 +26,10 @@ export const Sum: React.FC<React.PropsWithChildren<BoxProps>> = props => (
     style={{ fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}
     {...props}
   />
+);
+
+export const NextDate: React.FC<React.PropsWithChildren<BoxProps>> = props => (
+  <Box w={120} ta="right" fz="sm" c="neutral.7" {...props} />
 );
 
 interface ToolsProps extends BoxProps {

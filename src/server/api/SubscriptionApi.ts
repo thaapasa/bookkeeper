@@ -3,7 +3,8 @@ import { Router } from 'express';
 import {
   ExpenseQuery,
   QuerySummary,
-  RecurringExpenseDetails,
+  SubscriptionCreatedResponse,
+  SubscriptionFromFilter,
   SubscriptionMatches,
   SubscriptionMatchesQuery,
   SubscriptionResult,
@@ -11,8 +12,8 @@ import {
 } from 'shared/expense';
 import { ApiMessage } from 'shared/types';
 import {
+  createSubscriptionFromFilter,
   deleteRecurringExpenseById,
-  getRecurringExpenseDetails,
 } from 'server/data/RecurringExpenseDb';
 import {
   getSubscriptionMatches,
@@ -46,6 +47,20 @@ export function createSubscriptionApi() {
     (tx, session, { body }) => searchSubscriptions(tx, session.group.id, session.user.id, body),
   );
 
+  // POST /api/subscription/from-filter
+  // Save the current filter (and a title) as a non-recurring subscription.
+  // Replaces the old `POST /api/report` "save report" path.
+  api.postTx(
+    '/from-filter',
+    {
+      body: SubscriptionFromFilter,
+      response: SubscriptionCreatedResponse,
+      groupRequired: true,
+    },
+    (tx, session, { body }) =>
+      createSubscriptionFromFilter(tx, session.group.id, session.user.id, body.title, body.filter),
+  );
+
   // POST /api/subscription/query-summary
   api.postTx(
     '/query-summary',
@@ -58,14 +73,6 @@ export function createSubscriptionApi() {
     '/matches',
     { body: SubscriptionMatchesQuery, response: SubscriptionMatches, groupRequired: true },
     (tx, session, { body }) => getSubscriptionMatches(tx, session.group.id, session.user.id, body),
-  );
-
-  // GET /api/subscription/[subscriptionId]
-  api.getTx(
-    '/:subscriptionId',
-    { response: RecurringExpenseDetails, groupRequired: true },
-    (tx, session, { params }) =>
-      getRecurringExpenseDetails(tx, session.group.id, session.user.id, params.subscriptionId),
   );
 
   // DELETE /api/subscription/[subscriptionId]

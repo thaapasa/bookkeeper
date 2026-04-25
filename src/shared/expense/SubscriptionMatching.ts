@@ -1,16 +1,7 @@
 import { ISODate } from '../time/Time';
 import { ExpenseQuery, ExpenseType } from './Expense';
 
-/**
- * Source table for a subscription filter. While reports and recurring
- * expenses live in separate tables (steps 3-5 of the rework), the
- * tiebreaker rule is "recurring before report, then by id". After the
- * tables merge in step 6b this collapses to a single id ordering.
- */
-export type FilterSource = 'recurring' | 'report';
-
 export interface SubscriptionFilter {
-  source: FilterSource;
   id: number;
   filter: ExpenseQuery;
   /**
@@ -56,16 +47,14 @@ const userIdWeight = 5;
 const confirmedWeight = 2;
 
 export function buildSubscriptionFilter(
-  source: FilterSource,
   id: number,
   filter: ExpenseQuery,
   subtreeCategoryIds: Iterable<number>,
 ): SubscriptionFilter {
   const direct = new Set<number>(toCategoryArray(filter.categoryId));
   const subtree = new Set<number>(subtreeCategoryIds);
-  for (const id of direct) subtree.delete(id);
+  for (const cid of direct) subtree.delete(cid);
   return {
-    source,
     id,
     filter,
     directCategoryIds: direct,
@@ -149,61 +138,46 @@ export function scoreFilter(filter: SubscriptionFilter, expense: MatchableExpens
   return score;
 }
 
-function tiebreakRank(filter: SubscriptionFilter): number {
-  // Recurring (source=0) wins over report (source=1) on equal score; then by id.
-  return (filter.source === 'recurring' ? 0 : 1) * 10_000_000 + filter.id;
-}
-
+/**
+ * On equal score the older subscription wins (lowest id). All filters
+ * now live in the `subscriptions` table, so id ordering is the single
+ * tiebreak rule.
+ */
 export function pickWinningFilter(
   expense: MatchableExpense,
   filters: readonly SubscriptionFilter[],
 ): SubscriptionFilter | null {
   let best: SubscriptionFilter | null = null;
   let bestScore = -1;
-  let bestRank = Infinity;
+  let bestId = Infinity;
   for (const filter of filters) {
     const score = scoreFilter(filter, expense);
     if (score === null) continue;
-    if (score > bestScore) {
+    if (score > bestScore || (score === bestScore && filter.id < bestId)) {
       best = filter;
       bestScore = score;
-      bestRank = tiebreakRank(filter);
-      continue;
-    }
-    if (score === bestScore) {
-      const rank = tiebreakRank(filter);
-      if (rank < bestRank) {
-        best = filter;
-        bestRank = rank;
-      }
+      bestId = filter.id;
     }
   }
   return best;
 }
 
-export type FilterKey = `recurring:${number}` | `report:${number}`;
-
-export function filterKey(filter: { source: FilterSource; id: number }): FilterKey {
-  return `${filter.source}:${filter.id}` as FilterKey;
-}
-
 /**
  * For each candidate expense, find the highest-scoring filter that
  * matches it (with the tiebreak rule). Returns the assignments grouped
- * by filter key. Expenses that match no filter are not returned.
+ * by filter id. Expenses that match no filter are not returned.
  */
 export function assignExpensesToSubscriptions(
   expenses: readonly MatchableExpense[],
   filters: readonly SubscriptionFilter[],
-): Map<FilterKey, MatchableExpense[]> {
-  const assignments = new Map<FilterKey, MatchableExpense[]>();
+): Map<number, MatchableExpense[]> {
+  const assignments = new Map<number, MatchableExpense[]>();
   for (const expense of expenses) {
     const winner = pickWinningFilter(expense, filters);
     if (!winner) continue;
-    const key = filterKey(winner);
-    const list = assignments.get(key);
+    const list = assignments.get(winner.id);
     if (list) list.push(expense);
-    else assignments.set(key, [expense]);
+    else assignments.set(winner.id, [expense]);
   }
   return assignments;
 }

@@ -341,39 +341,6 @@ ALTER SEQUENCE public.knex_migrations_lock_index_seq OWNED BY public.knex_migrat
 
 
 --
--- Name: reports; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.reports (
-    id integer NOT NULL,
-    group_id integer,
-    user_id integer,
-    title text NOT NULL,
-    query jsonb NOT NULL
-);
-
-
---
--- Name: reports_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.reports_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: reports_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.reports_id_seq OWNED BY public.reports.id;
-
-
---
 -- Name: sessions; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -474,12 +441,14 @@ ALTER SEQUENCE public.sources_id_seq OWNED BY public.sources.id;
 CREATE TABLE public.subscriptions (
     id integer CONSTRAINT recurring_expenses_id_not_null NOT NULL,
     group_id integer CONSTRAINT recurring_expenses_group_id_not_null NOT NULL,
-    period_unit public.recurring_period CONSTRAINT recurring_expenses_period_unit_not_null NOT NULL,
+    period_unit public.recurring_period,
     occurs_until date,
     next_missing date,
-    period_amount smallint DEFAULT 1 CONSTRAINT recurring_expenses_period_amount_not_null NOT NULL,
+    period_amount smallint,
     filter jsonb CONSTRAINT recurring_expenses_filter_not_null NOT NULL,
-    defaults jsonb CONSTRAINT recurring_expenses_defaults_not_null NOT NULL
+    defaults jsonb,
+    title text NOT NULL,
+    user_id integer
 );
 
 
@@ -625,13 +594,6 @@ ALTER TABLE ONLY public.knex_migrations_lock ALTER COLUMN index SET DEFAULT next
 
 
 --
--- Name: reports id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.reports ALTER COLUMN id SET DEFAULT nextval('public.reports_id_seq'::regclass);
-
-
---
 -- Name: shortcuts id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -720,14 +682,6 @@ ALTER TABLE ONLY public.knex_migrations_lock
 
 ALTER TABLE ONLY public.knex_migrations
     ADD CONSTRAINT knex_migrations_pkey PRIMARY KEY (id);
-
-
---
--- Name: reports reports_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.reports
-    ADD CONSTRAINT reports_pkey PRIMARY KEY (id);
 
 
 --
@@ -1016,22 +970,6 @@ ALTER TABLE ONLY public.group_users
 
 
 --
--- Name: reports reports_group_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.reports
-    ADD CONSTRAINT reports_group_id_fkey FOREIGN KEY (group_id) REFERENCES public.groups(id);
-
-
---
--- Name: reports reports_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.reports
-    ADD CONSTRAINT reports_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
-
-
---
 -- Name: sessions sessions_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1085,6 +1023,14 @@ ALTER TABLE ONLY public.sources
 
 ALTER TABLE ONLY public.subscriptions
     ADD CONSTRAINT subscriptions_group_id_fkey FOREIGN KEY (group_id) REFERENCES public.groups(id);
+
+
+--
+-- Name: subscriptions subscriptions_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.subscriptions
+    ADD CONSTRAINT subscriptions_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 
 --
