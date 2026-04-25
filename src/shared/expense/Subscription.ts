@@ -94,7 +94,13 @@ export type SubscriptionCreatedResponse = z.infer<typeof SubscriptionCreatedResp
 export const SubscriptionMatchesQuery = z.object({
   rowId: ObjectId,
   categoryId: ObjectId.optional(),
-  limit: z.number().int().min(1).max(100).optional(),
+  limit: z.number().int().min(1).max(500).optional(),
+  /**
+   * Window for the dedup pass. Should match the page's range selector
+   * so the expander's row list is consistent with the card's totals.
+   * Defaults to 5y when omitted.
+   */
+  range: RecurrenceInterval.optional(),
 });
 export type SubscriptionMatchesQuery = z.infer<typeof SubscriptionMatchesQuery>;
 

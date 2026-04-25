@@ -37,5 +37,5 @@ interface ToolsProps extends BoxProps {
 }
 
 export const Tools: React.FC<React.PropsWithChildren<ToolsProps>> = ({ large, ...props }) => (
-  <Box w={large ? 64 : 32} ta="right" {...props} />
+  <Box w={large ? 96 : 72} ta="right" {...props} />
 );

@@ -101,7 +101,7 @@ export function getSubscriptionMatches(
       'app.subscription_id': query.rowId,
     },
     async () => {
-      const window = baselineWindow();
+      const window = baselineWindow(query.range);
       // Verify the row exists; throws NotFoundError otherwise.
       await getSubscriptionRow(tx, groupId, query.rowId);
 
@@ -117,7 +117,7 @@ export function getSubscriptionMatches(
       assigned.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : b.id - a.id));
       const totalCount = assigned.length;
       const totalSum = assigned.reduce((acc, e) => acc.plus(e.sum), Money.from(0)).toString();
-      const limit = query.limit ?? 20;
+      const limit = query.limit ?? 200;
       const matches = assigned.slice(0, limit).map(e => ({
         id: e.id,
         date: e.date,

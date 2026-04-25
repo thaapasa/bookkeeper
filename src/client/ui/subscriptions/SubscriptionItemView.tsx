@@ -3,7 +3,7 @@ import { useDisclosure } from '@mantine/hooks';
 import * as React from 'react';
 
 import { RecurrencePeriod, Subscription } from 'shared/expense';
-import { readableDateWithYear } from 'shared/time';
+import { readableDateWithYear, RecurrenceInterval } from 'shared/time';
 import { Money } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { invalidateSubscriptionData } from 'client/data/query';
@@ -15,10 +15,14 @@ import { Icons } from '../icons/Icons';
 import { NextDate, SubscriptionRow, Subtitle, Sum, Title, Tools } from './SubscriptionLayout';
 import { SubscriptionMatchesView } from './SubscriptionMatchesView';
 
-export const SubscriptionItemView: React.FC<{ item: Subscription }> = ({ item }) => {
+export const SubscriptionItemView: React.FC<{
+  item: Subscription;
+  range?: RecurrenceInterval;
+}> = ({ item, range }) => {
   const [open, { toggle }] = useDisclosure(false);
-  const ended = !!item.occursUntil;
-  const subtitle = buildSubtitle(item);
+  const stale = isStale(item);
+  const ended = !!item.occursUntil || stale;
+  const subtitle = buildSubtitle(item, stale);
 
   return (
     <>
@@ -31,7 +35,7 @@ export const SubscriptionItemView: React.FC<{ item: Subscription }> = ({ item })
         <Tools>
           <Group gap={2} wrap="nowrap" justify="flex-end">
             <ExpanderIcon title="Lisätiedot" open={open} onToggle={toggle} />
-            <Menu shadow="md" width={200} position="bottom-end">
+            <Menu shadow="md" width={220} position="bottom-end">
               <Menu.Target>
                 <ActionIcon variant="subtle" aria-label="Toiminnot">
                   <Icons.More />
@@ -50,16 +54,16 @@ export const SubscriptionItemView: React.FC<{ item: Subscription }> = ({ item })
           </Group>
         </Tools>
       </SubscriptionRow>
-      {open ? <ExpandedDetails item={item} /> : null}
+      {open ? <ExpandedDetails item={item} range={range} /> : null}
     </>
   );
 };
 
-const ExpandedDetails: React.FC<{ item: Subscription }> = ({ item }) => (
+const ExpandedDetails: React.FC<{
+  item: Subscription;
+  range: RecurrenceInterval | undefined;
+}> = ({ item, range }) => (
   <Stack gap={4} px="md" py="xs" bg="surface.0">
-    <Text size="sm" c="neutral.7">
-      {summaryLine(item)}
-    </Text>
     {item.recurrence ? (
       <Text size="sm" c="neutral.7">
         {item.occursUntil
@@ -83,12 +87,27 @@ const ExpandedDetails: React.FC<{ item: Subscription }> = ({ item }) => (
         </Group>
       }
     >
-      <SubscriptionMatchesView subscription={item} />
+      <SubscriptionMatchesView subscription={item} range={range} />
     </QueryBoundary>
   </Stack>
 );
 
-function buildSubtitle(item: Subscription): React.ReactNode {
+/**
+ * A recurring subscription that has run dry — `nextMissing` is in the
+ * past and no realised rows landed in the current window. The user
+ * almost certainly forgot to "lopeta tilaus", so we fade the row to
+ * keep it from competing with active subscriptions.
+ */
+function isStale(item: Subscription): boolean {
+  if (!item.recurrence) return false;
+  if (item.occursUntil) return false;
+  if (!item.nextMissing) return false;
+  if (item.matchedCount > 0) return false;
+  const today = new Date().toISOString().slice(0, 10);
+  return item.nextMissing < today;
+}
+
+function buildSubtitle(item: Subscription, stale: boolean): React.ReactNode {
   if (item.dominatedBy) {
     return (
       <span>
@@ -108,7 +127,9 @@ function buildSubtitle(item: Subscription): React.ReactNode {
   } else if (!item.recurrence) {
     parts.push('Ei kirjauksia tarkasteluikkunassa');
   }
-  if (item.recurrence) {
+  if (stale) {
+    parts.push('Tilaus on ollut hiljaa — lopeta se Toiminnot-valikosta');
+  } else if (item.recurrence) {
     parts.push(`Toistuu ${getPeriodText(item.recurrence)}`);
   }
   return parts.join(' · ');
@@ -116,19 +137,6 @@ function buildSubtitle(item: Subscription): React.ReactNode {
 
 function filterReceiver(item: Subscription): string {
   return item.filter.receiver ?? item.filter.title ?? item.filter.search ?? '';
-}
-
-function summaryLine(item: Subscription): string {
-  if (item.matchedCount === 0) {
-    return 'Ei kirjauksia tarkasteluikkunassa.';
-  }
-  const range =
-    item.firstDate && item.lastDate
-      ? `${readableDateWithYear(item.firstDate)} – ${readableDateWithYear(item.lastDate)}`
-      : '';
-  return `${item.matchedCount} kirjausta${range ? ` ${range}` : ''}: yhteensä ${Money.from(
-    item.matchedSum,
-  ).format()}`;
 }
 
 function nextLine(item: Subscription): string {
