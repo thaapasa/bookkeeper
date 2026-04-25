@@ -2,19 +2,22 @@ import {
   assignExpensesToSubscriptions,
   buildSubscriptionFilter,
   ExpenseQuery,
-  ExpenseReport,
   ExpenseType,
   filterKey,
   FilterSource,
   MatchableExpense,
-  RecurringExpense,
+  QuerySummary,
   ReportDef,
+  scoreFilter,
+  Subscription,
   SubscriptionFilter,
+  SubscriptionMatches,
+  SubscriptionMatchesQuery,
   SubscriptionResult,
   SubscriptionSearchCriteria,
 } from 'shared/expense';
 import { ISODate, RecurrenceInterval, toDateTime, toISODate } from 'shared/time';
-import { ObjectId } from 'shared/types';
+import { NotFoundError, ObjectId } from 'shared/types';
 import { Money } from 'shared/util';
 import { DbTask } from 'server/data/Db.ts';
 import { withSpan } from 'server/telemetry/Spans';
@@ -52,23 +55,110 @@ export function searchSubscriptions(
       const candidates = await fetchCandidateExpenses(tx, groupId, window.startDate, types);
       const wins = assignExpensesToSubscriptions(candidates, filters);
 
-      const recurringExpenses = recurringRows
+      const recurringCards = recurringRows
         .filter(r => recurringPassesDisplay(r, criteria, userId, types))
         .map(r =>
-          buildRecurringExpense(
+          buildRecurringSubscription(
             r,
             wins.get(filterKey({ source: 'recurring', id: r.id })) ?? [],
             window,
           ),
         );
 
-      const reports = reportDefs.flatMap(r =>
-        buildReportCards(r, wins.get(filterKey({ source: 'report', id: r.id })) ?? [], window),
+      const reportCards = reportDefs.flatMap(r =>
+        buildReportSubscriptions(
+          r,
+          wins.get(filterKey({ source: 'report', id: r.id })) ?? [],
+          window,
+        ),
       );
 
-      return { recurringExpenses, reports };
+      return [...recurringCards, ...reportCards];
     },
   );
+}
+
+export function summarizeQuery(
+  tx: DbTask,
+  groupId: ObjectId,
+  query: ExpenseQuery,
+  range?: RecurrenceInterval,
+): Promise<QuerySummary> {
+  return withSpan('subscription.query_summary', { 'app.group_id': groupId }, async () => {
+    const window = baselineWindow(range);
+    const filter = await buildOneFilter(tx, groupId, 'report', 0, query);
+    const candidates = await fetchCandidateExpenses(tx, groupId, window.startDate, null);
+    let count = 0;
+    let sum = Money.from(0);
+    for (const expense of candidates) {
+      if (scoreFilter(filter, expense) !== null) {
+        count += 1;
+        sum = sum.plus(expense.sum);
+      }
+    }
+    return { count, sum: sum.toString() };
+  });
+}
+
+export function getSubscriptionMatches(
+  tx: DbTask,
+  groupId: ObjectId,
+  userId: ObjectId,
+  query: SubscriptionMatchesQuery,
+): Promise<SubscriptionMatches> {
+  return withSpan(
+    'subscription.matches',
+    {
+      'app.group_id': groupId,
+      'app.user_id': userId,
+      'app.subscription_kind': query.kind,
+      'app.subscription_id': query.rowId,
+    },
+    async () => {
+      const window = baselineWindow();
+      const [recurringRows, reportDefs] = await Promise.all([
+        getRecurringRows(tx, groupId),
+        getAllReports(tx, groupId),
+      ]);
+      const filters = await buildAllFilters(tx, groupId, recurringRows, reportDefs);
+      verifyTargetExists(query, recurringRows, reportDefs);
+      const candidates = await fetchCandidateExpenses(tx, groupId, window.startDate, null);
+      const wins = assignExpensesToSubscriptions(candidates, filters);
+      const targetKey = filterKey({ source: query.kind, id: query.rowId });
+      let assigned = wins.get(targetKey) ?? [];
+      if (query.categoryId !== undefined) {
+        assigned = assigned.filter(e => e.categoryId === query.categoryId);
+      }
+      assigned.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : b.id - a.id));
+      const totalCount = assigned.length;
+      const totalSum = assigned.reduce((acc, e) => acc.plus(e.sum), Money.from(0)).toString();
+      const limit = query.limit ?? 20;
+      const matches = assigned.slice(0, limit).map(e => ({
+        id: e.id,
+        date: e.date,
+        type: e.type,
+        sum: e.sum,
+        title: e.title,
+        receiver: e.receiver,
+        categoryId: e.categoryId,
+      }));
+      return { matches, totalCount, totalSum };
+    },
+  );
+}
+
+function verifyTargetExists(
+  query: SubscriptionMatchesQuery,
+  recurringRows: RecurringRow[],
+  reportDefs: ReportDef[],
+) {
+  const exists =
+    query.kind === 'recurring'
+      ? recurringRows.some(r => r.id === query.rowId)
+      : reportDefs.some(r => r.id === query.rowId);
+  if (!exists) {
+    throw new NotFoundError('SUBSCRIPTION_NOT_FOUND', `${query.kind} subscription`, query.rowId);
+  }
 }
 
 function toTypeArray(type: SubscriptionSearchCriteria['type']): ExpenseType[] | null {
@@ -175,91 +265,122 @@ function recurringPassesDisplay(
   return true;
 }
 
-function buildRecurringExpense(
+function buildRecurringSubscription(
   row: RecurringRow,
   matches: MatchableExpense[],
   window: BaselineWindow,
-): RecurringExpense {
-  const { perMonth, perYear } = baselineFromMatches(matches, window.months);
+): Subscription {
+  const stats = aggregate(matches, window.months);
   return {
-    id: row.id,
-    type: 'recurring',
-    templateExpenseId: row.templateExpenseId,
+    id: `recurring-${row.id}`,
+    kind: 'recurring',
+    rowId: row.id,
     title: row.title,
-    receiver: row.receiver || undefined,
-    sum: row.sum,
     categoryId: row.categoryId,
-    period: row.period,
+    filter: row.filter,
+    recurrence: row.period,
+    defaults: row.defaults,
     nextMissing: row.nextMissing,
-    firstOccurence: row.firstOccurence,
     occursUntil: row.occursUntil ?? undefined,
-    recurrencePerMonth: perMonth.toString(),
-    recurrencePerYear: perYear.toString(),
+    templateExpenseId: row.templateExpenseId,
+    matchedCount: stats.count,
+    matchedSum: stats.sum.toString(),
+    firstDate: stats.firstDate,
+    lastDate: stats.lastDate,
+    recurrencePerMonth: stats.perMonth.toString(),
+    recurrencePerYear: stats.perYear.toString(),
   };
 }
 
-function buildReportCards(
+function buildReportSubscriptions(
   def: ReportDef,
   matches: MatchableExpense[],
   window: BaselineWindow,
-): ExpenseReport[] {
-  if (matches.length === 0) return [];
+): Subscription[] {
+  if (matches.length === 0) {
+    // Reports with no matches are still real subscriptions; show one
+    // card pinned at the filter's primary category so the user can see
+    // and edit the row even when its filter currently matches nothing.
+    const categoryId = primaryCategoryId(def.query);
+    if (categoryId === undefined) return [];
+    return [
+      {
+        id: `report-${def.id}-${categoryId}`,
+        kind: 'report',
+        rowId: def.id,
+        title: def.title,
+        categoryId,
+        filter: def.query,
+        matchedCount: 0,
+        matchedSum: '0',
+        recurrencePerMonth: '0',
+        recurrencePerYear: '0',
+      },
+    ];
+  }
   const byCategory = new Map<number, MatchableExpense[]>();
   for (const m of matches) {
     const list = byCategory.get(m.categoryId);
     if (list) list.push(m);
     else byCategory.set(m.categoryId, [m]);
   }
-  const out: ExpenseReport[] = [];
-  for (const [categoryId, group] of byCategory) {
-    const total = sumExpenses(group);
-    const titles = group.map(e => e.title);
-    const dates = group.map(e => e.date).sort();
-    const { perMonth, perYear } = baselineFromTotal(total, window.months);
-    out.push({
+  return Array.from(byCategory.entries()).map(([categoryId, group]) => {
+    const stats = aggregate(group, window.months);
+    return {
       id: `report-${def.id}-${categoryId}`,
-      type: 'report',
+      kind: 'report',
+      rowId: def.id,
       title: def.title,
       categoryId,
-      count: group.length,
-      sum: total.toString(),
-      avgSum: total.divide(group.length).toString(),
-      firstDate: dates[0],
-      lastDate: dates[dates.length - 1],
-      minExpenseTitle: minString(titles),
-      maxExpenseTitle: maxString(titles),
-      recurrencePerMonth: perMonth.toString(),
-      recurrencePerYear: perYear.toString(),
-      reportId: def.id,
-    });
+      filter: def.query,
+      matchedCount: stats.count,
+      matchedSum: stats.sum.toString(),
+      firstDate: stats.firstDate,
+      lastDate: stats.lastDate,
+      recurrencePerMonth: stats.perMonth.toString(),
+      recurrencePerYear: stats.perYear.toString(),
+    };
+  });
+}
+
+function primaryCategoryId(filter: ExpenseQuery): ObjectId | undefined {
+  if (filter.categoryId === undefined) return undefined;
+  return Array.isArray(filter.categoryId) ? filter.categoryId[0] : filter.categoryId;
+}
+
+interface AggregatedStats {
+  count: number;
+  sum: Money;
+  firstDate?: ISODate;
+  lastDate?: ISODate;
+  perMonth: Money;
+  perYear: Money;
+}
+
+function aggregate(matches: MatchableExpense[], months: number): AggregatedStats {
+  if (matches.length === 0) {
+    return {
+      count: 0,
+      sum: Money.from(0),
+      perMonth: Money.from(0),
+      perYear: Money.from(0),
+    };
   }
-  return out;
-}
-
-function sumExpenses(expenses: MatchableExpense[]): Money {
-  return expenses.reduce((acc, e) => acc.plus(e.sum), Money.from(0));
-}
-
-function baselineFromMatches(
-  matches: MatchableExpense[],
-  months: number,
-): { perMonth: Money; perYear: Money } {
-  if (matches.length === 0 || months <= 0) {
-    return { perMonth: Money.from(0), perYear: Money.from(0) };
+  let sum = Money.from(0);
+  let firstDate = matches[0].date;
+  let lastDate = matches[0].date;
+  for (const m of matches) {
+    sum = sum.plus(m.sum);
+    if (m.date < firstDate) firstDate = m.date;
+    if (m.date > lastDate) lastDate = m.date;
   }
-  return baselineFromTotal(sumExpenses(matches), months);
-}
-
-function baselineFromTotal(total: Money, months: number): { perMonth: Money; perYear: Money } {
-  if (months <= 0) return { perMonth: Money.from(0), perYear: Money.from(0) };
-  const perMonth = total.divide(months);
-  return { perMonth, perYear: perMonth.multiply(12) };
-}
-
-function minString(values: string[]): string {
-  return values.reduce((acc, v) => (v < acc ? v : acc));
-}
-
-function maxString(values: string[]): string {
-  return values.reduce((acc, v) => (v > acc ? v : acc));
+  const perMonth = months > 0 ? sum.divide(months) : Money.from(0);
+  return {
+    count: matches.length,
+    sum,
+    firstDate,
+    lastDate,
+    perMonth,
+    perYear: perMonth.multiply(12),
+  };
 }

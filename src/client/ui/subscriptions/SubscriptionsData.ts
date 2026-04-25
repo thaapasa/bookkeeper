@@ -1,4 +1,4 @@
-import { SubscriptionResult } from 'shared/expense';
+import { Subscription, SubscriptionResult } from 'shared/expense';
 import { CategoryMap, ObjectId } from 'shared/types';
 import { Money } from 'shared/util';
 
@@ -14,9 +14,8 @@ export function groupSubscriptions(
   result: SubscriptionResult,
   categories: CategoryMap,
 ): SubscriptionsData {
-  const items = [...result.recurringExpenses, ...result.reports];
   const byRoot: Record<ObjectId, SubscriptionGroup> = {};
-  for (const item of items) {
+  for (const item of result) {
     const rootCat = getRootCategoryId(item.categoryId, categories);
     const group: SubscriptionGroup =
       rootCat in byRoot
@@ -30,10 +29,7 @@ export function groupSubscriptions(
     byRoot[rootCat] = group;
     if (rootCat === item.categoryId) {
       group.rootItems = (group.rootItems ?? []).concat(item);
-      group.rootTotals = group.rootTotals ?? {
-        recurrencePerMonth: Money.from(0),
-        recurrencePerYear: Money.from(0),
-      };
+      group.rootTotals = group.rootTotals ?? emptyTotals();
       group.rootTotals = appendToTotals(group.rootTotals, item);
     } else {
       let cat = group.children.find(c => c.category.id === item.categoryId);
@@ -53,7 +49,10 @@ export function groupSubscriptions(
     ...g,
     // Rewrite colorIndices here
     colorIndex: i,
-    allTotals: sumRecurrenceTotals(g.children.map(c => c.totals)),
+    allTotals: sumRecurrenceTotals([
+      ...g.children.map(c => c.totals),
+      ...(g.rootTotals ? [g.rootTotals] : []),
+    ]),
   }));
   return {
     groups,
@@ -61,7 +60,7 @@ export function groupSubscriptions(
   };
 }
 
-function appendToTotals(totals: RecurrenceTotals, item: RecurrenceTotals): RecurrenceTotals {
+function appendToTotals(totals: RecurrenceTotals, item: Subscription): RecurrenceTotals {
   return {
     recurrencePerMonth: Money.from(totals.recurrencePerMonth).plus(item.recurrencePerMonth),
     recurrencePerYear: Money.from(totals.recurrencePerYear).plus(item.recurrencePerYear),
@@ -69,5 +68,11 @@ function appendToTotals(totals: RecurrenceTotals, item: RecurrenceTotals): Recur
 }
 
 export function sumRecurrenceTotals(data: RecurrenceTotals[]): RecurrenceTotals {
-  return data.reduce((p, c) => appendToTotals(p, c), emptyTotals());
+  return data.reduce(
+    (p, c) => ({
+      recurrencePerMonth: Money.from(p.recurrencePerMonth).plus(c.recurrencePerMonth),
+      recurrencePerYear: Money.from(p.recurrencePerYear).plus(c.recurrencePerYear),
+    }),
+    emptyTotals(),
+  );
 }

@@ -3,7 +3,7 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import * as React from 'react';
 import { z } from 'zod';
 
-import { SubscriptionSearchCriteria } from 'shared/expense';
+import { Subscription, SubscriptionSearchCriteria } from 'shared/expense';
 import { Category, ObjectId } from 'shared/types';
 import { Money, MoneyLike } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
@@ -20,7 +20,7 @@ import { SubscriptionCriteriaSelector } from './SubscriptionCriteriaSelector';
 import { SubscriptionItemView } from './SubscriptionItemView';
 import { groupSubscriptions, sumRecurrenceTotals } from './SubscriptionsData';
 import { TotalsChart, TotalsData } from './TotalsChart';
-import { RecurrenceTotals, SubscriptionGroup, SubscriptionItem } from './types';
+import { RecurrenceTotals, SubscriptionGroup } from './types';
 
 export const SubscriptionsPage: React.FC = () => {
   const [criteria, setCriteria] = React.useState<SubscriptionSearchCriteria | undefined>(undefined);
@@ -184,7 +184,7 @@ const GroupView: React.FC<{
 const CategorySubscriptions: React.FC<{
   category: Category;
   title?: string;
-  items: SubscriptionItem[];
+  items: Subscription[];
   totals?: RecurrenceTotals;
 }> = ({ category, items, totals, title }) => (
   <>

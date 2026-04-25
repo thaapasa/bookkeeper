@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 import { ReportCreationData, ReportDef } from 'shared/expense';
 import { ApiMessage } from 'shared/types';
-import { createReport, deleteReport, getAllReports } from 'server/data/ReportDb';
+import { createReport, deleteReport, getAllReports, updateReport } from 'server/data/ReportDb';
 import { createValidatingRouter } from 'server/server/ValidatingRouter';
 
 /**
@@ -29,8 +29,16 @@ export function createReportApi() {
       createReport(tx, session.group.id, session.user.id, body.title, body.query),
   );
 
-  // DELETE /api/report
-  // Delete report
+  // PUT /api/report/[reportId]
+  // Update an existing report
+  api.putTx(
+    '/:reportId',
+    { body: ReportCreationData, response: ReportDef, groupRequired: true },
+    (tx, session, { body, params }) =>
+      updateReport(tx, session.group.id, params.reportId, body.title, body.query),
+  );
+
+  // DELETE /api/report/[reportId]
   api.deleteTx(
     '/:reportId',
     { response: ApiMessage, groupRequired: true },

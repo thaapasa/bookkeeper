@@ -6,11 +6,14 @@ import {
   ExpenseShortcutPayload,
   ExpenseSplit,
   ExpenseStatus,
+  QuerySummary,
   RecurrencePeriod,
   RecurringExpenseDetails,
   RecurringExpenseTarget,
   ReportCreationData,
   ReportDef,
+  SubscriptionMatches,
+  SubscriptionMatchesQuery,
   SubscriptionResult,
   SubscriptionSearchCriteria,
   UserExpense,
@@ -212,6 +215,12 @@ export class ApiConnect {
 
   public deleteSubscription = async (id: ObjectId): Promise<RecurringExpenseDetails | undefined> =>
     this.delete(uri`/api/subscription/${id}`);
+
+  public summarizeSubscriptionQuery = (query: ExpenseQuery): Promise<QuerySummary> =>
+    this.post<QuerySummary>(uri`/api/subscription/query-summary`, { body: query });
+
+  public getSubscriptionMatches = (query: SubscriptionMatchesQuery): Promise<SubscriptionMatches> =>
+    this.post<SubscriptionMatches>(uri`/api/subscription/matches`, { body: query });
 
   public storeExpense(expense: ExpenseData): Promise<ExpenseIdResponse> {
     return this.post<ExpenseIdResponse>('/api/expense', { body: expense });
@@ -429,6 +438,15 @@ export class ApiConnect {
       query: filterDefinedProps(query),
     };
     return this.post<ReportDef>(uri`/api/report`, { body });
+  };
+
+  public updateReport = (
+    reportId: ObjectId,
+    title: string,
+    query: ExpenseQuery,
+  ): Promise<ReportDef> => {
+    const body: ReportCreationData = { title, query: filterDefinedProps(query) };
+    return this.put<ReportDef>(uri`/api/report/${reportId}`, { body });
   };
 
   public deleteReport = (reportId: ObjectId) =>

@@ -1,8 +1,6 @@
 import { z } from 'zod';
 
-import { ISODate } from '../time/Time';
 import { ObjectId } from '../types/Id';
-import { MoneyLike } from '../util/Money';
 import { ExpenseQuery } from './Expense';
 
 export const ReportDef = z.object({
@@ -19,21 +17,3 @@ export const ReportCreationData = ReportDef.pick({
   query: true,
 });
 export type ReportCreationData = z.infer<typeof ReportCreationData>;
-
-export const ExpenseReport = z.object({
-  id: z.string(),
-  type: z.literal('report'),
-  title: z.string(),
-  count: z.number().int(),
-  sum: MoneyLike,
-  avgSum: MoneyLike,
-  categoryId: ObjectId,
-  firstDate: ISODate,
-  lastDate: ISODate,
-  minExpenseTitle: z.string(),
-  maxExpenseTitle: z.string(),
-  recurrencePerYear: MoneyLike,
-  recurrencePerMonth: MoneyLike,
-  reportId: ObjectId,
-});
-export type ExpenseReport = z.infer<typeof ExpenseReport>;

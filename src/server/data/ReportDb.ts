@@ -1,5 +1,5 @@
 import { ExpenseQuery, ReportDef } from 'shared/expense';
-import { ApiMessage, ObjectId } from 'shared/types';
+import { ApiMessage, NotFoundError, ObjectId } from 'shared/types';
 import { DbTask } from 'server/data/Db.ts';
 import { withSpan } from 'server/telemetry/Spans';
 
@@ -29,6 +29,32 @@ export function createReport(
           RETURNING ${ReportSelectFields}`,
       { groupId, userId, title, query },
     ),
+  );
+}
+
+export function updateReport(
+  tx: DbTask,
+  groupId: ObjectId,
+  reportId: ObjectId,
+  title: string,
+  query: ExpenseQuery,
+): Promise<ReportDef> {
+  return withSpan(
+    'report.update',
+    { 'app.group_id': groupId, 'app.report_id': reportId },
+    async () => {
+      const updated = await tx.oneOrNone<ReportDef>(
+        `UPDATE reports
+            SET title = $/title/, query = $/query/::JSONB
+            WHERE id = $/reportId/ AND group_id = $/groupId/
+            RETURNING ${ReportSelectFields}`,
+        { groupId, reportId, title, query },
+      );
+      if (!updated) {
+        throw new NotFoundError('REPORT_NOT_FOUND', 'report', reportId);
+      }
+      return updated;
+    },
   );
 }
 
