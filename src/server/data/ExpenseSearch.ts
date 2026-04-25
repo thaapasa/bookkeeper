@@ -28,11 +28,10 @@ export async function getExpenseSearchQuery(
   return {
     clause: expenseSelectClause(`--sql
       WHERE e.group_id=$/groupId/
-      AND template=false
       AND ($/startDate/ IS NULL OR date::DATE >= $/startDate/::DATE)
       AND ($/endDate/ IS NULL OR date::DATE <= $/endDate/::DATE)
       AND ($/expenseUserId/ IS NULL OR e.user_id = $/expenseUserId/)
-      ${query.includeRecurring === false ? 'AND e.recurring_expense_id IS NULL' : ''}
+      ${query.includeRecurring === false ? 'AND e.subscription_id IS NULL' : ''}
       ${type ? `AND e.type IN ($/type:csv/)` : ''}
       ${isDefined(query.confirmed) ? `AND confirmed = $/confirmed/` : ''}
       ${categoryIds.length > 0 ? `AND (category_id IN ($/categoryIds:csv/))` : ''}

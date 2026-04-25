@@ -50,7 +50,11 @@ describe('recurring expenses', () => {
     expect(toISODate(calculateNextRecurrence(start, period))).toBe(expected);
   });
 
-  it('T53 - templates should not show up on expense queries', async () => {
+  it('T53 - converting an expense to recurring does not change month totals', async () => {
+    // After step 5 of the rework there is no template `expenses` row;
+    // the original expense itself becomes the first realised member of
+    // the subscription. Month totals therefore must NOT change after
+    // conversion.
     const status1 = checkMonthStatus(await fetchMonthStatus(session, month));
     const expenseId = checkCreateStatus(
       await newExpense(session, {
@@ -62,7 +66,7 @@ describe('recurring expenses', () => {
     );
 
     const data = await session.get<Expense>(uri`/api/expense/${expenseId}`);
-    expect(data.recurringExpenseId).toBeNull();
+    expect(data.subscriptionId).toBeNull();
     expectArrayContaining(data.division, [{ userId: 2, type: 'benefit', sum: '75.00' }]);
 
     const monthBenefit2 = checkMonthStatus(
@@ -76,12 +80,11 @@ describe('recurring expenses', () => {
         period: { amount: 1, unit: 'months' },
       },
     );
-    expect(s.recurringExpenseId).toBeGreaterThan(0);
-    expect(s.templateExpenseId).toBeGreaterThan(0);
+    expect(s.subscriptionId).toBeGreaterThan(0);
     checkMonthStatus(await fetchMonthStatus(session, month), monthBenefit2.benefit);
 
     const e2 = await session.get<Expense>(`/api/expense/${expenseId}`);
-    expect(e2.recurringExpenseId).toEqual(s.recurringExpenseId ?? null);
+    expect(e2.subscriptionId).toEqual(s.subscriptionId ?? null);
   });
 
   it('T92 - creates 1/month', async () => {
@@ -99,8 +102,7 @@ describe('recurring expenses', () => {
         period: { amount: 1, unit: 'months' },
       },
     );
-    expect(s.recurringExpenseId).toBeGreaterThan(0);
-    expect(s.templateExpenseId).toBeGreaterThan(0);
+    expect(s.subscriptionId).toBeGreaterThan(0);
 
     await session.get<ExpenseCollection>('/api/expense/month', {
       year: 2017,
@@ -110,7 +112,7 @@ describe('recurring expenses', () => {
       year: 2017,
       month: 1,
     });
-    const matches = expenses.expenses.filter(e => e.recurringExpenseId === s.recurringExpenseId);
+    const matches = expenses.expenses.filter(e => e.subscriptionId === s.subscriptionId);
     expect(matches).toMatchObject([{ title: 'Pan-galactic gargleblaster', date: '2017-01-01' }]);
   });
 });

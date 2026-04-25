@@ -235,7 +235,6 @@ async function fetchCandidateExpenses(
         confirmed
         FROM expenses
         WHERE group_id = $/groupId/
-          AND template = false
           AND date >= $/startDate/::DATE
           ${types ? 'AND type IN ($/types:csv/)' : ''}`,
     { groupId, startDate, types },
@@ -282,7 +281,6 @@ function buildRecurringSubscription(
     defaults: row.defaults,
     nextMissing: row.nextMissing,
     occursUntil: row.occursUntil ?? undefined,
-    templateExpenseId: row.templateExpenseId,
     matchedCount: stats.count,
     matchedSum: stats.sum.toString(),
     firstDate: stats.firstDate,

@@ -4,29 +4,41 @@ import { db } from 'server/data/Db';
 export interface TestState {
   testStart: ISOTimestamp;
   maxCategoryId: number;
+  maxRecurringId: number;
 }
 
 export async function captureTestState(): Promise<TestState> {
-  const row = await db.one<{ now: ISOTimestamp; max: number | null }>(
-    `SELECT NOW() AS now, COALESCE((SELECT MAX(id) FROM categories), 0) AS max`,
+  const row = await db.one<{ now: ISOTimestamp; maxCat: number | null; maxRec: number | null }>(
+    `SELECT NOW() AS now,
+            COALESCE((SELECT MAX(id) FROM categories), 0) AS "maxCat",
+            COALESCE((SELECT MAX(id) FROM recurring_expenses), 0) AS "maxRec"`,
   );
   return {
     testStart: row.now,
-    maxCategoryId: Number(row.max ?? 0),
+    maxCategoryId: Number(row.maxCat ?? 0),
+    maxRecurringId: Number(row.maxRec ?? 0),
   };
 }
 
 export async function cleanupTestDataSince(groupId: number, state: TestState): Promise<void> {
   await db.tx(async tx => {
+    // Break expenses → recurring_expenses link before deleting either side.
+    // Pre-step-5 the FK cascade flowed via the template expense; that path
+    // is gone, so the cleanup has to null subscription_id explicitly.
     await tx.none(
-      `UPDATE expenses SET recurring_expense_id = NULL
-       WHERE group_id = $/groupId/ AND created > $/testStart/ AND recurring_expense_id IS NOT NULL`,
+      `UPDATE expenses SET subscription_id = NULL
+       WHERE group_id = $/groupId/ AND created > $/testStart/ AND subscription_id IS NOT NULL`,
       { groupId, testStart: state.testStart },
     );
     await tx.none(`DELETE FROM expenses WHERE group_id = $/groupId/ AND created > $/testStart/`, {
       groupId,
       testStart: state.testStart,
     });
+    await tx.none(
+      `DELETE FROM recurring_expenses
+       WHERE group_id = $/groupId/ AND id > $/maxRecurringId/`,
+      { groupId, maxRecurringId: state.maxRecurringId },
+    );
     await tx.none(
       `DELETE FROM categories
        WHERE group_id = $/groupId/ AND id > $/maxCategoryId/ AND parent_id IS NOT NULL`,

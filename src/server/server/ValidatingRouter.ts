@@ -29,7 +29,7 @@ const TypeMap = {
   categoryId: ObjectIdString,
   expenseId: ObjectIdString,
   reportId: ObjectIdString,
-  recurringExpenseId: ObjectIdString,
+  subscriptionId: ObjectIdString,
   filename: z.string().trim().min(1),
   margin: IntString.refine(n => n >= 0),
 };

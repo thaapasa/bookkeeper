@@ -34,7 +34,6 @@ function loadCategoryStatisticsData(
             WHERE group_id = $/groupId/
               AND date >= $/start/
               AND date <= $/end/
-              AND template = false
               AND category_id IN ($/categoryIds:csv/)
               AND type IN ('expense', 'income')
               ${userId ? 'AND user_id = $/userId/' : ''}
@@ -79,7 +78,6 @@ function loadCategoryStatisticsDataGroupedByParent(
             WHERE e.group_id = $/groupId/
               AND e.date >= $/start/
               AND e.date <= $/end/
-              AND e.template = false
               AND (e.category_id IN ($/categoryIds:csv/) OR c.parent_id IN ($/categoryIds:csv/))
               AND e.type IN ('expense', 'income')
               ${userId ? 'AND e.user_id = $/userId/' : ''}

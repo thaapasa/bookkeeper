@@ -216,8 +216,7 @@ CREATE TABLE public.expenses (
     description text,
     confirmed boolean DEFAULT true NOT NULL,
     type public.expense_type DEFAULT 'expense'::public.expense_type NOT NULL,
-    recurring_expense_id integer,
-    template boolean DEFAULT false NOT NULL,
+    subscription_id integer,
     grouping_id integer
 );
 
@@ -347,7 +346,6 @@ ALTER SEQUENCE public.knex_migrations_lock_index_seq OWNED BY public.knex_migrat
 
 CREATE TABLE public.recurring_expenses (
     id integer NOT NULL,
-    template_expense_id integer NOT NULL,
     group_id integer NOT NULL,
     period_unit public.recurring_period NOT NULL,
     occurs_until date,
@@ -811,13 +809,6 @@ CREATE INDEX expenses_description_trgm ON public.expenses USING gin (description
 
 
 --
--- Name: expenses_group_date; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX expenses_group_date ON public.expenses USING btree (group_id, template, date);
-
-
---
 -- Name: expenses_receiver_trgm; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -977,19 +968,19 @@ ALTER TABLE ONLY public.expenses
 
 
 --
--- Name: expenses expenses_recurring_expense_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.expenses
-    ADD CONSTRAINT expenses_recurring_expense_id_fkey FOREIGN KEY (recurring_expense_id) REFERENCES public.recurring_expenses(id);
-
-
---
 -- Name: expenses expenses_source_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.expenses
     ADD CONSTRAINT expenses_source_id_fkey FOREIGN KEY (source_id) REFERENCES public.sources(id);
+
+
+--
+-- Name: expenses expenses_subscription_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.expenses
+    ADD CONSTRAINT expenses_subscription_id_fkey FOREIGN KEY (subscription_id) REFERENCES public.recurring_expenses(id);
 
 
 --
@@ -1030,14 +1021,6 @@ ALTER TABLE ONLY public.group_users
 
 ALTER TABLE ONLY public.recurring_expenses
     ADD CONSTRAINT recurring_expenses_group_id_fkey FOREIGN KEY (group_id) REFERENCES public.groups(id);
-
-
---
--- Name: recurring_expenses recurring_expenses_template_expense_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.recurring_expenses
-    ADD CONSTRAINT recurring_expenses_template_expense_id_fkey FOREIGN KEY (template_expense_id) REFERENCES public.expenses(id) ON DELETE CASCADE;
 
 
 --

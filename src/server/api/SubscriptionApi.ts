@@ -1,7 +1,6 @@
 import { Router } from 'express';
 
 import {
-  ExpenseInput,
   ExpenseQuery,
   QuerySummary,
   RecurringExpenseDetails,
@@ -9,14 +8,11 @@ import {
   SubscriptionMatchesQuery,
   SubscriptionResult,
   SubscriptionSearchCriteria,
-  UserExpense,
 } from 'shared/expense';
-import { ApiMessage, ExpenseIdResponse } from 'shared/types';
+import { ApiMessage } from 'shared/types';
 import {
   deleteRecurringExpenseById,
   getRecurringExpenseDetails,
-  getRecurringExpenseTemplate,
-  updateRecurringExpenseTemplate,
 } from 'server/data/RecurringExpenseDb';
 import {
   getSubscriptionMatches,
@@ -28,9 +24,11 @@ import { createValidatingRouter } from 'server/server/ValidatingRouter';
 /**
  * Creates subscription API.
  *
- * This API provides a view of recurring expenses and reports unified
- * as subscriptions, without requiring knowledge of either underlying
- * table. (See `docs/SUBSCRIPTIONS_REWORK_PLAN.md` for the model.)
+ * Subscriptions unify recurring expenses and reports into a single
+ * card model (see docs/SUBSCRIPTIONS_REWORK_PLAN.md). After step 5 the
+ * /template endpoints are gone — template-row editing is replaced by
+ * editing a realised row with target=`all`/`after`, which propagates
+ * to the subscription's `defaults` JSONB.
  *
  * Assumed attach path: `/api/subscription`
  */
@@ -38,7 +36,6 @@ export function createSubscriptionApi() {
   const api = createValidatingRouter(Router());
 
   // POST /api/subscription/search
-  // Search for subscriptions (returns a flat list of subscription cards)
   api.postTx(
     '/search',
     {
@@ -50,8 +47,6 @@ export function createSubscriptionApi() {
   );
 
   // POST /api/subscription/query-summary
-  // Compute count + sum for an arbitrary ExpenseQuery, used by the
-  // create/edit dialog to preview a filter before saving.
   api.postTx(
     '/query-summary',
     { body: ExpenseQuery, response: QuerySummary, groupRequired: true },
@@ -59,56 +54,27 @@ export function createSubscriptionApi() {
   );
 
   // POST /api/subscription/matches
-  // Return the realised expense rows that the dedup pass currently
-  // assigns to the given subscription (optionally narrowed to one
-  // category for report cards). Powers the matched-rows expander.
   api.postTx(
     '/matches',
     { body: SubscriptionMatchesQuery, response: SubscriptionMatches, groupRequired: true },
     (tx, session, { body }) => getSubscriptionMatches(tx, session.group.id, session.user.id, body),
   );
 
-  // GET /api/subscription/[recurringExpenseId]
-  // Get subscription details
+  // GET /api/subscription/[subscriptionId]
   api.getTx(
-    '/:recurringExpenseId',
+    '/:subscriptionId',
     { response: RecurringExpenseDetails, groupRequired: true },
     (tx, session, { params }) =>
-      getRecurringExpenseDetails(tx, session.group.id, session.user.id, params.recurringExpenseId),
+      getRecurringExpenseDetails(tx, session.group.id, session.user.id, params.subscriptionId),
   );
 
-  // GET /api/subscription/[recurringExpenseId]/template
-  // Get subscription template expense
-  api.getTx(
-    '/:recurringExpenseId/template',
-    { response: UserExpense, groupRequired: true },
-    (tx, session, { params }) =>
-      getRecurringExpenseTemplate(tx, session.group.id, session.user.id, params.recurringExpenseId),
-  );
-
-  // PUT /api/subscription/template/[expenseId]
-  // Update subscription template. Note: template expense id used, not subscription (recurring expense) id
-  api.putTx(
-    '/template/:expenseId',
-    { body: ExpenseInput, response: ExpenseIdResponse, groupRequired: true },
-    (tx, session, { params, body }) =>
-      updateRecurringExpenseTemplate(
-        tx,
-        session.group.id,
-        session.user.id,
-        params.expenseId,
-        body,
-        session.group.defaultSourceId || 0,
-      ),
-  );
-
-  // DELETE /api/subscription/[recurringExpenseId]
-  // Deletes a subscription, leaving the realized expenses in place
+  // DELETE /api/subscription/[subscriptionId]
+  // Ends the subscription (sets occurs_until = today). Realised rows stay.
   api.deleteTx(
-    '/:recurringExpenseId',
+    '/:subscriptionId',
     { response: ApiMessage, groupRequired: true },
     (tx, session, { params }) =>
-      deleteRecurringExpenseById(tx, session.group.id, params.recurringExpenseId),
+      deleteRecurringExpenseById(tx, session.group.id, params.subscriptionId),
   );
 
   return api.router;

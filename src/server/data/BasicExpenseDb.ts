@@ -65,7 +65,7 @@ SELECT
   MIN(title) AS title, MIN(description) AS description, BOOL_AND(confirmed) AS confirmed, MIN(source_id) AS "sourceId",
   MIN(user_id) AS "userId", MIN(created_by_id) AS "createdById", MIN(breakdown.group_id) AS "groupId", MIN(category_id) AS "categoryId",
   MIN(grouping_id) AS "groupingId", MIN(auto_grouping_ids) AS "autoGroupingIds",
-  MIN(created) AS created, MIN(recurring_expense_id) AS "recurringExpenseId",
+  MIN(created) AS created, MIN(subscription_id) AS "subscriptionId",
   SUM(cost) AS "userCost", SUM(benefit) AS "userBenefit", SUM(income) AS "userIncome", SUM(split) AS "userSplit",
   SUM(transferor) AS "userTransferor", SUM(transferee) AS "userTransferee",
   SUM(cost + benefit + income + split + transferor + transferee) AS "userValue"
@@ -73,7 +73,7 @@ FROM (
   SELECT
     e.id, e.date::DATE, e.receiver, e.type, e.sum, e.title, e.description, e.confirmed, e.grouping_id,
     ${AUTO_GROUPING_IDS_SUBQUERY} AS auto_grouping_ids,
-    e.source_id, e.user_id, e.created_by_id, e.group_id, e.category_id, e.created, e.recurring_expense_id,
+    e.source_id, e.user_id, e.created_by_id, e.group_id, e.category_id, e.created, e.subscription_id,
     (CASE WHEN d.type = 'cost' THEN d.sum ELSE '0.00'::NUMERIC END) AS cost,
     (CASE WHEN d.type = 'benefit' THEN d.sum ELSE '0.00'::NUMERIC END) AS benefit,
     (CASE WHEN d.type = 'income' THEN d.sum ELSE '0.00'::NUMERIC END) AS income,
@@ -107,7 +107,7 @@ FROM (
     (CASE WHEN d.type = 'transferee' THEN d.sum ELSE '0.00'::NUMERIC END) AS transferee
   FROM expenses e
   LEFT JOIN expense_division d ON (d.expense_id = e.id AND d.user_id = $/userId/::INTEGER)
-  WHERE e.group_id=$/groupId/::INTEGER AND template=false AND date >= $/startDate/::DATE AND date < $/endDate/::DATE
+  WHERE e.group_id=$/groupId/::INTEGER AND date >= $/startDate/::DATE AND date < $/endDate/::DATE
 ) breakdown
 `;
 
@@ -158,7 +158,7 @@ export async function hasUnconfirmedBefore(
   const s = await tx.one<{ amount: number }>(
     `SELECT COUNT(*) AS amount
       FROM expenses
-      WHERE group_id=$/groupId/ AND template=false AND date < $/startDate/::DATE AND confirmed=false`,
+      WHERE group_id=$/groupId/ AND date < $/startDate/::DATE AND confirmed=false`,
     { groupId, startDate: toISODate(startDate) },
   );
   return s.amount > 0;
@@ -247,17 +247,13 @@ export function setExpenseDataDefaults(expense: Expense | ExpenseInput): Expense
     ...expense,
     description: expense.description || null,
     confirmed: expense.confirmed ?? true,
-    recurringExpenseId: null,
+    subscriptionId: null,
   };
   return data;
 }
 
-export type ExpenseInsert = Omit<
-  Expense,
-  'id' | 'createdById' | 'created' | 'recurringExpenseId' | 'template'
-> & {
-  template?: boolean;
-  recurringExpenseId?: ObjectId | null;
+export type ExpenseInsert = Omit<Expense, 'id' | 'createdById' | 'created' | 'subscriptionId'> & {
+  subscriptionId?: ObjectId | null;
 };
 
 export async function createNewExpense(
@@ -271,19 +267,18 @@ export async function createNewExpense(
       `INSERT INTO expenses (
           created_by_id, user_id, group_id, date, created, type,
           receiver, sum, title, description, confirmed, grouping_id,
-          source_id, category_id, template, recurring_expense_id)
+          source_id, category_id, subscription_id)
         VALUES (
           $/userId/::INTEGER, $/expenseOwnerId/::INTEGER, $/groupId/::INTEGER, $/date/::DATE, NOW(), $/type/::expense_type,
           $/receiver/, $/sum/, $/title/, $/description/, $/confirmed/::BOOLEAN, $/groupingId/,
-          $/sourceId/::INTEGER, $/categoryId/::INTEGER, $/template/::BOOLEAN, $/recurringExpenseId/)
+          $/sourceId/::INTEGER, $/categoryId/::INTEGER, $/subscriptionId/)
         RETURNING id`,
       {
         ...expense,
         userId,
         expenseOwnerId: expense.userId,
         sum: expense.sum.toString(),
-        template: expense.template || false,
-        recurringExpenseId: expense.recurringExpenseId || null,
+        subscriptionId: expense.subscriptionId ?? null,
         groupingId: expense.groupingId,
       },
     )
@@ -363,15 +358,15 @@ async function getRecurrenceOccurence(
   tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
-  recurringExpenseId: ObjectId,
+  subscriptionId: ObjectId,
   first: boolean,
 ): Promise<Expense | undefined> {
   const expense = await tx.map(
     expenseSelectClause(
-      `WHERE recurring_expense_id=$/recurringExpenseId/ AND e.group_id=$/groupId/`,
+      `WHERE subscription_id=$/subscriptionId/ AND e.group_id=$/groupId/`,
       `ORDER BY date ${first ? 'ASC' : 'DESC'} LIMIT 1`,
     ),
-    { recurringExpenseId, userId, groupId },
+    { subscriptionId, userId, groupId },
     dbRowToExpense,
   );
   return expense[0];
@@ -381,12 +376,12 @@ export const getFirstRecurrence = (
   tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
-  recurringExpenseId: ObjectId,
-) => getRecurrenceOccurence(tx, groupId, userId, recurringExpenseId, true);
+  subscriptionId: ObjectId,
+) => getRecurrenceOccurence(tx, groupId, userId, subscriptionId, true);
 
 export const getLastRecurrence = (
   tx: DbTask,
   groupId: ObjectId,
   userId: ObjectId,
-  recurringExpenseId: ObjectId,
-) => getRecurrenceOccurence(tx, groupId, userId, recurringExpenseId, false);
+  subscriptionId: ObjectId,
+) => getRecurrenceOccurence(tx, groupId, userId, subscriptionId, false);

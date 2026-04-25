@@ -7,9 +7,8 @@ import { readableDateWithYear } from 'shared/time';
 import { ObjectId } from 'shared/types';
 import { Money } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
-import { invalidateSubscriptionData, queryClient } from 'client/data/query';
+import { invalidateSubscriptionData } from 'client/data/query';
 import { QueryKeys } from 'client/data/queryKeys';
-import { editExpense } from 'client/data/State';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { Icons } from '../icons/Icons';
@@ -43,9 +42,6 @@ const SubscriptionDetailsRenderer: React.FC<{
       <Tools large>
         {active ? (
           <Group gap={2} wrap="nowrap">
-            <ActionIcon title="Muokkaa" onClick={() => modifySubscription(exp.templateExpenseId)}>
-              <Icons.Edit />
-            </ActionIcon>
             <ActionIcon
               title="Poista"
               visibleFrom="sm"
@@ -76,21 +72,11 @@ function getLabel({
   }: ${Money.from(sum).format()}`;
 }
 
-async function terminateSubscription(recurringExpenseId: ObjectId, title: string) {
-  executeOperation(() => apiConnect.deleteSubscription(recurringExpenseId), {
+async function terminateSubscription(subscriptionId: ObjectId, title: string) {
+  executeOperation(() => apiConnect.deleteSubscription(subscriptionId), {
     confirm: `Haluatko lopettaa tilauksen ${title}?`,
     progress: 'Lopetetaan tilausta...',
     success: 'Tilaus lopetettu!',
     postProcess: () => invalidateSubscriptionData(),
   });
-}
-
-async function modifySubscription(expenseId: ObjectId) {
-  await editExpense(expenseId, {
-    saveAction: async data => {
-      await apiConnect.updateSubscriptionTemplate(expenseId, data);
-      return expenseId;
-    },
-  });
-  queryClient.invalidateQueries({ queryKey: QueryKeys.subscriptions.all });
 }

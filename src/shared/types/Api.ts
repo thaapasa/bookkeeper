@@ -33,8 +33,7 @@ export type CountResponse = z.infer<typeof CountResponse>;
 
 export const RecurringExpenseCreatedResponse = ApiMessage.extend({
   expenseId: ObjectId,
-  templateExpenseId: ObjectId,
-  recurringExpenseId: ObjectId,
+  subscriptionId: ObjectId,
 });
 export type RecurringExpenseCreatedResponse = z.infer<typeof RecurringExpenseCreatedResponse>;
 
@@ -57,7 +56,7 @@ export function isApiMessageWithRecurringExpenseId(
     o !== null &&
     !!o.status &&
     !!o.message &&
-    !!o.recurringExpenseId &&
+    !!o.subscriptionId &&
     !!o.expenseId
   );
 }

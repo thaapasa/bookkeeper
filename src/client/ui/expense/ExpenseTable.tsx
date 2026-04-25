@@ -106,7 +106,7 @@ export const ExpenseTable: React.FC<ExpenseTableProps> = ({
   );
 
   const renderExpenseRows = () => {
-    const [recurring, normal] = partition(e => !!e.recurringExpenseId, filteredExpenses);
+    const [recurring, normal] = partition(e => !!e.subscriptionId, filteredExpenses);
     if (recurring.length < 1) {
       const dayParities = computeDayParities(normal);
       return (

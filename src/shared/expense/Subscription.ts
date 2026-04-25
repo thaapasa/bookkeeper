@@ -56,7 +56,6 @@ export const Subscription = z.object({
   defaults: ExpenseDefaults.optional(),
   nextMissing: ISODate.optional(),
   occursUntil: ISODate.optional(),
-  templateExpenseId: ObjectId.optional(),
   matchedCount: z.number().int(),
   matchedSum: MoneyLike,
   firstDate: ISODate.optional(),

@@ -83,7 +83,7 @@ export const ExpenseInfoTools: React.FC<ExpenseInfoToolsProps> = ({
       <ActionIcon title="Kopioi" onClick={onCopy}>
         <Icons.Copy />
       </ActionIcon>
-      {expense.recurringExpenseId ? null : (
+      {expense.subscriptionId ? null : (
         <ActionIcon title="Muuta toistuvaksi" onClick={createRecurring}>
           <Icons.Repeat />
         </ActionIcon>

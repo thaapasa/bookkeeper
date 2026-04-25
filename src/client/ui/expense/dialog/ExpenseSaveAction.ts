@@ -25,7 +25,7 @@ export const defaultExpenseSaveAction: ExpenseSaveAction = async (expense, origi
   const res = await executeOperation(
     async (): Promise<number | null> => {
       if (original) {
-        if (original.recurringExpenseId) {
+        if (original.subscriptionId) {
           if (!(await saveRecurring(original.id, expense))) {
             // User canceled, break out
             return null;

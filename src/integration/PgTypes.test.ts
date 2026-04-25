@@ -51,9 +51,7 @@ describe('pg type parsers', () => {
   });
 
   it('should preserve expense date as ISODate when reading from expenses table', async () => {
-    const row = await db.oneOrNone<{ date: unknown }>(
-      `SELECT date FROM expenses WHERE template = false LIMIT 1`,
-    );
+    const row = await db.oneOrNone<{ date: unknown }>(`SELECT date FROM expenses LIMIT 1`);
     if (row) {
       expect(typeof row.date).toBe('string');
       expect(ISODateRegExp.test(row.date as string)).toBe(true);
@@ -61,9 +59,7 @@ describe('pg type parsers', () => {
   });
 
   it('should return expense created as ISOTimestamp from expenses table', async () => {
-    const row = await db.oneOrNone<{ created: unknown }>(
-      `SELECT created FROM expenses WHERE template = false LIMIT 1`,
-    );
+    const row = await db.oneOrNone<{ created: unknown }>(`SELECT created FROM expenses LIMIT 1`);
     if (row) {
       expect(typeof row.created).toBe('string');
       expect(row.created).not.toBeInstanceOf(Date);

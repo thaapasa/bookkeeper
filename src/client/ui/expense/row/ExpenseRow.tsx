@@ -134,7 +134,7 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
 
   const deleteExpense = async () => {
     const name = expenseName(expense);
-    if (expense.recurringExpenseId) {
+    if (expense.subscriptionId) {
       return deleteRecurringExpense();
     }
     await executeOperation(() => apiConnect.deleteExpense(expense.id), {
@@ -191,7 +191,7 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
       >
         {/* Date */}
         <Table.Td ta="right" pos="relative" px="xs" onClick={editDate}>
-          {expense.recurringExpenseId ? (
+          {expense.subscriptionId ? (
             <RecurringExpenseIcon className={styles.recurringIcon} />
           ) : null}
           <Text span visibleFrom="sm" pr="xs" fw="bold">
