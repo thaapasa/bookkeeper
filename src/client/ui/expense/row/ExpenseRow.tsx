@@ -1,4 +1,4 @@
-import { ActionIcon, Group, Table, Text } from '@mantine/core';
+import { ActionIcon, Group, Table, Text, Tooltip } from '@mantine/core';
 import * as React from 'react';
 
 import {
@@ -201,11 +201,13 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
         </Table.Td>
         {/* Avatar */}
         <Table.Td>
-          <UserAvatar
-            user={userMap[expense.userId]}
-            size={32}
-            onClick={() => addFilter(e => e.userId === expense.userId, user.firstName)}
-          />
+          <Tooltip label={userMap[expense.userId].firstName}>
+            <UserAvatar
+              user={userMap[expense.userId]}
+              size={32}
+              onClick={() => addFilter(e => e.userId === expense.userId, user.firstName)}
+            />
+          </Tooltip>
         </Table.Td>
         {/* Name */}
         <Table.Td pos="relative">

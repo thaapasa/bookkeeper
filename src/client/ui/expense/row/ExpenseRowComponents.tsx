@@ -1,4 +1,4 @@
-import { UnstyledButton, UnstyledButtonProps } from '@mantine/core';
+import { Tooltip, UnstyledButton, UnstyledButtonProps } from '@mantine/core';
 import * as React from 'react';
 
 import { Source } from 'shared/types';
@@ -24,9 +24,11 @@ export const SourceIcon: React.FC<
     source.name
   );
   return (
-    <TextButton key={source.id} onClick={onClick} {...props}>
-      {content}
-    </TextButton>
+    <Tooltip label={source.name}>
+      <TextButton key={source.id} onClick={onClick} {...props}>
+        {content}
+      </TextButton>
+    </Tooltip>
   );
 };
 

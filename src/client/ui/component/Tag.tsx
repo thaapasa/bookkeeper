@@ -2,6 +2,7 @@ import { Chip, ChipProps } from '@mantine/core';
 import React, { forwardRef } from 'react';
 
 import { Icons } from '../icons/Icons';
+import classes from './Tag.module.css';
 
 export type TagVariant = 'primary' | 'default';
 
@@ -26,6 +27,10 @@ export type TagProps = BaseProps & {
   children: React.ReactNode;
 };
 
+/** Apply via classNames so we can use a descendant selector to ellipsize the
+ *  unstyled span Mantine wraps children in (inline `styles` can't do that). */
+const labelClassNames = { label: classes.label };
+
 export const Tag = forwardRef<HTMLInputElement, TagProps>(function Tag(
   {
     variant = 'default',
@@ -46,6 +51,7 @@ export const Tag = forwardRef<HTMLInputElement, TagProps>(function Tag(
         onChange={checked => (checked ? onSelect?.() : onRemove?.())}
         variant={selected ? 'filled' : 'outline'}
         color="primary"
+        classNames={labelClassNames}
         {...props}
       >
         {children}
@@ -60,10 +66,17 @@ export const Tag = forwardRef<HTMLInputElement, TagProps>(function Tag(
       checked
       readOnly={!removable}
       onChange={removable ? () => onRemove?.() : undefined}
-      icon={removable ? <Icons.Clear size={12} /> : null}
+      icon={
+        removable ? (
+          <Icons.Clear
+            style={{ width: 'var(--chip-icon-size)', height: 'var(--chip-icon-size)' }}
+          />
+        ) : null
+      }
       variant="filled"
       color={variant === 'primary' ? 'primary' : 'neutral'}
       style={removable ? undefined : { cursor: 'default' }}
+      classNames={labelClassNames}
       {...props}
     >
       {children}

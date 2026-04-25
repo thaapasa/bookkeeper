@@ -1,0 +1,16 @@
+/* Allow Chip's label to respect the root's max-width and to shrink below
+   intrinsic content size when caller sets `maw` / `w`. */
+.label {
+  max-width: 100%;
+  min-width: 0;
+}
+
+/* Mantine wraps children in an unstyled <span> as the last child of label.
+   Make that span the truncation context so long labels ellipsize. */
+.label > span:last-child {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
