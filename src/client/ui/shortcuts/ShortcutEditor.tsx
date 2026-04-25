@@ -28,22 +28,26 @@ export function editShortcut(shortcutId: ObjectId) {
   useShortcutDialogStore.getState().setPayload({ shortcutId });
 }
 
-const ShortcutDialogImpl: React.FC<{ shortcutId: ObjectId; onClose: () => void }> = ({
-  shortcutId,
-  onClose,
-}) => (
-  <Modal opened={true} onClose={onClose} size="lg" title="">
-    <QueryBoundary
-      fallback={
-        <Flex align="center" justify="center" p="xl">
-          <Loader size={64} />
-        </Flex>
-      }
-    >
-      <ShortcutDialogContent shortcutId={shortcutId} onClose={onClose} />
-    </QueryBoundary>
-  </Modal>
-);
+export const ShortcutEditor: React.FC = () => {
+  const payload = useShortcutDialogStore(s => s.payload);
+  const onClose = React.useCallback(() => {
+    useShortcutDialogStore.getState().setPayload(null);
+  }, []);
+  if (!payload) return null;
+  return (
+    <Modal opened={true} onClose={onClose} size="lg" title="">
+      <QueryBoundary
+        fallback={
+          <Flex align="center" justify="center" p="xl">
+            <Loader size={64} />
+          </Flex>
+        }
+      >
+        <ShortcutDialogContent shortcutId={payload.shortcutId} onClose={onClose} />
+      </QueryBoundary>
+    </Modal>
+  );
+};
 
 const ShortcutDialogContent: React.FC<{ shortcutId: ObjectId; onClose: () => void }> = ({
   shortcutId,
@@ -134,13 +138,4 @@ const ShortcutEditView: React.FC<{
       </Box>
     </>
   );
-};
-
-export const ShortcutEditor: React.FC = () => {
-  const payload = useShortcutDialogStore(s => s.payload);
-  const onClose = React.useCallback(() => {
-    useShortcutDialogStore.getState().setPayload(null);
-  }, []);
-  if (!payload) return null;
-  return <ShortcutDialogImpl {...payload} onClose={onClose} />;
 };

@@ -51,23 +51,30 @@ export function newExpenseGrouping() {
   useGroupingDialogStore.getState().setPayload({ groupingId: null });
 }
 
-const GroupingDialogImpl: React.FC<{
-  groupingId: ObjectId | null;
-  onClose: () => void;
-  reloadAll: () => void;
-}> = ({ groupingId, onClose, reloadAll }) => (
-  <Modal opened={true} onClose={onClose} size="lg" title="">
-    <QueryBoundary
-      fallback={
-        <Flex align="center" justify="center" p="xl">
-          <Loader size={64} />
-        </Flex>
-      }
-    >
-      <GroupingDialogContent groupingId={groupingId} onClose={onClose} reloadAll={reloadAll} />
-    </QueryBoundary>
-  </Modal>
-);
+export const GroupingEditor: React.FC<{ reloadAll: () => void }> = ({ reloadAll }) => {
+  const payload = useGroupingDialogStore(s => s.payload);
+  const onClose = React.useCallback(() => {
+    useGroupingDialogStore.getState().setPayload(null);
+  }, []);
+  if (!payload) return null;
+  return (
+    <Modal opened={true} onClose={onClose} size="lg" title="">
+      <QueryBoundary
+        fallback={
+          <Flex align="center" justify="center" p="xl">
+            <Loader size={64} />
+          </Flex>
+        }
+      >
+        <GroupingDialogContent
+          groupingId={payload.groupingId}
+          onClose={onClose}
+          reloadAll={reloadAll}
+        />
+      </QueryBoundary>
+    </Modal>
+  );
+};
 
 const GroupingDialogContent: React.FC<{
   groupingId: ObjectId | null;
@@ -239,13 +246,4 @@ const CategorySelectionRow: React.FC<{ id: ObjectId; categoryMap: CategoryMap }>
       </ActionIcon>
     </Group>
   );
-};
-
-export const GroupingEditor: React.FC<{ reloadAll: () => void }> = ({ reloadAll }) => {
-  const payload = useGroupingDialogStore(s => s.payload);
-  const onClose = React.useCallback(() => {
-    useGroupingDialogStore.getState().setPayload(null);
-  }, []);
-  if (!payload) return null;
-  return <GroupingDialogImpl {...payload} onClose={onClose} reloadAll={reloadAll} />;
 };

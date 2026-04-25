@@ -49,23 +49,30 @@ export function newTrackingSubject() {
   useTrackingDialogStore.getState().setPayload({ trackingId: null });
 }
 
-const TrackingDialogImpl: React.FC<{
-  trackingId: ObjectId | null;
-  onClose: () => void;
-  reloadAll: () => void;
-}> = ({ trackingId, onClose, reloadAll }) => (
-  <Modal opened={true} onClose={onClose} size="lg" title="">
-    <QueryBoundary
-      fallback={
-        <Flex align="center" justify="center" p="xl">
-          <Loader size={64} />
-        </Flex>
-      }
-    >
-      <TrackingDialogContent trackingId={trackingId} onClose={onClose} reloadAll={reloadAll} />
-    </QueryBoundary>
-  </Modal>
-);
+export const TrackingEditor: React.FC<{ reloadAll: () => void }> = ({ reloadAll }) => {
+  const payload = useTrackingDialogStore(s => s.payload);
+  const onClose = React.useCallback(() => {
+    useTrackingDialogStore.getState().setPayload(null);
+  }, []);
+  if (!payload) return null;
+  return (
+    <Modal opened={true} onClose={onClose} size="lg" title="">
+      <QueryBoundary
+        fallback={
+          <Flex align="center" justify="center" p="xl">
+            <Loader size={64} />
+          </Flex>
+        }
+      >
+        <TrackingDialogContent
+          trackingId={payload.trackingId}
+          onClose={onClose}
+          reloadAll={reloadAll}
+        />
+      </QueryBoundary>
+    </Modal>
+  );
+};
 
 const TrackingDialogContent: React.FC<{
   trackingId: ObjectId | null;
@@ -266,13 +273,4 @@ const CategorySelectionRow: React.FC<{ id: ObjectId; categoryMap: CategoryMap }>
       </ActionIcon>
     </Group>
   );
-};
-
-export const TrackingEditor: React.FC<{ reloadAll: () => void }> = ({ reloadAll }) => {
-  const payload = useTrackingDialogStore(s => s.payload);
-  const onClose = React.useCallback(() => {
-    useTrackingDialogStore.getState().setPayload(null);
-  }, []);
-  if (!payload) return null;
-  return <TrackingDialogImpl {...payload} onClose={onClose} reloadAll={reloadAll} />;
 };
