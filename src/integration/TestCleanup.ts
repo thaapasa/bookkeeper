@@ -11,7 +11,7 @@ export async function captureTestState(): Promise<TestState> {
   const row = await db.one<{ now: ISOTimestamp; maxCat: number | null; maxRec: number | null }>(
     `SELECT NOW() AS now,
             COALESCE((SELECT MAX(id) FROM categories), 0) AS "maxCat",
-            COALESCE((SELECT MAX(id) FROM recurring_expenses), 0) AS "maxRec"`,
+            COALESCE((SELECT MAX(id) FROM subscriptions), 0) AS "maxRec"`,
   );
   return {
     testStart: row.now,
@@ -22,7 +22,7 @@ export async function captureTestState(): Promise<TestState> {
 
 export async function cleanupTestDataSince(groupId: number, state: TestState): Promise<void> {
   await db.tx(async tx => {
-    // Break expenses → recurring_expenses link before deleting either side.
+    // Break expenses → subscriptions link before deleting either side.
     // Pre-step-5 the FK cascade flowed via the template expense; that path
     // is gone, so the cleanup has to null subscription_id explicitly.
     await tx.none(
@@ -35,7 +35,7 @@ export async function cleanupTestDataSince(groupId: number, state: TestState): P
       testStart: state.testStart,
     });
     await tx.none(
-      `DELETE FROM recurring_expenses
+      `DELETE FROM subscriptions
        WHERE group_id = $/groupId/ AND id > $/maxRecurringId/`,
       { groupId, maxRecurringId: state.maxRecurringId },
     );

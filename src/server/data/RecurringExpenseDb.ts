@@ -103,7 +103,7 @@ const RecurringRowSelect = `--sql
     period_amount AS "periodAmount",
     next_missing AS "nextMissing",
     occurs_until AS "occursUntil"
-    FROM recurring_expenses
+    FROM subscriptions
 `;
 
 function dbRowToRecurringRow(row: RecurringRowDb): RecurringRow {
@@ -310,7 +310,7 @@ export function createRecurringFromExpense(
       const defaults = defaultsFromExpense(expense, division);
       const subscriptionId = (
         await tx.one<{ id: number }>(
-          `INSERT INTO recurring_expenses (period_amount, period_unit, next_missing, group_id, filter, defaults)
+          `INSERT INTO subscriptions (period_amount, period_unit, next_missing, group_id, filter, defaults)
               VALUES ($/periodAmount/, $/periodUnit/, $/nextMissing/::DATE, $/groupId/, $/filter/::JSONB, $/defaults/::JSONB)
               RETURNING id`,
           {
@@ -410,7 +410,7 @@ async function createMissingRecurrences(
     ),
   );
   await tx.none(
-    `UPDATE recurring_expenses
+    `UPDATE subscriptions
         SET next_missing=$/nextMissing/::DATE
         WHERE id=$/subscriptionId/`,
     {
@@ -445,7 +445,7 @@ export function createMissingRecurringExpenses(
       logger.debug('Checking for missing expenses');
       const list = await tx.map<RecurrenceInDb>(
         `SELECT id, defaults, next_missing, occurs_until, period_amount, period_unit
-            FROM recurring_expenses
+            FROM subscriptions
             WHERE group_id=$/groupId/ AND next_missing < $/nextMissing/::DATE`,
         { groupId, nextMissing: date },
         camelCaseObject,
@@ -462,7 +462,7 @@ async function deleteRecurrenceAndExpenses(
   await tx.none(`DELETE FROM expenses WHERE subscription_id=$/subscriptionId/`, {
     subscriptionId,
   });
-  await tx.none(`DELETE FROM recurring_expenses WHERE id=$/subscriptionId/`, {
+  await tx.none(`DELETE FROM subscriptions WHERE id=$/subscriptionId/`, {
     subscriptionId,
   });
   return {
@@ -473,7 +473,7 @@ async function deleteRecurrenceAndExpenses(
 
 async function terminateRecurrenceAt(tx: DbTask, subscriptionId: ObjectId, date: DateLike) {
   await tx.none(
-    `UPDATE recurring_expenses
+    `UPDATE subscriptions
         SET occurs_until=$/date/::date
         WHERE id=$/subscriptionId/`,
     { subscriptionId, date },
@@ -564,7 +564,7 @@ export function updateSubscriptionDefaults(
     { 'app.group_id': groupId, 'app.subscription_id': subscriptionId },
     async () => {
       const res = await tx.result(
-        `UPDATE recurring_expenses
+        `UPDATE subscriptions
             SET defaults = $/defaults/::JSONB
             WHERE id = $/subscriptionId/ AND group_id = $/groupId/`,
         { groupId, subscriptionId, defaults },
@@ -689,7 +689,7 @@ async function updateRecurringExpense(
     division: division.map(d => ({ ...d, sum: Money.toString(d.sum) })),
   };
   await tx.none(
-    `UPDATE recurring_expenses
+    `UPDATE subscriptions
         SET defaults = $/defaults/::JSONB
         WHERE id = $/subscriptionId/`,
     { subscriptionId: original.subscriptionId, defaults: newDefaults },

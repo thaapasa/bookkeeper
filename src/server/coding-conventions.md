@@ -257,13 +257,15 @@ describe('my feature', () => {
 });
 ```
 
-`captureTestState()` records a DB-side `NOW()` and the current `MAX(categories.id)`.
-`cleanupTestDataSince()` then, scoped to the test group:
+`captureTestState()` records a DB-side `NOW()`, the current `MAX(categories.id)`, and
+`MAX(subscriptions.id)`. `cleanupTestDataSince()` then, scoped to the test group:
 
-- NULLs `recurring_expense_id` on test-created expenses (breaks the expense ↔
-  `recurring_expenses` FK cycle).
-- Deletes `expenses` created after the captured timestamp (cascades to
-  `expense_division`, and to `recurring_expenses` via `template_expense_id`).
+- NULLs `subscription_id` on test-created expenses (breaks the FK link to
+  `subscriptions` so the next step can delete the expense).
+- Deletes `expenses` created after the captured timestamp (cascades to `expense_division`).
+- Deletes `subscriptions` rows with `id > maxRecurringId` so test-created
+  recurring/report rows do not leak into later runs (the original cascade via
+  `template_expense_id` is gone now that templates have been removed).
 - Deletes categories with `id > maxCategoryId` (sub-categories first, then top-level —
   `parent_id` has no cascade).
 

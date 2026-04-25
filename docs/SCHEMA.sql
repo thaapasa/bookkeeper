@@ -341,41 +341,6 @@ ALTER SEQUENCE public.knex_migrations_lock_index_seq OWNED BY public.knex_migrat
 
 
 --
--- Name: recurring_expenses; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.recurring_expenses (
-    id integer NOT NULL,
-    group_id integer NOT NULL,
-    period_unit public.recurring_period NOT NULL,
-    occurs_until date,
-    next_missing date,
-    period_amount smallint DEFAULT 1 NOT NULL,
-    filter jsonb NOT NULL,
-    defaults jsonb NOT NULL
-);
-
-
---
--- Name: recurring_expenses_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.recurring_expenses_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: recurring_expenses_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.recurring_expenses_id_seq OWNED BY public.recurring_expenses.id;
-
-
---
 -- Name: reports; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -503,6 +468,41 @@ ALTER SEQUENCE public.sources_id_seq OWNED BY public.sources.id;
 
 
 --
+-- Name: subscriptions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.subscriptions (
+    id integer CONSTRAINT recurring_expenses_id_not_null NOT NULL,
+    group_id integer CONSTRAINT recurring_expenses_group_id_not_null NOT NULL,
+    period_unit public.recurring_period CONSTRAINT recurring_expenses_period_unit_not_null NOT NULL,
+    occurs_until date,
+    next_missing date,
+    period_amount smallint DEFAULT 1 CONSTRAINT recurring_expenses_period_amount_not_null NOT NULL,
+    filter jsonb CONSTRAINT recurring_expenses_filter_not_null NOT NULL,
+    defaults jsonb CONSTRAINT recurring_expenses_defaults_not_null NOT NULL
+);
+
+
+--
+-- Name: subscriptions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.subscriptions_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: subscriptions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.subscriptions_id_seq OWNED BY public.subscriptions.id;
+
+
+--
 -- Name: tracked_subjects; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -625,13 +625,6 @@ ALTER TABLE ONLY public.knex_migrations_lock ALTER COLUMN index SET DEFAULT next
 
 
 --
--- Name: recurring_expenses id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.recurring_expenses ALTER COLUMN id SET DEFAULT nextval('public.recurring_expenses_id_seq'::regclass);
-
-
---
 -- Name: reports id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -650,6 +643,13 @@ ALTER TABLE ONLY public.shortcuts ALTER COLUMN id SET DEFAULT nextval('public.sh
 --
 
 ALTER TABLE ONLY public.sources ALTER COLUMN id SET DEFAULT nextval('public.sources_id_seq'::regclass);
+
+
+--
+-- Name: subscriptions id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.subscriptions ALTER COLUMN id SET DEFAULT nextval('public.subscriptions_id_seq'::regclass);
 
 
 --
@@ -723,14 +723,6 @@ ALTER TABLE ONLY public.knex_migrations
 
 
 --
--- Name: recurring_expenses recurring_expenses_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.recurring_expenses
-    ADD CONSTRAINT recurring_expenses_pkey PRIMARY KEY (id);
-
-
---
 -- Name: reports reports_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -760,6 +752,14 @@ ALTER TABLE ONLY public.shortcuts
 
 ALTER TABLE ONLY public.sources
     ADD CONSTRAINT sources_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: subscriptions subscriptions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.subscriptions
+    ADD CONSTRAINT subscriptions_pkey PRIMARY KEY (id);
 
 
 --
@@ -980,7 +980,7 @@ ALTER TABLE ONLY public.expenses
 --
 
 ALTER TABLE ONLY public.expenses
-    ADD CONSTRAINT expenses_subscription_id_fkey FOREIGN KEY (subscription_id) REFERENCES public.recurring_expenses(id);
+    ADD CONSTRAINT expenses_subscription_id_fkey FOREIGN KEY (subscription_id) REFERENCES public.subscriptions(id);
 
 
 --
@@ -1013,14 +1013,6 @@ ALTER TABLE ONLY public.group_users
 
 ALTER TABLE ONLY public.group_users
     ADD CONSTRAINT group_users_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
-
-
---
--- Name: recurring_expenses recurring_expenses_group_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.recurring_expenses
-    ADD CONSTRAINT recurring_expenses_group_id_fkey FOREIGN KEY (group_id) REFERENCES public.groups(id);
 
 
 --
@@ -1085,6 +1077,14 @@ ALTER TABLE ONLY public.source_users
 
 ALTER TABLE ONLY public.sources
     ADD CONSTRAINT sources_group_id_fkey FOREIGN KEY (group_id) REFERENCES public.users(id);
+
+
+--
+-- Name: subscriptions subscriptions_group_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.subscriptions
+    ADD CONSTRAINT subscriptions_group_id_fkey FOREIGN KEY (group_id) REFERENCES public.groups(id);
 
 
 --
