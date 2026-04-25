@@ -82,7 +82,7 @@ CREATE TABLE public.categories (
     id integer NOT NULL,
     parent_id integer,
     group_id integer NOT NULL,
-    name character varying(50) NOT NULL
+    name text NOT NULL
 );
 
 
@@ -201,9 +201,9 @@ CREATE TABLE public.expenses (
     date date NOT NULL,
     created_by_id integer NOT NULL,
     created timestamp with time zone NOT NULL,
-    receiver character varying(50),
+    receiver text,
     sum numeric(10,2) NOT NULL,
-    title character varying(255),
+    title text,
     source_id integer NOT NULL,
     category_id integer NOT NULL,
     description text,
@@ -251,7 +251,7 @@ CREATE TABLE public.group_users (
 
 CREATE TABLE public.groups (
     id integer NOT NULL,
-    name character varying(128)
+    name text
 );
 
 
@@ -406,11 +406,11 @@ ALTER SEQUENCE public.reports_id_seq OWNED BY public.reports.id;
 --
 
 CREATE TABLE public.sessions (
-    token character varying(40) NOT NULL,
+    token text NOT NULL,
     user_id integer NOT NULL,
     login_time timestamp with time zone NOT NULL,
     expiry_time timestamp with time zone NOT NULL,
-    refresh_token character varying(40)
+    refresh_token text
 );
 
 
@@ -470,9 +470,9 @@ CREATE TABLE public.source_users (
 CREATE TABLE public.sources (
     id integer NOT NULL,
     group_id integer NOT NULL,
-    name character varying(100) NOT NULL,
-    abbreviation character varying(32),
-    image character varying(32) DEFAULT NULL::character varying
+    name text NOT NULL,
+    abbreviation text,
+    image text
 );
 
 
@@ -538,13 +538,13 @@ ALTER SEQUENCE public.tracked_subjects_id_seq OWNED BY public.tracked_subjects.i
 
 CREATE TABLE public.users (
     id integer NOT NULL,
-    username character varying(32) NOT NULL,
-    email character varying(128) NOT NULL,
-    password character varying(40) NOT NULL,
-    first_name character varying(128),
-    last_name character varying(128),
+    username text NOT NULL,
+    email text NOT NULL,
+    password text NOT NULL,
+    first_name text,
+    last_name text,
     default_group_id integer,
-    image character varying(32) DEFAULT NULL::character varying,
+    image text,
     image_dark text
 );
 

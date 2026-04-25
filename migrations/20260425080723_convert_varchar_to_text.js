@@ -1,0 +1,53 @@
+'use strict';
+
+exports.up = knex =>
+  knex.raw(/*sql*/ `
+    ALTER TABLE categories ALTER COLUMN name TYPE TEXT;
+
+    ALTER TABLE expenses ALTER COLUMN receiver TYPE TEXT;
+    ALTER TABLE expenses ALTER COLUMN title TYPE TEXT;
+
+    ALTER TABLE groups ALTER COLUMN name TYPE TEXT;
+
+    ALTER TABLE sessions ALTER COLUMN token TYPE TEXT;
+    ALTER TABLE sessions ALTER COLUMN refresh_token TYPE TEXT;
+
+    ALTER TABLE sources ALTER COLUMN name TYPE TEXT;
+    ALTER TABLE sources ALTER COLUMN abbreviation TYPE TEXT;
+    ALTER TABLE sources ALTER COLUMN image TYPE TEXT;
+    ALTER TABLE sources ALTER COLUMN image DROP DEFAULT;
+
+    ALTER TABLE users ALTER COLUMN username TYPE TEXT;
+    ALTER TABLE users ALTER COLUMN email TYPE TEXT;
+    ALTER TABLE users ALTER COLUMN password TYPE TEXT;
+    ALTER TABLE users ALTER COLUMN first_name TYPE TEXT;
+    ALTER TABLE users ALTER COLUMN last_name TYPE TEXT;
+    ALTER TABLE users ALTER COLUMN image TYPE TEXT;
+    ALTER TABLE users ALTER COLUMN image DROP DEFAULT;
+  `);
+
+exports.down = knex =>
+  knex.raw(/*sql*/ `
+    ALTER TABLE categories ALTER COLUMN name TYPE VARCHAR(50);
+
+    ALTER TABLE expenses ALTER COLUMN receiver TYPE VARCHAR(50);
+    ALTER TABLE expenses ALTER COLUMN title TYPE VARCHAR(255);
+
+    ALTER TABLE groups ALTER COLUMN name TYPE VARCHAR(128);
+
+    ALTER TABLE sessions ALTER COLUMN token TYPE VARCHAR(40);
+    ALTER TABLE sessions ALTER COLUMN refresh_token TYPE VARCHAR(40);
+
+    ALTER TABLE sources ALTER COLUMN name TYPE VARCHAR(100);
+    ALTER TABLE sources ALTER COLUMN abbreviation TYPE VARCHAR(32);
+    ALTER TABLE sources ALTER COLUMN image TYPE VARCHAR(32);
+    ALTER TABLE sources ALTER COLUMN image SET DEFAULT NULL;
+
+    ALTER TABLE users ALTER COLUMN username TYPE VARCHAR(32);
+    ALTER TABLE users ALTER COLUMN email TYPE VARCHAR(128);
+    ALTER TABLE users ALTER COLUMN password TYPE VARCHAR(40);
+    ALTER TABLE users ALTER COLUMN first_name TYPE VARCHAR(128);
+    ALTER TABLE users ALTER COLUMN last_name TYPE VARCHAR(128);
+    ALTER TABLE users ALTER COLUMN image TYPE VARCHAR(32);
+    ALTER TABLE users ALTER COLUMN image SET DEFAULT NULL;
+  `);
