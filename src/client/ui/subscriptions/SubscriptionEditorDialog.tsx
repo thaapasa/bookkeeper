@@ -1,15 +1,19 @@
 import {
+  Anchor,
   Box,
   Button,
   Checkbox,
   Group,
+  Loader,
   Modal,
   Select,
   Stack,
   Tabs,
+  Text,
   Textarea,
   TextInput,
 } from '@mantine/core';
+import { useQuery } from '@tanstack/react-query';
 import * as React from 'react';
 
 import {
@@ -18,14 +22,17 @@ import {
   ExpenseType,
   expenseTypes,
   getExpenseTypeLabel,
+  QuerySummary,
   Subscription,
   SubscriptionUpdate,
 } from 'shared/expense';
+import { readableDateWithYear } from 'shared/time';
 import { ObjectId } from 'shared/types';
 import { Money } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { invalidateSubscriptionData } from 'client/data/query';
 import { useValidSession } from 'client/data/SessionStore';
+import { editExpense } from 'client/data/State';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { CategoryMultiSelector } from '../component/CategoryMultiSelector';
@@ -125,6 +132,7 @@ export const SubscriptionEditorDialog: React.FC<Props> = ({ item, opened, onClos
         <Tabs.List>
           <Tabs.Tab value="general">Yleiset</Tabs.Tab>
           <Tabs.Tab value="filter">Suodatin</Tabs.Tab>
+          <Tabs.Tab value="preview">Esikatselu</Tabs.Tab>
           {hasRecurrence ? <Tabs.Tab value="defaults">Mallikulu</Tabs.Tab> : null}
         </Tabs.List>
 
@@ -147,6 +155,10 @@ export const SubscriptionEditorDialog: React.FC<Props> = ({ item, opened, onClos
             onChange={updateFilter}
             users={session.users.map(u => ({ id: u.id, label: u.firstName }))}
           />
+        </Tabs.Panel>
+
+        <Tabs.Panel value="preview" pt="md">
+          <PreviewPanel filter={state.filter} onClose={onClose} />
         </Tabs.Panel>
 
         {hasRecurrence ? (
@@ -311,6 +323,106 @@ const DefaultsEditor: React.FC<{
     />
   </Stack>
 );
+
+const PREVIEW_LIMIT = 50;
+
+const PreviewPanel: React.FC<{ filter: ExpenseQuery; onClose: () => void }> = ({
+  filter,
+  onClose,
+}) => {
+  const previewFilter = React.useMemo(() => stripBlanks(filter), [filter]);
+  const isEmpty = Object.keys(previewFilter).length === 0;
+
+  const { data, isLoading, isError, error, refetch, isFetching } = useQuery<QuerySummary>({
+    queryKey: ['subscription-preview', previewFilter],
+    queryFn: () => apiConnect.summarizeSubscriptionQuery(previewFilter, { limit: PREVIEW_LIMIT }),
+    enabled: !isEmpty,
+    staleTime: 0,
+  });
+
+  if (isEmpty) {
+    return (
+      <Text size="sm" c="neutral.7">
+        Suodatin on tyhjä — tilaus osuisi kaikkiin kirjauksiin. Lisää vähintään yksi rajaus
+        Suodatin-välilehdellä.
+      </Text>
+    );
+  }
+
+  if (isLoading || (!data && isFetching)) {
+    return (
+      <Group py="xs">
+        Lasketaan ... <Loader size="xs" />
+      </Group>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Stack gap="xs">
+        <Text size="sm" c="red.7">
+          Esikatselu epäonnistui: {error instanceof Error ? error.message : 'Tuntematon virhe'}
+        </Text>
+        <Button variant="subtle" size="xs" onClick={() => refetch()}>
+          Yritä uudelleen
+        </Button>
+      </Stack>
+    );
+  }
+
+  if (!data) return null;
+
+  if (data.count === 0) {
+    return (
+      <Text size="sm" c="neutral.7">
+        Suodatin ei osu yhteenkään kirjaukseen viimeisen viiden vuoden aikana.
+      </Text>
+    );
+  }
+
+  const truncated = data.count > data.matches.length;
+  return (
+    <Stack gap="xs">
+      <Text size="sm" c="neutral.7">
+        {data.count} kirjausta · yhteensä {Money.from(data.sum).format()}
+      </Text>
+      <Stack gap={2}>
+        {data.matches.map(m => (
+          <Group key={m.id} gap="xs" wrap="nowrap" align="center">
+            <Box w={120} ta="left">
+              <Text size="sm">{readableDateWithYear(m.date)}</Text>
+            </Box>
+            <Box flex={1}>
+              <Anchor
+                component="button"
+                size="sm"
+                ta="left"
+                onClick={() => {
+                  onClose();
+                  editExpense(m.id);
+                }}
+                style={{ textAlign: 'left' }}
+              >
+                {m.title}
+                {m.receiver ? ` · ${m.receiver}` : ''}
+              </Anchor>
+            </Box>
+            <Box w={104} ta="right">
+              <Text size="sm" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                {Money.from(m.sum).format()}
+              </Text>
+            </Box>
+          </Group>
+        ))}
+      </Stack>
+      {truncated ? (
+        <Text size="xs" c="neutral.7">
+          Näytetään {data.matches.length} viimeisintä — yhteensä {data.count} osumaa.
+        </Text>
+      ) : null}
+    </Stack>
+  );
+};
 
 function initialState(item: Subscription | undefined): FormState {
   if (!item) return { title: '', filter: {} };

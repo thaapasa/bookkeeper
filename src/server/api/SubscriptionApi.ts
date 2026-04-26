@@ -1,12 +1,12 @@
 import { Router } from 'express';
 
 import {
-  ExpenseQuery,
   QuerySummary,
   SubscriptionCreatedResponse,
   SubscriptionFromFilter,
   SubscriptionMatches,
   SubscriptionMatchesQuery,
+  SubscriptionPreviewRequest,
   SubscriptionResult,
   SubscriptionSearchCriteria,
   SubscriptionUpdate,
@@ -66,8 +66,9 @@ export function createSubscriptionApi() {
   // POST /api/subscription/query-summary
   api.postTx(
     '/query-summary',
-    { body: ExpenseQuery, response: QuerySummary, groupRequired: true },
-    (tx, session, { body }) => summarizeQuery(tx, session.group.id, body),
+    { body: SubscriptionPreviewRequest, response: QuerySummary, groupRequired: true },
+    (tx, session, { body }) =>
+      summarizeQuery(tx, session.group.id, body.filter, body.range, body.limit ?? 0),
   );
 
   // POST /api/subscription/matches

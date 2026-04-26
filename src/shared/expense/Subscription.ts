@@ -84,8 +84,32 @@ export type SubscriptionResult = z.infer<typeof SubscriptionResult>;
 export const QuerySummary = z.object({
   count: z.number().int(),
   sum: MoneyLike,
+  /**
+   * Up to `limit` matched expenses, newest first. Empty when `limit`
+   * is omitted or 0 — callers that only need a headline number
+   * shouldn't pay for the row payload.
+   */
+  matches: z.array(
+    z.object({
+      id: ObjectId,
+      date: ISODate,
+      type: ExpenseType,
+      sum: MoneyLike,
+      title: z.string(),
+      receiver: z.string(),
+      categoryId: ObjectId,
+    }),
+  ),
 });
 export type QuerySummary = z.infer<typeof QuerySummary>;
+
+export const SubscriptionPreviewRequest = z.object({
+  filter: ExpenseQuery,
+  range: RecurrenceInterval.optional(),
+  /** Max number of matched expenses to include. Omit / 0 = none. */
+  limit: z.number().int().min(0).max(500).optional(),
+});
+export type SubscriptionPreviewRequest = z.infer<typeof SubscriptionPreviewRequest>;
 
 export const SubscriptionFromFilter = z.object({
   title: z.string().trim().min(1),

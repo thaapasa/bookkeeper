@@ -19,7 +19,7 @@ import {
   UserExpenseWithDetails,
 } from 'shared/expense';
 import { FetchClient, RequestMethod, RequestSpec, uri } from 'shared/net';
-import { ISODate, timeoutImmediate } from 'shared/time';
+import { ISODate, RecurrenceInterval, timeoutImmediate } from 'shared/time';
 import {
   ApiMessage,
   ApiStatus,
@@ -219,8 +219,13 @@ export class ApiConnect {
       body: { title, filter: filterDefinedProps(filter) },
     });
 
-  public summarizeSubscriptionQuery = (query: ExpenseQuery): Promise<QuerySummary> =>
-    this.post<QuerySummary>(uri`/api/subscription/query-summary`, { body: query });
+  public summarizeSubscriptionQuery = (
+    filter: ExpenseQuery,
+    options?: { limit?: number; range?: RecurrenceInterval },
+  ): Promise<QuerySummary> =>
+    this.post<QuerySummary>(uri`/api/subscription/query-summary`, {
+      body: { filter: filterDefinedProps(filter), ...options },
+    });
 
   public getSubscriptionMatches = (query: SubscriptionMatchesQuery): Promise<SubscriptionMatches> =>
     this.post<SubscriptionMatches>(uri`/api/subscription/matches`, { body: query });

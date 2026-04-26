@@ -76,20 +76,33 @@ export function summarizeQuery(
   groupId: ObjectId,
   query: ExpenseQuery,
   range?: RecurrenceInterval,
+  limit = 0,
 ): Promise<QuerySummary> {
   return withSpan('subscription.query_summary', { 'app.group_id': groupId }, async () => {
     const window = baselineWindow(range);
     const filter = await buildOneFilter(tx, groupId, 0, query);
     const candidates = await fetchCandidateExpenses(tx, groupId, window.startDate, null);
+    const matched: MatchableExpense[] = [];
     let count = 0;
     let sum = Money.from(0);
     for (const expense of candidates) {
       if (scoreFilter(filter, expense) !== null) {
         count += 1;
         sum = sum.plus(expense.sum);
+        if (limit > 0) matched.push(expense);
       }
     }
-    return { count, sum: sum.toString() };
+    matched.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : b.id - a.id));
+    const matches = matched.slice(0, limit).map(e => ({
+      id: e.id,
+      date: e.date,
+      type: e.type,
+      sum: e.sum,
+      title: e.title,
+      receiver: e.receiver,
+      categoryId: e.categoryId,
+    }));
+    return { count, sum: sum.toString(), matches };
   });
 }
 
