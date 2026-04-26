@@ -45,8 +45,8 @@ interface FormState {
 
 const TRI_STATE_OPTIONS = [
   { value: 'any', label: 'Mikä tahansa' },
-  { value: 'true', label: 'Vain vahvistetut' },
-  { value: 'false', label: 'Vain vahvistamattomat' },
+  { value: 'true', label: 'Vain valmiit' },
+  { value: 'false', label: 'Vain alustavat' },
 ];
 
 const TYPE_FILTER_OPTIONS = [
@@ -269,9 +269,10 @@ const DefaultsEditor: React.FC<{
       allowDeselect={false}
     />
     <Checkbox
-      label="Merkitse luodut kirjaukset vahvistetuiksi"
-      checked={defaults.confirmed}
-      onChange={e => onChange({ confirmed: e.currentTarget.checked })}
+      label="Alustava kirjaus"
+      description="Luodut kirjaukset jäävät vahvistettavaksi käsin."
+      checked={!defaults.confirmed}
+      onChange={e => onChange({ confirmed: !e.currentTarget.checked })}
     />
     <Textarea
       label="Kuvaus"
