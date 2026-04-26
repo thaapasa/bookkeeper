@@ -34,6 +34,9 @@ pg_restore --no-owner --no-acl -d "$DB_URL" <$DUMP || exit 1
 echo "Resetting user passwords"
 psql "$DB_URL" -c "UPDATE users set password=encode(digest('salasana', 'sha1'), 'hex');" || exit 1
 
+echo "Refreshing planner statistics"
+psql "$DB_URL" -c "ANALYZE;" || exit 1
+
 rm $DUMP
 
 echo "All done!"
