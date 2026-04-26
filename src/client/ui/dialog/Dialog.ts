@@ -11,20 +11,20 @@ export type DialogSelectOption<T> = {
 
 export type OptionSelectDialogData<T> = {
   type: 'option';
-  description: string;
+  description: React.ReactNode;
   options: DialogSelectOption<T>[];
 };
 
 export type TextPromptDialogData = {
   type: 'text';
-  description: string;
+  description: React.ReactNode;
   initialText?: string;
   editorType?: TextEditorComponent;
 };
 
 export type CategoryPromptDialogData = {
   type: 'category';
-  description: string;
+  description: React.ReactNode;
 };
 
 export type DateSelectDialogData = {

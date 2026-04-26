@@ -5,6 +5,16 @@ export const SubscriptionRow: React.FC<React.PropsWithChildren<GroupProps>> = pr
   <Group gap={4} px="md" wrap="nowrap" align="center" mih={40} w="100%" {...props} />
 );
 
+export const Kind: React.FC<React.PropsWithChildren<BoxProps>> = props => (
+  <Box
+    w={28}
+    ta="center"
+    c="neutral.6"
+    style={{ display: 'flex', justifyContent: 'center' }}
+    {...props}
+  />
+);
+
 export const Title: React.FC<React.PropsWithChildren<BoxProps>> = props => (
   <Box flex="0 0 240px" style={{ overflow: 'hidden', textOverflow: 'ellipsis' }} {...props} />
 );

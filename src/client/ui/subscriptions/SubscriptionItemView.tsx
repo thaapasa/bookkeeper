@@ -1,4 +1,4 @@
-import { ActionIcon, Group, Loader, Menu, Stack, Text } from '@mantine/core';
+import { ActionIcon, Group, List, Loader, Menu, Stack, Text, Tooltip } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import * as React from 'react';
 
@@ -12,8 +12,10 @@ import { executeOperation } from 'client/util/ExecuteOperation';
 import { ExpanderIcon } from '../component/ExpanderIcon';
 import { QueryBoundary } from '../component/QueryBoundary';
 import { Icons } from '../icons/Icons';
-import { NextDate, SubscriptionRow, Subtitle, Sum, Title, Tools } from './SubscriptionLayout';
+import { Kind, NextDate, SubscriptionRow, Subtitle, Sum, Title, Tools } from './SubscriptionLayout';
 import { SubscriptionMatchesView } from './SubscriptionMatchesView';
+
+type SubscriptionKind = 'active' | 'ended' | 'stats';
 
 export const SubscriptionItemView: React.FC<{
   item: Subscription;
@@ -21,17 +23,21 @@ export const SubscriptionItemView: React.FC<{
 }> = ({ item, range }) => {
   const [open, { toggle }] = useDisclosure(false);
   const stale = isStale(item);
-  const ended = !!item.occursUntil || stale;
-  const subtitle = buildSubtitle(item, stale);
+  const kind = subscriptionKind(item, stale);
+  const muted = kind !== 'active';
+  const subtitle = buildSubtitle(item, kind, stale);
 
   return (
     <>
-      <SubscriptionRow bg={ended ? 'surface.1' : undefined} c={ended ? 'neutral.7' : undefined}>
+      <SubscriptionRow bg={muted ? 'surface.1' : undefined} c={muted ? 'neutral.7' : undefined}>
+        <Kind>
+          <KindIcon kind={kind} />
+        </Kind>
         <Title>{item.title}</Title>
         <Subtitle>{subtitle}</Subtitle>
         <Sum>{Money.from(item.recurrencePerMonth).format()} / kk</Sum>
         <Sum>{Money.from(item.recurrencePerYear).format()} / v</Sum>
-        <NextDate>{nextLine(item)}</NextDate>
+        <NextDate>{nextLine(item, kind)}</NextDate>
         <Tools>
           <Group gap={2} wrap="nowrap" justify="flex-end">
             <ExpanderIcon title="Lisätiedot" open={open} onToggle={toggle} />
@@ -45,9 +51,9 @@ export const SubscriptionItemView: React.FC<{
                 <Menu.Item
                   leftSection={<Icons.Delete size={16} />}
                   color="red"
-                  onClick={() => deleteSubscription(item)}
+                  onClick={() => deleteSubscription(item, kind)}
                 >
-                  {isLopetaAction(item) ? 'Lopeta tilaus' : 'Poista tilaus'}
+                  {kind === 'active' ? 'Lopeta tilaus' : 'Poista tilaus'}
                 </Menu.Item>
               </Menu.Dropdown>
             </Menu>
@@ -57,6 +63,35 @@ export const SubscriptionItemView: React.FC<{
       {open ? <ExpandedDetails item={item} range={range} /> : null}
     </>
   );
+};
+
+const KindIcon: React.FC<{ kind: SubscriptionKind }> = ({ kind }) => {
+  switch (kind) {
+    case 'active':
+      return (
+        <Tooltip label="Aktiivinen tilaus — uusia kirjauksia luodaan automaattisesti">
+          <span style={{ display: 'inline-flex' }}>
+            <Icons.Recurring color="var(--mantine-color-primary-6)" />
+          </span>
+        </Tooltip>
+      );
+    case 'ended':
+      return (
+        <Tooltip label="Päättynyt toistuva tilaus — uusia kirjauksia ei enää luoda">
+          <span style={{ display: 'inline-flex' }}>
+            <Icons.Recurring color="var(--mantine-color-neutral-5)" />
+          </span>
+        </Tooltip>
+      );
+    case 'stats':
+      return (
+        <Tooltip label="Tilastotilaus — vain kirjausten ryhmittelyä, ei automaattisia kirjauksia">
+          <span style={{ display: 'inline-flex' }}>
+            <Icons.BarChart color="var(--mantine-color-neutral-6)" />
+          </span>
+        </Tooltip>
+      );
+  }
 };
 
 const ExpandedDetails: React.FC<{
@@ -92,6 +127,12 @@ const ExpandedDetails: React.FC<{
   </Stack>
 );
 
+function subscriptionKind(item: Subscription, stale: boolean): SubscriptionKind {
+  if (!item.recurrence) return 'stats';
+  if (item.occursUntil || stale) return 'ended';
+  return 'active';
+}
+
 /**
  * A recurring subscription that has run dry — `nextMissing` is in the
  * past and no realised rows landed in the current window. The user
@@ -107,7 +148,11 @@ function isStale(item: Subscription): boolean {
   return item.nextMissing < today;
 }
 
-function buildSubtitle(item: Subscription, stale: boolean): React.ReactNode {
+function buildSubtitle(
+  item: Subscription,
+  kind: SubscriptionKind,
+  stale: boolean,
+): React.ReactNode {
   if (item.dominatedBy) {
     return (
       <span>
@@ -116,6 +161,11 @@ function buildSubtitle(item: Subscription, stale: boolean): React.ReactNode {
     );
   }
   const parts: string[] = [];
+  if (kind === 'stats') parts.push('Tilastotilaus');
+  else if (kind === 'active' && item.recurrence)
+    parts.push(`Toistuu ${getPeriodText(item.recurrence)}`);
+  else if (kind === 'ended') parts.push('Päättynyt');
+
   const receiver = filterReceiver(item);
   if (receiver) parts.push(receiver);
   if (item.matchedCount > 0) {
@@ -124,13 +174,11 @@ function buildSubtitle(item: Subscription, stale: boolean): React.ReactNode {
         ? `${readableDateWithYear(item.firstDate)} – ${readableDateWithYear(item.lastDate)}`
         : '';
     parts.push(`${item.matchedCount} kpl${range ? ` · ${range}` : ''}`);
-  } else if (!item.recurrence) {
+  } else if (kind === 'stats') {
     parts.push('Ei kirjauksia tarkasteluikkunassa');
   }
   if (stale) {
     parts.push('Tilaus on ollut hiljaa — lopeta se Toiminnot-valikosta');
-  } else if (item.recurrence) {
-    parts.push(`Toistuu ${getPeriodText(item.recurrence)}`);
   }
   return parts.join(' · ');
 }
@@ -139,8 +187,8 @@ function filterReceiver(item: Subscription): string {
   return item.filter.receiver ?? item.filter.title ?? item.filter.search ?? '';
 }
 
-function nextLine(item: Subscription): string {
-  if (!item.recurrence) return '';
+function nextLine(item: Subscription, kind: SubscriptionKind): string {
+  if (kind === 'stats') return '';
   if (item.occursUntil) return `Päättyi ${readableDateWithYear(item.occursUntil)}`;
   if (item.nextMissing) return `Seur. ${readableDateWithYear(item.nextMissing)}`;
   return '';
@@ -167,21 +215,64 @@ function m(value: number, singular: string, plural: string) {
   return value === 1 ? singular : plural;
 }
 
-function isLopetaAction(item: Subscription): boolean {
-  // Recurring rows that haven't been ended yet get the soft "lopeta"
-  // path; anything else (already ended, or non-recurring) gets a real
-  // delete. Server-side dispatch in deleteRecurringExpenseById mirrors
-  // this so the click does what the label promises.
-  return !!item.recurrence && !item.occursUntil;
-}
-
-async function deleteSubscription(item: Subscription) {
-  const lopeta = isLopetaAction(item);
-  const verb = lopeta ? 'lopettaa' : 'poistaa';
+async function deleteSubscription(item: Subscription, kind: SubscriptionKind) {
+  const lopeta = kind === 'active';
   await executeOperation(() => apiConnect.deleteSubscription(item.rowId), {
-    confirm: `Haluatko ${verb} tilauksen ${item.title}?`,
+    confirmTitle: lopeta ? 'Lopeta tilaus' : 'Poista tilaus',
+    confirm: <DeleteConfirmation item={item} kind={kind} />,
     progress: 'Käsitellään...',
     success: lopeta ? 'Tilaus lopetettu' : 'Tilaus poistettu',
     postProcess: () => invalidateSubscriptionData(),
   });
 }
+
+const DeleteConfirmation: React.FC<{ item: Subscription; kind: SubscriptionKind }> = ({
+  item,
+  kind,
+}) => {
+  return (
+    <Stack gap="sm">
+      <Text>
+        {kind === 'active' ? (
+          <>
+            Lopetetaanko toistuva tilaus <strong>{item.title}</strong>?
+          </>
+        ) : (
+          <>
+            Poistetaanko tilaus <strong>{item.title}</strong>?
+          </>
+        )}
+      </Text>
+      <List size="sm" spacing={4} c="neutral.7">
+        {item.lastDate ? (
+          <List.Item>
+            Viimeinen kirjaus: <strong>{readableDateWithYear(item.lastDate)}</strong>
+          </List.Item>
+        ) : kind !== 'stats' ? (
+          <List.Item>Ei vielä yhtään kirjausta tällä tilauksella.</List.Item>
+        ) : null}
+        {kind === 'active' && item.nextMissing ? (
+          <List.Item c="orange.7">
+            Seuraava kirjaus olisi luotu: <strong>{readableDateWithYear(item.nextMissing)}</strong>{' '}
+            — tätä ei enää luoda.
+          </List.Item>
+        ) : null}
+        {kind === 'ended' && item.occursUntil ? (
+          <List.Item>
+            Tilaus on päättynyt: <strong>{readableDateWithYear(item.occursUntil)}</strong>
+          </List.Item>
+        ) : null}
+        {kind === 'stats' ? (
+          <List.Item>
+            Kirjauksia tarkasteluikkunassa: <strong>{item.matchedCount} kpl</strong>
+          </List.Item>
+        ) : null}
+      </List>
+      <Text size="sm" c="neutral.7">
+        {kind === 'active'
+          ? 'Jo kirjatut kulut säilyvät — uusia kirjauksia ei luoda automaattisesti.'
+          : 'Tilaus poistuu listalta. Aiemmin kirjatut kulut säilyvät.'}
+      </Text>
+    </Stack>
+  );
+};

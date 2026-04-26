@@ -1,3 +1,5 @@
+import * as React from 'react';
+
 import { MaybePromise } from 'shared/util';
 import { notify, notifyError } from 'client/data/NotificationStore';
 import { UserPrompts } from 'client/ui/dialog/DialogState';
@@ -7,7 +9,7 @@ type ExecutionOptions<T> = {
   success?: string | ((v: T) => string);
   errorMessage?: string;
   throw?: boolean;
-  confirm?: string;
+  confirm?: React.ReactNode;
   confirmTitle?: string;
   postProcess?: (t: T) => MaybePromise<any>;
   trackProgress?: (loading: boolean) => void;

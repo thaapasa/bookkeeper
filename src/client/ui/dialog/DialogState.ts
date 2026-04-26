@@ -37,7 +37,7 @@ export const UserPrompts = {
    * Ask the user confirmation from the users with a dialog.
    * Returns a promise that will be resolved to either true of false depending on user input.
    */
-  confirm: (title: string, description: string): Promise<true | false> =>
+  confirm: (title: string, description: React.ReactNode): Promise<true | false> =>
     promptUser({
       type: 'option',
       title,
@@ -52,7 +52,7 @@ export const UserPrompts = {
    */
   select: <T>(
     title: string,
-    description: string,
+    description: React.ReactNode,
     options: DialogSelectOption<T>[],
   ): Promise<T | undefined> =>
     promptUser({
@@ -69,7 +69,7 @@ export const UserPrompts = {
    */
   promptText: (
     title: string,
-    description: string,
+    description: React.ReactNode,
     initialText?: string,
     editorType?: TextEditorComponent,
   ): Promise<string | undefined> =>
@@ -97,7 +97,7 @@ export const UserPrompts = {
    * Ask the user to select a category.
    * Returns a promise that will be resolved to the category that was selected.
    */
-  promptCategory: (title: string, description: string): Promise<ObjectId | undefined> =>
+  promptCategory: (title: string, description: React.ReactNode): Promise<ObjectId | undefined> =>
     promptUser({
       type: 'category',
       title,
