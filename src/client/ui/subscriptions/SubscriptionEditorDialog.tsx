@@ -28,6 +28,7 @@ import { invalidateSubscriptionData } from 'client/data/query';
 import { useValidSession } from 'client/data/SessionStore';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
+import { CategoryMultiSelector } from '../component/CategoryMultiSelector';
 import { CategorySelector } from '../component/CategorySelector';
 import { SourceSelector, SumField } from '../expense/dialog/ExpenseDialogComponents';
 
@@ -159,7 +160,7 @@ const FilterEditor: React.FC<{
 }> = ({ filter, onChange, users }) => {
   const typeValue = filterTypeAsSingle(filter.type);
   const userValue = filter.userId !== undefined ? String(filter.userId) : 'any';
-  const categoryValue = filterCategoryAsSingle(filter.categoryId);
+  const categoryValues = filterCategoryAsArray(filter.categoryId);
   const confirmedValue =
     filter.confirmed === undefined ? 'any' : filter.confirmed ? 'true' : 'false';
 
@@ -172,11 +173,11 @@ const FilterEditor: React.FC<{
         onChange={v => onChange({ type: v && v !== 'any' ? (v as ExpenseType) : undefined })}
         allowDeselect={false}
       />
-      <CategorySelector
-        value={categoryValue ?? 0}
-        onChange={id => onChange({ categoryId: id || undefined })}
-        clearable
-        label="Kategoria"
+      <CategoryMultiSelector
+        value={categoryValues}
+        onChange={ids => onChange({ categoryId: categoryFilterValue(ids) })}
+        label="Kategoriat"
+        description="Tyhjä = kaikki kategoriat. Voit valita useita."
       />
       <Checkbox
         label="Sisällytä alakategoriat"
@@ -298,15 +299,28 @@ function filterTypeAsSingle(t: ExpenseQuery['type']): ExpenseType | undefined {
   return t;
 }
 
-function filterCategoryAsSingle(c: ExpenseQuery['categoryId']): ObjectId | undefined {
-  if (c === undefined) return undefined;
-  return Array.isArray(c) ? c[0] : c;
+function filterCategoryAsArray(c: ExpenseQuery['categoryId']): ObjectId[] {
+  if (c === undefined) return [];
+  return Array.isArray(c) ? c : [c];
+}
+
+/**
+ * Collapse the multi-select state back to the schema's overloaded shape:
+ * an empty selection drops the constraint entirely, a single pick stays
+ * scalar (matches what `createSubscriptionFromFilter` writes), and
+ * multiple picks travel as an array.
+ */
+function categoryFilterValue(ids: ObjectId[]): ExpenseQuery['categoryId'] {
+  if (ids.length === 0) return undefined;
+  if (ids.length === 1) return ids[0];
+  return ids;
 }
 
 function stripBlanks(filter: ExpenseQuery): ExpenseQuery {
   const out: ExpenseQuery = {};
   for (const [k, v] of Object.entries(filter) as [keyof ExpenseQuery, unknown][]) {
     if (v === undefined || v === '' || v === null) continue;
+    if (Array.isArray(v) && v.length === 0) continue;
     (out as Record<string, unknown>)[k] = v;
   }
   return out;
