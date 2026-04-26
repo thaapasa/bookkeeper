@@ -1,4 +1,5 @@
-import { Box, Checkbox } from '@mantine/core';
+import { Box, Button, Checkbox } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import * as React from 'react';
 import { z } from 'zod';
@@ -14,9 +15,11 @@ import { PageTitle } from 'client/ui/design/PageTitle';
 import { QueryBoundary } from '../component/QueryBoundary';
 import { useLocalStorageList } from '../hooks/useList.ts';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import { Icons } from '../icons/Icons';
 import { PageLayout } from '../layout/PageLayout';
 import { SubscriptionCategoryHeader, ToggleCategoryVisibility } from './SubscriptionCategoryHeader';
 import { SubscriptionCriteriaSelector } from './SubscriptionCriteriaSelector';
+import { SubscriptionEditorDialog } from './SubscriptionEditorDialog';
 import { SubscriptionItemView } from './SubscriptionItemView';
 import { groupSubscriptions, sumRecurrenceTotals } from './SubscriptionsData';
 import { TotalsChart, TotalsData } from './TotalsChart';
@@ -24,16 +27,33 @@ import { RecurrenceTotals, SubscriptionGroup } from './types';
 
 export const SubscriptionsPage: React.FC = () => {
   const [criteria, setCriteria] = React.useState<SubscriptionSearchCriteria | undefined>(undefined);
+  const [creatorOpen, { open: openCreator, close: closeCreator }] = useDisclosure(false);
 
   return (
     <PageLayout fullWidth pb="md">
-      <PageTitle padded>Tilaukset</PageTitle>
+      <PageTitle
+        padded
+        tools={
+          <Button
+            variant="filled"
+            size="xs"
+            leftSection={<Icons.Add size={16} />}
+            onClick={openCreator}
+            mr={{ base: 'md', sm: 0 }}
+          >
+            Uusi tilaus
+          </Button>
+        }
+      >
+        Tilaukset
+      </PageTitle>
       <SubscriptionCriteriaSelector onChange={setCriteria} />
       {criteria !== undefined ? (
         <QueryBoundary>
           <SubscriptionsResults criteria={criteria} />
         </QueryBoundary>
       ) : null}
+      <SubscriptionEditorDialog opened={creatorOpen} onClose={closeCreator} />
     </PageLayout>
   );
 };

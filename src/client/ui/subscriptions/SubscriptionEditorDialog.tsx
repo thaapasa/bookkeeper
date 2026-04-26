@@ -33,7 +33,14 @@ import { CategorySelector } from '../component/CategorySelector';
 import { SourceSelector, SumField } from '../expense/dialog/ExpenseDialogComponents';
 
 interface Props {
-  item: Subscription;
+  /**
+   * The subscription to edit, or undefined to open in create mode for a
+   * new stats subscription. New subscriptions can't have a `defaults`
+   * blob — that path stays owned by the expense-row "convert to
+   * recurring" flow — so the Mallikulu tab is implicitly hidden when
+   * `item` is missing.
+   */
+  item?: Subscription;
   opened: boolean;
   onClose: () => void;
 }
@@ -59,7 +66,8 @@ const TYPE_OPTIONS = expenseTypes.map(t => ({ value: t, label: getExpenseTypeLab
 
 export const SubscriptionEditorDialog: React.FC<Props> = ({ item, opened, onClose }) => {
   const session = useValidSession();
-  const hasRecurrence = !!item.recurrence;
+  const isCreate = !item;
+  const hasRecurrence = !!item?.recurrence;
 
   const [state, setState] = React.useState<FormState>(() => initialState(item));
 
@@ -78,6 +86,20 @@ export const SubscriptionEditorDialog: React.FC<Props> = ({ item, opened, onClos
   const canSave = titleValid && defaultsValid;
 
   const save = async () => {
+    if (isCreate) {
+      await executeOperation(
+        () =>
+          apiConnect.createSubscriptionFromFilter(state.title.trim(), stripBlanks(state.filter)),
+        {
+          success: 'Tilaus luotu',
+          postProcess: () => {
+            invalidateSubscriptionData();
+            onClose();
+          },
+        },
+      );
+      return;
+    }
     const update: SubscriptionUpdate = {
       title: state.title.trim(),
       filter: stripBlanks(state.filter),
@@ -93,7 +115,12 @@ export const SubscriptionEditorDialog: React.FC<Props> = ({ item, opened, onClos
   };
 
   return (
-    <Modal opened={opened} onClose={onClose} title="Muokkaa tilausta" size="lg">
+    <Modal
+      opened={opened}
+      onClose={onClose}
+      title={isCreate ? 'Uusi tilastotilaus' : 'Muokkaa tilausta'}
+      size="lg"
+    >
       <Tabs defaultValue="general" keepMounted={false}>
         <Tabs.List>
           <Tabs.Tab value="general">Yleiset</Tabs.Tab>
@@ -285,7 +312,8 @@ const DefaultsEditor: React.FC<{
   </Stack>
 );
 
-function initialState(item: Subscription): FormState {
+function initialState(item: Subscription | undefined): FormState {
+  if (!item) return { title: '', filter: {} };
   return {
     title: item.title,
     filter: { ...item.filter },
