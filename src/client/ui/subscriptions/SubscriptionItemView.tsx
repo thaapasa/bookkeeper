@@ -109,7 +109,7 @@ const ExpandedDetails: React.FC<{
   item: Subscription;
   range: RecurrenceInterval | undefined;
 }> = ({ item, range }) => (
-  <Stack gap={4} px="md" py="xs" bg="surface.0">
+  <Stack gap={4} px="md" bg="surface.0">
     {item.recurrence ? (
       <Text size="sm" c="neutral.7">
         {item.occursUntil

@@ -34,6 +34,7 @@ import { AddFilterFn, ExpenseFilters } from './ExpenseFilters';
 import styles from './ExpenseRow.module.css';
 import { SourceIcon, TextButton } from './ExpenseRowComponents';
 import {
+  ActionsVisibleFrom,
   BalanceVisibleFrom,
   CategoryVisibleFrom,
   ReceiverVisibleFrom,
@@ -194,7 +195,7 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
           {expense.subscriptionId ? (
             <RecurringExpenseIcon className={styles.recurringIcon} />
           ) : null}
-          <Text span visibleFrom="sm" pr="xs" fw="bold">
+          <Text span className={ActionsVisibleFrom} pr="xs" fw="bold">
             {weekDay(expense.date, prev)}
           </Text>
           {readableDate(expense.date)}
@@ -243,7 +244,7 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
           {Money.from(expense.sum).format()}
         </Table.Td>
         {/* Receiver */}
-        <Table.Td visibleFrom={ReceiverVisibleFrom}>
+        <Table.Td className={ReceiverVisibleFrom}>
           <ActivatableTextField
             fullWidth
             value={expense.receiver}
@@ -252,11 +253,9 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
           />
         </Table.Td>
         {/* Category */}
-        <Table.Td visibleFrom={CategoryVisibleFrom}>
-          {fullCategoryLink(expense.categoryId)}
-        </Table.Td>
+        <Table.Td className={CategoryVisibleFrom}>{fullCategoryLink(expense.categoryId)}</Table.Td>
         {/* Source */}
-        <Table.Td visibleFrom={SourceVisibleFrom}>
+        <Table.Td className={SourceVisibleFrom}>
           <SourceIcon
             source={source}
             onClick={() => addFilter(e => e.sourceId === source.id, source.name)}
@@ -266,7 +265,7 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
         <Table.Td
           ta="right"
           pos="relative"
-          visibleFrom={BalanceVisibleFrom}
+          className={BalanceVisibleFrom}
           c={forMoney(expense.userBalance)}
           onClick={() =>
             Money.zero.equals(expense.userBalance)
@@ -284,10 +283,10 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
               open={isDefined(details)}
               onToggle={() => toggleDetails()}
             />
-            <ActionIcon title="Muokkaa" onClick={modifyExpense} visibleFrom="sm">
+            <ActionIcon title="Muokkaa" onClick={modifyExpense} className={ActionsVisibleFrom}>
               <Icons.Edit />
             </ActionIcon>
-            <ActionIcon title="Poista" onClick={deleteExpense} visibleFrom="sm">
+            <ActionIcon title="Poista" onClick={deleteExpense} className={ActionsVisibleFrom}>
               <Icons.Delete />
             </ActionIcon>
           </Group>

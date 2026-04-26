@@ -1,22 +1,34 @@
-import { MantineSize, Table, TableTdProps } from '@mantine/core';
+import { Table, TableTdProps } from '@mantine/core';
 import * as React from 'react';
 
-import { useIsMobilePortrait, useIsTablet } from 'client/ui/hooks/useBreakpoints';
+import styles from './ExpenseRow.module.css';
 
-export const ReceiverVisibleFrom = 'xs' satisfies MantineSize;
-export const CategoryVisibleFrom = 'md' satisfies MantineSize;
-export const SourceVisibleFrom = 'md' satisfies MantineSize;
-export const BalanceVisibleFrom = 'md' satisfies MantineSize;
+/**
+ * Container-query class names mirroring the previous viewport-based
+ * `visibleFrom={...}` props. The expense table sets
+ * `container-type: inline-size`, so columns now hide based on the
+ * table's own width — important for embedding the row in narrow
+ * contexts like the subscription editor's preview tab.
+ */
+export const ReceiverVisibleFrom = styles.hideBelowXs;
+export const CategoryVisibleFrom = styles.hideBelowMd;
+export const SourceVisibleFrom = styles.hideBelowMd;
+export const BalanceVisibleFrom = styles.hideBelowMd;
+export const ActionsVisibleFrom = styles.hideBelowSm;
 
-function useColumnCount(): number {
-  const isMobilePortrait = useIsMobilePortrait(); // xs
-  const isTablet = useIsTablet(); // sm
-  if (isMobilePortrait) return 5;
-  if (isTablet) return 6;
-  return 9;
-}
+/**
+ * Visible column count for the current table. ExpenseTableLayout
+ * measures its wrapper and supplies this so `AllColumns` (used by row
+ * expanders / filter bars / recurring summary) can colspan to the
+ * correct width — the previous viewport-based heuristic was wrong as
+ * soon as the table itself was narrower than the viewport.
+ *
+ * Defaults to 9 (the desktop count) so a row used outside an
+ * ExpenseTableLayout still spans something sane.
+ */
+export const ColumnCountContext = React.createContext<number>(9);
 
 export const AllColumns: React.FC<TableTdProps> = props => {
-  const colSpan = useColumnCount();
+  const colSpan = React.useContext(ColumnCountContext);
   return <Table.Td colSpan={colSpan} {...props} />;
 };

@@ -21,12 +21,12 @@ export function ExpenseHeader() {
       <Table.Th ta="right" w={100}>
         Summa
       </Table.Th>
-      <Table.Th visibleFrom={ReceiverVisibleFrom}>Kohde</Table.Th>
-      <Table.Th visibleFrom={CategoryVisibleFrom}>Kategoria</Table.Th>
-      <Table.Th w={66} visibleFrom={SourceVisibleFrom}>
+      <Table.Th className={ReceiverVisibleFrom}>Kohde</Table.Th>
+      <Table.Th className={CategoryVisibleFrom}>Kategoria</Table.Th>
+      <Table.Th w={66} className={SourceVisibleFrom}>
         Lähde
       </Table.Th>
-      <Table.Th ta="right" w={100} visibleFrom={BalanceVisibleFrom}>
+      <Table.Th ta="right" w={100} className={BalanceVisibleFrom}>
         Balanssi
       </Table.Th>
       <Table.Th ta="right" w={isMobile ? 44 : 130} />

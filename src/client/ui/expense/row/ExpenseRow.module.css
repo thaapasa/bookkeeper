@@ -1,3 +1,22 @@
+/* Container wraps the <Table>; size containment on a <table> element is
+   unreliable across browsers, so the inline-size container lives on a
+   plain block-level wrapper. The actual visibility rules below query
+   that container, so column hiding follows the table's available width
+   rather than the viewport — which matters because the same row markup
+   is reused in narrow contexts like the subscription editor's preview. */
+.tableContainer {
+  container-type: inline-size;
+  container-name: expense-table;
+  /* Inside an @container query, `em` is relative to the container's own
+     font-size, not the root. The table sets fz="sm" so without this
+     line the substituted Mantine breakpoints (e.g. $mantine-breakpoint-xs
+     -> 36em) would resolve against ~14px and trigger ~70px too early.
+     Anchoring the container's font-size to 1rem makes 36em == 36rem,
+     which matches what the same breakpoints mean in @media queries
+     elsewhere in the app. */
+  font-size: 1rem;
+}
+
 .expenseTable {
   white-space: nowrap;
 
@@ -9,6 +28,41 @@
   tbody > tr:not(:last-child) > td {
     border-bottom: 1px solid var(--mantine-color-surface-3);
   }
+}
+
+/* When the table is rendered without a visible header (search results,
+   category expanders, subscription previews) we still need the header
+   row in layout so its <th> widths drive the fixed-table column widths.
+   `visibility: collapse` would have removed it from layout entirely,
+   leaving columns to size by body content; we hide it visually instead. */
+.zeroHeader > tr {
+  height: 0;
+}
+.zeroHeader > tr > th {
+  visibility: hidden;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  height: 0 !important;
+  line-height: 0 !important;
+  font-size: 0 !important;
+  border: 0 !important;
+}
+
+/* Container-query analogues of Mantine's viewport-based visibleFrom={X}.
+   The thresholds reuse Mantine's theme breakpoints so the table tracks
+   the same xs/sm/md scale as the rest of the app. */
+.hideBelowXs { display: none; }
+.hideBelowSm { display: none; }
+.hideBelowMd { display: none; }
+
+@container expense-table (width >= $mantine-breakpoint-xs) {
+  .hideBelowXs { display: revert; }
+}
+@container expense-table (width >= $mantine-breakpoint-sm) {
+  .hideBelowSm { display: revert; }
+}
+@container expense-table (width >= $mantine-breakpoint-md) {
+  .hideBelowMd { display: revert; }
 }
 
 /* Alternating day tint: a half-step between surface.0 (card bg) and surface.1

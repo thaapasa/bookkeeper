@@ -37,6 +37,36 @@ import {
  *   xs=10px, sm=12px, md=14px, lg=16px, xl=18px
  */
 
+/**
+ * Mantine breakpoints in `em` (the unit Mantine itself uses). JS code
+ * that needs a pixel threshold must multiply by the *current* root
+ * font-size — at small viewports `coding-conventions.md` bumps the
+ * root to 18px, so a static px constant would disagree with the same
+ * breakpoints when used in `@media` / `@container` queries. The same
+ * values are also wired into postcss-preset-mantine's config; that
+ * duplication is unavoidable as long as postcss vars are resolved at
+ * build time.
+ */
+export const breakpointEm = {
+  xs: 36,
+  sm: 48,
+  md: 62,
+  lg: 75,
+  xl: 88,
+} as const;
+
+/**
+ * Resolve a Mantine breakpoint to pixels using the *live* root
+ * font-size, so the result always matches what an `@media` /
+ * `@container` query with the same breakpoint would compute right
+ * now. Re-read on every comparison if the breakpoint may straddle
+ * the root font-size scaling boundary.
+ */
+export function breakpointPx(name: keyof typeof breakpointEm): number {
+  const rootPx = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+  return breakpointEm[name] * rootPx;
+}
+
 // Reverse the dark scale so low indices = dark (backgrounds) and high = light (text)
 const darkReversed = [...DEFAULT_THEME.colors.dark].reverse() as unknown as MantineColorsTuple;
 
@@ -168,14 +198,9 @@ export const mantineTheme = createTheme({
     lg: '1rem',
     xl: '1.125rem',
   },
-  /** Mantine default breakpoints, written explicitly for reference */
-  breakpoints: {
-    xs: '36em', // 576px
-    sm: '48em', // 768px
-    md: '62em', // 992px
-    lg: '75em', // 1200px
-    xl: '88em', // 1408px
-  },
+  breakpoints: Object.fromEntries(
+    Object.entries(breakpointEm).map(([k, em]) => [k, `${em}em`]),
+  ) as Record<keyof typeof breakpointEm, string>,
   headings,
   defaultRadius: 'sm',
   components: {
