@@ -1,5 +1,4 @@
 import {
-  Anchor,
   Box,
   Button,
   Checkbox,
@@ -8,6 +7,7 @@ import {
   Modal,
   Select,
   Stack,
+  Table,
   Tabs,
   Text,
   Textarea,
@@ -26,18 +26,18 @@ import {
   Subscription,
   SubscriptionUpdate,
 } from 'shared/expense';
-import { readableDateWithYear } from 'shared/time';
 import { ObjectId } from 'shared/types';
-import { Money } from 'shared/util';
+import { Money, noop } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { invalidateSubscriptionData } from 'client/data/query';
-import { useValidSession } from 'client/data/SessionStore';
-import { editExpense } from 'client/data/State';
+import { useUserData, useValidSession } from 'client/data/SessionStore';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { CategoryMultiSelector } from '../component/CategoryMultiSelector';
 import { CategorySelector } from '../component/CategorySelector';
 import { SourceSelector, SumField } from '../expense/dialog/ExpenseDialogComponents';
+import { ExpenseRow } from '../expense/row/ExpenseRow';
+import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
 
 interface Props {
   /**
@@ -158,7 +158,7 @@ export const SubscriptionEditorDialog: React.FC<Props> = ({ item, opened, onClos
         </Tabs.Panel>
 
         <Tabs.Panel value="preview" pt="md">
-          <PreviewPanel filter={state.filter} onClose={onClose} />
+          <PreviewPanel filter={state.filter} />
         </Tabs.Panel>
 
         {hasRecurrence ? (
@@ -326,10 +326,8 @@ const DefaultsEditor: React.FC<{
 
 const PREVIEW_LIMIT = 50;
 
-const PreviewPanel: React.FC<{ filter: ExpenseQuery; onClose: () => void }> = ({
-  filter,
-  onClose,
-}) => {
+const PreviewPanel: React.FC<{ filter: ExpenseQuery }> = ({ filter }) => {
+  const userData = useUserData()!;
   const previewFilter = React.useMemo(() => stripBlanks(filter), [filter]);
   const isEmpty = Object.keys(previewFilter).length === 0;
 
@@ -386,35 +384,19 @@ const PreviewPanel: React.FC<{ filter: ExpenseQuery; onClose: () => void }> = ({
       <Text size="sm" c="neutral.7">
         {data.count} kirjausta · yhteensä {Money.from(data.sum).format()}
       </Text>
-      <Stack gap={2}>
-        {data.matches.map(m => (
-          <Group key={m.id} gap="xs" wrap="nowrap" align="center">
-            <Box w={120} ta="left">
-              <Text size="sm">{readableDateWithYear(m.date)}</Text>
-            </Box>
-            <Box flex={1}>
-              <Anchor
-                component="button"
-                size="sm"
-                ta="left"
-                onClick={() => {
-                  onClose();
-                  editExpense(m.id);
-                }}
-                style={{ textAlign: 'left' }}
-              >
-                {m.title}
-                {m.receiver ? ` · ${m.receiver}` : ''}
-              </Anchor>
-            </Box>
-            <Box w={104} ta="right">
-              <Text size="sm" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                {Money.from(m.sum).format()}
-              </Text>
-            </Box>
-          </Group>
-        ))}
-      </Stack>
+      <ExpenseTableLayout>
+        <Table.Tbody>
+          {data.matches.map(e => (
+            <ExpenseRow
+              key={e.id}
+              expense={e}
+              userData={userData}
+              addFilter={noop}
+              onUpdated={noop}
+            />
+          ))}
+        </Table.Tbody>
+      </ExpenseTableLayout>
       {truncated ? (
         <Text size="xs" c="neutral.7">
           Näytetään {data.matches.length} viimeisintä — yhteensä {data.count} osumaa.

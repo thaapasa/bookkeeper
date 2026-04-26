@@ -4,7 +4,7 @@ import { RecurrenceInterval } from '../time/RecurrenceInterval';
 import { ISODate } from '../time/Time';
 import { ObjectId } from '../types/Id';
 import { MoneyLike } from '../util/Money';
-import { ExpenseDivision, ExpenseQuery, ExpenseType } from './Expense';
+import { ExpenseDivision, ExpenseQuery, ExpenseType, UserExpense } from './Expense';
 import { RecurrencePeriod } from './Recurrence';
 
 export const SubscriptionSearchCriteria = z.object({
@@ -85,21 +85,13 @@ export const QuerySummary = z.object({
   count: z.number().int(),
   sum: MoneyLike,
   /**
-   * Up to `limit` matched expenses, newest first. Empty when `limit`
-   * is omitted or 0 — callers that only need a headline number
-   * shouldn't pay for the row payload.
+   * Up to `limit` matched expenses (full UserExpense records, newest
+   * first), so the client can render them through the same ExpenseRow
+   * pipeline as the month/search/grouping views. Empty when `limit` is
+   * omitted or 0 — callers that only need a headline number shouldn't
+   * pay for the row payload.
    */
-  matches: z.array(
-    z.object({
-      id: ObjectId,
-      date: ISODate,
-      type: ExpenseType,
-      sum: MoneyLike,
-      title: z.string(),
-      receiver: z.string(),
-      categoryId: ObjectId,
-    }),
-  ),
+  matches: z.array(UserExpense),
 });
 export type QuerySummary = z.infer<typeof QuerySummary>;
 
@@ -151,19 +143,8 @@ export const SubscriptionMatchesQuery = z.object({
 });
 export type SubscriptionMatchesQuery = z.infer<typeof SubscriptionMatchesQuery>;
 
-export const SubscriptionMatch = z.object({
-  id: ObjectId,
-  date: ISODate,
-  type: ExpenseType,
-  sum: MoneyLike,
-  title: z.string(),
-  receiver: z.string(),
-  categoryId: ObjectId,
-});
-export type SubscriptionMatch = z.infer<typeof SubscriptionMatch>;
-
 export const SubscriptionMatches = z.object({
-  matches: z.array(SubscriptionMatch),
+  matches: z.array(UserExpense),
   totalCount: z.number().int(),
   totalSum: MoneyLike,
 });

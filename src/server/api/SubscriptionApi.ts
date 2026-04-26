@@ -68,7 +68,14 @@ export function createSubscriptionApi() {
     '/query-summary',
     { body: SubscriptionPreviewRequest, response: QuerySummary, groupRequired: true },
     (tx, session, { body }) =>
-      summarizeQuery(tx, session.group.id, body.filter, body.range, body.limit ?? 0),
+      summarizeQuery(
+        tx,
+        session.group.id,
+        session.user.id,
+        body.filter,
+        body.range,
+        body.limit ?? 0,
+      ),
   );
 
   // POST /api/subscription/matches

@@ -19,6 +19,7 @@ import { Money } from 'shared/util';
 import { DbTask } from 'server/data/Db.ts';
 import { withSpan } from 'server/telemetry/Spans';
 
+import { getUserExpensesByIds } from './BasicExpenseDb';
 import { expandSubCategories } from './CategoryDb';
 import { getSubscriptionRow, getSubscriptionRows, SubscriptionRow } from './RecurringExpenseDb';
 
@@ -74,36 +75,34 @@ export function searchSubscriptions(
 export function summarizeQuery(
   tx: DbTask,
   groupId: ObjectId,
+  userId: ObjectId,
   query: ExpenseQuery,
   range?: RecurrenceInterval,
   limit = 0,
 ): Promise<QuerySummary> {
-  return withSpan('subscription.query_summary', { 'app.group_id': groupId }, async () => {
-    const window = baselineWindow(range);
-    const filter = await buildOneFilter(tx, groupId, 0, query);
-    const candidates = await fetchCandidateExpenses(tx, groupId, window.startDate, null);
-    const matched: MatchableExpense[] = [];
-    let count = 0;
-    let sum = Money.from(0);
-    for (const expense of candidates) {
-      if (scoreFilter(filter, expense) !== null) {
-        count += 1;
-        sum = sum.plus(expense.sum);
-        if (limit > 0) matched.push(expense);
+  return withSpan(
+    'subscription.query_summary',
+    { 'app.group_id': groupId, 'app.user_id': userId },
+    async () => {
+      const window = baselineWindow(range);
+      const filter = await buildOneFilter(tx, groupId, 0, query);
+      const candidates = await fetchCandidateExpenses(tx, groupId, window.startDate, null);
+      const matched: MatchableExpense[] = [];
+      let count = 0;
+      let sum = Money.from(0);
+      for (const expense of candidates) {
+        if (scoreFilter(filter, expense) !== null) {
+          count += 1;
+          sum = sum.plus(expense.sum);
+          if (limit > 0) matched.push(expense);
+        }
       }
-    }
-    matched.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : b.id - a.id));
-    const matches = matched.slice(0, limit).map(e => ({
-      id: e.id,
-      date: e.date,
-      type: e.type,
-      sum: e.sum,
-      title: e.title,
-      receiver: e.receiver,
-      categoryId: e.categoryId,
-    }));
-    return { count, sum: sum.toString(), matches };
-  });
+      matched.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : b.id - a.id));
+      const visibleIds = matched.slice(0, limit).map(e => e.id);
+      const matches = await getUserExpensesByIds(tx, groupId, userId, visibleIds);
+      return { count, sum: sum.toString(), matches };
+    },
+  );
 }
 
 export function getSubscriptionMatches(
@@ -137,15 +136,8 @@ export function getSubscriptionMatches(
       const totalCount = assigned.length;
       const totalSum = assigned.reduce((acc, e) => acc.plus(e.sum), Money.from(0)).toString();
       const limit = query.limit ?? 200;
-      const matches = assigned.slice(0, limit).map(e => ({
-        id: e.id,
-        date: e.date,
-        type: e.type,
-        sum: e.sum,
-        title: e.title,
-        receiver: e.receiver,
-        categoryId: e.categoryId,
-      }));
+      const visibleIds = assigned.slice(0, limit).map(e => e.id);
+      const matches = await getUserExpensesByIds(tx, groupId, userId, visibleIds);
       return { matches, totalCount, totalSum };
     },
   );

@@ -135,6 +135,29 @@ export async function getAllExpenses(
   return expenses;
 }
 
+/**
+ * Fetch the full UserExpense records for a list of ids, in the order
+ * the ids are provided. Used by the subscription listing/preview paths
+ * so the client can render their matches through the same ExpenseRow
+ * pipeline as the month/search/grouping views.
+ */
+export async function getUserExpensesByIds(
+  tx: DbTask,
+  groupId: number,
+  userId: number,
+  ids: readonly number[],
+): Promise<UserExpense[]> {
+  if (ids.length === 0) return [];
+  const rows = await tx.manyOrNone<UserExpense>(
+    expenseSelectClause(
+      `WHERE e.group_id=$/groupId/ AND e.id IN ($/ids:csv/)`,
+      'ORDER BY date DESC, id DESC',
+    ),
+    { userId, groupId, ids },
+  );
+  return rows.map(dbRowToExpense);
+}
+
 export async function countTotalBetween(
   tx: DbTask,
   groupId: number,
