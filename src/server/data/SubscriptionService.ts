@@ -258,13 +258,13 @@ function buildCardsForRow(
 ): Subscription[] {
   // Recurring rows always live in a single category and become exactly one card.
   if (row.period) {
-    return [buildCard(row, matches, row.categoryId, window, dominatedBy)];
+    return [buildCard(row, matches, row.categoryId, window, dominatedBy, true)];
   }
   // Report-style rows fan out by category — broad filters benefit from a
   // per-category breakdown so the page chart can attribute totals.
   if (matches.length === 0) {
     if (row.categoryId === null) return [];
-    return [buildCard(row, [], row.categoryId, window, dominatedBy)];
+    return [buildCard(row, [], row.categoryId, window, dominatedBy, true)];
   }
   const byCategory = new Map<number, MatchableExpense[]>();
   for (const m of matches) {
@@ -272,9 +272,41 @@ function buildCardsForRow(
     if (list) list.push(m);
     else byCategory.set(m.categoryId, [m]);
   }
-  return Array.from(byCategory.entries()).map(([categoryId, group]) =>
-    buildCard(row, group, categoryId, window, undefined),
+  const entries = Array.from(byCategory.entries());
+  const primaryCategory = pickPrimaryCategory(entries, row.categoryId);
+  return entries.map(([categoryId, group]) =>
+    buildCard(row, group, categoryId, window, undefined, categoryId === primaryCategory),
   );
+}
+
+/**
+ * Pick the single fan-out card that should carry the subscription's
+ * lifecycle actions. Prefer the row's natural `categoryId` if it's in
+ * the fan-out (matches in the filter's own category dominate); else
+ * fall back to the bucket with the highest realised sum, with category
+ * id as a deterministic tiebreaker.
+ */
+function pickPrimaryCategory(
+  entries: readonly [number, MatchableExpense[]][],
+  preferred: ObjectId | null,
+): number {
+  if (preferred !== null && entries.some(([c]) => c === preferred)) return preferred;
+  let bestId = entries[0][0];
+  let bestSum = sumOf(entries[0][1]);
+  for (const [id, group] of entries) {
+    const s = sumOf(group);
+    if (s > bestSum || (s === bestSum && id < bestId)) {
+      bestId = id;
+      bestSum = s;
+    }
+  }
+  return bestId;
+}
+
+function sumOf(matches: readonly MatchableExpense[]): number {
+  let s = 0;
+  for (const m of matches) s += Number(m.sum);
+  return s;
 }
 
 function buildCard(
@@ -283,6 +315,7 @@ function buildCard(
   categoryId: ObjectId | null,
   window: BaselineWindow,
   dominatedBy: { rowId: ObjectId; title: string } | undefined,
+  isPrimary: boolean,
 ): Subscription {
   const stats = aggregate(matches, window.months);
   const cardCategoryId = categoryId ?? 0;
@@ -303,6 +336,7 @@ function buildCard(
     recurrencePerMonth: stats.perMonth.toString(),
     recurrencePerYear: stats.perYear.toString(),
     dominatedBy,
+    isPrimary,
   };
 }
 

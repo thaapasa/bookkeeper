@@ -43,31 +43,35 @@ export const SubscriptionItemView: React.FC<{
         <Tools>
           <Group gap={2} wrap="nowrap" justify="flex-end">
             <ExpanderIcon title="Lisätiedot" open={open} onToggle={toggle} />
-            <Menu shadow="md" width={220} position="bottom-end">
-              <Menu.Target>
-                <ActionIcon variant="subtle" aria-label="Toiminnot">
-                  <Icons.More />
-                </ActionIcon>
-              </Menu.Target>
-              <Menu.Dropdown>
-                <Menu.Item leftSection={<Icons.Edit size={16} />} onClick={openEditor}>
-                  Muokkaa…
-                </Menu.Item>
-                <Menu.Divider />
-                <Menu.Item
-                  leftSection={<Icons.Delete size={16} />}
-                  color="red"
-                  onClick={() => deleteSubscription(item, kind)}
-                >
-                  {kind === 'active' ? 'Lopeta tilaus' : 'Poista tilaus'}
-                </Menu.Item>
-              </Menu.Dropdown>
-            </Menu>
+            {item.isPrimary ? (
+              <Menu shadow="md" width={220} position="bottom-end">
+                <Menu.Target>
+                  <ActionIcon variant="subtle" aria-label="Toiminnot">
+                    <Icons.More />
+                  </ActionIcon>
+                </Menu.Target>
+                <Menu.Dropdown>
+                  <Menu.Item leftSection={<Icons.Edit size={16} />} onClick={openEditor}>
+                    Muokkaa…
+                  </Menu.Item>
+                  <Menu.Divider />
+                  <Menu.Item
+                    leftSection={<Icons.Delete size={16} />}
+                    color="red"
+                    onClick={() => deleteSubscription(item, kind)}
+                  >
+                    {kind === 'active' ? 'Lopeta tilaus' : 'Poista tilaus'}
+                  </Menu.Item>
+                </Menu.Dropdown>
+              </Menu>
+            ) : null}
           </Group>
         </Tools>
       </SubscriptionRow>
       {open ? <ExpandedDetails item={item} range={range} /> : null}
-      <SubscriptionEditorDialog item={item} opened={editorOpen} onClose={closeEditor} />
+      {item.isPrimary ? (
+        <SubscriptionEditorDialog item={item} opened={editorOpen} onClose={closeEditor} />
+      ) : null}
     </>
   );
 };

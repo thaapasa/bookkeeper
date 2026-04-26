@@ -7,7 +7,13 @@ import {
   SubscriptionResult,
   UserExpenseWithDetails,
 } from 'shared/expense';
-import { checkCreateStatus, fetchExpense, logoutSession, newExpense } from 'shared/expense/test';
+import {
+  checkCreateStatus,
+  fetchExpense,
+  logoutSession,
+  newCategory,
+  newExpense,
+} from 'shared/expense/test';
 import { uri } from 'shared/net';
 import { createTestClient, SessionWithControl } from 'shared/net/test';
 import { ISODate } from 'shared/time';
@@ -362,6 +368,62 @@ describe('subscription lifecycle', () => {
     const card = result.find(c => c.rowId === subscriptionId);
     expect(card).toBeDefined();
     expect(card?.occursUntil).toBeDefined();
+    // Recurring rows produce a single card; it always carries actions.
+    expect(card?.isPrimary).toBe(true);
+  });
+
+  it('marks exactly one fan-out card as primary for a stats subscription', async () => {
+    // Build a fresh category tree so we don't interact with seed data:
+    // one root, two subcategories. A stats sub with includeSubCategories
+    // fans out to one card per matched subcategory; only one of those
+    // should carry the lifecycle actions.
+    const root = await newCategory(session, { name: 'TestRoot', parentId: 0 });
+    const subA = await newCategory(session, {
+      name: 'TestSubA',
+      parentId: root.categoryId!,
+    });
+    const subB = await newCategory(session, {
+      name: 'TestSubB',
+      parentId: root.categoryId!,
+    });
+
+    // Two expenses in subA (higher sum), one in subB. Dates inside the
+    // 5y dedup window so the fan-out actually picks them up.
+    await newExpense(session, {
+      sum: '50.00',
+      date: '2026-02-01',
+      categoryId: subA.categoryId!,
+    });
+    await newExpense(session, {
+      sum: '60.00',
+      date: '2026-02-02',
+      categoryId: subA.categoryId!,
+    });
+    await newExpense(session, {
+      sum: '40.00',
+      date: '2026-02-03',
+      categoryId: subB.categoryId!,
+    });
+
+    const created = await session.post<{ subscriptionId: number }>(
+      '/api/subscription/from-filter',
+      {
+        title: 'TestRoot stats',
+        filter: { categoryId: root.categoryId!, includeSubCategories: true },
+      },
+    );
+    const rowId = created.subscriptionId;
+
+    const result = await session.post<SubscriptionResult>('/api/subscription/search', {
+      includeEnded: true,
+    });
+    const cards = result.filter(c => c.rowId === rowId);
+    expect(cards.length).toBe(2);
+    const primaries = cards.filter(c => c.isPrimary);
+    expect(primaries).toHaveLength(1);
+    // row.categoryId points at TestRoot, which has no direct matches —
+    // so the highest-sum bucket (subA) wins the primary spot.
+    expect(primaries[0].categoryId).toBe(subA.categoryId!);
   });
 
   it('does not point dominatedBy at a row that is filtered out of view', async () => {
