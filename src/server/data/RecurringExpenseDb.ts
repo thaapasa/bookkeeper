@@ -11,11 +11,11 @@ import {
   RecurrenceUnit,
   RecurringExpenseInput,
   RecurringExpenseTarget,
+  SubscriptionUpdate,
 } from 'shared/expense';
 import { DateLike, ISODate, toDateTime, toISODate } from 'shared/time';
 import {
   ApiMessage,
-  ExpenseIdResponse,
   InvalidExpense,
   InvalidInputError,
   NotFoundError,
@@ -493,26 +493,42 @@ export function createSubscriptionFromFilter(
   );
 }
 
-export function updateSubscriptionDefaults(
+export function updateSubscription(
   tx: DbTask,
   groupId: ObjectId,
   subscriptionId: ObjectId,
-  defaults: ExpenseDefaults,
-): Promise<ExpenseIdResponse> {
+  update: SubscriptionUpdate,
+): Promise<ApiMessage> {
   return withSpan(
-    'recurring.update_defaults',
+    'subscription.update',
     { 'app.group_id': groupId, 'app.subscription_id': subscriptionId },
     async () => {
+      const sets: string[] = [];
+      const params: Record<string, unknown> = { groupId, subscriptionId };
+      if (update.title !== undefined) {
+        sets.push(`title = $/title/`);
+        params.title = update.title;
+      }
+      if (update.filter !== undefined) {
+        sets.push(`filter = $/filter/::JSONB`);
+        params.filter = update.filter;
+      }
+      if (update.defaults !== undefined) {
+        sets.push(`defaults = $/defaults/::JSONB`);
+        params.defaults = update.defaults;
+      }
+      if (sets.length === 0) {
+        return { status: 'OK', message: 'Subscription unchanged' };
+      }
       const res = await tx.result(
-        `UPDATE subscriptions
-            SET defaults = $/defaults/::JSONB
+        `UPDATE subscriptions SET ${sets.join(', ')}
             WHERE id = $/subscriptionId/ AND group_id = $/groupId/`,
-        { groupId, subscriptionId, defaults },
+        params,
       );
       if (res.rowCount === 0) {
         throw new NotFoundError('SUBSCRIPTION_NOT_FOUND', 'subscription', subscriptionId);
       }
-      return { status: 'OK', message: 'Subscription defaults updated', expenseId: subscriptionId };
+      return { status: 'OK', message: 'Subscription updated' };
     },
   );
 }

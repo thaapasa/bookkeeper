@@ -14,6 +14,7 @@ import {
   SubscriptionMatchesQuery,
   SubscriptionResult,
   SubscriptionSearchCriteria,
+  SubscriptionUpdate,
   UserExpense,
   UserExpenseWithDetails,
 } from 'shared/expense';
@@ -204,6 +205,14 @@ export class ApiConnect {
 
   public deleteSubscription = (id: ObjectId): Promise<ApiMessage> =>
     this.delete<ApiMessage>(uri`/api/subscription/${id}`);
+
+  public updateSubscription = (id: ObjectId, update: SubscriptionUpdate): Promise<ApiMessage> =>
+    this.patch<ApiMessage>(uri`/api/subscription/${id}`, {
+      body: {
+        ...update,
+        ...(update.filter ? { filter: filterDefinedProps(update.filter) } : {}),
+      },
+    });
 
   public createSubscriptionFromFilter = (title: string, filter: ExpenseQuery) =>
     this.post<SubscriptionCreatedResponse>(uri`/api/subscription/from-filter`, {

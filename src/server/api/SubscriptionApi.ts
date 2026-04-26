@@ -9,11 +9,13 @@ import {
   SubscriptionMatchesQuery,
   SubscriptionResult,
   SubscriptionSearchCriteria,
+  SubscriptionUpdate,
 } from 'shared/expense';
 import { ApiMessage } from 'shared/types';
 import {
   createSubscriptionFromFilter,
   deleteRecurringExpenseById,
+  updateSubscription,
 } from 'server/data/RecurringExpenseDb';
 import {
   getSubscriptionMatches,
@@ -82,6 +84,16 @@ export function createSubscriptionApi() {
     { response: ApiMessage, groupRequired: true },
     (tx, session, { params }) =>
       deleteRecurringExpenseById(tx, session.group.id, params.subscriptionId),
+  );
+
+  // PATCH /api/subscription/[subscriptionId]
+  // Partial update of title / filter / defaults. Recurrence cadence and
+  // occurs_until are owned by other flows and not touched here.
+  api.patchTx(
+    '/:subscriptionId',
+    { body: SubscriptionUpdate, response: ApiMessage, groupRequired: true },
+    (tx, session, { body, params }) =>
+      updateSubscription(tx, session.group.id, params.subscriptionId, body),
   );
 
   return api.router;

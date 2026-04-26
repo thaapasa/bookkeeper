@@ -19,6 +19,9 @@ export function createTestClient(opts: { baseUrl?: string; logger?: Logger }) {
   const post = <T>(token: string, path: string, data: any) =>
     client.post<T>(path, { body: data, headers: authHeader(token) });
 
+  const patch = <T>(token: string, path: string, data: any) =>
+    client.patch<T>(path, { body: data, headers: authHeader(token) });
+
   const del = <T>(token: string, path: string, query?: Record<string, any>) =>
     client.delete<T>(path, { query, headers: authHeader(token) });
 
@@ -28,6 +31,7 @@ export function createTestClient(opts: { baseUrl?: string; logger?: Logger }) {
     logout: () => del(s.token, '/api/session'),
     put: (path, data) => put(s.token, path, data),
     post: (path, data) => post(s.token, path, data),
+    patch: (path, data) => patch(s.token, path, data),
     del: (path, query) => del(s.token, path, query),
   });
 
@@ -40,6 +44,7 @@ export function createTestClient(opts: { baseUrl?: string; logger?: Logger }) {
     get,
     put,
     post,
+    patch,
     del,
     login,
     refresh,
@@ -58,5 +63,6 @@ export interface SessionWithControl extends Session {
   logout: () => Promise<void>;
   put: <T>(path: string, data: any) => Promise<T>;
   post: <T>(path: string, data: any) => Promise<T>;
+  patch: <T>(path: string, data: any) => Promise<T>;
   del: (path: string, query?: Record<string, any>) => Promise<void>;
 }

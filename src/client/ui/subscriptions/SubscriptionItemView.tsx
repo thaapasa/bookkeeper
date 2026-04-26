@@ -12,6 +12,7 @@ import { executeOperation } from 'client/util/ExecuteOperation';
 import { ExpanderIcon } from '../component/ExpanderIcon';
 import { QueryBoundary } from '../component/QueryBoundary';
 import { Icons } from '../icons/Icons';
+import { SubscriptionEditorDialog } from './SubscriptionEditorDialog';
 import { Kind, NextDate, SubscriptionRow, Subtitle, Sum, Title, Tools } from './SubscriptionLayout';
 import { SubscriptionMatchesView } from './SubscriptionMatchesView';
 
@@ -22,6 +23,7 @@ export const SubscriptionItemView: React.FC<{
   range?: RecurrenceInterval;
 }> = ({ item, range }) => {
   const [open, { toggle }] = useDisclosure(false);
+  const [editorOpen, { open: openEditor, close: closeEditor }] = useDisclosure(false);
   const stale = isStale(item);
   const kind = subscriptionKind(item, stale);
   const muted = kind !== 'active';
@@ -48,6 +50,10 @@ export const SubscriptionItemView: React.FC<{
                 </ActionIcon>
               </Menu.Target>
               <Menu.Dropdown>
+                <Menu.Item leftSection={<Icons.Edit size={16} />} onClick={openEditor}>
+                  Muokkaa…
+                </Menu.Item>
+                <Menu.Divider />
                 <Menu.Item
                   leftSection={<Icons.Delete size={16} />}
                   color="red"
@@ -61,6 +67,7 @@ export const SubscriptionItemView: React.FC<{
         </Tools>
       </SubscriptionRow>
       {open ? <ExpandedDetails item={item} range={range} /> : null}
+      <SubscriptionEditorDialog item={item} opened={editorOpen} onClose={closeEditor} />
     </>
   );
 };

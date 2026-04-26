@@ -84,6 +84,20 @@ export const SubscriptionFromFilter = z.object({
 });
 export type SubscriptionFromFilter = z.infer<typeof SubscriptionFromFilter>;
 
+/**
+ * Partial subscription edit. Any field omitted is left as-is on the
+ * server. Recurrence period and `occurs_until` are intentionally not
+ * editable — changing the cadence on a row that already has realised
+ * expenses has no clean meaning, and `occurs_until` is owned by the
+ * Lopeta / target=after flows.
+ */
+export const SubscriptionUpdate = z.object({
+  title: z.string().trim().min(1).optional(),
+  filter: ExpenseQuery.optional(),
+  defaults: ExpenseDefaults.optional(),
+});
+export type SubscriptionUpdate = z.infer<typeof SubscriptionUpdate>;
+
 export const SubscriptionCreatedResponse = z.object({
   status: z.literal('OK'),
   message: z.string(),

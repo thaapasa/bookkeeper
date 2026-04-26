@@ -284,4 +284,62 @@ describe('subscription lifecycle', () => {
     });
     expect(stillExisting).toBeNull();
   });
+
+  it('PATCH updates only the fields provided', async () => {
+    const { subscriptionId } = await createMonthlyRecurring(session, '2017-01-01');
+    const before = await readSubscription(subscriptionId);
+    expect(before?.defaults?.title).toBe('Subscription test');
+
+    // Title-only patch.
+    await session.patch<ApiMessage>(uri`/api/subscription/${subscriptionId}`, {
+      title: 'Renamed subscription',
+    });
+    let after = await readSubscription(subscriptionId);
+    expect(after?.defaults?.title).toBe('Subscription test');
+    expect(before?.defaults?.sum).toBe(after?.defaults?.sum);
+
+    // Filter-only patch.
+    await session.patch<ApiMessage>(uri`/api/subscription/${subscriptionId}`, {
+      filter: { receiver: 'Updated receiver', categoryId: 1 },
+    });
+    after = await readSubscription(subscriptionId);
+    expect(after?.defaults?.title).toBe('Subscription test');
+
+    // Defaults-only patch — adjust the template's title and sum.
+    await session.patch<ApiMessage>(uri`/api/subscription/${subscriptionId}`, {
+      defaults: {
+        ...before!.defaults!,
+        title: 'New template title',
+        sum: '500.00',
+      },
+    });
+    after = await readSubscription(subscriptionId);
+    expect(after?.defaults?.title).toBe('New template title');
+    expect(after?.defaults?.sum).toBe('500.00');
+  });
+
+  it('PATCH does not change occurs_until or recurrence period', async () => {
+    const { subscriptionId } = await createMonthlyRecurring(session, '2017-01-01');
+    await session.del(uri`/api/subscription/${subscriptionId}`); // soft Lopeta
+    const ended = await readSubscription(subscriptionId);
+    expect(ended?.occursUntil).not.toBeNull();
+    expect(ended?.periodAmount).toBe(1);
+
+    await session.patch<ApiMessage>(uri`/api/subscription/${subscriptionId}`, {
+      title: 'Touched while ended',
+    });
+    const after = await readSubscription(subscriptionId);
+    expect(after?.occursUntil).toBe(ended?.occursUntil ?? null);
+    expect(after?.periodAmount).toBe(1);
+    expect(after?.periodUnit).toBe('months');
+  });
+
+  it('PATCH rejects empty title', async () => {
+    const { subscriptionId } = await createMonthlyRecurring(session, '2017-01-01');
+    await expect(
+      session.patch<ApiMessage>(uri`/api/subscription/${subscriptionId}`, {
+        title: '   ',
+      }),
+    ).rejects.toMatchObject({ status: 400 });
+  });
 });
