@@ -4,6 +4,7 @@ import {
   ExpenseCollection,
   ExpenseDefaults,
   ExpenseInput,
+  SubscriptionResult,
   UserExpenseWithDetails,
 } from 'shared/expense';
 import { checkCreateStatus, fetchExpense, logoutSession, newExpense } from 'shared/expense/test';
@@ -341,5 +342,62 @@ describe('subscription lifecycle', () => {
         title: '   ',
       }),
     ).rejects.toMatchObject({ status: 400 });
+  });
+
+  it('search hides ended rows when includeEnded=false', async () => {
+    const { subscriptionId } = await createMonthlyRecurring(session, '2017-01-01');
+    await session.del(uri`/api/subscription/${subscriptionId}`); // soft Lopeta
+    const result = await session.post<SubscriptionResult>('/api/subscription/search', {
+      includeEnded: false,
+    });
+    expect(result.find(c => c.rowId === subscriptionId)).toBeUndefined();
+  });
+
+  it('search keeps ended rows visible when includeEnded=true', async () => {
+    const { subscriptionId } = await createMonthlyRecurring(session, '2017-01-01');
+    await session.del(uri`/api/subscription/${subscriptionId}`); // soft Lopeta
+    const result = await session.post<SubscriptionResult>('/api/subscription/search', {
+      includeEnded: true,
+    });
+    const card = result.find(c => c.rowId === subscriptionId);
+    expect(card).toBeDefined();
+    expect(card?.occursUntil).toBeDefined();
+  });
+
+  it('does not point dominatedBy at a row that is filtered out of view', async () => {
+    // Two recurring rows with identical filters (same category + receiver):
+    // older one wins the tiebreak and owns both expenses, newer one is
+    // dominated. End the older one — when the search excludes ended
+    // rows, the newer row's `dominatedBy` must not dangle at the
+    // invisible elder. Dates must fall inside the 5y dedup window.
+    const { subscriptionId: oldId } = await createMonthlyRecurring(session, '2026-01-01');
+    const created = await newExpense(session, {
+      sum: '100.00',
+      title: 'Subscription test',
+      date: '2026-01-02',
+      confirmed: false,
+    });
+    const newerExpenseId = checkCreateStatus(created);
+    const recurring = await session.post<RecurringExpenseCreatedResponse>(
+      uri`/api/expense/recurring/${newerExpenseId}`,
+      { period: { amount: 1, unit: 'months' } },
+    );
+    const newerId = recurring.subscriptionId ?? 0;
+
+    // Sanity check: with includeEnded=true the elder still dominates.
+    const beforeLopeta = await session.post<SubscriptionResult>('/api/subscription/search', {
+      includeEnded: true,
+    });
+    expect(beforeLopeta.find(c => c.rowId === newerId)?.dominatedBy?.rowId).toBe(oldId);
+
+    await session.del(uri`/api/subscription/${oldId}`); // Lopeta the elder
+
+    const hidden = await session.post<SubscriptionResult>('/api/subscription/search', {
+      includeEnded: false,
+    });
+    expect(hidden.find(c => c.rowId === oldId)).toBeUndefined();
+    const newerCardHidden = hidden.find(c => c.rowId === newerId);
+    expect(newerCardHidden).toBeDefined();
+    expect(newerCardHidden?.dominatedBy).toBeUndefined();
   });
 });

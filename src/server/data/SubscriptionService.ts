@@ -48,14 +48,20 @@ export function searchSubscriptions(
       const wins = assignExpensesToSubscriptions(candidates, filters);
       const expenseToOwner = invertWins(wins);
 
+      // Only point dominator references at rows that survive the
+      // display filter — a "Päällekkäinen tilauksen kanssa: X" notice
+      // for an X that's invisible in the result is just confusing.
+      const visibleRowIds = new Set(
+        rows.filter(r => rowPassesDisplay(r, criteria, userId, types)).map(r => r.id),
+      );
       const rowsById = new Map(rows.map(r => [r.id, r]));
       const cards: Subscription[] = [];
       for (const row of rows) {
-        if (!rowPassesDisplay(row, criteria, userId, types)) continue;
+        if (!visibleRowIds.has(row.id)) continue;
         const ownedRows = wins.get(row.id) ?? [];
         const dominator =
           ownedRows.length === 0
-            ? findDominator(row, filters, candidates, expenseToOwner, rowsById)
+            ? findDominator(row, filters, candidates, expenseToOwner, rowsById, visibleRowIds)
             : null;
         const dominatedBy = dominator ? { rowId: dominator.id, title: dominator.title } : undefined;
         cards.push(...buildCardsForRow(row, ownedRows, window, dominatedBy));
@@ -372,6 +378,7 @@ function findDominator(
   candidates: readonly MatchableExpense[],
   expenseToOwner: Map<number, number>,
   rowsById: Map<number, SubscriptionRow>,
+  visibleRowIds: ReadonlySet<number>,
 ): SubscriptionRowLite | null {
   const ownFilter = filters.find(f => f.id === row.id);
   if (!ownFilter) return null;
@@ -379,6 +386,7 @@ function findDominator(
     if (scoreFilter(ownFilter, expense) === null) continue;
     const ownerId = expenseToOwner.get(expense.id);
     if (ownerId === undefined || ownerId === row.id) continue;
+    if (!visibleRowIds.has(ownerId)) continue;
     const owner = rowsById.get(ownerId);
     if (!owner) continue;
     return { id: owner.id, title: owner.title };
