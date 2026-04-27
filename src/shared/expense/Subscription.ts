@@ -48,7 +48,13 @@ export const Subscription = z.object({
   id: z.string(),
   rowId: ObjectId,
   title: z.string(),
-  categoryId: ObjectId,
+  /**
+   * The category bucket this card lives in. `null` for cards whose
+   * underlying subscription has no category constraint and that didn't
+   * fan out to a per-category breakdown — the UI groups those into a
+   * dedicated "uncategorized" section.
+   */
+  categoryId: ObjectId.nullable(),
   filter: ExpenseQuery,
   recurrence: RecurrencePeriod.optional(),
   defaults: ExpenseDefaults.optional(),
@@ -129,6 +135,21 @@ export const SubscriptionCreatedResponse = z.object({
   subscriptionId: ObjectId,
 });
 export type SubscriptionCreatedResponse = z.infer<typeof SubscriptionCreatedResponse>;
+
+/**
+ * Caller-asserted intent for `DELETE /api/subscription/:id`. The server
+ * derives the actual operation from the row's state (ongoing recurring
+ * → soft "end"; everything else → hard "delete") and rejects with 409
+ * when the asserted mode disagrees — guards against UI races where two
+ * rapid clicks would otherwise silently escalate "Lopeta" into "Poista".
+ */
+export const SubscriptionDeleteMode = z.enum(['end', 'delete']);
+export type SubscriptionDeleteMode = z.infer<typeof SubscriptionDeleteMode>;
+
+export const SubscriptionDeleteQuery = z.object({
+  mode: SubscriptionDeleteMode,
+});
+export type SubscriptionDeleteQuery = z.infer<typeof SubscriptionDeleteQuery>;
 
 export const SubscriptionMatchesQuery = z.object({
   rowId: ObjectId,

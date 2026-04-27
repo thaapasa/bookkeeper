@@ -180,7 +180,7 @@ export async function expandSubCategories(tx: DbTask, groupId: number, inputCate
   const cats = await tx.manyOrNone<{ id: number }>(
     `SELECT id FROM categories
         WHERE group_id = $/groupId/
-        AND id IN ($/ids:csv/) OR parent_id IN ($/ids:csv/)`,
+        AND (id IN ($/ids:csv/) OR parent_id IN ($/ids:csv/))`,
     { ids: inputCategoryIds, groupId },
   );
   return cats.map(c => c.id);

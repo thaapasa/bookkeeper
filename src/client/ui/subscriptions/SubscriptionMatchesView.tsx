@@ -44,6 +44,7 @@ export const SubscriptionMatchesView: React.FC<{
               userData={userData}
               addFilter={noop}
               onUpdated={noop}
+              editable={false}
             />
           ))}
         </Table.Tbody>
@@ -67,8 +68,9 @@ function matchesQueryFor(
     // Non-recurring subscriptions fan out one card per category —
     // narrow matches to that category so the expander only shows rows
     // belonging to *this* card. Recurring cards always span a single
-    // category, so passing it is harmless.
-    categoryId: subscription.categoryId,
+    // category, so passing it is harmless. `null` means the card has
+    // no category constraint, in which case we don't filter at all.
+    categoryId: subscription.categoryId ?? undefined,
     range,
   };
 }

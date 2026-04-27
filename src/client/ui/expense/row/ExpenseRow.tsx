@@ -50,10 +50,18 @@ export interface CommonExpenseRowProps {
   onUpdated: (expense: UserExpense) => void;
   selectCategory?: (category: Category) => void;
   addFilter: AddFilterFn;
+  /**
+   * When false, the row renders read-only: title/receiver are plain
+   * text, the date isn't clickable, and the per-row expander/Edit/Delete
+   * actions are hidden. Defaults to true. Used by the subscription
+   * preview/matches lists where the parent's `onUpdated={noop}` would
+   * otherwise silently swallow real edits.
+   */
+  editable?: boolean;
 }
 
 export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataProps }> = props => {
-  const { expense, prev, userData, addFilter, onUpdated } = props;
+  const { expense, prev, userData, addFilter, onUpdated, editable = true } = props;
   const { categoryMap, userMap, sourceMap, groupingMap } = userData;
   const user = userMap[expense.userId];
   const source = sourceMap[expense.sourceId];
@@ -191,7 +199,7 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
         )}
       >
         {/* Date */}
-        <Table.Td ta="right" pos="relative" px="xs" onClick={editDate}>
+        <Table.Td ta="right" pos="relative" px="xs" onClick={editable ? editDate : undefined}>
           {expense.subscriptionId ? (
             <RecurringExpenseIcon className={styles.recurringIcon} />
           ) : null}
@@ -231,12 +239,16 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
               ))
             ) : null}
           </Group>
-          <ActivatableTextField
-            fullWidth
-            value={expense.title}
-            viewStyle={{ display: 'inline-block', verticalAlign: 'middle' }}
-            onChange={v => updateExpense({ title: v })}
-          />
+          {editable ? (
+            <ActivatableTextField
+              fullWidth
+              value={expense.title}
+              viewStyle={{ display: 'inline-block', verticalAlign: 'middle' }}
+              onChange={v => updateExpense({ title: v })}
+            />
+          ) : (
+            <Text span>{expense.title}</Text>
+          )}
         </Table.Td>
         {/* Sum */}
         <Table.Td ta="right" pos="relative" c={sumStyle.c} fw={sumStyle.fw} fs={sumStyle.fs}>
@@ -245,12 +257,16 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
         </Table.Td>
         {/* Receiver */}
         <Table.Td className={ReceiverVisibleFrom}>
-          <ActivatableTextField
-            fullWidth
-            value={expense.receiver}
-            editorType={ReceiverField}
-            onChange={v => updateExpense({ receiver: v })}
-          />
+          {editable ? (
+            <ActivatableTextField
+              fullWidth
+              value={expense.receiver}
+              editorType={ReceiverField}
+              onChange={v => updateExpense({ receiver: v })}
+            />
+          ) : (
+            <Text span>{expense.receiver}</Text>
+          )}
         </Table.Td>
         {/* Category */}
         <Table.Td className={CategoryVisibleFrom}>{fullCategoryLink(expense.categoryId)}</Table.Td>
@@ -277,22 +293,24 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
         </Table.Td>
         {/* Tools */}
         <Table.Td ta="right">
-          <Group gap="xs" wrap="nowrap" justify="flex-end">
-            <ExpanderIcon
-              title="Tiedot"
-              open={isDefined(details)}
-              onToggle={() => toggleDetails()}
-            />
-            <ActionIcon title="Muokkaa" onClick={modifyExpense} className={ActionsVisibleFrom}>
-              <Icons.Edit />
-            </ActionIcon>
-            <ActionIcon title="Poista" onClick={deleteExpense} className={ActionsVisibleFrom}>
-              <Icons.Delete />
-            </ActionIcon>
-          </Group>
+          {editable ? (
+            <Group gap="xs" wrap="nowrap" justify="flex-end">
+              <ExpanderIcon
+                title="Tiedot"
+                open={isDefined(details)}
+                onToggle={() => toggleDetails()}
+              />
+              <ActionIcon title="Muokkaa" onClick={modifyExpense} className={ActionsVisibleFrom}>
+                <Icons.Edit />
+              </ActionIcon>
+              <ActionIcon title="Poista" onClick={deleteExpense} className={ActionsVisibleFrom}>
+                <Icons.Delete />
+              </ActionIcon>
+            </Group>
+          ) : null}
         </Table.Td>
       </Table.Tr>
-      {isLoading || details ? (
+      {editable && (isLoading || details) ? (
         <ExpenseInfo
           key={'expense-division-' + expense.id}
           loading={isLoading}

@@ -96,14 +96,16 @@ export const SourceSelector: React.FC<
     onChange: (id: number) => void;
     sources: Source[];
     title: string;
+    errorText?: string;
   } & Omit<BoxProps, 'onChange'>
-> = ({ title, value, onChange, sources, ...boxProps }) => (
+> = ({ title, value, onChange, sources, errorText, ...boxProps }) => (
   <Select
     label={title}
     value={String(value)}
     onChange={v => onChange(Number(v ?? 0))}
     data={sources.map(s => ({ value: String(s.id), label: s.name }))}
     allowDeselect={false}
+    error={errorText || undefined}
     {...boxProps}
   />
 );

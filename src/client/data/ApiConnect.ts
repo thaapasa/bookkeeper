@@ -10,6 +10,7 @@ import {
   RecurrencePeriod,
   RecurringExpenseTarget,
   SubscriptionCreatedResponse,
+  SubscriptionDeleteMode,
   SubscriptionMatches,
   SubscriptionMatchesQuery,
   SubscriptionResult,
@@ -203,8 +204,8 @@ export class ApiConnect {
     return this.post(uri`/api/subscription/search`, { body: criteria });
   }
 
-  public deleteSubscription = (id: ObjectId): Promise<ApiMessage> =>
-    this.delete<ApiMessage>(uri`/api/subscription/${id}`);
+  public deleteSubscription = (id: ObjectId, mode: SubscriptionDeleteMode): Promise<ApiMessage> =>
+    this.delete<ApiMessage>(uri`/api/subscription/${id}`, { query: { mode } });
 
   public updateSubscription = (id: ObjectId, update: SubscriptionUpdate): Promise<ApiMessage> =>
     this.patch<ApiMessage>(uri`/api/subscription/${id}`, {

@@ -301,7 +301,7 @@ function pickPrimaryCategory(
   let bestSum = sumOf(entries[0][1]);
   for (const [id, group] of entries) {
     const s = sumOf(group);
-    if (s > bestSum || (s === bestSum && id < bestId)) {
+    if (s.gt(bestSum) || (s.equals(bestSum) && id < bestId)) {
       bestId = id;
       bestSum = s;
     }
@@ -309,9 +309,9 @@ function pickPrimaryCategory(
   return bestId;
 }
 
-function sumOf(matches: readonly MatchableExpense[]): number {
-  let s = 0;
-  for (const m of matches) s += Number(m.sum);
+function sumOf(matches: readonly MatchableExpense[]): Money {
+  let s = Money.from(0);
+  for (const m of matches) s = s.plus(m.sum);
   return s;
 }
 
@@ -324,12 +324,11 @@ function buildCard(
   isPrimary: boolean,
 ): Subscription {
   const stats = aggregate(matches, window.months);
-  const cardCategoryId = categoryId ?? 0;
   return {
     id: cardId(row, categoryId),
     rowId: row.id,
     title: row.title,
-    categoryId: cardCategoryId,
+    categoryId,
     filter: row.filter,
     recurrence: row.period,
     defaults: row.defaults,

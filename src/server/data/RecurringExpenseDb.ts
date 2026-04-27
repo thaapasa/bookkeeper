@@ -11,11 +11,13 @@ import {
   RecurrenceUnit,
   RecurringExpenseInput,
   RecurringExpenseTarget,
+  SubscriptionDeleteMode,
   SubscriptionUpdate,
 } from 'shared/expense';
 import { DateLike, ISODate, toDateTime, toISODate } from 'shared/time';
 import {
   ApiMessage,
+  BkError,
   InvalidExpense,
   InvalidInputError,
   NotFoundError,
@@ -447,18 +449,32 @@ export function deleteRecurringByExpenseId(
  * already-ended recurring row, or a non-recurring report-style row) is
  * removed entirely; linked expenses keep their data but lose `subscription_id`
  * so there is no dangling FK.
+ *
+ * `mode` is the caller's asserted intent and must match the row's actual
+ * state — guards against a UI race where two rapid clicks would otherwise
+ * silently turn "Lopeta" into "Poista".
  */
-export function deleteRecurringExpenseById(
+export function deleteSubscriptionById(
   tx: DbTask,
   groupId: ObjectId,
   subscriptionId: ObjectId,
+  mode: SubscriptionDeleteMode,
 ): Promise<ApiMessage> {
   return withSpan(
     'recurring.delete',
-    { 'app.group_id': groupId, 'app.subscription_id': subscriptionId },
+    { 'app.group_id': groupId, 'app.subscription_id': subscriptionId, 'app.mode': mode },
     async () => {
       const row = await getSubscriptionRow(tx, groupId, subscriptionId);
       const isOngoingRecurring = !!row.period && !row.occursUntil;
+      const expectedMode: SubscriptionDeleteMode = isOngoingRecurring ? 'end' : 'delete';
+      if (mode !== expectedMode) {
+        throw new BkError(
+          'SUBSCRIPTION_DELETE_MODE_MISMATCH',
+          `Subscription ${subscriptionId} is in state requiring mode '${expectedMode}', but '${mode}' was asserted`,
+          409,
+          { expected: expectedMode, requested: mode },
+        );
+      }
       if (isOngoingRecurring) {
         const now = toISODate();
         logger.info(`Ending subscription ${row.id} at ${now}`);

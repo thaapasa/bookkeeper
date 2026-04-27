@@ -15,6 +15,7 @@ import {
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import * as React from 'react';
+import { z } from 'zod';
 
 import {
   ExpenseDefaults,
@@ -89,8 +90,8 @@ export const SubscriptionEditorDialog: React.FC<Props> = ({ item, opened, onClos
     setState(s => (s.defaults ? { ...s, defaults: { ...s.defaults, ...patch } } : s));
 
   const titleValid = state.title.trim().length > 0;
-  const defaultsValid = !state.defaults || state.defaults.title.trim().length > 0;
-  const canSave = titleValid && defaultsValid;
+  const defaultsErrors = validateDefaults(state.defaults);
+  const canSave = titleValid && defaultsErrors === null;
 
   const save = async () => {
     if (isCreate) {
@@ -169,6 +170,7 @@ export const SubscriptionEditorDialog: React.FC<Props> = ({ item, opened, onClos
                 onChange={updateDefaults}
                 users={session.users.map(u => ({ id: u.id, label: u.firstName }))}
                 sources={session.sources}
+                errors={defaultsErrors ?? {}}
               />
             ) : (
               <Box c="neutral.7">
@@ -263,26 +265,39 @@ const FilterEditor: React.FC<{
   );
 };
 
+interface DefaultsErrors {
+  title?: string;
+  sum?: string;
+  sourceId?: string;
+  categoryId?: string;
+  userId?: string;
+}
+
 const DefaultsEditor: React.FC<{
   defaults: ExpenseDefaults;
   onChange: (patch: Partial<ExpenseDefaults>) => void;
   users: { id: ObjectId; label: string }[];
   sources: { id: ObjectId; name: string }[];
-}> = ({ defaults, onChange, users, sources }) => (
+  errors: DefaultsErrors;
+}> = ({ defaults, onChange, users, sources, errors }) => (
   <Stack gap="sm">
     <TextInput
       label="Otsikko"
       description="Käytetään automaattisesti luotujen kirjausten nimenä."
       value={defaults.title}
       onChange={e => onChange({ title: e.currentTarget.value })}
-      error={defaults.title.trim() ? undefined : 'Otsikko ei voi olla tyhjä'}
+      error={errors.title}
     />
     <TextInput
       label="Saaja"
       value={defaults.receiver ?? ''}
       onChange={e => onChange({ receiver: e.currentTarget.value || undefined })}
     />
-    <SumField value={Money.from(defaults.sum).toString()} onChange={s => onChange({ sum: s })} />
+    <SumField
+      value={Money.from(defaults.sum).toString()}
+      onChange={s => onChange({ sum: s })}
+      errorText={errors.sum}
+    />
     <Select
       label="Tyyppi"
       data={TYPE_OPTIONS}
@@ -294,12 +309,14 @@ const DefaultsEditor: React.FC<{
       value={defaults.categoryId}
       onChange={id => onChange({ categoryId: id })}
       label="Kategoria"
+      error={errors.categoryId}
     />
     <SourceSelector
       title="Lähde"
       value={defaults.sourceId}
       onChange={id => onChange({ sourceId: id })}
       sources={sources as never}
+      errorText={errors.sourceId}
     />
     <Select
       label="Omistaja"
@@ -307,6 +324,7 @@ const DefaultsEditor: React.FC<{
       value={String(defaults.userId)}
       onChange={v => v && onChange({ userId: Number(v) })}
       allowDeselect={false}
+      error={errors.userId}
     />
     <Checkbox
       label="Alustava kirjaus"
@@ -323,6 +341,50 @@ const DefaultsEditor: React.FC<{
     />
   </Stack>
 );
+
+/**
+ * Editor-side schema: extends the shared `ExpenseDefaults` with the
+ * UI-stricter rules the dialog needs (non-empty trimmed title, real
+ * picked IDs rather than the 0 sentinel a `<Select>` can emit before
+ * the user touches it). Layering on top of the shared schema means a
+ * future tightening or new field on `ExpenseDefaults` flows through
+ * automatically — there is no second copy of the rules to keep in
+ * sync.
+ */
+const PositiveId = ObjectId.refine(v => v > 0);
+const EditorDefaults = ExpenseDefaults.extend({
+  title: z.string().trim().min(1),
+  sourceId: PositiveId,
+  categoryId: PositiveId,
+  userId: PositiveId,
+});
+
+/**
+ * Localized messages keyed by `ExpenseDefaults` field path. The schema
+ * is the source of truth for *what* is invalid; this map translates
+ * the issue path into the user-visible string.
+ */
+const DEFAULTS_ERROR_MESSAGES: Record<keyof DefaultsErrors, string> = {
+  title: 'Otsikko ei voi olla tyhjä',
+  sum: 'Anna kelvollinen summa',
+  sourceId: 'Valitse lähde',
+  categoryId: 'Valitse kategoria',
+  userId: 'Valitse omistaja',
+};
+
+function validateDefaults(defaults: ExpenseDefaults | undefined): DefaultsErrors | null {
+  if (!defaults) return null;
+  const res = EditorDefaults.safeParse(defaults);
+  if (res.success) return null;
+  const errors: DefaultsErrors = {};
+  for (const issue of res.error.issues) {
+    const key = issue.path[0];
+    if (typeof key !== 'string' || !(key in DEFAULTS_ERROR_MESSAGES)) continue;
+    const field = key as keyof DefaultsErrors;
+    if (!errors[field]) errors[field] = DEFAULTS_ERROR_MESSAGES[field];
+  }
+  return Object.keys(errors).length === 0 ? null : errors;
+}
 
 const PREVIEW_LIMIT = 50;
 
@@ -393,6 +455,7 @@ const PreviewPanel: React.FC<{ filter: ExpenseQuery }> = ({ filter }) => {
               userData={userData}
               addFilter={noop}
               onUpdated={noop}
+              editable={false}
             />
           ))}
         </Table.Tbody>

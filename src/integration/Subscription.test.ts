@@ -4,6 +4,7 @@ import {
   ExpenseCollection,
   ExpenseDefaults,
   ExpenseInput,
+  SubscriptionMatches,
   SubscriptionResult,
   UserExpenseWithDetails,
 } from 'shared/expense';
@@ -229,7 +230,7 @@ describe('subscription lifecycle', () => {
 
   it('end ("Lopeta"): DELETE on active recurring sets occurs_until and keeps the row', async () => {
     const { subscriptionId, firstExpenseId } = await createMonthlyRecurring(session, '2017-01-01');
-    await session.del(uri`/api/subscription/${subscriptionId}`);
+    await session.del(uri`/api/subscription/${subscriptionId}`, { mode: 'end' });
 
     const sub = await readSubscription(subscriptionId);
     expect(sub).not.toBeNull();
@@ -245,13 +246,35 @@ describe('subscription lifecycle', () => {
   it('delete ("Poista"): DELETE on already-ended row removes the subscription and nulls links', async () => {
     const { subscriptionId, firstExpenseId } = await createMonthlyRecurring(session, '2017-01-01');
     // First press = soft end ("Lopeta").
-    await session.del(uri`/api/subscription/${subscriptionId}`);
+    await session.del(uri`/api/subscription/${subscriptionId}`, { mode: 'end' });
     expect(await readSubscription(subscriptionId)).not.toBeNull();
     // Second press = hard delete ("Poista").
-    await session.del(uri`/api/subscription/${subscriptionId}`);
+    await session.del(uri`/api/subscription/${subscriptionId}`, { mode: 'delete' });
 
     expect(await readSubscription(subscriptionId)).toBeNull();
     expect(await readExpenseSubscriptionId(firstExpenseId)).toBeNull();
+  });
+
+  it('delete: DELETE with stale mode is rejected with 409 instead of silently escalating', async () => {
+    const { subscriptionId } = await createMonthlyRecurring(session, '2017-01-01');
+    // Soft-end first; the subscription is now in "delete" state.
+    await session.del(uri`/api/subscription/${subscriptionId}`, { mode: 'end' });
+    // A stale UI tab still thinks the subscription is active and reasserts mode=end.
+    await expect(
+      session.del(uri`/api/subscription/${subscriptionId}`, { mode: 'end' }),
+    ).rejects.toMatchObject({ status: 409 });
+    // The row must still exist — no silent escalation to hard-delete.
+    expect(await readSubscription(subscriptionId)).not.toBeNull();
+  });
+
+  it('delete: DELETE on active recurring with mode=delete is rejected with 409', async () => {
+    const { subscriptionId } = await createMonthlyRecurring(session, '2017-01-01');
+    await expect(
+      session.del(uri`/api/subscription/${subscriptionId}`, { mode: 'delete' }),
+    ).rejects.toMatchObject({ status: 409 });
+    const sub = await readSubscription(subscriptionId);
+    expect(sub).not.toBeNull();
+    expect(sub?.occursUntil).toBeNull();
   });
 
   it('expense delete target=after deletes future rows and terminates the recurrence', async () => {
@@ -327,7 +350,7 @@ describe('subscription lifecycle', () => {
 
   it('PATCH does not change occurs_until or recurrence period', async () => {
     const { subscriptionId } = await createMonthlyRecurring(session, '2017-01-01');
-    await session.del(uri`/api/subscription/${subscriptionId}`); // soft end ("Lopeta")
+    await session.del(uri`/api/subscription/${subscriptionId}`, { mode: 'end' }); // soft end ("Lopeta")
     const ended = await readSubscription(subscriptionId);
     expect(ended?.occursUntil).not.toBeNull();
     expect(ended?.periodAmount).toBe(1);
@@ -352,7 +375,7 @@ describe('subscription lifecycle', () => {
 
   it('search hides ended rows when includeEnded=false', async () => {
     const { subscriptionId } = await createMonthlyRecurring(session, '2017-01-01');
-    await session.del(uri`/api/subscription/${subscriptionId}`); // soft end ("Lopeta")
+    await session.del(uri`/api/subscription/${subscriptionId}`, { mode: 'end' }); // soft end ("Lopeta")
     const result = await session.post<SubscriptionResult>('/api/subscription/search', {
       includeEnded: false,
     });
@@ -361,7 +384,7 @@ describe('subscription lifecycle', () => {
 
   it('search keeps ended rows visible when includeEnded=true', async () => {
     const { subscriptionId } = await createMonthlyRecurring(session, '2017-01-01');
-    await session.del(uri`/api/subscription/${subscriptionId}`); // soft end ("Lopeta")
+    await session.del(uri`/api/subscription/${subscriptionId}`, { mode: 'end' }); // soft end ("Lopeta")
     const result = await session.post<SubscriptionResult>('/api/subscription/search', {
       includeEnded: true,
     });
@@ -452,7 +475,7 @@ describe('subscription lifecycle', () => {
     });
     expect(beforeEnd.find(c => c.rowId === newerId)?.dominatedBy?.rowId).toBe(oldId);
 
-    await session.del(uri`/api/subscription/${oldId}`); // end ("Lopeta") the elder
+    await session.del(uri`/api/subscription/${oldId}`, { mode: 'end' }); // end ("Lopeta") the elder
 
     const hidden = await session.post<SubscriptionResult>('/api/subscription/search', {
       includeEnded: false,
@@ -461,5 +484,84 @@ describe('subscription lifecycle', () => {
     const newerCardHidden = hidden.find(c => c.rowId === newerId);
     expect(newerCardHidden).toBeDefined();
     expect(newerCardHidden?.dominatedBy).toBeUndefined();
+  });
+
+  it('uncategorized stats subscription: card carries categoryId=null and matches expander returns rows', async () => {
+    // A stats subscription with no category constraint and no other
+    // distinguishing filter — the dedup pass might or might not assign
+    // matches to it depending on what else exists, but the *card model*
+    // and the *matches expander* must both handle the no-category case
+    // without crashing or silently filtering everything out (regression
+    // guard for the categoryId=0 sentinel that used to leak through).
+    const cat = await newCategory(session, { name: 'UncatPickup', parentId: 0 });
+    await newExpense(session, {
+      sum: '17.00',
+      title: 'Uniquely-titled-uncat-row',
+      receiver: 'UncatReceiver',
+      date: '2026-03-01',
+      categoryId: cat.categoryId!,
+    });
+
+    // Filter by receiver only — no category constraint, so the card's
+    // primary categoryId is null (the underlying row carries no
+    // category).
+    const created = await session.post<{ subscriptionId: number }>(
+      '/api/subscription/from-filter',
+      { title: 'Uncategorized stats', filter: { receiver: 'UncatReceiver' } },
+    );
+    const rowId = created.subscriptionId;
+
+    const result = await session.post<SubscriptionResult>('/api/subscription/search', {
+      includeEnded: true,
+    });
+    const card = result.find(c => c.rowId === rowId);
+    expect(card).toBeDefined();
+    // The fan-out happens by *matched-expense* category, so this card
+    // ends up filed under the matched expense's category — which is a
+    // real number, not the sentinel.
+    expect(card?.categoryId).toBe(cat.categoryId!);
+
+    // Sanity: the matches expander returns the expected row when the
+    // client sends categoryId for the fan-out card.
+    const matches = await session.post<SubscriptionMatches>('/api/subscription/matches', {
+      rowId,
+      categoryId: cat.categoryId!,
+    });
+    expect(matches.totalCount).toBe(1);
+    expect(matches.matches[0].title).toBe('Uniquely-titled-uncat-row');
+
+    // And: when the card carries no category (null), the client sends
+    // no categoryId and the server returns every assigned row.
+    const allMatches = await session.post<SubscriptionMatches>('/api/subscription/matches', {
+      rowId,
+    });
+    expect(allMatches.totalCount).toBeGreaterThanOrEqual(1);
+  });
+
+  it('uncategorized empty stats subscription: card with categoryId=null is returned when no rows match', async () => {
+    // A stats subscription whose receiver filter matches nothing and
+    // whose filter has no categoryId. Used to crash the client because
+    // the row's null categoryId was widened to the 0 sentinel; now it
+    // either reports zero matches or is dropped from the result, but
+    // never carries categoryId=0.
+    const created = await session.post<{ subscriptionId: number }>(
+      '/api/subscription/from-filter',
+      {
+        title: 'Empty uncat stats',
+        filter: { receiver: 'NoRowsWillEverMatchThisReceiverString' },
+      },
+    );
+    const rowId = created.subscriptionId;
+
+    const result = await session.post<SubscriptionResult>('/api/subscription/search', {
+      includeEnded: true,
+    });
+    const cards = result.filter(c => c.rowId === rowId);
+    // Either zero cards (server drops empty no-category rows) or a
+    // single card with categoryId === null. The forbidden state is
+    // a card with categoryId === 0.
+    for (const card of cards) {
+      expect(card.categoryId).not.toBe(0);
+    }
   });
 });

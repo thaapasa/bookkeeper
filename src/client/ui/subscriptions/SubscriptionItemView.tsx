@@ -3,7 +3,7 @@ import { useDisclosure } from '@mantine/hooks';
 import * as React from 'react';
 
 import { RecurrencePeriod, Subscription } from 'shared/expense';
-import { readableDateWithYear, RecurrenceInterval } from 'shared/time';
+import { readableDateWithYear, RecurrenceInterval, toISODate } from 'shared/time';
 import { Money } from 'shared/util';
 import apiConnect from 'client/data/ApiConnect';
 import { invalidateSubscriptionData } from 'client/data/query';
@@ -155,8 +155,7 @@ function isStale(item: Subscription): boolean {
   if (item.occursUntil) return false;
   if (!item.nextMissing) return false;
   if (item.matchedCount > 0) return false;
-  const today = new Date().toISOString().slice(0, 10);
-  return item.nextMissing < today;
+  return item.nextMissing < toISODate();
 }
 
 function buildSubtitle(
@@ -228,7 +227,8 @@ function m(value: number, singular: string, plural: string) {
 
 async function deleteSubscription(item: Subscription, kind: SubscriptionKind) {
   const lopeta = kind === 'active';
-  await executeOperation(() => apiConnect.deleteSubscription(item.rowId), {
+  const mode = lopeta ? 'end' : 'delete';
+  await executeOperation(() => apiConnect.deleteSubscription(item.rowId, mode), {
     confirmTitle: lopeta ? 'Lopeta tilaus' : 'Poista tilaus',
     confirm: <DeleteConfirmation item={item} kind={kind} />,
     progress: 'Käsitellään...',

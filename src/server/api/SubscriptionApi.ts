@@ -3,6 +3,7 @@ import { Router } from 'express';
 import {
   QuerySummary,
   SubscriptionCreatedResponse,
+  SubscriptionDeleteQuery,
   SubscriptionFromFilter,
   SubscriptionMatches,
   SubscriptionMatchesQuery,
@@ -14,7 +15,7 @@ import {
 import { ApiMessage } from 'shared/types';
 import {
   createSubscriptionFromFilter,
-  deleteRecurringExpenseById,
+  deleteSubscriptionById,
   updateSubscription,
 } from 'server/data/RecurringExpenseDb';
 import {
@@ -85,13 +86,16 @@ export function createSubscriptionApi() {
     (tx, session, { body }) => getSubscriptionMatches(tx, session.group.id, session.user.id, body),
   );
 
-  // DELETE /api/subscription/[subscriptionId]
-  // Ends the subscription (sets occurs_until = today). Realised rows stay.
+  // DELETE /api/subscription/[subscriptionId]?mode=end|delete
+  // mode=end soft-ends an ongoing recurring row; mode=delete hard-deletes any
+  // other row (already-ended recurring or non-recurring stats). The server
+  // verifies the asserted mode against the row's current state — see
+  // `deleteSubscriptionById` for the race-protection rationale.
   api.deleteTx(
     '/:subscriptionId',
-    { response: ApiMessage, groupRequired: true },
-    (tx, session, { params }) =>
-      deleteRecurringExpenseById(tx, session.group.id, params.subscriptionId),
+    { query: SubscriptionDeleteQuery, response: ApiMessage, groupRequired: true },
+    (tx, session, { params, query }) =>
+      deleteSubscriptionById(tx, session.group.id, params.subscriptionId, query.mode),
   );
 
   // PATCH /api/subscription/[subscriptionId]
