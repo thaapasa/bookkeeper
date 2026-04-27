@@ -105,7 +105,7 @@ interface SubscriptionRowDb {
   occursUntil: ISODate | null;
 }
 
-const SubscriptionRowSelect = `--sql
+const SubscriptionRowSelect = `
   SELECT
     id AS "id",
     group_id AS "groupId",
@@ -300,7 +300,14 @@ async function createMissingRecurrences(
   const lastDate = dates[dates.length - 1];
   const nextMissing = calculateNextRecurrence(lastDate, recurrence.period);
   logger.info(
-    `Creating missing expenses for ${recurrence} ${dates}. Next missing is ${toISODate(nextMissing)}`,
+    {
+      subscriptionId: recurrence.id,
+      title: recurrence.defaults.title,
+      period: recurrence.period,
+      dates: dates.map(d => toISODate(d)),
+      nextMissing: toISODate(nextMissing),
+    },
+    `Creating ${dates.length} missing expense(s) for subscription ${recurrence.id}`,
   );
   await tx.batch(
     dates.map(date =>
@@ -433,7 +440,7 @@ export function deleteRecurringByExpenseId(
 }
 
 /**
- * "Lopeta" / "Poista" dispatch for the subscription card's overflow menu.
+ * End ("Lopeta") / delete ("Poista") dispatch for the subscription card's overflow menu.
  *
  * Recurring rows that haven't yet been ended get a soft end — `occurs_until`
  * set to today, history kept, no future generation. Anything else (an

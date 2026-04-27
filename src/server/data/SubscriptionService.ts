@@ -50,8 +50,9 @@ export function searchSubscriptions(
       const expenseToOwner = invertWins(wins);
 
       // Only point dominator references at rows that survive the
-      // display filter — a "Päällekkäinen tilauksen kanssa: X" notice
-      // for an X that's invisible in the result is just confusing.
+      // display filter — the UI's "overlaps with: X" notice
+      // ("Päällekkäinen tilauksen kanssa: X") for an X that's invisible
+      // in the result is just confusing.
       const visibleRowIds = new Set(
         rows.filter(r => rowPassesDisplay(r, criteria, userId, types)).map(r => r.id),
       );

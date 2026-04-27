@@ -23,9 +23,10 @@ export const SubscriptionCriteriaSelector: React.FC<{
   onChange: (criteria: SubscriptionSearchCriteria) => void;
 }> = ({ onChange }) => {
   // Bumped key suffix: the previous default hid ended rows, which made
-  // a freshly-Lopeta'd subscription disappear and confused the
-  // "Päällekkäinen" reference path. Keeping ended rows visible by
-  // default lets the user explicitly Poista them when ready.
+  // a freshly-ended ("Lopeta") subscription disappear and confused the
+  // dominator-reference path ("Päällekkäinen tilauksen kanssa: X"
+  // pointing at an invisible row). Keeping ended rows visible by
+  // default lets the user explicitly delete ("Poista") them when ready.
   const [includeEnded, setIncludeEnded] = useLocalStorage(
     'subscriptions.includeEnded.v2',
     true,

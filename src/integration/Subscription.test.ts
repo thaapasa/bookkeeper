@@ -227,7 +227,7 @@ describe('subscription lifecycle', () => {
     expect(subAfter?.nextMissing).toBe('2017-05-01');
   });
 
-  it('"Lopeta" (DELETE on active recurring) sets occurs_until and keeps the row', async () => {
+  it('end ("Lopeta"): DELETE on active recurring sets occurs_until and keeps the row', async () => {
     const { subscriptionId, firstExpenseId } = await createMonthlyRecurring(session, '2017-01-01');
     await session.del(uri`/api/subscription/${subscriptionId}`);
 
@@ -242,12 +242,12 @@ describe('subscription lifecycle', () => {
     expect(await countLinkedExpenses(subscriptionId)).toBe(1);
   });
 
-  it('"Poista" (DELETE on already-ended row) removes the subscription and nulls links', async () => {
+  it('delete ("Poista"): DELETE on already-ended row removes the subscription and nulls links', async () => {
     const { subscriptionId, firstExpenseId } = await createMonthlyRecurring(session, '2017-01-01');
-    // First press = soft Lopeta.
+    // First press = soft end ("Lopeta").
     await session.del(uri`/api/subscription/${subscriptionId}`);
     expect(await readSubscription(subscriptionId)).not.toBeNull();
-    // Second press = hard Poista.
+    // Second press = hard delete ("Poista").
     await session.del(uri`/api/subscription/${subscriptionId}`);
 
     expect(await readSubscription(subscriptionId)).toBeNull();
@@ -327,7 +327,7 @@ describe('subscription lifecycle', () => {
 
   it('PATCH does not change occurs_until or recurrence period', async () => {
     const { subscriptionId } = await createMonthlyRecurring(session, '2017-01-01');
-    await session.del(uri`/api/subscription/${subscriptionId}`); // soft Lopeta
+    await session.del(uri`/api/subscription/${subscriptionId}`); // soft end ("Lopeta")
     const ended = await readSubscription(subscriptionId);
     expect(ended?.occursUntil).not.toBeNull();
     expect(ended?.periodAmount).toBe(1);
@@ -352,7 +352,7 @@ describe('subscription lifecycle', () => {
 
   it('search hides ended rows when includeEnded=false', async () => {
     const { subscriptionId } = await createMonthlyRecurring(session, '2017-01-01');
-    await session.del(uri`/api/subscription/${subscriptionId}`); // soft Lopeta
+    await session.del(uri`/api/subscription/${subscriptionId}`); // soft end ("Lopeta")
     const result = await session.post<SubscriptionResult>('/api/subscription/search', {
       includeEnded: false,
     });
@@ -361,7 +361,7 @@ describe('subscription lifecycle', () => {
 
   it('search keeps ended rows visible when includeEnded=true', async () => {
     const { subscriptionId } = await createMonthlyRecurring(session, '2017-01-01');
-    await session.del(uri`/api/subscription/${subscriptionId}`); // soft Lopeta
+    await session.del(uri`/api/subscription/${subscriptionId}`); // soft end ("Lopeta")
     const result = await session.post<SubscriptionResult>('/api/subscription/search', {
       includeEnded: true,
     });
@@ -447,12 +447,12 @@ describe('subscription lifecycle', () => {
     const newerId = recurring.subscriptionId ?? 0;
 
     // Sanity check: with includeEnded=true the elder still dominates.
-    const beforeLopeta = await session.post<SubscriptionResult>('/api/subscription/search', {
+    const beforeEnd = await session.post<SubscriptionResult>('/api/subscription/search', {
       includeEnded: true,
     });
-    expect(beforeLopeta.find(c => c.rowId === newerId)?.dominatedBy?.rowId).toBe(oldId);
+    expect(beforeEnd.find(c => c.rowId === newerId)?.dominatedBy?.rowId).toBe(oldId);
 
-    await session.del(uri`/api/subscription/${oldId}`); // Lopeta the elder
+    await session.del(uri`/api/subscription/${oldId}`); // end ("Lopeta") the elder
 
     const hidden = await session.post<SubscriptionResult>('/api/subscription/search', {
       includeEnded: false,

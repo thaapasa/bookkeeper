@@ -68,11 +68,11 @@ export const Subscription = z.object({
     .optional(),
   /**
    * True for the one card per `rowId` that owns the subscription's
-   * lifecycle — Muokkaa / Lopeta / Poista actions are rendered only
-   * here. Stats subs that fan out across categories produce many cards
-   * pointing at the same DB row; only one of them carries the actions
-   * so the user can't accidentally delete the whole subscription from
-   * a per-category breakdown row.
+   * lifecycle — edit ("Muokkaa") / end ("Lopeta") / delete ("Poista")
+   * actions are rendered only here. Stats subs that fan out across
+   * categories produce many cards pointing at the same DB row; only
+   * one of them carries the actions so the user can't accidentally
+   * delete the whole subscription from a per-category breakdown row.
    */
   isPrimary: z.boolean(),
 });
@@ -114,7 +114,7 @@ export type SubscriptionFromFilter = z.infer<typeof SubscriptionFromFilter>;
  * server. Recurrence period and `occurs_until` are intentionally not
  * editable — changing the cadence on a row that already has realised
  * expenses has no clean meaning, and `occurs_until` is owned by the
- * Lopeta / target=after flows.
+ * end ("Lopeta") / target=after flows.
  */
 export const SubscriptionUpdate = z.object({
   title: z.string().trim().min(1).optional(),
