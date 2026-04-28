@@ -93,8 +93,10 @@ export function summarizeQuery(
       // An empty filter would match every expense in the window — the
       // editor refuses to send one but we guard at the API too so a
       // scripted client can't dump the group's full expense list via
-      // this endpoint.
-      if (Object.keys(query).length === 0) {
+      // this endpoint. Treat blank strings and empty arrays as absent so
+      // a payload like `{search: ""}` or `{categoryId: []}` can't bypass
+      // the check.
+      if (!hasMeaningfulConstraint(query)) {
         throw new InvalidInputError('INVALID_INPUT', 'Subscription query must not be empty');
       }
       const window = baselineWindow(range);
@@ -159,6 +161,21 @@ export function getSubscriptionMatches(
 function toTypeArray(type: SubscriptionSearchCriteria['type']): ExpenseType[] | null {
   if (!type) return null;
   return Array.isArray(type) ? type : [type];
+}
+
+/**
+ * True when the query carries at least one constraint the matcher will
+ * actually apply. Mirrors the editor's `stripBlanks` so a Zod-valid but
+ * effectively empty payload (`{search: ""}`, `{categoryId: []}`) is
+ * rejected the same way as `{}`.
+ */
+function hasMeaningfulConstraint(query: ExpenseQuery): boolean {
+  for (const value of Object.values(query)) {
+    if (value === undefined || value === null || value === '') continue;
+    if (Array.isArray(value) && value.length === 0) continue;
+    return true;
+  }
+  return false;
 }
 
 function baselineWindow(range: RecurrenceInterval = defaultBaselineRange): BaselineWindow {
@@ -309,7 +326,8 @@ function pickPrimaryCategory(
   if (preferred !== null && entries.some(([c]) => c === preferred)) return preferred;
   let bestId = entries[0][0];
   let bestSum = sumOf(entries[0][1]);
-  for (const [id, group] of entries) {
+  for (let i = 1; i < entries.length; i++) {
+    const [id, group] = entries[i];
     const s = sumOf(group);
     if (s.gt(bestSum) || (s.equals(bestSum) && id < bestId)) {
       bestId = id;

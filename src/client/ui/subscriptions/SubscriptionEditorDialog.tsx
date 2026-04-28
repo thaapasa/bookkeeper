@@ -33,6 +33,7 @@ import { ObjectId } from 'shared/types';
 import { Money, noop } from 'shared/util';
 import { apiConnect } from 'client/data/ApiConnect';
 import { invalidateSubscriptionData } from 'client/data/query';
+import { QueryKeys } from 'client/data/queryKeys';
 import { useUserData, useValidSession } from 'client/data/SessionStore';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
@@ -209,7 +210,7 @@ const FilterEditor: React.FC<{
         description="Tyhjä = kaikki tyypit. Voit valita useita."
         data={TYPE_OPTIONS}
         value={typeValues}
-        onChange={vs => onChange({ type: typeFilterValue(vs as ExpenseType[]) })}
+        onChange={vs => onChange({ type: typeFilterValue(vs.filter(isExpenseType)) })}
         clearable
       />
       <CategoryMultiSelector
@@ -246,7 +247,7 @@ const FilterEditor: React.FC<{
       />
       <TextInput
         label="Vapaa hakusana"
-        description="Etsii otsikosta, saajasta ja kuvauksesta."
+        description="Etsii otsikosta ja saajasta."
         value={filter.search ?? ''}
         onChange={e => onChange({ search: e.currentTarget.value || undefined })}
       />
@@ -397,7 +398,7 @@ const PreviewPanel: React.FC<{ filter: ExpenseQuery }> = ({ filter }) => {
   const [debouncedFilter] = useDebouncedValue(previewFilter, 300);
 
   const { data, isLoading, isError, error, refetch, isFetching } = useQuery<QuerySummary>({
-    queryKey: ['subscription-preview', debouncedFilter],
+    queryKey: QueryKeys.subscriptions.preview(debouncedFilter),
     queryFn: () => apiConnect.summarizeSubscriptionQuery(debouncedFilter, { limit: PREVIEW_LIMIT }),
     enabled: !isEmpty,
     staleTime: 0,
@@ -484,6 +485,10 @@ function initialState(item: Subscription | undefined): FormState {
 function filterTypeAsArray(t: ExpenseQuery['type']): ExpenseType[] {
   if (!t) return [];
   return Array.isArray(t) ? t : [t];
+}
+
+function isExpenseType(value: string): value is ExpenseType {
+  return (expenseTypes as readonly string[]).includes(value);
 }
 
 /**

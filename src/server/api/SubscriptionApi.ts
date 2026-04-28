@@ -29,7 +29,7 @@ import { createValidatingRouter } from 'server/server/ValidatingRouter';
  * Creates subscription API.
  *
  * Subscriptions unify recurring expenses and reports into a single
- * card model (see docs/SUBSCRIPTIONS_REWORK_PLAN.md). After step 5 the
+ * card model (see docs/archive/SUBSCRIPTIONS_REWORK_PLAN.md). After step 5 the
  * /template endpoints are gone — template-row editing is replaced by
  * editing a realised row with target=`all`/`after`, which propagates
  * to the subscription's `defaults` JSONB.

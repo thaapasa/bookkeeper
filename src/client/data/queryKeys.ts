@@ -17,6 +17,7 @@ export const QueryKeys = {
     search: (criteria: SubscriptionSearchCriteria) =>
       ['subscriptions', 'search', criteria] as const,
     matches: (query: SubscriptionMatchesQuery) => ['subscriptions', 'matches', query] as const,
+    preview: (filter: ExpenseQuery) => ['subscriptions', 'preview', filter] as const,
   },
   tracking: {
     all: ['tracking'] as const,

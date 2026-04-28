@@ -39,7 +39,6 @@ import {
   storeExpenseDivision,
   updateExpense,
 } from './BasicExpenseDb';
-import { updateExpenseById } from './BasicExpenseService';
 import { getCategoryById } from './CategoryDb';
 import { determineDivision } from './ExpenseDivision';
 import { calculateNextRecurrence } from './RecurringExpenseService';
@@ -133,8 +132,8 @@ function dbRowToSubscriptionRow(row: SubscriptionRowDb): SubscriptionRow {
     filter: row.filter,
     defaults: row.defaults ?? undefined,
     period,
-    nextMissing: row.nextMissing ? toISODate(row.nextMissing) : undefined,
-    occursUntil: row.occursUntil ? toISODate(row.occursUntil) : undefined,
+    nextMissing: row.nextMissing ?? undefined,
+    occursUntil: row.occursUntil ?? undefined,
     categoryId: primaryCategoryId(row.filter),
   };
 }
@@ -149,7 +148,7 @@ export async function getSubscriptionRows(
   groupId: ObjectId,
 ): Promise<SubscriptionRow[]> {
   const rows = await tx.manyOrNone<SubscriptionRowDb>(
-    `${SubscriptionRowSelect} WHERE group_id = $/groupId/`,
+    `${SubscriptionRowSelect} WHERE group_id = $/groupId/ ORDER BY id`,
     { groupId },
   );
   return rows.map(dbRowToSubscriptionRow);
@@ -365,7 +364,7 @@ export function createMissingRecurringExpenses(
             WHERE group_id=$/groupId/
               AND period_unit IS NOT NULL
               AND next_missing < $/nextMissing/::DATE`,
-        { groupId, nextMissing: date },
+        { groupId, nextMissing: toISODate(date) },
         camelCaseObject,
       );
       await tx.batch(list.map(v => createMissingRecurrences(tx, groupId, date, v)));
@@ -390,11 +389,12 @@ async function deleteRecurrenceAndExpenses(
 }
 
 async function terminateRecurrenceAt(tx: DbTask, subscriptionId: ObjectId, date: DateLike) {
+  const dateIso = toISODate(date);
   await tx.none(
     `UPDATE subscriptions
         SET occurs_until=$/date/::date
         WHERE id=$/subscriptionId/`,
-    { subscriptionId, date },
+    { subscriptionId, date: dateIso },
   );
 }
 
@@ -404,15 +404,16 @@ async function deleteRecurrenceAfter(
   afterDate: DateLike,
   subscriptionId: ObjectId,
 ): Promise<ApiMessage> {
+  const afterDateIso = toISODate(afterDate);
   await tx.none(
     `DELETE FROM expenses
         WHERE subscription_id=$/subscriptionId/ AND (id=$/expenseId/ OR date > $/afterDate/::date)`,
-    { subscriptionId, expenseId, afterDate },
+    { subscriptionId, expenseId, afterDate: afterDateIso },
   );
-  await terminateRecurrenceAt(tx, subscriptionId, afterDate);
+  await terminateRecurrenceAt(tx, subscriptionId, afterDateIso);
   return {
     status: 'OK',
-    message: `Expenses after ${afterDate} for recurrence ${subscriptionId} have been deleted`,
+    message: `Expenses after ${afterDateIso} for recurrence ${subscriptionId} have been deleted`,
   };
 }
 
@@ -494,10 +495,14 @@ export function deleteSubscriptionById(
       }
       logger.info(`Removing subscription ${row.id}`);
       await tx.none(
-        `UPDATE expenses SET subscription_id = NULL WHERE subscription_id = $/subscriptionId/`,
-        { subscriptionId },
+        `UPDATE expenses SET subscription_id = NULL
+            WHERE subscription_id = $/subscriptionId/ AND group_id = $/groupId/`,
+        { subscriptionId, groupId },
       );
-      await tx.none(`DELETE FROM subscriptions WHERE id = $/subscriptionId/`, { subscriptionId });
+      await tx.none(
+        `DELETE FROM subscriptions WHERE id = $/subscriptionId/ AND group_id = $/groupId/`,
+        { subscriptionId, groupId },
+      );
       return { status: 'OK', message: `Subscription removed` };
     },
   );
@@ -540,7 +545,24 @@ export function updateSubscription(
       // Always look up the row first so empty / non-existent PATCHes don't
       // silently 200 OK — and so authz errors fire before any group-scoped
       // validation of `defaults` runs.
-      await getSubscriptionRow(tx, groupId, subscriptionId);
+      const existing = await getSubscriptionRow(tx, groupId, subscriptionId);
+      // Recurring rows fan out into a single category-bucketed card and
+      // their `defaults` always names a category — clearing the filter's
+      // categoryId would orphan the row in the "uncategorized" bucket.
+      // Stats rows have no such requirement and can drop the constraint.
+      if (update.filter !== undefined && existing.period) {
+        const categoryId = update.filter.categoryId;
+        const empty =
+          categoryId === undefined ||
+          categoryId === null ||
+          (Array.isArray(categoryId) && categoryId.length === 0);
+        if (empty) {
+          throw new InvalidInputError(
+            'INVALID_INPUT',
+            'Recurring subscriptions must keep a category constraint in their filter',
+          );
+        }
+      }
       if (update.defaults !== undefined) {
         // Defaults references must resolve in the session group: getCategoryById,
         // getSourceById, and getUserById all throw NotFoundError when the id is
@@ -658,7 +680,7 @@ async function updateRecurringExpense(
   const division = determineDivision(expense, source);
   // 'after' uses `id = $editedId OR date > $editedDate` — the same precise predicate
   // `deleteRecurrenceAfter` uses, replacing the older `date >= afterDate` rule which
-  // had a same-date ambiguity (see SUBSCRIPTIONS_REWORK_PLAN.md → Edit propagation).
+  // had a same-date ambiguity (see docs/archive/SUBSCRIPTIONS_REWORK_PLAN.md → Edit propagation).
   // The same predicate flows into the division ops below so attributes and divisions
   // stay in sync for same-date sibling rows.
   const afterDate = target === 'after' ? original.date : null;
@@ -740,6 +762,3 @@ export function updateRecurringExpenseByExpenseId(
     },
   );
 }
-
-// Re-exported convenience for callers that previously imported updateExpenseById through here.
-export { updateExpenseById };

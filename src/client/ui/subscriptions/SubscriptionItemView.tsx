@@ -37,7 +37,7 @@ export const SubscriptionItemView: React.FC<{
         </Kind>
         <Title>{item.title}</Title>
         <Subtitle>{subtitle}</Subtitle>
-        <Sum>{Money.from(item.recurrencePerMonth).format()} / kk</Sum>
+        <Sum visibleFrom="sm">{Money.from(item.recurrencePerMonth).format()} / kk</Sum>
         <Sum>{Money.from(item.recurrencePerYear).format()} / v</Sum>
         <NextDate>{nextLine(item, kind)}</NextDate>
         <Tools>

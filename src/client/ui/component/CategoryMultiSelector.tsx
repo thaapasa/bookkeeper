@@ -28,7 +28,6 @@ export const CategoryMultiSelector: React.FC<CategoryMultiSelectorProps> = ({
 
   return (
     <MultiSelect
-      label="Kategoriat"
       value={value.map(String)}
       onChange={vs => onChange(vs.map(v => Number(v)))}
       data={data}
