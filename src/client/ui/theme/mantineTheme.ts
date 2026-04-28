@@ -56,15 +56,27 @@ export const breakpointEm = {
 } as const;
 
 /**
- * Resolve a Mantine breakpoint to pixels using the *live* root
- * font-size, so the result always matches what an `@media` /
- * `@container` query with the same breakpoint would compute right
- * now. Re-read on every comparison if the breakpoint may straddle
- * the root font-size scaling boundary.
+ * Resolve a Mantine breakpoint to pixels using the root font-size, so
+ * the result always matches what an `@media` / `@container` query with
+ * the same breakpoint would compute right now. The root font-size only
+ * changes on viewport resize (coding-conventions.md bumps the root via
+ * media query at small viewports), so we cache it across calls and
+ * invalidate on `resize` — `getComputedStyle` is otherwise called inside
+ * ResizeObserver callbacks once per frame.
  */
+let cachedRootPx: number | null = null;
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('resize', () => {
+    cachedRootPx = null;
+  });
+}
+
 export function breakpointPx(name: keyof typeof breakpointEm): number {
-  const rootPx = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
-  return breakpointEm[name] * rootPx;
+  if (cachedRootPx === null) {
+    cachedRootPx = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+  }
+  return breakpointEm[name] * cachedRootPx;
 }
 
 // Reverse the dark scale so low indices = dark (backgrounds) and high = light (text)

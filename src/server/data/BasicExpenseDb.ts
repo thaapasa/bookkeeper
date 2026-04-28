@@ -267,13 +267,11 @@ async function createDivision(tx: DbTask, expenseId: number, division: ExpenseDi
 }
 
 export function setExpenseDataDefaults(expense: Expense | ExpenseInput): ExpenseInputWithDefaults {
-  const data = {
+  return {
     ...expense,
     description: expense.description || null,
     confirmed: expense.confirmed ?? true,
-    subscriptionId: null,
   };
-  return data;
 }
 
 export type ExpenseInsert = Omit<Expense, 'id' | 'createdById' | 'created' | 'subscriptionId'> & {
@@ -377,35 +375,3 @@ export async function renameReceiver(
   );
   return res.rowCount;
 }
-
-async function getRecurrenceOccurence(
-  tx: DbTask,
-  groupId: ObjectId,
-  userId: ObjectId,
-  subscriptionId: ObjectId,
-  first: boolean,
-): Promise<Expense | undefined> {
-  const expense = await tx.map(
-    expenseSelectClause(
-      `WHERE subscription_id=$/subscriptionId/ AND e.group_id=$/groupId/`,
-      `ORDER BY date ${first ? 'ASC' : 'DESC'} LIMIT 1`,
-    ),
-    { subscriptionId, userId, groupId },
-    dbRowToExpense,
-  );
-  return expense[0];
-}
-
-export const getFirstRecurrence = (
-  tx: DbTask,
-  groupId: ObjectId,
-  userId: ObjectId,
-  subscriptionId: ObjectId,
-) => getRecurrenceOccurence(tx, groupId, userId, subscriptionId, true);
-
-export const getLastRecurrence = (
-  tx: DbTask,
-  groupId: ObjectId,
-  userId: ObjectId,
-  subscriptionId: ObjectId,
-) => getRecurrenceOccurence(tx, groupId, userId, subscriptionId, false);

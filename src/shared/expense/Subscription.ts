@@ -8,6 +8,57 @@ import { MoneyLike } from '../util/Money';
 import { ExpenseQuery, ExpenseType, UserExpense } from './Expense';
 import { RecurrencePeriod } from './Recurrence';
 
+/**
+ * Fields on `ExpenseQuery` that the matcher actually applies. The shape
+ * also includes pagination-style flags (`includeRecurring`,
+ * `includeSubCategories`, raw `startDate`/`endDate` from the search page)
+ * that either the subscription matcher ignores entirely or that only
+ * matter when paired with another constraint — those are deliberately
+ * absent so a payload like `{ includeRecurring: false }` can't pass for
+ * a meaningful filter.
+ */
+export const CONSTRAINING_FILTER_FIELDS = [
+  'search',
+  'title',
+  'receiver',
+  'type',
+  'categoryId',
+  'userId',
+  'confirmed',
+] as const satisfies readonly (keyof ExpenseQuery)[];
+
+/**
+ * Drop entries the matcher would treat as no-ops: `undefined`, `null`,
+ * empty strings, and empty arrays. Server and client run this before
+ * sending or storing a filter so the wire payload and the persisted
+ * JSONB stay aligned.
+ */
+export function stripBlanks(filter: ExpenseQuery): ExpenseQuery {
+  const out: ExpenseQuery = {};
+  for (const [k, v] of Object.entries(filter) as [keyof ExpenseQuery, unknown][]) {
+    if (v === undefined || v === null || v === '') continue;
+    if (Array.isArray(v) && v.length === 0) continue;
+    (out as Record<string, unknown>)[k] = v;
+  }
+  return out;
+}
+
+/**
+ * True when the filter carries at least one constraint the matcher will
+ * actually apply. Used both as the editor's "preview enabled" gate and
+ * as the server's empty-filter guard so a scripted client can't dump the
+ * whole group's expense list through `query-summary`.
+ */
+export function hasMeaningfulConstraint(filter: ExpenseQuery): boolean {
+  for (const field of CONSTRAINING_FILTER_FIELDS) {
+    const value = filter[field];
+    if (value === undefined || value === null || value === '') continue;
+    if (Array.isArray(value) && value.length === 0) continue;
+    return true;
+  }
+  return false;
+}
+
 export const SubscriptionSearchCriteria = z.object({
   type: ExpenseType.or(z.array(ExpenseType)).optional(),
   includeEnded: z.boolean().optional(),
@@ -159,9 +210,17 @@ export const SubscriptionDeleteQuery = z.object({
 });
 export type SubscriptionDeleteQuery = z.infer<typeof SubscriptionDeleteQuery>;
 
+/**
+ * `ObjectId` is `nonnegative`, so a stray `0` (the sentinel a `<Select>`
+ * emits before the user picks a real category) is Zod-valid but would
+ * silently no-match — keep narrow IDs strictly positive across the
+ * subscription API.
+ */
+const PositiveObjectId = ObjectId.refine(v => v > 0);
+
 export const SubscriptionMatchesQuery = z.object({
-  rowId: ObjectId,
-  categoryId: ObjectId.optional(),
+  rowId: PositiveObjectId,
+  categoryId: PositiveObjectId.optional(),
   limit: z.number().int().min(1).max(500).optional(),
   /**
    * Window for the dedup pass. Should match the page's range selector

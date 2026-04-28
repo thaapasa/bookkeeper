@@ -439,13 +439,13 @@ ALTER SEQUENCE public.sources_id_seq OWNED BY public.sources.id;
 --
 
 CREATE TABLE public.subscriptions (
-    id integer CONSTRAINT recurring_expenses_id_not_null NOT NULL,
-    group_id integer CONSTRAINT recurring_expenses_group_id_not_null NOT NULL,
+    id integer NOT NULL,
+    group_id integer NOT NULL,
     period_unit public.recurring_period,
     occurs_until date,
     next_missing date,
     period_amount smallint,
-    filter jsonb CONSTRAINT recurring_expenses_filter_not_null NOT NULL,
+    filter jsonb NOT NULL,
     defaults jsonb,
     title text NOT NULL,
     user_id integer

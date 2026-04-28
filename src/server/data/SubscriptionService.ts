@@ -3,6 +3,7 @@ import {
   buildSubscriptionFilter,
   ExpenseQuery,
   ExpenseType,
+  hasMeaningfulConstraint,
   MatchableExpense,
   QuerySummary,
   scoreFilter,
@@ -93,9 +94,11 @@ export function summarizeQuery(
       // An empty filter would match every expense in the window — the
       // editor refuses to send one but we guard at the API too so a
       // scripted client can't dump the group's full expense list via
-      // this endpoint. Treat blank strings and empty arrays as absent so
-      // a payload like `{search: ""}` or `{categoryId: []}` can't bypass
-      // the check.
+      // this endpoint. The shared check walks an allow-list of
+      // constraining fields, so flags the matcher ignores
+      // (`includeRecurring`, `includeSubCategories` on its own, raw
+      // `startDate`/`endDate`) can't dress up an otherwise empty
+      // payload.
       if (!hasMeaningfulConstraint(query)) {
         throw new InvalidInputError('INVALID_INPUT', 'Subscription query must not be empty');
       }
@@ -136,15 +139,25 @@ export function getSubscriptionMatches(
     async () => {
       const window = baselineWindow(query.range);
       // Verify the row exists; throws NotFoundError otherwise.
-      await getSubscriptionRow(tx, groupId, query.rowId);
+      const row = await getSubscriptionRow(tx, groupId, query.rowId);
 
+      // Re-runs the full dedup pass on every expander click rather than
+      // querying just this row's owned candidates. That's load-bearing for
+      // correctness: the matches list must reflect the same dedup the
+      // search endpoint produced (specificity score, lowest-id tiebreak),
+      // so a future "optimise into a single-row query" rewrite would
+      // diverge the two views.
       const rows = await getSubscriptionRows(tx, groupId);
       const filters = await buildAllFilters(tx, groupId, rows);
       const candidates = await fetchCandidateExpenses(tx, groupId, window.startDate);
       const wins = assignExpensesToSubscriptions(candidates, filters);
 
       let assigned = wins.get(query.rowId) ?? [];
-      if (query.categoryId !== undefined) {
+      // Recurring rows render as one card whose totals already span every
+      // owned row (no per-category fan-out), so the expander must too —
+      // filtering by the filter's category here would silently hide rows
+      // a user manually re-categorised after generation.
+      if (query.categoryId !== undefined && !row.period) {
         assigned = assigned.filter(e => e.categoryId === query.categoryId);
       }
       assigned.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : b.id - a.id));
@@ -161,21 +174,6 @@ export function getSubscriptionMatches(
 function toTypeArray(type: SubscriptionSearchCriteria['type']): ExpenseType[] | null {
   if (!type) return null;
   return Array.isArray(type) ? type : [type];
-}
-
-/**
- * True when the query carries at least one constraint the matcher will
- * actually apply. Mirrors the editor's `stripBlanks` so a Zod-valid but
- * effectively empty payload (`{search: ""}`, `{categoryId: []}`) is
- * rejected the same way as `{}`.
- */
-function hasMeaningfulConstraint(query: ExpenseQuery): boolean {
-  for (const value of Object.values(query)) {
-    if (value === undefined || value === null || value === '') continue;
-    if (Array.isArray(value) && value.length === 0) continue;
-    return true;
-  }
-  return false;
 }
 
 function baselineWindow(range: RecurrenceInterval = defaultBaselineRange): BaselineWindow {

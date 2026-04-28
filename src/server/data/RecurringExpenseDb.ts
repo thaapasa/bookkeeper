@@ -530,6 +530,7 @@ export function createSubscriptionFromFilter(
     'subscription.create_from_filter',
     { 'app.group_id': groupId, 'app.user_id': userId },
     async () => {
+      await validateFilterIds(tx, groupId, filter);
       const id = (
         await tx.one<{ id: number }>(
           `INSERT INTO subscriptions (group_id, user_id, title, filter)
@@ -574,6 +575,13 @@ export function updateSubscription(
           );
         }
       }
+      if (update.filter !== undefined) {
+        // Filter IDs reach the matcher unchanged and live in JSONB
+        // forever, so they must resolve in the session group too —
+        // otherwise a stray scalar from another group could persist
+        // even though the read side would never match it.
+        await validateFilterIds(tx, groupId, update.filter);
+      }
       if (update.defaults !== undefined) {
         // Defaults references must resolve in the session group: getCategoryById,
         // getSourceById, and getUserById all throw NotFoundError when the id is
@@ -597,7 +605,10 @@ export function updateSubscription(
         params.defaults = update.defaults;
       }
       if (sets.length === 0) {
-        return { status: 'OK', message: 'Subscription unchanged' };
+        // PATCH with no fields is a programming error on the client —
+        // reject explicitly rather than silently 200 OK so the bug
+        // surfaces during development.
+        throw new InvalidInputError('INVALID_INPUT', 'Subscription update must not be empty');
       }
       await tx.none(
         `UPDATE subscriptions SET ${sets.join(', ')}
@@ -607,6 +618,22 @@ export function updateSubscription(
       return { status: 'OK', message: 'Subscription updated' };
     },
   );
+}
+
+async function validateFilterIds(
+  tx: DbTask,
+  groupId: ObjectId,
+  filter: ExpenseQuery,
+): Promise<void> {
+  if (filter.categoryId !== undefined) {
+    const ids = Array.isArray(filter.categoryId) ? filter.categoryId : [filter.categoryId];
+    for (const id of ids) {
+      await getCategoryById(tx, groupId, id);
+    }
+  }
+  if (filter.userId !== undefined) {
+    await getUserById(tx, groupId, filter.userId);
+  }
 }
 
 function deleteDivisionForRecurrence(

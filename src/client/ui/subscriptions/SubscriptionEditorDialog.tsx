@@ -25,7 +25,9 @@ import {
   ExpenseType,
   expenseTypes,
   getExpenseTypeLabel,
+  hasMeaningfulConstraint,
   QuerySummary,
+  stripBlanks,
   Subscription,
   SubscriptionUpdate,
 } from 'shared/expense';
@@ -390,7 +392,9 @@ const PREVIEW_LIMIT = 50;
 const PreviewPanel: React.FC<{ filter: ExpenseQuery }> = ({ filter }) => {
   const userData = useUserData()!;
   const previewFilter = React.useMemo(() => stripBlanks(filter), [filter]);
-  const isEmpty = Object.keys(previewFilter).length === 0;
+  // Same guard the server enforces, surfaced earlier so the user sees
+  // why the preview hasn't started running.
+  const isEmpty = !hasMeaningfulConstraint(previewFilter);
   // Debounce so typing into title/receiver/search inputs doesn't fire a
   // server query on every keystroke — staleTime: 0 below means each
   // distinct queryKey is a fresh hit, so we want to settle on a value
@@ -508,23 +512,13 @@ function filterCategoryAsArray(c: ExpenseQuery['categoryId']): ObjectId[] {
 }
 
 /**
- * Collapse the multi-select state back to the schema's overloaded shape:
- * an empty selection drops the constraint entirely, a single pick stays
- * scalar (matches what `createSubscriptionFromFilter` writes), and
- * multiple picks travel as an array.
+ * Collapse the multi-select state back to the schema's overloaded
+ * shape. The matcher normalises both shapes identically, so the choice
+ * is purely cosmetic — keep a single pick scalar to match the JSONB
+ * the convert-an-expense flow writes (`{ categoryId: <n> }`).
  */
 function categoryFilterValue(ids: ObjectId[]): ExpenseQuery['categoryId'] {
   if (ids.length === 0) return undefined;
   if (ids.length === 1) return ids[0];
   return ids;
-}
-
-function stripBlanks(filter: ExpenseQuery): ExpenseQuery {
-  const out: ExpenseQuery = {};
-  for (const [k, v] of Object.entries(filter) as [keyof ExpenseQuery, unknown][]) {
-    if (v === undefined || v === '' || v === null) continue;
-    if (Array.isArray(v) && v.length === 0) continue;
-    (out as Record<string, unknown>)[k] = v;
-  }
-  return out;
 }

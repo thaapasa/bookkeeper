@@ -3,6 +3,7 @@ import { db } from 'server/data/Db';
 
 interface SubscriptionSnapshot {
   id: number;
+  groupId: number;
   nextMissing: ISODate | null;
   occursUntil: ISODate | null;
 }
@@ -16,7 +17,8 @@ export interface TestState {
    * that fetch a month trigger `createMissingRecurringExpenses` for
    * every group subscription with `next_missing` past, advancing those
    * cursors. Without restoring them the seed drifts forward across
-   * runs, which makes test ordering load-bearing.
+   * runs, which makes test ordering load-bearing. `groupId` is captured
+   * so the cleanup only restores cursors for the test's own group.
    */
   subscriptionCursors: SubscriptionSnapshot[];
 }
@@ -29,6 +31,7 @@ export async function captureTestState(): Promise<TestState> {
   );
   const subs = await db.manyOrNone<SubscriptionSnapshot>(
     `SELECT id,
+            group_id AS "groupId",
             next_missing AS "nextMissing",
             occurs_until AS "occursUntil"
        FROM subscriptions`,
@@ -62,13 +65,16 @@ export async function cleanupTestDataSince(groupId: number, state: TestState): P
     );
     // Restore pre-existing subscriptions' generation cursors so tests
     // that run `createMissingRecurringExpenses` don't permanently
-    // advance the seed.
+    // advance the seed. Only the test group's cursors are restored —
+    // tests run against a single seeded group, so cursors captured
+    // from other groups are out of scope.
     for (const sub of state.subscriptionCursors) {
+      if (sub.groupId !== groupId) continue;
       await tx.none(
         `UPDATE subscriptions
             SET next_missing = $/nextMissing/::DATE,
                 occurs_until = $/occursUntil/::DATE
-            WHERE id = $/id/`,
+            WHERE id = $/id/ AND group_id = $/groupId/`,
         sub,
       );
     }

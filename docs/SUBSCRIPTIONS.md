@@ -190,9 +190,12 @@ root-category / sub-category tree happens client-side in
 
 ## Generation
 
-Auto-generation is lazy, triggered from expense search — same pattern as the
-pre-rework code. `createMissingRecurringExpenses`
-(`src/server/data/RecurringExpenseDb.ts`) runs at the top of expense queries:
+Auto-generation is lazy, triggered from the month expense view (`getExpensesByMonth`
+in `src/server/data/Expenses.ts`) — same pattern as the pre-rework code. The free-text
+search and the subscriptions endpoints intentionally do **not** trigger generation, so
+a user who only ever looks at the search page can still see stale `next_missing` for a
+subscription until they next open a month view. `createMissingRecurringExpenses`
+(`src/server/data/RecurringExpenseDb.ts`) runs at the top of the month query:
 
 ```sql
 SELECT id, defaults, next_missing, occurs_until, period_amount, period_unit

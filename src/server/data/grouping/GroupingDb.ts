@@ -24,13 +24,16 @@ const EXPENSE_SUM_SUBSELECT = /*sql*/ `
   SELECT SUM(CASE e.type WHEN 'expense' THEN sum WHEN 'income' THEN -sum ELSE 0 END)
     FROM expenses e
     LEFT JOIN categories cat ON (cat.id = e.category_id)
-    WHERE e.grouping_id = data.id
-      OR (
-        e.grouping_id IS NULL
-        AND (cat.id = ANY(data.categories) OR cat.parent_id = ANY(data.categories))
-        AND (data."startDate" IS NULL OR e.date >= data."startDate")
-        AND (data."endDate" IS NULL OR e.date <= data."endDate")
-        AND (data."onlyOwn" IS FALSE OR e.user_id = $/userId/)
+    WHERE e.group_id = $/groupId/
+      AND (
+        e.grouping_id = data.id
+        OR (
+          e.grouping_id IS NULL
+          AND (cat.id = ANY(data.categories) OR cat.parent_id = ANY(data.categories))
+          AND (data."startDate" IS NULL OR e.date >= data."startDate")
+          AND (data."endDate" IS NULL OR e.date <= data."endDate")
+          AND (data."onlyOwn" IS FALSE OR e.user_id = $/userId/)
+        )
       )
 `;
 
