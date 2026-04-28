@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 import { DateRange } from 'shared/time';
 import { CategoryMap, CategorySelection, isDefined } from 'shared/types';
-import apiConnect from 'client/data/ApiConnect';
+import { apiConnect } from 'client/data/ApiConnect';
 import { QueryKeys } from 'client/data/queryKeys';
 import { useCategoryMap } from 'client/data/SessionStore';
 import { PageTitle } from 'client/ui/design/PageTitle';

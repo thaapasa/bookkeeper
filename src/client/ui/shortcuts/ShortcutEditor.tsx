@@ -5,7 +5,7 @@ import { create } from 'zustand';
 
 import { ExpenseShortcut } from 'shared/expense';
 import { ObjectId } from 'shared/types';
-import apiConnect from 'client/data/ApiConnect';
+import { apiConnect } from 'client/data/ApiConnect';
 import { QueryKeys } from 'client/data/queryKeys';
 
 import { QueryBoundary } from '../component/QueryBoundary';

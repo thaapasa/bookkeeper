@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useNavigate } from 'react-router';
 
 import { ISOMonth, isSameMonth, monthRange, toDateTime } from 'shared/time';
-import apiConnect from 'client/data/ApiConnect';
+import { apiConnect } from 'client/data/ApiConnect';
 import { useNavigationStore } from 'client/data/NavigationStore';
 import { updateExpenseInMonthCache } from 'client/data/query';
 import { QueryKeys } from 'client/data/queryKeys';

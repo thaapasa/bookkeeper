@@ -2,7 +2,7 @@ import { Box, Button, Group, Modal } from '@mantine/core';
 import * as React from 'react';
 
 import { Category } from 'shared/types';
-import apiConnect from 'client/data/ApiConnect';
+import { apiConnect } from 'client/data/ApiConnect';
 import { queryClient } from 'client/data/query';
 import { QueryKeys } from 'client/data/queryKeys';
 import { logger } from 'client/Logger';

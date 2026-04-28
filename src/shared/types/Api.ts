@@ -46,17 +46,3 @@ export function isApiMessageWithExpenseId(e: unknown): e is ExpenseIdResponse {
   const o = e as Record<string, unknown> | null;
   return typeof e === 'object' && o !== null && !!o.status && !!o.message && !!o.expenseId;
 }
-
-export function isApiMessageWithRecurringExpenseId(
-  e: unknown,
-): e is RecurringExpenseCreatedResponse {
-  const o = e as Record<string, unknown> | null;
-  return (
-    typeof e === 'object' &&
-    o !== null &&
-    !!o.status &&
-    !!o.message &&
-    !!o.subscriptionId &&
-    !!o.expenseId
-  );
-}

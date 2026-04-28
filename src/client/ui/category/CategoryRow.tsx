@@ -6,7 +6,7 @@ import * as React from 'react';
 import { UIDateRange } from 'shared/time';
 import { Category, CategoryAndTotals } from 'shared/types';
 import { Money, MoneyLike, noop } from 'shared/util';
-import apiConnect from 'client/data/ApiConnect';
+import { apiConnect } from 'client/data/ApiConnect';
 import { UserDataProps } from 'client/data/Categories';
 import { QueryKeys } from 'client/data/queryKeys';
 

@@ -3,7 +3,7 @@ import { create } from 'zustand';
 import { ExpenseShortcut, ExpenseShortcutData, ExpenseShortcutPayload } from 'shared/expense';
 import { ObjectId } from 'shared/types';
 import { requireDefined } from 'shared/util';
-import apiConnect from 'client/data/ApiConnect';
+import { apiConnect } from 'client/data/ApiConnect';
 import { updateSession } from 'client/data/Login';
 import { executeOperation } from 'client/util/ExecuteOperation';
 

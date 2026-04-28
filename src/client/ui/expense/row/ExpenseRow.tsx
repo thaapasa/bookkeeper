@@ -10,7 +10,7 @@ import {
 import { readableDate, toDateTime } from 'shared/time';
 import { Category, isDefined } from 'shared/types';
 import { equal, Money, notEqual } from 'shared/util';
-import apiConnect from 'client/data/ApiConnect';
+import { apiConnect } from 'client/data/ApiConnect';
 import { getFullCategoryName, UserDataProps } from 'client/data/Categories';
 import { navigateToExpenseDate, useNavigationStore } from 'client/data/NavigationStore';
 import { invalidateExpenseData, invalidateSubscriptionData } from 'client/data/query';

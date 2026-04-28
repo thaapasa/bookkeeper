@@ -5,7 +5,7 @@ import * as React from 'react';
 import { TypedDateRange } from 'shared/time';
 import { Category, CategoryAndTotals } from 'shared/types';
 import { Money } from 'shared/util';
-import apiConnect from 'client/data/ApiConnect';
+import { apiConnect } from 'client/data/ApiConnect';
 import { updateSession } from 'client/data/Login';
 import { useNavigationStore } from 'client/data/NavigationStore';
 import { QueryKeys } from 'client/data/queryKeys';

@@ -15,7 +15,7 @@ import { uri } from 'shared/net';
 import { readableDateWithYear } from 'shared/time';
 import { ExpenseGrouping } from 'shared/types';
 import { hasMatchingElements, Money } from 'shared/util';
-import apiConnect from 'client/data/ApiConnect';
+import { apiConnect } from 'client/data/ApiConnect';
 import { executeOperation } from 'client/util/ExecuteOperation';
 import { groupingsPagePath } from 'client/util/Links';
 

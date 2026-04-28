@@ -2,9 +2,10 @@ import { z } from 'zod';
 
 import { RecurrenceInterval } from '../time/RecurrenceInterval';
 import { ISODate } from '../time/Time';
+import { ShortString } from '../types/Common';
 import { ObjectId } from '../types/Id';
 import { MoneyLike } from '../util/Money';
-import { ExpenseDivision, ExpenseQuery, ExpenseType, UserExpense } from './Expense';
+import { ExpenseQuery, ExpenseType, UserExpense } from './Expense';
 import { RecurrencePeriod } from './Recurrence';
 
 export const SubscriptionSearchCriteria = z.object({
@@ -15,17 +16,24 @@ export const SubscriptionSearchCriteria = z.object({
 });
 export type SubscriptionSearchCriteria = z.infer<typeof SubscriptionSearchCriteria>;
 
+/**
+ * Template for the auto-generated expenses of a recurring subscription.
+ * Division is derived at generation time from `sum` + the source's
+ * default split, so it is not part of the template — storing a stale
+ * pre-computed division would let a PATCH (or a single-row edit that
+ * diverges from defaults) silently produce expense_division rows that
+ * violate the `sum(expense_division.sum) = 0` invariant.
+ */
 export const ExpenseDefaults = z.object({
-  title: z.string(),
-  receiver: z.string().optional(),
+  title: ShortString,
+  receiver: ShortString.optional(),
   sum: MoneyLike,
   type: ExpenseType,
   sourceId: ObjectId,
   categoryId: ObjectId,
   userId: ObjectId,
   confirmed: z.boolean(),
-  description: z.string().or(z.null()),
-  division: ExpenseDivision.optional(),
+  description: z.string().nullable(),
 });
 export type ExpenseDefaults = z.infer<typeof ExpenseDefaults>;
 

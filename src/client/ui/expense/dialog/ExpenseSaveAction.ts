@@ -1,5 +1,5 @@
 import { ExpenseData, RecurringExpenseTarget, UserExpenseWithDetails } from 'shared/expense';
-import apiConnect from 'client/data/ApiConnect';
+import { apiConnect } from 'client/data/ApiConnect';
 import { logger } from 'client/Logger';
 import { UserPrompts } from 'client/ui/dialog/DialogState';
 import { executeOperation } from 'client/util/ExecuteOperation';

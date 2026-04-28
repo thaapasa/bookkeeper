@@ -5,7 +5,7 @@ import { create } from 'zustand';
 
 import { Session } from 'shared/types';
 import { isPassword, PasswordUpdate } from 'shared/userData';
-import apiConnect from 'client/data/ApiConnect';
+import { apiConnect } from 'client/data/ApiConnect';
 import { updateSession } from 'client/data/Login';
 import { notify } from 'client/data/NotificationStore';
 import { logger } from 'client/Logger';

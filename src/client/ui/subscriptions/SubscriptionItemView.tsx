@@ -1,11 +1,11 @@
-import { ActionIcon, Group, List, Loader, Menu, Stack, Text, Tooltip } from '@mantine/core';
+import { ActionIcon, Box, Group, List, Loader, Menu, Stack, Text, Tooltip } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import * as React from 'react';
 
 import { RecurrencePeriod, Subscription } from 'shared/expense';
 import { readableDateWithYear, RecurrenceInterval, toISODate } from 'shared/time';
 import { Money } from 'shared/util';
-import apiConnect from 'client/data/ApiConnect';
+import { apiConnect } from 'client/data/ApiConnect';
 import { invalidateSubscriptionData } from 'client/data/query';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
@@ -24,14 +24,6 @@ export const SubscriptionItemView: React.FC<{
 }> = ({ item, range }) => {
   const [open, { toggle }] = useDisclosure(false);
   const [editorOpen, { open: openEditor, close: closeEditor }] = useDisclosure(false);
-  // If the parent swaps `item` for a different subscription while the
-  // editor is open (e.g. a filter toggle reorders the list), close it
-  // rather than silently rebinding the open dialog to the new item's
-  // data. Combined with the `key={item.id}` below, this guarantees the
-  // dialog never carries another row's edits forward.
-  React.useEffect(() => {
-    closeEditor();
-  }, [item.id, closeEditor]);
   const stale = isStale(item);
   const kind = subscriptionKind(item, stale);
   const muted = kind !== 'active';
@@ -97,25 +89,25 @@ const KindIcon: React.FC<{ kind: SubscriptionKind }> = ({ kind }) => {
     case 'active':
       return (
         <Tooltip label="Aktiivinen tilaus — uusia kirjauksia luodaan automaattisesti">
-          <span style={{ display: 'inline-flex' }}>
+          <Box component="span" display="inline-flex">
             <Icons.Recurring color="var(--mantine-color-primary-6)" />
-          </span>
+          </Box>
         </Tooltip>
       );
     case 'ended':
       return (
         <Tooltip label="Päättynyt toistuva tilaus — uusia kirjauksia ei enää luoda">
-          <span style={{ display: 'inline-flex' }}>
+          <Box component="span" display="inline-flex">
             <Icons.Recurring color="var(--mantine-color-neutral-5)" />
-          </span>
+          </Box>
         </Tooltip>
       );
     case 'stats':
       return (
         <Tooltip label="Tilastotilaus — vain kirjausten ryhmittelyä, ei automaattisia kirjauksia">
-          <span style={{ display: 'inline-flex' }}>
+          <Box component="span" display="inline-flex">
             <Icons.BarChart color="var(--mantine-color-neutral-6)" />
-          </span>
+          </Box>
         </Tooltip>
       );
   }

@@ -136,8 +136,9 @@ export async function getAllExpenses(
 }
 
 /**
- * Fetch the full UserExpense records for a list of ids, in the order
- * the ids are provided. Used by the subscription listing/preview paths
+ * Fetch the full UserExpense records for a list of ids, sorted by date
+ * (and id) descending — newest first, the order the subscription
+ * listing/preview UIs render them in. Used by the subscription paths
  * so the client can render their matches through the same ExpenseRow
  * pipeline as the month/search/grouping views.
  */

@@ -7,7 +7,7 @@ import { z } from 'zod';
 import { Subscription, SubscriptionSearchCriteria } from 'shared/expense';
 import { Category, ObjectId } from 'shared/types';
 import { Money, MoneyLike } from 'shared/util';
-import apiConnect from 'client/data/ApiConnect';
+import { apiConnect } from 'client/data/ApiConnect';
 import { QueryKeys } from 'client/data/queryKeys';
 import { useCategoryMap } from 'client/data/SessionStore';
 import { PageTitle } from 'client/ui/design/PageTitle';

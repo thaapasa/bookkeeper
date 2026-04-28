@@ -5,6 +5,7 @@ import {
   Group,
   Loader,
   Modal,
+  MultiSelect,
   Select,
   Stack,
   Table,
@@ -13,6 +14,7 @@ import {
   Textarea,
   TextInput,
 } from '@mantine/core';
+import { useDebouncedValue } from '@mantine/hooks';
 import { useQuery } from '@tanstack/react-query';
 import * as React from 'react';
 import { z } from 'zod';
@@ -29,7 +31,7 @@ import {
 } from 'shared/expense';
 import { ObjectId } from 'shared/types';
 import { Money, noop } from 'shared/util';
-import apiConnect from 'client/data/ApiConnect';
+import { apiConnect } from 'client/data/ApiConnect';
 import { invalidateSubscriptionData } from 'client/data/query';
 import { useUserData, useValidSession } from 'client/data/SessionStore';
 import { executeOperation } from 'client/util/ExecuteOperation';
@@ -63,11 +65,6 @@ const TRI_STATE_OPTIONS = [
   { value: 'any', label: 'Mikä tahansa' },
   { value: 'true', label: 'Vain valmiit' },
   { value: 'false', label: 'Vain alustavat' },
-];
-
-const TYPE_FILTER_OPTIONS = [
-  { value: 'any', label: 'Kaikki tyypit' },
-  ...expenseTypes.map(t => ({ value: t, label: getExpenseTypeLabel(t) })),
 ];
 
 const TYPE_OPTIONS = expenseTypes.map(t => ({ value: t, label: getExpenseTypeLabel(t) }));
@@ -199,7 +196,7 @@ const FilterEditor: React.FC<{
   onChange: (patch: Partial<ExpenseQuery>) => void;
   users: { id: ObjectId; label: string }[];
 }> = ({ filter, onChange, users }) => {
-  const typeValue = filterTypeAsSingle(filter.type);
+  const typeValues = filterTypeAsArray(filter.type);
   const userValue = filter.userId !== undefined ? String(filter.userId) : 'any';
   const categoryValues = filterCategoryAsArray(filter.categoryId);
   const confirmedValue =
@@ -207,12 +204,13 @@ const FilterEditor: React.FC<{
 
   return (
     <Stack gap="sm">
-      <Select
+      <MultiSelect
         label="Tyyppi"
-        data={TYPE_FILTER_OPTIONS}
-        value={typeValue ?? 'any'}
-        onChange={v => onChange({ type: v && v !== 'any' ? (v as ExpenseType) : undefined })}
-        allowDeselect={false}
+        description="Tyhjä = kaikki tyypit. Voit valita useita."
+        data={TYPE_OPTIONS}
+        value={typeValues}
+        onChange={vs => onChange({ type: typeFilterValue(vs as ExpenseType[]) })}
+        clearable
       />
       <CategoryMultiSelector
         value={categoryValues}
@@ -392,10 +390,15 @@ const PreviewPanel: React.FC<{ filter: ExpenseQuery }> = ({ filter }) => {
   const userData = useUserData()!;
   const previewFilter = React.useMemo(() => stripBlanks(filter), [filter]);
   const isEmpty = Object.keys(previewFilter).length === 0;
+  // Debounce so typing into title/receiver/search inputs doesn't fire a
+  // server query on every keystroke — staleTime: 0 below means each
+  // distinct queryKey is a fresh hit, so we want to settle on a value
+  // before letting it through.
+  const [debouncedFilter] = useDebouncedValue(previewFilter, 300);
 
   const { data, isLoading, isError, error, refetch, isFetching } = useQuery<QuerySummary>({
-    queryKey: ['subscription-preview', previewFilter],
-    queryFn: () => apiConnect.summarizeSubscriptionQuery(previewFilter, { limit: PREVIEW_LIMIT }),
+    queryKey: ['subscription-preview', debouncedFilter],
+    queryFn: () => apiConnect.summarizeSubscriptionQuery(debouncedFilter, { limit: PREVIEW_LIMIT }),
     enabled: !isEmpty,
     staleTime: 0,
   });
@@ -478,10 +481,20 @@ function initialState(item: Subscription | undefined): FormState {
   };
 }
 
-function filterTypeAsSingle(t: ExpenseQuery['type']): ExpenseType | undefined {
-  if (!t) return undefined;
-  if (Array.isArray(t)) return t[0];
-  return t;
+function filterTypeAsArray(t: ExpenseQuery['type']): ExpenseType[] {
+  if (!t) return [];
+  return Array.isArray(t) ? t : [t];
+}
+
+/**
+ * Collapse the multi-select state back to the schema's overloaded shape:
+ * empty drops the constraint, a single pick stays scalar (matches what
+ * older filters were stored as), and multiple picks travel as an array.
+ */
+function typeFilterValue(types: ExpenseType[]): ExpenseQuery['type'] {
+  if (types.length === 0) return undefined;
+  if (types.length === 1) return types[0];
+  return types;
 }
 
 function filterCategoryAsArray(c: ExpenseQuery['categoryId']): ObjectId[] {

@@ -5,7 +5,7 @@ import * as React from 'react';
 import { Subscription, SubscriptionMatchesQuery } from 'shared/expense';
 import { RecurrenceInterval } from 'shared/time';
 import { noop } from 'shared/util';
-import apiConnect from 'client/data/ApiConnect';
+import { apiConnect } from 'client/data/ApiConnect';
 import { QueryKeys } from 'client/data/queryKeys';
 import { useUserData } from 'client/data/SessionStore';
 

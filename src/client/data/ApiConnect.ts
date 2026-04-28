@@ -442,5 +442,4 @@ export class ApiConnect {
   public getDbStatus = () => this.get<DbStatus>('/api/admin/status');
 }
 
-const apiConnect = new ApiConnect();
-export default apiConnect;
+export const apiConnect = new ApiConnect();

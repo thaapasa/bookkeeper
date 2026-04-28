@@ -23,6 +23,7 @@ import {
   NotFoundError,
   ObjectId,
   RecurringExpenseCreatedResponse,
+  Source,
 } from 'shared/types';
 import { camelCaseObject, Money } from 'shared/util';
 import { DbTask } from 'server/data/Db.ts';
@@ -38,7 +39,7 @@ import {
   storeExpenseDivision,
   updateExpense,
 } from './BasicExpenseDb';
-import { getExpenseAndDivisionData, updateExpenseById } from './BasicExpenseService';
+import { updateExpenseById } from './BasicExpenseService';
 import { getCategoryById } from './CategoryDb';
 import { determineDivision } from './ExpenseDivision';
 import { calculateNextRecurrence } from './RecurringExpenseService';
@@ -51,10 +52,7 @@ export function filterFromExpense(expense: Expense): ExpenseQuery {
   return filter;
 }
 
-export function defaultsFromExpense(
-  expense: Expense,
-  division: ExpenseDivisionItem[],
-): ExpenseDefaults {
+export function defaultsFromExpense(expense: Expense): ExpenseDefaults {
   return {
     title: expense.title,
     ...(expense.receiver ? { receiver: expense.receiver } : {}),
@@ -65,7 +63,6 @@ export function defaultsFromExpense(
     userId: expense.userId,
     confirmed: expense.confirmed,
     description: expense.description ?? null,
-    division: division.map(d => ({ ...d, sum: Money.toString(d.sum) })),
   };
 }
 
@@ -193,7 +190,7 @@ export function createRecurringFromExpense(
       logger.info(
         `Create recurring expense with a period of ${recurrence.period.amount} ${recurrence.period.unit} from ${expenseId}`,
       );
-      const [expense, division] = await getExpenseAndDivisionData(tx, groupId, userId, expenseId);
+      const expense = await getExpenseById(tx, groupId, userId, expenseId);
       if (expense.subscriptionId && expense.subscriptionId > 0) {
         throw new InvalidInputError(
           'INVALID_INPUT',
@@ -202,7 +199,7 @@ export function createRecurringFromExpense(
       }
       const nextMissing = calculateNextRecurrence(expense.date, recurrence.period);
       const filter = filterFromExpense(expense);
-      const defaults = defaultsFromExpense(expense, division);
+      const defaults = defaultsFromExpense(expense);
       const subscriptionId = (
         await tx.one<{ id: number }>(
           `INSERT INTO subscriptions
@@ -256,6 +253,7 @@ async function generateRowFromDefaults(
   groupId: ObjectId,
   subscriptionId: ObjectId,
   defaults: ExpenseDefaults,
+  source: Source,
   date: ISODate,
 ): Promise<number> {
   const insert: ExpenseInsert = {
@@ -272,11 +270,11 @@ async function generateRowFromDefaults(
     date,
     subscriptionId,
   };
-  let division = defaults.division;
-  if (!division) {
-    const source = await getSourceById(tx, groupId, defaults.sourceId);
-    division = determineDivision(insert, source);
-  }
+  // Division is always derived from the current source split; the
+  // subscription's stored defaults intentionally don't carry a
+  // pre-computed division, so a stale or hand-crafted PATCH can't slip
+  // an invariant-breaking expense_division blob through this path.
+  const division = determineDivision(insert, source);
   logger.debug('Generating subscription row %s at %s', defaults.title, date);
   return createNewExpense(tx, defaults.userId, insert, division);
 }
@@ -307,14 +305,15 @@ async function createMissingRecurrences(
       subscriptionId: recurrence.id,
       title: recurrence.defaults.title,
       period: recurrence.period,
-      dates: dates.map(d => toISODate(d)),
+      dates,
       nextMissing: toISODate(nextMissing),
     },
     `Creating ${dates.length} missing expense(s) for subscription ${recurrence.id}`,
   );
+  const source = await getSourceById(tx, groupId, recurrence.defaults.sourceId);
   await tx.batch(
     dates.map(date =>
-      generateRowFromDefaults(tx, groupId, recurrence.id, recurrence.defaults, date),
+      generateRowFromDefaults(tx, groupId, recurrence.id, recurrence.defaults, source, date),
     ),
   );
   await tx.none(
@@ -328,6 +327,11 @@ async function createMissingRecurrences(
   );
 }
 
+/**
+ * Recurring-row payload as returned by `createMissingRecurringExpenses`.
+ * The query filters out report-style rows (those have NULL `next_missing`
+ * and NULL `period_*`), so every field below is guaranteed populated.
+ */
 interface RecurrenceInDb {
   id: ObjectId;
   defaults: ExpenseDefaults;
@@ -352,9 +356,15 @@ export function createMissingRecurringExpenses(
     async () => {
       logger.debug('Checking for missing expenses');
       const list = await tx.map<RecurrenceInDb>(
+        // `next_missing` is NULL for report-style (non-recurring) rows;
+        // the `<` predicate already filters them out, but the explicit
+        // period_unit check makes the contract obvious to readers and
+        // matches the non-nullable shape of `RecurrenceInDb`.
         `SELECT id, defaults, next_missing, occurs_until, period_amount, period_unit
             FROM subscriptions
-            WHERE group_id=$/groupId/ AND next_missing < $/nextMissing/::DATE`,
+            WHERE group_id=$/groupId/
+              AND period_unit IS NOT NULL
+              AND next_missing < $/nextMissing/::DATE`,
         { groupId, nextMissing: date },
         camelCaseObject,
       );
@@ -681,7 +691,6 @@ async function updateRecurringExpense(
     userId: expense.userId,
     confirmed: expense.confirmed,
     description: expense.description ?? null,
-    division: division.map(d => ({ ...d, sum: Money.toString(d.sum) })),
   };
   await tx.none(
     `UPDATE subscriptions

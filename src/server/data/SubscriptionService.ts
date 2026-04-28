@@ -14,7 +14,7 @@ import {
   SubscriptionSearchCriteria,
 } from 'shared/expense';
 import { ISODate, RecurrenceInterval, toDateTime, toISODate } from 'shared/time';
-import { ObjectId } from 'shared/types';
+import { InvalidInputError, ObjectId } from 'shared/types';
 import { Money } from 'shared/util';
 import { DbTask } from 'server/data/Db.ts';
 import { withSpan } from 'server/telemetry/Spans';
@@ -90,6 +90,13 @@ export function summarizeQuery(
     'subscription.query_summary',
     { 'app.group_id': groupId, 'app.user_id': userId },
     async () => {
+      // An empty filter would match every expense in the window — the
+      // editor refuses to send one but we guard at the API too so a
+      // scripted client can't dump the group's full expense list via
+      // this endpoint.
+      if (Object.keys(query).length === 0) {
+        throw new InvalidInputError('INVALID_INPUT', 'Subscription query must not be empty');
+      }
       const window = baselineWindow(range);
       const filter = await buildOneFilter(tx, groupId, 0, query);
       const candidates = await fetchCandidateExpenses(tx, groupId, window.startDate);

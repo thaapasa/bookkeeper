@@ -15,7 +15,7 @@ import { create } from 'zustand';
 
 import { CategoryMap, ExpenseGrouping, ObjectId } from 'shared/types';
 import { noop } from 'shared/util';
-import apiConnect from 'client/data/ApiConnect';
+import { apiConnect } from 'client/data/ApiConnect';
 import { getFullCategoryName } from 'client/data/Categories';
 import { QueryKeys } from 'client/data/queryKeys';
 import { useCategoryMap } from 'client/data/SessionStore';

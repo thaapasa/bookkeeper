@@ -5,7 +5,7 @@ import { useParams } from 'react-router';
 import { ExpenseQuery } from 'shared/expense';
 import { ISOMonth, ISOMonthRegExp, toDateRange, toISODate } from 'shared/time';
 import { Category, isDefined } from 'shared/types';
-import apiConnect from 'client/data/ApiConnect';
+import { apiConnect } from 'client/data/ApiConnect';
 import { useNavigationStore } from 'client/data/NavigationStore';
 import { QueryKeys } from 'client/data/queryKeys';
 import { useCategoryDataSource, useUserData } from 'client/data/SessionStore';

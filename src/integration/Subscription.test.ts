@@ -17,7 +17,7 @@ import {
 } from 'shared/expense/test';
 import { uri } from 'shared/net';
 import { createTestClient, SessionWithControl } from 'shared/net/test';
-import { ISODate } from 'shared/time';
+import { ISODate, toDateTime, toISODate } from 'shared/time';
 import { ApiMessage, RecurringExpenseCreatedResponse } from 'shared/types';
 import { db } from 'server/data/Db';
 import { logger } from 'server/Logger';
@@ -102,6 +102,16 @@ async function fetchMonth(
   month: number,
 ): Promise<ExpenseCollection> {
   return session.get<ExpenseCollection>('/api/expense/month', { year, month });
+}
+
+/**
+ * Build an ISO date that is guaranteed to fall inside the 5y dedup
+ * window regardless of when the suite runs. `monthsAgo` is offset back
+ * from today; `day` overrides the day-of-month for stable per-test
+ * ordering.
+ */
+function recentDate(monthsAgo: number, day = 1): ISODate {
+  return toISODate(toDateTime().minus({ months: monthsAgo }).set({ day }));
 }
 
 function buildEditInput(
@@ -414,17 +424,17 @@ describe('subscription lifecycle', () => {
     // 5y dedup window so the fan-out actually picks them up.
     await newExpense(session, {
       sum: '50.00',
-      date: '2026-02-01',
+      date: recentDate(2, 1),
       categoryId: subA.categoryId!,
     });
     await newExpense(session, {
       sum: '60.00',
-      date: '2026-02-02',
+      date: recentDate(2, 2),
       categoryId: subA.categoryId!,
     });
     await newExpense(session, {
       sum: '40.00',
-      date: '2026-02-03',
+      date: recentDate(2, 3),
       categoryId: subB.categoryId!,
     });
 
@@ -455,11 +465,11 @@ describe('subscription lifecycle', () => {
     // dominated. End the older one — when the search excludes ended
     // rows, the newer row's `dominatedBy` must not dangle at the
     // invisible elder. Dates must fall inside the 5y dedup window.
-    const { subscriptionId: oldId } = await createMonthlyRecurring(session, '2026-01-01');
+    const { subscriptionId: oldId } = await createMonthlyRecurring(session, recentDate(3, 1));
     const created = await newExpense(session, {
       sum: '100.00',
       title: 'Subscription test',
-      date: '2026-01-02',
+      date: recentDate(3, 2),
       confirmed: false,
     });
     const newerExpenseId = checkCreateStatus(created);
@@ -498,7 +508,7 @@ describe('subscription lifecycle', () => {
       sum: '17.00',
       title: 'Uniquely-titled-uncat-row',
       receiver: 'UncatReceiver',
-      date: '2026-03-01',
+      date: recentDate(1, 1),
       categoryId: cat.categoryId!,
     });
 
