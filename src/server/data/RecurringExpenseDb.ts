@@ -224,8 +224,8 @@ export function createRecurringFromExpense(
       await tx.none(
         `UPDATE expenses
             SET subscription_id = $/subscriptionId/
-            WHERE id = $/expenseId/`,
-        { subscriptionId, expenseId },
+            WHERE id = $/expenseId/ AND group_id = $/groupId/`,
+        { subscriptionId, expenseId, groupId },
       );
       return {
         status: 'OK',
@@ -318,10 +318,11 @@ async function createMissingRecurrences(
   await tx.none(
     `UPDATE subscriptions
         SET next_missing=$/nextMissing/::DATE
-        WHERE id=$/subscriptionId/`,
+        WHERE id=$/subscriptionId/ AND group_id=$/groupId/`,
     {
       nextMissing: toISODate(nextMissing),
       subscriptionId: recurrence.id,
+      groupId,
     },
   );
 }
@@ -374,13 +375,16 @@ export function createMissingRecurringExpenses(
 
 async function deleteRecurrenceAndExpenses(
   tx: DbTask,
+  groupId: ObjectId,
   subscriptionId: ObjectId,
 ): Promise<ApiMessage> {
-  await tx.none(`DELETE FROM expenses WHERE subscription_id=$/subscriptionId/`, {
+  await tx.none(
+    `DELETE FROM expenses WHERE subscription_id=$/subscriptionId/ AND group_id=$/groupId/`,
+    { subscriptionId, groupId },
+  );
+  await tx.none(`DELETE FROM subscriptions WHERE id=$/subscriptionId/ AND group_id=$/groupId/`, {
     subscriptionId,
-  });
-  await tx.none(`DELETE FROM subscriptions WHERE id=$/subscriptionId/`, {
-    subscriptionId,
+    groupId,
   });
   return {
     status: 'OK',
@@ -388,18 +392,24 @@ async function deleteRecurrenceAndExpenses(
   };
 }
 
-async function terminateRecurrenceAt(tx: DbTask, subscriptionId: ObjectId, date: DateLike) {
+async function terminateRecurrenceAt(
+  tx: DbTask,
+  groupId: ObjectId,
+  subscriptionId: ObjectId,
+  date: DateLike,
+) {
   const dateIso = toISODate(date);
   await tx.none(
     `UPDATE subscriptions
         SET occurs_until=$/date/::date
-        WHERE id=$/subscriptionId/`,
-    { subscriptionId, date: dateIso },
+        WHERE id=$/subscriptionId/ AND group_id=$/groupId/`,
+    { subscriptionId, date: dateIso, groupId },
   );
 }
 
 async function deleteRecurrenceAfter(
   tx: DbTask,
+  groupId: ObjectId,
   expenseId: ObjectId,
   afterDate: DateLike,
   subscriptionId: ObjectId,
@@ -407,10 +417,11 @@ async function deleteRecurrenceAfter(
   const afterDateIso = toISODate(afterDate);
   await tx.none(
     `DELETE FROM expenses
-        WHERE subscription_id=$/subscriptionId/ AND (id=$/expenseId/ OR date > $/afterDate/::date)`,
-    { subscriptionId, expenseId, afterDate: afterDateIso },
+        WHERE subscription_id=$/subscriptionId/ AND group_id=$/groupId/
+          AND (id=$/expenseId/ OR date > $/afterDate/::date)`,
+    { subscriptionId, expenseId, afterDate: afterDateIso, groupId },
   );
-  await terminateRecurrenceAt(tx, subscriptionId, afterDateIso);
+  await terminateRecurrenceAt(tx, groupId, subscriptionId, afterDateIso);
   return {
     status: 'OK',
     message: `Expenses after ${afterDateIso} for recurrence ${subscriptionId} have been deleted`,
@@ -443,9 +454,9 @@ export function deleteRecurringByExpenseId(
       }
       switch (target) {
         case 'all':
-          return deleteRecurrenceAndExpenses(tx, exp.subscriptionId);
+          return deleteRecurrenceAndExpenses(tx, groupId, exp.subscriptionId);
         case 'after':
-          return deleteRecurrenceAfter(tx, expenseId, exp.date, exp.subscriptionId);
+          return deleteRecurrenceAfter(tx, groupId, expenseId, exp.date, exp.subscriptionId);
         default:
           throw new InvalidExpense(`Invalid target ${target}`);
       }
@@ -490,7 +501,7 @@ export function deleteSubscriptionById(
       if (isOngoingRecurring) {
         const now = toISODate();
         logger.info(`Ending subscription ${row.id} at ${now}`);
-        await terminateRecurrenceAt(tx, subscriptionId, now);
+        await terminateRecurrenceAt(tx, groupId, subscriptionId, now);
         return { status: 'OK', message: `Subscription ended at ${now}` };
       }
       logger.info(`Removing subscription ${row.id}`);
@@ -600,6 +611,7 @@ export function updateSubscription(
 
 function deleteDivisionForRecurrence(
   tx: DbTask,
+  groupId: ObjectId,
   subscriptionId: ObjectId,
   afterDate: DateLike | null,
   editedId: ObjectId | null,
@@ -609,14 +621,16 @@ function deleteDivisionForRecurrence(
       WHERE expense_id IN (
         SELECT id FROM expenses
         WHERE subscription_id=$/subscriptionId/::INTEGER
+          AND group_id=$/groupId/
           AND ($/afterDate/::DATE IS NULL OR id=$/editedId/::INTEGER OR date > $/afterDate/::DATE)
       )`,
-    { subscriptionId, afterDate, editedId },
+    { subscriptionId, afterDate, editedId, groupId },
   );
 }
 
 async function getRecurrenceExpenseIds(
   tx: DbTask,
+  groupId: ObjectId,
   subscriptionId: ObjectId,
   afterDate: DateLike | null,
   editedId: ObjectId | null,
@@ -626,20 +640,22 @@ async function getRecurrenceExpenseIds(
       `SELECT id
         FROM expenses
         WHERE subscription_id=$/subscriptionId/
+          AND group_id=$/groupId/
           AND ($/afterDate/::DATE IS NULL OR id=$/editedId/::INTEGER OR date > $/afterDate/::DATE)`,
-      { subscriptionId, afterDate, editedId },
+      { subscriptionId, afterDate, editedId, groupId },
     )
   ).map(e => e.id);
 }
 
 async function createDivisionForRecurrence(
   tx: DbTask,
+  groupId: ObjectId,
   subscriptionId: ObjectId,
   division: ExpenseDivisionItem[],
   afterDate: DateLike | null,
   editedId: ObjectId | null,
 ): Promise<number> {
-  const ids = await getRecurrenceExpenseIds(tx, subscriptionId, afterDate, editedId);
+  const ids = await getRecurrenceExpenseIds(tx, groupId, subscriptionId, afterDate, editedId);
   for (const expenseId of ids) {
     for (const d of division) {
       await storeExpenseDivision(tx, expenseId, d.userId, d.type, d.sum);
@@ -668,13 +684,14 @@ async function updateRecurringExpense(
       SET date=$/date/::DATE, receiver=$/receiver/, sum=$/sum/, title=$/title/,
         description=$/description/, type=$/type/::expense_type, confirmed=$/confirmed/::BOOLEAN,
         source_id=$/sourceId/::INTEGER, category_id=$/categoryId/::INTEGER
-      WHERE id=$/id/`,
+      WHERE id=$/id/ AND group_id=$/groupId/`,
     {
       ...expense,
       id: original.id,
       sum: expense.sum.toString(),
       sourceId: source.id,
       categoryId: cat.id,
+      groupId: original.groupId,
     },
   );
   const division = determineDivision(expense, source);
@@ -690,7 +707,7 @@ async function updateRecurringExpense(
       SET receiver=$/receiver/, sum=$/sum/, title=$/title/, description=$/description/,
         type=$/type/::expense_type, confirmed=$/confirmed/::BOOLEAN,
         source_id=$/sourceId/::INTEGER, category_id=$/categoryId/::INTEGER
-      WHERE subscription_id=$/subscriptionId/
+      WHERE subscription_id=$/subscriptionId/ AND group_id=$/groupId/
         AND ($/afterDate/::DATE IS NULL OR id = $/editedId/::INTEGER OR date > $/afterDate/::DATE)`,
     {
       ...expense,
@@ -700,6 +717,7 @@ async function updateRecurringExpense(
       sum: expense.sum.toString(),
       sourceId: source.id,
       categoryId: cat.id,
+      groupId: original.groupId,
     },
   );
   // Mirror the change onto the subscription's defaults so future generation picks it up.
@@ -717,11 +735,28 @@ async function updateRecurringExpense(
   await tx.none(
     `UPDATE subscriptions
         SET defaults = $/defaults/::JSONB
-        WHERE id = $/subscriptionId/`,
-    { subscriptionId: original.subscriptionId, defaults: newDefaults },
+        WHERE id = $/subscriptionId/ AND group_id = $/groupId/`,
+    {
+      subscriptionId: original.subscriptionId,
+      defaults: newDefaults,
+      groupId: original.groupId,
+    },
   );
-  await deleteDivisionForRecurrence(tx, original.subscriptionId, afterDate, editedId);
-  await createDivisionForRecurrence(tx, original.subscriptionId, division, afterDate, editedId);
+  await deleteDivisionForRecurrence(
+    tx,
+    original.groupId,
+    original.subscriptionId,
+    afterDate,
+    editedId,
+  );
+  await createDivisionForRecurrence(
+    tx,
+    original.groupId,
+    original.subscriptionId,
+    division,
+    afterDate,
+    editedId,
+  );
   // Extra fields (expenseId, subscriptionId) pass through to clients using type guards.
   const result = {
     status: 'OK',
