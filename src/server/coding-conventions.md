@@ -50,6 +50,80 @@ const result = await tx.oneOrNone<MyType>(
 
 Query methods: `one()`, `oneOrNone()`, `many()`, `manyOrNone()`, `none()`, `map()`.
 
+## Group Scoping (Multi-Tenant Isolation)
+
+The app is multi-tenant: every group's data lives in shared tables, isolated only by
+`group_id`. An endpoint that forgets to constrain by `session.group.id` can read or
+mutate another group's data even when authenticated correctly. This is the single most
+important class of bug the conventions guard against.
+
+**Rule:** any endpoint declared with `groupRequired: true` must, in every DB query it
+runs, constrain group-scoped tables by `group_id = $/groupId/` where `groupId` is
+`session.group.id`. This applies to `SELECT`, `UPDATE`, and `DELETE` alike — not just
+reads.
+
+```typescript
+// Correct — group_id is part of every WHERE / RETURNING clause that names a
+// group-scoped table.
+await tx.none(
+  `UPDATE expenses
+      SET subscription_id = NULL
+      WHERE subscription_id = $/subscriptionId/ AND group_id = $/groupId/`,
+  { subscriptionId, groupId },
+);
+
+// Wrong — relies on the caller having validated ownership; one missed call site
+// upstream and a malicious client can mutate any group's rows by guessing IDs.
+await tx.none(
+  `UPDATE expenses SET subscription_id = NULL WHERE subscription_id = $/subscriptionId/`,
+  { subscriptionId },
+);
+```
+
+**Apply the rule to every group-scoped table.** Tables currently in scope:
+`expenses`, `expense_division`, `subscriptions`, `categories`, `sources`, `shortcuts`,
+`expense_groupings`, `tracked_subjects`, `users` (via `group_users`), and any new
+table that carries a `group_id` column. If a new table is added without a `group_id`,
+ask whether it really should be group-scoped before merging.
+
+**Cross-table queries (joins, subselects, `IN (SELECT …)`)** must constrain the
+group-scoped side too — a `DELETE FROM expense_division WHERE expense_id IN (SELECT id
+FROM expenses WHERE …)` is only safe if the inner `SELECT` has `group_id =
+$/groupId/`. Verify the constraint travels through every layer of the query.
+
+**Defense in depth.** Even when a helper like `getExpenseById(tx, groupId, …)` has
+already verified ownership, the follow-up `UPDATE` / `DELETE` must still include
+`group_id = $/groupId/`. The two checks are not redundant: an upstream refactor that
+drops the ownership check will leave the query safe, and a single audited query is
+easier to review than a chain of "this is safe because the caller checked X".
+
+**Untrusted IDs in the body.** When a request body carries IDs that name other rows
+(`defaults.categoryId`, `defaults.sourceId`, `defaults.userId`, expense category and
+source IDs, etc.), resolve them through a group-scoped helper (`getCategoryById`,
+`getSourceById`, `getUserById`) before writing. Zod validates *shape*, not
+*ownership* — without the lookup, a Zod-valid payload can pull an ID out of another
+group.
+
+**Endpoints without `groupRequired: true`** (login, public health checks, profile
+endpoints scoped to `session.user.id`) are exempt by definition, but should still
+constrain by `user_id` or whatever scope the route actually uses. The rule is "every
+query carries the smallest scope the endpoint owns" — group scope is the most common
+case, not the only one.
+
+When reviewing or writing a data-layer function, the checklist is:
+
+1. Does the function take `groupId` as a parameter? If a group-scoped table is
+   touched, it must.
+2. Does every `WHERE` / `RETURNING` clause on a group-scoped table include
+   `group_id = $/groupId/`?
+3. Do cross-table predicates (`IN (SELECT …)`, joins) constrain the group-scoped
+   side too?
+4. Are foreign-key IDs from the request body resolved through a group-scoped lookup
+   before they're written?
+
+If the answer to any of these is "no", fix it before the change ships — silently
+relying on upstream checks is the failure mode this rule exists to prevent.
+
 ## Type Handling (DB <-> Server)
 
 Custom pg type parsers in `Db.ts` convert values at the database boundary.
