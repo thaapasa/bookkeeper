@@ -11,12 +11,13 @@ import { useUserData } from 'client/data/SessionStore';
 
 import { ExpenseRow } from '../expense/row/ExpenseRow';
 import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
+import { useSubscriptionRange } from './SubscriptionRangeContext';
 
 export const SubscriptionMatchesView: React.FC<{
   subscription: Subscription;
-  range?: RecurrenceInterval;
-}> = ({ subscription, range }) => {
+}> = ({ subscription }) => {
   const userData = useUserData()!;
+  const range = useSubscriptionRange();
   const query = matchesQueryFor(subscription, range);
   const { data } = useSuspenseQuery({
     queryKey: QueryKeys.subscriptions.matches(query),

@@ -63,7 +63,7 @@ export function updateExpenseGrouping(
     { 'app.group_id': groupId, 'app.user_id': userId, 'app.grouping_id': groupingId },
     async () => {
       await getExpenseGrouping(tx, groupId, userId, groupingId);
-      const updated = await updateExpenseGroupingById(tx, groupingId, input);
+      const updated = await updateExpenseGroupingById(tx, groupId, groupingId, input);
       logger.info({ input, updated }, `Updated expense grouping ${groupingId} for user ${userId}`);
     },
   );
@@ -80,7 +80,7 @@ export function deleteExpenseGrouping(
     { 'app.group_id': groupId, 'app.user_id': userId, 'app.grouping_id': groupingId },
     async () => {
       const grouping = await getExpenseGrouping(tx, groupId, userId, groupingId);
-      await deleteExpenseGroupingById(tx, groupingId);
+      await deleteExpenseGroupingById(tx, groupId, groupingId);
       if (grouping.image) {
         await groupingImageHandler.deleteImages(grouping.image);
       }
@@ -108,7 +108,7 @@ export function uploadExpenseGroupingImage(
         );
         const file = await groupingImageHandler.saveImages(image, { fit: 'cover' });
         await deleteExpenseGroupingImage(tx, groupId, userId, groupingId);
-        await setGroupingImageById(tx, groupingId, file);
+        await setGroupingImageById(tx, groupId, groupingId, file);
         return getExpenseGrouping(tx, groupId, userId, groupingId);
       } finally {
         await safeDeleteFile(image.filepath);
@@ -133,7 +133,7 @@ export function deleteExpenseGroupingImage(
         return;
       }
       await groupingImageHandler.deleteImages(grouping.image);
-      await clearGroupingImageById(tx, groupingId);
+      await clearGroupingImageById(tx, groupId, groupingId);
       logger.info(`Deleted expense grouping ${groupingId} image`);
     },
   );

@@ -6,11 +6,13 @@ import {
   ExpenseDivisionItem,
   ExpenseInput,
   ExpenseQuery,
+  hasMeaningfulConstraint,
   Recurrence,
   RecurrencePeriod,
   RecurrenceUnit,
   RecurringExpenseInput,
   RecurringExpenseTarget,
+  stripBlanks,
   SubscriptionDeleteMode,
   SubscriptionUpdate,
 } from 'shared/expense';
@@ -177,7 +179,7 @@ export function createRecurringFromExpense(
   recurrence: RecurringExpenseInput,
 ): Promise<RecurringExpenseCreatedResponse> {
   return withSpan(
-    'recurring.create',
+    'subscription.create',
     {
       'app.group_id': groupId,
       'app.user_id': userId,
@@ -187,7 +189,8 @@ export function createRecurringFromExpense(
     },
     async () => {
       logger.info(
-        `Create recurring expense with a period of ${recurrence.period.amount} ${recurrence.period.unit} from ${expenseId}`,
+        { expenseId, period: recurrence.period },
+        'Create recurring expense from existing expense',
       );
       const expense = await getExpenseById(tx, groupId, userId, expenseId);
       if (expense.subscriptionId && expense.subscriptionId > 0) {
@@ -274,7 +277,7 @@ async function generateRowFromDefaults(
   // pre-computed division, so a stale or hand-crafted PATCH can't slip
   // an invariant-breaking expense_division blob through this path.
   const division = determineDivision(insert, source);
-  logger.debug('Generating subscription row %s at %s', defaults.title, date);
+  logger.debug({ subscriptionId, title: defaults.title, date }, 'Generating subscription row');
   return createNewExpense(tx, defaults.userId, insert, division);
 }
 
@@ -351,7 +354,7 @@ export function createMissingRecurringExpenses(
   date: DateTime,
 ): Promise<void> {
   return withSpan(
-    'recurring.create_missing',
+    'subscription.create_missing',
     { 'app.group_id': groupId, 'app.user_id': userId },
     async () => {
       logger.debug('Checking for missing expenses');
@@ -364,8 +367,8 @@ export function createMissingRecurringExpenses(
             FROM subscriptions
             WHERE group_id=$/groupId/
               AND period_unit IS NOT NULL
-              AND next_missing < $/nextMissing/::DATE`,
-        { groupId, nextMissing: toISODate(date) },
+              AND next_missing < $/cutoff/::DATE`,
+        { groupId, cutoff: toISODate(date) },
         camelCaseObject,
       );
       await tx.batch(list.map(v => createMissingRecurrences(tx, groupId, date, v)));
@@ -436,7 +439,7 @@ export function deleteRecurringByExpenseId(
   target: RecurringExpenseTarget,
 ): Promise<ApiMessage> {
   return withSpan(
-    'recurring.delete_by_expense',
+    'subscription.delete_by_expense',
     {
       'app.group_id': groupId,
       'app.user_id': userId,
@@ -444,7 +447,7 @@ export function deleteRecurringByExpenseId(
       'app.target': target,
     },
     async () => {
-      logger.info(`Deleting recurring via expense ${expenseId} - targeting ${target}`);
+      logger.info({ expenseId, target }, 'Deleting recurring via expense');
       if (target === 'single') {
         return deleteExpenseById(tx, groupId, expenseId);
       }
@@ -484,7 +487,7 @@ export function deleteSubscriptionById(
   mode: SubscriptionDeleteMode,
 ): Promise<ApiMessage> {
   return withSpan(
-    'recurring.delete',
+    'subscription.delete',
     { 'app.group_id': groupId, 'app.subscription_id': subscriptionId, 'app.mode': mode },
     async () => {
       const row = await getSubscriptionRow(tx, groupId, subscriptionId);
@@ -500,11 +503,11 @@ export function deleteSubscriptionById(
       }
       if (isOngoingRecurring) {
         const now = toISODate();
-        logger.info(`Ending subscription ${row.id} at ${now}`);
+        logger.info({ subscriptionId: row.id, endsAt: now }, 'Ending subscription');
         await terminateRecurrenceAt(tx, groupId, subscriptionId, now);
         return { status: 'OK', message: `Subscription ended at ${now}` };
       }
-      logger.info(`Removing subscription ${row.id}`);
+      logger.info({ subscriptionId: row.id }, 'Removing subscription');
       await tx.none(
         `UPDATE expenses SET subscription_id = NULL
             WHERE subscription_id = $/subscriptionId/ AND group_id = $/groupId/`,
@@ -530,13 +533,21 @@ export function createSubscriptionFromFilter(
     'subscription.create_from_filter',
     { 'app.group_id': groupId, 'app.user_id': userId },
     async () => {
-      await validateFilterIds(tx, groupId, filter);
+      // Editor refuses to send an empty filter, but a scripted client
+      // could persist a "match-everything" stats row that would then
+      // dominate every other card. Strip blanks first so a payload like
+      // `{ receiver: '' }` is treated as empty.
+      const stored = stripBlanks(filter);
+      if (!hasMeaningfulConstraint(stored)) {
+        throw new InvalidInputError('INVALID_INPUT', 'Subscription filter must not be empty');
+      }
+      await validateFilterIds(tx, groupId, stored);
       const id = (
         await tx.one<{ id: number }>(
           `INSERT INTO subscriptions (group_id, user_id, title, filter)
               VALUES ($/groupId/, $/userId/, $/title/, $/filter/::JSONB)
               RETURNING id`,
-          { groupId, userId, title, filter },
+          { groupId, userId, title, filter: stored },
         )
       ).id;
       return { status: 'OK', message: 'Subscription created', subscriptionId: id };
@@ -558,29 +569,45 @@ export function updateSubscription(
       // silently 200 OK — and so authz errors fire before any group-scoped
       // validation of `defaults` runs.
       const existing = await getSubscriptionRow(tx, groupId, subscriptionId);
-      // Recurring rows fan out into a single category-bucketed card and
-      // their `defaults` always names a category — clearing the filter's
-      // categoryId would orphan the row in the "uncategorized" bucket.
-      // Stats rows have no such requirement and can drop the constraint.
-      if (update.filter !== undefined && existing.period) {
-        const categoryId = update.filter.categoryId;
-        const empty =
-          categoryId === undefined ||
-          categoryId === null ||
-          (Array.isArray(categoryId) && categoryId.length === 0);
-        if (empty) {
-          throw new InvalidInputError(
-            'INVALID_INPUT',
-            'Recurring subscriptions must keep a category constraint in their filter',
-          );
-        }
+      // Stats rows never use `defaults` (the editor hides the Mallikulu
+      // tab and the dialog won't include it). Reject the field server-side
+      // so a scripted PATCH can't break the "stats rows have NULL defaults"
+      // invariant by populating the JSONB on a non-recurring row.
+      if (update.defaults !== undefined && !existing.period) {
+        throw new InvalidInputError(
+          'INVALID_INPUT',
+          'Stats subscriptions cannot have defaults; only recurring rows do',
+        );
       }
+      let storedFilter: ExpenseQuery | undefined;
       if (update.filter !== undefined) {
+        storedFilter = stripBlanks(update.filter);
+        // Recurring rows fan out into a single category-bucketed card and
+        // their `defaults` always names a category — clearing the filter's
+        // categoryId would orphan the row in the "uncategorized" bucket.
+        if (existing.period) {
+          const categoryId = storedFilter.categoryId;
+          const empty =
+            categoryId === undefined ||
+            categoryId === null ||
+            (Array.isArray(categoryId) && categoryId.length === 0);
+          if (empty) {
+            throw new InvalidInputError(
+              'INVALID_INPUT',
+              'Recurring subscriptions must keep a category constraint in their filter',
+            );
+          }
+        } else if (!hasMeaningfulConstraint(storedFilter)) {
+          // Stats rows must keep at least one constraint the matcher
+          // applies — otherwise the row would aggregate every group
+          // expense into a single dominator card.
+          throw new InvalidInputError('INVALID_INPUT', 'Subscription filter must not be empty');
+        }
         // Filter IDs reach the matcher unchanged and live in JSONB
         // forever, so they must resolve in the session group too —
         // otherwise a stray scalar from another group could persist
         // even though the read side would never match it.
-        await validateFilterIds(tx, groupId, update.filter);
+        await validateFilterIds(tx, groupId, storedFilter);
       }
       if (update.defaults !== undefined) {
         // Defaults references must resolve in the session group: getCategoryById,
@@ -596,13 +623,18 @@ export function updateSubscription(
         sets.push(`title = $/title/`);
         params.title = update.title;
       }
-      if (update.filter !== undefined) {
+      if (storedFilter !== undefined) {
         sets.push(`filter = $/filter/::JSONB`);
-        params.filter = update.filter;
+        params.filter = storedFilter;
       }
       if (update.defaults !== undefined) {
         sets.push(`defaults = $/defaults/::JSONB`);
         params.defaults = update.defaults;
+        // Keep the row's owner column aligned with `defaults.userId` so
+        // "Vain omat" filtering and any future per-owner action stays
+        // pointed at whoever the recurring expenses are now generated for.
+        sets.push(`user_id = $/userId/`);
+        params.userId = update.defaults.userId;
       }
       if (sets.length === 0) {
         // PATCH with no fields is a programming error on the client —
@@ -722,11 +754,12 @@ async function updateRecurringExpense(
     },
   );
   const division = determineDivision(expense, source);
-  // 'after' uses `id = $editedId OR date > $editedDate` — the same precise predicate
-  // `deleteRecurrenceAfter` uses, replacing the older `date >= afterDate` rule which
-  // had a same-date ambiguity (see docs/archive/SUBSCRIPTIONS_REWORK_PLAN.md → Edit propagation).
-  // The same predicate flows into the division ops below so attributes and divisions
-  // stay in sync for same-date sibling rows.
+  // 'after' uses `date > $editedDate` for the bulk attribute UPDATE — the
+  // edited row was already written by the first UPDATE above, so excluding
+  // it here avoids a redundant rewrite. The division delete/create below
+  // still uses `id = $editedId OR date > $afterDate` (matching
+  // `deleteRecurrenceAfter`), since the edited row's expense_division
+  // rows do need to be regenerated from the new split.
   const afterDate = target === 'after' ? original.date : null;
   const editedId = target === 'after' ? original.id : null;
   await tx.none(
@@ -735,11 +768,12 @@ async function updateRecurringExpense(
         type=$/type/::expense_type, confirmed=$/confirmed/::BOOLEAN,
         source_id=$/sourceId/::INTEGER, category_id=$/categoryId/::INTEGER
       WHERE subscription_id=$/subscriptionId/ AND group_id=$/groupId/
-        AND ($/afterDate/::DATE IS NULL OR id = $/editedId/::INTEGER OR date > $/afterDate/::DATE)`,
+        AND id <> $/editedExpenseId/
+        AND ($/afterDate/::DATE IS NULL OR date > $/afterDate/::DATE)`,
     {
       ...expense,
       subscriptionId: original.subscriptionId,
-      editedId,
+      editedExpenseId: original.id,
       afterDate,
       sum: expense.sum.toString(),
       sourceId: source.id,
@@ -804,7 +838,7 @@ export function updateRecurringExpenseByExpenseId(
   defaultSourceId: number,
 ): Promise<ApiMessage> {
   return withSpan(
-    'recurring.update',
+    'subscription.update_expense',
     {
       'app.group_id': groupId,
       'app.user_id': userId,
@@ -812,7 +846,7 @@ export function updateRecurringExpenseByExpenseId(
       'app.target': target,
     },
     async () => {
-      logger.info(`Updating recurring expense ${expenseId} - targeting ${target}`);
+      logger.info({ expenseId, target }, 'Updating recurring expense');
       const org = await getExpenseById(tx, groupId, userId, expenseId);
       if (!org.subscriptionId) {
         throw new InvalidExpense(`${expenseId} is not a recurring expense`);

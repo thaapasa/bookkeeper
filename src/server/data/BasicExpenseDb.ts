@@ -238,11 +238,14 @@ export const storeExpenseDivision = (
     { expenseId, userId, type, sum: Money.toString(sum) },
   );
 
-const deleteDivision = (tx: DbTask, expenseId: number): Promise<null> =>
+const deleteDivision = (tx: DbTask, groupId: number, expenseId: number): Promise<null> =>
   tx.none(
     `DELETE FROM expense_division
-      WHERE expense_id=$/expenseId/::INTEGER`,
-    { expenseId },
+      WHERE expense_id=$/expenseId/::INTEGER
+        AND expense_id IN (
+          SELECT id FROM expenses WHERE id=$/expenseId/::INTEGER AND group_id=$/groupId/
+        )`,
+    { expenseId, groupId },
   );
 
 export async function getExpenseDivision(
@@ -321,17 +324,18 @@ export async function updateExpense(
   const cat = await getCategoryById(tx, original.groupId, expense.categoryId);
   const source = await getSourceById(tx, original.groupId, sourceId);
   const division = determineDivision(expense, source);
-  await deleteDivision(tx, original.id);
+  await deleteDivision(tx, original.groupId, original.id);
   await tx.none(
     `UPDATE expenses
       SET date=$/date/::DATE, receiver=$/receiver/, sum=$/sum/, title=$/title/, grouping_id=$/groupingId/,
         description=$/description/, type=$/type/::expense_type, confirmed=$/confirmed/::BOOLEAN,
         source_id=$/sourceId/::INTEGER, category_id=$/categoryId/::INTEGER, user_id=$/userId/::INTEGER
-      WHERE id=$/id/`,
+      WHERE id=$/id/ AND group_id=$/groupId/`,
     {
       ...expense,
       groupingId: expense.groupingId,
       id: original.id,
+      groupId: original.groupId,
       sum: expense.sum.toString(),
       sourceId: source.id,
       categoryId: cat.id,

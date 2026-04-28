@@ -149,6 +149,7 @@ export async function insertExpenseGrouping(
 
 export async function updateExpenseGroupingById(
   tx: DbTask,
+  groupId: ObjectId,
   groupingId: ObjectId,
   data: ExpenseGroupingData,
 ): Promise<void> {
@@ -156,9 +157,10 @@ export async function updateExpenseGroupingById(
     `UPDATE expense_groupings
       SET title=$/title/, start_date=$/startDate/, end_date=$/endDate/, color=$/color/,
         tags=$/tags/, private=$/private/, only_own=$/onlyOwn/, updated=NOW()
-      WHERE id=$/groupingId/`,
+      WHERE id=$/groupingId/ AND group_id=$/groupId/`,
     {
       groupingId,
+      groupId,
       title: data.title,
       startDate: data.startDate,
       endDate: data.endDate,
@@ -168,9 +170,14 @@ export async function updateExpenseGroupingById(
       onlyOwn: data.onlyOwn,
     },
   );
-  await tx.none(`DELETE FROM expense_grouping_categories WHERE expense_grouping_id=$/groupingId/`, {
-    groupingId,
-  });
+  await tx.none(
+    `DELETE FROM expense_grouping_categories
+      WHERE expense_grouping_id=$/groupingId/
+        AND expense_grouping_id IN (
+          SELECT id FROM expense_groupings WHERE id=$/groupingId/ AND group_id=$/groupId/
+        )`,
+    { groupingId, groupId },
+  );
   if (data.categories.length > 0) {
     await tx.none(
       dbMain.helpers.insert(
@@ -215,33 +222,42 @@ export async function getCategoryTotalsForGrouping(
   return rows.map(toExpenseGroupingCategoryTotal);
 }
 
-export async function deleteExpenseGroupingById(tx: DbTask, groupingId: ObjectId): Promise<void> {
+export async function deleteExpenseGroupingById(
+  tx: DbTask,
+  groupId: ObjectId,
+  groupingId: ObjectId,
+): Promise<void> {
   await tx.none(
     `DELETE FROM expense_groupings
-      WHERE id=$/groupingId/`,
-    { groupingId },
+      WHERE id=$/groupingId/ AND group_id=$/groupId/`,
+    { groupingId, groupId },
   );
 }
 
 export async function setGroupingImageById(
   tx: DbTask,
+  groupId: ObjectId,
   groupingId: ObjectId,
   image: string,
 ): Promise<void> {
   await tx.none(
     `UPDATE expense_groupings
       SET image=$/image/
-      WHERE id=$/groupingId/`,
-    { groupingId, image },
+      WHERE id=$/groupingId/ AND group_id=$/groupId/`,
+    { groupingId, groupId, image },
   );
 }
 
-export async function clearGroupingImageById(tx: DbTask, groupingId: ObjectId): Promise<void> {
+export async function clearGroupingImageById(
+  tx: DbTask,
+  groupId: ObjectId,
+  groupingId: ObjectId,
+): Promise<void> {
   await tx.none(
     `UPDATE expense_groupings
       SET image=NULL
-      WHERE id=$/groupingId/`,
-    { groupingId },
+      WHERE id=$/groupingId/ AND group_id=$/groupId/`,
+    { groupingId, groupId },
   );
 }
 

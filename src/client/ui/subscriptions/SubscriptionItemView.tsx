@@ -3,7 +3,7 @@ import { useDisclosure } from '@mantine/hooks';
 import * as React from 'react';
 
 import { RecurrencePeriod, Subscription } from 'shared/expense';
-import { readableDateWithYear, RecurrenceInterval, toISODate } from 'shared/time';
+import { readableDateWithYear, toISODate } from 'shared/time';
 import { Money } from 'shared/util';
 import { apiConnect } from 'client/data/ApiConnect';
 import { invalidateSubscriptionData } from 'client/data/query';
@@ -20,8 +20,7 @@ type SubscriptionKind = 'active' | 'ended' | 'stats';
 
 export const SubscriptionItemView: React.FC<{
   item: Subscription;
-  range?: RecurrenceInterval;
-}> = ({ item, range }) => {
+}> = ({ item }) => {
   const [open, { toggle }] = useDisclosure(false);
   const [editorOpen, { open: openEditor, close: closeEditor }] = useDisclosure(false);
   const stale = isStale(item);
@@ -68,7 +67,7 @@ export const SubscriptionItemView: React.FC<{
           </Group>
         </Tools>
       </SubscriptionRow>
-      {open ? <ExpandedDetails item={item} range={range} /> : null}
+      {open ? <ExpandedDetails item={item} /> : null}
       {item.isPrimary ? (
         // Re-key by item.id so a parent swap (e.g. quick filter change)
         // remounts the dialog with fresh state instead of leaving an
@@ -115,8 +114,7 @@ const KindIcon: React.FC<{ kind: SubscriptionKind }> = ({ kind }) => {
 
 const ExpandedDetails: React.FC<{
   item: Subscription;
-  range: RecurrenceInterval | undefined;
-}> = ({ item, range }) => (
+}> = ({ item }) => (
   <Stack gap={4} px="md" bg="surface.0">
     {item.recurrence ? (
       <Text size="sm" c="neutral.7">
@@ -141,7 +139,7 @@ const ExpandedDetails: React.FC<{
         </Group>
       }
     >
-      <SubscriptionMatchesView subscription={item} range={range} />
+      <SubscriptionMatchesView subscription={item} />
     </QueryBoundary>
   </Stack>
 );

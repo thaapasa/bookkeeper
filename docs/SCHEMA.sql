@@ -770,6 +770,13 @@ CREATE INDEX expenses_receiver_trgm ON public.expenses USING gin (receiver publi
 
 
 --
+-- Name: expenses_subscription_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX expenses_subscription_id_idx ON public.expenses USING btree (subscription_id) WHERE (subscription_id IS NOT NULL);
+
+
+--
 -- Name: expenses_title_trgm; Type: INDEX; Schema: public; Owner: -
 --
 

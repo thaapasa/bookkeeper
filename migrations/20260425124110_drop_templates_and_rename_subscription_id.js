@@ -21,6 +21,13 @@ exports.up = knex =>
       RENAME CONSTRAINT expenses_recurring_expense_id_fkey TO expenses_subscription_id_fkey;
 
     DROP INDEX IF EXISTS expenses_recurring_expense_id_idx;
+    -- Replace the dropped index under the new column name. Partial on
+    -- NOT NULL since most expenses are not subscription-owned, and the
+    -- subscription paths (delete-and-cleanup, target=after, division
+    -- regeneration) all query by subscription_id.
+    CREATE INDEX expenses_subscription_id_idx
+      ON expenses (subscription_id)
+      WHERE subscription_id IS NOT NULL;
   `);
 
 exports.down = knex =>
@@ -29,6 +36,7 @@ exports.down = knex =>
     -- by this point the subscription's defaults JSONB is the source of
     -- truth and reversing the migration would require re-running the
     -- "convert recurring to template" logic that this rework deletes.
+    DROP INDEX IF EXISTS expenses_subscription_id_idx;
     ALTER TABLE expenses
       RENAME CONSTRAINT expenses_subscription_id_fkey TO expenses_recurring_expense_id_fkey;
     ALTER TABLE expenses RENAME COLUMN subscription_id TO recurring_expense_id;

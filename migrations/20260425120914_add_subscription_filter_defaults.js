@@ -23,24 +23,13 @@ exports.up = knex =>
           'categoryId', e.category_id,
           'userId', e.user_id,
           'confirmed', e.confirmed,
-          'description', e.description,
-          'division', COALESCE(d.division, '[]'::jsonb)
+          'description', e.description
         )
         || CASE
              WHEN COALESCE(e.receiver, '') = '' THEN '{}'::jsonb
              ELSE jsonb_build_object('receiver', e.receiver)
            END
     FROM expenses e
-    LEFT JOIN (
-      SELECT
-        expense_id,
-        jsonb_agg(
-          jsonb_build_object('userId', user_id, 'type', type::TEXT, 'sum', sum::TEXT)
-          ORDER BY type, user_id
-        ) AS division
-      FROM expense_division
-      GROUP BY expense_id
-    ) d ON d.expense_id = e.id
     WHERE re.template_expense_id = e.id;
 
     ALTER TABLE recurring_expenses

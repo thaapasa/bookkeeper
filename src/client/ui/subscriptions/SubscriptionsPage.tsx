@@ -21,6 +21,7 @@ import { SubscriptionCategoryHeader, ToggleCategoryVisibility } from './Subscrip
 import { SubscriptionCriteriaSelector } from './SubscriptionCriteriaSelector';
 import { SubscriptionEditorDialog } from './SubscriptionEditorDialog';
 import { SubscriptionItemView } from './SubscriptionItemView';
+import { SubscriptionRangeProvider } from './SubscriptionRangeContext';
 import { groupSubscriptions, sumRecurrenceTotals } from './SubscriptionsData';
 import { TotalsChart, TotalsData } from './TotalsChart';
 import { RecurrenceTotals, SubscriptionGroup } from './types';
@@ -49,9 +50,11 @@ export const SubscriptionsPage: React.FC = () => {
       </PageTitle>
       <SubscriptionCriteriaSelector onChange={setCriteria} />
       {criteria !== undefined ? (
-        <QueryBoundary>
-          <SubscriptionsResults criteria={criteria} />
-        </QueryBoundary>
+        <SubscriptionRangeProvider range={criteria.range}>
+          <QueryBoundary>
+            <SubscriptionsResults criteria={criteria} />
+          </QueryBoundary>
+        </SubscriptionRangeProvider>
       ) : null}
       <SubscriptionEditorDialog opened={creatorOpen} onClose={closeCreator} />
     </PageLayout>
@@ -104,7 +107,6 @@ const SubscriptionsResults: React.FC<{ criteria: SubscriptionSearchCriteria }> =
           group={selectedGroup}
           hidden={hidden.list}
           toggleVisibility={hidden.toggleItem}
-          range={criteria.range}
         />
       ) : (
         data.groups.map(s => (
@@ -113,7 +115,6 @@ const SubscriptionsResults: React.FC<{ criteria: SubscriptionSearchCriteria }> =
             group={s}
             hidden={hidden.list}
             toggleVisibility={hidden.toggleItem}
-            range={criteria.range}
           />
         ))
       )}
@@ -163,12 +164,10 @@ const GroupView: React.FC<{
   group: SubscriptionGroup;
   hidden: ObjectId[];
   toggleVisibility: ToggleCategoryVisibility;
-  range: SubscriptionSearchCriteria['range'];
 }> = ({
   group: { root, rootItems, rootTotals, allTotals, children },
   hidden,
   toggleVisibility,
-  range,
 }) => {
   const visible = !hidden.includes(root.id);
   return (
@@ -189,7 +188,6 @@ const GroupView: React.FC<{
               title="Pääkategorian kirjaukset"
               items={rootItems}
               totals={rootTotals}
-              range={range}
             />
           ) : null}
           {children.map(c => (
@@ -198,7 +196,6 @@ const GroupView: React.FC<{
               category={c.category}
               items={c.items}
               totals={c.totals}
-              range={range}
             />
           ))}
         </>
@@ -212,12 +209,11 @@ const CategorySubscriptions: React.FC<{
   title?: string;
   items: Subscription[];
   totals?: RecurrenceTotals;
-  range: SubscriptionSearchCriteria['range'];
-}> = ({ category, items, totals, title, range }) => (
+}> = ({ category, items, totals, title }) => (
   <>
     <SubscriptionCategoryHeader title={title ?? category.name} totals={totals} />
     {items.map(item => (
-      <SubscriptionItemView key={item.id} item={item} range={range} />
+      <SubscriptionItemView key={item.id} item={item} />
     ))}
   </>
 );

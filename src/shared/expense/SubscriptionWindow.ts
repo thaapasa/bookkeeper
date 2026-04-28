@@ -22,7 +22,10 @@ export interface BaselineWindow {
  *   months (start-of-month-N to end-of-month-(N + range)).
  * - `months` is derived from the range directly (years × 12, months as
  *   given) so the per-month / per-year denominator is an exact integer
- *   even when month lengths vary.
+ *   for the year/month units the page exposes. Sub-month units (weeks,
+ *   days) are accepted by the API schemas so they need a defined
+ *   value too — those use a fractional 30-day approximation that's
+ *   only ever observed by scripted callers.
  *
  * `now` is parameterized to keep the function pure and testable.
  */
