@@ -2,7 +2,7 @@ import { Avatar, Box, Button, Group, Stack, Text } from '@mantine/core';
 import * as React from 'react';
 
 import { Session } from 'shared/types';
-import apiConnect from 'client/data/ApiConnect';
+import { apiConnect } from 'client/data/ApiConnect';
 import { updateSession } from 'client/data/Login';
 import { executeOperation } from 'client/util/ExecuteOperation';
 

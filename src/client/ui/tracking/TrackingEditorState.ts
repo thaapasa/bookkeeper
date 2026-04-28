@@ -9,7 +9,7 @@ import {
   TrackingSubject,
   TrackingSubjectData,
 } from 'shared/types';
-import apiConnect from 'client/data/ApiConnect';
+import { apiConnect } from 'client/data/ApiConnect';
 import { updateSession } from 'client/data/Login';
 import { queryClient } from 'client/data/query';
 import { QueryKeys } from 'client/data/queryKeys';

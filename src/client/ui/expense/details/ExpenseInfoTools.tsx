@@ -3,7 +3,7 @@ import * as React from 'react';
 
 import { ExpenseDivision, RecurrencePeriod, UserExpense } from 'shared/expense';
 import { Money } from 'shared/util';
-import apiConnect from 'client/data/ApiConnect';
+import { apiConnect } from 'client/data/ApiConnect';
 import { invalidateExpenseData, queryClient } from 'client/data/query';
 import { QueryKeys } from 'client/data/queryKeys';
 import { useSourceMap } from 'client/data/SessionStore';
@@ -83,7 +83,7 @@ export const ExpenseInfoTools: React.FC<ExpenseInfoToolsProps> = ({
       <ActionIcon title="Kopioi" onClick={onCopy}>
         <Icons.Copy />
       </ActionIcon>
-      {expense.recurringExpenseId ? null : (
+      {expense.subscriptionId ? null : (
         <ActionIcon title="Muuta toistuvaksi" onClick={createRecurring}>
           <Icons.Repeat />
         </ActionIcon>

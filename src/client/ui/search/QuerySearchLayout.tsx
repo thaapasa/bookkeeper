@@ -1,4 +1,4 @@
-import { ActionIcon, BoxProps, Button, Checkbox, Grid, Group, Loader, Stack } from '@mantine/core';
+import { ActionIcon, BoxProps, Checkbox, Grid, Group, Loader, Stack } from '@mantine/core';
 import * as React from 'react';
 
 import { toDateRangeName, TypedDateRange } from 'shared/time';
@@ -29,7 +29,6 @@ interface QuerySearchLayoutProps extends BoxProps {
   onToggleUnconfirmed: (_event: unknown, checked: boolean) => void;
   dateRange?: TypedDateRange;
   onSelectRange: (r?: TypedDateRange) => void;
-  onSaveAsReport: () => void;
 }
 
 export const QuerySearchLayout: React.FC<QuerySearchLayoutProps> = ({
@@ -48,7 +47,6 @@ export const QuerySearchLayout: React.FC<QuerySearchLayoutProps> = ({
   onToggleUnconfirmed,
   dateRange,
   onSelectRange,
-  onSaveAsReport,
   ...props
 }) => {
   const session = useValidSession();
@@ -109,9 +107,6 @@ export const QuerySearchLayout: React.FC<QuerySearchLayoutProps> = ({
             label="Alustavat"
             styles={{ label: { fontSize: 'var(--mantine-font-size-sm)' } }}
           />
-          <Button variant="subtle" onClick={onSaveAsReport} w="120">
-            Tee raportti
-          </Button>
         </Stack>
       </Grid.Col>
       <Grid.Col span={12}>

@@ -6,18 +6,21 @@ import {
   ExpenseShortcutPayload,
   ExpenseSplit,
   ExpenseStatus,
+  QuerySummary,
   RecurrencePeriod,
-  RecurringExpenseDetails,
   RecurringExpenseTarget,
-  ReportCreationData,
-  ReportDef,
+  SubscriptionCreatedResponse,
+  SubscriptionDeleteMode,
+  SubscriptionMatches,
+  SubscriptionMatchesQuery,
   SubscriptionResult,
   SubscriptionSearchCriteria,
+  SubscriptionUpdate,
   UserExpense,
   UserExpenseWithDetails,
 } from 'shared/expense';
 import { FetchClient, RequestMethod, RequestSpec, uri } from 'shared/net';
-import { ISODate, timeoutImmediate } from 'shared/time';
+import { ISODate, RecurrenceInterval, timeoutImmediate } from 'shared/time';
 import {
   ApiMessage,
   ApiStatus,
@@ -201,17 +204,32 @@ export class ApiConnect {
     return this.post(uri`/api/subscription/search`, { body: criteria });
   }
 
-  public getSubscription = async (id: ObjectId): Promise<RecurringExpenseDetails | undefined> =>
-    this.get(uri`/api/subscription/${id}`);
+  public deleteSubscription = (id: ObjectId, mode: SubscriptionDeleteMode): Promise<ApiMessage> =>
+    this.delete<ApiMessage>(uri`/api/subscription/${id}`, { query: { mode } });
 
-  public updateSubscriptionTemplate = async (
-    id: ObjectId,
-    expense: ExpenseData,
-  ): Promise<ExpenseIdResponse> =>
-    this.put<ExpenseIdResponse>(uri`/api/subscription/template/${id}`, { body: expense });
+  public updateSubscription = (id: ObjectId, update: SubscriptionUpdate): Promise<ApiMessage> =>
+    this.patch<ApiMessage>(uri`/api/subscription/${id}`, {
+      body: {
+        ...update,
+        ...(update.filter ? { filter: filterDefinedProps(update.filter) } : {}),
+      },
+    });
 
-  public deleteSubscription = async (id: ObjectId): Promise<RecurringExpenseDetails | undefined> =>
-    this.delete(uri`/api/subscription/${id}`);
+  public createSubscriptionFromFilter = (title: string, filter: ExpenseQuery) =>
+    this.post<SubscriptionCreatedResponse>(uri`/api/subscription/from-filter`, {
+      body: { title, filter: filterDefinedProps(filter) },
+    });
+
+  public summarizeSubscriptionQuery = (
+    filter: ExpenseQuery,
+    options?: { limit?: number; range?: RecurrenceInterval },
+  ): Promise<QuerySummary> =>
+    this.post<QuerySummary>(uri`/api/subscription/query-summary`, {
+      body: { filter: filterDefinedProps(filter), ...options },
+    });
+
+  public getSubscriptionMatches = (query: SubscriptionMatchesQuery): Promise<SubscriptionMatches> =>
+    this.post<SubscriptionMatches>(uri`/api/subscription/matches`, { body: query });
 
   public storeExpense(expense: ExpenseData): Promise<ExpenseIdResponse> {
     return this.post<ExpenseIdResponse>('/api/expense', { body: expense });
@@ -421,21 +439,7 @@ export class ApiConnect {
 
   public deleteProfileImageDark = (): Promise<void> => this.delete(uri`/api/profile/image/dark`);
 
-  // Reports
-
-  public createReport = (title: string, query: ExpenseQuery): Promise<ReportDef> => {
-    const body: ReportCreationData = {
-      title,
-      query: filterDefinedProps(query),
-    };
-    return this.post<ReportDef>(uri`/api/report`, { body });
-  };
-
-  public deleteReport = (reportId: ObjectId) =>
-    this.delete<ApiMessage>(uri`/api/report/${reportId}`);
-
   public getDbStatus = () => this.get<DbStatus>('/api/admin/status');
 }
 
-const apiConnect = new ApiConnect();
-export default apiConnect;
+export const apiConnect = new ApiConnect();

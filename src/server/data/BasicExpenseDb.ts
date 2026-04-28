@@ -65,7 +65,7 @@ SELECT
   MIN(title) AS title, MIN(description) AS description, BOOL_AND(confirmed) AS confirmed, MIN(source_id) AS "sourceId",
   MIN(user_id) AS "userId", MIN(created_by_id) AS "createdById", MIN(breakdown.group_id) AS "groupId", MIN(category_id) AS "categoryId",
   MIN(grouping_id) AS "groupingId", MIN(auto_grouping_ids) AS "autoGroupingIds",
-  MIN(created) AS created, MIN(recurring_expense_id) AS "recurringExpenseId",
+  MIN(created) AS created, MIN(subscription_id) AS "subscriptionId",
   SUM(cost) AS "userCost", SUM(benefit) AS "userBenefit", SUM(income) AS "userIncome", SUM(split) AS "userSplit",
   SUM(transferor) AS "userTransferor", SUM(transferee) AS "userTransferee",
   SUM(cost + benefit + income + split + transferor + transferee) AS "userValue"
@@ -73,7 +73,7 @@ FROM (
   SELECT
     e.id, e.date::DATE, e.receiver, e.type, e.sum, e.title, e.description, e.confirmed, e.grouping_id,
     ${AUTO_GROUPING_IDS_SUBQUERY} AS auto_grouping_ids,
-    e.source_id, e.user_id, e.created_by_id, e.group_id, e.category_id, e.created, e.recurring_expense_id,
+    e.source_id, e.user_id, e.created_by_id, e.group_id, e.category_id, e.created, e.subscription_id,
     (CASE WHEN d.type = 'cost' THEN d.sum ELSE '0.00'::NUMERIC END) AS cost,
     (CASE WHEN d.type = 'benefit' THEN d.sum ELSE '0.00'::NUMERIC END) AS benefit,
     (CASE WHEN d.type = 'income' THEN d.sum ELSE '0.00'::NUMERIC END) AS income,
@@ -107,7 +107,7 @@ FROM (
     (CASE WHEN d.type = 'transferee' THEN d.sum ELSE '0.00'::NUMERIC END) AS transferee
   FROM expenses e
   LEFT JOIN expense_division d ON (d.expense_id = e.id AND d.user_id = $/userId/::INTEGER)
-  WHERE e.group_id=$/groupId/::INTEGER AND template=false AND date >= $/startDate/::DATE AND date < $/endDate/::DATE
+  WHERE e.group_id=$/groupId/::INTEGER AND date >= $/startDate/::DATE AND date < $/endDate/::DATE
 ) breakdown
 `;
 
@@ -135,6 +135,30 @@ export async function getAllExpenses(
   return expenses;
 }
 
+/**
+ * Fetch the full UserExpense records for a list of ids, sorted by date
+ * (and id) descending — newest first, the order the subscription
+ * listing/preview UIs render them in. Used by the subscription paths
+ * so the client can render their matches through the same ExpenseRow
+ * pipeline as the month/search/grouping views.
+ */
+export async function getUserExpensesByIds(
+  tx: DbTask,
+  groupId: number,
+  userId: number,
+  ids: readonly number[],
+): Promise<UserExpense[]> {
+  if (ids.length === 0) return [];
+  const rows = await tx.manyOrNone<UserExpense>(
+    expenseSelectClause(
+      `WHERE e.group_id=$/groupId/ AND e.id IN ($/ids:csv/)`,
+      'ORDER BY date DESC, id DESC',
+    ),
+    { userId, groupId, ids },
+  );
+  return rows.map(dbRowToExpense);
+}
+
 export async function countTotalBetween(
   tx: DbTask,
   groupId: number,
@@ -158,7 +182,7 @@ export async function hasUnconfirmedBefore(
   const s = await tx.one<{ amount: number }>(
     `SELECT COUNT(*) AS amount
       FROM expenses
-      WHERE group_id=$/groupId/ AND template=false AND date < $/startDate/::DATE AND confirmed=false`,
+      WHERE group_id=$/groupId/ AND date < $/startDate/::DATE AND confirmed=false`,
     { groupId, startDate: toISODate(startDate) },
   );
   return s.amount > 0;
@@ -199,26 +223,38 @@ export function deleteExpenseById(
   );
 }
 
-export const storeExpenseDivision = (
+export async function storeExpenseDivision(
   tx: DbTask,
+  groupId: number,
   expenseId: number,
   userId: number,
   type: ExpenseDivisionType,
   sum: MoneyLike,
-) =>
-  tx.none(
-    `INSERT INTO expense_division
-        (expense_id, user_id, type, sum)
-      VALUES
-        ($/expenseId/::INTEGER, $/userId/::INTEGER, $/type/::expense_division_type, $/sum/)`,
-    { expenseId, userId, type, sum: Money.toString(sum) },
+): Promise<void> {
+  // Defense in depth: `expense_division` has no `group_id` of its own, so the
+  // INSERT pulls `expense_id` via a SELECT that is itself group-scoped.
+  // A foreign-group expenseId produces zero source rows, the INSERT writes
+  // nothing, and we surface that as NOT_FOUND instead of silently no-oping.
+  const res = await tx.result(
+    `INSERT INTO expense_division (expense_id, user_id, type, sum)
+        SELECT id, $/userId/::INTEGER, $/type/::expense_division_type, $/sum/
+          FROM expenses
+          WHERE id = $/expenseId/::INTEGER AND group_id = $/groupId/`,
+    { expenseId, userId, type, sum: Money.toString(sum), groupId },
   );
+  if (res.rowCount !== 1) {
+    throw new NotFoundError('EXPENSE_NOT_FOUND', 'expense');
+  }
+}
 
-const deleteDivision = (tx: DbTask, expenseId: number): Promise<null> =>
+const deleteDivision = (tx: DbTask, groupId: number, expenseId: number): Promise<null> =>
   tx.none(
     `DELETE FROM expense_division
-      WHERE expense_id=$/expenseId/::INTEGER`,
-    { expenseId },
+      WHERE expense_id=$/expenseId/::INTEGER
+        AND expense_id IN (
+          SELECT id FROM expenses WHERE id=$/expenseId/::INTEGER AND group_id=$/groupId/
+        )`,
+    { expenseId, groupId },
   );
 
 export async function getExpenseDivision(
@@ -235,29 +271,28 @@ export async function getExpenseDivision(
   return items;
 }
 
-async function createDivision(tx: DbTask, expenseId: number, division: ExpenseDivisionItem[]) {
+async function createDivision(
+  tx: DbTask,
+  groupId: number,
+  expenseId: number,
+  division: ExpenseDivisionItem[],
+) {
   for (const d of division) {
-    await storeExpenseDivision(tx, expenseId, d.userId, d.type, d.sum);
+    await storeExpenseDivision(tx, groupId, expenseId, d.userId, d.type, d.sum);
   }
   return expenseId;
 }
 
 export function setExpenseDataDefaults(expense: Expense | ExpenseInput): ExpenseInputWithDefaults {
-  const data = {
+  return {
     ...expense,
     description: expense.description || null,
     confirmed: expense.confirmed ?? true,
-    recurringExpenseId: null,
   };
-  return data;
 }
 
-export type ExpenseInsert = Omit<
-  Expense,
-  'id' | 'createdById' | 'created' | 'recurringExpenseId' | 'template'
-> & {
-  template?: boolean;
-  recurringExpenseId?: ObjectId | null;
+export type ExpenseInsert = Omit<Expense, 'id' | 'createdById' | 'created' | 'subscriptionId'> & {
+  subscriptionId?: ObjectId | null;
 };
 
 export async function createNewExpense(
@@ -271,24 +306,23 @@ export async function createNewExpense(
       `INSERT INTO expenses (
           created_by_id, user_id, group_id, date, created, type,
           receiver, sum, title, description, confirmed, grouping_id,
-          source_id, category_id, template, recurring_expense_id)
+          source_id, category_id, subscription_id)
         VALUES (
           $/userId/::INTEGER, $/expenseOwnerId/::INTEGER, $/groupId/::INTEGER, $/date/::DATE, NOW(), $/type/::expense_type,
           $/receiver/, $/sum/, $/title/, $/description/, $/confirmed/::BOOLEAN, $/groupingId/,
-          $/sourceId/::INTEGER, $/categoryId/::INTEGER, $/template/::BOOLEAN, $/recurringExpenseId/)
+          $/sourceId/::INTEGER, $/categoryId/::INTEGER, $/subscriptionId/)
         RETURNING id`,
       {
         ...expense,
         userId,
         expenseOwnerId: expense.userId,
         sum: expense.sum.toString(),
-        template: expense.template || false,
-        recurringExpenseId: expense.recurringExpenseId || null,
+        subscriptionId: expense.subscriptionId ?? null,
         groupingId: expense.groupingId,
       },
     )
   ).id;
-  await createDivision(tx, expenseId, division);
+  await createDivision(tx, expense.groupId, expenseId, division);
   return expenseId;
 }
 
@@ -304,23 +338,24 @@ export async function updateExpense(
   const cat = await getCategoryById(tx, original.groupId, expense.categoryId);
   const source = await getSourceById(tx, original.groupId, sourceId);
   const division = determineDivision(expense, source);
-  await deleteDivision(tx, original.id);
+  await deleteDivision(tx, original.groupId, original.id);
   await tx.none(
     `UPDATE expenses
       SET date=$/date/::DATE, receiver=$/receiver/, sum=$/sum/, title=$/title/, grouping_id=$/groupingId/,
         description=$/description/, type=$/type/::expense_type, confirmed=$/confirmed/::BOOLEAN,
         source_id=$/sourceId/::INTEGER, category_id=$/categoryId/::INTEGER, user_id=$/userId/::INTEGER
-      WHERE id=$/id/`,
+      WHERE id=$/id/ AND group_id=$/groupId/`,
     {
       ...expense,
       groupingId: expense.groupingId,
       id: original.id,
+      groupId: original.groupId,
       sum: expense.sum.toString(),
       sourceId: source.id,
       categoryId: cat.id,
     },
   );
-  await createDivision(tx, original.id, division);
+  await createDivision(tx, original.groupId, original.id, division);
   return { status: 'OK', message: 'Expense updated', expenseId: original.id };
 }
 
@@ -358,35 +393,3 @@ export async function renameReceiver(
   );
   return res.rowCount;
 }
-
-async function getRecurrenceOccurence(
-  tx: DbTask,
-  groupId: ObjectId,
-  userId: ObjectId,
-  recurringExpenseId: ObjectId,
-  first: boolean,
-): Promise<Expense | undefined> {
-  const expense = await tx.map(
-    expenseSelectClause(
-      `WHERE recurring_expense_id=$/recurringExpenseId/ AND e.group_id=$/groupId/`,
-      `ORDER BY date ${first ? 'ASC' : 'DESC'} LIMIT 1`,
-    ),
-    { recurringExpenseId, userId, groupId },
-    dbRowToExpense,
-  );
-  return expense[0];
-}
-
-export const getFirstRecurrence = (
-  tx: DbTask,
-  groupId: ObjectId,
-  userId: ObjectId,
-  recurringExpenseId: ObjectId,
-) => getRecurrenceOccurence(tx, groupId, userId, recurringExpenseId, true);
-
-export const getLastRecurrence = (
-  tx: DbTask,
-  groupId: ObjectId,
-  userId: ObjectId,
-  recurringExpenseId: ObjectId,
-) => getRecurrenceOccurence(tx, groupId, userId, recurringExpenseId, false);

@@ -79,7 +79,7 @@ export const Expense = DbObject.merge(ExpenseData).extend({
   groupId: ObjectId,
   created: ISOTimestamp,
   createdById: z.number(),
-  recurringExpenseId: ObjectId.or(z.null()),
+  subscriptionId: ObjectId.or(z.null()),
 });
 export type Expense = z.infer<typeof Expense>;
 
@@ -143,6 +143,7 @@ export type ExpenseCollection = z.infer<typeof ExpenseCollection>;
 export const ExpenseQuery = z
   .object({
     search: z.string(),
+    title: z.string(),
     receiver: z.string(),
     type: ExpenseType.or(z.array(ExpenseType)).optional(),
     categoryId: ObjectId.or(z.array(ObjectId)),

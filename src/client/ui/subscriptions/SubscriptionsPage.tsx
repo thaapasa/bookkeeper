@@ -1,12 +1,13 @@
-import { Box, Checkbox } from '@mantine/core';
+import { Box, Button, Checkbox } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import * as React from 'react';
 import { z } from 'zod';
 
-import { SubscriptionSearchCriteria } from 'shared/expense';
+import { Subscription, SubscriptionSearchCriteria } from 'shared/expense';
 import { Category, ObjectId } from 'shared/types';
 import { Money, MoneyLike } from 'shared/util';
-import apiConnect from 'client/data/ApiConnect';
+import { apiConnect } from 'client/data/ApiConnect';
 import { QueryKeys } from 'client/data/queryKeys';
 import { useCategoryMap } from 'client/data/SessionStore';
 import { PageTitle } from 'client/ui/design/PageTitle';
@@ -14,26 +15,48 @@ import { PageTitle } from 'client/ui/design/PageTitle';
 import { QueryBoundary } from '../component/QueryBoundary';
 import { useLocalStorageList } from '../hooks/useList.ts';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import { Icons } from '../icons/Icons';
 import { PageLayout } from '../layout/PageLayout';
 import { SubscriptionCategoryHeader, ToggleCategoryVisibility } from './SubscriptionCategoryHeader';
 import { SubscriptionCriteriaSelector } from './SubscriptionCriteriaSelector';
+import { SubscriptionEditorDialog } from './SubscriptionEditorDialog';
 import { SubscriptionItemView } from './SubscriptionItemView';
+import { SubscriptionRangeProvider } from './SubscriptionRangeContext';
 import { groupSubscriptions, sumRecurrenceTotals } from './SubscriptionsData';
 import { TotalsChart, TotalsData } from './TotalsChart';
-import { RecurrenceTotals, SubscriptionGroup, SubscriptionItem } from './types';
+import { RecurrenceTotals, SubscriptionGroup } from './types';
 
 export const SubscriptionsPage: React.FC = () => {
   const [criteria, setCriteria] = React.useState<SubscriptionSearchCriteria | undefined>(undefined);
+  const [creatorOpen, { open: openCreator, close: closeCreator }] = useDisclosure(false);
 
   return (
     <PageLayout fullWidth pb="md">
-      <PageTitle padded>Tilaukset</PageTitle>
+      <PageTitle
+        padded
+        tools={
+          <Button
+            variant="filled"
+            size="xs"
+            leftSection={<Icons.Add size={16} />}
+            onClick={openCreator}
+            mr={{ base: 'md', sm: 0 }}
+          >
+            Uusi tilaus
+          </Button>
+        }
+      >
+        Tilaukset
+      </PageTitle>
       <SubscriptionCriteriaSelector onChange={setCriteria} />
       {criteria !== undefined ? (
-        <QueryBoundary>
-          <SubscriptionsResults criteria={criteria} />
-        </QueryBoundary>
+        <SubscriptionRangeProvider range={criteria.range}>
+          <QueryBoundary>
+            <SubscriptionsResults criteria={criteria} />
+          </QueryBoundary>
+        </SubscriptionRangeProvider>
       ) : null}
+      <SubscriptionEditorDialog opened={creatorOpen} onClose={closeCreator} />
     </PageLayout>
   );
 };
@@ -184,7 +207,7 @@ const GroupView: React.FC<{
 const CategorySubscriptions: React.FC<{
   category: Category;
   title?: string;
-  items: SubscriptionItem[];
+  items: Subscription[];
   totals?: RecurrenceTotals;
 }> = ({ category, items, totals, title }) => (
   <>

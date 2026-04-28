@@ -1,4 +1,4 @@
-import { ExpenseQuery, SubscriptionSearchCriteria } from 'shared/expense';
+import { ExpenseQuery, SubscriptionMatchesQuery, SubscriptionSearchCriteria } from 'shared/expense';
 import { ISODate, ISOMonth } from 'shared/time';
 import { CategorySelection, ObjectId } from 'shared/types';
 
@@ -16,7 +16,8 @@ export const QueryKeys = {
     all: ['subscriptions'] as const,
     search: (criteria: SubscriptionSearchCriteria) =>
       ['subscriptions', 'search', criteria] as const,
-    detail: (id: ObjectId) => ['subscriptions', 'detail', id] as const,
+    matches: (query: SubscriptionMatchesQuery) => ['subscriptions', 'matches', query] as const,
+    preview: (filter: ExpenseQuery) => ['subscriptions', 'preview', filter] as const,
   },
   tracking: {
     all: ['tracking'] as const,
@@ -46,9 +47,6 @@ export const QueryKeys = {
       endDate: ISODate;
       onlyOwn: boolean;
     }) => ['statistics', 'category', params] as const,
-  },
-  reports: {
-    all: ['reports'] as const,
   },
   sources: {
     all: ['sources'] as const,

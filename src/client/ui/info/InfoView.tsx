@@ -2,7 +2,7 @@ import { Stack } from '@mantine/core';
 import * as React from 'react';
 
 import { ObjectId, Source, User } from 'shared/types';
-import apiConnect from 'client/data/ApiConnect';
+import { apiConnect } from 'client/data/ApiConnect';
 import { updateSession } from 'client/data/Login';
 import { useUserData, useValidSession } from 'client/data/SessionStore';
 

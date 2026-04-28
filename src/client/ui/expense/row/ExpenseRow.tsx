@@ -10,7 +10,7 @@ import {
 import { readableDate, toDateTime } from 'shared/time';
 import { Category, isDefined } from 'shared/types';
 import { equal, Money, notEqual } from 'shared/util';
-import apiConnect from 'client/data/ApiConnect';
+import { apiConnect } from 'client/data/ApiConnect';
 import { getFullCategoryName, UserDataProps } from 'client/data/Categories';
 import { navigateToExpenseDate, useNavigationStore } from 'client/data/NavigationStore';
 import { invalidateExpenseData, invalidateSubscriptionData } from 'client/data/query';
@@ -34,6 +34,7 @@ import { AddFilterFn, ExpenseFilters } from './ExpenseFilters';
 import styles from './ExpenseRow.module.css';
 import { SourceIcon, TextButton } from './ExpenseRowComponents';
 import {
+  ActionsVisibleFrom,
   BalanceVisibleFrom,
   CategoryVisibleFrom,
   ReceiverVisibleFrom,
@@ -49,10 +50,18 @@ export interface CommonExpenseRowProps {
   onUpdated: (expense: UserExpense) => void;
   selectCategory?: (category: Category) => void;
   addFilter: AddFilterFn;
+  /**
+   * When false, the row renders read-only: title/receiver are plain
+   * text, the date isn't clickable, and the per-row expander/Edit/Delete
+   * actions are hidden. Defaults to true. Used by the subscription
+   * preview/matches lists where the parent's `onUpdated={noop}` would
+   * otherwise silently swallow real edits.
+   */
+  editable?: boolean;
 }
 
 export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataProps }> = props => {
-  const { expense, prev, userData, addFilter, onUpdated } = props;
+  const { expense, prev, userData, addFilter, onUpdated, editable = true } = props;
   const { categoryMap, userMap, sourceMap, groupingMap } = userData;
   const user = userMap[expense.userId];
   const source = sourceMap[expense.sourceId];
@@ -134,7 +143,7 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
 
   const deleteExpense = async () => {
     const name = expenseName(expense);
-    if (expense.recurringExpenseId) {
+    if (expense.subscriptionId) {
       return deleteRecurringExpense();
     }
     await executeOperation(() => apiConnect.deleteExpense(expense.id), {
@@ -190,11 +199,11 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
         )}
       >
         {/* Date */}
-        <Table.Td ta="right" pos="relative" px="xs" onClick={editDate}>
-          {expense.recurringExpenseId ? (
+        <Table.Td ta="right" pos="relative" px="xs" onClick={editable ? editDate : undefined}>
+          {expense.subscriptionId ? (
             <RecurringExpenseIcon className={styles.recurringIcon} />
           ) : null}
-          <Text span visibleFrom="sm" pr="xs" fw="bold">
+          <Text span className={ActionsVisibleFrom} pr="xs" fw="bold">
             {weekDay(expense.date, prev)}
           </Text>
           {readableDate(expense.date)}
@@ -230,12 +239,16 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
               ))
             ) : null}
           </Group>
-          <ActivatableTextField
-            fullWidth
-            value={expense.title}
-            viewStyle={{ display: 'inline-block', verticalAlign: 'middle' }}
-            onChange={v => updateExpense({ title: v })}
-          />
+          {editable ? (
+            <ActivatableTextField
+              fullWidth
+              value={expense.title}
+              viewStyle={{ display: 'inline-block', verticalAlign: 'middle' }}
+              onChange={v => updateExpense({ title: v })}
+            />
+          ) : (
+            <Text span>{expense.title}</Text>
+          )}
         </Table.Td>
         {/* Sum */}
         <Table.Td ta="right" pos="relative" c={sumStyle.c} fw={sumStyle.fw} fs={sumStyle.fs}>
@@ -243,20 +256,22 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
           {Money.from(expense.sum).format()}
         </Table.Td>
         {/* Receiver */}
-        <Table.Td visibleFrom={ReceiverVisibleFrom}>
-          <ActivatableTextField
-            fullWidth
-            value={expense.receiver}
-            editorType={ReceiverField}
-            onChange={v => updateExpense({ receiver: v })}
-          />
+        <Table.Td className={ReceiverVisibleFrom}>
+          {editable ? (
+            <ActivatableTextField
+              fullWidth
+              value={expense.receiver}
+              editorType={ReceiverField}
+              onChange={v => updateExpense({ receiver: v })}
+            />
+          ) : (
+            <Text span>{expense.receiver}</Text>
+          )}
         </Table.Td>
         {/* Category */}
-        <Table.Td visibleFrom={CategoryVisibleFrom}>
-          {fullCategoryLink(expense.categoryId)}
-        </Table.Td>
+        <Table.Td className={CategoryVisibleFrom}>{fullCategoryLink(expense.categoryId)}</Table.Td>
         {/* Source */}
-        <Table.Td visibleFrom={SourceVisibleFrom}>
+        <Table.Td className={SourceVisibleFrom}>
           <SourceIcon
             source={source}
             onClick={() => addFilter(e => e.sourceId === source.id, source.name)}
@@ -266,7 +281,7 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
         <Table.Td
           ta="right"
           pos="relative"
-          visibleFrom={BalanceVisibleFrom}
+          className={BalanceVisibleFrom}
           c={forMoney(expense.userBalance)}
           onClick={() =>
             Money.zero.equals(expense.userBalance)
@@ -278,22 +293,24 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
         </Table.Td>
         {/* Tools */}
         <Table.Td ta="right">
-          <Group gap="xs" wrap="nowrap" justify="flex-end">
-            <ExpanderIcon
-              title="Tiedot"
-              open={isDefined(details)}
-              onToggle={() => toggleDetails()}
-            />
-            <ActionIcon title="Muokkaa" onClick={modifyExpense} visibleFrom="sm">
-              <Icons.Edit />
-            </ActionIcon>
-            <ActionIcon title="Poista" onClick={deleteExpense} visibleFrom="sm">
-              <Icons.Delete />
-            </ActionIcon>
-          </Group>
+          {editable ? (
+            <Group gap="xs" wrap="nowrap" justify="flex-end">
+              <ExpanderIcon
+                title="Tiedot"
+                open={isDefined(details)}
+                onToggle={() => toggleDetails()}
+              />
+              <ActionIcon title="Muokkaa" onClick={modifyExpense} className={ActionsVisibleFrom}>
+                <Icons.Edit />
+              </ActionIcon>
+              <ActionIcon title="Poista" onClick={deleteExpense} className={ActionsVisibleFrom}>
+                <Icons.Delete />
+              </ActionIcon>
+            </Group>
+          ) : null}
         </Table.Td>
       </Table.Tr>
-      {isLoading || details ? (
+      {editable && (isLoading || details) ? (
         <ExpenseInfo
           key={'expense-division-' + expense.id}
           loading={isLoading}

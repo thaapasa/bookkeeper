@@ -5,7 +5,7 @@ import { NavigateFunction, useNavigate } from 'react-router';
 import { ExpenseShortcutPayload } from 'shared/expense';
 import { uri } from 'shared/net';
 import { ObjectId } from 'shared/types';
-import apiConnect from 'client/data/ApiConnect';
+import { apiConnect } from 'client/data/ApiConnect';
 import { updateSession } from 'client/data/Login';
 import { useValidSession } from 'client/data/SessionStore';
 import { createNewExpense, requestNewExpense } from 'client/data/State';

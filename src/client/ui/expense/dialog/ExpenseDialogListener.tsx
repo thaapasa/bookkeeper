@@ -4,7 +4,7 @@ import { type StoreApi, type UseBoundStore } from 'zustand';
 import { UserExpenseWithDetails } from 'shared/expense';
 import { ISODate } from 'shared/time';
 import { noop } from 'shared/util';
-import apiConnect from 'client/data/ApiConnect';
+import { apiConnect } from 'client/data/ApiConnect';
 import { navigateToExpenseDate } from 'client/data/NavigationStore';
 import { invalidateExpenseData } from 'client/data/query';
 import { ExpenseDialogObject } from 'client/data/StateTypes';

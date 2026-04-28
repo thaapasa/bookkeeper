@@ -1,7 +1,7 @@
 import { Group, Session } from 'shared/types';
 import { logger } from 'client/Logger';
 
-import apiConnect, { TokenKey } from './ApiConnect';
+import { apiConnect, TokenKey } from './ApiConnect';
 import { useSessionStore } from './SessionStore';
 
 const refreshTokenKey = 'refreshToken';

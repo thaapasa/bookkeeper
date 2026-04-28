@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import * as React from 'react';
 
 import { DbStatus } from 'shared/types';
-import apiConnect from 'client/data/ApiConnect';
+import { apiConnect } from 'client/data/ApiConnect';
 import { QueryKeys } from 'client/data/queryKeys';
 import { logger } from 'client/Logger';
 

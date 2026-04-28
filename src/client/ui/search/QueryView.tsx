@@ -8,7 +8,6 @@ import { Category, CategoryMap, ObjectId } from 'shared/types';
 import { CategoryDataSource, getFullCategoryName } from 'client/data/Categories';
 
 import { parseMonthRange, toYearRange } from '../component/daterange/dateRangeUtils';
-import { requestSaveReport } from '../reports/ReportUtils';
 import { QuerySearchLayout } from './QuerySearchLayout';
 import { isReceiverSuggestion, isSameSuggestion, SearchSuggestion } from './SearchSuggestions';
 
@@ -65,10 +64,6 @@ export const QueryView = React.forwardRef<QueryViewHandle, QueryViewProps>(
     const startSearch = React.useCallback(() => {
       onSearch(buildQuery());
     }, [onSearch, buildQuery]);
-
-    const saveAsReport = React.useCallback(() => {
-      requestSaveReport(buildQuery());
-    }, [buildQuery]);
 
     // Auto-trigger search when filters change (not on text input changes)
     const isInitializedRef = React.useRef(false);
@@ -163,7 +158,6 @@ export const QueryView = React.forwardRef<QueryViewHandle, QueryViewProps>(
         removeSuggestion={removeSuggestion}
         dateRange={dateRange}
         onSelectRange={setDateRange}
-        onSaveAsReport={saveAsReport}
         {...props}
       />
     );

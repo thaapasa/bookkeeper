@@ -24,21 +24,21 @@ const EXPENSE_SUM_SUBSELECT = /*sql*/ `
   SELECT SUM(CASE e.type WHEN 'expense' THEN sum WHEN 'income' THEN -sum ELSE 0 END)
     FROM expenses e
     LEFT JOIN categories cat ON (cat.id = e.category_id)
-    WHERE e.template IS FALSE
-    AND (e.grouping_id = data.id
-      OR (
-        e.grouping_id IS NULL
-        AND (cat.id = ANY(data.categories) OR cat.parent_id = ANY(data.categories))
-        AND (data."startDate" IS NULL OR e.date >= data."startDate")
-        AND (data."endDate" IS NULL OR e.date <= data."endDate")
-        AND (data."onlyOwn" IS FALSE OR e.user_id = $/userId/)
+    WHERE e.group_id = $/groupId/
+      AND (
+        e.grouping_id = data.id
+        OR (
+          e.grouping_id IS NULL
+          AND (cat.id = ANY(data.categories) OR cat.parent_id = ANY(data.categories))
+          AND (data."startDate" IS NULL OR e.date >= data."startDate")
+          AND (data."endDate" IS NULL OR e.date <= data."endDate")
+          AND (data."onlyOwn" IS FALSE OR e.user_id = $/userId/)
+        )
       )
-    )
 `;
 
 const EXPENSE_JOIN_TO_GROUPING = /*sql*/ `
   WHERE e.group_id = $/groupId/
-  AND e.template IS FALSE
   AND ${EXPENSE_MATCHES_GROUPING}
 `;
 
@@ -149,6 +149,7 @@ export async function insertExpenseGrouping(
 
 export async function updateExpenseGroupingById(
   tx: DbTask,
+  groupId: ObjectId,
   groupingId: ObjectId,
   data: ExpenseGroupingData,
 ): Promise<void> {
@@ -156,9 +157,10 @@ export async function updateExpenseGroupingById(
     `UPDATE expense_groupings
       SET title=$/title/, start_date=$/startDate/, end_date=$/endDate/, color=$/color/,
         tags=$/tags/, private=$/private/, only_own=$/onlyOwn/, updated=NOW()
-      WHERE id=$/groupingId/`,
+      WHERE id=$/groupingId/ AND group_id=$/groupId/`,
     {
       groupingId,
+      groupId,
       title: data.title,
       startDate: data.startDate,
       endDate: data.endDate,
@@ -168,9 +170,14 @@ export async function updateExpenseGroupingById(
       onlyOwn: data.onlyOwn,
     },
   );
-  await tx.none(`DELETE FROM expense_grouping_categories WHERE expense_grouping_id=$/groupingId/`, {
-    groupingId,
-  });
+  await tx.none(
+    `DELETE FROM expense_grouping_categories
+      WHERE expense_grouping_id=$/groupingId/
+        AND expense_grouping_id IN (
+          SELECT id FROM expense_groupings WHERE id=$/groupingId/ AND group_id=$/groupId/
+        )`,
+    { groupingId, groupId },
+  );
   if (data.categories.length > 0) {
     await tx.none(
       dbMain.helpers.insert(
@@ -207,7 +214,6 @@ export async function getCategoryTotalsForGrouping(
       FROM expenses e
       LEFT JOIN categories cat ON (cat.id = e.category_id)
       WHERE e.group_id = $/groupId/
-        AND e.template IS FALSE
         AND ${EXPENSE_MATCHES_GROUPING}
       GROUP BY e.category_id, cat.name;
     `,
@@ -216,33 +222,42 @@ export async function getCategoryTotalsForGrouping(
   return rows.map(toExpenseGroupingCategoryTotal);
 }
 
-export async function deleteExpenseGroupingById(tx: DbTask, groupingId: ObjectId): Promise<void> {
+export async function deleteExpenseGroupingById(
+  tx: DbTask,
+  groupId: ObjectId,
+  groupingId: ObjectId,
+): Promise<void> {
   await tx.none(
     `DELETE FROM expense_groupings
-      WHERE id=$/groupingId/`,
-    { groupingId },
+      WHERE id=$/groupingId/ AND group_id=$/groupId/`,
+    { groupingId, groupId },
   );
 }
 
 export async function setGroupingImageById(
   tx: DbTask,
+  groupId: ObjectId,
   groupingId: ObjectId,
   image: string,
 ): Promise<void> {
   await tx.none(
     `UPDATE expense_groupings
       SET image=$/image/
-      WHERE id=$/groupingId/`,
-    { groupingId, image },
+      WHERE id=$/groupingId/ AND group_id=$/groupId/`,
+    { groupingId, groupId, image },
   );
 }
 
-export async function clearGroupingImageById(tx: DbTask, groupingId: ObjectId): Promise<void> {
+export async function clearGroupingImageById(
+  tx: DbTask,
+  groupId: ObjectId,
+  groupingId: ObjectId,
+): Promise<void> {
   await tx.none(
     `UPDATE expense_groupings
       SET image=NULL
-      WHERE id=$/groupingId/`,
-    { groupingId },
+      WHERE id=$/groupingId/ AND group_id=$/groupId/`,
+    { groupingId, groupId },
   );
 }
 

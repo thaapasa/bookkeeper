@@ -5,7 +5,7 @@ import { useParams } from 'react-router';
 
 import { ExpenseGroupingWithExpenses } from 'shared/types';
 import { noop } from 'shared/util';
-import apiConnect from 'client/data/ApiConnect';
+import { apiConnect } from 'client/data/ApiConnect';
 import { QueryKeys } from 'client/data/queryKeys';
 import { useUserData } from 'client/data/SessionStore';
 import { PageTitle } from 'client/ui/design/PageTitle';

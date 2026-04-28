@@ -6,7 +6,7 @@ export function getRootCategories(categoryIds: ObjectId[], categoryMap: Category
   return [...roots];
 }
 
-export function getRootCategoryId(categoryId: ObjectId, categoryMap: CategoryMap) {
+export function getRootCategoryId(categoryId: ObjectId, categoryMap: CategoryMap): ObjectId {
   let cur = categoryMap[categoryId];
   while (cur.parentId) {
     cur = categoryMap[cur.parentId];

@@ -216,8 +216,7 @@ CREATE TABLE public.expenses (
     description text,
     confirmed boolean DEFAULT true NOT NULL,
     type public.expense_type DEFAULT 'expense'::public.expense_type NOT NULL,
-    recurring_expense_id integer,
-    template boolean DEFAULT false NOT NULL,
+    subscription_id integer,
     grouping_id integer
 );
 
@@ -342,73 +341,6 @@ ALTER SEQUENCE public.knex_migrations_lock_index_seq OWNED BY public.knex_migrat
 
 
 --
--- Name: recurring_expenses; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.recurring_expenses (
-    id integer NOT NULL,
-    template_expense_id integer NOT NULL,
-    group_id integer NOT NULL,
-    period_unit public.recurring_period NOT NULL,
-    occurs_until date,
-    next_missing date,
-    period_amount smallint DEFAULT 1 NOT NULL
-);
-
-
---
--- Name: recurring_expenses_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.recurring_expenses_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: recurring_expenses_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.recurring_expenses_id_seq OWNED BY public.recurring_expenses.id;
-
-
---
--- Name: reports; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.reports (
-    id integer NOT NULL,
-    group_id integer,
-    user_id integer,
-    title text NOT NULL,
-    query jsonb NOT NULL
-);
-
-
---
--- Name: reports_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.reports_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: reports_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.reports_id_seq OWNED BY public.reports.id;
-
-
---
 -- Name: sessions; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -500,6 +432,43 @@ CREATE SEQUENCE public.sources_id_seq
 --
 
 ALTER SEQUENCE public.sources_id_seq OWNED BY public.sources.id;
+
+
+--
+-- Name: subscriptions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.subscriptions (
+    id integer NOT NULL,
+    group_id integer NOT NULL,
+    period_unit public.recurring_period,
+    occurs_until date,
+    next_missing date,
+    period_amount smallint,
+    filter jsonb NOT NULL,
+    defaults jsonb,
+    title text NOT NULL,
+    user_id integer
+);
+
+
+--
+-- Name: subscriptions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.subscriptions_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: subscriptions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.subscriptions_id_seq OWNED BY public.subscriptions.id;
 
 
 --
@@ -625,20 +594,6 @@ ALTER TABLE ONLY public.knex_migrations_lock ALTER COLUMN index SET DEFAULT next
 
 
 --
--- Name: recurring_expenses id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.recurring_expenses ALTER COLUMN id SET DEFAULT nextval('public.recurring_expenses_id_seq'::regclass);
-
-
---
--- Name: reports id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.reports ALTER COLUMN id SET DEFAULT nextval('public.reports_id_seq'::regclass);
-
-
---
 -- Name: shortcuts id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -650,6 +605,13 @@ ALTER TABLE ONLY public.shortcuts ALTER COLUMN id SET DEFAULT nextval('public.sh
 --
 
 ALTER TABLE ONLY public.sources ALTER COLUMN id SET DEFAULT nextval('public.sources_id_seq'::regclass);
+
+
+--
+-- Name: subscriptions id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.subscriptions ALTER COLUMN id SET DEFAULT nextval('public.subscriptions_id_seq'::regclass);
 
 
 --
@@ -723,22 +685,6 @@ ALTER TABLE ONLY public.knex_migrations
 
 
 --
--- Name: recurring_expenses recurring_expenses_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.recurring_expenses
-    ADD CONSTRAINT recurring_expenses_pkey PRIMARY KEY (id);
-
-
---
--- Name: reports reports_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.reports
-    ADD CONSTRAINT reports_pkey PRIMARY KEY (id);
-
-
---
 -- Name: sessions sessions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -760,6 +706,14 @@ ALTER TABLE ONLY public.shortcuts
 
 ALTER TABLE ONLY public.sources
     ADD CONSTRAINT sources_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: subscriptions subscriptions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.subscriptions
+    ADD CONSTRAINT subscriptions_pkey PRIMARY KEY (id);
 
 
 --
@@ -809,17 +763,17 @@ CREATE INDEX expenses_description_trgm ON public.expenses USING gin (description
 
 
 --
--- Name: expenses_group_date; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX expenses_group_date ON public.expenses USING btree (group_id, template, date);
-
-
---
 -- Name: expenses_receiver_trgm; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX expenses_receiver_trgm ON public.expenses USING gin (receiver public.gin_trgm_ops);
+
+
+--
+-- Name: expenses_subscription_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX expenses_subscription_id_idx ON public.expenses USING btree (subscription_id) WHERE (subscription_id IS NOT NULL);
 
 
 --
@@ -975,19 +929,19 @@ ALTER TABLE ONLY public.expenses
 
 
 --
--- Name: expenses expenses_recurring_expense_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.expenses
-    ADD CONSTRAINT expenses_recurring_expense_id_fkey FOREIGN KEY (recurring_expense_id) REFERENCES public.recurring_expenses(id);
-
-
---
 -- Name: expenses expenses_source_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.expenses
     ADD CONSTRAINT expenses_source_id_fkey FOREIGN KEY (source_id) REFERENCES public.sources(id);
+
+
+--
+-- Name: expenses expenses_subscription_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.expenses
+    ADD CONSTRAINT expenses_subscription_id_fkey FOREIGN KEY (subscription_id) REFERENCES public.subscriptions(id);
 
 
 --
@@ -1020,38 +974,6 @@ ALTER TABLE ONLY public.group_users
 
 ALTER TABLE ONLY public.group_users
     ADD CONSTRAINT group_users_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
-
-
---
--- Name: recurring_expenses recurring_expenses_group_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.recurring_expenses
-    ADD CONSTRAINT recurring_expenses_group_id_fkey FOREIGN KEY (group_id) REFERENCES public.groups(id);
-
-
---
--- Name: recurring_expenses recurring_expenses_template_expense_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.recurring_expenses
-    ADD CONSTRAINT recurring_expenses_template_expense_id_fkey FOREIGN KEY (template_expense_id) REFERENCES public.expenses(id) ON DELETE CASCADE;
-
-
---
--- Name: reports reports_group_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.reports
-    ADD CONSTRAINT reports_group_id_fkey FOREIGN KEY (group_id) REFERENCES public.groups(id);
-
-
---
--- Name: reports reports_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.reports
-    ADD CONSTRAINT reports_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 
 --
@@ -1100,6 +1022,22 @@ ALTER TABLE ONLY public.source_users
 
 ALTER TABLE ONLY public.sources
     ADD CONSTRAINT sources_group_id_fkey FOREIGN KEY (group_id) REFERENCES public.users(id);
+
+
+--
+-- Name: subscriptions subscriptions_group_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.subscriptions
+    ADD CONSTRAINT subscriptions_group_id_fkey FOREIGN KEY (group_id) REFERENCES public.groups(id);
+
+
+--
+-- Name: subscriptions subscriptions_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.subscriptions
+    ADD CONSTRAINT subscriptions_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 
 --

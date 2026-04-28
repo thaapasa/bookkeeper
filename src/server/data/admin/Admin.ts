@@ -7,7 +7,7 @@ async function getExpenseTypeStatus(tx: DbTask, groupId: number): Promise<TypeSt
   return await tx.manyOrNone<TypeStatus>(
     `SELECT COUNT(*) as count, SUM(sum) AS sum, type
         FROM expenses
-        WHERE group_id=$/groupId/ AND template=FALSE
+        WHERE group_id=$/groupId/
         GROUP BY type`,
     { groupId },
   );

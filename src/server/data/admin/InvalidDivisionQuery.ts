@@ -51,7 +51,7 @@ export async function getInvalidDivision(tx: DbTask, groupId: number): Promise<I
               group_id,
               category_id,
               created,
-              recurring_expense_id,
+              subscription_id,
               (CASE WHEN d.type = 'cost' THEN d.sum ELSE '0.00' :: NUMERIC END) AS cost,
               (CASE WHEN d.type = 'benefit' THEN d.sum ELSE '0.00' :: NUMERIC END) AS benefit,
               (CASE WHEN d.type = 'income' THEN d.sum ELSE '0.00' :: NUMERIC END) AS income,

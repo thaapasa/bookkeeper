@@ -2,7 +2,7 @@ import { ActionIcon, Card, Group, SimpleGrid } from '@mantine/core';
 import React from 'react';
 
 import { ObjectId, TrackingSubject, TrackingSubjectWithData } from 'shared/types';
-import apiConnect from 'client/data/ApiConnect';
+import { apiConnect } from 'client/data/ApiConnect';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { Subtitle } from '../design/Text';

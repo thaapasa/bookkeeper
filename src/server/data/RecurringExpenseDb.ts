@@ -2,32 +2,32 @@ import { DateTime } from 'luxon';
 
 import {
   Expense,
+  ExpenseDefaults,
   ExpenseDivisionItem,
   ExpenseInput,
+  ExpenseQuery,
+  hasMeaningfulConstraint,
   Recurrence,
   RecurrencePeriod,
-  recurrencePerMonth,
-  recurrencePerYear,
   RecurrenceUnit,
-  RecurringExpense,
-  RecurringExpenseDetails,
   RecurringExpenseInput,
   RecurringExpenseTarget,
-  SubscriptionSearchCriteria,
-  UserExpense,
+  stripBlanks,
+  SubscriptionDeleteMode,
+  SubscriptionUpdate,
 } from 'shared/expense';
 import { DateLike, ISODate, toDateTime, toISODate } from 'shared/time';
 import {
   ApiMessage,
-  DbObject,
-  ExpenseIdResponse,
+  BkError,
   InvalidExpense,
   InvalidInputError,
   NotFoundError,
   ObjectId,
   RecurringExpenseCreatedResponse,
+  Source,
 } from 'shared/types';
-import { assertDefined, camelCaseObject, Money, toArray } from 'shared/util';
+import { camelCaseObject, Money } from 'shared/util';
 import { DbTask } from 'server/data/Db.ts';
 import { logger } from 'server/Logger';
 import { withSpan } from 'server/telemetry/Spans';
@@ -35,161 +35,140 @@ import { withSpan } from 'server/telemetry/Spans';
 import {
   createNewExpense,
   deleteExpenseById,
+  ExpenseInsert,
   getExpenseById,
-  getFirstRecurrence,
-  getLastRecurrence,
   setExpenseDataDefaults,
   storeExpenseDivision,
   updateExpense,
 } from './BasicExpenseDb';
-import { copyExpense, getExpenseAndDivisionData, updateExpenseById } from './BasicExpenseService';
 import { getCategoryById } from './CategoryDb';
 import { determineDivision } from './ExpenseDivision';
 import { calculateNextRecurrence } from './RecurringExpenseService';
 import { getSourceById } from './SourceDb';
+import { getUserById } from './UserDb';
 
-const RecurringExpenseSelect = `SELECT *, re.id AS "recurringExpenseId" FROM recurring_expenses re
-  LEFT JOIN expenses e ON (e.id = re.template_expense_id)`;
-
-export function searchRecurringExpenses(
-  tx: DbTask,
-  groupId: ObjectId,
-  userId: ObjectId,
-  criteria: SubscriptionSearchCriteria = {},
-): Promise<RecurringExpense[]> {
-  return withSpan(
-    'recurring.search',
-    { 'app.group_id': groupId, 'app.user_id': userId },
-    async () => {
-      const type = criteria.type && toArray(criteria.type);
-      const expenses = await tx.manyOrNone(
-        `--sql
-        ${RecurringExpenseSelect}
-          WHERE re.group_id = $/groupId/
-            AND e.group_id = $/groupId/
-            ${criteria.includeEnded ? '' : `AND (occurs_until IS NULL OR occurs_until >= NOW())`}
-            ${criteria.onlyOwn ? `AND user_id = $/userId/` : ''}
-            ${type ? 'AND e.type IN ($/type:csv/)' : ''}`,
-        { groupId, type, userId },
-      );
-      return expenses.map(mapRecurringExpense);
-    },
-  );
+export function filterFromExpense(expense: Expense): ExpenseQuery {
+  const filter: ExpenseQuery = { categoryId: expense.categoryId };
+  if (expense.receiver) filter.receiver = expense.receiver;
+  return filter;
 }
 
-async function getRecurringExpenseInfo(
+export function defaultsFromExpense(expense: Expense): ExpenseDefaults {
+  return {
+    title: expense.title,
+    ...(expense.receiver ? { receiver: expense.receiver } : {}),
+    sum: Money.toString(expense.sum),
+    type: expense.type,
+    sourceId: expense.sourceId,
+    categoryId: expense.categoryId,
+    userId: expense.userId,
+    confirmed: expense.confirmed,
+    description: expense.description ?? null,
+  };
+}
+
+/**
+ * One subscription row, post-6b: recurring rows carry `period` and
+ * `defaults`, report-style rows leave both undefined. `userId` is the
+ * row's owner (recurring: backfilled from the original template's
+ * userId; report: the user who saved the report).
+ */
+export interface SubscriptionRow {
+  id: ObjectId;
+  groupId: ObjectId;
+  userId: ObjectId | null;
+  title: string;
+  filter: ExpenseQuery;
+  period?: RecurrencePeriod;
+  defaults?: ExpenseDefaults;
+  nextMissing?: ISODate;
+  occursUntil?: ISODate;
+  /**
+   * The category this row is filed under in UI groupings. Pulled from
+   * the filter's `categoryId`. If the filter has none, the row floats
+   * up to the page's "uncategorized" bucket — surfaced as 0 in the
+   * unified card layout, with a link in the matched-rows expander to
+   * the broader expense list.
+   */
+  categoryId: ObjectId | null;
+}
+
+interface SubscriptionRowDb {
+  id: ObjectId;
+  groupId: ObjectId;
+  userId: ObjectId | null;
+  title: string;
+  filter: ExpenseQuery;
+  defaults: ExpenseDefaults | null;
+  periodUnit: RecurrenceUnit | null;
+  periodAmount: number | null;
+  nextMissing: ISODate | null;
+  occursUntil: ISODate | null;
+}
+
+const SubscriptionRowSelect = `
+  SELECT
+    id AS "id",
+    group_id AS "groupId",
+    user_id AS "userId",
+    title,
+    filter AS "filter",
+    defaults AS "defaults",
+    period_unit AS "periodUnit",
+    period_amount AS "periodAmount",
+    next_missing AS "nextMissing",
+    occurs_until AS "occursUntil"
+    FROM subscriptions
+`;
+
+function dbRowToSubscriptionRow(row: SubscriptionRowDb): SubscriptionRow {
+  const period =
+    row.periodUnit && row.periodAmount
+      ? { unit: row.periodUnit, amount: row.periodAmount }
+      : undefined;
+  return {
+    id: row.id,
+    groupId: row.groupId,
+    userId: row.userId,
+    title: row.title,
+    filter: row.filter,
+    defaults: row.defaults ?? undefined,
+    period,
+    nextMissing: row.nextMissing ?? undefined,
+    occursUntil: row.occursUntil ?? undefined,
+    categoryId: primaryCategoryId(row.filter),
+  };
+}
+
+function primaryCategoryId(filter: ExpenseQuery): ObjectId | null {
+  if (filter.categoryId === undefined) return null;
+  return Array.isArray(filter.categoryId) ? (filter.categoryId[0] ?? null) : filter.categoryId;
+}
+
+export async function getSubscriptionRows(
   tx: DbTask,
   groupId: ObjectId,
-  recurringExpenseId: ObjectId,
-): Promise<RecurringExpense> {
-  const row = await tx.oneOrNone(
-    `--sql
-      ${RecurringExpenseSelect}
-        WHERE re.group_id = $/groupId/
-          AND e.group_id = $/groupId/
-          AND re.id = $/recurringExpenseId/`,
-    { groupId, recurringExpenseId },
+): Promise<SubscriptionRow[]> {
+  const rows = await tx.manyOrNone<SubscriptionRowDb>(
+    `${SubscriptionRowSelect} WHERE group_id = $/groupId/ ORDER BY id`,
+    { groupId },
+  );
+  return rows.map(dbRowToSubscriptionRow);
+}
+
+export async function getSubscriptionRow(
+  tx: DbTask,
+  groupId: ObjectId,
+  subscriptionId: ObjectId,
+): Promise<SubscriptionRow> {
+  const row = await tx.oneOrNone<SubscriptionRowDb>(
+    `${SubscriptionRowSelect} WHERE group_id = $/groupId/ AND id = $/subscriptionId/`,
+    { groupId, subscriptionId },
   );
   if (!row) {
-    throw new NotFoundError('RECURRING_EXPENSE_NOT_FOUND', `Recurring expense`, recurringExpenseId);
+    throw new NotFoundError('SUBSCRIPTION_NOT_FOUND', `Subscription`, subscriptionId);
   }
-  return mapRecurringExpense(row);
-}
-
-export async function getRecurringExpenseTemplate(
-  tx: DbTask,
-  groupId: ObjectId,
-  userId: ObjectId,
-  recurringExpenseId: ObjectId,
-): Promise<UserExpense> {
-  const recurringExpense = await getRecurringExpenseInfo(tx, groupId, recurringExpenseId);
-  return getExpenseById(tx, groupId, userId, recurringExpense.templateExpenseId);
-}
-
-export function updateRecurringExpenseTemplate(
-  tx: DbTask,
-  groupId: ObjectId,
-  userId: ObjectId,
-  expenseId: ObjectId,
-  data: ExpenseInput,
-  defaultSourceId: ObjectId,
-): Promise<ExpenseIdResponse> {
-  return withSpan(
-    'recurring.update_template',
-    { 'app.group_id': groupId, 'app.user_id': userId, 'app.expense_id': expenseId },
-    async () => {
-      const expense = await getExpenseById(tx, groupId, userId, expenseId);
-      assertDefined(expense.recurringExpenseId);
-      const recurringExpense = await getRecurringExpenseInfo(
-        tx,
-        groupId,
-        expense.recurringExpenseId,
-      );
-      return updateExpenseById(
-        tx,
-        groupId,
-        userId,
-        recurringExpense.templateExpenseId,
-        data,
-        defaultSourceId,
-      );
-    },
-  );
-}
-
-export function getRecurringExpenseDetails(
-  tx: DbTask,
-  groupId: ObjectId,
-  userId: ObjectId,
-  recurringExpenseId: ObjectId,
-): Promise<RecurringExpenseDetails> {
-  return withSpan(
-    'recurring.details',
-    {
-      'app.group_id': groupId,
-      'app.user_id': userId,
-      'app.recurring_expense_id': recurringExpenseId,
-    },
-    async () => {
-      const recurringExpense = await getRecurringExpenseInfo(tx, groupId, recurringExpenseId);
-      const totals = await tx.one(
-        `SELECT COUNT(*) AS "count", SUM(sum) AS "sum" FROM expenses WHERE recurring_expense_id=$/recurringExpenseId/`,
-        { recurringExpenseId },
-      );
-      const firstOccurence = await getFirstRecurrence(tx, groupId, userId, recurringExpenseId);
-      const lastOccurence = await getLastRecurrence(tx, groupId, userId, recurringExpenseId);
-      return {
-        recurringExpense,
-        totalExpenses: totals.count,
-        totalSum: totals.sum,
-        firstOccurence,
-        lastOccurence,
-      };
-    },
-  );
-}
-
-function mapRecurringExpense(row: any): RecurringExpense {
-  const period: RecurrencePeriod = {
-    unit: row.period_unit,
-    amount: row.period_amount,
-  };
-  const sum = Money.from(row.sum).toString();
-  return {
-    id: row.recurringExpenseId,
-    type: 'recurring',
-    templateExpenseId: row.template_expense_id,
-    title: row.title,
-    receiver: row.receiver ?? undefined,
-    sum,
-    categoryId: row.category_id,
-    period,
-    nextMissing: toISODate(row.next_missing),
-    firstOccurence: toISODate(row.date),
-    occursUntil: row.occurs_until ? toISODate(row.occurs_until) : undefined,
-    recurrencePerMonth: recurrencePerMonth(sum, period).toString(),
-    recurrencePerYear: recurrencePerYear(sum, period).toString(),
-  };
+  return dbRowToSubscriptionRow(row);
 }
 
 export function createRecurringFromExpense(
@@ -200,7 +179,7 @@ export function createRecurringFromExpense(
   recurrence: RecurringExpenseInput,
 ): Promise<RecurringExpenseCreatedResponse> {
   return withSpan(
-    'recurring.create',
+    'subscription.create',
     {
       'app.group_id': groupId,
       'app.user_id': userId,
@@ -210,47 +189,52 @@ export function createRecurringFromExpense(
     },
     async () => {
       logger.info(
-        `Create recurring expense with a period of ${recurrence.period.amount} ${recurrence.period.unit} from ${expenseId}`,
+        { expenseId, period: recurrence.period },
+        'Create recurring expense from existing expense',
       );
-      let nextMissing: DateTime | undefined;
-      const templateId = await copyExpense(tx, groupId, userId, expenseId, e => {
-        const [expense, division] = e;
-        if (expense.recurringExpenseId && expense.recurringExpenseId > 0) {
-          throw new InvalidInputError(
-            'INVALID_INPUT',
-            `Expense ${expenseId} is already a recurring expense (${expense.recurringExpenseId})`,
-          );
-        }
-        nextMissing = calculateNextRecurrence(expense.date, recurrence.period);
-        return [{ ...expense, template: true }, division];
-      });
-      const recurringExpenseId = (
+      const expense = await getExpenseById(tx, groupId, userId, expenseId);
+      if (expense.subscriptionId && expense.subscriptionId > 0) {
+        throw new InvalidInputError(
+          'INVALID_INPUT',
+          `Expense ${expenseId} is already a recurring expense (${expense.subscriptionId})`,
+        );
+      }
+      const nextMissing = calculateNextRecurrence(expense.date, recurrence.period);
+      const filter = filterFromExpense(expense);
+      const defaults = defaultsFromExpense(expense);
+      const subscriptionId = (
         await tx.one<{ id: number }>(
-          `INSERT INTO recurring_expenses (template_expense_id, period_amount, period_unit, next_missing, group_id)
-              VALUES ($/templateId/, $/periodAmount/, $/periodUnit/, $/nextMissing/::DATE, $/groupId/)
-              RETURNING id`,
+          `INSERT INTO subscriptions
+              (period_amount, period_unit, next_missing, group_id, user_id, title, filter, defaults)
+            VALUES (
+              $/periodAmount/, $/periodUnit/, $/nextMissing/::DATE,
+              $/groupId/, $/ownerId/, $/title/,
+              $/filter/::JSONB, $/defaults/::JSONB)
+            RETURNING id`,
           {
-            templateId,
             periodAmount: recurrence.period.amount,
             periodUnit: recurrence.period.unit,
             nextMissing: toISODate(nextMissing),
             groupId,
+            ownerId: expense.userId,
+            title: expense.title,
+            filter,
+            defaults,
           },
         )
       ).id;
 
       await tx.none(
         `UPDATE expenses
-            SET recurring_expense_id=$/recurringExpenseId/
-            WHERE id IN ($/expenseId/, $/templateId/)`,
-        { recurringExpenseId, expenseId, templateId },
+            SET subscription_id = $/subscriptionId/
+            WHERE id = $/expenseId/ AND group_id = $/groupId/`,
+        { subscriptionId, expenseId, groupId },
       );
       return {
         status: 'OK',
         message: 'Recurrence created',
         expenseId,
-        templateExpenseId: templateId,
-        recurringExpenseId,
+        subscriptionId,
       };
     },
   );
@@ -266,30 +250,49 @@ function getDatesUpTo(recurrence: Recurrence, date: DateTime): ISODate[] {
   return dates;
 }
 
-function createMissingRecurrenceForDate(
+async function generateRowFromDefaults(
   tx: DbTask,
-  e: [Expense, ExpenseDivisionItem[]],
+  groupId: ObjectId,
+  subscriptionId: ObjectId,
+  defaults: ExpenseDefaults,
+  source: Source,
   date: ISODate,
 ): Promise<number> {
-  const [exp, division] = e;
-  const expense = { ...exp, template: false, date };
-  logger.debug('Creating missing expense %s at %s', expense.title, expense.date);
-  return createNewExpense(tx, expense.userId, expense, division);
+  const insert: ExpenseInsert = {
+    userId: defaults.userId,
+    groupId,
+    sourceId: defaults.sourceId,
+    categoryId: defaults.categoryId,
+    type: defaults.type,
+    title: defaults.title,
+    receiver: defaults.receiver ?? '',
+    sum: defaults.sum,
+    confirmed: defaults.confirmed,
+    description: defaults.description,
+    date,
+    subscriptionId,
+  };
+  // Division is always derived from the current source split; the
+  // subscription's stored defaults intentionally don't carry a
+  // pre-computed division, so a stale or hand-crafted PATCH can't slip
+  // an invariant-breaking expense_division blob through this path.
+  const division = determineDivision(insert, source);
+  logger.debug({ subscriptionId, title: defaults.title, date }, 'Generating subscription row');
+  return createNewExpense(tx, defaults.userId, insert, division);
 }
 
 async function createMissingRecurrences(
   tx: DbTask,
-  groupId: number,
-  userId: number,
+  groupId: ObjectId,
   date: DateTime,
   recurrenceDb: RecurrenceInDb,
 ) {
-  const recurrence: Recurrence = {
-    ...recurrenceDb,
-    period: {
-      amount: recurrenceDb.periodAmount,
-      unit: recurrenceDb.periodUnit,
-    },
+  const recurrence: Recurrence & { defaults: ExpenseDefaults } = {
+    id: recurrenceDb.id,
+    nextMissing: recurrenceDb.nextMissing,
+    occursUntil: recurrenceDb.occursUntil,
+    period: { amount: recurrenceDb.periodAmount, unit: recurrenceDb.periodUnit },
+    defaults: recurrenceDb.defaults,
   };
   const until = recurrence.occursUntil ? toDateTime(recurrence.occursUntil) : null;
   const maxDate = until && until < date ? until : toDateTime(date);
@@ -300,101 +303,131 @@ async function createMissingRecurrences(
   const lastDate = dates[dates.length - 1];
   const nextMissing = calculateNextRecurrence(lastDate, recurrence.period);
   logger.info(
-    `Creating missing expenses for ${recurrence} ${dates}. Next missing is ${toISODate(
-      nextMissing,
-    )}`,
+    {
+      subscriptionId: recurrence.id,
+      title: recurrence.defaults.title,
+      period: recurrence.period,
+      dates,
+      nextMissing: toISODate(nextMissing),
+    },
+    `Creating ${dates.length} missing expense(s) for subscription ${recurrence.id}`,
   );
-  const expense = await getExpenseAndDivisionData(
-    tx,
-    groupId,
-    userId,
-    recurrence.templateExpenseId,
-  );
-  await tx.batch(dates.map(date => createMissingRecurrenceForDate(tx, expense, date)));
+  const source = await getSourceById(tx, groupId, recurrence.defaults.sourceId);
+  for (const date of dates) {
+    await generateRowFromDefaults(tx, groupId, recurrence.id, recurrence.defaults, source, date);
+  }
   await tx.none(
-    `UPDATE recurring_expenses
+    `UPDATE subscriptions
         SET next_missing=$/nextMissing/::DATE
-        WHERE id=$/recurringExpenseId/`,
+        WHERE id=$/subscriptionId/ AND group_id=$/groupId/`,
     {
       nextMissing: toISODate(nextMissing),
-      recurringExpenseId: recurrence.id,
+      subscriptionId: recurrence.id,
+      groupId,
     },
   );
 }
 
-interface RecurrenceInDb extends DbObject, Omit<RecurringExpenseInput, 'period'> {
+/**
+ * Recurring-row payload as returned by `createMissingRecurringExpenses`.
+ * The query filters out report-style rows (those have NULL `next_missing`
+ * and NULL `period_*`), so every field below is guaranteed populated.
+ */
+interface RecurrenceInDb {
+  id: ObjectId;
+  defaults: ExpenseDefaults;
   nextMissing: ISODate;
-  templateExpenseId: number;
+  occursUntil?: ISODate;
   periodAmount: number;
   periodUnit: RecurrenceUnit;
 }
 
 /**
- * Populates all missing recurring expenses for this group, up to the given date
+ * Populates all missing recurring expenses for this group, up to the given date.
  */
 export function createMissingRecurringExpenses(
   tx: DbTask,
-  groupId: number,
-  userId: number,
+  groupId: ObjectId,
+  userId: ObjectId,
   date: DateTime,
 ): Promise<void> {
   return withSpan(
-    'recurring.create_missing',
+    'subscription.create_missing',
     { 'app.group_id': groupId, 'app.user_id': userId },
     async () => {
       logger.debug('Checking for missing expenses');
       const list = await tx.map<RecurrenceInDb>(
-        `SELECT *
-            FROM recurring_expenses
-            WHERE group_id=$/groupId/ AND next_missing < $/nextMissing/::DATE`,
-        { groupId, nextMissing: date },
+        // `next_missing` is NULL for report-style (non-recurring) rows;
+        // the `<` predicate already filters them out, but the explicit
+        // period_unit check makes the contract obvious to readers and
+        // matches the non-nullable shape of `RecurrenceInDb`.
+        `SELECT id, defaults, next_missing, occurs_until, period_amount, period_unit
+            FROM subscriptions
+            WHERE group_id=$/groupId/
+              AND period_unit IS NOT NULL
+              AND next_missing < $/cutoff/::DATE`,
+        { groupId, cutoff: toISODate(date) },
         camelCaseObject,
       );
-      await tx.batch(list.map(v => createMissingRecurrences(tx, groupId, userId, date, v)));
+      for (const v of list) {
+        await createMissingRecurrences(tx, groupId, date, v);
+      }
     },
   );
 }
 
 async function deleteRecurrenceAndExpenses(
   tx: DbTask,
-  recurringExpenseId: number,
+  groupId: ObjectId,
+  subscriptionId: ObjectId,
 ): Promise<ApiMessage> {
-  await tx.none(`DELETE FROM expenses WHERE recurring_expense_id=$/recurringExpenseId/`, {
-    recurringExpenseId,
-  });
-  await tx.none(`DELETE FROM recurring_expenses WHERE id=$/recurringExpenseId/`, {
-    recurringExpenseId,
+  await tx.none(
+    `DELETE FROM expenses WHERE subscription_id=$/subscriptionId/ AND group_id=$/groupId/`,
+    { subscriptionId, groupId },
+  );
+  await tx.none(`DELETE FROM subscriptions WHERE id=$/subscriptionId/ AND group_id=$/groupId/`, {
+    subscriptionId,
+    groupId,
   });
   return {
     status: 'OK',
-    message: `Recurrence ${recurringExpenseId} and its expenses have been deleted`,
+    message: `Recurrence ${subscriptionId} and its expenses have been deleted`,
   };
 }
 
-async function terminateRecurrenceAt(tx: DbTask, recurringExpenseId: number, date: DateLike) {
+async function terminateRecurrenceAt(
+  tx: DbTask,
+  groupId: ObjectId,
+  subscriptionId: ObjectId,
+  date: DateLike,
+) {
+  const dateIso = toISODate(date);
   await tx.none(
-    `UPDATE recurring_expenses
+    `UPDATE subscriptions
         SET occurs_until=$/date/::date
-        WHERE id=$/recurringExpenseId/`,
-    { recurringExpenseId, date },
+        WHERE id=$/subscriptionId/ AND group_id=$/groupId/`,
+    { subscriptionId, date: dateIso, groupId },
   );
 }
 
 async function deleteRecurrenceAfter(
   tx: DbTask,
-  expenseId: number,
+  groupId: ObjectId,
+  expenseId: ObjectId,
   afterDate: DateLike,
-  recurringExpenseId: number,
+  subscriptionId: ObjectId,
 ): Promise<ApiMessage> {
+  const afterDateIso = toISODate(afterDate);
   await tx.none(
     `DELETE FROM expenses
-        WHERE recurring_expense_id=$/recurringExpenseId/ AND (id=$/expenseId/ OR date > $/afterDate/::date)`,
-    { recurringExpenseId, expenseId, afterDate },
+        WHERE subscription_id=$/subscriptionId/ AND group_id=$/groupId/
+          AND (id=$/expenseId/ OR date > $/afterDate/::date)`,
+    { subscriptionId, expenseId, afterDate: afterDateIso, groupId },
   );
-  await terminateRecurrenceAt(tx, recurringExpenseId, afterDate);
+  await terminateRecurrenceAt(tx, groupId, subscriptionId, afterDateIso);
   return {
     status: 'OK',
-    message: `Expenses after ${afterDate} for recurrence ${recurringExpenseId} have been deleted`,
+    message: `Expenses after ${afterDateIso} for recurrence ${subscriptionId} have been deleted`,
   };
 }
 
@@ -406,7 +439,7 @@ export function deleteRecurringByExpenseId(
   target: RecurringExpenseTarget,
 ): Promise<ApiMessage> {
   return withSpan(
-    'recurring.delete_by_expense',
+    'subscription.delete_by_expense',
     {
       'app.group_id': groupId,
       'app.user_id': userId,
@@ -414,19 +447,19 @@ export function deleteRecurringByExpenseId(
       'app.target': target,
     },
     async () => {
-      logger.info(`Deleting recurring via expense ${expenseId} - targeting ${target}`);
+      logger.info({ expenseId, target }, 'Deleting recurring via expense');
       if (target === 'single') {
         return deleteExpenseById(tx, groupId, expenseId);
       }
       const exp = await getExpenseById(tx, groupId, userId, expenseId);
-      if (!exp.recurringExpenseId) {
+      if (!exp.subscriptionId) {
         throw new InvalidExpense('Not a recurring expense');
       }
       switch (target) {
         case 'all':
-          return deleteRecurrenceAndExpenses(tx, exp.recurringExpenseId);
+          return deleteRecurrenceAndExpenses(tx, groupId, exp.subscriptionId);
         case 'after':
-          return deleteRecurrenceAfter(tx, expenseId, exp.date, exp.recurringExpenseId);
+          return deleteRecurrenceAfter(tx, groupId, expenseId, exp.date, exp.subscriptionId);
         default:
           throw new InvalidExpense(`Invalid target ${target}`);
       }
@@ -434,70 +467,260 @@ export function deleteRecurringByExpenseId(
   );
 }
 
-export function deleteRecurringExpenseById(
+/**
+ * End ("Lopeta") / delete ("Poista") dispatch for the subscription card's overflow menu.
+ *
+ * Recurring rows that haven't yet been ended get a soft end — `occurs_until`
+ * set to today, history kept, no future generation. Anything else (an
+ * already-ended recurring row, or a non-recurring report-style row) is
+ * removed entirely; linked expenses keep their data but lose `subscription_id`
+ * so there is no dangling FK.
+ *
+ * `mode` is the caller's asserted intent and must match the row's actual
+ * state — guards against a UI race where two rapid clicks would otherwise
+ * silently turn "Lopeta" into "Poista".
+ */
+export function deleteSubscriptionById(
   tx: DbTask,
   groupId: ObjectId,
-  recurringExpenseId: ObjectId,
+  subscriptionId: ObjectId,
+  mode: SubscriptionDeleteMode,
 ): Promise<ApiMessage> {
   return withSpan(
-    'recurring.delete',
-    { 'app.group_id': groupId, 'app.recurring_expense_id': recurringExpenseId },
+    'subscription.delete',
+    { 'app.group_id': groupId, 'app.subscription_id': subscriptionId, 'app.mode': mode },
     async () => {
-      const recurring = await getRecurringExpenseInfo(tx, groupId, recurringExpenseId);
-      const now = toISODate();
-      logger.info(`Deleting recurring ${recurring.id} at ${now}`);
-
-      await terminateRecurrenceAt(tx, recurringExpenseId, now);
-      return { status: 'OK', message: `Recurrence cleared at ${now}` };
+      const row = await getSubscriptionRow(tx, groupId, subscriptionId);
+      const isOngoingRecurring = !!row.period && !row.occursUntil;
+      const expectedMode: SubscriptionDeleteMode = isOngoingRecurring ? 'end' : 'delete';
+      if (mode !== expectedMode) {
+        throw new BkError(
+          'SUBSCRIPTION_DELETE_MODE_MISMATCH',
+          `Subscription ${subscriptionId} is in state requiring mode '${expectedMode}', but '${mode}' was asserted`,
+          409,
+          { expected: expectedMode, requested: mode },
+        );
+      }
+      if (isOngoingRecurring) {
+        const now = toISODate();
+        logger.info({ subscriptionId: row.id, endsAt: now }, 'Ending subscription');
+        await terminateRecurrenceAt(tx, groupId, subscriptionId, now);
+        return { status: 'OK', message: `Subscription ended at ${now}` };
+      }
+      logger.info({ subscriptionId: row.id }, 'Removing subscription');
+      await tx.none(
+        `UPDATE expenses SET subscription_id = NULL
+            WHERE subscription_id = $/subscriptionId/ AND group_id = $/groupId/`,
+        { subscriptionId, groupId },
+      );
+      await tx.none(
+        `DELETE FROM subscriptions WHERE id = $/subscriptionId/ AND group_id = $/groupId/`,
+        { subscriptionId, groupId },
+      );
+      return { status: 'OK', message: `Subscription removed` };
     },
   );
 }
 
+export function createSubscriptionFromFilter(
+  tx: DbTask,
+  groupId: ObjectId,
+  userId: ObjectId,
+  title: string,
+  filter: ExpenseQuery,
+): Promise<{ status: 'OK'; message: string; subscriptionId: ObjectId }> {
+  return withSpan(
+    'subscription.create_from_filter',
+    { 'app.group_id': groupId, 'app.user_id': userId },
+    async () => {
+      // Editor refuses to send an empty filter, but a scripted client
+      // could persist a "match-everything" stats row that would then
+      // dominate every other card. Strip blanks first so a payload like
+      // `{ receiver: '' }` is treated as empty.
+      const stored = stripBlanks(filter);
+      if (!hasMeaningfulConstraint(stored)) {
+        throw new InvalidInputError('INVALID_INPUT', 'Subscription filter must not be empty');
+      }
+      await validateFilterIds(tx, groupId, stored);
+      const id = (
+        await tx.one<{ id: number }>(
+          `INSERT INTO subscriptions (group_id, user_id, title, filter)
+              VALUES ($/groupId/, $/userId/, $/title/, $/filter/::JSONB)
+              RETURNING id`,
+          { groupId, userId, title, filter: stored },
+        )
+      ).id;
+      return { status: 'OK', message: 'Subscription created', subscriptionId: id };
+    },
+  );
+}
+
+export function updateSubscription(
+  tx: DbTask,
+  groupId: ObjectId,
+  subscriptionId: ObjectId,
+  update: SubscriptionUpdate,
+): Promise<ApiMessage> {
+  return withSpan(
+    'subscription.update',
+    { 'app.group_id': groupId, 'app.subscription_id': subscriptionId },
+    async () => {
+      // Always look up the row first so empty / non-existent PATCHes don't
+      // silently 200 OK — and so authz errors fire before any group-scoped
+      // validation of `defaults` runs.
+      const existing = await getSubscriptionRow(tx, groupId, subscriptionId);
+      // Stats rows never use `defaults` (the editor hides the Mallikulu
+      // tab and the dialog won't include it). Reject the field server-side
+      // so a scripted PATCH can't break the "stats rows have NULL defaults"
+      // invariant by populating the JSONB on a non-recurring row.
+      if (update.defaults !== undefined && !existing.period) {
+        throw new InvalidInputError(
+          'INVALID_INPUT',
+          'Stats subscriptions cannot have defaults; only recurring rows do',
+        );
+      }
+      let storedFilter: ExpenseQuery | undefined;
+      if (update.filter !== undefined) {
+        storedFilter = stripBlanks(update.filter);
+        // Recurring rows fan out into a single category-bucketed card and
+        // their `defaults` always names a category — clearing the filter's
+        // categoryId would orphan the row in the "uncategorized" bucket.
+        if (existing.period) {
+          const categoryId = storedFilter.categoryId;
+          const empty =
+            categoryId === undefined ||
+            categoryId === null ||
+            (Array.isArray(categoryId) && categoryId.length === 0);
+          if (empty) {
+            throw new InvalidInputError(
+              'INVALID_INPUT',
+              'Recurring subscriptions must keep a category constraint in their filter',
+            );
+          }
+        } else if (!hasMeaningfulConstraint(storedFilter)) {
+          // Stats rows must keep at least one constraint the matcher
+          // applies — otherwise the row would aggregate every group
+          // expense into a single dominator card.
+          throw new InvalidInputError('INVALID_INPUT', 'Subscription filter must not be empty');
+        }
+        // Filter IDs reach the matcher unchanged and live in JSONB
+        // forever, so they must resolve in the session group too —
+        // otherwise a stray scalar from another group could persist
+        // even though the read side would never match it.
+        await validateFilterIds(tx, groupId, storedFilter);
+      }
+      if (update.defaults !== undefined) {
+        // Defaults references must resolve in the session group: getCategoryById,
+        // getSourceById, and getUserById all throw NotFoundError when the id is
+        // outside the group, so a malicious blob can't slip past Zod validation.
+        await getCategoryById(tx, groupId, update.defaults.categoryId);
+        await getSourceById(tx, groupId, update.defaults.sourceId);
+        await getUserById(tx, groupId, update.defaults.userId);
+      }
+      const sets: string[] = [];
+      const params: Record<string, unknown> = { groupId, subscriptionId };
+      if (update.title !== undefined) {
+        sets.push(`title = $/title/`);
+        params.title = update.title;
+      }
+      if (storedFilter !== undefined) {
+        sets.push(`filter = $/filter/::JSONB`);
+        params.filter = storedFilter;
+      }
+      if (update.defaults !== undefined) {
+        sets.push(`defaults = $/defaults/::JSONB`);
+        params.defaults = update.defaults;
+        // Keep the row's owner column aligned with `defaults.userId` so
+        // "Vain omat" filtering and any future per-owner action stays
+        // pointed at whoever the recurring expenses are now generated for.
+        sets.push(`user_id = $/userId/`);
+        params.userId = update.defaults.userId;
+      }
+      if (sets.length === 0) {
+        // PATCH with no fields is a programming error on the client —
+        // reject explicitly rather than silently 200 OK so the bug
+        // surfaces during development.
+        throw new InvalidInputError('INVALID_INPUT', 'Subscription update must not be empty');
+      }
+      await tx.none(
+        `UPDATE subscriptions SET ${sets.join(', ')}
+            WHERE id = $/subscriptionId/ AND group_id = $/groupId/`,
+        params,
+      );
+      return { status: 'OK', message: 'Subscription updated' };
+    },
+  );
+}
+
+export async function validateFilterIds(
+  tx: DbTask,
+  groupId: ObjectId,
+  filter: ExpenseQuery,
+): Promise<void> {
+  if (filter.categoryId !== undefined) {
+    const ids = Array.isArray(filter.categoryId) ? filter.categoryId : [filter.categoryId];
+    for (const id of ids) {
+      await getCategoryById(tx, groupId, id);
+    }
+  }
+  if (filter.userId !== undefined) {
+    await getUserById(tx, groupId, filter.userId);
+  }
+}
+
 function deleteDivisionForRecurrence(
   tx: DbTask,
-  recurringExpenseId: number,
+  groupId: ObjectId,
+  subscriptionId: ObjectId,
   afterDate: DateLike | null,
+  editedId: ObjectId | null,
 ): Promise<null> {
   return tx.none(
     `DELETE FROM expense_division
       WHERE expense_id IN (
         SELECT id FROM expenses
-        WHERE recurring_expense_id=$/recurringExpenseId/::INTEGER
-          AND (template=true OR $/afterDate/ IS NULL OR date >= $/afterDate/)
+        WHERE subscription_id=$/subscriptionId/::INTEGER
+          AND group_id=$/groupId/
+          AND ($/afterDate/::DATE IS NULL OR id=$/editedId/::INTEGER OR date > $/afterDate/::DATE)
       )`,
-    { recurringExpenseId, afterDate },
+    { subscriptionId, afterDate, editedId, groupId },
   );
 }
 
-async function getRecurringExpenseIds(
+async function getRecurrenceExpenseIds(
   tx: DbTask,
-  recurringExpenseId: number,
+  groupId: ObjectId,
+  subscriptionId: ObjectId,
   afterDate: DateLike | null,
+  editedId: ObjectId | null,
 ): Promise<number[]> {
   return (
     await tx.manyOrNone<{ id: number }>(
       `SELECT id
         FROM expenses
-        WHERE recurring_expense_id=$/recurringExpenseId/
-          AND (template=true OR $/afterDate/ IS NULL OR date >= $/afterDate/)`,
-      { recurringExpenseId, afterDate },
+        WHERE subscription_id=$/subscriptionId/
+          AND group_id=$/groupId/
+          AND ($/afterDate/::DATE IS NULL OR id=$/editedId/::INTEGER OR date > $/afterDate/::DATE)`,
+      { subscriptionId, afterDate, editedId, groupId },
     )
   ).map(e => e.id);
 }
 
 async function createDivisionForRecurrence(
   tx: DbTask,
-  recurringExpenseId: number,
+  groupId: ObjectId,
+  subscriptionId: ObjectId,
   division: ExpenseDivisionItem[],
   afterDate: DateLike | null,
+  editedId: ObjectId | null,
 ): Promise<number> {
-  const ids = await getRecurringExpenseIds(tx, recurringExpenseId, afterDate);
+  const ids = await getRecurrenceExpenseIds(tx, groupId, subscriptionId, afterDate, editedId);
   for (const expenseId of ids) {
     for (const d of division) {
-      await storeExpenseDivision(tx, expenseId, d.userId, d.type, d.sum);
+      await storeExpenseDivision(tx, groupId, expenseId, d.userId, d.type, d.sum);
     }
   }
-  return recurringExpenseId;
+  return subscriptionId;
 }
 
 async function updateRecurringExpense(
@@ -507,7 +730,7 @@ async function updateRecurringExpense(
   expenseInput: ExpenseInput,
   defaultSourceId: number,
 ): Promise<ApiMessage> {
-  if (!original.recurringExpenseId) {
+  if (!original.subscriptionId) {
     throw new InvalidExpense(`Invalid target ${target}`);
   }
   const expense = setExpenseDataDefaults(expenseInput);
@@ -520,56 +743,102 @@ async function updateRecurringExpense(
       SET date=$/date/::DATE, receiver=$/receiver/, sum=$/sum/, title=$/title/,
         description=$/description/, type=$/type/::expense_type, confirmed=$/confirmed/::BOOLEAN,
         source_id=$/sourceId/::INTEGER, category_id=$/categoryId/::INTEGER
-      WHERE id=$/id/`,
+      WHERE id=$/id/ AND group_id=$/groupId/`,
     {
       ...expense,
       id: original.id,
       sum: expense.sum.toString(),
       sourceId: source.id,
       categoryId: cat.id,
+      groupId: original.groupId,
     },
   );
   const division = determineDivision(expense, source);
+  // 'after' uses `date > $editedDate` for the bulk attribute UPDATE — the
+  // edited row was already written by the first UPDATE above, so excluding
+  // it here avoids a redundant rewrite. The division delete/create below
+  // still uses `id = $editedId OR date > $afterDate` (matching
+  // `deleteRecurrenceAfter`), since the edited row's expense_division
+  // rows do need to be regenerated from the new split.
   const afterDate = target === 'after' ? original.date : null;
+  const editedId = target === 'after' ? original.id : null;
   await tx.none(
     `UPDATE expenses
       SET receiver=$/receiver/, sum=$/sum/, title=$/title/, description=$/description/,
         type=$/type/::expense_type, confirmed=$/confirmed/::BOOLEAN,
         source_id=$/sourceId/::INTEGER, category_id=$/categoryId/::INTEGER
-      WHERE recurring_expense_id=$/recurringExpenseId/
-        AND (template = true OR $/afterDate/ IS NULL OR date >= $/afterDate/)`,
+      WHERE subscription_id=$/subscriptionId/ AND group_id=$/groupId/
+        AND id <> $/editedExpenseId/
+        AND ($/afterDate/::DATE IS NULL OR date > $/afterDate/::DATE)`,
     {
       ...expense,
-      recurringExpenseId: original.recurringExpenseId,
+      subscriptionId: original.subscriptionId,
+      editedExpenseId: original.id,
       afterDate,
       sum: expense.sum.toString(),
       sourceId: source.id,
       categoryId: cat.id,
+      groupId: original.groupId,
     },
   );
-  await deleteDivisionForRecurrence(tx, original.recurringExpenseId, afterDate);
-  await createDivisionForRecurrence(tx, original.recurringExpenseId, division, afterDate);
-  // Extra fields (expenseId, recurringExpenseId) pass through to clients using type guards
+  // Mirror the change onto the subscription's defaults so future generation picks it up.
+  const newDefaults: ExpenseDefaults = {
+    title: expense.title,
+    ...(expense.receiver ? { receiver: expense.receiver } : {}),
+    sum: Money.toString(expense.sum),
+    type: expense.type,
+    sourceId: source.id,
+    categoryId: cat.id,
+    userId: expense.userId,
+    confirmed: expense.confirmed,
+    description: expense.description ?? null,
+  };
+  await tx.none(
+    `UPDATE subscriptions
+        SET defaults = $/defaults/::JSONB
+        WHERE id = $/subscriptionId/ AND group_id = $/groupId/`,
+    {
+      subscriptionId: original.subscriptionId,
+      defaults: newDefaults,
+      groupId: original.groupId,
+    },
+  );
+  await deleteDivisionForRecurrence(
+    tx,
+    original.groupId,
+    original.subscriptionId,
+    afterDate,
+    editedId,
+  );
+  await createDivisionForRecurrence(
+    tx,
+    original.groupId,
+    original.subscriptionId,
+    division,
+    afterDate,
+    editedId,
+  );
+  // Extra fields (expenseId, subscriptionId) pass through to clients using type guards.
   const result = {
     status: 'OK',
     message: 'Recurring expenses updated',
     expenseId: original.id,
-    recurringExpenseId: original.recurringExpenseId,
+    subscriptionId: original.subscriptionId,
   };
   return result;
 }
 
 export function updateRecurringExpenseByExpenseId(
   tx: DbTask,
-  groupId: number,
-  userId: number,
-  expenseId: number,
+  groupId: ObjectId,
+  userId: ObjectId,
+  expenseId: ObjectId,
   target: RecurringExpenseTarget,
   expense: ExpenseInput,
   defaultSourceId: number,
 ): Promise<ApiMessage> {
   return withSpan(
-    'recurring.update',
+    'subscription.update_expense',
     {
       'app.group_id': groupId,
       'app.user_id': userId,
@@ -577,17 +846,15 @@ export function updateRecurringExpenseByExpenseId(
       'app.target': target,
     },
     async () => {
-      logger.info(`Updating recurring expense ${expenseId} - targeting ${target}`);
+      logger.info({ expenseId, target }, 'Updating recurring expense');
       const org = await getExpenseById(tx, groupId, userId, expenseId);
-      if (!org.recurringExpenseId) {
+      if (!org.subscriptionId) {
         throw new InvalidExpense(`${expenseId} is not a recurring expense`);
       }
-
       if (target === 'single') {
         return updateExpense(tx, org, expense, defaultSourceId);
-      } else {
-        return updateRecurringExpense(tx, target, org, expense, defaultSourceId);
       }
+      return updateRecurringExpense(tx, target, org, expense, defaultSourceId);
     },
   );
 }

@@ -15,7 +15,6 @@ import { createExpenseApi } from './ExpenseApi';
 import { createGroupingApi } from './GroupingApi';
 import { createProfileApi } from './ProfileApi';
 import { createReceiverApi } from './ReceiverApi';
-import { createReportApi } from './ReportApi';
 import { createSessionApi } from './SessionApi';
 import { createSourceApi } from './SourceApi';
 import { createStatisticsApi } from './StatisticsApi';
@@ -37,7 +36,6 @@ export function createApi() {
   api.use('/statistics', createStatisticsApi());
   api.use('/source', createSourceApi());
   api.use('/receiver', createReceiverApi());
-  api.use('/report', createReportApi());
   api.use('/tracking', createTrackingApi());
   api.use('/grouping', createGroupingApi());
 

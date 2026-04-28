@@ -1,5 +1,5 @@
 import { ExpenseData, RecurringExpenseTarget, UserExpenseWithDetails } from 'shared/expense';
-import apiConnect from 'client/data/ApiConnect';
+import { apiConnect } from 'client/data/ApiConnect';
 import { logger } from 'client/Logger';
 import { UserPrompts } from 'client/ui/dialog/DialogState';
 import { executeOperation } from 'client/util/ExecuteOperation';
@@ -25,7 +25,7 @@ export const defaultExpenseSaveAction: ExpenseSaveAction = async (expense, origi
   const res = await executeOperation(
     async (): Promise<number | null> => {
       if (original) {
-        if (original.recurringExpenseId) {
+        if (original.subscriptionId) {
           if (!(await saveRecurring(original.id, expense))) {
             // User canceled, break out
             return null;

@@ -2,7 +2,7 @@ import { ActionIcon } from '@mantine/core';
 import * as React from 'react';
 
 import { config } from 'client/Config';
-import apiConnect from 'client/data/ApiConnect';
+import { apiConnect } from 'client/data/ApiConnect';
 import { logger } from 'client/Logger';
 import { reloadApp } from 'client/util/ClientUtil';
 import { infoPagePath } from 'client/util/Links';
