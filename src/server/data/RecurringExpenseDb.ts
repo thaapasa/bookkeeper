@@ -43,6 +43,7 @@ import { getCategoryById } from './CategoryDb';
 import { determineDivision } from './ExpenseDivision';
 import { calculateNextRecurrence } from './RecurringExpenseService';
 import { getSourceById } from './SourceDb';
+import { getUserById } from './UserDb';
 
 export function filterFromExpense(expense: Expense): ExpenseQuery {
   const filter: ExpenseQuery = { categoryId: expense.categoryId };
@@ -526,6 +527,18 @@ export function updateSubscription(
     'subscription.update',
     { 'app.group_id': groupId, 'app.subscription_id': subscriptionId },
     async () => {
+      // Always look up the row first so empty / non-existent PATCHes don't
+      // silently 200 OK — and so authz errors fire before any group-scoped
+      // validation of `defaults` runs.
+      await getSubscriptionRow(tx, groupId, subscriptionId);
+      if (update.defaults !== undefined) {
+        // Defaults references must resolve in the session group: getCategoryById,
+        // getSourceById, and getUserById all throw NotFoundError when the id is
+        // outside the group, so a malicious blob can't slip past Zod validation.
+        await getCategoryById(tx, groupId, update.defaults.categoryId);
+        await getSourceById(tx, groupId, update.defaults.sourceId);
+        await getUserById(tx, groupId, update.defaults.userId);
+      }
       const sets: string[] = [];
       const params: Record<string, unknown> = { groupId, subscriptionId };
       if (update.title !== undefined) {
@@ -543,14 +556,11 @@ export function updateSubscription(
       if (sets.length === 0) {
         return { status: 'OK', message: 'Subscription unchanged' };
       }
-      const res = await tx.result(
+      await tx.none(
         `UPDATE subscriptions SET ${sets.join(', ')}
             WHERE id = $/subscriptionId/ AND group_id = $/groupId/`,
         params,
       );
-      if (res.rowCount === 0) {
-        throw new NotFoundError('SUBSCRIPTION_NOT_FOUND', 'subscription', subscriptionId);
-      }
       return { status: 'OK', message: 'Subscription updated' };
     },
   );
@@ -560,15 +570,16 @@ function deleteDivisionForRecurrence(
   tx: DbTask,
   subscriptionId: ObjectId,
   afterDate: DateLike | null,
+  editedId: ObjectId | null,
 ): Promise<null> {
   return tx.none(
     `DELETE FROM expense_division
       WHERE expense_id IN (
         SELECT id FROM expenses
         WHERE subscription_id=$/subscriptionId/::INTEGER
-          AND ($/afterDate/ IS NULL OR date >= $/afterDate/)
+          AND ($/afterDate/::DATE IS NULL OR id=$/editedId/::INTEGER OR date > $/afterDate/::DATE)
       )`,
-    { subscriptionId, afterDate },
+    { subscriptionId, afterDate, editedId },
   );
 }
 
@@ -576,14 +587,15 @@ async function getRecurrenceExpenseIds(
   tx: DbTask,
   subscriptionId: ObjectId,
   afterDate: DateLike | null,
+  editedId: ObjectId | null,
 ): Promise<number[]> {
   return (
     await tx.manyOrNone<{ id: number }>(
       `SELECT id
         FROM expenses
         WHERE subscription_id=$/subscriptionId/
-          AND ($/afterDate/ IS NULL OR date >= $/afterDate/)`,
-      { subscriptionId, afterDate },
+          AND ($/afterDate/::DATE IS NULL OR id=$/editedId/::INTEGER OR date > $/afterDate/::DATE)`,
+      { subscriptionId, afterDate, editedId },
     )
   ).map(e => e.id);
 }
@@ -593,8 +605,9 @@ async function createDivisionForRecurrence(
   subscriptionId: ObjectId,
   division: ExpenseDivisionItem[],
   afterDate: DateLike | null,
+  editedId: ObjectId | null,
 ): Promise<number> {
-  const ids = await getRecurrenceExpenseIds(tx, subscriptionId, afterDate);
+  const ids = await getRecurrenceExpenseIds(tx, subscriptionId, afterDate, editedId);
   for (const expenseId of ids) {
     for (const d of division) {
       await storeExpenseDivision(tx, expenseId, d.userId, d.type, d.sum);
@@ -636,18 +649,21 @@ async function updateRecurringExpense(
   // 'after' uses `id = $editedId OR date > $editedDate` — the same precise predicate
   // `deleteRecurrenceAfter` uses, replacing the older `date >= afterDate` rule which
   // had a same-date ambiguity (see SUBSCRIPTIONS_REWORK_PLAN.md → Edit propagation).
+  // The same predicate flows into the division ops below so attributes and divisions
+  // stay in sync for same-date sibling rows.
   const afterDate = target === 'after' ? original.date : null;
+  const editedId = target === 'after' ? original.id : null;
   await tx.none(
     `UPDATE expenses
       SET receiver=$/receiver/, sum=$/sum/, title=$/title/, description=$/description/,
         type=$/type/::expense_type, confirmed=$/confirmed/::BOOLEAN,
         source_id=$/sourceId/::INTEGER, category_id=$/categoryId/::INTEGER
       WHERE subscription_id=$/subscriptionId/
-        AND ($/editedId/::INTEGER IS NULL OR id = $/editedId/ OR date > $/afterDate/::DATE)`,
+        AND ($/afterDate/::DATE IS NULL OR id = $/editedId/::INTEGER OR date > $/afterDate/::DATE)`,
     {
       ...expense,
       subscriptionId: original.subscriptionId,
-      editedId: target === 'after' ? original.id : null,
+      editedId,
       afterDate,
       sum: expense.sum.toString(),
       sourceId: source.id,
@@ -673,8 +689,8 @@ async function updateRecurringExpense(
         WHERE id = $/subscriptionId/`,
     { subscriptionId: original.subscriptionId, defaults: newDefaults },
   );
-  await deleteDivisionForRecurrence(tx, original.subscriptionId, afterDate);
-  await createDivisionForRecurrence(tx, original.subscriptionId, division, afterDate);
+  await deleteDivisionForRecurrence(tx, original.subscriptionId, afterDate, editedId);
+  await createDivisionForRecurrence(tx, original.subscriptionId, division, afterDate, editedId);
   // Extra fields (expenseId, subscriptionId) pass through to clients using type guards.
   const result = {
     status: 'OK',

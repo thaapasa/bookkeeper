@@ -1,22 +1,43 @@
-import { ISOTimestamp } from 'shared/time';
+import { ISODate, ISOTimestamp } from 'shared/time';
 import { db } from 'server/data/Db';
+
+interface SubscriptionSnapshot {
+  id: number;
+  nextMissing: ISODate | null;
+  occursUntil: ISODate | null;
+}
 
 export interface TestState {
   testStart: ISOTimestamp;
   maxCategoryId: number;
   maxRecurringId: number;
+  /**
+   * Snapshot of pre-existing subscriptions' generation cursors. Tests
+   * that fetch a month trigger `createMissingRecurringExpenses` for
+   * every group subscription with `next_missing` past, advancing those
+   * cursors. Without restoring them the seed drifts forward across
+   * runs, which makes test ordering load-bearing.
+   */
+  subscriptionCursors: SubscriptionSnapshot[];
 }
 
 export async function captureTestState(): Promise<TestState> {
-  const row = await db.one<{ now: ISOTimestamp; maxCat: number | null; maxRec: number | null }>(
+  const meta = await db.one<{ now: ISOTimestamp; maxCat: number | null; maxRec: number | null }>(
     `SELECT NOW() AS now,
             COALESCE((SELECT MAX(id) FROM categories), 0) AS "maxCat",
             COALESCE((SELECT MAX(id) FROM subscriptions), 0) AS "maxRec"`,
   );
+  const subs = await db.manyOrNone<SubscriptionSnapshot>(
+    `SELECT id,
+            next_missing AS "nextMissing",
+            occurs_until AS "occursUntil"
+       FROM subscriptions`,
+  );
   return {
-    testStart: row.now,
-    maxCategoryId: Number(row.maxCat ?? 0),
-    maxRecurringId: Number(row.maxRec ?? 0),
+    testStart: meta.now,
+    maxCategoryId: Number(meta.maxCat ?? 0),
+    maxRecurringId: Number(meta.maxRec ?? 0),
+    subscriptionCursors: subs,
   };
 }
 
@@ -39,6 +60,18 @@ export async function cleanupTestDataSince(groupId: number, state: TestState): P
        WHERE group_id = $/groupId/ AND id > $/maxRecurringId/`,
       { groupId, maxRecurringId: state.maxRecurringId },
     );
+    // Restore pre-existing subscriptions' generation cursors so tests
+    // that run `createMissingRecurringExpenses` don't permanently
+    // advance the seed.
+    for (const sub of state.subscriptionCursors) {
+      await tx.none(
+        `UPDATE subscriptions
+            SET next_missing = $/nextMissing/::DATE,
+                occurs_until = $/occursUntil/::DATE
+            WHERE id = $/id/`,
+        sub,
+      );
+    }
     await tx.none(
       `DELETE FROM categories
        WHERE group_id = $/groupId/ AND id > $/maxCategoryId/ AND parent_id IS NOT NULL`,

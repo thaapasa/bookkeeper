@@ -24,6 +24,14 @@ export const SubscriptionItemView: React.FC<{
 }> = ({ item, range }) => {
   const [open, { toggle }] = useDisclosure(false);
   const [editorOpen, { open: openEditor, close: closeEditor }] = useDisclosure(false);
+  // If the parent swaps `item` for a different subscription while the
+  // editor is open (e.g. a filter toggle reorders the list), close it
+  // rather than silently rebinding the open dialog to the new item's
+  // data. Combined with the `key={item.id}` below, this guarantees the
+  // dialog never carries another row's edits forward.
+  React.useEffect(() => {
+    closeEditor();
+  }, [item.id, closeEditor]);
   const stale = isStale(item);
   const kind = subscriptionKind(item, stale);
   const muted = kind !== 'active';
@@ -70,7 +78,15 @@ export const SubscriptionItemView: React.FC<{
       </SubscriptionRow>
       {open ? <ExpandedDetails item={item} range={range} /> : null}
       {item.isPrimary ? (
-        <SubscriptionEditorDialog item={item} opened={editorOpen} onClose={closeEditor} />
+        // Re-key by item.id so a parent swap (e.g. quick filter change)
+        // remounts the dialog with fresh state instead of leaving an
+        // open editor bound to the previous item's data.
+        <SubscriptionEditorDialog
+          key={item.id}
+          item={item}
+          opened={editorOpen}
+          onClose={closeEditor}
+        />
       ) : null}
     </>
   );

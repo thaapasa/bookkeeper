@@ -47,6 +47,15 @@ exports.down = knex =>
       query JSONB NOT NULL
     );
 
+    -- Report-style rows have NULL period + NULL defaults; re-adding
+    -- NOT NULL on those columns would fail as soon as one such row
+    -- exists. Drop them first so the down can run cleanly. This is a
+    -- destructive step — the rollback already accepts that report data
+    -- isn't migrated back; this just makes the column-shape rollback
+    -- actually executable.
+    DELETE FROM subscriptions
+      WHERE period_unit IS NULL OR period_amount IS NULL OR defaults IS NULL;
+
     ALTER TABLE subscriptions
       ALTER COLUMN defaults SET NOT NULL,
       ALTER COLUMN period_amount SET DEFAULT 1,

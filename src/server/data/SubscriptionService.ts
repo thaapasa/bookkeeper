@@ -45,7 +45,12 @@ export function searchSubscriptions(
 
       const rows = await getSubscriptionRows(tx, groupId);
       const filters = await buildAllFilters(tx, groupId, rows);
-      const candidates = await fetchCandidateExpenses(tx, groupId, window.startDate, types);
+      // Dedup over all candidate expenses regardless of the visible-types
+      // filter — narrowing the candidate set up front shifts isPrimary,
+      // dominatedBy, and recurrencePerMonth/perYear depending on which
+      // type checkboxes are toggled. The type filter is applied as a
+      // display filter on the produced cards instead.
+      const candidates = await fetchCandidateExpenses(tx, groupId, window.startDate);
       const wins = assignExpensesToSubscriptions(candidates, filters);
       const expenseToOwner = invertWins(wins);
 
@@ -87,7 +92,7 @@ export function summarizeQuery(
     async () => {
       const window = baselineWindow(range);
       const filter = await buildOneFilter(tx, groupId, 0, query);
-      const candidates = await fetchCandidateExpenses(tx, groupId, window.startDate, null);
+      const candidates = await fetchCandidateExpenses(tx, groupId, window.startDate);
       const matched: MatchableExpense[] = [];
       let count = 0;
       let sum = Money.from(0);
@@ -126,7 +131,7 @@ export function getSubscriptionMatches(
 
       const rows = await getSubscriptionRows(tx, groupId);
       const filters = await buildAllFilters(tx, groupId, rows);
-      const candidates = await fetchCandidateExpenses(tx, groupId, window.startDate, null);
+      const candidates = await fetchCandidateExpenses(tx, groupId, window.startDate);
       const wins = assignExpensesToSubscriptions(candidates, filters);
 
       let assigned = wins.get(query.rowId) ?? [];
@@ -187,7 +192,6 @@ async function fetchCandidateExpenses(
   tx: DbTask,
   groupId: ObjectId,
   startDate: ISODate,
-  types: ExpenseType[] | null,
 ): Promise<MatchableExpense[]> {
   const rows = await tx.manyOrNone<{
     id: number;
@@ -213,9 +217,8 @@ async function fetchCandidateExpenses(
         confirmed
         FROM expenses
         WHERE group_id = $/groupId/
-          AND date >= $/startDate/::DATE
-          ${types ? 'AND type IN ($/types:csv/)' : ''}`,
-    { groupId, startDate, types },
+          AND date >= $/startDate/::DATE`,
+    { groupId, startDate },
   );
   return rows.map(r => ({
     id: r.id,
@@ -400,11 +403,10 @@ function invertWins(wins: Map<number, MatchableExpense[]>): Map<number, number> 
  * subscription that dominates its filter — i.e. the one currently
  * owning the rows this row's filter would otherwise have matched.
  *
- * Strategy: scan candidates that this row's filter accepts; the first
- * such expense's owner (post-dedup) is the dominator. If multiple
- * dominators are possible we'd pick the most common one, but in
- * practice duplicates almost always all funnel into the same older
- * subscription — first match is sufficient.
+ * Strategy: scan candidates that this row's filter accepts, count how
+ * many of those rows each visible owner takes, and return the most
+ * frequent one. Ties resolve by lowest owner id so the result is stable
+ * across requests regardless of SQL ordering.
  */
 interface SubscriptionRowLite {
   id: ObjectId;
@@ -421,14 +423,25 @@ function findDominator(
 ): SubscriptionRowLite | null {
   const ownFilter = filters.find(f => f.id === row.id);
   if (!ownFilter) return null;
+  const counts = new Map<number, number>();
   for (const expense of candidates) {
     if (scoreFilter(ownFilter, expense) === null) continue;
     const ownerId = expenseToOwner.get(expense.id);
     if (ownerId === undefined || ownerId === row.id) continue;
     if (!visibleRowIds.has(ownerId)) continue;
-    const owner = rowsById.get(ownerId);
-    if (!owner) continue;
-    return { id: owner.id, title: owner.title };
+    counts.set(ownerId, (counts.get(ownerId) ?? 0) + 1);
   }
-  return null;
+  if (counts.size === 0) return null;
+  let bestId: number | null = null;
+  let bestCount = -1;
+  for (const [ownerId, count] of counts) {
+    if (count > bestCount || (count === bestCount && (bestId === null || ownerId < bestId))) {
+      bestId = ownerId;
+      bestCount = count;
+    }
+  }
+  if (bestId === null) return null;
+  const owner = rowsById.get(bestId);
+  if (!owner) return null;
+  return { id: owner.id, title: owner.title };
 }
