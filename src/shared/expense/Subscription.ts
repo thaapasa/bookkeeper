@@ -100,8 +100,11 @@ export type ExpenseDefaults = z.infer<typeof ExpenseDefaults>;
  *
  * `dominatedBy` is set when this card has zero matched rows because a
  * higher-scoring (or older) subscription took everything its filter
- * would otherwise match. The UI surfaces this so the user knows to
- * delete the redundant row.
+ * would otherwise match. `kind: 'visible'` carries the dominator's
+ * title so the UI can link to it; `kind: 'hidden'` means the dominator
+ * exists but the page's display filters (ended / only-own / type)
+ * filtered it out — the UI then hints that the matches are being
+ * eaten by a row not currently visible.
  */
 export const Subscription = z.object({
   id: z.string(),
@@ -126,10 +129,10 @@ export const Subscription = z.object({
   recurrencePerMonth: MoneyLike,
   recurrencePerYear: MoneyLike,
   dominatedBy: z
-    .object({
-      rowId: ObjectId,
-      title: z.string(),
-    })
+    .discriminatedUnion('kind', [
+      z.object({ kind: z.literal('visible'), rowId: ObjectId, title: z.string() }),
+      z.object({ kind: z.literal('hidden') }),
+    ])
     .optional(),
   /**
    * True for the one card per `rowId` that owns the subscription's

@@ -125,11 +125,17 @@ const ExpandedDetails: React.FC<{
             : null}
       </Text>
     ) : null}
-    {item.dominatedBy ? (
+    {item.dominatedBy?.kind === 'visible' ? (
       <Text size="sm" c="orange.7">
         Tämän tilauksen kirjaukset omistaa jokin tarkempi tai vanhempi tilaus:{' '}
         <strong>{item.dominatedBy.title}</strong>. Tämä rivi näyttää tyhjältä — voit poistaa
         ylimääräisen tilauksen.
+      </Text>
+    ) : item.dominatedBy?.kind === 'hidden' ? (
+      <Text size="sm" c="orange.7">
+        Tämän tilauksen kirjaukset omistaa toinen tilaus, joka on piilotettu nykyisillä
+        suodattimilla. Tarkista esim. <strong>Näytä päättyneet</strong> -valinta nähdäksesi
+        ristiriitaisen tilauksen.
       </Text>
     ) : null}
     <QueryBoundary
@@ -169,12 +175,15 @@ function buildSubtitle(
   kind: SubscriptionKind,
   stale: boolean,
 ): React.ReactNode {
-  if (item.dominatedBy) {
+  if (item.dominatedBy?.kind === 'visible') {
     return (
       <span>
         Päällekkäinen tilauksen kanssa: <strong>{item.dominatedBy.title}</strong>
       </span>
     );
+  }
+  if (item.dominatedBy?.kind === 'hidden') {
+    return <span>Päällekkäinen piilotetun tilauksen kanssa</span>;
   }
   const parts: string[] = [];
   if (kind === 'stats') parts.push('Tilastotilaus');

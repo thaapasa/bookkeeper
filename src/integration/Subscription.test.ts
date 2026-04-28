@@ -469,12 +469,14 @@ describe('subscription lifecycle', () => {
     expect(primaries[0].categoryId).toBe(subA.categoryId!);
   });
 
-  it('does not point dominatedBy at a row that is filtered out of view', async () => {
+  it('flags dominatedBy as hidden when the dominator is filtered out of view', async () => {
     // Two recurring rows with identical filters (same category + receiver):
     // older one wins the tiebreak and owns both expenses, newer one is
     // dominated. End the older one — when the search excludes ended
-    // rows, the newer row's `dominatedBy` must not dangle at the
-    // invisible elder. Dates must fall inside the 5y dedup window.
+    // rows, the newer row's `dominatedBy` must report `kind: 'hidden'`
+    // so the UI can hint that the matches are eaten by an invisible
+    // row, instead of silently rendering an empty expander. Dates must
+    // fall inside the 5y dedup window.
     const { subscriptionId: oldId } = await createMonthlyRecurring(session, recentDate(3, 1));
     const created = await newExpense(session, {
       sum: '100.00',
@@ -489,11 +491,14 @@ describe('subscription lifecycle', () => {
     );
     const newerId = recurring.subscriptionId ?? 0;
 
-    // Sanity check: with includeEnded=true the elder still dominates.
+    // Sanity check: with includeEnded=true the elder is visible and links by title.
     const beforeEnd = await session.post<SubscriptionResult>('/api/subscription/search', {
       includeEnded: true,
     });
-    expect(beforeEnd.find(c => c.rowId === newerId)?.dominatedBy?.rowId).toBe(oldId);
+    expect(beforeEnd.find(c => c.rowId === newerId)?.dominatedBy).toMatchObject({
+      kind: 'visible',
+      rowId: oldId,
+    });
 
     await session.del(uri`/api/subscription/${oldId}`, { mode: 'end' }); // end ("Lopeta") the elder
 
@@ -503,7 +508,7 @@ describe('subscription lifecycle', () => {
     expect(hidden.find(c => c.rowId === oldId)).toBeUndefined();
     const newerCardHidden = hidden.find(c => c.rowId === newerId);
     expect(newerCardHidden).toBeDefined();
-    expect(newerCardHidden?.dominatedBy).toBeUndefined();
+    expect(newerCardHidden?.dominatedBy).toEqual({ kind: 'hidden' });
   });
 
   it('uncategorized stats subscription: card carries categoryId=null and matches expander returns rows', async () => {

@@ -66,7 +66,7 @@ export const SubscriptionCriteriaSelector: React.FC<{
         <Checkbox
           checked={includeEnded}
           onChange={() => setIncludeEnded(!includeEnded)}
-          label="Myös loppuneet"
+          label="Näytä päättyneet"
         />
         <Checkbox checked={onlyOwn} onChange={() => setOnlyOwn(!onlyOwn)} label="Vain omat" />
       </Group>

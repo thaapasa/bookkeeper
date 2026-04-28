@@ -60,10 +60,12 @@ export function searchSubscriptions(
       const wins = assignExpensesToSubscriptions(candidates, filters);
       const expenseToOwner = invertWins(wins);
 
-      // Only point dominator references at rows that survive the
-      // display filter — the UI's "overlaps with: X" notice
-      // ("Päällekkäinen tilauksen kanssa: X") for an X that's invisible
-      // in the result is just confusing.
+      // `visibleRowIds` is the set of rows that survive the page's
+      // display filter. We use it for two things: skipping cards that
+      // shouldn't render at all, and labelling the dominator reference
+      // — visible dominators carry their title for a clickable hint,
+      // hidden ones surface as `kind: 'hidden'` so the user knows the
+      // matches are eaten by a row not currently on screen.
       const visibleRowIds = new Set(
         rows.filter(r => rowPassesDisplay(r, criteria, userId, types)).map(r => r.id),
       );
@@ -72,11 +74,11 @@ export function searchSubscriptions(
       for (const row of rows) {
         if (!visibleRowIds.has(row.id)) continue;
         const ownedRows = wins.get(row.id) ?? [];
-        const dominator =
+        const dominatedBy =
           ownedRows.length === 0
-            ? findDominator(row, filters, candidates, expenseToOwner, rowsById, visibleRowIds)
-            : null;
-        const dominatedBy = dominator ? { rowId: dominator.id, title: dominator.title } : undefined;
+            ? (findDominator(row, filters, candidates, expenseToOwner, rowsById, visibleRowIds) ??
+              undefined)
+            : undefined;
         cards.push(...buildCardsForRow(row, ownedRows, window, dominatedBy));
       }
       return cards;
@@ -305,7 +307,7 @@ function buildCardsForRow(
   row: SubscriptionRow,
   matches: MatchableExpense[],
   window: BaselineWindow,
-  dominatedBy: { rowId: ObjectId; title: string } | undefined,
+  dominatedBy: Dominator | undefined,
 ): Subscription[] {
   // Recurring rows always live in a single category and become exactly one card.
   if (row.period) {
@@ -366,7 +368,7 @@ function buildCard(
   matches: MatchableExpense[],
   categoryId: ObjectId | null,
   window: BaselineWindow,
-  dominatedBy: { rowId: ObjectId; title: string } | undefined,
+  dominatedBy: Dominator | undefined,
   isPrimary: boolean,
 ): Subscription {
   const stats = aggregate(matches, window.months);
@@ -447,14 +449,17 @@ function invertWins(wins: Map<number, MatchableExpense[]>): Map<number, number> 
  * owning the rows this row's filter would otherwise have matched.
  *
  * Strategy: scan candidates that this row's filter accepts, count how
- * many of those rows each visible owner takes, and return the most
- * frequent one. Ties resolve by lowest owner id so the result is stable
- * across requests regardless of SQL ordering.
+ * many of those rows each owner (visible or not) takes, and return the
+ * most frequent one. Ties resolve by lowest owner id so the result is
+ * stable across requests regardless of SQL ordering.
+ *
+ * If the dominator is hidden by the page's display filters (ended /
+ * only-own / type), return `{ kind: 'hidden' }` so the UI can surface a
+ * "matches eaten by a hidden subscription" notice — without that hint
+ * the card looks empty for no apparent reason. Visible dominators carry
+ * the title so the UI can link to them.
  */
-interface SubscriptionRowLite {
-  id: ObjectId;
-  title: string;
-}
+type Dominator = { kind: 'visible'; rowId: ObjectId; title: string } | { kind: 'hidden' };
 
 function findDominator(
   row: SubscriptionRow,
@@ -463,7 +468,7 @@ function findDominator(
   expenseToOwner: Map<number, number>,
   rowsById: Map<number, SubscriptionRow>,
   visibleRowIds: ReadonlySet<number>,
-): SubscriptionRowLite | null {
+): Dominator | null {
   const ownFilter = filters.find(f => f.id === row.id);
   if (!ownFilter) return null;
   const counts = new Map<number, number>();
@@ -471,7 +476,6 @@ function findDominator(
     if (scoreFilter(ownFilter, expense) === null) continue;
     const ownerId = expenseToOwner.get(expense.id);
     if (ownerId === undefined || ownerId === row.id) continue;
-    if (!visibleRowIds.has(ownerId)) continue;
     counts.set(ownerId, (counts.get(ownerId) ?? 0) + 1);
   }
   if (counts.size === 0) return null;
@@ -484,7 +488,8 @@ function findDominator(
     }
   }
   if (bestId === null) return null;
+  if (!visibleRowIds.has(bestId)) return { kind: 'hidden' };
   const owner = rowsById.get(bestId);
   if (!owner) return null;
-  return { id: owner.id, title: owner.title };
+  return { kind: 'visible', rowId: owner.id, title: owner.title };
 }
