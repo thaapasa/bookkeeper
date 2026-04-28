@@ -1,8 +1,14 @@
 # Subscriptions Rework — Design Notes
 
-**Status**: exploratory, not yet decided. See `docs/SUBSCRIPTIONS.md` for the current
-implementation. Tracking issue:
-[#98](https://github.com/thaapasa/bookkeeper/issues/98).
+> **Status: COMPLETED** — April 2026. Recurring expenses and reports were
+> merged into a single `subscriptions` table; filter-containment dedup,
+> realised-row baselines, the unified subscription card, and the
+> end-vs-delete split all shipped on the `subscriptions-rework` branch.
+> The current implementation is documented in `docs/SUBSCRIPTIONS.md`.
+> This document is retained as a historical decision record — actual
+> behaviour may have drifted since landing.
+>
+> Tracking issue: [thaapasa/bookkeeper#98](https://github.com/thaapasa/bookkeeper/issues/98)
 
 ## Intent of the Tilaukset page
 
