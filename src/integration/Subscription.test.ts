@@ -4,6 +4,7 @@ import {
   ExpenseCollection,
   ExpenseDefaults,
   ExpenseInput,
+  QuerySummary,
   SubscriptionMatches,
   SubscriptionResult,
   UserExpenseWithDetails,
@@ -112,6 +113,15 @@ async function fetchMonth(
  */
 function recentDate(monthsAgo: number, day = 1): ISODate {
   return toISODate(toDateTime().minus({ months: monthsAgo }).set({ day }));
+}
+
+/**
+ * Build an ISO date that lands strictly after the end of the current
+ * month — used to verify future expenses are excluded from subscription
+ * baselines.
+ */
+function futureDate(monthsAhead: number, day = 15): ISODate {
+  return toISODate(toDateTime().endOf('month').plus({ months: monthsAhead }).set({ day }));
 }
 
 function buildEditInput(
@@ -573,5 +583,150 @@ describe('subscription lifecycle', () => {
     for (const card of cards) {
       expect(card.categoryId).not.toBe(0);
     }
+  });
+
+  it('includes both window boundary days and excludes the days just outside', async () => {
+    // The baseline window is closed on both ends:
+    //   startDate = first day of trailing-month-N         → INCLUDED
+    //   startDate − 1 day (last day of month before)      → excluded
+    //   endDate   = last day of current month             → INCLUDED
+    //   endDate   + 1 day (first day of next month)       → excluded
+    //
+    // Using a 1y range pins the boundaries to:
+    //   start  = endOfCurrentMonth + 1 day − 1 year
+    //   end    = endOfCurrentMonth
+    // ...so we can compute them client-side off the same `now` the
+    // server uses (the test is in-process with the dev server).
+    const endOfMonth = toDateTime().endOf('month');
+    const dayAfterEnd = endOfMonth.plus({ days: 1 });
+    const firstOfStart = dayAfterEnd.minus({ years: 1 });
+    const dayBeforeStart = firstOfStart.minus({ days: 1 });
+
+    const cat = await newCategory(session, { name: 'BoundaryTest', parentId: 0 });
+    const uniqueReceiver = `boundary-${Date.now()}`;
+
+    // Create four expenses, one on each boundary day, all with the
+    // same receiver + category so a single filter picks up all of them.
+    const cases: Array<{ label: string; date: ISODate; sum: string; included: boolean }> = [
+      { label: 'firstOfStart', date: toISODate(firstOfStart), sum: '11.00', included: true },
+      { label: 'dayBeforeStart', date: toISODate(dayBeforeStart), sum: '22.00', included: false },
+      { label: 'endOfMonth', date: toISODate(endOfMonth), sum: '33.00', included: true },
+      { label: 'dayAfterEnd', date: toISODate(dayAfterEnd), sum: '44.00', included: false },
+    ];
+    for (const c of cases) {
+      const created = await newExpense(session, {
+        sum: c.sum,
+        title: c.label,
+        receiver: uniqueReceiver,
+        date: c.date,
+        categoryId: cat.categoryId!,
+      });
+      checkCreateStatus(created);
+    }
+
+    const created = await session.post<{ subscriptionId: number }>(
+      '/api/subscription/from-filter',
+      { title: 'Boundary inclusivity test', filter: { receiver: uniqueReceiver } },
+    );
+    const rowId = created.subscriptionId;
+
+    const expectedIncluded = cases.filter(c => c.included);
+    const expectedSum = '44.00'; // 11 + 33
+
+    // /search: explicit 1y range — pins the window so the boundary
+    // days computed above match what the server uses.
+    const searchResult = await session.post<SubscriptionResult>('/api/subscription/search', {
+      includeEnded: true,
+      range: { amount: 1, unit: 'years' },
+    });
+    const card = searchResult.find(c => c.rowId === rowId);
+    expect(card).toBeDefined();
+    expect(card?.matchedCount).toBe(expectedIncluded.length);
+    expect(card?.matchedSum).toBe(expectedSum);
+    expect(card?.firstDate).toBe(toISODate(firstOfStart));
+    expect(card?.lastDate).toBe(toISODate(endOfMonth));
+
+    // /matches: same window via the row expander.
+    const matches = await session.post<SubscriptionMatches>('/api/subscription/matches', {
+      rowId,
+      categoryId: cat.categoryId!,
+      range: { amount: 1, unit: 'years' },
+    });
+    expect(matches.totalCount).toBe(expectedIncluded.length);
+    expect(matches.totalSum).toBe(expectedSum);
+    const matchedTitles = matches.matches.map(m => m.title).sort();
+    expect(matchedTitles).toEqual(['endOfMonth', 'firstOfStart']);
+
+    // /query-summary: preview path — same window.
+    const summary = await session.post<QuerySummary>('/api/subscription/query-summary', {
+      filter: { receiver: uniqueReceiver },
+      range: { amount: 1, unit: 'years' },
+    });
+    expect(summary.count).toBe(expectedIncluded.length);
+    expect(summary.sum).toBe(expectedSum);
+  });
+
+  it('excludes future expenses from subscription baselines', async () => {
+    // Pre-generated future expenses (e.g. when the user has browsed
+    // months ahead of "today") must not inflate matchedSum or the
+    // per-month / per-year averages. The baseline window is capped at
+    // end-of-current-month; rows dated past that are ignored by all
+    // three subscription endpoints (search, matches, query-summary).
+    const cat = await newCategory(session, { name: 'FutureExclTest', parentId: 0 });
+    const uniqueReceiver = `future-excl-${Date.now()}`;
+
+    // One in-window expense (last month) and one future expense
+    // (a few months out). Same receiver and category, so the same
+    // filter picks up both.
+    const inWindowExpense = await newExpense(session, {
+      sum: '100.00',
+      title: 'In window',
+      receiver: uniqueReceiver,
+      date: recentDate(1, 1),
+      categoryId: cat.categoryId!,
+    });
+    checkCreateStatus(inWindowExpense);
+    const futureExpense = await newExpense(session, {
+      sum: '500.00',
+      title: 'Future',
+      receiver: uniqueReceiver,
+      date: futureDate(2, 15),
+      categoryId: cat.categoryId!,
+    });
+    checkCreateStatus(futureExpense);
+
+    const created = await session.post<{ subscriptionId: number }>(
+      '/api/subscription/from-filter',
+      { title: 'Future-exclusion test', filter: { receiver: uniqueReceiver } },
+    );
+    const rowId = created.subscriptionId;
+
+    // 1) /search: matchedSum reflects only the in-window row.
+    const searchResult = await session.post<SubscriptionResult>('/api/subscription/search', {
+      includeEnded: true,
+    });
+    const card = searchResult.find(c => c.rowId === rowId);
+    expect(card).toBeDefined();
+    expect(card?.matchedCount).toBe(1);
+    expect(card?.matchedSum).toBe('100.00');
+    // lastDate must not be the future row's date.
+    expect(card?.lastDate).toBe(recentDate(1, 1));
+
+    // 2) /matches: expander returns only the in-window row.
+    const matches = await session.post<SubscriptionMatches>('/api/subscription/matches', {
+      rowId,
+      categoryId: cat.categoryId!,
+    });
+    expect(matches.totalCount).toBe(1);
+    expect(matches.totalSum).toBe('100.00');
+    expect(matches.matches).toHaveLength(1);
+    expect(matches.matches[0].title).toBe('In window');
+
+    // 3) /query-summary: preview also excludes the future row.
+    const summary = await session.post<QuerySummary>('/api/subscription/query-summary', {
+      filter: { receiver: uniqueReceiver },
+    });
+    expect(summary.count).toBe(1);
+    expect(summary.sum).toBe('100.00');
   });
 });

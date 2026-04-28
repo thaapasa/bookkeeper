@@ -139,6 +139,32 @@ backend when the criteria omit it. The same formula runs for both recurring and 
 subscriptions — the only difference is whether the system also inserts auto-generated
 rows that then count themselves into the average.
 
+### Window definition
+
+The window is computed in `baselineWindow`
+(`src/shared/expense/SubscriptionWindow.ts`) and applied identically by `/search`,
+`/matches`, and `/query-summary`:
+
+- **`endDate` = end-of-current-month.** Caps the window so pre-generated future
+  expenses (a user who's browsed forward and materialised next month's rent) do not
+  inflate `matchedSum` or per-month / per-year averages. End-of-month rather than
+  `NOW()` so a subscription whose current-month expense was already booked early in
+  the month still counts as one full month's worth.
+- **`startDate` = `endDate + 1 day − range`.** Anchored to the end so 1y / 3y / 5y
+  span exactly the trailing **12 / 36 / 60 calendar months** (start-of-month to
+  end-of-month, inclusive). For example, on any day in April 2026 the 1y window is
+  `2025-05-01 .. 2026-04-30`.
+- **`months`** is derived from the range directly (`years × 12`, `months` as given),
+  not from a date diff, so the per-month denominator is an exact integer regardless
+  of month-length variation. Week / day units fall back to a 30-days-per-month
+  approximation (the UI exposes only year ranges today).
+
+The candidate-expense SQL constrains `date` between `startDate` and `endDate`
+inclusive (`fetchCandidateExpenses` in `SubscriptionService.ts`). Unit tests for the
+math live alongside the helper at
+`src/shared/expense/SubscriptionWindow.test.ts`; the future-exclusion behaviour is
+covered end-to-end in `src/integration/Subscription.test.ts`.
+
 **All realised rows count, confirmed or not.** `confirmed` is the user's "to-verify"
 marker, not a gate on aggregation. **Ended subscriptions keep contributing** until
 the subscription is hard-deleted: a row that paid rent for 10 of the last 12 months

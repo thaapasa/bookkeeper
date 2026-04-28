@@ -6,3 +6,4 @@ export * from './Shortcut';
 export * from './Splitter';
 export * from './Subscription';
 export * from './SubscriptionMatching';
+export * from './SubscriptionWindow';

@@ -1,5 +1,7 @@
 import {
   assignExpensesToSubscriptions,
+  type BaselineWindow,
+  baselineWindow,
   buildSubscriptionFilter,
   ExpenseQuery,
   ExpenseType,
@@ -14,7 +16,7 @@ import {
   SubscriptionResult,
   SubscriptionSearchCriteria,
 } from 'shared/expense';
-import { ISODate, RecurrenceInterval, toDateTime, toISODate } from 'shared/time';
+import { ISODate, RecurrenceInterval, toISODate } from 'shared/time';
 import { InvalidInputError, ObjectId } from 'shared/types';
 import { Money } from 'shared/util';
 import { DbTask } from 'server/data/Db.ts';
@@ -23,13 +25,6 @@ import { withSpan } from 'server/telemetry/Spans';
 import { getUserExpensesByIds } from './BasicExpenseDb';
 import { expandSubCategories } from './CategoryDb';
 import { getSubscriptionRow, getSubscriptionRows, SubscriptionRow } from './RecurringExpenseDb';
-
-const defaultBaselineRange: RecurrenceInterval = { amount: 5, unit: 'years' };
-
-interface BaselineWindow {
-  startDate: ISODate;
-  months: number;
-}
 
 export function searchSubscriptions(
   tx: DbTask,
@@ -51,7 +46,12 @@ export function searchSubscriptions(
       // dominatedBy, and recurrencePerMonth/perYear depending on which
       // type checkboxes are toggled. The type filter is applied as a
       // display filter on the produced cards instead.
-      const candidates = await fetchCandidateExpenses(tx, groupId, window.startDate);
+      const candidates = await fetchCandidateExpenses(
+        tx,
+        groupId,
+        window.startDate,
+        window.endDate,
+      );
       const wins = assignExpensesToSubscriptions(candidates, filters);
       const expenseToOwner = invertWins(wins);
 
@@ -104,7 +104,12 @@ export function summarizeQuery(
       }
       const window = baselineWindow(range);
       const filter = await buildOneFilter(tx, groupId, 0, query);
-      const candidates = await fetchCandidateExpenses(tx, groupId, window.startDate);
+      const candidates = await fetchCandidateExpenses(
+        tx,
+        groupId,
+        window.startDate,
+        window.endDate,
+      );
       const matched: MatchableExpense[] = [];
       let count = 0;
       let sum = Money.from(0);
@@ -149,7 +154,12 @@ export function getSubscriptionMatches(
       // diverge the two views.
       const rows = await getSubscriptionRows(tx, groupId);
       const filters = await buildAllFilters(tx, groupId, rows);
-      const candidates = await fetchCandidateExpenses(tx, groupId, window.startDate);
+      const candidates = await fetchCandidateExpenses(
+        tx,
+        groupId,
+        window.startDate,
+        window.endDate,
+      );
       const wins = assignExpensesToSubscriptions(candidates, filters);
 
       let assigned = wins.get(query.rowId) ?? [];
@@ -174,12 +184,6 @@ export function getSubscriptionMatches(
 function toTypeArray(type: SubscriptionSearchCriteria['type']): ExpenseType[] | null {
   if (!type) return null;
   return Array.isArray(type) ? type : [type];
-}
-
-function baselineWindow(range: RecurrenceInterval = defaultBaselineRange): BaselineWindow {
-  const now = toDateTime();
-  const startDate = now.minus({ [range.unit]: range.amount });
-  return { startDate: toISODate(startDate), months: now.diff(startDate, 'months').months };
 }
 
 async function buildAllFilters(
@@ -214,6 +218,7 @@ async function fetchCandidateExpenses(
   tx: DbTask,
   groupId: ObjectId,
   startDate: ISODate,
+  endDate: ISODate,
 ): Promise<MatchableExpense[]> {
   const rows = await tx.manyOrNone<{
     id: number;
@@ -239,8 +244,9 @@ async function fetchCandidateExpenses(
         confirmed
         FROM expenses
         WHERE group_id = $/groupId/
-          AND date >= $/startDate/::DATE`,
-    { groupId, startDate },
+          AND date >= $/startDate/::DATE
+          AND date <= $/endDate/::DATE`,
+    { groupId, startDate, endDate },
   );
   return rows.map(r => ({
     id: r.id,
