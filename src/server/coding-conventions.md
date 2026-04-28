@@ -50,6 +50,30 @@ const result = await tx.oneOrNone<MyType>(
 
 Query methods: `one()`, `oneOrNone()`, `many()`, `manyOrNone()`, `none()`, `map()`.
 
+### Sequential, never `Promise.all`
+
+Run DB operations on a `tx` **sequentially** with `await` in a `for` loop — never
+`Promise.all(ids.map(id => tx.…))`. A pg-promise transaction holds a single
+connection: concurrent queries against it are serialized internally and trigger
+"querying against a released/concurrent connection" warnings, so the parallel
+form is both slower and noisier than the serial form.
+
+```typescript
+// Correct — sequential, one query at a time on the shared connection.
+for (const id of ids) {
+  await getCategoryById(tx, groupId, id);
+}
+
+// Wrong — pg-promise serializes these anyway and emits warnings.
+await Promise.all(ids.map(id => getCategoryById(tx, groupId, id)));
+```
+
+This applies to anything that ultimately calls `tx.one/none/many/...`, including
+helpers like `getCategoryById`, `getSourceById`, `getUserById`, and any data-layer
+function that takes a `DbTask`. Avoid `tx.batch(...)` for the same reason: prefer
+the explicit `for`-loop, which keeps the call shape uniform with the rest of the
+data layer and makes the per-iteration trace span easy to read.
+
 ## Group Scoping (Multi-Tenant Isolation)
 
 The app is multi-tenant: every group's data lives in shared tables, isolated only by

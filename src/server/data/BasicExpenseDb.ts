@@ -223,20 +223,29 @@ export function deleteExpenseById(
   );
 }
 
-export const storeExpenseDivision = (
+export async function storeExpenseDivision(
   tx: DbTask,
+  groupId: number,
   expenseId: number,
   userId: number,
   type: ExpenseDivisionType,
   sum: MoneyLike,
-) =>
-  tx.none(
-    `INSERT INTO expense_division
-        (expense_id, user_id, type, sum)
-      VALUES
-        ($/expenseId/::INTEGER, $/userId/::INTEGER, $/type/::expense_division_type, $/sum/)`,
-    { expenseId, userId, type, sum: Money.toString(sum) },
+): Promise<void> {
+  // Defense in depth: `expense_division` has no `group_id` of its own, so the
+  // INSERT pulls `expense_id` via a SELECT that is itself group-scoped.
+  // A foreign-group expenseId produces zero source rows, the INSERT writes
+  // nothing, and we surface that as NOT_FOUND instead of silently no-oping.
+  const res = await tx.result(
+    `INSERT INTO expense_division (expense_id, user_id, type, sum)
+        SELECT id, $/userId/::INTEGER, $/type/::expense_division_type, $/sum/
+          FROM expenses
+          WHERE id = $/expenseId/::INTEGER AND group_id = $/groupId/`,
+    { expenseId, userId, type, sum: Money.toString(sum), groupId },
   );
+  if (res.rowCount !== 1) {
+    throw new NotFoundError('EXPENSE_NOT_FOUND', 'expense');
+  }
+}
 
 const deleteDivision = (tx: DbTask, groupId: number, expenseId: number): Promise<null> =>
   tx.none(
@@ -262,9 +271,14 @@ export async function getExpenseDivision(
   return items;
 }
 
-async function createDivision(tx: DbTask, expenseId: number, division: ExpenseDivisionItem[]) {
+async function createDivision(
+  tx: DbTask,
+  groupId: number,
+  expenseId: number,
+  division: ExpenseDivisionItem[],
+) {
   for (const d of division) {
-    await storeExpenseDivision(tx, expenseId, d.userId, d.type, d.sum);
+    await storeExpenseDivision(tx, groupId, expenseId, d.userId, d.type, d.sum);
   }
   return expenseId;
 }
@@ -308,7 +322,7 @@ export async function createNewExpense(
       },
     )
   ).id;
-  await createDivision(tx, expenseId, division);
+  await createDivision(tx, expense.groupId, expenseId, division);
   return expenseId;
 }
 
@@ -341,7 +355,7 @@ export async function updateExpense(
       categoryId: cat.id,
     },
   );
-  await createDivision(tx, original.id, division);
+  await createDivision(tx, original.groupId, original.id, division);
   return { status: 'OK', message: 'Expense updated', expenseId: original.id };
 }
 

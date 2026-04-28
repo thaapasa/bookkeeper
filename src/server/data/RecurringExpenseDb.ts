@@ -313,11 +313,9 @@ async function createMissingRecurrences(
     `Creating ${dates.length} missing expense(s) for subscription ${recurrence.id}`,
   );
   const source = await getSourceById(tx, groupId, recurrence.defaults.sourceId);
-  await tx.batch(
-    dates.map(date =>
-      generateRowFromDefaults(tx, groupId, recurrence.id, recurrence.defaults, source, date),
-    ),
-  );
+  for (const date of dates) {
+    await generateRowFromDefaults(tx, groupId, recurrence.id, recurrence.defaults, source, date);
+  }
   await tx.none(
     `UPDATE subscriptions
         SET next_missing=$/nextMissing/::DATE
@@ -371,7 +369,9 @@ export function createMissingRecurringExpenses(
         { groupId, cutoff: toISODate(date) },
         camelCaseObject,
       );
-      await tx.batch(list.map(v => createMissingRecurrences(tx, groupId, date, v)));
+      for (const v of list) {
+        await createMissingRecurrences(tx, groupId, date, v);
+      }
     },
   );
 }
@@ -652,7 +652,7 @@ export function updateSubscription(
   );
 }
 
-async function validateFilterIds(
+export async function validateFilterIds(
   tx: DbTask,
   groupId: ObjectId,
   filter: ExpenseQuery,
@@ -717,7 +717,7 @@ async function createDivisionForRecurrence(
   const ids = await getRecurrenceExpenseIds(tx, groupId, subscriptionId, afterDate, editedId);
   for (const expenseId of ids) {
     for (const d of division) {
-      await storeExpenseDivision(tx, expenseId, d.userId, d.type, d.sum);
+      await storeExpenseDivision(tx, groupId, expenseId, d.userId, d.type, d.sum);
     }
   }
   return subscriptionId;

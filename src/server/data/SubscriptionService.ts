@@ -24,7 +24,12 @@ import { withSpan } from 'server/telemetry/Spans';
 
 import { getUserExpensesByIds } from './BasicExpenseDb';
 import { expandSubCategories } from './CategoryDb';
-import { getSubscriptionRow, getSubscriptionRows, SubscriptionRow } from './RecurringExpenseDb';
+import {
+  getSubscriptionRow,
+  getSubscriptionRows,
+  SubscriptionRow,
+  validateFilterIds,
+} from './RecurringExpenseDb';
 
 export function searchSubscriptions(
   tx: DbTask,
@@ -102,6 +107,11 @@ export function summarizeQuery(
       if (!hasMeaningfulConstraint(query)) {
         throw new InvalidInputError('INVALID_INPUT', 'Subscription query must not be empty');
       }
+      // Resolve filter IDs against the session group up front so a foreign-group
+      // categoryId or userId throws NotFoundError instead of silently producing
+      // a zero-match preview — matches the explicit-error contract the create
+      // and update paths use.
+      await validateFilterIds(tx, groupId, query);
       const window = baselineWindow(range);
       const filter = await buildOneFilter(tx, groupId, 0, query);
       const candidates = await fetchCandidateExpenses(
@@ -191,7 +201,11 @@ async function buildAllFilters(
   groupId: ObjectId,
   rows: SubscriptionRow[],
 ): Promise<SubscriptionFilter[]> {
-  return Promise.all(rows.map(r => buildOneFilter(tx, groupId, r.id, r.filter)));
+  const out: SubscriptionFilter[] = [];
+  for (const r of rows) {
+    out.push(await buildOneFilter(tx, groupId, r.id, r.filter));
+  }
+  return out;
 }
 
 async function buildOneFilter(
