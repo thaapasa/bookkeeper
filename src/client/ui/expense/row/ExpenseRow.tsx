@@ -1,20 +1,14 @@
-import { ActionIcon, Group, Table, Text, Tooltip } from '@mantine/core';
+import { Group, Table, Text, Tooltip } from '@mantine/core';
 import * as React from 'react';
 
-import {
-  ExpenseDivisionItem,
-  RecurringExpenseTarget,
-  UserExpense,
-  UserExpenseWithDetails,
-} from 'shared/expense';
+import { ExpenseDivisionItem, UserExpense, UserExpenseWithDetails } from 'shared/expense';
 import { readableDate, toDateTime } from 'shared/time';
 import { Category, isDefined } from 'shared/types';
 import { equal, Money, notEqual } from 'shared/util';
 import { apiConnect } from 'client/data/ApiConnect';
 import { getFullCategoryName, UserDataProps } from 'client/data/Categories';
 import { navigateToExpenseDate, useNavigationStore } from 'client/data/NavigationStore';
-import { invalidateExpenseData, invalidateSubscriptionData } from 'client/data/query';
-import { editExpense } from 'client/data/State';
+import { invalidateExpenseData } from 'client/data/query';
 import { logger } from 'client/Logger';
 import { forMoney, sumStyleForType } from 'client/ui/ColorUtils';
 import { ActivatableTextField } from 'client/ui/component/ActivatableTextField';
@@ -22,17 +16,16 @@ import { ExpanderIcon } from 'client/ui/component/ExpanderIcon';
 import { UserAvatar } from 'client/ui/component/UserAvatar';
 import { UserPrompts } from 'client/ui/dialog/DialogState';
 import { GroupedExpenseIcon } from 'client/ui/grouping/GroupedExpenseIcon';
-import { Icons } from 'client/ui/icons/Icons';
 import { classNames } from 'client/ui/utils/classNames';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { ExpenseInfo } from '../details/ExpenseInfo';
 import { ReceiverField } from '../dialog/ReceiverField';
-import { expenseName } from '../ExpenseHelper';
 import { DayParityContext } from './DayParity';
 import { AddFilterFn, ExpenseFilters } from './ExpenseFilters';
 import styles from './ExpenseRow.module.css';
 import { SourceIcon, TextButton } from './ExpenseRowComponents';
+import { ExpenseRowMenu } from './ExpenseRowMenu';
 import {
   ActionsVisibleFrom,
   BalanceVisibleFrom,
@@ -139,47 +132,6 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
       errorMessage: 'Ei voitu ladata tietoja kirjaukselle',
       postProcess: setDetails,
     });
-  };
-
-  const deleteExpense = async () => {
-    const name = expenseName(expense);
-    if (expense.subscriptionId) {
-      return deleteRecurringExpense();
-    }
-    await executeOperation(() => apiConnect.deleteExpense(expense.id), {
-      confirmTitle: 'Poista kirjaus',
-      confirm: `Haluatko varmasti poistaa kirjauksen ${name}?`,
-      success: `Poistettu kirjaus ${name}`,
-      postProcess: () => invalidateExpenseData(),
-    });
-  };
-
-  const deleteRecurringExpense = async () => {
-    const name = expenseName(expense);
-    const target = await UserPrompts.select<RecurringExpenseTarget>(
-      'Poista toistuva kirjaus',
-      `Haluatko varmasti poistaa kirjauksen ${name}?`,
-      [
-        { label: 'Vain tämä', value: 'single' },
-        { label: 'Kaikki', value: 'all' },
-        { label: 'Tästä eteenpäin', value: 'after' },
-      ],
-    );
-    if (!target) return;
-    await executeOperation(() => apiConnect.deleteRecurringById(expense.id, target), {
-      success: `Poistettu kirjaus ${name}`,
-      postProcess: () => {
-        invalidateExpenseData();
-        invalidateSubscriptionData();
-      },
-    });
-  };
-
-  const modifyExpense = async () => {
-    const e = await apiConnect.getExpense(expense.id);
-    // The dialog's own save flow invalidates data and navigates to the saved
-    // expense, so we just wait for the user to finish editing.
-    await editExpense(e.id);
   };
 
   const parity = dayParities[expense.id] ?? 0;
@@ -294,18 +246,13 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
         {/* Tools */}
         <Table.Td ta="right">
           {editable ? (
-            <Group gap="xs" wrap="nowrap" justify="flex-end">
+            <Group gap={2} wrap="nowrap" justify="flex-end">
               <ExpanderIcon
                 title="Tiedot"
                 open={isDefined(details)}
                 onToggle={() => toggleDetails()}
               />
-              <ActionIcon title="Muokkaa" onClick={modifyExpense} className={ActionsVisibleFrom}>
-                <Icons.Edit />
-              </ActionIcon>
-              <ActionIcon title="Poista" onClick={deleteExpense} className={ActionsVisibleFrom}>
-                <Icons.Delete />
-              </ActionIcon>
+              <ExpenseRowMenu expense={expense} />
             </Group>
           ) : null}
         </Table.Td>
@@ -315,8 +262,6 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
           key={'expense-division-' + expense.id}
           loading={isLoading}
           expense={expense}
-          onDelete={deleteExpense}
-          onModify={modifyExpense}
           division={details ? details.division : emptyDivision}
           source={source}
           fullCategoryName={fullCategoryName}

@@ -55,6 +55,19 @@
 .hideBelowSm { display: none; }
 .hideBelowMd { display: none; }
 
+/* Tools column width = exactly the inherent size of its content, so the
+   flexing columns (Nimi/Kohde/Kategoria) get every spare pixel.
+   Components: two ActionIcons (md = 1.75rem, mirroring --ai-size-md from
+   @mantine/core's ActionIcon stylesheet — that var is component-scoped
+   and not exposed globally, so the literal is duplicated here) + the
+   Group's `gap={2}` (0.125rem) + the Table cell's default horizontal
+   padding (--mantine-spacing-xs each side). All three terms are rem-
+   based, so the same value covers both viewports — the mobile root-font
+   bump scales them together. */
+.toolsColumn {
+  width: calc(2 * 1.75rem + 0.125rem + 2 * var(--mantine-spacing-xs));
+}
+
 @container expense-table (width >= $mantine-breakpoint-xs) {
   .hideBelowXs { display: revert; }
 }

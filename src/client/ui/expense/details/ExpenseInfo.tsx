@@ -9,15 +9,12 @@ import { LoadingIndicator } from '../row/SpecialRows';
 import { BasicData } from './BasicData';
 import { DivisionInfo } from './DivisionInfo';
 import styles from './ExpenseInfo.module.css';
-import { ExpenseInfoTools } from './ExpenseInfoTools';
 import { RecurrenceInfo } from './RecurrenceInfo';
 
 interface ExpenseInfoProps {
   division: ExpenseDivisionItem[];
   loading: boolean;
   expense: UserExpense;
-  onModify: (e: UserExpense) => void;
-  onDelete: (e: UserExpense) => void;
   source: Source;
   fullCategoryName: string;
 }
@@ -26,8 +23,6 @@ export const ExpenseInfo: React.FC<ExpenseInfoProps> = ({
   loading,
   expense,
   division,
-  onModify,
-  onDelete,
   source,
   fullCategoryName,
 }) => {
@@ -37,15 +32,7 @@ export const ExpenseInfo: React.FC<ExpenseInfoProps> = ({
 
   return (
     <Table.Tr>
-      <AllColumns
-        className={styles.detailsBg}
-        pos="relative"
-        // Reserve space for the absolutely-positioned ExpenseInfoTools on mobile,
-        // where BasicData is the first visible content and would otherwise overlap.
-        px={0}
-        pb={0}
-        pt={{ base: 28, sm: 0 }}
-      >
+      <AllColumns className={styles.detailsBg} px={0} pt={0} pb={0}>
         <RecurrenceInfo expense={expense} m={0} h={50} />
         <BasicData
           hiddenFrom="md"
@@ -66,17 +53,6 @@ export const ExpenseInfo: React.FC<ExpenseInfoProps> = ({
           expenseType={expense.type}
           ml={{ base: 1, xs: 56, sm: 92 }}
           mb="xs"
-        />
-        <ExpenseInfoTools
-          division={division}
-          expense={expense}
-          onModify={onModify}
-          onDelete={onDelete}
-          pos="absolute"
-          right={0}
-          top={0}
-          px="sm"
-          py={8}
         />
       </AllColumns>
     </Table.Tr>

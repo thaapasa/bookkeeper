@@ -2,6 +2,7 @@ import { Table } from '@mantine/core';
 import * as React from 'react';
 
 import { useIsMobile } from '../../hooks/useBreakpoints';
+import styles from './ExpenseRow.module.css';
 import {
   BalanceVisibleFrom,
   CategoryVisibleFrom,
@@ -29,7 +30,7 @@ export function ExpenseHeader() {
       <Table.Th ta="right" w={100} className={BalanceVisibleFrom}>
         Balanssi
       </Table.Th>
-      <Table.Th ta="right" w={isMobile ? 44 : 130} />
+      <Table.Th ta="right" className={styles.toolsColumn} />
     </Table.Tr>
   );
 }
