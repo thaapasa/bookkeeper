@@ -208,6 +208,13 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
           {sumStyle.prefix}
           {Money.from(expense.sum).format()}
         </Table.Td>
+        {/* Source */}
+        <Table.Td className={SourceVisibleFrom}>
+          <SourceIcon
+            source={source}
+            onClick={() => addFilter(e => e.sourceId === source.id, source.name)}
+          />
+        </Table.Td>
         {/* Receiver */}
         <Table.Td className={ReceiverVisibleFrom}>
           {editable ? (
@@ -223,13 +230,6 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
         </Table.Td>
         {/* Category */}
         <Table.Td className={CategoryVisibleFrom}>{fullCategoryLink(expense.categoryId)}</Table.Td>
-        {/* Source */}
-        <Table.Td className={SourceVisibleFrom}>
-          <SourceIcon
-            source={source}
-            onClick={() => addFilter(e => e.sourceId === source.id, source.name)}
-          />
-        </Table.Td>
         {/* Balance */}
         <Table.Td
           ta="right"
