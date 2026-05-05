@@ -65,15 +65,16 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
   const dayParities = React.useContext(DayParityContext);
 
   // Play a one-shot highlight animation when this row is the navigation target.
-  // Tracking the seq prevents re-triggering on unrelated re-renders.
+  // The store tracks the highest seq that's already played so re-mounts (e.g.
+  // after navigating away and back) don't replay the same animation.
   const navTargetId = useNavigationStore(s => s.expenseNavigationTargetId);
   const navSeq = useNavigationStore(s => s.expenseNavigationSeq);
   const [highlight, setHighlight] = React.useState(false);
-  const lastHandledSeqRef = React.useRef(0);
   React.useEffect(() => {
     if (navTargetId !== expense.id) return;
-    if (lastHandledSeqRef.current === navSeq) return;
-    lastHandledSeqRef.current = navSeq;
+    const consumed = useNavigationStore.getState().expenseHighlightConsumedSeq;
+    if (navSeq <= consumed) return;
+    useNavigationStore.getState().consumeExpenseHighlight(navSeq);
     setHighlight(true);
     const t = window.setTimeout(() => setHighlight(false), 1600);
     return () => window.clearTimeout(t);

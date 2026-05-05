@@ -19,9 +19,12 @@ interface NavigationState {
   expenseNavigationTargetId: number | null;
   /** Incremented on each navigation request so consumers can react via useEffect. */
   expenseNavigationSeq: number;
+  /** Highest seq that has already triggered a highlight; prevents replay on re-mount. */
+  expenseHighlightConsumedSeq: number;
 
   setNavigation: (config: NavigationConfig) => void;
   navigateToExpenseDate: (date: ISODate, id?: number) => void;
+  consumeExpenseHighlight: (seq: number) => void;
 }
 
 export const useNavigationStore = create<NavigationState>(set => ({
@@ -30,6 +33,7 @@ export const useNavigationStore = create<NavigationState>(set => ({
   expenseNavigationTarget: null,
   expenseNavigationTargetId: null,
   expenseNavigationSeq: 0,
+  expenseHighlightConsumedSeq: 0,
 
   setNavigation: config => set({ pathPrefix: config.pathPrefix, dateRange: config.dateRange }),
   navigateToExpenseDate: (date, id) =>
@@ -38,6 +42,7 @@ export const useNavigationStore = create<NavigationState>(set => ({
       expenseNavigationTargetId: id && id > 0 ? id : null,
       expenseNavigationSeq: s.expenseNavigationSeq + 1,
     })),
+  consumeExpenseHighlight: seq => set({ expenseHighlightConsumedSeq: seq }),
 }));
 
 /** Push a date to trigger cross-month navigation in MonthView. */
