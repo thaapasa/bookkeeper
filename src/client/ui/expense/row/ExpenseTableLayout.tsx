@@ -57,7 +57,7 @@ export const ExpenseTableLayout: React.FC<
           layout="fixed"
           withRowBorders={false}
           withTableBorder={false}
-          verticalSpacing="sm"
+          verticalSpacing={4}
           fz="sm"
           className={cx(tableClasses.expenseTable, className)}
           px={padded ? 'md' : undefined}
