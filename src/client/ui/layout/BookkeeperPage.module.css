@@ -1,4 +1,7 @@
 .header {
+  /* Opaque bg matching the page body so Mac rubber-band overscroll
+     doesn't reveal the surface card sliding up behind the header. */
+  background-color: var(--mantine-color-surface-2);
   border-bottom: 1px solid var(--mantine-color-surface-3);
 }
 

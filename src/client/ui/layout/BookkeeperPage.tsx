@@ -46,7 +46,7 @@ export const BookkeeperPage: React.FC<PageProps> = () => {
       <ModalDialogConnector />
       <Router>
         <AppShell header={{ height: 56 }} padding={0} withBorder={false}>
-          <AppShell.Header bg="transparent" className={classes.header}>
+          <AppShell.Header className={classes.header}>
             <TopBar menuOpen={menuOpen} onToggleMenu={toggleMenu} />
           </AppShell.Header>
 
