@@ -29,10 +29,13 @@
 }
 
 /* Radix wraps viewport content in a display:table div that sizes to content,
-   which breaks % heights inside. Force it to fill the viewport so PageLayout's
-   min-height: 100% and sticky footer spacer work against actual viewport height. */
+   which breaks % heights inside. Give it a definite height so PageLayout's
+   min-height: 100% resolves and the sticky-footer spacer (flex: 1) actually
+   has remaining space to fill when the page content is shorter than the
+   viewport. The display:table wrapper still grows past 100% when content
+   overflows, so scrolling continues to work. */
 .surface :global(.mantine-ScrollArea-viewport > div:first-child) {
-  min-height: 100%;
+  height: 100%;
 }
 
 /* Below sm */
