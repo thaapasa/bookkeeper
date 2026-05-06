@@ -14,10 +14,8 @@ export function ExpenseHeader() {
   const isMobile = useIsMobile();
   return (
     <Table.Tr>
-      <Table.Th w={isMobile ? 56 : 92} px="sm">
-        Pvm
-      </Table.Th>
-      <Table.Th w={50} />
+      <Table.Th w={isMobile ? 46 : 92}>Pvm</Table.Th>
+      <Table.Th w={isMobile ? 40 : 52} />
       <Table.Th>Nimi</Table.Th>
       <Table.Th ta="right" w={100}>
         Summa

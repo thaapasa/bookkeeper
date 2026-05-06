@@ -19,6 +19,11 @@
 
 .expenseTable {
   white-space: nowrap;
+  /* Cell horizontal padding is overridden via this Mantine-internal CSS
+     variable (instead of the <Table horizontalSpacing> prop) so we can
+     vary it by container width. Stays tight below xs so the visible
+     columns get every spare pixel on narrow phones. */
+  --table-horizontal-spacing: 4px;
 
   td, th {
     overflow: hidden;
@@ -60,16 +65,16 @@
    Components: two ActionIcons (md = 1.75rem, mirroring --ai-size-md from
    @mantine/core's ActionIcon stylesheet — that var is component-scoped
    and not exposed globally, so the literal is duplicated here) + the
-   Group's `gap={2}` (0.125rem) + the Table cell's default horizontal
-   padding (--mantine-spacing-xs each side). All three terms are rem-
-   based, so the same value covers both viewports — the mobile root-font
-   bump scales them together. */
+   Group's `gap={2}` (0.125rem) + the Table cell's horizontal padding
+   (--table-horizontal-spacing each side, which we vary by container
+   width above). */
 .toolsColumn {
-  width: calc(2 * 1.75rem + 0.125rem + 2 * var(--mantine-spacing-xs));
+  width: calc(2 * 1.75rem + 0.125rem + 2 * var(--table-horizontal-spacing));
 }
 
 @container expense-table (width >= $mantine-breakpoint-xs) {
   .hideBelowXs { display: revert; }
+  .expenseTable { --table-horizontal-spacing: var(--mantine-spacing-xs); }
 }
 @container expense-table (width >= $mantine-breakpoint-sm) {
   .hideBelowSm { display: revert; }

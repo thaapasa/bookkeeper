@@ -152,7 +152,7 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
         )}
       >
         {/* Date */}
-        <Table.Td ta="right" pos="relative" px="xs" onClick={editable ? editDate : undefined}>
+        <Table.Td ta="right" pos="relative" onClick={editable ? editDate : undefined}>
           {expense.subscriptionId ? (
             <RecurringExpenseIcon className={styles.recurringIcon} />
           ) : null}
