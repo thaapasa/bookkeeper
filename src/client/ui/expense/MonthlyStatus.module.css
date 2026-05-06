@@ -1,3 +1,15 @@
 .topBorder {
   border-top: 1px solid var(--mantine-color-default-border);
 }
+
+/* Tighten the inter-block gap on narrow screens so two or three blocks
+   fit at ~360dp without overflow. */
+.blocks {
+  gap: var(--mantine-spacing-md);
+}
+
+@media (min-width: $mantine-breakpoint-md) {
+  .blocks {
+    gap: var(--mantine-spacing-xl);
+  }
+}

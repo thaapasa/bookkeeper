@@ -3,7 +3,6 @@ import * as React from 'react';
 
 import { ExpenseStatus } from 'shared/expense';
 import { Money, MoneyLike } from 'shared/util';
-import { useIsMobile } from 'client/ui/hooks/useBreakpoints';
 
 import { SectionLabel } from '../design/Text';
 import { Icons } from '../icons/Icons';
@@ -26,7 +25,6 @@ interface StatusProps {
 
 export const MonthlyStatus: React.FC<StatusProps> = props => {
   const [expanded, setExpanded] = React.useState(false);
-  const isMobile = useIsMobile();
 
   const hasUnconfirmed = props.unconfirmedBefore || props.unconfirmedDuring;
   const income = props.totals ? props.totals.totalIncome : 0;
@@ -36,7 +34,7 @@ export const MonthlyStatus: React.FC<StatusProps> = props => {
 
   return (
     <Group justify="flex-end" align="flex-start" wrap="nowrap" fz="sm" px="xs">
-      <Group gap={isMobile ? 'md' : 'xl'}>
+      <Group wrap="nowrap" className={styles.blocks}>
         {props.showFiltered && (
           <StatusBlock
             title="Suodatetut"
@@ -60,6 +58,7 @@ export const MonthlyStatus: React.FC<StatusProps> = props => {
           title="Saatavat/velat"
           incomeTitle="Ennen"
           expenseTitle="Tämä kk"
+          expenseTitleXs="Nyt"
           income={props.startStatus.balance}
           expense={Money.from(props.monthStatus.balance).negate()}
           expanded={expanded}
@@ -86,6 +85,7 @@ function StatusBlock({
   title,
   incomeTitle,
   expenseTitle,
+  expenseTitleXs,
   expanded,
   income,
   expense,
@@ -98,6 +98,7 @@ function StatusBlock({
     title: string;
     incomeTitle: string;
     expenseTitle: string;
+    expenseTitleXs?: string;
     expanded: boolean;
     income: MoneyLike;
     expense: MoneyLike;
@@ -111,8 +112,8 @@ function StatusBlock({
     <Stack gap={2} bg={bg} pos="relative" pb="xs" style={style} {...props}>
       <SectionLabel pt="xs">{title}</SectionLabel>
       {expanded && <CalculationRow title={incomeTitle} sum={inc} />}
-      {expanded && <CalculationRow title={expenseTitle} sum={exp} />}
-      <CalculationRow title="Yhteensä" sum={sum} drawTopBorder={expanded} />
+      {expanded && <CalculationRow title={expenseTitle} xsTitle={expenseTitleXs} sum={exp} />}
+      <CalculationRow title="Yhteensä" xsTitle="" sum={sum} drawTopBorder={expanded} />
       {children}
     </Stack>
   );
@@ -120,19 +121,34 @@ function StatusBlock({
 
 function CalculationRow({
   title,
+  xsTitle,
   sum,
   drawTopBorder,
 }: {
   title: string;
+  /** Title shown below xs. Pass "" to hide the label entirely on narrow
+   *  screens; omit to use `title` at all widths. */
+  xsTitle?: string;
   sum: Money;
   drawTopBorder?: boolean;
 }) {
   return (
     <Group gap="xs" wrap="nowrap" py="xs" className={drawTopBorder ? styles.topBorder : undefined}>
-      <Text fz="sm" w={60}>
-        {title}
-      </Text>
-      <Text fz="sm" ta="right" w={80}>
+      {xsTitle !== undefined ? (
+        <>
+          <Text fz="sm" flex={1} hiddenFrom="xs">
+            {xsTitle}
+          </Text>
+          <Text fz="sm" flex={1} visibleFrom="xs">
+            {title}
+          </Text>
+        </>
+      ) : (
+        <Text fz="sm" flex={1}>
+          {title}
+        </Text>
+      )}
+      <Text fz="sm" ta="right">
         {money(sum)}
       </Text>
     </Group>
