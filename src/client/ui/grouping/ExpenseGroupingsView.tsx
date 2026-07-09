@@ -58,11 +58,19 @@ export const ExpenseGroupingView: React.FC<{
   const navigate = useNavigate();
   return (
     <Card w="100%" pos="relative" h={200} bg="surface.1" shadow="md" radius="md" p={0} m={0}>
-      <Group bg="surface.2" justify="space-between" align="center">
-        <Subtitle noBorder order={3} px="md" py="sm" fw={700}>
+      <Group bg="surface.2" justify="space-between" align="center" wrap="nowrap" gap={0}>
+        <Subtitle
+          noBorder
+          order={3}
+          px="md"
+          py="sm"
+          fw={700}
+          textWrap="nowrap"
+          style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}
+        >
           {grouping.title}
         </Subtitle>
-        <Group gap="xs" px="md">
+        <Group gap="xs" px="md" wrap="nowrap">
           <ActionIcon
             size="sm"
             title="Muokkaa seurantaa"
@@ -94,7 +102,7 @@ export const ExpenseGroupingView: React.FC<{
             align="center"
             justify="center"
             style={{ alignSelf: 'stretch' }}
-            px="md"
+            px={{ base: 0, md: 'md' }}
             pt="lg"
             pos="relative"
           >
@@ -106,13 +114,13 @@ export const ExpenseGroupingView: React.FC<{
                 gap="xs"
               >
                 {grouping.tags.map(t => (
-                  <Tag key={t} size="xs" variant="primary">
+                  <Tag key={t} size="xs">
                     {t}
                   </Tag>
                 ))}
               </Group>
             ) : null}
-            <MantineTitle order={1} c="primary.7">
+            <MantineTitle fz={{ base: 'h2', xs: 'h1' }} c="primary.7" style={{ zIndex: 1 }}>
               {Money.from(grouping.totalSum).format()}
             </MantineTitle>
             <GroupingDates grouping={grouping} />

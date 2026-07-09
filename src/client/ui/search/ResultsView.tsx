@@ -8,9 +8,9 @@ import { groupBy, noop, typedKeys } from 'shared/util';
 import { UserDataProps } from 'client/data/Categories';
 import { useUserData } from 'client/data/SessionStore';
 
-import { SectionLabel } from '../design/Text';
 import { ExpenseRow } from '../expense/row/ExpenseRow';
 import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
+import { TotalSum } from './TotalSum';
 
 interface ResultsViewOwnProps {
   results: UserExpense[];
@@ -21,7 +21,7 @@ interface ResultsViewOwnProps {
 export const ResultsView: React.FC<ResultsViewOwnProps> = ({ results, ...rest }) => {
   const userData = useUserData()!;
   return (
-    <Stack>
+    <Stack gap={0}>
       <Text c="primary.7" mx="lg" my="xs">
         Hakutulokset
       </Text>
@@ -87,7 +87,7 @@ function YearHeader({ year, expenses }: { year: string; expenses: UserExpense[] 
     <Group
       bg="surface.1"
       px="lg"
-      py="md"
+      py="xs"
       w="100%"
       wrap="nowrap"
       style={{ boxSizing: 'border-box' }}
@@ -95,30 +95,10 @@ function YearHeader({ year, expenses }: { year: string; expenses: UserExpense[] 
       <Text c="primary.7" flex={1}>
         Vuosi {year}
       </Text>
-      <Group gap={0} ml="md" wrap="nowrap">
-        <SectionLabel component="span">Yhteensä</SectionLabel>
-        <Text component="span" c="primary.9" ml="xs">
-          {totals.total.format()}
-        </Text>
-      </Group>
-      <Group gap={0} ml="md" wrap="nowrap">
-        <SectionLabel component="span">Tulot</SectionLabel>
-        <Text component="span" c="primary.9" ml="xs">
-          {totals.income.format()}
-        </Text>
-      </Group>
-      <Group gap={0} ml="md" wrap="nowrap">
-        <SectionLabel component="span">Menot</SectionLabel>
-        <Text component="span" c="primary.9" ml="xs">
-          {totals.expense.format()}
-        </Text>
-      </Group>
-      <Group gap={0} ml="md" wrap="nowrap">
-        <SectionLabel component="span">Siirrot</SectionLabel>
-        <Text component="span" c="primary.9" ml="xs">
-          {totals.transfer.format()}
-        </Text>
-      </Group>
+      <TotalSum label="Yhteensä" sum={totals.total} ml="md" />
+      <TotalSum label="Tulot" sum={totals.income} ml="md" visibleFrom="sm" />
+      <TotalSum label="Menot" sum={totals.expense} ml="md" visibleFrom="xs" />
+      <TotalSum label="Siirrot" sum={totals.transfer} ml="md" visibleFrom="sm" />
     </Group>
   );
 }
