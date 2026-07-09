@@ -41,7 +41,10 @@ export function splitExpense(
 }
 
 async function createSplit(tx: DbTask, expense: Expense, split: ExpenseSplit) {
-  const splitted = { ...expense, ...split };
+  // Splits are EUR-only. Without this, every part would inherit the parent's currency and
+  // its *entire* original amount, so splitting a $100 expense in two would yield two parts
+  // each claiming to have cost $100.
+  const splitted = { ...expense, ...split, currencyId: null, originalCurrencyValue: null };
   logger.debug(splitted, `Creating new expense`);
   await createExpense(tx, expense.userId, expense.groupId, splitted, expense.groupId);
 }

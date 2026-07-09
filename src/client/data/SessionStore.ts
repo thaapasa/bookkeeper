@@ -2,6 +2,7 @@ import { create } from 'zustand';
 
 import {
   CategoryMap,
+  Currency,
   ExpenseGroupingMap,
   ExpenseGroupingRef,
   Group,
@@ -21,6 +22,7 @@ export interface ExpenseDialogData {
   categoryMap: CategoryMap;
   groupings: ExpenseGroupingRef[];
   users: User[];
+  currencies: Currency[];
 }
 
 export type SessionStatus = 'uninitialized' | 'checking' | 'ready' | 'error';
@@ -90,6 +92,7 @@ export const useSessionStore = create<SessionState>(set => ({
       categoryMap,
       groupings: session.groupings,
       users: session.users,
+      currencies: session.currencies,
     };
 
     set({

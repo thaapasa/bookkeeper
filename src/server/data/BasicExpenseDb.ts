@@ -15,6 +15,7 @@ import { logger } from 'server/Logger';
 import { withSpan } from 'server/telemetry/Spans';
 
 import { getCategoryById } from './CategoryDb';
+import { validateCurrencyId } from './CurrencyDb';
 import { determineDivision } from './ExpenseDivision';
 import { getSourceById } from './SourceDb';
 
@@ -66,6 +67,7 @@ SELECT
   MIN(user_id) AS "userId", MIN(created_by_id) AS "createdById", MIN(breakdown.group_id) AS "groupId", MIN(category_id) AS "categoryId",
   MIN(grouping_id) AS "groupingId", MIN(auto_grouping_ids) AS "autoGroupingIds",
   MIN(created) AS created, MIN(subscription_id) AS "subscriptionId",
+  MIN(currency_id) AS "currencyId", MIN(original_currency_value) AS "originalCurrencyValue",
   SUM(cost) AS "userCost", SUM(benefit) AS "userBenefit", SUM(income) AS "userIncome", SUM(split) AS "userSplit",
   SUM(transferor) AS "userTransferor", SUM(transferee) AS "userTransferee",
   SUM(cost + benefit + income + split + transferor + transferee) AS "userValue"
@@ -74,6 +76,7 @@ FROM (
     e.id, e.date::DATE, e.receiver, e.type, e.sum, e.title, e.description, e.confirmed, e.grouping_id,
     ${AUTO_GROUPING_IDS_SUBQUERY} AS auto_grouping_ids,
     e.source_id, e.user_id, e.created_by_id, e.group_id, e.category_id, e.created, e.subscription_id,
+    e.currency_id, e.original_currency_value,
     (CASE WHEN d.type = 'cost' THEN d.sum ELSE '0.00'::NUMERIC END) AS cost,
     (CASE WHEN d.type = 'benefit' THEN d.sum ELSE '0.00'::NUMERIC END) AS benefit,
     (CASE WHEN d.type = 'income' THEN d.sum ELSE '0.00'::NUMERIC END) AS income,
@@ -291,6 +294,11 @@ export function setExpenseDataDefaults(expense: Expense | ExpenseInput): Expense
   };
 }
 
+/** Normalizes an optional monetary annotation to the string form the DB expects, or null */
+function toOptionalMoneyString(value: MoneyLike | null | undefined): string | null {
+  return value != null ? Money.from(value).toString() : null;
+}
+
 export type ExpenseInsert = Omit<Expense, 'id' | 'createdById' | 'created' | 'subscriptionId'> & {
   subscriptionId?: ObjectId | null;
 };
@@ -306,11 +314,12 @@ export async function createNewExpense(
       `INSERT INTO expenses (
           created_by_id, user_id, group_id, date, created, type,
           receiver, sum, title, description, confirmed, grouping_id,
-          source_id, category_id, subscription_id)
+          source_id, category_id, subscription_id, currency_id, original_currency_value)
         VALUES (
           $/userId/::INTEGER, $/expenseOwnerId/::INTEGER, $/groupId/::INTEGER, $/date/::DATE, NOW(), $/type/::expense_type,
           $/receiver/, $/sum/, $/title/, $/description/, $/confirmed/::BOOLEAN, $/groupingId/,
-          $/sourceId/::INTEGER, $/categoryId/::INTEGER, $/subscriptionId/)
+          $/sourceId/::INTEGER, $/categoryId/::INTEGER, $/subscriptionId/,
+          $/currencyId/::INTEGER, $/originalCurrencyValue/::NUMERIC)
         RETURNING id`,
       {
         ...expense,
@@ -319,6 +328,10 @@ export async function createNewExpense(
         sum: expense.sum.toString(),
         subscriptionId: expense.subscriptionId ?? null,
         groupingId: expense.groupingId,
+        // Coalesce explicitly: pg-promise throws when a named parameter is absent from the
+        // value object, and several callers build ExpenseInsert literals without these keys.
+        currencyId: expense.currencyId ?? null,
+        originalCurrencyValue: toOptionalMoneyString(expense.originalCurrencyValue),
       },
     )
   ).id;
@@ -337,13 +350,15 @@ export async function updateExpense(
   const sourceId = expense.sourceId || defaultSourceId;
   const cat = await getCategoryById(tx, original.groupId, expense.categoryId);
   const source = await getSourceById(tx, original.groupId, sourceId);
+  await validateCurrencyId(tx, expense.currencyId);
   const division = determineDivision(expense, source);
   await deleteDivision(tx, original.groupId, original.id);
   await tx.none(
     `UPDATE expenses
       SET date=$/date/::DATE, receiver=$/receiver/, sum=$/sum/, title=$/title/, grouping_id=$/groupingId/,
         description=$/description/, type=$/type/::expense_type, confirmed=$/confirmed/::BOOLEAN,
-        source_id=$/sourceId/::INTEGER, category_id=$/categoryId/::INTEGER, user_id=$/userId/::INTEGER
+        source_id=$/sourceId/::INTEGER, category_id=$/categoryId/::INTEGER, user_id=$/userId/::INTEGER,
+        currency_id=$/currencyId/::INTEGER, original_currency_value=$/originalCurrencyValue/::NUMERIC
       WHERE id=$/id/ AND group_id=$/groupId/`,
     {
       ...expense,
@@ -353,6 +368,8 @@ export async function updateExpense(
       sum: expense.sum.toString(),
       sourceId: source.id,
       categoryId: cat.id,
+      currencyId: expense.currencyId ?? null,
+      originalCurrencyValue: toOptionalMoneyString(expense.originalCurrencyValue),
     },
   );
   await createDivision(tx, original.groupId, original.id, division);

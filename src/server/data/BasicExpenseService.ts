@@ -12,6 +12,7 @@ import {
   updateExpense,
 } from './BasicExpenseDb';
 import { getCategoryById } from './CategoryDb';
+import { validateCurrencyId } from './CurrencyDb';
 import { determineDivision } from './ExpenseDivision';
 import { getSourceById } from './SourceDb';
 import { getUserById } from './UserDb';
@@ -36,6 +37,7 @@ export function createExpense(
       const cat = await getCategoryById(tx, groupId, expense.categoryId);
       const user = await getUserById(tx, groupId, expense.userId);
       const source = await getSourceById(tx, groupId, sourceId);
+      await validateCurrencyId(tx, expense.currencyId);
 
       const division = determineDivision(expense, source);
       const id = await createNewExpense(

@@ -27,6 +27,16 @@ import { createRecurringExpenseApi } from './RecurringExpenseApi';
  * Creates expense API router.
  * Assumed attach path: `/api/expense`
  */
+/**
+ * The foreign currency annotation is all-or-nothing. Refining here rather than on
+ * `ExpenseInput` keeps that schema a plain ZodObject so it stays composable, and turns what
+ * the DB CHECK would report as a 500 into a clean 400.
+ */
+const ExpenseInputBody = ExpenseInput.refine(
+  e => (e.currencyId == null) === (e.originalCurrencyValue == null),
+  { message: 'currencyId and originalCurrencyValue must be set together' },
+);
+
 export function createExpenseApi() {
   const api = createValidatingRouter(Router());
 
@@ -52,7 +62,7 @@ export function createExpenseApi() {
   // Create new expense
   api.postTx(
     '/',
-    { body: ExpenseInput, response: ExpenseIdResponse, groupRequired: true },
+    { body: ExpenseInputBody, response: ExpenseIdResponse, groupRequired: true },
     (tx, session, { body }) =>
       createExpense(
         tx,
@@ -78,7 +88,7 @@ export function createExpenseApi() {
   // Update expense
   api.putTx(
     '/:expenseId',
-    { body: ExpenseInput, response: ExpenseIdResponse, groupRequired: true },
+    { body: ExpenseInputBody, response: ExpenseIdResponse, groupRequired: true },
     (tx, session, { params, body }) =>
       updateExpenseById(
         tx,

@@ -1,9 +1,9 @@
-import { ActionIcon, Box, BoxProps, Group, Select } from '@mantine/core';
+import { ActionIcon, Box, BoxProps, Button, Group, Menu, Select, Tooltip } from '@mantine/core';
 import * as React from 'react';
 
 import { ExpenseType, expenseTypes, getExpenseTypeLabel } from 'shared/expense';
-import { Source } from 'shared/types';
-import { evaluateMoneyExpression } from 'shared/util';
+import { Currency, Source } from 'shared/types';
+import { countryCodeToFlag, evaluateMoneyExpression } from 'shared/util';
 import { TextEdit, TextEditProps } from 'client/ui/component/TextEdit';
 import { ExpenseTypeIcon } from 'client/ui/icons/ExpenseType';
 import { classNames } from 'client/ui/utils/classNames';
@@ -26,8 +26,10 @@ export const SumField: React.FC<
     value: string;
     errorText?: string;
     onChange: (s: string) => void;
+    /** Only one field per dialog may claim the initial focus */
+    withAutoFocus?: boolean;
   } & TextEditProps
-> = ({ value, onChange, errorText, ...props }) => {
+> = ({ value, onChange, errorText, withAutoFocus = true, ...props }) => {
   // Local display value holds the raw expression while typing;
   // the parent receives the evaluated result via onChange on every keystroke.
   const [displayValue, setDisplayValue] = React.useState(value);
@@ -83,10 +85,112 @@ export const SumField: React.FC<
       onKeyDown={handleKeyDown}
       rightSection="€"
       type="text"
-      data-autofocus
       autoComplete="off"
+      {...(withAutoFocus ? { 'data-autofocus': true } : {})}
       {...props}
     />
+  );
+};
+
+/**
+ * The currency adornment inside the sum field. Clicking it picks the currency the expense
+ * was originally paid in, or returns the expense to plain EUR.
+ *
+ * The symbol stays `€` regardless of the selection: the field it adorns always holds the
+ * EUR sum. The chosen foreign currency labels its own field instead.
+ */
+export const CurrencySelector: React.FC<{
+  currencies: Currency[];
+  selected: Currency | undefined;
+  onSelect: (currency: Currency | null) => void;
+}> = ({ currencies, selected, onSelect }) => (
+  <Menu shadow="md" position="bottom-end">
+    <Menu.Target>
+      <ActionIcon type="button" aria-label="Valitse valuutta">
+        €
+      </ActionIcon>
+    </Menu.Target>
+    <Menu.Dropdown className={styles.currencyDropdown}>
+      <Menu.Item leftSection="🇪🇺" disabled={!selected} onClick={() => onSelect(null)}>
+        € EUR
+      </Menu.Item>
+      <Menu.Divider />
+      {currencies.map(c => (
+        <Menu.Item
+          key={c.id}
+          leftSection={countryCodeToFlag(c.countryCode)}
+          disabled={c.id === selected?.id}
+          onClick={() => onSelect(c)}
+        >
+          {c.symbol} {c.code}
+        </Menu.Item>
+      ))}
+    </Menu.Dropdown>
+  </Menu>
+);
+
+/**
+ * Shown only when the expense was paid in a foreign currency. Both amounts are editable by
+ * hand — the convert buttons are an aid for when you only know one of them, not a binding
+ * relationship. The EUR sum always remains the source of truth.
+ */
+export const OriginalCurrencyField: React.FC<
+  {
+    currency: Currency;
+    value: string;
+    errorText?: string;
+    canConvert: boolean;
+    onChange: (s: string) => void;
+    onConvertToEur: () => void;
+    onConvertToCurrency: () => void;
+  } & BoxProps
+> = ({
+  currency,
+  value,
+  errorText,
+  canConvert,
+  onChange,
+  onConvertToEur,
+  onConvertToCurrency,
+  ...boxProps
+}) => {
+  const disabledReason = canConvert ? undefined : 'Valuuttakursseja ei saatavilla';
+  return (
+    <Group wrap="nowrap" align="flex-start" gap="sm" {...boxProps}>
+      <SumField
+        label={`Summa (${currency.code})`}
+        name="originalCurrencyValue"
+        value={value}
+        errorText={errorText}
+        onChange={onChange}
+        rightSection={currency.symbol}
+        withAutoFocus={false}
+      />
+      <Group wrap="nowrap" gap="xs" mt={26}>
+        <Tooltip label={disabledReason ?? 'Muunna summa euroiksi'}>
+          <Button
+            type="button"
+            variant="light"
+            size="xs"
+            disabled={!canConvert}
+            onClick={onConvertToEur}
+          >
+            → €
+          </Button>
+        </Tooltip>
+        <Tooltip label={disabledReason ?? `Muunna summa valuuttaan ${currency.code}`}>
+          <Button
+            type="button"
+            variant="light"
+            size="xs"
+            disabled={!canConvert}
+            onClick={onConvertToCurrency}
+          >
+            → {currency.symbol}
+          </Button>
+        </Tooltip>
+      </Group>
+    </Group>
   );
 };
 

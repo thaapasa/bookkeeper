@@ -1,6 +1,7 @@
 export * from './Api';
 export * from './Category';
 export * from './Common';
+export * from './Currency';
 export * from './DbStatus';
 export * from './Email';
 export * from './Errors';

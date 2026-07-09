@@ -11,6 +11,7 @@ import { createValidatingRouter } from 'server/server/ValidatingRouter';
 import { config } from '../Config';
 import { getDbStatus } from '../data/admin/Admin';
 import { createCategoryApi } from './CategoryApi';
+import { createCurrencyApi } from './CurrencyApi';
 import { createExpenseApi } from './ExpenseApi';
 import { createGroupingApi } from './GroupingApi';
 import { createProfileApi } from './ProfileApi';
@@ -31,6 +32,7 @@ export function createApi() {
   api.use('/session', createSessionApi());
   api.use('/profile', createProfileApi());
   api.use('/category', createCategoryApi());
+  api.use('/currency', createCurrencyApi());
   api.use('/expense', createExpenseApi());
   api.use('/subscription', createSubscriptionApi());
   api.use('/statistics', createStatisticsApi());

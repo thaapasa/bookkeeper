@@ -2,3 +2,9 @@
   border-top: 1px solid var(--mantine-color-default-border);
   border-bottom: 1px solid var(--mantine-color-default-border);
 }
+
+/* The currency list is long enough to overflow the viewport, so it scrolls on its own */
+.currencyDropdown {
+  max-height: 320px;
+  overflow-y: auto;
+}

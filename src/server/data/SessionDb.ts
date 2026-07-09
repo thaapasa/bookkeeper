@@ -10,6 +10,7 @@ import { withSpan } from 'server/telemetry/Spans';
 
 import { config } from '../Config';
 import { getAllCategories } from './CategoryDb';
+import { getAllCurrencies } from './CurrencyDb';
 import { getAllGroupingRefs } from './grouping/GroupingDb';
 import { getShortcutsForUser } from './ShortcutDb';
 import { getAllSources } from './SourceDb';
@@ -103,7 +104,9 @@ export function appendInfoToSession(tx: DbTask, session: SessionBasicInfo): Prom
       const categories = await getAllCategories(tx, session.group.id);
       const users = await getAllUsers(tx, session.group.id);
       const groupings = await getAllGroupingRefs(tx, session.group.id);
-      return { ...session, groups, sources, categories, users, groupings };
+      // Currencies are installation-global, so they take no group id
+      const currencies = await getAllCurrencies(tx);
+      return { ...session, groups, sources, categories, users, groupings, currencies };
     },
   );
 }

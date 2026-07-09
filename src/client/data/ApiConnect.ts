@@ -32,6 +32,7 @@ import {
   CategorySelection,
   CategoryStatistics,
   CountResponse,
+  CurrencyRates,
   DbStatus,
   ExpenseGrouping,
   ExpenseGroupingData,
@@ -165,6 +166,11 @@ export class ApiConnect {
 
   public getSession(): Promise<Session> {
     return this.get<Session>('/api/session', { allowRefreshAndRetry: false });
+  }
+
+  /** Current ECB reference rates, as foreign currency units per 1 EUR */
+  public getCurrencyRates(): Promise<CurrencyRates> {
+    return this.get<CurrencyRates>('/api/currency/rates');
   }
 
   public refreshSession(token: string): Promise<Session> {

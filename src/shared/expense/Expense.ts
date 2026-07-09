@@ -66,12 +66,24 @@ export const BaseExpenseData = z.object({
 });
 export type BaseExpenseData = z.infer<typeof BaseExpenseData>;
 
+/**
+ * `sum` is always in EUR and is the single source of truth for all division and
+ * balance math. `currencyId` + `originalCurrencyValue` are an optional, purely
+ * informative annotation recording what the expense originally cost abroad; they
+ * are always set together or not at all (enforced by a DB CHECK, and by
+ * `ExpenseInputBody` in the API layer).
+ *
+ * Note: do not `.refine()` this schema — `Expense` merges it and `ExpenseInput`
+ * extends it, and neither operation exists on the ZodEffects `.refine()` returns.
+ */
 export const ExpenseData = BaseExpenseData.extend({
   description: z.string().or(z.null()),
   date: ISODate,
   sum: MoneyLike,
   division: ExpenseDivision.optional(),
   groupingId: ObjectId.optional(),
+  currencyId: ObjectId.nullable().optional(),
+  originalCurrencyValue: MoneyLike.nullable().optional(),
 });
 export type ExpenseData = z.infer<typeof ExpenseData>;
 
@@ -113,6 +125,10 @@ export interface ExpenseInEditor extends BaseExpenseData {
   benefit: number[];
   description: string;
   groupingId: number | null;
+  /** Null when the expense is in EUR; otherwise the foreign currency it was paid in */
+  currencyId: number | null;
+  /** The amount in `currencyId`; empty string when the expense is in EUR */
+  originalCurrencyValue: string;
 }
 
 export interface UserExpenseWithDetails extends UserExpense {

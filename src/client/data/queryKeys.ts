@@ -67,4 +67,7 @@ export const QueryKeys = {
     all: ['receivers'] as const,
     query: (search: string) => ['receivers', { query: search }] as const,
   },
+  currencies: {
+    rates: ['currencies', 'rates'] as const,
+  },
 } as const;

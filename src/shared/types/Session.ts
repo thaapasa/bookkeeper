@@ -2,6 +2,7 @@ import { ExpenseShortcut } from '../expense/Shortcut';
 import { ISOTimestamp } from '../time/Time';
 import { MoneyLike } from '../util/Money';
 import { DbObject } from './Common';
+import { Currency } from './Currency';
 import { ExpenseGroupingRef } from './Grouping';
 import { Source } from './Source';
 
@@ -59,4 +60,5 @@ export interface Session extends SessionBasicInfo {
   categories: Category[];
   users: User[];
   groupings: ExpenseGroupingRef[];
+  currencies: Currency[];
 }

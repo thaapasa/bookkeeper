@@ -119,6 +119,54 @@ describe('splitting expenses', () => {
       { title: 'Pilke2', sum: '85.00' },
     ]);
   });
+
+  it('should drop the foreign currency annotation from split parts', async () => {
+    const usd = session.currencies.find(c => c.code === 'USD')!;
+    const m = await newExpense(session, {
+      sum: '100.00',
+      date: '2017-01-16',
+      title: 'Matkakulut',
+      currencyId: usd.id,
+      originalCurrencyValue: '114.35',
+    });
+    const foreign = await fetchExpense(session, m.expenseId ?? 0);
+    expect(foreign).toMatchObject({ currencyId: usd.id, originalCurrencyValue: '114.35' });
+
+    const userId = session.user.id;
+    await expect(
+      splitExpense(session, foreign.id, [
+        {
+          ...SPLIT_DATA,
+          sum: '40.00',
+          title: 'Osa1',
+          division: [
+            { type: 'benefit', sum: '40.00', userId },
+            { type: 'cost', sum: '-40.00', userId },
+          ],
+        },
+        {
+          ...SPLIT_DATA,
+          sum: '60.00',
+          title: 'Osa2',
+          division: [
+            { type: 'benefit', sum: '60.00', userId },
+            { type: 'cost', sum: '-60.00', userId },
+          ],
+        },
+      ]),
+    ).resolves.toMatchObject({ status: 'OK' });
+
+    // Each part must be EUR-only. Inheriting the parent's annotation would leave both
+    // children claiming to have cost the full $114.35.
+    const parts = (await fetchMonthStatus(session, month)).expenses.filter(e =>
+      ['Osa1', 'Osa2'].includes(e.title),
+    );
+    expect(parts).toHaveLength(2);
+    for (const part of parts) {
+      expect(part.currencyId).toBeNull();
+      expect(part.originalCurrencyValue).toBeNull();
+    }
+  });
 });
 
 const SPLIT_DATA: ExpenseSplit = {

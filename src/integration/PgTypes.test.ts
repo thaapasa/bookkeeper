@@ -66,4 +66,17 @@ describe('pg type parsers', () => {
       expect(ISOTimestampRegExp.test(row.created as string)).toBe(true);
     }
   });
+
+  // There is no parser registered for NUMERIC (OID 1700), so pg's default applies and the
+  // value arrives as a MoneyLike string. Monetary columns rely on this: a float parser here
+  // would silently reintroduce floating-point money across the whole codebase.
+  it('should return NUMERIC columns as strings, not numbers', async () => {
+    await db.tx(async tx => {
+      await tx.none(`CREATE TEMP TABLE _test_numerics (v NUMERIC(10,2)) ON COMMIT DROP`);
+      await tx.none(`INSERT INTO _test_numerics (v) VALUES ($/v/)`, { v: '50.00' });
+      const row = await tx.one<{ v: unknown }>(`SELECT v FROM _test_numerics`);
+      expect(typeof row.v).toBe('string');
+      expect(row.v).toBe('50.00');
+    });
+  });
 });

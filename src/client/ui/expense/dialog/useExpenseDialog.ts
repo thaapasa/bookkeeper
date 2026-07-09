@@ -9,20 +9,30 @@ import {
   UserExpenseWithDetails,
 } from 'shared/expense';
 import { toISODate } from 'shared/time';
-import { Money, sanitizeMoneyInput } from 'shared/util';
+import { Currency } from 'shared/types';
+import { eurToForeign, foreignToEur, Money, sanitizeMoneyInput } from 'shared/util';
 import { logger } from 'client/Logger';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
 import type { FullExpenseDialogProps } from './ExpenseDialog';
 import { calculateDivision } from './ExpenseDialogData';
 import { defaultExpenseSaveAction } from './ExpenseSaveAction';
+import { useCurrencyRates } from './useCurrencyRates';
 
 const parsers: Record<string, (v: string) => string> = {
   sum: sanitizeMoneyInput,
+  originalCurrencyValue: sanitizeMoneyInput,
 };
 
 function errorIf(condition: boolean, error: string): string | undefined {
   return condition ? error : undefined;
+}
+
+function validateSum(v: string): string | undefined {
+  return (
+    errorIf(v.length === 0, 'Summa puuttuu') ||
+    errorIf(v.match(/^[0-9]+([.][0-9]{1,2})?$/) == null, 'Summa on virheellinen')
+  );
 }
 
 const validators: Record<string, (v: string) => string | undefined> = {
@@ -30,9 +40,7 @@ const validators: Record<string, (v: string) => string | undefined> = {
   sourceId: v => errorIf(!v, 'Lähde puuttuu'),
   categoryId: v => errorIf(!v, 'Kategoria puuttuu'),
   receiver: v => errorIf(v.length < 1, 'Kohde puuttuu'),
-  sum: v =>
-    errorIf(v.length === 0, 'Summa puuttuu') ||
-    errorIf(v.match(/^[0-9]+([.][0-9]{1,2})?$/) == null, 'Summa on virheellinen'),
+  sum: validateSum,
   benefit: v => errorIf(v.length < 1, 'Jonkun pitää hyötyä'),
   userId: v => errorIf(!v, 'Omistaja puuttuu'),
 };
@@ -83,6 +91,10 @@ function getDefaultState(
     confirmed: values.confirmed !== undefined ? values.confirmed : e ? e.confirmed : true,
     type: values.type || (e ? e.type : 'expense'),
     groupingId: e?.groupingId ?? null,
+    currencyId: values.currencyId ?? e?.currencyId ?? null,
+    originalCurrencyValue:
+      values.originalCurrencyValue ??
+      (e?.originalCurrencyValue != null ? Money.from(e.originalCurrencyValue).toString() : ''),
   };
 }
 
@@ -103,6 +115,7 @@ export function useExpenseDialog(props: FullExpenseDialogProps<ExpenseInEditor>)
   );
   const [saveLocked, setSaveLocked] = React.useState(false);
   const [showOwnerSelect, setShowOwnerSelect] = React.useState(false);
+  const { rateFor } = useCurrencyRates();
 
   // Compute validation errors
   const errors = React.useMemo(() => {
@@ -110,6 +123,11 @@ export function useExpenseDialog(props: FullExpenseDialogProps<ExpenseInEditor>)
     for (const key of Object.keys(validators)) {
       result[key] = validateField(key, fields[key as keyof ExpenseInEditor]);
     }
+    // The foreign amount is required exactly when a foreign currency is selected
+    result.originalCurrencyValue =
+      fields.currencyId != null
+        ? validateSum(sanitizeMoneyInput(fields.originalCurrencyValue))
+        : undefined;
     return result;
   }, [fields]);
 
@@ -178,6 +196,9 @@ export function useExpenseDialog(props: FullExpenseDialogProps<ExpenseInEditor>)
         sum: expense.sum,
         division: divisionData,
         groupingId: expense.groupingId ?? undefined,
+        // Always sent as a pair: both null for a plain EUR expense
+        currencyId: expense.currencyId,
+        originalCurrencyValue: expense.currencyId != null ? expense.originalCurrencyValue : null,
       };
 
       await executeOperation(() => (props.saveAction ?? defaultExpenseSaveAction)(data, original), {
@@ -213,6 +234,38 @@ export function useExpenseDialog(props: FullExpenseDialogProps<ExpenseInEditor>)
 
   const setUserId = React.useCallback((userId: number) => setFields(f => ({ ...f, userId })), []);
 
+  const currency = props.currencies.find(c => c.id === fields.currencyId);
+  const rate = rateFor(currency?.code);
+
+  /** Passing null returns the expense to plain EUR, discarding the foreign amount */
+  const selectCurrency = React.useCallback(
+    (selected: Currency | null) =>
+      setFields(f => ({
+        ...f,
+        currencyId: selected?.id ?? null,
+        originalCurrencyValue: selected ? f.originalCurrencyValue : '',
+      })),
+    [],
+  );
+
+  const convertToEur = React.useCallback(() => {
+    if (!rate) return;
+    setFields(f => {
+      const converted = Money.parse(sanitizeMoneyInput(f.originalCurrencyValue));
+      return converted ? { ...f, sum: foreignToEur(converted, rate).toString() } : f;
+    });
+  }, [rate]);
+
+  const convertToCurrency = React.useCallback(() => {
+    if (!rate) return;
+    setFields(f => {
+      const converted = Money.parse(sanitizeMoneyInput(f.sum));
+      return converted
+        ? { ...f, originalCurrencyValue: eurToForeign(converted, rate).toString() }
+        : f;
+    });
+  }, [rate]);
+
   const state: ExpenseDialogState = {
     ...fields,
     errors,
@@ -230,6 +283,11 @@ export function useExpenseDialog(props: FullExpenseDialogProps<ExpenseInEditor>)
     selectCategory,
     closeEditors,
     setUserId,
+    currency,
+    canConvert: rate !== undefined,
+    selectCurrency,
+    convertToEur,
+    convertToCurrency,
     sourceTitle: SourceTitles[fields.type] ?? 'Lähde',
     receiverTitle: ReceiverTitles[fields.type] ?? 'Kohde',
   };

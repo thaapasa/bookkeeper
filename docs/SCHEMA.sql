@@ -113,6 +113,39 @@ ALTER SEQUENCE public.categories_id_seq OWNED BY public.categories.id;
 
 
 --
+-- Name: currencies; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.currencies (
+    id integer NOT NULL,
+    code text NOT NULL,
+    symbol text NOT NULL,
+    name text NOT NULL,
+    country_code text
+);
+
+
+--
+-- Name: currencies_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.currencies_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: currencies_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.currencies_id_seq OWNED BY public.currencies.id;
+
+
+--
 -- Name: expense_division; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -217,7 +250,10 @@ CREATE TABLE public.expenses (
     confirmed boolean DEFAULT true NOT NULL,
     type public.expense_type DEFAULT 'expense'::public.expense_type NOT NULL,
     subscription_id integer,
-    grouping_id integer
+    grouping_id integer,
+    currency_id integer,
+    original_currency_value numeric(10,2),
+    CONSTRAINT expenses_currency_pair_chk CHECK (((currency_id IS NULL) = (original_currency_value IS NULL)))
 );
 
 
@@ -552,6 +588,13 @@ ALTER TABLE ONLY public.categories ALTER COLUMN id SET DEFAULT nextval('public.c
 
 
 --
+-- Name: currencies id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.currencies ALTER COLUMN id SET DEFAULT nextval('public.currencies_id_seq'::regclass);
+
+
+--
 -- Name: expense_grouping_categories id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -634,6 +677,22 @@ ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_
 
 ALTER TABLE ONLY public.categories
     ADD CONSTRAINT categories_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: currencies currencies_code_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.currencies
+    ADD CONSTRAINT currencies_code_key UNIQUE (code);
+
+
+--
+-- Name: currencies currencies_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.currencies
+    ADD CONSTRAINT currencies_pkey PRIMARY KEY (id);
 
 
 --
@@ -918,6 +977,14 @@ ALTER TABLE ONLY public.expenses
 
 ALTER TABLE ONLY public.expenses
     ADD CONSTRAINT expenses_created_by_id_fkey FOREIGN KEY (created_by_id) REFERENCES public.users(id);
+
+
+--
+-- Name: expenses expenses_currency_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.expenses
+    ADD CONSTRAINT expenses_currency_id_fkey FOREIGN KEY (currency_id) REFERENCES public.currencies(id);
 
 
 --

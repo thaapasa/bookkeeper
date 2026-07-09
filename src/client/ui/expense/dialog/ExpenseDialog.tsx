@@ -14,8 +14,10 @@ import { stopEventPropagation } from 'client/util/ClientUtil';
 import { DivisionInfo } from '../details/DivisionInfo';
 import { DateField } from './DateField';
 import {
+  CurrencySelector,
   DescriptionField,
   ExpenseDialogContent,
+  OriginalCurrencyField,
   SourceSelector,
   SumField,
   TypeSelector,
@@ -55,6 +57,11 @@ export const ExpenseDialog: React.FC<ExpenseDialogProps<ExpenseInEditor>> = oute
     selectCategory,
     closeEditors,
     setUserId,
+    currency,
+    canConvert,
+    selectCurrency,
+    convertToEur,
+    convertToCurrency,
     sourceTitle,
     receiverTitle,
   } = useExpenseDialog(props);
@@ -108,6 +115,14 @@ export const ExpenseDialog: React.FC<ExpenseDialogProps<ExpenseInEditor>> = oute
               value={state.sum}
               errorText={state.errors.sum}
               onChange={v => setField('sum', v)}
+              rightSectionPointerEvents="all"
+              rightSection={
+                <CurrencySelector
+                  currencies={props.currencies}
+                  selected={currency}
+                  onSelect={selectCurrency}
+                />
+              }
             />
             {props.isMobile ? (
               <Stack ml="auto" align="flex-start" gap="xs">
@@ -119,6 +134,19 @@ export const ExpenseDialog: React.FC<ExpenseDialogProps<ExpenseInEditor>> = oute
               </Group>
             )}
           </Group>
+
+          {/* Original amount, only when paid in a foreign currency */}
+          {currency ? (
+            <OriginalCurrencyField
+              currency={currency}
+              value={state.originalCurrencyValue}
+              errorText={state.errors.originalCurrencyValue}
+              canConvert={canConvert}
+              onChange={v => setField('originalCurrencyValue', v)}
+              onConvertToEur={convertToEur}
+              onConvertToCurrency={convertToCurrency}
+            />
+          ) : null}
 
           {/* Title */}
           <Group h={inputAreaHeight} align="flex-start">
