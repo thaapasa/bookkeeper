@@ -1,6 +1,13 @@
 name: Test Bookkeper
 
-on: [workflow_dispatch, push]
+on:
+  workflow_dispatch:
+  push:
+    # The release workflow builds its own branch commit, then merges it to
+    # master — where this workflow picks it up. Skip the branch itself to
+    # avoid running the suite twice on the same tree.
+    branches-ignore:
+      - 'release/**'
 
 jobs:
   build:
