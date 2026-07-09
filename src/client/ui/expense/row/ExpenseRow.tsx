@@ -1,9 +1,9 @@
-import { Group, Table, Text, Tooltip } from '@mantine/core';
+import { Group, Stack, Table, Text, Tooltip } from '@mantine/core';
 import * as React from 'react';
 
 import { ExpenseDivisionItem, UserExpense, UserExpenseWithDetails } from 'shared/expense';
 import { readableDate, toDateTime } from 'shared/time';
-import { Category, isDefined } from 'shared/types';
+import { Category, Currency, isDefined } from 'shared/types';
 import { equal, Money, notEqual } from 'shared/util';
 import { apiConnect } from 'client/data/ApiConnect';
 import { getFullCategoryName, UserDataProps } from 'client/data/Categories';
@@ -55,7 +55,7 @@ export interface CommonExpenseRowProps {
 
 export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataProps }> = props => {
   const { expense, prev, userData, addFilter, onUpdated, editable = true } = props;
-  const { categoryMap, userMap, sourceMap, groupingMap } = userData;
+  const { categoryMap, userMap, sourceMap, groupingMap, currencyMap } = userData;
   const user = userMap[expense.userId];
   const source = sourceMap[expense.sourceId];
   const fullCategoryName = getFullCategoryName(expense.categoryId, categoryMap);
@@ -138,6 +138,7 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
 
   const parity = dayParities[expense.id] ?? 0;
   const sumStyle = sumStyleForType(expense.type);
+  const currency = expense.currencyId ? currencyMap[expense.currencyId] : undefined;
 
   const grouping = groupingMap[expense?.groupingId ?? 0];
   const autoGroupings = (expense?.autoGroupingIds ?? []).map(g => groupingMap[g]).filter(isDefined);
@@ -206,8 +207,7 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
         </Table.Td>
         {/* Sum */}
         <Table.Td ta="right" pos="relative" c={sumStyle.c} fw={sumStyle.fw} fs={sumStyle.fs}>
-          {sumStyle.prefix}
-          {Money.from(expense.sum).format()}
+          <SumCell expense={expense} prefix={sumStyle.prefix} currency={currency} />
         </Table.Td>
         {/* Source */}
         <Table.Td className={SourceVisibleFrom}>
@@ -270,6 +270,41 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
         />
       ) : null}
     </>
+  );
+};
+
+/**
+ * The sum column normally holds a single EUR value. When the expense also records what it
+ * cost in a foreign currency, the original amount is stacked above the EUR sum, tightly
+ * enough that the pair still reads as one row.
+ *
+ * The EUR sum consequently sits a little below the baseline of the single-line sums in the
+ * rows around it. That is a deliberate trade: lifting only the original out of the cell's
+ * padding preserved the baseline, but left too little room to render the foreign amount
+ * legibly.
+ *
+ * Dimmed rather than recolored, so income and transfer rows keep their type color.
+ */
+const SumCell: React.FC<{
+  expense: UserExpense;
+  prefix: string;
+  currency?: Currency;
+}> = ({ expense, prefix, currency }) => {
+  const eurSum = `${prefix}${Money.from(expense.sum).format()}`;
+  if (!currency || expense.originalCurrencyValue == null) {
+    return <>{eurSum}</>;
+  }
+  const originalSum = Money.from(expense.originalCurrencyValue).format(2, {
+    currency: currency.code,
+  });
+  return (
+    <Stack gap={0}>
+      <Text span size="xs" opacity={0.6} lh={1.2}>
+        {prefix}
+        {originalSum}
+      </Text>
+      {eurSum}
+    </Stack>
   );
 };
 

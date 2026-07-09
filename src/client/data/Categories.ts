@@ -1,4 +1,4 @@
-import { Category, CategoryMap, ExpenseGroupingMap, Source, User } from 'shared/types';
+import { Category, CategoryMap, Currency, ExpenseGroupingMap, Source, User } from 'shared/types';
 import { unnest } from 'shared/util';
 
 export interface CategoryDataSource {
@@ -58,4 +58,5 @@ export interface UserDataProps {
   userMap: Record<string, User>;
   categoryMap: CategoryMap;
   groupingMap: ExpenseGroupingMap;
+  currencyMap: Record<string, Currency>;
 }

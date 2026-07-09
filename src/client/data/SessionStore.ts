@@ -73,6 +73,7 @@ export const useSessionStore = create<SessionState>(set => ({
 
     const userMap = toMap(session.users, 'id');
     const sourceMap = toMap(session.sources, 'id');
+    const currencyMap = toMap(session.currencies, 'id');
     const categoryMap = toCategoryMap(session.categories);
     const categoryDataSource = catToDataSource(session.categories, categoryMap);
     const expenseGroupingMap: ExpenseGroupingMap = Object.fromEntries(
@@ -83,6 +84,7 @@ export const useSessionStore = create<SessionState>(set => ({
       sourceMap,
       categoryMap,
       groupingMap: expenseGroupingMap,
+      currencyMap,
     };
     const expenseDialogData: ExpenseDialogData = {
       sources: session.sources,
