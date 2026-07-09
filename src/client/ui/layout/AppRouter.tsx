@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Route, Routes } from 'react-router';
+import { Navigate, Route, Routes } from 'react-router';
 
 import {
   categoryPagePath,
@@ -61,8 +61,8 @@ export function AppRouter() {
       <Route path={groupingsPagePath} element={qb(<GroupingPage />)} />
       <Route path={`${groupingsPagePath}/:groupingId`} element={qb(<GroupingExpensesPage />)} />
       <Route path={toolsPagePath} element={<ToolsView />} />
-      <Route path={'/p/*'} element={<RoutedMonthlyExpensesPage />} />
-      <Route path="/" element={<RoutedMonthlyExpensesPage />} />
+      <Route path="/p/*" element={qb(<RoutedMonthlyExpensesPage />)} />
+      <Route path="/" element={<Navigate to={expensePagePath} replace />} />
       <Route path="/*" element={<PathNotFoundError />} />
     </Routes>
   );
