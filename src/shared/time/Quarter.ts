@@ -16,7 +16,7 @@ export const Quarter = z.custom<`${number}-Q${number}`>(
 export type Quarter = z.infer<typeof Quarter>;
 
 export function toQuarter(m: DateTime | ISODate | ISOMonth): Quarter {
-  const asStr = DateTime.isDateTime(m) ? m.toFormat('yyyy-MM') : m;
+  const asStr = typeof m === 'string' ? m : m.toFormat('yyyy-MM');
   const year = Number(asStr.substring(0, 4));
   // Luxon months are 1-based, so subtract 1 for zero-based calculation
   const month = Number(asStr.substring(5, 7)) - 1;

@@ -1,5 +1,5 @@
 import path, { extname } from 'path';
-import sharp from 'sharp';
+import sharp, { FitEnum } from 'sharp';
 
 import { assertDefined, typedKeys } from 'shared/util';
 import { logger } from 'server/Logger';
@@ -44,7 +44,7 @@ type StringKey<V> = keyof V & string;
 interface SaveImageOptions {
   trim?: boolean;
   margin?: number;
-  fit?: keyof sharp.FitEnum;
+  fit?: keyof FitEnum;
 }
 
 export class ImageManager<V extends Record<string, ImageSpecData>> {

@@ -30,12 +30,17 @@ export function useExpenseSplit(
   onClose: ExpenseDialogProps<any>['onClose'],
   onExpensesUpdated: ExpenseDialogProps<any>['onExpensesUpdated'],
 ) {
-  const [splits, setSplits] = React.useState<ExpenseSplitInEditor[]>([]);
+  const [splits, setSplits] = React.useState<ExpenseSplitInEditor[]>(() =>
+    initialSplit(original, sourceMap),
+  );
   const [saveLocked, setSaveLocked] = React.useState(false);
 
-  React.useEffect(() => {
+  // Start over from the original expense whenever the edited expense changes
+  const [splitSource, setSplitSource] = React.useState({ original, sourceMap });
+  if (splitSource.original !== original || splitSource.sourceMap !== sourceMap) {
+    setSplitSource({ original, sourceMap });
     setSplits(initialSplit(original, sourceMap));
-  }, [original, sourceMap]);
+  }
 
   const addRow = React.useCallback(() => {
     setSplits([...splits, emptySplit(original, sourceMap)]);

@@ -15,7 +15,7 @@ export const Season = z.string().regex(SeasonRegExp);
 export type Season = z.infer<typeof Season>;
 
 export function toSeason(m: DateTime | ISODate | ISOMonth): Season {
-  const asStr = DateTime.isDateTime(m) ? m.toFormat('yyyy-MM') : m;
+  const asStr = typeof m === 'string' ? m : m.toFormat('yyyy-MM');
   const year = Number(asStr.substring(0, 4));
   // Luxon months are 1-based
   const month = Number(asStr.substring(5, 7));

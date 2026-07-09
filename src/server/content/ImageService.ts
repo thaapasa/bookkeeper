@@ -1,4 +1,4 @@
-import sharp from 'sharp';
+import { Sharp } from 'sharp';
 
 import { logger } from 'server/Logger';
 
@@ -8,7 +8,7 @@ export interface FileWriteResult {
 }
 
 export async function writeImageToFile(
-  image: sharp.Sharp,
+  image: Sharp,
   filepath: string,
   title: string,
 ): Promise<FileWriteResult> {

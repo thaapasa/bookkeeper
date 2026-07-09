@@ -126,47 +126,38 @@ export function useExpenseDialog(props: FullExpenseDialogProps<ExpenseInEditor>)
   }, [valid, fields.type, fields.sum, fields.benefit, fields.sourceId, sourceMap]);
 
   // Auto-update benefit when sourceId changes
-  const prevSourceIdRef = React.useRef(fields.sourceId);
-  React.useEffect(() => {
-    if (fields.sourceId === prevSourceIdRef.current) return;
-    prevSourceIdRef.current = fields.sourceId;
+  const [prevSourceId, setPrevSourceId] = React.useState(fields.sourceId);
+  if (fields.sourceId !== prevSourceId) {
+    setPrevSourceId(fields.sourceId);
     const source = sourceMap[fields.sourceId];
     if (source) {
       setFields(f => ({ ...f, benefit: source.users.map(u => u.userId) }));
     }
-  }, [fields.sourceId, sourceMap]);
+  }
 
-  // Reset state when expense counter changes (new dialog opened)
-  const counterRef = React.useRef(expenseCounter);
-  React.useEffect(() => {
-    if (counterRef.current !== expenseCounter) {
-      counterRef.current = expenseCounter;
-      const newState = getDefaultState(props, original, values);
-      logger.info(newState, 'Start editing');
-      setFields(newState);
-      prevSourceIdRef.current = newState.sourceId;
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [expenseCounter]);
+  // Reset state when expense counter changes (new dialog opened). The source id is
+  // synced along with it so that the reset does not look like a user source change.
+  const [prevCounter, setPrevCounter] = React.useState(expenseCounter);
+  if (prevCounter !== expenseCounter) {
+    setPrevCounter(expenseCounter);
+    const newState = getDefaultState(props, original, values);
+    logger.info(newState, 'Start editing');
+    setFields(newState);
+    setPrevSourceId(newState.sourceId);
+  }
 
   const setField = React.useCallback((field: string, value: unknown) => {
     const parsed = parsers[field] ? parsers[field](String(value)) : value;
     setFields(f => ({ ...f, [field]: parsed }));
   }, []);
 
-  // Save handler - uses refs to always read the latest state
-  const fieldsRef = React.useRef(fields);
-  fieldsRef.current = fields;
-  const validRef = React.useRef(valid);
-  validRef.current = valid;
-
   const requestSave = React.useCallback(
     async (event: React.SyntheticEvent) => {
       event.preventDefault();
       event.stopPropagation();
-      if (!validRef.current || saveLocked) return;
+      if (!valid || saveLocked) return;
 
-      const expense = fieldsRef.current;
+      const expense = fields;
       const sum = Money.from(expense.sum);
       const divisionData = calculateDivision(
         expense.type,
@@ -201,7 +192,7 @@ export function useExpenseDialog(props: FullExpenseDialogProps<ExpenseInEditor>)
         },
       });
     },
-    [saveLocked, sourceMap, props.saveAction, original, onClose, onExpensesUpdated],
+    [fields, valid, saveLocked, sourceMap, props.saveAction, original, onClose, onExpensesUpdated],
   );
 
   const dismiss = React.useCallback(() => onClose(null), [onClose]);

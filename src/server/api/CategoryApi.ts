@@ -57,11 +57,8 @@ export function createCategoryApi() {
 
   // GET /api/category/categoryId
   // Get category data
-  api.getTx(
-    '/:categoryId',
-    { groupRequired: true },
-    (tx, session, { params }): Promise<Category> =>
-      getCategoryById(tx, session.group.id, params.categoryId),
+  api.getTx('/:categoryId', { groupRequired: true }, (tx, session, { params }): Promise<Category> =>
+    getCategoryById(tx, session.group.id, params.categoryId),
   );
 
   // DELETE /api/category/categoryId

@@ -38,7 +38,13 @@ export const ActivatableTextField: React.FC<ActivatableTextFieldProps<any>> = <
 }: ActivatableTextFieldProps<E>) => {
   const [edit, setEdit] = React.useState(false);
   const [value, setValue] = React.useState(valueFromProps);
-  React.useEffect(() => setValue(valueFromProps), [setValue, valueFromProps]);
+
+  // Reset the edited value whenever the prop changes underneath us
+  const [syncedValue, setSyncedValue] = React.useState(valueFromProps);
+  if (syncedValue !== valueFromProps) {
+    setSyncedValue(valueFromProps);
+    setValue(valueFromProps);
+  }
 
   const commit = (value: string) => {
     logger.info('Committing %s', value);

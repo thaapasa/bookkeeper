@@ -25,24 +25,38 @@ export const CategoryDialog: React.FC<CategoryDialogProps> = ({
   onSaved,
   editingCategory,
   parentCategory,
+}) => (
+  <Modal
+    opened={opened}
+    onClose={onClose}
+    title={editingCategory ? 'Muokkaa kategoriaa' : 'Uusi kategoria'}
+    size="lg"
+  >
+    {/* The form is remounted (and thus reset) whenever the edited category changes.
+        Mantine unmounts modal contents while closed, so opening also starts fresh. */}
+    <CategoryForm
+      key={editingCategory ? `edit-${editingCategory.id}` : `new-${parentCategory?.id ?? 0}`}
+      onClose={onClose}
+      onSaved={onSaved}
+      editingCategory={editingCategory}
+      parentCategory={parentCategory}
+    />
+  </Modal>
+);
+
+const CategoryForm: React.FC<Omit<CategoryDialogProps, 'opened'>> = ({
+  onClose,
+  onSaved,
+  editingCategory,
+  parentCategory,
 }) => {
-  const [name, setName] = React.useState('');
-  const [parentId, setParentId] = React.useState(0);
+  const [name, setName] = React.useState(editingCategory?.name ?? '');
+  const [parentId, setParentId] = React.useState(
+    editingCategory ? (editingCategory.parentId ?? 0) : (parentCategory?.id ?? 0),
+  );
 
   const isNew = !editingCategory;
   const valid = name.length > 0;
-
-  React.useEffect(() => {
-    if (opened) {
-      if (editingCategory) {
-        setName(editingCategory.name);
-        setParentId(editingCategory.parentId ?? 0);
-      } else {
-        setName('');
-        setParentId(parentCategory?.id ?? 0);
-      }
-    }
-  }, [opened, editingCategory, parentCategory]);
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,12 +82,7 @@ export const CategoryDialog: React.FC<CategoryDialogProps> = ({
   };
 
   return (
-    <Modal
-      opened={opened}
-      onClose={onClose}
-      title={isNew ? 'Uusi kategoria' : 'Muokkaa kategoriaa'}
-      size="lg"
-    >
+    <>
       <Box component="form" pos="relative" style={{ zIndex: 1 }} onSubmit={save}>
         <TextEdit label="Nimi" placeholder="Nimi" value={name} onChange={setName} />
         <CategorySelector
@@ -93,6 +102,6 @@ export const CategoryDialog: React.FC<CategoryDialogProps> = ({
           Tallenna
         </Button>
       </Group>
-    </Modal>
+    </>
   );
 };

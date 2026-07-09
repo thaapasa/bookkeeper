@@ -13,8 +13,7 @@ import { OptionSelectDialogContents } from './OptionSelectDialogContents';
 import { TextPromptDialogContents } from './TextPromptDialogContents';
 
 export type TextEditorComponent =
-  | React.ComponentType<TextEditProps>
-  | React.ComponentType<ReceiverFieldProps>;
+  React.ComponentType<TextEditProps> | React.ComponentType<ReceiverFieldProps>;
 
 interface DialogStoreState {
   config: DialogConfig<any, any> | null;

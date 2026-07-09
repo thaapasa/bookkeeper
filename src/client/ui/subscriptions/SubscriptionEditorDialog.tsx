@@ -72,16 +72,25 @@ const TRI_STATE_OPTIONS = [
 
 const TYPE_OPTIONS = expenseTypes.map(t => ({ value: t, label: getExpenseTypeLabel(t) }));
 
-export const SubscriptionEditorDialog: React.FC<Props> = ({ item, opened, onClose }) => {
+export const SubscriptionEditorDialog: React.FC<Props> = ({ item, opened, onClose }) => (
+  <Modal
+    opened={opened}
+    onClose={onClose}
+    title={item ? 'Muokkaa tilausta' : 'Uusi tilastotilaus'}
+    size="lg"
+  >
+    {/* The form is remounted (and thus reset) whenever the edited subscription changes.
+        Mantine unmounts modal contents while closed, so opening also starts fresh. */}
+    <SubscriptionEditorForm key={item?.rowId ?? 'new'} item={item} onClose={onClose} />
+  </Modal>
+);
+
+const SubscriptionEditorForm: React.FC<Omit<Props, 'opened'>> = ({ item, onClose }) => {
   const session = useValidSession();
   const isCreate = !item;
   const hasRecurrence = !!item?.recurrence;
 
   const [state, setState] = React.useState<FormState>(() => initialState(item));
-
-  React.useEffect(() => {
-    if (opened) setState(initialState(item));
-  }, [opened, item]);
 
   const setTitle = (title: string) => setState(s => ({ ...s, title }));
   const updateFilter = (patch: Partial<ExpenseQuery>) =>
@@ -123,12 +132,7 @@ export const SubscriptionEditorDialog: React.FC<Props> = ({ item, opened, onClos
   };
 
   return (
-    <Modal
-      opened={opened}
-      onClose={onClose}
-      title={isCreate ? 'Uusi tilastotilaus' : 'Muokkaa tilausta'}
-      size="lg"
-    >
+    <>
       <Tabs defaultValue="general" keepMounted={false}>
         <Tabs.List>
           <Tabs.Tab value="general">Yleiset</Tabs.Tab>
@@ -190,7 +194,7 @@ export const SubscriptionEditorDialog: React.FC<Props> = ({ item, opened, onClos
           Tallenna
         </Button>
       </Group>
-    </Modal>
+    </>
   );
 };
 

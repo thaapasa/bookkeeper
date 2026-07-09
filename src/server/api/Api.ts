@@ -42,38 +42,30 @@ export function createApi() {
   // GET /api/status
   api.get(
     '/status',
-    Requests.unauthorizedRequest(
-      async (): Promise<ApiStatus> => ({
-        status: 'OK',
-        timestamp: toISOTimestamp(),
-        version: config.version,
-        runtimeVersion: config.bunVersion,
-        revision: config.revision,
-        commitId: config.commitId,
-        environment: config.environment,
-      }),
-    ),
+    Requests.unauthorizedRequest(async (): Promise<ApiStatus> => ({
+      status: 'OK',
+      timestamp: toISOTimestamp(),
+      version: config.version,
+      runtimeVersion: config.bunVersion,
+      revision: config.revision,
+      commitId: config.commitId,
+      environment: config.environment,
+    })),
   );
 
   // GET /api/user/list
-  vApi.getTx(
-    '/user/list',
-    { groupRequired: true },
-    (tx, session): Promise<User[]> => getAllUsers(tx, session.group.id),
+  vApi.getTx('/user/list', { groupRequired: true }, (tx, session): Promise<User[]> =>
+    getAllUsers(tx, session.group.id),
   );
 
   // GET /api/user/[userid]
-  vApi.getTx(
-    '/user/:id',
-    { groupRequired: true },
-    (tx, session, { params }): Promise<User> => getUserById(tx, session.group.id, params.id),
+  vApi.getTx('/user/:id', { groupRequired: true }, (tx, session, { params }): Promise<User> =>
+    getUserById(tx, session.group.id, params.id),
   );
 
   // GET /api/admin/status
-  vApi.getTx(
-    '/admin/status',
-    { groupRequired: true },
-    (tx, session): Promise<DbStatus> => getDbStatus(tx, session.group.id),
+  vApi.getTx('/admin/status', { groupRequired: true }, (tx, session): Promise<DbStatus> =>
+    getDbStatus(tx, session.group.id),
   );
 
   // Return 404 for non-matched /api paths

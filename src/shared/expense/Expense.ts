@@ -85,7 +85,7 @@ export type Expense = z.infer<typeof Expense>;
 
 export const ExpenseInput = ExpenseData.extend({
   confirmed: z.boolean().optional(),
-  description: z.union([z.string(), z.null(), z.undefined()]),
+  description: z.string().nullable().optional(),
 });
 export type ExpenseInput = z.infer<typeof ExpenseInput>;
 
