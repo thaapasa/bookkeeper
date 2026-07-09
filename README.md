@@ -138,17 +138,33 @@ you want to host your own instance, the easiest path is: pull the image, point i
 at a Postgres database, and bind-mount two directories for uploads and generated
 content.
 
-### Building and publishing the image
+### Cutting a release
 
-The `Release Docker image` workflow (`.github/workflows/release.yml`) is
-`workflow_dispatch`-only. It reads the version from `package.json`, builds a
-`linux/arm64` image, and pushes it to GHCR under two tags:
+The `Release` workflow (`.github/workflows/release.yml`) is
+`workflow_dispatch`-only and owns the version bump — don't bump
+`package.json` by hand. Dispatch it with a `bump` level (`patch`, `minor`, or
+`major`) and optional markdown `notes` for the release highlights. It then runs
+three jobs:
 
-- `ghcr.io/<owner>/<repo>:<version>` (e.g. `0.9.2`)
-- `ghcr.io/<owner>/<repo>:latest`
+1. **prepare** — reads the current version from `package.json`, computes the
+   bumped version, and commits it on a `release/v<version>` branch. Fails up
+   front if the tag already exists on origin.
+2. **build** — checks out that exact commit, builds a `linux/arm64` image, and
+   pushes it to GHCR under two tags:
+   - `ghcr.io/<owner>/<repo>:<version>` (e.g. `0.9.13`)
+   - `ghcr.io/<owner>/<repo>:latest`
+3. **release** — merges the release branch into `master`, tags the built
+   commit `v<version>`, publishes a GitHub Release whose notes are the
+   highlights plus the commit log since the previous tag, and deletes the
+   release branch.
 
-The workflow refuses to re-publish an existing version tag, so bump
-`package.json` before cutting a release.
+The tag points at the commit that was built, not at the merge commit — on a
+`--no-ff` merge (i.e. `master` moved while the release was in flight) the merge
+commit's tree contains changes the published image does not have.
+
+To re-run a failed release, delete the `v<version>` tag and its GitHub Release
+first. The image tag will simply be republished; the version can't collide,
+since each dispatch bumps from whatever is on `master`.
 
 If you're forking, either change `platforms:` in `release.yml` to match your
 host (e.g. `linux/amd64`) or build locally with `docker buildx build --platform
@@ -192,9 +208,9 @@ Notes:
 
 ### Updating
 
-To deploy a new version, bump `package.json`, run the release workflow, then on
-the host run `docker compose pull && docker compose up -d`. Migrations run on
-the new container's startup.
+To deploy a new version, run the release workflow (which bumps the version for
+you), then on the host run `docker compose pull && docker compose up -d`.
+Migrations run on the new container's startup.
 
 ### Current production deployment
 
