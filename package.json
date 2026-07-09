@@ -26,6 +26,7 @@
     "start-server": "./script/start-server.sh",
     "migrate": "knex migrate:latest",
     "migrate-make": "knex migrate:make",
+    "drop-db": "psql -v ON_ERROR_STOP=1 $(grep '^DB_URL=' .env | cut -d= -f2-) -c 'DROP SCHEMA public CASCADE; CREATE SCHEMA public;'",
     "dump-schema": "pg_dump --schema-only --no-owner --no-privileges --no-comments $(grep '^DB_URL=' .env | cut -d= -f2-) | grep -v '^\\\\restrict\\|^\\\\unrestrict' > docs/SCHEMA.sql",
     "rollback": "knex migrate:rollback",
     "seed": "knex seed:run",
