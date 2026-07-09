@@ -1,40 +1,36 @@
-import { Badge, Box, BoxProps, Group, Stack, StackProps } from '@mantine/core';
+import { Badge, Group, Paper, Stack } from '@mantine/core';
 import * as React from 'react';
 
-import styles from './InfoLayoutElements.module.css';
+import { Caption, Subtitle } from '../design/Text';
 
-export const InfoItem: React.FC<React.PropsWithChildren<BoxProps>> = ({ children, ...props }) => (
-  <Box className={styles.infoItem} {...props}>
+/**
+ * A titled block of information. Sections stack down the info page, with an optional
+ * action (a refresh button, say) aligned to the right of the heading.
+ */
+export const InfoSection: React.FC<
+  React.PropsWithChildren<{
+    title: string;
+    caption?: React.ReactNode;
+    action?: React.ReactNode;
+  }>
+> = ({ title, caption, action, children }) => (
+  <Paper withBorder radius="md" p="md" bg="surface.0">
+    <Group justify="space-between" align="flex-start" wrap="nowrap" mb="sm">
+      <Stack gap={2}>
+        <Subtitle order={3} noBorder mb={0}>
+          {title}
+        </Subtitle>
+        {caption ? <Caption>{caption}</Caption> : null}
+      </Stack>
+      {action}
+    </Group>
     {children}
-  </Box>
+  </Paper>
 );
 
-export const Label: React.FC<React.PropsWithChildren<BoxProps>> = ({ children, ...props }) => (
-  <Box w={150} my="xs" {...props}>
-    {children}
-  </Box>
-);
-
-export const Value: React.FC<React.PropsWithChildren<StackProps>> = ({ children, ...props }) => (
-  <Stack gap={0} {...props}>
-    {children}
-  </Stack>
-);
-
-export const SubValue: React.FC<React.PropsWithChildren<StackProps>> = ({ children, ...props }) => (
-  <Stack gap={0} ml="md" {...props}>
-    {children}
-  </Stack>
-);
-
-export const ItemWithId: React.FC<{ id: string | number; children: React.ReactNode }> = ({
-  id,
-  children,
-}) => (
-  <Group gap="xs" my={4}>
-    <Badge variant="light" color="primary" radius="md" px="xs" py={4}>
-      {id}
-    </Badge>
-    {children}
-  </Group>
+/** The database id of a row, shown as a compact chip in the leading table column */
+export const IdBadge: React.FC<{ id: number }> = ({ id }) => (
+  <Badge variant="light" color="primary" radius="md" px="xs">
+    {id}
+  </Badge>
 );

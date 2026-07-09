@@ -11,13 +11,13 @@ import {
 import { toISODate } from 'shared/time';
 import { Currency } from 'shared/types';
 import { eurToForeign, foreignToEur, Money, sanitizeMoneyInput } from 'shared/util';
+import { useCurrencyRates } from 'client/data/useCurrencyRates';
 import { logger } from 'client/Logger';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
 import type { FullExpenseDialogProps } from './ExpenseDialog';
 import { calculateDivision } from './ExpenseDialogData';
 import { defaultExpenseSaveAction } from './ExpenseSaveAction';
-import { useCurrencyRates } from './useCurrencyRates';
 
 const parsers: Record<string, (v: string) => string> = {
   sum: sanitizeMoneyInput,

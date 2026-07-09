@@ -7,13 +7,14 @@ import { QueryKeys } from 'client/data/queryKeys';
 const RATES_STALE_TIME_MS = 4 * 60 * 60 * 1000;
 
 /**
- * Current ECB reference rates.
+ * Current ECB reference rates, as foreign currency units per 1 EUR.
  *
  * Deliberately a plain `useQuery` rather than `useSuspenseQuery`: a rates outage must
- * degrade the convert buttons, not blank out the whole expense dialog.
+ * degrade only the parts that need rates — the convert buttons, the rates section — and
+ * not blank out the expense dialog or the info page around them.
  */
 export function useCurrencyRates() {
-  const { data } = useQuery({
+  const { data, isPending, isError } = useQuery({
     queryKey: QueryKeys.currencies.rates,
     queryFn: () => apiConnect.getCurrencyRates(),
     staleTime: RATES_STALE_TIME_MS,
@@ -24,5 +25,5 @@ export function useCurrencyRates() {
   const rateFor = (code: string | undefined): string | undefined =>
     code ? data?.rates[code] : undefined;
 
-  return { rates: data, rateFor };
+  return { rates: data, rateFor, isPending, isError };
 }

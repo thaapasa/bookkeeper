@@ -1,4 +1,4 @@
-import { ActionIcon } from '@mantine/core';
+import { ActionIcon, Table, Tooltip } from '@mantine/core';
 import * as React from 'react';
 
 import { config } from 'client/Config';
@@ -8,7 +8,7 @@ import { reloadApp } from 'client/util/ClientUtil';
 import { infoPagePath } from 'client/util/Links';
 
 import { Icons } from '../icons/Icons';
-import { InfoItem, ItemWithId, Label, Value } from './InfoLayoutElements';
+import { InfoSection } from './InfoLayoutElements';
 
 interface VersionInfo {
   version: string;
@@ -33,24 +33,35 @@ export const VersionInfoView = () => {
   const doReload = React.useCallback(() => reloadApp(infoPagePath), []);
 
   return (
-    <InfoItem>
-      <Label>Versio</Label>
-      <Value>
-        <ItemWithId id="Käli">
-          {config.version} ({config.revision})
-        </ItemWithId>
-        {serverVersion ? (
-          <ItemWithId id="Palvelin">
-            {serverVersion.version} ({serverVersion.revision}, runtime{' '}
-            {serverVersion.runtimeVersion})
-          </ItemWithId>
-        ) : null}
-        <ItemWithId id="Päivitä">
-          <ActionIcon size="sm" onClick={doReload}>
+    <InfoSection
+      title="Versio"
+      action={
+        <Tooltip label="Lataa käyttöliittymä uudelleen">
+          <ActionIcon size="lg" onClick={doReload} aria-label="Päivitä">
             <Icons.Refresh />
           </ActionIcon>
-        </ItemWithId>
-      </Value>
-    </InfoItem>
+        </Tooltip>
+      }
+    >
+      <Table variant="vertical" layout="fixed">
+        <Table.Tbody>
+          <Table.Tr>
+            <Table.Td w={120}>Käli</Table.Td>
+            <Table.Td>
+              {config.version} ({config.revision})
+            </Table.Td>
+          </Table.Tr>
+          {serverVersion ? (
+            <Table.Tr>
+              <Table.Td>Palvelin</Table.Td>
+              <Table.Td>
+                {serverVersion.version} ({serverVersion.revision}, runtime{' '}
+                {serverVersion.runtimeVersion})
+              </Table.Td>
+            </Table.Tr>
+          ) : null}
+        </Table.Tbody>
+      </Table>
+    </InfoSection>
   );
 };
