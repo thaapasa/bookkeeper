@@ -102,18 +102,13 @@ export const AutoComplete = <T,>({
     [suggestionMap, onSelectSuggestion],
   );
 
-  // Track dropdown open state so we can suppress Enter when the user is
-  // selecting from the dropdown (otherwise it propagates to parent handlers
-  // like ActivatableTextField's commit before Mantine processes the selection).
-  const dropdownOpenRef = React.useRef(false);
-
   const handleKeyDown = React.useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Enter' && dropdownOpenRef.current) {
-        // Dropdown is open: Enter is for selecting a suggestion.
-        // Stop DOM propagation AND skip the onKeyDown prop callback,
-        // because the prop (e.g. ActivatableTextField's commit handler)
-        // would fire before Mantine processes the selection.
+      // Mantine consumes Enter only when the dropdown is open AND an option is
+      // highlighted, which is exactly when it sets aria-activedescendant on the input.
+      // In that case Enter selects the suggestion, so it must not reach parent handlers
+      // (e.g. ActivatableTextField's commit), which would otherwise fire first.
+      if (e.key === 'Enter' && e.currentTarget.getAttribute('aria-activedescendant')) {
         e.stopPropagation();
       } else {
         onKeyDown?.(e);
@@ -129,8 +124,6 @@ export const AutoComplete = <T,>({
       onChange={handleChange}
       onOptionSubmit={handleOptionSubmit}
       onKeyDown={handleKeyDown}
-      onDropdownOpen={() => (dropdownOpenRef.current = true)}
-      onDropdownClose={() => (dropdownOpenRef.current = false)}
       data={data}
       error={errorText || undefined}
       spellCheck={false}
