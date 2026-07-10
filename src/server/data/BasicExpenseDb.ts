@@ -17,7 +17,9 @@ import { withSpan } from 'server/telemetry/Spans';
 import { getCategoryById } from './CategoryDb';
 import { validateCurrencyId } from './CurrencyDb';
 import { determineDivision } from './ExpenseDivision';
+import { getExpenseGroupingById } from './grouping/GroupingDb';
 import { getSourceById } from './SourceDb';
+import { getUserById } from './UserDb';
 
 /**
  * Correlated subquery that computes the array of matching grouping IDs for an expense.
@@ -262,14 +264,18 @@ const deleteDivision = (tx: DbTask, groupId: number, expenseId: number): Promise
 
 export async function getExpenseDivision(
   tx: DbTask,
+  groupId: number,
   expenseId: number,
 ): Promise<ExpenseDivisionItem[]> {
+  // `expense_division` has no `group_id`; scope through its parent expense so a
+  // foreign-group expenseId cannot read another group's division rows.
   const items = await tx.manyOrNone<ExpenseDivisionItem>(
     `SELECT user_id as "userId", type, sum
       FROM expense_division
       WHERE expense_id=$/expenseId/::INTEGER
+        AND expense_id IN (SELECT id FROM expenses WHERE id=$/expenseId/ AND group_id=$/groupId/)
       ORDER BY type, user_id`,
-    { expenseId },
+    { expenseId, groupId },
   );
   return items;
 }
@@ -341,6 +347,7 @@ export async function createNewExpense(
 
 export async function updateExpense(
   tx: DbTask,
+  userId: number,
   original: Expense,
   expenseInput: ExpenseInput,
   defaultSourceId: number,
@@ -350,6 +357,15 @@ export async function updateExpense(
   const sourceId = expense.sourceId || defaultSourceId;
   const cat = await getCategoryById(tx, original.groupId, expense.categoryId);
   const source = await getSourceById(tx, original.groupId, sourceId);
+  // Resolve untrusted body ids through group-scoped lookups (mirrors createExpense)
+  // so an edit cannot attribute the expense to a non-member or a foreign grouping.
+  const user = await getUserById(tx, original.groupId, expense.userId);
+  if (isDefined(expense.groupingId)) {
+    const grouping = await getExpenseGroupingById(tx, original.groupId, userId, expense.groupingId);
+    if (!grouping) {
+      throw new NotFoundError('EXPENSE_GROUPING_NOT_FOUND', 'expense grouping', expense.groupingId);
+    }
+  }
   await validateCurrencyId(tx, expense.currencyId);
   const division = determineDivision(expense, source);
   await deleteDivision(tx, original.groupId, original.id);
@@ -365,6 +381,7 @@ export async function updateExpense(
       groupingId: expense.groupingId,
       id: original.id,
       groupId: original.groupId,
+      userId: user.id,
       sum: expense.sum.toString(),
       sourceId: source.id,
       categoryId: cat.id,

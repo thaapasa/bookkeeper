@@ -87,7 +87,7 @@ export function updateTrackingSubject(
     { 'app.group_id': groupId, 'app.user_id': userId, 'app.subject_id': subjectId },
     async () => {
       await getTrackingSubject(tx, groupId, userId, subjectId);
-      const updated = await updateTrackingSubjectById(tx, subjectId, input);
+      const updated = await updateTrackingSubjectById(tx, groupId, userId, subjectId, input);
       logger.info({ input, updated }, `Updated tracking subject ${subjectId} for user ${userId}`);
     },
   );
@@ -104,7 +104,7 @@ export function deleteTrackingSubject(
     { 'app.group_id': groupId, 'app.user_id': userId, 'app.subject_id': subjectId },
     async () => {
       await getTrackingSubject(tx, groupId, userId, subjectId);
-      await deleteTrackingSubjectById(tx, subjectId);
+      await deleteTrackingSubjectById(tx, groupId, userId, subjectId);
       logger.info(`Deleted tracking subject ${subjectId} from user ${userId}`);
     },
   );
@@ -121,7 +121,7 @@ export function changeTrackingSubjectColor(
     { 'app.group_id': groupId, 'app.user_id': userId, 'app.subject_id': subjectId },
     async () => {
       const subject = await getTrackingSubject(tx, groupId, userId, subjectId);
-      await updateTrackingSubjectById(tx, subjectId, {
+      await updateTrackingSubjectById(tx, groupId, userId, subjectId, {
         ...subject,
         trackingData: {
           ...subject.trackingData,
@@ -149,7 +149,7 @@ export function uploadTrackingImage(
         logger.info(image, `Updating tracking image for user ${userId}, subject ${subjectId}`);
         const file = await trackingImageHandler.saveImages(image, { fit: 'cover' });
         await deleteTrackingImage(tx, groupId, userId, subjectId);
-        await setTrackingImageById(tx, subjectId, file);
+        await setTrackingImageById(tx, groupId, userId, subjectId, file);
         return getTrackingSubject(tx, groupId, userId, subjectId);
       } finally {
         await safeDeleteFile(image.filepath);
@@ -174,7 +174,7 @@ export function deleteTrackingImage(
         return;
       }
       await trackingImageHandler.deleteImages(subject.image);
-      await clearTrackingImageById(tx, subjectId);
+      await clearTrackingImageById(tx, groupId, userId, subjectId);
       logger.info(`Deleted subject ${subjectId} image`);
     },
   );

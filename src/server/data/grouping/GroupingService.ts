@@ -11,6 +11,7 @@ import { logger } from 'server/Logger';
 import { FileUploadResult, safeDeleteFile } from 'server/server/FileHandling';
 import { withSpan } from 'server/telemetry/Spans';
 
+import { getCategoryById } from '../CategoryDb';
 import {
   clearGroupingImageById,
   deleteExpenseGroupingById,
@@ -21,6 +22,17 @@ import {
   setGroupingImageById,
   updateExpenseGroupingById,
 } from './GroupingDb';
+
+/** Ensure every client-supplied category id belongs to the caller's group. */
+async function validateGroupingCategories(
+  tx: DbTask,
+  groupId: ObjectId,
+  input: ExpenseGroupingData,
+): Promise<void> {
+  for (const categoryId of input.categories) {
+    await getCategoryById(tx, groupId, categoryId);
+  }
+}
 
 export async function getExpenseGrouping(
   tx: DbTask,
@@ -45,6 +57,7 @@ export function createExpenseGrouping(
     'grouping.create',
     { 'app.group_id': groupId, 'app.user_id': userId },
     async () => {
+      await validateGroupingCategories(tx, groupId, input);
       const created = await insertExpenseGrouping(tx, groupId, userId, input);
       logger.info({ input, created }, `Created new expense grouping for user ${userId}`);
     },
@@ -63,6 +76,7 @@ export function updateExpenseGrouping(
     { 'app.group_id': groupId, 'app.user_id': userId, 'app.grouping_id': groupingId },
     async () => {
       await getExpenseGrouping(tx, groupId, userId, groupingId);
+      await validateGroupingCategories(tx, groupId, input);
       const updated = await updateExpenseGroupingById(tx, groupId, groupingId, input);
       logger.info({ input, updated }, `Updated expense grouping ${groupingId} for user ${userId}`);
     },

@@ -56,6 +56,8 @@ export async function insertNewShortcut(
 
 export async function updateShortcutById(
   tx: DbTask,
+  groupId: ObjectId,
+  userId: ObjectId,
   shortcutId: ObjectId,
   data: ExpenseShortcutPayload,
 ): Promise<void> {
@@ -65,8 +67,10 @@ export async function updateShortcutById(
         background=$/background/,
         expense=$/expense/,
         updated=NOW()
-      WHERE id=$/shortcutId/`,
+      WHERE id=$/shortcutId/ AND group_id=$/groupId/ AND user_id=$/userId/`,
     {
+      groupId,
+      userId,
       shortcutId,
       title: data.title,
       background: data.background,
@@ -75,8 +79,17 @@ export async function updateShortcutById(
   );
 }
 
-export async function deleteShortcutById(tx: DbTask, shortcutId: ObjectId): Promise<void> {
-  await tx.none(`DELETE FROM shortcuts WHERE id=$/shortcutId/`, { shortcutId });
+export async function deleteShortcutById(
+  tx: DbTask,
+  groupId: ObjectId,
+  userId: ObjectId,
+  shortcutId: ObjectId,
+): Promise<void> {
+  await tx.none(
+    `DELETE FROM shortcuts
+       WHERE id=$/shortcutId/ AND group_id=$/groupId/ AND user_id=$/userId/`,
+    { groupId, userId, shortcutId },
+  );
 }
 
 export async function reorderUserShortcuts(
@@ -99,15 +112,33 @@ export async function reorderUserShortcuts(
   );
 }
 
-export async function clearShortcutIconById(tx: DbTask, shortcutId: ObjectId) {
-  await tx.none(`UPDATE shortcuts SET icon=NULL WHERE id=$/shortcutId/`, { shortcutId });
+export async function clearShortcutIconById(
+  tx: DbTask,
+  groupId: ObjectId,
+  userId: ObjectId,
+  shortcutId: ObjectId,
+) {
+  await tx.none(
+    `UPDATE shortcuts
+     SET icon=NULL
+     WHERE id=$/shortcutId/ AND group_id=$/groupId/ AND user_id=$/userId/`,
+    { groupId, userId, shortcutId },
+  );
 }
 
-export async function setShortcutIconById(tx: DbTask, shortcutId: ObjectId, filename: string) {
-  await tx.none(`UPDATE shortcuts SET icon=$/filename/ WHERE id=$/shortcutId/`, {
-    shortcutId,
-    filename,
-  });
+export async function setShortcutIconById(
+  tx: DbTask,
+  groupId: ObjectId,
+  userId: ObjectId,
+  shortcutId: ObjectId,
+  filename: string,
+) {
+  await tx.none(
+    `UPDATE shortcuts
+     SET icon=$/filename/
+     WHERE id=$/shortcutId/ AND group_id=$/groupId/ AND user_id=$/userId/`,
+    { groupId, userId, shortcutId, filename },
+  );
 }
 
 export async function sortShortcutUpById(
@@ -161,14 +192,28 @@ async function switchSortOrder(
   shortcut1: ExpenseShortcut,
   shortcut2: ExpenseShortcut,
 ) {
-  await tx.none(`UPDATE shortcuts SET sort_order=$/sortOrder/ WHERE id=$/id/`, {
-    id: shortcut1.id,
-    sortOrder: shortcut2.sortOrder,
-  });
-  await tx.none(`UPDATE shortcuts SET sort_order=$/sortOrder/ WHERE id=$/id/`, {
-    id: shortcut2.id,
-    sortOrder: shortcut1.sortOrder,
-  });
+  await tx.none(
+    `UPDATE shortcuts
+     SET sort_order=$/sortOrder/
+     WHERE id=$/id/ AND group_id=$/groupId/ AND user_id=$/userId/`,
+    {
+      id: shortcut1.id,
+      sortOrder: shortcut2.sortOrder,
+      groupId,
+      userId,
+    },
+  );
+  await tx.none(
+    `UPDATE shortcuts
+     SET sort_order=$/sortOrder/
+     WHERE id=$/id/ AND group_id=$/groupId/ AND user_id=$/userId/`,
+    {
+      id: shortcut2.id,
+      sortOrder: shortcut1.sortOrder,
+      groupId,
+      userId,
+    },
+  );
   await reorderUserShortcuts(tx, groupId, userId);
 }
 

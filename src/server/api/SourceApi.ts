@@ -24,7 +24,7 @@ export function createSourceApi() {
 
   api.patchTx(
     '/:sourceId',
-    { body: SourcePatch, response: Source },
+    { body: SourcePatch, response: Source, groupRequired: true },
     (tx, session, { params, body }) => updateSource(tx, session.group.id, params.sourceId, body),
   );
 

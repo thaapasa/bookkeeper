@@ -738,6 +738,9 @@ async function updateRecurringExpense(
   const sourceId = expense.sourceId || defaultSourceId;
   const cat = await getCategoryById(tx, original.groupId, expense.categoryId);
   const source = await getSourceById(tx, original.groupId, sourceId);
+  // Validate the body userId in-group before it flows into subscription defaults
+  // (and thus into every generated expense), matching updateSubscription.
+  await getUserById(tx, original.groupId, expense.userId);
   await tx.none(
     `UPDATE expenses
       SET date=$/date/::DATE, receiver=$/receiver/, sum=$/sum/, title=$/title/,
@@ -852,7 +855,7 @@ export function updateRecurringExpenseByExpenseId(
         throw new InvalidExpense(`${expenseId} is not a recurring expense`);
       }
       if (target === 'single') {
-        return updateExpense(tx, org, expense, defaultSourceId);
+        return updateExpense(tx, userId, org, expense, defaultSourceId);
       }
       return updateRecurringExpense(tx, target, org, expense, defaultSourceId);
     },

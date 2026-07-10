@@ -1,5 +1,5 @@
 import { Expense, ExpenseDivisionItem, ExpenseInput } from 'shared/expense';
-import { ExpenseIdResponse, ObjectId } from 'shared/types';
+import { ExpenseIdResponse, isDefined, NotFoundError, ObjectId } from 'shared/types';
 import { DbTask } from 'server/data/Db.ts';
 import { logger } from 'server/Logger';
 import { withSpan } from 'server/telemetry/Spans';
@@ -14,6 +14,7 @@ import {
 import { getCategoryById } from './CategoryDb';
 import { validateCurrencyId } from './CurrencyDb';
 import { determineDivision } from './ExpenseDivision';
+import { getExpenseGroupingById } from './grouping/GroupingDb';
 import { getSourceById } from './SourceDb';
 import { getUserById } from './UserDb';
 
@@ -37,6 +38,16 @@ export function createExpense(
       const cat = await getCategoryById(tx, groupId, expense.categoryId);
       const user = await getUserById(tx, groupId, expense.userId);
       const source = await getSourceById(tx, groupId, sourceId);
+      if (isDefined(expense.groupingId)) {
+        const grouping = await getExpenseGroupingById(tx, groupId, userId, expense.groupingId);
+        if (!grouping) {
+          throw new NotFoundError(
+            'EXPENSE_GROUPING_NOT_FOUND',
+            'expense grouping',
+            expense.groupingId,
+          );
+        }
+      }
       await validateCurrencyId(tx, expense.currencyId);
 
       const division = determineDivision(expense, source);
@@ -73,7 +84,7 @@ export function updateExpenseById(
     { 'app.user_id': userId, 'app.group_id': groupId, 'app.expense_id': expenseId },
     async () => {
       const e = await getExpenseById(tx, groupId, userId, expenseId);
-      return updateExpense(tx, e, expense, defaultSourceId);
+      return updateExpense(tx, userId, e, expense, defaultSourceId);
     },
   );
 }
@@ -97,7 +108,7 @@ export async function getExpenseAndDivisionData(
   expenseId: number,
 ): Promise<[Expense, ExpenseDivisionItem[]]> {
   const expense = await getExpenseById(tx, groupId, userId, expenseId);
-  const division = await getExpenseDivision(tx, expenseId);
+  const division = await getExpenseDivision(tx, groupId, expenseId);
   return [expense, division];
 }
 
@@ -112,7 +123,7 @@ export function getExpenseWithDivision(
     { 'app.user_id': userId, 'app.group_id': groupId, 'app.expense_id': expenseId },
     async () => {
       const expense = await getExpenseById(tx, groupId, userId, expenseId);
-      const division = await getExpenseDivision(tx, expenseId);
+      const division = await getExpenseDivision(tx, groupId, expenseId);
       return { ...expense, division };
     },
   );

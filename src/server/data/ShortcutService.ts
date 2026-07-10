@@ -48,7 +48,7 @@ export function updateShortcutData(
     async () => {
       await validateShortcutData(tx, groupId, data);
       await getShortcutById(tx, groupId, userId, shortcutId);
-      await updateShortcutById(tx, shortcutId, data);
+      await updateShortcutById(tx, groupId, userId, shortcutId, data);
       logger.info(data, `Updated shortcut`);
     },
   );
@@ -86,7 +86,7 @@ export function deleteShortcut(
     { 'app.group_id': groupId, 'app.user_id': userId, 'app.shortcut_id': shortcutId },
     async () => {
       await getShortcutById(tx, groupId, userId, shortcutId);
-      await deleteShortcutById(tx, shortcutId);
+      await deleteShortcutById(tx, groupId, userId, shortcutId);
       logger.info(`Deleted shortcut ${shortcutId}`);
     },
   );
@@ -109,7 +109,7 @@ export function uploadShortcutIcon(
         logger.info(image, `Updating shortcut icon for user ${userId}, shortcut ${shortcutId}`);
         const file = await shortcutImageHandler.saveImages(image, { margin, trim: true });
         await deleteShortcutIcon(tx, groupId, userId, shortcutId);
-        await setShortcutIconById(tx, shortcutId, file);
+        await setShortcutIconById(tx, groupId, userId, shortcutId, file);
         return getShortcutById(tx, groupId, userId, shortcutId);
       } finally {
         await safeDeleteFile(image.filepath);
@@ -134,7 +134,7 @@ export function deleteShortcutIcon(
         return;
       }
       await shortcutImageHandler.deleteImages(shortcut.icon);
-      await clearShortcutIconById(tx, shortcutId);
+      await clearShortcutIconById(tx, groupId, userId, shortcutId);
       logger.info(`Deleted shortcut ${shortcutId} icon`);
     },
   );

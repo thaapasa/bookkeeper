@@ -47,46 +47,60 @@ export async function insertTrackingSubject(
 
 export async function updateTrackingSubjectById(
   tx: DbTask,
+  groupId: ObjectId,
+  userId: ObjectId,
   subjectId: ObjectId,
   data: TrackingSubjectData,
 ): Promise<TrackingSubject> {
   const c = await tx.one(
     `UPDATE tracked_subjects
       SET title=$/title/, tracking_data=$/trackingData/
-      WHERE id=$/subjectId/
+      WHERE id=$/subjectId/ AND group_id=$/groupId/ AND user_id=$/userId/
       RETURNING ${TRACKING_FIELDS}`,
-    { subjectId, title: data.title, trackingData: data.trackingData },
+    { groupId, userId, subjectId, title: data.title, trackingData: data.trackingData },
   );
   return toTrackingSubject(c);
 }
 
-export async function deleteTrackingSubjectById(tx: DbTask, subjectId: ObjectId): Promise<void> {
+export async function deleteTrackingSubjectById(
+  tx: DbTask,
+  groupId: ObjectId,
+  userId: ObjectId,
+  subjectId: ObjectId,
+): Promise<void> {
   await tx.none(
     `DELETE FROM tracked_subjects
-      WHERE id=$/subjectId/`,
-    { subjectId },
+      WHERE id=$/subjectId/ AND group_id=$/groupId/ AND user_id=$/userId/`,
+    { groupId, userId, subjectId },
   );
 }
 
 export async function setTrackingImageById(
   tx: DbTask,
+  groupId: ObjectId,
+  userId: ObjectId,
   subjectId: ObjectId,
   image: string,
 ): Promise<void> {
   await tx.none(
     `UPDATE tracked_subjects
       SET image=$/image/
-      WHERE id=$/subjectId/`,
-    { subjectId, image },
+      WHERE id=$/subjectId/ AND group_id=$/groupId/ AND user_id=$/userId/`,
+    { groupId, userId, subjectId, image },
   );
 }
 
-export async function clearTrackingImageById(tx: DbTask, subjectId: ObjectId): Promise<void> {
+export async function clearTrackingImageById(
+  tx: DbTask,
+  groupId: ObjectId,
+  userId: ObjectId,
+  subjectId: ObjectId,
+): Promise<void> {
   await tx.none(
     `UPDATE tracked_subjects
       SET image=NULL
-      WHERE id=$/subjectId/`,
-    { subjectId },
+      WHERE id=$/subjectId/ AND group_id=$/groupId/ AND user_id=$/userId/`,
+    { groupId, userId, subjectId },
   );
 }
 
