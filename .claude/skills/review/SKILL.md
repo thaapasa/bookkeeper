@@ -1,12 +1,20 @@
 ---
 name: review
-description: Review code changes from a specific angle or do a general pass. Use when the user wants a code review of their current branch or specific changes. For a thorough review covering all checks, use the @agent-review subagent instead.
+description: Review code changes from a specific angle or do a general pass. Use when the user wants a code review of their current branch or specific changes. For a thorough review covering all checks, use the @agent-review subagent instead. To review changes against a spec/source of truth (with doc-coverage and duplication checks), use /scoped-review instead.
 argument-hint: <optional: angle to review from, e.g. "security", "convention compliance", "completeness of the refactoring">
 ---
 
 # Code Review
 
 Review the code changes and report issues.
+
+Related review tools:
+
+- `@agent-review` — thorough pass running **every** checklist below.
+- `/scoped-review` — reviews a bounded diff against a chosen source of truth
+  (discussion, spec docs, or code), with doc-coverage, duplicated-shape, and
+  test-coverage checks. Prefer it when the question is "does this change do
+  what was agreed / are the docs in sync", not "review from angle X".
 
 ## Step 1: Determine Scope and Intent
 
@@ -15,9 +23,9 @@ Figure out **what** to review and **what the changes are supposed to do**.
 **What to review:**
 
 - If the user provided a PR URL or specific files, review those.
-- Otherwise, review all changes in the current branch compared to the main branch.
-  Run `git log main..HEAD --oneline` and `git diff main...HEAD` to see the full scope.
-- If the branch _is_ main (no divergence), fall back to uncommitted changes (`git diff`
+- Otherwise, review all changes in the current branch compared to `master`.
+  Run `git log master..HEAD --oneline` and `git diff master...HEAD` to see the full scope.
+- If the branch _is_ master (no divergence), fall back to uncommitted changes (`git diff`
   and `git diff --cached`), or the last commit (`git diff HEAD~1`).
 
 **Intent of the changes:**
