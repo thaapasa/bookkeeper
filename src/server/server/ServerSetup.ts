@@ -34,7 +34,14 @@ export function setupServer() {
   app.get(/\/content\/.*/, (req, res, next) => {
     setOtelRouteInfo(req, '/content/:path');
     const relative = req.path.replace(/^\/content\//, '');
-    return serveFile(path.join(config.contentPath, relative), res, {
+    const target = path.resolve(config.contentPath, relative);
+    // Reject path traversal: the resolved file must stay inside contentPath.
+    const root = path.resolve(config.contentPath) + path.sep;
+    if (!(target + path.sep).startsWith(root)) {
+      res.status(404).send();
+      return;
+    }
+    return serveFile(target, res, {
       cacheControl: 'public, max-age=31536000, immutable',
     }).catch(next);
   });
