@@ -86,7 +86,7 @@ export async function getCategoryById(
     { categoryId, groupId },
   );
   if (!cat) {
-    throw new NotFoundError('CATEGORY_NOT_FOUND_1', 'category', categoryId);
+    throw new NotFoundError('CATEGORY_NOT_FOUND', 'category', categoryId);
   }
   return rowToCategory(cat);
 }
