@@ -355,8 +355,9 @@ describe('my feature', () => {
 });
 ```
 
-`captureTestState()` records a DB-side `NOW()`, the current `MAX(categories.id)`, and
-`MAX(subscriptions.id)`. `cleanupTestDataSince()` then, scoped to the test group:
+`captureTestState()` records a DB-side `NOW()` and the current `MAX(id)` of
+`categories`, `subscriptions`, and `expense_groupings`. `cleanupTestDataSince()` then,
+scoped to the test group:
 
 - NULLs `subscription_id` on test-created expenses (breaks the FK link to
   `subscriptions` so the next step can delete the expense).
@@ -364,6 +365,9 @@ describe('my feature', () => {
 - Deletes `subscriptions` rows with `id > maxRecurringId` so test-created
   recurring/report rows do not leak into later runs (the original cascade via
   `template_expense_id` is gone now that templates have been removed).
+- Deletes `expense_groupings` with `id > maxGroupingId` — across all groups, not just
+  the test group, because tests may create groupings in other groups the test user is
+  a member of (cascades to `expense_grouping_categories`).
 - Deletes categories with `id > maxCategoryId` (sub-categories first, then top-level —
   `parent_id` has no cascade).
 
@@ -372,7 +376,7 @@ there is no snapshot/restore for that. If you need to test mutation, create the 
 the test first, then mutate it.
 
 If you add tests that create rows in a table not currently covered (`shortcuts`,
-`expense_groupings`, `tracked_subjects`, etc.), extend `TestCleanup.ts` with a matching
+`tracked_subjects`, etc.), extend `TestCleanup.ts` with a matching
 delete. Use `created > $/testStart/` where the table has a `created` column, or
 `id > $/maxId/` captured in `captureTestState()` otherwise.
 

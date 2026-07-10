@@ -12,6 +12,7 @@ export interface TestState {
   testStart: ISOTimestamp;
   maxCategoryId: number;
   maxRecurringId: number;
+  maxGroupingId: number;
   /**
    * Snapshot of pre-existing subscriptions' generation cursors. Tests
    * that fetch a month trigger `createMissingRecurringExpenses` for
@@ -24,10 +25,16 @@ export interface TestState {
 }
 
 export async function captureTestState(): Promise<TestState> {
-  const meta = await db.one<{ now: ISOTimestamp; maxCat: number | null; maxRec: number | null }>(
+  const meta = await db.one<{
+    now: ISOTimestamp;
+    maxCat: number | null;
+    maxRec: number | null;
+    maxGrouping: number | null;
+  }>(
     `SELECT NOW() AS now,
             COALESCE((SELECT MAX(id) FROM categories), 0) AS "maxCat",
-            COALESCE((SELECT MAX(id) FROM subscriptions), 0) AS "maxRec"`,
+            COALESCE((SELECT MAX(id) FROM subscriptions), 0) AS "maxRec",
+            COALESCE((SELECT MAX(id) FROM expense_groupings), 0) AS "maxGrouping"`,
   );
   const subs = await db.manyOrNone<SubscriptionSnapshot>(
     `SELECT id,
@@ -40,6 +47,7 @@ export async function captureTestState(): Promise<TestState> {
     testStart: meta.now,
     maxCategoryId: Number(meta.maxCat ?? 0),
     maxRecurringId: Number(meta.maxRec ?? 0),
+    maxGroupingId: Number(meta.maxGrouping ?? 0),
     subscriptionCursors: subs,
   };
 }
@@ -78,6 +86,13 @@ export async function cleanupTestDataSince(groupId: number, state: TestState): P
         sub,
       );
     }
+    // Groupings are deleted by id across all groups — security tests create
+    // groupings in other groups the caller is a member of (e.g. Herrakerho),
+    // which a group_id filter would leak. `expense_grouping_categories`
+    // cascades; `expenses.grouping_id` is ON DELETE SET NULL.
+    await tx.none(`DELETE FROM expense_groupings WHERE id > $/maxGroupingId/`, {
+      maxGroupingId: state.maxGroupingId,
+    });
     await tx.none(
       `DELETE FROM categories
        WHERE group_id = $/groupId/ AND id > $/maxCategoryId/ AND parent_id IS NOT NULL`,

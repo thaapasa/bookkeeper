@@ -46,7 +46,7 @@ async function createSplit(tx: DbTask, expense: Expense, split: ExpenseSplit) {
   // each claiming to have cost $100.
   const splitted = { ...expense, ...split, currencyId: null, originalCurrencyValue: null };
   logger.debug(splitted, `Creating new expense`);
-  await createExpense(tx, expense.userId, expense.groupId, splitted, expense.groupId);
+  await createExpense(tx, expense.userId, expense.groupId, splitted, expense.sourceId);
 }
 
 async function checkSplits(splits: ExpenseSplit[], expense: Expense) {

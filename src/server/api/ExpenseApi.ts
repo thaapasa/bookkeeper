@@ -54,7 +54,7 @@ export function createExpenseApi() {
   // GET /api/expense/search?[ExpenseSearch]
   api.postTx(
     '/search',
-    { body: ExpenseQuery, response: z.array(UserExpense) },
+    { body: ExpenseQuery, response: z.array(UserExpense), groupRequired: true },
     (tx, session, { body }) => searchExpenses(tx, session.user.id, session.group.id, body),
   );
 

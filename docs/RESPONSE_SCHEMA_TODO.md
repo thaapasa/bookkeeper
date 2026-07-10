@@ -13,7 +13,6 @@ meaningful response objects before response schemas can be added.
 
 ### GroupingApi.ts
 
-- `POST /` — `createExpenseGrouping` returns void (should return `ExpenseGrouping`)
 - `PUT /:id` — `updateExpenseGrouping` returns void (should return `ExpenseGrouping`)
 - `DELETE /:id` — `deleteExpenseGrouping` returns void (should return `ApiMessage`)
 - `DELETE /:id/image` — returns void

@@ -119,7 +119,6 @@ describe('security regressions', () => {
     let sale: SessionWithControl;
     let jenni: SessionWithControl;
     let state: TestState;
-    const createdGroupings: { session: SessionWithControl; id: number; groupId?: number }[] = [];
 
     beforeEach(async () => {
       sale = await client.getSession('sale', 'salasana');
@@ -128,13 +127,6 @@ describe('security regressions', () => {
     });
 
     afterEach(async () => {
-      for (const g of createdGroupings) {
-        await g.session.del(
-          uri`/api/grouping/${g.id}`,
-          g.groupId ? { groupId: g.groupId } : undefined,
-        );
-      }
-      createdGroupings.length = 0;
       await cleanupTestDataSince(sale.group.id, state);
       await sale.logout();
       await jenni.logout();
@@ -145,7 +137,6 @@ describe('security regressions', () => {
         jenni,
         groupingData(`Jennin piilo ${Date.now()}`, { private: true }),
       );
-      createdGroupings.push({ session: jenni, id: hidden.id });
 
       const error = await expectStatus(404, () => newExpense(sale, { groupingId: hidden.id }));
       expect(error.code).toEqual('EXPENSE_GROUPING_NOT_FOUND');
@@ -156,7 +147,6 @@ describe('security regressions', () => {
         jenni,
         groupingData(`Jennin piilo ${Date.now()}`, { private: true }),
       );
-      createdGroupings.push({ session: jenni, id: hidden.id });
 
       const created = await newExpense(sale);
       const org = await sale.get<Expense>(uri`/api/expense/${created.expenseId}`);
@@ -172,7 +162,6 @@ describe('security regressions', () => {
 
     it('allows attaching a grouping that is visible to the caller', async () => {
       const shared = await createGrouping(jenni, groupingData(`Yhteinen ${Date.now()}`));
-      createdGroupings.push({ session: jenni, id: shared.id });
 
       const created = await newExpense(sale, { groupingId: shared.id });
       const expense = await sale.get<Expense>(uri`/api/expense/${created.expenseId}`);
@@ -245,7 +234,6 @@ describe('security regressions', () => {
         groupingData(`Herrakerhon ryhmä ${Date.now()}`),
         2,
       );
-      createdGroupings.push({ session: sale, id: grouping.id, groupId: 2 });
 
       const foreignCategoryId = sale.categories[0].id;
       const error = await expectStatus(404, () =>
