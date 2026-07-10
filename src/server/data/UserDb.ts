@@ -51,6 +51,34 @@ export async function getUserById(tx: DbTask, groupId: number, userId: number): 
   return dbRowToUser(user);
 }
 
+/**
+ * Verifies that every given user id is a member of the group, throwing
+ * NotFoundError otherwise. Use to resolve untrusted user ids from request
+ * bodies (e.g. expense division rows) before writing them — the FK to
+ * `users` alone would accept any existing user, including members of
+ * other groups.
+ */
+export async function requireGroupMembers(
+  tx: DbTask,
+  groupId: number,
+  userIds: number[],
+): Promise<void> {
+  const distinct = [...new Set(userIds)];
+  if (distinct.length === 0) {
+    return;
+  }
+  const rows = await tx.manyOrNone<{ userId: number }>(
+    `SELECT user_id AS "userId" FROM group_users
+      WHERE group_id=$/groupId/ AND user_id IN ($/userIds:csv/)`,
+    { groupId, userIds: distinct },
+  );
+  const members = new Set(rows.map(r => r.userId));
+  const missing = distinct.find(id => !members.has(id));
+  if (missing !== undefined) {
+    throw new NotFoundError('USER_NOT_FOUND', 'user', missing);
+  }
+}
+
 export async function getGroupsForUser(tx: DbTask, userId: number): Promise<Group[]> {
   const groups = await tx.manyOrNone<Group>(
     `SELECT id, name

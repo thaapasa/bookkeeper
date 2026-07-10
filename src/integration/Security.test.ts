@@ -68,25 +68,15 @@ function groupingData(
   };
 }
 
-/**
- * The grouping create endpoint does not return the created id, so look it up
- * from the list by title. Pass the same `groupId` the grouping was created with.
- */
-async function createGrouping(
+function createGrouping(
   session: SessionWithControl,
   data: ExpenseGroupingData,
   groupId?: number,
 ): Promise<ExpenseGrouping> {
-  await session.post(uri`/api/grouping` + (groupId ? uri`?groupId=${groupId}` : ''), data);
-  const list = await session.get<ExpenseGrouping[]>(
-    '/api/grouping/list',
-    groupId ? { groupId } : undefined,
+  return session.post<ExpenseGrouping>(
+    uri`/api/grouping` + (groupId ? uri`?groupId=${groupId}` : ''),
+    data,
   );
-  const created = list.find(g => g.title === data.title);
-  if (!created) {
-    throw new Error(`Grouping ${data.title} not found in list after creation`);
-  }
-  return created;
 }
 
 describe('security regressions', () => {
@@ -187,6 +177,53 @@ describe('security regressions', () => {
       const created = await newExpense(sale, { groupingId: shared.id });
       const expense = await sale.get<Expense>(uri`/api/expense/${created.expenseId}`);
       expect(expense.groupingId).toEqual(shared.id);
+    });
+
+    // User id 999999 does not exist in any group; the membership lookup
+    // treats a nonexistent user and a member of another group identically,
+    // so these pin the same group-scoping behavior for both cases.
+    const foreignUserId = 999999;
+
+    it('rejects creating an expense attributed to a user outside the group', async () => {
+      const error = await expectStatus(404, () => newExpense(sale, { userId: foreignUserId }));
+      expect(error.code).toEqual('USER_NOT_FOUND');
+    });
+
+    it('rejects updating an expense to a user outside the group', async () => {
+      const created = await newExpense(sale);
+      const org = await sale.get<Expense>(uri`/api/expense/${created.expenseId}`);
+      const error = await expectStatus(404, () =>
+        sale.put(uri`/api/expense/${org.id}`, { ...org, userId: foreignUserId }),
+      );
+      expect(error.code).toEqual('USER_NOT_FOUND');
+    });
+
+    it('rejects division rows attributed to a user outside the group', async () => {
+      const error = await expectStatus(404, () =>
+        newExpense(sale, {
+          sum: '10.00',
+          division: [
+            { type: 'cost', userId: sale.user.id, sum: '-10.00' },
+            { type: 'benefit', userId: foreignUserId, sum: '10.00' },
+          ],
+        }),
+      );
+      expect(error.code).toEqual('USER_NOT_FOUND');
+    });
+
+    it('rejects updating a recurring expense to a user outside the group', async () => {
+      const created = await newExpense(sale, { date: '2017-01-15' });
+      await sale.post(uri`/api/expense/recurring/${created.expenseId}`, {
+        period: { amount: 1, unit: 'months' },
+      });
+      const org = await sale.get<Expense>(uri`/api/expense/${created.expenseId}`);
+      const error = await expectStatus(404, () =>
+        sale.put(uri`/api/expense/recurring/${org.id}?target=all`, {
+          ...org,
+          userId: foreignUserId,
+        }),
+      );
+      expect(error.code).toEqual('USER_NOT_FOUND');
     });
 
     it('rejects creating a grouping with a category from another group', async () => {

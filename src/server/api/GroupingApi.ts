@@ -26,51 +26,61 @@ export function createGroupingApi() {
   const api = createValidatingRouter(Router());
 
   // POST /api/grouping
-  api.postTx('/', { body: ExpenseGroupingData }, (tx, session, { body }) =>
-    createExpenseGrouping(tx, session.group.id, session.user.id, body),
+  api.postTx(
+    '/',
+    { body: ExpenseGroupingData, response: ExpenseGrouping, groupRequired: true },
+    (tx, session, { body }) => createExpenseGrouping(tx, session.group.id, session.user.id, body),
   );
 
   // GET /api/grouping/tags
-  api.getTx('/tags', { response: z.array(z.string()) }, (tx, session, {}) =>
+  api.getTx('/tags', { response: z.array(z.string()), groupRequired: true }, (tx, session, {}) =>
     getExpenseGroupingsTags(tx, session.group.id),
   );
 
   // GET /api/grouping/list
-  api.getTx('/list', { response: z.array(ExpenseGrouping) }, (tx, session, {}) =>
-    getExpenseGroupingsForUser(tx, session.group.id, session.user.id),
+  api.getTx(
+    '/list',
+    { response: z.array(ExpenseGrouping), groupRequired: true },
+    (tx, session, {}) => getExpenseGroupingsForUser(tx, session.group.id, session.user.id),
   );
 
   // GET /api/grouping/:id
-  api.getTx('/:id', { response: ExpenseGrouping }, (tx, session, { params }) =>
+  api.getTx('/:id', { response: ExpenseGrouping, groupRequired: true }, (tx, session, { params }) =>
     getExpenseGrouping(tx, session.group.id, session.user.id, params.id),
   );
 
   // GET /api/grouping/:id/expenses
-  api.getTx('/:id/expenses', { response: ExpenseGroupingWithExpenses }, (tx, session, { params }) =>
-    getGroupingWithExpenses(tx, session.group.id, session.user.id, params.id),
+  api.getTx(
+    '/:id/expenses',
+    { response: ExpenseGroupingWithExpenses, groupRequired: true },
+    (tx, session, { params }) =>
+      getGroupingWithExpenses(tx, session.group.id, session.user.id, params.id),
   );
 
   // PUT /api/grouping/:id
-  api.putTx('/:id', { body: ExpenseGroupingData }, (tx, session, { body, params }) =>
-    updateExpenseGrouping(tx, session.group.id, session.user.id, params.id, body),
+  api.putTx(
+    '/:id',
+    { body: ExpenseGroupingData, groupRequired: true },
+    (tx, session, { body, params }) =>
+      updateExpenseGrouping(tx, session.group.id, session.user.id, params.id, body),
   );
 
   // DELETE /api/grouping/:id
-  api.deleteTx('/:id', {}, (tx, session, { params }) =>
+  api.deleteTx('/:id', { groupRequired: true }, (tx, session, { params }) =>
     deleteExpenseGrouping(tx, session.group.id, session.user.id, params.id),
   );
 
   // POST /api/grouping/:id/image
   api.postTx(
     '/:id/image',
-    {},
+    { groupRequired: true },
     processFileUpload((tx, session, file, { params }) =>
       uploadExpenseGroupingImage(tx, session.group.id, session.user.id, params.id, file),
     ),
   );
 
   // DELETE /api/grouping/:id/image
-  api.deleteTx('/:id/image', {}, (tx, session, { params }) =>
+  api.deleteTx('/:id/image', { groupRequired: true }, (tx, session, { params }) =>
     deleteExpenseGroupingImage(tx, session.group.id, session.user.id, params.id),
   );
 

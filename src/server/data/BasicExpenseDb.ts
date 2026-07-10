@@ -19,7 +19,7 @@ import { validateCurrencyId } from './CurrencyDb';
 import { determineDivision } from './ExpenseDivision';
 import { requireExpenseGroupingById } from './grouping/GroupingDb';
 import { getSourceById } from './SourceDb';
-import { getUserById } from './UserDb';
+import { getUserById, requireGroupMembers } from './UserDb';
 
 /**
  * Correlated subquery that computes the array of matching grouping IDs for an expense.
@@ -286,6 +286,14 @@ async function createDivision(
   expenseId: number,
   division: ExpenseDivisionItem[],
 ) {
+  // Division user ids come from the request body; resolve them through a
+  // group-scoped membership check so cost/benefit/income/split rows cannot
+  // be attributed to users outside the group.
+  await requireGroupMembers(
+    tx,
+    groupId,
+    division.map(d => d.userId),
+  );
   for (const d of division) {
     await storeExpenseDivision(tx, groupId, expenseId, d.userId, d.type, d.sum);
   }

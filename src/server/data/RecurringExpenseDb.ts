@@ -45,7 +45,7 @@ import { getCategoryById } from './CategoryDb';
 import { determineDivision } from './ExpenseDivision';
 import { calculateNextRecurrence } from './RecurringExpenseService';
 import { getSourceById } from './SourceDb';
-import { getUserById } from './UserDb';
+import { getUserById, requireGroupMembers } from './UserDb';
 
 export function filterFromExpense(expense: Expense): ExpenseQuery {
   const filter: ExpenseQuery = { categoryId: expense.categoryId };
@@ -714,6 +714,14 @@ async function createDivisionForRecurrence(
   afterDate: DateLike | null,
   editedId: ObjectId | null,
 ): Promise<number> {
+  // Division user ids come from the request body; resolve them through a
+  // group-scoped membership check so recurrence rows cannot be attributed
+  // to users outside the group.
+  await requireGroupMembers(
+    tx,
+    groupId,
+    division.map(d => d.userId),
+  );
   const ids = await getRecurrenceExpenseIds(tx, groupId, subscriptionId, afterDate, editedId);
   for (const expenseId of ids) {
     for (const d of division) {

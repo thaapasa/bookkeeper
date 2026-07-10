@@ -47,14 +47,15 @@ export function createExpenseGrouping(
   groupId: ObjectId,
   userId: ObjectId,
   input: ExpenseGroupingData,
-) {
+): Promise<ExpenseGrouping> {
   return withSpan(
     'grouping.create',
     { 'app.group_id': groupId, 'app.user_id': userId },
     async () => {
       await validateGroupingCategories(tx, groupId, input);
-      const created = await insertExpenseGrouping(tx, groupId, userId, input);
-      logger.info({ input, created }, `Created new expense grouping for user ${userId}`);
+      const id = await insertExpenseGrouping(tx, groupId, userId, input);
+      logger.info({ input, id }, `Created new expense grouping for user ${userId}`);
+      return requireExpenseGroupingById(tx, groupId, userId, id);
     },
   );
 }

@@ -22,46 +22,49 @@ export function createTrackingApi() {
   const api = createValidatingRouter(Router());
 
   // POST /api/tracking
-  api.postTx('/', { body: TrackingSubjectData }, (tx, session, { body }) =>
+  api.postTx('/', { body: TrackingSubjectData, groupRequired: true }, (tx, session, { body }) =>
     createTrackingSubject(tx, session.group.id, session.user.id, body),
   );
 
   // GET /api/tracking/list
-  api.getTx('/list', {}, (tx, session, {}) =>
+  api.getTx('/list', { groupRequired: true }, (tx, session, {}) =>
     getTrackingSubjectsWithData(tx, session.group.id, session.user.id),
   );
 
   // GET /api/tracking/:id
-  api.getTx('/:id', {}, (tx, session, { params }) =>
+  api.getTx('/:id', { groupRequired: true }, (tx, session, { params }) =>
     getTrackingSubject(tx, session.group.id, session.user.id, params.id),
   );
 
   // PUT /api/tracking/:id
-  api.putTx('/:id', { body: TrackingSubjectData }, (tx, session, { body, params }) =>
-    updateTrackingSubject(tx, session.group.id, session.user.id, params.id, body),
+  api.putTx(
+    '/:id',
+    { body: TrackingSubjectData, groupRequired: true },
+    (tx, session, { body, params }) =>
+      updateTrackingSubject(tx, session.group.id, session.user.id, params.id, body),
   );
 
   // DELETE /api/tracking/:id
-  api.deleteTx('/:id', {}, (tx, session, { params }) =>
+  api.deleteTx('/:id', { groupRequired: true }, (tx, session, { params }) =>
     deleteTrackingSubject(tx, session.group.id, session.user.id, params.id),
   );
 
   // POST /api/tracking/:id/color
-  api.postTx('/:id/color', {}, (tx, session, { params }) =>
+  api.postTx('/:id/color', { groupRequired: true }, (tx, session, { params }) =>
     changeTrackingSubjectColor(tx, session.group.id, session.user.id, params.id),
   );
 
   // POST /api/tracking/:id/image
   api.postTx(
     '/:id/image',
-    {},
+    { groupRequired: true },
     processFileUpload((tx, session, file, { params }) =>
       uploadTrackingImage(tx, session.group.id, session.user.id, params.id, file),
     ),
   );
 
   // DELETE /api/tracking/:id/image
-  api.deleteTx('/:id/image', {}, (tx, session, { params }) =>
+  api.deleteTx('/:id/image', { groupRequired: true }, (tx, session, { params }) =>
     deleteTrackingImage(tx, session.group.id, session.user.id, params.id),
   );
 
