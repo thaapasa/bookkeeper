@@ -6,7 +6,7 @@ import { RecurrencePeriod, Subscription } from 'shared/expense';
 import { readableDateWithYear, toISODate } from 'shared/time';
 import { Money } from 'shared/util';
 import { apiConnect } from 'client/data/ApiConnect';
-import { invalidateSubscriptionData } from 'client/data/query';
+import { invalidateServerData } from 'client/data/query';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { ExpanderIcon } from '../component/ExpanderIcon';
@@ -248,7 +248,7 @@ async function deleteSubscription(item: Subscription, kind: SubscriptionKind) {
     confirm: <DeleteConfirmation item={item} kind={kind} />,
     progress: 'Käsitellään...',
     success: lopeta ? 'Tilaus lopetettu' : 'Tilaus poistettu',
-    postProcess: () => invalidateSubscriptionData(),
+    postProcess: () => invalidateServerData(),
   });
 }
 

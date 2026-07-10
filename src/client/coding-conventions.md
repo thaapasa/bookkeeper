@@ -264,8 +264,12 @@ For buttons with icons, use Mantine's `leftSection` prop (not inline children):
 - **Dialogs**: `UserPrompts.confirm()`, `UserPrompts.promptText()`, `UserPrompts.select()`,
   `UserPrompts.selectDate()`, `UserPrompts.promptCategory()` from
   `client/ui/dialog/DialogState.ts`
-- **Mutation postProcess**: Use `invalidateExpenseData()` / `invalidateSubscriptionData()`
-  from `client/data/query.ts` to refresh data after mutations
+- **Mutation postProcess**: Use `invalidateServerData()` from `client/data/query.ts` to
+  refresh data after mutations. It invalidates all queries: expense data feeds nearly
+  every view, and with `staleTime: 0` only mounted queries refetch, so this is cheap
+  and never drifts out of date. Targeted invalidation (e.g. `groupings.all` after
+  editing a grouping definition) is still fine for mutations with a clearly local
+  effect.
 
 ## Design Components
 

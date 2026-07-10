@@ -4,16 +4,13 @@ import { CategorySelection, ObjectId } from 'shared/types';
 
 export const QueryKeys = {
   expenses: {
-    all: ['expenses'] as const,
     month: (month: ISOMonth) => ['expenses', 'month', month] as const,
-    detail: (id: ObjectId) => ['expenses', 'detail', id] as const,
   },
   categories: {
     all: ['categories'] as const,
     totals: (start: ISODate, end: ISODate) => ['categories', 'totals', { start, end }] as const,
   },
   subscriptions: {
-    all: ['subscriptions'] as const,
     search: (criteria: SubscriptionSearchCriteria) =>
       ['subscriptions', 'search', criteria] as const,
     matches: (query: SubscriptionMatchesQuery) => ['subscriptions', 'matches', query] as const,
@@ -32,15 +29,12 @@ export const QueryKeys = {
     tags: ['groupings', 'tags'] as const,
   },
   shortcuts: {
-    all: ['shortcuts'] as const,
     detail: (id: ObjectId) => ['shortcuts', 'detail', id] as const,
   },
   search: {
-    all: ['search'] as const,
     results: (query: ExpenseQuery) => ['search', query] as const,
   },
   statistics: {
-    all: ['statistics'] as const,
     category: (params: {
       categoryIds: CategorySelection[];
       startDate: ISODate;
@@ -48,24 +42,8 @@ export const QueryKeys = {
       onlyOwn: boolean;
     }) => ['statistics', 'category', params] as const,
   },
-  sources: {
-    all: ['sources'] as const,
-  },
-  profile: {
-    all: ['profile'] as const,
-  },
-  session: {
-    all: ['session'] as const,
-  },
   db: {
     status: ['db', 'status'] as const,
-  },
-  api: {
-    status: ['api', 'status'] as const,
-  },
-  receivers: {
-    all: ['receivers'] as const,
-    query: (search: string) => ['receivers', { query: search }] as const,
   },
   currencies: {
     rates: ['currencies', 'rates'] as const,

@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import * as React from 'react';
 import { useParams } from 'react-router';
 
@@ -30,7 +30,6 @@ function isEmptyQuery(q: ExpenseQuery) {
 export const SearchPage: React.FC = () => {
   const userData = useUserData()!;
   const categorySource = useCategoryDataSource()!;
-  const queryClient = useQueryClient();
   const { year, month } = useParams<SearchViewParams>();
   const [query, setQuery] = React.useState<ExpenseQuery | undefined>(undefined);
 
@@ -60,12 +59,6 @@ export const SearchPage: React.FC = () => {
     [setQuery],
   );
 
-  const onRepeatSearch = React.useCallback(() => {
-    if (query) {
-      void queryClient.invalidateQueries({ queryKey: QueryKeys.search.results(query) });
-    }
-  }, [queryClient, query]);
-
   const queryRef = React.useRef<QueryViewHandle>(null);
 
   const onAddCategoryToSearch = React.useCallback(
@@ -89,11 +82,7 @@ export const SearchPage: React.FC = () => {
         month={month && ISOMonthRegExp.test(month) ? (month as ISOMonth) : undefined}
         px={{ base: 'md', sm: 0 }}
       />
-      <ResultsView
-        results={results}
-        onUpdate={onRepeatSearch}
-        onSelectCategory={onAddCategoryToSearch}
-      />
+      <ResultsView results={results} onSelectCategory={onAddCategoryToSearch} />
     </PageLayout>
   );
 };

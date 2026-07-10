@@ -2,8 +2,7 @@ import { Stack } from '@mantine/core';
 import * as React from 'react';
 
 import { apiConnect } from 'client/data/ApiConnect';
-import { invalidateExpenseData, queryClient } from 'client/data/query';
-import { QueryKeys } from 'client/data/queryKeys';
+import { invalidateServerData } from 'client/data/query';
 import { logger } from 'client/Logger';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
@@ -42,9 +41,6 @@ async function changeReceiverName() {
   logger.info(`Renaming ${oldName} to ${newName}`);
   await executeOperation(() => apiConnect.renameReceiver(oldName, newName), {
     success: m => `Muutettu ${oldName} → ${newName}: ${m.count} kirjausta`,
-    postProcess: () => {
-      invalidateExpenseData();
-      queryClient.invalidateQueries({ queryKey: QueryKeys.receivers.all });
-    },
+    postProcess: () => invalidateServerData(),
   });
 }

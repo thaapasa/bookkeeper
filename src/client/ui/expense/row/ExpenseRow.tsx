@@ -8,7 +8,7 @@ import { equal, Money, notEqual } from 'shared/util';
 import { apiConnect } from 'client/data/ApiConnect';
 import { getFullCategoryName, UserDataProps } from 'client/data/Categories';
 import { navigateToExpenseDate, useNavigationStore } from 'client/data/NavigationStore';
-import { invalidateExpenseData } from 'client/data/query';
+import { invalidateServerData } from 'client/data/query';
 import { logger } from 'client/Logger';
 import { forMoney, sumStyleForType } from 'client/ui/ColorUtils';
 import { ActivatableTextField } from 'client/ui/component/ActivatableTextField';
@@ -40,15 +40,19 @@ const emptyDivision: ExpenseDivisionItem[] = [];
 export interface CommonExpenseRowProps {
   expense: UserExpense;
   prev?: UserExpense | null;
-  onUpdated: (expense: UserExpense) => void;
+  /**
+   * Optional hook for patching the edited expense into the parent's cache
+   * immediately (e.g. the month view's optimistic patch). Consistency does not
+   * depend on it: inline edits invalidate all queries themselves.
+   */
+  onUpdated?: (expense: UserExpense) => void;
   selectCategory?: (category: Category) => void;
   addFilter: AddFilterFn;
   /**
    * When false, the row renders read-only: title/receiver are plain
    * text, the date isn't clickable, and the per-row expander/Edit/Delete
    * actions are hidden. Defaults to true. Used by the subscription
-   * preview/matches lists where the parent's `onUpdated={noop}` would
-   * otherwise silently swallow real edits.
+   * preview/matches lists.
    */
   editable?: boolean;
 }
@@ -108,7 +112,8 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
     const exp = await apiConnect.getExpense(expense.id);
     const newData: UserExpense = { ...exp, ...data };
     await apiConnect.updateExpense(expense.id, newData);
-    onUpdated(newData);
+    onUpdated?.(newData);
+    invalidateServerData();
   };
 
   const editDate = async () => {
@@ -116,10 +121,7 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
     if (!date) return;
     await executeOperation(() => updateExpense({ date }), {
       success: `Muutettu kirjauksen ${expense.title} päiväksi ${readableDate(date)}`,
-      postProcess: () => {
-        invalidateExpenseData();
-        navigateToExpenseDate(date, expense.id);
-      },
+      postProcess: () => navigateToExpenseDate(date, expense.id),
     });
   };
 

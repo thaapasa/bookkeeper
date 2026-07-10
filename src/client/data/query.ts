@@ -17,11 +17,15 @@ export const queryClient = new QueryClient({
   },
 });
 
-/** Invalidate all expense-related queries (expenses, categories, search). */
-export function invalidateExpenseData() {
-  queryClient.invalidateQueries({ queryKey: QueryKeys.expenses.all });
-  queryClient.invalidateQueries({ queryKey: QueryKeys.categories.all });
-  queryClient.invalidateQueries({ queryKey: QueryKeys.search.all });
+/**
+ * Invalidate all queries after a data mutation. Expense data feeds nearly every view
+ * (months, search, groupings, tracking, statistics, subscriptions, receivers, category
+ * totals), so a maintained list of "affected" keys would drift as domains are added.
+ * With `staleTime: 0` only currently mounted queries actually refetch, so a blanket
+ * invalidation is both correct and cheap.
+ */
+export function invalidateServerData() {
+  queryClient.invalidateQueries();
 }
 
 /** Patch a single expense in the month cache without refetching. */
@@ -33,10 +37,4 @@ export function updateExpenseInMonthCache(
   queryClient.setQueryData<ExpenseCollection>(QueryKeys.expenses.month(month), old =>
     old ? { ...old, expenses: old.expenses.map(e => (e.id === expenseId ? updated : e)) } : old,
   );
-}
-
-/** Invalidate subscription queries and related expense data. */
-export function invalidateSubscriptionData() {
-  queryClient.invalidateQueries({ queryKey: QueryKeys.subscriptions.all });
-  queryClient.invalidateQueries({ queryKey: QueryKeys.expenses.all });
 }

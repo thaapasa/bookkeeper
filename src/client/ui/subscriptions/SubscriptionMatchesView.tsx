@@ -44,7 +44,6 @@ export const SubscriptionMatchesView: React.FC<{
               expense={e}
               userData={userData}
               addFilter={noop}
-              onUpdated={noop}
               editable={false}
             />
           ))}

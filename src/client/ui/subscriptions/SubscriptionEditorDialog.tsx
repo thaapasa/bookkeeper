@@ -34,7 +34,7 @@ import {
 import { ObjectId } from 'shared/types';
 import { Money, noop } from 'shared/util';
 import { apiConnect } from 'client/data/ApiConnect';
-import { invalidateSubscriptionData } from 'client/data/query';
+import { invalidateServerData } from 'client/data/query';
 import { QueryKeys } from 'client/data/queryKeys';
 import { useUserData, useValidSession } from 'client/data/SessionStore';
 import { executeOperation } from 'client/util/ExecuteOperation';
@@ -110,7 +110,7 @@ const SubscriptionEditorForm: React.FC<Omit<Props, 'opened'>> = ({ item, onClose
         {
           success: 'Tilaus luotu',
           postProcess: () => {
-            invalidateSubscriptionData();
+            invalidateServerData();
             onClose();
           },
         },
@@ -125,7 +125,7 @@ const SubscriptionEditorForm: React.FC<Omit<Props, 'opened'>> = ({ item, onClose
     await executeOperation(() => apiConnect.updateSubscription(item.rowId, update), {
       success: 'Tilaus päivitetty',
       postProcess: () => {
-        invalidateSubscriptionData();
+        invalidateServerData();
         onClose();
       },
     });
@@ -466,7 +466,6 @@ const PreviewPanel: React.FC<{ filter: ExpenseQuery }> = ({ filter }) => {
               expense={e}
               userData={userData}
               addFilter={noop}
-              onUpdated={noop}
               editable={false}
             />
           ))}

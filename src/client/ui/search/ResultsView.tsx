@@ -14,7 +14,6 @@ import { TotalSum } from './TotalSum';
 
 interface ResultsViewOwnProps {
   results: UserExpense[];
-  onUpdate: () => void;
   onSelectCategory: (cat: Category) => void;
 }
 
@@ -64,14 +63,13 @@ const ExpenseYear: React.FC<ResultsProps & { year: string }> = ({ results, year,
   </>
 );
 
-const ExpenseList: React.FC<ResultsProps> = ({ results, onUpdate, onSelectCategory, userData }) => (
+const ExpenseList: React.FC<ResultsProps> = ({ results, onSelectCategory, userData }) => (
   <ExpenseTableLayout padded>
     <Table.Tbody>
       {results.map(e => (
         <ExpenseRow
           key={e.id}
           expense={e}
-          onUpdated={onUpdate}
           addFilter={noop}
           selectCategory={onSelectCategory}
           userData={userData}

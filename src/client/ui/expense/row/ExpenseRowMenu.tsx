@@ -4,8 +4,7 @@ import * as React from 'react';
 import { RecurrencePeriod, RecurringExpenseTarget, UserExpense } from 'shared/expense';
 import { Money } from 'shared/util';
 import { apiConnect } from 'client/data/ApiConnect';
-import { invalidateExpenseData, invalidateSubscriptionData, queryClient } from 'client/data/query';
-import { QueryKeys } from 'client/data/queryKeys';
+import { invalidateServerData } from 'client/data/query';
 import { useSourceMap } from 'client/data/SessionStore';
 import { createNewExpense, editExpense, splitExpense } from 'client/data/State';
 import { logger } from 'client/Logger';
@@ -58,10 +57,7 @@ export const ExpenseRowMenu: React.FC<{ expense: UserExpense }> = ({ expense }) 
     if (!period) return;
     await executeOperation(() => apiConnect.createRecurring(expense.id, period), {
       success: 'Kirjaus muutettu toistuvaksi',
-      postProcess: () => {
-        invalidateExpenseData();
-        queryClient.invalidateQueries({ queryKey: QueryKeys.subscriptions.all });
-      },
+      postProcess: () => invalidateServerData(),
     });
   };
 
@@ -80,10 +76,7 @@ export const ExpenseRowMenu: React.FC<{ expense: UserExpense }> = ({ expense }) 
       if (!target) return;
       await executeOperation(() => apiConnect.deleteRecurringById(expense.id, target), {
         success: `Poistettu kirjaus ${name}`,
-        postProcess: () => {
-          invalidateExpenseData();
-          invalidateSubscriptionData();
-        },
+        postProcess: () => invalidateServerData(),
       });
       return;
     }
@@ -91,7 +84,7 @@ export const ExpenseRowMenu: React.FC<{ expense: UserExpense }> = ({ expense }) 
       confirmTitle: 'Poista kirjaus',
       confirm: `Haluatko varmasti poistaa kirjauksen ${name}?`,
       success: `Poistettu kirjaus ${name}`,
-      postProcess: () => invalidateExpenseData(),
+      postProcess: () => invalidateServerData(),
     });
   };
 

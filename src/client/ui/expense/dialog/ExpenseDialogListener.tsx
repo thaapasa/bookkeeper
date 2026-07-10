@@ -6,7 +6,7 @@ import { ISODate } from 'shared/time';
 import { noop } from 'shared/util';
 import { apiConnect } from 'client/data/ApiConnect';
 import { navigateToExpenseDate } from 'client/data/NavigationStore';
-import { invalidateExpenseData } from 'client/data/query';
+import { invalidateServerData } from 'client/data/query';
 import { ExpenseDialogObject } from 'client/data/StateTypes';
 import { logger } from 'client/Logger';
 
@@ -94,7 +94,7 @@ export function createExpenseDialogListener<D>(
     }, []);
 
     const onExpensesUpdated = React.useCallback((date: ISODate, id?: number) => {
-      invalidateExpenseData();
+      invalidateServerData();
       navigateToExpenseDate(date, id);
     }, []);
 

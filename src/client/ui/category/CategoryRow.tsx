@@ -1,6 +1,6 @@
 import { Group, Loader, Table } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import * as React from 'react';
 
 import { UIDateRange } from 'shared/time';
@@ -106,7 +106,6 @@ const CategoryRowExpenses: React.FC<{
   category: Category;
   userData: UserDataProps;
 }> = ({ range, category, userData }) => {
-  const queryClient = useQueryClient();
   const searchQuery = React.useMemo(
     () => ({
       startDate: range.start,
@@ -120,11 +119,6 @@ const CategoryRowExpenses: React.FC<{
     queryKey: QueryKeys.search.results(searchQuery),
     queryFn: () => apiConnect.searchExpenses(searchQuery),
   });
-  const invalidate = React.useCallback(
-    () => queryClient.invalidateQueries({ queryKey: QueryKeys.search.results(searchQuery) }),
-    [queryClient, searchQuery],
-  );
-
   if (data.length < 1) {
     return <Group p="md">Ei kirjauksia</Group>;
   }
@@ -137,7 +131,6 @@ const CategoryRowExpenses: React.FC<{
             userData={userData}
             key={'expense-row-' + expense.id}
             addFilter={noop}
-            onUpdated={() => invalidate()}
           />
         ))}
       </Table.Tbody>
