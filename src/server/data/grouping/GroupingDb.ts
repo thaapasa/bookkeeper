@@ -6,6 +6,7 @@ import {
   ExpenseGroupingData,
   ExpenseGroupingRef,
   isDefined,
+  NotFoundError,
   ObjectId,
 } from 'shared/types';
 import { groupingImageHandler } from 'server/content/GroupingImage';
@@ -93,6 +94,23 @@ export async function getExpenseGroupingById(
     { groupingId, groupId, userId },
   );
   return row ? toExpenseGrouping(row) : undefined;
+}
+
+/**
+ * Resolves an untrusted grouping id through the group-scoped, visibility-checked lookup,
+ * throwing when the grouping does not exist or is not visible to the caller.
+ */
+export async function requireExpenseGroupingById(
+  tx: DbTask,
+  groupId: ObjectId,
+  userId: ObjectId,
+  groupingId: ObjectId,
+): Promise<ExpenseGrouping> {
+  const grouping = await getExpenseGroupingById(tx, groupId, userId, groupingId);
+  if (!grouping) {
+    throw new NotFoundError('EXPENSE_GROUPING_NOT_FOUND', 'expense grouping', groupingId);
+  }
+  return grouping;
 }
 
 export async function getAllGroupingRefs(

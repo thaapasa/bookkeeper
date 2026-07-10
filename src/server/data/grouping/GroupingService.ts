@@ -2,7 +2,6 @@ import {
   ExpenseGrouping,
   ExpenseGroupingData,
   ExpenseGroupingWithExpenses,
-  NotFoundError,
   ObjectId,
 } from 'shared/types';
 import { groupingImageHandler } from 'server/content/GroupingImage';
@@ -16,9 +15,9 @@ import {
   clearGroupingImageById,
   deleteExpenseGroupingById,
   getCategoryTotalsForGrouping,
-  getExpenseGroupingById,
   getExpensesForGrouping,
   insertExpenseGrouping,
+  requireExpenseGroupingById,
   setGroupingImageById,
   updateExpenseGroupingById,
 } from './GroupingDb';
@@ -40,11 +39,7 @@ export async function getExpenseGrouping(
   userId: ObjectId,
   groupingId: ObjectId,
 ): Promise<ExpenseGrouping> {
-  const grouping = await getExpenseGroupingById(tx, groupId, userId, groupingId);
-  if (!grouping) {
-    throw new NotFoundError('EXPENSE_GROUPING_NOT_FOUND', 'expense grouping', groupingId);
-  }
-  return grouping;
+  return requireExpenseGroupingById(tx, groupId, userId, groupingId);
 }
 
 export function createExpenseGrouping(

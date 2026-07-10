@@ -17,7 +17,7 @@ import { withSpan } from 'server/telemetry/Spans';
 import { getCategoryById } from './CategoryDb';
 import { validateCurrencyId } from './CurrencyDb';
 import { determineDivision } from './ExpenseDivision';
-import { getExpenseGroupingById } from './grouping/GroupingDb';
+import { requireExpenseGroupingById } from './grouping/GroupingDb';
 import { getSourceById } from './SourceDb';
 import { getUserById } from './UserDb';
 
@@ -361,10 +361,7 @@ export async function updateExpense(
   // so an edit cannot attribute the expense to a non-member or a foreign grouping.
   const user = await getUserById(tx, original.groupId, expense.userId);
   if (isDefined(expense.groupingId)) {
-    const grouping = await getExpenseGroupingById(tx, original.groupId, userId, expense.groupingId);
-    if (!grouping) {
-      throw new NotFoundError('EXPENSE_GROUPING_NOT_FOUND', 'expense grouping', expense.groupingId);
-    }
+    await requireExpenseGroupingById(tx, original.groupId, userId, expense.groupingId);
   }
   await validateCurrencyId(tx, expense.currencyId);
   const division = determineDivision(expense, source);

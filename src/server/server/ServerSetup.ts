@@ -33,11 +33,8 @@ export function setupServer() {
   // 404s are left uncached so a later upload to the same path is visible.
   app.get(/\/content\/.*/, (req, res, next) => {
     setOtelRouteInfo(req, '/content/:path');
-    const relative = req.path.replace(/^\/content\//, '');
-    const target = path.resolve(config.contentPath, relative);
-    // Reject path traversal: the resolved file must stay inside contentPath.
-    const root = path.resolve(config.contentPath) + path.sep;
-    if (!(target + path.sep).startsWith(root)) {
+    const target = resolveContainedPath(config.contentPath, req.path.replace(/^\/content\//, ''));
+    if (!target) {
       res.status(404).send();
       return;
     }
@@ -59,6 +56,19 @@ export function setupServer() {
   app.use('/api', nocache(), createApi());
 
   return app;
+}
+
+/**
+ * Resolves `relative` against `root`, returning the absolute path only when it stays
+ * inside `root` — otherwise undefined. Rejects `..` traversal and absolute-path inputs.
+ * The trailing separator appended to both sides makes the prefix check exact: it stops
+ * sibling-directory collisions (`/data/content-evil` vs `/data/content`) while still
+ * accepting `root` itself.
+ */
+export function resolveContainedPath(root: string, relative: string): string | undefined {
+  const target = path.resolve(root, relative);
+  const rootPrefix = path.resolve(root) + path.sep;
+  return (target + path.sep).startsWith(rootPrefix) ? target : undefined;
 }
 
 async function serveFile(

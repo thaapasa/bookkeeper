@@ -1,5 +1,5 @@
 import { Expense, ExpenseDivisionItem, ExpenseInput } from 'shared/expense';
-import { ExpenseIdResponse, isDefined, NotFoundError, ObjectId } from 'shared/types';
+import { ExpenseIdResponse, isDefined, ObjectId } from 'shared/types';
 import { DbTask } from 'server/data/Db.ts';
 import { logger } from 'server/Logger';
 import { withSpan } from 'server/telemetry/Spans';
@@ -14,7 +14,7 @@ import {
 import { getCategoryById } from './CategoryDb';
 import { validateCurrencyId } from './CurrencyDb';
 import { determineDivision } from './ExpenseDivision';
-import { getExpenseGroupingById } from './grouping/GroupingDb';
+import { requireExpenseGroupingById } from './grouping/GroupingDb';
 import { getSourceById } from './SourceDb';
 import { getUserById } from './UserDb';
 
@@ -39,14 +39,7 @@ export function createExpense(
       const user = await getUserById(tx, groupId, expense.userId);
       const source = await getSourceById(tx, groupId, sourceId);
       if (isDefined(expense.groupingId)) {
-        const grouping = await getExpenseGroupingById(tx, groupId, userId, expense.groupingId);
-        if (!grouping) {
-          throw new NotFoundError(
-            'EXPENSE_GROUPING_NOT_FOUND',
-            'expense grouping',
-            expense.groupingId,
-          );
-        }
+        await requireExpenseGroupingById(tx, groupId, userId, expense.groupingId);
       }
       await validateCurrencyId(tx, expense.currencyId);
 

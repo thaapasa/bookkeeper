@@ -107,7 +107,8 @@ export async function reorderUserShortcuts(
             ORDER BY sort_order ASC
           ) AS data
         ) AS data
-      WHERE shortcuts.id = data.id`,
+      WHERE shortcuts.id = data.id
+        AND shortcuts.group_id=$/groupId/ AND shortcuts.user_id=$/userId/`,
     { userId, groupId },
   );
 }

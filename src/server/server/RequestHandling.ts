@@ -113,23 +113,16 @@ function processValidatedTxRequest<Return, P, Q, B>(
     res: Response,
   ) => MaybePromise<Return>,
 ): RequestHandler {
-  return processUnauthorizedRequest(async (req, res) => {
-    const token = ServerUtil.getToken(req);
+  // processTxRequest authenticates before this callback runs, so unauthenticated
+  // callers get 401, not 400 with validation details.
+  return processTxRequest(async (tx, session, req, res) => {
     const ctx = `${req.method} ${req.originalUrl}`;
-    return await db.tx(async tx => {
-      // Authenticate before validating input so unauthenticated callers get 401,
-      // not 400 with validation details
-      const session = await getSessionByToken(tx, token, optNumber(req.query.groupId));
-      if (spec.groupRequired && !session.group.id) {
-        throw new InvalidGroupError();
-      }
-      const params = validateOr(req.params, spec.params, {} as P, `${ctx} params`);
-      const body = validateOr(req.body, spec.body, {} as B, `${ctx} body`);
-      const query = validateOr(req.query, spec.query, {} as Q, `${ctx} query`);
-      const response = await handler(tx, session, { params, query, body }, req, res);
-      return validateOr(response, spec.response, response, `${ctx} return value`);
-    });
-  });
+    const params = validateOr(req.params, spec.params, {} as P, `${ctx} params`);
+    const body = validateOr(req.body, spec.body, {} as B, `${ctx} body`);
+    const query = validateOr(req.query, spec.query, {} as Q, `${ctx} query`);
+    const response = await handler(tx, session, { params, query, body }, req, res);
+    return validateOr(response, spec.response, response, `${ctx} return value`);
+  }, spec.groupRequired);
 }
 
 export const Requests = {
