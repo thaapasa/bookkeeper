@@ -1,4 +1,4 @@
-import { ActionIcon, Box, Button, Flex, Group, Loader, Modal } from '@mantine/core';
+import { ActionIcon, Box, Flex, Group, Loader, Modal } from '@mantine/core';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import * as React from 'react';
 import { create } from 'zustand';
@@ -12,6 +12,7 @@ import { QueryBoundary } from '../component/QueryBoundary';
 import { TextEdit } from '../component/TextEdit';
 import { UploadImageButton } from '../component/UploadImageButton';
 import { DialogHeading, Subtitle } from '../design/Text';
+import { DialogFooter } from '../dialog/DialogFooter';
 import { Icons } from '../icons/Icons';
 import { useShortcutState } from './ShortcutEditorState';
 import { ShortcutLink } from './ShortcutLink';
@@ -121,19 +122,13 @@ const ShortcutEditView: React.FC<{
           <TextEdit value={state.expenseStr} onChange={state.setExpense} />
         </Box>
 
-        <Box>
-          <Button variant="subtle" onClick={onClose}>
-            Peruuta
-          </Button>
-        </Box>
-        <Box ta="right">
-          <Button
-            variant="filled"
-            disabled={!state.inputValid()}
-            onClick={() => state.saveShortcut(onClose)}
-          >
-            Tallenna
-          </Button>
+        <Box style={{ gridColumn: '1 / -1' }}>
+          <DialogFooter
+            onCancel={onClose}
+            onOk={() => state.saveShortcut(onClose)}
+            okLabel="Tallenna"
+            okDisabled={!state.inputValid()}
+          />
         </Box>
       </Box>
     </>

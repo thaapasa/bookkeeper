@@ -1,4 +1,4 @@
-import { Box, Button, Group, Modal } from '@mantine/core';
+import { Box, Modal } from '@mantine/core';
 import * as React from 'react';
 
 import { Category } from 'shared/types';
@@ -10,6 +10,7 @@ import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { CategorySelector } from '../component/CategorySelector';
 import { TextEdit } from '../component/TextEdit';
+import { DialogFooter } from '../dialog/DialogFooter';
 
 interface CategoryDialogProps {
   opened: boolean;
@@ -83,7 +84,13 @@ const CategoryForm: React.FC<Omit<CategoryDialogProps, 'opened'>> = ({
 
   return (
     <>
-      <Box component="form" pos="relative" style={{ zIndex: 1 }} onSubmit={save}>
+      <Box
+        component="form"
+        id="category-dialog-form"
+        pos="relative"
+        style={{ zIndex: 1 }}
+        onSubmit={save}
+      >
         <TextEdit label="Nimi" placeholder="Nimi" value={name} onChange={setName} />
         <CategorySelector
           value={parentId}
@@ -94,14 +101,12 @@ const CategoryForm: React.FC<Omit<CategoryDialogProps, 'opened'>> = ({
           mt="xs"
         />
       </Box>
-      <Group justify="flex-end" gap="xs" pt="md">
-        <Button variant="subtle" onClick={onClose}>
-          Peruuta
-        </Button>
-        <Button variant="filled" disabled={!valid} onClick={save}>
-          Tallenna
-        </Button>
-      </Group>
+      <DialogFooter
+        onCancel={onClose}
+        okSubmitForm="category-dialog-form"
+        okLabel="Tallenna"
+        okDisabled={!valid}
+      />
     </>
   );
 };

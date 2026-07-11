@@ -41,6 +41,7 @@ import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { CategoryMultiSelector } from '../component/CategoryMultiSelector';
 import { CategorySelector } from '../component/CategorySelector';
+import { DialogFooter } from '../dialog/DialogFooter';
 import { SourceSelector, SumField } from '../expense/dialog/ExpenseDialogComponents';
 import { ExpenseRow } from '../expense/row/ExpenseRow';
 import { ExpenseTableLayout } from '../expense/row/ExpenseTableLayout';
@@ -186,14 +187,7 @@ const SubscriptionEditorForm: React.FC<Omit<Props, 'opened'>> = ({ item, onClose
         ) : null}
       </Tabs>
 
-      <Group justify="flex-end" gap="xs" pt="md">
-        <Button variant="subtle" onClick={onClose}>
-          Peruuta
-        </Button>
-        <Button variant="filled" disabled={!canSave} onClick={save}>
-          Tallenna
-        </Button>
-      </Group>
+      <DialogFooter onCancel={onClose} onOk={save} okLabel="Tallenna" okDisabled={!canSave} />
     </>
   );
 };

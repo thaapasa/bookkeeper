@@ -1,14 +1,4 @@
-import {
-  ActionIcon,
-  Box,
-  Button,
-  Checkbox,
-  Flex,
-  Group,
-  Loader,
-  Modal,
-  Stack,
-} from '@mantine/core';
+import { ActionIcon, Box, Checkbox, Flex, Group, Loader, Modal, Stack } from '@mantine/core';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import * as React from 'react';
 import { create } from 'zustand';
@@ -27,6 +17,7 @@ import { TagsPicker } from '../component/TagsPicker';
 import { TextEdit } from '../component/TextEdit';
 import { UploadImageButton } from '../component/UploadImageButton';
 import { DialogHeading, Subtitle } from '../design/Text';
+import { DialogFooter } from '../dialog/DialogFooter';
 import { Icons } from '../icons/Icons';
 import styles from './GroupingEditor.module.css';
 import { useGroupingState } from './GroupingEditorState';
@@ -203,19 +194,12 @@ const GroupingEditView: React.FC<{
           ))}
         </Box>
         <Box style={{ gridColumn: '1 / -1' }}>
-          <Group justify="flex-end">
-            <Button variant="subtle" onClick={onClose}>
-              Peruuta
-            </Button>
-            <Button
-              ml="md"
-              variant="filled"
-              disabled={!state.inputValid()}
-              onClick={() => state.saveGrouping(onClose, reloadAll)}
-            >
-              Tallenna
-            </Button>
-          </Group>
+          <DialogFooter
+            onCancel={onClose}
+            onOk={() => state.saveGrouping(onClose, reloadAll)}
+            okLabel="Tallenna"
+            okDisabled={!state.inputValid()}
+          />
         </Box>
       </Box>
     </Stack>

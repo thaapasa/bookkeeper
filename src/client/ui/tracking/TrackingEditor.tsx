@@ -1,7 +1,6 @@
 import {
   ActionIcon,
   Box,
-  Button,
   Checkbox,
   Flex,
   Group,
@@ -25,6 +24,7 @@ import { QueryBoundary } from '../component/QueryBoundary';
 import { TextEdit } from '../component/TextEdit';
 import { UploadImageButton } from '../component/UploadImageButton';
 import { DialogHeading, Subtitle } from '../design/Text';
+import { DialogFooter } from '../dialog/DialogFooter';
 import { Icons } from '../icons/Icons';
 import styles from './TrackingEditor.module.css';
 import { useTrackingState } from './TrackingEditorState';
@@ -230,19 +230,12 @@ const TrackingEditView: React.FC<{
           ))}
         </Box>
         <Box style={{ gridColumn: '1 / -1' }}>
-          <Group justify="flex-end">
-            <Button variant="subtle" onClick={onClose}>
-              Peruuta
-            </Button>
-            <Button
-              ml="md"
-              variant="filled"
-              disabled={!state.inputValid()}
-              onClick={() => state.saveTracking(onClose, reloadAll)}
-            >
-              Tallenna
-            </Button>
-          </Group>
+          <DialogFooter
+            onCancel={onClose}
+            onOk={() => state.saveTracking(onClose, reloadAll)}
+            okLabel="Tallenna"
+            okDisabled={!state.inputValid()}
+          />
         </Box>
       </Box>
     </>

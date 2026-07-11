@@ -7,6 +7,8 @@ type DialogFooterProps = {
   onOk?: () => void;
   okLabel?: string;
   okDisabled?: boolean;
+  /** Render the primary button as a submit button for the given form id, instead of onOk. */
+  okSubmitForm?: string;
   handleKeyPress?: (event: React.KeyboardEvent<any>) => void;
   /** Extra action buttons rendered between Peruuta and OK. */
   children?: React.ReactNode;
@@ -22,16 +24,24 @@ export const DialogFooter: React.FC<DialogFooterProps> = ({
   onOk,
   okLabel = 'OK',
   okDisabled,
+  okSubmitForm,
   handleKeyPress,
   children,
 }) => (
   <Group justify="flex-end" gap="xs" pt="md" wrap="wrap">
-    <Button variant="subtle" onKeyUp={handleKeyPress} onClick={onCancel}>
+    <Button type="button" variant="subtle" onKeyUp={handleKeyPress} onClick={onCancel}>
       Peruuta
     </Button>
     {children}
-    {onOk ? (
-      <Button variant="filled" onKeyUp={handleKeyPress} disabled={okDisabled} onClick={onOk}>
+    {onOk || okSubmitForm ? (
+      <Button
+        type={okSubmitForm ? 'submit' : 'button'}
+        form={okSubmitForm}
+        variant="filled"
+        onKeyUp={handleKeyPress}
+        disabled={okDisabled}
+        onClick={onOk}
+      >
         {okLabel}
       </Button>
     ) : null}

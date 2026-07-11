@@ -8,6 +8,7 @@ import { useExpenseDialogData } from 'client/data/SessionStore';
 import { CategorySelector } from 'client/ui/component/CategorySelector';
 import { UserIdAvatar } from 'client/ui/component/UserAvatar';
 import { UserSelector } from 'client/ui/component/UserSelector';
+import { DialogFooter } from 'client/ui/dialog/DialogFooter';
 import { Icons } from 'client/ui/icons/Icons';
 import { stopEventPropagation } from 'client/util/ClientUtil';
 
@@ -226,14 +227,12 @@ export const ExpenseDialog: React.FC<ExpenseDialogProps<ExpenseInEditor>> = oute
           />
         </Stack>
       </ExpenseDialogContent>
-      <Group justify="flex-end" gap="sm" pt="md">
-        <Button type="button" variant="subtle" onClick={dismiss}>
-          Peruuta
-        </Button>
-        <Button type="submit" form="expense-dialog-form" variant="filled" disabled={!state.valid}>
-          Tallenna
-        </Button>
-      </Group>
+      <DialogFooter
+        onCancel={dismiss}
+        okSubmitForm="expense-dialog-form"
+        okLabel="Tallenna"
+        okDisabled={!state.valid}
+      />
     </Modal>
   );
 };
