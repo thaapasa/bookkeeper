@@ -90,6 +90,10 @@ export const useShortcutState = create<ShortcutState>((set, get) => ({
   },
 }));
 
+export function isValidShortcutData(expenseStr: string): boolean {
+  return parseExpense(expenseStr) !== undefined;
+}
+
 function parseExpense(expenseStr: string): ExpenseShortcutData | undefined {
   try {
     const d = JSON.parse(expenseStr);

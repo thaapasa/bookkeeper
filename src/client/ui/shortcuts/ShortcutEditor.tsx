@@ -1,4 +1,4 @@
-import { ActionIcon, Box, Flex, Group, Loader, Modal } from '@mantine/core';
+import { ActionIcon, Box, Flex, Group, Loader, Modal, Textarea } from '@mantine/core';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import * as React from 'react';
 import { create } from 'zustand';
@@ -14,7 +14,7 @@ import { UploadImageButton } from '../component/UploadImageButton';
 import { DialogHeading, Subtitle } from '../design/Text';
 import { DialogFooter } from '../dialog/DialogFooter';
 import { Icons } from '../icons/Icons';
-import { useShortcutState } from './ShortcutEditorState';
+import { isValidShortcutData, useShortcutState } from './ShortcutEditorState';
 import { ShortcutLink } from './ShortcutLink';
 
 const useShortcutDialogStore = create<{
@@ -119,7 +119,15 @@ const ShortcutEditView: React.FC<{
           <Subtitle>Linkin data</Subtitle>
         </Box>
         <Box style={{ gridColumn: '1 / -1' }}>
-          <TextEdit value={state.expenseStr} onChange={state.setExpense} />
+          <Textarea
+            value={state.expenseStr}
+            onChange={e => state.setExpense(e.target.value)}
+            autosize
+            minRows={4}
+            maxRows={16}
+            styles={{ input: { fontFamily: 'var(--mantine-font-family-monospace)' } }}
+            error={isValidShortcutData(state.expenseStr) ? undefined : 'Virheellinen JSON'}
+          />
         </Box>
 
         <Box style={{ gridColumn: '1 / -1' }}>
