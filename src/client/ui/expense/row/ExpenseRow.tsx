@@ -168,6 +168,9 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
           pos="relative"
           onClick={editable && !continuesSplit ? editDate : undefined}
         >
+          {/* An expense is never both subscription-generated and split-linked
+              (enforced server-side); the !continuesSplit check is defence in depth
+              so the split marker wins the date slot if that invariant ever breaks. */}
           {expense.subscriptionId && !continuesSplit ? (
             <RecurringExpenseIcon className={styles.recurringIcon} />
           ) : null}

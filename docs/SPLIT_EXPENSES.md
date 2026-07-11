@@ -64,11 +64,11 @@ unlinked (pinned by `src/integration/Security.test.ts`).
   `src/shared/expense/SplitGrouping.ts`): the group anchors at its first member's
   position, trailing members pull up behind it. Grouping never crosses days — the
   same key on different days (e.g. after a date edit) renders ungrouped.
-- Members after the first render as **continuation rows**: no date, no avatar (when
-  the user matches the previous row), no receiver (when it matches), no link icon,
-  and no separating row border.
-- The first member shows a link icon; clicking it filters the table to that split
-  group.
+- Members after the first render as **continuation rows**: a dim, non-interactive
+  link icon in the date slot (a ditto-style "same as above" marker), no avatar (when
+  the user matches the previous row), no receiver (when it matches), no separating
+  row border, and no date-click editing. The first member renders as a normal dated
+  row with no split indication of its own.
 - Row menu: "Linkitä pilkotuksi…" opens a dialog listing that day's other expenses;
   "Poista pilkkomislinkitys" appears only on linked expenses.
 
