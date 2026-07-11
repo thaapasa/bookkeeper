@@ -1,4 +1,4 @@
-import { Box, Modal } from '@mantine/core';
+import { Box, Checkbox, Modal } from '@mantine/core';
 import * as React from 'react';
 
 import { Category } from 'shared/types';
@@ -55,6 +55,9 @@ const CategoryForm: React.FC<Omit<CategoryDialogProps, 'opened'>> = ({
   const [parentId, setParentId] = React.useState(
     editingCategory ? (editingCategory.parentId ?? 0) : (parentCategory?.id ?? 0),
   );
+  const [excludeFromTotals, setExcludeFromTotals] = React.useState(
+    editingCategory?.excludeFromTotals ?? false,
+  );
 
   const isNew = !editingCategory;
   const valid = name.length > 0;
@@ -62,7 +65,7 @@ const CategoryForm: React.FC<Omit<CategoryDialogProps, 'opened'>> = ({
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const data = { name, parentId, children: [] };
+    const data = { name, parentId, excludeFromTotals };
     logger.info({ data }, 'Save category data');
     await executeOperation(
       () =>
@@ -99,6 +102,13 @@ const CategoryForm: React.FC<Omit<CategoryDialogProps, 'opened'>> = ({
           label="Yläkategoria"
           clearable
           mt="xs"
+        />
+        <Checkbox
+          mt="md"
+          label="Jätä pois vuosikatsauksesta"
+          description="Yläkategorian valinta jättää pois myös kaikki sen alakategoriat"
+          checked={excludeFromTotals}
+          onChange={e => setExcludeFromTotals(e.currentTarget.checked)}
         />
       </Box>
       <DialogFooter

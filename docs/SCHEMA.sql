@@ -89,7 +89,8 @@ CREATE TABLE public.categories (
     id integer NOT NULL,
     parent_id integer,
     group_id integer NOT NULL,
-    name text NOT NULL
+    name text NOT NULL,
+    exclude_from_totals boolean DEFAULT false NOT NULL
 );
 
 

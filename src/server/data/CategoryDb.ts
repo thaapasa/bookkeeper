@@ -12,12 +12,14 @@ import { DbTask } from 'server/data/Db.ts';
 import { logger } from 'server/Logger';
 import { withSpan } from 'server/telemetry/Spans';
 
-const CATEGORY_FIELDS = /*sql*/ `c.id, c.parent_id AS "parentId", c.name, p.name AS "parentName"`;
+const CATEGORY_FIELDS = /*sql*/ `c.id, c.parent_id AS "parentId", c.name,
+  c.exclude_from_totals AS "excludeFromTotals", p.name AS "parentName"`;
 
 interface CategoryRow {
   id: ObjectId;
   parentId: ObjectId | null;
   name: string;
+  excludeFromTotals: boolean;
   parentName: string | null;
 }
 
@@ -47,13 +49,14 @@ export function getCategoryTotals(
   return withSpan('category.totals', { 'app.group_id': groupId }, async () => {
     const cats = await tx.manyOrNone<CategoryAndTotals>(
       `SELECT categories.id, categories.parent_id as "parentId",
+          categories.exclude_from_totals AS "excludeFromTotals",
           SUM(CASE WHEN type='expense' AND date >= $/startDate/::DATE AND date <= $/endDate/::DATE THEN sum ELSE 0::NUMERIC END) AS expenses,
           SUM(CASE WHEN type='income' AND date >= $/startDate/::DATE AND date <= $/endDate/::DATE THEN sum ELSE 0::NUMERIC END) AS income
         FROM categories
         LEFT JOIN expenses ON categories.id = category_id
         WHERE categories.group_id = $/groupId/
           AND (expenses.id IS NULL OR expenses.group_id = $/groupId/::INTEGER)
-        GROUP BY categories.id, categories.parent_id
+        GROUP BY categories.id, categories.parent_id, categories.exclude_from_totals
         ORDER BY (CASE WHEN parent_id IS NULL THEN 1 ELSE 0 END) DESC, parent_id ASC, name`,
       { groupId, startDate: params.startDate, endDate: params.endDate },
     );
@@ -65,10 +68,15 @@ async function insert(tx: DbTask, groupId: number, data: CategoryInput): Promise
   logger.debug(data, 'Creating new category');
   return (
     await tx.one<{ id: number }>(
-      `INSERT INTO categories (group_id, parent_id, name)
-        VALUES ($/groupId/::INTEGER, $/parentId/::INTEGER, $/name/)
+      `INSERT INTO categories (group_id, parent_id, name, exclude_from_totals)
+        VALUES ($/groupId/::INTEGER, $/parentId/::INTEGER, $/name/, $/excludeFromTotals/)
         RETURNING id`,
-      { groupId, parentId: data.parentId || null, name: data.name },
+      {
+        groupId,
+        parentId: data.parentId || null,
+        name: data.name,
+        excludeFromTotals: data.excludeFromTotals ?? false,
+      },
     )
   ).id;
 }
@@ -159,11 +167,12 @@ export function updateCategory(
       logger.info({ data }, `Updating category ${categoryId}`);
       await tx.none(
         `UPDATE categories
-          SET parent_id=$/parentId/::INTEGER, name=$/name/
+          SET parent_id=$/parentId/::INTEGER, name=$/name/, exclude_from_totals=$/excludeFromTotals/
           WHERE id=$/categoryId/::INTEGER AND group_id=$/groupId/::INTEGER`,
         {
           parentId: data.parentId || null,
           name: data.name,
+          excludeFromTotals: data.excludeFromTotals ?? false,
           categoryId,
           groupId,
         },

@@ -11,8 +11,8 @@ import { uri } from '../../net/UrlUtils';
 import { YearMonth } from '../../time';
 import {
   ApiMessage,
-  CategoryData,
   CategoryIdResponse,
+  CategoryInput,
   ExpenseIdResponse,
   Session,
 } from '../../types';
@@ -119,7 +119,7 @@ export async function unlinkSplitExpense(
 
 export async function newCategory(
   session: SessionWithControl,
-  data: CategoryData,
+  data: CategoryInput,
 ): Promise<CategoryIdResponse> {
   return await session.post<CategoryIdResponse>('/api/category', data);
 }

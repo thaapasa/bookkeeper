@@ -12,10 +12,11 @@ import {
   profilePagePath,
   searchPagePath,
   shortcutsPagePath,
-  statisticsPage,
+  statisticsPagePath,
   subscriptionsPagePath,
   toolsPagePath,
   trackingPagePath,
+  yearlySummaryPagePath,
 } from 'client/util/Links';
 
 import { RoutedCategoryPage } from '../category/RoutedCategoryPage';
@@ -32,6 +33,7 @@ import { StatisticsView } from '../statistics/StatisticsView';
 import { SubscriptionsPage } from '../subscriptions/SubscriptionsPage';
 import { ToolsView } from '../tools/ToolsView';
 import { TrackingPage } from '../tracking/TrackingPage';
+import { YearlySummaryView } from '../yearly/YearlySummaryView';
 
 function qb(children: React.ReactNode) {
   return <QueryBoundary>{children}</QueryBoundary>;
@@ -54,7 +56,8 @@ export function AppRouter() {
       <Route path={`${searchPagePath}/y/:year`} element={qb(<SearchPage />)} />
       <Route path={searchPagePath} element={qb(<SearchPage />)} />
 
-      <Route path={statisticsPage} element={qb(<StatisticsView />)} />
+      <Route path={statisticsPagePath} element={qb(<StatisticsView />)} />
+      <Route path={yearlySummaryPagePath} element={qb(<YearlySummaryView />)} />
       <Route path={profilePagePath + '/*'} element={<ProfileView />} />
       <Route path={infoPagePath} element={<InfoView />} />
       <Route path={trackingPagePath} element={qb(<TrackingPage />)} />

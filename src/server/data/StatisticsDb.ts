@@ -4,6 +4,8 @@ import {
   CategoryStatistics,
   CategoryStatisticsData,
   ObjectId,
+  YearlySummary,
+  YearlySummaryRow,
 } from 'shared/types';
 import { groupBy, partition } from 'shared/util';
 import { DbTask } from 'server/data/Db.ts';
@@ -93,6 +95,41 @@ function loadCategoryStatisticsDataGroupedByParent(
         },
       ),
   );
+}
+
+/**
+ * Yearly income vs expense totals, rolled up to top-level categories.
+ * Transfers are always excluded; categories flagged with exclude_from_totals
+ * are dropped (a flagged top-level category excludes its whole subtree, a
+ * flagged sub-category only itself).
+ */
+export function getYearlySummary(
+  tx: DbTask,
+  groupId: ObjectId,
+  /** Both start and end dates are included in search */
+  rangeInclusive: DateRange,
+): Promise<YearlySummary> {
+  return withSpan('statistics.yearly_summary', { 'app.group_id': groupId }, async () => {
+    const rows = await tx.manyOrNone<YearlySummaryRow>(
+      `SELECT SUM(e.sum) AS sum,
+          EXTRACT(YEAR FROM e.date)::INTEGER AS year,
+          COALESCE(c.parent_id, c.id) AS "categoryId",
+          e.type
+        FROM expenses e
+        JOIN categories c ON (c.id = e.category_id AND c.group_id = $/groupId/)
+        LEFT JOIN categories p ON (p.id = c.parent_id AND p.group_id = $/groupId/)
+        WHERE e.group_id = $/groupId/
+          AND e.date >= $/start/
+          AND e.date <= $/end/
+          AND e.type IN ('expense', 'income')
+          AND NOT c.exclude_from_totals
+          AND NOT COALESCE(p.exclude_from_totals, FALSE)
+        GROUP BY year, COALESCE(c.parent_id, c.id), e.type
+        ORDER BY year, "categoryId", e.type`,
+      { groupId, start: rangeInclusive.startDate, end: rangeInclusive.endDate },
+    );
+    return { range: rangeInclusive, rows };
+  });
 }
 
 export function getCategoryStatistics(

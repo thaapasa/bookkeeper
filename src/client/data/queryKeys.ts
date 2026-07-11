@@ -41,6 +41,7 @@ export const QueryKeys = {
       endDate: ISODate;
       onlyOwn: boolean;
     }) => ['statistics', 'category', params] as const,
+    yearlySummary: ['statistics', 'yearly-summary'] as const,
   },
   db: {
     status: ['db', 'status'] as const,

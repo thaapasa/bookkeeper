@@ -14,6 +14,11 @@ export interface Group extends DbObject {
 export interface CategoryData {
   parentId: number | null;
   name: string;
+  /**
+   * Excluded from income/expense totals (yearly summary). A flagged top-level
+   * category excludes its whole subtree; a flagged sub-category only itself.
+   */
+  excludeFromTotals: boolean;
 }
 
 export interface Category extends DbObject, CategoryData {

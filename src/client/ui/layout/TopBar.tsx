@@ -10,10 +10,11 @@ import {
   infoPagePath,
   searchPagePath,
   shortcutsPagePath,
-  statisticsPage,
+  statisticsPagePath,
   subscriptionsPagePath,
   toolsPagePath,
   trackingPagePath,
+  yearlySummaryPagePath,
 } from 'client/util/Links';
 
 import { DateRangeNavigator } from '../component/DateRangeNavigator';
@@ -36,7 +37,8 @@ export const appLinks: AppLink[] = [
   { label: 'Kulut', path: expensePagePath, showInHeader: 'sm', icon: 'Money' },
   { label: 'Kategoriat', path: categoryPagePath, showInHeader: 'sm', icon: 'Category' },
   { label: 'Tilaukset', path: subscriptionsPagePath, showInHeader: 'sm', icon: 'Subscriptions' },
-  { label: 'Tilastot', path: statisticsPage, showInHeader: 'md', icon: 'BarChart' },
+  { label: 'Vuosikatsaus', path: yearlySummaryPagePath, showInHeader: 'md', icon: 'StackedChart' },
+  { label: 'Tilastot', path: statisticsPagePath, showInHeader: false, icon: 'AreaChart' },
   { label: 'Seuranta', path: trackingPagePath, showInHeader: 'sm', icon: 'Chart' },
   { label: 'Ryhmittelyt', path: groupingsPagePath, showInHeader: 'lg', icon: 'Grouping' },
   { label: 'Haku', path: searchPagePath, showInHeader: 'sm', icon: 'Search' },

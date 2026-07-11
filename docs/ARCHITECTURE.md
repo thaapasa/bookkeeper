@@ -65,7 +65,8 @@ src/
 │   │   ├── theme/         # Mantine theme
 │   │   ├── tools/         # Admin tools (DB status, tooling buttons)
 │   │   ├── tracking/      # Value tracking
-│   │   └── utils/         # UI-layer helpers (classNames, Navigation, ...)
+│   │   ├── utils/         # UI-layer helpers (classNames, Navigation, ...)
+│   │   └── yearly/        # Yearly income vs expense overview
 │   └── util/         # Non-UI client utilities (ApiConnect helpers, Links)
 │
 ├── server/           # Backend Express server

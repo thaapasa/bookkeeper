@@ -16,6 +16,7 @@ const UNCATEGORIZED_ROOT: Category = {
   parentId: null,
   name: 'Ei kategoriaa',
   fullName: 'Ei kategoriaa',
+  excludeFromTotals: false,
   children: [],
 };
 

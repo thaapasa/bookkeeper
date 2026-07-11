@@ -27,8 +27,8 @@ import {
   AuthenticationError,
   Category,
   CategoryAndTotals,
-  CategoryData,
   CategoryIdResponse,
+  CategoryInput,
   CategorySelection,
   CategoryStatistics,
   CountResponse,
@@ -47,6 +47,7 @@ import {
   TrackingSubjectData,
   TrackingSubjectWithData,
   UserIdResponse,
+  YearlySummary,
 } from 'shared/types';
 import { PasswordUpdate, UserDataUpdate } from 'shared/userData';
 import { filterDefinedProps, Money } from 'shared/util';
@@ -301,7 +302,7 @@ export class ApiConnect {
     return this.get<Category[]>('/api/category/list');
   }
 
-  public storeCategory(category: CategoryData): Promise<CategoryIdResponse> {
+  public storeCategory(category: CategoryInput): Promise<CategoryIdResponse> {
     return this.post<CategoryIdResponse>('/api/category', { body: category });
   }
 
@@ -310,7 +311,7 @@ export class ApiConnect {
       query: { startDate, endDate },
     });
 
-  public updateCategory = (id: number | string, category: CategoryData): Promise<Category> =>
+  public updateCategory = (id: number | string, category: CategoryInput): Promise<Category> =>
     this.put(uri`/api/category/${id}`, { body: category });
 
   public loadStatistics = (
@@ -326,6 +327,8 @@ export class ApiConnect {
     };
     return this.post(uri`/api/statistics/category`, { body });
   };
+
+  public loadYearlySummary = (): Promise<YearlySummary> => this.get('/api/statistics/yearly');
 
   public patchSource = (sourceId: ObjectId, data: SourcePatch) =>
     this.patch<Source>(uri`/api/source/${sourceId}`, { body: data });

@@ -25,6 +25,23 @@ export const CategoryStatisticsData = z.object({
 });
 export type CategoryStatisticsData = z.infer<typeof CategoryStatisticsData>;
 
+export const YearlySummaryRow = z.object({
+  /** Calendar year, e.g. 2026 */
+  year: z.number().int(),
+  /** Top-level category id (sub-categories are rolled up to their parent) */
+  categoryId: z.number(),
+  type: z.enum(['expense', 'income']),
+  sum: z.string(),
+});
+export type YearlySummaryRow = z.infer<typeof YearlySummaryRow>;
+
+export const YearlySummary = z.object({
+  /** Both start and end dates are included */
+  range: DateRange,
+  rows: z.array(YearlySummaryRow),
+});
+export type YearlySummary = z.infer<typeof YearlySummary>;
+
 export const CategoryStatistics = StatisticsSearchType.extend({
   /**
    * Category statistics data, keyed by the category id (as string)
