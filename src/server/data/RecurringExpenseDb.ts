@@ -199,6 +199,15 @@ export function createRecurringFromExpense(
           `Expense ${expenseId} is already a recurring expense (${expense.subscriptionId})`,
         );
       }
+      // Split-linked expenses are excluded from the subscription feature (see
+      // docs/SPLIT_EXPENSES.md): a row must not be both subscription-generated
+      // and split-linked. Unlink first, then convert.
+      if (expense.splitId) {
+        throw new InvalidInputError(
+          'INVALID_INPUT',
+          `Expense ${expenseId} is linked to a split group; unlink it before converting to recurring`,
+        );
+      }
       const nextMissing = calculateNextRecurrence(expense.date, recurrence.period);
       const filter = filterFromExpense(expense);
       const defaults = defaultsFromExpense(expense);

@@ -69,6 +69,7 @@ SELECT
   MIN(user_id) AS "userId", MIN(created_by_id) AS "createdById", MIN(breakdown.group_id) AS "groupId", MIN(category_id) AS "categoryId",
   MIN(grouping_id) AS "groupingId", MIN(auto_grouping_ids) AS "autoGroupingIds",
   MIN(created) AS created, MIN(subscription_id) AS "subscriptionId",
+  MIN(split_id::TEXT) AS "splitId",
   MIN(currency_id) AS "currencyId", MIN(original_currency_value) AS "originalCurrencyValue",
   SUM(cost) AS "userCost", SUM(benefit) AS "userBenefit", SUM(income) AS "userIncome", SUM(split) AS "userSplit",
   SUM(transferor) AS "userTransferor", SUM(transferee) AS "userTransferee",
@@ -78,7 +79,7 @@ FROM (
     e.id, e.date::DATE, e.receiver, e.type, e.sum, e.title, e.description, e.confirmed, e.grouping_id,
     ${AUTO_GROUPING_IDS_SUBQUERY} AS auto_grouping_ids,
     e.source_id, e.user_id, e.created_by_id, e.group_id, e.category_id, e.created, e.subscription_id,
-    e.currency_id, e.original_currency_value,
+    e.split_id, e.currency_id, e.original_currency_value,
     (CASE WHEN d.type = 'cost' THEN d.sum ELSE '0.00'::NUMERIC END) AS cost,
     (CASE WHEN d.type = 'benefit' THEN d.sum ELSE '0.00'::NUMERIC END) AS benefit,
     (CASE WHEN d.type = 'income' THEN d.sum ELSE '0.00'::NUMERIC END) AS income,
@@ -313,8 +314,17 @@ function toOptionalMoneyString(value: MoneyLike | null | undefined): string | nu
   return value != null ? Money.from(value).toString() : null;
 }
 
-export type ExpenseInsert = Omit<Expense, 'id' | 'createdById' | 'created' | 'subscriptionId'> & {
+export type ExpenseInsert = Omit<
+  Expense,
+  'id' | 'createdById' | 'created' | 'subscriptionId' | 'splitId'
+> & {
   subscriptionId?: ObjectId | null;
+  /**
+   * Server-set split group key. Only the split/link paths pass this; normal
+   * creation (and subscription row generation) must leave it unset so new
+   * expenses never inherit a split group by accident.
+   */
+  splitId?: string | null;
 };
 
 export async function createNewExpense(
@@ -328,11 +338,11 @@ export async function createNewExpense(
       `INSERT INTO expenses (
           created_by_id, user_id, group_id, date, created, type,
           receiver, sum, title, description, confirmed, grouping_id,
-          source_id, category_id, subscription_id, currency_id, original_currency_value)
+          source_id, category_id, subscription_id, split_id, currency_id, original_currency_value)
         VALUES (
           $/userId/::INTEGER, $/expenseOwnerId/::INTEGER, $/groupId/::INTEGER, $/date/::DATE, NOW(), $/type/::expense_type,
           $/receiver/, $/sum/, $/title/, $/description/, $/confirmed/::BOOLEAN, $/groupingId/,
-          $/sourceId/::INTEGER, $/categoryId/::INTEGER, $/subscriptionId/,
+          $/sourceId/::INTEGER, $/categoryId/::INTEGER, $/subscriptionId/, $/splitId/::UUID,
           $/currencyId/::INTEGER, $/originalCurrencyValue/::NUMERIC)
         RETURNING id`,
       {
@@ -341,6 +351,7 @@ export async function createNewExpense(
         expenseOwnerId: expense.userId,
         sum: expense.sum.toString(),
         subscriptionId: expense.subscriptionId ?? null,
+        splitId: expense.splitId ?? null,
         groupingId: expense.groupingId,
         // Coalesce explicitly: pg-promise throws when a named parameter is absent from the
         // value object, and several callers build ExpenseInsert literals without these keys.

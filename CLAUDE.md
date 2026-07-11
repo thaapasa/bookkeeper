@@ -155,3 +155,6 @@ Three expense types with division invariants:
 - **transfer**: split into `transferor` and `transferee`
 
 For each expense, `sum(expense_division.sum) = 0` always holds.
+
+Expenses split from the same original share an informative `split_id` (opaque UUID,
+no FK). See `docs/SPLIT_EXPENSES.md` for the lineage semantics.

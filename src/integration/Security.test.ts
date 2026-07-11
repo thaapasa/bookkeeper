@@ -215,6 +215,46 @@ describe('security regressions', () => {
       expect(error.code).toEqual('USER_NOT_FOUND');
     });
 
+    it('rejects a link-split target expense outside the group', async () => {
+      // The body's targetExpenseId is resolved through a group-scoped lookup,
+      // which treats a foreign-group id and a nonexistent id identically
+      // (group 2 has no sources/categories, so a real foreign expense cannot
+      // be created via the API; this pins the same code path).
+      const a = (await newExpense(sale, { date: '2017-01-16', title: 'Oma' })).expenseId ?? 0;
+      const error = await expectStatus(404, () =>
+        sale.post(uri`/api/expense/${a}/link-split`, { targetExpenseId: 999999999 }),
+      );
+      expect(error.code).toEqual('EXPENSE_NOT_FOUND');
+      // The failed link must not leave a partial write behind
+      expect((await sale.get<Expense>(uri`/api/expense/${a}`)).splitId).toBeNull();
+    });
+
+    it('rejects link/unlink of another group’s expenses', async () => {
+      // The group context is chosen per request via ?groupId=. sale is also a
+      // member of group 2 (Herrakerho), so a request in that context can
+      // present group-1 expense ids in the path and body.
+      const a = (await newExpense(sale, { date: '2017-01-16', title: 'Oma A' })).expenseId ?? 0;
+      const b = (await newExpense(sale, { date: '2017-01-16', title: 'Oma B' })).expenseId ?? 0;
+
+      const linkError = await expectStatus(404, () =>
+        sale.post(uri`/api/expense/${a}/link-split` + '?groupId=2', { targetExpenseId: b }),
+      );
+      expect(linkError.code).toEqual('EXPENSE_NOT_FOUND');
+      expect((await sale.get<Expense>(uri`/api/expense/${a}`)).splitId).toBeNull();
+      expect((await sale.get<Expense>(uri`/api/expense/${b}`)).splitId).toBeNull();
+
+      // A legitimately linked pair must survive a foreign unlink attempt
+      await sale.post(uri`/api/expense/${a}/link-split`, { targetExpenseId: b });
+      const linked = await sale.get<Expense>(uri`/api/expense/${a}`);
+      expect(linked.splitId).toBeTruthy();
+      const unlinkError = await expectStatus(404, () =>
+        sale.post(uri`/api/expense/${a}/unlink-split` + '?groupId=2', {}),
+      );
+      expect(unlinkError.code).toEqual('EXPENSE_NOT_FOUND');
+      expect((await sale.get<Expense>(uri`/api/expense/${a}`)).splitId).toEqual(linked.splitId);
+      expect((await sale.get<Expense>(uri`/api/expense/${b}`)).splitId).toEqual(linked.splitId);
+    });
+
     it('rejects creating a grouping with a category from another group', async () => {
       // sale is also a member of group 2 (Herrakerho), which has no categories;
       // the category id in the body belongs to group 1.

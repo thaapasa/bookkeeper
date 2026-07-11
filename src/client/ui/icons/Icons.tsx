@@ -26,6 +26,7 @@ import {
   Infinity as InfinityIcon,
   Info,
   LayoutGrid,
+  Link,
   Link2,
   LogOut,
   type LucideIcon,
@@ -44,6 +45,7 @@ import {
   Sun,
   Tags,
   Trash2,
+  Unlink,
   Upload,
   X,
 } from 'lucide-react';
@@ -79,6 +81,7 @@ export const LucideIcons = {
   Image: Image,
   Income: HandCoins,
   Info: Info,
+  Link: Link,
   Logout: LogOut,
   Menu: Menu,
   More: MoreHorizontal,
@@ -100,6 +103,7 @@ export const LucideIcons = {
   Today: CalendarDays,
   Tools: Hammer,
   Transfer: Redo2,
+  Unlink: Unlink,
   Upload: Upload,
   Visible: Eye,
 };

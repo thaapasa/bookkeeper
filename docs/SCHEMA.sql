@@ -3,7 +3,7 @@
 --
 
 
--- Dumped from database version 18.3 (Debian 18.3-1.pgdg13+1)
+-- Dumped from database version 18.4 (Debian 18.4-1.pgdg13+1)
 -- Dumped by pg_dump version 18.4
 
 SET statement_timeout = 0;
@@ -253,6 +253,7 @@ CREATE TABLE public.expenses (
     grouping_id integer,
     currency_id integer,
     original_currency_value numeric(10,2),
+    split_id uuid,
     CONSTRAINT expenses_currency_pair_chk CHECK (((currency_id IS NULL) = (original_currency_value IS NULL)))
 );
 

@@ -92,6 +92,13 @@ export const Expense = DbObject.merge(ExpenseData).extend({
   created: ISOTimestamp,
   createdById: z.number(),
   subscriptionId: ObjectId.or(z.null()),
+  /**
+   * Opaque group key (UUID) shared by expenses split from the same original
+   * expense, or linked together manually. Purely informative: it is not a
+   * reference to any row, and it is always set server-side — client input
+   * schemas (`ExpenseInput`) deliberately exclude it.
+   */
+  splitId: z.uuid().or(z.null()),
 });
 export type Expense = z.infer<typeof Expense>;
 

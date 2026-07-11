@@ -9,6 +9,7 @@ import { ReceiverFieldProps } from '../expense/dialog/ReceiverField';
 import { CategoryPromptDialogContents } from './CategoryPromptDialogContents';
 import { DateSelectDialogComponent } from './DateSelectDialogContents';
 import { DialogConfig, DialogData, DialogSelectOption } from './Dialog';
+import { ListSelectDialogContents } from './ListSelectDialogContents';
 import { OptionSelectDialogContents } from './OptionSelectDialogContents';
 import { TextPromptDialogContents } from './TextPromptDialogContents';
 
@@ -59,6 +60,24 @@ export const UserPrompts = {
       title,
       rendererProps: { description, options },
       contentRenderer: OptionSelectDialogContents,
+    }),
+
+  /**
+   * Ask the user to pick one entry from a dropdown list.
+   * Returns a promise that will be resolved to the value of the selected entry; or undefined
+   * if the dialog was cancelled.
+   */
+  selectFromList: (
+    title: string,
+    description: React.ReactNode,
+    options: DialogSelectOption<string>[],
+    placeholder?: string,
+  ): Promise<string | undefined> =>
+    promptUser({
+      type: 'list',
+      title,
+      rendererProps: { description, options, placeholder },
+      contentRenderer: ListSelectDialogContents,
     }),
 
   /**

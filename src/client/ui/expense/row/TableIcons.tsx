@@ -12,6 +12,22 @@ export const RecurringExpenseIcon: React.FC<BoxProps> = props => (
   </Box>
 );
 
+export const SplitLinkIcon: React.FC<{ onClick?: () => void } & BoxProps> = ({
+  onClick,
+  ...props
+}) => (
+  <Box
+    display="inline-flex"
+    onClick={onClick}
+    style={onClick ? { cursor: 'pointer' } : undefined}
+    {...props}
+  >
+    <Tooltip label="Pilkottu samasta kirjauksesta">
+      <Icons.Link size={16} color="var(--mantine-color-primary-5)" />
+    </Tooltip>
+  </Box>
+);
+
 export const UnconfirmedIcon: React.FC<
   {
     size?: number;

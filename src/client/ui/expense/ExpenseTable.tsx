@@ -1,7 +1,13 @@
 import { Table } from '@mantine/core';
 import * as React from 'react';
 
-import { Expense, ExpenseStatus, UserExpense } from 'shared/expense';
+import {
+  computeSplitGroups,
+  Expense,
+  ExpenseStatus,
+  groupSplitExpenses,
+  UserExpense,
+} from 'shared/expense';
 import { Money, partition } from 'shared/util';
 import { UserDataProps } from 'client/data/Categories';
 import { useUserData } from 'client/data/SessionStore';
@@ -18,6 +24,7 @@ import { ExpenseRowSeparator } from './row/ExpenseRowSeparator';
 import { ExpenseTableLayout } from './row/ExpenseTableLayout';
 import { RecurringSummaryRow } from './row/RecurringSummaryRow';
 import { RecurringExpenseSeparator } from './row/SpecialRows';
+import { SplitGroupContext } from './row/SplitGroups';
 
 interface ExpenseTableProps {
   expenses: UserExpense[];
@@ -80,6 +87,10 @@ export const ExpenseTable: React.FC<ExpenseTableProps> = ({
     [expenses, filters],
   );
 
+  // Computed from the unfiltered list so the icon keeps marking an expense as
+  // split-linked even when a filter hides its same-day counterparts.
+  const splitGroups = React.useMemo(() => computeSplitGroups(expenses), [expenses]);
+
   const totals = React.useMemo(() => calculateTotals(expenses), [expenses]);
   const filteredTotals = React.useMemo(() => calculateTotals(filteredExpenses), [filteredExpenses]);
 
@@ -106,7 +117,9 @@ export const ExpenseTable: React.FC<ExpenseTableProps> = ({
   );
 
   const renderExpenseRows = () => {
-    const [recurring, normal] = partition(e => !!e.subscriptionId, filteredExpenses);
+    const [recurring, unordered] = partition(e => !!e.subscriptionId, filteredExpenses);
+    // Pull expenses sharing a split id adjacent within each day
+    const normal = groupSplitExpenses(unordered);
     if (recurring.length < 1) {
       const dayParities = computeDayParities(normal);
       return (
@@ -162,7 +175,9 @@ export const ExpenseTable: React.FC<ExpenseTableProps> = ({
       <ExpenseTableLayout
         header={<ExpenseFilterRow filters={filters} onRemoveFilter={removeFilter} />}
       >
-        <Table.Tbody>{renderExpenseRows()}</Table.Tbody>
+        <SplitGroupContext.Provider value={splitGroups}>
+          <Table.Tbody>{renderExpenseRows()}</Table.Tbody>
+        </SplitGroupContext.Provider>
       </ExpenseTableLayout>
     </PageLayout>
   );

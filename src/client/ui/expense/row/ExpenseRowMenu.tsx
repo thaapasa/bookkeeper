@@ -4,6 +4,7 @@ import * as React from 'react';
 import { RecurrencePeriod, RecurringExpenseTarget, UserExpense } from 'shared/expense';
 import { Money } from 'shared/util';
 import { apiConnect } from 'client/data/ApiConnect';
+import { notify } from 'client/data/NotificationStore';
 import { invalidateServerData } from 'client/data/query';
 import { useSourceMap } from 'client/data/SessionStore';
 import { createNewExpense, editExpense, splitExpense } from 'client/data/State';
@@ -61,6 +62,43 @@ export const ExpenseRowMenu: React.FC<{ expense: UserExpense }> = ({ expense }) 
     });
   };
 
+  const linkSplitExpense = async () => {
+    const sameDay = await apiConnect.searchExpenses({
+      startDate: expense.date,
+      endDate: expense.date,
+    });
+    const candidates = sameDay.filter(
+      e =>
+        e.id !== expense.id &&
+        !e.subscriptionId &&
+        (expense.splitId === null || e.splitId !== expense.splitId),
+    );
+    if (candidates.length < 1) {
+      notify('Ei muita kirjauksia samalta päivältä');
+      return;
+    }
+    const targetId = await UserPrompts.selectFromList(
+      'Linkitä pilkotut kirjaukset',
+      `Valitse kirjaus, joka on pilkottu samasta kirjauksesta kuin ${expenseName(expense)}:`,
+      candidates.map(e => ({
+        value: String(e.id),
+        label: expenseName(e),
+      })),
+    );
+    if (!targetId) return;
+    await executeOperation(() => apiConnect.linkSplitExpenses(expense.id, Number(targetId)), {
+      success: 'Kirjaukset linkitetty pilkotuiksi',
+      postProcess: () => invalidateServerData(),
+    });
+  };
+
+  const unlinkSplitExpense = async () => {
+    await executeOperation(() => apiConnect.unlinkSplitExpense(expense.id), {
+      success: 'Pilkkomislinkitys poistettu',
+      postProcess: () => invalidateServerData(),
+    });
+  };
+
   const deleteExpense = async () => {
     const name = expenseName(expense);
     if (expense.subscriptionId) {
@@ -99,13 +137,30 @@ export const ExpenseRowMenu: React.FC<{ expense: UserExpense }> = ({ expense }) 
         <Menu.Item leftSection={<Icons.Edit size={16} />} onClick={modifyExpense}>
           Muokkaa…
         </Menu.Item>
-        <Menu.Item leftSection={<Icons.Split size={16} />} onClick={() => splitExpense(expense.id)}>
-          Pilko
-        </Menu.Item>
+        {expense.subscriptionId ? null : (
+          <Menu.Item
+            leftSection={<Icons.Split size={16} />}
+            onClick={() => splitExpense(expense.id)}
+          >
+            Pilko
+          </Menu.Item>
+        )}
         <Menu.Item leftSection={<Icons.Copy size={16} />} onClick={copyExpense}>
           Kopioi
         </Menu.Item>
         {expense.subscriptionId ? null : (
+          <Menu.Item leftSection={<Icons.Link size={16} />} onClick={linkSplitExpense}>
+            Linkitä pilkotuksi…
+          </Menu.Item>
+        )}
+        {expense.splitId ? (
+          <Menu.Item leftSection={<Icons.Unlink size={16} />} onClick={unlinkSplitExpense}>
+            Poista pilkkomislinkitys
+          </Menu.Item>
+        ) : null}
+        {/* Hidden for split-linked rows too: an expense cannot be both
+            subscription-generated and split-linked (unlink first). */}
+        {expense.subscriptionId || expense.splitId ? null : (
           <Menu.Item leftSection={<Icons.Repeat size={16} />} onClick={createRecurring}>
             Muuta toistuvaksi
           </Menu.Item>

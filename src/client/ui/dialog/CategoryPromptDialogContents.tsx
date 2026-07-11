@@ -1,10 +1,11 @@
-import { Box, Button, Group } from '@mantine/core';
+import { Box } from '@mantine/core';
 import * as React from 'react';
 
 import { CategorySelection, ObjectId } from 'shared/types';
 
 import { CategorySelector } from '../category/CategorySelector';
 import { CategoryPromptDialogData, DialogContentRendererProps } from './Dialog';
+import { DialogFooter } from './DialogFooter';
 
 type CategoryPromptDialogProps = DialogContentRendererProps<ObjectId> & CategoryPromptDialogData;
 
@@ -25,11 +26,7 @@ export const CategoryPromptDialogContents: React.FC<CategoryPromptDialogProps> =
         <Box mb="xs">{description}</Box>
         <CategorySelector addCategories={selectCat} />
       </Box>
-      <Group justify="flex-end" pt="md">
-        <Button variant="subtle" onKeyUp={handleKeyPress} onClick={() => onCancel()}>
-          Peruuta
-        </Button>
-      </Group>
+      <DialogFooter onCancel={onCancel} handleKeyPress={handleKeyPress} />
     </>
   );
 };

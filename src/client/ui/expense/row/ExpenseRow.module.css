@@ -33,6 +33,12 @@
   tbody > tr:not(:last-child) > td {
     border-bottom: 1px solid var(--mantine-color-surface-3);
   }
+
+  /* Rows of the same split group read as one visual block: the row above a
+     continuation row drops its separating border. */
+  tbody > tr:has(+ .splitContinuation) > td {
+    border-bottom: 0;
+  }
 }
 
 /* When the table is rendered without a visible header (search results,

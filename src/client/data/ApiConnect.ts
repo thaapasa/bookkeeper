@@ -247,6 +247,16 @@ export class ApiConnect {
     });
   }
 
+  public linkSplitExpenses(id: number | string, targetExpenseId: number): Promise<ApiMessage> {
+    return this.post<ApiMessage>(uri`/api/expense/${id}/link-split`, {
+      body: { targetExpenseId },
+    });
+  }
+
+  public unlinkSplitExpense(id: number | string): Promise<ApiMessage> {
+    return this.post<ApiMessage>(uri`/api/expense/${id}/unlink-split`, {});
+  }
+
   public updateExpense(id: number | string, expense: ExpenseData): Promise<ExpenseIdResponse> {
     return this.put<ExpenseIdResponse>(uri`/api/expense/${id}`, { body: expense });
   }

@@ -100,6 +100,23 @@ export async function splitExpense(
   });
 }
 
+export async function linkSplitExpenses(
+  session: SessionWithControl,
+  expenseId: number,
+  targetExpenseId: number,
+): Promise<ApiMessage> {
+  return await session.post<ApiMessage>(uri`/api/expense/${expenseId}/link-split`, {
+    targetExpenseId,
+  });
+}
+
+export async function unlinkSplitExpense(
+  session: SessionWithControl,
+  expenseId: number,
+): Promise<ApiMessage> {
+  return await session.post<ApiMessage>(uri`/api/expense/${expenseId}/unlink-split`, {});
+}
+
 export async function newCategory(
   session: SessionWithControl,
   data: CategoryData,

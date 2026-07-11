@@ -22,6 +22,13 @@ export type TextPromptDialogData = {
   editorType?: TextEditorComponent;
 };
 
+export type ListSelectDialogData = {
+  type: 'list';
+  description: React.ReactNode;
+  options: DialogSelectOption<string>[];
+  placeholder?: string;
+};
+
 export type CategoryPromptDialogData = {
   type: 'category';
   description: React.ReactNode;
@@ -36,7 +43,8 @@ export type DialogData =
   | OptionSelectDialogData<any>
   | TextPromptDialogData
   | DateSelectDialogData
-  | CategoryPromptDialogData;
+  | CategoryPromptDialogData
+  | ListSelectDialogData;
 
 export interface DialogContentRendererProps<T> {
   onSelect: (value: T) => void;

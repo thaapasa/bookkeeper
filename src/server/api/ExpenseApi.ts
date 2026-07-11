@@ -9,7 +9,7 @@ import {
   UserExpense,
 } from 'shared/expense';
 import { YearMonth } from 'shared/time';
-import { ApiMessage, ExpenseIdResponse } from 'shared/types';
+import { ApiMessage, ExpenseIdResponse, ObjectId } from 'shared/types';
 import { deleteExpenseById } from 'server/data/BasicExpenseDb';
 import {
   createExpense,
@@ -18,7 +18,7 @@ import {
 } from 'server/data/BasicExpenseService';
 import { getExpensesByMonth } from 'server/data/Expenses';
 import { searchExpenses } from 'server/data/ExpenseSearch';
-import { splitExpense } from 'server/data/ExpenseSplit';
+import { linkSplitExpenses, splitExpense, unlinkSplitExpense } from 'server/data/ExpenseSplit';
 import { createValidatingRouter } from 'server/server/ValidatingRouter';
 
 import { createRecurringExpenseApi } from './RecurringExpenseApi';
@@ -82,6 +82,33 @@ export function createExpenseApi() {
     { body: ExpenseSplitBody, response: ApiMessage, groupRequired: true },
     (tx, session, { params, body }) =>
       splitExpense(tx, session.group.id, session.user.id, params.expenseId, body.splits),
+  );
+
+  const LinkSplitBody = z.object({
+    targetExpenseId: ObjectId,
+  });
+  // POST /api/expense/[expenseId]/link-split
+  // Manually mark two expenses as parts of the same split group
+  api.postTx(
+    '/:expenseId/link-split',
+    { body: LinkSplitBody, response: ApiMessage, groupRequired: true },
+    (tx, session, { params, body }) =>
+      linkSplitExpenses(
+        tx,
+        session.group.id,
+        session.user.id,
+        params.expenseId,
+        body.targetExpenseId,
+      ),
+  );
+
+  // POST /api/expense/[expenseId]/unlink-split
+  // Remove an expense from its split group
+  api.postTx(
+    '/:expenseId/unlink-split',
+    { response: ApiMessage, groupRequired: true },
+    (tx, session, { params }) =>
+      unlinkSplitExpense(tx, session.group.id, session.user.id, params.expenseId),
   );
 
   // PUT /api/expense/[expenseId]

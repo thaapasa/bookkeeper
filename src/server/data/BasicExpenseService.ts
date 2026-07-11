@@ -24,6 +24,8 @@ export function createExpense(
   groupId: number,
   expenseInput: ExpenseInput,
   defaultSourceId: number,
+  /** Server-set split group key; only the expense split path passes this. */
+  splitId?: string | null,
 ): Promise<ExpenseIdResponse> {
   return withSpan(
     'expense.create',
@@ -55,6 +57,7 @@ export function createExpense(
           categoryId: cat.id,
           sum: expense.sum,
           groupingId: expense.groupingId,
+          splitId,
         },
         division,
       );
@@ -80,29 +83,6 @@ export function updateExpenseById(
       return updateExpense(tx, userId, e, expense, defaultSourceId);
     },
   );
-}
-
-export async function copyExpense(
-  tx: DbTask,
-  groupId: number,
-  userId: number,
-  expenseId: number,
-  mapper: (e: [Expense, ExpenseDivisionItem[]]) => [Expense, ExpenseDivisionItem[]],
-) {
-  const e = await getExpenseAndDivisionData(tx, groupId, userId, expenseId);
-  const [expense, division] = mapper ? mapper(e) : e;
-  return createNewExpense(tx, userId, expense, division);
-}
-
-export async function getExpenseAndDivisionData(
-  tx: DbTask,
-  groupId: number,
-  userId: number,
-  expenseId: number,
-): Promise<[Expense, ExpenseDivisionItem[]]> {
-  const expense = await getExpenseById(tx, groupId, userId, expenseId);
-  const division = await getExpenseDivision(tx, groupId, expenseId);
-  return [expense, division];
 }
 
 export function getExpenseWithDivision(

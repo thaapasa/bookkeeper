@@ -1,10 +1,10 @@
-import { Button, Group } from '@mantine/core';
 import { DatePicker } from '@mantine/dates';
 import * as React from 'react';
 
 import { ISODate, toISODate } from 'shared/time';
 
 import { DateSelectDialogData, DialogContentRendererProps } from './Dialog';
+import { DialogFooter } from './DialogFooter';
 
 type TextPromptDialogProps = DialogContentRendererProps<ISODate> & DateSelectDialogData;
 
@@ -24,19 +24,13 @@ export const DateSelectDialogComponent: React.FC<TextPromptDialogProps> = ({
   return (
     <>
       <DatePicker value={date ?? null} defaultDate={date ?? undefined} onChange={changeHandler} />
-      <Group justify="flex-end" gap="xs" pt="md">
-        <Button variant="subtle" onKeyUp={handleKeyPress} onClick={onCancel}>
-          Peruuta
-        </Button>
-        <Button
-          variant="filled"
-          onKeyUp={handleKeyPress}
-          disabled={!date}
-          onClick={() => (date ? onSelect(date) : undefined)}
-        >
-          Valitse
-        </Button>
-      </Group>
+      <DialogFooter
+        onCancel={onCancel}
+        onOk={() => (date ? onSelect(date) : undefined)}
+        okLabel="Valitse"
+        okDisabled={!date}
+        handleKeyPress={handleKeyPress}
+      />
     </>
   );
 };

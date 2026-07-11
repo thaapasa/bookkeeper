@@ -33,7 +33,8 @@ import {
   ReceiverVisibleFrom,
   SourceVisibleFrom,
 } from './ExpenseTableColumns';
-import { RecurringExpenseIcon, UnconfirmedIcon } from './TableIcons';
+import { SplitGroupContext } from './SplitGroups';
+import { RecurringExpenseIcon, SplitLinkIcon, UnconfirmedIcon } from './TableIcons';
 
 const emptyDivision: ExpenseDivisionItem[] = [];
 
@@ -67,6 +68,7 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
   const [details, setDetails] = React.useState<UserExpenseWithDetails | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
   const dayParities = React.useContext(DayParityContext);
+  const splitGroups = React.useContext(SplitGroupContext);
 
   // Play a one-shot highlight animation when this row is the navigation target.
   // The store tracks the highest seq that's already played so re-mounts (e.g.
@@ -139,6 +141,11 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
   };
 
   const parity = dayParities[expense.id] ?? 0;
+  // Continuation row of a split group: rendered right below another expense of
+  // the same group (the table orders group members adjacent within a day), so
+  // the repeated date/avatar/link icon are dropped to read as one block.
+  const continuesSplit =
+    !!expense.splitId && prev?.date === expense.date && prev?.splitId === expense.splitId;
   const sumStyle = sumStyleForType(expense.type);
   const currency = expense.currencyId ? currencyMap[expense.currencyId] : undefined;
 
@@ -153,6 +160,7 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
         className={classNames(
           parity === 1 ? styles.alternateRow : null,
           highlight ? styles.highlightRow : null,
+          continuesSplit ? styles.splitContinuation : null,
         )}
       >
         {/* Date */}
@@ -160,20 +168,26 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
           {expense.subscriptionId ? (
             <RecurringExpenseIcon className={styles.recurringIcon} />
           ) : null}
-          <Text span className={ActionsVisibleFrom} pr="xs" fw="bold">
-            {weekDay(expense.date, prev)}
-          </Text>
-          {readableDate(expense.date)}
+          {continuesSplit ? null : (
+            <>
+              <Text span className={ActionsVisibleFrom} pr="xs" fw="bold">
+                {weekDay(expense.date, prev)}
+              </Text>
+              {readableDate(expense.date)}
+            </>
+          )}
         </Table.Td>
         {/* Avatar */}
         <Table.Td>
-          <Tooltip label={userMap[expense.userId].firstName}>
-            <UserAvatar
-              user={userMap[expense.userId]}
-              size={32}
-              onClick={() => addFilter(e => e.userId === expense.userId, user.firstName)}
-            />
-          </Tooltip>
+          {continuesSplit && prev?.userId === expense.userId ? null : (
+            <Tooltip label={userMap[expense.userId].firstName}>
+              <UserAvatar
+                user={userMap[expense.userId]}
+                size={32}
+                onClick={() => addFilter(e => e.userId === expense.userId, user.firstName)}
+              />
+            </Tooltip>
+          )}
         </Table.Td>
         {/* Name */}
         <Table.Td pos="relative">
@@ -181,6 +195,11 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
             {expense.confirmed ? null : (
               <UnconfirmedIcon onClick={() => addFilter(ExpenseFilters.unconfirmed, 'Alustavat')} />
             )}
+            {expense.splitId && splitGroups[expense.id] && !continuesSplit ? (
+              <SplitLinkIcon
+                onClick={() => addFilter(e => e.splitId === expense.splitId, 'Pilkotut')}
+              />
+            ) : null}
             {grouping ? (
               <GroupedExpenseIcon
                 grouping={grouping}
@@ -220,7 +239,7 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
         </Table.Td>
         {/* Receiver */}
         <Table.Td className={ReceiverVisibleFrom}>
-          {editable ? (
+          {continuesSplit && prev?.receiver === expense.receiver ? null : editable ? (
             <ActivatableTextField
               fullWidth
               value={expense.receiver}

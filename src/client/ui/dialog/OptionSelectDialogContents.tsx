@@ -1,7 +1,8 @@
-import { Box, Button, Group } from '@mantine/core';
+import { Box, Button } from '@mantine/core';
 import * as React from 'react';
 
 import { DialogContentRendererProps, OptionSelectDialogData } from './Dialog';
+import { DialogFooter } from './DialogFooter';
 
 type OptionSelectDialogProps<T> = DialogContentRendererProps<T> & OptionSelectDialogData<T>;
 
@@ -17,10 +18,7 @@ export const OptionSelectDialogContents: React.FC<OptionSelectDialogProps<any>> 
   return (
     <>
       <Box onKeyUp={handleKeyPress}>{description}</Box>
-      <Group justify="flex-end" gap="xs" pt="md" wrap="wrap">
-        <Button variant="subtle" onKeyUp={handleKeyPress} onClick={onCancel}>
-          Peruuta
-        </Button>
+      <DialogFooter onCancel={onCancel} handleKeyPress={handleKeyPress}>
         {options.map(o => (
           <Button
             key={o.value}
@@ -31,7 +29,7 @@ export const OptionSelectDialogContents: React.FC<OptionSelectDialogProps<any>> 
             {o.label}
           </Button>
         ))}
-      </Group>
+      </DialogFooter>
     </>
   );
 };
