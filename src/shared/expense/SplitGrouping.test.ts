@@ -1,23 +1,10 @@
 import { describe, expect, it } from 'bun:test';
 
 import { UserExpense } from './Expense';
-import { computeSplitGroups, groupSplitExpenses } from './SplitGrouping';
+import { groupSplitExpenses } from './SplitGrouping';
 
 const exp = (id: number, date: string, splitId: string | null): UserExpense =>
   ({ id, date, splitId }) as UserExpense;
-
-describe('computeSplitGroups', () => {
-  it('flags only expenses sharing a split id on the same day', () => {
-    const groups = computeSplitGroups([
-      exp(1, '2026-07-01', 'a'),
-      exp(2, '2026-07-01', 'a'),
-      exp(3, '2026-07-01', 'b'), // alone in its group on this day
-      exp(4, '2026-07-02', 'b'), // same id as 3 but different day
-      exp(5, '2026-07-02', null),
-    ]);
-    expect(groups).toEqual({ 1: true, 2: true });
-  });
-});
 
 describe('groupSplitExpenses', () => {
   it('pulls same-day split group members adjacent to the first member', () => {

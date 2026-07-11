@@ -33,7 +33,6 @@ import {
   ReceiverVisibleFrom,
   SourceVisibleFrom,
 } from './ExpenseTableColumns';
-import { SplitGroupContext } from './SplitGroups';
 import { RecurringExpenseIcon, SplitLinkIcon, UnconfirmedIcon } from './TableIcons';
 
 const emptyDivision: ExpenseDivisionItem[] = [];
@@ -68,7 +67,6 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
   const [details, setDetails] = React.useState<UserExpenseWithDetails | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
   const dayParities = React.useContext(DayParityContext);
-  const splitGroups = React.useContext(SplitGroupContext);
 
   // Play a one-shot highlight animation when this row is the navigation target.
   // The store tracks the highest seq that's already played so re-mounts (e.g.
@@ -143,7 +141,8 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
   const parity = dayParities[expense.id] ?? 0;
   // Continuation row of a split group: rendered right below another expense of
   // the same group (the table orders group members adjacent within a day), so
-  // the repeated date/avatar/link icon are dropped to read as one block.
+  // the repeated date/avatar are dropped to read as one block; the date slot
+  // shows a dim link marker instead.
   const continuesSplit =
     !!expense.splitId && prev?.date === expense.date && prev?.splitId === expense.splitId;
   const sumStyle = sumStyleForType(expense.type);
@@ -164,11 +163,17 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
         )}
       >
         {/* Date */}
-        <Table.Td ta="right" pos="relative" onClick={editable ? editDate : undefined}>
-          {expense.subscriptionId ? (
+        <Table.Td
+          ta="right"
+          pos="relative"
+          onClick={editable && !continuesSplit ? editDate : undefined}
+        >
+          {expense.subscriptionId && !continuesSplit ? (
             <RecurringExpenseIcon className={styles.recurringIcon} />
           ) : null}
-          {continuesSplit ? null : (
+          {continuesSplit ? (
+            <SplitLinkIcon />
+          ) : (
             <>
               <Text span className={ActionsVisibleFrom} pr="xs" fw="bold">
                 {weekDay(expense.date, prev)}
@@ -195,11 +200,6 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
             {expense.confirmed ? null : (
               <UnconfirmedIcon onClick={() => addFilter(ExpenseFilters.unconfirmed, 'Alustavat')} />
             )}
-            {expense.splitId && splitGroups[expense.id] && !continuesSplit ? (
-              <SplitLinkIcon
-                onClick={() => addFilter(e => e.splitId === expense.splitId, 'Pilkotut')}
-              />
-            ) : null}
             {grouping ? (
               <GroupedExpenseIcon
                 grouping={grouping}

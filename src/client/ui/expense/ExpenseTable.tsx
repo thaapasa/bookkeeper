@@ -1,13 +1,7 @@
 import { Table } from '@mantine/core';
 import * as React from 'react';
 
-import {
-  computeSplitGroups,
-  Expense,
-  ExpenseStatus,
-  groupSplitExpenses,
-  UserExpense,
-} from 'shared/expense';
+import { Expense, ExpenseStatus, groupSplitExpenses, UserExpense } from 'shared/expense';
 import { Money, partition } from 'shared/util';
 import { UserDataProps } from 'client/data/Categories';
 import { useUserData } from 'client/data/SessionStore';
@@ -24,7 +18,6 @@ import { ExpenseRowSeparator } from './row/ExpenseRowSeparator';
 import { ExpenseTableLayout } from './row/ExpenseTableLayout';
 import { RecurringSummaryRow } from './row/RecurringSummaryRow';
 import { RecurringExpenseSeparator } from './row/SpecialRows';
-import { SplitGroupContext } from './row/SplitGroups';
 
 interface ExpenseTableProps {
   expenses: UserExpense[];
@@ -86,10 +79,6 @@ export const ExpenseTable: React.FC<ExpenseTableProps> = ({
     () => (expenses ? filters.reduce((a, b) => a.filter(b.filter), expenses) : []),
     [expenses, filters],
   );
-
-  // Computed from the unfiltered list so the icon keeps marking an expense as
-  // split-linked even when a filter hides its same-day counterparts.
-  const splitGroups = React.useMemo(() => computeSplitGroups(expenses), [expenses]);
 
   const totals = React.useMemo(() => calculateTotals(expenses), [expenses]);
   const filteredTotals = React.useMemo(() => calculateTotals(filteredExpenses), [filteredExpenses]);
@@ -175,9 +164,7 @@ export const ExpenseTable: React.FC<ExpenseTableProps> = ({
       <ExpenseTableLayout
         header={<ExpenseFilterRow filters={filters} onRemoveFilter={removeFilter} />}
       >
-        <SplitGroupContext.Provider value={splitGroups}>
-          <Table.Tbody>{renderExpenseRows()}</Table.Tbody>
-        </SplitGroupContext.Provider>
+        <Table.Tbody>{renderExpenseRows()}</Table.Tbody>
       </ExpenseTableLayout>
     </PageLayout>
   );

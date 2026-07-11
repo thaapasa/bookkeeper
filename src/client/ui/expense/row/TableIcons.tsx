@@ -12,18 +12,15 @@ export const RecurringExpenseIcon: React.FC<BoxProps> = props => (
   </Box>
 );
 
-export const SplitLinkIcon: React.FC<{ onClick?: () => void } & BoxProps> = ({
-  onClick,
-  ...props
-}) => (
-  <Box
-    display="inline-flex"
-    onClick={onClick}
-    style={onClick ? { cursor: 'pointer' } : undefined}
-    {...props}
-  >
+/**
+ * Dim link marker shown in the empty date slot of a split group's continuation
+ * rows, tying them to the group's first row. Neutral-6: dimmer than text
+ * (neutral 7-9), stronger than borders (neutral 3-5).
+ */
+export const SplitLinkIcon: React.FC<BoxProps> = props => (
+  <Box display="inline-flex" {...props}>
     <Tooltip label="Pilkottu samasta kirjauksesta">
-      <Icons.Link size={16} color="var(--mantine-color-primary-5)" />
+      <Icons.Link size={14} color="var(--mantine-color-neutral-6)" />
     </Tooltip>
   </Box>
 );
