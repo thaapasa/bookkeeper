@@ -10,7 +10,7 @@ import {
   Source,
   User,
 } from 'shared/types';
-import { toMap } from 'shared/util';
+import { deepEqual, omit, toMap } from 'shared/util';
 
 import { CategoryDataSource, catToDataSource, toCategoryMap, UserDataProps } from './Categories';
 
@@ -45,6 +45,13 @@ interface SessionState {
   setStatus: (status: SessionStatus) => void;
 }
 
+/**
+ * The parts of the session that the derived state (maps, dialog data) is computed from.
+ * Volatile fields (tokens, login time) change on every refresh and are excluded, so
+ * that a session refresh returning identical data does not invalidate derived state.
+ */
+const sessionDataOf = (session: Session) => omit(['token', 'refreshToken', 'loginTime'], session);
+
 export const useSessionStore = create<SessionState>(set => ({
   session: null,
   status: 'uninitialized',
@@ -56,58 +63,65 @@ export const useSessionStore = create<SessionState>(set => ({
   userData: null,
   expenseDialogData: null,
 
-  setSession: session => {
-    if (!session) {
-      set({
-        session: null,
-        userMap: null,
-        sourceMap: null,
-        categoryMap: null,
-        categoryDataSource: null,
-        expenseGroupingMap: null,
-        userData: null,
-        expenseDialogData: null,
-      });
-      return;
-    }
+  setSession: session =>
+    set(state => {
+      if (!session) {
+        return {
+          session: null,
+          userMap: null,
+          sourceMap: null,
+          categoryMap: null,
+          categoryDataSource: null,
+          expenseGroupingMap: null,
+          userData: null,
+          expenseDialogData: null,
+        };
+      }
 
-    const userMap = toMap(session.users, 'id');
-    const sourceMap = toMap(session.sources, 'id');
-    const currencyMap = toMap(session.currencies, 'id');
-    const categoryMap = toCategoryMap(session.categories);
-    const categoryDataSource = catToDataSource(session.categories, categoryMap);
-    const expenseGroupingMap: ExpenseGroupingMap = Object.fromEntries(
-      session.groupings.map(g => [String(g.id), g]),
-    );
-    const userData: UserDataProps = {
-      userMap,
-      sourceMap,
-      categoryMap,
-      groupingMap: expenseGroupingMap,
-      currencyMap,
-    };
-    const expenseDialogData: ExpenseDialogData = {
-      sources: session.sources,
-      user: session.user,
-      group: session.group,
-      sourceMap,
-      categoryMap,
-      groupings: session.groupings,
-      users: session.users,
-      currencies: session.currencies,
-    };
+      // Keep existing derived state (and its object identities) when only volatile
+      // session fields changed, so components deriving state from these references
+      // (e.g. open dialogs) are not reset by a background session refresh.
+      if (state.session && deepEqual(sessionDataOf(session), sessionDataOf(state.session))) {
+        return { session };
+      }
 
-    set({
-      session,
-      userMap,
-      sourceMap,
-      categoryMap,
-      categoryDataSource,
-      expenseGroupingMap,
-      userData,
-      expenseDialogData,
-    });
-  },
+      const userMap = toMap(session.users, 'id');
+      const sourceMap = toMap(session.sources, 'id');
+      const currencyMap = toMap(session.currencies, 'id');
+      const categoryMap = toCategoryMap(session.categories);
+      const categoryDataSource = catToDataSource(session.categories, categoryMap);
+      const expenseGroupingMap: ExpenseGroupingMap = Object.fromEntries(
+        session.groupings.map(g => [String(g.id), g]),
+      );
+      const userData: UserDataProps = {
+        userMap,
+        sourceMap,
+        categoryMap,
+        groupingMap: expenseGroupingMap,
+        currencyMap,
+      };
+      const expenseDialogData: ExpenseDialogData = {
+        sources: session.sources,
+        user: session.user,
+        group: session.group,
+        sourceMap,
+        categoryMap,
+        groupings: session.groupings,
+        users: session.users,
+        currencies: session.currencies,
+      };
+
+      return {
+        session,
+        userMap,
+        sourceMap,
+        categoryMap,
+        categoryDataSource,
+        expenseGroupingMap,
+        userData,
+        expenseDialogData,
+      };
+    }),
 
   setStatus: status => set({ status }),
 }));

@@ -59,6 +59,28 @@ export function toRecord<T extends string | number | symbol, S>(
   return res;
 }
 
+/**
+ * Structural equality for JSON-like values (plain objects, arrays, primitives).
+ * Keys with `undefined` values are treated as absent.
+ */
+export function deepEqual(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+  if (typeof a !== 'object' || typeof b !== 'object' || a === null || b === null) return false;
+  if (Array.isArray(a) || Array.isArray(b)) {
+    return (
+      Array.isArray(a) &&
+      Array.isArray(b) &&
+      a.length === b.length &&
+      a.every((v, i) => deepEqual(v, b[i]))
+    );
+  }
+  const recA = a as Record<string, unknown>;
+  const recB = b as Record<string, unknown>;
+  const keysA = Object.keys(recA).filter(k => recA[k] !== undefined);
+  const keysB = Object.keys(recB).filter(k => recB[k] !== undefined);
+  return keysA.length === keysB.length && keysA.every(k => deepEqual(recA[k], recB[k]));
+}
+
 export function recordFromPairs<K extends string | number | symbol, V>(
   items: [K, V][],
 ): Record<K, V> {
