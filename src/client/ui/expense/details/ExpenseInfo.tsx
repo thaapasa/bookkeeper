@@ -6,6 +6,7 @@ import { Source } from 'shared/types';
 
 import { AllColumns } from '../row/ExpenseTableColumns';
 import { LoadingIndicator } from '../row/SpecialRows';
+import { AuditInfo } from './AuditInfo';
 import { BasicData } from './BasicData';
 import { DivisionInfo } from './DivisionInfo';
 import styles from './ExpenseInfo.module.css';
@@ -54,6 +55,7 @@ export const ExpenseInfo: React.FC<ExpenseInfoProps> = ({
           ml={{ base: 1, xs: 56, sm: 92 }}
           mb="xs"
         />
+        <AuditInfo expense={expense} px="md" pb="xs" />
       </AllColumns>
     </Table.Tr>
   );

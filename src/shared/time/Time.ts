@@ -100,6 +100,10 @@ export function readableDateWithYear(date?: DateLike, long?: boolean): string {
   return date ? toDateTime(date).toFormat(long ? 'ccc d.M.yyyy' : 'd.M.yyyy') : '-';
 }
 
+export function readableTimestamp(ts?: DateLike): string {
+  return ts ? toDateTime(ts).toFormat('d.M.yyyy HH:mm') : '-';
+}
+
 export function toYearName(x: DateLike) {
   const m = toDateTime(x);
   return '' + m.year;
