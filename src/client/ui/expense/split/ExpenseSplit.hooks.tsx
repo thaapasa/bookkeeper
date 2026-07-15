@@ -35,13 +35,6 @@ export function useExpenseSplit(
   );
   const [saveLocked, setSaveLocked] = React.useState(false);
 
-  // Start over from the original expense whenever the edited expense changes
-  const [splitSource, setSplitSource] = React.useState({ original, sourceMap });
-  if (splitSource.original !== original || splitSource.sourceMap !== sourceMap) {
-    setSplitSource({ original, sourceMap });
-    setSplits(initialSplit(original, sourceMap));
-  }
-
   const addRow = React.useCallback(() => {
     setSplits([...splits, emptySplit(original, sourceMap)]);
   }, [setSplits, splits, original, sourceMap]);
