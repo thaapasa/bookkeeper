@@ -142,7 +142,9 @@ describe('expense', () => {
     const { updated: orgUpdated, ...orgData } = org;
     const { updated: newUpdated, ...newData } = e;
     expect(newData).toEqual(orgData);
-    expect(toDateTime(newUpdated) >= toDateTime(orgUpdated)).toEqual(true);
+    // Strict > so the test fails if the trigger is dropped (insert and PUT run in
+    // separate transactions, so their NOW() values differ)
+    expect(toDateTime(newUpdated) > toDateTime(orgUpdated)).toEqual(true);
   });
 
   it('should not allow negated cost', async () => {

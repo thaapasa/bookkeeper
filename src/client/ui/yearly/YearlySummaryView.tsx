@@ -3,10 +3,11 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import * as React from 'react';
 
 import {
+  calculateYearlyTotals,
   createYearlySummaryChartData,
   YearlyChartRow,
+  YearlyTotals,
 } from 'shared/statistics/YearlySummaryChartData';
-import { Money } from 'shared/util';
 import { apiConnect } from 'client/data/ApiConnect';
 import { QueryKeys } from 'client/data/queryKeys';
 import { useCategoryMap } from 'client/data/SessionStore';
@@ -48,7 +49,7 @@ export const YearlySummaryView: React.FC = () => {
 };
 
 const SurplusTable: React.FC<{ years: YearlyChartRow[] }> = ({ years }) => {
-  const totals = React.useMemo(() => calculateTotals(years), [years]);
+  const totals = React.useMemo(() => calculateYearlyTotals(years), [years]);
   return (
     <Table maw={480} verticalSpacing={4} withRowBorders={false}>
       <Table.Thead>
@@ -81,13 +82,7 @@ const SurplusTable: React.FC<{ years: YearlyChartRow[] }> = ({ years }) => {
   );
 };
 
-interface TotalsData {
-  income: number;
-  expense: number;
-  surplus: number;
-}
-
-const TotalsRow: React.FC<{ label: string; totals: TotalsData }> = ({ label, totals }) => (
+const TotalsRow: React.FC<{ label: string; totals: YearlyTotals }> = ({ label, totals }) => (
   <Table.Tr style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}>
     <Table.Th>{label}</Table.Th>
     <Table.Td ta="right">{formatMoney(totals.income)}</Table.Td>
@@ -99,22 +94,3 @@ const TotalsRow: React.FC<{ label: string; totals: TotalsData }> = ({ label, tot
     </Table.Td>
   </Table.Tr>
 );
-
-function calculateTotals(years: YearlyChartRow[]): { sum: TotalsData; average: TotalsData } {
-  const n = years.length;
-  if (n === 0) {
-    const zero: TotalsData = { income: 0, expense: 0, surplus: 0 };
-    return { sum: zero, average: zero };
-  }
-  const income = years.reduce((acc, y) => acc.plus(y.income), Money.from(0));
-  const expense = years.reduce((acc, y) => acc.plus(y.expense), Money.from(0));
-  const surplus = income.minus(expense);
-  return {
-    sum: { income: income.valueOf(), expense: expense.valueOf(), surplus: surplus.valueOf() },
-    average: {
-      income: income.divide(n).valueOf(),
-      expense: expense.divide(n).valueOf(),
-      surplus: surplus.divide(n).valueOf(),
-    },
-  };
-}

@@ -59,6 +59,45 @@ export function createYearlySummaryChartData(
   return { years, incomeSeries, expenseSeries };
 }
 
+export interface YearlyTotals {
+  income: number;
+  expense: number;
+  surplus: number;
+}
+
+/**
+ * Sums and per-year averages for the surplus table footer. The average surplus
+ * is derived from the (truncated) average income and expense — not divided
+ * independently — so the displayed row satisfies income - expense = surplus
+ * exactly, like every yearly row above it.
+ */
+export function calculateYearlyTotals(years: YearlyChartRow[]): {
+  sum: YearlyTotals;
+  average: YearlyTotals;
+} {
+  const n = years.length;
+  if (n === 0) {
+    const zero: YearlyTotals = { income: 0, expense: 0, surplus: 0 };
+    return { sum: zero, average: zero };
+  }
+  const income = years.reduce((acc, y) => acc.plus(y.income), Money.from(0));
+  const expense = years.reduce((acc, y) => acc.plus(y.expense), Money.from(0));
+  const avgIncome = income.divide(n);
+  const avgExpense = expense.divide(n);
+  return {
+    sum: {
+      income: income.valueOf(),
+      expense: expense.valueOf(),
+      surplus: income.minus(expense).valueOf(),
+    },
+    average: {
+      income: avgIncome.valueOf(),
+      expense: avgExpense.valueOf(),
+      surplus: avgIncome.minus(avgExpense).valueOf(),
+    },
+  };
+}
+
 function seriesKey(type: YearlySummaryRow['type'], categoryId: number): string {
   return `${type}-${categoryId}`;
 }

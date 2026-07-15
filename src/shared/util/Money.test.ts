@@ -55,6 +55,49 @@ describe('Money', () => {
       new Error('Data format is invalid at tests'),
     ),
   );
+
+  describe('format', () => {
+    // The fi locale formats with NBSP separators and U+2212 minus; normalize
+    // to plain ASCII so the assertions stay readable
+    const fmt = (m: Money, scale?: number, options?: Intl.NumberFormatOptions) =>
+      m
+        .format(scale, options)
+        .replace(/\u00A0/g, ' ')
+        .replace(/\u2212/g, '-');
+
+    it('defaults to exactly two decimals', () => {
+      expect(fmt(new Money('1234.56'))).toEqual('1 234,56 €');
+      expect(fmt(new Money('10'))).toEqual('10,00 €');
+      expect(fmt(new Money('12.567'))).toEqual('12,57 €');
+    });
+
+    it('formats negative values', () => {
+      expect(fmt(new Money('-5.5'))).toEqual('-5,50 €');
+    });
+
+    it('rounds to whole euros with scale 0', () => {
+      expect(fmt(new Money('1234.56'), 0)).toEqual('1 235 €');
+      expect(fmt(new Money('0.49'), 0)).toEqual('0 €');
+    });
+
+    it('clamps both min and max fraction digits to an explicit scale', () => {
+      expect(fmt(new Money('12.345'), 3)).toEqual('12,345 €');
+      expect(fmt(new Money('10'), 1)).toEqual('10,0 €');
+      // scale wins over conflicting options
+      expect(
+        fmt(new Money('12.345'), 1, { minimumFractionDigits: 3, maximumFractionDigits: 3 }),
+      ).toEqual('12,3 €');
+    });
+
+    it('lets options override the two-decimal default when scale is omitted', () => {
+      expect(
+        fmt(new Money('1234.56'), undefined, {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        }),
+      ).toEqual('1 235 €');
+    });
+  });
 });
 
 describe('evaluateMoneyExpression', () => {
