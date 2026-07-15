@@ -137,7 +137,9 @@ export class Money {
     return `${Number(this.value).toLocaleString('fi', {
       ...numberFormatOptions,
       ...options,
-      minimumFractionDigits: scale ?? 2,
+      ...(scale !== undefined
+        ? { minimumFractionDigits: scale, maximumFractionDigits: scale }
+        : undefined),
     })}`;
   }
 

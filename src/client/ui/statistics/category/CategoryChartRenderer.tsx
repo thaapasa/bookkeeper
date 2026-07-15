@@ -14,9 +14,9 @@ import {
 import { calculateChartHeight } from 'client/ui/chart/ChartSize';
 import {
   chartTooltipStyle,
-  formatMoney,
   formatMoneyForChart,
   formatMoneyThin,
+  formatMoneyTick,
   useThinFormat,
 } from 'client/ui/chart/Format';
 
@@ -57,7 +57,10 @@ export const CategoryChartRenderer: React.FC<CategoryChartProps<any>> = <T exten
     >
       <CartesianGrid strokeDasharray="3 3" />
       <XAxis dataKey={dataKey} tickFormatter={tickFormatter} />
-      <YAxis tickFormatter={thin ? formatMoneyThin : formatMoney} width={thin ? 32 : undefined} />
+      <YAxis
+        tickFormatter={thin ? formatMoneyThin : formatMoneyTick}
+        width={thin ? 32 : undefined}
+      />
       <Tooltip
         formatter={formatMoneyForChart}
         labelFormatter={labelFormatter}

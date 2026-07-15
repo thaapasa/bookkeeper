@@ -2,9 +2,19 @@ import type { CSSProperties } from 'react';
 
 import { Money } from 'shared/util';
 
-export const formatMoneyThin = (v: number) => (v > 1000 ? `${Math.round(v / 1000)}K` : `${v}`);
+export const formatMoneyThin = (v: number) =>
+  Math.abs(v) > 1000 ? `${Math.round(v / 1000)}K` : `${v}`;
 
 export const formatMoney = (v: number | string) => {
+  try {
+    return Money.from(v).format();
+  } catch {
+    return '-';
+  }
+};
+
+/** Whole-euro formatter for chart axis ticks, where cents are noise. */
+export const formatMoneyTick = (v: number | string) => {
   try {
     return Money.from(v).format(0);
   } catch {

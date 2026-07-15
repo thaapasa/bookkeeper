@@ -4,7 +4,13 @@ import * as React from 'react';
 import { Bar, BarChart, CartesianGrid, Legend, Tooltip, XAxis, YAxis } from 'recharts';
 
 import { getChartColor } from '../chart/ChartColors';
-import { chartTooltipStyle, formatMoney, formatMoneyThin, useThinFormat } from '../chart/Format';
+import {
+  chartTooltipStyle,
+  formatMoney,
+  formatMoneyThin,
+  formatMoneyTick,
+  useThinFormat,
+} from '../chart/Format';
 
 export interface CategoryChartData {
   categoryId: number;
@@ -36,7 +42,7 @@ const CategoryChartContent: React.FC<{
       <CartesianGrid strokeDasharray="3 3" />
       <XAxis dataKey="categoryName" />
       <YAxis
-        tickFormatter={thin ? formatMoneyThin : formatMoney}
+        tickFormatter={thin ? formatMoneyThin : formatMoneyTick}
         width={thin ? 16 : undefined}
         dataKey="categoryExpense"
         yAxisId="expense"
@@ -44,7 +50,7 @@ const CategoryChartContent: React.FC<{
         style={{ fill: getChartColor(expenseColor, 0) }}
       />
       <YAxis
-        tickFormatter={thin ? formatMoneyThin : formatMoney}
+        tickFormatter={thin ? formatMoneyThin : formatMoneyTick}
         width={thin ? 16 : undefined}
         dataKey="categoryIncome"
         yAxisId="income"

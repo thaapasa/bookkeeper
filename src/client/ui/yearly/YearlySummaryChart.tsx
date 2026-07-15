@@ -5,7 +5,7 @@ import { Bar, BarChart, CartesianGrid, Tooltip, XAxis, YAxis } from 'recharts';
 
 import { YearlySeries, YearlySummaryChartData } from 'shared/statistics/YearlySummaryChartData';
 
-import { formatMoney, formatMoneyThin, useThinFormat } from '../chart/Format';
+import { formatMoney, formatMoneyThin, formatMoneyTick, useThinFormat } from '../chart/Format';
 
 /**
  * Shade ramp endpoints for the stacked bars, one hue per money direction
@@ -74,7 +74,10 @@ const ChartContent: React.FC<{
     >
       <CartesianGrid strokeDasharray="3 3" vertical={false} />
       <XAxis dataKey="year" />
-      <YAxis tickFormatter={thin ? formatMoneyThin : formatMoney} width={thin ? 32 : undefined} />
+      <YAxis
+        tickFormatter={thin ? formatMoneyThin : formatMoneyTick}
+        width={thin ? 32 : undefined}
+      />
       <Tooltip
         content={<SummaryTooltip data={data} />}
         cursor={{ fill: 'var(--mantine-color-default-hover)' }}
