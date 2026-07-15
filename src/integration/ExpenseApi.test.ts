@@ -138,7 +138,11 @@ describe('expense', () => {
     expect(s.status).toEqual('OK');
     expect(s.expenseId).toEqual(org.id);
     const e = await session.get<Expense>(`/api/expense/${org.id}`);
-    expect(e).toEqual(org);
+    // The PUT bumps the `updated` stamp (DB trigger); all other fields must round-trip unchanged
+    const { updated: orgUpdated, ...orgData } = org;
+    const { updated: newUpdated, ...newData } = e;
+    expect(newData).toEqual(orgData);
+    expect(toDateTime(newUpdated) >= toDateTime(orgUpdated)).toEqual(true);
   });
 
   it('should not allow negated cost', async () => {

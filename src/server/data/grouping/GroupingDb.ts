@@ -174,7 +174,7 @@ export async function updateExpenseGroupingById(
   await tx.none(
     `UPDATE expense_groupings
       SET title=$/title/, start_date=$/startDate/, end_date=$/endDate/, color=$/color/,
-        tags=$/tags/, private=$/private/, only_own=$/onlyOwn/, updated=NOW()
+        tags=$/tags/, private=$/private/, only_own=$/onlyOwn/
       WHERE id=$/groupingId/ AND group_id=$/groupId/`,
     {
       groupingId,

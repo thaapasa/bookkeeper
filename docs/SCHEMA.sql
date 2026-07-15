@@ -77,6 +77,20 @@ CREATE TYPE public.recurring_period AS ENUM (
 );
 
 
+--
+-- Name: set_updated_timestamp(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.set_updated_timestamp() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    BEGIN
+      NEW.updated = NOW();
+      RETURN NEW;
+    END;
+    $$;
+
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
@@ -255,6 +269,7 @@ CREATE TABLE public.expenses (
     currency_id integer,
     original_currency_value numeric(10,2),
     split_id uuid,
+    updated timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT expenses_currency_pair_chk CHECK (((currency_id IS NULL) = (original_currency_value IS NULL)))
 );
 
@@ -899,6 +914,34 @@ CREATE INDEX sources_group_id ON public.sources USING btree (group_id);
 --
 
 CREATE INDEX users_email ON public.users USING btree (email);
+
+
+--
+-- Name: expense_groupings expense_groupings_set_updated; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER expense_groupings_set_updated BEFORE UPDATE ON public.expense_groupings FOR EACH ROW EXECUTE FUNCTION public.set_updated_timestamp();
+
+
+--
+-- Name: expenses expenses_set_updated; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER expenses_set_updated BEFORE UPDATE ON public.expenses FOR EACH ROW EXECUTE FUNCTION public.set_updated_timestamp();
+
+
+--
+-- Name: shortcuts shortcuts_set_updated; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER shortcuts_set_updated BEFORE UPDATE ON public.shortcuts FOR EACH ROW EXECUTE FUNCTION public.set_updated_timestamp();
+
+
+--
+-- Name: tracked_subjects tracked_subjects_set_updated; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER tracked_subjects_set_updated BEFORE UPDATE ON public.tracked_subjects FOR EACH ROW EXECUTE FUNCTION public.set_updated_timestamp();
 
 
 --

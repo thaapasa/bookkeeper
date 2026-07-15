@@ -65,8 +65,7 @@ export async function updateShortcutById(
     `UPDATE shortcuts
       SET title=$/title/,
         background=$/background/,
-        expense=$/expense/,
-        updated=NOW()
+        expense=$/expense/
       WHERE id=$/shortcutId/ AND group_id=$/groupId/ AND user_id=$/userId/`,
     {
       groupId,

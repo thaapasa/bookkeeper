@@ -68,7 +68,7 @@ SELECT
   MIN(title) AS title, MIN(description) AS description, BOOL_AND(confirmed) AS confirmed, MIN(source_id) AS "sourceId",
   MIN(user_id) AS "userId", MIN(created_by_id) AS "createdById", MIN(breakdown.group_id) AS "groupId", MIN(category_id) AS "categoryId",
   MIN(grouping_id) AS "groupingId", MIN(auto_grouping_ids) AS "autoGroupingIds",
-  MIN(created) AS created, MIN(subscription_id) AS "subscriptionId",
+  MIN(created) AS created, MIN(updated) AS updated, MIN(subscription_id) AS "subscriptionId",
   MIN(split_id::TEXT) AS "splitId",
   MIN(currency_id) AS "currencyId", MIN(original_currency_value) AS "originalCurrencyValue",
   SUM(cost) AS "userCost", SUM(benefit) AS "userBenefit", SUM(income) AS "userIncome", SUM(split) AS "userSplit",
@@ -78,7 +78,7 @@ FROM (
   SELECT
     e.id, e.date::DATE, e.receiver, e.type, e.sum, e.title, e.description, e.confirmed, e.grouping_id,
     ${AUTO_GROUPING_IDS_SUBQUERY} AS auto_grouping_ids,
-    e.source_id, e.user_id, e.created_by_id, e.group_id, e.category_id, e.created, e.subscription_id,
+    e.source_id, e.user_id, e.created_by_id, e.group_id, e.category_id, e.created, e.updated, e.subscription_id,
     e.split_id, e.currency_id, e.original_currency_value,
     (CASE WHEN d.type = 'cost' THEN d.sum ELSE '0.00'::NUMERIC END) AS cost,
     (CASE WHEN d.type = 'benefit' THEN d.sum ELSE '0.00'::NUMERIC END) AS benefit,
@@ -316,7 +316,7 @@ function toOptionalMoneyString(value: MoneyLike | null | undefined): string | nu
 
 export type ExpenseInsert = Omit<
   Expense,
-  'id' | 'createdById' | 'created' | 'subscriptionId' | 'splitId'
+  'id' | 'createdById' | 'created' | 'updated' | 'subscriptionId' | 'splitId'
 > & {
   subscriptionId?: ObjectId | null;
   /**

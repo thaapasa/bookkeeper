@@ -90,6 +90,7 @@ export type ExpenseData = z.infer<typeof ExpenseData>;
 export const Expense = DbObject.merge(ExpenseData).extend({
   groupId: ObjectId,
   created: ISOTimestamp,
+  updated: ISOTimestamp,
   createdById: z.number(),
   subscriptionId: ObjectId.or(z.null()),
   /**
