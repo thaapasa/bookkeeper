@@ -270,6 +270,7 @@ CREATE TABLE public.expenses (
     original_currency_value numeric(10,2),
     split_id uuid,
     updated timestamp with time zone DEFAULT now() NOT NULL,
+    statement_skip boolean DEFAULT false NOT NULL,
     CONSTRAINT expenses_currency_pair_chk CHECK (((currency_id IS NULL) = (original_currency_value IS NULL)))
 );
 
@@ -490,6 +491,39 @@ ALTER SEQUENCE public.sources_id_seq OWNED BY public.sources.id;
 
 
 --
+-- Name: statement_match; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.statement_match (
+    id integer NOT NULL,
+    group_id integer NOT NULL,
+    statement_row_id integer NOT NULL,
+    expense_id integer NOT NULL,
+    created timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: statement_match_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.statement_match_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: statement_match_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.statement_match_id_seq OWNED BY public.statement_match.id;
+
+
+--
 -- Name: statement_row; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -509,7 +543,9 @@ CREATE TABLE public.statement_row (
     archive_id text,
     raw_line text NOT NULL,
     row_hash text NOT NULL,
-    created timestamp with time zone DEFAULT now() NOT NULL
+    created timestamp with time zone DEFAULT now() NOT NULL,
+    purchase_date date,
+    skipped boolean DEFAULT false NOT NULL
 );
 
 
@@ -752,6 +788,13 @@ ALTER TABLE ONLY public.sources ALTER COLUMN id SET DEFAULT nextval('public.sour
 
 
 --
+-- Name: statement_match id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.statement_match ALTER COLUMN id SET DEFAULT nextval('public.statement_match_id_seq'::regclass);
+
+
+--
 -- Name: statement_row id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -888,6 +931,22 @@ ALTER TABLE ONLY public.shortcuts
 
 ALTER TABLE ONLY public.sources
     ADD CONSTRAINT sources_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: statement_match statement_match_expense_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.statement_match
+    ADD CONSTRAINT statement_match_expense_id_key UNIQUE (expense_id);
+
+
+--
+-- Name: statement_match statement_match_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.statement_match
+    ADD CONSTRAINT statement_match_pkey PRIMARY KEY (id);
 
 
 --
@@ -1029,6 +1088,13 @@ CREATE INDEX source_users_source_id_user_id ON public.source_users USING btree (
 --
 
 CREATE INDEX sources_group_id ON public.sources USING btree (group_id);
+
+
+--
+-- Name: statement_match_row; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX statement_match_row ON public.statement_match USING btree (statement_row_id);
 
 
 --
@@ -1271,6 +1337,30 @@ ALTER TABLE ONLY public.source_users
 
 ALTER TABLE ONLY public.sources
     ADD CONSTRAINT sources_group_id_fkey FOREIGN KEY (group_id) REFERENCES public.users(id);
+
+
+--
+-- Name: statement_match statement_match_expense_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.statement_match
+    ADD CONSTRAINT statement_match_expense_id_fkey FOREIGN KEY (expense_id) REFERENCES public.expenses(id) ON DELETE CASCADE;
+
+
+--
+-- Name: statement_match statement_match_group_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.statement_match
+    ADD CONSTRAINT statement_match_group_id_fkey FOREIGN KEY (group_id) REFERENCES public.groups(id);
+
+
+--
+-- Name: statement_match statement_match_statement_row_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.statement_match
+    ADD CONSTRAINT statement_match_statement_row_id_fkey FOREIGN KEY (statement_row_id) REFERENCES public.statement_row(id) ON DELETE CASCADE;
 
 
 --

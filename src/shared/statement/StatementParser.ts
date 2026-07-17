@@ -94,6 +94,9 @@ function parseOpRow(fields: string[], rawLine: string): StatementRowData {
   return {
     bookingDate: parseIsoDate(bookingDate),
     valueDate: parseIsoDate(valueDate),
+    // For OP card payments both bank dates are the booking date; the actual
+    // purchase date is only in the message ("OSTOPVM 260101...").
+    purchaseDate: parsePurchaseDate(message),
     amount: parseAmount(amount),
     type,
     counterparty: emptyToNull(counterparty),
@@ -104,6 +107,18 @@ function parseOpRow(fields: string[], rawLine: string): StatementRowData {
     archiveId: emptyToNull(fields[10]),
     rawLine,
   };
+}
+
+const PurchaseDateRE = /OSTOPVM (\d{2})(\d{2})(\d{2})/;
+
+/** Extracts the "OSTOPVM YYMMDD" purchase date from an OP message, if any. */
+function parsePurchaseDate(message: string): ISODate | null {
+  const match = PurchaseDateRE.exec(message);
+  if (!match) {
+    return null;
+  }
+  const date = `20${match[1]}-${match[2]}-${match[3]}`;
+  return DateTime.fromISO(date).isValid ? (date as ISODate) : null;
 }
 
 /**
@@ -119,7 +134,10 @@ function parseSpankkiRow(fields: string[], rawLine: string): StatementRowData {
   const outgoing = amount.startsWith('-');
   return {
     bookingDate: parseFinnishDate(bookingDate),
+    // S-pankki's Maksupäivä is already the purchase date, so no separate
+    // purchase date is needed.
     valueDate: parseFinnishDate(valueDate),
+    purchaseDate: null,
     amount,
     type,
     // The counterparty depends on direction: for outgoing payments it is the

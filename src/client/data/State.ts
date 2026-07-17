@@ -30,12 +30,12 @@ export async function createExpense(reference?: Partial<ExpenseInEditor>): Promi
 export function requestNewExpense(
   saveAction?: ExpenseSaveAction,
   title?: string,
-  reference?: Partial<ExpenseInEditor>,
+  values?: Partial<ExpenseInEditor>,
 ): Promise<ExpenseInEditor | null> {
   return new Promise<ExpenseInEditor | null>(resolve => {
     useExpenseDialogRequestStore
       .getState()
-      .setRequest({ ...reference, expenseId: null, resolve, saveAction, title });
+      .setRequest({ values, expenseId: null, resolve, saveAction, title });
   });
 }
 

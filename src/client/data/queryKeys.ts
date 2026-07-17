@@ -47,6 +47,8 @@ export const QueryKeys = {
     all: ['statements'] as const,
     rows: (sourceId: ObjectId, page: number) => ['statements', 'rows', { sourceId, page }] as const,
     uploads: (sourceId: ObjectId) => ['statements', 'uploads', sourceId] as const,
+    matching: (sourceId: ObjectId, month: ISOMonth) =>
+      ['statements', 'matching', { sourceId, month }] as const,
   },
   db: {
     status: ['db', 'status'] as const,

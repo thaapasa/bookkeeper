@@ -18,6 +18,12 @@ export type StatementAmount = z.infer<typeof StatementAmount>;
 export const StatementRowData = z.object({
   bookingDate: ISODate,
   valueDate: ISODate,
+  /**
+   * Actual purchase date, when the bank dates are only booking dates. Parsed
+   * from OP card-payment messages ("OSTOPVM 260101..."); null otherwise.
+   * Use effectiveStatementDate() when comparing against expense dates.
+   */
+  purchaseDate: ISODate.nullable(),
   /** Signed amount in EUR; negative = money out of the account. */
   amount: StatementAmount,
   /** Bank's transaction type text, e.g. "PKORTTIMAKSU", "KORTTIOSTO". */
@@ -36,6 +42,8 @@ export const StatementRow = StatementRowData.extend({
   id: ObjectId,
   sourceId: ObjectId,
   uploadId: ObjectId,
+  /** Reviewed as "will never match any expense" in the matching view. */
+  skipped: z.boolean(),
 });
 export type StatementRow = z.infer<typeof StatementRow>;
 
@@ -89,3 +97,13 @@ export const StatementRowsResponse = z.object({
   total: z.number().int(),
 });
 export type StatementRowsResponse = z.infer<typeof StatementRowsResponse>;
+
+/**
+ * The date a statement row should be compared against expense dates: the
+ * real purchase date when known, otherwise the bank's value date.
+ */
+export function effectiveStatementDate(
+  row: Pick<StatementRowData, 'purchaseDate' | 'valueDate'>,
+): ISODate {
+  return row.purchaseDate ?? row.valueDate;
+}

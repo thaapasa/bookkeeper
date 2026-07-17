@@ -35,14 +35,17 @@ function validateSum(v: string): string | undefined {
   );
 }
 
+// Id fields arrive stringified, so an unset id is the (truthy) string "0"
+const missingId = (error: string) => (v: string) => errorIf(!v || v === '0', error);
+
 const validators: Record<string, (v: string) => string | undefined> = {
   title: v => errorIf(v.length < 1, 'Nimi puuttuu'),
-  sourceId: v => errorIf(!v, 'Lähde puuttuu'),
-  categoryId: v => errorIf(!v, 'Kategoria puuttuu'),
+  sourceId: missingId('Lähde puuttuu'),
+  categoryId: missingId('Kategoria puuttuu'),
   receiver: v => errorIf(v.length < 1, 'Kohde puuttuu'),
   sum: validateSum,
   benefit: v => errorIf(v.length < 1, 'Jonkun pitää hyötyä'),
-  userId: v => errorIf(!v, 'Omistaja puuttuu'),
+  userId: missingId('Omistaja puuttuu'),
 };
 
 export const SourceTitles: Record<ExpenseType, string> = {

@@ -21,12 +21,14 @@ import {
 } from 'shared/expense';
 import { FetchClient, RequestMethod, RequestSpec, uri } from 'shared/net';
 import {
+  StatementMatchingData,
+  StatementMatchInput,
   StatementRowsResponse,
   StatementUploadDeleteResult,
   StatementUploadListItem,
   StatementUploadResult,
 } from 'shared/statement';
-import { ISODate, RecurrenceInterval, timeoutImmediate } from 'shared/time';
+import { ISODate, ISOMonth, RecurrenceInterval, timeoutImmediate } from 'shared/time';
 import {
   ApiMessage,
   ApiStatus,
@@ -367,6 +369,30 @@ export class ApiConnect {
 
   public deleteStatementUpload = (uploadId: ObjectId): Promise<StatementUploadDeleteResult> =>
     this.delete(uri`/api/statement/upload/${uploadId}`);
+
+  public getStatementMatching = (
+    sourceId: ObjectId,
+    month: ISOMonth,
+  ): Promise<StatementMatchingData> =>
+    this.get(`/api/statement/matching`, { query: { sourceId, month } });
+
+  public createStatementMatch = (match: StatementMatchInput): Promise<void> =>
+    this.post(`/api/statement/match`, { body: match });
+
+  public createStatementMatches = (matches: StatementMatchInput[]): Promise<void> =>
+    this.post(`/api/statement/match/bulk`, { body: { matches } });
+
+  public unmatchStatementRow = (statementRowId: ObjectId): Promise<void> =>
+    this.delete(uri`/api/statement/match/statement/${statementRowId}`);
+
+  public unmatchExpense = (expenseId: ObjectId): Promise<void> =>
+    this.delete(uri`/api/statement/match/expense/${expenseId}`);
+
+  public setStatementRowSkipped = (statementRowId: ObjectId, skipped: boolean): Promise<void> =>
+    this.patch(uri`/api/statement/row/${statementRowId}/skip`, { body: { skipped } });
+
+  public setExpenseStatementSkip = (expenseId: ObjectId, skipped: boolean): Promise<void> =>
+    this.patch(uri`/api/statement/expense/${expenseId}/skip`, { body: { skipped } });
 
   // Shortcuts
 

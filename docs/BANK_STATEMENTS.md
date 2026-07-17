@@ -154,10 +154,71 @@ All endpoints are group-scoped; every query constrains by `group_id`.
     states how many rows the delete removes; a batch whose rows were all imported
     earlier by another batch owns nothing and deletes no rows).
 
-## Future: matching statements to expenses
+## Matching statements to expenses
 
-Out of scope for the import feature, designed later. The intent is a UI that matches
-statement rows to expenses with automatic guesses, so missing or mistyped expenses
-stand out. The likely shape is a separate link table (`statement_row` ↔ `expenses`)
-rather than a nullable FK, but nothing in the import schema commits to either; no
-prep is needed now.
+Matching links statement rows to the expenses that explain them, so missing or
+mistyped expenses stand out. Server logic in `src/server/data/StatementMatchDb.ts`,
+the preliminary matcher in `src/shared/statement/StatementMatcher.ts`, the UI in
+`StatementMatchingView.tsx` (the Täsmäytys tab).
+
+### Model
+
+- `statement_match` links one statement row to one or more expenses (a purchase may
+  be split into several expense rows). An expense matches at most one statement row
+  (UNIQUE on `expense_id`) — multiple bank payments are never combined into one
+  expense. Cascades from both sides: deleting an upload batch or an expense removes
+  its links.
+- Matched sums need **not** agree: part of an expense may have been paid another way.
+- **Skipping** marks an item as reviewed-but-never-matching: `statement_row.skipped`
+  for bank-internal rows (BONUS etc.), `expenses.statement_skip` for expenses paid
+  outside the account. Skip flags and matches are mutually exclusive: matching
+  clears skips, and skipping a matched item is rejected.
+- `statement_row.purchase_date`: for OP card payments both bank dates are the
+  booking date; the real purchase date is parsed from the message
+  (`OSTOPVM YYMMDD`) into this column. It is **not** part of `row_hash` (it derives
+  from the already-hashed message; hashing it would invalidate all existing hashes).
+  The **effective date** of a row — used for windowing, bucketing, and match
+  suggestions — is `COALESCE(purchase_date, value_date)`
+  (`effectiveStatementDate()` in shared code).
+
+### API
+
+| Endpoint                                    | Purpose                                                          |
+| ------------------------------------------- | ---------------------------------------------------------------- |
+| `GET /api/statement/matching`               | Both sides for (`sourceId`, `month`): the month's expenses, and statement rows whose effective date falls within month ± 4 days, each with match/skip state. |
+| `POST /api/statement/match`                 | Match one row to one or more expenses (same source enforced).    |
+| `POST /api/statement/match/bulk`            | Confirm several matches at once (suggestion confirmation).       |
+| `DELETE /api/statement/match/statement/:id` | Unmatch a statement row (all its expenses).                      |
+| `DELETE /api/statement/match/expense/:id`   | Unmatch a single expense.                                        |
+| `PATCH /api/statement/row/:id/skip`         | Set/clear a statement row's skip flag.                           |
+| `PATCH /api/statement/expense/:id/skip`     | Set/clear an expense's statement-skip flag.                      |
+
+### Preliminary matching
+
+`suggestStatementMatches()` is a pure function, computed client-side when the view
+loads — suggestions are never persisted until confirmed. Only unmatched, unskipped
+items participate. Expenses sharing a `split_id` (parts of one split purchase, see
+`docs/SPLIT_EXPENSES.md`) form one **unit** whose sum is the total of its open
+parts — the bank sees one payment for the whole purchase. A unit is suggested for
+a row when the expense date equals the row's effective date, the signed sums match
+exactly (expenses and transfers ↔ negative amounts, incomes ↔ positive), and the
+pairing is unambiguous: exactly one unit and one row share that (date, sum)
+bucket. Anything ambiguous — including a split whose parts have been edited to
+different dates — is left for manual matching instead of guessing.
+
+### Täsmäytys UI
+
+The tab binds to the **top-bar month navigator** (route
+`/p/tiliotteet/m/yyyy-MM`). For the selected source and month it renders one
+vertical list of per-date buckets, each with expenses on the left and statement
+rows on the right, so the two sides stay aligned by date.
+
+- Suggested pairs show an "Ehdotus" badge; "Vahvista N ehdotusta" confirms them as
+  one bulk call, and individual suggestions can be dismissed.
+- Manual matching: click one statement row + one or more expenses, then "Täsmää
+  valitut".
+- Matched items are dimmed with a "Täsmätty" badge and can be unlinked; skipped
+  items are dimmed with "Ohitettu" and a dashed border.
+- "Luo kirjaus tästä" on an unmatched row opens the expense dialog prefilled from
+  the row (date, sum, receiver, source, type by sign) and creates the match
+  automatically on save.

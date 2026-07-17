@@ -64,6 +64,7 @@ export function AppRouter() {
       <Route path={infoPagePath} element={<InfoView />} />
       <Route path={trackingPagePath} element={qb(<TrackingPage />)} />
       <Route path={statementsPagePath} element={qb(<StatementsPage />)} />
+      <Route path={`${statementsPagePath}/m/:month`} element={qb(<StatementsPage />)} />
       <Route path={groupingsPagePath} element={qb(<GroupingPage />)} />
       <Route path={`${groupingsPagePath}/:groupingId`} element={qb(<GroupingExpensesPage />)} />
       <Route path={toolsPagePath} element={<ToolsView />} />

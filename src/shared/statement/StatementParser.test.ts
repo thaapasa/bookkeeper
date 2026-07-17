@@ -31,6 +31,8 @@ describe('parseStatement (OP)', () => {
     expect(row).toEqual({
       bookingDate: '2026-05-02',
       valueDate: '2026-05-02',
+      // Real purchase date parsed from "OSTOPVM 260501" in the message
+      purchaseDate: '2026-05-01',
       amount: '-12.90',
       type: 'PKORTTIMAKSU',
       counterparty: 'MEGASTORE HELSINKI',
@@ -47,6 +49,14 @@ describe('parseStatement (OP)', () => {
     expect(row.reference).toEqual('1122334455');
     expect(row.counterpartyAccount).toEqual('FI2112345600000785');
     expect(row.message).toBeNull();
+    // No OSTOPVM in a transfer message
+    expect(row.purchaseDate).toBeNull();
+  });
+
+  it('parses the purchase date from messages with trailing card suffixes', () => {
+    const row = `"2026-01-02";"2026-01-02";-15,99;"162";"PKORTTIMAKSU";"WEBSHOP";"";"";"ref=";"Viesti: 401046******1226 OSTOPVM 260101MF NRO 742 VARMENTAJA 050";"20260102/X/1"`;
+    const { rows } = parseStatement(opCsv([row]));
+    expect(rows[0].purchaseDate).toEqual('2026-01-01');
   });
 
   it('parses incoming amounts as positive', () => {
@@ -82,6 +92,7 @@ describe('parseStatement (S-pankki)', () => {
     expect(row).toEqual({
       bookingDate: '2026-05-13',
       valueDate: '2026-05-11',
+      purchaseDate: null,
       amount: '-25.50',
       type: 'KORTTIOSTO',
       counterparty: 'KAUPPA HELSINKI',

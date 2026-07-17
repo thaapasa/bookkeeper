@@ -1,19 +1,25 @@
 import { Group, Pagination, Select, Stack, Tabs, Text } from '@mantine/core';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { DateTime } from 'luxon';
 import React from 'react';
+import { useParams } from 'react-router-dom';
 
 import { ParsedStatement, parseStatement } from 'shared/statement';
+import { ISOMonth, ISOMonthRegExp, monthRange } from 'shared/time';
 import { ObjectId } from 'shared/types';
 import { apiConnect } from 'client/data/ApiConnect';
+import { useNavigationStore } from 'client/data/NavigationStore';
 import { notifyError } from 'client/data/NotificationStore';
 import { QueryKeys } from 'client/data/queryKeys';
 import { useValidSession } from 'client/data/SessionStore';
 import { executeOperation } from 'client/util/ExecuteOperation';
+import { statementsPagePath } from 'client/util/Links';
 
 import { PageTitle } from '../design/PageTitle';
 import { Subtitle } from '../design/Text';
 import { PageLayout } from '../layout/PageLayout';
 import { StatementDropZone } from './StatementDropZone';
+import { StatementMatchingView } from './StatementMatchingView';
 import { StatementRowsTable } from './StatementRowsTable';
 import { autoSelectStatementSource, statementSourceOptions } from './statementSources';
 import { StatementUploadPreview } from './StatementUploadPreview';
@@ -25,15 +31,36 @@ interface PendingUpload {
   parsed: ParsedStatement;
 }
 
+// Validate URL param as ISOMonth; fall back to current month on invalid input
+function parseMonth(month?: string): ISOMonth {
+  if (month && ISOMonthRegExp.test(month)) {
+    return month as ISOMonth;
+  }
+  return DateTime.now().toFormat('yyyy-MM') as ISOMonth;
+}
+
 export const StatementsPage: React.FC = () => {
   const session = useValidSession();
   const queryClient = useQueryClient();
   const [pending, setPending] = React.useState<PendingUpload | null>(null);
   const [importing, setImporting] = React.useState(false);
+  const { month: monthParam } = useParams<'month'>();
+  const month = parseMonth(monthParam);
+
+  // Bind the top bar date navigator to this page (month mode)
+  React.useEffect(() => {
+    useNavigationStore.getState().setNavigation({
+      pathPrefix: statementsPagePath,
+      dateRange: monthRange(`${month}-01`),
+    });
+  }, [month]);
 
   const bankSources = session.sources.filter(s => s.statementFormat !== null);
+  // Default to the user's own account: the first bank source they are mapped to
   const [selectedSourceId, setSelectedSourceId] = React.useState<ObjectId | undefined>(
-    bankSources[0]?.id,
+    () =>
+      (bankSources.find(s => s.users.some(u => u.userId === session.user.id)) ?? bankSources[0])
+        ?.id,
   );
 
   const onFile = (filename: string, content: string) => {
@@ -96,12 +123,16 @@ export const StatementsPage: React.FC = () => {
                 <Tabs.List>
                   <Tabs.Tab value="rows">Tapahtumat</Tabs.Tab>
                   <Tabs.Tab value="uploads">Tuonnit</Tabs.Tab>
+                  <Tabs.Tab value="matching">Täsmäytys</Tabs.Tab>
                 </Tabs.List>
                 <Tabs.Panel value="rows" pt="md">
                   <StatementRowsList key={selectedSourceId} sourceId={selectedSourceId} />
                 </Tabs.Panel>
                 <Tabs.Panel value="uploads" pt="md">
                   <StatementUploadsList sourceId={selectedSourceId} />
+                </Tabs.Panel>
+                <Tabs.Panel value="matching" pt="md">
+                  <StatementMatchingView sourceId={selectedSourceId} month={month} />
                 </Tabs.Panel>
               </Tabs>
             ) : null}

@@ -20,6 +20,10 @@ import { withSpan } from 'server/telemetry/Spans';
  * Deduplication key for a statement row: a hash over all normalized fields.
  * The bank archive id alone is not unique (OP reuses it for recurring
  * standing-order payments), see docs/BANK_STATEMENTS.md.
+ *
+ * purchaseDate is intentionally NOT hashed: it is derived from the message
+ * (which is hashed), and adding it would change every existing hash, turning
+ * re-uploads into full duplicate imports.
  */
 function calculateRowHash(row: StatementRowData): string {
   return createHash('sha256')
@@ -82,12 +86,12 @@ export function importStatement(
       for (const row of parsed.rows) {
         const inserted = await tx.oneOrNone<{ id: number }>(
           `INSERT INTO statement_row
-              (group_id, source_id, upload_id, booking_date, value_date, amount, type,
-               counterparty, counterparty_account, reference, message, archive_id,
-               raw_line, row_hash)
+              (group_id, source_id, upload_id, booking_date, value_date, purchase_date,
+               amount, type, counterparty, counterparty_account, reference, message,
+               archive_id, raw_line, row_hash)
             VALUES ($/groupId/, $/sourceId/, $/uploadId/, $/bookingDate/, $/valueDate/,
-               $/amount/, $/type/, $/counterparty/, $/counterpartyAccount/, $/reference/,
-               $/message/, $/archiveId/, $/rawLine/, $/rowHash/)
+               $/purchaseDate/, $/amount/, $/type/, $/counterparty/, $/counterpartyAccount/,
+               $/reference/, $/message/, $/archiveId/, $/rawLine/, $/rowHash/)
             ON CONFLICT (source_id, row_hash) DO NOTHING
             RETURNING id`,
           {
@@ -96,6 +100,7 @@ export function importStatement(
             uploadId: upload.id,
             bookingDate: row.bookingDate,
             valueDate: row.valueDate,
+            purchaseDate: row.purchaseDate,
             amount: row.amount,
             type: row.type,
             counterparty: row.counterparty,
@@ -134,9 +139,10 @@ export function importStatement(
 const rowSelect = `--sql
 SELECT
   id, source_id AS "sourceId", upload_id AS "uploadId",
-  booking_date AS "bookingDate", value_date AS "valueDate", amount, type,
+  booking_date AS "bookingDate", value_date AS "valueDate",
+  purchase_date AS "purchaseDate", amount, type,
   counterparty, counterparty_account AS "counterpartyAccount",
-  reference, message, archive_id AS "archiveId", raw_line AS "rawLine",
+  reference, message, archive_id AS "archiveId", raw_line AS "rawLine", skipped,
   COUNT(*) OVER() AS total
 FROM statement_row`;
 

@@ -2,13 +2,17 @@ import { Router } from 'express';
 import { z } from 'zod';
 
 import {
+  SkipInput,
+  StatementMatchBulkInput,
+  StatementMatchingData,
+  StatementMatchInput,
   StatementRowsResponse,
   StatementUploadDeleteResult,
   StatementUploadInput,
   StatementUploadListItem,
   StatementUploadResult,
 } from 'shared/statement';
-import { ISODate } from 'shared/time';
+import { ISODate, ISOMonth } from 'shared/time';
 import { IntString, ObjectIdString } from 'shared/types';
 import {
   deleteStatementUpload,
@@ -16,6 +20,14 @@ import {
   getStatementUploads,
   importStatement,
 } from 'server/data/StatementDb';
+import {
+  createStatementMatch,
+  deleteMatchesForStatementRow,
+  deleteMatchForExpense,
+  getStatementMatchingData,
+  setExpenseStatementSkip,
+  setStatementRowSkipped,
+} from 'server/data/StatementMatchDb';
 import { createValidatingRouter } from 'server/server/ValidatingRouter';
 
 const MAX_PAGE_SIZE = 200;
@@ -31,6 +43,11 @@ const StatementRowQuery = z.object({
 
 const StatementUploadsQuery = z.object({
   sourceId: ObjectIdString,
+});
+
+const StatementMatchingQuery = z.object({
+  sourceId: ObjectIdString,
+  month: ISOMonth,
 });
 
 /**
@@ -64,6 +81,76 @@ export function createStatementApi() {
     '/upload/:uploadId',
     { response: StatementUploadDeleteResult, groupRequired: true },
     (tx, session, { params }) => deleteStatementUpload(tx, session.group.id, params.uploadId),
+  );
+
+  // GET /api/statement/matching?sourceId=1&month=2026-05
+  api.getTx(
+    '/matching',
+    { query: StatementMatchingQuery, response: StatementMatchingData, groupRequired: true },
+    (tx, session, { query }) =>
+      getStatementMatchingData(tx, session.group.id, query.sourceId, query.month),
+  );
+
+  // POST /api/statement/match
+  api.postTx(
+    '/match',
+    { body: StatementMatchInput, groupRequired: true },
+    async (tx, session, { body }) => {
+      await createStatementMatch(tx, session.group.id, body);
+      return { status: 'OK' };
+    },
+  );
+
+  // POST /api/statement/match/bulk
+  api.postTx(
+    '/match/bulk',
+    { body: StatementMatchBulkInput, groupRequired: true },
+    async (tx, session, { body }) => {
+      for (const match of body.matches) {
+        await createStatementMatch(tx, session.group.id, match);
+      }
+      return { status: 'OK', count: body.matches.length };
+    },
+  );
+
+  // DELETE /api/statement/match/statement/:statementRowId
+  api.deleteTx(
+    '/match/statement/:statementRowId',
+    { groupRequired: true },
+    async (tx, session, { params }) => {
+      await deleteMatchesForStatementRow(tx, session.group.id, params.statementRowId);
+      return { status: 'OK' };
+    },
+  );
+
+  // DELETE /api/statement/match/expense/:expenseId
+  api.deleteTx(
+    '/match/expense/:expenseId',
+    { groupRequired: true },
+    async (tx, session, { params }) => {
+      await deleteMatchForExpense(tx, session.group.id, params.expenseId);
+      return { status: 'OK' };
+    },
+  );
+
+  // PATCH /api/statement/row/:statementRowId/skip
+  api.patchTx(
+    '/row/:statementRowId/skip',
+    { body: SkipInput, groupRequired: true },
+    async (tx, session, { params, body }) => {
+      await setStatementRowSkipped(tx, session.group.id, params.statementRowId, body.skipped);
+      return { status: 'OK' };
+    },
+  );
+
+  // PATCH /api/statement/expense/:expenseId/skip
+  api.patchTx(
+    '/expense/:expenseId/skip',
+    { body: SkipInput, groupRequired: true },
+    async (tx, session, { params, body }) => {
+      await setExpenseStatementSkip(tx, session.group.id, params.expenseId, body.skipped);
+      return { status: 'OK' };
+    },
   );
 
   // GET /api/statement/rows?sourceId=1&startDate=2026-01-01&endDate=2026-01-31&limit=50&offset=0
