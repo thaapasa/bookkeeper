@@ -464,7 +464,9 @@ CREATE TABLE public.sources (
     group_id integer NOT NULL,
     name text NOT NULL,
     abbreviation text,
-    image text
+    image text,
+    statement_format text,
+    CONSTRAINT sources_statement_format_check CHECK ((statement_format = ANY (ARRAY['op'::text, 'spankki'::text])))
 );
 
 
@@ -485,6 +487,88 @@ CREATE SEQUENCE public.sources_id_seq
 --
 
 ALTER SEQUENCE public.sources_id_seq OWNED BY public.sources.id;
+
+
+--
+-- Name: statement_row; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.statement_row (
+    id integer NOT NULL,
+    group_id integer NOT NULL,
+    source_id integer NOT NULL,
+    upload_id integer NOT NULL,
+    booking_date date NOT NULL,
+    value_date date NOT NULL,
+    amount numeric(10,2) NOT NULL,
+    type text NOT NULL,
+    counterparty text,
+    counterparty_account text,
+    reference text,
+    message text,
+    archive_id text,
+    raw_line text NOT NULL,
+    row_hash text NOT NULL,
+    created timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: statement_row_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.statement_row_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: statement_row_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.statement_row_id_seq OWNED BY public.statement_row.id;
+
+
+--
+-- Name: statement_upload; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.statement_upload (
+    id integer NOT NULL,
+    group_id integer NOT NULL,
+    source_id integer NOT NULL,
+    filename text NOT NULL,
+    format text NOT NULL,
+    uploaded_by integer NOT NULL,
+    uploaded_at timestamp with time zone DEFAULT now() NOT NULL,
+    row_count integer NOT NULL,
+    new_count integer NOT NULL,
+    duplicate_count integer NOT NULL
+);
+
+
+--
+-- Name: statement_upload_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.statement_upload_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: statement_upload_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.statement_upload_id_seq OWNED BY public.statement_upload.id;
 
 
 --
@@ -668,6 +752,20 @@ ALTER TABLE ONLY public.sources ALTER COLUMN id SET DEFAULT nextval('public.sour
 
 
 --
+-- Name: statement_row id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.statement_row ALTER COLUMN id SET DEFAULT nextval('public.statement_row_id_seq'::regclass);
+
+
+--
+-- Name: statement_upload id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.statement_upload ALTER COLUMN id SET DEFAULT nextval('public.statement_upload_id_seq'::regclass);
+
+
+--
 -- Name: subscriptions id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -793,6 +891,30 @@ ALTER TABLE ONLY public.sources
 
 
 --
+-- Name: statement_row statement_row_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.statement_row
+    ADD CONSTRAINT statement_row_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: statement_row statement_row_source_id_row_hash_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.statement_row
+    ADD CONSTRAINT statement_row_source_id_row_hash_key UNIQUE (source_id, row_hash);
+
+
+--
+-- Name: statement_upload statement_upload_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.statement_upload
+    ADD CONSTRAINT statement_upload_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: subscriptions subscriptions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -907,6 +1029,13 @@ CREATE INDEX source_users_source_id_user_id ON public.source_users USING btree (
 --
 
 CREATE INDEX sources_group_id ON public.sources USING btree (group_id);
+
+
+--
+-- Name: statement_row_source_booking_date; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX statement_row_source_booking_date ON public.statement_row USING btree (source_id, booking_date);
 
 
 --
@@ -1142,6 +1271,54 @@ ALTER TABLE ONLY public.source_users
 
 ALTER TABLE ONLY public.sources
     ADD CONSTRAINT sources_group_id_fkey FOREIGN KEY (group_id) REFERENCES public.users(id);
+
+
+--
+-- Name: statement_row statement_row_group_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.statement_row
+    ADD CONSTRAINT statement_row_group_id_fkey FOREIGN KEY (group_id) REFERENCES public.groups(id);
+
+
+--
+-- Name: statement_row statement_row_source_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.statement_row
+    ADD CONSTRAINT statement_row_source_id_fkey FOREIGN KEY (source_id) REFERENCES public.sources(id);
+
+
+--
+-- Name: statement_row statement_row_upload_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.statement_row
+    ADD CONSTRAINT statement_row_upload_id_fkey FOREIGN KEY (upload_id) REFERENCES public.statement_upload(id);
+
+
+--
+-- Name: statement_upload statement_upload_group_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.statement_upload
+    ADD CONSTRAINT statement_upload_group_id_fkey FOREIGN KEY (group_id) REFERENCES public.groups(id);
+
+
+--
+-- Name: statement_upload statement_upload_source_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.statement_upload
+    ADD CONSTRAINT statement_upload_source_id_fkey FOREIGN KEY (source_id) REFERENCES public.sources(id);
+
+
+--
+-- Name: statement_upload statement_upload_uploaded_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.statement_upload
+    ADD CONSTRAINT statement_upload_uploaded_by_fkey FOREIGN KEY (uploaded_by) REFERENCES public.users(id);
 
 
 --

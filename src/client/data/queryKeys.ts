@@ -43,6 +43,11 @@ export const QueryKeys = {
     }) => ['statistics', 'category', params] as const,
     yearlySummary: ['statistics', 'yearly-summary'] as const,
   },
+  statements: {
+    all: ['statements'] as const,
+    rows: (sourceId: ObjectId, startDate?: ISODate, endDate?: ISODate) =>
+      ['statements', 'rows', { sourceId, startDate, endDate }] as const,
+  },
   db: {
     status: ['db', 'status'] as const,
   },

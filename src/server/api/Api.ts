@@ -18,6 +18,7 @@ import { createProfileApi } from './ProfileApi';
 import { createReceiverApi } from './ReceiverApi';
 import { createSessionApi } from './SessionApi';
 import { createSourceApi } from './SourceApi';
+import { createStatementApi } from './StatementApi';
 import { createStatisticsApi } from './StatisticsApi';
 import { createSubscriptionApi } from './SubscriptionApi';
 import { createTrackingApi } from './TrackingApi';
@@ -37,6 +38,7 @@ export function createApi() {
   api.use('/subscription', createSubscriptionApi());
   api.use('/statistics', createStatisticsApi());
   api.use('/source', createSourceApi());
+  api.use('/statement', createStatementApi());
   api.use('/receiver', createReceiverApi());
   api.use('/tracking', createTrackingApi());
   api.use('/grouping', createGroupingApi());

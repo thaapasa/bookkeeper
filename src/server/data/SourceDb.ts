@@ -24,6 +24,7 @@ function createGroupObject(rows: SourceData[]): Source[] {
         shares: v.shares,
         users: [],
         image: getImage(v.image),
+        statementFormat: v.statementFormat,
       });
     }
     list[list.length - 1].users.push({ userId: v.userId, share: v.share });
@@ -34,6 +35,7 @@ function createGroupObject(rows: SourceData[]): Source[] {
 const select = `--sql
 SELECT
   s.id, s.group_id as "groupId", name, abbreviation, image,
+  s.statement_format as "statementFormat",
   (SELECT SUM(share) FROM source_users WHERE source_id = s.id)::INTEGER AS shares,
   so.user_id as "userId", so.share
 FROM sources s
@@ -68,12 +70,17 @@ export function updateSource(
 ): Promise<Source> {
   return withSpan('source.update', { 'app.group_id': groupId, 'app.source_id': id }, async () => {
     const source = await getSourceById(tx, groupId, id);
+    // Partial patch: absent fields keep their current value. statementFormat
+    // is nullable, so undefined (keep) and null (clear) must stay distinct.
+    const name = data.name ?? source.name;
+    const statementFormat =
+      data.statementFormat === undefined ? source.statementFormat : data.statementFormat;
     await tx.none(
       `UPDATE sources
-          SET name=$/name/
+          SET name=$/name/, statement_format=$/statementFormat/
           WHERE id=$/id/ AND group_id=$/groupId/`,
-      { id, groupId, name: data.name },
+      { id, groupId, name, statementFormat },
     );
-    return { ...source, name: data.name };
+    return { ...source, name, statementFormat };
   });
 }

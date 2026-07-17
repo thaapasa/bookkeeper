@@ -8,8 +8,8 @@ account.
 
 The parsers live in `src/shared/statement/` (shared: the client uses them for format
 sniffing and preview, the server for the authoritative parse). Server logic lives in
-`src/server/data/statement/`, the API in `src/server/api/StatementApi.ts`, and the UI
-in `src/client/ui/statement/` (the "Tiliotteet" page).
+`src/server/data/StatementDb.ts`, the API in `src/server/api/StatementApi.ts`, and the
+UI in `src/client/ui/statement/` (the "Tiliotteet" page).
 
 ## Concepts
 
@@ -93,6 +93,18 @@ eleven columns conceptually. Differences:
 **Format sniffing** uses the header row alone — the two headers are distinct, so no
 content heuristics are needed. A file whose header matches neither format is rejected.
 
+Normalizations applied by the parsers:
+
+- OP prefixes are stripped: `ref=` from the reference, `Viesti: ` from the message
+  (prefix only — a mid-message "Viesti:" is kept).
+- S-pankki messages lose their wrapping single quotes; `-` fields become null.
+- IBANs lose their grouping spaces (`FI21 1234 …` → `FI211234…`).
+- The S-pankki counterparty depends on direction: receiver ("Saajan nimi") for
+  outgoing rows, payer ("Maksaja") for incoming ones — the other side is the
+  account owner. Likewise "Saajan tilinumero" is only stored for outgoing rows;
+  on incoming rows it is the account's own IBAN, not counterparty data.
+- Amounts are normalized to dot-decimal strings (`-579,12` → `"-579.12"`).
+
 All transaction types are imported, including bank-internal ones (`BONUS`,
 `MAKSUTAPAETU`) and incoming payments. Deciding which rows are relevant is the
 matching phase's job, not the importer's.
@@ -112,7 +124,8 @@ happens client-side:
    has one OP source and one S-pankki source they're mapped to). Multiple → dropdown
    with candidates listed first. None → dropdown of all bank sources, with a hint to
    configure the format on a source.
-4. On confirm, the **raw file** is POSTed to the server. The server re-parses it
+4. On confirm, the **raw file content** is POSTed to the server (as JSON
+   `{ filename, content }` — statement CSVs are small). The server re-parses it
    authoritatively — the client parse is only for sniffing and preview. This keeps
    the raw file as the source of truth, lets the server store `raw_line` per row,
    and avoids an API that accepts client-fabricated rows.
@@ -121,19 +134,19 @@ happens client-side:
 
 ## API
 
-| Endpoint                         | Purpose                                                                                                                                                     |
-| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `POST /api/source/:id/statement` | Upload a CSV (multipart). Validates that the source has a `statement_format`, parses, dedupes, inserts. Returns `{ parsed, inserted, duplicates, errors }`. |
-| `GET /api/statement/rows`        | List statement rows for a source + date range (drives the Tiliotteet row list).                                                                             |
+| Endpoint                               | Purpose                                                                                                                                                                                                                                   |
+| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `POST /api/statement/upload/:sourceId` | Upload a CSV (JSON body `{ filename, content }`). Validates that the source has a `statement_format` and that the file's format matches it, parses, dedupes, inserts. Returns `{ uploadId, format, rowCount, newCount, duplicateCount }`. |
+| `GET /api/statement/rows`              | List statement rows for a source, optionally filtered by booking-date range (`sourceId`, `startDate`, `endDate`). Drives the Tiliotteet row list.                                                                                         |
 
 All endpoints are group-scoped; every query constrains by `group_id`.
 
 ## UI
 
-- **Source settings**: a statement-format dropdown (none / OP / S-pankki) on the
-  source configuration.
+- **Source settings**: a statement-format dropdown (none / OP / S-pankki) per source
+  in the Tiedot page's Lähteet section.
 - **Tiliotteet page**: drag-and-drop upload with preview and confirm (flow above),
-  plus a month-filtered list of imported rows per source.
+  plus a list of imported rows per source.
 
 ## Future: matching statements to expenses
 

@@ -20,6 +20,7 @@ import {
   UserExpenseWithDetails,
 } from 'shared/expense';
 import { FetchClient, RequestMethod, RequestSpec, uri } from 'shared/net';
+import { StatementRow, StatementUploadResult } from 'shared/statement';
 import { ISODate, RecurrenceInterval, timeoutImmediate } from 'shared/time';
 import {
   ApiMessage,
@@ -332,6 +333,28 @@ export class ApiConnect {
 
   public patchSource = (sourceId: ObjectId, data: SourcePatch) =>
     this.patch<Source>(uri`/api/source/${sourceId}`, { body: data });
+
+  // Bank statements
+
+  public uploadStatement = (
+    sourceId: ObjectId,
+    filename: string,
+    content: string,
+  ): Promise<StatementUploadResult> =>
+    this.post(uri`/api/statement/upload/${sourceId}`, { body: { filename, content } });
+
+  public getStatementRows = (
+    sourceId: ObjectId,
+    startDate?: ISODate,
+    endDate?: ISODate,
+  ): Promise<StatementRow[]> =>
+    this.get(`/api/statement/rows`, {
+      query: {
+        sourceId,
+        ...(startDate ? { startDate } : undefined),
+        ...(endDate ? { endDate } : undefined),
+      },
+    });
 
   // Shortcuts
 
