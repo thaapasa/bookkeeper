@@ -45,8 +45,8 @@ export const QueryKeys = {
   },
   statements: {
     all: ['statements'] as const,
-    rows: (sourceId: ObjectId, startDate?: ISODate, endDate?: ISODate) =>
-      ['statements', 'rows', { sourceId, startDate, endDate }] as const,
+    rows: (sourceId: ObjectId, page: number) => ['statements', 'rows', { sourceId, page }] as const,
+    uploads: (sourceId: ObjectId) => ['statements', 'uploads', sourceId] as const,
   },
   db: {
     status: ['db', 'status'] as const,

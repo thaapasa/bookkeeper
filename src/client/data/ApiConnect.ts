@@ -20,7 +20,12 @@ import {
   UserExpenseWithDetails,
 } from 'shared/expense';
 import { FetchClient, RequestMethod, RequestSpec, uri } from 'shared/net';
-import { StatementRow, StatementUploadResult } from 'shared/statement';
+import {
+  StatementRowsResponse,
+  StatementUploadDeleteResult,
+  StatementUploadListItem,
+  StatementUploadResult,
+} from 'shared/statement';
 import { ISODate, RecurrenceInterval, timeoutImmediate } from 'shared/time';
 import {
   ApiMessage,
@@ -345,16 +350,23 @@ export class ApiConnect {
 
   public getStatementRows = (
     sourceId: ObjectId,
-    startDate?: ISODate,
-    endDate?: ISODate,
-  ): Promise<StatementRow[]> =>
+    options: { limit: number; offset: number; startDate?: ISODate; endDate?: ISODate },
+  ): Promise<StatementRowsResponse> =>
     this.get(`/api/statement/rows`, {
       query: {
         sourceId,
-        ...(startDate ? { startDate } : undefined),
-        ...(endDate ? { endDate } : undefined),
+        limit: options.limit,
+        offset: options.offset,
+        ...(options.startDate ? { startDate: options.startDate } : undefined),
+        ...(options.endDate ? { endDate: options.endDate } : undefined),
       },
     });
+
+  public getStatementUploads = (sourceId: ObjectId): Promise<StatementUploadListItem[]> =>
+    this.get(`/api/statement/uploads`, { query: { sourceId } });
+
+  public deleteStatementUpload = (uploadId: ObjectId): Promise<StatementUploadDeleteResult> =>
+    this.delete(uri`/api/statement/upload/${uploadId}`);
 
   // Shortcuts
 

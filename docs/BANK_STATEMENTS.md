@@ -134,10 +134,12 @@ happens client-side:
 
 ## API
 
-| Endpoint                               | Purpose                                                                                                                                                                                                                                   |
-| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `POST /api/statement/upload/:sourceId` | Upload a CSV (JSON body `{ filename, content }`). Validates that the source has a `statement_format` and that the file's format matches it, parses, dedupes, inserts. Returns `{ uploadId, format, rowCount, newCount, duplicateCount }`. |
-| `GET /api/statement/rows`              | List statement rows for a source, optionally filtered by booking-date range (`sourceId`, `startDate`, `endDate`). Drives the Tiliotteet row list.                                                                                         |
+| Endpoint                                 | Purpose                                                                                                                                                                                                                                                              |
+| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `POST /api/statement/upload/:sourceId`   | Upload a CSV (JSON body `{ filename, content }`). Validates that the source has a `statement_format` and that the file's format matches it, parses, dedupes, inserts. Returns `{ uploadId, format, rowCount, newCount, duplicateCount }`.                            |
+| `GET /api/statement/rows`                | Paged list of statement rows for a source (`sourceId`, `limit` ≤ 200, `offset`, optional `startDate`/`endDate` on booking date). Returns `{ rows, total }`. Drives the Tiliotteet row list.                                                                          |
+| `GET /api/statement/uploads`             | Upload batches for a source, latest first, with stored counts plus `currentRowCount` — the live number of rows the batch owns.                                                                                                                                       |
+| `DELETE /api/statement/upload/:uploadId` | Delete a batch and the rows it owns. Because `upload_id` records the _first_ upload that saw each row, this removes exactly what the batch added — rows that already existed before it stay. Freed rows can be re-imported. Returns `{ uploadId, deletedRowCount }`. |
 
 All endpoints are group-scoped; every query constrains by `group_id`.
 
@@ -145,8 +147,12 @@ All endpoints are group-scoped; every query constrains by `group_id`.
 
 - **Source settings**: a statement-format dropdown (none / OP / S-pankki) per source
   in the Tiedot page's Lähteet section.
-- **Tiliotteet page**: drag-and-drop upload with preview and confirm (flow above),
-  plus a list of imported rows per source.
+- **Tiliotteet page**: drag-and-drop upload with preview and confirm (flow above).
+  Below it, a per-source view with two tabs:
+  - **Tapahtumat** — imported rows, paged (50 per page).
+  - **Tuonnit** — upload batches with counts and per-batch delete (confirm dialog
+    states how many rows the delete removes; a batch whose rows were all imported
+    earlier by another batch owns nothing and deletes no rows).
 
 ## Future: matching statements to expenses
 

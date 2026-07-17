@@ -1,4 +1,4 @@
-import { Select, Stack, Text } from '@mantine/core';
+import { Group, Pagination, Select, Stack, Tabs, Text } from '@mantine/core';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import React from 'react';
 
@@ -17,6 +17,7 @@ import { StatementDropZone } from './StatementDropZone';
 import { StatementRowsTable } from './StatementRowsTable';
 import { autoSelectStatementSource, statementSourceOptions } from './statementSources';
 import { StatementUploadPreview } from './StatementUploadPreview';
+import { StatementUploadsList } from './StatementUploadsList';
 
 interface PendingUpload {
   filename: string;
@@ -80,7 +81,7 @@ export const StatementsPage: React.FC = () => {
         ) : (
           <StatementDropZone onFile={onFile} />
         )}
-        <Subtitle>Tuodut tapahtumat</Subtitle>
+        <Subtitle>Tuodut tiliotteet</Subtitle>
         {bankSources.length > 0 ? (
           <>
             <Select
@@ -91,7 +92,18 @@ export const StatementsPage: React.FC = () => {
               maw={320}
             />
             {selectedSourceId !== undefined ? (
-              <StatementRowsList sourceId={selectedSourceId} />
+              <Tabs defaultValue="rows" keepMounted={false}>
+                <Tabs.List>
+                  <Tabs.Tab value="rows">Tapahtumat</Tabs.Tab>
+                  <Tabs.Tab value="uploads">Tuonnit</Tabs.Tab>
+                </Tabs.List>
+                <Tabs.Panel value="rows" pt="md">
+                  <StatementRowsList key={selectedSourceId} sourceId={selectedSourceId} />
+                </Tabs.Panel>
+                <Tabs.Panel value="uploads" pt="md">
+                  <StatementUploadsList sourceId={selectedSourceId} />
+                </Tabs.Panel>
+              </Tabs>
             ) : null}
           </>
         ) : (
@@ -105,16 +117,34 @@ export const StatementsPage: React.FC = () => {
   );
 };
 
+const ROWS_PAGE_SIZE = 50;
+
 const StatementRowsList: React.FC<{ sourceId: ObjectId }> = ({ sourceId }) => {
-  const { data: rows } = useSuspenseQuery({
-    queryKey: QueryKeys.statements.rows(sourceId),
-    queryFn: () => apiConnect.getStatementRows(sourceId),
+  const [page, setPage] = React.useState(1);
+  const { data } = useSuspenseQuery({
+    queryKey: QueryKeys.statements.rows(sourceId, page),
+    queryFn: () =>
+      apiConnect.getStatementRows(sourceId, {
+        limit: ROWS_PAGE_SIZE,
+        offset: (page - 1) * ROWS_PAGE_SIZE,
+      }),
   });
-  return rows.length > 0 ? (
-    <StatementRowsTable rows={rows} />
-  ) : (
-    <Text fz="sm" c="dimmed">
-      Ei tuotuja tapahtumia tälle tilille.
-    </Text>
+  const pageCount = Math.ceil(data.total / ROWS_PAGE_SIZE);
+  if (data.total < 1) {
+    return (
+      <Text fz="sm" c="dimmed">
+        Ei tuotuja tapahtumia tälle tilille.
+      </Text>
+    );
+  }
+  return (
+    <Stack gap="sm">
+      <StatementRowsTable rows={data.rows} />
+      {pageCount > 1 ? (
+        <Group justify="center">
+          <Pagination total={pageCount} value={page} onChange={setPage} size="sm" />
+        </Group>
+      ) : null}
+    </Stack>
   );
 };

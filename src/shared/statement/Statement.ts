@@ -66,3 +66,26 @@ export const StatementUploadResult = z.object({
   duplicateCount: z.number().int(),
 });
 export type StatementUploadResult = z.infer<typeof StatementUploadResult>;
+
+/**
+ * Upload batch as listed in the UI. currentRowCount is the live number of
+ * rows the batch owns (first-seeing upload) — it can be lower than newCount
+ * if rows have been deleted, and it is what a batch delete would remove.
+ */
+export const StatementUploadListItem = StatementUpload.extend({
+  currentRowCount: z.number().int(),
+});
+export type StatementUploadListItem = z.infer<typeof StatementUploadListItem>;
+
+export const StatementUploadDeleteResult = z.object({
+  uploadId: ObjectId,
+  deletedRowCount: z.number().int(),
+});
+export type StatementUploadDeleteResult = z.infer<typeof StatementUploadDeleteResult>;
+
+/** One page of statement rows plus the total row count for the filter. */
+export const StatementRowsResponse = z.object({
+  rows: z.array(StatementRow),
+  total: z.number().int(),
+});
+export type StatementRowsResponse = z.infer<typeof StatementRowsResponse>;

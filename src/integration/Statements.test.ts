@@ -2,7 +2,12 @@ import { afterEach, beforeEach, describe, expect, it } from 'bun:test';
 
 import { findSourceId, logoutSession } from 'shared/expense/test';
 import { createTestClient, SessionWithControl } from 'shared/net/test';
-import { StatementRow, StatementUploadResult } from 'shared/statement';
+import {
+  StatementRowsResponse,
+  StatementUploadDeleteResult,
+  StatementUploadListItem,
+  StatementUploadResult,
+} from 'shared/statement';
 import { OP_ROWS, opCsv, SPANKKI_ROWS, spankkiCsv } from 'shared/statement/test/StatementFixtures';
 import { Source } from 'shared/types';
 import { logger } from 'server/Logger';
@@ -67,12 +72,13 @@ describe('statement import', () => {
 
   it('lists imported rows with date filtering', async () => {
     await upload('op.csv', opCsv(OP_ROWS));
-    const rows = await session.get<StatementRow[]>('/api/statement/rows', {
+    const result = await session.get<StatementRowsResponse>('/api/statement/rows', {
       sourceId: `${sourceId}`,
     });
-    expect(rows).toHaveLength(5);
+    expect(result.total).toEqual(5);
+    expect(result.rows).toHaveLength(5);
     // Sorted by booking date, latest first
-    expect(rows[0]).toMatchObject({
+    expect(result.rows[0]).toMatchObject({
       sourceId,
       bookingDate: '2026-06-28',
       amount: '-400.00',
@@ -81,12 +87,93 @@ describe('statement import', () => {
       archiveId: '20140101/STANDING/00001',
     });
 
-    const filtered = await session.get<StatementRow[]>('/api/statement/rows', {
+    const filtered = await session.get<StatementRowsResponse>('/api/statement/rows', {
       sourceId: `${sourceId}`,
       startDate: '2026-05-03',
       endDate: '2026-05-15',
     });
-    expect(filtered.map(r => r.bookingDate)).toEqual(['2026-05-15', '2026-05-03']);
+    expect(filtered.total).toEqual(2);
+    expect(filtered.rows.map(r => r.bookingDate)).toEqual(['2026-05-15', '2026-05-03']);
+  });
+
+  it('pages the row list', async () => {
+    await upload('op.csv', opCsv(OP_ROWS));
+    const page1 = await session.get<StatementRowsResponse>('/api/statement/rows', {
+      sourceId: `${sourceId}`,
+      limit: '2',
+      offset: '0',
+    });
+    expect(page1.total).toEqual(5);
+    expect(page1.rows).toHaveLength(2);
+    const page3 = await session.get<StatementRowsResponse>('/api/statement/rows', {
+      sourceId: `${sourceId}`,
+      limit: '2',
+      offset: '4',
+    });
+    expect(page3.total).toEqual(5);
+    expect(page3.rows).toHaveLength(1);
+    const past = await session.get<StatementRowsResponse>('/api/statement/rows', {
+      sourceId: `${sourceId}`,
+      limit: '2',
+      offset: '10',
+    });
+    expect(past).toEqual({ rows: [], total: 0 });
+  });
+
+  it('lists upload batches with live row counts', async () => {
+    const first = await upload('op.csv', opCsv(OP_ROWS));
+    const second = await upload('op-again.csv', opCsv(OP_ROWS));
+    const uploads = await session.get<StatementUploadListItem[]>('/api/statement/uploads', {
+      sourceId: `${sourceId}`,
+    });
+    expect(uploads).toHaveLength(2);
+    // Latest first; the re-upload owns no rows
+    expect(uploads[0]).toMatchObject({
+      id: second.uploadId,
+      filename: 'op-again.csv',
+      newCount: 0,
+      duplicateCount: 5,
+      currentRowCount: 0,
+    });
+    expect(uploads[1]).toMatchObject({
+      id: first.uploadId,
+      filename: 'op.csv',
+      newCount: 5,
+      currentRowCount: 5,
+    });
+  });
+
+  it('deletes a batch and only the rows it owns', async () => {
+    const first = await upload('op.csv', opCsv([OP_ROWS[0], OP_ROWS[1]]));
+    // Overlapping upload: owns only the three rows the first one did not have
+    const second = await upload('op-more.csv', opCsv(OP_ROWS));
+    expect(second.newCount).toEqual(3);
+
+    const del = await session.del<StatementUploadDeleteResult>(
+      `/api/statement/upload/${second.uploadId}`,
+    );
+    expect(del).toEqual({ uploadId: second.uploadId, deletedRowCount: 3 });
+
+    const rows = await session.get<StatementRowsResponse>('/api/statement/rows', {
+      sourceId: `${sourceId}`,
+    });
+    expect(rows.total).toEqual(2);
+    expect(rows.rows.every(r => r.uploadId === first.uploadId)).toEqual(true);
+
+    const uploads = await session.get<StatementUploadListItem[]>('/api/statement/uploads', {
+      sourceId: `${sourceId}`,
+    });
+    expect(uploads.map(u => u.id)).toEqual([first.uploadId]);
+
+    // Deleted rows can be re-imported
+    const again = await upload('op-again.csv', opCsv(OP_ROWS));
+    expect(again.newCount).toEqual(3);
+  });
+
+  it('rejects deleting an unknown batch', async () => {
+    await expect(session.del(`/api/statement/upload/999999`)).rejects.toMatchObject({
+      code: 'STATEMENT_UPLOAD_NOT_FOUND',
+    });
   });
 
   it('rejects uploads whose format does not match the source', async () => {

@@ -2,13 +2,15 @@ import { createHash } from 'crypto';
 
 import {
   parseStatement,
-  StatementRow,
   StatementRowData,
+  StatementRowsResponse,
+  StatementUploadDeleteResult,
   StatementUploadInput,
+  StatementUploadListItem,
   StatementUploadResult,
 } from 'shared/statement';
 import { ISODate } from 'shared/time';
-import { InvalidInputError, ObjectId } from 'shared/types';
+import { InvalidInputError, NotFoundError, ObjectId } from 'shared/types';
 import { DbTask } from 'server/data/Db.ts';
 import { getSourceById } from 'server/data/SourceDb';
 import { logger } from 'server/Logger';
@@ -134,22 +136,97 @@ SELECT
   id, source_id AS "sourceId", upload_id AS "uploadId",
   booking_date AS "bookingDate", value_date AS "valueDate", amount, type,
   counterparty, counterparty_account AS "counterpartyAccount",
-  reference, message, archive_id AS "archiveId", raw_line AS "rawLine"
+  reference, message, archive_id AS "archiveId", raw_line AS "rawLine",
+  COUNT(*) OVER() AS total
 FROM statement_row`;
 
 export async function getStatementRows(
   tx: DbTask,
   groupId: ObjectId,
   sourceId: ObjectId,
-  startDate?: ISODate,
-  endDate?: ISODate,
-): Promise<StatementRow[]> {
-  return tx.manyOrNone<StatementRow>(
+  options: { startDate?: ISODate; endDate?: ISODate; limit: number; offset: number },
+): Promise<StatementRowsResponse> {
+  const rows = await tx.manyOrNone<StatementRowsResponse['rows'][number] & { total: number }>(
     `${rowSelect}
       WHERE group_id=$/groupId/ AND source_id=$/sourceId/
         AND ($/startDate/::DATE IS NULL OR booking_date >= $/startDate/)
         AND ($/endDate/::DATE IS NULL OR booking_date <= $/endDate/)
-      ORDER BY booking_date DESC, id DESC`,
-    { groupId, sourceId, startDate: startDate ?? null, endDate: endDate ?? null },
+      ORDER BY booking_date DESC, id DESC
+      LIMIT $/limit/ OFFSET $/offset/`,
+    {
+      groupId,
+      sourceId,
+      startDate: options.startDate ?? null,
+      endDate: options.endDate ?? null,
+      limit: options.limit,
+      offset: options.offset,
+    },
+  );
+  return {
+    rows: rows.map(({ total, ...row }) => row),
+    total: rows[0]?.total ?? 0,
+  };
+}
+
+export async function getStatementUploads(
+  tx: DbTask,
+  groupId: ObjectId,
+  sourceId: ObjectId,
+): Promise<StatementUploadListItem[]> {
+  return tx.manyOrNone<StatementUploadListItem>(
+    `SELECT
+        u.id, u.source_id AS "sourceId", u.filename, u.format,
+        u.uploaded_by AS "uploadedBy", u.uploaded_at AS "uploadedAt",
+        u.row_count AS "rowCount", u.new_count AS "newCount",
+        u.duplicate_count AS "duplicateCount",
+        COUNT(r.id) AS "currentRowCount"
+      FROM statement_upload u
+      LEFT JOIN statement_row r ON r.upload_id = u.id AND r.group_id = $/groupId/
+      WHERE u.group_id=$/groupId/ AND u.source_id=$/sourceId/
+      GROUP BY u.id
+      ORDER BY u.uploaded_at DESC, u.id DESC`,
+    { groupId, sourceId },
+  );
+}
+
+/**
+ * Deletes an upload batch and the statement rows it owns (the rows it was
+ * the first to insert). Rows that were already present when the batch was
+ * uploaded belong to an earlier batch and are not touched, so deleting a
+ * mistaken upload is a clean undo of exactly what it added.
+ */
+export function deleteStatementUpload(
+  tx: DbTask,
+  groupId: ObjectId,
+  uploadId: ObjectId,
+): Promise<StatementUploadDeleteResult> {
+  return withSpan(
+    'statement.delete_upload',
+    { 'app.group_id': groupId, 'app.upload_id': uploadId },
+    async () => {
+      const upload = await tx.oneOrNone<{ id: number }>(
+        `SELECT id FROM statement_upload WHERE id=$/uploadId/ AND group_id=$/groupId/`,
+        { uploadId, groupId },
+      );
+      if (!upload) {
+        throw new NotFoundError('STATEMENT_UPLOAD_NOT_FOUND', 'statement upload', uploadId);
+      }
+      const deleted = await tx.manyOrNone<{ id: number }>(
+        `DELETE FROM statement_row
+          WHERE upload_id=$/uploadId/ AND group_id=$/groupId/
+          RETURNING id`,
+        { uploadId, groupId },
+      );
+      await tx.none(`DELETE FROM statement_upload WHERE id=$/uploadId/ AND group_id=$/groupId/`, {
+        uploadId,
+        groupId,
+      });
+      const result: StatementUploadDeleteResult = {
+        uploadId,
+        deletedRowCount: deleted.length,
+      };
+      logger.info({ groupId, ...result }, 'Deleted statement upload');
+      return result;
+    },
   );
 }

@@ -29,6 +29,7 @@ const TypeMap = {
   categoryId: ObjectIdString,
   expenseId: ObjectIdString,
   subscriptionId: ObjectIdString,
+  uploadId: ObjectIdString,
   filename: z.string().trim().min(1),
   margin: IntString.refine(n => n >= 0),
 };
