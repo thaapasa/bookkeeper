@@ -19,6 +19,13 @@ import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { defaultExpenseSaveAction } from '../expense/dialog/ExpenseSaveAction';
 import { Icons } from '../icons/Icons';
+import {
+  ConnectorSpec,
+  expenseCardKey,
+  MatchConnectors,
+  rowCardKey,
+  useCardRefs,
+} from './MatchConnectors';
 
 /**
  * Statement-to-expense matching view for one (source, month): expenses on
@@ -115,6 +122,34 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
     r => r.matchedExpenseIds.length < 1 && !r.skipped,
   ).length;
 
+  // Connector lines: confirmed matches, active suggestions, and a preview
+  // of the current manual selection.
+  const containerRef = React.useRef<HTMLDivElement | null>(null);
+  const { cards, registerCard } = useCardRefs();
+  const connectors: ConnectorSpec[] = [
+    ...data.statementRows.flatMap(r =>
+      r.matchedExpenseIds.map(expenseId => ({
+        expenseId,
+        rowId: r.id,
+        kind: 'match' as const,
+      })),
+    ),
+    ...activeSuggestions.flatMap(s =>
+      s.expenseIds.map(expenseId => ({
+        expenseId,
+        rowId: s.statementRowId,
+        kind: 'suggestion' as const,
+      })),
+    ),
+    ...(selectedRowId !== null
+      ? selectedExpenseIds.map(expenseId => ({
+          expenseId,
+          rowId: selectedRowId,
+          kind: 'selection' as const,
+        }))
+      : []),
+  ];
+
   return (
     <Stack gap="sm">
       <Group gap="md" justify="space-between">
@@ -159,66 +194,77 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
         </Text>
       </Group>
 
-      {buckets.map(bucket => (
-        <Box key={bucket.date}>
-          <Text fz="xs" c="dimmed" mb={4}>
-            {readableDateWithYear(bucket.date)}
-          </Text>
-          <Group gap="md" wrap="nowrap" align="flex-start">
-            <Stack gap="xs" flex={1} miw={0}>
-              {bucket.expenses.map(e => (
-                <ExpenseCard
-                  key={e.id}
-                  expense={e}
-                  suggested={suggestedExpenseIds.has(e.id)}
-                  selected={selectedExpenseIds.includes(e.id)}
-                  onSelect={() =>
-                    setSelectedExpenseIds(ids =>
-                      ids.includes(e.id) ? ids.filter(i => i !== e.id) : [...ids, e.id],
-                    )
-                  }
-                  onUnmatch={() =>
-                    executeOperation(() => apiConnect.unmatchExpense(e.id), {
-                      postProcess: invalidate,
-                    })
-                  }
-                  onToggleSkip={() =>
-                    executeOperation(
-                      () => apiConnect.setExpenseStatementSkip(e.id, !e.statementSkip),
-                      { postProcess: invalidate },
-                    )
-                  }
-                />
-              ))}
-            </Stack>
-            <Stack gap="xs" flex={1} miw={0}>
-              {bucket.rows.map(r => (
-                <StatementRowCard
-                  key={r.id}
-                  row={r}
-                  suggested={suggestedRowIds.has(r.id)}
-                  selected={selectedRowId === r.id}
-                  onSelect={() => setSelectedRowId(id => (id === r.id ? null : r.id))}
-                  onDismissSuggestion={() =>
-                    setDismissedSuggestions(prev => new Set(prev).add(r.id))
-                  }
-                  onUnmatch={() =>
-                    executeOperation(() => apiConnect.unmatchStatementRow(r.id), {
-                      postProcess: invalidate,
-                    })
-                  }
-                  onToggleSkip={() =>
-                    executeOperation(() => apiConnect.setStatementRowSkipped(r.id, !r.skipped), {
-                      postProcess: invalidate,
-                    })
-                  }
-                  onCreateExpense={() => createExpenseFromRow(r)}
-                />
-              ))}
-            </Stack>
-          </Group>
-        </Box>
-      ))}
+      <Box pos="relative" ref={containerRef}>
+        <Stack gap="sm">
+          {buckets.map(bucket => (
+            <Box key={bucket.date}>
+              <Text fz="xs" c="dimmed" mb={4}>
+                {readableDateWithYear(bucket.date)}
+              </Text>
+              <Group gap="xl" wrap="nowrap" align="flex-start">
+                <Stack gap="xs" flex={1} miw={0}>
+                  {bucket.expenses.map(e => (
+                    <ExpenseCard
+                      key={e.id}
+                      cardRef={registerCard(expenseCardKey(e.id))}
+                      expense={e}
+                      suggested={suggestedExpenseIds.has(e.id)}
+                      selected={selectedExpenseIds.includes(e.id)}
+                      onSelect={() =>
+                        setSelectedExpenseIds(ids =>
+                          ids.includes(e.id) ? ids.filter(i => i !== e.id) : [...ids, e.id],
+                        )
+                      }
+                      onUnmatch={() =>
+                        executeOperation(() => apiConnect.unmatchExpense(e.id), {
+                          postProcess: invalidate,
+                        })
+                      }
+                      onToggleSkip={() =>
+                        executeOperation(
+                          () => apiConnect.setExpenseStatementSkip(e.id, !e.statementSkip),
+                          { postProcess: invalidate },
+                        )
+                      }
+                    />
+                  ))}
+                </Stack>
+                <Stack gap="xs" flex={1} miw={0}>
+                  {bucket.rows.map(r => (
+                    <StatementRowCard
+                      key={r.id}
+                      cardRef={registerCard(rowCardKey(r.id))}
+                      row={r}
+                      displayDate={bucket.date}
+                      suggested={suggestedRowIds.has(r.id)}
+                      selected={selectedRowId === r.id}
+                      onSelect={() => setSelectedRowId(id => (id === r.id ? null : r.id))}
+                      onDismissSuggestion={() =>
+                        setDismissedSuggestions(prev => new Set(prev).add(r.id))
+                      }
+                      onUnmatch={() =>
+                        executeOperation(() => apiConnect.unmatchStatementRow(r.id), {
+                          postProcess: invalidate,
+                        })
+                      }
+                      onToggleSkip={() =>
+                        executeOperation(
+                          () => apiConnect.setStatementRowSkipped(r.id, !r.skipped),
+                          { postProcess: invalidate },
+                        )
+                      }
+                      onCreateExpense={() => createExpenseFromRow(r)}
+                    />
+                  ))}
+                </Stack>
+              </Group>
+            </Box>
+          ))}
+        </Stack>
+        {/* Rendered after the cards so their refs are attached before the
+            overlay measures them on mount. */}
+        <MatchConnectors containerRef={containerRef} cards={cards} connectors={connectors} />
+      </Box>
       {buckets.length < 1 ? (
         <Text fz="sm" c="dimmed">
           Ei kirjauksia eikä tiliotetapahtumia tässä kuussa.
@@ -235,6 +281,7 @@ interface DateBucket {
 }
 
 function buildBuckets(expenses: MatchableExpense[], rows: MatchingStatementRow[]): DateBucket[] {
+  const expenseDates = new Map(expenses.map(e => [e.id, e.date]));
   const buckets = new Map<ISODate, DateBucket>();
   const bucket = (date: ISODate): DateBucket => {
     let b = buckets.get(date);
@@ -248,9 +295,22 @@ function buildBuckets(expenses: MatchableExpense[], rows: MatchingStatementRow[]
     bucket(e.date).expenses.push(e);
   }
   for (const r of rows) {
-    bucket(effectiveStatementDate(r)).rows.push(r);
+    bucket(rowBucketDate(r, expenseDates)).rows.push(r);
   }
   return [...buckets.values()].sort((a, b) => a.date.localeCompare(b.date));
+}
+
+/**
+ * Matched statement rows move to their expenses' date bucket so the pair
+ * sits on one line; the row's own date is then shown on its card. Unmatched
+ * rows stay on their effective date.
+ */
+function rowBucketDate(r: MatchingStatementRow, expenseDates: Map<number, ISODate>): ISODate {
+  const matchedDates = r.matchedExpenseIds
+    .map(id => expenseDates.get(id))
+    .filter((d): d is ISODate => d !== undefined)
+    .sort();
+  return matchedDates[0] ?? effectiveStatementDate(r);
 }
 
 const cardStyle = (state: {
@@ -272,17 +332,19 @@ const cardStyle = (state: {
 });
 
 const ExpenseCard: React.FC<{
+  cardRef: (el: HTMLDivElement | null) => void;
   expense: MatchableExpense;
   suggested: boolean;
   selected: boolean;
   onSelect: () => void;
   onUnmatch: () => void;
   onToggleSkip: () => void;
-}> = ({ expense, suggested, selected, onSelect, onUnmatch, onToggleSkip }) => {
+}> = ({ cardRef, expense, suggested, selected, onSelect, onUnmatch, onToggleSkip }) => {
   const matched = expense.matchedStatementRowId !== null;
   const selectable = !matched && !expense.statementSkip;
   return (
     <Paper
+      ref={cardRef}
       withBorder
       style={cardStyle({ matched, skipped: expense.statementSkip, suggested, selected })}
       onClick={selectable ? onSelect : undefined}
@@ -328,7 +390,10 @@ const ExpenseCard: React.FC<{
 };
 
 const StatementRowCard: React.FC<{
+  cardRef: (el: HTMLDivElement | null) => void;
   row: MatchingStatementRow;
+  /** The date bucket the card is shown in; the row's own date is shown when it differs. */
+  displayDate: ISODate;
   suggested: boolean;
   selected: boolean;
   onSelect: () => void;
@@ -337,7 +402,9 @@ const StatementRowCard: React.FC<{
   onToggleSkip: () => void;
   onCreateExpense: () => void;
 }> = ({
+  cardRef,
   row,
+  displayDate,
   suggested,
   selected,
   onSelect,
@@ -348,17 +415,28 @@ const StatementRowCard: React.FC<{
 }) => {
   const matched = row.matchedExpenseIds.length > 0;
   const selectable = !matched && !row.skipped;
+  const ownDate = effectiveStatementDate(row);
   return (
     <Paper
+      ref={cardRef}
       withBorder
       style={cardStyle({ matched, skipped: row.skipped, suggested, selected })}
       onClick={selectable ? onSelect : undefined}
     >
       <Group gap="xs" wrap="nowrap" justify="space-between">
         <Box miw={0}>
-          <Text fz="sm" truncate>
-            {row.counterparty ?? row.type}
-          </Text>
+          <Group gap={6} wrap="nowrap">
+            <Text fz="sm" truncate>
+              {row.counterparty ?? row.type}
+            </Text>
+            {ownDate !== displayDate ? (
+              <Tooltip label="Tiliotteen päivä eroaa kirjauksen päivästä">
+                <Text fz="xs" c="dimmed" style={{ whiteSpace: 'nowrap' }}>
+                  {readableDateWithYear(ownDate)}
+                </Text>
+              </Tooltip>
+            ) : null}
+          </Group>
           <Text fz="xs" c="dimmed" truncate>
             {row.message ?? row.reference ?? row.type}
           </Text>

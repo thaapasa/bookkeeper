@@ -211,7 +211,12 @@ different dates — is left for manual matching instead of guessing.
 The tab binds to the **top-bar month navigator** (route
 `/p/tiliotteet/m/yyyy-MM`). For the selected source and month it renders one
 vertical list of per-date buckets, each with expenses on the left and statement
-rows on the right, so the two sides stay aligned by date.
+rows on the right, so the two sides stay aligned by date. Matched statement rows
+move to their expenses' date bucket so the pair sits on one line; the row's own
+date is then shown on the card. An SVG overlay (`MatchConnectors.tsx`) draws
+bezier connectors between linked cards: subtle gray for confirmed matches,
+dashed accent for suggestions, and bright accent for the current manual
+selection (a preview of what "Täsmää valitut" would link).
 
 - Suggested pairs show an "Ehdotus" badge; "Vahvista N ehdotusta" confirms them as
   one bulk call, and individual suggestions can be dismissed.
