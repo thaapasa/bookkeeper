@@ -14,9 +14,10 @@ import { logger } from 'server/Logger';
 import { withSpan } from 'server/telemetry/Spans';
 
 /**
- * Statement-to-expense matching (see docs/BANK_STATEMENTS.md). One statement
- * row can match several expenses (split purchases); an expense matches at
- * most one statement row (enforced by the UNIQUE constraint).
+ * Statement-to-expense matching (see docs/BANK_STATEMENTS.md). Many-to-many:
+ * one payment can cover several expenses (split purchases), and one expense
+ * can be paid with several bank payments. Duplicate links are prevented by
+ * the (statement_row_id, expense_id) UNIQUE constraint.
  */
 
 export async function getStatementMatchingData(
@@ -37,11 +38,16 @@ export async function getStatementMatchingData(
     `SELECT
         e.id, e.date, e.sum, e.type, e.title, e.receiver, e.user_id AS "userId",
         e.split_id AS "splitId", e.confirmed,
-        e.statement_skip AS "statementSkip", m.statement_row_id AS "matchedStatementRowId"
+        e.statement_skip AS "statementSkip",
+        COALESCE(
+          ARRAY_AGG(m.statement_row_id) FILTER (WHERE m.statement_row_id IS NOT NULL),
+          '{}'
+        ) AS "matchedStatementRowIds"
       FROM expenses e
       LEFT JOIN statement_match m ON m.expense_id = e.id AND m.group_id = $/groupId/
       WHERE e.group_id = $/groupId/ AND e.source_id = $/sourceId/
         AND e.date >= $/start/ AND e.date < $/end/
+      GROUP BY e.id
       ORDER BY e.date, e.id`,
     { groupId, sourceId, start, end },
   );
@@ -72,8 +78,9 @@ export async function getStatementMatchingData(
 }
 
 /**
- * Matches one statement row to the given expenses. The expenses must belong
- * to the same group and source as the row and must not already be matched.
+ * Links every listed statement row to every listed expense (pairwise cross
+ * product). All rows and expenses must belong to the same group and source.
+ * Existing links are left as-is, so a group can be extended incrementally.
  * Matching clears skip flags on both sides.
  */
 export function createStatementMatch(
@@ -85,17 +92,30 @@ export function createStatementMatch(
     'statement.match',
     {
       'app.group_id': groupId,
-      'app.statement_row_id': input.statementRowId,
+      'app.statement_row_count': input.statementRowIds.length,
       'app.expense_count': input.expenseIds.length,
     },
     async () => {
-      const row = await tx.oneOrNone<{ id: number; sourceId: number }>(
-        `SELECT id, source_id AS "sourceId" FROM statement_row
-          WHERE id=$/statementRowId/ AND group_id=$/groupId/`,
-        { statementRowId: input.statementRowId, groupId },
-      );
-      if (!row) {
-        throw new NotFoundError('STATEMENT_ROW_NOT_FOUND', 'statement row', input.statementRowId);
+      let sourceId: number | undefined;
+      const requireSameSource = (itemSourceId: number, error: string) => {
+        sourceId ??= itemSourceId;
+        if (itemSourceId !== sourceId) {
+          throw new InvalidInputError('STATEMENT_MATCH_SOURCE_MISMATCH', error);
+        }
+      };
+      for (const statementRowId of input.statementRowIds) {
+        const row = await tx.oneOrNone<{ id: number; sourceId: number }>(
+          `SELECT id, source_id AS "sourceId" FROM statement_row
+            WHERE id=$/statementRowId/ AND group_id=$/groupId/`,
+          { statementRowId, groupId },
+        );
+        if (!row) {
+          throw new NotFoundError('STATEMENT_ROW_NOT_FOUND', 'statement row', statementRowId);
+        }
+        requireSameSource(
+          row.sourceId,
+          `Statement row ${statementRowId} belongs to a different source`,
+        );
       }
       for (const expenseId of input.expenseIds) {
         const expense = await tx.oneOrNone<{ id: number; sourceId: number }>(
@@ -106,31 +126,26 @@ export function createStatementMatch(
         if (!expense) {
           throw new NotFoundError('EXPENSE_NOT_FOUND', 'expense', expenseId);
         }
-        if (expense.sourceId !== row.sourceId) {
-          throw new InvalidInputError(
-            'STATEMENT_MATCH_SOURCE_MISMATCH',
-            `Expense ${expenseId} belongs to a different source than the statement row`,
-          );
-        }
-        const inserted = await tx.oneOrNone<{ id: number }>(
-          `INSERT INTO statement_match (group_id, statement_row_id, expense_id)
-            VALUES ($/groupId/, $/statementRowId/, $/expenseId/)
-            ON CONFLICT (expense_id) DO NOTHING
-            RETURNING id`,
-          { groupId, statementRowId: input.statementRowId, expenseId },
+        requireSameSource(
+          expense.sourceId,
+          `Expense ${expenseId} belongs to a different source than the statement rows`,
         );
-        if (!inserted) {
-          throw new InvalidInputError(
-            'EXPENSE_ALREADY_MATCHED',
-            `Expense ${expenseId} is already matched to a statement row`,
+      }
+      for (const statementRowId of input.statementRowIds) {
+        for (const expenseId of input.expenseIds) {
+          await tx.none(
+            `INSERT INTO statement_match (group_id, statement_row_id, expense_id)
+              VALUES ($/groupId/, $/statementRowId/, $/expenseId/)
+              ON CONFLICT (statement_row_id, expense_id) DO NOTHING`,
+            { groupId, statementRowId, expenseId },
           );
         }
       }
       // A match supersedes any earlier "will not match" review decision
       await tx.none(
         `UPDATE statement_row SET skipped=FALSE
-          WHERE id=$/statementRowId/ AND group_id=$/groupId/`,
-        { statementRowId: input.statementRowId, groupId },
+          WHERE id IN ($/statementRowIds:csv/) AND group_id=$/groupId/`,
+        { statementRowIds: input.statementRowIds, groupId },
       );
       await tx.none(
         `UPDATE expenses SET statement_skip=FALSE
@@ -138,7 +153,7 @@ export function createStatementMatch(
         { expenseIds: input.expenseIds, groupId },
       );
       logger.info(
-        { groupId, statementRowId: input.statementRowId, expenseIds: input.expenseIds },
+        { groupId, statementRowIds: input.statementRowIds, expenseIds: input.expenseIds },
         'Created statement match',
       );
     },

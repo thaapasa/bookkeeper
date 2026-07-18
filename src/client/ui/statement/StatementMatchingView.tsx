@@ -52,15 +52,17 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
   const [dismissedSuggestions, setDismissedSuggestions] = React.useState<Set<number>>(
     () => new Set(),
   );
-  const activeSuggestions = suggestions.filter(s => !dismissedSuggestions.has(s.statementRowId));
-  const suggestedRowIds = new Set(activeSuggestions.map(s => s.statementRowId));
+  const activeSuggestions = suggestions.filter(
+    s => !s.statementRowIds.some(id => dismissedSuggestions.has(id)),
+  );
+  const suggestedRowIds = new Set(activeSuggestions.flatMap(s => s.statementRowIds));
   const suggestedExpenseIds = new Set(activeSuggestions.flatMap(s => s.expenseIds));
 
-  const [selectedRowId, setSelectedRowId] = React.useState<number | null>(null);
+  const [selectedRowIds, setSelectedRowIds] = React.useState<number[]>([]);
   const [selectedExpenseIds, setSelectedExpenseIds] = React.useState<number[]>([]);
 
   const clearSelection = () => {
-    setSelectedRowId(null);
+    setSelectedRowIds([]);
     setSelectedExpenseIds([]);
   };
 
@@ -77,11 +79,11 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
     });
 
   const matchSelection = () => {
-    if (selectedRowId === null || selectedExpenseIds.length < 1) {
+    if (selectedRowIds.length < 1 || selectedExpenseIds.length < 1) {
       return;
     }
     const match: StatementMatchInput = {
-      statementRowId: selectedRowId,
+      statementRowIds: selectedRowIds,
       expenseIds: selectedExpenseIds,
     };
     return executeOperation(() => apiConnect.createStatementMatch(match), {
@@ -99,7 +101,7 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
       async (expense, original) => {
         const id = await defaultExpenseSaveAction(expense, original);
         if (id) {
-          await apiConnect.createStatementMatch({ statementRowId: row.id, expenseIds: [id] });
+          await apiConnect.createStatementMatch({ statementRowIds: [row.id], expenseIds: [id] });
           await invalidate();
         }
         return id;
@@ -117,7 +119,7 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
 
   const buckets = buildBuckets(data.expenses, data.statementRows, activeSuggestions);
   const unmatchedExpenses = data.expenses.filter(
-    e => !e.matchedStatementRowId && !e.statementSkip,
+    e => e.matchedStatementRowIds.length < 1 && !e.statementSkip,
   ).length;
   const unmatchedRows = data.statementRows.filter(
     r => r.matchedExpenseIds.length < 1 && !r.skipped,
@@ -136,25 +138,28 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
       })),
     ),
     ...activeSuggestions.flatMap(s =>
-      s.expenseIds.map(expenseId => ({
+      s.statementRowIds.flatMap(rowId =>
+        s.expenseIds.map(expenseId => ({
+          expenseId,
+          rowId,
+          kind: 'suggestion' as const,
+        })),
+      ),
+    ),
+    ...selectedRowIds.flatMap(rowId =>
+      selectedExpenseIds.map(expenseId => ({
         expenseId,
-        rowId: s.statementRowId,
-        kind: 'suggestion' as const,
+        rowId,
+        kind: 'selection' as const,
       })),
     ),
-    ...(selectedRowId !== null
-      ? selectedExpenseIds.map(expenseId => ({
-          expenseId,
-          rowId: selectedRowId,
-          kind: 'selection' as const,
-        }))
-      : []),
   ];
 
-  const selectionActive = selectedRowId !== null || selectedExpenseIds.length > 0;
+  const selectionActive = selectedRowIds.length > 0 || selectedExpenseIds.length > 0;
   const actionBarVisible = selectionActive || activeSuggestions.length > 0;
-  const selectedRow =
-    selectedRowId !== null ? data.statementRows.find(r => r.id === selectedRowId) : undefined;
+  const selectedRowTotal = data.statementRows
+    .filter(r => selectedRowIds.includes(r.id))
+    .reduce((sum, r) => sum.plus(r.amount), Money.from(0));
   const selectedTotal = data.expenses
     .filter(e => selectedExpenseIds.includes(e.id))
     .reduce((sum, e) => sum.plus(e.sum), Money.from(0));
@@ -223,8 +228,12 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
                       row={r}
                       displayDate={bucket.date}
                       suggested={suggestedRowIds.has(r.id)}
-                      selected={selectedRowId === r.id}
-                      onSelect={() => setSelectedRowId(id => (id === r.id ? null : r.id))}
+                      selected={selectedRowIds.includes(r.id)}
+                      onSelect={() =>
+                        setSelectedRowIds(ids =>
+                          ids.includes(r.id) ? ids.filter(i => i !== r.id) : [...ids, r.id],
+                        )
+                      }
                       onDismissSuggestion={() =>
                         setDismissedSuggestions(prev => new Set(prev).add(r.id))
                       }
@@ -264,13 +273,13 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
                 {selectionActive ? (
                   <>
                     <Text fz="sm" c="dimmed" style={{ whiteSpace: 'nowrap' }}>
-                      Valittu {selectedExpenseIds.length} kirjausta ({selectedTotal.format()})
-                      {selectedRow ? ` · tapahtuma ${Money.from(selectedRow.amount).format()}` : ''}
+                      Valittu {selectedExpenseIds.length} kirjausta ({selectedTotal.format()}) ·{' '}
+                      {selectedRowIds.length} tapahtumaa ({selectedRowTotal.format()})
                     </Text>
                     <Button
                       size="xs"
                       leftSection={<Icons.Link />}
-                      disabled={selectedRowId === null || selectedExpenseIds.length < 1}
+                      disabled={selectedRowIds.length < 1 || selectedExpenseIds.length < 1}
                       onClick={() => void matchSelection()}
                     >
                       Täsmää valitut
@@ -327,9 +336,9 @@ function buildBuckets(
     bucket(rowBucketDate(r, expenseDates)).rows.push(r);
   }
   const suggestionRowByExpense = new Map(
-    suggestions.flatMap(s => s.expenseIds.map(id => [id, s.statementRowId] as const)),
+    suggestions.flatMap(s => s.expenseIds.map(id => [id, Math.min(...s.statementRowIds)] as const)),
   );
-  const suggestedRowIds = new Set(suggestions.map(s => s.statementRowId));
+  const suggestedRowIds = new Set(suggestions.flatMap(s => s.statementRowIds));
   for (const b of buckets.values()) {
     b.expenses.sort(compareBucketOrder(e => expenseOrderKey(e, suggestionRowByExpense)));
     b.rows.sort(compareBucketOrder(r => rowOrderKey(r, suggestedRowIds)));
@@ -349,8 +358,8 @@ function expenseOrderKey(
   e: MatchableExpense,
   suggestionRowByExpense: Map<number, number>,
 ): BucketOrderKey {
-  if (e.matchedStatementRowId !== null) {
-    return [0, e.matchedStatementRowId, e.id];
+  if (e.matchedStatementRowIds.length > 0) {
+    return [0, Math.min(...e.matchedStatementRowIds), e.id];
   }
   const suggestedRow = suggestionRowByExpense.get(e.id);
   if (suggestedRow !== undefined) {
@@ -390,6 +399,8 @@ function rowBucketDate(r: MatchingStatementRow, expenseDates: Map<number, ISODat
   return matchedDates[0] ?? effectiveStatementDate(r);
 }
 
+// Suggested cards use a dashed border like the suggestion connectors, so
+// they don't get confused with the solid border of a selected card.
 const cardStyle = (state: {
   matched: boolean;
   skipped: boolean;
@@ -398,13 +409,13 @@ const cardStyle = (state: {
 }) => ({
   padding: 'var(--mantine-spacing-xs)',
   opacity: state.matched || state.skipped ? 0.55 : 1,
-  cursor: state.matched || state.skipped ? 'default' : 'pointer',
+  cursor: state.skipped ? 'default' : 'pointer',
   borderColor: state.selected
     ? 'var(--mantine-color-primary-7)'
     : state.suggested
-      ? 'var(--mantine-color-primary-5)'
+      ? 'var(--mantine-color-primary-4)'
       : undefined,
-  borderStyle: state.skipped ? 'dashed' : 'solid',
+  borderStyle: state.skipped || (state.suggested && !state.selected) ? 'dashed' : 'solid',
   borderWidth: state.selected ? 2 : 1,
 });
 
@@ -418,8 +429,9 @@ const ExpenseCard: React.FC<{
   onUnmatch: () => void;
   onToggleSkip: () => void;
 }> = ({ cardRef, expense, suggested, selected, onSelect, onEdit, onUnmatch, onToggleSkip }) => {
-  const matched = expense.matchedStatementRowId !== null;
-  const selectable = !matched && !expense.statementSkip;
+  const matched = expense.matchedStatementRowIds.length > 0;
+  // Matched items stay selectable so a group can be extended with more links
+  const selectable = !expense.statementSkip;
   return (
     <Paper
       ref={cardRef}
@@ -456,7 +468,7 @@ const ExpenseCard: React.FC<{
           </Tooltip>
           {matched ? (
             <Tooltip label="Poista täsmäytys">
-              <Icons.Unlink size={16} cursor="pointer" onClick={onUnmatch} />
+              <Icons.Unlink size={16} cursor="pointer" onClick={stop(onUnmatch)} />
             </Tooltip>
           ) : (
             <Tooltip label={expense.statementSkip ? 'Palauta täsmättäväksi' : 'Ohita täsmäytys'}>
@@ -498,7 +510,8 @@ const StatementRowCard: React.FC<{
   onCreateExpense,
 }) => {
   const matched = row.matchedExpenseIds.length > 0;
-  const selectable = !matched && !row.skipped;
+  // Matched items stay selectable so a group can be extended with more links
+  const selectable = !row.skipped;
   const ownDate = effectiveStatementDate(row);
   return (
     <Paper
@@ -542,7 +555,7 @@ const StatementRowCard: React.FC<{
           ) : null}
           {matched ? (
             <Tooltip label="Poista täsmäytys">
-              <Icons.Unlink size={16} cursor="pointer" onClick={onUnmatch} />
+              <Icons.Unlink size={16} cursor="pointer" onClick={stop(onUnmatch)} />
             </Tooltip>
           ) : (
             <>

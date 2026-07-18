@@ -16,7 +16,7 @@ const expense = (partial: Partial<MatchableExpense>): MatchableExpense => ({
   splitId: null,
   confirmed: true,
   statementSkip: false,
-  matchedStatementRowId: null,
+  matchedStatementRowIds: [],
   ...partial,
 });
 
@@ -45,7 +45,7 @@ describe('suggestStatementMatches', () => {
     const e = expense({});
     const r = row({});
     expect(suggestStatementMatches([e], [r])).toEqual([
-      { statementRowId: r.id, expenseIds: [e.id] },
+      { statementRowIds: [r.id], expenseIds: [e.id] },
     ]);
   });
 
@@ -71,13 +71,13 @@ describe('suggestStatementMatches', () => {
     expect(suggestStatementMatches([income], [row({ amount: '-25.50' })])).toEqual([]);
     const r = row({ amount: '25.50' });
     expect(suggestStatementMatches([income], [r])).toEqual([
-      { statementRowId: r.id, expenseIds: [income.id] },
+      { statementRowIds: [r.id], expenseIds: [income.id] },
     ]);
     // Transfers pay out of the account, like expenses
     const transfer = expense({ sum: '700.00', type: 'transfer' });
     const out = row({ amount: '-700.00' });
     expect(suggestStatementMatches([transfer], [out])).toEqual([
-      { statementRowId: out.id, expenseIds: [transfer.id] },
+      { statementRowIds: [out.id], expenseIds: [transfer.id] },
     ]);
   });
 
@@ -89,7 +89,7 @@ describe('suggestStatementMatches', () => {
   });
 
   it('ignores already matched, and skipped, items', () => {
-    const matched = expense({ matchedStatementRowId: 123 });
+    const matched = expense({ matchedStatementRowIds: [123] });
     const skippedExpense = expense({ statementSkip: true });
     const matchedRow = row({ matchedExpenseIds: [456] });
     const skippedRow = row({ skipped: true });
@@ -99,7 +99,7 @@ describe('suggestStatementMatches', () => {
     const e = expense({});
     const r = row({});
     expect(suggestStatementMatches([e, matched], [r, matchedRow])).toEqual([
-      { statementRowId: r.id, expenseIds: [e.id] },
+      { statementRowIds: [r.id], expenseIds: [e.id] },
     ]);
   });
 
@@ -110,7 +110,7 @@ describe('suggestStatementMatches', () => {
     const e2 = expense({ sum: '15.50', splitId });
     const r = row({ amount: '-25.50' });
     expect(suggestStatementMatches([e1, e2], [r])).toEqual([
-      { statementRowId: r.id, expenseIds: [e1.id, e2.id] },
+      { statementRowIds: [r.id], expenseIds: [e1.id, e2.id] },
     ]);
     // Neither part matches the total alone
     expect(suggestStatementMatches([e1, e2], [row({ amount: '-10.00' })])).toEqual([]);
@@ -139,13 +139,13 @@ describe('suggestStatementMatches', () => {
     // One part already matched elsewhere: the remaining part alone no
     // longer sums to the payment, so nothing is suggested
     const splitId = '5c7f0e40-0000-0000-0000-000000000003';
-    const e1 = expense({ sum: '10.00', splitId, matchedStatementRowId: 999 });
+    const e1 = expense({ sum: '10.00', splitId, matchedStatementRowIds: [999] });
     const e2 = expense({ sum: '15.50', splitId });
     expect(suggestStatementMatches([e1, e2], [row({ amount: '-25.50' })])).toEqual([]);
     // ...but the remaining part can 1:1 match its own row
     const r = row({ amount: '-15.50' });
     expect(suggestStatementMatches([e1, e2], [r])).toEqual([
-      { statementRowId: r.id, expenseIds: [e2.id] },
+      { statementRowIds: [r.id], expenseIds: [e2.id] },
     ]);
   });
 
@@ -156,7 +156,7 @@ describe('suggestStatementMatches', () => {
     const r2 = row({ valueDate: '2026-05-02', amount: '-10.00' });
     const suggestions = suggestStatementMatches([e1, e2], [r1, r2]);
     expect(suggestions).toHaveLength(2);
-    expect(suggestions).toContainEqual({ statementRowId: r1.id, expenseIds: [e1.id] });
-    expect(suggestions).toContainEqual({ statementRowId: r2.id, expenseIds: [e2.id] });
+    expect(suggestions).toContainEqual({ statementRowIds: [r1.id], expenseIds: [e1.id] });
+    expect(suggestions).toContainEqual({ statementRowIds: [r2.id], expenseIds: [e2.id] });
   });
 });

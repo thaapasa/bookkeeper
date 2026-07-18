@@ -934,19 +934,19 @@ ALTER TABLE ONLY public.sources
 
 
 --
--- Name: statement_match statement_match_expense_id_key; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.statement_match
-    ADD CONSTRAINT statement_match_expense_id_key UNIQUE (expense_id);
-
-
---
 -- Name: statement_match statement_match_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.statement_match
     ADD CONSTRAINT statement_match_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: statement_match statement_match_statement_row_id_expense_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.statement_match
+    ADD CONSTRAINT statement_match_statement_row_id_expense_id_key UNIQUE (statement_row_id, expense_id);
 
 
 --
@@ -1091,10 +1091,10 @@ CREATE INDEX sources_group_id ON public.sources USING btree (group_id);
 
 
 --
--- Name: statement_match_row; Type: INDEX; Schema: public; Owner: -
+-- Name: statement_match_expense; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX statement_match_row ON public.statement_match USING btree (statement_row_id);
+CREATE INDEX statement_match_expense ON public.statement_match USING btree (expense_id);
 
 
 --

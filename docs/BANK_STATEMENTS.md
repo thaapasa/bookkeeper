@@ -163,11 +163,11 @@ the preliminary matcher in `src/shared/statement/StatementMatcher.ts`, the UI in
 
 ### Model
 
-- `statement_match` links one statement row to one or more expenses (a purchase may
-  be split into several expense rows). An expense matches at most one statement row
-  (UNIQUE on `expense_id`) — multiple bank payments are never combined into one
-  expense. Cascades from both sides: deleting an upload batch or an expense removes
-  its links.
+- `statement_match` links statement rows to expenses, **many-to-many**: one payment
+  may cover several expenses (a purchase split into expense rows), and one expense
+  may be paid with several bank payments. Duplicate links are prevented by
+  `UNIQUE (statement_row_id, expense_id)`. Cascades from both sides: deleting an
+  upload batch or an expense removes its links.
 - Matched sums need **not** agree: part of an expense may have been paid another way.
 - **Skipping** marks an item as reviewed-but-never-matching: `statement_row.skipped`
   for bank-internal rows (BONUS etc.), `expenses.statement_skip` for expenses paid
@@ -183,15 +183,15 @@ the preliminary matcher in `src/shared/statement/StatementMatcher.ts`, the UI in
 
 ### API
 
-| Endpoint                                    | Purpose                                                          |
-| ------------------------------------------- | ---------------------------------------------------------------- |
-| `GET /api/statement/matching`               | Both sides for (`sourceId`, `month`): the month's expenses, and statement rows whose effective date falls within month ± 4 days, each with match/skip state. |
-| `POST /api/statement/match`                 | Match one row to one or more expenses (same source enforced).    |
-| `POST /api/statement/match/bulk`            | Confirm several matches at once (suggestion confirmation).       |
-| `DELETE /api/statement/match/statement/:id` | Unmatch a statement row (all its expenses).                      |
-| `DELETE /api/statement/match/expense/:id`   | Unmatch a single expense.                                        |
-| `PATCH /api/statement/row/:id/skip`         | Set/clear a statement row's skip flag.                           |
-| `PATCH /api/statement/expense/:id/skip`     | Set/clear an expense's statement-skip flag.                      |
+| Endpoint                                    | Purpose                                                                                                                                                          |
+| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /api/statement/matching`               | Both sides for (`sourceId`, `month`): the month's expenses, and statement rows whose effective date falls within month ± 4 days, each with match/skip state.     |
+| `POST /api/statement/match`                 | Link every listed row to every listed expense (pairwise cross product; same source enforced). Existing links are kept, so a group can be extended incrementally. |
+| `POST /api/statement/match/bulk`            | Confirm several matches at once (suggestion confirmation).                                                                                                       |
+| `DELETE /api/statement/match/statement/:id` | Unmatch a statement row (all its expenses).                                                                                                                      |
+| `DELETE /api/statement/match/expense/:id`   | Unmatch a single expense.                                                                                                                                        |
+| `PATCH /api/statement/row/:id/skip`         | Set/clear a statement row's skip flag.                                                                                                                           |
+| `PATCH /api/statement/expense/:id/skip`     | Set/clear an expense's statement-skip flag.                                                                                                                      |
 
 ### Preliminary matching
 
@@ -223,10 +223,14 @@ bezier connectors between linked cards: subtle gray for confirmed matches,
 dashed accent for suggestions, and bright accent for the current manual
 selection (a preview of what "Täsmää valitut" would link).
 
-- Suggested pairs show an "Ehdotus" badge; "Vahvista N ehdotusta" confirms them as
-  one bulk call, and individual suggestions can be dismissed.
-- Manual matching: click one statement row + one or more expenses, then "Täsmää
-  valitut".
+- Suggested pairs show an "Ehdotus" badge and a dashed accent border (matching the
+  dashed suggestion connectors, distinct from the solid border of a selection);
+  "Vahvista N ehdotusta" confirms them as one bulk call, and individual
+  suggestions can be dismissed.
+- Manual matching: select any number of statement rows and expenses, then "Täsmää
+  valitut" links them pairwise. The floating action bar shows both sides' totals.
+  Matched items stay selectable so a group can be extended with further links
+  (e.g. adding a second bank payment to an already-matched expense).
 - Matched items are dimmed with a "Täsmätty" badge and can be unlinked; skipped
   items are dimmed with "Ohitettu" and a dashed border.
 - "Luo kirjaus tästä" on an unmatched row opens the expense dialog prefilled from

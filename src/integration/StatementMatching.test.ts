@@ -64,7 +64,7 @@ describe('statement matching', () => {
       sum: '12.90',
       type: 'expense',
       statementSkip: false,
-      matchedStatementRowId: null,
+      matchedStatementRowIds: [],
     });
   });
 
@@ -75,24 +75,26 @@ describe('statement matching', () => {
     const row = before.statementRows.find(r => r.amount === '-250.00')!;
 
     await session.post('/api/statement/match', {
-      statementRowId: row.id,
+      statementRowIds: [row.id],
       expenseIds: [e1, e2],
     });
     const matched = await getMatching();
     expect(matched.statementRows.find(r => r.id === row.id)?.matchedExpenseIds.sort()).toEqual(
       [e1, e2].sort(),
     );
-    expect(matched.expenses.map(e => e.matchedStatementRowId)).toEqual([row.id, row.id]);
+    expect(matched.expenses.map(e => e.matchedStatementRowIds)).toEqual([[row.id], [row.id]]);
 
-    // A matched expense cannot be matched again
-    await expect(
-      session.post('/api/statement/match', { statementRowId: row.id, expenseIds: [e1] }),
-    ).rejects.toMatchObject({ code: 'EXPENSE_ALREADY_MATCHED' });
+    // Re-linking an existing pair is a no-op, not an error
+    await session.post('/api/statement/match', { statementRowIds: [row.id], expenseIds: [e1] });
+    const again = await getMatching();
+    expect(again.statementRows.find(r => r.id === row.id)?.matchedExpenseIds.sort()).toEqual(
+      [e1, e2].sort(),
+    );
 
     await session.del(`/api/statement/match/statement/${row.id}`);
     const unmatched = await getMatching();
     expect(unmatched.statementRows.find(r => r.id === row.id)?.matchedExpenseIds).toEqual([]);
-    expect(unmatched.expenses.map(e => e.matchedStatementRowId)).toEqual([null, null]);
+    expect(unmatched.expenses.map(e => e.matchedStatementRowIds)).toEqual([[], []]);
   });
 
   it('unmatches a single expense', async () => {
@@ -100,7 +102,7 @@ describe('statement matching', () => {
     const e2 = checkCreateStatus(await newExpense(session, { date: '2026-05-03', sum: '50.00' }));
     const { statementRows } = await getMatching();
     const row = statementRows.find(r => r.amount === '-250.00')!;
-    await session.post('/api/statement/match', { statementRowId: row.id, expenseIds: [e1, e2] });
+    await session.post('/api/statement/match', { statementRowIds: [row.id], expenseIds: [e1, e2] });
 
     await session.del(`/api/statement/match/expense/${e1}`);
     const data = await getMatching();
@@ -116,13 +118,44 @@ describe('statement matching', () => {
 
     await session.post('/api/statement/match/bulk', {
       matches: [
-        { statementRowId: r1.id, expenseIds: [e1] },
-        { statementRowId: r2.id, expenseIds: [e2] },
+        { statementRowIds: [r1.id], expenseIds: [e1] },
+        { statementRowIds: [r2.id], expenseIds: [e2] },
       ],
     });
     const data = await getMatching();
-    expect(data.expenses.find(e => e.id === e1)?.matchedStatementRowId).toEqual(r1.id);
-    expect(data.expenses.find(e => e.id === e2)?.matchedStatementRowId).toEqual(r2.id);
+    expect(data.expenses.find(e => e.id === e1)?.matchedStatementRowIds).toEqual([r1.id]);
+    expect(data.expenses.find(e => e.id === e2)?.matchedStatementRowIds).toEqual([r2.id]);
+  });
+
+  it('matches one expense to multiple statement rows', async () => {
+    // One 262.90 € purchase paid with two bank payments (12.90 + 250.00)
+    const e = checkCreateStatus(await newExpense(session, { date: '2026-05-02', sum: '262.90' }));
+    const { statementRows } = await getMatching();
+    const r1 = statementRows.find(r => r.amount === '-12.90')!;
+    const r2 = statementRows.find(r => r.amount === '-250.00')!;
+
+    await session.post('/api/statement/match', {
+      statementRowIds: [r1.id, r2.id],
+      expenseIds: [e],
+    });
+    const data = await getMatching();
+    expect(data.expenses[0].matchedStatementRowIds.sort()).toEqual([r1.id, r2.id].sort());
+    expect(data.statementRows.find(r => r.id === r1.id)?.matchedExpenseIds).toEqual([e]);
+    expect(data.statementRows.find(r => r.id === r2.id)?.matchedExpenseIds).toEqual([e]);
+
+    // A group can be extended incrementally: link a third row to the
+    // already-matched expense
+    const r3 = data.statementRows.find(r => r.amount === '-400.00')!;
+    await session.post('/api/statement/match', { statementRowIds: [r3.id], expenseIds: [e] });
+    const extended = await getMatching();
+    expect(extended.expenses[0].matchedStatementRowIds.sort()).toEqual(
+      [r1.id, r2.id, r3.id].sort(),
+    );
+
+    // Unmatching one row leaves the expense's other links intact
+    await session.del(`/api/statement/match/statement/${r3.id}`);
+    const trimmed = await getMatching();
+    expect(trimmed.expenses[0].matchedStatementRowIds.sort()).toEqual([r1.id, r2.id].sort());
   });
 
   it('rejects matching to an expense from another source', async () => {
@@ -133,7 +166,7 @@ describe('statement matching', () => {
     const { statementRows } = await getMatching();
     const row = statementRows.find(r => r.amount === '-250.00')!;
     await expect(
-      session.post('/api/statement/match', { statementRowId: row.id, expenseIds: [e] }),
+      session.post('/api/statement/match', { statementRowIds: [row.id], expenseIds: [e] }),
     ).rejects.toMatchObject({ code: 'STATEMENT_MATCH_SOURCE_MISMATCH' });
   });
 
@@ -149,7 +182,7 @@ describe('statement matching', () => {
     expect(data.expenses[0].statementSkip).toEqual(true);
 
     // Matching clears the skip flags on both sides
-    await session.post('/api/statement/match', { statementRowId: row.id, expenseIds: [e] });
+    await session.post('/api/statement/match', { statementRowIds: [row.id], expenseIds: [e] });
     data = await getMatching();
     expect(data.statementRows.find(r => r.id === row.id)?.skipped).toEqual(false);
     expect(data.expenses[0].statementSkip).toEqual(false);
@@ -167,7 +200,7 @@ describe('statement matching', () => {
     const e = checkCreateStatus(await newExpense(session, { date: '2026-05-01', sum: '12.90' }));
     const { statementRows } = await getMatching();
     const row = statementRows.find(r => r.amount === '-12.90')!;
-    await session.post('/api/statement/match', { statementRowId: row.id, expenseIds: [e] });
+    await session.post('/api/statement/match', { statementRowIds: [row.id], expenseIds: [e] });
 
     await session.del(`/api/expense/${e}`);
     const data = await getMatching();

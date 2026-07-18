@@ -20,8 +20,8 @@ export const MatchableExpense = z.object({
   receiver: z.string().nullable(),
   userId: ObjectId,
   statementSkip: z.boolean(),
-  /** The statement row this expense is matched to, if any. */
-  matchedStatementRowId: ObjectId.nullable(),
+  /** The statement rows this expense is matched to (an expense can be paid with several bank payments). */
+  matchedStatementRowIds: z.array(ObjectId),
 });
 export type MatchableExpense = z.infer<typeof MatchableExpense>;
 
@@ -37,8 +37,13 @@ export const StatementMatchingData = z.object({
 });
 export type StatementMatchingData = z.infer<typeof StatementMatchingData>;
 
+/**
+ * A matching request: every listed statement row is linked to every listed
+ * expense (pairwise cross product). Suggestions always carry a single row;
+ * manual matching may group several rows and expenses.
+ */
 export const StatementMatchInput = z.object({
-  statementRowId: ObjectId,
+  statementRowIds: z.array(ObjectId).min(1),
   expenseIds: z.array(ObjectId).min(1),
 });
 export type StatementMatchInput = z.infer<typeof StatementMatchInput>;

@@ -2,10 +2,10 @@
 
 // Statement-to-expense matching (see docs/BANK_STATEMENTS.md).
 //
-// - statement_match links one statement row to one or more expenses; an
-//   expense can be matched to at most one statement row. Cascades from both
-//   sides: deleting an upload batch (which deletes its rows) or an expense
-//   removes the link.
+// - statement_match links statement rows to expenses, many-to-many: one
+//   payment can cover several expenses (splits), and one expense can be
+//   paid with several bank payments. Cascades from both sides: deleting an
+//   upload batch (which deletes its rows) or an expense removes the link.
 // - skipped / statement_skip mark rows/expenses reviewed as "will never
 //   match anything on the other side".
 // - purchase_date is the actual purchase date of OP card payments, parsed
@@ -26,11 +26,12 @@ exports.up = knex =>
       id SERIAL PRIMARY KEY,
       group_id INTEGER NOT NULL REFERENCES groups(id),
       statement_row_id INTEGER NOT NULL REFERENCES statement_row(id) ON DELETE CASCADE,
-      expense_id INTEGER NOT NULL REFERENCES expenses(id) ON DELETE CASCADE UNIQUE,
-      created TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      expense_id INTEGER NOT NULL REFERENCES expenses(id) ON DELETE CASCADE,
+      created TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      UNIQUE (statement_row_id, expense_id)
     );
 
-    CREATE INDEX statement_match_row ON statement_match (statement_row_id);
+    CREATE INDEX statement_match_expense ON statement_match (expense_id);
   `);
 
 exports.down = knex =>
