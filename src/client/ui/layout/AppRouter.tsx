@@ -64,7 +64,14 @@ export function AppRouter() {
       <Route path={infoPagePath} element={<InfoView />} />
       <Route path={trackingPagePath} element={qb(<TrackingPage />)} />
       <Route path={statementsPagePath} element={qb(<StatementsPage />)} />
+      {/* Kept so old month-only bookmarks keep working */}
       <Route path={`${statementsPagePath}/m/:month`} element={qb(<StatementsPage />)} />
+      <Route path={`${statementsPagePath}/:tab`} element={qb(<StatementsPage />)} />
+      <Route path={`${statementsPagePath}/:tab/:sourceId`} element={qb(<StatementsPage />)} />
+      <Route
+        path={`${statementsPagePath}/:tab/:sourceId/m/:month`}
+        element={qb(<StatementsPage />)}
+      />
       <Route path={groupingsPagePath} element={qb(<GroupingPage />)} />
       <Route path={`${groupingsPagePath}/:groupingId`} element={qb(<GroupingExpensesPage />)} />
       <Route path={toolsPagePath} element={<ToolsView />} />

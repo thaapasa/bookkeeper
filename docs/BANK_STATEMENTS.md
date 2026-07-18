@@ -208,8 +208,13 @@ different dates — is left for manual matching instead of guessing.
 
 ### Täsmäytys UI
 
-The tab binds to the **top-bar month navigator** (route
-`/p/tiliotteet/m/yyyy-MM`). For the selected source and month it renders one
+The Tiliotteet page keeps its whole view state in the URL —
+`/p/tiliotteet/[tab]/[sourceId]/m/[yyyy-MM]` (tab slugs `tapahtumat` /
+`tuonnit` / `tasmaytys`) — so reloads and shared links restore the same view;
+missing or invalid segments fall back to defaults (first own bank source,
+current month). The month segment binds to the **top-bar month navigator**,
+which preserves the tab and source when navigating months. For the selected
+source and month the Täsmäytys tab renders one
 vertical list of per-date buckets, each with expenses on the left and statement
 rows on the right, so the two sides stay aligned by date. Matched statement rows
 move to their expenses' date bucket so the pair sits on one line; the row's own

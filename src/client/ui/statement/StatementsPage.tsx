@@ -2,7 +2,7 @@ import { Group, Pagination, Select, Stack, Tabs, Text } from '@mantine/core';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { DateTime } from 'luxon';
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import { ParsedStatement, parseStatement } from 'shared/statement';
 import { ISOMonth, ISOMonthRegExp, monthRange } from 'shared/time';
@@ -31,6 +31,20 @@ interface PendingUpload {
   parsed: ParsedStatement;
 }
 
+/**
+ * The whole view state lives in the URL —
+ * `/p/tiliotteet/[tab]/[sourceId]/m/[month]` — so a reload or a shared
+ * link restores the same tab, source, and month. Missing or invalid
+ * segments fall back to defaults instead of redirecting. Tab slugs are
+ * plain ASCII to keep the URL free of percent-encoding.
+ */
+const statementTabs = ['tapahtumat', 'tuonnit', 'tasmaytys'] as const;
+type StatementTab = (typeof statementTabs)[number];
+
+function parseTab(tab?: string): StatementTab {
+  return statementTabs.includes(tab as StatementTab) ? (tab as StatementTab) : 'tapahtumat';
+}
+
 // Validate URL param as ISOMonth; fall back to current month on invalid input
 function parseMonth(month?: string): ISOMonth {
   if (month && ISOMonthRegExp.test(month)) {
@@ -42,26 +56,47 @@ function parseMonth(month?: string): ISOMonth {
 export const StatementsPage: React.FC = () => {
   const session = useValidSession();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [pending, setPending] = React.useState<PendingUpload | null>(null);
   const [importing, setImporting] = React.useState(false);
-  const { month: monthParam } = useParams<'month'>();
+  const {
+    tab: tabParam,
+    sourceId: sourceParam,
+    month: monthParam,
+  } = useParams<'tab' | 'sourceId' | 'month'>();
+  const tab = parseTab(tabParam);
   const month = parseMonth(monthParam);
 
-  // Bind the top bar date navigator to this page (month mode)
+  const bankSources = session.sources.filter(s => s.statementFormat !== null);
+  // URL-selected source when it is a valid bank source; otherwise default
+  // to the user's own account (the first bank source they are mapped to)
+  const urlSource = bankSources.find(s => `${s.id}` === sourceParam);
+  const selectedSourceId = (
+    urlSource ??
+    bankSources.find(s => s.users.some(u => u.userId === session.user.id)) ??
+    bankSources[0]
+  )?.id;
+
+  const pathFor = (to: { tab?: StatementTab; sourceId?: ObjectId }) => {
+    const parts = [statementsPagePath, to.tab ?? tab];
+    const source = to.sourceId ?? selectedSourceId;
+    if (source !== undefined) {
+      parts.push(`${source}`);
+    }
+    return `${parts.join('/')}/m/${month}`;
+  };
+
+  // Bind the top bar date navigator to this page (month mode); tab and
+  // source stay in the path when the month changes.
   React.useEffect(() => {
     useNavigationStore.getState().setNavigation({
-      pathPrefix: statementsPagePath,
+      pathPrefix:
+        selectedSourceId !== undefined
+          ? `${statementsPagePath}/${tab}/${selectedSourceId}`
+          : `${statementsPagePath}/${tab}`,
       dateRange: monthRange(`${month}-01`),
     });
-  }, [month]);
-
-  const bankSources = session.sources.filter(s => s.statementFormat !== null);
-  // Default to the user's own account: the first bank source they are mapped to
-  const [selectedSourceId, setSelectedSourceId] = React.useState<ObjectId | undefined>(
-    () =>
-      (bankSources.find(s => s.users.some(u => u.userId === session.user.id)) ?? bankSources[0])
-        ?.id,
-  );
+  }, [tab, selectedSourceId, month]);
 
   const onFile = (filename: string, content: string) => {
     try {
@@ -84,8 +119,8 @@ export const StatementsPage: React.FC = () => {
         trackProgress: setImporting,
         postProcess: async () => {
           await queryClient.invalidateQueries({ queryKey: QueryKeys.statements.all });
-          setSelectedSourceId(sourceId);
           setPending(null);
+          navigate(pathFor({ sourceId }));
         },
       },
     );
@@ -115,23 +150,27 @@ export const StatementsPage: React.FC = () => {
               label="Tili"
               data={bankSources.map(s => ({ value: `${s.id}`, label: s.name }))}
               value={selectedSourceId !== undefined ? `${selectedSourceId}` : null}
-              onChange={v => setSelectedSourceId(v ? Number(v) : undefined)}
+              onChange={v => (v ? navigate(pathFor({ sourceId: Number(v) })) : undefined)}
               maw={320}
             />
             {selectedSourceId !== undefined ? (
-              <Tabs defaultValue="rows" keepMounted={false}>
+              <Tabs
+                value={tab}
+                onChange={t => (t ? navigate(pathFor({ tab: t as StatementTab })) : undefined)}
+                keepMounted={false}
+              >
                 <Tabs.List>
-                  <Tabs.Tab value="rows">Tapahtumat</Tabs.Tab>
-                  <Tabs.Tab value="uploads">Tuonnit</Tabs.Tab>
-                  <Tabs.Tab value="matching">Täsmäytys</Tabs.Tab>
+                  <Tabs.Tab value="tapahtumat">Tapahtumat</Tabs.Tab>
+                  <Tabs.Tab value="tuonnit">Tuonnit</Tabs.Tab>
+                  <Tabs.Tab value="tasmaytys">Täsmäytys</Tabs.Tab>
                 </Tabs.List>
-                <Tabs.Panel value="rows" pt="md">
+                <Tabs.Panel value="tapahtumat" pt="md">
                   <StatementRowsList key={selectedSourceId} sourceId={selectedSourceId} />
                 </Tabs.Panel>
-                <Tabs.Panel value="uploads" pt="md">
+                <Tabs.Panel value="tuonnit" pt="md">
                   <StatementUploadsList sourceId={selectedSourceId} />
                 </Tabs.Panel>
-                <Tabs.Panel value="matching" pt="md">
+                <Tabs.Panel value="tasmaytys" pt="md">
                   <StatementMatchingView sourceId={selectedSourceId} month={month} />
                 </Tabs.Panel>
               </Tabs>
