@@ -180,79 +180,101 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
       </Group>
 
       <Box pos="relative" ref={containerRef}>
-        <Stack gap="sm">
-          {buckets.map(bucket => (
-            <Box key={bucket.date}>
-              <Text fz="xs" c="dimmed" mb={4}>
-                {readableDateWithYear(bucket.date)}
-              </Text>
-              <Group gap="xl" wrap="nowrap" align="flex-start">
-                <Stack gap="xs" flex={1} miw={0}>
-                  {bucket.expenses.map(e => (
-                    <ExpenseCard
-                      key={e.id}
-                      cardRef={registerCard(expenseCardKey(e.id))}
-                      expense={e}
-                      suggested={suggestedExpenseIds.has(e.id)}
-                      selected={selectedExpenseIds.includes(e.id)}
-                      onSelect={() =>
-                        setSelectedExpenseIds(ids =>
-                          ids.includes(e.id) ? ids.filter(i => i !== e.id) : [...ids, e.id],
-                        )
-                      }
-                      onEdit={async () => {
-                        // The editor's save invalidates all queries; refresh
-                        // again on close so an edited sum/date reflows the view
-                        await editExpense(e.id);
-                        await invalidate();
-                      }}
-                      onUnmatch={() =>
-                        executeOperation(() => apiConnect.unmatchExpense(e.id), {
-                          postProcess: invalidate,
-                        })
-                      }
-                      onToggleSkip={() =>
-                        executeOperation(
-                          () => apiConnect.setExpenseStatementSkip(e.id, !e.statementSkip),
-                          { postProcess: invalidate },
-                        )
-                      }
-                    />
-                  ))}
-                </Stack>
-                <Stack gap="xs" flex={1} miw={0}>
-                  {bucket.rows.map(r => (
-                    <StatementRowCard
-                      key={r.id}
-                      cardRef={registerCard(rowCardKey(r.id))}
-                      row={r}
-                      displayDate={bucket.date}
-                      suggested={suggestedRowIds.has(r.id)}
-                      selected={selectedRowIds.includes(r.id)}
-                      onSelect={() =>
-                        setSelectedRowIds(ids =>
-                          ids.includes(r.id) ? ids.filter(i => i !== r.id) : [...ids, r.id],
-                        )
-                      }
-                      onDismissSuggestion={() =>
-                        setDismissedSuggestions(prev => new Set(prev).add(r.id))
-                      }
-                      onUnmatch={() =>
-                        executeOperation(() => apiConnect.unmatchStatementRow(r.id), {
-                          postProcess: invalidate,
-                        })
-                      }
-                      onToggleSkip={() =>
-                        executeOperation(
-                          () => apiConnect.setStatementRowSkipped(r.id, !r.skipped),
-                          { postProcess: invalidate },
-                        )
-                      }
-                      onCreateExpense={() => createExpenseFromRow(r)}
-                    />
-                  ))}
-                </Stack>
-              </Group>
+        <Stack gap={0}>
+          {bucketZones(buckets, month).map(zone => (
+            <Box
+              key={zone.key}
+              p="xs"
+              // The selected month is one continuous panel; the tolerance
+              // areas above and below it get a softer half-step tint (same
+              // mix as the expense table's alternating day rows), so the
+              // month boundary shows as a sharp background change.
+              bg={zone.inMonth ? 'surface.1' : undefined}
+              style={
+                zone.inMonth
+                  ? undefined
+                  : {
+                      backgroundColor:
+                        'color-mix(in srgb, var(--mantine-color-surface-0), var(--mantine-color-surface-1))',
+                    }
+              }
+            >
+              <Stack gap="sm">
+                {zone.buckets.map(bucket => (
+                  <Box key={bucket.date}>
+                    <Text fz="xs" c="dimmed" mb={4}>
+                      {readableDateWithYear(bucket.date)}
+                    </Text>
+                    <Group gap="xl" wrap="nowrap" align="flex-start">
+                      <Stack gap="xs" flex={1} miw={0}>
+                        {bucket.expenses.map(e => (
+                          <ExpenseCard
+                            key={e.id}
+                            cardRef={registerCard(expenseCardKey(e.id))}
+                            expense={e}
+                            suggested={suggestedExpenseIds.has(e.id)}
+                            selected={selectedExpenseIds.includes(e.id)}
+                            onSelect={() =>
+                              setSelectedExpenseIds(ids =>
+                                ids.includes(e.id) ? ids.filter(i => i !== e.id) : [...ids, e.id],
+                              )
+                            }
+                            onEdit={async () => {
+                              // The editor's save invalidates all queries; refresh
+                              // again on close so an edited sum/date reflows the view
+                              await editExpense(e.id);
+                              await invalidate();
+                            }}
+                            onUnmatch={() =>
+                              executeOperation(() => apiConnect.unmatchExpense(e.id), {
+                                postProcess: invalidate,
+                              })
+                            }
+                            onToggleSkip={() =>
+                              executeOperation(
+                                () => apiConnect.setExpenseStatementSkip(e.id, !e.statementSkip),
+                                { postProcess: invalidate },
+                              )
+                            }
+                          />
+                        ))}
+                      </Stack>
+                      <Stack gap="xs" flex={1} miw={0}>
+                        {bucket.rows.map(r => (
+                          <StatementRowCard
+                            key={r.id}
+                            cardRef={registerCard(rowCardKey(r.id))}
+                            row={r}
+                            displayDate={bucket.date}
+                            suggested={suggestedRowIds.has(r.id)}
+                            selected={selectedRowIds.includes(r.id)}
+                            onSelect={() =>
+                              setSelectedRowIds(ids =>
+                                ids.includes(r.id) ? ids.filter(i => i !== r.id) : [...ids, r.id],
+                              )
+                            }
+                            onDismissSuggestion={() =>
+                              setDismissedSuggestions(prev => new Set(prev).add(r.id))
+                            }
+                            onUnmatch={() =>
+                              executeOperation(() => apiConnect.unmatchStatementRow(r.id), {
+                                postProcess: invalidate,
+                              })
+                            }
+                            onToggleSkip={() =>
+                              executeOperation(
+                                () => apiConnect.setStatementRowSkipped(r.id, !r.skipped),
+                                { postProcess: invalidate },
+                              )
+                            }
+                            onCreateExpense={() => createExpenseFromRow(r)}
+                          />
+                        ))}
+                      </Stack>
+                    </Group>
+                  </Box>
+                ))}
+              </Stack>
             </Box>
           ))}
         </Stack>
@@ -312,6 +334,29 @@ interface DateBucket {
   date: ISODate;
   expenses: MatchableExpense[];
   rows: MatchingStatementRow[];
+}
+
+interface BucketZone {
+  key: 'before' | 'month' | 'after';
+  inMonth: boolean;
+  buckets: DateBucket[];
+}
+
+/**
+ * Splits the (sorted) buckets into up to three zones: tolerance dates
+ * before the month, the selected month itself, and tolerance dates after.
+ */
+function bucketZones(buckets: DateBucket[], month: ISOMonth): BucketZone[] {
+  const zones: BucketZone[] = [
+    { key: 'before', inMonth: false, buckets: buckets.filter(b => b.date < `${month}-01`) },
+    { key: 'month', inMonth: true, buckets: buckets.filter(b => b.date.startsWith(month)) },
+    {
+      key: 'after',
+      inMonth: false,
+      buckets: buckets.filter(b => !b.date.startsWith(month) && b.date > `${month}-01`),
+    },
+  ];
+  return zones.filter(z => z.buckets.length > 0);
 }
 
 function buildBuckets(
