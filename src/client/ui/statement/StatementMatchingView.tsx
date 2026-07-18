@@ -1,4 +1,15 @@
-import { Affix, Badge, Box, Button, Group, Paper, Stack, Text, Tooltip } from '@mantine/core';
+import {
+  Affix,
+  Badge,
+  Box,
+  Button,
+  Checkbox,
+  Group,
+  Paper,
+  Stack,
+  Text,
+  Tooltip,
+} from '@mantine/core';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import React from 'react';
 
@@ -60,6 +71,17 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
 
   const [selectedRowIds, setSelectedRowIds] = React.useState<number[]>([]);
   const [selectedExpenseIds, setSelectedExpenseIds] = React.useState<number[]>([]);
+  const [hideHandled, setHideHandled] = React.useState(false);
+
+  // Display-only filter: matched and skipped items are hidden so only the
+  // remaining work is visible. Counts and selection totals still use the
+  // full data.
+  const visibleExpenses = hideHandled
+    ? data.expenses.filter(e => e.matchedStatementRowIds.length < 1 && !e.statementSkip)
+    : data.expenses;
+  const visibleRows = hideHandled
+    ? data.statementRows.filter(r => r.matchedExpenseIds.length < 1 && !r.skipped)
+    : data.statementRows;
 
   const clearSelection = () => {
     setSelectedRowIds([]);
@@ -117,7 +139,7 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
     );
   };
 
-  const buckets = buildBuckets(data.expenses, data.statementRows, activeSuggestions);
+  const buckets = buildBuckets(visibleExpenses, visibleRows, activeSuggestions);
   const unmatchedExpenses = data.expenses.filter(
     e => e.matchedStatementRowIds.length < 1 && !e.statementSkip,
   ).length;
@@ -130,7 +152,7 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const { cards, registerCard } = useCardRefs();
   const connectors: ConnectorSpec[] = [
-    ...data.statementRows.flatMap(r =>
+    ...visibleRows.flatMap(r =>
       r.matchedExpenseIds.map(expenseId => ({
         expenseId,
         rowId: r.id,
@@ -166,9 +188,17 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
 
   return (
     <Stack gap="sm" pb={actionBarVisible ? 80 : undefined}>
-      <Text fz="sm" c="dimmed">
-        Täsmäämättä: {unmatchedExpenses} kirjausta, {unmatchedRows} tiliotetapahtumaa
-      </Text>
+      <Group gap="md" justify="space-between">
+        <Text fz="sm" c="dimmed">
+          Täsmäämättä: {unmatchedExpenses} kirjausta, {unmatchedRows} tiliotetapahtumaa
+        </Text>
+        <Checkbox
+          size="xs"
+          label="Piilota täsmätyt ja ohitetut"
+          checked={hideHandled}
+          onChange={e => setHideHandled(e.currentTarget.checked)}
+        />
+      </Group>
 
       <Group gap="md" wrap="nowrap" align="center">
         <Text fz="sm" fw={600} flex={1}>
@@ -284,7 +314,9 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
       </Box>
       {buckets.length < 1 ? (
         <Text fz="sm" c="dimmed">
-          Ei kirjauksia eikä tiliotetapahtumia tässä kuussa.
+          {hideHandled && (data.expenses.length > 0 || data.statementRows.length > 0)
+            ? 'Kaikki kirjaukset ja tiliotetapahtumat on käsitelty.'
+            : 'Ei kirjauksia eikä tiliotetapahtumia tässä kuussa.'}
         </Text>
       ) : null}
       {actionBarVisible ? (
