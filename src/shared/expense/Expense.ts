@@ -1,5 +1,8 @@
 import { z } from 'zod';
 
+// Imported from the module file directly (not the statement index) to keep
+// the import acyclic: statement/StatementMatch imports ExpenseType from here.
+import { StatementRow } from '../statement/Statement';
 import { ISODate, ISOTimestamp } from '../time/Time';
 import { DbObject, ShortString } from '../types/Common';
 import { ObjectId } from '../types/Id';
@@ -141,6 +144,8 @@ export interface ExpenseInEditor extends BaseExpenseData {
 
 export interface UserExpenseWithDetails extends UserExpense {
   division: ExpenseDivision;
+  /** Bank statement rows matched to this expense (see docs/BANK_STATEMENTS.md). */
+  matchedStatementRows: StatementRow[];
 }
 
 export const ExpenseStatus = z.object({

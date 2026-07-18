@@ -1,13 +1,14 @@
-import { Badge, Stack, Table } from '@mantine/core';
+import { Badge, Select, Stack, Table } from '@mantine/core';
 import * as React from 'react';
 
-import { ObjectId, Source, User } from 'shared/types';
+import { ObjectId, Source, StatementFormat, User } from 'shared/types';
 import { apiConnect } from 'client/data/ApiConnect';
 import { updateSession } from 'client/data/Login';
 import { useUserData, useValidSession } from 'client/data/SessionStore';
 
 import { ActivatableTextField } from '../component/ActivatableTextField';
 import { PageLayout } from '../layout/PageLayout';
+import { statementFormatLabels } from '../statement/statementSources';
 import { CurrencyRatesView } from './CurrencyRatesView';
 import { IdBadge, InfoSection } from './InfoLayoutElements';
 import { VersionInfoView } from './VersionInfoView';
@@ -57,8 +58,16 @@ const UsersView: React.FC<{
   </InfoSection>
 );
 
+const statementFormatOptions = [
+  { value: '', label: 'Ei tiliotteita' },
+  ...StatementFormat.options.map(f => ({ value: f, label: statementFormatLabels[f] })),
+];
+
 const SourcesView: React.FC<{ sources: Source[] }> = ({ sources }) => (
-  <InfoSection title="Lähteet" caption="Napsauta nimeä muokataksesi sitä">
+  <InfoSection
+    title="Lähteet"
+    caption="Napsauta nimeä muokataksesi sitä. Tiliotemuoto määrittää, minkä pankin tiliotteita lähteelle voi tuoda."
+  >
     <Table layout="fixed">
       <Table.Tbody>
         {sources.map(s => (
@@ -73,6 +82,15 @@ const SourcesView: React.FC<{ sources: Source[] }> = ({ sources }) => (
                 width="360px"
               />
             </Table.Td>
+            <Table.Td w={160}>
+              <Select
+                aria-label="Tiliotemuoto"
+                size="xs"
+                data={statementFormatOptions}
+                value={s.statementFormat ?? ''}
+                onChange={v => changeStatementFormat(s.id, v)}
+              />
+            </Table.Td>
           </Table.Tr>
         ))}
       </Table.Tbody>
@@ -85,4 +103,10 @@ async function renameSource(sourceId: ObjectId, name: string) {
     await apiConnect.patchSource(sourceId, { name });
     await updateSession();
   }
+}
+
+async function changeStatementFormat(sourceId: ObjectId, value: string | null) {
+  const statementFormat = value ? StatementFormat.parse(value) : null;
+  await apiConnect.patchSource(sourceId, { statementFormat });
+  await updateSession();
 }

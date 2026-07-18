@@ -289,6 +289,7 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
           loading={isLoading}
           expense={expense}
           division={details ? details.division : emptyDivision}
+          matchedStatementRows={details ? details.matchedStatementRows : []}
           source={source}
           fullCategoryName={fullCategoryName}
         />

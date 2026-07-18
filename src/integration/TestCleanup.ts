@@ -102,5 +102,14 @@ export async function cleanupTestDataSince(groupId: number, state: TestState): P
       groupId,
       maxCategoryId: state.maxCategoryId,
     });
+    // Statement rows reference their upload, so delete rows first.
+    await tx.none(
+      `DELETE FROM statement_row WHERE group_id = $/groupId/ AND created > $/testStart/`,
+      { groupId, testStart: state.testStart },
+    );
+    await tx.none(
+      `DELETE FROM statement_upload WHERE group_id = $/groupId/ AND uploaded_at > $/testStart/`,
+      { groupId, testStart: state.testStart },
+    );
   });
 }

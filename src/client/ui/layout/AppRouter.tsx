@@ -12,6 +12,7 @@ import {
   profilePagePath,
   searchPagePath,
   shortcutsPagePath,
+  statementsPagePath,
   statisticsPagePath,
   subscriptionsPagePath,
   toolsPagePath,
@@ -29,6 +30,7 @@ import { GroupingPage } from '../grouping/GroupingPage';
 import { InfoView } from '../info/InfoView';
 import { ProfileView } from '../profile/ProfileView';
 import { SearchPage } from '../search/SearchPage';
+import { StatementsPage } from '../statement/StatementsPage';
 import { StatisticsView } from '../statistics/StatisticsView';
 import { SubscriptionsPage } from '../subscriptions/SubscriptionsPage';
 import { ToolsView } from '../tools/ToolsView';
@@ -61,6 +63,15 @@ export function AppRouter() {
       <Route path={profilePagePath + '/*'} element={<ProfileView />} />
       <Route path={infoPagePath} element={<InfoView />} />
       <Route path={trackingPagePath} element={qb(<TrackingPage />)} />
+      <Route path={statementsPagePath} element={qb(<StatementsPage />)} />
+      {/* Kept so old month-only bookmarks keep working */}
+      <Route path={`${statementsPagePath}/m/:month`} element={qb(<StatementsPage />)} />
+      <Route path={`${statementsPagePath}/:tab`} element={qb(<StatementsPage />)} />
+      <Route path={`${statementsPagePath}/:tab/:sourceId`} element={qb(<StatementsPage />)} />
+      <Route
+        path={`${statementsPagePath}/:tab/:sourceId/m/:month`}
+        element={qb(<StatementsPage />)}
+      />
       <Route path={groupingsPagePath} element={qb(<GroupingPage />)} />
       <Route path={`${groupingsPagePath}/:groupingId`} element={qb(<GroupingExpensesPage />)} />
       <Route path={toolsPagePath} element={<ToolsView />} />

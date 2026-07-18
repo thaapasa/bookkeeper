@@ -20,7 +20,15 @@ import {
   UserExpenseWithDetails,
 } from 'shared/expense';
 import { FetchClient, RequestMethod, RequestSpec, uri } from 'shared/net';
-import { ISODate, RecurrenceInterval, timeoutImmediate } from 'shared/time';
+import {
+  StatementMatchingData,
+  StatementMatchInput,
+  StatementRowsResponse,
+  StatementUploadDeleteResult,
+  StatementUploadListItem,
+  StatementUploadResult,
+} from 'shared/statement';
+import { ISODate, ISOMonth, RecurrenceInterval, timeoutImmediate } from 'shared/time';
 import {
   ApiMessage,
   ApiStatus,
@@ -332,6 +340,59 @@ export class ApiConnect {
 
   public patchSource = (sourceId: ObjectId, data: SourcePatch) =>
     this.patch<Source>(uri`/api/source/${sourceId}`, { body: data });
+
+  // Bank statements
+
+  public uploadStatement = (
+    sourceId: ObjectId,
+    filename: string,
+    content: string,
+  ): Promise<StatementUploadResult> =>
+    this.post(uri`/api/statement/upload/${sourceId}`, { body: { filename, content } });
+
+  public getStatementRows = (
+    sourceId: ObjectId,
+    options: { limit: number; offset: number; startDate?: ISODate; endDate?: ISODate },
+  ): Promise<StatementRowsResponse> =>
+    this.get(`/api/statement/rows`, {
+      query: {
+        sourceId,
+        limit: options.limit,
+        offset: options.offset,
+        ...(options.startDate ? { startDate: options.startDate } : undefined),
+        ...(options.endDate ? { endDate: options.endDate } : undefined),
+      },
+    });
+
+  public getStatementUploads = (sourceId: ObjectId): Promise<StatementUploadListItem[]> =>
+    this.get(`/api/statement/uploads`, { query: { sourceId } });
+
+  public deleteStatementUpload = (uploadId: ObjectId): Promise<StatementUploadDeleteResult> =>
+    this.delete(uri`/api/statement/upload/${uploadId}`);
+
+  public getStatementMatching = (
+    sourceId: ObjectId,
+    month: ISOMonth,
+  ): Promise<StatementMatchingData> =>
+    this.get(`/api/statement/matching`, { query: { sourceId, month } });
+
+  public createStatementMatch = (match: StatementMatchInput): Promise<void> =>
+    this.post(`/api/statement/match`, { body: match });
+
+  public createStatementMatches = (matches: StatementMatchInput[]): Promise<void> =>
+    this.post(`/api/statement/match/bulk`, { body: { matches } });
+
+  public unmatchStatementRow = (statementRowId: ObjectId): Promise<void> =>
+    this.delete(uri`/api/statement/match/statement/${statementRowId}`);
+
+  public unmatchExpense = (expenseId: ObjectId): Promise<void> =>
+    this.delete(uri`/api/statement/match/expense/${expenseId}`);
+
+  public setStatementRowSkipped = (statementRowId: ObjectId, skipped: boolean): Promise<void> =>
+    this.patch(uri`/api/statement/row/${statementRowId}/skip`, { body: { skipped } });
+
+  public setExpenseStatementSkip = (expenseId: ObjectId, skipped: boolean): Promise<void> =>
+    this.patch(uri`/api/statement/expense/${expenseId}/skip`, { body: { skipped } });
 
   // Shortcuts
 

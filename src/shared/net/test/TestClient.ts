@@ -64,5 +64,5 @@ export interface SessionWithControl extends Session {
   put: <T>(path: string, data: any) => Promise<T>;
   post: <T>(path: string, data: any) => Promise<T>;
   patch: <T>(path: string, data: any) => Promise<T>;
-  del: (path: string, query?: Record<string, any>) => Promise<void>;
+  del: <T = void>(path: string, query?: Record<string, any>) => Promise<T>;
 }

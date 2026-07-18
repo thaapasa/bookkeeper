@@ -24,7 +24,9 @@ export function setupServer() {
 
   // Express 5 has built-in body parsing
   app.use(express.urlencoded({ extended: false }));
-  app.use(express.json());
+  // Raised from the 100kb default so statement CSV uploads (sent as JSON
+  // body text) fit; a full-year bank export can exceed 100kb.
+  app.use(express.json({ limit: '10MB' }));
   app.use(express.raw({ limit: '10MB', type: 'multipart/form-data' }));
   app.use(express.raw({}));
 
