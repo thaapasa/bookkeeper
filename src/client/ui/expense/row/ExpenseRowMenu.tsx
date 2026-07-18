@@ -50,9 +50,10 @@ export const ExpenseRowMenu: React.FC<{ expense: UserExpense }> = ({ expense }) 
       [
         { label: 'Viikoittain', value: { amount: 1, unit: 'weeks' } },
         { label: 'Kuukausittain', value: { amount: 1, unit: 'months' } },
+        { label: 'Joka toinen kuukausi', value: { amount: 2, unit: 'months' } },
         { label: 'Kvartaaleittain', value: { amount: 1, unit: 'quarters' } },
-        { label: 'Vuosittain', value: { amount: 1, unit: 'years' } },
         { label: 'Puolivuosittain', value: { amount: 6, unit: 'months' } },
+        { label: 'Vuosittain', value: { amount: 1, unit: 'years' } },
       ],
     );
     if (!period) return;
