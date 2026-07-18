@@ -14,7 +14,8 @@ import { ObjectId } from 'shared/types';
 import { Money } from 'shared/util';
 import { apiConnect } from 'client/data/ApiConnect';
 import { QueryKeys } from 'client/data/queryKeys';
-import { requestNewExpense } from 'client/data/State';
+import { editExpense, requestNewExpense } from 'client/data/State';
+import { UserIdAvatar } from 'client/ui/component/UserAvatar';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { defaultExpenseSaveAction } from '../expense/dialog/ExpenseSaveAction';
@@ -194,6 +195,12 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
                           ids.includes(e.id) ? ids.filter(i => i !== e.id) : [...ids, e.id],
                         )
                       }
+                      onEdit={async () => {
+                        // The editor's save invalidates all queries; refresh
+                        // again on close so an edited sum/date reflows the view
+                        await editExpense(e.id);
+                        await invalidate();
+                      }}
                       onUnmatch={() =>
                         executeOperation(() => apiConnect.unmatchExpense(e.id), {
                           postProcess: invalidate,
@@ -407,9 +414,10 @@ const ExpenseCard: React.FC<{
   suggested: boolean;
   selected: boolean;
   onSelect: () => void;
+  onEdit: () => void;
   onUnmatch: () => void;
   onToggleSkip: () => void;
-}> = ({ cardRef, expense, suggested, selected, onSelect, onUnmatch, onToggleSkip }) => {
+}> = ({ cardRef, expense, suggested, selected, onSelect, onEdit, onUnmatch, onToggleSkip }) => {
   const matched = expense.matchedStatementRowId !== null;
   const selectable = !matched && !expense.statementSkip;
   return (
@@ -420,14 +428,17 @@ const ExpenseCard: React.FC<{
       onClick={selectable ? onSelect : undefined}
     >
       <Group gap="xs" wrap="nowrap" justify="space-between">
-        <Box miw={0}>
-          <Text fz="sm" truncate>
-            {expense.title ?? expense.receiver ?? '–'}
-          </Text>
-          <Text fz="xs" c="dimmed" truncate>
-            {expense.receiver ?? ''}
-          </Text>
-        </Box>
+        <Group gap="xs" wrap="nowrap" miw={0}>
+          <UserIdAvatar userId={expense.userId} size="sm" />
+          <Box miw={0}>
+            <Text fz="sm" truncate>
+              {expense.title ?? expense.receiver ?? '–'}
+            </Text>
+            <Text fz="xs" c="dimmed" truncate>
+              {expense.receiver ?? ''}
+            </Text>
+          </Box>
+        </Group>
         <Group gap={4} wrap="nowrap">
           {!expense.confirmed ? (
             <Tooltip label="Alustava kirjaus — summa voi vielä muuttua">
@@ -440,6 +451,9 @@ const ExpenseCard: React.FC<{
           <Text fz="sm" fw={600} style={{ whiteSpace: 'nowrap' }}>
             {Money.from(expense.sum).format()}
           </Text>
+          <Tooltip label="Muokkaa kirjausta">
+            <Icons.Edit size={16} cursor="pointer" onClick={stop(onEdit)} />
+          </Tooltip>
           {matched ? (
             <Tooltip label="Poista täsmäytys">
               <Icons.Unlink size={16} cursor="pointer" onClick={onUnmatch} />
