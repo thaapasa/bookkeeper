@@ -219,6 +219,21 @@ describe('statement matching', () => {
     await expect(
       session.patch(`/api/statement/expense/${e}/skip`, { skipped: true }),
     ).rejects.toMatchObject({ code: 'EXPENSE_MATCHED' });
+
+    // ...also with multiple links on the item (many-to-many): still the
+    // typed rejection, not a multiple-rows query error
+    const e2 = checkCreateStatus(await newExpense(session, { date: '2026-05-01', sum: '5.00' }));
+    const row2 = data.statementRows.find(r => r.amount === '-250.00')!;
+    await session.post('/api/statement/match', {
+      statementRowIds: [row.id, row2.id],
+      expenseIds: [e, e2],
+    });
+    await expect(
+      session.patch(`/api/statement/row/${row.id}/skip`, { skipped: true }),
+    ).rejects.toMatchObject({ code: 'STATEMENT_ROW_MATCHED' });
+    await expect(
+      session.patch(`/api/statement/expense/${e}/skip`, { skipped: true }),
+    ).rejects.toMatchObject({ code: 'EXPENSE_MATCHED' });
   });
 
   it('cascades match removal when the expense is deleted', async () => {

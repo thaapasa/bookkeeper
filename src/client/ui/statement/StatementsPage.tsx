@@ -87,13 +87,16 @@ export const StatementsPage: React.FC = () => {
   };
 
   // Bind the top bar date navigator to this page (month mode); tab and
-  // source stay in the path when the month changes.
+  // source stay in the path when the month changes. Without a bank source
+  // there is no month view to navigate — a sourceless month path would not
+  // match any statement route and would fall through to the expense page —
+  // so the binding is left untouched.
   React.useEffect(() => {
+    if (selectedSourceId === undefined) {
+      return;
+    }
     useNavigationStore.getState().setNavigation({
-      pathPrefix:
-        selectedSourceId !== undefined
-          ? `${statementsPagePath}/${tab}/${selectedSourceId}`
-          : `${statementsPagePath}/${tab}`,
+      pathPrefix: `${statementsPagePath}/${tab}/${selectedSourceId}`,
       dateRange: monthRange(`${month}-01`),
     });
   }, [tab, selectedSourceId, month]);

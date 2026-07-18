@@ -136,15 +136,23 @@ export function importStatement(
   );
 }
 
-const rowSelect = `--sql
-SELECT
-  id, source_id AS "sourceId", upload_id AS "uploadId",
-  booking_date AS "bookingDate", value_date AS "valueDate",
-  purchase_date AS "purchaseDate", amount, type,
-  counterparty, counterparty_account AS "counterpartyAccount",
-  reference, message, archive_id AS "archiveId", raw_line AS "rawLine", skipped,
-  COUNT(*) OVER() AS total
-FROM statement_row`;
+/**
+ * The StatementRow column list for a statement_row query, aliased to the
+ * given table name. The single SQL home for the shape — every query that
+ * returns StatementRow objects must compose this, so a new column is added
+ * in one place.
+ */
+export const statementRowFields = (t: string) => `--sql
+  ${t}.id, ${t}.source_id AS "sourceId", ${t}.upload_id AS "uploadId",
+  ${t}.booking_date AS "bookingDate", ${t}.value_date AS "valueDate",
+  ${t}.purchase_date AS "purchaseDate", ${t}.amount, ${t}.type,
+  ${t}.counterparty, ${t}.counterparty_account AS "counterpartyAccount",
+  ${t}.reference, ${t}.message, ${t}.archive_id AS "archiveId",
+  ${t}.raw_line AS "rawLine", ${t}.skipped`;
+
+/** SQL twin of effectiveStatementDate(): the date to compare against expenses. */
+export const statementRowEffectiveDate = (t: string) =>
+  `COALESCE(${t}.purchase_date, ${t}.value_date)`;
 
 export async function getStatementRows(
   tx: DbTask,
@@ -152,26 +160,30 @@ export async function getStatementRows(
   sourceId: ObjectId,
   options: { startDate?: ISODate; endDate?: ISODate; limit: number; offset: number },
 ): Promise<StatementRowsResponse> {
-  const rows = await tx.manyOrNone<StatementRowsResponse['rows'][number] & { total: number }>(
-    `${rowSelect}
-      WHERE group_id=$/groupId/ AND source_id=$/sourceId/
-        AND ($/startDate/::DATE IS NULL OR booking_date >= $/startDate/)
-        AND ($/endDate/::DATE IS NULL OR booking_date <= $/endDate/)
-      ORDER BY booking_date DESC, id DESC
-      LIMIT $/limit/ OFFSET $/offset/`,
-    {
-      groupId,
-      sourceId,
-      startDate: options.startDate ?? null,
-      endDate: options.endDate ?? null,
-      limit: options.limit,
-      offset: options.offset,
-    },
-  );
-  return {
-    rows: rows.map(({ total, ...row }) => row),
-    total: rows[0]?.total ?? 0,
+  const filter = `--sql
+    WHERE r.group_id=$/groupId/ AND r.source_id=$/sourceId/
+      AND ($/startDate/::DATE IS NULL OR r.booking_date >= $/startDate/)
+      AND ($/endDate/::DATE IS NULL OR r.booking_date <= $/endDate/)`;
+  const params = {
+    groupId,
+    sourceId,
+    startDate: options.startDate ?? null,
+    endDate: options.endDate ?? null,
   };
+  // The count is queried separately so total is correct even when the
+  // requested page is past the last row (COUNT(*) OVER() on an empty page
+  // would yield 0).
+  const { total } = await tx.one<{ total: number }>(
+    `SELECT COUNT(*) AS total FROM statement_row r ${filter}`,
+    params,
+  );
+  const rows = await tx.manyOrNone<StatementRowsResponse['rows'][number]>(
+    `SELECT ${statementRowFields('r')} FROM statement_row r ${filter}
+      ORDER BY r.booking_date DESC, r.id DESC
+      LIMIT $/limit/ OFFSET $/offset/`,
+    { ...params, limit: options.limit, offset: options.offset },
+  );
+  return { rows, total };
 }
 
 export async function getStatementUploads(

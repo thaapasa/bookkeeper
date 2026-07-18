@@ -112,12 +112,13 @@ describe('statement import', () => {
     });
     expect(page3.total).toEqual(5);
     expect(page3.rows).toHaveLength(1);
+    // total reflects the whole filter even when the page is past the end
     const past = await session.get<StatementRowsResponse>('/api/statement/rows', {
       sourceId: `${sourceId}`,
       limit: '2',
       offset: '10',
     });
-    expect(past).toEqual({ rows: [], total: 0 });
+    expect(past).toEqual({ rows: [], total: 5 });
   });
 
   it('lists upload batches with live row counts', async () => {

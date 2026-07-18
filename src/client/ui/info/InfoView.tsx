@@ -8,6 +8,7 @@ import { useUserData, useValidSession } from 'client/data/SessionStore';
 
 import { ActivatableTextField } from '../component/ActivatableTextField';
 import { PageLayout } from '../layout/PageLayout';
+import { statementFormatLabels } from '../statement/statementSources';
 import { CurrencyRatesView } from './CurrencyRatesView';
 import { IdBadge, InfoSection } from './InfoLayoutElements';
 import { VersionInfoView } from './VersionInfoView';
@@ -59,8 +60,7 @@ const UsersView: React.FC<{
 
 const statementFormatOptions = [
   { value: '', label: 'Ei tiliotteita' },
-  { value: 'op', label: 'OP' },
-  { value: 'spankki', label: 'S-pankki' },
+  ...StatementFormat.options.map(f => ({ value: f, label: statementFormatLabels[f] })),
 ];
 
 const SourcesView: React.FC<{ sources: Source[] }> = ({ sources }) => (

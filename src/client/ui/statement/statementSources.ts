@@ -1,14 +1,27 @@
 import { StatementFormat } from 'shared/statement';
 import { ObjectId, Session, Source } from 'shared/types';
 
+/** Display names for the supported statement formats. */
+export const statementFormatLabels: Record<StatementFormat, string> = {
+  op: 'OP',
+  spankki: 'S-pankki',
+};
+
 export interface SourceOption {
   id: ObjectId;
   name: string;
 }
 
-/** Sources that can receive statements of the given format. */
+/**
+ * Sources that can receive statements of the given format, with the
+ * current user's own sources (mapped in source_users) listed first.
+ */
 export function statementSourceOptions(session: Session, format: StatementFormat): SourceOption[] {
-  return session.sources.filter(s => s.statementFormat === format).map(toOption);
+  const isOwn = (s: Source) => s.users.some(u => u.userId === session.user.id);
+  return session.sources
+    .filter(s => s.statementFormat === format)
+    .sort((a, b) => Number(isOwn(b)) - Number(isOwn(a)))
+    .map(toOption);
 }
 
 /**

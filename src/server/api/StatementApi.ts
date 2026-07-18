@@ -13,7 +13,7 @@ import {
   StatementUploadResult,
 } from 'shared/statement';
 import { ISODate, ISOMonth } from 'shared/time';
-import { IntString, ObjectIdString } from 'shared/types';
+import { ApiMessage, CountResponse, IntString, ObjectIdString } from 'shared/types';
 import {
   deleteStatementUpload,
   getStatementRows,
@@ -94,62 +94,62 @@ export function createStatementApi() {
   // POST /api/statement/match
   api.postTx(
     '/match',
-    { body: StatementMatchInput, groupRequired: true },
+    { body: StatementMatchInput, response: ApiMessage, groupRequired: true },
     async (tx, session, { body }) => {
       await createStatementMatch(tx, session.group.id, body);
-      return { status: 'OK' };
+      return { status: 'OK', message: 'Statement match created' };
     },
   );
 
   // POST /api/statement/match/bulk
   api.postTx(
     '/match/bulk',
-    { body: StatementMatchBulkInput, groupRequired: true },
+    { body: StatementMatchBulkInput, response: CountResponse, groupRequired: true },
     async (tx, session, { body }) => {
       for (const match of body.matches) {
         await createStatementMatch(tx, session.group.id, match);
       }
-      return { status: 'OK', count: body.matches.length };
+      return { status: 'OK', message: 'Statement matches created', count: body.matches.length };
     },
   );
 
   // DELETE /api/statement/match/statement/:statementRowId
   api.deleteTx(
     '/match/statement/:statementRowId',
-    { groupRequired: true },
+    { response: ApiMessage, groupRequired: true },
     async (tx, session, { params }) => {
       await deleteMatchesForStatementRow(tx, session.group.id, params.statementRowId);
-      return { status: 'OK' };
+      return { status: 'OK', message: 'Statement row unmatched' };
     },
   );
 
   // DELETE /api/statement/match/expense/:expenseId
   api.deleteTx(
     '/match/expense/:expenseId',
-    { groupRequired: true },
+    { response: ApiMessage, groupRequired: true },
     async (tx, session, { params }) => {
       await deleteMatchForExpense(tx, session.group.id, params.expenseId);
-      return { status: 'OK' };
+      return { status: 'OK', message: 'Expense unmatched' };
     },
   );
 
   // PATCH /api/statement/row/:statementRowId/skip
   api.patchTx(
     '/row/:statementRowId/skip',
-    { body: SkipInput, groupRequired: true },
+    { body: SkipInput, response: ApiMessage, groupRequired: true },
     async (tx, session, { params, body }) => {
       await setStatementRowSkipped(tx, session.group.id, params.statementRowId, body.skipped);
-      return { status: 'OK' };
+      return { status: 'OK', message: 'Statement row skip updated' };
     },
   );
 
   // PATCH /api/statement/expense/:expenseId/skip
   api.patchTx(
     '/expense/:expenseId/skip',
-    { body: SkipInput, groupRequired: true },
+    { body: SkipInput, response: ApiMessage, groupRequired: true },
     async (tx, session, { params, body }) => {
       await setExpenseStatementSkip(tx, session.group.id, params.expenseId, body.skipped);
-      return { status: 'OK' };
+      return { status: 'OK', message: 'Expense statement skip updated' };
     },
   );
 

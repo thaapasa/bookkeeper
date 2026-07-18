@@ -121,16 +121,19 @@ happens client-side:
 3. The target source is auto-selected: candidates are sources whose
    `statement_format` matches the sniffed format **and** that map the current user in
    `source_users`. Exactly one candidate → auto-selected (the common case: each user
-   has one OP source and one S-pankki source they're mapped to). Multiple → dropdown
-   with candidates listed first. None → dropdown of all bank sources, with a hint to
-   configure the format on a source.
+   has one OP source and one S-pankki source they're mapped to). Otherwise the
+   dropdown lists the format-matching sources with the user's own sources first.
+   If no source has the sniffed format, an error text prompts configuring the
+   format on the Tiedot page — cross-format targets are not offered, since the
+   server would reject them with `STATEMENT_FORMAT_MISMATCH`.
 4. On confirm, the **raw file content** is POSTed to the server (as JSON
    `{ filename, content }` — statement CSVs are small). The server re-parses it
    authoritatively — the client parse is only for sniffing and preview. This keeps
    the raw file as the source of truth, lets the server store `raw_line` per row,
    and avoids an API that accepts client-fabricated rows.
-5. The import summary (parsed / new / duplicates / errors) is shown, and the row
-   list refreshes.
+5. The import summary (new / duplicate counts) is shown, and the row list
+   refreshes. A parse error anywhere in the file aborts the whole upload with an
+   error notification — there are no partial imports or per-row error counts.
 
 ## API
 

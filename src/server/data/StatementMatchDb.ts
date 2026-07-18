@@ -11,6 +11,7 @@ import {
 import { ISOMonth, toISODate } from 'shared/time';
 import { InvalidInputError, NotFoundError, ObjectId } from 'shared/types';
 import { DbTask } from 'server/data/Db.ts';
+import { statementRowEffectiveDate, statementRowFields } from 'server/data/StatementDb';
 import { logger } from 'server/Logger';
 import { withSpan } from 'server/telemetry/Spans';
 
@@ -21,7 +22,20 @@ import { withSpan } from 'server/telemetry/Spans';
  * the (statement_row_id, expense_id) UNIQUE constraint.
  */
 
-export async function getStatementMatchingData(
+export function getStatementMatchingData(
+  tx: DbTask,
+  groupId: ObjectId,
+  sourceId: ObjectId,
+  month: ISOMonth,
+): Promise<StatementMatchingData> {
+  return withSpan(
+    'statement.matching_data',
+    { 'app.group_id': groupId, 'app.source_id': sourceId, 'app.month': month },
+    () => doGetStatementMatchingData(tx, groupId, sourceId, month),
+  );
+}
+
+async function doGetStatementMatchingData(
   tx: DbTask,
   groupId: ObjectId,
   sourceId: ObjectId,
@@ -55,12 +69,7 @@ export async function getStatementMatchingData(
 
   const statementRows = await tx.manyOrNone<MatchingStatementRow>(
     `SELECT
-        r.id, r.source_id AS "sourceId", r.upload_id AS "uploadId",
-        r.booking_date AS "bookingDate", r.value_date AS "valueDate",
-        r.purchase_date AS "purchaseDate", r.amount, r.type,
-        r.counterparty, r.counterparty_account AS "counterpartyAccount",
-        r.reference, r.message, r.archive_id AS "archiveId", r.raw_line AS "rawLine",
-        r.skipped,
+        ${statementRowFields('r')},
         COALESCE(
           ARRAY_AGG(m.expense_id) FILTER (WHERE m.expense_id IS NOT NULL),
           '{}'
@@ -68,10 +77,10 @@ export async function getStatementMatchingData(
       FROM statement_row r
       LEFT JOIN statement_match m ON m.statement_row_id = r.id AND m.group_id = $/groupId/
       WHERE r.group_id = $/groupId/ AND r.source_id = $/sourceId/
-        AND COALESCE(r.purchase_date, r.value_date) >= $/windowStart/
-        AND COALESCE(r.purchase_date, r.value_date) < $/windowEnd/
+        AND ${statementRowEffectiveDate('r')} >= $/windowStart/
+        AND ${statementRowEffectiveDate('r')} < $/windowEnd/
       GROUP BY r.id
-      ORDER BY COALESCE(r.purchase_date, r.value_date), r.id`,
+      ORDER BY ${statementRowEffectiveDate('r')}, r.id`,
     { groupId, sourceId, windowStart, windowEnd },
   );
 
@@ -168,55 +177,76 @@ export async function getStatementRowsForExpense(
   expenseId: ObjectId,
 ): Promise<StatementRow[]> {
   return tx.manyOrNone<StatementRow>(
-    `SELECT
-        r.id, r.source_id AS "sourceId", r.upload_id AS "uploadId",
-        r.booking_date AS "bookingDate", r.value_date AS "valueDate",
-        r.purchase_date AS "purchaseDate", r.amount, r.type,
-        r.counterparty, r.counterparty_account AS "counterpartyAccount",
-        r.reference, r.message, r.archive_id AS "archiveId", r.raw_line AS "rawLine",
-        r.skipped
+    `SELECT ${statementRowFields('r')}
       FROM statement_row r
       JOIN statement_match m ON m.statement_row_id = r.id AND m.group_id = $/groupId/
       WHERE m.expense_id = $/expenseId/ AND r.group_id = $/groupId/
-      ORDER BY COALESCE(r.purchase_date, r.value_date), r.id`,
+      ORDER BY ${statementRowEffectiveDate('r')}, r.id`,
     { groupId, expenseId },
   );
 }
 
-export async function deleteMatchesForStatementRow(
+export function deleteMatchesForStatementRow(
   tx: DbTask,
   groupId: ObjectId,
   statementRowId: ObjectId,
 ): Promise<void> {
-  await tx.none(
-    `DELETE FROM statement_match
-      WHERE statement_row_id=$/statementRowId/ AND group_id=$/groupId/`,
-    { statementRowId, groupId },
+  return withSpan(
+    'statement.unmatch_row',
+    { 'app.group_id': groupId, 'app.statement_row_id': statementRowId },
+    async () => {
+      await tx.none(
+        `DELETE FROM statement_match
+          WHERE statement_row_id=$/statementRowId/ AND group_id=$/groupId/`,
+        { statementRowId, groupId },
+      );
+    },
   );
 }
 
-export async function deleteMatchForExpense(
+export function deleteMatchForExpense(
   tx: DbTask,
   groupId: ObjectId,
   expenseId: ObjectId,
 ): Promise<void> {
-  await tx.none(
-    `DELETE FROM statement_match WHERE expense_id=$/expenseId/ AND group_id=$/groupId/`,
-    { expenseId, groupId },
+  return withSpan(
+    'statement.unmatch_expense',
+    { 'app.group_id': groupId, 'app.expense_id': expenseId },
+    async () => {
+      await tx.none(
+        `DELETE FROM statement_match WHERE expense_id=$/expenseId/ AND group_id=$/groupId/`,
+        { expenseId, groupId },
+      );
+    },
   );
 }
 
 /** Marks a statement row as "will never match an expense". */
-export async function setStatementRowSkipped(
+export function setStatementRowSkipped(
+  tx: DbTask,
+  groupId: ObjectId,
+  statementRowId: ObjectId,
+  skipped: boolean,
+): Promise<void> {
+  return withSpan(
+    'statement.skip_row',
+    { 'app.group_id': groupId, 'app.statement_row_id': statementRowId, 'app.skipped': skipped },
+    () => doSetStatementRowSkipped(tx, groupId, statementRowId, skipped),
+  );
+}
+
+async function doSetStatementRowSkipped(
   tx: DbTask,
   groupId: ObjectId,
   statementRowId: ObjectId,
   skipped: boolean,
 ): Promise<void> {
   if (skipped) {
+    // LIMIT 1: matching is many-to-many, so several links may exist
     const match = await tx.oneOrNone(
-      `SELECT id FROM statement_match
-        WHERE statement_row_id=$/statementRowId/ AND group_id=$/groupId/`,
+      `SELECT 1 FROM statement_match
+        WHERE statement_row_id=$/statementRowId/ AND group_id=$/groupId/
+        LIMIT 1`,
       { statementRowId, groupId },
     );
     if (match) {
@@ -238,15 +268,31 @@ export async function setStatementRowSkipped(
 }
 
 /** Marks an expense as "will never appear on a bank statement". */
-export async function setExpenseStatementSkip(
+export function setExpenseStatementSkip(
+  tx: DbTask,
+  groupId: ObjectId,
+  expenseId: ObjectId,
+  skipped: boolean,
+): Promise<void> {
+  return withSpan(
+    'statement.skip_expense',
+    { 'app.group_id': groupId, 'app.expense_id': expenseId, 'app.skipped': skipped },
+    () => doSetExpenseStatementSkip(tx, groupId, expenseId, skipped),
+  );
+}
+
+async function doSetExpenseStatementSkip(
   tx: DbTask,
   groupId: ObjectId,
   expenseId: ObjectId,
   skipped: boolean,
 ): Promise<void> {
   if (skipped) {
+    // LIMIT 1: matching is many-to-many, so several links may exist
     const match = await tx.oneOrNone(
-      `SELECT id FROM statement_match WHERE expense_id=$/expenseId/ AND group_id=$/groupId/`,
+      `SELECT 1 FROM statement_match
+        WHERE expense_id=$/expenseId/ AND group_id=$/groupId/
+        LIMIT 1`,
       { expenseId, groupId },
     );
     if (match) {

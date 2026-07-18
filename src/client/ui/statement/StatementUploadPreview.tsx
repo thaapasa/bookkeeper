@@ -7,7 +7,7 @@ import { Money } from 'shared/util';
 
 import { Icons } from '../icons/Icons';
 import { StatementRowsTable } from './StatementRowsTable';
-import { SourceOption } from './statementSources';
+import { SourceOption, statementFormatLabels } from './statementSources';
 
 const PREVIEW_ROW_COUNT = 8;
 
@@ -20,8 +20,6 @@ interface StatementUploadPreviewProps {
   onCancel: () => void;
   importing: boolean;
 }
-
-const formatLabels = { op: 'OP', spankki: 'S-pankki' };
 
 /**
  * Preview of a parsed statement file before committing the upload: row
@@ -46,7 +44,7 @@ export const StatementUploadPreview: React.FC<StatementUploadPreviewProps> = ({
       <Stack gap="md">
         <Group gap="sm">
           <Badge variant="light" color="primary" radius="sm">
-            {formatLabels[parsed.format]}
+            {statementFormatLabels[parsed.format]}
           </Badge>
           <Text fw={600}>{filename}</Text>
         </Group>
@@ -81,8 +79,8 @@ export const StatementUploadPreview: React.FC<StatementUploadPreviewProps> = ({
           />
         ) : (
           <Text fz="sm" c="red.7">
-            Yhdelläkään lähteellä ei ole tiliotemuotoa {formatLabels[parsed.format]}. Määritä muoto
-            lähteelle Tiedot-sivulla.
+            Yhdelläkään lähteellä ei ole tiliotemuotoa {statementFormatLabels[parsed.format]}.
+            Määritä muoto lähteelle Tiedot-sivulla.
           </Text>
         )}
         <Group gap="sm">

@@ -11,8 +11,7 @@ import { useUserMap } from 'client/data/SessionStore';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { Icons } from '../icons/Icons';
-
-const formatLabels = { op: 'OP', spankki: 'S-pankki' };
+import { statementFormatLabels } from './statementSources';
 
 const rowCountText = (n: number) => (n === 1 ? '1 tapahtuma' : `${n} tapahtumaa`);
 
@@ -84,7 +83,7 @@ export const StatementUploadsList: React.FC<{ sourceId: ObjectId }> = ({ sourceI
               <Table.Td>
                 <Group gap="xs" wrap="nowrap">
                   <Badge variant="light" color="primary" radius="sm">
-                    {formatLabels[u.format]}
+                    {statementFormatLabels[u.format]}
                   </Badge>
                   <Text fz="sm" truncate>
                     {u.filename}

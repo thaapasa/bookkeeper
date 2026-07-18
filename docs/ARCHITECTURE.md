@@ -60,6 +60,7 @@ src/
 │   │   ├── reports/       # Saved reports
 │   │   ├── search/        # Expense search
 │   │   ├── shortcuts/     # Quick expense shortcuts
+│   │   ├── statement/     # Bank statement import + reconciliation (docs/BANK_STATEMENTS.md)
 │   │   ├── statistics/    # Charts and statistics
 │   │   ├── subscriptions/ # Recurring expense management
 │   │   ├── theme/         # Mantine theme
@@ -86,6 +87,7 @@ src/
 │   ├── expense/      # Expense types and utilities
 │   ├── math/         # Number and percentage utilities
 │   ├── net/          # HTTP client and URL utilities
+│   ├── statement/    # Bank statement types, parsers, matcher (docs/BANK_STATEMENTS.md)
 │   ├── time/         # Branded ISODate/ISOTimestamp types and conversions
 │   ├── types/        # Common TypeScript types and Zod schemas
 │   ├── userData/     # User data types
@@ -268,7 +270,9 @@ Utilities: `shared/time/` (conversion, parsing, formatting). See
 - **PostgreSQL** database
 - Schema defined in `docs/SCHEMA.sql`
 - Migrations in `migrations/` using Knex
-- Key tables: `expenses`, `expense_division`, `users`, `groups`, `categories`, `sources`
+- Key tables: `expenses`, `expense_division`, `users`, `groups`, `categories`, `sources`,
+  and the bank statement tables `statement_upload`, `statement_row`, `statement_match`
+  (see `docs/BANK_STATEMENTS.md`)
 
 ## Error Handling
 
