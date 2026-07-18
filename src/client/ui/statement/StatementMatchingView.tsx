@@ -1,4 +1,4 @@
-import { Badge, Box, Button, Group, Paper, Stack, Text, Tooltip } from '@mantine/core';
+import { Affix, Badge, Box, Button, Group, Paper, Stack, Text, Tooltip } from '@mantine/core';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import React from 'react';
 
@@ -114,7 +114,7 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
     );
   };
 
-  const buckets = buildBuckets(data.expenses, data.statementRows);
+  const buckets = buildBuckets(data.expenses, data.statementRows, activeSuggestions);
   const unmatchedExpenses = data.expenses.filter(
     e => !e.matchedStatementRowId && !e.statementSkip,
   ).length;
@@ -150,40 +150,19 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
       : []),
   ];
 
+  const selectionActive = selectedRowId !== null || selectedExpenseIds.length > 0;
+  const actionBarVisible = selectionActive || activeSuggestions.length > 0;
+  const selectedRow =
+    selectedRowId !== null ? data.statementRows.find(r => r.id === selectedRowId) : undefined;
+  const selectedTotal = data.expenses
+    .filter(e => selectedExpenseIds.includes(e.id))
+    .reduce((sum, e) => sum.plus(e.sum), Money.from(0));
+
   return (
-    <Stack gap="sm">
-      <Group gap="md" justify="space-between">
-        <Text fz="sm" c="dimmed">
-          Täsmäämättä: {unmatchedExpenses} kirjausta, {unmatchedRows} tiliotetapahtumaa
-        </Text>
-        <Group gap="sm">
-          {selectedRowId !== null || selectedExpenseIds.length > 0 ? (
-            <>
-              <Button
-                size="xs"
-                leftSection={<Icons.Link />}
-                disabled={selectedRowId === null || selectedExpenseIds.length < 1}
-                onClick={() => void matchSelection()}
-              >
-                Täsmää valitut
-              </Button>
-              <Button size="xs" variant="default" onClick={clearSelection}>
-                Tyhjennä valinta
-              </Button>
-            </>
-          ) : null}
-          {activeSuggestions.length > 0 ? (
-            <Button
-              size="xs"
-              variant="light"
-              leftSection={<Icons.Check />}
-              onClick={() => void confirmSuggestions()}
-            >
-              Vahvista {activeSuggestions.length} ehdotusta
-            </Button>
-          ) : null}
-        </Group>
-      </Group>
+    <Stack gap="sm" pb={actionBarVisible ? 80 : undefined}>
+      <Text fz="sm" c="dimmed">
+        Täsmäämättä: {unmatchedExpenses} kirjausta, {unmatchedRows} tiliotetapahtumaa
+      </Text>
 
       <Group gap="md" wrap="nowrap" align="center">
         <Text fz="sm" fw={600} flex={1}>
@@ -270,6 +249,45 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
           Ei kirjauksia eikä tiliotetapahtumia tässä kuussa.
         </Text>
       ) : null}
+      {actionBarVisible ? (
+        <Affix position={{ bottom: 20, left: 0, right: 0 }} zIndex={200}>
+          <Group justify="center">
+            <Paper shadow="md" withBorder p="sm" radius="md">
+              <Group gap="sm" wrap="nowrap">
+                {selectionActive ? (
+                  <>
+                    <Text fz="sm" c="dimmed" style={{ whiteSpace: 'nowrap' }}>
+                      Valittu {selectedExpenseIds.length} kirjausta ({selectedTotal.format()})
+                      {selectedRow ? ` · tapahtuma ${Money.from(selectedRow.amount).format()}` : ''}
+                    </Text>
+                    <Button
+                      size="xs"
+                      leftSection={<Icons.Link />}
+                      disabled={selectedRowId === null || selectedExpenseIds.length < 1}
+                      onClick={() => void matchSelection()}
+                    >
+                      Täsmää valitut
+                    </Button>
+                    <Button size="xs" variant="default" onClick={clearSelection}>
+                      Tyhjennä
+                    </Button>
+                  </>
+                ) : null}
+                {activeSuggestions.length > 0 ? (
+                  <Button
+                    size="xs"
+                    variant="light"
+                    leftSection={<Icons.Check />}
+                    onClick={() => void confirmSuggestions()}
+                  >
+                    Vahvista {activeSuggestions.length} ehdotusta
+                  </Button>
+                ) : null}
+              </Group>
+            </Paper>
+          </Group>
+        </Affix>
+      ) : null}
     </Stack>
   );
 };
@@ -280,7 +298,11 @@ interface DateBucket {
   rows: MatchingStatementRow[];
 }
 
-function buildBuckets(expenses: MatchableExpense[], rows: MatchingStatementRow[]): DateBucket[] {
+function buildBuckets(
+  expenses: MatchableExpense[],
+  rows: MatchingStatementRow[],
+  suggestions: StatementMatchInput[],
+): DateBucket[] {
   const expenseDates = new Map(expenses.map(e => [e.id, e.date]));
   const buckets = new Map<ISODate, DateBucket>();
   const bucket = (date: ISODate): DateBucket => {
@@ -297,7 +319,55 @@ function buildBuckets(expenses: MatchableExpense[], rows: MatchingStatementRow[]
   for (const r of rows) {
     bucket(rowBucketDate(r, expenseDates)).rows.push(r);
   }
+  const suggestionRowByExpense = new Map(
+    suggestions.flatMap(s => s.expenseIds.map(id => [id, s.statementRowId] as const)),
+  );
+  const suggestedRowIds = new Set(suggestions.map(s => s.statementRowId));
+  for (const b of buckets.values()) {
+    b.expenses.sort(compareBucketOrder(e => expenseOrderKey(e, suggestionRowByExpense)));
+    b.rows.sort(compareBucketOrder(r => rowOrderKey(r, suggestedRowIds)));
+  }
   return [...buckets.values()].sort((a, b) => a.date.localeCompare(b.date));
+}
+
+/**
+ * Within a bucket both columns sort the same way — matched first, then
+ * suggested, then unmatched, skipped last — and matched/suggested items on
+ * both sides order by the statement row id of their link, so pairs sit on
+ * the same line and connectors do not cross.
+ */
+type BucketOrderKey = [group: number, linkedRowId: number, id: number];
+
+function expenseOrderKey(
+  e: MatchableExpense,
+  suggestionRowByExpense: Map<number, number>,
+): BucketOrderKey {
+  if (e.matchedStatementRowId !== null) {
+    return [0, e.matchedStatementRowId, e.id];
+  }
+  const suggestedRow = suggestionRowByExpense.get(e.id);
+  if (suggestedRow !== undefined) {
+    return [1, suggestedRow, e.id];
+  }
+  return [e.statementSkip ? 3 : 2, 0, e.id];
+}
+
+function rowOrderKey(r: MatchingStatementRow, suggestedRowIds: Set<number>): BucketOrderKey {
+  if (r.matchedExpenseIds.length > 0) {
+    return [0, r.id, r.id];
+  }
+  if (suggestedRowIds.has(r.id)) {
+    return [1, r.id, r.id];
+  }
+  return [r.skipped ? 3 : 2, 0, r.id];
+}
+
+function compareBucketOrder<T>(key: (item: T) => BucketOrderKey) {
+  return (a: T, b: T) => {
+    const ka = key(a);
+    const kb = key(b);
+    return ka[0] - kb[0] || ka[1] - kb[1] || ka[2] - kb[2];
+  };
 }
 
 /**
