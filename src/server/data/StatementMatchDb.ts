@@ -6,6 +6,7 @@ import {
   STATEMENT_MATCH_DATE_TOLERANCE_DAYS,
   StatementMatchingData,
   StatementMatchInput,
+  StatementRow,
 } from 'shared/statement';
 import { ISOMonth, toISODate } from 'shared/time';
 import { InvalidInputError, NotFoundError, ObjectId } from 'shared/types';
@@ -157,6 +158,28 @@ export function createStatementMatch(
         'Created statement match',
       );
     },
+  );
+}
+
+/** Statement rows matched to one expense, for the expense details view. */
+export async function getStatementRowsForExpense(
+  tx: DbTask,
+  groupId: ObjectId,
+  expenseId: ObjectId,
+): Promise<StatementRow[]> {
+  return tx.manyOrNone<StatementRow>(
+    `SELECT
+        r.id, r.source_id AS "sourceId", r.upload_id AS "uploadId",
+        r.booking_date AS "bookingDate", r.value_date AS "valueDate",
+        r.purchase_date AS "purchaseDate", r.amount, r.type,
+        r.counterparty, r.counterparty_account AS "counterpartyAccount",
+        r.reference, r.message, r.archive_id AS "archiveId", r.raw_line AS "rawLine",
+        r.skipped
+      FROM statement_row r
+      JOIN statement_match m ON m.statement_row_id = r.id AND m.group_id = $/groupId/
+      WHERE m.expense_id = $/expenseId/ AND r.group_id = $/groupId/
+      ORDER BY COALESCE(r.purchase_date, r.value_date), r.id`,
+    { groupId, expenseId },
   );
 }
 

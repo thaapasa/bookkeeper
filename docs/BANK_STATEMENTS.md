@@ -236,3 +236,6 @@ selection (a preview of what "Täsmää valitut" would link).
 - "Luo kirjaus tästä" on an unmatched row opens the expense dialog prefilled from
   the row (date, sum, receiver, source, type by sign) and creates the match
   automatically on save.
+- The expense details view (expense table row expander) also lists the matched
+  statement rows: `GET /api/expense/:id` returns `matchedStatementRows` alongside
+  the division.

@@ -1,6 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it } from 'bun:test';
 
-import { checkCreateStatus, findSourceId, logoutSession, newExpense } from 'shared/expense/test';
+import {
+  checkCreateStatus,
+  fetchExpense,
+  findSourceId,
+  logoutSession,
+  newExpense,
+} from 'shared/expense/test';
 import { createTestClient, SessionWithControl } from 'shared/net/test';
 import { StatementMatchingData, StatementUploadResult } from 'shared/statement';
 import { OP_ROWS, opCsv } from 'shared/statement/test/StatementFixtures';
@@ -156,6 +162,25 @@ describe('statement matching', () => {
     await session.del(`/api/statement/match/statement/${r3.id}`);
     const trimmed = await getMatching();
     expect(trimmed.expenses[0].matchedStatementRowIds.sort()).toEqual([r1.id, r2.id].sort());
+  });
+
+  it('includes matched statement rows in expense details', async () => {
+    const e = checkCreateStatus(await newExpense(session, { date: '2026-05-01', sum: '12.90' }));
+    const before = await fetchExpense(session, e);
+    expect(before.matchedStatementRows).toEqual([]);
+
+    const { statementRows } = await getMatching();
+    const row = statementRows.find(r => r.amount === '-12.90')!;
+    await session.post('/api/statement/match', { statementRowIds: [row.id], expenseIds: [e] });
+
+    const after = await fetchExpense(session, e);
+    expect(after.matchedStatementRows).toHaveLength(1);
+    expect(after.matchedStatementRows[0]).toMatchObject({
+      id: row.id,
+      amount: '-12.90',
+      counterparty: 'MEGASTORE HELSINKI',
+      purchaseDate: '2026-05-01',
+    });
   });
 
   it('rejects matching to an expense from another source', async () => {

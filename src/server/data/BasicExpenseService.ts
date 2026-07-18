@@ -1,4 +1,5 @@
 import { Expense, ExpenseDivisionItem, ExpenseInput } from 'shared/expense';
+import { StatementRow } from 'shared/statement';
 import { ExpenseIdResponse, isDefined, ObjectId } from 'shared/types';
 import { DbTask } from 'server/data/Db.ts';
 import { logger } from 'server/Logger';
@@ -16,6 +17,7 @@ import { validateCurrencyId } from './CurrencyDb';
 import { determineDivision } from './ExpenseDivision';
 import { requireExpenseGroupingById } from './grouping/GroupingDb';
 import { getSourceById } from './SourceDb';
+import { getStatementRowsForExpense } from './StatementMatchDb';
 import { getUserById } from './UserDb';
 
 export function createExpense(
@@ -90,14 +92,15 @@ export function getExpenseWithDivision(
   groupId: ObjectId,
   userId: ObjectId,
   expenseId: ObjectId,
-): Promise<Expense & { division: ExpenseDivisionItem[] }> {
+): Promise<Expense & { division: ExpenseDivisionItem[]; matchedStatementRows: StatementRow[] }> {
   return withSpan(
     'expense.get',
     { 'app.user_id': userId, 'app.group_id': groupId, 'app.expense_id': expenseId },
     async () => {
       const expense = await getExpenseById(tx, groupId, userId, expenseId);
       const division = await getExpenseDivision(tx, groupId, expenseId);
-      return { ...expense, division };
+      const matchedStatementRows = await getStatementRowsForExpense(tx, groupId, expenseId);
+      return { ...expense, division, matchedStatementRows };
     },
   );
 }
