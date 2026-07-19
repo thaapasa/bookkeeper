@@ -22,6 +22,7 @@ import {
 } from 'server/data/StatementDb';
 import {
   createStatementMatch,
+  createStatementMatchesBulk,
   deleteMatchesForStatementRow,
   deleteMatchForExpense,
   getStatementMatchingData,
@@ -106,9 +107,7 @@ export function createStatementApi() {
     '/match/bulk',
     { body: StatementMatchBulkInput, response: CountResponse, groupRequired: true },
     async (tx, session, { body }) => {
-      for (const match of body.matches) {
-        await createStatementMatch(tx, session.group.id, match);
-      }
+      await createStatementMatchesBulk(tx, session.group.id, body);
       return { status: 'OK', message: 'Statement matches created', count: body.matches.length };
     },
   );

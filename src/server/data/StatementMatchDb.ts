@@ -4,6 +4,7 @@ import {
   MatchableExpense,
   MatchingStatementRow,
   STATEMENT_MATCH_DATE_TOLERANCE_DAYS,
+  StatementMatchBulkInput,
   StatementMatchingData,
   StatementMatchInput,
   StatementRow,
@@ -166,6 +167,23 @@ export function createStatementMatch(
         { groupId, statementRowIds: input.statementRowIds, expenseIds: input.expenseIds },
         'Created statement match',
       );
+    },
+  );
+}
+
+/** Creates several match groups in one call, each validated independently. */
+export function createStatementMatchesBulk(
+  tx: DbTask,
+  groupId: ObjectId,
+  input: StatementMatchBulkInput,
+): Promise<void> {
+  return withSpan(
+    'statement.match_bulk',
+    { 'app.group_id': groupId, 'app.match_count': input.matches.length },
+    async () => {
+      for (const match of input.matches) {
+        await createStatementMatch(tx, groupId, match);
+      }
     },
   );
 }
