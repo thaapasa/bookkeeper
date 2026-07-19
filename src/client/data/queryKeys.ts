@@ -5,6 +5,7 @@ import { CategorySelection, ObjectId } from 'shared/types';
 export const QueryKeys = {
   expenses: {
     month: (month: ISOMonth) => ['expenses', 'month', month] as const,
+    detail: (id: ObjectId) => ['expenses', 'detail', id] as const,
   },
   categories: {
     all: ['categories'] as const,

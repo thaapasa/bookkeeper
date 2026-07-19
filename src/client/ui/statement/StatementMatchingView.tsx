@@ -4,8 +4,10 @@ import {
   Badge,
   Box,
   Button,
+  Center,
   Checkbox,
   Group,
+  Loader,
   Menu,
   Paper,
   Stack,
@@ -26,11 +28,15 @@ import { ISODate, ISOMonth, readableDateWithYear } from 'shared/time';
 import { ObjectId } from 'shared/types';
 import { Money } from 'shared/util';
 import { apiConnect } from 'client/data/ApiConnect';
+import { getFullCategoryName } from 'client/data/Categories';
 import { QueryKeys } from 'client/data/queryKeys';
+import { useCategoryMap } from 'client/data/SessionStore';
 import { requestNewExpense } from 'client/data/State';
+import { QueryBoundary } from 'client/ui/component/QueryBoundary';
 import { UserIdAvatar } from 'client/ui/component/UserAvatar';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
+import { DivisionInfo } from '../expense/details/DivisionInfo';
 import { defaultExpenseSaveAction } from '../expense/dialog/ExpenseSaveAction';
 import { ExpenseMenuItems } from '../expense/row/ExpenseRowMenu';
 import { Icons } from '../icons/Icons';
@@ -245,6 +251,13 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
                             key={e.id}
                             cardRef={registerCard(expenseCardKey(e.id))}
                             expense={e}
+                            linkedExpenses={
+                              e.splitId
+                                ? data.expenses.filter(
+                                    x => x.id !== e.id && x.splitId === e.splitId,
+                                  )
+                                : []
+                            }
                             suggested={suggestedExpenseIds.has(e.id)}
                             selected={selectedExpenseIds.includes(e.id)}
                             onSelect={() =>
@@ -496,12 +509,24 @@ const cardStyle = (state: {
 const ExpenseCard: React.FC<{
   cardRef: (el: HTMLDivElement | null) => void;
   expense: MatchableExpense;
+  /** Other loaded expenses split from the same original (same splitId). */
+  linkedExpenses: MatchableExpense[];
   suggested: boolean;
   selected: boolean;
   onSelect: () => void;
   onUnmatch: () => void;
   onToggleSkip: () => void;
-}> = ({ cardRef, expense, suggested, selected, onSelect, onUnmatch, onToggleSkip }) => {
+}> = ({
+  cardRef,
+  expense,
+  linkedExpenses,
+  suggested,
+  selected,
+  onSelect,
+  onUnmatch,
+  onToggleSkip,
+}) => {
+  const [expanded, setExpanded] = React.useState(false);
   const matched = expense.matchedStatementRowIds.length > 0;
   // Matched items stay selectable so a group can be extended with more links
   const selectable = !expense.statementSkip;
@@ -536,6 +561,7 @@ const ExpenseCard: React.FC<{
           <Text fz="sm" fw={600} style={{ whiteSpace: 'nowrap' }}>
             {Money.from(expense.sum).format()}
           </Text>
+          <ExpandToggle expanded={expanded} onToggle={() => setExpanded(v => !v)} />
           {/* Clicks on the trigger and dropdown must not bubble to the card's
               onClick and toggle selection. The dropdown needs its own handler:
               even though it renders in a portal, React propagates its events
@@ -575,7 +601,131 @@ const ExpenseCard: React.FC<{
           </Menu>
         </Group>
       </Group>
+      {expanded ? (
+        <CardDetails>
+          <QueryBoundary
+            fallback={
+              <Center py="sm">
+                <Loader size="sm" />
+              </Center>
+            }
+          >
+            <ExpenseCardDetails expenseId={expense.id} linkedExpenses={linkedExpenses} />
+          </QueryBoundary>
+        </CardDetails>
+      ) : null}
     </Paper>
+  );
+};
+
+/** Chevron that toggles a card between the narrow and tall (details) modes. */
+const ExpandToggle: React.FC<{ expanded: boolean; onToggle: () => void }> = ({
+  expanded,
+  onToggle,
+}) => (
+  <ActionIcon
+    size="sm"
+    aria-label={expanded ? 'Piilota tiedot' : 'Näytä tiedot'}
+    title={expanded ? 'Piilota tiedot' : 'Näytä tiedot'}
+    onClick={e => {
+      e.stopPropagation();
+      onToggle();
+    }}
+  >
+    {expanded ? <Icons.ExpandLess size={16} /> : <Icons.ExpandMore size={16} />}
+  </ActionIcon>
+);
+
+/**
+ * Container for a card's tall-mode content. Stops click propagation so
+ * interacting with (or selecting text in) the details does not toggle the
+ * card's selection.
+ */
+const CardDetails: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <Box pt="xs" style={{ cursor: 'auto' }} onClick={e => e.stopPropagation()}>
+    {children}
+  </Box>
+);
+
+/**
+ * Tall-mode content of an expense card: category, description, division
+ * (with balance), and the other expenses split from the same original.
+ * The details (division, description) are not part of the matching data,
+ * so they are fetched per expense when the card is first expanded.
+ */
+const ExpenseCardDetails: React.FC<{
+  expenseId: ObjectId;
+  linkedExpenses: MatchableExpense[];
+}> = ({ expenseId, linkedExpenses }) => {
+  const categoryMap = useCategoryMap()!;
+  const { data: details } = useSuspenseQuery({
+    queryKey: QueryKeys.expenses.detail(expenseId),
+    queryFn: () => apiConnect.getExpense(expenseId),
+  });
+  return (
+    <Stack gap="xs">
+      <Text fz="xs" c="dimmed">
+        {getFullCategoryName(details.categoryId, categoryMap)}
+      </Text>
+      {details.description ? (
+        <Text fz="sm" style={{ overflowWrap: 'anywhere' }}>
+          {details.description}
+        </Text>
+      ) : null}
+      <DivisionInfo division={details.division} expenseType={details.type} />
+      {linkedExpenses.length > 0 ? (
+        <Box>
+          <Text fz="xs" c="dimmed">
+            Pilkottu samasta kirjauksesta
+          </Text>
+          {linkedExpenses.map(l => (
+            <Group key={l.id} gap="xs" wrap="nowrap" justify="space-between">
+              <Text fz="sm" truncate>
+                {l.title ?? l.receiver ?? '–'}
+              </Text>
+              <Text fz="sm" fw={600} style={{ whiteSpace: 'nowrap' }}>
+                {Money.from(l.sum).format()}
+              </Text>
+            </Group>
+          ))}
+        </Box>
+      ) : null}
+    </Stack>
+  );
+};
+
+/**
+ * Tall-mode content of a statement row card: all parsed statement fields
+ * in full, so long messages are readable even when the narrow mode
+ * truncates them.
+ */
+const StatementRowDetails: React.FC<{ row: MatchingStatementRow }> = ({ row }) => {
+  const fields: [string, string | null][] = [
+    ['Kirjauspäivä', readableDateWithYear(row.bookingDate)],
+    ['Arvopäivä', readableDateWithYear(row.valueDate)],
+    ['Ostopäivä', row.purchaseDate ? readableDateWithYear(row.purchaseDate) : null],
+    ['Tapahtumalaji', row.type],
+    ['Saaja/Maksaja', row.counterparty],
+    ['Tilinumero', row.counterpartyAccount],
+    ['Viite', row.reference],
+    ['Viesti', row.message],
+    ['Arkistointitunnus', row.archiveId],
+  ];
+  return (
+    <Stack gap={4}>
+      {fields
+        .filter(([, value]) => value)
+        .map(([label, value]) => (
+          <Group key={label} gap="xs" wrap="nowrap" align="flex-start">
+            <Text fz="xs" c="dimmed" w={120} style={{ flexShrink: 0 }}>
+              {label}
+            </Text>
+            <Text fz="sm" style={{ overflowWrap: 'anywhere' }}>
+              {value}
+            </Text>
+          </Group>
+        ))}
+    </Stack>
   );
 };
 
@@ -603,6 +753,7 @@ const StatementRowCard: React.FC<{
   onToggleSkip,
   onCreateExpense,
 }) => {
+  const [expanded, setExpanded] = React.useState(false);
   const matched = row.matchedExpenseIds.length > 0;
   // Matched items stay selectable so a group can be extended with more links
   const selectable = !row.skipped;
@@ -665,8 +816,14 @@ const StatementRowCard: React.FC<{
               </Tooltip>
             </>
           )}
+          <ExpandToggle expanded={expanded} onToggle={() => setExpanded(v => !v)} />
         </Group>
       </Group>
+      {expanded ? (
+        <CardDetails>
+          <StatementRowDetails row={row} />
+        </CardDetails>
+      ) : null}
     </Paper>
   );
 };
