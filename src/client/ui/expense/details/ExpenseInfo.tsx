@@ -6,7 +6,6 @@ import { StatementRow } from 'shared/statement';
 import { Source } from 'shared/types';
 
 import { AllColumns } from '../row/ExpenseTableColumns';
-import { LoadingIndicator } from '../row/SpecialRows';
 import { AuditInfo } from './AuditInfo';
 import { BasicData } from './BasicData';
 import { DivisionInfo } from './DivisionInfo';
@@ -17,24 +16,18 @@ import { StatementMatchInfo } from './StatementMatchInfo';
 interface ExpenseInfoProps {
   division: ExpenseDivisionItem[];
   matchedStatementRows: StatementRow[];
-  loading: boolean;
   expense: UserExpense;
   source: Source;
   fullCategoryName: string;
 }
 
 export const ExpenseInfo: React.FC<ExpenseInfoProps> = ({
-  loading,
   expense,
   division,
   matchedStatementRows,
   source,
   fullCategoryName,
 }) => {
-  if (loading) {
-    return <LoadingIndicator forRow={true} />;
-  }
-
   return (
     <Table.Tr>
       <AllColumns className={styles.detailsBg} px={0} pt={0} pb={0}>

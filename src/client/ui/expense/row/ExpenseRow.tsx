@@ -1,18 +1,20 @@
 import { Group, Stack, Table, Text, Tooltip } from '@mantine/core';
 import * as React from 'react';
 
-import { ExpenseDivisionItem, UserExpense, UserExpenseWithDetails } from 'shared/expense';
+import { UserExpense } from 'shared/expense';
 import { readableDate, toDateTime } from 'shared/time';
-import { Category, Currency, isDefined } from 'shared/types';
+import { Category, Currency, isDefined, Source } from 'shared/types';
 import { equal, Money, notEqual } from 'shared/util';
 import { apiConnect } from 'client/data/ApiConnect';
 import { getFullCategoryName, UserDataProps } from 'client/data/Categories';
 import { navigateToExpenseDate, useNavigationStore } from 'client/data/NavigationStore';
 import { invalidateServerData } from 'client/data/query';
+import { useExpenseDetails } from 'client/data/useExpenseDetails';
 import { logger } from 'client/Logger';
 import { forMoney, sumStyleForType } from 'client/ui/ColorUtils';
 import { ActivatableTextField } from 'client/ui/component/ActivatableTextField';
 import { ExpanderIcon } from 'client/ui/component/ExpanderIcon';
+import { QueryBoundary } from 'client/ui/component/QueryBoundary';
 import { UserAvatar } from 'client/ui/component/UserAvatar';
 import { UserPrompts } from 'client/ui/dialog/DialogState';
 import { GroupedExpenseIcon } from 'client/ui/grouping/GroupedExpenseIcon';
@@ -28,14 +30,14 @@ import { SourceIcon, TextButton } from './ExpenseRowComponents';
 import { ExpenseRowMenu } from './ExpenseRowMenu';
 import {
   ActionsVisibleFrom,
+  AllColumns,
   BalanceVisibleFrom,
   CategoryVisibleFrom,
   ReceiverVisibleFrom,
   SourceVisibleFrom,
 } from './ExpenseTableColumns';
+import { LoadingIndicator } from './SpecialRows';
 import { RecurringExpenseIcon, SplitLinkIcon, UnconfirmedIcon } from './TableIcons';
-
-const emptyDivision: ExpenseDivisionItem[] = [];
 
 export interface CommonExpenseRowProps {
   expense: UserExpense;
@@ -64,8 +66,7 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
   const source = sourceMap[expense.sourceId];
   const fullCategoryName = getFullCategoryName(expense.categoryId, categoryMap);
 
-  const [details, setDetails] = React.useState<UserExpenseWithDetails | null>(null);
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [showDetails, setShowDetails] = React.useState(false);
   const dayParities = React.useContext(DayParityContext);
 
   // Play a one-shot highlight animation when this row is the navigation target.
@@ -122,19 +123,6 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
     await executeOperation(() => updateExpense({ date }), {
       success: `Muutettu kirjauksen ${expense.title} päiväksi ${readableDate(date)}`,
       postProcess: () => navigateToExpenseDate(date, expense.id),
-    });
-  };
-
-  const toggleDetails = async () => {
-    if (details) {
-      setDetails(null);
-      setIsLoading(false);
-      return;
-    }
-    await executeOperation(() => apiConnect.getExpense(expense.id), {
-      trackProgress: setIsLoading,
-      errorMessage: 'Ei voitu ladata tietoja kirjaukselle',
-      postProcess: setDetails,
     });
   };
 
@@ -275,28 +263,54 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
             <Group gap={2} wrap="nowrap" justify="flex-end">
               <ExpanderIcon
                 title="Tiedot"
-                open={isDefined(details)}
-                onToggle={() => toggleDetails()}
+                open={showDetails}
+                onToggle={() => setShowDetails(d => !d)}
               />
               <ExpenseRowMenu expense={expense} />
             </Group>
           ) : null}
         </Table.Td>
       </Table.Tr>
-      {editable && (isLoading || details) ? (
-        <ExpenseInfo
-          key={'expense-division-' + expense.id}
-          loading={isLoading}
-          expense={expense}
-          division={details ? details.division : emptyDivision}
-          matchedStatementRows={details ? details.matchedStatementRows : []}
-          source={source}
-          fullCategoryName={fullCategoryName}
-        />
+      {editable && showDetails ? (
+        <QueryBoundary fallback={<LoadingIndicator forRow />} errorFallback={<DetailsLoadError />}>
+          <ExpenseRowDetails
+            expense={expense}
+            source={source}
+            fullCategoryName={fullCategoryName}
+          />
+        </QueryBoundary>
       ) : null}
     </>
   );
 };
+
+/** Expanded details row: suspends while the expense details load. */
+const ExpenseRowDetails: React.FC<{
+  expense: UserExpense;
+  source: Source;
+  fullCategoryName: string;
+}> = ({ expense, source, fullCategoryName }) => {
+  const details = useExpenseDetails(expense.id);
+  return (
+    <ExpenseInfo
+      expense={expense}
+      division={details.division}
+      matchedStatementRows={details.matchedStatementRows}
+      source={source}
+      fullCategoryName={fullCategoryName}
+    />
+  );
+};
+
+const DetailsLoadError: React.FC = () => (
+  <Table.Tr>
+    <AllColumns>
+      <Text c="red" px="md" py="xs">
+        Ei voitu ladata tietoja kirjaukselle
+      </Text>
+    </AllColumns>
+  </Table.Tr>
+);
 
 /**
  * The sum column normally holds a single EUR value. When the expense also records what it

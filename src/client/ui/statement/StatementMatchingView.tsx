@@ -32,6 +32,7 @@ import { getFullCategoryName } from 'client/data/Categories';
 import { QueryKeys } from 'client/data/queryKeys';
 import { useCategoryMap } from 'client/data/SessionStore';
 import { requestNewExpense } from 'client/data/State';
+import { useExpenseDetails } from 'client/data/useExpenseDetails';
 import { QueryBoundary } from 'client/ui/component/QueryBoundary';
 import { UserIdAvatar } from 'client/ui/component/UserAvatar';
 import { executeOperation } from 'client/util/ExecuteOperation';
@@ -713,10 +714,7 @@ const ExpenseCardDetails: React.FC<{
   linkedExpenses: MatchableExpense[];
 }> = ({ expenseId, linkedExpenses }) => {
   const categoryMap = useCategoryMap()!;
-  const { data: details } = useSuspenseQuery({
-    queryKey: QueryKeys.expenses.detail(expenseId),
-    queryFn: () => apiConnect.getExpense(expenseId),
-  });
+  const details = useExpenseDetails(expenseId);
   return (
     <Stack gap="xs">
       <Text fz="sm" c="dimmed">

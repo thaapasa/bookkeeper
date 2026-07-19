@@ -179,6 +179,16 @@ the preliminary matcher in `src/shared/statement/StatementMatcher.ts`, the UI in
   called from `splitExpense`). The `statement_skip` flag is preserved the same
   way (`copyStatementSkip`): parts of a skipped expense stay skipped.
 - Matched sums need **not** agree: part of an expense may have been paid another way.
+- **Known gap (future consideration)**: the same-source rule is enforced only when
+  a match is created (`createStatementMatch` rejects with
+  `STATEMENT_MATCH_SOURCE_MISMATCH`). Two paths can still produce cross-source
+  links afterwards: splitting a matched expense and assigning a part to a
+  different source (`copyStatementMatches` copies the original's matches to every
+  part without checking the part's source), and editing a matched expense's
+  source. A cross-source link is invisible in the linked row's matching view and
+  shows as "Täsmätty" without a visible counterpart in the expense's view. If
+  this starts to matter, either validate/clear matches when an expense's source
+  changes (on edit and on split), or drop the same-source requirement entirely.
 - **Skipping** marks an item as reviewed-but-never-matching: `statement_row.skipped`
   for bank-internal rows (BONUS etc.), `expenses.statement_skip` for expenses paid
   outside the account. Skip flags and matches are mutually exclusive: matching
@@ -243,6 +253,17 @@ selection (a preview of what "Täsmää valitut" would link).
   (e.g. adding a second bank payment to an already-matched expense).
 - Matched items are dimmed with a "Täsmätty" badge and can be unlinked; skipped
   items are dimmed with "Ohitettu" and a dashed border.
+- Every card has a chevron that expands it into a tall mode with full details.
+  Expense cards show category, description, division, and the sibling parts split
+  from the same original; the details are fetched per expense
+  (`GET /api/expense/:id`) when the card is first expanded. Statement row cards
+  show all parsed statement fields in full, so long messages are readable.
+- Expense cards have a three-dot menu combining matching actions (unmatch, or
+  skip/restore when unmatched) with the standard expense actions (edit, split,
+  copy, link, delete, …) shared with the expense table's row menu
+  (`ExpenseMenuItems`). Statement row cards have the same menu with "Hylkää
+  ehdotus" (when suggested), unmatch (when matched), or "Luo kirjaus tästä" and
+  skip/restore (when unmatched).
 - "Luo kirjaus tästä" on an unmatched row opens the expense dialog prefilled from
   the row (date, sum, receiver, source, type by sign) and creates the match
   automatically on save.

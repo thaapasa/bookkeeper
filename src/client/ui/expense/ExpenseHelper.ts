@@ -7,7 +7,10 @@ export function expenseName(e: {
   sum: MoneyLike;
 }): string {
   const title = e.title ?? e.receiver ?? 'kirjaus';
-  return `${title} (${e.receiver ?? '–'}): ${Money.from(e.sum).format()}`;
+  // Skip the parenthesized receiver when the title already shows it (title
+  // missing, or identical to the receiver).
+  const receiver = e.receiver && e.receiver !== title ? ` (${e.receiver})` : '';
+  return `${title}${receiver}: ${Money.from(e.sum).format()}`;
 }
 
 export function money(v?: MoneyLike): string {
