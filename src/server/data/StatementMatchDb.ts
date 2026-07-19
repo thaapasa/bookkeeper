@@ -52,7 +52,7 @@ async function doGetStatementMatchingData(
   const expenses = await tx.manyOrNone<MatchableExpense>(
     `SELECT
         e.id, e.date, e.sum, e.type, e.title, e.receiver, e.user_id AS "userId",
-        e.split_id AS "splitId", e.confirmed,
+        e.split_id AS "splitId", e.subscription_id AS "subscriptionId", e.confirmed,
         e.statement_skip AS "statementSkip",
         COALESCE(
           ARRAY_AGG(m.statement_row_id) FILTER (WHERE m.statement_row_id IS NOT NULL),

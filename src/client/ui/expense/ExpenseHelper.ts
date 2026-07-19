@@ -1,8 +1,13 @@
-import { ExpenseData, ExpenseStatus } from 'shared/expense';
+import { ExpenseStatus } from 'shared/expense';
 import { Money, MoneyLike } from 'shared/util';
 
-export function expenseName(e: ExpenseData): string {
-  return `${e.title} (${e.receiver}): ${Money.from(e.sum).format()}`;
+export function expenseName(e: {
+  title: string | null;
+  receiver: string | null;
+  sum: MoneyLike;
+}): string {
+  const title = e.title ?? e.receiver ?? 'kirjaus';
+  return `${title} (${e.receiver ?? '–'}): ${Money.from(e.sum).format()}`;
 }
 
 export function money(v?: MoneyLike): string {

@@ -14,6 +14,7 @@ const expense = (partial: Partial<MatchableExpense>): MatchableExpense => ({
   receiver: null,
   userId: 1,
   splitId: null,
+  subscriptionId: null,
   confirmed: true,
   statementSkip: false,
   matchedStatementRowIds: [],

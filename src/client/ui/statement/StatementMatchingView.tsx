@@ -1,10 +1,12 @@
 import {
+  ActionIcon,
   Affix,
   Badge,
   Box,
   Button,
   Checkbox,
   Group,
+  Menu,
   Paper,
   Stack,
   Text,
@@ -25,11 +27,12 @@ import { ObjectId } from 'shared/types';
 import { Money } from 'shared/util';
 import { apiConnect } from 'client/data/ApiConnect';
 import { QueryKeys } from 'client/data/queryKeys';
-import { editExpense, requestNewExpense } from 'client/data/State';
+import { requestNewExpense } from 'client/data/State';
 import { UserIdAvatar } from 'client/ui/component/UserAvatar';
 import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { defaultExpenseSaveAction } from '../expense/dialog/ExpenseSaveAction';
+import { ExpenseMenuItems } from '../expense/row/ExpenseRowMenu';
 import { Icons } from '../icons/Icons';
 import {
   ConnectorSpec,
@@ -249,12 +252,6 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
                                 ids.includes(e.id) ? ids.filter(i => i !== e.id) : [...ids, e.id],
                               )
                             }
-                            onEdit={async () => {
-                              // The editor's save invalidates all queries; refresh
-                              // again on close so an edited sum/date reflows the view
-                              await editExpense(e.id);
-                              await invalidate();
-                            }}
                             onUnmatch={() =>
                               executeOperation(() => apiConnect.unmatchExpense(e.id), {
                                 postProcess: invalidate,
@@ -502,10 +499,9 @@ const ExpenseCard: React.FC<{
   suggested: boolean;
   selected: boolean;
   onSelect: () => void;
-  onEdit: () => void;
   onUnmatch: () => void;
   onToggleSkip: () => void;
-}> = ({ cardRef, expense, suggested, selected, onSelect, onEdit, onUnmatch, onToggleSkip }) => {
+}> = ({ cardRef, expense, suggested, selected, onSelect, onUnmatch, onToggleSkip }) => {
   const matched = expense.matchedStatementRowIds.length > 0;
   // Matched items stay selectable so a group can be extended with more links
   const selectable = !expense.statementSkip;
@@ -540,22 +536,43 @@ const ExpenseCard: React.FC<{
           <Text fz="sm" fw={600} style={{ whiteSpace: 'nowrap' }}>
             {Money.from(expense.sum).format()}
           </Text>
-          <Tooltip label="Muokkaa kirjausta">
-            <Icons.Edit size={16} cursor="pointer" onClick={stop(onEdit)} />
-          </Tooltip>
-          {matched ? (
-            <Tooltip label="Poista täsmäytys">
-              <Icons.Unlink size={16} cursor="pointer" onClick={stop(onUnmatch)} />
-            </Tooltip>
-          ) : (
-            <Tooltip label={expense.statementSkip ? 'Palauta täsmättäväksi' : 'Ohita täsmäytys'}>
-              {expense.statementSkip ? (
-                <Icons.Visible size={16} cursor="pointer" onClick={onToggleSkip} />
+          {/* Clicks on the trigger and dropdown must not bubble to the card's
+              onClick and toggle selection. The dropdown needs its own handler:
+              even though it renders in a portal, React propagates its events
+              through the component tree, not the DOM tree. */}
+          <Menu shadow="md" width={220} position="bottom-end">
+            <Menu.Target>
+              <ActionIcon
+                size="sm"
+                aria-label="Toiminnot"
+                title="Toiminnot"
+                onClick={e => e.stopPropagation()}
+              >
+                <Icons.More size={16} />
+              </ActionIcon>
+            </Menu.Target>
+            <Menu.Dropdown onClick={e => e.stopPropagation()}>
+              {matched ? (
+                <Menu.Item
+                  leftSection={<Icons.Unlink size={16} />}
+                  onClick={() => void onUnmatch()}
+                >
+                  Poista täsmäytys
+                </Menu.Item>
               ) : (
-                <Icons.Hidden size={16} cursor="pointer" onClick={stop(onToggleSkip)} />
+                <Menu.Item
+                  leftSection={
+                    expense.statementSkip ? <Icons.Visible size={16} /> : <Icons.Hidden size={16} />
+                  }
+                  onClick={() => void onToggleSkip()}
+                >
+                  {expense.statementSkip ? 'Palauta täsmättäväksi' : 'Ohita täsmäytys'}
+                </Menu.Item>
               )}
-            </Tooltip>
-          )}
+              <Menu.Divider />
+              <ExpenseMenuItems expense={expense} />
+            </Menu.Dropdown>
+          </Menu>
         </Group>
       </Group>
     </Paper>

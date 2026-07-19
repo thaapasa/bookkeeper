@@ -1,8 +1,10 @@
 import { ActionIcon, Menu } from '@mantine/core';
 import * as React from 'react';
 
-import { RecurrencePeriod, RecurringExpenseTarget, UserExpense } from 'shared/expense';
-import { Money } from 'shared/util';
+import { RecurrencePeriod, RecurringExpenseTarget } from 'shared/expense';
+import { ISODate } from 'shared/time';
+import { ObjectId } from 'shared/types';
+import { Money, MoneyLike } from 'shared/util';
 import { apiConnect } from 'client/data/ApiConnect';
 import { notify } from 'client/data/NotificationStore';
 import { invalidateServerData } from 'client/data/query';
@@ -16,7 +18,42 @@ import { executeOperation } from 'client/util/ExecuteOperation';
 import { getBenefitorsForExpense } from '../dialog/ExpenseDialogData';
 import { expenseName } from '../ExpenseHelper';
 
-export const ExpenseRowMenu: React.FC<{ expense: UserExpense }> = ({ expense }) => {
+/**
+ * The expense fields the action menu items need. A structural subset of
+ * `UserExpense`, also satisfied by `MatchableExpense` in the statement
+ * matching view.
+ */
+export interface ExpenseMenuData {
+  id: ObjectId;
+  date: ISODate;
+  title: string | null;
+  receiver: string | null;
+  sum: MoneyLike;
+  subscriptionId: ObjectId | null;
+  splitId: string | null;
+}
+
+/** The standard expense actions dropdown, behind a three-dot trigger. */
+export const ExpenseRowMenu: React.FC<{ expense: ExpenseMenuData }> = ({ expense }) => (
+  <Menu shadow="md" width={220} position="bottom-end">
+    <Menu.Target>
+      <ActionIcon aria-label="Toiminnot" title="Toiminnot">
+        <Icons.More />
+      </ActionIcon>
+    </Menu.Target>
+    <Menu.Dropdown>
+      <ExpenseMenuItems expense={expense} />
+    </Menu.Dropdown>
+  </Menu>
+);
+
+/**
+ * The expense action items (edit, split, copy, link, recurring, delete) as
+ * bare `Menu.Item`s, so other views can compose them into their own `Menu`
+ * alongside view-specific items. All actions refresh data through
+ * `invalidateServerData`, which invalidates every query.
+ */
+export const ExpenseMenuItems: React.FC<{ expense: ExpenseMenuData }> = ({ expense }) => {
   const sourceMap = useSourceMap()!;
 
   const modifyExpense = async () => {
@@ -128,49 +165,39 @@ export const ExpenseRowMenu: React.FC<{ expense: UserExpense }> = ({ expense }) 
   };
 
   return (
-    <Menu shadow="md" width={220} position="bottom-end">
-      <Menu.Target>
-        <ActionIcon aria-label="Toiminnot" title="Toiminnot">
-          <Icons.More />
-        </ActionIcon>
-      </Menu.Target>
-      <Menu.Dropdown>
-        <Menu.Item leftSection={<Icons.Edit size={16} />} onClick={modifyExpense}>
-          Muokkaa…
+    <>
+      <Menu.Item leftSection={<Icons.Edit size={16} />} onClick={modifyExpense}>
+        Muokkaa…
+      </Menu.Item>
+      {expense.subscriptionId ? null : (
+        <Menu.Item leftSection={<Icons.Split size={16} />} onClick={() => splitExpense(expense.id)}>
+          Pilko
         </Menu.Item>
-        {expense.subscriptionId ? null : (
-          <Menu.Item
-            leftSection={<Icons.Split size={16} />}
-            onClick={() => splitExpense(expense.id)}
-          >
-            Pilko
-          </Menu.Item>
-        )}
-        <Menu.Item leftSection={<Icons.Copy size={16} />} onClick={copyExpense}>
-          Kopioi
+      )}
+      <Menu.Item leftSection={<Icons.Copy size={16} />} onClick={copyExpense}>
+        Kopioi
+      </Menu.Item>
+      {expense.subscriptionId || expense.splitId ? null : (
+        <Menu.Item leftSection={<Icons.Link size={16} />} onClick={linkSplitExpense}>
+          Linkitä pilkotuksi…
         </Menu.Item>
-        {expense.subscriptionId ? null : (
-          <Menu.Item leftSection={<Icons.Link size={16} />} onClick={linkSplitExpense}>
-            Linkitä pilkotuksi…
-          </Menu.Item>
-        )}
-        {expense.splitId ? (
-          <Menu.Item leftSection={<Icons.Unlink size={16} />} onClick={unlinkSplitExpense}>
-            Poista pilkkomislinkitys
-          </Menu.Item>
-        ) : null}
-        {/* Hidden for split-linked rows too: an expense cannot be both
+      )}
+      {expense.splitId ? (
+        <Menu.Item leftSection={<Icons.Unlink size={16} />} onClick={unlinkSplitExpense}>
+          Poista pilkkomislinkitys
+        </Menu.Item>
+      ) : null}
+      {/* Hidden for split-linked rows too: an expense cannot be both
             subscription-generated and split-linked (unlink first). */}
-        {expense.subscriptionId || expense.splitId ? null : (
-          <Menu.Item leftSection={<Icons.Repeat size={16} />} onClick={createRecurring}>
-            Muuta toistuvaksi
-          </Menu.Item>
-        )}
-        <Menu.Divider />
-        <Menu.Item leftSection={<Icons.Delete size={16} />} color="red" onClick={deleteExpense}>
-          Poista
+      {expense.subscriptionId || expense.splitId ? null : (
+        <Menu.Item leftSection={<Icons.Repeat size={16} />} onClick={createRecurring}>
+          Muuta toistuvaksi
         </Menu.Item>
-      </Menu.Dropdown>
-    </Menu>
+      )}
+      <Menu.Divider />
+      <Menu.Item leftSection={<Icons.Delete size={16} />} color="red" onClick={deleteExpense}>
+        Poista
+      </Menu.Item>
+    </>
   );
 };

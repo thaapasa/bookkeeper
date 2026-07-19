@@ -14,6 +14,8 @@ export const MatchableExpense = z.object({
   type: ExpenseType,
   /** Split lineage key: parts of one split purchase share this (see docs/SPLIT_EXPENSES.md). */
   splitId: z.uuid().nullable(),
+  /** Non-null for expenses generated from a recurring subscription. */
+  subscriptionId: ObjectId.nullable(),
   /** False for preliminary ("Alustava") expenses whose sum may not be final. */
   confirmed: z.boolean(),
   title: z.string().nullable(),
