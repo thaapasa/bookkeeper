@@ -26,7 +26,7 @@ import {
 } from 'shared/statement';
 import { ISODate, ISOMonth, readableDateWithYear } from 'shared/time';
 import { ObjectId } from 'shared/types';
-import { Money } from 'shared/util';
+import { Money, MoneyLike } from 'shared/util';
 import { apiConnect } from 'client/data/ApiConnect';
 import { getFullCategoryName } from 'client/data/Categories';
 import { QueryKeys } from 'client/data/queryKeys';
@@ -506,6 +506,85 @@ const cardStyle = (state: {
   borderWidth: state.selected ? 2 : 1,
 });
 
+/**
+ * Shared card shell for both columns: a selectable Paper with a header row
+ * (given left content; badges, sum, expand chevron and a three-dot actions
+ * menu on the right) plus the tall-mode details when expanded. Chevron,
+ * menu and details clicks stop propagation so only clicks on the card
+ * itself toggle selection. The menu dropdown needs its own handler: even
+ * though it renders in a portal, React propagates its events through the
+ * component tree, not the DOM tree.
+ */
+const MatchCard: React.FC<{
+  cardRef: (el: HTMLDivElement | null) => void;
+  matched: boolean;
+  skipped: boolean;
+  suggested: boolean;
+  selected: boolean;
+  onSelect: () => void;
+  /** Left side of the header row. */
+  header: React.ReactNode;
+  /** Extra badges shown before the standard state badges. */
+  extraBadges?: React.ReactNode;
+  sum: MoneyLike;
+  sumColor?: string;
+  /** Contents of the three-dot actions menu. */
+  menuItems: React.ReactNode;
+  /** Tall-mode content, mounted only while the card is expanded. */
+  details: React.ReactNode;
+}> = ({
+  cardRef,
+  matched,
+  skipped,
+  suggested,
+  selected,
+  onSelect,
+  header,
+  extraBadges,
+  sum,
+  sumColor,
+  menuItems,
+  details,
+}) => {
+  const [expanded, setExpanded] = React.useState(false);
+  // Matched items stay selectable so a group can be extended with more links
+  const selectable = !skipped;
+  return (
+    <Paper
+      ref={cardRef}
+      withBorder
+      style={cardStyle({ matched, skipped, suggested, selected })}
+      onClick={selectable ? onSelect : undefined}
+    >
+      <Group gap="xs" wrap="nowrap" justify="space-between">
+        {header}
+        <Group gap={4} wrap="nowrap">
+          {extraBadges}
+          <ItemBadges matched={matched} skipped={skipped} suggested={suggested} />
+          <Text fz="sm" fw={600} c={sumColor} style={{ whiteSpace: 'nowrap' }}>
+            {Money.from(sum).format()}
+          </Text>
+          <ExpandToggle expanded={expanded} onToggle={() => setExpanded(v => !v)} />
+          <Menu shadow="md" width={220} position="bottom-end">
+            <Menu.Target>
+              <ActionIcon
+                size="sm"
+                aria-label="Toiminnot"
+                title="Toiminnot"
+                onClick={e => e.stopPropagation()}
+              >
+                <Icons.More size={16} />
+              </ActionIcon>
+            </Menu.Target>
+            <Menu.Dropdown onClick={e => e.stopPropagation()}>{menuItems}</Menu.Dropdown>
+          </Menu>
+        </Group>
+      </Group>
+      {expanded ? <CardDetails>{details}</CardDetails> : null}
+    </Paper>
+  );
+};
+
 const ExpenseCard: React.FC<{
   cardRef: (el: HTMLDivElement | null) => void;
   expense: MatchableExpense;
@@ -526,18 +605,16 @@ const ExpenseCard: React.FC<{
   onUnmatch,
   onToggleSkip,
 }) => {
-  const [expanded, setExpanded] = React.useState(false);
   const matched = expense.matchedStatementRowIds.length > 0;
-  // Matched items stay selectable so a group can be extended with more links
-  const selectable = !expense.statementSkip;
   return (
-    <Paper
-      ref={cardRef}
-      withBorder
-      style={cardStyle({ matched, skipped: expense.statementSkip, suggested, selected })}
-      onClick={selectable ? onSelect : undefined}
-    >
-      <Group gap="xs" wrap="nowrap" justify="space-between">
+    <MatchCard
+      cardRef={cardRef}
+      matched={matched}
+      skipped={expense.statementSkip}
+      suggested={suggested}
+      selected={selected}
+      onSelect={onSelect}
+      header={
         <Group gap="xs" wrap="nowrap" miw={0}>
           <UserIdAvatar userId={expense.userId} size="sm" />
           <Box miw={0}>
@@ -549,72 +626,49 @@ const ExpenseCard: React.FC<{
             </Text>
           </Box>
         </Group>
-        <Group gap={4} wrap="nowrap">
-          {!expense.confirmed ? (
-            <Tooltip label="Alustava kirjaus — summa voi vielä muuttua">
-              <Badge size="xs" variant="light" color="yellow" radius="sm">
-                Alustava
-              </Badge>
-            </Tooltip>
-          ) : null}
-          <ItemBadges matched={matched} skipped={expense.statementSkip} suggested={suggested} />
-          <Text fz="sm" fw={600} style={{ whiteSpace: 'nowrap' }}>
-            {Money.from(expense.sum).format()}
-          </Text>
-          <ExpandToggle expanded={expanded} onToggle={() => setExpanded(v => !v)} />
-          {/* Clicks on the trigger and dropdown must not bubble to the card's
-              onClick and toggle selection. The dropdown needs its own handler:
-              even though it renders in a portal, React propagates its events
-              through the component tree, not the DOM tree. */}
-          <Menu shadow="md" width={220} position="bottom-end">
-            <Menu.Target>
-              <ActionIcon
-                size="sm"
-                aria-label="Toiminnot"
-                title="Toiminnot"
-                onClick={e => e.stopPropagation()}
-              >
-                <Icons.More size={16} />
-              </ActionIcon>
-            </Menu.Target>
-            <Menu.Dropdown onClick={e => e.stopPropagation()}>
-              {matched ? (
-                <Menu.Item
-                  leftSection={<Icons.Unlink size={16} />}
-                  onClick={() => void onUnmatch()}
-                >
-                  Poista täsmäytys
-                </Menu.Item>
-              ) : (
-                <Menu.Item
-                  leftSection={
-                    expense.statementSkip ? <Icons.Visible size={16} /> : <Icons.Hidden size={16} />
-                  }
-                  onClick={() => void onToggleSkip()}
-                >
-                  {expense.statementSkip ? 'Palauta täsmättäväksi' : 'Ohita täsmäytys'}
-                </Menu.Item>
-              )}
-              <Menu.Divider />
-              <ExpenseMenuItems expense={expense} />
-            </Menu.Dropdown>
-          </Menu>
-        </Group>
-      </Group>
-      {expanded ? (
-        <CardDetails>
-          <QueryBoundary
-            fallback={
-              <Center py="sm">
-                <Loader size="sm" />
-              </Center>
-            }
-          >
-            <ExpenseCardDetails expenseId={expense.id} linkedExpenses={linkedExpenses} />
-          </QueryBoundary>
-        </CardDetails>
-      ) : null}
-    </Paper>
+      }
+      extraBadges={
+        !expense.confirmed ? (
+          <Tooltip label="Alustava kirjaus — summa voi vielä muuttua">
+            <Badge size="xs" variant="light" color="yellow" radius="sm">
+              Alustava
+            </Badge>
+          </Tooltip>
+        ) : null
+      }
+      sum={expense.sum}
+      menuItems={
+        <>
+          {matched ? (
+            <Menu.Item leftSection={<Icons.Unlink size={16} />} onClick={() => void onUnmatch()}>
+              Poista täsmäytys
+            </Menu.Item>
+          ) : (
+            <Menu.Item
+              leftSection={
+                expense.statementSkip ? <Icons.Visible size={16} /> : <Icons.Hidden size={16} />
+              }
+              onClick={() => void onToggleSkip()}
+            >
+              {expense.statementSkip ? 'Palauta täsmättäväksi' : 'Ohita täsmäytys'}
+            </Menu.Item>
+          )}
+          <Menu.Divider />
+          <ExpenseMenuItems expense={expense} />
+        </>
+      }
+      details={
+        <QueryBoundary
+          fallback={
+            <Center py="sm">
+              <Loader size="sm" />
+            </Center>
+          }
+        >
+          <ExpenseCardDetails expenseId={expense.id} linkedExpenses={linkedExpenses} />
+        </QueryBoundary>
+      }
+    />
   );
 };
 
@@ -753,19 +807,17 @@ const StatementRowCard: React.FC<{
   onToggleSkip,
   onCreateExpense,
 }) => {
-  const [expanded, setExpanded] = React.useState(false);
   const matched = row.matchedExpenseIds.length > 0;
-  // Matched items stay selectable so a group can be extended with more links
-  const selectable = !row.skipped;
   const ownDate = effectiveStatementDate(row);
   return (
-    <Paper
-      ref={cardRef}
-      withBorder
-      style={cardStyle({ matched, skipped: row.skipped, suggested, selected })}
-      onClick={selectable ? onSelect : undefined}
-    >
-      <Group gap="xs" wrap="nowrap" justify="space-between">
+    <MatchCard
+      cardRef={cardRef}
+      matched={matched}
+      skipped={row.skipped}
+      suggested={suggested}
+      selected={selected}
+      onSelect={onSelect}
+      header={
         <Box miw={0}>
           <Group gap={6} wrap="nowrap">
             <Text fz="sm" truncate>
@@ -783,48 +835,43 @@ const StatementRowCard: React.FC<{
             {row.message ?? row.reference ?? row.type}
           </Text>
         </Box>
-        <Group gap={4} wrap="nowrap">
-          <ItemBadges matched={matched} skipped={row.skipped} suggested={suggested} />
-          <Text
-            fz="sm"
-            fw={600}
-            c={row.amount.startsWith('-') ? undefined : 'green.8'}
-            style={{ whiteSpace: 'nowrap' }}
-          >
-            {Money.from(row.amount).format()}
-          </Text>
+      }
+      sum={row.amount}
+      sumColor={row.amount.startsWith('-') ? undefined : 'green.8'}
+      menuItems={
+        <>
           {suggested ? (
-            <Tooltip label="Hylkää ehdotus">
-              <Icons.Clear size={16} cursor="pointer" onClick={stop(onDismissSuggestion)} />
-            </Tooltip>
+            <Menu.Item
+              leftSection={<Icons.Clear size={16} />}
+              onClick={() => void onDismissSuggestion()}
+            >
+              Hylkää ehdotus
+            </Menu.Item>
           ) : null}
           {matched ? (
-            <Tooltip label="Poista täsmäytys">
-              <Icons.Unlink size={16} cursor="pointer" onClick={stop(onUnmatch)} />
-            </Tooltip>
+            <Menu.Item leftSection={<Icons.Unlink size={16} />} onClick={() => void onUnmatch()}>
+              Poista täsmäytys
+            </Menu.Item>
           ) : (
             <>
-              <Tooltip label="Luo kirjaus tästä">
-                <Icons.PlusCircle size={16} cursor="pointer" onClick={stop(onCreateExpense)} />
-              </Tooltip>
-              <Tooltip label={row.skipped ? 'Palauta täsmättäväksi' : 'Ohita täsmäytys'}>
-                {row.skipped ? (
-                  <Icons.Visible size={16} cursor="pointer" onClick={onToggleSkip} />
-                ) : (
-                  <Icons.Hidden size={16} cursor="pointer" onClick={stop(onToggleSkip)} />
-                )}
-              </Tooltip>
+              <Menu.Item
+                leftSection={<Icons.PlusCircle size={16} />}
+                onClick={() => void onCreateExpense()}
+              >
+                Luo kirjaus tästä
+              </Menu.Item>
+              <Menu.Item
+                leftSection={row.skipped ? <Icons.Visible size={16} /> : <Icons.Hidden size={16} />}
+                onClick={() => void onToggleSkip()}
+              >
+                {row.skipped ? 'Palauta täsmättäväksi' : 'Ohita täsmäytys'}
+              </Menu.Item>
             </>
           )}
-          <ExpandToggle expanded={expanded} onToggle={() => setExpanded(v => !v)} />
-        </Group>
-      </Group>
-      {expanded ? (
-        <CardDetails>
-          <StatementRowDetails row={row} />
-        </CardDetails>
-      ) : null}
-    </Paper>
+        </>
+      }
+      details={<StatementRowDetails row={row} />}
+    />
   );
 };
 
@@ -851,9 +898,3 @@ const ItemBadges: React.FC<{ matched: boolean; skipped: boolean; suggested: bool
     ) : null}
   </>
 );
-
-/** Wraps a card action handler so the click does not toggle selection. */
-const stop = (fn: () => unknown) => (e: React.MouseEvent) => {
-  e.stopPropagation();
-  void fn();
-};
