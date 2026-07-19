@@ -188,6 +188,72 @@ export function createStatementMatchesBulk(
   );
 }
 
+/**
+ * Copies every statement match of one expense to the listed expenses. Used
+ * when splitting a matched expense: each part inherits all of the original's
+ * statement rows, since the bank payment(s) explain the whole purchase. Must
+ * run before the original expense row is deleted — the delete cascades to
+ * `statement_match` and would wipe the links being copied.
+ */
+export function copyStatementMatches(
+  tx: DbTask,
+  groupId: ObjectId,
+  fromExpenseId: ObjectId,
+  toExpenseIds: ObjectId[],
+): Promise<void> {
+  return withSpan(
+    'statement.copy_matches',
+    {
+      'app.group_id': groupId,
+      'app.expense_id': fromExpenseId,
+      'app.target_count': toExpenseIds.length,
+    },
+    async () => {
+      await tx.none(
+        `INSERT INTO statement_match (group_id, statement_row_id, expense_id)
+          SELECT m.group_id, m.statement_row_id, t.id
+            FROM statement_match m
+            CROSS JOIN UNNEST($/toExpenseIds/::INTEGER[]) AS t(id)
+            WHERE m.expense_id = $/fromExpenseId/ AND m.group_id = $/groupId/
+          ON CONFLICT (statement_row_id, expense_id) DO NOTHING`,
+        { groupId, fromExpenseId, toExpenseIds },
+      );
+    },
+  );
+}
+
+/**
+ * Copies the statement-skip flag of one expense to the listed expenses. Used
+ * when splitting: if the original was marked "will never appear on a bank
+ * statement", its parts will not either. The expense insert path does not
+ * carry the flag, so without the copy every part would reset to false.
+ */
+export function copyStatementSkip(
+  tx: DbTask,
+  groupId: ObjectId,
+  fromExpenseId: ObjectId,
+  toExpenseIds: ObjectId[],
+): Promise<void> {
+  return withSpan(
+    'statement.copy_skip',
+    {
+      'app.group_id': groupId,
+      'app.expense_id': fromExpenseId,
+      'app.target_count': toExpenseIds.length,
+    },
+    async () => {
+      await tx.none(
+        `UPDATE expenses SET statement_skip = (
+            SELECT statement_skip FROM expenses
+              WHERE id = $/fromExpenseId/ AND group_id = $/groupId/
+          )
+          WHERE id = ANY($/toExpenseIds/::INTEGER[]) AND group_id = $/groupId/`,
+        { groupId, fromExpenseId, toExpenseIds },
+      );
+    },
+  );
+}
+
 /** Statement rows matched to one expense, for the expense details view. */
 export async function getStatementRowsForExpense(
   tx: DbTask,

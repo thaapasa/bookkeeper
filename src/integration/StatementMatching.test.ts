@@ -1,15 +1,19 @@
 import { afterEach, beforeEach, describe, expect, it } from 'bun:test';
 
+import { ExpenseSplit } from 'shared/expense';
 import {
   checkCreateStatus,
   fetchExpense,
+  findCategoryId,
   findSourceId,
   logoutSession,
   newExpense,
+  splitExpense,
 } from 'shared/expense/test';
 import { createTestClient, SessionWithControl } from 'shared/net/test';
 import { StatementMatchingData, StatementUploadResult } from 'shared/statement';
 import { OP_ROWS, opCsv } from 'shared/statement/test/StatementFixtures';
+import { Money } from 'shared/util';
 import { logger } from 'server/Logger';
 
 import { captureTestState, cleanupTestDataSince, TestState } from './TestCleanup';
@@ -234,6 +238,115 @@ describe('statement matching', () => {
     await expect(
       session.patch(`/api/statement/expense/${e}/skip`, { skipped: true }),
     ).rejects.toMatchObject({ code: 'EXPENSE_MATCHED' });
+  });
+
+  describe('splitting a matched expense', () => {
+    /** Builds one split part; the split endpoint requires a full division. */
+    const splitPart = (title: string, sum: string): ExpenseSplit => ({
+      sourceId,
+      categoryId: findCategoryId('Ruoka', session),
+      title,
+      sum,
+      division: [
+        { type: 'benefit', sum, userId: session.user.id },
+        { type: 'cost', sum: Money.from(sum).negate().toString(), userId: session.user.id },
+      ],
+    });
+
+    const partsByTitle = (data: StatementMatchingData, titles: string[]) =>
+      titles.map(t => data.expenses.find(e => e.title === t)!);
+
+    it('keeps the match on both parts when split in two', async () => {
+      const e = checkCreateStatus(
+        await newExpense(session, { date: '2026-05-03', sum: '250.00', title: 'Kokonainen' }),
+      );
+      const { statementRows } = await getMatching();
+      const row = statementRows.find(r => r.amount === '-250.00')!;
+      await session.post('/api/statement/match', { statementRowIds: [row.id], expenseIds: [e] });
+
+      await splitExpense(session, e, [splitPart('Osa1', '100.00'), splitPart('Osa2', '150.00')]);
+
+      const data = await getMatching();
+      const parts = partsByTitle(data, ['Osa1', 'Osa2']);
+      for (const part of parts) {
+        expect(part.matchedStatementRowIds).toEqual([row.id]);
+      }
+      expect(data.statementRows.find(r => r.id === row.id)?.matchedExpenseIds.sort()).toEqual(
+        parts.map(p => p.id).sort(),
+      );
+      // The deleted original no longer appears on either side
+      expect(data.expenses.find(ex => ex.id === e)).toBeUndefined();
+      // The expense details view also shows the inherited match
+      const details = await fetchExpense(session, parts[0].id);
+      expect(details.matchedStatementRows.map(r => r.id)).toEqual([row.id]);
+    });
+
+    it('keeps the match on every part when split in three', async () => {
+      const e = checkCreateStatus(
+        await newExpense(session, { date: '2026-05-28', sum: '400.00', title: 'Kokonainen' }),
+      );
+      const { statementRows } = await getMatching();
+      const row = statementRows.find(r => r.amount === '-400.00')!;
+      await session.post('/api/statement/match', { statementRowIds: [row.id], expenseIds: [e] });
+
+      await splitExpense(session, e, [
+        splitPart('Osa1', '150.00'),
+        splitPart('Osa2', '150.00'),
+        splitPart('Osa3', '100.00'),
+      ]);
+
+      const data = await getMatching();
+      const parts = partsByTitle(data, ['Osa1', 'Osa2', 'Osa3']);
+      for (const part of parts) {
+        expect(part.matchedStatementRowIds).toEqual([row.id]);
+      }
+      expect(data.statementRows.find(r => r.id === row.id)?.matchedExpenseIds.sort()).toEqual(
+        parts.map(p => p.id).sort(),
+      );
+    });
+
+    it('keeps the statement-skip flag on all parts when a skipped expense is split', async () => {
+      const e = checkCreateStatus(
+        await newExpense(session, { date: '2026-05-10', sum: '30.00', title: 'Ohitettu' }),
+      );
+      await session.patch(`/api/statement/expense/${e}/skip`, { skipped: true });
+
+      await splitExpense(session, e, [splitPart('Osa1', '10.00'), splitPart('Osa2', '20.00')]);
+
+      const data = await getMatching();
+      const parts = partsByTitle(data, ['Osa1', 'Osa2']);
+      for (const part of parts) {
+        expect(part.statementSkip).toEqual(true);
+        expect(part.matchedStatementRowIds).toEqual([]);
+      }
+    });
+
+    it('keeps all matches when the expense is matched to multiple statement rows', async () => {
+      // One purchase paid with two bank payments (12.90 + 250.00)
+      const e = checkCreateStatus(
+        await newExpense(session, { date: '2026-05-02', sum: '262.90', title: 'Kokonainen' }),
+      );
+      const { statementRows } = await getMatching();
+      const r1 = statementRows.find(r => r.amount === '-12.90')!;
+      const r2 = statementRows.find(r => r.amount === '-250.00')!;
+      await session.post('/api/statement/match', {
+        statementRowIds: [r1.id, r2.id],
+        expenseIds: [e],
+      });
+
+      await splitExpense(session, e, [splitPart('Osa1', '200.00'), splitPart('Osa2', '62.90')]);
+
+      const data = await getMatching();
+      const parts = partsByTitle(data, ['Osa1', 'Osa2']);
+      for (const part of parts) {
+        expect(part.matchedStatementRowIds.sort()).toEqual([r1.id, r2.id].sort());
+      }
+      for (const row of [r1, r2]) {
+        expect(data.statementRows.find(r => r.id === row.id)?.matchedExpenseIds.sort()).toEqual(
+          parts.map(p => p.id).sort(),
+        );
+      }
+    });
   });
 
   it('cascades match removal when the expense is deleted', async () => {

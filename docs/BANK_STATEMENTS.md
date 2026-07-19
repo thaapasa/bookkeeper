@@ -171,6 +171,13 @@ the preliminary matcher in `src/shared/statement/StatementMatcher.ts`, the UI in
   may be paid with several bank payments. Duplicate links are prevented by
   `UNIQUE (statement_row_id, expense_id)`. Cascades from both sides: deleting an
   upload batch or an expense removes its links.
+- **Splitting a matched expense** (see `docs/SPLIT_EXPENSES.md`) preserves the
+  matches: every split part inherits all of the original's statement rows, since
+  the bank payment(s) explain the whole purchase. The copy happens before the
+  original expense row is deleted — without it, the delete cascade above would
+  silently drop the matches (`copyStatementMatches` in `StatementMatchDb.ts`,
+  called from `splitExpense`). The `statement_skip` flag is preserved the same
+  way (`copyStatementSkip`): parts of a skipped expense stay skipped.
 - Matched sums need **not** agree: part of an expense may have been paid another way.
 - **Skipping** marks an item as reviewed-but-never-matching: `statement_row.skipped`
   for bank-internal rows (BONUS etc.), `expenses.statement_skip` for expenses paid

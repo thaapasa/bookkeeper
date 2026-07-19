@@ -10,6 +10,7 @@ import { withSpan } from 'server/telemetry/Spans';
 import { deleteExpenseById, getExpenseById } from './BasicExpenseDb';
 import { createExpense } from './BasicExpenseService';
 import { toBaseExpense } from './ExpenseUtils';
+import { copyStatementMatches, copyStatementSkip } from './StatementMatchDb';
 
 export function splitExpense(
   tx: DbTask,
@@ -36,9 +37,15 @@ export function splitExpense(
       // descendants of one original expense share the same key.
       const splitId = expense.splitId ?? randomUUID();
       logger.debug({ expense, splits, splitId }, 'Splitting expense');
+      const partIds: number[] = [];
       for (const [i, s] of splits.entries()) {
-        await createSplit(tx, expense, s, splitId, i === 0);
+        partIds.push(await createSplit(tx, expense, s, splitId, i === 0));
       }
+      // Every part inherits the original's statement matches and skip flag;
+      // without the copy the delete below would cascade the matches away, and
+      // the insert path resets statement_skip to false.
+      await copyStatementMatches(tx, groupId, expenseId, partIds);
+      await copyStatementSkip(tx, groupId, expenseId, partIds);
       await deleteExpenseById(tx, groupId, expenseId);
       return {
         status: 'OK',
@@ -139,13 +146,14 @@ export function unlinkSplitExpense(
   );
 }
 
+/** Creates one split part; returns the new expense id. */
 async function createSplit(
   tx: DbTask,
   expense: Expense,
   split: ExpenseSplit,
   splitId: string,
   first: boolean,
-) {
+): Promise<number> {
   // The foreign currency annotation stays on the first part only, as a reference to what
   // the original expense cost abroad (the parent row is deleted, so this is the only place
   // it can survive). The other parts must not inherit it: each would claim the parent's
@@ -163,7 +171,15 @@ async function createSplit(
     originalCurrencyValue: first ? expense.originalCurrencyValue : null,
   };
   logger.debug(splitted, `Creating new expense`);
-  await createExpense(tx, expense.userId, expense.groupId, splitted, expense.sourceId, splitId);
+  const created = await createExpense(
+    tx,
+    expense.userId,
+    expense.groupId,
+    splitted,
+    expense.sourceId,
+    splitId,
+  );
+  return created.expenseId;
 }
 
 async function checkSplits(splits: ExpenseSplit[], expense: Expense) {

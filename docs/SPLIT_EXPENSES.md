@@ -46,6 +46,11 @@ On split, the foreign currency annotation (`currency_id` + `original_currency_va
 survives on the **first part only**, as a reference to what the original expense cost
 abroad; the other parts are EUR-only.
 
+Bank statement matches (see `docs/BANK_STATEMENTS.md`) survive on **every part**:
+each part inherits all of the original's matched statement rows, since the bank
+payment(s) explain the whole purchase. The statement-skip flag
+(`expenses.statement_skip`) is likewise copied to every part.
+
 ## API
 
 Both endpoints are group-scoped (`groupRequired`); ids in the path and body resolve
