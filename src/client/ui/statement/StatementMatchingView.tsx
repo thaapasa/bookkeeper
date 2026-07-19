@@ -241,7 +241,7 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
               <Stack gap="sm">
                 {zone.buckets.map(bucket => (
                   <Box key={bucket.date}>
-                    <Text fz="xs" c="dimmed" mb={4}>
+                    <Text fz="sm" c="dimmed" mb={4}>
                       {readableDateWithYear(bucket.date)}
                     </Text>
                     <Group gap="xl" wrap="nowrap" align="flex-start">
@@ -495,7 +495,7 @@ const cardStyle = (state: {
   selected: boolean;
 }) => ({
   padding: 'var(--mantine-spacing-xs)',
-  opacity: state.matched || state.skipped ? 0.55 : 1,
+  opacity: state.matched || state.skipped ? 0.75 : 1,
   cursor: state.skipped ? 'default' : 'pointer',
   borderColor: state.selected
     ? 'var(--mantine-color-primary-7)'
@@ -558,7 +558,8 @@ const MatchCard: React.FC<{
     >
       <Group gap="xs" wrap="nowrap" justify="space-between">
         {header}
-        <Group gap={4} wrap="nowrap">
+        {/* The right side never shrinks; a tight fit truncates the header side. */}
+        <Group gap={4} wrap="nowrap" style={{ flexShrink: 0 }}>
           {extraBadges}
           <ItemBadges matched={matched} skipped={skipped} suggested={suggested} />
           <Text fz="sm" fw={600} c={sumColor} style={{ whiteSpace: 'nowrap' }}>
@@ -621,7 +622,7 @@ const ExpenseCard: React.FC<{
             <Text fz="sm" truncate>
               {expense.title ?? expense.receiver ?? '–'}
             </Text>
-            <Text fz="xs" c="dimmed" truncate>
+            <Text fz="sm" c="dimmed" truncate>
               {expense.receiver ?? ''}
             </Text>
           </Box>
@@ -630,7 +631,7 @@ const ExpenseCard: React.FC<{
       extraBadges={
         !expense.confirmed ? (
           <Tooltip label="Alustava kirjaus — summa voi vielä muuttua">
-            <Badge size="xs" variant="light" color="yellow" radius="sm">
+            <Badge size="xs" variant="light" color="yellow" radius="sm" style={{ flexShrink: 0 }}>
               Alustava
             </Badge>
           </Tooltip>
@@ -718,7 +719,7 @@ const ExpenseCardDetails: React.FC<{
   });
   return (
     <Stack gap="xs">
-      <Text fz="xs" c="dimmed">
+      <Text fz="sm" c="dimmed">
         {getFullCategoryName(details.categoryId, categoryMap)}
       </Text>
       {details.description ? (
@@ -729,7 +730,7 @@ const ExpenseCardDetails: React.FC<{
       <DivisionInfo division={details.division} expenseType={details.type} />
       {linkedExpenses.length > 0 ? (
         <Box>
-          <Text fz="xs" c="dimmed">
+          <Text fz="sm" c="dimmed">
             Pilkottu samasta kirjauksesta
           </Text>
           {linkedExpenses.map(l => (
@@ -771,7 +772,7 @@ const StatementRowDetails: React.FC<{ row: MatchingStatementRow }> = ({ row }) =
         .filter(([, value]) => value)
         .map(([label, value]) => (
           <Group key={label} gap="xs" wrap="nowrap" align="flex-start">
-            <Text fz="xs" c="dimmed" w={120} style={{ flexShrink: 0 }}>
+            <Text fz="sm" c="dimmed" w={120} style={{ flexShrink: 0 }}>
               {label}
             </Text>
             <Text fz="sm" style={{ overflowWrap: 'anywhere' }}>
@@ -825,13 +826,13 @@ const StatementRowCard: React.FC<{
             </Text>
             {ownDate !== displayDate ? (
               <Tooltip label="Tiliotteen päivä eroaa kirjauksen päivästä">
-                <Text fz="xs" c="dimmed" style={{ whiteSpace: 'nowrap' }}>
+                <Text fz="sm" c="dimmed" style={{ whiteSpace: 'nowrap' }}>
                   {readableDateWithYear(ownDate)}
                 </Text>
               </Tooltip>
             ) : null}
           </Group>
-          <Text fz="xs" c="dimmed" truncate>
+          <Text fz="sm" c="dimmed" truncate>
             {row.message ?? row.reference ?? row.type}
           </Text>
         </Box>
@@ -875,6 +876,8 @@ const StatementRowCard: React.FC<{
   );
 };
 
+// flexShrink 0 keeps the badges intact in the card's nowrap header row, so
+// a tight fit truncates the title text instead of ellipsizing the badge.
 const ItemBadges: React.FC<{ matched: boolean; skipped: boolean; suggested: boolean }> = ({
   matched,
   skipped,
@@ -882,17 +885,17 @@ const ItemBadges: React.FC<{ matched: boolean; skipped: boolean; suggested: bool
 }) => (
   <>
     {matched ? (
-      <Badge size="xs" variant="light" color="green" radius="sm">
+      <Badge size="xs" variant="light" color="green" radius="sm" style={{ flexShrink: 0 }}>
         Täsmätty
       </Badge>
     ) : null}
     {skipped ? (
-      <Badge size="xs" variant="light" color="gray" radius="sm">
+      <Badge size="xs" variant="light" color="gray" radius="sm" style={{ flexShrink: 0 }}>
         Ohitettu
       </Badge>
     ) : null}
     {suggested ? (
-      <Badge size="xs" variant="light" color="primary" radius="sm">
+      <Badge size="xs" variant="light" color="primary" radius="sm" style={{ flexShrink: 0 }}>
         Ehdotus
       </Badge>
     ) : null}

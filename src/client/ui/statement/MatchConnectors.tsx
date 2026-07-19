@@ -44,9 +44,9 @@ interface Line {
 
 const lineStyles: Record<ConnectorKind, React.SVGAttributes<SVGPathElement>> = {
   match: {
-    stroke: 'var(--mantine-color-neutral-4)',
+    stroke: 'var(--mantine-color-neutral-5)',
     strokeWidth: 1.5,
-    opacity: 0.7,
+    opacity: 0.9,
   },
   suggestion: {
     stroke: 'var(--mantine-color-primary-4)',
