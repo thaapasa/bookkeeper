@@ -33,7 +33,8 @@ ReactDOM.createRoot(container).render(
     defaultColorScheme="auto"
     cssVariablesResolver={cssVariablesResolver}
   >
-    <Notifications position="bottom-center" autoClose={5000} />
+    {/* bottom-right so notifications don't cover the matching view's action bar */}
+    <Notifications position="bottom-right" autoClose={5000} />
     <DatesProvider settings={{ locale: 'fi' }}>
       <QueryClientProvider client={queryClient}>
         <App />
