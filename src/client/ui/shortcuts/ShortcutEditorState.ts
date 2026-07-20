@@ -5,7 +5,15 @@ import { ObjectId } from 'shared/types';
 import { requireDefined } from 'shared/util';
 import { apiConnect } from 'client/data/ApiConnect';
 import { updateSession } from 'client/data/Login';
+import { queryClient } from 'client/data/query';
+import { QueryKeys } from 'client/data/queryKeys';
 import { executeOperation } from 'client/util/ExecuteOperation';
+
+/** The editor detail query must not serve pre-mutation data when reopened. */
+async function refreshShortcut(id: ObjectId) {
+  await updateSession();
+  await queryClient.invalidateQueries({ queryKey: QueryKeys.shortcuts.detail(id) });
+}
 
 export type ShortcutState = {
   title: string;
@@ -64,7 +72,7 @@ export const useShortcutState = create<ShortcutState>((set, get) => ({
       statementTargets: s.statementTargets,
     };
     await executeOperation(() => apiConnect.updateShortcut(id, payload), {
-      postProcess: updateSession,
+      postProcess: () => refreshShortcut(id),
       success: 'Linkki päivitetty',
       throw: true,
     });
@@ -78,7 +86,7 @@ export const useShortcutState = create<ShortcutState>((set, get) => ({
     return await executeOperation(
       () => apiConnect.uploadShortcutIcon(id, file, filename, Number(margin)),
       {
-        postProcess: updateSession,
+        postProcess: () => refreshShortcut(id),
         success: 'Ikoni päivitetty',
         throw: true,
       },
@@ -90,7 +98,7 @@ export const useShortcutState = create<ShortcutState>((set, get) => ({
       return;
     }
     await executeOperation(() => apiConnect.removeShortcutIcon(id), {
-      postProcess: updateSession,
+      postProcess: () => refreshShortcut(id),
       success: 'Ikoni poistettu',
     });
   },
