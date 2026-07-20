@@ -22,14 +22,33 @@ export interface ExpenseShortcut {
   expense: ExpenseShortcutData;
   background?: string;
   sortOrder: number;
+  /** Statement counterparty patterns, see matchesStatementCounterparty(). */
+  statementTargets: string[];
 }
 
 export const ExpenseShortcutPayload = z.object({
   title: z.string().trim().min(1),
   background: z.string().trim().optional(),
   expense: ExpenseShortcutData,
+  statementTargets: z.array(z.string().trim().min(1)).default([]),
 });
 export type ExpenseShortcutPayload = z.infer<typeof ExpenseShortcutPayload>;
+
+/**
+ * Does a statement row's counterparty match one of the shortcut's statement
+ * targets? Case-insensitive substring match, because bank counterparties
+ * carry per-purchase suffixes ("Amazon.de*FX9W74Q55").
+ */
+export function matchesStatementCounterparty(
+  shortcut: ExpenseShortcut,
+  counterparty: string | null,
+): boolean {
+  if (!counterparty) {
+    return false;
+  }
+  const cp = counterparty.toLowerCase();
+  return shortcut.statementTargets.some(t => cp.includes(t.toLowerCase()));
+}
 
 export function shortcutToExpenseInEditor(expense: ExpenseShortcutData): Partial<ExpenseInEditor> {
   return {

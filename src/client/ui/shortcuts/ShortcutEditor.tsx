@@ -1,4 +1,4 @@
-import { ActionIcon, Box, Flex, Group, Loader, Modal, Textarea } from '@mantine/core';
+import { ActionIcon, Box, Flex, Group, Loader, Modal, TagsInput, Textarea } from '@mantine/core';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import * as React from 'react';
 import { create } from 'zustand';
@@ -93,6 +93,16 @@ const ShortcutEditView: React.FC<{
         <Box>Taustaväri</Box>
         <Box>
           <TextEdit value={state.background} onChange={state.setBackground} width="80px" />
+        </Box>
+        <Box>Tiliotteen saaja</Box>
+        <Box>
+          <TagsInput
+            aria-label="Tiliotteen saaja/maksaja"
+            placeholder="esim. HSL MOBIILI"
+            description="Kun tiliotetapahtuman saaja/maksaja sisältää jonkin näistä, täsmäytysnäkymä ehdottaa kirjauksen luomista tästä linkistä"
+            value={state.statementTargets}
+            onChange={state.setStatementTargets}
+          />
         </Box>
         <Box>Linkin kuva</Box>
         <Group gap="xs" wrap="nowrap">

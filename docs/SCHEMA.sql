@@ -421,7 +421,8 @@ CREATE TABLE public.shortcuts (
     title text NOT NULL,
     icon text,
     background text,
-    expense jsonb NOT NULL
+    expense jsonb NOT NULL,
+    statement_targets text[] DEFAULT '{}'::text[] NOT NULL
 );
 
 

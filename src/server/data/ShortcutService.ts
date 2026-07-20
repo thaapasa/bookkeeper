@@ -1,4 +1,4 @@
-import { ExpenseShortcutPayload } from 'shared/expense';
+import { ExpenseShortcut, ExpenseShortcutPayload } from 'shared/expense';
 import { BkError, isDefined, ObjectId } from 'shared/types';
 import { shortcutImageHandler } from 'server/content/ShortcutImage';
 import { DbTask } from 'server/data/Db.ts';
@@ -23,14 +23,15 @@ export function createShortcut(
   groupId: ObjectId,
   userId: ObjectId,
   data: ExpenseShortcutPayload,
-): Promise<void> {
+): Promise<ExpenseShortcut> {
   return withSpan(
     'shortcut.create',
     { 'app.group_id': groupId, 'app.user_id': userId },
     async () => {
       await validateShortcutData(tx, groupId, data);
-      await insertNewShortcut(tx, groupId, userId, data);
+      const shortcut = await insertNewShortcut(tx, groupId, userId, data);
       logger.info(data, `Created new shortcut`);
+      return shortcut;
     },
   );
 }

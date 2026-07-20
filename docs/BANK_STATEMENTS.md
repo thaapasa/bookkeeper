@@ -310,6 +310,14 @@ selection (a preview of what "Täsmää valitut" would link).
 - "Luo kirjaus tästä" on an unmatched row opens the expense dialog prefilled from
   the row (date, sum, receiver, source, type by sign) and creates the match
   automatically on save.
+- Shortcuts can declare **statement targets** (`shortcuts.statement_targets`,
+  edited in the shortcut editor): when a row's counterparty contains one of them
+  (case-insensitive substring, `matchesStatementCounterparty()` — substring
+  because counterparties carry per-purchase suffixes like "Amazon.de\*FX9W74Q55"),
+  the row's menu also offers "Luo [shortcut]", which merges the shortcut's data
+  (category, title, receiver, …) over the row prefill. The row's date and sum
+  always win over shortcut defaults, and the created expense is matched to the
+  row on save just like "Luo kirjaus tästä".
 - The expense details view (expense table row expander) also lists the matched
   statement rows: `GET /api/expense/:id` returns `matchedStatementRows` alongside
   the division.

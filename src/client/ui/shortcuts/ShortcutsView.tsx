@@ -121,6 +121,7 @@ async function createNewShortcut(): Promise<void> {
       sum: example.sum || undefined,
       description: example.description || undefined,
     },
+    statementTargets: [],
   };
   await executeOperation(() => apiConnect.createShortcut(payload), {
     postProcess: updateSession,

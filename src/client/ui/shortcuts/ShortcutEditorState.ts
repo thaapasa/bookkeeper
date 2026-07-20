@@ -11,10 +11,12 @@ export type ShortcutState = {
   title: string;
   background: string;
   expenseStr: string;
+  statementTargets: string[];
   id: ObjectId | undefined;
   setTitle: (title: string) => void;
   setBackground: (background: string) => void;
   setExpense: (expense: string) => void;
+  setStatementTargets: (statementTargets: string[]) => void;
   reset: (shortcut: ExpenseShortcut) => void;
   inputValid: () => boolean;
   margin: string;
@@ -28,11 +30,13 @@ export const useShortcutState = create<ShortcutState>((set, get) => ({
   title: '',
   background: '',
   expenseStr: '',
+  statementTargets: [],
   margin: '0',
   id: undefined,
   setTitle: title => set({ title }),
   setBackground: background => set({ background }),
   setExpense: expenseStr => set({ expenseStr }),
+  setStatementTargets: statementTargets => set({ statementTargets }),
   setMargin: margin => set({ margin }),
   reset: shortcut =>
     set({
@@ -40,6 +44,7 @@ export const useShortcutState = create<ShortcutState>((set, get) => ({
       title: shortcut.title,
       background: shortcut.background ?? '',
       expenseStr: JSON.stringify(shortcut.expense ?? {}, null, 2),
+      statementTargets: shortcut.statementTargets,
       margin: '0',
     }),
   inputValid: () => {
@@ -56,6 +61,7 @@ export const useShortcutState = create<ShortcutState>((set, get) => ({
       title: s.title,
       background: s.background || undefined,
       expense: requireDefined(parseExpense(s.expenseStr), 'parsed expense data'),
+      statementTargets: s.statementTargets,
     };
     await executeOperation(() => apiConnect.updateShortcut(id, payload), {
       postProcess: updateSession,

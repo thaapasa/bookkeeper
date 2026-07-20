@@ -2,7 +2,7 @@ import { ExpenseShortcut, ExpenseShortcutPayload } from 'shared/expense';
 import { NotFoundError, ObjectId } from 'shared/types';
 import { DbTask } from 'server/data/Db.ts';
 
-const SHORTCUT_FIELDS = /*sql */ `id, title, icon, background, expense, sort_order AS "sortOrder"`;
+const SHORTCUT_FIELDS = /*sql */ `id, title, icon, background, expense, sort_order AS "sortOrder", statement_targets AS "statementTargets"`;
 
 export async function getShortcutsForUser(
   tx: DbTask,
@@ -44,12 +44,19 @@ export async function insertNewShortcut(
   data: ExpenseShortcutPayload,
 ): Promise<ExpenseShortcut> {
   const row = await tx.one(
-    `INSERT INTO shortcuts (group_id, user_id, sort_order, title, background, expense)
+    `INSERT INTO shortcuts (group_id, user_id, sort_order, title, background, expense, statement_targets)
      VALUES ($/groupId/, $/userId/,
        (SELECT MAX(sort_order) FROM shortcuts s2 WHERE s2.user_id = $/userId/ AND s2.group_id = $/groupId/) + 1,
-       $/title/, $/background/, $/expense/)
+       $/title/, $/background/, $/expense/, $/statementTargets/::TEXT[])
      RETURNING ${SHORTCUT_FIELDS}`,
-    { groupId, userId, title: data.title, background: data.background, expense: data.expense },
+    {
+      groupId,
+      userId,
+      title: data.title,
+      background: data.background,
+      expense: data.expense,
+      statementTargets: data.statementTargets,
+    },
   );
   return rowToShortcut(row);
 }
@@ -65,7 +72,8 @@ export async function updateShortcutById(
     `UPDATE shortcuts
       SET title=$/title/,
         background=$/background/,
-        expense=$/expense/
+        expense=$/expense/,
+        statement_targets=$/statementTargets/::TEXT[]
       WHERE id=$/shortcutId/ AND group_id=$/groupId/ AND user_id=$/userId/`,
     {
       groupId,
@@ -74,6 +82,7 @@ export async function updateShortcutById(
       title: data.title,
       background: data.background,
       expense: data.expense,
+      statementTargets: data.statementTargets,
     },
   );
 }
@@ -223,5 +232,6 @@ function rowToShortcut(rowdata: ExpenseShortcut): ExpenseShortcut {
     icon: rowdata.icon ? `content/shortcut/${rowdata.icon}` : undefined,
     background: rowdata.background || undefined,
     expense: rowdata.expense ?? {},
+    statementTargets: rowdata.statementTargets ?? [],
   };
 }

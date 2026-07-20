@@ -18,6 +18,11 @@ import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import React from 'react';
 
 import {
+  ExpenseShortcut,
+  matchesStatementCounterparty,
+  shortcutToExpenseInEditor,
+} from 'shared/expense';
+import {
   effectiveStatementDate,
   extractCardLastDigits,
   findCardUserId,
@@ -32,7 +37,7 @@ import { Money, MoneyLike } from 'shared/util';
 import { apiConnect } from 'client/data/ApiConnect';
 import { getFullCategoryName } from 'client/data/Categories';
 import { QueryKeys } from 'client/data/queryKeys';
-import { useCategoryMap, useSourceMap } from 'client/data/SessionStore';
+import { useCategoryMap, useSourceMap, useValidSession } from 'client/data/SessionStore';
 import { requestNewExpense } from 'client/data/State';
 import { useExpenseDetails } from 'client/data/useExpenseDetails';
 import { QueryBoundary } from 'client/ui/component/QueryBoundary';
@@ -129,7 +134,7 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
     });
   };
 
-  const createExpenseFromRow = (row: MatchingStatementRow) => {
+  const createExpenseFromRow = (row: MatchingStatementRow, shortcut?: ExpenseShortcut) => {
     const amount = Money.from(row.amount);
     void requestNewExpense(
       async (expense, original) => {
@@ -140,13 +145,15 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
         }
         return id;
       },
-      'Uusi kirjaus tiliotteelta',
+      shortcut ? `Uusi kirjaus: ${shortcut.title}` : 'Uusi kirjaus tiliotteelta',
       {
-        date: effectiveStatementDate(row),
-        sum: amount.abs().toString(),
         receiver: row.counterparty ?? '',
         type: row.amount.startsWith('-') ? 'expense' : 'income',
         sourceId,
+        ...(shortcut ? shortcutToExpenseInEditor(shortcut.expense) : undefined),
+        // The statement's date and sum always win over shortcut defaults
+        date: effectiveStatementDate(row),
+        sum: amount.abs().toString(),
       },
     );
   };
@@ -310,7 +317,7 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
                                 { postProcess: invalidate },
                               )
                             }
-                            onCreateExpense={() => createExpenseFromRow(r)}
+                            onCreateExpense={shortcut => createExpenseFromRow(r, shortcut)}
                           />
                         ))}
                       </Stack>
@@ -797,7 +804,8 @@ const StatementRowCard: React.FC<{
   onDismissSuggestion: () => void;
   onUnmatch: () => void;
   onToggleSkip: () => void;
-  onCreateExpense: () => void;
+  /** Create an expense prefilled from the row, optionally merging a shortcut's data. */
+  onCreateExpense: (shortcut?: ExpenseShortcut) => void;
 }> = ({
   cardRef,
   row,
@@ -814,6 +822,9 @@ const StatementRowCard: React.FC<{
   const ownDate = effectiveStatementDate(row);
   const sourceMap = useSourceMap();
   const cardUserId = findCardUserId(sourceMap?.[row.sourceId], row.message);
+  const shortcuts = useValidSession().shortcuts.filter(s =>
+    matchesStatementCounterparty(s, row.counterparty),
+  );
   return (
     <MatchCard
       cardRef={cardRef}
@@ -869,6 +880,15 @@ const StatementRowCard: React.FC<{
             </Menu.Item>
           ) : (
             <>
+              {shortcuts.map(s => (
+                <Menu.Item
+                  key={s.id}
+                  leftSection={<Icons.PlusCircle size={16} />}
+                  onClick={() => void onCreateExpense(s)}
+                >
+                  Luo {s.title}
+                </Menu.Item>
+              ))}
               <Menu.Item
                 leftSection={<Icons.PlusCircle size={16} />}
                 onClick={() => void onCreateExpense()}
