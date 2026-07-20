@@ -32,7 +32,7 @@ import {
   suggestStatementMatches,
 } from 'shared/statement';
 import { ISODate, ISOMonth, readableDateWithYear } from 'shared/time';
-import { ObjectId } from 'shared/types';
+import { isDefined, ObjectId } from 'shared/types';
 import { Money, MoneyLike } from 'shared/util';
 import { apiConnect } from 'client/data/ApiConnect';
 import { getFullCategoryName } from 'client/data/Categories';
@@ -134,26 +134,44 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
     });
   };
 
-  const createExpenseFromRow = (row: MatchingStatementRow, shortcut?: ExpenseShortcut) => {
-    const amount = Money.from(row.amount);
+  /**
+   * Opens the expense dialog prefilled from statement rows (and optionally a
+   * shortcut), and links the created expense to all the rows on save. With
+   * several rows the sum is their total and the date comes from the first
+   * one; `onSaved` lets the selection flow clear itself afterwards.
+   */
+  const createExpenseFromRows = (
+    rows: MatchingStatementRow[],
+    shortcut?: ExpenseShortcut,
+    onSaved?: () => void,
+  ) => {
+    const first = rows[0];
+    if (!first) {
+      return;
+    }
+    const total = rows.reduce((sum, r) => sum.plus(r.amount), Money.from(0));
     void requestNewExpense(
       async (expense, original) => {
         const id = await defaultExpenseSaveAction(expense, original);
         if (id) {
-          await apiConnect.createStatementMatch({ statementRowIds: [row.id], expenseIds: [id] });
+          await apiConnect.createStatementMatch({
+            statementRowIds: rows.map(r => r.id),
+            expenseIds: [id],
+          });
+          onSaved?.();
           await invalidate();
         }
         return id;
       },
       shortcut ? `Uusi kirjaus: ${shortcut.title}` : 'Uusi kirjaus tiliotteelta',
       {
-        receiver: row.counterparty ?? '',
-        type: row.amount.startsWith('-') ? 'expense' : 'income',
+        receiver: first.counterparty ?? '',
+        type: total.gte(0) ? 'income' : 'expense',
         sourceId,
         ...(shortcut ? shortcutToExpenseInEditor(shortcut.expense) : undefined),
         // The statement's date and sum always win over shortcut defaults
-        date: effectiveStatementDate(row),
-        sum: amount.abs().toString(),
+        date: effectiveStatementDate(first),
+        sum: total.abs().toString(),
       },
     );
   };
@@ -198,6 +216,18 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
 
   const selectionActive = selectedRowIds.length > 0 || selectedExpenseIds.length > 0;
   const actionBarVisible = selectionActive || activeSuggestions.length > 0;
+
+  // With only statement rows selected, the action bar offers creating one
+  // expense covering all of them (plus shortcut variants for any selected
+  // counterparty that matches a shortcut's statement targets).
+  const shortcuts = useValidSession().shortcuts;
+  const selectedRows = selectedRowIds
+    .map(id => data.statementRows.find(r => r.id === id))
+    .filter(isDefined);
+  const rowsOnlySelection = selectedRows.length > 0 && selectedExpenseIds.length < 1;
+  const selectionShortcuts = rowsOnlySelection
+    ? shortcuts.filter(s => selectedRows.some(r => matchesStatementCounterparty(s, r.counterparty)))
+    : [];
   const selectedRowTotal = data.statementRows
     .filter(r => selectedRowIds.includes(r.id))
     .reduce((sum, r) => sum.plus(r.amount), Money.from(0));
@@ -317,7 +347,7 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
                                 { postProcess: invalidate },
                               )
                             }
-                            onCreateExpense={shortcut => createExpenseFromRow(r, shortcut)}
+                            onCreateExpense={shortcut => createExpenseFromRows([r], shortcut)}
                           />
                         ))}
                       </Stack>
@@ -358,6 +388,31 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
                     >
                       Täsmää valitut
                     </Button>
+                    {rowsOnlySelection ? (
+                      <>
+                        {selectionShortcuts.map(s => (
+                          <Button
+                            key={s.id}
+                            size="xs"
+                            variant="light"
+                            leftSection={<Icons.PlusCircle size={16} />}
+                            onClick={() => createExpenseFromRows(selectedRows, s, clearSelection)}
+                          >
+                            Luo {s.title}
+                          </Button>
+                        ))}
+                        <Button
+                          size="xs"
+                          variant="light"
+                          leftSection={<Icons.PlusCircle size={16} />}
+                          onClick={() =>
+                            createExpenseFromRows(selectedRows, undefined, clearSelection)
+                          }
+                        >
+                          Luo kirjaus
+                        </Button>
+                      </>
+                    ) : null}
                     <Button size="xs" variant="default" onClick={clearSelection}>
                       Tyhjennä
                     </Button>

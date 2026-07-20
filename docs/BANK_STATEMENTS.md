@@ -318,6 +318,11 @@ selection (a preview of what "Täsmää valitut" would link).
   (category, title, receiver, …) over the row prefill. The row's date and sum
   always win over shortcut defaults, and the created expense is matched to the
   row on save just like "Luo kirjaus tästä".
+- With only statement rows selected (no expenses), the floating action bar
+  offers "Luo kirjaus" — and "Luo [shortcut]" for each shortcut whose statement
+  targets match a selected counterparty — creating **one** expense that covers
+  the whole selection: sum is the rows' total, date and receiver come from the
+  first-selected row, and the expense is matched to all selected rows on save.
 - The expense details view (expense table row expander) also lists the matched
   statement rows: `GET /api/expense/:id` returns `matchedStatementRows` alongside
   the division.
