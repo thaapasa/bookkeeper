@@ -341,6 +341,9 @@ export class ApiConnect {
   public patchSource = (sourceId: ObjectId, data: SourcePatch) =>
     this.patch<Source>(uri`/api/source/${sourceId}`, { body: data });
 
+  public updateSourceUserCards = (sourceId: ObjectId, userId: ObjectId, cards: string[]) =>
+    this.patch<Source>(uri`/api/source/${sourceId}/user/${userId}`, { body: { cards } });
+
   // Bank statements
 
   public uploadStatement = (

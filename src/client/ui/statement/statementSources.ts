@@ -1,3 +1,4 @@
+import { sourceDisplayName } from 'shared/source';
 import { StatementFormat } from 'shared/statement';
 import { ObjectId, Session, Source } from 'shared/types';
 
@@ -21,7 +22,7 @@ export function statementSourceOptions(session: Session, format: StatementFormat
   return session.sources
     .filter(s => s.statementFormat === format)
     .sort((a, b) => Number(isOwn(b)) - Number(isOwn(a)))
-    .map(toOption);
+    .map(s => toOption(s, session.user.id));
 }
 
 /**
@@ -40,4 +41,7 @@ export function autoSelectStatementSource(
   return own.length === 1 ? own[0].id : undefined;
 }
 
-const toOption = (s: Source): SourceOption => ({ id: s.id, name: s.name });
+const toOption = (s: Source, ownUserId: ObjectId): SourceOption => ({
+  id: s.id,
+  name: sourceDisplayName(s, ownUserId),
+});

@@ -7,8 +7,9 @@ function getImage(img: string | undefined): string | undefined {
 }
 
 interface SourceData extends Source {
-  userId: ObjectId;
-  share: ObjectId;
+  userId: ObjectId | null;
+  share: number;
+  cards: string[] | null;
 }
 
 function createGroupObject(rows: SourceData[]): Source[] {
@@ -27,30 +28,40 @@ function createGroupObject(rows: SourceData[]): Source[] {
         statementFormat: v.statementFormat,
       });
     }
-    list[list.length - 1].users.push({ userId: v.userId, share: v.share });
+    // LEFT JOIN yields one all-null user row for sources with no source_users
+    if (v.userId != null) {
+      list[list.length - 1].users.push({ userId: v.userId, share: v.share, cards: v.cards ?? [] });
+    }
     return list;
   }, [] as Source[]);
 }
 
+// ORDER BY keeps same-source rows adjacent for the fold above, and makes
+// the source user order (= card display order) deterministic
 const select = `--sql
 SELECT
   s.id, s.group_id as "groupId", name, abbreviation, image,
   s.statement_format as "statementFormat",
   (SELECT SUM(share) FROM source_users WHERE source_id = s.id)::INTEGER AS shares,
-  so.user_id as "userId", so.share
+  so.user_id as "userId", so.share, so.cards
 FROM sources s
 LEFT JOIN source_users so ON (so.source_id = s.id)`;
 
+const selectOrder = `ORDER BY s.id, so.user_id`;
+
 export async function getAllSources(tx: DbTask, groupId: number): Promise<Source[]> {
-  const s = await tx.manyOrNone<SourceData>(`${select} WHERE group_id = $/groupId/::INTEGER`, {
-    groupId,
-  });
+  const s = await tx.manyOrNone<SourceData>(
+    `${select} WHERE group_id = $/groupId/::INTEGER ${selectOrder}`,
+    {
+      groupId,
+    },
+  );
   return createGroupObject(s);
 }
 
 export async function getSourceById(tx: DbTask, groupId: ObjectId, id: ObjectId): Promise<Source> {
   const s = await tx.manyOrNone<SourceData>(
-    `${select} WHERE id=$/id/::INTEGER AND group_id=$/groupId/::INTEGER`,
+    `${select} WHERE id=$/id/::INTEGER AND group_id=$/groupId/::INTEGER ${selectOrder}`,
     {
       id,
       groupId,
@@ -83,4 +94,31 @@ export function updateSource(
     );
     return { ...source, name, statementFormat };
   });
+}
+
+export function updateSourceUserCards(
+  tx: DbTask,
+  groupId: ObjectId,
+  sourceId: ObjectId,
+  userId: ObjectId,
+  cards: string[],
+): Promise<Source> {
+  return withSpan(
+    'source.update_user_cards',
+    { 'app.group_id': groupId, 'app.source_id': sourceId, 'app.user_id': userId },
+    async () => {
+      // source_users has no group_id; the subselect carries the group constraint
+      const result = await tx.result(
+        `UPDATE source_users
+            SET cards=$/cards/::TEXT[]
+            WHERE user_id=$/userId/
+              AND source_id IN (SELECT id FROM sources WHERE id=$/sourceId/ AND group_id=$/groupId/)`,
+        { cards, userId, sourceId, groupId },
+      );
+      if (result.rowCount < 1) {
+        throw new NotFoundError('SOURCE_USER_NOT_FOUND', 'source user', sourceId);
+      }
+      return getSourceById(tx, groupId, sourceId);
+    },
+  );
 }

@@ -4,6 +4,7 @@ import { DateTime } from 'luxon';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
+import { sourceDisplayName } from 'shared/source';
 import { ParsedStatement, parseStatement } from 'shared/statement';
 import { ISOMonth, ISOMonthRegExp, monthRange } from 'shared/time';
 import { ObjectId } from 'shared/types';
@@ -151,7 +152,10 @@ export const StatementsPage: React.FC = () => {
           <>
             <Select
               label="Tili"
-              data={bankSources.map(s => ({ value: `${s.id}`, label: s.name }))}
+              data={bankSources.map(s => ({
+                value: `${s.id}`,
+                label: sourceDisplayName(s, session.user.id),
+              }))}
               value={selectedSourceId !== undefined ? `${selectedSourceId}` : null}
               onChange={v => (v ? navigate(pathFor({ sourceId: Number(v) })) : undefined)}
               maw={320}

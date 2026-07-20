@@ -126,6 +126,16 @@ happens client-side:
    If no source has the sniffed format, an error text prompts configuring the
    format on the Tiedot page — cross-format targets are not offered, since the
    server would reject them with `STATEMENT_FORMAT_MISMATCH`.
+
+Sources also carry per-user **bank cards** (`source_users.cards`, an array of
+last-4-digit strings, edited on the Tiedot page). Wherever a source is picked or
+named in the UI, `sourceDisplayName()` appends the cards to the name — own cards
+first — e.g. "Salen tili (9876/1226)". Card payment messages start with the
+masked card number (`401046******1226 …` for OP, `431871******3515 …` for
+S-pankki); `extractCardLastDigits()` / `findCardUserId()`
+(`shared/statement/StatementCard.ts`) resolve the paying user from the last 4
+digits, entirely client-side. Ambiguous matches (two users of the source sharing
+the same last 4) resolve to nobody rather than guessing.
 4. On confirm, the **raw file content** is POSTed to the server (as JSON
    `{ filename, content }` — statement CSVs are small). The server re-parses it
    authoritatively — the client parse is only for sniffing and preview. This keeps
@@ -253,6 +263,9 @@ selection (a preview of what "Täsmää valitut" would link).
   (e.g. adding a second bank payment to an already-matched expense).
 - Matched items are dimmed with a "Täsmätty" badge and can be unlinked; skipped
   items are dimmed with "Ohitettu" and a dashed border.
+- Statement rows paid by a known bank card (resolved via `findCardUserId`, see
+  the upload flow section) show the card owner's avatar, mirroring the payer
+  avatar on expense cards; the expanded details list the card's last digits.
 - Every card has a chevron that expands it into a tall mode with full details.
   Expense cards show category, description, division, and the sibling parts split
   from the same original; the details are fetched per expense

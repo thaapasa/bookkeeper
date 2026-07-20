@@ -2,8 +2,10 @@ import { ActionIcon, Box, BoxProps, Button, Group, Menu, Select, Tooltip } from 
 import * as React from 'react';
 
 import { ExpenseType, expenseTypes, getExpenseTypeLabel } from 'shared/expense';
+import { sourceDisplayName } from 'shared/source';
 import { Currency, Source } from 'shared/types';
 import { countryCodeToFlag, evaluateMoneyExpression } from 'shared/util';
+import { useValidSession } from 'client/data/SessionStore';
 import { TextEdit, TextEditProps } from 'client/ui/component/TextEdit';
 import { ExpenseTypeIcon } from 'client/ui/icons/ExpenseType';
 import { classNames } from 'client/ui/utils/classNames';
@@ -202,17 +204,20 @@ export const SourceSelector: React.FC<
     title: string;
     errorText?: string;
   } & Omit<BoxProps, 'onChange'>
-> = ({ title, value, onChange, sources, errorText, ...boxProps }) => (
-  <Select
-    label={title}
-    value={String(value)}
-    onChange={v => onChange(Number(v ?? 0))}
-    data={sources.map(s => ({ value: String(s.id), label: s.name }))}
-    allowDeselect={false}
-    error={errorText || undefined}
-    {...boxProps}
-  />
-);
+> = ({ title, value, onChange, sources, errorText, ...boxProps }) => {
+  const ownUserId = useValidSession().user.id;
+  return (
+    <Select
+      label={title}
+      value={String(value)}
+      onChange={v => onChange(Number(v ?? 0))}
+      data={sources.map(s => ({ value: String(s.id), label: sourceDisplayName(s, ownUserId) }))}
+      allowDeselect={false}
+      error={errorText || undefined}
+      {...boxProps}
+    />
+  );
+};
 
 export const TypeSelector: React.FC<{
   value: ExpenseType;

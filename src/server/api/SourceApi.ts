@@ -1,8 +1,13 @@
 import { Router } from 'express';
 import { z } from 'zod';
 
-import { Source, SourcePatch } from 'shared/types';
-import { getAllSources, getSourceById, updateSource } from 'server/data/SourceDb';
+import { Source, SourcePatch, SourceUserCardsUpdate } from 'shared/types';
+import {
+  getAllSources,
+  getSourceById,
+  updateSource,
+  updateSourceUserCards,
+} from 'server/data/SourceDb';
 import { createValidatingRouter } from 'server/server/ValidatingRouter';
 
 /**
@@ -26,6 +31,14 @@ export function createSourceApi() {
     '/:sourceId',
     { body: SourcePatch, response: Source, groupRequired: true },
     (tx, session, { params, body }) => updateSource(tx, session.group.id, params.sourceId, body),
+  );
+
+  // PATCH /api/source/:sourceId/user/:userId
+  api.patchTx(
+    '/:sourceId/user/:userId',
+    { body: SourceUserCardsUpdate, response: Source, groupRequired: true },
+    (tx, session, { params, body }) =>
+      updateSourceUserCards(tx, session.group.id, params.sourceId, params.userId, body.cards),
   );
 
   return api.router;

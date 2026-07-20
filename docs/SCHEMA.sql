@@ -452,7 +452,8 @@ ALTER SEQUENCE public.shortcuts_id_seq OWNED BY public.shortcuts.id;
 CREATE TABLE public.source_users (
     source_id integer NOT NULL,
     user_id integer NOT NULL,
-    share integer
+    share integer,
+    cards text[] DEFAULT '{}'::text[] NOT NULL
 );
 
 

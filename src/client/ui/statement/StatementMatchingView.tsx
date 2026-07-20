@@ -19,6 +19,8 @@ import React from 'react';
 
 import {
   effectiveStatementDate,
+  extractCardLastDigits,
+  findCardUserId,
   MatchableExpense,
   MatchingStatementRow,
   StatementMatchInput,
@@ -30,7 +32,7 @@ import { Money, MoneyLike } from 'shared/util';
 import { apiConnect } from 'client/data/ApiConnect';
 import { getFullCategoryName } from 'client/data/Categories';
 import { QueryKeys } from 'client/data/queryKeys';
-import { useCategoryMap } from 'client/data/SessionStore';
+import { useCategoryMap, useSourceMap } from 'client/data/SessionStore';
 import { requestNewExpense } from 'client/data/State';
 import { useExpenseDetails } from 'client/data/useExpenseDetails';
 import { QueryBoundary } from 'client/ui/component/QueryBoundary';
@@ -758,6 +760,7 @@ const StatementRowDetails: React.FC<{ row: MatchingStatementRow }> = ({ row }) =
     ['Arvopäivä', readableDateWithYear(row.valueDate)],
     ['Ostopäivä', row.purchaseDate ? readableDateWithYear(row.purchaseDate) : null],
     ['Tapahtumalaji', row.type],
+    ['Kortti', extractCardLastDigits(row.message)],
     ['Saaja/Maksaja', row.counterparty],
     ['Tilinumero', row.counterpartyAccount],
     ['Viite', row.reference],
@@ -808,6 +811,8 @@ const StatementRowCard: React.FC<{
 }) => {
   const matched = row.matchedExpenseIds.length > 0;
   const ownDate = effectiveStatementDate(row);
+  const sourceMap = useSourceMap();
+  const cardUserId = findCardUserId(sourceMap?.[row.sourceId], row.message);
   return (
     <MatchCard
       cardRef={cardRef}
@@ -817,23 +822,26 @@ const StatementRowCard: React.FC<{
       selected={selected}
       onSelect={onSelect}
       header={
-        <Box miw={0}>
-          <Group gap={6} wrap="nowrap">
-            <Text fz="sm" truncate>
-              {row.counterparty ?? row.type}
+        <Group gap="xs" wrap="nowrap" miw={0}>
+          {cardUserId !== undefined ? <UserIdAvatar userId={cardUserId} size="sm" /> : null}
+          <Box miw={0}>
+            <Group gap={6} wrap="nowrap">
+              <Text fz="sm" truncate>
+                {row.counterparty ?? row.type}
+              </Text>
+              {ownDate !== displayDate ? (
+                <Tooltip label="Tiliotteen päivä eroaa kirjauksen päivästä">
+                  <Text fz="sm" c="dimmed" style={{ whiteSpace: 'nowrap' }}>
+                    {readableDateWithYear(ownDate)}
+                  </Text>
+                </Tooltip>
+              ) : null}
+            </Group>
+            <Text fz="sm" c="dimmed" truncate>
+              {row.message ?? row.reference ?? row.type}
             </Text>
-            {ownDate !== displayDate ? (
-              <Tooltip label="Tiliotteen päivä eroaa kirjauksen päivästä">
-                <Text fz="sm" c="dimmed" style={{ whiteSpace: 'nowrap' }}>
-                  {readableDateWithYear(ownDate)}
-                </Text>
-              </Tooltip>
-            ) : null}
-          </Group>
-          <Text fz="sm" c="dimmed" truncate>
-            {row.message ?? row.reference ?? row.type}
-          </Text>
-        </Box>
+          </Box>
+        </Group>
       }
       sum={row.amount}
       sumColor={row.amount.startsWith('-') ? undefined : 'green.8'}

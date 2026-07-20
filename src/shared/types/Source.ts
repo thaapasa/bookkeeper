@@ -3,11 +3,23 @@ import { z } from 'zod';
 import { DbObject, ShortString } from './Common';
 import { ObjectId } from './Id';
 
+/** Last 4 digits of a bank card number, as text to preserve leading zeros. */
+export const CardLastDigits = z.string().regex(/^\d{4}$/);
+export type CardLastDigits = z.infer<typeof CardLastDigits>;
+
 export const UserShare = z.object({
   userId: ObjectId,
   share: z.number(),
+  /**
+   * Cards attached to this source for this user, as last-4-digit strings.
+   * Array order is the display order in the formatted source name.
+   */
+  cards: z.array(CardLastDigits),
 });
 export type UserShare = z.infer<typeof UserShare>;
+
+export const SourceUserCardsUpdate = z.object({ cards: z.array(CardLastDigits) });
+export type SourceUserCardsUpdate = z.infer<typeof SourceUserCardsUpdate>;
 
 /**
  * Bank statement CSV format of the bank account behind a source, when it has

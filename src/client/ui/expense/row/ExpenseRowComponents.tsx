@@ -1,7 +1,9 @@
 import { Tooltip, UnstyledButton, UnstyledButtonProps } from '@mantine/core';
 import * as React from 'react';
 
+import { sourceDisplayName } from 'shared/source';
 import { Source } from 'shared/types';
+import { useValidSession } from 'client/data/SessionStore';
 
 import styles from './ExpenseRowComponents.module.css';
 
@@ -11,6 +13,7 @@ export const SourceIcon: React.FC<
     onClick?: () => void;
   } & TextButtonProps
 > = ({ source, onClick, ...props }) => {
+  const ownUserId = useValidSession().user.id;
   const content = source.image ? (
     <img
       src={source.image}
@@ -24,7 +27,7 @@ export const SourceIcon: React.FC<
     source.name
   );
   return (
-    <Tooltip label={source.name}>
+    <Tooltip label={sourceDisplayName(source, ownUserId)}>
       <TextButton key={source.id} onClick={onClick} {...props}>
         {content}
       </TextButton>
