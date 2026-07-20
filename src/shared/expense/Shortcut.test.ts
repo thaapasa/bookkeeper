@@ -28,6 +28,13 @@ describe('matchesStatementCounterparty', () => {
     expect(matchesStatementCounterparty(s, 'K-MARKET')).toBe(false);
   });
 
+  it('collapses whitespace runs on both sides', () => {
+    const padded = 'EasyPark Oy         easypark.fi';
+    expect(matchesStatementCounterparty(shortcut(['EasyPark Oy easypark.fi']), padded)).toBe(true);
+    expect(matchesStatementCounterparty(shortcut(['Oy easypark']), padded)).toBe(true);
+    expect(matchesStatementCounterparty(shortcut(['EasyPark  Oy']), 'EasyPark Oy')).toBe(true);
+  });
+
   it('does not match without targets or counterparty', () => {
     expect(matchesStatementCounterparty(shortcut([]), 'HSL MOBIILI')).toBe(false);
     expect(matchesStatementCounterparty(shortcut(['HSL']), null)).toBe(false);
