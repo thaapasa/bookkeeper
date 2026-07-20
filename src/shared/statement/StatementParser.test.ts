@@ -1,7 +1,14 @@
 import { describe, expect, it } from 'bun:test';
 
 import { parseStatement, sniffStatementFormat, splitCsvLine } from './StatementParser';
-import { OP_ROWS, opCsv, SPANKKI_ROWS, spankkiCsv } from './test/StatementFixtures';
+import {
+  OP_ROWS,
+  OPCREDIT_ROWS,
+  opCreditCsv,
+  opCsv,
+  SPANKKI_ROWS,
+  spankkiCsv,
+} from './test/StatementFixtures';
 
 describe('sniffStatementFormat', () => {
   it('detects OP format from the header', () => {
@@ -77,6 +84,45 @@ describe('parseStatement (OP)', () => {
     const row = `"2026-05-02";"2026-05-02";-1,00;"162";"PKORTTIMAKSU";"KAUPPA; TOINEN";"";"";"ref=";"";"20260502/X/1"`;
     const { rows } = parseStatement(opCsv([row]));
     expect(rows[0].counterparty).toEqual('KAUPPA; TOINEN');
+  });
+});
+
+describe('parseStatement (OP credit)', () => {
+  it('detects the format from the header', () => {
+    expect(sniffStatementFormat(opCreditCsv(OPCREDIT_ROWS))).toEqual('op-credit');
+  });
+
+  it('normalizes a purchase row', () => {
+    const [row] = parseStatement(opCreditCsv(OPCREDIT_ROWS)).rows;
+    expect(row).toEqual({
+      bookingDate: '2026-05-20',
+      // Kirjauspäivä is the actual purchase date; Arvopäivä is only the billing date
+      purchaseDate: '2026-05-20',
+      valueDate: '2026-06-09',
+      amount: '-342.25',
+      type: 'KORTTIOSTO',
+      counterparty: 'AUTOVUOKRAAMO OY',
+      counterpartyAccount: null,
+      reference: null,
+      message: null,
+      archiveId: '74463656189601898056439',
+      rawLine: OPCREDIT_ROWS[0],
+    });
+  });
+
+  it('pads dot-decimal amounts to two decimals', () => {
+    const row = parseStatement(opCreditCsv(OPCREDIT_ROWS)).rows[1];
+    expect(row.amount).toEqual('211.10');
+  });
+
+  it('types incoming bill payments by their Selite', () => {
+    const row = parseStatement(opCreditCsv(OPCREDIT_ROWS)).rows[1];
+    expect(row.type).toEqual('Suoritus');
+    expect(row.counterparty).toBeNull();
+  });
+
+  it('rejects rows with the bank statement column count', () => {
+    expect(() => parseStatement(opCreditCsv(OP_ROWS))).toThrow('has 11 fields, expected 8');
   });
 });
 

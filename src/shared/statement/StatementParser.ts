@@ -3,7 +3,7 @@ import { DateTime } from 'luxon';
 import { ISODate } from '../time/Time';
 import { InvalidInputError } from '../types/Errors';
 import { Money } from '../util/Money';
-import { StatementFormat, StatementRowData } from './Statement';
+import { StatementFileFormat, StatementRowData } from './Statement';
 
 /**
  * Parsers for bank statement CSV exports (see docs/BANK_STATEMENTS.md).
@@ -12,32 +12,54 @@ import { StatementFormat, StatementRowData } from './Statement';
  */
 
 export interface ParsedStatement {
-  format: StatementFormat;
+  format: StatementFileFormat;
   rows: StatementRowData[];
 }
 
-const OP_HEADER = ['Kirjauspäivä', 'Arvopäivä', 'Määrä EUROA'];
-const SPANKKI_HEADER = ['Kirjauspäivä', 'Maksupäivä', 'Summa'];
+interface FormatSpec {
+  format: StatementFileFormat;
+  /** Leading header fields that identify the format. */
+  header: string[];
+  columnCount: number;
+  parseRow: (fields: string[], rawLine: string) => StatementRowData;
+}
 
-const STATEMENT_COLUMN_COUNT = 11;
+const FORMATS: FormatSpec[] = [
+  {
+    format: 'op',
+    header: ['Kirjauspäivä', 'Arvopäivä', 'Määrä EUROA'],
+    columnCount: 11,
+    parseRow: parseOpRow,
+  },
+  {
+    format: 'op-credit',
+    header: ['Kirjauspäivä', 'Arvopäivä', 'Määrä', 'Kurssi'],
+    columnCount: 8,
+    parseRow: parseOpCreditRow,
+  },
+  {
+    format: 'spankki',
+    header: ['Kirjauspäivä', 'Maksupäivä', 'Summa'],
+    columnCount: 11,
+    parseRow: parseSpankkiRow,
+  },
+];
 
 /**
  * Detects the statement format from the CSV header row, or returns
  * undefined if the header matches no known format.
  */
-export function sniffStatementFormat(content: string): StatementFormat | undefined {
+export function sniffStatementFormat(content: string): StatementFileFormat | undefined {
+  return sniffFormatSpec(content)?.format;
+}
+
+function sniffFormatSpec(content: string): FormatSpec | undefined {
   const [header] = splitLines(content);
   if (!header) {
     return undefined;
   }
   const fields = splitCsvLine(header);
-  if (startsWithFields(fields, OP_HEADER)) {
-    return 'op';
-  }
-  if (startsWithFields(fields, SPANKKI_HEADER)) {
-    return 'spankki';
-  }
-  return undefined;
+  return FORMATS.find(f => startsWithFields(fields, f.header));
 }
 
 /**
@@ -45,35 +67,28 @@ export function sniffStatementFormat(content: string): StatementFormat | undefin
  * Throws InvalidInputError if the format is unknown or a row is malformed.
  */
 export function parseStatement(content: string): ParsedStatement {
-  const format = sniffStatementFormat(content);
-  switch (format) {
-    case 'op':
-      return { format, rows: parseRows(content, parseOpRow) };
-    case 'spankki':
-      return { format, rows: parseRows(content, parseSpankkiRow) };
-    default:
-      throw new InvalidInputError(
-        'UNKNOWN_STATEMENT_FORMAT',
-        'Statement CSV header does not match any supported bank format',
-      );
+  const spec = sniffFormatSpec(content);
+  if (!spec) {
+    throw new InvalidInputError(
+      'UNKNOWN_STATEMENT_FORMAT',
+      'Statement CSV header does not match any supported bank format',
+    );
   }
+  return { format: spec.format, rows: parseRows(content, spec) };
 }
 
-function parseRows(
-  content: string,
-  parseRow: (fields: string[], rawLine: string) => StatementRowData,
-): StatementRowData[] {
+function parseRows(content: string, spec: FormatSpec): StatementRowData[] {
   const [, ...lines] = splitLines(content);
   return lines.map((line, i) => {
     const fields = splitCsvLine(line);
-    if (fields.length !== STATEMENT_COLUMN_COUNT) {
+    if (fields.length !== spec.columnCount) {
       throw new InvalidInputError(
         'INVALID_STATEMENT_ROW',
-        `Statement row ${i + 2} has ${fields.length} fields, expected ${STATEMENT_COLUMN_COUNT}`,
+        `Statement row ${i + 2} has ${fields.length} fields, expected ${spec.columnCount}`,
       );
     }
     try {
-      return parseRow(fields, line);
+      return spec.parseRow(fields, line);
     } catch (e) {
       if (e instanceof InvalidInputError) {
         throw e;
@@ -119,6 +134,33 @@ function parsePurchaseDate(message: string): ISODate | null {
   }
   const date = `20${match[1]}-${match[2]}-${match[3]}`;
   return DateTime.fromISO(date).isValid ? (date as ISODate) : null;
+}
+
+/**
+ * OP credit card export columns: Kirjauspäivä, Arvopäivä, Määrä, Kurssi,
+ * Selite, Maksaja, Saaja, Arkistointitunnus. Dates are ISO; amounts use a
+ * dot decimal separator with 1–2 decimals. Kirjauspäivä is the actual
+ * purchase date and Arvopäivä the later billing date. There is no Laji,
+ * account, reference, message, or card number. Selite is the merchant name
+ * (duplicating Saaja) for purchases, and a type-like text ("Suoritus") for
+ * incoming bill payments, whose Maksaja/Saaja are empty.
+ */
+function parseOpCreditRow(fields: string[], rawLine: string): StatementRowData {
+  const [bookingDate, valueDate, amount, , description, , receiver] = fields;
+  const counterparty = emptyToNull(receiver);
+  return {
+    bookingDate: parseIsoDate(bookingDate),
+    valueDate: parseIsoDate(valueDate),
+    purchaseDate: parseIsoDate(bookingDate),
+    amount: parseDotAmount(amount),
+    type: counterparty ? 'KORTTIOSTO' : (emptyToNull(description) ?? 'LUOTTOKORTTI'),
+    counterparty,
+    counterpartyAccount: null,
+    reference: null,
+    message: null,
+    archiveId: emptyToNull(fields[7]),
+    rawLine,
+  };
 }
 
 /**
@@ -207,6 +249,16 @@ function parseAmount(value: string): string {
     throw new InvalidInputError('INVALID_STATEMENT_ROW', `Invalid statement amount: ${value}`);
   }
   return Money.from(value.replace('+', '').replace(',', '.')).toString();
+}
+
+const DotAmountRE = /^[+-]?\d+(\.\d{1,2})?$/;
+
+/** OP credit exports use dot decimals with 1–2 decimals (e.g. "211.1"). */
+function parseDotAmount(value: string): string {
+  if (!DotAmountRE.test(value)) {
+    throw new InvalidInputError('INVALID_STATEMENT_ROW', `Invalid statement amount: ${value}`);
+  }
+  return Money.from(value.replace('+', '')).toString(2);
 }
 
 function parseIsoDate(value: string): ISODate {

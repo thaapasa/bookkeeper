@@ -7,6 +7,27 @@ import { StatementFormat } from '../types/Source';
 
 export { StatementFormat };
 
+/**
+ * Format of an uploaded statement file. A superset of the source-level
+ * StatementFormat: a source declares its bank ('op'), and accepts all of
+ * that bank's file formats — both the account statement ('op') and the
+ * credit card transaction export ('op-credit').
+ */
+export const StatementFileFormat = z.enum(['op', 'spankki', 'op-credit']);
+export type StatementFileFormat = z.infer<typeof StatementFileFormat>;
+
+/** File formats whose rows are credit card purchases (billed later), not account debits. */
+export const CREDIT_FILE_FORMATS: readonly StatementFileFormat[] = ['op-credit'];
+
+export function isCreditFileFormat(format: StatementFileFormat): boolean {
+  return CREDIT_FILE_FORMATS.includes(format);
+}
+
+/** The source statementFormat that accepts files of the given format. */
+export function sourceFormatForFile(format: StatementFileFormat): StatementFormat {
+  return format === 'op-credit' ? 'op' : format;
+}
+
 /** Normalized money amount with a dot decimal separator, e.g. "-579.12". */
 export const StatementAmount = z.string().regex(/^-?\d+\.\d{2}$/);
 export type StatementAmount = z.infer<typeof StatementAmount>;
@@ -44,13 +65,15 @@ export const StatementRow = StatementRowData.extend({
   uploadId: ObjectId,
   /** Reviewed as "will never match any expense" in the matching view. */
   skipped: z.boolean(),
+  /** From a credit card file (see isCreditFileFormat), derived from the upload's format. */
+  credit: z.boolean(),
 });
 export type StatementRow = z.infer<typeof StatementRow>;
 
 export const StatementUpload = DbObject.extend({
   sourceId: ObjectId,
   filename: ShortString,
-  format: StatementFormat,
+  format: StatementFileFormat,
   uploadedBy: ObjectId,
   uploadedAt: ISOTimestamp,
   rowCount: z.number().int(),
@@ -68,7 +91,7 @@ export type StatementUploadInput = z.infer<typeof StatementUploadInput>;
 
 export const StatementUploadResult = z.object({
   uploadId: ObjectId,
-  format: StatementFormat,
+  format: StatementFileFormat,
   rowCount: z.number().int(),
   newCount: z.number().int(),
   duplicateCount: z.number().int(),

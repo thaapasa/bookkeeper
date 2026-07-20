@@ -8,7 +8,14 @@ import {
   StatementUploadListItem,
   StatementUploadResult,
 } from 'shared/statement';
-import { OP_ROWS, opCsv, SPANKKI_ROWS, spankkiCsv } from 'shared/statement/test/StatementFixtures';
+import {
+  OP_ROWS,
+  OPCREDIT_ROWS,
+  opCreditCsv,
+  opCsv,
+  SPANKKI_ROWS,
+  spankkiCsv,
+} from 'shared/statement/test/StatementFixtures';
 import { Source } from 'shared/types';
 import { logger } from 'server/Logger';
 
@@ -179,6 +186,34 @@ describe('statement import', () => {
 
   it('rejects uploads whose format does not match the source', async () => {
     await expect(upload('spankki.csv', spankkiCsv(SPANKKI_ROWS))).rejects.toMatchObject({
+      code: 'STATEMENT_FORMAT_MISMATCH',
+    });
+  });
+
+  it('imports credit card files into a bank statement source', async () => {
+    const result = await upload('opcredit.csv', opCreditCsv(OPCREDIT_ROWS));
+    expect(result).toMatchObject({ format: 'op-credit', rowCount: 3, newCount: 3 });
+
+    // Bank and credit rows coexist; credit-ness is derived from the upload format
+    await upload('op.csv', opCsv(OP_ROWS));
+    const rows = await session.get<StatementRowsResponse>('/api/statement/rows', {
+      sourceId: `${sourceId}`,
+    });
+    expect(rows.total).toEqual(8);
+    const byArchiveId = (id: string) => rows.rows.find(r => r.archiveId === id);
+    expect(byArchiveId('74463656189601898056439')).toMatchObject({
+      credit: true,
+      purchaseDate: '2026-05-20',
+      valueDate: '2026-06-09',
+      amount: '-342.25',
+      type: 'KORTTIOSTO',
+    });
+    expect(byArchiveId('20260502/ABC123/000001')).toMatchObject({ credit: false });
+  });
+
+  it('rejects credit card files when the source format is not op', async () => {
+    await session.patch(`/api/source/${sourceId}`, { statementFormat: 'spankki' });
+    await expect(upload('opcredit.csv', opCreditCsv(OPCREDIT_ROWS))).rejects.toMatchObject({
       code: 'STATEMENT_FORMAT_MISMATCH',
     });
   });

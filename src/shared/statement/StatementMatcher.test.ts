@@ -37,6 +37,7 @@ const row = (partial: Partial<MatchingStatementRow>): MatchingStatementRow => ({
   archiveId: null,
   rawLine: '',
   skipped: false,
+  credit: false,
   matchedExpenseIds: [],
   ...partial,
 });

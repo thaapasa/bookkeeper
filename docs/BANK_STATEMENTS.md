@@ -19,6 +19,10 @@ UI in `src/client/ui/statement/` (the "Tiliotteet" page).
 - A source that has a bank account behind it is configured with a **statement
   format** (`sources.statement_format`, nullable): `op` or `spankki`. Configured from
   the source settings UI. A source without a format cannot receive statement uploads.
+- The source format names the *bank*; an uploaded file has a **file format**
+  (`StatementFileFormat`) which can be more specific: an `op` source accepts both
+  `op` (account statement) and `op-credit` (credit card transaction export) files.
+  `sourceFormatForFile()` maps a file format to the source format that accepts it.
 - An uploaded CSV file becomes one **statement upload** (audit record) and a set of
   **statement rows**. Rows are deduplicated, so re-uploading the same statement — or
   a different export whose date range overlaps — is a safe no-op for the overlapping
@@ -34,7 +38,7 @@ One row per uploaded file; audit trail for imports.
 | ------------------------------------------- | ------------------------------- |
 | `id`, `group_id`, `source_id`               | Standard scoping                |
 | `filename`                                  | Original filename of the upload |
-| `format`                                    | `op` / `spankki` (as parsed)    |
+| `format`                                    | File format as parsed: `op` / `spankki` / `op-credit` |
 | `uploaded_by`, `uploaded_at`                | Who and when                    |
 | `row_count`, `new_count`, `duplicate_count` | Parse/import result summary     |
 
@@ -59,6 +63,11 @@ One row per bank transaction. Both formats normalize to the same shape.
 | `row_hash`                    | Dedup key, see below                                                           |
 
 Unique constraint: `(source_id, row_hash)`.
+
+There is no debit/credit column: a row's `credit` flag (exposed on the
+`StatementRow` API type) is derived from the owning upload's file format
+(`isCreditFileFormat`, currently `format = 'op-credit'`). Credit rows get a
+"Luotto" badge in the UI.
 
 ### Deduplication
 
@@ -90,8 +99,26 @@ eleven columns conceptually. Differences:
 | Empty fields | `""`                                                | `-`                               |
 | Type field   | Numeric code + description (`162` / `PKORTTIMAKSU`) | Text (`KORTTIOSTO`)               |
 
-**Format sniffing** uses the header row alone — the two headers are distinct, so no
-content heuristics are needed. A file whose header matches neither format is rejected.
+**Format sniffing** uses the header row alone — the headers are distinct, so no
+content heuristics are needed. A file whose header matches no format is rejected.
+
+### OP credit card export (`op-credit`)
+
+The credit card transaction export from OP's card details view is a different,
+8-column format: `Kirjauspäivä;Arvopäivä;Määrä;Kurssi;Selite;Maksaja;Saaja;
+Arkistointitunnus` (quoted fields, ISO dates, LF, **dot**-decimal amounts with 1–2
+decimals). Normalization quirks:
+
+- `Kirjauspäivä` is the actual purchase date and `Arvopäivä` the later billing
+  date, so the parser sets `purchase_date = Kirjauspäivä` (keeps
+  `effectiveStatementDate()` aligned with expense dates).
+- There is no Laji/type column: purchases get type `KORTTIOSTO`; incoming bill
+  payments have empty Maksaja/Saaja and use their Selite ("Suoritus") as the type.
+- `Selite` duplicates `Saaja` (the merchant) on purchases; no account, reference,
+  message, or card number exists. The "Suoritus" rows are the flip side of the
+  bill charge on the bank account statement — cross-source matching does not
+  exist, so they are meant to be skipped manually in the matching view.
+- `Kurssi` (currency) is ignored; amounts are already EUR.
 
 Normalizations applied by the parsers:
 

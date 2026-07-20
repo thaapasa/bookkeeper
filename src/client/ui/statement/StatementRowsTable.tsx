@@ -1,4 +1,4 @@
-import { Table, Text } from '@mantine/core';
+import { Badge, Group, Table, Text } from '@mantine/core';
 import React from 'react';
 
 import { StatementRowData } from 'shared/statement';
@@ -6,7 +6,8 @@ import { readableDateWithYear } from 'shared/time';
 import { Money } from 'shared/util';
 
 interface StatementRowsTableProps {
-  rows: StatementRowData[];
+  /** credit is absent for upload-preview rows, whose format is not yet committed. */
+  rows: (StatementRowData & { credit?: boolean })[];
   /** Extra rows rendered after the data rows (e.g. a "…and N more" note). */
   children?: React.ReactNode;
 }
@@ -20,7 +21,7 @@ export const StatementRowsTable: React.FC<StatementRowsTableProps> = ({ rows, ch
           <Table.Th w={100}>Päivä</Table.Th>
           <Table.Th>Saaja/Maksaja</Table.Th>
           <Table.Th visibleFrom="sm">Viesti</Table.Th>
-          <Table.Th w={120} visibleFrom="sm">
+          <Table.Th w={170} visibleFrom="sm">
             Tyyppi
           </Table.Th>
           <Table.Th w={100} ta="right">
@@ -47,9 +48,16 @@ export const StatementRowsTable: React.FC<StatementRowsTableProps> = ({ rows, ch
               </Text>
             </Table.Td>
             <Table.Td visibleFrom="sm">
-              <Text fz="sm" c="dimmed">
-                {row.type}
-              </Text>
+              <Group gap="xs" wrap="nowrap">
+                <Text fz="sm" c="dimmed">
+                  {row.type}
+                </Text>
+                {row.credit ? (
+                  <Badge size="xs" variant="light" color="orange" radius="sm" flex="none">
+                    Luotto
+                  </Badge>
+                ) : null}
+              </Group>
             </Table.Td>
             <Table.Td ta="right">
               <Text fz="sm" fw={600} c={row.amount.startsWith('-') ? undefined : 'green.8'}>

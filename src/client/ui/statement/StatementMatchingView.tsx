@@ -760,6 +760,7 @@ const StatementRowDetails: React.FC<{ row: MatchingStatementRow }> = ({ row }) =
     ['Arvopäivä', readableDateWithYear(row.valueDate)],
     ['Ostopäivä', row.purchaseDate ? readableDateWithYear(row.purchaseDate) : null],
     ['Tapahtumalaji', row.type],
+    ['Maksutapa', row.credit ? 'Luottokortti' : null],
     ['Kortti', extractCardLastDigits(row.message)],
     ['Saaja/Maksaja', row.counterparty],
     ['Tilinumero', row.counterpartyAccount],
@@ -842,6 +843,13 @@ const StatementRowCard: React.FC<{
             </Text>
           </Box>
         </Group>
+      }
+      extraBadges={
+        row.credit ? (
+          <Badge size="xs" variant="light" color="orange" radius="sm" style={{ flexShrink: 0 }}>
+            Luotto
+          </Badge>
+        ) : null
       }
       sum={row.amount}
       sumColor={row.amount.startsWith('-') ? undefined : 'green.8'}

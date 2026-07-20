@@ -1,7 +1,9 @@
 import { createHash } from 'crypto';
 
 import {
+  CREDIT_FILE_FORMATS,
   parseStatement,
+  sourceFormatForFile,
   StatementRowData,
   StatementRowsResponse,
   StatementUploadDeleteResult,
@@ -67,7 +69,7 @@ export function importStatement(
         );
       }
       const parsed = parseStatement(input.content);
-      if (parsed.format !== source.statementFormat) {
+      if (sourceFormatForFile(parsed.format) !== source.statementFormat) {
         throw new InvalidInputError(
           'STATEMENT_FORMAT_MISMATCH',
           `Statement format ${parsed.format} does not match source format ${source.statementFormat}`,
@@ -140,15 +142,21 @@ export function importStatement(
  * The StatementRow column list for a statement_row query, aliased to the
  * given table name. The single SQL home for the shape — every query that
  * returns StatementRow objects must compose this, so a new column is added
- * in one place.
+ * in one place. `credit` is derived from the owning upload's file format,
+ * so callers must also join statement_upload via statementUploadJoin().
  */
-export const statementRowFields = (t: string) => `--sql
+export const statementRowFields = (t: string, u: string) => `--sql
   ${t}.id, ${t}.source_id AS "sourceId", ${t}.upload_id AS "uploadId",
   ${t}.booking_date AS "bookingDate", ${t}.value_date AS "valueDate",
   ${t}.purchase_date AS "purchaseDate", ${t}.amount, ${t}.type,
   ${t}.counterparty, ${t}.counterparty_account AS "counterpartyAccount",
   ${t}.reference, ${t}.message, ${t}.archive_id AS "archiveId",
-  ${t}.raw_line AS "rawLine", ${t}.skipped`;
+  ${t}.raw_line AS "rawLine", ${t}.skipped,
+  ${u}.format IN (${CREDIT_FILE_FORMATS.map(f => `'${f}'`).join(',')}) AS credit`;
+
+/** Joins the owning upload batch, needed by statementRowFields() for `credit`. */
+export const statementUploadJoin = (t: string, u: string) => `--sql
+  JOIN statement_upload ${u} ON ${u}.id = ${t}.upload_id AND ${u}.group_id = $/groupId/`;
 
 /** SQL twin of effectiveStatementDate(): the date to compare against expenses. */
 export const statementRowEffectiveDate = (t: string) =>
@@ -178,7 +186,8 @@ export async function getStatementRows(
     params,
   );
   const rows = await tx.manyOrNone<StatementRowsResponse['rows'][number]>(
-    `SELECT ${statementRowFields('r')} FROM statement_row r ${filter}
+    `SELECT ${statementRowFields('r', 'u')} FROM statement_row r
+      ${statementUploadJoin('r', 'u')} ${filter}
       ORDER BY r.booking_date DESC, r.id DESC
       LIMIT $/limit/ OFFSET $/offset/`,
     { ...params, limit: options.limit, offset: options.offset },

@@ -12,7 +12,11 @@ import {
 import { ISOMonth, toISODate } from 'shared/time';
 import { InvalidInputError, NotFoundError, ObjectId } from 'shared/types';
 import { DbTask } from 'server/data/Db.ts';
-import { statementRowEffectiveDate, statementRowFields } from 'server/data/StatementDb';
+import {
+  statementRowEffectiveDate,
+  statementRowFields,
+  statementUploadJoin,
+} from 'server/data/StatementDb';
 import { logger } from 'server/Logger';
 import { withSpan } from 'server/telemetry/Spans';
 
@@ -70,17 +74,18 @@ async function doGetStatementMatchingData(
 
   const statementRows = await tx.manyOrNone<MatchingStatementRow>(
     `SELECT
-        ${statementRowFields('r')},
+        ${statementRowFields('r', 'u')},
         COALESCE(
           ARRAY_AGG(m.expense_id) FILTER (WHERE m.expense_id IS NOT NULL),
           '{}'
         ) AS "matchedExpenseIds"
       FROM statement_row r
+      ${statementUploadJoin('r', 'u')}
       LEFT JOIN statement_match m ON m.statement_row_id = r.id AND m.group_id = $/groupId/
       WHERE r.group_id = $/groupId/ AND r.source_id = $/sourceId/
         AND ${statementRowEffectiveDate('r')} >= $/windowStart/
         AND ${statementRowEffectiveDate('r')} < $/windowEnd/
-      GROUP BY r.id
+      GROUP BY r.id, u.format
       ORDER BY ${statementRowEffectiveDate('r')}, r.id`,
     { groupId, sourceId, windowStart, windowEnd },
   );
@@ -261,8 +266,9 @@ export async function getStatementRowsForExpense(
   expenseId: ObjectId,
 ): Promise<StatementRow[]> {
   return tx.manyOrNone<StatementRow>(
-    `SELECT ${statementRowFields('r')}
+    `SELECT ${statementRowFields('r', 'u')}
       FROM statement_row r
+      ${statementUploadJoin('r', 'u')}
       JOIN statement_match m ON m.statement_row_id = r.id AND m.group_id = $/groupId/
       WHERE m.expense_id = $/expenseId/ AND r.group_id = $/groupId/
       ORDER BY ${statementRowEffectiveDate('r')}, r.id`,

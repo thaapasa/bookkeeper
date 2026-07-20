@@ -18,6 +18,22 @@ export const OP_ROWS = [
   `"2026-06-28";"2026-06-28";-400,00;"106";"TILISIIRTO";"Säästötili";"FI2112345600000786";"OKOYFIHH";"ref=";"Viesti: Kuukausisäästö";"20140101/STANDING/00001"`,
 ];
 
+export const OPCREDIT_HEADER = `"Kirjauspäivä";"Arvopäivä";"Määrä";"Kurssi";"Selite";"Maksaja";"Saaja";"Arkistointitunnus"`;
+
+export const opCreditCsv = (rows: string[]) => BOM + [OPCREDIT_HEADER, ...rows].join('\n') + '\n';
+
+/**
+ * OP credit card export: Kirjauspäivä is the purchase date, Arvopäivä the
+ * later billing date, amounts use dot decimals (1–2 decimals). Purchases
+ * duplicate the merchant in Selite and Saaja; incoming bill payments are
+ * "Suoritus" rows with empty Maksaja/Saaja.
+ */
+export const OPCREDIT_ROWS = [
+  `"2026-05-20";"2026-06-09";-342.25;"EUR";"AUTOVUOKRAAMO OY";"MEIKÄLÄINEN MATTI";"AUTOVUOKRAAMO OY";"74463656189601898056439"`,
+  `"2026-05-07";"2026-05-08";211.1;"EUR";"Suoritus";"";"";"202606185FVT00223666"`,
+  `"2026-05-02";"2026-05-03";-6.99;"EUR";"Suoratoisto Oy";"MEIKÄLÄINEN MATTI";"Suoratoisto Oy";"74313306175404759728315"`,
+];
+
 export const SPANKKI_HEADER = `Kirjauspäivä;Maksupäivä;Summa;Tapahtumalaji;Maksaja;Saajan nimi;Saajan tilinumero;Saajan BIC-tunnus;Viitenumero;Viesti;Arkistointitunnus`;
 
 export const spankkiCsv = (rows: string[]) => BOM + [SPANKKI_HEADER, ...rows].join('\r\n') + '\r\n';
