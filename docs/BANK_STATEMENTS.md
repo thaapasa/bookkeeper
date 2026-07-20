@@ -323,6 +323,10 @@ selection (a preview of what "Täsmää valitut" would link).
   targets match a selected counterparty — creating **one** expense that covers
   the whole selection: sum is the rows' total, date and receiver come from the
   first-selected row, and the expense is matched to all selected rows on save.
+- "Ohita valitut" bulk-skips a one-sided selection (only rows or only
+  expenses — never a mixed one, so a selection meant for linking cannot be
+  skipped by accident). Matched and already skipped items in the selection
+  are left untouched.
 - The expense details view (expense table row expander) also lists the matched
   statement rows: `GET /api/expense/:id` returns `matchedStatementRows` alongside
   the division.

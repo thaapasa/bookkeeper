@@ -228,6 +228,35 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
   const selectionShortcuts = rowsOnlySelection
     ? shortcuts.filter(s => selectedRows.some(r => matchesStatementCounterparty(s, r.counterparty)))
     : [];
+
+  // Bulk skip works only on a one-sided selection, so a selection meant for
+  // linking cannot be skipped by accident. Matched and already skipped items
+  // are left alone (the server refuses to skip matched ones).
+  const expensesOnlySelection = selectedExpenseIds.length > 0 && selectedRowIds.length < 1;
+  const skipSelection = () => {
+    const rows = selectedRows.filter(r => r.matchedExpenseIds.length < 1 && !r.skipped);
+    const expenses = selectedExpenseIds
+      .map(id => data.expenses.find(e => e.id === id))
+      .filter(isDefined)
+      .filter(e => e.matchedStatementRowIds.length < 1 && !e.statementSkip);
+    return executeOperation(
+      async () => {
+        for (const r of rows) {
+          await apiConnect.setStatementRowSkipped(r.id, true);
+        }
+        for (const e of expenses) {
+          await apiConnect.setExpenseStatementSkip(e.id, true);
+        }
+      },
+      {
+        success: `${rows.length + expenses.length} ohitettu`,
+        postProcess: () => {
+          clearSelection();
+          return invalidate();
+        },
+      },
+    );
+  };
   const selectedRowTotal = data.statementRows
     .filter(r => selectedRowIds.includes(r.id))
     .reduce((sum, r) => sum.plus(r.amount), Money.from(0));
@@ -412,6 +441,17 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
                           Luo kirjaus
                         </Button>
                       </>
+                    ) : null}
+                    {rowsOnlySelection || expensesOnlySelection ? (
+                      <Button
+                        size="xs"
+                        variant="light"
+                        color="gray"
+                        leftSection={<Icons.Hidden size={16} />}
+                        onClick={() => void skipSelection()}
+                      >
+                        Ohita valitut
+                      </Button>
                     ) : null}
                     <Button size="xs" variant="default" onClick={clearSelection}>
                       Tyhjennä
