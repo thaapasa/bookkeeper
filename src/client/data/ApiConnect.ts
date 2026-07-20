@@ -399,7 +399,7 @@ export class ApiConnect {
 
   // Shortcuts
 
-  public createShortcut = (data: ExpenseShortcutPayload): Promise<void> =>
+  public createShortcut = (data: ExpenseShortcutPayload): Promise<ExpenseShortcut> =>
     this.post(uri`/api/profile/shortcut`, { body: data });
 
   public getShortcut = (shortcutId: ObjectId): Promise<ExpenseShortcut> =>

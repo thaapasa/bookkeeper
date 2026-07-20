@@ -155,6 +155,14 @@ export class Money {
     return Money.from(a).plus(b);
   }
 
+  public static sum(values: Iterable<MoneyLike>): Money {
+    let total = Money.zero;
+    for (const v of values) {
+      total = total.plus(v);
+    }
+    return total;
+  }
+
   public minus(o: MoneyLike): Money {
     return new Money(this.value.minus(Money.toBig(o)));
   }

@@ -184,7 +184,7 @@ export function getSubscriptionMatches(
       }
       assigned.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : b.id - a.id));
       const totalCount = assigned.length;
-      const totalSum = assigned.reduce((acc, e) => acc.plus(e.sum), Money.from(0)).toString();
+      const totalSum = Money.sum(assigned.map(e => e.sum)).toString();
       const limit = query.limit ?? 200;
       const visibleIds = assigned.slice(0, limit).map(e => e.id);
       const matches = await getUserExpensesByIds(tx, groupId, userId, visibleIds);

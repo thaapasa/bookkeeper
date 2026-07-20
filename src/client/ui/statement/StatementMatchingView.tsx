@@ -149,7 +149,7 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
     if (!first) {
       return;
     }
-    const total = rows.reduce((sum, r) => sum.plus(r.amount), Money.from(0));
+    const total = Money.sum(rows.map(r => r.amount));
     void requestNewExpense(
       async (expense, original) => {
         const id = await defaultExpenseSaveAction(expense, original);
@@ -257,12 +257,12 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
       },
     );
   };
-  const selectedRowTotal = data.statementRows
-    .filter(r => selectedRowIds.includes(r.id))
-    .reduce((sum, r) => sum.plus(r.amount), Money.from(0));
-  const selectedTotal = data.expenses
-    .filter(e => selectedExpenseIds.includes(e.id))
-    .reduce((sum, e) => sum.plus(e.sum), Money.from(0));
+  const selectedRowTotal = Money.sum(
+    data.statementRows.filter(r => selectedRowIds.includes(r.id)).map(r => r.amount),
+  );
+  const selectedTotal = Money.sum(
+    data.expenses.filter(e => selectedExpenseIds.includes(e.id)).map(e => e.sum),
+  );
 
   return (
     <Stack gap="sm" pb={actionBarVisible ? 80 : undefined}>

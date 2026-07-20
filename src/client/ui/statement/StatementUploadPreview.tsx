@@ -37,7 +37,7 @@ export const StatementUploadPreview: React.FC<StatementUploadPreviewProps> = ({
   const [sourceId, setSourceId] = React.useState<number | undefined>(initialSourceId);
   const rows = parsed.rows;
   const dates = rows.map(r => r.bookingDate).sort();
-  const total = rows.reduce((sum, r) => sum.plus(r.amount), Money.from(0));
+  const total = Money.sum(rows.map(r => r.amount));
 
   return (
     <Paper withBorder p="md">

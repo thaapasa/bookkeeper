@@ -192,7 +192,7 @@ async function checkSplits(splits: ExpenseSplit[], expense: Expense) {
     );
   }
 
-  const partSum = splits.reduce((acc, s) => acc.plus(s.sum), Money.from(0));
+  const partSum = Money.sum(splits.map(s => s.sum));
   if (!partSum.equals(expense.sum)) {
     throw new BkError(
       'INVALID_SPLIT',

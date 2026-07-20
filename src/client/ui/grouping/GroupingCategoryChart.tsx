@@ -69,7 +69,7 @@ export const GroupingCategoryChart: React.FC<
 };
 
 const CategoryTotalsTable: React.FC<{ data: Data[] }> = ({ data }) => {
-  const total = data.reduce((p, n) => p.plus(n.value), Money.from(0));
+  const total = Money.sum(data.map(d => d.value));
   return (
     <table className={styles.legendTable}>
       <tbody>

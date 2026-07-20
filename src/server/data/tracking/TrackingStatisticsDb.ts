@@ -225,17 +225,16 @@ function valuesByCategoryIds(
   const res: ReturnType<typeof valuesByCategoryIds> = {};
   categoryIds.forEach(
     c =>
-      (res[`c${c}-${userId ?? 0}`] = rows
-        .filter(
-          r =>
-            r.timeSlot === timeSlot &&
-            (r.categoryId === c || r.parentId === c) &&
-            (userId === undefined || r.userId === userId),
-        )
-        .reduce(addMoney, Money.from(0))
-        .valueOf()),
+      (res[`c${c}-${userId ?? 0}`] = Money.sum(
+        rows
+          .filter(
+            r =>
+              r.timeSlot === timeSlot &&
+              (r.categoryId === c || r.parentId === c) &&
+              (userId === undefined || r.userId === userId),
+          )
+          .map(r => r.sum),
+      ).valueOf()),
   );
   return res;
 }
-
-const addMoney = (m: Money, src: { sum: MoneyLike }) => m.plus(src.sum);

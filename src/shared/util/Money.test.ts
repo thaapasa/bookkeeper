@@ -32,6 +32,12 @@ describe('Money', () => {
     expect(new Money('10').plus(new Money(12.5)).toString()).toEqual('22.50');
     expect(new Money('10').plus(new Money(12.5)).equals(new Money(22.5))).toEqual(true);
   });
+  it('should sum a list of values', () => {
+    expect(Money.sum([]).toString()).toEqual('0.00');
+    expect(Money.sum(['1.50', 2, new Money('-0.25')]).toString()).toEqual('3.25');
+    expect(Money.sum([Money.zero, Money.cent]).toString()).toEqual('0.01');
+  });
+
   it('should equal when created from money', () => {
     const m = new Money(100);
     expect(Money.from(m)).toEqual(m);

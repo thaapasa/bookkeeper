@@ -67,9 +67,7 @@ function buildExpenseUnits(expenses: MatchableExpense[]): ExpenseUnit[] {
     units.push({
       date: parts[0].date,
       expenseIds: parts.map(p => p.id),
-      signedTotal: parts
-        .reduce((sum, e) => sum.plus(signedExpenseSum(e)), Money.from(0))
-        .toString(),
+      signedTotal: Money.sum(parts.map(signedExpenseSum)).toString(),
     });
   }
   return units;

@@ -80,8 +80,8 @@ export function calculateYearlyTotals(years: YearlyChartRow[]): {
     const zero: YearlyTotals = { income: 0, expense: 0, surplus: 0 };
     return { sum: zero, average: zero };
   }
-  const income = years.reduce((acc, y) => acc.plus(y.income), Money.from(0));
-  const expense = years.reduce((acc, y) => acc.plus(y.expense), Money.from(0));
+  const income = Money.sum(years.map(y => y.income));
+  const expense = Money.sum(years.map(y => y.expense));
   const avgIncome = income.divide(n);
   const avgExpense = expense.divide(n);
   return {

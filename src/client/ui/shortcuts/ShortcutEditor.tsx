@@ -94,7 +94,7 @@ const ShortcutEditView: React.FC<{
         <Box>
           <TextEdit value={state.background} onChange={state.setBackground} width="80px" />
         </Box>
-        <Box>Tiliotteen saaja</Box>
+        <Box>Tiliotteen saaja/maksaja</Box>
         <Box>
           <TagsInput
             aria-label="Tiliotteen saaja/maksaja"
