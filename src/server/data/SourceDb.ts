@@ -116,7 +116,7 @@ export function updateSourceUserCards(
         { cards, userId, sourceId, groupId },
       );
       if (result.rowCount < 1) {
-        throw new NotFoundError('SOURCE_USER_NOT_FOUND', 'source user', sourceId);
+        throw new NotFoundError('SOURCE_USER_NOT_FOUND', 'source user', `${sourceId}/${userId}`);
       }
       return getSourceById(tx, groupId, sourceId);
     },

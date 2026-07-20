@@ -1,6 +1,7 @@
 import { Badge, Group, Select, Stack, Table, TagsInput } from '@mantine/core';
 import * as React from 'react';
 
+import { extractCardLastDigits } from 'shared/statement';
 import { CardLastDigits, ObjectId, Source, StatementFormat, User } from 'shared/types';
 import { apiConnect } from 'client/data/ApiConnect';
 import { updateSession } from 'client/data/Login';
@@ -138,16 +139,15 @@ async function changeStatementFormat(sourceId: ObjectId, value: string | null) {
 }
 
 /**
- * Accepts a card's last 4 digits as-is, or a full masked card number pasted
- * from a bank statement ("401046******1226"), keeping only the last 4.
+ * Accepts a card's last 4 digits as-is, or a masked card number pasted from
+ * a bank statement message ("401046******1226 ..."), keeping only the last 4.
  */
 function normalizeCardInput(tag: string): string | null {
   const trimmed = tag.trim();
   if (CardLastDigits.safeParse(trimmed).success) {
     return trimmed;
   }
-  const masked = /^\d{6}\*{6}(\d{4})$/.exec(trimmed);
-  return masked ? masked[1] : null;
+  return extractCardLastDigits(trimmed);
 }
 
 async function changeSourceUserCards(sourceId: ObjectId, userId: ObjectId, tags: string[]) {

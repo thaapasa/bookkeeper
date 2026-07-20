@@ -155,9 +155,12 @@ happens client-side:
    server would reject them with `STATEMENT_FORMAT_MISMATCH`.
 
 Sources also carry per-user **bank cards** (`source_users.cards`, an array of
-last-4-digit strings, edited on the Tiedot page). Wherever a source is picked or
-named in the UI, `sourceDisplayName()` appends the cards to the name — own cards
-first — e.g. "Salen tili (9876/1226)". Card payment messages start with the
+last-4-digit strings, edited on the Tiedot page). Where a source is picked or
+named in full — the expense dialog's source selector, the statement page's
+account selects and upload target options, the expense row's source tooltip,
+and the expense details view — `sourceDisplayName()` appends the cards to the
+name, own cards first, e.g. "Salen tili (9876/1226)". Compact labels (the
+expense table's source filter chip) keep the plain name. Card payment messages start with the
 masked card number (`401046******1226 …` for OP, `431871******3515 …` for
 S-pankki); `extractCardLastDigits()` / `findCardUserId()`
 (`shared/statement/StatementCard.ts`) resolve the paying user from the last 4
