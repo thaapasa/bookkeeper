@@ -74,12 +74,15 @@ function getDefaultState(
 ): ExpenseInEditor {
   const e = original;
   const defaultSourceId = props.group.defaultSourceId || undefined;
-  const defaultSource = defaultSourceId ? props.sourceMap[defaultSourceId] : undefined;
-  const defaultBenefitUsers = defaultSource?.users.map(u => u.userId) || [props.user.id];
+  // Default benefit follows the initially selected source (e.g. passed in by
+  // the statement matching view), not the group's default source
+  const initialSourceId = values.sourceId || (e ? e.sourceId : defaultSourceId) || 0;
+  const initialSource = initialSourceId ? props.sourceMap[initialSourceId] : undefined;
+  const defaultBenefitUsers = initialSource?.users.map(u => u.userId) || [props.user.id];
 
   return {
     title: values.title ? values.title : e ? e.title : '',
-    sourceId: values.sourceId || (e ? e.sourceId : defaultSourceId) || 0,
+    sourceId: initialSourceId,
     categoryId: values.categoryId || (e ? e.categoryId : 0),
     receiver: values.receiver || (e ? e.receiver : ''),
     sum: values.sum ? values.sum : e ? e.sum.toString() : '',
