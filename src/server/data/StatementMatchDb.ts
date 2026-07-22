@@ -1,12 +1,6 @@
 import { DateTime } from 'luxon';
 
-import {
-  expenseBeneficiary,
-  ExpenseDivisionItem,
-  ExpenseInput,
-  negateDivision,
-  splitByShares,
-} from 'shared/expense';
+import { evenBeneficiaryDivision, ExpenseInput, getBeneficiaryUserIds } from 'shared/expense';
 import {
   MatchableExpense,
   MatchingStatementRow,
@@ -258,6 +252,15 @@ async function doFixAndMatchExpense(
       'Only expenses and incomes can be fixed from statement rows',
     );
   }
+  // Guards against a stale client: the expense may have been confirmed (its
+  // real sum verified) elsewhere after the matching view was loaded, and a
+  // fix would silently rewrite the verified date and sum.
+  if (expense.confirmed) {
+    throw new InvalidInputError(
+      'STATEMENT_FIX_ALREADY_CONFIRMED',
+      'Only preliminary expenses can be fixed from statement rows',
+    );
+  }
   const rows = await tx.manyOrNone<{ id: number; sourceId: number; amount: string }>(
     `SELECT r.id, r.source_id AS "sourceId", r.amount
       FROM statement_row r
@@ -296,24 +299,20 @@ async function doFixAndMatchExpense(
     { statementRowIds: input.statementRowIds, groupId },
   );
   const sum = Money.sum(rows.map(r => r.amount)).abs();
+  if (sum.equals(Money.zero)) {
+    // E.g. a purchase and its refund selected together: fixing would produce
+    // a confirmed zero-sum expense with an all-zero division
+    throw new InvalidInputError('STATEMENT_FIX_ZERO_SUM', 'Selected statement rows net to zero');
+  }
   const division = await getExpenseDivision(tx, groupId, expense.id);
-  const beneficiaryType = expenseBeneficiary[expense.type];
-  const beneficiaries = [
-    ...new Set(division.filter(d => d.type === beneficiaryType).map(d => d.userId)),
-  ];
+  const beneficiaries = getBeneficiaryUserIds(expense.type, division);
   if (beneficiaries.length < 1) {
     throw new InvalidInputError('STATEMENT_FIX_NO_DIVISION', 'Expense has no division to re-split');
   }
   // Even split of the new sum among the current beneficiaries; the payer side
   // is re-derived from source shares by determineDivision, exactly as when the
   // sum is edited in the expense dialog without changing the participants.
-  const parts = splitByShares(
-    sum,
-    beneficiaries.map(u => ({ userId: u, share: 1 })),
-  );
-  const beneficiaryDivision: ExpenseDivisionItem[] = (
-    beneficiaryType === 'split' ? negateDivision(parts) : parts
-  ).map(p => ({ userId: p.userId, type: beneficiaryType, sum: p.sum.toString() }));
+  const beneficiaryDivision = evenBeneficiaryDivision(expense.type, sum, beneficiaries);
   const fixed: ExpenseInput = {
     userId: expense.userId,
     categoryId: expense.categoryId,

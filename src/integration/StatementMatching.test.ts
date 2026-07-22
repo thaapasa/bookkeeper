@@ -439,6 +439,39 @@ describe('statement matching', () => {
       ]);
     });
 
+    it('rejects fixing an already-confirmed expense', async () => {
+      // A stale client may still show the expense as preliminary after it
+      // was confirmed elsewhere; the fix must not rewrite a verified sum
+      const e = checkCreateStatus(await newExpense(session, { date: '2026-05-05', sum: '100.00' }));
+      const { statementRows } = await getMatching();
+      const row = statementRows.find(r => r.amount === '-250.00')!;
+      await expect(
+        session.post('/api/statement/match/fix', { statementRowIds: [row.id], expenseId: e }),
+      ).rejects.toMatchObject({ code: 'STATEMENT_FIX_ALREADY_CONFIRMED' });
+    });
+
+    it('rejects rows that net to zero', async () => {
+      // A refund row cancelling the -400.00 transfer
+      await session.post(`/api/statement/upload/${sourceId}`, {
+        filename: 'op-refund.csv',
+        content: opCsv([
+          `"2026-05-29";"2026-05-29";400,00;"106";"TILISIIRTO";"Säästötili";"FI2112345600000786";"OKOYFIHH";"ref=";"Viesti: Peruutus";"20260529/ABC123/000009"`,
+        ]),
+      });
+      const e = checkCreateStatus(
+        await newExpense(session, { date: '2026-05-28', sum: '100.00', confirmed: false }),
+      );
+      const { statementRows } = await getMatching();
+      const r1 = statementRows.find(r => r.amount === '-400.00')!;
+      const r2 = statementRows.find(r => r.amount === '400.00')!;
+      await expect(
+        session.post('/api/statement/match/fix', {
+          statementRowIds: [r1.id, r2.id],
+          expenseId: e,
+        }),
+      ).rejects.toMatchObject({ code: 'STATEMENT_FIX_ZERO_SUM' });
+    });
+
     it('rejects fixing a transfer', async () => {
       const e = checkCreateStatus(
         await newExpense(session, {
@@ -456,8 +489,10 @@ describe('statement matching', () => {
     });
 
     it('rejects rows or expenses that are already matched', async () => {
+      // e1 stays preliminary through the plain match, so the second fix
+      // attempt exercises the already-matched guard, not the confirmed one
       const e1 = checkCreateStatus(
-        await newExpense(session, { date: '2026-05-03', sum: '250.00' }),
+        await newExpense(session, { date: '2026-05-03', sum: '250.00', confirmed: false }),
       );
       const e2 = checkCreateStatus(
         await newExpense(session, { date: '2026-05-05', sum: '100.00', confirmed: false }),
