@@ -137,6 +137,30 @@ describe('statement matching', () => {
     expect(data.expenses.find(e => e.id === e2)?.matchedStatementRowIds).toEqual([r2.id]);
   });
 
+  it('confirms preliminary expenses on bulk match, but not on plain match', async () => {
+    const e1 = checkCreateStatus(
+      await newExpense(session, { date: '2026-05-01', sum: '12.90', confirmed: false }),
+    );
+    const e2 = checkCreateStatus(
+      await newExpense(session, { date: '2026-05-28', sum: '400.00', confirmed: false }),
+    );
+    const { statementRows } = await getMatching();
+    const r1 = statementRows.find(r => r.amount === '-12.90')!;
+    const r2 = statementRows.find(r => r.amount === '-400.00')!;
+
+    // Plain manual match leaves the preliminary state alone (the linked sums
+    // may differ from the expense sum)
+    await session.post('/api/statement/match', { statementRowIds: [r2.id], expenseIds: [e2] });
+    // The suggestion-confirm flow (bulk) confirms the expense
+    await session.post('/api/statement/match/bulk', {
+      matches: [{ statementRowIds: [r1.id], expenseIds: [e1] }],
+    });
+
+    const data = await getMatching();
+    expect(data.expenses.find(e => e.id === e1)?.confirmed).toBe(true);
+    expect(data.expenses.find(e => e.id === e2)?.confirmed).toBe(false);
+  });
+
   it('matches one expense to multiple statement rows', async () => {
     // One 262.90 € purchase paid with two bank payments (12.90 + 250.00)
     const e = checkCreateStatus(await newExpense(session, { date: '2026-05-02', sum: '262.90' }));
@@ -346,6 +370,111 @@ describe('statement matching', () => {
           parts.map(p => p.id).sort(),
         );
       }
+    });
+  });
+
+  describe('fix and match ("Korjaa ja kohdista")', () => {
+    it('fixes date, sum and division, confirms the expense, and links it', async () => {
+      const e = checkCreateStatus(
+        await newExpense(session, { date: '2026-05-05', sum: '100.00', confirmed: false }),
+      );
+      const { statementRows } = await getMatching();
+      const row = statementRows.find(r => r.amount === '-250.00')!;
+      await session.post('/api/statement/match/fix', { statementRowIds: [row.id], expenseId: e });
+
+      const fixed = await fetchExpense(session, e);
+      expect(fixed).toMatchObject({ date: '2026-05-03', sum: '250.00', confirmed: true });
+      expect(fixed.matchedStatementRows.map(r => r.id)).toEqual([row.id]);
+      // The default division benefits both seeded users; the new sum is
+      // re-split evenly among them and the cost side re-derived
+      const benefits = fixed.division.filter(d => d.type === 'benefit');
+      expect(benefits.map(b => b.sum).sort()).toEqual(['125.00', '125.00']);
+      const costs = fixed.division.filter(d => d.type === 'cost');
+      expect(Money.sum(costs.map(c => c.sum)).toString()).toEqual('-250.00');
+    });
+
+    it('uses the earliest effective date and the total of several rows', async () => {
+      const e = checkCreateStatus(
+        await newExpense(session, { date: '2026-05-10', sum: '1.00', confirmed: false }),
+      );
+      const { statementRows } = await getMatching();
+      // Effective dates: card row 2026-05-01 (from OSTOPVM), the other 2026-05-03
+      const r1 = statementRows.find(r => r.amount === '-12.90')!;
+      const r2 = statementRows.find(r => r.amount === '-250.00')!;
+      await session.post('/api/statement/match/fix', {
+        statementRowIds: [r1.id, r2.id],
+        expenseId: e,
+      });
+
+      const fixed = await fetchExpense(session, e);
+      expect(fixed).toMatchObject({ date: '2026-05-01', sum: '262.90', confirmed: true });
+      expect(fixed.matchedStatementRows.map(r => r.id).sort()).toEqual([r1.id, r2.id].sort());
+    });
+
+    it('fixes an income from a positive statement row', async () => {
+      const e = checkCreateStatus(
+        await newExpense(session, {
+          date: '2026-05-14',
+          sum: '2000.00',
+          type: 'income',
+          confirmed: false,
+        }),
+      );
+      const { statementRows } = await getMatching();
+      const row = statementRows.find(r => r.amount === '2500.00')!;
+      await session.post('/api/statement/match/fix', { statementRowIds: [row.id], expenseId: e });
+
+      const fixed = await fetchExpense(session, e);
+      expect(fixed).toMatchObject({
+        date: '2026-05-15',
+        sum: '2500.00',
+        confirmed: true,
+        type: 'income',
+      });
+      expect(fixed.division.filter(d => d.type === 'income')).toEqual([
+        { type: 'income', userId: session.user.id, sum: '2500.00' },
+      ]);
+      expect(fixed.division.filter(d => d.type === 'split')).toEqual([
+        { type: 'split', userId: session.user.id, sum: '-2500.00' },
+      ]);
+    });
+
+    it('rejects fixing a transfer', async () => {
+      const e = checkCreateStatus(
+        await newExpense(session, {
+          date: '2026-05-05',
+          sum: '100.00',
+          type: 'transfer',
+          confirmed: false,
+        }),
+      );
+      const { statementRows } = await getMatching();
+      const row = statementRows.find(r => r.amount === '-250.00')!;
+      await expect(
+        session.post('/api/statement/match/fix', { statementRowIds: [row.id], expenseId: e }),
+      ).rejects.toMatchObject({ code: 'STATEMENT_FIX_INVALID_TYPE' });
+    });
+
+    it('rejects rows or expenses that are already matched', async () => {
+      const e1 = checkCreateStatus(
+        await newExpense(session, { date: '2026-05-03', sum: '250.00' }),
+      );
+      const e2 = checkCreateStatus(
+        await newExpense(session, { date: '2026-05-05', sum: '100.00', confirmed: false }),
+      );
+      const { statementRows } = await getMatching();
+      const r1 = statementRows.find(r => r.amount === '-250.00')!;
+      const r2 = statementRows.find(r => r.amount === '-400.00')!;
+      await session.post('/api/statement/match', { statementRowIds: [r1.id], expenseIds: [e1] });
+
+      // The selected row is already matched to another expense
+      await expect(
+        session.post('/api/statement/match/fix', { statementRowIds: [r1.id], expenseId: e2 }),
+      ).rejects.toMatchObject({ code: 'STATEMENT_FIX_ALREADY_MATCHED' });
+      // The expense already has links of its own
+      await expect(
+        session.post('/api/statement/match/fix', { statementRowIds: [r2.id], expenseId: e1 }),
+      ).rejects.toMatchObject({ code: 'STATEMENT_FIX_ALREADY_MATCHED' });
     });
   });
 

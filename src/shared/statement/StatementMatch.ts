@@ -55,6 +55,16 @@ export const StatementMatchBulkInput = z.object({
 });
 export type StatementMatchBulkInput = z.infer<typeof StatementMatchBulkInput>;
 
+/**
+ * "Korjaa ja kohdista": fix one preliminary expense from the listed statement
+ * rows (date, sum, division, confirmed) and link it to all of them.
+ */
+export const StatementFixMatchInput = z.object({
+  statementRowIds: z.array(ObjectId).min(1),
+  expenseId: ObjectId,
+});
+export type StatementFixMatchInput = z.infer<typeof StatementFixMatchInput>;
+
 export const SkipInput = z.object({
   skipped: z.boolean(),
 });

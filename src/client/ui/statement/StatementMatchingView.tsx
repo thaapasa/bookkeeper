@@ -106,14 +106,22 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
   };
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: QueryKeys.statements.all });
+  /** For operations that also modify expense data (sum, date, confirmed). */
+  const invalidateWithExpenses = () =>
+    Promise.all([
+      invalidate(),
+      queryClient.invalidateQueries({ queryKey: QueryKeys.expenses.all }),
+    ]);
 
+  // Confirming suggestions also confirms preliminary expenses (the bank has
+  // verified their sums), so the expense queries need a refresh too.
   const confirmSuggestions = () =>
     executeOperation(() => apiConnect.createStatementMatches(activeSuggestions), {
       success: `${activeSuggestions.length} ehdotusta täsmätty`,
       postProcess: () => {
         setDismissedSuggestions(new Set());
         clearSelection();
-        return invalidate();
+        return invalidateWithExpenses();
       },
     });
 
@@ -228,6 +236,46 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
   const selectionShortcuts = rowsOnlySelection
     ? shortcuts.filter(s => selectedRows.some(r => matchesStatementCounterparty(s, r.counterparty)))
     : [];
+
+  // "Korjaa ja kohdista": with exactly one preliminary, unmatched expense
+  // selected against unmatched statement rows, the expense can be fixed to
+  // match the rows (date, sum, division, confirmed) and linked in one
+  // operation. Transfers are excluded, and existing links on either side
+  // would fall outside the date/sum calculation, so those cases keep only
+  // the plain matching button.
+  const fixCandidate =
+    selectedExpenseIds.length === 1
+      ? data.expenses.find(e => e.id === selectedExpenseIds[0])
+      : undefined;
+  const fixableExpense =
+    fixCandidate &&
+    !fixCandidate.confirmed &&
+    fixCandidate.type !== 'transfer' &&
+    fixCandidate.matchedStatementRowIds.length < 1 &&
+    selectedRows.length > 0 &&
+    selectedRows.every(r => r.matchedExpenseIds.length < 1)
+      ? fixCandidate
+      : undefined;
+
+  const fixAndMatchSelection = () => {
+    if (!fixableExpense) {
+      return;
+    }
+    return executeOperation(
+      () =>
+        apiConnect.fixAndMatchExpense({
+          statementRowIds: selectedRowIds,
+          expenseId: fixableExpense.id,
+        }),
+      {
+        success: 'Kirjaus korjattu ja täsmätty',
+        postProcess: () => {
+          clearSelection();
+          return invalidateWithExpenses();
+        },
+      },
+    );
+  };
 
   // Bulk skip works only on a one-sided selection, so a selection meant for
   // linking cannot be skipped by accident. Matched and already skipped items
@@ -409,8 +457,22 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
                       Valittu {selectedExpenseIds.length} kirjausta ({selectedTotal.format()}) ·{' '}
                       {selectedRowIds.length} tapahtumaa ({selectedRowTotal.format()})
                     </Text>
+                    {fixableExpense ? (
+                      <Tooltip label="Korjaa kirjauksen päivä ja summa tiliotteen mukaan, vahvista ja täsmää">
+                        <Button
+                          size="xs"
+                          leftSection={<Icons.Tools size={16} />}
+                          onClick={() => void fixAndMatchSelection()}
+                        >
+                          Korjaa ja kohdista
+                        </Button>
+                      </Tooltip>
+                    ) : null}
+                    {/* Plain matching steps aside when the fix action is the
+                        likelier intent for a preliminary expense. */}
                     <Button
                       size="xs"
+                      variant={fixableExpense ? 'light' : undefined}
                       leftSection={<Icons.Link />}
                       disabled={selectedRowIds.length < 1 || selectedExpenseIds.length < 1}
                       onClick={() => void matchSelection()}

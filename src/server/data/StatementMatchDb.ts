@@ -1,16 +1,26 @@
 import { DateTime } from 'luxon';
 
 import {
+  expenseBeneficiary,
+  ExpenseDivisionItem,
+  ExpenseInput,
+  negateDivision,
+  splitByShares,
+} from 'shared/expense';
+import {
   MatchableExpense,
   MatchingStatementRow,
   STATEMENT_MATCH_DATE_TOLERANCE_DAYS,
+  StatementFixMatchInput,
   StatementMatchBulkInput,
   StatementMatchingData,
   StatementMatchInput,
   StatementRow,
 } from 'shared/statement';
-import { ISOMonth, toISODate } from 'shared/time';
+import { ISODate, ISOMonth, toISODate } from 'shared/time';
 import { InvalidInputError, NotFoundError, ObjectId } from 'shared/types';
+import { Money } from 'shared/util';
+import { getExpenseById, getExpenseDivision, updateExpense } from 'server/data/BasicExpenseDb';
 import { DbTask } from 'server/data/Db.ts';
 import {
   statementRowEffectiveDate,
@@ -98,11 +108,17 @@ async function doGetStatementMatchingData(
  * product). All rows and expenses must belong to the same group and source.
  * Existing links are left as-is, so a group can be extended incrementally.
  * Matching clears skip flags on both sides.
+ *
+ * With `confirmExpenses` (the suggestion-confirm flow, where the bank has
+ * verified date and sum) any preliminary matched expense is also marked
+ * confirmed. Manual matching must not pass it: a manually linked sum may
+ * differ from the expense, so confirming there would freeze a wrong sum.
  */
 export function createStatementMatch(
   tx: DbTask,
   groupId: ObjectId,
   input: StatementMatchInput,
+  options?: { confirmExpenses?: boolean },
 ): Promise<void> {
   return withSpan(
     'statement.match',
@@ -168,6 +184,15 @@ export function createStatementMatch(
           WHERE id IN ($/expenseIds:csv/) AND group_id=$/groupId/`,
         { expenseIds: input.expenseIds, groupId },
       );
+      if (options?.confirmExpenses) {
+        // Only the expense row is touched; subscription defaults (the
+        // recurring template) are never affected by confirming.
+        await tx.none(
+          `UPDATE expenses SET confirmed=TRUE
+            WHERE id IN ($/expenseIds:csv/) AND group_id=$/groupId/ AND confirmed=FALSE`,
+          { expenseIds: input.expenseIds, groupId },
+        );
+      }
       logger.info(
         { groupId, statementRowIds: input.statementRowIds, expenseIds: input.expenseIds },
         'Created statement match',
@@ -187,9 +212,132 @@ export function createStatementMatchesBulk(
     { 'app.group_id': groupId, 'app.match_count': input.matches.length },
     async () => {
       for (const match of input.matches) {
-        await createStatementMatch(tx, groupId, match);
+        await createStatementMatch(tx, groupId, match, { confirmExpenses: true });
       }
     },
+  );
+}
+
+/**
+ * "Korjaa ja kohdista": fixes a preliminary expense to match the selected
+ * statement rows and links it to them, in one transaction. The expense date
+ * becomes the earliest effective statement date, the sum becomes the absolute
+ * net of the row amounts, the division is re-split evenly among the current
+ * beneficiaries (mirroring an editor sum edit with unchanged participants),
+ * and the expense is confirmed. Runs through the single-expense update path,
+ * so a subscription-generated expense's template defaults stay untouched.
+ */
+export function fixAndMatchExpense(
+  tx: DbTask,
+  groupId: ObjectId,
+  userId: ObjectId,
+  input: StatementFixMatchInput,
+): Promise<void> {
+  return withSpan(
+    'statement.fix_match',
+    {
+      'app.group_id': groupId,
+      'app.user_id': userId,
+      'app.expense_id': input.expenseId,
+      'app.statement_row_count': input.statementRowIds.length,
+    },
+    () => doFixAndMatchExpense(tx, groupId, userId, input),
+  );
+}
+
+async function doFixAndMatchExpense(
+  tx: DbTask,
+  groupId: ObjectId,
+  userId: ObjectId,
+  input: StatementFixMatchInput,
+): Promise<void> {
+  const expense = await getExpenseById(tx, groupId, userId, input.expenseId);
+  if (expense.type === 'transfer') {
+    throw new InvalidInputError(
+      'STATEMENT_FIX_INVALID_TYPE',
+      'Only expenses and incomes can be fixed from statement rows',
+    );
+  }
+  const rows = await tx.manyOrNone<{ id: number; sourceId: number; amount: string }>(
+    `SELECT r.id, r.source_id AS "sourceId", r.amount
+      FROM statement_row r
+      WHERE r.id IN ($/statementRowIds:csv/) AND r.group_id=$/groupId/`,
+    { statementRowIds: input.statementRowIds, groupId },
+  );
+  const missing = input.statementRowIds.find(id => !rows.some(r => r.id === id));
+  if (missing !== undefined) {
+    throw new NotFoundError('STATEMENT_ROW_NOT_FOUND', 'statement row', missing);
+  }
+  if (rows.some(r => r.sourceId !== expense.sourceId)) {
+    throw new InvalidInputError(
+      'STATEMENT_MATCH_SOURCE_MISMATCH',
+      'Statement rows belong to a different source than the expense',
+    );
+  }
+  // The fix derives date and sum from the selected rows alone, so neither
+  // side may carry existing links that would fall outside the calculation.
+  const existingMatch = await tx.oneOrNone(
+    `SELECT 1 FROM statement_match
+      WHERE (statement_row_id IN ($/statementRowIds:csv/) OR expense_id=$/expenseId/)
+        AND group_id=$/groupId/
+      LIMIT 1`,
+    { statementRowIds: input.statementRowIds, expenseId: input.expenseId, groupId },
+  );
+  if (existingMatch) {
+    throw new InvalidInputError(
+      'STATEMENT_FIX_ALREADY_MATCHED',
+      'Cannot fix from statement rows that are already matched',
+    );
+  }
+  const date = await tx.one<{ date: ISODate }>(
+    `SELECT MIN(${statementRowEffectiveDate('r')}) AS date
+      FROM statement_row r
+      WHERE r.id IN ($/statementRowIds:csv/) AND r.group_id=$/groupId/`,
+    { statementRowIds: input.statementRowIds, groupId },
+  );
+  const sum = Money.sum(rows.map(r => r.amount)).abs();
+  const division = await getExpenseDivision(tx, groupId, expense.id);
+  const beneficiaryType = expenseBeneficiary[expense.type];
+  const beneficiaries = [
+    ...new Set(division.filter(d => d.type === beneficiaryType).map(d => d.userId)),
+  ];
+  if (beneficiaries.length < 1) {
+    throw new InvalidInputError('STATEMENT_FIX_NO_DIVISION', 'Expense has no division to re-split');
+  }
+  // Even split of the new sum among the current beneficiaries; the payer side
+  // is re-derived from source shares by determineDivision, exactly as when the
+  // sum is edited in the expense dialog without changing the participants.
+  const parts = splitByShares(
+    sum,
+    beneficiaries.map(u => ({ userId: u, share: 1 })),
+  );
+  const beneficiaryDivision: ExpenseDivisionItem[] = (
+    beneficiaryType === 'split' ? negateDivision(parts) : parts
+  ).map(p => ({ userId: p.userId, type: beneficiaryType, sum: p.sum.toString() }));
+  const fixed: ExpenseInput = {
+    userId: expense.userId,
+    categoryId: expense.categoryId,
+    sourceId: expense.sourceId,
+    type: expense.type,
+    title: expense.title,
+    receiver: expense.receiver,
+    description: expense.description,
+    groupingId: expense.groupingId,
+    currencyId: expense.currencyId,
+    originalCurrencyValue: expense.originalCurrencyValue,
+    date: date.date,
+    sum: sum.toString(),
+    division: beneficiaryDivision,
+    confirmed: true,
+  };
+  await updateExpense(tx, userId, expense, fixed, expense.sourceId);
+  await createStatementMatch(tx, groupId, {
+    statementRowIds: input.statementRowIds,
+    expenseIds: [expense.id],
+  });
+  logger.info(
+    { groupId, expenseId: expense.id, statementRowIds: input.statementRowIds },
+    'Fixed and matched expense from statement rows',
   );
 }
 

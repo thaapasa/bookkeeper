@@ -21,6 +21,7 @@ import {
 } from 'shared/expense';
 import { FetchClient, RequestMethod, RequestSpec, uri } from 'shared/net';
 import {
+  StatementFixMatchInput,
   StatementMatchingData,
   StatementMatchInput,
   StatementRowsResponse,
@@ -384,6 +385,9 @@ export class ApiConnect {
 
   public createStatementMatches = (matches: StatementMatchInput[]): Promise<void> =>
     this.post(`/api/statement/match/bulk`, { body: { matches } });
+
+  public fixAndMatchExpense = (input: StatementFixMatchInput): Promise<void> =>
+    this.post(`/api/statement/match/fix`, { body: input });
 
   public unmatchStatementRow = (statementRowId: ObjectId): Promise<void> =>
     this.delete(uri`/api/statement/match/statement/${statementRowId}`);

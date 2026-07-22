@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 import {
   SkipInput,
+  StatementFixMatchInput,
   StatementMatchBulkInput,
   StatementMatchingData,
   StatementMatchInput,
@@ -25,6 +26,7 @@ import {
   createStatementMatchesBulk,
   deleteMatchesForStatementRow,
   deleteMatchForExpense,
+  fixAndMatchExpense,
   getStatementMatchingData,
   setExpenseStatementSkip,
   setStatementRowSkipped,
@@ -109,6 +111,16 @@ export function createStatementApi() {
     async (tx, session, { body }) => {
       await createStatementMatchesBulk(tx, session.group.id, body);
       return { status: 'OK', message: 'Statement matches created', count: body.matches.length };
+    },
+  );
+
+  // POST /api/statement/match/fix
+  api.postTx(
+    '/match/fix',
+    { body: StatementFixMatchInput, response: ApiMessage, groupRequired: true },
+    async (tx, session, { body }) => {
+      await fixAndMatchExpense(tx, session.group.id, session.user.id, body);
+      return { status: 'OK', message: 'Expense fixed and matched' };
     },
   );
 

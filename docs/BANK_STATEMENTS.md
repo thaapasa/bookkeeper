@@ -247,7 +247,8 @@ the preliminary matcher in `src/shared/statement/StatementMatcher.ts`, the UI in
 | ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `GET /api/statement/matching`               | Both sides for (`sourceId`, `month`): the month's expenses, and statement rows whose effective date falls within month ± 4 days, each with match/skip state.     |
 | `POST /api/statement/match`                 | Link every listed row to every listed expense (pairwise cross product; same source enforced). Existing links are kept, so a group can be extended incrementally. |
-| `POST /api/statement/match/bulk`            | Confirm several matches at once (suggestion confirmation).                                                                                                       |
+| `POST /api/statement/match/bulk`            | Confirm several matches at once (suggestion confirmation). Also marks matched preliminary expenses confirmed — the bank has verified their sums.                  |
+| `POST /api/statement/match/fix`             | "Korjaa ja kohdista": fix one preliminary expense from the listed rows (date ← earliest effective date, sum ← abs net of amounts, division re-split evenly among current beneficiaries, confirmed ← true) and link it to them, atomically. Transfers and already-matched rows/expenses are rejected. Runs through the single-expense update path, so subscription defaults stay untouched. |
 | `DELETE /api/statement/match/statement/:id` | Unmatch a statement row (all its expenses).                                                                                                                      |
 | `DELETE /api/statement/match/expense/:id`   | Unmatch a single expense.                                                                                                                                        |
 | `PATCH /api/statement/row/:id/skip`         | Set/clear a statement row's skip flag.                                                                                                                           |
@@ -290,7 +291,14 @@ selection (a preview of what "Täsmää valitut" would link).
 - Manual matching: select any number of statement rows and expenses, then "Täsmää
   valitut" links them pairwise. The floating action bar shows both sides' totals.
   Matched items stay selectable so a group can be extended with further links
-  (e.g. adding a second bank payment to an already-matched expense).
+  (e.g. adding a second bank payment to an already-matched expense). Plain
+  matching never touches the expense's preliminary (`confirmed`) state.
+- When exactly one preliminary (Alustava), unmatched, non-transfer expense is
+  selected together with unmatched rows, the action bar leads with "Korjaa ja
+  kohdista" (`POST /api/statement/match/fix`), which fixes the expense to the
+  statement and links it in one operation; "Täsmää valitut" is then demoted to
+  a light variant, since fixing is the likelier intent for a preliminary
+  expense.
 - Matched items are dimmed with a "Täsmätty" badge and can be unlinked; skipped
   items are dimmed with "Ohitettu" and a dashed border.
 - Statement rows paid by a known bank card (resolved via `findCardUserId`, see
