@@ -51,6 +51,7 @@ import { executeOperation } from 'client/util/ExecuteOperation';
 import { DivisionInfo } from '../expense/details/DivisionInfo';
 import { defaultExpenseSaveAction } from '../expense/dialog/ExpenseSaveAction';
 import { ExpenseMenuItems } from '../expense/row/ExpenseRowMenu';
+import { useIsMobile } from '../hooks/useBreakpoints';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { Icons } from '../icons/Icons';
 import {
@@ -240,6 +241,9 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
   ];
 
   const selectionActive = selectedRowIds.length > 0 || selectedExpenseIds.length > 0;
+  // On narrow screens the selection info shows only the sums; the full
+  // "Valittu n kirjausta..." text would crowd out the action buttons.
+  const isMobile = useIsMobile();
 
   // The always-visible bottom bar overlays the bottom of the viewport; its
   // measured height is published as --bottom-bar-offset so the content
@@ -351,6 +355,125 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
   const signedSelectedTotal = Money.sum(selectedExpenses.map(signedExpenseSum));
   const selectionSumsMatch = signedSelectedTotal.equals(selectedRowTotal);
   const selectionSumDiff = selectedRowTotal.minus(signedSelectedTotal).abs();
+
+  // Bar contents, shared by the desktop (single row) and mobile (stacked
+  // rows) layouts. Mobile shortens the texts so the rows fit the width.
+  const selectionInfo = (
+    <Text fz="sm" c="dimmed" style={{ whiteSpace: 'nowrap' }}>
+      {isMobile
+        ? `${selectedTotal.format()} · ${selectedRowTotal.format()}`
+        : `Valittu ${selectedExpenseIds.length} kirjausta (${selectedTotal.format()}) · ` +
+          `${selectedRowIds.length} tapahtumaa (${selectedRowTotal.format()})`}
+    </Text>
+  );
+
+  const matchNote =
+    selectedExpenseIds.length > 0 && selectedRowIds.length > 0 ? (
+      selectionSumsMatch ? (
+        <Group gap={4} wrap="nowrap">
+          <Icons.Check size={14} color="var(--mantine-color-green-8)" />
+          <Text fz="sm" c="green.8" style={{ whiteSpace: 'nowrap' }}>
+            Summat täsmäävät
+          </Text>
+        </Group>
+      ) : (
+        <Group gap={4} wrap="nowrap">
+          <Icons.Warning size={14} color="var(--mantine-color-yellow-8)" />
+          <Text fz="sm" c="yellow.8" style={{ whiteSpace: 'nowrap', marginBottom: -2 }}>
+            Summat eroavat: {selectionSumDiff.format()}
+          </Text>
+        </Group>
+      )
+    ) : null;
+
+  const actionButtons = (
+    <>
+      {selectionActive ? (
+        <>
+          {fixableExpense ? (
+            <Tooltip label="Korjaa kirjauksen päivä ja summa tiliotteen mukaan, vahvista ja täsmää">
+              <Button
+                size="xs"
+                leftSection={<Icons.Tools size={16} />}
+                onClick={() => void fixAndMatchSelection()}
+              >
+                {isMobile ? 'Korjaa' : 'Korjaa ja kohdista'}
+              </Button>
+            </Tooltip>
+          ) : null}
+          {/* Plain matching steps aside when the fix action is the
+              likelier intent for a preliminary expense. */}
+          <Button
+            size="xs"
+            variant={fixableExpense ? 'light' : undefined}
+            leftSection={<Icons.Link />}
+            disabled={selectedRowIds.length < 1 || selectedExpenseIds.length < 1}
+            onClick={() => void matchSelection()}
+          >
+            {isMobile ? 'Täsmää' : 'Täsmää valitut'}
+          </Button>
+          {rowsOnlySelection ? (
+            <>
+              {selectionShortcuts.map(s => (
+                <Button
+                  key={s.id}
+                  size="xs"
+                  variant="light"
+                  leftSection={<Icons.PlusCircle size={16} />}
+                  onClick={() => createExpenseFromRows(selectedRows, s, clearSelection)}
+                >
+                  {isMobile ? s.title : `Luo ${s.title}`}
+                </Button>
+              ))}
+              <Button
+                size="xs"
+                variant="light"
+                leftSection={<Icons.PlusCircle size={16} />}
+                onClick={() => createExpenseFromRows(selectedRows, undefined, clearSelection)}
+              >
+                {isMobile ? 'Luo' : 'Luo kirjaus'}
+              </Button>
+            </>
+          ) : null}
+          {rowsOnlySelection || expensesOnlySelection ? (
+            <Button
+              size="xs"
+              variant="light"
+              color="gray"
+              leftSection={<Icons.Hidden size={16} />}
+              onClick={() => void skipSelection()}
+            >
+              {isMobile ? 'Ohita' : 'Ohita valitut'}
+            </Button>
+          ) : null}
+          <Button size="xs" variant="default" onClick={clearSelection}>
+            Tyhjennä
+          </Button>
+        </>
+      ) : null}
+      {activeSuggestions.length > 0 ? (
+        <Button
+          size="xs"
+          variant="light"
+          leftSection={<Icons.Check />}
+          onClick={() => void confirmSuggestions()}
+        >
+          {isMobile
+            ? `Vahvista ${activeSuggestions.length}`
+            : `Vahvista ${activeSuggestions.length} ehdotusta`}
+        </Button>
+      ) : null}
+    </>
+  );
+
+  const hideToggle = (
+    <Checkbox
+      size="xs"
+      label="Piilota täsmätyt ja ohitetut"
+      checked={hideHandled}
+      onChange={e => setHideHandled(e.currentTarget.checked)}
+    />
+  );
 
   return (
     <Stack gap="sm" pb="calc(var(--bottom-bar-offset, 60px) + var(--mantine-spacing-md))">
@@ -481,129 +604,50 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
         <Paper
           ref={barRef}
           radius={0}
-          h={64}
+          mih={64}
           px="md"
           py="sm"
           bg="surface.1"
+          // display flex so the inner Group stretches to the min-height and
+          // can still center its items vertically; h="100%" would resolve
+          // to auto against a mih-only parent
+          display="flex"
           style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}
         >
-          <Group gap="md" justify="space-between" align="center" h="100%">
-            <Text fz="sm" c="dimmed">
-              Täsmäämättä: {unmatchedExpenses} kirjausta, {unmatchedRows} tiliotetapahtumaa
-            </Text>
-            {selectionActive || activeSuggestions.length > 0 ? (
-              <Group gap="sm" justify="center" flex={1}>
-                {selectionActive ? (
-                  <>
+          {isMobile ? (
+            <Stack gap="xs" flex={1}>
+              {selectionActive ? (
+                <Group gap="sm" justify="center" wrap="nowrap">
+                  {selectionInfo}
+                  {matchNote}
+                </Group>
+              ) : null}
+              {selectionActive || activeSuggestions.length > 0 ? (
+                <Group gap="xs" justify="center">
+                  {actionButtons}
+                </Group>
+              ) : null}
+              <Group justify="center">{hideToggle}</Group>
+            </Stack>
+          ) : (
+            <Group gap="md" justify="space-between" align="center" flex={1}>
+              <Text fz="sm" c="dimmed">
+                Täsmäämättä: {unmatchedExpenses} kirjausta, {unmatchedRows} tiliotetapahtumaa
+              </Text>
+              {selectionActive || activeSuggestions.length > 0 ? (
+                <Group gap="sm" justify="center" flex={1}>
+                  {selectionActive ? (
                     <Stack gap={2}>
-                      <Text fz="sm" c="dimmed" style={{ whiteSpace: 'nowrap' }}>
-                        Valittu {selectedExpenseIds.length} kirjausta ({selectedTotal.format()}) ·{' '}
-                        {selectedRowIds.length} tapahtumaa ({selectedRowTotal.format()})
-                      </Text>
-                      {selectedExpenseIds.length > 0 && selectedRowIds.length > 0 ? (
-                        selectionSumsMatch ? (
-                          <Group gap={4} wrap="nowrap">
-                            <Icons.Check size={14} color="var(--mantine-color-green-8)" />
-                            <Text fz="sm" c="green.8" style={{ whiteSpace: 'nowrap' }}>
-                              Summat täsmäävät
-                            </Text>
-                          </Group>
-                        ) : (
-                          <Group gap={4} wrap="nowrap">
-                            <Icons.Warning size={14} color="var(--mantine-color-yellow-8)" />
-                            <Text
-                              fz="sm"
-                              c="yellow.8"
-                              style={{ whiteSpace: 'nowrap', marginBottom: -2 }}
-                            >
-                              Summat eroavat: {selectionSumDiff.format()}
-                            </Text>
-                          </Group>
-                        )
-                      ) : null}
+                      {selectionInfo}
+                      {matchNote}
                     </Stack>
-                    {fixableExpense ? (
-                      <Tooltip label="Korjaa kirjauksen päivä ja summa tiliotteen mukaan, vahvista ja täsmää">
-                        <Button
-                          size="xs"
-                          leftSection={<Icons.Tools size={16} />}
-                          onClick={() => void fixAndMatchSelection()}
-                        >
-                          Korjaa ja kohdista
-                        </Button>
-                      </Tooltip>
-                    ) : null}
-                    {/* Plain matching steps aside when the fix action is the
-                        likelier intent for a preliminary expense. */}
-                    <Button
-                      size="xs"
-                      variant={fixableExpense ? 'light' : undefined}
-                      leftSection={<Icons.Link />}
-                      disabled={selectedRowIds.length < 1 || selectedExpenseIds.length < 1}
-                      onClick={() => void matchSelection()}
-                    >
-                      Täsmää valitut
-                    </Button>
-                    {rowsOnlySelection ? (
-                      <>
-                        {selectionShortcuts.map(s => (
-                          <Button
-                            key={s.id}
-                            size="xs"
-                            variant="light"
-                            leftSection={<Icons.PlusCircle size={16} />}
-                            onClick={() => createExpenseFromRows(selectedRows, s, clearSelection)}
-                          >
-                            Luo {s.title}
-                          </Button>
-                        ))}
-                        <Button
-                          size="xs"
-                          variant="light"
-                          leftSection={<Icons.PlusCircle size={16} />}
-                          onClick={() =>
-                            createExpenseFromRows(selectedRows, undefined, clearSelection)
-                          }
-                        >
-                          Luo kirjaus
-                        </Button>
-                      </>
-                    ) : null}
-                    {rowsOnlySelection || expensesOnlySelection ? (
-                      <Button
-                        size="xs"
-                        variant="light"
-                        color="gray"
-                        leftSection={<Icons.Hidden size={16} />}
-                        onClick={() => void skipSelection()}
-                      >
-                        Ohita valitut
-                      </Button>
-                    ) : null}
-                    <Button size="xs" variant="default" onClick={clearSelection}>
-                      Tyhjennä
-                    </Button>
-                  </>
-                ) : null}
-                {activeSuggestions.length > 0 ? (
-                  <Button
-                    size="xs"
-                    variant="light"
-                    leftSection={<Icons.Check />}
-                    onClick={() => void confirmSuggestions()}
-                  >
-                    Vahvista {activeSuggestions.length} ehdotusta
-                  </Button>
-                ) : null}
-              </Group>
-            ) : null}
-            <Checkbox
-              size="xs"
-              label="Piilota täsmätyt ja ohitetut"
-              checked={hideHandled}
-              onChange={e => setHideHandled(e.currentTarget.checked)}
-            />
-          </Group>
+                  ) : null}
+                  {actionButtons}
+                </Group>
+              ) : null}
+              {hideToggle}
+            </Group>
+          )}
         </Paper>
       </Affix>
     </Stack>
