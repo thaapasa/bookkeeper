@@ -79,9 +79,13 @@ Realised rows carry an optional `subscription_id` FK pointing back at
 There is no `template` column on `expenses` and no template-row class — `defaults`
 lives on the subscription as typed JSONB, validated by Zod (`ExpenseDefaults` in
 `src/shared/expense/Subscription.ts`). The division for an auto-generated row is
-derived at generation time from `defaults` plus the source's split, not stored on
-the subscription, so the `sum(expense_division.sum) = 0` invariant cannot be broken
-by a stale division blob.
+derived at generation time: the payer side always follows the source's current
+split, and the beneficiary side either comes from the stored `defaults.benefit`
+user-id list (the sum is split evenly among the listed users, so it scales with
+`sum`) or, when `benefit` is absent (legacy rows), falls back to the source's
+default split. Only user ids are stored, never absolute division sums, so the
+`sum(expense_division.sum) = 0` invariant cannot be broken by a stale division
+blob.
 
 ### `ExpenseQuery` is the filter shape
 
@@ -234,8 +238,10 @@ SELECT id, defaults, next_missing, occurs_until, period_amount, period_unit
 For each hit, `getDatesUpTo` walks `next_missing` forward by one period at a time
 until it reaches the cutoff (the lower of the search end date and `occurs_until`).
 Each missing date is materialised through `generateRowFromDefaults`, which inserts
-an `expenses` row from `defaults` and computes its division from the source split
-via `determineDivision`. After the batch, `next_missing` is advanced past the last
+an `expenses` row from `defaults` and computes its division via
+`determineDivision` — the beneficiary side is pinned by the stored
+`defaults.benefit` user ids when present (even split), otherwise it follows the
+source's default split. After the batch, `next_missing` is advanced past the last
 inserted date.
 
 `occurs_until` ends generation but does not hide the row from the catch-up query —
@@ -260,7 +266,9 @@ Two paths both produce subscription rows:
 
 The editor dialog (`SubscriptionEditorDialog`) supports both creating a new stats
 card (no `defaults` tab visible) and editing any existing subscription. The
-"Mallikulu" tab edits `defaults` and is shown only for rows with recurrence.
+"Mallikulu" tab edits `defaults` and is shown only for rows with recurrence; its
+"Hyötyjät" selector edits `defaults.benefit` (when no list is stored, the
+source's default beneficiaries are shown as the effective selection).
 
 For preview, `POST /api/subscription/query-summary` returns
 `{ count, sum, matches }` for an arbitrary `ExpenseQuery` so the dialog can render
@@ -275,7 +283,8 @@ every expense in the group through this endpoint.
 `occurs_until` are intentionally not editable — changing the cadence on a row that
 already has realised rows has no clean meaning, and `occurs_until` is owned by the
 end / `target=after` flows. Defaults references (`categoryId`, `sourceId`,
-`userId`) are validated against the session group before writing.
+`userId`, and the `benefit` user ids) are validated against the session group
+before writing.
 
 The "edit recurring expense" propagation (`PUT /api/expense/recurring/:expenseId`
 with `target = 'single' | 'all' | 'after'`) is preserved from the old design and

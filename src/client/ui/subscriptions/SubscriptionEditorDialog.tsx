@@ -323,7 +323,7 @@ const DefaultsEditor: React.FC<{
           title="Lähde"
           value={defaults.sourceId}
           onChange={id => onChange({ sourceId: id })}
-          sources={sources as never}
+          sources={sources}
           errorText={errors.sourceId}
           flex={1}
         />

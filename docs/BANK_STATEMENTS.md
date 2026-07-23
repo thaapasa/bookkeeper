@@ -290,8 +290,15 @@ selection (a preview of what "Täsmää valitut" would link).
   dashed suggestion connectors, distinct from the solid border of a selection);
   "Vahvista N ehdotusta" confirms them as one bulk call, and individual
   suggestions can be dismissed.
+- A full-width action bar is pinned to the viewport bottom (always mounted, so
+  the filter toggle stays reachable without scrolling). With nothing selected it
+  shows the unmatched counts (desktop; mobile shows only the toggle) and the
+  "Piilota täsmätyt ja ohitetut" toggle; with a selection it also carries the
+  selection info and action buttons. Its measured height is published as
+  `--bottom-bar-offset` so the page content and the notification stack stay
+  clear of it.
 - Manual matching: select any number of statement rows and expenses, then "Täsmää
-  valitut" links them pairwise. The floating action bar shows both sides' totals,
+  valitut" links them pairwise. The action bar shows both sides' totals,
   and when both sides have selections, whether the signed sums match ("Summat
   täsmäävät" in green) or their difference ("Summat eroavat" in yellow) — a
   visual check only, matching is not blocked on it. Matched items stay
@@ -307,7 +314,8 @@ selection (a preview of what "Täsmää valitut" would link).
 - Matched items are dimmed with a "Täsmätty" badge and can be unlinked; skipped
   items are dimmed with "Ohitettu" and a dashed border.
 - "Piilota täsmätyt ja ohitetut" hides handled (matched or skipped) items so
-  only the remaining work is visible. Hidden items never count as selected:
+  only the remaining work is visible; the choice persists in localStorage
+  (`statement.matching.hideHandled`). Hidden items never count as selected:
   the effective selection is the raw selection intersected with the visible
   items, so an item that becomes matched or skipped while the filter is on
   drops out of the selection instead of staying invisibly selected.
@@ -337,7 +345,7 @@ selection (a preview of what "Täsmää valitut" would link).
   (category, title, receiver, …) over the row prefill. The row's date, sum, and
   card owner always win over shortcut defaults, and the created expense is
   matched to the row on save just like "Luo kirjaus tästä".
-- With only statement rows selected (no expenses), the floating action bar
+- With only statement rows selected (no expenses), the action bar
   offers "Luo kirjaus" — and "Luo [shortcut]" for each shortcut whose statement
   targets match a selected counterparty — creating **one** expense that covers
   the whole selection: sum is the rows' total, date and receiver come from the

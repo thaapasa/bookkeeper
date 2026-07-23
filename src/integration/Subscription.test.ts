@@ -11,6 +11,7 @@ import {
 } from 'shared/expense';
 import {
   checkCreateStatus,
+  division,
   fetchExpense,
   logoutSession,
   newCategory,
@@ -20,6 +21,7 @@ import { uri } from 'shared/net';
 import { createTestClient, SessionWithControl } from 'shared/net/test';
 import { ISODate, toDateTime, toISODate } from 'shared/time';
 import { ApiMessage, RecurringExpenseCreatedResponse } from 'shared/types';
+import { Money } from 'shared/util';
 import { db } from 'server/data/Db';
 import { logger } from 'server/Logger';
 
@@ -230,6 +232,98 @@ describe('subscription lifecycle', () => {
     // Edit propagation must not terminate the recurrence — that's a
     // delete-target=after concern, not an update concern.
     expect(sub?.occursUntil).toBeNull();
+  });
+
+  it('mirrors an edited benefit split into defaults and future generation (target=all)', async () => {
+    // The shared seed source splits benefit 50/50; the edit pins the whole
+    // benefit on the paying user. target=all must rewrite the realised rows'
+    // divisions AND store the pinned list in defaults.benefit so the next
+    // generated row keeps it.
+    const { subscriptionId } = await createMonthlyRecurring(session, '2017-01-01');
+    await fetchMonth(session, 2017, 2);
+    const rows = await expensesForSubscription(subscriptionId);
+    expect(rows).toHaveLength(2);
+
+    const source = await fetchExpense(session, rows[0].id);
+    const edit = buildEditInput(source, { division: division.iPayMyOwn(session, '100.00') });
+    await session.put<ApiMessage>(uri`/api/expense/recurring/${rows[0].id}?target=all`, edit);
+
+    const sub = await readSubscription(subscriptionId);
+    expect(sub?.defaults?.benefit).toEqual([session.user.id]);
+    // Both realised rows carry the new split.
+    for (const r of rows) {
+      const details = await fetchExpense(session, r.id);
+      expect(details.division.filter(d => d.type === 'benefit')).toMatchObject([
+        { userId: session.user.id, sum: '100.00' },
+      ]);
+    }
+
+    // The next generated row inherits the pinned benefit.
+    await fetchMonth(session, 2017, 3);
+    const updated = await expensesForSubscription(subscriptionId);
+    const generated = updated.find(r => r.date === '2017-03-01');
+    expect(generated).toBeDefined();
+    const details = await fetchExpense(session, generated!.id);
+    expect(details.division.filter(d => d.type === 'benefit')).toMatchObject([
+      { userId: session.user.id, sum: '100.00' },
+    ]);
+  });
+
+  it('mirrors an edited benefit split with target=after but leaves earlier divisions intact', async () => {
+    const { subscriptionId } = await createMonthlyRecurring(session, '2017-01-01');
+    await fetchMonth(session, 2017, 2);
+    const [jan, feb] = await expensesForSubscription(subscriptionId);
+
+    const febSource = await fetchExpense(session, feb.id);
+    const edit = buildEditInput(febSource, { division: division.iPayMyOwn(session, '100.00') });
+    await session.put<ApiMessage>(uri`/api/expense/recurring/${feb.id}?target=after`, edit);
+
+    const sub = await readSubscription(subscriptionId);
+    expect(sub?.defaults?.benefit).toEqual([session.user.id]);
+
+    // January keeps the source's default 50/50 split.
+    const janDetails = await fetchExpense(session, jan.id);
+    expect(
+      janDetails.division.filter(d => d.type === 'benefit').map(d => Money.toString(d.sum)),
+    ).toEqual(['50.00', '50.00']);
+    // February was rewritten to the pinned split.
+    const febDetails = await fetchExpense(session, feb.id);
+    expect(febDetails.division.filter(d => d.type === 'benefit')).toMatchObject([
+      { userId: session.user.id, sum: '100.00' },
+    ]);
+  });
+
+  it('PATCH defaults.benefit pins the beneficiary side of future generation', async () => {
+    const { subscriptionId } = await createMonthlyRecurring(session, '2017-01-01');
+    const before = await readSubscription(subscriptionId);
+
+    await session.patch<ApiMessage>(uri`/api/subscription/${subscriptionId}`, {
+      defaults: { ...before!.defaults!, benefit: [session.user.id] },
+    });
+
+    await fetchMonth(session, 2017, 2);
+    const rows = await expensesForSubscription(subscriptionId);
+    const generated = rows.find(r => r.date === '2017-02-01');
+    expect(generated).toBeDefined();
+    const details = await fetchExpense(session, generated!.id);
+    expect(details.division.filter(d => d.type === 'benefit')).toMatchObject([
+      { userId: session.user.id, sum: '100.00' },
+    ]);
+  });
+
+  it('PATCH rejects duplicate defaults.benefit user ids', async () => {
+    // A duplicated id would generate two expense_division rows with the
+    // same (expense_id, user_id, type) and blow up month-view generation.
+    const { subscriptionId } = await createMonthlyRecurring(session, '2017-01-01');
+    const before = await readSubscription(subscriptionId);
+    await expect(
+      session.patch<ApiMessage>(uri`/api/subscription/${subscriptionId}`, {
+        defaults: { ...before!.defaults!, benefit: [session.user.id, session.user.id] },
+      }),
+    ).rejects.toMatchObject({ status: 400 });
+    // Defaults unchanged.
+    const after = await readSubscription(subscriptionId);
+    expect(after?.defaults).toEqual(before?.defaults);
   });
 
   it('auto-generates missing recurring rows when a past month range is queried', async () => {

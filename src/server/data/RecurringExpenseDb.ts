@@ -57,7 +57,18 @@ export function filterFromExpense(expense: Expense): ExpenseQuery {
 }
 
 export function defaultsFromExpense(
-  expense: Expense,
+  expense: Pick<
+    Expense,
+    | 'title'
+    | 'receiver'
+    | 'sum'
+    | 'type'
+    | 'sourceId'
+    | 'categoryId'
+    | 'userId'
+    | 'confirmed'
+    | 'description'
+  >,
   division: ExpenseDivisionItem[],
 ): ExpenseDefaults {
   const benefit = getBeneficiaryUserIds(expense.type, division);
@@ -827,19 +838,10 @@ async function updateRecurringExpense(
     },
   );
   // Mirror the change onto the subscription's defaults so future generation picks it up.
-  const editedBenefit = getBeneficiaryUserIds(expense.type, division);
-  const newDefaults: ExpenseDefaults = {
-    title: expense.title,
-    ...(expense.receiver ? { receiver: expense.receiver } : {}),
-    sum: Money.toString(expense.sum),
-    type: expense.type,
-    sourceId: source.id,
-    categoryId: cat.id,
-    userId: expense.userId,
-    confirmed: expense.confirmed,
-    description: expense.description ?? null,
-    ...(editedBenefit.length > 0 ? { benefit: editedBenefit } : {}),
-  };
+  const newDefaults = defaultsFromExpense(
+    { ...expense, sourceId: source.id, categoryId: cat.id },
+    division,
+  );
   await tx.none(
     `UPDATE subscriptions
         SET defaults = $/defaults/::JSONB

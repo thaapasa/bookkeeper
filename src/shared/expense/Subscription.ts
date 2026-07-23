@@ -92,9 +92,15 @@ export const ExpenseDefaults = z.object({
    * User ids on the beneficiary side (`benefit` for expenses, `split`
    * for incomes, `transferee` for transfers) of generated expenses; the
    * sum is split evenly among them. Absent on legacy rows → the
-   * beneficiary side falls back to the source's default split.
+   * beneficiary side falls back to the source's default split. Ids must
+   * be unique — a duplicate would generate two expense_division rows
+   * with the same (expense_id, user_id, type) and violate its PK.
    */
-  benefit: z.array(ObjectId).min(1).optional(),
+  benefit: z
+    .array(ObjectId)
+    .min(1)
+    .refine(ids => new Set(ids).size === ids.length, 'Beneficiary user ids must be unique')
+    .optional(),
 });
 export type ExpenseDefaults = z.infer<typeof ExpenseDefaults>;
 
