@@ -1,15 +1,5 @@
 import * as React from 'react';
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Legend,
-  Line,
-  LineChart,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
+import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, XAxis, YAxis } from 'recharts';
 
 import {
   dateRangeToDateTimeRange,
@@ -22,14 +12,9 @@ import { leftPad, Money, numberRange, typedKeys } from 'shared/util';
 import { getFullCategoryName } from 'client/data/Categories';
 import { getChartColor } from 'client/ui/chart/ChartColors';
 import { calculateChartHeight } from 'client/ui/chart/ChartSize';
+import { ChartTooltip } from 'client/ui/chart/ChartTooltip';
 import { ChartColumn, ChartData } from 'client/ui/chart/ChartTypes';
-import {
-  chartTooltipStyle,
-  formatMoneyForChart,
-  formatMoneyThin,
-  formatMoneyTick,
-  useThinFormat,
-} from 'client/ui/chart/Format';
+import { formatMoneyThin, formatMoneyTick, useThinFormat } from 'client/ui/chart/Format';
 
 import { EmptyChart } from '../EmptyChart';
 import { Months } from '../types';
@@ -64,9 +49,7 @@ export const YearlyRecurringCategoryChart: React.FC<CategoryGraphProps> = ({
         tickFormatter={thin ? formatMoneyThin : formatMoneyTick}
         width={thin ? 32 : undefined}
       />
-      {keys.length <= 12 ? (
-        <Tooltip formatter={formatMoneyForChart} contentStyle={chartTooltipStyle} />
-      ) : null}
+      {keys.length <= 12 ? <ChartTooltip /> : null}
       <Legend />
       {keys.map(v =>
         useLines ? (

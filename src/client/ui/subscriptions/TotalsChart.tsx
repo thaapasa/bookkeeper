@@ -1,12 +1,13 @@
 import { Box } from '@mantine/core';
 import { useElementSize } from '@mantine/hooks';
 import * as React from 'react';
-import { Cell, Legend, Pie, PieChart, Tooltip } from 'recharts';
+import { Cell, Legend, Pie, PieChart } from 'recharts';
 
 import { isDefined, ObjectId } from 'shared/types';
 
 import { getChartColor } from '../chart/ChartColors';
-import { chartTooltipStyle, formatMoney, formatMoneyForChart } from '../chart/Format';
+import { ChartTooltip } from '../chart/ChartTooltip';
+import { formatMoney } from '../chart/Format';
 
 export interface TotalsData {
   name: string;
@@ -46,7 +47,7 @@ export const TotalsChart: React.FC<{
               />
             ))}
           </Pie>
-          <Tooltip formatter={formatMoneyForChart} contentStyle={chartTooltipStyle} />
+          <ChartTooltip />
           <Legend layout="vertical" align="right" />
         </PieChart>
       ) : null}

@@ -1,6 +1,6 @@
 import { Group, GroupProps } from '@mantine/core';
 import * as React from 'react';
-import { Cell, Pie, PieChart, Tooltip } from 'recharts';
+import { Cell, Pie, PieChart } from 'recharts';
 
 import { CategoryMap, ExpenseGroupingCategoryTotal, isDefined, ObjectId } from 'shared/types';
 import { Money, MoneyLike } from 'shared/util';
@@ -8,7 +8,7 @@ import { getFullCategoryName } from 'client/data/Categories';
 import { useCategoryMap } from 'client/data/SessionStore';
 
 import { getChartColor } from '../chart/ChartColors';
-import { chartTooltipStyle, formatMoney } from '../chart/Format';
+import { ChartTooltip } from '../chart/ChartTooltip';
 import styles from './GroupingCategoryChart.module.css';
 
 interface Data {
@@ -58,10 +58,7 @@ export const GroupingCategoryChart: React.FC<
             <Cell key={`cell-${index}`} fill={entry.color} />
           ))}
         </Pie>
-        <Tooltip
-          formatter={v => formatMoney(typeof v === 'number' ? v : 0)}
-          contentStyle={chartTooltipStyle}
-        />
+        <ChartTooltip />
       </PieChart>
       <CategoryTotalsTable data={data} />
     </Group>

@@ -1,24 +1,9 @@
 import * as React from 'react';
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  Legend,
-  Line,
-  LineChart,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
+import { Area, AreaChart, CartesianGrid, Legend, Line, LineChart, XAxis, YAxis } from 'recharts';
 
 import { calculateChartHeight } from 'client/ui/chart/ChartSize';
-import {
-  chartTooltipStyle,
-  formatMoneyForChart,
-  formatMoneyThin,
-  formatMoneyTick,
-  useThinFormat,
-} from 'client/ui/chart/Format';
+import { ChartTooltip } from 'client/ui/chart/ChartTooltip';
+import { formatMoneyThin, formatMoneyTick, useThinFormat } from 'client/ui/chart/Format';
 
 import { EmptyChart } from '../EmptyChart';
 import { CategoryGraphProps } from './CategoryStatisticsChart';
@@ -61,11 +46,7 @@ export const CategoryChartRenderer: React.FC<CategoryChartProps<any>> = <T exten
         tickFormatter={thin ? formatMoneyThin : formatMoneyTick}
         width={thin ? 32 : undefined}
       />
-      <Tooltip
-        formatter={formatMoneyForChart}
-        labelFormatter={labelFormatter}
-        contentStyle={chartTooltipStyle}
-      />
+      <ChartTooltip labelFormatter={labelFormatter} />
       <Legend />
       {keys.map(v =>
         stacked ? (

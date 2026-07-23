@@ -1,10 +1,11 @@
 import { Box, Group, Text, useComputedColorScheme } from '@mantine/core';
 import { useElementSize } from '@mantine/hooks';
 import * as React from 'react';
-import { Bar, BarChart, CartesianGrid, Tooltip, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 
 import { YearlySeries, YearlySummaryChartData } from 'shared/statistics/YearlySummaryChartData';
 
+import { ChartTooltip } from '../chart/ChartTooltip';
 import { formatMoney, formatMoneyThin, formatMoneyTick, useThinFormat } from '../chart/Format';
 
 /**
@@ -78,7 +79,7 @@ const ChartContent: React.FC<{
         tickFormatter={thin ? formatMoneyThin : formatMoneyTick}
         width={thin ? 32 : undefined}
       />
-      <Tooltip
+      <ChartTooltip
         content={<SummaryTooltip data={data} />}
         cursor={{ fill: 'var(--mantine-color-default-hover)' }}
       />

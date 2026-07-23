@@ -1,16 +1,11 @@
 import { Box } from '@mantine/core';
 import { useElementSize } from '@mantine/hooks';
 import * as React from 'react';
-import { Bar, BarChart, CartesianGrid, Legend, Tooltip, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, Legend, XAxis, YAxis } from 'recharts';
 
 import { getChartColor } from '../chart/ChartColors';
-import {
-  chartTooltipStyle,
-  formatMoney,
-  formatMoneyThin,
-  formatMoneyTick,
-  useThinFormat,
-} from '../chart/Format';
+import { ChartTooltip } from '../chart/ChartTooltip';
+import { formatMoneyThin, formatMoneyTick, useThinFormat } from '../chart/Format';
 
 export interface CategoryChartData {
   categoryId: number;
@@ -57,11 +52,7 @@ const CategoryChartContent: React.FC<{
         orientation="right"
         style={{ fill: getChartColor(incomeColor, 0) }}
       />
-      <Tooltip
-        formatter={v => formatMoney(typeof v === 'number' ? v : 0)}
-        cursor={{ fill: 'var(--mantine-color-default-hover)' }}
-        contentStyle={chartTooltipStyle}
-      />
+      <ChartTooltip cursor={{ fill: 'var(--mantine-color-default-hover)' }} />
       <Legend />
       <Bar
         dataKey="categoryExpense"

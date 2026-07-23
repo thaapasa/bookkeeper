@@ -9,34 +9,18 @@ import {
   ComposedChart,
   Line,
   LineChart,
-  Tooltip,
   XAxis,
 } from 'recharts';
 
 import { TrackingChartType, TrackingData, TrackingStatistics } from 'shared/types';
 import { partition } from 'shared/util';
-import { chartTooltipStyle, formatMoneyForChart } from 'client/ui/chart/Format';
+import { ChartTooltip } from 'client/ui/chart/ChartTooltip';
 
 import { getChartColor } from '../chart/ChartColors';
 
 const Margins = { left: 4, top: 4, right: 4, bottom: 4 };
 
 export const CHART_HEIGHT = 168;
-
-/** Tooltips overflow the card (which has overflow: visible), so lift them above sibling cards */
-const TooltipWrapperStyle = { zIndex: 2 };
-
-/**
- * Anchors the tooltip bottom to the chart bottom and lets it grow upwards, for charts
- * near the bottom of the page where there is more room above the card than below it.
- * The wrapper is CSS-anchored to the chart bottom (top: auto overrides the default
- * top: 0), so its layout box extends upwards and never grows the page scroll height.
- * The fixed position.y keeps recharts from adding a vertical translate on top.
- */
-const UpwardTooltipProps = {
-  position: { y: 0 },
-  wrapperStyle: { ...TooltipWrapperStyle, top: 'auto', bottom: 0 },
-};
 
 interface TrackingChartProps {
   data: TrackingStatistics;
@@ -55,12 +39,7 @@ export const TrackingLineChartRenderer: React.FC<TrackingChartProps> = ({
     <LineChart width={size.width} height={CHART_HEIGHT} data={data.statistics} margin={Margins}>
       <CartesianGrid strokeDasharray="3 3" />
       <XAxis hide dataKey="timeSlot" />
-      <Tooltip
-        formatter={formatMoneyForChart}
-        contentStyle={chartTooltipStyle}
-        wrapperStyle={TooltipWrapperStyle}
-        {...(growTooltipUp ? UpwardTooltipProps : undefined)}
-      />
+      <ChartTooltip anchor={growTooltipUp ? 'bottom' : 'top'} />
       {data.groups.map((v, i) => (
         <Line
           type="monotone"
@@ -84,12 +63,7 @@ export const TrackingBarChartRenderer: React.FC<TrackingChartProps> = ({
     <BarChart width={size.width} height={CHART_HEIGHT} data={data.statistics} margin={Margins}>
       <CartesianGrid strokeDasharray="3 3" />
       <XAxis hide dataKey="timeSlot" />
-      <Tooltip
-        formatter={formatMoneyForChart}
-        contentStyle={chartTooltipStyle}
-        wrapperStyle={TooltipWrapperStyle}
-        {...(growTooltipUp ? UpwardTooltipProps : undefined)}
-      />
+      <ChartTooltip anchor={growTooltipUp ? 'bottom' : 'top'} />
       {data.groups.map((v, i) => (
         <Bar
           type="monotone"
@@ -114,12 +88,7 @@ export const TrackingCombinedRenderer: React.FC<TrackingChartProps> = ({
     <ComposedChart width={size.width} height={CHART_HEIGHT} data={data.statistics} margin={Margins}>
       <CartesianGrid strokeDasharray="3 3" />
       <XAxis hide dataKey="timeSlot" />
-      <Tooltip
-        formatter={formatMoneyForChart}
-        contentStyle={chartTooltipStyle}
-        wrapperStyle={TooltipWrapperStyle}
-        {...(growTooltipUp ? UpwardTooltipProps : undefined)}
-      />
+      <ChartTooltip anchor={growTooltipUp ? 'bottom' : 'top'} />
       {lines.map((v, i) => (
         <Area
           type="monotone"
