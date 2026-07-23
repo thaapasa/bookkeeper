@@ -37,6 +37,8 @@ describe('currencies', () => {
     expect(session.currencies.find(c => c.code === 'EUR')).toBeUndefined();
   });
 
+  // The server proxies a live ECB fetch with a 10s timeout; the test timeout
+  // must outlast it so a slow ECB response doesn't flake at bun's 5s default.
   it('expose ECB rates as strings, keyed by code, based on EUR', async () => {
     const rates = await session.get<CurrencyRates>('/api/currency/rates');
     expect(rates.base).toEqual('EUR');
@@ -45,7 +47,7 @@ describe('currencies', () => {
     expect(Number(rates.rates.USD)).toBeGreaterThan(0);
     // EUR is the base, so it is not quoted against itself
     expect(rates.rates.EUR).toBeUndefined();
-  });
+  }, 15_000);
 
   it('require authentication for rates', async () => {
     await expectThrow(() => client.get('', '/api/currency/rates'));
