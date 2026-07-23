@@ -26,6 +26,8 @@ import {
   effectiveStatementDate,
   extractCardLastDigits,
   findCardUserId,
+  isOpenExpense,
+  isOpenRow,
   MatchableExpense,
   MatchingStatementRow,
   signedExpenseSum,
@@ -87,33 +89,27 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
   const suggestedRowIds = new Set(activeSuggestions.flatMap(s => s.statementRowIds));
   const suggestedExpenseIds = new Set(activeSuggestions.flatMap(s => s.expenseIds));
 
-  const [selectedRowIds, setSelectedRowIds] = React.useState<number[]>([]);
-  const [selectedExpenseIds, setSelectedExpenseIds] = React.useState<number[]>([]);
+  const [rawSelectedRowIds, setSelectedRowIds] = React.useState<number[]>([]);
+  const [rawSelectedExpenseIds, setSelectedExpenseIds] = React.useState<number[]>([]);
   const [hideHandled, setHideHandled] = React.useState(false);
 
   // Display-only filter: matched and skipped items are hidden so only the
-  // remaining work is visible. Counts and selection totals still use the
-  // full data.
-  const visibleExpenses = hideHandled ? data.expenses.filter(isUnhandledExpense) : data.expenses;
-  const visibleRows = hideHandled ? data.statementRows.filter(isUnhandledRow) : data.statementRows;
+  // remaining work is visible. Counts still use the full data.
+  const visibleExpenses = hideHandled ? data.expenses.filter(isOpenExpense) : data.expenses;
+  const visibleRows = hideHandled ? data.statementRows.filter(isOpenRow) : data.statementRows;
+
+  // A hidden item must never count as selected — including one that becomes
+  // matched or skipped while the filter is already on (e.g. via a card menu
+  // action) — so the effective selection is the raw selection intersected
+  // with the visible items.
+  const visibleExpenseIds = new Set(visibleExpenses.map(e => e.id));
+  const visibleRowIds = new Set(visibleRows.map(r => r.id));
+  const selectedExpenseIds = rawSelectedExpenseIds.filter(id => visibleExpenseIds.has(id));
+  const selectedRowIds = rawSelectedRowIds.filter(id => visibleRowIds.has(id));
 
   const clearSelection = () => {
     setSelectedRowIds([]);
     setSelectedExpenseIds([]);
-  };
-
-  // Hidden items must never remain selected, so turning the filter on drops
-  // any matched or skipped items from the current selection.
-  const changeHideHandled = (hide: boolean) => {
-    setHideHandled(hide);
-    if (hide) {
-      setSelectedExpenseIds(ids =>
-        ids.filter(id => data.expenses.some(e => e.id === id && isUnhandledExpense(e))),
-      );
-      setSelectedRowIds(ids =>
-        ids.filter(id => data.statementRows.some(r => r.id === id && isUnhandledRow(r))),
-      );
-    }
   };
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: QueryKeys.statements.all });
@@ -203,8 +199,8 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
   };
 
   const buckets = buildBuckets(visibleExpenses, visibleRows, activeSuggestions);
-  const unmatchedExpenses = data.expenses.filter(isUnhandledExpense).length;
-  const unmatchedRows = data.statementRows.filter(isUnhandledRow).length;
+  const unmatchedExpenses = data.expenses.filter(isOpenExpense).length;
+  const unmatchedRows = data.statementRows.filter(isOpenRow).length;
 
   // Connector lines: confirmed matches, active suggestions, and a preview
   // of the current manual selection.
@@ -296,11 +292,11 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
   // are left alone (the server refuses to skip matched ones).
   const expensesOnlySelection = selectedExpenseIds.length > 0 && selectedRowIds.length < 1;
   const skipSelection = () => {
-    const rows = selectedRows.filter(isUnhandledRow);
+    const rows = selectedRows.filter(isOpenRow);
     const expenses = selectedExpenseIds
       .map(id => data.expenses.find(e => e.id === id))
       .filter(isDefined)
-      .filter(isUnhandledExpense);
+      .filter(isOpenExpense);
     return executeOperation(
       async () => {
         for (const r of rows) {
@@ -339,7 +335,7 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
           size="xs"
           label="Piilota täsmätyt ja ohitetut"
           checked={hideHandled}
-          onChange={e => changeHideHandled(e.currentTarget.checked)}
+          onChange={e => setHideHandled(e.currentTarget.checked)}
         />
       </Group>
 
@@ -484,12 +480,8 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
                             </Text>
                           </Group>
                         ) : (
-                          <Group gap={4} wrap="nowrap" align="center">
-                            <Icons.Warning
-                              size={14}
-                              color="var(--mantine-color-yellow-8)"
-                              style={{ marginBottom: 2 }}
-                            />
+                          <Group gap={4} wrap="nowrap">
+                            <Icons.Warning size={14} color="var(--mantine-color-yellow-8)" />
                             <Text fz="sm" c="yellow.8" style={{ whiteSpace: 'nowrap' }}>
                               Summat eroavat: {selectionSumDiff.format()}
                             </Text>
@@ -578,13 +570,6 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
     </Stack>
   );
 };
-
-/** An expense still needing attention: not matched to a statement row and not skipped. */
-const isUnhandledExpense = (e: MatchableExpense) =>
-  e.matchedStatementRowIds.length < 1 && !e.statementSkip;
-
-/** A statement row still needing attention: not matched to an expense and not skipped. */
-const isUnhandledRow = (r: MatchingStatementRow) => r.matchedExpenseIds.length < 1 && !r.skipped;
 
 interface DateBucket {
   date: ISODate;

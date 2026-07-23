@@ -291,10 +291,13 @@ selection (a preview of what "Täsmää valitut" would link).
   "Vahvista N ehdotusta" confirms them as one bulk call, and individual
   suggestions can be dismissed.
 - Manual matching: select any number of statement rows and expenses, then "Täsmää
-  valitut" links them pairwise. The floating action bar shows both sides' totals.
-  Matched items stay selectable so a group can be extended with further links
-  (e.g. adding a second bank payment to an already-matched expense). Plain
-  matching never touches the expense's preliminary (`confirmed`) state.
+  valitut" links them pairwise. The floating action bar shows both sides' totals,
+  and when both sides have selections, whether the signed sums match ("Summat
+  täsmäävät" in green) or their difference ("Summat eroavat" in yellow) — a
+  visual check only, matching is not blocked on it. Matched items stay
+  selectable so a group can be extended with further links (e.g. adding a second
+  bank payment to an already-matched expense). Plain matching never touches the
+  expense's preliminary (`confirmed`) state.
 - When exactly one preliminary (Alustava), unmatched, non-transfer expense is
   selected together with unmatched rows, the action bar leads with "Korjaa ja
   kohdista" (`POST /api/statement/match/fix`), which fixes the expense to the
@@ -303,6 +306,11 @@ selection (a preview of what "Täsmää valitut" would link).
   expense.
 - Matched items are dimmed with a "Täsmätty" badge and can be unlinked; skipped
   items are dimmed with "Ohitettu" and a dashed border.
+- "Piilota täsmätyt ja ohitetut" hides handled (matched or skipped) items so
+  only the remaining work is visible. Hidden items never count as selected:
+  the effective selection is the raw selection intersected with the visible
+  items, so an item that becomes matched or skipped while the filter is on
+  drops out of the selection instead of staying invisibly selected.
 - Statement rows paid by a known bank card (resolved via `findCardUserId`, see
   the upload flow section) show the card owner's avatar, mirroring the payer
   avatar on expense cards; the expanded details list the card's last digits.
@@ -318,16 +326,17 @@ selection (a preview of what "Täsmää valitut" would link).
   ehdotus" (when suggested), unmatch (when matched), or "Luo kirjaus tästä" and
   skip/restore (when unmatched).
 - "Luo kirjaus tästä" on an unmatched row opens the expense dialog prefilled from
-  the row (date, sum, receiver, source, type by sign) and creates the match
+  the row (date, sum, receiver, source, type by sign, and the card owner as the
+  expense's user when the row was paid by a known card) and creates the match
   automatically on save.
 - Shortcuts can declare **statement targets** (`shortcuts.statement_targets`,
   edited in the shortcut editor): when a row's counterparty contains one of them
   (case-insensitive substring, `matchesStatementCounterparty()` — substring
   because counterparties carry per-purchase suffixes like "Amazon.de\*FX9W74Q55"),
   the row's menu also offers "Luo [shortcut]", which merges the shortcut's data
-  (category, title, receiver, …) over the row prefill. The row's date and sum
-  always win over shortcut defaults, and the created expense is matched to the
-  row on save just like "Luo kirjaus tästä".
+  (category, title, receiver, …) over the row prefill. The row's date, sum, and
+  card owner always win over shortcut defaults, and the created expense is
+  matched to the row on save just like "Luo kirjaus tästä".
 - With only statement rows selected (no expenses), the floating action bar
   offers "Luo kirjaus" — and "Luo [shortcut]" for each shortcut whose statement
   targets match a selected counterparty — creating **one** expense that covers

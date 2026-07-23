@@ -31,10 +31,8 @@ export function suggestStatementMatches(
   expenses: MatchableExpense[],
   rows: MatchingStatementRow[],
 ): StatementMatchInput[] {
-  const openExpenses = expenses.filter(
-    e => e.matchedStatementRowIds.length < 1 && !e.statementSkip,
-  );
-  const openRows = rows.filter(r => r.matchedExpenseIds.length < 1 && !r.skipped);
+  const openExpenses = expenses.filter(isOpenExpense);
+  const openRows = rows.filter(isOpenRow);
 
   const unitBuckets = groupBy(buildExpenseUnits(openExpenses), u => `${u.date}|${u.signedTotal}`);
   const rowBuckets = groupBy(
@@ -53,6 +51,16 @@ export function suggestStatementMatches(
     }
   }
   return suggestions;
+}
+
+/** An expense still open for matching: not linked to a statement row and not skipped. */
+export function isOpenExpense(e: MatchableExpense): boolean {
+  return e.matchedStatementRowIds.length < 1 && !e.statementSkip;
+}
+
+/** A statement row still open for matching: not linked to an expense and not skipped. */
+export function isOpenRow(r: MatchingStatementRow): boolean {
+  return r.matchedExpenseIds.length < 1 && !r.skipped;
 }
 
 function buildExpenseUnits(expenses: MatchableExpense[]): ExpenseUnit[] {
