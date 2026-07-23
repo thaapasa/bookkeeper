@@ -135,19 +135,24 @@ describe('statement import', () => {
       sourceId: `${sourceId}`,
     });
     expect(uploads).toHaveLength(2);
-    // Latest first; the re-upload owns no rows
+    // Latest first; the re-upload owns no rows but still covers the full
+    // file's date range (the range comes from the file, not the owned rows)
     expect(uploads[0]).toMatchObject({
       id: second.uploadId,
       filename: 'op-again.csv',
       newCount: 0,
       duplicateCount: 5,
       currentRowCount: 0,
+      rangeStart: '2026-05-02',
+      rangeEnd: '2026-06-28',
     });
     expect(uploads[1]).toMatchObject({
       id: first.uploadId,
       filename: 'op.csv',
       newCount: 5,
       currentRowCount: 5,
+      rangeStart: '2026-05-02',
+      rangeEnd: '2026-06-28',
     });
   });
 

@@ -79,6 +79,14 @@ export const StatementUpload = DbObject.extend({
   rowCount: z.number().int(),
   newCount: z.number().int(),
   duplicateCount: z.number().int(),
+  /**
+   * Export date range: min/max booking date over all rows in the uploaded
+   * file (including duplicates), i.e. the period the file covers. Null for
+   * files with no rows. The bank export's date filter operates on booking
+   * dates, so these verify which periods have been exported.
+   */
+  rangeStart: ISODate.nullable(),
+  rangeEnd: ISODate.nullable(),
 });
 export type StatementUpload = z.infer<typeof StatementUpload>;
 

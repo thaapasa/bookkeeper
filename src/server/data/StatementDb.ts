@@ -76,12 +76,26 @@ export function importStatement(
         );
       }
 
+      // The export date range covers all rows in the file (including
+      // duplicates), so it stays correct even when nothing new is imported.
+      // ISO dates order lexicographically.
+      const bookingDates = parsed.rows.map(r => r.bookingDate).sort();
       const upload = await tx.one<{ id: number }>(
         `INSERT INTO statement_upload
-            (group_id, source_id, filename, format, uploaded_by, row_count, new_count, duplicate_count)
-          VALUES ($/groupId/, $/sourceId/, $/filename/, $/format/, $/userId/, 0, 0, 0)
+            (group_id, source_id, filename, format, uploaded_by, row_count, new_count,
+             duplicate_count, range_start, range_end)
+          VALUES ($/groupId/, $/sourceId/, $/filename/, $/format/, $/userId/, 0, 0, 0,
+             $/rangeStart/, $/rangeEnd/)
           RETURNING id`,
-        { groupId, sourceId, filename: input.filename, format: parsed.format, userId },
+        {
+          groupId,
+          sourceId,
+          filename: input.filename,
+          format: parsed.format,
+          userId,
+          rangeStart: bookingDates[0] ?? null,
+          rangeEnd: bookingDates[bookingDates.length - 1] ?? null,
+        },
       );
 
       let newCount = 0;
@@ -206,6 +220,7 @@ export async function getStatementUploads(
         u.uploaded_by AS "uploadedBy", u.uploaded_at AS "uploadedAt",
         u.row_count AS "rowCount", u.new_count AS "newCount",
         u.duplicate_count AS "duplicateCount",
+        u.range_start AS "rangeStart", u.range_end AS "rangeEnd",
         COUNT(r.id) AS "currentRowCount"
       FROM statement_upload u
       LEFT JOIN statement_row r ON r.upload_id = u.id AND r.group_id = $/groupId/

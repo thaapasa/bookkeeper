@@ -3,7 +3,7 @@ import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import React from 'react';
 
 import { StatementUploadListItem } from 'shared/statement';
-import { toDateTime } from 'shared/time';
+import { readableDateWithYear, readableTimestamp } from 'shared/time';
 import { ObjectId } from 'shared/types';
 import { apiConnect } from 'client/data/ApiConnect';
 import { QueryKeys } from 'client/data/queryKeys';
@@ -14,6 +14,12 @@ import { Icons } from '../icons/Icons';
 import { statementFormatLabels } from './statementSources';
 
 const rowCountText = (n: number) => (n === 1 ? '1 tapahtuma' : `${n} tapahtumaa`);
+
+/** Export date range of the upload, e.g. "1.1.2024 – 31.12.2024". */
+const rangeText = (u: StatementUploadListItem) =>
+  u.rangeStart && u.rangeEnd
+    ? `${readableDateWithYear(u.rangeStart)} – ${readableDateWithYear(u.rangeEnd)}`
+    : '–';
 
 /**
  * List of upload batches for one source, with batch delete. Deleting a
@@ -51,12 +57,13 @@ export const StatementUploadsList: React.FC<{ sourceId: ObjectId }> = ({ sourceI
   }
 
   return (
-    <Table.ScrollContainer minWidth={560}>
+    <Table.ScrollContainer minWidth={740}>
       <Table verticalSpacing="xs" highlightOnHover>
         <Table.Thead>
           <Table.Tr>
             <Table.Th w={140}>Tuotu</Table.Th>
             <Table.Th>Tiedosto</Table.Th>
+            <Table.Th w={180}>Ajanjakso</Table.Th>
             <Table.Th w={100} visibleFrom="sm">
               Tuoja
             </Table.Th>
@@ -77,7 +84,7 @@ export const StatementUploadsList: React.FC<{ sourceId: ObjectId }> = ({ sourceI
             <Table.Tr key={u.id}>
               <Table.Td>
                 <Text fz="sm" style={{ whiteSpace: 'nowrap' }}>
-                  {toDateTime(u.uploadedAt).toFormat('d.M.yyyy HH:mm')}
+                  {readableTimestamp(u.uploadedAt)}
                 </Text>
               </Table.Td>
               <Table.Td>
@@ -89,6 +96,11 @@ export const StatementUploadsList: React.FC<{ sourceId: ObjectId }> = ({ sourceI
                     {u.filename}
                   </Text>
                 </Group>
+              </Table.Td>
+              <Table.Td>
+                <Text fz="sm" style={{ whiteSpace: 'nowrap' }}>
+                  {rangeText(u)}
+                </Text>
               </Table.Td>
               <Table.Td visibleFrom="sm">
                 <Text fz="sm" c="dimmed">

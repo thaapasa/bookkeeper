@@ -585,7 +585,9 @@ CREATE TABLE public.statement_upload (
     uploaded_at timestamp with time zone DEFAULT now() NOT NULL,
     row_count integer NOT NULL,
     new_count integer NOT NULL,
-    duplicate_count integer NOT NULL
+    duplicate_count integer NOT NULL,
+    range_start date,
+    range_end date
 );
 
 

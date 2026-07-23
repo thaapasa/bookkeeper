@@ -19,7 +19,7 @@ UI in `src/client/ui/statement/` (the "Tiliotteet" page).
 - A source that has a bank account behind it is configured with a **statement
   format** (`sources.statement_format`, nullable): `op` or `spankki`. Configured from
   the source settings UI. A source without a format cannot receive statement uploads.
-- The source format names the *bank*; an uploaded file has a **file format**
+- The source format names the _bank_; an uploaded file has a **file format**
   (`StatementFileFormat`) which can be more specific: an `op` source accepts both
   `op` (account statement) and `op-credit` (credit card transaction export) files.
   `sourceFormatForFile()` maps a file format to the source format that accepts it.
@@ -34,13 +34,14 @@ UI in `src/client/ui/statement/` (the "Tiliotteet" page).
 
 One row per uploaded file; audit trail for imports.
 
-| Column                                      | Meaning                         |
-| ------------------------------------------- | ------------------------------- |
-| `id`, `group_id`, `source_id`               | Standard scoping                |
-| `filename`                                  | Original filename of the upload |
-| `format`                                    | File format as parsed: `op` / `spankki` / `op-credit` |
-| `uploaded_by`, `uploaded_at`                | Who and when                    |
-| `row_count`, `new_count`, `duplicate_count` | Parse/import result summary     |
+| Column                                      | Meaning                                                                                                                                                                                               |
+| ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`, `group_id`, `source_id`               | Standard scoping                                                                                                                                                                                      |
+| `filename`                                  | Original filename of the upload                                                                                                                                                                       |
+| `format`                                    | File format as parsed: `op` / `spankki` / `op-credit`                                                                                                                                                 |
+| `uploaded_by`, `uploaded_at`                | Who and when                                                                                                                                                                                          |
+| `row_count`, `new_count`, `duplicate_count` | Parse/import result summary                                                                                                                                                                           |
+| `range_start`, `range_end`                  | Export date range: min/max booking date over **all** rows in the file (incl. duplicates), for verifying which periods have been exported. Banks filter exports by booking date. NULL for empty files. |
 
 ### `statement_row`
 
@@ -165,15 +166,13 @@ masked card number (`401046******1226 …` for OP, `431871******3515 …` for
 S-pankki); `extractCardLastDigits()` / `findCardUserId()`
 (`shared/statement/StatementCard.ts`) resolve the paying user from the last 4
 digits, entirely client-side. Ambiguous matches (two users of the source sharing
-the same last 4) resolve to nobody rather than guessing.
-4. On confirm, the **raw file content** is POSTed to the server (as JSON
-   `{ filename, content }` — statement CSVs are small). The server re-parses it
-   authoritatively — the client parse is only for sniffing and preview. This keeps
-   the raw file as the source of truth, lets the server store `raw_line` per row,
-   and avoids an API that accepts client-fabricated rows.
-5. The import summary (new / duplicate counts) is shown, and the row list
-   refreshes. A parse error anywhere in the file aborts the whole upload with an
-   error notification — there are no partial imports or per-row error counts.
+the same last 4) resolve to nobody rather than guessing. 4. On confirm, the **raw file content** is POSTed to the server (as JSON
+`{ filename, content }` — statement CSVs are small). The server re-parses it
+authoritatively — the client parse is only for sniffing and preview. This keeps
+the raw file as the source of truth, lets the server store `raw_line` per row,
+and avoids an API that accepts client-fabricated rows. 5. The import summary (new / duplicate counts) is shown, and the row list
+refreshes. A parse error anywhere in the file aborts the whole upload with an
+error notification — there are no partial imports or per-row error counts.
 
 ## API
 
@@ -243,16 +242,16 @@ the preliminary matcher in `src/shared/statement/StatementMatcher.ts`, the UI in
 
 ### API
 
-| Endpoint                                    | Purpose                                                                                                                                                          |
-| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `GET /api/statement/matching`               | Both sides for (`sourceId`, `month`): the month's expenses, and statement rows whose effective date falls within month ± 4 days, each with match/skip state.     |
-| `POST /api/statement/match`                 | Link every listed row to every listed expense (pairwise cross product; same source enforced). Existing links are kept, so a group can be extended incrementally. |
-| `POST /api/statement/match/bulk`            | Confirm several matches at once (suggestion confirmation). Also marks matched preliminary expenses confirmed — the bank has verified their sums.                  |
+| Endpoint                                    | Purpose                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `GET /api/statement/matching`               | Both sides for (`sourceId`, `month`): the month's expenses, and statement rows whose effective date falls within month ± 4 days, each with match/skip state.                                                                                                                                                                                                                                                                                                             |
+| `POST /api/statement/match`                 | Link every listed row to every listed expense (pairwise cross product; same source enforced). Existing links are kept, so a group can be extended incrementally.                                                                                                                                                                                                                                                                                                         |
+| `POST /api/statement/match/bulk`            | Confirm several matches at once (suggestion confirmation). Also marks matched preliminary expenses confirmed — the bank has verified their sums.                                                                                                                                                                                                                                                                                                                         |
 | `POST /api/statement/match/fix`             | "Korjaa ja kohdista": fix one preliminary expense from the listed rows (date ← earliest effective date, sum ← abs net of amounts, division re-split evenly among current beneficiaries, confirmed ← true) and link it to them, atomically. Transfers, already-confirmed expenses (stale-client guard), already-matched rows/expenses, and selections netting to zero are rejected. Runs through the single-expense update path, so subscription defaults stay untouched. |
-| `DELETE /api/statement/match/statement/:id` | Unmatch a statement row (all its expenses).                                                                                                                      |
-| `DELETE /api/statement/match/expense/:id`   | Unmatch a single expense.                                                                                                                                        |
-| `PATCH /api/statement/row/:id/skip`         | Set/clear a statement row's skip flag.                                                                                                                           |
-| `PATCH /api/statement/expense/:id/skip`     | Set/clear an expense's statement-skip flag.                                                                                                                      |
+| `DELETE /api/statement/match/statement/:id` | Unmatch a statement row (all its expenses).                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| `DELETE /api/statement/match/expense/:id`   | Unmatch a single expense.                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| `PATCH /api/statement/row/:id/skip`         | Set/clear a statement row's skip flag.                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| `PATCH /api/statement/expense/:id/skip`     | Set/clear an expense's statement-skip flag.                                                                                                                                                                                                                                                                                                                                                                                                                              |
 
 ### Preliminary matching
 
