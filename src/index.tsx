@@ -33,7 +33,8 @@ ReactDOM.createRoot(container).render(
     defaultColorScheme="auto"
     cssVariablesResolver={cssVariablesResolver}
   >
-    {/* bottom-right so notifications don't cover the matching view's action bar */}
+    {/* bottom-right; bookkeeper.css lifts the stack above any fixed bottom
+        bar via --bottom-bar-offset (see statement matching view) */}
     <Notifications position="bottom-right" autoClose={5000} />
     <DatesProvider settings={{ locale: 'fi' }}>
       <QueryClientProvider client={queryClient}>

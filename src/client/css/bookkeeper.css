@@ -24,6 +24,16 @@ html, body {
     outline: none;
 }
 
+/* Views with a fixed bottom bar (statement matching) publish the bar height
+   as --bottom-bar-offset so the notification stack sits above the bar instead
+   of on top of it; elsewhere the var is unset and the offset is 0. Scoped to
+   the bottom-* containers: Mantine renders a container per position, and
+   setting bottom on the top-* ones would stretch them into full-height
+   overlays that block clicks. */
+.mantine-Notifications-root[data-position^='bottom'] {
+    bottom: calc(var(--mantine-spacing-md) + var(--bottom-bar-offset, 0px));
+}
+
 /* NavLink hardcodes gray-0 for hover; use the app-wide default-hover instead */
 @media (hover: hover) {
     [data-mantine-color-scheme='light'] .mantine-NavLink-root:hover {

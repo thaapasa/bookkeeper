@@ -16,6 +16,7 @@ import {
 } from '@mantine/core';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import React from 'react';
+import { z } from 'zod';
 
 import {
   ExpenseShortcut,
@@ -50,6 +51,7 @@ import { executeOperation } from 'client/util/ExecuteOperation';
 import { DivisionInfo } from '../expense/details/DivisionInfo';
 import { defaultExpenseSaveAction } from '../expense/dialog/ExpenseSaveAction';
 import { ExpenseMenuItems } from '../expense/row/ExpenseRowMenu';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 import { Icons } from '../icons/Icons';
 import {
   ConnectorSpec,
@@ -91,7 +93,12 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
 
   const [rawSelectedRowIds, setSelectedRowIds] = React.useState<number[]>([]);
   const [rawSelectedExpenseIds, setSelectedExpenseIds] = React.useState<number[]>([]);
-  const [hideHandled, setHideHandled] = React.useState(false);
+  // Persisted so the filter survives navigation and reloads
+  const [hideHandled, setHideHandled] = useLocalStorage(
+    'statement.matching.hideHandled',
+    false,
+    z.boolean(),
+  );
 
   // Display-only filter: matched and skipped items are hidden so only the
   // remaining work is visible. Counts still use the full data.
@@ -233,7 +240,27 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
   ];
 
   const selectionActive = selectedRowIds.length > 0 || selectedExpenseIds.length > 0;
-  const actionBarVisible = selectionActive || activeSuggestions.length > 0;
+
+  // The always-visible bottom bar overlays the bottom of the viewport; its
+  // measured height is published as --bottom-bar-offset so the content
+  // padding and the global notification stack (see bookkeeper.css) stay
+  // clear of it, even when the bar wraps to multiple lines. A callback ref
+  // (not a mount effect) because Affix renders its children in a portal
+  // that only mounts after the component's own effects have run.
+  const barRef = React.useCallback((el: HTMLDivElement | null) => {
+    if (!el) {
+      return;
+    }
+    const update = () =>
+      document.documentElement.style.setProperty('--bottom-bar-offset', `${el.offsetHeight}px`);
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    return () => {
+      observer.disconnect();
+      document.documentElement.style.removeProperty('--bottom-bar-offset');
+    };
+  }, []);
 
   // With only statement rows selected, the action bar offers creating one
   // expense covering all of them (plus shortcut variants for any selected
@@ -326,19 +353,7 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
   const selectionSumDiff = selectedRowTotal.minus(signedSelectedTotal).abs();
 
   return (
-    <Stack gap="sm" pb={actionBarVisible ? 80 : undefined}>
-      <Group gap="md" justify="space-between">
-        <Text fz="sm" c="dimmed">
-          Täsmäämättä: {unmatchedExpenses} kirjausta, {unmatchedRows} tiliotetapahtumaa
-        </Text>
-        <Checkbox
-          size="xs"
-          label="Piilota täsmätyt ja ohitetut"
-          checked={hideHandled}
-          onChange={e => setHideHandled(e.currentTarget.checked)}
-        />
-      </Group>
-
+    <Stack gap="sm" pb="calc(var(--bottom-bar-offset, 60px) + var(--mantine-spacing-md))">
       <Group gap="md" wrap="nowrap" align="center">
         <Text fz="sm" fw={600} flex={1}>
           Kirjaukset
@@ -459,11 +474,25 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
             : 'Ei kirjauksia eikä tiliotetapahtumia tässä kuussa.'}
         </Text>
       ) : null}
-      {actionBarVisible ? (
-        <Affix position={{ bottom: 20, left: 0, right: 0 }} zIndex={200}>
-          <Group justify="center">
-            <Paper shadow="md" withBorder p="sm" radius="md">
-              <Group gap="sm" wrap="nowrap">
+      <Affix position={{ bottom: 0, left: 0, right: 0 }} zIndex={200}>
+        {/* Full-width status bar, styled like the sticky page footer
+            (border-top + surface bg). Always mounted so the filter toggle
+            and counts stay reachable without scrolling. */}
+        <Paper
+          ref={barRef}
+          radius={0}
+          h={64}
+          px="md"
+          py="sm"
+          bg="surface.1"
+          style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}
+        >
+          <Group gap="md" justify="space-between" align="center" h="100%">
+            <Text fz="sm" c="dimmed">
+              Täsmäämättä: {unmatchedExpenses} kirjausta, {unmatchedRows} tiliotetapahtumaa
+            </Text>
+            {selectionActive || activeSuggestions.length > 0 ? (
+              <Group gap="sm" justify="center" flex={1}>
                 {selectionActive ? (
                   <>
                     <Stack gap={2}>
@@ -482,7 +511,11 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
                         ) : (
                           <Group gap={4} wrap="nowrap">
                             <Icons.Warning size={14} color="var(--mantine-color-yellow-8)" />
-                            <Text fz="sm" c="yellow.8" style={{ whiteSpace: 'nowrap' }}>
+                            <Text
+                              fz="sm"
+                              c="yellow.8"
+                              style={{ whiteSpace: 'nowrap', marginBottom: -2 }}
+                            >
                               Summat eroavat: {selectionSumDiff.format()}
                             </Text>
                           </Group>
@@ -563,10 +596,16 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
                   </Button>
                 ) : null}
               </Group>
-            </Paper>
+            ) : null}
+            <Checkbox
+              size="xs"
+              label="Piilota täsmätyt ja ohitetut"
+              checked={hideHandled}
+              onChange={e => setHideHandled(e.currentTarget.checked)}
+            />
           </Group>
-        </Affix>
-      ) : null}
+        </Paper>
+      </Affix>
     </Stack>
   );
 };
