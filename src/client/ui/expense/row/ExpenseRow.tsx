@@ -2,7 +2,7 @@ import { Group, Stack, Table, Text, Tooltip } from '@mantine/core';
 import * as React from 'react';
 
 import { UserExpense } from 'shared/expense';
-import { readableDate, toDateTime } from 'shared/time';
+import { readableDate, readableDateWithYear, toDateTime } from 'shared/time';
 import { Category, Currency, isDefined, Source } from 'shared/types';
 import { equal, Money, notEqual } from 'shared/util';
 import { apiConnect } from 'client/data/ApiConnect';
@@ -165,12 +165,14 @@ export const ExpenseRow: React.FC<CommonExpenseRowProps & { userData: UserDataPr
           {continuesSplit ? (
             <SplitLinkIcon />
           ) : (
-            <>
-              <Text span className={ActionsVisibleFrom} pr="xs" fw="bold">
-                {weekDay(expense.date, prev)}
+            <Tooltip label={readableDateWithYear(expense.date, true)}>
+              <Text span inherit>
+                <Text span className={ActionsVisibleFrom} pr="xs" fw="bold">
+                  {weekDay(expense.date, prev)}
+                </Text>
+                {readableDate(expense.date)}
               </Text>
-              {readableDate(expense.date)}
-            </>
+            </Tooltip>
           )}
         </Table.Td>
         {/* Avatar */}
