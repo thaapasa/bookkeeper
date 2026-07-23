@@ -70,10 +70,13 @@ export type SubscriptionSearchCriteria = z.infer<typeof SubscriptionSearchCriter
 /**
  * Template for the auto-generated expenses of a recurring subscription.
  * Division is derived at generation time from `sum` + the source's
- * default split, so it is not part of the template — storing a stale
- * pre-computed division would let a PATCH (or a single-row edit that
- * diverges from defaults) silently produce expense_division rows that
- * violate the `sum(expense_division.sum) = 0` invariant.
+ * default split, so absolute division sums are not part of the template —
+ * storing a stale pre-computed division would let a PATCH (or a
+ * single-row edit that diverges from defaults) silently produce
+ * expense_division rows that violate the `sum(expense_division.sum) = 0`
+ * invariant. The beneficiary side can be pinned via `benefit`, which
+ * stores only user ids (an even split computed at generation time), so
+ * it scales with `sum` and cannot break the invariant either.
  */
 export const ExpenseDefaults = z.object({
   title: ShortString,
@@ -85,6 +88,13 @@ export const ExpenseDefaults = z.object({
   userId: ObjectId,
   confirmed: z.boolean(),
   description: z.string().nullable(),
+  /**
+   * User ids on the beneficiary side (`benefit` for expenses, `split`
+   * for incomes, `transferee` for transfers) of generated expenses; the
+   * sum is split evenly among them. Absent on legacy rows → the
+   * beneficiary side falls back to the source's default split.
+   */
+  benefit: z.array(ObjectId).min(1).optional(),
 });
 export type ExpenseDefaults = z.infer<typeof ExpenseDefaults>;
 

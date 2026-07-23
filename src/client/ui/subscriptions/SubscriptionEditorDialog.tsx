@@ -3,6 +3,7 @@ import {
   Button,
   Checkbox,
   Group,
+  Input,
   Loader,
   Modal,
   MultiSelect,
@@ -31,7 +32,7 @@ import {
   Subscription,
   SubscriptionUpdate,
 } from 'shared/expense';
-import { ObjectId } from 'shared/types';
+import { ObjectId, Source } from 'shared/types';
 import { Money, noop } from 'shared/util';
 import { apiConnect } from 'client/data/ApiConnect';
 import { invalidateServerData } from 'client/data/query';
@@ -41,6 +42,7 @@ import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { CategoryMultiSelector } from '../component/CategoryMultiSelector';
 import { CategorySelector } from '../component/CategorySelector';
+import { UserSelector } from '../component/UserSelector';
 import { DialogFooter } from '../dialog/DialogFooter';
 import { SourceSelector, SumField } from '../expense/dialog/ExpenseDialogComponents';
 import { ExpenseRow } from '../expense/row/ExpenseRow';
@@ -270,76 +272,97 @@ interface DefaultsErrors {
   sourceId?: string;
   categoryId?: string;
   userId?: string;
+  benefit?: string;
 }
 
 const DefaultsEditor: React.FC<{
   defaults: ExpenseDefaults;
   onChange: (patch: Partial<ExpenseDefaults>) => void;
   users: { id: ObjectId; label: string }[];
-  sources: { id: ObjectId; name: string }[];
+  sources: Source[];
   errors: DefaultsErrors;
-}> = ({ defaults, onChange, users, sources, errors }) => (
-  <Stack gap="sm">
-    <TextInput
-      label="Otsikko"
-      description="Käytetään automaattisesti luotujen kirjausten nimenä."
-      value={defaults.title}
-      onChange={e => onChange({ title: e.currentTarget.value })}
-      error={errors.title}
-    />
-    <TextInput
-      label="Saaja"
-      value={defaults.receiver ?? ''}
-      onChange={e => onChange({ receiver: e.currentTarget.value || undefined })}
-    />
-    <SumField
-      value={Money.from(defaults.sum).toString()}
-      onChange={s => onChange({ sum: s })}
-      errorText={errors.sum}
-    />
-    <Select
-      label="Tyyppi"
-      data={TYPE_OPTIONS}
-      value={defaults.type}
-      onChange={v => v && onChange({ type: v as ExpenseType })}
-      allowDeselect={false}
-    />
-    <CategorySelector
-      value={defaults.categoryId}
-      onChange={id => onChange({ categoryId: id })}
-      label="Kategoria"
-      error={errors.categoryId}
-    />
-    <SourceSelector
-      title="Lähde"
-      value={defaults.sourceId}
-      onChange={id => onChange({ sourceId: id })}
-      sources={sources as never}
-      errorText={errors.sourceId}
-    />
-    <Select
-      label="Omistaja"
-      data={users.map(u => ({ value: String(u.id), label: u.label }))}
-      value={String(defaults.userId)}
-      onChange={v => v && onChange({ userId: Number(v) })}
-      allowDeselect={false}
-      error={errors.userId}
-    />
-    <Checkbox
-      label="Alustava kirjaus"
-      description="Luodut kirjaukset jäävät vahvistettavaksi käsin."
-      checked={!defaults.confirmed}
-      onChange={e => onChange({ confirmed: !e.currentTarget.checked })}
-    />
-    <Textarea
-      label="Kuvaus"
-      value={defaults.description ?? ''}
-      onChange={e => onChange({ description: e.currentTarget.value || null })}
-      autosize
-      minRows={2}
-    />
-  </Stack>
-);
+}> = ({ defaults, onChange, users, sources, errors }) => {
+  // With no stored benefit list the server splits the beneficiary side by
+  // the source's default shares — show that as the effective selection.
+  const sourceUserIds =
+    sources.find(s => s.id === defaults.sourceId)?.users.map(u => u.userId) ?? [];
+  return (
+    <Stack gap="sm">
+      <TextInput
+        label="Otsikko"
+        description="Käytetään automaattisesti luotujen kirjausten nimenä."
+        value={defaults.title}
+        onChange={e => onChange({ title: e.currentTarget.value })}
+        error={errors.title}
+      />
+      <TextInput
+        label="Saaja"
+        value={defaults.receiver ?? ''}
+        onChange={e => onChange({ receiver: e.currentTarget.value || undefined })}
+      />
+      <SumField
+        value={Money.from(defaults.sum).toString()}
+        onChange={s => onChange({ sum: s })}
+        errorText={errors.sum}
+      />
+      <Select
+        label="Tyyppi"
+        data={TYPE_OPTIONS}
+        value={defaults.type}
+        onChange={v => v && onChange({ type: v as ExpenseType })}
+        allowDeselect={false}
+      />
+      <CategorySelector
+        value={defaults.categoryId}
+        onChange={id => onChange({ categoryId: id })}
+        label="Kategoria"
+        error={errors.categoryId}
+      />
+      <Group wrap="nowrap" gap="lg" align="flex-start">
+        <SourceSelector
+          title="Lähde"
+          value={defaults.sourceId}
+          onChange={id => onChange({ sourceId: id })}
+          sources={sources as never}
+          errorText={errors.sourceId}
+          flex={1}
+        />
+        <Input.Wrapper
+          label="Hyötyjät"
+          description="Summa jaetaan tasan valittujen kesken."
+          error={errors.benefit}
+        >
+          <UserSelector
+            selected={defaults.benefit ?? sourceUserIds}
+            onChange={ids => onChange({ benefit: ids })}
+            pt="xs"
+          />
+        </Input.Wrapper>
+      </Group>
+      <Select
+        label="Omistaja"
+        data={users.map(u => ({ value: String(u.id), label: u.label }))}
+        value={String(defaults.userId)}
+        onChange={v => v && onChange({ userId: Number(v) })}
+        allowDeselect={false}
+        error={errors.userId}
+      />
+      <Checkbox
+        label="Alustava kirjaus"
+        description="Luodut kirjaukset jäävät vahvistettavaksi käsin."
+        checked={!defaults.confirmed}
+        onChange={e => onChange({ confirmed: !e.currentTarget.checked })}
+      />
+      <Textarea
+        label="Kuvaus"
+        value={defaults.description ?? ''}
+        onChange={e => onChange({ description: e.currentTarget.value || null })}
+        autosize
+        minRows={2}
+      />
+    </Stack>
+  );
+};
 
 /**
  * Editor-side schema: extends the shared `ExpenseDefaults` with the
@@ -369,6 +392,7 @@ const DEFAULTS_ERROR_MESSAGES: Record<keyof DefaultsErrors, string> = {
   sourceId: 'Valitse lähde',
   categoryId: 'Valitse kategoria',
   userId: 'Valitse omistaja',
+  benefit: 'Valitse vähintään yksi hyötyjä',
 };
 
 function validateDefaults(defaults: ExpenseDefaults | undefined): DefaultsErrors | null {

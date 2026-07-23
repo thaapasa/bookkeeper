@@ -1,9 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it } from 'bun:test';
 import { expectArrayContaining } from 'test/expect/expectArrayContaining';
 
-import { Expense, ExpenseCollection, RecurrencePeriod } from 'shared/expense';
+import {
+  Expense,
+  ExpenseCollection,
+  RecurrencePeriod,
+  UserExpenseWithDetails,
+} from 'shared/expense';
 import {
   checkCreateStatus,
+  division,
   fetchMonthStatus,
   logoutSession,
   newExpense,
@@ -114,5 +120,36 @@ describe('recurring expenses', () => {
     });
     const matches = expenses.expenses.filter(e => e.subscriptionId === s.subscriptionId);
     expect(matches).toMatchObject([{ title: 'Pan-galactic gargleblaster', date: '2017-01-01' }]);
+  });
+
+  it('T95 - keeps a hand-picked benefit split in generated recurrences', async () => {
+    // The shared seed source splits benefit 50/50 by default; this expense
+    // pins the whole benefit on the paying user instead.
+    const expenseId = checkCreateStatus(
+      await newExpense(session, {
+        sum: '100.00',
+        date: '2017-01-01',
+        title: 'Oma lehtitilaus',
+        division: division.iPayMyOwn(session, '100.00'),
+      }),
+    );
+    const s = await session.post<RecurringExpenseCreatedResponse>(
+      `/api/expense/recurring/${expenseId}`,
+      { period: { amount: 1, unit: 'months' } },
+    );
+    expect(s.subscriptionId).toBeGreaterThan(0);
+
+    // Fetching the next month materializes the missing recurrence.
+    const feb = await session.get<ExpenseCollection>('/api/expense/month', {
+      year: 2017,
+      month: 2,
+    });
+    const generated = feb.expenses.filter(e => e.subscriptionId === s.subscriptionId);
+    expect(generated).toMatchObject([{ title: 'Oma lehtitilaus', date: '2017-02-01' }]);
+
+    const details = await session.get<UserExpenseWithDetails>(uri`/api/expense/${generated[0].id}`);
+    expect(details.division.filter(d => d.type === 'benefit')).toMatchObject([
+      { userId: session.user.id, sum: '100.00' },
+    ]);
   });
 });

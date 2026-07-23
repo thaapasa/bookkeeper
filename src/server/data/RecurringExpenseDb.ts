@@ -1,11 +1,13 @@
 import { DateTime } from 'luxon';
 
 import {
+  evenBeneficiaryDivision,
   Expense,
   ExpenseDefaults,
   ExpenseDivisionItem,
   ExpenseInput,
   ExpenseQuery,
+  getBeneficiaryUserIds,
   hasMeaningfulConstraint,
   Recurrence,
   RecurrencePeriod,
@@ -37,6 +39,7 @@ import {
   deleteExpenseById,
   ExpenseInsert,
   getExpenseById,
+  getExpenseDivision,
   setExpenseDataDefaults,
   storeExpenseDivision,
   updateExpense,
@@ -53,7 +56,11 @@ export function filterFromExpense(expense: Expense): ExpenseQuery {
   return filter;
 }
 
-export function defaultsFromExpense(expense: Expense): ExpenseDefaults {
+export function defaultsFromExpense(
+  expense: Expense,
+  division: ExpenseDivisionItem[],
+): ExpenseDefaults {
+  const benefit = getBeneficiaryUserIds(expense.type, division);
   return {
     title: expense.title,
     ...(expense.receiver ? { receiver: expense.receiver } : {}),
@@ -64,6 +71,7 @@ export function defaultsFromExpense(expense: Expense): ExpenseDefaults {
     userId: expense.userId,
     confirmed: expense.confirmed,
     description: expense.description ?? null,
+    ...(benefit.length > 0 ? { benefit } : {}),
   };
 }
 
@@ -210,7 +218,11 @@ export function createRecurringFromExpense(
       }
       const nextMissing = calculateNextRecurrence(expense.date, recurrence.period);
       const filter = filterFromExpense(expense);
-      const defaults = defaultsFromExpense(expense);
+      // Capture the original expense's beneficiary side into the defaults so
+      // generated recurrences keep a hand-picked benefit split instead of
+      // reverting to the source's default.
+      const division = await getExpenseDivision(tx, groupId, expenseId);
+      const defaults = defaultsFromExpense(expense, division);
       const subscriptionId = (
         await tx.one<{ id: number }>(
           `INSERT INTO subscriptions
@@ -281,11 +293,21 @@ async function generateRowFromDefaults(
     date,
     subscriptionId,
   };
-  // Division is always derived from the current source split; the
-  // subscription's stored defaults intentionally don't carry a
-  // pre-computed division, so a stale or hand-crafted PATCH can't slip
-  // an invariant-breaking expense_division blob through this path.
-  const division = determineDivision(insert, source);
+  // Division is derived at generation time; the stored defaults never
+  // carry absolute division sums, so a stale or hand-crafted PATCH can't
+  // slip an invariant-breaking expense_division blob through this path.
+  // A stored `benefit` user-id list pins the beneficiary side (even
+  // split, so it scales with the sum); the cost side always follows the
+  // current source split.
+  const division = determineDivision(
+    {
+      ...insert,
+      division: defaults.benefit
+        ? evenBeneficiaryDivision(defaults.type, defaults.sum, defaults.benefit)
+        : undefined,
+    },
+    source,
+  );
   logger.debug({ subscriptionId, title: defaults.title, date }, 'Generating subscription row');
   return createNewExpense(tx, defaults.userId, insert, division);
 }
@@ -625,6 +647,9 @@ export function updateSubscription(
         await getCategoryById(tx, groupId, update.defaults.categoryId);
         await getSourceById(tx, groupId, update.defaults.sourceId);
         await getUserById(tx, groupId, update.defaults.userId);
+        if (update.defaults.benefit) {
+          await requireGroupMembers(tx, groupId, update.defaults.benefit);
+        }
       }
       const sets: string[] = [];
       const params: Record<string, unknown> = { groupId, subscriptionId };
@@ -802,6 +827,7 @@ async function updateRecurringExpense(
     },
   );
   // Mirror the change onto the subscription's defaults so future generation picks it up.
+  const editedBenefit = getBeneficiaryUserIds(expense.type, division);
   const newDefaults: ExpenseDefaults = {
     title: expense.title,
     ...(expense.receiver ? { receiver: expense.receiver } : {}),
@@ -812,6 +838,7 @@ async function updateRecurringExpense(
     userId: expense.userId,
     confirmed: expense.confirmed,
     description: expense.description ?? null,
+    ...(editedBenefit.length > 0 ? { benefit: editedBenefit } : {}),
   };
   await tx.none(
     `UPDATE subscriptions
