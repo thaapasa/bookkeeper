@@ -7,7 +7,7 @@ import { executeOperation } from 'client/util/ExecuteOperation';
 
 import { Subtitle } from '../design/Text';
 import { Icons } from '../icons/Icons';
-import { TrackingChart } from './TrackingChartRenderer';
+import { CHART_HEIGHT, TrackingChart } from './TrackingChartRenderer';
 import { editTrackingSubject } from './TrackingEditor';
 
 export const TrackingSubjectsList: React.FC<{
@@ -16,8 +16,14 @@ export const TrackingSubjectsList: React.FC<{
 }> = ({ data, onReload }) => {
   return (
     <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md" w="100%">
-      {data.map(d => (
-        <TrackingSubjectView subject={d} key={d.id} onReload={onReload} />
+      {data.map((d, i) => (
+        <TrackingSubjectView
+          subject={d}
+          key={d.id}
+          onReload={onReload}
+          // The last grid row has little space below it, so grow the tooltips upwards there
+          growTooltipUp={i >= data.length - 2}
+        />
       ))}
     </SimpleGrid>
   );
@@ -26,10 +32,30 @@ export const TrackingSubjectsList: React.FC<{
 export const TrackingSubjectView: React.FC<{
   subject: TrackingSubjectWithData;
   onReload: () => void;
-}> = ({ subject, onReload }) => {
+  growTooltipUp?: boolean;
+}> = ({ subject, onReload, growTooltipUp }) => {
   return (
-    <Card w="100%" pos="relative" h={200} bg="surface.1" shadow="md" radius="md" m={0} p={0}>
-      <Group pos="relative" bg="surface.2" align="center" justify="space-between">
+    // overflow: visible lets chart tooltips extend past the card bounds
+    <Card
+      w="100%"
+      pos="relative"
+      bg="surface.1"
+      shadow="md"
+      radius="md"
+      m={0}
+      p={0}
+      style={{ overflow: 'visible' }}
+    >
+      <Group
+        pos="relative"
+        bg="surface.2"
+        align="center"
+        justify="space-between"
+        style={{
+          borderTopLeftRadius: 'var(--mantine-radius-md)',
+          borderTopRightRadius: 'var(--mantine-radius-md)',
+        }}
+      >
         <Subtitle noBorder order={4} px="md" fw={700} py="sm">
           {subject.title}
         </Subtitle>
@@ -55,9 +81,21 @@ export const TrackingSubjectView: React.FC<{
       </Group>
       <Group wrap="nowrap" pos="relative">
         {subject.image ? (
-          <img src={subject.image} alt="" style={{ width: 168, height: 168 }} />
+          <img
+            src={subject.image}
+            alt=""
+            style={{
+              width: CHART_HEIGHT,
+              height: CHART_HEIGHT,
+              borderBottomLeftRadius: 'var(--mantine-radius-md)',
+            }}
+          />
         ) : null}
-        <TrackingChart data={subject.data} trackingData={subject.trackingData} />
+        <TrackingChart
+          data={subject.data}
+          trackingData={subject.trackingData}
+          growTooltipUp={growTooltipUp}
+        />
       </Group>
     </Card>
   );
