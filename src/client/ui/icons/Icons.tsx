@@ -48,6 +48,7 @@ import {
   Sun,
   Tags,
   Trash2,
+  TriangleAlert,
   Unlink,
   Upload,
   X,
@@ -112,6 +113,7 @@ export const LucideIcons = {
   Unlink: Unlink,
   Upload: Upload,
   Visible: Eye,
+  Warning: TriangleAlert,
 };
 
 export type Icon = keyof typeof LucideIcons;

@@ -78,7 +78,7 @@ function buildExpenseUnits(expenses: MatchableExpense[]): ExpenseUnit[] {
  * expenses and transfers take money out of the account (negative), incomes
  * bring it in (positive).
  */
-function signedExpenseSum(expense: MatchableExpense): string {
+export function signedExpenseSum(expense: MatchableExpense): string {
   const sum = Money.from(expense.sum);
   return normalizeSum((expense.type === 'income' ? sum : sum.negate()).toString());
 }

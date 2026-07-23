@@ -86,7 +86,7 @@ function getDefaultState(
     categoryId: values.categoryId || (e ? e.categoryId : 0),
     receiver: values.receiver || (e ? e.receiver : ''),
     sum: values.sum ? values.sum : e ? e.sum.toString() : '',
-    userId: e ? e.userId : props.user.id,
+    userId: values.userId ?? (e ? e.userId : props.user.id),
     date: toISODate(values.date || e?.date),
     benefit:
       values.benefit ||

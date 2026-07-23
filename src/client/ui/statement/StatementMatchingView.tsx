@@ -28,6 +28,7 @@ import {
   findCardUserId,
   MatchableExpense,
   MatchingStatementRow,
+  signedExpenseSum,
   StatementMatchInput,
   suggestStatementMatches,
 } from 'shared/statement';
@@ -93,16 +94,26 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
   // Display-only filter: matched and skipped items are hidden so only the
   // remaining work is visible. Counts and selection totals still use the
   // full data.
-  const visibleExpenses = hideHandled
-    ? data.expenses.filter(e => e.matchedStatementRowIds.length < 1 && !e.statementSkip)
-    : data.expenses;
-  const visibleRows = hideHandled
-    ? data.statementRows.filter(r => r.matchedExpenseIds.length < 1 && !r.skipped)
-    : data.statementRows;
+  const visibleExpenses = hideHandled ? data.expenses.filter(isUnhandledExpense) : data.expenses;
+  const visibleRows = hideHandled ? data.statementRows.filter(isUnhandledRow) : data.statementRows;
 
   const clearSelection = () => {
     setSelectedRowIds([]);
     setSelectedExpenseIds([]);
+  };
+
+  // Hidden items must never remain selected, so turning the filter on drops
+  // any matched or skipped items from the current selection.
+  const changeHideHandled = (hide: boolean) => {
+    setHideHandled(hide);
+    if (hide) {
+      setSelectedExpenseIds(ids =>
+        ids.filter(id => data.expenses.some(e => e.id === id && isUnhandledExpense(e))),
+      );
+      setSelectedRowIds(ids =>
+        ids.filter(id => data.statementRows.some(r => r.id === id && isUnhandledRow(r))),
+      );
+    }
   };
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: QueryKeys.statements.all });
@@ -142,6 +153,8 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
     });
   };
 
+  const sourceMap = useSourceMap();
+
   /**
    * Opens the expense dialog prefilled from statement rows (and optionally a
    * shortcut), and links the created expense to all the rows on save. With
@@ -158,6 +171,9 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
       return;
     }
     const total = Money.sum(rows.map(r => r.amount));
+    // The expense defaults to the owner of the card that paid the first row
+    // (the user shown on the row's card avatar), when it can be resolved.
+    const cardUserId = findCardUserId(sourceMap?.[first.sourceId], first.message);
     void requestNewExpense(
       async (expense, original) => {
         const id = await defaultExpenseSaveAction(expense, original);
@@ -177,20 +193,18 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
         type: total.gte(0) ? 'income' : 'expense',
         sourceId,
         ...(shortcut ? shortcutToExpenseInEditor(shortcut.expense) : undefined),
-        // The statement's date and sum always win over shortcut defaults
+        // The statement's date, sum, and card owner always win over
+        // shortcut defaults
         date: effectiveStatementDate(first),
         sum: total.abs().toString(),
+        ...(cardUserId !== undefined ? { userId: cardUserId } : undefined),
       },
     );
   };
 
   const buckets = buildBuckets(visibleExpenses, visibleRows, activeSuggestions);
-  const unmatchedExpenses = data.expenses.filter(
-    e => e.matchedStatementRowIds.length < 1 && !e.statementSkip,
-  ).length;
-  const unmatchedRows = data.statementRows.filter(
-    r => r.matchedExpenseIds.length < 1 && !r.skipped,
-  ).length;
+  const unmatchedExpenses = data.expenses.filter(isUnhandledExpense).length;
+  const unmatchedRows = data.statementRows.filter(isUnhandledRow).length;
 
   // Connector lines: confirmed matches, active suggestions, and a preview
   // of the current manual selection.
@@ -282,11 +296,11 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
   // are left alone (the server refuses to skip matched ones).
   const expensesOnlySelection = selectedExpenseIds.length > 0 && selectedRowIds.length < 1;
   const skipSelection = () => {
-    const rows = selectedRows.filter(r => r.matchedExpenseIds.length < 1 && !r.skipped);
+    const rows = selectedRows.filter(isUnhandledRow);
     const expenses = selectedExpenseIds
       .map(id => data.expenses.find(e => e.id === id))
       .filter(isDefined)
-      .filter(e => e.matchedStatementRowIds.length < 1 && !e.statementSkip);
+      .filter(isUnhandledExpense);
     return executeOperation(
       async () => {
         for (const r of rows) {
@@ -305,12 +319,15 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
       },
     );
   };
-  const selectedRowTotal = Money.sum(
-    data.statementRows.filter(r => selectedRowIds.includes(r.id)).map(r => r.amount),
-  );
-  const selectedTotal = Money.sum(
-    data.expenses.filter(e => selectedExpenseIds.includes(e.id)).map(e => e.sum),
-  );
+  const selectedRowTotal = Money.sum(selectedRows.map(r => r.amount));
+  const selectedExpenses = data.expenses.filter(e => selectedExpenseIds.includes(e.id));
+  const selectedTotal = Money.sum(selectedExpenses.map(e => e.sum));
+  // Visual sums check for the selection: expenses count by their signed
+  // bank-statement amount (expenses/transfers negative, incomes positive),
+  // the same way the automatic matcher compares sums.
+  const signedSelectedTotal = Money.sum(selectedExpenses.map(signedExpenseSum));
+  const selectionSumsMatch = signedSelectedTotal.equals(selectedRowTotal);
+  const selectionSumDiff = selectedRowTotal.minus(signedSelectedTotal).abs();
 
   return (
     <Stack gap="sm" pb={actionBarVisible ? 80 : undefined}>
@@ -322,7 +339,7 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
           size="xs"
           label="Piilota täsmätyt ja ohitetut"
           checked={hideHandled}
-          onChange={e => setHideHandled(e.currentTarget.checked)}
+          onChange={e => changeHideHandled(e.currentTarget.checked)}
         />
       </Group>
 
@@ -453,10 +470,33 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
               <Group gap="sm" wrap="nowrap">
                 {selectionActive ? (
                   <>
-                    <Text fz="sm" c="dimmed" style={{ whiteSpace: 'nowrap' }}>
-                      Valittu {selectedExpenseIds.length} kirjausta ({selectedTotal.format()}) ·{' '}
-                      {selectedRowIds.length} tapahtumaa ({selectedRowTotal.format()})
-                    </Text>
+                    <Stack gap={2}>
+                      <Text fz="sm" c="dimmed" style={{ whiteSpace: 'nowrap' }}>
+                        Valittu {selectedExpenseIds.length} kirjausta ({selectedTotal.format()}) ·{' '}
+                        {selectedRowIds.length} tapahtumaa ({selectedRowTotal.format()})
+                      </Text>
+                      {selectedExpenseIds.length > 0 && selectedRowIds.length > 0 ? (
+                        selectionSumsMatch ? (
+                          <Group gap={4} wrap="nowrap">
+                            <Icons.Check size={14} color="var(--mantine-color-green-8)" />
+                            <Text fz="sm" c="green.8" style={{ whiteSpace: 'nowrap' }}>
+                              Summat täsmäävät
+                            </Text>
+                          </Group>
+                        ) : (
+                          <Group gap={4} wrap="nowrap" align="center">
+                            <Icons.Warning
+                              size={14}
+                              color="var(--mantine-color-yellow-8)"
+                              style={{ marginBottom: 2 }}
+                            />
+                            <Text fz="sm" c="yellow.8" style={{ whiteSpace: 'nowrap' }}>
+                              Summat eroavat: {selectionSumDiff.format()}
+                            </Text>
+                          </Group>
+                        )
+                      ) : null}
+                    </Stack>
                     {fixableExpense ? (
                       <Tooltip label="Korjaa kirjauksen päivä ja summa tiliotteen mukaan, vahvista ja täsmää">
                         <Button
@@ -538,6 +578,13 @@ export const StatementMatchingView: React.FC<{ sourceId: ObjectId; month: ISOMon
     </Stack>
   );
 };
+
+/** An expense still needing attention: not matched to a statement row and not skipped. */
+const isUnhandledExpense = (e: MatchableExpense) =>
+  e.matchedStatementRowIds.length < 1 && !e.statementSkip;
+
+/** A statement row still needing attention: not matched to an expense and not skipped. */
+const isUnhandledRow = (r: MatchingStatementRow) => r.matchedExpenseIds.length < 1 && !r.skipped;
 
 interface DateBucket {
   date: ISODate;
