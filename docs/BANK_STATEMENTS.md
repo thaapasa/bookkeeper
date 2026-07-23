@@ -155,24 +155,27 @@ happens client-side:
    format on the Tiedot page — cross-format targets are not offered, since the
    server would reject them with `STATEMENT_FORMAT_MISMATCH`.
 
-Sources also carry per-user **bank cards** (`source_users.cards`, an array of
-last-4-digit strings, edited on the Tiedot page). Where a source is picked or
-named in full — the expense dialog's source selector, the statement page's
-account selects and upload target options, the expense row's source tooltip,
-and the expense details view — `sourceDisplayName()` appends the cards to the
-name, own cards first, e.g. "Salen tili (9876/1226)". Compact labels (the
-expense table's source filter chip) keep the plain name. Card payment messages start with the
-masked card number (`401046******1226 …` for OP, `431871******3515 …` for
-S-pankki); `extractCardLastDigits()` / `findCardUserId()`
-(`shared/statement/StatementCard.ts`) resolve the paying user from the last 4
-digits, entirely client-side. Ambiguous matches (two users of the source sharing
-the same last 4) resolve to nobody rather than guessing. 4. On confirm, the **raw file content** is POSTed to the server (as JSON
-`{ filename, content }` — statement CSVs are small). The server re-parses it
-authoritatively — the client parse is only for sniffing and preview. This keeps
-the raw file as the source of truth, lets the server store `raw_line` per row,
-and avoids an API that accepts client-fabricated rows. 5. The import summary (new / duplicate counts) is shown, and the row list
-refreshes. A parse error anywhere in the file aborts the whole upload with an
-error notification — there are no partial imports or per-row error counts.
+   Sources also carry per-user **bank cards** (`source_users.cards`, an array of
+   last-4-digit strings, edited on the Tiedot page). Where a source is picked or
+   named in full — the expense dialog's source selector, the statement page's
+   account selects and upload target options, the expense row's source tooltip, and
+   the expense details view — `sourceDisplayName()` appends the cards to the name, own
+   cards first, e.g. "Salen tili (9876/1226)". Compact labels (the expense table's
+   source filter chip) keep the plain name. Card payment messages start with the
+   masked card number (`401046******1226 …` for OP, `431871******3515 …` for
+   S-pankki); `extractCardLastDigits()` / `findCardUserId()`
+   (`shared/statement/StatementCard.ts`) resolve the paying user from the last 4
+   digits, entirely client-side. Ambiguous matches (two users of the source sharing
+   the same last 4) resolve to nobody rather than guessing.
+
+4. On confirm, the **raw file content** is POSTed to the server (as JSON
+   `{ filename, content }` — statement CSVs are small). The server re-parses it
+   authoritatively — the client parse is only for sniffing and preview. This keeps
+   the raw file as the source of truth, lets the server store `raw_line` per row,
+   and avoids an API that accepts client-fabricated rows.
+5. The import summary (new / duplicate counts) is shown, and the row list
+   refreshes. A parse error anywhere in the file aborts the whole upload with an
+   error notification — there are no partial imports or per-row error counts.
 
 ## API
 

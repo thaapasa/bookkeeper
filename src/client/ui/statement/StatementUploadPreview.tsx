@@ -1,7 +1,7 @@
 import { Badge, Button, Group, Paper, Select, Stack, Table, Text } from '@mantine/core';
 import React from 'react';
 
-import { ParsedStatement } from 'shared/statement';
+import { ParsedStatement, statementDateRange } from 'shared/statement';
 import { readableDateWithYear } from 'shared/time';
 import { Money } from 'shared/util';
 
@@ -36,7 +36,7 @@ export const StatementUploadPreview: React.FC<StatementUploadPreviewProps> = ({
 }) => {
   const [sourceId, setSourceId] = React.useState<number | undefined>(initialSourceId);
   const rows = parsed.rows;
-  const dates = rows.map(r => r.bookingDate).sort();
+  const range = statementDateRange(rows);
   const total = Money.sum(rows.map(r => r.amount));
 
   return (
@@ -50,9 +50,9 @@ export const StatementUploadPreview: React.FC<StatementUploadPreviewProps> = ({
         </Group>
         <Group gap="xl">
           <Text fz="sm">{rows.length} tapahtumaa</Text>
-          {rows.length > 0 ? (
+          {range ? (
             <Text fz="sm">
-              {readableDateWithYear(dates[0])} – {readableDateWithYear(dates[dates.length - 1])}
+              {readableDateWithYear(range.start)} – {readableDateWithYear(range.end)}
             </Text>
           ) : null}
           <Text fz="sm">Muutos yhteensä {total.format()}</Text>

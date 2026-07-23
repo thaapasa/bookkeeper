@@ -130,6 +130,21 @@ export const StatementRowsResponse = z.object({
 export type StatementRowsResponse = z.infer<typeof StatementRowsResponse>;
 
 /**
+ * Export date range of a statement file: min/max booking date over the given
+ * rows (including duplicates). Booking date is intentional — the bank export's
+ * date filter operates on booking dates (see StatementUpload.rangeStart).
+ * Undefined for files with no rows.
+ */
+export function statementDateRange(
+  rows: Pick<StatementRowData, 'bookingDate'>[],
+): { start: ISODate; end: ISODate } | undefined {
+  if (rows.length === 0) return undefined;
+  // ISO dates order lexicographically
+  const dates = rows.map(r => r.bookingDate).sort();
+  return { start: dates[0], end: dates[dates.length - 1] };
+}
+
+/**
  * The date a statement row should be compared against expense dates: the
  * real purchase date when known, otherwise the bank's value date.
  */

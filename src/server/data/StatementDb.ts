@@ -4,6 +4,7 @@ import {
   CREDIT_FILE_FORMATS,
   parseStatement,
   sourceFormatForFile,
+  statementDateRange,
   StatementRowData,
   StatementRowsResponse,
   StatementUploadDeleteResult,
@@ -78,8 +79,7 @@ export function importStatement(
 
       // The export date range covers all rows in the file (including
       // duplicates), so it stays correct even when nothing new is imported.
-      // ISO dates order lexicographically.
-      const bookingDates = parsed.rows.map(r => r.bookingDate).sort();
+      const range = statementDateRange(parsed.rows);
       const upload = await tx.one<{ id: number }>(
         `INSERT INTO statement_upload
             (group_id, source_id, filename, format, uploaded_by, row_count, new_count,
@@ -93,8 +93,8 @@ export function importStatement(
           filename: input.filename,
           format: parsed.format,
           userId,
-          rangeStart: bookingDates[0] ?? null,
-          rangeEnd: bookingDates[bookingDates.length - 1] ?? null,
+          rangeStart: range?.start ?? null,
+          rangeEnd: range?.end ?? null,
         },
       );
 

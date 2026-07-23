@@ -1,4 +1,4 @@
-import { ActionIcon, Card, Group, SimpleGrid } from '@mantine/core';
+import { ActionIcon, Card, Group, Image, SimpleGrid } from '@mantine/core';
 import React from 'react';
 
 import { ObjectId, TrackingSubject, TrackingSubjectWithData } from 'shared/types';
@@ -81,14 +81,12 @@ export const TrackingSubjectView: React.FC<{
       </Group>
       <Group wrap="nowrap" pos="relative">
         {subject.image ? (
-          <img
+          <Image
             src={subject.image}
             alt=""
-            style={{
-              width: CHART_HEIGHT,
-              height: CHART_HEIGHT,
-              borderBottomLeftRadius: 'var(--mantine-radius-md)',
-            }}
+            w={CHART_HEIGHT}
+            h={CHART_HEIGHT}
+            style={{ borderBottomLeftRadius: 'var(--mantine-radius-md)' }}
           />
         ) : null}
         <TrackingChart
