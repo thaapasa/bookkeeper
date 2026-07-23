@@ -21,6 +21,13 @@ bun migrate-make <name>  # Create a new migration
 bun dump-schema          # Dump DB schema to docs/SCHEMA.sql
 ```
 
+## Databases
+
+**NEVER connect to the prod DB (`PROD_DB_URL`) unless explicitly asked — not even for
+read-only queries.** Use the local dev DB (`DB_URL`, localhost:15488) for all queries
+and data verification: it contains similar or equal data, as prod dumps are taken to
+the local DB often for safe development.
+
 ## Architecture
 
 Monorepo with shared types between client and server. All code is TypeScript, run with Bun.
