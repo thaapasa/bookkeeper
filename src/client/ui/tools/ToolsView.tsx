@@ -1,6 +1,7 @@
 import { Stack } from '@mantine/core';
 import * as React from 'react';
 
+import { toDateTime, toISODate } from 'shared/time';
 import { apiConnect } from 'client/data/ApiConnect';
 import { invalidateServerData } from 'client/data/query';
 import { logger } from 'client/Logger';
@@ -19,10 +20,33 @@ export const ToolsView: React.FC = () => (
       <PageTitle>Työkalut</PageTitle>
 
       <ToolButton title="Vaihda kohteiden nimi" buttonText="Vaihda" action={changeReceiverName} />
+      <ToolButton
+        title="Poista etukäteen luodut toistuvat kirjaukset"
+        buttonText="Poista"
+        action={revertGeneratedRecurrences}
+      />
       <DbStatusView />
     </Stack>
   </PageLayout>
 );
+
+async function revertGeneratedRecurrences() {
+  // First date to delete from: everything after the current month.
+  const before = toISODate(toDateTime().plus({ months: 1 }).startOf('month'));
+  const confirmed = await UserPrompts.confirm(
+    'Poista tulevat toistuvat kirjaukset',
+    `Poistetaanko automaattisesti luodut toistuvat kirjaukset ${toDateTime(before).toFormat('d.M.yyyy')} alkaen? ` +
+      'Muokatut kirjaukset säilytetään, ja poistetut luodaan tarvittaessa uudelleen.',
+  );
+  if (!confirmed) return;
+  await executeOperation(() => apiConnect.revertGeneratedRecurrences(before), {
+    success: r =>
+      r.deletedCount > 0
+        ? `Poistettu ${r.deletedCount} kirjausta (${r.subscriptionCount} toistuvaa)`
+        : 'Ei poistettavia kirjauksia',
+    postProcess: () => invalidateServerData(),
+  });
+}
 
 async function changeReceiverName() {
   const oldName = await UserPrompts.promptText(

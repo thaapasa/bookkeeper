@@ -59,6 +59,23 @@ export function hasMeaningfulConstraint(filter: ExpenseQuery): boolean {
   return false;
 }
 
+/**
+ * Reverts pre-generation of recurring expenses: deletes generated rows
+ * dated `before` or later that are still exactly as the generator created
+ * them, and rewinds each subscription's next generation date accordingly.
+ */
+export const SubscriptionRevertRequest = z.object({ before: ISODate });
+export type SubscriptionRevertRequest = z.infer<typeof SubscriptionRevertRequest>;
+
+export const SubscriptionRevertResult = z.object({
+  status: z.string(),
+  message: z.string(),
+  deletedCount: z.number(),
+  /** Number of subscriptions that had rows deleted. */
+  subscriptionCount: z.number(),
+});
+export type SubscriptionRevertResult = z.infer<typeof SubscriptionRevertResult>;
+
 export const SubscriptionSearchCriteria = z.object({
   type: ExpenseType.or(z.array(ExpenseType)).optional(),
   includeEnded: z.boolean().optional(),

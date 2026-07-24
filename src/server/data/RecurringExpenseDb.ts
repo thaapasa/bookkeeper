@@ -7,6 +7,7 @@ import {
   ExpenseDivisionItem,
   ExpenseInput,
   ExpenseQuery,
+  ExpenseType,
   getBeneficiaryUserIds,
   hasMeaningfulConstraint,
   Recurrence,
@@ -16,6 +17,7 @@ import {
   RecurringExpenseTarget,
   stripBlanks,
   SubscriptionDeleteMode,
+  SubscriptionRevertResult,
   SubscriptionUpdate,
 } from 'shared/expense';
 import { DateLike, ISODate, toDateTime, toISODate } from 'shared/time';
@@ -319,15 +321,13 @@ function getDatesUpTo(recurrence: Recurrence, date: DateTime): ISODate[] {
   return dates;
 }
 
-async function generateRowFromDefaults(
-  tx: DbTask,
+function expenseInsertFromDefaults(
   groupId: ObjectId,
   subscriptionId: ObjectId,
   defaults: ExpenseDefaults,
-  source: Source,
   date: ISODate,
-): Promise<number> {
-  const insert: ExpenseInsert = {
+): ExpenseInsert {
+  return {
     userId: defaults.userId,
     groupId,
     sourceId: defaults.sourceId,
@@ -341,13 +341,20 @@ async function generateRowFromDefaults(
     date,
     subscriptionId,
   };
-  // Division is derived at generation time; the stored defaults never
-  // carry absolute division sums, so a stale or hand-crafted PATCH can't
-  // slip an invariant-breaking expense_division blob through this path.
-  // A stored `benefit` user-id list pins the beneficiary side (even
-  // split, so it scales with the sum); the cost side always follows the
-  // current source split.
-  const division = determineDivision(
+}
+
+// Division is derived at generation time; the stored defaults never
+// carry absolute division sums, so a stale or hand-crafted PATCH can't
+// slip an invariant-breaking expense_division blob through this path.
+// A stored `benefit` user-id list pins the beneficiary side (even
+// split, so it scales with the sum); the cost side always follows the
+// current source split.
+function divisionForGeneratedRow(
+  insert: ExpenseInsert,
+  defaults: ExpenseDefaults,
+  source: Source,
+): ExpenseDivisionItem[] {
+  return determineDivision(
     {
       ...insert,
       division: defaults.benefit
@@ -356,6 +363,18 @@ async function generateRowFromDefaults(
     },
     source,
   );
+}
+
+async function generateRowFromDefaults(
+  tx: DbTask,
+  groupId: ObjectId,
+  subscriptionId: ObjectId,
+  defaults: ExpenseDefaults,
+  source: Source,
+  date: ISODate,
+): Promise<number> {
+  const insert = expenseInsertFromDefaults(groupId, subscriptionId, defaults, date);
+  const division = divisionForGeneratedRow(insert, defaults, source);
   logger.debug({ subscriptionId, title: defaults.title, date }, 'Generating subscription row');
   return createNewExpense(tx, defaults.userId, insert, division);
 }
@@ -453,6 +472,164 @@ export function createMissingRecurringExpenses(
       }
     },
   );
+}
+
+interface GeneratedRowCandidate {
+  id: ObjectId;
+  date: ISODate;
+  userId: ObjectId;
+  sourceId: ObjectId;
+  categoryId: ObjectId;
+  type: ExpenseType;
+  title: string | null;
+  receiver: string | null;
+  sum: string;
+  confirmed: boolean;
+  description: string | null;
+  groupingId: ObjectId | null;
+  currencyId: ObjectId | null;
+  splitId: string | null;
+  statementSkip: boolean;
+  hasStatementMatch: boolean;
+}
+
+/**
+ * True when the row still carries exactly the attributes the generator
+ * writes from the defaults, with no later decorations (grouping, currency,
+ * split link, statement match/skip) attached.
+ */
+function matchesGeneratedDefaults(row: GeneratedRowCandidate, defaults: ExpenseDefaults): boolean {
+  return (
+    row.title === defaults.title &&
+    (row.receiver ?? '') === (defaults.receiver ?? '') &&
+    Money.from(row.sum).equals(defaults.sum) &&
+    row.type === defaults.type &&
+    row.sourceId === defaults.sourceId &&
+    row.categoryId === defaults.categoryId &&
+    row.userId === defaults.userId &&
+    row.confirmed === defaults.confirmed &&
+    (row.description ?? null) === (defaults.description ?? null) &&
+    row.groupingId === null &&
+    row.currencyId === null &&
+    row.splitId === null &&
+    !row.statementSkip &&
+    !row.hasStatementMatch
+  );
+}
+
+function sameDivision(a: ExpenseDivisionItem[], b: ExpenseDivisionItem[]): boolean {
+  if (a.length !== b.length) return false;
+  // (userId, type) is unique within a division (expense_division PK)
+  const sums = new Map(b.map(d => [`${d.userId}:${d.type}`, d.sum]));
+  return a.every(d => {
+    const sum = sums.get(`${d.userId}:${d.type}`);
+    return sum !== undefined && Money.from(d.sum).equals(sum);
+  });
+}
+
+/**
+ * Deletes generated recurring expenses dated `before` or later and rewinds
+ * each subscription's `next_missing` so the rows are re-generated on demand.
+ * Undoes the eager generation caused by browsing future months.
+ *
+ * Rows are walked latest-first and deleted only while each one is exactly
+ * what the generator would produce from the current defaults: the recurrence
+ * date chain is intact (`calculateNextRecurrence(row.date)` equals the next
+ * expected date), attributes and division match, and nothing else has been
+ * attached to the row. The walk stops at the first altered row, leaving it
+ * and everything before it untouched.
+ */
+export function revertGeneratedExpenses(
+  tx: DbTask,
+  groupId: ObjectId,
+  before: ISODate,
+): Promise<SubscriptionRevertResult> {
+  return withSpan(
+    'subscription.revert_generated',
+    { 'app.group_id': groupId, 'app.before': before },
+    async () => {
+      const subscriptions = await tx.map<RecurrenceInDb>(
+        `SELECT id, defaults, next_missing, occurs_until, period_amount, period_unit
+            FROM subscriptions s
+            WHERE group_id=$/groupId/ AND period_unit IS NOT NULL
+              AND EXISTS (
+                SELECT 1 FROM expenses e
+                  WHERE e.subscription_id = s.id AND e.group_id=$/groupId/
+                    AND e.date >= $/before/::DATE)`,
+        { groupId, before },
+        camelCaseObject,
+      );
+      let deletedCount = 0;
+      let subscriptionCount = 0;
+      for (const sub of subscriptions) {
+        const deleted = await revertSubscriptionRows(tx, groupId, before, sub);
+        if (deleted > 0) {
+          deletedCount += deleted;
+          subscriptionCount++;
+        }
+      }
+      logger.info(
+        { groupId, before, deletedCount, subscriptionCount },
+        'Reverted generated recurring expenses',
+      );
+      return {
+        status: 'OK',
+        message: `Deleted ${deletedCount} generated recurring expense(s)`,
+        deletedCount,
+        subscriptionCount,
+      };
+    },
+  );
+}
+
+async function revertSubscriptionRows(
+  tx: DbTask,
+  groupId: ObjectId,
+  before: ISODate,
+  recurrence: RecurrenceInDb,
+): Promise<number> {
+  const period: RecurrencePeriod = {
+    amount: recurrence.periodAmount,
+    unit: recurrence.periodUnit,
+  };
+  const rows = await tx.manyOrNone<GeneratedRowCandidate>(
+    `SELECT e.id, e.date::TEXT AS date, e.user_id AS "userId", e.source_id AS "sourceId",
+        e.category_id AS "categoryId", e.type, e.title, e.receiver, e.sum::TEXT AS sum,
+        e.confirmed, e.description, e.grouping_id AS "groupingId",
+        e.currency_id AS "currencyId", e.split_id AS "splitId",
+        e.statement_skip AS "statementSkip",
+        EXISTS(SELECT 1 FROM statement_match sm WHERE sm.expense_id = e.id) AS "hasStatementMatch"
+      FROM expenses e
+      WHERE e.subscription_id=$/subscriptionId/ AND e.group_id=$/groupId/
+        AND e.date >= $/before/::DATE
+      ORDER BY e.date DESC, e.id DESC`,
+    { subscriptionId: recurrence.id, groupId, before },
+  );
+  const source = await getSourceById(tx, groupId, recurrence.defaults.sourceId);
+  let expectedNext = recurrence.nextMissing;
+  let deleted = 0;
+  for (const row of rows) {
+    if (toISODate(calculateNextRecurrence(row.date, period)) !== expectedNext) break;
+    if (!matchesGeneratedDefaults(row, recurrence.defaults)) break;
+    const expectedDivision = divisionForGeneratedRow(
+      expenseInsertFromDefaults(groupId, recurrence.id, recurrence.defaults, row.date),
+      recurrence.defaults,
+      source,
+    );
+    if (!sameDivision(await getExpenseDivision(tx, groupId, row.id), expectedDivision)) break;
+    await deleteExpenseById(tx, groupId, row.id);
+    expectedNext = row.date;
+    deleted++;
+  }
+  if (deleted > 0) {
+    await tx.none(
+      `UPDATE subscriptions
+          SET next_missing=$/nextMissing/::DATE
+          WHERE id=$/subscriptionId/ AND group_id=$/groupId/`,
+      { nextMissing: expectedNext, subscriptionId: recurrence.id, groupId },
+    );
+  }
+  return deleted;
 }
 
 async function deleteRecurrenceAndExpenses(

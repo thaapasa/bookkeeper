@@ -8,6 +8,7 @@ import {
   QuerySummary,
   SubscriptionMatches,
   SubscriptionResult,
+  SubscriptionRevertResult,
   UserExpenseWithDetails,
 } from 'shared/expense';
 import {
@@ -237,6 +238,55 @@ describe('subscription lifecycle', () => {
     // Edit propagation must not terminate the recurrence — that's a
     // delete-target=after concern, not an update concern.
     expect(sub?.occursUntil).toBeNull();
+  });
+
+  it('reverts untouched pre-generated rows and rewinds next_missing', async () => {
+    const { subscriptionId } = await createMonthlyRecurring(session, '2017-01-01');
+    // Browsing April eagerly generates Feb–Apr.
+    await fetchMonth(session, 2017, 4);
+    expect(await countLinkedExpenses(subscriptionId)).toBe(4);
+
+    const result = await session.post<SubscriptionRevertResult>(
+      '/api/subscription/revert-generated',
+      { before: '2017-02-01' },
+    );
+    expect(result.deletedCount).toBe(3);
+    expect(result.subscriptionCount).toBe(1);
+
+    const rows = await expensesForSubscription(subscriptionId);
+    expect(rows.map(r => r.date)).toEqual(['2017-01-01']);
+    const sub = await readSubscription(subscriptionId);
+    expect(sub?.nextMissing).toBe('2017-02-01');
+
+    // Browsing again regenerates the reverted rows.
+    await fetchMonth(session, 2017, 3);
+    const regenerated = await expensesForSubscription(subscriptionId);
+    expect(regenerated.map(r => r.date)).toEqual(['2017-01-01', '2017-02-01', '2017-03-01']);
+  });
+
+  it('stops reverting at an edited row and leaves it and earlier rows alone', async () => {
+    const { subscriptionId } = await createMonthlyRecurring(session, '2017-01-01');
+    await fetchMonth(session, 2017, 4);
+    const rows = await expensesForSubscription(subscriptionId);
+    const mar = rows.find(r => r.date === '2017-03-01')!;
+    const marSource = await fetchExpense(session, mar.id);
+    await session.put<ApiMessage>(
+      uri`/api/expense/recurring/${mar.id}?target=single`,
+      buildEditInput(marSource, { sum: '123.00' }),
+    );
+
+    const result = await session.post<SubscriptionRevertResult>(
+      '/api/subscription/revert-generated',
+      { before: '2017-02-01' },
+    );
+    // Only April goes: the walk back hits the edited March row and stops,
+    // so the untouched February row survives too.
+    expect(result.deletedCount).toBe(1);
+
+    const remaining = await expensesForSubscription(subscriptionId);
+    expect(remaining.map(r => r.date)).toEqual(['2017-01-01', '2017-02-01', '2017-03-01']);
+    const sub = await readSubscription(subscriptionId);
+    expect(sub?.nextMissing).toBe('2017-04-01');
   });
 
   it('mirrors title/receiver/category edits into the subscription filter and title', async () => {

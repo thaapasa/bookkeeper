@@ -14,6 +14,7 @@ import {
   SubscriptionMatches,
   SubscriptionMatchesQuery,
   SubscriptionResult,
+  SubscriptionRevertResult,
   SubscriptionSearchCriteria,
   SubscriptionUpdate,
   UserExpense,
@@ -246,6 +247,11 @@ export class ApiConnect {
 
   public getSubscriptionMatches = (query: SubscriptionMatchesQuery): Promise<SubscriptionMatches> =>
     this.post<SubscriptionMatches>(uri`/api/subscription/matches`, { body: query });
+
+  public revertGeneratedRecurrences = (before: ISODate): Promise<SubscriptionRevertResult> =>
+    this.post<SubscriptionRevertResult>(uri`/api/subscription/revert-generated`, {
+      body: { before },
+    });
 
   public storeExpense(expense: ExpenseData): Promise<ExpenseIdResponse> {
     return this.post<ExpenseIdResponse>('/api/expense', { body: expense });

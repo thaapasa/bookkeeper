@@ -9,6 +9,8 @@ import {
   SubscriptionMatchesQuery,
   SubscriptionPreviewRequest,
   SubscriptionResult,
+  SubscriptionRevertRequest,
+  SubscriptionRevertResult,
   SubscriptionSearchCriteria,
   SubscriptionUpdate,
 } from 'shared/expense';
@@ -16,6 +18,7 @@ import { ApiMessage } from 'shared/types';
 import {
   createSubscriptionFromFilter,
   deleteSubscriptionById,
+  revertGeneratedExpenses,
   updateSubscription,
 } from 'server/data/RecurringExpenseDb';
 import {
@@ -84,6 +87,16 @@ export function createSubscriptionApi() {
     '/matches',
     { body: SubscriptionMatchesQuery, response: SubscriptionMatches, groupRequired: true },
     (tx, session, { body }) => getSubscriptionMatches(tx, session.group.id, session.user.id, body),
+  );
+
+  // POST /api/subscription/revert-generated
+  // Deletes pre-generated recurring rows dated `before` or later that are
+  // still untouched, rewinding next_missing so browsing regenerates them.
+  // Hand-edited rows (and rows before them in the chain) are left alone.
+  api.postTx(
+    '/revert-generated',
+    { body: SubscriptionRevertRequest, response: SubscriptionRevertResult, groupRequired: true },
+    (tx, session, { body }) => revertGeneratedExpenses(tx, session.group.id, body.before),
   );
 
   // DELETE /api/subscription/[subscriptionId]?mode=end|delete
