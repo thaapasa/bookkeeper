@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'bun:test';
+import { expectArrayContaining } from 'test/expect/expectArrayContaining';
 
 import { ExpenseSplit } from 'shared/expense';
 import {
@@ -431,8 +432,12 @@ describe('statement matching', () => {
         confirmed: true,
         type: 'income',
       });
-      expect(fixed.division.filter(d => d.type === 'income')).toEqual([
-        { type: 'income', userId: session.user.id, sum: '2500.00' },
+      // The earner side is re-derived from the shared source's shares (as the
+      // expense dialog would on a sum edit); the split side keeps the original
+      // sole beneficiary.
+      expectArrayContaining(fixed.division, [
+        { type: 'income', userId: 1, sum: '1250.00' },
+        { type: 'income', userId: 2, sum: '1250.00' },
       ]);
       expect(fixed.division.filter(d => d.type === 'split')).toEqual([
         { type: 'split', userId: session.user.id, sum: '-2500.00' },

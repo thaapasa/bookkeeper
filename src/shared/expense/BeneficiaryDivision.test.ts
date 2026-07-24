@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'bun:test';
 
-import { evenBeneficiaryDivision, getBeneficiaryUserIds } from './BeneficiaryDivision';
+import { Source } from '../types/Source';
+import {
+  divisionCounterpart,
+  evenBeneficiaryDivision,
+  getBeneficiaryUserIds,
+} from './BeneficiaryDivision';
 import { ExpenseDivisionItem } from './Expense';
 
 describe('getBeneficiaryUserIds', () => {
@@ -50,6 +55,42 @@ describe('evenBeneficiaryDivision', () => {
   it('keeps the transferee side positive', () => {
     expect(evenBeneficiaryDivision('transfer', '100.00', [2])).toEqual([
       { userId: 2, type: 'transferee', sum: '100.00' },
+    ]);
+  });
+});
+
+describe('divisionCounterpart', () => {
+  const sharedSource = {
+    users: [
+      { userId: 1, share: 1, cards: [] },
+      { userId: 2, share: 1, cards: [] },
+    ],
+  } as unknown as Source;
+
+  it('mirrors the beneficiary side when its users match the source users', () => {
+    const split = evenBeneficiaryDivision('income', '300.00', [1, 2]);
+    const income = divisionCounterpart('300.00', sharedSource, split, true);
+    expect(income.map(i => ({ userId: i.userId, sum: i.sum.toString() }))).toEqual([
+      { userId: 1, sum: '150.00' },
+      { userId: 2, sum: '150.00' },
+    ]);
+  });
+
+  it('splits by source shares when the users differ', () => {
+    const split = evenBeneficiaryDivision('income', '300.00', [1]);
+    const income = divisionCounterpart('300.00', sharedSource, split, true);
+    expect(income.map(i => ({ userId: i.userId, sum: i.sum.toString() }))).toEqual([
+      { userId: 1, sum: '150.00' },
+      { userId: 2, sum: '150.00' },
+    ]);
+  });
+
+  it('negates the cost side counterpart', () => {
+    const benefit = evenBeneficiaryDivision('expense', '100.00', [1]);
+    const cost = divisionCounterpart('100.00', sharedSource, benefit, false);
+    expect(cost.map(i => ({ userId: i.userId, sum: i.sum.toString() }))).toEqual([
+      { userId: 1, sum: '-50.00' },
+      { userId: 2, sum: '-50.00' },
     ]);
   });
 });

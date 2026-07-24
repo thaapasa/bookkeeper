@@ -1,4 +1,5 @@
 import {
+  divisionCounterpart,
   ExpenseDivisionItem,
   ExpenseDivisionType,
   ExpenseInput,
@@ -58,10 +59,17 @@ export function determineDivision(expense: ExpenseInput, source: Source): Expens
   if (expense.type === 'income') {
     const givenIncome = divisionOfType(expense.division, 'income');
     const givenSplit = divisionOfType(expense.division, 'split');
+    // When only the beneficiary (split) side is given, derive the earner side
+    // the same way the expense dialog does — mirror the split when its users
+    // match the source's, otherwise divide by source shares. Falling back to
+    // owner-only income here would silently reassign the earner side, e.g. on
+    // recurring expense generation where only the split side is stored.
     const income =
       givenIncome.length > 0
         ? validateDivision(givenIncome, expense.sum, 'income')
-        : getDefaultIncome(expense);
+        : givenSplit.length > 0
+          ? divisionCounterpart(expense.sum, source, givenSplit, true)
+          : getDefaultIncome(expense);
     const split =
       givenSplit.length > 0
         ? validateDivision(givenSplit, Money.from(expense.sum).negate(), 'split')
@@ -73,7 +81,9 @@ export function determineDivision(expense: ExpenseInput, source: Source): Expens
     const cost =
       givenCost.length > 0
         ? validateDivision(givenCost, Money.negate(expense.sum), 'cost')
-        : getCostFromSource(expense.sum, source);
+        : givenBenefit.length > 0
+          ? divisionCounterpart(expense.sum, source, givenBenefit, false)
+          : getCostFromSource(expense.sum, source);
     const benefit =
       givenBenefit.length > 0
         ? validateDivision(givenBenefit, expense.sum, 'benefit')
@@ -85,7 +95,9 @@ export function determineDivision(expense: ExpenseInput, source: Source): Expens
     const transferor =
       givenTransferor.length > 0
         ? validateDivision(givenTransferor, Money.negate(expense.sum), 'transferor')
-        : getCostFromSource(expense.sum, source);
+        : givenTransferee.length > 0
+          ? divisionCounterpart(expense.sum, source, givenTransferee, false)
+          : getCostFromSource(expense.sum, source);
     const transferee =
       givenTransferee.length > 0
         ? validateDivision(givenTransferee, expense.sum, 'transferee')

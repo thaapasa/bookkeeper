@@ -152,4 +152,46 @@ describe('recurring expenses', () => {
       { userId: session.user.id, sum: '100.00' },
     ]);
   });
+
+  it('T96 - keeps a shared income earner side in generated recurrences', async () => {
+    // Income into the shared source, earned and split by both users. The
+    // stored defaults only carry the beneficiary (split) side, so generation
+    // must re-derive the earner side from the source instead of falling back
+    // to the expense owner alone.
+    const expenseId = checkCreateStatus(
+      await newExpense(session, {
+        type: 'income',
+        sum: '300.00',
+        date: '2017-01-01',
+        title: 'Virikeraha',
+        division: [
+          { type: 'income', userId: 1, sum: '150.00' },
+          { type: 'income', userId: 2, sum: '150.00' },
+          { type: 'split', userId: 1, sum: '-150.00' },
+          { type: 'split', userId: 2, sum: '-150.00' },
+        ],
+      }),
+    );
+    const s = await session.post<RecurringExpenseCreatedResponse>(
+      `/api/expense/recurring/${expenseId}`,
+      { period: { amount: 1, unit: 'months' } },
+    );
+    expect(s.subscriptionId).toBeGreaterThan(0);
+
+    // Fetching the next month materializes the missing recurrence.
+    const feb = await session.get<ExpenseCollection>('/api/expense/month', {
+      year: 2017,
+      month: 2,
+    });
+    const generated = feb.expenses.filter(e => e.subscriptionId === s.subscriptionId);
+    expect(generated).toMatchObject([{ title: 'Virikeraha', date: '2017-02-01' }]);
+
+    const details = await session.get<UserExpenseWithDetails>(uri`/api/expense/${generated[0].id}`);
+    expectArrayContaining(details.division, [
+      { userId: 1, type: 'income', sum: '150.00' },
+      { userId: 2, type: 'income', sum: '150.00' },
+      { userId: 1, type: 'split', sum: '-150.00' },
+      { userId: 2, type: 'split', sum: '-150.00' },
+    ]);
+  });
 });

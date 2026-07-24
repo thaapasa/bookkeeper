@@ -1,4 +1,5 @@
 import {
+  divisionCounterpart,
   evenBeneficiaryDivision,
   Expense,
   ExpenseDivision,
@@ -6,11 +7,9 @@ import {
   expensePayer,
   ExpenseType,
   getBeneficiaryUserIds,
-  negateDivision,
-  splitByShares,
 } from 'shared/expense';
 import { Source } from 'shared/types';
-import { Money, MoneyLike, sortAndCompareElements } from 'shared/util';
+import { Money, MoneyLike } from 'shared/util';
 import { logger } from 'client/Logger';
 
 export function getBenefitorsForExpense(
@@ -36,7 +35,7 @@ export function calculateDivision(
   const payerType = expensePayer[type];
   // Income earners are the positive side of the pair; every other payer side
   // (cost, transferor) is negative
-  const payer = calculateDivisionCounterpart(sum, source, beneficiary, payerType === 'income').map(
+  const payer = divisionCounterpart(sum, source, beneficiary, payerType === 'income', logger).map(
     (p): ExpenseDivisionItem => ({
       userId: p.userId,
       type: payerType,
@@ -44,24 +43,4 @@ export function calculateDivision(
     }),
   );
   return beneficiary.concat(payer);
-}
-
-function calculateDivisionCounterpart(
-  sum: MoneyLike,
-  source: Source,
-  otherDivision: ExpenseDivisionItem[],
-  expectPositive: boolean,
-): Array<{ userId: number; sum: MoneyLike }> {
-  const sourceUsers = source.users;
-  const sourceUserIds = sourceUsers.map(s => s.userId);
-  const benefitUserIds = otherDivision.map(b => b.userId);
-  if (sortAndCompareElements(sourceUserIds, benefitUserIds)) {
-    logger.info('Division pair has same users creating counterpart based on other part');
-    return negateDivision(otherDivision);
-  } else {
-    // Calculate counterpart manually
-    logger.info('Calculating counterpart by source users');
-    const positiveDivision = splitByShares(sum, sourceUsers, logger);
-    return expectPositive ? positiveDivision : negateDivision(positiveDivision);
-  }
 }
