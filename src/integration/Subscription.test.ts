@@ -4,6 +4,7 @@ import {
   ExpenseCollection,
   ExpenseDefaults,
   ExpenseInput,
+  ExpenseQuery,
   QuerySummary,
   SubscriptionMatches,
   SubscriptionResult,
@@ -29,6 +30,8 @@ import { captureTestState, cleanupTestDataSince, TestState } from './TestCleanup
 
 interface SubscriptionDbRow {
   id: number;
+  title: string;
+  filter: ExpenseQuery;
   occursUntil: string | null;
   nextMissing: string | null;
   periodAmount: number | null;
@@ -39,6 +42,8 @@ interface SubscriptionDbRow {
 async function readSubscription(id: number): Promise<SubscriptionDbRow | null> {
   return db.oneOrNone<SubscriptionDbRow>(
     `SELECT id,
+            title,
+            filter,
             occurs_until AS "occursUntil",
             next_missing AS "nextMissing",
             period_amount AS "periodAmount",
@@ -232,6 +237,57 @@ describe('subscription lifecycle', () => {
     // Edit propagation must not terminate the recurrence — that's a
     // delete-target=after concern, not an update concern.
     expect(sub?.occursUntil).toBeNull();
+  });
+
+  it('mirrors title/receiver/category edits into the subscription filter and title', async () => {
+    // The filter and card title were derived from the expense at conversion
+    // and have not been hand-edited, so a target=all edit must carry them
+    // along — otherwise the realised rows move to the new category/receiver
+    // while the card's filter keeps matching the old ones.
+    const { subscriptionId, firstExpenseId } = await createMonthlyRecurring(session, '2017-01-01', {
+      title: 'Original',
+    });
+    const cat = await newCategory(session, { name: 'MirrorTarget', parentId: 0 });
+
+    const source = await fetchExpense(session, firstExpenseId);
+    const edit = buildEditInput(source, {
+      title: 'Renamed',
+      receiver: 'New receiver',
+      categoryId: cat.categoryId,
+    });
+    await session.put<ApiMessage>(uri`/api/expense/recurring/${firstExpenseId}?target=all`, edit);
+
+    const sub = await readSubscription(subscriptionId);
+    expect(sub?.title).toBe('Renamed');
+    expect(sub?.filter).toEqual({ categoryId: cat.categoryId, receiver: 'New receiver' });
+  });
+
+  it('keeps a hand-tuned filter and title on edit, still swapping the edited category', async () => {
+    const { subscriptionId, firstExpenseId } = await createMonthlyRecurring(session, '2017-01-01', {
+      title: 'Original',
+    });
+    const source = await fetchExpense(session, firstExpenseId);
+    // Hand-tune via the subscription PATCH: custom card name and a broadened
+    // receiver, keeping the original category constraint.
+    await session.patch<ApiMessage>(uri`/api/subscription/${subscriptionId}`, {
+      title: 'My custom card',
+      filter: { categoryId: source.categoryId, receiver: 'Custom' },
+    });
+
+    const cat = await newCategory(session, { name: 'MirrorSwap', parentId: 0 });
+    const edit = buildEditInput(source, {
+      title: 'Renamed',
+      receiver: 'New receiver',
+      categoryId: cat.categoryId,
+    });
+    await session.put<ApiMessage>(uri`/api/expense/recurring/${firstExpenseId}?target=all`, edit);
+
+    const sub = await readSubscription(subscriptionId);
+    // Custom name and receiver survive; the category still swaps since the
+    // filter referenced the pre-edit category.
+    expect(sub?.title).toBe('My custom card');
+    expect(sub?.filter).toEqual({ categoryId: cat.categoryId, receiver: 'Custom' });
+    expect(sub?.defaults?.title).toBe('Renamed');
   });
 
   it('mirrors an edited benefit split into defaults and future generation (target=all)', async () => {

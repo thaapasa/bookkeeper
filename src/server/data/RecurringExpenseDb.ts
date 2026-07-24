@@ -56,6 +56,43 @@ export function filterFromExpense(expense: Expense): ExpenseQuery {
   return filter;
 }
 
+/**
+ * Mirrors a target=all/after expense edit onto the subscription's filter and
+ * title, but only where they still match the pre-edit expense: values
+ * hand-tuned via the subscription PATCH (a broadened filter, a custom card
+ * name) are left alone. Without the mirror the filter would keep matching
+ * the old category/receiver while the realised rows move to the new ones,
+ * dropping the rows off their own subscription card.
+ */
+function mirrorEditToSubscription(
+  subscription: { filter: ExpenseQuery; title: string },
+  original: Pick<Expense, 'title' | 'receiver' | 'categoryId'>,
+  updated: { title: string; receiver: string; categoryId: ObjectId },
+): { filter: ExpenseQuery; title: string } {
+  const filter = { ...subscription.filter };
+  if (Array.isArray(filter.categoryId) && filter.categoryId.includes(original.categoryId)) {
+    filter.categoryId = [
+      ...new Set(filter.categoryId.map(c => (c === original.categoryId ? updated.categoryId : c))),
+    ];
+  } else if (filter.categoryId === original.categoryId) {
+    filter.categoryId = updated.categoryId;
+  } else if (original.categoryId !== updated.categoryId) {
+    logger.warn(
+      { filter: subscription.filter, from: original.categoryId, to: updated.categoryId },
+      'Subscription filter does not reference the edited category; leaving filter category unchanged',
+    );
+  }
+  if ((filter.receiver ?? '') === (original.receiver ?? '')) {
+    if (updated.receiver) {
+      filter.receiver = updated.receiver;
+    } else {
+      delete filter.receiver;
+    }
+  }
+  const title = subscription.title === original.title ? updated.title : subscription.title;
+  return { filter, title };
+}
+
 export function defaultsFromExpense(
   expense: Pick<
     Expense,
@@ -837,18 +874,33 @@ async function updateRecurringExpense(
       groupId: original.groupId,
     },
   );
-  // Mirror the change onto the subscription's defaults so future generation picks it up.
+  // Mirror the change onto the subscription so future generation and the
+  // subscription card follow it: defaults always track the edit, filter and
+  // title only where they still match the pre-edit expense (hand-tuned
+  // values survive, see mirrorEditToSubscription).
+  const subscription = await tx.one<{ filter: ExpenseQuery; title: string }>(
+    `SELECT filter AS "filter", title FROM subscriptions
+        WHERE id = $/subscriptionId/ AND group_id = $/groupId/`,
+    { subscriptionId: original.subscriptionId, groupId: original.groupId },
+  );
+  const mirrored = mirrorEditToSubscription(subscription, original, {
+    title: expense.title,
+    receiver: expense.receiver,
+    categoryId: cat.id,
+  });
   const newDefaults = defaultsFromExpense(
     { ...expense, sourceId: source.id, categoryId: cat.id },
     division,
   );
   await tx.none(
     `UPDATE subscriptions
-        SET defaults = $/defaults/::JSONB
+        SET defaults = $/defaults/::JSONB, filter = $/filter/::JSONB, title = $/title/
         WHERE id = $/subscriptionId/ AND group_id = $/groupId/`,
     {
       subscriptionId: original.subscriptionId,
       defaults: newDefaults,
+      filter: mirrored.filter,
+      title: mirrored.title,
       groupId: original.groupId,
     },
   );
