@@ -248,7 +248,7 @@ describe('subscription lifecycle', () => {
 
     const result = await session.post<SubscriptionRevertResult>(
       '/api/subscription/revert-generated',
-      { before: '2017-02-01' },
+      { from: '2017-02-01' },
     );
     expect(result.deletedCount).toBe(3);
     expect(result.subscriptionCount).toBe(1);
@@ -277,7 +277,7 @@ describe('subscription lifecycle', () => {
 
     const result = await session.post<SubscriptionRevertResult>(
       '/api/subscription/revert-generated',
-      { before: '2017-02-01' },
+      { from: '2017-02-01' },
     );
     // Only April goes: the walk back hits the edited March row and stops,
     // so the untouched February row survives too.

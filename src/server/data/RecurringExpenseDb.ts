@@ -10,6 +10,7 @@ import {
   ExpenseType,
   getBeneficiaryUserIds,
   hasMeaningfulConstraint,
+  mirrorEditToSubscription,
   Recurrence,
   RecurrencePeriod,
   RecurrenceUnit,
@@ -56,43 +57,6 @@ export function filterFromExpense(expense: Expense): ExpenseQuery {
   const filter: ExpenseQuery = { categoryId: expense.categoryId };
   if (expense.receiver) filter.receiver = expense.receiver;
   return filter;
-}
-
-/**
- * Mirrors a target=all/after expense edit onto the subscription's filter and
- * title, but only where they still match the pre-edit expense: values
- * hand-tuned via the subscription PATCH (a broadened filter, a custom card
- * name) are left alone. Without the mirror the filter would keep matching
- * the old category/receiver while the realised rows move to the new ones,
- * dropping the rows off their own subscription card.
- */
-function mirrorEditToSubscription(
-  subscription: { filter: ExpenseQuery; title: string },
-  original: Pick<Expense, 'title' | 'receiver' | 'categoryId'>,
-  updated: { title: string; receiver: string; categoryId: ObjectId },
-): { filter: ExpenseQuery; title: string } {
-  const filter = { ...subscription.filter };
-  if (Array.isArray(filter.categoryId) && filter.categoryId.includes(original.categoryId)) {
-    filter.categoryId = [
-      ...new Set(filter.categoryId.map(c => (c === original.categoryId ? updated.categoryId : c))),
-    ];
-  } else if (filter.categoryId === original.categoryId) {
-    filter.categoryId = updated.categoryId;
-  } else if (original.categoryId !== updated.categoryId) {
-    logger.warn(
-      { filter: subscription.filter, from: original.categoryId, to: updated.categoryId },
-      'Subscription filter does not reference the edited category; leaving filter category unchanged',
-    );
-  }
-  if ((filter.receiver ?? '') === (original.receiver ?? '')) {
-    if (updated.receiver) {
-      filter.receiver = updated.receiver;
-    } else {
-      delete filter.receiver;
-    }
-  }
-  const title = subscription.title === original.title ? updated.title : subscription.title;
-  return { filter, title };
 }
 
 export function defaultsFromExpense(
@@ -347,8 +311,9 @@ function expenseInsertFromDefaults(
 // carry absolute division sums, so a stale or hand-crafted PATCH can't
 // slip an invariant-breaking expense_division blob through this path.
 // A stored `benefit` user-id list pins the beneficiary side (even
-// split, so it scales with the sum); the cost side always follows the
-// current source split.
+// split, so it scales with the sum); the payer side mirrors that split
+// when its users are exactly the source's users, and otherwise follows
+// the source's share split (see divisionCounterpart).
 function divisionForGeneratedRow(
   insert: ExpenseInsert,
   defaults: ExpenseDefaults,
@@ -528,7 +493,7 @@ function sameDivision(a: ExpenseDivisionItem[], b: ExpenseDivisionItem[]): boole
 }
 
 /**
- * Deletes generated recurring expenses dated `before` or later and rewinds
+ * Deletes generated recurring expenses dated `from` or later and rewinds
  * each subscription's `next_missing` so the rows are re-generated on demand.
  * Undoes the eager generation caused by browsing future months.
  *
@@ -542,11 +507,11 @@ function sameDivision(a: ExpenseDivisionItem[], b: ExpenseDivisionItem[]): boole
 export function revertGeneratedExpenses(
   tx: DbTask,
   groupId: ObjectId,
-  before: ISODate,
+  from: ISODate,
 ): Promise<SubscriptionRevertResult> {
   return withSpan(
     'subscription.revert_generated',
-    { 'app.group_id': groupId, 'app.before': before },
+    { 'app.group_id': groupId, 'app.from': from },
     async () => {
       const subscriptions = await tx.map<RecurrenceInDb>(
         `SELECT id, defaults, next_missing, occurs_until, period_amount, period_unit
@@ -555,21 +520,21 @@ export function revertGeneratedExpenses(
               AND EXISTS (
                 SELECT 1 FROM expenses e
                   WHERE e.subscription_id = s.id AND e.group_id=$/groupId/
-                    AND e.date >= $/before/::DATE)`,
-        { groupId, before },
+                    AND e.date >= $/from/::DATE)`,
+        { groupId, from },
         camelCaseObject,
       );
       let deletedCount = 0;
       let subscriptionCount = 0;
       for (const sub of subscriptions) {
-        const deleted = await revertSubscriptionRows(tx, groupId, before, sub);
+        const deleted = await revertSubscriptionRows(tx, groupId, from, sub);
         if (deleted > 0) {
           deletedCount += deleted;
           subscriptionCount++;
         }
       }
       logger.info(
-        { groupId, before, deletedCount, subscriptionCount },
+        { groupId, from, deletedCount, subscriptionCount },
         'Reverted generated recurring expenses',
       );
       return {
@@ -585,7 +550,7 @@ export function revertGeneratedExpenses(
 async function revertSubscriptionRows(
   tx: DbTask,
   groupId: ObjectId,
-  before: ISODate,
+  from: ISODate,
   recurrence: RecurrenceInDb,
 ): Promise<number> {
   const period: RecurrencePeriod = {
@@ -601,9 +566,9 @@ async function revertSubscriptionRows(
         EXISTS(SELECT 1 FROM statement_match sm WHERE sm.expense_id = e.id) AS "hasStatementMatch"
       FROM expenses e
       WHERE e.subscription_id=$/subscriptionId/ AND e.group_id=$/groupId/
-        AND e.date >= $/before/::DATE
+        AND e.date >= $/from/::DATE
       ORDER BY e.date DESC, e.id DESC`,
-    { subscriptionId: recurrence.id, groupId, before },
+    { subscriptionId: recurrence.id, groupId, from },
   );
   const source = await getSourceById(tx, groupId, recurrence.defaults.sourceId);
   let expectedNext = recurrence.nextMissing;
@@ -1060,11 +1025,12 @@ async function updateRecurringExpense(
         WHERE id = $/subscriptionId/ AND group_id = $/groupId/`,
     { subscriptionId: original.subscriptionId, groupId: original.groupId },
   );
-  const mirrored = mirrorEditToSubscription(subscription, original, {
-    title: expense.title,
-    receiver: expense.receiver,
-    categoryId: cat.id,
-  });
+  const mirrored = mirrorEditToSubscription(
+    subscription,
+    original,
+    { title: expense.title, receiver: expense.receiver, categoryId: cat.id },
+    logger,
+  );
   const newDefaults = defaultsFromExpense(
     { ...expense, sourceId: source.id, categoryId: cat.id },
     division,

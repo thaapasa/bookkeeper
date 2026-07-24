@@ -79,11 +79,12 @@ Realised rows carry an optional `subscription_id` FK pointing back at
 There is no `template` column on `expenses` and no template-row class — `defaults`
 lives on the subscription as typed JSONB, validated by Zod (`ExpenseDefaults` in
 `src/shared/expense/Subscription.ts`). The division for an auto-generated row is
-derived at generation time: the payer side always follows the source's current
-split, and the beneficiary side either comes from the stored `defaults.benefit`
-user-id list (the sum is split evenly among the listed users, so it scales with
-`sum`) or, when `benefit` is absent (legacy rows), falls back to the source's
-default split. Only user ids are stored, never absolute division sums, so the
+derived at generation time: the beneficiary side either comes from the stored
+`defaults.benefit` user-id list (the sum is split evenly among the listed users,
+so it scales with `sum`) or, when `benefit` is absent (legacy rows), falls back
+to the source's default split. The payer side mirrors the beneficiary split when
+its users are exactly the source's users, and otherwise follows the source's
+share split (`divisionCounterpart`). Only user ids are stored, never absolute division sums, so the
 `sum(expense_division.sum) = 0` invariant cannot be broken by a stale division
 blob.
 
@@ -241,8 +242,9 @@ Each missing date is materialised through `generateRowFromDefaults`, which inser
 an `expenses` row from `defaults` and computes its division via
 `determineDivision` — the beneficiary side is pinned by the stored
 `defaults.benefit` user ids when present (even split), otherwise it follows the
-source's default split. After the batch, `next_missing` is advanced past the last
-inserted date.
+source's default split; the payer side mirrors the beneficiary split when its
+users match the source's users, else it follows the source's share split. After
+the batch, `next_missing` is advanced past the last inserted date.
 
 `occurs_until` ends generation but does not hide the row from the catch-up query —
 the per-row loop just no-ops because `getDatesUpTo` returns `[]`. The prod DB is
@@ -299,7 +301,13 @@ operates on the `subscription_id` linkage:
   which had a same-date ambiguity).
 
 `'all'` and `'after'` also rewrite the affected rows' `expense_division` rows from
-the new defaults' division.
+the new defaults' division, and mirror the edit onto the subscription row itself:
+`defaults` always follows the edit, while `filter` and `title` are updated only
+where they still match the pre-edit expense (`mirrorEditToSubscription` — scalar
+or array `categoryId` swapped to the new category, `receiver` replaced, title
+renamed). Values hand-tuned via the subscription PATCH (a broadened filter, a
+custom card name) survive; without the mirror, changing the category or receiver
+would move the realised rows outside their own card's filter.
 
 > **`'all'` / `'after'` is the only way to retroactively reshape generated rows.**
 > The pre-rework template-row class is gone, so editing the subscription's
@@ -332,6 +340,24 @@ The `target='all'` / `target='after'` deletes through `DELETE
 /api/expense/recurring/:expenseId` are still available and behave as before:
 remove the subscription plus the linked expenses (whole history or after the cut).
 
+### Revert pre-generation
+
+Browsing a future month eagerly generates every recurring expense up to that
+month. `POST /api/subscription/revert-generated` with `{ from }` (an `ISODate`)
+undoes this: for each recurring subscription, the generated rows dated `from` or
+later are walked latest-first and deleted only while each one is exactly what the
+generator would produce from the current defaults — the recurrence date chain is
+intact (`calculateNextRecurrence(row.date)` equals the next expected date),
+attributes and division match, and no grouping, currency annotation, split link,
+or statement match has been attached. The walk stops at the first altered row,
+leaving it and everything before it untouched. `next_missing` is rewound to the
+earliest deleted date, so the rows re-generate on demand when the month is next
+browsed.
+
+The tools page ("Työkalut") exposes this as "Poista etukäteen luodut toistuvat
+kirjaukset", deleting from the start of the next month onward after a
+confirmation prompt.
+
 ## API surface
 
 ### `/api/subscription` (`src/server/api/SubscriptionApi.ts`)
@@ -342,6 +368,7 @@ remove the subscription plus the linked expenses (whole history or after the cut
 | POST   | `/from-filter`            | Save a stats subscription from `{ title, filter }`.      |
 | POST   | `/query-summary`          | Preview `{ count, sum, matches }` for an `ExpenseQuery`. |
 | POST   | `/matches`                | Paginated rows currently assigned to a subscription.     |
+| POST   | `/revert-generated`       | Delete untouched pre-generated rows, rewind generation.  |
 | PATCH  | `/:subscriptionId`        | Update title / filter / defaults.                        |
 | DELETE | `/:subscriptionId?mode=…` | Soft-end (`end`) or hard-delete (`delete`).              |
 

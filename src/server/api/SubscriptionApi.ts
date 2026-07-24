@@ -90,13 +90,13 @@ export function createSubscriptionApi() {
   );
 
   // POST /api/subscription/revert-generated
-  // Deletes pre-generated recurring rows dated `before` or later that are
+  // Deletes pre-generated recurring rows dated `from` or later that are
   // still untouched, rewinding next_missing so browsing regenerates them.
   // Hand-edited rows (and rows before them in the chain) are left alone.
   api.postTx(
     '/revert-generated',
     { body: SubscriptionRevertRequest, response: SubscriptionRevertResult, groupRequired: true },
-    (tx, session, { body }) => revertGeneratedExpenses(tx, session.group.id, body.before),
+    (tx, session, { body }) => revertGeneratedExpenses(tx, session.group.id, body.from),
   );
 
   // DELETE /api/subscription/[subscriptionId]?mode=end|delete

@@ -24,6 +24,22 @@ export function getBeneficiaryUserIds(
  * −sum; the others sum to +sum. Remainder cents are distributed
  * deterministically by `splitByShares`.
  */
+export function evenBeneficiaryDivision(
+  type: ExpenseType,
+  sum: MoneyLike,
+  userIds: number[],
+  logger?: Logger,
+): ExpenseDivisionItem[] {
+  const beneficiaryType = expenseBeneficiary[type];
+  const parts = splitByShares(
+    sum,
+    userIds.map(userId => ({ userId, share: 1 })),
+    logger,
+  );
+  const signed = beneficiaryType === 'split' ? negateDivision(parts) : parts;
+  return signed.map(p => ({ userId: p.userId, type: beneficiaryType, sum: p.sum.toString() }));
+}
+
 /**
  * The payer-side counterpart of a beneficiary division. When the beneficiary
  * users are exactly the source's users, the counterpart mirrors the
@@ -47,20 +63,4 @@ export function divisionCounterpart(
   logger?.debug('Calculating counterpart by source users');
   const positiveDivision = splitByShares(sum, source.users, logger);
   return expectPositive ? positiveDivision : negateDivision(positiveDivision);
-}
-
-export function evenBeneficiaryDivision(
-  type: ExpenseType,
-  sum: MoneyLike,
-  userIds: number[],
-  logger?: Logger,
-): ExpenseDivisionItem[] {
-  const beneficiaryType = expenseBeneficiary[type];
-  const parts = splitByShares(
-    sum,
-    userIds.map(userId => ({ userId, share: 1 })),
-    logger,
-  );
-  const signed = beneficiaryType === 'split' ? negateDivision(parts) : parts;
-  return signed.map(p => ({ userId: p.userId, type: beneficiaryType, sum: p.sum.toString() }));
 }

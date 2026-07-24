@@ -1,7 +1,9 @@
+import { Logger } from 'pino';
 import { z } from 'zod';
 
 import { RecurrenceInterval } from '../time/RecurrenceInterval';
 import { ISODate } from '../time/Time';
+import { ApiMessage } from '../types/Api';
 import { ShortString } from '../types/Common';
 import { ObjectId } from '../types/Id';
 import { MoneyLike } from '../util/Money';
@@ -61,20 +63,56 @@ export function hasMeaningfulConstraint(filter: ExpenseQuery): boolean {
 
 /**
  * Reverts pre-generation of recurring expenses: deletes generated rows
- * dated `before` or later that are still exactly as the generator created
+ * dated `from` or later that are still exactly as the generator created
  * them, and rewinds each subscription's next generation date accordingly.
  */
-export const SubscriptionRevertRequest = z.object({ before: ISODate });
+export const SubscriptionRevertRequest = z.object({ from: ISODate });
 export type SubscriptionRevertRequest = z.infer<typeof SubscriptionRevertRequest>;
 
-export const SubscriptionRevertResult = z.object({
-  status: z.string(),
-  message: z.string(),
+export const SubscriptionRevertResult = ApiMessage.extend({
   deletedCount: z.number(),
   /** Number of subscriptions that had rows deleted. */
   subscriptionCount: z.number(),
 });
 export type SubscriptionRevertResult = z.infer<typeof SubscriptionRevertResult>;
+
+/**
+ * Mirrors a target=all/after expense edit onto the subscription's filter and
+ * title, but only where they still match the pre-edit expense: values
+ * hand-tuned via the subscription PATCH (a broadened filter, a custom card
+ * name) are left alone. Without the mirror the filter would keep matching
+ * the old category/receiver while the realised rows move to the new ones,
+ * dropping the rows off their own subscription card.
+ */
+export function mirrorEditToSubscription(
+  subscription: { filter: ExpenseQuery; title: string },
+  original: { title: string; receiver: string; categoryId: ObjectId },
+  updated: { title: string; receiver: string; categoryId: ObjectId },
+  logger?: Logger,
+): { filter: ExpenseQuery; title: string } {
+  const filter = { ...subscription.filter };
+  if (Array.isArray(filter.categoryId) && filter.categoryId.includes(original.categoryId)) {
+    filter.categoryId = [
+      ...new Set(filter.categoryId.map(c => (c === original.categoryId ? updated.categoryId : c))),
+    ];
+  } else if (filter.categoryId === original.categoryId) {
+    filter.categoryId = updated.categoryId;
+  } else if (original.categoryId !== updated.categoryId) {
+    logger?.warn(
+      { filter: subscription.filter, from: original.categoryId, to: updated.categoryId },
+      'Subscription filter does not reference the edited category; leaving filter category unchanged',
+    );
+  }
+  if ((filter.receiver ?? '') === (original.receiver ?? '')) {
+    if (updated.receiver) {
+      filter.receiver = updated.receiver;
+    } else {
+      delete filter.receiver;
+    }
+  }
+  const title = subscription.title === original.title ? updated.title : subscription.title;
+  return { filter, title };
+}
 
 export const SubscriptionSearchCriteria = z.object({
   type: ExpenseType.or(z.array(ExpenseType)).optional(),

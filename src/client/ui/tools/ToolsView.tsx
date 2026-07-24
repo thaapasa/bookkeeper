@@ -32,14 +32,14 @@ export const ToolsView: React.FC = () => (
 
 async function revertGeneratedRecurrences() {
   // First date to delete from: everything after the current month.
-  const before = toISODate(toDateTime().plus({ months: 1 }).startOf('month'));
+  const from = toISODate(toDateTime().plus({ months: 1 }).startOf('month'));
   const confirmed = await UserPrompts.confirm(
     'Poista tulevat toistuvat kirjaukset',
-    `Poistetaanko automaattisesti luodut toistuvat kirjaukset ${toDateTime(before).toFormat('d.M.yyyy')} alkaen? ` +
+    `Poistetaanko automaattisesti luodut toistuvat kirjaukset ${toDateTime(from).toFormat('d.M.yyyy')} alkaen? ` +
       'Muokatut kirjaukset säilytetään, ja poistetut luodaan tarvittaessa uudelleen.',
   );
   if (!confirmed) return;
-  await executeOperation(() => apiConnect.revertGeneratedRecurrences(before), {
+  await executeOperation(() => apiConnect.revertGeneratedRecurrences(from), {
     success: r =>
       r.deletedCount > 0
         ? `Poistettu ${r.deletedCount} kirjausta (${r.subscriptionCount} toistuvaa)`

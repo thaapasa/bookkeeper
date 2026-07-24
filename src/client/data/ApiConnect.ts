@@ -248,9 +248,9 @@ export class ApiConnect {
   public getSubscriptionMatches = (query: SubscriptionMatchesQuery): Promise<SubscriptionMatches> =>
     this.post<SubscriptionMatches>(uri`/api/subscription/matches`, { body: query });
 
-  public revertGeneratedRecurrences = (before: ISODate): Promise<SubscriptionRevertResult> =>
+  public revertGeneratedRecurrences = (from: ISODate): Promise<SubscriptionRevertResult> =>
     this.post<SubscriptionRevertResult>(uri`/api/subscription/revert-generated`, {
-      body: { before },
+      body: { from },
     });
 
   public storeExpense(expense: ExpenseData): Promise<ExpenseIdResponse> {
