@@ -3,13 +3,13 @@ import { z } from 'zod';
 import { ISODate } from '../time/Time';
 import { ObjectId } from '../types/Id';
 import { Money, MoneyLike } from '../util/Money';
-import { BaseExpenseData, ExpenseInEditor } from './Expense';
+import { BaseExpenseData, BeneficiaryUserIds, ExpenseInEditor } from './Expense';
 
 export const ExpenseShortcutData = BaseExpenseData.extend({
   title: z.string(),
   sum: MoneyLike,
   date: ISODate,
-  benefit: z.array(z.number()),
+  benefit: BeneficiaryUserIds,
   description: z.string(),
 }).partial();
 

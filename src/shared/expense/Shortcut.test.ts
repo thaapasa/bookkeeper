@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 
-import { ExpenseShortcut, matchesStatementCounterparty } from './Shortcut';
+import { ExpenseShortcut, ExpenseShortcutData, matchesStatementCounterparty } from './Shortcut';
 
 function shortcut(statementTargets: string[]): ExpenseShortcut {
   return { id: 1, title: 'HSL', expense: {}, sortOrder: 1, statementTargets };
@@ -39,5 +39,19 @@ describe('matchesStatementCounterparty', () => {
     expect(matchesStatementCounterparty(shortcut([]), 'HSL MOBIILI')).toBe(false);
     expect(matchesStatementCounterparty(shortcut(['HSL']), null)).toBe(false);
     expect(matchesStatementCounterparty(shortcut(['HSL']), '')).toBe(false);
+  });
+});
+
+describe('ExpenseShortcutData', () => {
+  it('accepts unique benefit user ids and an absent benefit', () => {
+    expect(ExpenseShortcutData.safeParse({ benefit: [1, 2] }).success).toBe(true);
+    expect(ExpenseShortcutData.safeParse({}).success).toBe(true);
+  });
+
+  it('rejects duplicate and empty benefit lists', () => {
+    // A duplicate id would generate two expense_division rows with the
+    // same (expense_id, user_id, type) and violate its PK on save.
+    expect(ExpenseShortcutData.safeParse({ benefit: [1, 1] }).success).toBe(false);
+    expect(ExpenseShortcutData.safeParse({ benefit: [] }).success).toBe(false);
   });
 });

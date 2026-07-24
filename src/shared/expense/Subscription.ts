@@ -5,7 +5,7 @@ import { ISODate } from '../time/Time';
 import { ShortString } from '../types/Common';
 import { ObjectId } from '../types/Id';
 import { MoneyLike } from '../util/Money';
-import { ExpenseQuery, ExpenseType, UserExpense } from './Expense';
+import { BeneficiaryUserIds, ExpenseQuery, ExpenseType, UserExpense } from './Expense';
 import { RecurrencePeriod } from './Recurrence';
 
 /**
@@ -106,18 +106,11 @@ export const ExpenseDefaults = z.object({
   confirmed: z.boolean(),
   description: z.string().nullable(),
   /**
-   * User ids on the beneficiary side (`benefit` for expenses, `split`
-   * for incomes, `transferee` for transfers) of generated expenses; the
-   * sum is split evenly among them. Absent on legacy rows → the
-   * beneficiary side falls back to the source's default split. Ids must
-   * be unique — a duplicate would generate two expense_division rows
-   * with the same (expense_id, user_id, type) and violate its PK.
+   * Beneficiaries of generated expenses; the sum is split evenly among
+   * them. Absent on legacy rows → the beneficiary side falls back to the
+   * source's default split.
    */
-  benefit: z
-    .array(ObjectId)
-    .min(1)
-    .refine(ids => new Set(ids).size === ids.length, 'Beneficiary user ids must be unique')
-    .optional(),
+  benefit: BeneficiaryUserIds.optional(),
 });
 export type ExpenseDefaults = z.infer<typeof ExpenseDefaults>;
 

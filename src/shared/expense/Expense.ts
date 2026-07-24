@@ -58,6 +58,21 @@ export type ExpenseDivisionItem = z.infer<typeof ExpenseDivisionItem>;
 export const ExpenseDivision = z.array(ExpenseDivisionItem);
 export type ExpenseDivision = z.infer<typeof ExpenseDivision>;
 
+/**
+ * User ids on the beneficiary side of an even split (`benefit` for
+ * expenses, `split` for incomes, `transferee` for transfers). At least one
+ * beneficiary is required, and ids must be unique — a duplicate would
+ * produce two expense_division rows with the same (expense_id, user_id,
+ * type) and violate its PK. Shared by everything that stores "participants
+ * of an even split": the expense editor, subscription defaults, and
+ * expense shortcuts.
+ */
+export const BeneficiaryUserIds = z
+  .array(ObjectId)
+  .min(1)
+  .refine(ids => new Set(ids).size === ids.length, 'Beneficiary user ids must be unique');
+export type BeneficiaryUserIds = z.infer<typeof BeneficiaryUserIds>;
+
 export const BaseExpenseData = z.object({
   userId: ObjectId,
   categoryId: ObjectId,
@@ -133,7 +148,7 @@ export type UserExpense = z.infer<typeof UserExpense>;
 export interface ExpenseInEditor extends BaseExpenseData {
   sum: string;
   date: ISODate;
-  benefit: number[];
+  benefit: BeneficiaryUserIds;
   description: string;
   groupingId: number | null;
   /** Null when the expense is in EUR; otherwise the foreign currency it was paid in */
