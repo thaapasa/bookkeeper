@@ -6,8 +6,14 @@ import { ISODate } from '../time/Time';
 import { ApiMessage } from '../types/Api';
 import { ShortString } from '../types/Common';
 import { ObjectId } from '../types/Id';
-import { MoneyLike } from '../util/Money';
-import { BeneficiaryUserIds, ExpenseQuery, ExpenseType, UserExpense } from './Expense';
+import { Money, MoneyLike } from '../util/Money';
+import {
+  BeneficiaryUserIds,
+  ExpenseDivisionItem,
+  ExpenseQuery,
+  ExpenseType,
+  UserExpense,
+} from './Expense';
 import { RecurrencePeriod } from './Recurrence';
 
 /**
@@ -75,6 +81,73 @@ export const SubscriptionRevertResult = ApiMessage.extend({
   subscriptionCount: z.number(),
 });
 export type SubscriptionRevertResult = z.infer<typeof SubscriptionRevertResult>;
+
+/**
+ * The revert-relevant attributes of a generated expense row: the fields
+ * the generator writes from the defaults, plus the decorations that can
+ * be attached to a row afterwards (grouping, currency annotation, split
+ * link, statement match/skip).
+ */
+export interface GeneratedRowAttributes {
+  userId: ObjectId;
+  sourceId: ObjectId;
+  categoryId: ObjectId;
+  type: ExpenseType;
+  title: string | null;
+  receiver: string | null;
+  sum: MoneyLike;
+  confirmed: boolean;
+  description: string | null;
+  groupingId: ObjectId | null;
+  currencyId: ObjectId | null;
+  splitId: string | null;
+  statementSkip: boolean;
+  hasStatementMatch: boolean;
+}
+
+/**
+ * True when the row still carries exactly the attributes the generator
+ * writes from the defaults, with no later decorations attached. Deleting
+ * a row that fails this check would lose user edits — and a statement
+ * match link, which cascades away with the expense.
+ *
+ * Keep the field-by-field comparison in sync with
+ * `expenseInsertFromDefaults` in `server/data/RecurringExpenseDb.ts`: a
+ * field the generator writes but this function ignores would let revert
+ * delete rows that differ in it.
+ */
+export function matchesGeneratedDefaults(
+  row: GeneratedRowAttributes,
+  defaults: ExpenseDefaults,
+): boolean {
+  return (
+    row.title === defaults.title &&
+    (row.receiver ?? '') === (defaults.receiver ?? '') &&
+    Money.from(row.sum).equals(defaults.sum) &&
+    row.type === defaults.type &&
+    row.sourceId === defaults.sourceId &&
+    row.categoryId === defaults.categoryId &&
+    row.userId === defaults.userId &&
+    row.confirmed === defaults.confirmed &&
+    (row.description ?? null) === (defaults.description ?? null) &&
+    row.groupingId === null &&
+    row.currencyId === null &&
+    row.splitId === null &&
+    !row.statementSkip &&
+    !row.hasStatementMatch
+  );
+}
+
+/** True when the divisions contain the same (userId, type, sum) entries, in any order. */
+export function sameDivision(a: ExpenseDivisionItem[], b: ExpenseDivisionItem[]): boolean {
+  if (a.length !== b.length) return false;
+  // (userId, type) is unique within a division (expense_division PK)
+  const sums = new Map(b.map(d => [`${d.userId}:${d.type}`, d.sum]));
+  return a.every(d => {
+    const sum = sums.get(`${d.userId}:${d.type}`);
+    return sum !== undefined && Money.from(d.sum).equals(sum);
+  });
+}
 
 /**
  * Mirrors a target=all/after expense edit onto the subscription's filter and

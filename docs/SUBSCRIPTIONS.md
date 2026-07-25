@@ -349,7 +349,7 @@ later are walked latest-first and deleted only while each one is exactly what th
 generator would produce from the current defaults — the recurrence date chain is
 intact (`calculateNextRecurrence(row.date)` equals the next expected date),
 attributes and division match, and no grouping, currency annotation, split link,
-or statement match has been attached. The walk stops at the first altered row,
+statement match, or statement skip flag has been attached. The walk stops at the first altered row,
 leaving it and everything before it untouched. `next_missing` is rewound to the
 earliest deleted date, so the rows re-generate on demand when the month is next
 browsed.

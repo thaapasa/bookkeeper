@@ -7,15 +7,17 @@ import {
   ExpenseDivisionItem,
   ExpenseInput,
   ExpenseQuery,
-  ExpenseType,
+  GeneratedRowAttributes,
   getBeneficiaryUserIds,
   hasMeaningfulConstraint,
+  matchesGeneratedDefaults,
   mirrorEditToSubscription,
   Recurrence,
   RecurrencePeriod,
   RecurrenceUnit,
   RecurringExpenseInput,
   RecurringExpenseTarget,
+  sameDivision,
   stripBlanks,
   SubscriptionDeleteMode,
   SubscriptionRevertResult,
@@ -285,6 +287,8 @@ function getDatesUpTo(recurrence: Recurrence, date: DateTime): ISODate[] {
   return dates;
 }
 
+// Keep the written fields in sync with `matchesGeneratedDefaults` in
+// shared/expense/Subscription.ts, or revert may delete edited rows.
 function expenseInsertFromDefaults(
   groupId: ObjectId,
   subscriptionId: ObjectId,
@@ -439,57 +443,9 @@ export function createMissingRecurringExpenses(
   );
 }
 
-interface GeneratedRowCandidate {
+interface GeneratedRowCandidate extends GeneratedRowAttributes {
   id: ObjectId;
   date: ISODate;
-  userId: ObjectId;
-  sourceId: ObjectId;
-  categoryId: ObjectId;
-  type: ExpenseType;
-  title: string | null;
-  receiver: string | null;
-  sum: string;
-  confirmed: boolean;
-  description: string | null;
-  groupingId: ObjectId | null;
-  currencyId: ObjectId | null;
-  splitId: string | null;
-  statementSkip: boolean;
-  hasStatementMatch: boolean;
-}
-
-/**
- * True when the row still carries exactly the attributes the generator
- * writes from the defaults, with no later decorations (grouping, currency,
- * split link, statement match/skip) attached.
- */
-function matchesGeneratedDefaults(row: GeneratedRowCandidate, defaults: ExpenseDefaults): boolean {
-  return (
-    row.title === defaults.title &&
-    (row.receiver ?? '') === (defaults.receiver ?? '') &&
-    Money.from(row.sum).equals(defaults.sum) &&
-    row.type === defaults.type &&
-    row.sourceId === defaults.sourceId &&
-    row.categoryId === defaults.categoryId &&
-    row.userId === defaults.userId &&
-    row.confirmed === defaults.confirmed &&
-    (row.description ?? null) === (defaults.description ?? null) &&
-    row.groupingId === null &&
-    row.currencyId === null &&
-    row.splitId === null &&
-    !row.statementSkip &&
-    !row.hasStatementMatch
-  );
-}
-
-function sameDivision(a: ExpenseDivisionItem[], b: ExpenseDivisionItem[]): boolean {
-  if (a.length !== b.length) return false;
-  // (userId, type) is unique within a division (expense_division PK)
-  const sums = new Map(b.map(d => [`${d.userId}:${d.type}`, d.sum]));
-  return a.every(d => {
-    const sum = sums.get(`${d.userId}:${d.type}`);
-    return sum !== undefined && Money.from(d.sum).equals(sum);
-  });
 }
 
 /**
@@ -563,7 +519,8 @@ async function revertSubscriptionRows(
         e.confirmed, e.description, e.grouping_id AS "groupingId",
         e.currency_id AS "currencyId", e.split_id AS "splitId",
         e.statement_skip AS "statementSkip",
-        EXISTS(SELECT 1 FROM statement_match sm WHERE sm.expense_id = e.id) AS "hasStatementMatch"
+        EXISTS(SELECT 1 FROM statement_match sm
+          WHERE sm.expense_id = e.id AND sm.group_id = $/groupId/) AS "hasStatementMatch"
       FROM expenses e
       WHERE e.subscription_id=$/subscriptionId/ AND e.group_id=$/groupId/
         AND e.date >= $/from/::DATE
