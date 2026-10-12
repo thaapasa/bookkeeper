@@ -125,7 +125,7 @@ codebase (the only exception is `Date.now()` for performance timing).
 Never use `Date`, `DateTime`, or `z.date()` in types that cross API boundaries. Use
 branded string types with Zod string schemas.
 
-Conversion utilities live in `shared/time/`. Use `toISODate()` for calendar dates and
+Conversion utilities live in `src/shared/time/`. Use `toISODate()` for calendar dates and
 `toISOTimestamp()` for timestamps. See `docs/archive/DATE_HANDLING.md` for historical
 context and antipatterns to avoid.
 

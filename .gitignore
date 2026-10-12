@@ -40,3 +40,6 @@ prod.dump
 
 # Playwright MCP snapshot artifacts
 .playwright-mcp/
+
+# claudelint cache
+.claudelint-cache/

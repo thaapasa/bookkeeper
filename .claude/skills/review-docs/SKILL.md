@@ -2,7 +2,7 @@
 name: review-docs
 description: Review documentation for accuracy against the current implementation. Use when documentation files are modified, when code changes may have made docs outdated, or when the user asks about documentation accuracy.
 paths:
-  - "*.md"
+  - '*.md'
   - docs/**
   - .claude/**
   - .github/**
@@ -63,6 +63,7 @@ leave 3 as-is"). Format:
 ```
 
 After listing all issues, summarize:
+
 - Total issues found per file
 - Which files are up to date
 - Which files need the most attention

@@ -1,7 +1,7 @@
 ---
 name: commit
 description: Create a git commit with a well-crafted message. Use proactively whenever the user asks to commit changes or amend a commit.
-argument-hint: <optional: hint about what the commit is for>
+argument-hint: '[optional: hint about what the commit is for]'
 ---
 
 # Git Commit
@@ -35,6 +35,7 @@ Write a commit message following these rules:
   need explanation of _why_ or _how_. Most commits don't need a body.
 
 Good examples:
+
 - `Consolidate backend conventions into coding-conventions.md`
 - `Fix month navigation skipping February in date picker`
 - `Add expense grouping tags with autocomplete`
@@ -42,6 +43,7 @@ Good examples:
 - `Remove unused Bacon.js subscription from ExpenseTable`
 
 Bad examples:
+
 - `fix: fix bug in date picker` (has prefix, vague, redundant "fix fix")
 - `Update code` (too vague)
 - `refactor: various improvements` (has prefix, vague)

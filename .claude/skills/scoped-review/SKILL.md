@@ -8,18 +8,18 @@ agent: general-purpose
 
 # Scoped Code Review
 
-A focused review of a *specific set of changes* — not the whole codebase.
+A focused review of a _specific set of changes_ — not the whole codebase.
 This skill reviews a bounded diff against a chosen source of truth.
 
 Related review tools: `/review` does an angle-driven checklist pass
 ("review this for security"); `@agent-review` runs every `/review`
-checklist thoroughly. Use *this* skill when the question is "does the
+checklist thoroughly. Use _this_ skill when the question is "does the
 change do what was agreed, and did docs/tests/conventions keep up".
 
 **Precision over recall.** A short report of real problems beats a long
 one padded with speculation. Every finding the user dismisses as "not
 actually a problem" is a tax on the review. If you are not confident a
-finding is a real problem *right now*, drop it. Be skeptical of the code
+finding is a real problem _right now_, drop it. Be skeptical of the code
 — and equally skeptical of your own findings before they go in.
 
 ## Step 1: Determine scope
@@ -36,20 +36,20 @@ that applies:
 3. **Git, in this order:**
    - On a feature branch (not `master`): scope is the branch —
      `git diff master...HEAD` plus any uncommitted changes.
-   - Otherwise, if there are uncommitted changes (`git status
-     --porcelain` non-empty): scope is the working tree —
+   - Otherwise, if there are uncommitted changes (`git status --porcelain`
+     non-empty): scope is the working tree —
      `git diff HEAD` (staged + unstaged), including untracked files.
    - Otherwise: scope is the last commit — `git show HEAD` /
      `git diff HEAD~1..HEAD`.
 
 State the resolved scope in one line at the top of the report, with the
 exact diff command, so the user can confirm you reviewed what they meant.
-If scope is genuinely ambiguous (e.g. branch *and* a big pile of
+If scope is genuinely ambiguous (e.g. branch _and_ a big pile of
 unrelated uncommitted work), ask before reviewing rather than guess.
 
 ## Step 2: Determine the source of truth
 
-What the changes are measured *against*. The review's job is to check the
+What the changes are measured _against_. The review's job is to check the
 change agrees with its source of truth — so picking the right one matters.
 Resolve in this order:
 
@@ -57,14 +57,14 @@ Resolve in this order:
    should do (a spec, an agreed design, acceptance criteria), that is the
    source of truth. Code and docs are judged against it.
 2. **New / changed documentation that clearly defines a feature.** If the
-   diff includes documentation that *specifies* new behaviour — a new
+   diff includes documentation that _specifies_ new behaviour — a new
    `docs/` chapter, a plan document, an `ARCHITECTURE.md` section
    describing intent — treat that doc as the spec. The code must
    implement what the doc promises.
 3. **Code, with docs judged against it.** If the diff is mostly code with
    only scattered, incidental doc edits (not a coherent spec), the **code
-   is the source of truth** and the documentation is reviewed *against the
-   code* — stale, contradictory, or missing doc updates are findings, not
+   is the source of truth** and the documentation is reviewed _against the
+   code_ — stale, contradictory, or missing doc updates are findings, not
    the spec.
 
 State the chosen source of truth in one line in the report. When it's
@@ -129,7 +129,7 @@ with no matching doc update is a finding. Relevant docs, when applicable:
 - **docs/** feature docs (e.g. `SUBSCRIPTIONS.md`) — when the documented
   feature's behaviour changes.
 
-Judge *appropriateness* — not every change touches every doc. A pure
+Judge _appropriateness_ — not every change touches every doc. A pure
 internal refactor may need no doc changes at all; a new API endpoint or
 migration usually needs several. Flag the docs that genuinely should
 have changed and didn't.
@@ -223,14 +223,14 @@ fails. Do not pad the report.
   shaped this way on purpose (intentional duplication, deliberate
   non-abstraction, a documented workaround), assess whether the rationale
   still holds. If it does, drop the finding. If not, the finding must say
-  *why* it's stale.
+  _why_ it's stale.
 - **Confirm the problem exists today.** "Could be a problem if X" is not
   a finding unless X is real and you confirmed it.
 - **Check the fix is actually better.** If a proposed refactor trades one
   complexity for an equal one, drop it.
 - **No style-only nits dressed as findings.** Renames / reorderings /
-  "I'd write it differently" are not findings. Formatting is `bun
-  format`'s job, not the review's.
+  "I'd write it differently" are not findings. Formatting is
+  `bun format`'s job, not the review's.
 
 ## Step 5: Report
 
@@ -252,8 +252,8 @@ to later: `H` / `M` / `L` + a sequential number within that class (`H1`,
 `H2`, `M1`, `L1`, …), numbered from 1 per class in report order. The IDs
 are local to this report — a handle for the user, not stable tracker IDs.
 
-Each finding: `**H1** `path:line` — what's wrong, why it matters now,
-concrete fix`. For duplication / extraction findings, list every site and
+Each finding: ``**H1** `path:line` — what's wrong, why it matters now,
+concrete fix``. For duplication / extraction findings, list every site and
 sketch the target shape. For source-of-truth divergences, cite both the
 promise and the code.
 

@@ -31,7 +31,9 @@
     "rollback": "knex migrate:rollback",
     "seed": "knex seed:run",
     "example-data": "bun run src/tools/addExampleData.ts",
-    "find-cyclic": "bunx madge --extensions ts,tsx --circular ."
+    "find-cyclic": "bunx madge --extensions ts,tsx --circular .",
+    "lint-claude": "claudelint check-all",
+    "lint-claude-fix": "claudelint format --fix"
   },
   "repository": {
     "type": "git",

@@ -1,7 +1,7 @@
 ---
 name: refactor
 description: Refactor outdated patterns in the codebase based on user input
-argument-hint: <pattern to refactor, e.g. "Bacon.js to Zustand" or "any types to proper types">
+argument-hint: '[pattern to refactor, e.g. "Bacon.js to Zustand" or "any types to proper types"]'
 disable-model-invocation: true
 ---
 

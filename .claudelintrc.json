@@ -1,0 +1,6 @@
+{
+  "extends": "claudelint:recommended",
+  "rules": {
+    "skill-body-missing-usage-section": "off"
+  }
+}

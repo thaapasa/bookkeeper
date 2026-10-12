@@ -1,7 +1,7 @@
 ---
 name: review
 description: Review code changes from a specific angle or do a general pass. Use when the user wants a code review of their current branch or specific changes. For a thorough review covering all checks, use the @agent-review subagent instead. To review changes against a spec/source of truth (with doc-coverage and duplication checks), use /scoped-review instead.
-argument-hint: <optional: angle to review from, e.g. "security", "convention compliance", "completeness of the refactoring">
+argument-hint: '[optional: angle to review from, e.g. "security", "convention compliance", "completeness of the refactoring"]'
 ---
 
 # Code Review

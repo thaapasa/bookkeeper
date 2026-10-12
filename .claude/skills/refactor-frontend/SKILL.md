@@ -1,7 +1,7 @@
 ---
 name: refactor-frontend
 description: Refactor frontend components to follow Mantine coding conventions. Use when asked to refactor, modernize, or clean up UI code.
-argument-hint: <file, directory, or pattern to refactor>
+argument-hint: '[file, directory, or pattern to refactor]'
 ---
 
 # Frontend Refactoring: $ARGUMENTS
