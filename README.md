@@ -78,6 +78,10 @@ Useful optional switches:
 - `LOG_LEVEL` — Pino log level (`trace`/`debug`/`info`/`warn`/`error`); defaults to `info`.
 - `LOG_SQL=true` — log every SQL statement executed by pg-promise.
 - `DELAY=500` — artificially delay each request by N ms (useful for testing loading UX).
+- `TZ=Europe/Helsinki` — server time zone. The server uses it to work out the
+  current date (statistics ranges, subscription baselines), so set it to the
+  users' time zone. It is not hardcoded in the code. The server logs the zone at
+  startup and warns if it is UTC.
 
 #### Monitoring (optional)
 
@@ -184,6 +188,7 @@ services:
     environment:
       DB_URL: postgresql://user:password@db-host:5432/bookkeeper
       SESSION_TIMEOUT: 30 minutes
+      TZ: Europe/Helsinki  # Users' time zone, used for the current date
       # Optional telemetry — see Monitoring section above
       # OTEL_EXPORTER_OTLP_ENDPOINT: ...
       # GRAFANA_LOKI_HOST: ...

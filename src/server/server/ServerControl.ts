@@ -1,4 +1,5 @@
 import { Server } from 'http';
+import { DateTime } from 'luxon';
 
 import { config, redactedConfig } from 'server/Config';
 import { shutdownDb } from 'server/data/Db';
@@ -41,6 +42,22 @@ async function shutdownServer() {
   process.exit(0);
 }
 
+/**
+ * The server derives "today" from its local time zone (set with the `TZ`
+ * environment variable), so log it to make a wrong setting visible.
+ */
+function logServerTimeZone() {
+  const now = DateTime.local();
+  const timeZone = now.zoneName;
+  logger.info({ timeZone, now: now.toISO() }, 'Server time zone');
+  if (timeZone === 'UTC') {
+    logger.warn(
+      { timeZone },
+      'Server is running in UTC: dates for "today" may be off by a day. Set TZ to the users\' time zone (e.g. TZ=Europe/Helsinki)',
+    );
+  }
+}
+
 export async function startServer() {
   const app = setupServer();
   try {
@@ -49,6 +66,7 @@ export async function startServer() {
       process.on('SIGTERM', shutdownServer);
 
       logger.info(redactedConfig(), `Server configuration`);
+      logServerTimeZone();
       void slackNotifier
         .sendMessage([
           {
