@@ -43,3 +43,6 @@ prod.dump
 
 # claudelint cache
 .claudelint-cache/
+
+# macOS Finder metadata
+.DS_Store
