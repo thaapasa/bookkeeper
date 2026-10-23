@@ -1,0 +1,21 @@
+[packs]
+debian = { version = "1", args = { allow-apt = true } }
+claude = { version = "1", args = { acp = true } }
+docker = { version = "1", args = { allow-pulls = true } }
+git = { version = "1" }
+nodejs = { version = "1", args = { allow-npm = true, node-version = "lts" } }
+python = { version = "1", args = { allow-pypi = true, python-version = "latest" } }
+
+[clipboard]
+copy = true
+paste = false
+
+# node_modules and the Yarn cache live on the VM's ext4 disk, not on the
+# VirtioFS project mount. The host is macOS and the sandbox is Linux, so the
+# two must never share installed native binaries.
+# These also survive a change of OCI image.
+[disk.cache.node-modules]
+paths = ["node_modules"]
+
+[disk.cache.yarn]
+paths = ["~/.yarn/berry/cache", "~/.cache/node/corepack"]
