@@ -58,7 +58,7 @@
     "@tanstack/react-query-devtools": "^5.104.5",
     "big.js": "7.0.1",
     "dayjs": "^1.11.23",
-    "dotenv": "17.4.2",
+    "dotenv": "18.0.9",
     "express": "5.3.0",
     "knex": "3.3.0",
     "lucide-react": "^1.61.0",
