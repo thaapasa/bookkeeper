@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.6
 
 # Stage 1: install all dependencies + build client and server bundles.
-FROM oven/bun:1.3.12 AS builder
+FROM oven/bun:1.4.4 AS builder
 WORKDIR /app
 
 COPY package.json bun.lock ./
@@ -23,7 +23,7 @@ RUN bun run build-client \
  && bun run build-server
 
 # Stage 2: install production dependencies only (smaller runtime layer).
-FROM oven/bun:1.3.12 AS prod-deps
+FROM oven/bun:1.4.4 AS prod-deps
 WORKDIR /app
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile --production --ignore-scripts \
@@ -31,7 +31,7 @@ RUN bun install --frozen-lockfile --production --ignore-scripts \
 
 # Stage 3: runtime image. Runs as the pre-created `bun` user (UID 1000) so
 # bind-mounted volumes end up owned by a real non-root user on the host.
-FROM oven/bun:1.3.12-slim AS runtime
+FROM oven/bun:1.4.4-slim AS runtime
 WORKDIR /app
 RUN chown bun:bun /app
 
