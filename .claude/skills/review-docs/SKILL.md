@@ -24,7 +24,8 @@ Check each of these files:
 - `src/client/coding-conventions.md`
 - `src/server/CLAUDE.md`
 - `src/server/coding-conventions.md`
-- `docs/ARCHITECTURE.md` (if exists)
+- `ARCHITECTURE.md`
+- `HOSTING.md`
 - `docs/FRONTEND_IMPROVEMENTS.md` (if exists)
 - `docs/BACKEND_IMPROVEMENTS.md` (if exists)
 - `.claude/agents/review.md`

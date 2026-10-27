@@ -98,7 +98,7 @@ src/
 └── tools/            # Development tools and scripts
 
 config/               # Legacy SQL snippets (schema, example data, queries)
-docs/                 # Documentation (ARCHITECTURE.md, SCHEMA.sql, archived plans)
+docs/                 # Feature docs, SCHEMA.sql, archived plans
 migrations/           # Knex migration files (raw SQL in knex.raw())
 ```
 
@@ -264,6 +264,69 @@ timestamps.
 
 Utilities: `shared/time/` (conversion, parsing, formatting). See
 `docs/archive/DATE_HANDLING.md` for historical context and antipatterns.
+
+## Sum and balance calculation
+
+Each expense has a sum stored in DB table `expenses.sum`, and a corresponding
+division as rows in `expense_division`.
+
+### Expense sum invariant
+
+Expense sum is always non-negative.
+
+### Expense division invariant
+
+For each `expense_division.expense_id`, the sum `sum(expense_division.sum)` equals `0`.
+
+### Expense types
+
+There are three types of expenses: `expense`, `income`, and `transfer`.
+
+- `expense`: user has purchased something.
+  The sum `sum(expense.sum)` for `expense.type = expense` gives the total cost of the registered
+  expenses.
+  Each `expense` is divided into `cost`s and `benefit`s:
+  - `cost`: tracks who has paid for the expense
+  - `benefit`: tracks who benefits from the purchase
+- `income`: user has received income.
+  The sum `sum(expense.sum)` for `expense.type = income` gives the total income of the registered
+  expenses.
+  Each `income` is divided into `income`s and `split`s:
+  - `income`: tracks who has received the money
+  - `split`: tracks who should benefit from the money
+- `transfer`: money is transferred within the group.
+  These expenses do not contribute to total cost or income, but they do affect user balance.
+  Each `transfer` is divided into `transferor`s and `transferee`s:
+  - `transferor`: tracks who has transferred the money
+  - `transferee`: tracks who has received the money
+
+#### Invariants
+
+- For each expense with `expense.type = expense`:
+  - The sum of division rows with `expense_division.type = cost` must equal `-expense.sum`
+  - The sum of division rows with `expense_division.type = benefit` must equal `expense.sum`
+- For each expense with `expense.type = income`:
+  - The sum of division rows with `expense_division.type = income` must equal `expense.sum`
+  - The sum of division rows with `expense_division.type = split` must equal `-expense.sum`
+- For each expense with `expense.type = transfer`:
+  - The sum of division rows with `expense_division.type = transferor` must equal `-expense.sum`
+  - The sum of division rows with `expense_division.type = transferee` must equal `expense.sum`
+
+### User balance / debts
+
+For user `u` with id `u.id`, we define `user value` as the
+sum `sum(expense_division.sum)` of all division rows
+with `expense_division.user_id = u.id`.
+
+A positive `user value` means that the user has gained more benefit than losses from the
+registered expenses, and a negative value means that the user has paid for more than what
+he has benefitted.
+
+Thus, we further define `user balance` to equal `user value` negated, so that
+`user balance` means (semantically) what the user's current balance is (in regards to the
+registered entries); a positive `user balance` means that the user is owed money, and
+a negative `user balance` means that the user is behind the budget and should pay for
+shared expenses.
 
 ## Database
 

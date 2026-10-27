@@ -6,6 +6,7 @@ transfers between users with split/division tracking. Finnish-language UI.
 ## Commands
 
 ```bash
+mise install             # Install tools (mise.toml) and run bun install
 bun install              # Install dependencies
 bun server               # Start backend dev server (port 3100, auto-runs migrations)
 bun ui                   # Start frontend dev server (port 3000, proxies /api to 3100)
@@ -19,6 +20,7 @@ bun format               # Auto-fix lint/formatting issues
 bun migrate              # Run database migrations
 bun migrate-make <name>  # Create a new migration
 bun dump-schema          # Dump DB schema to docs/SCHEMA.sql
+bun lint-claude          # Check Claude Code files with claudelint
 ```
 
 ## Databases
@@ -31,6 +33,8 @@ the local DB often for safe development.
 ## Architecture
 
 Monorepo with shared types between client and server. All code is TypeScript, run with Bun.
+See `ARCHITECTURE.md` for the full architecture and `HOSTING.md` for releases and
+the production setup.
 
 - `src/client/` — React 19 frontend (Mantine 9, Zustand, TanStack Query)
 - `src/server/` — Express backend (pg-promise, Pino logging)

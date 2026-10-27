@@ -3,65 +3,91 @@
 # Set the default behavior, in case people don't have core.autocrlf set.
 * text=auto
 
+# ensure the .gitattributes file itself is normalized (must come after * text=auto)
+.gitattributes text eol=lf
+
 # Explicitly declare text files that are always converted
 
-# Code files
+# Code files - normalized to LF in repo, checked out per platform (via core.autocrlf)
 *.java text diff=java
+*.kt text diff=kotlin
+*.kts text diff=kotlin
 *.scala text
 *.sbt text
-*.kt text
 *.c text diff=cpp
 *.cpp text diff=cpp
 *.c++ text diff=cpp
 *.h text diff=cpp
 *.hpp text diff=cpp
 *.h++ text diff=cpp
-*.handlebars text
 *.cs text diff=csharp
+*.rs text diff=rust eol=lf
+*.go text diff=golang
+*.swift text
+*.m text diff=objc
+*.mm text diff=objc
+*.groovy text
+*.gradle text
+
+# Scripting languages
+*.py text diff=python
+*.php text diff=php
+*.php3 text diff=php
+*.rb text diff=ruby
+*.pl text
+*.lua text
+*.coffee text
+*.handlebars text
 *.ddl text
 *.sql text
-*.rb text diff=ruby
-*.coffee text
-*.py diff=python
-*.php diff=php
-*.php3 diff=php
 
-# Scripts
-*.sh text
-*.bat text
-*.launch text
-*.patch text
-*.GET text
-*.get text
-
-# HTML, JS, CSS
+# Web/Frontend
 *.html text diff=html
-*.less text
 *.htm text diff=html
-*.css text
-*.js text
-*.json text
+*.css text diff=css
+*.less text
+*.sass text
+*.scss text
+*.stylus text
+*.js text eol=lf
+*.mjs text eol=lf
+*.cjs text eol=lf
+*.jsx text eol=lf
+*.ts text eol=lf
+*.mts text eol=lf
+*.cts text eol=lf
+*.tsx text eol=lf
+*.vue text
 *.htc text
+*.svg text
+*.webmanifest text eol=lf
 
-# Text, properties, xml
-*.txt text
-*.log text
-*.md text
-*.markdown text
-*.readme text
-*.README text
-*.conf text
-*.properties text
-*.settings text
+# Markup & Data
 *.xml text
+*.xaml text
 *.xsd text
 *.dtd text
 *.ent text
+*.csv text
+*.json text eol=lf
+*.jsonc text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.toml text eol=lf
+
+# iCal feeds use CRLF (RFC 5545), but some servers send LF. Keep the saved
+# sample responses byte for byte as the server sent them.
+*.ics -text
+
+# Config & Build files
+*.properties text
+*.settings text
+*.conf text
+*.ini text
+*.cfg text
 *.resx text
 *.wsdd text
 *.wsdl text
-*.xaml text
-*.csv text
 *.classpath text
 *.project text
 *.info text
@@ -70,28 +96,98 @@
 *.tmpl text
 *.lst text
 *.prefs text
-.vscode/settings.json text eol=lf
+*.launch text
+Cargo.toml text eol=lf
 
-# Enforce specific EOL characters
+# Documentation
+*.txt text
+*.log text
+*.md text eol=lf diff=markdown
+*.markdown text eol=lf diff=markdown
+*.readme text
+*.README text
+*.tex text diff=tex
 
-# npm config
-package-lock.json eol=lf
-package.json eol=lf
+# Windows project files
+*.csproj text
+*.props text
+*.targets text
 
-# Denote all files that are truly binary and should not be modified.
+# Fonts (binary)
+*.ttf -text
+*.otf -text
+*.woff -text
+*.woff2 -text
+*.eot -text
 
-# Images
+# Certificates & keys (binary / don't normalize)
+*.pem -text
+*.key -text
+*.pfx -text
+*.p12 -text
+*.cer -text
+
+# Databases / blobs
+*.sqlite -text
+*.db -text
+
+# Unix scripts - keep LF only (no CRLF conversion)
+*.sh text eol=lf diff=bash
+*.bash text eol=lf diff=bash
+*.zsh text eol=lf
+*.fish text eol=lf
+Makefile text eol=lf
+Dockerfile text eol=lf
+Caddyfile text eol=lf
+*.service text eol=lf
+*.timer text eol=lf
+.editorconfig text eol=lf
+.gitignore text eol=lf
+.gitmodules text eol=lf
+.env* text eol=lf
+
+# Windows scripts - keep CRLF only (no LF conversion)
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Patches and diffs - keep LF only
+*.patch text eol=lf
+*.diff text eol=lf
+
+# npm/yarn/bun config - keep LF for consistency with npm standards
+package.json text eol=lf
+
+# Lockfiles - collapsed in GitHub diffs, excluded from language stats
+package-lock.json text eol=lf linguist-generated=true
+yarn.lock text eol=lf linguist-generated=true
+pnpm-lock.yaml text eol=lf linguist-generated=true
+bun.lock text eol=lf linguist-generated=true
+bun.lockb binary linguist-generated=true
+Cargo.lock text eol=lf linguist-generated=true
+
+# Denote all files that are truly binary and should not be modified
 *.png binary
 *.jpg binary
 *.jpeg binary
 *.gif binary
 *.ico binary
+*.bmp binary
+*.tif binary
+*.tiff binary
+*.heic binary
+*.webp binary
+*.avif binary
 *.xcf binary
 *.mp4 binary
 *.psd binary
-*.svg binary
 *.swf binary
 *.wav binary
+*.mp3 binary
+*.ogg binary
+*.flac binary
+*.mov binary
+*.avi binary
 *.mpg binary
 *.webm binary
 *.wmv binary
@@ -103,7 +199,9 @@ package.json eol=lf
 *.odt binary
 *.xls binary
 *.xlsx binary
-*.csproj binary
+*.docx binary
+*.ppt binary
+*.pptx binary
 
 # Archives
 *.7z binary
@@ -111,12 +209,29 @@ package.json eol=lf
 *.gz binary
 *.tgz binary
 *.tar binary
-*.tar.gz binary
+*.bz binary
+*.bz2 binary
+*.xz binary
+*.zst binary
+*.rar binary
+*.tbz2 binary
 *.jar binary
 *.war binary
+*.ear binary
 *.pack binary
 
 # Cache, class, etc.
 *.cache binary
 *.class binary
 *.bin binary
+*.exe binary
+*.dll binary
+*.so binary
+*.dylib binary
+*.o binary
+*.a binary
+*.wasm binary
+*.pyc binary
+*.apk binary
+*.aab binary
+*.ipa binary

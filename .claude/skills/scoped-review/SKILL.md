@@ -80,7 +80,7 @@ Load the context needed to judge against the source of truth:
   touches `src/client/`).
 - `src/server/coding-conventions.md` — backend rules (if the diff
   touches `src/server/`).
-- `docs/ARCHITECTURE.md` — design and data flow.
+- `ARCHITECTURE.md` — design and data flow.
 - Whatever docs/spec the source-of-truth decision points at.
 
 ## Step 3: Review the changes
@@ -123,7 +123,8 @@ with no matching doc update is a finding. Relevant docs, when applicable:
 - **src/client/coding-conventions.md / src/server/coding-conventions.md**
   — when the change establishes or alters a pattern other code should
   follow.
-- **docs/ARCHITECTURE.md** — design, data flow, key abstractions.
+- **ARCHITECTURE.md** — design, data flow, key abstractions.
+- **HOSTING.md** — release workflow, Docker image, production setup.
 - **docs/SCHEMA.sql** — must be regenerated (`bun dump-schema`) when a
   migration changes the schema.
 - **docs/** feature docs (e.g. `SUBSCRIPTIONS.md`) — when the documented

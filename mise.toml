@@ -1,0 +1,15 @@
+[tools]
+bun = "1.4.4"
+# claudelint (`bun lint-claude`) is an npm package that runs on Node.
+node = "24"
+"npm:claude-code-lint" = "0.10.0"
+# script/update-revision.sh uses jq. It runs in the bun install postinstall step.
+jq = "1.8"
+# psql, pg_dump and pg_restore for script/copy-prod-db.sh, `bun drop-db` and
+# `bun dump-schema`. pg_dump must be at least the server version (PostgreSQL 18).
+postgres = "18"
+# script/copy-prod-images.sh
+"conda:rsync" = "3.5"
+
+[hooks]
+postinstall = "bun install"
