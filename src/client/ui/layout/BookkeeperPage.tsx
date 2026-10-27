@@ -1,7 +1,7 @@
 import { AppShell, Box, Container, ScrollArea } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import * as React from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { BrowserRouter as Router } from 'react-router';
 
 import { Session } from 'shared/types';
 import {

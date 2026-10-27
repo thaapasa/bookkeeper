@@ -1,6 +1,6 @@
 import { Box, Burger, Container, Group, GroupProps, type MantineSize, Text } from '@mantine/core';
 import * as React from 'react';
-import { Link, useMatch } from 'react-router-dom';
+import { Link, useMatch } from 'react-router';
 
 import { classNames } from 'client/ui/utils/classNames';
 import {

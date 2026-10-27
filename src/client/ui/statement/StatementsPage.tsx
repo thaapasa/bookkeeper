@@ -2,7 +2,7 @@ import { Group, Pagination, Select, Stack, Tabs, Text } from '@mantine/core';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { DateTime } from 'luxon';
 import React from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router';
 
 import { sourceDisplayName } from 'shared/source';
 import { ParsedStatement, parseStatement } from 'shared/statement';

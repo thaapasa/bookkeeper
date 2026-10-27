@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Route, Routes, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Route, Routes, useNavigate, useParams, useSearchParams } from 'react-router';
 
 import { shortcutToExpenseInEditor } from 'shared/expense';
 import { ISODate, toISODate } from 'shared/time';

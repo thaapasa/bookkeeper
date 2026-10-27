@@ -1,6 +1,6 @@
 import { Button, Group, Loader, Stack, StackProps } from '@mantine/core';
 import React from 'react';
-import { Route, Routes, useNavigate } from 'react-router-dom';
+import { Route, Routes, useNavigate } from 'react-router';
 import { create } from 'zustand';
 
 import { Session } from 'shared/types';
