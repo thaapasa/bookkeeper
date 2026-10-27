@@ -24,10 +24,10 @@ import { ExpressInstrumentation } from '@opentelemetry/instrumentation-express';
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
 import { resourceFromAttributes } from '@opentelemetry/resources';
 import { NodeSDK } from '@opentelemetry/sdk-node';
-import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
+import { BatchSpanProcessor } from '@opentelemetry/sdk-trace';
 import {
+  ATTR_DEPLOYMENT_ENVIRONMENT_NAME,
   ATTR_SERVICE_NAME,
-  SEMRESATTRS_DEPLOYMENT_ENVIRONMENT,
 } from '@opentelemetry/semantic-conventions';
 
 // Fail fast when Grafana is slow or unreachable so the exporter cannot stall
@@ -44,13 +44,13 @@ export function initTelemetry(): void {
 
   const resource = resourceFromAttributes({
     [ATTR_SERVICE_NAME]: process.env.OTEL_SERVICE_NAME || 'bookkeeper',
-    [SEMRESATTRS_DEPLOYMENT_ENVIRONMENT]: process.env.OTEL_ENVIRONMENT || 'development',
+    [ATTR_DEPLOYMENT_ENVIRONMENT_NAME]: process.env.OTEL_ENVIRONMENT || 'development',
   });
 
-  const spanProcessor = new BatchSpanProcessor(
-    new OTLPTraceExporter({ timeoutMillis: EXPORT_TIMEOUT_MS }),
-    { exportTimeoutMillis: EXPORT_TIMEOUT_MS },
-  );
+  const spanProcessor = new BatchSpanProcessor({
+    exporter: new OTLPTraceExporter({ timeoutMillis: EXPORT_TIMEOUT_MS }),
+    exportTimeoutMillis: EXPORT_TIMEOUT_MS,
+  });
 
   sdk = new NodeSDK({
     resource,

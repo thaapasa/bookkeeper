@@ -18,6 +18,7 @@ async function bundle() {
       '@opentelemetry/instrumentation-express',
       '@opentelemetry/instrumentation-http',
       '@opentelemetry/resources',
+      '@opentelemetry/sdk-trace',
       '@opentelemetry/semantic-conventions',
     ],
   });
