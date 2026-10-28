@@ -18,6 +18,11 @@ export function setupServer() {
       maxAge: '1y',
     }),
   );
+  // The client fetches this on resume to find out about new deploys, so it must
+  // never be cached. Registered before express.static, which would cache it.
+  app.get('/version.json', nocache(), (_req, res) => {
+    res.sendFile(path.join(config.staticPath, 'version.json'));
+  });
   // Other static files (favicons, manifest, etc.) — short cache.
   // index.html is served explicitly below so it never gets cached.
   app.use(express.static(config.staticPath, { maxAge: '1h', index: false }));

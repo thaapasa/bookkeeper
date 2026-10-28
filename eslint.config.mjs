@@ -29,6 +29,7 @@ export default [
         Bun: 'readonly',
         React: 'readonly',
         NodeJS: 'readonly',
+        __BUILD_ID__: 'readonly',
       },
     },
     plugins: {

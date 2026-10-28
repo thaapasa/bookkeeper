@@ -10,6 +10,7 @@ import '@mantine/core/styles.layer.css';
 import '@mantine/dates/styles.layer.css';
 import '@mantine/notifications/styles.layer.css';
 import 'client/css/bookkeeper.css';
+import 'client/UpdateCheck';
 
 import { MantineProvider } from '@mantine/core';
 import { DatesProvider } from '@mantine/dates';
