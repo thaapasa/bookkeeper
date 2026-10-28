@@ -1,0 +1,8 @@
+version: 2
+updates:
+  # Dependencies are updated in batches by hand. Only open PRs for security fixes.
+  - package-ecosystem: "bun"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 0
