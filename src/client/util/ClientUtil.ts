@@ -4,6 +4,6 @@ export function stopEventPropagation(event: { stopPropagation?: () => void }): v
   }
 }
 
-export function reloadApp(path = '/') {
-  document.location.href = `${path}?refresh=${Math.random()}`;
+export function reloadApp() {
+  location.reload();
 }

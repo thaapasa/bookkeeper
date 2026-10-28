@@ -1,43 +1,29 @@
 import { ActionIcon, Table, Tooltip } from '@mantine/core';
+import { useQuery } from '@tanstack/react-query';
 import * as React from 'react';
 
 import { config } from 'client/Config';
 import { apiConnect } from 'client/data/ApiConnect';
-import { logger } from 'client/Logger';
+import { QueryKeys } from 'client/data/queryKeys';
 import { reloadApp } from 'client/util/ClientUtil';
-import { infoPagePath } from 'client/util/Links';
 
 import { Icons } from '../icons/Icons';
 import { InfoSection } from './InfoLayoutElements';
 
-interface VersionInfo {
-  version: string;
-  revision: string;
-  runtimeVersion: string;
-}
-
-export const VersionInfoView = () => {
-  const [serverVersion, setServerVersion] = React.useState<VersionInfo | null>(null);
-  React.useEffect(() => {
-    const loadVersion = async () => {
-      const status = await apiConnect.getApiStatus();
-      logger.info(status, `API status`);
-      setServerVersion({
-        version: status.version,
-        revision: status.revision,
-        runtimeVersion: status.runtimeVersion,
-      });
-    };
-    loadVersion();
-  }, []);
-  const doReload = React.useCallback(() => reloadApp(infoPagePath), []);
+// Plain useQuery instead of Suspense, so the client version shows even when the
+// server does not answer.
+export const VersionInfoView: React.FC = () => {
+  const { data: server, isError } = useQuery({
+    queryKey: QueryKeys.api.status,
+    queryFn: () => apiConnect.getApiStatus(),
+  });
 
   return (
     <InfoSection
       title="Versio"
       action={
         <Tooltip label="Lataa käyttöliittymä uudelleen">
-          <ActionIcon size="lg" onClick={doReload} aria-label="Päivitä">
+          <ActionIcon size="lg" onClick={reloadApp} aria-label="Päivitä">
             <Icons.Refresh />
           </ActionIcon>
         </Tooltip>
@@ -51,12 +37,13 @@ export const VersionInfoView = () => {
               {config.version} ({config.revision})
             </Table.Td>
           </Table.Tr>
-          {serverVersion ? (
+          {server || isError ? (
             <Table.Tr>
               <Table.Td>Palvelin</Table.Td>
               <Table.Td>
-                {serverVersion.version} ({serverVersion.revision}, runtime{' '}
-                {serverVersion.runtimeVersion})
+                {server
+                  ? `${server.version} (${server.revision}, runtime ${server.runtimeVersion})`
+                  : 'Ei saatavilla'}
               </Table.Td>
             </Table.Tr>
           ) : null}

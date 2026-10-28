@@ -52,6 +52,9 @@ export const QueryKeys = {
     matching: (sourceId: ObjectId, month: ISOMonth) =>
       ['statements', 'matching', { sourceId, month }] as const,
   },
+  api: {
+    status: ['api', 'status'] as const,
+  },
   db: {
     status: ['db', 'status'] as const,
   },

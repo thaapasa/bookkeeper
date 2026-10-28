@@ -56,7 +56,6 @@ const MenuDrawerView: React.FC<MenuDrawerViewProps> = ({
     onRequestChange(false);
   };
   const onClose = () => onRequestChange(false);
-  const onReload = () => reloadApp();
   return (
     <Drawer
       opened={open}
@@ -103,7 +102,7 @@ const MenuDrawerView: React.FC<MenuDrawerViewProps> = ({
         <NavLink
           label="Päivitä"
           leftSection={<RenderIcon icon="Refresh" fontSize="small" color="action" />}
-          onClick={onReload}
+          onClick={reloadApp}
         />
       </Box>
 
